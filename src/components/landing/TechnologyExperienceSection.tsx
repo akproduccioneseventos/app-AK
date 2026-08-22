@@ -72,62 +72,80 @@ export default function TechnologyExperienceSection({
               desde el celular con una experiencia simple y privada.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/simulador-de-presupuesto"
-                className="inline-flex h-12 items-center justify-center rounded-md bg-red-700 px-6 text-sm font-bold text-white transition-colors hover:bg-red-800"
-              >
-                Armar presupuesto
-              </Link>
-              <a
-                href={waHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Consultar por WhatsApp sobre tecnología AK (abre en nueva ventana)"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-6 text-sm font-bold text-slate-800 transition-colors hover:border-slate-400 hover:bg-slate-50"
-              >
-                <MessageSquare className="h-4 w-4 text-emerald-400" aria-hidden="true" />
-                Consultar
-              </a>
+            <div className="mt-8 flex flex-col gap-3.5 sm:flex-row">
+              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.025, y: -2 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
+                <Link
+                  href="/simulador-de-presupuesto"
+                  className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-red-700 px-7 text-sm font-black text-white shadow-md shadow-red-950/20 transition-colors hover:bg-red-800"
+                >
+                  Armar presupuesto
+                </Link>
+              </motion.div>
+              <motion.div whileHover={reduceMotion ? undefined : { scale: 1.025, y: -2 }} whileTap={reduceMotion ? undefined : { scale: 0.98 }}>
+                <a
+                  href={waHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Consultar por WhatsApp sobre tecnología AK (abre en nueva ventana)"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 text-sm font-bold text-slate-800 transition-colors hover:border-slate-400 hover:bg-slate-50"
+                >
+                  <MessageSquare className="h-4 w-4 text-emerald-600" aria-hidden="true" />
+                  Consultar
+                </a>
+              </motion.div>
             </div>
           </motion.div>
 
           <motion.figure
             {...reveal}
-            className="relative min-h-[360px] overflow-hidden rounded-2xl bg-zinc-900 sm:min-h-[470px]"
+            whileHover={reduceMotion ? undefined : { scale: 1.015 }}
+            transition={{ duration: 0.4 }}
+            className="relative min-h-[360px] overflow-hidden rounded-3xl bg-zinc-900 shadow-xl sm:min-h-[470px]"
           >
             <Image
               src="/media/catalogo-servicios/tecnologia_fiesta.png"
               alt="Tecnología interactiva durante una fiesta de AK Producciones"
               fill
               sizes="(min-width: 1024px) 55vw, 100vw"
-              className="object-cover"
+              className="object-cover transition-transform duration-700 hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <figcaption className="absolute inset-x-0 bottom-0 p-6 text-sm font-bold text-white sm:p-8 sm:text-base">
-              Invitación QR, participación en vivo y portal del evento
-              conectados.
+              Invitación QR, participación en vivo y portal del evento conectados.
             </figcaption>
           </motion.figure>
         </div>
 
         <motion.div
-          {...reveal}
-          className="mt-14 grid border-y border-slate-200 sm:grid-cols-3"
+          initial={reduceMotion ? false : "hidden"}
+          whileInView={reduceMotion ? undefined : "visible"}
+          viewport={{ once: true, margin: "-40px" }}
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.12 } },
+          }}
+          className="mt-14 grid gap-4 sm:grid-cols-3"
         >
-          {TECH_FEATURES.map((feature, index) => {
+          {TECH_FEATURES.map((feature) => {
             const Icon = feature.icon;
             return (
-              <article
+              <motion.article
                 key={feature.title}
-                className={`py-7 sm:px-7 ${index > 0 ? "border-t border-slate-200 sm:border-l sm:border-t-0" : ""}`}
+                variants={reduceMotion ? undefined : {
+                  hidden: { opacity: 0, y: 18 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.45 } },
+                }}
+                whileHover={reduceMotion ? undefined : { y: -4, transition: { duration: 0.2 } }}
+                className="group rounded-2xl border border-slate-200/80 bg-slate-50/60 p-7 transition-all hover:border-red-300 hover:bg-white hover:shadow-lg"
               >
-                <Icon className="h-6 w-6 text-red-400" aria-hidden="true" />
-                <h3 className="mt-4 text-lg font-black">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100/80 text-red-700 transition-colors group-hover:bg-red-700 group-hover:text-white">
+                  <Icon className="h-6 w-6 transition-transform group-hover:scale-110" aria-hidden="true" />
+                </div>
+                <h3 className="mt-4 text-xl font-black text-slate-950">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">
                   {feature.description}
                 </p>
-              </article>
+              </motion.article>
             );
           })}
         </motion.div>

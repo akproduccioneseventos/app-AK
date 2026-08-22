@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, MessageCircle, ShieldCheck } from "lucide-react";
+import { ArrowDown, ArrowRight, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { canUseNextImage } from "@/lib/next-image-url";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
@@ -36,7 +36,7 @@ export function HeroSection({
   promoActiva,
   whatsappMessage = "Hola AK Producciones, quisiera cotizar mi evento.",
   ctaLabel = "Hablar con AK",
-  simulatorHref = "/simulador",
+  simulatorHref = "/simulador-de-presupuesto",
   simulatorLabel = "Cotizar mi fiesta",
   backgroundImageAlt = "Fiesta de quince años producida por AK Producciones",
 }: HeroSectionProps) {
@@ -51,20 +51,22 @@ export function HeroSection({
   const reveal = reduceMotion
     ? {}
     : {
-        initial: { opacity: 0, y: 18 },
+        initial: { opacity: 0, y: 22 },
         animate: { opacity: 1, y: 0 },
-        transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
       };
 
   return (
     <section
       data-testid="hero-section"
-      className="relative flex min-h-[82svh] items-end overflow-hidden bg-stone-950 text-white sm:min-h-[90svh]"
+      id="landing-hero"
+      className="relative flex min-h-[85svh] items-end overflow-hidden bg-stone-950 text-white sm:min-h-[92svh]"
     >
+      {/* Fondo con imagen y zoom suave continuo */}
       <motion.div
         className="absolute inset-0"
-        animate={reduceMotion ? undefined : { scale: [1, 1.035, 1] }}
-        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        animate={reduceMotion ? undefined : { scale: [1, 1.045, 1] }}
+        transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
       >
         {canUseNextImage(backgroundImageUrl) ? (
           <Image
@@ -84,48 +86,78 @@ export function HeroSection({
           />
         )}
       </motion.div>
-      <div className="absolute inset-0 bg-black/55" />
+
+      {/* Degradado oscuro envolvente para contraste perfecto */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/35" />
+
+      {/* Luces y resplandores ambientales de fiesta sutiles */}
+      {!reduceMotion && (
+        <>
+          <motion.div
+            className="pointer-events-none absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-red-600/15 blur-[120px]"
+            animate={{ scale: [1, 1.25, 1], opacity: [0.35, 0.6, 0.35] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="pointer-events-none absolute bottom-1/3 right-10 h-80 w-80 rounded-full bg-amber-500/15 blur-[110px]"
+            animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.55, 0.3] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </>
+      )}
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pb-20 lg:px-8">
         <div className="max-w-3xl">
           {promoActiva && (
-            <a
-              href={promoHref}
-              target={promoHref.startsWith("http") ? "_blank" : undefined}
-              rel={promoHref.startsWith("http") ? "noopener noreferrer" : undefined}
-              className="mb-5 inline-flex items-center gap-2 border border-white/35 bg-black/30 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-black/50"
+            <motion.div
+              {...reveal}
+              transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.05 }}
             >
-              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-              {promoActiva.titulo}
-            </a>
+              <a
+                href={promoHref}
+                target={promoHref.startsWith("http") ? "_blank" : undefined}
+                rel={promoHref.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-black/40 px-4 py-1.5 text-xs font-bold text-amber-200 backdrop-blur-md transition-all hover:bg-black/60 hover:border-amber-400/60"
+              >
+                <ShieldCheck className="h-4 w-4 text-amber-400" aria-hidden="true" />
+                {promoActiva.titulo}
+              </a>
+            </motion.div>
           )}
 
-          <motion.p {...reveal} className="text-sm font-semibold text-stone-200">
+          <motion.p
+            {...reveal}
+            transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.08 }}
+            className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-red-400"
+          >
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
             AK Producciones Eventos · Salto, Uruguay
           </motion.p>
+
           <motion.h1
             {...reveal}
-            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-4 font-headline text-4xl font-black leading-[1.05] text-white sm:text-6xl lg:text-7xl"
+            transition={reduceMotion ? undefined : { duration: 0.65, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-4 font-headline text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-sm"
           >
             {headline}
           </motion.h1>
+
           <motion.p
             {...reveal}
-            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-100 sm:text-xl"
+            transition={reduceMotion ? undefined : { duration: 0.65, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-200 sm:text-xl font-medium"
           >
             {subheadline}
           </motion.p>
 
           <motion.div
             {...reveal}
-            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm text-stone-100"
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm text-stone-200"
           >
             {details.map((detail) => (
-              <span key={detail} className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 bg-red-500" aria-hidden="true" />
+              <span key={detail} className="flex items-center gap-2 font-medium">
+                <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" aria-hidden="true" />
                 {detail}
               </span>
             ))}
@@ -133,61 +165,70 @@ export function HeroSection({
 
           <motion.div
             {...reveal}
-            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-9 flex flex-col gap-3 sm:flex-row"
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.34, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-9 flex flex-col gap-3.5 sm:flex-row"
           >
-            <Link
-              href={simulatorHref}
-              className="inline-flex min-h-12 items-center justify-center gap-2 bg-red-700 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-red-800"
+            <motion.div
+              whileHover={reduceMotion ? undefined : { scale: 1.025, y: -2 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+              className="inline-flex"
             >
-              {simulatorLabel}
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid="hero-cta-button"
-              className="inline-flex min-h-12 items-center justify-center gap-2 border border-white/45 bg-black/25 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-black/45"
+              <Link
+                href={simulatorHref}
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-red-700 px-7 py-3.5 text-sm font-black text-white shadow-lg shadow-red-950/40 transition-all hover:bg-red-800"
+              >
+                {simulatorLabel}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </Link>
+            </motion.div>
+
+            <motion.div
+              whileHover={reduceMotion ? undefined : { scale: 1.025, y: -2 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+              className="inline-flex"
             >
-              <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              {ctaLabel}
-            </a>
+              <a
+                href={waHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="hero-cta-button"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-black/35 px-6 py-3.5 text-sm font-black text-white backdrop-blur-md transition-all hover:border-white/50 hover:bg-black/55"
+              >
+                <MessageCircle className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+                {ctaLabel}
+              </a>
+            </motion.div>
           </motion.div>
 
-          {/* Respaldo debajo del boton principal: es el lugar donde el visitante
-              decide si sigue leyendo, y las plataformas con las que competimos
-              muestran numeros ahi. AK tiene con que llenarlo. */}
+          {/* Respaldo debajo del boton principal */}
           <motion.dl
             {...reveal}
-            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-8 grid max-w-lg grid-cols-3 gap-4 border-t border-white/25 pt-6"
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-white/20 pt-6"
           >
-            {/* Sin numeros inventados: los tres datos se leen de lo que la
-                empresa ya ofrece. Si algun dia se quieren poner cantidades
-                reales de fiestas o años, tienen que salir de la ficha de la
-                empresa, no escritos a mano aca. */}
             {[
               { valor: 'Salto', detalle: 'y toda la zona' },
               { valor: 'Un equipo', detalle: 'para toda la fiesta' },
               { valor: 'Sin costo', detalle: 'presupuesto al toque' },
-            ].map(dato => (
+            ].map((dato) => (
               <div key={dato.detalle}>
                 <dt className="text-2xl font-black leading-none text-white sm:text-3xl">{dato.valor}</dt>
-                <dd className="mt-1 text-xs leading-snug text-stone-200 sm:text-sm">{dato.detalle}</dd>
+                <dd className="mt-1 text-xs leading-snug text-stone-300 sm:text-sm font-medium">{dato.detalle}</dd>
               </div>
             ))}
           </motion.dl>
         </div>
       </div>
 
-      <a
+      <motion.a
         href="#landing-services"
-        className="absolute bottom-5 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-2 text-xs font-semibold text-stone-200 transition-colors hover:text-white"
+        className="absolute bottom-5 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-2 text-xs font-bold text-stone-300 transition-colors hover:text-white"
+        animate={reduceMotion ? undefined : { y: [0, 4, 0] }}
+        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
       >
         Conocé las propuestas
-        <ArrowDown className="h-4 w-4" aria-hidden="true" />
-      </a>
+        <ArrowDown className="h-4 w-4 text-red-400" aria-hidden="true" />
+      </motion.a>
     </section>
   );
 }
