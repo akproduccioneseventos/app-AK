@@ -1,21 +1,19 @@
 import 'server-only';
 
 import { readData, writeData } from '@/lib/data-service';
+import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
+import {
+  intentarAdquirirLock,
+  liberarLock,
+  type OrigenDisparo,
+} from '@/lib/automatico/control-concurrencia';
 
 /**
- * Las tareas que se ponen al dia cuando alguien del equipo entra a la app.
+ * Las tareas que se ponen al dia desatendidas (despertador, visitas publicas o ingreso a la app).
  *
  * **Por que existe.** Las tareas automaticas necesitan que algo de afuera las
- * llame a cierta hora. Mientras ese despertador de afuera no este prendido, no
- * corren nunca: el dueno vio meses sin numeros de redes guardados y sin posteos
- * programados saliendo.
- *
- * El blog ya se ponia al dia asi desde hace tiempo, y funciona. Esto extiende el
- * mismo camino a las otras dos que se pueden repetir sin hacer dano.
- *
- * **No reemplaza al despertador de afuera, y no pretende hacerlo.** Si nadie abre
- * la app en tres dias, estas tareas no corren en tres dias. Pero es la diferencia
- * entre "cada vez que el equipo trabaja" y "nunca".
+ * llame a cierta hora. Con el despertador en Google Cloud Functions y la red de seguridad
+ * en las visitas de la web publica, la app corre sola sin depender de que nadie entre.
  *
  * ## Lo que NO entra aca, y es a proposito
  *
@@ -25,31 +23,34 @@ import { readData, writeData } from '@/lib/data-service';
  * usa su WhatsApp personal: **ningun bot contesta ni escribe solo**, y eso no
  * cambia.
  *
- * La linea es esa: **preparar si, mandar no.** Si alguna vez una de estas tareas
- * manda sola, sale de aca el mismo dia.
- *
  * ## Por que es seguro repetirlas
- *
- * Las dos tienen su propio freno adentro:
  *
  * - El guardado de metricas **no guarda dos veces el mismo dia**.
  * - Los posteos programados sacan **solo los que ya vencieron**, con tope de tres
  *   por corrida.
- *
- * Ademas, aca arriba hay un control de "¿me toca?" para no repetir el intento
- * cada vez que alguien abre una pantalla.
+ * - Las notas del blog respetan el intervalo de cadencia (1 nota cada 2 dias).
+ * - **El candado de concurrencia se toma ANTES de trabajar**: si dos llamadas llegan
+ *   a la vez, la segunda se retira inmediatamente sin duplicar trabajo ni gasto.
  */
 
 const ESTADO_FILE = 'tareas-al-entrar-estado.json';
 
 /** Cada cuanto se vuelve a intentar cada tarea, en milisegundos. */
 const CADA_CUANTO = {
-  metricas: 12 * 60 * 60 * 1000,
+  metricas: 24 * 60 * 60 * 1000,
   posteos: 15 * 60 * 1000,
-  recordatorios: 12 * 60 * 60 * 1000,
+  blog: 48 * 60 * 60 * 1000,
+  recordatorios: 24 * 60 * 60 * 1000,
 } as const;
 
-type NombreDeTarea = keyof typeof CADA_CUANTO;
+export type NombreDeTarea = keyof typeof CADA_CUANTO;
+
+const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
+  metricas: 'metricas-de-redes',
+  posteos: 'publicar-programados',
+  blog: 'generate-blog-post',
+  recordatorios: 'recordatorios-de-pago',
+};
 
 interface EstadoDeTareas {
   ultimaCorrida?: Partial<Record<NombreDeTarea, string>>;
@@ -59,6 +60,7 @@ export interface ResultadoAlEntrar {
   corrio: NombreDeTarea[];
   omitidas: NombreDeTarea[];
   fallaron: Array<{ tarea: NombreDeTarea; error: string }>;
+  omitidoPorConcurrencia?: boolean;
 }
 
 function leTocaCorrer(ultima: string | undefined, cadaCuantoMs: number, ahoraMs: number): boolean {
@@ -69,73 +71,108 @@ function leTocaCorrer(ultima: string | undefined, cadaCuantoMs: number, ahoraMs:
 }
 
 /**
- * Pone al dia lo que este vencido. Se llama cuando un administrador abre la app.
+ * Pone al dia lo que este vencido.
+ * Protegido con candado atómico para que múltiples visitas o llamadas concurrentes
+ * ejecuten una sola vez.
  *
  * **Nunca tira un error hacia afuera**: si una tarea falla, se anota y se sigue
  * con la otra. Que falle poner al dia una metrica no puede romperle la pantalla a
  * nadie.
  */
-export async function ponerAlDiaAlEntrar(ahora: Date = new Date()): Promise<ResultadoAlEntrar> {
-  const ahoraMs = ahora.getTime();
-  const estado = await readData<EstadoDeTareas>(ESTADO_FILE, {});
-  const ultimaCorrida = { ...(estado.ultimaCorrida || {}) };
-
-  const resultado: ResultadoAlEntrar = { corrio: [], omitidas: [], fallaron: [] };
-
-  const tareas: Array<{ nombre: NombreDeTarea; correr: () => Promise<unknown> }> = [
-    {
-      nombre: 'metricas',
-      correr: async () => {
-        const { guardarMetricasDelDia } = await import('@/lib/presencia-digital/guardado-diario');
-        return guardarMetricasDelDia();
-      },
-    },
-    {
-      nombre: 'posteos',
-      correr: async () => {
-        const { procesarPosteosProgramados } = await import('@/lib/presencia-digital/publicador');
-        return procesarPosteosProgramados();
-      },
-    },
-    {
-      nombre: 'recordatorios',
-      correr: async () => {
-        // Deja los avisos de cuota vencida en la bandeja de salida. No manda nada.
-        const { ejecutarEscaneoDeRecordatorios } = await import('@/app/actions/invoices');
-        return ejecutarEscaneoDeRecordatorios();
-      },
-    },
-  ];
-
-  for (const tarea of tareas) {
-    if (!leTocaCorrer(ultimaCorrida[tarea.nombre], CADA_CUANTO[tarea.nombre], ahoraMs)) {
-      resultado.omitidas.push(tarea.nombre);
-      continue;
-    }
-
-    try {
-      await tarea.correr();
-      ultimaCorrida[tarea.nombre] = ahora.toISOString();
-      resultado.corrio.push(tarea.nombre);
-    } catch (error: any) {
-      // Se anota el intento igual: si algo esta roto, que no lo reintente en cada
-      // clic del equipo.
-      ultimaCorrida[tarea.nombre] = ahora.toISOString();
-      resultado.fallaron.push({
-        tarea: tarea.nombre,
-        error: error?.message || 'No se pudo completar la tarea.',
-      });
-    }
+export async function ponerAlDiaAlEntrar(
+  ahora: Date = new Date(),
+  origen: OrigenDisparo = 'app',
+): Promise<ResultadoAlEntrar> {
+  const lockAdquirido = await intentarAdquirirLock(origen);
+  if (!lockAdquirido) {
+    return {
+      corrio: [],
+      omitidas: [],
+      fallaron: [],
+      omitidoPorConcurrencia: true,
+    };
   }
 
-  if (resultado.corrio.length > 0 || resultado.fallaron.length > 0) {
-    await writeData(
-      ESTADO_FILE,
-      { ultimaCorrida },
-      undefined,
-      { skipAutoBackup: true },
-    );
-  }
+  try {
+    const ahoraMs = ahora.getTime();
+    const estado = await readData<EstadoDeTareas>(ESTADO_FILE, {});
+    const ultimaCorrida = { ...(estado.ultimaCorrida || {}) };
 
-  return resultado;
+    const resultado: ResultadoAlEntrar = { corrio: [], omitidas: [], fallaron: [] };
+
+    const tareas: Array<{
+      nombre: NombreDeTarea;
+      correr: () => Promise<unknown>;
+    }> = [
+      {
+        nombre: 'metricas',
+        correr: async () => {
+          const { guardarMetricasDelDia } = await import('@/lib/presencia-digital/guardado-diario');
+          const { syncCommentsFromNetworks } = await import('@/lib/social-media/comments-backfill');
+          return Promise.all([
+            guardarMetricasDelDia().catch(() => null),
+            syncCommentsFromNetworks().catch(() => null),
+          ]);
+        },
+      },
+      {
+        nombre: 'posteos',
+        correr: async () => {
+          const { procesarPosteosProgramados } = await import('@/lib/presencia-digital/publicador');
+          return procesarPosteosProgramados();
+        },
+      },
+      {
+        nombre: 'blog',
+        correr: async () => {
+          const { runMarketingAutomation } = await import('@/lib/marketing-automation');
+          return runMarketingAutomation({ includeRecontacto: false });
+        },
+      },
+      {
+        nombre: 'recordatorios',
+        correr: async () => {
+          // Deja los avisos de cuota vencida en la bandeja de salida. No manda nada.
+          const { ejecutarEscaneoDeRecordatorios } = await import('@/app/actions/invoices');
+          return ejecutarEscaneoDeRecordatorios();
+        },
+      },
+    ];
+
+    for (const tarea of tareas) {
+      if (!leTocaCorrer(ultimaCorrida[tarea.nombre], CADA_CUANTO[tarea.nombre], ahoraMs)) {
+        resultado.omitidas.push(tarea.nombre);
+        continue;
+      }
+
+      try {
+        await tarea.correr();
+        ultimaCorrida[tarea.nombre] = ahora.toISOString();
+        resultado.corrio.push(tarea.nombre);
+        await marcarCorrida(MAPA_CRON_IDS[tarea.nombre], ahora, origen);
+      } catch (error: any) {
+        // Se anota el intento igual: si algo esta roto, que no lo reintente en cada
+        // peticion continua.
+        ultimaCorrida[tarea.nombre] = ahora.toISOString();
+        resultado.fallaron.push({
+          tarea: tarea.nombre,
+          error: error?.message || 'No se pudo completar la tarea.',
+        });
+      }
+    }
+
+    if (resultado.corrio.length > 0 || resultado.fallaron.length > 0) {
+      await writeData(
+        ESTADO_FILE,
+        { ultimaCorrida },
+        undefined,
+        { skipAutoBackup: true },
+      );
+    }
+
+    return resultado;
+  } finally {
+    await liberarLock();
+  }
 }
+

@@ -1,55 +1,38 @@
-# Cómo prender las tareas para que corran solas
+# Tareas automáticas en AK Producciones (100% Autónomas)
 
-Para que las 4 cosas automáticas de la aplicación funcionen las 24 horas del día (incluso cuando nadie tiene la computadora ni el celular prendido), hay que configurar 4 renglones en un servicio gratuito de internet que funciona como despertador.
-
-Se hace **una sola vez en 5 minutos**.
+**No tenés que configurar nada a mano.** La aplicación corre sus tareas desatendidas sola, las 24 horas del día, sin importar si nadie tiene la computadora o el celular prendido.
 
 ---
 
-## Paso 1: Abrir la página gratuita del despertador
+## Cómo funciona por dentro
 
-1. Entrá a [cron-job.org](https://cron-job.org) y create una cuenta gratis con tu correo.
-2. Hacé clic en el botón azul **"CREATE CRONJOB"** (Crear tarea).
+El proyecto cuenta con dos motores automáticos coordinados:
 
----
+1. **El Despertador de Fondo (Google Cloud / Firebase Functions):**
+   - Una tarea programada única en el proyecto (`functions/src/index.ts`) se ejecuta **cada 15 minutos** de forma 100% autónoma en los servidores de Google.
+   - Pregunta qué tareas están vencidas (`/api/cron-despachador`) y ejecuta lo que corresponde sin costo mensual adicional.
 
-## Paso 2: Copiar y pegar los 4 renglones
+2. **Red de Seguridad en Visitas Públicas:**
+   - Cada vez que un visitante o prospecto entra a la portada (`akproducciones.uy`), se lanza una puesta al día en segundo plano sin hacerlo esperar.
+   - Si el despertador de fondo tuviera cualquier interrupción de red, las visitas aseguran que las tareas no se atrasen.
 
-Creá una tarea por cada uno de estos 4 renglones:
-
-### 1. Las notas del blog (3 veces por semana: Lunes, Miércoles y Viernes)
-- **Título / Name:** `AK - Escribir notas del blog`
-- **Dirección / URL:** `https://akproducciones.uy/api/cron/generate-blog-post`
-- **Cada cuánto / Schedule:** `Lunes, Miércoles y Viernes a las 10:00 hs` (Crontab: `0 10 * * 1,3,5`).
-- **Encabezado / Header (opcional si usás clave):** `Authorization: Bearer TU_CRON_SECRET`
-
----
-
-### 2. Guardar los números de las redes (1 vez por día, de noche)
-- **Título / Name:** `AK - Guardar números de redes`
-- **Dirección / URL:** `https://TU-DOMINIO.com/api/cron/metricas-de-redes`
-- **Cada cuánto / Schedule:** Elegir `Every 1 day` (todos los días a las 23:30 hs).
-- **Encabezado / Header (opcional si usás clave):** `Authorization: Bearer TU_CRON_SECRET`
+3. **Candado de Concurrencia Seguro (Protección Anti-Duplicación):**
+   - Cuando una tarea arranca, toma un **candado atómico antes de trabajar**.
+   - Si diez personas entran en el mismo minuto o coincide con el despertador, una sola ejecuta y las otras se retiran inmediatamente.
+   - Nunca se generan notas de blog repetidas ni se gasta de más en inteligencia artificial.
 
 ---
 
-### 3. Publicar los posteos programados (Cada 15 minutos)
-- **Título / Name:** `AK - Publicar posteos programados`
-- **Dirección / URL:** `https://TU-DOMINIO.com/api/cron/publicar-programados`
-- **Cada cuánto / Schedule:** Elegir `Every 15 minutes` (cada 15 minutos).
-- **Encabezado / Header (opcional si usás clave):** `Authorization: Bearer TU_CRON_SECRET`
+## Las 4 tareas que corren solas
+
+1. **Escribir notas del blog (`/api/cron/generate-blog-post`):** Publica notas optimizadas para Google cada 2 días.
+2. **Guardar números de redes sociales (`/api/cron/metricas-de-redes`):** Guarda seguidores y alcance diariamente a la medianoche.
+3. **Publicar posteos programados (`/api/cron/publicar-programados`):** Revisa cada 15 minutos si hay posteos agendados listos para salir.
+4. **Avisar cuotas por vencer (`/api/cron/recordatorios-de-pago`):** Prepara diariamente la lista de avisos pendientes en la bandeja de salida (ningún bot escribe ni manda mensajes solo).
 
 ---
 
-### 4. Avisar de las cuotas por vencer (1 vez por día, de mañana)
-- **Título / Name:** `AK - Recordatorios de cuota`
-- **Dirección / URL:** `https://TU-DOMINIO.com/api/cron/recordatorios-de-pago`
-- **Cada cuánto / Schedule:** Elegir `Every 1 day` (todos los días a las 09:00 hs de la mañana).
-- **Encabezado / Header (opcional si usás clave):** `Authorization: Bearer TU_CRON_SECRET`
+## ¿Cómo comprobar que está funcionando?
 
----
-
-## Paso 3: ¿Cómo saber si está funcionando?
-
-Entrás a la aplicación al menú **Configuración → Tareas Automáticas** (`/settings/tareas-automaticas`).
-Vas a ver los 4 renglones con tilde verde que dicen **"Al día"** y la hora exacta en la que corrieron por última vez.
+Entrá a **Configuración → Tareas Automáticas** (`/settings/tareas-automaticas`).
+Ahí vas a ver cada tarea con su estado (**Al día**), la fecha/hora exacta en la que corrió por última vez y quién la disparó (*Despertador de fondo* o *Visita a la web*).

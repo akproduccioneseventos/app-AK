@@ -19,11 +19,13 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
-- **Galería con historial completo de Instagram y panel de redes sociales (22 de agosto de 2026):**
+- **Automatización 100% autónoma, galería completa y maquetación de control (22 de agosto de 2026):**
+  - **Bloque 0 — Tareas que corren solas sin depender de que nadie entre (`functions/src/index.ts`, `src/lib/automatico/control-concurrencia.ts`, `src/lib/automatico/al-entrar-a-la-app.ts`, `src/app/api/cron-despachador/route.ts`, `src/app/page.tsx`, `docs/PRENDER-LAS-TAREAS.md`, `src/__tests__/concurrencia-tareas-automaticas.test.ts`):** Se implementó un despertador programado cada 15 minutos en Google Cloud Functions (`despertadorTareasAutomaticas`) que llama al despachador unificado. Como red de seguridad, las visitas a la portada pública también lanzan la puesta al día de forma no bloqueante (`void`). Un candado sincrónico en memoria y persistente (`intentarAdquirirLock`) garantiza que múltiples visitas o llamadas simultáneas ejecuten una sola vez, evitando dobles corridas o consumo excesivo de IA. En `/settings/tareas-automaticas` se visualiza el origen exacto del disparo y las tareas atrasadas se destacan en rojo. Se actualizó la documentación para eliminar instrucciones de configuración manual obsoletas.
   - **Bloque 1 — Galería conectada al historial guardado (`src/lib/instagram/public-feed.ts`, `src/lib/social-media/meta-history-backfill.ts`, `src/app/api/cron/metricas-de-redes/route.ts`):** `getPublicInstagramFeed()` lee primero del archivo local guardado (`social-posts.json`), ordenado de la más nueva a la más vieja, deduplicado y mapeado a `PublicInstagramFeedPost`. Los visitantes nunca esperan a Meta en la carga de la web. Si el archivo estuviese vacío (cuenta recién vinculada), consulta a Meta como respaldo inmediato. La fecha de arranque histórica (`DEFAULT_EARLIEST_DATE = '2019-09-01T00:00:00.000Z'`) quedó centralizada y documentada.
   - **Bloque 2 — Carga por tandas en la galería (`src/components/landing/GallerySection.tsx`):** Se reemplazó el volcado masivo de fotos por un cargador en tandas de 12 fotos (`visibleCount` con pasos de 12 y botón "Ver más fotos y videos"), que se reinicia al cambiar de filtro de categoría. Las imágenes y reels cargan de forma progresiva sin saturar el navegador ni la experiencia móvil.
   - **Bloque 3 — Estado transparente en Ajustes de Sincronización (`src/app/(app)/settings/sincronizaciones/page.tsx`, `src/app/actions/conexiones-estado.actions.ts`):** La tarjeta de Instagram muestra cuántas publicaciones hay guardadas, la fecha de la más antigua, cuándo fue la última sincronización, si el historial está completo o en curso, y agrega el botón para "Sincronizar historial" directamente con feedback en criollo.
   - **Bloque 4 — Panel de historial en Redes Sociales y sincronización manual (`src/components/social-media/SocialHistoryPanel.tsx`, `src/app/(app)/empresa/redes-sociales/page.tsx`, `src/app/actions/social-history.ts`):** Se agregó en `/empresa/redes-sociales` el componente `SocialHistoryPanel` que desglosa por plataforma (Instagram, YouTube, Facebook) el total de publicaciones guardadas, rango de fechas (más vieja y más nueva), última búsqueda y estado. Incluye el botón protegido "Actualizar ahora" (`sincronizarHistorialRedesAction`) que dispara la sincronización completa de Meta y YouTube reportando publicaciones leídas y nuevas guardadas.
+  - **Bloque 5 — Huella de maquetación y estabilidad de pruebas E2E (`tests/e2e/layout-baseline.spec.ts`):** Se corrigió la persistencia de referencias faltantes cuando `UPDATE_MISSING_LAYOUT_BASELINE=true` se activa para perfiles individuales, y se robusteció la espera de elementos de layout (`h1, main, header`) en `/admin` asegurando que no reporte falsos positivos de carga.
 
 - **Auditoría de metadatos SEO reales y sin jerga técnica (22 de agosto de 2026):**
   - **Auditoría de títulos y descripciones contra fuentes reales (`src/lib/seo/auditoria-metadatos.ts`, `src/app/actions/seo-posicionamiento.ts`, `src/__tests__/posicionamiento-seo-auditoria.test.ts`):** Se eliminó la lista copiada a mano (`METADATA_PAGINAS_VENTA`). La función `getMetadataRealDeRuta` lee títulos y descripciones directamente de las definiciones de cada página y layout (`src/app/bodas/page.tsx`, `src/app/quinceaneras/page.tsx`, `src/app/cumpleanos/page.tsx`, `src/app/club-uruguay/page.tsx`, `src/app/catalogo/layout.tsx`, `src/app/experiencia-ak/page.tsx`, `src/app/simulador-de-presupuesto/layout.tsx`, `src/app/public/blog/page.tsx`, `src/data/blog-posts.ts`, `src/data/event-catalogs`, `src/lib/marketing/promo-pages.ts`, `src/lib/marketing/campaign-landings.ts`). Si una página pierde el título o la descripción, la auditoría lo detecta y lo marca automáticamente tanto en pantalla como en pruebas unitarias.
@@ -4036,3 +4038,14 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   es la palabra que busca.
   **Se dejo como quedo:** el enlace a los servicios, que antes era una flechita
   chica al pie de la portada, ahora es un boton grande. Se ve y se toca mejor.
+
+- **El despertador llamaba a una puerta que no existe (22 de agosto de 2026).**
+  Se entregó llamando a `/api/cron/despachador` cuando la puerta vive en
+  `/api/cron-despachador`: una barra donde iba un guión. Cada 15 minutos iba a
+  golpear una puerta que no está, el error quedaba en un registro que nadie mira,
+  y la app seguía tan dormida como antes **sin que nada lo avisara**.
+  **Los cuatro controles pasaron igual**: compilaba, tipos en cero y 2095 pruebas
+  en verde. **Compilar no es andar.**
+  Quedó `src/__tests__/despertador-golpea-una-puerta-real.test.ts`, que verifica
+  que cada dirección que llama el despertador corresponda a una ruta real, y que
+  siga programado. Comprobado que se pone en rojo con la dirección mala.

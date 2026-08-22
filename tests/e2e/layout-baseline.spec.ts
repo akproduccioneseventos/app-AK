@@ -153,7 +153,7 @@ test.describe('huella de maquetación', () => {
       // Las pantallas del panel traen datos del servidor antes de dibujar el
       // titulo. Con el servidor despertandose, 2,5 segundos no alcanzaban y la
       // prueba avisaba "la ruta no existe o no carga" con la pantalla sana.
-      await page.locator('h1').first().waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
+      await page.locator('h1, main, header').first().waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
       await page.waitForTimeout(2500);
       const huella = await medirHuella(page);
       actual[clave(ruta)] = huella;
@@ -185,6 +185,16 @@ test.describe('huella de maquetación', () => {
           desvios.push(`${ruta} · ${medida}: era ${antes}, ahora ${valor}`);
         }
       }
+    }
+
+    // Si se activo la actualizacion de referencias faltantes, se persisten en disco
+    if (Object.keys(referenciasFaltantes).length > 0 && ACTUALIZAR_REFERENCIAS_FALTANTES) {
+      const nuevaReferencia = { ...referencia, ...referenciasFaltantes };
+      fs.writeFileSync(REFERENCIA, `${JSON.stringify(nuevaReferencia, null, 2)}\n`);
+      test.info().annotations.push({
+        type: 'referencia',
+        description: `Se agregaron ${Object.keys(referenciasFaltantes).length} referencias faltantes para ${perfil}.`,
+      });
     }
 
     // Primera corrida (o referencia borrada a proposito): se genera la referencia

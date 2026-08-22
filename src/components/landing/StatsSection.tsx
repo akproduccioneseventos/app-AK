@@ -21,41 +21,16 @@ const STAT_ICONS: Record<string, LucideIcon> = {
 
 const FALLBACK_ICONS = [CalendarCheck2, Clock3, HeartHandshake, Headphones];
 
+import { AnimatedCounter } from '@/components/ui/animated-counter';
+
 function StatCard({
   value,
   label,
   icon,
-  active,
   index,
-}: LandingStatItem & { active: boolean; index: number }) {
-  const numMatch = value.match(/(\d+)/);
-  const numValue = numMatch ? parseInt(numMatch[1], 10) : null;
-  const [count, setCount] = useState(0);
+}: LandingStatItem & { index: number }) {
   const Icon = STAT_ICONS[icon] || FALLBACK_ICONS[index % FALLBACK_ICONS.length];
   const customIcon = STAT_ICONS[icon] ? null : icon;
-
-  useEffect(() => {
-    if (!active || numValue === null) return;
-    const duration = 1600;
-    const startTime = performance.now();
-    let frame = 0;
-    
-    const tick = (now: number) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(numValue * eased));
-      if (progress < 1) {
-        frame = requestAnimationFrame(tick);
-      }
-    };
-    
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [numValue, active]);
-
-  const displayValue = numValue !== null && active
-    ? value.replace(String(numValue), String(count))
-    : value;
 
   return (
     <article className="rounded-lg border border-white/10 bg-white/[0.035] p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-500/40 hover:bg-white/[0.055]">
@@ -67,7 +42,7 @@ function StatCard({
         )}
       </div>
       <div className="text-4xl font-black tabular-nums text-white sm:text-5xl">
-        {displayValue}
+        <AnimatedCounter value={value} />
       </div>
       <div className="mt-3 text-xs font-black uppercase tracking-widest text-white/60">
         {label}
@@ -81,24 +56,11 @@ interface StatsSectionProps {
 }
 
 export function StatsSection({ stats }: StatsSectionProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [active, setActive] = useState(false);
   const displayStats = stats && stats.length > 0 ? stats : DEFAULT_STATS;
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setActive(true);
-      },
-      { threshold: 0.25 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <section className="border-y border-white/10 bg-slate-950 py-20 text-white" id="stats">
-      <div ref={ref} className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <span className="mb-3 inline-flex rounded-md border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-red-400">
@@ -114,7 +76,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
         </div>
         <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-4')}>
           {displayStats.map((stat, index) => (
-            <StatCard key={`stat-${stat.label}-${index}`} {...stat} index={index} active={active} />
+            <StatCard key={`stat-${stat.label}-${index}`} {...stat} index={index} />
           ))}
         </div>
       </div>

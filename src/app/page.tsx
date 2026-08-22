@@ -19,6 +19,7 @@ import defaultCatalogoFotos from "@/data/catalogo-fotos.json";
 import { BlogSection } from "@/components/landing/BlogSection";
 import { FloatingActions } from "@/components/public/FloatingActions";
 import { SalonDestacadoSection } from "@/components/landing/SalonDestacadoSection";
+import { StatsSection } from "@/components/landing/StatsSection";
 import { defaultLandingSettings } from "@/types/landing-editor";
 import { getPromoActiva } from "@/app/actions/promos";
 import { getLandingSettings } from "@/app/actions/landing-editor";
@@ -42,6 +43,7 @@ import { getPublicInstagramFeed } from "@/lib/instagram/public-feed";
 import { isClubUruguay } from "@/lib/club-uruguay";
 import { getDynamicSalonPhotos, type SalonPhoto } from "@/lib/salon-helper";
 import { getBlogPosts } from "@/app/actions/blog";
+import { ponerAlDiaAlEntrar } from "@/lib/automatico/al-entrar-a-la-app";
 export const revalidate = 300;
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = "Servicio AK";
 const DEFAULT_INSTAGRAM_URL =
@@ -294,6 +296,10 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 export default async function HomePage() {
+  // Red de seguridad: si el despertador de fondo tuviese alguna demora, la visita de un
+  // prospecto pone al día lo que esté vencido de forma 100% transparente y sin bloquear.
+  void ponerAlDiaAlEntrar(new Date(), 'visita').catch(() => null);
+
   const [
     promo,
     landingSettings,
@@ -494,7 +500,7 @@ export default async function HomePage() {
             />
           </div>
         }
-        stats={null}
+        stats={<StatsSection stats={landingSettings.stats} />}
         difference={<AkDifferenceSection />}
         services={
           <ServicesSection

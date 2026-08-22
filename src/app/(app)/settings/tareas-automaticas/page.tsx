@@ -250,7 +250,7 @@ export default function TareasAutomaticasPage() {
               <div
                 key={tarea.id}
                 className={`p-5 sm:p-6 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-                  esNunca ? 'bg-rose-50/20' : esAtrasada ? 'bg-amber-50/15' : 'hover:bg-slate-50/50'
+                  esNunca ? 'bg-rose-50/20' : esAtrasada ? 'bg-rose-50/25 border-l-4 border-l-rose-500' : 'hover:bg-slate-50/50'
                 }`}
               >
                 <div className="space-y-2 max-w-2xl">
@@ -263,8 +263,8 @@ export default function TareasAutomaticasPage() {
                       </Badge>
                     )}
                     {esAtrasada && (
-                      <Badge className="bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-100 gap-1 font-bold text-xs">
-                        <AlertTriangle className="h-3 w-3 text-amber-600" />
+                      <Badge className="bg-rose-100 text-rose-900 border-rose-300 hover:bg-rose-100 gap-1 font-bold text-xs">
+                        <AlertTriangle className="h-3 w-3 text-rose-600" />
                         Atrasada
                       </Badge>
                     )}
@@ -285,15 +285,30 @@ export default function TareasAutomaticasPage() {
                     {tarea.siNoCorre}
                   </p>
 
-                  {/* Última corrida */}
-                  <div className="flex items-center gap-2 text-xs font-medium pt-1">
-                    <Clock className="h-3.5 w-3.5 text-slate-400" />
-                    <span className="text-slate-500">Última ejecución:</span>
-                    <span className={esNunca ? 'text-rose-600 font-bold' : esAtrasada ? 'text-amber-700 font-semibold' : 'text-slate-700'}>
-                      {formatearFecha(tarea.ultimaCorrida)}
-                    </span>
-                    {tarea.horasDesdeLaUltima !== null && (
-                      <span className="text-slate-400">({tarea.horasDesdeLaUltima} hs atrás)</span>
+                  {/* Última corrida y origen */}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium pt-1">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-slate-400" />
+                      <span className="text-slate-500">Última ejecución:</span>
+                      <span className={esNunca ? 'text-rose-600 font-bold' : esAtrasada ? 'text-rose-700 font-bold' : 'text-slate-700'}>
+                        {formatearFecha(tarea.ultimaCorrida)}
+                      </span>
+                      {tarea.horasDesdeLaUltima !== null && (
+                        <span className="text-slate-400">({tarea.horasDesdeLaUltima} hs atrás)</span>
+                      )}
+                    </div>
+                    {tarea.disparadoPor && (
+                      <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+                        Disparada por: {
+                          tarea.disparadoPor === 'despertador'
+                            ? 'Despertador de fondo'
+                            : tarea.disparadoPor === 'visita'
+                            ? 'Visita a la web'
+                            : tarea.disparadoPor === 'app'
+                            ? 'Ingreso al panel'
+                            : 'Acción manual'
+                        }
+                      </span>
                     )}
                   </div>
                 </div>

@@ -86,6 +86,14 @@ data/social-analytics-history.json
 src/data/social-analytics-history.json
 data/tareas-al-entrar-estado.json
 src/data/tareas-al-entrar-estado.json
+data/tareas-lock.json
+src/data/tareas-lock.json
+data/tareas-automaticas.json
+src/data/tareas-automaticas.json
+data/social-comments-backfill-state.json
+src/data/social-comments-backfill-state.json
+data/social-comments.json
+src/data/social-comments.json
 data/whatsapp-conversaciones-de-publicidad.json
 src/data/whatsapp-conversaciones-de-publicidad.json
 

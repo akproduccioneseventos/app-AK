@@ -56,3 +56,45 @@ export const nextjsServer = functions
 
     return handle(req, res);
   });
+
+/**
+ * Despertador de fondo de AK Producciones.
+ * Corre cada 15 minutos en Google Cloud Functions de forma 100% autónoma.
+ * Llama al despachador de tareas automáticas del sitio web para poner al día
+ * las métricas, posteos programados, notas del blog y recordatorios vencidos,
+ * sin requerir que nadie abra la aplicación ni la web.
+ */
+export const despertadorTareasAutomaticas = functions
+  .runWith({
+    timeoutSeconds: 120,
+    memory: '256MB',
+  })
+  .pubsub.schedule('every 15 minutes')
+  .timeZone('America/Montevideo')
+  .onRun(async () => {
+    const appUrl = process.env.APP_URL || 'https://akproducciones.uy';
+    const cronSecret = process.env.CRON_SECRET || process.env.TAREAS_SECRET || '';
+    const endpoint = `${appUrl}/api/cron-despachador`;
+
+    try {
+      const headers: Record<string, string> = {
+        'User-Agent': 'AK-Despertador-CloudFunctions/1.0',
+        'Content-Type': 'application/json',
+      };
+      if (cronSecret) {
+        headers['Authorization'] = `Bearer ${cronSecret}`;
+      }
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ origen: 'despertador' }),
+      });
+
+      const body = await response.text();
+      functions.logger.info(`[Despertador] Puesta al día ejecutada. Status: ${response.status}`, { body });
+    } catch (err: any) {
+      functions.logger.error('[Despertador] Fallo en llamada al despachador:', err?.message || err);
+    }
+  });
+
