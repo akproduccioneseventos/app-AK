@@ -134,6 +134,46 @@ prueba; si hay algo roto de verdad, arreglalo y decilo. **No la desactives.**
 
 ---
 
+## BLOQUE 4 — Cuatro cosas chicas que salieron de revisar la app entera
+
+Se auditaron las siete areas (pantalla gigante, decoracion, entretenimiento,
+comida, plata, invitados y portal del cliente, ventas y operacion). **Nada roto
+de fondo.** Salieron estas cuatro, todas chicas y todas verificadas a mano:
+
+**1. La lista de compras queda en blanco y no dice por que.**
+`src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx:475`
+Dibuja una tarjeta por proveedor y nada mas. Si el evento todavia no tiene platos
+con ingredientes, ni bebidas, ni reposteria, la pantalla queda vacia: el equipo no
+sabe si falta cargar algo, si se rompio, o si de verdad no hay nada que comprar.
+**Poner un cartel que diga que falta y a que pantalla ir a cargarlo.** Una
+pantalla vacia tiene que explicar el proximo paso.
+
+**2. El presupuesto que ve el cliente muestra centavos y el resto de la app no.**
+`src/components/budget/BudgetDocument.tsx:31` y
+`src/components/presupuestos/BudgetPrintTemplate.tsx:34`
+Muestran "$ 10.000,00" con dos decimales. El resto de la app (bebidas,
+reposteria, CRM, cobros) muestra "$ 10.000", sin decimales, que es como se usa
+aca. **Es justo el papel que se le manda al cliente y se imprime.** Unificar en
+cero decimales, como el resto. Ojo: `src/components/presupuestos/paso-4-resumen.tsx`
+tambien usa dos decimales, revisalo en el mismo viaje.
+
+**3. El boton de borrar una factura cobrada se ve activo pero no funciona.**
+`src/components/invoice-list-item.tsx:97`
+El servidor la protege bien (eso esta perfecto y no se toca), pero el boton se ve
+prendido: el usuario lo toca y recibe un error. **Que se vea apagado cuando la
+factura tiene pagos**, con una ayuda que diga por que no se puede.
+
+**4. En el tablero de decoracion del cliente, el corazon se borra solo sin avisar.**
+`src/app/portal/[fiestaId]/moodboard/page.tsx:57-62`
+Cuando el cliente marca una foto como favorita y falla el guardado, la pantalla
+revierte el corazon y **no dice nada**. La persona cree que apreto mal. Al subir
+una foto si avisa del error (linea 88): **hacer lo mismo aca.**
+
+**Ninguna de las cuatro toca plata, cuentas ni permisos.** Son de las que hacen
+dudar al que las usa, que es lo que se quiere sacar.
+
+---
+
 ## Lo que no se toca
 
 - `apphosting.yaml`: el servidor se duerme a propósito.
