@@ -64,6 +64,22 @@ para que el dueño se cree una cuenta en una pagina de internet y configure cuat
 renglones a mano. **Nunca lo hizo, y no tiene por que hacerlo.** Eso no es
 resolver: es pasarle el problema.
 
+### La condicion que manda sobre todo lo demas
+
+**Tiene que funcionar sin que nadie entre a ningun lado.** Ni el equipo, ni el
+dueño, ni un visitante. Con la app cerrada, el celular apagado y nadie mirando,
+las tareas tienen que correr igual.
+
+Eso quiere decir que **el punto 1 (el despertador dentro del proyecto) es
+obligatorio y es lo que se entrega**. El punto 2 —que las visitas tambien lo
+disparen— es una red de seguridad **y no cuenta como solucion**: si se entrega
+solo eso, la app sigue dependiendo de que alguien entre, que es exactamente el
+problema que hay que resolver.
+
+**Como se comprueba que quedo bien:** sin abrir la app ni la web durante un dia
+entero, al dia siguiente `/settings/tareas-automaticas` tiene que mostrar que las
+tareas corrieron igual. Si para que corran hay que abrir algo, no esta hecho.
+
 ### Qué hay que hacer
 
 **1. Un despertador de verdad, dentro del proyecto.** La carpeta `functions/` ya
