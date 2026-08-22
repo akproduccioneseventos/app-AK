@@ -42,6 +42,8 @@ import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
+import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import {
   componerTiraDeFotos,
   FOTOS_POR_TANDA,
@@ -500,7 +502,33 @@ export default function FotocabinaPage() {
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al generar la imagen');
 
-      const file = new File([blob], `fotocabina-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const fileName = `fotocabina-${Date.now()}.jpg`;
+
+      // Si estamos sin conexión, guardar directamente en IndexedDB
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        await saveOfflineMedia({
+          fiestaId,
+          moduleId: 'fotocabina',
+          fileBlob: blob,
+          fileName,
+          mimeType: 'image/jpeg',
+          authorName: 'Fotocabina AK',
+          metadata: { accessToken, guestId, guestAccessToken },
+        });
+
+        setQrCodeUrl('');
+        setLocalStatus('done');
+        speak("¡Excelente! Tu foto quedó guardada y se subirá apenas vuelva la señal.");
+        setShowSuccess(true);
+
+        setTimeout(() => {
+          setShowSuccess(false);
+          retake();
+        }, (fiesta?.station.reviewSeconds || 20) * 1000);
+        return;
+      }
+
+      const file = new File([blob], fileName, { type: 'image/jpeg' });
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
@@ -534,7 +562,33 @@ export default function FotocabinaPage() {
         throw new Error(res.error || 'Error al subir');
       }
     } catch (err) {
-      console.error(err);
+      console.warn('[Fotocabina] Falla en subida directa, encolando en IndexedDB...', err);
+      // Respaldo en IndexedDB ante cualquier error de red durante la subida
+      try {
+        const blob = await new Promise<Blob | null>(resolve => canvasRef.current?.toBlob(resolve, 'image/jpeg', 0.9));
+        if (blob) {
+          await saveOfflineMedia({
+            fiestaId,
+            moduleId: 'fotocabina',
+            fileBlob: blob,
+            fileName: `fotocabina-${Date.now()}.jpg`,
+            mimeType: 'image/jpeg',
+            authorName: 'Fotocabina AK',
+            metadata: { accessToken, guestId, guestAccessToken },
+          });
+          speak("Tu foto quedó guardada y se subirá cuando vuelva la señal.");
+          setLocalStatus('done');
+          setShowSuccess(true);
+          setTimeout(() => {
+            setShowSuccess(false);
+            retake();
+          }, (fiesta?.station.reviewSeconds || 20) * 1000);
+          return;
+        }
+      } catch (fallbackErr) {
+        console.error('[Fotocabina] Error al encolar en IndexedDB:', fallbackErr);
+      }
+
       setQrCodeUrl('');
       setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('done');
@@ -1000,6 +1054,7 @@ export default function FotocabinaPage() {
       </div>
 
       <KioskUnlockButton />
+      <SyncStatusIndicator fiestaId={fiestaId} moduleId="fotocabina" />
     </div>
   );
 }
