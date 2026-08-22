@@ -157,6 +157,46 @@ camino abierto.
 
 ---
 
+## BLOQUE 5 — Publicar tambien en Google
+
+El dueño lo pidio: que las publicaciones salgan tambien en Google, no solo en las
+redes.
+
+Se trata del **perfil de empresa en Google** (la ficha que aparece a la derecha
+cuando alguien busca "AK Producciones" o "salon de fiestas en Salto"). Ahi se
+pueden publicar novedades, fotos y ofertas, y **es de lo que mas ayuda a aparecer
+en las busquedas de la zona**.
+
+**Que hacer:**
+
+1. **Sumar Google como una red mas en el planificador**, al lado de Instagram y
+   Facebook. Mismo flujo: se escribe, se programa y sale.
+2. **Publicar solo si se puede** (con la conexion del perfil de empresa cargada).
+   **Si no esta conectado, decilo en criollo y explicá como conectarlo**, igual que
+   se hizo con Instagram. Nunca simular que publico.
+3. **Las fotos de las fiestas sirven igual.** Que se pueda elegir una foto ya
+   aprobada del muro, como en el resto del planificador.
+4. **En el panel de posicionamiento, mostrar cuando fue la ultima publicacion en
+   Google.** Una ficha sin movimiento pierde posiciones.
+
+**Si la conexion con Google pide algo que no tenes, PARÁ Y AVISÁ** en una linea,
+con lo que falta. No lo dejes a medias sin decirlo.
+
+---
+
+## ESTA LISTA ESTA CERRADA
+
+**No busques mas problemas.** El dueño dijo, con razon, que esta cansado de que
+cada pregunta abra una lista nueva. La app esta sana: de siete areas auditadas el
+22 de agosto, cinco vinieron sin un solo hallazgo.
+
+**Hace esto y nada mas.** Si mientras trabajas ves algo roto de verdad —que falle
+en una fiesta, que mueva mal la plata, o que deje ver a alguien lo que no
+corresponde— arreglalo y decilo en una linea. **Todo lo demas que se te ocurra, no
+va.** Si no esta roto y el dueño no lo pidio, no existe.
+
+---
+
 ## Lo que no se toca
 
 - `apphosting.yaml`: el servidor se duerme a propósito.
