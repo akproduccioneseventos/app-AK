@@ -256,3 +256,27 @@ Para no perder el viaje, esto ya esta mirado:
 - El WhatsApp prepara mensajes y no los manda.
 - Si tocás o agregás una pantalla, **corré `npm run mapa:generar`** y anotá el
   cambio en `docs/YA-RESUELTO.md`, en la misma propuesta.
+
+---
+
+## BLOQUE 5 — Una prueba de navegador que se queja del Centro de Control
+
+De 596 pruebas de navegador pasan 594. Las 2 que fallan son la misma
+(`tests/e2e/layout-baseline.spec.ts`) en escritorio y en celular:
+
+- **Escritorio:** `/admin · no tiene ni titulo ni contenido: la ruta no existe o
+  no carga`. Pero en celular esa pantalla carga bien, y el `<h1>` de
+  `src/app/(app)/admin/page.tsx:222` **no depende de que carguen los datos**: se
+  dibuja siempre. Lo que dice la prueba no coincide con el codigo.
+- **Celular:** `/presupuestos/nuevo · falta referencia para chromium-mobile`. Se
+  cambio la ruta medida (antes era `/presupuestos`, que es una redireccion) y la
+  referencia de ese perfil quedo sin grabar. Se graba corriendo el archivo con
+  `UPDATE_MISSING_LAYOUT_BASELINE=true`, **con nada mas corriendo en paralelo**.
+
+**Ojo: ya fallaban antes de esta tanda, no son una regresion.** Ninguna otra
+prueba se queja de esa pantalla.
+
+Averigua por que en pantalla grande no encuentra ni el titulo ni el contenido:
+puede ser que la prueba mida antes de tiempo, o algo que solo pasa en ancho de
+escritorio. **Si resulta que la prueba mide mal, arreglala; si hay algo roto de
+verdad en esa pantalla, arreglalo y decilo.** No la desactives ni la saltees.
