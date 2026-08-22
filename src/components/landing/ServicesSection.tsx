@@ -177,33 +177,53 @@ export function ServicesSection({
           </p>
         </motion.div>
 
-        <motion.div {...reveal} className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <motion.div
+          initial={reduceMotion ? false : "hidden"}
+          whileInView={reduceMotion ? undefined : "visible"}
+          viewport={{ once: true, margin: "-40px" }}
+          variants={{
+            hidden: {},
+            visible: { transition: { staggerChildren: 0.1 } },
+          }}
+          className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+        >
           {PARTY_TYPES.map((party) => {
             const Icon = party.icon;
             return (
-              <Link
+              <motion.div
                 key={party.title}
-                href={party.href}
-                className="group overflow-hidden border border-neutral-200 bg-neutral-50 shadow-sm transition-shadow hover:shadow-xl"
+                variants={reduceMotion ? undefined : {
+                  hidden: { opacity: 0, y: 24 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+                }}
+                whileHover={reduceMotion ? undefined : { y: -6, transition: { duration: 0.25 } }}
+                className="h-full"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200">
-                  <Image
-                    src={party.imageUrl}
-                    alt={`${party.title} producida por AK Producciones`}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.035]"
-                  />
-                </div>
-                <div className="p-5">
-                  <Icon className="h-5 w-5 text-red-700" aria-hidden="true" />
-                  <h3 className="mt-3 font-headline text-xl font-black text-slate-950">{party.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{party.description}</p>
-                  <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-red-700">
-                    Ver propuesta <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                </div>
-              </Link>
+                <Link
+                  href={party.href}
+                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-neutral-50 shadow-sm transition-all duration-300 hover:border-red-300 hover:bg-white hover:shadow-xl"
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200">
+                    <Image
+                      src={party.imageUrl}
+                      alt={`${party.title} producida por AK Producciones`}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.05]"
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-red-100/80 text-red-700">
+                      <Icon className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <h3 className="mt-3 font-headline text-xl font-black text-slate-950">{party.title}</h3>
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{party.description}</p>
+                    <span className="mt-4 inline-flex items-center gap-2 text-sm font-black text-red-700 transition-transform duration-200 group-hover:translate-x-1">
+                      Ver propuesta <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
             );
           })}
         </motion.div>
@@ -235,8 +255,9 @@ export function ServicesSection({
             return (
               <motion.article
                 key={service.id}
-                variants={reduceMotion ? undefined : { hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45 } } }}
-                className="group flex h-full flex-col overflow-hidden border border-neutral-200 bg-white shadow-sm transition-shadow hover:shadow-xl"
+                variants={reduceMotion ? undefined : { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } } }}
+                whileHover={reduceMotion ? undefined : { y: -6, transition: { duration: 0.25 } }}
+                className="group flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm transition-all duration-300 hover:border-red-300 hover:shadow-xl"
               >
                 <div className="relative aspect-[16/10] overflow-hidden bg-neutral-200">
                   <ServiceImage service={service} />
@@ -244,13 +265,13 @@ export function ServicesSection({
                 <div className="flex flex-1 flex-col p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm font-bold text-red-700">{service.subtitle}</p>
+                      <p className="text-xs font-black uppercase tracking-wider text-red-700">{service.subtitle}</p>
                       <h3 className="mt-1 font-headline text-2xl font-black text-slate-950">{service.title}</h3>
                     </div>
                     {Icon && <Icon className="mt-1 h-5 w-5 shrink-0 text-slate-500" aria-hidden="true" />}
                   </div>
-                  <p className="mt-4 text-sm leading-relaxed text-slate-600">{service.description}</p>
-                  <div className="mt-6 border-t border-neutral-200 pt-4">
+                  <p className="mt-4 flex-1 text-sm leading-relaxed text-slate-600">{service.description}</p>
+                  <div className="mt-6 border-t border-neutral-100 pt-4">
                     <p className="text-xs font-bold text-slate-700">Incluye</p>
                     <ul className="mt-3 space-y-2 text-sm text-slate-600">
                       {service.features.slice(0, 3).map((feature) => (
@@ -261,15 +282,17 @@ export function ServicesSection({
                       ))}
                     </ul>
                   </div>
-                  <a
+                  <motion.a
                     href={waHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-800 transition-colors hover:border-red-700 hover:text-red-700"
+                    whileHover={reduceMotion ? undefined : { scale: 1.02 }}
+                    whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+                    className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-800 transition-all hover:border-red-700 hover:bg-red-50 hover:text-red-700"
                   >
-                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                    <MessageCircle className="h-4 w-4 text-emerald-600" aria-hidden="true" />
                     Consultar esta propuesta
-                  </a>
+                  </motion.a>
                 </div>
               </motion.article>
             );

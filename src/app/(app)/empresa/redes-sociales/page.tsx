@@ -12,6 +12,7 @@ import { getSocialPosts, deleteSocialPost, generateDraftPostsFromPartyPhotos } f
 import { NewPostDialog } from '@/components/social-media/NewPostDialog';
 import { SocialPostCard } from '@/components/social-media/SocialPostCard';
 import { SocialHistoryImportDialog } from '@/components/social-media/SocialHistoryImportDialog';
+import { SocialHistoryPanel } from '@/components/social-media/SocialHistoryPanel';
 import { SocialMediaCalendar } from '@/components/social-media/SocialMediaCalendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -245,6 +246,8 @@ function SocialMediaPageContent() {
                 />
             )}
             <CardDescription>Planifica, redacta con IA y organiza tu contenido para redes sociales. Luego copia y pega para publicar.</CardDescription>
+
+            <SocialHistoryPanel onSyncCompleted={fetchData} />
 
             <Card className="border-emerald-100 bg-emerald-50/40 shadow-sm">
                 <CardHeader>

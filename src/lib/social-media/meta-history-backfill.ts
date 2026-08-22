@@ -7,7 +7,11 @@ import { readData, writeData } from '@/lib/data-service';
 const POSTS_FILE = 'social-posts.json';
 const CONNECTIONS_FILE = 'social-connections.json';
 const STATE_FILE = 'meta-public-history-backfill.json';
-const DEFAULT_EARLIEST_DATE = '2019-09-01T00:00:00.000Z';
+/**
+ * Fecha desde donde AK Producciones comenzó a publicar en redes sociales (septiembre de 2019).
+ * Centralizada para evitar omitir publicaciones del inicio de la cuenta.
+ */
+export const DEFAULT_EARLIEST_DATE = '2019-09-01T00:00:00.000Z';
 const FULL_PAGE_LIMIT = 100;
 const INCREMENTAL_PAGE_LIMIT = 2;
 const PAGE_SIZE = 100;
