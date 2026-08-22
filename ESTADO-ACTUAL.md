@@ -7,67 +7,38 @@ Quien cierre una sesión reescribe este archivo. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 21 de agosto de 2026, cierre.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 314 suites de pruebas en verde (2059/2059),
-compila, build de producción de Next.js OK, seguridad de la base en verde.
-**Propuestas abiertas:** ninguna.
-**Órdenes pendientes:** ninguna.
+**Última actualización:** 21 de agosto de 2026, cierre de la tanda del manual.
+**Estado de la app:** sana. 2074 pruebas en verde, tipos en cero, compila, sin
+acentos rotos.
+**Rama de esta tanda:** `claude/chat-indicaciones-trabajo-jlpbj1`, subida y verde.
+Todavía sin propuesta abierta: el dueño decide si se abre o se fusiona.
 
-## La auditoría quedó 100% limpia
+## Lo que se hizo
 
-`npm run auditoria` hoy: **0 tareas sin rastro, 0 huérfanos, 0 datos inventados,
-1 promesa (comentario de código sobre WhatsApp, falso positivo), 0 puertas cerradas de más.**
+- **`docs/MANUAL-DE-LA-APP.md`**: uno solo, dos capas. Arriba el mapa en criollo
+  (lo lee la asistente de la app para llevar al equipo a la pantalla que busca),
+  abajo el índice técnico: dónde vive la plata, cómo funciona la asistente, qué
+  corre solo, **qué NO existe** y los porqués que el código no cuenta.
+- **El mapa se arma solo**: `npm run mapa:generar` → 341 pantallas, 39 opciones
+  de menú. **No escribir listas de rutas a mano en ningún lado.**
+- **El candado**: `src/__tests__/mapa-de-la-app-al-dia.test.ts` se pone en rojo si
+  alguien agrega una pantalla y no regenera el mapa.
+- **Arreglado**: la asistente mandaba al plan de pagos y a reuniones a pantallas
+  que no existen.
+- **`docs/ordenes/ahora.md`**: orden nueva para Gemini, UNA propuesta con cuatro
+  bloques (mapa en la asistente, conectar Instagram, blog repartido, ver cómo va
+  el posicionamiento).
 
-- **`receipt-processor.tsx`** quedó enlazado y activo en el panel de **Gastos Generales** (`/empresa/contabilidad/gastos`) con escáner de recibos por IA opcional y auto-completado de campos.
-- **Google Calendar / Workspace** quedó 100% conectado con la cuenta de servicio oficial de Google Cloud (`ak-calendar@presupuestador-ak-producciones.iam.gserviceaccount.com`).
+## Lo que hay que decirle al dueño si pregunta
 
-## Lo que se cerró el 21 de agosto
+- **Las notas del blog NO salen en borrador.** Se publican directo. En un chat
+  anterior se le dijo lo contrario; ya está corregido y anotado.
+- **Hay 6 propuestas abiertas en GitHub.** Cuatro son viejas y su trabajo ya está
+  publicado: van a la basura, no se fusionan. Las otras dos son de la noche del
+  21; una de ellas se llevó adentro un dato de prueba y un archivo reescrito
+  entero por fin de línea de Windows. Está ofrecido limpiarlas y juntarlas.
 
-- **Las puertas abiertas a internet: de 247 a cero.** Todas protegidas o declaradas
-  públicas con su motivo.
-- **El ingreso ya no se cuelga.** Con timeout seguro en autenticación.
-- **El botón de reseña para el invitado**, en el hub y en el álbum.
-- **Pruebas E2E en tandas automáticas y control de puertas públicas** en la auditoría (Pasada 5).
-- **Las pantallas escondidas tienen puerta.** De 31 quedan 9 (redirecciones técnicas).
-- **Lector de comprobantes por IA** habilitado en gastos generales.
+## Lo que sigue
 
-## Cuatro reglas que salieron de errores de verdad
-
-1. **Una pantalla que "no hace nada" casi nunca está rota: está esperando algo sin
-   tope.** Buscá el `await` sin `Promise.race`.
-2. **Cuando algo pasa de correr en un solo lugar a correr en el navegador de cada uno,
-   la pregunta no es "¿funciona?" sino "¿qué pasa si dos lo hacen a la vez?".**
-3. **Antes de agregar una comprobación, mirá si no está ya un nivel más abajo.**
-   Ponerla dos veces no protege más y esconde dónde está la de verdad.
-4. **Antes de cerrar una puerta, mirá quién la llama.** Cerrar de más no lo detecta
-   ninguna prueba y deja al cliente afuera de lo suyo.
-
-## Tres controles que ahora se cuidan solos
-
-- **Ninguna marca de conflicto sin resolver**, en ningún archivo.
-- **Ninguna puerta pública cerrada de más.** Avisa qué pantalla se rompería.
-- **Ninguna función de servidor abierta sin querer.**
-
-## Ojo al revisar entregas de Gemini
-
-**Tres veces seguidas** trajo la configuración de cobros de Mercado Pago, que apaga el
-modo de prueba —deja los cobros en dinero real— sin la llave que valida los avisos de
-pago. Vuelve porque cada entrega arranca de una copia vieja. **Revisar
-`apphosting.yaml` en cada entrega.**
-
-## Lo que depende del dueño
-
-**Nada urgente.** Google Calendar ya quedó conectado con su cuenta de servicio.
-
-## Decisiones cerradas que NO se vuelven a preguntar
-
-- **No se toca nada que aumente lo que cobra Firebase.** El servidor se queda dormido
-  a propósito. Si una auditoría lo marca como problema de velocidad, es falso
-  positivo.
-- **Anotarse en directorios gratis: descartado.**
-- **La reseña la pide la aplicación, también al invitado.** Ya está hecho.
-- **El video de vida no lo toca la app.**
-- **La llave de cobros no se cambia.** Se le propuso dos veces; dijo que no.
-- **El WhatsApp es su número personal.** Ningún bot general, nunca.
-- Los testimonios de las páginas de venta **son reales**.
-- No tiene local físico: la ficha va sin dirección, con zona de cobertura.
+- Que el dueño decida qué hacer con las propuestas abiertas.
+- Mandarle la orden a Gemini.

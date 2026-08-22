@@ -114,7 +114,7 @@ REGLAS DE ACCIÓN:
   "data": { "titulo": "Recordatorio", "mensaje": "Detalle del recordatorio", "tipo": "aviso" | "urgente" }
 - Si el usuario te pide ir, navegar o ver alguna sección de la app (ej: "llevame al CRM", "llevame a las facturas", "quiero ver las ventas", "mostrame los presupuestos", "ir a la contabilidad"):
   "type": "navigate"
-  "data": { "path": "/admin/ventas" | "/contabilidad/comercial-360" | "/plan-pagos" | "/empresa/contabilidad" | "/invoices" | "/marketing" | "/empresa/redes-sociales" | "/settings/google-workspace" | "/reuniones" | "/fiestas/nueva" }
+  "data": { "path": "/admin/ventas" | "/contabilidad/comercial-360" | "/fiestas/nueva/plan-pagos" | "/empresa/contabilidad" | "/invoices" | "/marketing" | "/empresa/redes-sociales" | "/settings/google-workspace" | "/settings/templates/reuniones" | "/fiestas/nueva" }
 - Para consultas de datos normales, saludos o conversación normal:
   "type": "none"
   "data": null`.trim();

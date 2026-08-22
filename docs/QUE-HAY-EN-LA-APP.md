@@ -82,6 +82,33 @@ Cada punto dice en qué estado está:
 
 ---
 
+## El manual y la asistente de la app — revisado el 21 de agosto de 2026
+
+- **Manual de la app: ANDA.** `docs/MANUAL-DE-LA-APP.md`. Uno solo, con el mapa en
+  criollo arriba (lo lee la asistente) y el índice técnico abajo (lo leen las que
+  programan). Se mantiene solo en la parte de pantallas y a mano en los porqués.
+- **Mapa de pantallas automático: ANDA.** `npm run mapa:generar`. 341 pantallas,
+  39 opciones de menú. Un control automático lo mantiene al día a la fuerza.
+- **La asistente contesta con datos reales: ANDA.** Recibe métricas del día,
+  presupuestos, prospectos, tareas y la fiesta en la que estás parado.
+- **La asistente puede hacer cosas: ANDA a medias.** Crea tareas, crea
+  recordatorios y lleva a una pantalla. Lo que le falta es conocer el mapa
+  completo: hoy sabe 10 pantallas de 341. **Está pedido en la orden de trabajo.**
+- **La asistente aparece: ANDA.** En todas las pantallas del panel y en las
+  páginas públicas de venta.
+- **Medir posiciones en Google: NO ESTÁ.** No hay nada que mida en qué puesto
+  aparece la app ni que busque palabras nuevas. Lo que sí anda solo es que cada
+  nota del blog entra al mapa del sitio y que las páginas de venta tienen título,
+  descripción y ficha del negocio. **Pedido en la orden de trabajo.**
+- **Instagram en la galería: NO TRAE NADA.** El código está y corre cada seis
+  horas, pero necesita la conexión comercial de Meta cargada. Sin eso avisa que
+  falta; nunca muestra fotos de ejemplo en producción. **Pedido en la orden.**
+- **YouTube en la galería: ANDA SOLO.** Trae los videos del canal del listado
+  público, sin configurar nada, y se refresca cada seis horas.
+- **Blog automático: ANDA.** 3 notas por semana, con foto real del catálogo. Hoy
+  salen las 3 juntas y **se publican directo, no pasan por aprobación**. Repartirlas
+  en la semana está pedido en la orden.
+
 ## Las catorce mejoras y el centro de redes — revisado el 17 de agosto de 2026
 
 Verificado uno por uno, y no sólo que el archivo exista: **que alguna pantalla lo
