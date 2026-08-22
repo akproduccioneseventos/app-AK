@@ -46,10 +46,24 @@ la app pide el que razona, recibe el rápido.
 
 **Qué hacer:**
 
-1. **Confirmá contra la lista oficial de Google cuál es hoy el mejor modelo de
-   razonamiento disponible** y cuál el rápido. No lo pongas de memoria: verificá.
+1. **El dueño pidió expresamente la última versión de Flash (3.7 si ya salió) y
+   el modelo Pro, si están disponibles.**
+   **Verificá contra la lista oficial de Google antes de escribir un nombre**: no
+   lo pongas de memoria. Si Flash 3.7 existe, va. Si todavía no salió, dejá la
+   más nueva que haya y **avisá cuál pusiste y por qué**.
+   Lo mismo con el Pro: si está disponible, va en el casillero del que razona.
    Dejá los nombres en un solo lugar, con un comentario que diga para qué sirve
-   cada uno.
+   cada uno y de cuándo es esa verificación.
+
+   **Ojo, esto ya está y ayuda:** `src/ai/genkit.ts:8` tiene
+   `googleai/gemini-flash-latest`, que apunta solo a la última versión rápida.
+   Si Google saca una nueva, ese atajo la toma sin tocar código. **Usalo para el
+   casillero rápido** en vez de clavar un número de versión, y clavá el número
+   sólo en el del Pro, que conviene fijar.
+
+   **Y probá que responden de verdad**, no que el nombre está bien escrito: una
+   llamada real a cada uno antes de dar el bloque por terminado. Un nombre de
+   modelo que no existe falla recién cuando un cliente pregunta algo.
 2. **Dos velocidades, y usar cada una donde corresponde:**
    - **Rápido** (lo de siempre): contestar dónde se hace algo, llevar a una
      pantalla, resumir, clasificar. Es la mayoría y tiene que seguir siendo barato.
