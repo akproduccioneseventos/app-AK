@@ -1,9 +1,9 @@
 'use server';
 
 import { requireAppSession } from '@/lib/auth/require-session';
-import { PAGINAS_PARA_GOOGLE, SITE_URL } from '@/lib/seo/paginas-publicas';
+import { PAGINAS_PARA_GOOGLE } from '@/lib/seo/paginas-publicas';
 import { blogPosts } from '@/data/blog-posts';
-import { readData } from '@/lib/data-service';
+import { getMetadataRealDeRuta } from '@/lib/seo/auditoria-metadatos';
 
 export interface ResumenSeoPosicionamiento {
   paginasDeVentaTotal: number;
@@ -31,74 +31,6 @@ export interface ResumenSeoPosicionamiento {
   };
 }
 
-// Títulos y descripciones oficiales de las páginas públicas principales
-const METADATA_PAGINAS_VENTA: Record<string, { title: string; description: string }> = {
-  '/': {
-    title: 'AK Producciones | Salón, Fiestas de 15, Bodas y Eventos en Salto',
-    description: 'Organización integral de fiestas de 15 años, bodas y eventos en Salto, Uruguay. Salón propio Club Uruguay, discoteca, catering, pista LED y barra tecnológica.',
-  },
-  '/bodas': {
-    title: 'Bodas y Casamientos en Salto | AK Producciones',
-    description: 'Hacé realidad la boda de tus sueños en Salto con solución integral: salón, ambientación, gastronomía de primer nivel y discoteca.',
-  },
-  '/quinceaneras': {
-    title: 'Fiestas de 15 Años en Salto | AK Producciones',
-    description: 'La fiesta de 15 que siempre soñaste en Salto: pista LED, pantalla gigante, barra de tragos interactiva, fotocabina y DJ en vivo.',
-  },
-  '/cumpleanos': {
-    title: 'Cumpleaños y Eventos Sociales en Salto | AK Producciones',
-    description: 'Celebrá tu cumpleaños con el mejor equipamiento, sonido, luces y atención personalizada en Salto.',
-  },
-  '/club-uruguay': {
-    title: 'Salón Club Uruguay en Salto | AK Producciones',
-    description: 'El salón más emblemático de Salto con 50% de bonificación exclusiva al contratar el servicio integral de AK Producciones.',
-  },
-  '/catalogo': {
-    title: 'Catálogo de Servicios para Fiestas | AK Producciones',
-    description: 'Conocé todos los servicios: iluminación robótica, sonido profesional, catering, decoración temática, barra y más.',
-  },
-  '/experiencia-ak': {
-    title: 'Experiencia AK | Tecnología y Producción de Eventos',
-    description: 'Descubrí la diferencia de contratar una productora integral con equipamiento propio y atención personalizada de punta a punta.',
-  },
-  '/simulador-de-presupuesto': {
-    title: 'Simulador de Presupuesto Online | AK Producciones',
-    description: 'Calculá el costo estimado de tu fiesta de 15, boda o evento en Salto en 1 minuto de forma 100% online y transparente.',
-  },
-  '/public/blog': {
-    title: 'Blog de Consejos para Eventos y Fiestas | AK Producciones',
-    description: 'Artículos, ideas y guías prácticas para organizar tu fiesta de 15 o boda en Salto sin estrés.',
-  },
-  '/public': {
-    title: 'AK Producciones | Productora Integral de Eventos en Salto',
-    description: 'Servicios integrales para fiestas y eventos sociales y corporativos en Salto, Uruguay.',
-  },
-  '/public/bodas': {
-    title: 'Bodas y Casamientos en Salto | AK Producciones',
-    description: 'Organización integral y producción técnica de casamientos en Salto: discoteca, ambientación y salón.',
-  },
-  '/public/xv-anos': {
-    title: 'Fiestas de 15 Años en Salto | AK Producciones',
-    description: 'Producción de fiestas de 15 con robótica, sonido premium, pantallas LED y barra interactiva.',
-  },
-  '/public/fiestas': {
-    title: 'Fiestas y Eventos Sociales en Salto | AK Producciones',
-    description: 'Equipamiento y coordinación para aniversarios, graduaciones y eventos sociales en Salto.',
-  },
-  '/landing/bodas': {
-    title: 'Bodas Únicas en Salto | AK Producciones',
-    description: 'Viví tu boda soñada en Salto con producción integral de AK Producciones.',
-  },
-  '/landing/xv-anos': {
-    title: '15 Años Inolvidables en Salto | AK Producciones',
-    description: 'La mejor fiesta de 15 de Salto con tecnología, pista LED y efectos de vanguardia.',
-  },
-  '/landing/eventos': {
-    title: 'Eventos y Fiestas en Salto | AK Producciones',
-    description: 'Organización integral para todo tipo de celebraciones y eventos en Salto.',
-  },
-};
-
 export async function getSeoPosicionamientoData(): Promise<ResumenSeoPosicionamiento> {
   await requireAppSession();
 
@@ -115,12 +47,12 @@ export async function getSeoPosicionamientoData(): Promise<ResumenSeoPosicionami
 
   const ultimaNota = notasOrdenadas[0];
 
-  // 2. Auditoría automática de títulos y descripciones
+  // 2. Auditoría automática de títulos y descripciones directamente contra las fuentes de verdad
   const paginasSinTitulo: string[] = [];
   const paginasSinDescripcion: string[] = [];
 
   for (const ruta of paginasVenta) {
-    const meta = METADATA_PAGINAS_VENTA[ruta];
+    const meta = await getMetadataRealDeRuta(ruta);
     if (!meta || !meta.title || meta.title.trim().length < 5) {
       paginasSinTitulo.push(ruta);
     }
