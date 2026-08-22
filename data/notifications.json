@@ -2,6 +2,18 @@
   {
     "titulo": "Nuevo presupuesto del simulador",
     "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_14ea0acf0faa0ea5045f5f6d/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_14ea0acf0faa0ea5045f5f6d",
+    "rolDestino": "admin",
+    "id": "notif_ce067e15-a2df-4c0e-84fc-a35f99bb4e5c",
+    "fecha": "2026-08-22T17:53:27.372Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
     "href": "/presupuestos/pres_public_2bf38b02209a4deb76bd2365/ver",
     "icono": "Sparkles",
     "tipo": "aviso",
