@@ -1,4 +1,4 @@
-# La galería tiene que mostrar TODO el Instagram, como ya hace con YouTube
+# Que la app corra sola, y que el movimiento remate mejor
 
 **Para:** Gemini (Antigravity)
 **Escrita:** 22 de agosto de 2026.
@@ -11,240 +11,126 @@ igual, en la misma propuesta, avisando cuál faltó y por qué.
 
 **Arrancá desde la versión principal de ahora.**
 
-Antes de tocar nada, leé `docs/MANUAL-DE-LA-APP.md`, `docs/YA-RESUELTO.md` y
-`docs/QUE-HAY-EN-LA-APP.md`.
+Antes de tocar nada, leé `docs/MANUAL-DE-LA-APP.md` y `docs/YA-RESUELTO.md`.
 
 **Antes de fusionar:** tipos en cero, pruebas en verde, `npm run check:acentos`
 limpio y `npm run build` que termine bien.
 
 ---
 
-## Lo que pidió el dueño
+## Lo que ya entregaste y quedó bien — no lo rehagas
 
-> "Quiero que traiga todas las publicaciones desde que comencé mi cuenta. Lo
-> mismo de YouTube."
+La galería lee el historial guardado, aparece de a tandas, el panel de historial
+de redes con su botón de actualizar, y el movimiento de las pantallas públicas.
+**El movimiento quedó bien hecho**: nada queda invisible, respeta a quien pidió
+menos animación, y no desborda en el celular.
 
----
-
-## Lo importante: casi todo ya está hecho, falta enchufarlo
-
-**No hay que escribir un bajador de historial: ya existe y funciona.**
-`syncMetaPublicHistory()`, en `src/lib/social-media/meta-history-backfill.ts`,
-pagina hacia atrás hasta agotar (hasta 100 páginas), guarda en
-`social-posts.json` y deja la marca de hasta dónde llegó en
-`meta-public-history-backfill.json`. Lo dispara la tarea `metricas-de-redes`, una
-vez por día. Es el mismo molde que YouTube.
-
-**El agujero está en la galería.** `src/app/page.tsx` llama a
-`getPublicInstagramFeed()` (`src/lib/instagram/public-feed.ts`), que le pide a
-Meta **las últimas 24 y nada más**, sin paginar y sin guardar nada. O sea: el
-historial se baja todos los días y **no lo mira nadie**.
+**Dos cosas se volvieron atrás y no se vuelven a cambiar:** los textos
+"Respuesta en 24 hs" y "Consultar precio". Son decisiones comerciales del dueño.
+**No toques textos que ve el cliente si no está pedido.**
 
 ---
 
-## BLOQUE 0 — QUE CORRA SOLO DE VERDAD (esto es lo primero)
+## BLOQUE 1 — QUE CORRA SOLO DE VERDAD (esto es lo que falta y es lo primero)
 
-**Lo que pidio el dueño:** *"se debe actualizar automaticamente, la app tiene que
-ser automatica toda"*.
+**Esto ya estaba pedido y no vino. Es lo mas importante de todo.**
 
-**El problema, en criollo:** hoy no es automatica. Las tareas se ponen al dia
-**solo cuando alguien del equipo entra al panel**: el disparador vive en
-`src/components/app-shell.tsx`, que es la cascara del area con sesion. El
-visitante que entra a la web publica **no dispara nada**. Si nadie del equipo abre
-la app el fin de semana, no corre nada en todo el fin de semana: ni las notas del
-blog, ni la bajada de las fotos de Instagram, ni los recordatorios de cuota.
+**El problema, en criollo:** la app se pone al día **solo cuando alguien del
+equipo entra al panel**. El disparador vive en `src/components/app-shell.tsx`, que
+es la cáscara del área con sesión. El visitante que entra a la web pública no
+dispara nada. Si nadie del equipo abre la app el fin de semana, no corre nada:
+ni las notas del blog, ni la bajada de las fotos de Instagram, ni los
+recordatorios de cuota. Ya pasó: hubo meses sin números de redes guardados.
 
-Ya paso: hubo meses sin numeros de redes guardados y sin posteos programados
-saliendo. El propio codigo lo dice en `src/lib/automatico/al-entrar-a-la-app.ts`:
-*"No reemplaza al despertador de afuera. Si nadie abre la app en tres dias, estas
-tareas no corren en tres dias."*
+El propio código lo dice en `src/lib/automatico/al-entrar-a-la-app.ts`: *"No
+reemplaza al despertador de afuera. Si nadie abre la app en tres días, estas
+tareas no corren en tres días."*
 
-Y la solucion que habia escrita es `docs/PRENDER-LAS-TAREAS.md`: un instructivo
-para que el dueño se cree una cuenta en una pagina de internet y configure cuatro
-renglones a mano. **Nunca lo hizo, y no tiene por que hacerlo.** Eso no es
-resolver: es pasarle el problema.
-
-### La condicion que manda sobre todo lo demas
-
-**Tiene que funcionar sin que nadie entre a ningun lado.** Ni el equipo, ni el
-dueño, ni un visitante. Con la app cerrada, el celular apagado y nadie mirando,
-las tareas tienen que correr igual.
-
-Eso quiere decir que **el punto 1 (el despertador dentro del proyecto) es
-obligatorio y es lo que se entrega**. El punto 2 —que las visitas tambien lo
-disparen— es una red de seguridad **y no cuenta como solucion**: si se entrega
-solo eso, la app sigue dependiendo de que alguien entre, que es exactamente el
-problema que hay que resolver.
-
-**Como se comprueba que quedo bien:** sin abrir la app ni la web durante un dia
-entero, al dia siguiente `/settings/tareas-automaticas` tiene que mostrar que las
-tareas corrieron igual. Si para que corran hay que abrir algo, no esta hecho.
+Y la solución que hay escrita es `docs/PRENDER-LAS-TAREAS.md`: un instructivo para
+que el dueño se cree una cuenta en una página de internet y configure cuatro
+renglones a mano. **Nunca lo hizo y no tiene por qué.** Eso no es resolver.
 
 ### Qué hay que hacer
 
 **1. Un despertador de verdad, dentro del proyecto.** La carpeta `functions/` ya
 existe y hoy no tiene ninguna tarea programada. Agregá **una sola** tarea
-programada que corra cada 15 minutos y llame al mismo camino que ya usa el
-disparador de hoy: revisa que hay vencido y lo corre.
+programada, cada 15 minutos, que pregunte qué está vencido y corra lo que
+corresponda.
 
-- **Una sola tarea programada, no cuatro.** Una que pregunte "que esta vencido" y
-  corra lo que corresponda. Cuatro tareas programadas serian cuatro trabajos
-  agendados; una sola entra en lo que ya viene incluido sin pagar.
-- **Que no dependa de que nadie abra nada.**
-- Dejá anotado en `docs/PRENDER-LAS-TAREAS.md` que ya no hay que configurar nada a
-  mano, y por que. Ese documento hoy miente.
+- **Una sola, no cuatro.** Una sola tarea agendada entra en lo que ya viene
+  incluido sin pagar. Cuatro serían cuatro trabajos agendados.
+- Que no dependa de que nadie abra nada.
+- Corregí `docs/PRENDER-LAS-TAREAS.md`: hoy miente, porque dice que hay que
+  configurar algo a mano.
 
-**2. Que la web publica tambien lo dispare, como red de seguridad.** El sitio
-recibe visitas de prospectos. Que una visita a la portada dispare la misma puesta
-al dia, **sin hacer esperar a nadie**: se larga y la pagina sigue, nunca se espera
-el resultado. Si el despertador falla, esto lo cubre.
+**2. Que la web pública también lo dispare, como red de seguridad.** El sitio
+recibe visitas. Que una visita a la portada dispare la misma puesta al día **sin
+hacer esperar a nadie**: se larga y la página sigue, nunca se espera el resultado.
 
-**3. Y aca esta la trampa, que ya nos mordio antes:** cuando algo pasa de correr
-en un solo lugar a correr con cada visita, la pregunta no es "¿funciona?" sino
-**"¿que pasa si dos lo hacen al mismo tiempo?"**. Diez visitas en el mismo minuto
-no pueden generar diez notas de blog ni pagar diez veces la inteligencia
-artificial. Ya paso una vez, con dos llamados que salian juntos y leian el
-"esto ya corrio recien" antes de que ninguno lo escribiera.
+**3. La trampa que ya nos mordió:** cuando algo pasa de correr en un solo lugar a
+correr con cada visita, la pregunta no es "¿funciona?" sino **"¿qué pasa si dos lo
+hacen al mismo tiempo?"**. Diez visitas en el mismo minuto no pueden generar diez
+notas de blog ni pagar diez veces la inteligencia artificial.
 
-- **La marca de "ya estoy corriendo" se toma ANTES de trabajar, no despues.**
-- El que llega y ve que otro esta corriendo, se va sin hacer nada.
-- **Una prueba que lo demuestre**: varias llamadas al mismo tiempo tienen que
-  dejar una sola corrida.
+- **La marca de "ya estoy corriendo" se toma ANTES de trabajar, no después.**
+- El que llega y ve que otro está corriendo, se va sin hacer nada.
+- **Una prueba que lo demuestre**: varias llamadas al mismo tiempo dejan una sola
+  corrida.
 
-**4. Que se vea.** En `/settings/tareas-automaticas`, que quede claro cuando corrio
-cada tarea por ultima vez y quien la disparo (el despertador o una visita). Si una
-tarea no corre hace mas del doble de lo que deberia, que se vea en rojo.
+**4. Que se vea.** En `/settings/tareas-automaticas`, cuándo corrió cada tarea por
+última vez y quién la disparó. Si una no corre hace más del doble de lo que
+debería, que se vea en rojo.
 
-### Sobre lo que cuesta
-
-Una sola tarea programada cada 15 minutos entra en lo que Google ya da incluido:
-en la practica **no agrega gasto mensual**. Aun asi, como la regla es no tocar
-nada que aumente lo que se paga sin avisar: **es una sola tarea agendada, no
-cuatro**, y no se cambian ni la memoria ni las instancias minimas del servidor.
-`apphosting.yaml` no se toca.
+**Sobre lo que cuesta:** una sola tarea programada cada 15 minutos entra en lo
+incluido: **no agrega gasto mensual**. `apphosting.yaml` no se toca, ni la memoria
+ni las instancias mínimas.
 
 ---
 
-## BLOQUE 1 — Que la galería lea el historial guardado
+## BLOQUE 2 — Rematar el movimiento (tres cosas que venden)
 
-1. **`getPublicInstagramFeed()` tiene que leer lo guardado**, no pedirle a Meta las
-   últimas 24. La fuente es la misma que usa YouTube. Mirá cómo lo hace la parte
-   de YouTube en la portada y seguí ese camino.
+El movimiento quedó bien. Esto es lo que le falta para rematar, en orden de lo
+que más rinde:
 
-2. **Meta sigue sirviendo para lo nuevo**, no para armar la galería: si aparecen
-   publicaciones que todavía no están guardadas, que las sume la tarea
-   automática, no la visita del prospecto. **Ninguna visita a la web puede
-   quedarse esperando a Meta.**
+**1. Los números que suben.** Donde la pantalla muestra una cifra que impresiona
+—años de experiencia, fiestas hechas, invitados atendidos—, que el número **trepe
+desde cero** cuando la persona llega ahí, en vez de aparecer quieto. Es lo que
+hace que el dato se quede grabado. Que suba una sola vez, no cada vez que se
+pasa. Y con `useReducedMotion` puesto: quien pidió menos movimiento ve el número
+final directo.
 
-3. **Si el historial guardado está vacío** (primera vez, o la conexión recién
-   cargada), que la galería siga mostrando los videos de YouTube y no quede un
-   hueco. Nunca fotos de ejemplo.
+**2. La galería, que ahora tiene años de fotos.** Al tocar "ver más", la tanda
+nueva aparece de golpe. Que entren **escalonadas**, de a una con unas milésimas de
+diferencia, como ya se hace en la primera tanda. Con el historial completo eso es
+lo que transmite "mirá todo lo que hicimos" en vez de un salto brusco.
 
-4. **Disparar el bajado completo una vez**, para que el archivo quede lleno desde
-   el arranque y no haya que esperar días. Fijate que la tarea acepta el modo
-   completo; dejá una forma de dispararlo desde la pantalla de conexiones, con un
-   botón que diga qué está haciendo y cuántas publicaciones trajo.
+**3. Mientras la pantalla trae datos, que no haya huecos vacíos.** Poner el molde
+gris de lo que va a venir (lo que hacen las apps buenas) en vez de un espacio en
+blanco. La página se siente rápida aunque tarde lo mismo.
 
-5. **Confirmá la fecha de arranque.** Hoy el bajado empieza en **septiembre de
-   2019** (`earliestDate` en `src/app/api/cron/metricas-de-redes/route.ts`). Si la
-   cuenta es anterior, se pierden las primeras publicaciones. Dejá esa fecha en un
-   solo lugar y con un comentario que explique de dónde sale.
-
----
-
-## BLOQUE 2 — Que mostrar cientos de fotos no rompa la página
-
-Esto no es un detalle: con años de publicaciones pueden ser cientos. Volcarlas
-todas de una hace que la página tarde una eternidad en abrir, justo en la pantalla
-que le muestra el trabajo al que está por contratar.
-
-1. **Mostrar una tanda y un "ver más"**, o que vayan apareciendo al bajar. Que lo
-   primero que se ve cargue rápido.
-2. **Las fotos se cargan cuando se llega a ellas**, no todas al abrir.
-3. **Ordenadas de la más nueva a la más vieja.**
-4. **Los reels y videos entran igual que las fotos**, no se quedan afuera.
-5. Probalo en el celular: es donde mira el cliente, y es donde se nota.
+**Y una que hay que SACAR, no agregar:** en `src/components/landing/HeroSection.tsx`
+quedaron **tres animaciones que no paran nunca** (una en la foto de fondo y dos
+resplandores con desenfoque grande). Con una alcanza. Las otras no se notan y le
+chupan batería al celular del que te está mirando. **Dejá una sola.**
 
 ---
 
-## BLOQUE 3 — Que se vea que anda
+## BLOQUE 3 — Una prueba de navegador que se queja del Centro de Control
 
-En `/settings/sincronizaciones`, en la tarjeta de Instagram:
+De 596 pruebas de navegador pasan 594. Las 2 que fallan son la misma
+(`tests/e2e/layout-baseline.spec.ts`) en escritorio y en celular:
 
-1. **Cuántas publicaciones hay guardadas** y **de qué fecha es la más vieja**. Con
-   eso el dueño ve de un vistazo si trajo todo o se quedó a mitad de camino.
-2. **Cuándo fue la última vez que buscó nuevas.**
-3. **Si el bajado quedó incompleto, decirlo** y ofrecer el botón para seguir. Nunca
-   dar por completo algo que se cortó.
-4. **Todo en criollo**: nada de nombres de variables ni de errores de Meta en
-   inglés.
+- **Escritorio:** `/admin · no tiene titulo ni contenido: la ruta no existe o no
+  carga`. Pero en celular esa pantalla carga bien, y el `<h1>` de
+  `src/app/(app)/admin/page.tsx:222` **no depende de que carguen los datos**: se
+  dibuja siempre. Lo que dice la prueba no coincide con el código.
+- **Celular:** `/presupuestos/nuevo · falta referencia para chromium-mobile`. Se
+  cambió la ruta medida (antes era `/presupuestos`, que es una redirección) y la
+  referencia de ese perfil quedó sin grabar. Se graba corriendo ese archivo con
+  `UPDATE_MISSING_LAYOUT_BASELINE=true`, **con nada más corriendo en paralelo**.
 
-
----
-
-## BLOQUE 4 — El panel de redes con su historial, y un boton para actualizar
-
-**Lo que pidio el dueño:** *"el panel de redes sociales con su historial y que
-actualice"*.
-
-Hoy no hay ninguna pantalla donde ver cuanto historial hay guardado ni forma de
-traerlo a mano: **la unica manera de que baje es esperar a la tarea automatica**.
-Si el dueño acaba de conectar la cuenta, no tiene como saber si trajo todo.
-
-En **`/empresa/redes-sociales`** (Planificador de Contenido), agrega un panel de
-historial que muestre, por cada red (Instagram, Facebook, YouTube):
-
-1. **Cuantas publicaciones hay guardadas.**
-2. **De cuando es la mas vieja y de cuando la mas nueva.** Con eso se ve de un
-   vistazo si trajo todo el historial o se quedo a mitad de camino.
-3. **Cuando fue la ultima vez que busco publicaciones nuevas.**
-4. **Un boton "Actualizar ahora"** que dispare la bajada completa y, al terminar,
-   diga cuantas publicaciones nuevas trajo. Mientras corre, que se vea que esta
-   trabajando: puede tardar.
-5. **Si la bajada quedo incompleta, decirlo** y ofrecer seguir. Nunca dar por
-   completo algo que se corto.
-
-### Lo que ya existe y hay que usar, no rehacer
-
-- `syncMetaPublicHistory({ forceFull: true })` en
-  `src/lib/social-media/meta-history-backfill.ts` baja Instagram y Facebook.
-- `syncYouTubePublicHistory()` en
-  `src/lib/social-media/youtube-history-backfill.ts` baja YouTube.
-- `getSocialHistorySummary()` en `src/app/actions/social-history.ts` ya devuelve
-  el total, la fecha mas vieja, la mas nueva y el desglose por red.
-- **Hoy a las dos bajadas las llama unicamente la tarea automatica**
-  (`src/app/api/cron/metricas-de-redes/route.ts`). Falta la accion de servidor que
-  las dispare desde la pantalla.
-
-**La accion nueva va protegida** con permiso de administracion, como el resto. No
-la dejes abierta.
-
----
-
-## Como conviene hacer el BLOQUE 1 (ya esta estudiado)
-
-Para no perder el viaje, esto ya esta mirado:
-
-- `getPublicInstagramFeed()` tiene que leer `social-posts.json` con `readData`,
-  filtrar `platform === 'Instagram'` con `mediaUrl`, ordenar por `publishDate` de
-  la mas nueva a la mas vieja, sacar repetidas por `sourceId` y mapear al mismo
-  `PublicInstagramFeedPost` que ya devuelve. **La forma de lo que devuelve no
-  cambia**, asi que la portada no se toca.
-- Los campos guardados que se necesitan: `sourceId`, `mediaUrl`, `mediaType`
-  ('video' o 'image'), `link` o `sourceUrl` para el enlace, `text` para el texto,
-  `publishDate`, y `performance.likes`.
-- La consulta a Meta se queda **solo como respaldo** para cuando no hay nada
-  guardado todavia (cuenta recien conectada), para que la primera visita no vea un
-  hueco.
-
-## Como conviene hacer el BLOQUE 2 (ya esta estudiado)
-
-- `src/components/landing/GallerySection.tsx` ya muestra 12 fotos y tiene un boton
-  **"Ver todas las fotos"** que las dibuja **todas de golpe**. Con el historial
-  completo eso pasa a ser cientos: hay que cambiarlo por **tandas** (12 mas cada
-  vez que se toca), volviendo a la primera tanda cuando se cambia de categoria.
-- Ojo con el visor de fotos ampliadas: recorre `displayedImages`, asi que si
-  cambias como se arma esa lista, revisa que las flechas sigan andando.
+**Ya fallaban antes, no son una regresión.** Si la prueba mide mal, arreglá la
+prueba; si hay algo roto de verdad, arreglalo y decilo. **No la desactives.**
 
 ---
 
@@ -252,31 +138,7 @@ Para no perder el viaje, esto ya esta mirado:
 
 - `apphosting.yaml`: el servidor se duerme a propósito.
 - Nada que aumente lo que se paga por mes.
-- No mostrar fotos de ejemplo en producción, nunca.
+- **Textos que ve el cliente, si no están pedidos.**
 - El WhatsApp prepara mensajes y no los manda.
 - Si tocás o agregás una pantalla, **corré `npm run mapa:generar`** y anotá el
   cambio en `docs/YA-RESUELTO.md`, en la misma propuesta.
-
----
-
-## BLOQUE 5 — Una prueba de navegador que se queja del Centro de Control
-
-De 596 pruebas de navegador pasan 594. Las 2 que fallan son la misma
-(`tests/e2e/layout-baseline.spec.ts`) en escritorio y en celular:
-
-- **Escritorio:** `/admin · no tiene ni titulo ni contenido: la ruta no existe o
-  no carga`. Pero en celular esa pantalla carga bien, y el `<h1>` de
-  `src/app/(app)/admin/page.tsx:222` **no depende de que carguen los datos**: se
-  dibuja siempre. Lo que dice la prueba no coincide con el codigo.
-- **Celular:** `/presupuestos/nuevo · falta referencia para chromium-mobile`. Se
-  cambio la ruta medida (antes era `/presupuestos`, que es una redireccion) y la
-  referencia de ese perfil quedo sin grabar. Se graba corriendo el archivo con
-  `UPDATE_MISSING_LAYOUT_BASELINE=true`, **con nada mas corriendo en paralelo**.
-
-**Ojo: ya fallaban antes de esta tanda, no son una regresion.** Ninguna otra
-prueba se queja de esa pantalla.
-
-Averigua por que en pantalla grande no encuentra ni el titulo ni el contenido:
-puede ser que la prueba mida antes de tiempo, o algo que solo pasa en ancho de
-escritorio. **Si resulta que la prueba mide mal, arreglala; si hay algo roto de
-verdad en esa pantalla, arreglalo y decilo.** No la desactives ni la saltees.

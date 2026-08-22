@@ -1,5 +1,10 @@
 import 'server-only';
 
+import type { SocialPost } from '@/types/social-media';
+import { readData } from '@/lib/data-service';
+
+const POSTS_FILE = 'social-posts.json';
+
 export interface PublicInstagramFeedPost {
   id: string;
   sourceId: string;
@@ -11,9 +16,69 @@ export interface PublicInstagramFeedPost {
   likes: number;
 }
 
+/**
+ * Obtiene las publicaciones de Instagram para la galería de la web pública.
+ *
+ * Prioridad:
+ * 1. Lee las publicaciones guardadas en el historial local (`social-posts.json`),
+ *    que contiene todo el historial sincronizado de Instagram sin hacer esperar
+ *    a los visitantes por una consulta externa a Meta.
+ * 2. Si el historial guardado está vacío (cuenta recién conectada o primera vez),
+ *    consulta directamente a Meta Graph API como respaldo inmediato.
+ */
 export async function getPublicInstagramFeed(
   profileUrl = 'https://www.instagram.com/akproduccioneseventos/',
 ): Promise<PublicInstagramFeedPost[]> {
+  try {
+    const savedPosts = await readData<SocialPost[]>(POSTS_FILE, []);
+    const instagramSaved = savedPosts.filter(
+      (p) => p.platform === 'Instagram' && Boolean(p.mediaUrl),
+    );
+
+    if (instagramSaved.length > 0) {
+      const sorted = [...instagramSaved].sort((a, b) => {
+        const timeA = new Date(a.publishDate || 0).getTime();
+        const timeB = new Date(b.publishDate || 0).getTime();
+        return timeB - timeA;
+      });
+
+      const seen = new Set<string>();
+      const result: PublicInstagramFeedPost[] = [];
+
+      for (const post of sorted) {
+        const sourceId = String(post.sourceId || post.id).trim();
+        const mediaUrl = String(post.mediaUrl || '').trim();
+        if (!sourceId || !mediaUrl) continue;
+
+        const dedupeKey = `${sourceId}_${mediaUrl}`;
+        if (seen.has(dedupeKey)) continue;
+        seen.add(dedupeKey);
+
+        const rawType = String(post.mediaType || '').toLowerCase();
+        const mediaType: 'image' | 'video' =
+          rawType.includes('video') || rawType.includes('reel') ? 'video' : 'image';
+
+        result.push({
+          id: `ig_${sourceId}`,
+          sourceId,
+          mediaType,
+          mediaUrl,
+          permalink: String(post.sourceUrl || post.link || profileUrl),
+          caption: String(post.text || 'Trabajo reciente de AK Producciones.'),
+          publishedAt: post.publishDate ? String(post.publishDate) : undefined,
+          likes: Number(post.performance?.likes || 0),
+        });
+      }
+
+      if (result.length > 0) {
+        return result;
+      }
+    }
+  } catch {
+    // Si falla la lectura local, intenta con la API directa como respaldo
+  }
+
+  // Respaldo directo contra Meta Graph API (solo para cuentas recién vinculadas)
   const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN || process.env.META_INSTAGRAM_ACCESS_TOKEN;
   const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_USER_ID;
   if (!accessToken || !accountId) return [];

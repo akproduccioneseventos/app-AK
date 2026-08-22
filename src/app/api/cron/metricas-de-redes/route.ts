@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
-import { syncMetaPublicHistory } from '@/lib/social-media/meta-history-backfill';
+import { syncMetaPublicHistory, DEFAULT_EARLIEST_DATE } from '@/lib/social-media/meta-history-backfill';
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
 import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
@@ -41,7 +41,7 @@ async function correrTarea(request: Request) {
     const resultado = await guardarMetricasDelDia();
     const historialMeta = await syncMetaPublicHistory().catch((error: unknown) => ({
       success: false,
-      earliestDate: '2019-09-01T00:00:00.000Z',
+      earliestDate: DEFAULT_EARLIEST_DATE,
       fetched: 0,
       imported: 0,
       updated: 0,

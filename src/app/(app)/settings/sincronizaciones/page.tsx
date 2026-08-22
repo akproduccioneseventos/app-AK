@@ -28,12 +28,14 @@ import {
   probarConexionInstagramAction,
   type ResumenConexion,
 } from '@/app/actions/conexiones-estado.actions';
+import { sincronizarHistorialRedesAction } from '@/app/actions/social-history';
 
 export default function SincronizacionesPage() {
   const [conexiones, setConexiones] = useState<ResumenConexion[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<'todas' | 'conectada' | 'falta-configurarla' | 'no-se-usa'>('todas');
   const [probandoInstagram, setProbandoInstagram] = useState(false);
+  const [sincronizandoHistorial, setSincronizandoHistorial] = useState(false);
   const [resultadoInstagram, setResultadoInstagram] = useState<{
     probado: boolean;
     success: boolean;
@@ -42,6 +44,42 @@ export default function SincronizacionesPage() {
     detalle?: string;
   } | null>(null);
   const [mostrarGuiaInstagram, setMostrarGuiaInstagram] = useState(false);
+
+  const sincronizarInstagramCompleto = async () => {
+    try {
+      setSincronizandoHistorial(true);
+      const res = await sincronizarHistorialRedesAction({ forceFull: true });
+      if (res.success) {
+        setResultadoInstagram({
+          probado: true,
+          success: true,
+          estado: 'conectada',
+          motivo: '¡Historial sincronizado con éxito!',
+          detalle: res.mensaje,
+        });
+        const actualizadas = await getEstadoConexiones();
+        setConexiones(actualizadas);
+      } else {
+        setResultadoInstagram({
+          probado: true,
+          success: false,
+          estado: 'fallando',
+          motivo: 'No se pudo completar la sincronización del historial.',
+          detalle: res.mensaje,
+        });
+      }
+    } catch (err: any) {
+      setResultadoInstagram({
+        probado: true,
+        success: false,
+        estado: 'fallando',
+        motivo: 'Ocurrió un error al sincronizar.',
+        detalle: err?.message || 'Verificá tu conexión a internet.',
+      });
+    } finally {
+      setSincronizandoHistorial(false);
+    }
+  };
 
   const probarInstagram = async () => {
     try {
@@ -270,16 +308,28 @@ export default function SincronizacionesPage() {
                 {/* Botón de configurar y probar */}
                 <div className="flex flex-wrap items-center gap-2 shrink-0 pt-2 md:pt-0">
                   {c.id === 'instagram' && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={probarInstagram}
-                      disabled={probandoInstagram}
-                      className="gap-2 font-medium border-pink-300 text-pink-700 hover:bg-pink-50"
-                    >
-                      <RefreshCw className={`h-3.5 w-3.5 ${probandoInstagram ? 'animate-spin' : ''}`} />
-                      {probandoInstagram ? 'Probando...' : 'Probar conexión'}
-                    </Button>
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={probarInstagram}
+                        disabled={probandoInstagram}
+                        className="gap-2 font-medium border-pink-300 text-pink-700 hover:bg-pink-50"
+                      >
+                        <RefreshCw className={`h-3.5 w-3.5 ${probandoInstagram ? 'animate-spin' : ''}`} />
+                        {probandoInstagram ? 'Probando...' : 'Probar conexión'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={sincronizarInstagramCompleto}
+                        disabled={sincronizandoHistorial}
+                        className="gap-2 font-medium border-indigo-300 text-indigo-700 hover:bg-indigo-50"
+                      >
+                        <RefreshCw className={`h-3.5 w-3.5 ${sincronizandoHistorial ? 'animate-spin' : ''}`} />
+                        {sincronizandoHistorial ? 'Sincronizando...' : 'Sincronizar historial'}
+                      </Button>
+                    </>
                   )}
                   {c.enlaceConfiguracion && (
                     <Link href={c.enlaceConfiguracion}>
@@ -303,6 +353,36 @@ export default function SincronizacionesPage() {
               {/* Guía y resultado específico de Instagram */}
               {c.id === 'instagram' && (
                 <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-3">
+                  {/* Resumen del historial guardado */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-white rounded-lg border border-slate-200 text-xs">
+                    <div>
+                      <span className="text-slate-500 block">Publicaciones guardadas:</span>
+                      <strong className="text-slate-900 text-sm">{c.historial?.totalPublicaciones || 0} publicaciones</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">Publicación más antigua:</span>
+                      <strong className="text-slate-900 text-sm">
+                        {c.historial?.fechaMasVieja
+                          ? new Date(c.historial.fechaMasVieja).toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                          : 'Sin publicaciones'}
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block">Estado del historial:</span>
+                      {c.historial?.completo ? (
+                        <span className="inline-flex items-center gap-1 font-bold text-emerald-700">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                          Historial completo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 font-semibold text-amber-700">
+                          <AlertCircle className="h-3.5 w-3.5 text-amber-600" />
+                          Sincronización en curso
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
                   {resultadoInstagram && (
                     <div
                       className={`p-3 rounded-lg text-sm border flex items-start gap-2 ${

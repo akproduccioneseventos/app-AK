@@ -19,6 +19,12 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Galería con historial completo de Instagram y panel de redes sociales (22 de agosto de 2026):**
+  - **Bloque 1 — Galería conectada al historial guardado (`src/lib/instagram/public-feed.ts`, `src/lib/social-media/meta-history-backfill.ts`, `src/app/api/cron/metricas-de-redes/route.ts`):** `getPublicInstagramFeed()` lee primero del archivo local guardado (`social-posts.json`), ordenado de la más nueva a la más vieja, deduplicado y mapeado a `PublicInstagramFeedPost`. Los visitantes nunca esperan a Meta en la carga de la web. Si el archivo estuviese vacío (cuenta recién vinculada), consulta a Meta como respaldo inmediato. La fecha de arranque histórica (`DEFAULT_EARLIEST_DATE = '2019-09-01T00:00:00.000Z'`) quedó centralizada y documentada.
+  - **Bloque 2 — Carga por tandas en la galería (`src/components/landing/GallerySection.tsx`):** Se reemplazó el volcado masivo de fotos por un cargador en tandas de 12 fotos (`visibleCount` con pasos de 12 y botón "Ver más fotos y videos"), que se reinicia al cambiar de filtro de categoría. Las imágenes y reels cargan de forma progresiva sin saturar el navegador ni la experiencia móvil.
+  - **Bloque 3 — Estado transparente en Ajustes de Sincronización (`src/app/(app)/settings/sincronizaciones/page.tsx`, `src/app/actions/conexiones-estado.actions.ts`):** La tarjeta de Instagram muestra cuántas publicaciones hay guardadas, la fecha de la más antigua, cuándo fue la última sincronización, si el historial está completo o en curso, y agrega el botón para "Sincronizar historial" directamente con feedback en criollo.
+  - **Bloque 4 — Panel de historial en Redes Sociales y sincronización manual (`src/components/social-media/SocialHistoryPanel.tsx`, `src/app/(app)/empresa/redes-sociales/page.tsx`, `src/app/actions/social-history.ts`):** Se agregó en `/empresa/redes-sociales` el componente `SocialHistoryPanel` que desglosa por plataforma (Instagram, YouTube, Facebook) el total de publicaciones guardadas, rango de fechas (más vieja y más nueva), última búsqueda y estado. Incluye el botón protegido "Actualizar ahora" (`sincronizarHistorialRedesAction`) que dispara la sincronización completa de Meta y YouTube reportando publicaciones leídas y nuevas guardadas.
+
 - **Auditoría de metadatos SEO reales y sin jerga técnica (22 de agosto de 2026):**
   - **Auditoría de títulos y descripciones contra fuentes reales (`src/lib/seo/auditoria-metadatos.ts`, `src/app/actions/seo-posicionamiento.ts`, `src/__tests__/posicionamiento-seo-auditoria.test.ts`):** Se eliminó la lista copiada a mano (`METADATA_PAGINAS_VENTA`). La función `getMetadataRealDeRuta` lee títulos y descripciones directamente de las definiciones de cada página y layout (`src/app/bodas/page.tsx`, `src/app/quinceaneras/page.tsx`, `src/app/cumpleanos/page.tsx`, `src/app/club-uruguay/page.tsx`, `src/app/catalogo/layout.tsx`, `src/app/experiencia-ak/page.tsx`, `src/app/simulador-de-presupuesto/layout.tsx`, `src/app/public/blog/page.tsx`, `src/data/blog-posts.ts`, `src/data/event-catalogs`, `src/lib/marketing/promo-pages.ts`, `src/lib/marketing/campaign-landings.ts`). Si una página pierde el título o la descripción, la auditoría lo detecta y lo marca automáticamente tanto en pantalla como en pruebas unitarias.
   - **Términos de búsqueda claros en pantalla (`src/app/(app)/empresa/presencia-digital/seo-posicionamiento-tab.tsx`):** Se aclaró visualmente que las búsquedas mostradas son las palabras clave objetivo a las que apunta el contenido en Salto, y que la medición de visitas reales de Google Search Console se activará cuando se vincule la propiedad.
@@ -4020,3 +4026,13 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   es lo que sí depende del diseño. **No se desactivó ninguna prueba.**
   **Por qué importa:** un control que falla solo se termina ignorando, y el día
   que avisa algo de verdad nadie le cree.
+
+- **Se volvieron atras dos textos que ve el cliente (22 de agosto de 2026).** Al
+  agregar movimiento a las pantallas publicas se cambiaron, sin que estuviera
+  pedido, la promesa "Respuesta en 24 hs" por "Respuesta en el dia" y el boton
+  "Consultar precio" por "Consultar propuesta". **Los dos volvieron a como
+  estaban.** El primero es un compromiso comercial y lo decide el dueño, no una
+  IA; el segundo perdia fuerza: el que entra quiere saber cuanto sale, y "precio"
+  es la palabra que busca.
+  **Se dejo como quedo:** el enlace a los servicios, que antes era una flechita
+  chica al pie de la portada, ahora es un boton grande. Se ve y se toca mejor.

@@ -15,21 +15,33 @@ export interface ResumenConexion {
   detalle: string;
   queSePierdeSiFalta: string;
   enlaceConfiguracion?: string;
+  historial?: {
+    totalPublicaciones: number;
+    fechaMasVieja?: string;
+    fechaMasNueva?: string;
+    ultimaSincronizacion?: string;
+    completo: boolean;
+    error?: string;
+  };
 }
 
 const CONNECTIONS_FILE = 'social-connections.json';
 const SETTINGS_FILE = 'settings.json';
 const GOOGLE_WORKSPACE_FILE = 'google-workspace.json';
 const WHATSAPP_CONFIG_FILE = 'whatsapp-business.json';
+const POSTS_FILE = 'social-posts.json';
+const META_STATE_FILE = 'meta-public-history-backfill.json';
 
 export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
   await requireAppSession();
 
-  const [sociales, settings, googleWs, waConfig] = await Promise.all([
+  const [sociales, settings, googleWs, waConfig, posts, metaState] = await Promise.all([
     readData<SocialConnection[]>(CONNECTIONS_FILE, []),
     readData<any>(SETTINGS_FILE, {}).catch(() => ({})),
     readData<any>(GOOGLE_WORKSPACE_FILE, {}).catch(() => ({})),
     readData<any>(WHATSAPP_CONFIG_FILE, {}).catch(() => ({})),
+    readData<any[]>(POSTS_FILE, []).catch(() => []),
+    readData<any>(META_STATE_FILE, null).catch(() => null),
   ]);
 
   const findSocial = (name: string) =>
@@ -43,6 +55,10 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
   const thConn = findSocial('threads');
   const xConn = findSocial('twitter') || findSocial('x');
   const spConn = findSocial('spotify');
+
+  const igPosts = posts.filter(p => p.platform === 'Instagram');
+  const igDates = igPosts.map(p => p.publishDate).filter(Boolean).sort();
+  const igState = metaState?.platforms?.Instagram;
 
   const conexiones: ResumenConexion[] = [
     {
@@ -101,6 +117,14 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       detalle: igConn ? `Cuenta: @${igConn.username || 'conectada'}` : 'Falta vincular cuenta de Instagram',
       queSePierdeSiFalta: 'No se pueden leer los comentarios de la gente ni publicar fotos de las fiestas directamente desde la app.',
       enlaceConfiguracion: '/settings/social-connections',
+      historial: {
+        totalPublicaciones: igPosts.length,
+        fechaMasVieja: igDates[0],
+        fechaMasNueva: igDates[igDates.length - 1],
+        ultimaSincronizacion: igState?.lastAttemptAt || igState?.lastFullSyncAt,
+        completo: Boolean(igState?.lastFullSyncAt && !igState?.error),
+        error: igState?.error,
+      },
     },
     {
       id: 'facebook',

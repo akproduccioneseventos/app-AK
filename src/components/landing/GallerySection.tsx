@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image, { type ImageLoaderProps } from "next/image";
 import {
   Camera,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Share2,
@@ -166,10 +167,13 @@ interface GallerySectionProps {
   galeriaFotos?: GaleriaFoto[];
 }
 
+const INITIAL_BATCH = 12;
+const BATCH_STEP = 12;
+
 export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [activeSubCategory, setActiveSubCategory] = useState("Todas");
-  const [showAll, setShowAll] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_BATCH);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
@@ -195,11 +199,13 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
     return list;
   }, [activeCategory, activeSubCategory, allImages]);
 
-  const displayedImages = showAll ? filtered : filtered.slice(0, 12);
+  const displayedImages = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
 
   useEffect(() => {
+    setVisibleCount(INITIAL_BATCH);
     setLightboxIndex(null);
-  }, [activeCategory, activeSubCategory, showAll]);
+  }, [activeCategory, activeSubCategory]);
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -258,7 +264,6 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
               onClick={() => {
                 setActiveCategory(category);
                 setActiveSubCategory("Todas");
-                setShowAll(false);
               }}
               className={cn(
                 "min-h-11 border px-3 py-2 text-xs font-bold transition-colors",
@@ -280,7 +285,6 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 type="button"
                 onClick={() => {
                   setActiveSubCategory(subCategory);
-                  setShowAll(false);
                 }}
                 className={cn(
                     "px-3 py-1.5 text-xs font-semibold transition-colors",
@@ -342,15 +346,15 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
           </div>
         )}
 
-        {filtered.length > 12 && (
+        {hasMore && (
           <div className="mt-8 flex justify-center">
             <button
               type="button"
-              onClick={() => setShowAll((value) => !value)}
-              className="inline-flex min-h-11 items-center gap-2 border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold text-slate-800 transition-colors hover:border-slate-500 hover:bg-neutral-50"
+              onClick={() => setVisibleCount((value) => value + BATCH_STEP)}
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-bold text-slate-800 shadow-sm transition-colors hover:border-slate-500 hover:bg-neutral-50"
             >
-              {showAll ? "Ver menos fotos" : `Ver todas las fotos (${filtered.length})`}
-              <ChevronRight className={cn("h-4 w-4 transition-transform", showAll && "rotate-90")} />
+              Ver más fotos y videos ({Math.min(visibleCount + BATCH_STEP, filtered.length)} de {filtered.length})
+              <ChevronDown className="h-4 w-4 text-slate-600" />
             </button>
           </div>
         )}
