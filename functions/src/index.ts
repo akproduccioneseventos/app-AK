@@ -74,7 +74,7 @@ export const despertadorTareasAutomaticas = functions
   .onRun(async () => {
     const appUrl = process.env.APP_URL || 'https://akproducciones.uy';
     const cronSecret = process.env.CRON_SECRET || process.env.TAREAS_SECRET || '';
-    const endpoint = `${appUrl}/api/cron/despachador`;
+    const endpoint = `${appUrl}/api/cron-despachador`;
 
     try {
       const headers: Record<string, string> = {

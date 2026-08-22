@@ -4038,3 +4038,14 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   es la palabra que busca.
   **Se dejo como quedo:** el enlace a los servicios, que antes era una flechita
   chica al pie de la portada, ahora es un boton grande. Se ve y se toca mejor.
+
+- **El despertador llamaba a una puerta que no existe (22 de agosto de 2026).**
+  Se entregó llamando a `/api/cron/despachador` cuando la puerta vive en
+  `/api/cron-despachador`: una barra donde iba un guión. Cada 15 minutos iba a
+  golpear una puerta que no está, el error quedaba en un registro que nadie mira,
+  y la app seguía tan dormida como antes **sin que nada lo avisara**.
+  **Los cuatro controles pasaron igual**: compilaba, tipos en cero y 2095 pruebas
+  en verde. **Compilar no es andar.**
+  Quedó `src/__tests__/despertador-golpea-una-puerta-real.test.ts`, que verifica
+  que cada dirección que llama el despertador corresponda a una ruta real, y que
+  siga programado. Comprobado que se pone en rojo con la dirección mala.
