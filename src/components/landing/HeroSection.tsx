@@ -62,12 +62,8 @@ export function HeroSection({
       id="landing-hero"
       className="relative flex min-h-[85svh] items-end overflow-hidden bg-stone-950 text-white sm:min-h-[92svh]"
     >
-      {/* Fondo con imagen y zoom suave continuo */}
-      <motion.div
-        className="absolute inset-0"
-        animate={reduceMotion ? undefined : { scale: [1, 1.045, 1] }}
-        transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
-      >
+      {/* Fondo con imagen estática optimizada */}
+      <div className="absolute inset-0">
         {canUseNextImage(backgroundImageUrl) ? (
           <Image
             src={backgroundImageUrl}
@@ -85,12 +81,12 @@ export function HeroSection({
             aria-label={backgroundImageAlt}
           />
         )}
-      </motion.div>
+      </div>
 
       {/* Degradado oscuro envolvente para contraste perfecto */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/35" />
 
-      {/* Luces y resplandores ambientales de fiesta sutiles */}
+      {/* Resplandor ambiental de fiesta sutil (una sola animación continua para cuidar batería) */}
       {!reduceMotion && (
         <>
           <motion.div
@@ -98,10 +94,8 @@ export function HeroSection({
             animate={{ scale: [1, 1.25, 1], opacity: [0.35, 0.6, 0.35] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
-          <motion.div
-            className="pointer-events-none absolute bottom-1/3 right-10 h-80 w-80 rounded-full bg-amber-500/15 blur-[110px]"
-            animate={{ scale: [1.2, 1, 1.2], opacity: [0.3, 0.55, 0.3] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          <div
+            className="pointer-events-none absolute bottom-1/3 right-10 h-80 w-80 rounded-full bg-amber-500/10 blur-[110px]"
           />
         </>
       )}

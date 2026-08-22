@@ -61,13 +61,27 @@ export const TAREAS_AUTOMATICAS: TareaAutomatica[] = [
   },
 ];
 
-type Marcas = Record<string, string>;
+import type { OrigenDisparo } from '@/lib/automatico/control-concurrencia';
 
-/** Deja la marca de que la tarea corrio de verdad. Se llama al terminar bien. */
-export async function marcarCorrida(id: string, ahora: Date = new Date()): Promise<void> {
+export interface DetalleMarcaCorrida {
+  fecha: string;
+  origen?: OrigenDisparo;
+}
+
+type Marcas = Record<string, string | DetalleMarcaCorrida>;
+
+/** Deja la marca de que la tarea corrio de verdad y quien la disparo. Se llama al terminar bien. */
+export async function marcarCorrida(
+  id: string,
+  ahora: Date = new Date(),
+  origen: OrigenDisparo = 'despertador',
+): Promise<void> {
   try {
     const marcas = await readData<Marcas>(ARCHIVO, {});
-    marcas[id] = ahora.toISOString();
+    marcas[id] = {
+      fecha: ahora.toISOString(),
+      origen,
+    };
     await writeData(ARCHIVO, marcas, undefined, { skipAutoBackup: true });
   } catch {
     // Que falle la marca no puede tumbar la tarea que si corrio.
@@ -76,6 +90,7 @@ export async function marcarCorrida(id: string, ahora: Date = new Date()): Promi
 
 export interface EstadoDeTarea extends TareaAutomatica {
   ultimaCorrida: string | null;
+  disparadoPor?: OrigenDisparo | null;
   /** `nunca` es la que importa: quiere decir que esta escrita y no se ejecuta. */
   estado: 'nunca' | 'atrasada' | 'al-dia';
   horasDesdeLaUltima: number | null;
@@ -85,9 +100,28 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
   const marcas = await readData<Marcas>(ARCHIVO, {}).catch(() => ({} as Marcas));
 
   return TAREAS_AUTOMATICAS.map((tarea) => {
-    const marca = marcas[tarea.id];
+    const registro = marcas[tarea.id];
+    if (!registro) {
+      return {
+        ...tarea,
+        ultimaCorrida: null,
+        disparadoPor: null,
+        estado: 'nunca' as const,
+        horasDesdeLaUltima: null,
+      };
+    }
+
+    const marca = typeof registro === 'string' ? registro : registro.fecha;
+    const disparadoPor = typeof registro === 'object' && registro.origen ? registro.origen : 'despertador';
+
     if (!marca) {
-      return { ...tarea, ultimaCorrida: null, estado: 'nunca' as const, horasDesdeLaUltima: null };
+      return {
+        ...tarea,
+        ultimaCorrida: null,
+        disparadoPor: null,
+        estado: 'nunca' as const,
+        horasDesdeLaUltima: null,
+      };
     }
 
     const horas = (ahora.getTime() - new Date(marca).getTime()) / 3_600_000;
@@ -95,6 +129,13 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
     // se salteo por un reinicio no es una tarea rota.
     const estado = horas > tarea.cadaHoras * 2 ? ('atrasada' as const) : ('al-dia' as const);
 
-    return { ...tarea, ultimaCorrida: marca, estado, horasDesdeLaUltima: Math.round(horas) };
+    return {
+      ...tarea,
+      ultimaCorrida: marca,
+      disparadoPor,
+      estado,
+      horasDesdeLaUltima: Math.round(horas),
+    };
   });
 }
+

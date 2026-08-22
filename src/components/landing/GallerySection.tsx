@@ -37,30 +37,37 @@ function GalleryMedia({
   sizes: string;
   priority?: boolean;
 }) {
-  if (canUseNextImage(src)) {
-    return (
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        className={className}
-        sizes={sizes}
-        priority={priority}
-      />
-    );
-  }
+  const [loaded, setLoaded] = useState(false);
 
   return (
-    <Image
-      loader={passthroughImageLoader}
-      unoptimized
-      src={src}
-      alt={alt}
-      fill
-      className={className}
-      sizes={sizes}
-      priority={priority}
-    />
+    <>
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-neutral-300" aria-hidden="true" />
+      )}
+      {canUseNextImage(src) ? (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className={cn(className, "transition-opacity duration-300", loaded ? "opacity-100" : "opacity-0")}
+          sizes={sizes}
+          priority={priority}
+          onLoad={() => setLoaded(true)}
+        />
+      ) : (
+        <Image
+          loader={passthroughImageLoader}
+          unoptimized
+          src={src}
+          alt={alt}
+          fill
+          className={cn(className, "transition-opacity duration-300", loaded ? "opacity-100" : "opacity-0")}
+          sizes={sizes}
+          priority={priority}
+          onLoad={() => setLoaded(true)}
+        />
+      )}
+    </>
   );
 }
 
@@ -310,7 +317,17 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
             <motion.button
               key={`${image.id}-${image.src}`}
               type="button"
-              variants={cardVariants}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+              animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+              transition={
+                shouldReduceMotion
+                  ? undefined
+                  : {
+                      duration: 0.32,
+                      delay: (index % 12) * 0.035,
+                      ease: [0.22, 1, 0.36, 1] as const,
+                    }
+              }
               onClick={() => setLightboxIndex(index)}
               className="group relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-neutral-200 text-left shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-700"
               aria-label={`Abrir foto: ${image.alt}`}

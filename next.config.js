@@ -41,6 +41,14 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/cron/despachador',
+        destination: '/api/cron-despachador',
+      },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: false,
   },
