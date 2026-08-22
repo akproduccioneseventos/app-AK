@@ -10,7 +10,7 @@ El proyecto cuenta con dos motores automáticos coordinados:
 
 1. **El Despertador de Fondo (Google Cloud / Firebase Functions):**
    - Una tarea programada única en el proyecto (`functions/src/index.ts`) se ejecuta **cada 15 minutos** de forma 100% autónoma en los servidores de Google.
-   - Pregunta qué tareas están vencidas (`/api/cron/despachador`) y ejecuta lo que corresponde sin costo mensual adicional.
+   - Pregunta qué tareas están vencidas (`/api/cron-despachador`) y ejecuta lo que corresponde sin costo mensual adicional.
 
 2. **Red de Seguridad en Visitas Públicas:**
    - Cada vez que un visitante o prospecto entra a la portada (`akproducciones.uy`), se lanza una puesta al día en segundo plano sin hacerlo esperar.

@@ -95,3 +95,39 @@ no la agarra ninguna prueba de tipos ni de compilación.
 - **No se reporta como pendiente algo que funciona y se ve bien.**
 - **No se afloja un control cuando falla.** Si una de las pruebas que corren solas
   se pone en rojo, se arregla lo que señala; no se cambia la prueba para que pase.
+
+---
+
+## La quinta pregunta: ¿alguien lo publica? (22 de agosto de 2026)
+
+Las cuatro preguntas de arriba nacieron de encontrar cosas escritas que no
+producían nada. **El 22 de agosto la misma falla apareció tres veces en un día**, y
+las tres pasaron los cuatro controles: tipos en cero, pruebas en verde, compila.
+
+1. **El despertador llamaba a una puerta que no existe** — `/api/cron/despachador`
+   contra `/api/cron-despachador`. Una barra donde iba un guión.
+2. **La auditoría de títulos leía una copia de sí misma** — la lista estaba escrita
+   dos veces y la pantalla usaba una, la auditoría la otra.
+3. **El despertador no lo publica nadie** — el despliegue sube el sitio y deja la
+   tarea programada sin subir. El código está, y no corre.
+
+**La pregunta que hay que agregar, y va antes de dar algo por terminado:**
+
+> **¿Esto llega hasta donde tiene que llegar, o se queda en el repositorio?**
+
+En concreto, tres chequeos que no cuestan nada y que ningún control automático
+hacía:
+
+- **Cuando algo llama a otra cosa por su nombre escrito** (una dirección, una ruta,
+  el nombre de un modelo), **verificar que ese nombre exista de verdad.** No que
+  compile: que exista.
+- **Cuando algo tiene que correr solo**, verificar que **algo lo dispare** y que
+  eso esté publicado. Una tarea programada que no se despliega es una tarea que no
+  existe.
+- **Cuando algo lee datos para auditarlos**, contar **cuántas veces está definida
+  esa fuente**. Si hay dos copias, la auditoría se está mirando al espejo.
+
+**Y la regla que resume todo, que quedó del día:**
+
+> **Compilar no es andar.** Y una prueba nueva no vale hasta verla en rojo: antes
+> de darla por buena, romper a propósito lo que tiene que detectar.
