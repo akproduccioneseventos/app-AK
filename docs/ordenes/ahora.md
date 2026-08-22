@@ -195,14 +195,41 @@ despues, cuando haya, se sincroniza sola. Y asi todo."*
 
 ### Lo que falta
 
-**1. La fotocabina no esta en el modo quiosco.** Es la unica estacion importante
-que quedo afuera de la lista de roles. **Agregala**, con el mismo trato que las
-otras (traba con clave, y que arranque directo en su pantalla).
+**1. Faltan estaciones en el modo quiosco.** Hoy los roles son `barra`,
+`muro-en-vivo`, `plataforma-360` y `totem`. **Agregá las que faltan**, con el mismo
+trato (traba con clave y arranque directo en su pantalla):
 
-**2. La fotocabina no aguanta quedarse sin internet.**
-`src/app/evento/fotocabina/[fiestaId]/page.tsx:500-552`: la foto se sube en el
+- **Fotocabina** (`/evento/fotocabina/:fiestaId`)
+- **Espejo magico** (`/evento/espejo-magico/:fiestaId`)
+- **Touchpix** (`/evento/touchpix/:fiestaId`)
+- **Buzon de saludos** (`/evento/buzon/:fiestaId`)
+- **Video de vida** (`/evento/video-vida/:fiestaId`)
+- **Impresion de fotos** (`/evento/impresion/:fiestaId`)
+- **Pedidos al DJ** (`/evento/dj/:fiestaId`)
+
+La idea del dueño es dejar **una maquina por puesto**: esa computadora o esa tablet
+hace una sola cosa toda la noche y nadie la saca de ahi.
+
+**2. NINGUNA de las estaciones que capturan aguanta quedarse sin internet.**
+El caso comprobado es la fotocabina
+(`src/app/evento/fotocabina/[fiestaId]/page.tsx:500-552`): la foto se sube en el
 momento; si falla, solo ofrece bajarla al disco y **no queda encolada**. En una
 fiesta con el wifi caido, se pierden las fotos de los invitados.
+
+**Revisá una por una y dejalas todas iguales**, porque todas capturan algo:
+
+- **Fotocabina** — tanda de fotos.
+- **Espejo magico** — fotos.
+- **Plataforma 360** — video.
+- **Touchpix** — fotos.
+- **Totem de la barra** — foto y video de 8 segundos con el trago.
+- **Buzon de saludos** — foto, video y audio.
+- **Video de vida** — video.
+- **Muro social** — ya tiene cola; **verificá que aguante fotos grandes** y no solo
+  el dato chico.
+
+**Los videos pesan mucho mas que las fotos.** Si un video no entra, avisá en
+pantalla en criollo antes de grabar, nunca despues.
 
 Que tiene que pasar: **la foto se guarda en el aparato y se sube sola cuando
 vuelve internet**, sin que nadie haga nada.
@@ -246,6 +273,16 @@ instala desde el navegador y punto.
 - corte internet, saque tres fotos, y verifique que quedan guardadas;
 - vuelva a poner internet y verifique que se suben solas;
 - cierre y reabra la pantalla en el medio, y verifique que **no se perdio ninguna**.
+
+Y **una prueba por cada estacion que captura**, aunque sea corta: que sin internet
+la pantalla siga andando y lo capturado quede guardado. Son siete pantallas
+distintas; que ande una no quiere decir que anden las otras.
+
+### Si un bloque se traba
+
+Entregá el resto igual, en la misma propuesta. **Si tenes que elegir por donde
+empezar: fotocabina, totem de la barra y espejo magico**, que son las tres que mas
+se usan en una fiesta.
 
 ---
 
