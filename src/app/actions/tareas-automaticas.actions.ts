@@ -1,7 +1,12 @@
 'use server';
 
 import { requireAdminSession, requireAppSession } from '@/lib/auth/require-session';
-import { estadoDeLasTareas, type EstadoDeTarea } from '@/lib/automatico/tareas-automaticas';
+import {
+  estadoDeLasTareas,
+  estadoDelDespertador,
+  type EstadoDeTarea,
+  type EstadoDespertador,
+} from '@/lib/automatico/tareas-automaticas';
 import { runMarketingAutomation } from '@/lib/marketing-automation';
 import { procesarPosteosProgramados } from '@/lib/presencia-digital/publicador';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
@@ -11,6 +16,11 @@ import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 export async function getEstadoTareasAutomaticas(): Promise<EstadoDeTarea[]> {
   await requireAppSession();
   return estadoDeLasTareas();
+}
+
+export async function getEstadoDespertadorAction(): Promise<EstadoDespertador> {
+  await requireAppSession();
+  return estadoDelDespertador();
 }
 
 /**

@@ -58,6 +58,11 @@ export default function ClientMoodboardPage() {
         await updateDecoracion(fiestaId, updatedDecoracion);
         toast({ title: "Preferencia guardada" });
     } catch (e) {
+        toast({
+          title: "No se pudo guardar",
+          description: "No pudimos guardar tu reacción. Por favor probá de nuevo.",
+          variant: "destructive",
+        });
         loadData(); // Revert on error
     }
   };
