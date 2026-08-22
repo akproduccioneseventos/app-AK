@@ -21,6 +21,13 @@ const GLOBAL_RULES = [
   'Priorizar siempre: estabilidad del sistema, guardado real, coherencia entre módulos y comunicación clara con el cliente.',
   'Evitar duplicar lógica entre presentación, catálogo, presupuesto y planificador de fiesta.',
   'Todo acuerdo verbal con el cliente debe quedar escrito en el módulo de reuniones o notas del CRM.',
+  // Directivas claras del Manual de la App:
+  'La lista de compras usa los invitados del presupuesto, no los confirmados: se cocina lo que se contrató. Si vienen más, se agregan invitados y el presupuesto sube.',
+  'El WhatsApp prepara mensajes en el Outbox y NO los manda solo: salen desde el teléfono del dueño cuando una persona los toca.',
+  'La asistente no cobra, no factura y no manda WhatsApps directamente: responde orientando y ofreciendo llevar a la pantalla donde se realiza.',
+  'Se trabaja exclusivamente en pesos uruguayos (UYU).',
+  'El ajuste anual del 15% se aplica siempre que la fiesta sea para el año siguiente.',
+  'Lo que NO existe en la app: no hay mediciones inventadas de Google, el blog no tiene aprobación previa (se publica directo), el servidor se duerme a propósito (minInstances: 0) para cuidar costos de Firebase.',
 ];
 
 // ── Manual profundo de uso de la app ─────────────────────────────────────────

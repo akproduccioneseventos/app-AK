@@ -23,12 +23,48 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getEstadoConexiones, type ResumenConexion } from '@/app/actions/conexiones-estado.actions';
+import {
+  getEstadoConexiones,
+  probarConexionInstagramAction,
+  type ResumenConexion,
+} from '@/app/actions/conexiones-estado.actions';
 
 export default function SincronizacionesPage() {
   const [conexiones, setConexiones] = useState<ResumenConexion[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState<'todas' | 'conectada' | 'falta-configurarla' | 'no-se-usa'>('todas');
+  const [probandoInstagram, setProbandoInstagram] = useState(false);
+  const [resultadoInstagram, setResultadoInstagram] = useState<{
+    probado: boolean;
+    success: boolean;
+    estado: 'conectada' | 'falta-configurarla' | 'fallando';
+    motivo: string;
+    detalle?: string;
+  } | null>(null);
+  const [mostrarGuiaInstagram, setMostrarGuiaInstagram] = useState(false);
+
+  const probarInstagram = async () => {
+    try {
+      setProbandoInstagram(true);
+      const res = await probarConexionInstagramAction();
+      setResultadoInstagram({
+        probado: true,
+        success: res.success,
+        estado: res.estado,
+        motivo: res.motivo,
+        detalle: res.detalle,
+      });
+    } catch (err: any) {
+      setResultadoInstagram({
+        probado: true,
+        success: false,
+        estado: 'fallando',
+        motivo: `Error al ejecutar la prueba: ${err?.message || 'Error desconocido'}`,
+      });
+    } finally {
+      setProbandoInstagram(false);
+    }
+  };
 
   const cargarDatos = async () => {
     try {
@@ -183,12 +219,12 @@ export default function SincronizacionesPage() {
             const esNoUsa = c.estado === 'no-se-usa';
 
             return (
-              <div
-                key={c.id}
-                className={`p-5 sm:p-6 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 ${
-                  esFaltante ? 'bg-amber-50/15' : esNoUsa ? 'bg-slate-50/30 opacity-80' : 'hover:bg-slate-50/40'
-                }`}
-              >
+              <React.Fragment key={c.id}>
+                <div
+                  className={`p-5 sm:p-6 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                    esFaltante ? 'bg-amber-50/15' : esNoUsa ? 'bg-slate-50/30 opacity-80' : 'hover:bg-slate-50/40'
+                  }`}
+                >
                 <div className="space-y-2 max-w-2xl">
                   <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <span className="font-bold text-base text-slate-900">{c.nombre}</span>
@@ -231,8 +267,20 @@ export default function SincronizacionesPage() {
                   )}
                 </div>
 
-                {/* Botón de configurar */}
-                <div className="flex items-center gap-2 shrink-0 pt-2 md:pt-0">
+                {/* Botón de configurar y probar */}
+                <div className="flex flex-wrap items-center gap-2 shrink-0 pt-2 md:pt-0">
+                  {c.id === 'instagram' && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={probarInstagram}
+                      disabled={probandoInstagram}
+                      className="gap-2 font-medium border-pink-300 text-pink-700 hover:bg-pink-50"
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 ${probandoInstagram ? 'animate-spin' : ''}`} />
+                      {probandoInstagram ? 'Probando...' : 'Probar conexión'}
+                    </Button>
+                  )}
                   {c.enlaceConfiguracion && (
                     <Link href={c.enlaceConfiguracion}>
                       <Button
@@ -251,8 +299,68 @@ export default function SincronizacionesPage() {
                   )}
                 </div>
               </div>
-            );
-          })}
+
+              {/* Guía y resultado específico de Instagram */}
+              {c.id === 'instagram' && (
+                <div className="p-4 bg-slate-50 border-t border-slate-100 space-y-3">
+                  {resultadoInstagram && (
+                    <div
+                      className={`p-3 rounded-lg text-sm border flex items-start gap-2 ${
+                        resultadoInstagram.success
+                          ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                          : resultadoInstagram.estado === 'fallando'
+                          ? 'bg-red-50 border-red-200 text-red-900'
+                          : 'bg-amber-50 border-amber-200 text-amber-900'
+                      }`}
+                    >
+                      {resultadoInstagram.success ? (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                      ) : (
+                        <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                      )}
+                      <div>
+                        <p className="font-semibold">{resultadoInstagram.motivo}</p>
+                        {resultadoInstagram.detalle && (
+                          <p className="text-xs mt-0.5 opacity-90">{resultadoInstagram.detalle}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setMostrarGuiaInstagram(!mostrarGuiaInstagram)}
+                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition"
+                    >
+                      {mostrarGuiaInstagram ? 'Ocultar guía de conexión' : '¿Cómo conectar Instagram paso a paso (sin saber programar)?'}
+                    </button>
+                  </div>
+
+                  {mostrarGuiaInstagram && (
+                    <div className="p-4 bg-white rounded-xl border border-slate-200 text-xs text-slate-700 space-y-2">
+                      <p className="font-bold text-slate-900 text-sm mb-1">Pasos para conectar tu cuenta de Instagram:</p>
+                      <ol className="list-decimal pl-4 space-y-1.5 leading-relaxed">
+                        <li>
+                          <strong>Tener cuenta profesional:</strong> Asegurate de que tu cuenta de Instagram sea comercial o creadora y esté vinculada a tu página de Facebook de AK Producciones.
+                        </li>
+                        <li>
+                          <strong>Crear aplicación en Meta for Developers:</strong> Entrá a <a href="https://developers.facebook.com" target="_blank" rel="noopener noreferrer" className="text-indigo-600 underline">developers.facebook.com</a>, creá una app de tipo <em>Empresarial</em> o <em>Negocios</em>.
+                        </li>
+                        <li>
+                          <strong>Generar token de acceso:</strong> En la sección de <em>Instagram Graph API</em>, generá un token de usuario con permiso <code className="bg-slate-100 px-1 py-0.5 rounded">instagram_basic</code> y convertilo en token de larga duración (60 días).
+                        </li>
+                        <li>
+                          <strong>Cargar credenciales:</strong> Pegá el token en la variable <code className="bg-slate-100 px-1 py-0.5 rounded">INSTAGRAM_ACCESS_TOKEN</code> y el ID de cuenta en <code className="bg-slate-100 px-1 py-0.5 rounded">INSTAGRAM_BUSINESS_ACCOUNT_ID</code>.
+                        </li>
+                      </ol>
+                    </div>
+                  )}
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
         </CardContent>
       </Card>
     </div>

@@ -11,15 +11,17 @@ import {
 
 const AUTOMATION_STATE_FILE = 'marketing-automation-state.json';
 /**
- * Cada cuanto se generan notas, y cuantas por vez.
+ * Cada cuánto se generan notas, y cuántas por vez.
  *
- * El dueno pidio **tres notas por semana**. Estaba puesto una cada siete dias:
- * doce veces menos de lo pedido. Se corre una vez por semana y se generan las
- * tres juntas, que gasta lo mismo y no depende de que la tarea se dispare tres
- * veces.
+ * El blog se publica **una nota cada dos días** en vez de tres juntas en un solo día.
+ * Motivo: para Google, un sitio con publicaciones continuas cada 48 hs rinde mucho
+ * más en posicionamiento que tres notas de golpe y seis días de silencio absoluto.
+ * Se mantiene la misma cantidad (~3 notas por semana) cuidando el gasto de IA.
+ * Si la app pasa varios días sin abrirse, al entrar se genera UNA SOLA nota (la de este ciclo),
+ * nunca notas atrasadas acumuladas de golpe.
  */
-const SEO_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
-const NOTAS_POR_SEMANA = 3;
+export const SEO_INTERVAL_MS = 2 * 24 * 60 * 60 * 1000; // 2 días
+export const NOTAS_POR_CORRIDA = 1;
 const INSTAGRAM_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const RECONTACTO_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
@@ -170,14 +172,8 @@ export async function runMarketingAutomation(options?: {
       if (!(await hayPresupuestoParaIA())) {
         seoError = 'SEO automatico en pausa: se llego al tope de gasto de inteligencia artificial del mes.';
       } else {
-        for (let i = 0; i < NOTAS_POR_SEMANA; i += 1) {
-          // Si el tope se alcanza en el medio de la tanda, se corta y se queda con
-          // las que ya salieron. Mejor dos notas que ninguna.
-          if (i > 0 && !(await hayPresupuestoParaIA())) break;
-
-          blogResult = await generateBlogPostAndSocialDraft();
-          await registrarConsumoIA('nota-del-blog');
-        }
+        blogResult = await generateBlogPostAndSocialDraft();
+        await registrarConsumoIA('nota-del-blog');
         nextState.lastSeoRunAt = now.toISOString();
       }
     } else {

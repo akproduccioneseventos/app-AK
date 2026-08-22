@@ -19,6 +19,13 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Asistente con mapa, Instagram asistido, Blog repartido y Posicionamiento Google (21 de agosto de 2026):**
+  - **Bloque 1 — Asistente de IA con mapa y reglas del manual (`src/lib/multiagent/manual-ak.ts`, `src/ai/flows/multiagent-flow.ts`, `src/__tests__/asistente-mapa-y-navegacion.test.ts`):** La asistente incorpora las 39 opciones de menú del staff (`mapaParaLaAsistente()`), valida rutas con `esPantallaReal()` antes de devolver acciones de navegación y sugiere la opción de menú más cercana si la ruta no existe. Integra las reglas del nuevo `docs/MANUAL-DE-LA-APP.md` (lista de compras con invitados de presupuesto, WhatsApp no manda solo, asistente no cobra ni factura, moneda solo en UYU, ajuste 15% anual y lista de lo que NO existe en la app).
+  - **Bloque 2 — Instagram conectable sin ayuda (`src/app/actions/conexiones-estado.actions.ts`, `src/app/(app)/settings/sincronizaciones/page.tsx`):** En `/settings/sincronizaciones` se agregó tarjeta de Instagram con los 3 estados reales (conectada / falta configurarla / fallando), botón para probar conexión de verdad con Meta Graph API (`probarConexionInstagramAction`) con feedback en criollo, y guía paso a paso desplegable en 4 puntos sin tecnicismos.
+  - **Bloque 3 — El blog repartido en la semana (`src/lib/marketing-automation.ts`, `src/__tests__/marketing-automation-integrity.test.ts`):** Se configuró la cadencia a 1 nota cada 2 días (`SEO_INTERVAL_MS = 2 días`, `NOTAS_POR_CORRIDA = 1`). Mantiene el mismo consumo mensual de IA y asegura actividad constante para Google en vez de 3 notas de golpe y 6 días de silencio. Si pasan días sin abrir la app, genera una sola nota sin acumular atrasadas. Conserva publicación directa sin requerir aprobación.
+  - **Bloque 4 — Posicionamiento y salud SEO (`src/app/actions/seo-posicionamiento.ts`, `src/app/(app)/empresa/presencia-digital/seo-posicionamiento-tab.tsx`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`, `src/__tests__/posicionamiento-seo-auditoria.test.ts`):** En `/empresa/presencia-digital` se agregó la pestaña "Posicionamiento en Google" con conteo real de páginas de venta (16) y notas en `sitemap.xml`, última nota publicada, auditoría automática de títulos y descripciones (`estadoSalud: 'optimo'`), estado honesto de Google Search Console con guía paso a paso y métricas en criollo ("Gente que vio la web", "Visitas que entraron", "Términos más buscados").
+
+
 - **Pruebas de navegador en tandas y control de puertas públicas — 21 de agosto de 2026:**
   - **Bloque 1 — Ejecución de pruebas E2E en tandas automáticas (`scripts/run-playwright-production.mjs`, `package.json`):** `npm run test:e2e` ejecuta los 20 archivos de prueba en tandas de 4 archivos contra la versión compilada de producción (`next start`). Levanta y apaga su propio servidor en cada tanda, liberando el puerto antes de empezar. Aplica el criterio de medio segundo: fallas en <500ms (saturación de entorno) se reintentan automáticamente con servidor fresco. Al finalizar, genera un informe consolidado con total ejecutadas, pasadas, fallas reales y descartadas por entorno.
   - **Bloque 2 — Control de puertas públicas en la auditoría (`scripts/auditoria.mjs`, `src/__tests__/control-puertas-publicas-no-cerradas.test.ts`, `src/__tests__/script-auditoria-mecanica.test.ts`):** Nueva Pasada 5 en `npm run auditoria` que detecta y alerta en criollo cuando una función requerida por pantallas públicas (simulador, portal, tótem de barra, plataforma 360, /login) es cerrada por error con `requireAppSession()`, detallando exactamente qué pantalla rompería en producción. Protege explícitamente las 7 funciones públicas críticas (`getFiestaActivaDeHoy`, `getInvoiceTemplateSettings`, `getBudgetDisplaySettings`, `getWhatsAppSettings`, `getWhatsAppTemplates`, `updateClienteDebeLlevar`, `updateDecoracion`).
@@ -27,10 +34,6 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - **Bloque 1 — Hub del invitado (`src/app/evento/hub/[fiestaId]/page.tsx`):** Botón discreto y opcional en el hub del evento ("¿La estás pasando bien? Contalo en Google") que consume `getEnlaceDeResenaPublico()`. Solo se dibuja si el enlace de Google está configurado en Ajustes. Abre en pestaña nueva de forma segura (`target="_blank"` con `rel="noopener noreferrer"`).
   - **Bloque 2 — Álbum de fotos (`src/app/evento/album/[fiestaId]/page.tsx`):** Botón opcional al pie del álbum de fotos ("¿Te gustaron las fotos? Contanos cómo la pasaste en Google"). Sin enlace no se dibuja. No condiciona ni pide 5 estrellas (cumple políticas anti-penalización de Google).
   - **Bloque 3 — Pruebas unitarias (`src/__tests__/resena-del-invitado.test.ts`):** 8 pruebas automáticas que verifican las tres reglas de visualización y texto sin estrellas.
-
-- **Afinamiento de la auditoría mecánica y cierre de puertas de servidor (21 de agosto de 2026):**
-  - **Bloque 1 — Puertas de servidor 100% auditadas y protegidas (`src/__tests__/puertas-pendientes-de-revisar.json`, `src/__tests__/auditoria-puertas-abiertas.test.ts`, `src/app/actions/*`):** Se protegieron con `requireAppSession()` todas las Server Actions internas y administrativas de la aplicación. Se declararon formalmente las funciones públicas legítimas en el archivo de prueba y el archivo de pendientes quedó en cero (`{}`).
-  - **Bloque 2 — Afinamiento de `scripts/auditoria.mjs` (`scripts/auditoria.mjs`, `auditoria-out/informe.md`):** Se eliminaron los falsos positivos de las 4 pasadas (rutas en Windows, kebab/PascalCase, barrel files, exclusión de mocktails y filtrado de ayudas de UI). El informe pasó de 201 hallazgos y 120 frases a 1 hallazgo real comprobado.
 - **Afinamiento de la auditoría mecánica y cierre de puertas de servidor (21 de agosto de 2026):**
   - **Bloque 1 — Puertas de servidor 100% auditadas y protegidas (`src/__tests__/puertas-pendientes-de-revisar.json`, `src/__tests__/auditoria-puertas-abiertas.test.ts`, `src/app/actions/*`):** Se protegieron con `requireAppSession()` todas las Server Actions internas y administrativas de la aplicación (settings, fiesta, catering, bebidas, decoracion, itinerario, musica, reposteria, reuniones, tareas, costos, zona digital, etc.). Se declararon formalmente las funciones públicas legítimas en el archivo de prueba y el archivo de pendientes quedó en cero (`{}`).
   - **Bloque 2 — Afinamiento de `scripts/auditoria.mjs` (`scripts/auditoria.mjs`, `auditoria-out/informe.md`):** Se eliminaron los falsos positivos de las 4 pasadas (normalización de rutas en Windows/Linux, búsqueda por kebab-case y PascalCase, detección de módulos de dominio y barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de interfaz de usuario ya implementadas). El informe pasó de 201 hallazgos y 120 frases a 1 hallazgo real y 0 promesas rotas.
@@ -3948,3 +3951,43 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
 - **Dónde**, si sirve para ubicarlo.
 - **Si la decisión tiene un porqué que no se ve en el código, escribilo.** Ese es
   el dato que evita que otro lo "arregle" al revés.
+
+---
+
+## Manual de la app y mapa de pantallas (21 de agosto de 2026)
+
+- **Se escribió `docs/MANUAL-DE-LA-APP.md`**, uno solo con dos capas: arriba el
+  mapa en criollo, que es lo que lee la asistente de la app para llevar al equipo
+  a la pantalla que busca; abajo el índice técnico, con dónde vive cada cosa y
+  **qué NO existe**, que es lo que evita que alguien vuelva a construir algo que
+  ya está o prometa algo que la app no hace.
+  **Por qué uno solo y no dos:** dos manuales separados se despegan en un mes, y
+  el que queda viejo hace más daño que no tener ninguno.
+
+- **El mapa de pantallas se arma solo.** `npm run mapa:generar` lee la aplicación
+  y escribe `src/lib/multiagent/mapa-app.generado.ts`: 341 pantallas y 39
+  opciones de menú, con la familia de cada una. **No escribir listas de rutas a
+  mano en ningún otro lado**: se desactualizan el mismo día.
+
+- **El candado**: `src/__tests__/mapa-de-la-app-al-dia.test.ts` vuelve a armar el
+  mapa y compara. Si alguien agrega o saca una pantalla y no regenera, se pone en
+  rojo. Además revisa que cada opción del menú lleve a una pantalla que existe,
+  que la asistente no pueda mandar a nadie a una pantalla inventada, y que cada
+  ruta que nombra el manual siga estando.
+  **Por qué así:** prometer "me acuerdo de actualizarlo" ya sabemos cómo termina.
+
+- **Arreglado: la asistente mandaba a dos pantallas que no existen.** De las 10
+  rutas que tenía escritas a mano, el plan de pagos y las reuniones estaban mal:
+  quien le pedía ir ahí llegaba a una pantalla en blanco. Ahora apuntan a
+  `/fiestas/nueva/plan-pagos` y `/settings/templates/reuniones`.
+
+- **Verificado y corregido en el traspaso: las notas del blog NO salen en
+  borrador.** Se publican directo, con la fecha del día, y entran solas al mapa
+  del sitio. En un chat anterior se dijo que salían en borrador para aprobar; era
+  falso. Se deja publicando directo a propósito, para que el posicionamiento no
+  dependa de que alguien apruebe.
+
+- **Falso positivo verificado:** un ayudante reportó que había una compilación
+  corriendo y que no se podía verificar. No había ninguna: contó su propio
+  comando de búsqueda. **Para saber si hay una compilación, `ps aux | grep "next
+  build" | grep -v grep`**, sin `-c`.

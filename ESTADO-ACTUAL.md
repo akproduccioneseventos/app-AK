@@ -7,79 +7,68 @@ Quien cierre una sesión reescribe este archivo. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 21 de agosto de 2026, cierre.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2069 pruebas en verde,
-compila, seguridad de la base en verde.
-**Propuestas abiertas:** ninguna.
-**Órdenes pendientes:** ninguna.
+**Última actualización:** 22 de agosto de 2026, con la entrega de Gemini adentro.
+**Estado de la app:** sana. 2082 pruebas en verde, tipos en cero, compila, sin
+acentos rotos. Verificado sobre el conjunto, no sobre cada pedazo.
+**Rama de esta tanda:** `claude/chat-indicaciones-trabajo-jlpbj1`, subida y verde.
+**Falta que el dueño diga si se fusiona.**
 
-## La auditoría quedó casi limpia
+## Qué hay en esta tanda (dos trabajos juntos, para fusionar una sola vez)
 
-`npm run auditoria` hoy: **0 tareas sin rastro, 1 huérfano, 0 datos inventados,
-1 promesa, 0 puertas cerradas de más.** Empezó el día en 4 / 201 / 1 / 120.
+**1. El manual de la app** (`docs/MANUAL-DE-LA-APP.md`): uno solo, dos capas.
+Arriba el mapa en criollo, que lee la asistente de la app para llevar al equipo a
+la pantalla que busca. Abajo el índice técnico: dónde vive la plata, cómo
+funciona la asistente, qué corre solo, **qué NO existe** y los porqués.
 
-Los dos que quedan están mirados:
+- El mapa se arma solo: `npm run mapa:generar` → 341 pantallas, 39 opciones de
+  menú. **No escribir listas de rutas a mano en ningún lado.**
+- El candado: `src/__tests__/mapa-de-la-app-al-dia.test.ts` se pone en rojo si
+  alguien agrega una pantalla y no regenera el mapa.
+- Arreglado: la asistente mandaba al plan de pagos y a reuniones a pantallas que
+  no existen.
 
-- **`receipt-processor.tsx`** es una función entera y andando —sacarle una foto a un
-  comprobante y que la app extraiga los datos— que **no está enlazada desde ningún
-  lado**. Se le avisó al dueño para que decida: enlazarla o borrarla. Gasta
-  inteligencia artificial por uso, así que la decisión es suya.
-- La otra es un **comentario dentro del código** que explica la regla de WhatsApp, no
-  un cartel en pantalla. **Falso positivo.**
+**2. La entrega de Gemini**, revisada y reparada: el escáner de comprobantes
+enchufado en la pantalla de gastos, el calendario de Google que se sincroniza
+solo, y el cartel de Spotify que decía "sin credenciales" estando conectado.
 
-## Lo que se cerró el 21 de agosto
+- **Se le sacó ruido**: un archivo con 2372 líneas cambiadas y ninguna diferencia
+  real (editor de Windows), y dos archivos de avisos con un prospecto de prueba.
+- **Mirado con lupa por tocar permisos**: no hay llaves de Google en el
+  repositorio, el permiso de administración sigue puesto, el token no viaja al
+  navegador.
 
-- **Las puertas abiertas a internet: de 247 a cero.** Todas protegidas o declaradas
-  públicas con su motivo. En el camino, dos fugas reales: se le podía mandar al
-  cliente un correo firmado por AK diciendo "pago confirmado" con cualquier monto, y
-  el permiso para publicar en el Instagram de la empresa viajaba al celular de cada
-  invitado.
-- **El ingreso ya no se cuelga.** No tenía tope de espera: con el servidor
-  despertándose, el botón quedaba en "Ingresando..." para siempre.
-- **El botón de reseña para el invitado**, en el hub y en el álbum.
-- **Las pantallas escondidas tienen puerta.** De 31 quedan 9, y esas 9 son
-  redirecciones que no deben tener enlace.
+## Lo que sigue
 
-## Cuatro reglas que salieron de errores de verdad
+- **Decidir si se fusiona esta tanda.**
+- **Mandarle la orden a Gemini**: `docs/ordenes/ahora.md`, una sola propuesta con
+  cuatro bloques (el mapa dentro de la asistente, conectar Instagram, repartir el
+  blog en la semana, y ver cómo va el posicionamiento). **Ojo: Gemini lee de la
+  versión principal, así que la orden le llega recién cuando esto se fusione.**
+- **Seis propuestas viejas abiertas en GitHub.** Su trabajo ya está publicado o
+  quedó absorbido en esta tanda: van a la basura, no se fusionan.
 
-1. **Una pantalla que "no hace nada" casi nunca está rota: está esperando algo sin
-   tope.** Buscá el `await` sin `Promise.race`.
-2. **Cuando algo pasa de correr en un solo lugar a correr en el navegador de cada uno,
-   la pregunta no es "¿funciona?" sino "¿qué pasa si dos lo hacen a la vez?".**
-3. **Antes de agregar una comprobación, mirá si no está ya un nivel más abajo.**
-   Ponerla dos veces no protege más y esconde dónde está la de verdad.
-4. **Antes de cerrar una puerta, mirá quién la llama.** Cerrar de más no lo detecta
-   ninguna prueba y deja al cliente afuera de lo suyo.
+## Dos cosas para decirle al dueño si pregunta
 
-## Tres controles que ahora se cuidan solos
+- **Las notas del blog NO salen en borrador.** Se publican directo. En un chat
+  anterior se le dijo lo contrario; ya está corregido y anotado.
+- **Un ayudante reportó "no compila" y era falso**: dos compilaciones a la vez en
+  la misma carpeta se pisan. El error nombraba archivos generados, no código.
 
-- **Ninguna marca de conflicto sin resolver**, en ningún archivo. Nació porque
-  `apphosting.yaml` quedó con las marcas adentro y **el próximo despliegue no iba a
-  arrancar**, sin que nada lo avisara.
-- **Ninguna puerta pública cerrada de más.** Avisa qué pantalla se rompería.
-- **Ninguna función de servidor abierta sin querer.**
+## Sumado el 22 de agosto: la entrega de Gemini, los cuatro bloques
 
-## Ojo al revisar entregas de Gemini
+Verificada entera: 2082 pruebas en verde, tipos en cero, compila, sin acentos
+rotos. Va apilada arriba del manual, así que **es una sola tanda para fusionar**.
 
-**Tres veces seguidas** trajo la configuración de cobros de Mercado Pago, que apaga el
-modo de prueba —deja los cobros en dinero real— sin la llave que valida los avisos de
-pago. Vuelve porque cada entrega arranca de una copia vieja. **Revisar
-`apphosting.yaml` en cada entrega.**
+- **La asistente ya sabe manejar la app.** Recibe el mapa del menú y, si el modelo
+  inventa una pantalla, **cancela la navegación** y ofrece la opción más parecida.
+- **Instagram se puede probar con un botón**, del lado del servidor, con permiso
+  pedido y sin que la llave viaje a ningún navegador.
+- **El blog quedó en una nota cada dos días** (misma cantidad por semana,
+  repartida; rinde más en Google).
+- **Pantalla nueva de posicionamiento**, dentro de presencia digital.
 
-## Lo que depende del dueño
-
-**Nada urgente.** Conectar tres cuentas cuando quiera: Google Workspace, búsqueda de
-canciones en Spotify y el puntaje de Google en el panel.
-
-## Decisiones cerradas que NO se vuelven a preguntar
-
-- **No se toca nada que aumente lo que cobra Firebase.** El servidor se queda dormido
-  a propósito. Si una auditoría lo marca como problema de velocidad, es falso
-  positivo.
-- **Anotarse en directorios gratis: descartado.**
-- **La reseña la pide la aplicación, también al invitado.** Ya está hecho.
-- **El video de vida no lo toca la app.**
-- **La llave de cobros no se cambia.** Se le propuso dos veces; dijo que no.
-- **El WhatsApp es su número personal.** Ningún bot general, nunca.
-- Los testimonios de las páginas de venta **son reales**.
-- No tiene local físico: la ficha va sin dirección, con zona de cobertura.
+**Lo que quedó mal y ya está pedido en `docs/ordenes/ahora.md`:** esa pantalla
+promete avisar cuando una página de venta pierde el título, pero tiene los
+títulos **copiados a mano** y se controla a sí misma. Si una página pierde el
+título de verdad, va a seguir diciendo "óptimo". No rompe nada; es una promesa
+que no cumple.

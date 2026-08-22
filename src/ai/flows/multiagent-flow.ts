@@ -10,6 +10,7 @@ import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getCrmLeads } from '@/app/actions/crm';
+import { mapaParaLaAsistente, esPantallaReal, MENU_DEL_STAFF } from '@/lib/multiagent/mapa-app.generado';
 
 // ── Patrones de detección de intención ────────────────────────────────────────
 const MARKETING_REGEX      = /(post|historia|reel|tiktok|instagram|facebook|whatsapp|publicaci|campaña|campana|caption|copy|texto para|contenido|anuncio|promo)/i;
@@ -112,9 +113,10 @@ REGLAS DE ACCIÓN:
 - Si el usuario te pide un recordatorio o aviso (ej: "recordame llamar a...", "avisame de...", "agendá recordatorio..."):
   "type": "create_reminder"
   "data": { "titulo": "Recordatorio", "mensaje": "Detalle del recordatorio", "tipo": "aviso" | "urgente" }
-- Si el usuario te pide ir, navegar o ver alguna sección de la app (ej: "llevame al CRM", "llevame a las facturas", "quiero ver las ventas", "mostrame los presupuestos", "ir a la contabilidad"):
+- Si el usuario te pide ir, navegar o te pregunta dónde se hace algo / dónde cargar datos (ej: "llevame a las compras", "¿dónde cargo la lista de compras?", "¿dónde veo las facturas?", "¿dónde están los gastos?"):
+  Respondé diciendo el nombre exacto de la opción del menú correspondiente (ej: "Lista de Compras" en /compras) y asigná la acción de navegación:
   "type": "navigate"
-  "data": { "path": "/admin/ventas" | "/contabilidad/comercial-360" | "/plan-pagos" | "/empresa/contabilidad" | "/invoices" | "/marketing" | "/empresa/redes-sociales" | "/settings/google-workspace" | "/reuniones" | "/fiestas/nueva" }
+  "data": { "path": "/compras" | "/invoices" | "/presupuestos/nuevo" | "/contabilidad/crm" | "/empresa/contabilidad" | "/empresa/contabilidad/gastos" | "/settings/google-workspace" | "/settings/sincronizaciones" }
 - Para consultas de datos normales, saludos o conversación normal:
   "type": "none"
   "data": null`.trim();
@@ -311,6 +313,9 @@ ${input.fiestaId ? `FIESTA ID: ${input.fiestaId}` : ''}
 ══════════ MANUAL BASE ══════════
 ${manual}
 
+══════════ MAPA DEL PANEL (OPCIONES DE MENÚ) ══════════
+${mapaParaLaAsistente()}
+
 ══════════ MEMORIA DEL AGENTE ══════════
 ${memory.summary || 'Sin memoria guardada.'}
 
@@ -451,6 +456,25 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
     } catch (e) {
       console.warn('[Multiagent Flow] Error al parsear JSON devuelto por Gemini. Usando texto sin estructurar.', e);
       finalResponse = text || buildFallback(agentType, context);
+    }
+
+    // Validar navegación contra pantallas reales del sistema
+    if (action?.type === 'navigate') {
+      const targetPath = String(action.data?.path || '').trim();
+      if (!targetPath || !esPantallaReal(targetPath)) {
+        console.warn(`[Multiagent Flow] Intento de navegar a ruta no existente: "${targetPath}". Cancelando acción de navegación.`);
+        action = { type: 'none' };
+        const targetClean = targetPath.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const mejorOpcion = MENU_DEL_STAFF.find(e => {
+          const eClean = e.etiqueta.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const rClean = e.ruta.toLowerCase().replace(/[^a-z0-9]/g, '');
+          return targetClean.includes(eClean) || eClean.includes(targetClean) ||
+                 targetClean.includes(rClean) || rClean.includes(targetClean);
+        });
+        if (mejorOpcion && !finalResponse.includes(mejorOpcion.ruta)) {
+          finalResponse += `\n\n💡 Podés ir a la sección **${mejorOpcion.etiqueta}** ingresando a \`${mejorOpcion.ruta}\`.`;
+        }
+      }
     }
 
     // Guardar aprendizaje automático si la respuesta fue útil

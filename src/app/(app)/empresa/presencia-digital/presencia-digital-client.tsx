@@ -38,6 +38,7 @@ import type {
   FiestaSeguimientoResena,
   ResenasSeguimientoResumen,
 } from '@/lib/presencia-digital/resenas-seguimiento';
+import { SeoPosicionamientoTab } from './seo-posicionamiento-tab';
 import {
   Users,
   TrendingUp,
@@ -48,6 +49,7 @@ import {
   AlertCircle,
   Clock,
   Calendar,
+  Search,
   Share2,
   BarChart3,
   Flame,
@@ -80,7 +82,7 @@ interface Props {
 export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
-  const [activeTab, setActiveTab] = useState<'revision' | 'comentarios' | 'web' | 'directorios' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
+  const [activeTab, setActiveTab] = useState<'revision' | 'posicionamiento' | 'comentarios' | 'web' | 'directorios' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishFeedback, setPublishFeedback] = useState<{
     success: boolean;
@@ -630,6 +632,17 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </button>
 
         <button
+          onClick={() => setActiveTab('posicionamiento')}
+          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'posicionamiento'
+              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20 font-black'
+              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Search className="w-4 h-4" /> Posicionamiento en Google
+        </button>
+
+        <button
           onClick={() => setActiveTab('google_ficha')}
           className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
             activeTab === 'google_ficha'
@@ -803,6 +816,11 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
             </div>
           )}
         </div>
+      )}
+
+      {/* PESTAÑA: POSICIONAMIENTO EN GOOGLE */}
+      {activeTab === 'posicionamiento' && (
+        <SeoPosicionamientoTab />
       )}
 
       {/* PESTAÑA: COMENTARIOS DE REDES (Orden Comentarios de las Redes) */}
