@@ -33,7 +33,10 @@ const ACTUALIZAR_REFERENCIAS_FALTANTES = process.env.UPDATE_MISSING_LAYOUT_BASEL
 const TODAS_LAS_RUTAS = [
   { ruta: '/admin', conSesion: true },
   { ruta: '/customers', conSesion: true },
-  { ruta: '/presupuestos', conSesion: true },
+  // Ojo: `/presupuestos` es una redireccion con un cartel de "cargando", no una
+  // pantalla. Medirla daba una huella distinta segun si el navegador llegaba a
+  // saltar o no. La Central de Presupuestos de verdad vive en `/presupuestos/nuevo`.
+  { ruta: '/presupuestos/nuevo', conSesion: true },
   { ruta: '/', conSesion: false },
   { ruta: '/simulador-de-presupuesto', conSesion: false },
   { ruta: '/catalogo/bodas', conSesion: false },
@@ -93,8 +96,12 @@ async function medirHuella(page: import('@playwright/test').Page): Promise<Huell
       h1X: h1.x, h1Y: h1.y, h1W: h1.w,
       headerY: header.y, headerH: header.h,
       mainX: main.x, mainW: main.w,
-      botones: document.querySelectorAll('button').length,
-      enlaces: document.querySelectorAll('a[href]').length,
+      // No se cuentan botones ni enlaces a proposito. En las pantallas que
+      // dibujan listas (el panel de inicio pone un boton por alerta del dia, los
+      // presupuestos una fila por presupuesto) esos numeros cambian solos cuando
+      // cambian los datos, sin que nadie toque el diseno: la prueba fallaba con
+      // la app intacta. La maquetacion se controla por geometria, ancho,
+      // desborde y colores, que si dependen del codigo.
       // Los colores no se ven en la geometria, y buena parte de las reglas
       // globales los controlan. Se resumen en un numero para poder compararlos.
       colores: huellaDeColor(),
@@ -143,6 +150,10 @@ test.describe('huella de maquetación', () => {
       if (ruta === '/presentacion-led') {
         await expect(page.getByText(/Cargando presentaci/i)).toBeHidden({ timeout: 45_000 });
       }
+      // Las pantallas del panel traen datos del servidor antes de dibujar el
+      // titulo. Con el servidor despertandose, 2,5 segundos no alcanzaban y la
+      // prueba avisaba "la ruta no existe o no carga" con la pantalla sana.
+      await page.locator('h1').first().waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
       await page.waitForTimeout(2500);
       const huella = await medirHuella(page);
       actual[clave(ruta)] = huella;
@@ -168,8 +179,8 @@ test.describe('huella de maquetación', () => {
       for (const [medida, valor] of Object.entries(actual[clave(ruta)])) {
         const antes = esperado[medida];
         if (typeof antes !== 'number') continue;
-        // Los conteos son exactos; las medidas geométricas admiten redondeo.
-        const margen = medida === 'botones' || medida === 'enlaces' || medida === 'desborde' ? 0 : TOLERANCIA;
+        // El desborde es exacto; las medidas geométricas admiten redondeo.
+        const margen = medida === 'desborde' ? 0 : TOLERANCIA;
         if (Math.abs(valor - antes) > margen) {
           desvios.push(`${ruta} · ${medida}: era ${antes}, ahora ${valor}`);
         }

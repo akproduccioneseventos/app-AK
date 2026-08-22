@@ -9,8 +9,6 @@
     "headerH": 64,
     "mainX": 257,
     "mainW": 1023,
-    "botones": 16,
-    "enlaces": 68,
     "colores": 2034977308
   },
   "chromium-desktop /customers": {
@@ -23,22 +21,6 @@
     "headerH": 64,
     "mainX": 257,
     "mainW": 1023,
-    "botones": 9,
-    "enlaces": 45,
-    "colores": 2034977308
-  },
-  "chromium-desktop /presupuestos": {
-    "anchoDocumento": 1280,
-    "desborde": 0,
-    "h1X": 321,
-    "h1Y": 18,
-    "h1W": 212,
-    "headerY": 0,
-    "headerH": 64,
-    "mainX": 257,
-    "mainW": 1023,
-    "botones": 16,
-    "enlaces": 46,
     "colores": 2034977308
   },
   "chromium-desktop /": {
@@ -51,8 +33,6 @@
     "headerH": 80,
     "mainX": -1,
     "mainW": -1,
-    "botones": 46,
-    "enlaces": 51,
     "colores": -883377086
   },
   "chromium-desktop /simulador-de-presupuesto": {
@@ -65,8 +45,6 @@
     "headerH": -1,
     "mainX": 0,
     "mainW": 1280,
-    "botones": 1,
-    "enlaces": 0,
     "colores": -1634398827
   },
   "chromium-desktop /catalogo/bodas": {
@@ -79,8 +57,6 @@
     "headerH": 125,
     "mainX": 0,
     "mainW": 1280,
-    "botones": 21,
-    "enlaces": 1,
     "colores": 1597126197
   },
   "chromium-desktop /presentacion-led": {
@@ -93,8 +69,6 @@
     "headerH": -1,
     "mainX": -1,
     "mainW": -1,
-    "botones": 13,
-    "enlaces": 1,
     "colores": 2137917199
   },
   "chromium-desktop /fiestas/nueva/portal-cliente": {
@@ -107,8 +81,6 @@
     "headerH": 64,
     "mainX": 257,
     "mainW": 1023,
-    "botones": 8,
-    "enlaces": 41,
     "colores": 2034977308
   },
   "chromium-desktop /contabilidad/comercial-360": {
@@ -121,8 +93,6 @@
     "headerH": 64,
     "mainX": 257,
     "mainW": 1023,
-    "botones": 8,
-    "enlaces": 46,
     "colores": 2034977308
   },
   "chromium-mobile /admin": {
@@ -135,8 +105,6 @@
     "headerH": 64,
     "mainX": 0,
     "mainW": 412,
-    "botones": 16,
-    "enlaces": 29,
     "colores": 1566381053
   },
   "chromium-mobile /customers": {
@@ -149,22 +117,6 @@
     "headerH": 64,
     "mainX": 0,
     "mainW": 412,
-    "botones": 9,
-    "enlaces": 6,
-    "colores": 1566381053
-  },
-  "chromium-mobile /presupuestos": {
-    "anchoDocumento": 412,
-    "desborde": 0,
-    "h1X": 92,
-    "h1Y": 22,
-    "h1W": 144,
-    "headerY": 0,
-    "headerH": 64,
-    "mainX": 0,
-    "mainW": 412,
-    "botones": 16,
-    "enlaces": 7,
     "colores": 1566381053
   },
   "chromium-mobile /": {
@@ -177,8 +129,6 @@
     "headerH": 64,
     "mainX": -1,
     "mainW": -1,
-    "botones": 46,
-    "enlaces": 51,
     "colores": -883377086
   },
   "chromium-mobile /simulador-de-presupuesto": {
@@ -191,8 +141,6 @@
     "headerH": -1,
     "mainX": 0,
     "mainW": 412,
-    "botones": 1,
-    "enlaces": 0,
     "colores": -1634398827
   },
   "chromium-mobile /catalogo/bodas": {
@@ -205,8 +153,6 @@
     "headerH": 69,
     "mainX": 0,
     "mainW": 412,
-    "botones": 21,
-    "enlaces": 1,
     "colores": 1597126197
   },
   "chromium-mobile /presentacion-led": {
@@ -219,8 +165,6 @@
     "headerH": -1,
     "mainX": -1,
     "mainW": -1,
-    "botones": 13,
-    "enlaces": 1,
     "colores": 2137917199
   },
   "chromium-mobile /fiestas/nueva/portal-cliente": {
@@ -233,8 +177,6 @@
     "headerH": 64,
     "mainX": 0,
     "mainW": 412,
-    "botones": 8,
-    "enlaces": 2,
     "colores": 1566381053
   },
   "chromium-mobile /contabilidad/comercial-360": {
@@ -247,8 +189,6 @@
     "headerH": 64,
     "mainX": 0,
     "mainW": 412,
-    "botones": 8,
-    "enlaces": 7,
     "colores": 1566381053
   }
 }

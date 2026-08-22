@@ -4004,3 +4004,19 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   la pantalla de posicionamiento seguía diciendo "óptimo". Ahora vive sólo en
   `src/lib/marketing/promo-pages.ts` y la página la importa de ahí.
   **Por qué importa:** una auditoría que lee una copia de sí misma no audita nada.
+
+- **La prueba de maquetación fallaba con la app sana (22 de agosto de 2026).**
+  Guardaba una "huella" de nueve pantallas y adentro contaba **cuántos botones y
+  enlaces** había. En las pantallas que dibujan listas eso cambia solo cuando
+  cambian los datos: el panel de inicio pone un botón por alerta del día y la
+  central de presupuestos una fila por presupuesto. Además medía `/presupuestos`,
+  que **no es una pantalla sino una redirección** con un cartel de "cargando", así
+  que la huella salía distinta según si el navegador llegaba a saltar o no. Y con
+  el servidor despertándose, los 2,5 segundos de espera no alcanzaban: avisaba
+  "la ruta no existe o no carga" con la pantalla perfecta.
+  **Qué se hizo:** se mide `/presupuestos/nuevo` (la pantalla de verdad), se
+  espera a que aparezca el título antes de medir, y la huella dejó de contar
+  botones y enlaces. Sigue controlando geometría, ancho, desborde y colores, que
+  es lo que sí depende del diseño. **No se desactivó ninguna prueba.**
+  **Por qué importa:** un control que falla solo se termina ignorando, y el día
+  que avisa algo de verdad nadie le cree.
