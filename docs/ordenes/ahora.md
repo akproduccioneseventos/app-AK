@@ -174,6 +174,81 @@ dudar al que las usa, que es lo que se quiere sacar.
 
 ---
 
+## BLOQUE 5 — La app instalable y que la fotocabina aguante sin internet
+
+**Lo que pidio el dueño:** *"quiero que la app se pueda instalar en pc o movil sin
+tener que ponerla en Play Store, porque no la quiero vender. Por ejemplo quiero la
+fotocabina y que solo este eso en esa pc, y si no hay internet que funcione igual;
+despues, cuando haya, se sincroniza sola. Y asi todo."*
+
+### Lo que YA ESTA y NO se rehace
+
+- **La app ya se puede instalar** sin tienda de aplicaciones: hay manifiesto en
+  `src/app/manifest.ts` (nombre, iconos, pantalla completa) enlazado desde
+  `src/app/layout.tsx`, y `@ducanh2912/next-pwa` configurado en `next.config.js`.
+- **El modo quiosco ya existe**: `src/components/kiosk/kiosk-setup.tsx`. Se elige
+  fiesta y puesto, se traba con una clave de 4 numeros y queda fija ahi. Roles de
+  hoy: `barra`, `muro-en-vivo`, `plataforma-360`, `totem`.
+- **La cola sin internet ya existe**: `src/lib/offline/offline-action-queue.ts`.
+  Guarda fotos del muro, registro de llegada y pedidos de la barra, y los manda
+  cuando vuelve la señal.
+
+### Lo que falta
+
+**1. La fotocabina no esta en el modo quiosco.** Es la unica estacion importante
+que quedo afuera de la lista de roles. **Agregala**, con el mismo trato que las
+otras (traba con clave, y que arranque directo en su pantalla).
+
+**2. La fotocabina no aguanta quedarse sin internet.**
+`src/app/evento/fotocabina/[fiestaId]/page.tsx:500-552`: la foto se sube en el
+momento; si falla, solo ofrece bajarla al disco y **no queda encolada**. En una
+fiesta con el wifi caido, se pierden las fotos de los invitados.
+
+Que tiene que pasar: **la foto se guarda en el aparato y se sube sola cuando
+vuelve internet**, sin que nadie haga nada.
+
+**⚠️ ACA ESTA LA TRAMPA, y si no se respeta la fotocabina falla en plena fiesta:**
+la cola de hoy guarda en `localStorage`, que aguanta unos pocos megas. **Una tanda
+de fotos no entra ahi.** Las fotos van en **IndexedDB** (el cajon grande del
+navegador), guardadas como `Blob`, no como texto. Si se meten en `localStorage`
+convertidas a texto, a la decima foto revienta y el invitado se queda sin su foto.
+
+- Guardá la imagen como archivo binario, no como texto.
+- **Que el operador vea cuantas fotos quedan sin subir.** Un cartel discreto en la
+  pantalla de la fotocabina: "3 fotos esperando internet". Sin eso, nadie sabe si
+  se perdieron.
+- **Nunca borres la foto local antes de que el servidor confirme que la recibio.**
+- **Que se pueda cerrar y volver a abrir la fotocabina sin perder lo pendiente.**
+- Si el aparato se queda sin lugar, avisá en pantalla en criollo, no falles en
+  silencio.
+
+**3. Que las pantallas de la fiesta abran sin internet.** Hoy Workbox guarda los
+archivos de la aplicacion pero no las pantallas. Que las pantallas de las
+estaciones (fotocabina, barra, totem, muro) **abran igual sin señal**, con los
+datos de la fiesta que ya se bajaron. Si algo no se puede hacer sin internet, que
+lo diga; **nunca una pantalla en blanco**.
+
+**4. Que se note cuando no hay internet y cuando vuelve.** Un cartel discreto y
+constante: "Sin internet — se guarda y se manda despues" y, al volver, "Listo, se
+subio todo". El operador no puede tener que adivinar.
+
+**5. Una pantalla para instalar los puestos.** El dueño no es programador y tiene
+que poder dejar una computadora lista sin ayuda: una pantalla que explique, en
+criollo y en pasos, como instalar la app en esa maquina y dejarla trabada en un
+puesto. Sin jerga.
+
+**Lo que NO hay que hacer:** no subir esto a ninguna tienda de aplicaciones. Se
+instala desde el navegador y punto.
+
+### Como se prueba que quedo bien
+
+**No alcanza con que compile.** Hace falta una prueba que:
+- corte internet, saque tres fotos, y verifique que quedan guardadas;
+- vuelva a poner internet y verifique que se suben solas;
+- cierre y reabra la pantalla en el medio, y verifique que **no se perdio ninguna**.
+
+---
+
 ## Lo que no se toca
 
 - `apphosting.yaml`: el servidor se duerme a propósito.
