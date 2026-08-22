@@ -8,11 +8,11 @@ Quien cierre una sesión reescribe este archivo. **Se pisa, no se acumula.**
 ---
 
 **Última actualización:** 22 de agosto de 2026.
-**Estado de la app:** sana y **ya fusionada**. 2082 pruebas en verde, tipos en
+**Estado de la app:** sana y **ya fusionada**. 2084 pruebas en verde, tipos en
 cero, compila, sin acentos rotos. Verificado después de fusionar, sobre la
 versión principal.
 **Propuestas abiertas:** ninguna. Se cerraron las seis viejas.
-**Órdenes pendientes:** `docs/ordenes/ahora.md`, para Gemini.
+**Órdenes pendientes:** ninguna. La última la entregó Gemini y ya está fusionada.
 
 ## Regla nueva del dueño (22 de agosto de 2026)
 
@@ -38,10 +38,9 @@ la versión principal, siempre, después de fusionar.
 
 ## Lo que sigue
 
-- **Mandarle `docs/ordenes/ahora.md` a Gemini**: la pantalla de posicionamiento
-  promete avisar cuando una página de venta pierde el título, pero los tiene
-  **copiados a mano** y se controla a sí misma. No rompe nada; es una promesa que
-  no cumple.
+- **Nada abierto.** No hay propuestas, no hay órdenes y no hay errores conocidos.
+- Lo único en cancha del dueño: **cargar la conexión de Instagram** para que la
+  galería traiga sus fotos. El botón para probarla ya está.
 
 ## Dos cosas para decirle al dueño si pregunta
 
@@ -50,3 +49,19 @@ la versión principal, siempre, después de fusionar.
 - **"No compila" de un ayudante casi nunca es cierto**: dos compilaciones a la vez
   en la misma carpeta se pisan. Si el error nombra archivos generados y no código,
   es el entorno.
+
+## Sumado el 22 de agosto (segunda tanda, ya fusionada)
+
+- **La auditoría de títulos lee los títulos de verdad**, de cada página, no de una
+  lista copiada. Aparecieron **tres páginas de venta sin título propio**, que la
+  lista a mano tapaba: ya lo tienen.
+- **Reparado al verificar**: la lista de páginas de promoción quedó escrita dos
+  veces —la página usaba una, la auditoría leía la otra—. Quedó una sola, en
+  `src/lib/marketing/promo-pages.ts`.
+- La prueba de fotos propias se actualizó para mirar los dos archivos. **No se
+  desactivó ninguna prueba.**
+
+**Lección que costó dos vueltas:** mover una lista a un archivo nuevo **no** es lo
+mismo que unificarla. Si la vieja queda donde estaba, la auditoría sigue leyendo
+una copia de sí misma. Antes de dar por resuelto un "ahora lee la fuente real",
+contá cuántas veces está definida la lista.
