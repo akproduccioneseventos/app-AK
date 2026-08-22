@@ -96,6 +96,73 @@ En `/settings/sincronizaciones`, en la tarjeta de Instagram:
 4. **Todo en criollo**: nada de nombres de variables ni de errores de Meta en
    inglés.
 
+
+---
+
+## BLOQUE 4 — El panel de redes con su historial, y un boton para actualizar
+
+**Lo que pidio el dueño:** *"el panel de redes sociales con su historial y que
+actualice"*.
+
+Hoy no hay ninguna pantalla donde ver cuanto historial hay guardado ni forma de
+traerlo a mano: **la unica manera de que baje es esperar a la tarea automatica**.
+Si el dueño acaba de conectar la cuenta, no tiene como saber si trajo todo.
+
+En **`/empresa/redes-sociales`** (Planificador de Contenido), agrega un panel de
+historial que muestre, por cada red (Instagram, Facebook, YouTube):
+
+1. **Cuantas publicaciones hay guardadas.**
+2. **De cuando es la mas vieja y de cuando la mas nueva.** Con eso se ve de un
+   vistazo si trajo todo el historial o se quedo a mitad de camino.
+3. **Cuando fue la ultima vez que busco publicaciones nuevas.**
+4. **Un boton "Actualizar ahora"** que dispare la bajada completa y, al terminar,
+   diga cuantas publicaciones nuevas trajo. Mientras corre, que se vea que esta
+   trabajando: puede tardar.
+5. **Si la bajada quedo incompleta, decirlo** y ofrecer seguir. Nunca dar por
+   completo algo que se corto.
+
+### Lo que ya existe y hay que usar, no rehacer
+
+- `syncMetaPublicHistory({ forceFull: true })` en
+  `src/lib/social-media/meta-history-backfill.ts` baja Instagram y Facebook.
+- `syncYouTubePublicHistory()` en
+  `src/lib/social-media/youtube-history-backfill.ts` baja YouTube.
+- `getSocialHistorySummary()` en `src/app/actions/social-history.ts` ya devuelve
+  el total, la fecha mas vieja, la mas nueva y el desglose por red.
+- **Hoy a las dos bajadas las llama unicamente la tarea automatica**
+  (`src/app/api/cron/metricas-de-redes/route.ts`). Falta la accion de servidor que
+  las dispare desde la pantalla.
+
+**La accion nueva va protegida** con permiso de administracion, como el resto. No
+la dejes abierta.
+
+---
+
+## Como conviene hacer el BLOQUE 1 (ya esta estudiado)
+
+Para no perder el viaje, esto ya esta mirado:
+
+- `getPublicInstagramFeed()` tiene que leer `social-posts.json` con `readData`,
+  filtrar `platform === 'Instagram'` con `mediaUrl`, ordenar por `publishDate` de
+  la mas nueva a la mas vieja, sacar repetidas por `sourceId` y mapear al mismo
+  `PublicInstagramFeedPost` que ya devuelve. **La forma de lo que devuelve no
+  cambia**, asi que la portada no se toca.
+- Los campos guardados que se necesitan: `sourceId`, `mediaUrl`, `mediaType`
+  ('video' o 'image'), `link` o `sourceUrl` para el enlace, `text` para el texto,
+  `publishDate`, y `performance.likes`.
+- La consulta a Meta se queda **solo como respaldo** para cuando no hay nada
+  guardado todavia (cuenta recien conectada), para que la primera visita no vea un
+  hueco.
+
+## Como conviene hacer el BLOQUE 2 (ya esta estudiado)
+
+- `src/components/landing/GallerySection.tsx` ya muestra 12 fotos y tiene un boton
+  **"Ver todas las fotos"** que las dibuja **todas de golpe**. Con el historial
+  completo eso pasa a ser cientos: hay que cambiarlo por **tandas** (12 mas cada
+  vez que se toca), volviendo a la primera tanda cuando se cambia de categoria.
+- Ojo con el visor de fotos ampliadas: recorre `displayedImages`, asi que si
+  cambias como se arma esa lista, revisa que las flechas sigan andando.
+
 ---
 
 ## Lo que no se toca
