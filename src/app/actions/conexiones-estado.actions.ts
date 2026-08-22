@@ -187,3 +187,68 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
 
   return conexiones;
 }
+
+export async function probarConexionInstagramAction(): Promise<{
+  success: boolean;
+  estado: 'conectada' | 'falta-configurarla' | 'fallando';
+  motivo: string;
+  detalle?: string;
+}> {
+  await requireAppSession();
+
+  const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN || process.env.META_INSTAGRAM_ACCESS_TOKEN;
+  const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_USER_ID;
+
+  if (!accessToken || !accountId) {
+    return {
+      success: false,
+      estado: 'falta-configurarla',
+      motivo: 'Faltan las credenciales en el servidor (INSTAGRAM_ACCESS_TOKEN o INSTAGRAM_BUSINESS_ACCOUNT_ID).',
+    };
+  }
+
+  try {
+    const apiVersion = process.env.INSTAGRAM_GRAPH_API_VERSION || 'v25.0';
+    const fields = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count';
+    const response = await fetch(
+      `https://graph.facebook.com/${apiVersion}/${accountId}/media?fields=${encodeURIComponent(fields)}&limit=1&access_token=${encodeURIComponent(accessToken)}`,
+      { signal: AbortSignal.timeout(4500), cache: 'no-store' }
+    );
+
+    if (!response.ok) {
+      const errPayload = await response.json().catch(() => null);
+      const metaMessage = errPayload?.error?.message || response.statusText;
+      let motivo = `Meta devolvió un error (${response.status}): ${metaMessage}`;
+
+      if (response.status === 400 || /token|expired|session/i.test(metaMessage)) {
+        motivo = 'El token de acceso de Instagram caducó. Es necesario generar un nuevo token de larga duración en Meta for Developers.';
+      } else if (response.status === 403 || /permission/i.test(metaMessage)) {
+        motivo = 'Faltan permisos en la cuenta de Meta (se requiere el permiso instagram_basic).';
+      }
+
+      return {
+        success: false,
+        estado: 'fallando',
+        motivo,
+      };
+    }
+
+    const data = await response.json();
+    const items = Array.isArray(data?.data) ? data.data : [];
+    return {
+      success: true,
+      estado: 'conectada',
+      motivo: '¡Conexión exitosa con Instagram!',
+      detalle: items.length > 0
+        ? `Se descargó y validó la publicación más reciente (ID: ${items[0].id}).`
+        : 'La cuenta está conectada correctamente pero todavía no tiene fotos publicadas.',
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      estado: 'fallando',
+      motivo: `No se pudo contactar con los servidores de Meta: ${err?.message || 'Tiempo de espera agotado'}.`,
+    };
+  }
+}
+
