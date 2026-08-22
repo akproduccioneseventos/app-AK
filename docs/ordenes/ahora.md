@@ -131,6 +131,44 @@ prueba; si hay algo roto, arreglalo y decilo. **No la desactives ni la saltees.*
 
 ---
 
+## BLOQUE 5 — URGENTE: el despertador esta escrito pero NADIE LO PUBLICA
+
+**El despertador ya esta fusionado en la version principal** (tarea programada
+cada 15 minutos en `functions/src/index.ts`, con su traba de concurrencia y sus
+pruebas). **Pero no corre, y no va a correr.**
+
+**Por que:** el despliegue automatico (`.github/workflows/deploy.yml`) compila la
+carpeta `functions/` pero **despliega solo el sitio**, con
+`action-hosting-deploy`. La tarea programada nunca se sube a Google. Ademas, el
+sitio va por Firebase App Hosting (`apphosting.yaml`), que es otro camino todavia.
+
+**Resultado: el codigo esta, las pruebas pasan, y la app sigue tan dormida como
+antes.** Es la tercera vez en el dia que aparece la misma forma de falla: escrito,
+compilando, y sin producir nada.
+
+### Que hay que hacer
+
+1. **Que el despliegue publique tambien la tarea programada**, en el mismo viaje
+   en que se publica el sitio. Que no haya que acordarse de nada a mano: el dueño
+   no es programador y no va a correr un comando.
+2. **Que se pueda comprobar que quedo publicada**: en
+   `/settings/tareas-automaticas`, mostrar **cuando fue la ultima vez que el
+   despertador toco la puerta**, distinto de cuando corrio cada tarea. Si el
+   despertador nunca toco, tiene que verse en rojo y decirlo en criollo: "el
+   despertador no esta funcionando".
+3. **Una prueba o control que impida que esto vuelva a pasar**: si existe una
+   tarea programada en `functions/`, el despliegue tiene que incluirla. Que se
+   ponga en rojo si no.
+4. **Si el despliegue de funciones necesita algo que no esta configurado**
+   (permisos, cuenta de servicio), **PARA Y AVISA en el reporte**, con lo que
+   falta en una linea. No lo dejes a medias sin decirlo.
+
+**Sobre lo que cuesta:** es **una sola** tarea programada cada 15 minutos. Entra
+en lo que ya viene incluido: no agrega gasto mensual. No se tocan la memoria ni
+las instancias minimas.
+
+---
+
 ## Lo que no se toca
 
 - `apphosting.yaml`: el servidor se duerme a propósito.

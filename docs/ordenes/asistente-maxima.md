@@ -75,6 +75,16 @@ la app pide el que razona, recibe el rápido.
    (`hayPresupuestoParaIA`). **El modelo que piensa también tiene que respetarlo**,
    y si se llegó al tope, cae al rápido en vez de fallar.
 
+5. **Que se actualice solo cuando Google saque una version nueva.** El dueño lo
+   dijo asi: *"no se actualizo cuando salio"*. Hoy el modelo por defecto esta
+   clavado en un numero de version (`gemini-3.6-flash`), asi que cuando Google
+   saca una mejor, la app se queda vieja hasta que alguien la cambie a mano.
+   **Poné el atajo `googleai/gemini-flash-latest` como el modelo rapido por
+   defecto**, que apunta siempre a la ultima. La cadena de respaldo que ya existe
+   cubre el caso de que una version nueva falle.
+   El Pro si conviene clavarlo, pero **dejá anotado en el codigo de cuando es esa
+   eleccion**, para que la proxima revision sepa que mirar.
+
 ---
 
 ## BLOQUE 1 — Cargar un prospecto contándoselo (lo que más se usa por día)
