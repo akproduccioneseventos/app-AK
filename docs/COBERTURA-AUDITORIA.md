@@ -70,6 +70,54 @@ hace falta volver a mirar nada de lo de arriba.
 
 ---
 
+## Las 341 pantallas, agrupadas: ninguna queda afuera
+
+Clasificacion mecanica sobre `src/lib/multiagent/mapa-app.generado.ts`
+(22 de agosto de 2026). **332 de 341 caen en un area revisada. Las 9 restantes
+estan abajo y NO fueron revisadas por nadie.**
+
+| Area | Pantallas | Revisada |
+| :--- | ---: | :--- |
+| Configuracion y catalogo de empresa | 58 | **NO** (se corto por el tope) |
+| Fiesta: configuracion general y armado | 45 | Si (dentro de ventas/operacion y comida) |
+| Plata: presupuestos, facturas, pagos, contabilidad | 36 | Si |
+| CRM, ventas y simuladores | 36 | Si |
+| Pantalla gigante, LED, muro, album e impresion | 30 | Si |
+| Entretenimiento y estaciones del invitado | 22 | Si |
+| Personal, proveedores y operacion | 19 | Si |
+| Invitados, mesas y confirmaciones | 17 | Si |
+| Comida, menus, insumos y compras | 15 | Si |
+| Paginas publicas de venta | 14 | Si |
+| Portal del cliente | 11 | Si |
+| Contratos y documentos | 10 | Si |
+| Agenda, reuniones y alertas | 8 | Si |
+| Redes, blog y presencia digital | 6 | Si |
+| Musica y DJ | 3 | Si |
+| Decoracion | 2 | Si |
+
+## Las 9 pantallas que no caen en ninguna area
+
+**Estas son las olvidadas de verdad. Nadie las miro nunca.** Varias huelen a
+duplicado de algo que ya existe, que es el tipo de cosa que confunde al equipo.
+
+| Pantalla | Sospecha |
+| :--- | :--- |
+| `/comparativa-ganancias` | **Toca plata** y no esta en el menu ni se auditó. |
+| `/configuracion/backup-final` | Respaldos. Justo el area que quedo sin revisar. |
+| `/prospectos` y `/prospectos/:id` | **Posible duplicado** de `/contabilidad/crm`. Dos pantallas para lo mismo. |
+| `/recepcion/:fiestaId` | Recepcion de invitados. Puede duplicar `/evento/actual/checkin`. |
+| `/portal` | Puede duplicar `/portal-cliente`. |
+| `/presentacion` | Puede duplicar `/presentacion-led`. |
+| `/invitado/:fiestaId/:invitadoId` | Puede duplicar `/portal-invitado/:fiestaId/:guestId`. |
+| `/portal-invitado/:fiestaId/:guestId` | La otra mitad del posible duplicado. |
+
+**Que hay que hacer con ellas** (pedido en la orden de Gemini): por cada una,
+decir si **se usa**, si **duplica** a otra, o si **hay que borrarla**. Una pantalla
+duplicada no es inofensiva: alguien del equipo carga un prospecto en la pantalla
+equivocada y ese prospecto no aparece donde todos miran.
+
+---
+
 ## Lo que ya no hace falta volver a mirar
 
 Todo lo de la primera tabla, **salvo que se toque su código**. Si una propuesta

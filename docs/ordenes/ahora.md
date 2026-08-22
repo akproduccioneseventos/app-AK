@@ -126,6 +126,37 @@ De 596 pasan 594. Las 2 son `tests/e2e/layout-baseline.spec.ts`:
 **Ya fallaban antes, no son una regresion.** Si la prueba mide mal, arregla la
 prueba. **No la desactives.**
 
+## 1.5 Las cuatro areas sin revisar y las nueve pantallas olvidadas
+
+Ver `docs/COBERTURA-AUDITORIA.md`. Quedaron **cuatro areas sin auditar** por un
+tope de uso, y **nueve pantallas que no caen en ninguna area**: nadie las miro
+nunca y varias parecen duplicados.
+
+**Lo primero, y es barato:** por cada una de las nueve, decir en una linea si
+**se usa**, si **duplica** a otra pantalla, o si **hay que borrarla**:
+
+`/comparativa-ganancias` (toca plata), `/configuracion/backup-final`,
+`/prospectos` y `/prospectos/:id` (posible duplicado de `/contabilidad/crm`),
+`/recepcion/:fiestaId`, `/portal`, `/presentacion`,
+`/invitado/:fiestaId/:invitadoId` y `/portal-invitado/:fiestaId/:guestId`.
+
+**Por que importa:** una pantalla duplicada no es inofensiva. Alguien del equipo
+carga un prospecto en la pantalla equivocada y ese prospecto **no aparece donde
+todos miran**.
+
+**Despues, las cuatro areas sin revisar**, en este orden:
+1. **Respaldos y accesos por enlace** — ¿los respaldos se hacen de verdad o estan
+   escritos y nadie los corre? ¿Alguien con el enlace de un proveedor ve datos de
+   otra fiesta o de plata que no le corresponden?
+2. **Configuracion y catalogo** — buscá **ajustes que se puedan cambiar y no hagan
+   nada**. El dueño cree que configuro algo y no configuro nada.
+3. **Reportes y numeros del negocio** — un numero del panel que no cuadre con los
+   datos de origen, o un reporte que sume dos veces.
+4. **Post-fiesta, feedback y resenas.**
+
+**Anota el resultado en `docs/COBERTURA-AUDITORIA.md`**, en la misma propuesta.
+Ese documento es el que evita auditar dos veces lo mismo.
+
 ---
 
 # TANDA 2 — WhatsApp, redes, agenda con avisos al celular, la web con modelos y Google
