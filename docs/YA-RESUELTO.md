@@ -3996,3 +3996,11 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   corriendo y que no se podía verificar. No había ninguna: contó su propio
   comando de búsqueda. **Para saber si hay una compilación, `ps aux | grep "next
   build" | grep -v grep`**, sin `-c`.
+
+- **La lista de páginas de promoción estaba escrita dos veces (22 de agosto de
+  2026).** Al mover la auditoría de títulos a leer las fuentes reales, la lista de
+  las páginas de promoción quedó copiada en dos lados: la página usaba una y la
+  auditoría leía la otra, idénticas. Si alguien cambiaba un título en la página,
+  la pantalla de posicionamiento seguía diciendo "óptimo". Ahora vive sólo en
+  `src/lib/marketing/promo-pages.ts` y la página la importa de ahí.
+  **Por qué importa:** una auditoría que lee una copia de sí misma no audita nada.
