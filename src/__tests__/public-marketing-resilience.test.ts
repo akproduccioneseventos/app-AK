@@ -16,10 +16,16 @@ describe('public marketing resilience', () => {
   });
 
   it('uses local AK campaign imagery instead of runtime Unsplash dependencies', () => {
+    // Las paginas de promocion viven en promo-pages.ts (una sola lista, para que
+    // la auditoria de titulos lea la de verdad y no una copia). La pantalla las
+    // importa de ahi, asi que las fotos se buscan en los dos archivos.
     const campaigns = read('src/app/landing/[slug]/page.tsx');
+    const promos = read('src/lib/marketing/promo-pages.ts');
+    const juntos = `${campaigns}\n${promos}`;
 
     expect(campaigns).not.toContain('images.unsplash.com');
-    expect(campaigns).toContain('/media/catalogo-servicios/boda_persuasiva.png');
-    expect(campaigns).toContain('/media/catalogo-servicios/quinceanera_hero.png');
+    expect(promos).not.toContain('images.unsplash.com');
+    expect(juntos).toContain('/media/catalogo-servicios/boda_persuasiva.png');
+    expect(juntos).toContain('/media/catalogo-servicios/quinceanera_hero.png');
   });
 });
