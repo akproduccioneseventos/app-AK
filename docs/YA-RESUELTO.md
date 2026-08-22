@@ -4059,3 +4059,12 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   Quedó `src/__tests__/despertador-golpea-una-puerta-real.test.ts`, que verifica
   que cada dirección que llama el despertador corresponda a una ruta real, y que
   siga programado. Comprobado que se pone en rojo con la dirección mala.
+
+- **El despliegue no publicaba el despertador (22 de agosto de 2026).** La entrega
+  traía la prueba que exige el paso de despliegue de funciones, pero **no traía el
+  paso**: su propia prueba quedaba en rojo y el despertador seguía sin llegar a
+  Google. Se agregó el paso en `.github/workflows/deploy.yml`, después del
+  despliegue del sitio y con la misma cuenta de servicio.
+  **Por qué importa:** publicar el sitio no publica las tareas programadas. Sin
+  este paso, el despertador queda escrito, las pruebas pasan, y la app sigue
+  dormida sin que nada lo avise.
