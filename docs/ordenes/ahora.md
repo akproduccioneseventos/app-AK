@@ -1,179 +1,270 @@
-# Orden 1: que la app corra sola, cuatro arreglos y el remate del movimiento
+# LA ORDEN. Todo lo que falta, en cuatro tandas
 
 **Para:** Gemini (Antigravity)
 **Escrita:** 22 de agosto de 2026.
-**Prioridad:** esta va PRIMERO. La orden de "sin internet" (`docs/ordenes/despues-sin-internet.md`) va después, en otra propuesta.
 
-## Cómo se entrega
-
-**UNA SOLA propuesta de cambios con los cuatro bloques adentro.** Cada fusión
-dispara un despliegue y eso se paga. Si un bloque se traba, **entregá el resto
-igual, en la misma propuesta**, avisando cuál faltó y por qué.
-
-**Arrancá desde la versión principal de ahora.** Antes de tocar nada, leé
-`docs/MANUAL-DE-LA-APP.md` y `docs/YA-RESUELTO.md`.
-
-**Antes de fusionar:** tipos en cero, pruebas en verde, `npm run check:acentos`
-limpio y `npm run build` que termine bien.
-
-**Regla que ya se rompió una vez:** **no toques textos que ve el cliente si no
-están pedidos.** Se cambiaron por cuenta propia la promesa de respuesta y el botón
-de precio, y hubo que volverlos atrás.
+**Esta es la unica orden.** Adentro esta todo lo que falta, en el orden en que hay
+que hacerlo. Los dos trabajos mas grandes tienen su detalle en
+`docs/ordenes/detalle/`, y estan marcados donde corresponde.
 
 ---
 
-## BLOQUE 1 — QUE CORRA SOLO DE VERDAD (lo más importante, ya se pidió y no vino)
+## Como se entrega
 
-**El problema, en criollo:** la app se pone al día **solo cuando alguien del
-equipo entra al panel**. El disparador vive en `src/components/app-shell.tsx`, que
-es la cáscara del área con sesión. El visitante de la web pública no dispara nada.
-Si nadie del equipo abre la app el fin de semana, en todo el fin de semana no
-corre nada: ni las notas del blog, ni la bajada de las fotos de Instagram, ni los
-recordatorios de cuota. Ya pasó: hubo meses sin números de redes guardados.
+**Una tanda = una propuesta de cambios.** Cuatro tandas, cuatro fusiones, en este
+orden. **No las mezcles**: cada fusion dispara un despliegue y, si se mezcla todo,
+el dia que algo falle en una fiesta no vamos a saber que lo rompio.
 
-El propio código lo dice en `src/lib/automatico/al-entrar-a-la-app.ts`: *"No
-reemplaza al despertador de afuera. Si nadie abre la app en tres días, estas
-tareas no corren en tres días."* Y la solución escrita
-(`docs/PRENDER-LAS-TAREAS.md`) es un instructivo para que el dueño configure
-cuatro renglones a mano en una página de internet. **Nunca lo hizo y no tiene por
-qué.** Eso no es resolver.
+**Dentro de cada tanda, TODO va en UNA sola propuesta.** Si un bloque se traba,
+entregá el resto igual, en la misma propuesta, avisando cual falto y por que.
 
-### Qué hay que hacer
+**Arranca cada tanda desde la version principal de ahora.** Una propuesta hecha
+sobre una base vieja puede borrar trabajo mas nuevo sin que se note.
 
-1. **Un despertador de verdad, dentro del proyecto.** La carpeta `functions/` ya
-   existe y no tiene ninguna tarea programada. Agregá **una sola**, cada 15
-   minutos, que pregunte qué está vencido y corra lo que corresponda.
-   **Una sola, no cuatro**: una entra en lo que ya viene incluido sin pagar.
-2. **Que la web pública también lo dispare, como red de seguridad.** Una visita a
-   la portada larga la puesta al día **sin hacer esperar a nadie**: se larga y la
-   página sigue, nunca se espera el resultado.
-3. **La trampa que ya nos mordió:** diez visitas en el mismo minuto no pueden
-   generar diez notas de blog ni pagar diez veces la inteligencia artificial.
-   **La marca de "ya estoy corriendo" se toma ANTES de trabajar, no después.**
-   El que llega y ve que otro está corriendo, se va. **Con una prueba que lo
-   demuestre.**
-4. **Que se vea.** En `/settings/tareas-automaticas`: cuándo corrió cada tarea y
-   quién la disparó. Si una no corre hace más del doble de lo que debería, en rojo.
-5. **Corregí `docs/PRENDER-LAS-TAREAS.md`**: hoy miente.
+**Antes de fusionar, en cada tanda:** tipos en cero, pruebas en verde,
+`npm run check:acentos` limpio y `npm run build` que termine bien.
 
-**Lo que cuesta:** una sola tarea cada 15 minutos entra en lo incluido, **no
-agrega gasto mensual**. `apphosting.yaml` no se toca.
+**Antes de tocar nada, lee:** `docs/MANUAL-DE-LA-APP.md`, `docs/YA-RESUELTO.md` y
+`docs/COMO-AUDITAR.md`.
 
 ---
 
-## BLOQUE 2 — Cuatro arreglos chicos (salieron de revisar la app entera)
+## Las cinco reglas que no se rompen
 
-Se auditaron las siete áreas. **Nada roto de fondo.** Salieron estas cuatro, todas
-verificadas a mano. Ninguna toca plata, cuentas ni permisos.
+1. **El WhatsApp prepara mensajes y no los manda.** El mensaje sale cuando una
+   persona lo toca, desde su propio WhatsApp.
+2. **No se tocan textos que ve el cliente si no estan pedidos.** Ya paso: se
+   cambiaron la promesa de respuesta y el boton de precio, y hubo que volverlos
+   atras.
+3. **Nada que aumente lo que se paga por mes.** `apphosting.yaml` no se toca: el
+   servidor se duerme a proposito.
+4. **Nunca datos inventados mostrados como reales.** Si algo no esta conectado, se
+   dice en criollo y se explica como conectarlo.
+5. **Nunca desactivar ni saltear una prueba** para que pase el control.
 
-**1. La lista de compras queda en blanco y no dice por qué.**
-`src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx:475`
-Dibuja una tarjeta por proveedor y nada más. Si el evento no tiene todavía platos
-con ingredientes, ni bebidas, ni repostería, la pantalla queda vacía: el equipo no
-sabe si falta cargar algo o si se rompió. **Un cartel que diga qué falta y a qué
-pantalla ir a cargarlo.**
+## Y la que costo mas cara: COMPILAR NO ES ANDAR
 
-**2. El presupuesto que ve el cliente muestra centavos y el resto de la app no.**
-`src/components/budget/BudgetDocument.tsx:31` y
-`src/components/presupuestos/BudgetPrintTemplate.tsx:34` muestran "$ 10.000,00".
-El resto de la app muestra "$ 10.000". **Es el papel que se le manda al cliente y
-se imprime.** Unificar en cero decimales. Revisá también
-`src/components/presupuestos/paso-4-resumen.tsx`.
+El 22 de agosto aparecieron **tres cosas escritas que no producian nada**, y las
+tres pasaron los cuatro controles. Antes de dar cualquier bloque por terminado:
 
-**3. El botón de borrar una factura cobrada se ve activo pero no funciona.**
-`src/components/invoice-list-item.tsx:97`. El servidor la protege bien (no se
-toca), pero el botón se ve prendido y al tocarlo da error. **Que se vea apagado
-cuando la factura tiene pagos**, con una ayuda que diga por qué.
-
-**4. En el tablero de decoración del cliente, el corazón se borra solo sin avisar.**
-`src/app/portal/[fiestaId]/moodboard/page.tsx:57-62`. Si falla el guardado, la
-pantalla revierte el corazón y no dice nada; la persona cree que apretó mal. Al
-subir una foto sí avisa (línea 88): **hacer lo mismo acá.**
+- **Si algo llama a otra cosa por su nombre escrito** (una direccion, una ruta, el
+  nombre de un modelo), **verifica que ese nombre exista de verdad**.
+- **Si algo tiene que correr solo**, verifica que **algo lo dispare** y que eso
+  **este publicado**. Una tarea programada que no se despliega no existe.
+- **Una prueba nueva no vale hasta verla en rojo**: rompé a proposito lo que tiene
+  que detectar, y recien ahi dala por buena.
 
 ---
 
-## BLOQUE 3 — Rematar el movimiento
+# TANDA 1 — Que la app corra sola, y cuatro arreglos
 
-El movimiento que entregaste quedó bien: nada queda invisible, respeta a quien
-pidió menos animación y no desborda. Falta el remate, en orden de lo que más rinde:
+## 1.1 URGENTE: el despertador esta escrito pero NADIE LO PUBLICA
 
-1. **Los números que suben.** Donde hay una cifra que impresiona (años de
-   experiencia, fiestas hechas), que **trepe desde cero** al llegar ahí, una sola
-   vez. Con `useReducedMotion`: quien pidió menos movimiento ve el número final.
-2. **La galería.** Al tocar "ver más", la tanda nueva aparece de golpe. Que entren
-   **escalonadas**, como la primera tanda. Con el historial completo de Instagram,
-   eso es lo que transmite "mirá todo lo que hicimos".
-3. **Mientras carga, que no haya huecos vacíos**: el molde gris de lo que va a
-   venir, en vez de un espacio en blanco.
-4. **SACAR, no agregar:** en `src/components/landing/HeroSection.tsx` quedaron
-   **tres animaciones que no paran nunca** (la foto de fondo y dos resplandores con
-   desenfoque grande). **Dejá una sola.** Las otras no se notan y le chupan batería
-   al celular del que te está mirando.
+Ya esta fusionado (tarea programada cada 15 minutos en `functions/src/index.ts`,
+con traba de concurrencia y pruebas). **Pero no corre y no va a correr.**
 
----
-
-## BLOQUE 4 — Dos pruebas de navegador que se quejan del Centro de Control
-
-De 596 pruebas de navegador pasan 594. Las 2 son la misma
-(`tests/e2e/layout-baseline.spec.ts`) en escritorio y en celular:
-
-- **Escritorio:** `/admin · no tiene título ni contenido: la ruta no existe o no
-  carga`. Pero en celular carga bien, y el `<h1>` de
-  `src/app/(app)/admin/page.tsx:222` **no depende de que carguen los datos**.
-  Lo que dice la prueba no coincide con el código.
-- **Celular:** `/presupuestos/nuevo · falta referencia para chromium-mobile`. Se
-  cambió la ruta medida (antes era `/presupuestos`, que es una redirección) y la
-  referencia de ese perfil quedó sin grabar. Se graba corriendo ese archivo con
-  `UPDATE_MISSING_LAYOUT_BASELINE=true`, **con nada más corriendo en paralelo**.
-
-**Ya fallaban antes, no son una regresión.** Si la prueba mide mal, arreglá la
-prueba; si hay algo roto, arreglalo y decilo. **No la desactives ni la saltees.**
-
----
-
-## BLOQUE 5 — URGENTE: el despertador esta escrito pero NADIE LO PUBLICA
-
-**El despertador ya esta fusionado en la version principal** (tarea programada
-cada 15 minutos en `functions/src/index.ts`, con su traba de concurrencia y sus
-pruebas). **Pero no corre, y no va a correr.**
-
-**Por que:** el despliegue automatico (`.github/workflows/deploy.yml`) compila la
-carpeta `functions/` pero **despliega solo el sitio**, con
-`action-hosting-deploy`. La tarea programada nunca se sube a Google. Ademas, el
-sitio va por Firebase App Hosting (`apphosting.yaml`), que es otro camino todavia.
+El despliegue automatico (`.github/workflows/deploy.yml`) compila `functions/`
+pero **despliega solo el sitio**, con `action-hosting-deploy`. La tarea programada
+nunca sube a Google. Ademas el sitio va por Firebase App Hosting
+(`apphosting.yaml`), que es otro camino.
 
 **Resultado: el codigo esta, las pruebas pasan, y la app sigue tan dormida como
-antes.** Es la tercera vez en el dia que aparece la misma forma de falla: escrito,
-compilando, y sin producir nada.
+antes.**
 
-### Que hay que hacer
-
+Que hacer:
 1. **Que el despliegue publique tambien la tarea programada**, en el mismo viaje
-   en que se publica el sitio. Que no haya que acordarse de nada a mano: el dueño
-   no es programador y no va a correr un comando.
-2. **Que se pueda comprobar que quedo publicada**: en
-   `/settings/tareas-automaticas`, mostrar **cuando fue la ultima vez que el
-   despertador toco la puerta**, distinto de cuando corrio cada tarea. Si el
-   despertador nunca toco, tiene que verse en rojo y decirlo en criollo: "el
-   despertador no esta funcionando".
-3. **Una prueba o control que impida que esto vuelva a pasar**: si existe una
-   tarea programada en `functions/`, el despliegue tiene que incluirla. Que se
-   ponga en rojo si no.
-4. **Si el despliegue de funciones necesita algo que no esta configurado**
-   (permisos, cuenta de servicio), **PARA Y AVISA en el reporte**, con lo que
-   falta en una linea. No lo dejes a medias sin decirlo.
+   en que se publica el sitio. El dueño no es programador: no va a correr ningun
+   comando a mano.
+2. **Que se pueda comprobar**: en `/settings/tareas-automaticas`, mostrar **cuando
+   fue la ultima vez que el despertador toco la puerta**, distinto de cuando corrio
+   cada tarea. Si nunca toco, en rojo y en criollo: "el despertador no esta
+   funcionando".
+3. **Un control que impida que se repita**: si hay una tarea programada en
+   `functions/`, el despliegue tiene que incluirla, o ponerse en rojo.
+4. **Si el despliegue necesita algo que no tenes** (permisos, cuenta de servicio),
+   **PARA Y AVISA** en una linea. No lo dejes a medias sin decirlo.
 
-**Sobre lo que cuesta:** es **una sola** tarea programada cada 15 minutos. Entra
-en lo que ya viene incluido: no agrega gasto mensual. No se tocan la memoria ni
-las instancias minimas.
+Es **una sola** tarea cada 15 minutos: entra en lo incluido, no agrega gasto.
+
+## 1.2 Cuatro arreglos chicos (verificados a mano)
+
+1. **La lista de compras queda en blanco y no dice por que.**
+   `src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx:475`. Dibuja una
+   tarjeta por proveedor y nada mas. **Un cartel que diga que falta y a que
+   pantalla ir a cargarlo.**
+2. **El presupuesto del cliente muestra centavos y el resto de la app no.**
+   `src/components/budget/BudgetDocument.tsx:31` y
+   `src/components/presupuestos/BudgetPrintTemplate.tsx:34` muestran "$ 10.000,00";
+   el resto muestra "$ 10.000". **Es el papel que se le manda al cliente.**
+   Unificar en cero decimales. Revisa tambien `paso-4-resumen.tsx`.
+3. **El boton de borrar una factura cobrada se ve activo y no funciona.**
+   `src/components/invoice-list-item.tsx:97`. El servidor la protege bien (no se
+   toca). **Que el boton se vea apagado** cuando la factura tiene pagos.
+4. **En el tablero de decoracion, el corazon se borra solo sin avisar.**
+   `src/app/portal/[fiestaId]/moodboard/page.tsx:57-62`. Al subir una foto si avisa
+   (linea 88): **hacer lo mismo aca.**
+
+## 1.3 Rematar el movimiento
+
+1. **Los numeros que suben**: donde hay una cifra que impresiona, que trepe desde
+   cero al llegar ahi, una sola vez, con `useReducedMotion`.
+2. **La galeria**: al tocar "ver mas", que la tanda nueva entre **escalonada**.
+3. **Mientras carga, el molde gris** en vez de un hueco vacio.
+4. **SACAR**: en `src/components/landing/HeroSection.tsx` quedaron **tres
+   animaciones que no paran nunca**. **Deja una sola**: las otras no se notan y le
+   chupan bateria al celular del que esta mirando.
+
+## 1.4 Dos pruebas de navegador que se quejan del Centro de Control
+
+De 596 pasan 594. Las 2 son `tests/e2e/layout-baseline.spec.ts`:
+- **Escritorio:** `/admin · no tiene titulo ni contenido`. Pero en celular carga
+  bien y el `<h1>` de `src/app/(app)/admin/page.tsx:222` no depende de los datos.
+  Lo que dice la prueba no coincide con el codigo.
+- **Celular:** `/presupuestos/nuevo · falta referencia para chromium-mobile`. Se
+  graba con `UPDATE_MISSING_LAYOUT_BASELINE=true`, **con nada mas corriendo**.
+
+**Ya fallaban antes, no son una regresion.** Si la prueba mide mal, arregla la
+prueba. **No la desactives.**
+
+## 1.5 Las cuatro areas sin revisar y las nueve pantallas olvidadas
+
+Ver `docs/COBERTURA-AUDITORIA.md`. Quedaron **cuatro areas sin auditar** por un
+tope de uso, y **nueve pantallas que no caen en ninguna area**: nadie las miro
+nunca y varias parecen duplicados.
+
+**Lo primero, y es barato:** por cada una de las nueve, decir en una linea si
+**se usa**, si **duplica** a otra pantalla, o si **hay que borrarla**:
+
+`/comparativa-ganancias` (toca plata), `/configuracion/backup-final`,
+`/prospectos` y `/prospectos/:id` (posible duplicado de `/contabilidad/crm`),
+`/recepcion/:fiestaId`, `/portal`, `/presentacion`,
+`/invitado/:fiestaId/:invitadoId` y `/portal-invitado/:fiestaId/:guestId`.
+
+**Por que importa:** una pantalla duplicada no es inofensiva. Alguien del equipo
+carga un prospecto en la pantalla equivocada y ese prospecto **no aparece donde
+todos miran**.
+
+**Despues, las cuatro areas sin revisar**, en este orden:
+1. **Respaldos y accesos por enlace** — ¿los respaldos se hacen de verdad o estan
+   escritos y nadie los corre? ¿Alguien con el enlace de un proveedor ve datos de
+   otra fiesta o de plata que no le corresponden?
+2. **Configuracion y catalogo** — buscá **ajustes que se puedan cambiar y no hagan
+   nada**. El dueño cree que configuro algo y no configuro nada.
+3. **Reportes y numeros del negocio** — un numero del panel que no cuadre con los
+   datos de origen, o un reporte que sume dos veces.
+4. **Post-fiesta, feedback y resenas.**
+
+**Anota el resultado en `docs/COBERTURA-AUDITORIA.md`**, en la misma propuesta.
+Ese documento es el que evita auditar dos veces lo mismo.
 
 ---
 
-## Lo que no se toca
+# TANDA 2 — WhatsApp, redes, agenda con avisos al celular, la web con modelos y Google
 
-- `apphosting.yaml`: el servidor se duerme a propósito.
-- Nada que aumente lo que se paga por mes.
-- **Textos que ve el cliente, si no están pedidos.**
-- El WhatsApp prepara mensajes y no los manda.
-- Si tocás o agregás una pantalla, **corré `npm run mapa:generar`** y anotá el
-  cambio en `docs/YA-RESUELTO.md`, en la misma propuesta.
+**Detalle completo en `docs/ordenes/detalle/redes-whatsapp-agenda.md`.** Resumen:
+
+## 2.1 URGENTE: la bandeja de WhatsApp abre un numero que no existe
+
+`src/app/(app)/contabilidad/crm/outbox/page.tsx:51`: arma el enlace sacandole los
+simbolos al telefono, y queda sin el codigo de pais. WhatsApp dice que el numero no
+existe. **Y la app igual lo marca como enviado** (linea 65): en la planilla figura
+que se aviso a alguien que nunca recibio nada. En recordatorios de cuota, es plata
+que no se reclamo creyendo que si.
+
+**El arreglo ya existe**: `toWhatsAppNumber()` en `src/lib/commercial/contact.ts:18`.
+Usala. Y ademas: no marcar como enviado si el numero no se puede armar, poder decir
+"en realidad no lo mande", avisar si reprogramar falla, y poder editar el mensaje
+antes de mandarlo.
+
+## 2.2 El planificador de redes miente sobre lo que publica solo
+
+El cartel dice "copia y pega para publicar", pero **Instagram y Facebook salen
+solos**. Que cada red diga que va a pasar con ella; boton "publicar ahora"; una
+pantalla para los que hay que copiar a mano; aviso cuando una publicacion falla; y
+vista por estado. **Y lo que mas rinde: que al cerrar una fiesta quede el posteo
+escrito**, con las fotos ya aprobadas del muro.
+
+## 2.3 La agenda y los avisos al celular
+
+**Los avisos al celular no funcionan**: `public/firebase-messaging-sw.js` esta
+apagado por falta de configuracion, y **no hay nadie que mande nada**. Los
+recordatorios solo se crean si alguien abre el panel. **No existe el aviso de
+"reunion en una hora".**
+
+Encender los avisos; **que el despertador dispare los recordatorios**; que tocar el
+aviso lleve a la pantalla; que la reunion guarde con quien y donde; y **una sola
+agenda** en vez de las dos que hay hoy. Cada aviso se manda **una sola vez**.
+
+## 2.4 La web con modelos para elegir
+
+Tres o cuatro modelos de la portada (mismos textos y fotos, cambia el vestido),
+vista previa de verdad, volver atras de un toque, **sin romper el posicionamiento
+en Google**, probado en celular.
+
+## 2.5 Publicar tambien en Google
+
+Sumar el perfil de empresa de Google como una red mas del planificador. Si no esta
+conectado, decirlo y explicar como conectarlo. **Nunca simular que publico.**
+
+---
+
+# TANDA 3 — La app instalable y que funcione sin internet
+
+**Detalle completo en `docs/ordenes/detalle/despues-sin-internet.md`.** Resumen:
+
+- **Ya esta y no se rehace:** la app se instala sin tienda (manifiesto +
+  `next-pwa`), el modo quiosco existe, y hay una cola sin internet.
+- **Faltan estaciones en el modo quiosco**: fotocabina, espejo magico, touchpix,
+  buzon, video de vida, impresion y DJ.
+- **Ninguna estacion que captura aguanta sin internet.** La foto se sube en el
+  momento y si falla **no queda encolada**.
+  **⚠️ La trampa:** la cola de hoy usa `localStorage`, que aguanta pocos megas.
+  **Las fotos y videos van en IndexedDB, como `Blob`, no como texto.** Si no, a la
+  decima foto revienta en plena fiesta.
+- **Toda la app, por niveles:** ver lo ya bajado (todas las pantallas); escribir
+  sin internet solo donde es seguro; y decir claramente lo que no se puede.
+- **La regla que evita el desastre:** se encola lo que **se suma**, no lo que
+  **pisa**. Si dos editan lo mismo sin internet, uno pierde su trabajo sin
+  enterarse.
+- **No se sube a ninguna tienda de aplicaciones.**
+
+---
+
+# TANDA 4 — La asistente de la app, al maximo
+
+**Detalle completo en `docs/ordenes/detalle/asistente-maxima.md`.** Resumen:
+
+- **El modelo:** el casillero del "pro" apunta al mismo modelo rapido
+  (`src/ai/genkit.ts:6-8`). El dueño pidio **la ultima version de Flash (3.7 si ya
+  salio) y el Pro, si estan disponibles**. **Verificalo contra la lista oficial de
+  Google, no de memoria**, y probá que responden de verdad. Para el rapido usa
+  `gemini-flash-latest`, que se actualiza solo cuando Google saca una nueva: hoy
+  esta clavado a un numero de version y por eso **no se actualizo cuando salio la
+  nueva**.
+- **Cargar un prospecto contandoselo**, mostrando lo que entendio antes de guardar.
+- **El borrador del presupuesto**: precios del catalogo, nunca inventados, **siempre
+  en borrador** y lo cierra una persona.
+- **Preparar los mensajes** con los datos reales, en la bandeja.
+- **Que hable sin que le pregunten**: el repaso de la manana, armado por el
+  despertador una vez por dia.
+- **Una asistente para el cliente y el invitado en su portal.** Cada uno ve **solo
+  lo suyo**, armado en el servidor. Al invitado **no le llega nada de plata**. Con
+  una prueba que lo demuestre.
+- **Lo que nunca se le da:** cobrar, mandar mensajes solo, tocar permisos, cerrar un
+  presupuesto, borrar nada.
+
+---
+
+# ESTA LISTA ESTA CERRADA
+
+El dueño dijo, con razon, que esta cansado de que cada pregunta abra una lista
+nueva. **La app esta sana**: de siete areas auditadas el 22 de agosto, cinco
+vinieron sin un solo hallazgo.
+
+**Hace esto y nada mas.** Si mientras trabajas ves algo roto de verdad —que falle
+en una fiesta, que mueva mal la plata, o que deje ver a alguien lo que no
+corresponde— arreglalo y decilo en una linea. **Todo lo demas que se te ocurra, no
+va.** Si no esta roto y el dueño no lo pidio, no existe.
+
+**Y en cada tanda:** si tocas o agregas una pantalla, corré `npm run mapa:generar`,
+y anota lo que hiciste en `docs/YA-RESUELTO.md`, en la misma propuesta.
