@@ -42,6 +42,73 @@ historial se baja todos los días y **no lo mira nadie**.
 
 ---
 
+## BLOQUE 0 — QUE CORRA SOLO DE VERDAD (esto es lo primero)
+
+**Lo que pidio el dueño:** *"se debe actualizar automaticamente, la app tiene que
+ser automatica toda"*.
+
+**El problema, en criollo:** hoy no es automatica. Las tareas se ponen al dia
+**solo cuando alguien del equipo entra al panel**: el disparador vive en
+`src/components/app-shell.tsx`, que es la cascara del area con sesion. El
+visitante que entra a la web publica **no dispara nada**. Si nadie del equipo abre
+la app el fin de semana, no corre nada en todo el fin de semana: ni las notas del
+blog, ni la bajada de las fotos de Instagram, ni los recordatorios de cuota.
+
+Ya paso: hubo meses sin numeros de redes guardados y sin posteos programados
+saliendo. El propio codigo lo dice en `src/lib/automatico/al-entrar-a-la-app.ts`:
+*"No reemplaza al despertador de afuera. Si nadie abre la app en tres dias, estas
+tareas no corren en tres dias."*
+
+Y la solucion que habia escrita es `docs/PRENDER-LAS-TAREAS.md`: un instructivo
+para que el dueño se cree una cuenta en una pagina de internet y configure cuatro
+renglones a mano. **Nunca lo hizo, y no tiene por que hacerlo.** Eso no es
+resolver: es pasarle el problema.
+
+### Qué hay que hacer
+
+**1. Un despertador de verdad, dentro del proyecto.** La carpeta `functions/` ya
+existe y hoy no tiene ninguna tarea programada. Agregá **una sola** tarea
+programada que corra cada 15 minutos y llame al mismo camino que ya usa el
+disparador de hoy: revisa que hay vencido y lo corre.
+
+- **Una sola tarea programada, no cuatro.** Una que pregunte "que esta vencido" y
+  corra lo que corresponda. Cuatro tareas programadas serian cuatro trabajos
+  agendados; una sola entra en lo que ya viene incluido sin pagar.
+- **Que no dependa de que nadie abra nada.**
+- Dejá anotado en `docs/PRENDER-LAS-TAREAS.md` que ya no hay que configurar nada a
+  mano, y por que. Ese documento hoy miente.
+
+**2. Que la web publica tambien lo dispare, como red de seguridad.** El sitio
+recibe visitas de prospectos. Que una visita a la portada dispare la misma puesta
+al dia, **sin hacer esperar a nadie**: se larga y la pagina sigue, nunca se espera
+el resultado. Si el despertador falla, esto lo cubre.
+
+**3. Y aca esta la trampa, que ya nos mordio antes:** cuando algo pasa de correr
+en un solo lugar a correr con cada visita, la pregunta no es "¿funciona?" sino
+**"¿que pasa si dos lo hacen al mismo tiempo?"**. Diez visitas en el mismo minuto
+no pueden generar diez notas de blog ni pagar diez veces la inteligencia
+artificial. Ya paso una vez, con dos llamados que salian juntos y leian el
+"esto ya corrio recien" antes de que ninguno lo escribiera.
+
+- **La marca de "ya estoy corriendo" se toma ANTES de trabajar, no despues.**
+- El que llega y ve que otro esta corriendo, se va sin hacer nada.
+- **Una prueba que lo demuestre**: varias llamadas al mismo tiempo tienen que
+  dejar una sola corrida.
+
+**4. Que se vea.** En `/settings/tareas-automaticas`, que quede claro cuando corrio
+cada tarea por ultima vez y quien la disparo (el despertador o una visita). Si una
+tarea no corre hace mas del doble de lo que deberia, que se vea en rojo.
+
+### Sobre lo que cuesta
+
+Una sola tarea programada cada 15 minutos entra en lo que Google ya da incluido:
+en la practica **no agrega gasto mensual**. Aun asi, como la regla es no tocar
+nada que aumente lo que se paga sin avisar: **es una sola tarea agendada, no
+cuatro**, y no se cambian ni la memoria ni las instancias minimas del servidor.
+`apphosting.yaml` no se toca.
+
+---
+
 ## BLOQUE 1 — Que la galería lea el historial guardado
 
 1. **`getPublicInstagramFeed()` tiene que leer lo guardado**, no pedirle a Meta las
