@@ -245,18 +245,26 @@ export function SeoPosicionamientoTab() {
           </div>
         </div>
 
-        {/* Términos que busca la gente */}
+        {/* Términos objetivo que apunta el sitio */}
         <div className="space-y-2 pt-2 border-t border-slate-800/80">
-          <span className="text-xs font-bold text-slate-300">
-            Búsquedas principales en Google para las que estamos preparados:
-          </span>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <span className="text-xs font-bold text-slate-300">
+              Búsquedas objetivo para las que está preparado el contenido en Salto:
+            </span>
+            <span className="text-[11px] text-amber-400 font-semibold bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 self-start sm:self-auto">
+              Palabras clave objetivo
+            </span>
+          </div>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Son los términos para los cuales se optimizan las páginas y notas del blog. Las mediciones de clics y consultas reales de Google Search Console se verán reflejadas una vez vinculada la propiedad.
+          </p>
+          <div className="flex flex-wrap gap-2 pt-1">
             {googleSearchConsole.terminosBuscados.map((t, idx) => (
               <span
                 key={idx}
                 className="px-3 py-1 bg-slate-800 text-slate-200 rounded-lg text-xs font-medium border border-slate-700"
               >
-                🔍 &ldquo;{t}&rdquo;
+                🎯 &ldquo;{t}&rdquo;
               </span>
             ))}
           </div>
