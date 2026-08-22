@@ -92,26 +92,45 @@ export function InvoiceListItem({
           <Button asChild variant="ghost" size="icon" className="h-8 w-8" aria-label={`Editar Factura ${invoice.invoiceNumber}`} title="Editar Factura"><Link href={`/invoices/${invoice.id}/edit`}>
               <Edit className="w-4 h-4" />
             </Link></Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 h-8 w-8" aria-label={`Eliminar Factura ${invoice.invoiceNumber}`} title="Eliminar Factura" disabled={isDeleting}>
-                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
-                <AlertDialogDescription>La factura "{invoice.invoiceNumber}" será eliminada. Esta acción no se puede deshacer.</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(invoice.id, invoice.invoiceNumber)} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
-                  {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                  Sí, eliminar
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          {(() => {
+            const hasPayments = (invoice.payments && invoice.payments.length > 0) || invoice.status === 'Paid';
+            if (hasPayments) {
+              return (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-slate-400 opacity-40 cursor-not-allowed h-8 w-8"
+                  aria-label={`No se puede eliminar la factura ${invoice.invoiceNumber} porque tiene pagos`}
+                  title="No se puede eliminar una factura con pagos registrados"
+                  disabled
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              );
+            }
+            return (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10 h-8 w-8" aria-label={`Eliminar Factura ${invoice.invoiceNumber}`} title="Eliminar Factura" disabled={isDeleting}>
+                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
+                    <AlertDialogDescription>La factura "{invoice.invoiceNumber}" será eliminada. Esta acción no se puede deshacer.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onDelete(invoice.id, invoice.invoiceNumber)} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                      {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                      Sí, eliminar
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            );
+          })()}
         </div>
       </TableCell>
     </TableRow>

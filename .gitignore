@@ -90,6 +90,8 @@ data/tareas-lock.json
 src/data/tareas-lock.json
 data/tareas-automaticas.json
 src/data/tareas-automaticas.json
+data/despertador-estado.json
+src/data/despertador-estado.json
 data/social-comments-backfill-state.json
 src/data/social-comments-backfill-state.json
 data/social-comments.json

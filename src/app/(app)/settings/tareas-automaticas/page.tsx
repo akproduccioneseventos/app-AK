@@ -20,15 +20,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import {
   getEstadoTareasAutomaticas,
+  getEstadoDespertadorAction,
   ejecutarTareaManual,
   dispararTareasVencidasDeFondo,
 } from '@/app/actions/tareas-automaticas.actions';
-import type { EstadoDeTarea } from '@/lib/automatico/tareas-automaticas';
+import type { EstadoDeTarea, EstadoDespertador } from '@/lib/automatico/tareas-automaticas';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export default function TareasAutomaticasPage() {
   const [tareas, setTareas] = useState<EstadoDeTarea[]>([]);
+  const [despertador, setDespertador] = useState<EstadoDespertador | null>(null);
   const [loading, setLoading] = useState(true);
   const [runningId, setRunningId] = useState<string | null>(null);
   const [syncingAll, setSyncingAll] = useState(false);
@@ -37,8 +39,12 @@ export default function TareasAutomaticasPage() {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const data = await getEstadoTareasAutomaticas();
-      setTareas(data);
+      const [dataTareas, dataDespertador] = await Promise.all([
+        getEstadoTareasAutomaticas(),
+        getEstadoDespertadorAction(),
+      ]);
+      setTareas(dataTareas);
+      setDespertador(dataDespertador);
     } catch (err: any) {
       setMessage({ text: 'No se pudo cargar el estado de las tareas: ' + err.message, type: 'error' });
     } finally {
@@ -221,6 +227,54 @@ export default function TareasAutomaticasPage() {
           <CardContent className="p-4 pt-0 text-xs text-rose-600 font-medium">Escritas pero sin disparador</CardContent>
         </Card>
       </div>
+
+      {/* Estado del Despertador Programado (Cloud Functions / Cron) */}
+      <Card
+        className={`border shadow-sm overflow-hidden ${
+          despertador?.estado === 'activo'
+            ? 'border-emerald-200 bg-emerald-50/20'
+            : 'border-rose-300 bg-rose-50/60'
+        }`}
+      >
+        <CardContent className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3">
+            <div
+              className={`p-2.5 rounded-xl ${
+                despertador?.estado === 'activo'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-rose-100 text-rose-700'
+              }`}
+            >
+              <Clock className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-bold text-sm text-slate-900">
+                  Despertador de Google Cloud Functions (cada 15 minutos)
+                </span>
+                <Badge
+                  className={
+                    despertador?.estado === 'activo'
+                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                      : 'bg-rose-100 text-rose-900 border-rose-400 font-bold'
+                  }
+                >
+                  {despertador?.estado === 'activo'
+                    ? 'Funcionando'
+                    : 'El despertador no está funcionando'}
+                </Badge>
+              </div>
+              <p className="text-xs text-slate-600 mt-1">
+                {despertador?.ultimoToque
+                  ? `Última vez que el despertador tocó la puerta: ${formatearFecha(
+                      despertador.ultimoToque
+                    )} (hace ${despertador.minutosDesdeUltimoToque} min).`
+                  : 'El despertador nunca tocó la puerta. Comprobá que las Cloud Functions estén desplegadas en Firebase.'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Lista de Tareas */}
       <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">

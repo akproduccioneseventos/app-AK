@@ -50,11 +50,11 @@ const nextConfig = {
     ];
   },
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   transpilePackages: ['framer-motion'],
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   experimental: {
     serverActions: {

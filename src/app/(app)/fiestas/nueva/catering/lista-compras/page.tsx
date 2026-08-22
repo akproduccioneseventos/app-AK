@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info, Cake, MessageSquare, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info, Cake, MessageSquare, Copy, Check, UtensilsCrossed } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
@@ -472,7 +472,35 @@ function ListaDeComprasContent() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-8">
+        {Object.keys(groupedByProvider).length === 0 ? (
+          <Card className="rounded-[2rem] border-2 border-dashed border-slate-200 bg-slate-50/70 p-10 text-center shadow-none">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 mb-4 shadow-sm">
+              <ShoppingCart className="h-8 w-8" />
+            </div>
+            <h3 className="text-lg font-black uppercase tracking-tight text-slate-800">
+              No hay ingredientes ni insumos para comprar aún
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-sm font-medium text-slate-500">
+              Esta pantalla calcula automáticamente las compras según los platos contratados y sus ingredientes. Si el evento aún no tiene menú seleccionado o los platos no tienen ingredientes cargados, la lista queda en cero.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link
+                href={`/fiestas/nueva/catering/menu${fiestaId ? `?id=${fiestaId}` : ''}`}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-sm hover:bg-primary/90 transition-colors"
+              >
+                <UtensilsCrossed className="h-4 w-4" />
+                Cargar Menú y Platos
+              </Link>
+              <Link
+                href={`/fiestas/nueva/catering/bebidas${fiestaId ? `?id=${fiestaId}` : ''}`}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-black uppercase tracking-wider text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
+              >
+                Configurar Bebidas y Barra
+              </Link>
+            </div>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 gap-8">
             {Object.keys(groupedByProvider).map(providerId => {
                 const { providerName, items, total } = groupedByProvider[providerId];
                 const estadoActual = estadosCompra.find(e => e.proveedorId === providerId || e.proveedor === providerName) || { pedido: false, pagado: false, entregadoParcial: false, montoPagado: 0 };
@@ -587,7 +615,8 @@ function ListaDeComprasContent() {
                     </Card>
                 );
             })}
-        </div>
+          </div>
+        )}
 
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 print:hidden">
             <div className="max-w-5xl mx-auto flex justify-between items-center">

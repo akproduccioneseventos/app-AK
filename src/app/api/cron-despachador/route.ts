@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ponerAlDiaAlEntrar } from '@/lib/automatico/al-entrar-a-la-app';
 import type { OrigenDisparo } from '@/lib/automatico/control-concurrencia';
+import { marcarToqueDespertador } from '@/lib/automatico/tareas-automaticas';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +43,10 @@ async function handleDespacho(request: Request) {
     }
   } catch {
     // Si no viene cuerpo o falla la lectura, origen queda en 'despertador'
+  }
+
+  if (origen === 'despertador') {
+    await marcarToqueDespertador(new Date());
   }
 
   const resultado = await ponerAlDiaAlEntrar(new Date(), origen);

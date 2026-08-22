@@ -139,3 +139,67 @@ export async function estadoDeLasTareas(ahora: Date = new Date()): Promise<Estad
   });
 }
 
+export interface EstadoDespertador {
+  ultimoToque: string | null;
+  estado: 'activo' | 'nunca' | 'atrasado';
+  minutosDesdeUltimoToque: number | null;
+  mensaje: string;
+}
+
+/** Deja constancia de que el despertador externo/Google toco la puerta del despachador. */
+export async function marcarToqueDespertador(ahora: Date = new Date()): Promise<void> {
+  try {
+    const marcas = await readData<Marcas>(ARCHIVO, {});
+    marcas['__despertador_toque__'] = {
+      fecha: ahora.toISOString(),
+      origen: 'despertador',
+    };
+    await writeData(ARCHIVO, marcas, undefined, { skipAutoBackup: true });
+  } catch {
+    // Si falla el guardado de la marca, no frena la ejecucion.
+  }
+}
+
+/** Consulta cuando fue la ultima vez que el despertador toco la puerta. */
+export async function estadoDelDespertador(ahora: Date = new Date()): Promise<EstadoDespertador> {
+  try {
+    const marcas = await readData<Marcas>(ARCHIVO, {}).catch(() => ({} as Marcas));
+    const registro = marcas['__despertador_toque__'];
+    const ultimoToque = typeof registro === 'string' ? registro : registro?.fecha || null;
+    if (!ultimoToque) {
+      return {
+        ultimoToque: null,
+        estado: 'nunca',
+        minutosDesdeUltimoToque: null,
+        mensaje: 'El despertador no está funcionando: nunca tocó la puerta.',
+      };
+    }
+
+    const diffMinutos = Math.round((ahora.getTime() - new Date(ultimoToque).getTime()) / 60_000);
+    // El despertador corre cada 15 min. Si pasan mas de 45 min (3 ciclos), se marca atrasado.
+    if (diffMinutos > 45) {
+      return {
+        ultimoToque,
+        estado: 'atrasado',
+        minutosDesdeUltimoToque: diffMinutos,
+        mensaje: `El despertador no está funcionando: no toca la puerta hace ${diffMinutos} minutos.`,
+      };
+    }
+
+    return {
+      ultimoToque,
+      estado: 'activo',
+      minutosDesdeUltimoToque: diffMinutos,
+      mensaje: `El despertador está funcionando (último toque hace ${diffMinutos} min).`,
+    };
+  } catch {
+    return {
+      ultimoToque: null,
+      estado: 'nunca',
+      minutosDesdeUltimoToque: null,
+      mensaje: 'El despertador no está funcionando: nunca tocó la puerta.',
+    };
+  }
+}
+
+
