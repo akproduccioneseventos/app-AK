@@ -10,12 +10,23 @@ jest.mock('@/lib/auth/require-session', () => ({
   requirePermiso: jest.fn().mockImplementation(() => Promise.resolve({ ok: true })),
 }));
 
+jest.mock('@/app/actions/landing-editor', () => ({
+  getLandingSettings: jest.fn().mockImplementation(() => Promise.resolve({
+    seo: {
+      title: 'AK Producciones Eventos',
+      description: 'Organización completa de bodas, fiestas de 15 años y eventos en Salto.',
+      ogImageUrl: '',
+    },
+  })),
+}));
+
 import { describe, it, expect } from '@jest/globals';
 import { getSeoPosicionamientoData } from '@/app/actions/seo-posicionamiento';
+import { getMetadataRealDeRuta } from '@/lib/seo/auditoria-metadatos';
 import { SEO_INTERVAL_MS, NOTAS_POR_CORRIDA } from '@/lib/marketing-automation';
 import { PAGINAS_PARA_GOOGLE } from '@/lib/seo/paginas-publicas';
 
-describe('Bloques 3 y 4 — SEO, Blog y Posicionamiento en Google', () => {
+describe('Auditoría real de títulos, SEO y Posicionamiento', () => {
   it('la frecuencia del blog está configurada en 1 nota cada 2 días (48 hs)', () => {
     const dosDiasMs = 2 * 24 * 60 * 60 * 1000;
     expect(SEO_INTERVAL_MS).toBe(dosDiasMs);
@@ -32,7 +43,34 @@ describe('Bloques 3 y 4 — SEO, Blog y Posicionamiento en Google', () => {
     expect(PAGINAS_PARA_GOOGLE).toContain('/public/blog');
   });
 
-  it('la acción getSeoPosicionamientoData audita metadatos y devuelve estado óptimo', async () => {
+  it('getMetadataRealDeRuta lee los metadatos directamente de los archivos de cada página', async () => {
+    // Portada
+    const portada = await getMetadataRealDeRuta('/');
+    expect(portada.title.length).toBeGreaterThan(10);
+    expect(portada.description.length).toBeGreaterThan(20);
+
+    // Bodas
+    const bodas = await getMetadataRealDeRuta('/bodas');
+    expect(bodas.title).toContain('Casamientos');
+    expect(bodas.description).toContain('Salto');
+
+    // Quinceañeras
+    const quince = await getMetadataRealDeRuta('/quinceaneras');
+    expect(quince.title).toContain('15');
+    expect(quince.description.length).toBeGreaterThan(20);
+
+    // Catálogo
+    const catalogo = await getMetadataRealDeRuta('/catalogo');
+    expect(catalogo.title).toContain('Catálogo');
+    expect(catalogo.description.length).toBeGreaterThan(20);
+
+    // Simulador
+    const simulador = await getMetadataRealDeRuta('/simulador-de-presupuesto');
+    expect(simulador.title.length).toBeGreaterThan(10);
+    expect(simulador.description.length).toBeGreaterThan(20);
+  });
+
+  it('la acción getSeoPosicionamientoData audita todas las páginas públicas contra sus metadatos reales y da óptimo', async () => {
     const data = await getSeoPosicionamientoData();
     expect(data.paginasDeVentaTotal).toBeGreaterThan(0);
     expect(data.notasDelBlogTotal).toBeGreaterThan(0);
@@ -41,5 +79,11 @@ describe('Bloques 3 y 4 — SEO, Blog y Posicionamiento en Google', () => {
     expect(data.auditoriaMetadatos.paginasSinTitulo).toHaveLength(0);
     expect(data.auditoriaMetadatos.paginasSinDescripcion).toHaveLength(0);
     expect(data.googleSearchConsole.terminosBuscados.length).toBeGreaterThan(0);
+  });
+
+  it('detecta correctamente cuando una ruta no tiene metadatos o están vacíos', async () => {
+    const vacia = await getMetadataRealDeRuta('/ruta-inexistente-sin-metadatos');
+    expect(vacia.title).toBe('');
+    expect(vacia.description).toBe('');
   });
 });

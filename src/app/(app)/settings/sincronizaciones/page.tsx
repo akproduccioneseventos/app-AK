@@ -342,16 +342,16 @@ export default function SincronizacionesPage() {
                       <p className="font-bold text-slate-900 text-sm mb-1">Pasos para conectar tu cuenta de Instagram:</p>
                       <ol className="list-decimal pl-4 space-y-1.5 leading-relaxed">
                         <li>
-                          <strong>Tener cuenta profesional:</strong> Asegurate de que tu cuenta de Instagram sea comercial o creadora y esté vinculada a tu página de Facebook de AK Producciones.
+                          <strong>Tener cuenta profesional:</strong> Asegurate de que tu cuenta de Instagram sea comercial o creadora y esté vinculada a la página de Facebook de AK Producciones.
                         </li>
                         <li>
-                          <strong>Crear aplicación en Meta for Developers:</strong> Entrá a <a href="https://developers.facebook.com" target="_blank" rel="noopener noreferrer" className="text-indigo-600 underline">developers.facebook.com</a>, creá una app de tipo <em>Empresarial</em> o <em>Negocios</em>.
+                          <strong>Crear acceso en Meta:</strong> Entrá a <a href="https://developers.facebook.com" target="_blank" rel="noopener noreferrer" className="text-indigo-600 underline">developers.facebook.com</a> con la misma cuenta de Facebook y creá una aplicación de tipo <em>Negocios</em>.
                         </li>
                         <li>
-                          <strong>Generar token de acceso:</strong> En la sección de <em>Instagram Graph API</em>, generá un token de usuario con permiso <code className="bg-slate-100 px-1 py-0.5 rounded">instagram_basic</code> y convertilo en token de larga duración (60 días).
+                          <strong>Generar clave de lectura:</strong> En el menú de Instagram, generá el token de acceso para leer publicaciones y convertilo en token de larga duración (dura 60 días).
                         </li>
                         <li>
-                          <strong>Cargar credenciales:</strong> Pegá el token en la variable <code className="bg-slate-100 px-1 py-0.5 rounded">INSTAGRAM_ACCESS_TOKEN</code> y el ID de cuenta en <code className="bg-slate-100 px-1 py-0.5 rounded">INSTAGRAM_BUSINESS_ACCOUNT_ID</code>.
+                          <strong>Guardar en el servidor:</strong> Cargá el token de acceso y el número de cuenta de Instagram en los ajustes de conexiones del servidor.
                         </li>
                       </ol>
                     </div>

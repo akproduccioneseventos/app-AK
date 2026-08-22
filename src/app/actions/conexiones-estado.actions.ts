@@ -203,7 +203,7 @@ export async function probarConexionInstagramAction(): Promise<{
     return {
       success: false,
       estado: 'falta-configurarla',
-      motivo: 'Faltan las credenciales en el servidor (INSTAGRAM_ACCESS_TOKEN o INSTAGRAM_BUSINESS_ACCOUNT_ID).',
+      motivo: 'Falta vincular la cuenta comercial de Instagram y su clave de acceso en los ajustes del servidor.',
     };
   }
 
