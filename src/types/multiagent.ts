@@ -74,11 +74,12 @@ export interface AkMultiAgentInput {
 export interface AkMultiAgentOutput {
   success: boolean;
   response: string;
+  fuente?: string;
   agentType: AkAgentType;
   agentName: string;
   action?: {
-    type: 'none' | 'save_learning' | 'create_task' | 'create_reminder' | 'navigate';
-    data?: unknown;
+    type: 'none' | 'save_learning' | 'create_task' | 'create_reminder' | 'navigate' | 'create_lead' | 'draft_budget' | 'prepare_whatsapp';
+    data?: any;
   };
   error?: string;
 }

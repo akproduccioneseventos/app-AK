@@ -11,6 +11,11 @@ import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.action
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getCrmLeads } from '@/app/actions/crm';
 import { mapaParaLaAsistente, esPantallaReal, MENU_DEL_STAFF } from '@/lib/multiagent/mapa-app.generado';
+import {
+  prepareAssistantLeadProposal,
+  prepareAssistantBudgetProposal,
+  prepareWhatsAppMessage,
+} from '@/lib/multiagent/assistant-crm-actions';
 
 // ── Patrones de detección de intención ────────────────────────────────────────
 const MARKETING_REGEX      = /(post|historia|reel|tiktok|instagram|facebook|whatsapp|publicaci|campaña|campana|caption|copy|texto para|contenido|anuncio|promo)/i;
@@ -100,13 +105,23 @@ FORMATO DE RESPUESTA (OBLIGATORIO):
 Debés responder ÚNICAMENTE con un bloque JSON que cumpla exactamente con este formato (no agregues texto antes ni después del JSON, ni bloques de código markdown, solo el JSON puro):
 {
   "response": "Tu respuesta corta, re amigable, con viñetas y muchos emojis aquí.",
+  "fuente": "Opcional: 'Según catálogo oficial y presupuestos vigentes' cuando des cifras o datos concretos",
   "action": {
-    "type": "none" | "create_task" | "create_reminder" | "navigate",
+    "type": "none" | "create_task" | "create_reminder" | "navigate" | "create_lead" | "draft_budget" | "prepare_whatsapp",
     "data": { ... }
   }
 }
 
 REGLAS DE ACCIÓN:
+- Si el usuario te cuenta sobre un prospecto o contacto (ej: "me escribió Ana por un cumple de 15, el 14 de marzo, para 120 personas, la contacté por Instagram"):
+  "type": "create_lead"
+  "data": { "name": "Ana", "phone": "099...", "partyType": "XV años", "eventDate": "2027-03-14", "guestCount": 120, "acquisitionSource": "Instagram", "notes": "...", "nextAction": "Coordinar llamada" }
+- Si el usuario te pide armar un presupuesto o borrador (ej: "boda para 150 en Club Uruguay con pista LED y fotocabina el 8 de noviembre"):
+  "type": "draft_budget"
+  "data": { "clientName": "Cliente", "partyType": "Boda", "eventDate": "YYYY-MM-DD", "guestCount": 150, "venueName": "Club Uruguay", "requestedServices": ["Pista LED", "Fotocabina"] }
+- Si el usuario te pide preparar un mensaje de WhatsApp (ej: "armame un mensaje para cobrar la cuota a Carlos" o "redactame un seguimiento para María"):
+  "type": "prepare_whatsapp"
+  "data": { "recipientName": "Nombre", "phoneNumber": "...", "purpose": "seguimiento" | "cuota_vencida" | "post_fiesta" | "general", "eventName": "...", "amountDue": 0 }
 - Si el usuario te pide crear una tarea (ej: "creá una tarea para...", "agendá la tarea de...", "anotá que hay que..."):
   "type": "create_task"
   "data": { "texto": "título de la tarea", "descripcion": "detalle si aplica", "fechaLimite": "YYYY-MM-DD (si se menciona)" }
@@ -442,6 +457,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
 
     let finalResponse = '';
     let action: any = { type: 'none' };
+    let fuente: string | undefined;
 
     try {
       const rawText = text || '';
@@ -453,6 +469,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
       const parsed = JSON.parse(cleanJson);
       finalResponse = parsed.response || '';
       action = parsed.action || { type: 'none' };
+      fuente = parsed.fuente;
     } catch (e) {
       console.warn('[Multiagent Flow] Error al parsear JSON devuelto por Gemini. Usando texto sin estructurar.', e);
       finalResponse = text || buildFallback(agentType, context);
@@ -475,6 +492,75 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
           finalResponse += `\n\n💡 Podés ir a la sección **${mejorOpcion.etiqueta}** ingresando a \`${mejorOpcion.ruta}\`.`;
         }
       }
+    } else if (action?.type === 'create_lead' && action.data?.name) {
+      try {
+        const leadProposal = await prepareAssistantLeadProposal({
+          name: action.data.name,
+          phone: action.data.phone,
+          email: action.data.email,
+          partyType: action.data.partyType,
+          eventDate: action.data.eventDate,
+          guestCount: action.data.guestCount,
+          acquisitionSource: action.data.acquisitionSource,
+          notes: action.data.notes,
+          nextAction: action.data.nextAction,
+        });
+
+        action.data = {
+          ...action.data,
+          preparedData: leadProposal.data,
+          duplicates: leadProposal.duplicates,
+          summary: leadProposal.summary,
+          requiresConfirmation: true,
+        };
+      } catch (err) {
+        console.error('[Multiagent Flow] Error preparando propuesta de prospecto:', err);
+      }
+    } else if (action?.type === 'draft_budget' && action.data?.clientName) {
+      try {
+        const budgetProposal = await prepareAssistantBudgetProposal({
+          clientName: action.data.clientName,
+          phone: action.data.phone,
+          email: action.data.email,
+          partyType: action.data.partyType || 'Fiesta',
+          eventDate: action.data.eventDate,
+          guestCount: action.data.guestCount,
+          venueName: action.data.venueName,
+          requestedServices: action.data.requestedServices || [],
+          notes: action.data.notes,
+        });
+
+        action.data = {
+          ...action.data,
+          presupuesto: budgetProposal.presupuesto,
+          desglose: budgetProposal.desglose,
+          totalCalculado: budgetProposal.totalCalculado,
+          serviciosNoEncontrados: budgetProposal.serviciosNoEncontrados,
+          summary: budgetProposal.summary,
+          requiresConfirmation: true,
+        };
+      } catch (err) {
+        console.error('[Multiagent Flow] Error preparando borrador de presupuesto:', err);
+      }
+    } else if (action?.type === 'prepare_whatsapp' && action.data?.recipientName) {
+      try {
+        const wa = prepareWhatsAppMessage({
+          recipientName: action.data.recipientName,
+          purpose: action.data.purpose || 'general',
+          eventName: action.data.eventName,
+          amountDue: action.data.amountDue,
+          eventDate: action.data.eventDate,
+          customDetails: action.data.customDetails,
+        });
+
+        action.data = {
+          ...action.data,
+          message: wa.message,
+          waLink: wa.waLink,
+        };
+      } catch (err) {
+        console.error('[Multiagent Flow] Error preparando mensaje de WhatsApp:', err);
+      }
     }
 
     // Guardar aprendizaje automático si la respuesta fue útil
@@ -495,6 +581,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
     return {
       success:   true,
       response:  finalResponse || buildFallback(agentType, context),
+      fuente,
       agentType,
       agentName: name,
       action,

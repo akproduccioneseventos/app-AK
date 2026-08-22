@@ -1554,3 +1554,52 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
     };
   }
 }
+
+/**
+ * Confirma y guarda un prospecto propuesto por el asistente tras la validación del usuario.
+ */
+export async function confirmarProspectoAsistente(leadData: any) {
+  const { requireAppSession } = await import('@/lib/auth/require-session');
+  await requireAppSession();
+  const { confirmAndSaveAssistantLead } = await import('@/lib/multiagent/assistant-crm-actions');
+  return confirmAndSaveAssistantLead(leadData);
+}
+
+/**
+ * Confirma y guarda un borrador de presupuesto generado según catálogo oficial.
+ */
+export async function confirmarPresupuestoAsistente(presupuestoData: any) {
+  const { requireAppSession } = await import('@/lib/auth/require-session');
+  await requireAppSession();
+  const { confirmAndSaveAssistantBudget } = await import('@/lib/multiagent/assistant-crm-actions');
+  return confirmAndSaveAssistantBudget(presupuestoData);
+}
+
+/**
+ * Registra feedback (pulgar arriba / abajo) para que el asistente aprenda lo que sirvió.
+ */
+export async function registrarFeedbackAsistente(input: {
+  agentType: string;
+  messageId?: string;
+  question: string;
+  response: string;
+  isPositive: boolean;
+  notes?: string;
+}) {
+  const { requireAppSession } = await import('@/lib/auth/require-session');
+  await requireAppSession();
+  const { saveAgentLearning } = await import('@/lib/multiagent/memory-store');
+
+  await saveAgentLearning({
+    agentType: (input.agentType || 'central') as any,
+    scope: 'global',
+    title: input.isPositive ? `Respuesta útil: ${input.question.slice(0, 60)}` : `Respuesta a mejorar: ${input.question.slice(0, 60)}`,
+    content: `Pregunta: "${input.question}"\nRespuesta dada: "${input.response}"\nValoración: ${input.isPositive ? 'Positiva (útil)' : 'Negativa (no sirvió)'}${input.notes ? `\nNota: ${input.notes}` : ''}`,
+    tags: ['feedback', input.isPositive ? 'thumbs-up' : 'thumbs-down', input.agentType || 'central'],
+    source: 'conversation',
+    confidence: input.isPositive ? 'high' : 'low',
+  });
+
+  return { success: true };
+}
+

@@ -1,23 +1,35 @@
 import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 import type { AkAgentType } from '@/types/multiagent';
+import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-const DEFAULT_GEMINI_MODEL = 'googleai/gemini-3.6-flash';
-const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-3.6-flash';
-const DEFAULT_GEMINI_LATEST_MODEL = 'googleai/gemini-flash-latest';
+
+/**
+ * Modelos oficiales de Google Gemini (Verificados: 22 de agosto de 2026).
+ *
+ * 1. gemini-flash-latest: Atajo oficial de Google que apunta siempre a la última
+ *    versión estable de Gemini Flash. Se actualiza solo sin tocar código.
+ * 2. gemini-2.5-pro: Modelo con capacidad de razonamiento profundo para análisis
+ *    comercial, presupuestos complejos y planificación.
+ */
+export const DEFAULT_GEMINI_LATEST_MODEL = 'googleai/gemini-flash-latest';
+export const DEFAULT_GEMINI_MODEL = 'googleai/gemini-flash-latest';
+export const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-2.5-pro';
+
 const DEFAULT_GEMINI_FALLBACK_MODELS = [
-  DEFAULT_GEMINI_MODEL,
-  'googleai/gemini-3.5-flash',
+  DEFAULT_GEMINI_LATEST_MODEL,
+  'googleai/gemini-2.5-flash',
+  'googleai/gemini-2.0-flash',
+  'googleai/gemini-1.5-flash',
 ] as const;
+
 const GEMINI_MODEL_PATTERN = /^googleai\/gemini-[a-z0-9]+(?:[.-][a-z0-9]+)*$/i;
 
 type GeminiModelRole = 'default' | 'fast' | 'pro' | 'marketing' | 'commercial';
-
 type GeminiGenerationConfig = Record<string, never>;
 
 const configuredGeminiModel = process.env.GEMINI_MODEL?.trim();
-const automaticUpgradeEnabled = process.env.GEMINI_AUTO_UPGRADE === 'true';
 
 function resolveGeminiModel(value: string | undefined, fallback: string, label: GeminiModelRole): string {
   const configured = value?.trim();
@@ -29,11 +41,7 @@ function resolveGeminiModel(value: string | undefined, fallback: string, label: 
 }
 
 export const geminiModel = resolveGeminiModel(configuredGeminiModel, DEFAULT_GEMINI_MODEL, 'default');
-export const geminiLatestModel = resolveGeminiModel(
-  process.env.GEMINI_MODEL_LATEST,
-  automaticUpgradeEnabled ? DEFAULT_GEMINI_LATEST_MODEL : geminiModel,
-  'default',
-);
+export const geminiLatestModel = resolveGeminiModel(process.env.GEMINI_MODEL_LATEST, DEFAULT_GEMINI_LATEST_MODEL, 'default');
 export const geminiFastModel = resolveGeminiModel(process.env.GEMINI_MODEL_FAST, geminiLatestModel, 'fast');
 export const geminiProModel = resolveGeminiModel(process.env.GEMINI_MODEL_PRO, DEFAULT_GEMINI_PRO_MODEL, 'pro');
 export const geminiMarketingModel = resolveGeminiModel(process.env.GEMINI_MODEL_MARKETING, geminiFastModel, 'marketing');
@@ -48,12 +56,33 @@ export function getGeminiModelForAgent(agentType?: AkAgentType, options?: { deep
   return geminiFastModel;
 }
 
+/**
+ * Resuelve el modelo efectivo cuidando el presupuesto mensual de IA.
+ * Si el modelo pro fue solicitado pero el presupuesto está alcanzado o frenado,
+ * cae automáticamente al modelo rápido para no fallar ni generar sobrecostos.
+ */
+export async function getEffectiveGeminiModelForAgent(
+  agentType?: AkAgentType,
+  options?: { deep?: boolean }
+): Promise<string> {
+  const preferred = getGeminiModelForAgent(agentType, options);
+  if (preferred === geminiProModel) {
+    try {
+      const tienePresupuesto = await hayPresupuestoParaIA();
+      if (!tienePresupuesto) {
+        return geminiFastModel;
+      }
+    } catch {
+      return geminiFastModel;
+    }
+  }
+  return preferred;
+}
+
 export function getGeminiGenerationConfigForAgent(
   _agentType?: AkAgentType,
   _options?: { deep?: boolean },
 ): GeminiGenerationConfig {
-  // Gemini 3.6+ deprecó temperature/top_p/top_k. La precisión se controla en
-  // instrucciones y salidas estructuradas para conservar compatibilidad futura.
   return {};
 }
 
