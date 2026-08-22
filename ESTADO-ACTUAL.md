@@ -38,6 +38,17 @@ compila, sin acentos rotos, seguridad de la base en verde.
   depender de que nadie abra la app. Las visitas a la web pública también la
   disparan. Con traba de concurrencia y su prueba.
 
+## PENDIENTE QUE NO SE PUEDE OLVIDAR
+
+**El despertador está fusionado pero NO CORRE: nadie lo publica.** El despliegue
+automático (`.github/workflows/deploy.yml`) compila `functions/` pero sube sólo el
+sitio. La tarea programada nunca llega a Google.
+
+**No dar la app por "que corre sola" hasta comprobar que el despertador tocó la
+puerta al menos una vez.** Está pedido como bloque urgente en
+`docs/ordenes/ahora.md`. Cuando llegue la entrega, **verificar eso primero**, antes
+que ninguna otra cosa de esa propuesta.
+
 ## Lo que falta
 
 **Una sola orden: `docs/ordenes/despues-sin-internet.md`.** La app instalable en
