@@ -267,6 +267,54 @@ puesto. Sin jerga.
 **Lo que NO hay que hacer:** no subir esto a ninguna tienda de aplicaciones. Se
 instala desde el navegador y punto.
 
+### Y el pedido completo del dueño: que TODA la app aguante sin internet
+
+Palabras suyas: *"en verdad toda la app, y cuando llega el internet se sincroniza
+sola; se guardara en algun lugar"*.
+
+**Hay que hacerlo por partes, y hay cosas que honestamente no se pueden.** No
+prometas lo que no se puede cumplir: una pantalla que dice "guardado" sin haber
+guardado es peor que uno que dice "sin internet".
+
+**Nivel 1 — Ver lo que ya se bajo (va para TODA la app).**
+Toda pantalla que el equipo ya abrio con internet tiene que **volver a abrir sin
+internet**, mostrando lo ultimo que se sabe, con un cartel arriba: "Sin internet —
+esto es lo ultimo que se guardo, del <fecha y hora>". **Nunca una pantalla en
+blanco ni un error tecnico.**
+
+**Nivel 2 — Escribir sin internet (solo donde es seguro).**
+Se encola y se manda solo al volver la señal. Va en las cosas que **se agregan** y
+no chocan entre si:
+- Todo lo que capturan las estaciones (fotos, videos, audios).
+- Llegada de invitados y confirmaciones.
+- Pedidos de la barra y pedidos al DJ.
+- Tareas del evento, notas e incidentes.
+- Consumos y gastos anotados en la noche.
+
+**Nivel 3 — Lo que NO se puede, y hay que decirlo en pantalla.**
+- **Cobrar.** El cobro por internet necesita internet, sin vuelta. Que el boton
+  quede apagado y diga "necesita internet para cobrar".
+- **Mandar correos, avisos o WhatsApp.** Se preparan y salen despues.
+- **Todo lo que usa inteligencia artificial.**
+- **Facturas y numeracion.** Dos personas sin internet numerando facturas al mismo
+  tiempo terminan con dos facturas con el mismo numero. **No se encola.**
+
+**La regla de fondo, y es la que evita el desastre:** se encola lo que **se suma**
+(una foto mas, un invitado que llego, un pedido). **No se encola lo que pisa** lo
+que otro pudo haber cambiado (editar un presupuesto, cambiar un precio, numerar
+una factura). Si dos personas editan lo mismo sin internet, al volver la señal uno
+de los dos pierde su trabajo **y no se entera**. Eso no puede pasar.
+
+**Y una que se paga cara si se olvida:** cuando algo encolado falla al mandarse
+(porque el dato ya no existe, o el servidor lo rechaza), **no se puede reintentar
+para siempre en silencio**. Se muestra en una pantalla de pendientes, en criollo,
+con la opcion de reintentar o descartar. Una cola que se llena de cosas que nunca
+van a entrar es una bomba de tiempo.
+
+**Por donde empezar, si hay que elegir:** la noche de la fiesta. Es donde el wifi
+del salon falla y donde perder algo duele de verdad. Lo de la oficina
+—presupuestos, facturas, contabilidad— se usa donde hay internet.
+
 ### Como se prueba que quedo bien
 
 **No alcanza con que compile.** Hace falta una prueba que:
