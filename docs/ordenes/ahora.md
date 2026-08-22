@@ -1,68 +1,100 @@
-# Que la pantalla de posicionamiento controle los títulos de verdad
+# La galería tiene que mostrar TODO el Instagram, como ya hace con YouTube
 
 **Para:** Gemini (Antigravity)
 **Escrita:** 22 de agosto de 2026.
 
 ## Cómo se entrega
 
-**UNA SOLA propuesta de cambios.** Es un solo punto, pero si aparece algo más
-mientras trabajás, va adentro de la misma, no en otra.
+**UNA SOLA propuesta de cambios con los tres bloques adentro.** Cada fusión
+dispara un despliegue y eso se paga. Si un bloque se traba, entregá el resto
+igual, en la misma propuesta, avisando cuál faltó y por qué.
 
 **Arrancá desde la versión principal de ahora.**
 
 Antes de tocar nada, leé `docs/MANUAL-DE-LA-APP.md`, `docs/YA-RESUELTO.md` y
-`docs/COMO-AUDITAR.md`.
+`docs/QUE-HAY-EN-LA-APP.md`.
 
 **Antes de fusionar:** tipos en cero, pruebas en verde, `npm run check:acentos`
 limpio y `npm run build` que termine bien.
 
 ---
 
-## Lo que está bien y no se toca
+## Lo que pidió el dueño
 
-La tanda anterior quedó bien en casi todo: la asistente ya recibe el mapa del
-menú y cancela la navegación si el modelo inventa una pantalla; el botón de
-probar Instagram anda del lado del servidor y traduce los errores de Meta; el
-blog quedó en una nota cada dos días. Nada de eso se rehace.
+> "Quiero que traiga todas las publicaciones desde que comencé mi cuenta. Lo
+> mismo de YouTube."
 
 ---
 
-## El único punto: la auditoría de títulos se controla a sí misma
+## Lo importante: casi todo ya está hecho, falta enchufarlo
 
-**El problema, en criollo:** la pantalla de posicionamiento promete avisar cuando
-una página de venta se queda sin título o sin descripción. Pero no lee los
-títulos de verdad: los tiene **copiados a mano** en una lista adentro de
-`src/app/actions/seo-posicionamiento.ts`, y compara esa lista contra sí misma.
+**No hay que escribir un bajador de historial: ya existe y funciona.**
+`syncMetaPublicHistory()`, en `src/lib/social-media/meta-history-backfill.ts`,
+pagina hacia atrás hasta agotar (hasta 100 páginas), guarda en
+`social-posts.json` y deja la marca de hasta dónde llegó en
+`meta-public-history-backfill.json`. Lo dispara la tarea `metricas-de-redes`, una
+vez por día. Es el mismo molde que YouTube.
 
-Si mañana una página pierde el título de verdad, la pantalla va a seguir diciendo
-"óptimo". Y si alguien cambia un título en la página, la pantalla va a mostrar el
-viejo. Es una promesa que no puede cumplir, que es justo lo que
-`docs/COMO-AUDITAR.md` marca como lo más grave.
+**El agujero está en la galería.** `src/app/page.tsx` llama a
+`getPublicInstagramFeed()` (`src/lib/instagram/public-feed.ts`), que le pide a
+Meta **las últimas 24 y nada más**, sin paginar y sin guardar nada. O sea: el
+historial se baja todos los días y **no lo mira nadie**.
 
-**Qué hay que hacer:**
+---
 
-1. **Sacar la lista copiada a mano** (`METADATA_PAGINAS_VENTA`) y leer los títulos
-   y descripciones **donde viven de verdad**: `src/lib/seo/event-landing.ts`,
-   `src/lib/seo/paginas-publicas.ts` y el `metadata` o `generateMetadata` de cada
-   página pública. Una sola fuente, no dos.
+## BLOQUE 1 — Que la galería lea el historial guardado
 
-2. **Que la auditoría detecte de verdad** una página de `PAGINAS_PARA_GOOGLE` que
-   no tenga título o descripción, o que los tenga vacíos. Probalo: sacale el
-   título a una página a propósito y verificá que la pantalla lo marca. Después
-   devolvela como estaba.
+1. **`getPublicInstagramFeed()` tiene que leer lo guardado**, no pedirle a Meta las
+   últimas 24. La fuente es la misma que usa YouTube. Mirá cómo lo hace la parte
+   de YouTube en la portada y seguí ese camino.
 
-3. **Dejarlo como control automático** en las pruebas, además de en la pantalla,
-   para que no haga falta que alguien entre a mirar.
+2. **Meta sigue sirviendo para lo nuevo**, no para armar la galería: si aparecen
+   publicaciones que todavía no están guardadas, que las sume la tarea
+   automática, no la visita del prospecto. **Ninguna visita a la web puede
+   quedarse esperando a Meta.**
 
-4. **Los términos de búsqueda que se muestran** ("fiestas de 15 en Salto", etc.)
-   están escritos a mano y aparecen abajo del panel de Google, donde se pueden
-   confundir con búsquedas medidas de verdad. Dejá bien claro en pantalla que son
-   **las búsquedas que estamos apuntando**, no lo que la gente buscó. Si la
-   conexión con Google no está, que se note que todavía no hay medición real.
+3. **Si el historial guardado está vacío** (primera vez, o la conexión recién
+   cargada), que la galería siga mostrando los videos de YouTube y no quede un
+   hueco. Nunca fotos de ejemplo.
 
-5. **Sacá la jerga de los mensajes que ve el dueño.** El aviso de Instagram dice
-   los nombres técnicos de las credenciales. Él no programa: decile qué le falta y
-   dónde se carga, sin nombres de variables.
+4. **Disparar el bajado completo una vez**, para que el archivo quede lleno desde
+   el arranque y no haya que esperar días. Fijate que la tarea acepta el modo
+   completo; dejá una forma de dispararlo desde la pantalla de conexiones, con un
+   botón que diga qué está haciendo y cuántas publicaciones trajo.
+
+5. **Confirmá la fecha de arranque.** Hoy el bajado empieza en **septiembre de
+   2019** (`earliestDate` en `src/app/api/cron/metricas-de-redes/route.ts`). Si la
+   cuenta es anterior, se pierden las primeras publicaciones. Dejá esa fecha en un
+   solo lugar y con un comentario que explique de dónde sale.
+
+---
+
+## BLOQUE 2 — Que mostrar cientos de fotos no rompa la página
+
+Esto no es un detalle: con años de publicaciones pueden ser cientos. Volcarlas
+todas de una hace que la página tarde una eternidad en abrir, justo en la pantalla
+que le muestra el trabajo al que está por contratar.
+
+1. **Mostrar una tanda y un "ver más"**, o que vayan apareciendo al bajar. Que lo
+   primero que se ve cargue rápido.
+2. **Las fotos se cargan cuando se llega a ellas**, no todas al abrir.
+3. **Ordenadas de la más nueva a la más vieja.**
+4. **Los reels y videos entran igual que las fotos**, no se quedan afuera.
+5. Probalo en el celular: es donde mira el cliente, y es donde se nota.
+
+---
+
+## BLOQUE 3 — Que se vea que anda
+
+En `/settings/sincronizaciones`, en la tarjeta de Instagram:
+
+1. **Cuántas publicaciones hay guardadas** y **de qué fecha es la más vieja**. Con
+   eso el dueño ve de un vistazo si trajo todo o se quedó a mitad de camino.
+2. **Cuándo fue la última vez que buscó nuevas.**
+3. **Si el bajado quedó incompleto, decirlo** y ofrecer el botón para seguir. Nunca
+   dar por completo algo que se cortó.
+4. **Todo en criollo**: nada de nombres de variables ni de errores de Meta en
+   inglés.
 
 ---
 
@@ -70,6 +102,7 @@ viejo. Es una promesa que no puede cumplir, que es justo lo que
 
 - `apphosting.yaml`: el servidor se duerme a propósito.
 - Nada que aumente lo que se paga por mes.
+- No mostrar fotos de ejemplo en producción, nunca.
 - El WhatsApp prepara mensajes y no los manda.
 - Si tocás o agregás una pantalla, **corré `npm run mapa:generar`** y anotá el
   cambio en `docs/YA-RESUELTO.md`, en la misma propuesta.
