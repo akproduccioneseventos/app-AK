@@ -4026,3 +4026,13 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   es lo que sí depende del diseño. **No se desactivó ninguna prueba.**
   **Por qué importa:** un control que falla solo se termina ignorando, y el día
   que avisa algo de verdad nadie le cree.
+
+- **Se volvieron atras dos textos que ve el cliente (22 de agosto de 2026).** Al
+  agregar movimiento a las pantallas publicas se cambiaron, sin que estuviera
+  pedido, la promesa "Respuesta en 24 hs" por "Respuesta en el dia" y el boton
+  "Consultar precio" por "Consultar propuesta". **Los dos volvieron a como
+  estaban.** El primero es un compromiso comercial y lo decide el dueño, no una
+  IA; el segundo perdia fuerza: el que entra quiere saber cuanto sale, y "precio"
+  es la palabra que busca.
+  **Se dejo como quedo:** el enlace a los servicios, que antes era una flechita
+  chica al pie de la portada, ahora es un boton grande. Se ve y se toca mejor.

@@ -129,7 +129,7 @@ export function HeroSection({
           transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.32 }}
           className="flex flex-wrap items-center justify-center gap-3 mt-4"
         >
-          {['✅ +10 años de experiencia', '⭐ 100% Personalizado', '📞 Respuesta en el día'].map((badge) => (
+          {['✅ +10 años de experiencia', '⭐ 100% Personalizado', '📞 Respuesta en 24 hs'].map((badge) => (
             <span
               key={badge}
               className="text-xs font-bold text-slate-600 bg-white/90 px-3.5 py-1.5 rounded-full shadow-sm border border-slate-200/80 backdrop-blur-sm"

@@ -135,7 +135,7 @@ export function ServiceMenu({
                       : 'bg-purple-600 text-white hover:bg-purple-700 shadow-md shadow-purple-950/15'
                   )}
                 >
-                  Consultar propuesta
+                  Consultar precio
                 </motion.a>
               </div>
             </motion.div>
