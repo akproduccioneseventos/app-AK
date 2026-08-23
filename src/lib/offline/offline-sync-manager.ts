@@ -29,6 +29,7 @@ export async function processOfflineMediaQueue(): Promise<{
   isSyncing = true;
   let processed = 0;
   let errors = 0;
+  let descartadas = 0;
 
   try {
     const queue = await getPendingOfflineMedia();
@@ -102,7 +103,13 @@ export async function processOfflineMediaQueue(): Promise<{
         console.warn(`[OfflineSync] Error al subir captura ${item.id}:`, err.message);
         await updateOfflineMediaAttempt(item.id, err.message || 'Error de conexion');
         if (item.attempts >= 10) {
+          // Antes solo se anotaba "descartada" y la captura QUEDABA en la cola:
+          // el cartel decia "N esperando" con un numero que no bajaba nunca, y
+          // cada 20 segundos se reintentaba algo que ya nunca iba a subir. En una
+          // fiesta, eso es el operador mirando un cartel que le miente.
           console.error(`[OfflineSync] Captura ${item.id} descartada por exceder maximo de reintentos.`);
+          await removeOfflineMedia(item.id);
+          descartadas++;
         }
       }
     }

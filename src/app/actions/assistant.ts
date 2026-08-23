@@ -722,11 +722,34 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             }
           }
 
+          // Los precios salen SIEMPRE del catalogo de la empresa, nunca de lo que
+          // devuelve el modelo. Antes se usaba `s.precioUnitario` tal cual: un
+          // numero inventado podia terminar guardado en un presupuesto de verdad.
+          // Si un servicio no esta en el catalogo, no entra: se descarta y queda
+          // para que una persona lo agregue a mano.
+          const catalogoParaPrecios = await getServiciosEmpresa().catch(() => []);
+          const precioDelCatalogo = (nombre: string): number | null => {
+            const buscado = String(nombre || '').trim().toLowerCase();
+            if (!buscado) return null;
+            const encontrado = (catalogoParaPrecios || []).find((serv: any) => {
+              const nom = String(serv?.nombre || '').trim().toLowerCase();
+              if (!nom) return false;
+              return nom === buscado || nom.includes(buscado) || buscado.includes(nom);
+            });
+            if (!encontrado) return null;
+            const precio =
+              Number((encontrado as any).precioVenta) ||
+              Number((encontrado as any).precioBase) ||
+              Number((encontrado as any).precioPorPersona) ||
+              0;
+            return precio > 0 ? precio : null;
+          };
+
           // Only keep items with a valid price — discard zero-price or dialogue-contaminated entries
           const items = serviciosInput
             .map((s, i) => {
               const qty = Number(s.cantidad) || 1;
-              const price = Number(s.precioUnitario) || Number(s.precio) || 0;
+              const price = precioDelCatalogo(s.nombre || s.name || '') ?? 0;
               // Truncate to MAX_SERVICE_NAME_LENGTH — consistent with isDialogueText() limit above
               const nombreServicio = (s.nombre || s.name || DEFAULT_SERVICE_NAME).substring(0, MAX_SERVICE_NAME_LENGTH);
               return {
@@ -741,6 +764,17 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
               };
             })
             .filter(item => item.precioUnitario > 0);
+          // Si ningun servicio se reconocio en el catalogo, NO se guarda un
+          // presupuesto vacio en silencio: se dice que paso y se deja para que
+          // una persona lo arme. Un presupuesto sin renglones que aparece solo es
+          // peor que no crearlo.
+          if (items.length === 0) {
+            return {
+              success: true,
+              response:
+                'Encontre los datos del cliente pero no reconoci los servicios en el catalogo de la empresa, asi que no arme el presupuesto. Cargalos en Catalogo de Servicios o armalo a mano desde Presupuestos.',
+            };
+          }
           logger.info('[Asistente AK] Guardando presupuesto:', { clienteNombre: d.clienteNombre, itemCount: items.length });
           const budgetResult = await savePresupuesto({
             clienteNombre: d.clienteNombre,

@@ -111,7 +111,31 @@ export function detectarErroresHumanos(
       const pagosConfirmados = (presupuesto.pagosCliente || [])
         .filter((p) => p.estadoPago !== 'rechazado')
         .reduce((sum, p) => sum + (Number(p.monto) || 0), 0);
-      const seniaPactada = Number(presupuesto.senia || 0) || (presupuesto.costoTotalEstimado * 0.1);
+      // La seña que se mira es la ACORDADA. Antes, si no habia seña cargada se
+      // asumia el 10% del total: eso avisaba "falta cobrar la seña" en fiestas
+      // donde se acordo sin seña, que es un aviso falso. Y si el total tampoco
+      // estaba cargado, la cuenta daba un valor invalido y la comprobacion se
+      // apagaba en silencio: la fiesta peor cargada, que es la mas riesgosa, era
+      // justo la que no avisaba.
+      const seniaAcordada = Number(presupuesto.senia);
+      const seniaPactada = Number.isFinite(seniaAcordada) && seniaAcordada > 0 ? seniaAcordada : 0;
+      const totalCargado = Number(presupuesto.costoTotalEstimado);
+      if (!Number.isFinite(totalCargado) || totalCargado <= 0) {
+        alertas.push({
+          id: `presupuesto_sin_total_${fiesta.id}`,
+          fiestaId: fiesta.id,
+          fiestaNombre: nombre,
+          fechaEvento: fechaStr,
+          diasRestantes: dias,
+          categoria: 'plata_papeles',
+          urgencia: dias <= 2 ? 'peligro_2_dias' : dias <= 7 ? 'urgente_7_dias' : 'atencion_15_dias',
+          titulo: 'El presupuesto no tiene total cargado',
+          descripcion: `La fiesta de ${nombre} es en ${dias} dias y su presupuesto no tiene un total cargado. Sin eso no se puede controlar la seña ni el saldo.`,
+          accionUrl: '/presupuestos/nuevo',
+          accionLabel: 'Cargar el total',
+        });
+      }
+
       if (pagosConfirmados < seniaPactada && seniaPactada > 0) {
         alertas.push({
           id: `sena_sin_cobrar_${fiesta.id}`,
