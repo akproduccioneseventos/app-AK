@@ -174,6 +174,45 @@ lo que no había que gastar.
 **Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
 comida o permisos? Si la respuesta es no, va a una orden.**
 
+## LA APP ES AUTOMATICA Y CON INTELIGENCIA ARTIFICIAL AL MAXIMO
+
+**Definicion del dueño, 23 de agosto de 2026.** No es un pedido suelto: es lo que
+distingue a esta app de una planilla. Palabras suyas:
+
+> *"Mi app se caracteriza por ser automatica y con IA al maximo."*
+> *"Todo lo que pueda ser automatico seria bueno; si no, es igual que hacerlo
+> manual."*
+
+**Como se aplica, sin preguntar cada vez:**
+
+1. **Ante dos caminos, se elige el automatico.** Aunque cueste mas trabajo
+   programarlo. El trabajo se hace una vez; lo manual se paga todos los dias.
+2. **Antes de dar una pantalla por terminada, la pregunta es: ¿esto lo puede hacer
+   la app sola?** Si la respuesta es si y no se hizo, no esta terminada.
+3. **"Copiá y pegá" no es una entrega.** Si algo queda manual, hay que decirlo en
+   pantalla y dejarlo **a un toque**: el texto copiado, el archivo bajado y la otra
+   aplicacion abierta. La diferencia entre eso y "copiá esto" es la diferencia
+   entre que lo use y que no lo use.
+4. **Nada espera a que alguien se acuerde.** Si algo tiene que pasar a cierta hora
+   o cada tanto, lo dispara el despertador, no una persona.
+5. **Si una tarea la puede hacer un agente, la hace un agente**, y avisa lo que
+   hizo.
+
+**Las cuatro cosas que NO se automatizan, y no se discuten:**
+
+- **Mandar mensajes a clientes o prospectos.** Se preparan; los manda una persona.
+- **Cobrar**, marcar como pagado o emitir una factura.
+- **Cerrar un presupuesto** o darlo por aceptado.
+- **Tocar permisos** o quien ve que.
+
+La linea es: **automatico para mirar, detectar, preparar y avisar. Mano humana
+para lo que sale para afuera o toca plata.**
+
+**Y el limite del gasto:** si automatizar algo obliga a pagar un servicio por mes,
+**se deja preparado y se pregunta antes de contratar**. Sigue vigente: nada que
+aumente lo que se paga por mes se cambia sin avisar.
+
+
 ## Delegación de trabajo (preferencia del dueño del proyecto)
 
 **Regla fija, pedida por el dueño: delegar SIEMPRE en los ayudantes económicos.**
