@@ -4161,3 +4161,15 @@ Salieron seis cosas, todas verificadas a mano y arregladas en el momento.
 **Falso positivo verificado:** los respaldos NO marcan como bueno un respaldo que
 falló (la marca sólo se escribe al terminar bien). Y el repaso de la mañana no
 gasta inteligencia artificial: es análisis de datos con caché por día.
+
+- **El total del presupuesto no coincidía con el del portal del cliente
+  (23 de agosto de 2026).** El portal mostraba el total **con el ajuste anual del
+  15% aplicado** y el documento del presupuesto —el que se le manda e imprime— el
+  total **sin ajustar**. Para una fiesta contratada para el año siguiente, el
+  cliente veía dos números distintos para lo mismo.
+  **Por qué importa:** un número que no coincide entre pantallas es lo que más
+  rompe la confianza; el cliente deja de creer en todo lo demás.
+  **Qué se hizo:** el documento usa `getBudgetCollectibleTotal`, el mismo que el
+  portal. Como esa función devuelve el total base mientras el presupuesto no esté
+  aceptado, **los presupuestos de venta no cambian en nada**: sólo se alinean los
+  ya contratados, que son los que se ven en el portal.
