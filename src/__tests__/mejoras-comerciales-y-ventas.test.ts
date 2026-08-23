@@ -24,6 +24,38 @@ describe('Mejoras comerciales y de ventas antes de publicar', () => {
     expect(hubContent).toContain('¿Querés una fiesta con esta tecnología?');
   });
 
+  it('las estaciones de captura tienen cierre de marca discreto y contacto por WhatsApp', () => {
+    const fotocabinaPath = path.join(RAIZ, 'src/app/evento/fotocabina/[fiestaId]/page.tsx');
+    const espejoPath = path.join(RAIZ, 'src/app/evento/espejo-magico/[fiestaId]/page.tsx');
+
+    expect(existsSync(fotocabinaPath)).toBe(true);
+    expect(existsSync(espejoPath)).toBe(true);
+
+    const fotocabinaContent = readFileSync(fotocabinaPath, 'utf8');
+    const espejoContent = readFileSync(espejoPath, 'utf8');
+
+    expect(fotocabinaContent).toContain('Esto lo hizo AK Producciones');
+    expect(fotocabinaContent).toContain('wa.me/59898355530');
+
+    expect(espejoContent).toContain('Esto lo hizo AK Producciones');
+    expect(espejoContent).toContain('wa.me/59898355530');
+  });
+
+  it('la presentacion LED tiene acceso directo a Salón Club Uruguay y boton de compartir propuesta', () => {
+    const ledPath = path.join(RAIZ, 'src/app/presentacion-led/page.tsx');
+    const cierreSlidePath = path.join(RAIZ, 'src/app/presentacion-led/slides/cierre-slide.tsx');
+
+    expect(existsSync(ledPath)).toBe(true);
+    expect(existsSync(cierreSlidePath)).toBe(true);
+
+    const ledContent = readFileSync(ledPath, 'utf8');
+    const cierreSlideContent = readFileSync(cierreSlidePath, 'utf8');
+
+    expect(ledContent).toContain('Salón Club Uruguay');
+    expect(ledContent).toContain('handleCompartirPropuesta');
+    expect(cierreSlideContent).toContain('Compartir');
+  });
+
   it('comercial-360 tiene el aviso claro de EJEMPLO ILUSTRATIVO para evitar confusiones de costos en capacitaciones', () => {
     const comercialPath = path.join(RAIZ, 'src/app/(app)/contabilidad/comercial-360/page.tsx');
     expect(existsSync(comercialPath)).toBe(true);

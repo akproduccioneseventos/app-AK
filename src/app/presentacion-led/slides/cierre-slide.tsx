@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Check, ShoppingCart, MessageCircle, Mail, Phone, HelpCircle, Printer, CalendarDays, FileText } from 'lucide-react';
+import { Check, ShoppingCart, MessageCircle, Mail, Phone, HelpCircle, Printer, CalendarDays, FileText, Share2 } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
@@ -48,6 +48,7 @@ interface CierreSlideProps {
   onPrint?: () => void;
   onPlanPagos?: () => void;
   onContrato?: () => void;
+  onCompartirPropuesta?: () => void;
   mostrarPrecios?: boolean;
   titulo?: string;
   mensaje?: string;
@@ -70,6 +71,7 @@ export function CierreSlide({
   onPrint = () => {},
   onPlanPagos = () => {},
   onContrato = () => {},
+  onCompartirPropuesta,
   mostrarPrecios = true,
   titulo,
   mensaje,
@@ -220,31 +222,41 @@ export function CierreSlide({
               Se va a pre-llenar con los servicios que seleccionaste.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 presentacion-cierre-print-actions">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 presentacion-cierre-print-actions">
               <button
                 type="button"
                 onClick={onPrint}
-                className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2.5 text-white/90 text-sm font-semibold transition-colors"
+                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-2.5 py-2.5 text-white/90 text-xs font-semibold transition-colors"
               >
-                <Printer className="h-4 w-4" />
-                🖨️ Imprimir presupuesto
+                <Printer className="h-4 w-4 shrink-0" />
+                <span>🖨️ Imprimir</span>
               </button>
               <button
                 type="button"
                 onClick={onPlanPagos}
-                className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2.5 text-white/90 text-sm font-semibold transition-colors"
+                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-2.5 py-2.5 text-white/90 text-xs font-semibold transition-colors"
               >
-                <CalendarDays className="h-4 w-4" />
-                📅 Ver Plan de Pagos
+                <CalendarDays className="h-4 w-4 shrink-0" />
+                <span>📅 Plan Pagos</span>
               </button>
               <button
                 type="button"
                 onClick={onContrato}
-                className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-3 py-2.5 text-white/90 text-sm font-semibold transition-colors"
+                className="flex items-center justify-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-2.5 py-2.5 text-white/90 text-xs font-semibold transition-colors"
               >
-                <FileText className="h-4 w-4" />
-                📄 Generar contrato
+                <FileText className="h-4 w-4 shrink-0" />
+                <span>📄 Contrato</span>
               </button>
+              {onCompartirPropuesta && (
+                <button
+                  type="button"
+                  onClick={onCompartirPropuesta}
+                  className="flex items-center justify-center gap-1.5 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-400/40 rounded-xl px-2.5 py-2.5 text-emerald-200 text-xs font-bold transition-colors"
+                >
+                  <Share2 className="h-4 w-4 shrink-0" />
+                  <span>📲 Compartir</span>
+                </button>
+              )}
             </div>
 
             {/* Contact options */}
