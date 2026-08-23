@@ -53,6 +53,10 @@ el conjunto entero antes de fusionar**, no sobre cada pedazo suelto. Dos arreglo
 que pasan por separado pueden romper juntos: ya pasó con el archivo de facturas,
 que quedó protegido dos veces y dejaba la pantalla colgada al guardar.
 
+### Dirección y uso de subagentes económicos (22 de agosto de 2026)
+- **El agente principal (Gemini/Antigravity) es el director**: supervisa, valida contra la realidad y toma decisiones de arquitectura y calidad.
+- **Delega en subagentes económicos**: para búsquedas de código, exploración de archivos, relevamiento de pantallas o tareas paralelas, usa subagentes de menor costo (`flash_lite` o `flash`) para ahorrar recursos y context window, manteniendo la dirección general.
+
 ## Traspaso entre chats (obligatorio, vale para Codex, Gemini y Claude)
 
 Este proyecto se programa entre tres IA sobre el mismo repositorio. Para no

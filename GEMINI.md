@@ -11,6 +11,11 @@ Para programar y asistir en este proyecto de forma óptima:
    sola propuesta**: eso es preferible a abrir una por bloque. Y cuanto más
    grande, más importa correr los cuatro controles sobre el conjunto entero antes
    de subir.
+0ab. **Dirección con subagentes económicos (22 de agosto de 2026):** Gemini/Antigravity
+   actúa como **director general**: planifica, dirige, verifica con rigor y decide.
+   Para búsquedas, lecturas de archivos y tareas paralelas en el proyecto, **invoca
+   subagentes baratos (`flash_lite` o `flash`)** para cuidar los recursos y delegar la
+   exploración pesada sin perder la supervisión.
 0a. **ANOTÁ SIEMPRE lo que modificás en `docs/YA-RESUELTO.md`, en la misma
    propuesta.** Orden del dueño del 9 de agosto de 2026: no es opcional ni
    depende del tamaño del cambio. Se anotan los arreglos (qué estaba mal y qué
