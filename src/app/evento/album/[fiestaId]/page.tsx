@@ -26,6 +26,7 @@ import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
+import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'invitados';
@@ -329,11 +330,11 @@ export default function PublicAlbumPage() {
 
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
-              href={`https://wa.me/59898355530?text=${encodeURIComponent(
+              href={buildAkWhatsAppUrl(
                 `¡Hola AK Producciones! Estuve viendo el álbum de fotos de ${
                   fiesta?.configuracion?.nombreEvento || 'la fiesta'
                 } y me encantó. Quería consultarles para mi propio evento.`
-              )}`}
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-900/30 transition-all hover:scale-105"

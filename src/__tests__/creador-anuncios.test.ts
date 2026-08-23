@@ -15,7 +15,7 @@ describe('Creador de Anuncios con IA (Estilo Zeely Mejorado)', () => {
     expect(anuncio.tituloGancho.length).toBeGreaterThan(10);
     expect(anuncio.textoPrincipal).toContain('AK Producciones');
     expect(anuncio.textoPrincipal).toContain('Pista LED');
-    expect(anuncio.enlaceDestino).toContain('https://akproducciones.uy/simulador');
+    expect(anuncio.enlaceDestino).toContain('https://akproducciones.uy/simulador-de-presupuesto');
 
     // Guión de Reels/TikTok
     expect(anuncio.guionReelsTikTok.escenas.length).toBeGreaterThan(0);
@@ -48,7 +48,18 @@ describe('Creador de Anuncios con IA (Estilo Zeely Mejorado)', () => {
     });
 
     expect(anuncio.textoPrincipal).toContain('Barra de tragos bonificada');
-    expect(anuncio.tituloGancho).toMatch(/promo|precios? congelados?|reservar/i);
+    expect(anuncio.tituloGancho).toMatch(/promo|consultá|condiciones|reservar/i);
+  });
+
+  it('lleva el objetivo de reunión al simulador con trazabilidad', () => {
+    const anuncio = generarAnuncioCompleto({
+      tipoEvento: 'bodas',
+      objetivo: 'reunion',
+      tono: 'elegante_premium',
+    });
+
+    expect(anuncio.enlaceDestino).toContain('/simulador-de-presupuesto?source=ad_bodas');
+    expect(anuncio.enlaceDestino).toContain('intent=reunion');
   });
 });
 
@@ -99,7 +110,8 @@ Sabemos que planear los 15 es una mezcla de emoción y mil detalles. En AK Produ
     expect(resultado.puntajeGlobal).toBeGreaterThanOrEqual(8);
     expect(resultado.evaluacionGancho.puntaje).toBeGreaterThanOrEqual(7);
     expect(resultado.evaluacionNeuroventas.palabrasClaveEmocionales.length).toBeGreaterThan(0);
-    expect(resultado.diagnosticoResumen).toContain('optimizado para convertir');
+    expect(resultado.diagnosticoResumen).toContain('buenas señales de claridad');
+    expect(resultado.diagnosticoResumen).toContain('medí los resultados reales');
   });
 });
 

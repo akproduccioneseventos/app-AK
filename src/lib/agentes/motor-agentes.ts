@@ -149,7 +149,6 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         createdAt: ahora.toISOString(),
         status: 'pendiente',
         templateType: 'personalizado',
-        createdAt: ahora.toISOString(),
       });
       acciones.push(`Borrador de seguimiento preparado para ${p.clienteNombre} en la bandeja de salida.`);
     } else if (diasDesdeEnvio >= 14 && diasDesdeEnvio <= 30) {
@@ -167,7 +166,6 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         createdAt: ahora.toISOString(),
         status: 'pendiente',
         templateType: 'personalizado',
-        createdAt: ahora.toISOString(),
       });
       acciones.push(`Borrador de reactivación preparado para ${p.clienteNombre} en la bandeja de salida.`);
     }
@@ -236,7 +234,6 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
           createdAt: ahora.toISOString(),
           status: 'pendiente',
           templateType: 'pago_por_vencer',
-          createdAt: ahora.toISOString(),
         });
         acciones.push(`Recordatorio de saldo preparado en bandeja para ${p.clienteNombre}.`);
       }

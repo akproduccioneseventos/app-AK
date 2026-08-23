@@ -17,11 +17,45 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Correccion conjunta de las propuestas 1125 y 1126 (23 de agosto de 2026)
+
+- **Los anuncios guardados ya no se mezclan entre usuarios**
+  (`src/app/actions/creador-anuncios.ts`, `src/lib/auth/require-session.ts`): el
+  servidor exige permiso comercial, identifica a la persona por su sesion y usa
+  una biblioteca separada. Tambien valida los datos recibidos y limita el tamano
+  de cada anuncio antes de guardarlo.
+- **El creador usa el contacto real y no promete resultados inventados**
+  (`src/lib/marketing/creador-anuncios-ia.ts`,
+  `src/lib/marketing/auditor-anuncios-ia.ts`,
+  `src/app/(app)/empresa/creador-anuncios/page.tsx`): WhatsApp sale de la
+  configuracion oficial con respaldo central, los tres objetivos tienen destino
+  valido y la revision se presenta como una guia de claridad. Se quitaron frases
+  que garantizaban duplicar contactos, precios congelados, financiacion o
+  servicios que no estaban confirmados.
+- **Las cuotas del simulador usan el numero que corresponde a la fecha**
+  (`src/lib/simulator/payment-plan.ts`,
+  `src/app/simulador-de-presupuesto/page.tsx`): para el ano vigente toman el
+  precio actual y para eventos futuros toman el total proyectado con ajuste. La
+  sena se lee de Ajustes, el plazo termina 30 dias antes del evento y una fiesta
+  proxima no queda forzada falsamente a dos cuotas.
+- **Portal e invitados dejaron de tener precios y telefonos copiados a mano**
+  (`src/app/portal/page.tsx`, `src/app/evento/album/[fiestaId]/page.tsx`,
+  `src/app/evento/hub/[fiestaId]/page.tsx`): los extras consultan el catalogo
+  publico, muestran "Valor a confirmar" si no hay precio y usan el WhatsApp
+  oficial. El simulador abierto desde una fiesta conserva el origen y la fiesta
+  de referencia para el CRM.
+- **La integracion revelo tres campos repetidos que impedían compilar**
+  (`src/lib/agentes/motor-agentes.ts`): cada borrador de seguimiento o cobro
+  conserva un solo `createdAt`.
+- **Pruebas agregadas:** aislamiento y permiso de anuncios, destinos de campana,
+  eventos 2026/2027/2028, sena configurable y evento proximo. Esto evita volver
+  a introducir precios, accesos o cuotas escritos a mano.
+
 - **La Orden: Mejoras comerciales y de venta antes de publicar (23 de agosto de 2026):**
-  - **Bloque 1 — Contacto comercial directo para el invitado (`src/app/evento/album/[fiestaId]/page.tsx`, `src/app/evento/hub/[fiestaId]/page.tsx`):** Botón directo y no invasivo a WhatsApp personal con mensaje contextualizado ("Estuve viendo el álbum de fotos de la fiesta de [Nombre] y me encantó"), crédito de AK Producciones estilizado y visible con logo, y cierre elegante en las estaciones de captura.
+  - **Bloque 1 — Contacto comercial directo para el invitado (`src/app/evento/album/[fiestaId]/page.tsx`, `src/app/evento/hub/[fiestaId]/page.tsx`):** Botón directo y no invasivo al WhatsApp oficial con mensaje contextualizado ("Estuve viendo el álbum de fotos de la fiesta de [Nombre] y me encantó"), crédito de AK Producciones estilizado y visible con logo, y trazabilidad hacia el simulador para saber desde qué fiesta llegó la consulta.
   - **Bloque 2 — Cierre comercial en la reunión (`src/app/presentacion-led/`, `src/app/(app)/contabilidad/comercial-360/page.tsx`):** Salón Club Uruguay accesible en cualquier momento de la presentación, propuesta de paquetes integrales con combo y ahorro visible, botón para compartir la propuesta a la pareja por WhatsApp o enlace, y cartel visible de "EJEMPLO ILUSTRATIVO — NO ES PRECIO REAL" en Comercial 360 para evitar confusiones de costos en reuniones de capacitación.
-  - **Bloque 3 — Extras contratables en el portal del cliente (`src/app/portal/page.tsx`, `src/app/portal/c/[accessKey]/PublicPortalView.tsx`):** Sección de mejoras sugeridas (hora extra de fiesta, robot LED gigante, vals en las nubes, plataforma 360) con precios transparentes y botón directo "Me interesa sumar esto" que prepara mensaje a WhatsApp para coordinación humana sin cobros automáticos ni cambios al contrato sin aprobación.
-  - **Bloque 4 — Simulador de presupuesto con tranquilidad y decisión (`src/app/simulador-de-presupuesto/page.tsx`):** Reemplazo del temporizador de 15 minutos por un cartel de garantía de tarifa y bonificaciones por 7 días (cero falsa urgencia), botón "✏️ Modificar mi presupuesto" para editar sin perder datos, desglose del plan de pagos con seña de $5.000 y saldo en cuotas mensuales fijas sin intereses, y aclaración visible del alquiler del Club Uruguay.
+  - **Bloque 3 — Extras contratables en el portal del cliente (`src/app/portal/page.tsx`, `src/app/portal/c/[accessKey]/PublicPortalView.tsx`):** Sección de mejoras sugeridas (hora extra de fiesta, robot LED gigante, vals en las nubes, plataforma 360) con precios leídos del catálogo oficial o "Valor a confirmar" si falta el dato, y botón directo "Me interesa sumar esto" que prepara mensaje a WhatsApp para coordinación humana sin cobros automáticos ni cambios al contrato sin aprobación.
+  - **Bloque 4 — Simulador de presupuesto con tranquilidad y decisión (`src/app/simulador-de-presupuesto/page.tsx`, `src/lib/simulator/payment-plan.ts`):** Condiciones formales con validez de 30 días, botón "Modificar mi presupuesto" para editar sin perder datos y plan de pagos estimado con la seña configurada. Las cuotas usan el total proyectado cuando hay ajuste anual y se aclara que el calendario definitivo se confirma en el contrato; no se promete financiación ni intereses sin respaldo.
   - **Bloque 5 — Textos humanos y ortografía cuidada (`src/app/portal/c/[accessKey]/PublicPortalView.tsx`, `src/app/portal/c/[accessKey]/PublicPortalProView.tsx`):** Reemplazo de todos los textos fríos o con errores tipográficos ("AK todavia no cargo...") por mensajes orientados al servicio ("Detalle en preparación por el equipo AK", "Estamos coordinando los horarios del evento", "Tu propuesta formal se está preparando"), números con separador de miles sin decimales y orientación permanente a la acción.
 
 - **Orden 2: Redes sociales, WhatsApp personal, agenda y modelos de portada (22 de agosto de 2026):**
