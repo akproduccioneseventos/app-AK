@@ -157,6 +157,16 @@ export async function publishPostInternal(
             reason: igResult.error || 'Error desconocido al publicar en Instagram',
           });
         }
+      } else if (plat === 'Google') {
+        const googleConn = connections.find((c) => c.platform === 'Google');
+        if (!googleConn || !googleConn.isConnected) {
+          failedPlatforms.push({
+            platform: 'Google',
+            reason: 'El perfil de empresa en Google no está conectado. Podés vincularlo en Ajustes > Redes Sociales para publicar novedades en Google Business.',
+          });
+          continue;
+        }
+        publishedTo.push('Google');
       } else {
         // Otras plataformas
         publishedTo.push(plat);

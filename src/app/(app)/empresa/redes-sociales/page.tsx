@@ -245,7 +245,12 @@ function SocialMediaPageContent() {
                     postToDuplicate={postToDuplicate}
                 />
             )}
-            <CardDescription>Planifica, redacta con IA y organiza tu contenido para redes sociales. Luego copia y pega para publicar.</CardDescription>
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4 text-xs text-slate-600 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <span className="font-bold text-slate-800">Publicación desatendida y manual: </span>
+                    <span>Instagram y Facebook se publican de forma automática a la fecha y hora programadas. TikTok, WhatsApp, Threads y X quedan organizadas en la pestaña &quot;Listos para copiar&quot; para subirlas con 1 clic.</span>
+                </div>
+            </div>
 
             <SocialHistoryPanel onSyncCompleted={fetchData} />
 
@@ -319,9 +324,11 @@ function SocialMediaPageContent() {
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="list">
-                        <TabsList className="grid w-full grid-cols-2 md:w-auto md:inline-flex">
-                            <TabsTrigger value="list"><List className="w-4 h-4 mr-2"/>Vista de Lista</TabsTrigger>
-                            <TabsTrigger value="calendar"><Calendar className="w-4 h-4 mr-2"/>Vista de Calendario</TabsTrigger>
+                        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 md:w-auto md:inline-flex">
+                            <TabsTrigger value="list"><List className="w-4 h-4 mr-2"/>Todos ({filteredPosts.length})</TabsTrigger>
+                            <TabsTrigger value="manual"><Copy className="w-4 h-4 mr-2"/>Listos para copiar ({filteredPosts.filter(p => p.status === 'Listo para copiar' || p.platform === 'TikTok' || p.platform === 'WhatsApp' || p.platform === 'Threads' || p.platform === 'X').length})</TabsTrigger>
+                            <TabsTrigger value="failed"><AlertTriangle className="w-4 h-4 mr-2"/>Con error ({filteredPosts.filter(p => p.status === 'Falló' || p.status === 'Error' || !!p.lastError).length})</TabsTrigger>
+                            <TabsTrigger value="calendar"><Calendar className="w-4 h-4 mr-2"/>Calendario</TabsTrigger>
                         </TabsList>
                         <TabsContent value="list" className="mt-4">
                             {isLoading ? (
@@ -334,6 +341,28 @@ function SocialMediaPageContent() {
                                 <p className="text-muted-foreground text-center py-10">No hay publicaciones que coincidan con los filtros seleccionados.</p>
                             )}
                         </TabsContent>
+                        <TabsContent value="manual" className="mt-4">
+                            {isLoading ? (
+                                <div className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>
+                            ) : filteredPosts.filter(p => p.status === 'Listo para copiar' || p.platform === 'TikTok' || p.platform === 'WhatsApp' || p.platform === 'Threads' || p.platform === 'X').length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {filteredPosts.filter(p => p.status === 'Listo para copiar' || p.platform === 'TikTok' || p.platform === 'WhatsApp' || p.platform === 'Threads' || p.platform === 'X').map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} onDuplicate={handleDuplicatePost} />)}
+                                </div>
+                            ) : (
+                                <p className="text-muted-foreground text-center py-10">No hay publicaciones pendientes para copiar manualmente.</p>
+                            )}
+                        </TabsContent>
+                        <TabsContent value="failed" className="mt-4">
+                            {isLoading ? (
+                                <div className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>
+                            ) : filteredPosts.filter(p => p.status === 'Falló' || p.status === 'Error' || !!p.lastError).length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {filteredPosts.filter(p => p.status === 'Falló' || p.status === 'Error' || !!p.lastError).map(post => <SocialPostCard key={post.id} post={post} onDelete={handleDelete} isDeleting={deletingPostId === post.id} onUpdate={fetchData} onDuplicate={handleDuplicatePost} />)}
+                                </div>
+                            ) : (
+                                <p className="text-muted-foreground text-center py-10">No hay publicaciones con error.</p>
+                            )}
+                        </TabsContent>
                         <TabsContent value="calendar" className="mt-4">
                         {isLoading ? (
                                 <div className="text-center py-10"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div>
@@ -344,7 +373,7 @@ function SocialMediaPageContent() {
                     </Tabs>
                 </CardContent>
                 <CardFooter>
-                    <p className="text-xs text-muted-foreground">Usa este módulo para planificar tu contenido. Cuando sea la fecha de publicación, simplemente copia el texto y la imagen para pegarlo en tus redes.</p>
+                    <p className="text-xs text-muted-foreground">Instagram y Facebook se publican de forma autónoma. Las demás redes quedan listas para copiar el texto e imagen con un solo toque.</p>
                 </CardFooter>
             </Card>
         </div>

@@ -59,7 +59,65 @@ export interface LandingServiceItem {
   imageUrl?: string;
 }
 
+export type LandingThemeModel = 'elegante' | 'fiesta' | 'sobrio' | 'moderno';
+
+export interface LandingThemePreset {
+  id: LandingThemeModel;
+  name: string;
+  description: string;
+  colors: LandingColorSettings;
+  heroBadge: string;
+}
+
+export const LANDING_THEME_PRESETS: Record<LandingThemeModel, LandingThemePreset> = {
+  elegante: {
+    id: 'elegante',
+    name: 'Elegante',
+    description: 'Tonos violeta y púrpura clásicos, ideal para bodas y galas.',
+    colors: {
+      overlayFrom: 'rgba(88,28,135,0.85)',
+      overlayTo: 'rgba(112,26,117,0.65)',
+      accentColor: '#a855f7',
+    },
+    heroBadge: 'Producción Integral de Eventos',
+  },
+  fiesta: {
+    id: 'fiesta',
+    name: 'Fiesta',
+    description: 'Tonos fucsia y dorados vibrantes, especial para 15 años y aniversarios movidos.',
+    colors: {
+      overlayFrom: 'rgba(190,24,93,0.85)',
+      overlayTo: 'rgba(217,119,6,0.65)',
+      accentColor: '#ec4899',
+    },
+    heroBadge: 'La Mejor Noche de tu Vida',
+  },
+  sobrio: {
+    id: 'sobrio',
+    name: 'Sobrio',
+    description: 'Tonos azul noche y plata, perfecto para corporativos y celebraciones institucionales.',
+    colors: {
+      overlayFrom: 'rgba(15,23,42,0.9)',
+      overlayTo: 'rgba(30,41,59,0.75)',
+      accentColor: '#38bdf8',
+    },
+    heroBadge: 'Excelencia y Profesionalismo',
+  },
+  moderno: {
+    id: 'moderno',
+    name: 'Moderno',
+    description: 'Tonos esmeralda y verde tecnológico, enfocado en innovación y pantallas LED.',
+    colors: {
+      overlayFrom: 'rgba(6,78,59,0.85)',
+      overlayTo: 'rgba(4,120,87,0.65)',
+      accentColor: '#10b981',
+    },
+    heroBadge: 'Tecnología y Producción Total',
+  },
+};
+
 export interface LandingSettings {
+  themeModel?: LandingThemeModel;
   hero: LandingHeroSettings;
   services?: LandingServiceItem[];
   stats: LandingStatItem[];
@@ -73,6 +131,7 @@ export interface LandingSettings {
 }
 
 export const defaultLandingSettings: LandingSettings = {
+  themeModel: 'elegante',
   whatsappNumber: '59898355530',
   hero: {
     headline: 'Organizá tu fiesta completa\nen Salto con AK Producciones',

@@ -120,13 +120,60 @@ export async function cancelScheduledMessage(
   }
 }
 
+export async function unmarkMessageAsSent(
+  messageId: string
+): Promise<{ success: boolean; error?: string }> {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
+  try {
+    const messages = await getScheduledMessages();
+    const updated = messages.map(m =>
+      m.id === messageId
+        ? {
+            ...m,
+            status: 'pendiente' as ScheduledMessageStatus,
+            sentAt: undefined,
+            sentBy: undefined,
+          }
+        : m
+    );
+    await writeData(SCHEDULED_MESSAGES_FILE, updated);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
+export async function updateScheduledMessageText(
+  messageId: string,
+  newMessageText: string
+): Promise<{ success: boolean; error?: string }> {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
+  try {
+    const messages = await getScheduledMessages();
+    const updated = messages.map(m =>
+      m.id === messageId
+        ? {
+            ...m,
+            messageText: newMessageText,
+          }
+        : m
+    );
+    await writeData(SCHEDULED_MESSAGES_FILE, updated);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}
+
 export async function generateWhatsAppClickUrl(
   messageText: string,
   targetPhone?: string
 ): Promise<string> {
   await requireAppSession();
-  const phone = (targetPhone || '').replace(/[^\d]/g, '');
-  const cleanPhone = phone.startsWith('598') ? phone : `598${phone.replace(/^0/, '')}`;
+  const { toWhatsAppNumber } = await import('@/lib/commercial/contact');
+  const cleanPhone = toWhatsAppNumber(targetPhone);
   return `https://wa.me/${cleanPhone || '59898355530'}?text=${encodeURIComponent(messageText)}`;
 }
 

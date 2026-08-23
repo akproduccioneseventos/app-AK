@@ -1,7 +1,7 @@
 
-// YouTube, Threads, X y Pinterest entran acá porque las tablas de colores e iconos del calendario
+// Google, YouTube, Threads, X y Pinterest entran acá porque las tablas de colores e iconos del calendario
 // y el centro de redes los tienen: sin sumarlos al tipo, no compila.
-export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp' | 'YouTube' | 'Threads' | 'X' | 'Pinterest';
+export type SocialPlatform = 'Facebook' | 'Instagram' | 'Google' | 'TikTok' | 'WhatsApp' | 'YouTube' | 'Threads' | 'X' | 'Pinterest';
 export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG' | 'Importado historial' | 'Borrador' | 'Falló' | 'Listo para copiar' | 'Error';
 
 export interface PostPerformance {

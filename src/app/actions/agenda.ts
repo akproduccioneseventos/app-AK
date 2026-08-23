@@ -59,7 +59,38 @@ export async function getCalendarEvents(): Promise<CalendarEvent[]> {
     const activeEvents = activeFiestas.map(f => toCalendarEvent(f, false)).filter((e): e is CalendarEvent => e !== null);
     const archivedEvents = archivedFiestas.map(f => toCalendarEvent(f, true)).filter((e): e is CalendarEvent => e !== null);
 
-    return [...activeEvents, ...archivedEvents];
+    const reunionEvents: CalendarEvent[] = [];
+    for (const fiesta of [...activeFiestas, ...archivedFiestas]) {
+      if (fiesta.reuniones && Array.isArray(fiesta.reuniones)) {
+        for (const r of fiesta.reuniones) {
+          if (r.fecha) {
+            try {
+              const dateTime = r.fecha;
+              const date = new Date(dateTime).toISOString().split('T')[0];
+              const lugar = (r as any).lugar || fiesta.configuracion.nombreLugar || '';
+              const contacto = (r as any).conQuien || (fiesta.configuracion as any).nombreCliente || fiesta.configuracion.protagonista1Nombre || '';
+              reunionEvents.push({
+                id: `reunion_${fiesta.id}_${r.id || Math.random().toString(36).substring(2, 7)}`,
+                fiestaId: fiesta.id,
+                title: `🤝 Reunión: ${r.titulo}${contacto ? ` con ${contacto}` : ''} (${fiesta.configuracion.nombreEvento || 'Fiesta'})`,
+                date,
+                dateTime,
+                type: 'Reunión',
+                status: 'confirmed',
+                guestCount: 0,
+                venue: lugar,
+                personalCount: 0,
+                presupuestoEstimado: 0,
+              });
+            } catch {
+              // Si la fecha de la reunión es inválida, se omite
+            }
+          }
+        }
+      }
+    }
+
+    return [...activeEvents, ...archivedEvents, ...reunionEvents];
   } catch (error) {
     console.error("Error fetching calendar events:", error);
     return [];
