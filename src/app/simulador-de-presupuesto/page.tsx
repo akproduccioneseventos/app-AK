@@ -1594,24 +1594,32 @@ function SimuladorContent() {
                                  />
                              </div>
 
-                             <div className="mx-auto w-full max-w-2xl space-y-3 rounded-2xl border border-red-200 bg-gradient-to-br from-red-50/50 via-white to-amber-50/50 p-5 text-left shadow-sm">
-                                 <div className="flex items-center justify-between border-b border-red-100 pb-2.5">
-                                     <h3 className="text-xs font-black uppercase text-red-700 flex items-center gap-2">
-                                         <Timer className="w-4 h-4 text-red-600 animate-spin" />
-                                         Garantía de tarifa y bonificaciones del presupuesto
+                             {/* Banner de Garantía y Validez de 7 días */}
+                             <div className="mx-auto w-full max-w-2xl space-y-2 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50/70 via-white to-teal-50/50 p-5 text-left shadow-sm">
+                                 <div className="flex items-center justify-between border-b border-emerald-100 pb-2.5">
+                                     <h3 className="text-xs font-black uppercase text-emerald-800 flex items-center gap-2">
+                                         <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                                         Presupuesto y bonificaciones garantizados por 7 días
                                      </h3>
-                                     <span className="rounded-xl bg-red-700 px-3 py-1 font-mono text-xs font-black text-white shadow-sm">
-                                         {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : '15:00'}
+                                     <span className="rounded-xl bg-emerald-700 px-3 py-1 text-[11px] font-bold text-white shadow-sm">
+                                         Validez 7 días
                                      </span>
                                  </div>
                                  <div className="text-xs leading-relaxed text-slate-600">
                                      <p>
-                                         Al agendar tu reunión o comunicarte con AK, congelamos las tarifas, promociones y disponibilidad de salones de tu presupuesto para la entrevista.
+                                         Te guardamos las tarifas y los regalos incluidos para que puedas leerlo tranquilo y conversarlo en familia. Para congelar tu fecha de forma definitiva, podés reservar con una seña de solo $ 5.000.
                                      </p>
                                  </div>
                              </div>
 
-                            <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                                <Button
+                                    onClick={() => setStep(5)}
+                                    variant="outline"
+                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-indigo-200 bg-indigo-50/70 px-3 text-xs font-bold text-indigo-900 hover:bg-indigo-100 shadow-sm"
+                                >
+                                    <ListPlus className="w-4 h-4 shrink-0 text-indigo-700"/> <span className="truncate">Modificar mi presupuesto</span>
+                                </Button>
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
                                     className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-3 text-xs font-bold text-white hover:bg-emerald-800 shadow-md"
@@ -1633,15 +1641,15 @@ function SimuladorContent() {
                                 >
                                     {isDownloadingPdf
                                         ? <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-                                        : <FileDown className="h-4 w-4 shrink-0" />}
+                                        : <FileDown className="h-4 w-4 shrink-0 text-amber-500" />}
                                     <span className="truncate">Descargar PDF</span>
                                 </Button>
                                 <Button
                                     variant="outline"
                                     onClick={() => setIsFaqOpen(true)}
-                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-red-200 bg-red-50 px-3 text-xs font-bold text-red-700 hover:bg-red-100 shadow-sm"
+                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 hover:bg-slate-50 shadow-sm"
                                 >
-                                    <HelpCircle className="w-4 h-4 shrink-0 text-red-600"/> <span className="truncate">Preguntas Frecuentes</span>
+                                    <HelpCircle className="w-4 h-4 shrink-0 text-slate-500"/> <span className="truncate">Preguntas</span>
                                 </Button>
                             </div>
                         </CardContent>
@@ -1823,6 +1831,36 @@ function SimuladorContent() {
                                          <span>{formatCurrency(stats.precioPorPersona)}</span>
                                      </div>
                                  )}
+
+                                 {/* Plan de pagos sugerido (acelerador de decisión) */}
+                                 <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 text-left space-y-2">
+                                     <div className="flex items-center justify-between text-xs font-black text-emerald-950 uppercase tracking-tight">
+                                         <span>Plan de pagos en cuotas fijas</span>
+                                         <span className="text-[10px] bg-emerald-200/80 px-2 py-0.5 rounded text-emerald-900">Sin intereses</span>
+                                     </div>
+                                     <div className="text-xs text-slate-700 space-y-1">
+                                         <div className="flex justify-between font-semibold">
+                                             <span>1. Seña para congelar fecha:</span>
+                                             <span className="font-bold text-emerald-800">$ 5.000</span>
+                                         </div>
+                                         {(() => {
+                                             const meses = eventoFecha
+                                                 ? Math.max(2, Math.min(24, Math.ceil((eventoFecha.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.5))))
+                                                 : 6;
+                                             const saldo = Math.max(0, stats.totalFinal - 5000);
+                                             const cuota = Math.round(saldo / meses);
+                                             return (
+                                                 <div className="flex justify-between font-semibold text-slate-900 border-t border-emerald-200/60 pt-1">
+                                                     <span>2. Saldo en {meses} cuotas mensuales:</span>
+                                                     <span className="font-black text-slate-950">{formatCurrency(cuota)} / mes</span>
+                                                 </div>
+                                             );
+                                         })()}
+                                     </div>
+                                     <p className="text-[10px] text-slate-500 italic">
+                                         * Podés abonar mes a mes hasta el día del evento sin costos extras.
+                                     </p>
+                                 </div>
                             </div>
                             {stats.annualProjection.applies && (
                                 <div className="rounded-md border border-slate-200 bg-white p-4 text-sm" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>

@@ -710,6 +710,70 @@ function ClientPortalContent() {
             </PortalSection>
           )}
 
+          {/* Sección de Extras Contratables para el Cliente */}
+          <PortalSection title="Mejoras y Extras para tu Fiesta" icon={Sparkles}>
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                ¿Querés sumar algún toque especial a tu noche? Elegí lo que te guste y tu organizador lo coordina con vos.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  {
+                    id: 'hora_extra_dj',
+                    titulo: 'Hora adicional de fiesta y DJ',
+                    descripcion: 'Una hora más de música, luces y diversión para que nadie se vaya temprano.',
+                    precio: '$ 4.500',
+                    icono: '🕒',
+                  },
+                  {
+                    id: 'robot_led_show',
+                    titulo: 'Show de Robot LED gigante',
+                    descripcion: 'Ingreso sorpresa con chisperos fríos y animación en plena tanda de baile.',
+                    precio: '$ 8.500',
+                    icono: '🤖',
+                  },
+                  {
+                    id: 'humo_bajo_vals',
+                    titulo: 'Vals en las Nubes (Humo bajo)',
+                    descripcion: 'Efecto cinematográfico para el ingreso o el baile de novios y quinceañera.',
+                    precio: '$ 6.000',
+                    icono: '💨',
+                  },
+                  {
+                    id: 'plataforma_360',
+                    titulo: 'Plataforma 360 / Touchpix',
+                    descripcion: 'Videos giratorios con efectos y descarga instantánea por QR para tus invitados.',
+                    precio: '$ 12.000',
+                    icono: '🎥',
+                  },
+                ].map((extra) => (
+                  <div key={extra.id} className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm flex flex-col justify-between gap-3">
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-lg">{extra.icono}</span>
+                        <Badge variant="outline" className="font-bold text-emerald-800 bg-emerald-50 border-emerald-200 text-xs">
+                          {extra.precio}
+                        </Badge>
+                      </div>
+                      <h4 className="font-bold text-sm text-slate-900 mt-2">{extra.titulo}</h4>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">{extra.descripcion}</p>
+                    </div>
+                    <a
+                      href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                        `¡Hola AK Producciones! En mi portal de ${fiesta.configuracion.nombreEvento} vi el extra "${extra.titulo}" (${extra.precio}) y me gustaría sumarlo a mi fiesta.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 px-3 py-2 text-xs font-bold text-white transition hover:scale-[1.02]"
+                    >
+                      <span>✨ Me interesa sumar esto</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </PortalSection>
+
           {settings.ubicacion.visible && (
             <PortalSection title="Ubicación del Evento" icon={MapPin}>
               <div className="space-y-2">
