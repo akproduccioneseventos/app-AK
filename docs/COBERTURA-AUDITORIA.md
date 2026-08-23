@@ -64,16 +64,16 @@ hace falta volver a mirar nada de lo de arriba.
    **Qué buscar:** un número del panel que no cuadre con los datos de origen, o un
    reporte que sume dos veces.
 
-4. **El mapa de áreas completo** — agrupar las 341 pantallas en áreas y comprobar
+4. **El mapa de áreas completo** — agrupar las 348 pantallas en áreas y comprobar
    que **ninguna quede afuera de esta tabla**. Las áreas de una o dos pantallas son
    siempre las olvidadas.
 
 ---
 
-## Las 341 pantallas, agrupadas: ninguna queda afuera
+## Las 348 pantallas, agrupadas: ninguna queda afuera
 
 Clasificacion mecanica sobre `src/lib/multiagent/mapa-app.generado.ts`
-(22 de agosto de 2026). **332 de 341 caen en un area revisada. Las 9 restantes
+(22 de agosto de 2026). **332 de 348 caen en un area revisada. Las 9 restantes
 estan abajo y NO fueron revisadas por nadie.**
 
 | Area | Pantallas | Revisada |
