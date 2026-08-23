@@ -69,6 +69,22 @@ jobs:
           projectId: presupuestador-ak-producciones
           channelId: live
 
+      # El despertador vive en functions/ y es lo que hace correr las tareas
+      # automaticas sin que nadie abra la app. El paso de arriba publica SOLO el
+      # sitio: sin esto, el despertador queda escrito y nunca llega a Google, la
+      # app sigue dormida y todo parece andar. Lo cuida
+      # src/__tests__/despliegue-incluye-despertador.test.ts.
+      - name: Deploy scheduled functions (despertador)
+        if: ${{ steps.firebase_auth_check.outputs.available == 'true' }}
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$RUNNER_TEMP/firebase-key.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-key.json"
+          npx --yes firebase-tools deploy --only functions \
+            --project presupuestador-ak-producciones --non-interactive --force
+          rm -f "$RUNNER_TEMP/firebase-key.json"
+
       - name: Skip deploy (missing service account)
         if: ${{ steps.firebase_auth_check.outputs.available == 'false' }}
         run: echo "FIREBASE_SERVICE_ACCOUNT is not configured. Skipping Firebase deployment."

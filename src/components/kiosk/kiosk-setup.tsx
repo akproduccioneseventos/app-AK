@@ -12,15 +12,35 @@ import {
   Smartphone, 
   AlertCircle, 
   Loader2,
-  Check
+  Check,
+  Camera,
+  Sparkles,
+  Wand2,
+  Mic,
+  Film,
+  Printer,
+  Headphones
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getFiestaActivaDeHoy, getFiestas } from '@/app/actions/fiesta-actual';
 
+export type KioskRole = 
+  | 'barra' 
+  | 'muro-en-vivo' 
+  | 'plataforma-360' 
+  | 'totem'
+  | 'fotocabina'
+  | 'espejo-magico'
+  | 'touchpix'
+  | 'buzon'
+  | 'video-vida'
+  | 'impresion'
+  | 'dj';
+
 interface KioskSetupProps {
-  defaultRole: 'barra' | 'muro-en-vivo' | 'plataforma-360' | 'totem';
+  defaultRole: KioskRole;
 }
 
 export function KioskSetup({ defaultRole }: KioskSetupProps) {
@@ -217,30 +237,38 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
             {/* Step 2: Choose Kiosk Role */}
             <div className="space-y-2">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-400">2. Rol del Dispositivo</label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto pr-1">
                 {[
                   { id: 'barra', label: 'Barra de Tragos', icon: Wine, color: 'hover:border-rose-500/50 hover:bg-rose-500/5' },
                   { id: 'muro-en-vivo', label: 'Muro Social', icon: Tv, color: 'hover:border-blue-500/50 hover:bg-blue-500/5' },
                   { id: 'plataforma-360', label: 'Plataforma 360', icon: Video, color: 'hover:border-purple-500/50 hover:bg-purple-500/5' },
-                  { id: 'totem', label: 'Tótem LED', icon: Smartphone, color: 'hover:border-emerald-500/50 hover:bg-emerald-500/5' }
+                  { id: 'totem', label: 'Tótem LED', icon: Smartphone, color: 'hover:border-emerald-500/50 hover:bg-emerald-500/5' },
+                  { id: 'fotocabina', label: 'Fotocabina', icon: Camera, color: 'hover:border-amber-500/50 hover:bg-amber-500/5' },
+                  { id: 'espejo-magico', label: 'Espejo Mágico', icon: Sparkles, color: 'hover:border-pink-500/50 hover:bg-pink-500/5' },
+                  { id: 'touchpix', label: 'Touchpix AI', icon: Wand2, color: 'hover:border-cyan-500/50 hover:bg-cyan-500/5' },
+                  { id: 'buzon', label: 'Buzón Saludos', icon: Mic, color: 'hover:border-violet-500/50 hover:bg-violet-500/5' },
+                  { id: 'video-vida', label: 'Video de Vida', icon: Film, color: 'hover:border-orange-500/50 hover:bg-orange-500/5' },
+                  { id: 'impresion', label: 'Estación Impresión', icon: Printer, color: 'hover:border-indigo-500/50 hover:bg-indigo-500/5' },
+                  { id: 'dj', label: 'Pedidos al DJ', icon: Headphones, color: 'hover:border-emerald-500/50 hover:bg-emerald-500/5' },
                 ].map((role) => {
                   const Icon = role.icon;
                   const isSelected = selectedRole === role.id;
                   return (
                     <button
                       key={role.id}
+                      type="button"
                       onClick={() => {
-                        setSelectedRole(role.id as any);
+                        setSelectedRole(role.id as KioskRole);
                         setErrorMessage('');
                       }}
-                      className={`flex flex-col items-center gap-3 p-4 rounded-lg border text-center transition-all motion-reduce:transition-none ${
+                      className={`flex flex-col items-center gap-2 p-3 rounded-lg border text-center transition-all motion-reduce:transition-none ${
                         isSelected 
                           ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/5 text-purple-300' 
                           : 'border-slate-800 bg-slate-950 text-slate-400 ' + role.color
                       }`}
                     >
-                      <Icon className={`w-6 h-6 ${isSelected ? 'text-purple-400' : 'text-slate-500'}`} />
-                      <span className="text-xs font-bold">{role.label}</span>
+                      <Icon className={`w-5 h-5 ${isSelected ? 'text-purple-400' : 'text-slate-500'}`} />
+                      <span className="text-[11px] font-bold leading-tight">{role.label}</span>
                     </button>
                   );
                 })}

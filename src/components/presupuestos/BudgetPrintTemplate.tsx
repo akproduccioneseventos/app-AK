@@ -31,8 +31,8 @@ function formatCurrency(amount?: number): string {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   const formatted = new Intl.NumberFormat('es-UY', {
     style: 'decimal',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
   return `$ ${formatted}`;
 }
