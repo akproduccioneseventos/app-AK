@@ -4084,3 +4084,13 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   **Por qué importa:** publicar el sitio no publica las tareas programadas. Sin
   este paso, el despertador queda escrito, las pruebas pasan, y la app sigue
   dormida sin que nada lo avise.
+
+- **El modelo que razona quedó una generación atrás (22 de agosto de 2026).** Al
+  separar los dos casilleros de inteligencia artificial, el rápido quedó bien
+  (`gemini-flash-latest`, que se actualiza solo cuando Google saca una nueva). Pero
+  **el del que razona se fijó en `gemini-2.5-pro`, que es anterior al flash 3.6 que
+  la app ya venía usando**: para las tareas que piensan estaría usando un modelo más
+  viejo que el rápido. No se corrigió a mano porque **el nombre exacto del Pro
+  actual hay que verificarlo contra la lista oficial de Google**, y escribir uno de
+  memoria es justo lo que hace fallar esto recién cuando un cliente pregunta algo.
+  **Se cambia sin tocar código**, con la variable `GEMINI_MODEL_PRO`.
