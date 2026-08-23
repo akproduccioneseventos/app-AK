@@ -55,7 +55,30 @@ export default function Commercial360Page() {
             </div>
           </CardContent></Card>
 
-          <Card><CardHeader><CardTitle>Ejemplo de cierre</CardTitle></CardHeader><CardContent className="space-y-3 text-sm"><div className="rounded-lg bg-emerald-50 p-4"><p className="text-muted-foreground">Total final AK</p><p className="text-3xl font-bold text-emerald-900">{formatCommercialMoneyUYU(discount.finalPrice)}</p><p className="mt-2 text-emerald-800">Ahorro mostrado: {formatCommercialMoneyUYU(discount.savingsStoryValue)}</p></div><p className="text-xs text-muted-foreground">{discount.disclaimer}</p></CardContent></Card>
+          <Card className="border-amber-200 bg-amber-50/40">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between gap-2">
+                <CardTitle className="text-base font-bold text-amber-950">Ejemplo de Cierre Comercial</CardTitle>
+                <Badge className="bg-amber-500 text-white font-black text-[10px] tracking-wider uppercase">
+                  EJEMPLO ILUSTRATIVO
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="rounded-lg bg-white border border-amber-200 p-4 shadow-sm">
+                <div className="flex items-center justify-between text-xs font-semibold text-amber-800 mb-1">
+                  <span>Simulación de Referencia</span>
+                  <span className="text-[10px] uppercase bg-amber-100 px-2 py-0.5 rounded text-amber-900">No es precio real</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Total final de prueba</p>
+                <p className="text-3xl font-bold text-emerald-900">{formatCommercialMoneyUYU(discount.finalPrice)}</p>
+                <p className="mt-2 text-xs font-medium text-emerald-800">Ahorro mostrado en simulación: {formatCommercialMoneyUYU(discount.savingsStoryValue)}</p>
+              </div>
+              <p className="text-xs text-muted-foreground italic">
+                * Este bloque es una demostración del motor comercial para capacitaciones internas. No representa la cotización de ningún cliente real.
+              </p>
+            </CardContent>
+          </Card>
         </section>
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
