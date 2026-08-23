@@ -12,6 +12,9 @@ import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/
 import NextImage from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
+import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 /**
  * Convierte una falla tecnica en algo que el invitado pueda entender.
@@ -54,6 +57,30 @@ const PhotoUploadSlot: React.FC<{
       return;
     }
 
+    // Si no hay conexion, guardar directamente en IndexedDB
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      try {
+        await saveOfflineMedia({
+          fiestaId,
+          moduleId: 'video-vida',
+          fileBlob: file,
+          fileName: file.name,
+          mimeType: file.type || 'image/jpeg',
+          authorName: 'Video de Vida',
+          metadata: { photoNumber: slot.number },
+        });
+        const localPreview = URL.createObjectURL(file);
+        onUploadComplete(slot.number, localPreview);
+        toast({ title: "¡Foto Guardada!", description: `La foto ${slot.number} se guardó localmente y se subirá cuando vuelva la señal.` });
+      } catch (err: any) {
+        toast({ title: "Error local", description: err.message, variant: "destructive" });
+      } finally {
+        setIsUploading(false);
+        if (event.target) event.target.value = '';
+      }
+      return;
+    }
+
     const formData = new FormData();
     formData.append('fiestaId', fiestaId);
     formData.append('file', file);
@@ -68,11 +95,27 @@ const PhotoUploadSlot: React.FC<{
         throw new Error(result.error || "No se pudo guardar la foto.");
       }
     } catch (err: any) {
-      toast({ title: "Error al subir", description: err.message, variant: "destructive" });
-      onUploadComplete(slot.number, null);
+      console.warn('[VideoVida] Falla al subir, guardando en IndexedDB...', err);
+      try {
+        await saveOfflineMedia({
+          fiestaId,
+          moduleId: 'video-vida',
+          fileBlob: file,
+          fileName: file.name,
+          mimeType: file.type || 'image/jpeg',
+          authorName: 'Video de Vida',
+          metadata: { photoNumber: slot.number },
+        });
+        const localPreview = URL.createObjectURL(file);
+        onUploadComplete(slot.number, localPreview);
+        toast({ title: "¡Foto Guardada!", description: `La foto ${slot.number} se guardó y se subirá al reconectar.` });
+      } catch (offlineErr: any) {
+        toast({ title: "Error al subir", description: err.message, variant: "destructive" });
+        onUploadComplete(slot.number, null);
+      }
     } finally {
-        setIsUploading(false);
-        if (event.target) event.target.value = '';
+      setIsUploading(false);
+      if (event.target) event.target.value = '';
     }
   };
 
@@ -212,6 +255,8 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
                 </CardContent>
             </Card>
         </div>
+        <KioskUnlockButton />
+        <SyncStatusIndicator fiestaId={fiesta.id} moduleId="video-vida" />
     </div>
   );
 }

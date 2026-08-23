@@ -37,6 +37,8 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
+import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 
 const DURATION_OPTIONS = [
   { label: '10 Segundos', value: 10 },
@@ -523,12 +525,37 @@ export default function Plataforma360Page() {
 
     try {
       const ext = blob.type.includes('webm') ? '.webm' : '.mp4';
-      const file = new File([blob], `360-video-${Date.now()}${ext}`, { type: blob.type });
+      const fileName = `360-video-${Date.now()}${ext}`;
+
+      // Si estamos sin conexión, guardar directamente en IndexedDB
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        await saveOfflineMedia({
+          fiestaId,
+          moduleId: 'plataforma-360',
+          fileBlob: blob,
+          fileName,
+          mimeType: blob.type || 'video/mp4',
+          authorName: 'Plataforma 360',
+          metadata: { accessToken, guestId, guestAccessToken },
+        });
+
+        setProgress(100);
+        setQrCodeUrl('');
+        setLocalStatus('done');
+        speak("¡Buenísimo! Tu video quedó guardado y se subirá apenas vuelva la señal.");
+
+        setTimeout(() => {
+          completeGuestCycle();
+        }, (fiesta?.station.reviewSeconds || 20) * 1000);
+        return;
+      }
+
+      const file = new File([blob], fileName, { type: blob.type });
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
       formData.append('authorName', 'Plataforma 360');
-      formData.append('moduleId', 'plataforma360');
+      formData.append('moduleId', 'plataforma-360');
       if (accessToken) formData.append('accessToken', accessToken);
       if (guestId) formData.append('guestId', guestId);
       if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
@@ -543,7 +570,7 @@ export default function Plataforma360Page() {
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(
           fiestaId,
-          'plataforma360',
+          'plataforma-360',
           'done',
           { mediaUrl, lastError: null },
           accessToken
@@ -559,7 +586,29 @@ export default function Plataforma360Page() {
         throw new Error(res.error || 'Error de subida');
       }
     } catch (err) {
-      console.error(err);
+      console.warn('[Plataforma360] Error al subir video, guardando en IndexedDB...', err);
+      try {
+        const ext = blob.type.includes('webm') ? '.webm' : '.mp4';
+        await saveOfflineMedia({
+          fiestaId,
+          moduleId: 'plataforma-360',
+          fileBlob: blob,
+          fileName: `360-video-${Date.now()}${ext}`,
+          mimeType: blob.type || 'video/mp4',
+          authorName: 'Plataforma 360',
+          metadata: { accessToken, guestId, guestAccessToken },
+        });
+        setProgress(100);
+        setLocalStatus('done');
+        speak("Tu video quedó guardado y se subirá cuando vuelva la señal.");
+        setTimeout(() => {
+          completeGuestCycle();
+        }, (fiesta?.station.reviewSeconds || 20) * 1000);
+        return;
+      } catch (fallbackErr) {
+        console.error('[Plataforma360] Error al encolar en IndexedDB:', fallbackErr);
+      }
+
       const message = (err as Error).message || 'No se pudo subir el video.';
       setProgressMsg('No se pudo subir el video. Conservamos la vista previa para reintentar.');
       setUploadError(message);
@@ -569,10 +618,9 @@ export default function Plataforma360Page() {
         fiestaId,
         'plataforma360',
         'idle',
-        { lastError: 'No se pudo subir el video del invitado al muro.' },
-        accessToken
+        { lastError: 'No se pudo subir el video al muro social.' },
+        accessToken,
       );
-      speak('No se pudo subir el video. Podés reintentar sin volver a grabarlo.');
     } finally {
       setIsUploading(false);
     }
@@ -992,6 +1040,7 @@ export default function Plataforma360Page() {
       )}
 
       <KioskUnlockButton />
+      <SyncStatusIndicator fiestaId={fiestaId} moduleId="plataforma-360" />
     </div>
   );
 }

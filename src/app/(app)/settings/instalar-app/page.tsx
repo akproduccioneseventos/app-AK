@@ -70,6 +70,55 @@ export default function InstalarAppPage() {
           })}
         </section>
 
+        {/* Guia simple para preparar puestos en el salon */}
+        <section className="rounded-[2rem] border border-purple-100 bg-gradient-to-br from-purple-900/5 to-transparent p-6 shadow-xl shadow-purple-900/5 sm:p-8">
+          <Badge className="bg-purple-600 text-white">Preparar Puestos en el Salón</Badge>
+          <h2 className="mt-4 text-2xl sm:text-3xl font-black tracking-tight text-slate-950">
+            Cómo dejar una tablet o pantalla lista para la fiesta
+          </h2>
+          <p className="mt-2 text-sm text-slate-600 font-medium max-w-2xl">
+            Seguí estos 5 pasos sencillos antes de que empiece el evento. No necesitás saber nada técnico:
+          </p>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                num: '1',
+                title: 'Abrir el puesto',
+                desc: 'En el navegador de la tablet, entrá a la dirección del puesto que vas a armar (ej: /evento/fotocabina o /evento/espejo-magico).'
+              },
+              {
+                num: '2',
+                title: 'Elegir el evento',
+                desc: 'Elegí la fiesta de hoy en la lista desplegable que aparece en pantalla.'
+              },
+              {
+                num: '3',
+                title: 'Poner PIN y bloquear',
+                desc: 'Escribí un PIN de 4 números que vos recuerdes y tocá el botón violeta "Bloquear y Lanzar Kiosco".'
+              },
+              {
+                num: '4',
+                title: '¡Listo para usar!',
+                desc: 'La pantalla queda fija para los invitados. Si se llega a cortar el internet, no pasa nada: las fotos se guardan solas en la tablet y se suben solas apenas vuelva la señal.'
+              },
+              {
+                num: '5',
+                title: 'Para salir o cambiar',
+                desc: 'Cuando termine la fiesta, tocá la ruedita chiquita arriba a la derecha, poné el PIN de 4 dígitos y la pantalla se desbloquea.'
+              }
+            ].map((p) => (
+              <div key={p.num} className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm space-y-2">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-purple-100 text-sm font-black text-purple-700">
+                  {p.num}
+                </span>
+                <h3 className="font-black text-slate-900 text-base">{p.title}</h3>
+                <p className="text-xs text-slate-600 font-medium leading-5">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
           <Card className="rounded-[1.5rem] border-slate-100 bg-white shadow-sm">
             <CardHeader>
