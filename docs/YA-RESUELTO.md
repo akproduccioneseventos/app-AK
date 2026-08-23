@@ -4107,3 +4107,76 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   actual hay que verificarlo contra la lista oficial de Google**, y escribir uno de
   memoria es justo lo que hace fallar esto recién cuando un cliente pregunta algo.
   **Se cambia sin tocar código**, con la variable `GEMINI_MODEL_PRO`.
+
+- **Los siete bloques: reparado lo mecanico al verificar (23 de agosto de 2026).**
+  La entrega venia con dos errores de tipos y una prueba en rojo: el aviso de
+  contrato buscaba un campo que no existe (`fechaGeneracion` en vez de `fecha`),
+  a tres mensajes preparados les faltaba la fecha de creacion, y el manual quedo
+  con el numero de pantallas viejo. Todo mecanico, corregido en el momento.
+  **El candado del mapa hizo su trabajo otra vez**: la pantalla nueva de agentes
+  no estaba en el manual y salto sola.
+
+- **La prueba de maquetación quedó en verde, y el fallo era una referencia mal
+  grabada (23 de agosto de 2026).** Las dos fallas que arrastraba la tanda de
+  navegador eran distintas de las de la mañana: el Centro de Control ya no falla
+  (lo arregló la tanda 1). Lo que quedaba era la referencia de
+  `/presupuestos/nuevo`, **grabada mientras corría otra tanda en paralelo**, o sea
+  con la pantalla a medio dibujar: el título figuraba de 72 píxeles de ancho cuando
+  mide 212. Se volvió a grabar en limpio, sin nada más corriendo, y también la
+  portada, que se corrió 4 píxeles por el movimiento nuevo.
+  **La lección, que ya nos mordió tres veces: una referencia o una medición tomada
+  mientras corre otra cosa no vale.** Grabar siempre con la máquina sola.
+  Resultado: **598 de 598 pruebas de navegador en verde.**
+
+## Auditoría del código nuevo (23 de agosto de 2026)
+
+Los agentes, los avisos, lo de sin internet y la asistente se auditaron **después**
+de fusionarse: eran código nuevo que sólo había pasado por revisión de entrega.
+Salieron seis cosas, todas verificadas a mano y arregladas en el momento.
+
+- **La asistente podía guardar un presupuesto con precios inventados.** En
+  `src/app/actions/assistant.ts`, los precios salían tal cual de lo que devolvía el
+  modelo y se guardaba directo. **Ahora salen siempre del catálogo de la empresa**,
+  y lo que no está en el catálogo no entra. Si no se reconoce ningún servicio,
+  **no se guarda un presupuesto vacío en silencio**: se dice qué pasó y se deja
+  para que lo arme una persona.
+  **Por qué importa:** un número inventado en un papel de venta es lo más caro que
+  puede pasar.
+
+- **El agente de contenido decía "borrador creado" y no creaba nada.** Avisaba que
+  el posteo estaba listo en Redes Sociales, no aparecía nunca, y como tampoco
+  quedaba escrito **el mismo aviso volvía cada 15 minutos para siempre**. Ahora el
+  borrador se guarda de verdad.
+
+- **El aviso de seña sin cobrar se apagaba solo.** Si el presupuesto no tenía total
+  cargado, la cuenta daba un valor inválido y la comprobación se salteaba en
+  silencio: **la fiesta peor cargada era justo la que no avisaba**. Ahora se mira la
+  seña acordada, y si falta el total se avisa aparte.
+
+- **Aviso falso si se acordó sin seña.** Antes, con seña en cero se asumía un 10%
+  del total y se avisaba que faltaba cobrar algo que no existía.
+
+- **Las fotos descartadas quedaban en la cola.** Tras diez intentos fallidos se
+  anotaba "descartada" pero no se sacaba: el cartel decía "N esperando" con un
+  número que no bajaba nunca y se reintentaba cada 20 segundos para siempre.
+
+- **Sin espacio en el aparato, la foto se perdía sin avisar.** El invitado veía "no
+  se pudo subir, podés descargarla" y creía que estaba esperando internet, cuando
+  en realidad no se había guardado. Ahora se dice con todas las letras que la
+  computadora se quedó sin lugar y que hay que avisarle al encargado.
+
+**Falso positivo verificado:** los respaldos NO marcan como bueno un respaldo que
+falló (la marca sólo se escribe al terminar bien). Y el repaso de la mañana no
+gasta inteligencia artificial: es análisis de datos con caché por día.
+
+- **El total del presupuesto no coincidía con el del portal del cliente
+  (23 de agosto de 2026).** El portal mostraba el total **con el ajuste anual del
+  15% aplicado** y el documento del presupuesto —el que se le manda e imprime— el
+  total **sin ajustar**. Para una fiesta contratada para el año siguiente, el
+  cliente veía dos números distintos para lo mismo.
+  **Por qué importa:** un número que no coincide entre pantallas es lo que más
+  rompe la confianza; el cliente deja de creer en todo lo demás.
+  **Qué se hizo:** el documento usa `getBudgetCollectibleTotal`, el mismo que el
+  portal. Como esa función devuelve el total base mientras el presupuesto no esté
+  aceptado, **los presupuestos de venta no cambian en nada**: sólo se alinean los
+  ya contratados, que son los que se ven en el portal.

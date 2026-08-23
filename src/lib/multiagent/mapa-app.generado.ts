@@ -422,6 +422,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/settings",
     "/settings/accesos-personal",
     "/settings/account",
+    "/settings/agentes-autonomos",
     "/settings/ai-assistant",
     "/settings/ajuste-precios",
     "/settings/asistentes-contextuales",

@@ -6,6 +6,8 @@ import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { buildPuestaAlDiaReporte } from '@/lib/commercial-flow/puesta-al-dia';
 import { getRepasoMatutinoDelDia } from '@/lib/automatico/repaso-matutino-ia';
+import { getAlertasErroresHumanos } from '@/app/actions/alertas-errores-humanos';
+import AlertasErroresHumanosSection from '@/components/repaso-diario/AlertasErroresHumanosSection';
 import {
   CheckCircle2,
   DollarSign,
@@ -18,7 +20,7 @@ import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Repaso de la Mañana - AK Producciones',
-  description: 'Panel de control diario para seguimiento de agendas y saldos pendientes.',
+  description: 'Panel de control diario para seguimiento de agendas, saldos y errores humanos.',
 };
 
 export default async function RepasoDiarioPage() {
@@ -30,8 +32,11 @@ export default async function RepasoDiarioPage() {
   // Verificar si tiene acceso a contabilidad para ver montos y cobros
   const verContabilidad = puede(session.user, PERMISOS.CONTABILIDAD);
 
-  // Diagnóstico proactivo del asistente para la mañana
-  const repasoMatutino = await getRepasoMatutinoDelDia().catch(() => null);
+  // Diagnóstico proactivo del asistente para la mañana y alertas de errores humanos
+  const [repasoMatutino, alertasErroresHumanos] = await Promise.all([
+    getRepasoMatutinoDelDia().catch(() => null),
+    getAlertasErroresHumanos().catch(() => []),
+  ]);
 
   // Cargar datos (TODO: Idealmente hacer cache o revalidar por tiempo si es pesado)
   const fiestas = await getFiestas(false); // Solo fiestas abiertas
@@ -131,6 +136,9 @@ export default async function RepasoDiarioPage() {
           </div>
         </div>
       )}
+
+      {/* Sección interactiva de Alertas de Errores Humanos Previos a las Fiestas (Bloque 6) */}
+      <AlertasErroresHumanosSection initialAlertas={alertasErroresHumanos} />
 
       {/* Tarjetas de Resumen */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

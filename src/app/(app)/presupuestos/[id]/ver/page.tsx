@@ -989,6 +989,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                                 </Button>
                             </div>
 
+                            {(presupuesto?.notas || companyInfo?.defaultDocumentNotes) && (
+                                <div className="w-full text-left p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Términos y Notas:</p>
+                                    <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">{presupuesto?.notas || companyInfo?.defaultDocumentNotes}</p>
+                                </div>
+                            )}
+
                             {(displaySettings.valuePropositions?.length || 0) > 0 && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
                                     {displaySettings.valuePropositions?.map((prop, i) => (

@@ -22,10 +22,32 @@ import type { GestionCostosData, PagoProveedor } from '@/types/fiesta';
  * mostrándose lindo. Ahora, cuando hay pagos cargados a un renglón, manda **lo que
  * salió de verdad**; donde no hay pagos, se usa el estimado y se avisa que es
  * estimado. Nunca se inventa un número intermedio.
+ *
+ * **Fix 23-ago-2026 (bloque 1 orden nueva):** los bloques automáticos
+ * (cat_catering, cat_bebidas, cat_reposteria, cat_personal) tenían el mismo
+ * problema que antes tenían los renglones: si el dueño cargaba un pago contra
+ * "Catering (Automático)", ese pago entraba como `pagosSueltos` Y el estimado
+ * del bloque se sumaba igual. El gasto aparecía el doble de lo real. Ahora se
+ * aplica la misma lógica que los renglones manuales: si hay pagos contra un
+ * bloque automático, se usa lo pagado; si no, se usa el estimado.
  */
 
 /** El renglón de merma que ya está incluido en el total de bebidas. */
 const MERMA_DUPLICADA = 'auto_merma_bebidas';
+
+/**
+ * IDs de los bloques automáticos que ofrece la pantalla de gestión de costos
+ * como destino de pago, junto con su función que saca el estimado de `others`.
+ */
+const BLOQUES_AUTOMATICOS: ReadonlyArray<{
+  id: string;
+  getEstimado: (others: GestionCostosData['others']) => number;
+}> = [
+  { id: 'cat_catering',   getEstimado: (o) => aNumero(o?.totalCateringCost) },
+  { id: 'cat_bebidas',    getEstimado: (o) => aNumero(o?.totalBebidasCost) },
+  { id: 'cat_reposteria', getEstimado: (o) => aNumero(o?.totalReposteriaCost) },
+  { id: 'cat_personal',   getEstimado: (o) => aNumero(o?.totalPersonalCost) },
+];
 
 export interface GananciaDeEvento {
   /** Lo pactado con el cliente. */
@@ -66,15 +88,16 @@ export function calcularGananciaDeEvento(
 ): GananciaDeEvento {
   const items = (gestionCostos?.costosItems ?? []).filter((item) => item.id !== MERMA_DUPLICADA);
   const pagos = pagosProveedores ?? [];
+  const others = gestionCostos?.others;
 
-  const bloques =
-    aNumero(gestionCostos?.others?.totalCateringCost) +
-    aNumero(gestionCostos?.others?.totalBebidasCost) +
-    aNumero(gestionCostos?.others?.totalReposteriaCost) +
-    aNumero(gestionCostos?.others?.totalPersonalCost);
+  // Suma de estimados de los cuatro bloques automáticos (se usa en costoEstimado).
+  const estimadoBloques = BLOQUES_AUTOMATICOS.reduce(
+    (suma, bloque) => suma + bloque.getEstimado(others),
+    0,
+  );
 
   const estimadoDeItems = items.reduce((suma, item) => suma + aNumero(item.montoEstimado), 0);
-  const costoEstimado = estimadoDeItems + bloques;
+  const costoEstimado = estimadoDeItems + estimadoBloques;
 
   // Lo pagado, agrupado por el renglón al que corresponde.
   const pagadoPorItem = new Map<string, number>();
@@ -85,6 +108,9 @@ export function calcularGananciaDeEvento(
   const pagadoAProveedores = [...pagadoPorItem.values()].reduce((s, monto) => s + monto, 0);
 
   const idsDeItems = new Set(items.map((item) => item.id));
+  const idsDeBloques = new Set(BLOQUES_AUTOMATICOS.map((b) => b.id));
+
+  // --- Renglones manuales: pagado si existe, estimado si no ---
   let realDeItems = 0;
   let sinRendir = 0;
 
@@ -98,14 +124,28 @@ export function calcularGananciaDeEvento(
     }
   }
 
-  // Pagos que no corresponden a ningún renglón (o al renglón de merma que se
-  // descuenta). Son plata que salió igual: se suman, nunca se esconden.
-  let pagosSueltos = 0;
-  for (const [clave, monto] of pagadoPorItem) {
-    if (!idsDeItems.has(clave)) pagosSueltos += monto;
+  // --- Bloques automáticos: misma lógica ---
+  let realDeBloques = 0;
+
+  for (const bloque of BLOQUES_AUTOMATICOS) {
+    const pagado = pagadoPorItem.get(bloque.id) ?? 0;
+    const estimado = bloque.getEstimado(others);
+    if (pagado > 0) {
+      realDeBloques += pagado;
+    } else {
+      realDeBloques += estimado;
+      sinRendir += estimado;
+    }
   }
 
-  const costoReal = realDeItems + pagosSueltos + bloques;
+  // Pagos que no corresponden a ningún renglón conocido (ni manual ni de bloque).
+  // Son plata que salió igual: se suman, nunca se esconden.
+  let pagosSueltos = 0;
+  for (const [clave, monto] of pagadoPorItem) {
+    if (!idsDeItems.has(clave) && !idsDeBloques.has(clave)) pagosSueltos += monto;
+  }
+
+  const costoReal = realDeItems + realDeBloques + pagosSueltos;
   const ingreso = aNumero(gestionCostos?.ingresosTotalesEstimados);
 
   const gananciaEstimada = ingreso - costoEstimado;
@@ -121,6 +161,6 @@ export function calcularGananciaDeEvento(
     margenReal: porcentaje(gananciaReal, ingreso),
     pagadoAProveedores,
     hayGastoCargado: pagadoAProveedores > 0,
-    sinRendir: sinRendir + bloques,
+    sinRendir,
   };
 }

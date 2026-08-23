@@ -64,7 +64,13 @@ jest.mock('@/app/actions/invoices', () => ({
 }));
 
 jest.mock('@/app/actions/servicios-empresa', () => ({
-  getServiciosEmpresa: jest.fn().mockResolvedValue([]),
+  // El catalogo tiene que traer servicios: desde el 23 de agosto de 2026 los
+  // precios del presupuesto salen SIEMPRE del catalogo y nunca del modelo, asi
+  // que con el catalogo vacio no se arma ningun renglon (a proposito).
+  getServiciosEmpresa: jest.fn().mockResolvedValue([
+    { id: 'srv_sonido', nombre: 'Sonido', precioVenta: 15000 },
+    { id: 'srv_catering', nombre: 'Catering', precioVenta: 35000 },
+  ]),
   getServiciosEmpresaPublicos: jest.fn().mockResolvedValue([]),
   saveServicioEmpresa: jest.fn(),
 }));

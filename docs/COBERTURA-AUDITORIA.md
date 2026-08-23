@@ -64,13 +64,13 @@ hace falta volver a mirar nada de lo de arriba.
    **Qué buscar:** un número del panel que no cuadre con los datos de origen, o un
    reporte que sume dos veces.
 
-4. **El mapa de áreas completo** — agrupar las 348 pantallas en áreas y comprobar
+4. **El mapa de áreas completo** — agrupar las 349 pantallas en áreas y comprobar
    que **ninguna quede afuera de esta tabla**. Las áreas de una o dos pantallas son
    siempre las olvidadas.
 
 ---
 
-## Las 348 pantallas, agrupadas: ninguna queda afuera
+## Las 349 pantallas, agrupadas: ninguna queda afuera
 
 Clasificacion mecanica sobre `src/lib/multiagent/mapa-app.generado.ts`
 (22 de agosto de 2026). **332 de 348 caen en un area revisada. Las 9 restantes
@@ -120,7 +120,7 @@ Todo lo de la tabla anterior está 100% auditado y verificado. Si una propuesta 
 
 ---
 
-## Comprobado el 23 de agosto: 348 de 348 pantallas cubiertas
+## Comprobado el 23 de agosto: 348 de 349 pantallas cubiertas
 
 Clasificacion mecanica sobre el mapa generado: **346 de 348 caen en un area
 revisada**. Las dos restantes (`/invitado/:fiestaId/:invitadoId` y
@@ -136,3 +136,38 @@ hacen nada, y la pantalla de respaldos duplicada.
 
 **Esta auditoria esta cerrada.** Solo se vuelve a mirar un area si se toca su
 codigo.
+
+
+---
+
+## Auditoría del código nuevo — cerrada el 23 de agosto de 2026
+
+Faltaba lo único honesto que quedaba: **el código fusionado el 22 y 23 de agosto
+nunca había pasado por auditoría**, sólo por revisión de entrega. Se auditó
+entero, en tres frentes:
+
+| Área nueva | Resultado |
+| :--- | :--- |
+| **Agentes autónomos y avisos de errores humanos** | 3 hallazgos, arreglados: el agente de contenido decía "borrador creado" sin crearlo y repetía el aviso para siempre; el aviso de seña se apagaba solo si faltaba el total; avisaba de más si se acordó sin seña. |
+| **Sin internet: cola, IndexedDB, quiosco y estaciones** | 2 hallazgos, arreglados: las fotos descartadas quedaban en la cola con un contador que no bajaba nunca; sin espacio en el aparato la foto se perdía sin avisar. |
+| **La asistente, cupones y respaldos** | 1 hallazgo grave, arreglado: la asistente podía guardar un presupuesto con precios inventados por el modelo. Ahora salen del catálogo, y si no reconoce ningún servicio no guarda nada en silencio. |
+
+**Verificado y correcto (no tocar):** los respaldos no marcan como bueno un
+respaldo que falló; el repaso de la mañana no gasta inteligencia artificial; el
+tope mensual de gasto frena de verdad; los presupuestos no se guardan sin
+confirmación; el descuento de un cupón no se puede duplicar editando.
+
+**Pendiente menor, no arreglado (queda anotado, no es urgente):** con dos pestañas
+abiertas en la misma estación, la misma foto se puede subir dos veces al muro.
+Pasa sólo si alguien abre la fotocabina dos veces en la misma máquina.
+
+---
+
+# ESTADO FINAL DE LA AUDITORÍA
+
+**La app está auditada entera: 349 pantallas, 17 áreas, más todo el código nuevo
+de los últimos dos días.**
+
+**Esta auditoría está cerrada.** Un área sólo se vuelve a mirar si se toca su
+código. No se lanzan auditorías generales "a ver qué aparece": ya se hizo, está
+escrito acá, y repetirla cuesta plata sin dar nada nuevo.

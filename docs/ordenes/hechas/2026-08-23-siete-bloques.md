@@ -1,0 +1,306 @@
+# LA ORDEN: cinco arreglos, y que la app avise de los errores humanos
+
+**Para:** Gemini (Antigravity)
+**Escrita:** 23 de agosto de 2026.
+
+**Las cuatro tandas anteriores estan entregadas y fusionadas.** Esto es lo unico
+que queda, y sale de terminar de auditar las areas que faltaban.
+
+## Como se entrega
+
+**UNA SOLA propuesta con los siete bloques adentro.** Si un bloque se traba,
+entregá el resto igual, en la misma propuesta, avisando cual falto y por que.
+
+**Arranca desde la version principal de ahora.** Antes de tocar nada, leé
+`docs/MANUAL-DE-LA-APP.md`, `docs/YA-RESUELTO.md` y `docs/COMO-AUDITAR.md`.
+
+**Antes de fusionar:** tipos en cero, pruebas en verde, `npm run check:acentos`
+limpio y `npm run build` que termine bien.
+
+**Y la regla que costo cara: COMPILAR NO ES ANDAR.** Si algo llama a otra cosa por
+su nombre escrito, verificá que ese nombre exista. Si algo tiene que correr solo,
+verificá que algo lo dispare y que este publicado. **Una prueba nueva no vale
+hasta verla en rojo**: rompé a proposito lo que tiene que detectar.
+
+---
+
+## BLOQUE 1 — LA PLATA: la rentabilidad de la fiesta cuenta el gasto dos veces
+
+**Verificado a mano. Es el mas importante.**
+
+En `src/lib/costos/ganancia-evento.ts:108`, el costo real se calcula asi:
+
+```
+costoReal = realDeItems + pagosSueltos + bloques
+```
+
+`bloques` es la suma **completa** de los costos estimados de catering, bebidas,
+reposteria y personal. Y `pagosSueltos` son los pagos cuyo destino **no es un
+renglon**, que es exactamente el caso de los pagos cargados contra esos bloques.
+
+**Y se pueden cargar:** la pantalla
+`src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx:171-174` ofrece
+como destino de pago "Catering (Automatico)", "Bebidas (Automatico)",
+"Reposteria (Automatico)" y "Personal (Automatico)".
+
+**Que ve el dueño:** si el catering estimado es 40.000 y carga un pago de 25.000,
+la app dice que gasto **65.000**. La ganancia de esa fiesta aparece 25.000 mas
+baja de lo que realmente es, y empeora con cada pago que cargue.
+
+**Que hay que hacer:** cuando hay pagos cargados contra un bloque automatico, ese
+bloque **no se suma entero**: se usa lo pagado, igual que ya se hace con los
+renglones (lineas 92-99). Mira como esta resuelto ahi y aplicá el mismo criterio.
+
+**Ojo:** el reporte global de ganancias y perdidas
+(`src/app/actions/reportes.ts`) **esta bien y no se toca**. El problema es solo en
+la ganancia de cada evento.
+
+**Con una prueba** que cargue un pago a un bloque y verifique que el costo real no
+se duplica.
+
+---
+
+## BLOQUE 2 — Los respaldos fallan en silencio
+
+Los respaldos **si se disparan** (en cada escritura de datos,
+`src/lib/data-service.ts:29`). Pero:
+
+- **Si fallan, fallan callados**: `src/app/actions/backup.ts:377` solo hace
+  `console.error('AutoBackup failed', error)`, en un registro que nadie lee.
+- **No hay forma de ver cuando fue el ultimo respaldo bueno.** El archivo que
+  parece llevar esa cuenta, `src/data/last-auto-backup.txt`, **quedo congelado el
+  26 de marzo y nadie lo escribe**: es un archivo muerto que da falsa tranquilidad.
+
+**Que hay que hacer:**
+1. **Que cada respaldo deje su marca**: cuando corrio y si salio bien o mal.
+2. **Que se vea en pantalla**, en la seccion de respaldos: fecha del ultimo
+   respaldo bueno, en criollo. Si hace mas de un dia que no hay uno, en rojo.
+3. **Si falla dos veces seguidas, avisar** donde el dueño lo vea. Un respaldo roto
+   se descubre el dia que se necesita, y ese dia ya es tarde.
+4. **Borrar o actualizar `last-auto-backup.txt`.** Un archivo muerto que parece
+   vivo es peor que no tenerlo.
+
+---
+
+## BLOQUE 3 — El cupon con servicios de regalo no entrega nada
+
+`src/components/presupuestos/paso-3-resumen.tsx:54-66`: el campo
+`serviciosRegalados` **se guarda en el cupon y nunca se aplica**. Al validar el
+cupon solo se usa el descuento; los servicios regalados no se agregan al
+presupuesto.
+
+**Que ve el cliente:** le prometieron un servicio de regalo y en el presupuesto no
+aparece. **Es una promesa incumplida en un papel de venta.**
+
+**Que hay que hacer:** aplicar los servicios regalados al presupuesto al validar el
+cupon, y que se vean identificados como regalo (no como un renglon cobrado). **Con
+una prueba.**
+
+---
+
+## BLOQUE 4 — Cuatro ajustes que se guardan y no hacen nada
+
+El dueño los edita, quedan guardados, y **nadie los lee del otro lado**. Cree que
+configuro algo y no configuro nada.
+
+1. `defaultDocumentNotes` e `invoiceCustomFooter`
+   (`src/app/(app)/settings/company/page.tsx`): las notas de los documentos y el
+   pie de las facturas no se usan en ningun presupuesto ni factura.
+2. `videoUrl`, `recorridoUrl` y `modelo3dUrl`
+   (`src/app/(app)/empresa/salones/experiencia-visual/page.tsx`): se guardan en el
+   salon y ninguna pantalla los muestra.
+3. `assistantFinalMessage` (`src/app/(app)/settings/budget-display/page.tsx`): se
+   edita y nunca se muestra; el asistente solo usa el de bienvenida.
+
+**Por cada uno, elegí y decilo:** o **se usa de verdad** donde el dueño espera que
+se use, o **se saca de la pantalla**. Lo que no puede quedar es un campo que se
+edita y no hace nada.
+
+**Verificá antes de sacar nada**: buscá el nombre sin distinguir mayusculas y
+probá variantes. Ya hubo falsos positivos por buscar mal.
+
+---
+
+## BLOQUE 5 — La pantalla de respaldos existe dos veces
+
+`src/app/configuracion/backup-final/page.tsx` y
+`src/app/(app)/settings/backup-final/page.tsx` son la misma pantalla en dos
+lugares. **Las dos piden sesion, asi que no hay problema de seguridad**, pero
+cualquier arreglo hay que hacerlo dos veces o queda a medias.
+
+**Dejá una sola** y que la otra direccion, si alguien la tiene guardada, lleve a
+la que queda. Despues **corré `npm run mapa:generar`**.
+
+---
+
+## BLOQUE 6 — Que la app avise de los errores humanos ANTES de la fiesta
+
+**Lo que pidio el dueño:** *"quiero que la IA me avise si no puse un servicio, si
+falta un contrato, errores humanos que puedan pasar"*.
+
+**Por que es lo mas valioso de esta orden:** estos errores no se pagan con una
+pantalla fea. Se pagan **la noche de la fiesta**, delante del cliente.
+
+### Que tiene que revisar, por cada fiesta con fecha
+
+**Plata y papeles**
+- Fiesta con fecha cerca y **sin contrato firmado**.
+- **Seña no cobrada** faltando poco para la fecha.
+- **Saldo sin cobrar** con la fiesta ya pasada.
+- Fiesta cobrada **sin factura emitida**.
+
+**Lo vendido contra lo cargado** *(este es el que pidio primero)*
+- **Un servicio que esta en el presupuesto y no esta cargado en la fiesta.** Se
+  vendio y nadie lo va a montar.
+- **Un servicio cargado en la fiesta que no esta en el presupuesto.** Se va a
+  montar y no se cobro.
+- Cantidad de invitados del presupuesto **distinta** a la cargada en la fiesta.
+
+**Comida**
+- **Menu sin elegir** faltando poco.
+- **Alergias cargadas** y sin reflejar en la comida del evento.
+- **Lista de compras sin generar** a pocos dias.
+
+**Gente y salon**
+- **Personal sin asignar** para un evento cercano.
+- **Una persona asignada a dos fiestas** el mismo dia (ya hay deteccion: usala).
+- **Dos fiestas en el mismo salon el mismo dia.**
+- Proveedor clave sin confirmar.
+
+**El cliente**
+- Cliente **sin acceso al portal** entregado.
+- **Invitados sin cargar** faltando poco.
+
+### Como tiene que avisar (y esto decide si sirve o se ignora)
+
+1. **Antes, no despues.** Los avisos aparecen segun cuanto falta: a 30 dias, a 15,
+   a 7 y a 2. Lo mismo pesa distinto segun la fecha.
+2. **Una sola pantalla, no diez alertas sueltas.** Una lista por fiesta, ordenada
+   por lo que mas duele, con **un boton que lleve a la pantalla donde se arregla**.
+   Que se pueda ver todo junto en `/repaso-diario`.
+3. **Que se pueda decir "esta bien asi" y no moleste mas**, dejando el motivo
+   escrito. Si no, el equipo lo aprende a ignorar y el sistema muere.
+4. **CERO FALSOS POSITIVOS.** Es la regla que decide todo: **si avisa de cosas que
+   no son, en dos semanas nadie lo mira y el dia que avise algo real va a estar
+   apagado.** Ante la duda, no avisa. **Preferí avisar de menos y que cada aviso
+   sea cierto.**
+5. **Que lo revise el despertador**, que ya existe y corre cada 15 minutos, y que
+   mande el aviso al celular cuando algo entra en zona de peligro (a 7 dias o
+   menos). No hace falta que nadie abra la app.
+6. **En criollo.** "Falta firmar el contrato de la fiesta de Sofia, es el sabado"
+   y no un codigo de error.
+
+### Lo que NO tiene que hacer
+
+- **No arregla nada solo.** Avisa y lleva; la decision es de una persona.
+- **No manda nada al cliente.** Ni correos, ni WhatsApp.
+- **No inventa.** Si un dato no esta cargado, dice que falta; no lo supone.
+
+### Como se prueba
+
+Una prueba por cada tipo de aviso: se arma una fiesta a la que le falta esa cosa y
+se verifica que el aviso aparece; se completa y se verifica que **desaparece**. Y
+una que verifique que una fiesta completa **no genera ningun aviso** — esa es la
+que protege contra los falsos positivos.
+
+---
+
+## BLOQUE 7 — Agentes de verdad: que trabajen solos, sin pedir permiso para todo
+
+**Lo que pidio el dueño:** el maximo de inteligencia artificial en la app, con
+**agentes autonomos de verdad**.
+
+**Lo que hay hoy:** la asistente ya recibe el manual, el mapa del panel y datos
+reales, y ya puede cargar un prospecto, dejar un borrador de presupuesto, preparar
+mensajes y escribir el repaso de la manana. **Pero siempre espera que alguien le
+hable.** Eso no es un agente: es un ayudante que contesta.
+
+**Un agente de verdad hace tres cosas que hoy no hace:**
+1. **Se despierta solo** (el despertador ya existe: cada 15 minutos).
+2. **Mira el estado del negocio y decide si hay algo que hacer**, sin que nadie
+   pregunte.
+3. **Lo hace, o lo deja listo**, y avisa que lo hizo.
+
+### Los agentes que hay que dejar corriendo solos
+
+**1. El vigilante de las fiestas.** Es el del BLOQUE 6: revisa cada fiesta y avisa
+lo que falta antes de que sea tarde. Ese ya es un agente autonomo completo.
+
+**2. El que persigue los presupuestos.** Ve un presupuesto sin respuesta hace 5
+dias y **deja el mensaje de seguimiento escrito en la bandeja**, con el nombre y
+los datos de esa persona. A los 14 dias, uno distinto, de reactivacion. **No lo
+manda: lo deja listo.**
+
+**3. El cobrador.** Ve una cuota que vence, **prepara el recordatorio** y lo deja
+en la bandeja. Ve un saldo de una fiesta que ya paso y lo pone arriba de todo.
+
+**4. El de contenido.** Cuando termina una fiesta, **deja escrito el posteo** con
+las fotos ya aprobadas del muro. Ve un hueco de dias sin publicar y **deja algo
+preparado**. En borrador, siempre.
+
+**5. El de la noche.** Durante la fiesta, mira las estaciones: si una dejo de
+mandar fotos hace rato, si quedan fotos sin subir esperando internet, si el muro
+esta apagado. **Avisa al operador en el momento**, que es cuando sirve.
+
+### La regla que hace que esto sea seguro (y no se negocia)
+
+**Autonomia total para MIRAR, DETECTAR y PREPARAR. Mano humana para lo que sale
+para afuera o toca plata.**
+
+Un agente puede, solo y sin preguntar:
+- Revisar, comparar, detectar y avisar.
+- Dejar un borrador, un mensaje preparado, una tarea creada, un recordatorio.
+- Ordenar el dia y decir por donde empezar.
+
+**Un agente NUNCA, ni aunque este seguro:**
+- **Cobra**, marca algo como pagado, ni emite una factura.
+- **Manda** un WhatsApp, un correo o un aviso al cliente.
+- **Cierra** un presupuesto o lo da por aceptado.
+- **Cambia un precio**, un descuento o una condicion del contrato.
+- **Toca permisos** ni quien ve que.
+- **Borra** nada.
+
+**Por que:** un agente que se equivoca preparando cuesta treinta segundos de
+revision. Un agente que se equivoca mandando o cobrando cuesta un cliente.
+
+### Que se necesita para que sean agentes y no adornos
+
+- **Que cada agente deje rastro**: que corrio, que encontro, que dejo hecho. En una
+  pantalla, no en un registro tecnico. **Si no se puede ver, no existe.**
+- **Que respeten el tope de gasto** de inteligencia artificial, y que si se llega
+  al tope, sigan funcionando los que no lo necesitan (los que solo comparan datos
+  no gastan nada: esos no se apagan nunca).
+- **Que no repitan.** Lo que ya avisaron o prepararon, no lo vuelven a hacer.
+- **Que se puedan apagar de a uno**, desde una pantalla, sin tocar codigo.
+- **Cero falsos positivos**, igual que el bloque 6. Un agente que molesta se apaga
+  y no vuelve.
+
+### Como se prueba
+
+Por cada agente: una prueba que arme la situacion que lo dispara y verifique que
+hace lo que tiene que hacer; **y otra que verifique que NO hace nada cuando no
+corresponde.** Esa segunda es la importante.
+
+Y una prueba que verifique que **ningun agente puede cobrar, mandar un mensaje ni
+cerrar un presupuesto**, ni aunque el modelo lo devuelva como accion.
+
+---
+
+## Lo que no se toca
+
+- `apphosting.yaml`: el servidor se duerme a proposito.
+- Nada que aumente lo que se paga por mes.
+- **Textos que ve el cliente, si no estan pedidos.**
+- El WhatsApp prepara mensajes y no los manda.
+- **El reporte global de ganancias y perdidas esta bien.**
+- Anotá lo que hiciste en `docs/YA-RESUELTO.md` y actualizá
+  `docs/COBERTURA-AUDITORIA.md`, en la misma propuesta.
+
+---
+
+## Y esta lista esta cerrada
+
+**La app quedo auditada entera**: 17 areas, todas revisadas. No busques mas
+problemas. Hace estos siete bloques y nada mas. Si mientras trabajas ves algo roto
+de verdad, arreglalo y decilo en una linea. Si no esta roto y el dueño no lo pidio,
+no existe.

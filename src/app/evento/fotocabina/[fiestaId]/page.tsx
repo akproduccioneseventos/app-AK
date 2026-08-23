@@ -506,15 +506,32 @@ export default function FotocabinaPage() {
 
       // Si estamos sin conexión, guardar directamente en IndexedDB
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        await saveOfflineMedia({
-          fiestaId,
-          moduleId: 'fotocabina',
-          fileBlob: blob,
-          fileName,
-          mimeType: 'image/jpeg',
-          authorName: 'Fotocabina AK',
-          metadata: { accessToken, guestId, guestAccessToken },
-        });
+        try {
+          await saveOfflineMedia({
+            fiestaId,
+            moduleId: 'fotocabina',
+            fileBlob: blob,
+            fileName,
+            mimeType: 'image/jpeg',
+            authorName: 'Fotocabina AK',
+            metadata: { accessToken, guestId, guestAccessToken },
+          });
+        } catch (errorAlGuardar: any) {
+          // Si el aparato se queda sin lugar, la foto NO se guardo. Antes el
+          // error caia en el aviso general de "no se pudo subir", y el invitado
+          // se iba creyendo que su foto estaba esperando internet: se perdia sin
+          // que nadie se enterara. Hay que decirlo con todas las letras.
+          const sinEspacio =
+            errorAlGuardar?.name === 'QuotaExceededError' ||
+            /quota|space|storage/i.test(String(errorAlGuardar?.message || ''));
+          setErrorMsg(
+            sinEspacio
+              ? 'Esta computadora se quedo sin lugar para guardar fotos. Avisale al encargado: hay que subir las que estan esperando antes de sacar mas.'
+              : 'No se pudo guardar la foto en esta computadora. Avisale al encargado antes de seguir.'
+          );
+          setLocalStatus('idle');
+          return;
+        }
 
         setQrCodeUrl('');
         setLocalStatus('done');

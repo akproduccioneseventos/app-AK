@@ -15,6 +15,7 @@ import {
 } from '@/lib/budget/formal-budget';
 import { presentacionComercialMercadoPago, calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 import { buildPresupuestoNarrative } from '@/lib/budget/budget-narrative';
+import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -143,7 +144,17 @@ export default function BudgetDocument({
   }, [presupuesto, itemsAgrupadosOverride]);
 
   const subtotalBruto = subtotalBrutoOverride ?? presupuesto.costoTotalEstimado;
-  const totalFinal = totalFinalOverride ?? presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+  // El total que ve el cliente acá tiene que ser EL MISMO que ve en su portal.
+  // Antes, el portal mostraba el total con el ajuste anual aplicado y este
+  // documento el total sin ajustar: dos numeros distintos para la misma fiesta.
+  // Un numero que no coincide entre pantallas es lo que mas rompe la confianza.
+  // `getBudgetCollectibleTotal` devuelve el total base mientras el presupuesto no
+  // este aceptado, asi que los presupuestos de venta no cambian en nada.
+  const totalFinal =
+    totalFinalOverride
+    ?? getBudgetCollectibleTotal(presupuesto)
+    ?? presupuesto.totalConDescuento
+    ?? presupuesto.costoTotalEstimado;
   const mercadoPagoCalculation = calculateMercadoPagoCuotas(totalFinal);
   // Al cliente se le cuenta como descuento por pago contado, no como recargo por
   // cuotas. Es la misma plata: ver `presentacionComercialMercadoPago`.
