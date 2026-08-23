@@ -17,6 +17,7 @@ import {
   Image,
   Layers,
   Link as LinkIcon,
+  Megaphone,
   MessageCircle,
   Package,
   Palette,
@@ -60,6 +61,12 @@ const SECTIONS: SettingSection[] = [
     color: 'text-amber-700',
     bgColor: 'bg-amber-50 border-amber-200',
     items: [
+      {
+        title: 'Creador & Auditor de Anuncios IA',
+        description: 'Generador de campañas con neuroventas y optimizador de anuncios anti-Meta.',
+        href: '/empresa/creador-anuncios',
+        icon: Megaphone,
+      },
       {
         title: 'Configuración de Presupuestos y Simulador',
         description: 'Textos, presentación, paquetes y reglas comerciales del presupuesto.',
