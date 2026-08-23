@@ -112,6 +112,23 @@ hija. **Es el mejor momento para venderle algo y hoy no hay dónde.**
 
 ---
 
+## REGLA QUE MANDA SOBRE TODA ESTA ORDEN
+
+**No se cambia lo que ya funciona.** El dueño lo pidió expresamente hoy, después de
+que se le cambiaran dos textos y se le sacara el reloj del simulador sin
+consultarle.
+
+- **Hacé lo que dice esta orden y nada más.**
+- **Si mientras trabajás ves algo que "estaría mejor de otra manera" pero anda:
+  NO lo toques.** Anotalo en una línea al final de tu reporte y que decida el dueño.
+- **Lo único que se arregla sin preguntar es lo que está roto de verdad**: algo que
+  falla en una fiesta, una cuenta que da mal, o alguien que ve lo que no le
+  corresponde.
+- **Los textos que ve el cliente y las decisiones de marketing** (descuentos,
+  promesas, carteles de urgencia) **no se tocan nunca sin permiso.**
+
+---
+
 ## Lo que no se toca
 
 - `apphosting.yaml`: el servidor se duerme a propósito.

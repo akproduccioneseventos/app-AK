@@ -213,6 +213,40 @@ para lo que sale para afuera o toca plata.**
 aumente lo que se paga por mes se cambia sin avisar.
 
 
+## NO SE CAMBIA LO QUE YA FUNCIONA
+
+**Orden del dueño, 23 de agosto de 2026.** Palabras suyas:
+
+> *"No quiero que se cambien cosas que ya funcionaban."*
+
+**Pasó dos veces en un dia, y las dos por lo mismo:** una auditoria de venta dijo
+"esto seria mejor asi" sobre algo que andaba, y se mando a cambiar sin preguntarle.
+Se cambiaron dos textos que ve el cliente (la promesa de respuesta y el boton de
+precio) y **se saco el reloj del simulador**, que el dueño tenia puesto a proposito
+para que la gente se comunique. Hubo que volver todo atras.
+
+**La regla, sin vueltas:**
+
+1. **Una auditoria PROPONE. No manda.** Que un analisis diga que algo se puede
+   mejorar no lo convierte en trabajo a hacer.
+2. **Si una pantalla, un texto o una funcion YA ANDA, no se cambia sin que el dueño
+   lo pida.** Aunque parezca mejorable. Aunque tres ayudantes coincidan.
+3. **Lo unico que se arregla sin preguntar es lo que esta ROTO de verdad**: algo
+   que falla en una fiesta, una cuenta que da mal, plata que se mueve mal, alguien
+   que ve lo que no le corresponde, o una promesa que la app no cumple.
+4. **Las mejoras sobre lo que funciona se le CUENTAN al dueño y el decide.** Se
+   listan en una linea cada una, con que cambiaria para el negocio. **No se meten
+   en una orden hasta que el diga que si.**
+5. **Ojo especial con los textos que ve el cliente y con las decisiones de
+   marketing.** Un descuento, una promesa, un cartel de urgencia o un boton pueden
+   parecer mejorables y ser una decision comercial pensada. **Esos no se tocan
+   nunca sin permiso.**
+
+**La pregunta antes de mandar cualquier cambio a una orden:** ¿esto esta roto, o a
+mi me parece que estaria mejor de otra manera? **Si es lo segundo, va a la lista de
+propuestas, no a la orden.**
+
+
 ## Delegación de trabajo (preferencia del dueño del proyecto)
 
 **Regla fija, pedida por el dueño: delegar SIEMPRE en los ayudantes económicos.**
