@@ -157,6 +157,12 @@ const SECTIONS: SettingSection[] = [
     bgColor: 'bg-indigo-50 border-indigo-200',
     items: [
       {
+        title: 'Agentes Autónomos',
+        description: 'Control, pausado y rastro de actividad de los 5 agentes autónomos.',
+        href: '/settings/agentes-autonomos',
+        icon: Bot,
+      },
+      {
         title: 'Tareas Automáticas',
         description: 'Estado real de las 4 tareas que corren solas (blog, redes, posteos, cuotas).',
         href: '/settings/tareas-automaticas',

@@ -3,7 +3,7 @@ import type { GestionCostosData, PagoProveedor } from '@/types/fiesta';
 
 /**
  * Estas cuentas deciden si una fiesta dejó plata o no. Un error acá no se ve en
- * pantalla: se ve el mes que viene, en el banco.
+ * pantalla: se ve el mes que siguiente, en el banco.
  */
 
 function costos(extra: Partial<GestionCostosData> = {}): GestionCostosData {
@@ -140,5 +140,51 @@ describe('cuánta plata dejó una fiesta', () => {
 
     // El fotógrafo (10.000) sigue sin pago cargado.
     expect(r.sinRendir).toBe(10000);
+  });
+
+  // -------------------------------------------------------------------
+  // Bloque 1 — fix doble conteo en bloques automáticos (23-ago-2026)
+  // -------------------------------------------------------------------
+
+  it('un pago contra catering automático NO duplica el gasto (bug principal)', () => {
+    // Catering estimado: $40.000. Se carga un pago de $25.000.
+    // Antes: costoReal = itemsEstimado + $25.000 (pagosSueltos) + $40.000 (bloque) = itemsEstimado + $65.000
+    // Ahora: costoReal = itemsEstimado + $25.000 (lo pagado, no el estimado)
+    const base = costos({
+      others: { totalCateringCost: 40000 },
+    });
+
+    const r = calcularGananciaDeEvento(base, [pago('cat_catering', 25000)]);
+
+    // 30.000 de items (sin pago) + 25.000 del catering pagado = 55.000
+    expect(r.costoReal).toBe(55000);
+    // Antes con el bug habría dado 95.000 (25.000 + 40.000 + 30.000)
+    expect(r.gananciaReal).toBe(45000);
+  });
+
+  it('sin pagos contra el bloque, el estimado del bloque se usa normalmente', () => {
+    const base = costos({
+      others: { totalPersonalCost: 30000 },
+    });
+
+    const r = calcularGananciaDeEvento(base, []);
+
+    // 20.000 (salón) + 10.000 (fotógrafo) + 30.000 (personal) = 60.000
+    expect(r.costoEstimado).toBe(60000);
+    expect(r.costoReal).toBe(60000);
+    expect(r.sinRendir).toBe(60000);
+  });
+
+  it('pago parcial contra bloque automático usa lo pagado, no el estimado', () => {
+    // Personal estimado $30.000, pago de $15.000 → usa $15.000, no $30.000
+    const base = costos({
+      others: { totalPersonalCost: 30000 },
+    });
+
+    const r = calcularGananciaDeEvento(base, [pago('cat_personal', 15000)]);
+
+    // 20.000 (salón est.) + 10.000 (fotógrafo est.) + 15.000 (personal pagado) = 45.000
+    expect(r.costoReal).toBe(45000);
+    expect(r.gananciaReal).toBe(55000);
   });
 });

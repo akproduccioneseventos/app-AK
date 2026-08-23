@@ -42,6 +42,7 @@ export function AsistenteVirtual() {
   // lista de lo permitido y no de lo prohibido: asi una pantalla nueva no se
   // llena de globitos de venta por olvido.
   const isPublicRoute = mostrarAsistenteEn(pathname);
+  const [assistantFinalMsg, setAssistantFinalMsg] = useState<string | null>(null);
 
   useEffect(() => {
     async function init() {
@@ -49,6 +50,7 @@ export function AsistenteVirtual() {
         const settings = await getBudgetDisplaySettings();
         if (settings?.virtualAssistantEnabled) {
           setEnabled(true);
+          setAssistantFinalMsg(settings.assistantFinalMessage || null);
           setMessages([
             {
               id: 'welcome',
@@ -98,8 +100,7 @@ export function AsistenteVirtual() {
       const res = await chatWithVirtualAssistant(getSessionId(), formattedHistory, userText);
 
       if (res.success) {
-        setMessages(prev => [
-          ...prev, 
+        const newAssistantMsgs: Message[] = [
           { 
             id: Date.now().toString(), 
             role: 'assistant', 
@@ -107,24 +108,35 @@ export function AsistenteVirtual() {
             isBudgetLink: res.budgetGenerated,
             budgetUrl: res.budgetUrl
           }
-        ]);
+        ];
+
+        // Si se generó el presupuesto y hay mensaje final configurado, mostrarlo a continuación
+        if (res.budgetGenerated && assistantFinalMsg) {
+          newAssistantMsgs.push({
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            text: assistantFinalMsg,
+          });
+        }
+
+        setMessages(prev => [...prev, ...newAssistantMsgs]);
       } else {
         setMessages(prev => [
           ...prev, 
           { 
             id: Date.now().toString(), 
             role: 'assistant', 
-            text: res.error || 'Hubo un error de conexión.' 
+            text: res.error || 'Ocurrió un error al procesar tu consulta. Por favor intenta de nuevo.' 
           }
         ]);
       }
-    } catch (e) {
+    } catch (e: any) {
       setMessages(prev => [
         ...prev, 
         { 
           id: Date.now().toString(), 
           role: 'assistant', 
-          text: 'En este momento nuestros asesores están ocupados. Por favor, utilizá el botón de WhatsApp tradicional.' 
+          text: 'No pudimos conectar con el asistente en este momento. Escríbenos directamente por WhatsApp.' 
         }
       ]);
     } finally {

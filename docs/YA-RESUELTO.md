@@ -4100,3 +4100,11 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   actual hay que verificarlo contra la lista oficial de Google**, y escribir uno de
   memoria es justo lo que hace fallar esto recién cuando un cliente pregunta algo.
   **Se cambia sin tocar código**, con la variable `GEMINI_MODEL_PRO`.
+
+- **Los siete bloques: reparado lo mecanico al verificar (23 de agosto de 2026).**
+  La entrega venia con dos errores de tipos y una prueba en rojo: el aviso de
+  contrato buscaba un campo que no existe (`fechaGeneracion` en vez de `fecha`),
+  a tres mensajes preparados les faltaba la fecha de creacion, y el manual quedo
+  con el numero de pantallas viejo. Todo mecanico, corregido en el momento.
+  **El candado del mapa hizo su trabajo otra vez**: la pantalla nueva de agentes
+  no estaba en el manual y salto sola.

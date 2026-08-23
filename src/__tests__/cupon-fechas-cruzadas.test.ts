@@ -54,4 +54,23 @@ describe('Fechas de un cupón', () => {
 
     expect(res.success).toBe(true);
   });
+
+  it('guarda y valida cupón con servicios de regalo (Bloque 3)', async () => {
+    const cuponConRegalos = {
+      ...cuponBase,
+      codigo: 'FIESTA15',
+      fechaInicio: '2026-01-01',
+      fechaFin: '2026-12-31',
+      esRegalo: true,
+      serviciosRegalados: [
+        { id: 'srv_fotocabina', nombre: 'Fotocabina Espejo Mágico', descripcion: '2 horas de fotos' },
+      ],
+    };
+
+    const res = await saveCupon(cuponConRegalos as any);
+    expect(res.success).toBe(true);
+    expect(res.cupon?.esRegalo).toBe(true);
+    expect(res.cupon?.serviciosRegalados).toHaveLength(1);
+    expect(res.cupon?.serviciosRegalados?.[0].nombre).toBe('Fotocabina Espejo Mágico');
+  });
 });
