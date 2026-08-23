@@ -49,6 +49,21 @@ fotos**, y es justo al que se le puede dar vuelta la cabeza.
   presentación**: fotos que luzcan, capacidad y el descuento.
 - Que se pueda ofrecer sin borrar lo que el cliente ya eligió.
 
+**MUY IMPORTANTE, palabras del dueño:** *"El Club Uruguay se ofrece, pero no es
+obligación contratarlo."*
+
+- **Se muestra como una opción, nunca como un requisito.** El cliente puede traer
+  su propio salón y AK le arma la fiesta igual. Eso es parte de lo que vende:
+  flexibilidad.
+- **Nada de textos que presionen** ni que den a entender que sin el Club el
+  servicio es menor. Nada de "recomendado" con letra que culpe al que dice que no.
+- **Si el cliente ya eligió otro salón, se le muestra igual pero sin insistir**:
+  una vez, con las fotos, y si dice que no, no se le vuelve a poner adelante.
+- **El presupuesto tiene que quedar bien armado con cualquiera de las dos
+  opciones**, sin huecos ni renglones raros si no se contrata el Club.
+- Y que quede claro, como ya está hoy: **el alquiler del Club se paga aparte,
+  directamente en el Club.** No es plata que cobra AK.
+
 ---
 
 ## BLOQUE 3 — El paquete integral con precio de combo
