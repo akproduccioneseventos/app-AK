@@ -23,6 +23,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import {
+  adaptTextForPlatform,
+  getOneTouchActionUrl,
+  ONE_TOUCH_CONFIGS,
+} from '@/lib/social-media/social-one-touch-helper';
+import { ExternalLink, Download, Sparkles } from 'lucide-react';
+
 interface SocialPostCardProps {
   post: SocialPost;
   onDelete: (postId: string) => Promise<void>;
@@ -74,8 +81,8 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
         onUpdate();
       } else {
         toast({
-          title: "No se pudo publicar",
-          description: res.error || "Revisá la conexión con la red social.",
+          title: "Aviso de publicación",
+          description: res.error || "Podés usar el botón de 1 Toque para publicar al instante.",
           variant: "destructive",
         });
         onUpdate();
@@ -91,16 +98,44 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
     }
   };
 
-  const handleCopyText = () => {
-    navigator.clipboard.writeText(post.text);
+  const handleOneTouchPublish = () => {
+    const adaptedText = adaptTextForPlatform(post.platform, post.text, post.link);
+    navigator.clipboard.writeText(adaptedText);
     setCopiedText(true);
-    toast({ title: "Texto copiado al portapapeles" });
+
+    // Si tiene archivo multimedia, disparar descarga automática
+    if (post.mediaUrl) {
+      const a = document.createElement('a');
+      a.href = post.mediaUrl;
+      const ext = post.mediaType === 'video' ? '.mp4' : '.jpg';
+      a.download = `ak-${post.platform.toLowerCase()}-${post.id}${ext}`;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    const actionUrl = getOneTouchActionUrl(post.platform, adaptedText);
+    window.open(actionUrl, '_blank');
+
+    const config = ONE_TOUCH_CONFIGS[post.platform];
+    toast({
+      title: `¡Listo para ${config?.displayName || post.platform}!`,
+      description: config?.instructions || 'Texto copiado. Pegalo en la aplicación que se acaba de abrir.',
+    });
+    setTimeout(() => setCopiedText(false), 2500);
+  };
+
+  const handleCopyText = () => {
+    const adaptedText = adaptTextForPlatform(post.platform, post.text, post.link);
+    navigator.clipboard.writeText(adaptedText);
+    setCopiedText(true);
+    toast({ title: `Texto adaptado para ${post.platform} copiado` });
     setTimeout(() => setCopiedText(false), 2000);
   };
 
   const isFailed = post.status === 'Falló' || post.status === 'Error' || !!post.lastError;
   const isPublished = post.status === 'Publicado' || post.status === 'Importado de IG' || post.status === 'Importado historial';
-  const isAutoPlatform = post.platform === 'Instagram' || post.platform === 'Facebook';
 
   return (
     <Card className={`flex flex-col h-full shadow-md hover:shadow-lg transition-shadow ${isFailed ? 'border-rose-300 bg-rose-50/20' : ''}`}>
@@ -144,29 +179,41 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
         {post.link && <a href={post.link} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline break-all flex items-center gap-1"><LinkIcon className="w-3 h-3"/>{post.link}</a>}
       </CardContent>
       <CardFooter className="flex flex-wrap justify-between items-center gap-2 border-t pt-3">
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
+          {/* Botón de 1 Toque (Copia texto, baja foto y abre app) */}
           <Button
             size="sm"
             variant="outline"
+            className="text-xs h-8 gap-1 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800 border-purple-200"
+            onClick={handleOneTouchPublish}
+            title="1 Toque: Copia el texto, descarga la foto y abre la red social"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+            1 Toque
+          </Button>
+
+          <Button
+            size="sm"
+            variant="ghost"
             className="text-xs h-8 gap-1"
             onClick={handleCopyText}
-            title="Copiar texto"
+            title="Copiar texto adaptado"
           >
             {copiedText ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
             {copiedText ? 'Copiado' : 'Copiar'}
           </Button>
 
-          {!isPublished && isAutoPlatform && (
+          {!isPublished && (
             <Button
               size="sm"
               variant="default"
               className="text-xs h-8 gap-1 bg-emerald-600 hover:bg-emerald-700 text-white"
               onClick={handlePublishNow}
               disabled={isPublishingNow}
-              title="Publicar ahora en la red social"
+              title="Publicar automáticamente por API oficial o pasarela"
             >
               {isPublishingNow ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-              Publicar ahora
+              Publicar
             </Button>
           )}
         </div>
