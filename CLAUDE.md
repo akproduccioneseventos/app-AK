@@ -573,6 +573,11 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   salida; **el mensaje sale cuando una persona lo toca**, desde su propio WhatsApp.
   Escribirle a clientes y prospectos está bien; contestarle a cualquiera que
   escriba, no. **La línea es: preparar sí, mandar no.**
+- **El reloj del simulador VA, y es decisión suya (23 de agosto de 2026).** El
+  contador que aparece después de generar el presupuesto y congela la tarifa está
+  ahí **a propósito, para que la gente se comunique**. Se sacó una vez por pedido
+  de una auditoría de venta y el dueño lo mandó poner de nuevo. **No se vuelve a
+  sacar ni se reporta como problema.**
 - **La llave de cobros no se cambia (20 de agosto de 2026).** Estuvo escrita
   dentro de un archivo y se le propuso dos veces generar una nueva. **Decidió que
   no: se queda con la última que cargó.** No se le vuelve a plantear. El archivo
