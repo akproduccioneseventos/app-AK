@@ -149,6 +149,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         createdAt: ahora.toISOString(),
         status: 'pendiente',
         templateType: 'personalizado',
+        createdAt: ahora.toISOString(),
       });
       acciones.push(`Borrador de seguimiento preparado para ${p.clienteNombre} en la bandeja de salida.`);
     } else if (diasDesdeEnvio >= 14 && diasDesdeEnvio <= 30) {
@@ -166,6 +167,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         createdAt: ahora.toISOString(),
         status: 'pendiente',
         templateType: 'personalizado',
+        createdAt: ahora.toISOString(),
       });
       acciones.push(`Borrador de reactivación preparado para ${p.clienteNombre} en la bandeja de salida.`);
     }
@@ -234,6 +236,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
           createdAt: ahora.toISOString(),
           status: 'pendiente',
           templateType: 'pago_por_vencer',
+          createdAt: ahora.toISOString(),
         });
         acciones.push(`Recordatorio de saldo preparado en bandeja para ${p.clienteNombre}.`);
       }
@@ -272,6 +275,7 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
 
   const ahoraMs = ahora.getTime();
   const sieteDiasMs = 7 * 24 * 60 * 60 * 1000;
+  const nuevosPosts: any[] = [];
 
   for (const f of fiestas) {
     const fechaStr = f.configuracion?.fechaEvento || (f.configuracion as any)?.fecha;
@@ -284,9 +288,31 @@ export async function ejecutarGeneradorContenido(ahora = new Date()): Promise<Re
 
       const yaTienePost = (posts || []).some((p) => p.titulo?.includes(nombre) || p.caption?.includes(nombre));
       if (!yaTienePost) {
+        // Antes esto SOLO decia "borrador creado" y no creaba nada: el borrador
+        // no aparecia nunca en Redes Sociales, y como tampoco quedaba escrito,
+        // el mismo aviso volvia a salir cada 15 minutos para siempre.
+        const ahoraIso = ahora.toISOString();
+        const borrador: any = {
+          id: `post_agente_${f.id}`,
+          platform: 'Instagram',
+          isGeneralCampaign: true,
+          publishDate: ahoraIso.slice(0, 10),
+          titulo: `Recuerdos de ${nombre}`,
+          text: `Que noche la de ${nombre}. Gracias por confiar en AK Producciones para tu fiesta.`,
+          status: 'Borrador',
+          createdAt: ahoraIso,
+          updatedAt: ahoraIso,
+        };
+        nuevosPosts.push(borrador);
         acciones.push(`Borrador de posteo creado para ${nombre} (listo para revisión en Redes Sociales).`);
       }
     }
+  }
+
+  // Los borradores se guardan de verdad. Si no se escriben, no aparecen en Redes
+  // Sociales y el mismo aviso vuelve a salir cada 15 minutos para siempre.
+  if (nuevosPosts.length > 0) {
+    await writeData('social-posts.json', [...(posts || []), ...nuevosPosts]);
   }
 
   const registro: RegistroEjecucionAgente = {

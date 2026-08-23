@@ -7,79 +7,77 @@ Quien cierre una sesión reescribe este archivo. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 22 de agosto de 2026, cierre.
-**Estado de la app:** sana y fusionada. 2097 pruebas en verde, tipos en cero,
-compila, sin acentos rotos, seguridad de la base en verde.
+**Última actualización:** 23 de agosto de 2026, cierre.
+**Estado de la app:** sana y todo fusionado. 2140 pruebas en verde, tipos en cero,
+compila, sin acentos rotos, auditoría mecánica limpia y **598 pruebas de navegador
+en verde**.
 **Propuestas abiertas:** ninguna.
-**Órdenes pendientes:** `docs/ordenes/despues-sin-internet.md`, para Gemini.
+**Órdenes pendientes:** ninguna.
+**Errores conocidos:** ninguno.
 
-## Reglas del dueño (22 de agosto de 2026)
+## LA AUDITORÍA ESTÁ CERRADA
 
-- **"Cuando está bien, siempre fusioná."** No se pregunta. Si pasa los cuatro
-  controles, se fusiona y se avisa después. Verificación completa sobre la versión
-  principal, siempre, después de fusionar.
+**349 pantallas, 17 áreas, MÁS todo el código nuevo de estos dos días.**
+Está en `docs/COBERTURA-AUDITORIA.md`, con qué salió en cada área.
+
+**Un área sólo se vuelve a mirar si se toca su código.** No se lanzan auditorías
+generales "a ver qué aparece": ya se hizo y está escrito.
+
+## Reglas del dueño
+
+- **"Cuando está bien, siempre fusioná."** No se pregunta. Verificación completa
+  sobre la versión principal después de fusionar, siempre.
 - **Gemini programa, Claude revisa.** Claude escribe la orden, verifica, repara lo
   mecánico y decide.
 - **No se tocan textos que ve el cliente si no están pedidos.**
 - **Delegar en los ayudantes económicos**, siempre y en paralelo.
+- **Verificar cada hallazgo de un ayudante antes de reportarlo.** Nueve de cada
+  diez no sobreviven.
 
-## Lo que entró hoy
+## Lo que quedó funcionando
 
-- **Manual de la app** con dos capas, el mapa de pantallas que se arma solo
-  (`npm run mapa:generar`) y el candado que lo mantiene al día.
-- **La asistente ya sabe manejar la app**: recibe el mapa del menú y cancela la
-  navegación si inventa una pantalla.
-- **La auditoría de títulos lee los títulos de verdad**, no una copia.
-- **Instagram conectado**; la galería muestra todo el historial desde 2019, de a
-  tandas. Panel de historial de redes con botón para actualizar.
-- **Movimiento en las pantallas públicas**, más el remate: números que trepan,
-  galería escalonada, y una sola animación eterna en la portada en vez de tres.
-- **EL DESPERTADOR**: una tarea programada cada 15 minutos hace correr todo sin
-  depender de que nadie abra la app. Las visitas a la web pública también la
-  disparan. Con traba de concurrencia y su prueba.
+- **La app corre sola**: despertador cada 15 minutos **y el paso de despliegue que
+  lo publica**.
+- **Las estaciones aguantan sin internet**, con las fotos en el cajón grande y sin
+  borrar nada antes de que el servidor confirme. Modo quiosco en 11 puestos.
+- **Cinco agentes que trabajan solos.** No pueden mandar mensajes ni cobrar: **no
+  tienen con qué**, y eso está verificado.
+- **Avisos de errores humanos** antes de la fiesta.
+- **La plata bien contada** por fiesta, y **la asistente ya no puede inventar
+  precios**: salen del catálogo.
+- **Manual de la app** con el mapa que se arma solo y el candado que lo obliga.
+- WhatsApp, redes, agenda, Instagram completo, modelos de portada y Google.
 
-## PENDIENTE QUE NO SE PUEDE OLVIDAR
+## Lo único para el dueño
 
-**El despertador está fusionado pero NO CORRE: nadie lo publica.** El despliegue
-automático (`.github/workflows/deploy.yml`) compila `functions/` pero sube sólo el
-sitio. La tarea programada nunca llega a Google.
+Entrar a `/settings/tareas-automaticas` y **mirar que el despertador diga que tocó
+la puerta**. Es la única comprobación con los ojos de que la app corre sola.
 
-**No dar la app por "que corre sola" hasta comprobar que el despertador tocó la
-puerta al menos una vez.** Está pedido como bloque urgente en
-`docs/ordenes/ahora.md`. Cuando llegue la entrega, **verificar eso primero**, antes
-que ninguna otra cosa de esa propuesta.
+## Pendiente menor, anotado y no urgente
 
-## Lo que falta
+Con dos pestañas abiertas en la misma estación, la misma foto se puede subir dos
+veces al muro. Pasa sólo si alguien abre la fotocabina dos veces en la misma
+máquina.
 
-**Una sola orden: `docs/ordenes/despues-sin-internet.md`.** La app instalable en
-computadora y celular sin tienda de aplicaciones, el modo quiosco para las
-estaciones que faltan, y que todo funcione sin internet sincronizando al volver.
-Va en propuesta aparte a propósito: es un cambio de fondo y mezclarlo haría
-imposible saber qué rompió qué.
+## LA LECCIÓN DEL PROYECTO: COMPILAR NO ES ANDAR
 
-## Cinco cosas aprendidas hoy, todas costaron
+Apareció **siete veces** en dos días: escrito, compilando, pruebas en verde, **y
+sin producir nada**. El despertador llamando a una puerta que no existía; el
+despliegue que no lo publicaba; la auditoría que se miraba al espejo; los avisos al
+celular sin nadie que los mande; los respaldos que fallaban callados; el agente de
+contenido que decía "borrador creado" sin crearlo; el aviso de seña que se apagaba
+solo.
 
-1. **COMPILAR NO ES ANDAR.** El despertador se entregó llamando a una puerta que
-   no existe (una barra donde iba un guión). Los cuatro controles pasaban: tipos
-   en cero, 2095 pruebas en verde, compilaba. Habría golpeado una puerta cerrada
-   cada 15 minutos, con el error en un registro que nadie mira. **Cuando algo
-   llama a otra cosa por su nombre escrito, hay que verificar que ese nombre
-   exista.**
-2. **Una prueba nueva no vale hasta verla en rojo.** Antes de dar por buena la
-   prueba del despertador, se le puso la dirección mala a propósito para
-   confirmar que la agarra.
-3. **Mover una lista a un archivo nuevo no es unificarla.** Si la copia vieja
-   queda donde estaba, la auditoría lee un reflejo de sí misma. Contá cuántas
-   veces está definida antes de dar por resuelto un "ahora lee lo de verdad".
-4. **Una prueba que falla sola se termina ignorando.** La de maquetación contaba
-   botones y enlaces, que cambian con los datos. El día que avise algo real, nadie
-   le va a creer.
-5. **Una prueba corrida sola no da lo mismo que en tanda.** Pareció una regresión
-   de Gemini y no lo era. Comparar siempre en igualdad de condiciones.
+**Las tres preguntas están en `docs/COMO-AUDITAR.md`, quinta pregunta.** Y las dos
+reglas cortas:
 
-## Revisión completa de la app (22 de agosto)
+1. **Una prueba nueva no vale hasta verla en rojo.** Rompé a propósito lo que tiene
+   que detectar.
+2. **Una medición tomada mientras corre otra cosa no vale.** Grabar y medir siempre
+   con la máquina sola.
 
-Siete áreas auditadas: pantalla gigante, decoración, entretenimiento, comida,
-plata, invitados y portal del cliente, ventas y operación. **Nada roto de fondo.**
-Los cuatro hallazgos chicos ya están fusionados o pedidos. **La pantalla gigante,
-que el dueño recordaba como enredada, vino limpia.**
+## Y ojo con esto
+
+Gemini reportó una vez los siete bloques como "resueltos" nombrando propuestas del
+día anterior, ya fusionadas. **No estaban hechos.** Cuando diga que algo está
+listo: **pedir el número de propuesta nueva y verificar en el código.**

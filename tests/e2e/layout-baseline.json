@@ -23,30 +23,6 @@
     "mainW": 1023,
     "colores": 2034977308
   },
-  "chromium-desktop /presupuestos/nuevo": {
-    "anchoDocumento": 1280,
-    "desborde": 0,
-    "h1X": 321,
-    "h1Y": 18,
-    "h1W": 72,
-    "headerY": 0,
-    "headerH": 64,
-    "mainX": 257,
-    "mainW": 1023,
-    "colores": 2034977308
-  },
-  "chromium-desktop /": {
-    "anchoDocumento": 1280,
-    "desborde": 0,
-    "h1X": 32,
-    "h1Y": 148,
-    "h1W": 768,
-    "headerY": 0,
-    "headerH": 80,
-    "mainX": -1,
-    "mainW": -1,
-    "colores": -883377086
-  },
   "chromium-desktop /simulador-de-presupuesto": {
     "anchoDocumento": 1280,
     "desborde": 0,
@@ -131,30 +107,6 @@
     "mainW": 412,
     "colores": 1566381053
   },
-  "chromium-mobile /presupuestos/nuevo": {
-    "anchoDocumento": 412,
-    "desborde": 0,
-    "h1X": 96,
-    "h1Y": 22,
-    "h1W": 56,
-    "headerY": 0,
-    "headerH": 64,
-    "mainX": 0,
-    "mainW": 412,
-    "colores": 1566381053
-  },
-  "chromium-mobile /": {
-    "anchoDocumento": 412,
-    "desborde": 0,
-    "h1X": 16,
-    "h1Y": 148,
-    "h1W": 380,
-    "headerY": 0,
-    "headerH": 64,
-    "mainX": -1,
-    "mainW": -1,
-    "colores": -883377086
-  },
   "chromium-mobile /simulador-de-presupuesto": {
     "anchoDocumento": 412,
     "desborde": 0,
@@ -214,5 +166,53 @@
     "mainX": 0,
     "mainW": 412,
     "colores": 1566381053
+  },
+  "chromium-desktop /presupuestos/nuevo": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 321,
+    "h1Y": 18,
+    "h1W": 212,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "colores": 2034977308
+  },
+  "chromium-desktop /": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 32,
+    "h1Y": 152,
+    "h1W": 768,
+    "headerY": 0,
+    "headerH": 80,
+    "mainX": -1,
+    "mainW": -1,
+    "colores": -883377086
+  },
+  "chromium-mobile /presupuestos/nuevo": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": 92,
+    "h1Y": 22,
+    "h1W": 144,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 0,
+    "mainW": 412,
+    "colores": 1566381053
+  },
+  "chromium-mobile /": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": 16,
+    "h1Y": 152,
+    "h1W": 380,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": -1,
+    "mainW": -1,
+    "colores": -883377086
   }
 }
