@@ -47,6 +47,58 @@ Eso es lo peor que puede pasar: el dueño cree que salió y no salió.
 
 ---
 
+## LO QUE PIDIO EL DUEÑO DESPUES, Y CAMBIA LA ORDEN
+
+> *"Todo lo que pueda ser automatico seria bueno; si no, es igual que hacerlo
+> manual."*
+
+**Tiene razon.** Un tablero que dice "copiá esto y pegalo alla" no le ahorra nada.
+Asi que **la meta es que salga solo en la mayor cantidad de redes posible**, y que
+lo que no se pueda automatizar quede a UN TOQUE, no a diez pasos.
+
+### Hay dos caminos. El dueño elige. Preparalos los dos, pero implementá el que él diga.
+
+**CAMINO A — Conectar cada red por separado.**
+- Instagram, Facebook y Google: ya salen solas. **Listo.**
+- **TikTok: se puede automatizar**, pero hay que pedirle permiso a TikTok
+  (registrar la aplicacion y esperar su aprobacion). **Dejá el pedido armado y
+  explicá en criollo, en una pantalla, los pasos exactos que tiene que hacer el
+  dueño**: a donde entrar, que datos poner. Nada de jerga. **El no es
+  programador: si el tramite no esta masticado, no se hace nunca.**
+- **LinkedIn y Pinterest** tambien se pueden, con su propio tramite.
+- **X, Threads y estados de WhatsApp: no hay forma.** Quedan manuales.
+- **Costo: cero por mes.** Solo trabajo y tramites.
+
+**CAMINO B — Un solo servicio intermediario.**
+Existen servicios que dan **una sola conexion que publica en todas las redes a la
+vez** (Instagram, Facebook, TikTok, X, LinkedIn, Pinterest, Google). La app se
+conecta a uno solo y él se encarga del resto, incluidos los tramites.
+- **Ventaja: se automatiza todo de una, sin tramites y sin mantener siete
+  conexiones distintas.**
+- **Desventaja: se paga por mes.** El dueño tiene una regla: **nada que aumente lo
+  que se paga por mes se cambia sin preguntar.** Asi que **esto NO se contrata sin
+  su visto bueno.**
+- **Que hacer:** dejá la app preparada para enchufar un servicio asi (una sola
+  puerta de salida, no siete), y una pantalla donde se carga la conexion. Si el
+  dueño decide contratarlo, es cargar la clave y listo.
+
+### Y en las que queden manuales, que sea UN TOQUE
+
+Si una red no se puede automatizar, que publicar ahi sea lo mas cerca de
+automatico posible:
+
+1. **Un boton por red** que, al tocarlo, **copie el texto ya adaptado al
+   portapapeles y baje la imagen**, y **abra la aplicacion de esa red**. Que el
+   dueño solo tenga que pegar y tocar publicar.
+2. **Que se marque solo como publicada** cuando el dueño vuelve y lo confirma, con
+   un toque. **Nunca marcarla sola**: no sabemos si publico.
+3. **Que se pueda hacer desde el celular**, que es donde estan esas aplicaciones.
+
+**La diferencia entre "copiá y pegá" y esto es la diferencia entre que lo use y
+que no lo use.**
+
+---
+
 ## BLOQUE 1 — Escribir una vez, elegir las redes, y listo
 
 Hoy en el planificador se arma un posteo por vez. **Que se pueda escribir uno solo
