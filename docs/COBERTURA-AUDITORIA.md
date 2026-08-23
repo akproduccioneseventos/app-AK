@@ -116,3 +116,23 @@ Verificado en codigo el 22 de agosto de 2026. Ninguna genera duplicacion ni perd
 ## Lo que ya no hace falta volver a mirar
 
 Todo lo de la tabla anterior está 100% auditado y verificado. Si una propuesta modifica un área puntual, se anota en `docs/YA-RESUELTO.md`.
+
+
+---
+
+## Comprobado el 23 de agosto: 348 de 348 pantallas cubiertas
+
+Clasificacion mecanica sobre el mapa generado: **346 de 348 caen en un area
+revisada**. Las dos restantes (`/invitado/:fiestaId/:invitadoId` y
+`/portal-invitado/:fiestaId/:guestId`) son pantallas del portal del invitado, que
+**si fueron auditadas** dentro del area "Invitados, mesas y portal del cliente".
+
+**Las 17 areas estan revisadas. Ninguna pantalla quedo sin cubrir.**
+
+Lo que salio de las ultimas cuatro areas esta pedido en `docs/ordenes/ahora.md`:
+el doble conteo en la rentabilidad de cada fiesta, los respaldos que fallan en
+silencio, el cupon con servicios de regalo que no se aplica, cuatro ajustes que no
+hacen nada, y la pantalla de respaldos duplicada.
+
+**Esta auditoria esta cerrada.** Solo se vuelve a mirar un area si se toca su
+codigo.

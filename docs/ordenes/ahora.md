@@ -8,7 +8,7 @@ que queda, y sale de terminar de auditar las areas que faltaban.
 
 ## Como se entrega
 
-**UNA SOLA propuesta con los seis bloques adentro.** Si un bloque se traba,
+**UNA SOLA propuesta con los siete bloques adentro.** Si un bloque se traba,
 entregá el resto igual, en la misma propuesta, avisando cual falto y por que.
 
 **Arranca desde la version principal de ahora.** Antes de tocar nada, leé
@@ -205,6 +205,87 @@ que protege contra los falsos positivos.
 
 ---
 
+## BLOQUE 7 — Agentes de verdad: que trabajen solos, sin pedir permiso para todo
+
+**Lo que pidio el dueño:** el maximo de inteligencia artificial en la app, con
+**agentes autonomos de verdad**.
+
+**Lo que hay hoy:** la asistente ya recibe el manual, el mapa del panel y datos
+reales, y ya puede cargar un prospecto, dejar un borrador de presupuesto, preparar
+mensajes y escribir el repaso de la manana. **Pero siempre espera que alguien le
+hable.** Eso no es un agente: es un ayudante que contesta.
+
+**Un agente de verdad hace tres cosas que hoy no hace:**
+1. **Se despierta solo** (el despertador ya existe: cada 15 minutos).
+2. **Mira el estado del negocio y decide si hay algo que hacer**, sin que nadie
+   pregunte.
+3. **Lo hace, o lo deja listo**, y avisa que lo hizo.
+
+### Los agentes que hay que dejar corriendo solos
+
+**1. El vigilante de las fiestas.** Es el del BLOQUE 6: revisa cada fiesta y avisa
+lo que falta antes de que sea tarde. Ese ya es un agente autonomo completo.
+
+**2. El que persigue los presupuestos.** Ve un presupuesto sin respuesta hace 5
+dias y **deja el mensaje de seguimiento escrito en la bandeja**, con el nombre y
+los datos de esa persona. A los 14 dias, uno distinto, de reactivacion. **No lo
+manda: lo deja listo.**
+
+**3. El cobrador.** Ve una cuota que vence, **prepara el recordatorio** y lo deja
+en la bandeja. Ve un saldo de una fiesta que ya paso y lo pone arriba de todo.
+
+**4. El de contenido.** Cuando termina una fiesta, **deja escrito el posteo** con
+las fotos ya aprobadas del muro. Ve un hueco de dias sin publicar y **deja algo
+preparado**. En borrador, siempre.
+
+**5. El de la noche.** Durante la fiesta, mira las estaciones: si una dejo de
+mandar fotos hace rato, si quedan fotos sin subir esperando internet, si el muro
+esta apagado. **Avisa al operador en el momento**, que es cuando sirve.
+
+### La regla que hace que esto sea seguro (y no se negocia)
+
+**Autonomia total para MIRAR, DETECTAR y PREPARAR. Mano humana para lo que sale
+para afuera o toca plata.**
+
+Un agente puede, solo y sin preguntar:
+- Revisar, comparar, detectar y avisar.
+- Dejar un borrador, un mensaje preparado, una tarea creada, un recordatorio.
+- Ordenar el dia y decir por donde empezar.
+
+**Un agente NUNCA, ni aunque este seguro:**
+- **Cobra**, marca algo como pagado, ni emite una factura.
+- **Manda** un WhatsApp, un correo o un aviso al cliente.
+- **Cierra** un presupuesto o lo da por aceptado.
+- **Cambia un precio**, un descuento o una condicion del contrato.
+- **Toca permisos** ni quien ve que.
+- **Borra** nada.
+
+**Por que:** un agente que se equivoca preparando cuesta treinta segundos de
+revision. Un agente que se equivoca mandando o cobrando cuesta un cliente.
+
+### Que se necesita para que sean agentes y no adornos
+
+- **Que cada agente deje rastro**: que corrio, que encontro, que dejo hecho. En una
+  pantalla, no en un registro tecnico. **Si no se puede ver, no existe.**
+- **Que respeten el tope de gasto** de inteligencia artificial, y que si se llega
+  al tope, sigan funcionando los que no lo necesitan (los que solo comparan datos
+  no gastan nada: esos no se apagan nunca).
+- **Que no repitan.** Lo que ya avisaron o prepararon, no lo vuelven a hacer.
+- **Que se puedan apagar de a uno**, desde una pantalla, sin tocar codigo.
+- **Cero falsos positivos**, igual que el bloque 6. Un agente que molesta se apaga
+  y no vuelve.
+
+### Como se prueba
+
+Por cada agente: una prueba que arme la situacion que lo dispara y verifique que
+hace lo que tiene que hacer; **y otra que verifique que NO hace nada cuando no
+corresponde.** Esa segunda es la importante.
+
+Y una prueba que verifique que **ningun agente puede cobrar, mandar un mensaje ni
+cerrar un presupuesto**, ni aunque el modelo lo devuelva como accion.
+
+---
+
 ## Lo que no se toca
 
 - `apphosting.yaml`: el servidor se duerme a proposito.
@@ -220,6 +301,6 @@ que protege contra los falsos positivos.
 ## Y esta lista esta cerrada
 
 **La app quedo auditada entera**: 17 areas, todas revisadas. No busques mas
-problemas. Hace estos seis bloques y nada mas. Si mientras trabajas ves algo roto
+problemas. Hace estos siete bloques y nada mas. Si mientras trabajas ves algo roto
 de verdad, arreglalo y decilo en una linea. Si no esta roto y el dueño no lo pidio,
 no existe.
