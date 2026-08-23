@@ -291,6 +291,39 @@ export default function EventoHubPage() {
               </a>
             </div>
           ) : null}
+
+          {/* Tarjeta comercial discreta para invitados */}
+          <div className="mt-8 rounded-2xl border border-slate-200/80 bg-gradient-to-br from-slate-50 to-white p-5 text-center shadow-sm">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 mb-2.5">
+              <MessageCircle className="h-5 w-5" />
+            </div>
+            <h4 className="font-black text-sm text-slate-900">
+              ¿Querés una fiesta con esta tecnología?
+            </h4>
+            <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
+              AK Producciones organiza bodas, 15 años y eventos con todo incluido.
+            </p>
+            <div className="mt-3.5 flex flex-wrap justify-center gap-2.5">
+              <a
+                href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                  `¡Hola AK Producciones! Estoy en la fiesta de ${eventName} y me encantó la organización. Quería consultarles para mi fiesta.`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:scale-105"
+              >
+                <MessageCircle className="h-3.5 w-3.5" />
+                <span>Escribinos por WhatsApp</span>
+              </a>
+              <Link
+                href="/simulador-de-presupuesto"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+              >
+                <span>Calcular presupuesto</span>
+                <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
+              </Link>
+            </div>
+          </div>
         </section>
 
         <div className="mt-10 border-t border-slate-200 pt-7">
