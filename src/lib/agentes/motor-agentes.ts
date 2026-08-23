@@ -146,6 +146,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         targetPhone: contacto,
         messageText: texto,
         scheduledAt: ahora.toISOString(),
+        createdAt: ahora.toISOString(),
         status: 'pendiente',
         templateType: 'personalizado',
       });
@@ -162,6 +163,7 @@ export async function ejecutarPerseguidorPresupuestos(ahora = new Date()): Promi
         targetPhone: contacto,
         messageText: texto,
         scheduledAt: ahora.toISOString(),
+        createdAt: ahora.toISOString(),
         status: 'pendiente',
         templateType: 'personalizado',
       });
@@ -229,6 +231,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
           targetPhone: p.clienteContacto.trim(),
           messageText: `Hola ${p.clienteNombre}, te recordamos que el saldo pendiente para tu fiesta (${p.eventoTipo}) es de $${saldo.toLocaleString('es-UY')}. Faltan ${diffDias} días para el evento. Podés realizar el pago por transferencia o consultar por otros medios. ¡Gracias!`,
           scheduledAt: ahora.toISOString(),
+          createdAt: ahora.toISOString(),
           status: 'pendiente',
           templateType: 'pago_por_vencer',
         });
