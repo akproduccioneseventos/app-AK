@@ -1,4 +1,4 @@
-# LA ORDEN: cinco cosas que salieron de auditar la app entera
+# LA ORDEN: cinco arreglos, y que la app avise de los errores humanos
 
 **Para:** Gemini (Antigravity)
 **Escrita:** 23 de agosto de 2026.
@@ -8,7 +8,7 @@ que queda, y sale de terminar de auditar las areas que faltaban.
 
 ## Como se entrega
 
-**UNA SOLA propuesta con los cinco bloques adentro.** Si un bloque se traba,
+**UNA SOLA propuesta con los seis bloques adentro.** Si un bloque se traba,
 entregá el resto igual, en la misma propuesta, avisando cual falto y por que.
 
 **Arranca desde la version principal de ahora.** Antes de tocar nada, leé
@@ -133,6 +133,78 @@ la que queda. Despues **corré `npm run mapa:generar`**.
 
 ---
 
+## BLOQUE 6 — Que la app avise de los errores humanos ANTES de la fiesta
+
+**Lo que pidio el dueño:** *"quiero que la IA me avise si no puse un servicio, si
+falta un contrato, errores humanos que puedan pasar"*.
+
+**Por que es lo mas valioso de esta orden:** estos errores no se pagan con una
+pantalla fea. Se pagan **la noche de la fiesta**, delante del cliente.
+
+### Que tiene que revisar, por cada fiesta con fecha
+
+**Plata y papeles**
+- Fiesta con fecha cerca y **sin contrato firmado**.
+- **Seña no cobrada** faltando poco para la fecha.
+- **Saldo sin cobrar** con la fiesta ya pasada.
+- Fiesta cobrada **sin factura emitida**.
+
+**Lo vendido contra lo cargado** *(este es el que pidio primero)*
+- **Un servicio que esta en el presupuesto y no esta cargado en la fiesta.** Se
+  vendio y nadie lo va a montar.
+- **Un servicio cargado en la fiesta que no esta en el presupuesto.** Se va a
+  montar y no se cobro.
+- Cantidad de invitados del presupuesto **distinta** a la cargada en la fiesta.
+
+**Comida**
+- **Menu sin elegir** faltando poco.
+- **Alergias cargadas** y sin reflejar en la comida del evento.
+- **Lista de compras sin generar** a pocos dias.
+
+**Gente y salon**
+- **Personal sin asignar** para un evento cercano.
+- **Una persona asignada a dos fiestas** el mismo dia (ya hay deteccion: usala).
+- **Dos fiestas en el mismo salon el mismo dia.**
+- Proveedor clave sin confirmar.
+
+**El cliente**
+- Cliente **sin acceso al portal** entregado.
+- **Invitados sin cargar** faltando poco.
+
+### Como tiene que avisar (y esto decide si sirve o se ignora)
+
+1. **Antes, no despues.** Los avisos aparecen segun cuanto falta: a 30 dias, a 15,
+   a 7 y a 2. Lo mismo pesa distinto segun la fecha.
+2. **Una sola pantalla, no diez alertas sueltas.** Una lista por fiesta, ordenada
+   por lo que mas duele, con **un boton que lleve a la pantalla donde se arregla**.
+   Que se pueda ver todo junto en `/repaso-diario`.
+3. **Que se pueda decir "esta bien asi" y no moleste mas**, dejando el motivo
+   escrito. Si no, el equipo lo aprende a ignorar y el sistema muere.
+4. **CERO FALSOS POSITIVOS.** Es la regla que decide todo: **si avisa de cosas que
+   no son, en dos semanas nadie lo mira y el dia que avise algo real va a estar
+   apagado.** Ante la duda, no avisa. **Preferí avisar de menos y que cada aviso
+   sea cierto.**
+5. **Que lo revise el despertador**, que ya existe y corre cada 15 minutos, y que
+   mande el aviso al celular cuando algo entra en zona de peligro (a 7 dias o
+   menos). No hace falta que nadie abra la app.
+6. **En criollo.** "Falta firmar el contrato de la fiesta de Sofia, es el sabado"
+   y no un codigo de error.
+
+### Lo que NO tiene que hacer
+
+- **No arregla nada solo.** Avisa y lleva; la decision es de una persona.
+- **No manda nada al cliente.** Ni correos, ni WhatsApp.
+- **No inventa.** Si un dato no esta cargado, dice que falta; no lo supone.
+
+### Como se prueba
+
+Una prueba por cada tipo de aviso: se arma una fiesta a la que le falta esa cosa y
+se verifica que el aviso aparece; se completa y se verifica que **desaparece**. Y
+una que verifique que una fiesta completa **no genera ningun aviso** — esa es la
+que protege contra los falsos positivos.
+
+---
+
 ## Lo que no se toca
 
 - `apphosting.yaml`: el servidor se duerme a proposito.
@@ -148,6 +220,6 @@ la que queda. Despues **corré `npm run mapa:generar`**.
 ## Y esta lista esta cerrada
 
 **La app quedo auditada entera**: 17 areas, todas revisadas. No busques mas
-problemas. Hace estos cinco bloques y nada mas. Si mientras trabajas ves algo roto
+problemas. Hace estos seis bloques y nada mas. Si mientras trabajas ves algo roto
 de verdad, arreglalo y decilo en una linea. Si no esta roto y el dueño no lo pidio,
 no existe.
