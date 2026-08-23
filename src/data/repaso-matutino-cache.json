@@ -1,0 +1,22 @@
+{
+  "fechaGeneracion": "2026-08-23T03:18:31.038Z",
+  "resumenEjecutivo": "Hoy hay 0 asuntos urgentes y 1 puntos de atención en total. No hay cuotas vencidas esta semana. Próximo evento en 399 días (Fiesta de esta noche).",
+  "items": [
+    {
+      "id": "proxima-e2e_noche_1787409461476_senuelo",
+      "categoria": "fiesta_proxima",
+      "titulo": "Próxima fiesta: Fiesta de esta noche (en 399 días)",
+      "descripcion": "Salón: Club Uruguay. Quedan 3 tareas operativas pendientes.",
+      "gravedad": "info",
+      "enlace": "/fiestas/e2e_noche_1787409461476_senuelo",
+      "etiquetaEnlace": "Abrir fiesta"
+    }
+  ],
+  "kpis": {
+    "totalVencidoSemana": 0,
+    "presupuestosSinRespuesta": 0,
+    "presupuestosFrios": 0,
+    "diasProximaFiesta": 399,
+    "nombreProximaFiesta": "Fiesta de esta noche"
+  }
+}

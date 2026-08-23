@@ -9,7 +9,8 @@ Quien cierre una sesión reescribe este archivo. **Se pisa, no se acumula.**
 
 **Última actualización:** 23 de agosto de 2026, cierre.
 **Estado de la app:** sana y todo fusionado. 2140 pruebas en verde, tipos en cero,
-compila, sin acentos rotos, auditoría mecánica limpia.
+compila, sin acentos rotos, auditoría mecánica limpia, **y las 598 pruebas de
+navegador en verde** (corridas después de fusionar todo).
 **Propuestas abiertas:** ninguna.
 **Órdenes pendientes:** ninguna.
 **Errores conocidos:** ninguno.

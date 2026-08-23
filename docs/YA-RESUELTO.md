@@ -4108,3 +4108,15 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
   con el numero de pantallas viejo. Todo mecanico, corregido en el momento.
   **El candado del mapa hizo su trabajo otra vez**: la pantalla nueva de agentes
   no estaba en el manual y salto sola.
+
+- **La prueba de maquetación quedó en verde, y el fallo era una referencia mal
+  grabada (23 de agosto de 2026).** Las dos fallas que arrastraba la tanda de
+  navegador eran distintas de las de la mañana: el Centro de Control ya no falla
+  (lo arregló la tanda 1). Lo que quedaba era la referencia de
+  `/presupuestos/nuevo`, **grabada mientras corría otra tanda en paralelo**, o sea
+  con la pantalla a medio dibujar: el título figuraba de 72 píxeles de ancho cuando
+  mide 212. Se volvió a grabar en limpio, sin nada más corriendo, y también la
+  portada, que se corrió 4 píxeles por el movimiento nuevo.
+  **La lección, que ya nos mordió tres veces: una referencia o una medición tomada
+  mientras corre otra cosa no vale.** Grabar siempre con la máquina sola.
+  Resultado: **598 de 598 pruebas de navegador en verde.**
