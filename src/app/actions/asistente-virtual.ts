@@ -111,12 +111,6 @@ ${newMessage}`,
       await registrarConsumoIA('vendedor-virtual');
 
       if (data && data.nombre && data.telefono && data.evento) {
-        // El permiso para escribirle despues NO se deduce ni se asume: es lo que
-        // habilita mandarle WhatsApp automatico mas adelante. Se exige que el
-        // resumen lo marque explicitamente Y que la persona lo haya dicho en su
-        // ultimo mensaje. Si no, el presupuesto se arma igual pero queda sin
-        // permiso: se pierde poder escribirle solo, que se arregla llamandola,
-        // y no al reves.
         const permisoConcedido =
           data.permisoContacto === true && esUnSi(newMessage);
 
@@ -130,14 +124,6 @@ ${newMessage}`,
         });
 
         if (progressRes.success && progressRes.leadId) {
-          // A proposito NO se arma el presupuesto desde el chat.
-          //
-          // Armarlo requiere subtotal, costo estimado y la lista de servicios
-          // incluidos, que son las cuentas que despues el cliente ve como precio
-          // firme. Sacarlas de una conversacion es inventar plata, y un numero
-          // mal en esa pantalla se discute delante del cliente. El dato queda
-          // guardado y el equipo arma el presupuesto con el simulador, que es el
-          // unico lugar donde esas cuentas estan bien hechas.
           return {
             success: true,
             text: 'Listo, ya tengo tus datos. En un rato te pasamos el presupuesto armado a medida. Si querés adelantarlo, podés usar el simulador o escribirnos por WhatsApp.',
@@ -161,6 +147,178 @@ ${newMessage}`,
     return {
       success: false,
       error: 'En este momento nuestros asesores están ocupados. Por favor, utilizá nuestro simulador tradicional o escribinos por WhatsApp.',
+    };
+  }
+}
+
+/**
+ * Asistente para el Portal del Cliente (Organizador).
+ * Contexto filtrado en el servidor para SU fiesta únicamente.
+ */
+export async function chatConAsistenteCliente(
+  fiestaId: string,
+  history: MessageData[],
+  newMessage: string
+): Promise<AssistantResponse> {
+  try {
+    if (!fiestaId) {
+      return { success: false, error: 'Identificador de fiesta no especificado.' };
+    }
+
+    await enforcePublicRateLimit({
+      scope: `portal-cliente-${fiestaId}`,
+      identity: fiestaId,
+      limit: 30,
+      windowMs: 60 * 60 * 1000,
+    });
+
+    if (!(await hayPresupuestoParaIA())) {
+      return {
+        success: false,
+        error: 'El asistente del portal está temporalmente ocupado. Por favor, consultanos por WhatsApp.',
+      };
+    }
+
+    const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) {
+      return { success: false, error: 'No se encontró la fiesta solicitada.' };
+    }
+
+    const nombreEvento = fiesta.configuracion?.nombreEvento || fiesta.id || 'Tu Fiesta';
+    const tipoCelebracion = fiesta.configuracion?.tipoCelebracion || 'Celebración';
+    const fechaEvento = fiesta.configuracion?.fechaEvento || 'A coordinar';
+    const salon = fiesta.configuracion?.nombreLugar || (fiesta.configuracion as any)?.salon || 'Por definir';
+    const invitadosEstimados = fiesta.configuracion?.invitadosEstimados || 0;
+
+    const tareasPendientes = (fiesta.tareas || [])
+      .filter((t: any) => !t.completada && !t.hecha)
+      .slice(0, 5)
+      .map((t: any) => `• ${t.titulo || t.texto}`)
+      .join('\n') || 'Ninguna pendiente.';
+
+    const systemPrompt = `Sos la Asistente Virtual del Portal del Cliente de AK Producciones para la fiesta "${nombreEvento}".
+Tu misión es contestar dudas al cliente organizador sobre SU fiesta con simpatía en español rioplatense (uruguayo).
+
+DATOS REALES DE SU FIESTA (ÚNICO CONTEXTO AUTORIZADO):
+- Nombre del evento: ${nombreEvento}
+- Tipo de celebración: ${tipoCelebracion}
+- Fecha del evento: ${fechaEvento}
+- Salón / Lugar: ${salon}
+- Invitados estimados: ${invitadosEstimados}
+- Tareas pendientes destacadas:
+${tareasPendientes}
+
+REGLAS DE SEGURIDAD Y PRIVACIDAD:
+1. SOLO hablás de esta fiesta (${nombreEvento}). Si preguntan por otros clientes, eventos o personas, decí amablemente que solo tenés acceso a esta celebración.
+2. NUNCA inventes datos que no figuren acá. Si algo no está definido, decí: "Ese detalle todavía no está cargado en el portal, podés consultarlo directamente con el equipo de AK."
+3. NO podés modificar datos ni agendar pagos.
+4. Respuestas amables, claras y cortas con emojis.`;
+
+    const response = await generateWithGeminiFallback({
+      model: geminiCommercialModel,
+      system: systemPrompt,
+      messages: [
+        ...history,
+        { role: 'user', content: [{ text: newMessage }] }
+      ]
+    });
+
+    await registrarConsumoIA('chat-de-la-fiesta');
+
+    return {
+      success: true,
+      text: response.text?.trim() || '¡A las órdenes para ayudarte con tu fiesta!',
+    };
+  } catch (error: any) {
+    console.error('[chatConAsistenteCliente] Error:', error);
+    return {
+      success: false,
+      error: 'No se pudo conectar con el asistente en este momento.',
+    };
+  }
+}
+
+/**
+ * Asistente para el Portal del Invitado.
+ * CERO acceso a datos financieros, CERO acceso a otras mesas o personas.
+ */
+export async function chatConAsistenteInvitado(
+  fiestaId: string,
+  history: MessageData[],
+  newMessage: string,
+  invitadoNombre?: string,
+  mesaAsignada?: string
+): Promise<AssistantResponse> {
+  try {
+    if (!fiestaId) {
+      return { success: false, error: 'Identificador de fiesta no especificado.' };
+    }
+
+    await enforcePublicRateLimit({
+      scope: `portal-invitado-${fiestaId}`,
+      identity: fiestaId,
+      limit: 25,
+      windowMs: 60 * 60 * 1000,
+    });
+
+    if (!(await hayPresupuestoParaIA())) {
+      return {
+        success: false,
+        error: 'El asistente para invitados está temporalmente descansando. ¡Disfrutá de la fiesta!',
+      };
+    }
+
+    const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) {
+      return { success: false, error: 'No se encontró la información del evento.' };
+    }
+
+    const nombreEvento = fiesta.configuracion?.nombreEvento || fiesta.id || 'El Evento';
+    const fechaEvento = fiesta.configuracion?.fechaEvento || 'Fecha por confirmar';
+    const salon = fiesta.configuracion?.nombreLugar || (fiesta.configuracion as any)?.salon || 'Salón por confirmar';
+    const direccion = fiesta.configuracion?.direccionLugar || (fiesta.configuracion as any)?.direccionSalon || 'Salto, Uruguay';
+
+    const systemPrompt = `Sos el Asistente Virtual para Invitados de "${nombreEvento}" producido por AK Producciones.
+Tu rol es orientar a los invitados con datos útiles sobre la celebración en tono rioplatense super amigable y con emojis 🎉.
+
+DATOS DISPONIBLES:
+- Fiesta: ${nombreEvento}
+- Fecha: ${fechaEvento}
+- Salón / Lugar: ${salon}
+- Dirección / Ubicación: ${direccion}
+${invitadoNombre ? `- Invitado: ${invitadoNombre}` : ''}
+${mesaAsignada ? `- Mesa Asignada: Mesa ${mesaAsignada}` : ''}
+
+REGLAS DE AISLAMIENTO Y SEGURIDAD ESTRICTAS (INQUEBRANTABLES):
+1. CERO DATOS DE DINERO: NUNCA digas presupuestos, costos, precios de la fiesta, si se pagó o cuánto se debe. Si te preguntan de plata, decí: "Como asistente de invitados no manejo información financiera del evento."
+2. CERO DATOS DE OTROS INVITADOS O FIESTAS: No des teléfonos, direcciones privadas ni listas de otras personas.
+3. INSTRUCCIONES:
+   - Para subir fotos: "Podés subir tus fotos al Muro Social interactivo desde el portal del evento para que se vean en las pantallas."
+   - Para confirmar asistencia: "Podés confirmar o actualizar tu asistencia en la sección de RSVP del portal."
+4. Respuestas directas, cortas y festivas.`;
+
+    const response = await generateWithGeminiFallback({
+      model: geminiCommercialModel,
+      system: systemPrompt,
+      messages: [
+        ...history,
+        { role: 'user', content: [{ text: newMessage }] }
+      ]
+    });
+
+    await registrarConsumoIA('chat-de-la-fiesta');
+
+    return {
+      success: true,
+      text: response.text?.trim() || '¡Que disfrutes mucho de la fiesta!',
+    };
+  } catch (error: any) {
+    console.error('[chatConAsistenteInvitado] Error:', error);
+    return {
+      success: false,
+      error: 'No pudimos responderte en este momento. ¡Que tengas una gran fiesta!',
     };
   }
 }

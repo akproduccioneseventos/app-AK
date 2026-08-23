@@ -5,12 +5,14 @@ import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { buildPuestaAlDiaReporte } from '@/lib/commercial-flow/puesta-al-dia';
+import { getRepasoMatutinoDelDia } from '@/lib/automatico/repaso-matutino-ia';
 import {
   CheckCircle2,
   DollarSign,
   CalendarClock,
   ArrowRight,
   TrendingUp,
+  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,6 +29,9 @@ export default async function RepasoDiarioPage() {
 
   // Verificar si tiene acceso a contabilidad para ver montos y cobros
   const verContabilidad = puede(session.user, PERMISOS.CONTABILIDAD);
+
+  // Diagnóstico proactivo del asistente para la mañana
+  const repasoMatutino = await getRepasoMatutinoDelDia().catch(() => null);
 
   // Cargar datos (TODO: Idealmente hacer cache o revalidar por tiempo si es pesado)
   const fiestas = await getFiestas(false); // Solo fiestas abiertas
@@ -67,6 +72,65 @@ export default async function RepasoDiarioPage() {
           Un pantallazo rápido para mantener el sistema limpio y al día.
         </p>
       </div>
+
+      {/* Banner de Diagnóstico Matutino del Asistente */}
+      {repasoMatutino && (
+        <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/70 via-purple-50/40 to-white p-6 shadow-sm">
+          <div className="flex items-start gap-4">
+            <div className="rounded-xl bg-indigo-600 p-3 text-white shadow-md shadow-indigo-600/20">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-lg font-black text-slate-900">
+                  Diagnóstico Automático del Asistente AK
+                </h2>
+                <span className="text-xs font-semibold text-indigo-700 bg-indigo-100/80 px-2.5 py-1 rounded-full">
+                  Generado hoy a primera hora
+                </span>
+              </div>
+              <p className="mt-2 text-sm font-medium leading-relaxed text-slate-700">
+                {repasoMatutino.resumenEjecutivo}
+              </p>
+
+              {repasoMatutino.items.length > 0 && (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {repasoMatutino.items.slice(0, 6).map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-sm transition-all hover:border-indigo-300"
+                    >
+                      <p className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                        <span
+                          className={`h-2 w-2 rounded-full ${
+                            item.gravedad === 'urgente'
+                              ? 'bg-rose-500'
+                              : item.gravedad === 'aviso'
+                              ? 'bg-amber-500'
+                              : 'bg-indigo-500'
+                          }`}
+                        />
+                        {item.titulo}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-600 leading-snug">
+                        {item.descripcion}
+                      </p>
+                      {item.enlace && (
+                        <Link
+                          href={item.enlace}
+                          className="mt-2.5 inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-800"
+                        >
+                          {item.etiquetaEnlace || 'Ver detalle'} <ArrowRight className="h-3 w-3" />
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tarjetas de Resumen */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
