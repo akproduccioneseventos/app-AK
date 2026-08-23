@@ -87,7 +87,7 @@ export function detectarErroresHumanos(
     // A) Contrato sin firmar faltando <= 30 días
     const tieneContrato = Boolean(
       fiesta.contratoFirmaInfo?.isSigned ||
-      fiesta.contratoGenerado?.fechaGeneracion ||
+      fiesta.contratoGenerado?.fecha ||
       fiesta.contratoServicioTexto
     );
     if (!tieneContrato && dias >= 0 && dias <= 30) {
