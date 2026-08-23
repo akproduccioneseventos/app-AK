@@ -12,11 +12,41 @@ import { getPublicInstagramFeed } from '@/lib/instagram/public-feed';
 import { classifyGalleryCategories } from '@/components/landing/gallery-media-utils';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
+import { publishPostInternal } from '@/lib/presencia-digital/publicador';
 
 const POSTS_FILE = 'social-posts.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const ASSETS_DIR_NAME = 'social-media-assets';
 const assetsDirectoryPath = path.join(DATA_DIR, ASSETS_DIR_NAME);
+
+export async function publicarPosteoAhoraAction(
+  postId: string
+): Promise<{ success: boolean; error?: string; message?: string }> {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
+
+  const result = await publishPostInternal(postId);
+  if (result.success) {
+    if (result.readyForManualCopy) {
+      return {
+        success: true,
+        message: 'La publicación quedó lista para copiar y publicar en la red elegida.',
+      };
+    }
+    return {
+      success: true,
+      message: `Publicado con éxito en: ${(result.publishedTo || []).join(', ')}`,
+    };
+  }
+
+  const failDetails = (result.failedPlatforms || [])
+    .map((f) => `${f.platform}: ${f.reason}`)
+    .join('; ');
+  return {
+    success: false,
+    error: failDetails || result.error || 'No se pudo publicar el posteo.',
+  };
+}
 
 type InstagramFeedPost = {
   id: string;

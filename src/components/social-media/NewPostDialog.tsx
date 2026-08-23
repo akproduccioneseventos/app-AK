@@ -180,7 +180,21 @@ export function NewPostDialog({
 
                 <form onSubmit={handleSubmit} className="space-y-4 py-2 max-h-[80vh] overflow-y-auto pr-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-1"><Label htmlFor="platform">Plataforma</Label><Select value={platform} onValueChange={(val) => setPlatform(val as SocialPlatform | 'WhatsApp')}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Instagram">Instagram</SelectItem><SelectItem value="Facebook">Facebook</SelectItem><SelectItem value="TikTok">TikTok</SelectItem><SelectItem value="WhatsApp">WhatsApp</SelectItem></SelectContent></Select></div>
+                        <div className="space-y-1">
+                            <Label htmlFor="platform">Plataforma</Label>
+                            <Select value={platform} onValueChange={(val) => setPlatform(val as SocialPlatform | 'WhatsApp')}>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Instagram">Instagram — Sale solo a la hora que elijas</SelectItem>
+                                    <SelectItem value="Facebook">Facebook — Sale solo a la hora que elijas</SelectItem>
+                                    <SelectItem value="TikTok">TikTok — Te lo dejamos listo para copiar</SelectItem>
+                                    <SelectItem value="WhatsApp">WhatsApp — Te lo dejamos listo para copiar</SelectItem>
+                                    <SelectItem value="Threads">Threads — Te lo dejamos listo para copiar</SelectItem>
+                                    <SelectItem value="X">X (Twitter) — Te lo dejamos listo para copiar</SelectItem>
+                                    <SelectItem value="Pinterest">Pinterest — Te lo dejamos listo para copiar</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div className="space-y-1"><Label htmlFor="publishDate">Fecha y Hora de Publicación</Label><Input id="publishDate" type="datetime-local" value={publishDate} onChange={e => setPublishDate(e.target.value)} required /></div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -194,7 +208,7 @@ export function NewPostDialog({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1"><Label htmlFor="link">Enlace (Opcional)</Label><Input id="link" value={link} onChange={e => setLink(e.target.value)} placeholder="https://ejemplo.com" /></div>
-                        <div className="space-y-1"><Label htmlFor="status">Estado</Label><Select value={status} onValueChange={(val) => setStatus(val as PostStatus)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Programado">Programado</SelectItem><SelectItem value="Publicado">Publicado</SelectItem></SelectContent></Select></div>
+                        <div className="space-y-1"><Label htmlFor="status">Estado</Label><Select value={status} onValueChange={(val) => setStatus(val as PostStatus)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Programado">Programado</SelectItem><SelectItem value="Publicado">Publicado</SelectItem><SelectItem value="Listo para copiar">Listo para copiar</SelectItem><SelectItem value="Borrador">Borrador</SelectItem></SelectContent></Select></div>
                     </div>
                      <div className="space-y-1">
                         <Label>Imagen o Video</Label>
@@ -206,22 +220,26 @@ export function NewPostDialog({
                      <Separator/>
 
                      {isWhatsAppSelected ? (
-                        <div className="p-3 border rounded-lg bg-card">
+                        <div className="p-3 border rounded-lg bg-green-50/60 border-green-200 text-green-950">
                             <div className="flex items-center justify-between">
                             <Label htmlFor="sendToWhatsApp" className="flex flex-col space-y-1">
                                 <span className="font-medium flex items-center gap-2">
-                                    <Send className="w-4 h-4 text-green-500"/> Abrir en WhatsApp al Guardar
+                                    <Send className="w-4 h-4 text-green-600"/> Abrir en WhatsApp al Guardar
                                 </span>
-                                <span className="text-xs font-normal leading-snug text-muted-foreground">
-                                    Generará un enlace para compartir el mensaje.
+                                <span className="text-xs font-normal leading-snug text-green-700">
+                                    Te deja el texto listo y abre WhatsApp para compartirlo en un estado o chat.
                                 </span>
                             </Label>
                             <Switch id="sendToWhatsApp" checked={sendToWhatsApp} onCheckedChange={setSendToWhatsApp} />
                             </div>
                         </div>
+                     ) : platform === 'Instagram' || platform === 'Facebook' ? (
+                         <div className="p-3 border rounded-lg bg-emerald-50/60 border-emerald-200 text-emerald-950">
+                            <p className="text-xs leading-relaxed"><span className="font-bold">Publicación automática:</span> {platform} se publicará de forma autónoma a la hora elegida usando la conexión configurada en Ajustes.</p>
+                        </div>
                      ) : (
-                         <div className="p-3 border rounded-lg bg-card text-muted-foreground">
-                           <p className="text-sm"><span className="font-medium text-foreground">Planifica tu contenido aquí.</span> Cuando sea el momento de publicar, simplemente copia el texto y la imagen para pegarlo en tu red social.</p>
+                         <div className="p-3 border rounded-lg bg-amber-50/60 border-amber-200 text-amber-950">
+                            <p className="text-xs leading-relaxed"><span className="font-bold">Listo para copiar:</span> Esta red no admite publicación automática desatendida. Te dejamos el texto y la foto listos para copiar y subir en 1 toque.</p>
                         </div>
                      )}
 

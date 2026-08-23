@@ -7,7 +7,7 @@ import { es } from 'date-fns/locale';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Facebook, Instagram, Music, MessageSquare, Youtube, AtSign, Twitter, Pin } from 'lucide-react';
+import { Facebook, Instagram, Music, MessageSquare, Youtube, AtSign, Twitter, Pin, Globe } from 'lucide-react';
 
 interface SocialMediaCalendarProps {
     posts: SocialPost[];
@@ -16,6 +16,7 @@ interface SocialMediaCalendarProps {
 const platformStyles: Record<SocialPlatform, string> = {
     Facebook: 'bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200',
     Instagram: 'bg-pink-100 text-pink-800 border-pink-300 hover:bg-pink-200',
+    Google: 'bg-sky-100 text-sky-800 border-sky-300 hover:bg-sky-200',
     TikTok: 'bg-gray-200 text-gray-900 border-gray-400 hover:bg-gray-300',
     WhatsApp: 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200',
     YouTube: 'bg-red-100 text-red-800 border-red-300 hover:bg-red-200',
@@ -27,6 +28,7 @@ const platformStyles: Record<SocialPlatform, string> = {
 const platformIcons: Record<SocialPlatform, React.ElementType> = {
     Facebook: Facebook,
     Instagram: Instagram,
+    Google: Globe,
     TikTok: Music,
     WhatsApp: MessageSquare,
     YouTube: Youtube,

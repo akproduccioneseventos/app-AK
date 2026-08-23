@@ -7,9 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, MessageCircle, Loader2, Send, Calendar, AlertTriangle, CheckCircle2, X } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, MessageCircle, Loader2, Send, Calendar, AlertTriangle, CheckCircle2, X, Edit3, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getScheduledMessages, markMessageAsSent, rescheduleMessage, cancelScheduledMessage } from '@/app/actions/scheduled-messages';
+import {
+  getScheduledMessages,
+  markMessageAsSent,
+  unmarkMessageAsSent,
+  rescheduleMessage,
+  cancelScheduledMessage,
+  updateScheduledMessageText,
+} from '@/app/actions/scheduled-messages';
+import { toWhatsAppNumber } from '@/lib/commercial/contact';
 import type { ScheduledMessage } from '@/types/whatsapp-automation';
 import { format, isToday, isPast, isFuture } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -30,6 +39,11 @@ export default function OutboxPage() {
     messageId: '',
     newDate: '',
   });
+  const [editDialog, setEditDialog] = useState<{ open: boolean; messageId: string; text: string }>({
+    open: false,
+    messageId: '',
+    text: '',
+  });
 
   const fetchMessages = useCallback(async () => {
     setIsLoading(true);
@@ -48,15 +62,14 @@ export default function OutboxPage() {
   }, [fetchMessages]);
 
   const handleSend = async (msg: ScheduledMessage) => {
-    const phone = msg.targetPhone?.replace(/\D/g, '') ?? '';
+    const phone = toWhatsAppNumber(msg.targetPhone);
 
-    // Sin telefono, WhatsApp abria sin destinatario y el mensaje igual quedaba
-    // marcado como enviado: la planilla decia que se aviso a alguien que nunca
-    // recibio nada. Mejor frenar y avisar que falta el contacto.
+    // Sin telefono valido uruguayo, WhatsApp abria un numero roto y el mensaje
+    // igual quedaba marcado como enviado. Bloqueamos y avisamos claro.
     if (!phone) {
       toast({
-        title: 'Falta el teléfono',
-        description: `${msg.targetName} no tiene un teléfono cargado. Agregalo y volvé a intentar.`,
+        title: 'Teléfono mal cargado',
+        description: `${msg.targetName} no tiene un celular uruguayo válido (${msg.targetPhone || 'vacío'}). Debe ser un número como 099 123 456. Corregilo en su ficha antes de enviar.`,
         variant: 'destructive',
       });
       return;
@@ -68,13 +81,21 @@ export default function OutboxPage() {
       toast({ title: 'Marcado como enviado', description: `Mensaje para ${msg.targetName} marcado como enviado.` });
       fetchMessages();
     } else {
-      // WhatsApp ya se abrio, pero el mensaje sigue figurando como pendiente.
-      // Si no se avisa, el equipo lo manda dos veces al mismo cliente.
       toast({
         title: 'Quedó como pendiente',
         description: `Se abrió WhatsApp, pero no se pudo marcar el mensaje de ${msg.targetName} como enviado. Marcalo a mano para no mandarlo dos veces.`,
         variant: 'destructive',
       });
+    }
+  };
+
+  const handleUnmarkSent = async (messageId: string) => {
+    const result = await unmarkMessageAsSent(messageId);
+    if (result.success) {
+      toast({ title: 'Revertido a pendiente', description: 'El mensaje volvió a figurar como pendiente.' });
+      fetchMessages();
+    } else {
+      toast({ title: 'Error al revertir', description: result.error || 'No se pudo revertir el estado.', variant: 'destructive' });
     }
   };
 
@@ -85,6 +106,28 @@ export default function OutboxPage() {
       toast({ title: 'Reprogramado', description: 'El mensaje fue reprogramado.' });
       setRescheduleDialog({ open: false, messageId: '', newDate: '' });
       fetchMessages();
+    } else {
+      toast({
+        title: 'Error al reprogramar',
+        description: result.error || 'No se pudo reprogramar el mensaje. Probá de nuevo.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleSaveEditedText = async () => {
+    if (!editDialog.text.trim()) return;
+    const result = await updateScheduledMessageText(editDialog.messageId, editDialog.text);
+    if (result.success) {
+      toast({ title: 'Mensaje actualizado', description: 'El texto del mensaje fue guardado.' });
+      setEditDialog({ open: false, messageId: '', text: '' });
+      fetchMessages();
+    } else {
+      toast({
+        title: 'Error al editar',
+        description: result.error || 'No se pudo actualizar el texto.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -118,7 +161,7 @@ export default function OutboxPage() {
         <p><span className="font-medium">Programado:</span> {format(new Date(msg.scheduledAt), "d MMM yyyy HH:mm", { locale: es })}</p>
         {msg.sentAt && <p><span className="font-medium">Enviado:</span> {format(new Date(msg.sentAt), "d MMM yyyy HH:mm", { locale: es })} por {msg.sentBy}</p>}
       </div>
-      <p className="text-sm bg-muted/50 rounded p-2 line-clamp-2">{msg.messageText}</p>
+      <p className="text-sm bg-muted/50 rounded p-2 line-clamp-3 whitespace-pre-wrap">{msg.messageText}</p>
       {(msg.fiestaId || msg.leadId) && (
         <Link
           href={msg.fiestaId ? `/fiestas/nueva?fiestaId=${msg.fiestaId}` : `/contabilidad/crm?leadId=${msg.leadId}`}
@@ -133,6 +176,10 @@ export default function OutboxPage() {
             <Send className="w-3.5 h-3.5 mr-1.5" />
             Enviar por WhatsApp
           </Button>
+          <Button size="sm" variant="outline" onClick={() => setEditDialog({ open: true, messageId: msg.id, text: msg.messageText })}>
+            <Edit3 className="w-3.5 h-3.5 mr-1.5" />
+            Editar texto
+          </Button>
           <Button size="sm" variant="outline" onClick={() => setRescheduleDialog({ open: true, messageId: msg.id, newDate: '' })}>
             <Calendar className="w-3.5 h-3.5 mr-1.5" />
             Reprogramar
@@ -140,6 +187,14 @@ export default function OutboxPage() {
           <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleCancel(msg.id)}>
             <X className="w-3.5 h-3.5 mr-1.5" />
             Cancelar
+          </Button>
+        </div>
+      )}
+      {msg.status === 'enviado' && (
+        <div className="pt-1">
+          <Button size="sm" variant="ghost" className="text-slate-600 text-xs gap-1.5 hover:text-slate-900" onClick={() => handleUnmarkSent(msg.id)}>
+            <RotateCcw className="w-3 h-3" />
+            En realidad no lo mandé
           </Button>
         </div>
       )}
@@ -249,6 +304,29 @@ export default function OutboxPage() {
               Cancelar
             </Button>
             <Button onClick={handleReschedule}>Confirmar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editDialog.open} onOpenChange={(open) => setEditDialog(d => ({ ...d, open }))}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Texto del Mensaje</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label>Texto para WhatsApp</Label>
+            <Textarea
+              rows={5}
+              value={editDialog.text}
+              onChange={e => setEditDialog(d => ({ ...d, text: e.target.value }))}
+              placeholder="Escribí el texto del mensaje..."
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialog({ open: false, messageId: '', text: '' })}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveEditedText}>Guardar cambios</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

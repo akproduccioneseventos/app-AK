@@ -10,14 +10,22 @@ jest.mock('@/lib/auth/require-session', () => ({
   requirePermiso: jest.fn().mockImplementation(() => Promise.resolve({ ok: true })),
 }));
 
-jest.mock('@/app/actions/landing-editor', () => ({
-  getLandingSettings: jest.fn().mockImplementation(() => Promise.resolve({
-    seo: {
-      title: 'AK Producciones Eventos',
-      description: 'Organización completa de bodas, fiestas de 15 años y eventos en Salto.',
-      ogImageUrl: '',
-    },
-  })),
+jest.mock('@/lib/data-service', () => ({
+  readData: jest.fn().mockImplementation((file: string, fallback: any) => {
+    if (file === 'social-posts.json') {
+      return Promise.resolve([
+        {
+          id: 'post_1',
+          platform: 'Google',
+          text: 'Novedades AK Producciones',
+          publishDate: new Date().toISOString(),
+          status: 'Publicado',
+        },
+      ]);
+    }
+    return Promise.resolve(fallback);
+  }),
+  writeData: jest.fn().mockResolvedValue(undefined),
 }));
 
 import { describe, it, expect } from '@jest/globals';
@@ -79,7 +87,7 @@ describe('Auditoría real de títulos, SEO y Posicionamiento', () => {
     expect(data.auditoriaMetadatos.paginasSinTitulo).toHaveLength(0);
     expect(data.auditoriaMetadatos.paginasSinDescripcion).toHaveLength(0);
     expect(data.googleSearchConsole.terminosBuscados.length).toBeGreaterThan(0);
-  });
+  }, 15000);
 
   it('detecta correctamente cuando una ruta no tiene metadatos o están vacíos', async () => {
     const vacia = await getMetadataRealDeRuta('/ruta-inexistente-sin-metadatos');

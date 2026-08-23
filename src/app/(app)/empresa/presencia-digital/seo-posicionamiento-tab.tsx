@@ -61,7 +61,15 @@ export function SeoPosicionamientoTab() {
     );
   }
 
-  const { paginasDeVentaTotal, notasDelBlogTotal, totalUrlsEnSitemap, ultimaNotaPublicada, auditoriaMetadatos, googleSearchConsole } = data;
+  const {
+    paginasDeVentaTotal,
+    notasDelBlogTotal,
+    totalUrlsEnSitemap,
+    ultimaNotaPublicada,
+    ultimaPublicacionGoogle,
+    auditoriaMetadatos,
+    googleSearchConsole,
+  } = data;
 
   return (
     <div className="space-y-6">
@@ -132,6 +140,30 @@ export function SeoPosicionamientoTab() {
             Direcciones públicas que Google lee y actualiza solo.
           </p>
         </div>
+      </div>
+
+      {/* Perfil de Empresa en Google (Google Business) */}
+      <div className="p-4 bg-slate-900/50 border border-slate-800/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
+        <div className="flex items-start gap-3">
+          <Globe className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+          <div>
+            <span className="text-xs text-slate-400 uppercase font-semibold">Perfil de Empresa en Google (Google Business):</span>
+            <p className="font-bold text-white text-sm">
+              {ultimaPublicacionGoogle
+                ? `Última publicación: ${new Date(ultimaPublicacionGoogle.fecha).toLocaleDateString('es-UY')}`
+                : 'Sin publicaciones en Google Business todavía'}
+            </p>
+            <p className="text-xs text-slate-400">
+              Publicar novedades y fotos de eventos ayuda a aparecer en los primeros resultados locales y Google Maps en Salto.
+            </p>
+          </div>
+        </div>
+        <a
+          href="/empresa/redes-sociales"
+          className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-semibold shrink-0 flex items-center gap-1.5 transition"
+        >
+          Planificador de Redes <ExternalLink className="w-3 h-3" />
+        </a>
       </div>
 
       {/* Última nota publicada */}

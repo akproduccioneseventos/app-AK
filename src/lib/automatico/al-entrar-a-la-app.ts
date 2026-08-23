@@ -132,9 +132,15 @@ export async function ponerAlDiaAlEntrar(
       {
         nombre: 'recordatorios',
         correr: async () => {
-          // Deja los avisos de cuota vencida en la bandeja de salida. No manda nada.
+          // 1. Deja los avisos de cuota vencida en la bandeja de salida. No manda nada.
           const { ejecutarEscaneoDeRecordatorios } = await import('@/app/actions/invoices');
-          return ejecutarEscaneoDeRecordatorios();
+          // 2. Revisa agenda de reuniones para avisar al equipo (1 hora antes / hoy)
+          const { checkAndCreateReunionReminders } = await import('@/app/actions/notifications');
+          const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
+          return Promise.all([
+            ejecutarEscaneoDeRecordatorios().catch(() => null),
+            checkAndCreateReunionReminders(WHATSAPP_AUTOMATION_INTERNAL_TOKEN).catch(() => null),
+          ]);
         },
       },
     ];

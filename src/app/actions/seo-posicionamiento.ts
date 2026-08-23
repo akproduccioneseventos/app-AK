@@ -5,6 +5,9 @@ import { PAGINAS_PARA_GOOGLE } from '@/lib/seo/paginas-publicas';
 import { blogPosts } from '@/data/blog-posts';
 import { getMetadataRealDeRuta } from '@/lib/seo/auditoria-metadatos';
 
+import { readData } from '@/lib/data-service';
+import type { SocialPost } from '@/types/social-media';
+
 export interface ResumenSeoPosicionamiento {
   paginasDeVentaTotal: number;
   notasDelBlogTotal: number;
@@ -13,6 +16,11 @@ export interface ResumenSeoPosicionamiento {
     titulo: string;
     fecha: string;
     slug: string;
+  };
+  ultimaPublicacionGoogle?: {
+    fecha: string;
+    texto: string;
+    estado: string;
   };
   auditoriaMetadatos: {
     paginasAuditadas: number;
@@ -68,6 +76,11 @@ export async function getSeoPosicionamientoData(): Promise<ResumenSeoPosicionami
     process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
   );
 
+  // 4. Última publicación en Google Business
+  const posts = await readData<SocialPost[]>('social-posts.json', []).catch(() => []);
+  const googlePosts = posts.filter(p => p.platform === 'Google');
+  const ultimoPostGoogle = googlePosts.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime())[0];
+
   return {
     paginasDeVentaTotal: paginasVenta.length,
     notasDelBlogTotal: todasLasNotas.length,
@@ -77,6 +90,13 @@ export async function getSeoPosicionamientoData(): Promise<ResumenSeoPosicionami
           titulo: ultimaNota.title,
           fecha: ultimaNota.publishedAt || 'Reciente',
           slug: ultimaNota.slug,
+        }
+      : undefined,
+    ultimaPublicacionGoogle: ultimoPostGoogle
+      ? {
+          fecha: ultimoPostGoogle.publishDate,
+          texto: ultimoPostGoogle.text,
+          estado: ultimoPostGoogle.status,
         }
       : undefined,
     auditoriaMetadatos: {

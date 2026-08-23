@@ -15,6 +15,7 @@ import { getFiestas } from './fiesta/fiesta.actions';
 import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'date-fns';
 import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
 import { NOTIFICATION_INTERNAL_TOKEN } from '@/lib/notifications/internal-token';
+import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
 const NOTIFICATIONS_FILE = 'notifications.json';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
@@ -78,13 +79,17 @@ export async function getNotifications(): Promise<Notificacion[]> {
 export async function createNotification(
   data: Omit<Notificacion, 'id' | 'fecha' | 'leida'>,
   internalToken?: symbol
-): Promise<{ success: boolean; notification?: Notificacion; error?: string }> {
-  if (internalToken !== NOTIFICATION_INTERNAL_TOKEN && !(await hasAppSession())) {
+): Promise<{ success: boolean; notification?: Notificacion; error?: string; isDuplicate?: boolean }> {
+  if (
+    internalToken !== NOTIFICATION_INTERNAL_TOKEN &&
+    internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN &&
+    !(await hasAppSession())
+  ) {
     throw new Error('Creacion de notificacion no autorizada.');
   }
   try {
     const existing = isRecentDuplicateNotification(await getNotificationsInternal(), data);
-    if (existing) return { success: true, notification: existing };
+    if (existing) return { success: true, notification: existing, isDuplicate: true };
   } catch {
     // If duplicate lookup fails, continue with the normal create path.
   }
@@ -104,30 +109,22 @@ export async function createNotification(
       newNotification.id
     );
     if (firestoreResult.success) {
-      return { success: true, notification: newNotification };
+      return { success: true, notification: newNotification, isDuplicate: false };
     }
   } catch (e) {
-    console.warn('Firestore unavailable for createNotification, falling back to local file:', e);
+    console.warn('Firestore unavailable for createNotification, saving locally:', e);
   }
 
-  // Fallback: local JSON file with deduplication
+  // Fallback: local JSON file
   try {
-    const notifications = await getNotificationsFromLocal();
-
-    const existingNotification = notifications.find(
-      n => n.mensaje === data.mensaje && new Date(n.fecha) > new Date(Date.now() - 24 * 60 * 60 * 1000)
-    );
-    if (existingNotification) {
-      return { success: true, notification: existingNotification };
-    }
-
-    notifications.unshift(newNotification);
-    const limited = notifications.slice(0, MAX_LOCAL_NOTIFICATIONS);
-    await writeData(NOTIFICATIONS_FILE, limited);
-    return { success: true, notification: newNotification };
-  } catch (e: any) {
-    console.error('Error creating notification:', e);
-    return { success: false, error: 'No se pudo crear la notificación.' };
+    const notifications = await readData<Notificacion[]>(NOTIFICATIONS_FILE, []);
+    const safeList = Array.isArray(notifications) ? notifications : [];
+    const updated = [newNotification, ...safeList].slice(0, MAX_LOCAL_NOTIFICATIONS);
+    await writeData(NOTIFICATIONS_FILE, updated);
+    return { success: true, notification: newNotification, isDuplicate: false };
+  } catch (e) {
+    console.error('Error writing local notifications file:', e);
+    return { success: false, error: 'No se pudo guardar la notificación' };
   }
 }
 
@@ -271,50 +268,77 @@ export async function checkAndCreateTaskReminders(): Promise<{ success: boolean;
     }
 }
 
-export async function checkAndCreateReunionReminders(): Promise<{ success: boolean; created: number }> {
-  await requireAppSession();
-    try {
-        const fiestasActivas = await getFiestas(false);
-        if (!fiestasActivas || fiestasActivas.length === 0) {
-            return { success: true, created: 0 };
-        }
-
-        const today = startOfToday();
-        let createdCount = 0;
-        
-        for (const fiesta of fiestasActivas) {
-            if (!fiesta.reuniones) continue;
-
-            for (const reunion of fiesta.reuniones) {
-                if (!reunion.fecha) continue;
-                
-                const meetingDate = new Date(reunion.fecha);
-                const daysUntilMeeting = differenceInDays(meetingDate, today);
-
-                if (daysUntilMeeting >= 0 && daysUntilMeeting <= 1) { // Reminder for today or tomorrow
-                    let mensaje = '';
-                     if(isToday(meetingDate)) {
-                        mensaje = `🤝 Reunión HOY: "${reunion.titulo}" (${fiesta.configuracion.nombreEvento}) a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
-                    } else {
-                        mensaje = `🤝 Reunión Mañana: "${reunion.titulo}" (${fiesta.configuracion.nombreEvento}) a las ${new Date(reunion.fecha).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
-                    }
-                    
-                    const result = await createNotification({
-                        mensaje,
-                        href: `/fiestas/nueva/reuniones?fiestaId=${fiesta.id}`,
-                        icono: 'MessageSquareText',
-                    });
-                    if(result.success && result.notification?.id.startsWith('notif_')) {
-                      createdCount++;
-                    }
-                }
-            }
-        }
-        return { success: true, created: createdCount };
-    } catch(e) {
-        console.error("Failed to check and create meeting reminders:", e);
-        return { success: false, created: 0 };
+export async function checkAndCreateReunionReminders(
+  internalToken?: symbol
+): Promise<{ success: boolean; created: number }> {
+  if (internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN) {
+    await requireAppSession();
+  }
+  try {
+    const fiestasActivas = await getFiestas(false);
+    if (!fiestasActivas || fiestasActivas.length === 0) {
+      return { success: true, created: 0 };
     }
+
+    const now = new Date();
+    const today = startOfToday();
+    let createdCount = 0;
+
+    for (const fiesta of fiestasActivas) {
+      if (!fiesta.reuniones) continue;
+
+      for (const reunion of fiesta.reuniones) {
+        if (!reunion.fecha) continue;
+
+        const meetingDate = new Date(reunion.fecha);
+        const diffMinutes = (meetingDate.getTime() - now.getTime()) / (1000 * 60);
+        const daysUntilMeeting = differenceInDays(meetingDate, today);
+
+        const lugar = (reunion as any).lugar || fiesta.configuracion.nombreLugar || '';
+        const lugarStr = lugar ? ` en ${lugar}` : '';
+        const contacto = (reunion as any).conQuien || (fiesta.configuracion as any).nombreCliente || fiesta.configuracion.protagonista1Nombre || fiesta.configuracion.nombreEvento;
+
+        // 1. Alerta prioritaria: En 1 hora (entre 0 y 75 minutos antes)
+        if (diffMinutes > 0 && diffMinutes <= 75) {
+          const mensaje = `⏰ Reunión en 1 hora: "${reunion.titulo}" con ${contacto}${lugarStr} a las ${meetingDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
+          const result = await createNotification(
+            {
+              mensaje,
+              href: `/fiestas/nueva/reuniones?fiestaId=${fiesta.id}`,
+              icono: 'CalendarClock',
+            },
+            internalToken
+          );
+          if (result.success && !result.isDuplicate) {
+            createdCount++;
+          }
+        }
+
+        // 2. Recordatorio general para hoy o mañana
+        if (daysUntilMeeting >= 0 && daysUntilMeeting <= 1) {
+          const mensaje = isToday(meetingDate)
+            ? `🤝 Reunión HOY: "${reunion.titulo}" con ${contacto}${lugarStr} a las ${meetingDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`
+            : `🤝 Reunión Mañana: "${reunion.titulo}" con ${contacto}${lugarStr} a las ${meetingDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}hs.`;
+
+          const result = await createNotification(
+            {
+              mensaje,
+              href: `/fiestas/nueva/reuniones?fiestaId=${fiesta.id}`,
+              icono: 'MessageSquareText',
+            },
+            internalToken
+          );
+          if (result.success && !result.isDuplicate) {
+            createdCount++;
+          }
+        }
+      }
+    }
+    return { success: true, created: createdCount };
+  } catch (e) {
+    console.error("Failed to check and create meeting reminders:", e);
+    return { success: false, created: 0 };
+  }
 }
 
 export async function checkAndCreateEventAlerts(): Promise<{ success: boolean; created: number }> {

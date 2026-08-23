@@ -26,8 +26,8 @@ import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 import { addGaleriaFoto, addGaleriaVideo, deleteGaleriaItem, getGaleriaItems } from '@/app/actions/galeria';
 import type { GaleriaFoto, GaleriaVideo } from '@/types/galeria';
 import { GALERIA_CATEGORIAS, SERVICIOS_GALERIA, TIPOS_FIESTA_GALERIA } from '@/types/galeria';
-import type { LandingSettings, LandingStatItem, LandingFaqItem, LandingServiceItem } from '@/types/landing-editor';
-import { defaultLandingSettings } from '@/types/landing-editor';
+import type { LandingSettings, LandingStatItem, LandingFaqItem, LandingServiceItem, LandingThemeModel } from '@/types/landing-editor';
+import { defaultLandingSettings, LANDING_THEME_PRESETS } from '@/types/landing-editor';
 
 /**
  * Sanitizes a URL to ensure it uses only http(s) protocol.
@@ -134,6 +134,7 @@ export default function LandingEditorPage() {
   const [fotoCategoria, setFotoCategoria] = useState<string>('General');
   const [fotoTitulo, setFotoTitulo] = useState('');
   const [isUploadingFotoGaleria, setIsUploadingFotoGaleria] = useState(false);
+  const [previousSettings, setPreviousSettings] = useState<LandingSettings | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
   const [videoTitulo, setVideoTitulo] = useState('');
   const [videoDescripcion, setVideoDescripcion] = useState('');
@@ -1090,6 +1091,81 @@ export default function LandingEditorPage() {
               <CardDescription>Personalizá la paleta de colores de tu landing page.</CardDescription>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
+              {/* Selector de Modelos de Portada */}
+              <div className="space-y-4 pt-2 border-b pb-6 border-slate-100">
+                <div>
+                  <Label className="text-xs font-black uppercase tracking-widest text-slate-700">
+                    Modelos de Portada para Elegir
+                  </Label>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Elegí el vestido visual de tu web. Los textos, fotos y el posicionamiento en Google se mantienen 100% intactos.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {(Object.keys(LANDING_THEME_PRESETS) as LandingThemeModel[]).map((key) => {
+                    const preset = LANDING_THEME_PRESETS[key];
+                    const isSelected = settings.themeModel === key;
+                    return (
+                      <div
+                        key={key}
+                        className={`border rounded-2xl p-4 transition-all cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? 'border-primary ring-2 ring-primary/30 bg-primary/5 shadow-md'
+                            : 'border-slate-200 hover:border-slate-300 bg-white'
+                        }`}
+                        onClick={() => {
+                          setPreviousSettings(settings);
+                          setSettings(s => ({
+                            ...s,
+                            themeModel: key,
+                            colors: { ...preset.colors },
+                            hero: { ...s.hero, badgeText: preset.heroBadge },
+                          }));
+                          toast({
+                            title: `Modelo "${preset.name}" aplicado`,
+                            description: 'Guardá los cambios para publicarlo en la web.',
+                          });
+                        }}
+                      >
+                        <div className="space-y-2">
+                          <div
+                            className="h-16 rounded-xl border border-slate-100 flex items-center justify-center text-white text-xs font-black uppercase tracking-wider"
+                            style={{
+                              background: `linear-gradient(135deg, ${preset.colors.overlayFrom}, ${preset.colors.overlayTo})`,
+                            }}
+                          >
+                            {preset.name}
+                          </div>
+                          <p className="text-xs text-slate-600 leading-snug">{preset.description}</p>
+                        </div>
+                        <div className="pt-3">
+                          <Badge variant={isSelected ? 'default' : 'outline'} className="w-full justify-center text-[10px] py-1">
+                            {isSelected ? 'Modelo Activo' : 'Elegir este modelo'}
+                          </Badge>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {previousSettings && (
+                  <div className="pt-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-slate-600 hover:text-slate-900"
+                      onClick={() => {
+                        setSettings(previousSettings);
+                        setPreviousSettings(null);
+                        toast({ title: 'Modelo anterior restaurado' });
+                      }}
+                    >
+                      ↩ Volver al modelo anterior
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               {/* Color preview */}
               <div
                 className="w-full h-28 rounded-2xl border border-slate-200 transition-all"

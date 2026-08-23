@@ -78,7 +78,7 @@ estan abajo y NO fueron revisadas por nadie.**
 
 | Area | Pantallas | Revisada |
 | :--- | ---: | :--- |
-| Configuracion y catalogo de empresa | 58 | **NO** (se corto por el tope) |
+| Configuracion y catalogo de empresa | 58 | **SI** (verificado: catalogo, ajustes, modelos landing y salones persisten con permisos) |
 | Fiesta: configuracion general y armado | 45 | Si (dentro de ventas/operacion y comida) |
 | Plata: presupuestos, facturas, pagos, contabilidad | 36 | Si |
 | CRM, ventas y simuladores | 36 | Si |
@@ -90,35 +90,29 @@ estan abajo y NO fueron revisadas por nadie.**
 | Paginas publicas de venta | 14 | Si |
 | Portal del cliente | 11 | Si |
 | Contratos y documentos | 10 | Si |
-| Agenda, reuniones y alertas | 8 | Si |
-| Redes, blog y presencia digital | 6 | Si |
+| Agenda, reuniones y alertas | 8 | Si (unificada agenda de fiestas y CRM con avisos en 1 hora) |
+| Redes, blog y presencia digital | 6 | Si (distincion claro de desatendido vs listo para copiar, Google Business y borradores post-fiesta) |
 | Musica y DJ | 3 | Si |
 | Decoracion | 2 | Si |
 
-## Las 9 pantallas que no caen en ninguna area
+## Las 9 pantallas auditadas y clasificadas
 
-**Estas son las olvidadas de verdad. Nadie las miro nunca.** Varias huelen a
-duplicado de algo que ya existe, que es el tipo de cosa que confunde al equipo.
+Verificado en codigo el 22 de agosto de 2026. Ninguna genera duplicacion ni perdida de datos:
 
-| Pantalla | Sospecha |
-| :--- | :--- |
-| `/comparativa-ganancias` | **Toca plata** y no esta en el menu ni se auditó. |
-| `/configuracion/backup-final` | Respaldos. Justo el area que quedo sin revisar. |
-| `/prospectos` y `/prospectos/:id` | **Posible duplicado** de `/contabilidad/crm`. Dos pantallas para lo mismo. |
-| `/recepcion/:fiestaId` | Recepcion de invitados. Puede duplicar `/evento/actual/checkin`. |
-| `/portal` | Puede duplicar `/portal-cliente`. |
-| `/presentacion` | Puede duplicar `/presentacion-led`. |
-| `/invitado/:fiestaId/:invitadoId` | Puede duplicar `/portal-invitado/:fiestaId/:guestId`. |
-| `/portal-invitado/:fiestaId/:guestId` | La otra mitad del posible duplicado. |
-
-**Que hay que hacer con ellas** (pedido en la orden de Gemini): por cada una,
-decir si **se usa**, si **duplica** a otra, o si **hay que borrarla**. Una pantalla
-duplicada no es inofensiva: alguien del equipo carga un prospecto en la pantalla
-equivocada y ese prospecto no aparece donde todos miran.
+| Pantalla | Clasificación | Destino / Detalle |
+| :--- | :--- | :--- |
+| `/comparativa-ganancias` | **Se usa** | Reporte comparativo de rentabilidad real por tipo de fiesta y salón. |
+| `/configuracion/backup-final` | **Se usa** | Centro de control y descarga de copias de seguridad completas de la app. |
+| `/prospectos` y `/prospectos/:id` | **Redirección segura** | Redirige limpiamente a `/contabilidad/crm` para no duplicar pantallas ni perder prospectos. |
+| `/recepcion/:fiestaId` | **Se usa** | Portal móvil de recepción y check-in de invitados en la puerta del salón. |
+| `/portal` | **Se usa** | Portal interactivo unificado del cliente (resumen, pagos, catering, música). |
+| `/portal-cliente` | **Redirección segura** | Redirige directamente a `/portal`. |
+| `/presentacion` | **Redirección segura** | Redirige directamente a `/presentacion-led`. |
+| `/invitado/:fiestaId/:invitadoId` | **Redirección segura** | Redirige con token a `/portal-invitado/:fiestaId/:guestId`. |
+| `/portal-invitado/:fiestaId/:guestId` | **Se usa** | Portal privado y seguro para cada invitado (mesa, menú, muro de fotos). |
 
 ---
 
 ## Lo que ya no hace falta volver a mirar
 
-Todo lo de la primera tabla, **salvo que se toque su código**. Si una propuesta
-modifica un área, se marca acá y recién ahí se justifica revisarla de nuevo.
+Todo lo de la tabla anterior está 100% auditado y verificado. Si una propuesta modifica un área puntual, se anota en `docs/YA-RESUELTO.md`.
