@@ -102,12 +102,12 @@ export function auditarAnuncioConIA(opciones: OpcionesAuditoria): AuditoriaAnunc
   // CÁLCULO DEL PUNTAJE GLOBAL
   const puntajeGlobal = Math.round((puntajeGancho * 0.35 + puntajeNeuro * 0.35 + puntajeOferta * 0.3) * 10) / 10;
 
-  // GENERAR RESUMEN DIAGNÓSTICO SINCERO (ANTI-META)
+  // Resumen basado en reglas de claridad, emocion y cierre.
   let diagnosticoResumen = '';
   if (puntajeGlobal >= 8.5) {
-    diagnosticoResumen = '¡Excelente anuncio! Tiene gancho claro, emoción y baja fricción. El algoritmo de Meta te pediría más plata, pero este copy ya está optimizado para convertir con tu presupuesto actual.';
+    diagnosticoResumen = 'El anuncio reúne buenas señales de claridad: presenta un gancho, conecta con una necesidad y propone un siguiente paso concreto. Probalo con una campaña pequeña y medí los resultados reales.';
   } else if (puntajeGlobal >= 6) {
-    diagnosticoResumen = 'El anuncio tiene potencial pero pierde clientes en el gancho o en el cierre. Corrigiendo el primer renglón y el llamado a la acción vas a duplicar los contactos sin poner un peso extra en Meta.';
+    diagnosticoResumen = 'El anuncio tiene potencial, pero el gancho o el cierre pueden ser más claros. La versión sugerida busca facilitar la lectura; el resultado real debe confirmarse con las métricas de la campaña.';
   } else {
     diagnosticoResumen = 'El anuncio está quemando presupuesto porque parece un folleto tradicional. Meta te diría "invertí el doble", pero el problema real es que el texto aburre y la gente sigue de largo. Abajo tenés la versión reescrita lista para usar.';
   }

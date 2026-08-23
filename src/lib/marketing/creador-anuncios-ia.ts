@@ -7,6 +7,7 @@ import type {
   SugerenciaVisual,
   PublicoObjetivoSugerido,
 } from './creador-anuncios-tipos';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface OpcionesGeneracion {
   tipoEvento: TipoEventoAnuncio;
@@ -37,7 +38,7 @@ const PLANTILLAS_EVENTOS: Record<
       '¿Presupuesto cerrado sin sorpresas? Así organizamos los 15 soñados en Salto',
     ],
     copys: [
-      `Sabemos que planear los 15 de tu hija es una mezcla hermosa de emoción y mil detalles por resolver. 💖\n\nEn AK Producciones nos encargamos de TODO para que ustedes sólo disfruten:\n✨ Salones exclusivos ambientados a su estilo\n🎧 DJ y pista LED de última generación para que no paren de bailar\n📸 Cobertura fotográfica y video cinematográfico\n🍹 Barra de tragos sin alcohol y catering premium\n\n👉 Entrá al simulador interactivo y armá su propuesta personalizada en 2 minutos sin compromiso.`,
+      `Sabemos que planear los 15 de tu hija es una mezcla hermosa de emoción y muchos detalles por resolver. 💖\n\nEn AK Producciones podés armar una propuesta integral y elegir los servicios que mejor encajan con su fiesta:\n✨ Salón y ambientación\n🎧 Música, iluminación y pista\n📸 Fotografía y video\n🍹 Barra de tragos y catering\n\n👉 Entrá al simulador interactivo y armá una propuesta personalizada sin compromiso.`,
       `El verdadero valor de una fiesta de 15 no está en los cables ni en las luces: está en la cara de felicidad de tu hija cuando entra al salón y ve a toda su gente esperándola. ✨👑\n\nDejá la logística, el sonido, la pantalla gigante y la coordinación en manos de profesionales.\n\n📱 Hacé clic y chateá con nuestro equipo para congelar la fecha y recibir una propuesta a medida.`,
     ],
     llamadosAccion: ['Armar Presupuesto Online', 'Consultar Disponibilidad de Fecha', 'Ver Fotos y Salones en WhatsApp'],
@@ -188,7 +189,7 @@ const PLANTILLAS_EVENTOS: Record<
       '¿Tu empresa busca salón y técnica integral para su próximo evento?',
     ],
     copys: [
-      `La imagen de tu empresa se refleja en cada evento. Desde conferencias y presentaciones de producto hasta la gran fiesta de fin de año. 💼🏆\n\nEn AK Producciones te garantizamos:\n📽️ Pantallas LED gigantes y microfonía profesional\n🍽️ Servicio de coffee break y catering corporativo\n🏛️ Salones acústicos y climatizados\n🧾 Facturación oficial con RUT y contratos formales\n\n👉 Solicitá tu propuesta corporativa al instante.`,
+      `La imagen de tu empresa se refleja en cada evento. Desde conferencias y presentaciones de producto hasta la fiesta de fin de año. 💼🏆\n\nEn AK Producciones podés solicitar una propuesta que combine técnica, catering, salón y coordinación según las necesidades reales de tu evento.\n\n👉 Consultá disponibilidad y recibí una propuesta corporativa detallada.`,
     ],
     llamadosAccion: ['Solicitar Propuesta Corporativa', 'Agendar Visita a Salón', 'Contactar Ejecutivo Comercial'],
     sugerenciasVisuales: [
@@ -218,8 +219,8 @@ const PLANTILLAS_EVENTOS: Record<
           {
             segundo: '5-10s',
             visual: 'Catering corporativo, sonido nítido y ejecutivos conversando cómodos.',
-            textoPantalla: 'Técnica + Salón + Catering con factura formal 💼',
-            audioLocucion: 'Técnica de última generación, salones acústicos y facturación formal con RUT.',
+            textoPantalla: 'Técnica + Salón + Catering en una propuesta 💼',
+            audioLocucion: 'Combiná técnica, salón y catering según las necesidades de tu evento.',
           },
           {
             segundo: '11-15s',
@@ -235,10 +236,10 @@ const PLANTILLAS_EVENTOS: Record<
     ganchos: [
       '🔥 Promo Anticipada: Congelá el precio de tu fiesta hoy y asegurá tu fecha para 2026/2027',
       '¿Querés servicios bonificados de regalo en tu fiesta? Mirá esta promo por tiempo limitado 🎁',
-      'El momento de reservar tu salón es hoy: precios congelados y financiación a medida',
+      'Consultá las condiciones vigentes para reservar tu fecha',
     ],
     copys: [
-      `Sabemos que la inflación hace que los precios suban todos los meses. Si reservás tu fecha este mes en AK Producciones, te congelamos el 100% de la técnica y el salón. 🛡️✨\n\nAdemás, con esta promo te llevás:\n🎁 Barra de tragos o pista LED con bonificación especial\n💳 Financiación en cuotas fijas hasta el día de tu evento\n🤝 Contrato garantizado y asesoría personalizada\n\n⚠️ Cupos limitados por calendario. ¡No dejes que te ganen la fecha!`,
+      `¿Tenés una promoción activa para una fecha o servicio específico? Cargá abajo el beneficio y la bonificación reales para preparar un anuncio claro. 🛡️✨\n\nLa publicación llevará a la persona al simulador o al contacto de AK para que confirme disponibilidad, condiciones y servicios antes de reservar.`,
     ],
     llamadosAccion: ['Congelar Precio Ahora', 'Consultar Cupos de Promo', 'Reclamar Bonificación'],
     sugerenciasVisuales: [
@@ -269,7 +270,7 @@ const PLANTILLAS_EVENTOS: Record<
             segundo: '4-8s',
             visual: 'Fiesta con luces, barra y gente disfrutando.',
             textoPantalla: 'Congelá hoy y pagá en cuotas fijas 🎁',
-            audioLocucion: 'Reservá tu fecha hoy, congelá el precio y llevate servicios bonificados.',
+            audioLocucion: 'Consultá las condiciones vigentes y prepará una propuesta para tu fecha.',
           },
           {
             segundo: '9-12s',
@@ -293,15 +294,17 @@ export function generarAnuncioCompleto(opciones: OpcionesGeneracion): AnuncioGen
   const visual = plantilla.sugerenciasVisuales[0] || { tipoImagen: 'Foto real', elementosRecomendados: [], textoSuperpuesto: '' };
 
   // Construir URL de destino inteligente (Embudo Invisible)
-  let enlaceDestino = 'https://akproducciones.uy/simulador';
+  let enlaceDestino = 'https://akproducciones.uy/simulador-de-presupuesto';
   if (opciones.objetivo === 'whatsapp') {
-    const telefono = opciones.contactoWhatsApp || '59899123456';
+    const telefono = opciones.contactoWhatsApp?.replace(/\D/g, '') || AK_WHATSAPP_NUMBER;
     const mensajeWpp = encodeURIComponent(
       `Hola AK Producciones! Vi su anuncio para ${opciones.tipoEvento.replace('_', ' ')} y me gustaría recibir una propuesta.`
     );
     enlaceDestino = `https://wa.me/${telefono}?text=${mensajeWpp}`;
   } else if (opciones.objetivo === 'simulador') {
-    enlaceDestino = `https://akproducciones.uy/simulador?origen=ad_${opciones.tipoEvento}`;
+    enlaceDestino = `https://akproducciones.uy/simulador-de-presupuesto?source=ad_${opciones.tipoEvento}`;
+  } else if (opciones.objetivo === 'reunion') {
+    enlaceDestino = `https://akproducciones.uy/simulador-de-presupuesto?source=ad_${opciones.tipoEvento}&intent=reunion`;
   }
 
   // Personalización por tono

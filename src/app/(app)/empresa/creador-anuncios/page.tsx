@@ -112,7 +112,9 @@ export default function CreadorAnunciosPage() {
       const res = await guardarAnuncio(anuncio);
       if (res.success) {
         toast({ title: 'Guardado', description: 'El anuncio se guardó en tu biblioteca.' });
-        loadGuardados();
+        void loadGuardados();
+      } else {
+        throw new Error(res.error || 'No se pudo guardar el anuncio.');
       }
     } catch (e: any) {
       toast({ title: 'Error al guardar', description: e.message, variant: 'destructive' });
@@ -125,7 +127,9 @@ export default function CreadorAnunciosPage() {
       const res = await eliminarAnuncioGuardado(id);
       if (res.success) {
         toast({ title: 'Eliminado', description: 'El anuncio fue quitado de tu biblioteca.' });
-        loadGuardados();
+        void loadGuardados();
+      } else {
+        throw new Error(res.error || 'No se pudo eliminar el anuncio.');
       }
     } catch (e: any) {
       toast({ title: 'Error', description: e.message, variant: 'destructive' });
@@ -158,9 +162,13 @@ export default function CreadorAnunciosPage() {
   };
 
   // Copiar al portapapeles
-  const copiarTexto = (txt: string, label: string) => {
-    navigator.clipboard.writeText(txt);
-    toast({ title: 'Copiado al portapapeles', description: label });
+  const copiarTexto = async (txt: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(txt);
+      toast({ title: 'Copiado al portapapeles', description: label });
+    } catch {
+      toast({ title: 'No se pudo copiar', description: 'Seleccioná el texto y copialo manualmente.', variant: 'destructive' });
+    }
   };
 
   return (
@@ -173,7 +181,7 @@ export default function CreadorAnunciosPage() {
           </div>
           <div>
             <h1 className="text-3xl font-black tracking-tight font-headline text-slate-950">
-              Estudio de Anuncios & Auditoría IA
+              Estudio de anuncios y auditoría guiada
             </h1>
             <p className="text-sm text-slate-500">
               Creación con neuroventas estilo Zeely y optimizador de campañas sin gastar de más.
@@ -195,7 +203,7 @@ export default function CreadorAnunciosPage() {
             <Wand2 className="w-4 h-4" /> Creador 1-Clic
           </TabsTrigger>
           <TabsTrigger value="auditor" className="font-bold gap-2 text-xs sm:text-sm">
-            <SearchCheck className="w-4 h-4" /> Auditor Anti-Meta
+            <SearchCheck className="w-4 h-4" /> Auditor de claridad
           </TabsTrigger>
           <TabsTrigger value="guardados" className="font-bold gap-2 text-xs sm:text-sm">
             <Layers className="w-4 h-4" /> Guardados ({guardados.length})
@@ -215,7 +223,7 @@ export default function CreadorAnunciosPage() {
                     <Target className="w-4 h-4 text-rose-600" /> Configurar tu Campaña
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    Elegí qué querés promocionar y la IA armará todo con neuroventas.
+                    Elegí qué querés promocionar y el asistente preparará una base editable.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-5 pt-0 space-y-4 text-xs">
@@ -291,7 +299,7 @@ export default function CreadorAnunciosPage() {
                     className="w-full h-11 bg-rose-600 hover:bg-rose-700 text-white font-bold gap-2 rounded-xl"
                   >
                     {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
-                    Generar Anuncio Completo con IA
+                    Generar propuesta de anuncio
                   </Button>
                 </CardFooter>
               </Card>
@@ -420,7 +428,7 @@ export default function CreadorAnunciosPage() {
                     <SearchCheck className="w-4 h-4 text-indigo-600" /> Pegá tu Anuncio Activo
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    La IA analizará por qué no está convirtiendo y te dará la versión corregida sin pedirte más plata.
+                    El asistente revisará claridad, gancho y llamado a la acción. La mejora real se confirma con las métricas de cada campaña.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-5 pt-0 space-y-4 text-xs">
@@ -457,12 +465,12 @@ export default function CreadorAnunciosPage() {
                     className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-bold gap-2 rounded-xl"
                   >
                     {isAuditing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                    Auditar con IA y Obtener Versión Mejorada
+                    Revisar y obtener una versión sugerida
                   </Button>
                 </CardFooter>
               </Card>
 
-              {/* Banner de Por Qué Falla la IA de Meta */}
+              {/* Orientacion para interpretar la revision. */}
               <Card className="border-amber-200 bg-amber-50/70 shadow-sm">
                 <CardContent className="p-5 space-y-2 text-xs text-amber-900">
                   <h4 className="font-bold flex items-center gap-1.5">

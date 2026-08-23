@@ -37,7 +37,7 @@ export async function requireAdminSession(): Promise<{ ok: true } | { ok: false;
  */
 export async function requirePermiso(
   permiso: Permiso,
-): Promise<{ ok: true; user: { email?: string; role?: string; perfil?: string } } | { ok: false; error: string }> {
+): Promise<{ ok: true; user: { userId?: string; email?: string; role?: string; perfil?: string } } | { ok: false; error: string }> {
   const session = await verifySession();
   if (!session.success) return { ok: false, error: session.error || 'Sesion no autorizada.' };
 

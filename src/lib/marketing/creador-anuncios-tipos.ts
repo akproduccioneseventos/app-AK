@@ -5,7 +5,7 @@ export type TipoEventoAnuncio =
   | 'empresarial'
   | 'promocion_temporada';
 
-export type ObjetivoAnuncio = 'whatsapp' | 'simulador' | 'reunion' | 'seguidores';
+export type ObjetivoAnuncio = 'whatsapp' | 'simulador' | 'reunion';
 
 export type TonoAnuncio =
   | 'emocional_familiar'

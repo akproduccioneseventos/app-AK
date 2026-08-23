@@ -19,12 +19,14 @@ import {
   PartyPopper,
   ExternalLink,
   Star,
+  MessageCircle,
 } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
 import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
+import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'invitados';
@@ -316,12 +318,31 @@ export default function PublicAlbumPage() {
           </div>
         ) : null}
 
-        {/* Footer Comercial Discreto */}
-        <footer className="mt-20 pt-10 pb-8 text-center border-t border-white/10 space-y-4">
-          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-            Organizado y capturado por AK Producciones Eventos
-          </p>
-          <div>
+        {/* Footer Comercial: Contacto directo para invitados */}
+        <footer className="mt-20 pt-10 pb-12 text-center border-t border-white/10 space-y-6">
+          <div className="flex flex-col items-center justify-center gap-2">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-zinc-300">
+              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              <span>Organizado y capturado por AK Producciones</span>
+            </div>
+            <p className="text-sm font-semibold text-white">¿Querés que tu fiesta tenga esta tecnología y momentos?</p>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <a
+              href={buildAkWhatsAppUrl(
+                `¡Hola AK Producciones! Estuve viendo el álbum de fotos de ${
+                  fiesta?.configuracion?.nombreEvento || 'la fiesta'
+                } y me encantó. Quería consultarles para mi propio evento.`
+              )}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-900/30 transition-all hover:scale-105"
+            >
+              <MessageCircle className="h-4 w-4" />
+              <span>Escribinos por WhatsApp</span>
+            </a>
+
             <a
               href={appendCommercialAttribution('/simulador-de-presupuesto', {
                 source: 'guest_portal',
@@ -330,9 +351,9 @@ export default function PublicAlbumPage() {
               })}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-amber-300 transition-colors py-1"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-zinc-300 hover:text-white font-semibold text-xs border border-white/10 transition-all"
             >
-              <span>¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta</span>
+              <span>Calcular presupuesto online</span>
               <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
