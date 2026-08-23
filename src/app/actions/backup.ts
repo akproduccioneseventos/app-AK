@@ -59,6 +59,15 @@ export interface RestoreSummaryItem {
   count: number;
 }
 
+export interface AutoBackupStatus {
+  lastSuccessfulBackup: string | null;
+  lastAttemptAt: string | null;
+  lastError: string | null;
+  consecutiveFailures: number;
+  isStale: boolean; // más de 24 horas sin respaldo exitoso
+  hasRepeatedErrors: boolean; // 2 o más fallas consecutivas
+}
+
 let autoBackupPromise: Promise<void> | null = null;
 
 function getDisplayDate(timestamp: string, isAuto: boolean) {
@@ -209,12 +218,98 @@ async function acquireAutoBackupLease(db: Firestore): Promise<boolean> {
 
 async function finishAutoBackupLease(db: Firestore, error?: unknown): Promise<void> {
   const now = Date.now();
-  await db.collection(AUTO_BACKUP_STATE_COLLECTION).doc(AUTO_BACKUP_STATE_DOCUMENT).set({
+  const nowIso = new Date(now).toISOString();
+
+  let prevConsecutive = 0;
+  let prevLastCompleted: string | null = null;
+  try {
+    const doc = await db.collection(AUTO_BACKUP_STATE_COLLECTION).doc(AUTO_BACKUP_STATE_DOCUMENT).get();
+    if (doc.exists) {
+      const d = doc.data();
+      prevConsecutive = Number(d?.consecutiveFailures || 0);
+      prevLastCompleted = d?.lastCompletedAt || null;
+    }
+  } catch {}
+
+  const consecutiveFailures = error ? prevConsecutive + 1 : 0;
+  const lastError = error ? (error instanceof Error ? error.message : String(error)) : null;
+  const lastCompletedAt = error ? prevLastCompleted : nowIso;
+
+  const updateData: Record<string, any> = {
     leaseUntilMs: 0,
-    ...(error
-      ? { lastError: error instanceof Error ? error.message : String(error), failedAt: new Date(now).toISOString() }
-      : { lastCompletedAtMs: now, lastCompletedAt: new Date(now).toISOString(), lastError: null }),
-  }, { merge: true });
+    lastAttemptAt: nowIso,
+    consecutiveFailures,
+    lastError,
+  };
+
+  if (!error) {
+    updateData.lastCompletedAtMs = now;
+    updateData.lastCompletedAt = nowIso;
+    updateData.failedAt = null;
+  } else {
+    updateData.failedAt = nowIso;
+  }
+
+  await db.collection(AUTO_BACKUP_STATE_COLLECTION).doc(AUTO_BACKUP_STATE_DOCUMENT).set(updateData, { merge: true });
+
+  // Guardar también en archivo local para fallback fuera de Firestore
+  try {
+    await writeData('backup-status.json', {
+      lastCompletedAt,
+      lastAttemptAt: nowIso,
+      consecutiveFailures,
+      lastError,
+    }, undefined, { skipAutoBackup: true });
+  } catch {}
+}
+
+export async function getBackupStatus(): Promise<AutoBackupStatus> {
+  await requireAppSession();
+  let db: Firestore | null = null;
+  try {
+    db = await getBackupDb();
+  } catch {}
+
+  let data: Record<string, any> | null = null;
+  if (db) {
+    try {
+      const doc = await db.collection(AUTO_BACKUP_STATE_COLLECTION).doc(AUTO_BACKUP_STATE_DOCUMENT).get();
+      if (doc.exists) data = doc.data() as Record<string, any>;
+    } catch {}
+  }
+
+  if (!data) {
+    try {
+      data = await readData<Record<string, any>>('backup-status.json', {});
+    } catch {}
+  }
+
+  // Si aún no hay registro explícito, mirar el punto de restauración más reciente
+  let lastSuccessfulBackup = data?.lastCompletedAt || null;
+  if (!lastSuccessfulBackup) {
+    try {
+      const points = await getRestorePoints();
+      if (points.length > 0) {
+        lastSuccessfulBackup = points[0].timestamp;
+      }
+    } catch {}
+  }
+
+  const lastAttemptAt = data?.lastAttemptAt || data?.failedAt || lastSuccessfulBackup;
+  const lastError = data?.lastError || null;
+  const consecutiveFailures = Number(data?.consecutiveFailures || 0);
+
+  const isStale = !lastSuccessfulBackup || (Date.now() - new Date(lastSuccessfulBackup).getTime() > 24 * 60 * 60 * 1000);
+  const hasRepeatedErrors = consecutiveFailures >= 2;
+
+  return {
+    lastSuccessfulBackup,
+    lastAttemptAt,
+    lastError,
+    consecutiveFailures,
+    isStale,
+    hasRepeatedErrors,
+  };
 }
 
 export async function getRestorePoints(): Promise<RestorePoint[]> {

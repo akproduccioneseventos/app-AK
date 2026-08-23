@@ -40,6 +40,9 @@ import {
   Users,
   X,
   ImageIcon,
+  Video,
+  Compass,
+  Box,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Salon } from '@/types/salon';
@@ -409,10 +412,43 @@ function SalonCard({ salon, deletingId, onEdit, onDelete }: SalonCardProps) {
             Ver en Google Maps
           </a>
         )}
+        {salon.experiencia3D?.videoUrl && (
+          <a
+            href={salon.experiencia3D.videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-primary hover:underline text-xs"
+          >
+            <Video className="w-3.5 h-3.5" />
+            Video del Salón
+          </a>
+        )}
+        {salon.experiencia3D?.recorridoUrl && (
+          <a
+            href={salon.experiencia3D.recorridoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-primary hover:underline text-xs"
+          >
+            <Compass className="w-3.5 h-3.5" />
+            Recorrido Virtual 360°
+          </a>
+        )}
+        {salon.experiencia3D?.modelo3dUrl && (
+          <a
+            href={salon.experiencia3D.modelo3dUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-primary hover:underline text-xs"
+          >
+            <Box className="w-3.5 h-3.5" />
+            Modelo 3D Interactivo
+          </a>
+        )}
         {salon.fotos && salon.fotos.length > 1 && (
           <p className="text-xs text-slate-400">{salon.fotos.length} fotos</p>
         )}
-        {!salon.direccion && !salon.googleMapsUrl && salon.capacidad === 0 && !salon.descripcion && (
+        {!salon.direccion && !salon.googleMapsUrl && salon.capacidad === 0 && !salon.descripcion && !salon.experiencia3D && (
           <p className="text-xs text-muted-foreground/50 italic">Sin datos adicionales</p>
         )}
       </CardContent>
@@ -422,6 +458,10 @@ function SalonCard({ salon, deletingId, onEdit, onDelete }: SalonCardProps) {
           <Button asChild variant="outline" size="sm" className="w-full text-xs h-8"><Link href={`/empresa/salones/${salon.id}/croquis`}>
               <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" />
               Ver/Editar Diseño del Salón
+            </Link></Button>
+          <Button asChild variant="outline" size="sm" className="w-full text-xs h-8 text-primary border-primary/20 hover:bg-primary/5"><Link href="/empresa/salones/experiencia-visual">
+              <Compass className="w-3.5 h-3.5 mr-1.5" />
+              Experiencia Visual 3D
             </Link></Button>
           {clubUruguay && (
             <Button asChild variant="outline"

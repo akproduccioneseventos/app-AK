@@ -19,15 +19,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { createRestorePoint, getRestorePoints, restoreFromPoint, deleteRestorePoint, type RestorePoint, type RestoreSummaryItem } from '@/app/actions/backup';
+import { createRestorePoint, getRestorePoints, restoreFromPoint, deleteRestorePoint, getBackupStatus, type RestorePoint, type RestoreSummaryItem, type AutoBackupStatus } from '@/app/actions/backup';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function BackupPage() {
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [isRestoringZip, setIsRestoringZip] = useState(false);
   const [restorePoints, setRestorePoints] = useState<RestorePoint[]>([]);
+  const [backupStatus, setBackupStatus] = useState<AutoBackupStatus | null>(null);
   const [isLoadingPoints, setIsLoadingPoints] = useState(true);
   const [isCreatingPoint, setIsCreatingPoint] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
@@ -68,8 +70,12 @@ export default function BackupPage() {
   const loadRestorePoints = useCallback(async () => {
     setIsLoadingPoints(true);
     try {
-      const points = await getRestorePoints();
+      const [points, status] = await Promise.all([
+        getRestorePoints(),
+        getBackupStatus().catch(() => null),
+      ]);
       setRestorePoints(points);
+      setBackupStatus(status);
     } catch (e) {
       toast({ title: "Error", description: "No se pudieron cargar los puntos de restauración.", variant: "destructive" });
     } finally {
@@ -141,26 +147,54 @@ export default function BackupPage() {
         <Button asChild variant="outline"><Link href="/settings"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
 
-      <Card className="shadow-md border-emerald-200 bg-gradient-to-r from-emerald-50 to-white overflow-hidden">
+      {backupStatus?.hasRepeatedErrors && (
+        <Alert variant="destructive" className="border-red-500 bg-red-50 text-red-900">
+          <AlertTriangle className="h-5 w-5 text-red-600" />
+          <AlertTitle className="font-bold">Atención: los respaldos automáticos fallaron {backupStatus.consecutiveFailures} veces seguidas</AlertTitle>
+          <AlertDescription className="text-sm mt-1">
+            Último error registrado: {backupStatus.lastError || 'Error al conectar con la base de datos'}. Podés crear un punto manual con el botón de la derecha para asegurar tus datos.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Card className={`shadow-md overflow-hidden ${
+        backupStatus?.isStale
+          ? 'border-red-300 bg-gradient-to-r from-red-50 to-white'
+          : 'border-emerald-200 bg-gradient-to-r from-emerald-50 to-white'
+      }`}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between gap-3">
-            <CardTitle className="text-emerald-800 text-lg flex items-center gap-2">
-              <ShieldCheck className="w-6 h-6 text-emerald-600" />
+            <CardTitle className={`text-lg flex items-center gap-2 ${
+              backupStatus?.isStale ? 'text-red-800' : 'text-emerald-800'
+            }`}>
+              <ShieldCheck className={`w-6 h-6 ${backupStatus?.isStale ? 'text-red-600' : 'text-emerald-600'}`} />
               Estado de Respaldo
             </CardTitle>
-            <Badge className="bg-emerald-600 text-white border-none">ACTIVO</Badge>
+            <Badge className={backupStatus?.isStale ? 'bg-red-600 text-white border-none' : 'bg-emerald-600 text-white border-none'}>
+              {backupStatus?.isStale ? 'ATENCIÓN: SIN RESPALDO RECIENTE' : 'ACTIVO Y PROTEGIDO'}
+            </Badge>
           </div>
-          <CardDescription className="text-emerald-700">
-            Los respaldos se guardan en Firestore y persisten aunque se redespliegue la app.
+          <CardDescription className={backupStatus?.isStale ? 'text-red-700' : 'text-emerald-700'}>
+            {backupStatus?.isStale
+              ? '⚠️ Hace más de 24 horas que no se completa un respaldo automático exitoso. Te recomendamos generar uno manual.'
+              : 'Los respaldos se guardan en Firestore y persisten aunque se redespliegue la app.'}
           </CardDescription>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            <div className="rounded-xl border border-emerald-200 bg-white/70 p-3">
+            <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
               <p className="text-xs text-muted-foreground">Respaldos guardados</p>
               <p className="text-2xl font-black text-slate-800">{restorePoints.length}</p>
             </div>
-            <div className="rounded-xl border border-emerald-200 bg-white/70 p-3">
-              <p className="text-xs text-muted-foreground">Último respaldo</p>
-              <p className="text-sm font-semibold text-slate-800">{latestPoint ? latestPoint.displayDate : 'Sin respaldos aún'}</p>
+            <div className={`rounded-xl border p-3 ${
+              backupStatus?.isStale
+                ? 'border-red-300 bg-red-50/70'
+                : 'border-emerald-200 bg-white/70'
+            }`}>
+              <p className="text-xs text-muted-foreground">Último respaldo bueno</p>
+              <p className={`text-sm font-semibold ${backupStatus?.isStale ? 'text-red-800 font-bold' : 'text-slate-800'}`}>
+                {backupStatus?.lastSuccessfulBackup
+                  ? `${new Date(backupStatus.lastSuccessfulBackup).toLocaleDateString('es-UY', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${new Date(backupStatus.lastSuccessfulBackup).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs`
+                  : latestPoint ? latestPoint.displayDate : 'Sin respaldos buenos aún'}
+              </p>
             </div>
           </div>
         </CardHeader>

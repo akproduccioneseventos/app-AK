@@ -54,8 +54,25 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       const result = await validarCupon(cuponInput.trim(), bruto, formData.eventoTipo);
       if (result.valid && result.coupon) {
         setCuponResult({ valid: true, nombre: result.coupon.nombre, descuento: result.descuentoCalculado });
+        
+        const nuevosServicios = new Map(formData.serviciosSeleccionados);
+        if (Array.isArray(result.coupon.serviciosRegalados) && result.coupon.serviciosRegalados.length > 0) {
+          result.coupon.serviciosRegalados.forEach((regalo, idx) => {
+            const servicioKey = `regalo_cupon_${regalo.id || idx}_${result.coupon!.id}`;
+            nuevosServicios.set(servicioKey, {
+              cantidad: 1,
+              precioUnitarioPresupuesto: 0,
+              precioUnitarioOriginal: 0,
+              esRegalo: true,
+              nombreServicio: `${regalo.nombre} (Regalo Cupón)`,
+              categoriaServicio: 'Regalos y Promociones',
+            });
+          });
+        }
+
         setFormData(prev => ({
           ...prev,
+          serviciosSeleccionados: nuevosServicios,
           cuponCodigo: result.coupon!.codigo,
           cuponId: result.coupon!.id,
           cuponDescuento: result.descuentoCalculado,
@@ -78,15 +95,24 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
   const handleRemoveCupon = () => {
     setCuponInput('');
     setCuponResult(null);
-    setFormData(prev => ({
-      ...prev,
-      cuponCodigo: undefined,
-      cuponId: undefined,
-      cuponDescuento: undefined,
-      nombrePromocion: undefined,
-      descuentoTipo: undefined,
-      descuentoValor: '',
-    }));
+    setFormData(prev => {
+      const nuevosServicios = new Map(prev.serviciosSeleccionados);
+      for (const key of nuevosServicios.keys()) {
+        if (key.startsWith('regalo_cupon_')) {
+          nuevosServicios.delete(key);
+        }
+      }
+      return {
+        ...prev,
+        serviciosSeleccionados: nuevosServicios,
+        cuponCodigo: undefined,
+        cuponId: undefined,
+        cuponDescuento: undefined,
+        nombrePromocion: undefined,
+        descuentoTipo: undefined,
+        descuentoValor: '',
+      };
+    });
   };
 
   const handleServicioDetailChange = (

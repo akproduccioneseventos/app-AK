@@ -114,6 +114,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const [companyName, setCompanyName] = useState('AK Producciones Eventos');
   const [companyAddress, setCompanyAddress] = useState('Gaboto 3390, Salto, Uruguay');
   const [companyContact, setCompanyContact] = useState('akproduccionessalto@gmail.com');
+  const [customFooter, setCustomFooter] = useState<string | null>(null);
   const [contractSettings, setContractSettings] = useState<ContractSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -138,6 +139,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       setCompanyName(companyInfo?.companyName || 'AK Producciones Eventos');
       setCompanyAddress(companyInfo?.companyAddress || 'Gaboto 3390, Salto, Uruguay');
       setCompanyContact(companyInfo?.companyContact || 'akproduccionessalto@gmail.com');
+      setCustomFooter(companyInfo?.invoiceCustomFooter || null);
       setContractSettings(contractSettingsData);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al cargar los datos.');
@@ -477,6 +479,13 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
               </section>
 
               <Separator />
+
+              {/* Custom footer from company settings */}
+              {customFooter && (
+                <div className="text-center p-3 rounded-xl bg-slate-50 border border-slate-100 text-[10px] text-slate-600 whitespace-pre-line">
+                  {customFooter}
+                </div>
+              )}
 
               {/* Footer note */}
               <div className="text-center space-y-1 pb-2">
