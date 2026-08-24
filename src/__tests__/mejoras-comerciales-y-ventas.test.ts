@@ -15,13 +15,15 @@ describe('Mejoras comerciales y de ventas antes de publicar', () => {
     const hubContent = readFileSync(hubPath, 'utf8');
 
     // Álbum
-    expect(albumContent).toContain('wa.me/59898355530');
+    expect(albumContent).toContain('buildAkWhatsAppUrl');
     expect(albumContent).toContain('Escribinos por WhatsApp');
     expect(albumContent).toContain('Organizado y capturado por AK Producciones');
 
     // Hub
-    expect(hubContent).toContain('wa.me/59898355530');
+    expect(hubContent).toContain('buildAkWhatsAppUrl');
     expect(hubContent).toContain('¿Querés una fiesta con esta tecnología?');
+    expect(hubContent).toContain('source=guest_portal');
+    expect(hubContent).toContain('refFiesta=');
   });
 
   it('las estaciones de captura tienen cierre de marca discreto y contacto por WhatsApp', () => {
@@ -73,16 +75,17 @@ describe('Mejoras comerciales y de ventas antes de publicar', () => {
     expect(content).toContain('No es precio real');
   });
 
-  it('el simulador de presupuesto ofrece garantía de 7 días, botón para modificar y plan de pagos sugerido', () => {
+  it('el simulador mantiene la vigencia formal, permite modificar y usa el plan calculado', () => {
     const simuladorPath = path.join(RAIZ, 'src/app/simulador-de-presupuesto/page.tsx');
     expect(existsSync(simuladorPath)).toBe(true);
 
     const content = readFileSync(simuladorPath, 'utf8');
-    expect(content).toContain('Validez 7 días');
+    expect(content).toContain('Validez 30 días');
     expect(content).toContain('Modificar mi presupuesto');
-    expect(content).toContain('Plan de pagos en cuotas fijas');
+    expect(content).toContain('Plan de pagos estimado');
     expect(content).toContain('Seña para congelar fecha:');
-    expect(content).toContain('$ 5.000');
+    expect(content).toContain('budgetSettings.bookingDepositAmount');
+    expect(content).toContain('paymentPlan.installmentAmount');
   });
 
   it('el portal del cliente incluye sección de extras contratables para sumar mejoras a la fiesta', () => {

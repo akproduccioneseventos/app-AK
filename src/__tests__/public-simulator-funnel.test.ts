@@ -60,4 +60,18 @@ describe('public simulator sales funnel', () => {
     expect(assistantSource).toContain('setGeneratedAt(null)');
     expect(assistantSource).toContain("[...selectedServices, ...selectedEntradas].sort().join(',')");
   });
+  it('keeps Club Uruguay outside the AK services total', () => {
+    const persistenceSource = fs.readFileSync(
+      path.join(process.cwd(), 'src/lib/budget/public-simulator-persistence.ts'),
+      'utf8',
+    );
+
+    expect(persistenceSource).not.toContain('syntheticServices');
+    expect(persistenceSource).not.toContain("id: 'serv_salon_club_uruguay'");
+    expect(assistantSource).not.toContain("id: 'serv_salon_club_uruguay'");
+    expect(assistantSource).toContain('clubUruguayCosto={clubUruguayDetails?.precioActual ?? 0}');
+    expect(assistantSource).toContain('*Total servicios AK:*');
+  });
+
 });
+

@@ -32,7 +32,9 @@ import { getFiestaByAccessKey } from '@/app/actions/fiesta/portal.actions';
 import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
-import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { hasAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { shouldQueueForManualReview } from '@/lib/social-fiesta/guardrails';
 import { toPublicSocialEvent, type PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -70,6 +72,29 @@ async function getDb(): Promise<Firestore> {
   const { dbAdmin } = await import('@/lib/firebase/server');
   if (!dbAdmin) throw new Error('Firestore no disponible.');
   return dbAdmin as Firestore;
+}
+
+async function canModerateSocialEvent(fiestaId: string): Promise<boolean> {
+  try {
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function getSocialPostModerationContext(postId: string) {
+  const permission = await requirePermiso(PERMISOS.NOCHE);
+  if (!permission.ok) throw new Error(permission.error);
+
+  const db = await getDb();
+  const ref = db.collection(GALLERY_COLLECTION).doc(postId);
+  const snapshot = await ref.get();
+  if (!snapshot.exists) throw new Error('Publicación no encontrada.');
+
+  const post = snapshot.data() as SocialGalleryPost;
+  await requireEventPermission(post.fiestaId, PERMISOS.NOCHE);
+  return { db, ref, snapshot, post };
 }
 
 async function getLocalSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
@@ -148,7 +173,7 @@ async function getClientSocialFiesta(
 
 export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
   try {
-    const canModerate = await hasAppSession();
+    const canModerate = await canModerateSocialEvent(fiestaId);
     if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
       const posts = await getLocalSocialPosts(fiestaId);
       return canModerate
@@ -261,8 +286,9 @@ export async function getSocialPostsByClient(
   }
 }
 
-export async function getSocialAdminAccess(): Promise<boolean> {
-  return hasAppSession();
+export async function getSocialAdminAccess(fiestaId?: string): Promise<boolean> {
+  if (fiestaId) return canModerateSocialEvent(fiestaId);
+  return (await requirePermiso(PERMISOS.NOCHE)).ok;
 }
 
 export async function saveSocialGallerySettings(
@@ -270,9 +296,7 @@ export async function saveSocialGallerySettings(
   settings: SocialGallerySettings
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const result = await saveFiesta({ ...fiesta, socialGallerySettings: settings });
     return result.success
       ? { success: true }
@@ -577,11 +601,7 @@ export async function moderateSocialPost(
   moderatedBy: string = 'AK Producciones'
 ): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   try {
-    await requireAppSession();
-    const db = await getDb();
-    const ref = db.collection(GALLERY_COLLECTION).doc(postId);
-    const snap = await ref.get();
-    if (!snap.exists) return { success: false, error: 'Publicación no encontrada.' };
+    const { ref } = await getSocialPostModerationContext(postId);
     await ref.update({
       moderationStatus,
       moderatedAt: new Date().toISOString(),
@@ -671,9 +691,7 @@ export async function highlightComment(
   highlighted: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
-    const db = await getDb();
-    const ref = db.collection(GALLERY_COLLECTION).doc(postId);
+    const { db, ref } = await getSocialPostModerationContext(postId);
     await db.runTransaction(async (tx: Transaction) => {
       const snap = await tx.get(ref);
       if (!snap.exists) throw new Error('Publicación no encontrada.');
@@ -693,14 +711,9 @@ export async function deleteSocialPost(
   postId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
-    const db = await getDb();
-    const ref = db.collection(GALLERY_COLLECTION).doc(postId);
-    const snap = await ref.get();
-    if (!snap.exists) return { success: false, error: 'Publicación no encontrada para eliminar.' };
-    const data = snap.data() as SocialGalleryPost;
+    const { ref, post } = await getSocialPostModerationContext(postId);
     try {
-      await deleteFromStorage(data.imageUrl);
+      await deleteFromStorage(post.imageUrl);
     } catch (fileError: any) {
       logger.warn(`[social-gallery] Could not delete Storage file for post ${postId}: ${fileError.message}`);
     }
@@ -713,7 +726,7 @@ export async function deleteSocialPost(
 
 export async function clearGallery(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const db = await getDb();
     const snapshot = await db
       .collection(GALLERY_COLLECTION)
@@ -743,7 +756,7 @@ export async function getPhotoFilePathsForZip(
   fiestaId: string
 ): Promise<{ path: string; name: string }[]> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const db = await getDb();
     const snapshot = await db
       .collection(GALLERY_COLLECTION)
@@ -893,7 +906,7 @@ export async function moderateSocialPostByClient(
 export async function createSocialMediaPostFromUrl(
   input: CreateSocialMediaPostFromUrlInput,
 ): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
-  await requireAppSession();
+  await requireEventPermission(input.fiestaId, PERMISOS.NOCHE);
   return persistSocialMediaPostFromUrl(input);
 }
 

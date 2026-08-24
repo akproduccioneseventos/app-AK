@@ -1,17 +1,21 @@
-name: Deploy to Firebase
+name: Deploy scheduled Firebase jobs
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'functions/**'
+      - 'firebase.json'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
-  checks: write
 
 jobs:
-  deploy:
-    name: Build & Deploy to Firebase
+  deploy-scheduled-functions:
+    name: Deploy scheduled Firebase functions
     runs-on: ubuntu-latest
 
     steps:
@@ -22,69 +26,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install function dependencies
+        run: npm install --prefix functions
 
-      - name: Build Next.js app
-        run: npm run build
-        env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
-          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+      - name: Build scheduled functions
+        run: npm run build --prefix functions
 
-      - name: Build Firebase Functions
-        run: cd functions && npm install && npm run build
-
-      - name: Copy Next.js build to functions
-        run: |
-          cp -r .next functions/.next
-          cp -r public functions/public
-
-      - name: Check Firebase service account availability
-        id: firebase_auth_check
+      - name: Require Firebase service account
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
-          if [ -n "$FIREBASE_SERVICE_ACCOUNT" ]; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "available=false" >> "$GITHUB_OUTPUT"
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT is required to deploy scheduled functions."
+            exit 1
           fi
 
-      - name: Deploy to Firebase
-        if: ${{ steps.firebase_auth_check.outputs.available == 'true' }}
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: presupuestador-ak-producciones
-          channelId: live
-
-      # El despertador vive en functions/ y es lo que hace correr las tareas
-      # automaticas sin que nadie abra la app. El paso de arriba publica SOLO el
-      # sitio: sin esto, el despertador queda escrito y nunca llega a Google, la
-      # app sigue dormida y todo parece andar. Lo cuida
-      # src/__tests__/despliegue-incluye-despertador.test.ts.
-      - name: Deploy scheduled functions (despertador)
-        if: ${{ steps.firebase_auth_check.outputs.available == 'true' }}
+      # The Next.js website is deployed independently by Firebase App Hosting
+      # from the connected main branch. This workflow updates only the scheduler.
+      - name: Deploy AK scheduler
         env:
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         run: |
           printf '%s' "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$RUNNER_TEMP/firebase-key.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-key.json"
-          npx --yes firebase-tools deploy --only functions \
-            --project presupuestador-ak-producciones --non-interactive --force
-          rm -f "$RUNNER_TEMP/firebase-key.json"
-
-      - name: Skip deploy (missing service account)
-        if: ${{ steps.firebase_auth_check.outputs.available == 'false' }}
-        run: echo "FIREBASE_SERVICE_ACCOUNT is not configured. Skipping Firebase deployment."
+          trap 'rm -f "$RUNNER_TEMP/firebase-key.json"' EXIT
+          npx --yes firebase-tools deploy --only functions:despertadorTareasAutomaticas \
+            --project presupuestador-ak-producciones \
+            --non-interactive \
+            --force

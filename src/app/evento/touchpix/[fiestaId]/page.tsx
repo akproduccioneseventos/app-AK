@@ -38,6 +38,8 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
+import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 
 /* ───────────────────── Theme Definitions ───────────────────── */
@@ -110,6 +112,7 @@ export default function TouchpixPage() {
   
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [queuedOffline, setQueuedOffline] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -595,6 +598,7 @@ export default function TouchpixPage() {
     setRawCapturedImage(null);
     setIsProcessing(false);
     setProcessingResult(null);
+    setQueuedOffline(false);
     setWizardStep(0);
     setConsentAccepted(false);
     setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
@@ -606,14 +610,20 @@ export default function TouchpixPage() {
   const handleUpload = useCallback(async () => {
     if (!capturedImage) return;
     setIsUploading(true);
+
+    let pendingFile: File | null = null;
     try {
-      const file = await dataUrlToFile(capturedImage, `touchpix-${Date.now()}.jpg`);
+      pendingFile = await dataUrlToFile(capturedImage, `touchpix-${Date.now()}.jpg`);
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('Sin conexión');
+      }
+
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       if (accessToken) formData.append('accessToken', accessToken);
       if (guestId) formData.append('guestId', guestId);
       if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
-      formData.append('file', file);
+      formData.append('file', pendingFile);
       formData.append('authorName', 'Cabina Touchpix');
       if (activeTab === 'ai_themes') {
         formData.append('themeLabel', TOUCHPIX_THEMES.find(theme => theme.id === selectedAiTheme)?.label || '');
@@ -623,31 +633,62 @@ export default function TouchpixPage() {
       }
 
       const res = await uploadTouchpixPhoto(formData);
-      if (res.success) {
-        await updateEntertainmentSessionStatus(
-          fiestaId,
-          'espejoMagicoIA',
-          'done',
-          { mediaUrl: res.post?.imageUrl, reviewPending: false },
-          accessToken
-        );
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          retake();
-        }, 3000);
-      } else {
-        throw new Error(res.error || 'Error al subir');
-      }
+      if (!res.success) throw new Error(res.error || 'Error al subir');
+
+      await updateEntertainmentSessionStatus(
+        fiestaId,
+        'espejoMagicoIA',
+        'done',
+        { mediaUrl: res.post?.imageUrl, reviewPending: false },
+        accessToken
+      );
+      setQueuedOffline(false);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        retake();
+      }, 3000);
     } catch (err) {
-      alert('No se pudo subir la foto. ' + (err as Error).message);
+      if (pendingFile) {
+        try {
+          await saveOfflineMedia({
+            fiestaId,
+            moduleId: 'touchpix',
+            fileBlob: pendingFile,
+            fileName: pendingFile.name,
+            mimeType: pendingFile.type || 'image/jpeg',
+            authorName: 'Cabina Touchpix',
+            metadata: {
+              selectedTheme: activeTab === 'ai_themes'
+                ? TOUCHPIX_THEMES.find(theme => theme.id === selectedAiTheme)?.label
+                : undefined,
+              character: activeTab === 'faceswap'
+                ? FACE_SWAP_CHARACTERS.find(character => character.id === selectedCharacter)?.label
+                : undefined,
+            },
+          });
+          setQueuedOffline(true);
+          setShowSuccess(true);
+          void updateEntertainmentSessionStatus(
+            fiestaId,
+            'espejoMagicoIA',
+            'done',
+            { mediaUrl: null, reviewPending: true },
+            accessToken,
+          ).catch(() => undefined);
+          setTimeout(() => {
+            setShowSuccess(false);
+            retake();
+          }, 4000);
+          return;
+        } catch (offlineError) {
+          console.error('[Touchpix] No se pudo guardar la foto sin conexión:', offlineError);
+        }
+      }
+      alert('No se pudo subir ni guardar la foto. ' + (err as Error).message);
     } finally {
       setIsUploading(false);
     }
-    // `guestId` y `guestAccessToken` van en la lista a proposito: salen de la
-    // direccion, y sin ellos la subida se quedaba con el valor viejo. En una
-    // fotocabina eso significa que la foto se guarda sin dueno o con el dueno
-    // equivocado, que es justo lo que rompe "tu recuerdo de la fiesta".
   }, [accessToken, activeTab, capturedImage, fiestaId, guestAccessToken, guestId, retake, selectedAiTheme, selectedCharacter]);
 
   /* ── Get current CSS filter for live preview ── */
@@ -1206,8 +1247,14 @@ export default function TouchpixPage() {
               className="absolute inset-0 z-50 bg-black/70 backdrop-blur-md flex flex-col items-center justify-center text-center p-6"
             >
               <PartyPopper className="w-24 h-24 text-fuchsia-400 mb-4 animate-bounce" />
-              <h2 className="text-3xl font-black text-white mb-2">¡Foto enviada!</h2>
-              <p className="text-lg text-zinc-300">{fiesta?.socialWallEnabled ? 'Ya está en el muro de la fiesta 🎉' : 'Ya está guardada 🎉'}</p>
+              <h2 className="text-3xl font-black text-white mb-2">
+                {queuedOffline ? '¡Foto guardada!' : '¡Foto enviada!'}
+              </h2>
+              <p className="text-lg text-zinc-300">
+                {queuedOffline
+                  ? 'Se publicará automáticamente cuando vuelva Internet.' /* audit-promesa-verificada: offline-sync-manager */
+                  : fiesta?.socialWallEnabled ? 'Ya está en el muro de la fiesta 🎉' : 'Ya está guardada 🎉'}
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1371,6 +1418,13 @@ export default function TouchpixPage() {
 
       <QrModal />
       <KioskUnlockButton />
+      <SyncStatusIndicator
+        fiestaId={fiestaId}
+        moduleId="touchpix"
+        accessToken={accessToken}
+        guestId={guestId}
+        guestAccessToken={guestAccessToken}
+      />
     </div>
   );
 }

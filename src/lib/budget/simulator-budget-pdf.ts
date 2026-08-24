@@ -30,6 +30,7 @@ export type SimulatorBudgetPdfInput = {
     | "annualProjection"
   >;
   bookingTerms?: string;
+  bookingDepositAmount?: number;
 };
 
 export type SimulatorBudgetPdfModel = {
@@ -389,8 +390,9 @@ export async function createSimulatorBudgetPdf(
     y += 28;
   }
 
+  const bookingDeposit = currencyFormatter.format(Math.max(0, Math.round(Number(input.bookingDepositAmount ?? 5000) || 0)));
   const configuredTerms = input.bookingTerms?.trim()
-    || "Confirmá tu evento con una seña de solo $5.000 y la firma del contrato.";
+    || `Confirmá tu evento con una seña de ${bookingDeposit} y la firma del contrato.`;
   const termsText = [
     configuredTerms,
     /30\s+d[ií]as/i.test(configuredTerms)

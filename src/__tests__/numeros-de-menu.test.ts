@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { numerosDeMenuInvalidos } from '@/lib/catering/numeros-de-menu';
 import type { FullMenu } from '@/types/catering';
 
@@ -54,4 +56,17 @@ describe('numeros de un menu antes de guardarlo', () => {
       'cantidad por persona negativa',
     );
   });
+  it('serializes menu saves so an older autosave cannot overwrite a newer edit', () => {
+    const source = readFileSync(
+      join(process.cwd(), 'src/components/catering/MenuForm.tsx'),
+      'utf8',
+    );
+
+    expect(source).toContain('const autoSaveRevision = useRef(0)');
+    expect(source).toContain('const saveQueue = useRef<Promise<void>>(Promise.resolve())');
+    expect(source).toContain('const pending = saveQueue.current');
+    expect(source).toContain('if (revision !== autoSaveRevision.current) return');
+    expect(source).toContain("if (!result.success) throw new Error(result.error || 'No se pudo guardar automáticamente.')");
+  });
+
 });

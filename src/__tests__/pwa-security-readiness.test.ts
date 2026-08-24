@@ -81,4 +81,16 @@ describe('PWA and practical security readiness', () => {
     );
     expect(manifest.shortcuts.length).toBeGreaterThanOrEqual(3);
   });
+  it('reports push notifications as enabled only after the token is persisted', () => {
+    const messagingSource = readFileSync(
+      join(process.cwd(), 'src', 'lib', 'firebase', 'messaging.ts'),
+      'utf8',
+    );
+
+    expect(messagingSource).toContain('const saved = await saveTokenViaServerAction(token, userId)');
+    expect(messagingSource).toContain('return saved ? token : null');
+    expect(messagingSource).toContain("return (await saveFcmToken(token, userId, userAgent)).success");
+    expect(messagingSource).toContain('async function saveTokenViaServerAction(token: string, userId?: string): Promise<boolean>');
+  });
+
 });

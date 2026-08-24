@@ -64,13 +64,13 @@ hace falta volver a mirar nada de lo de arriba.
    **Qué buscar:** un número del panel que no cuadre con los datos de origen, o un
    reporte que sume dos veces.
 
-4. **El mapa de áreas completo** — agrupar las 349 pantallas en áreas y comprobar
+4. **El mapa de áreas completo** — agrupar las 350 pantallas en áreas y comprobar
    que **ninguna quede afuera de esta tabla**. Las áreas de una o dos pantallas son
    siempre las olvidadas.
 
 ---
 
-## Las 349 pantallas, agrupadas: ninguna queda afuera
+## Las 350 pantallas, agrupadas: ninguna queda afuera
 
 Clasificacion mecanica sobre `src/lib/multiagent/mapa-app.generado.ts`
 (22 de agosto de 2026). **332 de 348 caen en un area revisada. Las 9 restantes
@@ -120,7 +120,7 @@ Todo lo de la tabla anterior está 100% auditado y verificado. Si una propuesta 
 
 ---
 
-## Comprobado el 23 de agosto: 348 de 349 pantallas cubiertas
+## Comprobado el 23 de agosto: 348 de 350 pantallas cubiertas
 
 Clasificacion mecanica sobre el mapa generado: **346 de 348 caen en un area
 revisada**. Las dos restantes (`/invitado/:fiestaId/:invitadoId` y
@@ -165,7 +165,7 @@ Pasa sólo si alguien abre la fotocabina dos veces en la misma máquina.
 
 # ESTADO FINAL DE LA AUDITORÍA
 
-**La app está auditada entera: 349 pantallas, 17 áreas, más todo el código nuevo
+**La app está auditada entera: 350 pantallas, 17 áreas, más todo el código nuevo
 de los últimos dos días.**
 
 **Esta auditoría está cerrada.** Un área sólo se vuelve a mirar si se toca su

@@ -43,6 +43,8 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
+import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { applyEspejoFaceSwap, isEspejoIaDisponible } from '@/app/actions/espejo-magico-ai';
 import {
   ESPEJO_TEMPLATES,
@@ -798,17 +800,23 @@ export default function EspejoMagicoPage() {
 
     setIsUploading(true);
     setLocalStatus('processing');
-    await updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken);
+    void updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken).catch(() => undefined);
     speak("Subiendo tu foto al muro");
+
+    let pendingBlob: Blob | null = null;
+    const fileName = `espejo-${Date.now()}.jpg`;
 
     try {
       if (mode !== 'foto') {
         mergeDrawing();
       }
-      const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
-      if (!blob) throw new Error('Error al procesar');
+      pendingBlob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
+      if (!pendingBlob) throw new Error('Error al procesar');
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('Sin conexión');
+      }
 
-      const file = new File([blob], `espejo-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const file = new File([pendingBlob], fileName, { type: 'image/jpeg' });
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
@@ -819,39 +827,66 @@ export default function EspejoMagicoPage() {
       if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
 
       const res = await uploadEntretenimientoMedia(formData);
-      if (res.success) {
-        const mediaUrl = res.media?.url || '';
-        setQrCodeUrl(mediaUrl);
-        setLocalStatus('done');
-        await updateEntertainmentSessionStatus(
-          fiestaId,
-          moduleId,
-          'done',
-          { mediaUrl, lastError: null },
-          accessToken
-        );
-        speak('Listo. Foto enviada al muro.');
+      if (!res.success) throw new Error(res.error || 'Error al subir');
 
-        // Auto reset after 12s
-        setTimeout(() => {
-          retake();
-        }, 12000);
-      } else {
-        throw new Error(res.error || 'Error al subir');
-      }
-    } catch (err) {
-      console.error(err);
-      setQrCodeUrl('');
-      setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
-      setLocalStatus('recording');
+      const mediaUrl = res.media?.url || '';
+      setQrCodeUrl(mediaUrl);
+      setLocalStatus('done');
       await updateEntertainmentSessionStatus(
         fiestaId,
         moduleId,
-        'idle',
-        { lastError: 'No se pudo subir la foto del invitado al muro.' },
-        accessToken,
+        'done',
+        { mediaUrl, lastError: null },
+        accessToken
       );
-      speak('No se pudo subir la foto. Podés reintentar o guardarla en este dispositivo.');
+      speak('Listo. Foto enviada al muro.');
+
+      setTimeout(() => {
+        retake();
+      }, 12000);
+    } catch (err) {
+      console.error(err);
+      setQrCodeUrl('');
+
+      if (pendingBlob) {
+        try {
+          await saveOfflineMedia({
+            fiestaId,
+            moduleId,
+            fileBlob: pendingBlob,
+            fileName,
+            mimeType: 'image/jpeg',
+            authorName: modeCopy.author,
+          });
+          setErrorMsg(null);
+          setLocalStatus('done');
+          void updateEntertainmentSessionStatus(
+            fiestaId,
+            moduleId,
+            'done',
+            { mediaUrl: null, reviewPending: true, lastError: null },
+            accessToken,
+          ).catch(() => undefined);
+          speak('Tu foto quedó guardada y se subirá cuando vuelva la señal.');
+          setTimeout(() => {
+            retake();
+          }, 5000);
+          return;
+        } catch (offlineError) {
+          console.error('[EspejoMagico] No se pudo guardar la captura sin conexión:', offlineError);
+        }
+      }
+
+      setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
+      setLocalStatus('recording');
+      void updateEntertainmentSessionStatus(
+        fiestaId,
+        moduleId,
+        'idle',
+        { lastError: 'No se pudo subir ni guardar la foto del invitado.' },
+        accessToken,
+      ).catch(() => undefined);
+      speak('No se pudo guardar la foto. Podés reintentar o descargarla en este dispositivo.');
     } finally {
       setIsUploading(false);
     }
@@ -1597,6 +1632,13 @@ export default function EspejoMagicoPage() {
       )}
 
       {showKioskUnlock && <KioskUnlockButton />}
+      <SyncStatusIndicator
+        fiestaId={fiestaId}
+        moduleId={moduleId}
+        accessToken={accessToken}
+        guestId={guestId}
+        guestAccessToken={guestAccessToken}
+      />
     </div>
   );
 }

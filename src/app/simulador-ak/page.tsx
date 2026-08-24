@@ -38,7 +38,7 @@ import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE } from '@/lib/budget/formal-budget';
+import { buildAnnualAdjustmentProjection, DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE } from '@/lib/budget/formal-budget';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 import { isValidUruguayMobile, normalizeUruguayPhone } from '@/lib/commercial/contact';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -127,6 +127,7 @@ function SimuladorAKContent() {
   const [config, setConfig] = useState<ArmadoRapidoConfig>(SIMULATOR_FALLBACK_CONFIG);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE);
+  const currentYear = new Date().getFullYear();
   const [availableMenus, setAvailableMenus] = useState<FullMenu[]>([]);
   const [empresaPhone, setEmpresaPhone] = useState<string>(WHATSAPP_NUMBER);
   const [isReferenceDataLoading, setIsReferenceDataLoading] = useState(true);
@@ -310,21 +311,6 @@ function SimuladorAKContent() {
       ...(selectedInfantil ? [selectedInfantil] : []),
     ].map((id) => ({ id }));
 
-    const clubUruguayCfg = config.clubUruguayConfig || defaultClubUruguayConfig;
-    const syntheticServices = tieneSalon === false && incluirClubUruguay && clubUruguayCfg.activo
-      ? [{
-          servicio: {
-            id: 'serv_salon_club_uruguay',
-            nombre: 'Salón Club Uruguay',
-            tipoItem: 'Servicio' as const,
-            categoria: 'Otros servicios' as const,
-            precioVenta: clubUruguayCfg.precio,
-            precioBase: clubUruguayCfg.precio,
-            calculationMethod: 'fijo' as const,
-          },
-        }]
-      : [];
-
     return calculateSimulatorPricing({
       config,
       services: allSimuladorServices,
@@ -332,14 +318,35 @@ function SimuladorAKContent() {
       ninosYAdolescentes,
       selectedPaqueteId,
       selectedServices: selected,
-      syntheticServices,
       eventoFecha,
       annualAdjustmentPercentage,
     });
   }, [
     config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId,
     selectedServices, selectedEntradas, selectedPrincipal, selectedInfantil,
-    tieneSalon, incluirClubUruguay, eventoFecha, annualAdjustmentPercentage
+    eventoFecha, annualAdjustmentPercentage
+  ]);
+
+  const clubUruguayDetails = useMemo(() => {
+    const club = config.clubUruguayConfig || defaultClubUruguayConfig;
+    if (tieneSalon !== false || !incluirClubUruguay || !club.activo) return null;
+
+    const precioActual = Math.max(0, Math.round(Number(club.precio) || 0));
+    const projection = buildAnnualAdjustmentProjection({
+      baseTotal: precioActual,
+      eventDate: eventoFecha,
+      currentYear,
+      adjustmentPct: annualAdjustmentPercentage,
+    });
+
+    return { precioActual, projection };
+  }, [
+    annualAdjustmentPercentage,
+    config.clubUruguayConfig,
+    currentYear,
+    eventoFecha,
+    incluirClubUruguay,
+    tieneSalon,
   ]);
 
   const budgetForPdf = useMemo<Presupuesto | null>(() => {
@@ -779,6 +786,9 @@ function SimuladorAKContent() {
   const buildWhatsAppHref = () => {
     const pkgName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre || 'A medida';
     const totalEst = priceStats ? formatCurrency(priceStats.totalFinal) : '$0';
+    const salonLine = clubUruguayDetails
+      ? `\n*Club Uruguay (alquiler independiente):* ${formatCurrency(clubUruguayDetails.precioActual)}${clubUruguayDetails.projection.applies ? ` · referencia ${clubUruguayDetails.projection.eventYear}: ${formatCurrency(clubUruguayDetails.projection.adjustedTotal)}` : ''}`
+      : '';
     const text = `¡Hola AK Producciones! Estuve chateando con Sofía y armé un presupuesto para mi fiesta.
 *Cliente:* ${clienteNombre}
 *Teléfono:* ${clienteContacto}
@@ -786,7 +796,7 @@ function SimuladorAKContent() {
 *Fiesta:* ${eventoTipo ? EVENT_META[eventoTipo]?.label : 'A definir'}
 *Invitados:* ${adultos + ninosYAdolescentes} personas
 *Paquete:* ${pkgName}
-*Total estimado:* ${totalEst}
+*Total servicios AK:* ${totalEst}${salonLine}
 *Presupuesto:* #${generatedId || 'A generar'}
 ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/ver?cliente=1&token=${token || ''}` : ''}`;
 
@@ -873,6 +883,8 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               annualProjection={priceStats.annualProjection}
               pricePerPerson={priceStats.precioPorPersona}
               showSignatures={false}
+              clubUruguayCosto={clubUruguayDetails?.precioActual ?? 0}
+              clubUruguayAnnualProjection={clubUruguayDetails?.projection}
               subtotalBrutoOverride={priceStats.subtotalBruto}
               descuentoPromoOverride={priceStats.descPromo}
               totalFinalOverride={priceStats.totalFinal}
@@ -1245,6 +1257,27 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                           </div>
                         )}
                       </div>
+
+                      {clubUruguayDetails && (
+                        <section className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-left">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-amber-950">
+                              Club Uruguay · alquiler independiente
+                            </h4>
+                            <span className="text-xs font-black text-amber-800">
+                              {formatCurrency(clubUruguayDetails.precioActual)}
+                            </span>
+                          </div>
+                          {clubUruguayDetails.projection.applies && (
+                            <p className="mt-2 text-[10px] font-semibold text-amber-900">
+                              Referencia {clubUruguayDetails.projection.eventYear}: {formatCurrency(clubUruguayDetails.projection.adjustedTotal)} ({clubUruguayDetails.projection.adjustmentPct}% anual).
+                            </p>
+                          )}
+                          <p className="mt-2 text-[10px] leading-relaxed text-amber-900">
+                            No integra el total de servicios AK. Se contrata y abona por separado con la administración del salón.
+                          </p>
+                        </section>
+                      )}
 
                       {priceStats.annualProjection.applies && (
                         <section className="rounded-xl border border-border bg-muted/20 p-4">

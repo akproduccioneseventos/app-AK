@@ -226,6 +226,12 @@ function SocialMediaPageContent() {
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
+                    <Button asChild variant="default" className="bg-rose-600 hover:bg-rose-700 text-white font-bold shadow-md shadow-rose-600/20">
+                        <Link href="/empresa/creador-anuncios">
+                            <Sparkles className="w-4 h-4 mr-2 text-rose-200" />
+                            Creador & Auditor de Anuncios
+                        </Link>
+                    </Button>
                     <Button asChild variant="default" className="bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-md shadow-amber-600/20">
                         <Link href="/empresa/presencia-digital">
                             <Sparkles className="w-4 h-4 mr-2 text-amber-200" />

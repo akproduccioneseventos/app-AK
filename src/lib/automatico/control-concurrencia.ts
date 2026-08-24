@@ -76,11 +76,7 @@ export async function liberarLock(): Promise<void> {
   try {
     await writeData(
       LOCK_FILE,
-      {
-        enCurso: false,
-        iniciadoEn: undefined,
-        origen: undefined,
-      },
+      { enCurso: false },
       undefined,
       { skipAutoBackup: true },
     );

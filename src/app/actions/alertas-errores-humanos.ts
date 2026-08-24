@@ -52,8 +52,3 @@ export async function descartarAlertaErrorHumano(
   }
 }
 
-export async function getDescartesAlertas(): Promise<DescarteAlerta[]> {
-  await requireAppSession();
-  return readData<DescarteAlerta[]>(DESCARTES_FILE, []);
-}
-

@@ -538,7 +538,6 @@ export default function Plataforma360Page() {
           fileName,
           mimeType: blob.type || 'video/mp4',
           authorName: 'Plataforma 360',
-          metadata: { accessToken, guestId, guestAccessToken },
         });
 
         setProgress(100);
@@ -598,7 +597,6 @@ export default function Plataforma360Page() {
           fileName: `360-video-${Date.now()}${ext}`,
           mimeType: blob.type || 'video/mp4',
           authorName: 'Plataforma 360',
-          metadata: { accessToken, guestId, guestAccessToken },
         });
         setProgress(100);
         setLocalStatus('done');
@@ -1061,7 +1059,13 @@ export default function Plataforma360Page() {
       )}
 
       <KioskUnlockButton />
-      <SyncStatusIndicator fiestaId={fiestaId} moduleId="plataforma-360" />
+      <SyncStatusIndicator
+        fiestaId={fiestaId}
+        moduleId="plataforma-360"
+        accessToken={accessToken}
+        guestId={guestId}
+        guestAccessToken={guestAccessToken}
+      />
     </div>
   );
 }

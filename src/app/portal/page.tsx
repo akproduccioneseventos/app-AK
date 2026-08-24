@@ -71,8 +71,57 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
+import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
+import type { ServicioEmpresa } from '@/types/empresa';
+import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
+
+const PORTAL_EXTRA_DEFINITIONS = [
+  {
+    id: 'hora_extra_dj',
+    titulo: 'Hora adicional de fiesta y DJ',
+    descripcion: 'Una hora más de música, luces y diversión para que nadie se vaya temprano.',
+    aliases: ['hora adicional', 'hora extra', 'dj'],
+    icono: '🕒',
+  },
+  {
+    id: 'robot_led_show',
+    titulo: 'Show de Robot LED gigante',
+    descripcion: 'Ingreso sorpresa con animación en plena tanda de baile.',
+    aliases: ['robot led', 'robot'],
+    icono: '🤖',
+  },
+  {
+    id: 'humo_bajo_vals',
+    titulo: 'Vals en las Nubes (Humo bajo)',
+    descripcion: 'Efecto visual para el ingreso o el baile de novios y quinceañera.',
+    aliases: ['humo bajo', 'vals en las nubes', 'nubes'],
+    icono: '☁️',
+  },
+  {
+    id: 'plataforma_360',
+    titulo: 'Plataforma 360',
+    descripcion: 'Videos giratorios con efectos y entrega digital para tus invitados.',
+    aliases: ['plataforma 360', '360'],
+    icono: '🎥',
+  },
+] as const;
+
+function normalizeCatalogText(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function getPublicServicePriceLabel(service?: ServicioEmpresa): string {
+  if (!service) return 'Valor a confirmar';
+  const amount = service.calculationMethod === 'porPersona'
+    ? service.precioPorPersona
+    : service.precioVenta ?? service.precioBase;
+  if (!amount || amount <= 0) return 'Valor a confirmar';
+  return service.calculationMethod === 'porPersona'
+    ? `${formatCurrency(amount)} por persona`
+    : formatCurrency(amount);
+}
 
 type ModuleId = keyof Omit<ClientPortalSettings, 'enabled' | 'accessKey' | 'accessPhase' | 'liveAccessDaysBefore' | 'cuentasBancarias' | 'simuladorInvitadosConfig' | 'clientServiceChangeRequests'>;
 
@@ -217,6 +266,21 @@ function ClientPortalContent() {
   const [isSavingMusic, setIsSavingMusic] = useState(false);
   const [musicSuggestion, setMusicSuggestion] = useState('');
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
+  const [serviciosPublicos, setServiciosPublicos] = useState<ServicioEmpresa[]>([]);
+
+  useEffect(() => {
+    void getServiciosEmpresaPublicos()
+      .then(setServiciosPublicos)
+      .catch(() => setServiciosPublicos([]));
+  }, []);
+
+  const portalExtras = useMemo(() => PORTAL_EXTRA_DEFINITIONS.map((definition) => {
+    const service = serviciosPublicos.find((candidate) => {
+      const searchable = normalizeCatalogText(`${candidate.nombre} ${candidate.categoria || ''} ${candidate.subcategoria || ''}`);
+      return definition.aliases.some((alias) => searchable.includes(normalizeCatalogText(alias)));
+    });
+    return { ...definition, precio: getPublicServicePriceLabel(service) };
+  }), [serviciosPublicos]);
 
   useEffect(() => {
     if (!fiestaId) {
@@ -717,36 +781,7 @@ function ClientPortalContent() {
                 ¿Querés sumar algún toque especial a tu noche? Elegí lo que te guste y tu organizador lo coordina con vos.
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
-                {[
-                  {
-                    id: 'hora_extra_dj',
-                    titulo: 'Hora adicional de fiesta y DJ',
-                    descripcion: 'Una hora más de música, luces y diversión para que nadie se vaya temprano.',
-                    precio: '$ 4.500',
-                    icono: '🕒',
-                  },
-                  {
-                    id: 'robot_led_show',
-                    titulo: 'Show de Robot LED gigante',
-                    descripcion: 'Ingreso sorpresa con chisperos fríos y animación en plena tanda de baile.',
-                    precio: '$ 8.500',
-                    icono: '🤖',
-                  },
-                  {
-                    id: 'humo_bajo_vals',
-                    titulo: 'Vals en las Nubes (Humo bajo)',
-                    descripcion: 'Efecto cinematográfico para el ingreso o el baile de novios y quinceañera.',
-                    precio: '$ 6.000',
-                    icono: '💨',
-                  },
-                  {
-                    id: 'plataforma_360',
-                    titulo: 'Plataforma 360 / Touchpix',
-                    descripcion: 'Videos giratorios con efectos y descarga instantánea por QR para tus invitados.',
-                    precio: '$ 12.000',
-                    icono: '🎥',
-                  },
-                ].map((extra) => (
+                {portalExtras.map((extra) => (
                   <div key={extra.id} className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm flex flex-col justify-between gap-3">
                     <div>
                       <div className="flex items-center justify-between gap-2">
@@ -759,9 +794,9 @@ function ClientPortalContent() {
                       <p className="text-xs text-slate-500 mt-1 leading-relaxed">{extra.descripcion}</p>
                     </div>
                     <a
-                      href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                      href={buildAkWhatsAppUrl(
                         `¡Hola AK Producciones! En mi portal de ${fiesta.configuracion.nombreEvento} vi el extra "${extra.titulo}" (${extra.precio}) y me gustaría sumarlo a mi fiesta.`
-                      )}`}
+                      )}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 px-3 py-2 text-xs font-bold text-white transition hover:scale-[1.02]"

@@ -49,13 +49,7 @@ const nextConfig = {
       },
     ];
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   transpilePackages: ['framer-motion'],
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   experimental: {
     serverActions: {
       bodySizeLimit: '20mb',

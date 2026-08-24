@@ -40,6 +40,7 @@ import {
 import type { EntertainmentModuleId } from '@/lib/entertainment/station-config';
 import { canUseNextImage } from '@/lib/next-image-url';
 import { ConciergeWidget } from '@/components/concierge/ConciergeWidget';
+import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 
 const STATION_ICONS: Record<EntertainmentModuleId, typeof Camera> = {
   fotocabina: Camera,
@@ -305,9 +306,9 @@ export default function EventoHubPage() {
             </p>
             <div className="mt-3.5 flex flex-wrap justify-center gap-2.5">
               <a
-                href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                href={buildAkWhatsAppUrl(
                   `¡Hola AK Producciones! Estoy en la fiesta de ${eventName} y me encantó la organización. Quería consultarles para mi fiesta.`
-                )}`}
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:scale-105"
@@ -316,7 +317,7 @@ export default function EventoHubPage() {
                 <span>Escribinos por WhatsApp</span>
               </a>
               <Link
-                href="/simulador-de-presupuesto"
+                href={`/simulador-de-presupuesto?source=guest_portal&refFiesta=${encodeURIComponent(fiestaId)}`}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
               >
                 <span>Calcular presupuesto</span>
