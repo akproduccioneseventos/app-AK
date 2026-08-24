@@ -18,12 +18,16 @@ export interface OfflineMediaItem {
   mimeType: string;
   createdAt: string;
   authorName: string;
+  /** Identidad del invitado que sacó la foto en la estación/kiosco */
+  guestId?: string;
+  guestAccessToken?: string;
+  accessToken?: string;
   metadata?: Record<string, any>;
   attempts: number;
   lastError?: string | null;
 }
 
-const SENSITIVE_OFFLINE_METADATA_KEY = /(?:accessToken|guestAccessToken|guestId|token|secret|credential)/i;
+const SENSITIVE_OFFLINE_METADATA_KEY = /(?:secret|credential|password)/i;
 
 function sanitizeOfflineMetadata(
   metadata?: Record<string, any>,

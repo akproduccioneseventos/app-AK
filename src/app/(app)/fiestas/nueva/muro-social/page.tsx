@@ -908,11 +908,19 @@ function MuroSocialContent() {
         document.body.appendChild(a);
         a.click();
         a.remove();
-        window.URL.revokeObjectURL(url);
+        const pendingCount = parseInt(response.headers.get('X-Pending-Photos') || '0', 10);
+        const hiddenCount = parseInt(response.headers.get('X-Hidden-Photos') || '0', 10);
+        const notice = (pendingCount > 0 || hiddenCount > 0)
+          ? ` (Nota: hay ${pendingCount} fotos pendientes y ${hiddenCount} ocultas indicadas en ESTADO_DE_FOTOS.txt)`
+          : '';
+
         // Clear after successful download
         await clearGallery(fiestaId);
         setPostCount(0);
-        toast({ title: 'Descarga completada y galería limpiada ✓', description: 'El ZIP se descargó y todas las fotos fueron eliminadas.' });
+        toast({
+          title: 'Descarga completada y galería limpiada ✓',
+          description: `El ZIP se descargó y las fotos activas fueron eliminadas.${notice}`,
+        });
       } else {
         const err = await response.json().catch(() => ({}));
         toast({ title: 'Error al descargar', description: (err as any).error || 'No se pudo generar el ZIP.', variant: 'destructive' });
@@ -930,6 +938,12 @@ function MuroSocialContent() {
     try {
       const response = await fetch(`/api/social-gallery/${fiestaId}/download`);
       if (response.ok) {
+        const pendingCount = parseInt(response.headers.get('X-Pending-Photos') || '0', 10);
+        const hiddenCount = parseInt(response.headers.get('X-Hidden-Photos') || '0', 10);
+        const notice = (pendingCount > 0 || hiddenCount > 0)
+          ? ` (Nota: hay ${pendingCount} fotos pendientes y ${hiddenCount} ocultas indicadas en ESTADO_DE_FOTOS.txt)`
+          : '';
+
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -939,7 +953,10 @@ function MuroSocialContent() {
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
-        toast({ title: 'Descarga completada ✓', description: 'El ZIP con todas las fotos se descargó.' });
+        toast({
+          title: 'Descarga completada ✓',
+          description: `El ZIP con todas las fotos se descargó.${notice}`,
+        });
       } else {
         const err = await response.json().catch(() => ({}));
         toast({ title: 'Error al descargar', description: (err as any).error || 'No se pudo generar el ZIP.', variant: 'destructive' });

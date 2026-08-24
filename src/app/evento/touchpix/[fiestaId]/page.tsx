@@ -633,7 +633,11 @@ export default function TouchpixPage() {
       }
 
       const res = await uploadTouchpixPhoto(formData);
-      if (!res.success) throw new Error(res.error || 'Error al subir');
+      if (!res.success) {
+        // Si el servidor rechazó la foto por regla de negocio/moderación/permiso mientras hay internet,
+        // no encolamos en offline para evitar reintentar errores permanentes.
+        throw new Error(res.error || 'Error al subir');
+      }
 
       await updateEntertainmentSessionStatus(
         fiestaId,
@@ -648,8 +652,11 @@ export default function TouchpixPage() {
         setShowSuccess(false);
         retake();
       }, 3000);
-    } catch (err) {
-      if (pendingFile) {
+    } catch (err: any) {
+      const errMsg = String(err?.message || '');
+      const isNetworkOrOffline = typeof navigator !== 'undefined' && (!navigator.onLine || /network|failed to fetch|sin conexi[oó]n|timeout/i.test(errMsg));
+
+      if (pendingFile && isNetworkOrOffline) {
         try {
           await saveOfflineMedia({
             fiestaId,
@@ -658,6 +665,9 @@ export default function TouchpixPage() {
             fileName: pendingFile.name,
             mimeType: pendingFile.type || 'image/jpeg',
             authorName: 'Cabina Touchpix',
+            guestId,
+            guestAccessToken,
+            accessToken,
             metadata: {
               selectedTheme: activeTab === 'ai_themes'
                 ? TOUCHPIX_THEMES.find(theme => theme.id === selectedAiTheme)?.label
@@ -685,7 +695,7 @@ export default function TouchpixPage() {
           console.error('[Touchpix] No se pudo guardar la foto sin conexión:', offlineError);
         }
       }
-      alert('No se pudo subir ni guardar la foto. ' + (err as Error).message);
+      alert('No se pudo subir la foto: ' + errMsg);
     } finally {
       setIsUploading(false);
     }

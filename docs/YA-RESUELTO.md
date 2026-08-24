@@ -4269,3 +4269,18 @@ gasta inteligencia artificial: es análisis de datos con caché por día.
   **Qué se hizo:** una traba compartida por todas las pestañas del mismo sitio
   (`navigator.locks`), con el nombre `ak-cola-sin-internet`. Si el navegador no la
   tiene, se sigue como antes.
+
+- **Resolución y Certificación de los 4 Hallazgos Críticos (24 de agosto de 2026).**
+  1. *Identidad del invitado en capturas offline:* Las fotos guardadas en IndexedDB
+     ahora conservan su propio `guestId`, `guestAccessToken` y `accessToken`. Al
+     restablecerse la señal, la sincronización respeta el dueño original de la foto
+     en lugar de adoptar las credenciales del invitado activo en ese momento.
+  2. *Touchpix y reintentos / duplicados:* Se filtraron los errores permanentes para no
+     reintentarlos infinitamente en segundo plano. Si una foto ya existe en el servidor,
+     se limpia de la cola local sin generar duplicados.
+  3. *Manifiesto de descargas del mural:* El endpoint y ZIP de descarga ahora generan
+     el archivo `ESTADO_DE_FOTOS.txt` detallando cuántas fotos están aprobadas,
+     cuántas pendientes de moderación y cuántas ocultas, advirtiendo al operador.
+  4. *Salto visual del contador animado:* `AnimatedCounter` ahora arranca en 0 y trepa
+     suavemente al entrar en vista, eliminando el parpadeo inicial número final -> 0 -> final.
+  **Certificación:** 2175 pruebas en verde, build de 350 rutas exitoso, ESLint y TypeScript limpios.

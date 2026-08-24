@@ -24,10 +24,27 @@ export interface OfflineSyncScope {
   guestAccessToken?: string;
 }
 
+function isPermanentError(errorMsg: string): boolean {
+  if (!errorMsg) return false;
+  return /ya fue subida|no existe|no autorizad|sesion no|invalido|inválido|bloqueado|no habilitado|límite alcanzado|limite alcanzado|inapropiado/i.test(errorMsg);
+}
+
+function isDuplicateError(errorMsg: string): boolean {
+  if (!errorMsg) return false;
+  return /ya fue subida|duplicad|already exists/i.test(errorMsg);
+}
+
 function credentialsForItem(item: OfflineMediaItem, scope: OfflineSyncScope) {
-  if (scope.fiestaId && item.fiestaId !== scope.fiestaId) return {};
-  if (scope.moduleId && item.moduleId !== scope.moduleId) return {};
-  return scope;
+  const matchesScopeEvent = !scope.fiestaId || item.fiestaId === scope.fiestaId;
+  const matchesScopeModule = !scope.moduleId || item.moduleId === scope.moduleId;
+
+  return {
+    // La identidad del invitado pertenece EXCLUSIVAMENTE al ítem que la guardó.
+    // Nunca asociar una captura anónima o de otro invitado al guestId que esté activo en el navegador al sincronizar.
+    guestId: item.guestId,
+    guestAccessToken: item.guestAccessToken,
+    accessToken: item.accessToken || (matchesScopeEvent && matchesScopeModule ? scope.accessToken : undefined),
+  };
 }
 
 /**
@@ -141,14 +158,25 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
           if (!success && res?.error) throw new Error(res.error);
         }
 
-        if (!success) throw new Error('El servidor no confirmo la recepcion');
+        if (!success) {
+          throw new Error('El servidor no confirmo la recepcion');
+        }
         await removeOfflineMedia(item.id);
         processed++;
       } catch (err: any) {
         errors++;
-        console.warn(`[OfflineSync] Error al subir captura ${item.id}:`, err.message);
-        await updateOfflineMediaAttempt(item.id, err.message || 'Error de conexion');
-        // La captura se conserva hasta que el servidor confirme la subida.
+        const msg = String(err?.message || '');
+        if (isDuplicateError(msg)) {
+          console.log(`[OfflineSync] Captura ${item.id} ya existía en el servidor. Quitando de la cola.`);
+          await removeOfflineMedia(item.id);
+          processed++;
+        } else if (isPermanentError(msg) || (item.attempts >= 3)) {
+          console.warn(`[OfflineSync] Descartando captura ${item.id} tras error definitivo o ${item.attempts + 1} intentos:`, msg);
+          await removeOfflineMedia(item.id);
+        } else {
+          console.warn(`[OfflineSync] Error al subir captura ${item.id} (intento ${item.attempts + 1}):`, msg);
+          await updateOfflineMediaAttempt(item.id, msg || 'Error de conexion');
+        }
       }
     }
   } finally {

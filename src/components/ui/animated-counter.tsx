@@ -61,9 +61,9 @@ export function AnimatedCounter({
     return <span ref={ref} className={className}>{stringVal}</span>;
   }
 
-  const renderedText = isInView
-    ? stringVal.replace(String(targetNumber), String(currentNumber))
-    : stringVal;
+  // Si no hay reducción de movimiento, muestra currentNumber (que inicia en 0)
+  // y va trepando suavemente hasta targetNumber al entrar en vista.
+  const renderedText = stringVal.replace(String(targetNumber), String(currentNumber));
 
   return (
     <span ref={ref} className={className}>

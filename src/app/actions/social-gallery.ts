@@ -752,9 +752,24 @@ export async function clearGallery(fiestaId: string): Promise<{ success: boolean
   }
 }
 
+export interface PhotoZipItem {
+  path: string;
+  name: string;
+  moderationStatus: 'approved' | 'pending' | 'hidden';
+  authorName?: string;
+}
+
 export async function getPhotoFilePathsForZip(
   fiestaId: string
-): Promise<{ path: string; name: string }[]> {
+): Promise<{
+  photos: PhotoZipItem[];
+  stats: {
+    total: number;
+    approved: number;
+    pending: number;
+    hidden: number;
+  };
+}> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const db = await getDb();
@@ -762,18 +777,46 @@ export async function getPhotoFilePathsForZip(
       .collection(GALLERY_COLLECTION)
       .where('fiestaId', '==', fiestaId)
       .get();
-    return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
+
+    let approved = 0;
+    let pending = 0;
+    let hidden = 0;
+
+    const photos: PhotoZipItem[] = snapshot.docs.map((doc: QueryDocumentSnapshot) => {
       const data = doc.data() as SocialGalleryPost;
+      const status = (data.moderationStatus || 'approved') as 'approved' | 'pending' | 'hidden';
+      if (status === 'approved') approved++;
+      else if (status === 'pending') pending++;
+      else if (status === 'hidden') hidden++;
+
       let name: string;
       try {
         name = new URL(data.imageUrl).pathname.split('/').filter(Boolean).pop() || data.id;
       } catch {
         name = data.id;
       }
-      return { path: data.imageUrl, name };
+      return {
+        path: data.imageUrl,
+        name,
+        moderationStatus: status,
+        authorName: data.authorName,
+      };
     });
+
+    return {
+      photos,
+      stats: {
+        total: photos.length,
+        approved,
+        pending,
+        hidden,
+      },
+    };
   } catch {
-    return [];
+    return {
+      photos: [],
+      stats: { total: 0, approved: 0, pending: 0, hidden: 0 },
+    };
   }
 }
 
