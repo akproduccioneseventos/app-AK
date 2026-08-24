@@ -83,6 +83,7 @@ export interface BudgetDocumentProps {
   clienteNombre?: string;
   showSignatures?: boolean;
   clubUruguayCosto?: number;
+  clubUruguayAnnualProjection?: AnnualAdjustmentProjection;
   itemsAgrupadosOverride?: Record<string, ItemPresupuestado[]>;
   subtotalBrutoOverride?: number;
   descuentoPromoOverride?: number;
@@ -101,6 +102,7 @@ export default function BudgetDocument({
   clienteNombre,
   showSignatures = false,
   clubUruguayCosto = 0,
+  clubUruguayAnnualProjection,
   itemsAgrupadosOverride,
   subtotalBrutoOverride,
   descuentoPromoOverride,
@@ -558,7 +560,10 @@ export default function BudgetDocument({
               <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Salón seleccionado: Club Uruguay
             </p>
             <p className="text-xs text-emerald-700 mt-1">
-              Costo: {formatCurrency(clubUruguayCostoCalculated)} — Este monto se coordinará y formará parte del presupuesto final.
+              Alquiler independiente vigente: {formatCurrency(clubUruguayCostoCalculated)}.
+              {clubUruguayAnnualProjection?.applies && (
+                <> Referencia {clubUruguayAnnualProjection.eventYear}: {formatCurrency(clubUruguayAnnualProjection.adjustedTotal)}.</>
+              )} Este monto no integra el total de servicios AK y se abona mediante contrato y recibo separado del salón.
             </p>
           </section>
         )}

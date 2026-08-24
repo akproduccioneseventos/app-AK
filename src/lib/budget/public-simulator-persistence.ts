@@ -88,7 +88,7 @@ function validateSubmission(data: LeadFromQuickBudget): string | null {
   if (!name || name.length < 3 || name.length > 120) return 'Ingresa un nombre valido.';
   if (!/^09\d{7}$/.test(phone)) return 'Ingresa un celular uruguayo valido.';
   if (totalGuests < 1 || totalGuests > 1000) return 'La cantidad de invitados no es valida.';
-  if (!data.paqueteId && selectedIds.length === 0 && !data.includeClubUruguay) {
+  if (!data.paqueteId && selectedIds.length === 0) {
     return 'El presupuesto no tiene servicios seleccionados.';
   }
   if (selectedIds.length > 150) return 'El presupuesto supera el limite de servicios.';
@@ -251,20 +251,8 @@ export async function persistPublicSimulatorBudget(
   const removableIds = new Set(removableServices.map(service => service.id));
   const excludedPackageServiceIds = Array.from(new Set(data.excludedPackageServiceIds || []))
     .filter(id => removableIds.has(id));
-  const clubConfig = config.clubUruguayConfig || defaultClubUruguayConfig;
-  const syntheticServices = data.includeClubUruguay && clubConfig.activo
-    ? [{
-        servicio: {
-          id: 'serv_salon_club_uruguay',
-          nombre: 'Salon Club Uruguay',
-          tipoItem: 'Servicio' as const,
-          categoria: 'Otros servicios' as const,
-          precioVenta: clubConfig.precio,
-          precioBase: clubConfig.precio,
-          calculationMethod: 'fijo' as const,
-        },
-      }]
-    : [];
+  // El Club Uruguay se informa como alquiler independiente y nunca integra
+  // el total de servicios de AK que se guarda en el presupuesto y el CRM.
   const pricing = calculateSimulatorPricing({
     config,
     services,
@@ -273,7 +261,6 @@ export async function persistPublicSimulatorBudget(
     selectedPaqueteId: selectedPackage?.id,
     selectedServices,
     excludedPackageServiceIds,
-    syntheticServices,
     eventoFecha: eventDate,
     annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage || 0,
     currentYear: now.getFullYear(),

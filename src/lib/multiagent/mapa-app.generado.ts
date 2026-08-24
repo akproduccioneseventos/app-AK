@@ -255,6 +255,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/empresa/contabilidad/flujo-caja",
     "/empresa/contabilidad/gastos",
     "/empresa/contabilidad/reportes",
+    "/empresa/creador-anuncios",
     "/empresa/crm",
     "/empresa/dashboard",
     "/empresa/empleados/reporte",

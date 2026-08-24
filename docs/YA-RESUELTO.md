@@ -17,6 +17,47 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Correccion conjunta de las propuestas 1125 y 1126 (23 de agosto de 2026)
+
+- **Los anuncios guardados ya no se mezclan entre usuarios**
+  (`src/app/actions/creador-anuncios.ts`, `src/lib/auth/require-session.ts`): el
+  servidor exige permiso comercial, identifica a la persona por su sesion y usa
+  una biblioteca separada. Tambien valida los datos recibidos y limita el tamano
+  de cada anuncio antes de guardarlo.
+- **El creador usa el contacto real y no promete resultados inventados**
+  (`src/lib/marketing/creador-anuncios-ia.ts`,
+  `src/lib/marketing/auditor-anuncios-ia.ts`,
+  `src/app/(app)/empresa/creador-anuncios/page.tsx`): WhatsApp sale de la
+  configuracion oficial con respaldo central, los tres objetivos tienen destino
+  valido y la revision se presenta como una guia de claridad. Se quitaron frases
+  que garantizaban duplicar contactos, precios congelados, financiacion o
+  servicios que no estaban confirmados.
+- **Las cuotas del simulador usan el numero que corresponde a la fecha**
+  (`src/lib/simulator/payment-plan.ts`,
+  `src/app/simulador-de-presupuesto/page.tsx`): para el ano vigente toman el
+  precio actual y para eventos futuros toman el total proyectado con ajuste. La
+  sena se lee de Ajustes, el plazo termina 30 dias antes del evento y una fiesta
+  proxima no queda forzada falsamente a dos cuotas.
+- **Portal e invitados dejaron de tener precios y telefonos copiados a mano**
+  (`src/app/portal/page.tsx`, `src/app/evento/album/[fiestaId]/page.tsx`,
+  `src/app/evento/hub/[fiestaId]/page.tsx`): los extras consultan el catalogo
+  publico, muestran "Valor a confirmar" si no hay precio y usan el WhatsApp
+  oficial. El simulador abierto desde una fiesta conserva el origen y la fiesta
+  de referencia para el CRM.
+- **La integracion revelo tres campos repetidos que impedían compilar**
+  (`src/lib/agentes/motor-agentes.ts`): cada borrador de seguimiento o cobro
+  conserva un solo `createdAt`.
+- **Pruebas agregadas:** aislamiento y permiso de anuncios, destinos de campana,
+  eventos 2026/2027/2028, sena configurable y evento proximo. Esto evita volver
+  a introducir precios, accesos o cuotas escritos a mano.
+
+- **La Orden: Mejoras comerciales y de venta antes de publicar (23 de agosto de 2026):**
+  - **Bloque 1 — Contacto comercial directo para el invitado (`src/app/evento/album/[fiestaId]/page.tsx`, `src/app/evento/hub/[fiestaId]/page.tsx`):** Botón directo y no invasivo al WhatsApp oficial con mensaje contextualizado ("Estuve viendo el álbum de fotos de la fiesta de [Nombre] y me encantó"), crédito de AK Producciones estilizado y visible con logo, y trazabilidad hacia el simulador para saber desde qué fiesta llegó la consulta.
+  - **Bloque 2 — Cierre comercial en la reunión (`src/app/presentacion-led/`, `src/app/(app)/contabilidad/comercial-360/page.tsx`):** Salón Club Uruguay accesible en cualquier momento de la presentación, propuesta de paquetes integrales con combo y ahorro visible, botón para compartir la propuesta a la pareja por WhatsApp o enlace, y cartel visible de "EJEMPLO ILUSTRATIVO — NO ES PRECIO REAL" en Comercial 360 para evitar confusiones de costos en reuniones de capacitación.
+  - **Bloque 3 — Extras contratables en el portal del cliente (`src/app/portal/page.tsx`, `src/app/portal/c/[accessKey]/PublicPortalView.tsx`):** Sección de mejoras sugeridas (hora extra de fiesta, robot LED gigante, vals en las nubes, plataforma 360) con precios leídos del catálogo oficial o "Valor a confirmar" si falta el dato, y botón directo "Me interesa sumar esto" que prepara mensaje a WhatsApp para coordinación humana sin cobros automáticos ni cambios al contrato sin aprobación.
+  - **Bloque 4 — Simulador de presupuesto con tranquilidad y decisión (`src/app/simulador-de-presupuesto/page.tsx`, `src/lib/simulator/payment-plan.ts`):** Condiciones formales con validez de 30 días, botón "Modificar mi presupuesto" para editar sin perder datos y plan de pagos estimado con la seña configurada. Las cuotas usan el total proyectado cuando hay ajuste anual y se aclara que el calendario definitivo se confirma en el contrato; no se promete financiación ni intereses sin respaldo.
+  - **Bloque 5 — Textos humanos y ortografía cuidada (`src/app/portal/c/[accessKey]/PublicPortalView.tsx`, `src/app/portal/c/[accessKey]/PublicPortalProView.tsx`):** Reemplazo de todos los textos fríos o con errores tipográficos ("AK todavia no cargo...") por mensajes orientados al servicio ("Detalle en preparación por el equipo AK", "Estamos coordinando los horarios del evento", "Tu propuesta formal se está preparando"), números con separador de miles sin decimales y orientación permanente a la acción.
+
 - **Orden 2: Redes sociales, WhatsApp personal, agenda y modelos de portada (22 de agosto de 2026):**
   - **Bloque 2.1 — Bandeja de salida de WhatsApp sin envíos inventados (`src/app/actions/scheduled-messages.ts`, `src/app/(app)/contabilidad/crm/outbox/page.tsx`, `src/__tests__/crm-outbox-whatsapp.test.ts`):** Validación estricta con `toWhatsAppNumber()` para números uruguayos (`+598 9X...`), bloqueo de clics con teléfonos fijos o inválidos informando al usuario en criollo, botón "En realidad no lo mandé" para revertir mensajes enviados a estado pendiente, y modal interactivo para editar el texto antes de enviar.
   - **Bloque 2.2 — Planificador de redes sociales transparente (`src/app/actions/social-media.ts`, `src/components/social-media/NewPostDialog.tsx`, `src/components/social-media/SocialPostCard.tsx`, `src/app/(app)/empresa/redes-sociales/page.tsx`):** Diferenciación clara entre redes automáticas desatendidas (Instagram, Facebook) y redes de copia manual (TikTok, WhatsApp, Threads, X, Pinterest). Botón "Publicar ahora" con estado en tiempo real, botón rápido de "Copiar texto" y avisos descriptivos en caso de error. Pestañas organizadas para "Todos", "Listos para copiar", "Con error" y "Calendario".
@@ -4173,3 +4214,37 @@ gasta inteligencia artificial: es análisis de datos con caché por día.
   portal. Como esa función devuelve el total base mientras el presupuesto no esté
   aceptado, **los presupuestos de venta no cambian en nada**: sólo se alinean los
   ya contratados, que son los que se ven en el portal.
+
+- **El reloj del simulador volvió, y no se saca más (23 de agosto de 2026).** Se
+  había sacado por pedido de una auditoría de venta, y **era una decisión de
+  marketing del dueño**: el contador está ahí a propósito, para que la gente se
+  comunique. Volvió a ponerse.
+  **El texto se cambió**, porque el dueño dijo que el anterior *"promete cosas que
+  no quiero"*: antes decía que se congelaban tarifas, promociones y disponibilidad
+  de salones. Ahora dice sólo *"Tu presupuesto queda reservado — escribinos ahora y
+  seguimos con tu presupuesto en la mano"*, sin prometer nada.
+  **Está anotado en `CLAUDE.md`: no se vuelve a sacar ni se reporta como problema.**
+
+## PR #1128 reconstruida sobre main actual (24 de agosto de 2026)
+
+- **Falso positivo descartado:** la PR no tenía historias independientes. GitHub confirmó
+  como ancestro común `3e259324076ba43434506a739a4354cb3f3d0a8c`. La rama se reconstruyó
+  con padre directo en el main actual para conservar los 13 commits posteriores.
+- **Decisiones comerciales preservadas:** no se quitó el reloj del simulador, el 15% anual,
+  el 50% del Club Uruguay ni el descuento comercial aprobado. Se descartaron los cambios
+  de la auditoría que pretendían eliminarlos.
+- **Club Uruguay sin doble conteo:** el simulador IA y la persistencia pública ya no agregan
+  el alquiler como servicio sintético dentro del total de servicios AK. La elección del
+  salón se sigue guardando y se muestra aparte; la promoción comercial permanece visible.
+- **Muro social y barra:** la moderación queda limitada al permiso NOCHE de la fiesta
+  correspondiente y la estación de barra publica con credencial firmada de esa fiesta.
+- **Entretenimiento offline:** fotocabina, 360, espejo y Touchpix conservan capturas hasta
+  que el servidor confirma la subida, separan colas por fiesta/módulo y no guardan tokens.
+- **Datos internos:** agenda no convierte fallos en listas vacías, catering serializa
+  autoguardados, FCM confirma persistencia y los locks no escriben `undefined`.
+- **Despliegue:** App Hosting conserva la web y el workflow publica únicamente el
+  despertador programado con Node 20; el build ya no oculta errores de TypeScript/lint.
+- **Dependencias:** se actualizó Next dentro de la rama 15.5 y se agregaron correcciones
+  puntuales que eliminaron la vulnerabilidad crítica de producción detectada.
+- **Evidencia posterior a la conciliación:** TypeScript y ESLint aprobados; 9 suites focalizadas,
+  66/66 pruebas aprobadas. No se atribuyen a este commit pruebas externas no ejecutadas.

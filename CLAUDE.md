@@ -174,6 +174,79 @@ lo que no había que gastar.
 **Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
 comida o permisos? Si la respuesta es no, va a una orden.**
 
+## LA APP ES AUTOMATICA Y CON INTELIGENCIA ARTIFICIAL AL MAXIMO
+
+**Definicion del dueño, 23 de agosto de 2026.** No es un pedido suelto: es lo que
+distingue a esta app de una planilla. Palabras suyas:
+
+> *"Mi app se caracteriza por ser automatica y con IA al maximo."*
+> *"Todo lo que pueda ser automatico seria bueno; si no, es igual que hacerlo
+> manual."*
+
+**Como se aplica, sin preguntar cada vez:**
+
+1. **Ante dos caminos, se elige el automatico.** Aunque cueste mas trabajo
+   programarlo. El trabajo se hace una vez; lo manual se paga todos los dias.
+2. **Antes de dar una pantalla por terminada, la pregunta es: ¿esto lo puede hacer
+   la app sola?** Si la respuesta es si y no se hizo, no esta terminada.
+3. **"Copiá y pegá" no es una entrega.** Si algo queda manual, hay que decirlo en
+   pantalla y dejarlo **a un toque**: el texto copiado, el archivo bajado y la otra
+   aplicacion abierta. La diferencia entre eso y "copiá esto" es la diferencia
+   entre que lo use y que no lo use.
+4. **Nada espera a que alguien se acuerde.** Si algo tiene que pasar a cierta hora
+   o cada tanto, lo dispara el despertador, no una persona.
+5. **Si una tarea la puede hacer un agente, la hace un agente**, y avisa lo que
+   hizo.
+
+**Las cuatro cosas que NO se automatizan, y no se discuten:**
+
+- **Mandar mensajes a clientes o prospectos.** Se preparan; los manda una persona.
+- **Cobrar**, marcar como pagado o emitir una factura.
+- **Cerrar un presupuesto** o darlo por aceptado.
+- **Tocar permisos** o quien ve que.
+
+La linea es: **automatico para mirar, detectar, preparar y avisar. Mano humana
+para lo que sale para afuera o toca plata.**
+
+**Y el limite del gasto:** si automatizar algo obliga a pagar un servicio por mes,
+**se deja preparado y se pregunta antes de contratar**. Sigue vigente: nada que
+aumente lo que se paga por mes se cambia sin avisar.
+
+
+## NO SE CAMBIA LO QUE YA FUNCIONA
+
+**Orden del dueño, 23 de agosto de 2026.** Palabras suyas:
+
+> *"No quiero que se cambien cosas que ya funcionaban."*
+
+**Pasó dos veces en un dia, y las dos por lo mismo:** una auditoria de venta dijo
+"esto seria mejor asi" sobre algo que andaba, y se mando a cambiar sin preguntarle.
+Se cambiaron dos textos que ve el cliente (la promesa de respuesta y el boton de
+precio) y **se saco el reloj del simulador**, que el dueño tenia puesto a proposito
+para que la gente se comunique. Hubo que volver todo atras.
+
+**La regla, sin vueltas:**
+
+1. **Una auditoria PROPONE. No manda.** Que un analisis diga que algo se puede
+   mejorar no lo convierte en trabajo a hacer.
+2. **Si una pantalla, un texto o una funcion YA ANDA, no se cambia sin que el dueño
+   lo pida.** Aunque parezca mejorable. Aunque tres ayudantes coincidan.
+3. **Lo unico que se arregla sin preguntar es lo que esta ROTO de verdad**: algo
+   que falla en una fiesta, una cuenta que da mal, plata que se mueve mal, alguien
+   que ve lo que no le corresponde, o una promesa que la app no cumple.
+4. **Las mejoras sobre lo que funciona se le CUENTAN al dueño y el decide.** Se
+   listan en una linea cada una, con que cambiaria para el negocio. **No se meten
+   en una orden hasta que el diga que si.**
+5. **Ojo especial con los textos que ve el cliente y con las decisiones de
+   marketing.** Un descuento, una promesa, un cartel de urgencia o un boton pueden
+   parecer mejorables y ser una decision comercial pensada. **Esos no se tocan
+   nunca sin permiso.**
+
+**La pregunta antes de mandar cualquier cambio a una orden:** ¿esto esta roto, o a
+mi me parece que estaria mejor de otra manera? **Si es lo segundo, va a la lista de
+propuestas, no a la orden.**
+
+
 ## Delegación de trabajo (preferencia del dueño del proyecto)
 
 **Regla fija, pedida por el dueño: delegar SIEMPRE en los ayudantes económicos.**
@@ -534,6 +607,11 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   salida; **el mensaje sale cuando una persona lo toca**, desde su propio WhatsApp.
   Escribirle a clientes y prospectos está bien; contestarle a cualquiera que
   escriba, no. **La línea es: preparar sí, mandar no.**
+- **El reloj del simulador VA, y es decisión suya (23 de agosto de 2026).** El
+  contador que aparece después de generar el presupuesto y congela la tarifa está
+  ahí **a propósito, para que la gente se comunique**. Se sacó una vez por pedido
+  de una auditoría de venta y el dueño lo mandó poner de nuevo. **No se vuelve a
+  sacar ni se reporta como problema.**
 - **La llave de cobros no se cambia (20 de agosto de 2026).** Estuvo escrita
   dentro de un archivo y se le propuso dos veces generar una nueva. **Decidió que
   no: se queda con la última que cargó.** No se le vuelve a plantear. El archivo

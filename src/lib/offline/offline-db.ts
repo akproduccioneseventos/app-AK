@@ -23,6 +23,19 @@ export interface OfflineMediaItem {
   lastError?: string | null;
 }
 
+const SENSITIVE_OFFLINE_METADATA_KEY = /(?:accessToken|guestAccessToken|guestId|token|secret|credential)/i;
+
+function sanitizeOfflineMetadata(
+  metadata?: Record<string, any>,
+): Record<string, any> | undefined {
+  if (!metadata) return undefined;
+
+  const entries = Object.entries(metadata);
+  const safeEntries = entries.filter(([key]) => !SENSITIVE_OFFLINE_METADATA_KEY.test(key));
+  if (safeEntries.length === entries.length) return metadata;
+  return safeEntries.length > 0 ? Object.fromEntries(safeEntries) : undefined;
+}
+
 const DB_NAME = 'ak_offline_media_storage';
 const DB_VERSION = 1;
 const STORE_NAME = 'media_queue';
@@ -61,6 +74,7 @@ export async function saveOfflineMedia(
   const id = `offline_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const item: OfflineMediaItem = {
     ...entry,
+    metadata: sanitizeOfflineMetadata(entry.metadata),
     id,
     createdAt: new Date().toISOString(),
     attempts: 0,
@@ -90,12 +104,20 @@ export async function getPendingOfflineMedia(fiestaId?: string): Promise<Offline
   try {
     const db = await openDatabase();
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readonly');
+      const tx = db.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
       const req = store.getAll();
 
       req.onsuccess = () => {
-        let items: OfflineMediaItem[] = req.result || [];
+        const storedItems: OfflineMediaItem[] = req.result || [];
+        let items = storedItems.map((item) => {
+          const metadata = sanitizeOfflineMetadata(item.metadata);
+          if (metadata === item.metadata) return item;
+
+          const sanitizedItem = { ...item, metadata };
+          store.put(sanitizedItem);
+          return sanitizedItem;
+        });
         if (fiestaId) {
           items = items.filter((it) => it.fiestaId === fiestaId);
         }
@@ -164,6 +186,7 @@ export async function updateOfflineMediaAttempt(id: string, error: string): Prom
         resolve();
         return;
       }
+      item.metadata = sanitizeOfflineMetadata(item.metadata);
       item.attempts += 1;
       item.lastError = error;
       const putReq = store.put(item);

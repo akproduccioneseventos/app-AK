@@ -16,31 +16,51 @@ let isSyncing = false;
 /**
  * Procesa la cola de subidas de IndexedDB elemento por elemento.
  */
-export async function processOfflineMediaQueue(): Promise<{
+export interface OfflineSyncScope {
+  fiestaId?: string;
+  moduleId?: string;
+  accessToken?: string;
+  guestId?: string;
+  guestAccessToken?: string;
+}
+
+function credentialsForItem(item: OfflineMediaItem, scope: OfflineSyncScope) {
+  if (scope.fiestaId && item.fiestaId !== scope.fiestaId) return {};
+  if (scope.moduleId && item.moduleId !== scope.moduleId) return {};
+  return scope;
+}
+
+export async function processOfflineMediaQueue(scope: OfflineSyncScope = {}): Promise<{
   processed: number;
   remaining: number;
   errors: number;
 }> {
+  const getScopedQueue = async () => {
+    const pending = await getPendingOfflineMedia(scope.fiestaId);
+    return scope.moduleId
+      ? pending.filter(item => item.moduleId === scope.moduleId)
+      : pending;
+  };
+
   if (typeof window === 'undefined' || !navigator.onLine || isSyncing) {
-    const pending = await getPendingOfflineMedia();
+    const pending = await getScopedQueue();
     return { processed: 0, remaining: pending.length, errors: 0 };
   }
 
   isSyncing = true;
   let processed = 0;
   let errors = 0;
-  let descartadas = 0;
 
   try {
-    const queue = await getPendingOfflineMedia();
+    const queue = await getScopedQueue();
 
     for (const item of queue) {
-      // Si perdimos conexion a mitad de la cola, frenamos
       if (!navigator.onLine) break;
 
       try {
         let success = false;
         const file = new File([item.fileBlob], item.fileName, { type: item.mimeType });
+        const runtimeCredentials = credentialsForItem(item, scope);
 
         if (item.moduleId === 'touchpix') {
           const formData = new FormData();
@@ -49,8 +69,9 @@ export async function processOfflineMediaQueue(): Promise<{
           formData.append('authorName', item.authorName);
           if (item.metadata?.selectedTheme) formData.append('themeLabel', item.metadata.selectedTheme);
           if (item.metadata?.character) formData.append('characterLabel', item.metadata.character);
-          if (item.metadata?.guestAccessToken) formData.append('guestAccessToken', item.metadata.guestAccessToken);
-          if (item.metadata?.accessToken) formData.append('accessToken', item.metadata.accessToken);
+          if (runtimeCredentials.guestId) formData.append('guestId', runtimeCredentials.guestId);
+          if (runtimeCredentials.guestAccessToken) formData.append('guestAccessToken', runtimeCredentials.guestAccessToken);
+          if (runtimeCredentials.accessToken) formData.append('accessToken', runtimeCredentials.accessToken);
 
           const res = await uploadTouchpixPhoto(formData);
           success = !!res?.success;
@@ -61,7 +82,7 @@ export async function processOfflineMediaQueue(): Promise<{
           formData.append('file', file);
           formData.append('authorName', item.authorName || 'Invitado');
           formData.append('mediaType', item.metadata?.mediaType || 'audio');
-          if (item.metadata?.accessToken) formData.append('accessToken', item.metadata.accessToken);
+          if (runtimeCredentials.accessToken) formData.append('accessToken', runtimeCredentials.accessToken);
           if (item.metadata?.timeCapsuleYears) formData.append('timeCapsuleYears', String(item.metadata.timeCapsuleYears));
           if (item.metadata?.recipientNote) formData.append('recipientNote', item.metadata.recipientNote);
 
@@ -77,71 +98,59 @@ export async function processOfflineMediaQueue(): Promise<{
           success = !!res?.success;
           if (!success && res?.error) throw new Error(res.error);
         } else {
-          // Default: fotocabina, espejo-magico, plataforma-360, totem, muro-en-vivo
           const formData = new FormData();
           formData.append('fiestaId', item.fiestaId);
           formData.append('file', file);
           formData.append('authorName', item.authorName || 'Puesto AK');
           formData.append('moduleId', item.moduleId);
-          if (item.metadata?.accessToken) formData.append('accessToken', item.metadata.accessToken);
-          if (item.metadata?.guestId) formData.append('guestId', item.metadata.guestId);
-          if (item.metadata?.guestAccessToken) formData.append('guestAccessToken', item.metadata.guestAccessToken);
+          if (runtimeCredentials.accessToken) formData.append('accessToken', runtimeCredentials.accessToken);
+          if (runtimeCredentials.guestId) formData.append('guestId', runtimeCredentials.guestId);
+          if (runtimeCredentials.guestAccessToken) formData.append('guestAccessToken', runtimeCredentials.guestAccessToken);
 
           const res = await uploadEntretenimientoMedia(formData);
           success = !!res?.success;
           if (!success && res?.error) throw new Error(res.error);
         }
 
-        if (success) {
-          await removeOfflineMedia(item.id);
-          processed++;
-        } else {
-          throw new Error('El servidor no confirmo la recepcion');
-        }
+        if (!success) throw new Error('El servidor no confirmo la recepcion');
+        await removeOfflineMedia(item.id);
+        processed++;
       } catch (err: any) {
         errors++;
         console.warn(`[OfflineSync] Error al subir captura ${item.id}:`, err.message);
         await updateOfflineMediaAttempt(item.id, err.message || 'Error de conexion');
-        if (item.attempts >= 10) {
-          // Antes solo se anotaba "descartada" y la captura QUEDABA en la cola:
-          // el cartel decia "N esperando" con un numero que no bajaba nunca, y
-          // cada 20 segundos se reintentaba algo que ya nunca iba a subir. En una
-          // fiesta, eso es el operador mirando un cartel que le miente.
-          console.error(`[OfflineSync] Captura ${item.id} descartada por exceder maximo de reintentos.`);
-          await removeOfflineMedia(item.id);
-          descartadas++;
-        }
+        // La captura se conserva hasta que el servidor confirme la subida.
       }
     }
   } finally {
     isSyncing = false;
   }
 
-  const remainingItems = await getPendingOfflineMedia();
+  const remainingItems = await getScopedQueue();
   return { processed, remaining: remainingItems.length, errors };
 }
 
 /**
  * Inicia los observadores globales para sincronizar automaticamente al recuperar senal.
  */
-export function setupGlobalOfflineSync() {
+export function setupGlobalOfflineSync(scope: OfflineSyncScope = {}) {
   if (typeof window === 'undefined') return;
 
   const handleOnline = () => {
     console.log('[OfflineSync] Señal restablecida. Sincronizando capturas pendientes...');
-    processOfflineMediaQueue();
+    void processOfflineMediaQueue(scope);
   };
 
   window.addEventListener('online', handleOnline);
 
   const interval = setInterval(() => {
     if (navigator.onLine) {
-      processOfflineMediaQueue();
+      void processOfflineMediaQueue(scope);
     }
   }, 20000);
 
   if (navigator.onLine) {
-    processOfflineMediaQueue();
+    void processOfflineMediaQueue(scope);
   }
 
   return () => {

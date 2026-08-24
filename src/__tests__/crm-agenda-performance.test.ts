@@ -34,4 +34,10 @@ describe('CRM agenda performance', () => {
     expect(actions).toContain('tl_meeting_');
     expect(actions).toContain("error: 'La fecha de la reunión no es válida.'");
   });
+  it('does not convert an agenda storage failure into an empty writable agenda', () => {
+    const actions = read('src/app/actions/agenda.ts');
+
+    expect(actions).toContain("throw new Error('No se pudieron cargar las citas. No se guardó ningún cambio.')");
+  });
+
 });

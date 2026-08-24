@@ -384,7 +384,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-sm text-slate-600">AK todavia no cargo documentos visibles para este evento.</p>
+                      <p className="text-sm text-slate-600">Los documentos oficiales se están sincronizando. Podés solicitarlos directo a tu organizador por WhatsApp.</p>
                     )}
                   </div>
                 )}

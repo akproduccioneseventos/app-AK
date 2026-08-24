@@ -588,6 +588,27 @@ export default function PresentacionLedPage() {
     router.push(`/presupuestos/nuevo/crear?${params.toString()}`);
   }, [router, clientData.nombre, clientData.fechaEvento]);
 
+  const handleCompartirPropuesta = useCallback(() => {
+    const serviciosNombres = (data?.servicios || [])
+      .filter((s) => selectedServices.includes(s.id))
+      .map((s) => `• ${s.nombre}`)
+      .join('\n');
+    const texto = [
+      `¡Hola! Acá te comparto la propuesta que armamos con AK Producciones para ${clientData.tipoFiesta || 'nuestro evento'}:`,
+      clientData.fechaEvento ? `📅 Fecha: ${clientData.fechaEvento}` : '',
+      clientData.cantidadInvitados ? `👥 Invitados: ${clientData.cantidadInvitados}` : '',
+      `💰 Total estimado: $${totalEstimadoConMenu.toLocaleString('es-UY')}`,
+      serviciosNombres ? `\nServicios seleccionados:\n${serviciosNombres}` : '',
+      `\nPodés revisar los detalles con el equipo de AK Producciones.`,
+    ].filter(Boolean).join('\n');
+
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(texto).catch(() => {});
+    }
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(waUrl, '_blank');
+  }, [clientData, data?.servicios, selectedServices, totalEstimadoConMenu]);
+
   const handleCierreCta = useCallback(() => {
     const action = presentacionSettings?.cierre?.ctaAccion || 'generar-presupuesto';
     if (action === 'whatsapp') {
@@ -703,6 +724,13 @@ export default function PresentacionLedPage() {
         )}
 
         <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            onClick={() => goToSlide(SALON_SLIDE_INDEX)}
+            className="text-amber-300 hover:text-amber-200 hover:bg-amber-400/10 border border-amber-400/20 h-9 px-3 text-xs rounded-lg font-bold"
+          >
+            🏛️ Salón Club Uruguay
+          </Button>
           <Button
             variant="ghost"
             asChild
@@ -852,6 +880,7 @@ export default function PresentacionLedPage() {
               onPrint={handlePrint}
               onPlanPagos={handlePlanPagos}
               onContrato={handleContrato}
+              onCompartirPropuesta={handleCompartirPropuesta}
               mostrarPrecios={data.mostrarPrecios}
             />
           )}

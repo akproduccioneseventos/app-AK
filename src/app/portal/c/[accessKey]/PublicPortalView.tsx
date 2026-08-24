@@ -1544,7 +1544,7 @@ export default function PublicPortalView({
                     <p className="font-bold">
                       {invitadosContratados > 0
                         ? `Tu contrato permite entre ${guestChangeVerdict.minimoPermitido} y ${guestChangeVerdict.maximoPermitido} invitados.`
-                        : 'AK todavía no cargó la cantidad contratada para calcular el rango.'}
+                        : 'La cantidad contratada está en confirmación por el equipo AK para calcular el rango.'}
                     </p>
                     <p className="mt-1 text-muted-foreground">{guestChangeVerdict.mensaje}</p>
                   </div>
@@ -2119,10 +2119,10 @@ export default function PublicPortalView({
                         Itinerario del evento
                       </p>
                       {programa.filter(item => item.visibleParaCliente !== false).length === 0 ? (
-                        <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground">
-                          <Calendar className="w-7 h-7 mx-auto mb-2 opacity-30" />
-                          <p className="text-sm font-semibold">El itinerario no está disponible aún</p>
-                          <p className="text-xs mt-1 opacity-60">AK todavia no cargo este dato para tu evento.</p>
+                        <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground bg-slate-50/50 p-4">
+                          <Calendar className="w-7 h-7 mx-auto mb-2 opacity-40 text-slate-400" />
+                          <p className="text-sm font-semibold text-slate-700">El itinerario está en coordinación</p>
+                          <p className="text-xs mt-1 text-slate-500">Estamos ajustando los horarios del evento. Si querés agregar un momento especial, avisanos por WhatsApp.</p>
                         </div>
                       ) : (
                         <div className="relative pl-6">
@@ -2220,7 +2220,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          AK todavia no cargo esta informacion para tu evento.
+                          Detalle en preparación por el equipo AK. Podés coordinarlo directamente con tu organizador por WhatsApp.
                         </p>
                       )}
                     </div>
@@ -2258,7 +2258,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          AK todavia no cargo esta informacion para tu evento.
+                          Detalle en preparación por el equipo AK. Podés coordinarlo directamente con tu organizador por WhatsApp.
                         </p>
                       )}
                     </div>
@@ -2291,7 +2291,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          AK todavia no cargo esta informacion para tu evento.
+                          Detalle en preparación por el equipo AK. Podés coordinarlo directamente con tu organizador por WhatsApp.
                         </p>
                       )}
                     </div>
@@ -2315,7 +2315,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          AK todavia no cargo esta informacion para tu evento.
+                          Detalle en preparación por el equipo AK. Podés coordinarlo directamente con tu organizador por WhatsApp.
                         </p>
                       )}
                     </div>
@@ -2354,7 +2354,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          AK todavia no cargo esta informacion para tu evento.
+                          Detalle en preparación por el equipo AK. Podés coordinarlo directamente con tu organizador por WhatsApp.
                         </p>
                       )}
                     </div>
@@ -2391,7 +2391,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          AK todavia no cargo esta informacion para tu evento.
+                          Detalle en preparación por el equipo AK. Podés coordinarlo directamente con tu organizador por WhatsApp.
                         </p>
                       )}
                     </div>
@@ -2431,7 +2431,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          AK todavia no cargo esta informacion para tu evento.
+                          Detalle en preparación por el equipo AK. Podés coordinarlo directamente con tu organizador por WhatsApp.
                         </p>
                       )}
                     </div>
@@ -2467,7 +2467,7 @@ export default function PublicPortalView({
                         </div>
                       ) : (
                         <p className="text-sm text-muted-foreground text-center py-4 border border-dashed rounded-2xl">
-                          AK todavia no cargo esta informacion para tu evento.
+                          Detalle en preparación por el equipo AK. Podés coordinarlo directamente con tu organizador por WhatsApp.
                         </p>
                       )}
                     </div>
@@ -2475,10 +2475,10 @@ export default function PublicPortalView({
 
                   {/* Empty state if no AK-managed modules visible */}
                   {!hasOrganizacionModules && (
-                    <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground">
-                      <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                      <p className="text-sm font-semibold">Sin información disponible aún</p>
-                      <p className="text-xs mt-1">AK todavia no cargo este dato para tu evento.</p>
+                    <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground bg-slate-50/50 p-4">
+                      <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                      <p className="text-sm font-semibold text-slate-700">Tu panel está en preparación</p>
+                      <p className="text-xs mt-1 text-slate-500">Estamos organizando los módulos de tu fiesta. Escribinos para cualquier duda o pedido especial.</p>
                     </div>
                   )}
                 </div>
@@ -2656,10 +2656,10 @@ export default function PublicPortalView({
 
               {/* No presupuesto placeholder */}
               {!presupuesto && (
-                <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground">
-                  <DollarSign className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm font-semibold">Sin presupuesto cargado aún</p>
-                  <p className="text-xs mt-1">AK todavia no cargo este dato para tu evento.</p>
+                <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground bg-slate-50/50 p-4">
+                  <DollarSign className="w-8 h-8 mx-auto mb-2 opacity-40 text-slate-400" />
+                  <p className="text-sm font-semibold text-slate-700">Tu propuesta está en preparación</p>
+                  <p className="text-xs mt-1 text-slate-500">El equipo AK está cargando los números y servicios acordados. Escribinos para recibir tu presupuesto formal.</p>
                 </div>
               )}
 

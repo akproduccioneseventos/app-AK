@@ -42,7 +42,11 @@ describe('El despliegue automatico incluye el despertador de Google', () => {
     expect(existsSync(deployYmlPath)).toBe(true);
 
     const deployYml = readFileSync(deployYmlPath, 'utf8');
-    expect(deployYml).toContain('firebase-tools deploy --only functions');
+    expect(deployYml).toContain('firebase-tools deploy --only functions:despertadorTareasAutomaticas');
+    expect(deployYml).not.toContain('FirebaseExtended/action-hosting-deploy');
+    expect(deployYml).toContain('FIREBASE_SERVICE_ACCOUNT is required');
+    expect(deployYml).toContain("'.github/workflows/deploy.yml'");
+    expect(deployYml).not.toContain('cp -r .next functions/.next');
   });
 
   it('el estado del despertador informa si nunca toco, si esta activo o si esta atrasado', async () => {
@@ -68,4 +72,15 @@ describe('El despliegue automatico incluye el despertador de Google', () => {
     expect(estadoAtrasado.estado).toBe('atrasado');
     expect(estadoAtrasado.mensaje).toContain('El despertador no está funcionando');
   });
+  it('App Hosting no puede ocultar errores de tipos o lint durante su build', () => {
+    const nextConfig = readFileSync(path.join(RAIZ, 'next.config.js'), 'utf8');
+    const functionsPackage = JSON.parse(
+      readFileSync(path.join(RAIZ, 'functions/package.json'), 'utf8'),
+    );
+
+    expect(nextConfig).not.toContain('ignoreBuildErrors: true');
+    expect(nextConfig).not.toContain('ignoreDuringBuilds: true');
+    expect(functionsPackage.engines.node).toBe('20');
+  });
+
 });
