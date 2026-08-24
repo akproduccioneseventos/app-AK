@@ -3,6 +3,8 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { ScheduledMessage } from '@/types/whatsapp-automation';
 import { detectarErroresHumanos, type DescarteAlerta } from '@/lib/alertas/errores-humanos';
+import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
+import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
 import {
   AGENTES_DEFAULT_CONFIG,
   type AgenteId,
@@ -363,6 +365,70 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 6. EL VIGILANTE DE PUBLICIDAD & META ADS (MONITOREA, NUNCA GASTA SOLO)
+// ─────────────────────────────────────────────────────────────────────────────
+export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<RegistroEjecucionAgente> {
+  const hallazgos: string[] = [];
+  const acciones: string[] = [];
+
+  try {
+    const metrics = await loadMetaCommercialMetrics();
+    const summary = await getMetaAdsSummary(metrics);
+
+    if (summary.connectionStatus !== 'connected') {
+      hallazgos.push('Meta Ads no está configurado o no hay conexión activa con la cuenta publicitaria.');
+      acciones.push('Podés vincular tu token de Meta en Ajustes > Conexiones sociales para activar el análisis automático.');
+    } else if (summary.campaigns.length === 0) {
+      hallazgos.push('No hay campañas de Meta con datos en los últimos 30 días.');
+      acciones.push('Sin acciones requeridas.');
+    } else {
+      for (const camp of summary.campaigns) {
+        // 1. Alerta: Quemando plata sin consultas
+        if (camp.spend >= 1500 && camp.leadsCount === 0) {
+          hallazgos.push(`[ALERTA GASTO] La campaña "${camp.name}" gastó ${summary.adCurrency} ${camp.spend.toFixed(0)} sin generar consultas.`);
+          acciones.push(`Revisá "${camp.name}" para pausarla o cambiar el creativo en el Creador de Anuncios.`);
+        }
+        // 2. Éxito: Campaña rentable lista para escalar
+        else if (camp.leadsCount >= 2 && camp.conversionsCount >= 1 && camp.cpl > 0 && camp.cpl <= (summary.averageCpl || 1000)) {
+          hallazgos.push(`[ÉXITO COMERCIAL] La campaña "${camp.name}" rinde bien: consultas a ${summary.adCurrency} ${camp.cpl.toFixed(0)} y ${camp.conversionsCount} fiestas confirmadas.`);
+          acciones.push(`Considerá escalar el presupuesto de "${camp.name}".`);
+        }
+        // 3. Aviso: Campaña sin impresiones
+        else if (camp.impressions === 0 && camp.spend > 0) {
+          hallazgos.push(`[AVISO] La campaña "${camp.name}" se quedó sin impresiones.`);
+        }
+      }
+
+      if (summary.totalSpend > 0 && summary.totalLeads === 0) {
+        hallazgos.push(`[ALERTA GLOBAL] Inversión total de ${summary.adCurrency} ${summary.totalSpend.toFixed(0)} sin consultas registradas.`);
+        acciones.push('Revisá los enlaces de destino y la configuración de píxel/CAPI.');
+      }
+
+      if (hallazgos.length === 0) {
+        hallazgos.push(`Monitoreo de ${summary.campaigns.length} campañas completado: todas rinden dentro de parámetros normales.`);
+      }
+    }
+  } catch (err: any) {
+    hallazgos.push(`Error al consultar métricas de Meta: ${err?.message || 'Error desconocido'}`);
+  }
+
+  const tieneAlertas = hallazgos.some((h) => h.includes('[ALERTA'));
+
+  const registro: RegistroEjecucionAgente = {
+    id: `reg_publicidad_${Date.now()}`,
+    agenteId: 'vigilante_publicidad',
+    agenteNombre: 'Vigilante de Publicidad & Meta Ads',
+    ejecutadoEn: ahora.toISOString(),
+    hallazgos,
+    accionesPreparadas: acciones.length > 0 ? acciones : ['Campañas monitoreadas sin necesidad de intervención'],
+    estado: tieneAlertas ? 'alerta' : 'sin_novedades',
+  };
+
+  await registrarEjecucionAgente(registro);
+  return registro;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // EJECUTOR GLOBAL RESPETANDO CONFIGURACIÓN Y LIMITES
 // ─────────────────────────────────────────────────────────────────────────────
 export async function ejecutarAgentesAutonomos(ahora = new Date()): Promise<RegistroEjecucionAgente[]> {
@@ -389,6 +455,9 @@ export async function ejecutarAgentesAutonomos(ahora = new Date()): Promise<Regi
           break;
         case 'vigilante_noche':
           reg = await ejecutarVigilanteNoche(ahora);
+          break;
+        case 'vigilante_publicidad':
+          reg = await ejecutarVigilantePublicidad(ahora);
           break;
       }
       if (reg) resultados.push(reg);

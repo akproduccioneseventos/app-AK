@@ -4269,3 +4269,20 @@ gasta inteligencia artificial: es análisis de datos con caché por día.
   **Qué se hizo:** una traba compartida por todas las pestañas del mismo sitio
   (`navigator.locks`), con el nombre `ak-cola-sin-internet`. Si el navegador no la
   tiene, se sigue como antes.
+
+- **El Cerebro de Publicidad de AK (24 de agosto de 2026).** Conexión total entre
+  el medidor de Meta Ads y el Creador de Anuncios 1-Clic, rediseño de la pantalla
+  de marketing `/contabilidad/crm/marketing-ads` respondiendo las 4 preguntas en
+  criollo y sin jerga, nuevo agente autónomo `vigilante_publicidad` que monitorea
+  gastos sin tocar la cuenta de Meta, e integración para enviar anuncios a borradores
+  de redes y copiar guiones de Reels/TikTok en un solo toque.
+  **Qué se hizo:**
+  1. El creador cruza los datos reales de CPL de Meta Ads y selecciona los formatos
+     ganadores, avisando con honestidad cuando no hay datos suficientes.
+  2. Uso de fotos reales de eventos, testimonios y servicios exclusivos del catálogo.
+  3. Pantalla de marketing sin jerga técnica con embudo completo de 6 pasos.
+  4. Agente `vigilante_publicidad` que alerta sobre anuncios que queman plata o campañas
+     rentables para escalar, sin gastar ni modificar campañas solo.
+  5. Botón de envío a borrador en el planificador de redes y copia instantánea de guiones.
+  **Verificado:** 2176 pruebas en verde, tipos en cero, compila, mapa en 350 pantallas.
+

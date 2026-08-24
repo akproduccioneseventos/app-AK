@@ -3,7 +3,8 @@ export type AgenteId =
   | 'perseguidor_presupuestos'
   | 'cobrador'
   | 'generador_contenido'
-  | 'vigilante_noche';
+  | 'vigilante_noche'
+  | 'vigilante_publicidad';
 
 export interface ConfiguracionAgente {
   id: AgenteId;
@@ -66,6 +67,14 @@ export const AGENTES_DEFAULT_CONFIG: ConfiguracionAgente[] = [
     descripcion: 'Durante eventos en vivo, verifica que las estaciones de fotos y el muro interactivo estén transmitiendo sin fallas ni colas offline trabadas.',
     activo: true,
     intervaloMinutos: 15,
+  },
+  {
+    id: 'vigilante_publicidad',
+    nombre: 'Vigilante de Publicidad & Meta Ads',
+    rol: 'Supervisión de Anuncios y Rendimiento de Campañas',
+    descripcion: 'Monitorea diariamente el gasto en Meta Ads y alerta si un anuncio está quemando plata sin traer consultas, si una campaña funciona muy bien para escalar, o si se agotó el presupuesto. Nunca modifica campañas ni gasta dinero.',
+    activo: true,
+    intervaloMinutos: 720,
   },
 ];
 

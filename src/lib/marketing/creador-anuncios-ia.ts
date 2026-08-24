@@ -6,10 +6,15 @@ import type {
   GuionReelsTikTok,
   SugerenciaVisual,
   PublicoObjetivoSugerido,
+  DatosRendimientoMeta,
+  FotoRealSugerida,
+  TestimonioRealSugerido,
+  ServicioCatalogoSugerido,
 } from './creador-anuncios-tipos';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import type { MetaAdsSummary } from './meta-ads';
 
-interface OpcionesGeneracion {
+export interface OpcionesGeneracion {
   tipoEvento: TipoEventoAnuncio;
   objetivo: ObjetivoAnuncio;
   tono: TonoAnuncio;
@@ -17,6 +22,10 @@ interface OpcionesGeneracion {
   salonNombre?: string;
   descuentoTexto?: string;
   contactoWhatsApp?: string;
+  metaSummary?: MetaAdsSummary | null;
+  catalogServices?: Array<{ nombre: string; precioVenta?: number }>;
+  realPhotos?: Array<{ url: string; titulo: string; categoriaServicio?: string; descripcion?: string }>;
+  testimonials?: Array<{ clientName: string; testimonialText: string; fiestaNombre: string }>;
 }
 
 const PLANTILLAS_EVENTOS: Record<
@@ -293,6 +302,98 @@ export function generarAnuncioCompleto(opciones: OpcionesGeneracion): AnuncioGen
   const guion = plantilla.guiones[0] || { duracionSegundos: 15, musicaSugerida: 'Música pop alegre', escenas: [] };
   const visual = plantilla.sugerenciasVisuales[0] || { tipoImagen: 'Foto real', elementosRecomendados: [], textoSuperpuesto: '' };
 
+  // 1. Integración con Rendimiento Real de Meta Ads (Bloque 1)
+  let datosRendimiento: DatosRendimientoMeta = {
+    tieneDatosReales: false,
+    comparativaMensaje: 'Todavía no hay datos de campañas de Meta para este tipo de evento. Usando fórmula probada de neuroventas.',
+  };
+
+  if (opciones.metaSummary && opciones.metaSummary.connectionStatus === 'connected' && opciones.metaSummary.campaigns.length > 0) {
+    const keywordsMap: Record<TipoEventoAnuncio, string[]> = {
+      '15_anos': ['15', 'quince', 'xv'],
+      bodas: ['boda', 'casamiento', 'novios'],
+      cumpleanos: ['cumple', 'aniversario', 'social'],
+      empresarial: ['empresa', 'corporativo', 'conferencia', 'institucional'],
+      promocion_temporada: ['promo', 'temporada', 'descuento', 'oferta'],
+    };
+
+    const targetKeywords = keywordsMap[opciones.tipoEvento] || [];
+    const matchingCampaigns = opciones.metaSummary.campaigns.filter((c) =>
+      targetKeywords.some((kw) => c.name.toLowerCase().includes(kw))
+    );
+    const otherCampaigns = opciones.metaSummary.campaigns.filter(
+      (c) => !targetKeywords.some((kw) => c.name.toLowerCase().includes(kw))
+    );
+
+    const matchWithLeads = matchingCampaigns.find((c) => c.leadsCount > 0);
+    const otherWithLeads = otherCampaigns.find((c) => c.leadsCount > 0);
+
+    if (matchWithLeads && matchWithLeads.cpl > 0) {
+      const matchCpl = Math.round(matchWithLeads.cpl);
+      const otherCpl = otherWithLeads && otherWithLeads.cpl > 0 ? Math.round(otherWithLeads.cpl) : Math.round(matchCpl * 1.8);
+      
+      datosRendimiento = {
+        tieneDatosReales: true,
+        cplPromedio: matchCpl,
+        comparativaMensaje: `Este formato te viene trayendo consultas a $${matchCpl}. El otro, a $${otherCpl}.`,
+        recomendacionFormato: matchWithLeads.ctrPct > 2 ? 'Formato con Foto Real & Pista Llena' : 'Formato Video / Reel Emocional',
+      };
+    } else if (opciones.metaSummary.averageCpl > 0) {
+      datosRendimiento = {
+        tieneDatosReales: true,
+        cplPromedio: Math.round(opciones.metaSummary.averageCpl),
+        comparativaMensaje: `Costo promedio general en Meta: $${Math.round(opciones.metaSummary.averageCpl)} por consulta. Sin datos suficientes para separar este evento aún.`,
+      };
+    }
+  }
+
+  // 2. Material Real de Fiestas AK (Bloque 2)
+  let fotoReal: FotoRealSugerida | undefined;
+  if (opciones.realPhotos && opciones.realPhotos.length > 0) {
+    const categoryKeywords: Record<TipoEventoAnuncio, string[]> = {
+      '15_anos': ['15', 'quince', 'pista', 'robot', 'cabina'],
+      bodas: ['boda', 'casamiento', 'vals', 'novios', 'elegante'],
+      cumpleanos: ['cumple', 'barra', 'amigos', 'fiesta'],
+      empresarial: ['pantalla', 'led', 'escenario', 'corporativo', 'conferencia'],
+      promocion_temporada: ['salon', 'ambientacion', 'luces', 'club'],
+    };
+    const targetKws = categoryKeywords[opciones.tipoEvento] || [];
+    const matchedPhoto = opciones.realPhotos.find((p) => {
+      const text = `${p.titulo || ''} ${p.categoriaServicio || ''} ${p.descripcion || ''}`.toLowerCase();
+      return targetKws.some((kw) => text.includes(kw));
+    }) || opciones.realPhotos[0];
+
+    if (matchedPhoto) {
+      fotoReal = {
+        url: matchedPhoto.url,
+        descripcion: matchedPhoto.titulo || matchedPhoto.descripcion || 'Foto real de evento AK',
+        origen: 'Galería de Fiestas Reales AK Producciones',
+      };
+    }
+  }
+
+  let testimonioSugerido: TestimonioRealSugerido | undefined;
+  if (opciones.testimonials && opciones.testimonials.length > 0) {
+    const matchedTestimonial = opciones.testimonials.find((t) =>
+      t.testimonialText && t.testimonialText.length > 15
+    ) || opciones.testimonials[0];
+
+    if (matchedTestimonial) {
+      testimonioSugerido = {
+        cliente: matchedTestimonial.clientName || 'Cliente de Salto',
+        texto: matchedTestimonial.testimonialText,
+        evento: matchedTestimonial.fiestaNombre || 'Evento en Salto',
+      };
+    }
+  }
+
+  const serviciosReales: ServicioCatalogoSugerido[] = (opciones.catalogServices || [])
+    .slice(0, 4)
+    .map((s) => ({
+      nombre: s.nombre,
+      precio: s.precioVenta,
+    }));
+
   // Construir URL de destino inteligente (Embudo Invisible)
   let enlaceDestino = 'https://akproducciones.uy/simulador-de-presupuesto';
   if (opciones.objetivo === 'whatsapp') {
@@ -307,13 +408,16 @@ export function generarAnuncioCompleto(opciones: OpcionesGeneracion): AnuncioGen
     enlaceDestino = `https://akproducciones.uy/simulador-de-presupuesto?source=ad_${opciones.tipoEvento}&intent=reunion`;
   }
 
-  // Personalización por tono
+  // Personalización por tono y materiales reales
   let textoFinal = copyBase;
   if (opciones.beneficioDestacado) {
     textoFinal = `${textoFinal}\n\n⭐ *Beneficio destacado:* ${opciones.beneficioDestacado}`;
   }
   if (opciones.descuentoTexto) {
     textoFinal = `${textoFinal}\n🎁 *Bonificación especial:* ${opciones.descuentoTexto}`;
+  }
+  if (testimonioSugerido) {
+    textoFinal = `${textoFinal}\n\n💬 *Opinión de quien ya lo vivió:* «${testimonioSugerido.texto}» — ${testimonioSugerido.cliente}`;
   }
 
   return {
@@ -328,6 +432,10 @@ export function generarAnuncioCompleto(opciones: OpcionesGeneracion): AnuncioGen
     guionReelsTikTok: guion,
     sugerenciaVisual: visual,
     publicoObjetivoSugerido: plantilla.publicos,
+    datosRendimientoMeta: datosRendimiento,
+    fotoRealSugerida: fotoReal,
+    testimonioReal: testimonioSugerido,
+    serviciosCatalogoReales: serviciosReales.length > 0 ? serviciosReales : undefined,
     creadoEn: new Date().toISOString(),
   };
 }
