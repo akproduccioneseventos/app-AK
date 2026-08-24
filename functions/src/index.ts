@@ -1,15 +1,6 @@
-// ⚠️  DEPLOY ALTERNATIVO — NO ACTIVO EN PRODUCCIÓN
-//
-// El camino principal de deploy es Firebase App Hosting (apphosting.yaml).
-// Este archivo implementa la estrategia alternativa de Cloud Functions +
-// Firebase Hosting y se mantiene solo como referencia histórica.
-//
-// Para reactivarlo:
-//   1. Descomentar las secciones "functions" y "hosting" en firebase.json.
-//   2. Ejecutar: npm run predeploy && firebase deploy --only functions,hosting
-//   3. Deshabilitar (o eliminar) apphosting.yaml para evitar conflictos.
-//
-// Mientras App Hosting esté activo, este archivo NO se despliega.
+// La web principal se despliega con Firebase App Hosting (apphosting.yaml).
+// El workflow publica únicamente despertadorTareasAutomaticas. nextjsServer se
+// conserva como alternativa histórica y no recibe tráfico de producción.
 
 import * as functions from 'firebase-functions';
 import next from 'next';

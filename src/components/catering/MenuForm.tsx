@@ -113,6 +113,15 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
   const isHydratingExistingMenu = useRef(false);
   const skipNextAutoSave = useRef(false);
   const autoSaveTimer = useRef<NodeJS.Timeout | null>(null);
+  const autoSaveRevision = useRef(0);
+  const saveQueue = useRef<Promise<void>>(Promise.resolve());
+  const enqueueMenuSave = useCallback((snapshot: FullMenu) => {
+    const pending = saveQueue.current
+      .catch(() => undefined)
+      .then(() => saveMenu(snapshot));
+    saveQueue.current = pending.then(() => undefined, () => undefined);
+    return pending;
+  }, []);
 
   const calculateIngredientCost = useCallback((ing: Partial<Ingredient>): number => {
       const quantity = parseSafeNumber(ing.quantityPerPerson);
@@ -366,7 +375,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     setIsSaving(true);
     setSaveStatus('saving');
     try {
-      const result = await saveMenu(menu as FullMenu);
+      const result = await enqueueMenuSave(menu as FullMenu);
       if (result.success) {
         setSaveStatus('saved');
         setHasUnsavedChanges(false);
@@ -413,14 +422,18 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
 
     setSaveStatus('saving');
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    const revision = ++autoSaveRevision.current;
 
     autoSaveTimer.current = setTimeout(async () => {
       try {
-        await saveMenu(menu as FullMenu);
+        const result = await enqueueMenuSave(menu as FullMenu);
+        if (!result.success) throw new Error(result.error || 'No se pudo guardar automáticamente.');
+        if (revision !== autoSaveRevision.current) return;
         setSaveStatus('saved');
         setHasUnsavedChanges(false);
         setTimeout(() => setSaveStatus('idle'), 3000);
       } catch (error: any) {
+        if (revision !== autoSaveRevision.current) return;
         setSaveStatus('error');
         toast({ title: 'Error de auto-guardado', description: error?.message || 'No se pudo guardar automáticamente.', variant: 'destructive' });
       }
@@ -429,7 +442,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     };
-  }, [menu, toast]);
+  }, [enqueueMenuSave, menu, toast]);
 
   const getSaveStatusLabel = () => {
     if (saveStatus === 'saving') return 'Guardando...';

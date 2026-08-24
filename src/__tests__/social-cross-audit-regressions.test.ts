@@ -44,4 +44,16 @@ describe('cross-audit regressions for the client and guest social wall', () => {
     const local = getUruguayParts(new Date('2026-08-02T00:30:00.000Z'));
     expect(local).toMatchObject({ year: 2026, month: 8, day: 1, hour: 21, minute: 30 });
   });
+  it('limits internal moderation to NOCHE access for the target event', () => {
+    const source = read('src/app/actions/social-gallery.ts');
+    const barSource = read('src/app/actions/fiesta/barra-tecnologica.actions.ts');
+
+    expect(source).toContain('await requireEventPermission(fiestaId, PERMISOS.NOCHE)');
+    expect(source).toContain('getSocialPostModerationContext(postId)');
+    expect(source).toContain('const canModerate = await canModerateSocialEvent(fiestaId)');
+    expect(barSource).toContain('createSocialMediaPostFromUrlForStation');
+    expect(barSource).toContain("createEntertainmentAccessToken(fiestaId, 'totems', 'guest')");
+    expect(barSource).not.toContain('createSocialMediaPostFromUrl({');
+  });
+
 });

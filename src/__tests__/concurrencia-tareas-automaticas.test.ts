@@ -3,6 +3,7 @@ import {
   liberarLock,
   resetearLockEnMemoria,
 } from '@/lib/automatico/control-concurrencia';
+import { writeData } from '@/lib/data-service';
 import { ponerAlDiaAlEntrar } from '@/lib/automatico/al-entrar-a-la-app';
 import {
   marcarCorrida,
@@ -118,4 +119,16 @@ describe('BLOQUE 0: Control de concurrencia y tareas automáticas desatendidas',
     expect(metricas?.estado).toBe('atrasada');
     expect(metricas?.horasDesdeLaUltima).toBeGreaterThanOrEqual(70);
   });
+  it('libera el lock sin enviar campos undefined a Firestore', async () => {
+    await intentarAdquirirLock('visita');
+    await liberarLock();
+
+    expect(writeData).toHaveBeenLastCalledWith(
+      'tareas-lock.json',
+      { enCurso: false },
+      undefined,
+      { skipAutoBackup: true },
+    );
+  });
+
 });

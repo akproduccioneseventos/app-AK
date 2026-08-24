@@ -19,7 +19,8 @@ import { mergeMasterTragosWithFiesta } from '@/lib/carta-tragos-master';
 import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
-import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
+import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
+import { createEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
 import { calculateActualStockMovement, getBarScheduleError, isTruthyFollowConfirmation, isValidBarOrderTransition, normalizeBarTime } from '@/lib/barra-tecnologica';
 import { invalidateInsumosCache } from '@/app/actions/insumos';
 import { readData, writeData } from '@/lib/data-service';
@@ -725,18 +726,21 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
     const shareText = `${baseCaption} ${settings.hashtag} ${settings.instagramHandle}`.trim();
 
     if (settings.autoPublishPhotos) {
-      await createSocialMediaPostFromUrl({
+      const socialResult = await createSocialMediaPostFromUrlForStation({
         fiestaId,
         mediaUrl: url,
         mediaType: isVideo ? 'video' : 'image',
         authorName,
         caption: shareText,
         source: 'bar-tech',
-        sourceModule: 'barraTecnologica',
+        sourceModule: 'totems',
         momentTag: 'Barra de tragos',
         drinkId,
         drinkName,
-      });
+      }, createEntertainmentAccessToken(fiestaId, 'totems', 'guest'));
+      if (!socialResult.success) {
+        throw new Error(socialResult.error || 'No se pudo publicar la foto de la barra en el muro.');
+      }
     }
 
     return { success: true, url, shareText };

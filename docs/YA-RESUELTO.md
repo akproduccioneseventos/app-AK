@@ -4224,3 +4224,27 @@ gasta inteligencia artificial: es análisis de datos con caché por día.
   de salones. Ahora dice sólo *"Tu presupuesto queda reservado — escribinos ahora y
   seguimos con tu presupuesto en la mano"*, sin prometer nada.
   **Está anotado en `CLAUDE.md`: no se vuelve a sacar ni se reporta como problema.**
+
+## PR #1128 reconstruida sobre main actual (24 de agosto de 2026)
+
+- **Falso positivo descartado:** la PR no tenía historias independientes. GitHub confirmó
+  como ancestro común `3e259324076ba43434506a739a4354cb3f3d0a8c`. La rama se reconstruyó
+  con padre directo en el main actual para conservar los 13 commits posteriores.
+- **Decisiones comerciales preservadas:** no se quitó el reloj del simulador, el 15% anual,
+  el 50% del Club Uruguay ni el descuento comercial aprobado. Se descartaron los cambios
+  de la auditoría que pretendían eliminarlos.
+- **Club Uruguay sin doble conteo:** el simulador IA y la persistencia pública ya no agregan
+  el alquiler como servicio sintético dentro del total de servicios AK. La elección del
+  salón se sigue guardando y se muestra aparte; la promoción comercial permanece visible.
+- **Muro social y barra:** la moderación queda limitada al permiso NOCHE de la fiesta
+  correspondiente y la estación de barra publica con credencial firmada de esa fiesta.
+- **Entretenimiento offline:** fotocabina, 360, espejo y Touchpix conservan capturas hasta
+  que el servidor confirma la subida, separan colas por fiesta/módulo y no guardan tokens.
+- **Datos internos:** agenda no convierte fallos en listas vacías, catering serializa
+  autoguardados, FCM confirma persistencia y los locks no escriben `undefined`.
+- **Despliegue:** App Hosting conserva la web y el workflow publica únicamente el
+  despertador programado con Node 20; el build ya no oculta errores de TypeScript/lint.
+- **Dependencias:** se actualizó Next dentro de la rama 15.5 y se agregaron correcciones
+  puntuales que eliminaron la vulnerabilidad crítica de producción detectada.
+- **Evidencia posterior a la conciliación:** TypeScript y ESLint aprobados; 9 suites focalizadas,
+  66/66 pruebas aprobadas. No se atribuyen a este commit pruebas externas no ejecutadas.

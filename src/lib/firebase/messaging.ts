@@ -83,9 +83,8 @@ export async function requestAndSaveFcmToken(userId?: string): Promise<string | 
     if (!token) return null;
 
     // Persist the token via Server Action (Admin SDK) to avoid Firestore client-side rules block.
-    await saveTokenViaServerAction(token, userId);
-
-    return token;
+    const saved = await saveTokenViaServerAction(token, userId);
+    return saved ? token : null;
   } catch (err: unknown) {
     if (process.env.NODE_ENV !== 'production') {
       console.warn('[FCM] requestAndSaveFcmToken failed:', (err as Error)?.message);
@@ -99,13 +98,13 @@ export async function requestAndSaveFcmToken(userId?: string): Promise<string | 
  * El acceso directo a Firestore desde el cliente está bloqueado por las reglas
  * de seguridad (`allow read, write: if false;`), por eso se delega al servidor.
  */
-async function saveTokenViaServerAction(token: string, userId?: string): Promise<void> {
+async function saveTokenViaServerAction(token: string, userId?: string): Promise<boolean> {
   try {
     const { saveFcmToken } = await import('@/app/actions/fcm-tokens');
     const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : undefined;
-    await saveFcmToken(token, userId, userAgent);
+    return (await saveFcmToken(token, userId, userAgent)).success;
   } catch {
-    // Non-critical — ignore errors silently
+    return false;
   }
 }
 

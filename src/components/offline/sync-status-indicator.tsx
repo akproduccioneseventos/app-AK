@@ -11,9 +11,18 @@ import { processOfflineMediaQueue, setupGlobalOfflineSync } from '@/lib/offline/
 interface SyncStatusIndicatorProps {
   fiestaId?: string;
   moduleId?: string;
+  accessToken?: string;
+  guestId?: string;
+  guestAccessToken?: string;
 }
 
-export function SyncStatusIndicator({ fiestaId, moduleId }: SyncStatusIndicatorProps) {
+export function SyncStatusIndicator({
+  fiestaId,
+  moduleId,
+  accessToken,
+  guestId,
+  guestAccessToken,
+}: SyncStatusIndicatorProps) {
   const [isOnline, setIsOnline] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -31,12 +40,13 @@ export function SyncStatusIndicator({ fiestaId, moduleId }: SyncStatusIndicatorP
 
     updateCounts();
 
-    const cleanupSync = setupGlobalOfflineSync();
+    const syncScope = { fiestaId, moduleId, accessToken, guestId, guestAccessToken };
+    const cleanupSync = setupGlobalOfflineSync(syncScope);
 
     const handleOnline = async () => {
       setIsOnline(true);
       setIsSyncing(true);
-      const res = await processOfflineMediaQueue();
+      const res = await processOfflineMediaQueue(syncScope);
       setIsSyncing(false);
       await updateCounts();
       if (res.processed > 0) {
@@ -67,12 +77,12 @@ export function SyncStatusIndicator({ fiestaId, moduleId }: SyncStatusIndicatorP
       clearInterval(interval);
       if (cleanupSync) cleanupSync();
     };
-  }, [fiestaId, moduleId]);
+  }, [accessToken, fiestaId, guestAccessToken, guestId, moduleId]);
 
   const handleManualSync = async () => {
     if (!navigator.onLine || isSyncing) return;
     setIsSyncing(true);
-    const res = await processOfflineMediaQueue();
+    const res = await processOfflineMediaQueue({ fiestaId, moduleId, accessToken, guestId, guestAccessToken });
     setIsSyncing(false);
     const count = await getPendingOfflineMediaCount(fiestaId, moduleId);
     setPendingCount(count);
