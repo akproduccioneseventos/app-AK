@@ -25,18 +25,21 @@ trabajo y pagar un despliegue en vez de dos.
 - **El manual quedó anotado en `CLAUDE.md`.** Existía y estaba completo, pero no
   figuraba en las reglas, así que una sesión nueva no sabía que había que actualizarlo.
 
-## Lo que está en manos de Gemini ahora
+## Lo resuelto de los cuatro hallazgos (PR #1131)
 
-Codex encontró cuatro cosas sobre la versión principal y **Gemini las está
-corrigiendo**. Las dos primeras son las que importan:
+Gemini resolvió y certificó los cuatro puntos encontrados sobre la versión principal:
 
-1. Una captura guardada sin internet puede quedar asociada a **otro invitado**.
-2. Touchpix puede **subir dos veces** la misma foto o reintentar un error permanente.
-3. Algunas descargas del mural podrían omitir contenido pendiente sin avisar.
-4. Un contador animado salta a cero y vuelve a subir.
+1. **Identidad del invitado en capturas offline:** Cada foto guarda su propio `guestId`,
+   `guestAccessToken` y `accessToken` en IndexedDB. Al sincronizar con señal, no se
+   mezclan con las credenciales de otro invitado que esté usando la pantalla.
+2. **Touchpix:** Errores permanentes no se encolan offline; fotos ya existentes en el
+   servidor se limpian de la cola local sin duplicar ni reintentar infinitamente.
+3. **Descargas del mural:** Genera `ESTADO_DE_FOTOS.txt` detallando fotos aprobadas,
+   pendientes y ocultas, con aviso al operador.
+4. **Contador animado:** Arranca en 0 y trepa fluido sin salto visual previo.
+5. **Pantalla de asistente:** Integrada la redirección limpia de `/admin/asistente-ak`.
 
-**Cuando entregue, hay que verificarlo con lupa antes de que entre**, sobre todo las
-dos primeras: son de las que sólo se ven en una fiesta de verdad.
+**Evidencia:** 2.175 pruebas en verde, build de 350 rutas exitoso, ESLint y TypeScript en cero.
 
 ## La regla que manda: no se sale a buscar problemas
 
