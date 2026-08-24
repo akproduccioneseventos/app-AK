@@ -857,6 +857,9 @@ export default function EspejoMagicoPage() {
             fileName,
             mimeType: 'image/jpeg',
             authorName: modeCopy.author,
+            guestId,
+            guestAccessToken,
+            accessToken,
           });
           setErrorMsg(null);
           setLocalStatus('done');

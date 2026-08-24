@@ -633,7 +633,11 @@ export default function TouchpixPage() {
       }
 
       const res = await uploadTouchpixPhoto(formData);
-      if (!res.success) throw new Error(res.error || 'Error al subir');
+      if (!res.success) {
+        // Si el servidor rechazó la foto por regla de negocio/moderación/permiso mientras hay internet,
+        // no encolamos en offline para evitar reintentar errores permanentes.
+        throw new Error(res.error || 'Error al subir');
+      }
 
       await updateEntertainmentSessionStatus(
         fiestaId,
@@ -648,8 +652,24 @@ export default function TouchpixPage() {
         setShowSuccess(false);
         retake();
       }, 3000);
-    } catch (err) {
-      if (pendingFile) {
+    } catch (err: any) {
+      const errMsg = String(err?.message || '');
+      // El servidor contesto que NO quiere esta foto: moderacion, permiso, tope.
+      // Guardarla para reintentar seria reintentar para siempre algo que ya se decidio.
+      const esRechazoDelServidor = /moderaci|inapropiad|no autorizad|no habilitad|bloquead|l[ií]mite alcanzado|ya fue subida|duplicad|no existe/i.test(errMsg);
+
+      // TODO LO DEMAS SE GUARDA. Antes se guardaba solo si el mensaje de error
+      // contenia ciertas palabras ("network", "failed to fetch", "timeout"), y esa
+      // lista dejaba afuera los casos mas comunes en una fiesta: **el Safari del
+      // iPhone avisa las fallas de red con "Load failed"**, y ademas el telefono se
+      // considera "en linea" mientras haya wifi del salon aunque el salon no tenga
+      // salida a internet. Resultado: la foto no se encolaba y se perdia, justo en el
+      // escenario para el que existe el modo sin conexion.
+      //
+      // Por eso el criterio esta al reves: se encola siempre, salvo que el servidor
+      // haya contestado un rechazo explicito. Un error sin respuesta del servidor es
+      // de red por descarte, no por lista de palabras.
+      if (pendingFile && !esRechazoDelServidor) {
         try {
           await saveOfflineMedia({
             fiestaId,
@@ -658,6 +678,9 @@ export default function TouchpixPage() {
             fileName: pendingFile.name,
             mimeType: pendingFile.type || 'image/jpeg',
             authorName: 'Cabina Touchpix',
+            guestId,
+            guestAccessToken,
+            accessToken,
             metadata: {
               selectedTheme: activeTab === 'ai_themes'
                 ? TOUCHPIX_THEMES.find(theme => theme.id === selectedAiTheme)?.label
@@ -685,7 +708,7 @@ export default function TouchpixPage() {
           console.error('[Touchpix] No se pudo guardar la foto sin conexión:', offlineError);
         }
       }
-      alert('No se pudo subir ni guardar la foto. ' + (err as Error).message);
+      alert('No se pudo subir la foto: ' + errMsg);
     } finally {
       setIsUploading(false);
     }

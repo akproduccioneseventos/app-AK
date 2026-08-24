@@ -538,6 +538,9 @@ export default function Plataforma360Page() {
           fileName,
           mimeType: blob.type || 'video/mp4',
           authorName: 'Plataforma 360',
+          guestId,
+          guestAccessToken,
+          accessToken,
         });
 
         setProgress(100);
@@ -597,6 +600,9 @@ export default function Plataforma360Page() {
           fileName: `360-video-${Date.now()}${ext}`,
           mimeType: blob.type || 'video/mp4',
           authorName: 'Plataforma 360',
+          guestId,
+          guestAccessToken,
+          accessToken,
         });
         setProgress(100);
         setLocalStatus('done');
