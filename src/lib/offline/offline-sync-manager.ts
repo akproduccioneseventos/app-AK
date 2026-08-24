@@ -30,7 +30,36 @@ function credentialsForItem(item: OfflineMediaItem, scope: OfflineSyncScope) {
   return scope;
 }
 
+/**
+ * Traba entre pestañas: sin esto, dos pestañas abiertas en la misma estacion leen
+ * la cola al mismo tiempo y suben la MISMA foto dos veces, que aparece duplicada
+ * en el muro. El candado `isSyncing` es de cada pestaña y no alcanza.
+ * `navigator.locks` es del navegador y lo comparten todas las pestañas del mismo
+ * sitio. Si el navegador no lo tiene, se sigue como antes.
+ */
+async function conTrabaEntreSolapas<T>(tarea: () => Promise<T>, siOcupado: T): Promise<T> {
+  const locks = (typeof navigator !== 'undefined' ? (navigator as any).locks : undefined);
+  if (!locks?.request) return tarea();
+  const resultado = await locks.request(
+    'ak-cola-sin-internet',
+    { ifAvailable: true },
+    async (lock: unknown) => (lock ? tarea() : siOcupado),
+  );
+  return resultado as T;
+}
+
 export async function processOfflineMediaQueue(scope: OfflineSyncScope = {}): Promise<{
+  processed: number;
+  remaining: number;
+  errors: number;
+}> {
+  return conTrabaEntreSolapas(
+    () => procesarColaSinTraba(scope),
+    { processed: 0, remaining: 0, errors: 0 },
+  );
+}
+
+async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
   processed: number;
   remaining: number;
   errors: number;

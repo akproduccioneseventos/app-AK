@@ -4261,3 +4261,11 @@ gasta inteligencia artificial: es análisis de datos con caché por día.
   siguen quedando "listo para copiar", que es lo que el dueño quiere.
   **Por qué importa:** nunca se puede decir que algo salió donde no salió, y menos
   esconder que una conexión se cayó.
+
+- **Dos pestañas subían la misma foto dos veces (24 de agosto de 2026).** Si
+  alguien abría la fotocabina dos veces en la misma máquina, las dos pestañas leían
+  la cola al mismo tiempo y la foto aparecía **duplicada en el muro**. El candado
+  que había era de cada pestaña por separado y no alcanzaba.
+  **Qué se hizo:** una traba compartida por todas las pestañas del mismo sitio
+  (`navigator.locks`), con el nombre `ak-cola-sin-internet`. Si el navegador no la
+  tiene, se sigue como antes.
