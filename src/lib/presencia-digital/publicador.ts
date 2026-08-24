@@ -97,6 +97,11 @@ export async function publishPostInternal(
     const publishedTo: string[] = [];
     const failedPlatforms: Array<{ platform: string; reason: string }> = [];
     let isOnlyManualNetworks = true;
+    // Una red que SI se puede automatizar y falla por falta de configuracion es un
+    // FALLO, no un "listo para copiar". Sin esto, un Facebook con la conexion rota
+    // quedaba marcado como listo para copiar y el dueño nunca se enteraba de que la
+    // conexion estaba caida: creia que solo habia que pegar el texto a mano.
+    let huboFalloDeConexion = false;
 
     for (const plat of selectedPlatforms) {
       const conn = connections.find((c) => c.platform === plat);
@@ -116,6 +121,7 @@ export async function publishPostInternal(
             platform: 'Facebook',
             reason: 'Falta configurar el Page ID y Access Token de Facebook en Ajustes > Redes Sociales (o usar botón de 1 toque).',
           });
+          huboFalloDeConexion = true;
           continue;
         }
 
@@ -138,6 +144,7 @@ export async function publishPostInternal(
             platform: 'Instagram',
             reason: 'Falta configurar el Instagram Account ID y Access Token en Ajustes > Redes Sociales (o usar botón de 1 toque).',
           });
+          huboFalloDeConexion = true;
           continue;
         }
 
@@ -185,6 +192,7 @@ export async function publishPostInternal(
             platform: 'YouTube',
             reason: 'Falta el Access Token de Google/YouTube en Ajustes > Redes Sociales. Podés publicar con el botón de 1 Toque.',
           });
+          huboFalloDeConexion = true;
           continue;
         }
 
@@ -205,6 +213,7 @@ export async function publishPostInternal(
             platform: 'Google',
             reason: 'Falta el Token y Location ID de Google Business en Ajustes > Redes Sociales.',
           });
+          huboFalloDeConexion = true;
           continue;
         }
 
@@ -288,7 +297,7 @@ export async function publishPostInternal(
     }
 
     // Si todas las redes seleccionadas son manuales (TikTok, Threads, X, WhatsApp)
-    if (isOnlyManualNetworks && publishedTo.length === 0) {
+    if (isOnlyManualNetworks && !huboFalloDeConexion && publishedTo.length === 0) {
       const manualPost: SocialPost = {
         ...targetPost,
         status: 'Listo para copiar',
