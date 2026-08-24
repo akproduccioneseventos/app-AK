@@ -63,7 +63,7 @@ export function AnimatedCounter({
 
   const renderedText = isInView
     ? stringVal.replace(String(targetNumber), String(currentNumber))
-    : stringVal.replace(String(targetNumber), '0');
+    : stringVal;
 
   return (
     <span ref={ref} className={className}>

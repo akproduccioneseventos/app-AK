@@ -457,6 +457,7 @@ function correrPasada4() {
     /console\./i,
     /\/\//,
     /\/\*/,
+    /^\s*\*/,
     /clausula/i,
     /contrato/i,
     /pandemia/i,

@@ -514,7 +514,6 @@ export default function FotocabinaPage() {
             fileName,
             mimeType: 'image/jpeg',
             authorName: 'Fotocabina AK',
-            metadata: { accessToken, guestId, guestAccessToken },
           });
         } catch (errorAlGuardar: any) {
           // Si el aparato se queda sin lugar, la foto NO se guardo. Antes el
@@ -591,7 +590,6 @@ export default function FotocabinaPage() {
             fileName: `fotocabina-${Date.now()}.jpg`,
             mimeType: 'image/jpeg',
             authorName: 'Fotocabina AK',
-            metadata: { accessToken, guestId, guestAccessToken },
           });
           speak("Tu foto quedó guardada y se subirá cuando vuelva la señal.");
           setLocalStatus('done');
@@ -1071,7 +1069,13 @@ export default function FotocabinaPage() {
       </div>
 
       <KioskUnlockButton />
-      <SyncStatusIndicator fiestaId={fiestaId} moduleId="fotocabina" />
+      <SyncStatusIndicator
+        fiestaId={fiestaId}
+        moduleId="fotocabina"
+        accessToken={accessToken}
+        guestId={guestId}
+        guestAccessToken={guestAccessToken}
+      />
     </div>
   );
 }

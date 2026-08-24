@@ -29,6 +29,8 @@ const GENERADOR = path.join(RAIZ, 'scripts/generar-mapa-app.mjs');
 const MANUAL = path.join(RAIZ, 'docs/MANUAL-DE-LA-APP.md');
 const FLUJO_ASISTENTE = path.join(RAIZ, 'src/ai/flows/multiagent-flow.ts');
 
+const normalizarFinalesDeLinea = (contenido: string) => contenido.replace(/\r\n/g, '\n');
+
 describe('El mapa de la app esta al dia', () => {
   it('el mapa generado coincide con las pantallas que hay de verdad', () => {
     const antes = readFileSync(ARCHIVO_MAPA, 'utf8');
@@ -40,7 +42,7 @@ describe('El mapa de la app esta al dia', () => {
       require('node:fs').writeFileSync(ARCHIVO_MAPA, antes, 'utf8');
     }
 
-    expect(despues).toBe(antes);
+    expect(normalizarFinalesDeLinea(despues)).toBe(normalizarFinalesDeLinea(antes));
   });
 
   it('cada opcion del menu lleva a una pantalla que existe', () => {

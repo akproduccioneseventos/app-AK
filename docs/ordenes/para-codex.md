@@ -1,67 +1,39 @@
-# Para Codex: la PR #1128 no se puede fusionar
+# Para Codex: estado correcto de la PR #1128
 
-**Escrito:** 23 de agosto de 2026.
+**Corregido:** 24 de agosto de 2026.
 
-Tu PR #1128 no se puede fusionar, y el motivo no es el conflicto: la rama
-`codex/auditoria-contable-lanzamiento` **NO COMPARTE HISTORIA** con `origin/main`.
+La PR #1128 usa la rama `codex/auditoria-final-lanzamiento-20260823`.
+Sí compartía historia con main: GitHub confirmó como ancestro común
+`3e259324076ba43434506a739a4354cb3f3d0a8c`.
 
-**Comprobación:**
-- `git merge origin/main` responde *"refusing to merge unrelated histories"*.
-- `git merge-base origin/main <rama>` no devuelve nada.
-- El segundo commit de la rama es el merge de la PR #583; main va por la #1128.
+El diagnóstico anterior nombraba otra rama y no aplicaba a esta PR. Para evitar
+cualquier riesgo, igualmente se reconstruyó la propuesta con un commit cuyo padre
+es el main actual `2190ff9a9a115dd7cdc8e86a40039a20dd01dbc5`.
 
-**Conclusión:** la rama salió de una copia vieja del proyecto, no de main.
-Fusionarla borraría el trabajo de los últimos días. Y tus controles (2165 pruebas
-en verde) se corrieron sobre una app que no es la actual.
+## Qué se preservó
 
-## Qué hay en main que tu rama no tiene, y no se puede perder
+- El despertador cada 15 minutos y su despliegue.
+- Las estaciones offline y sus colas por fiesta.
+- Los agentes y avisos existentes en main.
+- El arreglo contable de rentabilidad.
+- El reloj del simulador.
+- El ajuste anual del 15%.
+- El descuento comercial del 50% del Club Uruguay.
+- WhatsApp prepara mensajes; no los envía.
+- Los precios salen del catálogo, salvo decisiones comerciales ya aprobadas.
 
-- **El despertador**: tarea programada cada 15 minutos en `functions/src/index.ts`
-  llamando a `/api/cron-despachador`, **más el paso de despliegue** en
-  `.github/workflows/deploy.yml` que la publica. Sin ese paso queda escrita y no
-  corre. **Tu PR toca los dos archivos: cuidado.**
-- Las estaciones sin internet (IndexedDB, cola de subida, modo quiosco).
-- Los cinco agentes autónomos y los avisos de errores humanos.
-- La asistente con precios atados al catálogo.
-- El arreglo del doble conteo en la rentabilidad por fiesta.
-- El reloj del simulador (decisión de marketing del dueño, ver `CLAUDE.md`).
+## Qué se descartó de la auditoría anterior
 
-## Qué hacer
+- Quitar el reloj.
+- Quitar el 50% comercial del Club Uruguay.
+- Reemplazar el simulador público actual por una versión anterior.
+- Documentar bloqueos del entorno como errores confirmados de la aplicación.
+- Sobrescribir documentos compartidos con estados viejos.
 
-**1. Cerrá la PR #1128.** No intentes rebasar 2013 commits ni resolver el
-conflicto: no hay nada roto en tu trabajo, está hecho sobre la base equivocada.
+## Evidencia
 
-**2. Entregá primero LOS HALLAZGOS, no código.** Una lista, con:
-- archivo:línea
-- qué está mal
-- qué ve el usuario en pantalla
-- por qué importa para el negocio
+TypeScript y ESLint aprobaron. Las 9 suites focalizadas posteriores a la conciliación aprobaron
+66/66 pruebas. Los detalles están en `docs/YA-RESUELTO.md` y
+`ESTADO-ACTUAL.md`.
 
-Se verifican contra main de hoy y se descartan los que ya estén resueltos.
-
-**3. Recién después, el arreglo, sobre la base correcta:**
-
-```
-git fetch origin main
-git checkout -B fix/<nombre-descriptivo> origin/main
-```
-
-Y **UNA SOLA propuesta** con todo. Cada fusión dispara un despliegue y se paga.
-
-## Reglas del proyecto (están en `CLAUDE.md`, leelas antes)
-
-- **NO SE CAMBIA LO QUE YA FUNCIONA.** Una auditoría propone, no manda. Si algo
-  anda y el dueño no lo pidió, no se toca: se anota en una línea y decide él.
-- **No se tocan textos que ve el cliente** ni decisiones de marketing sin permiso.
-- **El reloj del simulador NO SE SACA.**
-- **El WhatsApp prepara mensajes; no los manda.**
-- **Ningún precio se inventa**: salen del catálogo.
-- Si tocás o agregás pantallas, corré `npm run mapa:generar` y anotá lo hecho en
-  `docs/YA-RESUELTO.md`, en la misma propuesta.
-
-## Sobre lo que reportaste como bloqueo
-
-Los controles rojos de GitHub son **por facturación de la cuenta**, ya está
-decidido: no se investigan. Lo que vale es la verificación local. El build largo y
-el E2E que no arranca son **del entorno, no de la app**: en el contenedor de Claude
-las 598 pruebas de navegador corren y pasan.
+La PR queda abierta para que la fusione el dueño; Codex no la fusiona.

@@ -179,7 +179,7 @@ export async function getAppointments(): Promise<CrmAppointment[]> {
     return Array.isArray(items) ? items : [];
   } catch (error) {
     console.error("Error loading appointments:", error);
-    return [];
+    throw new Error('No se pudieron cargar las citas. No se guardó ningún cambio.');
   }
 }
 

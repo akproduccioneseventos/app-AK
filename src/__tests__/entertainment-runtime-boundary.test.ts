@@ -101,4 +101,28 @@ describe("entertainment runtime boundaries", () => {
     expect(source).toContain("{ lastError:");
     expect(source).toContain("No se pudo avisar la falla de cámara al operador:");
   });
+  it('queues all capture stations offline without persisting access credentials', () => {
+    const stationPages = [
+      'src/app/evento/fotocabina/[fiestaId]/page.tsx',
+      'src/app/evento/plataforma-360/[fiestaId]/page.tsx',
+      'src/app/evento/espejo-magico/[fiestaId]/page.tsx',
+      'src/app/evento/touchpix/[fiestaId]/page.tsx',
+    ];
+
+    for (const file of stationPages) {
+      const source = read(file);
+      expect(source).toContain('saveOfflineMedia');
+      expect(source).toContain('SyncStatusIndicator');
+      expect(source).not.toMatch(/metadata:\s*\{\s*accessToken/);
+    }
+
+    const manager = read('src/lib/offline/offline-sync-manager.ts');
+    const database = read('src/lib/offline/offline-db.ts');
+    expect(manager).toContain('runtimeCredentials');
+    expect(manager).not.toContain('item.metadata?.accessToken');
+    expect(manager).not.toContain('item.attempts + 1 >= 10');
+    expect(database).toContain('SENSITIVE_OFFLINE_METADATA_KEY');
+    expect(database).toContain('sanitizeOfflineMetadata(item.metadata)');
+  });
+
 });
