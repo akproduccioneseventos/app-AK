@@ -39,6 +39,30 @@ export interface PublicoObjetivoSugerido {
   consejoSegmentacion: string;
 }
 
+export interface DatosRendimientoMeta {
+  tieneDatosReales: boolean;
+  cplPromedio?: number;
+  comparativaMensaje: string;
+  recomendacionFormato?: string;
+}
+
+export interface FotoRealSugerida {
+  url?: string;
+  descripcion: string;
+  origen: string;
+}
+
+export interface TestimonioRealSugerido {
+  cliente: string;
+  texto: string;
+  evento: string;
+}
+
+export interface ServicioCatalogoSugerido {
+  nombre: string;
+  precio?: number;
+}
+
 export interface AnuncioGenerado {
   id: string;
   tipoEvento: TipoEventoAnuncio;
@@ -51,6 +75,10 @@ export interface AnuncioGenerado {
   guionReelsTikTok: GuionReelsTikTok;
   sugerenciaVisual: SugerenciaVisual;
   publicoObjetivoSugerido: PublicoObjetivoSugerido;
+  datosRendimientoMeta?: DatosRendimientoMeta;
+  fotoRealSugerida?: FotoRealSugerida;
+  testimonioReal?: TestimonioRealSugerido;
+  serviciosCatalogoReales?: ServicioCatalogoSugerido[];
   creadoEn: string;
 }
 

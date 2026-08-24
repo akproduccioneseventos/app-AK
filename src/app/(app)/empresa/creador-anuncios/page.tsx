@@ -42,7 +42,9 @@ import {
   guardarAnuncio,
   getAnunciosGuardados,
   eliminarAnuncioGuardado,
+  enviarABorradorDeContenido,
 } from '@/app/actions/creador-anuncios';
+import { Send, Image as ImageIcon, MessageSquareQuote, CheckCircle } from 'lucide-react';
 
 export default function CreadorAnunciosPage() {
   const { toast } = useToast();
@@ -168,6 +170,36 @@ export default function CreadorAnunciosPage() {
       toast({ title: 'Copiado al portapapeles', description: label });
     } catch {
       toast({ title: 'No se pudo copiar', description: 'Seleccioná el texto y copialo manualmente.', variant: 'destructive' });
+    }
+  };
+
+  // Copiar Guión Completo de Reel/TikTok en un toque
+  const copiarGuionCompleto = async (anuncio: AnuncioGenerado) => {
+    const escenasTexto = anuncio.guionReelsTikTok.escenas
+      .map((esc) => `[${esc.segundo}]\n👀 Visual: ${esc.visual}\n✍️ Texto en pantalla: ${esc.textoPantalla}\n🎙️ Audio: "${esc.audioLocucion}"`)
+      .join('\n\n');
+    const fullGuion = `🎬 GUIÓN PARA REEL / TIKTOK (${anuncio.guionReelsTikTok.duracionSegundos}s)\n🎵 Música sugerida: ${anuncio.guionReelsTikTok.musicaSugerida}\n\n${escenasTexto}\n\n🔗 Enlace de destino: ${anuncio.enlaceDestino}`;
+    await copiarTexto(fullGuion, 'Guión completo para Reel / TikTok copiado.');
+  };
+
+  // Enviar anuncio como borrador al planificador de redes
+  const [isSendingToDraft, setIsSendingToDraft] = useState(false);
+  const handleEnviarABorrador = async (anuncio: AnuncioGenerado) => {
+    setIsSendingToDraft(true);
+    try {
+      const res = await enviarABorradorDeContenido(anuncio);
+      if (res.success) {
+        toast({
+          title: '¡Enviado a Redes Sociales!',
+          description: 'El anuncio quedó guardado como borrador en el planificador de redes listo para programar o publicar.',
+        });
+      } else {
+        throw new Error(res.error || 'No se pudo enviar al planificador.');
+      }
+    } catch (e: any) {
+      toast({ title: 'Error al enviar a borrador', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsSendingToDraft(false);
     }
   };
 
@@ -319,9 +351,47 @@ export default function CreadorAnunciosPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Tarjeta de Inteligencia de Rendimiento Meta (Bloque 1) */}
+                  {anuncioGenerado.datosRendimientoMeta && (
+                    <Card className={`border shadow-sm ${
+                      anuncioGenerado.datosRendimientoMeta.tieneDatosReales
+                        ? 'border-emerald-200 bg-emerald-50/70 text-emerald-950'
+                        : 'border-blue-200 bg-blue-50/70 text-blue-950'
+                    }`}>
+                      <CardContent className="p-4 space-y-2 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className={`inline-flex items-center gap-1.5 font-bold uppercase tracking-wider text-[10px] px-2.5 py-0.5 rounded-full ${
+                            anuncioGenerado.datosRendimientoMeta.tieneDatosReales
+                              ? 'bg-emerald-200 text-emerald-800'
+                              : 'bg-blue-200 text-blue-800'
+                          }`}>
+                            <Sparkles className="w-3.5 h-3.5" />
+                            {anuncioGenerado.datosRendimientoMeta.tieneDatosReales
+                              ? 'Inteligencia de Datos Reales de Meta Ads'
+                              : 'Fórmula Neuroventas AK'}
+                          </span>
+                          <Link
+                            href="/contabilidad/crm/marketing-ads"
+                            className="text-[11px] font-bold text-indigo-700 hover:underline flex items-center gap-1"
+                          >
+                            Ver números en vivo <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        </div>
+                        <p className="font-semibold text-xs leading-relaxed">
+                          {anuncioGenerado.datosRendimientoMeta.comparativaMensaje}
+                        </p>
+                        {anuncioGenerado.datosRendimientoMeta.recomendacionFormato && (
+                          <p className="text-[11px] text-emerald-800 font-medium">
+                            🎯 <strong>Formato recomendado:</strong> {anuncioGenerado.datosRendimientoMeta.recomendacionFormato}
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
                   {/* Tarjeta de Copy & Gancho */}
                   <Card className="border-slate-200 shadow-sm">
-                    <CardHeader className="p-5 pb-3 flex flex-row items-center justify-between">
+                    <CardHeader className="p-5 pb-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                       <div>
                         <Badge className="bg-rose-100 text-rose-800 hover:bg-rose-100 text-[10px] uppercase font-bold">
                           Copy Publicitario (Instagram & Facebook)
@@ -330,7 +400,7 @@ export default function CreadorAnunciosPage() {
                           {anuncioGenerado.tituloGancho}
                         </CardTitle>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <Button
                           size="sm"
                           variant="outline"
@@ -338,6 +408,16 @@ export default function CreadorAnunciosPage() {
                           className="h-8 text-xs font-bold gap-1"
                         >
                           <Copy className="w-3.5 h-3.5" /> Copiar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={isSendingToDraft}
+                          onClick={() => handleEnviarABorrador(anuncioGenerado)}
+                          className="h-8 text-xs font-bold gap-1 text-purple-700 border-purple-200 hover:bg-purple-50"
+                        >
+                          {isSendingToDraft ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                          Enviar a Redes
                         </Button>
                         <Button
                           size="sm"
@@ -368,16 +448,66 @@ export default function CreadorAnunciosPage() {
                     </CardContent>
                   </Card>
 
-                  {/* Guión para Reels / TikTok */}
+                  {/* Material Real de AK (Bloque 2) */}
+                  {(anuncioGenerado.fotoRealSugerida || anuncioGenerado.testimonioReal || (anuncioGenerado.serviciosCatalogoReales && anuncioGenerado.serviciosCatalogoReales.length > 0)) && (
+                    <Card className="border-slate-200 shadow-sm bg-gradient-to-br from-amber-50/40 to-white">
+                      <CardHeader className="p-4 pb-2">
+                        <CardTitle className="text-xs font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                          <CheckCircle className="w-4 h-4 text-amber-600" /> Materiales Reales de AK Vinculados
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-4 pt-1 space-y-2 text-xs">
+                        {anuncioGenerado.fotoRealSugerida && (
+                          <div className="flex items-center gap-2 text-slate-700 bg-white p-2.5 rounded-lg border border-amber-200/60">
+                            <ImageIcon className="w-4 h-4 text-amber-600 shrink-0" />
+                            <div>
+                              <p className="font-bold text-[11px]">{anuncioGenerado.fotoRealSugerida.descripcion}</p>
+                              <p className="text-[10px] text-slate-500">{anuncioGenerado.fotoRealSugerida.origen}</p>
+                            </div>
+                          </div>
+                        )}
+                        {anuncioGenerado.testimonioReal && (
+                          <div className="flex items-start gap-2 text-slate-700 bg-white p-2.5 rounded-lg border border-amber-200/60">
+                            <MessageSquareQuote className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                            <div>
+                              <p className="italic text-[11px]">«{anuncioGenerado.testimonioReal.texto}»</p>
+                              <p className="text-[10px] font-bold text-amber-900 mt-0.5">— {anuncioGenerado.testimonioReal.cliente} ({anuncioGenerado.testimonioReal.evento})</p>
+                            </div>
+                          </div>
+                        )}
+                        {anuncioGenerado.serviciosCatalogoReales && anuncioGenerado.serviciosCatalogoReales.length > 0 && (
+                          <div className="pt-1 flex flex-wrap gap-1.5">
+                            {anuncioGenerado.serviciosCatalogoReales.map((s, idx) => (
+                              <span key={idx} className="bg-slate-100 text-slate-800 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-200">
+                                {s.nombre} {s.precio ? `($${s.precio.toLocaleString('es-UY')})` : ''}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Guión para Reels / TikTok (Bloque 5) */}
                   <Card className="border-slate-200 shadow-sm">
                     <CardHeader className="p-5 pb-3">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-sm font-bold text-slate-900 flex items-center gap-2">
                           <Video className="w-4 h-4 text-purple-600" /> Guión para Reel / TikTok ({anuncioGenerado.guionReelsTikTok.duracionSegundos}s)
                         </CardTitle>
-                        <span className="text-[11px] text-slate-500 font-medium">
-                          🎵 {anuncioGenerado.guionReelsTikTok.musicaSugerida}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+                            🎵 {anuncioGenerado.guionReelsTikTok.musicaSugerida}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copiarGuionCompleto(anuncioGenerado)}
+                            className="h-7 text-xs font-bold gap-1 text-purple-700 border-purple-200 hover:bg-purple-50"
+                          >
+                            <Copy className="w-3 h-3" /> Copiar Guión
+                          </Button>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent className="p-5 pt-0 space-y-2 text-xs">
