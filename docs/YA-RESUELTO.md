@@ -4180,3 +4180,5 @@ gasta inteligencia artificial: es análisis de datos con caché por día.
   portal. Como esa función devuelve el total base mientras el presupuesto no esté
   aceptado, **los presupuestos de venta no cambian en nada**: sólo se alinean los
   ya contratados, que son los que se ven en el portal.
+  -   ( 2 3   d e   A g o s t o )   A u d i t o r i a   c o m p l e t a   d e   l o s   5   b l o q u e s   c o m e r c i a l e s   y   a r r e g l o s   f i n a l e s   ( P l a t a f o r m a   3 6 0 ,   P a q u e t e   i n t e g r a l ,   T e x t o   r e m a n e n t e )   e n   l a   r a m a   f e a t / o r d e n - v e n d e r - e x p e r i e n c i a - y - c i e r r e s .  
+ 
