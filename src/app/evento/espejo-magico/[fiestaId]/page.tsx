@@ -19,6 +19,8 @@ import {
   Radio,
   Zap,
   Printer,
+  MessageCircle,
+  Sparkles,
 } from 'lucide-react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
@@ -1473,6 +1475,25 @@ export default function EspejoMagicoPage() {
                   >
                     <RefreshCw className="w-4 h-4" /> Tomar Otra Foto
                   </button>
+                )}
+                {role !== 'operator' && (
+                  <div className="pt-2 flex flex-col items-center gap-1.5 border-t border-white/10 w-full text-center">
+                    <div className="text-[11px] font-bold text-zinc-300 flex items-center gap-1.5 justify-center">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Esto lo hizo AK Producciones</span>
+                    </div>
+                    <a
+                      href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                        `¡Hola AK Producciones! Me saqué una foto en el Espejo Mágico de la fiesta de ${fiesta?.eventName || 'un evento'} y me encantó. Quería consultarles para mi propio evento.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>Escribinos por WhatsApp</span>
+                    </a>
+                  </div>
                 )}
               </div>
             </div>

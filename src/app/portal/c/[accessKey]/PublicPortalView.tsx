@@ -1544,7 +1544,7 @@ export default function PublicPortalView({
                     <p className="font-bold">
                       {invitadosContratados > 0
                         ? `Tu contrato permite entre ${guestChangeVerdict.minimoPermitido} y ${guestChangeVerdict.maximoPermitido} invitados.`
-                        : 'AK todavía no cargó la cantidad contratada para calcular el rango.'}
+                        : 'La cantidad contratada está en confirmación por el equipo AK para calcular el rango.'}
                     </p>
                     <p className="mt-1 text-muted-foreground">{guestChangeVerdict.mensaje}</p>
                   </div>
