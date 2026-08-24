@@ -78,7 +78,10 @@ describe('Encontrarme en Google — Posicionamiento, Pinterest, Analytics y Cuen
 
       expect(res.readyForManualCopy).toBe(true);
       expect(res.failedPlatforms?.[0]?.platform).toBe('Pinterest');
-      expect(res.failedPlatforms?.[0]?.reason).toContain('Pinterest requiere aprobación');
+      // El texto cambio porque Pinterest YA se puede automatizar si se carga la
+      // credencial. Lo que se sigue garantizando es lo importante: sin credencial
+      // queda listo para copiar y NUNCA se marca como publicado.
+      expect(res.failedPlatforms?.[0]?.reason).toContain('Pinterest');
     });
   });
 

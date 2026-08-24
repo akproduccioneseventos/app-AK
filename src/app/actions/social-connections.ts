@@ -179,3 +179,84 @@ export async function saveMetaPublishingCredentials(params: {
   return { success: true };
 }
 
+/**
+ * Guarda credenciales y tokens de API para cualquier plataforma oficial (TikTok, YouTube, Google, Pinterest, X, Threads).
+ */
+export async function saveSocialCredentials(
+  platform: SocialPlatformName,
+  credentials: {
+    profileUrl?: string;
+    logoUrl?: string;
+    pageId?: string;
+    pageAccessToken?: string;
+    instagramAccountId?: string;
+    apiKey?: string;
+    accessToken?: string;
+    refreshToken?: string;
+    channelId?: string;
+    locationId?: string;
+    boardId?: string;
+    webhookUrl?: string;
+  }
+): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
+  await requireAppSession();
+
+  const connections = await leerConexiones();
+  const existingIndex = connections.findIndex((c) => c.platform === platform);
+  const now = new Date().toISOString();
+
+  const updatedConnection: SocialConnection = {
+    ...(existingIndex > -1 ? connections[existingIndex] : { platform, isConnected: true }),
+    ...credentials,
+    platform,
+    isConnected: true,
+    connectedAt: now,
+  };
+
+  if (existingIndex > -1) {
+    connections[existingIndex] = updatedConnection;
+  } else {
+    connections.push(updatedConnection);
+  }
+
+  await writeData(CONNECTIONS_FILE, connections);
+  return { success: true, connection: updatedConnection };
+}
+
+/**
+ * Guarda la configuración de Pasarela / Webhook Unificado (Camino B: n8n, Make, Upload-Post, Postiz).
+ */
+export async function saveUnifiedGatewaySettings(params: {
+  webhookUrl: string;
+  apiKey?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
+  const { webhookUrl, apiKey } = params;
+
+  if (!webhookUrl || !webhookUrl.startsWith('http')) {
+    return { success: false, error: 'Por favor, ingresá una URL válida de Webhook (https://...).' };
+  }
+
+  const connections = await leerConexiones();
+  const now = new Date().toISOString();
+
+  // Guardamos la configuración en una entrada de conexión especial o genérica
+  const existingIndex = connections.findIndex((c) => c.webhookUrl !== undefined);
+  const conn: SocialConnection = {
+    platform: 'Facebook', // Ancla a una plataforma existente
+    isConnected: true,
+    webhookUrl,
+    apiKey,
+    connectedAt: now,
+  };
+
+  if (existingIndex > -1) {
+    connections[existingIndex] = { ...connections[existingIndex], webhookUrl, apiKey };
+  } else {
+    connections.push(conn);
+  }
+
+  await writeData(CONNECTIONS_FILE, connections);
+  return { success: true };
+}
+

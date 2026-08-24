@@ -41,6 +41,18 @@ interface NewPostDialogProps {
 }
 
 
+const ALL_PLATFORMS: Array<{ id: SocialPlatform; label: string; badge: string }> = [
+  { id: 'Instagram', label: 'Instagram', badge: 'Automático / 1 Toque' },
+  { id: 'Facebook', label: 'Facebook', badge: 'Automático / 1 Toque' },
+  { id: 'TikTok', label: 'TikTok', badge: 'Directo / 1 Toque' },
+  { id: 'YouTube', label: 'YouTube Shorts', badge: 'Directo / 1 Toque' },
+  { id: 'Google', label: 'Google Business', badge: 'Directo / 1 Toque' },
+  { id: 'Threads', label: 'Threads', badge: 'Directo / 1 Toque' },
+  { id: 'X', label: 'X (Twitter)', badge: 'Directo / 1 Toque' },
+  { id: 'Pinterest', label: 'Pinterest', badge: 'Directo / 1 Toque' },
+  { id: 'WhatsApp', label: 'WhatsApp', badge: '1 Toque' },
+];
+
 export function NewPostDialog({ 
     onPostCreated, 
     postToEdit,
@@ -58,6 +70,7 @@ export function NewPostDialog({
     
     // Form state
     const [platform, setPlatform] = useState<SocialPlatform | 'WhatsApp'>('Instagram');
+    const [selectedPlatforms, setSelectedPlatforms] = useState<SocialPlatform[]>(['Instagram', 'Facebook']);
     const [isGeneralCampaign, setIsGeneralCampaign] = useState(true);
     const [eventId, setEventId] = useState<string>('');
     const [publishDate, setPublishDate] = useState(new Date().toISOString().substring(0, 16));
@@ -80,6 +93,7 @@ export function NewPostDialog({
     const resetForm = useCallback(() => {
         const isDuplicating = !!postToDuplicate;
         setPlatform(activePost?.platform || 'Instagram');
+        setSelectedPlatforms([activePost?.platform || 'Instagram']);
         setIsGeneralCampaign(activePost?.isGeneralCampaign ?? true);
         setEventId(activePost?.eventId || '');
         setPublishDate(isDuplicating ? new Date().toISOString().substring(0, 16) : (activePost?.publishDate ? new Date(activePost.publishDate).toISOString().substring(0, 16) : new Date().toISOString().substring(0, 16)));
@@ -113,50 +127,79 @@ export function NewPostDialog({
         }
     };
 
+    const togglePlatform = (p: SocialPlatform) => {
+        setSelectedPlatforms(prev => 
+            prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
+        );
+    };
+
+    const selectAllPlatforms = () => {
+        if (selectedPlatforms.length === ALL_PLATFORMS.length) {
+            setSelectedPlatforms(['Instagram']);
+        } else {
+            setSelectedPlatforms(ALL_PLATFORMS.map(p => p.id));
+        }
+    };
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
-        const formData = new FormData();
-        if (postToEdit) formData.append('id', postToEdit.id);
-        
-        formData.append('platform', platform);
-        formData.append('isGeneralCampaign', String(isGeneralCampaign));
-        if (!isGeneralCampaign && eventId) {
-            formData.append('eventId', eventId);
-            formData.append('eventName', allEvents.find(e => e.id === eventId)?.configuracion.nombreEvento || 'Evento');
-        }
-        formData.append('publishDate', new Date(publishDate).toISOString());
-        formData.append('text', text);
-        if (link) formData.append('link', link);
-        if (mediaFile) {
-            formData.append('mediaFile', mediaFile);
-        } else if (activePost?.mediaUrl) { // Carry over existing media if no new file
-             formData.append('existingMediaUrl', activePost.mediaUrl);
-             if(activePost.mediaType) formData.append('existingMediaType', activePost.mediaType);
-        }
-        
-        formData.append('status', status);
-        
-        if (promotionCost) formData.append('promotionCost', promotionCost);
-        if (performanceLikes) formData.append('performance.likes', performanceLikes);
-        
-        try {
-            const result = await saveSocialPost(formData);
-            if (result.success) {
-                toast({ title: postToEdit ? "Publicación Actualizada" : (postToDuplicate ? "Publicación Duplicada" : "Publicación Creada") });
 
-                if (isWhatsAppSelected && sendToWhatsApp) {
-                    const whatsAppText = encodeURIComponent(text);
-                    const whatsAppUrl = `https://wa.me/?text=${whatsAppText}`;
-                    window.open(whatsAppUrl, '_blank');
-                    toast({title: "Abriendo WhatsApp..."});
+        const platformsToSave: SocialPlatform[] = postToEdit 
+            ? [platform as SocialPlatform] 
+            : (selectedPlatforms.length > 0 ? selectedPlatforms : ['Instagram']);
+
+        const crossPlatformGroupId = platformsToSave.length > 1 ? `grp_${Date.now()}` : undefined;
+
+        try {
+            for (const plat of platformsToSave) {
+                const formData = new FormData();
+                if (postToEdit) formData.append('id', postToEdit.id);
+                
+                formData.append('platform', plat);
+                formData.append('isGeneralCampaign', String(isGeneralCampaign));
+                if (!isGeneralCampaign && eventId) {
+                    formData.append('eventId', eventId);
+                    formData.append('eventName', allEvents.find(e => e.id === eventId)?.configuracion.nombreEvento || 'Evento');
+                }
+                formData.append('publishDate', new Date(publishDate).toISOString());
+                formData.append('text', text);
+                if (link) formData.append('link', link);
+                if (mediaFile) {
+                    formData.append('mediaFile', mediaFile);
+                } else if (activePost?.mediaUrl) {
+                     formData.append('existingMediaUrl', activePost.mediaUrl);
+                     if(activePost.mediaType) formData.append('existingMediaType', activePost.mediaType);
                 }
                 
-                setIsOpen(false);
-                onPostCreated();
-            } else {
-                throw new Error(result.error || "No se pudo guardar la publicación.");
+                formData.append('status', status);
+                if (crossPlatformGroupId) formData.append('crossPlatformGroupId', crossPlatformGroupId);
+                
+                if (promotionCost) formData.append('promotionCost', promotionCost);
+                if (performanceLikes) formData.append('performance.likes', performanceLikes);
+                
+                const result = await saveSocialPost(formData);
+                if (!result.success) {
+                    throw new Error(result.error || `No se pudo guardar la publicación para ${plat}.`);
+                }
             }
+
+            toast({
+                title: postToEdit 
+                    ? "Publicación Actualizada" 
+                    : `¡Creadas publicaciones para ${platformsToSave.length} redes!`,
+                description: platformsToSave.join(', '),
+            });
+
+            if (platformsToSave.includes('WhatsApp') && sendToWhatsApp) {
+                const whatsAppText = encodeURIComponent(text);
+                const whatsAppUrl = `https://wa.me/?text=${whatsAppText}`;
+                window.open(whatsAppUrl, '_blank');
+                toast({ title: "Abriendo WhatsApp..." });
+            }
+            
+            setIsOpen(false);
+            onPostCreated();
         } catch (error: any) {
             toast({ title: "Error", description: error.message, variant: "destructive" });
         } finally {
@@ -164,7 +207,7 @@ export function NewPostDialog({
         }
     };
 
-    const dialogTitle = postToEdit ? 'Editar Publicación' : postToDuplicate ? 'Duplicar Publicación' : 'Nueva Publicación';
+    const dialogTitle = postToEdit ? 'Editar Publicación' : postToDuplicate ? 'Duplicar Publicación' : 'Nueva Publicación Multi-Red';
     const trigger = children ? <div onClick={() => setIsOpen(true)}>{children}</div> : (
         <Button variant="default" onClick={() => setIsOpen(true)}><PlusCircle className="w-5 h-5 mr-2" />Crear Publicación</Button>
     );
@@ -175,27 +218,73 @@ export function NewPostDialog({
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle className="font-headline text-xl">{dialogTitle}</DialogTitle>
-                    <DialogDescription>Completa los detalles de tu post para redes sociales.</DialogDescription>
+                    <DialogDescription>
+                        {postToEdit 
+                            ? 'Editá los detalles del posteo.' 
+                            : 'Escribí tu posteo una sola vez y seleccionalo para publicar en todas las redes que quieras.'}
+                    </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-4 py-2 max-h-[80vh] overflow-y-auto pr-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Selector Multi-Red o Individual */}
+                    {!postToEdit ? (
+                        <div className="space-y-2 rounded-xl border border-purple-100 bg-purple-50/50 p-3.5">
+                            <div className="flex items-center justify-between">
+                                <Label className="font-black text-slate-900 text-sm">
+                                    Redes donde publicar ({selectedPlatforms.length} de {ALL_PLATFORMS.length})
+                                </Label>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-xs h-7 text-purple-700 hover:text-purple-900 font-bold"
+                                    onClick={selectAllPlatforms}
+                                >
+                                    {selectedPlatforms.length === ALL_PLATFORMS.length ? 'Deseleccionar todas' : '⚡ Seleccionar todas'}
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                                {ALL_PLATFORMS.map((plat) => {
+                                    const isSelected = selectedPlatforms.includes(plat.id);
+                                    return (
+                                        <button
+                                            key={plat.id}
+                                            type="button"
+                                            onClick={() => togglePlatform(plat.id)}
+                                            className={`flex items-center justify-between p-2 rounded-lg border text-left text-xs font-bold transition ${
+                                                isSelected 
+                                                    ? 'bg-purple-600 text-white border-purple-700 shadow-sm' 
+                                                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                                            }`}
+                                        >
+                                            <span>{plat.label}</span>
+                                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                                                isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                                            }`}>
+                                                {isSelected ? '✓' : '+'}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ) : (
                         <div className="space-y-1">
                             <Label htmlFor="platform">Plataforma</Label>
                             <Select value={platform} onValueChange={(val) => setPlatform(val as SocialPlatform | 'WhatsApp')}>
                                 <SelectTrigger><SelectValue/></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Instagram">Instagram — Sale solo a la hora que elijas</SelectItem>
-                                    <SelectItem value="Facebook">Facebook — Sale solo a la hora que elijas</SelectItem>
-                                    <SelectItem value="TikTok">TikTok — Te lo dejamos listo para copiar</SelectItem>
-                                    <SelectItem value="WhatsApp">WhatsApp — Te lo dejamos listo para copiar</SelectItem>
-                                    <SelectItem value="Threads">Threads — Te lo dejamos listo para copiar</SelectItem>
-                                    <SelectItem value="X">X (Twitter) — Te lo dejamos listo para copiar</SelectItem>
-                                    <SelectItem value="Pinterest">Pinterest — Te lo dejamos listo para copiar</SelectItem>
+                                    {ALL_PLATFORMS.map(p => (
+                                        <SelectItem key={p.id} value={p.id}>{p.label} — {p.badge}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1"><Label htmlFor="publishDate">Fecha y Hora de Publicación</Label><Input id="publishDate" type="datetime-local" value={publishDate} onChange={e => setPublishDate(e.target.value)} required /></div>
+                        <div className="space-y-1"><Label htmlFor="status">Estado Inicial</Label><Select value={status} onValueChange={(val) => setStatus(val as PostStatus)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Programado">Programado</SelectItem><SelectItem value="Publicado">Publicado</SelectItem><SelectItem value="Listo para copiar">Listo para copiar</SelectItem><SelectItem value="Borrador">Borrador</SelectItem></SelectContent></Select></div>
                     </div>
                     <div className="flex items-center space-x-2">
                         <Checkbox id="isGeneralCampaign" checked={isGeneralCampaign} onCheckedChange={(checked) => setIsGeneralCampaign(!!checked)} />
@@ -208,7 +297,7 @@ export function NewPostDialog({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1"><Label htmlFor="link">Enlace (Opcional)</Label><Input id="link" value={link} onChange={e => setLink(e.target.value)} placeholder="https://ejemplo.com" /></div>
-                        <div className="space-y-1"><Label htmlFor="status">Estado</Label><Select value={status} onValueChange={(val) => setStatus(val as PostStatus)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Programado">Programado</SelectItem><SelectItem value="Publicado">Publicado</SelectItem><SelectItem value="Listo para copiar">Listo para copiar</SelectItem><SelectItem value="Borrador">Borrador</SelectItem></SelectContent></Select></div>
+                        <div className="space-y-1"><Label htmlFor="promotionCost">Inversión Publicitaria ($)</Label><Input id="promotionCost" type="number" value={promotionCost} onChange={e => setPromotionCost(e.target.value)} placeholder="0" /></div>
                     </div>
                      <div className="space-y-1">
                         <Label>Imagen o Video</Label>

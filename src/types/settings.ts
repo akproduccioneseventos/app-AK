@@ -122,6 +122,15 @@ export interface SocialConnection {
   pageAccessToken?: string;
   instagramAccountId?: string;
   tokenExpiresAt?: string;
+  /** Permisos para TikTok / YouTube / Google / Pinterest / X / Webhooks */
+  apiKey?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  channelId?: string;
+  locationId?: string;
+  boardId?: string;
+  webhookUrl?: string;
+  autoPublishEnabled?: boolean;
 }
 
 export interface CompanyInfo {

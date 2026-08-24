@@ -17,6 +17,13 @@ import {
   publishToFacebookPage,
   publishToInstagramBusiness,
 } from '@/lib/social-media/meta-publisher';
+import { publishToTikTok } from '@/lib/social-media/tiktok-publisher';
+import { publishToYouTube } from '@/lib/social-media/youtube-publisher';
+import { publishToGoogleBusiness } from '@/lib/social-media/google-business-publisher';
+import { publishToPinterest } from '@/lib/social-media/pinterest-publisher';
+import { publishToThreads } from '@/lib/social-media/threads-publisher';
+import { publishToX } from '@/lib/social-media/x-publisher';
+import { publishToUnifiedGateway } from '@/lib/social-media/unified-gateway-publisher';
 
 const POSTS_FILE = 'social-posts.json';
 const CONNECTIONS_FILE = 'social-connections.json';
@@ -25,8 +32,9 @@ const MAX_POR_CORRIDA_DEFAULT = 3;
 /**
  * Ejecutor interno de publicación de posteos sociales.
  * No requiere sesión interactiva para poder ser invocado de forma desatendida por el cron.
- * Conecta con Meta Graph API real para Facebook Fanpage e Instagram Business.
- * Para redes manuales (WhatsApp, TikTok, Threads, X), marca el posteo como 'Listo para copiar'.
+ * Conecta con APIs oficiales gratuitas (Meta, TikTok, YouTube, Google, Pinterest, Threads, X)
+ * y pasarela unificada (n8n, Make, Upload-Post, Postiz).
+ * Si no hay credenciales directas, marca el posteo como 'Listo para copiar' con atajos de 1 toque.
  */
 export async function publishPostInternal(
   postId: string,
@@ -49,16 +57,6 @@ export async function publishPostInternal(
 
     const targetPost = posts[postIndex];
 
-    // Un posteo que ya salio no vuelve a salir.
-    //
-    // Antes esto lo cuidaba el hecho de que los posteos programados los mandaba un
-    // solo disparador. Ahora los manda el navegador del equipo, asi que dos
-    // pestanas abiertas a la vez pueden pedir el mismo posteo y publicarlo dos
-    // veces en el Instagram y el Facebook de la empresa.
-    //
-    // La comprobacion se saltea cuando se piden redes puntuales (`targetPlatforms`),
-    // que es el caso de publicar a mano en una red que quedo afuera de la primera
-    // vuelta: ahi si es a proposito.
     if ((!targetPlatforms || targetPlatforms.length === 0) && targetPost.status === 'Publicado') {
       return { success: true, publishedTo: [], post: targetPost };
     }
@@ -69,45 +67,65 @@ export async function publishPostInternal(
       ? targetPlatforms
       : [targetPost.platform as PlatformName];
 
+    // Verificar si hay una pasarela / webhook unificado configurado (Camino B)
+    const unifiedConn = connections.find((c) => c.webhookUrl && c.isConnected);
+    if (unifiedConn?.webhookUrl) {
+      const unifiedRes = await publishToUnifiedGateway({
+        webhookUrl: unifiedConn.webhookUrl,
+        apiKey: unifiedConn.apiKey,
+        post: targetPost,
+        targetPlatforms: selectedPlatforms,
+      });
+      if (unifiedRes.success) {
+        const updatedPost: SocialPost = {
+          ...targetPost,
+          status: 'Publicado',
+          publishDate: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastError: undefined,
+        };
+        posts[postIndex] = updatedPost;
+        await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+        return {
+          success: true,
+          publishedTo: unifiedRes.publishedTo || selectedPlatforms,
+          post: updatedPost,
+        };
+      }
+    }
+
     const publishedTo: string[] = [];
     const failedPlatforms: Array<{ platform: string; reason: string }> = [];
     let isOnlyManualNetworks = true;
+    // Una red que SI se puede automatizar y falla por falta de configuracion es un
+    // FALLO, no un "listo para copiar". Sin esto, un Facebook con la conexion rota
+    // quedaba marcado como listo para copiar y el dueño nunca se enteraba de que la
+    // conexion estaba caida: creia que solo habia que pegar el texto a mano.
+    let huboFalloDeConexion = false;
 
     for (const plat of selectedPlatforms) {
-      if (plat === 'WhatsApp' || plat === 'TikTok' || plat === 'Pinterest' || plat === 'Threads' || plat === 'X') {
-        // Redes que se gestionan en modo "Listo para copiar" (no automatizables por API directa)
-        failedPlatforms.push({
-          platform: plat,
-          reason: plat === 'WhatsApp'
-            ? 'Los estados de WhatsApp no se automatizan por Meta API. Queda listo para copiar y pegar.'
-            : plat === 'TikTok'
-              ? 'TikTok requiere aplicación de desarrollador aprobada por ByteDance. Queda listo para subir manual.'
-              : plat === 'Pinterest'
-                ? 'Pinterest requiere aprobación de app para publicar por API. Queda listo para copiar tu foto y descripción.'
-                : `${plat} requiere publicación manual. Queda listo para copiar y subir.`,
-        });
-        continue;
-      }
-
-      isOnlyManualNetworks = false;
       const conn = connections.find((c) => c.platform === plat);
-      if (!conn || !conn.isConnected) {
+
+      // WhatsApp es por naturaleza canal de estados/chat: queda listo para 1 toque
+      if (plat === 'WhatsApp') {
         failedPlatforms.push({
-          platform: plat,
-          reason: `La cuenta de ${plat} no está conectada en Ajustes > Redes Sociales.`,
+          platform: 'WhatsApp',
+          reason: 'Los estados de WhatsApp quedan listos para publicar en 1 toque desde la app.',
         });
         continue;
       }
 
       if (plat === 'Facebook') {
-        if (!conn.pageId || !conn.pageAccessToken) {
+        if (!conn?.pageId || !conn?.pageAccessToken) {
           failedPlatforms.push({
             platform: 'Facebook',
-            reason: 'Falta configurar el Page ID y Access Token de Facebook en Ajustes > Redes Sociales.',
+            reason: 'Falta configurar el Page ID y Access Token de Facebook en Ajustes > Redes Sociales (o usar botón de 1 toque).',
           });
+          huboFalloDeConexion = true;
           continue;
         }
 
+        isOnlyManualNetworks = false;
         const fbResult = await publishToFacebookPage({
           pageId: conn.pageId,
           pageAccessToken: conn.pageAccessToken,
@@ -116,21 +134,17 @@ export async function publishPostInternal(
           linkUrl: targetPost.link,
         });
 
-        if (fbResult.success) {
-          publishedTo.push('Facebook');
-        } else {
-          failedPlatforms.push({
-            platform: 'Facebook',
-            reason: fbResult.error || 'Error desconocido al publicar en Facebook',
-          });
-        }
+        if (fbResult.success) publishedTo.push('Facebook');
+        else failedPlatforms.push({ platform: 'Facebook', reason: fbResult.error || 'Error en Facebook' });
+
       } else if (plat === 'Instagram') {
-        const instagramId = conn.instagramAccountId || conn.pageId;
-        if (!instagramId || !conn.pageAccessToken) {
+        const instagramId = conn?.instagramAccountId || conn?.pageId;
+        if (!instagramId || !conn?.pageAccessToken) {
           failedPlatforms.push({
             platform: 'Instagram',
-            reason: 'Falta configurar el Instagram Account ID y Access Token en Ajustes > Redes Sociales.',
+            reason: 'Falta configurar el Instagram Account ID y Access Token en Ajustes > Redes Sociales (o usar botón de 1 toque).',
           });
+          huboFalloDeConexion = true;
           continue;
         }
 
@@ -142,6 +156,7 @@ export async function publishPostInternal(
           continue;
         }
 
+        isOnlyManualNetworks = false;
         const igResult = await publishToInstagramBusiness({
           instagramAccountId: instagramId,
           pageAccessToken: conn.pageAccessToken,
@@ -149,32 +164,140 @@ export async function publishPostInternal(
           imageUrl: targetPost.mediaUrl,
         });
 
-        if (igResult.success) {
-          publishedTo.push('Instagram');
-        } else {
+        if (igResult.success) publishedTo.push('Instagram');
+        else failedPlatforms.push({ platform: 'Instagram', reason: igResult.error || 'Error en Instagram' });
+
+      } else if (plat === 'TikTok') {
+        if (!conn?.accessToken) {
           failedPlatforms.push({
-            platform: 'Instagram',
-            reason: igResult.error || 'Error desconocido al publicar en Instagram',
-          });
-        }
-      } else if (plat === 'Google') {
-        const googleConn = connections.find((c) => c.platform === 'Google');
-        if (!googleConn || !googleConn.isConnected) {
-          failedPlatforms.push({
-            platform: 'Google',
-            reason: 'El perfil de empresa en Google no está conectado. Podés vincularlo en Ajustes > Redes Sociales para publicar novedades en Google Business.',
+            platform: 'TikTok',
+            reason: 'Falta el Access Token de TikTok en Ajustes > Redes Sociales. Podés publicar con el botón de 1 Toque.',
           });
           continue;
         }
-        publishedTo.push('Google');
+
+        isOnlyManualNetworks = false;
+        const ttResult = await publishToTikTok({
+          accessToken: conn.accessToken,
+          videoUrl: targetPost.mediaUrl,
+          title: targetPost.text,
+        });
+
+        if (ttResult.success) publishedTo.push('TikTok');
+        else failedPlatforms.push({ platform: 'TikTok', reason: ttResult.error || 'Error en TikTok' });
+
+      } else if (plat === 'YouTube') {
+        if (!conn?.accessToken) {
+          failedPlatforms.push({
+            platform: 'YouTube',
+            reason: 'Falta el Access Token de Google/YouTube en Ajustes > Redes Sociales. Podés publicar con el botón de 1 Toque.',
+          });
+          huboFalloDeConexion = true;
+          continue;
+        }
+
+        isOnlyManualNetworks = false;
+        const ytResult = await publishToYouTube({
+          accessToken: conn.accessToken,
+          videoUrl: targetPost.mediaUrl || '',
+          title: targetPost.text.slice(0, 80),
+          description: targetPost.text,
+        });
+
+        if (ytResult.success) publishedTo.push('YouTube');
+        else failedPlatforms.push({ platform: 'YouTube', reason: ytResult.error || 'Error en YouTube' });
+
+      } else if (plat === 'Google') {
+        if (!conn?.accessToken || !conn?.locationId) {
+          failedPlatforms.push({
+            platform: 'Google',
+            reason: 'Falta el Token y Location ID de Google Business en Ajustes > Redes Sociales.',
+          });
+          huboFalloDeConexion = true;
+          continue;
+        }
+
+        isOnlyManualNetworks = false;
+        const gbResult = await publishToGoogleBusiness({
+          accessToken: conn.accessToken,
+          accountLocationId: conn.locationId,
+          summary: targetPost.text,
+          callToActionUrl: targetPost.link,
+          imageUrl: targetPost.mediaUrl,
+        });
+
+        if (gbResult.success) publishedTo.push('Google');
+        else failedPlatforms.push({ platform: 'Google', reason: gbResult.error || 'Error en Google Business' });
+
+      } else if (plat === 'Pinterest') {
+        if (!conn?.accessToken || !conn?.boardId || !targetPost.mediaUrl) {
+          failedPlatforms.push({
+            platform: 'Pinterest',
+            reason: 'Falta Token/Board ID o imagen para Pinterest en Ajustes > Redes Sociales.',
+          });
+          continue;
+        }
+
+        isOnlyManualNetworks = false;
+        const pinResult = await publishToPinterest({
+          accessToken: conn.accessToken,
+          boardId: conn.boardId,
+          title: targetPost.text.slice(0, 80),
+          description: targetPost.text,
+          link: targetPost.link,
+          imageUrl: targetPost.mediaUrl,
+        });
+
+        if (pinResult.success) publishedTo.push('Pinterest');
+        else failedPlatforms.push({ platform: 'Pinterest', reason: pinResult.error || 'Error en Pinterest' });
+
+      } else if (plat === 'Threads') {
+        if (!conn?.accessToken || !conn?.pageId) {
+          failedPlatforms.push({
+            platform: 'Threads',
+            reason: 'Falta el Token y User ID de Threads en Ajustes > Redes Sociales.',
+          });
+          continue;
+        }
+
+        isOnlyManualNetworks = false;
+        const thResult = await publishToThreads({
+          accessToken: conn.accessToken,
+          threadsUserId: conn.pageId,
+          text: targetPost.text,
+          imageUrl: targetPost.mediaType === 'image' ? targetPost.mediaUrl : undefined,
+          videoUrl: targetPost.mediaType === 'video' ? targetPost.mediaUrl : undefined,
+        });
+
+        if (thResult.success) publishedTo.push('Threads');
+        else failedPlatforms.push({ platform: 'Threads', reason: thResult.error || 'Error en Threads' });
+
+      } else if (plat === 'X') {
+        if (!conn?.accessToken && !conn?.apiKey) {
+          failedPlatforms.push({
+            platform: 'X',
+            reason: 'Falta el Token de X (Twitter) en Ajustes > Redes Sociales. Podés publicar con 1 Toque.',
+          });
+          continue;
+        }
+
+        isOnlyManualNetworks = false;
+        const xResult = await publishToX({
+          accessToken: conn.accessToken,
+          bearerToken: conn.apiKey,
+          text: targetPost.text,
+        });
+
+        if (xResult.success) publishedTo.push('X');
+        else failedPlatforms.push({ platform: 'X', reason: xResult.error || 'Error en X' });
+
       } else {
-        // Otras plataformas
         publishedTo.push(plat);
       }
     }
 
     // Si todas las redes seleccionadas son manuales (TikTok, Threads, X, WhatsApp)
-    if (isOnlyManualNetworks && publishedTo.length === 0) {
+    if (isOnlyManualNetworks && !huboFalloDeConexion && publishedTo.length === 0) {
       const manualPost: SocialPost = {
         ...targetPost,
         status: 'Listo para copiar',

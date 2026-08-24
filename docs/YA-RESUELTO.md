@@ -4248,3 +4248,16 @@ gasta inteligencia artificial: es análisis de datos con caché por día.
   puntuales que eliminaron la vulnerabilidad crítica de producción detectada.
 - **Evidencia posterior a la conciliación:** TypeScript y ESLint aprobados; 9 suites focalizadas,
   66/66 pruebas aprobadas. No se atribuyen a este commit pruebas externas no ejecutadas.
+
+- **Una red con la conexión rota se disfrazaba de "listo para copiar"
+  (24 de agosto de 2026).** Al sumar los publicadores de todas las redes, si
+  Facebook o Instagram no tenían la conexión cargada, el posteo **fallaba pero
+  quedaba marcado como "listo para copiar" y se daba por bueno**: el dueño creía
+  que sólo había que pegar el texto a mano y nunca se enteraba de que la conexión
+  estaba caída.
+  **Qué se hizo:** una red que SÍ se puede automatizar (Facebook, Instagram,
+  YouTube, Google) y falla por falta de configuración ahora es un **fallo** y se
+  avisa. Las que por defecto son manuales (TikTok, Pinterest, Threads, X, WhatsApp)
+  siguen quedando "listo para copiar", que es lo que el dueño quiere.
+  **Por qué importa:** nunca se puede decir que algo salió donde no salió, y menos
+  esconder que una conexión se cayó.
