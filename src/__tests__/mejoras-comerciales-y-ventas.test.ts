@@ -1,4 +1,4 @@
-﻿import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 
 const RAIZ = process.cwd();
@@ -27,18 +27,24 @@ describe('Mejoras comerciales y de ventas antes de publicar', () => {
   it('las estaciones de captura tienen cierre de marca discreto y contacto por WhatsApp', () => {
     const fotocabinaPath = path.join(RAIZ, 'src/app/evento/fotocabina/[fiestaId]/page.tsx');
     const espejoPath = path.join(RAIZ, 'src/app/evento/espejo-magico/[fiestaId]/page.tsx');
+    const plataforma360Path = path.join(RAIZ, 'src/app/evento/plataforma-360/[fiestaId]/page.tsx');
 
     expect(existsSync(fotocabinaPath)).toBe(true);
     expect(existsSync(espejoPath)).toBe(true);
+    expect(existsSync(plataforma360Path)).toBe(true);
 
     const fotocabinaContent = readFileSync(fotocabinaPath, 'utf8');
     const espejoContent = readFileSync(espejoPath, 'utf8');
+    const plataforma360Content = readFileSync(plataforma360Path, 'utf8');
 
     expect(fotocabinaContent).toContain('Esto lo hizo AK Producciones');
     expect(fotocabinaContent).toContain('wa.me/59898355530');
 
     expect(espejoContent).toContain('Esto lo hizo AK Producciones');
     expect(espejoContent).toContain('wa.me/59898355530');
+
+    expect(plataforma360Content).toContain('Esto lo hizo AK Producciones');
+    expect(plataforma360Content).toContain('wa.me/59898355530');
   });
 
   it('la presentacion LED tiene acceso directo a Salón Club Uruguay y boton de compartir propuesta', () => {
@@ -54,6 +60,8 @@ describe('Mejoras comerciales y de ventas antes de publicar', () => {
     expect(ledContent).toContain('Salón Club Uruguay');
     expect(ledContent).toContain('handleCompartirPropuesta');
     expect(cierreSlideContent).toContain('Compartir');
+    expect(cierreSlideContent).toContain('Paquete integral');
+    expect(cierreSlideContent).toContain('contratando todo junto');
   });
 
   it('comercial-360 tiene el aviso claro de EJEMPLO ILUSTRATIVO para evitar confusiones de costos en capacitaciones', () => {
@@ -96,6 +104,7 @@ describe('Mejoras comerciales y de ventas antes de publicar', () => {
     const content = readFileSync(portalViewPath, 'utf8');
     expect(content).not.toContain('AK todavia no cargo');
     expect(content).not.toContain('AK todabia no cargo');
+    expect(content).not.toContain('AK todavía no cargó');
     expect(content).toContain('Detalle en preparación por el equipo AK');
   });
 });

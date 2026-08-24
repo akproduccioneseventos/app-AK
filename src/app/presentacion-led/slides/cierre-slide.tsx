@@ -168,6 +168,18 @@ export function CierreSlide({
                   <p className="text-white/70 font-semibold">Total estimado</p>
                   <p className="text-emerald-300 text-lg font-black">${totalEstimado.toLocaleString('es-UY')}</p>
                 </div>
+                {mostrarPrecios && totalPorPrecioDeLista > totalEstimado && selectedServiciosData.length >= 3 && (
+                  <div className="mt-3 bg-gradient-to-r from-emerald-500/15 to-indigo-500/15 border border-emerald-400/25 rounded-xl p-3">
+                    <p className="text-emerald-300 text-xs font-black uppercase tracking-wider mb-1">🎁 Paquete integral</p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-white/50 line-through">${totalPorPrecioDeLista.toLocaleString('es-UY')}</span>
+                      <span className="text-emerald-300 font-black">${totalEstimado.toLocaleString('es-UY')}</span>
+                    </div>
+                    <p className="text-emerald-200 text-xs font-bold mt-1">
+                      Ahorrás ${(totalPorPrecioDeLista - totalEstimado).toLocaleString('es-UY')} contratando todo junto
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
