@@ -1599,6 +1599,26 @@ function SimuladorContent() {
                                  </div>
                              </div>
 
+                             {/* El reloj es una decision de marketing del dueño: esta ahi para que
+                                 la gente se comunique. Se saco una vez por pedido de una auditoria
+                                 y el dueño lo mando poner de nuevo. NO SE SACA (ver CLAUDE.md). */}
+                             <div className="mx-auto w-full max-w-2xl space-y-3 rounded-2xl border border-red-200 bg-gradient-to-br from-red-50/50 via-white to-amber-50/50 p-5 text-left shadow-sm">
+                                 <div className="flex items-center justify-between border-b border-red-100 pb-2.5">
+                                     <h3 className="text-xs font-black uppercase text-red-700 flex items-center gap-2">
+                                         <Timer className="w-4 h-4 text-red-600 animate-spin" />
+                                         Tu presupuesto queda reservado
+                                     </h3>
+                                     <span className="rounded-xl bg-red-700 px-3 py-1 font-mono text-xs font-black text-white shadow-sm">
+                                         {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : '15:00'}
+                                     </span>
+                                 </div>
+                                 <div className="text-xs leading-relaxed text-slate-600">
+                                     <p>
+                                         Escribinos ahora y seguimos con tu presupuesto en la mano.
+                                     </p>
+                                 </div>
+                             </div>
+
                              {/* Agendamiento Autónomo de Reuniones en la Oficina de AK */}
                              <div className="w-full max-w-2xl mx-auto">
                                  <SimulatorMeetingScheduler

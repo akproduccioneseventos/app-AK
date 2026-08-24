@@ -4214,3 +4214,13 @@ gasta inteligencia artificial: es análisis de datos con caché por día.
   portal. Como esa función devuelve el total base mientras el presupuesto no esté
   aceptado, **los presupuestos de venta no cambian en nada**: sólo se alinean los
   ya contratados, que son los que se ven en el portal.
+
+- **El reloj del simulador volvió, y no se saca más (23 de agosto de 2026).** Se
+  había sacado por pedido de una auditoría de venta, y **era una decisión de
+  marketing del dueño**: el contador está ahí a propósito, para que la gente se
+  comunique. Volvió a ponerse.
+  **El texto se cambió**, porque el dueño dijo que el anterior *"promete cosas que
+  no quiero"*: antes decía que se congelaban tarifas, promociones y disponibilidad
+  de salones. Ahora dice sólo *"Tu presupuesto queda reservado — escribinos ahora y
+  seguimos con tu presupuesto en la mano"*, sin prometer nada.
+  **Está anotado en `CLAUDE.md`: no se vuelve a sacar ni se reporta como problema.**
