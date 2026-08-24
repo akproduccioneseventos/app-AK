@@ -39,6 +39,7 @@ export interface OfflineMediaItem {
  * del navegador sobrevive al invitado que lo dejo. En el `metadata` libre entra
  * cualquier cosa que ponga la pantalla que llama, asi que ahi se filtra por las
  * dudas.
+ */
 const SENSITIVE_OFFLINE_METADATA_KEY = /(?:accessToken|guestAccessToken|guestId|token|secret|credential|password)/i;
 
 function sanitizeOfflineMetadata(
