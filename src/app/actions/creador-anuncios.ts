@@ -53,6 +53,10 @@ function isValidSavedAd(value: unknown): value is AnuncioGenerado {
   }
 }
 
+import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
+import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
+import type { SocialPost } from '@/types/social-media';
+
 export async function generarNuevoAnuncio(params: {
   tipoEvento: TipoEventoAnuncio;
   objetivo: ObjetivoAnuncio;
@@ -70,6 +74,17 @@ export async function generarNuevoAnuncio(params: {
     }
 
     const configuredPhone = (await getPublicWhatsAppNumber()).replace(/\D/g, '');
+
+    // Cargar en paralelo métricas de Meta, fotos reales, testimonios y servicios del catálogo
+    const [metaMetrics, catalogoFotos, testimonials, servicios] = await Promise.all([
+      loadMetaCommercialMetrics().catch(() => null),
+      readData<any[]>('catalogo-fotos.json', []).catch(() => []),
+      readData<any[]>('testimonials.json', []).catch(() => []),
+      readData<any[]>('servicios-empresa.json', []).catch(() => []),
+    ]);
+
+    const metaSummary = metaMetrics ? await getMetaAdsSummary(metaMetrics).catch(() => null) : null;
+
     const anuncio = generarAnuncioCompleto({
       tipoEvento: params.tipoEvento,
       objetivo: params.objetivo,
@@ -77,6 +92,10 @@ export async function generarNuevoAnuncio(params: {
       beneficioDestacado: textoSeguro(params.beneficioDestacado, 300),
       descuentoTexto: textoSeguro(params.descuentoTexto, 300),
       contactoWhatsApp: configuredPhone || AK_WHATSAPP_NUMBER,
+      metaSummary,
+      catalogServices: Array.isArray(servicios) ? servicios : [],
+      realPhotos: Array.isArray(catalogoFotos) ? catalogoFotos : [],
+      testimonials: Array.isArray(testimonials) ? testimonials : [],
     });
     return { success: true, anuncio };
   } catch (error: any) {
@@ -161,6 +180,45 @@ export async function eliminarAnuncioGuardado(anuncioId: string): Promise<{ succ
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error?.message || 'Error al eliminar el anuncio.' };
+  }
+}
+
+export async function enviarABorradorDeContenido(anuncio: AnuncioGenerado): Promise<{ success: boolean; postId?: string; error?: string }> {
+  try {
+    const auth = await requirePermiso(PERMISOS.CRM);
+    if (!auth.ok) return { success: false, error: auth.error };
+    if (!isValidSavedAd(anuncio)) return { success: false, error: 'El anuncio recibido no es válido.' };
+
+    const POSTS_FILE = 'social-posts.json';
+    const existingPosts = await readData<SocialPost[]>(POSTS_FILE, []);
+
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 86400000);
+
+    const newPost: SocialPost = {
+      id: `draft_ad_${Date.now()}`,
+      platform: 'Instagram',
+      isGeneralCampaign: true,
+      eventName: `Campaña ${anuncio.tipoEvento.replace('_', ' ')}`,
+      publishDate: tomorrow.toISOString(),
+      text: `${anuncio.tituloGancho}\n\n${anuncio.textoPrincipal}\n\n${anuncio.llamadoAccion}: ${anuncio.enlaceDestino}`,
+      mediaUrl: anuncio.fotoRealSugerida?.url || '/media/catalogo-servicios/barra-tragos-ak-01.jpeg',
+      mediaType: 'image',
+      status: 'Borrador',
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+    };
+
+    existingPosts.unshift(newPost);
+    await writeData(
+      POSTS_FILE,
+      existingPosts,
+      (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+    );
+
+    return { success: true, postId: newPost.id };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al enviar a borrador de redes.' };
   }
 }
 
