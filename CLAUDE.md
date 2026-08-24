@@ -492,6 +492,24 @@ Las cuatro preguntas, todas mecánicas y todas para los ayudantes económicos:
 El detalle, con el porqué de cada una, está en `docs/COMO-AUDITAR.md`. **Se lee
 antes de auditar.**
 
+## El manual de la app: `docs/MANUAL-DE-LA-APP.md`
+
+Es el manual completo: qué tiene la aplicación, cómo funciona y **por qué** cada cosa
+está decidida así. Un solo archivo con dos capas: arriba el mapa en criollo, que es lo
+que lee la asistente que vive adentro de la app; abajo el índice técnico, que es lo que
+leen las IA que programan. Van juntos a propósito: dos manuales separados se despegan
+en un mes y el que queda viejo hace más daño que no tener ninguno.
+
+**Se actualiza con CADA modificación, en la misma propuesta que toca el código.** La
+lista de pantallas y el menú **no se escriben a mano**: los regenera `npm run
+mapa:generar`. El porqué de cada decisión sí se escribe a mano, y es lo único que
+ninguna máquina puede deducir.
+
+El candado es `src/__tests__/mapa-de-la-app-al-dia.test.ts`: vuelve a armar el mapa y
+lo compara con el guardado. Si alguien agrega una pantalla y no lo regenera, **se pone
+en rojo y ese cambio no entra**. También controla que cada opción del menú lleve a una
+pantalla que exista y que la asistente no pueda mandar a nadie a una pantalla inventada.
+
 ## Antes de auditar: `docs/YA-RESUELTO.md`
 
 Lista de lo que ya está arreglado y de las decisiones tomadas. **Se lee antes de

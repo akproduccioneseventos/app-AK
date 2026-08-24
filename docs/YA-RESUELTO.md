@@ -4018,6 +4018,34 @@ Las siete están declaradas con su motivo en
 `src/__tests__/auditoria-puertas-abiertas.test.ts`, para que no se vuelvan a cerrar
 de apuro.
 
+## La pantalla que decia "En Mantenimiento" (24 de agosto de 2026)
+
+`src/app/admin/asistente-ak/page.tsx` le decia al usuario que el asistente estaba
+"temporalmente desactivado para resolver conflictos de dependencias". **Era mentira:**
+la asistente funciona, en `/multiagente` y en `/settings/ai-assistant`. La pantalla no
+esta en el menu, pero quien llegara por un enlace guardado se llevaba la impresion de
+que no anda.
+
+**Se deja la direccion viva, llevando a la asistente de verdad**, en vez de borrarla:
+asi un enlace viejo no termina en "pagina no encontrada".
+
+## Tres falsos positivos verificados el 24 de agosto de 2026
+
+Se revisaron y **no son errores**. Si vuelven a aparecer en una auditoria, descartarlos:
+
+- **Las notas del blog no salen tres el mismo dia.** Sale una cada dos dias, y esta
+  escrito el motivo: para Google, publicar seguido rinde mas que tres notas de golpe y
+  seis dias de silencio.
+- **Las fotos "de ejemplo" de Instagram no se publican.** El feed de demostracion esta
+  apagado fuera de la computadora de prueba. En produccion, sin la conexion de Meta
+  cargada, la app avisa que no esta conectada y **no muestra fotos inventadas**.
+- **La galeria de YouTube anda sola**, sin configurar nada: lee el listado publico del
+  canal y se refresca cada seis horas.
+
+Ademas se verifico, contra un informe que decia lo contrario, que **el blog no depende
+solo de un despertador externo**: cuando alguien del equipo entra a la app, lo que esta
+atrasado se pone al dia a los pocos segundos.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
