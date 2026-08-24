@@ -4046,6 +4046,50 @@ Ademas se verifico, contra un informe que decia lo contrario, que **el blog no d
 solo de un despertador externo**: cuando alguien del equipo entra a la app, lo que esta
 atrasado se pone al dia a los pocos segundos.
 
+## Las fotos del invitado no se pierden (24 de agosto de 2026)
+
+Una entrega arreglaba tres cosas reales del manejo de fotos sin internet —la captura
+que podia quedar colgada del invitado equivocado, la foto subida dos veces y el
+contador que saltaba— pero **en el camino metia tres formas nuevas de perder la foto de
+un invitado**. Pasaba los cuatro controles: acentos, tipos, las 2179 pruebas y el
+build. El codigo estaba bien escrito; lo que estaba mal era la decision de que hacer
+cuando falla la senal.
+
+Lo que se corrigio:
+
+1. **Touchpix guardaba la foto solo si el error se llamaba de cierta manera.** La lista
+   era `network|failed to fetch|sin conexion|timeout`. **El Safari del iPhone avisa las
+   fallas de red con "Load failed"**, que no estaba en la lista, y ademas el telefono
+   se considera "en linea" mientras haya wifi del salon aunque el salon no tenga salida
+   a internet. Un invitado con iPhone y mala senal perdia la foto, justo en el caso
+   para el que existe el modo sin conexion. **Ahora el criterio esta al reves:** se
+   guarda siempre, salvo que el servidor haya contestado un rechazo explicito
+   (moderacion, permiso, tope). Un error sin respuesta del servidor es de red por
+   descarte, no por lista de palabras.
+
+2. **La cola borraba la captura a los tres intentos.** Con senal intermitente en un
+   salon, tres intentos se cumplen en minutos y la foto desaparecia sin que nadie se
+   entere. **Ya no se borra por cantidad de intentos:** se conserva hasta que el
+   servidor confirme que la recibio o diga que no la quiere. Ocupar lugar de mas es
+   mucho mas barato que perder la foto.
+
+3. **Una sesion vencida contaba como error definitivo.** "No autorizado" estaba en la
+   lista de errores que no se reintentan, asi que si la sesion del invitado se vencia
+   en el medio de la fiesta se le borraba la foto. **Salio de esa lista:** se reintenta,
+   y cuando renueve la sesion sube.
+
+Ademas, **el `metadata` suelto de una captura vuelve a filtrar las llaves de acceso**.
+El filtro se habia aflojado para poder saber de quien era cada foto, pero eso ya viaja
+en los campos propios del item, asi que el `metadata` libre no necesita guardarlas.
+Importa porque **las tabletas de la fotocabina, el espejo magico y la plataforma 360
+las usa un invitado atras del otro**: lo que queda escrito en el navegador sobrevive al
+invitado que lo dejo.
+
+**Congelado en `src/__tests__/las-fotos-del-invitado-no-se-pierden.test.ts`**, para que
+no vuelva. La leccion, que es la que vale: **una entrega puede pasar los cuatro
+controles y aun asi hacerle perder la foto a un invitado.** Lo que ninguna prueba
+pregunta, ninguna prueba lo agarra.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

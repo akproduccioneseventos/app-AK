@@ -24,9 +24,17 @@ export interface OfflineSyncScope {
   guestAccessToken?: string;
 }
 
+/**
+ * Errores que no tiene sentido reintentar: el servidor ya decidio que esa foto no va.
+ *
+ * **"No autorizado" quedo AFUERA a proposito.** Si la sesion del invitado se vence en
+ * el medio de la fiesta, eso llega como "no autorizado", y descartar ahi le borraria
+ * la foto a alguien que no hizo nada mal. Se reintenta: cuando renueve la sesion,
+ * sube.
+ */
 function isPermanentError(errorMsg: string): boolean {
   if (!errorMsg) return false;
-  return /ya fue subida|no existe|no autorizad|sesion no|invalido|inválido|bloqueado|no habilitado|límite alcanzado|limite alcanzado|inapropiado/i.test(errorMsg);
+  return /ya fue subida|no existe|invalido|inválido|bloqueado|no habilitado|límite alcanzado|limite alcanzado|inapropiado/i.test(errorMsg);
 }
 
 function isDuplicateError(errorMsg: string): boolean {
@@ -170,10 +178,17 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
           console.log(`[OfflineSync] Captura ${item.id} ya existía en el servidor. Quitando de la cola.`);
           await removeOfflineMedia(item.id);
           processed++;
-        } else if (isPermanentError(msg) || (item.attempts >= 3)) {
-          console.warn(`[OfflineSync] Descartando captura ${item.id} tras error definitivo o ${item.attempts + 1} intentos:`, msg);
+        } else if (isPermanentError(msg)) {
+          console.warn(`[OfflineSync] Descartando captura ${item.id} por error definitivo del servidor:`, msg);
           await removeOfflineMedia(item.id);
         } else {
+          // NO se borra por cantidad de intentos.
+          //
+          // Habia un tope de tres y despues la foto se borraba sola. En un salon con
+          // senal intermitente tres intentos se cumplen en minutos, y la foto del
+          // invitado desaparecia **sin que nadie se entere**. La captura se conserva
+          // hasta que el servidor confirme que la recibio o hasta que diga que no la
+          // quiere; ocupar lugar de mas es mucho mas barato que perder la foto.
           console.warn(`[OfflineSync] Error al subir captura ${item.id} (intento ${item.attempts + 1}):`, msg);
           await updateOfflineMediaAttempt(item.id, msg || 'Error de conexion');
         }

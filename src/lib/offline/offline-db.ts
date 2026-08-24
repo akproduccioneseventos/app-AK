@@ -27,7 +27,19 @@ export interface OfflineMediaItem {
   lastError?: string | null;
 }
 
-const SENSITIVE_OFFLINE_METADATA_KEY = /(?:secret|credential|password)/i;
+/**
+ * Claves que NO se guardan dentro del `metadata` suelto de una captura.
+ *
+ * Se habia aflojado este filtro para poder saber de quien era cada foto sacada sin
+ * internet. Ya no hace falta: la identidad viaja en los campos propios de arriba
+ * (`guestId` y las llaves), asi que el `metadata` libre vuelve a filtrarse fuerte.
+ *
+ * Por que importa: las tabletas de la fotocabina, el espejo magico y la plataforma
+ * 360 **las usa un invitado atras del otro**. Todo lo que quede escrito en la base
+ * del navegador sobrevive al invitado que lo dejo. En el `metadata` libre entra
+ * cualquier cosa que ponga la pantalla que llama, asi que ahi se filtra por las
+ * dudas.
+const SENSITIVE_OFFLINE_METADATA_KEY = /(?:accessToken|guestAccessToken|guestId|token|secret|credential|password)/i;
 
 function sanitizeOfflineMetadata(
   metadata?: Record<string, any>,
