@@ -41,6 +41,7 @@ import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initi
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 
 /* ───────────────────── Theme Definitions ───────────────────── */
 
@@ -612,6 +613,7 @@ export default function TouchpixPage() {
     setIsUploading(true);
 
     let pendingFile: File | null = null;
+    let uploadConfirmed = false;
     try {
       pendingFile = await dataUrlToFile(capturedImage, `touchpix-${Date.now()}.jpg`);
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
@@ -638,6 +640,7 @@ export default function TouchpixPage() {
         // no encolamos en offline para evitar reintentar errores permanentes.
         throw new Error(res.error || 'Error al subir');
       }
+      uploadConfirmed = true;
 
       await updateEntertainmentSessionStatus(
         fiestaId,
@@ -654,22 +657,23 @@ export default function TouchpixPage() {
       }, 3000);
     } catch (err: any) {
       const errMsg = String(err?.message || '');
-      // El servidor contesto que NO quiere esta foto: moderacion, permiso, tope.
-      // Guardarla para reintentar seria reintentar para siempre algo que ya se decidio.
-      const esRechazoDelServidor = /moderaci|inapropiad|no autorizad|no habilitad|bloquead|l[ií]mite alcanzado|ya fue subida|duplicad|no existe/i.test(errMsg);
+      const uploadDecision = classifyOfflineUploadError(errMsg);
 
-      // TODO LO DEMAS SE GUARDA. Antes se guardaba solo si el mensaje de error
-      // contenia ciertas palabras ("network", "failed to fetch", "timeout"), y esa
-      // lista dejaba afuera los casos mas comunes en una fiesta: **el Safari del
-      // iPhone avisa las fallas de red con "Load failed"**, y ademas el telefono se
-      // considera "en linea" mientras haya wifi del salon aunque el salon no tenga
-      // salida a internet. Resultado: la foto no se encolaba y se perdia, justo en el
-      // escenario para el que existe el modo sin conexion.
-      //
-      // Por eso el criterio esta al reves: se encola siempre, salvo que el servidor
-      // haya contestado un rechazo explicito. Un error sin respuesta del servidor es
-      // de red por descarte, no por lista de palabras.
-      if (pendingFile && !esRechazoDelServidor) {
+      // La foto ya llegó aunque haya fallado la actualización secundaria del estado,
+      // o el servidor la reconoció por su huella. En ambos casos no se vuelve a subir.
+      if (uploadConfirmed || uploadDecision === 'duplicate') {
+        setQueuedOffline(false);
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          retake();
+        }, 3000);
+        return;
+      }
+
+      // Una sesión vencida y cualquier falla sin rechazo definitivo se conservan.
+      // La cola usará el token renovado cuando el operador vuelva a abrir la estación.
+      if (pendingFile && uploadDecision === 'retryable') {
         try {
           await saveOfflineMedia({
             fiestaId,

@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 
 const RAIZ = process.cwd();
 const leer = (ruta: string) => readFileSync(join(RAIZ, ruta), 'utf-8');
@@ -17,13 +18,13 @@ describe('Las fotos del invitado no se pierden', () => {
   it('Touchpix guarda la foto ante cualquier falla, salvo un rechazo explicito del servidor', () => {
     const fuente = leer('src/app/evento/touchpix/[fiestaId]/page.tsx');
 
-    // El criterio tiene que estar al reves: se guarda salvo rechazo, no se guarda solo
-    // si el mensaje de error contiene ciertas palabras.
-    expect(fuente).toMatch(/esRechazoDelServidor/);
-    expect(fuente).toMatch(/if \(pendingFile && !esRechazoDelServidor\)/);
-
-    // La lista de palabras vieja dejaba afuera el "Load failed" del Safari del iPhone.
-    expect(fuente).not.toMatch(/failed to fetch\|timeout/i);
+    expect(fuente).toContain('classifyOfflineUploadError(errMsg)');
+    expect(fuente).toContain("uploadConfirmed || uploadDecision === 'duplicate'");
+    expect(fuente).toContain("pendingFile && uploadDecision === 'retryable'");
+    expect(classifyOfflineUploadError('Load failed')).toBe('retryable');
+    expect(classifyOfflineUploadError('Acceso de cabina IA no autorizado.')).toBe('retryable');
+    expect(classifyOfflineUploadError('Contenido inapropiado por moderación')).toBe('permanent');
+    expect(classifyOfflineUploadError('Esta imagen ya fue subida anteriormente.')).toBe('duplicate');
   });
 
   it('la cola no borra una captura por cantidad de intentos', () => {
@@ -35,15 +36,9 @@ describe('Las fotos del invitado no se pierden', () => {
   });
 
   it('una sesion vencida no cuenta como error definitivo', () => {
-    const fuente = leer('src/lib/offline/offline-sync-manager.ts');
-    const permanentes = fuente.slice(
-      fuente.indexOf('function isPermanentError'),
-      fuente.indexOf('function isDuplicateError'),
-    );
-
     // Si la sesion del invitado vence en el medio de la fiesta llega como "no
     // autorizado". Descartar ahi le borra la foto a alguien que no hizo nada mal.
-    expect(permanentes).not.toMatch(/no autorizad/i);
+    expect(classifyOfflineUploadError('Acceso de cabina IA no autorizado.')).toBe('retryable');
   });
 
   it('el metadata suelto de una captura no guarda llaves en la tableta', () => {

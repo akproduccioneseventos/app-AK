@@ -57,7 +57,7 @@
     "headerH": -1,
     "mainX": -1,
     "mainW": -1,
-    "colores": 2137917199
+    "colores": 653665244
   },
   "chromium-desktop /fiestas/nueva/portal-cliente": {
     "anchoDocumento": 1280,
@@ -88,7 +88,7 @@
     "desborde": 0,
     "h1X": 96,
     "h1Y": 22,
-    "h1W": 101,
+    "h1W": 98,
     "headerY": 0,
     "headerH": 64,
     "mainX": 0,
@@ -141,7 +141,7 @@
     "headerH": -1,
     "mainX": -1,
     "mainW": -1,
-    "colores": 2137917199
+    "colores": 653665244
   },
   "chromium-mobile /fiestas/nueva/portal-cliente": {
     "anchoDocumento": 412,
@@ -172,7 +172,7 @@
     "desborde": 0,
     "h1X": 321,
     "h1Y": 18,
-    "h1W": 212,
+    "h1W": 216,
     "headerY": 0,
     "headerH": 64,
     "mainX": 257,

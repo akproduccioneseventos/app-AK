@@ -10,6 +10,7 @@ import { uploadEntretenimientoMedia } from '@/app/actions/fiesta/entretenimiento
 import { uploadTouchpixPhoto } from '@/app/actions/touchpix-ai';
 import { uploadBuzonMessage } from '@/app/actions/buzon';
 import { saveLifeStoryVideoPhoto } from '@/app/actions/fiesta/video-vida.actions';
+import { classifyOfflineUploadError } from './offline-upload-policy';
 
 let isSyncing = false;
 
@@ -24,34 +25,21 @@ export interface OfflineSyncScope {
   guestAccessToken?: string;
 }
 
-/**
- * Errores que no tiene sentido reintentar: el servidor ya decidio que esa foto no va.
- *
- * **"No autorizado" quedo AFUERA a proposito.** Si la sesion del invitado se vence en
- * el medio de la fiesta, eso llega como "no autorizado", y descartar ahi le borraria
- * la foto a alguien que no hizo nada mal. Se reintenta: cuando renueve la sesion,
- * sube.
- */
-function isPermanentError(errorMsg: string): boolean {
-  if (!errorMsg) return false;
-  return /ya fue subida|no existe|invalido|inválido|bloqueado|no habilitado|límite alcanzado|limite alcanzado|inapropiado/i.test(errorMsg);
-}
-
-function isDuplicateError(errorMsg: string): boolean {
-  if (!errorMsg) return false;
-  return /ya fue subida|duplicad|already exists/i.test(errorMsg);
-}
-
-function credentialsForItem(item: OfflineMediaItem, scope: OfflineSyncScope) {
+export function resolveOfflineMediaCredentials(item: OfflineMediaItem, scope: OfflineSyncScope) {
   const matchesScopeEvent = !scope.fiestaId || item.fiestaId === scope.fiestaId;
   const matchesScopeModule = !scope.moduleId || item.moduleId === scope.moduleId;
+  const renewedStationToken = matchesScopeEvent && matchesScopeModule
+    ? scope.accessToken
+    : undefined;
 
   return {
     // La identidad del invitado pertenece EXCLUSIVAMENTE al ítem que la guardó.
     // Nunca asociar una captura anónima o de otro invitado al guestId que esté activo en el navegador al sincronizar.
     guestId: item.guestId,
     guestAccessToken: item.guestAccessToken,
-    accessToken: item.accessToken || (matchesScopeEvent && matchesScopeModule ? scope.accessToken : undefined),
+    // La estación sí puede renovar su token al reabrirse. Preferir el nuevo evita
+    // que una captura quede atrapada para siempre con la credencial vencida.
+    accessToken: renewedStationToken || item.accessToken,
   };
 }
 
@@ -114,7 +102,7 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
       try {
         let success = false;
         const file = new File([item.fileBlob], item.fileName, { type: item.mimeType });
-        const runtimeCredentials = credentialsForItem(item, scope);
+        const runtimeCredentials = resolveOfflineMediaCredentials(item, scope);
 
         if (item.moduleId === 'touchpix') {
           const formData = new FormData();
@@ -174,11 +162,12 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
       } catch (err: any) {
         errors++;
         const msg = String(err?.message || '');
-        if (isDuplicateError(msg)) {
+        const decision = classifyOfflineUploadError(msg);
+        if (decision === 'duplicate') {
           console.log(`[OfflineSync] Captura ${item.id} ya existía en el servidor. Quitando de la cola.`);
           await removeOfflineMedia(item.id);
           processed++;
-        } else if (isPermanentError(msg)) {
+        } else if (decision === 'permanent') {
           console.warn(`[OfflineSync] Descartando captura ${item.id} por error definitivo del servidor:`, msg);
           await removeOfflineMedia(item.id);
         } else {

@@ -5,7 +5,10 @@
   removeOfflineMedia,
   type OfflineMediaItem,
 } from '@/lib/offline/offline-db';
-import { processOfflineMediaQueue } from '@/lib/offline/offline-sync-manager';
+import {
+  processOfflineMediaQueue,
+  resolveOfflineMediaCredentials,
+} from '@/lib/offline/offline-sync-manager';
 import { getPhotoFilePathsForZip } from '@/app/actions/social-gallery';
 
 // Mock IndexedDB for testing environment
@@ -67,6 +70,37 @@ describe('Certificación de los 4 Hallazgos Críticos', () => {
       expect(item?.guestId).toBe('guest_martina_01');
       expect(item?.guestAccessToken).toBe('token_martina_abc');
       expect(item?.authorName).toBe('Martina Rodríguez');
+    });
+
+    it('renueva solamente el token de la estación y conserva la identidad original', () => {
+      const item = {
+        id: 'offline_1',
+        fiestaId: 'fiesta_123',
+        moduleId: 'touchpix',
+        fileBlob: new Blob(['foto'], { type: 'image/jpeg' }),
+        fileName: 'foto.jpg',
+        mimeType: 'image/jpeg',
+        createdAt: new Date().toISOString(),
+        authorName: 'Martina Rodríguez',
+        guestId: 'guest_martina_01',
+        guestAccessToken: 'guest_token_martina',
+        accessToken: 'station_token_vencido',
+        attempts: 1,
+      } satisfies OfflineMediaItem;
+
+      const credentials = resolveOfflineMediaCredentials(item, {
+        fiestaId: 'fiesta_123',
+        moduleId: 'touchpix',
+        accessToken: 'station_token_renovado',
+        guestId: 'guest_otro',
+        guestAccessToken: 'guest_token_otro',
+      });
+
+      expect(credentials).toEqual({
+        guestId: 'guest_martina_01',
+        guestAccessToken: 'guest_token_martina',
+        accessToken: 'station_token_renovado',
+      });
     });
   });
 

@@ -4372,3 +4372,47 @@ gasta inteligencia artificial: es análisis de datos con caché por día.
   4. *Salto visual del contador animado:* `AnimatedCounter` ahora arranca en 0 y trepa
      suavemente al entrar en vista, eliminando el parpadeo inicial número final -> 0 -> final.
   **Certificación:** 2175 pruebas en verde, build de 350 rutas exitoso, ESLint y TypeScript limpios.
+
+## Certificación final de fotos offline y pantallas de la fiesta (24 de agosto de 2026)
+
+- **Base exacta revisada:** `main` en `45f70ebd94b4ad303bf1d29d126b1154ed5bc8ba`.
+  La entrega se preparó en `codex/certificacion-final-fotos-offline` y queda para
+  fusión manual; Codex no la fusiona.
+- **Credencial vencida sin perder la foto:** Touchpix ahora trata una autorización
+  vencida como recuperable y conserva la captura en la cola. Al sincronizar, usa la
+  credencial fresca de la estación sin cambiar el invitado original de la foto.
+- **Reintento idempotente:** cada captura de Touchpix envía un SHA-256 estable como
+  `imageHash`. Si la respuesta del servidor se pierde después de guardar, el reintento
+  se reconoce y no publica una segunda copia.
+- **Confirmación parcial segura:** si la imagen ya quedó guardada pero falla solamente
+  la actualización del estado de la sesión, la pantalla muestra éxito y no encola el
+  mismo archivo otra vez.
+- **Muro sin saturación:** el muro social y el muro en vivo mantienen bloqueada una
+  ronda de refresco hasta que las acciones de servidor terminan de verdad. Un timeout
+  visual ya no inicia rondas superpuestas.
+- **Prueba de navegador reparada:** el lanzador E2E ahora consume continuamente los
+  logs de Next.js. Antes dejaba las tuberías sin leer; al llenarse, el servidor entero
+  dejaba de responder. También se acotó la lectura del DOM cuando una ruta no responde
+  y el informe conserva hasta 20 líneas del error real.
+- **Referencia visual conciliada:** se revisó la presentación LED en escritorio y
+  móvil. Su paleta actual provenía de cambios intencionales posteriores a la última
+  referencia; se actualizaron solo cuatro valores reproducidos, sin aflojar la
+  tolerancia de 2 px ni regenerar el archivo completo.
+
+**Evidencia del candidato final:**
+
+- ESLint sin errores ni advertencias.
+- TypeScript aprobado con 8 GB de memoria para el repositorio completo.
+- 339/339 suites Jest y 2186/2186 pruebas aprobadas.
+- Build de producción aprobado, con 282/282 páginas estáticas generadas y salida 0.
+- Playwright completo: 600 ejecuciones registradas, 94 aprobadas, 506 omitidas por
+  matriz/proyecto y 0 fallas reales.
+- Acentos versionados aprobados.
+- `npm audit --omit=dev`: 0 críticas, 9 altas y 62 moderadas. La alta principal es
+  transitiva de `sharp/libvips`; npm no ofrece todavía una corrección compatible.
+
+**Límites honestos:** no se repitieron las reglas Firestore porque esta máquina no
+tiene Java y las reglas no cambiaron. Tampoco se certificaron con cuentas o hardware
+reales Gmail, Meta/Instagram, Mercado Pago, FCM en un teléfono, cámaras, impresoras,
+plataforma 360, espejos o Touchpix físico. Esos puntos requieren credenciales, dinero o
+equipos externos y no se declaran probados por una ejecución local.
