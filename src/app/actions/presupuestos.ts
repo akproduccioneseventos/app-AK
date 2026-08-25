@@ -1,6 +1,7 @@
 'use server';
 
 import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, PresupuestoSource } from '@/types/presupuesto';
+import { buscarGemeloCargadoAMano, esEspejoDeFactura } from '@/lib/budget/pago-duplicado';
 import { readData, writeData } from '@/lib/data-service';
 // Nota: este archivo NO debe llamar a `saveInvoice` ni a `addPaymentToInvoice`.
 // Esas dos esperan el turno del candado de facturas, y a su vez llaman de vuelta
@@ -561,6 +562,42 @@ export async function addPagoToPresupuesto(
     );
     if (existingPayment) {
       return { success: true, presupuesto };
+    }
+  }
+
+  // EL MISMO PAGO, CARGADO DOS VECES, CONTABA DOBLE.
+  //
+  // El caso, que es de todos los dias en un equipo chico: alguien cobra la cuota y la
+  // carga a mano (en pagos rapidos o en el presupuesto), y despues alguien carga ese
+  // mismo cobro en la factura. La factura copia su pago al presupuesto, y ahi quedaban
+  // los dos.
+  //
+  // El control que habia buscaba un pago con **la misma referencia**, y no coincidian:
+  // el de la mano decia "Efectivo" y el de la factura viene con una referencia
+  // automatica. Asi que entraba como pago nuevo.
+  //
+  // El panel contable elige la fuente mas completa entre la factura y el presupuesto en
+  // vez de sumar las dos —eso ya estaba bien pensado—, pero con el pago repetido
+  // adentro del presupuesto, esa fuente ya venia inflada: **el dueno veia el doble de
+  // lo cobrado**.
+  //
+  // Ahora, cuando llega la copia de una factura, se busca el gemelo cargado a mano: el
+  // mismo importe, el mismo dia, y sin referencia de copia. Si aparece, no se agrega
+  // otro: se le pone la referencia de la factura al que ya estaba, para que quede
+  // "tomado" y una segunda copia distinta no lo vuelva a agarrar.
+  if (esEspejoDeFactura(referencia)) {
+    const pagos = presupuesto.pagosCliente || [];
+    const indiceGemelo = buscarGemeloCargadoAMano(pagos, pago);
+
+    if (indiceGemelo >= 0) {
+      const reclamados = pagos.map((existing, indice) =>
+        indice === indiceGemelo ? { ...existing, referencia } : existing
+      );
+      const reclamo = await updatePresupuesto(
+        { ...presupuesto, pagosCliente: reclamados },
+        { preserveStoredTotal: true },
+      );
+      return { success: true, presupuesto: reclamo.presupuesto ?? presupuesto };
     }
   }
   const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });

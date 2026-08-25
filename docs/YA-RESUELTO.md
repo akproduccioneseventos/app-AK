@@ -4089,6 +4089,36 @@ invitado que lo dejo.
 no vuelva. La leccion, que es la que vale: **una entrega puede pasar los cuatro
 controles y aun asi hacerle perder la foto a un invitado.** Lo que ninguna prueba
 pregunta, ninguna prueba lo agarra.
+## Un mismo cobro se contaba dos veces (25 de agosto de 2026)
+
+**El caso, que es de todos los dias en un equipo chico:** alguien cobra la cuota y la
+carga a mano (en pagos rapidos o en el presupuesto), y despues alguien carga ese mismo
+cobro en la factura. La factura copia su pago al presupuesto, y ahi quedaban los dos.
+
+**Por que el control que habia no lo agarraba:** buscaba un pago con **la misma
+referencia**, y no coincidian. El cargado a mano decia "Efectivo"; el que llega de la
+factura trae una referencia automatica. Asi que entraba como pago nuevo. La otra
+proteccion tampoco frenaba nada: comprueba que lo cobrado no pase del total del
+presupuesto, y dos mitades del mismo cobro no lo pasan.
+
+**Que veia el dueno:** el panel contable elige la fuente mas completa entre la factura y
+el presupuesto en vez de sumar las dos —eso ya estaba bien pensado—, pero con el pago
+repetido adentro del presupuesto esa fuente ya venia inflada. **Se veia el doble de lo
+cobrado.**
+
+**Que se hizo:** cuando llega la copia de una factura, se busca el gemelo cargado a mano
+—mismo importe, mismo dia, y que no sea a su vez una copia—. Si aparece, no se agrega
+otro: se le pone la referencia de la factura al que ya estaba, para que quede "tomado" y
+una segunda copia distinta no lo vuelva a agarrar. Si el cliente pago dos veces el mismo
+importe el mismo dia, cada copia se lleva un gemelo distinto y **no se pierde ningun
+cobro**.
+
+**Donde vive y por que ahi:** la regla esta en `src/lib/budget/pago-duplicado.ts`, no en
+el archivo de acciones. Ese archivo es de servidor y **todo lo que exporta tiene que ser
+una funcion asincronica**: una funcion comun exportada ahi rompe la compilacion, y eso
+no lo avisa el revisor de tipos —se descubre cuando ya no se puede publicar—.
+
+Congelado en `src/__tests__/un-cobro-no-se-cuenta-dos-veces.test.ts`.
 
 ## Cómo agregar algo a esta lista
 
