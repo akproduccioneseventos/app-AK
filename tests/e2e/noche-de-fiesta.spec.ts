@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, crearPermisoDeEstacion, leerFiesta, borrarOpinionesDePrueba } from './helpers/fiesta-de-prueba';
 
 /**
@@ -71,7 +71,10 @@ async function revisarPantalla(page: Page, ruta: string): Promise<Resultado[]> {
   const onError = (e: Error) => erroresJs.push(e.message);
   page.on('pageerror', onError);
 
-  const respuesta = await page.goto(ruta, { waitUntil: 'domcontentloaded' }).catch(() => null);
+  const respuesta = await page.goto(ruta, {
+    waitUntil: 'domcontentloaded',
+    timeout: 30_000,
+  }).catch(() => null);
   // Varias pantallas de la noche se refrescan solas cada pocos segundos, así que
   // la red nunca queda del todo quieta: se espera poco y se sigue.
   await page.waitForLoadState('networkidle', { timeout: 6000 }).catch(() => {});
@@ -79,6 +82,8 @@ async function revisarPantalla(page: Page, ruta: string): Promise<Resultado[]> {
 
   if (!respuesta) {
     problemas.push({ ruta, problema: 'no respondió' });
+    page.off('pageerror', onError);
+    return problemas;
   } else if (respuesta.status() >= 400) {
     problemas.push({ ruta, problema: `el servidor respondió ${respuesta.status()}` });
   }
@@ -89,7 +94,7 @@ async function revisarPantalla(page: Page, ruta: string): Promise<Resultado[]> {
   const arranque = Date.now();
   let texto = '';
   while (Date.now() - arranque < 20_000) {
-    texto = await page.locator('body').innerText().catch(() => '');
+    texto = await page.locator('body').innerText({ timeout: 3000 }).catch(() => '');
     if (texto.trim().length >= 40) break;
     await page.waitForTimeout(1000);
   }
@@ -122,6 +127,19 @@ async function revisarPantalla(page: Page, ruta: string): Promise<Resultado[]> {
   }
 
   page.off('pageerror', onError);
+  return problemas;
+}
+
+async function revisarPantallas(context: BrowserContext, rutas: string[]): Promise<Resultado[]> {
+  const problemas: Resultado[] = [];
+  for (const ruta of rutas) {
+    const page = await context.newPage();
+    try {
+      problemas.push(...(await revisarPantalla(page, ruta)));
+    } finally {
+      await page.close();
+    }
+  }
   return problemas;
 }
 
@@ -171,19 +189,16 @@ const PANTALLAS_DEL_EQUIPO = [
 ];
 
 test.describe('noche de fiesta', () => {
-  test('las pantallas del invitado funcionan con una fiesta real', async ({ page }) => {
+  test('las pantallas del invitado funcionan con una fiesta real', async ({ context }) => {
     test.setTimeout(900_000);
-    const problemas: Resultado[] = [];
-    for (const ruta of PANTALLAS_DEL_INVITADO) {
-      problemas.push(...(await revisarPantalla(page, ruta)));
-    }
+    const problemas = await revisarPantallas(context, PANTALLAS_DEL_INVITADO);
     expect(
       problemas,
       `Pantallas del invitado con problemas:\n  ${problemas.map((p) => `${p.ruta} → ${p.problema}`).join('\n  ')}`,
     ).toEqual([]);
   });
 
-  test('las pantallas del equipo funcionan con una fiesta real', async ({ page, context, baseURL }) => {
+  test('las pantallas del equipo funcionan con una fiesta real', async ({ context, baseURL }) => {
     test.setTimeout(900_000);
     await context.addInitScript(() => {
       window.localStorage.setItem('ak_session', 'true');
@@ -193,10 +208,7 @@ test.describe('noche de fiesta', () => {
       { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL!, httpOnly: true, sameSite: 'Lax' },
     ]);
 
-    const problemas: Resultado[] = [];
-    for (const ruta of PANTALLAS_DEL_EQUIPO) {
-      problemas.push(...(await revisarPantalla(page, ruta)));
-    }
+    const problemas = await revisarPantallas(context, PANTALLAS_DEL_EQUIPO);
     expect(
       problemas,
       `Pantallas del equipo con problemas:\n  ${problemas.map((p) => `${p.ruta} → ${p.problema}`).join('\n  ')}`,

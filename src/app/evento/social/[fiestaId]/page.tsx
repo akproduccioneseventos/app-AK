@@ -392,19 +392,25 @@ export default function SocialEventPage() {
       if ((!isInitialLoad && document.visibilityState !== 'visible') || pollingRef.current) return;
       pollingRef.current = true;
 
-      const loadTask = withPublicRequestTimeout((async () => {
+      const requestTask = (async () => {
         await Promise.all([loadCore(), loadSection(section)]);
         if (isInitialLoad) {
           const items = await getPublicDedications(fiestaId);
           if (active) setDedications(items);
         }
-      })())
+      })();
+
+      // El timeout deja de esperar en pantalla, pero no cancela una Server Action.
+      // Mantener la traba hasta que la solicitud real termine evita acumular cientos
+      // de consultas cuando la conexión del salón está lenta.
+      void requestTask.finally(() => {
+        pollingRef.current = false;
+      }).catch(() => undefined);
+
+      const loadTask = withPublicRequestTimeout(requestTask)
         .catch((error) => {
           console.warn('[SocialEvent] public data refresh failed:', error);
-          setHasError(true);
-        })
-        .finally(() => {
-          pollingRef.current = false;
+          if (active) setHasError(true);
         });
 
       if (isInitialLoad) {

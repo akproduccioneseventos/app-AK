@@ -14,6 +14,8 @@ describe('public social display contract', () => {
     expect(socialPage).toContain('pollingRef.current');
     expect(socialPage).toContain('waitForInitialPublicLoad(loadTask)');
     expect(socialPage).toContain('withPublicRequestTimeout');
+    expect(socialPage).toContain('void requestTask.finally(() => {');
+    expect(socialPage).toContain('const loadTask = withPublicRequestTimeout(requestTask)');
     expect(socialPage).not.toContain('getSocialAdminAccess');
   });
 
@@ -23,7 +25,8 @@ describe('public social display contract', () => {
     expect(liveWallPage).toContain("document.visibilityState !== 'visible'");
     expect(liveWallPage).toContain('pollingRef.current');
     expect(liveWallPage).toContain('waitForInitialPublicLoad(fetchData(true))');
-    expect(liveWallPage).toContain('withPublicRequestTimeout(Promise.all');
+    expect(liveWallPage).toContain('withPublicRequestTimeout(requestTask)');
+    expect(liveWallPage).toContain('void requestTask.finally(() => {');
     expect(liveWallPage).toContain('prefers-reduced-motion');
     expect(liveWallPage).toContain('data-testid="live-wall-empty"');
     expect(liveWallPage).toContain('Muro social en vivo');

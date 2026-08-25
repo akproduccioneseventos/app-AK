@@ -16,6 +16,17 @@ describe("performance release gate", () => {
     expect(runner).toMatch(/\[nextBin,\s*["']start["']/);
     expect(runner).toContain("PLAYWRIGHT_BASE_URL: baseUrl");
     expect(runner).toContain("/api/health");
+    expect(runner).toContain('server.stdout.on("data", collectServerOutput)');
+    expect(runner).toContain('server.stderr.on("data", collectServerOutput)');
+    expect(runner).toContain("MAX_SERVER_LOG_CHARS");
+    expect(runner).toContain("MAX_REPORTED_ERROR_LINES");
+  });
+
+  it("bounds failed page inspection during the event-night browser tour", () => {
+    const eventNight = read("tests/e2e/noche-de-fiesta.spec.ts");
+
+    expect(eventNight).toContain("innerText({ timeout: 3000 })");
+    expect(eventNight).toMatch(/if \(!respuesta\) \{[\s\S]*return problemas;/);
   });
 
   it("defers below-the-fold landing work and bounds the YouTube request", () => {

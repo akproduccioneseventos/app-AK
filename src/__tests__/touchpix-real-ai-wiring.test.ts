@@ -38,4 +38,9 @@ describe("Touchpix real AI wiring", () => {
     expect(imageHelper).toContain("gemini-3.1-flash-image");
     expect(imageHelper).toContain("inlineData");
   });
+
+  it("reuses a stable content hash so an offline retry cannot duplicate a photo", () => {
+    expect(actionSource).toContain('createHash("sha256")');
+    expect(actionSource).toContain('socialFormData.set("imageHash", imageHash)');
+  });
 });

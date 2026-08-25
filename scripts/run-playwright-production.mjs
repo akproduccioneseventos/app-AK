@@ -10,6 +10,8 @@ const nextBin = require.resolve("next/dist/bin/next");
 const playwrightBin = require.resolve("@playwright/test/cli");
 const port = Number(process.env.PLAYWRIGHT_PORT || 3100);
 const baseUrl = `http://127.0.0.1:${port}`;
+const MAX_SERVER_LOG_CHARS = 20_000;
+const MAX_REPORTED_ERROR_LINES = 20;
 
 const testEnvironment = {
   GOOGLE_API_KEY: "dummy",
@@ -122,8 +124,20 @@ function startServer(p) {
     }
   );
 
+  // A pipe that nobody reads eventually fills up and blocks the whole Next.js
+  // process. Keep draining both streams and retain only a small diagnostic tail.
+  let recentOutput = "";
+  const collectServerOutput = (chunk) => {
+    recentOutput = `${recentOutput}${chunk.toString()}`.slice(-MAX_SERVER_LOG_CHARS);
+  };
+  server.stdout.on("data", collectServerOutput);
+  server.stderr.on("data", collectServerOutput);
+
   return {
     pid: server.pid,
+    getRecentOutput() {
+      return recentOutput;
+    },
     async stop() {
       if (server.pid) {
         if (process.platform === "win32") {
@@ -297,6 +311,10 @@ async function main() {
       }
     } catch (err) {
       console.error(`  ✕ Error en la tanda ${idx + 1}:`, err.message);
+      const recentOutput = serverInstance.getRecentOutput().trim();
+      if (recentOutput) {
+        console.error(`  Últimos logs del servidor:\n${recentOutput}`);
+      }
       await serverInstance.stop();
     }
 
@@ -318,7 +336,11 @@ async function main() {
     for (const f of fallasReales) {
       console.error(`  ✕ [${f.file}] ${f.title} (${f.projectName}) - ${f.duration}ms`);
       if (f.error) {
-        console.error(`    ${f.error.split("\n")[0]}`);
+        const detail = f.error
+          .split("\n")
+          .slice(0, MAX_REPORTED_ERROR_LINES)
+          .join("\n    ");
+        console.error(`    ${detail}`);
       }
     }
     process.exit(1);

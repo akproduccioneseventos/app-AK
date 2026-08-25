@@ -199,15 +199,23 @@ export default function MuroEnVivoPage() {
   const fetchData = useCallback(async (allowHidden = false) => {
     if (!fiestaId || pollingRef.current || (!allowHidden && document.visibilityState !== 'visible')) return;
     pollingRef.current = true;
+    const requestTask = Promise.all([
+      getPublicSocialPosts(fiestaId),
+      getPublicSocialEvent(fiestaId),
+      getActivePoll(fiestaId),
+      getDedications(fiestaId),
+      getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
+      getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
+    ]);
+
+    // El timeout visual no cancela las Server Actions que ya salieron. La traba se
+    // libera cuando la solicitud real termina para no saturar la pantalla ni Firebase.
+    void requestTask.finally(() => {
+      pollingRef.current = false;
+    }).catch(() => undefined);
+
     try {
-      const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await withPublicRequestTimeout(Promise.all([
-        getPublicSocialPosts(fiestaId),
-        getPublicSocialEvent(fiestaId),
-        getActivePoll(fiestaId),
-        getDedications(fiestaId),
-        getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
-        getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
-      ]));
+      const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await withPublicRequestTimeout(requestTask);
 
       setIsReconnecting(false);
 
@@ -360,7 +368,6 @@ export default function MuroEnVivoPage() {
     } catch (_) {
       setIsReconnecting(true);
     } finally {
-      pollingRef.current = false;
       if (!isLoaded) setIsLoaded(true);
     }
   }, [fiestaId, eventName, isLoaded, staticBranding]);

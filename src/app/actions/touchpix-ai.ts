@@ -13,6 +13,7 @@
  * CSS filters instead.
  */
 
+import { createHash } from "node:crypto";
 import { uploadSocialPost } from "@/app/actions/social-gallery";
 import { getFiestaById } from "@/app/actions/fiesta/fiesta.actions";
 import { hasEntertainmentGuestAccess } from "@/lib/auth/entertainment-token";
@@ -721,6 +722,10 @@ export async function uploadTouchpixPhoto(
   );
 
   try {
+    const imageHash = createHash("sha256")
+      .update(Buffer.from(await file.arrayBuffer()))
+      .digest("hex");
+
     // Build a FormData that matches what uploadSocialPost expects, adding
     // the sourceModule and a descriptive dedication.
     const socialFormData = new FormData();
@@ -731,6 +736,7 @@ export async function uploadTouchpixPhoto(
     socialFormData.set("source", "entertainment");
     socialFormData.set("sourceModule", "espejoMagicoIA");
     socialFormData.set("moduleId", "espejoMagicoIA");
+    socialFormData.set("imageHash", imageHash);
     const guestId = (formData.get("guestId") as string) || undefined;
     const guestAccessToken = (formData.get("guestAccessToken") as string) || undefined;
     if (guestId) socialFormData.set("guestId", guestId);
