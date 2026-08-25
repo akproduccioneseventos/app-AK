@@ -17,6 +17,27 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 8 — Terminar las tres puertas y ensanchar el control (25 de agosto de 2026)
+
+- **El menú en tres puertas y directorio de La Empresa (`src/components/main-nav.tsx`, `src/app/(app)/empresa/page.tsx`, `scripts/generar-mapa-app.mjs`, `docs/MANUAL-DE-LA-APP.md`):**
+  - Arriba quedan las tres puertas principales: **Mi Día** (`/mi-dia`), **Fiestas** (`/eventos`) y **La Empresa** (`/empresa`).
+  - La Empresa agrupa las 4 áreas de gestión: **Vender** (prospectos, presupuestos, clientes, simulador IA), **Plata** (pagos rápidos, contabilidad, facturación, flujo de caja, métricas), **Recursos** (menús, insumos, salones, catálogo de servicios, proveedores, empleados) y **Marketing** (hub de difusión, redes, WhatsApp, anuncios, LED, catálogos).
+  - Ajustes y Laboratorio se ubican en el pie secundario sin competir con la operativa diaria del negocio.
+  - Ninguna ruta se perdió: 350 pantallas y 43 opciones de menú sincronizadas en el mapa automático.
+
+- **Control anti-mentira general para todas las pantallas (`src/__tests__/ninguna-pantalla-miente.test.ts`):**
+  - Se ensanchó la suite de pruebas para recorrer todas las pantallas en `src/app/**`.
+  - Prohíbe carteles fijos engañosos que afirmen estados ("conectado", "sincronizado", "publicado", "enviado", "guardado", "activo", "automático") sin validación de datos reales del servidor.
+  - Lista declarada de excepciones legítimas con justificación obligatoria y prueba que impide que la lista crezca sin revisión.
+  - Se mantiene intacta la prohibición de palabras de estrés en «Mi Día».
+
+- **Revisión de promesas en redes sociales (`src/app/(app)/settings/social-connections/page.tsx`):**
+  - Se eliminó la afirmación de que la app publica sola de forma 100% automática en todas las redes.
+  - Se detalla qué redes publican vía Meta Graph API (Instagram/Facebook) cuando están verificados el Token y el Account ID, y cuáles funcionan con Modo 1 Toque (preparar foto y copiar texto).
+  - WhatsApp queda explícitamente documentado y protegido: prepara los mensajes pero siempre los envía una persona desde su número propio. Nunca envía solo.
+
+---
+
 ## Correccion conjunta de las propuestas 1125 y 1126 (23 de agosto de 2026)
 
 - **Los anuncios guardados ya no se mezclan entre usuarios**

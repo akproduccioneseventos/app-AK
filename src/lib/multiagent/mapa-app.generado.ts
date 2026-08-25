@@ -51,6 +51,10 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/recursos-multi-evento"
   },
   {
+    "etiqueta": "Gestión de Empresa",
+    "ruta": "/empresa"
+  },
+  {
     "etiqueta": "Prospectos",
     "ruta": "/contabilidad/crm"
   },
@@ -165,6 +169,10 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
     "etiqueta": "Mapa Tecnológico",
     "ruta": "/settings/mapa-tecnologico-ak"
+  },
+  {
+    "etiqueta": "Laboratorio Experimental",
+    "ruta": "/settings/feature-flags"
   },
   {
     "etiqueta": "Centro de Control",

@@ -105,6 +105,7 @@ const navGroups: NavGroup[] = [
     label: "Vender",
     emoji: "💼",
     items: [
+      { title: "Gestión de Empresa", href: "/empresa", icon: Building2, active: (pathname) => pathname === "/empresa" },
       { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads") },
       { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, highlight: true, active: (pathname) => isPathActive(pathname, "/presupuestos") },
       { title: "Clientes", href: "/customers", icon: Users },
@@ -158,6 +159,7 @@ const navGroups: NavGroup[] = [
       { title: "Promociones", href: "/settings/promos", icon: Tag },
       { title: "Asistente IA", href: "/settings/ai-assistant", icon: Bot },
       { title: "Mapa Tecnológico", href: "/settings/mapa-tecnologico-ak", icon: Cpu },
+      { title: "Laboratorio Experimental", href: "/settings/feature-flags", icon: Wand2 },
     ],
   },
 ];
