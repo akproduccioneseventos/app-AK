@@ -4120,6 +4120,80 @@ no lo avisa el revisor de tipos —se descubre cuando ya no se puede publicar—
 
 Congelado en `src/__tests__/un-cobro-no-se-cuenta-dos-veces.test.ts`.
 
+## Lo que se contó de la app, y lo que NO hay que volver a buscar (25 de agosto de 2026)
+
+Se salio a buscar pantallas de sobra, duplicados y basura acumulada. **El resultado es
+que casi no hay nada de eso**, y conviene que quede escrito para que nadie gaste el viaje
+de nuevo.
+
+Los numeros, contados uno por uno, no estimados:
+
+- **350 pantallas en total.** De esas, **38 son redirecciones** de tres renglones que
+  llevan de una direccion vieja a la nueva, para que un enlace guardado no muera. **Estan
+  bien y no se tocan.**
+- **310 estan enlazadas** y se llega a ellas normalmente.
+- **2 aparecieron como "no llega nadie" y son falso positivo verificado:**
+  `/proveedor/acceso/[token]`, que se genera desde el portal de proveedores, y
+  `/presentacion-led/portafolio/fiesta/[id]`, que se enlaza desde la presentacion
+  comercial.
+- **Cero pantallas para borrar.**
+
+**Los tableros que parecian repetidos no lo estan.** "Centro", "comando total", "control
+de show", "mision control", "centro de mando" y "centro total" **ya fueron unificados**:
+hay un solo Centro de Fiesta y los demas son redirecciones. Si una auditoria los reporta
+como duplicados, es falso positivo.
+
+**Del barrido de duplicados, casi todo fue ruido:** lo que se marco como "misma pantalla"
+eran iconos y tarjetas compartidas, y las "carpetas gemelas" son que cada cosa tiene su
+`nuevo`, su `editar` y su `reporte`, que es como corresponde.
+
+**La conclusion, que es lo que importa:** el problema de la app nunca fue tener cosas de
+mas. Es tenerlas todas apiladas en la entrada: 39 opciones de menu y 46 tarjetas al abrir
+una fiesta. Eso se resuelve ordenando, no borrando.
+
+## Dos pantallas mostraban el disenador de mesas (25 de agosto de 2026)
+
+`src/app/(app)/fiestas/nueva/reuniones/imprimir/page.tsx` y
+`src/app/(app)/empresa/todos-los-servicios/[id]/editar/page.tsx` son **dos archivos
+identicos renglon por renglon** —741 lineas, la misma huella— y los dos muestran **el
+disenador de mesas del salon**: el lienzo, "invitados sin mesa", la lista de invitados.
+
+Ninguno de los dos es lo que su direccion promete:
+
+- El boton **"Imprimir"** de Reuniones abre el disenador de mesas en vez de la hoja para
+  llevar.
+- El boton **"Diseno visual"** del catalogo de servicios
+  (`src/app/(app)/empresa/servicios/page.tsx`, linea 312) abre el mismo disenador, que
+  necesita una fiesta y una lista de invitados que ahi no existen.
+
+Paso por una copia mal hecha. **No lo agarro ninguna prueba porque compila y ninguna
+prueba abre esas dos pantallas.** Queda pedido en `docs/ordenes/7-la-app-ordenada.md`.
+
+## Como se reordena la app: tres puertas (25 de agosto de 2026)
+
+**Pedido del dueno:** *"quiero la misma app con su potencial pero mas organizada y mas
+facil de usar, no esta app compleja"*. Y sobre el trabajo diario: *"palabras como riesgo,
+urgente, no me gustan, me dan estres. Debe ser un modulo, solo yo entro y se que debo
+hacer"*.
+
+La decision, escrita entera en `docs/ordenes/7-la-app-ordenada.md`:
+
+- **Mi dia** — junta seis pantallas sueltas en una. **Cada linea es una cosa para hacer,
+  no un estado**: "Cobrarle la segunda cuota a Marcela", no "pago vencido". **Palabras
+  prohibidas ahi: riesgo, urgente, critico, vencido, alerta, atrasado, pendiente.** Sin
+  rojo, sin semaforos, sin contadores. El orden alcanza.
+- **La fiesta** — ordenada por los cuatro momentos en que se usa cada cosa: vender,
+  armar, la noche, despues. Las 46 tarjetas quedan detras de "ver todo".
+- **La empresa** — cuatro grupos: vender, plata, recursos y **marketing**.
+- **Marketing es un modulo solo**, por pedido del dueno: redes, WhatsApp, blog, paginas
+  de aterrizaje, anuncios, ficha de Google, galeria y presentacion LED. Hoy eso esta
+  desparramado en cuatro lugares del menu.
+- **Ajustes sale del camino**, y lo experimental va a un "Laboratorio" que solo ve el
+  administrador.
+
+**El porque, para que nadie lo "arregle" al reves:** no se borra nada que funcione. Toda
+pantalla que hoy existe sigue siendo alcanzable. Lo que cambia es por donde se llega.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
