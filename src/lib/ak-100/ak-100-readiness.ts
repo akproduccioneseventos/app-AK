@@ -174,12 +174,13 @@ export function buildAk100Readiness(fiestaInput: unknown): Ak100Readiness {
     actionLabel: 'Abrir control IA', href: eventHref(fiestaId, 'comando-total'),
   });
 
-  const tecnologiaScore = score([hasPortal, hasInvite, hasScreen, hasLiveWall, hasEntertainment]);
+  const hasZonaDigital = Boolean(fiesta.zonaDigital || fiesta.redSocial || (fiesta.modulosContratados as any)?.zonaDigital || (fiesta.modulosContratados as any)?.redSocial);
+  const tecnologiaScore = score([hasPortal, hasInvite, hasScreen, hasLiveWall, hasEntertainment, hasZonaDigital]);
   areaInputs.push({
     id: 'tecnologia', title: 'Tecnología vendible AK', score: tecnologiaScore, status: statusFromScore(tecnologiaScore),
     promise: 'La tecnología se muestra como diferencial comercial, no como módulos escondidos.',
-    ready: [...addIf(hasPortal, 'Portal'), ...addIf(hasInvite, 'QR/invitación'), ...addIf(hasScreen, 'Pantalla'), ...addIf(hasLiveWall, 'Muro social'), ...addIf(hasEntertainment, 'Entretenimiento conectado')],
-    missing: [...addIf(!hasPortal, 'Falta portal'), ...addIf(!hasInvite, 'Falta QR/invitación'), ...addIf(!hasScreen, 'Falta pantalla'), ...addIf(!hasLiveWall, 'Falta muro social'), ...addIf(!hasEntertainment, 'Falta entretenimiento conectado')],
+    ready: [...addIf(hasPortal, 'Portal'), ...addIf(hasInvite, 'QR/invitación'), ...addIf(hasScreen, 'Pantalla'), ...addIf(hasLiveWall, 'Muro social'), ...addIf(hasEntertainment, 'Entretenimiento conectado'), ...addIf(hasZonaDigital, 'Zona digital activa')],
+    missing: [...addIf(!hasPortal, 'Falta portal'), ...addIf(!hasInvite, 'Falta QR/invitación'), ...addIf(!hasScreen, 'Falta pantalla'), ...addIf(!hasLiveWall, 'Falta muro social'), ...addIf(!hasEntertainment, 'Falta entretenimiento conectado'), ...addIf(!hasZonaDigital, 'Falta configurar zona digital')],
     actionLabel: 'Abrir Tecnología AK', href: eventHref(fiestaId, 'experiencia-tecnologica-ak'),
   });
 

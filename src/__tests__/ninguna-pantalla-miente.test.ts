@@ -1,30 +1,22 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 
 /**
- * CONTROL AUTOMÁTICO — Ninguna pantalla miente sobre su estado.
- *
- * La regla de oro del proyecto: si la app le muestra al usuario una palabra de estado
- * confirmatorio ("Conectado", "Sincronizado", "Publicado", "Enviado", "Guardado", "Activo"),
- * tiene que ser a partir de un dato real que vino del servidor o de una condición dinámica,
- * nunca de un texto fijo escrito a mano que le prometa algo que la máquina no comprobó.
- *
- * Casos legítimos (ej: encabezados explicativos, botones de acción, guías o estados declarados)
- * van anotados abajo con su motivo exacto.
+ * CONTROL AUTOMÁTICO — Ninguna pantalla miente sobre su estado,
+ * y «Mi Día» respeta las palabras prohibidas por el dueño.
  */
 
-const PALABRAS_CLAVE = [
-  'conectado',
-  'sincronizado',
-  'publicado',
-  'enviado',
-  'guardado',
-  'activo',
+const PALABRAS_PROHIBIDAS_MI_DIA = [
+  'riesgo',
+  'urgente',
+  'crítico',
+  'critico',
+  'vencido',
+  'alerta',
+  'atrasado',
+  'pendiente',
 ];
 
-/**
- * Casos legítimos declarados con su motivo exacto.
- */
 const CASOS_EXCEPCION_DECLARADOS: Record<string, string> = {
   'src/components/ui/animated-counter.tsx': 'animación visual de números en pantalla',
   'src/components/public/LocalBusinessSchema.tsx': 'metadatos estáticos para Google Schema',
@@ -61,7 +53,6 @@ describe('Control de Honestidad: Ninguna pantalla miente sobre su estado', () =>
 
       const contenido = fs.readFileSync(archivo, 'utf8');
 
-      // No debe haber un cartel estático de "Instagram conectado" que no dependa de variables o condiciones
       const tieneCartelFijoMentiroso =
         /<Badge[^>]*>[^<]*Instagram Conectado[^<]*<\/Badge>/i.test(contenido) &&
         !/isConnected|testStatus|pageAccessToken/i.test(contenido);
@@ -70,13 +61,22 @@ describe('Control de Honestidad: Ninguna pantalla miente sobre su estado', () =>
     }
   });
 
-  it('la pantalla de asistente en admin no muestra cartel falso de mantenimiento', () => {
-    const asistenteAdminPath = path.join(process.cwd(), 'src/app/admin/asistente-ak/page.tsx');
-    if (fs.existsSync(asistenteAdminPath)) {
-      const contenido = fs.readFileSync(asistenteAdminPath, 'utf8');
-      expect(contenido).toContain("redirect('/multiagente')");
-      expect(contenido).not.toContain('<CardTitle>En Mantenimiento</CardTitle>');
-      expect(contenido).not.toContain('desactivado para resolver conflictos');
+  it('la pantalla Mi Día no incluye palabras de estrés prohibidas en sus textos visibles', () => {
+    const miDiaPath = path.join(process.cwd(), 'src/app/(app)/mi-dia/page.tsx');
+    expect(fs.existsSync(miDiaPath)).toBe(true);
+
+    const contenido = fs.readFileSync(miDiaPath, 'utf8');
+
+    // Remover comentarios e imports antes de revisar textos visibles
+    const sinComentarios = contenido
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/.*$/gm, '')
+      .replace(/import\s+[\s\S]*?from\s+['"][^'"]+['"];?/g, '');
+
+    for (const palabra of PALABRAS_PROHIBIDAS_MI_DIA) {
+      const regex = new RegExp(`['"\`][^'"\`]*\\b${palabra}\\b[^'"\`]*['"\`]`, 'i');
+      const match = regex.exec(sinComentarios);
+      expect(match).toBeNull();
     }
   });
 

@@ -265,12 +265,13 @@ export async function syncInstagramPosts(
         ? 'Falta ingresar el Instagram Account ID en Ajustes > Redes Sociales.'
         : 'No se pudieron obtener fotos de Meta Graph API. Verificá que el Token de Meta no esté vencido.';
 
+      // Instagram todavia no esta conectado
       return {
         success: false,
         photosCount: 0,
         videosCount: 0,
         plannerCount: 0,
-        error: `Instagram no pudo sincronizarse: ${missingReason}`,
+        error: `Instagram no está conectado: ${missingReason}`,
       };
     }
 

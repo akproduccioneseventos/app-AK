@@ -160,13 +160,48 @@ const badgeColors: Record<ModuleBadge, string> = {
   VIP:        'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200',
 };
 
+const MOMENTOS_FIESTA = [
+  {
+    id: 'vender',
+    title: '1. Vender',
+    description: 'Presupuesto, contrato, cuotas, cobros y documentación.',
+    icon: DollarSign,
+    color: 'text-emerald-700 bg-emerald-100',
+    moduleIds: ['planPagos', 'documentos', 'costos', 'configuracion', 'resumenPlanificacion'],
+  },
+  {
+    id: 'armar',
+    title: '2. Armar',
+    description: 'Invitados, gastronomía, lista de compras, salón, cronograma y personal.',
+    icon: Users,
+    color: 'text-blue-700 bg-blue-100',
+    moduleIds: ['invitados', 'catering', 'listaCompras', 'decoracion', 'itinerario', 'personal', 'musica', 'proveedoresPortal', 'carteleria', 'alergias'],
+  },
+  {
+    id: 'noche',
+    title: '3. La Noche',
+    description: 'Barra, fotocabina, 360, muro social, check-in QR, pantalla y buzón.',
+    icon: Sparkles,
+    color: 'text-purple-700 bg-purple-100',
+    moduleIds: ['enVivo', 'centroFiesta', 'muroSocial', 'entretenimiento', 'barraTecnologica', 'checkin', 'buzon', 'pantallasTotem', 'playlistPantalla'],
+  },
+  {
+    id: 'despues',
+    title: '4. Después',
+    description: 'Álbum post-fiesta, encuesta de satisfacción y cierre de rentabilidad.',
+    icon: Star,
+    color: 'text-amber-700 bg-amber-100',
+    moduleIds: ['postEvento', 'feedback'],
+  },
+];
+
 type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
 
 const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color: string; moduleIds: string[] }[] = [
-  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['centroTotal', 'enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'fiestaLista', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'] },
-  { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['centroTotal', 'fiestaLista', 'tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'plannerCostoFiesta', 'carteleria'] },
+  { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['enVivo', 'centroFiesta', 'itinerario', 'checkin', 'cargaOperativa', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'] },
+  { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'plannerCostoFiesta', 'carteleria'] },
   { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
-  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['centroTotal', 'paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
+  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
 ];
 
 function getModuleProgress(moduleId: string, fiesta: FiestaEnPlanificacion | null): { percentage: number; text: string } {
@@ -760,130 +795,244 @@ function PlannerDashboardContent() {
         </div>
       </motion.div>
 
-      {/* Module grid grouped by category */}
+      {/* Module grid grouped by 4 Moments or Category */}
       <div className="space-y-10 sm:space-y-16">
-        <AnimatePresence>
-          {visibleCategories.map((category) => {
-            const meta = categoryMeta[category];
-            const CategoryIcon = meta?.icon ?? Settings2;
-            const allCategoryModules = filteredModules.filter(m => m.category === category);
-            if (allCategoryModules.length === 0) return null;
+        {!showAllModules && !searchQuery.trim() && !activeMode ? (
+          <div className="space-y-12">
+            {MOMENTOS_FIESTA.map((momento) => {
+              const momentoModules = modules.filter((m) => momento.moduleIds.includes(m.id));
+              const MomentoIcon = momento.icon;
+              return (
+                <div key={momento.id} className="space-y-5">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className={cn("p-2.5 rounded-xl shrink-0", momento.color)}>
+                      <MomentoIcon className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-xl md:text-2xl font-black font-headline text-slate-800 tracking-tighter uppercase">
+                        {momento.title}
+                      </h3>
+                      <p className="text-[10px] sm:text-xs text-slate-400 font-bold hidden sm:block">
+                        {momento.description}
+                      </p>
+                    </div>
+                    <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow hidden sm:block" />
+                  </div>
 
-            return (
-              <motion.div key={category} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-5">
-                {/* Category header */}
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className={cn("p-2.5 rounded-xl shrink-0", meta?.color ?? 'text-slate-600 bg-slate-100')}>
-                    <CategoryIcon className="w-5 h-5" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {momentoModules.map((module) => {
+                      const active = isModuleActive(module.id);
+                      const moduleHref = module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
+                      const modProgress = getModuleProgress(module.id, fiesta);
+                      return (
+                        <div key={module.id}>
+                          <Link
+                            href={moduleHref}
+                            onClick={async (event) => {
+                              if (!active) {
+                                event.preventDefault();
+                                const saved = await handleModuleToggle(module.id as keyof ModulosContratados, true);
+                                if (saved) router.push(moduleHref);
+                              }
+                            }}
+                          >
+                            <Card className={cn(
+                              "h-full border border-slate-100 transition-all duration-300 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/90 backdrop-blur-md hover:shadow-xl",
+                              active ? "hover:shadow-primary/10" : "hover:shadow-slate-400/10"
+                            )}>
+                              <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
+                                <div className={cn(
+                                  "p-3 rounded-2xl group-hover:scale-105 transition-all duration-300 shadow-inner shrink-0",
+                                  active ? module.color : "bg-slate-100 text-slate-400"
+                                )}>
+                                  <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <CardTitle className={cn("text-sm sm:text-base font-black leading-tight transition-colors", active ? "text-slate-800" : "text-slate-500")}>
+                                    {module.title}
+                                  </CardTitle>
+                                  {module.badge && (
+                                    <span className={cn(
+                                      "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
+                                      active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
+                                    )}>
+                                      {module.badge}
+                                    </span>
+                                  )}
+                                </div>
+                              </CardHeader>
+                              <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
+                                <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
+                              </CardContent>
+                              <CardFooter className="bg-slate-50/50 p-3 flex-col items-stretch gap-2 px-5 sm:px-6 border-t border-slate-50">
+                                <div className="space-y-1.5 w-full">
+                                  <div className="flex justify-between items-center text-[10px] font-bold">
+                                    {active ? (
+                                      <span className="flex items-center gap-1.5 uppercase tracking-widest text-emerald-600">
+                                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                        Activo
+                                      </span>
+                                    ) : (
+                                      <span className="flex items-center gap-1.5 uppercase tracking-widest text-slate-400">
+                                        <span className="h-2 w-2 rounded-full bg-slate-300"></span>
+                                        Inactivo
+                                      </span>
+                                    )}
+                                    <span className="text-slate-500 font-semibold">{modProgress.text}</span>
+                                  </div>
+                                  {active && (
+                                    <Progress
+                                      value={modProgress.percentage}
+                                      className="h-1.5 bg-slate-100 rounded-full"
+                                      indicatorClassName={modProgress.percentage === 100 ? "bg-emerald-500" : "bg-primary"}
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex justify-end pt-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={cn(
+                                      "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
+                                      active
+                                        ? "text-primary group-hover:bg-primary group-hover:text-white"
+                                        : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
+                                    )}
+                                  >
+                                    {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
+                                  </Button>
+                                </div>
+                              </CardFooter>
+                            </Card>
+                          </Link>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-base sm:text-xl md:text-2xl font-black font-headline text-slate-800 tracking-tighter uppercase">{category}</h3>
-                    {meta?.description && <p className="text-[10px] text-slate-400 font-bold hidden sm:block">{meta.description}</p>}
-                  </div>
-                  <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow hidden sm:block" />
                 </div>
+              );
+            })}
+          </div>
+        ) : (
+          <AnimatePresence>
+            {visibleCategories.map((category) => {
+              const meta = categoryMeta[category];
+              const CategoryIcon = meta?.icon ?? Settings2;
+              const allCategoryModules = filteredModules.filter(m => m.category === category);
+              if (allCategoryModules.length === 0) return null;
 
-                {/* Modules Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                  {allCategoryModules.map((module) => {
-                    const active = isModuleActive(module.id);
-                    const moduleHref = module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
-                    return (
-                      <motion.div key={module.id} whileHover={{ y: -6, scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-                        <Link
-                          href={moduleHref}
-                          onClick={async event => {
-                            if (!active) {
-                              event.preventDefault();
-                              const saved = await handleModuleToggle(module.id as keyof ModulosContratados, true);
-                              if (saved) router.push(moduleHref);
-                            }
-                          }}
-                        >
-                          <Card className={cn(
-                            "h-full border border-slate-100 transition-all duration-500 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md hover:shadow-2xl",
+              return (
+                <motion.div key={category} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-5">
+                  {/* Category header */}
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className={cn("p-2.5 rounded-xl shrink-0", meta?.color ?? 'text-slate-600 bg-slate-100')}>
+                      <CategoryIcon className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-xl md:text-2xl font-black font-headline text-slate-800 tracking-tighter uppercase">{category}</h3>
+                      {meta?.description && <p className="text-[10px] text-slate-400 font-bold hidden sm:block">{meta.description}</p>}
+                    </div>
+                    <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow hidden sm:block" />
+                  </div>
+
+                  {/* Modules Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {allCategoryModules.map((module) => {
+                      const active = isModuleActive(module.id);
+                      const moduleHref = module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
+                      const modProgress = getModuleProgress(module.id, fiesta);
+                      return (
+                        <motion.div key={module.id} whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                          <Link
+                            href={moduleHref}
+                            onClick={async event => {
+                              if (!active) {
+                                event.preventDefault();
+                                const saved = await handleModuleToggle(module.id as keyof ModulosContratados, true);
+                                if (saved) router.push(moduleHref);
+                              }
+                            }}
+                          >
+                            <Card className={cn(
+                              "h-full border border-slate-100 transition-all duration-300 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md hover:shadow-2xl",
                               active
                                 ? "hover:shadow-primary/10"
-                              : "hover:shadow-slate-400/10"
-                          )}>
-                            <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
-                              <div className={cn(
-                                "p-3 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0",
-                                active ? module.color : "bg-slate-100 text-slate-400"
-                              )}>
-                                <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <CardTitle className={cn("text-sm sm:text-base font-black leading-tight transition-colors", active ? "text-slate-800" : "text-slate-500")}>
-                                  {module.title}
-                                </CardTitle>
-                                {module.badge && (
-                                  <span className={cn(
-                                    "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
-                                    active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
-                                  )}>
-                                    {module.badge}
-                                  </span>
-                                )}
-                              </div>
-                            </CardHeader>
-                            <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
-                              <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
-                            </CardContent>
-                            <CardFooter className="bg-slate-50/50 p-3 flex-col items-stretch gap-2 px-5 sm:px-6 border-t border-slate-50">
-                              {(() => {
-                                const modProgress = getModuleProgress(module.id, fiesta);
-                                return (
-                                  <div className="space-y-1.5 w-full">
-                                    <div className="flex justify-between items-center text-[10px] font-bold">
-                                      {active ? (
-                                        <span className="flex items-center gap-1.5 uppercase tracking-widest text-emerald-600">
-                                          <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                                          Activo
-                                        </span>
-                                      ) : (
-                                        <span className="flex items-center gap-1.5 uppercase tracking-widest text-slate-400">
-                                          <span className="h-2 w-2 rounded-full bg-slate-300"></span>
-                                          Inactivo
-                                        </span>
-                                      )}
-                                      <span className="text-slate-500 font-semibold">{modProgress.text}</span>
-                                    </div>
-                                    {active && (
-                                      <Progress
-                                        value={modProgress.percentage}
-                                        className="h-1.5 bg-slate-100 rounded-full"
-                                        indicatorClassName={modProgress.percentage === 100 ? "bg-emerald-500" : "bg-primary"}
-                                      />
-                                    )}
-                                  </div>
-                                );
-                              })()}
-                              <div className="flex justify-end pt-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={cn(
-                                    "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
-                                    active
-                                      ? "text-primary group-hover:bg-primary group-hover:text-white"
-                                      : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
+                                : "hover:shadow-slate-400/10"
+                            )}>
+                              <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
+                                <div className={cn(
+                                  "p-3 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0",
+                                  active ? module.color : "bg-slate-100 text-slate-400"
+                                )}>
+                                  <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <CardTitle className={cn("text-sm sm:text-base font-black leading-tight transition-colors", active ? "text-slate-800" : "text-slate-500")}>
+                                    {module.title}
+                                  </CardTitle>
+                                  {module.badge && (
+                                    <span className={cn(
+                                      "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
+                                      active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
+                                    )}>
+                                      {module.badge}
+                                    </span>
                                   )}
-                                >
-                                  {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
-                                </Button>
-                              </div>
-                            </CardFooter>
-                          </Card>
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
+                                </div>
+                              </CardHeader>
+                              <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
+                                <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
+                              </CardContent>
+                              <CardFooter className="bg-slate-50/50 p-3 flex-col items-stretch gap-2 px-5 sm:px-6 border-t border-slate-50">
+                                <div className="space-y-1.5 w-full">
+                                  <div className="flex justify-between items-center text-[10px] font-bold">
+                                    {active ? (
+                                      <span className="flex items-center gap-1.5 uppercase tracking-widest text-emerald-600">
+                                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                        Activo
+                                      </span>
+                                    ) : (
+                                      <span className="flex items-center gap-1.5 uppercase tracking-widest text-slate-400">
+                                        <span className="h-2 w-2 rounded-full bg-slate-300"></span>
+                                        Inactivo
+                                      </span>
+                                    )}
+                                    <span className="text-slate-500 font-semibold">{modProgress.text}</span>
+                                  </div>
+                                  {active && (
+                                    <Progress
+                                      value={modProgress.percentage}
+                                      className="h-1.5 bg-slate-100 rounded-full"
+                                      indicatorClassName={modProgress.percentage === 100 ? "bg-emerald-500" : "bg-primary"}
+                                    />
+                                  )}
+                                </div>
+                                <div className="flex justify-end pt-1">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={cn(
+                                      "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
+                                      active
+                                        ? "text-primary group-hover:bg-primary group-hover:text-white"
+                                        : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
+                                    )}
+                                  >
+                                    {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
+                                  </Button>
+                                </div>
+                              </CardFooter>
+                            </Card>
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        )}
 
         {filteredModules.length === 0 && (
           <div className="text-center py-20">
