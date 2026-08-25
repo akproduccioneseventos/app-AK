@@ -4446,3 +4446,16 @@ tiene Java y las reglas no cambiaron. Tampoco se certificaron con cuentas o hard
 reales Gmail, Meta/Instagram, Mercado Pago, FCM en un teléfono, cámaras, impresoras,
 plataforma 360, espejos o Touchpix físico. Esos puntos requieren credenciales, dinero o
 equipos externos y no se declaran probados por una ejecución local.
+
+- **Orden 7 — Que la app no mienta, y que la puerta de entrada se pueda usar (25 de agosto de 2026).**
+  1. *Instagram con estado y prueba real:* La pantalla de Ajustes > Redes Sociales ahora permite
+     ingresar el Instagram Account ID y el Meta Access Token directamente, muestra el estado real
+     de verificación (con fecha y cantidad de fotos) y cuenta con un botón para probar la conexión
+     contra Meta Graph API en vivo. Los mensajes de error explican con exactitud qué credencial falta.
+  2. *Control automático de honestidad:* Nueva suite `src/__tests__/ninguna-pantalla-miente.test.ts`
+     que asegura que ninguna pantalla prometa estados de éxito estáticos sin confirmación real del servidor.
+  3. *Eliminación de pantallas de programador:* Se eliminaron `/fiestas/nueva/integracion-post-445` y
+     `/fiestas/nueva/cierre-100`, reduciendo la app de 350 a 348 pantallas y regenerando el manual.
+  4. *Pantalla de armar fiesta usable:* `/fiestas/nueva` ahora prioriza los 10 accesos esenciales de uso
+     diario, alertas operativas y estado de preparación, dejando el resto bajo un botón "Ver todas las
+     herramientas" con las opciones internas ocultas por defecto.

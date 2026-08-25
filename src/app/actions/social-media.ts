@@ -245,12 +245,32 @@ export async function syncInstagramPosts(
     const instagramFeed = graphFeed || (allowDemoFallback ? fallbackInstagramFeed : null);
 
     if (!instagramFeed) {
+      const hasToken = Boolean(
+        instagramConn?.pageAccessToken ||
+        instagramConn?.accessToken ||
+        process.env.INSTAGRAM_ACCESS_TOKEN ||
+        process.env.META_INSTAGRAM_ACCESS_TOKEN
+      );
+      const hasAccountId = Boolean(
+        instagramConn?.instagramAccountId ||
+        instagramConn?.pageId ||
+        process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID ||
+        process.env.INSTAGRAM_USER_ID
+      );
+      const missingReason = !hasToken && !hasAccountId
+        ? 'Falta ingresar el Token de Meta y el Instagram Account ID en Ajustes > Redes Sociales.'
+        : !hasToken
+        ? 'Falta ingresar el Token de Meta en Ajustes > Redes Sociales.'
+        : !hasAccountId
+        ? 'Falta ingresar el Instagram Account ID en Ajustes > Redes Sociales.'
+        : 'No se pudieron obtener fotos de Meta Graph API. Verificá que el Token de Meta no esté vencido.';
+
       return {
         success: false,
         photosCount: 0,
         videosCount: 0,
         plannerCount: 0,
-        error: 'Instagram todavia no esta conectado. Se conecta desde Ajustes, en Redes sociales.',
+        error: `Instagram no pudo sincronizarse: ${missingReason}`,
       };
     }
 

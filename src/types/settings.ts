@@ -131,6 +131,12 @@ export interface SocialConnection {
   boardId?: string;
   webhookUrl?: string;
   autoPublishEnabled?: boolean;
+  /** Estado real de verificación / prueba de la conexión */
+  lastTestedAt?: string;
+  testStatus?: 'success' | 'failed' | 'not_tested';
+  testMessage?: string;
+  lastPhotosCount?: number;
+  lastSyncAt?: string;
 }
 
 export interface CompanyInfo {

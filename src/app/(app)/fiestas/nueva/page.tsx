@@ -278,6 +278,19 @@ function getModuleProgress(moduleId: string, fiesta: FiestaEnPlanificacion | nul
   }
 }
 
+const ESSENTIAL_MODULE_IDS = [
+  'invitados',
+  'catering',
+  'itinerario',
+  'muroSocial',
+  'entretenimiento',
+  'portalCliente',
+  'planPagos',
+  'enVivo',
+  'tareas',
+  'documentos',
+];
+
 function PlannerDashboardContent() {
   const { toast } = useToast();
   const router = useRouter();
@@ -290,6 +303,8 @@ function PlannerDashboardContent() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeMode, setActiveMode] = useState<QuickMode>(null);
+  const [showAllModules, setShowAllModules] = useState(false);
+  const [showInternalModules, setShowInternalModules] = useState(false);
 
   useEffect(() => {
     if (!fiestaId) { router.replace('/eventos'); return; }
@@ -338,15 +353,22 @@ function PlannerDashboardContent() {
         (m.badge && m.badge.toLowerCase().includes(q))
       );
     }
+    if (!showAllModules) {
+      return modules.filter(m => ESSENTIAL_MODULE_IDS.includes(m.id));
+    }
+    if (!showInternalModules) {
+      return modules.filter(m => m.badge !== 'Interno');
+    }
     return modules;
-  }, [searchQuery, activeMode]);
+  }, [searchQuery, activeMode, showAllModules, showInternalModules]);
+
   const progress = useMemo(() => fiesta ? calcFiestaProgress(fiesta) : null, [fiesta]);
   const prepScore = useMemo(() => fiesta ? calculateFiestaPreparationScore(fiesta) : null, [fiesta]);
 
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   if (error || !fiesta) return <div className="text-center py-20 px-4"><AlertTriangle className="mx-auto text-destructive mb-4" /><p className="font-bold text-slate-800">{error || "Error al cargar."}</p></div>;
 
-  const visibleCategories = activeMode || searchQuery.trim()
+  const visibleCategories = (activeMode || searchQuery.trim() || !showAllModules)
     ? Array.from(new Set(filteredModules.map(m => m.category)))
     : moduleCategories;
 
@@ -695,12 +717,47 @@ function PlannerDashboardContent() {
           )}
         </div>
 
-        {activeMode && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-xl border border-primary/20">
-            <Sparkles className="w-4 h-4 text-primary shrink-0" />
-            <p className="text-xs font-bold text-primary">{quickModes.find(m => m.id === activeMode)?.label} — mostrando {filteredModules.length} módulo{filteredModules.length !== 1 ? 's' : ''}</p>
+        {/* Control de visualización: Módulos Principales vs Ver Todo */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+          <div>
+            <h3 className="text-sm sm:text-base font-black text-slate-800 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              {!showAllModules ? "Herramientas Principales del Evento" : "Todas las Herramientas y Categorías"}
+            </h3>
+            <p className="text-xs text-muted-foreground font-medium">
+              {!showAllModules
+                ? "Mostrando los 10 accesos clave para la gestión diaria de la fiesta."
+                : `Mostrando ${filteredModules.length} módulos disponibles para la fiesta.`}
+            </p>
           </div>
-        )}
+
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            {showAllModules && (
+              <div className="flex items-center gap-2 pr-2 border-r border-slate-200">
+                <Switch
+                  id="show-internal-switch"
+                  checked={showInternalModules}
+                  onCheckedChange={setShowInternalModules}
+                  className="scale-75"
+                />
+                <Label htmlFor="show-internal-switch" className="text-xs font-bold text-slate-600 cursor-pointer">
+                  Herramientas Internas
+                </Label>
+              </div>
+            )}
+
+            <Button
+              type="button"
+              variant={showAllModules ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowAllModules(!showAllModules)}
+              className="rounded-xl font-bold text-xs gap-1.5"
+            >
+              {showAllModules ? "Mostrar sólo principales" : "Ver todas las herramientas"}
+              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showAllModules && "rotate-180")} />
+            </Button>
+          </div>
+        </div>
       </motion.div>
 
       {/* Module grid grouped by category */}
