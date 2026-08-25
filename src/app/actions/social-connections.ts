@@ -28,8 +28,25 @@ async function leerConexiones(): Promise<SocialConnection[]> {
  */
 export async function getSocialConnectionsPublicas(): Promise<SocialConnection[]> {
   const conexiones = await leerConexiones();
-  return conexiones.map(({ pageId, pageAccessToken, instagramAccountId, tokenExpiresAt, ...visible }) => {
-    void pageId; void pageAccessToken; void instagramAccountId; void tokenExpiresAt;
+  return conexiones.map(({
+    pageId,
+    pageAccessToken,
+    instagramAccountId,
+    tokenExpiresAt,
+    apiKey,
+    accessToken,
+    refreshToken,
+    webhookUrl,
+    ...visible
+  }) => {
+    void pageId;
+    void pageAccessToken;
+    void instagramAccountId;
+    void tokenExpiresAt;
+    void apiKey;
+    void accessToken;
+    void refreshToken;
+    void webhookUrl;
     return visible;
   });
 }
@@ -259,4 +276,111 @@ export async function saveUnifiedGatewaySettings(params: {
   await writeData(CONNECTIONS_FILE, connections);
   return { success: true };
 }
+
+/**
+ * Prueba la conexión real contra Meta Graph API para la cuenta de Instagram.
+ * Consulta la API y reporta en criollo el estado exacto sin datos falsos.
+ */
+export async function testInstagramConnection(): Promise<{
+  success: boolean;
+  message: string;
+  photosCount?: number;
+  connection?: SocialConnection;
+}> {
+  await requireAppSession();
+  const connections = await leerConexiones();
+  const igIndex = connections.findIndex((c) => c.platform === 'Instagram');
+  const now = new Date().toISOString();
+
+  if (igIndex === -1) {
+    return {
+      success: false,
+      message: 'No existe la conexión de Instagram en el sistema. Guardá los datos en Ajustes.',
+    };
+  }
+
+  const igConn = connections[igIndex];
+  const token = igConn.pageAccessToken || igConn.accessToken || process.env.INSTAGRAM_ACCESS_TOKEN || process.env.META_INSTAGRAM_ACCESS_TOKEN;
+  const accountId = igConn.instagramAccountId || igConn.pageId || process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_USER_ID;
+
+  if (!token || !accountId) {
+    const updated: SocialConnection = {
+      ...igConn,
+      testStatus: 'failed',
+      testMessage: 'Falta el Access Token de Meta o el Instagram Account ID.',
+      lastTestedAt: now,
+    };
+    connections[igIndex] = updated;
+    await writeData(CONNECTIONS_FILE, connections);
+    return {
+      success: false,
+      message: 'Falta ingresar el Token de Meta o el ID de cuenta en Ajustes > Redes Sociales.',
+      connection: updated,
+    };
+  }
+
+  try {
+    const apiVersion = process.env.INSTAGRAM_GRAPH_API_VERSION || 'v25.0';
+    const fields = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count';
+    const url = `https://graph.facebook.com/${apiVersion}/${encodeURIComponent(accountId)}/media?fields=${encodeURIComponent(fields)}&limit=10&access_token=${encodeURIComponent(token)}`;
+
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(6000),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok || data?.error) {
+      const errMsg = data?.error?.message || `Error HTTP ${res.status} al consultar Meta Graph API.`;
+      const updated: SocialConnection = {
+        ...igConn,
+        testStatus: 'failed',
+        testMessage: errMsg,
+        lastTestedAt: now,
+      };
+      connections[igIndex] = updated;
+      await writeData(CONNECTIONS_FILE, connections);
+      return {
+        success: false,
+        message: `Meta rechazó la conexión: ${errMsg}`,
+        connection: updated,
+      };
+    }
+
+    const items = Array.isArray(data?.data) ? data.data : [];
+    const updated: SocialConnection = {
+      ...igConn,
+      testStatus: 'success',
+      testMessage: `Conexión verificada con éxito (${items.length} fotos obtenidas).`,
+      lastTestedAt: now,
+      lastPhotosCount: items.length,
+      lastSyncAt: now,
+    };
+    connections[igIndex] = updated;
+    await writeData(CONNECTIONS_FILE, connections);
+
+    return {
+      success: true,
+      message: `¡Conexión verificada! Se detectaron ${items.length} fotos recientes en Instagram.`,
+      photosCount: items.length,
+      connection: updated,
+    };
+  } catch (err: any) {
+    const errorMsg = `Error de red al consultar Meta: ${err?.message || 'Tiempo de espera agotado'}`;
+    const updated: SocialConnection = {
+      ...igConn,
+      testStatus: 'failed',
+      testMessage: errorMsg,
+      lastTestedAt: now,
+    };
+    connections[igIndex] = updated;
+    await writeData(CONNECTIONS_FILE, connections);
+    return {
+      success: false,
+      message: errorMsg,
+      connection: updated,
+    };
+  }
+}
+
 

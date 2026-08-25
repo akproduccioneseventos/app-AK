@@ -4089,6 +4089,110 @@ invitado que lo dejo.
 no vuelva. La leccion, que es la que vale: **una entrega puede pasar los cuatro
 controles y aun asi hacerle perder la foto a un invitado.** Lo que ninguna prueba
 pregunta, ninguna prueba lo agarra.
+## Un mismo cobro se contaba dos veces (25 de agosto de 2026)
+
+**El caso, que es de todos los dias en un equipo chico:** alguien cobra la cuota y la
+carga a mano (en pagos rapidos o en el presupuesto), y despues alguien carga ese mismo
+cobro en la factura. La factura copia su pago al presupuesto, y ahi quedaban los dos.
+
+**Por que el control que habia no lo agarraba:** buscaba un pago con **la misma
+referencia**, y no coincidian. El cargado a mano decia "Efectivo"; el que llega de la
+factura trae una referencia automatica. Asi que entraba como pago nuevo. La otra
+proteccion tampoco frenaba nada: comprueba que lo cobrado no pase del total del
+presupuesto, y dos mitades del mismo cobro no lo pasan.
+
+**Que veia el dueno:** el panel contable elige la fuente mas completa entre la factura y
+el presupuesto en vez de sumar las dos —eso ya estaba bien pensado—, pero con el pago
+repetido adentro del presupuesto esa fuente ya venia inflada. **Se veia el doble de lo
+cobrado.**
+
+**Que se hizo:** cuando llega la copia de una factura, se busca el gemelo cargado a mano
+—mismo importe, mismo dia, y que no sea a su vez una copia—. Si aparece, no se agrega
+otro: se le pone la referencia de la factura al que ya estaba, para que quede "tomado" y
+una segunda copia distinta no lo vuelva a agarrar. Si el cliente pago dos veces el mismo
+importe el mismo dia, cada copia se lleva un gemelo distinto y **no se pierde ningun
+cobro**.
+
+**Donde vive y por que ahi:** la regla esta en `src/lib/budget/pago-duplicado.ts`, no en
+el archivo de acciones. Ese archivo es de servidor y **todo lo que exporta tiene que ser
+una funcion asincronica**: una funcion comun exportada ahi rompe la compilacion, y eso
+no lo avisa el revisor de tipos —se descubre cuando ya no se puede publicar—.
+
+Congelado en `src/__tests__/un-cobro-no-se-cuenta-dos-veces.test.ts`.
+
+## Lo que se contó de la app, y lo que NO hay que volver a buscar (25 de agosto de 2026)
+
+Se salio a buscar pantallas de sobra, duplicados y basura acumulada. **El resultado es
+que casi no hay nada de eso**, y conviene que quede escrito para que nadie gaste el viaje
+de nuevo.
+
+Los numeros, contados uno por uno, no estimados:
+
+- **350 pantallas en total.** De esas, **38 son redirecciones** de tres renglones que
+  llevan de una direccion vieja a la nueva, para que un enlace guardado no muera. **Estan
+  bien y no se tocan.**
+- **310 estan enlazadas** y se llega a ellas normalmente.
+- **2 aparecieron como "no llega nadie" y son falso positivo verificado:**
+  `/proveedor/acceso/[token]`, que se genera desde el portal de proveedores, y
+  `/presentacion-led/portafolio/fiesta/[id]`, que se enlaza desde la presentacion
+  comercial.
+- **Cero pantallas para borrar.**
+
+**Los tableros que parecian repetidos no lo estan.** "Centro", "comando total", "control
+de show", "mision control", "centro de mando" y "centro total" **ya fueron unificados**:
+hay un solo Centro de Fiesta y los demas son redirecciones. Si una auditoria los reporta
+como duplicados, es falso positivo.
+
+**Del barrido de duplicados, casi todo fue ruido:** lo que se marco como "misma pantalla"
+eran iconos y tarjetas compartidas, y las "carpetas gemelas" son que cada cosa tiene su
+`nuevo`, su `editar` y su `reporte`, que es como corresponde.
+
+**La conclusion, que es lo que importa:** el problema de la app nunca fue tener cosas de
+mas. Es tenerlas todas apiladas en la entrada: 39 opciones de menu y 46 tarjetas al abrir
+una fiesta. Eso se resuelve ordenando, no borrando.
+
+## Dos pantallas mostraban el disenador de mesas (25 de agosto de 2026)
+
+`src/app/(app)/fiestas/nueva/reuniones/imprimir/page.tsx` y
+`src/app/(app)/empresa/todos-los-servicios/[id]/editar/page.tsx` son **dos archivos
+identicos renglon por renglon** —741 lineas, la misma huella— y los dos muestran **el
+disenador de mesas del salon**: el lienzo, "invitados sin mesa", la lista de invitados.
+
+Ninguno de los dos es lo que su direccion promete:
+
+- El boton **"Imprimir"** de Reuniones abre el disenador de mesas en vez de la hoja para
+  llevar.
+- El boton **"Diseno visual"** del catalogo de servicios
+  (`src/app/(app)/empresa/servicios/page.tsx`, linea 312) abre el mismo disenador, que
+  necesita una fiesta y una lista de invitados que ahi no existen.
+
+Paso por una copia mal hecha. **No lo agarro ninguna prueba porque compila y ninguna
+prueba abre esas dos pantallas.** Queda pedido en `docs/ordenes/7-la-app-ordenada.md`.
+
+## Como se reordena la app: tres puertas (25 de agosto de 2026)
+
+**Pedido del dueno:** *"quiero la misma app con su potencial pero mas organizada y mas
+facil de usar, no esta app compleja"*. Y sobre el trabajo diario: *"palabras como riesgo,
+urgente, no me gustan, me dan estres. Debe ser un modulo, solo yo entro y se que debo
+hacer"*.
+
+La decision, escrita entera en `docs/ordenes/7-la-app-ordenada.md`:
+
+- **Mi dia** — junta seis pantallas sueltas en una. **Cada linea es una cosa para hacer,
+  no un estado**: "Cobrarle la segunda cuota a Marcela", no "pago vencido". **Palabras
+  prohibidas ahi: riesgo, urgente, critico, vencido, alerta, atrasado, pendiente.** Sin
+  rojo, sin semaforos, sin contadores. El orden alcanza.
+- **La fiesta** — ordenada por los cuatro momentos en que se usa cada cosa: vender,
+  armar, la noche, despues. Las 46 tarjetas quedan detras de "ver todo".
+- **La empresa** — cuatro grupos: vender, plata, recursos y **marketing**.
+- **Marketing es un modulo solo**, por pedido del dueno: redes, WhatsApp, blog, paginas
+  de aterrizaje, anuncios, ficha de Google, galeria y presentacion LED. Hoy eso esta
+  desparramado en cuatro lugares del menu.
+- **Ajustes sale del camino**, y lo experimental va a un "Laboratorio" que solo ve el
+  administrador.
+
+**El porque, para que nadie lo "arregle" al reves:** no se borra nada que funcione. Toda
+pantalla que hoy existe sigue siendo alcanzable. Lo que cambia es por donde se llega.
 
 ## Cómo agregar algo a esta lista
 
@@ -4416,3 +4520,16 @@ tiene Java y las reglas no cambiaron. Tampoco se certificaron con cuentas o hard
 reales Gmail, Meta/Instagram, Mercado Pago, FCM en un teléfono, cámaras, impresoras,
 plataforma 360, espejos o Touchpix físico. Esos puntos requieren credenciales, dinero o
 equipos externos y no se declaran probados por una ejecución local.
+
+- **Orden 7 — Que la app no mienta, y que la puerta de entrada se pueda usar (25 de agosto de 2026).**
+  1. *Instagram con estado y prueba real:* La pantalla de Ajustes > Redes Sociales ahora permite
+     ingresar el Instagram Account ID y el Meta Access Token directamente, muestra el estado real
+     de verificación (con fecha y cantidad de fotos) y cuenta con un botón para probar la conexión
+     contra Meta Graph API en vivo. Los mensajes de error explican con exactitud qué credencial falta.
+  2. *Control automático de honestidad:* Nueva suite `src/__tests__/ninguna-pantalla-miente.test.ts`
+     que asegura que ninguna pantalla prometa estados de éxito estáticos sin confirmación real del servidor.
+  3. *Eliminación de pantallas de programador:* Se eliminaron `/fiestas/nueva/integracion-post-445` y
+     `/fiestas/nueva/cierre-100`, reduciendo la app de 350 a 348 pantallas y regenerando el manual.
+  4. *Pantalla de armar fiesta usable:* `/fiestas/nueva` ahora prioriza los 10 accesos esenciales de uso
+     diario, alertas operativas y estado de preparación, dejando el resto bajo un botón "Ver todas las
+     herramientas" con las opciones internas ocultas por defecto.

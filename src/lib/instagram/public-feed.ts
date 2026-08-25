@@ -27,7 +27,7 @@ export interface PublicInstagramFeedPost {
  *    consulta directamente a Meta Graph API como respaldo inmediato.
  */
 export async function getPublicInstagramFeed(
-  profileUrl = 'https://www.instagram.com/akproduccioneseventos/',
+  profileUrl = 'https://www.instagram.com/akproduccionesfiestasyeventos/',
 ): Promise<PublicInstagramFeedPost[]> {
   try {
     const savedPosts = await readData<SocialPost[]>(POSTS_FILE, []);

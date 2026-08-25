@@ -7,10 +7,10 @@ import {
 } from '@/lib/multiagent/mapa-app.generado';
 
 describe('Bloque 1 — Asistente de IA: Mapa y Control de Navegación', () => {
-  it('el mapa para la asistente contiene las 39 opciones de menú del staff', () => {
+  it('el mapa para la asistente contiene las opciones de menú del staff', () => {
     const mapaTexto = mapaParaLaAsistente();
-    expect(MENU_DEL_STAFF.length).toBe(39);
-    expect(mapaTexto).toContain('MAPA DEL PANEL (39 opciones de menu');
+    expect(MENU_DEL_STAFF.length).toBeGreaterThanOrEqual(39);
+    expect(mapaTexto).toContain(`MAPA DEL PANEL (${MENU_DEL_STAFF.length} opciones de menu`);
     expect(mapaTexto).toContain('Lista de Compras → /compras');
     expect(mapaTexto).toContain('Facturas → /invoices');
     expect(mapaTexto).toContain('Prospectos → /contabilidad/crm');

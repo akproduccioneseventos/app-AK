@@ -309,7 +309,6 @@ export default function CatalogoServiciosPage() {
                                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white" onClick={() => handleDuplicate(item.id, item.nombre)} disabled={!!deletingId || !!duplicatingId} title="Duplicar">
                                       {duplicatingId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Copy className="w-3.5 h-3.5"/>}
                                   </Button>
-                                  <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white text-indigo-600" title="Diseño visual"><Link href={`/empresa/todos-los-servicios/${item.id}/editar`}><LayoutDashboard className="w-3.5 h-3.5"/></Link></Button>
                                   <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white text-primary" title="Editar servicio"><Link href={`/empresa/servicios/editar/${item.id}`}><Edit className="w-3.5 h-3.5"/></Link></Button>
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild>

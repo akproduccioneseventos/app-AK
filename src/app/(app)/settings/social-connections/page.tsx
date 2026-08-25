@@ -25,6 +25,7 @@ import {
   Zap,
   HelpCircle,
   CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -36,6 +37,7 @@ import {
   disconnectSocialPlatform,
   saveSocialCredentials,
   saveUnifiedGatewaySettings,
+  testInstagramConnection,
 } from '@/app/actions/social-connections';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -202,6 +204,34 @@ export default function SocialConnectionsPage() {
       toast({ title: 'Error', description: result.error, variant: "destructive" });
     }
     setProcessingPlatform(null);
+  };
+
+  const handleTestInstagram = async () => {
+    setProcessingPlatform('Instagram');
+    try {
+      const res = await testInstagramConnection();
+      if (res.success) {
+        toast({
+          title: '¡Instagram Conectado!',
+          description: res.message,
+        });
+      } else {
+        toast({
+          title: 'Atención con Instagram',
+          description: res.message,
+          variant: 'destructive',
+        });
+      }
+      await loadConnections();
+    } catch (err: any) {
+      toast({
+        title: 'Error de prueba',
+        description: err.message || 'No se pudo contactar a Meta.',
+        variant: 'destructive',
+      });
+    } finally {
+      setProcessingPlatform(null);
+    }
   };
 
   const getConnectionForPlatform = (platform: SocialPlatformName) => connections.find((c) => c.platform === platform);
@@ -405,25 +435,65 @@ export default function SocialConnectionsPage() {
                             )}
 
                             {platform === 'Instagram' && (
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <div>
-                                  <Label className="text-[11px] text-muted-foreground">Instagram Account ID</Label>
-                                  <Input
-                                    value={platformData.instagramAccountId || ''}
-                                    onChange={(e) => handleInputChange(platform, 'instagramAccountId', e.target.value)}
-                                    placeholder="178414..."
-                                    className="text-xs"
-                                  />
+                              <div className="space-y-2.5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                  <div>
+                                    <Label className="text-[11px] text-muted-foreground">Instagram Account ID</Label>
+                                    <Input
+                                      value={platformData.instagramAccountId || ''}
+                                      onChange={(e) => handleInputChange(platform, 'instagramAccountId', e.target.value)}
+                                      placeholder="178414..."
+                                      className="text-xs"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-[11px] text-muted-foreground">Access Token de Meta</Label>
+                                    <Input
+                                      type="password"
+                                      value={platformData.pageAccessToken || ''}
+                                      onChange={(e) => handleInputChange(platform, 'pageAccessToken', e.target.value)}
+                                      placeholder="EAA..."
+                                      className="text-xs"
+                                    />
+                                  </div>
                                 </div>
-                                <div>
-                                  <Label className="text-[11px] text-muted-foreground">Access Token de Meta</Label>
-                                  <Input
-                                    type="password"
-                                    value={platformData.pageAccessToken || ''}
-                                    onChange={(e) => handleInputChange(platform, 'pageAccessToken', e.target.value)}
-                                    placeholder="EAA..."
-                                    className="text-xs"
-                                  />
+
+                                {connection?.lastTestedAt && (
+                                  <div className={`p-2.5 rounded-lg text-xs flex items-start gap-2 ${
+                                    connection.testStatus === 'success'
+                                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                                      : 'bg-amber-50 text-amber-800 border border-amber-200'
+                                  }`}>
+                                    {connection.testStatus === 'success' ? (
+                                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                                    ) : (
+                                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                                    )}
+                                    <div className="space-y-0.5">
+                                      <p className="font-semibold">
+                                        {connection.testStatus === 'success' ? 'Meta Graph API Verificada' : 'Estado de Conexión'}
+                                      </p>
+                                      <p className="text-[11px] opacity-90">{connection.testMessage}</p>
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div className="flex justify-end pt-1">
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleTestInstagram}
+                                    disabled={processingPlatform === 'Instagram'}
+                                    className="text-xs border-purple-300 text-purple-700 hover:bg-purple-50"
+                                  >
+                                    {processingPlatform === 'Instagram' ? (
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                                    ) : (
+                                      <Zap className="w-3.5 h-3.5 mr-1.5 text-purple-600" />
+                                    )}
+                                    Probar Conexión con Instagram
+                                  </Button>
                                 </div>
                               </div>
                             )}

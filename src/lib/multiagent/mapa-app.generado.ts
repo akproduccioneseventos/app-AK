@@ -15,28 +15,8 @@ export type EntradaDeMenu = { etiqueta: string; ruta: string };
 /** Las opciones del menu del panel, tal como las ve el equipo. */
 export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
-    "etiqueta": "Prospectos",
-    "ruta": "/contabilidad/crm"
-  },
-  {
-    "etiqueta": "Presupuestos",
-    "ruta": "/presupuestos/nuevo"
-  },
-  {
-    "etiqueta": "Clientes",
-    "ruta": "/customers"
-  },
-  {
-    "etiqueta": "Simulador IA",
-    "ruta": "/simulador-ak"
-  },
-  {
-    "etiqueta": "WhatsApp del Día",
-    "ruta": "/contabilidad/crm/outbox"
-  },
-  {
-    "etiqueta": "Repaso Diario",
-    "ruta": "/repaso-diario"
+    "etiqueta": "Mi Día",
+    "ruta": "/mi-dia"
   },
   {
     "etiqueta": "Eventos Activos",
@@ -71,6 +51,22 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/recursos-multi-evento"
   },
   {
+    "etiqueta": "Prospectos",
+    "ruta": "/contabilidad/crm"
+  },
+  {
+    "etiqueta": "Presupuestos",
+    "ruta": "/presupuestos/nuevo"
+  },
+  {
+    "etiqueta": "Clientes",
+    "ruta": "/customers"
+  },
+  {
+    "etiqueta": "Simulador IA",
+    "ruta": "/simulador-ak"
+  },
+  {
     "etiqueta": "Pagos Rápidos",
     "ruta": "/pagos-rapidos"
   },
@@ -89,10 +85,6 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
     "etiqueta": "Métricas del Negocio",
     "ruta": "/empresa/dashboard"
-  },
-  {
-    "etiqueta": "Rendimiento Anuncios",
-    "ruta": "/contabilidad/crm/marketing-ads"
   },
   {
     "etiqueta": "Comida / Menús",
@@ -117,6 +109,22 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
   {
     "etiqueta": "Empleados",
     "ruta": "/empleados"
+  },
+  {
+    "etiqueta": "Marketing y Difusión",
+    "ruta": "/empresa/marketing"
+  },
+  {
+    "etiqueta": "Redes Sociales",
+    "ruta": "/empresa/redes-sociales"
+  },
+  {
+    "etiqueta": "WhatsApp del Día",
+    "ruta": "/contabilidad/crm/outbox"
+  },
+  {
+    "etiqueta": "Rendimiento Anuncios",
+    "ruta": "/contabilidad/crm/marketing-ads"
   },
   {
     "etiqueta": "Presentación LED",
@@ -266,6 +274,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/empresa/insumos/nuevo",
     "/empresa/insumos/reporte",
     "/empresa/landing-editor",
+    "/empresa/marketing",
     "/empresa/menus",
     "/empresa/menus/:menuId/editar",
     "/empresa/menus/catalogo",
@@ -313,7 +322,6 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/fiestas/nueva/catering/lista-compras",
     "/fiestas/nueva/centro",
     "/fiestas/nueva/centro-total",
-    "/fiestas/nueva/cierre-100",
     "/fiestas/nueva/configuracion",
     "/fiestas/nueva/decoracion",
     "/fiestas/nueva/decoracion/pdf",
@@ -330,7 +338,6 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/fiestas/nueva/gestion-documental/contrato-salon",
     "/fiestas/nueva/gestion-documental/contrato-servicio",
     "/fiestas/nueva/gestion-documental/recibo-pago",
-    "/fiestas/nueva/integracion-post-445",
     "/fiestas/nueva/invitados",
     "/fiestas/nueva/invitados/checkin-scanner",
     "/fiestas/nueva/invitados/layout",
@@ -379,6 +386,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/marketing/checklist",
     "/marketing/demo-tecnologia",
     "/marketing/plantillas",
+    "/mi-dia",
     "/multiagente",
     "/multiagente/acciones",
     "/multiagente/contable",

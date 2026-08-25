@@ -81,20 +81,10 @@ const isPathActive = (pathname: string, path: string) => pathname === path || pa
  */
 const navGroups: NavGroup[] = [
   {
-    label: "CRM",
-    emoji: "💼",
+    label: "Mi Día",
+    emoji: "☀️",
     items: [
-      { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") },
-      // Había dos entradas —"Nuevo Presupuesto" y "Presupuestos"— y las dos caían
-      // en la misma pantalla, porque /presupuestos redirige a /presupuestos/nuevo,
-      // que es la Central de Presupuestos y ya trae el listado y el botón de
-      // crear adentro. Queda una sola.
-      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, highlight: true, active: (pathname) => isPathActive(pathname, "/presupuestos") },
-      { title: "Clientes", href: "/customers", icon: Users },
-      { title: "Simulador IA", href: "/simulador-ak", icon: Wand2 },
-      { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send, highlight: true },
-      // Repaso de la mañana: qué eventos, citas y tareas tocan hoy.
-      { title: "Repaso Diario", href: "/repaso-diario", icon: SunMedium },
+      { title: "Mi Día", href: "/mi-dia", icon: SunMedium, highlight: true, active: (pathname) => isPathActive(pathname, "/mi-dia") || isPathActive(pathname, "/repaso-diario") },
     ],
   },
   {
@@ -104,53 +94,54 @@ const navGroups: NavGroup[] = [
       { title: "Eventos Activos", href: "/eventos", icon: PartyPopper, active: (pathname) => isPathActive(pathname, "/eventos") || isPathActive(pathname, "/fiestas") },
       { title: "Calendario", href: "/calendario", icon: CalendarDays },
       { title: "Muro Social", href: "/empresa/red-social-eventos", icon: Camera },
-      // Estas dos existian y funcionaban, pero no las enlazaba nadie: habia que
-      // saberse la direccion de memoria para llegar. Van en Fiestas porque se
-      // usan durante el evento y al armarlo.
       { title: "Incidentes", href: "/incidentes", icon: AlertTriangle },
       { title: "Guias de Armado", href: "/playbooks", icon: ClipboardList },
-      // Otras dos terminadas y sin puerta. Las alergias son de comida y no pueden
-      // depender de que alguien recuerde la direccion: si no se ven, se cocina algo
-      // que un invitado no puede comer. El portal del proveedor da acceso desde
-      // afuera, asi que tiene que estar a la vista de quien lo reparte.
       { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias", icon: Wheat },
       { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: HardHat },
-      // Avisa si el mismo mozo, fotografo o DJ fue asignado a dos fiestas el mismo dia.
-      // Se deja el nombre en criollo: "Superposicion Personal" no lo entiende
-      // nadie que no programe, y el menu lo usa el equipo de la fiesta.
       { title: "Personal en dos fiestas", href: "/recursos-multi-evento", icon: Users2 },
     ],
   },
   {
-    label: "Contabilidad",
+    label: "Vender",
+    emoji: "💼",
+    items: [
+      { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads") },
+      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, highlight: true, active: (pathname) => isPathActive(pathname, "/presupuestos") },
+      { title: "Clientes", href: "/customers", icon: Users },
+      { title: "Simulador IA", href: "/simulador-ak", icon: Wand2 },
+    ],
+  },
+  {
+    label: "Plata",
     emoji: "💰",
     items: [
       { title: "Pagos Rápidos", href: "/pagos-rapidos", icon: Wallet, highlight: true },
       { title: "Panel Contable", href: "/empresa/contabilidad", icon: BarChart3 },
       { title: "Facturas", href: "/invoices", icon: FileText },
-      // Va en Contabilidad y no en Fiestas porque cada solicitud lleva un
-      // impacto en pesos y la decision la toma quien maneja la plata.
       { title: "Cambios a Aprobar", href: "/aprobaciones", icon: CheckSquare },
-      // Panel gerencial de números consolidados y facturación del negocio.
       { title: "Métricas del Negocio", href: "/empresa/dashboard", icon: TrendingUp },
-      // Rendimiento de la plata invertida en anuncios de Meta y Google.
-      { title: "Rendimiento Anuncios", href: "/contabilidad/crm/marketing-ads", icon: Target },
     ],
   },
   {
-    label: "Insumos",
+    label: "Recursos",
     emoji: "📦",
     items: [
       { title: "Comida / Menús", href: "/empresa/menus", icon: ChefHat },
-      // La lista de compras estaba terminada y andando, pero no la enlazaba nadie:
-      // habia que saberse la direccion de memoria. Va en Insumos, que es donde se
-      // decide que se compra.
       { title: "Lista de Compras", href: "/compras", icon: ShoppingCart },
       { title: "Salones", href: "/empresa/salones", icon: DoorOpen },
       { title: "Catálogo de Servicios", href: "/empresa/servicios", icon: Package },
       { title: "Proveedores", href: "/proveedores", icon: Building2 },
       { title: "Empleados", href: "/empleados", icon: Briefcase },
-      // Configuración de fotos, textos y menús para la pantalla LED comercial.
+    ],
+  },
+  {
+    label: "Marketing",
+    emoji: "🚀",
+    items: [
+      { title: "Marketing y Difusión", href: "/empresa/marketing", icon: Target, highlight: true },
+      { title: "Redes Sociales", href: "/empresa/redes-sociales", icon: Camera },
+      { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send },
+      { title: "Rendimiento Anuncios", href: "/contabilidad/crm/marketing-ads", icon: TrendingUp },
       { title: "Presentación LED", href: "/empresa/presentacion-led/configuracion", icon: Tv },
     ],
   },
@@ -164,11 +155,8 @@ const navGroups: NavGroup[] = [
       { title: "WhatsApp", href: "/settings/whatsapp", icon: MessageCircle },
       { title: "Cláusulas de Contrato", href: "/settings/contratos/clausulas", icon: Scale },
       { title: "Seguridad", href: "/settings/account", icon: ShieldCheck },
-      // Promociones activas y ofertas por tiempo limitado.
       { title: "Promociones", href: "/settings/promos", icon: Tag },
-      // Parámetros y tono del copiloto de inteligencia artificial.
       { title: "Asistente IA", href: "/settings/ai-assistant", icon: Bot },
-      // Catálogo de tecnología e innovaciones disponibles en AK.
       { title: "Mapa Tecnológico", href: "/settings/mapa-tecnologico-ak", icon: Cpu },
     ],
   },
