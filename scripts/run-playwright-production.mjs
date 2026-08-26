@@ -28,6 +28,28 @@ const testEnvironment = {
   NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:test",
 };
 
+import { statSync } from "node:fs";
+
+function getLatestSourceMtime(dir = "src") {
+  let latest = 0;
+  function traverse(current) {
+    try {
+      const entries = readdirSync(current, { withFileTypes: true });
+      for (const entry of entries) {
+        const full = path.join(current, entry.name);
+        if (entry.isDirectory()) {
+          traverse(full);
+        } else if (entry.isFile()) {
+          const mtime = statSync(full).mtimeMs;
+          if (mtime > latest) latest = mtime;
+        }
+      }
+    } catch {}
+  }
+  if (existsSync(dir)) traverse(dir);
+  return latest;
+}
+
 if (!existsSync(".next/BUILD_ID")) {
   console.log("[playwright-production] Compilando app para pruebas E2E (npm run build)...");
   const buildResult = spawnSync("npm", ["run", "build"], {
@@ -37,6 +59,20 @@ if (!existsSync(".next/BUILD_ID")) {
   if (buildResult.status !== 0) {
     console.error("[playwright-production] Falló el build de producción.");
     process.exit(1);
+  }
+} else {
+  const buildTime = statSync(".next/BUILD_ID").mtimeMs;
+  const latestSourceTime = getLatestSourceMtime("src");
+  if (latestSourceTime > buildTime) {
+    console.log("[playwright-production] El código en src/ es más reciente que .next. Recompilando para asegurar resultados verídicos...");
+    const buildResult = spawnSync("npm", ["run", "build"], {
+      stdio: "inherit",
+      shell: true,
+    });
+    if (buildResult.status !== 0) {
+      console.error("[playwright-production] La compilación es de antes que el código: los resultados no valen. Corré `npm run build` y volvé a intentar.");
+      process.exit(1);
+    }
   }
 }
 

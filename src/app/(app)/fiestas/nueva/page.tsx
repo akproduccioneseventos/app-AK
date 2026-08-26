@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import type { FiestaEnPlanificacion, ModulosContratados } from '@/types/fiesta';
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -361,7 +362,7 @@ function PlannerDashboardContent() {
     setModulosContratados(updatedModules);
     try {
       if (!fiesta) throw new Error('No hay un evento cargado.');
-      const result = await updateModulosContratadosFiestaActual(fiesta.id, updatedModules);
+      const result = await conTopeDeEspera(updateModulosContratadosFiestaActual(fiesta.id, updatedModules));
       if (!result.success) throw new Error(result.error || 'No se pudo actualizar el módulo.');
       return true;
     } catch(e: any) {

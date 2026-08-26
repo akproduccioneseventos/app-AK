@@ -14,6 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Plus, CheckCircle2, MessageSquare, Clock, Zap, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { getIncidentes, createIncidente, addActualizacionIncidente, resolverIncidente } from '@/app/actions/incidents';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import type { Incidente, EstadoIncidente, PrioridadIncidente, CategoriaIncidente } from '@/types/incident';
 
 const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es-UY');
@@ -203,25 +204,30 @@ function IncidentesContent() {
       return;
     }
     setCreando(true);
-    const result = await createIncidente({
-      titulo: form.titulo,
-      descripcion: form.descripcion,
-      categoria: form.categoria,
-      prioridad: form.prioridad,
-      estado: form.estado,
-      responsable: form.responsable,
-      planAccion: form.planAccion,
-      seguimiento: form.seguimiento,
-      fiestaId: form.fiestaId,
-      registradoPor: form.registradoPor,
-    });
-    setCreando(false);
-    if (result.success) {
-      toast({ title: 'Incidente creado', description: 'El incidente fue registrado correctamente.' });
-      setNuevaDialogOpen(false);
-      load();
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    try {
+      const result = await conTopeDeEspera(createIncidente({
+        titulo: form.titulo,
+        descripcion: form.descripcion,
+        categoria: form.categoria,
+        prioridad: form.prioridad,
+        estado: form.estado,
+        responsable: form.responsable,
+        planAccion: form.planAccion,
+        seguimiento: form.seguimiento,
+        fiestaId: form.fiestaId,
+        registradoPor: form.registradoPor,
+      }));
+      if (result.success) {
+        toast({ title: 'Incidente creado', description: 'El incidente fue registrado correctamente.' });
+        setNuevaDialogOpen(false);
+        load();
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error al guardar', description: err.message, variant: 'destructive' });
+    } finally {
+      setCreando(false);
     }
   };
 
@@ -234,14 +240,19 @@ function IncidentesContent() {
   const handleGuardarActualizacion = async () => {
     if (!selectedIncidente || !textoActualizacion.trim()) return;
     setGuardandoAct(true);
-    const result = await addActualizacionIncidente(selectedIncidente.id, textoActualizacion.trim(), 'admin');
-    setGuardandoAct(false);
-    if (result.success) {
-      toast({ title: 'Actualización guardada' });
-      setActualizarDialogOpen(false);
-      load();
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    try {
+      const result = await conTopeDeEspera(addActualizacionIncidente(selectedIncidente.id, textoActualizacion.trim(), 'admin'));
+      if (result.success) {
+        toast({ title: 'Actualización guardada' });
+        setActualizarDialogOpen(false);
+        load();
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error al guardar', description: err.message, variant: 'destructive' });
+    } finally {
+      setGuardandoAct(false);
     }
   };
 
@@ -254,14 +265,19 @@ function IncidentesContent() {
   const handleResolver = async () => {
     if (!incidenteAResolver) return;
     setResolviendo(true);
-    const result = await resolverIncidente(incidenteAResolver.id, lecciones.trim() || undefined);
-    setResolviendo(false);
-    if (result.success) {
-      toast({ title: 'Incidente resuelto', description: 'El incidente fue marcado como resuelto.' });
-      setResolverDialogOpen(false);
-      load();
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    try {
+      const result = await conTopeDeEspera(resolverIncidente(incidenteAResolver.id, lecciones.trim() || undefined));
+      if (result.success) {
+        toast({ title: 'Incidente resuelto', description: 'El incidente fue marcado como resuelto.' });
+        setResolverDialogOpen(false);
+        load();
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error al resolver', description: err.message, variant: 'destructive' });
+    } finally {
+      setResolviendo(false);
     }
   };
 

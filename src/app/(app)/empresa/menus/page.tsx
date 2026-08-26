@@ -15,6 +15,7 @@ import { getInsumos } from '@/app/actions/insumos';
 import type { FullMenu } from '@/types/catering';
 import type { ReposteriaData, ReposteriaItem } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -83,7 +84,7 @@ export default function GestionMenusPage() {
   const handleDeleteMenu = async (id: string, name: string) => {
     setProcessingId(id);
     try {
-      const result = await deleteMenu(id);
+      const result = await conTopeDeEspera(deleteMenu(id));
       if (result.success) {
         toast({ title: 'Menú Eliminado', description: `Se eliminó "${name}".` });
         fetchData();
@@ -98,7 +99,7 @@ export default function GestionMenusPage() {
   const handleDuplicateMenu = async (id: string, name: string) => {
     setProcessingId(id);
     try {
-      const result = await duplicateMenu(id);
+      const result = await conTopeDeEspera(duplicateMenu(id));
       if (result.success) {
         toast({ title: 'Menú Duplicado', description: `Se creó una copia de "${name}".` });
         fetchData();
@@ -113,7 +114,7 @@ export default function GestionMenusPage() {
   const handleAdjustMargins = async () => {
     setIsAdjusting(true);
     try {
-      const result = await adjustAllDishMargins(adjustmentPercentage);
+      const result = await conTopeDeEspera(adjustAllDishMargins(adjustmentPercentage));
       if (result.success) {
         toast({ title: "Márgenes ajustados" });
         await fetchData();
@@ -130,10 +131,10 @@ export default function GestionMenusPage() {
     if (!reposteriaMaster) return;
     setIsSaving(true);
     try {
-      const res = await saveReposteriaMasterTemplate(reposteriaMaster);
+      const res = await conTopeDeEspera(saveReposteriaMasterTemplate(reposteriaMaster));
       if (res.success) toast({ title: "Plantilla de Repostería guardada" });
-    } catch (e) {
-      toast({ title: "Error al guardar repostería", variant: "destructive" });
+    } catch (e: any) {
+      toast({ title: "Error al guardar repostería", description: e.message, variant: "destructive" });
     } finally {
       setIsSaving(false);
     }

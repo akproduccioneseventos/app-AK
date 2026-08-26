@@ -41,6 +41,7 @@ const CADA_CUANTO = {
   posteos: 15 * 60 * 1000,
   blog: 48 * 60 * 60 * 1000,
   recordatorios: 24 * 60 * 60 * 1000,
+  posicionamiento: 24 * 60 * 60 * 1000,
 } as const;
 
 export type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -50,6 +51,7 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   posteos: 'publicar-programados',
   blog: 'generate-blog-post',
   recordatorios: 'recordatorios-de-pago',
+  posicionamiento: 'posicionamiento-diario',
 };
 
 interface EstadoDeTareas {
@@ -141,6 +143,13 @@ export async function ponerAlDiaAlEntrar(
             ejecutarEscaneoDeRecordatorios().catch(() => null),
             checkAndCreateReunionReminders(WHATSAPP_AUTOMATION_INTERNAL_TOKEN).catch(() => null),
           ]);
+        },
+      },
+      {
+        nombre: 'posicionamiento',
+        correr: async () => {
+          const { ejecutarRevisionPosicionamiento } = await import('@/lib/automatico/posicionamiento-diario');
+          return ejecutarRevisionPosicionamiento(ahora, origen);
         },
       },
     ];

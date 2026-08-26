@@ -28,11 +28,33 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { eventType } = await params;
   const catalog = getCatalogBySlug(eventType);
-  if (!catalog) return { title: 'AK Producciones' };
+  if (!catalog) return { title: 'AK Producciones Eventos' };
+
+  const image = catalog.gallery?.[0]?.src || '/media/catalogo-servicios/quinceanera_hero.png';
+  const url = `https://akproducciones.uy/public/${eventType}`;
 
   return {
-    title: `${catalog.name} | AK Producciones Eventos`,
-    description: catalog.hero.subheadline,
+    metadataBase: new URL('https://akproducciones.uy'),
+    title: `${catalog.name} en Salto | AK Producciones Eventos`,
+    description: `${catalog.hero.subheadline} Organización integral en Salto con comida, discoteca, tecnología y salones.`,
+    alternates: {
+      canonical: `/public/${eventType}`,
+    },
+    openGraph: {
+      title: `${catalog.name} en Salto | AK Producciones Eventos`,
+      description: catalog.hero.subheadline,
+      url,
+      siteName: 'AK Producciones Eventos',
+      locale: 'es_UY',
+      type: 'website',
+      images: [{ url: image, width: 1200, height: 630, alt: catalog.name }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${catalog.name} en Salto | AK Producciones Eventos`,
+      description: catalog.hero.subheadline,
+      images: [image],
+    },
   };
 }
 

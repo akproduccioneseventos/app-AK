@@ -17,6 +17,42 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 10 — Lo que quedó de la revisión completa (26 de agosto de 2026)
+
+- **Referencia de maquetación actualizada (`tests/e2e/layout-baseline.json`, `tests/e2e/layout-baseline.spec.ts`):**
+  - Ajustadas las dimensiones verificadas: `h1W` en `/presupuestos/nuevo` (212), `h1Y` en `/` (148) y `h1W` en mobile `/admin` (101).
+- **Protección contra botones colgados con tope de espera (`src/lib/ui/tope-de-espera.ts`, `src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts`):**
+  - `conTopeDeEspera` extendido a la mutación de incidentes (`createIncidente`, `resolverIncidente`), módulos de fiesta (`updateModulosContratadosFiestaActual`) y plantillas maestras de menú/repostería.
+- **Detección de frescura de compilación en pruebas E2E (`scripts/run-playwright-production.mjs`):**
+  - Chequeo automático de mtime entre `src/` y `.next/BUILD_ID` para evitar correr pruebas contra código desfasado.
+
+---
+
+## Orden 9 — La web que encuentra Google, velocidad y movimiento (26 de agosto de 2026)
+
+- **Ficha de negocio honesta y Salón Club Uruguay (`src/components/seo/LocalBusinessJsonLd.tsx`, `src/components/public/LocalBusinessSchema.tsx`, `src/app/club-uruguay/page.tsx`):**
+  - Eliminado `streetAddress` ficticio para AK Producciones; declarada zona de cobertura (`areaServed: Salto, UY`).
+  - Salón Club Uruguay (`/club-uruguay`) declarado con `@type: 'EventVenue'` en su dirección real: Uruguay 754, Salto.
+- **Autocanonicalización y redirección de páginas de venta (`src/lib/seo/event-landing.ts`, `src/app/landing/`, `src/lib/seo/paginas-publicas.ts`, `src/app/sitemap.ts`):**
+  - `/bodas`, `/quinceaneras` y `/cumpleanos` autocanonicalizan a sí mismas.
+  - `/landing/bodas`, `/landing/xv-anos` y `/landing/eventos` redirigen limpiamente hacia las rutas principales.
+  - Rutas de redirección removidas de sitemap y robots.
+- **Metadata completa y enriquecida para páginas públicas (`src/app/catalogo/layout.tsx`, `src/app/galeria-led/layout.tsx`, `src/app/simulador-de-presupuesto/layout.tsx`, `src/app/public/[eventType]/page.tsx`, `src/app/public/blog/page.tsx`, `src/app/public/blog/[slug]/page.tsx`):**
+  - Agregadas imágenes OpenGraph, tarjetas de Twitter, canonicals y esquema `ArticleJsonLd` / `BlogPosting`.
+- **Experiencia AK comercializada (`src/app/experiencia-ak/page.tsx`):**
+  - Rediseñada como landing comercial para clientes de Salto, eliminando notas internas de desarrollo.
+- **Visibilidad garantizada en celular y rendimiento de carga (`src/app/ak-motion-effects.css`, `src/components/landing/LandingSpaContainer.tsx`, `src/components/landing/AkDifferenceSection.tsx`):**
+  - Eliminado `content-visibility: auto` destructivo que ocultaba el pie de página en móviles.
+  - Retirado `priority` en imágenes debajo del pliegue. Imágenes pesadas en `public/` optimizadas (>80% reducción de peso).
+- **Hero con movimiento y soporte de video optimizado (`src/components/landing/HeroSection.tsx`):**
+  - Video de fondo en bucle, enmudecido, pausado fuera del viewport, con poster de alta resolución y respeto a `prefers-reduced-motion` y ahorro de datos.
+- **Trabajador diario de posicionamiento y conexión con Google Search Console (`src/lib/automatico/posicionamiento-diario.ts`, `src/lib/automatico/tareas-automaticas.ts`, `src/lib/automatico/al-entrar-a-la-app.ts`, `src/app/actions/seo-posicionamiento.ts`, `src/lib/google-search-console.ts`):**
+  - Tarea diaria registrada que verifica salud SEO y sitemap. Estado honesto ("Falta conectar Google Search Console") sin números inventados.
+- **Control E2E de visibilidad y quinta pregunta de auditoría (`tests/e2e/la-web-publica-se-ve.spec.ts`, `docs/COMO-AUDITAR.md`):**
+  - Agregada pregunta *"5. ¿El visitante lo ve?"* y prueba Playwright para verificar visibilidad del footer y metadatos.
+
+---
+
 ## Orden 8 — Terminar las tres puertas y ensanchar el control (25 de agosto de 2026)
 
 - **El menú en tres puertas y directorio de La Empresa (`src/components/main-nav.tsx`, `src/app/(app)/empresa/page.tsx`, `scripts/generar-mapa-app.mjs`, `docs/MANUAL-DE-LA-APP.md`):**

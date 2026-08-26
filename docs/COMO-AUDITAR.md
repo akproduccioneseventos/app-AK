@@ -78,6 +78,13 @@ cumple y quién la llama.
 **Una promesa en pantalla sin nadie que la cumpla es una mentira al cliente**, y
 no la agarra ninguna prueba de tipos ni de compilación.
 
+### 5. ¿El visitante lo ve?
+
+No alcanza con que exista, que alguien lo llame y que diga la verdad. Hay que abrir
+la página en un navegador de verdad, en un celular, y mirar. Todo lo que se encontró
+en la web pública el 26 de agosto —el pie que no aparece, las páginas sin título, la
+ficha con una dirección que no existe— **pasaba las otras cuatro preguntas**.
+
 ## Cómo se corre
 
 - **Las cuatro pasadas van a los ayudantes económicos**, en paralelo y en segundo

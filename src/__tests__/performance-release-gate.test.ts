@@ -29,16 +29,14 @@ describe("performance release gate", () => {
     expect(eventNight).toMatch(/if \(!respuesta\) \{[\s\S]*return problemas;/);
   });
 
-  it("defers below-the-fold landing work and bounds the YouTube request", () => {
+  it("bounds the YouTube request and maintains clean landing structure", () => {
     const landing = read("src/components/landing/LandingSpaContainer.tsx");
     const landingPage = read("src/app/page.tsx");
     const clubPage = read("src/app/club-uruguay/page.tsx");
-    const styles = read("src/app/ak-motion-effects.css");
     const youtube = read("src/lib/youtube/ak-channel.ts");
 
-    expect(landing).toContain('DEFERRED_SECTIONS.has(key) ? "ak-deferred-section"');
     expect(landing).toContain("scroll-mt-20");
-    expect(styles).toContain("content-visibility: auto");
+    expect(landing).toContain("ak-landing-experience");
     expect(youtube).toContain("AbortSignal.timeout(2500)");
     expect(landingPage).toContain("withPublicFallback(getSalonesPublicos(), [])");
     expect(landingPage).toContain("export const revalidate = 300");

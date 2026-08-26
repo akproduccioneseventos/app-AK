@@ -59,6 +59,12 @@ export const TAREAS_AUTOMATICAS: TareaAutomatica[] = [
     siNoCorre: 'El cliente con una cuota vencida no recibe ningun aviso, y hay que perseguirlo a mano.',
     cadaHoras: 24,
   },
+  {
+    id: 'posicionamiento-diario',
+    nombre: 'Revisar la salud de la web en Google',
+    siNoCorre: 'Si una página pública queda rota o sin título, Google no la muestra y nadie se entera hasta que bajan las visitas.',
+    cadaHoras: 24,
+  },
 ];
 
 import type { OrigenDisparo } from '@/lib/automatico/control-concurrencia';

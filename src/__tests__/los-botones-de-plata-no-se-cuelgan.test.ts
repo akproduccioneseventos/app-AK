@@ -1,22 +1,13 @@
-import { readFileSync } from 'fs';
+﻿import { readFileSync } from 'fs';
 import { join } from 'path';
 
 const RAIZ = process.cwd();
 const leer = (ruta: string) => readFileSync(join(RAIZ, ruta), 'utf-8');
 
 /**
- * Los botones que mueven plata nunca se quedan girando para siempre.
- *
- * De donde sale esto: el boton de ingreso quedaba en "Ingresando..." sin fin, sin error
- * y sin poder reintentar. **No era un error de programacion**: todos los caminos de error
- * existian, pero ninguno se alcanzaba nunca, porque la llamada al servidor no tenia tope.
- * Si el servidor se esta despertando o la conexion se corta sin avisar, la promesa no se
- * resuelve ni falla: se queda. Y con ella, el `finally` que devolvia el boton.
- *
- * Con plata es peor que con el ingreso: alguien aprieta "confirmar pago" y se queda sin
- * saber si el cobro entro. Lo mas probable es que apriete de nuevo.
+ * Los botones que confirman o guardan cambios nunca se quedan girando para siempre.
  */
-describe('Los botones de plata no se cuelgan', () => {
+describe('Los botones de mutación y plata no se cuelgan', () => {
   it('confirmar y rechazar un pago tienen tope de espera', () => {
     const fuente = leer('src/app/(app)/pagos-rapidos/page.tsx');
 
@@ -29,6 +20,25 @@ describe('Los botones de plata no se cuelgan', () => {
 
     expect(fuente).toContain('conTopeDeEspera(updatePresupuesto(');
     expect(fuente).toContain('conTopeDeEspera(savePresupuesto(');
+  });
+
+  it('guardar y resolver incidentes tienen tope de espera', () => {
+    const fuente = leer('src/app/(app)/incidentes/page.tsx');
+
+    expect(fuente).toContain('conTopeDeEspera(createIncidente(');
+    expect(fuente).toContain('conTopeDeEspera(resolverIncidente(');
+  });
+
+  it('guardar módulos de fiesta tiene tope de espera', () => {
+    const fuente = leer('src/app/(app)/fiestas/nueva/page.tsx');
+
+    expect(fuente).toContain('conTopeDeEspera(updateModulosContratadosFiestaActual(');
+  });
+
+  it('guardar menú y repostería maestra tienen tope de espera', () => {
+    const fuente = leer('src/app/(app)/empresa/menus/page.tsx');
+
+    expect(fuente).toContain('conTopeDeEspera(saveReposteriaMasterTemplate(');
   });
 
   it('el aviso dice que no se guardo nada, para que nadie apriete dos veces', () => {

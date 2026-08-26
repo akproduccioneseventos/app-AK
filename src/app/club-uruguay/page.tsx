@@ -10,11 +10,15 @@ import { canUseNextImage } from '@/lib/next-image-url';
 import { getDynamicSalonPhotos, type SalonPhoto } from '@/lib/salon-helper';
 
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 
 export const metadata: Metadata = {
-  title: 'Fiestas en Club Uruguay | AK Producciones',
+  title: 'Fiestas en Club Uruguay | AK Producciones Eventos',
   description:
-    'Conoce el salon, mira montajes reales y cotiza una produccion integral de AK Producciones en Club Uruguay, Salto.',
+    'Conocé el salón Club Uruguay en Uruguay 754, Salto. Mirá montajes reales y cotizá una producción integral de AK Producciones.',
+  alternates: {
+    canonical: 'https://akproducciones.uy/club-uruguay',
+  },
 };
 
 const WHATSAPP = AK_WHATSAPP_NUMBER;
@@ -84,6 +88,7 @@ export default async function ClubUruguayPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0b0c] text-white selection:bg-red-700">
+      <LocalBusinessJsonLd isClubUruguay={true} url="https://akproducciones.uy/club-uruguay" />
       <LandingNav />
 
       <main>
