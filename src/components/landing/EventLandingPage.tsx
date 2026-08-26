@@ -77,9 +77,9 @@ export function EventLandingPage({
           backgroundImageUrl={heroImage}
           backgroundImageAlt={heroImageAlt}
           whatsappMessage={whatsappMessage}
-          ctaLabel="Hablar por WhatsApp"
+          ctaLabel="Hablar con un productor por WhatsApp"
           simulatorHref={simulatorHref}
-          simulatorLabel="Usar el simulador"
+          simulatorLabel="Descubrir mi fiesta ideal"
           showEventTypes={false}
         />
 
@@ -132,10 +132,10 @@ export function EventLandingPage({
               </ul>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href={simulatorHref} className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-700 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-red-800">
-                  Simular mi evento <ArrowRight className="h-4 w-4" />
+                  Descubrir mi fiesta ideal <ArrowRight className="h-4 w-4" />
                 </Link>
                 <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 px-5 py-3 text-sm font-bold text-zinc-800 transition-colors hover:border-zinc-500 hover:bg-zinc-50">
-                  <MessageCircle className="h-4 w-4 text-emerald-600" /> Consultar por WhatsApp
+                  <MessageCircle className="h-4 w-4 text-emerald-600" /> Hablar con un productor
                 </a>
               </div>
             </div>

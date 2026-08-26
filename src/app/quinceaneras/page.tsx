@@ -3,6 +3,7 @@ import { Camera, Sparkles, UtensilsCrossed, Music, GlassWater } from 'lucide-rea
 import { EventLandingPage } from '@/components/landing/EventLandingPage';
 import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
+import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
 
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'quinceaneras',
@@ -16,6 +17,12 @@ export default function QuinceanerasLanding() {
   return (
     <>
       <LocalBusinessJsonLd url="https://akproducciones.uy/quinceaneras" />
+      <ServiceJsonLd 
+        name="Fiestas de 15 Años y Cumpleaños"
+        description="Organización integral de fiestas de 15 en Salto. Barra de tragos sin alcohol, espejo mágico IA, discoteca, y catering adolescente."
+        image="https://akproducciones.uy/media/catalogo-servicios/quinceanera_persuasiva.png"
+        url="https://akproducciones.uy/quinceaneras"
+      />
       <EventLandingPage
         eventType="Fiesta de 15 Años"
         source="landing-quince"

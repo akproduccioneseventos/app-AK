@@ -5,11 +5,50 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 26 de agosto de 2026.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2197 pruebas en verde, compila.
-**Propuestas abiertas:** una (#1132), con las órdenes escritas.
-**Órdenes pendientes:** `docs/ordenes/9-la-web-que-encuentra-google.md`, doce bloques,
-sin empezar. Es la más grande y la más urgente: toca la web que ve el prospecto.
+**Última actualización:** 26 de agosto de 2026, cierre.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 2217 pruebas en verde,
+compila. Verificada sobre la versión principal después de cada fusión.
+**Propuestas abiertas:** ninguna.
+**Órdenes pendientes:** **ninguna.** Las órdenes 9, 10 y 11 se entregaron completas.
+
+## Lo que se fusionó el 26 de agosto
+
+- **Google ya puede leer la web, y era el bloqueo de fondo.** El dueño intentó dar de alta
+  el sitio en Search Console y le daba error: el permiso para buscadores está cerrado por
+  defecto y se abre página por página, y **el mapa del sitio nunca estuvo en esa lista**.
+  Se agregó el archivo de verificación y se abrió el permiso, en una lista aparte
+  —`ARCHIVOS_QUE_GOOGLE_LEE`— porque la de páginas alimenta el permiso **y** el mapa: si el
+  mapa se ofreciera a sí mismo, le estaríamos ofreciendo a Google páginas que no existen.
+  Congelado en `src/__tests__/google-puede-leer-el-mapa.test.ts`.
+- **Las direcciones.** AK declaraba un salón en Gaboto 3390 y **no tiene local**: ahora va
+  como negocio que va al lugar del cliente, Salto sin calle, con zona de cobertura. El
+  **Salón Club Uruguay sí lleva la suya**, Uruguay 754, en su propia página.
+- **Los botones de plata con tope de espera.** Sin él, el botón gira para siempre y el
+  operador **no sabe si el cobro entró**; lo más probable es que lo cargue dos veces.
+- **El menú en tres puertas**, los cuatro empleados automáticos, el parte de la mañana, la
+  voz rioplatense y las páginas de venta que ya no compiten entre sí.
+
+## El encargado ya trabaja como corresponde
+
+El dueño lo pidió así: *"que la asistente de la app trabaje al nivel agéntico al que
+trabaja Claude, pero con Gemini"*, y antes de eso, la frase que ordenó todo el diseño:
+**"yo no quiero chat, quiero empleados"**.
+
+Verificado leyendo el código, no sólo los controles:
+
+- **Trabaja en vueltas.** En cada una decide el siguiente paso mirando lo ya hecho. Tope
+  de cinco, y cada vuelta se cuenta en el gasto del mes.
+- **Comprueba antes de decir "listo".** Vuelve a leer la base y confirma con el dato:
+  *"presupuesto guardado por $X con estado Borrador"*. **No da por hecho que funcionó
+  porque no tiró error.**
+- **Pregunta una sola cosa** cuando falta un dato que cambia la plata o la fecha, y para.
+- **La línea no se cruza:** el mensaje de WhatsApp **sólo se prepara**, y el presupuesto se
+  guarda **en estado Borrador**. Ninguna herramienta cobra, publica ni borra.
+
+## Lo que depende del dueño
+
+**Verificar el sitio en Google Search Console** y después pedirle que lea el mapa. Es su
+cuenta de Google: nadie puede hacerlo por él. **Es lo que más le mueve la aguja hoy.**
 
 ## El agujero del método, que es lo que hay que recordar
 

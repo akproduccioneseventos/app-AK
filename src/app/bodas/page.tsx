@@ -3,6 +3,7 @@ import { Camera, HeartHandshake, UtensilsCrossed, Music, Sparkles } from 'lucide
 import { EventLandingPage } from '@/components/landing/EventLandingPage';
 import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
+import { ServiceJsonLd } from '@/components/seo/ServiceJsonLd';
 
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'bodas',
@@ -16,6 +17,12 @@ export default function BodasLanding() {
   return (
     <>
       <LocalBusinessJsonLd url="https://akproducciones.uy/bodas" />
+      <ServiceJsonLd 
+        name="Casamientos y Bodas de Gala"
+        description="Organización integral de casamientos en Salto. Catering premium, discoteca, ambientación y coordinación de principio a fin."
+        image="https://akproducciones.uy/media/catalogo-servicios/boda_persuasiva.png"
+        url="https://akproducciones.uy/bodas"
+      />
       <EventLandingPage
         eventType="Bodas & Casamientos"
         source="landing-bodas"
