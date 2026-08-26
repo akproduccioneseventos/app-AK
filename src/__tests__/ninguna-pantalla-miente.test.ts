@@ -51,7 +51,18 @@ const CASOS_EXCEPCION_DECLARADOS: Record<string, string> = {
     'indicador de conteo de módulos habilitados en la configuración de la fiesta',
 };
 
-const LIMITE_MAXIMO_EXCEPCIONES = Object.keys(CASOS_EXCEPCION_DECLARADOS).length;
+/**
+ * EL TOPE ES UN NUMERO ESCRITO A MANO, Y TIENE QUE SERLO.
+ *
+ * Antes se calculaba de la propia lista (`Object.keys(...).length`), asi que la prueba
+ * comparaba la lista consigo misma y **siempre daba bien**: cualquiera podia agregar
+ * excepciones y el control nunca protestaba. Un candado sin llave.
+ *
+ * Escrito a mano, agregar una excepcion pone la prueba en rojo y obliga a bajar este
+ * numero a mano, que es justo el momento en que alguien mira si esa excepcion es
+ * legitima. **La lista solo puede achicarse.**
+ */
+const LIMITE_MAXIMO_EXCEPCIONES = 9;
 
 function buscarArchivosUI(dir: string): string[] {
   let resultados: string[] = [];
