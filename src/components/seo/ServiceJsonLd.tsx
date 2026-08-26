@@ -8,7 +8,7 @@ export interface ServiceJsonLdProps {
   price?: string;
 }
 
-export function ServiceJsonLd({ name, description, image, url, price = "1000" }: ServiceJsonLdProps) {
+export function ServiceJsonLd({ name, description, image, url }: ServiceJsonLdProps) {
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -32,14 +32,7 @@ export function ServiceJsonLd({ name, description, image, url, price = "1000" }:
     },
     "description": description,
     "image": image,
-    "url": url,
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": "USD",
-      "price": price,
-      "availability": "https://schema.org/InStock",
-      "url": url
-    }
+    "url": url
   };
 
   return (
