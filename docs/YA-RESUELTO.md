@@ -4815,3 +4815,14 @@ equipos externos y no se declaran probados por una ejecución local.
   4. *Pantalla de armar fiesta usable:* `/fiestas/nueva` ahora prioriza los 10 accesos esenciales de uso
      diario, alertas operativas y estado de preparación, dejando el resto bajo un botón "Ver todas las
      herramientas" con las opciones internas ocultas por defecto.
+
+## Los empleados automaticos ya no ensucian el repositorio (26 de agosto de 2026)
+
+Cada vez que se corrian las pruebas, los cuatro empleados automaticos se ejecutaban de
+verdad y dejaban cuatro archivos con su configuracion y su historial del dia. Esos
+archivos **no estaban ignorados**, asi que aparecian como novedad sin subir y cualquiera
+podia commitearlos por error: datos inventados de una corrida entrando al repositorio como
+si fueran reales.
+
+Ahora estan ignorados. No cambia nada de como funcionan los empleados: siguen escribiendo
+su historial igual, solo que ese historial se queda en la maquina donde corrio.
