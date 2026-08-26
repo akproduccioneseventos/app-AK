@@ -16,16 +16,36 @@ export function LocalBusinessJsonLd({
   description = 'Organización integral de eventos en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
   name = 'AK Producciones',
 }: LocalBusinessJsonLdProps) {
+  /**
+   * La ficha de negocio que lee Google.
+   *
+   * **Aca habia una direccion de calle escrita a mano, y AK no tiene local.** Decia
+   * `streetAddress: 'Gaboto 3390'` y se declaraba como `EventVenue`, o sea "salon de
+   * eventos en esa direccion". Google podia estar mandandole gente a un lugar donde no
+   * hay nada.
+   *
+   * AK trabaja **en salones y a domicilio**. Lo correcto es un negocio que va al lugar
+   * del cliente: sin direccion de calle, con **zona de cobertura**. Decision del dueno,
+   * confirmada el 26 de agosto de 2026: *"Salto Uruguay pone"*.
+   *
+   * **La excepcion es el Salon Club Uruguay**, que si es un salon de verdad con
+   * direccion real (Uruguay 754). Esa ficha va en su propia pagina, no aca.
+   */
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'EventVenue',
+    '@type': 'ProfessionalService',
     name,
     image,
     telephone: '+598 98 355 530',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Gaboto 3390',
       addressLocality: 'Salto',
+      addressRegion: 'Salto',
+      addressCountry: 'UY',
+    },
+    areaServed: {
+      '@type': 'City',
+      name: 'Salto',
       addressCountry: 'UY',
     },
     geo: {

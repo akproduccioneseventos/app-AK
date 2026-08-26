@@ -4347,6 +4347,46 @@ Congelado en `src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts`.
 pantallas escondidas detras de animaciones ni `content-visibility` (eso es solo de la web
 publica), las pantallas vacias si explican el proximo paso, y no hay botones sin funcion.
 
+## Las direcciones, arregladas (26 de agosto de 2026)
+
+**AK Producciones le declaraba a Google un salon de eventos en Gaboto 3390.** Estaba
+escrito a mano en `src/components/seo/LocalBusinessJsonLd.tsx`, con tipo `EventVenue`, y
+se mostraba en bodas, quince, cumpleanos, el blog y la portada. **El dueno no tiene local
+a la calle:** trabaja en salones y a domicilio. Google podia estar mandando gente a un
+lugar donde no hay nada.
+
+**Como quedo, y es decision del dueno, confirmada con sus palabras ("Salto Uruguay pone"):**
+
+| Quien | Que se declara |
+| --- | --- |
+| AK Producciones | `ProfessionalService` en **Salto, Uruguay**, sin calle, con zona de cobertura |
+| Salon Club Uruguay | `EventVenue` en **Uruguay 754, Salto** |
+
+**El Club Uruguay si tiene direccion real** y ahora la declara en su propia pagina
+(`src/app/club-uruguay/page.tsx`), que antes no declaraba ninguna ficha. Es la **unica**
+direccion de calle en toda la web, y ademas suma: un salon real con direccion real es de
+lo que mejor entiende Google.
+
+**No mezclar las dos.** Si alguien vuelve a poner una calle en la ficha de AK, esta mal.
+
+## Por que la web no aparece en Google (26 de agosto de 2026)
+
+Se busco de verdad en Google y **el sitio no aparece**: lo que sale con el nombre son
+otras AK Producciones de Costa Rica, Venezuela y Valencia. Los motivos, en orden de peso:
+
+1. **La web le dijo a Google "no me indexes" durante mucho tiempo.** Estaba escrito en el
+   codigo, de cuando la app era solo interna. Ya se corrigio, pero **Google no vuelve al
+   otro dia**: tarda semanas o meses y se arranca desde cero.
+2. **Nadie le aviso a Google que el sitio existe.** Falta conectar Google Search Console.
+   **Es lo mas importante que puede hacer el dueno hoy**, y depende de su cuenta.
+3. **Las paginas de venta compiten entre si** por el problema de las direcciones
+   canonicas (orden 9, bloque 2).
+4. **Tres paginas publicas no tienen ni titulo ni descripcion**, entre ellas el simulador.
+
+**Ojo con los directorios:** hay sitios que tienen a AK anotada en "calle Brasil 734,
+local de Asdemya", una direccion distinta de las dos de arriba. Direcciones contradictorias
+dando vueltas confunden a Google sobre quien es el negocio.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
