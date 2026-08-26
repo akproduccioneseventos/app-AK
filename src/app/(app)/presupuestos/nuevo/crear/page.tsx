@@ -23,6 +23,7 @@ import { getOcupiedDates } from '@/app/actions/agenda';
 import { getGuestCountForItem, recalcularCostoItem, calculateSuggestedQuantity } from '@/lib/calculations';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -427,10 +428,13 @@ function CrearPresupuestoContent() {
         setIsSaving(true);
         try {
           let result;
+          // Con tope de espera: si el servidor no contesta, el boton vuelve y avisa que
+          // no se guardo nada. Sin esto, el operador se queda mirando "Guardando..." sin
+          // saber si el presupuesto entro, y termina apretando de nuevo.
           if (editingPresupuestoId) {
-            result = await updatePresupuesto({ ...presupuestoData, id: editingPresupuestoId });
+            result = await conTopeDeEspera(updatePresupuesto({ ...presupuestoData, id: editingPresupuestoId }));
           } else {
-            result = await savePresupuesto(presupuestoData, { source: 'manual', leadId: leadIdFromParams || undefined });
+            result = await conTopeDeEspera(savePresupuesto(presupuestoData, { source: 'manual', leadId: leadIdFromParams || undefined }));
           }
 
           if (result.success && result.id) {

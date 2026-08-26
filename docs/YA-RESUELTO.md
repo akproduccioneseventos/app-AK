@@ -4318,6 +4318,35 @@ que ninguna redirija al ingreso. Esta pedido en
 **La leccion, para cualquier auditoria futura: un control que solo lee codigo nunca va a
 encontrar lo que el usuario no ve.**
 
+## Los botones de plata no se cuelgan (26 de agosto de 2026)
+
+**La misma falla que dejo al dueno sin poder entrar a la app, pero en botones que mueven
+dinero.** Se encontro revisando la app interna con la quinta pregunta ("¿el usuario lo
+puede usar?"), que es la que faltaba.
+
+Tres botones esperaban al servidor **sin ningun tope**:
+
+- **Confirmar pago** y **rechazar pago** (`src/app/(app)/pagos-rapidos/page.tsx`)
+- **Guardar presupuesto** (`src/app/(app)/presupuestos/nuevo/crear/page.tsx`)
+
+Los tres tenian su `finally` para devolver el boton a la normalidad, **y no alcanzaba**:
+si el servidor esta despertandose o la conexion se corta sin avisar, la promesa no se
+resuelve ni falla, se queda. Y con ella el `finally`. El boton gira para siempre, sin
+error y sin poder reintentar.
+
+**Con plata es peor que con el ingreso:** el operador se queda sin saber si el cobro
+entro, y lo mas probable es que apriete de nuevo y cargue el pago dos veces.
+
+**Lo que se hizo:** `src/lib/ui/tope-de-espera.ts`, con tope de 25 segundos —largo a
+proposito, porque la primera operacion del dia encuentra el servidor dormido— y un aviso
+que dice **"No se guardo nada"**. Esa frase es la que evita el pago duplicado.
+
+Congelado en `src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts`.
+
+**Lo que se reviso y esta bien, para no volver a buscarlo:** en la app interna **no hay**
+pantallas escondidas detras de animaciones ni `content-visibility` (eso es solo de la web
+publica), las pantallas vacias si explican el proximo paso, y no hay botones sin funcion.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
