@@ -496,7 +496,7 @@ export default async function HomePage() {
               subheadline={landingSettings.hero.subheadline}
               backgroundImageUrl="/media/catalogo-servicios/quinceanera_hero.png"
               simulatorHref="/simulador-de-presupuesto"
-              simulatorLabel="Cotizá tu Fiesta"
+              simulatorLabel="Proyectar mi fiesta"
             />
           </div>
         }
