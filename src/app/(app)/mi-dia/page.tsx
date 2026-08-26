@@ -16,6 +16,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { getParteDeLaManana } from '@/lib/automatico/parte-manana';
+import { ParteDeLaMananaPlayer } from '@/components/mi-dia/ParteDeLaMananaPlayer';
 
 export const metadata: Metadata = {
   title: 'Mi Día - AK Producciones',
@@ -153,6 +155,8 @@ export default async function MiDiaPage() {
     }
   }
 
+  const parte = await getParteDeLaManana();
+
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-20">
       {/* Encabezado sereno */}
@@ -171,6 +175,9 @@ export default async function MiDiaPage() {
           </Badge>
         </div>
       </div>
+
+      {/* El Parte de la Mañana por el Encargado */}
+      <ParteDeLaMananaPlayer parte={parte} />
 
       {/* Acciones para hoy */}
       <section className="space-y-4">

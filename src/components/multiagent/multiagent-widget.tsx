@@ -50,6 +50,42 @@ async function sendPersistentMultiAgentMessage(input: {
   return result as AkPersistentMultiAgentOutput;
 }
 
+function selectBestSpanishVoice(): SpeechSynthesisVoice | null {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices || voices.length === 0) return null;
+
+  // 1. es-UY (Uruguay)
+  const uy = voices.find((v) => v.lang === 'es-UY' || v.lang.startsWith('es_UY') || v.lang.toLowerCase().includes('uy'));
+  if (uy) return uy;
+
+  // 2. es-AR (Argentina / Rioplatense - presente en casi todos los navegadores)
+  const ar = voices.find((v) => v.lang === 'es-AR' || v.lang.startsWith('es_AR') || v.lang.toLowerCase().includes('ar'));
+  if (ar) return ar;
+
+  // 3. es-419 / es-US (Latinoamérica)
+  const latam = voices.find((v) => v.lang === 'es-419' || v.lang === 'es-US' || v.lang.toLowerCase().includes('419') || v.lang.toLowerCase().includes('us'));
+  if (latam) return latam;
+
+  // 4. Cualquier voz en español
+  const generalEs = voices.find((v) => v.lang.toLowerCase().startsWith('es'));
+  if (generalEs) return generalEs;
+
+  return null;
+}
+
+function truncateForSpeech(text: string): string {
+  const cleaned = text
+    .replace(/[*#_`~>]/g, '')
+    .replace(/https?:\/\/\S+/g, '')
+    .trim();
+  const sentences = cleaned.split(/(?<=[.!?])\s+/);
+  if (sentences.length <= 3) {
+    return cleaned;
+  }
+  return `${sentences.slice(0, 3).join(' ')} ¿Querés que siga con más detalle?`;
+}
+
 type ChatMessage = AkMultiAgentMessage & {
   id: string;
   agentName?: string;
@@ -452,8 +488,16 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
 
       if (!isVoiceMuted && typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(result.response);
-        utterance.lang = 'es-UY';
+        const bestVoice = selectBestSpanishVoice();
+        const speechText = truncateForSpeech(result.response);
+        const utterance = new SpeechSynthesisUtterance(speechText);
+        if (bestVoice) {
+          utterance.voice = bestVoice;
+          utterance.lang = bestVoice.lang;
+        } else {
+          utterance.lang = 'es-AR';
+        }
+        utterance.rate = 1.02;
         window.speechSynthesis.speak(utterance);
       }
 

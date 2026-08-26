@@ -17,6 +17,25 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 11 — El Encargado y su equipo (26 de agosto de 2026)
+
+- **Los 4 nuevos empleados automáticos (`src/lib/automatico/tareas-automaticas.ts`, `src/lib/automatico/al-entrar-a-la-app.ts`, `src/lib/automatico/puerta-de-las-tareas.ts`, `src/app/api/cron/`):**
+  - *Cobranzas (`recordatorios-de-pago` / `ejecutarCobrador`):* Monitorea cuotas de todas las fiestas y deja los mensajes listos en la bandeja de salida de WhatsApp.
+  - *Fiesta que viene (`fiesta-proxima-revision` / `ejecutarVigilanteFiestas`):* Revisa pendientes de las fiestas de las próximas 2 semanas (menú, salón, personal, invitados) y genera avisos en lenguaje calmo.
+  - *Prospectos (`prospectos-seguimiento` / `ejecutarPerseguidorPresupuestos`):* Revisa presupuestos sin respuesta a los 5 y 14 días y prepara los borradores de seguimiento en WhatsApp.
+  - *Web (`posicionamiento-diario`):* Revisa la salud del sitio en Google y sitemap.
+- **El Encargado y su equipo (`src/lib/multiagent/encargado.ts`, `src/ai/flows/multiagent-flow.ts`):**
+  - Enrutador inteligente: si 1 especialista alcanza, lo deriva directamente. Si abarca múltiples áreas, consulta hasta un tope de 3 especialistas y sintetiza una respuesta única en primera persona y en criollo rioplatense.
+- **La voz rioplatense sin manos (`src/components/multiagent/multiagent-widget.tsx`):**
+  - Selección inteligente de voz en `speechSynthesis.getVoices()` priorizando `es-UY`, `es-AR`, `es-419`/`es-US` y nunca cayendo en acento español de España ni voces mudas en inglés.
+  - Respuestas habladas concisas (máximo 3 oraciones y "¿querés que siga?").
+- **El parte de la mañana en «Mi Día» (`src/lib/automatico/parte-manana.ts`, `src/components/mi-dia/ParteDeLaMananaPlayer.tsx`, `src/app/(app)/mi-dia/page.tsx`):**
+  - Tarjeta superior en «Mi Día» con los 3 puntos prioritarios de la jornada, sin palabras de alarma ni pánico, y botón "Escuchar el parte" con síntesis de voz.
+- **Regla de oro blindada por tests (`src/__tests__/agentes-preparar-no-mandar.test.ts`):**
+  - Prueba automatizada que asegura que ningún agente manda mensajes solo, cobra plata, publica en redes o borra datos sin intervención humana.
+
+---
+
 ## Orden 10 — Lo que quedó de la revisión completa (26 de agosto de 2026)
 
 - **Referencia de maquetación actualizada (`tests/e2e/layout-baseline.json`, `tests/e2e/layout-baseline.spec.ts`):**

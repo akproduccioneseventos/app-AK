@@ -42,6 +42,8 @@ const CADA_CUANTO = {
   blog: 48 * 60 * 60 * 1000,
   recordatorios: 24 * 60 * 60 * 1000,
   posicionamiento: 24 * 60 * 60 * 1000,
+  fiestas_vigilante: 24 * 60 * 60 * 1000,
+  prospectos_seguimiento: 24 * 60 * 60 * 1000,
 } as const;
 
 export type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -52,6 +54,8 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   blog: 'generate-blog-post',
   recordatorios: 'recordatorios-de-pago',
   posicionamiento: 'posicionamiento-diario',
+  fiestas_vigilante: 'fiesta-proxima-revision',
+  prospectos_seguimiento: 'prospectos-seguimiento',
 };
 
 interface EstadoDeTareas {
@@ -150,6 +154,20 @@ export async function ponerAlDiaAlEntrar(
         correr: async () => {
           const { ejecutarRevisionPosicionamiento } = await import('@/lib/automatico/posicionamiento-diario');
           return ejecutarRevisionPosicionamiento(ahora, origen);
+        },
+      },
+      {
+        nombre: 'fiestas_vigilante',
+        correr: async () => {
+          const { ejecutarVigilanteFiestas } = await import('@/lib/agentes/motor-agentes');
+          return ejecutarVigilanteFiestas(ahora);
+        },
+      },
+      {
+        nombre: 'prospectos_seguimiento',
+        correr: async () => {
+          const { ejecutarPerseguidorPresupuestos } = await import('@/lib/agentes/motor-agentes');
+          return ejecutarPerseguidorPresupuestos(ahora);
         },
       },
     ];
