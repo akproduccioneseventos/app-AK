@@ -138,6 +138,29 @@ escuchando: puede estar silenciada por defecto o el botón puede no verse.
    internet y contesta al instante. Una voz de inteligencia artificial suena mejor pero
    **cuesta cada vez que habla y se queda muda con mala señal**, que es justo lo que hay
    en un salón.
+
+**Y acá hay un error concreto que hay que corregir, porque es la razón de que hoy suene
+mal.** En `src/components/multiagent/multiagent-widget.tsx:456` se le dice al teléfono
+`utterance.lang = 'es-UY'`, **pero nunca se elige la voz** (`getVoices()` no se usa en
+ningún lado). El navegador entonces agarra la primera que tiene, que casi siempre es **la
+de España**. Por eso el dueño no la siente uruguaya.
+
+**Qué hay que hacer:** elegir la mejor voz disponible del aparato, en este orden:
+
+1. `es-UY` — uruguaya, si existe.
+2. `es-AR` — **argentina; es la que suena más parecida y viene en casi todos los
+   teléfonos**.
+3. `es-419` o `es-US` — latinoamericana.
+4. `es-ES` — España, sólo como último recurso.
+
+Guardar la elección y no volver a calcularla en cada frase. Y si el aparato no tiene
+ninguna voz en español, que no hable en vez de hablar en inglés.
+
+**Las palabras importan más que el acento, y esas sí se controlan del todo.** La asistente
+del simulador ya está escrita en uruguayo —usa *vos*, *ta*, *dale*, *bárbaro*, *bo*
+(`src/types/copilot.ts`)—. **El encargado y los cuatro empleados tienen que hablar igual.**
+Nada de "estimado usuario", "procederé a" ni "¿en qué puedo ayudarle?". Se habla como un
+compañero de trabajo: *"Del sábado te falta confirmar el menú, ¿lo dejo escrito?"*
 4. **Que se pueda callar en un toque**, y que se acuerde de la elección.
 5. **Respuestas cortas cuando habla.** Lo que se lee en pantalla puede ser largo; lo que
    se escucha, no. Tres frases y "¿querés que siga?".
