@@ -12,8 +12,34 @@ import { getBlogCategoryLabel, getBlogPostImage, getBlogPostImageAlt } from '@/l
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 
 export const metadata: Metadata = {
-  title: 'Consejos para organizar eventos | Blog AK Producciones',
-  description: 'Guías prácticas para organizar fiestas, XV años, bodas, comida y presupuestos en Salto, Uruguay.',
+  metadataBase: new URL('https://akproducciones.uy'),
+  title: 'Consejos para organizar fiestas en Salto | Blog AK Producciones Eventos',
+  description: 'Guías prácticas para organizar fiestas de 15, bodas, comida gourmet, discoteca y presupuestos en Salto, Uruguay.',
+  alternates: {
+    canonical: '/public/blog',
+  },
+  openGraph: {
+    title: 'Consejos para organizar fiestas en Salto | Blog AK Producciones Eventos',
+    description: 'Guías prácticas para organizar fiestas de 15, bodas, comida gourmet, discoteca y presupuestos en Salto, Uruguay.',
+    url: 'https://akproducciones.uy/public/blog',
+    siteName: 'AK Producciones Eventos',
+    locale: 'es_UY',
+    type: 'website',
+    images: [
+      {
+        url: '/media/catalogo-servicios/quinceanera_hero.png',
+        width: 1200,
+        height: 630,
+        alt: 'Blog de AK Producciones',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Consejos para organizar fiestas en Salto | Blog AK Producciones Eventos',
+    description: 'Guías prácticas para organizar fiestas en Salto, Uruguay.',
+    images: ['/media/catalogo-servicios/quinceanera_hero.png'],
+  },
 };
 
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';

@@ -17,6 +17,61 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 11 — El Encargado y su equipo (26 de agosto de 2026)
+
+- **Los 4 nuevos empleados automáticos (`src/lib/automatico/tareas-automaticas.ts`, `src/lib/automatico/al-entrar-a-la-app.ts`, `src/lib/automatico/puerta-de-las-tareas.ts`, `src/app/api/cron/`):**
+  - *Cobranzas (`recordatorios-de-pago` / `ejecutarCobrador`):* Monitorea cuotas de todas las fiestas y deja los mensajes listos en la bandeja de salida de WhatsApp.
+  - *Fiesta que viene (`fiesta-proxima-revision` / `ejecutarVigilanteFiestas`):* Revisa pendientes de las fiestas de las próximas 2 semanas (menú, salón, personal, invitados) y genera avisos en lenguaje calmo.
+  - *Prospectos (`prospectos-seguimiento` / `ejecutarPerseguidorPresupuestos`):* Revisa presupuestos sin respuesta a los 5 y 14 días y prepara los borradores de seguimiento en WhatsApp.
+  - *Web (`posicionamiento-diario`):* Revisa la salud del sitio en Google y sitemap.
+- **El Encargado y su equipo (`src/lib/multiagent/encargado.ts`, `src/ai/flows/multiagent-flow.ts`):**
+  - Enrutador inteligente: si 1 especialista alcanza, lo deriva directamente. Si abarca múltiples áreas, consulta hasta un tope de 3 especialistas y sintetiza una respuesta única en primera persona y en criollo rioplatense.
+- **La voz rioplatense sin manos (`src/components/multiagent/multiagent-widget.tsx`):**
+  - Selección inteligente de voz en `speechSynthesis.getVoices()` priorizando `es-UY`, `es-AR`, `es-419`/`es-US` y nunca cayendo en acento español de España ni voces mudas en inglés.
+  - Respuestas habladas concisas (máximo 3 oraciones y "¿querés que siga?").
+- **El parte de la mañana en «Mi Día» (`src/lib/automatico/parte-manana.ts`, `src/components/mi-dia/ParteDeLaMananaPlayer.tsx`, `src/app/(app)/mi-dia/page.tsx`):**
+  - Tarjeta superior en «Mi Día» con los 3 puntos prioritarios de la jornada, sin palabras de alarma ni pánico, y botón "Escuchar el parte" con síntesis de voz.
+- **Regla de oro blindada por tests (`src/__tests__/agentes-preparar-no-mandar.test.ts`):**
+  - Prueba automatizada que asegura que ningún agente manda mensajes solo, cobra plata, publica en redes o borra datos sin intervención humana.
+
+---
+
+## Orden 10 — Lo que quedó de la revisión completa (26 de agosto de 2026)
+
+- **Referencia de maquetación actualizada (`tests/e2e/layout-baseline.json`, `tests/e2e/layout-baseline.spec.ts`):**
+  - Ajustadas las dimensiones verificadas: `h1W` en `/presupuestos/nuevo` (212), `h1Y` en `/` (148) y `h1W` en mobile `/admin` (101).
+- **Protección contra botones colgados con tope de espera (`src/lib/ui/tope-de-espera.ts`, `src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts`):**
+  - `conTopeDeEspera` extendido a la mutación de incidentes (`createIncidente`, `resolverIncidente`), módulos de fiesta (`updateModulosContratadosFiestaActual`) y plantillas maestras de menú/repostería.
+- **Detección de frescura de compilación en pruebas E2E (`scripts/run-playwright-production.mjs`):**
+  - Chequeo automático de mtime entre `src/` y `.next/BUILD_ID` para evitar correr pruebas contra código desfasado.
+
+---
+
+## Orden 9 — La web que encuentra Google, velocidad y movimiento (26 de agosto de 2026)
+
+- **Ficha de negocio honesta y Salón Club Uruguay (`src/components/seo/LocalBusinessJsonLd.tsx`, `src/components/public/LocalBusinessSchema.tsx`, `src/app/club-uruguay/page.tsx`):**
+  - Eliminado `streetAddress` ficticio para AK Producciones; declarada zona de cobertura (`areaServed: Salto, UY`).
+  - Salón Club Uruguay (`/club-uruguay`) declarado con `@type: 'EventVenue'` en su dirección real: Uruguay 754, Salto.
+- **Autocanonicalización y redirección de páginas de venta (`src/lib/seo/event-landing.ts`, `src/app/landing/`, `src/lib/seo/paginas-publicas.ts`, `src/app/sitemap.ts`):**
+  - `/bodas`, `/quinceaneras` y `/cumpleanos` autocanonicalizan a sí mismas.
+  - `/landing/bodas`, `/landing/xv-anos` y `/landing/eventos` redirigen limpiamente hacia las rutas principales.
+  - Rutas de redirección removidas de sitemap y robots.
+- **Metadata completa y enriquecida para páginas públicas (`src/app/catalogo/layout.tsx`, `src/app/galeria-led/layout.tsx`, `src/app/simulador-de-presupuesto/layout.tsx`, `src/app/public/[eventType]/page.tsx`, `src/app/public/blog/page.tsx`, `src/app/public/blog/[slug]/page.tsx`):**
+  - Agregadas imágenes OpenGraph, tarjetas de Twitter, canonicals y esquema `ArticleJsonLd` / `BlogPosting`.
+- **Experiencia AK comercializada (`src/app/experiencia-ak/page.tsx`):**
+  - Rediseñada como landing comercial para clientes de Salto, eliminando notas internas de desarrollo.
+- **Visibilidad garantizada en celular y rendimiento de carga (`src/app/ak-motion-effects.css`, `src/components/landing/LandingSpaContainer.tsx`, `src/components/landing/AkDifferenceSection.tsx`):**
+  - Eliminado `content-visibility: auto` destructivo que ocultaba el pie de página en móviles.
+  - Retirado `priority` en imágenes debajo del pliegue. Imágenes pesadas en `public/` optimizadas (>80% reducción de peso).
+- **Hero con movimiento y soporte de video optimizado (`src/components/landing/HeroSection.tsx`):**
+  - Video de fondo en bucle, enmudecido, pausado fuera del viewport, con poster de alta resolución y respeto a `prefers-reduced-motion` y ahorro de datos.
+- **Trabajador diario de posicionamiento y conexión con Google Search Console (`src/lib/automatico/posicionamiento-diario.ts`, `src/lib/automatico/tareas-automaticas.ts`, `src/lib/automatico/al-entrar-a-la-app.ts`, `src/app/actions/seo-posicionamiento.ts`, `src/lib/google-search-console.ts`):**
+  - Tarea diaria registrada que verifica salud SEO y sitemap. Estado honesto ("Falta conectar Google Search Console") sin números inventados.
+- **Control E2E de visibilidad y quinta pregunta de auditoría (`tests/e2e/la-web-publica-se-ve.spec.ts`, `docs/COMO-AUDITAR.md`):**
+  - Agregada pregunta *"5. ¿El visitante lo ve?"* y prueba Playwright para verificar visibilidad del footer y metadatos.
+
+---
+
 ## Orden 8 — Terminar las tres puertas y ensanchar el control (25 de agosto de 2026)
 
 - **El menú en tres puertas y directorio de La Empresa (`src/components/main-nav.tsx`, `src/app/(app)/empresa/page.tsx`, `scripts/generar-mapa-app.mjs`, `docs/MANUAL-DE-LA-APP.md`):**
@@ -4233,6 +4288,159 @@ la excepcion es legitima.
 **La leccion, que vale para cualquier control con linea de base:** un tope que se calcula
 de lo que vigila no vigila nada. Tiene que ser un numero fijo, escrito, que alguien tenga
 que cambiar a proposito.
+## Lo que se verifico de la web publica (26 de agosto de 2026)
+
+Llego un informe de 17 paginas de otra IA sobre la web publica. **Se comprobo punto por
+punto antes de mandar nada a programar.** Lo confirmado quedo en
+`docs/ordenes/9-la-web-que-encuentra-google.md`. Lo que sigue es lo verificado, para que
+nadie lo vuelva a buscar:
+
+**CIERTO — la ficha de negocio declara una direccion que no existe.**
+`src/components/seo/LocalBusinessJsonLd.tsx` dice `streetAddress: 'Gaboto 3390'` y tipo
+`EventVenue`. El dueno **no tiene local a la calle**: trabaja en salones y a domicilio.
+Google puede estar mostrando una direccion donde no hay nada.
+
+**CIERTO — las paginas de venta compiten contra si mismas.** `/bodas`, `/quinceaneras` y
+`/cumpleanos` declaran su direccion canonica como `/landing/<slug>`
+(`src/lib/seo/event-landing.ts`), y las dos versiones existen. Google no sabe cual
+mostrar.
+
+**CIERTO — tres paginas publicas no tienen ni titulo ni descripcion:** `/catalogo`,
+`/galeria-led` y `/simulador-de-presupuesto`. Las tres son `'use client'` desde la primera
+linea y **estan permitidas en robots y listadas en el mapa de Google**. La del simulador
+es la mas cara: es la que captura el contacto del prospecto.
+
+**CIERTO — `/experiencia-ak` esta abierta a Google con texto interno**, del tipo "lo que
+yo agregaria para vender mejor".
+
+**CIERTO — puede quedar contenido invisible en el celular.** `.ak-deferred-section` con
+`content-visibility: auto` mas `opacity: 0` inicial en tres secciones de la portada
+(`LandingSpaContainer.tsx`). Si la animacion no arranca, el visitante no ve testimonios,
+preguntas frecuentes ni el boton de contacto.
+
+**FALSO — los contadores animados que muestran cero.** El informe lo reportaba; ese
+componente ya no existe. **Falso positivo, no volver a reportarlo.**
+
+**Lo que si esta bien y no hay que tocar:** el permiso de robots, el mapa de Google (junta
+las paginas fijas y las notas del blog sin duplicar), la prioridad por pagina, y los
+datos estructurados de preguntas frecuentes y migas de pan.
+
+## Que puede y que no puede hacer una IA de posicionamiento (26 de agosto de 2026)
+
+El dueno pidio "una IA de posicionamiento que mejore la web y su posicion, automatico,
+todos los dias, sola". **Se hace, con un limite que hay que respetar siempre:**
+
+- **Si puede:** escribir contenido nuevo (ya lo hace, una nota cada dos dias), revisar
+  todos los dias la salud tecnica de la web y arreglar lo mecanico, y avisar en "Mi dia".
+- **No puede garantizar posicion.** Nadie controla el orden de Google.
+- **Y hoy no puede ni saberla:** hace falta conectar Google Search Console. Sin esa
+  conexion, **cualquier numero de posicion seria inventado**, que es justo lo que prohibe
+  `ninguna-pantalla-miente.test.ts`. Mientras no este conectada, la pantalla dice "falta
+  conectar Google", nunca un numero.
+
+## Por que las auditorias no encontraron nada de la web publica (26 de agosto de 2026)
+
+**El dueno lo pregunto asi: "es increible que nunca detectaste esas cosas en auditoria".
+Tiene razon, y el motivo hay que dejarlo escrito porque explica un agujero del metodo.**
+
+Las cuatro preguntas de `docs/COMO-AUDITAR.md` son: ¿dejo rastro?, ¿alguien lo llama?,
+¿necesita algo que no esta?, ¿lo que promete la pantalla existe en el codigo?
+
+**Todo lo que se encontro en la web publica pasa esas cuatro preguntas.** El pie de
+pagina existe, esta escrito, alguien lo llama, no simula datos y cumple lo que promete
+—y el visitante no lo ve, porque vive dentro de una seccion que el navegador no dibuja
+hasta que se acerca. La pagina sin titulo tiene el archivo perfecto: sencillamente no
+exporta metadata.
+
+**Falta la quinta pregunta: ¿el visitante lo ve?** No alcanza con leer el codigo: hay que
+abrir la pagina en un navegador de verdad, en un celular, y mirar.
+
+Los tres motivos, sin excusas:
+
+1. **Todas las auditorias de este proyecto leen codigo, ninguna abre la web.**
+2. **Las pruebas de navegador que existen cubren la app interna**, no si la web publica se
+   ve entera.
+3. **Y se dejo de mirar la web publica a proposito**, porque el dueno pidio no auditar por
+   auditar. Esa decision sigue siendo correcta para la app; **la web publica quedo sin
+   nadie mirandola**, y ahi es donde se pierden ventas.
+
+**Lo que queda hecho:** la quinta pregunta se suma a `docs/COMO-AUDITAR.md`, y va una
+prueba de navegador que abre las paginas publicas y comprueba que se llegue al pie, que
+todas las secciones se vean con las animaciones apagadas, que cada pagina tenga titulo, y
+que ninguna redirija al ingreso. Esta pedido en
+`docs/ordenes/9-la-web-que-encuentra-google.md`, bloque 12.
+
+**La leccion, para cualquier auditoria futura: un control que solo lee codigo nunca va a
+encontrar lo que el usuario no ve.**
+
+## Los botones de plata no se cuelgan (26 de agosto de 2026)
+
+**La misma falla que dejo al dueno sin poder entrar a la app, pero en botones que mueven
+dinero.** Se encontro revisando la app interna con la quinta pregunta ("¿el usuario lo
+puede usar?"), que es la que faltaba.
+
+Tres botones esperaban al servidor **sin ningun tope**:
+
+- **Confirmar pago** y **rechazar pago** (`src/app/(app)/pagos-rapidos/page.tsx`)
+- **Guardar presupuesto** (`src/app/(app)/presupuestos/nuevo/crear/page.tsx`)
+
+Los tres tenian su `finally` para devolver el boton a la normalidad, **y no alcanzaba**:
+si el servidor esta despertandose o la conexion se corta sin avisar, la promesa no se
+resuelve ni falla, se queda. Y con ella el `finally`. El boton gira para siempre, sin
+error y sin poder reintentar.
+
+**Con plata es peor que con el ingreso:** el operador se queda sin saber si el cobro
+entro, y lo mas probable es que apriete de nuevo y cargue el pago dos veces.
+
+**Lo que se hizo:** `src/lib/ui/tope-de-espera.ts`, con tope de 25 segundos —largo a
+proposito, porque la primera operacion del dia encuentra el servidor dormido— y un aviso
+que dice **"No se guardo nada"**. Esa frase es la que evita el pago duplicado.
+
+Congelado en `src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts`.
+
+**Lo que se reviso y esta bien, para no volver a buscarlo:** en la app interna **no hay**
+pantallas escondidas detras de animaciones ni `content-visibility` (eso es solo de la web
+publica), las pantallas vacias si explican el proximo paso, y no hay botones sin funcion.
+
+## Las direcciones, arregladas (26 de agosto de 2026)
+
+**AK Producciones le declaraba a Google un salon de eventos en Gaboto 3390.** Estaba
+escrito a mano en `src/components/seo/LocalBusinessJsonLd.tsx`, con tipo `EventVenue`, y
+se mostraba en bodas, quince, cumpleanos, el blog y la portada. **El dueno no tiene local
+a la calle:** trabaja en salones y a domicilio. Google podia estar mandando gente a un
+lugar donde no hay nada.
+
+**Como quedo, y es decision del dueno, confirmada con sus palabras ("Salto Uruguay pone"):**
+
+| Quien | Que se declara |
+| --- | --- |
+| AK Producciones | `ProfessionalService` en **Salto, Uruguay**, sin calle, con zona de cobertura |
+| Salon Club Uruguay | `EventVenue` en **Uruguay 754, Salto** |
+
+**El Club Uruguay si tiene direccion real** y ahora la declara en su propia pagina
+(`src/app/club-uruguay/page.tsx`), que antes no declaraba ninguna ficha. Es la **unica**
+direccion de calle en toda la web, y ademas suma: un salon real con direccion real es de
+lo que mejor entiende Google.
+
+**No mezclar las dos.** Si alguien vuelve a poner una calle en la ficha de AK, esta mal.
+
+## Por que la web no aparece en Google (26 de agosto de 2026)
+
+Se busco de verdad en Google y **el sitio no aparece**: lo que sale con el nombre son
+otras AK Producciones de Costa Rica, Venezuela y Valencia. Los motivos, en orden de peso:
+
+1. **La web le dijo a Google "no me indexes" durante mucho tiempo.** Estaba escrito en el
+   codigo, de cuando la app era solo interna. Ya se corrigio, pero **Google no vuelve al
+   otro dia**: tarda semanas o meses y se arranca desde cero.
+2. **Nadie le aviso a Google que el sitio existe.** Falta conectar Google Search Console.
+   **Es lo mas importante que puede hacer el dueno hoy**, y depende de su cuenta.
+3. **Las paginas de venta compiten entre si** por el problema de las direcciones
+   canonicas (orden 9, bloque 2).
+4. **Tres paginas publicas no tienen ni titulo ni descripcion**, entre ellas el simulador.
+
+**Ojo con los directorios:** hay sitios que tienen a AK anotada en "calle Brasil 734,
+local de Asdemya", una direccion distinta de las dos de arriba. Direcciones contradictorias
+dando vueltas confunden a Google sobre quien es el negocio.
 
 ## Cómo agregar algo a esta lista
 

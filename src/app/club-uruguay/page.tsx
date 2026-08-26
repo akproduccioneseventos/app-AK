@@ -10,11 +10,15 @@ import { canUseNextImage } from '@/lib/next-image-url';
 import { getDynamicSalonPhotos, type SalonPhoto } from '@/lib/salon-helper';
 
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 
 export const metadata: Metadata = {
-  title: 'Fiestas en Club Uruguay | AK Producciones',
+  title: 'Fiestas en Club Uruguay | AK Producciones Eventos',
   description:
-    'Conoce el salon, mira montajes reales y cotiza una produccion integral de AK Producciones en Club Uruguay, Salto.',
+    'Conocé el salón Club Uruguay en Uruguay 754, Salto. Mirá montajes reales y cotizá una producción integral de AK Producciones.',
+  alternates: {
+    canonical: 'https://akproducciones.uy/club-uruguay',
+  },
 };
 
 const WHATSAPP = AK_WHATSAPP_NUMBER;
@@ -82,8 +86,40 @@ export default async function ClubUruguayPage() {
     'Hola AK Producciones. Quiero conocer y cotizar una fiesta en Club Uruguay.',
   )}`;
 
+  /**
+   * La ficha del salon para Google.
+   *
+   * **Esta es la unica direccion de calle que va en toda la web**, y va aca porque el
+   * Club Uruguay si es un salon de verdad con direccion real. Confirmado por el dueno el
+   * 26 de agosto de 2026: Uruguay 754, Salto.
+   *
+   * AK Producciones **no** lleva direccion: no tiene local, trabaja en salones y a
+   * domicilio. Su ficha va sin calle y con zona de cobertura
+   * (`src/components/seo/LocalBusinessJsonLd.tsx`). No mezclar las dos.
+   */
+  const salonJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'EventVenue',
+    name: 'Salon Club Uruguay',
+    description:
+      'Salon de fiestas en Salto donde AK Producciones realiza bodas, quince anos y eventos de empresa.',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Uruguay 754',
+      addressLocality: 'Salto',
+      addressRegion: 'Salto',
+      addressCountry: 'UY',
+    },
+    telephone: `+${WHATSAPP}`,
+    url: 'https://akproducciones.uy/club-uruguay',
+  };
+
   return (
     <div className="min-h-screen bg-[#0b0b0c] text-white selection:bg-red-700">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(salonJsonLd) }}
+      />
       <LandingNav />
 
       <main>

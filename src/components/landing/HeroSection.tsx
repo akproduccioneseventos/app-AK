@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowDown, ArrowRight, MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
@@ -13,6 +14,7 @@ interface HeroSectionProps {
   headline?: string;
   subheadline?: string;
   backgroundImageUrl?: string;
+  backgroundVideoUrl?: string;
   promoActiva?: PromoActiva | null;
   whatsappMessage?: string;
   ctaLabel?: string;
@@ -23,24 +25,63 @@ interface HeroSectionProps {
 }
 
 const details = [
-  "Catering y barra",
+  "Comida gourmet y barra",
   "Ambientación y mobiliario",
-  "Música, luces y coordinación",
+  "Discoteca, pantallas y luces",
 ];
 
 export function HeroSection({
   whatsappNumber = AK_WHATSAPP_NUMBER,
   headline = "Tu fiesta, resuelta por un solo equipo",
-  subheadline = "Catering, ambientación, música, tecnología y coordinación para celebrar con tranquilidad en Salto.",
+  subheadline = "Comida, ambientación, discoteca, tecnología interactiva y coordinación para celebrar con tranquilidad en Salto.",
   backgroundImageUrl = "/media/catalogo-servicios/quinceanera_hero.png",
+  backgroundVideoUrl,
   promoActiva,
-  whatsappMessage = "Hola AK Producciones, quisiera cotizar mi evento.",
+  whatsappMessage = "Hola AK Producciones, quisiera cotizar mi fiesta.",
   ctaLabel = "Hablar con AK",
   simulatorHref = "/simulador-de-presupuesto",
   simulatorLabel = "Cotizar mi fiesta",
   backgroundImageAlt = "Fiesta de quince años producida por AK Producciones",
 }: HeroSectionProps) {
   const reduceMotion = useReducedMotion();
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const heroRef = useRef<HTMLElement | null>(null);
+  const [shouldPlayVideo, setShouldPlayVideo] = useState(false);
+
+  // Detección segura de conexión y viewport
+  useEffect(() => {
+    if (reduceMotion || !backgroundVideoUrl) return;
+
+    // Si el usuario tiene ahorro de datos activo, no bajamos el video
+    if (typeof navigator !== "undefined" && "connection" in navigator) {
+      const conn = (navigator as unknown as { connection?: { saveData?: boolean } }).connection;
+      if (conn?.saveData) return;
+    }
+
+    setShouldPlayVideo(true);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (videoRef.current) {
+            if (entry.isIntersecting) {
+              videoRef.current.play().catch(() => {});
+            } else {
+              videoRef.current.pause();
+            }
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    if (heroRef.current) {
+      observer.observe(heroRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [reduceMotion, backgroundVideoUrl]);
+
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
   const configuredPromoHref = promoActiva?.ctaUrl?.trim() || "";
   const promoHref =
@@ -58,11 +99,12 @@ export function HeroSection({
 
   return (
     <section
+      ref={heroRef}
       data-testid="hero-section"
       id="landing-hero"
       className="relative flex min-h-[85svh] items-end overflow-hidden bg-stone-950 text-white sm:min-h-[92svh]"
     >
-      {/* Fondo con imagen estática optimizada */}
+      {/* Fondo con foto de alta resolución optimizada siempre visible */}
       <div className="absolute inset-0">
         {canUseNextImage(backgroundImageUrl) ? (
           <Image
@@ -81,12 +123,26 @@ export function HeroSection({
             aria-label={backgroundImageAlt}
           />
         )}
+
+        {/* Capa de video opcional que arranca suavemente en bucle */}
+        {shouldPlayVideo && backgroundVideoUrl && (
+          <video
+            ref={videoRef}
+            src={backgroundVideoUrl}
+            poster={backgroundImageUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700"
+          />
+        )}
       </div>
 
-      {/* Degradado oscuro envolvente para contraste perfecto */}
+      {/* Degradado oscuro envolvente para legibilidad perfecta */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/35" />
 
-      {/* Resplandor ambiental de fiesta sutil (una sola animación continua para cuidar batería) */}
+      {/* Resplandor ambiental suave */}
       {!reduceMotion && (
         <>
           <motion.div
@@ -185,44 +241,15 @@ export function HeroSection({
                 href={waHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                data-testid="hero-cta-button"
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-black/35 px-6 py-3.5 text-sm font-black text-white backdrop-blur-md transition-all hover:border-white/50 hover:bg-black/55"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/40"
               >
                 <MessageCircle className="h-4 w-4 text-emerald-400" aria-hidden="true" />
                 {ctaLabel}
               </a>
             </motion.div>
           </motion.div>
-
-          {/* Respaldo debajo del boton principal */}
-          <motion.dl
-            {...reveal}
-            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.42, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-9 grid max-w-lg grid-cols-3 gap-4 border-t border-white/20 pt-6"
-          >
-            {[
-              { valor: 'Salto', detalle: 'y toda la zona' },
-              { valor: 'Un equipo', detalle: 'para toda la fiesta' },
-              { valor: 'Sin costo', detalle: 'presupuesto al toque' },
-            ].map((dato) => (
-              <div key={dato.detalle}>
-                <dt className="text-2xl font-black leading-none text-white sm:text-3xl">{dato.valor}</dt>
-                <dd className="mt-1 text-xs leading-snug text-stone-300 sm:text-sm font-medium">{dato.detalle}</dd>
-              </div>
-            ))}
-          </motion.dl>
         </div>
       </div>
-
-      <motion.a
-        href="#landing-services"
-        className="absolute bottom-5 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-2 text-xs font-bold text-stone-300 transition-colors hover:text-white"
-        animate={reduceMotion ? undefined : { y: [0, 4, 0] }}
-        transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-      >
-        Conocé las propuestas
-        <ArrowDown className="h-4 w-4 text-red-400" aria-hidden="true" />
-      </motion.a>
     </section>
   );
 }

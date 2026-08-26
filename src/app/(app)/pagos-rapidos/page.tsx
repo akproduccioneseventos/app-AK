@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils';
 import html2canvas from 'html2canvas';
 import Image from 'next/image';
 import { getBudgetPaymentSummary, getPaymentReceiptSnapshot } from '@/lib/budget/financial-guardrails';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return '$ 0';
@@ -430,7 +431,7 @@ function PagosRapidosContent() {
   const handleConfirmPago = async (presupuestoId: string, pagoId: string) => {
     setProcessingPagoId(pagoId);
     try {
-      const result = await confirmPagoCliente(presupuestoId, pagoId);
+      const result = await conTopeDeEspera(confirmPagoCliente(presupuestoId, pagoId));
       if (!result.success) throw new Error(result.error);
       toast({ title: '✅ Pago confirmado' });
       await fetchData();
@@ -448,7 +449,7 @@ function PagosRapidosContent() {
     }
     setProcessingPagoId(pagoId);
     try {
-      const result = await rejectPagoCliente(presupuestoId, pagoId, rejectMotivo.trim());
+      const result = await conTopeDeEspera(rejectPagoCliente(presupuestoId, pagoId, rejectMotivo.trim()));
       if (!result.success) throw new Error(result.error);
       toast({ title: 'Pago rechazado', description: 'Quedo en el historial y no cuenta como cobrado.' });
       setShowRejectInput(null);
