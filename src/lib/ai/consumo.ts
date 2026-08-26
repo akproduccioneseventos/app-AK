@@ -22,6 +22,7 @@ export type FuncionConCosto =
   | 'clasificacion-comentarios'
   | 'copiloto-presupuesto'
   | 'chat-de-la-fiesta'
+  | 'encargado-general'
   | 'nota-del-blog';
 
 /**
@@ -45,6 +46,7 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   // sin freno pueden preguntar toda la noche: por eso se cuentan igual.
   'copiloto-presupuesto': 1,
   'chat-de-la-fiesta': 1,
+  'encargado-general': 1,
   // Una nota de blog es texto largo mas una imagen generada: sale mas que un chat.
   'nota-del-blog': 5,
 };
