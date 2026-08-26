@@ -55,6 +55,25 @@ describe('La puerta de entrada no miente', () => {
     expect(puertaDeEmergencia).toBeLessThan(consultaALaBase);
   });
 
+  it('la consulta a la base corre contra un reloj, no se cuelga', () => {
+    // Probado con un navegador de verdad: sin tope, al tocar "Ingresar" la pantalla
+    // se quedaba VEINTICINCO segundos en "Ingresando..." y recien ahi contestaba
+    // "Error al iniciar sesion. Intenta de nuevo." Nadie espera veinticinco segundos.
+    for (const archivo of ['src/app/actions/auth.ts', 'src/app/actions/simple-auth.ts']) {
+      const codigo = sinComentarios(leer(archivo));
+      expect(codigo).toMatch(/conTopeDeEspera/);
+      expect(codigo).toMatch(/TOPE_BASE_MS = 8000/);
+    }
+  });
+
+  it('cuando la base no contesta a tiempo, lo dice con esas palabras', () => {
+    for (const archivo of ['src/app/actions/auth.ts', 'src/app/actions/simple-auth.ts']) {
+      const codigo = sinComentarios(leer(archivo));
+      expect(codigo).toMatch(/No se pudo conectar con la base de datos/);
+      expect(codigo).toMatch(/err instanceof BaseSinRespuesta/);
+    }
+  });
+
   it('si no hay ninguna cuenta creada, lo dice en vez de culpar a la clave', () => {
     const codigo = sinComentarios(leer('src/app/actions/auth.ts'));
 

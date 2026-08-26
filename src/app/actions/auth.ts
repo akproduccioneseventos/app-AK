@@ -16,6 +16,50 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const SCRYPT_SALT_LEN = 16;
 const SCRYPT_KEY_LEN = 64;
 
+/**
+ * Cuanto se espera a la base de datos antes de dar la respuesta por perdida.
+ *
+ * **Paso de verdad: el dueno no pudo entrar a su app y el boton parecia no hacer nada.**
+ * Probado con un navegador de verdad: al tocar "Ingresar", la pantalla se quedaba
+ * **veinticinco segundos** diciendo "Ingresando...", y recien ahi contestaba "Error al
+ * iniciar sesion. Intenta de nuevo." Nadie espera veinticinco segundos: se toca de nuevo,
+ * se cierra, se concluye que el boton esta roto.
+ *
+ * El problema no era la clave ni el boton: la consulta a la base **quedaba colgada**. Sin
+ * tope propio se arrastraba hasta el limite del navegador.
+ *
+ * Ocho segundos alcanzan de sobra: una consulta que anda contesta en menos de uno, incluso
+ * con el servidor recien despierto. Si a los ocho no contesto, no va a contestar.
+ */
+const TOPE_BASE_MS = 8000;
+
+class BaseSinRespuesta extends Error {}
+
+/** Corre la consulta contra el reloj. Si la base no contesta a tiempo, se dice. */
+async function conTopeDeEspera<T>(tarea: Promise<T>): Promise<T> {
+  let reloj: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      tarea,
+      new Promise<never>((_, rechazar) => {
+        reloj = setTimeout(() => rechazar(new BaseSinRespuesta()), TOPE_BASE_MS);
+      }),
+    ]);
+  } finally {
+    if (reloj) clearTimeout(reloj);
+  }
+}
+
+/**
+ * El unico mensaje que se muestra cuando la base no contesta.
+ *
+ * Antes decia "Error al iniciar sesion. Intenta de nuevo.", que no dice nada: el dueno
+ * leia eso y creia haberse equivocado de clave. **Una pantalla no afirma algo que no
+ * comprobo**, y menos si eso manda a la persona a buscar un error que no cometio.
+ */
+const AVISO_BASE_CAIDA =
+  'No se pudo conectar con la base de datos. No es tu clave: espera un momento y volve a intentar.';
+
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 /**
@@ -151,11 +195,13 @@ export async function loginUser(
   await initializeAdminIfNeeded();
 
   try {
-    const snapshot = await dbAdmin
-      .collection('users')
-      .where('email', '==', email.trim().toLowerCase())
-      .limit(1)
-      .get();
+    const snapshot = await conTopeDeEspera(
+      dbAdmin
+        .collection('users')
+        .where('email', '==', email.trim().toLowerCase())
+        .limit(1)
+        .get()
+    );
 
     if (snapshot.empty) {
       // **Si no hay NINGUN usuario, decirlo.** No es lo mismo que equivocarse de
@@ -165,7 +211,7 @@ export async function loginUser(
       // buscar una clave que no existe, y eso ya hizo perder un dia.
       //
       // No revela quien esta anotado: habla del sistema entero, no de este correo.
-      const hayAlgunUsuario = await dbAdmin.collection('users').limit(1).get();
+      const hayAlgunUsuario = await conTopeDeEspera(dbAdmin.collection('users').limit(1).get());
       if (hayAlgunUsuario.empty) {
         return {
           success: false,
@@ -206,6 +252,11 @@ export async function loginUser(
     };
   } catch (err) {
     console.error('[auth] loginUser error:', err);
+    // Se distingue "la base no contesta" de cualquier otro fallo. Antes los dos
+    // terminaban en el mismo texto vago y el dueno creia que era su clave.
+    if (err instanceof BaseSinRespuesta) {
+      return { success: false, error: AVISO_BASE_CAIDA };
+    }
     return { success: false, error: 'Error al iniciar sesión. Intentá de nuevo.' };
   }
 }
