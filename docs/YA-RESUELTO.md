@@ -4233,6 +4233,55 @@ la excepcion es legitima.
 **La leccion, que vale para cualquier control con linea de base:** un tope que se calcula
 de lo que vigila no vigila nada. Tiene que ser un numero fijo, escrito, que alguien tenga
 que cambiar a proposito.
+## Lo que se verifico de la web publica (26 de agosto de 2026)
+
+Llego un informe de 17 paginas de otra IA sobre la web publica. **Se comprobo punto por
+punto antes de mandar nada a programar.** Lo confirmado quedo en
+`docs/ordenes/9-la-web-que-encuentra-google.md`. Lo que sigue es lo verificado, para que
+nadie lo vuelva a buscar:
+
+**CIERTO — la ficha de negocio declara una direccion que no existe.**
+`src/components/seo/LocalBusinessJsonLd.tsx` dice `streetAddress: 'Gaboto 3390'` y tipo
+`EventVenue`. El dueno **no tiene local a la calle**: trabaja en salones y a domicilio.
+Google puede estar mostrando una direccion donde no hay nada.
+
+**CIERTO — las paginas de venta compiten contra si mismas.** `/bodas`, `/quinceaneras` y
+`/cumpleanos` declaran su direccion canonica como `/landing/<slug>`
+(`src/lib/seo/event-landing.ts`), y las dos versiones existen. Google no sabe cual
+mostrar.
+
+**CIERTO — tres paginas publicas no tienen ni titulo ni descripcion:** `/catalogo`,
+`/galeria-led` y `/simulador-de-presupuesto`. Las tres son `'use client'` desde la primera
+linea y **estan permitidas en robots y listadas en el mapa de Google**. La del simulador
+es la mas cara: es la que captura el contacto del prospecto.
+
+**CIERTO — `/experiencia-ak` esta abierta a Google con texto interno**, del tipo "lo que
+yo agregaria para vender mejor".
+
+**CIERTO — puede quedar contenido invisible en el celular.** `.ak-deferred-section` con
+`content-visibility: auto` mas `opacity: 0` inicial en tres secciones de la portada
+(`LandingSpaContainer.tsx`). Si la animacion no arranca, el visitante no ve testimonios,
+preguntas frecuentes ni el boton de contacto.
+
+**FALSO — los contadores animados que muestran cero.** El informe lo reportaba; ese
+componente ya no existe. **Falso positivo, no volver a reportarlo.**
+
+**Lo que si esta bien y no hay que tocar:** el permiso de robots, el mapa de Google (junta
+las paginas fijas y las notas del blog sin duplicar), la prioridad por pagina, y los
+datos estructurados de preguntas frecuentes y migas de pan.
+
+## Que puede y que no puede hacer una IA de posicionamiento (26 de agosto de 2026)
+
+El dueno pidio "una IA de posicionamiento que mejore la web y su posicion, automatico,
+todos los dias, sola". **Se hace, con un limite que hay que respetar siempre:**
+
+- **Si puede:** escribir contenido nuevo (ya lo hace, una nota cada dos dias), revisar
+  todos los dias la salud tecnica de la web y arreglar lo mecanico, y avisar en "Mi dia".
+- **No puede garantizar posicion.** Nadie controla el orden de Google.
+- **Y hoy no puede ni saberla:** hace falta conectar Google Search Console. Sin esa
+  conexion, **cualquier numero de posicion seria inventado**, que es justo lo que prohibe
+  `ninguna-pantalla-miente.test.ts`. Mientras no este conectada, la pantalla dice "falta
+  conectar Google", nunca un numero.
 
 ## Cómo agregar algo a esta lista
 
