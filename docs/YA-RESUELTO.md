@@ -4826,3 +4826,45 @@ si fueran reales.
 
 Ahora estan ignorados. No cambia nada de como funcionan los empleados: siguen escribiendo
 su historial igual, solo que ese historial se queda en la maquina donde corrio.
+
+## La pantalla de entrada le echaba la culpa al dueno (26 de agosto de 2026)
+
+**El dueno no pudo entrar a su propia app, ni por correo ni por contrasena.** Lo que leia
+en pantalla era "Contrasena incorrecta".
+
+El defecto no estaba en la clave. Cuando la base de datos no contestaba, la comprobacion
+seguia de largo igual: no encontraba con que comparar, ningun dato coincidia, y terminaba
+en el ultimo renglon, que dice "Contrasena incorrecta". **La app afirmaba algo que nunca
+comprobo.** Y peor: ese fallo se contaba como intento fallido, asi que a los cinco
+reintentos —los que cualquiera hace cuando cree haberse equivocado— el acceso quedaba
+pausado quince minutos por un problema que nunca fue suyo.
+
+Se arreglaron tres cosas:
+
+1. **Si la base no responde, se dice.** "La base de datos no esta respondiendo. No es tu
+   contrasena." Y no se cuenta como intento fallido: un fallo del servidor no se castiga.
+2. **La puerta de emergencia se comprueba primero.** La clave de entorno se mira antes de
+   consultar la base, porque es justamente la que tiene que servir cuando la base esta
+   caida. Antes se miraba despues, lo cual la volvia inutil en el unico momento que
+   importaba.
+3. **Si no hay ninguna cuenta creada, se dice.** Antes contestaba "correo o contrasena
+   incorrectos", que manda a buscar una clave que no existe.
+
+**Lo que NO se toco, a proposito:** sigue contestando exactamente lo mismo para "ese
+correo no existe" y para "la clave no coincide". Es deliberado, para que nadie pueda
+averiguar desde afuera quien tiene cuenta. Congelado en
+`src/__tests__/la-puerta-no-miente.test.ts`.
+
+## La web tiene una sola direccion (26 de agosto de 2026)
+
+La web contestaba con "www" adelante y sin el. Para una persona es la misma pagina; para
+Google pueden ser dos sitios distintos con el mismo contenido, y entonces reparte entre
+los dos lo que deberia sumar a uno solo.
+
+Paso de verdad: Google tenia la portada anotada como `www.akproducciones.uy`, mientras la
+app se declara sin www en todos lados —el mapa del sitio, la ficha del negocio y la
+direccion canonica de cada pagina—.
+
+Ahora quien entre con "www" llega igual, pero pasando por la direccion buena. El desvio es
+**permanente a proposito**: asi Google traslada a la direccion sin www lo que ya tenia
+acumulado en la otra, en vez de empezar de cero.
