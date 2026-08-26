@@ -2,8 +2,8 @@
 
 **Para:** Gemini
 **Fecha:** 26 de agosto de 2026
-**Entrega:** **UNA SOLA propuesta con los siete bloques.** Si uno se traba, entregá los
-otros seis igual y decí cuál faltó y por qué.
+**Entrega:** **UNA SOLA propuesta con los diez bloques.** Si uno se traba, entregá los
+otros nueve igual y decí cuál faltó y por qué.
 
 **Todo lo de acá está verificado línea por línea**, no copiado de un informe. Llegó un
 informe de 17 páginas sobre la web pública; se comprobó punto por punto y **lo que no se
@@ -37,6 +37,17 @@ le muestre a la gente una dirección donde no hay nada.
    en vez de dirección.
 3. El teléfono sale de `src/lib/public-contact.ts`, que ya es la fuente única. **No
    escribir números a mano en ningún otro lado.**
+
+**La excepción, confirmada por el dueño: el Salón Club Uruguay SÍ tiene dirección.** Es
+un salón de verdad, en **Uruguay 754, Salto**. La página `/club-uruguay` existe y hoy
+**no declara ninguna ficha de negocio**: tiene que declararse como `EventVenue` en esa
+dirección. Es la única dirección de calle que va en toda la web, y encima suma: un salón
+real con dirección real es de lo que mejor entiende Google.
+
+| Quién | Qué se declara |
+| --- | --- |
+| AK Producciones (portada, bodas, quince, cumpleaños, blog) | Salto, Uruguay. **Sin dirección de calle.** Zona de cobertura |
+| Salón Club Uruguay (`/club-uruguay`) | `EventVenue` en **Uruguay 754, Salto, Uruguay** |
 
 ---
 
@@ -126,8 +137,21 @@ conexión lenta— el visitante llega hasta la galería, cree que la página ter
    medible, sacarlo de ahí y dejarlo sólo en zonas que no sean críticas.
 4. Respetar `prefers-reduced-motion`.
 
+**Esto ya no es una sospecha: el dueño lo vio en su propia web.** Sus palabras: *"cuando
+entro a mi web no veo el pie de página; lo de después de la galería no se ve nada"*.
+
+**La causa está medida.** La portada dibuja 15 bloques. Los tres últimos —"difference",
+"team-process" y **"cta-footer", que es donde viven el pie de página y el botón de
+contacto**— están dentro de `.ak-deferred-section`, con
+`contain-intrinsic-size: auto 720px`. El navegador reserva 720px para cada una y no las
+dibuja hasta que se acercan a la pantalla. **Si esa cuenta falla, el visitante llega a la
+galería y para él la página se terminó ahí.**
+
+Es la peor pérdida posible: el pie es donde está el botón de contacto.
+
 **Cómo se comprueba:** con el JavaScript apagado, la portada tiene que mostrar todas sus
-secciones hasta el pie.
+secciones hasta el pie. Y en un celular de verdad, bajando hasta el final, el pie tiene
+que aparecer siempre.
 
 ---
 
@@ -184,6 +208,78 @@ un ícono, no compitiendo con el trabajo diario.
 menú tiene que seguir siendo alcanzable desde alguna de las tres puertas o desde el "ver
 todo" de la pantalla que corresponda. Si algo no entra en ningún grupo, ponelo en "ver
 todo" antes que sacarlo.
+
+---
+
+## Bloque 8 — Que la web cargue rápido
+
+**El dueño la probó y dice que cuesta cargar, que está muy lenta.** Esto es lo que se
+midió, para que no se trabaje a ciegas:
+
+| Qué se midió | Resultado |
+| --- | --- |
+| Imágenes de la web pública | 31 MB en total; la más pesada, 1 MB (`simulador_hero_pro.jpg`) |
+| Imágenes marcadas como "prioritarias" | **7** en la portada |
+| Bloques que dibuja la portada | 15 |
+
+**Qué hay que hacer, en este orden:**
+
+1. **Dejar UNA sola imagen prioritaria por página**: la primera que se ve, y nada más.
+   Hoy hay siete (`HeroSection.tsx:74`, `AkDifferenceSection.tsx:94` y cinco en
+   `GallerySection.tsx`). Marcar todo como prioritario es lo mismo que no marcar nada, y
+   encima le dice al navegador que baje siete imágenes antes de mostrar el texto.
+2. **Achicar la imagen de 1 MB** y cualquier otra que pase los 400 KB. Que se sirvan en
+   formato moderno y del tamaño en que se ven, no más grandes.
+3. **Las imágenes que están más abajo se cargan cuando se llega**, nunca al principio.
+4. **Medir antes y después** y dejar el número en la propuesta. Sin número, no sabemos si
+   mejoró.
+
+**Lo que NO hay que hacer:** tocar `apphosting.yaml` ni nada que aumente lo que se paga
+por mes. **El servidor se queda dormido a propósito y esa decisión no se toca.** Si la
+primera visita del día tarda un poco más por eso, está bien así: lo que hay que arreglar
+es el peso de la página, no la máquina.
+
+---
+
+## Bloque 9 — Movimiento, sin volverla más lenta
+
+**El dueño lo pidió así:** *"pedí que tuviera movimiento y no tiene; quizás cambiar alguna
+imagen por algún video corto"*.
+
+Hoy el único video de la portada está adentro de una ventana que se abre al tocar
+(`VideoSection.tsx`), así que la página se ve quieta.
+
+**Qué hay que hacer:** poner movimiento **arriba**, donde se ve apenas entra, con estas
+condiciones, que no son opcionales porque él también dijo que la web está lenta:
+
+- **Video corto, sin sonido, en bucle**, de pocos segundos y bien comprimido.
+- **Una foto de fondo mientras carga**, para que nunca se vea un rectángulo negro.
+- **Arranca sólo cuando está en pantalla**, y se frena cuando no.
+- **En celular, con datos, no se baja el video**: se muestra la foto.
+- **Respeta `prefers-reduced-motion`**: quien pidió menos movimiento ve la foto.
+- **Material real de fiestas de AK.** Nada de video de banco de imágenes.
+
+**La regla que manda acá: si el video hace que la página tarde más en mostrarse, no va.**
+Primero liviano, después lindo.
+
+---
+
+## Bloque 10 — Dejar lista la conexión con Google Search Console
+
+**El dueño pidió que lo conectemos.** La autorización es de su cuenta de Google y **nadie
+puede hacerla por él**, pero se puede dejar todo listo para que sea **un solo paso**.
+
+**Qué hay que hacer:**
+
+1. En la pantalla de conexiones, un lugar donde pegar el código de verificación que da
+   Google, guardado como el resto de las conexiones.
+2. Que ese código salga en la etiqueta que Google busca en la portada, para verificar el
+   sitio.
+3. Estado real: verificado / falta pegar el código / no se pudo verificar. **Nunca decir
+   "conectado" sin comprobarlo** — ya hay un control que lo impide.
+4. Mientras no esté verificado, donde iría la posición dice **"falta conectar Google"**,
+   no un número.
+5. Una explicación de dos líneas, en criollo, de dónde saca ese código. **Sin jerga.**
 
 ---
 
