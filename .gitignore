@@ -141,3 +141,9 @@ auditoria-out/
 # parece que los avisos al celular estan apagados. En produccion siempre se
 # regenera bien, asi que el que este guardado aca no cambia nada.
 public/firebase-messaging-sw.js
+
+# Lo que escriben los empleados automaticos al correr (no es codigo, es dato de la corrida)
+data/agentes-configuracion.json
+data/agentes-historial.json
+src/data/agentes-configuracion.json
+src/data/agentes-historial.json
