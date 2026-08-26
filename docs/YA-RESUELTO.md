@@ -4442,6 +4442,40 @@ otras AK Producciones de Costa Rica, Venezuela y Valencia. Los motivos, en orden
 local de Asdemya", una direccion distinta de las dos de arriba. Direcciones contradictorias
 dando vueltas confunden a Google sobre quien es el negocio.
 
+## Le declaraba a Google que una boda sale USD 1000 (26 de agosto de 2026)
+
+Una entrega agrego `ServiceJsonLd`, la ficha de servicio que lee Google para bodas y
+quince. Traia una oferta con precio:
+
+```
+"offers": { "priceCurrency": "USD", "price": price, ... }   // price = "1000" por defecto
+```
+
+**Ninguna pagina pasaba un precio**, asi que quedaba el valor por defecto. O sea que le
+decia a Google que una boda de AK sale **USD 1000**: un numero que el dueno nunca puso, y
+en una moneda que **no usa** —se trabaja solo en pesos uruguayos—. Google puede mostrar
+ese precio en los resultados, antes de que la persona entre a la web.
+
+**Se saco la oferta entera.** Una fiesta no tiene precio de lista: depende de los
+invitados, la fecha, el salon y los servicios. Por eso se cotiza. Si alguna vez hace falta
+declarar un precio, **tiene que salir de un dato real de la app, en pesos, y nunca de un
+valor por defecto**.
+
+Congelado en `src/__tests__/google-no-ve-precios-inventados.test.ts`, que ademas impide
+que cualquier ficha para Google declare precios en dolares.
+
+**Lo bueno de esa misma entrega, que se queda:** las preguntas frecuentes en el formato
+que Google entiende, para que las respuestas puedan aparecer desplegadas en el buscador.
+
+## Un boton que decia una cosa y hacia otra (26 de agosto de 2026)
+
+En las paginas de venta, el boton principal se renombro a **"Ver opciones para mi
+evento"**. Ese boton **abre WhatsApp**: la persona tocaba esperando una lista de opciones
+y se le abria un chat.
+
+Es la misma familia que todo lo demas de esta semana: el cartel no dice lo que hace. Ahora
+dice **"Hablar con un productor por WhatsApp"**, que es lo que pasa.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
