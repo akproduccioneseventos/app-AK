@@ -1,6 +1,8 @@
-"use client";
+﻿"use client";
+
 import { Fragment, type ReactNode } from "react";
 import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
+
 interface LandingSpaContainerProps {
   hero: ReactNode;
   stats: ReactNode;
@@ -20,7 +22,7 @@ interface LandingSpaContainerProps {
   floatingActions: ReactNode;
   winSech: ReactNode;
 }
-const DEFERRED_SECTIONS = new Set(["difference", "team-process", "cta-footer"]);
+
 export function LandingSpaContainer({
   hero,
   stats,
@@ -47,14 +49,7 @@ export function LandingSpaContainer({
     damping: 28,
     mass: 0.25,
   });
-  const revealProps = reduceMotion
-    ? {}
-    : {
-        initial: { opacity: 0, y: 24 },
-        whileInView: { opacity: 1, y: 0 },
-        viewport: { once: true, amount: 0.12 },
-        transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] as const },
-      };
+
   const dashboardSection = (
     key: string,
     children: ReactNode,
@@ -62,80 +57,87 @@ export function LandingSpaContainer({
   ) => {
     if (!children) return null;
     return (
-      <motion.section
+      <section
         id={`landing-${key}`}
         key={key}
-        {...revealProps}
-        className={`relative w-full scroll-mt-20 ${DEFERRED_SECTIONS.has(key) ? "ak-deferred-section" : ""} ${justify === "between" ? "md:flex md:min-h-screen md:flex-col md:justify-between" : ""}`}
+        className={`relative w-full scroll-mt-20 ${justify === "between" ? "md:flex md:min-h-screen md:flex-col md:justify-between" : ""}`}
       >
         <div className="contents">{children}</div>
-      </motion.section>
+      </section>
     );
   };
+
   return (
     <div className="min-h-screen bg-white text-slate-950 selection:bg-red-700 selection:text-white">
       <motion.div
         style={{ scaleX: progressScale }}
         className="fixed left-0 top-0 z-[70] h-1 w-full origin-left bg-red-600"
       />
-      <motion.div
-        key="landing-scroll"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="ak-landing-experience"
-      >
+      <div className="ak-landing-experience">
+        {/* Bloque 1: Bienvenida e Impacto */}
+        {dashboardSection("hero", hero)}
+
+        {/* Bloque 2: Propuesta de Valor */}
         {dashboardSection(
-          "hero",
-          <>
-            <Fragment key="hero">{hero}</Fragment>
-            <Fragment key="stats">{stats}</Fragment>
-          </>,
-          "between",
+          "difference",
+          <Fragment>
+            {difference}
+            {stats}
+          </Fragment>,
         )}
-        {dashboardSection("difference", difference)}
+
+        {/* Bloque 3: Lo Que Hacemos */}
         {dashboardSection("services", services)}
+
+        {/* Bloque 4: Innovación y Tecnología */}
         {dashboardSection("technology", technology)}
+
+        {/* Bloque 5: Lugar de Celebración */}
         {dashboardSection("salon", salon)}
+
+        {/* Bloque 6: Cómo Trabajamos */}
         {dashboardSection(
           "team-process",
-          team || process ? (
-            <div className="w-full">
-              <Fragment key="team">{team}</Fragment>
-              <Fragment key="process">{process}</Fragment>
-            </div>
-          ) : null,
+          <Fragment>
+            {team}
+            {process}
+          </Fragment>,
         )}
+
+        {/* Bloque 7: Pruebas y Experiencia Real */}
         {dashboardSection("gallery", gallery)}
+
+        {/* Bloque 8: Contenido y Recursos */}
         {dashboardSection(
           "blog-video",
-          blog || video ? (
-            <div className="w-full">
-              <Fragment key="blog">{blog}</Fragment>
-              <Fragment key="video">{video}</Fragment>
-            </div>
-          ) : null,
+          <Fragment>
+            {video}
+            {blog}
+          </Fragment>,
         )}
+
+        {/* Bloque 9: Confianza y Cierre */}
         {dashboardSection(
           "testimonials-faq",
-          testimonials || faq ? (
-            <div className="w-full">
-              <Fragment key="testimonials">{testimonials}</Fragment>
-              <Fragment key="faq">{faq}</Fragment>
-            </div>
-          ) : null,
+          <Fragment>
+            {testimonials}
+            {faq}
+          </Fragment>,
         )}
+
+        {/* Bloque 10: Llamado a la Acción y Contacto */}
         {dashboardSection(
           "cta-footer",
-          <>
-            <Fragment key="cta">{cta}</Fragment>
-            <Fragment key="footer">{footer}</Fragment>
-          </>,
+          <Fragment>
+            {cta}
+            {footer}
+          </Fragment>,
           "between",
         )}
-      </motion.div>
-      <div className="contents">
-        <Fragment key="floating-actions">{floatingActions}</Fragment>
-        <Fragment key="win-sech">{winSech}</Fragment>
+
+        {/* Acciones flotantes */}
+        {floatingActions}
+        {winSech}
       </div>
     </div>
   );

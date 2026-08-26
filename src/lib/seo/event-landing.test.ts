@@ -10,10 +10,10 @@ describe('createEventLandingMetadata', () => {
       imageAlt: 'Boda producida por AK Producciones',
     });
 
-    expect(metadata.alternates).toEqual({ canonical: '/landing/bodas' });
+    expect(metadata.alternates).toEqual({ canonical: '/bodas' });
     expect(metadata.openGraph).toMatchObject({
       title: 'Bodas | AK Producciones',
-      url: 'https://akproducciones.uy/landing/bodas',
+      url: 'https://akproducciones.uy/bodas',
       images: [{ url: '/media/catalogo-servicios/boda_persuasiva.png' }],
     });
   });

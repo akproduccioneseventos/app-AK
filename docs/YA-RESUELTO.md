@@ -17,6 +17,61 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 11 — El Encargado y su equipo (26 de agosto de 2026)
+
+- **Los 4 nuevos empleados automáticos (`src/lib/automatico/tareas-automaticas.ts`, `src/lib/automatico/al-entrar-a-la-app.ts`, `src/lib/automatico/puerta-de-las-tareas.ts`, `src/app/api/cron/`):**
+  - *Cobranzas (`recordatorios-de-pago` / `ejecutarCobrador`):* Monitorea cuotas de todas las fiestas y deja los mensajes listos en la bandeja de salida de WhatsApp.
+  - *Fiesta que viene (`fiesta-proxima-revision` / `ejecutarVigilanteFiestas`):* Revisa pendientes de las fiestas de las próximas 2 semanas (menú, salón, personal, invitados) y genera avisos en lenguaje calmo.
+  - *Prospectos (`prospectos-seguimiento` / `ejecutarPerseguidorPresupuestos`):* Revisa presupuestos sin respuesta a los 5 y 14 días y prepara los borradores de seguimiento en WhatsApp.
+  - *Web (`posicionamiento-diario`):* Revisa la salud del sitio en Google y sitemap.
+- **El Encargado y su equipo (`src/lib/multiagent/encargado.ts`, `src/ai/flows/multiagent-flow.ts`):**
+  - Enrutador inteligente: si 1 especialista alcanza, lo deriva directamente. Si abarca múltiples áreas, consulta hasta un tope de 3 especialistas y sintetiza una respuesta única en primera persona y en criollo rioplatense.
+- **La voz rioplatense sin manos (`src/components/multiagent/multiagent-widget.tsx`):**
+  - Selección inteligente de voz en `speechSynthesis.getVoices()` priorizando `es-UY`, `es-AR`, `es-419`/`es-US` y nunca cayendo en acento español de España ni voces mudas en inglés.
+  - Respuestas habladas concisas (máximo 3 oraciones y "¿querés que siga?").
+- **El parte de la mañana en «Mi Día» (`src/lib/automatico/parte-manana.ts`, `src/components/mi-dia/ParteDeLaMananaPlayer.tsx`, `src/app/(app)/mi-dia/page.tsx`):**
+  - Tarjeta superior en «Mi Día» con los 3 puntos prioritarios de la jornada, sin palabras de alarma ni pánico, y botón "Escuchar el parte" con síntesis de voz.
+- **Regla de oro blindada por tests (`src/__tests__/agentes-preparar-no-mandar.test.ts`):**
+  - Prueba automatizada que asegura que ningún agente manda mensajes solo, cobra plata, publica en redes o borra datos sin intervención humana.
+
+---
+
+## Orden 10 — Lo que quedó de la revisión completa (26 de agosto de 2026)
+
+- **Referencia de maquetación actualizada (`tests/e2e/layout-baseline.json`, `tests/e2e/layout-baseline.spec.ts`):**
+  - Ajustadas las dimensiones verificadas: `h1W` en `/presupuestos/nuevo` (212), `h1Y` en `/` (148) y `h1W` en mobile `/admin` (101).
+- **Protección contra botones colgados con tope de espera (`src/lib/ui/tope-de-espera.ts`, `src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts`):**
+  - `conTopeDeEspera` extendido a la mutación de incidentes (`createIncidente`, `resolverIncidente`), módulos de fiesta (`updateModulosContratadosFiestaActual`) y plantillas maestras de menú/repostería.
+- **Detección de frescura de compilación en pruebas E2E (`scripts/run-playwright-production.mjs`):**
+  - Chequeo automático de mtime entre `src/` y `.next/BUILD_ID` para evitar correr pruebas contra código desfasado.
+
+---
+
+## Orden 9 — La web que encuentra Google, velocidad y movimiento (26 de agosto de 2026)
+
+- **Ficha de negocio honesta y Salón Club Uruguay (`src/components/seo/LocalBusinessJsonLd.tsx`, `src/components/public/LocalBusinessSchema.tsx`, `src/app/club-uruguay/page.tsx`):**
+  - Eliminado `streetAddress` ficticio para AK Producciones; declarada zona de cobertura (`areaServed: Salto, UY`).
+  - Salón Club Uruguay (`/club-uruguay`) declarado con `@type: 'EventVenue'` en su dirección real: Uruguay 754, Salto.
+- **Autocanonicalización y redirección de páginas de venta (`src/lib/seo/event-landing.ts`, `src/app/landing/`, `src/lib/seo/paginas-publicas.ts`, `src/app/sitemap.ts`):**
+  - `/bodas`, `/quinceaneras` y `/cumpleanos` autocanonicalizan a sí mismas.
+  - `/landing/bodas`, `/landing/xv-anos` y `/landing/eventos` redirigen limpiamente hacia las rutas principales.
+  - Rutas de redirección removidas de sitemap y robots.
+- **Metadata completa y enriquecida para páginas públicas (`src/app/catalogo/layout.tsx`, `src/app/galeria-led/layout.tsx`, `src/app/simulador-de-presupuesto/layout.tsx`, `src/app/public/[eventType]/page.tsx`, `src/app/public/blog/page.tsx`, `src/app/public/blog/[slug]/page.tsx`):**
+  - Agregadas imágenes OpenGraph, tarjetas de Twitter, canonicals y esquema `ArticleJsonLd` / `BlogPosting`.
+- **Experiencia AK comercializada (`src/app/experiencia-ak/page.tsx`):**
+  - Rediseñada como landing comercial para clientes de Salto, eliminando notas internas de desarrollo.
+- **Visibilidad garantizada en celular y rendimiento de carga (`src/app/ak-motion-effects.css`, `src/components/landing/LandingSpaContainer.tsx`, `src/components/landing/AkDifferenceSection.tsx`):**
+  - Eliminado `content-visibility: auto` destructivo que ocultaba el pie de página en móviles.
+  - Retirado `priority` en imágenes debajo del pliegue. Imágenes pesadas en `public/` optimizadas (>80% reducción de peso).
+- **Hero con movimiento y soporte de video optimizado (`src/components/landing/HeroSection.tsx`):**
+  - Video de fondo en bucle, enmudecido, pausado fuera del viewport, con poster de alta resolución y respeto a `prefers-reduced-motion` y ahorro de datos.
+- **Trabajador diario de posicionamiento y conexión con Google Search Console (`src/lib/automatico/posicionamiento-diario.ts`, `src/lib/automatico/tareas-automaticas.ts`, `src/lib/automatico/al-entrar-a-la-app.ts`, `src/app/actions/seo-posicionamiento.ts`, `src/lib/google-search-console.ts`):**
+  - Tarea diaria registrada que verifica salud SEO y sitemap. Estado honesto ("Falta conectar Google Search Console") sin números inventados.
+- **Control E2E de visibilidad y quinta pregunta de auditoría (`tests/e2e/la-web-publica-se-ve.spec.ts`, `docs/COMO-AUDITAR.md`):**
+  - Agregada pregunta *"5. ¿El visitante lo ve?"* y prueba Playwright para verificar visibilidad del footer y metadatos.
+
+---
+
 ## Orden 8 — Terminar las tres puertas y ensanchar el control (25 de agosto de 2026)
 
 - **El menú en tres puertas y directorio de La Empresa (`src/components/main-nav.tsx`, `src/app/(app)/empresa/page.tsx`, `scripts/generar-mapa-app.mjs`, `docs/MANUAL-DE-LA-APP.md`):**

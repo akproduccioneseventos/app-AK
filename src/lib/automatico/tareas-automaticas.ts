@@ -59,6 +59,24 @@ export const TAREAS_AUTOMATICAS: TareaAutomatica[] = [
     siNoCorre: 'El cliente con una cuota vencida no recibe ningun aviso, y hay que perseguirlo a mano.',
     cadaHoras: 24,
   },
+  {
+    id: 'posicionamiento-diario',
+    nombre: 'Revisar la salud de la web en Google',
+    siNoCorre: 'Si una página pública queda rota o sin título, Google no la muestra y nadie se entera hasta que bajan las visitas.',
+    cadaHoras: 24,
+  },
+  {
+    id: 'fiesta-proxima-revision',
+    nombre: 'Revisar pendientes de las fiestas próximas',
+    siNoCorre: 'Las fiestas de las próximas semanas quedan sin verificar y no nos enteramos si falta mozos, menú o salón hasta el día del evento.',
+    cadaHoras: 24,
+  },
+  {
+    id: 'prospectos-seguimiento',
+    nombre: 'Seguimiento de prospectos y presupuestos',
+    siNoCorre: 'Los clientes que pidieron presupuesto no reciben seguimiento y se pierden ventas por falta de respuesta a tiempo.',
+    cadaHoras: 24,
+  },
 ];
 
 import type { OrigenDisparo } from '@/lib/automatico/control-concurrencia';

@@ -1,11 +1,12 @@
 import React from 'react';
-import { AK_SAME_AS_URLS } from '@/lib/public-contact';
+import { AK_SAME_AS_URLS, AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 export interface LocalBusinessJsonLdProps {
   url: string;
   image?: string[];
   description?: string;
   name?: string;
+  isClubUruguay?: boolean;
 }
 
 export function LocalBusinessJsonLd({
@@ -14,7 +15,8 @@ export function LocalBusinessJsonLd({
     'https://akproducciones.uy/media/catalogo-servicios/boda_persuasiva.png',
   ],
   description = 'Organización integral de eventos en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
-  name = 'AK Producciones',
+  name = 'AK Producciones Eventos',
+  isClubUruguay = false,
 }: LocalBusinessJsonLdProps) {
   /**
    * La ficha de negocio que lee Google.
@@ -36,7 +38,7 @@ export function LocalBusinessJsonLd({
     '@type': 'ProfessionalService',
     name,
     image,
-    telephone: '+598 98 355 530',
+    telephone: `+${AK_WHATSAPP_NUMBER}`,
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Salto',

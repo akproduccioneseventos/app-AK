@@ -1,32 +1,29 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { AkRedPremiumSurface } from '@/components/brand/ak-red-premium-surface';
 
-/**
- * La tarjeta que aparece al compartir el simulador por WhatsApp.
- *
- * El simulador se comparte todo el tiempo con prospectos. Sin estos datos, el
- * chat mostraba el titulo generico de toda la app y ninguna imagen: el enlace
- * llegaba pelado. Va en el layout porque la pantalla es de cliente y ahi no se
- * puede definir.
- */
 export const metadata: Metadata = {
-  title: 'Cotizá tu fiesta en 2 minutos | AK Producciones',
+  metadataBase: new URL('https://akproducciones.uy'),
+  title: 'Simulador de Presupuesto en Salto | AK Producciones Eventos',
   description:
-    'Armá tu presupuesto con gastronomía, salón, tecnología y servicios reales de AK Producciones. Vas a ver el precio vigente y el valor por persona, sin compromiso.',
+    'Armá tu presupuesto con comida, salón, discoteca y servicios reales de AK Producciones en Salto. Conocé el precio vigente y el valor por persona al instante.',
+  alternates: {
+    canonical: '/simulador-de-presupuesto',
+  },
   openGraph: {
-    title: 'Cotizá tu fiesta en 2 minutos',
+    title: 'Simulador de Presupuesto en Salto | AK Producciones Eventos',
     description:
-      'Armá tu presupuesto con gastronomía, salón, tecnología y servicios reales de AK Producciones, con el precio vigente y el valor por persona.',
+      'Armá tu presupuesto con comida, salón, discoteca y servicios reales de AK Producciones en Salto, con precio vigente y valor por persona.',
     type: 'website',
+    url: 'https://akproducciones.uy/simulador-de-presupuesto',
     siteName: 'AK Producciones Eventos',
     locale: 'es_UY',
-    images: [{ url: '/media/catalogo-servicios/quinceanera_hero.png', width: 1200, height: 630, alt: 'Fiesta producida por AK Producciones' }],
+    images: [{ url: '/media/catalogo-servicios/quinceanera_hero.png', width: 1200, height: 630, alt: 'Simulador de presupuesto AK Producciones' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Cotizá tu fiesta en 2 minutos',
-    description: 'Armá tu presupuesto con servicios reales de AK Producciones.',
+    title: 'Simulador de Presupuesto en Salto | AK Producciones Eventos',
+    description: 'Armá tu presupuesto con servicios reales de AK Producciones en Salto.',
     images: ['/media/catalogo-servicios/quinceanera_hero.png'],
   },
 };

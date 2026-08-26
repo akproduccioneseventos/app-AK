@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Qué páginas puede mostrar Google y cuáles no.
  *
  * La aplicación tiene tres mundos mezclados en el mismo dominio:
@@ -12,18 +12,13 @@
  *    invitaciones con la lista de invitados, la opinión post evento, los accesos
  *    del personal. Estas son las más delicadas: si Google las indexa, la fiesta de
  *    un cliente aparece en una búsqueda.
- *
- * Por eso la regla es al revés de lo habitual: **está todo cerrado y se abre sólo
- * lo que se enumera acá**. Si mañana alguien agrega una pantalla nueva con datos
- * de un cliente y se olvida de esta lista, queda cerrada por defecto, que es el
- * error barato. Al revés sería el caro.
  */
 
 import { blogPosts } from '@/data/blog-posts';
 
 export const SITE_URL = 'https://akproducciones.uy';
 
-/** Páginas de venta que Google puede mostrar. */
+/** Páginas de venta canónicas que Google debe mostrar. */
 export const PAGINAS_PARA_GOOGLE = [
   '/',
   '/bodas',
@@ -33,19 +28,11 @@ export const PAGINAS_PARA_GOOGLE = [
   '/catalogo',
   '/experiencia-ak',
   '/simulador-de-presupuesto',
-  '/public',
   '/public/bodas',
   '/public/xv-anos',
   '/public/fiestas',
   '/public/blog',
-  // Las notas del blog salen de `src/data/blog-posts.ts`, no escritas a mano.
-  // Estaban tres de las seis: las otras tres existian y Google no las conocia,
-  // **incluida la unica que habla de Salto**, que es la que mas rinde. Escritas a
-  // mano se vuelven a desincronizar la proxima vez que se agregue una nota.
   ...blogPosts.map((post) => `/public/blog/${post.slug}` as const),
-  '/landing/bodas',
-  '/landing/xv-anos',
-  '/landing/eventos',
 ] as const;
 
 /**
@@ -78,8 +65,14 @@ const PRIORIDAD: Record<string, number> = {
   '/catalogo': 0.8,
   '/club-uruguay': 0.8,
   '/simulador-de-presupuesto': 0.8,
+  '/experiencia-ak': 0.7,
+  '/public/bodas': 0.7,
+  '/public/xv-anos': 0.7,
+  '/public/fiestas': 0.7,
+  '/public/blog': 0.7,
 };
 
 export function prioridadDePagina(ruta: string): number {
-  return PRIORIDAD[ruta] ?? 0.6;
+  if (ruta.startsWith('/public/blog/')) return 0.6;
+  return PRIORIDAD[ruta] ?? 0.5;
 }

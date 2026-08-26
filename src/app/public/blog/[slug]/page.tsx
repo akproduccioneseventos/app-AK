@@ -26,17 +26,42 @@ export async function generateStaticParams() {
   return posts.map((post) => ({ slug: post.slug }));
 }
 
+import { ArticleJsonLd } from '@/components/seo/ArticleJsonLd';
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   let post = await getBlogPostBySlug(slug);
   if (!post) {
-    post = defaultBlogPosts.find(p => p.slug === slug) || null;
+    post = defaultBlogPosts.find((p) => p.slug === slug) || null;
   }
-  if (!post) return { title: 'Blog AK Producciones' };
+  if (!post) return { title: 'Blog AK Producciones Eventos' };
+
+  const image = getBlogPostImage(post);
+  const url = `https://akproducciones.uy/public/blog/${slug}`;
 
   return {
-    title: `${post.title} | Blog AK Producciones`,
+    metadataBase: new URL('https://akproducciones.uy'),
+    title: `${post.title} | Blog AK Producciones Eventos`,
     description: post.excerpt,
+    alternates: {
+      canonical: `/public/blog/${slug}`,
+    },
+    openGraph: {
+      title: `${post.title} | Blog AK Producciones Eventos`,
+      description: post.excerpt,
+      url,
+      siteName: 'AK Producciones Eventos',
+      locale: 'es_UY',
+      type: 'article',
+      publishedTime: post.publishedAt,
+      images: [{ url: image, width: 1200, height: 630, alt: getBlogPostImageAlt(post) }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${post.title} | Blog AK Producciones Eventos`,
+      description: post.excerpt,
+      images: [image],
+    },
   };
 }
 
@@ -65,6 +90,13 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-white font-body text-slate-900">
+      <ArticleJsonLd
+        url={`https://akproducciones.uy/public/blog/${post.slug}`}
+        title={post.title}
+        description={post.excerpt}
+        image={getBlogPostImage(post)}
+        datePublished={post.publishedAt || '2026-08-20T00:00:00.000Z'}
+      />
       <PublicNavbar whatsappNumber={WHATSAPP_NUMBER} whatsappMessage={whatsappMessage} />
 
       <main>
