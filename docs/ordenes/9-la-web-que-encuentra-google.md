@@ -2,8 +2,8 @@
 
 **Para:** Gemini
 **Fecha:** 26 de agosto de 2026
-**Entrega:** **UNA SOLA propuesta con los doce bloques.** Si uno se traba, entregá los
-otros once igual y decí cuál faltó y por qué.
+**Entrega:** **UNA SOLA propuesta con los trece bloques.** Si uno se traba, entregá los
+otros doce igual y decí cuál faltó y por qué.
 
 **Todo lo de acá está verificado línea por línea**, no copiado de un informe. Llegó un
 informe de 17 páginas sobre la web pública; se comprobó punto por punto y **lo que no se
@@ -358,6 +358,52 @@ Que corra dentro de `npm run test:e2e`, con la versión compilada.
 > Todo lo que se encontró en la web pública el 26 de agosto —el pie que no aparece, las
 > páginas sin título, la ficha con una dirección que no existe— **pasaba las otras cuatro
 > preguntas**.
+
+---
+
+## Bloque 13 — Que la app se sienta viva (no que se anime más)
+
+**El dueño dice que su app "no es animada" y que él pidió lo contrario.** Y el código dice
+que sí tiene animación. Las dos cosas son ciertas, y por eso este bloque no es "poner más
+animaciones": es **arreglar dónde están puestas**.
+
+**Lo que se midió:**
+
+| Qué | Cuánto |
+| --- | --- |
+| Archivos con `framer-motion` | 98 |
+| Animaciones de CSS definidas | 5, más transiciones de 180 a 300 ms |
+| Pantallas internas con esqueleto de carga | 47 |
+| Pantallas internas con ruedita girando | **169** |
+| Pantallas del invitado con esqueleto | **0** |
+
+**Los dos motivos por los que la siente quieta, y son los que hay que corregir:**
+
+1. **Casi todo el movimiento pasa al pasar el mouse por encima** (`hover-lift`,
+   `ak-premium-card-interactive:hover`). **En un celular o una tableta eso no pasa nunca.**
+   El dueño y su equipo usan la app en la fiesta, con el dedo. Para ellos, la app está
+   quieta literalmente.
+2. **169 pantallas muestran una ruedita girando mientras esperan.** Una ruedita no es
+   movimiento: es la cara de la espera. El esqueleto —la forma de lo que viene— hace que
+   se sienta más rápida aunque tarde lo mismo.
+
+**Qué hay que hacer:**
+
+1. **Que el movimiento funcione con el dedo, no sólo con el mouse.** Lo que hoy pasa en
+   `hover` tiene que pasar también al tocar (`active`), que ya funciona bien en el botón
+   (`active:scale-[0.98]`). Llevar ese mismo criterio a las tarjetas y a las listas.
+2. **Cambiar rueditas por esqueletos** en las pantallas que más se usan: Mi día, la
+   fiesta, presupuestos, pagos rápidos y las pantallas del invitado, que hoy tienen cero.
+3. **Movimiento fuerte donde vende**: las pantallas que ven los invitados en la fiesta y
+   la portada. Transiciones al cambiar de sección, entradas con carácter.
+4. **Nada de movimiento en las pantallas de plata.** Números que bailan mientras alguien
+   cobra, no. Ahí se quiere quieto y claro.
+
+**La regla que manda, y es la misma que en el bloque 5:** *todo se ve primero y se anima
+después*. Si la animación no corre, no se pierde nada: sólo se ve quieto. **Ya pasó al
+revés en la web pública, y por eso el dueño no ve el pie de página.**
+
+Y respetar siempre `prefers-reduced-motion`, que ya está bien resuelto en el botón.
 
 ---
 
