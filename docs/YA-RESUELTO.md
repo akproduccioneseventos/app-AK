@@ -4283,6 +4283,41 @@ todos los dias, sola". **Se hace, con un limite que hay que respetar siempre:**
   `ninguna-pantalla-miente.test.ts`. Mientras no este conectada, la pantalla dice "falta
   conectar Google", nunca un numero.
 
+## Por que las auditorias no encontraron nada de la web publica (26 de agosto de 2026)
+
+**El dueno lo pregunto asi: "es increible que nunca detectaste esas cosas en auditoria".
+Tiene razon, y el motivo hay que dejarlo escrito porque explica un agujero del metodo.**
+
+Las cuatro preguntas de `docs/COMO-AUDITAR.md` son: ¿dejo rastro?, ¿alguien lo llama?,
+¿necesita algo que no esta?, ¿lo que promete la pantalla existe en el codigo?
+
+**Todo lo que se encontro en la web publica pasa esas cuatro preguntas.** El pie de
+pagina existe, esta escrito, alguien lo llama, no simula datos y cumple lo que promete
+—y el visitante no lo ve, porque vive dentro de una seccion que el navegador no dibuja
+hasta que se acerca. La pagina sin titulo tiene el archivo perfecto: sencillamente no
+exporta metadata.
+
+**Falta la quinta pregunta: ¿el visitante lo ve?** No alcanza con leer el codigo: hay que
+abrir la pagina en un navegador de verdad, en un celular, y mirar.
+
+Los tres motivos, sin excusas:
+
+1. **Todas las auditorias de este proyecto leen codigo, ninguna abre la web.**
+2. **Las pruebas de navegador que existen cubren la app interna**, no si la web publica se
+   ve entera.
+3. **Y se dejo de mirar la web publica a proposito**, porque el dueno pidio no auditar por
+   auditar. Esa decision sigue siendo correcta para la app; **la web publica quedo sin
+   nadie mirandola**, y ahi es donde se pierden ventas.
+
+**Lo que queda hecho:** la quinta pregunta se suma a `docs/COMO-AUDITAR.md`, y va una
+prueba de navegador que abre las paginas publicas y comprueba que se llegue al pie, que
+todas las secciones se vean con las animaciones apagadas, que cada pagina tenga titulo, y
+que ninguna redirija al ingreso. Esta pedido en
+`docs/ordenes/9-la-web-que-encuentra-google.md`, bloque 12.
+
+**La leccion, para cualquier auditoria futura: un control que solo lee codigo nunca va a
+encontrar lo que el usuario no ve.**
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

@@ -5,11 +5,27 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 25 de agosto de 2026, cierre.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2195 pruebas en verde,
-compila (282 páginas).
-**Propuestas abiertas:** ninguna.
-**Órdenes pendientes:** ninguna. La orden 7 se entregó y se fusionó.
+**Última actualización:** 26 de agosto de 2026.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 2197 pruebas en verde, compila.
+**Propuestas abiertas:** una (#1132), con las órdenes escritas.
+**Órdenes pendientes:** `docs/ordenes/9-la-web-que-encuentra-google.md`, doce bloques,
+sin empezar. Es la más grande y la más urgente: toca la web que ve el prospecto.
+
+## El agujero del método, que es lo que hay que recordar
+
+**El dueño preguntó cómo puede ser que las auditorías nunca encontraran los problemas de
+la web pública.** La respuesta: **todas leen código, ninguna abre la web y mira.**
+
+El pie de página existe, alguien lo llama, no simula datos y cumple lo que promete —pasa
+las cuatro preguntas de `docs/COMO-AUDITAR.md`— **y el visitante no lo ve.** Vive dentro
+de una sección que el navegador no dibuja hasta que se acerca, y si esa cuenta falla, la
+página termina en la galería. Ahí está el botón de contacto.
+
+> **La quinta pregunta, que faltaba: ¿el visitante lo ve?** Un control que sólo lee código
+> nunca va a encontrar lo que el usuario no ve.
+
+Queda pedida la prueba de navegador que abre las páginas públicas y lo comprueba
+(bloque 12 de la orden 9).
 
 ## Lo que se fusionó el 24 y 25 de agosto
 

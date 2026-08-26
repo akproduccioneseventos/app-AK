@@ -2,8 +2,8 @@
 
 **Para:** Gemini
 **Fecha:** 26 de agosto de 2026
-**Entrega:** **UNA SOLA propuesta con los once bloques.** Si uno se traba, entregá los
-otros diez igual y decí cuál faltó y por qué.
+**Entrega:** **UNA SOLA propuesta con los doce bloques.** Si uno se traba, entregá los
+otros once igual y decí cuál faltó y por qué.
 
 **Todo lo de acá está verificado línea por línea**, no copiado de un informe. Llegó un
 informe de 17 páginas sobre la web pública; se comprobó punto por punto y **lo que no se
@@ -318,6 +318,46 @@ prioridad, que no rompen nada pero suman en Google:
 
 6. **El pie de página, revisado**: que los enlaces lleven a donde dicen y que no queden
    mensajes viejos.
+
+---
+
+## Bloque 12 — El control que faltaba: abrir la web y mirarla
+
+**Por qué existe este bloque, y es lo más importante de toda la orden.**
+
+El dueño preguntó cómo puede ser que las auditorías nunca hayan encontrado estas cosas.
+Tiene razón, y el motivo es concreto: **todas las auditorías de este proyecto leen código.
+Ninguna abre la web y mira.**
+
+Las cuatro preguntas de `docs/COMO-AUDITAR.md` son: ¿dejó rastro?, ¿alguien lo llama?,
+¿necesita algo que no está?, ¿lo que promete la pantalla existe en el código? **Falta la
+quinta, que es la que se le escapó a todos: ¿el visitante lo ve?**
+
+El pie de página existe, está escrito, alguien lo llama, no simula datos y cumple lo que
+promete. **Pasa las cuatro preguntas, y el visitante no lo ve.** Lo mismo la página sin
+título: el archivo está perfecto, sólo que no exporta metadata.
+
+**Qué hay que hacer:** una prueba de navegador
+(`tests/e2e/la-web-publica-se-ve.spec.ts`) que abra las páginas públicas de verdad, en
+tamaño de celular y de escritorio, y compruebe:
+
+1. **Que se llegue hasta el pie de página** bajando hasta el final, y que el botón de
+   contacto esté visible y se pueda tocar.
+2. **Que todas las secciones de la portada se vean**, con las animaciones apagadas.
+3. **Que cada página pública tenga título y descripción** que no estén vacíos.
+4. **Que la dirección canónica de cada página apunte a sí misma.**
+5. **Que ninguna página pública redirija al ingreso.** Ya pasó: las páginas de venta
+   estuvieron invisibles para Google sin que nadie lo notara.
+
+Que corra dentro de `npm run test:e2e`, con la versión compilada.
+
+**Y sumar la quinta pregunta a `docs/COMO-AUDITAR.md`**, escrita así:
+
+> **5. ¿El visitante lo ve?** No alcanza con que exista, que alguien lo llame y que diga
+> la verdad. Hay que abrir la página en un navegador de verdad, en un celular, y mirar.
+> Todo lo que se encontró en la web pública el 26 de agosto —el pie que no aparece, las
+> páginas sin título, la ficha con una dirección que no existe— **pasaba las otras cuatro
+> preguntas**.
 
 ---
 
