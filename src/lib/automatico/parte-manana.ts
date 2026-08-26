@@ -138,13 +138,13 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
   let textoResumen = '';
 
   if (totalPendientes === 0) {
-    textoHablado = 'Buen día. Por hoy está todo al día en la empresa. No hay acciones pendientes.';
+    textoHablado = 'Buen día. Por hoy está todo al día.';
     textoResumen = 'Por hoy está todo al día.';
   } else {
     const nombresAcciones = itemsPrincipales.map((it) => it.titulo.toLowerCase()).join(', ');
     const extra = totalPendientes > 3 ? ` Además hay ${totalPendientes - 3} cosas más para ver.` : '';
     textoHablado = `Buen día. Hoy tenemos ${itemsPrincipales.length} puntos para avanzar: ${nombresAcciones}.${extra} ¿Por cuál empezamos?`;
-    textoResumen = `Hoy hay ${totalPendientes} acciones para avanzar.`;
+    textoResumen = `Hoy hay ${totalPendientes} cosas para hacer.`;
   }
 
   return {
