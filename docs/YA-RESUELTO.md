@@ -4215,6 +4215,25 @@ La decision, escrita entera en `docs/ordenes/7-la-app-ordenada.md`:
 **El porque, para que nadie lo "arregle" al reves:** no se borra nada que funcione. Toda
 pantalla que hoy existe sigue siendo alcanzable. Lo que cambia es por donde se llega.
 
+## El candado sin llave del control anti-mentira (25 de agosto de 2026)
+
+El control `src/__tests__/ninguna-pantalla-miente.test.ts` tiene una lista de excepciones
+declaradas —pantallas que si pueden decir "activo" o "conectado", cada una con su motivo
+escrito— y una prueba que dice que **esa lista solo puede achicarse**.
+
+**No achicaba nada.** El tope se calculaba de la propia lista
+(`Object.keys(CASOS_EXCEPCION_DECLARADOS).length`), asi que la prueba comparaba la lista
+consigo misma y **siempre daba bien**. Cualquiera podia agregar excepciones y el control
+no protestaba nunca.
+
+**Ahora el tope es un numero escrito a mano.** Agregar una excepcion pone la prueba en
+rojo y obliga a bajar ese numero a mano, que es justo el momento en que alguien mira si
+la excepcion es legitima.
+
+**La leccion, que vale para cualquier control con linea de base:** un tope que se calcula
+de lo que vigila no vigila nada. Tiene que ser un numero fijo, escrito, que alguien tenga
+que cambiar a proposito.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
