@@ -2,8 +2,8 @@
 
 **Para:** Gemini
 **Fecha:** 26 de agosto de 2026
-**Entrega:** **UNA SOLA propuesta con los seis bloques.** Si uno se traba, entregá los
-otros cinco igual y decí cuál faltó.
+**Entrega:** **UNA SOLA propuesta con los siete bloques.** Si uno se traba, entregá los
+otros seis igual y decí cuál faltó.
 
 ---
 
@@ -155,6 +155,54 @@ funciona** (`hayPresupuestoParaIA`): lo que falta es que se vea y que frene con 
    Si hay que recortar, se recortan las consultas sueltas, no lo que trabaja solo.
 5. Que el gasto del mes se vea en la pantalla de la asistente, en pesos o en cantidad de
    consultas. **Sin número inventado**: si no se puede calcular, no se muestra.
+
+---
+
+## Bloque 7 — Que trabaje en vueltas, no de a una respuesta
+
+**Esto es lo que separa un chat de un empleado, y el dueño lo pidió con estas palabras:
+que la asistente de la app trabaje al nivel al que trabaja Claude, pero con Gemini.**
+
+Hoy `runMultiAgent()` hace **una sola vuelta**: recibe el mensaje, elige un agente, ese
+contesta, se ejecuta como mucho una acción, y termina. Es un asistente de una pregunta por
+vez.
+
+**Lo que falta son cinco cosas. La primera ya está; las otras cuatro son este bloque.**
+
+1. ✅ **Herramientas de verdad.** Ya las tiene: 24 acciones que crean presupuestos,
+   registran pagos, emiten facturas, agendan reuniones.
+
+2. ❌ **Trabajar en vueltas hasta terminar.** Que haga algo, **mire el resultado**, decida
+   qué sigue, y siga. Ejemplo real: *"armá el presupuesto de la boda de Sofía para 120
+   personas con paquete oro"* debería ser: buscar a Sofía → si no está, crearla → armar el
+   presupuesto → aplicar el paquete → mostrarlo. Hoy eso son cinco preguntas del dueño.
+
+3. ❌ **Comprobar antes de decir "listo".** Después de cada acción, **volver a leer** lo
+   que quedó guardado y confirmar que es lo que se pidió. Si no coincide, decirlo.
+   **Nunca dar por hecho que la acción funcionó porque no tiró error.**
+
+4. ❌ **Parar y preguntar cuando la decisión es del dueño.** Si falta un dato que cambia
+   la plata —la cantidad de invitados, la fecha, el paquete—, **preguntar una sola cosa**,
+   no un formulario. Y si hay dos caminos razonables, preguntar cuál, no elegir solo.
+
+5. ❌ **Decir cuando no puede.** Si después de intentar no lo resuelve, decir **qué** no
+   pudo y **por qué**. Nunca inventar el final.
+
+**Los frenos, que no son opcionales:**
+
+- **Máximo cinco vueltas por pedido.** Si a la quinta no terminó, cuenta lo que hizo, lo
+  que falta y para. Sin esto, un pedido mal entendido gira hasta comerse el presupuesto.
+- **Cada vuelta que consulta al modelo se cuenta** en el tope de gasto, como todo lo demás.
+- **Las vueltas no cruzan la línea del bloque 4.** Puede preparar todo lo que quiera; para
+  mandar, cobrar, publicar o borrar, se detiene y espera a una persona.
+- **Que se vea lo que está haciendo** mientras trabaja: *"busqué a Sofía… armé el
+  presupuesto… le aplico el paquete oro"*. Si tarda ocho segundos y la pantalla está
+  muda, el dueño cree que se colgó.
+
+**Por qué importa comprobar, con un caso de verdad de hoy:** un ayudante reportó que
+cuatro pantallas de la app estaban rotas. No era cierto: había mirado una compilación
+vieja. **Un asistente de una sola vuelta habría dado ese aviso por bueno.** El que
+comprueba, va, mira de nuevo y descubre que no hay nada roto. Esa es toda la diferencia.
 
 ---
 
