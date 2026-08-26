@@ -1,9 +1,9 @@
-﻿/**
+/**
  * Google Search Console — site verification and indexing utilities.
  */
 
 export const GOOGLE_SEARCH_CONSOLE_VERIFICATION =
-  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || process.env.GOOGLE_SITE_VERIFICATION || '';
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || process.env.GOOGLE_SITE_VERIFICATION || 'google610ed09144764a8c';
 
 /**
  * Returns the Search Console verification metadata for use in layout.tsx.
