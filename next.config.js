@@ -41,6 +41,28 @@ const nextConfig = {
       },
     ];
   },
+  // **Una sola direccion para Google, no dos.**
+  //
+  // La web contesta igual con "www" adelante y sin el. Para una persona es la
+  // misma pagina; para Google pueden ser dos sitios distintos con el mismo
+  // contenido, y entonces reparte entre los dos lo que deberia sumar a uno solo.
+  // Paso de verdad: Google tenia anotada la portada como www.akproducciones.uy
+  // mientras la app se declara a si misma sin www en todos lados (el mapa del
+  // sitio, la ficha del negocio y la direccion canonica de cada pagina).
+  //
+  // Con esto, quien entre con "www" llega igual, pero pasando por la direccion
+  // buena. Es permanente a proposito: asi Google traslada a la direccion sin www
+  // lo que ya tenia acumulado en la otra, en vez de empezar de cero.
+  async redirects() {
+    return [
+      {
+        source: '/:ruta*',
+        has: [{ type: 'host', value: 'www.akproducciones.uy' }],
+        destination: 'https://akproducciones.uy/:ruta*',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

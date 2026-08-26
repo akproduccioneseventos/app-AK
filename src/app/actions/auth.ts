@@ -158,6 +158,20 @@ export async function loginUser(
       .get();
 
     if (snapshot.empty) {
+      // **Si no hay NINGUN usuario, decirlo.** No es lo mismo que equivocarse de
+      // correo: significa que la app todavia no tiene cuentas y nadie puede entrar,
+      // con la clave que sea. Pasa cuando la creacion del primer administrador no
+      // llego a completarse. Decir "correo o contraseña incorrectos" ahi manda a
+      // buscar una clave que no existe, y eso ya hizo perder un dia.
+      //
+      // No revela quien esta anotado: habla del sistema entero, no de este correo.
+      const hayAlgunUsuario = await dbAdmin.collection('users').limit(1).get();
+      if (hayAlgunUsuario.empty) {
+        return {
+          success: false,
+          error: 'La app todavia no tiene ninguna cuenta creada. No es tu clave: hay que crear el primer usuario.',
+        };
+      }
       return { success: false, error: 'Correo o contraseña incorrectos.' };
     }
 

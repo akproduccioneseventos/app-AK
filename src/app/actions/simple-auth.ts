@@ -302,17 +302,35 @@ async function sendSecurityEmail(to: string, code: string) {
 
 async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
   try {
+    // La puerta de emergencia va PRIMERO, a proposito: tiene que abrir aunque la
+    // base este caida. Es la unica manera de entrar cuando Firestore no contesta.
+    const envPassword = process.env.APP_PASSWORD;
+    if (envPassword && password === envPassword) {
+      await clearLoginProtection();
+      return { success: true };
+    }
+
+    // **Sin base no se puede comprobar ninguna contrasena, y hay que decirlo.**
+    //
+    // Antes se seguia de largo: `getAuthDoc()` devolvia null, ningun hash coincidia
+    // y se terminaba contestando "Contrasena incorrecta". O sea que cuando la base
+    // no contestaba, la app le decia al dueno que su clave estaba mal. Volvia a
+    // probar —logico, creia haberse equivocado— y **a los cinco intentos el acceso
+    // quedaba pausado quince minutos** por un problema que nunca fue suyo.
+    //
+    // Un fallo de la base no es un intento fallido: no se cuenta ni se castiga.
+    if (!dbAdmin) {
+      return {
+        success: false,
+        error: 'La base de datos no esta respondiendo. No es tu contrasena: espera un momento y volve a intentar.',
+      };
+    }
+
     const config = await getAuthDoc();
 
     const lockMessage = getActiveLockMessage(config?.loginLockedUntil, 'Hubo muchos intentos incorrectos. Espera');
     if (lockMessage) {
       return { success: false, error: lockMessage };
-    }
-
-    const envPassword = process.env.APP_PASSWORD;
-    if (envPassword && password === envPassword) {
-      await clearLoginProtection();
-      return { success: true };
     }
 
     if (verifyHash(password, config?.passwordHash)) {
