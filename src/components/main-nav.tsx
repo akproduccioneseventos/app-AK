@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -26,7 +26,6 @@ import {
   PartyPopper,
   Wallet,
   Bell,
-  PlusCircle,
   MessageCircle,
   ChefHat,
   Package,
@@ -65,6 +64,7 @@ type NavItem = {
   icon: React.ElementType;
   active?: (pathname: string) => boolean;
   highlight?: boolean;
+  subgroup?: string;
 };
 
 type NavGroup = {
@@ -76,8 +76,8 @@ type NavGroup = {
 const isPathActive = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
 /**
- * Cinco módulos operativos. Cada destino existente conserva su ruta:
- * esto reagrupa la navegación, no mueve páginas.
+ * Las tres puertas de la app (Mi Día, Fiestas, La Empresa) + Configuración en el pie.
+ * No se pierde ninguna entrada: cada destino conserva su ruta exacta.
  */
 const navGroups: NavGroup[] = [
   {
@@ -102,48 +102,38 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "Vender",
-    emoji: "💼",
+    label: "La Empresa",
+    emoji: "🏢",
     items: [
-      { title: "Gestión de Empresa", href: "/empresa", icon: Building2, active: (pathname) => pathname === "/empresa" },
-      { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads") },
-      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, highlight: true, active: (pathname) => isPathActive(pathname, "/presupuestos") },
-      { title: "Clientes", href: "/customers", icon: Users },
-      { title: "Simulador IA", href: "/simulador-ak", icon: Wand2 },
-    ],
-  },
-  {
-    label: "Plata",
-    emoji: "💰",
-    items: [
-      { title: "Pagos Rápidos", href: "/pagos-rapidos", icon: Wallet, highlight: true },
-      { title: "Panel Contable", href: "/empresa/contabilidad", icon: BarChart3 },
-      { title: "Facturas", href: "/invoices", icon: FileText },
-      { title: "Cambios a Aprobar", href: "/aprobaciones", icon: CheckSquare },
-      { title: "Métricas del Negocio", href: "/empresa/dashboard", icon: TrendingUp },
-    ],
-  },
-  {
-    label: "Recursos",
-    emoji: "📦",
-    items: [
-      { title: "Comida / Menús", href: "/empresa/menus", icon: ChefHat },
-      { title: "Lista de Compras", href: "/compras", icon: ShoppingCart },
-      { title: "Salones", href: "/empresa/salones", icon: DoorOpen },
-      { title: "Catálogo de Servicios", href: "/empresa/servicios", icon: Package },
-      { title: "Proveedores", href: "/proveedores", icon: Building2 },
-      { title: "Empleados", href: "/empleados", icon: Briefcase },
-    ],
-  },
-  {
-    label: "Marketing",
-    emoji: "🚀",
-    items: [
-      { title: "Marketing y Difusión", href: "/empresa/marketing", icon: Target, highlight: true },
-      { title: "Redes Sociales", href: "/empresa/redes-sociales", icon: Camera },
-      { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send },
-      { title: "Rendimiento Anuncios", href: "/contabilidad/crm/marketing-ads", icon: TrendingUp },
-      { title: "Presentación LED", href: "/empresa/presentacion-led/configuracion", icon: Tv },
+      { title: "Gestión de Empresa", href: "/empresa", icon: Building2, highlight: true, active: (pathname) => pathname === "/empresa" },
+
+      // 1. Vender
+      { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, subgroup: "Vender", active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") && !isPathActive(pathname, "/contabilidad/crm/marketing-ads") },
+      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, subgroup: "Vender", highlight: true, active: (pathname) => isPathActive(pathname, "/presupuestos") },
+      { title: "Clientes", href: "/customers", icon: Users, subgroup: "Vender" },
+      { title: "Simulador IA", href: "/simulador-ak", icon: Wand2, subgroup: "Vender" },
+
+      // 2. Plata
+      { title: "Pagos Rápidos", href: "/pagos-rapidos", icon: Wallet, subgroup: "Plata", highlight: true },
+      { title: "Panel Contable", href: "/empresa/contabilidad", icon: BarChart3, subgroup: "Plata" },
+      { title: "Facturas", href: "/invoices", icon: FileText, subgroup: "Plata" },
+      { title: "Cambios a Aprobar", href: "/aprobaciones", icon: CheckSquare, subgroup: "Plata" },
+      { title: "Métricas del Negocio", href: "/empresa/dashboard", icon: TrendingUp, subgroup: "Plata" },
+
+      // 3. Recursos
+      { title: "Comida / Menús", href: "/empresa/menus", icon: ChefHat, subgroup: "Recursos" },
+      { title: "Lista de Compras", href: "/compras", icon: ShoppingCart, subgroup: "Recursos" },
+      { title: "Salones", href: "/empresa/salones", icon: DoorOpen, subgroup: "Recursos" },
+      { title: "Catálogo de Servicios", href: "/empresa/servicios", icon: Package, subgroup: "Recursos" },
+      { title: "Proveedores", href: "/proveedores", icon: Building2, subgroup: "Recursos" },
+      { title: "Empleados", href: "/empleados", icon: Briefcase, subgroup: "Recursos" },
+
+      // 4. Marketing
+      { title: "Marketing y Difusión", href: "/empresa/marketing", icon: Target, subgroup: "Marketing", highlight: true },
+      { title: "Redes Sociales", href: "/empresa/redes-sociales", icon: Camera, subgroup: "Marketing" },
+      { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send, subgroup: "Marketing" },
+      { title: "Rendimiento Anuncios", href: "/contabilidad/crm/marketing-ads", icon: TrendingUp, subgroup: "Marketing" },
+      { title: "Presentación LED", href: "/empresa/presentacion-led/configuracion", icon: Tv, subgroup: "Marketing" },
     ],
   },
   {
@@ -233,44 +223,58 @@ export function MainNav() {
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {navGroups.map((group) => (
-          <SidebarGroup key={group.label} className="p-0 space-y-2">
-            <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 px-3 flex items-center justify-between">
-              <span>{group.label}</span>
-              <span className="text-xs opacity-70">{group.emoji}</span>
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu className="space-y-1">
-                {group.items.map((item) => {
-                  const active = isActive(item);
-                  const Icon = item.icon;
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={active}
-                        tooltip={item.title}
-                        className={cn(
-                          "h-10 rounded-xl transition-all duration-200 font-bold text-xs tracking-tight",
-                          active
-                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20 font-black"
-                            : item.highlight
-                            ? "text-indigo-950 font-black bg-indigo-50/50 hover:bg-indigo-100/60"
-                            : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900"
+        {navGroups.map((group) => {
+          let lastSubgroup = "";
+          return (
+            <SidebarGroup key={group.label} className="p-0 space-y-2">
+              <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 px-3 flex items-center justify-between">
+                <span>{group.label}</span>
+                <span className="text-xs opacity-70">{group.emoji}</span>
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu className="space-y-1">
+                  {group.items.map((item) => {
+                    const active = isActive(item);
+                    const Icon = item.icon;
+                    const showSubgroupHeader = item.subgroup && item.subgroup !== lastSubgroup;
+                    if (item.subgroup) lastSubgroup = item.subgroup;
+
+                    return (
+                      <React.Fragment key={item.href}>
+                        {showSubgroupHeader && (
+                          <div className="pt-2 pb-1 px-3 text-[9px] font-black uppercase tracking-[0.2em] text-indigo-500/80 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+                            <span>{item.subgroup}</span>
+                          </div>
                         )}
-                      >
-                        <Link href={item.href}>
-                          <Icon className={cn("w-4 h-4 mr-2", active ? "text-white" : item.highlight ? "text-indigo-600" : "text-slate-400")} />
-                          <span>{item.title}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+                        <SidebarMenuItem>
+                          <SidebarMenuButton
+                            asChild
+                            isActive={active}
+                            tooltip={item.title}
+                            className={cn(
+                              "h-10 rounded-xl transition-all duration-200 font-bold text-xs tracking-tight",
+                              active
+                                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20 font-black"
+                                : item.highlight
+                                ? "text-indigo-950 font-black bg-indigo-50/50 hover:bg-indigo-100/60"
+                                : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900"
+                            )}
+                          >
+                            <Link href={item.href}>
+                              <Icon className={cn("w-4 h-4 mr-2", active ? "text-white" : item.highlight ? "text-indigo-600" : "text-slate-400")} />
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      </React.Fragment>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          );
+        })}
       </SidebarContent>
 
       <SidebarFooter className="p-5 space-y-3">
