@@ -2,8 +2,8 @@
 
 **Para:** Gemini
 **Fecha:** 26 de agosto de 2026
-**Entrega:** **UNA SOLA propuesta con los diez bloques.** Si uno se traba, entregá los
-otros nueve igual y decí cuál faltó y por qué.
+**Entrega:** **UNA SOLA propuesta con los once bloques.** Si uno se traba, entregá los
+otros diez igual y decí cuál faltó y por qué.
 
 **Todo lo de acá está verificado línea por línea**, no copiado de un informe. Llegó un
 informe de 17 páginas sobre la web pública; se comprobó punto por punto y **lo que no se
@@ -280,6 +280,44 @@ puede hacerla por él**, pero se puede dejar todo listo para que sea **un solo p
 4. Mientras no esté verificado, donde iría la posición dice **"falta conectar Google"**,
    no un número.
 5. Una explicación de dos líneas, en criollo, de dónde saca ese código. **Sin jerga.**
+
+---
+
+## Bloque 11 — Lo que faltaba del informe (lo de segunda prioridad)
+
+Los puntos graves del informe están en los bloques de arriba. Estos son los de segunda
+prioridad, que no rompen nada pero suman en Google:
+
+1. **El mapa de Google dice que todo se modificó hoy.** `src/app/sitemap.ts` usa la fecha
+   de hoy para todas las páginas. Para las notas del blog hay que usar **la fecha real de
+   la nota**; para las páginas fijas, una fecha estable que no cambie sola todos los días.
+   Decirle a Google que todo cambió hoy, todos los días, le quita valor al aviso.
+
+2. **Los catálogos por tipo de evento heredan textos genéricos.** `/public/[eventType]`
+   arma el título y la descripción con una plantilla. Que cada tipo tenga los suyos, y su
+   dirección canónica propia.
+
+3. **El blog no aprovecha los datos estructurados de artículo.** Cada nota tiene que
+   declararse como artículo, con su título, su fecha y su autor. Es lo que hace que
+   aparezca mejor presentada en los resultados.
+
+4. **Falta la imagen de vista previa** en el blog, en cada nota, en los catálogos por
+   tipo y en «Experiencia AK». Sin eso, cuando alguien comparte el enlace por WhatsApp
+   sale un cuadro gris.
+
+5. **El idioma de la marca, parejo en todo lo público:**
+   - **comida**, no *catering*
+   - **discoteca**, no *DJ*
+   - **AK Producciones Eventos** como nombre comercial
+   - **Sin promesas absolutas**: nada de "100% satisfechos", "cero fallas", "reserva
+     garantizada" ni "respondemos en X horas". Si un dato no está confirmado, se deja en
+     una forma neutra; **no se inventa ni se vuelve más absoluto**.
+   - Un solo llamado a la acción principal: WhatsApp o el simulador.
+   - Los enlaces de redes y el teléfono salen **siempre** de
+     `src/lib/public-contact.ts`. Es la fuente única y no se duplica en ningún lado.
+
+6. **El pie de página, revisado**: que los enlaces lleven a donde dicen y que no queden
+   mensajes viejos.
 
 ---
 
