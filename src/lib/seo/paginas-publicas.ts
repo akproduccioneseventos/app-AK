@@ -49,6 +49,24 @@ export const PAGINAS_PARA_GOOGLE = [
 ] as const;
 
 /**
+ * Archivos que Google tiene que poder leer, pero que **no son paginas**.
+ *
+ * Van aparte de `PAGINAS_PARA_GOOGLE` porque esa lista alimenta dos cosas: el permiso
+ * para robots **y el mapa del sitio**. Si el mapa se ofreciera a si mismo, o al archivo
+ * de verificacion, le estariamos ofreciendo a Google paginas que no existen.
+ *
+ * **Por que hizo falta:** el permiso esta cerrado por defecto (`disallow: '/'`) y se abre
+ * uno por uno. El mapa no estaba, asi que **Google tenia prohibido leerlo**: el dueno lo
+ * intento dar de alta en Search Console y le dio error. El archivo de verificacion es lo
+ * mismo: si Google no lo puede leer, no puede confirmar que el sitio es suyo.
+ */
+export const ARCHIVOS_QUE_GOOGLE_LEE = [
+  '/sitemap.xml',
+  '/robots.txt',
+  '/google610ed09144764a8c.html',
+] as const;
+
+/**
  * Cada cuánto conviene que Google vuelva a mirar, y qué peso tiene cada página.
  * La portada y las tres páginas de tipo de evento son las que venden.
  */

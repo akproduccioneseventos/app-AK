@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { PAGINAS_PARA_GOOGLE, SITE_URL } from '@/lib/seo/paginas-publicas';
+import { ARCHIVOS_QUE_GOOGLE_LEE, PAGINAS_PARA_GOOGLE, SITE_URL } from '@/lib/seo/paginas-publicas';
 
 /**
  * Lo que Google tiene permitido mirar.
@@ -20,7 +20,7 @@ export default function robots(): MetadataRoute.Robots {
         // El blog entero, no nota por nota: las que escribe la inteligencia
         // artificial se guardan en la base y no estan en la lista fija, asi que
         // sin esto quedaban prohibidas justo las nuevas.
-        allow: [...PAGINAS_PARA_GOOGLE, '/public/blog/'],
+        allow: [...PAGINAS_PARA_GOOGLE, ...ARCHIVOS_QUE_GOOGLE_LEE, '/public/blog/'],
         disallow: '/',
       },
     ],
