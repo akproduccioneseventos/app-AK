@@ -5,10 +5,11 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 25 de agosto de 2026.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2192 pruebas en verde, compila.
-**Propuestas abiertas:** una (#1132), con el arreglo de plata y la orden para Gemini.
-**Órdenes pendientes:** `docs/ordenes/7-la-app-ordenada.md`, sin empezar.
+**Última actualización:** 25 de agosto de 2026, cierre.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 2195 pruebas en verde,
+compila (282 páginas).
+**Propuestas abiertas:** ninguna.
+**Órdenes pendientes:** ninguna. La orden 7 se entregó y se fusionó.
 
 ## Lo que se fusionó el 24 y 25 de agosto
 
@@ -17,21 +18,24 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
   borrador**; el creador arma el texto con plantillas y datos reales, **sin gastar
   inteligencia artificial por uso**.
 - **Las fotos del invitado no se pierden (#1130 y #1133).** Ver la lección abajo.
-- **Un mismo cobro ya no se cuenta dos veces (#1132, todavía sin fusionar).** Alguien
-  cobraba la cuota y la cargaba a mano, y después alguien la cargaba en la factura: **el
-  panel contable mostraba el doble**. El control comparaba la referencia y no coincidían.
+- **La app ordenada (#1134).** Lo más grande de la tanda:
+  - **«Mi día»** junta seis pantallas sueltas en una. **Sin las palabras que el dueño
+    prohibió** —riesgo, urgente, crítico, vencido, alerta, atrasado, pendiente— y sin
+    rojo. Cada línea es una acción con nombre y apellido: *"Cobrarle la segunda cuota de
+    $12.000 a Marcela"*. Los montos sólo los ve quien tiene permiso de contabilidad.
+  - **Marketing es un módulo**, con redes, WhatsApp, anuncios y su rendimiento adentro.
+  - **Un mismo cobro ya no se cuenta dos veces.** Alguien cobraba y lo cargaba a mano, y
+    después alguien lo cargaba en la factura: el panel contable mostraba el doble.
+  - **Salieron los dos tableros de programador** y se arreglaron las dos pantallas que
+    abrían el diseñador de mesas por error.
 
-## La orden que está esperando a Gemini
+## Lo que quedó a medias, y hay que terminar
 
-`docs/ordenes/7-la-app-ordenada.md` — ocho bloques, **una sola propuesta**. Reordena la
-app en tres puertas (Mi día, La fiesta, La empresa con marketing adentro), arregla
-Instagram, agrega el control que impide que una pantalla mienta, saca los tableros de
-programador y arregla dos pantallas que muestran el diseñador de mesas por error.
-
-**Lo que el dueño pidió con sus palabras, y no se negocia:** en la pantalla del trabajo
-diario **no van las palabras riesgo, urgente, crítico, vencido, alerta, atrasado ni
-pendiente**, ni rojo para apurar. Cada línea es una cosa para hacer, con nombre y apellido:
-"Cobrarle la segunda cuota a Marcela", no "pago vencido".
+- **El menú todavía no quedó en tres puertas.** Se agregó «Mi día» y el módulo de
+  marketing, pero las cinco secciones siguen ahí. No se perdió nada: falta agrupar.
+- **El control anti-mentira quedó angosto.** Hoy mira las pantallas de conexiones y
+  redes, no todas. La parte que sí quedó fuerte es la de las palabras prohibidas en
+  «Mi día»: **si alguien mete "urgente" ahí, la prueba se pone en rojo.**
 
 ## La lección de la tanda: los cuatro controles no alcanzan
 

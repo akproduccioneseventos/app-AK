@@ -26,6 +26,7 @@ import {
   HelpCircle,
   CheckCircle2,
   AlertTriangle,
+  MessageCircle,
 } from 'lucide-react';
 import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -258,39 +259,48 @@ export default function SocialConnectionsPage() {
         </Button>
       </div>
 
-      {/* Guía en Criollo para Activar Gratis */}
+      {/* Guía en Criollo sobre el Funcionamiento Real */}
       <Card className="rounded-[1.5rem] border-purple-200 bg-gradient-to-br from-purple-900/10 via-purple-900/5 to-transparent shadow-sm">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
             <Badge className="bg-purple-600 text-white">Guía en Criollo</Badge>
             <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> 100% Gratis de por vida
+              <CheckCircle2 className="w-3.5 h-3.5" /> Estado real y transparente
             </span>
           </div>
           <CardTitle className="text-lg font-black text-slate-900">
-            ¿Cómo funciona la publicación en tu app?
+            ¿Cómo funciona la difusión en tu negocio?
           </CardTitle>
           <CardDescription className="text-slate-600 font-medium">
-            Tenés 2 formas de publicar que no te cobran un solo peso:
+            Cada canal tiene su funcionamiento específico sin promesas falsas:
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2 text-xs text-slate-700">
+        <CardContent className="grid gap-3 sm:grid-cols-3 text-xs text-slate-700">
           <div className="p-3.5 rounded-xl bg-white border border-purple-100 space-y-1.5 shadow-sm">
             <div className="flex items-center gap-1.5 font-bold text-slate-900">
               <Zap className="w-4 h-4 text-amber-500" />
-              <span>1. Modo 1 Toque (Ya funciona hoy)</span>
+              <span>1. Modo 1 Toque (Listo para copiar)</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              No necesitás configurar claves. Tocás el botón <strong>1 Toque</strong> en la publicación y la app te copia el texto, te baja la foto y te abre la red social en 2 segundos para que toques publicar.
+              Para TikTok, Pinterest, X y canales sin API: la app te copia el texto y descarga el material para que abras la red y toques publicar en 2 segundos.
             </p>
           </div>
           <div className="p-3.5 rounded-xl bg-white border border-purple-100 space-y-1.5 shadow-sm">
             <div className="flex items-center gap-1.5 font-bold text-slate-900">
               <Key className="w-4 h-4 text-purple-600" />
-              <span>2. Publicación Automática por API</span>
+              <span>2. Meta Graph API (Instagram y Facebook)</span>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Si le cargás el Token oficial de desarrollador a cada red (Meta, TikTok, Google), la app publica sola de forma 100% automática sin que abras ninguna aplicación.
+              Si cargás el Token de Meta y el Account ID, y la prueba da exitosa, la app sincroniza fotos y reels directo con tu cuenta comercial.
+            </p>
+          </div>
+          <div className="p-3.5 rounded-xl bg-white border border-emerald-100 space-y-1.5 shadow-sm">
+            <div className="flex items-center gap-1.5 font-bold text-slate-900">
+              <MessageCircle className="w-4 h-4 text-emerald-600" />
+              <span>3. WhatsApp (Siempre con tu control)</span>
+            </div>
+            <p className="text-muted-foreground leading-relaxed">
+              WhatsApp es tu contacto humano: la app prepara los textos con contexto pero <strong>siempre los enviás vos</strong> desde tu número. Nunca envía solo.
             </p>
           </div>
         </CardContent>
