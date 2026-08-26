@@ -2,8 +2,9 @@
 
 **Para:** Gemini
 **Fecha:** 26 de agosto de 2026
-**Entrega:** **UNA SOLA propuesta con los siete bloques.** Si uno se traba, entregá los
-otros seis igual y decí cuál faltó.
+**Entrega:** **UNA SOLA propuesta con los ocho bloques.** Si uno se traba, entregá los
+otros siete igual y decí cuál faltó. **El bloque 0 es el más importante: si sólo llegás a
+uno, que sea ese.**
 
 ---
 
@@ -12,9 +13,26 @@ otros seis igual y decí cuál faltó.
 *"La voz para hablar conmigo, modo enjambre pero controlado con un encargado. Hacé todo
 lo que consideres para que sea espectacular, de una, sea fácil y me saque trabajo."*
 
-**La idea en una frase: el dueño le habla a UNA persona, y esa persona tiene un equipo
-atrás.** No siete asistentes contestando por separado: un encargado que reparte, junta y
-contesta con una sola respuesta.
+Y después lo corrigió con la frase que define toda esta orden:
+
+> **«Yo no quiero chat, quiero empleados.»**
+
+**Esa distincion es el corazon de la orden, y hay que respetarla en cada bloque.**
+
+| Un chat | Un empleado |
+| --- | --- |
+| Espera a que le pregunten | **Tiene un trabajo asignado y lo hace** |
+| Contesta y se olvida | Deja el trabajo **hecho** |
+| Vos tenés que acordarte de preguntar | **Él te cuenta** cuando hay algo |
+
+**La idea en una frase: el dueño tiene un equipo que trabaja solo, y un encargado que le
+cuenta.** El chat es apenas la forma de hablarles cuando él quiere algo puntual; **no es
+el producto**.
+
+**Y ya tiene dos empleados de verdad andando**, sobre los que hay que construir: el
+vigilante de la noche de la fiesta y el de la publicidad
+(`src/lib/agentes/motor-agentes.ts`). Trabajan solos, miran, encuentran y dejan el aviso.
+Nadie les pregunta nada. **Ese es el modelo. Extendelo, no inventes otro.**
 
 **Lo que hay hoy y sobre lo que se construye** (no empieces de cero):
 
@@ -30,6 +48,55 @@ contesta con una sola respuesta.
 **Lo que NO hay, y es lo que falta:** los especialistas **no se hablan entre ellos**.
 `runMultiAgent()` es un conmutador: elige uno y ese contesta. Ninguno le pasa la posta a
 otro.
+
+---
+
+## Bloque 0 — Los empleados, que es lo que de verdad se pidió
+
+**Este bloque va primero porque es el que cambia el producto.** Los demás son cómo se
+habla con ellos.
+
+Hoy hay **dos** empleados. Faltan **cuatro**, y son los que le sacan trabajo de encima.
+Todos usan datos que la app ya tiene: **no inventan nada, no piden nada nuevo.**
+
+### 1. El de cobranzas — todos los días
+
+Mira las cuotas de todas las fiestas y **deja los mensajes escritos** en la bandeja de
+salida, listos para que el dueño los mande de un toque desde su WhatsApp.
+
+Qué deja hecho: *"A Marcela le toca la segunda cuota el jueves. Mensaje listo."*
+
+### 2. El de la fiesta que viene — todos los días
+
+Para las fiestas de las próximas dos semanas, revisa qué falta: el menú confirmado, la
+lista de invitados cerrada, el personal asignado, el salón, los proveedores. **Deja la
+lista de lo que falta, ordenada por fecha de fiesta.**
+
+Qué deja hecho: *"Del sábado faltan dos mozos y confirmar el menú con el salón."*
+
+### 3. El de los prospectos — todos los días
+
+Busca a quien pidió un presupuesto y **nadie le contestó**, o quien lo recibió y no
+respondió. **Deja el mensaje de seguimiento escrito.**
+
+Qué deja hecho: *"Rodrigo pidió presupuesto el martes y no se le contestó. Mensaje listo."*
+
+### 4. El de la web — todos los días
+
+Es el trabajador de posicionamiento del bloque 6 de la orden 9. Revisa la web, arregla lo
+mecánico y avisa lo que no puede arreglar solo.
+
+### Las reglas que valen para los cuatro
+
+- **Se declaran en `src/lib/automatico/tareas-automaticas.ts`** como las que ya existen,
+  con su nombre en criollo y qué se pierde si no corren, y **dejan su marca al terminar
+  bien**. La pregunta no es "¿está programado?" sino **"¿pasó de verdad?"**.
+- **Entran en `al-entrar-a-la-app.ts`**, para que trabajen cuando el equipo entra aunque
+  no haya despertador externo. **Son seguros de repetir: ninguno le escribe a nadie.**
+- **Preparan, no mandan.** Es la línea del bloque 4 y no se cruza.
+- **Todo lo que dejan hecho aparece en «Mi día»**, con las palabras de siempre: sin
+  *riesgo*, *urgente*, *vencido* ni *alerta*.
+- **Respetan el tope de gasto**, y si el mes se agota, lo dicen y se frenan.
 
 ---
 
