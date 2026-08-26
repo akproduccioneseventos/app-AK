@@ -33,7 +33,25 @@ const SCRYPT_KEY_LEN = 64;
  */
 const TOPE_BASE_MS = 8000;
 
-class BaseSinRespuesta extends Error {}
+class BaseSinRespuesta extends Error {
+  // Se marca con una propiedad ademas del tipo. `instanceof` puede fallar cuando el
+  // empaquetador deja dos copias del modulo; una propiedad sobrevive siempre.
+  readonly esBaseCaida = true;
+}
+
+/**
+ * Reconoce que la base fue el problema, venga el fallo de nuestro reloj o de la
+ * propia libreria de Firestore (que avisa con UNAVAILABLE, DEADLINE_EXCEEDED o un
+ * fallo de red). En todos esos casos la clave del usuario nunca llego a compararse,
+ * asi que decirle "contrasena incorrecta" seria mentirle.
+ */
+function laBaseNoContesto(err: unknown): boolean {
+  if (err && typeof err === 'object' && 'esBaseCaida' in err) return true;
+  const texto = String((err as { code?: unknown; message?: unknown })?.code ?? '')
+    + ' ' + String((err as { message?: unknown })?.message ?? '');
+  return /UNAVAILABLE|DEADLINE_EXCEEDED|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|EAI_AGAIN|network error|Total timeout|Getting metadata from plugin failed/i
+    .test(texto);
+}
 
 /** Corre la consulta contra el reloj. Si la base no contesta a tiempo, se dice. */
 async function conTopeDeEspera<T>(tarea: Promise<T>): Promise<T> {
@@ -192,7 +210,15 @@ export async function loginUser(
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   // Auto-create admin on first use.
-  await initializeAdminIfNeeded();
+  //
+  // **Tambien va contra el reloj.** Medido con un navegador: sin tope, esta llamada
+  // sola se colgaba unos ocho segundos cuando la base no contestaba, y recien despues
+  // empezaba la consulta de verdad. Eran dos esperas encadenadas, y el usuario las
+  // sufria las dos: quince segundos mirando "Ingresando...".
+  //
+  // Si falla, se sigue igual: crear el primer administrador es un extra, no un
+  // requisito para entrar. Quien ya tiene cuenta no depende de esto.
+  await conTopeDeEspera(initializeAdminIfNeeded()).catch(() => undefined);
 
   try {
     const snapshot = await conTopeDeEspera(
@@ -254,7 +280,7 @@ export async function loginUser(
     console.error('[auth] loginUser error:', err);
     // Se distingue "la base no contesta" de cualquier otro fallo. Antes los dos
     // terminaban en el mismo texto vago y el dueno creia que era su clave.
-    if (err instanceof BaseSinRespuesta) {
+    if (laBaseNoContesto(err)) {
       return { success: false, error: AVISO_BASE_CAIDA };
     }
     return { success: false, error: 'Error al iniciar sesión. Intentá de nuevo.' };

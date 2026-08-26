@@ -30,7 +30,25 @@ const LOCKOUT_MS = 15 * 60 * 1000;
  */
 const TOPE_BASE_MS = 8000;
 
-class BaseSinRespuesta extends Error {}
+class BaseSinRespuesta extends Error {
+  // Se marca con una propiedad ademas del tipo. `instanceof` puede fallar cuando el
+  // empaquetador deja dos copias del modulo; una propiedad sobrevive siempre.
+  readonly esBaseCaida = true;
+}
+
+/**
+ * Reconoce que la base fue el problema, venga el fallo de nuestro reloj o de la
+ * propia libreria de Firestore (que avisa con UNAVAILABLE, DEADLINE_EXCEEDED o un
+ * fallo de red). En todos esos casos la clave del usuario nunca llego a compararse,
+ * asi que decirle "contrasena incorrecta" seria mentirle.
+ */
+function laBaseNoContesto(err: unknown): boolean {
+  if (err && typeof err === 'object' && 'esBaseCaida' in err) return true;
+  const texto = String((err as { code?: unknown; message?: unknown })?.code ?? '')
+    + ' ' + String((err as { message?: unknown })?.message ?? '');
+  return /UNAVAILABLE|DEADLINE_EXCEEDED|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|EAI_AGAIN|network error|Total timeout|Getting metadata from plugin failed/i
+    .test(texto);
+}
 
 async function conTopeDeEspera<T>(tarea: Promise<T>): Promise<T> {
   let reloj: ReturnType<typeof setTimeout> | undefined;
@@ -374,7 +392,7 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
   } catch (err) {
     console.error('[simple-auth] verifyPassword error:', err);
     // Un fallo de la base no es una clave equivocada, y no se cuenta como intento.
-    if (err instanceof BaseSinRespuesta) {
+    if (laBaseNoContesto(err)) {
       return { success: false, error: AVISO_BASE_CAIDA };
     }
     return { success: false, error: 'No se pudo verificar el acceso. Intenta nuevamente.' };

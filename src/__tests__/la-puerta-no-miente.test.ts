@@ -70,7 +70,10 @@ describe('La puerta de entrada no miente', () => {
     for (const archivo of ['src/app/actions/auth.ts', 'src/app/actions/simple-auth.ts']) {
       const codigo = sinComentarios(leer(archivo));
       expect(codigo).toMatch(/No se pudo conectar con la base de datos/);
-      expect(codigo).toMatch(/err instanceof BaseSinRespuesta/);
+      // Se reconoce por una propiedad y por lo que avisa Firestore, no por `instanceof`:
+      // el empaquetador puede dejar dos copias del modulo y romper la comparacion de tipo.
+      expect(codigo).toMatch(/laBaseNoContesto\(err\)/);
+      expect(codigo).toMatch(/UNAVAILABLE\|DEADLINE_EXCEEDED/);
     }
   });
 
