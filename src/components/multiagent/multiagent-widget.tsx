@@ -680,9 +680,16 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
 
               {isSending && (
                 <div className="flex justify-start">
-                  <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-white px-3.5 py-2.5 text-[13px] text-slate-400 shadow-sm">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    <span>Pensando...</span>
+                  <div className="flex flex-col gap-1.5 rounded-2xl border border-slate-100 bg-white p-3 text-[13px] text-slate-600 shadow-sm max-w-[88%]">
+                    <div className="flex items-center gap-2 font-bold text-slate-800">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-600" />
+                      <span>{activeAgent === 'central' ? 'El Encargado coordinando...' : 'Pensando...'}</span>
+                    </div>
+                    {activeAgent === 'central' && (
+                      <p className="text-[11px] text-slate-400">
+                        Consultando a los especialistas y unificando el resultado...
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

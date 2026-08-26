@@ -6,6 +6,7 @@ import { runMultiAgent } from '@/ai/flows/multiagent-flow';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getCrmLeads } from '@/app/actions/crm';
 import { getFiestaById, getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 
 export const MAX_ESPECIALISTAS_POR_PEDIDO = 3;
 export const MAX_VUELTAS_POR_PEDIDO = 5;
@@ -57,6 +58,19 @@ export function seleccionarEspecialistas(mensaje: string, pathname?: string, fie
  * comprueba los resultados y sintetiza una respuesta unificada en criollo.
  */
 export async function ejecutarEncargado(input: AkMultiAgentInput): Promise<EncargadoExecutionResult> {
+  const hayPresupuesto = await hayPresupuestoParaIA().catch(() => true);
+  if (!hayPresupuesto) {
+    return {
+      success: true,
+      response: 'Che, este mes ya usé todo lo que tengo asignado de inteligencia artificial; sigo contestando lo que pueda con los datos guardados en la app sin consultar al modelo.',
+      agentType: 'central',
+      agentName: 'Encargado General AK',
+      especialistasConsultados: [],
+      vueltasRealizadas: 0,
+      presupuestoRestanteAviso: 'Tope mensual alcanzado.',
+    };
+  }
+
   const especialistas = seleccionarEspecialistas(input.message, input.pathname, input.fiestaId);
   const progreso: EspecialistaProgreso[] = [];
   const hallazgos: string[] = [];

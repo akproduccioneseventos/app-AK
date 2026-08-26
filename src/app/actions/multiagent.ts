@@ -32,6 +32,18 @@ export async function sendMultiAgentMessage(
   }
 
   try {
+    if (!options?.agentType || options?.agentType === 'central') {
+      const { ejecutarEncargado } = await import('@/lib/multiagent/encargado');
+      return await ejecutarEncargado({
+        message,
+        history,
+        pathname: options?.pathname,
+        fiestaId: options?.fiestaId,
+        agentType: 'central',
+        imageDataUri: options?.imageDataUri,
+      });
+    }
+
     const { runMultiAgent } = await import('@/ai/flows/multiagent-flow');
     return await runMultiAgent({
       message,
