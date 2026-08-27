@@ -4,6 +4,79 @@
 
 > **Ojo con el número:** hay otra orden 13 (`13-la-fotocabina-que-gana.md`), de otra IA, sobre la fotocabina. Esta es la **14** y no toca la fotocabina.
 
+> # DEVOLUCIÓN 1 — 27 de agosto de 2026. LEER ANTES DE SEGUIR.
+>
+> **La entrega de la rama `feat/orden-14-entretenimiento-unificado` NO se fusionó.** No es
+> por calidad del código: compila, los tipos dan cero, las 2268 pruebas pasan, la seguridad
+> de la base pasa y los acentos están limpios. **El problema es otro: la mitad de lo que
+> escribiste no lo llama nadie.**
+>
+> Existe, compila, tiene prueba propia… y **en la app no pasa nada**. Es exactamente la
+> falla que describe `docs/COMO-AUDITAR.md`: *la pregunta no es "¿está escrito?", es "¿pasó
+> de verdad?"*.
+>
+> ## Lo que hay que conectar (verificado por nombre de archivo Y por nombre de función)
+>
+> Ninguno de estos tiene **un solo** llamador en la aplicación. Sólo los importan sus
+> propias pruebas:
+>
+> | Lo que escribiste | Quién lo usa hoy | Dónde tiene que engancharse |
+> |---|---|---|
+> | `src/lib/entretenimiento/gif-generator.ts` (`generarGifDesdeImagenes`) | nadie | La estación tiene que poder entregar el GIF después de la tanda |
+> | `src/lib/entretenimiento/marcos-dinamicos.ts` (`dibujarMarcoDinamico`) | nadie | El armado del recuerdo, donde hoy se dibuja el marco fijo |
+> | `src/lib/entretenimiento/resumen-noche.ts` (`calcularResumenNoche`) | nadie | El cierre de la fiesta y el tablero del operador |
+> | `src/lib/social-gallery/moderacion-automatica.ts` (`evaluarModeracionFoto`) | nadie | Antes de la cola manual de `/evento/moderacion/[fiestaId]` |
+> | `src/components/entretenimiento/SelectorFormatoCaptura.tsx` | nadie | La pantalla del invitado, antes de disparar |
+>
+> **Mientras no estén conectados, para el dueño esas cinco cosas no existen.** El muro sigue
+> moderándose 100% a mano, no hay GIF, el marco sigue siendo el fijo y nadie ve el resumen
+> de la noche.
+>
+> ## Y el tablero del operador no tiene puerta
+>
+> `/fiestas/[id]/entretenimiento/control` existe y está bien hecho, pero **no hay ningún
+> botón ni menú que lleve hasta ahí**. Sólo figura en el mapa generado. Una pantalla sin
+> puerta es una pantalla que nadie va a abrir: hay que dejarla a un toque desde donde el
+> equipo maneja la fiesta.
+>
+> ## Falta el bloque 14 entero, y no avisaste
+>
+> **No hay nada de la música**: ni la bandeja que entiende enlaces de Spotify y de YouTube,
+> ni el cruce con los pedidos de los invitados, ni la playlist en la cuenta del dueño, ni la
+> comprobación real del panel de conexiones que se te pidió hacer desde tu máquina.
+>
+> La orden dice, textual: *"Si un bloque se traba, entregá el resto igual, en la misma
+> propuesta, y avisá cuál faltó y por qué."* **Entregar sin decir qué falta es lo que hace
+> que el dueño se entere tarde.** Si algo no se pudo, se dice en una línea.
+>
+> ## Lo que sí quedó bien, y no se toca
+>
+> - **El saludo y la guía en pantalla** (`GuiaPosicionamiento`), enchufada de verdad en la
+>   Plataforma 360, en Bogue y en Touchpix.
+> - **El arreglo del tótem**: el texto ya no se parte palabra por palabra ni se pisa.
+> - **El Club Uruguay siempre visible** en la Presentación LED, marcado como opcional y
+>   aclarando que el alquiler se abona en el Club. Bien resuelto.
+>
+> ## Y una cosa más: `docs/YA-RESUELTO.md` quedó afirmando cosas que no pasan
+>
+> Anotaste *"auto-aprobación de capturas"*, *"resumen automático para el cliente"* y
+> *"generación de GIFs para compartir"* como si funcionaran. **No funcionan: nadie los
+> llama.** Esa lista es la que leen las próximas auditorías para no volver a revisar algo;
+> si dice que algo anda cuando no anda, el error queda tapado para siempre. Corregilo en la
+> misma entrega.
+>
+> ## Cómo se cierra esto
+>
+> **En la misma propuesta**, no en una nueva: conectá las cinco piezas, ponele puerta al
+> tablero, hacé el bloque de la música (o decí en una línea por qué no), y dejá
+> `YA-RESUELTO.md` diciendo sólo lo que de verdad pasa.
+>
+> **Y antes de entregar, la prueba que importa no es que compile:** abrí la app y confirmá
+> que el invitado puede llevarse un GIF, que el marco sale con el nombre de la fiesta, que
+> una foto mala queda frenada sola y que el resumen de la noche se ve en algún lado.
+
+---
+
 ## CÓMO SE ENTREGA (leer esto primero)
 
 **UNA SOLA PROPUESTA DE CAMBIOS con todos los bloques adentro.** No una por bloque:
