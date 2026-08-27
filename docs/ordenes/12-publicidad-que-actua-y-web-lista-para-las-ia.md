@@ -191,7 +191,33 @@ hay un solo archivo de video**.
 Es el caso exacto que describe `docs/COMO-AUDITAR.md`: está escrito, compila, pasa las
 pruebas, **y no produce nada**.
 
-### Qué hay que hacer
+### La regla que manda acá: **la portada tiene movimiento SIEMPRE, sin que el dueño cargue nada**
+
+Sus palabras, al final: *"en donde quede debería haber un video corto que llame la
+atención."* Ojo con la trampa: **si el movimiento depende de que él suba un archivo, no va
+a haber movimiento.** Vuelve a ser tarea suya, y la regla del proyecto es al revés — *"todo
+lo que pueda ser automático sería bueno; si no, es igual que hacerlo manual"*.
+
+Así que se resuelve en tres escalones, en este orden, y **el tercero no falla nunca**:
+
+1. **Si hay un video cargado**, se usa ése.
+2. **Si no, se busca uno que la app ya tenga.** Hay campos de video que ya existen y pueden
+   estar cargados: `videoUrl` en `src/types/salon.ts` (el video del salón) y en
+   `src/types/fiesta.ts`. Si alguno tiene contenido, sirve para la portada.
+3. **Si no hay ninguno, la app arma el movimiento sola con las fotos reales de las fiestas.**
+   Las fotos aprobadas de los álbumes ya están en la app. Un pase corto —tres o cuatro
+   fotos, con acercamiento lento y fundido entre una y otra, unos segundos en bucle— se ve
+   como un video y **no necesita ni un archivo nuevo ni que nadie suba nada**. Es material
+   real de sus fiestas, que es justamente lo que mejor vende.
+
+   Hacelo con CSS, sin ninguna biblioteca: son transformaciones y opacidad. Respetá
+   `prefers-reduced-motion` —si el visitante pidió menos movimiento, queda la foto quieta—
+   y no cargues más de tres o cuatro fotos, que si no pesa.
+
+**El escalón 3 es el que importa**, porque es el único que anda sin que nadie haga nada. Si
+sólo entregás el 1, la portada va a seguir quieta igual que hoy.
+
+### Además
 
 1. **Un lugar para cargarlo, en la pantalla de ajustes de la web.** El dueño no es
    programador: **no puede depender de que alguien toque el código para cambiar el video de
@@ -203,8 +229,8 @@ pruebas, **y no produce nada**.
    tamaño al subirlo y avisá en criollo si se pasa (*"ese video pesa demasiado y la página
    va a tardar en abrir; probá con uno más corto"*). Sin sonido, en bucle, de pocos
    segundos.
-4. **Si no hay video cargado, queda la foto**, exactamente como está hoy. Nada se rompe
-   mientras no cargue ninguno.
+4. **Nunca se queda sin nada.** Si falla el video, si la foto no carga, si el visitante
+   pidió menos movimiento: siempre queda la foto de fondo como está hoy. Nada se rompe.
 
 ### Lo que NO se hace
 
@@ -224,6 +250,7 @@ pruebas, **y no produce nada**.
   queda preparada pero apagada**, esperando que la encienda el dueño.
 - **Bloque 2:** `/llms.txt` abre y se lee. Cada enlace que nombra existe. La prueba nueva
   falla si se borra el archivo.
-- **Bloque 3:** con un video cargado desde ajustes, la portada lo muestra en movimiento;
-  sin video cargado, muestra la foto como hoy. En un celular con ahorro de datos, no lo
-  baja.
+- **Bloque 3:** el que de verdad importa. **Sin cargar absolutamente nada**, la portada
+  tiene que tener movimiento: el pase de fotos reales del escalón 3. Con un video cargado,
+  muestra el video. En un celular con ahorro de datos, no baja el video. Con "menos
+  movimiento" pedido en el sistema, queda la foto quieta.
