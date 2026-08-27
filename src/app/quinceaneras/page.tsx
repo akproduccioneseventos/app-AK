@@ -28,6 +28,7 @@ export default function QuinceanerasLanding() {
         source="landing-quince"
         heroImage="/media/catalogo-servicios/quinceanera_hero.png"
         heroImageAlt="Fiesta de 15 años producida por AK Producciones"
+        heroVideo="/videos/hero_quince.mp4"
         intro="La noche de tus 15 pensada para que te diviertas al máximo junto a tus amigos y familia."
         detailTitle="Tu noche soñada con tecnología y diversión sin límites"
         detailDescription="Barra de tragos de autor sin alcohol, Espejo Mágico IA con impresión al instante, Muro Social en vivo y discoteca con iluminación LED sincronizada."

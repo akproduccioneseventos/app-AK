@@ -21,6 +21,7 @@ export default function CumpleanosLanding() {
         source="landing-cumpleanos"
         heroImage="/media/catalogo-servicios/social_persuasivo.png"
         heroImageAlt="Cumpleaños producido por AK Producciones"
+        heroVideo="/videos/hero_cumpleanos.mp4"
         intro="Festejá tu cumpleaños a lo grande con amigos y familia, sin preocuparte por la organización."
         detailTitle="Tu fiesta con ambientación, barra libre y la mejor música"
         detailDescription="Propuestas dinámicas con finger food, barra de trago libre, discoteca con DJ en vivo y sorpresas para disfrutar cada minuto."

@@ -28,6 +28,7 @@ export default function BodasLanding() {
         source="landing-bodas"
         heroImage="/media/catalogo-servicios/boda_persuasiva.png"
         heroImageAlt="Boda producida por AK Producciones"
+        heroVideo="/videos/hero_bodas.mp4"
         intro="Una boda inolvidable se vive cuando cada detalle tiene un equipo profesional cuidándolo."
         detailTitle="Tu gran día, con una coordinación transparente y sin estrés"
         detailDescription="Catering de alta cocina, ambientación distinguida, sonido e iluminación profesional coordinados como una sola experiencia perfecta."

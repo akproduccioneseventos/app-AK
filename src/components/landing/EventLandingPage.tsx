@@ -21,6 +21,7 @@ export interface EventLandingPageProps {
   source: LandingLeadData['fuente'];
   heroImage: string;
   heroImageAlt: string;
+  heroVideo?: string;
   intro: string;
   detailTitle: string;
   detailDescription: string;
@@ -56,6 +57,7 @@ export function EventLandingPage({
   source,
   heroImage,
   heroImageAlt,
+  heroVideo,
   intro,
   detailTitle,
   detailDescription,
@@ -76,6 +78,7 @@ export function EventLandingPage({
           subheadline={intro}
           backgroundImageUrl={heroImage}
           backgroundImageAlt={heroImageAlt}
+          backgroundVideoUrl={heroVideo}
           whatsappMessage={whatsappMessage}
           ctaLabel="Hablar con un productor por WhatsApp"
           simulatorHref={simulatorHref}

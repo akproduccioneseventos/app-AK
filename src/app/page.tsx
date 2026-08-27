@@ -495,6 +495,7 @@ export default async function HomePage() {
               headline={landingSettings.hero.headline}
               subheadline={landingSettings.hero.subheadline}
               backgroundImageUrl="/media/catalogo-servicios/quinceanera_hero.png"
+              backgroundVideoUrl="/videos/hero_portada.mp4"
               simulatorHref="/simulador-de-presupuesto"
               simulatorLabel="Proyectar mi fiesta"
             />
