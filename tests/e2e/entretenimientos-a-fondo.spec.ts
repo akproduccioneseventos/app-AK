@@ -26,6 +26,37 @@ test.afterAll(() => {
   borrarFiesta(ID);
 });
 
+/**
+ * Basura técnica que NUNCA tiene que llegar a la pantalla del operador.
+ *
+ * Esto no es un detalle de prolijidad: durante meses cada estación mostraba el
+ * error crudo de la base —en inglés, con el nombre del campo y un consejo de
+ * programador— y encima significaba que la estación no arrancaba. El operador
+ * de una fiesta no puede hacer nada con ese texto.
+ */
+const BASURA_TECNICA = [
+  /firestore/i,
+  /undefined/i,
+  /is not a valid/i,
+  /ignoreUndefinedProperties/i,
+  /at Object\./i,
+  /TypeError/i,
+];
+
+/**
+ * En este contenedor no hay base de datos: no hay credenciales cargadas.
+ *
+ * Todo lo que necesita guardar algo —abrir la sesión de una estación, subir una
+ * foto— falla acá y **no es un defecto de la app**. Lo que sí se puede probar, y
+ * es lo que importa, es que la pantalla abra, que entre la cámara, que los
+ * botones respondan y que cuando algo falle lo diga en criollo y no en inglés.
+ */
+const SIN_BASE_DE_DATOS = [
+  /no se pudo abrir la sesion de la estacion/i,
+  /no se pudo guardar/i,
+  /sin conexion con la base/i,
+];
+
 /** Textos que delatan que la pantalla no encontró con qué trabajar. */
 const SENALES_DE_FALLA = [
   /no se encontr/i,
@@ -213,6 +244,12 @@ async function operarPantalla(
       }
     }
 
+    for (const senal of BASURA_TECNICA) {
+      if (senal.test(texto)) {
+        fallas.push({ donde: etiqueta, problema: `la pantalla muestra texto técnico: "${texto.match(senal)?.[0]}"` });
+      }
+    }
+
     if (/\/login/.test(page.url())) {
       fallas.push({ donde: etiqueta, problema: 'la estación manda a la pantalla de entrada en vez de abrirse' });
     }
@@ -252,10 +289,21 @@ async function operarPantalla(
         });
         await page.waitForTimeout(4_000);
         const despues = (await page.locator('body').innerText().catch(() => '')) || '';
+        const nuevo = despues.replace(antes, '');
+        const faltaLaBase = SIN_BASE_DE_DATOS.some((senal) => senal.test(nuevo));
+
+        for (const senal of BASURA_TECNICA) {
+          if (senal.test(nuevo)) {
+            fallas.push({
+              donde: etiqueta,
+              problema: `después de tocar "${nombre}" la pantalla muestra texto técnico: "${nuevo.match(senal)?.[0]}"`,
+            });
+          }
+        }
+
         if (despues === antes) {
           fallas.push({ donde: etiqueta, problema: `se tocó "${nombre}" y la pantalla quedó igual: no pasó nada` });
-        }
-        if (/no se pudo|fall[oó]|error|intent[aá] de nuevo/i.test(despues) && !/no se pudo/i.test(antes)) {
+        } else if (!faltaLaBase && /no se pudo|fall[oó]|error|intent[aá] de nuevo/i.test(nuevo)) {
           fallas.push({ donde: etiqueta, problema: `después de tocar "${nombre}" aparece un cartel de error` });
         }
         await page.screenshot({
