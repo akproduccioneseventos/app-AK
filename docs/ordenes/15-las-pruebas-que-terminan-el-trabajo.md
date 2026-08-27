@@ -2,6 +2,66 @@
 
 **Para Gemini. Escrita el 27 de agosto de 2026.**
 
+> # DEVOLUCIÓN 1 — 27 de agosto de 2026. LEER ANTES DE SEGUIR.
+>
+> **La entrega de la rama `feat/orden-15-pruebas-que-terminan-el-trabajo` NO se fusionó.**
+> La idea está bien y el recorrido de pantallas es justo lo que se pedía. **El problema es
+> dónde mira.**
+>
+> ## El defecto de fondo: la prueba no abre la pantalla, pide el HTML crudo
+>
+> En `tests/e2e/internal-route-inventory.spec.ts:51` el recorrido usa
+> `context.request.get(route)` y le mide el largo al texto de esa respuesta. Eso **no es la
+> pantalla**: es el HTML que llega antes de que la aplicación se dibuje.
+>
+> Las pantallas internas se dibujan del lado del cliente, así que ese HTML son **69
+> caracteres de cáscara, siempre**. Resultado real de la corrida: **veintipico de pantallas
+> sanas reportadas como "prácticamente vacías"** —`/admin`, `/alertas`, `/calendario`,
+> `/contabilidad`, `/customers`, `/empleados` y siguen—, todas con exactamente los mismos 69
+> caracteres. Ninguna está rota.
+>
+> **Y lo peor no es el ruido: es que las otras comprobaciones quedan ciegas.** Buscar `$NaN`
+> o `[object Object]` en un HTML que todavía no tiene contenido **nunca va a encontrar nada**,
+> justo en las pantallas donde eso importaría.
+>
+> Una prueba que grita veinte veces en falso se termina ignorando, y ahí perdemos el control
+> entero. Ya pasó en este proyecto: de diez avisos de un ayudante, nueve eran falsa alarma.
+>
+> **Cómo se arregla:** abrir la pantalla de verdad —`page.goto` y `page.locator('body')
+> .innerText()`, como hacen `noche-de-fiesta.spec.ts` y `entretenimientos-a-fondo.spec.ts`—
+> y recién ahí medir. Si eso hace la corrida demasiado lenta para 348 pantallas, decilo y lo
+> resolvemos: **mejor pocas pantallas miradas de verdad que 348 miradas por arriba.**
+>
+> ## Segundo: `/club-uruguay` da 11 caracteres y no sé si está rota
+>
+> `trabajos-completos.spec.ts` falla ahí: esperaba más de 200 caracteres y encontró 11. Es
+> una página que arma el servidor y **pide los salones a la base**. En el contenedor de
+> prueba **no hay base**, así que no se puede saber desde acá si la página está rota de
+> verdad o si sólo se ve vacía por eso.
+>
+> **Esto lo tenés que resolver vos, que corrés con los accesos de producción:** abrí
+> `/club-uruguay` y decí en una línea qué se ve. Si se ve bien, la prueba tiene que esperar a
+> que la página termine de cargar antes de medir. Si se ve vacía, **eso es un defecto real en
+> una página que vende** y hay que arreglarlo.
+>
+> ## Lo que sí está bien y no se toca
+>
+> - **Las cinco comprobaciones nuevas por pantalla** (vacía, basura de programador, plata
+>   rota, error de aplicación, redirección a login): son exactamente las que faltaban.
+>   **El qué está bien; lo que hay que cambiar es el dónde mira.**
+> - Separar la falla y seguir con la siguiente pantalla, en vez de cortar en la primera.
+>
+> ## Cómo se cierra
+>
+> **En la misma propuesta.** Y antes de entregar, corré `npm run "publicar?"` y que dé verde:
+> es la puerta, y sin eso no se fusiona nada. **Una entrega de pruebas que deja la tanda en
+> rojo con fallas inventadas es peor que no entregar nada**, porque el próximo que la vea en
+> rojo la va a ignorar.
+
+---
+
+
+
 ## Por qué existe esta orden
 
 **El dueño lo preguntó dos veces**, y la segunda fue más clara:
