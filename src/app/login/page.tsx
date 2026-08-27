@@ -24,6 +24,7 @@ import {
   loginWithGoogleIdToken,
 } from '@/app/actions/simple-auth';
 import { loginUser } from '@/app/actions/auth';
+import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/app/actions/diagnostico-acceso';
 
 type RecoveryStatus = Awaited<ReturnType<typeof getPublicSecurityRecoveryStatus>>;
 
@@ -102,6 +103,10 @@ export default function LoginPage() {
   const [recovery, setRecovery] = useState<RecoveryStatus>(RECOVERY_STATUS_FALLBACK);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  // Cuando un intento falla, la app averigua sola por que y lo dice en criollo.
+  // Antes habia que leer registros del servidor para distinguir cuatro problemas
+  // distintos, y el dueno no es programador: la app tiene que averiguarlo ella.
+  const [diagnostico, setDiagnostico] = useState<DiagnosticoAcceso | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
 
@@ -175,6 +180,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     setError('');
     setNotice('');
+    setDiagnostico(null);
 
     try {
       const normalizedEmail = email.trim().toLowerCase();
@@ -206,6 +212,9 @@ export default function LoginPage() {
       if (!result.success) {
         setError(result.error || 'Correo o contraseña incorrectos.');
         setIsSubmitting(false);
+        // Se averigua en segundo plano cual de los cuatro problemas fue. Si esta
+        // consulta tampoco contesta, no se muestra nada extra: nunca se inventa.
+        diagnosticarAcceso().then(setDiagnostico).catch(() => undefined);
         return;
       }
 
@@ -473,6 +482,12 @@ export default function LoginPage() {
               </div>
               {notice && <p className="text-sm text-emerald-700 text-center">{notice}</p>}
               {error && <p className="text-sm text-destructive text-center">{error}</p>}
+              {diagnostico && (
+                <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-center">
+                  <p className="text-sm font-semibold text-amber-900">{diagnostico.causa}</p>
+                  <p className="mt-1 text-xs text-amber-800">{diagnostico.queHacer}</p>
+                </div>
+              )}
             </CardContent>
             <CardFooter className="flex-col gap-3">
               <Button className="w-full" type="submit" data-testid="login-submit" disabled={isSubmitting}>

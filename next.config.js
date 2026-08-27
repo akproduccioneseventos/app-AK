@@ -10,6 +10,26 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     skipWaiting: true,
     clientsClaim: true,
     cleanupOutdatedCaches: true,
+    // **La pantalla de entrada nunca sale de la memoria del telefono.**
+    //
+    // Paso de verdad: el dueno apretaba "Ingresar" y no pasaba absolutamente nada.
+    // Ni el cartel de "Ingresando...", ni un error. El boton, muerto.
+    //
+    // Una pagina guardada en la memoria del navegador se sirve con el programa de
+    // la version vieja. Si ese programa ya no coincide con la pagina, la pantalla se
+    // dibuja igual —se ve perfecta— pero **ningun boton responde**. Y como queda
+    // guardada, el problema no se arregla solo: se repite en cada visita.
+    //
+    // Con esto, la entrada y la recuperacion de clave se piden siempre al servidor.
+    // Es la unica puerta de la app: si se queda pegada, no hay forma de entrar a
+    // arreglarla desde adentro.
+    navigateFallbackDenylist: [/^\/login/, /^\/api\//],
+    runtimeCaching: [
+      {
+        urlPattern: /^\/login(\?.*)?$/,
+        handler: 'NetworkOnly',
+      },
+    ],
   },
 });
 
