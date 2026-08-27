@@ -5182,3 +5182,26 @@ Las dos piden sesion ahora.
 El `llms.txt` **no declara ningun precio** —era el riesgo, despues del precio en dolares que
 se saco en #1140— y las siete paginas que nombra existen todas. La pantalla del tope y la
 ficha del cliente ideal estan hechas con el criterio pedido.
+
+### El punto ciego del control de puertas abiertas (27 de agosto de 2026)
+
+**Por que el control no vio las dos puertas de publicidad.** El control de
+`auditoria-puertas-abiertas` tiene una excepcion: cuando una funcion **solo reenvia** a
+otra, no la revisa, porque *"la comprobacion esta en la funcion de destino"*. La excepcion
+es razonable y evita falsas alarmas —hay muchos atajos de una linea que delegan en algo que
+si comprueba—.
+
+**Pero no verifica su propia suposicion.** Las dos funciones de publicidad eran atajos de
+una linea que reenviaban a modulos comunes **sin ninguna comprobacion del otro lado**. El
+control las dio por buenas sin mirar.
+
+Se midio cuantas mas pasan por ese atajo: **ocho**, y ninguna quedo confirmada como abierta
+—el rastreador automatico no pudo seguirlas—. Las tres que tocan facturas se revisaron a
+mano y **estan bien protegidas**: `saveInvoice`, `deleteInvoice` y `resetAllInvoices`
+reenvian a funciones internas que piden `verifySession`. Falsa alarma.
+
+**Queda anotado como punto ciego conocido, no como trabajo pendiente.** Si alguna vez se
+cierra, la forma correcta es que la excepcion **compruebe el destino** en vez de suponerlo:
+seguir el import, encontrar la funcion de destino y confirmar que comprueba. Lo que no hay
+que hacer es sacar la excepcion sin mas, porque volveria a reportar decenas de falsas
+alarmas y el control se dejaria de mirar, que es como muere un control.
