@@ -5357,3 +5357,47 @@ le pasa— y las trece pruebas que terminan el trabajo. Los dos estan en
 **Y la regla que lo hace valer:** no se fusiona nada sin `publicar?` completo en verde, y **no
 se saltea un paso para que de verde**. Sacar un control que molesta es exactamente como se
 llega a "cero errores" con la app rota.
+
+## La auditoria con agentes del 27 de agosto: el codigo esta bien, lo flojo es la verificacion
+
+El dueno pidio auditar **toda la app** con los ayudantes economicos, con las preguntas nuevas
+—no "¿esta escrito?" sino "¿funciona?"—. Tres agentes en paralelo, y el resultado, verificado
+a mano hallazgo por hallazgo:
+
+**1. ¿Que dato no llega?** (el patron que dejo la fotocabina sin fondo)
+**Nada.** Un solo hallazgo y era un valor por defecto correcto y en uso. **Ese agujero quedo
+tapado** despues de los tres casos que apareceron el mismo dia.
+
+**2. ¿Que pantalla abre sin mostrar nada?** (plata rota, listas vacias, datos inventados)
+**Nada grave.** El agente reviso cuentas de plata, formateo de moneda, estados vacios y
+pantallas del invitado: **la mayoria esta bien protegida**. Lo unico: una pantalla interna de
+tareas automaticas no muestra que esta cargando, asi que por uno o dos segundos parece vacia.
+Es incomodo, no es un error.
+
+**3. ¿Que prueba no comprueba nada?** **ACA ESTA TODO EL PROBLEMA.**
+
+De **225 comprobaciones** en las pruebas de navegador:
+- **147 (65%) solo confirman que la pantalla abrio.**
+- 78 (35%) miran un resultado.
+
+**Dos de cada tres pruebas no comprueban nada.** Verificado a mano ademas:
+
+- **La pantalla de cobro por Mercado Pago no tiene NINGUNA prueba de navegador.** Es por
+  donde entra la plata.
+- **El carrito de compras y el resumen post-fiesta, tampoco.**
+- **Cinco archivos de prueba no comprueban nada** mas alla de que la pantalla abra:
+  impresion, senal mala, portales faltantes, fotos de la app (cero comprobaciones) e interno.
+- El presupuesto: sus dos unicas comprobaciones de resultado son **que el PDF se llame
+  "presupuesto" y que pese mas de 5 KB**. El monto, nunca.
+
+**Falso positivo verificado y descartado:** el agente dijo que el panel del invitado no estaba
+probado. **Es falso**: once archivos lo tocan.
+
+### La conclusion, y es la respuesta a lo que el dueno venia preguntando
+
+**Las auditorias no fallaban porque la app estuviera podrida. Fallaban porque lo flojo era la
+verificacion.** El codigo esta razonablemente sano; lo que no existe es algo que compruebe que
+funciona. Por eso "cero errores" convivia con la fotocabina rota.
+
+Lo que corresponde no es auditar mas: es **la orden 15** —las pruebas que terminan el trabajo—
+y **la puerta** `npm run "publicar?"`, que ya estan escritas.
