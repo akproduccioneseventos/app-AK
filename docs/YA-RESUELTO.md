@@ -4970,3 +4970,25 @@ administrador. Lo unico que cambia es que queda anotada y la app deja de estar v
 **El mensaje tambien cambio.** Decia "hay que crear el primer usuario", que suena a tarea y
 no daba ninguna forma de hacerla. Ahora dice el camino, que existe y funciona: tocar
 "Ingresar con Google".
+
+## El boton de Google no hacia nada en el celular (27 de agosto de 2026)
+
+El dueno lo reporto asi: **"el boton de correo no funciona"**. Y era cierto, en el telefono.
+
+La pantalla de entrada tenia dos caminos para entrar con Google: la ventanita que se abre
+encima, y el desvio, que se va a Google y vuelve. **Cualquier pantalla angosta —o sea, todo
+telefono— iba directo al desvio.**
+
+El desvio **falla en silencio** en los navegadores que bloquean el guardado de datos de
+otros sitios: Safari en iPhone lo hace de fabrica, y Chrome tambien cuando la app esta
+instalada como aplicacion. "En silencio" quiere decir literalmente eso: la pagina no se va
+a ningun lado, no aparece ningun error, **el boton no hace nada**.
+
+Dos cambios:
+
+1. **Se prueba siempre la ventanita primero.** Anda en los telefonos de hoy. El desvio
+   quedo como plan B: solo se usa si el navegador avisa que bloqueo la ventanita, que es un
+   error que si se puede reconocer.
+2. **Si igual se termina yendo por el desvio y a los cuatro segundos seguimos en la misma
+   pagina, se avisa.** Nadie se queda mas mirando un boton muerto: se le dice que ese
+   navegador esta bloqueando el ingreso y cual es el otro camino.

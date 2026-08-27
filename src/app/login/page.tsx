@@ -232,6 +232,27 @@ export default function LoginPage() {
     }
   };
  
+  /**
+   * Manda a Google por el desvio y **se queda mirando si de verdad se va**.
+   *
+   * El desvio puede no navegar a ningun lado y no tirar ningun error: pasa en los
+   * navegadores que bloquean el guardado de datos de otros sitios. Si eso ocurre, sin
+   * esto la persona se queda mirando un boton que no hizo nada. Con esto, a los cuatro
+   * segundos se le dice que ese camino esta cerrado y cual usar.
+   */
+  const irAGooglePorDesvio = async (
+    googleAuth: typeof import('@/lib/firebase/google-auth-client'),
+  ) => {
+    await googleAuth.startGoogleSignInRedirect();
+    window.setTimeout(() => {
+      setIsSubmitting(false);
+      setError(
+        'Tu navegador esta bloqueando el ingreso con Google. Probá desde otro navegador, '
+        + 'o entrá con tu correo y contraseña.',
+      );
+    }, 4000);
+  };
+
   const handleGoogleLogin = async () => {
     setIsSubmitting(true);
     setError('');
@@ -240,7 +261,7 @@ export default function LoginPage() {
     try {
       const googleAuth = await import('@/lib/firebase/google-auth-client');
       if (googleAuth.shouldPreferGoogleRedirect()) {
-        await googleAuth.startGoogleSignInRedirect();
+        await irAGooglePorDesvio(googleAuth);
         return;
       }
 
@@ -262,7 +283,7 @@ export default function LoginPage() {
     } catch (googleError) {
       const googleAuth = await import('@/lib/firebase/google-auth-client');
       if (googleAuth.shouldFallbackToGoogleRedirect(googleError)) {
-        await googleAuth.startGoogleSignInRedirect();
+        await irAGooglePorDesvio(googleAuth);
         return;
       }
       setError(googleAuth.getGoogleAuthErrorMessage(googleError));
