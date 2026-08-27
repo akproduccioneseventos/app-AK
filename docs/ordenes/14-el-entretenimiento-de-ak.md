@@ -1,6 +1,8 @@
-# Orden 13 — El entretenimiento de AK: una sola experiencia, mejor que cualquiera del mercado
+# Orden 14 — El entretenimiento de AK: una sola experiencia, mejor que cualquiera del mercado
 
 **Para Gemini. Escrita el 27 de agosto de 2026.**
+
+> **Ojo con el número:** hay otra orden 13 (`13-la-fotocabina-que-gana.md`), de otra IA, sobre la fotocabina. Esta es la **14** y no toca la fotocabina.
 
 ## CÓMO SE ENTREGA (leer esto primero)
 
