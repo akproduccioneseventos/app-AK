@@ -305,7 +305,15 @@ async function operarPantalla(
         fallas.push({ donde: etiqueta, problema: 'no hay ningún botón para tocar: la pantalla no se puede usar' });
       } else {
         const principal = page
-          .getByRole('button', { name: /sacar|capturar|empezar|iniciar|comenzar|grabar|crear|arrancar|foto|video|siguiente|jugar/i })
+          /**
+           * Sólo verbos de acción, y a propósito.
+           *
+           * Antes entraban también "foto" y "video" sueltos, y en Touchpix eso
+           * agarraba la pestaña "Foto" del pie —que ya viene elegida— en vez del
+           * botón de disparo. La pantalla no cambiaba, porque no tenía que
+           * cambiar, y la prueba lo cantaba como defecto.
+           */
+          .getByRole('button', { name: /sacar|capturar|disparar|empezar|iniciar|comenzar|grabar|crear|arrancar|siguiente|jugar/i })
           .and(page.locator('button:not([disabled])'))
           .first();
         const objetivo = (await principal.count()) > 0 ? principal : botones.first();
