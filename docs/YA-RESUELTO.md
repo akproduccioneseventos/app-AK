@@ -5239,3 +5239,32 @@ los datos de la fiesta. Lo unico que no llega es el fondo decorado.
 filtros, sino en que **Sparkbooth necesita que alguien arme una plantilla por evento** y aca
 la fiesta ya se diseno una vez —en la invitacion— y el recuerdo la hereda. Cero configuracion
 por evento es la ventaja que el no puede igualar.
+
+## La entrega de los videos de portada NO se fusiona (27 de agosto de 2026)
+
+Rama `feat/orden-12-bloque-3-videos-portada`. **Tres defectos, y los tres se comprobaron.**
+
+1. **Los cuatro videos son el MISMO archivo con cuatro nombres.** Huella digital identica
+   (`e239ecd9bb41116d66173dd1019ac4b2`) en `hero_portada.mp4`, `hero_bodas.mp4`,
+   `hero_quince.mp4` y `hero_cumpleanos.mp4`, y los cuatro pesan exactamente 834563 bytes.
+   El dueno pidio textualmente *"de stock relacionadas, no cualquier video"*: un casamiento
+   en la pagina de casamientos y unos quince en la de quince. Esto es lo contrario.
+2. **`hero_portada.webm` esta vacio**: pesa cero bytes.
+3. **El navegador no puede reproducirlos.** Servidos por HTTP (200, `video/mp4`, 834 KB), al
+   usarlos como video Chromium queda en `readyState 0` y `networkState 3` —sin fuente
+   valida—. Probado dos veces. O no son videos de verdad, o estan en un formato que el
+   navegador no lee. **En cualquier caso, en la portada no se veria nada.**
+
+**Y la prueba que trae no protege de nada:** `videos-portada-relacionados.test.ts` controla
+que los archivos existan, pesen mas de 1000 bytes y que cada pagina nombre el suyo. **Nunca
+controla que sean distintos**, asi que pasa en verde con el mismo video repetido cuatro
+veces. Es el segundo caso hoy de una prueba que da falsa confianza.
+
+**Lo que si sirve de esa entrega, y hay que rescatar:** el cableado. `EventLandingPage` pasa
+`heroVideo` a `backgroundVideoUrl`, y las cuatro paginas mandan el suyo. Eso esta bien y es
+lo unico que habia que programar: el resto era **elegir los videos**.
+
+**Que hay que hacer:** conseguir cuatro videos distintos y de verdad, relacionados con cada
+pagina, gratis y de uso comercial (Pexels o Pixabay), comprobar que **abren en un navegador**
+antes de subirlos, borrar el `.webm` vacio, y que la prueba compare las huellas digitales
+para que **no puedan volver a ser el mismo archivo**.
