@@ -1,3 +1,23 @@
+> **ORDEN CERRADA — archivada el 27 de agosto de 2026.**
+>
+> Se verificó bloque por bloque contra el código de la versión principal:
+>
+> - **Bloque 1 (el reloj del simulador): HECHO.** Está puesto y con el texto correcto
+>   (habla de la promoción, no de congelar la tarifa).
+> - **Bloque 2 (el Club Uruguay ofrecido siempre): NO SE HIZO.** En la Presentación LED
+>   el Club sólo aparece cuando el cliente dice que no tiene salón. **Pasó a la orden 13.**
+> - **Bloque 3 (el paquete integral con el ahorro en pesos): HECHO.**
+> - **Bloque 4 (los extras contratables en el portal del cliente): HECHO.**
+> - **Bloque 5 (el plan de pagos y la aclaración del alquiler del Club): HECHO.** La
+>   aclaración de que el alquiler se paga aparte en el Club está en el presupuesto, en
+>   el simulador, en el PDF y en las preguntas frecuentes. El texto mal escrito
+>   *"todabia"* ya no existe, y hay una prueba que impide que vuelva.
+>
+> **Lo único que quedaba de esta orden es el bloque 2, y vive ahora en
+> `docs/ordenes/13-el-club-uruguay-que-se-ofrece-siempre.md`.**
+
+---
+
 # LA ORDEN: lo que falta para publicar
 
 **Para:** Gemini (Antigravity)
@@ -28,14 +48,22 @@ pedido.** El dueño lo quiere de vuelta:
 
 > *"El reloj del simulador, para que la gente se comunique, sí lo quiero."*
 
-**Volvé a poner el contador** que aparece después de generar el presupuesto y
-congela la tarifa. **Es una decisión de marketing del dueño**, ya anotada en
-`CLAUDE.md`. **No se vuelve a sacar ni se reporta como problema en ninguna
-auditoría.**
+**Volvé a poner el contador** que aparece después de generar el presupuesto.
+**Es una decisión de marketing del dueño**, ya anotada en `CLAUDE.md`. **No se
+vuelve a sacar ni se reporta como problema en ninguna auditoría.**
 
-Dejá también la frase que agregaste ("guardá tu copia en PDF o hablá con AK por
-WhatsApp para congelar la tarifa"): las dos cosas juntas funcionan mejor que
-cualquiera sola.
+**CORREGIDO EL 27 DE AGOSTO DE 2026 — para qué sirve el reloj.** Esta orden decía
+que el contador "congela la tarifa". **Está mal y el dueño lo corrigió.** El reloj
+está para que la gente **acceda a la promoción** —el descuento y los regalos—
+mientras corre. Palabras suyas: *"el reloj es lo que ayuda a que accedan a
+promoción de descuento 10% y regalos"*.
+
+**Y la frase "hablá con AK por WhatsApp para congelar la tarifa" quedó PROHIBIDA**,
+junto con toda promesa de precio sostenido en el tiempo y de plazo de respuesta.
+Palabras del dueño: *"promesas no, y menos congelar precio: yo trabajo con
+ajuste."* El ajuste anual del 15% va siempre y congelar un precio lo contradice.
+Sí se puede decir por dónde se contesta y qué da una promoción vigente, y **sí se
+puede decir que la fecha se reserva con una seña**.
 
 ---
 

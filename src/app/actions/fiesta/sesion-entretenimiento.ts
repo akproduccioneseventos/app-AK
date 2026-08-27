@@ -65,6 +65,15 @@ export interface EntertainmentSession {
   lastUpdated: string;
 }
 
+/**
+ * Lo que ve el operador cuando la base falla.
+ *
+ * Antes se imprimia el error tal cual venia: ingles, nombres de campos y un
+ * consejo de programador. En una fiesta eso no ayuda a nadie. El detalle
+ * tecnico sigue quedando en el registro del servidor, que es donde sirve.
+ */
+const MENSAJE_DE_FALLA = 'No se pudo abrir la sesion de la estacion. Toca "Reiniciar sesion" y proba de nuevo; si sigue igual, avisa al equipo de AK.';
+
 function boundedText(value: unknown, maxLength: number): string | undefined {
   return typeof value === 'string' && value.length <= maxLength ? value : undefined;
 }
@@ -74,10 +83,26 @@ function boundedNumber(value: unknown, min: number, max: number): number | undef
   return Number.isFinite(number) && number >= min && number <= max ? number : undefined;
 }
 
+/**
+ * Deja afuera las claves vacias.
+ *
+ * La base rechaza el documento ENTERO si una sola clave llega vacia, y devuelve
+ * un error en ingles que terminaba impreso en la pantalla del operador. Como
+ * cada estacion manda solo los ajustes que usa —el 360 no manda `duration`, el
+ * espejo no manda `frameCount`—, siempre sobraban claves vacias y **ninguna
+ * estacion podia abrir su sesion**: se tocaba "Iniciar cuenta regresiva" y
+ * aparecia el error en rojo.
+ */
+function sinClavesVacias<T extends Record<string, unknown>>(objeto: T): T {
+  return Object.fromEntries(
+    Object.entries(objeto).filter(([, valor]) => valor !== undefined),
+  ) as T;
+}
+
 function sanitizeSessionSettings(input: unknown): EntertainmentSession['settings'] {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
   const source = input as Record<string, unknown>;
-  return {
+  return sinClavesVacias({
     duration: boundedNumber(source.duration, 1, 120),
     countdownSeconds: boundedNumber(source.countdownSeconds, 1, 15),
     frameCount: boundedNumber(source.frameCount, 1, 60),
@@ -87,7 +112,7 @@ function sanitizeSessionSettings(input: unknown): EntertainmentSession['settings
     themeId: boundedText(source.themeId, 80),
     operatorName: boundedText(source.operatorName, 120),
     stationTitle: boundedText(source.stationTitle, 120),
-  };
+  });
 }
 
 function sanitizeSessionUpdate(
@@ -169,7 +194,7 @@ export async function startEntertainmentSession(
     return { success: true };
   } catch (e: any) {
     console.error(`[sesion-entretenimiento] Error en startEntertainmentSession:`, e);
-    return { success: false, error: e.message };
+    return { success: false, error: MENSAJE_DE_FALLA };
   }
 }
 
@@ -234,7 +259,7 @@ export async function updateEntertainmentSessionStatus(
     return { success: true };
   } catch (e: any) {
     console.error(`[sesion-entretenimiento] Error en updateEntertainmentSessionStatus:`, e);
-    return { success: false, error: e.message };
+    return { success: false, error: MENSAJE_DE_FALLA };
   }
 }
 
@@ -265,7 +290,7 @@ export async function resetEntertainmentSession(
     return { success: true };
   } catch (e: any) {
     console.error(`[sesion-entretenimiento] Error en resetEntertainmentSession:`, e);
-    return { success: false, error: e.message };
+    return { success: false, error: MENSAJE_DE_FALLA };
   }
 }
 
@@ -317,6 +342,6 @@ export async function completeEntertainmentSessionCycle(
     return { success: true };
   } catch (e: any) {
     console.error(`[sesion-entretenimiento] Error en completeEntertainmentSessionCycle:`, e);
-    return { success: false, error: e.message };
+    return { success: false, error: MENSAJE_DE_FALLA };
   }
 }

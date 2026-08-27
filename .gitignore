@@ -98,6 +98,8 @@ data/social-comments.json
 src/data/social-comments.json
 data/whatsapp-conversaciones-de-publicidad.json
 src/data/whatsapp-conversaciones-de-publicidad.json
+data/parte-manana-cache.json
+src/data/parte-manana-cache.json
 
 # abacus
 .abacus.donotdeletepackage-lock.json

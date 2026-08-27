@@ -20,7 +20,7 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 ## Orden 13 — La Fotocabina que Gana y Fondo de Invitación (27 de agosto de 2026)
 
 - **Fondo de la fiesta heredado de la invitación (`src/lib/entertainment/station-config.ts`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`):**
-  - La fotocabina, el espejo mágico y el bogue heredan automáticamente `imagenFondoUrl` y `colorFondo` desde la invitación digital ya diseñada y aprobada de la fiesta (`fiesta.invitacion.cabecera` o `paletaColores`). Cero armado de plantillas manuales por evento.
+  - La fotocabina, el espejo mágico y el bogue heredan automáticamente `imagenFondoUrl` y `colorFondo` desde la invitación digital ya diseñada y aprobada de la fiesta (`fiesta.invitacionDigital.cabecera` o `paletaColores`). Cero armado de plantillas manuales por evento.
 - **Configuración por fiesta de fotocabina (`src/lib/entertainment/station-config.ts`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`):**
   - Se configuran `fotosPorTanda` (1 a 4, default 3), `segundosCuentaRegresiva` (default 10) y `marcosHabilitados` por evento. Si no se especifican, caen en los valores estándar históricos.
   - Soporte de armado de tira de 4 fotos en cuadrícula 2x2 en `componerTiraDeFotos` (`src/lib/entretenimiento/tira-fotocabina.ts`).
@@ -28,6 +28,54 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - Removidas menciones de GIF, Boomerang en fotocabina, Filtros en vivo y Captura de correos para que la pantalla de catálogo interno refleje exactamente lo que la app hace de verdad.
 
 ---
+
+## El corredor de pruebas de navegador decia "todas pasaron" sin correr ninguna (27 de agosto de 2026)
+
+- **Qué estaba mal.** `scripts/run-playwright-production.mjs` avisaba con una advertencia
+  cuando una tanda se caía sin registrar pruebas, pero **no la contaba como falla**. El
+  resumen final imprimía *"Todas las pruebas de navegador pasaron exitosamente"* con
+  **cero pruebas ejecutadas**, y devolvía éxito.
+- **Cómo apareció.** Corriendo una prueba nueva con `--reporter=line`: esa opción le tapa
+  al corredor el informe que necesita, la tanda quedó sin datos y el corredor la dio por
+  buena. Pasa igual si un archivo de prueba no compila o si el servidor no levanta.
+- **Qué se hizo.** Las tandas que no llegan a correr se anotan y el corredor termina en
+  error, con el detalle de cuál se cayó y por qué.
+- **Por qué importa.** Es el único control que ve lo que ve el usuario. Un control que
+  dice que está todo bien cuando no corrió nada es peor que no tener control.
+- **De paso:** para correr un solo archivo hay que pasarle **la ruta completa terminada en
+  `.spec.ts`**. Un nombre suelto no filtra nada y corre la tanda entera.
+
+## Las estaciones de entretenimiento no abrian su sesion (27 de agosto de 2026)
+
+- **Qué estaba mal.** El operador tocaba "Iniciar cuenta regresiva" en la Plataforma 360,
+  en Bogue, en el Espejo Mágico o en Touchpix y le aparecía un cartel rojo **en inglés**
+  hablando de un campo de la base (`settings.frameCount`, `settings.countdownSeconds`,
+  `settings.duration`). La estación no arrancaba. Pasaba en **todas** las estaciones.
+- **Por qué.** `sanitizeSessionSettings` en `src/app/actions/fiesta/sesion-entretenimiento.ts`
+  armaba el objeto de ajustes con **todas** las claves, y las que la estación no manda
+  quedaban vacías. La base rechaza el documento entero si encuentra una sola clave vacía.
+  Como cada estación manda sólo los ajustes que usa —el 360 no manda `duration`, el espejo
+  no manda `frameCount`—, **siempre** sobraba alguna.
+- **Qué se hizo.** Se filtran las claves vacías antes de guardar (`sinClavesVacias`). Y el
+  error crudo de la base dejó de imprimirse en pantalla: el operador ve un aviso en criollo
+  que le dice qué hacer, y el detalle técnico queda en el registro del servidor.
+- **El candado.** `src/__tests__/estaciones-abren-su-sesion.test.ts` y la prueba de navegador
+  `tests/e2e/entretenimientos-a-fondo.spec.ts`, que abre cada estación como operador y como
+  invitado, le toca el botón principal y mira qué pasa.
+- **Cómo se encontró, que es lo que importa.** Ninguna prueba lo veía: las que existían
+  controlaban que la pantalla **abriera**, y abría bien. Se vio recién **operándola en un
+  navegador de verdad**.
+
+## Falsos positivos verificados en los entretenimientos (27 de agosto de 2026)
+
+Un ayudante reportó estas cosas como faltantes. **Las tres existen.** No volver a reportarlas:
+
+- **La Plataforma 360 SÍ tiene cámara lenta.** No es un botón: graba a 15 cuadros por
+  segundo y los estira después (`src/app/evento/plataforma-360/[fiestaId]/page.tsx:385-442`).
+- **La Plataforma 360 SÍ tiene marco de marca**, dibujado sobre cada cuadro
+  (`drawWatermark`, misma pantalla, línea 349).
+- **El Espejo Mágico SÍ tiene stickers y firma con el dedo**
+  (`src/app/evento/espejo-magico/[fiestaId]/page.tsx:64` y siguientes).
 
 ## Orden 11 — El Encargado y su equipo (26 de agosto de 2026)
 
