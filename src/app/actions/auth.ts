@@ -54,13 +54,13 @@ function laBaseNoContesto(err: unknown): boolean {
 }
 
 /** Corre la consulta contra el reloj. Si la base no contesta a tiempo, se dice. */
-async function conTopeDeEspera<T>(tarea: Promise<T>): Promise<T> {
+async function conTopeDeEspera<T>(tarea: Promise<T>, topeMs = TOPE_BASE_MS): Promise<T> {
   let reloj: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
       tarea,
       new Promise<never>((_, rechazar) => {
-        reloj = setTimeout(() => rechazar(new BaseSinRespuesta()), TOPE_BASE_MS);
+        reloj = setTimeout(() => rechazar(new BaseSinRespuesta()), topeMs);
       }),
     ]);
   } finally {
@@ -218,7 +218,9 @@ export async function loginUser(
   //
   // Si falla, se sigue igual: crear el primer administrador es un extra, no un
   // requisito para entrar. Quien ya tiene cuenta no depende de esto.
-  await conTopeDeEspera(initializeAdminIfNeeded()).catch(() => undefined);
+  // Tres segundos, no ocho: esto es un extra, no el camino de nadie que ya tiene
+  // cuenta. Si se lleva ocho, se los saca de la espera del usuario para nada.
+  await conTopeDeEspera(initializeAdminIfNeeded(), 3000).catch(() => undefined);
 
   try {
     const snapshot = await conTopeDeEspera(
