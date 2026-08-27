@@ -297,10 +297,13 @@ export async function loginUser(
     console.error('[auth] loginUser error:', err);
     // Se distingue "la base no contesta" de cualquier otro fallo. Antes los dos
     // terminaban en el mismo texto vago y el dueno creia que era su clave.
+    // El diagnostico va tambien aca: es el camino que recorre el fallo mas comun
+    // -la base que no contesta- y era justo el que quedaba sin explicacion.
+    const diagnostico = await diagnosticarAcceso().catch(() => undefined);
     if (laBaseNoContesto(err)) {
-      return { success: false, error: AVISO_BASE_CAIDA };
+      return { success: false, error: AVISO_BASE_CAIDA, diagnostico };
     }
-    return { success: false, error: 'Error al iniciar sesión. Intentá de nuevo.' };
+    return { success: false, error: 'Error al iniciar sesión. Intentá de nuevo.', diagnostico };
   }
 }
 
