@@ -6,57 +6,48 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 ---
 
 **Última actualización:** 27 de agosto de 2026.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2237 pruebas en verde, compila.
-**Propuesta abierta:** **#1147**, verificada y esperando que el dueño toque el botón verde
-(se cortó el permiso de escritura de GitHub y no se pudo marcar lista desde la sesión).
-**Orden pendiente:** la **12**, con cuatro bloques, para Gemini. Él confirmó que la toma.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 2250 pruebas en verde, compila.
+**Propuestas abiertas:** ninguna.
 
-## El tema grande del día: el dueño no podía entrar a su propia app
+## LO URGENTE: el dueño va a usar la fotocabina en una fiesta
 
-Se resolvió entero, y la causa nunca fue su clave. Cinco defectos encadenados:
+Se revisó a fondo y **se probó en un navegador con cámara**. Anda bien: arranque como
+kiosco (elegir fiesta → rol → PIN → bloquea), tanda de tres fotos, tira en **10x15 vertical
+a 1200x1800** —la medida exacta que él imprime—, nombre del homenajeado en manuscrita, aviso
+al operador si falla la cámara, y guardado sin internet.
 
-1. **La app estaba vacía**: no había ninguna cuenta creada. Sólo sabía crear el primer
-   administrador si encontraba una configuración cargada; si faltaba, quedaba así para
-   siempre. Callejón sin salida. **Ahora el primer ingreso con Google crea la cuenta.**
-2. **El botón de Google no hacía nada en el celular**: mandaba a todo teléfono por el
-   desvío, que falla en silencio en Safari y en la app instalada. **Ahora abre la ventanita.**
-3. **La pantalla quedaba guardada en el teléfono** y se dibujaba muerta. **Ya no se guarda.**
-4. **Decía "contraseña incorrecta" cuando la base no contestaba**, y a los cinco intentos
-   lo dejaba afuera quince minutos. **Un fallo del servidor ya no cuenta como intento.**
-5. **Veinticinco segundos de espera muda.** Ahora contesta en 8 a 11 y **dice cuál de
-   cuatro problemas fue**.
+**El defecto que importa: el recuerdo sale con el fondo pelado.** Él entrega tiras con fondo
+decorado (el lila con mariposas de la fiesta de Areli). `componerTiraDeFotos` **ya sabe
+recibir** `imagenFondoUrl` y `colorFondo`; la fotocabina **nunca se los pasa** y
+`PublicEntertainmentEvent` ni siquiera los tiene. **El fondo ya existe en la app: es el de la
+invitación digital de esa misma fiesta.**
 
-**La lección del método:** el diagnóstico automático resolvió en un intento lo que llevaba
-horas de adivinar. Y una trampa que costó tres mediciones falsas: **un servidor de prueba
-viejo ocupando el puerto** hacía medir la versión anterior. Ante una medición rara,
-levantar el servidor en un puerto nuevo.
+Todo está en **`docs/ordenes/13-la-fotocabina-que-gana.md`**, con la comparación contra las
+seis plataformas líderes. **Es la orden pendiente número uno.**
 
-## Lo otro que se fusionó
+## La orden 12: tres bloques adentro, uno rechazado
 
-- Google ya puede leer la web y hay **una sola dirección** (lo que entra con www se desvía).
-- **Fuera las promesas**: "respuesta en 24 horas" (tres lugares) y todo lo de congelar
-  precio. El ajuste anual va siempre y congelarlo lo contradice.
-- **El reloj del simulador se queda**: es para la promoción, **no** para congelar la tarifa.
-  `CLAUDE.md` tenía mal el motivo y quedó corregido — con eso mal escrito, la sesión
-  siguiente devolvía el texto viejo.
-- **El freno de gasto del agente de publicidad**: niega en vez de aconsejar, cuenta lo
-  comprometido hasta fin de mes, y **el agente no prende ni crea campañas** (eso lo activa
-  el dueño).
+Fusionados (#1148): publicidad autónoma, `llms.txt` y cliente ideal. **Se repararon tres
+defectos graves** antes de entrar: el freno de campañas se salteaba, una prueba congelaba lo
+contrario de la regla del dueño, y dos consultas quedaban abiertas a internet.
 
-## La orden 12, cuatro bloques, UNA sola propuesta
+**El bloque de los videos NO se fusiona.** Rama `feat/orden-12-bloque-3-videos-portada`: los
+cuatro mp4 son **el mismo archivo con cuatro nombres**, el webm está vacío, y **el navegador
+no puede reproducirlos**. Se rescata sólo el cableado, que está bien.
 
-1. El agente de publicidad **actúa** sobre Meta Ads, obligado a pasar por el freno.
-2. **La web legible para las IA** sobre Firebase: `llms.txt` (no existe), datos del negocio
-   y preguntas frecuentes marcados. **Cloudflare quedó descartado: no volver a proponerlo.**
-3. **Movimiento en las portadas.** El mecanismo existe y nadie le pasa un video. Cuatro
-   escalones; **el que importa es que la IA arme el pase con las fotos reales**, porque es
-   el único que anda sin que el dueño cargue nada.
-4. **El cliente ideal calculado** sobre ganados contra perdidos. **No se inventa**: si
-   faltan contratos, se dice.
+## Dos lecciones caras de hoy, que valen para todo el proyecto
 
-## Decisiones nuevas, para no volver a preguntarlas
+1. **Un control que se puede omitir, se omite.** El freno de gasto tenía un aviso opcional y
+   la primera entrega simplemente no lo mandaba. Se volvió obligatorio: **ahora no compila
+   sin él**, y al instante apareció un tercer lugar que también lo salteaba.
+2. **Ojo con las pruebas que dan falsa confianza.** Dos veces hoy: una exigía que el agente
+   pudiera crear campañas —lo contrario de lo pedido— y otra daba en verde con el mismo
+   video repetido cuatro veces, porque nunca comparaba que fueran distintos.
 
-- **Cloudflare: no.** Se queda en Firebase; lo que quiere es lo que esa herramienta mide.
-- **Google Flow: no se conecta.** No tiene puerta para aplicaciones y el motor de video se
-  cobra por generación. Si quiere un video de IA, lo hace él en Flow y lo sube.
-- **La app ya genera imágenes con IA** (modelo de imagen de Gemini). Esa puerta ya está.
+## Decisiones ya tomadas (no volver a preguntar)
+
+- **Cloudflare: no.** Se queda en Firebase.
+- **Google Flow: no se conecta.** Si quiere un video de IA, lo hace él y lo sube.
+- **El agente de publicidad no prende ni crea campañas.** Eso lo activa el dueño.
+- **Nada de promesas en la web** ni precios congelados: trabaja con ajuste anual.
+- **El reloj del simulador va**, y es para la promoción, no para congelar la tarifa.
