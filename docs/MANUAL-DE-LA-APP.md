@@ -276,6 +276,27 @@ puede cambiar monto ni fecha.
 - **Las fotos del muro se bajan con el enlace directo** a propósito: quien tenga
   el enlace tiene que poder bajarlas.
 - **Sólo pesos uruguayos.** Las diferencias de redondeo en dólares no aplican.
+- **El agente de publicidad administra solo, pero no prende nada.** Puede pausar, bajar un
+  presupuesto y subir el de algo que ya está al aire, dentro de un tope mensual. **No crea
+  campañas ni reactiva las pausadas**: eso lo enciende el dueño. Apagar y moderar es cuidar;
+  encender es salir a gastar. El tope **niega** en vez de aconsejar, y cuenta lo comprometido
+  hasta fin de mes y no lo ya gastado — contando sólo lo gastado, el desastre se descubre el
+  día 28. **Y el aviso de qué se está por hacer es obligatorio: sin él no compila**, porque
+  la primera entrega que usó el freno simplemente no lo mandaba y la prohibición quedaba
+  salteada en silencio.
+- **El archivo `llms.txt` existe y no declara precios.** Es donde las IA leen qué hace el negocio.
+  Va en `ARCHIVOS_QUE_GOOGLE_LEE`, no en la lista de páginas: esa segunda alimenta también el
+  mapa del sitio, y ofrecer un archivo de texto como si fuera una página es ofrecer algo que
+  no existe.
+- **El cliente ideal se calcula, no se inventa.** Sale de cruzar presupuestos ganados contra
+  perdidos. Si no hay contratos suficientes, la pantalla lo dice en vez de mostrar un perfil
+  bonito: un cliente ideal escrito por una IA de la nada es un horóscopo, y con eso se toman
+  decisiones que cuestan plata.
+- **La tira de la fotocabina se arma sola con los datos de la fiesta** —nombre del
+  homenajeado en manuscrita, motivo, fecha y color— e imprime en **10x15 vertical**. Lo único
+  que todavía no llega es el **fondo decorado**, que es el de la invitación digital de esa
+  misma fiesta. Ahí está la diferencia con el recuerdo que el dueño entrega hoy, y es lo que
+  ninguna plataforma paga puede hacer sin que alguien arme una plantilla por evento.
 - **La pantalla de entrada se diagnostica sola, y nunca se guarda en el teléfono.**
   El dueño estuvo sin poder entrar y la app le decía "contraseña incorrecta" cuando el
   problema era otro. Ahora, si un intento falla, la app comprueba cuatro cosas —si llega a

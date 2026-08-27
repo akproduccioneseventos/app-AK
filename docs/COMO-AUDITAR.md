@@ -138,3 +138,101 @@ hacía:
 
 > **Compilar no es andar.** Y una prueba nueva no vale hasta verla en rojo: antes
 > de darla por buena, romper a propósito lo que tiene que detectar.
+
+
+## La quinta pregunta: ¿el dato LLEGA? (27 de agosto de 2026)
+
+**El dueño lo preguntó así:** *"es increíble que después de tantas auditorías te enfocás en
+la fotocabina y no funciona. ¿Habría alguna manera de que no pasara? Las auditorías son para
+eso y fallan siempre."*
+
+**Tenía razón, y la explicación no es que fallen: es que no preguntan esto.**
+
+Las cuatro preguntas de arriba son sobre el código: ¿existe?, ¿alguien lo llama?, ¿le falta
+algo?, ¿la pantalla dice la verdad? **La fotocabina pasa las cuatro** —existe, se llama,
+tiene datos, no miente— y el recuerdo igual sale con el fondo pelado.
+
+### Los tres casos del mismo día, con la misma forma exacta
+
+- `componerTiraDeFotos` **sabe recibir** `imagenFondoUrl` → la fotocabina nunca se lo manda.
+- `HeroSection` **sabe recibir** `backgroundVideoUrl` → ninguna página le mandaba uno.
+- `puedeComprometer` **sabía recibir** `tipo` → los que la llamaban no se lo mandaban, y la
+  prohibición de encender campañas quedaba salteada **en silencio**.
+
+Siempre lo mismo: **el que recibe está preparado y el que envía nunca manda.** Eso compila,
+pasa las pruebas, no rompe nada, y **no produce nada**.
+
+### La regla exacta, para que se pueda automatizar
+
+Es más fina de lo que parece, y el primer intento de detectarla falló justamente por no
+afinarla. **No** es "un campo que nadie escribe en ningún lado" —así da cientos de falsas
+alarmas y encima se le escapa el caso de la fotocabina, porque ese campo sí se escribe en
+otro lado, en la invitación—.
+
+**Es esto:**
+
+> Una función acepta un parámetro **opcional**, y **ninguna de las llamadas a ESA función**
+> se lo pasa.
+
+Per función, no por texto global. Ahí `imagenFondoUrl` salta: `componerTiraDeFotos` tiene
+una sola llamada y no lo manda. `backgroundVideoUrl` salta: cero llamadas lo mandaban.
+`tipo` saltaba: tres llamadas y ninguna lo mandaba.
+
+### Y el corolario, que es la mitad del valor
+
+**Si un parámetro protege plata o permisos, no alcanza con detectarlo: hay que volverlo
+obligatorio.** Cuando el `tipo` del freno de gasto pasó de opcional a obligatorio, apareció
+al instante un tercer lugar que lo salteaba y que revisando a ojo no se veía. **Un control
+que se puede omitir, se omite.**
+
+### El primer intento falló, y queda anotado para no repetirlo
+
+Se escribió un detector que contaba, en todo el código, cuántas veces se escribía cada campo
+opcional. Dio **210 hallazgos**; de tres revisados a mano, **dos eran falsa alarma**, y **no
+encontraba el caso de la fotocabina**. Se descartó. **El que sirve es el de arriba: por
+función y por llamada, no por texto suelto.**
+
+
+## La sexta pregunta, y la que de verdad cierra el circulo: ¿la prueba TERMINA EL TRABAJO?
+
+**El dueño insistió:** *"¿hay alguna manera de revisar toda la app con un mecanismo de uso,
+no sé el término, para que no sigan fallando las auditorías?"*
+
+**El término es prueba de punta a punta**: la máquina abre la app y la usa como una persona.
+**Y ya existe:** 21 archivos, 61 pruebas, en `tests/e2e/`. **Y sí tocan la fotocabina.**
+
+**Entonces por qué se les escapó el fondo pelado.** Esto es lo que comprueban hoy las
+pruebas de la fotocabina, textual:
+
+- que la pantalla conteste sin error (`status < 400`)
+- que no diga "no autorizado"
+- que haya **un botón visible**
+- que haya **un video en pantalla**
+
+**Nunca se sacan la foto. Nunca miran la tira que sale.**
+
+Por eso el fondo pelado pasó por delante de la auditoría, de las 2250 pruebas y de la prueba
+de uso sin que ninguna lo viera: **todas confirman que la pantalla ABRE; ninguna confirma que
+el resultado esté BIEN.** Es lo mismo que pasó con el pie de página de la web: existía,
+alguien lo llamaba, y el visitante no lo veía.
+
+### La regla, y es corta
+
+> **Por cada cosa para la que sirve la app, una prueba que llegue hasta el final y mire el
+> resultado** — no que la pantalla abrió.
+
+Para la fotocabina: sacarse la tanda de tres y comprobar que **la tira tiene el fondo de la
+fiesta y el nombre del homenajeado**. Para el simulador: llegar al presupuesto y comprobar
+**el número**. Para la entrada: entrar de verdad y comprobar que **se llegó adentro**.
+
+**Una sola de estas por módulo vale más que veinte que abren pantallas.** Son más lentas de
+escribir y más lentas de correr, y por eso nadie las hace. Son las únicas que habrían
+encontrado los tres problemas de hoy.
+
+### Cómo saber si una prueba termina el trabajo
+
+Miralo por lo que comprueba al final:
+
+- Si comprueba que **algo es visible**, que **hay un botón** o que **la pantalla no dio
+  error** → sólo confirma que abrió. **No cuenta.**
+- Si comprueba **un texto, un número o una imagen que la app produjo** → esa sí.
