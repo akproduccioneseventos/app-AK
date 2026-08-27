@@ -84,6 +84,40 @@ describe('Orden 13: Fotocabina con fondo heredado y configuración por fiesta', 
     expect(station.marcosHabilitados).toEqual(['none', 'golden', 'neon', 'flowers', 'ak_brand']);
   });
 
+  it('usa invitacionConfig.colorPrincipal como respaldo intermedio si no hay paletaColores', () => {
+    const fiestaConConfig: FiestaEnPlanificacion = {
+      id: 'fiesta_intermedia',
+      fechaCreacion: '2026-08-20',
+      estado: 'planificacion',
+      configuracion: {
+        nombreEvento: 'Boda Ana y Juan',
+        primaryColor: '#000000',
+      },
+      invitacionConfig: {
+        nombreHomenajeada: 'Ana',
+        tipoEvento: 'boda',
+        estiloEvento: 'formal',
+        colorPrincipal: '#d4af37',
+        colorSecundario: '#ffffff',
+        colorAcento: '#e5e7eb',
+        dressCode: { tipo: 'formal' },
+        regalos: { tipo: 'cuenta', datosBancarios: '' },
+        plantillaId: 'clasica-dorada',
+      },
+    };
+    const pubEvent = getPublicEntertainmentEvent(fiestaConConfig, 'fotocabina');
+    expect(pubEvent.colorFondo).toBe('#d4af37');
+  });
+
+  it('verifica que fotocabina pasa imagenFondoUrl y colorFondo a componerTiraDeFotos', () => {
+    const pagePath = path.join(process.cwd(), 'src/app/evento/fotocabina/[fiestaId]/page.tsx');
+    const content = fs.readFileSync(pagePath, 'utf8');
+
+    // Debe pasar colorFondo e imagenFondoUrl en componerTiraDeFotos
+    expect(content).toContain('colorFondo: fiesta?.colorFondo');
+    expect(content).toContain('imagenFondoUrl: fiesta?.imagenFondoUrl');
+  });
+
   it('la pantalla de entretenimiento no promete funciones inexistentes (GIF, Boomerang, Filtros en vivo, Correos en fotocabina)', () => {
     const filePath = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/entretenimiento/page.tsx');
     const content = fs.readFileSync(filePath, 'utf8');

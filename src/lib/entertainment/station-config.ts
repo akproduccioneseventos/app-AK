@@ -172,6 +172,7 @@ export function getPublicEntertainmentEvent(
 
   const colorFondo =
     invDig?.cabecera?.paletaColores?.primary ||
+    fiesta.invitacionConfig?.colorPrincipal ||
     fiesta.configuracion?.primaryColor ||
     '';
 
