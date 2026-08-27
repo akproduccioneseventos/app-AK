@@ -539,10 +539,10 @@ Se reviso entero porque el dueno estuvo sin poder entrar a su propia app.
 | **La app dice por que fallo la entrada** | **Si (nuevo)** | `/login`, cartel al fallar |
 | **El primer ingreso con Google crea la cuenta** | **Si (nuevo)** | automatico, solo con la base vacia |
 | Recuperar la clave (correo, Google, codigos, preguntas) | Si | `/login?mode=recovery` |
-| **Tope de gasto del agente de publicidad** | **A medias** | el freno esta hecho; falta la pantalla y que el agente actue (orden 12) |
-| **`llms.txt` para que las IA entiendan la web** | **No esta** | pedido en la orden 12 |
-| **Video de movimiento en las portadas** | **No esta** | el mecanismo existe, no hay video ni de donde cargarlo (orden 12) |
-| **Cliente ideal calculado** | **No esta** | pedido en la orden 12, bloque 4 |
+| **Tope de gasto del agente de publicidad** | **Si (27 ago)** | CRM → Marketing Ads. El agente pausa solo lo que quema plata; **no prende ni crea campanas** |
+| **`llms.txt` para que las IA entiendan la web** | **Si (27 ago)** | `/llms.txt`. Sin precios y con las siete paginas que nombra existiendo |
+| **Video de movimiento en las portadas** | **NO** | el cableado quedo hecho; **los videos entregados no sirven** (el mismo archivo cuatro veces, no se reproducen). Hay que rehacerlos |
+| **Cliente ideal calculado** | **Si (27 ago)** | Ficha sobre ganados contra perdidos. Si faltan contratos, lo dice en vez de inventar |
 | Cloudflare | **Descartado** | el dueno se queda en Firebase; no volver a proponerlo |
 
 **Lo que se corrigio de la entrada, en criollo:**
@@ -559,3 +559,32 @@ Se reviso entero porque el dueno estuvo sin poder entrar a su propia app.
 **Lo que se saco de la web publica:** las promesas de "respuesta en 24 horas" (tres
 lugares), "congela precios en cuotas fijas" y "hablá por WhatsApp para congelar la tarifa".
 El **reloj del simulador se queda**: es para la promocion, no para congelar la tarifa.
+
+
+## La fotocabina — revisada a fondo el 27 de agosto de 2026
+
+Probada en un navegador con camara. **El dueno la va a usar en una fiesta.**
+
+| Cosa | ¿Anda? | Detalle |
+|---|---|---|
+| Arranque como kiosco | Si | `/evento/fotocabina` → elegir fiesta → rol → PIN de 4 digitos → bloquea |
+| Tanda de tres fotos con guia | Si | cuenta regresiva de 10 segundos |
+| Tira impresa | Si | **10x15 vertical a 1200x1800**, la medida exacta que imprime |
+| Nombre del homenajeado, motivo y fecha | Si | se llenan solos con los datos de la fiesta |
+| Color de la fiesta en la tira | Si | |
+| **Fondo decorado de la fiesta en la tira** | **NO** | la funcion sabe recibirlo, **nadie se lo pasa**. Es lo urgente (orden 13) |
+| Imprimir, QR, WhatsApp, cambiar de camara | Si | |
+| Aviso al operador si falla la camara | Si | |
+| Guarda sin internet | Si | |
+| Configurar marcos, fotos o segundos por fiesta | **NO** | todo clavado en el codigo, igual para todas |
+| GIF, boomerang, filtros, captura de correos | **NO EXISTEN** | pero una pantalla interna los promete. Sacarlos (orden 13, bloque 2) |
+| Agrupar las fotos de cada invitado por su cara | **Si** | `face-indexer`. Las plataformas pagas lo cobran como premium |
+
+**Ocho estaciones en total:** fotocabina, plataforma 360, bogue, espejo magico (foto, firma e
+IA), totems y capsula del tiempo.
+
+**Contra las plataformas pagas** (Snappic, Simple Booth, dslrBooth, Curator, Salsa,
+Sparkbooth, todas de USD 69 por mes): AK tiene casi todo lo que cobran y **no paga nada**. Le
+faltan GIF, boomerang, filtros, fondo verde con IA, captura de correos y los numeros del
+evento. **La ventaja que ninguna puede igualar:** ellas necesitan que alguien arme una
+plantilla por evento; AK ya tiene la fiesta cargada con su invitacion y su arte.
