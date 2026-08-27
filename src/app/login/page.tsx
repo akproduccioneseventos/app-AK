@@ -24,6 +24,7 @@ import {
   loginWithGoogleIdToken,
 } from '@/app/actions/simple-auth';
 import { loginUser } from '@/app/actions/auth';
+import type { DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
 
 type RecoveryStatus = Awaited<ReturnType<typeof getPublicSecurityRecoveryStatus>>;
 
@@ -102,6 +103,10 @@ export default function LoginPage() {
   const [recovery, setRecovery] = useState<RecoveryStatus>(RECOVERY_STATUS_FALLBACK);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  // Cuando un intento falla, la app averigua sola por que y lo dice en criollo.
+  // Antes habia que leer registros del servidor para distinguir cuatro problemas
+  // distintos, y el dueno no es programador: la app tiene que averiguarlo ella.
+  const [diagnostico, setDiagnostico] = useState<DiagnosticoAcceso | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [logoUrl, setLogoUrl] = useState<string | null | undefined>(undefined);
 
@@ -175,6 +180,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
     setError('');
     setNotice('');
+    setDiagnostico(null);
 
     try {
       const normalizedEmail = email.trim().toLowerCase();
@@ -206,6 +212,9 @@ export default function LoginPage() {
       if (!result.success) {
         setError(result.error || 'Correo o contraseña incorrectos.');
         setIsSubmitting(false);
+        // El diagnostico viene dentro de la misma respuesta. Si no vino, no se
+        // muestra nada extra: nunca se inventa una explicacion.
+        setDiagnostico(result.diagnostico ?? null);
         return;
       }
 
@@ -223,6 +232,27 @@ export default function LoginPage() {
     }
   };
  
+  /**
+   * Manda a Google por el desvio y **se queda mirando si de verdad se va**.
+   *
+   * El desvio puede no navegar a ningun lado y no tirar ningun error: pasa en los
+   * navegadores que bloquean el guardado de datos de otros sitios. Si eso ocurre, sin
+   * esto la persona se queda mirando un boton que no hizo nada. Con esto, a los cuatro
+   * segundos se le dice que ese camino esta cerrado y cual usar.
+   */
+  const irAGooglePorDesvio = async (
+    googleAuth: typeof import('@/lib/firebase/google-auth-client'),
+  ) => {
+    await googleAuth.startGoogleSignInRedirect();
+    window.setTimeout(() => {
+      setIsSubmitting(false);
+      setError(
+        'Tu navegador esta bloqueando el ingreso con Google. Probá desde otro navegador, '
+        + 'o entrá con tu correo y contraseña.',
+      );
+    }, 4000);
+  };
+
   const handleGoogleLogin = async () => {
     setIsSubmitting(true);
     setError('');
@@ -231,7 +261,7 @@ export default function LoginPage() {
     try {
       const googleAuth = await import('@/lib/firebase/google-auth-client');
       if (googleAuth.shouldPreferGoogleRedirect()) {
-        await googleAuth.startGoogleSignInRedirect();
+        await irAGooglePorDesvio(googleAuth);
         return;
       }
 
@@ -253,7 +283,7 @@ export default function LoginPage() {
     } catch (googleError) {
       const googleAuth = await import('@/lib/firebase/google-auth-client');
       if (googleAuth.shouldFallbackToGoogleRedirect(googleError)) {
-        await googleAuth.startGoogleSignInRedirect();
+        await irAGooglePorDesvio(googleAuth);
         return;
       }
       setError(googleAuth.getGoogleAuthErrorMessage(googleError));
@@ -473,6 +503,12 @@ export default function LoginPage() {
               </div>
               {notice && <p className="text-sm text-emerald-700 text-center">{notice}</p>}
               {error && <p className="text-sm text-destructive text-center">{error}</p>}
+              {diagnostico && (
+                <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-center">
+                  <p className="text-sm font-semibold text-amber-900">{diagnostico.causa}</p>
+                  <p className="mt-1 text-xs text-amber-800">{diagnostico.queHacer}</p>
+                </div>
+              )}
             </CardContent>
             <CardFooter className="flex-col gap-3">
               <Button className="w-full" type="submit" data-testid="login-submit" disabled={isSubmitting}>

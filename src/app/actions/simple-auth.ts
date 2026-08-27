@@ -10,6 +10,7 @@ import {
 } from '@/lib/auth/google-identity';
 import { getGoogleRecoveryAccountStatus } from '@/lib/auth/google-recovery';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
+import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
 
 const AUTH_COLLECTION = 'app-settings';
 const AUTH_DOC_ID = 'auth';
@@ -22,6 +23,50 @@ const SCRYPT_SALT_LEN = 16;
 const SCRYPT_KEY_LEN = 64;
 const RESET_CODE_TTL_MS = 15 * 60 * 1000;
 const LOCKOUT_MS = 15 * 60 * 1000;
+
+/**
+ * Tope de espera para la base, por el mismo motivo que en la entrada por correo:
+ * una consulta colgada dejaba el boton en "Ingresando..." veinticinco segundos y
+ * terminaba en un mensaje vago. Si a los ocho segundos no contesto, no va a contestar.
+ */
+const TOPE_BASE_MS = 8000;
+
+class BaseSinRespuesta extends Error {
+  // Se marca con una propiedad ademas del tipo. `instanceof` puede fallar cuando el
+  // empaquetador deja dos copias del modulo; una propiedad sobrevive siempre.
+  readonly esBaseCaida = true;
+}
+
+/**
+ * Reconoce que la base fue el problema, venga el fallo de nuestro reloj o de la
+ * propia libreria de Firestore (que avisa con UNAVAILABLE, DEADLINE_EXCEEDED o un
+ * fallo de red). En todos esos casos la clave del usuario nunca llego a compararse,
+ * asi que decirle "contrasena incorrecta" seria mentirle.
+ */
+function laBaseNoContesto(err: unknown): boolean {
+  if (err && typeof err === 'object' && 'esBaseCaida' in err) return true;
+  const texto = String((err as { code?: unknown; message?: unknown })?.code ?? '')
+    + ' ' + String((err as { message?: unknown })?.message ?? '');
+  return /UNAVAILABLE|DEADLINE_EXCEEDED|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|EAI_AGAIN|network error|Total timeout|Getting metadata from plugin failed/i
+    .test(texto);
+}
+
+async function conTopeDeEspera<T>(tarea: Promise<T>): Promise<T> {
+  let reloj: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      tarea,
+      new Promise<never>((_, rechazar) => {
+        reloj = setTimeout(() => rechazar(new BaseSinRespuesta()), TOPE_BASE_MS);
+      }),
+    ]);
+  } finally {
+    if (reloj) clearTimeout(reloj);
+  }
+}
+
+const AVISO_BASE_CAIDA =
+  'No se pudo conectar con la base de datos. No es tu clave: espera un momento y volve a intentar.';
 const MAX_FAILED_LOGIN_ATTEMPTS = 5;
 const MAX_FAILED_RECOVERY_ATTEMPTS = 5;
 const RESET_REQUEST_COOLDOWN_MS = 60 * 1000;
@@ -302,17 +347,35 @@ async function sendSecurityEmail(to: string, code: string) {
 
 async function verifyPassword(password: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const config = await getAuthDoc();
-
-    const lockMessage = getActiveLockMessage(config?.loginLockedUntil, 'Hubo muchos intentos incorrectos. Espera');
-    if (lockMessage) {
-      return { success: false, error: lockMessage };
-    }
-
+    // La puerta de emergencia va PRIMERO, a proposito: tiene que abrir aunque la
+    // base este caida. Es la unica manera de entrar cuando Firestore no contesta.
     const envPassword = process.env.APP_PASSWORD;
     if (envPassword && password === envPassword) {
       await clearLoginProtection();
       return { success: true };
+    }
+
+    // **Sin base no se puede comprobar ninguna contrasena, y hay que decirlo.**
+    //
+    // Antes se seguia de largo: `getAuthDoc()` devolvia null, ningun hash coincidia
+    // y se terminaba contestando "Contrasena incorrecta". O sea que cuando la base
+    // no contestaba, la app le decia al dueno que su clave estaba mal. Volvia a
+    // probar —logico, creia haberse equivocado— y **a los cinco intentos el acceso
+    // quedaba pausado quince minutos** por un problema que nunca fue suyo.
+    //
+    // Un fallo de la base no es un intento fallido: no se cuenta ni se castiga.
+    if (!dbAdmin) {
+      return {
+        success: false,
+        error: 'La base de datos no esta respondiendo. No es tu contrasena: espera un momento y volve a intentar.',
+      };
+    }
+
+    const config = await conTopeDeEspera(getAuthDoc());
+
+    const lockMessage = getActiveLockMessage(config?.loginLockedUntil, 'Hubo muchos intentos incorrectos. Espera');
+    if (lockMessage) {
+      return { success: false, error: lockMessage };
     }
 
     if (verifyHash(password, config?.passwordHash)) {
@@ -329,15 +392,23 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
     return { success: false, error: await registerFailedLogin(config) };
   } catch (err) {
     console.error('[simple-auth] verifyPassword error:', err);
+    // Un fallo de la base no es una clave equivocada, y no se cuenta como intento.
+    if (laBaseNoContesto(err)) {
+      return { success: false, error: AVISO_BASE_CAIDA };
+    }
     return { success: false, error: 'No se pudo verificar el acceso. Intenta nuevamente.' };
   }
 }
 
-export async function loginWithPassword(password: string): Promise<{ success: boolean; error?: string }> {
+export async function loginWithPassword(
+  password: string
+): Promise<{ success: boolean; error?: string; diagnostico?: DiagnosticoAcceso }> {
   try {
     const result = await verifyPassword(password);
     if (!result.success) {
-      return result;
+      // El diagnostico viaja dentro de esta respuesta, no como consulta aparte: asi
+      // no queda una puerta que cualquiera pueda preguntar sin intentar entrar.
+      return { ...result, diagnostico: await diagnosticarAcceso() };
     }
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
     await writeSessionCookie({
@@ -680,11 +751,55 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
     );
     if (!validation.success) return validation;
 
+    // **La app se crea sola la primera cuenta, y aca esta el por que.**
+    //
+    // Paso de verdad: el dueno no podia entrar de ninguna manera, y el diagnostico de
+    // la pantalla de entrada dijo la razon: **no habia ninguna cuenta creada**. La app
+    // solo sabia crear el primer administrador si encontraba una clave inicial cargada
+    // en el servidor; si no estaba, anotaba el problema en un registro que nadie lee y
+    // **se quedaba asi para siempre**. Un callejon sin salida: no se puede entrar a
+    // crear la cuenta porque no hay cuenta con la cual entrar.
+    //
+    // Entrar con Google si funcionaba —no necesita cuenta guardada— pero no dejaba
+    // ninguna anotada, asi que la app seguia vacia y la entrada por contrasena nunca
+    // llegaba a andar.
+    //
+    // Ahora, cuando alguien entra con Google, esta en la lista de correos autorizados
+    // y **la app todavia no tiene ninguna cuenta**, se le crea la suya de administrador.
+    //
+    // **Por que esto no abre ninguna puerta:** la identidad ya la comprobo Google y ya
+    // paso el control de correos autorizados de arriba —quien no esta en esa lista no
+    // llega hasta aca—. Ademas solo ocurre con la base **completamente vacia**: con una
+    // sola cuenta existente no se crea nada. Y no da nada que esa persona no tuviera:
+    // sin este cambio igual entraba, con sesion de administrador; lo unico que cambia es
+    // que ahora queda anotada, y la app deja de estar vacia.
+    let cuentaCreada = storedUserDoc?.id;
+    if (!storedUserDoc && dbAdmin && normalizedEmail) {
+      try {
+        const hayCuentas = await dbAdmin.collection('users').limit(1).get();
+        if (hayCuentas.empty) {
+          const nueva = await dbAdmin.collection('users').add({
+            email: normalizedEmail,
+            role: 'admin',
+            modules: ['all'],
+            securityQuestions: {},
+            creadaPor: 'primer-ingreso-con-google',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
+          cuentaCreada = nueva.id;
+        }
+      } catch (errorAlCrear) {
+        // Si no se puede crear, no se corta la entrada: la persona igual pasa.
+        console.error('[simple-auth] no se pudo crear la primera cuenta:', errorAlCrear);
+      }
+    }
+
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
     await writeSessionCookie({
       email: decodedToken?.email ?? 'google-user@akproducciones.com',
       role: storedUser?.role || 'admin',
-      userId: storedUserDoc?.id || decodedToken?.uid || 'google-uid',
+      userId: cuentaCreada || decodedToken?.uid || 'google-uid',
       modules: Array.isArray(storedUser?.modules) ? storedUser.modules : ['all'],
     });
     await clearLoginProtection();

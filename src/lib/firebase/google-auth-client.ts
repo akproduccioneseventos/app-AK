@@ -56,9 +56,25 @@ export async function clearGoogleAuthSession(): Promise<void> {
   await signOut(getAuth(app)).catch(() => undefined);
 }
 
+/**
+ * **Ya no se manda al celular por el camino del desvio, y este es el motivo.**
+ *
+ * Antes, cualquier pantalla angosta —o sea, todo telefono— iba directo al desvio a
+ * Google en vez de abrir la ventanita. Y el desvio **falla en silencio** en los
+ * navegadores que bloquean el guardado de datos de otros sitios: Safari en iPhone lo
+ * hace de fabrica, y Chrome tambien cuando la app esta instalada como aplicacion.
+ * "Falla en silencio" quiere decir literalmente eso: la pagina no se va a ningun lado,
+ * no aparece ningun error, **el boton no hace nada**. Es lo que reporto el dueno.
+ *
+ * La ventanita, en cambio, anda en los telefonos de hoy. Y si el navegador llegara a
+ * bloquearla, avisa con un error que si se puede reconocer —`auth/popup-blocked`— y ahi
+ * recien se prueba el desvio, que es para lo que sirve: como plan B, no como plan A.
+ *
+ * Se deja la funcion en vez de borrarla para que quede escrito por que devuelve `false`
+ * siempre: si alguien vuelve a mirar esto, que no lo "arregle" al reves.
+ */
 export function shouldPreferGoogleRedirect(): boolean {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(max-width: 767px)').matches;
+  return false;
 }
 
 export function shouldFallbackToGoogleRedirect(error: unknown): boolean {

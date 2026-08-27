@@ -10,6 +10,26 @@ const withPWA = require('@ducanh2912/next-pwa').default({
     skipWaiting: true,
     clientsClaim: true,
     cleanupOutdatedCaches: true,
+    // **La pantalla de entrada nunca sale de la memoria del telefono.**
+    //
+    // Paso de verdad: el dueno apretaba "Ingresar" y no pasaba absolutamente nada.
+    // Ni el cartel de "Ingresando...", ni un error. El boton, muerto.
+    //
+    // Una pagina guardada en la memoria del navegador se sirve con el programa de
+    // la version vieja. Si ese programa ya no coincide con la pagina, la pantalla se
+    // dibuja igual —se ve perfecta— pero **ningun boton responde**. Y como queda
+    // guardada, el problema no se arregla solo: se repite en cada visita.
+    //
+    // Con esto, la entrada y la recuperacion de clave se piden siempre al servidor.
+    // Es la unica puerta de la app: si se queda pegada, no hay forma de entrar a
+    // arreglarla desde adentro.
+    navigateFallbackDenylist: [/^\/login/, /^\/api\//],
+    runtimeCaching: [
+      {
+        urlPattern: /^\/login(\?.*)?$/,
+        handler: 'NetworkOnly',
+      },
+    ],
   },
 });
 
@@ -38,6 +58,28 @@ const nextConfig = {
           // Desactiva el filtro XSS obsoleto de navegadores antiguos
           { key: 'X-XSS-Protection', value: '0' },
         ],
+      },
+    ];
+  },
+  // **Una sola direccion para Google, no dos.**
+  //
+  // La web contesta igual con "www" adelante y sin el. Para una persona es la
+  // misma pagina; para Google pueden ser dos sitios distintos con el mismo
+  // contenido, y entonces reparte entre los dos lo que deberia sumar a uno solo.
+  // Paso de verdad: Google tenia anotada la portada como www.akproducciones.uy
+  // mientras la app se declara a si misma sin www en todos lados (el mapa del
+  // sitio, la ficha del negocio y la direccion canonica de cada pagina).
+  //
+  // Con esto, quien entre con "www" llega igual, pero pasando por la direccion
+  // buena. Es permanente a proposito: asi Google traslada a la direccion sin www
+  // lo que ya tenia acumulado en la otra, en vez de empezar de cero.
+  async redirects() {
+    return [
+      {
+        source: '/:ruta*',
+        has: [{ type: 'host', value: 'www.akproducciones.uy' }],
+        destination: 'https://akproducciones.uy/:ruta*',
+        permanent: true,
       },
     ];
   },

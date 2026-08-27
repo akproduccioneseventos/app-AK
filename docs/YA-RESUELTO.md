@@ -4442,6 +4442,40 @@ otras AK Producciones de Costa Rica, Venezuela y Valencia. Los motivos, en orden
 local de Asdemya", una direccion distinta de las dos de arriba. Direcciones contradictorias
 dando vueltas confunden a Google sobre quien es el negocio.
 
+## Le declaraba a Google que una boda sale USD 1000 (26 de agosto de 2026)
+
+Una entrega agrego `ServiceJsonLd`, la ficha de servicio que lee Google para bodas y
+quince. Traia una oferta con precio:
+
+```
+"offers": { "priceCurrency": "USD", "price": price, ... }   // price = "1000" por defecto
+```
+
+**Ninguna pagina pasaba un precio**, asi que quedaba el valor por defecto. O sea que le
+decia a Google que una boda de AK sale **USD 1000**: un numero que el dueno nunca puso, y
+en una moneda que **no usa** —se trabaja solo en pesos uruguayos—. Google puede mostrar
+ese precio en los resultados, antes de que la persona entre a la web.
+
+**Se saco la oferta entera.** Una fiesta no tiene precio de lista: depende de los
+invitados, la fecha, el salon y los servicios. Por eso se cotiza. Si alguna vez hace falta
+declarar un precio, **tiene que salir de un dato real de la app, en pesos, y nunca de un
+valor por defecto**.
+
+Congelado en `src/__tests__/google-no-ve-precios-inventados.test.ts`, que ademas impide
+que cualquier ficha para Google declare precios en dolares.
+
+**Lo bueno de esa misma entrega, que se queda:** las preguntas frecuentes en el formato
+que Google entiende, para que las respuestas puedan aparecer desplegadas en el buscador.
+
+## Un boton que decia una cosa y hacia otra (26 de agosto de 2026)
+
+En las paginas de venta, el boton principal se renombro a **"Ver opciones para mi
+evento"**. Ese boton **abre WhatsApp**: la persona tocaba esperando una lista de opciones
+y se le abria un chat.
+
+Es la misma familia que todo lo demas de esta semana: el cartel no dice lo que hace. Ahora
+dice **"Hablar con un productor por WhatsApp"**, que es lo que pasa.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
@@ -4781,3 +4815,214 @@ equipos externos y no se declaran probados por una ejecución local.
   4. *Pantalla de armar fiesta usable:* `/fiestas/nueva` ahora prioriza los 10 accesos esenciales de uso
      diario, alertas operativas y estado de preparación, dejando el resto bajo un botón "Ver todas las
      herramientas" con las opciones internas ocultas por defecto.
+
+## Los empleados automaticos ya no ensucian el repositorio (26 de agosto de 2026)
+
+Cada vez que se corrian las pruebas, los cuatro empleados automaticos se ejecutaban de
+verdad y dejaban cuatro archivos con su configuracion y su historial del dia. Esos
+archivos **no estaban ignorados**, asi que aparecian como novedad sin subir y cualquiera
+podia commitearlos por error: datos inventados de una corrida entrando al repositorio como
+si fueran reales.
+
+Ahora estan ignorados. No cambia nada de como funcionan los empleados: siguen escribiendo
+su historial igual, solo que ese historial se queda en la maquina donde corrio.
+
+## La pantalla de entrada le echaba la culpa al dueno (26 de agosto de 2026)
+
+**El dueno no pudo entrar a su propia app, ni por correo ni por contrasena.** Lo que leia
+en pantalla era "Contrasena incorrecta".
+
+El defecto no estaba en la clave. Cuando la base de datos no contestaba, la comprobacion
+seguia de largo igual: no encontraba con que comparar, ningun dato coincidia, y terminaba
+en el ultimo renglon, que dice "Contrasena incorrecta". **La app afirmaba algo que nunca
+comprobo.** Y peor: ese fallo se contaba como intento fallido, asi que a los cinco
+reintentos —los que cualquiera hace cuando cree haberse equivocado— el acceso quedaba
+pausado quince minutos por un problema que nunca fue suyo.
+
+Se arreglaron tres cosas:
+
+1. **Si la base no responde, se dice.** "La base de datos no esta respondiendo. No es tu
+   contrasena." Y no se cuenta como intento fallido: un fallo del servidor no se castiga.
+2. **La puerta de emergencia se comprueba primero.** La clave de entorno se mira antes de
+   consultar la base, porque es justamente la que tiene que servir cuando la base esta
+   caida. Antes se miraba despues, lo cual la volvia inutil en el unico momento que
+   importaba.
+3. **Si no hay ninguna cuenta creada, se dice.** Antes contestaba "correo o contrasena
+   incorrectos", que manda a buscar una clave que no existe.
+
+**Lo que NO se toco, a proposito:** sigue contestando exactamente lo mismo para "ese
+correo no existe" y para "la clave no coincide". Es deliberado, para que nadie pueda
+averiguar desde afuera quien tiene cuenta. Congelado en
+`src/__tests__/la-puerta-no-miente.test.ts`.
+
+## La web tiene una sola direccion (26 de agosto de 2026)
+
+La web contestaba con "www" adelante y sin el. Para una persona es la misma pagina; para
+Google pueden ser dos sitios distintos con el mismo contenido, y entonces reparte entre
+los dos lo que deberia sumar a uno solo.
+
+Paso de verdad: Google tenia la portada anotada como `www.akproducciones.uy`, mientras la
+app se declara sin www en todos lados —el mapa del sitio, la ficha del negocio y la
+direccion canonica de cada pagina—.
+
+Ahora quien entre con "www" llega igual, pero pasando por la direccion buena. El desvio es
+**permanente a proposito**: asi Google traslada a la direccion sin www lo que ya tenia
+acumulado en la otra, en vez de empezar de cero.
+
+## La entrada se colgaba y despues mentia (27 de agosto de 2026)
+
+Continuacion del anterior, y esta vez **medido con un navegador de verdad contra la
+version compilada**, no leyendo codigo.
+
+Lo que se veia al tocar "Ingresar": el boton cambiaba a "Ingresando..." y se quedaba asi
+**veinticinco segundos**. Recien ahi contestaba "Error al iniciar sesion. Intenta de
+nuevo." Nadie espera veinticinco segundos: se toca de nuevo, se cierra, se concluye que el
+boton esta roto. Y el mensaje final no dice nada.
+
+Habia **dos esperas encadenadas**, ninguna con tope propio:
+
+1. Antes de buscar la cuenta, se intentaba crear un primer administrador. Esa llamada sola
+   se colgaba varios segundos cuando la base no contestaba.
+2. Recien despues empezaba la consulta de verdad, que se colgaba igual.
+
+Ahora las dos corren contra el reloj: tres segundos la primera (es un extra, no el camino
+de nadie que ya tiene cuenta) y ocho la segunda. Si la base no contesta, se dice: **"No se
+pudo conectar con la base de datos. No es tu clave."**
+
+Medido despues del arreglo: **11,4 segundos entrando con correo y 8,2 con contrasena
+sola**, las dos con el mensaje que corresponde.
+
+Un detalle que cambio como se reconoce el fallo: antes se miraba solo si el error era de
+nuestra propia clase. Se escapaban los avisos que manda la propia base cuando no esta
+disponible, y esos caian en el mensaje vago. Ahora se marca el error con una propiedad
+—que sobrevive aunque el empaquetador deje dos copias del modulo— y ademas se reconocen
+los codigos de Firestore.
+
+### La trampa que costo tres mediciones
+
+**Habia un servidor de prueba viejo ocupando el puerto.** Las dos primeras veces que se
+midio el arreglo dio que no funcionaba, y se estuvo por reportar que no se podia resolver.
+El codigo estaba bien: se estaba midiendo la version anterior una y otra vez. El aviso
+`EADDRINUSE` estaba en el registro del servidor desde el principio.
+
+Ya estaba escrito en `CLAUDE.md` y se cayo igual. La costumbre que queda: **antes de
+creerle a una medicion, confirmar que el servidor que contesta es el que se acaba de
+levantar** —o levantarlo en un puerto nuevo, que es mas rapido que pelear con el viejo.
+
+## El boton de entrar no hacia absolutamente nada (27 de agosto de 2026)
+
+El dueno lo describio asi: **"apreto y nada"**. Ni el cartel de "Ingresando...", ni un
+error. El boton, muerto.
+
+Eso no es un problema de clave ni de base de datos: es que **la pantalla se dibuja pero su
+programa no llega a funcionar**. Se ve perfecta y ningun boton responde.
+
+La causa: la app se instala como aplicacion, y eso guarda pantallas en la memoria del
+telefono para que abran rapido. Si la copia guardada de la entrada ya no coincide con la
+version nueva, queda dibujada y muerta. Y como esta guardada, **no se arregla sola**: se
+repite en cada visita.
+
+**La pantalla de entrada ya no se guarda nunca.** Se pide siempre al servidor, fresca.
+Nunca debio estar en esa lista: es la unica puerta de la app, y si se queda pegada no hay
+forma de entrar a arreglarla desde adentro.
+
+## La app se diagnostica sola cuando alguien no puede entrar (27 de agosto de 2026)
+
+Antes, un intento fallido decia "Contrasena incorrecta" o "Error al iniciar sesion". Esos
+dos textos tapan **cuatro problemas completamente distintos**, y cada uno se resuelve de
+otra manera: la base caida, la llave de sesion sin configurar, ninguna cuenta creada, o
+efectivamente una clave equivocada.
+
+Distinguirlos requeria leer registros del servidor. **El dueno no es programador: pedirle
+eso es pedirle que haga de tecnico.** Ahora lo averigua la app: cuando un intento falla,
+comprueba las cuatro cosas en orden y escribe en pantalla cual de las cuatro fue, en
+criollo, con el proximo paso.
+
+**Lo que nunca muestra:** ningun valor de configuracion, ninguna clave, ningun correo de
+nadie. Solo si cada pieza esta o no esta. Se ve en una pantalla publica, asi que dice que
+esta roto, jamas con que se arregla por dentro.
+
+## El callejon sin salida: no habia ninguna cuenta creada (27 de agosto de 2026)
+
+El diagnostico de la pantalla de entrada —recien puesto— dio la respuesta a la primera:
+**"La app todavia no tiene ninguna cuenta creada."** La base andaba bien y la clave del
+dueno no tenia nada que ver. No habia con quien entrar.
+
+**Por que se llego a eso.** La app solo sabia crear el primer administrador si encontraba
+una clave inicial cargada en el servidor. Si no estaba, anotaba el problema en un registro
+que nadie lee y **se quedaba asi para siempre**. Un callejon sin salida perfecto: no se
+puede entrar a crear la cuenta porque no hay cuenta con la cual entrar.
+
+Entrar con Google si funcionaba —esa puerta no necesita cuenta guardada— pero **no dejaba
+ninguna anotada**, asi que la app seguia vacia y la entrada por contrasena nunca llegaba a
+andar. Se podia entrar una y otra vez sin que el problema de fondo se moviera.
+
+**Ahora la app se crea sola la primera cuenta:** cuando alguien entra con Google, esta en
+la lista de correos autorizados y la app todavia no tiene ninguna cuenta, se le crea la
+suya de administrador. A partir de ahi la contrasena tambien anda.
+
+**Por que no abre ninguna puerta:** la identidad ya la comprobo Google y ya paso el control
+de correos autorizados —quien no esta en esa lista no llega hasta ahi—. Solo ocurre con la
+base **completamente vacia**: con una sola cuenta existente no se crea nada. Y no le da a
+nadie nada que no tuviera: sin este cambio esa persona igual entraba, con sesion de
+administrador. Lo unico que cambia es que queda anotada y la app deja de estar vacia.
+
+**El mensaje tambien cambio.** Decia "hay que crear el primer usuario", que suena a tarea y
+no daba ninguna forma de hacerla. Ahora dice el camino, que existe y funciona: tocar
+"Ingresar con Google".
+
+## El boton de Google no hacia nada en el celular (27 de agosto de 2026)
+
+El dueno lo reporto asi: **"el boton de correo no funciona"**. Y era cierto, en el telefono.
+
+La pantalla de entrada tenia dos caminos para entrar con Google: la ventanita que se abre
+encima, y el desvio, que se va a Google y vuelve. **Cualquier pantalla angosta —o sea, todo
+telefono— iba directo al desvio.**
+
+El desvio **falla en silencio** en los navegadores que bloquean el guardado de datos de
+otros sitios: Safari en iPhone lo hace de fabrica, y Chrome tambien cuando la app esta
+instalada como aplicacion. "En silencio" quiere decir literalmente eso: la pagina no se va
+a ningun lado, no aparece ningun error, **el boton no hace nada**.
+
+Dos cambios:
+
+1. **Se prueba siempre la ventanita primero.** Anda en los telefonos de hoy. El desvio
+   quedo como plan B: solo se usa si el navegador avisa que bloqueo la ventanita, que es un
+   error que si se puede reconocer.
+2. **Si igual se termina yendo por el desvio y a los cuatro segundos seguimos en la misma
+   pagina, se avisa.** Nadie se queda mas mirando un boton muerto: se le dice que ese
+   navegador esta bloqueando el ingreso y cual es el otro camino.
+
+## El freno de mano del agente de publicidad (27 de agosto de 2026)
+
+El dueno decidio que el agente de Meta Ads **maneje la publicidad solo**: que cree, ajuste
+y pause campanas sin preguntarle. Se le planteo el riesgo de dejarlo gastar sin supervision
+y eligio igual. **Es su plata y es su decision: no se vuelve a preguntar.**
+
+Lo que cambia entonces no es *si* puede gastar, sino **que sea imposible pasarse**. Un
+agente que "trata de no pasarse" del tope se pasa el dia que se equivoca en una cuenta.
+`src/lib/marketing/tope-de-gasto-publicidad.ts` no aconseja: **niega**.
+
+Tres decisiones de fondo, anotadas para que nadie las "mejore" al reves:
+
+1. **Se cuenta lo COMPROMETIDO, no lo gastado.** Un presupuesto diario de $500 puesto un
+   dia 10 no gasto nada todavia, pero ya compromete $500 por cada dia que queda del mes.
+   Contar solo lo gastado dejaria subir presupuestos toda la primera semana y descubrir el
+   desastre el dia 28, cuando ya no se puede deshacer.
+2. **Pausar y bajar siempre se permiten**, aunque no quede nada de tope. Frenarlos por
+   falta de presupuesto seria exactamente al reves de lo que el modulo protege.
+3. **Sin tope cargado no se compromete nada**, y si no se puede leer el tope se asume cero:
+   ante la duda no se gasta.
+
+Congelado en `src/__tests__/el-agente-no-se-pasa-del-tope.test.ts` (8 controles).
+
+## Cloudflare: descartado, se queda en Firebase (27 de agosto de 2026)
+
+Se evaluo pasar la web por Cloudflare para usar su prueba "is your site agent ready". El
+dueno dijo que no: **lo que quiere es lo que esa herramienta mide, no la herramienta.**
+
+Asi que se hace todo sobre Firebase, sin tocar la configuracion del dominio y sin contratar
+nada que se pague por mes. Si una auditoria futura propone mover el dominio a Cloudflare,
+es falso positivo. Lo que si va —`llms.txt`, datos del negocio marcados, preguntas
+frecuentes marcadas, contenido legible sin ejecutar programas— quedo escrito en
+`docs/ordenes/12-publicidad-que-actua-y-web-lista-para-las-ia.md`.

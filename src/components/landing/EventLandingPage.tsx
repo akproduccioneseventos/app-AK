@@ -77,7 +77,7 @@ export function EventLandingPage({
           backgroundImageUrl={heroImage}
           backgroundImageAlt={heroImageAlt}
           whatsappMessage={whatsappMessage}
-          ctaLabel="Hablar por WhatsApp"
+          ctaLabel="Hablar con un productor por WhatsApp"
           simulatorHref={simulatorHref}
           simulatorLabel="Usar el simulador"
           showEventTypes={false}
