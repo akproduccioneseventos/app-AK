@@ -217,6 +217,30 @@ Así que se resuelve en tres escalones, en este orden, y **el tercero no falla n
 **El escalón 3 es el que importa**, porque es el único que anda sin que nadie haga nada. Si
 sólo entregás el 1, la portada va a seguir quieta igual que hoy.
 
+**Que la IA elija y arme, no sólo que pase fotos.** El dueño pidió *"uno creado por IA,
+lindo"*. El escalón 3 es exactamente eso, sin pagar nada: que la inteligencia artificial
+**elija las mejores fotos** de los álbumes —las de más gente, mejor luz, las más
+celebratorias—, las **ordene** para que arranque fuerte y cierre fuerte, y les dé el ritmo.
+La app ya tiene el motor de IA conectado. Que no sea un pase de fotos al azar: que sea una
+selección hecha con criterio, y que se note.
+
+### Un video inventado por IA: PREPARADO, NO CONTRATADO
+
+El dueño también aceptaría un video generado enteramente por IA. **Dejalo preparado y no
+contrates nada.**
+
+- **Se paga.** No hay servicio gratis que genere video. La regla del proyecto es clara:
+  *nada que aumente lo que se paga por mes se cambia sin avisar*. Dejá el lugar donde
+  enchufarlo y **el costo escrito**, para que él decida.
+- **Y hay algo que decidir antes que el precio:** un video de IA de "una fiesta" **no es
+  una fiesta de AK**. Quien llega desde ahí espera ver eso el día del evento. Para un
+  negocio de fiestas eso puede jugar en contra. Si igual se usa, que sea ambiente y
+  textura —luces, brindis, detalles— y **nunca una escena que se lea como un evento real de
+  AK que no ocurrió**.
+
+No armes esto como escalón previo al 3: el 3 va igual, porque es el que funciona sin
+depender de nada ni de nadie.
+
 ### Además
 
 1. **Un lugar para cargarlo, en la pantalla de ajustes de la web.** El dueño no es
