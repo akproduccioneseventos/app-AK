@@ -31,7 +31,7 @@ const PASOS = [
   },
   {
     nombre: 'Revisor de tipos',
-    comando: 'npx tsc --noEmit',
+    comando: 'npm run typecheck',
     queSignifica: 'Hay código que no encaja. Suele terminar en una pantalla que se rompe al abrirla.',
   },
   {
