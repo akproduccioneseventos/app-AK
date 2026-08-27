@@ -5328,3 +5328,32 @@ lo unico que habia que programar: el resto era **elegir los videos**.
 pagina, gratis y de uso comercial (Pexels o Pixabay), comprobar que **abren en un navegador**
 antes de subirlos, borrar el `.webm` vacio, y que la prueba compare las huellas digitales
 para que **no puedan volver a ser el mismo archivo**.
+
+## La puerta: `npm run "publicar?"` (27 de agosto de 2026)
+
+El dueno lo pidio asi: *"quiero que inventes un mecanismo de auditoria que deje mi app en
+cero errores en codigo y en funcionamiento; todo debe marchar para poder publicar."* Y el
+motivo: **una auditoria dio "cero errores"** mientras la fotocabina imprimia sin fondo, el
+entretenimiento estaba mal y la web tambien.
+
+**El diagnostico, que es lo que faltaba entender:** el problema nunca fue la calidad del
+informe. Fue que **ningun control podia frenar la publicacion**. Se fusionaba y se publicaba
+pase lo que pase, dijera lo que dijera cualquier auditoria. **Un control que no frena no es un
+control: es una sugerencia.**
+
+`scripts/se-puede-publicar.mjs` corre los seis controles del mas barato al mas caro, se corta
+en la primera falla y contesta **una sola cosa**: se puede publicar, o no se puede, que fallo
+y **que significa en criollo**. Termina con codigo distinto de cero cuando no se puede, que es
+lo que permite que algo lo frene solo sin que nadie decida.
+
+Probado el mismo dia sobre la version principal: acentos 6s, tipos 96s, pruebas 53s,
+compilacion 509s y seguridad de la base 20s, **los cinco en verde**.
+
+**Lo que todavia le falta, y va adentro y no al lado:** el recorrido de las 348 pantallas
+mirando de verdad —hoy solo detecta error de servidor, y una pantalla en blanco o con `$NaN`
+le pasa— y las trece pruebas que terminan el trabajo. Los dos estan en
+`docs/ordenes/15-las-pruebas-que-terminan-el-trabajo.md`.
+
+**Y la regla que lo hace valer:** no se fusiona nada sin `publicar?` completo en verde, y **no
+se saltea un paso para que de verde**. Sacar un control que molesta es exactamente como se
+llega a "cero errores" con la app rota.
