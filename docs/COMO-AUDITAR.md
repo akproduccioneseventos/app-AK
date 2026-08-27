@@ -191,3 +191,48 @@ Se escribió un detector que contaba, en todo el código, cuántas veces se escr
 opcional. Dio **210 hallazgos**; de tres revisados a mano, **dos eran falsa alarma**, y **no
 encontraba el caso de la fotocabina**. Se descartó. **El que sirve es el de arriba: por
 función y por llamada, no por texto suelto.**
+
+
+## La sexta pregunta, y la que de verdad cierra el circulo: ¿la prueba TERMINA EL TRABAJO?
+
+**El dueño insistió:** *"¿hay alguna manera de revisar toda la app con un mecanismo de uso,
+no sé el término, para que no sigan fallando las auditorías?"*
+
+**El término es prueba de punta a punta**: la máquina abre la app y la usa como una persona.
+**Y ya existe:** 21 archivos, 61 pruebas, en `tests/e2e/`. **Y sí tocan la fotocabina.**
+
+**Entonces por qué se les escapó el fondo pelado.** Esto es lo que comprueban hoy las
+pruebas de la fotocabina, textual:
+
+- que la pantalla conteste sin error (`status < 400`)
+- que no diga "no autorizado"
+- que haya **un botón visible**
+- que haya **un video en pantalla**
+
+**Nunca se sacan la foto. Nunca miran la tira que sale.**
+
+Por eso el fondo pelado pasó por delante de la auditoría, de las 2250 pruebas y de la prueba
+de uso sin que ninguna lo viera: **todas confirman que la pantalla ABRE; ninguna confirma que
+el resultado esté BIEN.** Es lo mismo que pasó con el pie de página de la web: existía,
+alguien lo llamaba, y el visitante no lo veía.
+
+### La regla, y es corta
+
+> **Por cada cosa para la que sirve la app, una prueba que llegue hasta el final y mire el
+> resultado** — no que la pantalla abrió.
+
+Para la fotocabina: sacarse la tanda de tres y comprobar que **la tira tiene el fondo de la
+fiesta y el nombre del homenajeado**. Para el simulador: llegar al presupuesto y comprobar
+**el número**. Para la entrada: entrar de verdad y comprobar que **se llegó adentro**.
+
+**Una sola de estas por módulo vale más que veinte que abren pantallas.** Son más lentas de
+escribir y más lentas de correr, y por eso nadie las hace. Son las únicas que habrían
+encontrado los tres problemas de hoy.
+
+### Cómo saber si una prueba termina el trabajo
+
+Miralo por lo que comprueba al final:
+
+- Si comprueba que **algo es visible**, que **hay un botón** o que **la pantalla no dio
+  error** → sólo confirma que abrió. **No cuenta.**
+- Si comprueba **un texto, un número o una imagen que la app produjo** → esa sí.
