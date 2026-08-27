@@ -56,6 +56,41 @@ dueño no esté autorizada a escribir. **No se comprueba contra el servicio.** S
 Gemini que lo pruebe de verdad —él corre en la máquina del dueño y tiene los accesos— y que
 muestre los dos niveles por separado.
 
+## LA PUERTA, nueva y es la que manda: `npm run "publicar?"`
+
+**Pedido del dueño el 27 de agosto**, después de que una auditoría diera *"cero errores"*
+con la fotocabina imprimiendo mal: *"quiero un mecanismo que deje mi app en cero errores en
+código y en funcionamiento; todo debe marchar para poder publicar."*
+
+**El diagnóstico:** el problema no era la calidad de los informes, era que **ninguno podía
+frenar la publicación**. Un control que no frena es una sugerencia.
+
+`npm run "publicar?"` corre los seis controles del más barato al más caro, se corta en la
+primera falla y contesta **una sola cosa**: se puede publicar, o no se puede, qué falló y qué
+significa en criollo. Devuelve un resultado que una máquina puede leer, así que **algo puede
+frenar solo**. `publicar?:rapido` saltea la prueba de navegador y **no alcanza para publicar**.
+
+**La regla, en `CLAUDE.md`: no se fusiona nada sin eso en verde, y no se saltea un paso para
+que dé verde.**
+
+### Lo que le falta a la puerta: la orden 15
+
+**`docs/ordenes/15-las-pruebas-que-terminan-el-trabajo.md`**, dos partes:
+
+- **El recorrido de las 348 pantallas, que hoy no mira.** Existe y las visita, pero sólo
+  detecta error de servidor. **Una pantalla en blanco le pasa; una con `$NaN` en el precio,
+  también.** Se le suman cinco comprobaciones por pantalla.
+- **Trece pruebas que terminan el trabajo.** Medido: `simulator-budget-journey` tiene **cero**
+  comprobaciones de resultado contra once de que la pantalla abrió. Recorre los cinco pasos,
+  se baja el PDF y **nunca mira el monto**.
+
+### Y las dos preguntas nuevas para auditar (en `docs/COMO-AUDITAR.md`)
+
+- **¿El dato LLEGA?** Una función acepta un parámetro opcional y ninguna llamada se lo pasa.
+  Pasó tres veces en un día.
+- **¿La prueba TERMINA EL TRABAJO?** Si termina en `toBeVisible` o en `status < 400`, sólo
+  confirma que abrió. **No cuenta.**
+
 ## Decisiones ya tomadas (no volver a preguntar)
 
 - **No se le pide el mail ni el teléfono al invitado** para darle su foto: frena la fila.
