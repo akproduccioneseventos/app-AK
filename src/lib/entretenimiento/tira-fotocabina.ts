@@ -199,8 +199,16 @@ export async function componerTiraDeFotos(datos: DatosDeLaTira): Promise<string>
     const altoFoto = 1100;
     dibujarRecortada(ctx, imagenes[0], MARGEN, MARGEN, anchoFoto, altoFoto, 12);
     dibujarRecortada(ctx, imagenes[1], MARGEN + anchoFoto + SEPARACION, MARGEN, anchoFoto, altoFoto, 12);
+  } else if (imagenes.length >= 4) {
+    // ── Fotocabina 4 fotos: cuadrícula 2x2 ──
+    const anchoFoto = (anchoTotal - SEPARACION) / 2;
+    const altoFoto = (1140 - SEPARACION) / 2;
+    dibujarRecortada(ctx, imagenes[0], MARGEN, MARGEN, anchoFoto, altoFoto, 12);
+    dibujarRecortada(ctx, imagenes[1], MARGEN + anchoFoto + SEPARACION, MARGEN, anchoFoto, altoFoto, 12);
+    dibujarRecortada(ctx, imagenes[2], MARGEN, MARGEN + altoFoto + SEPARACION, anchoFoto, altoFoto, 12);
+    dibujarRecortada(ctx, imagenes[3], MARGEN + anchoFoto + SEPARACION, MARGEN + altoFoto + SEPARACION, anchoFoto, altoFoto, 12);
   } else {
-    // ── Fotocabina: 1 grande arriba + 2 chicas abajo lado a lado ──
+    // ── Fotocabina (3 fotos estándar): 1 grande arriba + 2 chicas abajo lado a lado ──
     const altoFotoGrande = 640;
     const altoFotosChicas = 480;
     const anchoFotoChica = (anchoTotal - SEPARACION) / 2;

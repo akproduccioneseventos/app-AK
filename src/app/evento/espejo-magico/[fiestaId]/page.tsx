@@ -781,6 +781,8 @@ export default function EspejoMagicoPage() {
         motivoDelEvento: fiesta?.tipoCelebracion || '',
         fechaDelEvento: fiesta?.eventDate || '',
         colorDeAcento: fiesta?.primaryColor || fiesta?.station.accentColor || '#d4a574',
+        colorFondo: fiesta?.colorFondo,
+        imagenFondoUrl: fiesta?.imagenFondoUrl,
         textoDeMarca: 'AK Producciones',
       });
       const resultado = imprimirRecuerdo(tiraPersonalizada);

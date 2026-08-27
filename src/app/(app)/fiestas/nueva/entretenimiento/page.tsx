@@ -204,7 +204,7 @@ const STATION_IDS: StationId[] = [
 const STATION_META: Record<StationId, { shortLabel: string; description: string; caption: string; icon: React.ElementType }> = {
   fotocabina: {
     shortLabel: 'Fotocabina Social',
-    description: 'Cabina clásica o tótem fotográfico para fotos, GIFs, boomerangs con marca del evento, QR y WhatsApp.',
+    description: 'Cabina clásica o tótem fotográfico para fotos con marco de la fiesta, impresión 10x15, QR y WhatsApp.',
     caption: 'Captura fotocabina',
     icon: Camera,
   },
@@ -261,7 +261,7 @@ const CHANNELS = [
 ];
 
 const FEATURE_LIBRARY: Record<StationId, string[]> = {
-  fotocabina: ['Foto', 'GIF', 'Boomerang', 'Filtros', 'Marcos', 'Impresión', 'Galería live', 'QR/WhatsApp'],
+  fotocabina: ['Foto', 'Marcos', 'Impresión 10x15', 'Galería live', 'QR/WhatsApp'],
   plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Intro/Outro', 'Música', 'QR por video', 'Overlay animado', 'Salida LED'],
   bogue: ['Boomerang', 'Loop adelante/atrás', 'Video corto', 'Música', 'Overlay animado', 'Compartir por QR'],
   espejoMagicoFoto: ['Pantalla táctil', 'Foto limpia', 'Impresión premium', 'Filtros de piel', 'Galería QR', 'Prompts animados'],
@@ -289,7 +289,7 @@ const PRO_EQUIPMENT: Record<StationId, string[]> = {
 };
 
 const PRO_FLOW: Record<StationId, string[]> = {
-  fotocabina: ['Invitado toca pantalla', 'Captura fotos/GIF', 'Aplica marco temático', 'Escanea QR o recibe por WhatsApp'],
+  fotocabina: ['Invitado toca pantalla', 'Tanda de fotos con cuenta regresiva', 'Armado automático 10x15', 'Escanea QR o imprime'],
   plataforma360: ['Invitado sube a plataforma', 'Giro del brazo con grabación', 'Generación de cámara lenta y speed ramp', 'Descarga por QR'],
   bogue: ['Invitado posa haciendo acción corta', 'Se graba loop corto', 'Se añade overlay y música', 'Comparte en redes'],
   espejoMagicoFoto: ['Invitado toca el espejo', 'Cuenta regresiva guiada', 'Toma foto espectacular', 'Imprime y escanea QR'],
@@ -300,7 +300,7 @@ const PRO_FLOW: Record<StationId, string[]> = {
 };
 
 const PRO_HIGHLIGHTS: Record<StationId, string[]> = {
-  fotocabina: ['Diseños personalizados', 'Filtros en vivo', 'Impresión rápida', 'Captura de correos'],
+  fotocabina: ['Fondo de la invitación', 'Diseños personalizados', 'Impresión rápida 10x15', 'Envío por WhatsApp'],
   plataforma360: ['Efectos cinemáticos', 'Música incorporada', 'Renderizado en 15 segundos', 'Muro social integrado'],
   bogue: ['Contenido super liviano', 'Efecto repetitivo viral', 'Música de fiesta', 'Estilo vertical historias'],
   espejoMagicoFoto: ['Look premium elegante', 'Fotos sin distracciones', 'Filtro de brillo glam', 'Impresión 4x6 instantánea'],
@@ -324,9 +324,9 @@ const TEMPLATE_PRESETS: Record<StationId, EntertainmentTemplatePreset[]> = {
       mood: 'Estilo boda minimalista',
       overlayName: 'Marco blanco con flores finas',
       accentColor: '#ffffff',
-      outputFormat: 'JPG + GIF + Print 4x6',
+      outputFormat: 'JPG 10x15 (1200x1800) + Impresión',
       qualityPreset: 'Alta calidad DSLR',
-      filterPreset: 'Brillo suave + piel natural',
+      filterPreset: 'Color natural con balance de luz',
       musicTrack: 'Ninguna',
       backgroundStyle: 'Cortina clara o fondo de flores',
       printLayout: 'Foto completa 4x6 con QR',

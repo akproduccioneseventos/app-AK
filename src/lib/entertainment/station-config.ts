@@ -34,6 +34,12 @@ export interface EntertainmentStationRuntimeConfig {
   consentRequired: boolean;
   captureModes: string[];
   deliveryChannels: string[];
+  /** Cantidad de fotos por tanda (1 a 4, default 3). */
+  fotosPorTanda?: number;
+  /** Segundos de cuenta regresiva para la primera foto (default 10). */
+  segundosCuentaRegresiva?: number;
+  /** Marcos habilitados para la fiesta (subconjunto de 'none', 'golden', 'neon', 'flowers', 'ak_brand'). */
+  marcosHabilitados?: string[];
   /**
    * Estilos de IA habilitados para esta fiesta, por id.
    *
@@ -54,6 +60,8 @@ export interface PublicEntertainmentEvent {
   tipoCelebracion?: string;
   primaryColor?: string;
   coverImageUrl: string;
+  imagenFondoUrl?: string;
+  colorFondo?: string;
   showBuzon: boolean;
   socialWallEnabled: boolean;
   welcomeAudioUrl?: string;
@@ -142,6 +150,11 @@ export function getEntertainmentStationConfig(
     allowedTemplateIds: Array.isArray(stored.allowedTemplateIds)
       ? stored.allowedTemplateIds.filter((id: unknown) => typeof id === 'string' && id.length > 0)
       : [],
+    fotosPorTanda: clampNumber(stored.fotosPorTanda || stored.photosPerSession, 3, 1, 4),
+    segundosCuentaRegresiva: clampNumber(stored.segundosCuentaRegresiva || stored.countdownSeconds, 10, 2, 30),
+    marcosHabilitados: Array.isArray(stored.marcosHabilitados) && stored.marcosHabilitados.length > 0
+      ? stored.marcosHabilitados
+      : ['none', 'golden', 'neon', 'flowers', 'ak_brand'],
   };
 }
 
@@ -149,6 +162,19 @@ export function getPublicEntertainmentEvent(
   fiesta: FiestaEnPlanificacion,
   moduleId: EntertainmentModuleId
 ): PublicEntertainmentEvent {
+  const invDig = fiesta.invitacionDigital;
+  const imagenFondoUrl =
+    invDig?.cabecera?.imagenFondoUrl ||
+    invDig?.cabecera?.videoFondoUrl ||
+    fiesta.invitacionConfig?.fotoPortada ||
+    fiesta.guestPortalSettings?.coverImageUrl ||
+    '';
+
+  const colorFondo =
+    invDig?.cabecera?.paletaColores?.primary ||
+    fiesta.configuracion?.primaryColor ||
+    '';
+
   return {
     id: fiesta.id,
     eventName: fiesta.configuracion?.nombreEvento || 'Evento AK',
@@ -160,6 +186,8 @@ export function getPublicEntertainmentEvent(
       fiesta.invitacionConfig?.fotoPortada ||
       fiesta.guestPortalSettings?.coverImageUrl ||
       '',
+    imagenFondoUrl,
+    colorFondo,
     showBuzon: fiesta.guestPortalSettings?.showBuzon !== false,
     socialWallEnabled: fiesta.socialGallerySettings?.enabled !== false,
     welcomeAudioUrl: fiesta.buzonConfig?.welcomeAudioUrl || '',

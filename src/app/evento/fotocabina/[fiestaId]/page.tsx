@@ -271,8 +271,9 @@ export default function FotocabinaPage() {
 
     // La primera cuenta es larga para que se acomoden; despues se acorta para
     // no hacer cola.
+    const primerConteo = fiesta?.station.segundosCuentaRegresiva || SEGUNDOS_PRIMERA_FOTO;
     let currentCount = numeroDeFoto === 1
-      ? SEGUNDOS_PRIMERA_FOTO
+      ? primerConteo
       : (fiesta?.station.countdownSeconds || 4);
     setCountdown(currentCount);
     playBeep();
@@ -334,13 +335,15 @@ export default function FotocabinaPage() {
     fotosDeLaTandaRef.current = tanda;
     setFotosDeLaTanda(tanda);
 
-    if (tanda.length < FOTOS_POR_TANDA) {
+    const limiteFotos = fiesta?.station.fotosPorTanda || FOTOS_POR_TANDA;
+
+    if (tanda.length < limiteFotos) {
       // Todavia faltan fotos: se muestra la que salio un instante y sigue la
       // tanda sola, sin que el invitado tenga que tocar nada.
       const siguiente = tanda.length + 1;
       setFotoEnCurso(siguiente);
       // Se queda en 'countdown' sin numero: sigue viendose la camara y la guia
-      // de "foto 2 de 3" mientras el invitado cambia la pose. Si se pasa a otro
+      // mientras el invitado cambia la pose. Si se pasa a otro
       // estado, la pantalla queda en negro entre foto y foto.
       setLocalStatus('countdown');
       setCountdown(null);
@@ -360,14 +363,16 @@ export default function FotocabinaPage() {
         motivoDelEvento: fiesta?.tipoCelebracion || '',
         fechaDelEvento: fiesta?.eventDate || '',
         colorDeAcento: fiesta?.primaryColor || fiesta?.station.accentColor || '#d97706',
+        colorFondo: fiesta?.colorFondo,
+        imagenFondoUrl: fiesta?.imagenFondoUrl,
         textoDeMarca: watermarkEnabled ? (fiesta?.station.brandText || 'AK Producciones') : undefined,
       });
       setCapturedImage(recuerdo);
     } catch (err) {
       // Si el armado falla, al menos queda la ultima foto: peor es dejar al
-      // invitado sin nada despues de haberse sacado las tres.
+      // invitado sin nada despues de haberse sacado las fotos.
       setCapturedImage(dataUrl);
-      setErrorMsg('No se pudo armar la tira con las tres fotos. Queda la última.');
+      setErrorMsg('No se pudo armar la tira con las fotos. Queda la última.');
     }
 
     setLocalStatus('done');
@@ -728,7 +733,7 @@ export default function FotocabinaPage() {
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Marco para la Foto</p>
               <div className="grid grid-cols-2 gap-2">
-                {FRAMES.map((f) => (
+                {FRAMES.filter((f) => !fiesta?.station.marcosHabilitados || fiesta.station.marcosHabilitados.length === 0 || fiesta.station.marcosHabilitados.includes(f.id)).map((f) => (
                   <button
                     key={f.id}
                     onClick={() => setSelectedFrame(f.id)}
