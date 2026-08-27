@@ -95,6 +95,10 @@ la app produjo** — un texto, un número o una imagen. No que algo sea visible.
 
 ### Plata (lo más importante)
 
+0. **EL COBRO. Empezá por acá.** `/pago/mercadopago` no tiene ninguna prueba y es por donde
+   entra la plata. Que la pantalla abra con un pago de prueba, muestre **el importe correcto**
+   y el nombre de quien paga, y que al volver del cobro **el estado quede registrado**. Sin
+   tocar plata real: con los datos de prueba que ya usa el resto de la tanda.
 1. **El presupuesto da el número correcto.** Armar uno con datos conocidos —cantidad de
    invitados y servicios fijos— y comprobar **el monto exacto** en pantalla, no que la
    pantalla diga "listo". Que incluya el ajuste anual del 15%, que va siempre.
@@ -123,6 +127,35 @@ la app produjo** — un texto, un número o una imagen. No que algo sea visible.
 12. **La portada muestra los textos y precios que corresponden**, y **el pie de página se
     ve** — ya pasó que existía y el visitante no lo veía.
 13. **El formulario de contacto deja el prospecto anotado** en el CRM, con su teléfono.
+
+## LO QUE MIDIÓ LA AUDITORÍA DEL 27 DE AGOSTO (verificado a mano)
+
+Tres agentes recorrieron toda la app. **El código está sano**: no aparecieron datos que no
+llegan, ni pantallas con plata rota, ni datos inventados. **Lo flojo es la verificación**, y
+esto es lo que hay, contado:
+
+**De 225 comprobaciones en las pruebas de navegador, 147 (el 65%) sólo confirman que la
+pantalla abrió.** Dos de cada tres no comprueban nada.
+
+### Los agujeros confirmados, en orden de gravedad
+
+1. **`/pago/mercadopago` no tiene NINGUNA prueba de navegador.** La pantalla existe y ningún
+   archivo de `tests/e2e/` la toca. **Es por donde entra la plata.** Esto es lo primero.
+2. **`/compras` (el carrito) y `/post-fiesta/[fiestaId]`: ninguna prueba.**
+3. **Cinco archivos no comprueban nada** más allá de que la pantalla abra:
+   `fotos-de-la-app` (cero comprobaciones en todo el archivo), `impresion-a4`,
+   `internal-smoke`, `planner-missing-portals` y `senal-mala`.
+4. **El presupuesto**: sus dos únicas comprobaciones de resultado son que el PDF **se llame**
+   "presupuesto" y que **pese más de 5 KB** (`simulator-budget-journey.spec.ts:104-105`). El
+   monto, nunca.
+5. **Falso positivo ya descartado, no lo reportes de nuevo:** el panel del invitado **sí**
+   está probado, once archivos lo tocan.
+
+### Lo único que apareció fuera de las pruebas, y es menor
+
+`src/app/(app)/settings/tareas-automaticas/page.tsx`: mientras carga no muestra nada, así que
+por uno o dos segundos parece que no hay tareas. **Es incómodo, no es un error.** Arreglalo
+sólo si estás en ese archivo por otra cosa.
 
 ## Cómo saber si una prueba cuenta
 
