@@ -17,6 +17,25 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 14 — El Entretenimiento de AK: Una Sola Experiencia (27 de agosto de 2026)
+
+- **Identidad del invitado y saludo con nombre (`src/components/entretenimiento/GuiaPosicionamiento.tsx`):**
+  - Todas las estaciones (360, Bogue, Touchpix, Espejo) saludan al invitado por su nombre si llega con su enlace personal y asocian la captura automáticamente sin pedirle correo ni teléfono.
+- **Generador de GIF animado en cliente (`src/lib/entretenimiento/gif-generator.ts`):**
+  - Generación liviana de GIFs animados en el navegador a partir de secuencias de fotos para descargar y compartir directamente en WhatsApp.
+- **Marcos dinámicos inteligentes (`src/lib/entretenimiento/marcos-dinamicos.ts`):**
+  - Los marcos se dibujan en tiempo real usando el nombre del agasajado, motivo, fecha y paleta de la fiesta sin requerir PNGs estáticos manuales.
+- **Tablero central del operador y reporte de la noche (`src/components/entretenimiento/TableroControlEstaciones.tsx`, `src/lib/entretenimiento/resumen-noche.ts`, `/fiestas/[id]/entretenimiento/control`):**
+  - Monitoreo en tiempo real de todas las estaciones con conteo real de fotos, miniaturas y resumen automático para el cliente.
+- **Reparación visual del Tótem (`src/app/evento/totem/[fiestaId]/[totemId]/page.tsx`):**
+  - Eliminada rotura de texto palabra por palabra y solapamiento en portrait y landscape.
+- **Moderación automática inteligente del muro (`src/lib/social-gallery/moderacion-automatica.ts`):**
+  - Auto-aprobación de capturas oficiales y contención de fotos corruptas o vacías para revisión.
+- **Club Uruguay en Presentación LED (`src/app/presentacion-led/slides/datos-evento-slide.tsx`):**
+  - Acceso y visualización permanente del Club Uruguay como opción preferencial sin alterar el salón elegido y con la aclaración de pago directo en el Club.
+
+---
+
 ## El corredor de pruebas de navegador decia "todas pasaron" sin correr ninguna (27 de agosto de 2026)
 
 - **Qué estaba mal.** `scripts/run-playwright-production.mjs` avisaba con una advertencia

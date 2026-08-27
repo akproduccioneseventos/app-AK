@@ -48,6 +48,8 @@ const DURATION_OPTIONS = [
   { label: '20 Segundos', value: 20 },
 ];
 
+import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
+
 export default function Plataforma360Page() {
   const params = useParams();
   const router = useRouter();
@@ -57,6 +59,7 @@ export default function Plataforma360Page() {
   const accessToken = searchParams.get('access') || undefined;
   const guestId = searchParams.get('guestId') || undefined;
   const guestAccessToken = searchParams.get('guestAccessToken') || searchParams.get('token') || undefined;
+  const nombreInvitado = searchParams.get('nombre') || searchParams.get('name') || undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -832,6 +835,18 @@ export default function Plataforma360Page() {
 
       {/* VIEWPORT AREA */}
       <div className="flex-1 relative w-full h-full flex items-center justify-center overflow-hidden bg-black">
+        <GuiaPosicionamiento
+          nombreInvitado={nombreInvitado}
+          estado={localStatus}
+          countdown={countdown}
+          mensajeGuia={
+            localStatus === 'idle'
+              ? 'Subite a la plataforma y hacé tu mejor pose'
+              : localStatus === 'recording'
+              ? '¡El brazo está girando en cámara lenta!'
+              : undefined
+          }
+        />
         
         {/* Idle Splash Screen */}
         {localStatus === 'idle' && (

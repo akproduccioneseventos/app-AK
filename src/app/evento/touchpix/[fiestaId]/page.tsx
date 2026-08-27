@@ -73,6 +73,8 @@ async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
   return new File([blob], fileName, { type: blob.type || 'image/jpeg' });
 }
 
+import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
+
 export default function TouchpixPage() {
   const params = useParams();
   const router = useRouter();
@@ -82,6 +84,7 @@ export default function TouchpixPage() {
   const accessToken = searchParams.get('access') || undefined;
   const guestId = searchParams.get('guestId') || undefined;
   const guestAccessToken = searchParams.get('guestAccessToken') || searchParams.get('token') || undefined;
+  const nombreInvitado = searchParams.get('nombre') || searchParams.get('name') || undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -1147,6 +1150,16 @@ export default function TouchpixPage() {
           ) : (
             /* Standard Live Camera Feed */
             <div className="relative w-full h-full">
+              <GuiaPosicionamiento
+                nombreInvitado={nombreInvitado}
+                estado={countdown !== null ? 'countdown' : isProcessing ? 'processing' : capturedImage ? 'done' : 'idle'}
+                countdown={countdown}
+                mensajeGuia={
+                  isProcessing
+                    ? 'Transformando tu rostro con inteligencia artificial...'
+                    : 'Mirá a la cámara para capturar tu avatar mágico'
+                }
+              />
               <video
                 ref={videoRef}
                 autoPlay
