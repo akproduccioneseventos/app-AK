@@ -24,7 +24,7 @@ import {
   loginWithGoogleIdToken,
 } from '@/app/actions/simple-auth';
 import { loginUser } from '@/app/actions/auth';
-import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/app/actions/diagnostico-acceso';
+import type { DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
 
 type RecoveryStatus = Awaited<ReturnType<typeof getPublicSecurityRecoveryStatus>>;
 
@@ -212,9 +212,9 @@ export default function LoginPage() {
       if (!result.success) {
         setError(result.error || 'Correo o contraseña incorrectos.');
         setIsSubmitting(false);
-        // Se averigua en segundo plano cual de los cuatro problemas fue. Si esta
-        // consulta tampoco contesta, no se muestra nada extra: nunca se inventa.
-        diagnosticarAcceso().then(setDiagnostico).catch(() => undefined);
+        // El diagnostico viene dentro de la misma respuesta. Si no vino, no se
+        // muestra nada extra: nunca se inventa una explicacion.
+        setDiagnostico(result.diagnostico ?? null);
         return;
       }
 

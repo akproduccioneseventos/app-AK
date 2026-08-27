@@ -11,6 +11,7 @@ import { verifySession, writeSessionCookie } from '@/lib/auth/session-token';
 import { esPerfilValido, perfilDesdeRolViejo, type Perfil } from '@/lib/auth/perfiles';
 
 import { requireAppSession } from '@/lib/auth/require-session';
+import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
 // ── Constants ──────────────────────────────────────────────────────────────
 
 const SCRYPT_SALT_LEN = 16;
@@ -193,6 +194,12 @@ export async function initializeAdminIfNeeded(): Promise<void> {
 
 export interface LoginResult {
   success: boolean;
+  /**
+   * Cuando el intento falla, la app averigua sola cual de cuatro problemas fue y lo
+   * explica en criollo. Viaja dentro de esta respuesta y no como consulta aparte: asi
+   * no queda una puerta abierta que cualquiera pueda preguntar sin intentar entrar.
+   */
+  diagnostico?: DiagnosticoAcceso;
   user?: {
     id: string;
     email: string;
@@ -246,14 +253,22 @@ export async function loginUser(
           error: 'La app todavia no tiene ninguna cuenta creada. No es tu clave: hay que crear el primer usuario.',
         };
       }
-      return { success: false, error: 'Correo o contraseña incorrectos.' };
+      return {
+        success: false,
+        error: 'Correo o contraseña incorrectos.',
+        diagnostico: await diagnosticarAcceso(),
+      };
     }
 
     const doc = snapshot.docs[0];
     const data = doc.data();
 
     if (!verifyValue(password, data.passwordHash)) {
-      return { success: false, error: 'Correo o contraseña incorrectos.' };
+      return {
+        success: false,
+        error: 'Correo o contraseña incorrectos.',
+        diagnostico: await diagnosticarAcceso(),
+      };
     }
 
     const user: NonNullable<LoginResult['user']> = {

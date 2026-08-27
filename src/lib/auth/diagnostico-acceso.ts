@@ -1,5 +1,3 @@
-'use server';
-
 import { dbAdmin } from '@/lib/firebase/server';
 import { hasPrivateSessionSecret } from '@/lib/auth/session-token';
 
@@ -18,6 +16,17 @@ import { hasPrivateSessionSecret } from '@/lib/auth/session-token';
  *
  * Esto corre solo cuando un intento de entrada falla, comprueba las cuatro cosas en orden
  * y devuelve **una frase en criollo diciendo cual de las cuatro fue**.
+ *
+ * **Por que vive aca y no como accion del servidor.** Se escribio primero como accion, y
+ * el control de puertas abiertas la freno con razon: en Next, cada funcion exportada de un
+ * archivo de acciones **queda abierta a internet**, y esta hay que poder llamarla sin haber
+ * entrado —justamente la usa quien no puede entrar—. O sea que cualquiera, sin cuenta,
+ * podria preguntarle a la app si le falta la llave de sesion o si todavia no tiene cuentas
+ * creadas. Eso es un mapa para quien quiera hacer dano.
+ *
+ * Aca es un modulo comun: no es ninguna puerta. El resultado se lo lleva la respuesta de
+ * la entrada, que **ya exige haber mandado un intento** y esta limitada por la pausa a los
+ * cinco fallidos.
  *
  * **Que NO devuelve, nunca:** ningun valor de configuracion, ninguna clave, ningun correo
  * de nadie. Solo si cada pieza esta o no esta. Se muestra en una pantalla publica —
