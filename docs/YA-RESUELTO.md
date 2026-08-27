@@ -17,6 +17,22 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## El corredor de pruebas de navegador decia "todas pasaron" sin correr ninguna (27 de agosto de 2026)
+
+- **Qué estaba mal.** `scripts/run-playwright-production.mjs` avisaba con una advertencia
+  cuando una tanda se caía sin registrar pruebas, pero **no la contaba como falla**. El
+  resumen final imprimía *"Todas las pruebas de navegador pasaron exitosamente"* con
+  **cero pruebas ejecutadas**, y devolvía éxito.
+- **Cómo apareció.** Corriendo una prueba nueva con `--reporter=line`: esa opción le tapa
+  al corredor el informe que necesita, la tanda quedó sin datos y el corredor la dio por
+  buena. Pasa igual si un archivo de prueba no compila o si el servidor no levanta.
+- **Qué se hizo.** Las tandas que no llegan a correr se anotan y el corredor termina en
+  error, con el detalle de cuál se cayó y por qué.
+- **Por qué importa.** Es el único control que ve lo que ve el usuario. Un control que
+  dice que está todo bien cuando no corrió nada es peor que no tener control.
+- **De paso:** para correr un solo archivo hay que pasarle **la ruta completa terminada en
+  `.spec.ts`**. Un nombre suelto no filtra nada y corre la tanda entera.
+
 ## Las estaciones de entretenimiento no abrian su sesion (27 de agosto de 2026)
 
 - **Qué estaba mal.** El operador tocaba "Iniciar cuenta regresiva" en la Plataforma 360,
