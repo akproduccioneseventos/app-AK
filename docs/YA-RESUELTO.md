@@ -17,6 +17,38 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Las estaciones de entretenimiento no abrian su sesion (27 de agosto de 2026)
+
+- **Qué estaba mal.** El operador tocaba "Iniciar cuenta regresiva" en la Plataforma 360,
+  en Bogue, en el Espejo Mágico o en Touchpix y le aparecía un cartel rojo **en inglés**
+  hablando de un campo de la base (`settings.frameCount`, `settings.countdownSeconds`,
+  `settings.duration`). La estación no arrancaba. Pasaba en **todas** las estaciones.
+- **Por qué.** `sanitizeSessionSettings` en `src/app/actions/fiesta/sesion-entretenimiento.ts`
+  armaba el objeto de ajustes con **todas** las claves, y las que la estación no manda
+  quedaban vacías. La base rechaza el documento entero si encuentra una sola clave vacía.
+  Como cada estación manda sólo los ajustes que usa —el 360 no manda `duration`, el espejo
+  no manda `frameCount`—, **siempre** sobraba alguna.
+- **Qué se hizo.** Se filtran las claves vacías antes de guardar (`sinClavesVacias`). Y el
+  error crudo de la base dejó de imprimirse en pantalla: el operador ve un aviso en criollo
+  que le dice qué hacer, y el detalle técnico queda en el registro del servidor.
+- **El candado.** `src/__tests__/estaciones-abren-su-sesion.test.ts` y la prueba de navegador
+  `tests/e2e/entretenimientos-a-fondo.spec.ts`, que abre cada estación como operador y como
+  invitado, le toca el botón principal y mira qué pasa.
+- **Cómo se encontró, que es lo que importa.** Ninguna prueba lo veía: las que existían
+  controlaban que la pantalla **abriera**, y abría bien. Se vio recién **operándola en un
+  navegador de verdad**.
+
+## Falsos positivos verificados en los entretenimientos (27 de agosto de 2026)
+
+Un ayudante reportó estas cosas como faltantes. **Las tres existen.** No volver a reportarlas:
+
+- **La Plataforma 360 SÍ tiene cámara lenta.** No es un botón: graba a 15 cuadros por
+  segundo y los estira después (`src/app/evento/plataforma-360/[fiestaId]/page.tsx:385-442`).
+- **La Plataforma 360 SÍ tiene marco de marca**, dibujado sobre cada cuadro
+  (`drawWatermark`, misma pantalla, línea 349).
+- **El Espejo Mágico SÍ tiene stickers y firma con el dedo**
+  (`src/app/evento/espejo-magico/[fiestaId]/page.tsx:64` y siguientes).
+
 ## Orden 11 — El Encargado y su equipo (26 de agosto de 2026)
 
 - **Los 4 nuevos empleados automáticos (`src/lib/automatico/tareas-automaticas.ts`, `src/lib/automatico/al-entrar-a-la-app.ts`, `src/lib/automatico/puerta-de-las-tareas.ts`, `src/app/api/cron/`):**
