@@ -4992,3 +4992,37 @@ Dos cambios:
 2. **Si igual se termina yendo por el desvio y a los cuatro segundos seguimos en la misma
    pagina, se avisa.** Nadie se queda mas mirando un boton muerto: se le dice que ese
    navegador esta bloqueando el ingreso y cual es el otro camino.
+
+## El freno de mano del agente de publicidad (27 de agosto de 2026)
+
+El dueno decidio que el agente de Meta Ads **maneje la publicidad solo**: que cree, ajuste
+y pause campanas sin preguntarle. Se le planteo el riesgo de dejarlo gastar sin supervision
+y eligio igual. **Es su plata y es su decision: no se vuelve a preguntar.**
+
+Lo que cambia entonces no es *si* puede gastar, sino **que sea imposible pasarse**. Un
+agente que "trata de no pasarse" del tope se pasa el dia que se equivoca en una cuenta.
+`src/lib/marketing/tope-de-gasto-publicidad.ts` no aconseja: **niega**.
+
+Tres decisiones de fondo, anotadas para que nadie las "mejore" al reves:
+
+1. **Se cuenta lo COMPROMETIDO, no lo gastado.** Un presupuesto diario de $500 puesto un
+   dia 10 no gasto nada todavia, pero ya compromete $500 por cada dia que queda del mes.
+   Contar solo lo gastado dejaria subir presupuestos toda la primera semana y descubrir el
+   desastre el dia 28, cuando ya no se puede deshacer.
+2. **Pausar y bajar siempre se permiten**, aunque no quede nada de tope. Frenarlos por
+   falta de presupuesto seria exactamente al reves de lo que el modulo protege.
+3. **Sin tope cargado no se compromete nada**, y si no se puede leer el tope se asume cero:
+   ante la duda no se gasta.
+
+Congelado en `src/__tests__/el-agente-no-se-pasa-del-tope.test.ts` (8 controles).
+
+## Cloudflare: descartado, se queda en Firebase (27 de agosto de 2026)
+
+Se evaluo pasar la web por Cloudflare para usar su prueba "is your site agent ready". El
+dueno dijo que no: **lo que quiere es lo que esa herramienta mide, no la herramienta.**
+
+Asi que se hace todo sobre Firebase, sin tocar la configuracion del dominio y sin contratar
+nada que se pague por mes. Si una auditoria futura propone mover el dominio a Cloudflare,
+es falso positivo. Lo que si va —`llms.txt`, datos del negocio marcados, preguntas
+frecuentes marcadas, contenido legible sin ejecutar programas— quedo escrito en
+`docs/ordenes/12-publicidad-que-actua-y-web-lista-para-las-ia.md`.
