@@ -34,9 +34,14 @@ confirma que la pantalla ABRE; nada confirma que el resultado esté BIEN.**
 
 ## PARTE A — El recorrido de TODA la app, que hoy no mira
 
-**El dueño lo pidió así: *"de toda la app quiero un mecanismo seguro"*, y después:
-*"de auditoría, 9 errores"*.** Las trece pruebas de la parte B cubren lo importante, no las
-348 pantallas. Esto sí.
+**El dueño lo pidió así: *"de toda la app quiero un mecanismo seguro"*, y aclaró algo que es
+lo peor de todo: la auditoría dio *"cero errores"*.**
+
+Cero errores, y la fotocabina imprimía sin el fondo, el entretenimiento estaba mal y la web
+también. **Un informe que dice "todo bien" cuando no lo está es peor que no tener informe**:
+no sólo no encuentra el problema, además convence de que no hay ninguno.
+
+Las trece pruebas de la parte B cubren lo importante, no las 348 pantallas. Esto sí.
 
 **Ya existe y no hay que inventarlo:** `tests/e2e/internal-route-inventory.spec.ts` visita
 **más de 180 pantallas internas**, una por una, con sesión iniciada. Y
