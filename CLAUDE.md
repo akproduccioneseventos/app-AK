@@ -685,6 +685,43 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   ya está fuera del repositorio y hay una prueba que impide que vuelva a entrar;
   eso es lo que sí queda.
 
+## LA PUERTA: sin `npm run "publicar?"` en verde, no se fusiona
+
+**Orden del dueño, 27 de agosto de 2026.** Sus palabras: *"quiero que inventes un mecanismo
+de auditoría que deje mi app en cero errores en código y en funcionamiento; todo debe marchar
+para poder publicar."*
+
+**Por qué existe:** una auditoría dio *"cero errores"* mientras la fotocabina imprimía sin
+fondo, el entretenimiento estaba mal y la web también. El problema no era el informe: era que
+**ningún control podía frenar la publicación**. Se fusionaba y se publicaba pase lo que pase.
+Un control que no frena no es un control, es una sugerencia.
+
+**Un informe es una opinión. Esto es un hecho.**
+
+- **`npm run "publicar?"`** corre todo y contesta **una sola cosa**: se puede publicar, o no
+  se puede y por qué, en criollo. Termina con código distinto de cero cuando no se puede, así
+  que **cualquier cosa que lo llame puede frenar sola**.
+- **`npm run "publicar?:rapido"`** saltea la prueba de navegador. Sirve mientras se trabaja,
+  **no alcanza para publicar**.
+
+### Las reglas, y son duras
+
+1. **No se fusiona nada sin `publicar?` completo en verde.** Ni una corrección de una línea.
+   Ni documentación, si el árbol tiene código sin verificar.
+2. **Los pasos van del más barato al más caro y se corta en la primera falla.** Si los
+   acentos están rotos, no tiene sentido esperar la compilación —que tarda ocho minutos— para
+   enterarse.
+3. **No se saltea un paso para que dé verde.** Si un control molesta, se arregla lo que
+   marca; no se lo saca. Sacarlo es exactamente cómo se llegó a "cero errores" con la app
+   rota.
+4. **Lo que le falta hoy se le suma adentro, no al lado**: el recorrido de las 348 pantallas
+   mirando de verdad, y las trece pruebas que terminan el trabajo
+   (`docs/ordenes/15-las-pruebas-que-terminan-el-trabajo.md`). **Cuando estén, entran acá.**
+
+**Reemplaza a `/sano` como control de publicación.** `/sano` sigue sirviendo para mirar el
+estado mientras se trabaja; **el que decide si se publica es éste**, porque devuelve un
+resultado y no una opinión.
+
 ## Cómo se verifica que la app está sana
 
 El orden que funciona, y que ya detectó fallas reales:
