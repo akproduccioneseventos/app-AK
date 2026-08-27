@@ -1,4 +1,4 @@
-# Orden 13 — Los entretenimientos de AK, mejores que todos los del mercado
+# Orden 13 — El entretenimiento de AK: una sola experiencia, mejor que cualquiera del mercado
 
 **Para Gemini. Escrita el 27 de agosto de 2026.**
 
@@ -8,173 +8,157 @@
 cada fusión dispara un despliegue y eso se paga.
 
 Si un bloque se traba, **entregá el resto igual, en la misma propuesta**, y avisá cuál
-faltó y por qué. No lo dejes para después.
+faltó y por qué.
 
 Antes de dar por terminado: compila, pruebas en verde, `npm run check:acentos` limpio, y
 lo anotado en `docs/YA-RESUELTO.md` y `docs/QUE-HAY-EN-LA-APP.md` **dentro de la misma
 propuesta**. Si tocás o agregás una pantalla, corré `npm run mapa:generar`.
 
-**La fotocabina queda afuera.** La está trabajando otra IA en paralelo y dos cambios sobre
-la misma pantalla se pisan. **No la toques.**
+**La fotocabina queda afuera.** La está trabajando otra IA en paralelo. **No la toques.**
 
 ---
 
-## De dónde sale esta orden
+## Lo que hay que construir, en una frase
 
-El dueño va a usar los entretenimientos en fiestas reales. Se probaron **en un navegador**,
-abriendo cada estación como operador y como invitado, y se comparó función por función
-contra las plataformas que manda el rubro: **Snappic, Touchpix, LumaBooth (ex dslrBooth),
-Sparkbooth, Simple Booth HALO, Curator y Foto Master** para las estaciones, y **Walls.io,
-Snapbar y Social Walls** para el muro.
+Hoy AK tiene **seis estaciones sueltas**, cada una con su pantalla, sus reglas y su forma
+de hacer las cosas. Hay que convertirlas en **una sola experiencia**: la misma para el
+invitado en todas, la misma para el operador en todas, y que **sepa de qué fiesta se trata
+y quién está parado adelante.**
 
-El pedido del dueño, textual: **"debe ser mejor que todas"**.
-
-**Ya se arregló, no lo rehagas:** ninguna estación podía abrir su sesión —el operador
-tocaba "Iniciar cuenta regresiva" y aparecía un cartel rojo en inglés—. Corregido en
-`src/app/actions/fiesta/sesion-entretenimiento.ts`.
+Eso último es lo que ninguna plataforma del mundo puede hacer, y es la razón por la que
+esto va a quedar mejor que todas: **los programas del rubro son fotocabinas sueltas.** No
+conocen a los invitados, ni las mesas, ni el tema de la fiesta, ni al cliente. La app de AK
+sí. Todo lo que sigue sale de ahí.
 
 ---
 
-## LO QUE YA TENEMOS Y NO SE TOCA
+# PARTE 1 — LA EXPERIENCIA DEL INVITADO
 
-Esto ya anda y **está a la altura o por encima del mercado**. No lo "mejores", no lo
-reescribas y no lo reportes como problema:
+**Una sola, igual en la Plataforma 360, en Bogue, en el Espejo Mágico, en Touchpix y en la
+cápsula del tiempo.** Hoy cada una hace lo suyo a su manera. Que el invitado pase de una a
+otra y sienta que es la misma fiesta.
 
-| Lo que tenemos | Cómo estamos |
-|---|---|
-| Cámara lenta en la Plataforma 360 | Igual que Snappic y Touchpix. No es un botón: graba a 15 cuadros por segundo y los estira. |
-| Marco de marca sobre cada cuadro | Igual que todos. |
-| Boomerang y cuatro marcos en Bogue | Igual que todos. |
-| Estilos de IA que transforman la foto | **Arriba**: Sparkbooth y Simple Booth no lo tienen. |
-| Firma con el dedo y stickers en el espejo | Igual que los espejos de Foto Master y LumaBooth. |
-| Filtros de imagen | Igual. |
-| Entrega por QR sin pedir datos | Igual, y es el estándar de hoy. |
-| Aviso de señal mala | Igual que el "SmartShare" de Snappic. |
-| Impresión | Igual. |
-| Consentimiento y límite de repeticiones | Igual. |
-| Cápsula del tiempo con video, audio y foto | **Arriba**: sólo lo tienen los servicios dedicados de libro de firmas. |
+## BLOQUE 1 — La estación lo conoce
 
----
+Cuando el invitado llega con su enlace personal —el mismo que ya usa para su mesa y para el
+hub— la estación **lo saluda por su nombre**: *"Hola, Lucía. Ponete cómoda."*
 
-# PARTE 1 — LO QUE ESTÁ ROTO
+- La captura queda **atada a ese invitado**: aparece después en su recuerdo personal y en
+  el álbum del cliente, **sin que tenga que hacer nada más**.
+- **Si no viene el enlace, la estación funciona igual, sin nombre.** Nunca se bloquea por
+  no saber quién es.
+- Los textos, cortos y en criollo: los lee parado, con gente atrás esperando.
 
-## BLOQUE 1 — El tótem se ve desarmado
+## BLOQUE 2 — Elige qué quiere, con un toque
 
-Se abrió `/evento/totem/[fiestaId]/[totemId]` en el navegador y **la pantalla sale rota**:
-el texto "Escaneá el QR y compartí tus fotos en la pantalla" cae **una palabra por
-renglón**, el título de la fiesta queda cortado arriba, y el cartel "SUBÍ TU FOTO AL MURO"
-se superpone con lo que tiene detrás.
+Una fila de opciones grande y clara, siempre en el mismo lugar en todas las estaciones:
+**foto, GIF, video, boomerang y avatar con inteligencia artificial.**
 
-Es la pantalla que los invitados miran toda la noche parada en el salón.
+- Cada estación ofrece lo que puede hacer y **no muestra lo que no**.
+- **El GIF hay que agregarlo**: es lo que la gente manda por WhatsApp y hoy no está en
+  ninguna. Tres o cuatro fotos seguidas que se repiten.
+- En la pantalla de revisión puede **cambiar de idea sin repetir la toma**: si sacó la
+  secuencia, que pueda llevarse la foto o el GIF.
 
-- Que el texto ocupe el ancho que tiene y **no se parta palabra por palabra**.
-- Que el título de la fiesta entre entero.
-- Que ningún cartel se pise con otro.
-- **Probalo parada (vertical, como se usa en el salón) y acostada.** Dejá una foto de
-  pantalla de cada una en la propuesta.
+## BLOQUE 3 — La guía que lo lleva de la mano
 
----
+- **Dónde pararse**, dibujado en pantalla.
+- **Cuenta regresiva grande**, que se vea de lejos.
+- **Qué está pasando** en cada momento: "grabando", "procesando", "listo".
+- Nada de pantallas mudas: si la app está trabajando, se dice.
 
-# PARTE 2 — EMPAREJAR LO QUE ELLOS TIENEN Y NOSOTROS NO
+## BLOQUE 4 — El fondo se cambia sin tela verde
 
-Cada bloque dice qué plataforma lo tiene, para que se entienda por qué vale la pena.
+La inteligencia artificial recorta a la persona y le pone atrás lo que se elija: el salón
+decorado, el tema de la fiesta, una foto que trajo el cliente.
 
-## BLOQUE 2 — Quitar el fondo sin tela verde
-
-**Quién lo tiene:** Snappic, Touchpix, Simple Booth, LumaBooth. Es de lo primero que
-muestran.
-
-Hoy para cambiar el fondo hace falta colgar una tela verde. Con IA se recorta a la persona
-sin tela y se le pone atrás lo que uno quiera: el salón decorado, el tema de la fiesta, una
-foto que trajo el cliente.
-
-- Que el operador elija el fondo desde los ajustes de la estación.
-- Que se pueda apagar: si el recorte sale mal, la foto normal tiene que seguir saliendo.
+- El operador elige el fondo desde los ajustes de la estación.
+- **Se puede apagar**: si el recorte sale mal, la foto normal tiene que salir igual.
 - **Si esto obliga a contratar un servicio que se paga por mes, dejalo preparado y
   preguntá antes de contratar.** Esa regla no se rompe.
 
-## BLOQUE 3 — Marcos que se mueven
+## BLOQUE 5 — El marco se arma solo con los datos de la fiesta
 
-**Quién lo tiene:** Touchpix (300 y pico de marcos animados), Snappic, LumaBooth.
+Hoy los marcos son imágenes fijas que alguien tiene que cargar.
 
-Nuestros marcos son quietos. Los de ellos se mueven: brillos que pasan, confeti que cae,
-el nombre de la fiesta que aparece.
+- Que el marco **se arme solo** con lo que la app ya sabe: el nombre del agasajado, la
+  fecha y los colores del evento. **Sin que nadie cargue nada.**
+- Que **se mueva**: un brillo que pasa, confeti que cae, el nombre que aparece. Alcanza con
+  **tres o cuatro** que luzcan —uno elegante, uno de quince, uno de casamiento, uno de
+  cumpleaños de nene—, no con trescientos.
+- Igual en la foto y en el video.
 
-- Que un marco pueda ser una animación corta y no sólo una imagen fija.
-- Que se vea igual en la foto y en el video.
-- Alcanza con **tres o cuatro marcos animados que luzcan**, no trescientos. Uno elegante,
-  uno de quince años, uno de casamiento, uno de cumpleaños de nene.
+## BLOQUE 6 — Los accesorios se le pegan a la cara
 
-## BLOQUE 4 — Accesorios que siguen la cara
+Hoy los stickers del espejo quedan quietos donde uno los suelta.
 
-**Quién lo tiene:** Simple Booth. Es su función estrella.
+- Anteojos, bigote, sombrero, corona y orejas **pegados a la cara**, que la sigan cuando se
+  mueve.
+- Que ande con **varias personas** en la foto, cada una con los suyos.
+- Los stickers sueltos de ahora **se quedan**: esto se suma, no los reemplaza.
 
-Hoy los stickers del espejo se ponen quietos donde uno los suelta. Los de ellos **se pegan
-a la cara**: los anteojos quedan en los ojos, el bigote en la boca, y siguen a la persona
-cuando se mueve. Si hay varias personas, cada una tiene los suyos.
+## BLOQUE 7 — Se la lleva sin dar un dato
 
-- Anteojos, bigote, sombrero, corona y orejas, pegados a la cara.
-- Que funcione con más de una persona en la foto.
-- Los stickers sueltos de ahora **se quedan**: se suman, no se reemplazan.
-
-## BLOQUE 5 — GIF animado en todas las estaciones
-
-**Quién lo tiene:** todos, sin excepción.
-
-Hoy Bogue hace boomerang y la 360 hace video. Falta el GIF corto —tres o cuatro fotos
-seguidas que se repiten— que es lo que la gente manda por WhatsApp.
-
-- Que cada estación con cámara pueda entregar también un GIF, además de lo que ya entrega.
-- Que el invitado elija qué quiere en la pantalla de revisión, sin repetir la toma.
+- **QR grande**, que se escanee de lejos y en un toque.
+- **Nada de pedirle el mail ni el teléfono.** Decidido: frena la fila y junta datos que
+  después hay que cuidar.
+- **Si no hay señal, la captura se guarda y se sube sola cuando vuelve.** Que el invitado
+  no se quede esperando ni pierda su foto.
 
 ---
 
-# PARTE 3 — LO QUE NOS PONE ARRIBA DE TODOS
+# PARTE 2 — LA EXPERIENCIA DEL OPERADOR
 
-Acá está la diferencia real. **Las plataformas del mercado son programas de fotocabina
-sueltos: no saben de quién es la fiesta, ni quién está parado adelante.** La app de AK sí:
-tiene la lista de invitados, las mesas, el tema del evento y los datos del cliente. Eso no
-lo puede copiar ninguno.
+Hoy el operador tiene una pantalla por estación y ninguna le dice cómo va la noche.
 
-## BLOQUE 6 — La estación sabe de quién es la fiesta y quién está adelante
+## BLOQUE 8 — Un solo tablero para toda la fiesta
 
-**Quién lo tiene:** nadie.
+Una pantalla donde el operador ve **todas las estaciones juntas**:
 
-Cuando el invitado llega con su enlace personal —el mismo que ya usa para el hub y para su
-mesa—, la estación tiene que **saludarlo por su nombre** y dejarle su foto ya guardada en
-su recuerdo personal, sin que tenga que hacer nada más.
+- Cuál está prendida y cuál no.
+- **Cuántas capturas lleva cada una esta noche**, con número grande.
+- La última captura de cada una, para darse cuenta de un vistazo si algo salió mal.
+- **El aviso cuando una estación falla**, en criollo y diciendo qué hacer.
+- Desde ahí se entra a operar cualquiera.
 
-- La estación abierta con el enlace del invitado lo saluda: *"Hola, Lucía. Ponete cómoda."*
-- La captura queda **atada a ese invitado**, así aparece después en su recuerdo y en el
-  álbum del cliente.
-- **Si no viene el enlace personal, la estación funciona igual, sin nombre.** Nunca se
-  bloquea por no saber quién es.
-- Los textos que ve el invitado, **en criollo y cortos**: los va a leer parado, con gente
-  atrás esperando.
+Que el número sea **de verdad**: sale de lo guardado. Si no se puede leer, **se dice que no
+se pudo**; nunca un cero que parezca un dato real.
 
-## BLOQUE 7 — El contador de la noche y el informe para el cliente
+## BLOQUE 9 — Todo listo antes de llegar al salón
 
-**Quién lo tiene:** Sparkbooth y Snappic muestran capturas, vistas y descargas. Snappic
-además arma una página de resultados con el logo del cliente.
+Que el equipo prepare la fiesta **desde la app, el día anterior**: qué estaciones van, qué
+marcos, qué estilos de IA, qué fondos. Que al llegar al salón esté todo cargado y sólo haya
+que prender.
 
-Hoy nadie sabe cuánto se usó cada estación. Termina la fiesta y no se puede decir si la 360
-hizo diez videos o ciento veinte.
+## BLOQUE 10 — El resumen de la noche
 
-- En la pantalla del operador de cada estación: **un número grande y claro con cuántas
-  capturas lleva esta noche.**
-- Que el número sea **de verdad**: sale de lo guardado. Si no se puede leer, **se dice que
-  no se pudo**; nunca un cero que parezca un dato real.
-- Al cerrar la fiesta, **un resumen automático**: cuántas capturas hizo cada estación, cuál
-  fue la más usada y a qué hora estuvo el pico. Si ya hay un lugar natural para eso, va
-  ahí; no inventes una pantalla nueva.
-- Ese resumen **se le puede mostrar al cliente**. Es material de venta para la próxima.
+Al cerrar la fiesta, **automático**: cuántas capturas hizo cada estación, cuál fue la más
+usada y a qué hora estuvo el pico.
 
-## BLOQUE 8 — El muro se modera solo primero
+Ese resumen **se le muestra al cliente**. Es material de venta para la próxima fiesta.
 
-**Quién lo tiene:** todos los muros del mercado ya filtran con IA. El nuestro es 100% a
-mano y en una fiesta de ochenta invitados eso no lo hace nadie.
+---
 
-Que la IA pase primero y le deje a la persona sólo lo dudoso:
+# PARTE 3 — LO QUE SE MIRA Y LO QUE QUEDA PARA DESPUÉS
+
+## BLOQUE 11 — El tótem se ve desarmado (ESTÁ ROTO)
+
+Se abrió `/evento/totem/[fiestaId]/[totemId]` en el navegador y la pantalla sale rota: el
+texto "Escaneá el QR y compartí tus fotos en la pantalla" cae **una palabra por renglón**,
+el título de la fiesta queda **cortado arriba**, y el cartel "SUBÍ TU FOTO AL MURO" **se
+pisa** con lo que tiene detrás.
+
+Es la pantalla que los invitados miran toda la noche parada en el salón.
+
+- Que el texto ocupe el ancho que tiene y no se parta palabra por palabra.
+- Que el título entre entero y que ningún cartel se pise con otro.
+- **Probalo parada (vertical, como se usa en el salón) y acostada.** Dejá una foto de
+  pantalla de cada una en la propuesta.
+
+## BLOQUE 12 — El muro se modera solo primero
+
+Hoy es 100% a mano: alguien mira foto por foto. En una fiesta de ochenta invitados eso no
+lo hace nadie, y el muro termina sin moderar.
 
 - Lo claramente bien, **entra solo**.
 - Lo claramente mal —desnudo, pantalla negra, ilegible, repetido— **queda frenado solo**, y
@@ -184,25 +168,20 @@ Que la IA pase primero y le deje a la persona sólo lo dudoso:
 - **Que no frene de más:** ante la duda, va a la cola humana, no al rechazo. Una foto buena
   frenada molesta más que una regular publicada.
 
-## BLOQUE 9 — La cápsula del tiempo se abre sola
+## BLOQUE 13 — La cápsula del tiempo se abre sola
 
-**Quién lo tiene:** los servicios de libro de firmas lo venden como promesa, pero **hay que
-acordarse de abrirla**.
-
-Hoy los mensajes de la cápsula quedan guardados y ahí terminan.
+Hoy los mensajes quedan guardados y ahí terminan.
 
 - Que se pueda marcar **cuándo se abre**: al año, a los cinco, a los quince.
-- Que **el despertador la abra solo** cuando llega la fecha y le avise al cliente que sus
-  mensajes están esperando. No que alguien se tenga que acordar.
+- Que **el despertador la abra solo** cuando llega la fecha y avise que los mensajes están
+  esperando. Que nadie se tenga que acordar.
 - **El aviso se prepara y lo manda una persona**, como todo lo que sale para afuera.
 
 ---
 
 # PARTE 4 — LO QUE QUEDÓ SIN HACER DE ANTES
 
-## BLOQUE 10 — El Club Uruguay se ofrece SIEMPRE en la Presentación LED
-
-Viene de una orden anterior. Se verificó: **sigue sin hacerse.**
+## BLOQUE 14 — El Club Uruguay se ofrece SIEMPRE en la Presentación LED
 
 En `src/app/presentacion-led/slides/datos-evento-slide.tsx:281` el Club sólo aparece si el
 cliente dice que **no** tiene salón. El que llega con otro salón medio decidido **nunca ve
@@ -218,21 +197,34 @@ Palabras del dueño, y es la parte importante:
 
 - **Se muestra como una opción, nunca como un requisito.** El cliente puede traer su propio
   salón y AK le arma la fiesta igual. Eso es parte de lo que vende: flexibilidad.
-- **Nada de textos que presionen** ni que den a entender que sin el Club el servicio es
-  menor.
+- **Nada de textos que presionen.**
 - **Si ya eligió otro salón, se le muestra una vez y no se le vuelve a poner adelante.**
-- **El presupuesto tiene que quedar bien armado con cualquiera de las dos opciones.**
+- **El presupuesto queda bien armado con cualquiera de las dos opciones.**
 - El alquiler del Club **se paga aparte, directamente en el Club**. Ese texto ya existe y
   está bien: no lo cambies.
 
 ---
 
-## LO QUE NO SE HACE (decidido, no volver a proponerlo)
+## LO QUE YA ANDA Y NO SE TOCA
 
-- **Pedirle el mail o el teléfono al invitado para mandarle la foto.** Lo hacen todas las
-  plataformas y **no lo queremos**: frena la fila y junta datos que después hay que cuidar.
-  El QR resuelve lo mismo sin pedir nada.
-- **Encuestas al invitado en la estación.** Misma razón.
+No lo reescribas, no lo "mejores" y no lo reportes como problema:
+
+- **La cámara lenta de la Plataforma 360.** No es un botón: graba a 15 cuadros por segundo
+  y los estira. Y el marco que dibuja sobre cada cuadro.
+- **El boomerang y los cuatro marcos de Bogue.**
+- **Los stickers, la firma con el dedo, los estilos de IA y los filtros del Espejo Mágico.**
+- **La entrega por QR** y los botones de compartir del álbum y la galería.
+- **El aviso de señal mala**, la impresión, el consentimiento y el límite de repeticiones.
+- **La cápsula con video, audio y foto.**
+
+**Ya se arregló, no lo rehagas:** ninguna estación podía abrir su sesión —el operador tocaba
+"Iniciar cuenta regresiva" y aparecía un cartel rojo en inglés—. Corregido en
+`src/app/actions/fiesta/sesion-entretenimiento.ts`.
+
+## LO QUE NO SE HACE (decidido)
+
+- **Pedirle el mail o el teléfono al invitado para mandarle la foto.**
+- **Encuestas al invitado en la estación.**
 - **La fotocabina.** La trabaja otra IA.
 - `apphosting.yaml`: el servidor se duerme a propósito.
 - **Nada que aumente lo que se paga por mes sin preguntar antes.**
