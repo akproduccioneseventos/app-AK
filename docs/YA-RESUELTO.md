@@ -5026,3 +5026,23 @@ nada que se pague por mes. Si una auditoria futura propone mover el dominio a Cl
 es falso positivo. Lo que si va —`llms.txt`, datos del negocio marcados, preguntas
 frecuentes marcadas, contenido legible sin ejecutar programas— quedo escrito en
 `docs/ordenes/12-publicidad-que-actua-y-web-lista-para-las-ia.md`.
+
+## El agente no prende campanas: eso lo activa el dueno (27 de agosto de 2026)
+
+**Corrige la decision de unas horas antes.** Sus palabras: *"el tema de poner campanas las
+activo yo, no se pongan solas."*
+
+El agente puede, sin preguntar: **pausar** lo que quema plata, **bajar** un presupuesto, y
+**subir** el presupuesto de algo que ya esta al aire, dentro del tope. No puede, nunca:
+**crear** una campana ni **reactivar** una pausada. Esas dos las prepara y las deja listas
+para aprobar de un toque.
+
+La linea es la misma que rige en toda la app —**automatico para mirar, detectar, preparar y
+avisar; mano humana para lo que sale para afuera**— y aca cae justo: apagar y moderar es
+cuidar; **encender es salir a la calle a gastar**.
+
+**Esta escrito en el codigo, no solo en la orden de trabajo**, y es a proposito: una
+instruccion escrita se olvida o se "mejora"; el codigo niega. Es la misma razon por la que
+el tope no aconseja. `elAgentePuedeHacerloSolo` niega **antes de mirar el tope**: no es una
+cuestion de cuanta plata queda, es del dueno. Congelado en
+`src/__tests__/el-agente-no-se-pasa-del-tope.test.ts`, ahora con 11 controles.

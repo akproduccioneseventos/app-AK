@@ -18,9 +18,27 @@ propuesta**.
 
 ## Contexto: dos decisiones del dueño, del 27 de agosto de 2026
 
-1. **El agente de publicidad maneja Meta Ads solo.** Crea, ajusta y pausa campañas sin
-   preguntar. Se le planteó el riesgo de dejarlo gastar sin supervisión y eligió igual.
-   **Es su plata y es su decisión: no la discutas ni la "mejores" pidiendo confirmación.**
+1. **El agente de publicidad administra Meta Ads solo, PERO NO PRENDE NADA.**
+
+   El dueño corrigió esto unas horas después de pedirlo. Sus palabras:
+   *"el tema de poner campañas las activo yo, no se pongan solas."* **Manda esta versión.**
+
+   El agente puede, sin preguntar:
+   - **pausar** lo que está quemando plata,
+   - **bajar** un presupuesto,
+   - **subir** el presupuesto de algo que **ya está al aire**, dentro del tope.
+
+   El agente **no puede, nunca**:
+   - **crear** una campaña,
+   - **reactivar** una campaña pausada.
+
+   Esas dos las **prepara** y las deja listas para que él las apruebe de un toque.
+
+   La línea es la misma que rige en toda la app: **automático para mirar, detectar,
+   preparar y avisar; mano humana para lo que sale para afuera.** Apagar y moderar es
+   cuidar; **encender es salir a la calle a gastar**, y eso lo decide él.
+
+   Del resto —pausar, bajar, subir dentro del tope— **no pidas confirmación**: ya la dio.
 2. **La web se queda en Firebase.** Se evaluó pasarla por Cloudflare y dijo que no: lo que
    quiere es **lo que mide** la herramienta "is your site agent ready", no la herramienta.
    **No toques la configuración del dominio. No agregues ningún servicio que se pague por
@@ -45,7 +63,8 @@ leer y ejecutar a mano.
 
 - Pausar y reactivar una campaña o un conjunto de anuncios.
 - Cambiar el presupuesto diario.
-- Crear una campaña nueva a partir de lo que ya genera `creador-anuncios-ia.ts`.
+- **Preparar** una campaña nueva a partir de lo que ya genera `creador-anuncios-ia.ts`,
+  dejándola lista para que el dueño la encienda de un toque. **El agente no la lanza.**
 
 ### EL FRENO DE MANO — esto ya está hecho y es OBLIGATORIO usarlo
 
@@ -57,8 +76,16 @@ leer y ejecutar a mano.
 `puedeComprometer(...)`.** Si devuelve `permitido: false`, la operación **no se ejecuta**:
 se anota el motivo en el registro del agente y se sigue con la siguiente.
 
+**Pasale siempre el `tipo`** (`'pausar' | 'bajar-presupuesto' | 'subir-presupuesto' |
+'encender' | 'crear'`). Con `'encender'` y `'crear'` el módulo **niega antes de mirar el
+tope**: no es una cuestión de cuánta plata queda, es del dueño. Esa prohibición está en el
+código y no sólo acá escrita, a propósito: **una instrucción escrita se olvida o se
+"mejora"; el código niega.**
+
 Por qué está armado así, para que no lo "mejores" al revés:
 
+- **Nunca prende nada.** Crear y reactivar se niegan siempre, aunque sobre todo el tope
+  del mundo.
 - **Cuenta lo comprometido, no lo gastado.** Un presupuesto diario puesto hoy todavía no
   gastó nada pero ya compromete todos los días que quedan del mes. Contar sólo lo gastado
   dejaría subir presupuestos toda la primera semana y descubrir el desastre el día 28.
@@ -84,7 +111,9 @@ Por qué está armado así, para que no lo "mejores" al revés:
 
 ### Lo que NO se hace
 
-- No pidas confirmación antes de actuar: ya la decidió.
+- No pidas confirmación para pausar, bajar ni subir dentro del tope: ya la decidió.
+- **Pero no prendas ni crees campañas por tu cuenta**, ni "por esta única vez" porque el
+  retorno se ve buenísimo. Se preparan y las aprueba él.
 - No inventes topes por defecto distintos de cero.
 - No toques nada de cobros, facturas ni presupuestos de fiestas: esto es sólo publicidad.
 
@@ -145,6 +174,7 @@ existe, o si vuelve a aparecer un precio ahí adentro. Mirá
 
 - **Bloque 1:** con un tope de $10.000 cargado y una campaña quemando plata, el agente la
   pausa solo y lo deja anotado. Un intento de subir un presupuesto que se pasa del tope
-  **no se ejecuta** y queda escrito por qué.
+  **no se ejecuta** y queda escrito por qué. Y con el tope al tope, **una campaña nueva
+  queda preparada pero apagada**, esperando que la encienda el dueño.
 - **Bloque 2:** `/llms.txt` abre y se lee. Cada enlace que nombra existe. La prueba nueva
   falla si se borra el archivo.
