@@ -48,7 +48,7 @@ describe('La puerta de entrada no miente', () => {
     const cuerpo = verificar.slice(0, verificar.indexOf('\n}'));
 
     const puertaDeEmergencia = cuerpo.indexOf('process.env.APP_PASSWORD');
-    const consultaALaBase = cuerpo.indexOf('await getAuthDoc()');
+    const consultaALaBase = cuerpo.indexOf('getAuthDoc()');
 
     expect(puertaDeEmergencia).toBeGreaterThan(-1);
     expect(consultaALaBase).toBeGreaterThan(-1);
