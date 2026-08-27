@@ -174,6 +174,35 @@ lo que no había que gastar.
 **Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
 comida o permisos? Si la respuesta es no, va a una orden.**
 
+### Claude dirige. Y una orden se escribe MASTICADA, no en general
+
+**Orden del dueño, 27 de agosto de 2026.** Palabras suyas: *"vos sos el jefe"*, y *"debés
+decirle a Gemini qué programar, dejá escrito eso"*. **Vale para todos los chats.**
+
+El reparto no es "Claude mira y Gemini decide". Es al revés: **Claude investiga, prueba,
+decide qué se hace y deja el camino escrito. Gemini ejecuta.**
+
+Qué significa en la práctica, y es lo que cambia todo:
+
+- **La orden lleva los nombres exactos.** Archivo, función, línea aproximada y el nombre del
+  campo. No *"tomá el fondo de la invitación"*, sino *"`fiesta.invitacionDigital?.cabecera?.imagenFondoUrl`,
+  en `src/types/fiesta.ts` línea ~589"*. **La investigación la hace Claude una vez; Gemini no
+  la repite ni la adivina.**
+- **Con el orden de respaldo resuelto.** Si el dato puede estar en tres lugares, se dice cuál
+  mirar primero y por qué. Eso no lo puede decidir quien no vio el código entero.
+- **Diciendo qué NO tocar.** Lo que ya anda se nombra explícitamente para que no lo rehaga.
+- **Y qué tiene que comprobar la prueba**, no sólo que haya una. Ya pasó dos veces en un día
+  que una entrega trajera una prueba que daba falsa confianza: una exigía lo contrario de lo
+  pedido, otra pasaba en verde con el mismo video repetido cuatro veces.
+
+**Por qué esta regla existe:** las entregas que fallaron el 27 de agosto no fallaron por
+falta de capacidad. Fallaron por **arrancar de una versión vieja**, **adivinar dónde estaba
+un dato** y **suponer que un control estaba del otro lado**. Las tres se evitan con una orden
+masticada.
+
+**Y el corolario:** si Claude no puede escribir la orden con ese nivel de detalle, es porque
+todavía no investigó lo suficiente. **Ahí falta trabajo de Claude, no de Gemini.**
+
 ## LA APP ES AUTOMATICA Y CON INTELIGENCIA ARTIFICIAL AL MAXIMO
 
 **Definicion del dueño, 23 de agosto de 2026.** No es un pedido suelto: es lo que
