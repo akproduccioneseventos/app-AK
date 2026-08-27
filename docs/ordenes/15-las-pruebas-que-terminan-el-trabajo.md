@@ -92,6 +92,31 @@ dijera $1 o $999.999.999, la prueba pasa igual. Es el camino que le da de comer 
 Por eso la fotocabina, el entretenimiento y la web pasaron auditorías estando mal: **todo
 confirma que la pantalla ABRE; nada confirma que el resultado esté BIEN.**
 
+## ESTO NO ES PARA PROTEGER EL FUTURO. ES PARA AVERIGUAR QUÉ PASA HOY
+
+**El dueño lo marcó y tiene razón:** *"a pesar de que funcione, lo que hay que solucionar es
+lo ya hecho."*
+
+El filtro obligatorio de cada subida **sólo impide que entre basura nueva**. No arregla nada
+de lo que ya está. Peor: **hoy mismo pasa en verde con la pantalla de cobro sin ninguna
+prueba**, porque un filtro sólo puede exigir lo que alguien escribió, y eso nadie lo escribió.
+
+Entonces el sentido de estas pruebas **no es proteger lo que venga**. Es este:
+
+> **Nadie sabe hoy si la app hace bien las cuentas, si el cobro registra lo que corresponde o
+> si el recuerdo sale como debe — porque nada lo comprueba.** Estas son el instrumento para
+> averiguarlo.
+
+**Consecuencia práctica, y es la parte que importa:** la primera vez que se corran, **lo que
+encuentren van a ser errores de HOY**, de código que ya está fusionado y publicado. Hay que
+esperar que aparezcan, y es el objetivo, no un accidente.
+
+- **Cuando una prueba nueva se ponga en rojo, NO la ajustes para que pase.** Ese rojo es el
+  hallazgo. **Avisá antes de tocar nada**: puede ser plata que se está calculando mal.
+- **Escribí primero la prueba con el resultado que CORRESPONDE**, no con el que la app da hoy.
+  Si escribís lo que da hoy, **congelás el error** y la prueba queda inútil — que es
+  exactamente lo que ya pasó dos veces esta semana.
+
 ## PARTE A — El recorrido de TODA la app, que hoy no mira
 
 **El dueño lo pidió así: *"de toda la app quiero un mecanismo seguro"*, y aclaró algo que es

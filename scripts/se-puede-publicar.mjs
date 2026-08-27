@@ -68,6 +68,20 @@ function pistas(salida) {
 }
 
 const soloRapidos = process.argv.includes('--rapido');
+
+/**
+ * Modo filtro: lo que corre antes de cada subida.
+ *
+ * **Deja afuera la compilación y las pruebas de navegador a propósito.** Juntas tardan más
+ * de quince minutos, y un filtro que tarda quince minutos **no se usa: se saltea**. Un
+ * control que la gente esquiva no protege nada.
+ *
+ * Con acentos, tipos y pruebas —dos minutos y medio— se atrapa la enorme mayoría de lo que
+ * rompe. Lo demás lo agarra la puerta completa antes de fusionar, que es donde de verdad
+ * importa.
+ */
+const modoFiltro = process.argv.includes('--filtro');
+const PASOS_DEL_FILTRO = new Set(['Acentos', 'Revisor de tipos', 'Pruebas']);
 const fallas = [];
 
 console.log('\n¿SE PUEDE PUBLICAR?\n' + '='.repeat(60));
@@ -77,6 +91,7 @@ for (const paso of PASOS) {
     console.log(`  (salteado por --rapido)  ${paso.nombre}`);
     continue;
   }
+  if (modoFiltro && !PASOS_DEL_FILTRO.has(paso.nombre)) continue;
   process.stdout.write(`  ${paso.nombre}... `);
   const arranque = Date.now();
   const { ok, salida } = correr(paso.comando);
@@ -91,6 +106,12 @@ for (const paso of PASOS) {
 console.log('='.repeat(60));
 
 if (fallas.length === 0) {
+  if (modoFiltro) {
+    console.log('\n  El filtro pasó. La subida sigue.\n');
+    console.log('  Ojo: esto NO alcanza para publicar. Antes de fusionar hay que correr');
+    console.log('  la puerta completa: npm run "publicar?"\n');
+    process.exit(0);
+  }
   if (soloRapidos) {
     console.log('\nLos controles rápidos pasaron. FALTA la prueba de la app usada de verdad:');
     console.log('corré esto mismo sin --rapido antes de publicar.\n');
