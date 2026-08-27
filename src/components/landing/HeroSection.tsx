@@ -101,7 +101,16 @@ export function HeroSection({
     <section
       ref={heroRef}
       data-testid="hero-section"
-      id="landing-hero"
+      /**
+       * Ojo: acá NO va `id="landing-hero"`.
+       *
+       * Ese identificador ya lo pone el envoltorio de la portada
+       * (`LandingSpaContainer`), y tenerlo dos veces deja la página con dos
+       * elementos con el mismo nombre. El menú "Inicio" apunta ahí y el
+       * navegador elige uno de los dos a dedo. Además dejaba en rojo la prueba
+       * de la web pública, y nadie lo veía porque el corredor de pruebas daba
+       * por buenas las tandas que se caían.
+       */
       className="relative flex min-h-[85svh] items-end overflow-hidden bg-stone-950 text-white sm:min-h-[92svh]"
     >
       {/* Fondo con foto de alta resolución optimizada siempre visible */}
