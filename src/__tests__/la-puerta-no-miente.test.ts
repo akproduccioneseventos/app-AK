@@ -48,11 +48,33 @@ describe('La puerta de entrada no miente', () => {
     const cuerpo = verificar.slice(0, verificar.indexOf('\n}'));
 
     const puertaDeEmergencia = cuerpo.indexOf('process.env.APP_PASSWORD');
-    const consultaALaBase = cuerpo.indexOf('await getAuthDoc()');
+    const consultaALaBase = cuerpo.indexOf('getAuthDoc()');
 
     expect(puertaDeEmergencia).toBeGreaterThan(-1);
     expect(consultaALaBase).toBeGreaterThan(-1);
     expect(puertaDeEmergencia).toBeLessThan(consultaALaBase);
+  });
+
+  it('la consulta a la base corre contra un reloj, no se cuelga', () => {
+    // Probado con un navegador de verdad: sin tope, al tocar "Ingresar" la pantalla
+    // se quedaba VEINTICINCO segundos en "Ingresando..." y recien ahi contestaba
+    // "Error al iniciar sesion. Intenta de nuevo." Nadie espera veinticinco segundos.
+    for (const archivo of ['src/app/actions/auth.ts', 'src/app/actions/simple-auth.ts']) {
+      const codigo = sinComentarios(leer(archivo));
+      expect(codigo).toMatch(/conTopeDeEspera/);
+      expect(codigo).toMatch(/TOPE_BASE_MS = 8000/);
+    }
+  });
+
+  it('cuando la base no contesta a tiempo, lo dice con esas palabras', () => {
+    for (const archivo of ['src/app/actions/auth.ts', 'src/app/actions/simple-auth.ts']) {
+      const codigo = sinComentarios(leer(archivo));
+      expect(codigo).toMatch(/No se pudo conectar con la base de datos/);
+      // Se reconoce por una propiedad y por lo que avisa Firestore, no por `instanceof`:
+      // el empaquetador puede dejar dos copias del modulo y romper la comparacion de tipo.
+      expect(codigo).toMatch(/laBaseNoContesto\(err\)/);
+      expect(codigo).toMatch(/UNAVAILABLE\|DEADLINE_EXCEEDED/);
+    }
   });
 
   it('si no hay ninguna cuenta creada, lo dice en vez de culpar a la clave', () => {

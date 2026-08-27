@@ -22,6 +22,50 @@ const SCRYPT_SALT_LEN = 16;
 const SCRYPT_KEY_LEN = 64;
 const RESET_CODE_TTL_MS = 15 * 60 * 1000;
 const LOCKOUT_MS = 15 * 60 * 1000;
+
+/**
+ * Tope de espera para la base, por el mismo motivo que en la entrada por correo:
+ * una consulta colgada dejaba el boton en "Ingresando..." veinticinco segundos y
+ * terminaba en un mensaje vago. Si a los ocho segundos no contesto, no va a contestar.
+ */
+const TOPE_BASE_MS = 8000;
+
+class BaseSinRespuesta extends Error {
+  // Se marca con una propiedad ademas del tipo. `instanceof` puede fallar cuando el
+  // empaquetador deja dos copias del modulo; una propiedad sobrevive siempre.
+  readonly esBaseCaida = true;
+}
+
+/**
+ * Reconoce que la base fue el problema, venga el fallo de nuestro reloj o de la
+ * propia libreria de Firestore (que avisa con UNAVAILABLE, DEADLINE_EXCEEDED o un
+ * fallo de red). En todos esos casos la clave del usuario nunca llego a compararse,
+ * asi que decirle "contrasena incorrecta" seria mentirle.
+ */
+function laBaseNoContesto(err: unknown): boolean {
+  if (err && typeof err === 'object' && 'esBaseCaida' in err) return true;
+  const texto = String((err as { code?: unknown; message?: unknown })?.code ?? '')
+    + ' ' + String((err as { message?: unknown })?.message ?? '');
+  return /UNAVAILABLE|DEADLINE_EXCEEDED|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|EAI_AGAIN|network error|Total timeout|Getting metadata from plugin failed/i
+    .test(texto);
+}
+
+async function conTopeDeEspera<T>(tarea: Promise<T>): Promise<T> {
+  let reloj: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      tarea,
+      new Promise<never>((_, rechazar) => {
+        reloj = setTimeout(() => rechazar(new BaseSinRespuesta()), TOPE_BASE_MS);
+      }),
+    ]);
+  } finally {
+    if (reloj) clearTimeout(reloj);
+  }
+}
+
+const AVISO_BASE_CAIDA =
+  'No se pudo conectar con la base de datos. No es tu clave: espera un momento y volve a intentar.';
 const MAX_FAILED_LOGIN_ATTEMPTS = 5;
 const MAX_FAILED_RECOVERY_ATTEMPTS = 5;
 const RESET_REQUEST_COOLDOWN_MS = 60 * 1000;
@@ -326,7 +370,7 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
       };
     }
 
-    const config = await getAuthDoc();
+    const config = await conTopeDeEspera(getAuthDoc());
 
     const lockMessage = getActiveLockMessage(config?.loginLockedUntil, 'Hubo muchos intentos incorrectos. Espera');
     if (lockMessage) {
@@ -347,6 +391,10 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
     return { success: false, error: await registerFailedLogin(config) };
   } catch (err) {
     console.error('[simple-auth] verifyPassword error:', err);
+    // Un fallo de la base no es una clave equivocada, y no se cuenta como intento.
+    if (laBaseNoContesto(err)) {
+      return { success: false, error: AVISO_BASE_CAIDA };
+    }
     return { success: false, error: 'No se pudo verificar el acceso. Intenta nuevamente.' };
   }
 }
