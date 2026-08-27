@@ -5205,3 +5205,37 @@ cierra, la forma correcta es que la excepcion **compruebe el destino** en vez de
 seguir el import, encontrar la funcion de destino y confirmar que comprueba. Lo que no hay
 que hacer es sacar la excepcion sin mas, porque volveria a reportar decenas de falsas
 alarmas y el control se dejaria de mirar, que es como muere un control.
+
+## Revision a fondo de la fotocabina (27 de agosto de 2026)
+
+El dueno la va a usar en una fiesta y pidio revisarla, probarla como un humano y compararla
+con Sparkbooth. Se probo en un navegador de verdad, con camara simulada.
+
+**Lo que anda bien y no se toca:** el arranque como kiosco —elegir fiesta, elegir rol, PIN de
+cuatro digitos y queda bloqueada—, la tanda de tres fotos con guia en pantalla, el armado de
+la tira en **10x15 vertical a 1200x1800**, que es la medida exacta que imprime el dueno, el
+pie con el nombre del homenajeado en manuscrita y el logo, el aviso al operador si falla la
+camara, y el guardado sin internet.
+
+**Tres hallazgos, en orden de importancia:**
+
+1. **El recuerdo sale con el fondo pelado.** El dueno entrega tiras con fondo decorado —el
+   lila con mariposas de la fiesta de Areli—. `componerTiraDeFotos` **ya sabe recibir**
+   `imagenFondoUrl` y `colorFondo`, la fotocabina **nunca se los pasa** (cero menciones), y
+   `PublicEntertainmentEvent` **ni siquiera los tiene**. Escrito, compilando, sin producir
+   nada. **El fondo ya existe en la app: es el de la invitacion digital de esa misma
+   fiesta**, que el cliente ya eligio y aprobo.
+2. **Una pantalla interna promete cuatro cosas que no existen:** GIF, boomerang, filtros y
+   captura de correos. Se busco en el codigo de la fotocabina: cero menciones de las cuatro.
+   Esa pantalla la lee el dueno para saber que vende.
+3. **No se puede configurar nada por fiesta:** cinco marcos clavados, tres fotos, diez
+   segundos y los textos de guia, iguales para todas.
+
+**Correccion de un hallazgo propio:** primero se reporto que la tira no se podia personalizar
+con el nombre, la fecha ni los colores. **Era falso.** Se pasan todos, automaticamente, desde
+los datos de la fiesta. Lo unico que no llega es el fondo decorado.
+
+**Donde se gana contra Sparkbooth, y quedo escrito en la orden 13:** no en copiarle GIF ni
+filtros, sino en que **Sparkbooth necesita que alguien arme una plantilla por evento** y aca
+la fiesta ya se diseno una vez —en la invitacion— y el recuerdo la hereda. Cero configuracion
+por evento es la ventaja que el no puede igualar.
