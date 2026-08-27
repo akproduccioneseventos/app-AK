@@ -4868,3 +4868,43 @@ direccion canonica de cada pagina—.
 Ahora quien entre con "www" llega igual, pero pasando por la direccion buena. El desvio es
 **permanente a proposito**: asi Google traslada a la direccion sin www lo que ya tenia
 acumulado en la otra, en vez de empezar de cero.
+
+## La entrada se colgaba y despues mentia (27 de agosto de 2026)
+
+Continuacion del anterior, y esta vez **medido con un navegador de verdad contra la
+version compilada**, no leyendo codigo.
+
+Lo que se veia al tocar "Ingresar": el boton cambiaba a "Ingresando..." y se quedaba asi
+**veinticinco segundos**. Recien ahi contestaba "Error al iniciar sesion. Intenta de
+nuevo." Nadie espera veinticinco segundos: se toca de nuevo, se cierra, se concluye que el
+boton esta roto. Y el mensaje final no dice nada.
+
+Habia **dos esperas encadenadas**, ninguna con tope propio:
+
+1. Antes de buscar la cuenta, se intentaba crear un primer administrador. Esa llamada sola
+   se colgaba varios segundos cuando la base no contestaba.
+2. Recien despues empezaba la consulta de verdad, que se colgaba igual.
+
+Ahora las dos corren contra el reloj: tres segundos la primera (es un extra, no el camino
+de nadie que ya tiene cuenta) y ocho la segunda. Si la base no contesta, se dice: **"No se
+pudo conectar con la base de datos. No es tu clave."**
+
+Medido despues del arreglo: **11,4 segundos entrando con correo y 8,2 con contrasena
+sola**, las dos con el mensaje que corresponde.
+
+Un detalle que cambio como se reconoce el fallo: antes se miraba solo si el error era de
+nuestra propia clase. Se escapaban los avisos que manda la propia base cuando no esta
+disponible, y esos caian en el mensaje vago. Ahora se marca el error con una propiedad
+—que sobrevive aunque el empaquetador deje dos copias del modulo— y ademas se reconocen
+los codigos de Firestore.
+
+### La trampa que costo tres mediciones
+
+**Habia un servidor de prueba viejo ocupando el puerto.** Las dos primeras veces que se
+midio el arreglo dio que no funcionaba, y se estuvo por reportar que no se podia resolver.
+El codigo estaba bien: se estaba midiendo la version anterior una y otra vez. El aviso
+`EADDRINUSE` estaba en el registro del servidor desde el principio.
+
+Ya estaba escrito en `CLAUDE.md` y se cayo igual. La costumbre que queda: **antes de
+creerle a una medicion, confirmar que el servidor que contesta es el que se acaba de
+levantar** —o levantarlo en un puerto nuevo, que es mas rapido que pelear con el viejo.
