@@ -83,7 +83,7 @@ describe('Mejoras comerciales y de ventas antes de publicar', () => {
     expect(content).toContain('Validez 30 días');
     expect(content).toContain('Modificar mi presupuesto');
     expect(content).toContain('Plan de pagos estimado');
-    expect(content).toContain('Seña para congelar fecha:');
+    expect(content).toContain('Seña para reservar la fecha:');
     expect(content).toContain('budgetSettings.bookingDepositAmount');
     expect(content).toContain('paymentPlan.installmentAmount');
   });

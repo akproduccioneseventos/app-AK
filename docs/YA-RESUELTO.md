@@ -5046,3 +5046,51 @@ instruccion escrita se olvida o se "mejora"; el codigo niega. Es la misma razon 
 el tope no aconseja. `elAgentePuedeHacerloSolo` niega **antes de mirar el tope**: no es una
 cuestion de cuanta plata queda, es del dueno. Congelado en
 `src/__tests__/el-agente-no-se-pasa-del-tope.test.ts`, ahora con 11 controles.
+
+## Fuera las promesas de la web (27 de agosto de 2026)
+
+Palabras del dueno: *"en la web hay promesas como 24 horas, congelar precio; esas cosas no
+las quiero. Promesas no, y menos congelar precio: yo trabajo con ajuste."*
+
+Se sacaron cuatro:
+
+- *"te contactamos en menos de 24 horas"* (formulario de contacto)
+- *"Respuesta en 24 hs"* (dos carteles, en la portada y en el llamado a la accion)
+- *"congela precios en cuotas fijas"*
+- *"hablá por WhatsApp para congelar la tarifa"* (simulador)
+
+En su lugar se dice **por donde se contesta** —"te contestamos por WhatsApp"—, que es
+cierto y no compromete un plazo. Y *"Seña para congelar fecha"* paso a *"Seña para reservar
+la fecha"*: reservar una fecha con seña es real y no es un precio congelado.
+
+**Por que importa:** el ajuste anual del 15% va siempre, y es decision tomada del dueno.
+**Congelar un precio lo contradice de frente.** Una promesa que el negocio no sostiene no
+es una mejora de venta: es una discusion futura con un cliente.
+
+## El reloj del simulador se queda, y ahora dice para que sirve (27 de agosto de 2026)
+
+Al sacar las promesas se estuvo por sacar tambien el reloj. **El dueno lo aclaro y no va:**
+*"el reloj es lo que ayuda a que accedan a promocion de descuento 10% y regalos"*.
+
+O sea que el reloj **nunca estuvo para congelar la tarifa** —asi se habia entendido y asi
+estaba escrito en `CLAUDE.md`—. Esta para dar acceso a la promocion mientras corre. Eso es
+una **oferta con fecha**, que es una cosa completamente distinta de una promesa que el
+negocio no puede cumplir.
+
+Se corrigio el texto: decia *"Tu presupuesto queda reservado"* —que suena a precio
+congelado— y ahora habla de la promocion, el descuento y los regalos.
+
+## Las portadas estan preparadas para video y no hay ninguno (27 de agosto de 2026)
+
+El dueno: *"no veo videos en portadas... en vez de foto, video liviano que de movimiento a
+la app."*
+
+`HeroSection` **ya sabe mostrar video**, y bien: arranca solo sin sonido y en bucle, se
+pausa cuando sale de pantalla, no lo baja si el visitante tiene ahorro de datos, y deja la
+foto de respaldo. **Y nadie le pasa nunca un video:** ni la portada principal ni las
+paginas por tipo de evento, y en el proyecto no hay un solo archivo de video.
+
+Es el caso exacto de `docs/COMO-AUDITAR.md`: escrito, compilando, con pruebas en verde, y
+sin producir nada. Quedo pedido en la orden 12, bloque 3, **con un lugar para cargarlo
+desde ajustes**: el dueno no puede depender de que alguien toque el codigo para cambiar el
+video de su portada.

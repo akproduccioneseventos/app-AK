@@ -170,6 +170,52 @@ existe, o si vuelve a aparecer un precio ahí adentro. Mirá
 
 ---
 
+---
+
+## BLOQUE 3 — Las portadas con video, que hoy están vacías
+
+**Pedido del dueño, 27 de agosto de 2026:** *"no veo videos en portadas para el movimiento
+de la app; en vez de foto, video liviano que dé movimiento a la app."*
+
+### El problema exacto
+
+`src/components/landing/HeroSection.tsx` **ya sabe mostrar video** y lo hace bien: acepta
+`backgroundVideoUrl`, arranca solo, sin sonido y en bucle; se pausa cuando la sección sale
+de pantalla para no gastar batería; si el visitante tiene el ahorro de datos prendido **ni
+lo baja**; y siempre queda la foto de fondo como respaldo.
+
+**Y nadie le pasa nunca un video.** `src/app/page.tsx` (línea ~497) sólo manda
+`backgroundImageUrl`. `EventLandingPage.tsx` (línea ~77), igual. En todo el proyecto **no
+hay un solo archivo de video**.
+
+Es el caso exacto que describe `docs/COMO-AUDITAR.md`: está escrito, compila, pasa las
+pruebas, **y no produce nada**.
+
+### Qué hay que hacer
+
+1. **Un lugar para cargarlo, en la pantalla de ajustes de la web.** El dueño no es
+   programador: **no puede depender de que alguien toque el código para cambiar el video de
+   la portada.** Un campo donde sube el archivo o pega el enlace, con vista previa.
+   Guardalo junto al resto de la configuración de la portada, con lo que ya existe.
+2. **Pasarlo a las portadas.** La de la portada principal y la de cada tipo de evento
+   (quince, casamiento, etc.), que pueden tener el suyo o heredar el general.
+3. **Cuidar que siga siendo liviano.** Es lo que pidió: *video liviano*. Poné un límite de
+   tamaño al subirlo y avisá en criollo si se pasa (*"ese video pesa demasiado y la página
+   va a tardar en abrir; probá con uno más corto"*). Sin sonido, en bucle, de pocos
+   segundos.
+4. **Si no hay video cargado, queda la foto**, exactamente como está hoy. Nada se rompe
+   mientras no cargue ninguno.
+
+### Lo que NO se hace
+
+- **No bajes videos de bancos de imágenes ni pongas uno de relleno.** El material bueno son
+  las fiestas reales de AK. Si no hay ninguno cargado, la portada sigue con la foto y
+  listo.
+- No agregues ninguna biblioteca de reproducción de video: el `<video>` del navegador ya
+  hace todo lo que hace falta y no pesa nada.
+
+---
+
 ## Cómo se comprueba que quedó bien
 
 - **Bloque 1:** con un tope de $10.000 cargado y una campaña quemando plata, el agente la
@@ -178,3 +224,6 @@ existe, o si vuelve a aparecer un precio ahí adentro. Mirá
   queda preparada pero apagada**, esperando que la encienda el dueño.
 - **Bloque 2:** `/llms.txt` abre y se lee. Cada enlace que nombra existe. La prueba nueva
   falla si se borra el archivo.
+- **Bloque 3:** con un video cargado desde ajustes, la portada lo muestra en movimiento;
+  sin video cargado, muestra la foto como hoy. En un celular con ahorro de datos, no lo
+  baja.

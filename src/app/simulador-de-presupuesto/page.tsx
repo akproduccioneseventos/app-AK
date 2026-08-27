@@ -1574,7 +1574,7 @@ function SimuladorContent() {
                                              ✅ Presupuesto registrado con éxito
                                          </h4>
                                          <p className="text-xs text-slate-300 font-semibold mt-0.5">
-                                             Guardá tu copia oficial en PDF o hablá directo con AK por WhatsApp para congelar la tarifa.
+                                             Guardá tu copia oficial en PDF o hablá directo con AK por WhatsApp.
                                          </p>
                                      </div>
                                  </div>
@@ -1599,14 +1599,20 @@ function SimuladorContent() {
                                  </div>
                              </div>
 
-                             {/* El reloj es una decision de marketing del dueño: esta ahi para que
-                                 la gente se comunique. Se saco una vez por pedido de una auditoria
-                                 y el dueño lo mando poner de nuevo. NO SE SACA (ver CLAUDE.md). */}
+                             {/* **El reloj VA, y ahora dice lo que de verdad hace.**
+                                 Es una decision de marketing del dueño y se queda. Lo que cambio
+                                 el 27 de agosto de 2026 es el texto: antes decia "tu presupuesto
+                                 queda reservado", que suena a **precio congelado**, y el dueño
+                                 trabaja con ajuste anual. Sus palabras: "promesas no, y menos
+                                 congelar precio". Pero el reloj no estaba ahi para eso: esta para
+                                 que la gente acceda a la promocion —descuento y regalos—. Eso es
+                                 una oferta con fecha, no una promesa que la app no puede cumplir.
+                                 Asi que se queda el reloj y se dice la verdad de para que sirve. */}
                              <div className="mx-auto w-full max-w-2xl space-y-3 rounded-2xl border border-red-200 bg-gradient-to-br from-red-50/50 via-white to-amber-50/50 p-5 text-left shadow-sm">
                                  <div className="flex items-center justify-between border-b border-red-100 pb-2.5">
                                      <h3 className="text-xs font-black uppercase text-red-700 flex items-center gap-2">
                                          <Timer className="w-4 h-4 text-red-600 animate-spin" />
-                                         Tu presupuesto queda reservado
+                                         Tu promoción, mientras corre el reloj
                                      </h3>
                                      <span className="rounded-xl bg-red-700 px-3 py-1 font-mono text-xs font-black text-white shadow-sm">
                                          {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : '15:00'}
@@ -1614,7 +1620,8 @@ function SimuladorContent() {
                                  </div>
                                  <div className="text-xs leading-relaxed text-slate-600">
                                      <p>
-                                         Escribinos ahora y seguimos con tu presupuesto en la mano.
+                                         Escribinos ahora y accedés al descuento y los regalos de la promoción
+                                         vigente, con tu presupuesto ya en la mano.
                                      </p>
                                  </div>
                              </div>
@@ -1875,7 +1882,7 @@ function SimuladorContent() {
                                      </div>
                                      <div className="text-xs text-slate-700 space-y-1">
                                          <div className="flex justify-between font-semibold">
-                                             <span>1. Seña para congelar fecha:</span>
+                                             <span>1. Seña para reservar la fecha:</span>
                                              <span className="font-bold text-emerald-800">{bookingDepositLabel}</span>
                                          </div>
                                          {paymentPlan.installments > 0 ? (
