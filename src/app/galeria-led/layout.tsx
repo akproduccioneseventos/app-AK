@@ -1,33 +1,27 @@
-﻿import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
-import { AkRedPremiumSurface } from '@/components/brand/ak-red-premium-surface';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://akproducciones.uy'),
-  title: 'Galería y Pantallas LED en Salto | AK Producciones Eventos',
+  title: 'Galería de Pantallas LED y Efectos | AK Producciones Eventos',
   description:
-    'Mirá las pantallas LED, iluminación interactiva y montajes visuales de fiestas producidas por AK Producciones en Salto, Uruguay.',
+    'Mirá la tecnología visual, robóticas, pistas iluminadas y pantallas LED de AK Producciones para fiestas y eventos en Salto.',
   alternates: {
-    canonical: '/galeria-led',
+    canonical: 'https://akproducciones.uy/galeria-led',
   },
   openGraph: {
-    title: 'Galería y Pantallas LED en Salto | AK Producciones Eventos',
+    title: 'Galería de Pantallas LED y Efectos | AK Producciones Eventos',
     description:
-      'Mirá las pantallas LED, iluminación interactiva y montajes visuales de fiestas producidas por AK Producciones en Salto.',
-    type: 'website',
+      'Mirá la tecnología visual, robóticas, pistas iluminadas y pantallas LED de AK Producciones para fiestas y eventos en Salto.',
     url: 'https://akproducciones.uy/galeria-led',
     siteName: 'AK Producciones Eventos',
     locale: 'es_UY',
-    images: [{ url: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg', width: 1200, height: 630, alt: 'Pantalla LED en fiesta de AK Producciones' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Galería y Pantallas LED en Salto | AK Producciones Eventos',
-    description: 'Pantallas LED e iluminación interactiva para fiestas en Salto.',
-    images: ['/media/catalogo-servicios/discoteca-salon-ak-02.jpeg'],
+    images: [{ url: '/media/catalogo-servicios/tecnologia_fiesta.png', width: 1200, height: 630, alt: 'Pantallas LED y Efectos' }],
   },
 };
 
-export default function GaleriaLedLayout({ children }: { children: ReactNode }) {
-  return <AkRedPremiumSurface mode="live">{children}</AkRedPremiumSurface>;
+export default function GaleriaLedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
 }
