@@ -5115,3 +5115,28 @@ AK que no ocurrio.
 
 `HeroSection` ya sabe mostrarlo y nadie le pasaba ninguno. No hay que programar nada nuevo:
 hay que elegir los videos y pasarselos.
+
+## La rama `feat/mejoras-google-seo-ventas` NO se fusiona (27 de agosto de 2026)
+
+**Es la segunda vez que aparece.** La primera se cerro como #1139 porque su parte util ya
+estaba en la version principal. Volvio con un "merge: resolver conflictos con origin/main"
+y **al resolverlos se quedo con su lado, que es el viejo**.
+
+Si entrara, en tres pantallas —catalogo, galeria LED y simulador— pasaria esto:
+
+- **Se cae el diseno**: saca `AkRedPremiumSurface`, el envoltorio visual de las tres.
+- **Les saca "en Salto" al titulo**: *"Simulador de Presupuesto en Salto"* pasaria a
+  *"Simulador de Presupuesto para Fiestas y Eventos"*. **Es exactamente la palabra por la
+  que lo busca la gente de Salto**, y lo contrario de todo lo que se hizo para que Google
+  lo encuentre.
+- Saca `metadataBase` y la ficha de Twitter (lo que se ve al compartir en redes).
+- Deshace el boton corregido en #1140, que decia una cosa y abria otra.
+
+**No trae nada nuevo:** los datos para Google de esas tres pantallas ya estan en la version
+principal, mejor escritos.
+
+**La regla que esto confirma, y ya estaba en `CLAUDE.md`:** una propuesta hecha sobre una
+version principal vieja **borra trabajo mas nuevo sin que se note**. Se compara siempre
+contra la version principal de ahora, no contra la que tenia cuando se creo. Y un "resolver
+conflictos" hecho por otra IA hay que mirarlo linea por linea: puede quedarse con el lado
+equivocado en silencio.
