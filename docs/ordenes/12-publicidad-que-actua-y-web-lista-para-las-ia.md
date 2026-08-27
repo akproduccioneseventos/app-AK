@@ -241,6 +241,29 @@ contrates nada.**
 No armes esto como escalón previo al 3: el 3 va igual, porque es el que funciona sin
 depender de nada ni de nadie.
 
+### Un video de banco de imágenes de quince años: SÍ, y así
+
+El dueño lo pidió expresamente el 27 de agosto de 2026: *"algún video de stock de XV
+años."* **Esto reemplaza lo que decía una versión anterior de esta orden**, que lo
+prohibía.
+
+Cómo hacerlo bien:
+
+- **Que sea gratis y de uso comercial permitido.** Pexels y Pixabay dan videos libres para
+  uso comercial sin pedir atribución. **No uses nada que exija licencia paga ni atribución
+  en pantalla**: sería un gasto o un cartel raro en la portada.
+- **Guardalo en el proyecto**, no lo enlaces desde afuera: un enlace a otro sitio se puede
+  caer o cambiar, y ahí la portada queda rota.
+- **Liviano de verdad.** Pocos segundos, sin sonido, en bucle. Si pesa mucho la página
+  tarda en abrir, y eso cuesta ventas.
+- **Que sea ambiente, no una escena protagonizada.** Luces, brindis, confeti, detalles de
+  una mesa, gente bailando de lejos. **Nunca una quinceañera reconocible en primer plano**:
+  eso se lee como una fiesta de AK que no ocurrió, y quien llegue desde ahí espera ver eso
+  el día de su evento.
+- **Y no reemplaza al escalón 3.** El pase con fotos reales de AK sigue siendo el que
+  manda cuando hay álbumes cargados: es material propio y vende mejor. El video de banco es
+  el respaldo lindo para cuando todavía no hay fotos aprobadas.
+
 ### Además
 
 1. **Un lugar para cargarlo, en la pantalla de ajustes de la web.** El dueño no es
@@ -258,9 +281,7 @@ depender de nada ni de nadie.
 
 ### Lo que NO se hace
 
-- **No bajes videos de bancos de imágenes ni pongas uno de relleno.** El material bueno son
-  las fiestas reales de AK. Si no hay ninguno cargado, la portada sigue con la foto y
-  listo.
+- No agregues ninguna biblioteca de reproducción de video (ya está dicho abajo).
 - No agregues ninguna biblioteca de reproducción de video: el `<video>` del navegador ya
   hace todo lo que hace falta y no pesa nada.
 
