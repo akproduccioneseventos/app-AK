@@ -5026,3 +5026,117 @@ nada que se pague por mes. Si una auditoria futura propone mover el dominio a Cl
 es falso positivo. Lo que si va —`llms.txt`, datos del negocio marcados, preguntas
 frecuentes marcadas, contenido legible sin ejecutar programas— quedo escrito en
 `docs/ordenes/12-publicidad-que-actua-y-web-lista-para-las-ia.md`.
+
+## El agente no prende campanas: eso lo activa el dueno (27 de agosto de 2026)
+
+**Corrige la decision de unas horas antes.** Sus palabras: *"el tema de poner campanas las
+activo yo, no se pongan solas."*
+
+El agente puede, sin preguntar: **pausar** lo que quema plata, **bajar** un presupuesto, y
+**subir** el presupuesto de algo que ya esta al aire, dentro del tope. No puede, nunca:
+**crear** una campana ni **reactivar** una pausada. Esas dos las prepara y las deja listas
+para aprobar de un toque.
+
+La linea es la misma que rige en toda la app —**automatico para mirar, detectar, preparar y
+avisar; mano humana para lo que sale para afuera**— y aca cae justo: apagar y moderar es
+cuidar; **encender es salir a la calle a gastar**.
+
+**Esta escrito en el codigo, no solo en la orden de trabajo**, y es a proposito: una
+instruccion escrita se olvida o se "mejora"; el codigo niega. Es la misma razon por la que
+el tope no aconseja. `elAgentePuedeHacerloSolo` niega **antes de mirar el tope**: no es una
+cuestion de cuanta plata queda, es del dueno. Congelado en
+`src/__tests__/el-agente-no-se-pasa-del-tope.test.ts`, ahora con 11 controles.
+
+## Fuera las promesas de la web (27 de agosto de 2026)
+
+Palabras del dueno: *"en la web hay promesas como 24 horas, congelar precio; esas cosas no
+las quiero. Promesas no, y menos congelar precio: yo trabajo con ajuste."*
+
+Se sacaron cuatro:
+
+- *"te contactamos en menos de 24 horas"* (formulario de contacto)
+- *"Respuesta en 24 hs"* (dos carteles, en la portada y en el llamado a la accion)
+- *"congela precios en cuotas fijas"*
+- *"hablá por WhatsApp para congelar la tarifa"* (simulador)
+
+En su lugar se dice **por donde se contesta** —"te contestamos por WhatsApp"—, que es
+cierto y no compromete un plazo. Y *"Seña para congelar fecha"* paso a *"Seña para reservar
+la fecha"*: reservar una fecha con seña es real y no es un precio congelado.
+
+**Por que importa:** el ajuste anual del 15% va siempre, y es decision tomada del dueno.
+**Congelar un precio lo contradice de frente.** Una promesa que el negocio no sostiene no
+es una mejora de venta: es una discusion futura con un cliente.
+
+## El reloj del simulador se queda, y ahora dice para que sirve (27 de agosto de 2026)
+
+Al sacar las promesas se estuvo por sacar tambien el reloj. **El dueno lo aclaro y no va:**
+*"el reloj es lo que ayuda a que accedan a promocion de descuento 10% y regalos"*.
+
+O sea que el reloj **nunca estuvo para congelar la tarifa** —asi se habia entendido y asi
+estaba escrito en `CLAUDE.md`—. Esta para dar acceso a la promocion mientras corre. Eso es
+una **oferta con fecha**, que es una cosa completamente distinta de una promesa que el
+negocio no puede cumplir.
+
+Se corrigio el texto: decia *"Tu presupuesto queda reservado"* —que suena a precio
+congelado— y ahora habla de la promocion, el descuento y los regalos.
+
+## Las portadas estan preparadas para video y no hay ninguno (27 de agosto de 2026)
+
+El dueno: *"no veo videos en portadas... en vez de foto, video liviano que de movimiento a
+la app."*
+
+`HeroSection` **ya sabe mostrar video**, y bien: arranca solo sin sonido y en bucle, se
+pausa cuando sale de pantalla, no lo baja si el visitante tiene ahorro de datos, y deja la
+foto de respaldo. **Y nadie le pasa nunca un video:** ni la portada principal ni las
+paginas por tipo de evento, y en el proyecto no hay un solo archivo de video.
+
+Es el caso exacto de `docs/COMO-AUDITAR.md`: escrito, compilando, con pruebas en verde, y
+sin producir nada. Quedo pedido en la orden 12, bloque 3, **con un lugar para cargarlo
+desde ajustes**: el dueno no puede depender de que alguien toque el codigo para cambiar el
+video de su portada.
+
+## El video de las portadas: de banco, elegido a mano, sin botones (27 de agosto de 2026)
+
+**Reemplaza lo que se habia planeado unas horas antes.** El dueno lo simplifico a proposito:
+
+> *"Lo de los videos, sacalo de crear solo con fotos. Y lo del video de la web en general,
+> usa de stock relacionadas, no cualquier video. Y eso hacelo vos o Gemini: ningun boton
+> programado, nomas."*
+
+Quedaron **afuera**: armar el video con las fotos de los albumes, la pantalla de ajustes
+para subirlo, y generar video con IA. **El no quiere apretar nada: quiere que el video ya
+este puesto.**
+
+Queda: elegir un video de banco **por pagina y relacionado con esa pagina** —quince en la
+de quince, casamiento en la de casamiento—, gratis y de uso comercial sin atribucion,
+guardado en el proyecto, liviano, sin sonido y en bucle, y **de ambiente, nunca con una
+quinceanera o unos novios reconocibles en primer plano**, que se leeria como una fiesta de
+AK que no ocurrio.
+
+`HeroSection` ya sabe mostrarlo y nadie le pasaba ninguno. No hay que programar nada nuevo:
+hay que elegir los videos y pasarselos.
+
+## La rama `feat/mejoras-google-seo-ventas` NO se fusiona (27 de agosto de 2026)
+
+**Es la segunda vez que aparece.** La primera se cerro como #1139 porque su parte util ya
+estaba en la version principal. Volvio con un "merge: resolver conflictos con origin/main"
+y **al resolverlos se quedo con su lado, que es el viejo**.
+
+Si entrara, en tres pantallas —catalogo, galeria LED y simulador— pasaria esto:
+
+- **Se cae el diseno**: saca `AkRedPremiumSurface`, el envoltorio visual de las tres.
+- **Les saca "en Salto" al titulo**: *"Simulador de Presupuesto en Salto"* pasaria a
+  *"Simulador de Presupuesto para Fiestas y Eventos"*. **Es exactamente la palabra por la
+  que lo busca la gente de Salto**, y lo contrario de todo lo que se hizo para que Google
+  lo encuentre.
+- Saca `metadataBase` y la ficha de Twitter (lo que se ve al compartir en redes).
+- Deshace el boton corregido en #1140, que decia una cosa y abria otra.
+
+**No trae nada nuevo:** los datos para Google de esas tres pantallas ya estan en la version
+principal, mejor escritos.
+
+**La regla que esto confirma, y ya estaba en `CLAUDE.md`:** una propuesta hecha sobre una
+version principal vieja **borra trabajo mas nuevo sin que se note**. Se compara siempre
+contra la version principal de ahora, no contra la que tenia cuando se creo. Y un "resolver
+conflictos" hecho por otra IA hay que mirarlo linea por linea: puede quedarse con el lado
+equivocado en silencio.

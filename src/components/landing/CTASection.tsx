@@ -125,7 +125,7 @@ export function CTASection({
 
         {/* Pain of Payment Reduction Banner */}
         <motion.div {...reveal} className="max-w-xl mx-auto text-xs font-bold text-zinc-400 uppercase tracking-widest leading-relaxed">
-          🔒 Reserva flexible: Seña tu fecha y congelá precios en cuotas fijas a tu medida.
+          🔒 Reserva flexible: Señá tu fecha y armamos un plan de cuotas a tu medida.
         </motion.div>
 
         {/* CTAs con micro-interacciones */}

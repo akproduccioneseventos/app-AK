@@ -18,9 +18,27 @@ propuesta**.
 
 ## Contexto: dos decisiones del dueño, del 27 de agosto de 2026
 
-1. **El agente de publicidad maneja Meta Ads solo.** Crea, ajusta y pausa campañas sin
-   preguntar. Se le planteó el riesgo de dejarlo gastar sin supervisión y eligió igual.
-   **Es su plata y es su decisión: no la discutas ni la "mejores" pidiendo confirmación.**
+1. **El agente de publicidad administra Meta Ads solo, PERO NO PRENDE NADA.**
+
+   El dueño corrigió esto unas horas después de pedirlo. Sus palabras:
+   *"el tema de poner campañas las activo yo, no se pongan solas."* **Manda esta versión.**
+
+   El agente puede, sin preguntar:
+   - **pausar** lo que está quemando plata,
+   - **bajar** un presupuesto,
+   - **subir** el presupuesto de algo que **ya está al aire**, dentro del tope.
+
+   El agente **no puede, nunca**:
+   - **crear** una campaña,
+   - **reactivar** una campaña pausada.
+
+   Esas dos las **prepara** y las deja listas para que él las apruebe de un toque.
+
+   La línea es la misma que rige en toda la app: **automático para mirar, detectar,
+   preparar y avisar; mano humana para lo que sale para afuera.** Apagar y moderar es
+   cuidar; **encender es salir a la calle a gastar**, y eso lo decide él.
+
+   Del resto —pausar, bajar, subir dentro del tope— **no pidas confirmación**: ya la dio.
 2. **La web se queda en Firebase.** Se evaluó pasarla por Cloudflare y dijo que no: lo que
    quiere es **lo que mide** la herramienta "is your site agent ready", no la herramienta.
    **No toques la configuración del dominio. No agregues ningún servicio que se pague por
@@ -45,7 +63,8 @@ leer y ejecutar a mano.
 
 - Pausar y reactivar una campaña o un conjunto de anuncios.
 - Cambiar el presupuesto diario.
-- Crear una campaña nueva a partir de lo que ya genera `creador-anuncios-ia.ts`.
+- **Preparar** una campaña nueva a partir de lo que ya genera `creador-anuncios-ia.ts`,
+  dejándola lista para que el dueño la encienda de un toque. **El agente no la lanza.**
 
 ### EL FRENO DE MANO — esto ya está hecho y es OBLIGATORIO usarlo
 
@@ -57,8 +76,16 @@ leer y ejecutar a mano.
 `puedeComprometer(...)`.** Si devuelve `permitido: false`, la operación **no se ejecuta**:
 se anota el motivo en el registro del agente y se sigue con la siguiente.
 
+**Pasale siempre el `tipo`** (`'pausar' | 'bajar-presupuesto' | 'subir-presupuesto' |
+'encender' | 'crear'`). Con `'encender'` y `'crear'` el módulo **niega antes de mirar el
+tope**: no es una cuestión de cuánta plata queda, es del dueño. Esa prohibición está en el
+código y no sólo acá escrita, a propósito: **una instrucción escrita se olvida o se
+"mejora"; el código niega.**
+
 Por qué está armado así, para que no lo "mejores" al revés:
 
+- **Nunca prende nada.** Crear y reactivar se niegan siempre, aunque sobre todo el tope
+  del mundo.
 - **Cuenta lo comprometido, no lo gastado.** Un presupuesto diario puesto hoy todavía no
   gastó nada pero ya compromete todos los días que quedan del mes. Contar sólo lo gastado
   dejaría subir presupuestos toda la primera semana y descubrir el desastre el día 28.
@@ -84,7 +111,9 @@ Por qué está armado así, para que no lo "mejores" al revés:
 
 ### Lo que NO se hace
 
-- No pidas confirmación antes de actuar: ya la decidió.
+- No pidas confirmación para pausar, bajar ni subir dentro del tope: ya la decidió.
+- **Pero no prendas ni crees campañas por tu cuenta**, ni "por esta única vez" porque el
+  retorno se ve buenísimo. Se preparan y las aprueba él.
 - No inventes topes por defecto distintos de cero.
 - No toques nada de cobros, facturas ni presupuestos de fiestas: esto es sólo publicidad.
 
@@ -141,10 +170,132 @@ existe, o si vuelve a aparecer un precio ahí adentro. Mirá
 
 ---
 
+---
+
+## BLOQUE 3 — Las portadas con video de banco, elegido a mano
+
+**Pedido del dueño, 27 de agosto de 2026.** Y ojo: **esto reemplaza todo lo que decía una
+versión anterior de este bloque.** Él lo simplificó a propósito. Sus palabras:
+
+> *"Lo de los videos, sacalo de crear solo con fotos. Y lo del video de la web en general,
+> usá de stock relacionadas, no cualquier video. Y eso hacelo vos o Gemini: ningún botón
+> programado, nomás."*
+
+### Lo que queda AFUERA, y no se hace
+
+- **Nada de armar el video con las fotos de los álbumes.** Se descartó.
+- **Ningún botón, ninguna pantalla de ajustes para subir el video, ningún generador.** Él
+  no quiere apretar nada: quiere que el video ya esté puesto.
+- **Nada de generar video con IA.** También queda afuera.
+
+### Lo que hay que hacer, y es simple
+
+`src/components/landing/HeroSection.tsx` **ya sabe mostrar video**: acepta
+`backgroundVideoUrl`, arranca solo sin sonido y en bucle, se pausa cuando la sección sale
+de pantalla, no lo baja si el visitante tiene el ahorro de datos prendido, y deja la foto
+de fondo como respaldo. **Está todo hecho y nadie le pasa nunca un video.**
+
+Entonces: **elegí los videos, ponelos en el proyecto, y pasáselos.** Nada más.
+
+1. **Uno por página, y que tenga que ver con esa página.** Es la parte que él remarcó: *"de
+   stock relacionadas, no cualquier video"*. En la página de quince, algo de una fiesta de
+   quince. En la de casamiento, un casamiento. En la de empresas, un evento corporativo. En
+   la portada principal, algo de fiesta en general. **Un video genérico de "gente
+   festejando" en la página de casamientos es exactamente lo que pidió que no.**
+2. **Gratis y de uso comercial permitido**, sin atribución en pantalla: Pexels y Pixabay
+   sirven. **Nada que exija licencia paga**, que sería un gasto, ni que obligue a poner un
+   cartel de crédito en la portada.
+3. **Guardados en el proyecto**, no enlazados desde afuera: un enlace ajeno se cae o cambia
+   y la portada queda rota.
+4. **Livianos de verdad.** Pocos segundos, sin sonido, en bucle, comprimidos. Si pesan, la
+   página tarda en abrir y eso cuesta ventas. Es una portada, no una película.
+5. **De ambiente, no protagonizados.** Luces, brindis, confeti, manos, una mesa servida,
+   gente bailando de lejos. **Nunca una quinceañera o unos novios reconocibles en primer
+   plano:** eso se lee como una fiesta de AK que no ocurrió, y quien llegue desde ahí
+   espera ver eso el día de su evento.
+6. **Si algo falla, queda la foto**, como hoy. Eso ya lo hace el componente solo.
+
+### Cómo se sabe que quedó bien
+
+Abrís la portada y las páginas por tipo de evento en un celular y **hay movimiento**, sin
+que nadie haya cargado nada ni tocado ningún botón. Y el video de cada página tiene que ver
+con lo que esa página vende.
+
+---
+
+## BLOQUE 4 — El cliente ideal, CALCULADO, y los consejos que salen de ahí
+
+**Pedido del dueño, 27 de agosto de 2026:** *"la optimización, consejos, y el cliente ideal
+o avatar: ¿eso podrían hacer los agentes?"*
+
+Sí, y hay que hacerlo bien. **No existe nada de esto hoy** (se verificó: lo único que
+aparece buscando "avatar" son fotos de perfil).
+
+### La regla que manda en todo el bloque: NO SE INVENTA NADA
+
+Un "cliente ideal" que una IA escribe de la nada es un horóscopo: suena bien, no sirve, y
+si el dueño toma decisiones con eso le cuesta plata.
+
+**La app ya sabe quién le compró de verdad.** Tiene presupuestos ganados y perdidos, tipo
+de evento, cantidad de invitados, salón, mes, y de dónde vino cada prospecto —la atribución
+por fiesta ya existe—. **Todo sale de ahí, o no sale.**
+
+**Si no hay datos suficientes para afirmar algo, se dice.** *"Todavía no hay contratos
+cerrados suficientes para sacar un perfil; con diez ya te lo puedo decir."* Eso vale más
+que un perfil inventado, y es la regla de siempre: **ninguna pantalla afirma algo que no
+comprobó.**
+
+### Qué calcular
+
+Sobre los presupuestos **ganados**, comparados contra los **perdidos**:
+
+- **Qué tipo de evento cierra más**, y cuál deja más plata. No son siempre el mismo, y esa
+  diferencia es la que importa.
+- **Con cuántos invitados.** El rango donde más se cierra.
+- **En qué rango de precio la conversión es más alta.** Puede no ser el más barato.
+- **En qué mes se contrata** y para qué mes es la fiesta. Sirve para saber cuándo empujar.
+- **Qué salón.**
+- **De dónde vinieron.** La atribución por fiesta ya está: qué trajo a los que cerraron.
+- **Y lo que más duele: en qué se parecen los que se perdieron.** Si todos los perdidos
+  eran de menos de X invitados, eso es una decisión de negocio esperando ser tomada.
+
+### Qué mostrar
+
+1. **Una ficha corta del cliente ideal**, en criollo, de las que se leen en veinte
+   segundos: *"Tu mejor cliente son quince años de 120 a 150 invitados, en el Club Uruguay,
+   que consultan entre marzo y mayo para una fiesta de fin de año, y llegan por
+   Instagram."* Con el número de contratos en que se basa, siempre a la vista.
+2. **Tres consejos, no quince.** Concretos y salidos de lo que se calculó: *"el 70% de lo
+   que gastás en publicidad va a un público que casi no cierra"*, *"los presupuestos de más
+   de X se pierden casi todos: o el precio o la propuesta"*. **Cada consejo tiene que poder
+   señalar el dato del que salió.** Un consejo sin dato atrás no va.
+3. **Que lo mire un agente y avise cuando cambie.** Sumalo al motor de agentes
+   (`src/lib/agentes/motor-agentes.ts`), con el mismo patrón que los demás. No hace falta
+   que corra todos los días: una vez por semana alcanza y sobra. Que avise sólo **cuando el
+   perfil cambia** —"antes cerrabas casamientos, en los últimos tres meses cerrás quince
+   años"—, no que repita lo mismo cada semana.
+
+### Lo que NO se hace
+
+- **No mandes nada al cliente con esto.** Es información para el dueño. Preparar sí, mandar
+  no: es la línea de siempre.
+- **No inventes un perfil bonito cuando faltan datos.** Decí que faltan.
+- No lo cruces con el agente de publicidad para que cambie campañas solo por esto: el
+  agente ya tiene sus reglas y su tope.
+
+---
+
 ## Cómo se comprueba que quedó bien
 
 - **Bloque 1:** con un tope de $10.000 cargado y una campaña quemando plata, el agente la
   pausa solo y lo deja anotado. Un intento de subir un presupuesto que se pasa del tope
-  **no se ejecuta** y queda escrito por qué.
+  **no se ejecuta** y queda escrito por qué. Y con el tope al tope, **una campaña nueva
+  queda preparada pero apagada**, esperando que la encienda el dueño.
 - **Bloque 2:** `/llms.txt` abre y se lee. Cada enlace que nombra existe. La prueba nueva
   falla si se borra el archivo.
+- **Bloque 4:** con pocos contratos cerrados, la pantalla **dice que faltan datos** en vez
+  de mostrar un perfil. Con contratos suficientes, cada consejo se puede rastrear hasta el
+  número del que salió.
+- **Bloque 3:** abrís la portada y las páginas por tipo de evento en un celular y **hay
+  movimiento**, sin que nadie haya cargado nada ni tocado ningún botón. Y el video de cada
+  página tiene que ver con lo que esa página vende.
