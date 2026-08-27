@@ -62,14 +62,51 @@ invitación y el recuerdo sale combinando con la fiesta, solo.**
 plantilla por evento con un editor. Acá no hay plantilla que armar: la fiesta ya se
 diseñó una vez y el recuerdo la hereda.
 
-### Qué hacer
+### Qué hacer — con los nombres exactos, ya verificados
 
-1. Sumar `imagenFondoUrl` y `colorFondo` a `PublicEntertainmentEvent` y llenarlos en
-   `buildPublicEntertainmentEvent` desde la invitación de la fiesta.
+**No hace falta buscar nada: esto se rastreó el 27 de agosto y los campos son estos.**
+
+1. **Sumar dos campos a `PublicEntertainmentEvent`**, en
+   `src/lib/entertainment/station-config.ts` (línea ~49):
+
+   ```ts
+   imagenFondoUrl?: string;
+   colorFondo?: string;
+   ```
+
+2. **Llenarlos en `getPublicEntertainmentEvent`** del mismo archivo (línea ~148), que es el
+   que arma el objeto que recibe la pantalla. Los datos salen de la invitación digital de esa
+   misma fiesta, y hay dos lugares donde pueden estar:
+
+   - **El arte decorado**: `fiesta.invitacionDigital?.cabecera?.imagenFondoUrl`
+     (`invitacionDigital` es de tipo `InvitacionDigitalData`, campo en `FiestaEnPlanificacion`
+     línea ~1446; la cabecera está en `src/types/fiesta.ts` línea ~589).
+   - **El color**: `fiesta.invitacionDigital?.cabecera?.paletaColores?.primary`, y si no está,
+     `fiesta.invitacionConfig?.colorPrincipal` (línea ~509), y si tampoco,
+     `fiesta.configuracion?.primaryColor`, que es lo que ya se usa hoy.
+
+   **Ese orden importa:** el arte de la invitación es lo que el cliente aprobó y vio; es el
+   que manda.
+
+3. **Pasárselos a `componerTiraDeFotos`** en
+   `src/app/evento/fotocabina/[fiestaId]/page.tsx` (línea ~356), donde ya se le pasan el
+   nombre, el motivo, la fecha y el color:
+
+   ```ts
+   imagenFondoUrl: fiesta?.imagenFondoUrl,
+   colorFondo: fiesta?.colorFondo,
+   ```
+
+   `componerTiraDeFotos` **ya sabe recibir los dos** (`src/lib/entretenimiento/tira-fotocabina.ts`,
+   `DatosDeLaTira`, línea ~29). No hay que tocar esa función.
 2. Pasárselos a `componerTiraDeFotos` en la fotocabina.
-3. **Que valga para todas las estaciones que imprimen**, no sólo la fotocabina: espejo
+4. **Que valga para todas las estaciones que imprimen**, no sólo la fotocabina: espejo
    mágico y 360 usan la misma función.
-4. **Si la fiesta no tiene invitación armada**, cae en el color de la fiesta como hoy. Nada
+5. **Una prueba que lo congele**, y que no se conforme con que el campo exista: que
+   compruebe que **el valor llega de punta a punta**, desde la invitación hasta la llamada a
+   `componerTiraDeFotos`. Hoy el campo existía en la función y nadie se lo pasaba, y ninguna
+   prueba lo notó: es exactamente el agujero que hay que tapar.
+6. **Si la fiesta no tiene invitación armada**, cae en el color de la fiesta como hoy. Nada
    se rompe.
 
 ---
