@@ -310,6 +310,17 @@ async function operarPantalla(
           .first();
         const objetivo = (await principal.count()) > 0 ? principal : botones.first();
         const nombre = ((await objetivo.innerText().catch(() => '')) || '').split('\n')[0].slice(0, 40);
+        /**
+         * Un control que YA está elegido no tiene por qué cambiar nada.
+         *
+         * Pasó con Touchpix: la pestaña "Foto" viene marcada de entrada, se la
+         * tocaba y la pantalla quedaba igual —correcto—, y la prueba lo cantaba
+         * como defecto. Una falla inventada cuesta más que la que encuentra.
+         */
+        const yaEstabaElegido =
+          (await objetivo.getAttribute('aria-pressed').catch(() => null)) === 'true' ||
+          (await objetivo.getAttribute('aria-selected').catch(() => null)) === 'true' ||
+          (await objetivo.getAttribute('data-state').catch(() => null)) === 'active';
         await objetivo.click({ timeout: 15_000 }).catch((e: Error) => {
           fallas.push({ donde: etiqueta, problema: `el botón "${nombre}" no se deja tocar: ${e.message.split('\n')[0]}` });
         });
@@ -327,7 +338,7 @@ async function operarPantalla(
           }
         }
 
-        if (despues === antes) {
+        if (despues === antes && !yaEstabaElegido) {
           fallas.push({ donde: etiqueta, problema: `se tocó "${nombre}" y la pantalla quedó igual: no pasó nada` });
         } else if (!faltaLaBase && /no se pudo|fall[oó]|error|intent[aá] de nuevo/i.test(nuevo)) {
           fallas.push({ donde: etiqueta, problema: `después de tocar "${nombre}" aparece un cartel de error` });
