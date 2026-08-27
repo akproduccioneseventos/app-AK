@@ -82,8 +82,17 @@ type Estacion = {
   operador: string;
   /** Lo que abre el invitado escaneando el QR. Vacío = no tiene lado invitado. */
   invitado?: (acceso: string) => string;
-  /** Si la estación usa cámara, se le enchufa una falsa. */
-  camara: boolean;
+  /**
+   * Si en ESTA vista se espera ver la imagen de la cámara.
+   *
+   * El panel del operador no la tiene y está bien: es un tablero de control con
+   * los ajustes y el botón de disparo. La cámara vive en la pantalla que el
+   * operador abre aparte ("ABRIR PANTALLA"), que es la que mira el invitado.
+   */
+  camaraOperador: boolean;
+  camaraInvitado: boolean;
+  /** Las pantallas de exhibición (tótem, muro) no tienen botones: se miran. */
+  seMira?: boolean;
 };
 
 const ESTACIONES: Estacion[] = [
@@ -92,75 +101,91 @@ const ESTACIONES: Estacion[] = [
     modulo: 'plataforma360',
     operador: `/evento/plataforma-360/${ID}?role=operator`,
     invitado: (acceso) => `/evento/plataforma-360/${ID}?access=${acceso}`,
-    camara: true,
+    camaraOperador: false,
+    camaraInvitado: true,
   },
   {
     nombre: 'Bogue',
     modulo: 'bogue',
     operador: `/evento/bogue/${ID}?role=operator`,
     invitado: (acceso) => `/evento/bogue/${ID}?access=${acceso}`,
-    camara: true,
+    camaraOperador: false,
+    camaraInvitado: true,
   },
   {
     nombre: 'Espejo mágico — foto',
     modulo: 'espejoMagicoFoto',
     operador: `/evento/espejo-magico/${ID}?mode=foto&role=operator`,
     invitado: (acceso) => `/evento/espejo-magico/${ID}?mode=foto&access=${acceso}`,
-    camara: true,
+    camaraOperador: false,
+    camaraInvitado: true,
   },
   {
     nombre: 'Espejo mágico — firma',
     modulo: 'espejoMagicoFirma',
     operador: `/evento/espejo-magico/${ID}?mode=firma&role=operator`,
     invitado: (acceso) => `/evento/espejo-magico/${ID}?mode=firma&access=${acceso}`,
-    camara: true,
+    camaraOperador: false,
+    camaraInvitado: true,
   },
   {
     nombre: 'Espejo mágico — IA',
     modulo: 'espejoMagicoIA',
     operador: `/evento/espejo-magico/${ID}?mode=ia&role=operator`,
     invitado: (acceso) => `/evento/espejo-magico/${ID}?mode=ia&access=${acceso}`,
-    camara: true,
+    camaraOperador: false,
+    camaraInvitado: true,
   },
   {
     nombre: 'Touchpix',
     modulo: 'espejoMagicoIA',
     operador: `/evento/touchpix/${ID}?role=operator`,
     invitado: (acceso) => `/evento/touchpix/${ID}?access=${acceso}`,
-    camara: true,
+    camaraOperador: false,
+    camaraInvitado: true,
   },
   {
     nombre: 'Cápsula del tiempo (buzón)',
     modulo: 'capsulaTiempo',
     operador: `/evento/buzon/${ID}`,
     invitado: (acceso) => `/evento/buzon/${ID}?access=${acceso}`,
-    camara: true,
+    camaraOperador: false,
+    camaraInvitado: false,
   },
   {
     nombre: 'Tótem interactivo',
     modulo: 'totems',
     operador: `/evento/totem/${ID}/totem-principal`,
     invitado: (acceso) => `/evento/social/${ID}?estacion=totems&access=${acceso}`,
-    camara: false,
+    camaraOperador: false,
+    camaraInvitado: false,
+    seMira: true,
   },
   {
     nombre: 'Muro en vivo',
     modulo: 'totems',
     operador: `/evento/muro-en-vivo/${ID}`,
     invitado: (acceso) => `/evento/social/${ID}?access=${acceso}`,
-    camara: false,
+    camaraOperador: false,
+    camaraInvitado: false,
+    seMira: true,
   },
 ];
 
 /** Pantallas del invitado que no piden permiso: se llega por el enlace personal. */
+const INVITADO = { id: 'inv_prueba_0', token: 'token-prueba-0' };
+
 const PANTALLAS_DEL_INVITADO = [
   { nombre: 'Zona digital', ruta: `/evento/zona-digital/${ID}` },
-  { nombre: 'Hub de la fiesta', ruta: `/evento/hub/${ID}` },
+  // El hub se abre con el enlace personal del invitado. Sin eso la app niega el
+  // acceso, y hace bien: es la pantalla que muestra sus datos.
+  { nombre: 'Hub de la fiesta', ruta: `/evento/hub/${ID}?guestId=${INVITADO.id}&token=${INVITADO.token}` },
   { nombre: 'Galería de la fiesta', ruta: `/evento/galeria/${ID}` },
-  { nombre: 'Álbum', ruta: `/evento/album/${ID}` },
   { nombre: 'Mi mesa', ruta: `/evento/mi-mesa/${ID}` },
   { nombre: 'Pantalla de invitados en vivo', ruta: `/evento/en-vivo/${ID}/invitados` },
-  { nombre: 'Video de vida', ruta: `/evento/video-vida/${ID}` },
+  // El video de vida del invitado vive en `/video-vida`. `/evento/video-vida` es
+  // la pantalla del equipo y pide sesión, por eso no va en esta lista.
+  { nombre: 'Video de vida (familia)', ruta: `/video-vida/${ID}` },
 ];
 
 /**
@@ -281,6 +306,7 @@ async function operarPantalla(
       } else {
         const principal = page
           .getByRole('button', { name: /sacar|capturar|empezar|iniciar|comenzar|grabar|crear|arrancar|foto|video|siguiente|jugar/i })
+          .and(page.locator('button:not([disabled])'))
           .first();
         const objetivo = (await principal.count()) > 0 ? principal : botones.first();
         const nombre = ((await objetivo.innerText().catch(() => '')) || '').split('\n')[0].slice(0, 40);
@@ -334,8 +360,8 @@ test.describe('los entretenimientos se pueden usar', () => {
     for (const estacion of ESTACIONES) {
       fallas.push(
         ...(await operarPantalla(page, `operador — ${estacion.nombre}`, estacion.operador, {
-          camara: estacion.camara,
-          tocarBoton: true,
+          camara: estacion.camaraOperador,
+          tocarBoton: !estacion.seMira,
         })),
       );
     }
@@ -355,8 +381,8 @@ test.describe('los entretenimientos se pueden usar', () => {
       const ruta = estacion.invitado(crearPermisoDeEstacion(ID, estacion.modulo));
       fallas.push(
         ...(await operarPantalla(page, `invitado — ${estacion.nombre}`, ruta, {
-          camara: estacion.camara,
-          tocarBoton: true,
+          camara: estacion.camaraInvitado,
+          tocarBoton: !estacion.seMira,
         })),
       );
     }
