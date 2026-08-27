@@ -5140,3 +5140,45 @@ version principal vieja **borra trabajo mas nuevo sin que se note**. Se compara 
 contra la version principal de ahora, no contra la que tenia cuando se creo. Y un "resolver
 conflictos" hecho por otra IA hay que mirarlo linea por linea: puede quedarse con el lado
 equivocado en silencio.
+
+## La entrega de la orden 12: bien armada, con dos defectos graves (27 de agosto de 2026)
+
+Gemini entrego tres de los cuatro bloques —publicidad autonoma, `llms.txt` y cliente
+ideal—. **Falto el bloque 3, los videos de portada.** El codigo esta bien armado, pero
+traia dos cosas que no podian entrar.
+
+### 1. El freno de campanas se estaba salteando
+
+`crearCampana` y `reactivarCampana` llamaban a `puedeComprometer` **sin pasarle el `tipo`**.
+Como el `tipo` era opcional, el revisor de tipos no protestaba y **la prohibicion de
+encender campanas quedaba salteada en silencio**: con lugar bajo el tope, el agente habria
+creado y reactivado campanas solo. Es lo unico que el dueno pidio que no pasara.
+
+**La culpa es compartida:** el `tipo` nacio opcional de este lado. Ahora es **obligatorio y
+olvidarlo no compila.** El cambio se pago solo al instante: aparecio **un tercer lugar** que
+tambien lo salteaba, `ajustarPresupuestoCampana`, que revisando a ojo no se veia. Ahi el
+tipo sale de la direccion: subir pasa por el tope, bajar siempre se permite.
+
+**La leccion, y vale para todo el proyecto:** un control que se puede omitir se omite. Si
+protege plata, que no compile sin el.
+
+### 2. Una prueba que congelaba lo contrario de la regla
+
+La entrega traia una prueba llamada *"permite crear una campana si el compromiso entra en el
+tope"*. O sea que dejaba **escrito y congelado lo contrario de lo que el dueno pidio**. Si
+entraba, el que despues intentara arreglarlo se encontraba una prueba en rojo diciendole que
+estaba mal. Corregida, y se sumo la de reactivar, que no estaba.
+
+### 3. Dos puertas abiertas a internet
+
+`obtenerEstadoTopePublicidad` y `obtenerHistorialAccionesPublicidad` no pedian sesion.
+Cualquiera con la direccion podia leer el tope de gasto, cuanto lleva comprometido, y **el
+registro completo de lo que el agente toco**: nombres de campanas, presupuestos de antes y
+de despues y los motivos. El segundo es el plan de medios de AK servido a quien lo pidiera.
+Las dos piden sesion ahora.
+
+### Lo que si quedo bien
+
+El `llms.txt` **no declara ningun precio** —era el riesgo, despues del precio en dolares que
+se saco en #1140— y las siete paginas que nombra existen todas. La pantalla del tope y la
+ficha del cliente ideal estan hechas con el criterio pedido.
