@@ -287,6 +287,70 @@ Cómo hacerlo bien:
 
 ---
 
+---
+
+## BLOQUE 4 — El cliente ideal, CALCULADO, y los consejos que salen de ahí
+
+**Pedido del dueño, 27 de agosto de 2026:** *"la optimización, consejos, y el cliente ideal
+o avatar: ¿eso podrían hacer los agentes?"*
+
+Sí, y hay que hacerlo bien. **No existe nada de esto hoy** (se verificó: lo único que
+aparece buscando "avatar" son fotos de perfil).
+
+### La regla que manda en todo el bloque: NO SE INVENTA NADA
+
+Un "cliente ideal" que una IA escribe de la nada es un horóscopo: suena bien, no sirve, y
+si el dueño toma decisiones con eso le cuesta plata.
+
+**La app ya sabe quién le compró de verdad.** Tiene presupuestos ganados y perdidos, tipo
+de evento, cantidad de invitados, salón, mes, y de dónde vino cada prospecto —la atribución
+por fiesta ya existe—. **Todo sale de ahí, o no sale.**
+
+**Si no hay datos suficientes para afirmar algo, se dice.** *"Todavía no hay contratos
+cerrados suficientes para sacar un perfil; con diez ya te lo puedo decir."* Eso vale más
+que un perfil inventado, y es la regla de siempre: **ninguna pantalla afirma algo que no
+comprobó.**
+
+### Qué calcular
+
+Sobre los presupuestos **ganados**, comparados contra los **perdidos**:
+
+- **Qué tipo de evento cierra más**, y cuál deja más plata. No son siempre el mismo, y esa
+  diferencia es la que importa.
+- **Con cuántos invitados.** El rango donde más se cierra.
+- **En qué rango de precio la conversión es más alta.** Puede no ser el más barato.
+- **En qué mes se contrata** y para qué mes es la fiesta. Sirve para saber cuándo empujar.
+- **Qué salón.**
+- **De dónde vinieron.** La atribución por fiesta ya está: qué trajo a los que cerraron.
+- **Y lo que más duele: en qué se parecen los que se perdieron.** Si todos los perdidos
+  eran de menos de X invitados, eso es una decisión de negocio esperando ser tomada.
+
+### Qué mostrar
+
+1. **Una ficha corta del cliente ideal**, en criollo, de las que se leen en veinte
+   segundos: *"Tu mejor cliente son quince años de 120 a 150 invitados, en el Club Uruguay,
+   que consultan entre marzo y mayo para una fiesta de fin de año, y llegan por
+   Instagram."* Con el número de contratos en que se basa, siempre a la vista.
+2. **Tres consejos, no quince.** Concretos y salidos de lo que se calculó: *"el 70% de lo
+   que gastás en publicidad va a un público que casi no cierra"*, *"los presupuestos de más
+   de X se pierden casi todos: o el precio o la propuesta"*. **Cada consejo tiene que poder
+   señalar el dato del que salió.** Un consejo sin dato atrás no va.
+3. **Que lo mire un agente y avise cuando cambie.** Sumalo al motor de agentes
+   (`src/lib/agentes/motor-agentes.ts`), con el mismo patrón que los demás. No hace falta
+   que corra todos los días: una vez por semana alcanza y sobra. Que avise sólo **cuando el
+   perfil cambia** —"antes cerrabas casamientos, en los últimos tres meses cerrás quince
+   años"—, no que repita lo mismo cada semana.
+
+### Lo que NO se hace
+
+- **No mandes nada al cliente con esto.** Es información para el dueño. Preparar sí, mandar
+  no: es la línea de siempre.
+- **No inventes un perfil bonito cuando faltan datos.** Decí que faltan.
+- No lo cruces con el agente de publicidad para que cambie campañas solo por esto: el
+  agente ya tiene sus reglas y su tope.
+
+---
+
 ## Cómo se comprueba que quedó bien
 
 - **Bloque 1:** con un tope de $10.000 cargado y una campaña quemando plata, el agente la
@@ -295,6 +359,9 @@ Cómo hacerlo bien:
   queda preparada pero apagada**, esperando que la encienda el dueño.
 - **Bloque 2:** `/llms.txt` abre y se lee. Cada enlace que nombra existe. La prueba nueva
   falla si se borra el archivo.
+- **Bloque 4:** con pocos contratos cerrados, la pantalla **dice que faltan datos** en vez
+  de mostrar un perfil. Con contratos suficientes, cada consejo se puede rastrear hasta el
+  número del que salió.
 - **Bloque 3:** el que de verdad importa. **Sin cargar absolutamente nada**, la portada
   tiene que tener movimiento: el pase de fotos reales del escalón 3. Con un video cargado,
   muestra el video. En un celular con ahorro de datos, no baja el video. Con "menos
