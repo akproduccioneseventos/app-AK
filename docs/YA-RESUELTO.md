@@ -4908,3 +4908,36 @@ El codigo estaba bien: se estaba midiendo la version anterior una y otra vez. El
 Ya estaba escrito en `CLAUDE.md` y se cayo igual. La costumbre que queda: **antes de
 creerle a una medicion, confirmar que el servidor que contesta es el que se acaba de
 levantar** —o levantarlo en un puerto nuevo, que es mas rapido que pelear con el viejo.
+
+## El boton de entrar no hacia absolutamente nada (27 de agosto de 2026)
+
+El dueno lo describio asi: **"apreto y nada"**. Ni el cartel de "Ingresando...", ni un
+error. El boton, muerto.
+
+Eso no es un problema de clave ni de base de datos: es que **la pantalla se dibuja pero su
+programa no llega a funcionar**. Se ve perfecta y ningun boton responde.
+
+La causa: la app se instala como aplicacion, y eso guarda pantallas en la memoria del
+telefono para que abran rapido. Si la copia guardada de la entrada ya no coincide con la
+version nueva, queda dibujada y muerta. Y como esta guardada, **no se arregla sola**: se
+repite en cada visita.
+
+**La pantalla de entrada ya no se guarda nunca.** Se pide siempre al servidor, fresca.
+Nunca debio estar en esa lista: es la unica puerta de la app, y si se queda pegada no hay
+forma de entrar a arreglarla desde adentro.
+
+## La app se diagnostica sola cuando alguien no puede entrar (27 de agosto de 2026)
+
+Antes, un intento fallido decia "Contrasena incorrecta" o "Error al iniciar sesion". Esos
+dos textos tapan **cuatro problemas completamente distintos**, y cada uno se resuelve de
+otra manera: la base caida, la llave de sesion sin configurar, ninguna cuenta creada, o
+efectivamente una clave equivocada.
+
+Distinguirlos requeria leer registros del servidor. **El dueno no es programador: pedirle
+eso es pedirle que haga de tecnico.** Ahora lo averigua la app: cuando un intento falla,
+comprueba las cuatro cosas en orden y escribe en pantalla cual de las cuatro fue, en
+criollo, con el proximo paso.
+
+**Lo que nunca muestra:** ningun valor de configuracion, ninguna clave, ningun correo de
+nadie. Solo si cada pieza esta o no esta. Se ve en una pantalla publica, asi que dice que
+esta roto, jamas con que se arregla por dentro.

@@ -10,6 +10,7 @@ import {
 } from '@/lib/auth/google-identity';
 import { getGoogleRecoveryAccountStatus } from '@/lib/auth/google-recovery';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
+import { diagnosticarAcceso, type DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
 
 const AUTH_COLLECTION = 'app-settings';
 const AUTH_DOC_ID = 'auth';
@@ -399,11 +400,15 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
   }
 }
 
-export async function loginWithPassword(password: string): Promise<{ success: boolean; error?: string }> {
+export async function loginWithPassword(
+  password: string
+): Promise<{ success: boolean; error?: string; diagnostico?: DiagnosticoAcceso }> {
   try {
     const result = await verifyPassword(password);
     if (!result.success) {
-      return result;
+      // El diagnostico viaja dentro de esta respuesta, no como consulta aparte: asi
+      // no queda una puerta que cualquiera pueda preguntar sin intentar entrar.
+      return { ...result, diagnostico: await diagnosticarAcceso() };
     }
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
     await writeSessionCookie({
