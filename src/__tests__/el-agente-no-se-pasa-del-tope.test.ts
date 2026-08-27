@@ -63,6 +63,7 @@ describe('El agente de publicidad no se pasa del tope', () => {
         campanas: [campana('A', 500)], // ya compromete 8000 de 10000
         presupuestoDiarioActualUYU: 500,
         nuevoPresupuestoDiarioUYU: 1000, // +500/dia x 16 dias = +8000, no entra
+        tipo: 'subir-presupuesto',
       },
       QUINCE_DE_JUNIO
     );
@@ -79,6 +80,7 @@ describe('El agente de publicidad no se pasa del tope', () => {
         campanas: [campana('A', 500)], // comprometido 8000, disponible 2000
         presupuestoDiarioActualUYU: 500,
         nuevoPresupuestoDiarioUYU: 625, // +125/dia x 16 = +2000 exacto
+        tipo: 'subir-presupuesto',
       },
       QUINCE_DE_JUNIO
     );
@@ -94,6 +96,7 @@ describe('El agente de publicidad no se pasa del tope', () => {
         campanas: [campana('A', 5000)],
         presupuestoDiarioActualUYU: 5000,
         nuevoPresupuestoDiarioUYU: 0,
+        tipo: 'bajar-presupuesto',
       },
       QUINCE_DE_JUNIO
     );
@@ -107,6 +110,7 @@ describe('El agente de publicidad no se pasa del tope', () => {
         campanas: [],
         presupuestoDiarioActualUYU: 0,
         nuevoPresupuestoDiarioUYU: 100,
+        tipo: 'subir-presupuesto',
       },
       QUINCE_DE_JUNIO
     );
@@ -143,6 +147,27 @@ describe('El agente de publicidad no se pasa del tope', () => {
     );
     expect(veredicto.permitido).toBe(false);
     if (!veredicto.permitido) expect(veredicto.motivo).toMatch(/no reactiva/i);
+  });
+
+  it('crear y reactivar de verdad quedan frenados en el modulo que llama a Meta', async () => {
+    // **Esto es lo que fallo en la primera entrega.** `tipo` era opcional, y
+    // `crearCampana` y `reactivarCampana` simplemente no lo mandaban: el revisor de
+    // tipos no protestaba y la prohibicion quedaba salteada en silencio. Con lugar bajo
+    // el tope, el agente habria encendido campanas solo. Ahora `tipo` es obligatorio
+    // -olvidarlo no compila- y esta prueba confirma el resultado, no la intencion.
+    conTope(1000000);
+    for (const tipo of ['crear', 'encender'] as const) {
+      const veredicto = await puedeComprometer(
+        {
+          campanas: [],
+          presupuestoDiarioActualUYU: 0,
+          nuevoPresupuestoDiarioUYU: 500,
+          tipo,
+        },
+        QUINCE_DE_JUNIO
+      );
+      expect(veredicto.permitido).toBe(false);
+    }
   });
 
   it('encender se niega ANTES de mirar el tope: no es cuestion de plata', () => {

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Qué páginas puede mostrar Google y cuáles no.
  *
  * La aplicación tiene tres mundos mezclados en el mismo dominio:
@@ -51,6 +51,7 @@ export const ARCHIVOS_QUE_GOOGLE_LEE = [
   '/sitemap.xml',
   '/robots.txt',
   '/google610ed09144764a8c.html',
+  '/llms.txt',
 ] as const;
 
 /**

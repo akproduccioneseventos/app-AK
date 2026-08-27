@@ -181,17 +181,25 @@ export async function puedeComprometer(
     /**
      * Que se le esta por hacer a la campana. Encender y crear se niegan siempre,
      * antes de mirar el tope: no es una cuestion de cuanta plata queda, es del dueno.
+     *
+     * **Es OBLIGATORIO, y lo es por algo que ya paso.** Nacio opcional, y la primera
+     * entrega que uso este modulo simplemente no lo mando en `crearCampana` ni en
+     * `reactivarCampana`. Al ser opcional, el revisor de tipos no dijo nada y **la
+     * prohibicion de encender campanas quedo salteada en silencio**: con lugar bajo el
+     * tope, el agente habria creado y reactivado campanas solo, que es exactamente lo
+     * unico que el dueno pidio que no pasara.
+     *
+     * Ahora olvidarlo **no compila**. Es la misma idea que gobierna todo el modulo: lo
+     * que protege plata no puede depender de que alguien se acuerde.
      */
-    tipo?: TipoDeCambio;
+    tipo: TipoDeCambio;
   },
   ahora = new Date()
 ): Promise<Veredicto> {
   const { campanas, presupuestoDiarioActualUYU, nuevoPresupuestoDiarioUYU, tipo } = opciones;
 
-  if (tipo) {
-    const prohibido = elAgentePuedeHacerloSolo(tipo);
-    if (prohibido) return prohibido;
-  }
+  const prohibido = elAgentePuedeHacerloSolo(tipo);
+  if (prohibido) return prohibido;
 
   if (!Number.isFinite(nuevoPresupuestoDiarioUYU) || nuevoPresupuestoDiarioUYU < 0) {
     return { permitido: false, motivo: 'El presupuesto pedido no es un numero valido.' };

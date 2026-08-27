@@ -19,6 +19,11 @@ import {
 } from 'lucide-react';
 import { getMetaAdsSummary, generateMetaCommercialAIRecommendations } from '@/lib/marketing/meta-ads';
 import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
+import { getEstadoDelTope, type CampanaConPresupuesto } from '@/lib/marketing/tope-de-gasto-publicidad';
+import { getAccionesPublicidadEjecutadas } from '@/lib/marketing/meta-ads-acciones';
+import { TopeDeGastoControl } from '@/components/marketing/TopeDeGastoControl';
+import { calcularClienteIdeal } from '@/lib/marketing/cliente-ideal';
+import { FichaClienteIdeal } from '@/components/marketing/FichaClienteIdeal';
 
 export const metadata: Metadata = {
   title: 'Cerebro de Publicidad & Meta Ads | AK Producciones',
@@ -69,6 +74,18 @@ export default async function MarketingAdsPage() {
     }
   }
 
+  const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => ({
+    nombre: c.name,
+    presupuestoDiarioUYU: Math.max(0, Math.round(c.spend / 30)) || 500,
+    activa: true,
+  }));
+
+  const [estadoDelTope, historialAcciones, analisisClienteIdeal] = await Promise.all([
+    getEstadoDelTope(campanasConPresupuesto),
+    getAccionesPublicidadEjecutadas(),
+    calcularClienteIdeal(),
+  ]);
+
   return (
     <div className="space-y-8 p-6 max-w-7xl mx-auto">
       {/* Encabezado */}
@@ -98,6 +115,12 @@ export default async function MarketingAdsPage() {
           </Link>
         </div>
       </div>
+
+      {/* Control del Tope de Gasto y Freno de Mano */}
+      <TopeDeGastoControl estadoInicial={estadoDelTope} historialInicial={historialAcciones} />
+
+      {/* Ficha del Cliente Ideal Calculado */}
+      <FichaClienteIdeal analisis={analisisClienteIdeal} />
 
       {/* Si no está conectado Meta */}
       {!isConnected && (
