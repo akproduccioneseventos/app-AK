@@ -83,7 +83,19 @@ describe('Publicidad Autónoma de Meta Ads con Freno de Mano', () => {
     expect(accion?.ejecutadoConExito).toBe(true);
   });
 
-  it('permite crear una campaña si el compromiso entra en el tope', async () => {
+  /**
+   * **Esta prueba exigia lo contrario, y por eso se corrigio.**
+   *
+   * Decia "permite crear una campana si el compromiso entra en el tope", o sea que daba
+   * por bueno que el agente encienda campanas solo cuando sobra presupuesto. **El dueno
+   * pidio exactamente lo contrario**, el 27 de agosto de 2026: *"el tema de poner
+   * campanas las activo yo, no se pongan solas."*
+   *
+   * No es cuestion de cuanta plata queda: **encender lo decide el, sobre todo el tope del
+   * mundo**. Apagar y moderar es cuidar; encender es salir a la calle a gastar. Lo que si
+   * corresponde es que la campana quede preparada para que la apruebe de un toque.
+   */
+  it('NUNCA crea una campana sola, por mas tope que sobre', async () => {
     await guardarTopeDeGasto(50000);
 
     const res = await crearCampana({
@@ -93,11 +105,26 @@ describe('Publicidad Autónoma de Meta Ads con Freno de Mano', () => {
       motivo: 'Lanzamiento de temporada',
     });
 
-    expect(res.success).toBe(true);
-    expect(res.id).toBeDefined();
+    expect(res.success).toBe(false);
+    expect(res.motivoRechazo).toMatch(/no crea campanas/i);
 
     const historial = await getAccionesPublicidadEjecutadas();
     const accion = historial.find((a) => a.campanaNombre === 'Nueva Promo Primavera' && a.tipo === 'crear_campana');
-    expect(accion?.ejecutadoConExito).toBe(true);
+    expect(accion?.ejecutadoConExito).toBe(false);
+  });
+
+  it('NUNCA reactiva una campana pausada sola', async () => {
+    await guardarTopeDeGasto(50000);
+
+    const res = await reactivarCampana({
+      campaignId: 'camp_dormida',
+      campaignName: 'Campana dormida',
+      presupuestoDiarioUYU: 100,
+      campanas: campanasSimuladas,
+      motivo: 'Rendia bien antes',
+    });
+
+    expect(res.success).toBe(false);
+    expect(res.motivoRechazo).toMatch(/no reactiva/i);
   });
 });

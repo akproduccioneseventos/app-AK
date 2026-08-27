@@ -120,11 +120,13 @@ export async function reactivarCampana(params: {
 }): Promise<{ success: boolean; motivoRechazo?: string }> {
   const { campaignId, campaignName, presupuestoDiarioUYU, campanas, motivo } = params;
 
-  // Reactivar una campaña que estaba en 0 gasto activo cuenta como aumentar desde 0
+  // Reactivar es ENCENDER, y encender lo decide el dueno: el freno lo niega siempre,
+  // antes de mirar si queda tope. Sin este `tipo` la prohibicion se salteaba.
   const veredicto = await puedeComprometer({
     campanas,
     presupuestoDiarioActualUYU: 0,
     nuevoPresupuestoDiarioUYU: presupuestoDiarioUYU,
+    tipo: 'encender',
   });
 
   if (!veredicto.permitido) {
@@ -179,10 +181,16 @@ export async function ajustarPresupuestoCampana(params: {
     motivo,
   } = params;
 
+  // Subir o bajar no son lo mismo para el freno: bajar siempre se permite, aunque no
+  // quede nada de tope, porque reduce el gasto. Subir pasa por el tope.
   const veredicto = await puedeComprometer({
     campanas,
     presupuestoDiarioActualUYU,
     nuevoPresupuestoDiarioUYU,
+    tipo:
+      nuevoPresupuestoDiarioUYU > presupuestoDiarioActualUYU
+        ? 'subir-presupuesto'
+        : 'bajar-presupuesto',
   });
 
   if (!veredicto.permitido) {
@@ -229,10 +237,12 @@ export async function crearCampana(params: {
 }): Promise<{ success: boolean; id?: string; motivoRechazo?: string }> {
   const { nombre, presupuestoDiarioUYU, campanas, motivo } = params;
 
+  // Crear una campana la enciende el dueno, no el agente. Negado siempre.
   const veredicto = await puedeComprometer({
     campanas,
     presupuestoDiarioActualUYU: 0,
     nuevoPresupuestoDiarioUYU: presupuestoDiarioUYU,
+    tipo: 'crear',
   });
 
   if (!veredicto.permitido) {
