@@ -112,7 +112,41 @@ Que se configuren por fiesta, desde la pantalla de entretenimiento que ya existe
 
 ---
 
-## BLOQUE 4 — Lo que a Sparkbooth le falta y acá se puede tener gratis
+## Qué tienen las mejores plataformas del mundo, y dónde está parado AK
+
+Se revisaron las que lideran el rubro en 2026: **Snappic, Simple Booth (LumaBooth),
+dslrBooth, Curator, Salsa y Sparkbooth**. Todas cobran suscripción mensual —Snappic y
+Curator arrancan en USD 69 por mes—.
+
+| Lo que ofrecen las pagas | ¿AK lo tiene? |
+|---|---|
+| Tira impresa con plantilla por evento | **Sí**, y con la medida exacta 10x15 |
+| Envío al invitado por QR | **Sí** |
+| Envío por WhatsApp | **Sí** — muchas sólo mandan por correo o mensaje de texto |
+| Galería en vivo del evento | **Sí**, el muro social |
+| Varias estaciones (360, espejo, tótem) | **Sí, ocho módulos**: fotocabina, 360, bogue, espejo foto/firma/IA, tótems y cápsula del tiempo |
+| Agrupar las fotos de cada invitado por su cara | **Sí, ya está hecho** (`face-indexer`) — es de lo más caro de las pagas |
+| Funciona sin internet | **Sí** — varias de las pagas no |
+| **Fondo y colores del evento sin configurar nada** | **NO todavía** — es el bloque 1 |
+| Fondo verde por inteligencia artificial (sin telón) | No |
+| GIF y boomerang | No |
+| Filtros de cara / retoque | No |
+| Captura de correo o teléfono del invitado | No |
+| Números de uso del evento (cuántas fotos, cuántos compartieron) | No |
+| **Costo por mes** | **AK: cero. Ellas: USD 69** |
+
+### Lo que esto significa, y hay que entenderlo antes de programar
+
+**AK ya tiene casi todo lo que cobran, y dos cosas que ellas no pueden tener:** ocho
+estaciones bajo un mismo techo y, sobre todo, **la fiesta ya cargada en el sistema**.
+
+Ninguna plataforma paga sabe cómo se llama la quinceañera, qué colores eligió, qué día es la
+fiesta ni quiénes son los invitados. **Por eso todas necesitan que alguien arme una
+plantilla por evento.** AK no: eso ya está cargado.
+
+**Ahí se gana, y no copiándoles GIF y filtros.**
+
+## BLOQUE 4 — Lo que a las pagas les falta y acá se puede tener gratis
 
 El dueño lo pidió así: *"tiene que ser mejor que esta plataforma."* No se gana copiándole
 funciones: se gana con lo que Sparkbooth **no puede tener**, porque es un programa suelto y
@@ -128,9 +162,19 @@ Hacé estas tres, que son las que él no puede igualar:
 3. **La galería en vivo.** Las fotos de la fotocabina van al muro social del evento y se ven
    en las pantallas del salón mientras la fiesta pasa. Verificá que eso esté enganchado.
 
-**Lo que NO hay que hacer:** ponerse a programar GIF, boomerang ni filtros de cara para
-empatarle. Son caros de hacer, pesados en una tablet y **no es lo que hace que una fiesta se
-vea mejor**. Si el dueño los quiere, que los pida.
+4. **Los números del evento, que ninguna estación da hoy.** Cuántas fotos se sacaron,
+   cuántas se imprimieron, cuántos se la llevaron por QR o WhatsApp, y a qué hora estuvo más
+   movida la estación. Con eso el dueño le muestra al cliente lo que pasó en su fiesta, y
+   sabe cuántos rollos de papel llevar la próxima vez. Las pagas lo cobran como función
+   premium y **acá los datos ya se guardan**: hay que mostrarlos.
+
+**Lo que NO hay que hacer:** ponerse a programar GIF, boomerang, filtros de cara o fondo
+verde con IA para empatarles. Son caros de hacer, pesados en una tablet y **no es lo que hace
+que una fiesta se vea mejor**. Si el dueño los quiere, que los pida.
+
+**El orden importa:** el bloque 1 vale más que todos los demás juntos. Un recuerdo con el
+arte de la fiesta, salido sin que nadie configure nada, es algo que ninguna de las seis
+plataformas puede hacer.
 
 ---
 
