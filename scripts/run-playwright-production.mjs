@@ -268,6 +268,18 @@ async function main() {
 
   const BATCH_SIZE = 4;
   const tandas = [];
+  /**
+   * Tandas que se cayeron sin llegar a correr una sola prueba.
+   *
+   * Existe porque el corredor mentia: si una tanda moria antes de ejecutar nada
+   * —un archivo que no compila, el servidor que no levanta, o alguien que le
+   * pasa `--reporter` y le tapa el informe— no quedaba ninguna falla anotada y
+   * el resumen final imprimia "todas las pruebas pasaron" con cero pruebas
+   * corridas. Un control que dice que esta todo bien cuando no corrio nada es
+   * peor que no tener control.
+   */
+  const tandasCaidas = [];
+
   for (let i = 0; i < allSpecFiles.length; i += BATCH_SIZE) {
     tandas.push(allSpecFiles.slice(i, i + BATCH_SIZE));
   }
@@ -296,6 +308,9 @@ async function main() {
       if (tests.length === 0) {
         if (result.code !== 0) {
           console.warn(`  ⚠ La tanda terminó con código ${result.code} sin pruebas registradas en JSON.`);
+          tandasCaidas.push(
+            `Tanda ${idx + 1} (${batch.map((b) => path.basename(b)).join(", ")}): terminó con código ${result.code} y no registró ninguna prueba.`,
+          );
         }
       }
 
@@ -347,6 +362,7 @@ async function main() {
       }
     } catch (err) {
       console.error(`  ✕ Error en la tanda ${idx + 1}:`, err.message);
+      tandasCaidas.push(`Tanda ${idx + 1} (${batch.map((b) => path.basename(b)).join(", ")}): ${err.message}`);
       const recentOutput = serverInstance.getRecentOutput().trim();
       if (recentOutput) {
         console.error(`  Últimos logs del servidor:\n${recentOutput}`);
@@ -367,8 +383,14 @@ async function main() {
   console.log(`  - Descartadas por entorno (<500ms recuperadas): ${descartadasPorEntorno.length}`);
   console.log(`======================================================\n`);
 
-  if (fallasReales.length > 0) {
-    console.error(`DETALLE DE FALLAS REALES (${fallasReales.length}):`);
+  if (tandasCaidas.length > 0) {
+    console.error(`TANDAS QUE NO LLEGARON A CORRER (${tandasCaidas.length}):`);
+    for (const detalle of tandasCaidas) console.error(`  ✕ ${detalle}`);
+    console.error('');
+  }
+
+  if (fallasReales.length > 0 || tandasCaidas.length > 0) {
+    if (fallasReales.length > 0) console.error(`DETALLE DE FALLAS REALES (${fallasReales.length}):`);
     for (const f of fallasReales) {
       console.error(`  ✕ [${f.file}] ${f.title} (${f.projectName}) - ${f.duration}ms`);
       if (f.error) {
