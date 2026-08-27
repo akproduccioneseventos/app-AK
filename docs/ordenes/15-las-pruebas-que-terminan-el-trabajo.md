@@ -32,7 +32,55 @@ dijera $1 o $999.999.999, la prueba pasa igual. Es el camino que le da de comer 
 Por eso la fotocabina, el entretenimiento y la web pasaron auditorías estando mal: **todo
 confirma que la pantalla ABRE; nada confirma que el resultado esté BIEN.**
 
-## Lo que hay que hacer: UNA prueba por trabajo, que mire el resultado
+## PARTE A — El recorrido de TODA la app, que hoy no mira
+
+**El dueño lo pidió así: *"de toda la app quiero un mecanismo seguro"*, y después:
+*"de auditoría, 9 errores"*.** Las trece pruebas de la parte B cubren lo importante, no las
+348 pantallas. Esto sí.
+
+**Ya existe y no hay que inventarlo:** `tests/e2e/internal-route-inventory.spec.ts` visita
+**más de 180 pantallas internas**, una por una, con sesión iniciada. Y
+`public-experience-matrix` hace lo propio con las públicas.
+
+**El problema es que casi no mira.** Hoy marca una pantalla como rota sólo si:
+
+- devuelve error de servidor (`status >= 400`),
+- redirige a `/login`,
+- o el texto dice `Application error`, `Internal Server Error` o *"no puede cargar los datos
+  del panel"*.
+
+**Entonces una pantalla que abre en blanco pasa. Una que muestra `undefined` pasa. Una que
+muestra `$NaN` donde va un precio, pasa.** Eso es lo que se cuela después de cada auditoría.
+
+### Qué agregarle al recorrido, y es barato
+
+Por cada una de las 348 pantallas, que **falle** además si:
+
+1. **Está prácticamente vacía.** Menos de ~200 caracteres de texto visible. Una pantalla que
+   abre y no dice nada está rota aunque conteste bien.
+2. **Muestra basura de programador.** Que aparezca en pantalla `undefined`, `null`, `NaN`,
+   `[object Object]`, `Infinity` o `{{` es un error, siempre.
+3. **Muestra plata rota.** `$NaN`, `$undefined`, `$ ` seguido de nada, o un precio negativo
+   donde no corresponde. **Esta sola justifica el trabajo.**
+4. **Tiró un error en el navegador.** Recolectar los errores de consola de cada pantalla y
+   fallar si hay alguno que no esté en una lista declarada de excepciones conocidas.
+5. **Se desborda en el celular.** Ya existe `mobile-overflow`: que corra sobre **todas** las
+   pantallas, no sobre unas pocas.
+
+### Y lo que lo hace SEGURO, no sólo completo
+
+- **Corre solo en cada cambio**, no cuando alguien se acuerda. Si no corre, no sirve.
+- **La lista de excepciones sólo se achica.** Igual que el control de puertas abiertas: si
+  una pantalla necesita estar en la lista, va con el motivo escrito y con fecha. **Una lista
+  que crece es una alfombra donde se barre.**
+- **Si el recorrido no puede entrar a una pantalla, eso es una falla**, no un salteo. Hoy
+  varias se saltean en silencio.
+
+**Con esto, "todo en verde" pasa a querer decir algo:** ninguna de las 348 pantallas está en
+blanco, ninguna muestra basura, ninguna muestra plata rota y ninguna se desborda en el
+celular. Eso es el mecanismo seguro.
+
+## PARTE B — UNA prueba por trabajo, que mire el resultado
 
 **No se tocan las pruebas que ya existen.** Se agrega **una** por cada cosa para la que sirve
 la app. **Esta lista es finita y cuando esté completa, se terminó.**
