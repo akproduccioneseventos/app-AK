@@ -36,6 +36,18 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 13 — La Fotocabina que Gana y Fondo de Invitación (27 de agosto de 2026)
+
+- **Fondo de la fiesta heredado de la invitación (`src/lib/entertainment/station-config.ts`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`):**
+  - La fotocabina, el espejo mágico y el bogue heredan automáticamente `imagenFondoUrl` y `colorFondo` desde la invitación digital ya diseñada y aprobada de la fiesta (`fiesta.invitacionDigital.cabecera` o `paletaColores`). Cero armado de plantillas manuales por evento.
+- **Configuración por fiesta de fotocabina (`src/lib/entertainment/station-config.ts`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`):**
+  - Se configuran `fotosPorTanda` (1 a 4, default 3), `segundosCuentaRegresiva` (default 10) y `marcosHabilitados` por evento. Si no se especifican, caen en los valores estándar históricos.
+  - Soporte de armado de tira de 4 fotos en cuadrícula 2x2 en `componerTiraDeFotos` (`src/lib/entretenimiento/tira-fotocabina.ts`).
+- **Limpieza de promesas no existentes (`src/app/(app)/fiestas/nueva/entretenimiento/page.tsx`):**
+  - Removidas menciones de GIF, Boomerang en fotocabina, Filtros en vivo y Captura de correos para que la pantalla de catálogo interno refleje exactamente lo que la app hace de verdad.
+
+---
+
 ## El corredor de pruebas de navegador decia "todas pasaron" sin correr ninguna (27 de agosto de 2026)
 
 - **Qué estaba mal.** `scripts/run-playwright-production.mjs` avisaba con una advertencia

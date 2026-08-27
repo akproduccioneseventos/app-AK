@@ -181,9 +181,149 @@ Hoy los mensajes quedan guardados y ahí terminan.
 
 ---
 
-# PARTE 4 — LO QUE QUEDÓ SIN HACER DE ANTES
+# PARTE 4 — LA MÚSICA, QUE ES LO QUE MÁS SE USA Y LO QUE PEOR ESTÁ
 
-## BLOQUE 14 — El Club Uruguay se ofrece SIEMPRE en la Presentación LED
+## BLOQUE 14 — La música de la fiesta, toda junta y conectada de verdad
+
+**Pedido del dueño, 27 de agosto de 2026.** Sus palabras: *"quiero que el cliente pueda
+compartirme su playlist de Spotify conectado al mío"* y *"muchas veces nos pasan link de
+YouTube; quiero que todo esté conectado, no sólo el link."*
+
+### Qué pasa hoy
+
+La música de la fiesta llega por todos lados y **queda tirada en pedazos**:
+
+- El cliente manda un link de Spotify o de YouTube por WhatsApp.
+- La app guarda **el link pelado** (`playlistFiesta` en `src/types/fiesta.ts:952`): nadie
+  sabe qué canciones tiene adentro hasta que alguien lo abre a mano.
+- Los invitados piden temas desde la invitación y quedan como texto suelto
+  (`cancionesDJ` en `src/types/fiesta.ts:60`).
+- El equipo termina copiando todo a mano para armar la lista del DJ.
+
+**Guardar un link no es tenerlo conectado.** Eso es lo que hay que cambiar.
+
+### Qué hay que construir: una sola bandeja de música por fiesta
+
+Un solo lugar donde entra **cualquier cosa** y sale **una sola lista de canciones**:
+
+1. **Entra lo que sea, sin preguntarle al cliente qué es:**
+   - Link de una playlist de Spotify.
+   - Link de un tema suelto de Spotify.
+   - Link de un video de YouTube.
+   - Link de una playlist de YouTube.
+   - Texto pegado, tal cual lo manda por WhatsApp: *"Despacito, Bad Bunny - Tití me
+     preguntó, La Bicicleta"*.
+
+2. **La app reconoce sola qué es y lo resuelve a canciones de verdad**: título y artista,
+   no un link. Ya existe la búsqueda en Spotify (`src/lib/spotify.ts`), que hoy anda con
+   una llave de la aplicación y sirve para buscar y para leer playlists públicas.
+
+3. **Cada canción queda cruzada entre los dos servicios.** Si vino de YouTube, se busca su
+   equivalente en Spotify y se guardan los dos enlaces. Si vino de Spotify, igual al revés
+   cuando se pueda. Así el DJ la encuentra esté donde esté.
+
+4. **Todo se junta con los pedidos de los invitados**, en la misma lista, marcando de dónde
+   salió cada tema: del cliente, de un invitado (y cuál), o del catálogo de AK.
+
+5. **Se vuelca a una playlist en la cuenta de Spotify del dueño**, con el nombre de la
+   fiesta, y **se mantiene al día sola** cuando entran pedidos nuevos.
+
+6. **Y el DJ la ve ordenada**, que es para lo que se hace todo esto. Palabras del dueño:
+   *"si es para mejor organización del DJ, mejoralo."* En su pantalla:
+   - **Los momentos de la fiesta separados**: entrada, cena, vals, baile, torta, cierre.
+     La app ya sabe qué momentos tiene la fiesta.
+   - **Qué pidió el cliente y qué pidieron los invitados**, marcado, sin mezclar.
+   - **Los repetidos juntados**: si diez invitados piden el mismo tema, aparece una vez,
+     con el número al lado. Eso además le dice al DJ qué es lo que más quieren.
+
+### LO QUE YA EXISTE Y NO SE REHACE
+
+Se verificó en el código. **No lo construyas de nuevo: conectá lo nuevo a esto.**
+
+- **La pantalla del DJ ya separa "infaltables" y "prohibidas"**, y las prohibidas ya salen
+  bien visibles (`src/app/evento/dj/[fiestaId]/page.tsx:130` y siguientes). Las canciones
+  que entren por la bandeja nueva **tienen que caer en esa misma pantalla**, no en otra.
+- **Ya se imprime la lista para el DJ** (`Imprimir para DJ`, en la pantalla de música del
+  equipo). Que lo nuevo salga también ahí.
+- **Ya está el campo de la canción del vals.**
+- **Ya se buscan canciones en Spotify** (`src/lib/spotify.ts`), y la invitación ya lo usa
+  para que el invitado pida temas.
+
+**El agujero real es uno solo:** hoy los enlaces del cliente caen en un **cuadro de texto
+libre** —dice literalmente *"Escribe géneros, artistas o pega enlaces a Spotify/YouTube..."*—
+y **nadie los abre nunca**. Quedan ahí como texto. Eso es lo que hay que resolver.
+
+### Y algo que apareció al revisar: el panel de conexiones puede mentir
+
+El dueño preguntó si Spotify y YouTube están conectadas de verdad. Mirando
+`src/app/actions/conexiones-estado.actions.ts` se ve que **el estado no se prueba contra el
+servicio**: se decide por lo que hay guardado.
+
+- **YouTube** figura "conectada" con que exista una ficha guardada marcada como conectada.
+  Si el permiso venció, **sigue diciendo "conectada"**.
+- **Spotify** figura "conectada" con que exista la llave de la aplicación
+  (`SPOTIFY_CLIENT_ID`), aunque **la cuenta personal del dueño no esté autorizada**. Con
+  eso se puede buscar canciones, pero no escribir en su playlist. El cartel no distingue
+  una cosa de la otra.
+
+Justo arriba, en el mismo archivo, Google Analytics **sí** está bien resuelto, y lo dice el
+comentario: *"El estado se decide por lo que hace funcionar la medición, no por lo que haya
+escrito en Ajustes."* Spotify y YouTube tienen que cumplir la misma regla.
+
+**Primero, algo que sólo podés hacer vos, Gemini:** esta revisión se hizo en un contenedor
+de prueba **sin acceso a la base ni a las credenciales de producción**, así que no se pudo
+comprobar si las cuentas están conectadas de verdad. Vos corrés en la máquina del dueño y sí
+tenés los accesos.
+
+**Comprobalo y decilo en una línea en tu reporte:** si Spotify y YouTube contestan hoy, y en
+el caso de Spotify, si la cuenta personal del dueño está autorizada para escribir en sus
+playlists o sólo está la llave de la aplicación. **No lo des por hecho: probalo contra el
+servicio.** Si algo falta, decí exactamente qué falta, en criollo y sin jerga.
+
+**Qué hay que hacer:**
+
+- Que el estado de las dos **se pruebe de verdad** contra el servicio, no contra lo guardado.
+- Que Spotify muestre **los dos niveles por separado**, porque son distintos:
+  *"buscar canciones: anda"* y *"escribir en tu playlist: falta permiso"*.
+- Si el permiso venció, **decirlo y dejar el botón para renovarlo ahí mismo**.
+- **No mostrar "conectada" sin haberlo comprobado.** Es la regla de la app: ninguna pantalla
+  afirma lo que no verificó.
+
+### Lo que hay que respetar, y no es negociable
+
+- **Nada inventado.** Si un video de YouTube no se puede identificar como canción, **se
+  dice cuál no se pudo** y queda a la vista para resolverlo a mano. Nunca poner "algo
+  parecido" como si fuera lo que pidió el cliente. Es su fiesta.
+- **Lo que la máquina entendió se muestra antes de darlo por bueno.** El nombre del video
+  de YouTube no siempre es el nombre de la canción: que se vea qué entendió y que se pueda
+  corregir de un toque.
+- **Si la playlist del cliente está en privado, nadie la puede leer.** Decírselo en criollo
+  en la misma pantalla —*"tu lista está en privado y no la podemos ver; ponela en pública o
+  compartida"*— y dejarle el camino hecho. Nada de un error técnico.
+- **El dueño YA conectó Spotify y YouTube.** Están cargadas en el panel de conexiones de
+  la app (`conexiones-estado.actions.ts` las reconoce). **No le pidas que las conecte de
+  nuevo ni le armes otro botón**: usá lo que ya está.
+  Ojo con una diferencia real: leer listas públicas y buscar canciones funciona con la
+  llave de la aplicación, pero **escribir en la playlist personal del dueño necesita el
+  permiso de su cuenta**. Si ese permiso falta, **la pantalla lo dice en criollo y en un
+  renglón** —*"falta darle permiso a la app para escribir en tu Spotify"*—, y **todo lo
+  demás sigue andando igual**: leer, reconocer, cruzar y armar la lista adentro de la app.
+  Que la falta de permiso no rompa nada ni frene al DJ.
+- **Nada que se pague por mes.** La búsqueda de Spotify y la lectura de YouTube se hacen
+  con los cupos gratis. Si en algún momento no alcanzan, **se avisa y se pregunta**: no se
+  contrata nada.
+
+### Cómo se aplica acá la regla de la app
+
+Automático para **leer, reconocer, cruzar y armar**. Mano humana para **confirmar lo dudoso**
+y para decidir el orden de la noche. Nada de esto sale para afuera ni toca plata, así que el
+resto va solo.
+
+---
+
+# PARTE 5 — LO QUE QUEDÓ SIN HACER DE ANTES
+
+## BLOQUE 15 — El Club Uruguay se ofrece SIEMPRE en la Presentación LED
 
 En `src/app/presentacion-led/slides/datos-evento-slide.tsx:281` el Club sólo aparece si el
 cliente dice que **no** tiene salón. El que llega con otro salón medio decidido **nunca ve

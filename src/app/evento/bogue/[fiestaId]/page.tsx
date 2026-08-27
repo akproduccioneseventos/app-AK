@@ -385,6 +385,8 @@ export default function BoguePage() {
         nombreDelEvento: eventName,
         fechaDelEvento: eventDate,
         colorDeAcento,
+        colorFondo: fiesta?.colorFondo,
+        imagenFondoUrl: fiesta?.imagenFondoUrl,
         textoDeMarca: 'BOGUE LIVE'
       });
       setFinalStripUrl(stripUrl);
