@@ -138,3 +138,56 @@ hacía:
 
 > **Compilar no es andar.** Y una prueba nueva no vale hasta verla en rojo: antes
 > de darla por buena, romper a propósito lo que tiene que detectar.
+
+
+## La quinta pregunta: ¿el dato LLEGA? (27 de agosto de 2026)
+
+**El dueño lo preguntó así:** *"es increíble que después de tantas auditorías te enfocás en
+la fotocabina y no funciona. ¿Habría alguna manera de que no pasara? Las auditorías son para
+eso y fallan siempre."*
+
+**Tenía razón, y la explicación no es que fallen: es que no preguntan esto.**
+
+Las cuatro preguntas de arriba son sobre el código: ¿existe?, ¿alguien lo llama?, ¿le falta
+algo?, ¿la pantalla dice la verdad? **La fotocabina pasa las cuatro** —existe, se llama,
+tiene datos, no miente— y el recuerdo igual sale con el fondo pelado.
+
+### Los tres casos del mismo día, con la misma forma exacta
+
+- `componerTiraDeFotos` **sabe recibir** `imagenFondoUrl` → la fotocabina nunca se lo manda.
+- `HeroSection` **sabe recibir** `backgroundVideoUrl` → ninguna página le mandaba uno.
+- `puedeComprometer` **sabía recibir** `tipo` → los que la llamaban no se lo mandaban, y la
+  prohibición de encender campañas quedaba salteada **en silencio**.
+
+Siempre lo mismo: **el que recibe está preparado y el que envía nunca manda.** Eso compila,
+pasa las pruebas, no rompe nada, y **no produce nada**.
+
+### La regla exacta, para que se pueda automatizar
+
+Es más fina de lo que parece, y el primer intento de detectarla falló justamente por no
+afinarla. **No** es "un campo que nadie escribe en ningún lado" —así da cientos de falsas
+alarmas y encima se le escapa el caso de la fotocabina, porque ese campo sí se escribe en
+otro lado, en la invitación—.
+
+**Es esto:**
+
+> Una función acepta un parámetro **opcional**, y **ninguna de las llamadas a ESA función**
+> se lo pasa.
+
+Per función, no por texto global. Ahí `imagenFondoUrl` salta: `componerTiraDeFotos` tiene
+una sola llamada y no lo manda. `backgroundVideoUrl` salta: cero llamadas lo mandaban.
+`tipo` saltaba: tres llamadas y ninguna lo mandaba.
+
+### Y el corolario, que es la mitad del valor
+
+**Si un parámetro protege plata o permisos, no alcanza con detectarlo: hay que volverlo
+obligatorio.** Cuando el `tipo` del freno de gasto pasó de opcional a obligatorio, apareció
+al instante un tercer lugar que lo salteaba y que revisando a ojo no se veía. **Un control
+que se puede omitir, se omite.**
+
+### El primer intento falló, y queda anotado para no repetirlo
+
+Se escribió un detector que contaba, en todo el código, cuántas veces se escribía cada campo
+opcional. Dio **210 hallazgos**; de tres revisados a mano, **dos eran falsa alarma**, y **no
+encontraba el caso de la fotocabina**. Se descartó. **El que sirve es el de arriba: por
+función y por llamada, no por texto suelto.**
