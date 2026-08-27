@@ -104,7 +104,12 @@ export async function diagnosticarAcceso(): Promise<DiagnosticoAcceso> {
     return {
       codigo: 'sin-cuentas',
       causa: 'Todavia no hay ninguna cuenta creada en la app.',
-      queHacer: 'No es tu clave: no existe ningun usuario para entrar. Hay que crear el primero.',
+      // El mensaje anterior decia "hay que crear el primero", que suena a tarea y no
+      // daba ninguna forma de hacerla: no se puede entrar a crear la cuenta porque no
+      // hay cuenta con la cual entrar. Ahora se dice el camino, que existe y funciona:
+      // entrar con Google no necesita cuenta guardada, y ese primer ingreso **crea la
+      // cuenta de administrador solo**.
+      queHacer: 'No es tu clave: no hay ningun usuario todavia. Tocá "Ingresar con Google" con tu cuenta de siempre: ese primer ingreso te crea la cuenta de administrador y despues la contraseña tambien va a andar.',
     };
   }
 

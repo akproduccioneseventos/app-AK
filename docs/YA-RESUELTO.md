@@ -4941,3 +4941,54 @@ criollo, con el proximo paso.
 **Lo que nunca muestra:** ningun valor de configuracion, ninguna clave, ningun correo de
 nadie. Solo si cada pieza esta o no esta. Se ve en una pantalla publica, asi que dice que
 esta roto, jamas con que se arregla por dentro.
+
+## El callejon sin salida: no habia ninguna cuenta creada (27 de agosto de 2026)
+
+El diagnostico de la pantalla de entrada —recien puesto— dio la respuesta a la primera:
+**"La app todavia no tiene ninguna cuenta creada."** La base andaba bien y la clave del
+dueno no tenia nada que ver. No habia con quien entrar.
+
+**Por que se llego a eso.** La app solo sabia crear el primer administrador si encontraba
+una clave inicial cargada en el servidor. Si no estaba, anotaba el problema en un registro
+que nadie lee y **se quedaba asi para siempre**. Un callejon sin salida perfecto: no se
+puede entrar a crear la cuenta porque no hay cuenta con la cual entrar.
+
+Entrar con Google si funcionaba —esa puerta no necesita cuenta guardada— pero **no dejaba
+ninguna anotada**, asi que la app seguia vacia y la entrada por contrasena nunca llegaba a
+andar. Se podia entrar una y otra vez sin que el problema de fondo se moviera.
+
+**Ahora la app se crea sola la primera cuenta:** cuando alguien entra con Google, esta en
+la lista de correos autorizados y la app todavia no tiene ninguna cuenta, se le crea la
+suya de administrador. A partir de ahi la contrasena tambien anda.
+
+**Por que no abre ninguna puerta:** la identidad ya la comprobo Google y ya paso el control
+de correos autorizados —quien no esta en esa lista no llega hasta ahi—. Solo ocurre con la
+base **completamente vacia**: con una sola cuenta existente no se crea nada. Y no le da a
+nadie nada que no tuviera: sin este cambio esa persona igual entraba, con sesion de
+administrador. Lo unico que cambia es que queda anotada y la app deja de estar vacia.
+
+**El mensaje tambien cambio.** Decia "hay que crear el primer usuario", que suena a tarea y
+no daba ninguna forma de hacerla. Ahora dice el camino, que existe y funciona: tocar
+"Ingresar con Google".
+
+## El boton de Google no hacia nada en el celular (27 de agosto de 2026)
+
+El dueno lo reporto asi: **"el boton de correo no funciona"**. Y era cierto, en el telefono.
+
+La pantalla de entrada tenia dos caminos para entrar con Google: la ventanita que se abre
+encima, y el desvio, que se va a Google y vuelve. **Cualquier pantalla angosta —o sea, todo
+telefono— iba directo al desvio.**
+
+El desvio **falla en silencio** en los navegadores que bloquean el guardado de datos de
+otros sitios: Safari en iPhone lo hace de fabrica, y Chrome tambien cuando la app esta
+instalada como aplicacion. "En silencio" quiere decir literalmente eso: la pagina no se va
+a ningun lado, no aparece ningun error, **el boton no hace nada**.
+
+Dos cambios:
+
+1. **Se prueba siempre la ventanita primero.** Anda en los telefonos de hoy. El desvio
+   quedo como plan B: solo se usa si el navegador avisa que bloqueo la ventanita, que es un
+   error que si se puede reconocer.
+2. **Si igual se termina yendo por el desvio y a los cuatro segundos seguimos en la misma
+   pagina, se avisa.** Nadie se queda mas mirando un boton muerto: se le dice que ese
+   navegador esta bloqueando el ingreso y cual es el otro camino.

@@ -751,11 +751,55 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
     );
     if (!validation.success) return validation;
 
+    // **La app se crea sola la primera cuenta, y aca esta el por que.**
+    //
+    // Paso de verdad: el dueno no podia entrar de ninguna manera, y el diagnostico de
+    // la pantalla de entrada dijo la razon: **no habia ninguna cuenta creada**. La app
+    // solo sabia crear el primer administrador si encontraba una clave inicial cargada
+    // en el servidor; si no estaba, anotaba el problema en un registro que nadie lee y
+    // **se quedaba asi para siempre**. Un callejon sin salida: no se puede entrar a
+    // crear la cuenta porque no hay cuenta con la cual entrar.
+    //
+    // Entrar con Google si funcionaba —no necesita cuenta guardada— pero no dejaba
+    // ninguna anotada, asi que la app seguia vacia y la entrada por contrasena nunca
+    // llegaba a andar.
+    //
+    // Ahora, cuando alguien entra con Google, esta en la lista de correos autorizados
+    // y **la app todavia no tiene ninguna cuenta**, se le crea la suya de administrador.
+    //
+    // **Por que esto no abre ninguna puerta:** la identidad ya la comprobo Google y ya
+    // paso el control de correos autorizados de arriba —quien no esta en esa lista no
+    // llega hasta aca—. Ademas solo ocurre con la base **completamente vacia**: con una
+    // sola cuenta existente no se crea nada. Y no da nada que esa persona no tuviera:
+    // sin este cambio igual entraba, con sesion de administrador; lo unico que cambia es
+    // que ahora queda anotada, y la app deja de estar vacia.
+    let cuentaCreada = storedUserDoc?.id;
+    if (!storedUserDoc && dbAdmin && normalizedEmail) {
+      try {
+        const hayCuentas = await dbAdmin.collection('users').limit(1).get();
+        if (hayCuentas.empty) {
+          const nueva = await dbAdmin.collection('users').add({
+            email: normalizedEmail,
+            role: 'admin',
+            modules: ['all'],
+            securityQuestions: {},
+            creadaPor: 'primer-ingreso-con-google',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
+          cuentaCreada = nueva.id;
+        }
+      } catch (errorAlCrear) {
+        // Si no se puede crear, no se corta la entrada: la persona igual pasa.
+        console.error('[simple-auth] no se pudo crear la primera cuenta:', errorAlCrear);
+      }
+    }
+
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
     await writeSessionCookie({
       email: decodedToken?.email ?? 'google-user@akproducciones.com',
       role: storedUser?.role || 'admin',
-      userId: storedUserDoc?.id || decodedToken?.uid || 'google-uid',
+      userId: cuentaCreada || decodedToken?.uid || 'google-uid',
       modules: Array.isArray(storedUser?.modules) ? storedUser.modules : ['all'],
     });
     await clearLoginProtection();
