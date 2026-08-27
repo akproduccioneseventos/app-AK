@@ -10,7 +10,11 @@ jest.mock('@/lib/data-service', () => ({
 }));
 
 import { readData } from '@/lib/data-service';
-import { getEstadoDelTope, puedeComprometer } from '@/lib/marketing/tope-de-gasto-publicidad';
+import {
+  elAgentePuedeHacerloSolo,
+  getEstadoDelTope,
+  puedeComprometer,
+} from '@/lib/marketing/tope-de-gasto-publicidad';
 
 const conTope = (topeMensualUYU: number | null) => {
   (readData as jest.Mock).mockResolvedValue(
@@ -107,6 +111,48 @@ describe('El agente de publicidad no se pasa del tope', () => {
       QUINCE_DE_JUNIO
     );
     expect(veredicto.permitido).toBe(false);
+  });
+
+  it('NUNCA crea una campana, por mas tope que sobre', async () => {
+    // Decision del dueno del 27 de agosto de 2026, que corrige la de unas horas antes:
+    // "el tema de poner campanas las activo yo, no se pongan solas".
+    conTope(1000000);
+    const veredicto = await puedeComprometer(
+      {
+        campanas: [],
+        presupuestoDiarioActualUYU: 0,
+        nuevoPresupuestoDiarioUYU: 100,
+        tipo: 'crear',
+      },
+      QUINCE_DE_JUNIO
+    );
+    expect(veredicto.permitido).toBe(false);
+    if (!veredicto.permitido) expect(veredicto.motivo).toMatch(/no crea campanas/i);
+  });
+
+  it('NUNCA reactiva una campana pausada', async () => {
+    conTope(1000000);
+    const veredicto = await puedeComprometer(
+      {
+        campanas: [campana('dormida', 300, false)],
+        presupuestoDiarioActualUYU: 300,
+        nuevoPresupuestoDiarioUYU: 300,
+        tipo: 'encender',
+      },
+      QUINCE_DE_JUNIO
+    );
+    expect(veredicto.permitido).toBe(false);
+    if (!veredicto.permitido) expect(veredicto.motivo).toMatch(/no reactiva/i);
+  });
+
+  it('encender se niega ANTES de mirar el tope: no es cuestion de plata', () => {
+    // Aunque sobre todo el presupuesto del mundo, sigue siendo decision del dueno.
+    expect(elAgentePuedeHacerloSolo('crear')?.permitido).toBe(false);
+    expect(elAgentePuedeHacerloSolo('encender')?.permitido).toBe(false);
+    // Lo que si puede hacer solo no queda frenado por esta regla.
+    expect(elAgentePuedeHacerloSolo('pausar')).toBeNull();
+    expect(elAgentePuedeHacerloSolo('bajar-presupuesto')).toBeNull();
+    expect(elAgentePuedeHacerloSolo('subir-presupuesto')).toBeNull();
   });
 
   it('si no se puede leer el tope, se asume cero: ante la duda no se gasta', async () => {

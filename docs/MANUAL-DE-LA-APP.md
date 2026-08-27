@@ -276,6 +276,32 @@ puede cambiar monto ni fecha.
 - **Las fotos del muro se bajan con el enlace directo** a propósito: quien tenga
   el enlace tiene que poder bajarlas.
 - **Sólo pesos uruguayos.** Las diferencias de redondeo en dólares no aplican.
+- **La pantalla de entrada se diagnostica sola, y nunca se guarda en el teléfono.**
+  El dueño estuvo sin poder entrar y la app le decía "contraseña incorrecta" cuando el
+  problema era otro. Ahora, si un intento falla, la app comprueba cuatro cosas —si llega a
+  la base, si le falta la llave que mantiene la sesión, si hay alguna cuenta creada, o si
+  es la clave— y escribe cuál de las cuatro fue. **Y la entrada quedó fuera de lo que se
+  guarda en la memoria del navegador**: una copia vieja se dibuja igual y ningún botón
+  responde, y siendo la única puerta de la app, no habría forma de entrar a arreglarla.
+- **El primer ingreso con Google crea la cuenta de administrador.** Antes la app sólo sabía
+  crear ese primer usuario si encontraba una configuración inicial cargada; si faltaba,
+  quedaba vacía para siempre. Callejón sin salida: no se puede entrar a crear la cuenta
+  porque no hay cuenta con la cual entrar. Sólo pasa con la base **completamente vacía** y
+  con un correo ya autorizado por Google.
+- **Nada de promesas en la web, y menos congelar precio.** Se sacaron las de "respuesta en
+  24 horas" y las de precio congelado. El **ajuste anual del 15% va siempre**, y congelar
+  un precio lo contradice de frente: una promesa que el negocio no sostiene no es una
+  mejora de venta, es una discusión futura con un cliente. Sí se dice **por dónde se
+  contesta**, y **reservar la fecha con una seña** también, porque es real.
+- **El reloj del simulador es para la promoción, no para congelar la tarifa.** Se entendió
+  mal mucho tiempo, incluso en la documentación. Está para que la gente acceda al descuento
+  y los regalos mientras corre: una **oferta con fecha**, que es cosa distinta.
+- **El agente de publicidad administra solo, pero no prende nada.** Puede pausar, bajar un
+  presupuesto y subir el de algo que ya está al aire, dentro de un tope mensual. **No crea
+  campañas ni reactiva las pausadas**: eso lo enciende el dueño. Apagar y moderar es
+  cuidar; encender es salir a gastar. El tope **niega** en vez de aconsejar, y cuenta lo
+  comprometido hasta fin de mes y no lo ya gastado — contando sólo lo gastado, el desastre
+  se descubre el día 28.
 
 ---
 

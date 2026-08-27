@@ -57,6 +57,59 @@ export type Veredicto =
   | { permitido: true; disponibleDespuesUYU: number }
   | { permitido: false; motivo: string };
 
+/**
+ * Lo que el agente puede querer hacerle a una campana.
+ *
+ * - `pausar` y `bajar-presupuesto` **bajan** el gasto.
+ * - `subir-presupuesto` lo aumenta: pasa por el tope.
+ * - `encender` y `crear` **ponen una campana al aire**.
+ */
+export type TipoDeCambio =
+  | 'pausar'
+  | 'bajar-presupuesto'
+  | 'subir-presupuesto'
+  | 'encender'
+  | 'crear';
+
+/**
+ * **Poner una campana al aire es la mano del dueno. El agente no prende nada.**
+ *
+ * Lo decidio el 27 de agosto de 2026, y **corrige** lo que habia dicho unas horas antes.
+ * Sus palabras: *"el tema de poner campanas las activo yo, no se pongan solas."*
+ *
+ * La linea que quedo es la misma que rige en toda la app —**automatico para mirar,
+ * detectar, preparar y avisar; mano humana para lo que sale para afuera**— y aca cae
+ * justo: apagar y moderar es cuidar; **encender es salir a la calle a gastar**, y eso lo
+ * decide el.
+ *
+ * Entonces el agente puede, solo:
+ * - **pausar** lo que esta quemando plata,
+ * - **bajar** un presupuesto,
+ * - **subir** un presupuesto de algo que ya esta al aire, siempre dentro del tope.
+ *
+ * Y no puede, nunca:
+ * - **crear** una campana,
+ * - **reactivar** una que estaba pausada.
+ *
+ * Esas dos las prepara y las deja listas para que el las apruebe de un toque.
+ *
+ * **Por que esta escrito en el codigo y no solo en la orden de trabajo:** una instruccion
+ * escrita se olvida o se "mejora"; esto **niega**. Es la misma razon por la que el tope no
+ * aconseja: lo que protege plata no puede depender de que alguien se acuerde.
+ */
+export function elAgentePuedeHacerloSolo(tipo: TipoDeCambio): Veredicto | null {
+  if (tipo === 'encender' || tipo === 'crear') {
+    return {
+      permitido: false,
+      motivo:
+        tipo === 'crear'
+          ? 'El agente no crea campanas. Queda preparada para que la apruebes vos.'
+          : 'El agente no reactiva campanas pausadas. Queda preparada para que la enciendas vos.',
+    };
+  }
+  return null;
+}
+
 export async function getTopeDeGasto(): Promise<TopeDeGastoPublicidad> {
   try {
     const guardado = await readData<TopeDeGastoPublicidad | null>(ARCHIVO_TOPE, null);
@@ -125,10 +178,20 @@ export async function puedeComprometer(
     campanas: CampanaConPresupuesto[];
     presupuestoDiarioActualUYU: number;
     nuevoPresupuestoDiarioUYU: number;
+    /**
+     * Que se le esta por hacer a la campana. Encender y crear se niegan siempre,
+     * antes de mirar el tope: no es una cuestion de cuanta plata queda, es del dueno.
+     */
+    tipo?: TipoDeCambio;
   },
   ahora = new Date()
 ): Promise<Veredicto> {
-  const { campanas, presupuestoDiarioActualUYU, nuevoPresupuestoDiarioUYU } = opciones;
+  const { campanas, presupuestoDiarioActualUYU, nuevoPresupuestoDiarioUYU, tipo } = opciones;
+
+  if (tipo) {
+    const prohibido = elAgentePuedeHacerloSolo(tipo);
+    if (prohibido) return prohibido;
+  }
 
   if (!Number.isFinite(nuevoPresupuestoDiarioUYU) || nuevoPresupuestoDiarioUYU < 0) {
     return { permitido: false, motivo: 'El presupuesto pedido no es un numero valido.' };

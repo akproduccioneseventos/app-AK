@@ -526,3 +526,36 @@ eso puesto, nada de la parte pública podía aparecer en Google. Corregido: ver
 - Nada que avise a Google cuando se agrega un servicio, una foto o un evento nuevo.
   El listado de páginas se arma solo, pero el aviso a Google no existe (Google dejó
   de aceptarlo en 2023; hoy se hace desde su panel).
+
+
+## Entrar a la app y la web publica — revisado el 27 de agosto de 2026
+
+Se reviso entero porque el dueno estuvo sin poder entrar a su propia app.
+
+| Cosa | ¿Anda? | Donde |
+|---|---|---|
+| Entrar con correo y contrasena | Si | `/login` |
+| Entrar con Google | Si | `/login`, boton abajo |
+| **La app dice por que fallo la entrada** | **Si (nuevo)** | `/login`, cartel al fallar |
+| **El primer ingreso con Google crea la cuenta** | **Si (nuevo)** | automatico, solo con la base vacia |
+| Recuperar la clave (correo, Google, codigos, preguntas) | Si | `/login?mode=recovery` |
+| **Tope de gasto del agente de publicidad** | **A medias** | el freno esta hecho; falta la pantalla y que el agente actue (orden 12) |
+| **`llms.txt` para que las IA entiendan la web** | **No esta** | pedido en la orden 12 |
+| **Video de movimiento en las portadas** | **No esta** | el mecanismo existe, no hay video ni de donde cargarlo (orden 12) |
+| **Cliente ideal calculado** | **No esta** | pedido en la orden 12, bloque 4 |
+| Cloudflare | **Descartado** | el dueno se queda en Firebase; no volver a proponerlo |
+
+**Lo que se corrigio de la entrada, en criollo:**
+
+- Antes decia "contrasena incorrecta" cuando la base no contestaba, y a los cinco intentos
+  te dejaba afuera quince minutos por un problema que no era tuyo. **Ahora un fallo del
+  servidor no se cuenta como intento.**
+- El boton se quedaba veinticinco segundos sin decir nada. **Ahora contesta en 8 a 11.**
+- En el celular, el boton de Google no hacia absolutamente nada. **Ahora abre la ventanita**,
+  que si funciona en los telefonos de hoy.
+- La pantalla de entrada quedaba guardada en el telefono y se dibujaba muerta. **Ya no se
+  guarda nunca.**
+
+**Lo que se saco de la web publica:** las promesas de "respuesta en 24 horas" (tres
+lugares), "congela precios en cuotas fijas" y "hablá por WhatsApp para congelar la tarifa".
+El **reloj del simulador se queda**: es para la promocion, no para congelar la tarifa.

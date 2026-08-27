@@ -625,11 +625,31 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   salida; **el mensaje sale cuando una persona lo toca**, desde su propio WhatsApp.
   Escribirle a clientes y prospectos está bien; contestarle a cualquiera que
   escriba, no. **La línea es: preparar sí, mandar no.**
-- **El reloj del simulador VA, y es decisión suya (23 de agosto de 2026).** El
-  contador que aparece después de generar el presupuesto y congela la tarifa está
-  ahí **a propósito, para que la gente se comunique**. Se sacó una vez por pedido
-  de una auditoría de venta y el dueño lo mandó poner de nuevo. **No se vuelve a
-  sacar ni se reporta como problema.**
+- **El reloj del simulador VA, y es decisión suya (23 de agosto de 2026, precisado el
+  27).** El contador que aparece después de generar el presupuesto está ahí **a propósito**.
+  Se sacó una vez por pedido de una auditoría de venta y el dueño lo mandó poner de nuevo.
+  **No se vuelve a sacar ni se reporta como problema.**
+
+  **Pero para qué sirve NO es congelar la tarifa**, y eso se entendió mal hasta el 27 de
+  agosto. Está para que la gente **acceda a la promoción** —el descuento y los regalos—
+  mientras corre. Palabras suyas: *"el reloj es lo que ayuda a que accedan a promoción de
+  descuento 10% y regalos"*. Es una oferta con fecha, no una tarifa congelada. El texto
+  decía "tu presupuesto queda reservado" y se corrigió: ahora habla de la promoción.
+
+- **NADA DE PROMESAS EN LA WEB, Y MENOS CONGELAR PRECIO (27 de agosto de 2026).** Palabras
+  suyas: *"en la web hay promesas como 24 horas, congelar precio; esas cosas no las quiero.
+  Promesas no, y menos congelar precio: yo trabajo con ajuste."*
+
+  Se sacaron: *"te contactamos en menos de 24 horas"*, los carteles de *"Respuesta en 24
+  hs"*, *"congelá precios en cuotas fijas"* y *"hablá por WhatsApp para congelar la
+  tarifa"*.
+
+  La regla que queda, y vale para todo texto nuevo que vea un cliente: **no se promete un
+  plazo de respuesta ni un precio sostenido en el tiempo.** El ajuste anual del 15% va
+  siempre —eso ya estaba decidido— y **congelar un precio lo contradice**. Sí se puede
+  decir por dónde se contesta (*"te contestamos por WhatsApp"*) y qué da una promoción
+  vigente. **Reservar la fecha con una seña sí se puede decir**: eso es real y no es un
+  precio congelado.
 - **La llave de cobros no se cambia (20 de agosto de 2026).** Estuvo escrita
   dentro de un archivo y se le propuso dos veces generar una nueva. **Decidió que
   no: se queda con la última que cargó.** No se le vuelve a plantear. El archivo

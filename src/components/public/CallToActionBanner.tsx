@@ -63,7 +63,7 @@ export function CallToActionBanner({
 
         {/* Trust signals */}
         <div className="flex flex-wrap justify-center gap-3 mt-2">
-          {['✅ Respuesta en 24 hs', '🔒 Sin compromiso', '💳 Pago en cuotas'].map((item) => (
+          {['✅ Te contestamos por WhatsApp', '🔒 Sin compromiso', '💳 Pago en cuotas'].map((item) => (
             <span
               key={item}
               className="text-xs font-bold text-white/70 bg-white/10 rounded-full px-3 py-1.5"

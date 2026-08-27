@@ -21,7 +21,7 @@ export function LeadCaptureForm({
   whatsappNumber = AK_WHATSAPP_NUMBER,
   tipoEventoDefault = '',
   title = 'Diseñá tu evento a medida',
-  subtitle = 'Completá el formulario y te contactamos en menos de 24 horas con tu propuesta.',
+  subtitle = 'Completá el formulario y te contactamos con tu propuesta.',
 }: LeadCaptureFormProps) {
   const searchParams = useSearchParams();
   const [form, setForm] = useState({
