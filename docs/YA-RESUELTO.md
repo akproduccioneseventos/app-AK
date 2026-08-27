@@ -5094,3 +5094,24 @@ Es el caso exacto de `docs/COMO-AUDITAR.md`: escrito, compilando, con pruebas en
 sin producir nada. Quedo pedido en la orden 12, bloque 3, **con un lugar para cargarlo
 desde ajustes**: el dueno no puede depender de que alguien toque el codigo para cambiar el
 video de su portada.
+
+## El video de las portadas: de banco, elegido a mano, sin botones (27 de agosto de 2026)
+
+**Reemplaza lo que se habia planeado unas horas antes.** El dueno lo simplifico a proposito:
+
+> *"Lo de los videos, sacalo de crear solo con fotos. Y lo del video de la web en general,
+> usa de stock relacionadas, no cualquier video. Y eso hacelo vos o Gemini: ningun boton
+> programado, nomas."*
+
+Quedaron **afuera**: armar el video con las fotos de los albumes, la pantalla de ajustes
+para subirlo, y generar video con IA. **El no quiere apretar nada: quiere que el video ya
+este puesto.**
+
+Queda: elegir un video de banco **por pagina y relacionado con esa pagina** —quince en la
+de quince, casamiento en la de casamiento—, gratis y de uso comercial sin atribucion,
+guardado en el proyecto, liviano, sin sonido y en bucle, y **de ambiente, nunca con una
+quinceanera o unos novios reconocibles en primer plano**, que se leeria como una fiesta de
+AK que no ocurrio.
+
+`HeroSection` ya sabe mostrarlo y nadie le pasaba ninguno. No hay que programar nada nuevo:
+hay que elegir los videos y pasarselos.

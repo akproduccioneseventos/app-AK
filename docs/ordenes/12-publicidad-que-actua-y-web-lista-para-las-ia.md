@@ -172,120 +172,54 @@ existe, o si vuelve a aparecer un precio ahí adentro. Mirá
 
 ---
 
-## BLOQUE 3 — Las portadas con video, que hoy están vacías
+## BLOQUE 3 — Las portadas con video de banco, elegido a mano
 
-**Pedido del dueño, 27 de agosto de 2026:** *"no veo videos en portadas para el movimiento
-de la app; en vez de foto, video liviano que dé movimiento a la app."*
+**Pedido del dueño, 27 de agosto de 2026.** Y ojo: **esto reemplaza todo lo que decía una
+versión anterior de este bloque.** Él lo simplificó a propósito. Sus palabras:
 
-### El problema exacto
+> *"Lo de los videos, sacalo de crear solo con fotos. Y lo del video de la web en general,
+> usá de stock relacionadas, no cualquier video. Y eso hacelo vos o Gemini: ningún botón
+> programado, nomás."*
 
-`src/components/landing/HeroSection.tsx` **ya sabe mostrar video** y lo hace bien: acepta
-`backgroundVideoUrl`, arranca solo, sin sonido y en bucle; se pausa cuando la sección sale
-de pantalla para no gastar batería; si el visitante tiene el ahorro de datos prendido **ni
-lo baja**; y siempre queda la foto de fondo como respaldo.
+### Lo que queda AFUERA, y no se hace
 
-**Y nadie le pasa nunca un video.** `src/app/page.tsx` (línea ~497) sólo manda
-`backgroundImageUrl`. `EventLandingPage.tsx` (línea ~77), igual. En todo el proyecto **no
-hay un solo archivo de video**.
+- **Nada de armar el video con las fotos de los álbumes.** Se descartó.
+- **Ningún botón, ninguna pantalla de ajustes para subir el video, ningún generador.** Él
+  no quiere apretar nada: quiere que el video ya esté puesto.
+- **Nada de generar video con IA.** También queda afuera.
 
-Es el caso exacto que describe `docs/COMO-AUDITAR.md`: está escrito, compila, pasa las
-pruebas, **y no produce nada**.
+### Lo que hay que hacer, y es simple
 
-### La regla que manda acá: **la portada tiene movimiento SIEMPRE, sin que el dueño cargue nada**
+`src/components/landing/HeroSection.tsx` **ya sabe mostrar video**: acepta
+`backgroundVideoUrl`, arranca solo sin sonido y en bucle, se pausa cuando la sección sale
+de pantalla, no lo baja si el visitante tiene el ahorro de datos prendido, y deja la foto
+de fondo como respaldo. **Está todo hecho y nadie le pasa nunca un video.**
 
-Sus palabras, al final: *"en donde quede debería haber un video corto que llame la
-atención."* Ojo con la trampa: **si el movimiento depende de que él suba un archivo, no va
-a haber movimiento.** Vuelve a ser tarea suya, y la regla del proyecto es al revés — *"todo
-lo que pueda ser automático sería bueno; si no, es igual que hacerlo manual"*.
+Entonces: **elegí los videos, ponelos en el proyecto, y pasáselos.** Nada más.
 
-Así que se resuelve en tres escalones, en este orden, y **el tercero no falla nunca**:
+1. **Uno por página, y que tenga que ver con esa página.** Es la parte que él remarcó: *"de
+   stock relacionadas, no cualquier video"*. En la página de quince, algo de una fiesta de
+   quince. En la de casamiento, un casamiento. En la de empresas, un evento corporativo. En
+   la portada principal, algo de fiesta en general. **Un video genérico de "gente
+   festejando" en la página de casamientos es exactamente lo que pidió que no.**
+2. **Gratis y de uso comercial permitido**, sin atribución en pantalla: Pexels y Pixabay
+   sirven. **Nada que exija licencia paga**, que sería un gasto, ni que obligue a poner un
+   cartel de crédito en la portada.
+3. **Guardados en el proyecto**, no enlazados desde afuera: un enlace ajeno se cae o cambia
+   y la portada queda rota.
+4. **Livianos de verdad.** Pocos segundos, sin sonido, en bucle, comprimidos. Si pesan, la
+   página tarda en abrir y eso cuesta ventas. Es una portada, no una película.
+5. **De ambiente, no protagonizados.** Luces, brindis, confeti, manos, una mesa servida,
+   gente bailando de lejos. **Nunca una quinceañera o unos novios reconocibles en primer
+   plano:** eso se lee como una fiesta de AK que no ocurrió, y quien llegue desde ahí
+   espera ver eso el día de su evento.
+6. **Si algo falla, queda la foto**, como hoy. Eso ya lo hace el componente solo.
 
-1. **Si hay un video cargado**, se usa ése.
-2. **Si no, se busca uno que la app ya tenga.** Hay campos de video que ya existen y pueden
-   estar cargados: `videoUrl` en `src/types/salon.ts` (el video del salón) y en
-   `src/types/fiesta.ts`. Si alguno tiene contenido, sirve para la portada.
-3. **Si no hay ninguno, la app arma el movimiento sola con las fotos reales de las fiestas.**
-   Las fotos aprobadas de los álbumes ya están en la app. Un pase corto —tres o cuatro
-   fotos, con acercamiento lento y fundido entre una y otra, unos segundos en bucle— se ve
-   como un video y **no necesita ni un archivo nuevo ni que nadie suba nada**. Es material
-   real de sus fiestas, que es justamente lo que mejor vende.
+### Cómo se sabe que quedó bien
 
-   Hacelo con CSS, sin ninguna biblioteca: son transformaciones y opacidad. Respetá
-   `prefers-reduced-motion` —si el visitante pidió menos movimiento, queda la foto quieta—
-   y no cargues más de tres o cuatro fotos, que si no pesa.
-
-**El escalón 3 es el que importa**, porque es el único que anda sin que nadie haga nada. Si
-sólo entregás el 1, la portada va a seguir quieta igual que hoy.
-
-**Que la IA elija y arme, no sólo que pase fotos.** El dueño pidió *"uno creado por IA,
-lindo"*. El escalón 3 es exactamente eso, sin pagar nada: que la inteligencia artificial
-**elija las mejores fotos** de los álbumes —las de más gente, mejor luz, las más
-celebratorias—, las **ordene** para que arranque fuerte y cierre fuerte, y les dé el ritmo.
-La app ya tiene el motor de IA conectado. Que no sea un pase de fotos al azar: que sea una
-selección hecha con criterio, y que se note.
-
-### Un video inventado por IA: PREPARADO, NO CONTRATADO
-
-El dueño también aceptaría un video generado enteramente por IA. **Dejalo preparado y no
-contrates nada.**
-
-- **Se paga.** No hay servicio gratis que genere video. La regla del proyecto es clara:
-  *nada que aumente lo que se paga por mes se cambia sin avisar*. Dejá el lugar donde
-  enchufarlo y **el costo escrito**, para que él decida.
-- **Y hay algo que decidir antes que el precio:** un video de IA de "una fiesta" **no es
-  una fiesta de AK**. Quien llega desde ahí espera ver eso el día del evento. Para un
-  negocio de fiestas eso puede jugar en contra. Si igual se usa, que sea ambiente y
-  textura —luces, brindis, detalles— y **nunca una escena que se lea como un evento real de
-  AK que no ocurrió**.
-
-No armes esto como escalón previo al 3: el 3 va igual, porque es el que funciona sin
-depender de nada ni de nadie.
-
-### Un video de banco de imágenes de quince años: SÍ, y así
-
-El dueño lo pidió expresamente el 27 de agosto de 2026: *"algún video de stock de XV
-años."* **Esto reemplaza lo que decía una versión anterior de esta orden**, que lo
-prohibía.
-
-Cómo hacerlo bien:
-
-- **Que sea gratis y de uso comercial permitido.** Pexels y Pixabay dan videos libres para
-  uso comercial sin pedir atribución. **No uses nada que exija licencia paga ni atribución
-  en pantalla**: sería un gasto o un cartel raro en la portada.
-- **Guardalo en el proyecto**, no lo enlaces desde afuera: un enlace a otro sitio se puede
-  caer o cambiar, y ahí la portada queda rota.
-- **Liviano de verdad.** Pocos segundos, sin sonido, en bucle. Si pesa mucho la página
-  tarda en abrir, y eso cuesta ventas.
-- **Que sea ambiente, no una escena protagonizada.** Luces, brindis, confeti, detalles de
-  una mesa, gente bailando de lejos. **Nunca una quinceañera reconocible en primer plano**:
-  eso se lee como una fiesta de AK que no ocurrió, y quien llegue desde ahí espera ver eso
-  el día de su evento.
-- **Y no reemplaza al escalón 3.** El pase con fotos reales de AK sigue siendo el que
-  manda cuando hay álbumes cargados: es material propio y vende mejor. El video de banco es
-  el respaldo lindo para cuando todavía no hay fotos aprobadas.
-
-### Además
-
-1. **Un lugar para cargarlo, en la pantalla de ajustes de la web.** El dueño no es
-   programador: **no puede depender de que alguien toque el código para cambiar el video de
-   la portada.** Un campo donde sube el archivo o pega el enlace, con vista previa.
-   Guardalo junto al resto de la configuración de la portada, con lo que ya existe.
-2. **Pasarlo a las portadas.** La de la portada principal y la de cada tipo de evento
-   (quince, casamiento, etc.), que pueden tener el suyo o heredar el general.
-3. **Cuidar que siga siendo liviano.** Es lo que pidió: *video liviano*. Poné un límite de
-   tamaño al subirlo y avisá en criollo si se pasa (*"ese video pesa demasiado y la página
-   va a tardar en abrir; probá con uno más corto"*). Sin sonido, en bucle, de pocos
-   segundos.
-4. **Nunca se queda sin nada.** Si falla el video, si la foto no carga, si el visitante
-   pidió menos movimiento: siempre queda la foto de fondo como está hoy. Nada se rompe.
-
-### Lo que NO se hace
-
-- No agregues ninguna biblioteca de reproducción de video (ya está dicho abajo).
-- No agregues ninguna biblioteca de reproducción de video: el `<video>` del navegador ya
-  hace todo lo que hace falta y no pesa nada.
-
----
+Abrís la portada y las páginas por tipo de evento en un celular y **hay movimiento**, sin
+que nadie haya cargado nada ni tocado ningún botón. Y el video de cada página tiene que ver
+con lo que esa página vende.
 
 ---
 
@@ -362,7 +296,6 @@ Sobre los presupuestos **ganados**, comparados contra los **perdidos**:
 - **Bloque 4:** con pocos contratos cerrados, la pantalla **dice que faltan datos** en vez
   de mostrar un perfil. Con contratos suficientes, cada consejo se puede rastrear hasta el
   número del que salió.
-- **Bloque 3:** el que de verdad importa. **Sin cargar absolutamente nada**, la portada
-  tiene que tener movimiento: el pase de fotos reales del escalón 3. Con un video cargado,
-  muestra el video. En un celular con ahorro de datos, no baja el video. Con "menos
-  movimiento" pedido en el sistema, queda la foto quieta.
+- **Bloque 3:** abrís la portada y las páginas por tipo de evento en un celular y **hay
+  movimiento**, sin que nadie haya cargado nada ni tocado ningún botón. Y el video de cada
+  página tiene que ver con lo que esa página vende.
