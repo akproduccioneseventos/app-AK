@@ -294,8 +294,21 @@ export default function TareasAutomaticasPage() {
         </CardHeader>
 
         <CardContent className="p-0 divide-y divide-slate-100">
-          {tareas.map((tarea) => {
-            const isRunning = runningId === tarea.id;
+          {loading && tareas.length === 0 ? (
+            <div className="p-6 space-y-3">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="p-4 rounded-xl border bg-slate-50/60 animate-pulse flex items-center justify-between">
+                  <div className="space-y-2 w-2/3">
+                    <div className="h-4 bg-slate-200 rounded w-1/3" />
+                    <div className="h-3 bg-slate-200 rounded w-4/5" />
+                  </div>
+                  <div className="h-8 bg-slate-200 rounded w-24" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            tareas.map((tarea) => {
+              const isRunning = runningId === tarea.id;
             const esNunca = tarea.estado === 'nunca';
             const esAtrasada = tarea.estado === 'atrasada';
             const esAlDia = tarea.estado === 'al-dia';
@@ -388,7 +401,7 @@ export default function TareasAutomaticasPage() {
                 </div>
               </div>
             );
-          })}
+          }))}
         </CardContent>
       </Card>
 
