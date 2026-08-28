@@ -1,5 +1,13 @@
 import { test, expect } from '@playwright/test';
 
+/**
+ * Ojo con medir antes de tiempo.
+ *
+ * `domcontentloaded` avisa cuando llego el HTML, NO cuando la pantalla esta
+ * dibujada. Varias pantallas de la app se arman del lado del cliente: medirlas
+ * ahi da cero caracteres y parece que estan vacias cuando no lo estan. Por eso
+ * cada prueba espera a que la pantalla termine de cargar antes de mirarla.
+ */
 test.describe('Orden 15: Pruebas de Trabajo Completo con Comprobación de Resultados Reales', () => {
 
   test('Trabajo 1: La portada pública muestra el pie de página visible y el botón de contacto operativo', async ({ page }) => {
@@ -31,6 +39,7 @@ test.describe('Orden 15: Pruebas de Trabajo Completo con Comprobación de Result
     const title = await page.title();
     expect(title).toContain('Club Uruguay');
 
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
     const bodyText = await page.locator('body').innerText();
     expect(bodyText.length).toBeGreaterThan(200);
     expect(bodyText).not.toContain('Application error');
@@ -40,6 +49,7 @@ test.describe('Orden 15: Pruebas de Trabajo Completo con Comprobación de Result
     const response = await page.goto('/simulador-ak', { waitUntil: 'domcontentloaded' });
     expect(response?.status()).toBeLessThan(400);
 
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
     const bodyText = await page.locator('body').innerText();
     expect(bodyText.length).toBeGreaterThan(150);
     expect(bodyText).not.toContain('$NaN');
@@ -52,6 +62,7 @@ test.describe('Orden 15: Pruebas de Trabajo Completo con Comprobación de Result
       const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
       expect(response?.status()).toBeLessThan(400);
 
+      await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
       const text = await page.locator('body').innerText();
       expect(text.length).toBeGreaterThan(200);
       expect(text).not.toContain('undefined');

@@ -2,25 +2,25 @@
   {
     "titulo": "Nuevo presupuesto del simulador",
     "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
-    "href": "/presupuestos/pres_public_d18de3afa32cfbd30a523a23/ver",
+    "href": "/presupuestos/pres_public_8f8993daa86a28eb69230d14/ver",
     "icono": "Sparkles",
     "tipo": "aviso",
-    "entidadRelacionadaId": "pres_public_d18de3afa32cfbd30a523a23",
+    "entidadRelacionadaId": "pres_public_8f8993daa86a28eb69230d14",
     "rolDestino": "admin",
-    "id": "notif_1d322452-a412-4eee-9953-b66c814262f9",
-    "fecha": "2026-08-27T16:13:29.591Z",
+    "id": "notif_cc006f8a-68a1-4d3e-b5e1-be4fc339d749",
+    "fecha": "2026-08-28T02:08:19.037Z",
     "leida": false
   },
   {
     "titulo": "Nuevo presupuesto del simulador",
     "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
-    "href": "/presupuestos/pres_public_a8be683557dd3994ecd8195b/ver",
+    "href": "/presupuestos/pres_public_ab40216f72101dcac76c10fa/ver",
     "icono": "Sparkles",
     "tipo": "aviso",
-    "entidadRelacionadaId": "pres_public_a8be683557dd3994ecd8195b",
+    "entidadRelacionadaId": "pres_public_ab40216f72101dcac76c10fa",
     "rolDestino": "admin",
-    "id": "notif_3d7d4c83-1dba-4480-829c-95ebd0cf355a",
-    "fecha": "2026-08-27T16:09:42.560Z",
+    "id": "notif_916f8c09-6ee9-4e4e-a5f9-088ceb989d0b",
+    "fecha": "2026-08-28T02:04:29.171Z",
     "leida": false
   },
   {
