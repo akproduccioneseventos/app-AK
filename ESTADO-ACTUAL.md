@@ -5,70 +5,52 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 27 de agosto de 2026, cierre del día.
-**Estado de la app:** sana. Tipos en cero, 2260 pruebas en verde, acentos limpios, compila,
-y las pruebas de navegador de los entretenimientos sin fallas.
-**Propuestas abiertas:** ninguna fusionable. **Dos entregas de Gemini devueltas** (abajo).
+**Última actualización:** 27 de agosto de 2026, cierre.
+**Estado de la app:** **`npm run "publicar?"` en verde, los seis controles**, incluido el de
+navegador completo (2559 segundos). Se puede publicar.
+**Propuestas abiertas:** ninguna.
 
-## LO QUE ESTÁ ESPERANDO A GEMINI: dos entregas devueltas
+## Lo que se cerró hoy
 
-Las dos están escritas arriba de todo en su orden, como **DEVOLUCIÓN**. Ninguna se fusionó.
+**Las dos entregas de Gemini (órdenes 14 y 15) estaban devueltas y se corrigieron acá.**
+El dueño pidió no esperarlo: *"corregí todo vos con tus agentes"*.
 
-### Orden 14 — entretenimiento (rama `feat/orden-14-entretenimiento-unificado`)
+- **Lo escrito que no llamaba nadie, ahora está enganchado:** el **GIF animado** en Bogue
+  (sale de los mismos cuadros del boomerang, así que el invitado no posa de nuevo), el
+  **marco que se arma solo** con el nombre del agasajado y la fecha —**como opción, no como
+  el que viene puesto**— y el **resumen de la noche** en el tablero.
+- **El tablero de la noche:** no tenía puerta y **mostraba un cero escrito a mano** para
+  todas las estaciones. Ahora se entra desde donde el equipo arma el entretenimiento y
+  **cuenta las capturas de verdad**, leyéndolas del muro. Si no puede leerlas, **lo dice**.
+- **Se sacaron dos cosas, con el motivo escrito en `YA-RESUELTO.md`:** la moderación
+  automática duplicada —**el muro ya se modera solo** en la subida, la orden pedía algo que
+  ya existía y ese error fue de quien escribió la orden— y el selector de formato, que hacía
+  pensar al invitado antes de la foto con gente esperando atrás.
 
-Pasa los cinco controles **y aun así la mitad no hace nada**: cinco piezas nuevas —GIF,
-marcos dinámicos, resumen de la noche, moderación automática del muro y el selector de
-formato— **no las llama nadie**. Verificado por nombre de archivo y de función. Además, el
-tablero del operador **no tiene puerta** (ninguna pantalla lleva ahí) y **falta entero el
-bloque de la música** sin avisar. Y `YA-RESUELTO.md` quedó afirmando como resueltas tres
-cosas que no ocurren.
+## Los tres controles que mentían, y ya no
 
-**Lo que sí quedó bien y no se toca:** el saludo y la guía en pantalla (enchufada de verdad
-en 360, Bogue y Touchpix), **el tótem arreglado** (confirmado en el navegador) y el Club
-Uruguay siempre visible en la Presentación LED, marcado como opcional.
+1. **El corredor de navegador** decía "todas pasaron" **con cero pruebas corridas**.
+2. **El control de acentos** daba verde **con cero archivos revisados** si fallaba al leer
+   la lista. Es uno de los seis pasos de la puerta: si miente, la puerta se abre sola.
+3. **El recorrido de las 348 pantallas** medía el HTML crudo en vez de la pantalla dibujada
+   y reportaba veintipico de pantallas sanas como vacías. Ahora **abre la pantalla de
+   verdad** cuando el HTML viene flaco.
 
-### Orden 15 — las pruebas (rama `feat/orden-15-pruebas-que-terminan-el-trabajo`)
+**La lección, y pasó tres veces en un día: cuando un control deja de mirar, lo que entra no
+se ve.**
 
-**El recorrido de las 348 pantallas mira el lugar equivocado:** usa
-`context.request.get(route)` y mide el HTML crudo, no la pantalla dibujada. Las pantallas
-internas se dibujan en el cliente, así que ese HTML son **69 caracteres de cáscara siempre**:
-reportó **veintipico de pantallas sanas como "vacías"**. Peor: por lo mismo, las
-comprobaciones de `$NaN` y basura de programador **quedan ciegas**.
+## Lo que queda pendiente, y es de Gemini
 
-En el segundo intento arregló la compatibilidad con Windows —bien, y hacía falta— pero
-**no tocó lo anterior**, y sumó dos cosas nuevas: el control de acentos en Node **da verde
-si `git ls-files` falla** (el mismo defecto que acabamos de sacarle al corredor de pruebas,
-y es uno de los seis pasos de la puerta), y quedó `path-scurry` en las dependencias **sin
-que lo use nadie**.
-
-**Pendiente que sólo puede resolver él, con los accesos de producción:** abrir
-`/club-uruguay` y decir qué se ve. La prueba mide 11 caracteres, pero esa página le pide los
-salones a la base y en el contenedor de prueba no hay base. Si de verdad está vacía, es un
-defecto en una página que vende.
-
-## Lo que se cerró y ya está en la versión principal
-
-- **Las estaciones estaban todas muertas y se arreglaron.** El operador tocaba "Iniciar
-  cuenta regresiva" en la 360, en Bogue, en el Espejo Mágico o en Touchpix y aparecía un
-  cartel rojo en inglés. Una sola causa para las cuatro, con candado de prueba.
-- **El corredor de pruebas de navegador mentía:** decía "todas las pruebas pasaron" **con
-  cero pruebas corridas**. Apenas se arregló aparecieron dos defectos ya fusionados desde el
-  26 de agosto (la portada con dos secciones del mismo nombre y el título movido sin
-  actualizar su referencia). Los dos corregidos.
-- **La fotocabina imprime con el fondo de la invitación** de esa fiesta, y también Bogue y
-  el Espejo. Se configura por fiesta cuántas fotos y qué marcos.
-- **La orden 14 quedó escrita con quince bloques**, incluida la música: que entre lo que sea
-  —Spotify, YouTube o texto pegado— y salga una sola lista conectada, para el DJ.
-
-**La lección del día, y vale para todo: cuando un control deja de mirar, lo que entra no se
-ve.** Pasó dos veces hoy con dos controles distintos.
-
-## LA PUERTA, y es la que manda: `npm run "publicar?"`
-
-Corre los seis controles del más barato al más caro, corta en la primera falla y contesta una
-sola cosa: se puede publicar o no, y por qué en criollo. **No se fusiona nada sin eso en
-verde, y no se saltea un paso para que dé verde.** `publicar?:rapido` saltea la prueba de
-navegador y **no alcanza para publicar**.
+1. **El bloque de la música** (bloque 14 de la orden 14): sigue **sin entregar**. Que entre
+   lo que sea —Spotify, YouTube o texto pegado— y salga una sola lista conectada para el DJ.
+2. **Comprobar si Spotify y YouTube están conectadas de verdad.** El panel lo **supone** por
+   lo que hay guardado; nunca lo prueba contra el servicio. Sólo él puede hacerlo: corre en
+   la máquina del dueño y tiene los accesos.
+3. **Abrir `/club-uruguay` con los accesos de producción** y decir qué se ve. Desde el
+   contenedor de prueba no se puede distinguir si está vacía de verdad o si es que no hay base.
+4. **Siete pantallas de imprimir y de reportes, abiertas sin fiesta elegida, muestran entre
+   23 y 166 caracteres**: casi nada. Deberían decir "elegí una fiesta para imprimir". Está
+   anotado en `tests/e2e/internal-route-inventory.spec.ts`.
 
 ## Decisiones ya tomadas (no volver a preguntar)
 
