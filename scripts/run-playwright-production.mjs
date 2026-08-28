@@ -267,6 +267,38 @@ async function main() {
         .map((f) => `tests/e2e/${f}`);
 
   const BATCH_SIZE = 4;
+
+  /**
+   * POR QUE ALGUNAS PRUEBAS NO PUEDEN CORRER JUNTAS
+   *
+   * La maquina tiene cuatro nucleos y la tanda usaba uno solo: cuarenta y dos
+   * minutos con el 75% de la maquina parada. El dueno lo marco: *"demora el
+   * navegador 7 h"*.
+   *
+   * No se puede paralelizar todo. **Estos archivos usan LA MISMA fiesta de
+   * prueba**: si corren a la vez, uno sube una foto al muro mientras el otro las
+   * cuenta, y aparecen fallas inventadas. Esas son las peores: hacen perder horas
+   * buscando un problema que no existe.
+   *
+   * Asi que la regla es simple: **la tanda que toca la fiesta compartida va de a
+   * una; el resto, de a tres.**
+   *
+   * Si agregas una prueba nueva que use `helpers/fiesta-de-prueba`, sumala aca.
+   */
+  const COMPARTEN_LA_FIESTA_DE_PRUEBA = [
+    'entretenimientos-a-fondo.spec.ts',
+    'estaciones-sin-clave.spec.ts',
+    'fotocabina-de-punta-a-punta.spec.ts',
+    'fotos-de-la-app.spec.ts',
+    'muro-subir-foto.spec.ts',
+    'noche-de-fiesta.spec.ts',
+    'prospecto-simulador.spec.ts',
+    'senal-mala.spec.ts',
+    'tarjetas-whatsapp.spec.ts',
+  ];
+
+  const trabajadoresPara = (batch) =>
+    batch.some((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f))) ? 1 : 3;
   const tandas = [];
   /**
    * Tandas que se cayeron sin llegar a correr una sola prueba.
@@ -280,8 +312,17 @@ async function main() {
    */
   const tandasCaidas = [];
 
-  for (let i = 0; i < allSpecFiles.length; i += BATCH_SIZE) {
-    tandas.push(allSpecFiles.slice(i, i + BATCH_SIZE));
+  // Se agrupan primero los que comparten la fiesta de prueba. Si quedaran
+  // repartidos, cada tanda tendria uno adentro y **todas** correrian de a una,
+  // que es justo lo que se quiere evitar. Agrupados, solo dos o tres tandas van
+  // lentas y el resto vuela.
+  const ordenados = [
+    ...allSpecFiles.filter((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f))),
+    ...allSpecFiles.filter((f) => !COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f))),
+  ];
+
+  for (let i = 0; i < ordenados.length; i += BATCH_SIZE) {
+    tandas.push(ordenados.slice(i, i + BATCH_SIZE));
   }
 
   console.log(`\n======================================================`);
@@ -302,7 +343,11 @@ async function main() {
 
     try {
       await waitForHealth(port);
-      const result = await runPlaywright(batch, flags);
+      const trabajadores = trabajadoresPara(batch);
+      if (trabajadores > 1) {
+        console.log(`  (esta tanda no toca la fiesta compartida: corre de a ${trabajadores})`);
+      }
+      const result = await runPlaywright(batch, [...flags, `--workers=${trabajadores}`]);
       const tests = extractTestsFromSuites(result.json?.suites);
 
       if (tests.length === 0) {
