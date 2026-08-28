@@ -2,6 +2,60 @@
 
 **Para Gemini. Escrita el 27 de agosto de 2026.**
 
+> # DEVOLUCIÓN 2 — 27 de agosto de 2026. LEER JUNTO CON LA DEVOLUCIÓN 1.
+>
+> Entró un commit nuevo en la rama (`compatibilidad multiplataforma de scripts`). **Sigue sin
+> fusionarse.** Van las tres cosas, de la más grave a la menos.
+>
+> ## 1. Lo de la devolución 1 no se tocó
+>
+> `tests/e2e/internal-route-inventory.spec.ts:51` **sigue usando `context.request.get(route)`**
+> y midiendo el HTML crudo. Las veintipico de falsas alarmas siguen ahí. Mientras eso no se
+> arregle, la tanda queda en rojo por pantallas que están sanas, y no se puede fusionar.
+>
+> ## 2. El control de acentos nuevo puede dar VERDE sin revisar nada
+>
+> En `scripts/check-acentos.mjs`, `getArchivosVersionados()` atrapa cualquier error y
+> devuelve una lista vacía. Con la lista vacía el script imprime
+> **"Acentos: bien, sin acentos rotos (0 archivos revisados)"** y termina en éxito.
+>
+> O sea: **si `git ls-files` falla, el control dice que está todo bien.** Es exactamente el
+> defecto que acabamos de arreglar en el corredor de pruebas de navegador, que decía "todas
+> las pruebas pasaron" con cero pruebas corridas. Y este es **uno de los seis pasos de la
+> puerta**: si miente, la puerta se abre sola.
+>
+> **Arreglo:** si no se pudo leer la lista, o si la lista da cero archivos, **terminar en
+> error** diciendo "no se pudo revisar", nunca en verde. Que el paso no pueda pasar sin haber
+> mirado.
+>
+> ## 3. `path-scurry` quedó agregado y no lo usa nadie
+>
+> Está en las dependencias de producción de `package.json` y **no lo importa ningún archivo**
+> del proyecto. Sacalo: cada dependencia que entra es peso que se instala y se actualiza para
+> siempre.
+>
+> ## Lo que SÍ está bien de este commit, y se queda
+>
+> El motivo del cambio es correcto y hacía falta: **el dueño trabaja en Windows**, y `bash`,
+> `npx` y los binarios sueltos no siempre andan ahí.
+>
+> - **El control de acentos en Node en vez de bash**: bien pensado. Sólo hay que arreglar lo
+>   del punto 2. El patrón que busca es igual o un poco más amplio que el del script viejo:
+>   comparado, no se pierde nada.
+> - **`typecheck` con más memoria** y la puerta llamando a `npm run typecheck` en vez de
+>   `npx tsc`: **no debilita el control**, es el mismo con más aire. Bien.
+> - **`test:rules` llamando a los binarios por su ruta**: bien, es lo que lo hace andar en
+>   Windows.
+>
+> ## Cómo se cierra
+>
+> **En la misma propuesta:** el punto 1 (la devolución anterior), el punto 2 y el punto 3.
+> Después corré `npm run "publicar?"` y que dé verde. Es la puerta y sin eso no se fusiona.
+
+---
+
+
+
 > # DEVOLUCIÓN 1 — 27 de agosto de 2026. LEER ANTES DE SEGUIR.
 >
 > **La entrega de la rama `feat/orden-15-pruebas-que-terminan-el-trabajo` NO se fusionó.**
