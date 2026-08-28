@@ -4,6 +4,7 @@
 import type { ServicioEmpresa, TipoCosto } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { cachedFetch, cacheInvalidate } from '@/lib/server-cache';
 
 const SERVICIOS_EMPRESA_FILE = 'servicios-empresa.json';
 
@@ -15,28 +16,30 @@ export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
     return leerServiciosEmpresa();
 }
 
-/** Sin comprobar sesion: uso interno de este archivo. */
+/** Sin comprobar sesion: uso interno de este archivo con cache en memoria. */
 async function leerServiciosEmpresa(): Promise<ServicioEmpresa[]> {
-    const items = await readData<any[]>(SERVICIOS_EMPRESA_FILE, []);
-    return (Array.isArray(items) ? items : []).map(item => ({
-      id: item.id,
-      nombre: item.nombre,
-      tipoItem: item.tipoItem || 'Servicio',
-      categoria: item.categoria,
-      subcategoria: item.subcategoria || undefined,
-      valorUnitarioEstimado: item.valorUnitarioEstimado === undefined || item.valorUnitarioEstimado === null || isNaN(Number(item.valorUnitarioEstimado)) ? 0 : Number(item.valorUnitarioEstimado),
-      tipoCosto: item.tipoCosto || (item.categoria === 'Personal' ? 'Personal' : 'Proveedor'),
-      proveedor: item.proveedor || undefined,
-      notas: item.notas || undefined,
-      precioVenta: item.precioVenta === undefined || item.precioVenta === null || isNaN(Number(item.precioVenta)) ? undefined : Number(item.precioVenta),
-      calculationMethod: item.calculationMethod || 'fijo',
-      precioBase: item.precioBase === undefined || item.precioBase === null || isNaN(Number(item.precioBase)) ? undefined : Number(item.precioBase),
-      precioPorPersona: item.precioPorPersona === undefined || item.precioPorPersona === null || isNaN(Number(item.precioPorPersona)) ? undefined : Number(item.precioPorPersona),
-      invitadosPorUnidad: item.invitadosPorUnidad === undefined || item.invitadosPorUnidad === null || isNaN(Number(item.invitadosPorUnidad)) ? undefined : Number(item.invitadosPorUnidad),
-      tramosDePrecio: item.tramosDePrecio || undefined,
-      unidad: item.unidad || 'Unidad',
-      imageUrl: item.imageUrl || undefined,
-    }));
+    return cachedFetch('servicios-empresa-raw', async () => {
+      const items = await readData<any[]>(SERVICIOS_EMPRESA_FILE, []);
+      return (Array.isArray(items) ? items : []).map(item => ({
+        id: item.id,
+        nombre: item.nombre,
+        tipoItem: item.tipoItem || 'Servicio',
+        categoria: item.categoria,
+        subcategoria: item.subcategoria || undefined,
+        valorUnitarioEstimado: item.valorUnitarioEstimado === undefined || item.valorUnitarioEstimado === null || isNaN(Number(item.valorUnitarioEstimado)) ? 0 : Number(item.valorUnitarioEstimado),
+        tipoCosto: item.tipoCosto || (item.categoria === 'Personal' ? 'Personal' : 'Proveedor'),
+        proveedor: item.proveedor || undefined,
+        notas: item.notas || undefined,
+        precioVenta: item.precioVenta === undefined || item.precioVenta === null || isNaN(Number(item.precioVenta)) ? undefined : Number(item.precioVenta),
+        calculationMethod: item.calculationMethod || 'fijo',
+        precioBase: item.precioBase === undefined || item.precioBase === null || isNaN(Number(item.precioBase)) ? undefined : Number(item.precioBase),
+        precioPorPersona: item.precioPorPersona === undefined || item.precioPorPersona === null || isNaN(Number(item.precioPorPersona)) ? undefined : Number(item.precioPorPersona),
+        invitadosPorUnidad: item.invitadosPorUnidad === undefined || item.invitadosPorUnidad === null || isNaN(Number(item.invitadosPorUnidad)) ? undefined : Number(item.invitadosPorUnidad),
+        tramosDePrecio: item.tramosDePrecio || undefined,
+        unidad: item.unidad || 'Unidad',
+        imageUrl: item.imageUrl || undefined,
+      }));
+    }, 15_000);
 }
 
 /**
@@ -120,6 +123,7 @@ export async function saveServicioEmpresa(
   }
   
   await writeData(SERVICIOS_EMPRESA_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+  cacheInvalidate('servicios-empresa-raw');
   return { success: true, id: itemId, servicio: finalItemData as ServicioEmpresa };
 }
 
@@ -146,6 +150,7 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
   inventario = inventario.filter(s => s.id !== id);
   if (inventario.length === initialLength) return { success: false, error: `Servicio con ID ${id} no encontrado para eliminar.` };
   await writeData(SERVICIOS_EMPRESA_FILE, inventario);
+  cacheInvalidate('servicios-empresa-raw');
   return { success: true };
 }
 

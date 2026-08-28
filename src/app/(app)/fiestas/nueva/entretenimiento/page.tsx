@@ -54,9 +54,17 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import QrFlyerGenerator from '@/components/social-wall/QrFlyerGenerator';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import {
   getEntretenimientoFiesta,
   getEntertainmentLaunchToken,
@@ -711,6 +719,7 @@ function EntretenimientoContent() {
   // Active sub-section / Wizard state
   const [activeStationId, setActiveStationId] = useState<StationId | null>(null);
   const [wizardStep, setWizardStep] = useState<number>(1);
+  const [isQrFlyerOpen, setIsQrFlyerOpen] = useState(false);
 
   // Buzon configuration/messages state for Capsula de Tiempo
   const [buzonMessages, setBuzonMessages] = useState<BuzonMessage[]>([]);
@@ -1105,6 +1114,15 @@ function EntretenimientoContent() {
                 <Monitor className="mr-2 h-4 w-4" />
                 Muro Social
               </Link>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsQrFlyerOpen(true)}
+              className="rounded-xl border-purple-500/40 bg-purple-500/10 text-purple-200 hover:bg-purple-500/20 hover:text-white font-black"
+            >
+              <Printer className="mr-2 h-4 w-4" />
+              Carteles QR para Mesas
             </Button>
             <Button onClick={saveNow} disabled={isSaving} className="rounded-xl bg-rose-600 font-black text-white hover:bg-rose-500 transition-all shadow-[0_0_20px_rgba(225,29,72,0.2)]">
               {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
@@ -1642,6 +1660,110 @@ function EntretenimientoContent() {
                           </label>
                         )}
                       </div>
+
+                      {/* MARCOS HABILITADOS PARA FOTOCABINA */}
+                      {activeStationId === 'fotocabina' && (
+                        <div className="space-y-3 rounded-2xl border border-zinc-800 bg-zinc-900/30 p-4">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-zinc-300 font-bold uppercase tracking-wider">
+                              Marcos Habilitados para la Fiesta
+                            </Label>
+                            <span className="text-[10px] text-zinc-400">
+                              Elegí qué marcos estarán disponibles en pantalla
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {[
+                              { id: 'none', label: 'Sin Marco' },
+                              { id: 'golden', label: 'Dorado Elegante' },
+                              { id: 'neon', label: 'Neón Glow' },
+                              { id: 'flowers', label: 'Flores Románticas' },
+                              { id: 'ak_brand', label: 'AK Brand Oficial' },
+                            ].map((marco) => {
+                              const list = activeStation.marcosHabilitados || ['none', 'golden', 'neon', 'flowers', 'ak_brand'];
+                              const active = list.includes(marco.id);
+                              return (
+                                <button
+                                  type="button"
+                                  key={marco.id}
+                                  onClick={() => {
+                                    const next = active
+                                      ? list.filter((m) => m !== marco.id)
+                                      : [...list, marco.id];
+                                    updateStation(activeStationId, { marcosHabilitados: next });
+                                  }}
+                                  className={cn(
+                                    'flex items-center justify-between rounded-xl border p-2.5 text-xs font-bold transition-all',
+                                    active
+                                      ? 'border-amber-500 bg-amber-500/10 text-amber-300'
+                                      : 'border-zinc-800 bg-zinc-900/40 text-zinc-500 hover:border-zinc-700'
+                                  )}
+                                >
+                                  <span>{marco.label}</span>
+                                  {active && <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* FILTRO DE COLOR Y ESTILO VISUAL DE LA ESTACIÓN */}
+                      <div className="grid gap-4 sm:grid-cols-3 rounded-2xl border border-zinc-800 bg-zinc-900/30 p-4">
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Filtro de Color</Label>
+                          <Select
+                            value={activeStation.filterPreset || 'normal'}
+                            onValueChange={(filterPreset) => updateStation(activeStationId, { filterPreset })}
+                          >
+                            <SelectTrigger className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl">
+                              <SelectValue placeholder="Normal" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                              <SelectItem value="normal">Natural / Sin filtro</SelectItem>
+                              <SelectItem value="vintage">Vintage Cálido</SelectItem>
+                              <SelectItem value="bn">Blanco y Negro Clásico</SelectItem>
+                              <SelectItem value="vibrante">Color Vibrante</SelectItem>
+                              <SelectItem value="sepia">Sepia Nostálgico</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Animación del Disparo</Label>
+                          <Select
+                            value={activeStation.animationStyle || 'flash_clasico'}
+                            onValueChange={(animationStyle) => updateStation(activeStationId, { animationStyle })}
+                          >
+                            <SelectTrigger className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl">
+                              <SelectValue placeholder="Flash Clásico" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                              <SelectItem value="flash_clasico">Flash Blanco Clásico</SelectItem>
+                              <SelectItem value="destello_neon">Destello Neón</SelectItem>
+                              <SelectItem value="suave">Transición Suave</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-xs text-zinc-400 font-bold">Estilo de Fondo</Label>
+                          <Select
+                            value={activeStation.backgroundStyle || 'predeterminado'}
+                            onValueChange={(backgroundStyle) => updateStation(activeStationId, { backgroundStyle })}
+                          >
+                            <SelectTrigger className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl">
+                              <SelectValue placeholder="Predeterminado" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                              <SelectItem value="predeterminado">Predeterminado del Evento</SelectItem>
+                              <SelectItem value="elegante">Elegante Dorado</SelectItem>
+                              <SelectItem value="fiesta">Fiesta Neón</SelectItem>
+                              <SelectItem value="minimalista">Minimalista Oscuro</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -2165,6 +2287,20 @@ function EntretenimientoContent() {
 
           </div>
         )}
+
+        {/* Social Wall Table QR Flyer Generator Modal */}
+        <Dialog open={isQrFlyerOpen} onOpenChange={setIsQrFlyerOpen}>
+          <DialogContent className="max-w-xl bg-zinc-950 border-zinc-800 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-black text-white">Carteles QR de Mesa para el Muro</DialogTitle>
+            </DialogHeader>
+            <QrFlyerGenerator
+              qrUrl={`${origin}/evento/social-wall/${fiestaId}`}
+              eventName={fiesta?.configuracion?.nombreEvento || data?.eventName || 'Nuestra Fiesta'}
+              onClose={() => setIsQrFlyerOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
 
       </div>
     </div>
