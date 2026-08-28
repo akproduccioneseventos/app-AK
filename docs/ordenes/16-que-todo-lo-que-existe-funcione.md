@@ -56,9 +56,14 @@ Por cada uno de los 30, decidí **una** de dos cosas y hacela:
 
 **Escribí en la propuesta cuál elegiste para cada uno y por qué**, en una línea.
 
-Ojo con dos que ya se verificaron a mano y son reales:
-`src/components/invitados/InvitadoQR.tsx` y
-`src/components/social-wall/QrFlyerGenerator.tsx`.
+Tres que **ya se verificaron a mano y son reales**, para que no pierdas el viaje:
+
+- `src/components/invitados/InvitadoQR.tsx`
+- `src/components/social-wall/QrFlyerGenerator.tsx`
+- `src/lib/server-cache.ts` — una capa entera de memoria rapida (`cacheGet`, `cacheSet`,
+  `cacheInvalidate`, `cacheInvalidatePrefix`, `cachedFetch`) que **no usa ningun archivo**.
+  Aparece nombrada una sola vez, y es dentro de un comentario. Decidi si engancharla donde
+  haga falta o borrarla, pero no la dejes como esta.
 
 ## Bloque 2 — Las pantallas del cliente y del invitado, con prueba de resultado
 
