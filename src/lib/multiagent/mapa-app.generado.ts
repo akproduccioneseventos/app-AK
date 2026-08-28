@@ -427,6 +427,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/presupuestos/nuevo",
     "/presupuestos/nuevo/crear",
     "/presupuestos/reporte",
+    "/privacidad",
     "/prospectos",
     "/prospectos/:prospectId",
     "/proveedores",
