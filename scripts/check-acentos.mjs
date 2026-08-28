@@ -18,19 +18,42 @@ const ARCHIVOS_PERMITIDOS = new Set([
   'auditoria-out/informe.md',
 ]);
 
+/**
+ * Un control que no pudo mirar NO dice que esta todo bien.
+ *
+ * Antes, si `git ls-files` fallaba, esta funcion se tragaba el error y devolvia
+ * una lista vacia; el script imprimia "sin acentos rotos (0 archivos revisados)"
+ * y terminaba en exito. O sea: **el control daba verde sin haber revisado nada**,
+ * y es uno de los seis pasos de la puerta. Es el mismo defecto que tenia el
+ * corredor de pruebas de navegador, que decia "todas pasaron" con cero pruebas
+ * corridas. Ahora falla fuerte y dice por que.
+ */
 function getArchivosVersionados() {
+  let raw;
   try {
-    const raw = execSync('git ls-files -- "*.ts" "*.tsx" "*.js" "*.jsx" "*.md"', {
+    raw = execSync('git ls-files -- "*.ts" "*.tsx" "*.js" "*.jsx" "*.md"', {
       encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
+      stdio: ['ignore', 'pipe', 'pipe'],
     });
-    return raw
-      .split('\n')
-      .map((f) => f.trim().replace(/\\/g, '/'))
-      .filter((f) => f.length > 0 && !ARCHIVOS_PERMITIDOS.has(f));
-  } catch {
-    return [];
+  } catch (error) {
+    console.error('Acentos: NO SE PUDO REVISAR. No se pudo leer la lista de archivos del repositorio.');
+    console.error(String(error?.message || error).split('\n')[0]);
+    console.error('Esto no es "todo bien": es que el control no pudo mirar. Corregilo antes de seguir.');
+    process.exit(1);
   }
+
+  const archivos = raw
+    .split('\n')
+    .map((f) => f.trim().replace(/\\/g, '/'))
+    .filter((f) => f.length > 0);
+
+  if (archivos.length === 0) {
+    console.error('Acentos: NO SE PUDO REVISAR. El repositorio no devolvio ningun archivo para mirar.');
+    console.error('Un proyecto con cero archivos versionados no existe: algo esta mal en el entorno.');
+    process.exit(1);
+  }
+
+  return archivos.filter((f) => !ARCHIVOS_PERMITIDOS.has(f));
 }
 
 const archivos = getArchivosVersionados();

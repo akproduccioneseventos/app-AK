@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { calcularResumenNoche, CapturaRegistrada } from '@/lib/entretenimiento/resumen-noche';
-import { evaluarModeracionFoto } from '@/lib/social-gallery/moderacion-automatica';
 import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
 
 describe('Orden 14: Entretenimiento Unificado de AK', () => {
@@ -29,37 +28,6 @@ describe('Orden 14: Entretenimiento Unificado de AK', () => {
       const resumen = calcularResumenNoche([], 'Boda AK');
       expect(resumen.totalCapturas).toBe(0);
       expect(resumen.desglosePorEstacion).toHaveLength(0);
-    });
-  });
-
-  describe('Bloque 12 — Moderación automática del muro', () => {
-    it('auto-aprueba capturas de estaciones oficiales sin demora', () => {
-      const evalOficial = evaluarModeracionFoto({
-        origen: 'estacion_oficial',
-        estacionId: 'espejoMagicoFoto',
-      });
-      expect(evalOficial.aprobado).toBe(true);
-      expect(evalOficial.requiereRevisionHumana).toBe(false);
-    });
-
-    it('retiene fotos corruptas o extremadamente pequeñas para revisión humana', () => {
-      const evalCorrupta = evaluarModeracionFoto({
-        origen: 'subida_invitado',
-        tamanioBytes: 500, // < 2KB
-      });
-      expect(evalCorrupta.aprobado).toBe(false);
-      expect(evalCorrupta.requiereRevisionHumana).toBe(true);
-    });
-
-    it('auto-aprueba fotos normales de invitados con alta confianza', () => {
-      const evalNormal = evaluarModeracionFoto({
-        origen: 'subida_invitado',
-        tamanioBytes: 150000,
-        ancho: 1080,
-        alto: 1920,
-      });
-      expect(evalNormal.aprobado).toBe(true);
-      expect(evalNormal.requiereRevisionHumana).toBe(false);
     });
   });
 

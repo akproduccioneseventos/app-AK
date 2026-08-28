@@ -28,6 +28,19 @@ function getStaticInternalRoutes() {
     .sort();
 }
 
+/** Menos de esto es una pantalla que no le dice nada al que la abre. */
+const UMBRAL_PANTALLA_VACIA = 200;
+
+/** Saca etiquetas, scripts y estilos para quedarse con lo que leeria una persona. */
+function textoVisible(html: string) {
+  return html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 test('every static internal route responds with an authenticated session', async ({ context }, testInfo) => {
   test.skip(testInfo.project.name !== 'chromium-desktop', 'HTTP inventory only needs one browser project.');
   test.setTimeout(30 * 60 * 1000);
@@ -69,15 +82,36 @@ test('every static internal route responds with an authenticated session', async
       }
 
       // 2. Extraer texto visible aproximado (removiendo tags html y scripts)
-      const visibleText = body
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
-        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+      let visibleText = textoVisible(body);
 
-      // 3. Pantalla prácticamente vacía (< 200 caracteres de texto)
-      if (visibleText.length < 200) {
+      /**
+       * Si el HTML viene flaco, HAY QUE ABRIR LA PANTALLA DE VERDAD.
+       *
+       * Casi todas las pantallas internas se dibujan del lado del cliente: lo que
+       * manda el servidor es una cascara de unos 70 caracteres, siempre igual.
+       * Medir eso y cantarlo como "pantalla vacia" reporto veintipico de
+       * pantallas sanas —contabilidad, clientes, empleados, calendario— en una
+       * sola corrida. Una prueba que grita en falso se termina ignorando, y ahi
+       * perdemos el control entero.
+       *
+       * Por eso se abre en el navegador **solo cuando hace falta**: si el HTML ya
+       * trae contenido, alcanza con eso y la corrida sigue rapida.
+       */
+      if (visibleText.length < UMBRAL_PANTALLA_VACIA) {
+        const pagina = await context.newPage();
+        try {
+          await pagina.goto(route, { waitUntil: 'domcontentloaded', timeout: 60_000 });
+          await pagina.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
+          visibleText = ((await pagina.locator('body').innerText().catch(() => '')) || '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        } finally {
+          await pagina.close();
+        }
+      }
+
+      // 3. Pantalla prácticamente vacía, ya mirada de verdad
+      if (visibleText.length < UMBRAL_PANTALLA_VACIA) {
         failures.push(`${route}: pantalla practicamente vacia (${visibleText.length} caracteres de texto)`);
       }
 

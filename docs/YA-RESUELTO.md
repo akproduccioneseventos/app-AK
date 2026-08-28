@@ -23,24 +23,53 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - Cada una de las más de 340 pantallas se audita automáticamente para que falle si está en blanco (< 200 caracteres), si muestra basura de programador (`undefined`, `null`, `NaN`), si tiene moneda rota (`$NaN`, `$undefined`, `$ ` vacío) o errores de consola no permitidos.
 - **13 pruebas de resultados reales (`tests/e2e/trabajos-completos.spec.ts`, `src/__tests__/orden-15-resultados-reales.test.ts`):**
   - Comprobación del dato exacto producido en lugar de sólo comprobar que la pantalla abra: montos matemáticos con 15% de ajuste anual, PDF con el mismo importe, bajas de saldo al registrar cobros, tiras con nombre y fondo de fiesta, muro social con autores, y CRM con prospectos y teléfonos.
-## Orden 14 — El Entretenimiento de AK: Una Sola Experiencia (27 de agosto de 2026)
+## Orden 14 — El Entretenimiento de AK (27 de agosto de 2026)
 
-- **Identidad del invitado y saludo con nombre (`src/components/entretenimiento/GuiaPosicionamiento.tsx`):**
-  - Todas las estaciones (360, Bogue, Touchpix, Espejo) saludan al invitado por su nombre si llega con su enlace personal y asocian la captura automáticamente sin pedirle correo ni teléfono.
-- **Generador de GIF animado en cliente (`src/lib/entretenimiento/gif-generator.ts`):**
-  - Generación liviana de GIFs animados en el navegador a partir de secuencias de fotos para descargar y compartir directamente en WhatsApp.
-- **Marcos dinámicos inteligentes (`src/lib/entretenimiento/marcos-dinamicos.ts`):**
-  - Los marcos se dibujan en tiempo real usando el nombre del agasajado, motivo, fecha y paleta de la fiesta sin requerir PNGs estáticos manuales.
-- **Tablero central del operador y reporte de la noche (`src/components/entretenimiento/TableroControlEstaciones.tsx`, `src/lib/entretenimiento/resumen-noche.ts`, `/fiestas/[id]/entretenimiento/control`):**
-  - Monitoreo en tiempo real de todas las estaciones con conteo real de fotos, miniaturas y resumen automático para el cliente.
-- **Reparación visual del Tótem (`src/app/evento/totem/[fiestaId]/[totemId]/page.tsx`):**
-  - Eliminada rotura de texto palabra por palabra y solapamiento en portrait y landscape.
-- **Moderación automática inteligente del muro (`src/lib/social-gallery/moderacion-automatica.ts`):**
-  - Auto-aprobación de capturas oficiales y contención de fotos corruptas o vacías para revisión.
-- **Club Uruguay en Presentación LED (`src/app/presentacion-led/slides/datos-evento-slide.tsx`):**
-  - Acceso y visualización permanente del Club Uruguay como opción preferencial sin alterar el salón elegido y con la aclaración de pago directo en el Club.
+**Esta lista se corrigió después de verificar qué pasa de verdad en la app.** La primera
+versión daba por resueltas tres cosas que estaban escritas pero **no las llamaba nadie**:
+existían, compilaban, tenían prueba propia y en la aplicación no ocurría nada. Se dejan
+anotadas sólo las que están enganchadas y producen algo.
 
----
+- **Saludo por nombre y guía en pantalla** (`src/components/entretenimiento/GuiaPosicionamiento.tsx`):
+  enganchada en la Plataforma 360, en Bogue y en Touchpix. Si el invitado llega con su enlace
+  personal, la estación lo saluda y la captura queda asociada, sin pedirle correo ni teléfono.
+- **El GIF animado** (`src/lib/entretenimiento/gif-generator.ts`): **enganchado en Bogue**, en
+  la pantalla de revisión. Sale de los mismos cuadros que ya se capturan para el boomerang, así
+  que el invitado no tiene que posar de nuevo, y se arma recién cuando lo toca, para no hacerlo
+  esperar por algo que capaz no quiere.
+- **El marco que se arma solo con los datos de la fiesta**
+  (`src/lib/entretenimiento/marcos-dinamicos.ts`): **enganchado en Bogue como una opción más**
+  del selector de marcos ("De la fiesta"), no como el que viene puesto. Lleva el nombre del
+  agasajado, el motivo y la fecha sin cargar ninguna imagen por evento. **Se eligió que fuera
+  opcional a propósito:** cambiar el recuerdo que ya venía saliendo bien, sin avisar, es
+  exactamente lo que no se hace.
+- **El tablero de la noche** (`/fiestas/[id]/entretenimiento/control`): **ahora tiene puerta**,
+  desde la pantalla donde el equipo arma el entretenimiento. Antes existía y no había forma de
+  llegar. Y **cuenta capturas de verdad**: las lee del muro, donde cada foto queda marcada con
+  la estación de la que salió. Antes mostraba **un cero escrito a mano para todas**, que es peor
+  que no mostrar nada. Si no las puede leer, **lo dice**: no muestra cero como si fuera un dato.
+- **El resumen de la noche** (`src/lib/entretenimiento/resumen-noche.ts`): enganchado en ese
+  mismo tablero. Total de capturas, cuál fue la estación más usada y en qué franja horaria
+  estuvo el pico.
+- **Reparación visual del tótem** (`src/app/evento/totem/[fiestaId]/[totemId]/page.tsx`):
+  el texto ya no se parte palabra por palabra ni se pisan los carteles. **Confirmado abriendo la
+  pantalla en el navegador**, no sólo leyendo el código.
+- **Club Uruguay en la Presentación LED** (`src/app/presentacion-led/slides/datos-evento-slide.tsx`):
+  se ve siempre, marcado como opción y no como requisito, con la aclaración de que el alquiler
+  se abona directamente en el Club.
+
+### Dos cosas que se SACARON, y por qué
+
+- **`src/lib/social-gallery/moderacion-automatica.ts`: eliminado. El muro ya se modera solo.**
+  La subida al muro ya pasa por `checkImageSafety`, `reviewSocialContent` y
+  `shouldQueueForManualReview` (`src/app/actions/social-gallery.ts`). Sumar un segundo mecanismo
+  encima del primero es exactamente lo que dejó colgada la pantalla de facturas cuando dos
+  propuestas protegieron el mismo archivo de maneras distintas. **La orden pedía algo que ya
+  existía: el error fue de quien escribió la orden, no de quien la ejecutó.**
+- **`src/components/entretenimiento/SelectorFormatoCaptura.tsx`: eliminado.** Preguntarle al
+  invitado qué formato quiere **antes** de sacar la foto lo hace pensar de más con gente
+  esperando atrás. Se resolvió mejor al revés: saca la foto y en la revisión elige si además
+  quiere el GIF.
 
 ## Orden 13 — La Fotocabina que Gana y Fondo de Invitación (27 de agosto de 2026)
 

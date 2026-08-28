@@ -1088,6 +1088,18 @@ function EntretenimientoContent() {
           </div>
 
           <div className="flex flex-wrap gap-3">
+            {/*
+              La puerta al tablero de la noche.
+              La pantalla existia y no habia forma de llegar: ningun boton ni menu
+              llevaba hasta ella, asi que nadie la iba a abrir nunca. Va aca, que es
+              donde el equipo arma el entretenimiento de esta fiesta.
+            */}
+            <Button asChild variant="outline" className="rounded-xl border-amber-500/40 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20 hover:text-white font-black">
+              <Link href={`/fiestas/${fiestaId}/entretenimiento/control`}>
+                <Monitor className="mr-2 h-4 w-4" />
+                Tablero de la noche
+              </Link>
+            </Button>
             <Button asChild variant="outline" className="rounded-xl border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800 hover:text-white font-black">
               <Link href={`/fiestas/nueva/muro-social?fiestaId=${fiestaId}`}>
                 <Monitor className="mr-2 h-4 w-4" />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState, useEffect, useRef } from 'react';
+import { generarGifDesdeImagenes } from '@/lib/entretenimiento/gif-generator';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -48,9 +49,19 @@ const BOGUE_FRAMES = [
   { id: 'neon-glow', label: 'Neón Fiesta', border: 'rgba(236, 72, 153, 0.8)' },
   { id: 'luxury-gold', label: 'Luxury Oro', border: 'rgba(234, 179, 8, 0.8)' },
   { id: 'cyberpunk', label: 'Cyberpunk', border: 'rgba(6, 182, 212, 0.8)' },
+  /**
+   * El marco que se arma solo con los datos de la fiesta.
+   *
+   * Va como una opcion mas, no como el que viene puesto: el operador lo elige si
+   * quiere. Asi nadie se encuentra con que le cambio el recuerdo que ya venia
+   * saliendo bien. Lleva el nombre del agasajado, el motivo y la fecha, sin que
+   * haya que cargar ninguna imagen por evento.
+   */
+  { id: 'fiesta', label: 'De la fiesta', border: 'rgba(212, 175, 55, 0.85)' },
 ];
 
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
+import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
 
 export default function BoguePage() {
   const params = useParams();
@@ -82,6 +93,17 @@ export default function BoguePage() {
   const [recordingProgress, setRecordingProgress] = useState(0); // 0 to 100
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
   const [finalStripUrl, setFinalStripUrl] = useState<string | null>(null);
+  /**
+   * El GIF, que es lo que la gente manda por WhatsApp.
+   *
+   * Bogue ya guarda los cuadros de la tanda para armar el boomerang, asi que el
+   * GIF sale de los mismos cuadros: no se le pide al invitado que pose de nuevo.
+   * Se arma cuando lo toca, no antes, para no hacerlo esperar por algo que capaz
+   * no quiere.
+   */
+  const [gifUrl, setGifUrl] = useState<string | null>(null);
+  const [armandoGif, setArmandoGif] = useState(false);
+  const [cuadrosDeLaTanda, setCuadrosDeLaTanda] = useState<string[]>([]);
   const [isPrinting, setIsPrinting] = useState(false);
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
@@ -376,6 +398,8 @@ export default function BoguePage() {
     let stripUrl: string | null = null;
     try {
       const fotosBase64 = frames.map(f => f.toDataURL('image/jpeg', 0.9));
+      setCuadrosDeLaTanda(fotosBase64);
+      setGifUrl(null);
       const eventName = fiesta?.eventName || 'Bogue';
       const eventDate = fiesta?.eventDate || '';
       const colorDeAcento = fiesta?.station.accentColor || '#ec4899';
@@ -490,6 +514,17 @@ export default function BoguePage() {
 
   const drawFrameOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (selectedFrame === 'none') return;
+
+    if (selectedFrame === 'fiesta') {
+      dibujarMarcoDinamico(ctx, w, h, {
+        estilo: 'elegante',
+        nombreAgasajado: fiesta?.nombreAgasajado,
+        nombreEvento: fiesta?.eventName,
+        fechaEvento: fiesta?.eventDate,
+        colorPrimario: fiesta?.primaryColor || fiesta?.station.accentColor,
+      });
+      return;
+    }
     
     ctx.lineWidth = 0;
     ctx.shadowBlur = 0;
@@ -996,6 +1031,42 @@ export default function BoguePage() {
                   {isPrinting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Flame className="w-5 h-5" />}
                   {isPrinting ? 'Imprimiendo...' : 'Imprimir Recuerdo'}
                 </button>
+
+                {cuadrosDeLaTanda.length > 1 && !gifUrl && (
+                  <button
+                    onClick={async () => {
+                      if (armandoGif) return;
+                      setArmandoGif(true);
+                      try {
+                        const gif = await generarGifDesdeImagenes(cuadrosDeLaTanda, { delayMs: 220 });
+                        setGifUrl(gif);
+                      } catch {
+                        setUploadError('No se pudo armar el GIF. La foto y el video siguen estando.');
+                      } finally {
+                        setArmandoGif(false);
+                      }
+                    }}
+                    disabled={armandoGif}
+                    className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 font-bold text-white transition-all disabled:opacity-50"
+                  >
+                    {armandoGif ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                    {armandoGif ? 'Armando el GIF...' : 'Quiero el GIF animado'}
+                  </button>
+                )}
+
+                {gifUrl && (
+                  <div className="flex w-full flex-col items-center gap-2">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={gifUrl} alt="GIF animado del recuerdo" className="h-48 object-contain rounded-md" />
+                    <a
+                      href={gifUrl}
+                      download="recuerdo-ak.gif"
+                      className="w-full text-center py-3 px-6 rounded-xl bg-white/90 hover:bg-white font-bold text-zinc-900 transition-all"
+                    >
+                      Guardar el GIF en el telefono
+                    </a>
+                  </div>
+                )}
               </div>
             )}
 
