@@ -167,7 +167,24 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
   [fiesta?.decoracion?.items]);
 
   if (isLoading) { return <div className="p-8 max-w-3xl mx-auto bg-white"><div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div></div>; }
-  if (error || !fiesta) { return <div className="p-8 max-w-3xl mx-auto text-center"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">{error || 'No se encontró la fiesta'}</p></div>; }
+  if (error || !fiesta) {
+    return (
+      <div className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border shadow-sm my-12 space-y-4">
+        <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 mb-2" />
+        <h2 className="text-xl font-bold text-foreground">Elegí una fiesta para ver este resumen</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Para generar e imprimir el resumen operativo completo con menú, personal y decoración, seleccioná primero la fiesta correspondiente desde el listado general de eventos.
+        </p>
+        <div className="pt-2">
+          <Button asChild>
+            <Link href="/fiestas">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de fiestas
+            </Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
   
   const { configuracion, decoracion, tareas } = fiesta;
   const tareasPendientes = tareas?.filter(t => !t.completada) || [];

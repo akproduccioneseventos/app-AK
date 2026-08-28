@@ -170,10 +170,19 @@ function CargaOperativaPdfContent() {
 
   if (error || !accessView || !listaDeCarga) {
     return (
-      <div className="p-8 max-w-3xl mx-auto bg-white text-center">
-        <AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" />
-        <p className="font-semibold text-lg text-destructive">Error al Cargar</p>
-        <p className="text-sm text-muted-foreground">{error || "No se pudieron cargar los datos necesarios."}</p>
+      <div className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border shadow-sm my-12 space-y-4">
+        <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 mb-2" />
+        <h2 className="text-xl font-bold text-foreground">Elegí una fiesta para ver la lista de carga</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Para ver, imprimir o tildar la lista de carga operativa con equipos y mobiliario, seleccioná primero la fiesta correspondiente desde el listado general de eventos.
+        </p>
+        <div className="pt-2">
+          <Button asChild>
+            <Link href="/fiestas">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de fiestas
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }

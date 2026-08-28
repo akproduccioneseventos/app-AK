@@ -37,18 +37,11 @@ function getStaticInternalRoutes() {
  *
  * OJO, y esto quedo anotado para arreglar: **abiertas asi muestran entre 23 y
  * 166 caracteres, o sea casi nada**. Deberian decir "elegi una fiesta para
- * imprimir" en vez de dejar al que llega mirando una pantalla en blanco. Eso es
- * una mejora de las pantallas, no de esta prueba, y va en una orden aparte.
+/**
+ * Ya no hay pantallas vacias: las 7 pantallas de imprimir y reportes ahora
+ * explican con claridad qué hacer y ofrecen boton para elegir fiesta.
  */
-const SIN_FIESTA_NO_MUESTRAN_NADA = [
-  '/fiestas/nueva/resumen-imprimible',
-  '/fiestas/nueva/carga-operativa/pdf',
-  '/fiestas/nueva/itinerario/pdf',
-  '/fiestas/nueva/musica/pdf',
-  '/fiestas/nueva/gestion-costos-rentabilidad/reporte',
-  '/presupuestos/reporte',
-  '/empresa/configurador-reunion',
-];
+const SIN_FIESTA_NO_MUESTRAN_NADA: string[] = [];
 
 /** Menos de esto es una pantalla que no le dice nada al que la abre. */
 const UMBRAL_PANTALLA_VACIA = 200;

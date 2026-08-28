@@ -173,11 +173,34 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
     },
     {
       id: 'spotify',
-      nombre: 'Spotify',
+      nombre: 'Spotify (Búsqueda y Playlists)',
       categoria: 'Música y DJs',
-      estado: spConn || process.env.SPOTIFY_CLIENT_ID ? 'conectada' : 'no-se-usa',
-      detalle: spConn ? 'Lista o perfil vinculado' : (process.env.SPOTIFY_CLIENT_ID ? 'API de Spotify vinculada' : 'Sin credenciales de Spotify'),
-      queSePierdeSiFalta: 'El DJ no puede previsualizar listas de Spotify creadas por los clientes.',
+      estado: (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET)
+        ? 'conectada'
+        : spConn
+        ? 'conectada'
+        : 'falta-configurarla',
+      detalle: (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET)
+        ? process.env.SPOTIFY_REFRESH_TOKEN
+          ? 'Búsqueda pública y volcado a cuenta del dueño activos'
+          : 'Búsqueda pública activa (falta vincular cuenta del dueño para volcar listas)'
+        : spConn
+        ? `Perfil guardado: ${spConn.username || 'conectado'}`
+        : 'Faltan credenciales (SPOTIFY_CLIENT_ID / SPOTIFY_CLIENT_SECRET)',
+      queSePierdeSiFalta: 'El DJ no puede previsualizar listas ni buscar canciones directamente en la app.',
+      enlaceConfiguracion: '/settings/social-connections',
+    },
+    {
+      id: 'youtube',
+      nombre: 'YouTube',
+      categoria: 'Música y Video',
+      estado: (process.env.YOUTUBE_API_KEY || process.env.GOOGLE_API_KEY || ytConn) ? 'conectada' : 'falta-configurarla',
+      detalle: (process.env.YOUTUBE_API_KEY || process.env.GOOGLE_API_KEY)
+        ? 'API de YouTube conectada para resolución de canciones'
+        : ytConn
+        ? `Canal guardado: ${ytConn.username || 'conectado'}`
+        : 'Falta configurar clave de YouTube para resolver videos de clientes',
+      queSePierdeSiFalta: 'Los videos de YouTube que mandan los clientes quedan como texto sin resolver el título y artista.',
       enlaceConfiguracion: '/settings/social-connections',
     },
     {

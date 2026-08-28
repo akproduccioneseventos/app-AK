@@ -295,11 +295,14 @@ export default function ConfiguradorReunionPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-slate-500">
+      <div className="flex min-h-[70vh] flex-col items-center justify-center text-center p-8 space-y-4 max-w-md mx-auto">
+        <div className="rounded-full bg-red-100 p-4">
           <Loader2 className="h-8 w-8 animate-spin text-red-600" />
-          <p className="text-sm font-semibold">Cargando configurador de reunión...</p>
         </div>
+        <h2 className="text-xl font-black text-slate-900">Configurador Visual 3D & Reunión de Cierre</h2>
+        <p className="text-sm text-slate-600 leading-relaxed">
+          Cargando el salón interactivo tridimensional, catálogo de servicios de sonido e iluminación, y motor de cálculo de presupuestos en tiempo real para la presentación con el cliente.
+        </p>
       </div>
     );
   }

@@ -98,11 +98,19 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
 
   if (error || !fiesta) {
     return (
-      <div className="p-8 max-w-3xl mx-auto bg-white text-center flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <AlertTriangle className="w-16 h-16 text-destructive" />
-        <h2 className="text-2xl font-bold text-destructive">Error al Generar Reporte</h2>
-        <p className="text-muted-foreground">{error}</p>
-        <Button asChild variant="outline"><Link href={`/fiestas/nueva/itinerario?fiestaId=${fiestaId || ''}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver a la Planificación</Link></Button>
+      <div className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border shadow-sm my-12 space-y-4">
+        <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 mb-2" />
+        <h2 className="text-xl font-bold text-foreground">Elegí una fiesta para ver el cronograma</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Para ver o imprimir el itinerario y cronograma de horarios minuto a minuto, seleccioná primero la fiesta correspondiente desde el listado general de eventos.
+        </p>
+        <div className="pt-2">
+          <Button asChild>
+            <Link href="/fiestas">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de fiestas
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }

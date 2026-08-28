@@ -84,11 +84,19 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
   
   if (error || !reportData) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen text-center p-4">
-          <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
-          <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
-          <p className="text-muted-foreground mt-2">{error || "No se encontró información del evento."}</p>
-          <Button asChild variant="outline" className="mt-4"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>Volver</Link></Button>
+      <div className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border shadow-sm my-12 space-y-4">
+        <AlertTriangle className="w-12 h-12 mx-auto text-amber-500 mb-2" />
+        <h2 className="text-xl font-bold text-foreground">Elegí una fiesta para ver el reporte de rentabilidad</h2>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Para ver o imprimir el análisis de ingresos, costos directos y margen de ganancia, seleccioná primero la fiesta correspondiente desde el listado general de eventos.
+        </p>
+        <div className="pt-2">
+          <Button asChild>
+            <Link href="/fiestas">
+              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de fiestas
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }

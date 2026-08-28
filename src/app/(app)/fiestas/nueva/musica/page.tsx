@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+import { parsearEntradaMusica } from '@/lib/musica/bandeja-musica';
 
 const cancionesSugeridasTortaBrindis = [
   "Llego la hora de cortar la torta",
@@ -215,18 +216,53 @@ function MusicaContent() {
 
             <Separator />
 
-            <div className="space-y-2">
-              <Label htmlFor="playlist-fiesta" className="text-base flex items-center gap-2">
-                <ListMusic className="w-5 h-5 text-primary/80" /> Playlist y Estilos
-              </Label>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="playlist-fiesta" className="text-base flex items-center gap-2">
+                  <ListMusic className="w-5 h-5 text-primary/80" /> Bandeja Unificada de Música
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Pegá lo que quieras: links de Spotify, videos o playlists de YouTube, o lista pegada de WhatsApp (&quot;Artista - Tema&quot;). La app reconoce y organiza las canciones solas.
+              </p>
               <Textarea
                 id="playlist-fiesta"
                 value={musicaData.playlistFiesta || ''}
                 onChange={(e) => handleInputChange('playlistFiesta', e.target.value)}
-                placeholder="Escribe géneros, artistas o pega enlaces a Spotify/YouTube..."
-                rows={6}
+                placeholder="Pegá links de Spotify/YouTube o texto: 'Despacito - Luis Fonsi, Tití me preguntó - Bad Bunny'..."
+                rows={5}
                 disabled={isSaving}
               />
+
+              {/* Desglose en vivo de canciones reconocidas */}
+              {(() => {
+                const cancionesReconocidas = parsearEntradaMusica(musicaData.playlistFiesta || '');
+                if (cancionesReconocidas.length === 0) return null;
+                return (
+                  <div className="rounded-xl border border-border/80 bg-muted/30 p-4 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black uppercase tracking-wider text-foreground/80 flex items-center gap-1.5">
+                        <Music2 className="w-3.5 h-3.5 text-primary" />
+                        Canciones Reconocidas ({cancionesReconocidas.length})
+                      </p>
+                      <span className="text-[11px] text-muted-foreground font-medium">Listas para el DJ</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
+                      {cancionesReconocidas.map((c, idx) => (
+                        <div key={c.id || idx} className="flex items-center justify-between p-2 rounded-lg bg-background border text-xs shadow-sm">
+                          <div className="min-w-0 pr-2">
+                            <p className="font-bold text-foreground truncate">{c.titulo}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">{c.artista}</p>
+                          </div>
+                          <Badge variant="outline" className="text-[9px] uppercase tracking-wider shrink-0">
+                            {c.fuente === 'spotify' ? '🟢 Spotify' : c.fuente === 'youtube' ? '🔴 YouTube' : '💬 Lista'}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="space-y-2">
