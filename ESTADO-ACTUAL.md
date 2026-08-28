@@ -5,57 +5,70 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 28 de agosto de 2026, cierre.
-**Estado:** la puerta pasó a **ocho pasos**. Todo verde sobre la propuesta del día.
-**Propuesta abierta:** una sola, con el trabajo del día entero.
+**Última actualización:** 28 de agosto de 2026.
+**Estado de la app:** **`npm run "publicar?"` en verde, los ocho pasos**, incluido el
+recorrido completo en navegador. Se puede publicar.
+**Propuestas abiertas:** ninguna.
 
-## Lo que se construyó hoy, y es lo que importa
+## La música quedó conectada de verdad
 
-El dueño lo pidió así: *"quiero algo que repare mi app y que todas las reparaciones o
-agregados futuros no deje que pasen si no funcionan realmente"*. Salieron dos controles
-nuevos, además del de la mañana:
+El pedido del dueño era: *"muchas veces nos pasan link de YouTube; quiero que todo esté
+conectado, no sólo el link."*
 
-1. **El control de promesas.** Frena código que nadie llama, pantallas sin prueba que mire
-   el resultado, y pruebas que sólo confirman que la pantalla se ve.
-2. **Las promesas al cliente.** Cada cosa que la pantalla dice que la app hace declara qué
-   archivo la cumple. **No se puede agregar una función a la lista sin decir si existe.**
-3. **El trinquete.** La deuda vieja quedó medida y **sólo puede bajar**. Si crece, frena.
+La primera entrega **reconocía** el enlace pero **no lo abría**: para una lista de Spotify
+guardaba una canción que decía *"Playlist de Spotify compartida"*, artista *"Spotify"*. El
+DJ hubiera visto eso en vez de los temas. **Era el mismo problema con mejor cartel.**
 
-**Los tres están probados frenando de verdad**, no sólo escritos.
+Ahora hay un botón que **abre los enlaces**: las listas de Spotify se leen con la llave que
+la app ya tenía, y los videos de YouTube por su puerta pública, que **no necesita llave ni
+cuesta nada**. Lo que no se puede abrir vuelve aparte, con el motivo en criollo —lista en
+privado, video borrado, servicio caído— y **nunca como una canción inventada**.
 
-## El método de reparación, para no volver a explicarlo
+**El panel de conexiones ahora pregunta en vez de suponer**, y separa los dos permisos, que
+son distintos: *"buscar canciones y abrir listas"* por un lado y *"escribir en tu playlist"*
+por el otro. Se sacó la fila de YouTube que había quedado duplicada.
 
-No se repara todo de una: son 299 y sería mentira. Tres reglas:
+**El DJ ve una sola lista**: lo del cliente junto con los pedidos de los invitados, con los
+repetidos agrupados y el número al lado.
 
-- El que toca algo, deja limpia **esa** parte.
-- Lo nuevo no puede sumar: la puerta frena.
-- El número sólo baja, nunca sube.
+## Dos defectos reales que aparecieron al verificar
 
-La reparación pasa sola, como consecuencia del trabajo normal.
+1. **La pantalla del Configurador de Reunión —la que se usa sentado adelante del cliente—
+   se rompía entera** y mostraba "¡Ups! Algo salió mal": sin catálogo, sin presupuesto, sin
+   guardar. La causa está adentro de la vista 3D del salón
+   (`Cannot read properties of undefined (reading 'ReactCurrentBatchConfig')`). **Ya no se
+   lleva puesta la pantalla**: si el dibujo falla, falla sólo el dibujo y lo dice en criollo.
+   **PENDIENTE: el 3D sigue sin verse.** React 18.3.1 y `@react-three/fiber` 8.18.0 son
+   compatibles entre sí, así que no es un problema de versiones: hay que buscarlo con calma.
+2. **Yo había puesto esa pantalla en una lista de excepciones** del recorrido, creyendo que
+   estaba vacía por no tener fiesta elegida. Estaba rota. **El control la marcaba bien y la
+   excepción lo tapaba.** Sacada, con la advertencia escrita en el archivo.
 
-## Promesas que la app hace y HOY no cumple (quedan a la vista, no escondidas)
+## Lo que hay que saber de los controles
 
-- **Tótem:** encuestas, juegos y mapa del salón. No existe ninguno.
-- **Bogue:** música. Sólo suenan los pitidos de la cuenta regresiva.
-- **Plataforma 360:** intro y cierre.
+Ahora son ocho pasos. Los dos nuevos —**"Lo que se dijo es lo que es"** y **el trinquete**—
+salieron de la otra sesión y valen su peso: **el primero me agarró a mí**, con una función
+que salía a buscar a Spotify y no tenía ninguna prueba.
 
-**La decisión de qué hacer con esto es del dueño:** construirlo, o corregir el texto. Son
-textos comerciales suyos: **no se tocan hasta que él elija.**
+Antes ya habían aparecido tres controles que mentían: el corredor de navegador decía "todas
+pasaron" con cero pruebas corridas, el de acentos daba verde con cero archivos revisados, y
+el recorrido de pantallas medía el HTML crudo. Los tres, arreglados.
 
-## Lo que espera a Gemini
+**La lección, y ya pasó cuatro veces: cuando un control deja de mirar, lo que entra no se
+ve.**
 
-- **Orden 16** — reparar lo que existe y no se comprobó, con la lista que da
-  `npm run lo-que-se-dijo:todo`.
-- **Orden 17** — el híbrido de las ocho estaciones contra las plataformas pagas. Arranca
-  por el bloque 0: **subir un fondo propio y personalizar las plantillas.**
-- **Orden 15** — sigue devuelta por tercera vez.
+## Método que funcionó, para repetirlo
 
-**Ojo, ya costó un viaje:** el **color de las estaciones YA se puede cambiar y anda**
-(ocho pantallas lo usan). No mandarlo a rehacer.
+**De los hallazgos que reportaron los ayudantes, la mayoría fueron falsa alarma.** Dos
+ejemplos: dijeron que un archivo de "promesas" era código muerto —y es una lista que existe
+justamente para que una prueba la use— y que había números inventados en pantalla —y eran
+valores por defecto de configuración—. **Verificar cada hallazgo con los propios ojos antes
+de tocar nada no es opcional.**
 
-## Falsos positivos verificados a mano (no volver a reportarlos)
+## Decisiones ya tomadas (no volver a preguntar)
 
-- La **cámara lenta** y la **salida LED** de la Plataforma 360 **existen**. Un agente dijo
-  que no y se equivocó.
-- El fondo, el color, el nombre y la fecha de la fotocabina **salen solos de la invitación
-  digital**. Está bien así: es la ventaja que ninguna plataforma paga puede copiar.
+- **No se le pide el mail ni el teléfono al invitado** para darle su foto: frena la fila.
+- **Cloudflare: no.** **Google Flow: no se conecta.**
+- **El agente de publicidad no prende ni crea campañas.** Eso lo activa el dueño.
+- **Nada de promesas en la web** ni precios congelados: trabaja con ajuste anual.
+- **El reloj del simulador va**, y es para la promoción, no para congelar la tarifa.

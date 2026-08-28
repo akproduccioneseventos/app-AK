@@ -12,6 +12,7 @@ import { CheckCircle2, Circle, Music, RefreshCw, ThumbsUp, Volume2, VolumeX, Che
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { FiestaThermometer } from '@/components/fiesta/FiestaThermometer';
+import { parsearEntradaMusica, unificarListaMusica } from '@/lib/musica/bandeja-musica';
 
 const REFRESH_INTERVAL_MS = 5000;
 
@@ -74,6 +75,30 @@ export default function DJPage() {
   const displayed = showPlayed ? requests : unplayed;
   const eventName = fiesta?.configuracion.nombreEvento ?? 'Evento';
 
+  /**
+   * La lista que ve el DJ: lo del cliente y lo de los invitados, junto.
+   *
+   * Los pedidos de los invitados ya venian guardados en `cancionesDJ` de cada
+   * uno, pero quedaban en otra pantalla. Se juntan aca, se agrupan los repetidos
+   * y se respetan las prohibidas del cliente.
+   */
+  const listaUnificada = React.useMemo(() => {
+    const delCliente = parsearEntradaMusica(fiesta?.musica?.playlistFiesta || '');
+    const deLosInvitados = (fiesta?.invitados || []).flatMap((invitado: { nombre?: string; cancionesDJ?: string[] }) =>
+      (invitado.cancionesDJ || []).map((cancion) => ({
+        cancion,
+        invitadoNombre: invitado.nombre,
+      })),
+    );
+    return unificarListaMusica(
+      delCliente,
+      deLosInvitados,
+      // Las prohibidas se cargan en un solo campo de texto, un tema por renglon.
+      (fiesta?.musica?.listaNoReproducir || '').split('\n').map((linea: string) => linea.trim()).filter(Boolean),
+      fiesta?.musica?.cancionesTortaBrindis || [],
+    );
+  }, [fiesta]);
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans">
       {/* Header */}
@@ -127,8 +152,87 @@ export default function DJPage() {
         </span>
       </div>
 
-      {/* BLOQUE FIJO: Lista de Música del Cliente (Infaltables vs Prohibidas) */}
+      {/* BLOQUE FIJO: Momentos Clave y Lista del Cliente */}
       <div className="max-w-2xl mx-auto px-4 mb-4 space-y-3">
+        {/* Momentos Especiales (Entrada, Vals, Torta) */}
+        {(fiesta?.musica?.cancionEntrada || fiesta?.musica?.cancionVals || (fiesta?.musica?.cancionesTortaBrindis && fiesta.musica.cancionesTortaBrindis.length > 0)) ? (
+          <div className="rounded-2xl border-2 border-indigo-500/60 bg-gradient-to-r from-indigo-950/70 via-zinc-900 to-purple-950/70 p-4 shadow-xl shadow-indigo-950/30">
+            <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-indigo-500/30">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">✨</span>
+                <h2 className="text-base sm:text-lg font-black text-indigo-300 tracking-tight">
+                  MOMENTOS CLAVE DE LA FIESTA
+                </h2>
+              </div>
+              <span className="text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 px-2 py-0.5 rounded-full">
+                Protocolo
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+              {fiesta.musica?.cancionEntrada && (
+                <div className="p-2.5 rounded-xl bg-black/40 border border-indigo-500/30">
+                  <p className="text-[10px] uppercase font-black tracking-wider text-indigo-400">Entrada</p>
+                  <p className="font-bold text-white truncate">{fiesta.musica.cancionEntrada}</p>
+                </div>
+              )}
+              {fiesta.musica?.cancionVals && (
+                <div className="p-2.5 rounded-xl bg-black/40 border border-purple-500/30">
+                  <p className="text-[10px] uppercase font-black tracking-wider text-purple-400">Vals</p>
+                  <p className="font-bold text-white truncate">{fiesta.musica.cancionVals}</p>
+                </div>
+              )}
+              {fiesta.musica?.cancionesTortaBrindis && fiesta.musica.cancionesTortaBrindis.length > 0 && (
+                <div className="p-2.5 rounded-xl bg-black/40 border border-pink-500/30">
+                  <p className="text-[10px] uppercase font-black tracking-wider text-pink-400">Torta / Brindis</p>
+                  <p className="font-bold text-white truncate">{fiesta.musica.cancionesTortaBrindis.join(', ')}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null}
+
+        {/*
+          Una sola lista, con lo del cliente y lo de los invitados junto.
+          Antes esta pantalla mostraba nada mas lo que habia pegado el cliente, y
+          los pedidos de los invitados quedaban en otro lado. Ahora se juntan y
+          **los repetidos se agrupan**: si diez piden el mismo tema aparece una
+          vez con el numero al lado, que ademas le dice al DJ que es lo que mas
+          quieren.
+        */}
+        {listaUnificada.length > 0 ? (
+          <div className="rounded-2xl border-2 border-emerald-500/60 bg-gradient-to-r from-emerald-950/70 via-zinc-900 to-teal-950/70 p-4 shadow-xl shadow-emerald-950/30">
+            <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-emerald-500/30">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🎧</span>
+                <h2 className="text-base sm:text-lg font-black text-emerald-300 tracking-tight">
+                  LA MUSICA DE LA FIESTA
+                </h2>
+              </div>
+              <span className="text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full">
+                {listaUnificada.length} temas
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+              {listaUnificada.map((tema, idx) => (
+                <div key={`${tema.titulo}-${idx}`} className="flex items-center justify-between p-2 rounded-xl bg-black/40 border border-emerald-500/20 text-xs">
+                  <div className="min-w-0 pr-2">
+                    <p className="font-bold text-emerald-100 truncate">{tema.titulo}</p>
+                    <p className="text-[10px] text-zinc-400 truncate">
+                      {tema.artista}
+                      {tema.pedidosPor.length > 0 ? ` · ${tema.pedidosPor.slice(0, 2).join(', ')}` : ''}
+                    </p>
+                  </div>
+                  {tema.repeticiones > 1 && (
+                    <span className="text-[10px] font-black text-amber-300 bg-amber-950 px-1.5 py-0.5 rounded border border-amber-700 shrink-0">
+                      x{tema.repeticiones}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
         {/* 1. Infaltables / Imprescindibles */}
         {fiesta?.listaMusicaPortal?.imprescindibles && fiesta.listaMusicaPortal.imprescindibles.length > 0 ? (
           <div className="rounded-2xl border-2 border-amber-500/70 bg-gradient-to-r from-amber-950/70 via-zinc-900 to-amber-950/70 p-4 shadow-xl shadow-amber-950/30">

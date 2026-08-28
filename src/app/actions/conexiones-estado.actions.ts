@@ -5,6 +5,82 @@ import { readData } from '@/lib/data-service';
 import { idDeMedicionGoogle, idDelPixelMeta } from '@/lib/medicion/identificadores';
 import type { SocialConnection } from '@/types/settings';
 
+/**
+ * Preguntarle al servicio, no a lo que quedo escrito en Ajustes.
+ *
+ * Esta pantalla decia "conectada" porque habia una ficha guardada o porque
+ * existia una llave. Una llave revocada seguia figurando como conectada, y el
+ * dueño se enteraba el dia que lo necesitaba. La regla de la app es que ninguna
+ * pantalla afirma lo que no verifico, y dos renglones mas abajo Google Analytics
+ * ya lo hacia bien.
+ *
+ * El sondeo es barato y con reloj: si el servicio no contesta en pocos segundos,
+ * se dice que no contesta. Nunca deja la pantalla colgada.
+ */
+const SONDEO_TIMEOUT_MS = 5_000;
+let cacheSondeos: { valor: Record<string, { anda: boolean; motivo: string }>; expira: number } | undefined;
+
+async function pedirConReloj(url: string, init?: RequestInit) {
+  const control = new AbortController();
+  const reloj = setTimeout(() => control.abort(), SONDEO_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: control.signal, cache: 'no-store' });
+  } finally {
+    clearTimeout(reloj);
+  }
+}
+
+async function sondearSpotify(): Promise<{ anda: boolean; motivo: string }> {
+  const id = process.env.SPOTIFY_CLIENT_ID?.trim();
+  const secret = process.env.SPOTIFY_CLIENT_SECRET?.trim();
+  if (!id || !secret) return { anda: false, motivo: 'faltan las credenciales de Spotify' };
+
+  const guardado = cacheSondeos?.valor.spotify;
+  if (guardado && (cacheSondeos?.expira || 0) > Date.now()) return guardado;
+
+  try {
+    const respuesta = await pedirConReloj('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${id}:${secret}`).toString('base64')}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({ grant_type: 'client_credentials' }),
+    });
+    const resultado = respuesta.ok
+      ? { anda: true, motivo: 'anda' }
+      : { anda: false, motivo: 'Spotify rechazo las credenciales' };
+    cacheSondeos = {
+      valor: { ...(cacheSondeos?.valor || {}), spotify: resultado },
+      expira: Date.now() + 5 * 60_000,
+    };
+    return resultado;
+  } catch {
+    return { anda: false, motivo: 'Spotify no contesto' };
+  }
+}
+
+async function sondearYoutube(): Promise<{ anda: boolean; motivo: string }> {
+  const guardado = cacheSondeos?.valor.youtube;
+  if (guardado && (cacheSondeos?.expira || 0) > Date.now()) return guardado;
+
+  try {
+    // La puerta publica de YouTube, la misma que usa la app para sacar el titulo
+    // de un video. No necesita llave.
+    const respuesta = await pedirConReloj('https://www.youtube.com/oembed?format=json');
+    const resultado = respuesta.status < 500
+      ? { anda: true, motivo: 'anda' }
+      : { anda: false, motivo: 'YouTube esta caido en este momento' };
+    cacheSondeos = {
+      valor: { ...(cacheSondeos?.valor || {}), youtube: resultado },
+      expira: Date.now() + 5 * 60_000,
+    };
+    return resultado;
+  } catch {
+    return { anda: false, motivo: 'YouTube no contesto' };
+  }
+}
+
 export type EstadoConexion = 'conectada' | 'falta-configurarla' | 'no-se-usa';
 
 export interface ResumenConexion {
@@ -55,6 +131,9 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
   const thConn = findSocial('threads');
   const xConn = findSocial('twitter') || findSocial('x');
   const spConn = findSocial('spotify');
+
+  // Se le pregunta a cada servicio en vez de mirar lo que quedo guardado.
+  const [sondeoSpotify, sondeoYoutube] = await Promise.all([sondearSpotify(), sondearYoutube()]);
 
   const igPosts = posts.filter(p => p.platform === 'Instagram');
   const igDates = igPosts.map(p => p.publishDate).filter(Boolean).sort();
@@ -138,10 +217,19 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
     {
       id: 'youtube',
       nombre: 'YouTube',
-      categoria: 'Video',
-      estado: ytConn ? 'conectada' : 'falta-configurarla',
-      detalle: ytConn ? `Canal: ${ytConn.username || 'conectado'}` : 'Sin canal de YouTube configurado',
-      queSePierdeSiFalta: 'Los videos institucionales y de fiestas no se muestran en el carrusel de presentación ni en la web.',
+      categoria: 'Video y música',
+      /**
+       * Probado, no supuesto.
+       *
+       * Antes decia "conectada" con que existiera una ficha guardada: si el
+       * permiso habia vencido hace un mes, seguia diciendo lo mismo. Ahora se le
+       * pregunta a YouTube y se contesta lo que contesto.
+       */
+      estado: sondeoYoutube.anda ? 'conectada' : (ytConn ? 'falta-configurarla' : 'falta-configurarla'),
+      detalle: sondeoYoutube.anda
+        ? `Leer videos que mandan los clientes: anda${ytConn ? ` · Canal guardado: ${ytConn.username || 'conectado'}` : ''}`
+        : `Leer videos que mandan los clientes: ${sondeoYoutube.motivo}`,
+      queSePierdeSiFalta: 'Los videos de YouTube que manda el cliente quedan como un enlace pelado: nadie sabe que tema es.',
       enlaceConfiguracion: '/settings/social-connections',
     },
     {
@@ -175,9 +263,21 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       id: 'spotify',
       nombre: 'Spotify',
       categoria: 'Música y DJs',
-      estado: spConn || process.env.SPOTIFY_CLIENT_ID ? 'conectada' : 'no-se-usa',
-      detalle: spConn ? 'Lista o perfil vinculado' : (process.env.SPOTIFY_CLIENT_ID ? 'API de Spotify vinculada' : 'Sin credenciales de Spotify'),
-      queSePierdeSiFalta: 'El DJ no puede previsualizar listas de Spotify creadas por los clientes.',
+      /**
+       * Dos permisos distintos, y hay que decirlos por separado.
+       *
+       * Con la llave de la aplicacion se pueden **buscar canciones y abrir listas
+       * publicas**, que es el 90% de lo que hace falta. **Escribir en la playlist
+       * personal del dueño** es otro permiso, de su cuenta. El cartel viejo los
+       * mezclaba en uno: decia "conectada" y despues no se podia escribir nada.
+       */
+      estado: sondeoSpotify.anda ? 'conectada' : 'falta-configurarla',
+      detalle: sondeoSpotify.anda
+        ? `Buscar canciones y abrir listas: anda · Escribir en tu playlist: ${
+            process.env.SPOTIFY_REFRESH_TOKEN ? 'anda' : 'falta darle permiso a la app desde tu cuenta'
+          }`
+        : `Buscar canciones y abrir listas: ${sondeoSpotify.motivo}`,
+      queSePierdeSiFalta: 'El DJ no puede ver las canciones de las listas que mandan los clientes.',
       enlaceConfiguracion: '/settings/social-connections',
     },
     {

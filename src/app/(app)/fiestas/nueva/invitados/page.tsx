@@ -15,6 +15,7 @@ import type { Invitado, RsvpStatus, CategoriaInvitado, PerfilInvitado, DietaryRe
 import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import QRCodeStylized from 'qrcode.react';
+import { InvitadoQR } from '@/components/invitados/InvitadoQR';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
@@ -81,6 +82,7 @@ function InvitadosEventoContent() {
 
   // QR modal state
   const [isMesaQrOpen, setIsMesaQrOpen] = useState(false);
+  const [guestQrModal, setGuestQrModal] = useState<Invitado | null>(null);
   
   const fetchInvitados = useCallback(async () => {
     if (!fiestaId) return;
@@ -315,6 +317,14 @@ function InvitadosEventoContent() {
                             <TableCell>{inv.tableNumber || '-'}</TableCell>
                             <TableCell className="text-right print:hidden">
                               <div className="flex justify-end gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  title="Ver pase QR de acceso"
+                                  onClick={() => setGuestQrModal(inv)}
+                                >
+                                  <QrCode className="w-4 h-4 text-purple-600"/>
+                                </Button>
                                 <Button variant="ghost" size="icon" onClick={() => openEditModal(inv)}>
                                   <Edit3 className="w-4 h-4 text-slate-500"/>
                                 </Button>
@@ -501,6 +511,27 @@ function InvitadosEventoContent() {
               <Download className="w-4 h-4 mr-2" /> Descargar QR
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Individual Guest QR Pass Dialog */}
+      <Dialog open={!!guestQrModal} onOpenChange={(open) => !open && setGuestQrModal(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>🎟️ Pase QR del Invitado</DialogTitle>
+            <DialogDescription>
+              Código de acceso personalizado para el control de entrada en la puerta del evento.
+            </DialogDescription>
+          </DialogHeader>
+          {guestQrModal && (
+            <div className="py-2 flex justify-center">
+              <InvitadoQR
+                invitado={guestQrModal}
+                fiestaId={fiestaId || ''}
+                nombreEvento={fiesta?.configuracion.nombreEvento}
+              />
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

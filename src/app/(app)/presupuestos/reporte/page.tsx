@@ -114,9 +114,19 @@ export default function ReportePresupuestosPage() {
         </header>
 
         {allItems.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">
-            <Info className="w-12 h-12 mx-auto mb-3 opacity-50"/>
-            <p>No hay presupuestos registrados para generar un reporte.</p>
+          <div className="text-center py-12 px-6 max-w-lg mx-auto bg-muted/20 rounded-2xl border space-y-3">
+            <Info className="w-12 h-12 mx-auto text-muted-foreground opacity-60 mb-2" />
+            <h3 className="font-bold text-lg text-foreground">No hay presupuestos registrados</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Todavía no se generaron presupuestos en el sistema para armar este reporte consolidado. Podés crear un presupuesto nuevo desde el simulador o desde el panel de presupuestos.
+            </p>
+            <div className="pt-2">
+              <Button asChild>
+                <Link href="/presupuestos/nuevo">
+                  Crear un presupuesto nuevo
+                </Link>
+              </Button>
+            </div>
           </div>
         ) : (
           <Table>

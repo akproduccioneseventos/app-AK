@@ -52,14 +52,13 @@ function baseDeComparacion() {
 
 function archivosQueCambiaron() {
   if (MIRAR_TODO) {
-    // `git ls-files` solo lista lo ya guardado en el repositorio. Un archivo
-    // nuevo sin guardar se le escapaba, y el trinquete daba verde con deuda
-    // nueva adentro. Se comprobo: se agrego un componente muerto y no lo vio.
-    const { ok, salida } = sh(
-      `git ls-files --cached --others --exclude-standard 'src/*' 'tests/*' | grep -E '\\.tsx?$'`
-    );
+    const { ok, salida } = sh('git ls-files src tests');
     if (!ok) return null;
-    return [...new Set(salida.split('\n').filter(Boolean))];
+    return salida
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .filter((f) => /\.tsx?$/.test(f));
   }
   const base = baseDeComparacion();
   if (!base) return null;
@@ -67,6 +66,7 @@ function archivosQueCambiaron() {
   if (!ok) return null;
   return salida
     .split('\n')
+    .map((s) => s.trim())
     .filter(Boolean)
     .filter((f) => /\.tsx?$/.test(f));
 }
@@ -90,12 +90,15 @@ let INDICE = null;
 
 function armarIndice() {
   if (INDICE) return INDICE;
-  const { ok, salida } = sh(
-    `git ls-files --cached --others --exclude-standard 'src/*' 'tests/*' | grep -E '\\.(ts|tsx|js|mjs)$'`
-  );
+  const { ok, salida } = sh('git ls-files src tests');
   if (!ok) return null;
   const guia = new Map();
-  for (const archivo of salida.split('\n').filter(Boolean)) {
+  const archivos = salida
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .filter((f) => /\.(ts|tsx|js|mjs)$/.test(f));
+  for (const archivo of archivos) {
     const texto = leer(archivo);
     if (texto === null) continue;
     for (const palabra of new Set(texto.match(/[A-Za-z_][\w]*/g) || [])) {
