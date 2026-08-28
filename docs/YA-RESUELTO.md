@@ -5866,3 +5866,78 @@ reportó como faltante y NO lo era:**
 
 **Cartel de cookies: NO se pone.** Molesta, y el dueño puso esa condición. Va explicado
 dentro de la página de privacidad.
+
+---
+
+## Cierre del 28 de agosto: lo que se sacó, lo que se puso y lo que se aprendió
+
+### Se sacaron de la app seis frases que prometían lo que las estaciones no hacen
+
+El dueño las leyó y las desarmó una por una: *"el Bogue, ¿para qué quiere música si es
+foto? Los tótems no son para encuestas y juegos. ¿Y el intro de la 360? La persona se para
+y el 360 gira, ¿de dónde sacaste eso?"*.
+
+**Tenía razón en las tres, y no eran ideas nuestras: estaban escritas en la app.** Se
+sacaron de las cuatro listas:
+
+- **Tótem:** encuestas, juegos interactivos, mapa de salón, mapeo de mesas, captura de
+  feedback y estadísticas de participación. Ahora dice lo que es: una pantalla que muestra
+  las fotos de la fiesta e invita a sumar la propia con el QR.
+- **Bogue:** la música, en las dos listas donde estaba.
+- **Plataforma 360:** el intro y el cierre.
+- **Espejo firma:** el confeti digital.
+
+**No se agregó ninguna función: se corrigió el texto para que diga la verdad.** Y quedó
+congelado en `src/lib/entretenimiento/promesas-al-cliente.ts`: cada frase que la pantalla
+muestra declara qué archivo la cumple, y no se puede agregar una nueva sin declararla.
+
+### Dos de las cuatro listas no las ve nadie
+
+`PRO_FLOW` y `PRO_HIGHLIGHTS` se guardan en cada estación y **no se dibujan en ninguna
+pantalla**. Sólo `FEATURE_LIBRARY` y `PRO_EQUIPMENT` se muestran. Es la clase "escrito y
+nadie lo lee": o se muestran, o se sacan.
+
+### Lo que se agregó a la web
+
+- **`/privacidad`**, en criollo, enlazada desde el pie, **sin ningún cartel que salte
+  encima** —la condición del dueño fue "mientras no molesten"—. Las cookies se explican
+  adentro. **No se pone banner de cookies:** molesta, y es decisión tomada.
+- **El 404 dejó de ser un callejón:** ofrece presupuesto, catálogo, inicio y WhatsApp.
+- **La sexta protección del navegador, en modo escucha.** `Content-Security-Policy-Report-Only`
+  anota lo que bloquearía **sin bloquear nada**. Se prende de verdad después de mirar unos
+  días de uso real. **Prenderla a ciegas en un sitio que vende es cómo se rompe un sábado.**
+
+### Tres candados frenaron a Claude, y los tres tenían razón
+
+Vale la pena anotarlo porque es la prueba de que el mecanismo sirve incluso contra quien lo
+construyó:
+
+1. **El control de promesas** frenó la subida porque la página de privacidad **no tenía
+   ninguna prueba**. Se escribió: seis, que comprueban que el visitante entre sin cuenta,
+   que Google la lea, que se llegue desde el pie y que nadie le meta un cartel de cookies.
+2. **El candado del mapa** frenó porque el manual decía 351 pantallas y ya hay 352.
+3. **La auditoría de posicionamiento** frenó porque la página nueva no estaba declarada en
+   `auditoria-metadatos.ts` y el estado de salud bajaba a "con advertencias".
+
+### Un error propio detectado ANTES de subir
+
+En el primer 404 se escribió **un número de WhatsApp inventado**. Un número falso en una
+página pública manda al cliente a la nada. Se corrigió para que salga de
+`AK_WHATSAPP_NUMBER`. **Nunca se escribe a mano un dato de contacto.**
+
+### Y un error de método, para no repetirlo
+
+**Se dejaron dos verificaciones completas corriendo a la vez en la misma carpeta y se
+mataron entre ellas.** La compilación murió sin dar resultado y sin decir por qué. Está
+escrito en las reglas y se cayó igual: **antes de lanzar una verificación, comprobar que no
+haya otra corriendo.**
+
+### El marcador de los agentes en el día
+
+De lo que reportaron los agentes económicos, **cinco hallazgos eran falsos**: dijeron que la
+Plataforma 360 no tenía cámara lenta ni salida LED (las dos existen), que no había anti-spam
+(existe, y está en todas las acciones que usan inteligencia artificial), y que las fotos del
+blog no tenían texto alternativo (lo tienen).
+
+**El reparto funciona: ellos buscan, el modelo principal confirma.** Ninguno de esos cinco
+llegó al dueño como si fuera cierto.
