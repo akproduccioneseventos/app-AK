@@ -30,9 +30,11 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 
-const MIRAR_TODO = process.argv.includes('--todo');
+const MIRAR_TODO = process.argv.includes('--todo') || process.argv.includes('--trinquete');
+const MODO_TRINQUETE = process.argv.includes('--trinquete');
+const ARCHIVO_DEUDA = 'docs/deuda-medida.json';
 
 function sh(comando) {
   const r = spawnSync(comando, { shell: true, encoding: 'utf8' });
@@ -294,6 +296,80 @@ const mirados = deCodigo.length + dePrueba.length;
 
 if (mirados === 0) {
   console.log('Lo que se dijo es lo que es: no hay cambios de código para mirar.');
+  process.exit(0);
+}
+
+/**
+ * EL TRINQUETE
+ *
+ * La app arrastra deuda vieja que no se puede reparar toda de una. Frenar por
+ * ella dejaria la app sin poder subir nada, y a la semana el control estaria
+ * apagado. Pero se puede garantizar algo que sirve igual:
+ *
+ *   **que no crezca, y que solo baje.**
+ *
+ * Se guarda cuanta hay hoy. Si manana hay mas, frena. Si hay menos, se guarda
+ * el numero nuevo y ya no se puede volver atras. Es una rueda que gira para un
+ * solo lado.
+ */
+function contarPorClase(lista) {
+  const cuenta = { 'nadie-lo-llama': 0, 'sin-prueba-de-resultado': 0, 'prueba-que-solo-mira': 0 };
+  for (const h of lista) {
+    if (h.que.startsWith('nadie lo llama')) cuenta['nadie-lo-llama']++;
+    else if (h.que.includes('sólo mira')) cuenta['prueba-que-solo-mira']++;
+    else cuenta['sin-prueba-de-resultado']++;
+  }
+  return cuenta;
+}
+
+if (MODO_TRINQUETE) {
+  const ahora = contarPorClase(hallazgos);
+  let antes = null;
+  try {
+    antes = JSON.parse(readFileSync(ARCHIVO_DEUDA, 'utf8')).deuda;
+  } catch {
+    antes = null;
+  }
+
+  if (!antes) {
+    writeFileSync(
+      ARCHIVO_DEUDA,
+      `${JSON.stringify({ medida: new Date().toISOString().slice(0, 10), deuda: ahora }, null, 2)}\n`
+    );
+    console.log('Trinquete: primera medicion guardada.');
+    for (const [clase, n] of Object.entries(ahora)) console.log(`  ${clase}: ${n}`);
+    process.exit(0);
+  }
+
+  const crecio = Object.entries(ahora).filter(([clase, n]) => n > (antes[clase] ?? 0));
+  if (crecio.length > 0) {
+    console.log('');
+    console.log('EL TRINQUETE FRENA: la deuda vieja CRECIO.');
+    console.log('');
+    for (const [clase, n] of crecio) {
+      console.log(`  ${clase}: habia ${antes[clase] ?? 0}, ahora hay ${n}`);
+    }
+    console.log('');
+    console.log('  No hace falta reparar todo lo viejo. Pero lo nuevo no puede sumar.');
+    console.log('  Arregla lo que agregaste, o repara la misma cantidad de lo viejo.');
+    console.log('');
+    process.exit(1);
+  }
+
+  const bajo = Object.entries(ahora).filter(([clase, n]) => n < (antes[clase] ?? 0));
+  if (bajo.length > 0) {
+    writeFileSync(
+      ARCHIVO_DEUDA,
+      `${JSON.stringify({ medida: new Date().toISOString().slice(0, 10), deuda: ahora }, null, 2)}\n`
+    );
+    console.log('Trinquete: la deuda BAJO, y queda anotado el numero nuevo.');
+    for (const [clase, n] of bajo) console.log(`  ${clase}: de ${antes[clase]} a ${n}`);
+    console.log('  De aca no se vuelve atras.');
+    process.exit(0);
+  }
+
+  console.log('Trinquete: la deuda vieja no crecio.');
+  for (const [clase, n] of Object.entries(ahora)) console.log(`  ${clase}: ${n}`);
   process.exit(0);
 }
 
