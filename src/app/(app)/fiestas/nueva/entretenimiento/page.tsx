@@ -166,6 +166,8 @@ interface EntertainmentStation {
   script: string;
   notes: string;
   media: EntertainmentMediaItem[];
+  marcosHabilitados?: string[];
+  fotosPorTanda?: number;
 }
 
 interface EntertainmentTemplatePreset {
@@ -1680,7 +1682,7 @@ function EntretenimientoContent() {
                               { id: 'flowers', label: 'Flores Románticas' },
                               { id: 'ak_brand', label: 'AK Brand Oficial' },
                             ].map((marco) => {
-                              const list = activeStation.marcosHabilitados || ['none', 'golden', 'neon', 'flowers', 'ak_brand'];
+                              const list: string[] = activeStation.marcosHabilitados || ['none', 'golden', 'neon', 'flowers', 'ak_brand'];
                               const active = list.includes(marco.id);
                               return (
                                 <button
@@ -1688,7 +1690,7 @@ function EntretenimientoContent() {
                                   key={marco.id}
                                   onClick={() => {
                                     const next = active
-                                      ? list.filter((m) => m !== marco.id)
+                                      ? list.filter((m: string) => m !== marco.id)
                                       : [...list, marco.id];
                                     updateStation(activeStationId, { marcosHabilitados: next });
                                   }}

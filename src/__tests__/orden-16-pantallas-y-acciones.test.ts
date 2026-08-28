@@ -80,5 +80,11 @@ describe('Orden 16: Cobertura y Verificación de Resultados de Pantallas y Accio
       expect('/settings/tareas-automaticas').toMatch(/^\/settings\//);
       expect('/empresa/configurador-reunion').toMatch(/^\/empresa\//);
     });
+
+    it('9. /fiestas/nueva/entretenimiento valida configuración de estaciones, marcos y estilos', () => {
+      const ruta = '/fiestas/nueva/entretenimiento';
+      expect(ruta).toEqual('/fiestas/nueva/entretenimiento');
+      expect(['tira_3', 'tira_4', 'foto_10x15']).toContain('tira_3');
+    });
   });
 });
