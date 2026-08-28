@@ -68,6 +68,20 @@ Los dos primeros son el bloque 0. Los otros tres, el bloque 0 bis.
 **Es lo primero que hay que hacer.** El dueño lo pidió así: *"y poder subir un fondo
 también, las plantillas deben poder cambiarse de color y personalizarse"*.
 
+### CORRECCIÓN antes de que empieces: el color YA SE PUEDE CAMBIAR
+
+Un inventario mecánico y una comprobación a mano encontraron que **dos de los nueve
+ajustes ya tienen control y uno de ellos ya funciona**. No los rehagas:
+
+| Ajuste | ¿Se puede editar hoy? | ¿Lo usa alguna pantalla? |
+|---|---|---|
+| `accentColor` (el color) | **SÍ**, selector de color, línea 1557-1571 | **SÍ, ocho pantallas** |
+| `overlayName` (nombre del marco) | **SÍ**, línea 1481-1486 | **NO, ninguna** |
+| `backgroundStyle` | No, sólo cambiando de plantilla | Sólo `zona-digital` |
+| `outputFormat`, `qualityPreset`, `filterPreset`, `musicTrack`, `printLayout`, `animationStyle` | No, sólo cambiando de plantilla | **Ninguna** |
+
+**O sea: el color ya está resuelto y anda. No lo toques.** Lo que falta es todo lo demás.
+
 ### Cómo está hoy, verificado a mano el 28 de agosto de 2026
 
 - **El fondo y el color salen solos de la invitación digital de la fiesta.** Lo arma
@@ -89,11 +103,14 @@ En la pantalla donde se arma el entretenimiento
 1. **Subir un fondo propio.** Una imagen que reemplaza la de la invitación **sólo para
    esa estación**. Que se vea la que va a quedar antes de guardar, y que se pueda
    sacar para volver a la automática de un toque.
-2. **Cambiar el color.** Un selector de color con el de la invitación **ya puesto** como
-   punto de partida, no en blanco.
-3. **Editar la plantilla entera**: el nombre del diseño, el marco, el filtro, la
-   animación del disparo, el formato de impresión y la música. Con los valores que hoy
-   vienen de fábrica ya cargados.
+2. **El color ya se cambia y anda: no lo toques.** Lo único que le falta es que arranque
+   con el color de la invitación ya puesto en vez de en blanco.
+3. **Controles para los siete ajustes que hoy sólo cambian eligiendo otra plantilla**:
+   el filtro, la animación del disparo, el formato de impresión, la calidad, la música,
+   el estilo de fondo y el formato de salida. Con el valor de fábrica ya cargado.
+   **Y que la pantalla de la estación los LEA**, porque hoy no los lee nadie: seis de los
+   siete no los usa ninguna pantalla, y el `overlayName` tiene control desde hace rato y
+   tampoco lo mira nadie. Un control que no cambia nada es peor que no tenerlo.
 4. **Guardar la plantilla con nombre y volver a usarla en otra fiesta.** Es lo que
    cobran Snappic y Salsa, y para AK es más fácil porque los datos de la fiesta ya
    están.

@@ -5603,8 +5603,16 @@ categoría, y armar un híbrido con lo mejor de cada una. La orden quedó en
 1. **Subir un fondo propio.** No hay ninguna pantalla para hacerlo. El tótem tiene un campo
    (`src/app/(app)/fiestas/nueva/pantallas-totem/page.tsx:377`) pero es **pegar una
    dirección web**, y el dueño no tiene de dónde sacarla: existe y no le sirve.
-2. **Las plantillas de estación no se pueden editar y casi no se usan.** Guardan ocho
-   ajustes y la fotocabina lee uno solo (`accentColor`).
+2. **Las plantillas de estación casi no se usan.** Guardan nueve ajustes. Inventariado con
+   un agente y comprobado a mano después:
+   - **`accentColor` (el color) SÍ se puede cambiar y SÍ lo usan ocho pantallas.** Anda.
+     **No es un faltante: no reportarlo ni mandarlo a rehacer.**
+   - `overlayName` tiene control para editarlo y **no lo lee ninguna pantalla**: cambiarlo
+     no hace nada.
+   - `backgroundStyle` sólo lo lee `zona-digital`.
+   - Los seis restantes —`outputFormat`, `qualityPreset`, `filterPreset`, `musicTrack`,
+     `printLayout`, `animationStyle`— **no los lee ninguna pantalla** y sólo cambian
+     eligiendo otra plantilla entera.
 3. **Fondo verde (croma): no existe nada.** Se buscó en todas las estaciones.
 4. **Pantalla que llama cuando la cabina está sin usar: no existe.**
 5. **Una sola forma de imprimir**: la tira de tres. Falta la foto sola y la tira de cuatro.
@@ -5636,3 +5644,54 @@ decisión comercial suya.
 
 **La primera pasada nunca alcanza.** Y es exactamente el motivo del control que se agregó
 hoy: lo que está escrito y no hace nada no se ve mirando una vez.
+
+
+---
+
+## Los dos controles que faltaban: las promesas y el trinquete (28 de agosto de 2026)
+
+El dueño lo planteó con la pregunta correcta: *"pero como ves siguen apareciendo errores a
+pesar de las auditorías y el mecanismo nuevo"*. Tenía razón, y la causa es concreta.
+
+**Por qué el control nuevo no agarró el tótem:** pregunta si el código se usa y si está
+probado. El código del tótem **se usa y hace lo que hace**. Lo que falla es otra cosa: **la
+pantalla promete más de lo que el código cumple.** Esa era la única de las seis preguntas
+de `docs/COMO-AUDITAR.md` que seguía haciéndose a mano.
+
+### Control 4 — Las promesas tienen que tener quien las cumpla
+
+`src/lib/entretenimiento/promesas-al-cliente.ts` + `src/__tests__/las-promesas-tienen-respaldo.test.ts`.
+
+Cada cosa que la pantalla del entretenimiento dice que la app hace declara **qué archivo la
+cumple**, o queda marcada como que no se cumple. La prueba impide agregar una promesa nueva
+sin declararla, y comprueba que lo declarado exista. Probado que frena: se le sacó una
+declaración y se puso en rojo.
+
+**Las que hoy NO se cumplen, y quedan a la vista en vez de escondidas:**
+
+- **Tótem: "Encuestas", "Juegos interactivos", "Mapa de salón".** No existe ninguno.
+- **Bogue: "Música".** Lo único que suena son los pitidos de la cuenta regresiva.
+- **Plataforma 360: "Intro/Outro".** No hay nada.
+
+**Y dos que un agente reportó como faltantes y NO lo son** —verificadas a mano, no volver a
+reportarlas—: la **cámara lenta** y la **salida LED** de la Plataforma 360 **existen**.
+
+**Dato importante del método:** `PRO_FLOW` y `PRO_HIGHLIGHTS` **no se dibujan en pantalla**:
+se guardan y no las ve nadie. La lista que el equipo sí ve es `FEATURE_LIBRARY`. Por eso el
+control mira esa.
+
+### Control 5 — El trinquete: la deuda vieja sólo puede bajar
+
+`npm run "publicar?"` paso 2. La app arrastra cientos de cosas sin comprobar. Repararlas
+todas de una no se puede, y frenar por ellas dejaría la app sin poder subir nada: a la
+semana el control estaría apagado.
+
+**La solución es que no crezca.** Quedó anotado en `docs/deuda-medida.json` cuánta hay hoy.
+Si mañana hay una más, **frena**. Si hay menos, guarda el número nuevo y de ahí no se vuelve
+atrás.
+
+Con esto la reparación deja de ser una campaña que nadie termina: cada uno que toca algo lo
+deja mejor que como lo encontró, y el número baja solo.
+
+**Medición del 28 de agosto de 2026:** 30 que no llama nadie, 267 sin prueba de resultado,
+2 pruebas que sólo miran.
