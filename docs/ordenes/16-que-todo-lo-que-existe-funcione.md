@@ -120,6 +120,30 @@ de configurar entretenimiento.
 Esto importa para el negocio: en una fiesta de quince no queres que aparezca el marco de
 casamiento.
 
+## Bloque 2 ter — El Video de Vida está copiado en dos lados
+
+**Lo marcó el dueño el 28 de agosto de 2026:** *"el video de vida es para hacer el video, no
+es entretenimiento"*, y *"eso debe estar en la organización del evento"*. Tiene razón, y
+verificado en el código el problema es peor: **la pantalla de carga está duplicada.**
+
+| Pantalla | Líneas | Para qué |
+|---|---|---|
+| `src/app/(app)/fiestas/nueva/video-vida/page.tsx` | 397 | **La correcta.** Está en el armado de la fiesta, categoría "Experiencia del cliente VIP". Se cargan fotos, se elige la canción y se genera el enlace para la familia. |
+| `src/app/video-vida/[fiestaId]/page.tsx` | 222 | La que se le manda a la familia por el enlace. Es la que arma la de arriba en la línea 185. |
+| `src/app/evento/video-vida/[fiestaId]/page.tsx` | 269 | **SOBRA.** Es la misma pantalla que la anterior, texto por texto —"Carga de Fotos para el Video de Vida", "Canción elegida"—, colgada en la zona de las estaciones de la fiesta. |
+
+**Qué hacer:**
+
+1. **Sacar la copia de `/evento/video-vida/`.** No es una estación de entretenimiento: el
+   Video de Vida se arma antes de la fiesta, no se usa durante.
+2. **Sacar el enlace que la abre**, en `src/app/(app)/fiestas/nueva/video-vida/page.tsx`
+   línea 274. Que apunte a la que se le manda a la familia, que es la misma pantalla.
+3. **Antes de borrar, comparar las dos** y quedarte con lo mejor de cada una: la de
+   `/evento/` tiene 47 líneas más y puede traer algo que a la otra le falte.
+
+**Ojo:** esto es sacar una pantalla, no agregar. Comprobá que nadie más la enlace antes de
+borrarla, y que la de la familia siga funcionando igual.
+
 ## Bloque 3 — Las acciones que quedan
 
 Las 62 menos las de la lista de arriba. Una prueba por acción que compruebe **lo

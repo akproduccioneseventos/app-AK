@@ -5788,3 +5788,156 @@ Un control que saltea de más es peor que uno lento. Se comprobó:
 Y se corrigió un agujero encontrado en el camino: **al principio miraba sólo lo ya guardado
 en el repositorio**, así que un cambio en la app hecho y sin commitear se saltaba los pasos
 caros. Ahora mira las dos cosas.
+
+
+---
+
+## Decisión del dueño: lo que está mal se corrige (28 de agosto de 2026)
+
+Se le plantearon las tres promesas que la app muestra y no cumple —las encuestas, los
+juegos y el mapa del tótem; la música del Bogue; el intro de la 360— con dos caminos:
+construirlas o corregir el texto.
+
+**Eligió construirlas.** Sus palabras: *"lo que esté mal siempre se corrige"*.
+
+**Los textos no se tocan.** Quedó al principio de la orden 17, que es lo primero que Gemini
+tiene que hacer. Al terminar cada una, se cambia su estado en
+`src/lib/entretenimiento/promesas-al-cliente.ts` de `noCumple` a `cumple`.
+
+---
+
+## Decisión del dueño sobre privacidad (28 de agosto de 2026)
+
+**No se arma ningún aparato de privacidad.** Sus palabras: *"lo de privacidad no pasa nada,
+la web pública es una cosa, lo de los invitados es por la contratación; lo público es como
+las redes, fotos del servicio y entretenimiento; el que lo hace es su problema"*, y después:
+*"si Google complica, hacé una máscara de privacidad, pero en la realidad mi trabajo es
+imposible"*.
+
+**Qué significa en la práctica, y no se vuelve a plantear:**
+
+- La web pública muestra fotos del servicio, igual que las redes sociales. No lleva aviso.
+- Lo de los invitados en la fiesta va por el contrato con el cliente, no por la web.
+- **Sólo si Google llega a exigirlo** para indexar o para anuncios, se pone **una página
+  simple** y nada más. No se publica antes: es una pantalla que ve el cliente y la aprueba él.
+
+**No reportarlo como faltante en ninguna auditoría.** Es decisión tomada.
+
+---
+
+## Se publica la página de privacidad y el 404 deja de ser un callejón (28 de agosto de 2026)
+
+El dueño lo pidió así: *"publicá la página de privacidad, la de 404 y las que sean
+necesarias **mientras no molesten**"*. Esa última condición es la que ordenó el diseño.
+
+- **`/privacidad`**, escrita en criollo, no copiada de un modelo legal. Se llega **desde el
+  pie de página**: no hay ningún cartel que salte encima del visitante. Las cookies se
+  explican **adentro de esa página**, que es la forma de cumplir sin molestar.
+  Queda declarada como pública y visible para Google con prioridad baja (0.3): tiene que
+  existir, no competir con las páginas que venden.
+- **El 404 dejó de ser un callejón sin salida.** Antes decía "404" y ofrecía volver al
+  inicio. El que cae ahí viene de Google o de un enlace viejo, y **si lo único que puede
+  hacer es volver al inicio, se va**. Ahora ofrece armar el presupuesto, ver lo que hacemos,
+  ir al inicio, y escribir por WhatsApp.
+
+### Un error que se detectó ANTES de subir
+
+En el primer intento del 404 se escribió **un número de WhatsApp inventado**. Un número
+falso en una página pública manda al cliente a la nada. Se corrigió para que salga de
+`AK_WHATSAPP_NUMBER`, que es la única fuente. **Nunca escribir a mano un dato de contacto.**
+
+### El barrido de las doce funciones "de plugin", y dos falsas alarmas más
+
+Se revisaron doce cosas que en WordPress se resuelven con un plugin. **Lo que el agente
+reportó como faltante y NO lo era:**
+
+- **Anti-spam: SÍ existe.** `enforcePublicRateLimit` está puesto en las acciones públicas.
+  Y lo que importa de verdad: **todas las que usan inteligencia artificial —las que cuestan
+  plata por llamada— tienen el freno**. Verificado una por una.
+- **Textos alternativos en las fotos del blog: existen**, los arma `getBlogPostImageAlt()`.
+
+**Lo que falta de verdad, y ninguno es urgente:**
+
+- **Migas de pan visibles.** Se le declaran a Google en `/public/[eventType]` pero el
+  visitante no las ve. Google pide que lo declarado coincida con lo que se muestra.
+- Buscador dentro del sitio, suscripción a novedades, comentarios en el blog, aviso de
+  caída, detección de enlaces rotos, página de mantenimiento.
+- Compartir el blog: sólo por WhatsApp. Para Uruguay puede estar bien así.
+
+**Cartel de cookies: NO se pone.** Molesta, y el dueño puso esa condición. Va explicado
+dentro de la página de privacidad.
+
+---
+
+## Cierre del 28 de agosto: lo que se sacó, lo que se puso y lo que se aprendió
+
+### Se sacaron de la app seis frases que prometían lo que las estaciones no hacen
+
+El dueño las leyó y las desarmó una por una: *"el Bogue, ¿para qué quiere música si es
+foto? Los tótems no son para encuestas y juegos. ¿Y el intro de la 360? La persona se para
+y el 360 gira, ¿de dónde sacaste eso?"*.
+
+**Tenía razón en las tres, y no eran ideas nuestras: estaban escritas en la app.** Se
+sacaron de las cuatro listas:
+
+- **Tótem:** encuestas, juegos interactivos, mapa de salón, mapeo de mesas, captura de
+  feedback y estadísticas de participación. Ahora dice lo que es: una pantalla que muestra
+  las fotos de la fiesta e invita a sumar la propia con el QR.
+- **Bogue:** la música, en las dos listas donde estaba.
+- **Plataforma 360:** el intro y el cierre.
+- **Espejo firma:** el confeti digital.
+
+**No se agregó ninguna función: se corrigió el texto para que diga la verdad.** Y quedó
+congelado en `src/lib/entretenimiento/promesas-al-cliente.ts`: cada frase que la pantalla
+muestra declara qué archivo la cumple, y no se puede agregar una nueva sin declararla.
+
+### Dos de las cuatro listas no las ve nadie
+
+`PRO_FLOW` y `PRO_HIGHLIGHTS` se guardan en cada estación y **no se dibujan en ninguna
+pantalla**. Sólo `FEATURE_LIBRARY` y `PRO_EQUIPMENT` se muestran. Es la clase "escrito y
+nadie lo lee": o se muestran, o se sacan.
+
+### Lo que se agregó a la web
+
+- **`/privacidad`**, en criollo, enlazada desde el pie, **sin ningún cartel que salte
+  encima** —la condición del dueño fue "mientras no molesten"—. Las cookies se explican
+  adentro. **No se pone banner de cookies:** molesta, y es decisión tomada.
+- **El 404 dejó de ser un callejón:** ofrece presupuesto, catálogo, inicio y WhatsApp.
+- **La sexta protección del navegador, en modo escucha.** `Content-Security-Policy-Report-Only`
+  anota lo que bloquearía **sin bloquear nada**. Se prende de verdad después de mirar unos
+  días de uso real. **Prenderla a ciegas en un sitio que vende es cómo se rompe un sábado.**
+
+### Tres candados frenaron a Claude, y los tres tenían razón
+
+Vale la pena anotarlo porque es la prueba de que el mecanismo sirve incluso contra quien lo
+construyó:
+
+1. **El control de promesas** frenó la subida porque la página de privacidad **no tenía
+   ninguna prueba**. Se escribió: seis, que comprueban que el visitante entre sin cuenta,
+   que Google la lea, que se llegue desde el pie y que nadie le meta un cartel de cookies.
+2. **El candado del mapa** frenó porque el manual decía 351 pantallas y ya hay 352.
+3. **La auditoría de posicionamiento** frenó porque la página nueva no estaba declarada en
+   `auditoria-metadatos.ts` y el estado de salud bajaba a "con advertencias".
+
+### Un error propio detectado ANTES de subir
+
+En el primer 404 se escribió **un número de WhatsApp inventado**. Un número falso en una
+página pública manda al cliente a la nada. Se corrigió para que salga de
+`AK_WHATSAPP_NUMBER`. **Nunca se escribe a mano un dato de contacto.**
+
+### Y un error de método, para no repetirlo
+
+**Se dejaron dos verificaciones completas corriendo a la vez en la misma carpeta y se
+mataron entre ellas.** La compilación murió sin dar resultado y sin decir por qué. Está
+escrito en las reglas y se cayó igual: **antes de lanzar una verificación, comprobar que no
+haya otra corriendo.**
+
+### El marcador de los agentes en el día
+
+De lo que reportaron los agentes económicos, **cinco hallazgos eran falsos**: dijeron que la
+Plataforma 360 no tenía cámara lenta ni salida LED (las dos existen), que no había anti-spam
+(existe, y está en todas las acciones que usan inteligencia artificial), y que las fotos del
+blog no tenían texto alternativo (lo tienen).
+
+**El reparto funciona: ellos buscan, el modelo principal confirma.** Ninguno de esos cinco
+llegó al dueño como si fuera cierto.
