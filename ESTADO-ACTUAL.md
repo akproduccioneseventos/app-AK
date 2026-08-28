@@ -5,10 +5,36 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 28 de agosto de 2026.
+**Última actualización:** 28 de agosto de 2026, con la fotocabina lista para usar.
 **Estado de la app:** **`npm run "publicar?"` en verde, los ocho pasos**, incluido el
 recorrido completo en navegador. Se puede publicar.
 **Propuestas abiertas:** ninguna.
+
+## LO DE HOY: la fotocabina, que el dueño usa en una fiesta
+
+**Estaba rota y la pantalla quedaba en negro.** El invitado apretaba el botón y no pasaba
+nada más: sin foto, sin cartel. La pantalla **le avisaba a la base y esperaba la respuesta**,
+y recién después iba a buscar la imagen de la cámara; para cuando volvía, el recuadro de la
+cámara ya no estaba. Ahora **se saca la foto primero y se avisa después, sin esperar**: si la
+base tarda o falla, la foto ya está.
+
+**No se veía leyendo el código** —hay un control que comprueba que la cámara esté, y parece
+suficiente; sólo que valía para el instante anterior a la espera—. Se encontró abriéndola en
+un navegador y apretando el botón.
+
+**Se le sacó el PIN a todas las estaciones**, pedido del dueño: *"o mejor sacale el PIN y ta,
+así no complica."* No se pide clave ni al armar ni al salir. El aparato igual queda fijo en
+esa estación y esa fiesta.
+
+**Se hizo la puerta que faltaba: `/evento/inicio`**, con los once entretenimientos en íconos.
+La pantalla ya existía pero había que saberse el enlace exacto de cada estación, así que en
+la práctica no existía.
+
+**Y un archivo descargable**: un botón baja un acceso directo que, con doble click, abre esa
+estación de esa fiesta en la máquina del empleado. Sin explicarle nada a nadie.
+
+**Cómo se usa, para repetirlo:** entrar a `/evento/inicio`, tocar el ícono, elegir la fiesta,
+"Dejar el aparato listo". Para otra máquina, "Bajar acceso directo" y copiar el archivo.
 
 ## La música quedó conectada de verdad
 
