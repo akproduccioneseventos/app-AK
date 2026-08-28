@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { SalonSceneAislada } from '@/components/salon-3d/SalonSceneAislada';
 import { useRouter } from 'next/navigation';
 import {
   Sparkles,
@@ -419,7 +420,9 @@ export default function ConfiguradorReunionPage() {
             </CardHeader>
 
             <CardContent className="p-0 h-[380px] sm:h-[480px] bg-slate-950 relative">
-              <SalonScene decoracion={decoracion3D} />
+              <SalonSceneAislada>
+                <SalonScene decoracion={decoracion3D} />
+              </SalonSceneAislada>
               <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-xs text-white text-[11px] px-3 py-1.5 rounded-lg border border-white/10 pointer-events-none">
                 💡 Arrastrá para rotar la cámara 3D · Rueda para zoom
               </div>
