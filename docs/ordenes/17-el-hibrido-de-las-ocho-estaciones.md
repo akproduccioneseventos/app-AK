@@ -25,6 +25,59 @@ comparación de la fotocabina sola: es de todo el entretenimiento.
 
 ---
 
+## Bloque 0 — SUBIR UN FONDO Y PERSONALIZAR LAS PLANTILLAS (pedido del dueño)
+
+**Es lo primero que hay que hacer.** El dueño lo pidió así: *"y poder subir un fondo
+también, las plantillas deben poder cambiarse de color y personalizarse"*.
+
+### Cómo está hoy, verificado a mano el 28 de agosto de 2026
+
+- **El fondo y el color salen solos de la invitación digital de la fiesta.** Lo arma
+  `getPublicEntertainmentEvent()` en `src/lib/entertainment/station-config.ts` (líneas
+  160-195): toma la portada de la invitación, o el video de fondo, o la foto de portada,
+  o la portada del portal del invitado; y el color, de la paleta de la invitación o del
+  color principal de la fiesta. **Eso anda y NO se toca.**
+- **No hay ninguna pantalla para subir un fondo propio de la estación.**
+- **Las plantillas guardan ocho ajustes y la fotocabina lee UNO** (`accentColor`).
+  Los otros siete —`filterPreset`, `backgroundStyle`, `animationStyle`, `printLayout`,
+  `qualityPreset`, `overlayName`, `musicTrack`— no los mira nadie, y tampoco hay
+  controles para editarlos.
+
+### Lo que hay que construir
+
+En la pantalla donde se arma el entretenimiento
+(`src/app/(app)/fiestas/nueva/entretenimiento/page.tsx`), por estación:
+
+1. **Subir un fondo propio.** Una imagen que reemplaza la de la invitación **sólo para
+   esa estación**. Que se vea la que va a quedar antes de guardar, y que se pueda
+   sacar para volver a la automática de un toque.
+2. **Cambiar el color.** Un selector de color con el de la invitación **ya puesto** como
+   punto de partida, no en blanco.
+3. **Editar la plantilla entera**: el nombre del diseño, el marco, el filtro, la
+   animación del disparo, el formato de impresión y la música. Con los valores que hoy
+   vienen de fábrica ya cargados.
+4. **Guardar la plantilla con nombre y volver a usarla en otra fiesta.** Es lo que
+   cobran Snappic y Salsa, y para AK es más fácil porque los datos de la fiesta ya
+   están.
+
+### La regla de diseño, y es la que más importa
+
+**Automático por defecto, la mano encima sólo si se quiere.** El fondo y el color de la
+invitación se siguen tomando solos: lo que se sube **pisa** ese valor, no lo reemplaza
+para siempre. Si el operador borra lo que subió, vuelve solo a lo de la invitación.
+
+**Nunca dejes un campo vacío esperando que alguien lo llene.** Todo arranca con lo que
+la app ya sabe de esa fiesta.
+
+### Y que sirva de verdad
+
+De nada vale poder editar los siete ajustes si la pantalla de la estación sigue sin
+mirarlos. **Cada ajuste que quede editable tiene que verse en la foto o en el video**, y
+tiene que tener una prueba que compruebe el resultado. Si alguno no se va a usar,
+**sacalo de la plantilla** en vez de dejarlo como adorno.
+
+---
+
 ## Estación 1 — Fotocabina Social
 
 **Contra quién compite:** Snappic (69 dólares por mes), Simple Booth (29), Salsa de
