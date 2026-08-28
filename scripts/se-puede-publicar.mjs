@@ -53,6 +53,7 @@ const PASOS = [
   },
   {
     nombre: 'Compilación',
+    caro: true,
     comando: 'npm run build',
     queSignifica: 'La app no se puede armar, así que no se puede publicar. El revisor de tipos puede pasar y esto fallar igual: ya dejó la app seis días sin poder publicarse.',
   },
@@ -68,6 +69,67 @@ const PASOS = [
     caro: true,
   },
 ];
+
+/**
+ * ¿PUEDE ESTE CAMBIO ALTERAR LO QUE VE EL USUARIO?
+ *
+ * Los dos pasos caros —compilar y abrir la app en un navegador— tardan casi
+ * cincuenta minutos juntos. Correrlos para un cambio que toca sólo documentos
+ * es tiempo tirado, y ya se fue medio dia asi.
+ *
+ * Se saltean **solo** cuando nada de lo que cambio puede alterar la app. Y
+ * cuando se saltean **se dice**, no se marcan como aprobados: un paso que no
+ * corrio no es un paso que paso.
+ */
+const PUEDE_CAMBIAR_LA_APP = [
+  /^src\/(?!__tests__\/)/,
+  /^public\//,
+  /^middleware\.ts$/,
+  /^next\.config\./,
+  /^package(-lock)?\.json$/,
+  /^tsconfig\.json$/,
+  /^apphosting\.yaml$/,
+  /^firestore\.rules$/,
+];
+
+/** Un cambio de comentario en una prueba de navegador no cambia la app. */
+function soloComentarios(archivo, base) {
+  const r = spawnSync(
+    `git diff -U0 ${base}...HEAD -- ${JSON.stringify(archivo)}`,
+    { shell: true, encoding: 'utf8' }
+  );
+  if (r.status !== 0) return false;
+  const lineas = (r.stdout || '')
+    .split('\n')
+    .filter((l) => (l.startsWith('+') || l.startsWith('-')) && !l.startsWith('+++') && !l.startsWith('---'))
+    .map((l) => l.slice(1).trim())
+    .filter(Boolean);
+  if (lineas.length === 0) return false;
+  return lineas.every((l) => l.startsWith('*') || l.startsWith('//') || l.startsWith('/*') || l === '*/');
+}
+
+function laAppPudoCambiar() {
+  const base = spawnSync('git merge-base origin/main HEAD', { shell: true, encoding: 'utf8' });
+  if (base.status !== 0 || !base.stdout.trim()) return true; // ante la duda, se corre todo
+  const ref = base.stdout.trim();
+  // Lo ya guardado Y lo que todavia esta sin guardar. Sin esto, un cambio en la
+  // app hecho y no commiteado se saltaba los pasos caros.
+  const r = spawnSync(`git diff --name-only ${ref}...HEAD`, { shell: true, encoding: 'utf8' });
+  if (r.status !== 0) return true;
+  const sinGuardar = spawnSync('git status --porcelain', { shell: true, encoding: 'utf8' });
+  const archivos = [
+    ...(r.stdout || '').split('\n'),
+    ...(sinGuardar.stdout || '').split('\n').map((l) => l.slice(3)),
+  ]
+    .map((f) => f.trim())
+    .filter(Boolean);
+  if (archivos.length === 0) return true;
+  for (const archivo of archivos) {
+    if (PUEDE_CAMBIAR_LA_APP.some((patron) => patron.test(archivo))) return true;
+    if (archivo.startsWith('tests/e2e/') && !soloComentarios(archivo, ref)) return true;
+  }
+  return false;
+}
 
 function correr(comando) {
   const r = spawnSync(comando, { shell: true, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
@@ -100,6 +162,8 @@ const PASOS_DEL_FILTRO = new Set([
   'Pruebas',
 ]);
 const fallas = [];
+const salteadosPorqueLaAppNoCambio = [];
+const appPudoCambiar = laAppPudoCambiar();
 
 console.log('\n¿SE PUEDE PUBLICAR?\n' + '='.repeat(60));
 
@@ -109,6 +173,11 @@ for (const paso of PASOS) {
     continue;
   }
   if (modoFiltro && !PASOS_DEL_FILTRO.has(paso.nombre)) continue;
+  if (paso.caro && !appPudoCambiar) {
+    console.log(`  ${paso.nombre}: NO CORRE. La app no cambio: este cambio no toca nada que el usuario vea.`);
+    salteadosPorqueLaAppNoCambio.push(paso.nombre);
+    continue;
+  }
   process.stdout.write(`  ${paso.nombre}... `);
   const arranque = Date.now();
   const { ok, salida } = correr(paso.comando);
@@ -132,6 +201,14 @@ if (fallas.length === 0) {
   if (soloRapidos) {
     console.log('\nLos controles rápidos pasaron. FALTA la prueba de la app usada de verdad:');
     console.log('corré esto mismo sin --rapido antes de publicar.\n');
+    process.exit(0);
+  }
+  if (salteadosPorqueLaAppNoCambio.length > 0) {
+    console.log('\n  SE PUEDE PUBLICAR.\n');
+    console.log('  Este cambio NO toca la app: son documentos, notas o comentarios.');
+    console.log(`  Por eso no corrio: ${salteadosPorqueLaAppNoCambio.join(', ')}.`);
+    console.log('  No es que hayan pasado: es que no hacia falta correrlos, y se dice.');
+    console.log('  Lo demas —acentos, tipos, pruebas y la base protegida— si paso.\n');
     process.exit(0);
   }
   console.log('\n  SE PUEDE PUBLICAR.\n');

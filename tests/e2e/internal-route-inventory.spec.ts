@@ -31,15 +31,14 @@ function getStaticInternalRoutes() {
 /**
  * Pantallas que sin una fiesta elegida no tienen nada que mostrar.
  *
- * Son las de imprimir y las de reporte: se abren desde una fiesta, con su
- * identificador en el enlace. El recorrido las visita peladas, asi que salen
- * casi vacias y no es un defecto de la pantalla.
+ * **La lista quedo vacia a proposito, y es una buena noticia.** Eran las siete
+ * pantallas de imprimir y de reporte: abiertas sin fiesta mostraban entre 23 y
+ * 166 caracteres, o sea casi nada, y estaban perdonadas por esta prueba. Ya se
+ * arreglaron: ahora explican que hay que elegir una fiesta y dan el boton para
+ * hacerlo, asi que no necesitan perdon.
  *
- * OJO, y esto quedo anotado para arreglar: **abiertas asi muestran entre 23 y
- * 166 caracteres, o sea casi nada**. Deberian decir "elegi una fiesta para
-/**
- * Ya no hay pantallas vacias: las 7 pantallas de imprimir y reportes ahora
- * explican con claridad qué hacer y ofrecen boton para elegir fiesta.
+ * **No volver a agregar nada aca sin arreglar la pantalla primero.** Cada
+ * entrada en esta lista es una pantalla que el recorrido deja de mirar.
  */
 const SIN_FIESTA_NO_MUESTRAN_NADA: string[] = [];
 

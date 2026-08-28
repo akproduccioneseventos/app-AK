@@ -5695,3 +5695,96 @@ deja mejor que como lo encontró, y el número baja solo.
 
 **Medición del 28 de agosto de 2026:** 30 que no llama nadie, 267 sin prueba de resultado,
 2 pruebas que sólo miran.
+
+---
+
+## CORRECCIÓN: una rama vieja NO borra los archivos nuevos al fusionarse (28 de agosto de 2026)
+
+**Esto estuvo mal dicho y hay que corregirlo, porque cambió una decisión.**
+
+En la Devolución 3 de la orden 15 se afirmó que la entrega **"borraba el filtro
+obligatorio"**, porque `git ls-tree` mostraba que `scripts/instalar-filtro.mjs` no existía
+en esa rama.
+
+**Es verdad que no estaba en la rama, y es falso que se borrara al fusionar.** Se comprobó
+haciendo la fusión de verdad en una copia aparte: los archivos que están en la versión
+principal y no en la rama **sobreviven**. Git sólo borra lo que la rama borró a propósito.
+
+**Lo que sí es cierto de una rama vieja, y es motivo suficiente para devolverla:**
+
+- **Choca.** En la prueba real aparecieron conflictos en el recorrido de pantallas: los dos
+  lados tocaron lo mismo y hay que elegir a mano.
+- **Puede deshacer trabajo nuevo por adentro**, no borrando archivos sino escribiendo
+  encima de código que cambió después.
+- **Se probó contra otra app.** Lo que se verificó no es lo que va a quedar.
+
+**Cómo se comprueba de verdad, y es lo que hay que hacer de ahora en más:** fusionarla en
+una copia temporal y mirar el resultado. `git ls-tree` dice qué hay en la rama, **no qué
+va a quedar después de fusionar**. Son dos preguntas distintas y se confundieron.
+
+---
+
+## Las entregas del 28 de agosto a la noche: casi todo ya estaba adentro
+
+Llegaron cuatro ramas. **Tres no aportaban nada nuevo y una no se fusiona.** Queda escrito
+para que nadie las vuelva a revisar.
+
+| Rama | Veredicto |
+|---|---|
+| `fix/musica-que-resuelve` | **Ya está en la versión principal** (entró en #1169). |
+| `feat/musica-conectada-y-pendientes-gemini` | Lo mismo, y arrancaba de dos cambios atrás. |
+| `fix/entretenimiento-y-pruebas` | **Todo su contenido ya estaba en la principal.** Al traerle la versión de ahora, la única diferencia que quedó fue un comentario. |
+| `fix/salon-3d-compatibilidad-react18` | **NO SE FUSIONA.** Ver abajo. |
+
+### Por qué el arreglo del salón 3D no entra
+
+1. **El parche no hace nada.** Agrega `ReactCurrentBatchConfig` a las tripas de React si no
+   existe. **La app usa React 18.3.1 y ya lo trae**: comprobado ejecutándolo. Es un remiendo
+   para un problema que no tiene.
+2. **La prueba que lo acompaña se aprueba a sí misma.** Si el valor no está, **la prueba lo
+   crea** y después comprueba que existe. Pasa siempre, con la app rota o sana. Es
+   exactamente lo que el control nuevo prohíbe.
+3. **La pantalla de la reunión ya se había arreglado**, y de otra manera, en #1169.
+
+**No se toca lo que anda.** Si el salón 3D falla de verdad en algún momento, se arregla
+mirando el error real, no poniendo un parche por las dudas.
+
+### Y un agujero del control nuevo que esto dejó a la vista
+
+La prueba del salón 3D comprueba `typeof algo === 'object'` y `typeof algo === 'function'`.
+**Eso pasa el filtro del control de promesas** —cuenta como "mira un resultado"— y sin
+embargo no prueba nada. Queda anotado: comprobar el tipo de algo no es comprobar que haga
+lo que dice.
+
+---
+
+## La puerta ahora corre lo que hace falta, no siempre todo (28 de agosto de 2026)
+
+**El dueño lo marcó: "lo del navegador va muy demorado, van 4 horas".** Tenía razón y el
+problema era del método, no de la app: la puerta se corrió cinco veces en el día y los dos
+pasos caros —compilar y abrir la app en un navegador— tardan casi cincuenta minutos juntos.
+**Se estaban corriendo para cambios que tocaban solamente documentos.**
+
+Ahora la puerta mira qué cambió:
+
+- Si el cambio toca `src/`, `public/`, la configuración, las reglas de la base, o una prueba
+  de navegador **de verdad** (no sólo un comentario), corre todo como siempre.
+- Si toca sólo documentos, notas, órdenes o comentarios, **no corre los dos pasos caros**.
+
+**Y cuando no los corre, lo dice.** No los marca como aprobados: dice *"NO CORRE. La app no
+cambió"* y en el resumen aclara *"no es que hayan pasado: es que no hacía falta correrlos"*.
+Un paso que no corrió no es un paso que pasó, y esa distinción es la que evita que la puerta
+se convierta en un sello de goma.
+
+**Medido:** un cambio de documentación pasó de casi cincuenta minutos a **dos**.
+
+### Se probó en las dos direcciones, que es lo que importa
+
+Un control que saltea de más es peor que uno lento. Se comprobó:
+
+- Con un cambio en `src/lib/utils.ts` → decide que la app pudo cambiar: los pasos caros corren.
+- Sin ningún cambio de app → decide que no: los saltea y lo avisa.
+
+Y se corrigió un agujero encontrado en el camino: **al principio miraba sólo lo ya guardado
+en el repositorio**, así que un cambio en la app hecho y sin commitear se saltaba los pasos
+caros. Ahora mira las dos cosas.
