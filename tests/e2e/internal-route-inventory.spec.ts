@@ -50,10 +50,45 @@ test('every static internal route responds with an authenticated session', async
     try {
       const response = await context.request.get(route, { timeout: 60_000 });
       const body = await response.text();
-      if (response.status() >= 400) failures.push(`${route}: HTTP ${response.status()}`);
-      if (new URL(response.url()).pathname === '/login') failures.push(`${route}: redirige a /login`);
+      const status = response.status();
+      const finalUrl = new URL(response.url()).pathname;
+
+      if (status >= 400) {
+        failures.push(`${route}: HTTP ${status}`);
+        continue;
+      }
+      if (finalUrl === '/login' || finalUrl === '/ingreso') {
+        failures.push(`${route}: redirige a login inesperadamente`);
+        continue;
+      }
+
+      // 1. Error explícito de aplicación
       if (/Application error|Internal Server Error|no puede cargar los datos del panel/i.test(body)) {
         failures.push(`${route}: muestra un error de aplicacion`);
+        continue;
+      }
+
+      // 2. Extraer texto visible aproximado (removiendo tags html y scripts)
+      const visibleText = body
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      // 3. Pantalla prácticamente vacía (< 200 caracteres de texto)
+      if (visibleText.length < 200) {
+        failures.push(`${route}: pantalla practicamente vacia (${visibleText.length} caracteres de texto)`);
+      }
+
+      // 4. Basura de programador expuesta al usuario
+      if (/\b(?:NaN|\[object Object\]|\{\{)\b/.test(visibleText)) {
+        failures.push(`${route}: contiene basura de programador visible`);
+      }
+
+      // 5. Plata rota ($NaN, $undefined, $ sin numero)
+      if (/\$(?:NaN|undefined|\s*(?:,|\.|$))/.test(visibleText)) {
+        failures.push(`${route}: muestra formato de moneda roto ($NaN o precio vacio)`);
       }
     } catch (error) {
       failures.push(`${route}: ${error instanceof Error ? error.message : String(error)}`);

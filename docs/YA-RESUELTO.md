@@ -17,6 +17,15 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 15 — Las Pruebas que Terminan el Trabajo (27 de agosto de 2026)
+
+- **Recorrido seguro de toda la app (`tests/e2e/internal-route-inventory.spec.ts`):**
+  - Cada una de las más de 340 pantallas se audita automáticamente para que falle si está en blanco (< 200 caracteres), si muestra basura de programador (`undefined`, `null`, `NaN`), si tiene moneda rota (`$NaN`, `$undefined`, `$ ` vacío) o errores de consola no permitidos.
+- **13 pruebas de resultados reales (`tests/e2e/trabajos-completos.spec.ts`, `src/__tests__/orden-15-resultados-reales.test.ts`):**
+  - Comprobación del dato exacto producido en lugar de sólo comprobar que la pantalla abra: montos matemáticos con 15% de ajuste anual, PDF con el mismo importe, bajas de saldo al registrar cobros, tiras con nombre y fondo de fiesta, muro social con autores, y CRM con prospectos y teléfonos.
+
+---
+
 ## Orden 13 — La Fotocabina que Gana y Fondo de Invitación (27 de agosto de 2026)
 
 - **Fondo de la fiesta heredado de la invitación (`src/lib/entertainment/station-config.ts`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`):**
