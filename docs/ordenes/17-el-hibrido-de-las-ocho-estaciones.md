@@ -169,10 +169,53 @@ historias.
 **Lo que ellos tienen:** salida vertical para historias, marca del evento, y que pese
 poco para que se comparta al toque.
 
-**El híbrido de AK:** el GIF ya está y anda. Falta:
+**Lo que AK ya tiene, verificado:** el GIF, el boomerang, la impresión, el QR y la
+guía por voz.
 
-1. **Que salga también en vertical 9:16**, que es como se comparte.
-2. **Contador de cuántos se compartieron**, para el resumen de la noche.
+**Falta:**
+
+1. **Que salga también en vertical 9:16**, que es como se comparte en historias.
+2. **Que se pueda elegir la velocidad del rebote** (lento, normal, rápido). Es un ajuste
+   y cambia mucho el resultado.
+3. **Contador de cuántos se compartieron**, para el resumen de la noche.
+
+---
+
+## Tercera pasada: las estaciones que la primera vez se despacharon en dos líneas
+
+El dueño preguntó si se habían mirado **todas**. La respuesta honesta era que no con la
+misma profundidad: la fotocabina, la 360, el retrato IA y la cápsula sí; el Bogue, los
+espejos y los tótems no. Se revisaron, contra las plataformas de su categoría y contra el
+código de AK.
+
+### HALLAZGO GRAVE: el tótem promete cuatro cosas y hace una
+
+La pantalla donde se arma el entretenimiento le muestra al equipo —y por ahí se le vende
+al cliente— que el tótem sirve para: *"Invitado interactúa con el menú"*, *"Completa
+encuesta o juego"*, *"Ve fotos de la fiesta en el muro"*, *"Consulta mapa/agenda"*, y
+además *"Captura de feedback"*, *"Mapeo de mesas"* y *"Estadísticas de participación"*.
+
+**Verificado leyendo `src/app/evento/totem/[fiestaId]/[totemId]/page.tsx` (503 líneas):
+lo único que existe es ver las fotos del muro.** Es una pantalla que muestra —fondo
+animado, fotos que flotan, distintas formas de pantalla— no un tótem con el que se
+interactúe. Cinco botones en todo el archivo.
+
+**No es un error de programación: es una promesa que la app le hace al cliente y no
+cumple.** Se arregla de una de dos maneras, y **la decisión es del dueño, no tuya**:
+
+- **Construir lo que falta**: menú, una encuesta de una sola pregunta, el mapa de mesas y
+  la agenda. Es lo que dice el bloque de tótems más abajo.
+- **O corregir el texto** para que diga lo que hace de verdad: una pantalla que muestra
+  las fotos de la fiesta.
+
+**Hasta que el dueño elija, no toques los textos.** Son decisión comercial suya.
+
+### El tótem ya deja poner un fondo, pero pegando una dirección web
+
+En `src/app/(app)/fiestas/nueva/pantallas-totem/page.tsx` (línea 377) hay un campo para
+el fondo, y es una casilla donde se pega un `https://...`. **El dueño no tiene dónde sacar
+esa dirección.** Cuando hagas el bloque 0, que sea **subir el archivo** desde la
+computadora o el teléfono, y que este campo del tótem use lo mismo.
 
 ---
 
@@ -183,11 +226,18 @@ poco para que se comparta al toque.
 **Lo que ellos tienen:** que se maneje con gestos además de toque, accesorios
 virtuales, y firma con el dedo arriba de la foto.
 
-**El híbrido de AK:** la firma ya está. Falta:
+**Lo que AK ya tiene, verificado en el código:** firma, cambio de cara, retrato,
+guía por voz, un juego, impresión y QR. Está bastante completo.
+
+**Lo que les falta contra los espejos de referencia:**
 
 1. **Accesorios virtuales** (sombreros, lentes, carteles) que se peguen a la cara. Con
    los mismos marcos que ya existen, no un sistema nuevo.
-2. **Que la firma y la foto se impriman juntas** en la tira de 10x15 que ya se arma.
+2. **La firma con más vida:** que se pueda cambiar el grosor y el color del trazo, y un
+   efecto de neón. Hoy la firma es una sola.
+3. **Que la firma y la foto se impriman juntas** en la tira de 10x15 que ya se arma.
+4. **Que la voz guíe de verdad**: el espejo ya habla; que además diga qué hacer en cada
+   paso, como la fotocabina.
 
 ---
 
@@ -214,12 +264,18 @@ foto que se convierte en un video corto de quince segundos—.
 
 **Lo que ellos tienen:** autoservicio, encuestas, y estadísticas de participación.
 
-**El híbrido de AK:**
+**Lo que AK tiene hoy, verificado:** una pantalla que muestra fotos del muro
+flotando, con fondo animado y varias formas de pantalla. **Nada más.**
 
-1. **Que el tótem sepa en qué mesa está.** Ya existe el mapeo de mesas: que al tocar,
-   el invitado vea lo suyo sin buscar.
+**El híbrido de AK** (y ojo con el hallazgo de arriba: esto es lo que la app ya promete):
+
+1. **El menú de la noche**, que el invitado lea qué se come sin preguntarle a nadie.
 2. **Una sola pregunta por vez**, no un formulario. La gente en una fiesta no llena
-   formularios.
+   formularios. Una pregunta, tres respuestas con dibujos, y listo.
+3. **Dónde me siento.** Que el invitado ponga su nombre y le diga la mesa. Es lo que más
+   se pregunta en la entrada de una fiesta.
+4. **La agenda de la noche**: a qué hora el vals, a qué hora la torta.
+5. **Que se maneje solo**: si nadie lo toca en un minuto, vuelve a mostrar las fotos.
 
 ---
 
