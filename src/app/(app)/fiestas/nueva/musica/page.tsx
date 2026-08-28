@@ -18,6 +18,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { parsearEntradaMusica } from '@/lib/musica/bandeja-musica';
+import { resolverBandejaDeMusica } from '@/app/actions/musica';
+import type { ResultadoResolucion } from '@/lib/musica/resolver-enlaces';
 
 const cancionesSugeridasTortaBrindis = [
   "Llego la hora de cortar la torta",
@@ -80,6 +82,30 @@ function MusicaContent() {
   useEffect(() => {
     loadMusicaData();
   }, [loadMusicaData]);
+
+  /**
+   * Lo que salio de abrir los enlaces de verdad.
+   *
+   * Reconocer que una linea es un enlace es instantaneo. Abrirlo y traer los
+   * temas sale a buscar afuera, asi que se hace cuando el equipo lo pide y no en
+   * cada tecla mientras alguien escribe.
+   */
+  const [resueltas, setResueltas] = useState<ResultadoResolucion | null>(null);
+  const [resolviendo, setResolviendo] = useState(false);
+  const [errorAlResolver, setErrorAlResolver] = useState<string | null>(null);
+
+  const buscarLosTemas = async () => {
+    if (resolviendo) return;
+    setResolviendo(true);
+    setErrorAlResolver(null);
+    try {
+      const res = await resolverBandejaDeMusica(musicaData.playlistFiesta || '');
+      if (res.success) setResueltas(res.resultado);
+      else setErrorAlResolver(res.error);
+    } finally {
+      setResolviendo(false);
+    }
+  };
 
   const handleInputChange = (field: Exclude<keyof MusicaFiesta, 'cancionesTortaBrindis'>, value: string) => {
     setMusicaData(prev => ({ ...prev, [field]: value }));
@@ -245,7 +271,7 @@ function MusicaContent() {
                         <Music2 className="w-3.5 h-3.5 text-primary" />
                         Canciones Reconocidas ({cancionesReconocidas.length})
                       </p>
-                      <span className="text-[11px] text-muted-foreground font-medium">Listas para el DJ</span>
+                      <span className="text-[11px] text-muted-foreground font-medium">Reconocidas del texto</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
                       {cancionesReconocidas.map((c, idx) => (
@@ -263,6 +289,63 @@ function MusicaContent() {
                   </div>
                 );
               })()}
+
+              {/*
+                Abrir los enlaces de verdad.
+                Reconocer el enlace no alcanza: hasta que no se abre, una lista de
+                Spotify es un renglon que dice "playlist compartida" y el DJ no
+                sabe que temas tiene. Este boton la abre y trae los titulos.
+              */}
+              {(musicaData.playlistFiesta || '').includes('http') && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={buscarLosTemas}
+                  disabled={resolviendo || isSaving}
+                  className="w-full sm:w-auto"
+                >
+                  {resolviendo ? 'Abriendo los enlaces...' : 'Buscar los temas de los enlaces'}
+                </Button>
+              )}
+
+              {errorAlResolver && (
+                <p className="text-xs text-destructive">{errorAlResolver}</p>
+              )}
+
+              {resueltas && (
+                <div className="rounded-xl border border-border/80 bg-background p-4 space-y-3">
+                  <p className="text-xs font-black uppercase tracking-wider text-foreground/80">
+                    Temas encontrados ({resueltas.canciones.filter((c) => c.resuelta).length})
+                  </p>
+                  {resueltas.canciones.filter((c) => c.resuelta).length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-1">
+                      {resueltas.canciones.filter((c) => c.resuelta).map((c, idx) => (
+                        <div key={`${c.id}-${idx}`} className="p-2 rounded-lg bg-muted/40 border text-xs">
+                          <p className="font-bold text-foreground truncate">{c.titulo}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{c.artista}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      No se pudo abrir ninguno de los enlaces. Abajo está el motivo de cada uno.
+                    </p>
+                  )}
+
+                  {resueltas.noSePudo.length > 0 && (
+                    <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 space-y-1.5">
+                      <p className="text-xs font-bold text-amber-700 dark:text-amber-300">
+                        Esto no se pudo abrir, y hay que resolverlo a mano ({resueltas.noSePudo.length})
+                      </p>
+                      {resueltas.noSePudo.map((n, idx) => (
+                        <p key={idx} className="text-[11px] text-amber-800 dark:text-amber-200 leading-snug">
+                          <span className="font-semibold break-all">{n.entrada}</span> — {n.motivo}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
