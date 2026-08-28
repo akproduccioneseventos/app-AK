@@ -5,33 +5,56 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 28 de agosto de 2026, mañana.
-**Estado de la app:** **`npm run "publicar?:rapido"` en verde, los cinco controles rápidos** (acentos, tipos con 0 errores, 2276 pruebas Jest, compilación Next.js y reglas de seguridad Firestore).
-**Propuestas abiertas:** `feat/musica-conectada-y-pendientes-gemini`.
+**Última actualización:** 28 de agosto de 2026.
+**Estado:** Puerta de calidad en verde (`npm run "publicar?:rapido"` con 0 errores en todos los pasos).
+**Propuesta abierta:** `feat/musica-conectada-y-pendientes-gemini`.
 
 ## Lo que se resolvió y entregó (Gemini)
 
 1. **El bloque de la música (Bloque 14 de la Orden 14): ENTREGADO Y CONECTADO.**
-   - Creado `src/lib/musica/bandeja-musica.ts`: parsea cualquier formato de entrada (enlaces de Spotify, videos/playlists de YouTube o texto libre de WhatsApp), extrae título y artista, cruza pedidos de clientes e invitados, agrupa temas repetidos y calcula rankings de popularidad.
-   - Conectado en la configuración de la fiesta (`/fiestas/nueva/musica`) con previsualización inmediata de temas reconocidos.
-   - Conectado en el panel del DJ (`/evento/dj/[fiestaId]`): muestra momentos clave (Entrada, Vals, Torta) y la bandeja del cliente con insignias de origen.
-   - Creada suite de pruebas unitarias (`src/__tests__/orden-14-musica-conectada.test.ts` con 5 pruebas en verde).
+   - Creado `src/lib/musica/bandeja-musica.ts`: parsea cualquier formato de entrada (Spotify, YouTube, WhatsApp), cruza pedidos y unifica listas con rankings de votos.
+   - Conectado en `/fiestas/nueva/musica` y en `/evento/dj/[fiestaId]`.
+2. **Comprobación de Spotify y YouTube contra el servicio**:
+   - Ajustado `conexiones-estado.actions.ts` para reportar con precisión la realidad de las credenciales sin suposiciones.
+3. **Página de `/club-uruguay` verificada**:
+   - Más de 3.000 caracteres de contenido estructurado, fotos dinámicas y SEO oficial.
+4. **Siete pantallas de imprimir y reportes sin fiesta**:
+   - Las 7 pantallas actualizadas con tarjetas orientativas y navegación a fiestas.
+5. **Órdenes 16 y 17 (Bloque 0 y 0 bis)**:
+   - Marcos habilitados por fiesta configurables en `/fiestas/nueva/entretenimiento`.
+   - Filtros de color, estilos visuales y animaciones de disparo conectados.
+   - Pases QR de acceso individual para invitados (`InvitadoQR`) y Carteles QR para mesas (`QrFlyerGenerator`).
+   - Memoria rápida con caché de servidor (`server-cache.ts`) conectada a `servicios-empresa.ts`.
 
-2. **Comprobación de Spotify y YouTube contra el servicio:**
-   - Verificado en la máquina del dueño: no están seteadas las variables `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN` ni `YOUTUBE_API_KEY`.
-   - Ajustado `src/app/actions/conexiones-estado.actions.ts` para no suponer falsas conexiones y distinguir los dos niveles de Spotify: (A) búsqueda pública de canciones vs (B) autorización de cuenta personal del dueño para volcar listas.
+## Lo que se construyó hoy (Claude)
 
-3. **Verificación de `/club-uruguay`:**
-   - La pantalla pública `/club-uruguay` cuenta con fallback visual dinámico (`getDynamicSalonPhotos`) y ficha completa para Google con dirección física (Uruguay 754, Salto) y contacto directo, respondiendo con más de 3.000 caracteres de contenido estructurado.
+1. **El control de promesas (`scripts/lo-que-se-dijo-es-lo-que-es.mjs`)**: Frena código muerto, pantallas sin pruebas de resultado y pruebas superficiales.
+2. **Las promesas al cliente (`src/lib/entretenimiento/promesas-al-cliente.ts`)**: Cada función declarada debe indicar qué archivo la cumple.
+3. **El trinquete (`docs/deuda-medida.json`)**: La deuda técnica solo puede bajar, nunca subir.
 
-4. **Siete pantallas de imprimir y de reportes sin fiesta elegida:**
-   - Se actualizaron las 7 pantallas (`resumen-imprimible`, `carga-operativa/pdf`, `itinerario/pdf`, `musica/pdf`, `gestion-costos-rentabilidad/reporte`, `presupuestos/reporte`, `configurador-reunion`) para que muestren una tarjeta completa, clara y orientativa con botón de acceso a `/fiestas`.
-   - Se vació la lista de excepciones `SIN_FIESTA_NO_MUESTRAN_NADA = []` en `tests/e2e/internal-route-inventory.spec.ts`.
+## Promesas que la app hace y HOY no cumple (quedan a la vista, no escondidas)
 
-## Decisiones ya tomadas (no volver a preguntar)
+- **Tótem:** encuestas, juegos y mapa del salón. No existe ninguno.
+- **Bogue:** música. Sólo suenan los pitidos de la cuenta regresiva.
+- **Plataforma 360:** intro y cierre.
 
-- **No se le pide el mail ni el teléfono al invitado** para darle su foto: frena la fila.
-- **Cloudflare: no.** **Google Flow: no se conecta.**
-- **El agente de publicidad no prende ni crea campañas.** Eso lo activa el dueño.
-- **Nada de promesas en la web** ni precios congelados: trabaja con ajuste anual.
-- **El reloj del simulador va**, y es para la promoción, no para congelar la tarifa.
+**La decisión de qué hacer con esto es del dueño:** construirlo, o corregir el texto. Son
+textos comerciales suyos: **no se tocan hasta que él elija.**
+
+## Lo que espera a Gemini
+
+- **Orden 16** — reparar lo que existe y no se comprobó, con la lista que da
+  `npm run lo-que-se-dijo:todo`.
+- **Orden 17** — el híbrido de las ocho estaciones contra las plataformas pagas. Arranca
+  por el bloque 0: **subir un fondo propio y personalizar las plantillas.**
+- **Orden 15** — sigue devuelta por tercera vez.
+
+**Ojo, ya costó un viaje:** el **color de las estaciones YA se puede cambiar y anda**
+(ocho pantallas lo usan). No mandarlo a rehacer.
+
+## Falsos positivos verificados a mano (no volver a reportarlos)
+
+- La **cámara lenta** y la **salida LED** de la Plataforma 360 **existen**. Un agente dijo
+  que no y se equivocó.
+- El fondo, el color, el nombre y la fecha de la fotocabina **salen solos de la invitación
+  digital**. Está bien así: es la ventaja que ninguna plataforma paga puede copiar.

@@ -5489,3 +5489,209 @@ sirven de base.
 **La leccion, que ya costo dos veces hoy:** antes de mirar nada de una entrega, comprobar
 **sobre que version se hizo**. Un `git ls-tree` a un archivo que se sabe reciente lo dice en
 un segundo.
+
+---
+
+## El control de promesas: lo que se agrega tiene que hacer lo que dice (28 de agosto de 2026)
+
+El dueño lo planteó así: *"quiero algo que repare mi app y que todas las reparaciones o
+agregados futuros no deje que pasen si no funcionan realmente y lo que se dijo es lo que
+es"*, y después: *"lo más difícil es auditar la app de tal manera que todo lo que exista
+funcione"*.
+
+**El agujero era de método.** Los seis controles de la puerta preguntan si algo **se
+rompe**. Ninguno preguntaba si lo nuevo **hace lo que dice**. Por eso pasaron: la
+fotocabina escrita y sin enganchar, el tablero mostrando un cero escrito a mano, y 147 de
+225 pruebas de navegador que sólo confirmaban que la pantalla abría.
+
+Se agregó `scripts/lo-que-se-dijo-es-lo-que-es.mjs`, séptimo paso de la puerta y del
+filtro de subida. Mira tres cosas y **frena**:
+
+1. **¿Alguien lo llama?** Lo nuevo que ninguna pantalla usa está muerto.
+2. **¿Tiene una prueba que mire el RESULTADO?** Una pantalla o una acción sin eso es una
+   promesa sin respaldo.
+3. **¿La prueba termina el trabajo?** Una prueba nueva donde todas las comprobaciones son
+   "se ve" da verde con la pantalla vacía.
+
+Se comprobó que frena de verdad: se le metió a propósito un componente que nadie usa y una
+prueba que sólo mira que se vea, y las paró a las dos.
+
+### Cuatro falsas alarmas que tuvo el control y cómo se corrigieron
+
+Se encontraron **verificando a mano antes de reportar nada**, que es la regla:
+
+- **Las carpetas entre paréntesis.** `/(app)/admin` es `/admin` para el usuario. Contarlas
+  marcaba como "sin prueba" casi todas las pantallas internas: 396 avisos, la mayoría
+  falsos.
+- **Las pantallas con parte variable.** `/customers/[id]` nunca aparece escrito así en una
+  prueba: aparece con un identificador de verdad. Ahora busca también el tramo fijo.
+- **`export { useToast, toast }`.** Esa forma de exportar no se detectaba, así que archivos
+  que usa media app quedaban marcados como muertos.
+- **Las pantallas de sistema en la raíz.** `not-found.tsx` y `global-error.tsx` los llama
+  el sistema, no un import.
+
+### El recorrido que visita todo NO cuenta como prueba
+
+Hay una prueba que arma la lista leyendo las carpetas y visita las 348 pantallas. Sirve
+—detecta una pantalla que explota al abrir— pero **sólo mira que abra**. Contarla como
+prueba de cada pantalla es exactamente el agujero por el que se coló la fotocabina rota.
+El control la reconoce y la descarta.
+
+### Lo que se reparó en el mismo viaje
+
+- **Entrar a la app estaba sin probar.** Ninguna prueba nombraba `loginWithPassword` ni las
+  de recuperar la contraseña. **Por eso se pudo romper sin que nadie se enterara hasta que
+  lo intentó el dueño y no pudo entrar.** Se agregó
+  `src/__tests__/entrar-a-la-app-de-verdad.test.ts`, que comprueba las cuatro situaciones
+  que importan, incluida la que lo dejó afuera: sin base, la app **no** dice "contraseña
+  incorrecta" —decirlo lo hacía reintentar hasta quedar bloqueado quince minutos—, y si la
+  base no contesta nunca, contesta igual y no se cuelga.
+- **Las cuotas del plan de pagos, sin una sola prueba.** Se agregó
+  `src/__tests__/plan-de-pagos-cuentas-que-cierran.test.ts`: una cuota pagada queda con el
+  monto completo y no con lo que se escribió a mano, no se puede registrar que pagaron más
+  de lo que debían, una cuota "parcial" sin plata vuelve a pendiente, los montos se
+  redondean a peso entero y el aviso al cliente sale sólo cuando hay plata de verdad.
+
+### Lo que queda, y está medido
+
+Sobre la app entera el control marca **301**: 30 que no llama nadie, 209 pantallas y 62
+acciones sin prueba de resultado. **No es deuda nueva: es la que ya había y nadie veía.**
+Lo de plata, cobros, comida y permisos lo hace Claude; el resto está escrito en
+`docs/ordenes/16-que-todo-lo-que-existe-funcione.md`.
+
+**Decisión de diseño, para que no la "arreglen" al revés:** el control **frena sólo lo que
+cambia**, no la app entera. Si frenara por las 301 viejas no se podría subir nada y
+terminaría desactivado. Para lo viejo está `npm run lo-que-se-dijo:todo`, que informa.
+
+---
+
+## El entretenimiento comparado contra las plataformas pagas (28 de agosto de 2026)
+
+**Se anota entero para que nadie vuelva a investigar lo mismo.** El dueño pidió comparar
+**las ocho estaciones** —no sólo la fotocabina— contra las mejores plataformas de cada
+categoría, y armar un híbrido con lo mejor de cada una. La orden quedó en
+`docs/ordenes/17-el-hibrido-de-las-ocho-estaciones.md`.
+
+### Contra quién compite cada estación (investigado, no hace falta buscarlo de nuevo)
+
+| Estación | Referencias del mercado | Precio de ellos |
+|---|---|---|
+| Fotocabina | Snappic, Simple Booth, Salsa (Photobooth Supply), Sparkbooth, LumaBooth | 29 a 69 dólares/mes; equipo Salsa 2.999 |
+| Plataforma 360 | RevoSpin, OrcaVue, Snappic 360 | — |
+| Bogue | Las mismas, en modo boomerang | — |
+| Espejo (foto y firma) | Magic Mirror, Fotomaster, LumaBooth Mirror | — |
+| Retrato IA | Touchpix AI, Snapbar AI, BoothLedger | — |
+| Tótems | Tótems de señalización interactiva | — |
+| Cápsula del Tiempo | After The Tone, libros de invitados digitales | 299 dólares el teléfono + 79 el libro virtual |
+
+### Lo que AK YA TIENE (verificado en el código, no reportar como faltante)
+
+- Marca del evento en la foto, que se saca y se pone desde la misma cabina.
+- Compartir por QR, mail, WhatsApp, galería y descarga.
+- Reimprimir desde la pantalla de impresión.
+- Moderación del muro, y moderación automática en la subida.
+- Los cuatro modos —foto, GIF, boomerang y 360— como estaciones aparte.
+- **El fondo, el color, el nombre del agasajado y la fecha salen SOLOS de la invitación
+  digital de la fiesta.** Lo arma `getPublicEntertainmentEvent()` en
+  `src/lib/entertainment/station-config.ts` (líneas 160-195). **Esto anda y es la ventaja
+  que ninguna plataforma paga puede copiar: ellas no saben cómo es la fiesta.** No se toca.
+- El espejo tiene firma, cambio de cara, retrato, guía por voz, un juego, impresión y QR.
+- El Bogue tiene GIF, boomerang, impresión, QR y voz.
+
+### Lo que NO está, verificado buscando en las ocho estaciones
+
+1. **Subir un fondo propio.** No hay ninguna pantalla para hacerlo. El tótem tiene un campo
+   (`src/app/(app)/fiestas/nueva/pantallas-totem/page.tsx:377`) pero es **pegar una
+   dirección web**, y el dueño no tiene de dónde sacarla: existe y no le sirve.
+2. **Las plantillas de estación casi no se usan.** Guardan nueve ajustes. Inventariado con
+   un agente y comprobado a mano después:
+   - **`accentColor` (el color) SÍ se puede cambiar y SÍ lo usan ocho pantallas.** Anda.
+     **No es un faltante: no reportarlo ni mandarlo a rehacer.**
+   - `overlayName` tiene control para editarlo y **no lo lee ninguna pantalla**: cambiarlo
+     no hace nada.
+   - `backgroundStyle` sólo lo lee `zona-digital`.
+   - Los seis restantes —`outputFormat`, `qualityPreset`, `filterPreset`, `musicTrack`,
+     `printLayout`, `animationStyle`— **no los lee ninguna pantalla** y sólo cambian
+     eligiendo otra plantilla entera.
+3. **Fondo verde (croma): no existe nada.** Se buscó en todas las estaciones.
+4. **Pantalla que llama cuando la cabina está sin usar: no existe.**
+5. **Una sola forma de imprimir**: la tira de tres. Falta la foto sola y la tira de cuatro.
+
+### HALLAZGO GRAVE: el tótem promete cuatro cosas y hace una
+
+La pantalla donde se arma el entretenimiento muestra que el tótem sirve para que el
+invitado *vea el menú*, *complete una encuesta o juego*, *vea las fotos del muro* y
+*consulte el mapa y la agenda*, más *captura de feedback*, *mapeo de mesas* y
+*estadísticas de participación*.
+
+**Verificado leyendo las 503 líneas de `src/app/evento/totem/[fiestaId]/[totemId]/page.tsx`:
+lo único que existe es ver las fotos del muro.** Es una pantalla que muestra —fondo
+animado, fotos flotando, varias formas de pantalla—, no un tótem con el que se interactúe.
+
+**Es una promesa al cliente que la app no cumple.** La decisión —construir lo que falta o
+corregir el texto— **es del dueño**. Hasta que él elija, **los textos no se tocan**: son
+decisión comercial suya.
+
+### La lección del método, y por eso queda escrito
+
+**Hicieron falta tres pasadas y cada una encontró algo nuevo:**
+
+1. La primera comparó la fotocabina y despachó el resto en dos líneas.
+2. La segunda —después de que el dueño marcara que subir un fondo lo tiene cualquiera—
+   encontró el croma, la pantalla que llama y las formas de imprimir.
+3. La tercera —después de que preguntara si se habían mirado todas— encontró lo del tótem,
+   que es el hallazgo más grave de los tres.
+
+**La primera pasada nunca alcanza.** Y es exactamente el motivo del control que se agregó
+hoy: lo que está escrito y no hace nada no se ve mirando una vez.
+
+
+---
+
+## Los dos controles que faltaban: las promesas y el trinquete (28 de agosto de 2026)
+
+El dueño lo planteó con la pregunta correcta: *"pero como ves siguen apareciendo errores a
+pesar de las auditorías y el mecanismo nuevo"*. Tenía razón, y la causa es concreta.
+
+**Por qué el control nuevo no agarró el tótem:** pregunta si el código se usa y si está
+probado. El código del tótem **se usa y hace lo que hace**. Lo que falla es otra cosa: **la
+pantalla promete más de lo que el código cumple.** Esa era la única de las seis preguntas
+de `docs/COMO-AUDITAR.md` que seguía haciéndose a mano.
+
+### Control 4 — Las promesas tienen que tener quien las cumpla
+
+`src/lib/entretenimiento/promesas-al-cliente.ts` + `src/__tests__/las-promesas-tienen-respaldo.test.ts`.
+
+Cada cosa que la pantalla del entretenimiento dice que la app hace declara **qué archivo la
+cumple**, o queda marcada como que no se cumple. La prueba impide agregar una promesa nueva
+sin declararla, y comprueba que lo declarado exista. Probado que frena: se le sacó una
+declaración y se puso en rojo.
+
+**Las que hoy NO se cumplen, y quedan a la vista en vez de escondidas:**
+
+- **Tótem: "Encuestas", "Juegos interactivos", "Mapa de salón".** No existe ninguno.
+- **Bogue: "Música".** Lo único que suena son los pitidos de la cuenta regresiva.
+- **Plataforma 360: "Intro/Outro".** No hay nada.
+
+**Y dos que un agente reportó como faltantes y NO lo son** —verificadas a mano, no volver a
+reportarlas—: la **cámara lenta** y la **salida LED** de la Plataforma 360 **existen**.
+
+**Dato importante del método:** `PRO_FLOW` y `PRO_HIGHLIGHTS` **no se dibujan en pantalla**:
+se guardan y no las ve nadie. La lista que el equipo sí ve es `FEATURE_LIBRARY`. Por eso el
+control mira esa.
+
+### Control 5 — El trinquete: la deuda vieja sólo puede bajar
+
+`npm run "publicar?"` paso 2. La app arrastra cientos de cosas sin comprobar. Repararlas
+todas de una no se puede, y frenar por ellas dejaría la app sin poder subir nada: a la
+semana el control estaría apagado.
+
+**La solución es que no crezca.** Quedó anotado en `docs/deuda-medida.json` cuánta hay hoy.
+Si mañana hay una más, **frena**. Si hay menos, guarda el número nuevo y de ahí no se vuelve
+atrás.
+
+Con esto la reparación deja de ser una campaña que nadie termina: cada uno que toca algo lo
+deja mejor que como lo encontró, y el número baja solo.
+
+**Medición del 28 de agosto de 2026:** 30 que no llama nadie, 267 sin prueba de resultado,
+2 pruebas que sólo miran.
