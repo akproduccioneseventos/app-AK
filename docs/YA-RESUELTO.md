@@ -5822,3 +5822,47 @@ imposible"*.
   simple** y nada más. No se publica antes: es una pantalla que ve el cliente y la aprueba él.
 
 **No reportarlo como faltante en ninguna auditoría.** Es decisión tomada.
+
+---
+
+## Se publica la página de privacidad y el 404 deja de ser un callejón (28 de agosto de 2026)
+
+El dueño lo pidió así: *"publicá la página de privacidad, la de 404 y las que sean
+necesarias **mientras no molesten**"*. Esa última condición es la que ordenó el diseño.
+
+- **`/privacidad`**, escrita en criollo, no copiada de un modelo legal. Se llega **desde el
+  pie de página**: no hay ningún cartel que salte encima del visitante. Las cookies se
+  explican **adentro de esa página**, que es la forma de cumplir sin molestar.
+  Queda declarada como pública y visible para Google con prioridad baja (0.3): tiene que
+  existir, no competir con las páginas que venden.
+- **El 404 dejó de ser un callejón sin salida.** Antes decía "404" y ofrecía volver al
+  inicio. El que cae ahí viene de Google o de un enlace viejo, y **si lo único que puede
+  hacer es volver al inicio, se va**. Ahora ofrece armar el presupuesto, ver lo que hacemos,
+  ir al inicio, y escribir por WhatsApp.
+
+### Un error que se detectó ANTES de subir
+
+En el primer intento del 404 se escribió **un número de WhatsApp inventado**. Un número
+falso en una página pública manda al cliente a la nada. Se corrigió para que salga de
+`AK_WHATSAPP_NUMBER`, que es la única fuente. **Nunca escribir a mano un dato de contacto.**
+
+### El barrido de las doce funciones "de plugin", y dos falsas alarmas más
+
+Se revisaron doce cosas que en WordPress se resuelven con un plugin. **Lo que el agente
+reportó como faltante y NO lo era:**
+
+- **Anti-spam: SÍ existe.** `enforcePublicRateLimit` está puesto en las acciones públicas.
+  Y lo que importa de verdad: **todas las que usan inteligencia artificial —las que cuestan
+  plata por llamada— tienen el freno**. Verificado una por una.
+- **Textos alternativos en las fotos del blog: existen**, los arma `getBlogPostImageAlt()`.
+
+**Lo que falta de verdad, y ninguno es urgente:**
+
+- **Migas de pan visibles.** Se le declaran a Google en `/public/[eventType]` pero el
+  visitante no las ve. Google pide que lo declarado coincida con lo que se muestra.
+- Buscador dentro del sitio, suscripción a novedades, comentarios en el blog, aviso de
+  caída, detección de enlaces rotos, página de mantenimiento.
+- Compartir el blog: sólo por WhatsApp. Para Uruguay puede estar bien así.
+
+**Cartel de cookies: NO se pone.** Molesta, y el dueño puso esa condición. Va explicado
+dentro de la página de privacidad.
