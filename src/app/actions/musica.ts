@@ -1,5 +1,6 @@
 'use server';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 import { parsearEntradaMusica } from '@/lib/musica/bandeja-musica';
 import {
   resolverCancionesDeLaBandeja,
@@ -18,6 +19,16 @@ export async function resolverBandejaDeMusica(
   texto: string,
 ): Promise<{ success: true; resultado: ResultadoResolucion } | { success: false; error: string }> {
   try {
+    /**
+     * Solo el equipo de AK.
+     *
+     * Esto sale a buscar afuera con la llave de Spotify de la empresa. Sin este
+     * candado, cualquiera desde internet podria hacerle gastar consultas a la
+     * cuenta. El control de seguridad de la app lo agarro apenas se escribio, y
+     * tenia razon.
+     */
+    await requireAppSession();
+
     const entrada = (texto || '').slice(0, 20_000);
     const reconocidas = parsearEntradaMusica(entrada);
     if (reconocidas.length === 0) {
