@@ -5489,3 +5489,76 @@ sirven de base.
 **La leccion, que ya costo dos veces hoy:** antes de mirar nada de una entrega, comprobar
 **sobre que version se hizo**. Un `git ls-tree` a un archivo que se sabe reciente lo dice en
 un segundo.
+
+---
+
+## El control de promesas: lo que se agrega tiene que hacer lo que dice (28 de agosto de 2026)
+
+El dueño lo planteó así: *"quiero algo que repare mi app y que todas las reparaciones o
+agregados futuros no deje que pasen si no funcionan realmente y lo que se dijo es lo que
+es"*, y después: *"lo más difícil es auditar la app de tal manera que todo lo que exista
+funcione"*.
+
+**El agujero era de método.** Los seis controles de la puerta preguntan si algo **se
+rompe**. Ninguno preguntaba si lo nuevo **hace lo que dice**. Por eso pasaron: la
+fotocabina escrita y sin enganchar, el tablero mostrando un cero escrito a mano, y 147 de
+225 pruebas de navegador que sólo confirmaban que la pantalla abría.
+
+Se agregó `scripts/lo-que-se-dijo-es-lo-que-es.mjs`, séptimo paso de la puerta y del
+filtro de subida. Mira tres cosas y **frena**:
+
+1. **¿Alguien lo llama?** Lo nuevo que ninguna pantalla usa está muerto.
+2. **¿Tiene una prueba que mire el RESULTADO?** Una pantalla o una acción sin eso es una
+   promesa sin respaldo.
+3. **¿La prueba termina el trabajo?** Una prueba nueva donde todas las comprobaciones son
+   "se ve" da verde con la pantalla vacía.
+
+Se comprobó que frena de verdad: se le metió a propósito un componente que nadie usa y una
+prueba que sólo mira que se vea, y las paró a las dos.
+
+### Cuatro falsas alarmas que tuvo el control y cómo se corrigieron
+
+Se encontraron **verificando a mano antes de reportar nada**, que es la regla:
+
+- **Las carpetas entre paréntesis.** `/(app)/admin` es `/admin` para el usuario. Contarlas
+  marcaba como "sin prueba" casi todas las pantallas internas: 396 avisos, la mayoría
+  falsos.
+- **Las pantallas con parte variable.** `/customers/[id]` nunca aparece escrito así en una
+  prueba: aparece con un identificador de verdad. Ahora busca también el tramo fijo.
+- **`export { useToast, toast }`.** Esa forma de exportar no se detectaba, así que archivos
+  que usa media app quedaban marcados como muertos.
+- **Las pantallas de sistema en la raíz.** `not-found.tsx` y `global-error.tsx` los llama
+  el sistema, no un import.
+
+### El recorrido que visita todo NO cuenta como prueba
+
+Hay una prueba que arma la lista leyendo las carpetas y visita las 348 pantallas. Sirve
+—detecta una pantalla que explota al abrir— pero **sólo mira que abra**. Contarla como
+prueba de cada pantalla es exactamente el agujero por el que se coló la fotocabina rota.
+El control la reconoce y la descarta.
+
+### Lo que se reparó en el mismo viaje
+
+- **Entrar a la app estaba sin probar.** Ninguna prueba nombraba `loginWithPassword` ni las
+  de recuperar la contraseña. **Por eso se pudo romper sin que nadie se enterara hasta que
+  lo intentó el dueño y no pudo entrar.** Se agregó
+  `src/__tests__/entrar-a-la-app-de-verdad.test.ts`, que comprueba las cuatro situaciones
+  que importan, incluida la que lo dejó afuera: sin base, la app **no** dice "contraseña
+  incorrecta" —decirlo lo hacía reintentar hasta quedar bloqueado quince minutos—, y si la
+  base no contesta nunca, contesta igual y no se cuelga.
+- **Las cuotas del plan de pagos, sin una sola prueba.** Se agregó
+  `src/__tests__/plan-de-pagos-cuentas-que-cierran.test.ts`: una cuota pagada queda con el
+  monto completo y no con lo que se escribió a mano, no se puede registrar que pagaron más
+  de lo que debían, una cuota "parcial" sin plata vuelve a pendiente, los montos se
+  redondean a peso entero y el aviso al cliente sale sólo cuando hay plata de verdad.
+
+### Lo que queda, y está medido
+
+Sobre la app entera el control marca **301**: 30 que no llama nadie, 209 pantallas y 62
+acciones sin prueba de resultado. **No es deuda nueva: es la que ya había y nadie veía.**
+Lo de plata, cobros, comida y permisos lo hace Claude; el resto está escrito en
+`docs/ordenes/16-que-todo-lo-que-existe-funcione.md`.
+
+**Decisión de diseño, para que no la "arreglen" al revés:** el control **frena sólo lo que
+cambia**, no la app entera. Si frenara por las 301 viejas no se podría subir nada y
+terminaría desactivado. Para lo viejo está `npm run lo-que-se-dijo:todo`, que informa.

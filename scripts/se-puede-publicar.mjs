@@ -30,6 +30,12 @@ const PASOS = [
     queSignifica: 'Hay acentos rotos. Además de verse mal, rompen en silencio las comparaciones con eñes: los platos de niños se contaron como de adultos por esto.',
   },
   {
+    nombre: 'Lo que se dijo es lo que es',
+    comando: 'node scripts/lo-que-se-dijo-es-lo-que-es.mjs',
+    queSignifica:
+      'Se agregó algo que dice hacer una cosa y nadie comprobó que la haga: código que no llama nadie, una pantalla sin una prueba que mire el resultado, o una prueba que sólo confirma que la pantalla abrió. Es la forma exacta que tuvieron las fallas de la fotocabina y del tablero: escritas, compilando, en verde, y sin hacer nada.',
+  },
+  {
     nombre: 'Revisor de tipos',
     comando: 'npm run typecheck',
     queSignifica: 'Hay código que no encaja. Suele terminar en una pantalla que se rompe al abrirla.',
@@ -81,7 +87,12 @@ const soloRapidos = process.argv.includes('--rapido');
  * importa.
  */
 const modoFiltro = process.argv.includes('--filtro');
-const PASOS_DEL_FILTRO = new Set(['Acentos', 'Revisor de tipos', 'Pruebas']);
+const PASOS_DEL_FILTRO = new Set([
+  'Acentos',
+  'Lo que se dijo es lo que es',
+  'Revisor de tipos',
+  'Pruebas',
+]);
 const fallas = [];
 
 console.log('\n¿SE PUEDE PUBLICAR?\n' + '='.repeat(60));

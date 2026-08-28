@@ -236,3 +236,20 @@ Miralo por lo que comprueba al final:
 - Si comprueba que **algo es visible**, que **hay un botón** o que **la pantalla no dio
   error** → sólo confirma que abrió. **No cuenta.**
 - Si comprueba **un texto, un número o una imagen que la app produjo** → esa sí.
+
+
+---
+
+## Estas preguntas ya no se hacen a mano (28 de agosto de 2026)
+
+Las preguntas 2 (¿alguien lo llama?) y 6 (¿la prueba termina el trabajo?) las contesta
+ahora una maquina, y **frena** en vez de informar:
+
+```
+npm run lo-que-se-dijo         # lo que cambia. Es paso de la puerta y del filtro.
+npm run lo-que-se-dijo:todo    # la app entera. Informa, no frena.
+```
+
+**Que no cuenta como prueba, y es lo que hay que recordar:** la prueba que recorre las 348
+pantallas de corrido **no prueba ninguna**. Solo mira que abran. Por ahi se colo la
+fotocabina rota, con la auditoria en verde.
