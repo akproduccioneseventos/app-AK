@@ -25,6 +25,44 @@ comparación de la fotocabina sola: es de todo el entretenimiento.
 
 ---
 
+## Segunda pasada: lo que faltó en la primera comparación
+
+**El dueño lo marcó y tenía razón:** subir un fondo propio lo tiene cualquiera de esas
+plataformas, y en la primera pasada no figuraba. Se revisó de nuevo, esta vez contra la
+lista completa de lo que trae un software de cabina —LumaBooth, LA Photo Party, Social
+Booth, dslrBooth, Touchpix— y comprobando en el código de AK una por una.
+
+**Lo que AK ya tiene** (verificado, no hace falta tocarlo): marca del evento que se puede
+sacar y poner desde la cabina, compartir por QR, mail, WhatsApp, galería y descarga,
+reimpresión desde la pantalla de impresión, moderación del muro, y los modos foto, GIF,
+boomerang y 360 como estaciones aparte.
+
+**Lo que NO está y lo tiene todo el mundo:**
+
+| Falta en AK | Quién lo tiene | Por qué importa en una fiesta |
+|---|---|---|
+| **Subir un fondo propio** | Todas | Es lo primero que pide un cliente con un tema |
+| **Plantillas que se puedan editar** | Todas | Hoy hay ocho ajustes y sólo uno hace algo |
+| **Fondo verde (croma)** | LumaBooth, LA Photo Party, Social Booth | Poner al invitado en cualquier lado. **En AK no existe nada.** |
+| **Pantalla que llama cuando nadie la usa** | LumaBooth | Una cabina quieta no llama a nadie. Un video en repetición sí. |
+| **Más de una forma de imprimir** | Todas | Hoy sale una sola: la tira de tres. Falta foto sola y tira de cuatro. |
+
+Los dos primeros son el bloque 0. Los otros tres, el bloque 0 bis.
+
+## Bloque 0 bis — Croma, pantalla que llama, y formas de imprimir
+
+1. **Fondo verde (croma).** Que se pueda sacar el fondo real y poner otro. **No existe
+   nada de esto en la app**: se comprobó buscando en todas las estaciones. Es lo que hace
+   posible el disfraz y el "estabas en París".
+2. **Pantalla que llama.** Cuando la cabina está sin usar, que muestre en repetición las
+   últimas fotos de esa misma fiesta con un cartel de "tocá para tu foto". Acá AK le gana
+   a los que ponen un video genérico: **las fotos son de la gente que está ahí**.
+3. **Tres formas de imprimir, no una:** la tira de tres que ya existe, la foto sola en
+   10x15, y la tira de cuatro. Que se elija por estación, y que el ajuste `printLayout`
+   —que hoy se guarda y no lo mira nadie— sea el que manda.
+
+---
+
 ## Bloque 0 — SUBIR UN FONDO Y PERSONALIZAR LAS PLANTILLAS (pedido del dueño)
 
 **Es lo primero que hay que hacer.** El dueño lo pidió así: *"y poder subir un fondo
