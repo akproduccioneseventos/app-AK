@@ -52,9 +52,14 @@ function baseDeComparacion() {
 
 function archivosQueCambiaron() {
   if (MIRAR_TODO) {
-    const { ok, salida } = sh(`git ls-files 'src/*' 'tests/*' | grep -E '\\.tsx?$'`);
+    // `git ls-files` solo lista lo ya guardado en el repositorio. Un archivo
+    // nuevo sin guardar se le escapaba, y el trinquete daba verde con deuda
+    // nueva adentro. Se comprobo: se agrego un componente muerto y no lo vio.
+    const { ok, salida } = sh(
+      `git ls-files --cached --others --exclude-standard 'src/*' 'tests/*' | grep -E '\\.tsx?$'`
+    );
     if (!ok) return null;
-    return salida.split('\n').filter(Boolean);
+    return [...new Set(salida.split('\n').filter(Boolean))];
   }
   const base = baseDeComparacion();
   if (!base) return null;
@@ -86,7 +91,7 @@ let INDICE = null;
 function armarIndice() {
   if (INDICE) return INDICE;
   const { ok, salida } = sh(
-    `git ls-files 'src/*' 'tests/*' | grep -E '\\.(ts|tsx|js|mjs)$'`
+    `git ls-files --cached --others --exclude-standard 'src/*' 'tests/*' | grep -E '\\.(ts|tsx|js|mjs)$'`
   );
   if (!ok) return null;
   const guia = new Map();
