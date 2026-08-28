@@ -1,32 +1,24 @@
 {
-  "fecha": "2026-08-27",
-  "textoHablado": "Buen día. Hoy tenemos 3 puntos para avanzar: coordinación de fiesta de esta noche, coordinación de fiesta de esta noche, coordinación de fiesta de esta noche. ¿Por cuál empezamos?",
-  "textoResumen": "Hoy hay 3 cosas para hacer.",
+  "fecha": "2026-08-28",
+  "textoHablado": "Buen día. Hoy tenemos 2 puntos para avanzar: coordinación de fiesta de esta noche, coordinación de fiesta de esta noche. ¿Por cuál empezamos?",
+  "textoResumen": "Hoy hay 2 cosas para hacer.",
   "itemsPrincipales": [
     {
-      "id": "fiesta_e2e_entretenimientos_1787842130447",
+      "id": "fiesta_e2e_entretenimientos_1787921459762",
       "tipo": "fiesta_proxima",
       "titulo": "Coordinación de Fiesta de esta noche",
-      "detalle": "Falta confirmar menú para el evento del 27/8/2026.",
-      "accionHref": "/fiestas/nueva?fiestaId=e2e_entretenimientos_1787842130447",
-      "accionTexto": "Abrir fiesta"
-    },
-    {
-      "id": "fiesta_e2e_entretenimientos_1787842334922",
-      "tipo": "fiesta_proxima",
-      "titulo": "Coordinación de Fiesta de esta noche",
-      "detalle": "Falta confirmar menú para el evento del 27/8/2026.",
-      "accionHref": "/fiestas/nueva?fiestaId=e2e_entretenimientos_1787842334922",
+      "detalle": "Falta confirmar menú para el evento del 28/8/2026.",
+      "accionHref": "/fiestas/nueva?fiestaId=e2e_entretenimientos_1787921459762",
       "accionTexto": "Abrir fiesta"
     },
     {
       "id": "fiesta_e2e_fotos_app",
       "tipo": "fiesta_proxima",
       "titulo": "Coordinación de Fiesta de esta noche",
-      "detalle": "Falta confirmar menú para el evento del 27/8/2026.",
+      "detalle": "Falta confirmar menú para el evento del 28/8/2026.",
       "accionHref": "/fiestas/nueva?fiestaId=e2e_fotos_app",
       "accionTexto": "Abrir fiesta"
     }
   ],
-  "totalPendientes": 3
+  "totalPendientes": 2
 }
