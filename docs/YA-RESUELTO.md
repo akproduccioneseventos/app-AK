@@ -5562,3 +5562,77 @@ Lo de plata, cobros, comida y permisos lo hace Claude; el resto está escrito en
 **Decisión de diseño, para que no la "arreglen" al revés:** el control **frena sólo lo que
 cambia**, no la app entera. Si frenara por las 301 viejas no se podría subir nada y
 terminaría desactivado. Para lo viejo está `npm run lo-que-se-dijo:todo`, que informa.
+
+---
+
+## El entretenimiento comparado contra las plataformas pagas (28 de agosto de 2026)
+
+**Se anota entero para que nadie vuelva a investigar lo mismo.** El dueño pidió comparar
+**las ocho estaciones** —no sólo la fotocabina— contra las mejores plataformas de cada
+categoría, y armar un híbrido con lo mejor de cada una. La orden quedó en
+`docs/ordenes/17-el-hibrido-de-las-ocho-estaciones.md`.
+
+### Contra quién compite cada estación (investigado, no hace falta buscarlo de nuevo)
+
+| Estación | Referencias del mercado | Precio de ellos |
+|---|---|---|
+| Fotocabina | Snappic, Simple Booth, Salsa (Photobooth Supply), Sparkbooth, LumaBooth | 29 a 69 dólares/mes; equipo Salsa 2.999 |
+| Plataforma 360 | RevoSpin, OrcaVue, Snappic 360 | — |
+| Bogue | Las mismas, en modo boomerang | — |
+| Espejo (foto y firma) | Magic Mirror, Fotomaster, LumaBooth Mirror | — |
+| Retrato IA | Touchpix AI, Snapbar AI, BoothLedger | — |
+| Tótems | Tótems de señalización interactiva | — |
+| Cápsula del Tiempo | After The Tone, libros de invitados digitales | 299 dólares el teléfono + 79 el libro virtual |
+
+### Lo que AK YA TIENE (verificado en el código, no reportar como faltante)
+
+- Marca del evento en la foto, que se saca y se pone desde la misma cabina.
+- Compartir por QR, mail, WhatsApp, galería y descarga.
+- Reimprimir desde la pantalla de impresión.
+- Moderación del muro, y moderación automática en la subida.
+- Los cuatro modos —foto, GIF, boomerang y 360— como estaciones aparte.
+- **El fondo, el color, el nombre del agasajado y la fecha salen SOLOS de la invitación
+  digital de la fiesta.** Lo arma `getPublicEntertainmentEvent()` en
+  `src/lib/entertainment/station-config.ts` (líneas 160-195). **Esto anda y es la ventaja
+  que ninguna plataforma paga puede copiar: ellas no saben cómo es la fiesta.** No se toca.
+- El espejo tiene firma, cambio de cara, retrato, guía por voz, un juego, impresión y QR.
+- El Bogue tiene GIF, boomerang, impresión, QR y voz.
+
+### Lo que NO está, verificado buscando en las ocho estaciones
+
+1. **Subir un fondo propio.** No hay ninguna pantalla para hacerlo. El tótem tiene un campo
+   (`src/app/(app)/fiestas/nueva/pantallas-totem/page.tsx:377`) pero es **pegar una
+   dirección web**, y el dueño no tiene de dónde sacarla: existe y no le sirve.
+2. **Las plantillas de estación no se pueden editar y casi no se usan.** Guardan ocho
+   ajustes y la fotocabina lee uno solo (`accentColor`).
+3. **Fondo verde (croma): no existe nada.** Se buscó en todas las estaciones.
+4. **Pantalla que llama cuando la cabina está sin usar: no existe.**
+5. **Una sola forma de imprimir**: la tira de tres. Falta la foto sola y la tira de cuatro.
+
+### HALLAZGO GRAVE: el tótem promete cuatro cosas y hace una
+
+La pantalla donde se arma el entretenimiento muestra que el tótem sirve para que el
+invitado *vea el menú*, *complete una encuesta o juego*, *vea las fotos del muro* y
+*consulte el mapa y la agenda*, más *captura de feedback*, *mapeo de mesas* y
+*estadísticas de participación*.
+
+**Verificado leyendo las 503 líneas de `src/app/evento/totem/[fiestaId]/[totemId]/page.tsx`:
+lo único que existe es ver las fotos del muro.** Es una pantalla que muestra —fondo
+animado, fotos flotando, varias formas de pantalla—, no un tótem con el que se interactúe.
+
+**Es una promesa al cliente que la app no cumple.** La decisión —construir lo que falta o
+corregir el texto— **es del dueño**. Hasta que él elija, **los textos no se tocan**: son
+decisión comercial suya.
+
+### La lección del método, y por eso queda escrito
+
+**Hicieron falta tres pasadas y cada una encontró algo nuevo:**
+
+1. La primera comparó la fotocabina y despachó el resto en dos líneas.
+2. La segunda —después de que el dueño marcara que subir un fondo lo tiene cualquiera—
+   encontró el croma, la pantalla que llama y las formas de imprimir.
+3. La tercera —después de que preguntara si se habían mirado todas— encontró lo del tótem,
+   que es el hallazgo más grave de los tres.
+
+**La primera pasada nunca alcanza.** Y es exactamente el motivo del control que se agregó
+hoy: lo que está escrito y no hace nada no se ve mirando una vez.
