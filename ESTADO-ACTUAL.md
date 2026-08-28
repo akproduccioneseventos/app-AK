@@ -5,91 +5,70 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 27 de agosto de 2026.
+**Última actualización:** 27 de agosto de 2026, cierre del día.
 **Estado de la app:** sana. Tipos en cero, 2260 pruebas en verde, acentos limpios, compila,
 y las pruebas de navegador de los entretenimientos sin fallas.
-**Propuestas abiertas:** ninguna.
+**Propuestas abiertas:** ninguna fusionable. **Dos entregas de Gemini devueltas** (abajo).
 
-## Lo que se cerró hoy
+## LO QUE ESTÁ ESPERANDO A GEMINI: dos entregas devueltas
 
-**Las estaciones estaban todas muertas y se arreglaron.** El operador tocaba "Iniciar cuenta
-regresiva" en la 360, en Bogue, en el Espejo Mágico o en Touchpix y le aparecía un cartel
-rojo en inglés: no arrancaba ninguna. Una sola causa para las cuatro. Con candado de prueba.
+Las dos están escritas arriba de todo en su orden, como **DEVOLUCIÓN**. Ninguna se fusionó.
 
-**El control de navegador mentía.** `scripts/run-playwright-production.mjs` decía "todas las
-pruebas pasaron" **con cero pruebas corridas** cuando una tanda se caía. Apenas se arregló
-aparecieron dos defectos que ya estaban fusionados desde el 26 de agosto: la portada tenía
-dos secciones con el mismo nombre interno y el título se había movido sin actualizar su
-referencia. Los dos corregidos. **La lección: cuando un control deja de mirar, lo que entra
-no se ve.**
+### Orden 14 — entretenimiento (rama `feat/orden-14-entretenimiento-unificado`)
 
-**Gemini entregó la orden 13 (fotocabina) y se fusionó** tras pasar los siete controles: la
-tira sale con el fondo de la invitación de esa fiesta (también en Bogue y el Espejo), se
-configura por fiesta cuántas fotos y qué marcos, y se sacaron cuatro promesas que la
-fotocabina no cumple.
+Pasa los cinco controles **y aun así la mitad no hace nada**: cinco piezas nuevas —GIF,
+marcos dinámicos, resumen de la noche, moderación automática del muro y el selector de
+formato— **no las llama nadie**. Verificado por nombre de archivo y de función. Además, el
+tablero del operador **no tiene puerta** (ninguna pantalla lleva ahí) y **falta entero el
+bloque de la música** sin avisar. Y `YA-RESUELTO.md` quedó afirmando como resueltas tres
+cosas que no ocurren.
 
-## Lo que sigue: la orden 14, para Gemini
+**Lo que sí quedó bien y no se toca:** el saludo y la guía en pantalla (enchufada de verdad
+en 360, Bogue y Touchpix), **el tótem arreglado** (confirmado en el navegador) y el Club
+Uruguay siempre visible en la Presentación LED, marcado como opcional.
 
-**`docs/ordenes/14-el-entretenimiento-de-ak.md`**, quince bloques, **una sola propuesta**.
-Convierte las estaciones sueltas en una sola experiencia que sabe de qué fiesta se trata y
-quién está parado adelante. Del invitado: saludo por nombre, elegir entre foto/GIF/video/
-boomerang/avatar IA, guía en pantalla, fondo sin tela verde, **marco armado solo con los
-datos de la fiesta**, accesorios pegados a la cara, QR sin pedir un dato. Del operador: un
-tablero con todas las estaciones y el contador de la noche, todo preparado el día anterior,
-y el resumen final que se le muestra al cliente. Más: el tótem (que se ve desarmado), el
-muro moderado por IA, la cápsula que se abre sola y el Club Uruguay ofrecido siempre.
+### Orden 15 — las pruebas (rama `feat/orden-15-pruebas-que-terminan-el-trabajo`)
 
-### El bloque 14, nuevo, pedido por el dueño hoy
+**El recorrido de las 348 pantallas mira el lugar equivocado:** usa
+`context.request.get(route)` y mide el HTML crudo, no la pantalla dibujada. Las pantallas
+internas se dibujan en el cliente, así que ese HTML son **69 caracteres de cáscara siempre**:
+reportó **veintipico de pantallas sanas como "vacías"**. Peor: por lo mismo, las
+comprobaciones de `$NaN` y basura de programador **quedan ciegas**.
 
-**Toda la música junta y conectada de verdad.** Hoy los enlaces que manda el cliente caen en
-un cuadro de texto libre y **nadie los abre nunca**. Que entre lo que sea —playlist o tema
-de Spotify, video o playlist de YouTube, o texto pegado de WhatsApp—, que la app lo resuelva
-a canciones con título y artista, las cruce entre los dos servicios, las junte con los
-pedidos de los invitados y las vuelque a una playlist en la cuenta del dueño. **Ya existen y
-no se rehacen:** infaltables/prohibidas del DJ, "Imprimir para DJ", el campo del vals y la
-búsqueda en Spotify.
+En el segundo intento arregló la compatibilidad con Windows —bien, y hacía falta— pero
+**no tocó lo anterior**, y sumó dos cosas nuevas: el control de acentos en Node **da verde
+si `git ls-files` falla** (el mismo defecto que acabamos de sacarle al corredor de pruebas,
+y es uno de los seis pasos de la puerta), y quedó `path-scurry` en las dependencias **sin
+que lo use nadie**.
 
-**Hallazgo del mismo bloque: el panel de conexiones puede mentir.** YouTube figura
-"conectada" con que exista una ficha guardada, aunque el permiso haya vencido; Spotify
-figura "conectada" con que exista la llave de la aplicación, aunque la cuenta personal del
-dueño no esté autorizada a escribir. **No se comprueba contra el servicio.** Se le pidió a
-Gemini que lo pruebe de verdad —él corre en la máquina del dueño y tiene los accesos— y que
-muestre los dos niveles por separado.
+**Pendiente que sólo puede resolver él, con los accesos de producción:** abrir
+`/club-uruguay` y decir qué se ve. La prueba mide 11 caracteres, pero esa página le pide los
+salones a la base y en el contenedor de prueba no hay base. Si de verdad está vacía, es un
+defecto en una página que vende.
 
-## LA PUERTA, nueva y es la que manda: `npm run "publicar?"`
+## Lo que se cerró y ya está en la versión principal
 
-**Pedido del dueño el 27 de agosto**, después de que una auditoría diera *"cero errores"*
-con la fotocabina imprimiendo mal: *"quiero un mecanismo que deje mi app en cero errores en
-código y en funcionamiento; todo debe marchar para poder publicar."*
+- **Las estaciones estaban todas muertas y se arreglaron.** El operador tocaba "Iniciar
+  cuenta regresiva" en la 360, en Bogue, en el Espejo Mágico o en Touchpix y aparecía un
+  cartel rojo en inglés. Una sola causa para las cuatro, con candado de prueba.
+- **El corredor de pruebas de navegador mentía:** decía "todas las pruebas pasaron" **con
+  cero pruebas corridas**. Apenas se arregló aparecieron dos defectos ya fusionados desde el
+  26 de agosto (la portada con dos secciones del mismo nombre y el título movido sin
+  actualizar su referencia). Los dos corregidos.
+- **La fotocabina imprime con el fondo de la invitación** de esa fiesta, y también Bogue y
+  el Espejo. Se configura por fiesta cuántas fotos y qué marcos.
+- **La orden 14 quedó escrita con quince bloques**, incluida la música: que entre lo que sea
+  —Spotify, YouTube o texto pegado— y salga una sola lista conectada, para el DJ.
 
-**El diagnóstico:** el problema no era la calidad de los informes, era que **ninguno podía
-frenar la publicación**. Un control que no frena es una sugerencia.
+**La lección del día, y vale para todo: cuando un control deja de mirar, lo que entra no se
+ve.** Pasó dos veces hoy con dos controles distintos.
 
-`npm run "publicar?"` corre los seis controles del más barato al más caro, se corta en la
-primera falla y contesta **una sola cosa**: se puede publicar, o no se puede, qué falló y qué
-significa en criollo. Devuelve un resultado que una máquina puede leer, así que **algo puede
-frenar solo**. `publicar?:rapido` saltea la prueba de navegador y **no alcanza para publicar**.
+## LA PUERTA, y es la que manda: `npm run "publicar?"`
 
-**La regla, en `CLAUDE.md`: no se fusiona nada sin eso en verde, y no se saltea un paso para
-que dé verde.**
-
-### Lo que le falta a la puerta: la orden 15
-
-**`docs/ordenes/15-las-pruebas-que-terminan-el-trabajo.md`**, dos partes:
-
-- **El recorrido de las 348 pantallas, que hoy no mira.** Existe y las visita, pero sólo
-  detecta error de servidor. **Una pantalla en blanco le pasa; una con `$NaN` en el precio,
-  también.** Se le suman cinco comprobaciones por pantalla.
-- **Trece pruebas que terminan el trabajo.** Medido: `simulator-budget-journey` tiene **cero**
-  comprobaciones de resultado contra once de que la pantalla abrió. Recorre los cinco pasos,
-  se baja el PDF y **nunca mira el monto**.
-
-### Y las dos preguntas nuevas para auditar (en `docs/COMO-AUDITAR.md`)
-
-- **¿El dato LLEGA?** Una función acepta un parámetro opcional y ninguna llamada se lo pasa.
-  Pasó tres veces en un día.
-- **¿La prueba TERMINA EL TRABAJO?** Si termina en `toBeVisible` o en `status < 400`, sólo
-  confirma que abrió. **No cuenta.**
+Corre los seis controles del más barato al más caro, corta en la primera falla y contesta una
+sola cosa: se puede publicar o no, y por qué en criollo. **No se fusiona nada sin eso en
+verde, y no se saltea un paso para que dé verde.** `publicar?:rapido` saltea la prueba de
+navegador y **no alcanza para publicar**.
 
 ## Decisiones ya tomadas (no volver a preguntar)
 
