@@ -251,7 +251,7 @@ export default function TotemPublicPage() {
       )}
       style={{ ['--totem-accent' as string]: accent, ['--audio-level' as string]: String(audioLevel) }}
     >
-      <div className={cn('relative h-full w-full overflow-hidden', isPortrait && 'max-w-[56.25vh]', isSquare && 'aspect-square max-h-screen max-w-screen')}>
+      <div className={cn('relative h-full w-full overflow-hidden flex flex-col justify-between', isPortrait ? 'max-w-full sm:max-w-3xl' : '')}>
         <AnimatedBackground mode={totem.backgroundMode} mediaUrl={totem.backgroundMediaUrl} accent={accent} posts={posts} />
 
         <button
@@ -262,27 +262,29 @@ export default function TotemPublicPage() {
           <Maximize className="h-5 w-5" />
         </button>
 
-        <section className="relative z-10 grid h-full grid-rows-[1fr_auto] p-6 sm:p-10">
-          <div className="grid min-h-0 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.7fr)]">
-            <div className="flex min-h-0 flex-col justify-center">
+        <section className="relative z-10 flex flex-1 flex-col justify-between p-6 sm:p-10 overflow-y-auto">
+          <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(260px,0.8fr)] items-center">
+            <div className="flex min-h-0 flex-col justify-center space-y-4">
               {totem.logoUrl && (
-                  <div className="relative mb-6 h-16 w-40 overflow-hidden rounded-lg bg-white/90 p-2">
+                <div className="relative h-14 w-36 overflow-hidden rounded-lg bg-white/90 p-2">
                   <NextImage src={totem.logoUrl} alt="Logo" fill className="object-contain" unoptimized />
                 </div>
               )}
               <motion.p
                 animate={{ opacity: [0.65, 1, 0.65] }}
                 transition={{ duration: 2.4, repeat: Infinity }}
-                className="text-xs font-black uppercase tracking-[0.4em]"
+                className="text-xs font-black uppercase tracking-widest"
                 style={{ color: accent }}
               >
                 Experiencia tecnológica AK
               </motion.p>
-              <h1 className="mt-4 max-w-4xl text-[clamp(3rem,10vw,9rem)] font-black leading-[0.9] tracking-tight">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight text-white break-words">
                 {totem.honoreeName || totem.title}
               </h1>
-              <p className="mt-5 max-w-2xl text-[clamp(1rem,2vw,2rem)] font-semibold text-white/72">{totem.subtitle}</p>
-              <div className="mt-8 flex flex-wrap gap-3">
+              <p className="text-base sm:text-xl font-semibold text-white/80 leading-relaxed max-w-xl">
+                {totem.subtitle}
+              </p>
+              <div className="pt-2 flex flex-wrap gap-3">
                 {totem.audioReactive && (
                   <button onClick={activateAudio} className="rounded-lg border border-white/15 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-wider backdrop-blur">
                     Activar audio
@@ -290,8 +292,8 @@ export default function TotemPublicPage() {
                 )}
                 {totem.showQr && (
                   qrUrl ? (
-                    <div className="rounded-lg border border-white/15 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-wider backdrop-blur flex items-center">
-                      <QrCode className="mr-2 inline h-4 w-4" /> {totem.qrLabel || 'Escaneá y participá'}
+                    <div className="rounded-xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-wider backdrop-blur flex items-center shadow-lg">
+                      <QrCode className="mr-2.5 h-5 w-5 text-amber-400" /> {totem.qrLabel || 'Escaneá y participá'}
                     </div>
                   ) : (
                     <div className="rounded-2xl border-2 border-amber-400/40 bg-amber-500/20 px-6 py-4 backdrop-blur-md flex items-center gap-4 shadow-xl">
@@ -316,7 +318,7 @@ export default function TotemPublicPage() {
                   <motion.div
                     animate={{ y: [0, -14, 0], rotate: [-1, 1.5, -1] }}
                     transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                    className="relative aspect-[4/5] w-full max-w-[46vh] overflow-hidden rounded-lg border border-white/20 bg-black shadow-2xl"
+                    className="relative aspect-[4/5] w-full max-w-[420px] overflow-hidden rounded-2xl border border-white/20 bg-black shadow-2xl"
                   >
                     <NextImage src={heroPhotos[0]} alt={totem.honoreeName || 'Tótem AK'} fill className="object-cover" unoptimized priority />
                   </motion.div>
@@ -328,7 +330,7 @@ export default function TotemPublicPage() {
                       animate={{ opacity: 1, scale: 1, rotate: 1 }}
                       exit={{ opacity: 0, scale: 1.04, rotate: 3 }}
                       transition={{ duration: 0.7 }}
-                      className="relative aspect-[4/5] w-full max-w-[46vh] overflow-hidden rounded-lg border-[10px] border-white bg-white shadow-2xl"
+                      className="relative aspect-[4/5] w-full max-w-[420px] overflow-hidden rounded-2xl border-[10px] border-white bg-white shadow-2xl"
                     >
                       <div className="relative h-full w-full">
                         <NextImage src={heroPhotos[heroPhotoIndex]} alt={totem.honoreeName || 'Tótem AK'} fill className="object-cover" unoptimized priority />
@@ -344,7 +346,7 @@ export default function TotemPublicPage() {
                     animate={{ opacity: 1, scale: 1, rotate: 1 }}
                     exit={{ opacity: 0, scale: 1.04, rotate: 3 }}
                     transition={{ duration: 0.7 }}
-                    className="relative aspect-[4/5] w-full max-w-[46vh] overflow-hidden rounded-lg border-[10px] border-white bg-white shadow-2xl"
+                    className="relative aspect-[4/5] w-full max-w-[420px] overflow-hidden rounded-2xl border-[10px] border-white bg-white shadow-2xl"
                   >
                     <MediaPreview post={activePost} />
                     <div className="absolute bottom-0 left-0 right-0 bg-black/65 p-5">
@@ -353,19 +355,19 @@ export default function TotemPublicPage() {
                   </motion.div>
                 </AnimatePresence>
               ) : (
-                  <div className="flex aspect-square w-full max-w-sm items-center justify-center rounded-lg border border-white/15 bg-white/10">
+                <div className="flex aspect-square w-full max-w-sm items-center justify-center rounded-2xl border border-white/15 bg-white/10">
                   <Sparkles className="h-24 w-24" style={{ color: accent }} />
                 </div>
               )}
             </div>
           </div>
 
-          <footer className="mt-6 grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
-            <div className="overflow-hidden rounded-lg border border-white/10 bg-black/35 px-5 py-3 backdrop-blur">
+          <footer className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex-1 overflow-hidden rounded-xl border border-white/10 bg-black/40 px-5 py-3.5 backdrop-blur">
               <motion.div
                 animate={{ x: ['0%', '-50%'] }}
                 transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-                className="whitespace-nowrap text-sm font-black uppercase tracking-[0.26em] text-white/70"
+                className="whitespace-nowrap text-xs sm:text-sm font-black uppercase tracking-widest text-white/70"
               >
                 {[totem.title, 'Subí tu foto', 'Mirate en pantalla', 'Etiquetá a AK Producciones', totem.title].map((text, index) => (
                   <span key={`${text}-${index}`} className="mx-8">{text}</span>
@@ -375,22 +377,19 @@ export default function TotemPublicPage() {
             {totem.showQr && (
               <div className="flex shrink-0 items-center justify-end">
                 {qrUrl ? (
-                  <div className="flex flex-col items-end gap-3 rounded-xl bg-black/60 p-5 backdrop-blur-xl">
-                    <p className="max-w-[200px] text-right text-xs font-black uppercase leading-tight tracking-[0.25em] text-white">
+                  <div className="flex items-center gap-4 rounded-2xl bg-black/70 p-4 border border-white/10 backdrop-blur-xl shadow-2xl">
+                    <p className="max-w-[140px] text-right text-xs font-black uppercase tracking-wider text-white leading-snug">
                       {totem.qrLabel || 'Escaneá para participar'}
                     </p>
-                    <div className="rounded-lg bg-white p-3 shadow-2xl">
-                      <QRCodeSVG value={qrUrl} size={156} includeMargin={false} />
+                    <div className="rounded-xl bg-white p-2.5 shadow-xl">
+                      <QRCodeSVG value={qrUrl} size={110} includeMargin={false} />
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-black/80 border-2 border-amber-400/30 p-6 backdrop-blur-xl text-center min-w-[200px] min-h-[200px]">
-                    <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
-                    <p className="text-sm font-black uppercase tracking-wider text-amber-300">
-                      Conectando...
-                    </p>
-                    <p className="text-[11px] font-bold text-white/60 max-w-[150px] leading-snug">
-                      El código QR aparecerá al conectar
+                  <div className="flex items-center gap-3 rounded-2xl bg-black/80 border border-amber-400/30 p-4 backdrop-blur-xl text-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-amber-400" />
+                    <p className="text-xs font-bold text-amber-300">
+                      Conectando QR...
                     </p>
                   </div>
                 )}

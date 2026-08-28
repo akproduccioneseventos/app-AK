@@ -278,20 +278,35 @@ export function DatosEventoSlide({ clientData, onClientDataChange, onNext }: Dat
               />
             )}
 
-            {tieneSalon === false && (
+            {/* Club Uruguay siempre disponible como opción preferencial */}
+            <div className="pt-2">
               <button
                 type="button"
-                onClick={() => onClientDataChange({ ...clientData, salon: clientData.salon === 'Club Uruguay' ? '' : 'Club Uruguay' })}
-                className={`w-full rounded-xl border-2 px-4 py-3 text-left transition-all ${
+                onClick={() => onClientDataChange({
+                  ...clientData,
+                  salon: clientData.salon === 'Club Uruguay' ? '' : 'Club Uruguay',
+                })}
+                className={`w-full rounded-xl border-2 p-3.5 text-left transition-all ${
                   clientData.salon === 'Club Uruguay'
-                    ? 'border-emerald-400 bg-emerald-500/20'
-                    : 'border-white/20 bg-white/5 hover:bg-white/10'
+                    ? 'border-emerald-400 bg-emerald-500/20 shadow-lg'
+                    : 'border-white/15 bg-white/5 hover:bg-white/10'
                 }`}
               >
-                <p className="text-white font-bold text-sm">🏆 Club Uruguay</p>
-                <p className="text-white/60 text-xs mt-0.5">Salón disponible — hacé click para seleccionar</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-white font-bold text-sm flex items-center gap-1.5">
+                    🏆 Opción destacada: Club Uruguay
+                  </p>
+                  {clientData.salon === 'Club Uruguay' && (
+                    <span className="rounded bg-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                      Seleccionado
+                    </span>
+                  )}
+                </div>
+                <p className="text-white/70 text-xs mt-1 leading-relaxed">
+                  Salón elegante en el centro de Salto. Es 100% opcional (el alquiler se abona directamente en el Club).
+                </p>
               </button>
-            )}
+            </div>
           </div>
         </div>
 
