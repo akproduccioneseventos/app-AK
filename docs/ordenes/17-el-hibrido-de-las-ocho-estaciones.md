@@ -1,5 +1,25 @@
 # Orden 17 — El híbrido: lo mejor de cada plataforma, en las ocho estaciones
 
+> ## DECISIÓN DEL DUEÑO, 28 de agosto de 2026: SE CONSTRUYE. Los textos no se tocan.
+>
+> Sus palabras: *"lo que esté mal siempre se corrige"*.
+>
+> Había tres promesas que la app muestra y no cumple, y dos caminos: construirlas o
+> corregir el texto. **Eligió construirlas.** No se cambia ni una palabra de lo que dice
+> la pantalla: se hace que sea verdad.
+>
+> **Las tres, y son lo primero de esta orden:**
+>
+> 1. **Tótem: encuestas, juegos interactivos y mapa del salón.** Hoy el tótem sólo muestra
+>    las fotos del muro flotando. Está en el bloque de tótems, más abajo.
+> 2. **Bogue: música.** Hoy lo único que suena son los pitidos de la cuenta regresiva.
+> 3. **Plataforma 360: intro y cierre del video.**
+>
+> **Cuando cada una esté hecha, cambiá su estado en
+> `src/lib/entretenimiento/promesas-al-cliente.ts`** de `noCumple` a `cumple`, nombrando el
+> archivo que la cumple. La prueba `las-promesas-tienen-respaldo.test.ts` lo controla.
+
+
 **Para Gemini. UNA SOLA PROPUESTA con todos los bloques.** Si un bloque se traba,
 entregá el resto igual, en la misma propuesta, avisando cuál faltó.
 

@@ -5788,3 +5788,18 @@ Un control que saltea de más es peor que uno lento. Se comprobó:
 Y se corrigió un agujero encontrado en el camino: **al principio miraba sólo lo ya guardado
 en el repositorio**, así que un cambio en la app hecho y sin commitear se saltaba los pasos
 caros. Ahora mira las dos cosas.
+
+
+---
+
+## Decisión del dueño: lo que está mal se corrige (28 de agosto de 2026)
+
+Se le plantearon las tres promesas que la app muestra y no cumple —las encuestas, los
+juegos y el mapa del tótem; la música del Bogue; el intro de la 360— con dos caminos:
+construirlas o corregir el texto.
+
+**Eligió construirlas.** Sus palabras: *"lo que esté mal siempre se corrige"*.
+
+**Los textos no se tocan.** Quedó al principio de la orden 17, que es lo primero que Gemini
+tiene que hacer. Al terminar cada una, se cambia su estado en
+`src/lib/entretenimiento/promesas-al-cliente.ts` de `noCumple` a `cumple`.
