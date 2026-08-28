@@ -5803,3 +5803,22 @@ construirlas o corregir el texto.
 **Los textos no se tocan.** Quedó al principio de la orden 17, que es lo primero que Gemini
 tiene que hacer. Al terminar cada una, se cambia su estado en
 `src/lib/entretenimiento/promesas-al-cliente.ts` de `noCumple` a `cumple`.
+
+---
+
+## Decisión del dueño sobre privacidad (28 de agosto de 2026)
+
+**No se arma ningún aparato de privacidad.** Sus palabras: *"lo de privacidad no pasa nada,
+la web pública es una cosa, lo de los invitados es por la contratación; lo público es como
+las redes, fotos del servicio y entretenimiento; el que lo hace es su problema"*, y después:
+*"si Google complica, hacé una máscara de privacidad, pero en la realidad mi trabajo es
+imposible"*.
+
+**Qué significa en la práctica, y no se vuelve a plantear:**
+
+- La web pública muestra fotos del servicio, igual que las redes sociales. No lleva aviso.
+- Lo de los invitados en la fiesta va por el contrato con el cliente, no por la web.
+- **Sólo si Google llega a exigirlo** para indexar o para anuncios, se pone **una página
+  simple** y nada más. No se publica antes: es una pantalla que ve el cliente y la aprueba él.
+
+**No reportarlo como faltante en ninguna auditoría.** Es decisión tomada.
