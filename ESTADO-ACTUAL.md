@@ -5,7 +5,7 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 27 de agosto de 2026, cierre.
+**Última actualización:** 28 de agosto de 2026, cierre.
 **Estado de la app:** **`npm run "publicar?"` en verde, los seis controles**, incluido el de
 navegador completo (2559 segundos). Se puede publicar.
 **Propuestas abiertas:** ninguna.
@@ -40,6 +40,13 @@ El dueño pidió no esperarlo: *"corregí todo vos con tus agentes"*.
 se ve.**
 
 ## Lo que queda pendiente, y es de Gemini
+
+0. **La orden 15 se le devolvió por tercera vez, y no se fusiona hasta que la corrija.** Su
+   entrega **borraba el filtro obligatorio**: la armó sobre una versión principal de dos
+   propuestas atrás, así que el control que impide subir código roto no existía ahí. Y su
+   control de acentos nuevo **daba verde sin revisar nada** cuando no podía leer la lista de
+   archivos —y es el primer paso de la puerta—. El detalle está escrito arriba de todo en la
+   orden. **Primero tiene que traer la versión principal de ahora a su rama.**
 
 1. **El bloque de la música** (bloque 14 de la orden 14): sigue **sin entregar**. Que entre
    lo que sea —Spotify, YouTube o texto pegado— y salga una sola lista conectada para el DJ.
