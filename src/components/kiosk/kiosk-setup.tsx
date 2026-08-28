@@ -19,7 +19,8 @@ import {
   Mic,
   Film,
   Printer,
-  Headphones
+  Headphones,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -43,6 +44,21 @@ interface KioskSetupProps {
   defaultRole: KioskRole;
 }
 
+/** Como se llama cada estacion cuando hay que ponerle nombre a un archivo. */
+const ETIQUETAS_DE_ESTACION: Record<string, string> = {
+  barra: 'Barra de tragos',
+  'muro-en-vivo': 'Muro social',
+  'plataforma-360': 'Plataforma 360',
+  totem: 'Totem',
+  fotocabina: 'Fotocabina',
+  'espejo-magico': 'Espejo magico',
+  touchpix: 'Touchpix',
+  buzon: 'Buzon de saludos',
+  'video-vida': 'Video de vida',
+  impresion: 'Estacion de impresion',
+  dj: 'Pedidos al DJ',
+};
+
 export function KioskSetup({ defaultRole }: KioskSetupProps) {
   const router = useRouter();
   
@@ -51,8 +67,14 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
   const [fiestas, setFiestas] = useState<any[]>([]);
   const [selectedFiestaId, setSelectedFiestaId] = useState('');
   const [selectedRole, setSelectedRole] = useState(defaultRole);
-  const [pin, setPin] = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
+  /**
+   * SIN PIN, y lo pidio el dueño: *"o mejor sacale el PIN y ta. Asi no complica."*
+   *
+   * El PIN no cuidaba plata ni datos: lo unico que hacia era que el empleado no
+   * se saliera de la pantalla sin querer. Para eso alcanza con que salirse pida
+   * una confirmacion, y **una clave mas para acordarse el dia de la fiesta es
+   * justamente lo que hace que no se use**.
+   */
   const [errorMessage, setErrorMessage] = useState('');
   
   // Totem custom identifier
@@ -92,10 +114,9 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     // 1. Check if device is already locked in localStorage
     const savedFiestaId = localStorage.getItem('kiosk_locked_fiesta_id');
     const savedRole = localStorage.getItem('kiosk_role');
-    const savedPin = localStorage.getItem('kiosk_pin');
     const savedTotemId = localStorage.getItem('kiosk_totem_id') || '';
 
-    if (savedFiestaId && savedRole && /^\d{4}$/.test(savedPin || '') && (savedRole !== 'totem' || savedTotemId.trim())) {
+    if (savedFiestaId && savedRole && (savedRole !== 'totem' || savedTotemId.trim())) {
       setStatus('redirecting');
       navigateToRole(savedRole, savedFiestaId, savedTotemId);
       return;
@@ -115,22 +136,40 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     checkTodayEvent();
   }, [defaultRole, loadFiestaOptions, navigateToRole]);
 
+  /**
+   * Un acceso directo para dejarle al empleado, sin explicarle nada.
+   *
+   * Pedido del dueño: *"archivos descargables o algo así"*. En vez de una lista
+   * de pasos, se baja un archivo, se copia a la maquina del empleado y **con dos
+   * clicks queda abierta la estacion de esa fiesta**. Es el formato de acceso
+   * directo de Windows, que es lo que el usa.
+   */
+  const bajarAccesoDirecto = () => {
+    if (!selectedFiestaId) {
+      setErrorMessage('Elegí primero de qué fiesta es.');
+      return;
+    }
+    const fiesta = fiestas.find((f) => f.id === selectedFiestaId);
+    const nombreFiesta = (fiesta?.configuracion?.nombreEvento || 'Fiesta').replace(/[\\/:*?"<>|]/g, ' ').trim();
+    const rol = selectedRole === 'totem' ? `totem/${selectedFiestaId}/${totemId.trim() || 'totem-principal'}` : `${selectedRole}/${selectedFiestaId}`;
+    const direccion = `${window.location.origin}/evento/${rol}`;
+
+    const contenido = `[InternetShortcut]\r\nURL=${direccion}\r\nIconIndex=0\r\n`;
+    const enlace = document.createElement('a');
+    enlace.href = URL.createObjectURL(new Blob([contenido], { type: 'application/internet-shortcut' }));
+    enlace.download = `${ETIQUETAS_DE_ESTACION[selectedRole] || 'Estacion'} - ${nombreFiesta}.url`;
+    document.body.appendChild(enlace);
+    enlace.click();
+    document.body.removeChild(enlace);
+    URL.revokeObjectURL(enlace.href);
+  };
+
   const handleLockDevice = () => {
     if (!selectedFiestaId) {
       setErrorMessage('Por favor selecciona un evento.');
       return;
     }
     
-    if (pin.length !== 4 || !/^\d+$/.test(pin)) {
-      setErrorMessage('El PIN debe ser de 4 dígitos numéricos.');
-      return;
-    }
-
-    if (pin !== confirmPin) {
-      setErrorMessage('Los PINs ingresados no coinciden.');
-      return;
-    }
-
     if (selectedRole === 'totem' && !totemId.trim()) {
       setErrorMessage('Indica el identificador real del tótem antes de lanzarlo.');
       return;
@@ -139,7 +178,6 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     // Lock the configuration
     localStorage.setItem('kiosk_locked_fiesta_id', selectedFiestaId);
     localStorage.setItem('kiosk_role', selectedRole);
-    localStorage.setItem('kiosk_pin', pin);
     if (selectedRole === 'totem') {
       localStorage.setItem('kiosk_totem_id', totemId.trim());
     }
@@ -292,47 +330,34 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
               </motion.div>
             )}
 
-            {/* Step 3: Set Security PIN */}
-            <div className="space-y-3 pt-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-purple-400" />
-                3. PIN de Administrador (4 dígitos)
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  type="password"
-                  pattern="[0-9]*"
-                  inputMode="numeric"
-                  maxLength={4}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Nuevo PIN"
-                  className="bg-slate-950 border-slate-800 text-center text-lg tracking-[0.2em] font-bold h-12"
-                />
-                <Input
-                  type="password"
-                  pattern="[0-9]*"
-                  inputMode="numeric"
-                  maxLength={4}
-                  value={confirmPin}
-                  onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Confirmar PIN"
-                  className="bg-slate-950 border-slate-800 text-center text-lg tracking-[0.2em] font-bold h-12"
-                />
-              </div>
-            </div>
           </CardContent>
 
-          <CardFooter className="pt-2 pb-6 flex flex-col gap-3">
+          <CardFooter className="flex-col gap-3">
             <Button
               onClick={handleLockDevice}
               className="w-full h-14 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold text-base shadow-xl shadow-purple-600/10 flex items-center justify-center gap-2"
             >
               <Lock className="w-5 h-5" />
-              Bloquear y Lanzar Kiosco
+              Dejar el aparato listo
             </Button>
-            <p className="text-[10px] text-slate-500 text-center uppercase tracking-wider">
-              Una vez bloqueada, la app no mostrará navegación y requerirá este PIN para configurarla nuevamente.
+            <Button
+              type="button"
+              variant="outline"
+              onClick={bajarAccesoDirecto}
+              className="w-full h-12 rounded-lg border-slate-700 bg-slate-950 text-slate-200 hover:bg-slate-900 font-bold flex items-center justify-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Bajar acceso directo para otra máquina
+            </Button>
+            <p className="text-[11px] text-slate-500 text-center leading-relaxed">
+              Se baja un archivo. Copialo a la máquina del empleado y que le haga doble click:
+              abre directo esta estación, de esta fiesta.
+            </p>
+
+            <p className="text-[11px] text-slate-400 text-center leading-relaxed">
+              El aparato queda en esta estación y en esta fiesta. Aunque se cierre y se vuelva
+              a abrir, arranca acá. <strong className="text-slate-300">No hace falta ninguna clave</strong>:
+              para sacarlo, el botón de arriba a la derecha.
             </p>
           </CardFooter>
         </Card>
