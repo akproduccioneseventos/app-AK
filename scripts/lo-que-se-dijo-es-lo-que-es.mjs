@@ -52,13 +52,15 @@ function baseDeComparacion() {
 
 function archivosQueCambiaron() {
   if (MIRAR_TODO) {
-    const { ok, salida } = sh('git ls-files src tests');
+    // `git ls-files --cached --others` lista tanto los ya guardados como los
+    // nuevos sin guardar en el repo. Se filtra en JavaScript sin depender de grep.
+    const { ok, salida } = sh('git ls-files --cached --others --exclude-standard src tests');
     if (!ok) return null;
-    return salida
+    return [...new Set(salida
       .split('\n')
       .map((s) => s.trim())
       .filter(Boolean)
-      .filter((f) => /\.tsx?$/.test(f));
+      .filter((f) => /\.tsx?$/.test(f)))];
   }
   const base = baseDeComparacion();
   if (!base) return null;
@@ -90,7 +92,7 @@ let INDICE = null;
 
 function armarIndice() {
   if (INDICE) return INDICE;
-  const { ok, salida } = sh('git ls-files src tests');
+  const { ok, salida } = sh('git ls-files --cached --others --exclude-standard src tests');
   if (!ok) return null;
   const guia = new Map();
   const archivos = salida
