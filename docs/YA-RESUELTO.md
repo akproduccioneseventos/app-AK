@@ -5695,3 +5695,29 @@ deja mejor que como lo encontró, y el número baja solo.
 
 **Medición del 28 de agosto de 2026:** 30 que no llama nadie, 267 sin prueba de resultado,
 2 pruebas que sólo miran.
+
+---
+
+## CORRECCIÓN: una rama vieja NO borra los archivos nuevos al fusionarse (28 de agosto de 2026)
+
+**Esto estuvo mal dicho y hay que corregirlo, porque cambió una decisión.**
+
+En la Devolución 3 de la orden 15 se afirmó que la entrega **"borraba el filtro
+obligatorio"**, porque `git ls-tree` mostraba que `scripts/instalar-filtro.mjs` no existía
+en esa rama.
+
+**Es verdad que no estaba en la rama, y es falso que se borrara al fusionar.** Se comprobó
+haciendo la fusión de verdad en una copia aparte: los archivos que están en la versión
+principal y no en la rama **sobreviven**. Git sólo borra lo que la rama borró a propósito.
+
+**Lo que sí es cierto de una rama vieja, y es motivo suficiente para devolverla:**
+
+- **Choca.** En la prueba real aparecieron conflictos en el recorrido de pantallas: los dos
+  lados tocaron lo mismo y hay que elegir a mano.
+- **Puede deshacer trabajo nuevo por adentro**, no borrando archivos sino escribiendo
+  encima de código que cambió después.
+- **Se probó contra otra app.** Lo que se verificó no es lo que va a quedar.
+
+**Cómo se comprueba de verdad, y es lo que hay que hacer de ahora en más:** fusionarla en
+una copia temporal y mirar el resultado. `git ls-tree` dice qué hay en la rama, **no qué
+va a quedar después de fusionar**. Son dos preguntas distintas y se confundieron.
