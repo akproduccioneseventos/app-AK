@@ -1,3 +1,49 @@
+> # DEVOLUCIÓN 3 — 27 de agosto de 2026, de noche. **NO SE FUSIONA.**
+>
+> Revisada la rama `feat/orden-15-pruebas-que-terminan-el-trabajo`. **Dos defectos nuevos, y
+> el primero es el más grave de todos los que aparecieron hoy.**
+>
+> ## 1. LA ENTREGA BORRA EL FILTRO OBLIGATORIO
+>
+> `scripts/instalar-filtro.mjs` **no existe en esa rama.** Se comprobó con `git ls-tree`: no
+> está. Si se fusiona, **desaparece el filtro que impide subir código roto** —el que el dueño
+> pidió expresamente hoy y que se probó frenando una subida de verdad—.
+>
+> **La causa:** la rama arrancó de `bf2f9e180`, dos propuestas atrás. No conoce ni el filtro
+> (#1162) ni la auditoría (#1160). Es **exactamente** el problema que quedó escrito en
+> `CLAUDE.md`: *una propuesta hecha sobre una versión principal vieja borra trabajo más nuevo
+> sin que se note.*
+>
+> **Antes de cualquier otra cosa: traer la versión principal de ahora a la rama.**
+>
+> ## 2. El control de acentos nuevo puede dar VERDE sin revisar nada
+>
+> Verificado línea por línea en `scripts/check-acentos.mjs` de esa rama:
+>
+> - línea 31-32: si falla al listar los archivos, `catch { return []; }` — devuelve lista vacía
+> - línea 54: `if (lineasRotas.length === 0)` → línea 56: `process.exit(0)`, o sea **éxito**
+>
+> **Si no puede leer la lista de archivos, dice que está todo bien.** Y es **el primer paso de
+> la puerta**: si miente, la puerta se abre sola.
+>
+> Es el mismo defecto que se acaba de arreglar en el corredor de pruebas de navegador, que
+> decía "todas las pruebas pasaron" con cero pruebas corridas. **No puede volver a entrar.**
+>
+> **Arreglo:** si no se pudo leer la lista, o si da cero archivos, **terminar en error**
+> diciendo "no se pudo revisar". Que ningún paso de la puerta pueda pasar sin haber mirado.
+>
+> ## 3. Lo de las devoluciones 1 y 2 sigue sin tocarse
+>
+> El recorrido de pantallas sigue midiendo el HTML crudo y da veintipico de falsas alarmas.
+> Y quedó agregada una dependencia (`path-scurry`) que no usa nadie.
+>
+> ## Lo que SÍ está bien y se rescata
+>
+> El motivo del cambio es correcto: **el dueño trabaja en Windows** y los scripts de bash no
+> siempre andan ahí. Pasar el control de acentos a Node está bien pensado — sólo hay que
+> arreglar que no pueda dar verde sin mirar. Y `tests/e2e/trabajos-completos.spec.ts` y
+> `src/__tests__/orden-15-resultados-reales.test.ts` son el trabajo pedido y sirven de base.
+
 # Orden 15 — Las pruebas que terminan el trabajo
 
 **Para Gemini. Escrita el 27 de agosto de 2026.**

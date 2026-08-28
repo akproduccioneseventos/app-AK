@@ -5401,3 +5401,37 @@ funciona. Por eso "cero errores" convivia con la fotocabina rota.
 
 Lo que corresponde no es auditar mas: es **la orden 15** —las pruebas que terminan el trabajo—
 y **la puerta** `npm run "publicar?"`, que ya estan escritas.
+
+## Devolucion 3 de la orden 15: la entrega borraba el filtro obligatorio (27 de agosto de 2026)
+
+Revisada la rama `feat/orden-15-pruebas-que-terminan-el-trabajo`. **No se fusiona.** Dos
+defectos verificados a mano, y el primero es el mas grave del dia.
+
+**1. La entrega BORRA el filtro obligatorio.** `scripts/instalar-filtro.mjs` **no existe en
+esa rama** —comprobado con `git ls-tree`—. Si se fusiona, desaparece el control que impide
+subir codigo roto: el que el dueno pidio hoy y que se probo frenando una subida de verdad.
+
+La causa: la rama arranco de `bf2f9e180`, dos propuestas atras, y no conoce ni el filtro
+(#1162) ni la auditoria (#1160). **Es exactamente el problema que ya estaba escrito en
+`CLAUDE.md`**: una propuesta hecha sobre una version principal vieja borra trabajo mas nuevo
+sin que se note. **Van dos veces en el mismo dia** —la primera fue
+`feat/mejoras-google-seo-ventas`, que le sacaba "en Salto" a tres titulos—.
+
+**2. El control de acentos nuevo puede dar VERDE sin revisar nada.** En su
+`scripts/check-acentos.mjs`: si falla al listar los archivos, `catch { return [] }` devuelve
+lista vacia (linea 31-32), y con lista vacia el script termina en exito (lineas 54-56). **Si
+no puede leer los archivos, dice que esta todo bien.** Y es **el primer paso de la puerta**:
+si miente, la puerta se abre sola. Es el mismo defecto que se acababa de arreglar en el
+corredor de pruebas de navegador.
+
+**3. Lo de las devoluciones 1 y 2 sigue sin tocarse:** el recorrido de pantallas mide el HTML
+crudo y da veintipico de falsas alarmas, y quedo agregada una dependencia (`path-scurry`) que
+no usa nadie.
+
+**Lo que se rescata:** el motivo del cambio es correcto —el dueno trabaja en Windows y los
+scripts de bash no siempre andan ahi—, y las dos pruebas nuevas son el trabajo pedido y
+sirven de base.
+
+**La leccion, que ya costo dos veces hoy:** antes de mirar nada de una entrega, comprobar
+**sobre que version se hizo**. Un `git ls-tree` a un archivo que se sabe reciente lo dice en
+un segundo.
