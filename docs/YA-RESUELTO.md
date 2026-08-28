@@ -5721,3 +5721,37 @@ principal y no en la rama **sobreviven**. Git sólo borra lo que la rama borró 
 **Cómo se comprueba de verdad, y es lo que hay que hacer de ahora en más:** fusionarla en
 una copia temporal y mirar el resultado. `git ls-tree` dice qué hay en la rama, **no qué
 va a quedar después de fusionar**. Son dos preguntas distintas y se confundieron.
+
+---
+
+## Las entregas del 28 de agosto a la noche: casi todo ya estaba adentro
+
+Llegaron cuatro ramas. **Tres no aportaban nada nuevo y una no se fusiona.** Queda escrito
+para que nadie las vuelva a revisar.
+
+| Rama | Veredicto |
+|---|---|
+| `fix/musica-que-resuelve` | **Ya está en la versión principal** (entró en #1169). |
+| `feat/musica-conectada-y-pendientes-gemini` | Lo mismo, y arrancaba de dos cambios atrás. |
+| `fix/entretenimiento-y-pruebas` | **Todo su contenido ya estaba en la principal.** Al traerle la versión de ahora, la única diferencia que quedó fue un comentario. |
+| `fix/salon-3d-compatibilidad-react18` | **NO SE FUSIONA.** Ver abajo. |
+
+### Por qué el arreglo del salón 3D no entra
+
+1. **El parche no hace nada.** Agrega `ReactCurrentBatchConfig` a las tripas de React si no
+   existe. **La app usa React 18.3.1 y ya lo trae**: comprobado ejecutándolo. Es un remiendo
+   para un problema que no tiene.
+2. **La prueba que lo acompaña se aprueba a sí misma.** Si el valor no está, **la prueba lo
+   crea** y después comprueba que existe. Pasa siempre, con la app rota o sana. Es
+   exactamente lo que el control nuevo prohíbe.
+3. **La pantalla de la reunión ya se había arreglado**, y de otra manera, en #1169.
+
+**No se toca lo que anda.** Si el salón 3D falla de verdad en algún momento, se arregla
+mirando el error real, no poniendo un parche por las dudas.
+
+### Y un agujero del control nuevo que esto dejó a la vista
+
+La prueba del salón 3D comprueba `typeof algo === 'object'` y `typeof algo === 'function'`.
+**Eso pasa el filtro del control de promesas** —cuenta como "mira un resultado"— y sin
+embargo no prueba nada. Queda anotado: comprobar el tipo de algo no es comprobar que haga
+lo que dice.
