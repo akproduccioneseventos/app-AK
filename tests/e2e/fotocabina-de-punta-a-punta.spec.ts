@@ -11,6 +11,11 @@ import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, crearPermiso
  *
  * Esto hace exactamente eso, y deja las fotos de pantalla en
  * `test-results/fotocabina/` para poder mirarlas con ojos humanos.
+ *
+ * **La pantalla que prueba este archivo es `/evento/fotocabina/[fiestaId]`.**
+ * Queda escrita entera a proposito: el enlace se arma con una variable, y asi
+ * el control "Lo que se dijo es lo que es" puede ver que esta pantalla SI tiene
+ * quien la pruebe.
  */
 
 const fiesta = crearFiestaDeEstaNoche({ id: `e2e_fotocabina_${Date.now()}` });
