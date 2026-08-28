@@ -272,12 +272,12 @@ const CHANNELS = [
 
 const FEATURE_LIBRARY: Record<StationId, string[]> = {
   fotocabina: ['Foto', 'Marcos', 'Impresión 10x15', 'Galería live', 'QR/WhatsApp'],
-  plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Intro/Outro', 'Música', 'QR por video', 'Overlay animado', 'Salida LED'],
-  bogue: ['Boomerang', 'Loop adelante/atrás', 'Video corto', 'Música', 'Overlay animado', 'Compartir por QR'],
+  plataforma360: ['Video 360', 'Slow motion', 'Speed ramp', 'Música', 'QR por video', 'Overlay animado', 'Salida LED'],
+  bogue: ['Boomerang', 'Loop adelante/atrás', 'Video corto', 'Overlay animado', 'Compartir por QR'],
   espejoMagicoFoto: ['Pantalla táctil', 'Foto limpia', 'Impresión premium', 'Filtros de piel', 'Galería QR', 'Prompts animados'],
   espejoMagicoFirma: ['Pantalla táctil', 'Firma digital', 'Dibujo libre', 'Stickers/Props', 'Impresión', 'Galería QR', 'Asistente de voz'],
   espejoMagicoIA: ['Face Swap', 'Marvel / Fantasía / Realeza', 'Estilo Cómics', 'Procesado IA en la nube', 'QR de descarga', 'Glow premium'],
-  totems: ['Pantalla táctil', 'Bienvenida', 'Encuestas', 'Juegos interactivos', 'Mapa de salón', 'Muro social en vivo'],
+  totems: ['Pantalla táctil', 'Bienvenida', 'Muro social en vivo'],
   capsulaTiempo: ['Grabar Audio', 'Grabar Video', 'Reproducción de voz', 'Descarga ZIP', 'Audio de bienvenida', 'Notificaciones de pantalla'],
 };
 
@@ -300,23 +300,23 @@ const PRO_EQUIPMENT: Record<StationId, string[]> = {
 
 const PRO_FLOW: Record<StationId, string[]> = {
   fotocabina: ['Invitado toca pantalla', 'Tanda de fotos con cuenta regresiva', 'Armado automático 10x15', 'Escanea QR o imprime'],
-  plataforma360: ['Invitado sube a plataforma', 'Giro del brazo con grabación', 'Generación de cámara lenta y speed ramp', 'Descarga por QR'],
-  bogue: ['Invitado posa haciendo acción corta', 'Se graba loop corto', 'Se añade overlay y música', 'Comparte en redes'],
+  plataforma360: ['Invitado sube a la plataforma', 'El brazo gira grabando', 'Sale en cámara lenta', 'Descarga por QR'],
+  bogue: ['Invitado posa haciendo acción corta', 'Se graba loop corto', 'Se añade el marco del evento', 'Comparte en redes'],
   espejoMagicoFoto: ['Invitado toca el espejo', 'Cuenta regresiva guiada', 'Toma foto espectacular', 'Imprime y escanea QR'],
   espejoMagicoFirma: ['Invitado toca el espejo', 'Cuenta regresiva', 'Dibuja o firma en pantalla', 'Elige stickers', 'Imprime / QR'],
   espejoMagicoIA: ['Invitado elige avatar', 'Toma foto de rostro', 'El motor IA procesa el face swap', 'Escanea QR del retrato mágico'],
-  totems: ['Invitado interactúa con el menú', 'Completa encuesta o juego', 'Ve fotos de la fiesta en el muro', 'Consulta mapa/agenda'],
+  totems: ['Se cuelga la pantalla en un lugar de paso', 'Muestra las fotos de la fiesta a medida que llegan', 'El invitado escanea el QR para sumar la suya'],
   capsulaTiempo: ['Invitado toca pantalla', 'Escucha mensaje de bienvenida del anfitrión', 'Graba su video o audio de felicitación', 'Guarda el recuerdo'],
 };
 
 const PRO_HIGHLIGHTS: Record<StationId, string[]> = {
   fotocabina: ['Fondo de la invitación', 'Diseños personalizados', 'Impresión rápida 10x15', 'Envío por WhatsApp'],
   plataforma360: ['Efectos cinemáticos', 'Música incorporada', 'Renderizado en 15 segundos', 'Muro social integrado'],
-  bogue: ['Contenido super liviano', 'Efecto repetitivo viral', 'Música de fiesta', 'Estilo vertical historias'],
+  bogue: ['Contenido super liviano', 'Efecto repetitivo viral', 'Estilo vertical historias'],
   espejoMagicoFoto: ['Look premium elegante', 'Fotos sin distracciones', 'Filtro de brillo glam', 'Impresión 4x6 instantánea'],
-  espejoMagicoFirma: ['Altamente interactivo', 'Mensajes personalizados', 'Confeti digital', 'Props virtuales y físicos'],
+  espejoMagicoFirma: ['Altamente interactivo', 'Mensajes personalizados', 'Props virtuales y físicos'],
   espejoMagicoIA: ['Experiencia tecnológica wow', 'Resultados realistas', 'Atracción garantizada', 'Integración Touchpix AI'],
-  totems: ['Autoservicio total', 'Captura de feedback', 'Mapeo de mesas', 'Estadísticas de participación'],
+  totems: ['Las fotos de la fiesta en pantalla grande', 'Sin que nadie la atienda', 'Invita a sumar la propia con el QR'],
   capsulaTiempo: ['Mensajes de voz emotivos', 'Videos divertidos de pista', 'Álbum digital privado', 'Descarga zip completa'],
 };
 
