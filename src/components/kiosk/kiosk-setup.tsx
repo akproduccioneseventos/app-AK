@@ -21,6 +21,7 @@ import {
   Printer,
   Headphones,
   Download,
+  Link2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -79,6 +80,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
   
   // Totem custom identifier
   const [totemId, setTotemId] = useState('');
+  const [enlaceCopiado, setEnlaceCopiado] = useState(false);
 
   const loadFiestaOptions = useCallback(async (preferredFiestaId?: string) => {
     try {
@@ -144,6 +146,35 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
    * clicks queda abierta la estacion de esa fiesta**. Es el formato de acceso
    * directo de Windows, que es lo que el usa.
    */
+  const direccionDeLaEstacion = () => {
+    const rol = selectedRole === 'totem'
+      ? `totem/${selectedFiestaId}/${totemId.trim() || 'totem-principal'}`
+      : `${selectedRole}/${selectedFiestaId}`;
+    return `${window.location.origin}/evento/${rol}`;
+  };
+
+  /**
+   * El enlace, para mandarselo al empleado por WhatsApp.
+   *
+   * Pedido del dueño: *"quiero poder instalar aparte, descargar un instalador; si
+   * no se puede, un link, algo."* Instalador de programa no hay, porque esto es
+   * una pagina web. **El enlace hace lo mismo**: lo abre en su maquina y ya esta
+   * en la estacion, sin saber ninguna direccion ni tocar nada mas.
+   */
+  const copiarEnlace = async () => {
+    if (!selectedFiestaId) {
+      setErrorMessage('Elegí primero de qué fiesta es.');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(direccionDeLaEstacion());
+      setEnlaceCopiado(true);
+      setTimeout(() => setEnlaceCopiado(false), 2500);
+    } catch {
+      setErrorMessage('No se pudo copiar. Bajá el acceso directo, que hace lo mismo.');
+    }
+  };
+
   const bajarAccesoDirecto = () => {
     if (!selectedFiestaId) {
       setErrorMessage('Elegí primero de qué fiesta es.');
@@ -151,8 +182,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     }
     const fiesta = fiestas.find((f) => f.id === selectedFiestaId);
     const nombreFiesta = (fiesta?.configuracion?.nombreEvento || 'Fiesta').replace(/[\\/:*?"<>|]/g, ' ').trim();
-    const rol = selectedRole === 'totem' ? `totem/${selectedFiestaId}/${totemId.trim() || 'totem-principal'}` : `${selectedRole}/${selectedFiestaId}`;
-    const direccion = `${window.location.origin}/evento/${rol}`;
+    const direccion = direccionDeLaEstacion();
 
     const contenido = `[InternetShortcut]\r\nURL=${direccion}\r\nIconIndex=0\r\n`;
     const enlace = document.createElement('a');
@@ -340,6 +370,16 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
               <Lock className="w-5 h-5" />
               Dejar el aparato listo
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={copiarEnlace}
+              className="w-full h-12 rounded-lg border-slate-700 bg-slate-950 text-slate-200 hover:bg-slate-900 font-bold flex items-center justify-center gap-2"
+            >
+              <Link2 className="w-4 h-4" />
+              {enlaceCopiado ? '¡Enlace copiado!' : 'Copiar enlace para mandar por WhatsApp'}
+            </Button>
+
             <Button
               type="button"
               variant="outline"
