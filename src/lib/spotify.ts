@@ -4,6 +4,7 @@ import type { SpotifyTrackSuggestion } from '@/types/spotify';
 
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_SEARCH_URL = 'https://api.spotify.com/v1/search';
+const SPOTIFY_API = 'https://api.spotify.com/v1';
 const REQUEST_TIMEOUT_MS = 8_000;
 
 let cachedToken: { value: string; expiresAt: number } | undefined;
@@ -94,4 +95,96 @@ export async function searchSpotifyTracks(query: string, limit = 6): Promise<Spo
     }));
   searchCache.set(cacheKey, { tracks, expiresAt: Date.now() + 60_000 });
   return tracks;
+}
+
+
+/**
+ * Las canciones DE VERDAD de una lista de Spotify.
+ *
+ * Existe porque guardar el enlace no es tenerlo conectado: el cliente manda su
+ * lista y hasta que alguien no la abre a mano, nadie sabe que temas tiene. Esto
+ * la abre y devuelve titulo y artista, que es lo que el DJ necesita leer.
+ *
+ * Anda con listas **publicas o compartidas**, que es como las mandan los
+ * clientes. Si la lista esta en privado Spotify no la entrega a nadie, y eso hay
+ * que decirselo al cliente en criollo, no como un error tecnico.
+ */
+export async function getSpotifyPlaylistTracks(
+  playlistId: string,
+  limite = 100,
+): Promise<SpotifyTrackSuggestion[]> {
+  const id = playlistId.trim().slice(0, 40);
+  if (!id) return [];
+
+  const pedir = async (forceRefresh: boolean) => {
+    const token = await getSpotifyAccessToken(forceRefresh);
+    const url = new URL(`${SPOTIFY_API}/playlists/${encodeURIComponent(id)}/tracks`);
+    url.searchParams.set('limit', String(Math.min(100, Math.max(1, Math.trunc(limite)))));
+    url.searchParams.set('market', 'UY');
+    url.searchParams.set('fields', 'items(track(id,name,artists(name),album(name),external_urls(spotify)))');
+    return spotifyFetch(url.toString(), { headers: { Authorization: `Bearer ${token}` } });
+  };
+
+  let response = await pedir(false);
+  if (response.status === 401) response = await pedir(true);
+  if (response.status === 404) {
+    throw new Error('LISTA_NO_VISIBLE');
+  }
+  if (!response.ok) throw new Error('Spotify no pudo abrir la lista en este momento.');
+
+  const payload = await response.json() as {
+    items?: Array<{
+      track?: {
+        id?: string;
+        name?: string;
+        artists?: Array<{ name?: string }>;
+        album?: { name?: string };
+        external_urls?: { spotify?: string };
+      } | null;
+    }>;
+  };
+
+  return (payload.items || [])
+    .map((item) => item.track)
+    .filter((track): track is NonNullable<typeof track> & { id: string; name: string } => Boolean(track?.id && track?.name))
+    .map((track) => ({
+      id: track.id,
+      title: track.name,
+      artist: track.artists?.map((a) => a.name).filter(Boolean).join(', ') || 'Artista desconocido',
+      album: track.album?.name,
+      externalUrl: track.external_urls?.spotify,
+    }));
+}
+
+/** Un tema suelto de Spotify, cuando el cliente manda el enlace de una sola cancion. */
+export async function getSpotifyTrack(trackId: string): Promise<SpotifyTrackSuggestion | null> {
+  const id = trackId.trim().slice(0, 40);
+  if (!id) return null;
+
+  const pedir = async (forceRefresh: boolean) => {
+    const token = await getSpotifyAccessToken(forceRefresh);
+    return spotifyFetch(`${SPOTIFY_API}/tracks/${encodeURIComponent(id)}?market=UY`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  };
+
+  let response = await pedir(false);
+  if (response.status === 401) response = await pedir(true);
+  if (!response.ok) return null;
+
+  const track = await response.json() as {
+    id?: string;
+    name?: string;
+    artists?: Array<{ name?: string }>;
+    album?: { name?: string };
+    external_urls?: { spotify?: string };
+  };
+  if (!track.id || !track.name) return null;
+  return {
+    id: track.id,
+    title: track.name,
+    artist: track.artists?.map((a) => a.name).filter(Boolean).join(', ') || 'Artista desconocido',
+    album: track.album?.name,
+    externalUrl: track.external_urls?.spotify,
+  };
 }
