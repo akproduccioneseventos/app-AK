@@ -50,6 +50,8 @@ const BOGUE_FRAMES = [
   { id: 'cyberpunk', label: 'Cyberpunk', border: 'rgba(6, 182, 212, 0.8)' },
 ];
 
+import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
+
 export default function BoguePage() {
   const params = useParams();
   const router = useRouter();
@@ -57,6 +59,9 @@ export default function BoguePage() {
   const fiestaId = params.fiestaId as string;
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
   const accessToken = searchParams.get('access') || undefined;
+  const guestId = searchParams.get('guestId') || undefined;
+  const guestAccessToken = searchParams.get('guestAccessToken') || searchParams.get('token') || undefined;
+  const nombreInvitado = searchParams.get('nombre') || searchParams.get('name') || undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -815,6 +820,18 @@ export default function BoguePage() {
 
       {/* VIEWPORT AREA */}
       <div className="flex-1 relative w-full h-full flex items-center justify-center overflow-hidden bg-black">
+        <GuiaPosicionamiento
+          nombreInvitado={nombreInvitado}
+          estado={localStatus}
+          countdown={countdown}
+          mensajeGuia={
+            localStatus === 'idle'
+              ? 'Hacé un movimiento corto y repetitivo frente a la cámara'
+              : localStatus === 'recording'
+              ? '¡Grabando loop de ida y vuelta!'
+              : undefined
+          }
+        />
         
         {/* State: Idle / Welcome Screen */}
         {localStatus === 'idle' && (
