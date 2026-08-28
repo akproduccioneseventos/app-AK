@@ -38,6 +38,8 @@
     "predeploy:functions": "npm run build && npm run build:functions && cp -r .next functions/.next && cp -r public functions/public",
     "deploy:functions": "npm run predeploy:functions && firebase deploy --only functions,hosting --project presupuestador-ak-producciones",
     "publicar?": "node scripts/se-puede-publicar.mjs",
+    "lo-que-se-dijo": "node scripts/lo-que-se-dijo-es-lo-que-es.mjs",
+    "lo-que-se-dijo:todo": "node scripts/lo-que-se-dijo-es-lo-que-es.mjs --todo",
     "publicar?:rapido": "node scripts/se-puede-publicar.mjs --rapido",
     "prepare": "node scripts/instalar-filtro.mjs",
     "filtro": "node scripts/se-puede-publicar.mjs --filtro"

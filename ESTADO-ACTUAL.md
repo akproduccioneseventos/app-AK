@@ -5,57 +5,57 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 27 de agosto de 2026, cierre.
-**Estado de la app:** **`npm run "publicar?"` en verde, los seis controles**, incluido el de
-navegador completo (2559 segundos). Se puede publicar.
-**Propuestas abiertas:** ninguna.
+**Última actualización:** 28 de agosto de 2026, cierre.
+**Estado:** la puerta pasó a **ocho pasos**. Todo verde sobre la propuesta del día.
+**Propuesta abierta:** una sola, con el trabajo del día entero.
 
-## Lo que se cerró hoy
+## Lo que se construyó hoy, y es lo que importa
 
-**Las dos entregas de Gemini (órdenes 14 y 15) estaban devueltas y se corrigieron acá.**
-El dueño pidió no esperarlo: *"corregí todo vos con tus agentes"*.
+El dueño lo pidió así: *"quiero algo que repare mi app y que todas las reparaciones o
+agregados futuros no deje que pasen si no funcionan realmente"*. Salieron dos controles
+nuevos, además del de la mañana:
 
-- **Lo escrito que no llamaba nadie, ahora está enganchado:** el **GIF animado** en Bogue
-  (sale de los mismos cuadros del boomerang, así que el invitado no posa de nuevo), el
-  **marco que se arma solo** con el nombre del agasajado y la fecha —**como opción, no como
-  el que viene puesto**— y el **resumen de la noche** en el tablero.
-- **El tablero de la noche:** no tenía puerta y **mostraba un cero escrito a mano** para
-  todas las estaciones. Ahora se entra desde donde el equipo arma el entretenimiento y
-  **cuenta las capturas de verdad**, leyéndolas del muro. Si no puede leerlas, **lo dice**.
-- **Se sacaron dos cosas, con el motivo escrito en `YA-RESUELTO.md`:** la moderación
-  automática duplicada —**el muro ya se modera solo** en la subida, la orden pedía algo que
-  ya existía y ese error fue de quien escribió la orden— y el selector de formato, que hacía
-  pensar al invitado antes de la foto con gente esperando atrás.
+1. **El control de promesas.** Frena código que nadie llama, pantallas sin prueba que mire
+   el resultado, y pruebas que sólo confirman que la pantalla se ve.
+2. **Las promesas al cliente.** Cada cosa que la pantalla dice que la app hace declara qué
+   archivo la cumple. **No se puede agregar una función a la lista sin decir si existe.**
+3. **El trinquete.** La deuda vieja quedó medida y **sólo puede bajar**. Si crece, frena.
 
-## Los tres controles que mentían, y ya no
+**Los tres están probados frenando de verdad**, no sólo escritos.
 
-1. **El corredor de navegador** decía "todas pasaron" **con cero pruebas corridas**.
-2. **El control de acentos** daba verde **con cero archivos revisados** si fallaba al leer
-   la lista. Es uno de los seis pasos de la puerta: si miente, la puerta se abre sola.
-3. **El recorrido de las 348 pantallas** medía el HTML crudo en vez de la pantalla dibujada
-   y reportaba veintipico de pantallas sanas como vacías. Ahora **abre la pantalla de
-   verdad** cuando el HTML viene flaco.
+## El método de reparación, para no volver a explicarlo
 
-**La lección, y pasó tres veces en un día: cuando un control deja de mirar, lo que entra no
-se ve.**
+No se repara todo de una: son 299 y sería mentira. Tres reglas:
 
-## Lo que queda pendiente, y es de Gemini
+- El que toca algo, deja limpia **esa** parte.
+- Lo nuevo no puede sumar: la puerta frena.
+- El número sólo baja, nunca sube.
 
-1. **El bloque de la música** (bloque 14 de la orden 14): sigue **sin entregar**. Que entre
-   lo que sea —Spotify, YouTube o texto pegado— y salga una sola lista conectada para el DJ.
-2. **Comprobar si Spotify y YouTube están conectadas de verdad.** El panel lo **supone** por
-   lo que hay guardado; nunca lo prueba contra el servicio. Sólo él puede hacerlo: corre en
-   la máquina del dueño y tiene los accesos.
-3. **Abrir `/club-uruguay` con los accesos de producción** y decir qué se ve. Desde el
-   contenedor de prueba no se puede distinguir si está vacía de verdad o si es que no hay base.
-4. **Siete pantallas de imprimir y de reportes, abiertas sin fiesta elegida, muestran entre
-   23 y 166 caracteres**: casi nada. Deberían decir "elegí una fiesta para imprimir". Está
-   anotado en `tests/e2e/internal-route-inventory.spec.ts`.
+La reparación pasa sola, como consecuencia del trabajo normal.
 
-## Decisiones ya tomadas (no volver a preguntar)
+## Promesas que la app hace y HOY no cumple (quedan a la vista, no escondidas)
 
-- **No se le pide el mail ni el teléfono al invitado** para darle su foto: frena la fila.
-- **Cloudflare: no.** **Google Flow: no se conecta.**
-- **El agente de publicidad no prende ni crea campañas.** Eso lo activa el dueño.
-- **Nada de promesas en la web** ni precios congelados: trabaja con ajuste anual.
-- **El reloj del simulador va**, y es para la promoción, no para congelar la tarifa.
+- **Tótem:** encuestas, juegos y mapa del salón. No existe ninguno.
+- **Bogue:** música. Sólo suenan los pitidos de la cuenta regresiva.
+- **Plataforma 360:** intro y cierre.
+
+**La decisión de qué hacer con esto es del dueño:** construirlo, o corregir el texto. Son
+textos comerciales suyos: **no se tocan hasta que él elija.**
+
+## Lo que espera a Gemini
+
+- **Orden 16** — reparar lo que existe y no se comprobó, con la lista que da
+  `npm run lo-que-se-dijo:todo`.
+- **Orden 17** — el híbrido de las ocho estaciones contra las plataformas pagas. Arranca
+  por el bloque 0: **subir un fondo propio y personalizar las plantillas.**
+- **Orden 15** — sigue devuelta por tercera vez.
+
+**Ojo, ya costó un viaje:** el **color de las estaciones YA se puede cambiar y anda**
+(ocho pantallas lo usan). No mandarlo a rehacer.
+
+## Falsos positivos verificados a mano (no volver a reportarlos)
+
+- La **cámara lenta** y la **salida LED** de la Plataforma 360 **existen**. Un agente dijo
+  que no y se equivocó.
+- El fondo, el color, el nombre y la fecha de la fotocabina **salen solos de la invitación
+  digital**. Está bien así: es la ventaja que ninguna plataforma paga puede copiar.
