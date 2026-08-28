@@ -88,6 +88,38 @@ La regla: **si la pantalla se dibujara vacía y la prueba igual pasara, no sirve
 **No escribas pruebas para que el control se calle.** Una prueba que no
 comprobaría nada real es peor que ninguna: tapa el agujero sin cerrarlo.
 
+## Bloque 2 bis — La fotocabina: la personalizacion que no llega a la pantalla
+
+Verificado a mano el 28 de agosto de 2026. **La fotocabina anda y toma sola el fondo, el
+color, el nombre del agasajado y la fecha de la invitacion digital de la fiesta** —eso esta
+bien y no se toca—. Pero hay dos cosas escritas que no hacen nada:
+
+### 1. Las "plantillas" de estacion no las mira nadie
+
+En `src/app/(app)/fiestas/nueva/entretenimiento/page.tsx` cada estacion guarda una
+plantilla con ocho ajustes: `filterPreset`, `backgroundStyle`, `animationStyle`,
+`printLayout`, `qualityPreset`, `overlayName`, `accentColor` y `musicTrack`.
+
+**La pantalla de la fotocabina lee UNO solo: `accentColor`.** Los otros siete se guardan y
+no los usa nadie. Contado con `grep` sobre
+`src/app/evento/fotocabina/[fiestaId]/page.tsx`: cero apariciones de cada uno.
+
+Elegi una de dos y hacela:
+
+- **Que funcionen**, empezando por los tres que se notan: el filtro de color, el estilo de
+  fondo y la animacion del disparo. Con prueba que compruebe el resultado.
+- **Sacarlos**, si no se van a usar. Una plantilla que no cambia nada es peor que no
+  tenerla: la proxima auditoria la cuenta como una funcion que existe.
+
+### 2. Los marcos se pueden limitar por codigo pero no hay donde armar la lista
+
+La fotocabina filtra los marcos por `station.marcosHabilitados`, pero **ninguna pantalla
+deja armar esa lista**. Hoy salen todos los marcos siempre. Falta el control en la pantalla
+de configurar entretenimiento.
+
+Esto importa para el negocio: en una fiesta de quince no queres que aparezca el marco de
+casamiento.
+
 ## Bloque 3 — Las acciones que quedan
 
 Las 62 menos las de la lista de arriba. Una prueba por acción que compruebe **lo
