@@ -21,7 +21,8 @@ import {
   FileText,
   Loader2,
   ChevronRight,
-  Info
+  Info,
+  AlertTriangle,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -60,6 +61,15 @@ export default function ConfiguradorReunionPage() {
   const [loading, setLoading] = useState(true);
   const [services, setServices] = useState<ServicioEmpresa[]>([]);
   const [config, setConfig] = useState<ArmadoRapidoConfig | null>(null);
+  /**
+   * Si el catalogo no carga, hay que DECIRLO.
+   *
+   * Antes el error se anotaba en el registro del servidor y la pantalla se
+   * dibujaba igual, vacia y sin explicacion: el que la abria veia un
+   * configurador sin un solo servicio y no tenia forma de saber por que. Y es la
+   * pantalla que se usa **delante del cliente**, en la reunion de cierre.
+   */
+  const [noCargo, setNoCargo] = useState(false);
 
   // Form State
   const [clienteNombre, setClienteNombre] = useState('');
@@ -106,6 +116,7 @@ export default function ConfiguradorReunionPage() {
         setSelectedServiceIds(initialSelected);
       } catch (err) {
         console.error('Error cargando catálogo:', err);
+        setNoCargo(true);
       } finally {
         setLoading(false);
       }
@@ -303,6 +314,25 @@ export default function ConfiguradorReunionPage() {
         <p className="text-sm text-slate-600 leading-relaxed">
           Cargando el salón interactivo tridimensional, catálogo de servicios de sonido e iluminación, y motor de cálculo de presupuestos en tiempo real para la presentación con el cliente.
         </p>
+      </div>
+    );
+  }
+
+  if (noCargo || services.length === 0) {
+    return (
+      <div className="flex min-h-[70vh] flex-col items-center justify-center text-center p-8 space-y-4 max-w-md mx-auto">
+        <div className="rounded-full bg-amber-100 p-4">
+          <AlertTriangle className="h-8 w-8 text-amber-600" />
+        </div>
+        <h2 className="text-xl font-black text-slate-900">No se pudo cargar el catálogo de servicios</h2>
+        <p className="text-sm text-slate-600 leading-relaxed">
+          Sin el catálogo no se puede armar el presupuesto en la reunión, porque los precios
+          salen de ahí y no se inventan. Probá recargar la pantalla; si sigue igual, avisale al
+          equipo de AK antes de sentarte con el cliente.
+        </p>
+        <Button onClick={() => window.location.reload()} className="mt-2">
+          Volver a intentar
+        </Button>
       </div>
     );
   }
