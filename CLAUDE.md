@@ -687,6 +687,22 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
 
 ## LA PUERTA: sin `npm run "publicar?"` en verde, no se fusiona
 
+**Desde el 28 de agosto de 2026 la puerta tiene SIETE pasos, no seis.** El nuevo se
+llama **"Lo que se dijo es lo que es"** y es el unico que pregunta algo distinto: los
+otros seis preguntan si algo **se rompe**; este pregunta si lo nuevo **HACE lo que dice
+hacer**. Frena tres cosas: codigo que no llama nadie, una pantalla o accion sin una
+prueba que mire el **resultado**, y una prueba nueva donde todas las comprobaciones son
+"se ve".
+
+Es la forma exacta que tuvieron todas las fallas que las auditorias no vieron: escritas,
+compilando, en verde, y sin hacer nada.
+
+- **Frena solo lo que cambia**, a proposito. Si frenara por lo viejo no se podria subir
+  nada y terminaria desactivado.
+- **Para lo viejo:** `npm run lo-que-se-dijo:todo` informa sin frenar.
+- **Nunca escribir una prueba para que el control se calle.** Una prueba que no
+  comprobaria nada real tapa el agujero sin cerrarlo, y es peor que ninguna.
+
 **Orden del dueño, 27 de agosto de 2026.** Sus palabras: *"quiero que inventes un mecanismo
 de auditoría que deje mi app en cero errores en código y en funcionamiento; todo debe marchar
 para poder publicar."*
