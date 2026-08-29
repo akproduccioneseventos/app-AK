@@ -5951,11 +5951,24 @@ y se corrió muchas veces en el día.
 
 ### Qué se cambió
 
-**Usaba un solo núcleo de los cuatro.** Ahora las tandas que **no** tocan la fiesta de
-prueba compartida corren de a tres. Nueve archivos la comparten —si corren juntos, uno sube
-una foto al muro mientras otro las cuenta, y salen fallas inventadas— así que **esos se
-agrupan al principio y van de a uno**. Si quedaran repartidos, cada tanda tendría uno
-adentro y todas correrían lento igual.
+**SE PROBO CORRER DE A TRES Y SE VOLVIO ATRAS. No intentarlo de nuevo sin leer esto.**
+
+La tanda usaba un solo núcleo de los cuatro, así que se hizo correr de a tres los archivos
+que no comparten la fiesta de prueba. **Ganó 4 minutos de 41 —un 9%— y a cambio empezó a
+dar fallas inventadas.**
+
+La causa, encontrada mirando el código: `viaje-invitado.spec.ts` **se arma su propia fiesta
+con un identificador basado en la hora exacta, calculado al cargar el archivo**. Con varios
+procesos, cada uno se arma una fiesta distinta: uno guarda los datos y otro los busca con
+otro nombre y no los encuentra. No es el único que hace algo así, y buscarlos todos costaba
+más de lo que se ganaba.
+
+**Cuatro minutos no pagan una falla inventada**, que hace perder horas buscando un problema
+que no existe. Se revirtió y quedó el porqué escrito en el propio archivo.
+
+**Dónde está el tiempo de verdad:** en las dos pruebas gigantes que recorren las 348
+pantallas una por una. Esas no se dividen entre núcleos. Si algún día se quiere acelerar en
+serio, hay que mirar ahí, no la cantidad de procesos.
 
 ### Dos alarmas falsas seguidas, y por qué se dieron
 

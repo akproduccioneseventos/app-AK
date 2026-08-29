@@ -297,8 +297,24 @@ async function main() {
     'tarjetas-whatsapp.spec.ts',
   ];
 
-  const trabajadoresPara = (batch) =>
-    batch.some((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f))) ? 1 : 3;
+  /**
+   * SE PROBO CORRER DE A TRES Y SE VOLVIO ATRAS. No lo intentes de nuevo sin leer esto.
+   *
+   * La idea era usar los cuatro nucleos en vez de uno. **Gano 4 minutos de 41 —un 9%— y
+   * a cambio empezo a dar fallas inventadas.**
+   *
+   * La causa: `viaje-invitado.spec.ts` se arma su fiesta con un identificador basado en
+   * la hora exacta, calculado **al cargar el archivo**. Con varios procesos, cada uno se
+   * arma una fiesta distinta: uno guarda los datos y otro los busca con otro nombre y no
+   * los encuentra. No es el unico que hace algo asi, y buscarlos todos costaria mas de lo
+   * que se gana.
+   *
+   * **Cuatro minutos no pagan una falla inventada**, que hace perder horas buscando un
+   * problema que no existe. El tiempo real no esta aca: se lo llevan las dos pruebas
+   * gigantes que recorren las 348 pantallas una por una, y esas no se dividen entre
+   * nucleos. Ahi hay que mirar si algun dia se quiere acelerar de verdad.
+   */
+  const trabajadoresPara = () => 1;
   const tandas = [];
   /**
    * Tandas que se cayeron sin llegar a correr una sola prueba.
@@ -358,10 +374,7 @@ async function main() {
 
     try {
       await waitForHealth(port);
-      const trabajadores = trabajadoresPara(batch);
-      if (trabajadores > 1) {
-        console.log(`  (esta tanda no toca la fiesta compartida: corre de a ${trabajadores})`);
-      }
+      const trabajadores = trabajadoresPara();
       const result = await runPlaywright(batch, [...flags, `--workers=${trabajadores}`]);
       const tests = extractTestsFromSuites(result.json?.suites);
 
