@@ -5,6 +5,33 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
+## LO DE HOY: la fotocabina lista para usar en una fiesta
+
+**Estaba rota: el invitado apretaba y la pantalla quedaba en negro.** La app avisaba a la
+base y **esperaba la respuesta**; recién después buscaba la imagen de la cámara, y para
+entonces el recuadro ya no estaba. Ahora **se saca la foto primero y se avisa después**.
+Se encontró abriéndola en un navegador y apretando el botón: en el código no se veía.
+
+**Sin PIN en ninguna estación**, pedido del dueño. El aparato igual queda fijo en su
+estación y su fiesta; para salir, un botón que sólo pregunta.
+
+**Puerta nueva `/evento/inicio`**: los once entretenimientos en íconos. Existía la pantalla
+pero había que saberse el enlace de cada una.
+
+**Cada estación se instala como programa aparte** ("Fotocabina AK"), **sin quedar atada a
+una fiesta**: se instala una vez y al entrar se elige de qué fiesta es. Además, un acceso
+directo descargable y un enlace para copiar.
+
+**Cómo se usa:** entrar a `/evento/inicio`, tocar el ícono, elegir la fiesta, "Dejar el
+aparato listo". Para otra máquina: instalar desde ahí, o bajar el acceso directo.
+
+### La lección cara del día
+
+**Una compilación zombi quedó viva tres horas y media peleando con la nueva por la misma
+carpeta**, y todo parecía trabado. Está escrito en `CLAUDE.md` y no se miró: **si hay más de
+un `next build` corriendo, el resultado no vale**. Mirarlo es lo primero, no lo último.
+
+
 **Última actualización:** 29 de agosto de 2026, cierre.
 **Estado de la app:** sana. La puerta tiene ocho pasos y pasó entera varias veces.
 **Propuestas abiertas:** ninguna.
