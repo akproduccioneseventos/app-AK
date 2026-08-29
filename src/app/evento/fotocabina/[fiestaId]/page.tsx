@@ -41,7 +41,6 @@ import {
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
-import { InstalarEstaEstacion } from '@/components/kiosk/instalar-esta-estacion';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
@@ -1116,7 +1115,6 @@ export default function FotocabinaPage() {
 
       </div>
 
-      <InstalarEstaEstacion estacion="fotocabina" />
       <KioskUnlockButton />
       <SyncStatusIndicator
         fiestaId={fiestaId}
