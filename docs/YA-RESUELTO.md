@@ -5941,3 +5941,64 @@ blog no tenían texto alternativo (lo tienen).
 
 **El reparto funciona: ellos buscan, el modelo principal confirma.** Ninguno de esos cinco
 llegó al dueño como si fuera cierto.
+
+---
+
+## Las pruebas de navegador: más rápidas, honestas, y un agujero de la puerta tapado (29 de agosto de 2026)
+
+**El dueño lo marcó: "demora el navegador 7 h".** Tenía razón: la tanda tardaba 41 minutos
+y se corrió muchas veces en el día.
+
+### Qué se cambió
+
+**SE PROBO CORRER DE A TRES Y SE VOLVIO ATRAS. No intentarlo de nuevo sin leer esto.**
+
+La tanda usaba un solo núcleo de los cuatro, así que se hizo correr de a tres los archivos
+que no comparten la fiesta de prueba. **Ganó 4 minutos de 41 —un 9%— y a cambio empezó a
+dar fallas inventadas.**
+
+La causa, encontrada mirando el código: `viaje-invitado.spec.ts` **se arma su propia fiesta
+con un identificador basado en la hora exacta, calculado al cargar el archivo**. Con varios
+procesos, cada uno se arma una fiesta distinta: uno guarda los datos y otro los busca con
+otro nombre y no los encuentra. No es el único que hace algo así, y buscarlos todos costaba
+más de lo que se ganaba.
+
+**Cuatro minutos no pagan una falla inventada**, que hace perder horas buscando un problema
+que no existe. Se revirtió y quedó el porqué escrito en el propio archivo.
+
+**Dónde está el tiempo de verdad:** en las dos pruebas gigantes que recorren las 348
+pantallas una por una. Esas no se dividen entre núcleos. Si algún día se quiere acelerar en
+serio, hay que mirar ahí, no la cantidad de procesos.
+
+### Dos alarmas falsas seguidas, y por qué se dieron
+
+El resumen decía **"628 ejecutadas, 114 pasadas"** sin explicar las otras 514. Parecía que
+el control miraba menos de la quinta parte de la app. **Se investigó hasta el fondo y era
+falso las dos veces:**
+
+- **498 de esas 514 son un solo archivo: `fotos-de-la-app.spec.ts`**, que **no es una
+  prueba**: es la herramienta que saca las fotos de las pantallas. Va apagada a propósito y
+  se enciende con `AK_FOTOS=true`.
+- El resto son pruebas que sólo tienen sentido en computadora y se saltean en celular.
+
+**Se comprobó además que el salteo no lo causó el cambio de velocidad:** el mismo archivo
+con la versión vieja y con la nueva dio idéntico, 16 y 16.
+
+**Arreglo:** el resumen ahora dice cuántas se saltearon **y por qué**. Un número sin
+explicar hace perder horas.
+
+### El número del manual ya no se escribe a mano
+
+El manual dice cuántas pantallas tiene la app y una prueba lo controla. Estaba escrito a
+mano y **frenó dos subidas en un mismo día** por olvidarse de cambiarlo. Ahora lo reescribe
+`npm run mapa:generar`. Probado poniéndole 999 a propósito: lo corrigió solo.
+
+### Y un agujero de la puerta, tapado
+
+**La puerta se salteó el paso del navegador en el cambio que modificaba el corredor del
+navegador.** La lista de "esto puede cambiar la app" no incluía los scripts que definen
+**cómo se prueba**. Se agregaron `run-playwright-production.mjs`,
+`build-next-with-memory.mjs` y `playwright.config.ts`.
+
+**La lección: un control que decide qué controlar tiene que contarse a sí mismo entre lo
+que vigila.**

@@ -267,6 +267,54 @@ async function main() {
         .map((f) => `tests/e2e/${f}`);
 
   const BATCH_SIZE = 4;
+
+  /**
+   * POR QUE ALGUNAS PRUEBAS NO PUEDEN CORRER JUNTAS
+   *
+   * La maquina tiene cuatro nucleos y la tanda usaba uno solo: cuarenta y dos
+   * minutos con el 75% de la maquina parada. El dueno lo marco: *"demora el
+   * navegador 7 h"*.
+   *
+   * No se puede paralelizar todo. **Estos archivos usan LA MISMA fiesta de
+   * prueba**: si corren a la vez, uno sube una foto al muro mientras el otro las
+   * cuenta, y aparecen fallas inventadas. Esas son las peores: hacen perder horas
+   * buscando un problema que no existe.
+   *
+   * Asi que la regla es simple: **la tanda que toca la fiesta compartida va de a
+   * una; el resto, de a tres.**
+   *
+   * Si agregas una prueba nueva que use `helpers/fiesta-de-prueba`, sumala aca.
+   */
+  const COMPARTEN_LA_FIESTA_DE_PRUEBA = [
+    'entretenimientos-a-fondo.spec.ts',
+    'estaciones-sin-clave.spec.ts',
+    'fotocabina-de-punta-a-punta.spec.ts',
+    'fotos-de-la-app.spec.ts',
+    'muro-subir-foto.spec.ts',
+    'noche-de-fiesta.spec.ts',
+    'prospecto-simulador.spec.ts',
+    'senal-mala.spec.ts',
+    'tarjetas-whatsapp.spec.ts',
+  ];
+
+  /**
+   * SE PROBO CORRER DE A TRES Y SE VOLVIO ATRAS. No lo intentes de nuevo sin leer esto.
+   *
+   * La idea era usar los cuatro nucleos en vez de uno. **Gano 4 minutos de 41 —un 9%— y
+   * a cambio empezo a dar fallas inventadas.**
+   *
+   * La causa: `viaje-invitado.spec.ts` se arma su fiesta con un identificador basado en
+   * la hora exacta, calculado **al cargar el archivo**. Con varios procesos, cada uno se
+   * arma una fiesta distinta: uno guarda los datos y otro los busca con otro nombre y no
+   * los encuentra. No es el unico que hace algo asi, y buscarlos todos costaria mas de lo
+   * que se gana.
+   *
+   * **Cuatro minutos no pagan una falla inventada**, que hace perder horas buscando un
+   * problema que no existe. El tiempo real no esta aca: se lo llevan las dos pruebas
+   * gigantes que recorren las 348 pantallas una por una, y esas no se dividen entre
+   * nucleos. Ahi hay que mirar si algun dia se quiere acelerar de verdad.
+   */
+  const trabajadoresPara = () => 1;
   const tandas = [];
   /**
    * Tandas que se cayeron sin llegar a correr una sola prueba.
@@ -280,8 +328,17 @@ async function main() {
    */
   const tandasCaidas = [];
 
-  for (let i = 0; i < allSpecFiles.length; i += BATCH_SIZE) {
-    tandas.push(allSpecFiles.slice(i, i + BATCH_SIZE));
+  // Se agrupan primero los que comparten la fiesta de prueba. Si quedaran
+  // repartidos, cada tanda tendria uno adentro y **todas** correrian de a una,
+  // que es justo lo que se quiere evitar. Agrupados, solo dos o tres tandas van
+  // lentas y el resto vuela.
+  const ordenados = [
+    ...allSpecFiles.filter((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f))),
+    ...allSpecFiles.filter((f) => !COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f))),
+  ];
+
+  for (let i = 0; i < ordenados.length; i += BATCH_SIZE) {
+    tandas.push(ordenados.slice(i, i + BATCH_SIZE));
   }
 
   console.log(`\n======================================================`);
@@ -292,6 +349,21 @@ async function main() {
   const fallasReales = [];
   const descartadasPorEntorno = [];
   let totalEjecutadas = 0;
+  /**
+   * Las salteadas se CUENTAN Y SE DICEN.
+   *
+   * Antes el resumen mostraba "628 ejecutadas, 114 pasadas" y no explicaba las
+   * otras 514. Eso hizo dar dos alarmas falsas seguidas: parecia que el control
+   * miraba menos de la quinta parte de la app.
+   *
+   * No era asi. Casi todas son `fotos-de-la-app.spec.ts`, que **no es una prueba:
+   * es la herramienta que saca las fotos de las pantallas**, apagada a proposito
+   * y se enciende con `AK_FOTOS=true`. Y el resto son pruebas que solo tienen
+   * sentido en computadora y se saltean en celular.
+   *
+   * Un numero sin explicar asusta o tranquiliza de mas. Por eso ahora se dice.
+   */
+  let totalSalteadas = 0;
 
   for (let idx = 0; idx < tandas.length; idx++) {
     const batch = tandas[idx];
@@ -302,7 +374,8 @@ async function main() {
 
     try {
       await waitForHealth(port);
-      const result = await runPlaywright(batch, flags);
+      const trabajadores = trabajadoresPara();
+      const result = await runPlaywright(batch, [...flags, `--workers=${trabajadores}`]);
       const tests = extractTestsFromSuites(result.json?.suites);
 
       if (tests.length === 0) {
@@ -321,7 +394,7 @@ async function main() {
         if (t.status === "passed" || t.status === "expected") {
           totalPasadas.push(t);
         } else if (t.status === "skipped") {
-          // skipped
+          totalSalteadas += 1;
         } else {
           // Falla: aplicar criterio de medio segundo (500 ms)
           if (t.duration < 500) {
@@ -379,6 +452,11 @@ async function main() {
   console.log(`======================================================`);
   console.log(`  - Total pruebas ejecutadas: ${totalEjecutadas}`);
   console.log(`  - Pruebas pasadas: ${totalPasadas.length}`);
+  console.log(`  - Salteadas a proposito: ${totalSalteadas}`);
+  if (totalSalteadas > 0) {
+    console.log(`      (la herramienta de sacar fotos va apagada salvo con AK_FOTOS=true,`);
+    console.log(`       y las pruebas de solo-escritorio no corren en celular)`);
+  }
   console.log(`  - Fallas reales: ${fallasReales.length}`);
   console.log(`  - Descartadas por entorno (<500ms recuperadas): ${descartadasPorEntorno.length}`);
   console.log(`======================================================\n`);
