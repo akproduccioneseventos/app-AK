@@ -28,6 +28,7 @@ export const PUBLIC_PATH_PREFIXES = [
   // consulta la sesion y solo carga textos publicos y el WhatsApp de contacto,
   // pero faltaba declararlo aca, asi que el visitante chocaba con el login.
   '/catalogo',
+  '/privacidad',
   '/presentacion',
   '/presentacion-led',
   // La presentacion LED, que es publica, manda al visitante aca desde tres de

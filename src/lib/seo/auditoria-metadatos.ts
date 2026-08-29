@@ -7,6 +7,7 @@ import { metadata as cumpleMetadata } from '@/app/cumpleanos/page';
 import { metadata as clubMetadata } from '@/app/club-uruguay/page';
 import { metadata as catalogoMetadata } from '@/app/catalogo/layout';
 import { metadata as expMetadata } from '@/app/experiencia-ak/page';
+import { metadata as privacidadMetadata } from '@/app/privacidad/page';
 import { metadata as simMetadata } from '@/app/simulador-de-presupuesto/layout';
 import { metadata as blogListMetadata } from '@/app/public/blog/page';
 import { getCatalogBySlug } from '@/data/event-catalogs';
@@ -78,6 +79,13 @@ export async function getMetadataRealDeRuta(ruta: string): Promise<{ title: stri
     return {
       title: String(expMetadata.title || ''),
       description: String(expMetadata.description || ''),
+    };
+  }
+
+  if (ruta === '/privacidad') {
+    return {
+      title: String(privacidadMetadata.title || ''),
+      description: String(privacidadMetadata.description || ''),
     };
   }
 

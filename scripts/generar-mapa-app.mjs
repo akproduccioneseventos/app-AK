@@ -143,6 +143,33 @@ export function mapaParaLaAsistente(): string {
 
 writeFileSync(SALIDA, cuerpo, 'utf8');
 
+/**
+ * EL NUMERO DEL MANUAL LO ESCRIBE LA MAQUINA, NO UNA PERSONA.
+ *
+ * El manual arranca diciendo cuantas pantallas tiene la app, y una prueba lo
+ * controla. Estaba escrito a mano: cada vez que se agregaba una pantalla, alguien
+ * tenia que acordarse de cambiar el numero, y **freno dos subidas en un mismo dia**
+ * por olvidarse.
+ *
+ * Ahora lo reescribe este mismo generador. Un numero que puede calcularse no se
+ * escribe a mano.
+ */
+const MANUAL = 'docs/MANUAL-DE-LA-APP.md';
+try {
+  const manual = readFileSync(MANUAL, 'utf8');
+  const linea = `**Tamaño de la app hoy: ${rutas.length} pantallas y ${menu.length} opciones de menú.**`;
+  const alDia = manual.replace(
+    /\*\*Tamaño de la app hoy: \d+ pantallas y \d+ opciones de menú\.\*\*/,
+    linea
+  );
+  if (alDia !== manual) {
+    writeFileSync(MANUAL, alDia, 'utf8');
+    console.log(`Manual actualizado: ${rutas.length} pantallas y ${menu.length} opciones de menu.`);
+  }
+} catch {
+  console.warn('No se pudo actualizar el numero del manual: revisalo a mano.');
+}
+
 const menuRoto = menu.filter(e => !rutas.includes(e.ruta) && !e.ruta.includes(':'));
 console.log(`Mapa generado: ${rutas.length} pantallas, ${menu.length} opciones de menu.`);
 for (const [f, lista] of Object.entries(porFamilia)) console.log(`  ${f}: ${lista.length}`);

@@ -685,6 +685,51 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   ya está fuera del repositorio y hay una prueba que impide que vuelva a entrar;
   eso es lo que sí queda.
 
+## Cuatro reglas nuevas, y cada una salio de algo que paso el 28 de agosto de 2026
+
+No son ideas: son las cuatro formas en que la app engano a todo el mundo en un solo dia.
+
+### 1. Un control nuevo se prueba FALLANDO, no pasando
+
+**Paso tres veces en el dia.** El control de acentos daba verde con cero archivos
+revisados. El corredor de pruebas de navegador decia "todas pasaron" con cero pruebas
+corridas. Y el trinquete —escrito ese mismo dia— dijo que la deuda no habia crecido
+despues de agregarle a proposito un archivo muerto.
+
+**Los tres pasaban la prueba de "correrlo y ver que da verde". Los tres estaban rotos.**
+
+**La regla: a todo control nuevo hay que romperlo a proposito y ver que frene.** Un control
+que solo se probo cuando estaba todo bien no se sabe si sirve. Y la prueba de que frena se
+deja escrita, no se hace de memoria.
+
+### 2. Una pantalla vive en UN solo lugar
+
+Se encontro la carga de fotos del Video de Vida **copiada texto por texto en dos
+direcciones distintas**, una de ellas colgada donde no corresponde. Nadie lo noto porque
+las dos andaban.
+
+**La regla: antes de crear una pantalla, buscar si ya existe.** Dos copias de lo mismo se
+despegan en un mes y la que queda vieja hace mas dano que no tenerla. Si hay que llegar
+desde dos lados, es un enlace a la misma pantalla, no una copia.
+
+### 3. Todo lo que se puede editar tiene que leerlo alguien
+
+Habia un ajuste —el nombre del marco— con su casilla para escribirlo, y **ninguna pantalla
+lo lee**. El operador lo cambia, guarda, y no pasa nada. De los nueve ajustes de plantilla,
+siete no los mira nadie.
+
+**La regla: un control en pantalla que no cambia nada es peor que no tenerlo**, porque el
+que lo usa cree que hizo algo. O se engancha, o se saca.
+
+### 4. Una prueba no puede crear lo que despues comprueba
+
+Llego una entrega con una prueba que, **si el valor no existia, lo creaba ella misma** y
+despues comprobaba que existiera. Pasa siempre, con la app rota o sana.
+
+**La regla: si sacando la app entera la prueba igual pasa, esa prueba no prueba nada.** Y
+comprobar de que **tipo** es algo tampoco alcanza: que sea "un objeto" o "una funcion" no
+dice que haga lo que promete.
+
 ## LA PUERTA: sin `npm run "publicar?"` en verde, no se fusiona
 
 **Desde el 28 de agosto de 2026 la puerta tiene SIETE pasos, no seis.** El nuevo se

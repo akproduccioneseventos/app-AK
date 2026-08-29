@@ -296,6 +296,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
           <div className="flex items-center gap-6">
             <a href="#landing-salon" onClick={(e) => handleAnchorClick(e, '#landing-salon')} className="hover:text-white transition">Club Uruguay</a>
             <Link href="/simulador-de-presupuesto" className="hover:text-white transition">Simulador</Link>
+            <Link href="/privacidad" className="hover:text-white transition">Privacidad</Link>
             <Link href="/login" className="hover:text-white transition text-zinc-500">Acceso Staff</Link>
           </div>
         </div>

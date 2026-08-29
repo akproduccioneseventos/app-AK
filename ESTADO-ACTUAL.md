@@ -5,96 +5,82 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 28 de agosto de 2026, con la fotocabina lista para usar.
-**Estado de la app:** **`npm run "publicar?"` en verde, los ocho pasos**, incluido el
-recorrido completo en navegador. Se puede publicar.
+## LO DE HOY: la fotocabina lista para usar en una fiesta
+
+**Estaba rota: el invitado apretaba y la pantalla quedaba en negro.** La app avisaba a la
+base y **esperaba la respuesta**; recién después buscaba la imagen de la cámara, y para
+entonces el recuadro ya no estaba. Ahora **se saca la foto primero y se avisa después**.
+Se encontró abriéndola en un navegador y apretando el botón: en el código no se veía.
+
+**Sin PIN en ninguna estación**, pedido del dueño. El aparato igual queda fijo en su
+estación y su fiesta; para salir, un botón que sólo pregunta.
+
+**Puerta nueva `/evento/inicio`**: los once entretenimientos en íconos. Existía la pantalla
+pero había que saberse el enlace de cada una.
+
+**Cada estación se instala como programa aparte** ("Fotocabina AK"), **sin quedar atada a
+una fiesta**: se instala una vez y al entrar se elige de qué fiesta es. Además, un acceso
+directo descargable y un enlace para copiar.
+
+**Cómo se usa:** entrar a `/evento/inicio`, tocar el ícono, elegir la fiesta, "Dejar el
+aparato listo". Para otra máquina: instalar desde ahí, o bajar el acceso directo.
+
+### La lección cara del día
+
+**Una compilación zombi quedó viva tres horas y media peleando con la nueva por la misma
+carpeta**, y todo parecía trabado. Está escrito en `CLAUDE.md` y no se miró: **si hay más de
+un `next build` corriendo, el resultado no vale**. Mirarlo es lo primero, no lo último.
+
+
+**Última actualización:** 29 de agosto de 2026, cierre.
+**Estado de la app:** sana. La puerta tiene ocho pasos y pasó entera varias veces.
 **Propuestas abiertas:** ninguna.
 
-## LO DE HOY: la fotocabina, que el dueño usa en una fiesta
+## Lo que se construyó, y es lo que cambia el método
 
-**Estaba rota y la pantalla quedaba en negro.** El invitado apretaba el botón y no pasaba
-nada más: sin foto, sin cartel. La pantalla **le avisaba a la base y esperaba la respuesta**,
-y recién después iba a buscar la imagen de la cámara; para cuando volvía, el recuadro de la
-cámara ya no estaba. Ahora **se saca la foto primero y se avisa después, sin esperar**: si la
-base tarda o falla, la foto ya está.
+El dueño lo pidió así: *"quiero algo que repare mi app y que todo lo que se agregue no pase
+si no funciona realmente"*. Salieron **tres controles nuevos**, los tres probados
+**frenando de verdad**, no sólo pasando:
 
-**No se veía leyendo el código** —hay un control que comprueba que la cámara esté, y parece
-suficiente; sólo que valía para el instante anterior a la espera—. Se encontró abriéndola en
-un navegador y apretando el botón.
+1. **El control de promesas** — frena código que nadie llama, pantallas sin prueba que mire
+   el resultado, y pruebas que sólo confirman que la pantalla se ve.
+2. **Las promesas al cliente** — cada frase que la pantalla muestra declara qué archivo la
+   cumple. No se puede agregar una sin decir si existe.
+3. **El trinquete** — la deuda vieja quedó medida y **sólo puede bajar**.
 
-**Se le sacó el PIN a todas las estaciones**, pedido del dueño: *"o mejor sacale el PIN y ta,
-así no complica."* No se pide clave ni al armar ni al salir. El aparato igual queda fijo en
-esa estación y esa fiesta.
+**Y la puerta se volvió proporcionada:** si el cambio no toca la app, no corre los dos
+pasos caros —y **lo dice**, no los marca como aprobados.
 
-**Se hizo la puerta que faltaba: `/evento/inicio`**, con los once entretenimientos en íconos.
-La pantalla ya existía pero había que saberse el enlace exacto de cada estación, así que en
-la práctica no existía.
+## El método de reparación, para no volver a explicarlo
 
-**Y un archivo descargable**: un botón baja un acceso directo que, con doble click, abre esa
-estación de esa fiesta en la máquina del empleado. Sin explicarle nada a nadie.
+No se repara todo de una. Tres reglas: **el que toca algo lo deja limpio**, **lo nuevo no
+puede sumar**, y **el número sólo baja**. La reparación pasa sola con el trabajo normal.
 
-**Cómo se usa, para repetirlo:** entrar a `/evento/inicio`, tocar el ícono, elegir la fiesta,
-"Dejar el aparato listo". Para otra máquina, "Bajar acceso directo" y copiar el archivo.
+## Lo que espera a Gemini
 
-## La música quedó conectada de verdad
+- **Orden 16** — reparar lo que existe y no se comprobó. Incluye el Video de Vida, que está
+  copiado en dos lados.
+- **Orden 17** — el híbrido de las ocho estaciones. Arranca por **subir un fondo propio y
+  personalizar las plantillas**.
+- **Orden 18** — lo que le falta a la web: migas de pan visibles, buscador, enlaces rotos.
+- **Orden 15** — sigue devuelta.
 
-El pedido del dueño era: *"muchas veces nos pasan link de YouTube; quiero que todo esté
-conectado, no sólo el link."*
+## Decisiones tomadas (no volver a preguntar)
 
-La primera entrega **reconocía** el enlace pero **no lo abría**: para una lista de Spotify
-guardaba una canción que decía *"Playlist de Spotify compartida"*, artista *"Spotify"*. El
-DJ hubiera visto eso en vez de los temas. **Era el mismo problema con mejor cartel.**
+- **Cartel de cookies: NO.** Molesta. Va explicado dentro de `/privacidad`.
+- **Nada de aparato de privacidad.** Sólo si Google lo exige, una página simple.
+- **El color de las estaciones YA se puede cambiar y anda.** No mandarlo a rehacer.
 
-Ahora hay un botón que **abre los enlaces**: las listas de Spotify se leen con la llave que
-la app ya tenía, y los videos de YouTube por su puerta pública, que **no necesita llave ni
-cuesta nada**. Lo que no se puede abrir vuelve aparte, con el motivo en criollo —lista en
-privado, video borrado, servicio caído— y **nunca como una canción inventada**.
+## Falsos positivos verificados (no reportarlos)
 
-**El panel de conexiones ahora pregunta en vez de suponer**, y separa los dos permisos, que
-son distintos: *"buscar canciones y abrir listas"* por un lado y *"escribir en tu playlist"*
-por el otro. Se sacó la fila de YouTube que había quedado duplicada.
+- La **cámara lenta** y la **salida LED** de la 360 **existen**.
+- **El anti-spam existe**, y está en todas las acciones que usan inteligencia artificial.
+- Las **514 pruebas "salteadas"** son la herramienta de sacar fotos, apagada a propósito.
+- **Correr las pruebas en paralelo YA SE PROBÓ**: ganaba 9% y daba fallas inventadas. El
+  porqué está escrito en `scripts/run-playwright-production.mjs`. **No reintentarlo.**
 
-**El DJ ve una sola lista**: lo del cliente junto con los pedidos de los invitados, con los
-repetidos agrupados y el número al lado.
+## Lo que costó el día, y es la lección
 
-## Dos defectos reales que aparecieron al verificar
-
-1. **La pantalla del Configurador de Reunión —la que se usa sentado adelante del cliente—
-   se rompía entera** y mostraba "¡Ups! Algo salió mal": sin catálogo, sin presupuesto, sin
-   guardar. La causa está adentro de la vista 3D del salón
-   (`Cannot read properties of undefined (reading 'ReactCurrentBatchConfig')`). **Ya no se
-   lleva puesta la pantalla**: si el dibujo falla, falla sólo el dibujo y lo dice en criollo.
-   **PENDIENTE: el 3D sigue sin verse.** React 18.3.1 y `@react-three/fiber` 8.18.0 son
-   compatibles entre sí, así que no es un problema de versiones: hay que buscarlo con calma.
-2. **Yo había puesto esa pantalla en una lista de excepciones** del recorrido, creyendo que
-   estaba vacía por no tener fiesta elegida. Estaba rota. **El control la marcaba bien y la
-   excepción lo tapaba.** Sacada, con la advertencia escrita en el archivo.
-
-## Lo que hay que saber de los controles
-
-Ahora son ocho pasos. Los dos nuevos —**"Lo que se dijo es lo que es"** y **el trinquete**—
-salieron de la otra sesión y valen su peso: **el primero me agarró a mí**, con una función
-que salía a buscar a Spotify y no tenía ninguna prueba.
-
-Antes ya habían aparecido tres controles que mentían: el corredor de navegador decía "todas
-pasaron" con cero pruebas corridas, el de acentos daba verde con cero archivos revisados, y
-el recorrido de pantallas medía el HTML crudo. Los tres, arreglados.
-
-**La lección, y ya pasó cuatro veces: cuando un control deja de mirar, lo que entra no se
-ve.**
-
-## Método que funcionó, para repetirlo
-
-**De los hallazgos que reportaron los ayudantes, la mayoría fueron falsa alarma.** Dos
-ejemplos: dijeron que un archivo de "promesas" era código muerto —y es una lista que existe
-justamente para que una prueba la use— y que había números inventados en pantalla —y eran
-valores por defecto de configuración—. **Verificar cada hallazgo con los propios ojos antes
-de tocar nada no es opcional.**
-
-## Decisiones ya tomadas (no volver a preguntar)
-
-- **No se le pide el mail ni el teléfono al invitado** para darle su foto: frena la fila.
-- **Cloudflare: no.** **Google Flow: no se conecta.**
-- **El agente de publicidad no prende ni crea campañas.** Eso lo activa el dueño.
-- **Nada de promesas en la web** ni precios congelados: trabaja con ajuste anual.
-- **El reloj del simulador va**, y es para la promoción, no para congelar la tarifa.
+Se corrió la verificación completa —45 minutos— muchas más veces de las necesarias,
+incluso para cambios de texto. **La puerta ya sabe saltearla sola; el que tiene que
+aprender es quien la lanza.** Una sola vez, al final de la tanda.
