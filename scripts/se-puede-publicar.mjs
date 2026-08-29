@@ -90,6 +90,12 @@ const PUEDE_CAMBIAR_LA_APP = [
   /^tsconfig\.json$/,
   /^apphosting\.yaml$/,
   /^firestore\.rules$/,
+  // Tocar el corredor de pruebas o su configuracion CAMBIA como se prueba la app.
+  // Sin esto, un cambio al corredor de navegador se salteaba justo el paso del
+  // navegador: la puerta se sacaba sola el control que ese cambio afecta.
+  /^scripts\/run-playwright-production\.mjs$/,
+  /^scripts\/build-next-with-memory\.mjs$/,
+  /^playwright\.config\.ts$/,
 ];
 
 /** Un cambio de comentario en una prueba de navegador no cambia la app. */
