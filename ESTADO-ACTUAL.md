@@ -5,70 +5,55 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 28 de agosto de 2026.
-**Estado de la app:** **`npm run "publicar?"` en verde, los ocho pasos**, incluido el
-recorrido completo en navegador. Se puede publicar.
+**Última actualización:** 29 de agosto de 2026, cierre.
+**Estado de la app:** sana. La puerta tiene ocho pasos y pasó entera varias veces.
 **Propuestas abiertas:** ninguna.
 
-## La música quedó conectada de verdad
+## Lo que se construyó, y es lo que cambia el método
 
-El pedido del dueño era: *"muchas veces nos pasan link de YouTube; quiero que todo esté
-conectado, no sólo el link."*
+El dueño lo pidió así: *"quiero algo que repare mi app y que todo lo que se agregue no pase
+si no funciona realmente"*. Salieron **tres controles nuevos**, los tres probados
+**frenando de verdad**, no sólo pasando:
 
-La primera entrega **reconocía** el enlace pero **no lo abría**: para una lista de Spotify
-guardaba una canción que decía *"Playlist de Spotify compartida"*, artista *"Spotify"*. El
-DJ hubiera visto eso en vez de los temas. **Era el mismo problema con mejor cartel.**
+1. **El control de promesas** — frena código que nadie llama, pantallas sin prueba que mire
+   el resultado, y pruebas que sólo confirman que la pantalla se ve.
+2. **Las promesas al cliente** — cada frase que la pantalla muestra declara qué archivo la
+   cumple. No se puede agregar una sin decir si existe.
+3. **El trinquete** — la deuda vieja quedó medida y **sólo puede bajar**.
 
-Ahora hay un botón que **abre los enlaces**: las listas de Spotify se leen con la llave que
-la app ya tenía, y los videos de YouTube por su puerta pública, que **no necesita llave ni
-cuesta nada**. Lo que no se puede abrir vuelve aparte, con el motivo en criollo —lista en
-privado, video borrado, servicio caído— y **nunca como una canción inventada**.
+**Y la puerta se volvió proporcionada:** si el cambio no toca la app, no corre los dos
+pasos caros —y **lo dice**, no los marca como aprobados.
 
-**El panel de conexiones ahora pregunta en vez de suponer**, y separa los dos permisos, que
-son distintos: *"buscar canciones y abrir listas"* por un lado y *"escribir en tu playlist"*
-por el otro. Se sacó la fila de YouTube que había quedado duplicada.
+## El método de reparación, para no volver a explicarlo
 
-**El DJ ve una sola lista**: lo del cliente junto con los pedidos de los invitados, con los
-repetidos agrupados y el número al lado.
+No se repara todo de una. Tres reglas: **el que toca algo lo deja limpio**, **lo nuevo no
+puede sumar**, y **el número sólo baja**. La reparación pasa sola con el trabajo normal.
 
-## Dos defectos reales que aparecieron al verificar
+## Lo que espera a Gemini
 
-1. **La pantalla del Configurador de Reunión —la que se usa sentado adelante del cliente—
-   se rompía entera** y mostraba "¡Ups! Algo salió mal": sin catálogo, sin presupuesto, sin
-   guardar. La causa está adentro de la vista 3D del salón
-   (`Cannot read properties of undefined (reading 'ReactCurrentBatchConfig')`). **Ya no se
-   lleva puesta la pantalla**: si el dibujo falla, falla sólo el dibujo y lo dice en criollo.
-   **PENDIENTE: el 3D sigue sin verse.** React 18.3.1 y `@react-three/fiber` 8.18.0 son
-   compatibles entre sí, así que no es un problema de versiones: hay que buscarlo con calma.
-2. **Yo había puesto esa pantalla en una lista de excepciones** del recorrido, creyendo que
-   estaba vacía por no tener fiesta elegida. Estaba rota. **El control la marcaba bien y la
-   excepción lo tapaba.** Sacada, con la advertencia escrita en el archivo.
+- **Orden 16** — reparar lo que existe y no se comprobó. Incluye el Video de Vida, que está
+  copiado en dos lados.
+- **Orden 17** — el híbrido de las ocho estaciones. Arranca por **subir un fondo propio y
+  personalizar las plantillas**.
+- **Orden 18** — lo que le falta a la web: migas de pan visibles, buscador, enlaces rotos.
+- **Orden 15** — sigue devuelta.
 
-## Lo que hay que saber de los controles
+## Decisiones tomadas (no volver a preguntar)
 
-Ahora son ocho pasos. Los dos nuevos —**"Lo que se dijo es lo que es"** y **el trinquete**—
-salieron de la otra sesión y valen su peso: **el primero me agarró a mí**, con una función
-que salía a buscar a Spotify y no tenía ninguna prueba.
+- **Cartel de cookies: NO.** Molesta. Va explicado dentro de `/privacidad`.
+- **Nada de aparato de privacidad.** Sólo si Google lo exige, una página simple.
+- **El color de las estaciones YA se puede cambiar y anda.** No mandarlo a rehacer.
 
-Antes ya habían aparecido tres controles que mentían: el corredor de navegador decía "todas
-pasaron" con cero pruebas corridas, el de acentos daba verde con cero archivos revisados, y
-el recorrido de pantallas medía el HTML crudo. Los tres, arreglados.
+## Falsos positivos verificados (no reportarlos)
 
-**La lección, y ya pasó cuatro veces: cuando un control deja de mirar, lo que entra no se
-ve.**
+- La **cámara lenta** y la **salida LED** de la 360 **existen**.
+- **El anti-spam existe**, y está en todas las acciones que usan inteligencia artificial.
+- Las **514 pruebas "salteadas"** son la herramienta de sacar fotos, apagada a propósito.
+- **Correr las pruebas en paralelo YA SE PROBÓ**: ganaba 9% y daba fallas inventadas. El
+  porqué está escrito en `scripts/run-playwright-production.mjs`. **No reintentarlo.**
 
-## Método que funcionó, para repetirlo
+## Lo que costó el día, y es la lección
 
-**De los hallazgos que reportaron los ayudantes, la mayoría fueron falsa alarma.** Dos
-ejemplos: dijeron que un archivo de "promesas" era código muerto —y es una lista que existe
-justamente para que una prueba la use— y que había números inventados en pantalla —y eran
-valores por defecto de configuración—. **Verificar cada hallazgo con los propios ojos antes
-de tocar nada no es opcional.**
-
-## Decisiones ya tomadas (no volver a preguntar)
-
-- **No se le pide el mail ni el teléfono al invitado** para darle su foto: frena la fila.
-- **Cloudflare: no.** **Google Flow: no se conecta.**
-- **El agente de publicidad no prende ni crea campañas.** Eso lo activa el dueño.
-- **Nada de promesas en la web** ni precios congelados: trabaja con ajuste anual.
-- **El reloj del simulador va**, y es para la promoción, no para congelar la tarifa.
+Se corrió la verificación completa —45 minutos— muchas más veces de las necesarias,
+incluso para cambios de texto. **La puerta ya sabe saltearla sola; el que tiene que
+aprender es quien la lanza.** Una sola vez, al final de la tanda.
