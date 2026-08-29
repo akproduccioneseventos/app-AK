@@ -333,6 +333,21 @@ async function main() {
   const fallasReales = [];
   const descartadasPorEntorno = [];
   let totalEjecutadas = 0;
+  /**
+   * Las salteadas se CUENTAN Y SE DICEN.
+   *
+   * Antes el resumen mostraba "628 ejecutadas, 114 pasadas" y no explicaba las
+   * otras 514. Eso hizo dar dos alarmas falsas seguidas: parecia que el control
+   * miraba menos de la quinta parte de la app.
+   *
+   * No era asi. Casi todas son `fotos-de-la-app.spec.ts`, que **no es una prueba:
+   * es la herramienta que saca las fotos de las pantallas**, apagada a proposito
+   * y se enciende con `AK_FOTOS=true`. Y el resto son pruebas que solo tienen
+   * sentido en computadora y se saltean en celular.
+   *
+   * Un numero sin explicar asusta o tranquiliza de mas. Por eso ahora se dice.
+   */
+  let totalSalteadas = 0;
 
   for (let idx = 0; idx < tandas.length; idx++) {
     const batch = tandas[idx];
@@ -366,7 +381,7 @@ async function main() {
         if (t.status === "passed" || t.status === "expected") {
           totalPasadas.push(t);
         } else if (t.status === "skipped") {
-          // skipped
+          totalSalteadas += 1;
         } else {
           // Falla: aplicar criterio de medio segundo (500 ms)
           if (t.duration < 500) {
@@ -424,6 +439,11 @@ async function main() {
   console.log(`======================================================`);
   console.log(`  - Total pruebas ejecutadas: ${totalEjecutadas}`);
   console.log(`  - Pruebas pasadas: ${totalPasadas.length}`);
+  console.log(`  - Salteadas a proposito: ${totalSalteadas}`);
+  if (totalSalteadas > 0) {
+    console.log(`      (la herramienta de sacar fotos va apagada salvo con AK_FOTOS=true,`);
+    console.log(`       y las pruebas de solo-escritorio no corren en celular)`);
+  }
   console.log(`  - Fallas reales: ${fallasReales.length}`);
   console.log(`  - Descartadas por entorno (<500ms recuperadas): ${descartadasPorEntorno.length}`);
   console.log(`======================================================\n`);
