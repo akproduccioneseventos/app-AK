@@ -24,6 +24,7 @@ import {
   Link2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { InstalarEstaEstacion } from './instalar-esta-estacion';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getFiestaActivaDeHoy, getFiestas } from '@/app/actions/fiesta-actual';
@@ -253,6 +254,13 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 md:p-8">
+      {/*
+        Desde acá se instala la estación como programa aparte.
+        Vale para TODAS: cada entretenimiento entra por esta misma pantalla, así
+        que con ponerlo una vez, el navegador ofrece instalar la estación que se
+        haya elegido, no la app entera.
+      */}
+      <InstalarEstaEstacion estacion={selectedRole} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -75,6 +75,10 @@ export const PUBLIC_PATH_PREFIXES = [
 export const PUBLIC_EXACT_PATHS = new Set([
   '/',
   '/api/health',
+  // El "instalador" de una estacion suelta. No entrega datos de la fiesta: solo
+  // el nombre, para que el icono se entienda. La maquina del empleado no tiene
+  // la sesion de AK, asi que tiene que poder leerlo sin ella.
+  '/api/manifest-estacion',
   '/api/whatsapp/webhook',
   '/api/payments/mercadopago/checkout',
   '/api/payments/mercadopago/status',
