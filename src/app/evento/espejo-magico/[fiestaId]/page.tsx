@@ -157,8 +157,22 @@ export default function EspejoMagicoPage() {
   // devolver tal cual.
   const [iaDisponible, setIaDisponible] = useState<boolean | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
+  /**
+   * Cuando hay que pedirle permiso al invitado antes de sacarle la foto.
+   *
+   * Estaba clavado a mano: se pedía **sólo** en el modo con inteligencia
+   * artificial. El ajuste `consentRequired` de la fiesta existía, se podía tocar
+   * en la pantalla del equipo… y **no lo leía nadie**. O sea: el operador lo
+   * marcaba, guardaba, y al invitado no se le preguntaba nada.
+   *
+   * Ahora manda el ajuste: si la fiesta lo pide, se pregunta siempre. Y el modo
+   * con IA lo sigue pidiendo igual, esté como esté el ajuste, porque ahí la foto
+   * sale de la app para transformarse.
+   */
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+  /** Lo que pidió la fiesta: si está marcado, al invitado se le pregunta antes. */
+  const hayQuePedirPermiso = Boolean(fiesta?.station?.consentRequired);
 
   /**
    * Estilos que se le ofrecen al invitado en ESTA fiesta.
@@ -578,7 +592,7 @@ export default function EspejoMagicoPage() {
 
   // Photo Shoot countdown
   const takePhoto = async () => {
-    if (mode === 'ia' && !consentAccepted) {
+    if ((mode === 'ia' || hayQuePedirPermiso) && !consentAccepted) {
       setErrorMsg('Debes aceptar el uso de IA antes de iniciar la captura.');
       return;
     }
@@ -1171,7 +1185,7 @@ export default function EspejoMagicoPage() {
 
             <div className="absolute inset-0 flex touch-pan-y flex-col items-center overflow-y-auto bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80 px-4 pb-8 pt-24 text-center">
               <div className="relative z-10 my-auto w-full max-w-sm space-y-4 sm:space-y-6">
-                {mode === 'ia' && (
+                {(mode === 'ia' || hayQuePedirPermiso) && (
                   <div className="w-full space-y-3 text-left bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-rose-500/30">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
@@ -1241,13 +1255,17 @@ export default function EspejoMagicoPage() {
                         onChange={(event) => setConsentAccepted(event.target.checked)}
                         className="mt-0.5 h-4 w-4 accent-rose-500 shrink-0"
                       />
-                      <span>Acepto el procesamiento temporal de mi foto para generar la transformación con IA.</span>
+                      <span>
+                        {mode === 'ia'
+                          ? 'Acepto el procesamiento temporal de mi foto para generar la transformación con IA.'
+                          : 'Acepto que mi foto se muestre en la pantalla de la fiesta.'}
+                      </span>
                     </label>
                   </div>
                 )}
                 <button
                   onClick={takePhoto}
-                  disabled={mode === 'ia' && !consentAccepted}
+                  disabled={(mode === 'ia' || hayQuePedirPermiso) && !consentAccepted}
                   className="mx-auto flex h-36 w-full max-w-xs flex-col items-center justify-center gap-2 rounded-lg bg-rose-500 text-white font-black uppercase tracking-wide transition hover:bg-rose-400 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
                 >
                   <Camera className="h-9 w-9" />
