@@ -28,6 +28,7 @@ export const PUBLIC_PATH_PREFIXES = [
   // consulta la sesion y solo carga textos publicos y el WhatsApp de contacto,
   // pero faltaba declararlo aca, asi que el visitante chocaba con el login.
   '/catalogo',
+  '/privacidad',
   '/presentacion',
   '/presentacion-led',
   // La presentacion LED, que es publica, manda al visitante aca desde tres de
@@ -75,6 +76,10 @@ export const PUBLIC_PATH_PREFIXES = [
 export const PUBLIC_EXACT_PATHS = new Set([
   '/',
   '/api/health',
+  // El "instalador" de una estacion suelta. No entrega datos de la fiesta: solo
+  // el nombre, para que el icono se entienda. La maquina del empleado no tiene
+  // la sesion de AK, asi que tiene que poder leerlo sin ella.
+  '/api/manifest-estacion',
   '/api/whatsapp/webhook',
   '/api/payments/mercadopago/checkout',
   '/api/payments/mercadopago/status',

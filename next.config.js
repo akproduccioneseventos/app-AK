@@ -57,6 +57,39 @@ const nextConfig = {
           { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=()' },
           // Desactiva el filtro XSS obsoleto de navegadores antiguos
           { key: 'X-XSS-Protection', value: '0' },
+          /**
+           * LA LISTA BLANCA, POR AHORA EN MODO ESCUCHA.
+           *
+           * `Content-Security-Policy-Report-Only` **no bloquea nada**: el navegador
+           * anota en su consola lo que habria bloqueado y sigue de largo. Riesgo cero
+           * para un sitio que esta vendiendo.
+           *
+           * Va asi a proposito. La web carga cosas de muchos lados —Google, Instagram,
+           * YouTube, Spotify, Facebook, los mapas, Canva, el almacenamiento de
+           * Firebase—. Si se prende bloqueando y falta uno solo, **ese pedazo deja de
+           * funcionar y no avisa**: se ve un hueco en blanco y nadie sabe por que.
+           *
+           * **Como se prende de verdad, cuando toque:** mirar en la consola del
+           * navegador que quedo anotado durante unos dias de uso real, agregar lo que
+           * falte, y recien ahi cambiar el nombre de la cabecera sacandole
+           * `-Report-Only`.
+           */
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' data: https://fonts.gstatic.com",
+              "img-src 'self' data: blob: https:",
+              "media-src 'self' data: blob: https:",
+              "connect-src 'self' https://www.google-analytics.com https://firebasestorage.googleapis.com https://storage.googleapis.com https://*.googleapis.com https://graph.facebook.com",
+              "frame-src 'self' https://www.youtube.com https://open.spotify.com https://www.google.com https://maps.google.com https://*.canva.site",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+            ].join('; '),
+          },
         ],
       },
     ];

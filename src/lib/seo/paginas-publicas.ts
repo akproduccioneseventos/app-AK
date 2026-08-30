@@ -28,6 +28,7 @@ export const PAGINAS_PARA_GOOGLE = [
   '/catalogo',
   '/experiencia-ak',
   '/simulador-de-presupuesto',
+  '/privacidad',
   '/public/bodas',
   '/public/xv-anos',
   '/public/fiestas',
@@ -71,6 +72,8 @@ const PRIORIDAD: Record<string, number> = {
   '/public/xv-anos': 0.7,
   '/public/fiestas': 0.7,
   '/public/blog': 0.7,
+  // Tiene que existir y que Google la vea, pero no compite con las que venden.
+  '/privacidad': 0.3,
 };
 
 export function prioridadDePagina(ruta: string): number {

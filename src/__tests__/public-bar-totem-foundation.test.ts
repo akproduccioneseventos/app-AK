@@ -21,8 +21,11 @@ describe('barra publica y base de totem', () => {
     expect(barPage).toContain('/media/catalogo-servicios/barra-tragos-ak-01.jpeg');
     expect(barPage).toContain('withPublicRequestTimeout');
     expect(barPage).toContain('No pudimos abrir la barra');
-    expect(unlockButton).toContain('aria-label="Administrar dispositivo"');
-    expect(unlockButton).toContain('aria-label="Cerrar administración del dispositivo"');
+    // El boton dejo de pedir clave: ahora solo pregunta si se quiere salir de la
+    // estacion. Lo pidio el dueño, porque una clave mas el dia de la fiesta es
+    // justo lo que hace que la pantalla no se use.
+    expect(unlockButton).toContain('aria-label="Cambiar de estación"');
+    expect(unlockButton).toContain('aria-label="Seguir en esta estación"');
   });
 
   it('limita los botones del barman a transiciones del contrato', () => {

@@ -305,12 +305,20 @@ export default function FotocabinaPage() {
       return;
     }
 
-    setLocalStatus('recording');
-    await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording', {}, accessToken);
-
-    setFlash(true);
-    setTimeout(() => setFlash(false), 300);
-
+    /**
+     * PRIMERO SE SACA LA FOTO. El aviso a la base viene despues.
+     *
+     * Antes esto estaba al reves: se avisaba a la base y se esperaba la
+     * respuesta, y recien despues se leia la camara. En ese rato la pantalla ya
+     * habia cambiado de estado, el recuadro de la camara se habia ido del DOM, y
+     * la linea siguiente reventaba con `Cannot read properties of null (reading
+     * 'videoWidth')`. **La fotocabina quedaba en negro**: el invitado apretaba,
+     * la pantalla se apagaba y no salia ninguna foto.
+     *
+     * Se vio abriendo la fotocabina en un navegador y disparando la tanda. En el
+     * codigo no se veia: el control de arriba comprueba que la camara este, pero
+     * la comprobacion valia para el instante anterior a la espera.
+     */
     const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -318,6 +326,10 @@ export default function FotocabinaPage() {
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+
+    setLocalStatus('recording');
+    setFlash(true);
+    setTimeout(() => setFlash(false), 300);
 
     if (facingMode === 'user') {
       ctx.translate(canvas.width, 0);
@@ -331,6 +343,11 @@ export default function FotocabinaPage() {
     drawFrameOverlay(ctx, canvas.width, canvas.height);
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+    // Con la foto ya sacada, se le avisa a la base. Si la base tarda o falla, la
+    // foto ya esta: el invitado no pierde su recuerdo por un problema de red.
+    void updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording', {}, accessToken);
+
     const tanda = [...fotosDeLaTandaRef.current, dataUrl];
     fotosDeLaTandaRef.current = tanda;
     setFotosDeLaTanda(tanda);

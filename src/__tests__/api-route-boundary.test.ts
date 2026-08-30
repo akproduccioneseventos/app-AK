@@ -16,6 +16,11 @@ const PUBLIC_ROUTES = new Set([
   // proposito: no devuelve datos del evento, solo resultados de Spotify, y tiene
   // tope de 30 busquedas por minuto.
   'integrations/spotify/search/route.ts',
+  // El "instalador" de una estacion suelta. La maquina del empleado no tiene la
+  // sesion de AK y el navegador tiene que poder leerlo para ofrecer instalar la
+  // fotocabina como programa aparte. **No devuelve ningun dato de la fiesta**:
+  // solo el nombre de la estacion, el icono y en que pantalla arranca.
+  'manifest-estacion/route.ts',
 ]);
 
 function listRoutes(directory: string): string[] {

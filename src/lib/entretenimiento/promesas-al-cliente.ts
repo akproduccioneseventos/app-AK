@@ -37,10 +37,6 @@ export const PROMESAS_AL_CLIENTE: Record<string, Record<string, EstadoDeLaPromes
     'Video 360': { estado: 'cumple', laCumple: 'src/app/evento/plataforma-360/[fiestaId]/page.tsx' },
     'Slow motion': { estado: 'cumple', laCumple: 'src/app/evento/plataforma-360/[fiestaId]/page.tsx' },
     'Speed ramp': { estado: 'porVerificar' },
-    'Intro/Outro': {
-      estado: 'noCumple',
-      queFalta: 'No hay nada de intro ni de cierre en la pantalla de la 360. Comprobado buscando en todo el archivo.',
-    },
     Música: { estado: 'porVerificar' },
     'QR por video': { estado: 'cumple', laCumple: 'src/app/evento/plataforma-360/[fiestaId]/page.tsx' },
     'Overlay animado': { estado: 'porVerificar' },
@@ -50,11 +46,6 @@ export const PROMESAS_AL_CLIENTE: Record<string, Record<string, EstadoDeLaPromes
     Boomerang: { estado: 'cumple', laCumple: 'src/lib/entretenimiento/gif-generator.ts' },
     'Loop adelante/atrás': { estado: 'cumple', laCumple: 'src/app/evento/bogue/[fiestaId]/page.tsx' },
     'Video corto': { estado: 'cumple', laCumple: 'src/app/evento/bogue/[fiestaId]/page.tsx' },
-    Música: {
-      estado: 'noCumple',
-      queFalta:
-        'El Bogue no tiene música. Lo único que suena son los pitidos de la cuenta regresiva. Comprobado en las 1137 líneas.',
-    },
     'Overlay animado': { estado: 'cumple', laCumple: 'src/app/evento/bogue/[fiestaId]/page.tsx' },
     'Compartir por QR': { estado: 'cumple', laCumple: 'src/app/evento/bogue/[fiestaId]/page.tsx' },
   },
@@ -89,19 +80,6 @@ export const PROMESAS_AL_CLIENTE: Record<string, Record<string, EstadoDeLaPromes
   totems: {
     'Pantalla táctil': { estado: 'porVerificar' },
     Bienvenida: { estado: 'cumple', laCumple: 'src/app/evento/totem/[fiestaId]/[totemId]/page.tsx' },
-    Encuestas: {
-      estado: 'noCumple',
-      queFalta:
-        'No hay ninguna encuesta en el tótem. La pantalla sólo muestra fotos del muro flotando. Comprobado en las 503 líneas.',
-    },
-    'Juegos interactivos': {
-      estado: 'noCumple',
-      queFalta: 'No hay ningún juego en el tótem.',
-    },
-    'Mapa de salón': {
-      estado: 'noCumple',
-      queFalta: 'No hay mapa de salón ni de mesas en el tótem.',
-    },
     'Muro social en vivo': {
       estado: 'cumple',
       laCumple: 'src/app/evento/totem/[fiestaId]/[totemId]/page.tsx',
