@@ -11,6 +11,7 @@ import { BlogFaq } from '@/components/public/BlogFaq';
 import { blogPosts as defaultBlogPosts } from '@/data/blog-posts';
 import { getBlogIcon } from '@/lib/blog-icons';
 import { getBlogCategoryLabel, getBlogPostCta, getBlogPostImage, getBlogPostImageAlt } from '@/lib/blog-display';
+import { CompartirArticulo } from '@/components/public/CompartirArticulo';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -205,6 +206,9 @@ export default async function BlogPostPage({ params }: Props) {
                   Chatear por WhatsApp
                 </a>
               </div>
+
+              {/* Compartir en Redes */}
+              <CompartirArticulo title={post.title} slug={post.slug} />
  
               <Link
                 href={articleCta.href}

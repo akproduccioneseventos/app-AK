@@ -17,6 +17,20 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 18 — Lo que le Falta a la Web para Estar Completa (30 de agosto de 2026)
+
+- **Migas de pan visibles (`src/app/public/[eventType]/page.tsx`):**
+  - Se agregaron las migas de pan visibles en la cabecera de las páginas de eventos públicos coincidiendo 1:1 con los datos de `BreadcrumbJsonLd` declarados a Google.
+- **Buscador dentro del sitio (`src/lib/buscador/buscar-sitio.ts` y `src/app/buscar/page.tsx`):**
+  - Buscador público rápido que filtra artículos del blog y servicios de catálogos sin dependencias externas ni costos mensuales.
+- **Página de mantenimiento (`src/app/mantenimiento/page.tsx`):**
+  - Pantalla con mensaje en lenguaje natural ("Estamos en mantenimiento") y botón directo para consultas por WhatsApp.
+- **Suscripción a novedades (`src/app/actions/novedades-suscripcion.ts`):**
+  - Acción segura con rate limiting para recolectar correos sin envíos automáticos no solicitados (gestión manual humana).
+- **Compartir artículos del blog (`src/components/public/CompartirArticulo.tsx` y `src/app/public/blog/[slug]/page.tsx`):**
+  - Botones directos para WhatsApp, Facebook y botón para copiar enlace con confirmación visual.
+- **Prueba de respaldo:** `src/__tests__/orden-18-web-completa.test.ts` verifica los 6 bloques de la orden.
+
 ## Orden 19 — Los Ajustes que se Pueden Tocar y Cambian la App (30 de agosto de 2026)
 
 - **Ajustes limpios en la pantalla de entretenimiento (`src/app/(app)/fiestas/nueva/entretenimiento/page.tsx`):**

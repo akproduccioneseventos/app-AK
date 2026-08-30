@@ -56,7 +56,7 @@ function archivosQueCambiaron() {
     if (!ok) return null;
     return salida
       .split('\n')
-      .map((s) => s.trim())
+      .map((s) => s.trim().replace(/\\/g, '/'))
       .filter(Boolean)
       .filter((f) => /\.tsx?$/.test(f));
   }
@@ -66,7 +66,7 @@ function archivosQueCambiaron() {
   if (!ok) return null;
   return salida
     .split('\n')
-    .map((s) => s.trim())
+    .map((s) => s.trim().replace(/\\/g, '/'))
     .filter(Boolean)
     .filter((f) => /\.tsx?$/.test(f));
 }
@@ -95,7 +95,7 @@ function armarIndice() {
   const guia = new Map();
   const archivos = salida
     .split('\n')
-    .map((s) => s.trim())
+    .map((s) => s.trim().replace(/\\/g, '/'))
     .filter(Boolean)
     .filter((f) => /\.(ts|tsx|js|mjs)$/.test(f));
   for (const archivo of archivos) {
@@ -123,9 +123,11 @@ function quienLoNombra(nombre, exceptoEste, soloEn) {
   if (!guia) return [];
   const donde = guia.get(nombre);
   if (!donde) return [];
-  return [...donde].filter(
-    (f) => f !== exceptoEste && (!soloEn || soloEn.some((pre) => f.startsWith(pre)))
-  );
+  const exceptoNorm = exceptoEste?.replace(/\\/g, '/');
+  return [...donde].filter((f) => {
+    const fnorm = f.replace(/\\/g, '/');
+    return fnorm !== exceptoNorm && (!soloEn || soloEn.some((pre) => fnorm.startsWith(pre.replace(/\\/g, '/'))));
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -174,7 +176,7 @@ const SOLO_MIRA = /\.(toBeVisible|toBeAttached|toBeTruthy|toBeDefined|toBeInTheD
 
 /** Comprobaciones que miran el RESULTADO: un texto, un número, un valor, una cuenta. */
 const MIRA_EL_RESULTADO =
-  /\.(toHaveText|toContainText|toHaveValue|toHaveCount|toHaveURL|toHaveAttribute|toEqual|toStrictEqual|toMatch|toMatchObject|toBeGreaterThan|toBeLessThan|toBeCloseTo|toHaveLength|toHaveBeenCalled\w*|toHaveScreenshot)\s*\(|\.toBe\s*\(\s*(?!true\s*\)|false\s*\))/;
+  /\.(toHaveText|toContainText|toContain|toHaveValue|toHaveCount|toHaveURL|toHaveAttribute|toEqual|toStrictEqual|toMatch|toMatchObject|toBeGreaterThan|toBeLessThan|toBeCloseTo|toHaveLength|toHaveBeenCalled\w*|toHaveScreenshot)\s*\(|\.toBe\s*\(\s*(?!true\s*\)|false\s*\))/;
 
 /**
  * Las pruebas que recorren TODAS las pantallas de corrido no prueban ninguna.
@@ -190,7 +192,7 @@ function esUnRecorridoDeTodo(texto) {
 }
 
 function esArchivoDePrueba(archivo) {
-  return /(^tests\/|__tests__\/|\.spec\.tsx?$|\.test\.tsx?$)/.test(archivo);
+  return /(^tests[/\\]|__tests__[/\\]|\.spec\.tsx?$|\.test\.tsx?$)/.test(archivo);
 }
 
 /* ------------------------------------------------------------------ */

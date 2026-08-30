@@ -2,11 +2,16 @@ import fs from 'fs';
 import path from 'path';
 
 describe('Orden 19: Los ajustes que se pueden tocar y cambian la app', () => {
+  const ruta360 = '/evento/plataforma-360';
+  const rutaBogue = '/evento/bogue';
+  const rutaTouchpix = '/evento/touchpix';
+  const rutaBuzon = '/evento/buzon';
+
   const fileEntretenimiento = path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/entretenimiento/page.tsx');
-  const file360 = path.join(process.cwd(), 'src/app/evento/plataforma-360/[fiestaId]/page.tsx');
-  const fileBogue = path.join(process.cwd(), 'src/app/evento/bogue/[fiestaId]/page.tsx');
-  const fileTouchpix = path.join(process.cwd(), 'src/app/evento/touchpix/[fiestaId]/page.tsx');
-  const fileBuzon = path.join(process.cwd(), 'src/app/evento/buzon/[fiestaId]/page.tsx');
+  const file360 = path.join(process.cwd(), 'src/app' + ruta360 + '/[fiestaId]/page.tsx');
+  const fileBogue = path.join(process.cwd(), 'src/app' + rutaBogue + '/[fiestaId]/page.tsx');
+  const fileTouchpix = path.join(process.cwd(), 'src/app' + rutaTouchpix + '/[fiestaId]/page.tsx');
+  const fileBuzon = path.join(process.cwd(), 'src/app' + rutaBuzon + '/[fiestaId]/page.tsx');
 
   describe('Bloque 1: Ajustes limpios y conectados', () => {
     it('1. overlayName y deliveryChannels fueron eliminados de la pantalla de configuracion', () => {
