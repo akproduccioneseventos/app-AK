@@ -593,7 +593,11 @@ export default function EspejoMagicoPage() {
   // Photo Shoot countdown
   const takePhoto = async () => {
     if ((mode === 'ia' || hayQuePedirPermiso) && !consentAccepted) {
-      setErrorMsg('Debes aceptar el uso de IA antes de iniciar la captura.');
+      setErrorMsg(
+        mode === 'ia'
+          ? 'Tenés que aceptar el uso de IA antes de sacar la foto.'
+          : 'Tenés que aceptar que tu foto se muestre en la pantalla antes de sacarla.',
+      );
       return;
     }
     setErrorMsg(null);
