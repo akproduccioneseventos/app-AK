@@ -2,16 +2,6 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-
-// Polyfill para compatibilidad de React 18 / Next.js con @react-three/fiber
-if (typeof window !== 'undefined') {
-  const internals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED || {};
-  if (!internals.ReactCurrentBatchConfig) {
-    internals.ReactCurrentBatchConfig = { transition: null };
-  }
-  (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = internals;
-}
-
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Grid, Environment } from '@react-three/drei';
 import type { DecoracionData, LayoutElement } from '@/types/fiesta';
