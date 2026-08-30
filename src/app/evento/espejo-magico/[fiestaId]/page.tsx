@@ -157,8 +157,22 @@ export default function EspejoMagicoPage() {
   // devolver tal cual.
   const [iaDisponible, setIaDisponible] = useState<boolean | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
+  /**
+   * Cuando hay que pedirle permiso al invitado antes de sacarle la foto.
+   *
+   * Estaba clavado a mano: se pedía **sólo** en el modo con inteligencia
+   * artificial. El ajuste `consentRequired` de la fiesta existía, se podía tocar
+   * en la pantalla del equipo… y **no lo leía nadie**. O sea: el operador lo
+   * marcaba, guardaba, y al invitado no se le preguntaba nada.
+   *
+   * Ahora manda el ajuste: si la fiesta lo pide, se pregunta siempre. Y el modo
+   * con IA lo sigue pidiendo igual, esté como esté el ajuste, porque ahí la foto
+   * sale de la app para transformarse.
+   */
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+  /** Lo que pidió la fiesta: si está marcado, al invitado se le pregunta antes. */
+  const hayQuePedirPermiso = Boolean(fiesta?.station?.consentRequired);
 
   /**
    * Estilos que se le ofrecen al invitado en ESTA fiesta.
@@ -578,8 +592,12 @@ export default function EspejoMagicoPage() {
 
   // Photo Shoot countdown
   const takePhoto = async () => {
-    if (mode === 'ia' && !consentAccepted) {
-      setErrorMsg('Debes aceptar el uso de IA antes de iniciar la captura.');
+    if ((mode === 'ia' || hayQuePedirPermiso) && !consentAccepted) {
+      setErrorMsg(
+        mode === 'ia'
+          ? 'Tenés que aceptar el uso de IA antes de sacar la foto.'
+          : 'Tenés que aceptar que tu foto se muestre en la pantalla antes de sacarla.',
+      );
       return;
     }
     setErrorMsg(null);
@@ -1241,13 +1259,29 @@ export default function EspejoMagicoPage() {
                         onChange={(event) => setConsentAccepted(event.target.checked)}
                         className="mt-0.5 h-4 w-4 accent-rose-500 shrink-0"
                       />
-                      <span>Acepto el procesamiento temporal de mi foto para generar la transformación con IA.</span>
+                      <span>
+                        {mode === 'ia'
+                          ? 'Acepto el procesamiento temporal de mi foto para generar la transformación con IA.'
+                          : 'Acepto que mi foto se muestre en la pantalla de la fiesta.'}
+                      </span>
                     </label>
                   </div>
                 )}
+                {hayQuePedirPermiso && mode !== 'ia' && (
+                  <label className="flex w-full cursor-pointer items-start gap-2.5 rounded-2xl border border-rose-500/30 bg-black/60 p-4 text-left text-xs text-zinc-200 backdrop-blur-md">
+                    <input
+                      type="checkbox"
+                      checked={consentAccepted}
+                      onChange={(event) => setConsentAccepted(event.target.checked)}
+                      className="mt-0.5 h-4 w-4 accent-rose-500 shrink-0"
+                    />
+                    <span>Acepto que mi foto se muestre en la pantalla de la fiesta.</span>
+                  </label>
+                )}
+
                 <button
                   onClick={takePhoto}
-                  disabled={mode === 'ia' && !consentAccepted}
+                  disabled={(mode === 'ia' || hayQuePedirPermiso) && !consentAccepted}
                   className="mx-auto flex h-36 w-full max-w-xs flex-col items-center justify-center gap-2 rounded-lg bg-rose-500 text-white font-black uppercase tracking-wide transition hover:bg-rose-400 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
                 >
                   <Camera className="h-9 w-9" />
