@@ -60,11 +60,18 @@ describe('public entertainment guest flows', () => {
     const mirror = readRoute('espejo-magico');
     const touchpix = readRoute('touchpix');
 
-    expect(mirror).toContain("mode === 'ia' && !consentAccepted");
-    expect(mirror).toContain("disabled={mode === 'ia' && !consentAccepted}");
+    /**
+     * Esta prueba tenia clavado el comportamiento viejo, y el viejo estaba mal:
+     * el permiso se pedia SOLO en el modo con IA, y el ajuste de la fiesta se
+     * descartaba antes de llegar. Ahora manda la fiesta, y el modo con IA lo pide
+     * igual porque ahi la foto sale de la app.
+     */
+    expect(mirror).toContain("(mode === 'ia' || hayQuePedirPermiso) && !consentAccepted");
+    expect(mirror).toContain("disabled={(mode === 'ia' || hayQuePedirPermiso) && !consentAccepted}");
     expect(mirror).toContain('Acepto el procesamiento temporal de mi foto para generar la transformación con IA.');
     expect(mirror.match(/Acepto el procesamiento temporal/g)).toHaveLength(1);
-    expect(mirror).not.toContain("mode === 'ia' && fiesta?.station.consentRequired");
+    // Y el permiso que pide la fiesta se explica con sus palabras, no con las de la IA.
+    expect(mirror).toContain('Acepto que mi foto se muestre en la pantalla de la fiesta.');
     expect(touchpix).toMatch(/activeTab !== 'foto'\s*&&\s*!consentAccepted/);
     expect(touchpix).toContain('Acepto que mi foto se procese temporalmente con IA para crear este recuerdo.');
     expect(touchpix).not.toContain('activeTab !== \'foto\' && fiesta?.station.consentRequired');
