@@ -1,17 +1,11 @@
 // @ts-nocheck
 'use client';
 
+// PRIMERO esto, y despues la biblioteca 3D. El orden importa: si se carga al
+// reves, la biblioteca revienta antes de que el relleno exista. Ver el archivo.
+import './antes-que-la-biblioteca-3d';
+
 import React, { useRef, useEffect } from 'react';
-
-// Polyfill para compatibilidad de React 18 / Next.js con @react-three/fiber
-if (typeof window !== 'undefined') {
-  const internals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED || {};
-  if (!internals.ReactCurrentBatchConfig) {
-    internals.ReactCurrentBatchConfig = { transition: null };
-  }
-  (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = internals;
-}
-
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Grid, Environment } from '@react-three/drei';
 import type { DecoracionData, LayoutElement } from '@/types/fiesta';
