@@ -2,6 +2,21 @@
 
 **Para Gemini. Escrita el 30 de agosto de 2026.**
 
+> # ARRANCÁ POR ESTA. Antes que la 15, la 16, la 17 y la 18.
+>
+> **Lo decidió el dueño.** Tenés cuatro órdenes abiertas y ninguna cerrada. Esta va primero
+> por tres motivos:
+>
+> 1. **Es la más corta**: son ajustes que ya existen, no hay que inventar nada.
+> 2. **Está medida**: cada punto dice qué archivo lo lee y cuál no. No hay que investigar.
+> 3. **Arregla algo que hoy le miente al equipo**: el que arma la fiesta toca ajustes,
+>    guarda, y no pasa nada. Eso se nota en una fiesta real.
+>
+> **Terminá esta y recién ahí seguí con las otras.** Cuatro órdenes empezadas y ninguna
+> terminada no le sirven a nadie.
+
+---
+
 ## CÓMO SE ENTREGA (leer esto primero)
 
 **UNA SOLA PROPUESTA con todos los bloques adentro.** Cada fusión dispara un despliegue y
