@@ -1,10 +1,6 @@
 // @ts-nocheck
 'use client';
 
-// PRIMERO esto, y despues la biblioteca 3D. El orden importa: si se carga al
-// reves, la biblioteca revienta antes de que el relleno exista. Ver el archivo.
-import './antes-que-la-biblioteca-3d';
-
 import React, { useRef, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Grid, Environment } from '@react-three/drei';
