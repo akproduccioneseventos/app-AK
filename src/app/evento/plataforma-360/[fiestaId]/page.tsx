@@ -861,12 +861,20 @@ export default function Plataforma360Page() {
             
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-violet-500 shadow-lg shadow-violet-950/30">
+                <div
+                  className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg shadow-lg"
+                  style={{ backgroundColor: fiesta?.station?.accentColor || '#7c3aed' }}
+                >
                   <Play className="w-10 h-10 text-white fill-white ml-1" />
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Plataforma 360</h2>
+                  <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">
+                    {fiesta?.station?.brandText || fiesta?.eventName || 'Plataforma 360'}
+                  </h2>
                   <p className="text-sm text-zinc-300">Preparate. La plataforma empezará a girar y grabará en cámara lenta. ¡Hacé tu mejor pose!</p>
+                  {fiesta?.station?.footerText && (
+                    <p className="text-xs font-semibold text-zinc-400">{fiesta.station.footerText}</p>
+                  )}
                   {cameraError && <p className="text-sm text-rose-300" role="alert">{cameraError}</p>}
                 </div>
 
@@ -982,7 +990,10 @@ export default function Plataforma360Page() {
                   playsInline
                 />
               )}
-              <div className="absolute left-4 top-4 flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+              <div
+                className="absolute left-4 top-4 flex items-center gap-1 rounded-lg px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white"
+                style={{ backgroundColor: fiesta?.station?.accentColor || '#7c3aed' }}
+              >
                 <Star className="w-3 h-3 text-white" /> Previsualizacion lista
               </div>
             </div>
@@ -991,7 +1002,9 @@ export default function Plataforma360Page() {
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">Guarda o comparte tu video</h3>
-                <p className="text-sm text-zinc-400">Escanea el QR desde tu celular para abrir el enlace de esta captura web.</p>
+                <p className="text-sm text-zinc-400">
+                  {fiesta?.station?.qrCallout || 'Escanea el QR desde tu celular para abrir el enlace de esta captura web.'}
+                </p>
               </div>
 
               {/* QR Container */}
@@ -1000,7 +1013,7 @@ export default function Plataforma360Page() {
               </div>
 
               <div className="space-y-3 w-full">
-                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
+                {fiesta?.station?.allowGuestRetake && (fiesta?.station?.maxRetakes ?? 2) > 0 && (
                   <button
                     onClick={completeGuestCycle}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
@@ -1012,10 +1025,11 @@ export default function Plataforma360Page() {
                   <div className="pt-2 flex flex-col items-center gap-1.5 border-t border-white/10 w-full text-center">
                     <div className="text-[11px] font-bold text-zinc-300 flex items-center gap-1.5 justify-center">
                       <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Esto lo hizo AK Producciones</span>
+                      <span>{fiesta?.station?.brandText || 'Esto lo hizo AK Producciones'}</span>
                     </div>
                     <a
                       href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                        fiesta?.station?.shareMessage ||
                         `¡Hola AK Producciones! Me grabé en la Plataforma 360 de la fiesta de ${fiesta?.eventName || 'un evento'} y me encantó. Quería consultarles para mi propio evento.`
                       )}`}
                       target="_blank"

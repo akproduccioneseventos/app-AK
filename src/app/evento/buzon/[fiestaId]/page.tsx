@@ -764,7 +764,8 @@ export default function GuestBuzonPage() {
   };
 
   const handleStartVideoWithCountdown = () => {
-    setCountdown(3);
+    const startSec = fiesta?.station?.countdownSeconds ?? 3;
+    setCountdown(startSec > 0 ? startSec : 3);
     const countInterval = setInterval(() => {
       setCountdown((prev) => {
         if (prev && prev > 1) return prev - 1;
@@ -915,7 +916,8 @@ export default function GuestBuzonPage() {
 
   const capturePhotoWithCountdown = () => {
     if (countdown !== null) return;
-    let count = 3;
+    const startSec = fiesta?.station?.countdownSeconds ?? 3;
+    let count = startSec > 0 ? startSec : 3;
     setCountdown(count);
 
     const interval = setInterval(() => {

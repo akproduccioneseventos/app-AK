@@ -292,10 +292,23 @@ export default function BoguePage() {
     }
   };
 
-  const completeGuestCycle = () => {
+  const completeGuestCycle = useCallback(() => {
     void completeEntertainmentSessionCycle(fiestaId, 'bogue', accessToken);
     resetLocalState();
-  };
+  }, [accessToken, fiestaId]);
+
+  // Auto-retorno tras reviewSeconds si está configurado
+  useEffect(() => {
+    if (localStatus !== 'done') return;
+    const timeoutSec = fiesta?.station?.reviewSeconds;
+    if (!timeoutSec || timeoutSec <= 0) return;
+
+    const timer = setTimeout(() => {
+      completeGuestCycle();
+    }, timeoutSec * 1000);
+
+    return () => clearTimeout(timer);
+  }, [localStatus, fiesta?.station?.reviewSeconds, completeGuestCycle]);
 
   // 3. Capture & Process Boomerang (Display flow)
   const startCaptureProcess = async (recordDuration = 3, totalFrames = 15) => {
@@ -881,12 +894,20 @@ export default function BoguePage() {
             
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-rose-500 shadow-lg shadow-rose-950/30">
+                <div
+                  className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg shadow-lg"
+                  style={{ backgroundColor: fiesta?.station?.accentColor || '#f43f5e' }}
+                >
                   <Flame className="w-10 h-10 text-white fill-white" />
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Boomerang</h2>
+                  <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">
+                    {fiesta?.station?.brandText || fiesta?.eventName || 'Boomerang'}
+                  </h2>
                   <p className="text-sm text-zinc-300">Prepara tu pose. Esta estacion crea un loop con la camara web.</p>
+                  {fiesta?.station?.footerText && (
+                    <p className="text-xs font-semibold text-zinc-400">{fiesta.station.footerText}</p>
+                  )}
                 </div>
 
                 <div className="pt-4 space-y-3">
@@ -913,9 +934,11 @@ export default function BoguePage() {
                     Grabar loop
                   </button>
                   
-                  {/* Selected Frame Indicator */}
+                  {/* Selected Frame Indicator filtrado por marcosHabilitados */}
                   <div className="flex justify-center gap-1.5 overflow-x-auto py-2">
-                    {BOGUE_FRAMES.map((f) => (
+                    {BOGUE_FRAMES.filter(
+                      (f) => !fiesta?.station?.marcosHabilitados || fiesta.station.marcosHabilitados.includes(f.id) || f.id === 'none'
+                    ).map((f) => (
                       <button
                         key={f.id}
                         onClick={() => setSelectedFrame(f.id)}
@@ -1091,7 +1114,9 @@ export default function BoguePage() {
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">Llevate el recuerdo</h3>
-                <p className="text-sm text-zinc-400">Escaneá el QR desde tu celular para descargar el loop animado.</p>
+                <p className="text-sm text-zinc-400">
+                  {fiesta?.station?.qrCallout || 'Escaneá el QR desde tu celular para descargar el loop animado.'}
+                </p>
               </div>
 
               {/* QR Code Container */}
@@ -1116,13 +1141,32 @@ export default function BoguePage() {
               )}
 
               <div className="space-y-3 w-full mt-4">
-                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
+                {fiesta?.station?.allowGuestRetake && (fiesta?.station?.maxRetakes ?? 2) > 0 && (
                   <button
                     onClick={completeGuestCycle}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
                     <RefreshCw className="w-4 h-4" /> Grabar otra vez
                   </button>
+                )}
+                {role !== 'operator' && (
+                  <div className="pt-2 flex flex-col items-center gap-1.5 border-t border-white/10 w-full text-center">
+                    <div className="text-[11px] font-bold text-zinc-300 flex items-center gap-1.5 justify-center">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{fiesta?.station?.brandText || 'Esto lo hizo AK Producciones'}</span>
+                    </div>
+                    <a
+                      href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                        fiesta?.station?.shareMessage ||
+                        `¡Hola AK Producciones! Me grabé en el Bogue Boomerang de la fiesta de ${fiesta?.eventName || 'un evento'} y me encantó. Quería consultarles para mi propio evento.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                    >
+                      <span>Escribinos por WhatsApp</span>
+                    </a>
+                  </div>
                 )}
               </div>
             </div>

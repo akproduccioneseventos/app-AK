@@ -17,6 +17,17 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Orden 19 — Los Ajustes que se Pueden Tocar y Cambian la App (30 de agosto de 2026)
+
+- **Ajustes limpios en la pantalla de entretenimiento (`src/app/(app)/fiestas/nueva/entretenimiento/page.tsx`):**
+  - Se eliminaron de la vista los campos `overlayName` (etiqueta redundante no usada) y `deliveryChannels` (promesas de correo/SMS no deseadas; la entrega en AK es siempre por QR/WhatsApp/Galería).
+- **Ajustes de marca y entrega en todas las estaciones:**
+  - **Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):** Lee y aplica `accentColor`, `brandText`, `qrCallout`, `footerText` y `shareMessage` en el enlace de WhatsApp.
+  - **Bogue (`src/app/evento/bogue/[fiestaId]/page.tsx`):** Filtra los marcos según `marcosHabilitados` de la fiesta, auto-retorna tras `reviewSeconds`, y muestra `brandText`, `qrCallout`, `footerText` y `shareMessage`.
+  - **Touchpix (`src/app/evento/touchpix/[fiestaId]/page.tsx`):** Respeta `accentColor`, `reviewSeconds`, `brandText`, `qrCallout` y carga `activeTemplateId` por defecto.
+  - **Buzón / Cápsula del Tiempo (`src/app/evento/buzon/[fiestaId]/page.tsx`):** Respeta `countdownSeconds` configurado en video y fotos, respeta `allowGuestRetake` y `brandText`.
+- **Prueba de respaldo:** `src/__tests__/orden-19-ajustes-estaciones.test.ts` verifica que ningún ajuste quede como texto muerto.
+
 ## Orden 15 — Las Pruebas que Terminan el Trabajo (27 de agosto de 2026)
 
 - **Recorrido seguro de toda la app (`tests/e2e/internal-route-inventory.spec.ts`):**

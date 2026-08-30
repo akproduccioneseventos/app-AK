@@ -1497,19 +1497,11 @@ function EntretenimientoContent() {
                             className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs text-zinc-400 font-bold">Overlay / Nombre del Marco</Label>
-                          <Input
-                            value={activeStation.overlayName}
-                            onChange={(e) => updateStation(activeStationId, { overlayName: e.target.value })}
-                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
-                          />
-                        </div>
                       </div>
                     </div>
 
                     <div className="space-y-4">
-                      <h4 className="text-sm font-black uppercase tracking-wider text-zinc-300">Canales y Modos de Captura</h4>
+                      <h4 className="text-sm font-black uppercase tracking-wider text-zinc-300">Modos de Captura</h4>
 
                       {activeStationId !== 'capsulaTiempo' && (
                         <div className="space-y-3">
@@ -1536,32 +1528,6 @@ function EntretenimientoContent() {
                           </div>
                         </div>
                       )}
-
-                      <div className="space-y-3">
-                        <Label className="text-xs text-zinc-400 font-bold">Métodos de Entrega</Label>
-                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                          {CHANNELS.map((channel) => {
-                            const ChannelIcon = channel.icon;
-                            const active = activeStation.deliveryChannels.includes(channel.id);
-                            return (
-                              <button
-                                type="button"
-                                key={channel.id}
-                                onClick={() => toggleArrayValue(activeStationId, 'deliveryChannels', channel.id)}
-                                className={cn(
-                                  'flex items-center gap-2 rounded-xl border p-3 text-xs font-black uppercase tracking-widest transition-all',
-                                  active
-                                    ? 'border-rose-500 bg-rose-500/10 text-rose-400'
-                                    : 'border-zinc-800 bg-zinc-900/40 text-zinc-500 hover:border-zinc-700'
-                                )}
-                              >
-                                <ChannelIcon className="h-4 w-4" />
-                                {channel.label}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
 
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2">

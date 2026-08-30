@@ -60,8 +60,7 @@ describe('public entertainment guest flows', () => {
     const mirror = readRoute('espejo-magico');
     const touchpix = readRoute('touchpix');
 
-    expect(mirror).toContain("mode === 'ia' && !consentAccepted");
-    expect(mirror).toContain("disabled={mode === 'ia' && !consentAccepted}");
+    expect(mirror).toMatch(/\(mode === 'ia' \|\| hayQuePedirPermiso\) && !consentAccepted/);
     expect(mirror).toContain('Acepto el procesamiento temporal de mi foto para generar la transformación con IA.');
     expect(mirror.match(/Acepto el procesamiento temporal/g)).toHaveLength(1);
     expect(mirror).not.toContain("mode === 'ia' && fiesta?.station.consentRequired");

@@ -105,8 +105,14 @@ export default function TouchpixPage() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [rawCapturedImage, setRawCapturedImage] = useState<string | null>(null);
 
-  // Progressive Wizard State
   const [wizardStep, setWizardStep] = useState<number>(0); // 0 = Camera, 1 = Category, 2 = Style
+
+  // Cargar activeTemplateId si viene configurado
+  useEffect(() => {
+    if (fiesta?.station?.activeTemplateId && TOUCHPIX_THEMES.some((t) => t.id === fiesta.station.activeTemplateId)) {
+      setSelectedTheme(fiesta.station.activeTemplateId);
+    }
+  }, [fiesta?.station?.activeTemplateId]);
 
   // Interactive Queue Trivia State
   const [triviaIndex, setTriviaIndex] = useState(0);
@@ -609,6 +615,19 @@ export default function TouchpixPage() {
     void completeEntertainmentSessionCycle(fiestaId, 'espejoMagicoIA', accessToken);
     startCamera();
   }, [accessToken, fiestaId, startCamera]);
+
+  // Auto-retorno tras reviewSeconds si está configurado
+  useEffect(() => {
+    if (!capturedImage || isProcessing || isUploading) return;
+    const timeoutSec = fiesta?.station?.reviewSeconds;
+    if (!timeoutSec || timeoutSec <= 0) return;
+
+    const timer = setTimeout(() => {
+      retake();
+    }, timeoutSec * 1000);
+
+    return () => clearTimeout(timer);
+  }, [capturedImage, isProcessing, isUploading, fiesta?.station?.reviewSeconds, retake]);
 
   /* ── Upload ── */
   const handleUpload = useCallback(async () => {
