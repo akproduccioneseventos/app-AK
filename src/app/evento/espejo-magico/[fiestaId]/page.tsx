@@ -1189,7 +1189,7 @@ export default function EspejoMagicoPage() {
 
             <div className="absolute inset-0 flex touch-pan-y flex-col items-center overflow-y-auto bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80 px-4 pb-8 pt-24 text-center">
               <div className="relative z-10 my-auto w-full max-w-sm space-y-4 sm:space-y-6">
-                {(mode === 'ia' || hayQuePedirPermiso) && (
+                {mode === 'ia' && (
                   <div className="w-full space-y-3 text-left bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-rose-500/30">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
@@ -1267,6 +1267,18 @@ export default function EspejoMagicoPage() {
                     </label>
                   </div>
                 )}
+                {hayQuePedirPermiso && mode !== 'ia' && (
+                  <label className="flex w-full cursor-pointer items-start gap-2.5 rounded-2xl border border-rose-500/30 bg-black/60 p-4 text-left text-xs text-zinc-200 backdrop-blur-md">
+                    <input
+                      type="checkbox"
+                      checked={consentAccepted}
+                      onChange={(event) => setConsentAccepted(event.target.checked)}
+                      className="mt-0.5 h-4 w-4 accent-rose-500 shrink-0"
+                    />
+                    <span>Acepto que mi foto se muestre en la pantalla de la fiesta.</span>
+                  </label>
+                )}
+
                 <button
                   onClick={takePhoto}
                   disabled={(mode === 'ia' || hayQuePedirPermiso) && !consentAccepted}

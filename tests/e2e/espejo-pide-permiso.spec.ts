@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import {
   borrarFiesta,
   crearFiestaDeEstaNoche,
@@ -36,6 +36,28 @@ function fiestaConPermiso(pide: boolean, id: string) {
   return fiesta;
 }
 
+/** Sin cámara falsa el espejo se queda esperando y nunca dibuja su pantalla. */
+async function enchufarCamara(page: Page) {
+  await page.addInitScript(() => {
+    const armar = () => {
+      const lienzo = document.createElement('canvas');
+      lienzo.width = 720;
+      lienzo.height = 1280;
+      lienzo.getContext('2d')?.fillRect(0, 0, lienzo.width, lienzo.height);
+      return lienzo.captureStream(30);
+    };
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: async () => armar(),
+        enumerateDevices: async () => [{ deviceId: 'cam', kind: 'videoinput', label: 'Camara', groupId: 'g' }],
+        addEventListener: () => {},
+        removeEventListener: () => {},
+      },
+    });
+  });
+}
+
 const CON = `e2e_espejo_con_${Date.now()}`;
 const SIN = `e2e_espejo_sin_${Date.now()}`;
 
@@ -48,6 +70,7 @@ test('con el permiso pedido, no se puede sacar la foto hasta aceptar', async ({ 
   test.setTimeout(180_000);
   test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
   fiestaConPermiso(true, CON);
+  await enchufarCamara(page);
 
   const acceso = crearPermisoDeEstacion(CON, 'espejoMagicoFoto');
   await page.goto(`/evento/espejo-magico/${CON}?mode=foto&access=${acceso}`, {
@@ -72,6 +95,7 @@ test('sin el permiso pedido, la foto sale sin preguntar nada', async ({ page }, 
   test.setTimeout(180_000);
   test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
   fiestaConPermiso(false, SIN);
+  await enchufarCamara(page);
 
   const acceso = crearPermisoDeEstacion(SIN, 'espejoMagicoFoto');
   await page.goto(`/evento/espejo-magico/${SIN}?mode=foto&access=${acceso}`, {
