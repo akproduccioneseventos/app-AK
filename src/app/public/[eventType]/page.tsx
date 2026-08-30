@@ -22,6 +22,19 @@ interface Props {
 }
 
 // Pre-render all known event type slugs at build time
+/**
+ * Sólo existen los tipos de evento del catálogo.
+ *
+ * Sin esto, entrar a `/public/cualquier-cosa` devolvía **una página con código
+ * 200**, como si el tipo existiera. Para una persona no cambia mucho, pero
+ * **Google lo toma como una página buena** y puede indexar direcciones que no
+ * son nada, ensuciando el posicionamiento del sitio.
+ *
+ * Con esto, cualquier tipo que no esté en el catálogo contesta "no existe", que
+ * es la verdad.
+ */
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   return catalogList.map((catalog) => ({ eventType: catalog.slug }));
 }
