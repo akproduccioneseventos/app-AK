@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getCatalogBySlug, catalogList } from '@/data/event-catalogs';
@@ -86,7 +87,7 @@ export default async function EventTypePage({ params }: Props) {
       {/* Migas de pan visibles que coinciden con BreadcrumbJsonLd */}
       <nav aria-label="Migas de pan" className="bg-slate-950/90 border-b border-slate-800/60 px-4 py-2 text-xs text-slate-400">
         <div className="max-w-6xl mx-auto flex items-center gap-2">
-          <a href="/" className="hover:text-amber-400 transition-colors">Inicio</a>
+          <Link href="/" className="hover:text-amber-400 transition-colors">Inicio</Link>
           <span>&gt;</span>
           <span className="text-slate-200 font-bold" aria-current="page">{catalog.name}</span>
         </div>
