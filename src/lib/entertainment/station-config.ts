@@ -142,7 +142,19 @@ export function getEntertainmentStationConfig(
     maxRetakes: clampNumber(stored.maxRetakes, 2, 0, 10),
     allowGuestRetake: stored.allowGuestRetake !== false,
     autoPublish: stored.autoPublish === true,
-    consentRequired: moduleId === 'espejoMagicoIA' ? stored.consentRequired !== false : false,
+    /**
+     * El consentimiento lo decide la fiesta, no el tipo de estacion.
+     *
+     * Antes estaba forzado: **para todas las estaciones que no fueran el Espejo
+     * con IA se devolvia siempre `false`**, sin mirar lo guardado. O sea que el
+     * ajuste existia en la pantalla del equipo, se podia marcar, se guardaba, y
+     * **se tiraba a la basura antes de llegar a la estacion**. El operador creia
+     * que le estaba pidiendo permiso al invitado y no se le pedia nada.
+     *
+     * Ahora: si la fiesta lo marco, se pide. Y el Espejo con IA lo sigue pidiendo
+     * siempre, porque ahi la foto sale de la app para transformarse.
+     */
+    consentRequired: stored.consentRequired === true || moduleId === 'espejoMagicoIA',
     captureModes: Array.isArray(stored.captureModes) ? stored.captureModes : [],
     deliveryChannels: Array.isArray(stored.deliveryChannels)
       ? stored.deliveryChannels
