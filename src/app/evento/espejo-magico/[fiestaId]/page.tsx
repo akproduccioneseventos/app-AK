@@ -641,7 +641,8 @@ export default function EspejoMagicoPage() {
   const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (!watermarkEnabled) return;
 
-    const eventName = fiesta?.eventName || 'Nuestra Fiesta';
+    // El pie de la tira: si la fiesta puso uno, va ese. Antes se ignoraba.
+    const eventName = fiesta?.station?.footerText || fiesta?.eventName || 'Nuestra Fiesta';
     const rawDate = fiesta?.eventDate;
     let eventDateStr = '';
     if (rawDate) {
@@ -801,7 +802,8 @@ export default function EspejoMagicoPage() {
         colorDeAcento: fiesta?.primaryColor || fiesta?.station.accentColor || '#d4a574',
         colorFondo: fiesta?.colorFondo,
         imagenFondoUrl: fiesta?.imagenFondoUrl,
-        textoDeMarca: 'AK Producciones',
+        // El texto de marca lo pone la fiesta; si no puso nada, queda el de AK.
+        textoDeMarca: fiesta?.station?.brandText || 'AK Producciones',
       });
       const resultado = imprimirRecuerdo(tiraPersonalizada);
       if (!resultado.ok) {
@@ -1027,7 +1029,9 @@ export default function EspejoMagicoPage() {
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Evento</p>
-                <p className="mt-1 text-sm font-bold text-white">{fiesta?.eventName || 'Evento AK'}</p>
+                <p className="mt-1 text-sm font-bold text-white">
+                  {fiesta?.station?.brandText || fiesta?.eventName || 'Evento AK'}
+                </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
                 <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Modo</p>

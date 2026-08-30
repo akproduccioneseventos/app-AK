@@ -262,9 +262,21 @@ const STATION_META: Record<StationId, { shortLabel: string; description: string;
   },
 };
 
+/**
+ * Por donde se le entrega el recuerdo al invitado.
+ *
+ * **Se saco "Mail", y a proposito.** La app no manda mails con las fotos y no se
+ * va a hacer: pedirle el correo al invitado frena la fila y junta datos que
+ * despues hay que cuidar. Estaba en esta lista, el operador lo marcaba, y no
+ * pasaba nada: **un ajuste que promete algo que la app no cumple es una mentira
+ * al que lo usa.**
+ *
+ * Los que quedan son los que la app hace de verdad: el QR en la pantalla, el
+ * boton de compartir por WhatsApp desde el telefono del invitado, la galeria de
+ * la fiesta y la descarga directa.
+ */
 const CHANNELS = [
   { id: 'qr', label: 'QR', icon: QrCode },
-  { id: 'mail', label: 'Mail', icon: Mail },
   { id: 'whatsapp', label: 'WhatsApp', icon: Share2 },
   { id: 'galeria', label: 'Galeria', icon: ImageIcon },
   { id: 'descarga', label: 'Descarga', icon: Download },
