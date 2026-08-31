@@ -25,7 +25,7 @@ const ID = `e2e_verse_${Date.now()}`;
 const MARCA = 'MARCA-DE-PRUEBA-XYZ';
 
 test.beforeAll(() => {
-  const fiesta = crearFiestaDeEstaNoche({ id: ID }) as Record<string, unknown>;
+  const fiesta = crearFiestaDeEstaNoche({ id: ID }) as unknown as Record<string, unknown>;
   const ajustes = { enabled: true, brandText: MARCA, qrCallout: 'TEXTO-DEL-QR-XYZ' };
   fiesta.others = {
     ...((fiesta.others as Record<string, unknown>) || {}),
