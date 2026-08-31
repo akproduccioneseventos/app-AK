@@ -15,6 +15,30 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 23 — Los Diseños de Invitación y la Red Social de la Fiesta (31 de agosto de 2026)
+
+- **Seis Diseños Nuevos de Invitación Digital (`src/components/invitacion/templates/`):**
+  - `XvModernaTemplate`: Quince años moderno con degradados de color, tipografía bold y estética vibrante.
+  - `XvClasicaTemplate`: Quince años clásico en tonos oro/marfil con serifa refinada y corona.
+  - `BodaMinimalistaTemplate`: Casamiento minimalista limpio, blanco y amplio, tipografía fina.
+  - `BodaCampoTemplate`: Casamiento de campo / boho con verdes botánicos y texturas naturales.
+  - `FiestaNocheTemplate`: Fiesta de noche (18 y 21 años) con estilo neón oscuro, DJ y barra.
+  - `CorporativoTemplate`: Corporativo formal y sobrio en azul marino para eventos institucionales.
+  - Todos respetan la paleta de la fiesta, mapa interactivo, itinerario, código de vestimenta, mesa de regalos con datos bancarios y confirmación RSVP.
+  - Registradas y renderizadas dinámicamente en el canvas y galería de plantillas (`src/components/invitacion/edit/AdvancedInvitationCanvas.tsx`).
+- **Red Social del Evento (`src/app/evento/social/[fiestaId]/page.tsx`):**
+  - Acceso directo a "¿Dónde me siento?" (`/evento/mi-mesa/[fiestaId]`) desde la barra superior de la red social y desde las herramientas del portal del invitado.
+  - Nueva sección "Cronograma" con qué viene ahora durante la fiesta (`event.programa`).
+  - Botón de descarga directa "Bajar" en cada recuerdo del muro social.
+  - Nueva sección "Ranking" amigable y no competitivo: "Foto más querida de la noche" (por likes) y "Paparazzi de la fiesta" (por fotos compartidas).
+
+## Orden 20 — Que las Estaciones Tengan Todo (31 de agosto de 2026)
+
+- **Voz en Castellano (`speechSynthesis`):** Locución en español en Touchpix y Buzón con botón de silenciado/audio en cabecera.
+- **Plantillas de Impresión en Tira (`src/lib/entretenimiento/tira-fotocabina.ts`):** Layouts `strip_3` (tira 2x6), `single_photo` (foto individual 4x6 / 10x15) y `strip_4` (collage 2x2).
+- **Filtro de Belleza y Suavizado de Piel (`src/lib/entretenimiento/filtro-belleza.ts`):** Suavizado multicapa facial en canvas en Fotocabina y Touchpix.
+- **Buzón con Tema Oscuro:** Interfaz optimizada para salón nocturno con `bg-zinc-950 text-white`.
+
 ## Orden 19 — Los Ajustes que No Hacían Nada (31 de agosto de 2026)
 
 - **Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):**

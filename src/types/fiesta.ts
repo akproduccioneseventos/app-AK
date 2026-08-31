@@ -445,10 +445,17 @@ export type InvitacionPlantillaId =
   | 'FiestaVibrante'
   | 'Grazia'
   | 'Allegria'
+  | 'XvModerna'
+  | 'XvClasica'
+  | 'BodaMinimalista'
+  | 'BodaCampo'
+  | 'FiestaNoche'
+  | 'Corporativo'
   | 'XV_NeonParty'
   | 'XV_PrincesaClasica'
   | 'XV_GlowInTheDark'
-  | 'XV_MinimalChic';
+  | 'XV_MinimalChic'
+  | string;
 
 export type InvitacionSectionId =
   | 'hero'
@@ -583,7 +590,7 @@ export interface InvitacionDigitalConfig {
 export interface InvitacionDigitalData {
   name?: string;
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
-  plantilla: 'Grazia' | 'Allegria';
+  plantilla: 'Grazia' | 'Allegria' | 'XvModerna' | 'XvClasica' | 'BodaMinimalista' | 'BodaCampo' | 'FiestaNoche' | 'Corporativo' | string;
   musicaFondoUrl?: string;
   secciones: SeccionInvitacion[];
   cabecera: {

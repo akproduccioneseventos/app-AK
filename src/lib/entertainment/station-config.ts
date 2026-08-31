@@ -40,6 +40,20 @@ export interface EntertainmentStationRuntimeConfig {
   segundosCuentaRegresiva?: number;
   /** Marcos habilitados para la fiesta (subconjunto de 'none', 'golden', 'neon', 'flowers', 'ak_brand'). */
   marcosHabilitados?: string[];
+  /** Fondo personalizado subido específicamente para esta estación (pisa el fondo de la invitación). */
+  customBackgroundUrl?: string;
+  /** Formato de impresión: 'strip_3' (tira de 3), 'single_photo' (foto individual 10x15), 'strip_4' (tira de 4). */
+  printLayout?: 'strip_3' | 'single_photo' | 'strip_4';
+  /** Velocidad de rebote en boomerang / bogue: 'slow' | 'normal' | 'fast'. */
+  bounceSpeed?: 'slow' | 'normal' | 'fast';
+  /** Pista de audio o cortina musical asociada. */
+  musicTrack?: string;
+  /** Si la estación activa croma / eliminación de fondo verde. */
+  chromaKeyEnabled?: boolean;
+  /** Filtro de belleza / piel suave. */
+  beautyFilterEnabled?: boolean;
+  /** Pantalla que llama en reposo con fotos de la fiesta. */
+  attractScreenEnabled?: boolean;
   /**
    * Estilos de IA habilitados para esta fiesta, por id.
    *
@@ -167,6 +181,15 @@ export function getEntertainmentStationConfig(
     marcosHabilitados: Array.isArray(stored.marcosHabilitados) && stored.marcosHabilitados.length > 0
       ? stored.marcosHabilitados
       : ['none', 'golden', 'neon', 'flowers', 'ak_brand'],
+    customBackgroundUrl: typeof stored.customBackgroundUrl === 'string' && stored.customBackgroundUrl.trim().length > 0
+      ? stored.customBackgroundUrl.trim()
+      : undefined,
+    printLayout: stored.printLayout === 'single_photo' || stored.printLayout === 'strip_4' ? stored.printLayout : 'strip_3',
+    bounceSpeed: stored.bounceSpeed === 'slow' || stored.bounceSpeed === 'fast' ? stored.bounceSpeed : 'normal',
+    musicTrack: typeof stored.musicTrack === 'string' && stored.musicTrack.trim().length > 0 ? stored.musicTrack.trim() : undefined,
+    chromaKeyEnabled: stored.chromaKeyEnabled === true,
+    beautyFilterEnabled: stored.beautyFilterEnabled !== false,
+    attractScreenEnabled: stored.attractScreenEnabled !== false,
   };
 }
 
@@ -174,8 +197,10 @@ export function getPublicEntertainmentEvent(
   fiesta: FiestaEnPlanificacion,
   moduleId: EntertainmentModuleId
 ): PublicEntertainmentEvent {
+  const stationConfig = getEntertainmentStationConfig(fiesta, moduleId);
   const invDig = fiesta.invitacionDigital;
   const imagenFondoUrl =
+    stationConfig.customBackgroundUrl ||
     invDig?.cabecera?.imagenFondoUrl ||
     invDig?.cabecera?.videoFondoUrl ||
     fiesta.invitacionConfig?.fotoPortada ||
@@ -209,7 +234,7 @@ export function getPublicEntertainmentEvent(
       instagram: fiesta.guestExperienceSettings?.instagramUrl,
       facebook: fiesta.guestExperienceSettings?.facebookUrl,
     },
-    station: getEntertainmentStationConfig(fiesta, moduleId),
+    station: stationConfig,
   };
 }
 

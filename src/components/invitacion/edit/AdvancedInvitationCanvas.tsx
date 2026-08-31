@@ -13,8 +13,16 @@ import {
   arrayMove,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { AllegriaTemplate } from "@/components/invitacion/templates/AllegriaTemplate";
-import { GraziaTemplate } from "@/components/invitacion/templates/GraziaTemplate";
+import {
+  GraziaTemplate,
+  AllegriaTemplate,
+  XvModernaTemplate,
+  XvClasicaTemplate,
+  BodaMinimalistaTemplate,
+  BodaCampoTemplate,
+  FiestaNocheTemplate,
+  CorporativoTemplate,
+} from "@/components/invitacion/templates";
 import type {
   FiestaEnPlanificacion,
   InvitacionDigitalData,
@@ -62,12 +70,29 @@ export function AdvancedInvitationCanvas({
     selectedSectionId,
   };
 
-  const template =
-    invitacionData.plantilla === "Allegria" ? (
-      <AllegriaTemplate {...templateProps} />
-    ) : (
-      <GraziaTemplate {...templateProps} />
-    );
+  const renderTemplate = () => {
+    switch (invitacionData.plantilla) {
+      case "Allegria":
+        return <AllegriaTemplate {...templateProps} />;
+      case "XvModerna":
+        return <XvModernaTemplate {...templateProps} />;
+      case "XvClasica":
+        return <XvClasicaTemplate {...templateProps} />;
+      case "BodaMinimalista":
+        return <BodaMinimalistaTemplate {...templateProps} />;
+      case "BodaCampo":
+        return <BodaCampoTemplate {...templateProps} />;
+      case "FiestaNoche":
+        return <FiestaNocheTemplate {...templateProps} />;
+      case "Corporativo":
+        return <CorporativoTemplate {...templateProps} />;
+      case "Grazia":
+      default:
+        return <GraziaTemplate {...templateProps} />;
+    }
+  };
+
+  const template = renderTemplate();
 
   return (
     <DndContext
