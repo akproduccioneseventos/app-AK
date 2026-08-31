@@ -31,6 +31,10 @@ const testEnvironment = {
 
 export default defineConfig({
   testDir: './tests/e2e',
+  // El recorrido de las 353 pantallas se corre aparte, con `npm run recorrido`:
+  // adentro de la tanda normal la haria eterna. Lo mete de vuelta el propio
+  // script, que lo nombra por archivo.
+  testIgnore: process.env.AK_RECORRIDO === 'true' ? [] : ['**/recorrido-de-pantallas.spec.ts'],
   timeout: 90_000,
   expect: {
     timeout: 45_000,

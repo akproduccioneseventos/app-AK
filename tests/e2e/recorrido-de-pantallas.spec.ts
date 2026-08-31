@@ -149,7 +149,19 @@ test.describe('Recorrido de las 353 pantallas', () => {
         }
 
         // Wait brief settling time for hydration
-        await page.waitForTimeout(300);
+        // ESPERAR DE VERDAD A QUE LA PANTALLA SE DIBUJE.
+        //
+        // Antes esperaba 300 milesimas y despues juzgaba. Estas pantallas tardan
+        // segundos en dibujarse, asi que reportaba "pantalla muerta" en 35 que
+        // andan perfecto: `/admin`, por ejemplo, tiene 15 botones en el codigo.
+        // Un control que grita por 35 cosas sanas no lo mira nadie a la segunda
+        // vez, y ahi se pierde el que era de verdad.
+        await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+        await page
+          .locator('button, a, input, select, textarea, [role="button"]')
+          .first()
+          .waitFor({ state: 'attached', timeout: 8_000 })
+          .catch(() => {});
 
         const html = await page.content();
         const text = textoVisible(html);
@@ -256,5 +268,23 @@ test.describe('Recorrido de las 353 pantallas', () => {
     }
 
     await context.close();
+
+    // ESTO ES LO QUE HACE QUE EL CONTROL SIRVA.
+    //
+    // Sin esto, el recorrido junta los resultados, escribe el informe y termina
+    // en verde **aunque las 353 pantallas esten rotas**. Es la misma forma que
+    // tuvo el corredor de pruebas que decia "todas pasaron" con cero pruebas
+    // corridas, y el control de acentos que daba bien mirando cero archivos.
+    //
+    // La regla del proyecto: un control que no frena no es un control.
+    const rotas = results.filter((r) => r.estado === 'FALLO');
+    const resumen = rotas
+      .slice(0, 25)
+      .map((r) => `  ${r.pathname}: ${r.motivo}`)
+      .join('\n');
+    expect(
+      rotas.length,
+      `Hay ${rotas.length} de ${results.length} pantallas rotas. El detalle completo esta en test-results/recorrido/informe.md\n${resumen}`,
+    ).toBe(0);
   });
 });
