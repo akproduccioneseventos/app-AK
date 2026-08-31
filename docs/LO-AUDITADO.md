@@ -39,7 +39,7 @@ Se actualiza **en la misma propuesta que audita algo**. Una línea por pantalla 
 | `/evento/plataforma-360/[fiestaId]` | **5 + 6** | 31/08/2026 | Claude | Muestra el texto de marca. **No usa el color de la fiesta** |
 | `/evento/bogue/[fiestaId]` | **5 + 6** | 31/08/2026 | Claude | Muestra el texto de marca. Sana |
 | `/evento/espejo-magico/[fiestaId]` | **4 + 6** | 31/08/2026 | Claude | Sana. Tiene accesorios arrastrables y firma. **Falta comprobar el texto de marca** |
-| `/evento/touchpix/[fiestaId]` | **4 + 6** | 31/08/2026 | Claude | Sana. **Sin comprobar** que muestre la marca en la ventanita del QR |
+| `/evento/touchpix/[fiestaId]` | **4 + 6** | 31/08/2026 | Claude | Sana. **NO VERIFICADO** que muestre la marca: su boton de disparar no tiene nombre y no se puede tocar desde una prueba. Pedido en la orden 20, bloque 9.c |
 | `/evento/buzon/[fiestaId]` | **4 + 6** | 31/08/2026 | Claude | Anda. **Es la única pantalla blanca**: encandila en un salón a oscuras |
 | Consentimiento del invitado | **5** | 30/08/2026 | Claude | Se arregló: antes el ajuste se tiraba a la basura |
 | Instalar una estación sola | **5** | 30/08/2026 | Claude | Anda. Queda instalada y se elige la fiesta al entrar |

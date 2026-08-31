@@ -81,7 +81,14 @@ async function enchufarCamara(page: Page) {
 const ESTACIONES = [
   { nombre: 'Plataforma 360', ruta: 'plataforma-360', modulo: 'plataforma360' },
   { nombre: 'Bogue', ruta: 'bogue', modulo: 'bogue' },
-  { nombre: 'Touchpix', ruta: 'touchpix', modulo: 'espejoMagicoIA' },
+  // TOUCHPIX QUEDA AFUERA, Y NO ES QUE ESTE MAL LA ESTACION.
+  // Su texto de marca vive en la ventanita del QR (page.tsx:794), que se abre
+  // con "Compartir" despues de sacar la foto. Pero el boton de disparar es un
+  // circulo con un dibujo y SIN NOMBRE, asi que no hay forma de tocarlo desde
+  // una prueba. Se intento tres veces.
+  // Ponerle el nombre esta pedido en docs/ordenes/20, bloque 9.c. Cuando lo
+  // tenga, se vuelve a poner aca y se comprueba de verdad.
+  // Mientras tanto figura como NO VERIFICADO en docs/LO-AUDITADO.md, no como hecho.
 ];
 
 /**
