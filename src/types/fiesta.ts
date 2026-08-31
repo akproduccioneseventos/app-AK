@@ -852,6 +852,10 @@ export interface SocialGallerySettings {
   audioRhythm?: AudioRhythmSettings;
   playlistPlaying?: boolean;
   currentLayout?: 'slideshow' | 'masonry';
+  /** Modo Cine: foto sola a pantalla completa sin carteles ni chat, con movimiento suave */
+  cinemaMode?: boolean;
+  /** Efecto Ken Burns de movimiento lento en fotos */
+  kenBurnsEffect?: boolean;
   forcedScreenItem?: 'mural' | 'juego' | 'chat' | 'canciones' | 'dedicaciones' | 'pauta' | 'video' | 'sorteo' | null;
 }
 

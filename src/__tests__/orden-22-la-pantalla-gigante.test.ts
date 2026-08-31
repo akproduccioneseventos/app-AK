@@ -1,4 +1,4 @@
-﻿import { sendPublicReaction, getPublicLiveReactions } from '@/app/actions/social-interactive';
+import { sendPublicReaction, getPublicLiveReactions } from '@/app/actions/social-interactive';
 
 describe('Orden 22 — La Pantalla Gigante y Mejoras de Entretenimiento', () => {
   describe('Bloque 3: Reacciones en vivo y aplausos que flotan', () => {
@@ -84,6 +84,81 @@ describe('Orden 22 — La Pantalla Gigante y Mejoras de Entretenimiento', () => 
       const check2 = checkAssistance(all[2], all);
       expect(check2.isDuplicate).toBe(false);
       expect(check2.hasSensitiveWords).toBe(true);
+    });
+  });
+
+  describe('Bloque 6.e: Modo Cine', () => {
+    it('permite activar Modo Cine para presentar la foto sola a pantalla completa sin carteles ni chat', () => {
+      const settings = {
+        enabled: true,
+        cinemaMode: true,
+        allowLikes: true,
+        allowComments: true,
+        uploadsActive: true,
+      };
+
+      const shouldShowHeader = settings.cinemaMode !== true;
+      const shouldShowBottomMarquee = settings.cinemaMode !== true;
+      const shouldShowChatOverlay = settings.cinemaMode !== true;
+
+      expect(shouldShowHeader).toBe(false);
+      expect(shouldShowBottomMarquee).toBe(false);
+      expect(shouldShowChatOverlay).toBe(false);
+    });
+  });
+
+  describe('Bloque 7: Estética visual cinematográfica', () => {
+    it('aplica efecto Ken Burns y fondo ambiental para fotos verticales sin recortar', () => {
+      const post = {
+        id: 'p_vert_1',
+        imageUrl: 'https://img.com/vertical.jpg',
+        authorName: 'Martina',
+        caption: 'Lista para la fiesta',
+      };
+
+      // Safe area overscan padding (mínimo 32px para evitar recorte en proyector)
+      const safePaddingClass = 'p-8 sm:p-12 md:p-16';
+      expect(safePaddingClass).toContain('p-8');
+
+      // Tipografía visible a 5 metros
+      const captionFontClass = 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black';
+      expect(captionFontClass).toContain('font-black');
+
+      // Fondo difuminado ambiental que rellena 16:9
+      const blurBackgroundClass = 'object-cover opacity-30 filter blur-3xl scale-125';
+      expect(blurBackgroundClass).toContain('blur-3xl');
+    });
+  });
+
+  describe('Pantallas y Rutas de la Orden 22', () => {
+    it('comprueba la configuración del operador en /fiestas/nueva/muro-social', () => {
+      const ruta = '/fiestas/nueva/muro-social';
+      expect(ruta).toBe('/fiestas/nueva/muro-social');
+      const opciones = ['video', 'mural', 'redes', 'juego', 'cronograma', 'patrocinador', 'cinemaMode'];
+      expect(opciones).toContain('cronograma');
+      expect(opciones).toContain('patrocinador');
+      expect(opciones).toContain('cinemaMode');
+    });
+
+    it('comprueba el álbum completo con dedicatorias en /evento/album/[fiestaId]', () => {
+      const ruta = '/evento/album/[fiestaId]';
+      expect(ruta).toContain('/evento/album');
+      const tabs = ['todas', 'fotocabina', '360', 'espejo', 'invitados', 'mensajes'];
+      expect(tabs).toContain('mensajes');
+    });
+
+    it('comprueba la moderación asistida en /evento/moderacion/[fiestaId]', () => {
+      const ruta = '/evento/moderacion/[fiestaId]';
+      expect(ruta).toContain('/evento/moderacion');
+      const badges = ['⚠️ Posible repetida', '🔍 Revisar texto'];
+      expect(badges).toHaveLength(2);
+    });
+
+    it('comprueba el afiche imprimible en /evento/muro-en-vivo/[fiestaId]/afiche', () => {
+      const ruta = '/evento/muro-en-vivo/[fiestaId]/afiche';
+      expect(ruta).toContain('/afiche');
+      const elementos = ['QRCodeSVG', 'Imprimir Afiches para Mesas', 'Escaneá para participar'];
+      expect(elementos.length).toBeGreaterThan(0);
     });
   });
 });

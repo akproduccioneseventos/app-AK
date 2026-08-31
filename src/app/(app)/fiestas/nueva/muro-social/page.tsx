@@ -1581,6 +1581,29 @@ function MuroSocialContent() {
                 }}
               />
             </div>
+
+            {/* Modo Cine Switch (Bloque 6.e) */}
+            <div className="flex items-center justify-between rounded-lg border-2 border-amber-200 bg-amber-50 p-3">
+              <div>
+                <span className="text-sm font-semibold text-amber-900 flex items-center gap-2">
+                  🎬 Modo Cine (Foto limpia a pantalla completa)
+                </span>
+                <p className="text-xs text-amber-700 mt-0.5">
+                  Muestra la foto sola a pantalla completa con movimiento suave (Ken Burns), sin chats, carteles ni elementos distractores.
+                </p>
+              </div>
+              <Switch
+                checked={settings.cinemaMode === true}
+                onCheckedChange={async (checked) => {
+                  setSettings((prev) => ({ ...prev, cinemaMode: checked }));
+                  const result = await updateSocialGallerySettingsFiestaActual(fiestaId!, {
+                    ...settingsRef.current,
+                    cinemaMode: checked,
+                  });
+                  if (!result.success) toast({ title: 'Error al cambiar Modo Cine', description: result.error, variant: 'destructive' });
+                }}
+              />
+            </div>
             <div className="grid sm:grid-cols-4 gap-2">
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('video')}><Plus className="w-4 h-4 mr-2" />Video</Button>
               <Button type="button" variant="outline" onClick={() => addPlaylistItem('mural')}><Plus className="w-4 h-4 mr-2" />Mural</Button>
