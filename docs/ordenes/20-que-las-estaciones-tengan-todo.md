@@ -131,6 +131,26 @@ invitado tenga que tocar baje de 14px.
 
 **No toques la fotocabina**: ya está bien.
 
+### 6.b — El Buzón es BLANCO y las otras cinco son negras
+
+**Visto en pantalla, no leído en el código** (`test-results/como-se-ven/buzon.png`): las
+cinco estaciones tienen fondo negro y el **Buzón tiene fondo blanco de punta a punta**.
+
+En un salón de noche, con las luces bajas, una pantalla blanca **encandila**: al invitado que
+se acerca le da en la cara y desentona con todo lo demás.
+
+**Que el Buzón use el mismo fondo oscuro que las otras cinco.** El resto de su pantalla está
+bien —las tres opciones se entienden, los textos están en criollo y los botones son grandes—:
+**es sólo el fondo.**
+
+### 6.c — El botón de sacar la foto de Touchpix no tiene nombre
+
+Es un círculo con un dibujo de cámara y **ningún texto**
+(`src/app/evento/touchpix/[fiestaId]/page.tsx`, botón principal). Se ve bien, pero **una
+prueba automática no lo puede encontrar** —ya frenó una— y quien no entiende el dibujo no sabe
+qué hace. Ponele el nombre "Sacar foto" para quien lo necesite, sin cambiar cómo se ve.
+
+
 ---
 
 ## BLOQUE 7 — Que no le hablemos en inglés al invitado
