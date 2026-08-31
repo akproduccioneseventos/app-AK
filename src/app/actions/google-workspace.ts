@@ -1,13 +1,15 @@
 'use server';
 
 import { getEmpleados } from '@/app/actions/empleados';
-import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestas, getHistorialFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { requireAppSession } from '@/lib/auth/require-session';
 import { getRoles } from '@/app/actions/roles';
 import { readData, writeData } from '@/lib/data-service';
 import { verifySession } from '@/lib/auth/session-token';
 import { perfilDe, puede, PERMISOS } from '@/lib/auth/perfiles';
 import {
   accountFromToken,
+  borrarEventoDeLaAgenda,
   buildCompanyCalendarEvent,
   buildEmployeeCalendarEvent,
   buildGoogleCalendarTemplateUrl,
@@ -15,6 +17,8 @@ import {
   ensureFreshGoogleAccount,
   getEmployeeEmail,
   getFiestaTimes,
+  listarEventosDeAkEnLaAgenda,
+  type EventoDeAkEnLaAgenda,
   getFiestaTitle,
   getGoogleRedirectUri,
   getGoogleUserEmail,
@@ -578,3 +582,153 @@ export async function syncAppointmentToGoogleWorkspace(appointment: CrmAppointme
   }
 }
 
+
+/**
+ * Limpiar la agenda del dueño de lo que ensució la app.
+ *
+ * Pasó de verdad: al sincronizar, la app **duplicó eventos y dejó fechas que no
+ * eran** en su calendario personal. Las causas ya están arregladas, pero lo que
+ * quedó sucio no se limpia solo.
+ *
+ * Esto lo limpia, con tres cuidados que no se negocian:
+ *
+ * 1. **Sólo toca lo que puso la app.** Los eventos se reconocen por la marca
+ *    `AK_FIESTA_ID:` que la app deja en la descripción. Un evento personal del
+ *    dueño no tiene esa marca y **no se mira siquiera**.
+ * 2. **Primero muestra, después borra.** `revisarAgendaDeAK()` no borra nada:
+ *    devuelve la lista para que él la vea. Borrar es otra acción, y sólo borra
+ *    los que ella devolvió.
+ * 3. **De cada fiesta se queda SIEMPRE uno.** Nunca se borra el último evento de
+ *    una fiesta que existe: se conserva el que está en la fecha correcta.
+ */
+
+
+export type EventoSobrante = EventoDeAkEnLaAgenda & {
+  motivo: 'duplicado' | 'fecha-vieja' | 'fiesta-borrada';
+  explicacion: string;
+};
+
+export type RevisionDeAgenda = {
+  ok: boolean;
+  error?: string;
+  revisados: number;
+  sobrantes: EventoSobrante[];
+};
+
+function soloElDia(valor: string): string {
+  return (valor || '').substring(0, 10);
+}
+
+export async function revisarAgendaDeAK(): Promise<RevisionDeAgenda> {
+  await requireAppSession();
+
+  const cuentas = await readAccounts();
+  const cuentaEmpresa = await freshConnectedAccount(cuentas.find((c) => c.kind === 'company'));
+  if (!cuentaEmpresa || cuentaEmpresa.status !== 'connected') {
+    return {
+      ok: false,
+      error: 'La cuenta de Google de AK no está conectada, así que no se pudo mirar la agenda.',
+      revisados: 0,
+      sobrantes: [],
+    };
+  }
+
+  let eventos: EventoDeAkEnLaAgenda[];
+  try {
+    eventos = await listarEventosDeAkEnLaAgenda(cuentaEmpresa);
+  } catch {
+    return {
+      ok: false,
+      error: 'No se pudo leer la agenda. Probá de nuevo en un rato.',
+      revisados: 0,
+      sobrantes: [],
+    };
+  }
+
+  const [activas, historicas] = await Promise.all([getFiestas(false), getHistorialFiestas()]);
+  const fechaPorFiesta = new Map<string, string>();
+  for (const fiesta of [...activas, ...historicas]) {
+    const { safeStart, fechaValida } = getFiestaTimes(fiesta);
+    if (fechaValida) fechaPorFiesta.set(fiesta.id, soloElDia(safeStart.toISOString()));
+  }
+
+  const porFiesta = new Map<string, EventoDeAkEnLaAgenda[]>();
+  for (const evento of eventos) {
+    const lista = porFiesta.get(evento.fiestaId) || [];
+    lista.push(evento);
+    porFiesta.set(evento.fiestaId, lista);
+  }
+
+  const sobrantes: EventoSobrante[] = [];
+
+  for (const [fiestaId, delaFiesta] of porFiesta) {
+    const fechaBuena = fechaPorFiesta.get(fiestaId);
+
+    // La fiesta ya no existe: todos sus eventos sobran.
+    if (!fechaBuena) {
+      for (const evento of delaFiesta) {
+        sobrantes.push({
+          ...evento,
+          motivo: 'fiesta-borrada',
+          explicacion: 'Quedó en la agenda una fiesta que ya no está en el sistema.',
+        });
+      }
+      continue;
+    }
+
+    // Se conserva el que está en la fecha correcta. Si ninguno está en la fecha
+    // correcta, se conserva el primero igual: nunca se deja una fiesta sin evento.
+    const enLaFechaBuena = delaFiesta.filter((e) => soloElDia(e.cuando) === fechaBuena);
+    const sequeda = enLaFechaBuena[0] || delaFiesta[0];
+
+    for (const evento of delaFiesta) {
+      if (evento.id === sequeda.id) continue;
+      const enFechaBuena = soloElDia(evento.cuando) === fechaBuena;
+      sobrantes.push({
+        ...evento,
+        motivo: enFechaBuena ? 'duplicado' : 'fecha-vieja',
+        explicacion: enFechaBuena
+          ? 'Está repetido: hay otro igual el mismo día.'
+          : `Quedó en una fecha vieja. La fiesta es el ${fechaBuena}.`,
+      });
+    }
+  }
+
+  return { ok: true, revisados: eventos.length, sobrantes };
+}
+
+export async function limpiarAgendaDeAK(
+  idsABorrar: string[],
+): Promise<{ ok: boolean; borrados: number; error?: string }> {
+  await requireAppSession();
+
+  if (!Array.isArray(idsABorrar) || idsABorrar.length === 0) {
+    return { ok: true, borrados: 0 };
+  }
+
+  // Se vuelve a revisar y SÓLO se borra lo que la revisión marcó como sobrante.
+  // Así, aunque llegue una lista con otra cosa, no se toca nada que no corresponda.
+  const revision = await revisarAgendaDeAK();
+  if (!revision.ok) return { ok: false, borrados: 0, error: revision.error };
+
+  const permitidos = new Set(revision.sobrantes.map((s) => s.id));
+  const aBorrar = idsABorrar.filter((id) => permitidos.has(id));
+
+  const cuentas = await readAccounts();
+  const cuentaEmpresa = await freshConnectedAccount(cuentas.find((c) => c.kind === 'company'));
+  if (!cuentaEmpresa || cuentaEmpresa.status !== 'connected') {
+    return { ok: false, borrados: 0, error: 'La cuenta de Google de AK no está conectada.' };
+  }
+
+  let borrados = 0;
+  for (const id of aBorrar) {
+    try {
+      await borrarEventoDeLaAgenda(cuentaEmpresa, id);
+      borrados += 1;
+    } catch {
+      // Si uno falla se sigue con los demás: es mejor limpiar de a poco que no limpiar.
+    }
+  }
+
+  return { ok: true, borrados };
+}
