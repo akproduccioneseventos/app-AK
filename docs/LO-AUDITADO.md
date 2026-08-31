@@ -56,3 +56,36 @@ honesto, y es el que hay que subir.
 
 **Cuando aparezca un método 7**, esta lista dice exactamente qué quedó mirado con el 4, con el 5
 y con el 6, así se vuelve a mirar **sólo lo que quedó abajo** en vez de todo.
+
+---
+
+## La otra mitad: LOS MÓDULOS
+
+La tabla de arriba cuenta **pantallas**. Ésta cuenta **módulos auditados con el método
+completo** de `docs/COMO-AUDITAR-UN-MODULO.md` —mirar el rubro, medir con archivo y línea,
+verificar cada aviso, abrir la pantalla, y dejar la orden escrita—.
+
+**Un módulo cuenta como auditado sólo si están los cinco pasos.** Tres de cinco no es auditado.
+
+| Módulo | Plataformas miradas | Pantalla abierta | Orden escrita | Fecha |
+|---|---|---|---|---|
+| Entretenimiento (6 estaciones) | 13 | sí, con fotos | orden 20 | 31/08/2026 |
+| Pantalla gigante | 13 | sí, con prueba | orden 22 | 31/08/2026 |
+| Invitación digital | 5 | no | orden 23 | 31/08/2026 |
+| Red social del evento | 5 | no | orden 23 | 31/08/2026 |
+| Decoración | 13 | no | orden 24 | 31/08/2026 |
+| Presupuestos y ventas | — | — | — | **pendiente (Claude: es plata)** |
+| Cobros, cuotas y facturas | — | — | — | **pendiente (Claude: es plata)** |
+| Comida y lista de compras | — | — | — | **pendiente (Claude: es comida)** |
+| Permisos: quién ve qué | — | — | — | **pendiente (Claude)** |
+| Invitados y confirmaciones | — | — | — | pendiente (Gemini) |
+| Portal del cliente | — | — | — | pendiente (Gemini) |
+| Música y DJ | — | — | — | pendiente (Gemini) |
+| Personal y proveedores | — | — | — | pendiente (Gemini) |
+| Logística y armado | — | — | — | pendiente (Gemini) |
+| Marketing y redes | — | — | — | pendiente (Gemini) |
+| Configuración de la empresa | — | — | — | pendiente (Gemini) |
+
+**Van 5 de 16 módulos.** Y de esos cinco, **tres quedaron sin abrir la pantalla** (invitación,
+red social y decoración): están en amarillo, no en verde. **Abrirlas es lo que falta para
+cerrarlos.**
