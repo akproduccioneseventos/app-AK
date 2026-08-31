@@ -261,6 +261,16 @@ export async function syncFiestaToGoogleWorkspace(
     return { success: true, warnings: ['La fiesta no tiene fecha; no se sincronizo con Google.'] };
   }
 
+  // Una fecha que no se entiende no se manda a la agenda: antes terminaba
+  // creando un evento en el dia de hoy, con el nombre de la fiesta, y ensuciaba
+  // el calendario del dueno con un dia que no era ninguno.
+  if (!getFiestaTimes(fiesta).fechaValida) {
+    return {
+      success: true,
+      warnings: ['La fecha de la fiesta no se entiende, asi que no se toco la agenda. Revisala en la ficha de la fiesta.'],
+    };
+  }
+
   let nextAccounts = accounts;
   let record = getRecord(records, fiestaId);
   const warnings: string[] = [];

@@ -6083,3 +6083,32 @@ grande lo decide el equipo, no la app.
 **El candado queda vigilado:** `src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts` se
 pone en rojo si alguien vuelve a apagarlas a mano. Comprobado que frena de verdad, no sólo que
 pasa en verde.
+
+## 31 de agosto de 2026 — La agenda del dueño se ensuciaba al sincronizar
+
+**Lo reportó él:** *"tenía todo agendado en mi mail; cuando la app se sincronizó, duplicó y
+agregó fechas que no eran, por ejemplo 14 de octubre Martina"*.
+
+**Se encontraron DOS causas distintas, las dos en el código:**
+
+1. **El evento ya existente se buscaba SÓLO en el día de la fecha nueva**
+   (`findExistingGoogleCalendarEvent`, `src/lib/google-workspace.ts`). Si a una fiesta se le
+   cambiaba la fecha, no encontraba el evento viejo —que seguía en la fecha anterior— y creaba
+   uno nuevo. **Resultado: el duplicado, y un evento clavado en una fecha que ya no era**, con
+   el nombre de la fiesta. Es exactamente el "14 de octubre Martina".
+   **Arreglado:** ahora se busca por el número de la fiesta en **toda la agenda** (dos años para
+   atrás y dos para adelante) y, si lo encuentra, **lo mueve** en vez de crear otro.
+
+2. **Una fecha que no se entiende se convertía en la de HOY** (`getFiestaTimes`): el código
+   decía "si la fecha es inválida, usá ahora", y se creaba un evento fantasma con el nombre de
+   la fiesta en un día cualquiera.
+   **Arreglado:** `getFiestaTimes` devuelve `fechaValida`, y si es falsa **no se toca la
+   agenda**: se avisa en criollo que la fecha de la fiesta hay que revisarla.
+
+**Queda vigilado:** `src/__tests__/agenda-no-duplica-ni-inventa-fechas.test.ts`, que además fija
+dos cosas que nadie debe cambiar sin querer: una fecha sin hora se agenda **a las 21 de
+Uruguay** (no a la madrugada), y una fiesta que termina pasada la medianoche **sigue siendo del
+día que se contrató**.
+
+**Lo que NO arregla esto:** los eventos duplicados que ya quedaron en la agenda de fiestas
+viejas. Esos hay que borrarlos a mano una vez; de acá en adelante no se crean más.

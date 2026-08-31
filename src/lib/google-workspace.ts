@@ -458,9 +458,14 @@ export function getFiestaTimes(fiesta: FiestaEnPlanificacion) {
   } else {
     start = new Date();
   }
-  const safeStart = Number.isNaN(start.getTime()) ? new Date() : start;
+  // Si la fecha no se entiende, ANTES se usaba la de hoy y se creaba un evento
+  // fantasma en la agenda del dueno, con el nombre de la fiesta y un dia que no
+  // era ninguno. Ahora se avisa con `fechaValida` en falso y quien sincroniza
+  // no crea nada.
+  const fechaValida = Boolean(raw) && !Number.isNaN(start.getTime());
+  const safeStart = fechaValida ? start : new Date();
   const end = new Date(safeStart.getTime() + 6 * 60 * 60 * 1000);
-  return { start, safeStart, end };
+  return { start, safeStart, end, fechaValida };
 }
 
 export function getRoleName(roles: Rol[], roleId?: string) {
@@ -699,6 +704,30 @@ export async function findExistingGoogleCalendarEvent(
 ): Promise<string | null> {
   try {
     const calendarId = encodeURIComponent(account.calendarId || 'primary');
+
+    // PRIMERO: buscar la fiesta en TODA la agenda, no solo en el dia.
+    //
+    // Antes se buscaba unicamente dentro del dia de la fecha nueva, y eso dejaba
+    // la agenda del dueno sucia de dos formas: si a una fiesta se le cambiaba la
+    // fecha, el evento viejo quedaba clavado en la fecha vieja (una fecha "que no
+    // era", con el nombre de la fiesta), y ademas se creaba uno nuevo en la fecha
+    // nueva, o sea duplicado. Buscando por el numero de la fiesta en un rango
+    // ancho se encuentra el que ya existe y se lo MUEVE, en vez de crear otro.
+    const marca = `AK_FIESTA_ID: ${fiestaId}`;
+    const anchoMin = new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString();
+    const anchoMax = new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000).toISOString();
+    const urlAncha = `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events`
+      + `?timeMin=${encodeURIComponent(anchoMin)}&timeMax=${encodeURIComponent(anchoMax)}`
+      + `&singleEvents=true&maxResults=2500&q=${encodeURIComponent(fiestaId)}`;
+    const anchura = await fetch(urlAncha, {
+      headers: { Authorization: `Bearer ${account.accessToken}` },
+    });
+    if (anchura.ok) {
+      const datosAnchos = await anchura.json() as { items?: GoogleCalendarListItem[] };
+      const yaEsta = (datosAnchos.items || []).find((item) => item.description?.includes(marca));
+      if (yaEsta) return yaEsta.id;
+    }
+
     // Cover the full day in Uruguay time zone (-03:00)
     const timeMin = encodeURIComponent(new Date(`${dateStr}T00:00:00-03:00`).toISOString());
     const timeMax = encodeURIComponent(new Date(`${dateStr}T23:59:59-03:00`).toISOString());
