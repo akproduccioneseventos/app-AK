@@ -15,6 +15,20 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 21 — El Recorrido de las 353 Pantallas y la Lista Automática (31 de agosto de 2026)
+
+- **Recorrido Automatizado de 353 Pantallas (`scripts/helpers/route-inventory.mjs`, `tests/e2e/recorrido-de-pantallas.spec.ts`):**
+  - Mapeo dinámico de la totalidad de las 353 rutas en `src/app/**/page.tsx` categorizadas por tipo (públicas, aplicación interna con sesión, portal, estaciones de evento y permisos de acceso).
+  - Verificación de 5 puntos por pantalla: texto visible >= 40 caracteres, sin errores de consola/pageerror, sin fuga de jerga técnica (`undefined`, `firestore`, `NaN`, `is not a valid`, `Algo salió mal`, `[object Object]`), con botones/enlaces interactivos (excepto pantallas pasivas como pantallas gigantes y tótems), y tiempo de carga inferior a 15 segundos.
+  - Captura sistemática de capturas de pantalla en `test-results/recorrido/` e informe en `test-results/recorrido/informe.md`.
+- **Mantenimiento Automático de la Lista de Auditoría (`scripts/actualizar-auditado.mjs` / `npm run auditado`):**
+  - Actualización programática de `docs/LO-AUDITADO.md` respetando la regla de precedencia del método más fuerte (niveles 1 a 6) y reseteando niveles si los archivos son modificados tras la fecha de auditoría.
+  - Mantenimiento conjunto de la tabla de pantallas y de la tabla de los 16 módulos.
+- **Visualización en la Puerta de Publicación (`scripts/se-puede-publicar.mjs`):**
+  - Muestra al finalizar con éxito: `Auditadas de verdad: X de 353 pantallas (Y%). Módulos auditados con el método completo: A de 16.`
+- **Informe de Mirada de Crítico (`docs/LA-MIRADA-DE-CRITICO.md`):**
+  - Cuatro listas separadas y priorizadas: ROTO, INCÓMODO, FEO y MAL UBICADO.
+
 ## Orden 23 — Los Diseños de Invitación y la Red Social de la Fiesta (31 de agosto de 2026)
 
 - **Seis Diseños Nuevos de Invitación Digital (`src/components/invitacion/templates/`):**
