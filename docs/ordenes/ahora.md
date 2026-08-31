@@ -33,6 +33,25 @@ de la fiesta y mostrando el mapa.
 
 **No rehagas Grazia ni Allegria: andan.** Y entregá **los seis en una sola propuesta**.
 
+## Y en la MISMA propuesta, la RED SOCIAL DE LA FIESTA
+
+Es la misma orden 23 y va junto, no aparte. Cuatro cosas, todas medidas:
+
+1. **"¿Dónde me siento?" existe y el invitado NO LLEGA.** La pantalla está hecha y anda
+   (`/evento/mi-mesa/[fiestaId]`), pero desde la red social no hay por dónde entrar: hace falta
+   un QR aparte que genera el equipo. El invitado que está adentro sacando fotos **no puede
+   buscar su mesa**. **Es un enlace, no una pantalla nueva: no la copies, enlazala.**
+2. **El cronograma no se ve durante la fiesta.** La invitación lo muestra antes; en la red
+   social no está, y es lo que más se pregunta en una fiesta: *"¿a qué hora es la torta?"*. Es
+   el mismo dato que va a la pantalla gigante: **un dato, dos pantallas**.
+3. **Bajar sus propias fotos.** No se encontró el botón. Si está, dejalo y decilo.
+4. **Un ranking simpático**: el que más subió, la foto más querida, el que cumplió más misiones.
+   **Sin premios y sin dejar mal a nadie.**
+
+**Lo que la red social ya tiene y NO se toca:** subir fotos y videos, ver las de los demás, me
+gusta, comentarios, chat, misiones, pedir canciones, dejar mensajes al homenajeado, y se entra
+sin instalar nada y sin dar mail ni teléfono.
+
 ---
 
 # TANDA 2 — El recorrido de las 353 pantallas y la lista automática
