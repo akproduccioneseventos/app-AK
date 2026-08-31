@@ -70,7 +70,7 @@ const ESTACIONES = [
   { nombre: 'plataforma-360', ruta: 'plataforma-360', modulo: 'plataforma360' },
   { nombre: 'bogue', ruta: 'bogue', modulo: 'bogue' },
   // El espejo abre en modo firma si no se le dice el modo: hay que pedirle foto.
-  { nombre: 'espejo-magico', ruta: 'espejo-magico', modulo: 'espejoMagicoFoto', extra: '&modo=foto' },
+  { nombre: 'espejo-magico', ruta: 'espejo-magico', modulo: 'espejoMagicoFoto', extra: '&mode=foto' },
   { nombre: 'touchpix', ruta: 'touchpix', modulo: 'espejoMagicoIA' },
   { nombre: 'buzon', ruta: 'buzon', modulo: 'capsulaTiempo' },
 ];
