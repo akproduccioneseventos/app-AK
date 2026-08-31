@@ -158,3 +158,63 @@ más de lo que tenemos hoy.
 - **Nada que se pague por mes** sin preguntar.
 - **No inventes una prueba para que un control se calle.** Una prueba que pasaría igual con la
   app rota es peor que ninguna.
+
+---
+
+## BLOQUE 6 — LA MIRADA DE CRÍTICO, pantalla por pantalla
+
+**Pedido del dueño, textual:** *"que lo que es, sea; para lo que existe, que funcione; si se
+puede mejorar en todo, desde estética a funcionalidad; y si está en el lugar equivocado se debe
+reorganizar, como un crítico."*
+
+El recorrido de los bloques 1 y 2 contesta **"¿anda?"**. Esto contesta las otras tres, que son
+las que hacen la diferencia entre una app que funciona y una que se disfruta usar.
+
+**Por cada pantalla que abras, contestá estas cuatro, en una línea cada una:**
+
+1. **¿HACE lo que dice hacer?** El título promete algo: ¿la pantalla lo cumple? Un botón que no
+   cambia nada, un dato que se carga y nadie lee, un cartel que promete algo que la app no hace.
+   **Esto es lo más grave de todo** y es exactamente la forma que tuvieron todas las fallas de
+   este año.
+2. **¿Es cómoda?** Pasos de más para algo simple, datos que hay que cargar dos veces, cosas que
+   el sistema ya sabe y podría completar solo, pantallas que obligan a ir y volver. **Si algo se
+   puede hacer en un toque en vez de cuatro, decilo.**
+3. **¿Se ve bien?** Es un producto que se le muestra al cliente y compite con plataformas pagas.
+   Espaciados desprolijos, textos cortados, tablas que se desbordan en el celular, pantallas
+   vacías sin gracia, botones sin jerarquía. **Lo feo también hace perder ventas.**
+4. **¿ESTÁ EN EL LUGAR CORRECTO?** Ésta es nueva y es la que más importa con 353 pantallas:
+   - ¿Se llega desde algún lado, o quedó colgada y no la encuentra nadie?
+   - ¿Está en el menú donde uno la buscaría, o en otra sección?
+   - ¿Hay **dos pantallas que hacen lo mismo**? Ya pasó: la carga de fotos del Video de Vida
+     estaba **copiada en dos direcciones distintas**, y las dos andaban, así que nadie lo notó.
+   - ¿Debería ser **una sola pantalla** con la de al lado, en vez de dos?
+
+### La regla que NO se negocia
+
+**Un crítico PROPONE. No manda.**
+
+- **Lo ROTO se arregla** sin preguntar: una pantalla que no abre, un botón que no hace nada, un
+  cartel que promete algo que no pasa, una cuenta que da mal.
+- **Todo lo demás se ANOTA y decide el dueño.** Lo incómodo, lo feo y lo mal ubicado **no se
+  toca** hasta que él diga que sí. Ya pasó dos veces en un día: una auditoría dijo "esto estaría
+  mejor así" sobre cosas que andaban, se cambiaron, y hubo que volver todo atrás.
+- **Ojo especial con los textos que ve el cliente y con las decisiones de venta.** Un descuento,
+  una promesa, un cartel o un botón pueden parecer mejorables y ser una decisión comercial
+  pensada. **Esos no se tocan nunca sin permiso.**
+
+### Cómo se entrega esta parte
+
+Un solo archivo, `docs/LA-MIRADA-DE-CRITICO.md`, con **cuatro listas separadas**, no mezcladas:
+
+- **ROTO** — lo que no funciona. Con archivo y línea. *(Esto sí se arregla.)*
+- **INCÓMODO** — cuántos pasos tiene hoy y cuántos podría tener.
+- **FEO** — qué se ve mal y en qué pantalla.
+- **MAL UBICADO** — qué está colgado, duplicado o en la sección equivocada, y dónde iría.
+
+**Ordenadas por lo que más le cambia la vida al que la usa, no por orden alfabético.** Si una
+lista queda larga, poné arriba las diez que valen la pena y el resto abajo.
+
+**Ojo con reorganizar:** el menú y el mapa **no se escriben a mano**, los regenera
+`npm run mapa:generar`, y hay una prueba que lo controla
+(`src/__tests__/mapa-de-la-app-al-dia.test.ts`). Si movés algo de lugar, **regeneralo en la
+misma propuesta** o la puerta te frena.
