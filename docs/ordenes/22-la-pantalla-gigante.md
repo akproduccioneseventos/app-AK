@@ -110,6 +110,67 @@ Sale de lo que ya se carga de la empresa. **Si no hay nada cargado, no aparece.*
 
 ---
 
+## BLOQUE 6 — INSTAWALL, que es la competencia DIRECTA  ← IMPORTANTE
+
+**El dueño pasó el ejemplo: `instawall.fun`.** Se miró. **Es la más parecida a lo nuestro de
+todas las trece**: está en castellano y apunta a **bodas, cumpleaños y quince años**, o sea que
+compite con AK en el mismo mercado.
+
+### Lo que ellos tienen y nosotros NO (verificado en nuestro código)
+
+**6.a — El fondo de la pantalla se elige.** Ellos traen **más de 100 fondos listos** y además
+dejan subir el propio. **El nuestro es fijo**: una grilla puesta a mano
+(`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx:1236`), igual en toda fiesta.
+
+Qué hacer: que el muro use **el fondo que el cliente cargó para su fiesta** —el mismo campo que
+ya existe para fondos— y si no cargó ninguno, que se pueda elegir entre **seis u ocho listos**
+que combinen con el color de la fiesta. **No hagas cien.** Con que combinen alcanza.
+
+**6.b — La pantalla de espera se personaliza.** Ellos dejan subir una **imagen de portada** que
+se ve mientras no llegó ninguna foto. La nuestra es fija: fondo oscuro con el QR
+(`EmptyWallState`, línea 1114).
+
+Qué hacer: que use la foto de portada de la fiesta si hay, con el QR encima. **El QR se queda
+siempre**, que es lo que hace que la gente suba.
+
+**6.c — El afiche del QR para imprimir, con la marca del cliente.** Ellos generan **un afiche
+con el logo y los colores del cliente**, listo para imprimir y poner en las mesas. **Nosotros no
+tenemos nada de eso**: el QR sólo se ve en la pantalla.
+
+Qué hacer: una pantalla que arme el afiche —QR grande, nombre de la fiesta, "escaneá y subí tus
+fotos", el color de la fiesta y el logo si hay— **y que se baje listo para imprimir**. Es de lo
+más útil de toda esta orden: sin afiche en las mesas, la gente no sabe que puede subir.
+
+**6.d — El álbum del final, con las fotos Y los mensajes.** Ellos, al terminar, le mandan a los
+invitados un álbum con todo lo que se compartió, **fotos y mensajes juntos**. Nosotros tenemos
+el álbum (`/evento/album/[fiestaId]`) pero **con las fotos solas**.
+
+Qué hacer: que el álbum muestre también las dedicatorias y los mensajes del buzón. **No lo
+mandes solo por mensaje a nadie**: se prepara y lo manda una persona, que es la regla de la
+casa.
+
+### Lo que ellos tienen y NO se copia
+
+**La moderación automática que descarta sola.** Ellos filtran con inteligencia artificial unos
+minutos antes de mostrar y **descartan solos** lo inapropiado. Nosotros marcamos y ordenamos
+(bloque 4), **pero la mano que aprueba sigue siendo humana**. En una fiesta de quince, que una
+máquina decida sola qué foto de una nena se muestra es un riesgo que no vale la pena.
+
+### Y lo que nosotros tenemos y ELLOS no
+
+Que quede escrito, porque es con lo que se vende:
+
+Ellos tienen un **buzón de mensajes y audios**. **El nuestro tiene audio, video, foto, subir
+desde la galería y hasta una cabina telefónica retro** —cinco formas contra dos—. Y ellos no
+tienen nada de: encuestas en vivo, sorteo con rueda, chat, pedidos al DJ, seis juegos con podio
+por mesa, ranking de la foto más querida, momentos a pantalla completa, cartel LED de
+publicidad ni visualizador que se mueve con la música.
+
+**La pantalla de ellos muestra fotos lindas. La nuestra maneja la fiesta.**
+
+
+---
+
 ## LO QUE NO SE COPIA, y es decisión tomada
 
 - **Traer lo que la gente publica en Instagram, Facebook o TikTok con un hashtag** (es lo que
