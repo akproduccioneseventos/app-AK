@@ -6015,3 +6015,50 @@ navegador.** La lista de "esto puede cambiar la app" no incluía los scripts que
 
 **La lección: un control que decide qué controlar tiene que contarse a sí mismo entre lo
 que vigila.**
+
+## 31 de agosto de 2026 — Los ajustes de las estaciones, probados en pantalla
+
+- **Se probó de verdad que lo que se configura se ve.** La Plataforma 360 y Bogue muestran en
+  la pantalla del QR el texto de marca que carga el equipo al armar la fiesta. Está probado
+  abriendo la app y sacando la captura, no leyendo el código:
+  `tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts`. **Ojo con dónde se mira**: el texto
+  de marca NO aparece al abrir la estación, aparece recién en la pantalla de compartir. Una
+  prueba que mire la pantalla de espera da rojo aunque esté todo bien.
+- **En Touchpix el texto de marca vive en la ventanita del QR**, que se abre con el botón
+  "Compartir" (`src/app/evento/touchpix/[fiestaId]/page.tsx:794`). **Quedó sin comprobar en el
+  navegador**: la prueba no llegó a esa ventanita en dos intentos y se paró en vez de seguir
+  adivinando.
+- **Foto de pantalla de las seis estaciones**, para mirarlas con ojos humanos:
+  `tests/e2e/como-se-ven-las-estaciones.spec.ts`, deja las imágenes en
+  `test-results/como-se-ven/`. Falla si una estación no dibuja nada, no tiene ni un botón, se
+  rompe por dentro o le muestra texto técnico al invitado.
+
+### Cuatro avisos de los ayudantes que eran FALSA ALARMA (verificados uno por uno)
+
+Si vuelven a aparecer en una auditoría, son falsos positivos:
+
+1. **"Bogue no lee el texto de marca"** — sí lo lee, línea ~1106, y se comprobó en pantalla.
+2. **"La Plataforma 360 no pone marca de agua"** — sí la pone. Es la segunda vez que se
+   reporta este mismo error.
+3. **"Touchpix no lee el color de la fiesta"** — sí lo lee, línea 127.
+4. **"Los estilos de Touchpix están todos en inglés"** — no: Original, Neón Retro y Fantasía
+   ya están en castellano. **Quedan en inglés sólo "Disco Glam", "Pop Art", "Luxury" y la
+   solapa "Face Swap"**, y eso está pedido en la orden 20.
+
+### Lo que sí falta de verdad, y quedó pedido en la orden 20
+
+- **Cambiar el fondo sin tela verde no existe en ninguna estación de la app.** Es la función
+  estrella de las mejores plataformas.
+- **La galería de la noche la tiene sólo la Plataforma 360.**
+- **Ocho ajustes no los lee nadie**: `captureModes`, `overlayName`, `deliveryChannels`,
+  `logoUrl`, `filterPreset`, `printLayout`, `printCopies` y `moderationMode`.
+- **La Plataforma 360 es la única que ignora el color de la fiesta** (cero menciones de
+  `accentColor` en todo su archivo).
+
+### Por qué el Espejo Mágico dice "Experiencia no disponible" en las pruebas
+
+**No está roto: tiene tres modos** (`espejoMagicoFoto`, `espejoMagicoFirma`,
+`espejoMagicoIA`) y cada pantalla pide el suyo. Si la fiesta de prueba habilita el de
+inteligencia artificial y se abre la pantalla de foto, contesta —bien, y en criollo— que la
+estación no está habilitada. **Habilitar el modo que corresponde antes de dar por rota la
+pantalla.**
