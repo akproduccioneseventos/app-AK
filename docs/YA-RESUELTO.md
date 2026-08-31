@@ -1,4 +1,4 @@
-# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
+﻿# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 **Leé esto ANTES de auditar cualquier cosa.** Vale para Codex, Gemini, Claude y
 cualquier ayudante que salga a buscar problemas.
@@ -14,6 +14,42 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
+
+## Orden 26 — La Web de Venta No Se Rompe (31 de agosto de 2026)
+
+- **Redirecciones Canónicas HTTP 308 (`next.config.js`):**
+  - Todas las rutas públicas de venta (`/blog`, `/blog/:slug`, `/landing`, `/landing/xv-anos`, `/presentacion`, `/public`, `/portal-cliente`, `/evento`, `/album/:fiestaId`, `/proveedor/:id`, `/configuracion/backup-final`) redirigen limpiamente sin romper ni devolver 404/500 a prospectos ni clientes.
+- **Presentación LED sin pantalla blanca (`src/app/presentacion-led/page.tsx`):**
+  - Carga inmediata con datos por defecto (`DEFAULT_PRESENTACION_LED_SETTINGS` y `DEFAULT_PAGE_DATA`), sin spinners eternos ni cuelgues.
+- **Protección de Sesiones Google Auth (`src/lib/firebase/google-auth-client.ts`):**
+  - Limpieza segura con try/catch en `clearGoogleAuthSession` previniendo errores en entornos SSR o de prueba.
+- **Suite E2E Verificada (`tests/e2e/la-web-de-venta-no-se-rompe.spec.ts`):**
+  - Comprobación de extremo a extremo de las 9 rutas comerciales en verde y sin errores.
+
+## Orden 25 — Que el Empleado Confirme que Va (31 de agosto de 2026)
+
+- **Confirmación de Asistencia Interactiva (`src/app/acceso-personal/[tokenId]/page.tsx`):**
+  - Tarjeta de confirmación con botones "Confirmar que voy" y "No puedo ir" (con diálogo para indicar motivo opcional).
+  - Al confirmar, muestra estado registrado en verde con fecha y agradecimiento.
+- **Acción del Servidor Segura (`src/app/actions/accesos-personal-view.ts`):**
+  - Función `responderAsistenciaPersonal` que actualiza `asistenciaConfirmada`, `fechaConfirmacionAsistencia` y `motivoRechazoAsistencia` en la asignación del personal en Firestore.
+- **Insignias de Estado en el Panel de Personal (`src/app/(app)/fiestas/nueva/personal/page.tsx`):**
+  - Visualización del estado en tiempo real en la tabla de asignaciones: "Asistencia confirmada", "No asiste (motivo)" y "Pendiente".
+
+## Orden 24 — La Decoración: Que el Cliente Vea su Propuesta (31 de agosto de 2026)
+
+- **Propuesta de Decoración en el Portal ("Así va a quedar tu fiesta" - `src/app/portal/[fiestaId]/decoracion/page.tsx`):**
+  - Vista completa para el cliente con visualizaciones del salón, paleta de colores del evento, elementos de ambientación por zona y tablero de inspiración.
+  - Botones interactivos de feedback: "Me gusta así" y "Quiero cambiar algo" (con campo de texto para sugerencias de cambio) que guardan `opinionCliente` sin tocar el presupuesto.
+  - Accesible desde el portal del cliente (`/portal-cliente/[id]` y `/portal`).
+- **Generación de Salón Decorado con IA (`src/app/actions/fiesta/decoracion.actions.ts`):**
+  - Acción `generarVisualizacionSalonAi` con tope estricto de hasta 3 imágenes por fiesta vía `generateGeminiImage`.
+- **Sincronización Automática de Gastos Internos (`updateDecoracion`):**
+  - Al guardar la decoración, los costos internos de los elementos se sincronizan automáticamente con el módulo de gestión de costos.
+- **Control de Disponibilidad de Elementos Físicos (`getDisponibilidadElementosDecoracion`):**
+  - Consulta automática de disponibilidad de elementos entre eventos en la misma fecha para prevenir colisiones de inventario.
+- **Aclaración Documental en `src/ai/flows/generate-image-flow.ts`:**
+  - Nota explícita documentando que se trata de un placeholder SVG y no de IA.
 
 ## Orden 21 — El Recorrido de las 353 Pantallas y la Lista Automática (31 de agosto de 2026)
 

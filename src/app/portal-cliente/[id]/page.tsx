@@ -1141,6 +1141,12 @@ export default function PortalClientePage() {
                     </div>
                   </div>
                 )}
+                <Button asChild className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold text-xs uppercase tracking-wider mt-2">
+                  <Link href={`/portal/${fiesta.id}/decoracion`}>
+                    Ver propuesta completa: Así va a quedar tu fiesta
+                    <ChevronRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </Button>
               </AccordionContent>
             </AccordionItem>
           )}

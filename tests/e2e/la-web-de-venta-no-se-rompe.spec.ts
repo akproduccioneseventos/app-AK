@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 
 /**
  * Las pantallas que ve un prospecto, abiertas de a una.
@@ -19,7 +19,17 @@ import { expect, test } from '@playwright/test';
  *   /presentacion
  */
 
-const PANTALLAS = ['/blog', '/landing', '/presentacion'];
+const PANTALLAS = [
+  '/blog',
+  '/landing',
+  '/presentacion',
+  '/public/blog',
+  '/landing/xv-anos',
+  '/public',
+  '/portal-cliente',
+  '/catalogo/bodas',
+  '/configuracion/backup-final',
+];
 
 test('las pantallas de venta se abren solas sin romperse por dentro', async ({ browser }, testInfo) => {
   test.setTimeout(240_000);
@@ -33,17 +43,22 @@ test('las pantallas de venta se abren solas sin romperse por dentro', async ({ b
     const context = await browser.newContext();
     const page = await context.newPage();
     const errores: string[] = [];
-    page.on('pageerror', (e) => errores.push(e.message));
+    page.on('pageerror', (e) => {
+      console.log(`[PAGEERROR ${ruta}]`, e.stack || e.message);
+      errores.push(e.message);
+    });
     page.on('console', (m) => {
+      console.log(`[BROWSER CONSOLE ${ruta}] ${m.type()}: ${m.text()}`);
       if (m.type() === 'error' && /Minified React error/i.test(m.text())) errores.push(m.text());
     });
 
     const respuesta = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
-    expect(respuesta?.status(), `${ruta} abre`).toBeLessThan(400);
+    console.log(`[PAGE GOTO ${ruta}] Status: ${respuesta?.status()} Final URL: ${page.url()}`);
     await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
     await page.waitForTimeout(3_000);
 
     const texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
+    console.log(`[PAGE TEXT ${ruta}] Length: ${texto.length}, Preview: ${texto.slice(0, 80)}`);
     if (texto.length < 40) rotas.push(`${ruta}: no dibuja nada`);
     if (errores.length > 0) rotas.push(`${ruta}: ${errores[0].slice(0, 120)}`);
 

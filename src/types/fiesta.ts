@@ -1,4 +1,4 @@
-
+﻿
 import type { TipoEvento } from './presupuesto';
 import type { UnidadServicio } from './empresa';
 import type { SocialGalleryPost } from './social-gallery';
@@ -177,6 +177,9 @@ export interface PersonalAsignadoDetalleStorage {
   rolId: string;
   eventSalary: number;
   checkInTimestamp?: string;
+  asistenciaConfirmada?: boolean;
+  fechaConfirmacionAsistencia?: string;
+  motivoRechazoAsistencia?: string;
 }
 
 export interface ReunionChecklistItem {
@@ -359,6 +362,12 @@ export interface DecoracionData {
   salonPreview3dUrl?: string;
   plantillasGuardadas?: Array<{ id: string; nombre: string; elementos: ElementoDecorativo[]; creadaEn: string }>;
   customElements?: Array<{ id: string; nombre: string; imageDataUri: string }>;
+  fotosGeneradasAi?: string[];
+  opinionCliente?: {
+    leGusta: boolean;
+    comentario?: string;
+    fecha: string;
+  };
 }
 
 export interface GiftItem {

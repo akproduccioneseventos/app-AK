@@ -1,3 +1,9 @@
+﻿/**
+ * NOTA: Este archivo genera un SVG estático de plantilla como placeholder gráfico.
+ * NO genera imágenes con Inteligencia Artificial. Para generación fotográfica real con IA
+ * utilizar @/lib/ai/gemini-image (`generateGeminiImage`).
+ */
+
 export interface GenerateImageInput {
   prompt: string;
   title?: string;

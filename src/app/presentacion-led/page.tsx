@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Image from 'next/image';
@@ -21,6 +21,7 @@ import { getCompanyInfoPublica, getInvoiceTemplateSettings, getBudgetDisplaySett
 import { getMenusPublicos } from '@/app/actions/menus-catering';
 import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
 import { getPresentacionLedSettings } from '@/app/actions/contenido-publico';
+import { DEFAULT_PRESENTACION_LED_SETTINGS } from '@/lib/public-content-defaults';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { CatalogoFoto } from '@/types/catalogo';
 import type { PresentacionLedSettings } from '@/types/contenido-publico';
@@ -47,6 +48,27 @@ import { GaleriaLightboxModal } from './components/galeria-lightbox-modal';
 // Types
 import type { PageData, ClientData, CategoriaServicio, ResourceSummary } from './lib/tipos';
 import { calcularTotalServicioLed } from './lib/calculos';
+
+const DEFAULT_PAGE_DATA: PageData = {
+  companyInfo: {
+    companyName: 'AK Producciones',
+    companyAddress: 'Salto, Uruguay',
+    companyTaxId: '',
+    companyContact: '+598 98 355 530',
+    defaultDocumentNotes: '',
+    invoiceCustomFooter: '',
+  },
+  logoUrl: null,
+  servicios: [],
+  valuePropositions: [
+    'Asesoramiento integral y personalizado',
+    'Sonido e iluminación de última generación',
+    'Gastronomía de excelencia con opciones a medida',
+    'Fotografía y video profesional para recordar cada momento',
+  ],
+  mostrarPrecios: true,
+  menus: [],
+};
 
 
 // ---- Slide variants & transition ----
@@ -101,32 +123,21 @@ function groupServicesByCategory(servicios: PageData['servicios']): CategoriaSer
   return Array.from(map.values());
 }
 
-function normalizeCategory(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+function normalizeCategory(nombre: string): string {
+  return nombre
     .toLowerCase()
-    .trim();
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 }
 
 function sortCategoriesByFlow(categorias: CategoriaServicio[]): CategoriaServicio[] {
-  const orderedPatterns = [
-    ['personal'],
-    ['catering', 'gastronomia', 'gastronomía'],
-    ['barra', 'tragos'],
-    ['discoteca'],
-    ['dj'],
-    ['fotografia'],
-    ['filmacion'],
-    ['decoracion'],
-    ['entretenimiento'],
-    ['reposteria'],
-  ];
-
-  const getPriority = (name: string) => {
-    const n = normalizeCategory(name);
-    const idx = orderedPatterns.findIndex((patterns) => patterns.some((p) => n.includes(p)));
-    return idx === -1 ? Number.MAX_SAFE_INTEGER : idx;
+  const getPriority = (nombre: string): number => {
+    const n = normalizeCategory(nombre);
+    if (n.includes('discoteca') || n.includes('sonido') || n.includes('iluminacion')) return 1;
+    if (n.includes('foto') || n.includes('video') || n.includes('audiovisual')) return 2;
+    if (n.includes('decoracion') || n.includes('ambientacion')) return 3;
+    if (n.includes('entretenimiento') || n.includes('animacion') || n.includes('robot')) return 4;
+    return 10;
   };
 
   return [...categorias].sort((a, b) => {
@@ -149,9 +160,9 @@ const FIXED_SLIDES_END = 4;   // regalos, presupuesto, plan de pagos, contratarn
 
 export default function PresentacionLedPage() {
   const router = useRouter();
-  const [data, setData] = useState<PageData | null>(null);
+  const [data, setData] = useState<PageData>(DEFAULT_PAGE_DATA);
   const [catalogoFotos, setCatalogoFotos] = useState<CatalogoFoto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -160,7 +171,7 @@ export default function PresentacionLedPage() {
   const [selectedTeenMenuId, setSelectedTeenMenuId] = useState<string | null>(null);
   const [selectedEntradasIds, setSelectedEntradasIds] = useState<string[]>([]);
   // entradasCount is derived from duration (1 if < ENTRADA_DUAL_DURATION_THRESHOLD hours, 2 otherwise)
-  const [presentacionSettings, setPresentacionSettings] = useState<PresentacionLedSettings | null>(null);
+  const [presentacionSettings, setPresentacionSettings] = useState<PresentacionLedSettings>(DEFAULT_PRESENTACION_LED_SETTINGS);
   const [clientData, setClientData] = useState<ClientData>({
     nombre: '', fechaEvento: '', tipoFiesta: '', cantidadInvitados: '', invitadosAdultos: '', invitadosAdolescentes: '', duracionHoras: '', tieneSalon: undefined, salon: '',
   });

@@ -1,4 +1,4 @@
-export const DEFAULT_CATALOGO_PRESENTACION_TEXT = [
+﻿export const DEFAULT_CATALOGO_PRESENTACION_TEXT = [
   'En AK Producciones somos especialistas en transformar momentos especiales en recuerdos eternos.',
   'Nos encargamos de todo: decoración, catering, sonido, fotografía y coordinación general.',
 ].join(' ');
@@ -46,3 +46,43 @@ export const EMPRESAS_DEL_CATALOGO = [
   'Woslen', 'APC Salto', 'INC', 'Antel', 'ABRA', 'INAU',
   'Intendencia de Salto', 'Club Uruguay',
 ];
+
+import type { PresentacionLedSettings } from '@/types/contenido-publico';
+
+export const DEFAULT_PRESENTACION_LED_SETTINGS: PresentacionLedSettings = {
+  portada: {
+    tituloPrincipal: 'AK Producciones',
+    subtitulo: 'Salón, comida, música, fotos y coordinación con un solo equipo.',
+    imagenFondoUrl: '',
+    colorAcento: 'from-indigo-500 to-emerald-500',
+  },
+  porQueElegirnos: {
+    beneficios: [
+      { emoji: '🛡️', texto: 'Un solo proveedor para coordinar todo el evento.' },
+      { emoji: '⏱️', texto: 'Puntualidad garantizada en cada etapa.' },
+      { emoji: '🎧', texto: 'Atención personalizada antes, durante y después.' },
+      { emoji: '⭐', texto: 'Calidad premium en servicios y ejecución.' },
+      { emoji: '⚡', texto: 'Resolución inmediata ante cualquier imprevisto.' },
+      { emoji: '❤️', texto: 'Experiencia que emociona y se recuerda.' },
+    ],
+    imagenLateralUrl: '',
+  },
+  salon: {
+    titulo: 'Nuestro Salón - Club Uruguay',
+    descripcion: 'Un salón de primer nivel en pleno centro de Salto, con más de 120 años de historia.',
+    fotos: [],
+  },
+  equipo: {
+    titulo: 'Hay Equipo 🤝',
+    frase: 'El día de tu fiesta somos 11 personas trabajando para vos.',
+    cantidadPersonas: 11,
+    fotos: [],
+  },
+  empresasColaboradoras: DEFAULT_PARTNER_LOGOS,
+  cierre: {
+    titulo: 'Contratarnos',
+    mensaje: 'Estamos listos para hacer de tu celebración un recuerdo imborrable.',
+    ctaTexto: 'Generar Presupuesto Manual',
+    ctaAccion: 'generar-presupuesto' as const,
+  },
+};

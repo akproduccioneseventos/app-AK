@@ -44,6 +44,17 @@ import { saveOfflineMedia } from '@/lib/offline/offline-db';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
+import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
+import {
+  obtenerModosCapturaHabilitados,
+  obtenerDimensionesPorOrientacion,
+  METADATOS_MODOS_CAPTURA,
+} from '@/lib/entretenimiento/modos-captura';
+import {
+  aplicarChromaKey,
+  procesarFondoCanvas,
+  type OpcionFondo,
+} from '@/lib/entretenimiento/segmentacion-fondo';
 
 /* ───────────────────── Theme Definitions ───────────────────── */
 
@@ -316,6 +327,13 @@ export default function TouchpixPage() {
       ctx.drawImage(img, 0, 0);
       ctx.filter = 'none';
 
+      if (selectedTheme === 'belleza' || fiesta?.station.enableBeautyFilter) {
+        aplicarFiltroBelleza(ctx, offscreen.width, offscreen.height);
+      }
+      if (fiesta?.station.enableChromaKey) {
+        aplicarChromaKey(ctx, offscreen.width, offscreen.height);
+      }
+
       // Draw overlay emojis
       if (overlayEmojis && overlayEmojis.length > 0) {
         const emojiSize = Math.max(40, img.width * 0.06);
@@ -499,6 +517,7 @@ export default function TouchpixPage() {
     fiestaId,
     handleCapture,
     playBeep,
+    speak,
   ]);
 
   useEffect(() => {

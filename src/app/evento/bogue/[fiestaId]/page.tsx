@@ -62,6 +62,15 @@ const BOGUE_FRAMES = [
 
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
 import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
+import {
+  procesarFondoCanvas,
+  type OpcionFondo,
+} from '@/lib/entretenimiento/segmentacion-fondo';
+import {
+  obtenerDimensionesPorOrientacion,
+  obtenerModosCapturaHabilitados,
+  METADATOS_MODOS_CAPTURA,
+} from '@/lib/entretenimiento/modos-captura';
 
 export default function BoguePage() {
   const params = useParams();
@@ -116,6 +125,10 @@ export default function BoguePage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [cameraError, setCameraError] = useState<string | null>(null);
+
+  const _modosHabilitadosBogue = useMemo(() => obtenerModosCapturaHabilitados(fiesta?.station.captureModes, 'boomerang'), [fiesta?.station.captureModes]);
+  const _dimensionesBogue = useMemo(() => obtenerDimensionesPorOrientacion(fiesta?.station.orientation), [fiesta?.station.orientation]);
+  const _metaBoomerang = METADATOS_MODOS_CAPTURA.boomerang;
   // Se separa del mensaje de progreso para que la pantalla final sepa si el
   // video llego al muro o no. Antes no habia forma de distinguirlo y el cuadro
   // del QR quedaba girando como si todavia estuviera subiendo.
