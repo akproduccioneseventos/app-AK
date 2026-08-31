@@ -86,7 +86,17 @@ Cada mecanismo, al terminar, **escribe qué miró y con qué método**:
 3. **La fecha se guarda.** Si una pantalla se modifica después de la fecha en que se auditó,
    **vuelve a contar como sin auditar**, sola, sin que nadie se acuerde.
 
-Y que el número se vea al final de la puerta: **"auditadas de verdad: X de 353"**.
+Y que la puerta, al terminar bien, muestre **los dos números**:
+
+    Auditadas de verdad: 9 de 353 pantallas (3%).
+    Módulos auditados con el método completo: 5 de 16.
+
+**Los dos, no uno.** El de pantallas dice cuánto se miró; el de módulos dice cuánto se miró
+**bien**, con el método de `docs/COMO-AUDITAR-UN-MODULO.md`. Una app puede tener todas las
+pantallas abiertas y ningún módulo entendido.
+
+**Y el mecanismo mantiene las dos tablas de `docs/LO-AUDITADO.md`, no una.** La de pantallas se
+llena sola con el recorrido; la de módulos se marca cuando se cierra la orden de ese módulo.
 
 ---
 

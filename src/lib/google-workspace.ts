@@ -458,9 +458,14 @@ export function getFiestaTimes(fiesta: FiestaEnPlanificacion) {
   } else {
     start = new Date();
   }
-  const safeStart = Number.isNaN(start.getTime()) ? new Date() : start;
+  // Si la fecha no se entiende, ANTES se usaba la de hoy y se creaba un evento
+  // fantasma en la agenda del dueno, con el nombre de la fiesta y un dia que no
+  // era ninguno. Ahora se avisa con `fechaValida` en falso y quien sincroniza
+  // no crea nada.
+  const fechaValida = Boolean(raw) && !Number.isNaN(start.getTime());
+  const safeStart = fechaValida ? start : new Date();
   const end = new Date(safeStart.getTime() + 6 * 60 * 60 * 1000);
-  return { start, safeStart, end };
+  return { start, safeStart, end, fechaValida };
 }
 
 export function getRoleName(roles: Rol[], roleId?: string) {
@@ -699,6 +704,30 @@ export async function findExistingGoogleCalendarEvent(
 ): Promise<string | null> {
   try {
     const calendarId = encodeURIComponent(account.calendarId || 'primary');
+
+    // PRIMERO: buscar la fiesta en TODA la agenda, no solo en el dia.
+    //
+    // Antes se buscaba unicamente dentro del dia de la fecha nueva, y eso dejaba
+    // la agenda del dueno sucia de dos formas: si a una fiesta se le cambiaba la
+    // fecha, el evento viejo quedaba clavado en la fecha vieja (una fecha "que no
+    // era", con el nombre de la fiesta), y ademas se creaba uno nuevo en la fecha
+    // nueva, o sea duplicado. Buscando por el numero de la fiesta en un rango
+    // ancho se encuentra el que ya existe y se lo MUEVE, en vez de crear otro.
+    const marca = `AK_FIESTA_ID: ${fiestaId}`;
+    const anchoMin = new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString();
+    const anchoMax = new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000).toISOString();
+    const urlAncha = `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events`
+      + `?timeMin=${encodeURIComponent(anchoMin)}&timeMax=${encodeURIComponent(anchoMax)}`
+      + `&singleEvents=true&maxResults=2500&q=${encodeURIComponent(fiestaId)}`;
+    const anchura = await fetch(urlAncha, {
+      headers: { Authorization: `Bearer ${account.accessToken}` },
+    });
+    if (anchura.ok) {
+      const datosAnchos = await anchura.json() as { items?: GoogleCalendarListItem[] };
+      const yaEsta = (datosAnchos.items || []).find((item) => item.description?.includes(marca));
+      if (yaEsta) return yaEsta.id;
+    }
+
     // Cover the full day in Uruguay time zone (-03:00)
     const timeMin = encodeURIComponent(new Date(`${dateStr}T00:00:00-03:00`).toISOString());
     const timeMax = encodeURIComponent(new Date(`${dateStr}T23:59:59-03:00`).toISOString());
@@ -754,5 +783,69 @@ export async function findExistingGoogleCalendarEvent(
   } catch (error) {
     console.error('[findExistingGoogleCalendarEvent] Exception:', error);
     return null;
+  }
+}
+
+/** Un evento de la agenda que puso la app, ya identificado. */
+export type EventoDeAkEnLaAgenda = {
+  id: string;
+  titulo: string;
+  fiestaId: string;
+  cuando: string;
+};
+
+/**
+ * Trae todos los eventos que puso la app en la agenda, de dos años para atrás a
+ * dos para adelante. Se reconocen por la marca `AK_FIESTA_ID:` que la app deja
+ * en la descripción, así que **nunca toca un evento personal del dueño**.
+ */
+export async function listarEventosDeAkEnLaAgenda(
+  account: GoogleWorkspaceAccount,
+): Promise<EventoDeAkEnLaAgenda[]> {
+  const calendarId = encodeURIComponent(account.calendarId || 'primary');
+  const desde = new Date(Date.now() - 2 * 365 * 24 * 60 * 60 * 1000).toISOString();
+  const hasta = new Date(Date.now() + 2 * 365 * 24 * 60 * 60 * 1000).toISOString();
+  const encontrados: EventoDeAkEnLaAgenda[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const url = `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events`
+      + `?timeMin=${encodeURIComponent(desde)}&timeMax=${encodeURIComponent(hasta)}`
+      + `&singleEvents=true&maxResults=2500`
+      + (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : '');
+    const respuesta = await fetch(url, { headers: { Authorization: `Bearer ${account.accessToken}` } });
+    if (!respuesta.ok) throw new Error(await respuesta.text());
+    const datos = await respuesta.json() as { items?: GoogleCalendarListItem[]; nextPageToken?: string };
+
+    for (const item of datos.items || []) {
+      const marca = item.description?.match(/AK_FIESTA_ID:\s*(\S+)/);
+      if (!marca) continue;
+      encontrados.push({
+        id: item.id,
+        titulo: item.summary || '(sin titulo)',
+        fiestaId: marca[1],
+        cuando: item.start?.dateTime || item.start?.date || '',
+      });
+    }
+    pageToken = datos.nextPageToken;
+  } while (pageToken);
+
+  return encontrados;
+}
+
+/** Borra un evento de la agenda. Sólo se usa con eventos que puso la app. */
+export async function borrarEventoDeLaAgenda(
+  account: GoogleWorkspaceAccount,
+  eventId: string,
+): Promise<void> {
+  const calendarId = encodeURIComponent(account.calendarId || 'primary');
+  const url = `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events/${encodeURIComponent(eventId)}?sendUpdates=none`;
+  const respuesta = await fetch(url, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${account.accessToken}` },
+  });
+  // 410 = ya estaba borrado. No es un error para lo que nos importa.
+  if (!respuesta.ok && respuesta.status !== 404 && respuesta.status !== 410) {
+    throw new Error(await respuesta.text());
   }
 }
