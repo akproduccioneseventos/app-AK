@@ -256,5 +256,23 @@ test.describe('Recorrido de las 353 pantallas', () => {
     }
 
     await context.close();
+
+    // ESTO ES LO QUE HACE QUE EL CONTROL SIRVA.
+    //
+    // Sin esto, el recorrido junta los resultados, escribe el informe y termina
+    // en verde **aunque las 353 pantallas esten rotas**. Es la misma forma que
+    // tuvo el corredor de pruebas que decia "todas pasaron" con cero pruebas
+    // corridas, y el control de acentos que daba bien mirando cero archivos.
+    //
+    // La regla del proyecto: un control que no frena no es un control.
+    const rotas = results.filter((r) => r.estado === 'FALLO');
+    const resumen = rotas
+      .slice(0, 25)
+      .map((r) => `  ${r.pathname}: ${r.motivo}`)
+      .join('\n');
+    expect(
+      rotas.length,
+      `Hay ${rotas.length} de ${results.length} pantallas rotas. El detalle completo esta en test-results/recorrido/informe.md\n${resumen}`,
+    ).toBe(0);
   });
 });

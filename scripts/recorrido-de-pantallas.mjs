@@ -11,6 +11,9 @@ const r = spawnSync(
   {
     stdio: 'inherit',
     shell: true,
+    // Sin esto el recorrido queda excluido de la corrida y no se ejecuta nunca:
+    // esta apagado a proposito para que no haga eterna la puerta.
+    env: { ...process.env, AK_RECORRIDO: 'true' },
   },
 );
 
