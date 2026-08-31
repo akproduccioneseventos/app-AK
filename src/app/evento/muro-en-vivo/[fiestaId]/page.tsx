@@ -624,8 +624,13 @@ export default function MuroEnVivoPage() {
             ) : <EmptyWallState eventName={eventName} qrUrl={qrUrl} />
           )}
 
-          {/* Dedicaciones full-screen slide - Omitted as memories go in a separate module */}
-          {false && isLoaded && settings.privateDedicationsMode !== true && activeScreenItem?.type === 'dedicaciones' && (
+          {/* Dedicatorias en la pantalla grande.
+              Estuvo apagada con un `false` clavado mientras el operador tenia el control
+              para encenderla: el ajuste `showDedications`, el item 'dedicaciones' de la
+              lista de la pantalla y el boton para forzarlo desde el celular. Tocaba y no
+              pasaba nada, y el invitado escribia dedicatorias que no veia nadie.
+              Ahora manda el operador: sale solo si la puso en la lista o la forzo. */}
+          {isLoaded && settings.privateDedicationsMode !== true && activeScreenItem?.type === 'dedicaciones' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-12 overflow-hidden">
               <p className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-400 mb-2">💌 Dedicatorias</p>
               {highlightedDedications.length > 0 ? (

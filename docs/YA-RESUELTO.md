@@ -6062,3 +6062,24 @@ Si vuelven a aparecer en una auditoría, son falsos positivos:
 inteligencia artificial y se abre la pantalla de foto, contesta —bien, y en criollo— que la
 estación no está habilitada. **Habilitar el modo que corresponde antes de dar por rota la
 pantalla.**
+
+## 31 de agosto de 2026 — Las dedicatorias salían apagadas con un candado
+
+**Qué estaba mal:** el invitado podía escribir una dedicatoria, se guardaba, y **no la veía
+nadie en la fiesta**. En la pantalla grande el bloque estaba apagado con un `false` clavado en
+el código (`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx`, ~línea 628), **mientras el
+operador tenía tres formas de encenderlas**: el ajuste `showDedications`, el item
+'dedicaciones' de la lista de la pantalla y el botón para forzarlo desde el celular. Tocaba las
+tres y no pasaba nada.
+
+**Qué se hizo:** se sacó el candado. Ahora manda el operador: la dedicatoria sale **sólo** si la
+puso en la lista de la pantalla o la forzó, y el ajuste de dedicatorias privadas sigue mandando
+por encima. **Con la fiesta como está hoy no cambia nada**, porque si nadie la pone en la lista
+no aparece.
+
+**Por qué así y no encendiéndolas siempre:** qué se muestra de un invitado en la pantalla
+grande lo decide el equipo, no la app.
+
+**El candado queda vigilado:** `src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts` se
+pone en rojo si alguien vuelve a apagarlas a mano. Comprobado que frena de verdad, no sólo que
+pasa en verde.
