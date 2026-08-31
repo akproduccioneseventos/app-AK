@@ -820,6 +820,8 @@ function MuroSocialContent() {
       canciones: { type: 'canciones', title: 'Pedidos de Canciones', durationSeconds: 30, enabled: true, layout: 'auto' },
       audioritmico: { type: 'audioritmico', title: 'Momento discoteca', durationSeconds: 25, enabled: true, layout: 'auto' },
       pauta: { type: 'pauta', title: 'Pauta publicitaria', durationSeconds: 15, enabled: true, layout: 'auto' },
+      cronograma: { type: 'cronograma', title: 'Qué viene ahora', durationSeconds: 20, enabled: true, layout: 'auto' },
+      patrocinador: { type: 'patrocinador', title: 'Salón y Patrocinadores', durationSeconds: 15, enabled: true, layout: 'auto' },
     };
     setSettings((prev) => withScreenDefaults({
       ...prev,

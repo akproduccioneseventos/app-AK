@@ -496,3 +496,52 @@ export async function uploadDedicationAudio(
     return { success: false, error: error.message || 'Error al subir audio.' };
   }
 }
+
+// ─────────────────────────── LIVE REACTIONS (Bloque 3) ───────────────────────────
+
+export interface LiveReaction {
+  id: string;
+  fiestaId: string;
+  type: 'aplausos' | 'corazon' | 'fuego' | string;
+  emoji: string;
+  createdAt: number;
+}
+
+const liveReactionsCache: Map<string, LiveReaction[]> = new Map();
+
+export async function sendPublicReaction(
+  fiestaId: string,
+  type: 'aplausos' | 'corazon' | 'fuego' | string,
+): Promise<{ success: boolean; reaction?: LiveReaction }> {
+  try {
+    const emojis: Record<string, string> = {
+      aplausos: '👏',
+      corazon: '❤️',
+      fuego: '🔥',
+    };
+    const reaction: LiveReaction = {
+      id: `rx_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      fiestaId,
+      type,
+      emoji: emojis[type] || '👏',
+      createdAt: Date.now(),
+    };
+    const current = liveReactionsCache.get(fiestaId) || [];
+    const now = Date.now();
+    const updated = [...current.filter((r) => now - r.createdAt < 20_000), reaction];
+    liveReactionsCache.set(fiestaId, updated);
+    return { success: true, reaction };
+  } catch {
+    return { success: false };
+  }
+}
+
+export async function getPublicLiveReactions(fiestaId: string, sinceTimestamp = 0): Promise<LiveReaction[]> {
+  try {
+    const current = liveReactionsCache.get(fiestaId) || [];
+    const now = Date.now();
+    return current.filter((r) => now - r.createdAt < 20_000 && r.createdAt > sinceTimestamp);
+  } catch {
+    return [];
+  }
+}

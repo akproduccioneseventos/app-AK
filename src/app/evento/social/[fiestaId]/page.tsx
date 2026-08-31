@@ -1222,6 +1222,52 @@ export default function SocialEventPage() {
             </a>
           </div>
         </div>
+
+        {/* ── BARRA DE REACCIONES EN VIVO A LA PANTALLA GIGANTE (Bloque 3) ── */}
+        <div className="fixed bottom-5 right-5 z-40 flex items-center gap-1.5 bg-slate-950/90 border border-white/20 p-1.5 rounded-full shadow-2xl backdrop-blur-md">
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const { sendPublicReaction } = await import('@/app/actions/social-interactive');
+                await sendPublicReaction(fiestaId, 'aplausos');
+                toast({ title: '👏 ¡Aplausos enviados a la pantalla gigante!', duration: 1200 });
+              } catch {}
+            }}
+            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 active:scale-125 flex items-center justify-center text-lg transition"
+            title="Enviar aplausos"
+          >
+            👏
+          </button>
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const { sendPublicReaction } = await import('@/app/actions/social-interactive');
+                await sendPublicReaction(fiestaId, 'corazon');
+                toast({ title: '❤️ ¡Corazón enviado a la pantalla gigante!', duration: 1200 });
+              } catch {}
+            }}
+            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 active:scale-125 flex items-center justify-center text-lg transition"
+            title="Enviar corazón"
+          >
+            ❤️
+          </button>
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const { sendPublicReaction } = await import('@/app/actions/social-interactive');
+                await sendPublicReaction(fiestaId, 'fuego');
+                toast({ title: '🔥 ¡Fuego enviado a la pantalla gigante!', duration: 1200 });
+              } catch {}
+            }}
+            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 active:scale-125 flex items-center justify-center text-lg transition"
+            title="Enviar fuego"
+          >
+            🔥
+          </button>
+        </div>
       </main>
     </div>
   );

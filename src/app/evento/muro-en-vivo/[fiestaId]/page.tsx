@@ -103,6 +103,8 @@ export default function MuroEnVivoPage() {
   const [recentChatMessages, setRecentChatMessages] = useState<ChatMessage[]>([]);
   const [recentSongRequests, setRecentSongRequests] = useState<SongRequest[]>([]);
   const [sorteoOnScreen, setSorteoOnScreen] = useState(false);
+  const [eventPrograma, setEventPrograma] = useState<any[]>([]);
+  const [coverImageUrl, setCoverImageUrl] = useState<string | undefined>(undefined);
   const [isLoaded, setIsLoaded] = useState(false);
   const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
@@ -231,8 +233,12 @@ export default function MuroEnVivoPage() {
         setPosts(sorted);
       }
 
-      if (fiestaData && !eventName) {
-        setEventName(fiestaData.configuracion?.nombreEvento || '');
+      if (fiestaData) {
+        if (!eventName) setEventName(fiestaData.configuracion?.nombreEvento || '');
+        if (fiestaData.programa) setEventPrograma(fiestaData.programa);
+        if (fiestaData.socialGallerySettings?.mobileControlCoverUrl) {
+          setCoverImageUrl(fiestaData.socialGallerySettings.mobileControlCoverUrl);
+        }
       }
       if (fiestaData?.socialGallerySettings) {
         setSettings((prev) => ({ ...prev, ...fiestaData.socialGallerySettings }));
@@ -393,23 +399,33 @@ export default function MuroEnVivoPage() {
   // Using `!== false` is intentional: when enabled is undefined (legacy events that never set it),
   // we treat the playlist as active so existing behaviour is preserved (opt-out semantics).
   // New events can explicitly set enabled=false to disable the playlist.
-  const enabledPlaylist = useMemo(() => settings.screenMode?.enabled !== false
-    ? (settings.screenMode?.playlist ?? []).filter((item) => {
-        if (!item.enabled) return false;
-        if (item.type === 'canciones' && settings.showSongRequests === false) return false;
-        if (item.type === 'dedicaciones' && settings.showDedications === false) return false;
-        if (item.type === 'chat' && settings.chatEnabled === false) return false;
-        if (item.type === 'juego' && settings.showPolls === false) return false;
-        return true;
-      })
-    : [], [
-      settings.screenMode?.enabled,
-      settings.screenMode?.playlist,
-      settings.showSongRequests,
-      settings.showDedications,
-      settings.chatEnabled,
-      settings.showPolls,
-    ]);
+  const enabledPlaylist = useMemo(() => {
+    if (settings.screenMode?.enabled === false) return [];
+    let list = (settings.screenMode?.playlist ?? []).filter((item) => {
+      if (!item.enabled) return false;
+      if (item.type === 'canciones' && settings.showSongRequests === false) return false;
+      if (item.type === 'dedicaciones' && settings.showDedications === false) return false;
+      if (item.type === 'chat' && settings.chatEnabled === false) return false;
+      if (item.type === 'juego' && settings.showPolls === false) return false;
+      if (item.type === 'cronograma' && (!eventPrograma || eventPrograma.length === 0)) return false;
+      return true;
+    });
+
+    // Auto-include cronograma if event has programa and it is not in the playlist
+    if (eventPrograma && eventPrograma.length > 0 && !list.some(i => i.type === 'cronograma')) {
+      list = [...list, { id: 'auto_cronograma', type: 'cronograma' as ScreenPlaylistItemType, title: 'Qué viene ahora', durationSeconds: 15, enabled: true }];
+    }
+
+    return list;
+  }, [
+    settings.screenMode?.enabled,
+    settings.screenMode?.playlist,
+    settings.showSongRequests,
+    settings.showDedications,
+    settings.chatEnabled,
+    settings.showPolls,
+    eventPrograma,
+  ]);
   // Remote forced item overrides the auto playlist rotation
   const activeScreenItem = useMemo<ScreenPlaylistItem | null>(() => {
     return settings.forcedScreenItem
@@ -515,8 +531,8 @@ export default function MuroEnVivoPage() {
           {/* 'dedicaciones' NO va en esta lista: su bloque esta desactivado mas
               abajo, asi que sin esto la pantalla del salon quedaba en blanco
               cada vez que la rotacion llegaba a esa diapositiva. */}
-          {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'chat', 'canciones', 'audioritmico', 'pauta'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
-            <EmptyWallState eventName={eventName} qrUrl={qrUrl} />
+          {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'chat', 'canciones', 'audioritmico', 'pauta', 'cronograma', 'patrocinador'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
+            <EmptyWallState eventName={eventName} qrUrl={qrUrl} coverImageUrl={coverImageUrl} />
           )}
 
           {/* Muro apagado para esta fiesta. Sin este cartel la pantalla del salon
@@ -703,6 +719,16 @@ export default function MuroEnVivoPage() {
               eventName={eventName}
               fallbackQrUrl={`/evento/social/${fiestaId}`}
             />
+          )}
+
+          {/* Cronograma / Qué viene ahora (Bloque 2) */}
+          {isLoaded && activeScreenItem?.type === 'cronograma' && eventPrograma.length > 0 && (
+            <CronogramaSlide programa={eventPrograma} />
+          )}
+
+          {/* Patrocinador / Salón de eventos (Bloque 5) */}
+          {isLoaded && activeScreenItem?.type === 'patrocinador' && (
+            <PatrocinadorSlide brand={settings.brand} staticBranding={staticBranding} />
           )}
 
           {/* Dedications overlay - Omitted as memories go in a separate module */}
@@ -1107,19 +1133,28 @@ export default function MuroEnVivoPage() {
         }
       `}</style>
 
+      <FloatingReactionsLayer fiestaId={fiestaId} />
       <ReconnectingIndicator isReconnecting={isReconnecting} />
     </div>
   );
 }
 
-function EmptyWallState({ eventName, qrUrl }: { eventName: string; qrUrl: string }) {
+function EmptyWallState({ eventName, qrUrl, coverImageUrl }: { eventName: string; qrUrl: string; coverImageUrl?: string }) {
   return (
     <section
       data-testid="live-wall-empty"
       className="absolute inset-0 grid place-items-center overflow-hidden bg-slate-950 px-8 py-10 text-white"
       aria-live="polite"
     >
-      <div className="grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1fr_auto] lg:gap-16">
+      {coverImageUrl && (
+        <div className="absolute inset-0 z-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={coverImageUrl} alt="" className="w-full h-full object-cover opacity-20 filter blur-sm scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/50" />
+        </div>
+      )}
+
+      <div className="relative z-10 grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1fr_auto] lg:gap-16">
         <div className="max-w-3xl">
           <div className="mb-6 flex items-center gap-3 text-red-300">
             <Camera className="h-8 w-8" aria-hidden="true" />
@@ -1147,6 +1182,123 @@ function EmptyWallState({ eventName, qrUrl }: { eventName: string; qrUrl: string
         )}
       </div>
     </section>
+  );
+}
+
+function CronogramaSlide({ programa }: { programa: any[] }) {
+  if (!programa || programa.length === 0) return null;
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-12 overflow-hidden bg-slate-950 text-white">
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-black uppercase tracking-[0.3em]">
+        🕒 Qué viene ahora en la fiesta
+      </div>
+
+      <div className="w-full max-w-3xl space-y-4">
+        {programa.slice(0, 4).map((item, idx) => (
+          <div
+            key={idx}
+            className={`flex items-center justify-between p-6 rounded-2xl border backdrop-blur-md transition-all ${
+              idx === 0
+                ? 'bg-amber-500/20 border-amber-400/60 shadow-2xl scale-105'
+                : 'bg-white/5 border-white/10'
+            }`}
+          >
+            <div className="flex items-center gap-4">
+              <span className={`text-xs font-mono font-bold px-3 py-1.5 rounded-xl ${
+                idx === 0 ? 'bg-amber-400 text-black font-black' : 'bg-white/10 text-white'
+              }`}>
+                {item.hora || `${22 + idx}:00`}
+              </span>
+              <span className={`text-xl font-bold ${idx === 0 ? 'text-amber-200' : 'text-white'}`}>
+                {item.titulo || item.descripcion}
+              </span>
+            </div>
+            {idx === 0 && (
+              <span className="text-xs font-black uppercase px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                Ahora
+              </span>
+            )}
+            {idx === 1 && (
+              <span className="text-xs font-semibold uppercase text-slate-400">
+                Siguiente
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PatrocinadorSlide({ brand, staticBranding }: { brand?: any; staticBranding?: any }) {
+  const name = brand?.name || staticBranding?.companyInfo?.nombre || 'AK Producciones';
+  const logo = brand?.logoUrl || staticBranding?.companyInfo?.logoUrl;
+  const tagline = brand?.tagline || staticBranding?.companyInfo?.tagline || 'Experiencia & Entretenimiento para tu Fiesta';
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-12 overflow-hidden bg-slate-950 text-white text-center">
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/20 border border-blue-500/40 text-blue-300 text-xs font-black uppercase tracking-[0.3em]">
+        ✨ Presentado por
+      </div>
+      {logo && (
+        <div className="relative w-48 h-28 my-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logo} alt={name} className="w-full h-full object-contain filter drop-shadow-xl" />
+        </div>
+      )}
+      <h2 className="text-4xl sm:text-6xl font-black text-white tracking-tight">{name}</h2>
+      <p className="text-lg sm:text-xl text-slate-300 max-w-xl mx-auto font-medium">{tagline}</p>
+    </div>
+  );
+}
+
+function FloatingReactionsLayer({ fiestaId }: { fiestaId: string }) {
+  const [reactions, setReactions] = useState<{ id: string; emoji: string; left: number }[]>([]);
+  const lastTimestampRef = useRef<number>(Date.now() - 5000);
+
+  useEffect(() => {
+    let active = true;
+    const poll = async () => {
+      try {
+        const { getPublicLiveReactions } = await import('@/app/actions/social-interactive');
+        const list = await getPublicLiveReactions(fiestaId, lastTimestampRef.current);
+        if (list.length > 0 && active) {
+          lastTimestampRef.current = Date.now();
+          const newItems = list.map((item) => ({
+            id: item.id,
+            emoji: item.emoji || '👏',
+            left: Math.floor(Math.random() * 80) + 10,
+          }));
+          setReactions((prev) => [...prev.slice(-30), ...newItems]);
+        }
+      } catch {}
+    };
+
+    const interval = setInterval(poll, 1500);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, [fiestaId]);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden" aria-hidden="true">
+      <AnimatePresence>
+        {reactions.map((r) => (
+          <motion.div
+            key={r.id}
+            initial={{ opacity: 0, y: 100, scale: 0.5 }}
+            animate={{ opacity: [0, 1, 1, 0], y: -800, scale: [0.5, 1.3, 1.1, 0.8] }}
+            transition={{ duration: 4, ease: 'easeOut' }}
+            className="absolute text-5xl sm:text-7xl select-none"
+            style={{ left: `${r.left}%`, bottom: '20px' }}
+          >
+            {r.emoji}
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
   );
 }
 
