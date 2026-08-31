@@ -368,3 +368,41 @@ y la app sabe quién es el homenajeado, quiénes son los invitados, qué se cont
 se pidió. La voz puede decir el nombre. El muro sabe a quién mostrar. El álbum se arma solo.
 
 **Ninguna plataforma del rubro puede hacer eso, porque ninguna sabe de qué fiesta se trata.**
+
+---
+
+# LO QUE YA EXISTE Y NO HAY QUE REHACER (verificado a mano, 31 de agosto de 2026)
+
+Un ayudante reportó estas funciones como existentes. **Se abrieron los archivos uno por uno.**
+Esto es lo que quedó en pie:
+
+**SÍ existen. NO las programes de nuevo:**
+
+- **La estación HABLA en castellano.** `speechSynthesis` en la fotocabina
+  (`src/app/evento/fotocabina/[fiestaId]/page.tsx:119-131`), la Plataforma 360, Bogue y el
+  Espejo. Con parlante para apagarla. **Faltan sólo Touchpix y el Buzón** (ver anexo C).
+- **Accesorios que el invitado arrastra y agranda con el dedo**, en el Espejo Mágico
+  (`src/app/evento/espejo-magico/[fiestaId]/page.tsx:132`). Es lo mismo que vende Sparkbooth.
+- **Firmar y dibujar sobre la foto con el dedo**, en el Espejo Mágico (misma pantalla, ~122).
+- **Encuestas al invitado**, en el muro en vivo
+  (`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx:1751`).
+- **Tira para filtrar por persona** en el muro social
+  (`src/components/entertainment/FaceGalleryStrip.tsx`, usada en `/evento/social/[fiestaId]`).
+
+**NO existen, aunque se reportaron como existentes. Son falsa alarma y SIGUEN PEDIDAS:**
+
+1. **Filtro de belleza / suavizado de piel.** Lo que hay es un estilo *llamado* "Disco Glam"
+   (`touchpix/[fiestaId]/page.tsx:50`) que sube brillo, contraste y color. **No suaviza la
+   piel.** Sigue pedido en el bloque 4.b.
+2. **Marcos animados.** Lo que hay es el armador de GIF de Bogue
+   (`gif-generator`, que hace el boomerang). **No es un marco animado.** Sigue pedido en el
+   bloque 4.a.
+3. **Galería personal por reconocimiento de cara.** La tira del muro social **filtra por quién
+   subió la foto**, no reconoce caras: el invitado no puede sacarse una selfie y que lo
+   encuentre en todas. **No está pedido**: es de lo más caro del rubro y el dueño no lo pidió.
+
+**Tampoco existen, y están pedidos:** la orientación de la cámara (bloque 2) y las plantillas
+de impresión con copias (bloque 7).
+
+**No existe y NO está pedido:** convertir una foto en un video con inteligencia artificial (lo
+tiene AI Photo Booth Pro). Es lo más nuevo del rubro. **Se le cuenta al dueño y él decide.**
