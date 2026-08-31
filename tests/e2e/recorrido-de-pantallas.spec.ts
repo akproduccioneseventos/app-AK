@@ -149,7 +149,19 @@ test.describe('Recorrido de las 353 pantallas', () => {
         }
 
         // Wait brief settling time for hydration
-        await page.waitForTimeout(300);
+        // ESPERAR DE VERDAD A QUE LA PANTALLA SE DIBUJE.
+        //
+        // Antes esperaba 300 milesimas y despues juzgaba. Estas pantallas tardan
+        // segundos en dibujarse, asi que reportaba "pantalla muerta" en 35 que
+        // andan perfecto: `/admin`, por ejemplo, tiene 15 botones en el codigo.
+        // Un control que grita por 35 cosas sanas no lo mira nadie a la segunda
+        // vez, y ahi se pierde el que era de verdad.
+        await page.waitForLoadState('networkidle', { timeout: 10_000 }).catch(() => {});
+        await page
+          .locator('button, a, input, select, textarea, [role="button"]')
+          .first()
+          .waitFor({ state: 'attached', timeout: 8_000 })
+          .catch(() => {});
 
         const html = await page.content();
         const text = textoVisible(html);
