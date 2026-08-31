@@ -11,6 +11,7 @@ import { BlogFaq } from '@/components/public/BlogFaq';
 import { blogPosts as defaultBlogPosts } from '@/data/blog-posts';
 import { getBlogIcon } from '@/lib/blog-icons';
 import { getBlogCategoryLabel, getBlogPostCta, getBlogPostImage, getBlogPostImageAlt } from '@/lib/blog-display';
+import { CompartirArticulo } from '@/components/public/CompartirArticulo';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -227,6 +228,12 @@ export default async function BlogPostPage({ params }: Props) {
                   </div>
                 </div>
               </Link>
+
+              {/* Compartir artículo */}
+              <CompartirArticulo
+                title={post.title}
+                url={`https://akproducciones.uy/public/blog/${post.slug}`}
+              />
 
               {/* FAQs Accordion */}
               <BlogFaq />

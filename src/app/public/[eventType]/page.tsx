@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getCatalogBySlug, catalogList } from '@/data/event-catalogs';
 import { PublicNavbar } from '@/components/public/PublicNavbar';
 import { HeroSection } from '@/components/public/HeroSection';
@@ -82,6 +83,15 @@ export default async function EventTypePage({ params }: Props) {
         whatsappNumber={catalog.whatsappNumber}
         whatsappMessage={catalog.whatsappMessage}
       />
+
+      {/* Migas de pan visibles que coinciden con BreadcrumbJsonLd */}
+      <nav aria-label="Migas de pan" className="bg-zinc-950/90 border-b border-zinc-800/40 px-4 py-2.5 text-xs text-zinc-400">
+        <div className="max-w-7xl mx-auto flex items-center gap-2">
+          <Link href="/" className="hover:text-amber-400 transition-colors">Inicio</Link>
+          <span className="text-zinc-600">/</span>
+          <span className="text-zinc-200 font-semibold">{catalog.name}</span>
+        </div>
+      </nav>
 
       {/* Hero */}
       <HeroSection

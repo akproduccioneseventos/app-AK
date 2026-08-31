@@ -15,6 +15,19 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 18 — Lo que le Falta a la Web para Estar Completa (31 de agosto de 2026)
+
+- **Migas de pan visibles (`src/app/public/[eventType]/page.tsx`):**
+  - Se añadieron migas de pan visibles (`Inicio / [Nombre del evento]`) en las páginas de servicios/eventos utilizando `<Link>` de Next.js, coincidiendo 1:1 con `BreadcrumbJsonLd` declarado para SEO en Google.
+- **Buscador dentro del sitio (`src/lib/buscador/buscar-sitio.ts` y `/buscar`):**
+  - Motor de búsqueda en memoria sin costo mensual ni dependencias externas. Indexa artículos del blog y catálogos de servicios con soporte para sinónimos frecuentes ("quince", "casamiento", "boda", "cumple").
+- **Página de mantenimiento (`src/app/mantenimiento/page.tsx`):**
+  - Pantalla con mensaje en criollo y botón directo de contacto por WhatsApp.
+- **Suscripción a novedades (`src/app/actions/novedades-suscripcion.ts`):**
+  - Acción protegida por límite de intentos (`enforcePublicRateLimit`) y validación de formato de correo. Los correos se conservan para envío humano manual sin automatizaciones sin control.
+- **Compartir artículo del blog (`src/components/public/CompartirArticulo.tsx`):**
+  - Botones discretos para compartir por WhatsApp, Facebook y Copiar enlace integrados en la barra lateral de los artículos.
+
 ---
 
 ## Orden 15 — Las Pruebas que Terminan el Trabajo (27 de agosto de 2026)
