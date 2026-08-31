@@ -69,7 +69,8 @@ const ESTACIONES = [
   { nombre: 'fotocabina', ruta: 'fotocabina', modulo: 'fotocabina' },
   { nombre: 'plataforma-360', ruta: 'plataforma-360', modulo: 'plataforma360' },
   { nombre: 'bogue', ruta: 'bogue', modulo: 'bogue' },
-  { nombre: 'espejo-magico', ruta: 'espejo-magico', modulo: 'espejoMagicoFoto' },
+  // El espejo abre en modo firma si no se le dice el modo: hay que pedirle foto.
+  { nombre: 'espejo-magico', ruta: 'espejo-magico', modulo: 'espejoMagicoFoto', extra: '&modo=foto' },
   { nombre: 'touchpix', ruta: 'touchpix', modulo: 'espejoMagicoIA' },
   { nombre: 'buzon', ruta: 'buzon', modulo: 'capsulaTiempo' },
 ];
@@ -87,7 +88,7 @@ test('las seis estaciones se dibujan y no le muestran texto tecnico al invitado'
     page.on('pageerror', (x) => erroresJs.push(x.message));
 
     const acceso = crearPermisoDeEstacion(ID, e.modulo);
-    await page.goto(`/evento/${e.ruta}/${ID}?access=${acceso}`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`/evento/${e.ruta}/${ID}?access=${acceso}${'extra' in e ? (e as {extra:string}).extra : ''}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(6_000);
     await page.screenshot({ path: `test-results/como-se-ven/${e.nombre}.png`, fullPage: true });
 
