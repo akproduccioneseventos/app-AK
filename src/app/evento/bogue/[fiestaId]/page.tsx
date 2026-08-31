@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { generarGifDesdeImagenes } from '@/lib/entretenimiento/gif-generator';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -120,6 +120,19 @@ export default function BoguePage() {
   // video llego al muro o no. Antes no habia forma de distinguirlo y el cuadro
   // del QR quedaba girando como si todavia estuviera subiendo.
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const marcosDisponibles = useMemo(() => {
+    const habilitados = fiesta?.station?.marcosHabilitados;
+    if (!habilitados || habilitados.length === 0) return BOGUE_FRAMES;
+    return BOGUE_FRAMES.filter((f) => {
+      if (f.id === 'none' && (habilitados.includes('none') || habilitados.includes('sin-marco'))) return true;
+      if (f.id === 'neon-glow' && (habilitados.includes('neon') || habilitados.includes('neon-glow'))) return true;
+      if (f.id === 'luxury-gold' && (habilitados.includes('golden') || habilitados.includes('luxury-gold') || habilitados.includes('oro'))) return true;
+      if (f.id === 'cyberpunk' && (habilitados.includes('cyberpunk') || habilitados.includes('neon'))) return true;
+      if (f.id === 'fiesta' && (habilitados.includes('flowers') || habilitados.includes('ak_brand') || habilitados.includes('fiesta'))) return true;
+      return habilitados.includes(f.id);
+    });
+  }, [fiesta?.station?.marcosHabilitados]);
 
   // Audio effect context for high-quality beeps
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -915,7 +928,7 @@ export default function BoguePage() {
                   
                   {/* Selected Frame Indicator */}
                   <div className="flex justify-center gap-1.5 overflow-x-auto py-2">
-                    {BOGUE_FRAMES.map((f) => (
+                    {marcosDisponibles.map((f) => (
                       <button
                         key={f.id}
                         onClick={() => setSelectedFrame(f.id)}
@@ -1090,8 +1103,8 @@ export default function BoguePage() {
             {/* QR code and sharing options */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white">Llevate el recuerdo</h3>
-                <p className="text-sm text-zinc-400">Escaneá el QR desde tu celular para descargar el loop animado.</p>
+                <h3 className="text-2xl font-black text-white">{fiesta?.station?.brandText || 'Llevate el recuerdo'}</h3>
+                <p className="text-sm text-zinc-400">{fiesta?.station?.qrCallout || 'Escaneá el QR desde tu celular para descargar el loop animado.'}</p>
               </div>
 
               {/* QR Code Container */}
@@ -1123,6 +1136,25 @@ export default function BoguePage() {
                   >
                     <RefreshCw className="w-4 h-4" /> Grabar otra vez
                   </button>
+                )}
+                {role !== 'operator' && (
+                  <div className="pt-2 flex flex-col items-center gap-1.5 border-t border-white/10 w-full text-center">
+                    <div className="text-[11px] font-bold text-zinc-300 flex items-center gap-1.5 justify-center">
+                      <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+                      <span>{fiesta?.station?.footerText || 'Esto lo hizo AK Producciones'}</span>
+                    </div>
+                    <a
+                      href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                        fiesta?.station?.shareMessage ||
+                        `¡Hola AK Producciones! Me saqué un Boomerang en la fiesta de ${fiesta?.eventName || 'un evento'} y me encantó.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                    >
+                      <span>Escribinos por WhatsApp</span>
+                    </a>
+                  </div>
                 )}
               </div>
             </div>

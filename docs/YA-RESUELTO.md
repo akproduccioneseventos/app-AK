@@ -15,6 +15,19 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 19 — Los Ajustes que No Hacían Nada (31 de agosto de 2026)
+
+- **Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):**
+  - Conectados `accentColor`, `brandText` (en marcas y encabezados), `footerText` (pie de página), `qrCallout` (texto junto al QR) y `shareMessage` (mensaje para compartir por WhatsApp).
+- **Bogue Boomerang (`src/app/evento/bogue/[fiestaId]/page.tsx`):**
+  - Selector de marcos respeta `marcosHabilitados`. Auto-reinicio de pantalla respeta `reviewSeconds`. Conectados `brandText`, `qrCallout`, `footerText` y `shareMessage`.
+- **Touchpix (`src/app/evento/touchpix/[fiestaId]/page.tsx`):**
+  - Respeta `activeTemplateId` preseleccionando el tema/personaje configurado, `accentColor`, `reviewSeconds`, `brandText` y `qrCallout`.
+- **Buzón / Cápsula del Tiempo (`src/app/evento/buzon/[fiestaId]/page.tsx`):**
+  - Respeta `countdownSeconds` configurado y `allowGuestRetake`.
+- **Limpieza de campos muertos:**
+  - `overlayName` eliminado de la interfaz de configuración (`src/app/(app)/fiestas/nueva/entretenimiento/page.tsx`).
+
 ---
 
 ## Orden 15 — Las Pruebas que Terminan el Trabajo (27 de agosto de 2026)

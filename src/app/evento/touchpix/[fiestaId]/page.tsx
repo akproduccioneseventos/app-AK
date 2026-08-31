@@ -123,7 +123,8 @@ export default function TouchpixPage() {
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
 
-  const eventName = fiesta?.eventName || 'este gran evento';
+  const eventName = fiesta?.station?.brandText || fiesta?.eventName || 'este gran evento';
+  const accentColor = fiesta?.station?.accentColor || '#c026d3';
   
   const triviaList = [
     `¿Sabías que ${eventName} fue planeado detalladamente para sorprenderte?`,
@@ -179,6 +180,20 @@ export default function TouchpixPage() {
       stopCamera();
     };
   }, [accessToken, fiestaId, stopCamera]);
+
+  useEffect(() => {
+    if (fiesta?.station?.activeTemplateId) {
+      const tid = fiesta.station.activeTemplateId;
+      if (TOUCHPIX_THEMES.some(t => t.id === tid)) {
+        setSelectedTheme(tid);
+        setSelectedAiTheme(tid);
+        setActiveTab('ai_themes');
+      } else if (FACE_SWAP_CHARACTERS.some(c => c.id === tid)) {
+        setSelectedCharacter(tid);
+        setActiveTab('faceswap');
+      }
+    }
+  }, [fiesta?.station?.activeTemplateId]);
 
   /* ── Camera ── */
   const startCamera = useCallback(async () => {
@@ -610,6 +625,15 @@ export default function TouchpixPage() {
     startCamera();
   }, [accessToken, fiestaId, startCamera]);
 
+  useEffect(() => {
+    if (capturedImage && !isProcessing && fiesta?.station?.reviewSeconds) {
+      const timer = setTimeout(() => {
+        retake();
+      }, fiesta.station.reviewSeconds * 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [capturedImage, isProcessing, fiesta?.station?.reviewSeconds, retake]);
+
   /* ── Upload ── */
   const handleUpload = useCallback(async () => {
     if (!capturedImage) return;
@@ -767,8 +791,8 @@ export default function TouchpixPage() {
           </button>
 
           <div className="text-4xl mb-3">📲</div>
-          <h3 className="text-xl font-black text-white mb-2">Compartí la experiencia</h3>
-          <p className="text-sm text-zinc-400 mb-6">Escaneá este QR para abrir Touchpix en otro dispositivo</p>
+          <h3 className="text-xl font-black text-white mb-2">{fiesta?.station?.brandText || 'Compartí la experiencia'}</h3>
+          <p className="text-sm text-zinc-400 mb-6">{fiesta?.station?.qrCallout || 'Escaneá este QR para abrir Touchpix en otro dispositivo'}</p>
 
           <div className="bg-white rounded-2xl p-4 inline-block mb-6">
             {QRComponent ? (

@@ -915,7 +915,7 @@ export default function GuestBuzonPage() {
 
   const capturePhotoWithCountdown = () => {
     if (countdown !== null) return;
-    let count = 3;
+    let count = fiesta?.station?.countdownSeconds || 3;
     setCountdown(count);
 
     const interval = setInterval(() => {
