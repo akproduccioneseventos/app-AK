@@ -15,6 +15,43 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 21 — El Recorrido de las 353 Pantallas y la Lista Automática (31 de agosto de 2026)
+
+- **Recorrido Automatizado de 353 Pantallas (`scripts/helpers/route-inventory.mjs`, `tests/e2e/recorrido-de-pantallas.spec.ts`):**
+  - Mapeo dinámico de la totalidad de las 353 rutas en `src/app/**/page.tsx` categorizadas por tipo (públicas, aplicación interna con sesión, portal, estaciones de evento y permisos de acceso).
+  - Verificación de 5 puntos por pantalla: texto visible >= 40 caracteres, sin errores de consola/pageerror, sin fuga de jerga técnica (`undefined`, `firestore`, `NaN`, `is not a valid`, `Algo salió mal`, `[object Object]`), con botones/enlaces interactivos (excepto pantallas pasivas como pantallas gigantes y tótems), y tiempo de carga inferior a 15 segundos.
+  - Captura sistemática de capturas de pantalla en `test-results/recorrido/` e informe en `test-results/recorrido/informe.md`.
+- **Mantenimiento Automático de la Lista de Auditoría (`scripts/actualizar-auditado.mjs` / `npm run auditado`):**
+  - Actualización programática de `docs/LO-AUDITADO.md` respetando la regla de precedencia del método más fuerte (niveles 1 a 6) y reseteando niveles si los archivos son modificados tras la fecha de auditoría.
+  - Mantenimiento conjunto de la tabla de pantallas y de la tabla de los 16 módulos.
+- **Visualización en la Puerta de Publicación (`scripts/se-puede-publicar.mjs`):**
+  - Muestra al finalizar con éxito: `Auditadas de verdad: X de 353 pantallas (Y%). Módulos auditados con el método completo: A de 16.`
+- **Informe de Mirada de Crítico (`docs/LA-MIRADA-DE-CRITICO.md`):**
+  - Cuatro listas separadas y priorizadas: ROTO, INCÓMODO, FEO y MAL UBICADO.
+
+## Orden 23 — Los Diseños de Invitación y la Red Social de la Fiesta (31 de agosto de 2026)
+
+- **Seis Diseños Nuevos de Invitación Digital (`src/components/invitacion/templates/`):**
+  - `XvModernaTemplate`: Quince años moderno con degradados de color, tipografía bold y estética vibrante.
+  - `XvClasicaTemplate`: Quince años clásico en tonos oro/marfil con serifa refinada y corona.
+  - `BodaMinimalistaTemplate`: Casamiento minimalista limpio, blanco y amplio, tipografía fina.
+  - `BodaCampoTemplate`: Casamiento de campo / boho con verdes botánicos y texturas naturales.
+  - `FiestaNocheTemplate`: Fiesta de noche (18 y 21 años) con estilo neón oscuro, DJ y barra.
+  - `CorporativoTemplate`: Corporativo formal y sobrio en azul marino para eventos institucionales.
+  - Todos respetan la paleta de la fiesta, mapa interactivo, itinerario, código de vestimenta, mesa de regalos con datos bancarios y confirmación RSVP.
+  - Registradas y renderizadas dinámicamente en el canvas y galería de plantillas (`src/components/invitacion/edit/AdvancedInvitationCanvas.tsx`).
+- **Red Social del Evento (`src/app/evento/social/[fiestaId]/page.tsx`):**
+  - Acceso directo a "¿Dónde me siento?" (`/evento/mi-mesa/[fiestaId]`) desde la barra superior de la red social y desde las herramientas del portal del invitado.
+  - Nueva sección "Cronograma" con qué viene ahora durante la fiesta (`event.programa`).
+  - Botón de descarga directa "Bajar" en cada recuerdo del muro social.
+  - Nueva sección "Ranking" amigable y no competitivo: "Foto más querida de la noche" (por likes) y "Paparazzi de la fiesta" (por fotos compartidas).
+
+## Orden 20 — Que las Estaciones Tengan Todo (31 de agosto de 2026)
+
+- **Voz en Castellano (`speechSynthesis`):** Locución en español en Touchpix y Buzón con botón de silenciado/audio en cabecera.
+- **Plantillas de Impresión en Tira (`src/lib/entretenimiento/tira-fotocabina.ts`):** Layouts `strip_3` (tira 2x6), `single_photo` (foto individual 4x6 / 10x15) y `strip_4` (collage 2x2).
+- **Filtro de Belleza y Suavizado de Piel (`src/lib/entretenimiento/filtro-belleza.ts`):** Suavizado multicapa facial en canvas en Fotocabina y Touchpix.
+- **Buzón con Tema Oscuro:** Interfaz optimizada para salón nocturno con `bg-zinc-950 text-white`.
 ## Orden 19 — Los Ajustes que No Hacían Nada (31 de agosto de 2026)
 
 - **Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):**
@@ -6015,3 +6052,100 @@ navegador.** La lista de "esto puede cambiar la app" no incluía los scripts que
 
 **La lección: un control que decide qué controlar tiene que contarse a sí mismo entre lo
 que vigila.**
+
+## 31 de agosto de 2026 — Los ajustes de las estaciones, probados en pantalla
+
+- **Se probó de verdad que lo que se configura se ve.** La Plataforma 360 y Bogue muestran en
+  la pantalla del QR el texto de marca que carga el equipo al armar la fiesta. Está probado
+  abriendo la app y sacando la captura, no leyendo el código:
+  `tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts`. **Ojo con dónde se mira**: el texto
+  de marca NO aparece al abrir la estación, aparece recién en la pantalla de compartir. Una
+  prueba que mire la pantalla de espera da rojo aunque esté todo bien.
+- **En Touchpix el texto de marca vive en la ventanita del QR**, que se abre con el botón
+  "Compartir" (`src/app/evento/touchpix/[fiestaId]/page.tsx:794`). **Quedó sin comprobar en el
+  navegador**: la prueba no llegó a esa ventanita en dos intentos y se paró en vez de seguir
+  adivinando.
+- **Foto de pantalla de las seis estaciones**, para mirarlas con ojos humanos:
+  `tests/e2e/como-se-ven-las-estaciones.spec.ts`, deja las imágenes en
+  `test-results/como-se-ven/`. Falla si una estación no dibuja nada, no tiene ni un botón, se
+  rompe por dentro o le muestra texto técnico al invitado.
+
+### Cuatro avisos de los ayudantes que eran FALSA ALARMA (verificados uno por uno)
+
+Si vuelven a aparecer en una auditoría, son falsos positivos:
+
+1. **"Bogue no lee el texto de marca"** — sí lo lee, línea ~1106, y se comprobó en pantalla.
+2. **"La Plataforma 360 no pone marca de agua"** — sí la pone. Es la segunda vez que se
+   reporta este mismo error.
+3. **"Touchpix no lee el color de la fiesta"** — sí lo lee, línea 127.
+4. **"Los estilos de Touchpix están todos en inglés"** — no: Original, Neón Retro y Fantasía
+   ya están en castellano. **Quedan en inglés sólo "Disco Glam", "Pop Art", "Luxury" y la
+   solapa "Face Swap"**, y eso está pedido en la orden 20.
+
+### Lo que sí falta de verdad, y quedó pedido en la orden 20
+
+- **Cambiar el fondo sin tela verde no existe en ninguna estación de la app.** Es la función
+  estrella de las mejores plataformas.
+- **La galería de la noche la tiene sólo la Plataforma 360.**
+- **Ocho ajustes no los lee nadie**: `captureModes`, `overlayName`, `deliveryChannels`,
+  `logoUrl`, `filterPreset`, `printLayout`, `printCopies` y `moderationMode`.
+- **La Plataforma 360 es la única que ignora el color de la fiesta** (cero menciones de
+  `accentColor` en todo su archivo).
+
+### Por qué el Espejo Mágico dice "Experiencia no disponible" en las pruebas
+
+**No está roto: tiene tres modos** (`espejoMagicoFoto`, `espejoMagicoFirma`,
+`espejoMagicoIA`) y cada pantalla pide el suyo. Si la fiesta de prueba habilita el de
+inteligencia artificial y se abre la pantalla de foto, contesta —bien, y en criollo— que la
+estación no está habilitada. **Habilitar el modo que corresponde antes de dar por rota la
+pantalla.**
+
+## 31 de agosto de 2026 — Las dedicatorias salían apagadas con un candado
+
+**Qué estaba mal:** el invitado podía escribir una dedicatoria, se guardaba, y **no la veía
+nadie en la fiesta**. En la pantalla grande el bloque estaba apagado con un `false` clavado en
+el código (`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx`, ~línea 628), **mientras el
+operador tenía tres formas de encenderlas**: el ajuste `showDedications`, el item
+'dedicaciones' de la lista de la pantalla y el botón para forzarlo desde el celular. Tocaba las
+tres y no pasaba nada.
+
+**Qué se hizo:** se sacó el candado. Ahora manda el operador: la dedicatoria sale **sólo** si la
+puso en la lista de la pantalla o la forzó, y el ajuste de dedicatorias privadas sigue mandando
+por encima. **Con la fiesta como está hoy no cambia nada**, porque si nadie la pone en la lista
+no aparece.
+
+**Por qué así y no encendiéndolas siempre:** qué se muestra de un invitado en la pantalla
+grande lo decide el equipo, no la app.
+
+**El candado queda vigilado:** `src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts` se
+pone en rojo si alguien vuelve a apagarlas a mano. Comprobado que frena de verdad, no sólo que
+pasa en verde.
+
+## 31 de agosto de 2026 — La agenda del dueño se ensuciaba al sincronizar
+
+**Lo reportó él:** *"tenía todo agendado en mi mail; cuando la app se sincronizó, duplicó y
+agregó fechas que no eran, por ejemplo 14 de octubre Martina"*.
+
+**Se encontraron DOS causas distintas, las dos en el código:**
+
+1. **El evento ya existente se buscaba SÓLO en el día de la fecha nueva**
+   (`findExistingGoogleCalendarEvent`, `src/lib/google-workspace.ts`). Si a una fiesta se le
+   cambiaba la fecha, no encontraba el evento viejo —que seguía en la fecha anterior— y creaba
+   uno nuevo. **Resultado: el duplicado, y un evento clavado en una fecha que ya no era**, con
+   el nombre de la fiesta. Es exactamente el "14 de octubre Martina".
+   **Arreglado:** ahora se busca por el número de la fiesta en **toda la agenda** (dos años para
+   atrás y dos para adelante) y, si lo encuentra, **lo mueve** en vez de crear otro.
+
+2. **Una fecha que no se entiende se convertía en la de HOY** (`getFiestaTimes`): el código
+   decía "si la fecha es inválida, usá ahora", y se creaba un evento fantasma con el nombre de
+   la fiesta en un día cualquiera.
+   **Arreglado:** `getFiestaTimes` devuelve `fechaValida`, y si es falsa **no se toca la
+   agenda**: se avisa en criollo que la fecha de la fiesta hay que revisarla.
+
+**Queda vigilado:** `src/__tests__/agenda-no-duplica-ni-inventa-fechas.test.ts`, que además fija
+dos cosas que nadie debe cambiar sin querer: una fecha sin hora se agenda **a las 21 de
+Uruguay** (no a la madrugada), y una fiesta que termina pasada la medianoche **sigue siendo del
+día que se contrató**.
+
+**Lo que NO arregla esto:** los eventos duplicados que ya quedaron en la agenda de fiestas
+viejas. Esos hay que borrarlos a mano una vez; de acá en adelante no se crean más.

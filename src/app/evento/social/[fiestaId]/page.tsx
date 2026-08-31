@@ -27,6 +27,10 @@ import {
   X,
   Sparkles,
   Share2,
+  MapPin,
+  Clock,
+  Trophy,
+  Download,
 } from 'lucide-react';
 import TriviaGameScreen from '@/components/games/TriviaGameScreen';
 import PhotoMissionScreen from '@/components/games/PhotoMissionScreen';
@@ -74,7 +78,7 @@ import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
 import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 
-type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game' | 'missions';
+type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game' | 'missions' | 'schedule' | 'ranking';
 
 /**
  * Tope de duracion para los videos que sube un invitado.
@@ -193,25 +197,35 @@ function FeedPost({
           <span>{post.likes || 0} Me gusta</span>
           <span>{post.comments?.length || 0} comentarios</span>
         </div>
-        <div className="grid grid-cols-2 border-b border-slate-100 py-1">
+        <div className="grid grid-cols-3 border-b border-slate-100 py-1">
           <button
             type="button"
             onClick={onLike}
             disabled={!allowLikes || liked}
-            className="flex min-h-11 items-center justify-center gap-2 rounded-md text-sm font-bold transition hover:bg-slate-100 disabled:cursor-default"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-md text-xs font-bold transition hover:bg-slate-100 disabled:cursor-default"
             style={liked ? { color: accentColor } : { color: '#475569' }}
           >
-            <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
+            <Heart className={`h-4 w-4 ${liked ? 'fill-current' : ''}`} />
             {liked ? 'Te gusta' : 'Me gusta'}
           </button>
           <button
             type="button"
             onClick={() => document.getElementById(`comment-${post.id}`)?.focus()}
             disabled={!allowComments}
-            className="flex min-h-11 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-md text-xs font-bold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
           >
-            <MessageCircle className="h-5 w-5" /> Comentar
+            <MessageCircle className="h-4 w-4" /> Comentar
           </button>
+          <a
+            href={post.imageUrl}
+            download={`foto-${post.authorName || 'fiesta'}.jpg`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-md text-xs font-bold text-slate-600 transition hover:bg-slate-100"
+            title="Descargar foto"
+          >
+            <Download className="h-4 w-4" /> Bajar
+          </a>
         </div>
 
         {(post.comments || []).slice(-4).map((item) => (
@@ -456,6 +470,8 @@ export default function SocialEventPage() {
 
   const availableSections = useMemo(() => [
     { id: 'feed' as const, label: 'Inicio', icon: MessageCircle },
+    { id: 'schedule' as const, label: 'Cronograma', icon: Clock },
+    { id: 'ranking' as const, label: 'Ranking', icon: Trophy },
     { id: 'missions' as const, label: 'Misiones', icon: Sparkles },
     ...(settings.showSongRequests !== false ? [{ id: 'songs' as const, label: 'Canciones', icon: Music2 }] : []),
     ...(settings.showDedications !== false ? [{ id: 'dedications' as const, label: 'Mensajes', icon: Heart }] : []),
@@ -909,6 +925,14 @@ export default function SocialEventPage() {
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
           {section !== 'feed' && <button type="button" onClick={() => chooseSection('feed')} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Volver"><ArrowLeft className="h-5 w-5" /></button>}
           <div className="min-w-0 flex-1"><h1 className="truncate text-base font-black sm:text-lg">{eventName}</h1><p className="text-xs text-slate-500">Hola, {authorName || 'invitado'}</p></div>
+          <a
+            href={`/evento/mi-mesa/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 text-amber-800 transition text-xs font-bold shrink-0"
+            title="Buscar mi mesa"
+          >
+            <MapPin className="w-3.5 h-3.5 text-amber-600" />
+            <span className="hidden sm:inline">Mi Mesa</span>
+          </a>
           <button type="button" onClick={() => void loadCore(true)} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Actualizar"><RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} /></button>
         </div>
       </header>
@@ -1090,6 +1114,96 @@ export default function SocialEventPage() {
                fiestaId={fiestaId}
                guestName={authorName || 'Invitado'}
              />
+          )}
+
+          {section === 'schedule' && (
+            <SectionShell key="schedule" title="Cronograma de la Fiesta" text="Enterate de los momentos principales y qué viene ahora.">
+              {event?.programa && event.programa.length > 0 ? (
+                <div className="space-y-3">
+                  {event.programa.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                      <div className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-200 font-mono text-xs font-bold text-slate-700">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>{item.hora || `${21 + idx}:00`}</span>
+                      </div>
+                      <p className="text-sm font-bold text-slate-900">{item.titulo || item.descripcion}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={Clock}
+                  title="Cronograma libre"
+                  text="La fiesta fluye sin horarios rígidos. ¡A disfrutar la pista!"
+                />
+              )}
+            </SectionShell>
+          )}
+
+          {section === 'ranking' && (
+            <SectionShell key="ranking" title="Ranking de la Fiesta" text="Los momentos más destacados y los invitados más activos.">
+              <div className="space-y-6">
+                {/* 1. Foto más querida */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-rose-500 fill-current" />
+                    <h3 className="text-sm font-black uppercase text-slate-800">Foto más querida de la noche</h3>
+                  </div>
+                  {(() => {
+                    const topPost = [...posts].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0];
+                    if (!topPost || !topPost.likes) {
+                      return <p className="text-xs text-slate-500">Todavía no hay votos. ¡Dales me gusta a tus fotos favoritas!</p>;
+                    }
+                    return (
+                      <div className="flex items-center gap-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={topPost.imageUrl} alt="Top foto" className="w-16 h-16 rounded-lg object-cover" />
+                        <div>
+                          <p className="text-xs font-bold text-slate-900">{topPost.authorName || 'Invitado'}</p>
+                          <p className="text-xs text-rose-600 font-bold flex items-center gap-1 mt-0.5">
+                            <Heart className="w-3.5 h-3.5 fill-current" /> {topPost.likes} Me gusta
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* 2. Más fotos compartidas */}
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Camera className="w-5 h-5 text-amber-500" />
+                    <h3 className="text-sm font-black uppercase text-slate-800">Paparazzi de la fiesta (más fotos)</h3>
+                  </div>
+                  {(() => {
+                    const authorCounts = posts.reduce((acc, p) => {
+                      const name = p.authorName || 'Anónimo';
+                      acc[name] = (acc[name] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>);
+                    const topAuthors = Object.entries(authorCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+                    if (topAuthors.length === 0) {
+                      return <p className="text-xs text-slate-500">Todavía no hay fotos en el muro.</p>;
+                    }
+                    return (
+                      <div className="space-y-2">
+                        {topAuthors.map(([name, count], index) => (
+                          <div key={name} className="flex items-center justify-between py-1.5 border-b border-slate-200 last:border-0 text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 font-black text-[10px] flex items-center justify-center">
+                                {index + 1}
+                              </span>
+                              <span className="font-bold text-slate-900">{name}</span>
+                            </div>
+                            <span className="font-semibold text-slate-600">{count} fotos</span>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            </SectionShell>
           )}
 
           <div className="py-8 text-center">

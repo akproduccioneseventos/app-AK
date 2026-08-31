@@ -22,6 +22,8 @@ import {
   Sparkle,
   Radio,
   Zap,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { applyFaceSwap, applyTouchpixTheme, uploadTouchpixPhoto } from '@/app/actions/touchpix-ai';
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
@@ -123,7 +125,22 @@ export default function TouchpixPage() {
   const [session, setSession] = useState<EntertainmentSession | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
 
+  const speak = useCallback((text: string) => {
+    if (!voiceEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      const voices = window.speechSynthesis.getVoices();
+      const esVoice = voices.find(v => v.lang.startsWith('es'));
+      if (esVoice) utterance.voice = esVoice;
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      // Ignorar fallos de speech
+    }
+  }, [voiceEnabled]);
   const eventName = fiesta?.station?.brandText || fiesta?.eventName || 'este gran evento';
   const accentColor = fiesta?.station?.accentColor || '#c026d3';
   
@@ -459,6 +476,7 @@ export default function TouchpixPage() {
     let currentCount = fiesta?.station.countdownSeconds || 4;
     setCountdown(currentCount);
     playBeep();
+    speak('¡Atención! Sonreí a la cámara.');
 
     const interval = setInterval(() => {
       currentCount -= 1;
@@ -1005,13 +1023,23 @@ export default function TouchpixPage() {
           )}
         </div>
 
-        {!capturedImage && wizardStep === 0 && !errorMsg && fiesta ? (
-          <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
-            <SwitchCamera className="w-5 h-5" />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setVoiceEnabled(prev => !prev)}
+            aria-label={voiceEnabled ? 'Silenciar voz' : 'Activar voz'}
+            title={voiceEnabled ? 'Silenciar voz' : 'Activar voz'}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20"
+          >
+            {voiceEnabled ? <Volume2 className="w-5 h-5 text-fuchsia-400" /> : <VolumeX className="w-5 h-5 text-zinc-500" />}
           </button>
-        ) : (
-          <div className="w-10" />
-        )}
+
+          {!capturedImage && wizardStep === 0 && !errorMsg && fiesta && (
+            <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
+              <SwitchCamera className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ═══════════ FLASH OVERLAY ═══════════ */}
@@ -1057,7 +1085,7 @@ export default function TouchpixPage() {
                         <div className="flex items-center gap-4">
                           <div className="text-4xl">🎭</div>
                           <div>
-                            <p className="text-sm font-black text-white">Face Swap (IA)</p>
+                            <p className="text-sm font-black text-white">Cambiar Cara (IA)</p>
                             <p className="text-[11px] text-zinc-400 mt-0.5">Reemplaza tu cara con astronautas, rockstars y más.</p>
                           </div>
                         </div>
@@ -1441,6 +1469,8 @@ export default function TouchpixPage() {
               <button
                 onClick={takePhoto}
                 disabled={countdown !== null}
+                aria-label="Sacar foto"
+                title="Sacar foto"
                 className="w-[72px] h-[72px] rounded-full p-1.5 transition active:scale-90"
                 style={{ background: 'linear-gradient(135deg, rgb(217, 70, 239), rgb(147, 51, 234))' }}
               >

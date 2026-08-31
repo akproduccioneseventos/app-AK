@@ -197,15 +197,26 @@ for (const paso of PASOS) {
 
 console.log('='.repeat(60));
 
+async function mostrarMetricasAuditadas() {
+  try {
+    const { calcularMetricasAuditadas } = await import('./actualizar-auditado.mjs');
+    const metricas = calcularMetricasAuditadas();
+    console.log(`  Auditadas de verdad: ${metricas.totalAuditadasNivel4Mas} de ${metricas.totalPantallas} pantallas (${metricas.porcentaje}%).`);
+    console.log(`  Módulos auditados con el método completo: ${metricas.modulosCompletos} de ${metricas.totalModulos}.\n`);
+  } catch {}
+}
+
 if (fallas.length === 0) {
   if (modoFiltro) {
     console.log('\n  El filtro pasó. La subida sigue.\n');
+    await mostrarMetricasAuditadas();
     console.log('  Ojo: esto NO alcanza para publicar. Antes de fusionar hay que correr');
     console.log('  la puerta completa: npm run "publicar?"\n');
     process.exit(0);
   }
   if (soloRapidos) {
     console.log('\nLos controles rápidos pasaron. FALTA la prueba de la app usada de verdad:');
+    await mostrarMetricasAuditadas();
     console.log('corré esto mismo sin --rapido antes de publicar.\n');
     process.exit(0);
   }
@@ -215,11 +226,13 @@ if (fallas.length === 0) {
     console.log(`  Por eso no corrio: ${salteadosPorqueLaAppNoCambio.join(', ')}.`);
     console.log('  No es que hayan pasado: es que no hacia falta correrlos, y se dice.');
     console.log('  Lo demas —acentos, tipos, pruebas y la base protegida— si paso.\n');
+    await mostrarMetricasAuditadas();
     process.exit(0);
   }
   console.log('\n  SE PUEDE PUBLICAR.\n');
   console.log('  Todo marcha: acentos, tipos, pruebas, compila, la base protegida');
   console.log('  y la app probada usándose de verdad.\n');
+  await mostrarMetricasAuditadas();
   process.exit(0);
 }
 

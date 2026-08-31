@@ -1,6 +1,6 @@
 import type { PublicGuestEvent } from "@/lib/guest-portal-public-data";
 
-export type PublicEventToolId = "social" | "gallery" | "songs" | "bar" | "games" | "buzon";
+export type PublicEventToolId = "social" | "gallery" | "songs" | "bar" | "games" | "buzon" | "mesa";
 
 export interface PublicEventTool {
   id: PublicEventToolId;
@@ -123,6 +123,14 @@ export function buildPublicEventTools({
       href: accessiblePath("buzon"),
     });
   }
+
+  // "¿Dónde me siento?": búsqueda de mesa para el invitado
+  tools.push({
+    id: "mesa",
+    label: "¿Dónde me siento?",
+    description: "Buscá tu nombre para saber en qué mesa estás ubicado.",
+    href: accessiblePath("mi-mesa"),
+  });
 
   return tools;
 }

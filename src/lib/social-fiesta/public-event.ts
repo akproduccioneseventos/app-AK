@@ -10,6 +10,7 @@ export type PublicSocialEvent = Pick<
   | 'buzonConfig'
   | 'galeriaUrl'
   | 'momentoPaparazziActivo'
+  | 'programa'
 > & {
   configuracion: Pick<FiestaEnPlanificacion['configuracion'], 'nombreEvento' | 'fechaEvento'>;
   clientAccessGranted: boolean;
@@ -46,6 +47,7 @@ export function toPublicSocialEvent(
     buzonConfig: fiesta.buzonConfig,
     galeriaUrl: fiesta.galeriaUrl,
     momentoPaparazziActivo: fiesta.momentoPaparazziActivo,
+    programa: fiesta.programa,
     clientAccessGranted,
   };
 }
