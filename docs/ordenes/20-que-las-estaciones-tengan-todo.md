@@ -269,3 +269,102 @@ estaciones, pero:
 Por cada cosa que enganches, **una prueba que mire el resultado en pantalla**, no que el campo
 exista. Si la prueba pasaría igual con la función sin enganchar, no sirve —y el control "Lo que
 se dijo es lo que es" te la va a frenar—.
+
+---
+
+# ANEXO — LA CONFIGURACIÓN COMPLETA DE LAS TRES, PARA CLONARLA
+
+**Pedido del dueño: "buscá en las 3 configuración, estilo, todo, cómo clonar cada una".**
+Investigado en agosto de 2026 sobre **Sparkbooth**, **dslrBooth/LumaBooth** y **Touchpix**, que
+son las tres más configurables del rubro. Esto es lo que ellas dejan configurar, comparado con
+lo que dejamos nosotros.
+
+## A — Cómo organizan la configuración (y es lo que hay que copiar)
+
+Las tres separan la configuración **por modo de captura**, no por estación. En dslrBooth 7 se
+elige el modo —Foto, GIF, Boomerang o Video— **y cada modo tiene sus propios ajustes**.
+
+Nosotros hoy tenemos **un solo juego de ajustes por estación**, y por eso hay ajustes que no
+aplican y quedan muertos.
+
+**Lo que hay que hacer:** que los ajustes de captura se guarden **por modo**. La cuenta
+regresiva de la foto no tiene por qué ser la del video.
+
+## B — Ajustes de captura que ellas tienen y nosotros no
+
+De dslrBooth, que es la más detallada:
+
+| Ajuste de ellos | Nosotros | Qué hacer |
+|---|---|---|
+| Cuenta regresiva **antes de la primera foto** | Uno solo para todas | **Separarlos** |
+| Cuenta regresiva **antes de las demás** | — | **Agregarlo** |
+| **Demora entre foto y foto** | NO | Agregarlo |
+| Tiempo de revisión **por modo** | Uno solo | Separar por modo |
+| **Tamaño del GIF** y demora entre cuadros | NO | Agregarlo en Bogue |
+| **Cantidad de fotos por tanda: de 1 a 16** (Darkroom) | Fijo | Que se pueda elegir |
+| **Cámara distinta para foto y para video** | NO | **No aplica**: usamos una sola cámara web |
+
+## C — La cuenta regresiva puede ser un VIDEO CON AUDIO (Touchpix)
+
+No es sólo un número: **se sube un video con sonido que se reproduce antes de disparar**, y
+sirve para un mensaje del cumpleañero o una cortina con la marca.
+
+**Nosotros ya tenemos algo que ellos no**: la estación **habla en castellano** con la voz del
+sistema (`speechSynthesis`, en la fotocabina, la 360, Bogue y el Espejo). Ellos tienen
+locuciones grabadas; nosotros decimos **el nombre de la fiesta y del homenajeado** sin grabar
+nada.
+
+**Qué hacer:**
+1. **Completar la voz en Touchpix y en el Buzón**, que son las dos que no hablan. Copiá la
+   función `speak` de `src/app/evento/fotocabina/[fiestaId]/page.tsx:119-131`.
+2. **Darle más para decir**: saludar al que se acerca, cantar la cuenta y avisar cuando el
+   recuerdo está listo. Que nombre la fiesta.
+3. **Permitir subir un video con audio para la cuenta regresiva**, como Touchpix. Si hay video
+   cargado se usa ese; si no, habla la voz.
+4. **El parlante para apagar la voz ya existe y se queda.**
+
+## D — El diseño de la impresión se arma adentro de la app
+
+Sparkbooth y dslrBooth traen **un armador de diseños arrastrando**, y Darkroom trae 75
+plantillas listas. Nosotros no tenemos ninguno: imprimimos con un diseño fijo.
+
+**Qué hacer, y alcanza para empezar:** **tres plantillas listas** —tira 2x6, foto 4x6 y collage
+de cuatro— elegibles con `printLayout`, más `printCopies`. **No hagas un armador arrastrando**:
+es mucho trabajo y el dueño no lo pidió. Que las tres se vean bien.
+
+## E — La pantalla del salón: espejar o galería (Touchpix)
+
+Touchpix manda a un televisor **dos cosas distintas**: la sesión en vivo (se ve lo que está
+pasando en la estación, la cuenta y el resultado) o la galería en orden aleatorio.
+
+**Nosotros ya tenemos el muro en vivo**, que es la galería. **Falta espejar la sesión**: que en
+la pantalla grande del salón se vea en vivo lo que está haciendo el que se está sacando la
+foto. Es de lo que más levanta una fiesta y no cuesta datos nuevos: es la misma estación
+mostrada en otra pantalla.
+
+## F — El armador de marcos por capas (Touchpix)
+
+Ellos arman la plantilla **por capas**: fondo animado, stickers, texto, accesorios y marca.
+Nosotros tenemos marcos hechos y punto.
+
+**No hagas un armador por capas.** Lo que sí: que el marco pueda ser **animado** (bloque 4.a) y
+que **el nombre de la fiesta y el logo del cliente entren solos** en el marco, que es lo que el
+operador tendría que hacer a mano.
+
+## G — Lo que ellas tienen y NO se copia, por decisión del dueño
+
+- **Pedir mail, teléfono y encuestas al invitado** (Sparkbooth, Darkroom, Breeze, Simple Booth
+  lo usan para juntar contactos). **No se hace.**
+- **Entregar por mail o mensaje de texto.** Sólo QR.
+- **Cobrar la foto** (Curator y AI Photo Booth Pro lo hacen). **No.**
+- **Compartir a Facebook o Twitter desde la estación.** No se pidió.
+
+## H — Y lo que tenemos nosotros y NINGUNA de las trece tiene
+
+Que quede escrito, porque es la ventaja y no hay que romperla:
+
+**Ellas venden una cabina suelta. Nosotros tenemos once estaciones atadas a la misma fiesta**,
+y la app sabe quién es el homenajeado, quiénes son los invitados, qué se contrató y qué música
+se pidió. La voz puede decir el nombre. El muro sabe a quién mostrar. El álbum se arma solo.
+
+**Ninguna plataforma del rubro puede hacer eso, porque ninguna sabe de qué fiesta se trata.**
