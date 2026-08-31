@@ -17,6 +17,70 @@
 
 ---
 
+> # DEVOLUCIÓN 1 — 31 de agosto de 2026. LEER ANTES DE SEGUIR.
+>
+> **La entrega de `feat/orden-19-ajustes-estaciones` no se fusionó**, y hay una sola cosa
+> que la frena. El resto está bien y **no hay que rehacerlo**.
+>
+> ## Lo que hiciste bien, medido
+>
+> La **Plataforma 360** pasó de leer 4 ajustes a **9** y **Bogue** de 4 a **10**: texto de
+> marca, pie, texto del QR, mensaje al compartir y los marcos habilitados. **Touchpix** sumó
+> dos. Y **respetaste el consentimiento**, que se te pidió no tocar. Eso queda.
+>
+> ## LO QUE FRENA TODO, y es lo único que tenés que resolver
+>
+> **Con tu rama adentro, el consentimiento del invitado deja de pedirse.**
+>
+> La prueba `tests/e2e/espejo-pide-permiso.spec.ts` **pasaba antes de tu entrega y falla
+> después**: abre el Espejo Mágico en modo foto con `consentRequired` puesto en la fiesta, y
+> el cartel *"Acepto que mi foto se muestre en la pantalla"* **nunca aparece**.
+>
+> Lo que ya se descartó, para que no lo busques de nuevo:
+>
+> - **El código del arreglo está intacto en tu rama**: `hayQuePedirPermiso` aparece cuatro
+>   veces en `src/app/evento/espejo-magico/[fiestaId]/page.tsx`, igual que en la versión
+>   principal.
+> - **`station-config.ts` no tiene ni una línea de diferencia** con la versión principal.
+> - **La prueba conserva la cámara falsa**, así que no es que la pantalla no llegue a
+>   dibujarse por eso.
+>
+> Así que está en otra cosa que tocaste. **Reproducilo y encontralo**: poné `consentRequired`
+> en la fiesta de prueba, abrí el Espejo en modo foto, y mirá por qué
+> `fiesta.station.consentRequired` llega en falso. **No cambies la prueba para que pase**: la
+> prueba está bien y lo que falla es la app.
+>
+> ## Lo que faltó de la orden, y es poco
+>
+> - **El Espejo Mágico ya lo hice yo**: respeta el texto de marca y el pie. No lo toques.
+> - **El Buzón** sumó la cuenta regresiva pero le faltan `maxRetakes` y `allowGuestRetake`.
+>   Ojo: el buzón no tiene "repetir" como concepto, se graba un mensaje. **Si engancharlo
+>   obliga a inventar una función, no lo inventes: decilo y se saca el ajuste de la pantalla.**
+> - **Touchpix** sigue sin leer `accentColor`.
+> - **`overlayName` sigue en la pantalla y no lo lee nadie.** Había que sacarlo. **El canal de
+>   "Mail" ya lo saqué yo** de la lista de entrega: prometía algo que la app no hace.
+>
+> ## Tres cosas que frenó la puerta, y ya las arreglé
+>
+> No las rehagas, pero mirálas porque son el mismo tipo de error:
+>
+> 1. **No compilaba.** En `src/app/public/[eventType]/page.tsx` pusiste un enlace común
+>    (`<a href="/">`) donde la app exige `<Link>`. Eso **frena la publicación entera**.
+> 2. **Esa misma página quedó sin ninguna prueba.** Le escribí una que mira las seis páginas
+>    de venta: que digan algo, que no muestren texto técnico ni precios rotos, y que haya por
+>    dónde contactarse.
+> 3. **Un tipo de evento inventado devolvía una página buena**, así que Google podía indexar
+>    direcciones que no son nada. Se resolvió declarando que sólo existen los seis tipos del
+>    catálogo.
+>
+> ## Y una del método
+>
+> Se te pidió **la orden 19 sola, antes que las otras**, y entregaste la 18 y la 19 juntas.
+> El buscador y las migas de pan son trabajo válido, pero **mezclarlos hizo que una cosa de la
+> 18 frenara toda la 19**. Por eso se pide de a una.
+
+---
+
 ## CÓMO SE ENTREGA (leer esto primero)
 
 **UNA SOLA PROPUESTA con todos los bloques adentro.** Cada fusión dispara un despliegue y
