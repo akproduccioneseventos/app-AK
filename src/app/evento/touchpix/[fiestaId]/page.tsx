@@ -47,11 +47,12 @@ import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy'
 
 const TOUCHPIX_THEMES = [
   { id: 'original', label: 'Original', emoji: '📷', gradient: 'from-zinc-700 to-zinc-800', cssFilter: 'none', description: 'Sin efectos' },
-  { id: 'disco_glam', label: 'Disco Glam', emoji: '🪩', gradient: 'from-fuchsia-600 to-purple-800', cssFilter: 'brightness(1.1) contrast(1.1) saturate(1.3)', description: 'Brillo disco' },
+  { id: 'belleza', label: 'Belleza', emoji: '✨', gradient: 'from-rose-500 to-pink-600', cssFilter: 'brightness(1.06) contrast(1.03)', description: 'Piel suave y radiante' },
+  { id: 'disco_glam', label: 'Brillo Disco', emoji: '🪩', gradient: 'from-fuchsia-600 to-purple-800', cssFilter: 'brightness(1.1) contrast(1.1) saturate(1.3)', description: 'Brillo festivo' },
   { id: 'neon_retro', label: 'Neón Retro', emoji: '🌆', gradient: 'from-cyan-500 to-blue-700', cssFilter: 'hue-rotate(180deg) saturate(2) brightness(1.05)', description: 'Estilo 80s' },
   { id: 'fantasy_enchanted', label: 'Fantasía', emoji: '🧚', gradient: 'from-emerald-500 to-teal-700', cssFilter: 'brightness(1.05) saturate(0.9) hue-rotate(90deg) contrast(1.05)', description: 'Mundo mágico' },
-  { id: 'pop_art', label: 'Pop Art', emoji: '🎨', gradient: 'from-yellow-500 to-red-600', cssFilter: 'saturate(2.5) contrast(1.4) brightness(1.05)', description: 'Estilo Warhol' },
-  { id: 'golden_luxury', label: 'Luxury', emoji: '👑', gradient: 'from-amber-500 to-yellow-700', cssFilter: 'sepia(0.5) saturate(1.5) brightness(1.1) contrast(1.1)', description: 'Dorado premium' },
+  { id: 'pop_art', label: 'Arte Pop', emoji: '🎨', gradient: 'from-yellow-500 to-red-600', cssFilter: 'saturate(2.5) contrast(1.4) brightness(1.05)', description: 'Estilo Pop Art' },
+  { id: 'golden_luxury', label: 'Elegante', emoji: '👑', gradient: 'from-amber-500 to-yellow-700', cssFilter: 'sepia(0.5) saturate(1.5) brightness(1.1) contrast(1.1)', description: 'Dorado premium' },
 ];
 
 /* ───────────────────── Face Swap Characters ───────────────────── */
@@ -812,7 +813,7 @@ export default function TouchpixPage() {
 
   const tabs: { id: TabMode; label: string; emoji: string; icon: React.ReactNode }[] = [
     { id: 'foto', label: 'Foto', emoji: '📷', icon: <Camera className="w-5 h-5" /> },
-    { id: 'faceswap', label: 'Face Swap', emoji: '🎭', icon: <Users className="w-5 h-5" /> },
+    { id: 'faceswap', label: 'Cambio de Cara', emoji: '🎭', icon: <Users className="w-5 h-5" /> },
     { id: 'ai_themes', label: 'Temas IA', emoji: '🎬', icon: <Wand2 className="w-5 h-5" /> },
   ];
 
@@ -874,7 +875,7 @@ export default function TouchpixPage() {
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500">Experiencia</p>
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  ['faceswap', 'Face Swap'],
+                  ['faceswap', 'Cambio de Cara'],
                   ['ai_themes', 'Tema artistico'],
                 ] as const).map(([mode, label]) => (
                   <button
