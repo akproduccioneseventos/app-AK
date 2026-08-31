@@ -124,7 +124,20 @@ test('cada estación muestra en la pantalla de compartir el texto de marca que p
     await page.goto(`/evento/${estacion.ruta}/${ID}?access=${acceso}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(4_000);
 
-    const texto = await llegarACompartir(page);
+    let texto = await llegarACompartir(page);
+
+    // Touchpix no muestra la marca al capturar: la tiene en la ventanita del QR,
+    // que se abre con el boton "Compartir". Hay que tocarlo.
+    if (!texto.includes(MARCA)) {
+      const compartir = page.getByRole('button', { name: /compartir/i }).first();
+      if ((await compartir.count()) > 0) {
+        await compartir.click().catch(() => {});
+        await page.waitForTimeout(3_000);
+        texto = ((await page.locator('body').innerText().catch(() => '')) || '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+    }
 
     if (!texto) {
       noLoRespetan.push(`${estacion.nombre}: no hay boton para sacar la captura`);
