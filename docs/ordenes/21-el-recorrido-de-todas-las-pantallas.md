@@ -11,7 +11,7 @@
 
 ## Por qué existe, y es importante que lo entiendas
 
-De las **348 pantallas** de la app, **hoy hay 8 auditadas de verdad**. Las otras 340 están
+De las **353 pantallas** de la app, **hoy hay 8 auditadas de verdad**. Las otras 340 están
 miradas leyendo código, que es el método con el que se dijo *"cero errores"* mientras el
 consentimiento del invitado no se pedía, las estaciones no arrancaban y la fotocabina salía en
 negro.
@@ -27,6 +27,29 @@ nivel 4.**
 
 **UNA SOLA PROPUESTA.** Antes de darla por terminada: `npm run "publicar?"` completo en verde y
 lo anotado en `docs/YA-RESUELTO.md`.
+
+---
+
+## EL MAPA, YA CONTADO — no lo cuentes de nuevo
+
+Contado dos veces el 31 de agosto de 2026 (un ayudante y a mano, y dio igual): **353 pantallas**.
+
+| Grupo | Cuántas | Qué necesitan para abrirse |
+|---|---|---|
+| **A — Públicas** | 39 | Nada. Se abren y listo |
+| **B — Del invitado, con dato en la dirección** | 48 | El `fiestaId` de la fiesta de prueba, y `access=` en las de estación |
+| **C — Del equipo, sin dato** | 216 | La cookie `ak_session` |
+| **D — Del equipo, con dato** | 50 | La cookie **más** un id válido (fiesta, presupuesto, empleado, factura) |
+
+**El grupo C es el más grande y el menos mirado: 216 pantallas del equipo.** Ahí está
+`/fiestas/nueva/...` entera (más de 140 pantallas de armado de fiesta) y `/settings/...` (más de
+40). **Arrancá por ese grupo**, que es donde más hay para encontrar.
+
+**El grupo D es el más difícil** porque necesita ids de verdad: presupuestos, facturas,
+empleados. Para esos, **creá los datos de prueba que hagan falta** con los ayudantes que ya hay
+en `tests/e2e/helpers/`. **Si para alguno no hay forma, decilo en el informe**; no lo saltees
+callado.
+
 
 ---
 
@@ -95,7 +118,7 @@ Hacé `npm run auditado` que:
 3. **Respete las líneas que ya están escritas a mano con un método más fuerte.** Una pantalla
    auditada en nivel 5 o 6 **no puede bajar a 4** porque el recorrido la abrió. **El método más
    fuerte gana siempre.**
-4. Termine diciendo el número: **"X de 348 pantallas auditadas con método 4 o más"**.
+4. Termine diciendo el número: **"X de 353 pantallas auditadas con método 4 o más"**.
 
 ---
 
@@ -103,7 +126,7 @@ Hacé `npm run auditado` que:
 
 Que `npm run "publicar?"`, al terminar bien, **agregue una línea al final**:
 
-    Auditadas de verdad: 8 de 348 pantallas (2%).
+    Auditadas de verdad: 8 de 353 pantallas (2%).
 
 **No frena nada**: es sólo para que el número esté a la vista y no se olvide. Un número que no
 se ve, no se mejora.

@@ -51,7 +51,7 @@ Se actualiza **en la misma propuesta que audita algo**. Una línea por pantalla 
 
 **Lo que está en la lista con método 4 o más no se vuelve a auditar** salvo que se lo toque.
 
-De las 348 pantallas de la app, **hoy hay 8 auditadas con método 4 o más**. Ese es el número
+De las 353 pantallas de la app, **hoy hay 8 auditadas con método 4 o más**. Ese es el número
 honesto, y es el que hay que subir.
 
 **Cuando aparezca un método 7**, esta lista dice exactamente qué quedó mirado con el 4, con el 5
