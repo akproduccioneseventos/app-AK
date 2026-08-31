@@ -35,6 +35,7 @@ test.beforeAll(() => {
         plataforma360: { ...ajustes },
         bogue: { ...ajustes },
         espejoMagicoIA: { ...ajustes },
+        espejoMagicoFoto: { ...ajustes },
         capsulaTiempo: { ...ajustes },
       },
     },
@@ -68,7 +69,7 @@ const ESTACIONES = [
   { nombre: 'fotocabina', ruta: 'fotocabina', modulo: 'fotocabina' },
   { nombre: 'plataforma-360', ruta: 'plataforma-360', modulo: 'plataforma360' },
   { nombre: 'bogue', ruta: 'bogue', modulo: 'bogue' },
-  { nombre: 'espejo-magico', ruta: 'espejo-magico', modulo: 'espejoMagicoIA' },
+  { nombre: 'espejo-magico', ruta: 'espejo-magico', modulo: 'espejoMagicoFoto' },
   { nombre: 'touchpix', ruta: 'touchpix', modulo: 'espejoMagicoIA' },
   { nombre: 'buzon', ruta: 'buzon', modulo: 'capsulaTiempo' },
 ];

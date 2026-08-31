@@ -135,14 +135,16 @@ invitado tenga que tocar baje de 14px.
 
 ## BLOQUE 7 — Que no le hablemos en inglés al invitado
 
-En **Touchpix** los estilos se le muestran al invitado mezclados: "Disco Glam", "Neón Retro",
-"Fantasy Enchanted", "Pop Art", "Golden Luxury"
+**Verificado abriendo la estación y mirando la pantalla**, no leyendo el código: en
+**Touchpix** los estilos aparecen así — *Original, Disco Glam, Neón Retro, Fantasía, Pop Art,
+Luxury* — y arriba hay una solapa que dice **"Face Swap"**
 (`src/app/evento/touchpix/[fiestaId]/page.tsx:48-55`).
 
-Ponelos todos en castellano. Es lo único de idioma que apareció en toda la app: **el resto
-está bien y no hay que revisarlo.**
+O sea que ya están casi todos bien. **Lo único que hay que traducir es "Disco Glam", "Pop
+Art", "Luxury" y la solapa "Face Swap"** (que es cambiar la cara: poné "Cambiar cara").
 
----
+**Los que ya están en castellano no se tocan.** Es lo único de idioma que apareció en toda la
+app revisando las seis estaciones en pantalla: **el resto está bien y no hay que revisarlo.**
 
 ## BLOQUE 8 — El tablero del operador, que hoy es sólo un espejo
 
