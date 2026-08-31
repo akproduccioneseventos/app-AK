@@ -84,8 +84,36 @@ const ESTACIONES = [
   { nombre: 'Touchpix', ruta: 'touchpix', modulo: 'espejoMagicoIA' },
 ];
 
-test('cada estación muestra el texto de marca que puso el equipo', async ({ page }, testInfo) => {
-  test.setTimeout(300_000);
+/**
+ * Lleva la estación hasta la pantalla de compartir y devuelve lo que dice.
+ *
+ * El texto de marca NO se dibuja al abrir: aparece junto al QR, recién después de
+ * la captura. Por eso hay que sacar la foto de verdad, con paciencia: la 360 graba
+ * un video y Bogue arma un loop.
+ */
+async function llegarACompartir(page: Page): Promise<string> {
+  const disparar = page
+    .getByRole('button', { name: /sacar|empezar|comenzar|iniciar|grabar|foto|video/i })
+    .and(page.locator('button:not([disabled])'))
+    .first();
+  if ((await disparar.count()) === 0) return '';
+  await disparar.click().catch(() => {});
+
+  // Se espera a que aparezca el QR, que es la señal de que llegó a compartir.
+  const limite = Date.now() + 90_000;
+  let texto = '';
+  while (Date.now() < limite) {
+    await page.waitForTimeout(3_000);
+    texto = ((await page.locator('body').innerText().catch(() => '')) || '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (texto.includes(MARCA) || /QR/i.test(texto)) break;
+  }
+  return texto;
+}
+
+test('cada estación muestra en la pantalla de compartir el texto de marca que puso el equipo', async ({ page }, testInfo) => {
+  test.setTimeout(600_000);
   test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
   await enchufarCamara(page);
 
@@ -96,13 +124,17 @@ test('cada estación muestra el texto de marca que puso el equipo', async ({ pag
     await page.goto(`/evento/${estacion.ruta}/${ID}?access=${acceso}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(4_000);
 
-    const texto = ((await page.locator('body').innerText().catch(() => '')) || '')
-      .replace(/\s+/g, ' ')
-      .trim();
+    const texto = await llegarACompartir(page);
 
-    if (!texto.includes(MARCA)) {
+    if (!texto) {
+      noLoRespetan.push(`${estacion.nombre}: no hay boton para sacar la captura`);
+    } else if (!texto.includes(MARCA)) {
+      // Se separan las dos fallas posibles: no llegar, o llegar y no respetar.
+      const llego = /QR/i.test(texto);
       noLoRespetan.push(
-        `${estacion.nombre}: se configuró el texto de marca y no aparece en pantalla`,
+        llego
+          ? `${estacion.nombre}: llego a la pantalla de compartir y NO muestra el texto de marca configurado`
+          : `${estacion.nombre}: no llego a la pantalla de compartir en 90 segundos`,
       );
     }
   }
