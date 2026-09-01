@@ -730,6 +730,52 @@ despues comprobaba que existiera. Pasa siempre, con la app rota o sana.
 comprobar de que **tipo** es algo tampoco alcanza: que sea "un objeto" o "una funcion" no
 dice que haga lo que promete.
 
+## La puerta se corre UNA vez, al final. Y lo que ensucia la corrida se limpia solo
+
+**Dos cosas que costaron horas el 1 de septiembre de 2026 y no se repiten.**
+
+### 1. Juntar todos los arreglos y correr la puerta UNA sola vez
+
+Ese día la puerta se corrió **cinco veces** —45 minutos cada una— y frenó cinco veces por algo
+distinto: un archivo muerto, una prueba que faltaba, la maquetación desfasada, el manual con el
+número viejo de pantallas, y dos correcciones propias que se habían perdido al fusionar.
+
+**Más de tres horas para enterarse de una falla por vez.**
+
+**Cómo se hace:** cuando la puerta frena, **no se corre de nuevo enseguida**. Primero:
+
+- Correr **por separado** las pruebas que fallaron (`npm run test:e2e -- <archivo>`): son minutos
+  en vez de tres cuartos de hora.
+- Correr los controles baratos sueltos: `npx tsc --noEmit`, `npx jest`,
+  `node scripts/lo-que-se-dijo-es-lo-que-es.mjs`.
+- **Recién cuando todo eso pasa, correr la puerta entera, una vez.**
+
+**Por qué la puerta corre todo y no sólo lo que cambió:** dos arreglos que pasan por separado
+pueden romper juntos —ya pasó con el archivo de facturas, que quedó protegido dos veces y dejaba
+la pantalla colgada al guardar—. Eso no se discute; lo que se ordena es **cuántas veces** se
+corre.
+
+### 2. Después de fusionar varias ramas, REVISAR LAS PROPIAS CORRECCIONES
+
+Al juntar cuatro entregas, **una fusión puede pisar un arreglo anterior**. Ese día se perdieron
+dos correcciones de pruebas y cada una costó una corrida entera para descubrirse.
+
+**Después de cada fusión, revisar de una sola vez que las correcciones propias sigan ahí.** Y
+al hacer una corrección delicada, **dejar escrito adentro del archivo que ya se perdió una vez**,
+para que el que la vea en rojo sepa qué pasó.
+
+**Y la conclusión de fondo:** revisar y fusionar **de a una entrega**. Juntar cuatro parece más
+rápido y sale más caro: cada fusión acumulada multiplica los choques.
+
+### 3. Lo que escribe la corrida se limpia con un comando
+
+Las pruebas de navegador escriben datos de verdad —avisos, gasto de inteligencia artificial,
+historial de redes, un prospecto de prueba—. Aparecen como cambios sin guardar, **parece que hay
+trabajo pendiente cuando no lo hay**, y con las prisas alguien los sube.
+
+**`npm run limpiar:corrida`** los descarta de una. Se corre después de cada tanda de pruebas.
+**Nunca se suben.**
+
 ## LA PUERTA: sin `npm run "publicar?"` en verde, no se fusiona
 
 **Desde el 28 de agosto de 2026 la puerta tiene SIETE pasos, no seis.** El nuevo se
