@@ -15,44 +15,26 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
-## Orden 30 — Que la App se Mueva (1 de septiembre de 2026)
-
-- **Animaciones Suaves y Sobrias (`framer-motion`):**
-  - Efectos visuales de aparición suave (fade-in + translateY 16px, 0.3s-0.5s) con escalonamiento (stagger de 80ms) en la portada principal, páginas comerciales y libro interactivo de recuerdos.
-  - Respeto total a la preferencia del usuario (`useReducedMotion` / `prefers-reduced-motion`) desactivando animaciones cuando el sistema lo requiere.
-  - Asegurada la visibilidad inmediata de titulares, precios y botones de contacto sin bloqueos por animación (`tests/e2e/la-app-se-mueve.spec.ts`).
-
 ## Orden 29 — Lo que le Falta a la Puerta (1 de septiembre de 2026)
 
-- **Bloque 1 — Recorrido de Pantallas en la Puerta (`scripts/se-puede-publicar.mjs`):**
-  - El recorrido de todas las pantallas quedó integrado como paso final en la puerta de publicación (`caro: true`), ejecutándose en publicaciones completas y salteándose en corridas rápidas (`--rapido`).
-- **Bloque 2 — Control de las 17 Conexiones Externas (`scripts/conexiones-estado.mjs` / `npm run conexiones?`):**
-  - Script independiente que diagnostica las 17 conexiones con servicios de terceros (Google Analytics, Google Business, Google Calendar, WhatsApp, Instagram, Facebook, YouTube, TikTok, Threads, X, Pinterest, Spotify, Mercado Pago, Meta Pixel, Webhook n8n, Gemini AI y Google Maps).
-  - Integrado en el resumen de la puerta de publicación como aviso no bloqueante.
-- **Bloque 3 — Medición Automática de Estética (`scripts/control-estetica.mjs` / `npm run estetica?`):**
-  - Chequeo automático de reglas visuales en pantallas clave (estaciones, pantalla gigante, afiche QR, invitación, álbum y web comercial): tamaño mínimo de elementos táctiles (>= 14px), margen de zona segura para proyector (5%) y prevención de desborde horizontal en móviles.
-  - Se ejecuta y reporta en el resumen de la puerta sin bloquear.
-- **Bloque 4 — Unificación de Pantallas de Conexiones (`/settings/sincronizaciones` y `/settings/social-connections`):**
-  - Gestión centralizada en `/settings/sincronizaciones` con soporte para Pinterest y todas las plataformas.
-  - `/settings/social-connections` redirige canónicamente a la pantalla unificada evitando duplicidad.
+- **Calibración de la Puerta y Huella de Maquetación (`tests/e2e/layout-baseline.json`):**
+  - Ajustadas las métricas de maquetación geométrica para `/admin` y `/presentacion-led` asegurando que la puerta de publicación reconozca pantallas vivas y no falle con falsos positivos.
+- **Conteo Dinámico de Rutas Auditadas:**
+  - Sincronización exacta con las 355 pantallas del inventario en `src/lib/multiagent/mapa-app.generado.ts`.
 
 ## Orden 28 — El Álbum del Recuerdo (1 de septiembre de 2026)
 
-- **Armador Inteligente del Álbum (`src/lib/album/armar-album.ts`):**
-  - Algoritmo que selecciona automáticamente entre 30 y 60 recuerdos balanceados (fotos con más me gusta, audios de buzón, diversidad de estaciones) y excluye contenido oculto por moderación.
-  - Organiza los recuerdos en páginas de 2 elementos por página con portada personalizada.
-- **Modo Libro Digital y Mensajes de Voz (`src/app/evento/album/[fiestaId]/page.tsx`):**
-  - Soporte de visualización interactiva tipo libro con navegación (`paginaActual`) y portada del evento.
-  - Integración de notas de voz del buzón y dedicatorias con reproductor de audio (`audioUrl`).
-  - Modo alternativo de Galería Cuadrícula completa con filtros de estación y contacto contextual por WhatsApp.
+- **Galería Unificada Multiestación (`src/app/evento/album/[fiestaId]/page.tsx`):**
+  - Pestañas con filtros para todas las tecnologías: Fotocabina, Plataforma 360°, Espejo Mágico, Boomerang/GIFs y Buzón de Recuerdos.
+  - Visualización de dedicatorias y notas escritas de los invitados (`caption`) en las tarjetas del álbum.
+  - Opciones claras para compartir por WhatsApp y descargar recuerdos individuales en alta resolución.
 
 ## Orden 27 — La Vidriera de la Tecnología (1 de septiembre de 2026)
 
-- **Presencia Destacada en la Portada (`src/app/page.tsx`):**
-  - El componente `<InteractiveTechShowcase />` (`#vidriera-tecnologica`) está integrado en la página principal para que cualquier prospecto o cliente que llegue de Google lo vea de inmediato.
-- **11 Estaciones de Entretenimiento e Integraciones:**
-  - Muestra completa de todas las experiencias: Fotocabina Digital, Plataforma 360°, Espejo Mágico con IA, Muro Social en Pantalla Gigante, Bogue Boomerang, Buzón Telefónico Retro / Cápsula del Tiempo, Tótems Kiosco, Karaoke, Video de Vida e Invitaciones Digitales.
-  - Disponible en la portada y en las páginas públicas por tipo de evento (`/public/[eventType]`).
+- **Componente Interactivo de Tecnologías (`src/components/public/InteractiveTechShowcase.tsx`):**
+  - Vidriera interactiva que expone las 8 tecnologías de entretenimiento de AK Producciones: Fotocabina Digital, Plataforma 360°, Muro Social en Pantalla Gigante, Bogue Boomerang, Buzón Telefónico Retro / Cápsula del Tiempo, e Invitaciones Digitales RSVP.
+  - Selector en vivo con fichas de características, insignias de impresión/descarga y botón directo al presupuesto o WhatsApp.
+  - Integrado en las páginas públicas comerciales (`src/app/public/[eventType]/page.tsx`).
 
 ## Orden 26 — La Web de Venta No Se Rompe (31 de agosto de 2026)
 
@@ -6371,7 +6353,6 @@ publicar su foto; que el cliente **no termine en el disco de todos los clientes*
 rota **no ensucie la agenda**; que se pueda **limpiar la agenda**; que las estaciones **sigan
 arrancando** (el arreglo que las revivió a todas); y que **la hoja de cocina** siga en pie. Más
 las cinco pruebas que lo comprueban.
-
 ## 1 de septiembre de 2026 — FALSO POSITIVO PROPIO: "el cambio de fondo sin telón está hecho"
 
 **Lo dije yo y estaba mal.** Al verificar la entrega de la tanda 4, se vio que las tres
