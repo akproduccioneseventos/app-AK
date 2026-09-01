@@ -109,6 +109,17 @@ export async function createNotification(
       newNotification.id
     );
     if (firestoreResult.success) {
+      // Despacho de push notification en segundo plano sin frenar la respuesta
+      import('@/lib/firebase/server-messaging')
+        .then(({ sendPushNotificationToAll }) => {
+          sendPushNotificationToAll({
+            title: 'AK Producciones',
+            body: newNotification.mensaje,
+            url: newNotification.href || 'https://akproducciones.uy/mi-dia',
+          }).catch(() => null);
+        })
+        .catch(() => null);
+
       return { success: true, notification: newNotification, isDuplicate: false };
     }
   } catch (e) {
@@ -121,6 +132,17 @@ export async function createNotification(
     const safeList = Array.isArray(notifications) ? notifications : [];
     const updated = [newNotification, ...safeList].slice(0, MAX_LOCAL_NOTIFICATIONS);
     await writeData(NOTIFICATIONS_FILE, updated);
+
+    import('@/lib/firebase/server-messaging')
+      .then(({ sendPushNotificationToAll }) => {
+        sendPushNotificationToAll({
+          title: 'AK Producciones',
+          body: newNotification.mensaje,
+          url: newNotification.href || 'https://akproducciones.uy/mi-dia',
+        }).catch(() => null);
+      })
+      .catch(() => null);
+
     return { success: true, notification: newNotification, isDuplicate: false };
   } catch (e) {
     console.error('Error writing local notifications file:', e);

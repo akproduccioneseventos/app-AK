@@ -103,3 +103,16 @@ carga se ve barata**, aunque el contenido sea bueno.
 Que **nada importante quede escondido esperando una animación**: abrir la portada y las landings
 y comprobar que **el título, el precio y el botón de contacto están visibles**. Ése es el riesgo
 real de esta orden: que por animar, el prospecto entre y no vea el precio.
+
+---
+
+## CÓMO SE COMPRUEBA QUE ESTA ORDEN ESTÁ HECHA
+
+Lo verifica `npm run ordenes?` solo.
+
+```comprobar
+usa: useReducedMotion en src/components/public/HeroSection.tsx
+usa: useReducedMotion en src/components/public/InteractiveTechShowcase.tsx
+prueba: tests/e2e/la-app-se-mueve.spec.ts
+```
+

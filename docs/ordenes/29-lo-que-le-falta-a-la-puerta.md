@@ -86,3 +86,18 @@ hace falta.**
 - **Los ocho pasos que ya tiene la puerta.** Andan.
 - **No saques ningún control para que dé verde.** Si molesta, se arregla lo que marca.
 - **Plata, cobros, comida y permisos: los hace Claude.**
+
+---
+
+## CÓMO SE COMPRUEBA QUE ESTA ORDEN ESTÁ HECHA
+
+Lo verifica `npm run ordenes?` solo.
+
+```comprobar
+archivo: scripts/conexiones-estado.mjs
+archivo: scripts/control-estetica.mjs
+usa: Recorrido de todas las pantallas en scripts/se-puede-publicar.mjs
+usa: verificarConexionesNode en scripts/se-puede-publicar.mjs
+usa: verificarEsteticaNode en scripts/se-puede-publicar.mjs
+```
+

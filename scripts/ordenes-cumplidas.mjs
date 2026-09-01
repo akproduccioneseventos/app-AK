@@ -33,7 +33,7 @@ import path from 'node:path';
 const CARPETA = path.join(process.cwd(), 'docs', 'ordenes');
 
 function leerComprobaciones(texto) {
-  const bloques = [...texto.matchAll(/```comprobar\n([\s\S]*?)```/g)];
+  const bloques = [...texto.matchAll(/```comprobar\r?\n([\s\S]*?)```/g)];
   return bloques.flatMap((b) =>
     b[1]
       .split('\n')
