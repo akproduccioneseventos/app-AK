@@ -736,6 +736,49 @@ despues comprobaba que existiera. Pasa siempre, con la app rota o sana.
 comprobar de que **tipo** es algo tampoco alcanza: que sea "un objeto" o "una funcion" no
 dice que haga lo que promete.
 
+## EL MATAFUEGO: cada error se arregla Y se le pone un control que lo impida
+
+**Orden del dueño, 1 de septiembre de 2026.** Palabras suyas: *"cada error que veas en la
+programación tenés que ponerle matafuego para poder terminar, porque si no seguimos en un
+círculo"*.
+
+**Tenía razón y es la regla que ordena todas las demás.** Arreglar un error sin dejar un control
+que lo impida es trabajo que se vuelve a hacer. Así se pasaron meses: los mismos errores volvían
+con otra cara.
+
+### La regla
+
+**Un arreglo sin matafuego no está terminado.** Cuando aparece un error, van las dos cosas:
+
+1. **Se arregla.**
+2. **Se le pone un control que lo agarre solo si vuelve**, y se **comprueba que el control frena
+   de verdad** —rompiéndolo a propósito—, no que da verde.
+
+### Los matafuegos que ya están puestos, y qué error apagó cada uno
+
+| Error que pasó | Matafuego |
+|---|---|
+| Ajustes que se tocaban y no hacían nada | `tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts` |
+| Pantallas escritas, compilando y sin hacer nada | `npm run "publicar?"`, paso "Lo que se dijo es lo que es" |
+| Una entrega decía estar completa y no se había tocado | **`npm run ordenes?`** |
+| La app decía tener algo que no tenía | `npm run ordenes?` sobre `QUE-HAY-EN-LA-APP.md` |
+| Un arreglo se deshacía al fusionar y nadie se enteraba | `npm run ordenes?` sobre `YA-RESUELTO.md` |
+| Se investigaban diez plataformas y se copiaban cuatro funciones | **`npm run ordenes?`, bloque del rubro** |
+| Las pruebas ensuciaban el repositorio | `npm run limpiar:corrida` |
+| El manual envejecía y mentía | `src/__tests__/mapa-de-la-app-al-dia.test.ts` |
+| La maquetación se movía sola | `tests/e2e/layout-baseline.spec.ts` |
+| Un control decía "todo bien" sin mirar nada | Todo control nuevo **se prueba rompiéndolo** |
+
+### Cómo se elige el matafuego
+
+- **Si el error es "esto no está enganchado"** → una línea en el bloque `comprobar`.
+- **Si es "esto no se ve en pantalla"** → una prueba de navegador que mire el resultado.
+- **Si es "esto se deshizo sin querer"** → una línea en `YA-RESUELTO.md`, bloque `comprobar`.
+- **Si es "esto lo tienen ellos y nosotros no"** → una línea en el bloque del rubro.
+- **Si no entra en ninguno** → hay que inventar el control, y eso es parte del arreglo.
+
+**Y cuando un matafuego nuevo se pone, se agrega a esta tabla.**
+
 ## Cada orden dice CÓMO SE COMPRUEBA que está hecha: `npm run ordenes?`
 
 **Lo señaló el dueño el 1 de septiembre de 2026:** *"ajustá el mecanismo, sigue pasando cosas
