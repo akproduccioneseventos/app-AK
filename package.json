@@ -41,8 +41,12 @@
     "lo-que-se-dijo": "node scripts/lo-que-se-dijo-es-lo-que-es.mjs",
     "lo-que-se-dijo:todo": "node scripts/lo-que-se-dijo-es-lo-que-es.mjs --todo",
     "publicar?:rapido": "node scripts/se-puede-publicar.mjs --rapido",
+    "recorrido": "node scripts/recorrido-de-pantallas.mjs",
+    "auditado": "node scripts/actualizar-auditado.mjs",
     "prepare": "node scripts/instalar-filtro.mjs",
-    "filtro": "node scripts/se-puede-publicar.mjs --filtro"
+    "filtro": "node scripts/se-puede-publicar.mjs --filtro",
+    "limpiar:corrida": "node scripts/limpiar-corrida.mjs",
+    "ordenes?": "node scripts/ordenes-cumplidas.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

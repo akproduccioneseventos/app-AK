@@ -1,4 +1,4 @@
-const path = require('path');
+﻿const path = require('path');
 const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   cacheOnFrontEndNav: false,
@@ -112,6 +112,61 @@ const nextConfig = {
         source: '/:ruta*',
         has: [{ type: 'host', value: 'www.akproducciones.uy' }],
         destination: 'https://akproducciones.uy/:ruta*',
+        permanent: true,
+      },
+      {
+        source: '/blog',
+        destination: '/public/blog',
+        permanent: true,
+      },
+      {
+        source: '/blog/:slug',
+        destination: '/public/blog/:slug',
+        permanent: true,
+      },
+      {
+        source: '/landing',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/landing/xv-anos',
+        destination: '/quinceaneras',
+        permanent: true,
+      },
+      {
+        source: '/presentacion',
+        destination: '/presentacion-led',
+        permanent: true,
+      },
+      {
+        source: '/public',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/portal-cliente',
+        destination: '/portal',
+        permanent: true,
+      },
+      {
+        source: '/evento',
+        destination: '/eventos',
+        permanent: true,
+      },
+      {
+        source: '/album/:fiestaId',
+        destination: '/evento/album/:fiestaId',
+        permanent: true,
+      },
+      {
+        source: '/proveedor/:id',
+        destination: '/proveedor/acceso/:id',
+        permanent: true,
+      },
+      {
+        source: '/configuracion/backup-final',
+        destination: '/settings/backup-final',
         permanent: true,
       },
     ];

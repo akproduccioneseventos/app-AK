@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CONTROL AUTOMÁTICO 3 — Ninguna puerta abierta a internet sin querer.
  *
  * En un archivo que empieza con 'use server', **cada función exportada es una
@@ -103,6 +103,8 @@ const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'decoracion.actions.ts:updateDecoracion':
     'el CLIENTE arma su tablero de decoracion desde su portal, con la misma ' +
     'proteccion de abajo.',
+  'decoracion.actions.ts:enviarOpinionDecoracion':
+    'el CLIENTE envia su aprobacion o sugerencias sobre la decoracion desde su portal.',
 
   // Simulador, presupuestos públicos y captación
   'armado-rapido.ts:generateBudgetAndLeadFromSimulator':

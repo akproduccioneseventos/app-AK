@@ -1,5 +1,7 @@
 'use client';
 
+import { LimpiarAgenda } from '@/components/settings/LimpiarAgenda';
+
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
@@ -173,6 +175,9 @@ export default function SincronizacionesPage() {
 
       {/* Resumen de contadores */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div className="col-span-full mb-4">
+          <LimpiarAgenda />
+        </div>
         <Card
           onClick={() => setFiltro('todas')}
           className={`cursor-pointer transition-all border-slate-200 shadow-sm ${

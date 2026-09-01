@@ -1,4 +1,4 @@
-# Manual de la app AK
+﻿# Manual de la app AK
 
 **Un solo manual, dos capas.** Arriba, el mapa en criollo: es lo que lee la
 asistente que vive adentro de la app para contestarle al equipo y llevarlo al
@@ -8,7 +8,7 @@ para no volver a construir algo que ya está ni prometer algo que la app no hace
 Van juntos a propósito. Dos manuales separados se despegan en un mes, y el que
 queda viejo hace más daño que no tener ninguno.
 
-**Tamaño de la app hoy: 353 pantallas y 43 opciones de menú.** Esos dos números
+**Tamaño de la app hoy: 357 pantallas y 43 opciones de menú.** Esos dos números
 no se escriben a mano: los cuenta el control automático, y si no coinciden con
 la app de verdad, se pone en rojo.
 

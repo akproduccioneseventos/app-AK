@@ -50,6 +50,9 @@ export interface EntertainmentStationRuntimeConfig {
    * ayuda: elige mejor entre seis.
    */
   allowedTemplateIds: string[];
+  enableBeautyFilter?: boolean;
+  enableChromaKey?: boolean;
+  orientation?: 'vertical' | 'horizontal' | 'cuadrada';
 }
 
 export interface PublicEntertainmentEvent {

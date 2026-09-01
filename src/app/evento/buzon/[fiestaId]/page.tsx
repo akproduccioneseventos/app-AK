@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mic, Video, Play, Pause, Trash2, Send, ArrowLeft, Loader2, CheckCircle2,
-  Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff,
+  Volume2, VolumeX, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff,
   ChevronRight, Square, Clock
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -29,6 +29,22 @@ export default function GuestBuzonPage() {
   const accessToken = searchParams.get('access') || undefined;
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
+
+  const speak = (text: string) => {
+    if (!voiceEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      const voices = window.speechSynthesis.getVoices();
+      const esVoice = voices.find((v) => v.lang.startsWith('es'));
+      if (esVoice) utterance.voice = esVoice;
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      // Ignorar fallos de síntesis
+    }
+  };
   /**
    * Por que se guarda el motivo: cuando la estacion no esta habilitada, o el
    * enlace no trae el permiso del equipo, la pantalla mostraba "Evento no
@@ -915,7 +931,7 @@ export default function GuestBuzonPage() {
 
   const capturePhotoWithCountdown = () => {
     if (countdown !== null) return;
-    let count = 3;
+    let count = fiesta?.station?.countdownSeconds || 3;
     setCountdown(count);
 
     const interval = setInterval(() => {
@@ -1078,22 +1094,31 @@ export default function GuestBuzonPage() {
   const customAccent = fiesta.station.accentColor || '#6366f1';
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between">
+    <div className="min-h-screen bg-zinc-950 text-white flex flex-col justify-between select-none">
 
       {/* HEADER */}
-      <header className="px-4 py-5 flex items-center justify-between border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-30">
-        <button onClick={() => router.back()} className="p-2 -ml-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition">
+      <header className="px-4 py-4 flex items-center justify-between border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md sticky top-0 z-30">
+        <button onClick={() => router.back()} className="p-2 -ml-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <div className="text-center flex-1 pr-6">
-          <h1 className="text-lg font-black uppercase tracking-wider text-foreground flex items-center justify-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-primary" />
-            Buzón de Recuerdos
+        <div className="text-center flex-1 mx-2">
+          <h1 className="text-base sm:text-lg font-black uppercase tracking-wider text-white flex items-center justify-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            {fiesta.station.brandText || 'Buzón de Recuerdos'}
           </h1>
-          <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mt-0.5">
+          <p className="text-[10px] sm:text-xs font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
             {fiesta.eventName || 'Fiesta'}
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => setVoiceEnabled(prev => !prev)}
+          aria-label={voiceEnabled ? 'Silenciar voz' : 'Activar voz'}
+          title={voiceEnabled ? 'Silenciar voz' : 'Activar voz'}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition text-zinc-300"
+        >
+          {voiceEnabled ? <Volume2 className="w-4 h-4 text-amber-400" /> : <VolumeX className="w-4 h-4 text-zinc-500" />}
+        </button>
       </header>
 
       {/* CELEBRATION */}

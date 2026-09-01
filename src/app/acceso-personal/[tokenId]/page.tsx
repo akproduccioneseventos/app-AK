@@ -5,13 +5,16 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare, Cake, Camera, FileText, Users, Receipt, UserCog, Truck, Building, Calculator, CalendarCheck, MapPin, Phone, User, Calendar, CheckCircle2 } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare, Cake, Camera, FileText, Users, Receipt, UserCog, Truck, Building, Calculator, CalendarCheck, MapPin, Phone, User, Calendar, CheckCircle2, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
-import { getAccesoPersonalPortalView } from '@/app/actions/accesos-personal-view';
+import { getAccesoPersonalPortalView, responderAsistenciaPersonal } from '@/app/actions/accesos-personal-view';
 import { andaPorEnlace } from '@/lib/auth/permisos-por-enlace';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon: React.ElementType }> = {
   'musica': { label: 'Preferencias Musicales', href: '/fiestas/nueva/musica/pdf', icon: Music2 },
@@ -38,6 +41,9 @@ export default function PortalPersonalPage() {
   const [fiesta, setFiesta] = useState<NonNullable<Awaited<ReturnType<typeof getAccesoPersonalPortalView>>>['fiesta'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSubmittingAttendance, setIsSubmittingAttendance] = useState(false);
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
 
   const loadData = useCallback(async (tokenId: string) => {
     setIsLoading(true);
@@ -63,6 +69,44 @@ export default function PortalPersonalPage() {
       loadData(params.tokenId);
     }
   }, [params.tokenId, loadData]);
+
+  const handleConfirmarAsistencia = async () => {
+    if (!params.tokenId) return;
+    setIsSubmittingAttendance(true);
+    try {
+      const res = await responderAsistenciaPersonal(params.tokenId, true);
+      if (res.success) {
+        toast({ title: '¡Asistencia confirmada!', description: 'El equipo ya sabe que contás para el evento.' });
+        setFiesta((prev) => prev ? { ...prev, asistenciaConfirmada: true, fechaConfirmacionAsistencia: new Date().toISOString() } : null);
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo registrar la confirmación.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Ocurrió un error al enviar la respuesta.', variant: 'destructive' });
+    } finally {
+      setIsSubmittingAttendance(false);
+    }
+  };
+
+  const handleRechazarAsistencia = async () => {
+    if (!params.tokenId) return;
+    setIsSubmittingAttendance(true);
+    try {
+      const res = await responderAsistenciaPersonal(params.tokenId, false, rejectReason);
+      if (res.success) {
+        toast({ title: 'Aviso registrado', description: 'Notificamos al equipo que no podés asistir a este evento.' });
+        setFiesta((prev) => prev ? { ...prev, asistenciaConfirmada: false, motivoRechazoAsistencia: rejectReason || 'No especificado', fechaConfirmacionAsistencia: new Date().toISOString() } : null);
+        setRejectDialogOpen(false);
+        setRejectReason('');
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo registrar tu respuesta.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Ocurrió un error al enviar la respuesta.', variant: 'destructive' });
+    } finally {
+      setIsSubmittingAttendance(false);
+    }
+  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
@@ -105,6 +149,109 @@ export default function PortalPersonalPage() {
                 <h1 className="text-3xl font-bold font-headline">{acceso.nombreAcceso}</h1>
                 <p className="text-lg text-muted-foreground">{portalTitle}</p>
             </header>
+
+            {/* Attendance Confirmation Status */}
+            {fiesta && (
+              <Card className={`shadow-md border-2 ${
+                fiesta.asistenciaConfirmada === true ? "bg-emerald-50/70 border-emerald-300" :
+                fiesta.asistenciaConfirmada === false ? "bg-amber-50/70 border-amber-300" :
+                "bg-blue-50/70 border-blue-300"
+              }`}>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                      {fiesta.asistenciaConfirmada === true ? (
+                        <>
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                          <span className="text-emerald-900">Asistencia Confirmada</span>
+                        </>
+                      ) : fiesta.asistenciaConfirmada === false ? (
+                        <>
+                          <AlertTriangle className="w-5 h-5 text-amber-600" />
+                          <span className="text-amber-900">Avisaste que no asistís</span>
+                        </>
+                      ) : (
+                        <>
+                          <CalendarCheck className="w-5 h-5 text-blue-600" />
+                          <span className="text-blue-900">¿Confirmás tu asistencia al evento?</span>
+                        </>
+                      )}
+                    </CardTitle>
+                  </div>
+                  <CardDescription className={`text-xs ${
+                    fiesta.asistenciaConfirmada === true ? "text-emerald-700" :
+                    fiesta.asistenciaConfirmada === false ? "text-amber-700" :
+                    "text-blue-700"
+                  }`}>
+                    {fiesta.asistenciaConfirmada === true ? (
+                      "El encargado del evento ya cuenta con tu presencia en el equipo."
+                    ) : fiesta.asistenciaConfirmada === false ? (
+                      `Motivo registrado: "${fiesta.motivoRechazoAsistencia || 'Sin motivo'}". Si cambian tus planes, podés confirmar que vas.`
+                    ) : (
+                      "Por favor avisanos con tiempo para que el organizador confirme el equipo de la noche."
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-2 flex flex-wrap items-center gap-3">
+                  {fiesta.asistenciaConfirmada !== true && (
+                    <Button
+                      onClick={handleConfirmarAsistencia}
+                      disabled={isSubmittingAttendance}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider"
+                    >
+                      {isSubmittingAttendance ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                      Confirmar que voy
+                    </Button>
+                  )}
+                  {fiesta.asistenciaConfirmada !== false && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setRejectDialogOpen(true)}
+                      disabled={isSubmittingAttendance}
+                      className="border-red-300 text-red-700 hover:bg-red-50 text-xs font-semibold"
+                    >
+                      <XCircle className="w-4 h-4 mr-2 text-red-500" />
+                      No puedo ir
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Reject Reason Dialog */}
+            <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-lg font-bold text-slate-800">
+                    Avisar que no podés asistir
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3 py-2">
+                  <Label htmlFor="motivo" className="text-xs font-medium text-slate-600">
+                    Motivo o comentario para el encargado (opcional)
+                  </Label>
+                  <Input
+                    id="motivo"
+                    placeholder="Ej. Compromiso previo / viaje / enfermedad"
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                  />
+                </div>
+                <DialogFooter className="flex gap-2 sm:justify-end">
+                  <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+                    Volver
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleRechazarAsistencia}
+                    disabled={isSubmittingAttendance}
+                  >
+                    {isSubmittingAttendance && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Enviar aviso
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
             {/* Night Plan Card */}
             {fiesta ? (

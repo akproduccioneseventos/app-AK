@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -142,7 +142,7 @@ const portalModules: PortalModule[] = [
   { id: 'notasCliente', label: 'Notas', icon: NotebookText },
   { id: 'paginaPublica', label: 'Invitación Web', icon: Globe, href: (id) => `/invitacion/${id}` },
   { id: 'fotografiaYFilmacion', label: 'Fotografía', icon: Sparkles, href: (id) => `/portal-cliente/${id}/fotos-video` },
-  { id: 'moodboard', label: 'Moodboard', icon: Wand2 },
+  { id: 'moodboard', label: 'Propuesta de Decoración', icon: Palette, href: (id) => `/portal/${id}/decoracion` },
   { id: 'serviciosContratados', label: 'Servicios Contratados', icon: Package },
   { id: 'ubicacion', label: 'Ubicación del Evento', icon: MapPin },
   { id: 'menu', label: 'Menú del Evento', icon: UtensilsCrossed, href: (id) => `/portal-cliente/${id}/menu` },
@@ -258,8 +258,8 @@ function ClientPortalContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(() => (!fiestaId ? 'ID de evento no especificado en la URL. Si tenés un enlace de acceso directo al portal de tu evento, usalo directamente o comunicate con AK Producciones.' : null));
+  const [isLoading, setIsLoading] = useState(() => Boolean(fiestaId));
   const [isNotifying, setIsNotifying] = useState(false);
   const [isSavingNotes, setIsSavingNotes] = useState(false);
   const [notes, setNotes] = useState('');
@@ -284,8 +284,6 @@ function ClientPortalContent() {
 
   useEffect(() => {
     if (!fiestaId) {
-      setError('ID de evento no especificado en la URL.');
-      setIsLoading(false);
       return;
     }
 

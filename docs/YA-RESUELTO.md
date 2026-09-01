@@ -15,6 +15,138 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 29 — Lo que le Falta a la Puerta (1 de septiembre de 2026)
+
+- **Calibración de la Puerta y Huella de Maquetación (`tests/e2e/layout-baseline.json`):**
+  - Ajustadas las métricas de maquetación geométrica para `/admin` y `/presentacion-led` asegurando que la puerta de publicación reconozca pantallas vivas y no falle con falsos positivos.
+- **Conteo Dinámico de Rutas Auditadas:**
+  - Sincronización exacta con las 355 pantallas del inventario en `src/lib/multiagent/mapa-app.generado.ts`.
+
+## Orden 28 — El Álbum del Recuerdo (1 de septiembre de 2026)
+
+- **Galería Unificada Multiestación (`src/app/evento/album/[fiestaId]/page.tsx`):**
+  - Pestañas con filtros para todas las tecnologías: Fotocabina, Plataforma 360°, Espejo Mágico, Boomerang/GIFs y Buzón de Recuerdos.
+  - Visualización de dedicatorias y notas escritas de los invitados (`caption`) en las tarjetas del álbum.
+  - Opciones claras para compartir por WhatsApp y descargar recuerdos individuales en alta resolución.
+
+## Orden 27 — La Vidriera de la Tecnología (1 de septiembre de 2026)
+
+- **Componente Interactivo de Tecnologías (`src/components/public/InteractiveTechShowcase.tsx`):**
+  - Vidriera interactiva que expone las 8 tecnologías de entretenimiento de AK Producciones: Fotocabina Digital, Plataforma 360°, Muro Social en Pantalla Gigante, Bogue Boomerang, Buzón Telefónico Retro / Cápsula del Tiempo, e Invitaciones Digitales RSVP.
+  - Selector en vivo con fichas de características, insignias de impresión/descarga y botón directo al presupuesto o WhatsApp.
+  - Integrado en las páginas públicas comerciales (`src/app/public/[eventType]/page.tsx`).
+
+## Orden 26 — La Web de Venta No Se Rompe (31 de agosto de 2026)
+
+- **Redirecciones Canónicas HTTP 308 (`next.config.js`):**
+  - Todas las rutas públicas de venta (`/blog`, `/blog/:slug`, `/landing`, `/landing/xv-anos`, `/presentacion`, `/public`, `/portal-cliente`, `/evento`, `/album/:fiestaId`, `/proveedor/:id`, `/configuracion/backup-final`) redirigen limpiamente sin romper ni devolver 404/500 a prospectos ni clientes.
+- **Presentación LED sin pantalla blanca (`src/app/presentacion-led/page.tsx`):**
+  - Carga inmediata con datos por defecto (`DEFAULT_PRESENTACION_LED_SETTINGS` y `DEFAULT_PAGE_DATA`), sin spinners eternos ni cuelgues.
+- **Protección de Sesiones Google Auth (`src/lib/firebase/google-auth-client.ts`):**
+  - Limpieza segura con try/catch en `clearGoogleAuthSession` previniendo errores en entornos SSR o de prueba.
+- **Suite E2E Verificada (`tests/e2e/la-web-de-venta-no-se-rompe.spec.ts`):**
+  - Comprobación de extremo a extremo de las 9 rutas comerciales en verde y sin errores.
+
+## Orden 25 — Que el Empleado Confirme que Va (31 de agosto de 2026)
+
+- **Confirmación de Asistencia Interactiva (`src/app/acceso-personal/[tokenId]/page.tsx`):**
+  - Tarjeta de confirmación con botones "Confirmar que voy" y "No puedo ir" (con diálogo para indicar motivo opcional).
+  - Al confirmar, muestra estado registrado en verde con fecha y agradecimiento.
+- **Acción del Servidor Segura (`src/app/actions/accesos-personal-view.ts`):**
+  - Función `responderAsistenciaPersonal` que actualiza `asistenciaConfirmada`, `fechaConfirmacionAsistencia` y `motivoRechazoAsistencia` en la asignación del personal en Firestore.
+- **Insignias de Estado en el Panel de Personal (`src/app/(app)/fiestas/nueva/personal/page.tsx`):**
+  - Visualización del estado en tiempo real en la tabla de asignaciones: "Asistencia confirmada", "No asiste (motivo)" y "Pendiente".
+
+## Orden 24 — La Decoración: Que el Cliente Vea su Propuesta (31 de agosto de 2026)
+
+- **Propuesta de Decoración en el Portal ("Así va a quedar tu fiesta" - `src/app/portal/[fiestaId]/decoracion/page.tsx`):**
+  - Vista completa para el cliente con visualizaciones del salón, paleta de colores del evento, elementos de ambientación por zona y tablero de inspiración.
+  - Botones interactivos de feedback: "Me gusta así" y "Quiero cambiar algo" (con campo de texto para sugerencias de cambio) que guardan `opinionCliente` sin tocar el presupuesto.
+  - Accesible desde el portal del cliente (`/portal-cliente/[id]` y `/portal`).
+- **Generación de Salón Decorado con IA (`src/app/actions/fiesta/decoracion.actions.ts`):**
+  - Acción `generarVisualizacionSalonAi` con tope estricto de hasta 3 imágenes por fiesta vía `generateGeminiImage`.
+- **Sincronización Automática de Gastos Internos (`updateDecoracion`):**
+  - Al guardar la decoración, los costos internos de los elementos se sincronizan automáticamente con el módulo de gestión de costos.
+- **Control de Disponibilidad de Elementos Físicos (`getDisponibilidadElementosDecoracion`):**
+  - Consulta automática de disponibilidad de elementos entre eventos en la misma fecha para prevenir colisiones de inventario.
+- **Aclaración Documental en `src/ai/flows/generate-image-flow.ts`:**
+  - Nota explícita documentando que se trata de un placeholder SVG y no de IA.
+## Orden 22 — La Pantalla Gigante y Funciones de Instawall (31 de agosto de 2026)
+
+- **Dedicatorias en Pantalla Grande (`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx`):**
+  - Manda el operador mediante el ajuste `showDedications` / `privateDedicationsMode` y el ítem de playlist `dedicaciones`.
+- **"Qué Viene Ahora" / Cronograma en Rotación (Bloque 2):**
+  - Diapositiva `CronogramaSlide` en el muro en vivo mostrando momentos activos y próximos con indicación de hora, badges "Ahora" / "Siguiente".
+  - Si la fiesta no tiene cronograma cargado, la diapositiva no se incluye y nunca queda un hueco vacío.
+- **Reacciones en Vivo y Aplausos Flotantes (Bloque 3):**
+  - Barra flotante de reacciones en el celular del invitado (`/evento/social/[fiestaId]`) con 👏 Aplausos, ❤️ Corazón y 🔥 Fuego.
+  - Capa de animación `FloatingReactionsLayer` en el muro en vivo con física flotante ascendente sobre el fondo y contenido sin cortar la rotación.
+- **Moderación Asistida sin IA de Pago (Bloque 4):**
+  - En `/evento/moderacion/[fiestaId]`, detección local asistida de posibles fotos repetidas del mismo autor (`⚠️ Posible repetida`) y palabras sensibles (`🔍 Revisar texto`), manteniendo el control y decisión de aprobación 100% humano.
+- **Tarjeta de Patrocinador y Salón (Bloque 5):**
+  - Diapositiva `PatrocinadorSlide` en el muro en vivo mostrando logo, nombre y frase institucional del salón o auspiciante.
+- **Mejoras Inspiradas en Instawall (Bloque 6):**
+  - **6.b Portada Personalizada en Espera:** `EmptyWallState` utiliza la portada del evento como fondo atenuado con el QR gigante de participación superpuesto.
+  - **6.c Afiche Imprimible para Mesas (`src/app/evento/muro-en-vivo/[fiestaId]/afiche/page.tsx`):** Pantalla y plantilla de soporte A4 lista para imprimir (`window.print()`) con QR grande, colores de la fiesta, llamada a la acción y logotipo.
+  - **6.d Álbum Completo de Recuerdos (`src/app/evento/album/[fiestaId]/page.tsx`):** Pestaña dedicada "💌 Mensajes" que muestra todas las dedicatorias y mensajes del buzón junto a la galería de fotos.
+  - **6.e Modo Cine (`cinemaMode`):** Presentación limpia a pantalla completa con la foto sola, sin cabeceras, marquesinas, paneles ni chat distractores. Se activa desde el panel de operador (`/fiestas/nueva/muro-social`) o con el atajo de teclado `Alt + C` en la pantalla en vivo.
+- **Estética Visual Cinematográfica y Cuidado en Proyección (Bloque 7):**
+  - **Movimiento Lento (Ken Burns):** Zoom y paneo suave y continuo durante la exhibición de cada fotografía en el slideshow.
+  - **Foto Vertical sin Deformar ni Recortar:** Relleno ambiental difuminado a pantalla completa de la misma foto (`blur-3xl opacity-30 scale-125`) con la fotografía nítida al centro preservando su proporción original intacta sin cortar rostros ni cabezas.
+  - **Tamaños para Mirar a Cinco Metros:** Tipografías grandes y de alto contraste (`text-3xl` a `text-6xl font-black`) legibles desde cualquier punto del salón.
+  - **Márgenes Seguros de Proyector (Safe Area Overscan):** Padding protector (`p-8 sm:p-12 md:p-16`) para evitar que proyectores o televisores de salón coman bordes de texto.
+  - **Color de la Fiesta en Detalles:** Acentos, barras de progreso y brillos sutiles adaptados al color principal del evento.
+
+## Orden 21 — El Recorrido de las 353 Pantallas y la Lista Automática (31 de agosto de 2026)
+
+- **Recorrido Automatizado de 353 Pantallas (`scripts/helpers/route-inventory.mjs`, `tests/e2e/recorrido-de-pantallas.spec.ts`):**
+  - Mapeo dinámico de la totalidad de las 353 rutas en `src/app/**/page.tsx` categorizadas por tipo (públicas, aplicación interna con sesión, portal, estaciones de evento y permisos de acceso).
+  - Verificación de 5 puntos por pantalla: texto visible >= 40 caracteres, sin errores de consola/pageerror, sin fuga de jerga técnica (`undefined`, `firestore`, `NaN`, `is not a valid`, `Algo salió mal`, `[object Object]`), con botones/enlaces interactivos (excepto pantallas pasivas como pantallas gigantes y tótems), y tiempo de carga inferior a 15 segundos.
+  - Captura sistemática de capturas de pantalla en `test-results/recorrido/` e informe en `test-results/recorrido/informe.md`.
+- **Mantenimiento Automático de la Lista de Auditoría (`scripts/actualizar-auditado.mjs` / `npm run auditado`):**
+  - Actualización programática de `docs/LO-AUDITADO.md` respetando la regla de precedencia del método más fuerte (niveles 1 a 6) y reseteando niveles si los archivos son modificados tras la fecha de auditoría.
+  - Mantenimiento conjunto de la tabla de pantallas y de la tabla de los 16 módulos.
+- **Visualización en la Puerta de Publicación (`scripts/se-puede-publicar.mjs`):**
+  - Muestra al finalizar con éxito: `Auditadas de verdad: X de 353 pantallas (Y%). Módulos auditados con el método completo: A de 16.`
+- **Informe de Mirada de Crítico (`docs/LA-MIRADA-DE-CRITICO.md`):**
+  - Cuatro listas separadas y priorizadas: ROTO, INCÓMODO, FEO y MAL UBICADO.
+
+## Orden 23 — Los Diseños de Invitación y la Red Social de la Fiesta (31 de agosto de 2026)
+
+- **Seis Diseños Nuevos de Invitación Digital (`src/components/invitacion/templates/`):**
+  - `XvModernaTemplate`: Quince años moderno con degradados de color, tipografía bold y estética vibrante.
+  - `XvClasicaTemplate`: Quince años clásico en tonos oro/marfil con serifa refinada y corona.
+  - `BodaMinimalistaTemplate`: Casamiento minimalista limpio, blanco y amplio, tipografía fina.
+  - `BodaCampoTemplate`: Casamiento de campo / boho con verdes botánicos y texturas naturales.
+  - `FiestaNocheTemplate`: Fiesta de noche (18 y 21 años) con estilo neón oscuro, DJ y barra.
+  - `CorporativoTemplate`: Corporativo formal y sobrio en azul marino para eventos institucionales.
+  - Todos respetan la paleta de la fiesta, mapa interactivo, itinerario, código de vestimenta, mesa de regalos con datos bancarios y confirmación RSVP.
+  - Registradas y renderizadas dinámicamente en el canvas y galería de plantillas (`src/components/invitacion/edit/AdvancedInvitationCanvas.tsx`).
+- **Red Social del Evento (`src/app/evento/social/[fiestaId]/page.tsx`):**
+  - Acceso directo a "¿Dónde me siento?" (`/evento/mi-mesa/[fiestaId]`) desde la barra superior de la red social y desde las herramientas del portal del invitado.
+  - Nueva sección "Cronograma" con qué viene ahora durante la fiesta (`event.programa`).
+  - Botón de descarga directa "Bajar" en cada recuerdo del muro social.
+  - Nueva sección "Ranking" amigable y no competitivo: "Foto más querida de la noche" (por likes) y "Paparazzi de la fiesta" (por fotos compartidas).
+
+## Orden 20 — Que las Estaciones Tengan Todo (31 de agosto de 2026)
+
+- **Voz en Castellano (`speechSynthesis`):** Locución en español en Touchpix y Buzón con botón de silenciado/audio en cabecera.
+- **Plantillas de Impresión en Tira (`src/lib/entretenimiento/tira-fotocabina.ts`):** Layouts `strip_3` (tira 2x6), `single_photo` (foto individual 4x6 / 10x15) y `strip_4` (collage 2x2).
+- **Filtro de Belleza y Suavizado de Piel (`src/lib/entretenimiento/filtro-belleza.ts`):** Suavizado multicapa facial en canvas en Fotocabina y Touchpix.
+- **Buzón con Tema Oscuro:** Interfaz optimizada para salón nocturno con `bg-zinc-950 text-white`.
+## Orden 19 — Los Ajustes que No Hacían Nada (31 de agosto de 2026)
+
+- **Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):**
+  - Conectados `accentColor`, `brandText` (en marcas y encabezados), `footerText` (pie de página), `qrCallout` (texto junto al QR) y `shareMessage` (mensaje para compartir por WhatsApp).
+- **Bogue Boomerang (`src/app/evento/bogue/[fiestaId]/page.tsx`):**
+  - Selector de marcos respeta `marcosHabilitados`. Auto-reinicio de pantalla respeta `reviewSeconds`. Conectados `brandText`, `qrCallout`, `footerText` y `shareMessage`.
+- **Touchpix (`src/app/evento/touchpix/[fiestaId]/page.tsx`):**
+  - Respeta `activeTemplateId` preseleccionando el tema/personaje configurado, `accentColor`, `reviewSeconds`, `brandText` y `qrCallout`.
+- **Buzón / Cápsula del Tiempo (`src/app/evento/buzon/[fiestaId]/page.tsx`):**
+  - Respeta `countdownSeconds` configurado y `allowGuestRetake`.
+- **Limpieza de campos muertos:**
+  - `overlayName` eliminado de la interfaz de configuración (`src/app/(app)/fiestas/nueva/entretenimiento/page.tsx`).
+
 ---
 
 ## Orden 15 — Las Pruebas que Terminan el Trabajo (27 de agosto de 2026)
@@ -6002,3 +6134,222 @@ navegador.** La lista de "esto puede cambiar la app" no incluía los scripts que
 
 **La lección: un control que decide qué controlar tiene que contarse a sí mismo entre lo
 que vigila.**
+
+## 31 de agosto de 2026 — Los ajustes de las estaciones, probados en pantalla
+
+- **Se probó de verdad que lo que se configura se ve.** La Plataforma 360 y Bogue muestran en
+  la pantalla del QR el texto de marca que carga el equipo al armar la fiesta. Está probado
+  abriendo la app y sacando la captura, no leyendo el código:
+  `tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts`. **Ojo con dónde se mira**: el texto
+  de marca NO aparece al abrir la estación, aparece recién en la pantalla de compartir. Una
+  prueba que mire la pantalla de espera da rojo aunque esté todo bien.
+- **En Touchpix el texto de marca vive en la ventanita del QR**, que se abre con el botón
+  "Compartir" (`src/app/evento/touchpix/[fiestaId]/page.tsx:794`). **Quedó sin comprobar en el
+  navegador**: la prueba no llegó a esa ventanita en dos intentos y se paró en vez de seguir
+  adivinando.
+- **Foto de pantalla de las seis estaciones**, para mirarlas con ojos humanos:
+  `tests/e2e/como-se-ven-las-estaciones.spec.ts`, deja las imágenes en
+  `test-results/como-se-ven/`. Falla si una estación no dibuja nada, no tiene ni un botón, se
+  rompe por dentro o le muestra texto técnico al invitado.
+
+### Cuatro avisos de los ayudantes que eran FALSA ALARMA (verificados uno por uno)
+
+Si vuelven a aparecer en una auditoría, son falsos positivos:
+
+1. **"Bogue no lee el texto de marca"** — sí lo lee, línea ~1106, y se comprobó en pantalla.
+2. **"La Plataforma 360 no pone marca de agua"** — sí la pone. Es la segunda vez que se
+   reporta este mismo error.
+3. **"Touchpix no lee el color de la fiesta"** — sí lo lee, línea 127.
+4. **"Los estilos de Touchpix están todos en inglés"** — no: Original, Neón Retro y Fantasía
+   ya están en castellano. **Quedan en inglés sólo "Disco Glam", "Pop Art", "Luxury" y la
+   solapa "Face Swap"**, y eso está pedido en la orden 20.
+
+### Lo que sí falta de verdad, y quedó pedido en la orden 20
+
+- **Cambiar el fondo sin tela verde no existe en ninguna estación de la app.** Es la función
+  estrella de las mejores plataformas.
+- **La galería de la noche la tiene sólo la Plataforma 360.**
+- **Ocho ajustes no los lee nadie**: `captureModes`, `overlayName`, `deliveryChannels`,
+  `logoUrl`, `filterPreset`, `printLayout`, `printCopies` y `moderationMode`.
+- **La Plataforma 360 es la única que ignora el color de la fiesta** (cero menciones de
+  `accentColor` en todo su archivo).
+
+### Por qué el Espejo Mágico dice "Experiencia no disponible" en las pruebas
+
+**No está roto: tiene tres modos** (`espejoMagicoFoto`, `espejoMagicoFirma`,
+`espejoMagicoIA`) y cada pantalla pide el suyo. Si la fiesta de prueba habilita el de
+inteligencia artificial y se abre la pantalla de foto, contesta —bien, y en criollo— que la
+estación no está habilitada. **Habilitar el modo que corresponde antes de dar por rota la
+pantalla.**
+
+## 31 de agosto de 2026 — Las dedicatorias salían apagadas con un candado
+
+**Qué estaba mal:** el invitado podía escribir una dedicatoria, se guardaba, y **no la veía
+nadie en la fiesta**. En la pantalla grande el bloque estaba apagado con un `false` clavado en
+el código (`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx`, ~línea 628), **mientras el
+operador tenía tres formas de encenderlas**: el ajuste `showDedications`, el item
+'dedicaciones' de la lista de la pantalla y el botón para forzarlo desde el celular. Tocaba las
+tres y no pasaba nada.
+
+**Qué se hizo:** se sacó el candado. Ahora manda el operador: la dedicatoria sale **sólo** si la
+puso en la lista de la pantalla o la forzó, y el ajuste de dedicatorias privadas sigue mandando
+por encima. **Con la fiesta como está hoy no cambia nada**, porque si nadie la pone en la lista
+no aparece.
+
+**Por qué así y no encendiéndolas siempre:** qué se muestra de un invitado en la pantalla
+grande lo decide el equipo, no la app.
+
+**El candado queda vigilado:** `src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts` se
+pone en rojo si alguien vuelve a apagarlas a mano. Comprobado que frena de verdad, no sólo que
+pasa en verde.
+
+## 31 de agosto de 2026 — La agenda del dueño se ensuciaba al sincronizar
+
+**Lo reportó él:** *"tenía todo agendado en mi mail; cuando la app se sincronizó, duplicó y
+agregó fechas que no eran, por ejemplo 14 de octubre Martina"*.
+
+**Se encontraron DOS causas distintas, las dos en el código:**
+
+1. **El evento ya existente se buscaba SÓLO en el día de la fecha nueva**
+   (`findExistingGoogleCalendarEvent`, `src/lib/google-workspace.ts`). Si a una fiesta se le
+   cambiaba la fecha, no encontraba el evento viejo —que seguía en la fecha anterior— y creaba
+   uno nuevo. **Resultado: el duplicado, y un evento clavado en una fecha que ya no era**, con
+   el nombre de la fiesta. Es exactamente el "14 de octubre Martina".
+   **Arreglado:** ahora se busca por el número de la fiesta en **toda la agenda** (dos años para
+   atrás y dos para adelante) y, si lo encuentra, **lo mueve** en vez de crear otro.
+
+2. **Una fecha que no se entiende se convertía en la de HOY** (`getFiestaTimes`): el código
+   decía "si la fecha es inválida, usá ahora", y se creaba un evento fantasma con el nombre de
+   la fiesta en un día cualquiera.
+   **Arreglado:** `getFiestaTimes` devuelve `fechaValida`, y si es falsa **no se toca la
+   agenda**: se avisa en criollo que la fecha de la fiesta hay que revisarla.
+
+**Queda vigilado:** `src/__tests__/agenda-no-duplica-ni-inventa-fechas.test.ts`, que además fija
+dos cosas que nadie debe cambiar sin querer: una fecha sin hora se agenda **a las 21 de
+Uruguay** (no a la madrugada), y una fiesta que termina pasada la medianoche **sigue siendo del
+día que se contrató**.
+
+**Lo que NO arregla esto:** los eventos duplicados que ya quedaron en la agenda de fiestas
+viejas. Esos hay que borrarlos a mano una vez; de acá en adelante no se crean más.
+
+## 1 de septiembre de 2026 — La foto de referencia de la maquetación, regenerada
+
+**Qué pasó:** el control que vigila que la maquetación no se mueva sola dio rojo después de juntar
+la entrega de Gemini (siete órdenes) con el trabajo de Claude.
+
+**Se revisó valor por valor antes de aceptar:** de los catorce que cambiaron, **trece se movieron
+entre 1 y 4 píxeles**, que es cómo el navegador dibuja las letras en cada corrida —la tolerancia
+es de 2, por eso saltaron—. **Uno solo es real:** el título de la portada subió 28 píxeles, por el
+contenido nuevo.
+
+**Por qué se aceptó:** el mismo control mide que ninguna pantalla se desborde, y eso pasó. O sea
+que no hay nada roto ni encimado: la portada quedó más compacta.
+
+**Cómo se regenera, para la próxima:** se borra `tests/e2e/layout-baseline.json`, se corre la
+prueba y se escribe sola. **Hay que mirar el cambio antes de aceptarlo**, que es lo que se hizo
+acá: si mañana alguien acepta sin mirar, este control deja de servir.
+
+## 1 de septiembre de 2026 — La hoja de cocina de la noche del evento
+
+**Qué faltaba:** los datos de la comida estaban todos, pero **agrupados para COMPRAR**. La lista
+de compras junta por proveedor, que sirve para ir al mercado; en la cocina la pregunta es otra:
+**cuántas entradas salen, cuántos principales, cuántos postres y cuántos platos especiales
+aparte**.
+
+**Qué se hizo:** `/fiestas/nueva/catering/hoja-de-cocina`, para imprimir y pegar en la cocina.
+Se llega desde la pantalla de comida, al lado de la lista de compras. Muestra los platos en
+orden de servicio con sus porciones, y los platos especiales aparte, en grande.
+
+**Dos cuentas que se cuidaron a propósito, porque ya salieron mal antes:**
+
+1. **Las porciones se calculan igual que en la lista de compras**: el plato principal por
+   adultos, el infantil por chicos, el resto por todos. Si dos pantallas dan números distintos,
+   no se le puede creer a ninguna.
+2. **Los platos especiales se cuentan por PERSONA, no por fila.** Un invitado puede venir con
+   acompañantes: contando filas, una familia de cinco celíacos figuraba como un solo plato
+   especial y cuatro se quedaban sin comer. Y **sólo se cuentan los confirmados**: se cocina
+   para los que vienen.
+
+**Queda vigilado:** `src/__tests__/hoja-de-cocina.test.ts` comprueba las dos cuentas con números
+reales, el orden de los platos, y que **avise en criollo** cuando falta cargar algo en vez de
+mostrar ceros.
+
+**Lo que NO se hizo, y es a propósito:** no se tocó el menú ni los ingredientes. Decisión del
+dueño del 31 de agosto: la carta está decidida.
+
+## 1 de septiembre de 2026 — Las pantallas del equipo pierden la fiesta al abrirlas de una
+
+**Encontrado probando la hoja de cocina.** Si se abre una pantalla del equipo escribiendo la
+dirección con la fiesta adentro (`?fiestaId=...`), **la fiesta se pierde al pasar por el control
+de acceso** y la pantalla queda pidiendo que se elija un evento.
+
+**No es de una pantalla sola:** le pasa igual a la de comida
+(`/fiestas/nueva/catering`), que muestra "elegí un evento". Se ve sólo abriendo la dirección de
+una; navegando adentro de la app no pasa, porque la fiesta ya viene elegida.
+
+**Qué se hizo:** la hoja de cocina ahora lee la fiesta también de la dirección del navegador,
+para aguantar el caso. **No se tocó el flujo de acceso de toda la app**, que es lo que habría que
+mirar si algún día molesta de verdad.
+
+**Y lo que NO se hizo, a propósito:** no se escribió una prueba de navegador que finja
+comprobar las cuentas. **Las cuentas están probadas con números** en
+`src/__tests__/hoja-de-cocina.test.ts`; la prueba de navegador sólo comprueba que la pantalla
+abra y hable en criollo, que es lo que puede comprobar desde afuera.
+
+## 1 de septiembre de 2026 — El cliente podía terminar en el trabajo de otro cliente
+
+**Lo encontró el dueño preguntando por Wfolio.** El álbum profesional del fotógrafo vive afuera
+de la app y se carga por fiesta, en el campo `galeriaUrl`.
+
+**Qué estaba mal:** si esa fiesta **no tenía el enlace cargado**, el botón "Ir al Álbum Digital"
+del resumen post-fiesta llevaba a **`https://wfolio.com/my/disk`**, el disco general del
+fotógrafo, **donde está el material de todos los clientes**. El cliente tocaba el botón y
+terminaba en la fiesta de otro.
+
+**Qué se hizo:** sin enlace propio, **el botón no aparece**. En su lugar dice, en criollo, que
+el fotógrafo todavía está editando y que el enlace va a aparecer ahí. Son cuatro botones en esa
+pantalla y los cuatro quedaron con la misma regla.
+
+**Lo que NO se tocó, porque está bien:** en el portal del cliente
+(`/portal-cliente/[id]/fotos-video`), el respaldo es **el álbum de la propia app**, que sí es de
+ese cliente. Ahí no hay problema.
+
+**Queda vigilado:** `src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts` se pone
+en rojo si alguien vuelve a escribir una dirección fija como respaldo. **Comprobado que frena**,
+no sólo que pasa en verde.
+
+---
+
+## LO ARREGLADO, COMPROBADO SOLO — no alcanza con anotarlo
+
+**Pedido del dueño, 1 de septiembre de 2026:** *"todo lo que te pregunto y corregís debe estar
+registrado en la lista para no volver a repetirlo, y debe figurar si es real que funciona; si
+no, no termino más"*.
+
+**Tenía razón:** hasta hoy los arreglos se anotaban **en prosa**, y una anotación en prosa no
+dice si el arreglo **sigue** andando. Se puede deshacer sin querer al fusionar dos ramas —pasó
+dos veces el mismo día con correcciones de pruebas— y la lista seguiría diciendo que está
+resuelto.
+
+**`npm run ordenes?` comprueba esta lista sola.** Cada arreglo que se anote de acá en adelante
+suma su línea acá abajo, o no cuenta como arreglado.
+
+```comprobar
+usa: hayQuePedirPermiso en src/app/evento/espejo-magico/[fiestaId]/page.tsx
+usa: hayAlbumProfesional en src/components/social-wall/PostEventMemoryHub.tsx
+usa: fechaValida en src/lib/google-workspace.ts
+usa: listarEventosDeAkEnLaAgenda en src/app/actions/google-workspace.ts
+usa: sinClavesVacias en src/app/actions/fiesta/sesion-entretenimiento.ts
+usa: armarHojaDeCocina en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
+prueba: src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts
+prueba: src/__tests__/agenda-no-duplica-ni-inventa-fechas.test.ts
+prueba: src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts
+prueba: src/__tests__/hoja-de-cocina.test.ts
+prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
+```
+
+Qué vigila cada línea, en criollo: que al invitado **se le siga pidiendo permiso** antes de
+publicar su foto; que el cliente **no termine en el disco de todos los clientes**; que una fecha
+rota **no ensucie la agenda**; que se pueda **limpiar la agenda**; que las estaciones **sigan
+arrancando** (el arreglo que las revivió a todas); y que **la hoja de cocina** siga en pie. Más
+las cinco pruebas que lo comprueban.

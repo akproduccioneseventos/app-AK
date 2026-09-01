@@ -18,10 +18,12 @@ export interface ResultadoDeImpresion {
 /** 10x15 cm, la hoja de foto comun. */
 const HOJA = '10cm 15cm';
 
-export function imprimirRecuerdo(imagen: string): ResultadoDeImpresion {
+export function imprimirRecuerdo(imagen: string, copias: number = 1): ResultadoDeImpresion {
   if (!imagen) {
     return { ok: false, aviso: 'Todavía no hay un recuerdo para imprimir.' };
   }
+
+  const cantidadCopias = Math.max(1, Math.min(10, copias));
 
   try {
     const ventana = window.open('', '_blank', 'width=800,height=1100');
@@ -32,12 +34,17 @@ export function imprimirRecuerdo(imagen: string): ResultadoDeImpresion {
       };
     }
 
+    const paginasHtml = Array.from({ length: cantidadCopias })
+      .map(() => `<div class="pagina"><img src="${imagen}" alt="Recuerdo" /></div>`)
+      .join('');
+
     ventana.document.write(
       `<html><head><title>Recuerdo</title><style>` +
         `@page{size:${HOJA};margin:0}` +
         `html,body{margin:0;padding:0;background:#fff}` +
+        `.pagina{width:100%;height:100vh;page-break-after:always;display:flex;align-items:center;justify-content:center}` +
         `img{width:100%;height:100%;object-fit:contain;display:block}` +
-        `</style></head><body><img src="${imagen}" alt="Recuerdo" /></body></html>`,
+        `</style></head><body>${paginasHtml}</body></html>`,
     );
     ventana.document.close();
     ventana.focus();

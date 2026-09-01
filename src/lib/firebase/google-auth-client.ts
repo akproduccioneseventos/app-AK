@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import {
   browserSessionPersistence,
@@ -53,7 +53,12 @@ export async function consumeGoogleRedirectToken(): Promise<string | null> {
 
 export async function clearGoogleAuthSession(): Promise<void> {
   if (!app) return;
-  await signOut(getAuth(app)).catch(() => undefined);
+  try {
+    const auth = getAuth(app);
+    await signOut(auth).catch(() => undefined);
+  } catch {
+    // Si auth no está disponible en este entorno, ignorar de forma segura
+  }
 }
 
 /**

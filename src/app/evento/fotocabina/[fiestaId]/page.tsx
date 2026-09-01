@@ -55,6 +55,17 @@ import {
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
+import {
+  obtenerModosCapturaHabilitados,
+  obtenerDimensionesPorOrientacion,
+  METADATOS_MODOS_CAPTURA,
+} from '@/lib/entretenimiento/modos-captura';
+import {
+  aplicarChromaKey,
+  procesarFondoCanvas,
+  type OpcionFondo,
+} from '@/lib/entretenimiento/segmentacion-fondo';
 
 const FRAMES = [
   { id: 'none', label: 'Sin Marco', bg: 'transparent' },
@@ -337,6 +348,14 @@ export default function FotocabinaPage() {
     }
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+    // Aplicar filtros configurados de la estación
+    if (fiesta?.station.enableBeautyFilter) {
+      aplicarFiltroBelleza(ctx, canvas.width, canvas.height);
+    }
+    if (fiesta?.station.enableChromaKey) {
+      aplicarChromaKey(ctx, canvas.width, canvas.height);
+    }
 
     // El marco va en cada foto; el nombre del evento no, porque en el recuerdo
     // final va una sola vez abajo y repetirlo tres veces queda cargado.
