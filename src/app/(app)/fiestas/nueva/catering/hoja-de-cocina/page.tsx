@@ -24,7 +24,16 @@ import { armarHojaDeCocina, type HojaDeCocina } from '@/lib/catering/hoja-de-coc
  */
 function HojaDeCocinaContenido() {
   const searchParams = useSearchParams();
-  const fiestaId = searchParams.get('fiestaId') || '';
+  // En la version compilada, `useSearchParams` puede venir vacio la primera vez
+  // (la pantalla se arma antes de que el navegador la complete) y la hoja
+  // quedaba diciendo "falta decir de que fiesta es" con la fiesta en la
+  // direccion. Se lee tambien de la direccion del navegador, que siempre esta.
+  const [fiestaId, setFiestaId] = useState(searchParams.get('fiestaId') || '');
+  useEffect(() => {
+    if (fiestaId) return;
+    const deLaDireccion = new URLSearchParams(window.location.search).get('fiestaId');
+    if (deLaDireccion) setFiestaId(deLaDireccion);
+  }, [fiestaId]);
 
   const [hoja, setHoja] = useState<HojaDeCocina | null>(null);
   const [cargando, setCargando] = useState(true);
