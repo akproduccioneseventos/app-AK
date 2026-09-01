@@ -1,61 +1,88 @@
 # LO QUE SE HACE AHORA — orden única vigente
 
-**Actualizada el 1 de septiembre de 2026.** Las órdenes numeradas son **el detalle**; ésta dice
-**en qué orden se hacen**.
+**Actualizada el 1 de septiembre de 2026, con todo lo hablado ese día.**
+
+## Antes de tocar nada: corré `npm run ordenes?`
+
+**Contesta en un segundo qué está hecho y qué no**, sobre tres listas: lo pedido, lo que la app
+dice tener, y lo arreglado. **Correlo al empezar y antes de decir que terminaste.** Si dice
+"FALTA", falta, aunque las pruebas den verde.
 
 ## La regla de siempre
 
-**Una sola propuesta por tanda, con todos los bloques adentro.** Si un bloque se traba, entregá
-el resto igual y avisá cuál faltó. Antes de dar por terminada: **`npm run "publicar?"` completo
-en verde** y lo anotado en `docs/YA-RESUELTO.md`.
+**Una orden por vez, terminada.** Se pidió de a una por algo: al juntar cuatro entregas se
+pisaron dos correcciones y cada una costó 45 minutos descubrirla.
+
+Antes de entregar: **`npm run "publicar?"` en verde**, **`npm run limpiar:corrida`**, y anotado
+en `docs/YA-RESUELTO.md` **con su línea en el bloque `comprobar`**.
 
 ---
 
-## EL ORDEN, y es éste
+## EL ORDEN
 
-| # | Qué | Orden | Por qué va ahí |
-|---|---|---|---|
-| **1** | **La web de venta que se rompe** | 26 | **Lo ve un prospecto.** Y hoy **frena la publicación de todo lo demás.** Primero comprobar si el error existe de verdad en la web publicada: puede ser del entorno de prueba |
-| **2** | **La vidriera de la tecnología** | 27 | Está hecha y **no la ve ningún cliente**: sólo se llega desde una pantalla interna. Es lo que consigue clientes |
-| **3** | **El álbum del recuerdo** | 28 | La mitad ya existe. Faltan los audios, que el cliente elija, y que se vea como un álbum |
-| **4** | **Lo que le falta a la puerta** | 29 | Que el recorrido entre, que las conexiones se controlen, y que la estética se mida |
-| **5** | **Decoración** | 24 | Que el cliente vea su propuesta y su salón decorado |
-| **6** | **Que el empleado confirme que va** | 25 | Evita quedarse sin gente la noche de la fiesta |
-| **7** | **Las estaciones** | 20 | El fondo sin telón y la cámara vertical u horizontal |
+### 1. Las tres de Firebase que no usa nadie
+`docs/ordenes/DEVOLUCION-firebase.md` — **da 0 de 3.**
+
+Achicar las fotos, el escudo antibots y App Check están escritos y **no los llama ninguna
+pantalla**. La de achicar fotos es la que **ahorra plata de verdad** y hoy no ahorra nada.
+**Es lo más rápido de todo y ya está medido.**
+
+### 2. Los dos fondos de la fotocabina
+`docs/ordenes/32-los-dos-fondos-de-la-fotocabina.md`
+
+- **El fondo de la pantalla —el "telón"—**, que es lo que pidió el dueño y no existe.
+- **El croma deja una mancha negra**: está a medio conectar y arruinaría la primera fiesta.
+- **El cambio de fondo sin tela**, que es lo único que sirve en su salón: *"un metro y medio
+  para atrás es imposible"*.
+
+### 3. El álbum del recuerdo: 3 de 10 contra el rubro
+**Es el módulo más flojo de los nueve, y es lo último que ve el cliente.** La orden 28 quedó
+hecha en lo básico; falta lo que dice el bloque del rubro en
+`docs/COMPARACION-CON-EL-RUBRO.md`: que se arme solo con los mejores, la portada con el nombre
+de la fiesta, y que se pasen páginas de verdad.
+
+### 4. La fotocabina: 12 de 26 contra el rubro
+**El agujero más grande en números.** Y ojo, que esto lo hace mucho más barato de lo que parece:
+**boomerang, video, cámara lenta, accesorios que se arrastran y firmar sobre la foto YA EXISTEN
+en otras estaciones.** No hay que programarlas: hay que **compartirlas**.
+
+Lo que sí falta de cero: **tamaño de impresión, cantidad de copias, elegir la impresora y armar
+el diseño de la impresión** —las tres que marcó el dueño y no estaban en ninguna orden— y la
+**galería de la noche**.
+
+### 5. Que la app se mueva
+`docs/ordenes/30-que-la-app-se-mueva.md` — las landings y las páginas de venta **no tienen nada
+de movimiento**, y son las que ve quien llega de Google.
+
+### 6. Encontrá tus fotos con una selfie
+`docs/ordenes/31-encontra-tus-fotos-con-una-selfie.md` — **el bloque 0, las reglas de la cara, se
+lee primero y no se negocia.**
+
+### 7. Lo que falta de las estaciones y la decoración
+- **Bogue, Buzón, 360 y Espejo**: entre 6 y 7 de 12 o 13. El detalle, en el bloque del rubro.
+- **Decoración**: el plano para poner las mesas y el aviso de si un elemento ya está usado.
+- **Personal**: el número *"confirmaron 6 de 8"* arriba de la lista.
 
 ---
 
-## Lo que está listo y espera fusión
+## Lo que vale para todo
 
-Tres entregas ya revisadas y corregidas, en `claude/ponte-al-dia-qtrho3`:
-
-- **Seis diseños de invitación y la red social** (orden 23).
-- **El recorrido de las 353 pantallas** (orden 21), con tres arreglos: frena cuando hay
-  pantallas rotas, no hace eterna la puerta, y espera a que la pantalla se dibuje.
-- **La pantalla gigante completa** (orden 22): afiche del QR, reacciones, "qué viene ahora",
-  fondo elegible, modo cine y las reglas de estética.
-
-**No se pueden fusionar hasta resolver la orden 26.**
-
----
-
-## Lo que vale para todas las tandas
-
-- **Antes de programar algo, verificá que no exista.** Hoy pasó tres veces: la vidriera de la
-  tecnología, el video recuerdo y el álbum **ya estaban hechos**. Un `graphify query` y una
-  mirada alcanzan.
+- **Antes de programar algo, fijate que no exista.** Pasó cuatro veces en un día: la vidriera, el
+  video recuerdo, el álbum y la galería por autor **ya estaban hechos**.
+- **Cada error se arregla Y se le pone un matafuego** (está en `CLAUDE.md`). Un arreglo sin
+  matafuego no está terminado.
 - **No se cambia lo que ya funciona.** Lo mejorable se anota en una línea y decide el dueño.
-- **Todo lo que se haga tiene que ser mejor que lo mejor del rubro** (está en `CLAUDE.md`), y
-  **la estética entra en "mejor"**.
+- **Todo lo que se haga tiene que ser mejor que lo mejor del rubro**, y **la estética entra en
+  "mejor"**.
 - **Plata, cobros, comida y permisos los hace Claude.**
 - **Nada que se pague por mes** sin preguntar.
 - **Nunca una prueba escrita para que un control se calle.**
 
 ---
 
-## Y una nueva, la 31: "Encontrá tus fotos con una selfie"
+## Decisiones del dueño de hoy, para no volver a preguntarlas
 
-`docs/ordenes/31-encontra-tus-fotos-con-una-selfie.md`. **Va después de las que ya están en la
-lista**, pero tiene una condición: **el bloque 0, las reglas de la cara, se lee primero y no se
-negocia.** Son caras de menores en fiestas de quince. Si algo de ahí no se puede cumplir, la
-función no se entrega.
+- **El cliente NO elige fotos.** El álbum se arma solo y se entrega terminado.
+- **El menú y los ingredientes no se tocan.**
+- **El croma casi no sirve**: no hay espacio para separar a la gente de la tela.
+- **"Telón" es el fondo de la PANTALLA**, no una tela colgada.
