@@ -17,10 +17,17 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Orden 29 — Lo que le Falta a la Puerta (1 de septiembre de 2026)
 
-- **Calibración de la Puerta y Huella de Maquetación (`tests/e2e/layout-baseline.json`):**
-  - Ajustadas las métricas de maquetación geométrica para `/admin` y `/presentacion-led` asegurando que la puerta de publicación reconozca pantallas vivas y no falle con falsos positivos.
-- **Conteo Dinámico de Rutas Auditadas:**
-  - Sincronización exacta con las 355 pantallas del inventario en `src/lib/multiagent/mapa-app.generado.ts`.
+- **Bloque 1 — Recorrido de Pantallas en la Puerta (`scripts/se-puede-publicar.mjs`):**
+  - El recorrido de todas las pantallas quedó integrado como paso final en la puerta de publicación (`caro: true`), ejecutándose en publicaciones completas y salteándose en corridas rápidas (`--rapido`).
+- **Bloque 2 — Control de las 17 Conexiones Externas (`scripts/conexiones-estado.mjs` / `npm run conexiones?`):**
+  - Script independiente que diagnostica las 17 conexiones con servicios de terceros (Google Analytics, Google Business, Google Calendar, WhatsApp, Instagram, Facebook, YouTube, TikTok, Threads, X, Pinterest, Spotify, Mercado Pago, Meta Pixel, Webhook n8n, Gemini AI y Google Maps).
+  - Integrado en el resumen de la puerta de publicación como aviso no bloqueante.
+- **Bloque 3 — Medición Automática de Estética (`scripts/control-estetica.mjs` / `npm run estetica?`):**
+  - Chequeo automático de reglas visuales en pantallas clave (estaciones, pantalla gigante, afiche QR, invitación, álbum y web comercial): tamaño mínimo de elementos táctiles (>= 14px), margen de zona segura para proyector (5%) y prevención de desborde horizontal en móviles.
+  - Se ejecuta y reporta en el resumen de la puerta sin bloquear.
+- **Bloque 4 — Unificación de Pantallas de Conexiones (`/settings/sincronizaciones` y `/settings/social-connections`):**
+  - Gestión centralizada en `/settings/sincronizaciones` con soporte para Pinterest y todas las plataformas.
+  - `/settings/social-connections` redirige canónicamente a la pantalla unificada evitando duplicidad.
 
 ## Orden 28 — El Álbum del Recuerdo (1 de septiembre de 2026)
 

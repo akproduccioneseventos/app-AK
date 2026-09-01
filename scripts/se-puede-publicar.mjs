@@ -68,6 +68,12 @@ const PASOS = [
     queSignifica: 'La app compila pero no funciona: alguna pantalla no hace lo que dice. Es el único control que ve lo que ve el usuario.',
     caro: true,
   },
+  {
+    nombre: 'Recorrido de todas las pantallas',
+    comando: 'npm run recorrido',
+    queSignifica: 'Alguna de las pantallas del sistema falló al abrirse o renderizarse en producción.',
+    caro: true,
+  },
 ];
 
 /**
@@ -202,7 +208,19 @@ async function mostrarMetricasAuditadas() {
     const { calcularMetricasAuditadas } = await import('./actualizar-auditado.mjs');
     const metricas = calcularMetricasAuditadas();
     console.log(`  Auditadas de verdad: ${metricas.totalAuditadasNivel4Mas} de ${metricas.totalPantallas} pantallas (${metricas.porcentaje}%).`);
-    console.log(`  Módulos auditados con el método completo: ${metricas.modulosCompletos} de ${metricas.totalModulos}.\n`);
+    console.log(`  Módulos auditados con el método completo: ${metricas.modulosCompletos} de ${metricas.totalModulos}.`);
+  } catch {}
+
+  try {
+    const { verificarConexionesNode } = await import('./conexiones-estado.mjs');
+    const con = verificarConexionesNode();
+    console.log(`  ${con.resumenTexto}`);
+  } catch {}
+
+  try {
+    const { verificarEsteticaNode } = await import('./control-estetica.mjs');
+    const est = verificarEsteticaNode();
+    console.log(`  ${est.resumenTexto}\n`);
   } catch {}
 }
 
