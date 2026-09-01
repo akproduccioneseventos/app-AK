@@ -6353,3 +6353,19 @@ publicar su foto; que el cliente **no termine en el disco de todos los clientes*
 rota **no ensucie la agenda**; que se pueda **limpiar la agenda**; que las estaciones **sigan
 arrancando** (el arreglo que las revivió a todas); y que **la hoja de cocina** siga en pie. Más
 las cinco pruebas que lo comprueban.
+
+## 1 de septiembre de 2026 — FALSO POSITIVO PROPIO: "el cambio de fondo sin telón está hecho"
+
+**Lo dije yo y estaba mal.** Al verificar la entrega de la tanda 4, se vio que las tres
+estaciones importan `segmentacion-fondo.ts` y se dio por hecho que el cambio de fondo sin telón
+funcionaba.
+
+**Abriendo el archivo, no:** lo único que hay es `aplicarChromaKey`, que **recorta por color
+verde y necesita la tela colgada**. No hay ningún modelo de reconocimiento de personas —cero
+menciones de MediaPipe, TensorFlow o BodyPix, ni en el código ni en las dependencias—.
+
+**La lección, y es la misma de siempre:** que una pantalla **importe** un archivo no dice qué
+hace ese archivo. Hay que abrirlo. Comprobar el nombre no alcanza, ni cuando lo comprueba Claude.
+
+**Queda pedido en `docs/ordenes/32-los-dos-fondos-de-la-fotocabina.md`**, junto con el fondo de
+la pantalla, que tampoco se puede cambiar.
