@@ -6231,3 +6231,20 @@ día que se contrató**.
 
 **Lo que NO arregla esto:** los eventos duplicados que ya quedaron en la agenda de fiestas
 viejas. Esos hay que borrarlos a mano una vez; de acá en adelante no se crean más.
+
+## 1 de septiembre de 2026 — La foto de referencia de la maquetación, regenerada
+
+**Qué pasó:** el control que vigila que la maquetación no se mueva sola dio rojo después de juntar
+la entrega de Gemini (siete órdenes) con el trabajo de Claude.
+
+**Se revisó valor por valor antes de aceptar:** de los catorce que cambiaron, **trece se movieron
+entre 1 y 4 píxeles**, que es cómo el navegador dibuja las letras en cada corrida —la tolerancia
+es de 2, por eso saltaron—. **Uno solo es real:** el título de la portada subió 28 píxeles, por el
+contenido nuevo.
+
+**Por qué se aceptó:** el mismo control mide que ninguna pantalla se desborde, y eso pasó. O sea
+que no hay nada roto ni encimado: la portada quedó más compacta.
+
+**Cómo se regenera, para la próxima:** se borra `tests/e2e/layout-baseline.json`, se corre la
+prueba y se escribe sola. **Hay que mirar el cambio antes de aceptarlo**, que es lo que se hizo
+acá: si mañana alguien acepta sin mirar, este control deja de servir.
