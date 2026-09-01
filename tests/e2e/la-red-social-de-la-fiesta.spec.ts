@@ -37,7 +37,16 @@ test('la red social le da al invitado su mesa, el cronograma y el ranking', asyn
 
   const respuesta = await page.goto(`/evento/social/${ID}`, { waitUntil: 'domcontentloaded' });
   expect(respuesta?.status(), 'la red social abre').toBeLessThan(400);
-  await page.waitForTimeout(6_000);
+  // OJO: esta pantalla tarda mas de 6 segundos en cargar sus datos. Con una
+  // espera fija daba rojo estando todo bien, y ya se perdio una vez esta
+  // correccion al juntar ramas. Lo que importa no es que sea rapida: es que
+  // TERMINE de cargar. Si a los 30 segundos sigue buscando, ahi si es una falla:
+  // el invitado se queda mirando un cartel para siempre.
+  await page
+    .locator('nav button', { hasText: /cronograma/i })
+    .first()
+    .waitFor({ state: 'visible', timeout: 30_000 })
+    .catch(() => {});
 
   const texto = ((await page.locator('body').innerText().catch(() => '')) || '').replace(/\s+/g, ' ').trim();
 

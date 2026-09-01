@@ -110,3 +110,24 @@ Una prueba que **abra el álbum de la fiesta de prueba y compruebe en pantalla**
 portada con el nombre de la fiesta, que hay más de una página para pasar, que aparece al menos
 un audio, y que **no entra nada que esté oculto por moderación**. Que los datos existan no
 alcanza.
+
+---
+
+## CÓMO SE COMPRUEBA QUE ESTA ORDEN ESTÁ HECHA
+
+**No alcanza con decir que está terminada.** Esto lo verifica `npm run ordenes?` solo, y
+mientras falte algo, la orden figura como **a medias** aunque alguien diga lo contrario.
+
+```comprobar
+archivo: src/lib/album/armar-album.ts
+usa: audioUrl en src/app/evento/album/[fiestaId]/page.tsx
+usa: paginaActual en src/app/evento/album/[fiestaId]/page.tsx
+prueba: tests/e2e/el-album-del-recuerdo.spec.ts
+```
+
+Qué significa cada línea, en criollo:
+
+- **El armador del álbum existe**: el que elige solo los 40 recuerdos.
+- **Los audios entran al álbum**: la voz de la abuela, que hoy sólo se ve en post-fiesta.
+- **Se pasan páginas**: no una grilla de fotos.
+- **Y hay una prueba de navegador que lo abre y lo mira.**

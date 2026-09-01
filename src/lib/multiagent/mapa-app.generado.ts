@@ -328,6 +328,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/fiestas/nueva/carta-tragos",
     "/fiestas/nueva/carteleria",
     "/fiestas/nueva/catering",
+    "/fiestas/nueva/catering/hoja-de-cocina",
     "/fiestas/nueva/catering/lista-compras",
     "/fiestas/nueva/centro",
     "/fiestas/nueva/centro-total",

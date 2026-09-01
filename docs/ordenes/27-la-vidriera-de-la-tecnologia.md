@@ -96,3 +96,18 @@ Una lista de 40 cosas no la lee nadie. **Que cada cosa entre por los ojos:**
 - **No inventes funciones que no tenemos.** Todo lo de la lista está verificado; si dudás de
   algo, sacalo.
 - **Plata, cobros, comida y permisos: los hace Claude.**
+
+---
+
+## CÓMO SE COMPRUEBA QUE ESTA ORDEN ESTÁ HECHA
+
+Lo verifica `npm run ordenes?` solo.
+
+```comprobar
+usa: InteractiveTechShowcase en src/app/page.tsx
+usa: InteractiveTechShowcase en src/app/public/[eventType]/page.tsx
+prueba: tests/e2e/la-vidriera-de-la-tecnologia.spec.ts
+```
+
+La primera línea es la que faltaba: **que se llegue desde la PORTADA**, que es por donde entra
+el que llega de Google. Hoy se ve sólo en las páginas por tipo de evento.
