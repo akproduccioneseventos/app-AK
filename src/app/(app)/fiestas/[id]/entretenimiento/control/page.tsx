@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Monitor, Loader2, Sparkles } from 'lucide-react';
@@ -28,7 +28,7 @@ export default function ControlEntretenimientoPage() {
   const [resumen, setResumen] = useState<ResumenNocheEntretenimiento | null>(null);
   const [sePudoContar, setSePudoContar] = useState(true);
 
-  const cargarDatos = async () => {
+  const cargarDatos = useCallback(async () => {
     setIsLoading(true);
     try {
       const res = await getEntretenimientoFiesta(fiestaId);
@@ -161,11 +161,11 @@ export default function ControlEntretenimientoPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fiestaId]);
 
   useEffect(() => {
     void cargarDatos();
-  }, [fiestaId]);
+  }, [cargarDatos]);
 
   return (
     <div className="container mx-auto max-w-7xl py-8 px-4 sm:px-6">

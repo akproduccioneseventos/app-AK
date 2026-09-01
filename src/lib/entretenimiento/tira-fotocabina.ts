@@ -41,6 +41,10 @@ export interface DatosDeLaTira {
   imagenFondoUrl?: string;
   /** Texto chico del pie. */
   textoDeMarca?: string;
+  /** Plantilla de diseño de impresión: strip_3 (clásica), single_photo (foto única), strip_4 (4 fotos) */
+  printLayout?: 'strip_3' | 'single_photo' | 'strip_4';
+  /** Logo personalizado del cliente */
+  logoUrl?: string;
 }
 
 function cargarImagen(src: string): Promise<HTMLImageElement> {
@@ -186,42 +190,32 @@ export async function componerTiraDeFotos(datos: DatosDeLaTira): Promise<string>
     ctx.fillRect(0, 0, ANCHO, ALTO);
   }
 
-  // ── 2. Distribución de fotos según cantidad ──
+  // ── 2. Distribución de fotos según plantilla o cantidad ──
   const anchoTotal = ANCHO - MARGEN * 2;
+  const layout = datos.printLayout || (imagenes.length === 1 ? 'single_photo' : imagenes.length >= 4 ? 'strip_4' : 'strip_3');
 
-  if (imagenes.length === 1) {
-    // ── Espejo Mágico / 360 IA: 1 sola foto grande arriba ──
+  if (layout === 'single_photo' || imagenes.length === 1) {
+    // ── Plantilla Single Photo (1 sola foto grande arriba) ──
     const altoFotoGrande = 1100;
     dibujarRecortada(ctx, imagenes[0], MARGEN, MARGEN, anchoTotal, altoFotoGrande, 12);
-  } else if (imagenes.length === 2) {
-    // 2 fotos verticales lado a lado
-    const anchoFoto = (anchoTotal - SEPARACION) / 2;
-    const altoFoto = 1100;
-    dibujarRecortada(ctx, imagenes[0], MARGEN, MARGEN, anchoFoto, altoFoto, 12);
-    dibujarRecortada(ctx, imagenes[1], MARGEN + anchoFoto + SEPARACION, MARGEN, anchoFoto, altoFoto, 12);
-  } else if (imagenes.length >= 4) {
-    // ── Fotocabina 4 fotos: cuadrícula 2x2 ──
+  } else if (layout === 'strip_4' || imagenes.length >= 4) {
+    // ── Plantilla Strip 4 (cuadrícula 2x2 de 4 fotos) ──
     const anchoFoto = (anchoTotal - SEPARACION) / 2;
     const altoFoto = (1140 - SEPARACION) / 2;
     dibujarRecortada(ctx, imagenes[0], MARGEN, MARGEN, anchoFoto, altoFoto, 12);
-    dibujarRecortada(ctx, imagenes[1], MARGEN + anchoFoto + SEPARACION, MARGEN, anchoFoto, altoFoto, 12);
-    dibujarRecortada(ctx, imagenes[2], MARGEN, MARGEN + altoFoto + SEPARACION, anchoFoto, altoFoto, 12);
-    dibujarRecortada(ctx, imagenes[3], MARGEN + anchoFoto + SEPARACION, MARGEN + altoFoto + SEPARACION, anchoFoto, altoFoto, 12);
+    dibujarRecortada(ctx, imagenes[1] || imagenes[0], MARGEN + anchoFoto + SEPARACION, MARGEN, anchoFoto, altoFoto, 12);
+    dibujarRecortada(ctx, imagenes[2] || imagenes[0], MARGEN, MARGEN + altoFoto + SEPARACION, anchoFoto, altoFoto, 12);
+    dibujarRecortada(ctx, imagenes[3] || imagenes[0], MARGEN + anchoFoto + SEPARACION, MARGEN + altoFoto + SEPARACION, anchoFoto, altoFoto, 12);
   } else {
-    // ── Fotocabina (3 fotos estándar): 1 grande arriba + 2 chicas abajo lado a lado ──
+    // ── Plantilla Strip 3 (1 grande arriba + 2 chicas abajo) ──
     const altoFotoGrande = 640;
     const altoFotosChicas = 480;
     const anchoFotoChica = (anchoTotal - SEPARACION) / 2;
     const yFotosChicas = MARGEN + altoFotoGrande + SEPARACION;
 
-    // Foto grande arriba
     dibujarRecortada(ctx, imagenes[0], MARGEN, MARGEN, anchoTotal, altoFotoGrande, 12);
-
-    // Foto 2 abajo a la izquierda
-    dibujarRecortada(ctx, imagenes[1], MARGEN, yFotosChicas, anchoFotoChica, altoFotosChicas, 12);
-
-    // Foto 3 abajo a la derecha
-    dibujarRecortada(ctx, imagenes[2], MARGEN + anchoFotoChica + SEPARACION, yFotosChicas, anchoFotoChica, altoFotosChicas, 12);
+    dibujarRecortada(ctx, imagenes[1] || imagenes[0], MARGEN, yFotosChicas, anchoFotoChica, altoFotosChicas, 12);
+    dibujarRecortada(ctx, imagenes[2] || imagenes[0], MARGEN + anchoFotoChica + SEPARACION, yFotosChicas, anchoFotoChica, altoFotosChicas, 12);
   }
 
   // ── 3. Pie personalizado ──
@@ -243,7 +237,6 @@ export async function componerTiraDeFotos(datos: DatosDeLaTira): Promise<string>
   ctx.restore();
 
   // Nombre del homenajeado en letra manuscrita grande
-  // Si no hay nombre cargado, no se pone texto inventado de relleno.
   const nombreParaMostrar = nombreHomenajeado?.trim() || (nombreDelEvento && !nombreDelEvento.toLowerCase().includes('evento') ? nombreDelEvento.trim() : '');
 
   if (nombreParaMostrar) {
@@ -283,8 +276,23 @@ export async function componerTiraDeFotos(datos: DatosDeLaTira): Promise<string>
   // Logo de AK abajo a la izquierda
   dibujarLogoAk(ctx, MARGEN + 10, ALTO - MARGEN - 10, colorDeAcento);
 
-  // Texto chico adicional de marca a la derecha (si viene)
-  if (textoDeMarca) {
+  // Logo del cliente o texto de marca a la derecha
+  if (datos.logoUrl) {
+    try {
+      const imgLogo = await cargarImagen(datos.logoUrl);
+      dibujarRecortada(ctx, imgLogo, ANCHO - MARGEN - 120, ALTO - MARGEN - 50, 110, 44, 4);
+    } catch {
+      if (textoDeMarca) {
+        ctx.save();
+        ctx.fillStyle = '#a1a1aa';
+        ctx.font = 'bold 18px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(textoDeMarca.toUpperCase(), ANCHO - MARGEN - 10, ALTO - MARGEN - 10);
+        ctx.restore();
+      }
+    }
+  } else if (textoDeMarca) {
     ctx.save();
     ctx.fillStyle = '#a1a1aa';
     ctx.font = 'bold 18px sans-serif';

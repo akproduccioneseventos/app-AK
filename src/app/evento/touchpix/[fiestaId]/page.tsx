@@ -22,6 +22,8 @@ import {
   Sparkle,
   Radio,
   Zap,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { applyFaceSwap, applyTouchpixTheme, uploadTouchpixPhoto } from '@/app/actions/touchpix-ai';
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
@@ -42,16 +44,28 @@ import { saveOfflineMedia } from '@/lib/offline/offline-db';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
+import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
+import {
+  obtenerModosCapturaHabilitados,
+  obtenerDimensionesPorOrientacion,
+  METADATOS_MODOS_CAPTURA,
+} from '@/lib/entretenimiento/modos-captura';
+import {
+  aplicarChromaKey,
+  procesarFondoCanvas,
+  type OpcionFondo,
+} from '@/lib/entretenimiento/segmentacion-fondo';
 
 /* ───────────────────── Theme Definitions ───────────────────── */
 
 const TOUCHPIX_THEMES = [
   { id: 'original', label: 'Original', emoji: '📷', gradient: 'from-zinc-700 to-zinc-800', cssFilter: 'none', description: 'Sin efectos' },
-  { id: 'disco_glam', label: 'Disco Glam', emoji: '🪩', gradient: 'from-fuchsia-600 to-purple-800', cssFilter: 'brightness(1.1) contrast(1.1) saturate(1.3)', description: 'Brillo disco' },
+  { id: 'belleza', label: 'Belleza', emoji: '✨', gradient: 'from-rose-500 to-pink-600', cssFilter: 'brightness(1.06) contrast(1.03)', description: 'Piel suave y radiante' },
+  { id: 'disco_glam', label: 'Brillo Disco', emoji: '🪩', gradient: 'from-fuchsia-600 to-purple-800', cssFilter: 'brightness(1.1) contrast(1.1) saturate(1.3)', description: 'Brillo festivo' },
   { id: 'neon_retro', label: 'Neón Retro', emoji: '🌆', gradient: 'from-cyan-500 to-blue-700', cssFilter: 'hue-rotate(180deg) saturate(2) brightness(1.05)', description: 'Estilo 80s' },
   { id: 'fantasy_enchanted', label: 'Fantasía', emoji: '🧚', gradient: 'from-emerald-500 to-teal-700', cssFilter: 'brightness(1.05) saturate(0.9) hue-rotate(90deg) contrast(1.05)', description: 'Mundo mágico' },
-  { id: 'pop_art', label: 'Pop Art', emoji: '🎨', gradient: 'from-yellow-500 to-red-600', cssFilter: 'saturate(2.5) contrast(1.4) brightness(1.05)', description: 'Estilo Warhol' },
-  { id: 'golden_luxury', label: 'Luxury', emoji: '👑', gradient: 'from-amber-500 to-yellow-700', cssFilter: 'sepia(0.5) saturate(1.5) brightness(1.1) contrast(1.1)', description: 'Dorado premium' },
+  { id: 'pop_art', label: 'Arte Pop', emoji: '🎨', gradient: 'from-yellow-500 to-red-600', cssFilter: 'saturate(2.5) contrast(1.4) brightness(1.05)', description: 'Estilo Pop Art' },
+  { id: 'golden_luxury', label: 'Elegante', emoji: '👑', gradient: 'from-amber-500 to-yellow-700', cssFilter: 'sepia(0.5) saturate(1.5) brightness(1.1) contrast(1.1)', description: 'Dorado premium' },
 ];
 
 /* ───────────────────── Face Swap Characters ───────────────────── */
@@ -122,8 +136,24 @@ export default function TouchpixPage() {
   const [session, setSession] = useState<EntertainmentSession | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
 
-  const eventName = fiesta?.eventName || 'este gran evento';
+  const speak = useCallback((text: string) => {
+    if (!voiceEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'es-ES';
+      const voices = window.speechSynthesis.getVoices();
+      const esVoice = voices.find(v => v.lang.startsWith('es'));
+      if (esVoice) utterance.voice = esVoice;
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      // Ignorar fallos de speech
+    }
+  }, [voiceEnabled]);
+  const eventName = fiesta?.station?.brandText || fiesta?.eventName || 'este gran evento';
+  const accentColor = fiesta?.station?.accentColor || '#c026d3';
   
   const triviaList = [
     `¿Sabías que ${eventName} fue planeado detalladamente para sorprenderte?`,
@@ -179,6 +209,20 @@ export default function TouchpixPage() {
       stopCamera();
     };
   }, [accessToken, fiestaId, stopCamera]);
+
+  useEffect(() => {
+    if (fiesta?.station?.activeTemplateId) {
+      const tid = fiesta.station.activeTemplateId;
+      if (TOUCHPIX_THEMES.some(t => t.id === tid)) {
+        setSelectedTheme(tid);
+        setSelectedAiTheme(tid);
+        setActiveTab('ai_themes');
+      } else if (FACE_SWAP_CHARACTERS.some(c => c.id === tid)) {
+        setSelectedCharacter(tid);
+        setActiveTab('faceswap');
+      }
+    }
+  }, [fiesta?.station?.activeTemplateId]);
 
   /* ── Camera ── */
   const startCamera = useCallback(async () => {
@@ -282,6 +326,13 @@ export default function TouchpixPage() {
       ctx.filter = filterStr;
       ctx.drawImage(img, 0, 0);
       ctx.filter = 'none';
+
+      if (selectedTheme === 'belleza' || fiesta?.station.enableBeautyFilter) {
+        aplicarFiltroBelleza(ctx, offscreen.width, offscreen.height);
+      }
+      if (fiesta?.station.enableChromaKey) {
+        aplicarChromaKey(ctx, offscreen.width, offscreen.height);
+      }
 
       // Draw overlay emojis
       if (overlayEmojis && overlayEmojis.length > 0) {
@@ -443,6 +494,7 @@ export default function TouchpixPage() {
     let currentCount = fiesta?.station.countdownSeconds || 4;
     setCountdown(currentCount);
     playBeep();
+    speak('¡Atención! Sonreí a la cámara.');
 
     const interval = setInterval(() => {
       currentCount -= 1;
@@ -465,6 +517,7 @@ export default function TouchpixPage() {
     fiestaId,
     handleCapture,
     playBeep,
+    speak,
   ]);
 
   useEffect(() => {
@@ -609,6 +662,15 @@ export default function TouchpixPage() {
     void completeEntertainmentSessionCycle(fiestaId, 'espejoMagicoIA', accessToken);
     startCamera();
   }, [accessToken, fiestaId, startCamera]);
+
+  useEffect(() => {
+    if (capturedImage && !isProcessing && fiesta?.station?.reviewSeconds) {
+      const timer = setTimeout(() => {
+        retake();
+      }, fiesta.station.reviewSeconds * 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [capturedImage, isProcessing, fiesta?.station?.reviewSeconds, retake]);
 
   /* ── Upload ── */
   const handleUpload = useCallback(async () => {
@@ -767,8 +829,8 @@ export default function TouchpixPage() {
           </button>
 
           <div className="text-4xl mb-3">📲</div>
-          <h3 className="text-xl font-black text-white mb-2">Compartí la experiencia</h3>
-          <p className="text-sm text-zinc-400 mb-6">Escaneá este QR para abrir Touchpix en otro dispositivo</p>
+          <h3 className="text-xl font-black text-white mb-2">{fiesta?.station?.brandText || 'Compartí la experiencia'}</h3>
+          <p className="text-sm text-zinc-400 mb-6">{fiesta?.station?.qrCallout || 'Escaneá este QR para abrir Touchpix en otro dispositivo'}</p>
 
           <div className="bg-white rounded-2xl p-4 inline-block mb-6">
             {QRComponent ? (
@@ -788,7 +850,7 @@ export default function TouchpixPage() {
 
   const tabs: { id: TabMode; label: string; emoji: string; icon: React.ReactNode }[] = [
     { id: 'foto', label: 'Foto', emoji: '📷', icon: <Camera className="w-5 h-5" /> },
-    { id: 'faceswap', label: 'Face Swap', emoji: '🎭', icon: <Users className="w-5 h-5" /> },
+    { id: 'faceswap', label: 'Cambio de Cara', emoji: '🎭', icon: <Users className="w-5 h-5" /> },
     { id: 'ai_themes', label: 'Temas IA', emoji: '🎬', icon: <Wand2 className="w-5 h-5" /> },
   ];
 
@@ -850,7 +912,7 @@ export default function TouchpixPage() {
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500">Experiencia</p>
               <div className="grid grid-cols-2 gap-2">
                 {([
-                  ['faceswap', 'Face Swap'],
+                  ['faceswap', 'Cambio de Cara'],
                   ['ai_themes', 'Tema artistico'],
                 ] as const).map(([mode, label]) => (
                   <button
@@ -980,13 +1042,23 @@ export default function TouchpixPage() {
           )}
         </div>
 
-        {!capturedImage && wizardStep === 0 && !errorMsg && fiesta ? (
-          <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
-            <SwitchCamera className="w-5 h-5" />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setVoiceEnabled(prev => !prev)}
+            aria-label={voiceEnabled ? 'Silenciar voz' : 'Activar voz'}
+            title={voiceEnabled ? 'Silenciar voz' : 'Activar voz'}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20"
+          >
+            {voiceEnabled ? <Volume2 className="w-5 h-5 text-fuchsia-400" /> : <VolumeX className="w-5 h-5 text-zinc-500" />}
           </button>
-        ) : (
-          <div className="w-10" />
-        )}
+
+          {!capturedImage && wizardStep === 0 && !errorMsg && fiesta && (
+            <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
+              <SwitchCamera className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ═══════════ FLASH OVERLAY ═══════════ */}
@@ -1032,7 +1104,7 @@ export default function TouchpixPage() {
                         <div className="flex items-center gap-4">
                           <div className="text-4xl">🎭</div>
                           <div>
-                            <p className="text-sm font-black text-white">Face Swap (IA)</p>
+                            <p className="text-sm font-black text-white">Cambiar Cara (IA)</p>
                             <p className="text-[11px] text-zinc-400 mt-0.5">Reemplaza tu cara con astronautas, rockstars y más.</p>
                           </div>
                         </div>
@@ -1416,6 +1488,8 @@ export default function TouchpixPage() {
               <button
                 onClick={takePhoto}
                 disabled={countdown !== null}
+                aria-label="Sacar foto"
+                title="Sacar foto"
                 className="w-[72px] h-[72px] rounded-full p-1.5 transition active:scale-90"
                 style={{ background: 'linear-gradient(135deg, rgb(217, 70, 239), rgb(147, 51, 234))' }}
               >

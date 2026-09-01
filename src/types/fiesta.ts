@@ -1,4 +1,4 @@
-
+﻿
 import type { TipoEvento } from './presupuesto';
 import type { UnidadServicio } from './empresa';
 import type { SocialGalleryPost } from './social-gallery';
@@ -177,6 +177,9 @@ export interface PersonalAsignadoDetalleStorage {
   rolId: string;
   eventSalary: number;
   checkInTimestamp?: string;
+  asistenciaConfirmada?: boolean;
+  fechaConfirmacionAsistencia?: string;
+  motivoRechazoAsistencia?: string;
 }
 
 export interface ReunionChecklistItem {
@@ -359,6 +362,12 @@ export interface DecoracionData {
   salonPreview3dUrl?: string;
   plantillasGuardadas?: Array<{ id: string; nombre: string; elementos: ElementoDecorativo[]; creadaEn: string }>;
   customElements?: Array<{ id: string; nombre: string; imageDataUri: string }>;
+  fotosGeneradasAi?: string[];
+  opinionCliente?: {
+    leGusta: boolean;
+    comentario?: string;
+    fecha: string;
+  };
 }
 
 export interface GiftItem {
@@ -445,6 +454,12 @@ export type InvitacionPlantillaId =
   | 'FiestaVibrante'
   | 'Grazia'
   | 'Allegria'
+  | 'XvModerna'
+  | 'XvClasica'
+  | 'BodaMinimalista'
+  | 'BodaCampo'
+  | 'FiestaNoche'
+  | 'Corporativo'
   | 'XV_NeonParty'
   | 'XV_PrincesaClasica'
   | 'XV_GlowInTheDark'
@@ -583,7 +598,7 @@ export interface InvitacionDigitalConfig {
 export interface InvitacionDigitalData {
   name?: string;
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
-  plantilla: 'Grazia' | 'Allegria';
+  plantilla: 'Grazia' | 'Allegria' | 'XvModerna' | 'XvClasica' | 'BodaMinimalista' | 'BodaCampo' | 'FiestaNoche' | 'Corporativo';
   musicaFondoUrl?: string;
   secciones: SeccionInvitacion[];
   cabecera: {
@@ -846,6 +861,10 @@ export interface SocialGallerySettings {
   audioRhythm?: AudioRhythmSettings;
   playlistPlaying?: boolean;
   currentLayout?: 'slideshow' | 'masonry';
+  /** Modo Cine: foto sola a pantalla completa sin carteles ni chat, con movimiento suave */
+  cinemaMode?: boolean;
+  /** Efecto Ken Burns de movimiento lento en fotos */
+  kenBurnsEffect?: boolean;
   forcedScreenItem?: 'mural' | 'juego' | 'chat' | 'canciones' | 'dedicaciones' | 'pauta' | 'video' | 'sorteo' | null;
 }
 
@@ -861,7 +880,18 @@ export interface SocialGalleryBrand {
 }
 
 export type ScreenLayoutMode = 'auto' | 'landscape' | 'portrait';
-export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones' | 'audioritmico' | 'pauta';
+export type ScreenPlaylistItemType =
+  | 'video'
+  | 'mural'
+  | 'redes'
+  | 'juego'
+  | 'dedicaciones'
+  | 'chat'
+  | 'canciones'
+  | 'audioritmico'
+  | 'pauta'
+  | 'cronograma'
+  | 'patrocinador';
 
 export type TotemLayoutMode = 'portrait' | 'landscape' | 'square';
 export type TotemBackgroundMode = 'aurora' | 'spotlights' | 'particles' | 'photo-float' | 'social-rain';

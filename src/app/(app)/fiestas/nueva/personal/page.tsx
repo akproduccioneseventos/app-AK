@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
@@ -114,7 +114,7 @@ function AsignarPersonalEventoContent() {
         getRoles(),
         fiestaActual.presupuestoId ? getPresupuestoById(fiestaActual.presupuestoId) : Promise.resolve(null)
       ]);
-      
+
       setAllEmpleados(empleadosData);
       setAllRoles(rolesData);
       setAssignedStaff(fiestaActual.personalAsignado || []);
@@ -126,12 +126,12 @@ function AsignarPersonalEventoContent() {
         const findAndAdd = (search: string, qty: number, source: string, salary?: number) => {
             const rol = rolesData.find(r => r.nombre.toLowerCase().includes(search.toLowerCase()));
             if (rol) {
-                requirements.push({ 
-                    roleId: rol.id, 
-                    roleName: rol.nombre, 
-                    quantity: qty, 
+                requirements.push({
+                    roleId: rol.id,
+                    roleName: rol.nombre,
+                    quantity: qty,
                     sourceItem: source,
-                    customSalary: salary 
+                    customSalary: salary
                 });
             }
         };
@@ -141,8 +141,8 @@ function AsignarPersonalEventoContent() {
         findAndAdd('Utilero', numUtileros, 'Regla automática (1 cada 25 invitados)');
 
         // 2. Regla Barman (Solo si hay barra/tragos)
-        const hasBarra = presupuestoData.itemsPresupuestados.some(item => 
-            item.nombreServicio.toLowerCase().includes('barra') || 
+        const hasBarra = presupuestoData.itemsPresupuestados.some(item =>
+            item.nombreServicio.toLowerCase().includes('barra') ||
             item.nombreServicio.toLowerCase().includes('trago') ||
             item.nombreServicio.toLowerCase().includes('licuado')
         );
@@ -157,7 +157,7 @@ function AsignarPersonalEventoContent() {
         presupuestoData.itemsPresupuestados.forEach(item => {
           const name = item.nombreServicio.toLowerCase();
           const cat = (item.categoriaServicio || '').toLowerCase();
-          
+
           if (name.includes('discoteca') || cat.includes('discoteca') || name.includes(' dj')) {
             findAndAdd('DJ', 1, item.nombreServicio);
           }
@@ -171,7 +171,7 @@ function AsignarPersonalEventoContent() {
           if (name.includes('asado') || name.includes('asador')) {
             findAndAdd('Asador', 1, item.nombreServicio);
           }
-          
+
           // FOTOGRAFÍA (Desglosada)
           if (name.includes('fotografía') || cat.includes('fotografía')) {
               if (name.includes('exteriores')) {
@@ -268,7 +268,7 @@ function AsignarPersonalEventoContent() {
     const updatedStaff = [...assignedStaff];
     let newlyAssignedEmpleadoId: string | null = null;
     let assignedSalary = 0;
-    
+
     if (empleadoId === null) {
         updatedStaff.splice(index, 1);
     } else if (index >= updatedStaff.length) {
@@ -291,7 +291,7 @@ function AsignarPersonalEventoContent() {
         };
         newlyAssignedEmpleadoId = empleadoId;
     }
-    
+
     setAssignedStaff(updatedStaff);
     const saved = await handleAutoSave(updatedStaff);
     if (!saved) {
@@ -432,7 +432,7 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
   };
 
   const getEmployeesByRole = (roleId: string) => {
-      return allEmpleados.filter(e => 
+      return allEmpleados.filter(e =>
         e.rolIds?.includes(roleId) &&
         (!searchEmployee.trim() || e.nombre.toLowerCase().includes(searchEmployee.toLowerCase()))
       );
@@ -565,27 +565,53 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
                         </div>
                       </TableCell>
                       <TableCell>
-                         <Select 
-                          value={row.assignedId || 'ninguno'}
-                          onValueChange={(val) => handleUpdateAssignment(row.originalIndex ?? assignedStaff.length, val === 'ninguno' ? null : val, row.roleId, row.salary)}
-                         >
-                          <SelectTrigger className={cn("h-9", !row.assignedId && "border-amber-200 text-amber-600 italic")}>
-                              <SelectValue placeholder={filteredEmpleados.length > 0 ? "Seleccionar..." : "No hay personal"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                              <SelectItem value="ninguno">-- Sin Asignar --</SelectItem>
-                              {filteredEmpleados.map(emp => {
-                                  const count = assignedStaff.filter(a => a.empleadoId === emp.id).length;
-                                  const isCurrent = row.assignedId === emp.id;
-                                  const labelExtra = count > 0 ? ` (${count}/2 asignaciones)` : '';
-                                  return (
-                                      <SelectItem key={emp.id} value={emp.id} disabled={!isCurrent && count >= 2}>
-                                          {emp.nombre}{labelExtra}
-                                      </SelectItem>
-                                  );
-                              })}
-                          </SelectContent>
-                         </Select>
+                         <div className="flex flex-col gap-1">
+                           <Select
+                            value={row.assignedId || 'ninguno'}
+                            onValueChange={(val) => handleUpdateAssignment(row.originalIndex ?? assignedStaff.length, val === 'ninguno' ? null : val, row.roleId, row.salary)}
+                           >
+                            <SelectTrigger className={cn("h-9", !row.assignedId && "border-amber-200 text-amber-600 italic")}>
+                                <SelectValue placeholder={filteredEmpleados.length > 0 ? "Seleccionar..." : "No hay personal"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="ninguno">-- Sin Asignar --</SelectItem>
+                                {filteredEmpleados.map(emp => {
+                                    const count = assignedStaff.filter(a => a.empleadoId === emp.id).length;
+                                    const isCurrent = row.assignedId === emp.id;
+                                    const labelExtra = count > 0 ? ` (${count}/2 asignaciones)` : '';
+                                    return (
+                                        <SelectItem key={emp.id} value={emp.id} disabled={!isCurrent && count >= 2}>
+                                            {emp.nombre}{labelExtra}
+                                        </SelectItem>
+                                    );
+                                })}
+                            </SelectContent>
+                           </Select>
+                           {row.assignedId && row.originalIndex !== undefined && (() => {
+                             const assignment = assignedStaff[row.originalIndex];
+                             if (assignment?.asistenciaConfirmada === true) {
+                               return (
+                                 <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 w-fit">
+                                   <UserCheck className="w-3 h-3 text-emerald-600" />
+                                   Asistencia confirmada
+                                 </span>
+                               );
+                             }
+                             if (assignment?.asistenciaConfirmada === false) {
+                               return (
+                                 <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 w-fit" title={assignment.motivoRechazoAsistencia || 'Avisó que no puede ir'}>
+                                   <AlertTriangle className="w-3 h-3 text-amber-600" />
+                                   No asiste ({assignment.motivoRechazoAsistencia || 'Avisó'})
+                                 </span>
+                               );
+                             }
+                             return (
+                               <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200 w-fit">
+                                 Pendiente de confirmación
+                               </span>
+                             );
+                           })()}
+                         </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">

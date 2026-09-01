@@ -1,54 +1,13 @@
-'use server';
+﻿'use server';
 
 import { readData, writeData } from '@/lib/data-service';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import type { CatalogoSettings, CatalogoSettingsMap, PresentacionLedSettings } from '@/types/contenido-publico';
-import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT, DEFAULT_PARTNER_LOGOS } from '@/lib/public-content-defaults';
+import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT, DEFAULT_PARTNER_LOGOS, DEFAULT_PRESENTACION_LED_SETTINGS } from '@/lib/public-content-defaults';
 import { requireAppSession } from '@/lib/auth/require-session';
 
 const PRESENTACION_LED_SETTINGS_FILE = 'presentacion-led-settings.json';
 const CATALOGO_SETTINGS_FILE = 'catalogo-settings.json';
-
-const DEFAULT_PRESENTACION_LED_SETTINGS: PresentacionLedSettings = {
-  portada: {
-    tituloPrincipal: 'AK Producciones',
-    // No repetir acá la frase grande de la portada ("Tu evento soñado, hecho
-    // realidad"): salían las dos, una debajo de la otra, en la presentación que
-    // se le muestra al cliente en la reunión de venta.
-    subtitulo: 'Salón, comida, música, fotos y coordinación con un solo equipo.',
-    imagenFondoUrl: '',
-    colorAcento: 'from-indigo-500 to-emerald-500',
-  },
-  porQueElegirnos: {
-    beneficios: [
-      { emoji: '🛡️', texto: 'Un solo proveedor para coordinar todo el evento.' },
-      { emoji: '⏱️', texto: 'Puntualidad garantizada en cada etapa.' },
-      { emoji: '🎧', texto: 'Atención personalizada antes, durante y después.' },
-      { emoji: '⭐', texto: 'Calidad premium en servicios y ejecución.' },
-      { emoji: '⚡', texto: 'Resolución inmediata ante cualquier imprevisto.' },
-      { emoji: '❤️', texto: 'Experiencia que emociona y se recuerda.' },
-    ],
-    imagenLateralUrl: '',
-  },
-  salon: {
-    titulo: 'Nuestro Salón - Club Uruguay',
-    descripcion: 'Un salón de primer nivel en pleno centro de Salto, con más de 120 años de historia.',
-    fotos: [],
-  },
-  equipo: {
-    titulo: 'Hay Equipo 🤝',
-    frase: 'El día de tu fiesta somos 11 personas trabajando para vos.',
-    cantidadPersonas: 11,
-    fotos: [],
-  },
-  empresasColaboradoras: DEFAULT_PARTNER_LOGOS,
-  cierre: {
-    titulo: 'Contratarnos',
-    mensaje: 'Estamos listos para hacer de tu celebración un recuerdo imborrable.',
-    ctaTexto: 'Generar Presupuesto Manual',
-    ctaAccion: 'generar-presupuesto',
-  },
-};
 
 function buildDefaultCatalogSettings(tipo: string): CatalogoSettings {
   const catalog = getCatalogBySlug(tipo);

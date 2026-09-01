@@ -1,9 +1,9 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import ts from 'typescript';
 
 const WRITE_CALL = /\b(writeData|deleteData|updateData|saveData|setDoc|addDoc|updateDoc|deleteDoc|createFirestore\w*|updateFirestore\w*|deleteFirestore\w*|writeFile|unlink|rename)\s*\(/;
-const AUTHORIZATION = /\b(requireAppSession|requirePermiso|hasAppSession|requireSession|verifySession|requireAdmin|assertAuthenticated|requireRole|verifyBudgetToken|verifyEntertainment\w*|verifyPortal\w*|requireFiestaWriteAccess|getProveedorByToken|WHATSAPP_WEBHOOK_INTERNAL_TOKEN|enforcePublicRateLimit)\s*\(?/;
+const AUTHORIZATION = /\b(requireAppSession|requirePermiso|hasAppSession|requireSession|verifySession|requireAdmin|assertAuthenticated|requireRole|verifyBudgetToken|verifyEntertainment\w*|verifyPortal\w*|requireFiestaWriteAccess|getProveedorByToken|getAccesoById|WHATSAPP_WEBHOOK_INTERNAL_TOKEN|enforcePublicRateLimit)\s*\(?/;
 
 function findTypeScriptFiles(directory: string): string[] {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

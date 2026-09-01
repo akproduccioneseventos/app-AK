@@ -350,7 +350,7 @@ export default function Plataforma360Page() {
   });
 
   const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
-    const eventName = fiesta?.eventName || 'AK Producciones';
+    const eventName = fiesta?.station?.brandText || fiesta?.eventName || 'AK Producciones';
     const bannerHeight = h * 0.12;
     const grad = ctx.createLinearGradient(0, h - bannerHeight, 0, h);
     grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
@@ -990,8 +990,8 @@ export default function Plataforma360Page() {
             {/* QR sharing code */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white">Guarda o comparte tu video</h3>
-                <p className="text-sm text-zinc-400">Escanea el QR desde tu celular para abrir el enlace de esta captura web.</p>
+                <h3 className="text-2xl font-black text-white">{fiesta?.station?.brandText || 'Guarda o comparte tu video'}</h3>
+                <p className="text-sm text-zinc-400">{fiesta?.station?.qrCallout || 'Escanea el QR desde tu celular para abrir el enlace de esta captura web.'}</p>
               </div>
 
               {/* QR Container */}
@@ -1012,10 +1012,11 @@ export default function Plataforma360Page() {
                   <div className="pt-2 flex flex-col items-center gap-1.5 border-t border-white/10 w-full text-center">
                     <div className="text-[11px] font-bold text-zinc-300 flex items-center gap-1.5 justify-center">
                       <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Esto lo hizo AK Producciones</span>
+                      <span>{fiesta?.station?.footerText || 'Esto lo hizo AK Producciones'}</span>
                     </div>
                     <a
                       href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                        fiesta?.station?.shareMessage ||
                         `¡Hola AK Producciones! Me grabé en la Plataforma 360 de la fiesta de ${fiesta?.eventName || 'un evento'} y me encantó. Quería consultarles para mi propio evento.`
                       )}`}
                       target="_blank"

@@ -1497,14 +1497,6 @@ function EntretenimientoContent() {
                             className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-xs text-zinc-400 font-bold">Overlay / Nombre del Marco</Label>
-                          <Input
-                            value={activeStation.overlayName}
-                            onChange={(e) => updateStation(activeStationId, { overlayName: e.target.value })}
-                            className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
-                          />
-                        </div>
                       </div>
                     </div>
 

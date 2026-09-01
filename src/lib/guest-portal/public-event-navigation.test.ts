@@ -70,7 +70,7 @@ describe("public event navigation", () => {
       }),
     });
 
-    expect(tools.map((tool) => tool.id)).toEqual(["social", "gallery", "songs", "games"]);
+    expect(tools.map((tool) => tool.id)).toEqual(["social", "gallery", "songs", "games", "mesa"]);
     expect(tools.every((tool) => tool.href.includes("guestId=guest-1"))).toBe(true);
     expect(tools.every((tool) => tool.href.includes("token=secret"))).toBe(true);
   });
