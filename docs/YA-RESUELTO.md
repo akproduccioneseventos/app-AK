@@ -6248,3 +6248,31 @@ que no hay nada roto ni encimado: la portada quedó más compacta.
 **Cómo se regenera, para la próxima:** se borra `tests/e2e/layout-baseline.json`, se corre la
 prueba y se escribe sola. **Hay que mirar el cambio antes de aceptarlo**, que es lo que se hizo
 acá: si mañana alguien acepta sin mirar, este control deja de servir.
+
+## 1 de septiembre de 2026 — La hoja de cocina de la noche del evento
+
+**Qué faltaba:** los datos de la comida estaban todos, pero **agrupados para COMPRAR**. La lista
+de compras junta por proveedor, que sirve para ir al mercado; en la cocina la pregunta es otra:
+**cuántas entradas salen, cuántos principales, cuántos postres y cuántos platos especiales
+aparte**.
+
+**Qué se hizo:** `/fiestas/nueva/catering/hoja-de-cocina`, para imprimir y pegar en la cocina.
+Se llega desde la pantalla de comida, al lado de la lista de compras. Muestra los platos en
+orden de servicio con sus porciones, y los platos especiales aparte, en grande.
+
+**Dos cuentas que se cuidaron a propósito, porque ya salieron mal antes:**
+
+1. **Las porciones se calculan igual que en la lista de compras**: el plato principal por
+   adultos, el infantil por chicos, el resto por todos. Si dos pantallas dan números distintos,
+   no se le puede creer a ninguna.
+2. **Los platos especiales se cuentan por PERSONA, no por fila.** Un invitado puede venir con
+   acompañantes: contando filas, una familia de cinco celíacos figuraba como un solo plato
+   especial y cuatro se quedaban sin comer. Y **sólo se cuentan los confirmados**: se cocina
+   para los que vienen.
+
+**Queda vigilado:** `src/__tests__/hoja-de-cocina.test.ts` comprueba las dos cuentas con números
+reales, el orden de los platos, y que **avise en criollo** cuando falta cargar algo en vez de
+mostrar ceros.
+
+**Lo que NO se hizo, y es a propósito:** no se tocó el menú ni los ingredientes. Decisión del
+dueño del 31 de agosto: la carta está decidida.

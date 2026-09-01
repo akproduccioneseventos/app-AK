@@ -282,6 +282,12 @@ function PlannerGastronomicoFiestaContent() {
       )}
 
        <div className="flex justify-end gap-2">
+         {/* La lista de compras agrupa por proveedor y sirve para comprar.
+             La hoja de cocina agrupa por plato y sirve para cocinar la noche
+             del evento: son dos preguntas distintas y por eso son dos botones. */}
+         <Button asChild variant="outline"><Link href={`/fiestas/nueva/catering/hoja-de-cocina?fiestaId=${fiestaId}`}>
+             <ChefHat className="w-4 h-4 mr-2"/> Hoja de cocina
+           </Link></Button>
          <Button asChild variant="outline" className="bg-primary/5 border-primary/20 hover:bg-primary/10 text-primary"><Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`}>
              <ShoppingCart className="w-4 h-4 mr-2"/> Ver Lista de Compras
            </Link></Button>
