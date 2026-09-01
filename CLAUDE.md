@@ -618,6 +618,12 @@ un extra.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **El cliente NO elige fotos (1 de septiembre de 2026).** Palabras suyas: *"no, el cliente no
+  elige nada"*. El álbum del recuerdo **se arma solo y se entrega terminado**; si hay que
+  retocar la selección, la retoca el equipo de AK. **No se hacen pantallas de "elegí tus
+  favoritas", ni de aprobación de fotos, ni selección de fotos estilo Wfolio.** Al cliente no se
+  le da trabajo: se le da el recuerdo hecho.
+
 Cerradas. Si un análisis las marca como problema, es un falso positivo:
 
 - **El ajuste anual del 15% va siempre.** El descuento del 50% del Salón Club
