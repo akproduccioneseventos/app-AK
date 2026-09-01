@@ -5,52 +5,41 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 31 de agosto de 2026.
-**Rama:** `claude/ponte-al-dia-qtrho3` (traía adentro la entrega v2 de la orden 19 de Gemini).
-**Estado:** la puerta completa se estaba corriendo al cerrar. **Mirar el resultado antes de
-fusionar.**
+**Última actualización:** 1 de septiembre de 2026.
+**Rama:** `claude/ponte-al-dia-qtrho3`. Tiene adentro **las tres entregas de Gemini** ya
+revisadas y corregidas.
 
-## Lo que se cerró hoy
+## En qué se está
 
-- **Se probó EN PANTALLA que lo que se configura se ve.** La Plataforma 360 y Bogue muestran
-  el texto de marca de la fiesta en la pantalla del QR. Probado abriendo la app, no leyendo el
-  código: `tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts`.
-- **Foto de pantalla de las seis estaciones**, y pasaron:
-  `tests/e2e/como-se-ven-las-estaciones.spec.ts` deja las imágenes en
-  `test-results/como-se-ven/`. Falla si una no dibuja, no tiene botones o muestra texto técnico.
-- **La deuda medida bajó de 259 a 255.**
+Se auditó **toda la app por primera vez** con un método nuevo: abrir cada pantalla en el
+navegador y mirarla, en vez de leer código. **Las 353 pantallas: 328 andan, 25 quedaron
+marcadas.**
 
-## Lo que quedó SIN comprobar (y no hay que decir que está hecho)
+## Lo que se cerró
 
-- **Touchpix**: que muestre el texto de marca en la ventanita del QR. Dos intentos, no se llegó,
-  se paró. **No está verificado.**
-- **El Salón 3D** sigue sin dibujarse. La pantalla se usa igual. Necesita sesión dedicada.
+- **El recorrido de las 353 pantallas existe y funciona.** Se corre con `npm run recorrido`.
+- **La agenda del dueño ya no se ensucia**: se duplicaban eventos y quedaban fechas viejas.
+  Arreglado, y hay un botón en Configuración → Sincronizaciones para limpiar lo que quedó.
+- **Las dedicatorias del invitado pueden salir en la pantalla grande** (estaban apagadas con un
+  candado en el código, mientras el operador tenía el botón para encenderlas).
+- **Comparación con más de 40 plataformas del rubro**, módulo por módulo, en
+  `docs/COMPARACION-CON-EL-RUBRO.md`. **Estamos al nivel o mejor en casi todo.**
+- **Reglas nuevas del dueño anotadas**: todo lo que se haga tiene que ser mejor que lo mejor del
+  rubro; el menú y los ingredientes no se tocan.
 
-## La orden 20, escrita y lista para Gemini
+## Lo que quedó trabado, y por qué
 
-`docs/ordenes/20-que-las-estaciones-tengan-todo.md`. Sale de **investigar trece plataformas
-del rubro** en agosto de 2026 y de mirar nuestras seis estaciones en pantalla.
+- **16 pantallas dan un error interno**, entre ellas el blog y las landings. **Se paró después
+  de tres intentos.** Está todo en `docs/ordenes/26-la-web-de-venta-se-rompe.md`: se reprodujo,
+  se descartaron tres causas y **puede ser del entorno de prueba, no de la app**. Lo primero es
+  abrir el blog en la web publicada y mirar. **No tocar código antes de eso.**
+- **La puerta no pasa por ese error**, así que **nada se puede fusionar hasta resolverlo**.
+- **Touchpix**: sigue sin comprobarse que muestre el texto de marca. Su botón de disparar no
+  tiene nombre y ninguna prueba lo puede tocar. Pedido en la orden 20.
 
-**Lo que falta de verdad:** cambiar el fondo (con y sin telón, varios para elegir), la cámara
-vertical u horizontal, marcos animados, filtro de belleza, la galería de la noche en tres
-estaciones, y ocho ajustes que se tocan y no hacen nada.
+## Lo próximo
 
-**Tres cosas ya existen y NO hay que rehacerlas** (un ayudante las reportó mal): el filtro
-"glam" que dijo que teníamos es sólo un estilo llamado así; los "marcos animados" son el
-armador de GIF de Bogue; la galería por cara es un filtro por autor. Está todo anotado en la
-orden y en `YA-RESUELTO.md`.
-
-**Y algo que sí tenemos y ninguna plataforma tiene:** la estación **habla en castellano**
-(fotocabina, 360, Bogue y Espejo). Faltan Touchpix y el Buzón.
-
-## Decisión para el dueño, pendiente
-
-**Convertir la foto en un video de 5 segundos con inteligencia artificial**, que salió en enero
-y casi nadie tiene. Probablemente cueste por mes: **no se contrata sin preguntarle.**
-
-## Lo que costó tiempo hoy, y no se repite
-
-- **Tres pruebas dieron rojo y las tres eran de la prueba, no de la app**: el texto de marca no
-  se dibuja al abrir sino en la pantalla de compartir; el Espejo abre en modo firma si no se le
-  pide otro; y el modo se pide con `mode`, no con `modo`. **Verificar antes de devolverle
-  trabajo a Gemini.**
+1. **Orden 26**, la web de venta. Primero comprobar si el error existe de verdad.
+2. Fusionar lo que está listo: seis diseños de invitación, red social y pantalla gigante.
+3. Órdenes 24 (decoración), 25 (que el empleado confirme) y 20 (estaciones).
+4. **De Claude**: la hoja de cocina para la noche del evento.

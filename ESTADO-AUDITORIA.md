@@ -488,3 +488,24 @@ el pedido de reseña en Google ya andaba.
 dos de ellas arreglaron la galería vacía de maneras distintas: al juntarlas el
 archivo no compilaba. Es el caso exacto que la regla de una sola propuesta busca
 evitar, y quedó documentado en `docs/YA-RESUELTO.md`.
+
+## 1 de septiembre de 2026 — La app se auditó entera por primera vez
+
+**Método nuevo:** abrir cada pantalla en el navegador y mirarla, en vez de leer código. Salió
+de que todo lo que falló este año tenía la misma forma —escrito, compilando, en verde y sin
+hacer nada—, y eso leyendo código no se ve.
+
+**Resultado:** 353 pantallas recorridas. **328 andan, 25 quedaron marcadas.** El primer intento
+había dicho 51, pero el recorrido juzgaba a los 300 milisegundos y gritaba por 26 pantallas
+sanas; corregido para que espere a que se dibujen.
+
+**Lo que encontró y ninguna auditoría anterior había visto:** 16 pantallas con un error interno
+—entre ellas el blog y las landings—, el buzón siendo la única pantalla blanca de seis (encandila
+en un salón a oscuras), el botón de Touchpix sin nombre, y la pantalla gigante que no dice de
+quién es la fiesta.
+
+**Se comparó con más de 40 plataformas del rubro** (fotocabinas, muros sociales, webs de
+casamiento, decoración, catering, personal, DJ). Detalle en `docs/COMPARACION-CON-EL-RUBRO.md`.
+
+**Y seis avisos de los ayudantes resultaron falsos**, verificados uno por uno. Están anotados en
+`docs/YA-RESUELTO.md` para que no se reporten de nuevo.
