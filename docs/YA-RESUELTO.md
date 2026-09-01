@@ -6295,3 +6295,25 @@ mirar si algún día molesta de verdad.
 comprobar las cuentas. **Las cuentas están probadas con números** en
 `src/__tests__/hoja-de-cocina.test.ts`; la prueba de navegador sólo comprueba que la pantalla
 abra y hable en criollo, que es lo que puede comprobar desde afuera.
+
+## 1 de septiembre de 2026 — El cliente podía terminar en el trabajo de otro cliente
+
+**Lo encontró el dueño preguntando por Wfolio.** El álbum profesional del fotógrafo vive afuera
+de la app y se carga por fiesta, en el campo `galeriaUrl`.
+
+**Qué estaba mal:** si esa fiesta **no tenía el enlace cargado**, el botón "Ir al Álbum Digital"
+del resumen post-fiesta llevaba a **`https://wfolio.com/my/disk`**, el disco general del
+fotógrafo, **donde está el material de todos los clientes**. El cliente tocaba el botón y
+terminaba en la fiesta de otro.
+
+**Qué se hizo:** sin enlace propio, **el botón no aparece**. En su lugar dice, en criollo, que
+el fotógrafo todavía está editando y que el enlace va a aparecer ahí. Son cuatro botones en esa
+pantalla y los cuatro quedaron con la misma regla.
+
+**Lo que NO se tocó, porque está bien:** en el portal del cliente
+(`/portal-cliente/[id]/fotos-video`), el respaldo es **el álbum de la propia app**, que sí es de
+ese cliente. Ahí no hay problema.
+
+**Queda vigilado:** `src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts` se pone
+en rojo si alguien vuelve a escribir una dirección fija como respaldo. **Comprobado que frena**,
+no sólo que pasa en verde.
