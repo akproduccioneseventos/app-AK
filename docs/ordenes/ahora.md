@@ -50,3 +50,12 @@ Tres entregas ya revisadas y corregidas, en `claude/ponte-al-dia-qtrho3`:
 - **Plata, cobros, comida y permisos los hace Claude.**
 - **Nada que se pague por mes** sin preguntar.
 - **Nunca una prueba escrita para que un control se calle.**
+
+---
+
+## Y una nueva, la 31: "Encontrá tus fotos con una selfie"
+
+`docs/ordenes/31-encontra-tus-fotos-con-una-selfie.md`. **Va después de las que ya están en la
+lista**, pero tiene una condición: **el bloque 0, las reglas de la cara, se lee primero y no se
+negocia.** Son caras de menores en fiestas de quince. Si algo de ahí no se puede cumplir, la
+función no se entrega.
