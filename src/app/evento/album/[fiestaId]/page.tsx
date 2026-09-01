@@ -35,6 +35,7 @@ import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 import { armarAlbumInteligente, type AlbumDigitalCompleto, type RecuerdoAlbum } from '@/lib/album/armar-album';
+import { BuscadorSelfieModal } from '@/components/social-wall/BuscadorSelfieModal';
 
 type ViewMode = 'libro' | 'cuadricula';
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
@@ -56,6 +57,7 @@ export default function PublicAlbumPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('libro');
   const [paginaActual, setPaginaActual] = useState<number>(0); // 0 = Portada, 1..N = Páginas
   const [audioReproduciendo, setAudioReproduciendo] = useState<string | null>(null);
+  const [buscadorSelfieAbierto, setBuscadorSelfieAbierto] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -219,6 +221,14 @@ export default function PublicAlbumPage() {
                 Galería Completa
               </button>
             </div>
+
+            <button
+              onClick={() => setBuscadorSelfieAbierto(true)}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-xs transition-all shadow-lg active:scale-95"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              Encontrá tus fotos
+            </button>
 
             <button
               onClick={handleShare}
@@ -610,6 +620,14 @@ export default function PublicAlbumPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Modal Buscador de Fotos con Selfie */}
+      <BuscadorSelfieModal
+        isOpen={buscadorSelfieAbierto}
+        onClose={() => setBuscadorSelfieAbierto(false)}
+        posts={posts}
+        nombreEvento={nombreFiesta}
+      />
     </div>
   );
 }

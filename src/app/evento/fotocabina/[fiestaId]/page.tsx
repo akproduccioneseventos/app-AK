@@ -64,6 +64,9 @@ import {
 import {
   aplicarChromaKey,
   procesarFondoCanvas,
+  obtenerFondoDePantalla,
+  FONDOS_DE_PANTALLA,
+  type FondoPantallaConfig,
   type OpcionFondo,
 } from '@/lib/entretenimiento/segmentacion-fondo';
 
@@ -126,6 +129,11 @@ export default function FotocabinaPage() {
   // Si el cliente no contrato el muro, el recuerdo no tiene a donde subir: la
   // cabina lo imprime ahi mismo en vez de dejar al invitado con las manos vacias.
   const hayMuro = fiesta?.socialWallEnabled !== false;
+
+  // Fondo de la pantalla (el "telón" decorativo alrededor de la cámara)
+  const fondoDePantalla = obtenerFondoDePantalla(
+    fiesta?.station.fondoDePantalla || (searchParams?.get('fondo') as string) || undefined
+  );
 
   const speak = (text: string) => {
     if (!voiceEnabled) return;
@@ -354,7 +362,15 @@ export default function FotocabinaPage() {
       aplicarFiltroBelleza(ctx, canvas.width, canvas.height);
     }
     if (fiesta?.station.enableChromaKey) {
-      aplicarChromaKey(ctx, canvas.width, canvas.height);
+      procesarFondoCanvas({
+        canvasDestino: canvas,
+        videoOrigen: video,
+        fondoSeleccionado: {
+          id: 'chroma-estacion',
+          nombre: 'Fondo Croma',
+          tipo: 'chroma',
+        },
+      });
     }
 
     // El marco va en cada foto; el nombre del evento no, porque en el recuerdo
@@ -814,7 +830,7 @@ export default function FotocabinaPage() {
 
   // Display View UI
   return (
-    <div className="fixed inset-0 bg-zinc-950 text-white flex flex-col overflow-hidden select-none">
+    <div className={`fixed inset-0 text-white flex flex-col overflow-hidden select-none ${fondoDePantalla.className}`}>
       <canvas ref={canvasRef} className="hidden" />
 
       {/* FLASH SCREEN */}
@@ -858,8 +874,8 @@ export default function FotocabinaPage() {
         </div>
       </div>
 
-      {/* VIEWPORT AREA */}
-      <div className="flex-1 relative w-full h-full flex items-center justify-center overflow-hidden bg-black">
+      {/* VIEWPORT AREA CON TELÓN */}
+      <div className={`flex-1 relative w-full h-full flex items-center justify-center overflow-hidden p-2 sm:p-6 ${fondoDePantalla.className}`}>
 
         {errorMsg && (
           <div className="p-6 text-center text-red-400 font-medium z-10">

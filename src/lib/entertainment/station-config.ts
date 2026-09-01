@@ -52,6 +52,8 @@ export interface EntertainmentStationRuntimeConfig {
   allowedTemplateIds: string[];
   enableBeautyFilter?: boolean;
   enableChromaKey?: boolean;
+  fondoDePantalla?: string;
+  virtualBackgroundUrl?: string;
   orientation?: 'vertical' | 'horizontal' | 'cuadrada';
 }
 

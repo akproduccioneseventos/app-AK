@@ -113,3 +113,16 @@ el permiso no se prenda la cámara**; y que **con la fiesta sin preparar el bot�
 **Y una que compruebe lo más importante: que la selfie no sale del teléfono.** Que no se dispare
 ninguna llamada al servidor con la imagen. Si eso no se puede comprobar, decilo y lo revisa
 Claude: **es lo único de esta orden que no puede quedar sin comprobar.**
+
+---
+
+## CÓMO SE COMPRUEBA QUE ESTA ORDEN ESTÁ HECHA
+
+Lo verifica `npm run ordenes?` solo.
+
+```comprobar
+archivo: src/lib/reconocimiento/buscador-selfie.ts
+usa: BuscadorSelfieModal en src/app/evento/album/[fiestaId]/page.tsx
+prueba: tests/e2e/encontra-tus-fotos-con-una-selfie.spec.ts
+```
+

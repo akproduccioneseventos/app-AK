@@ -2,13 +2,79 @@
  * Módulo de segmentación y cambio de fondo en canvas para estaciones de entretenimiento.
  *
  * Soporta:
- * 1. Telón verde/azul (Chroma Keying) con suavizado de bordes en canvas local sin costo.
- * 2. Fondo desenfocado ('desenfocar') para resaltar a la persona (estilo Simple Booth).
- * 3. Fondos virtuales de la fiesta (imágenes cargadas por el cliente).
- * 4. Modo sin cambiar (original).
+ * 1. Fondo de la pantalla ("Telón" / Tema): lo que se ve alrededor de la cámara mientras esperan.
+ * 2. Telón verde/azul (Chroma Keying) con suavizado de bordes en canvas local sin costo.
+ * 3. Fondo desenfocado ('desenfocar') para resaltar a la persona.
+ * 4. Fondos virtuales de la foto (imágenes cargadas por el cliente).
+ * 5. Modo sin cambiar (original).
  *
  * 100% offline, sin dependencias de pago en la nube.
  */
+
+export interface FondoPantallaConfig {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  className: string;
+  bordeCamara: string;
+  badge: string;
+}
+
+export const FONDOS_DE_PANTALLA: FondoPantallaConfig[] = [
+  {
+    id: 'telon-rojo',
+    nombre: 'Cortina roja',
+    descripcion: 'Telón clásico de terciopelo estilo teatro',
+    className: 'bg-gradient-to-b from-red-950 via-red-900 to-black',
+    bordeCamara: 'border-red-700/60 shadow-[0_0_50px_rgba(220,38,38,0.3)]',
+    badge: '🎭 Clásico',
+  },
+  {
+    id: 'dorado-gala',
+    nombre: 'Dorado de gala',
+    descripcion: 'Elegante y sofisticado para bodas y eventos formales',
+    className: 'bg-gradient-to-b from-amber-950 via-zinc-900 to-black',
+    bordeCamara: 'border-amber-500/50 shadow-[0_0_50px_rgba(245,158,11,0.25)]',
+    badge: '👑 Gala',
+  },
+  {
+    id: 'neon-fiesta',
+    nombre: 'Neón de fiesta',
+    descripcion: 'Colores vibrantes y luces para boliche y cumpleaños',
+    className: 'bg-gradient-to-br from-purple-950 via-slate-950 to-pink-950',
+    bordeCamara: 'border-pink-500/50 shadow-[0_0_50px_rgba(236,72,153,0.3)]',
+    badge: '⚡ Fiesta',
+  },
+  {
+    id: 'campo',
+    nombre: 'Campo rústico',
+    descripcion: 'Textura cálida y tonos tierra',
+    className: 'bg-gradient-to-b from-stone-900 via-stone-950 to-black',
+    bordeCamara: 'border-amber-800/40 shadow-[0_0_50px_rgba(180,83,9,0.2)]',
+    badge: '🌿 Rústico',
+  },
+  {
+    id: 'blanco-minimal',
+    nombre: 'Blanco minimalista',
+    descripcion: 'Limpio, luminoso y moderno',
+    className: 'bg-gradient-to-b from-slate-900 via-slate-950 to-zinc-950',
+    bordeCamara: 'border-white/20 shadow-[0_0_50px_rgba(255,255,255,0.15)]',
+    badge: '✨ Minimal',
+  },
+  {
+    id: 'quince-glam',
+    nombre: 'Quince años glam',
+    descripcion: 'Destellos rosados y brillo para quinceañeras',
+    className: 'bg-gradient-to-br from-rose-950 via-purple-950 to-black',
+    bordeCamara: 'border-rose-400/50 shadow-[0_0_50px_rgba(251,113,133,0.3)]',
+    badge: '💖 15 Años',
+  },
+];
+
+export function obtenerFondoDePantalla(id?: string): FondoPantallaConfig {
+  const encontrado = FONDOS_DE_PANTALLA.find((f) => f.id === id);
+  return encontrado || FONDOS_DE_PANTALLA[0];
+}
 
 export interface OpcionFondo {
   id: string;
@@ -68,6 +134,7 @@ export function aplicarChromaKey(
 
 /**
  * Procesa un fotograma aplicando el fondo virtual, desenfoque o chroma key seleccionado.
+ * Garantiza que nunca quede mancha negra dibujando el fondo virtual debajo del sujeto aislado.
  */
 export function procesarFondoCanvas({
   canvasDestino,
@@ -94,7 +161,7 @@ export function procesarFondoCanvas({
     ctx.drawImage(videoOrigen, -20, -20, ancho + 40, alto + 40);
     ctx.restore();
 
-    // Dibujar sujeto al centro con leve máscara de viñeta
+    // Dibujar sujeto al centro
     ctx.save();
     ctx.drawImage(videoOrigen, 0, 0, ancho, alto);
     ctx.restore();
@@ -102,7 +169,7 @@ export function procesarFondoCanvas({
   }
 
   if (fondoSeleccionado.tipo === 'imagen' || fondoSeleccionado.tipo === 'chroma') {
-    // 1. Dibujar el fondo virtual nuevo detrás
+    // 1. Dibujar el fondo virtual nuevo detrás (si no hay imagen, usar color elegante en vez de negro)
     if (imagenFondo && imagenFondo.complete) {
       ctx.drawImage(imagenFondo, 0, 0, ancho, alto);
     } else {

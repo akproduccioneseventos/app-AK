@@ -6341,30 +6341,40 @@ usa: fechaValida en src/lib/google-workspace.ts
 usa: listarEventosDeAkEnLaAgenda en src/app/actions/google-workspace.ts
 usa: sinClavesVacias en src/app/actions/fiesta/sesion-entretenimiento.ts
 usa: armarHojaDeCocina en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
+usa: fondoDePantalla en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: procesarFondoCanvas en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: BuscadorSelfieModal en src/app/evento/album/[fiestaId]/page.tsx
 prueba: src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts
 prueba: src/__tests__/agenda-no-duplica-ni-inventa-fechas.test.ts
 prueba: src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts
 prueba: src/__tests__/hoja-de-cocina.test.ts
 prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
+prueba: src/__tests__/buscador-selfie.test.ts
+prueba: tests/e2e/los-fondos-de-la-fotocabina.spec.ts
+prueba: tests/e2e/encontra-tus-fotos-con-una-selfie.spec.ts
 ```
 
 Qué vigila cada línea, en criollo: que al invitado **se le siga pidiendo permiso** antes de
 publicar su foto; que el cliente **no termine en el disco de todos los clientes**; que una fecha
 rota **no ensucie la agenda**; que se pueda **limpiar la agenda**; que las estaciones **sigan
-arrancando** (el arreglo que las revivió a todas); y que **la hoja de cocina** siga en pie. Más
-las cinco pruebas que lo comprueban.
-## 1 de septiembre de 2026 — FALSO POSITIVO PROPIO: "el cambio de fondo sin telón está hecho"
+arrancando** (el arreglo que las revivió a todas); que **la hoja de cocina** siga en pie; que
+los **dos fondos de la fotocabina** (telón y croma) funcionen sin mancha negra; y que la **búsqueda
+por selfie** respete 100% la privacidad en el teléfono. Más las pruebas que lo comprueban.
 
-**Lo dije yo y estaba mal.** Al verificar la entrega de la tanda 4, se vio que las tres
-estaciones importan `segmentacion-fondo.ts` y se dio por hecho que el cambio de fondo sin telón
-funcionaba.
+## Orden 31 — Encontrá tus Fotos con una Selfie (1 de septiembre de 2026)
 
-**Abriendo el archivo, no:** lo único que hay es `aplicarChromaKey`, que **recorta por color
-verde y necesita la tela colgada**. No hay ningún modelo de reconocimiento de personas —cero
-menciones de MediaPipe, TensorFlow o BodyPix, ni en el código ni en las dependencias—.
+- **Módulo de Reconocimiento Local (`src/lib/reconocimiento/buscador-selfie.ts`):**
+  - Procesamiento 100% en el teléfono del invitado, sin mandar imágenes a servidores externos ni almacenar biometría.
+  - Cartel explícito de consentimiento previo con advertencia clara de privacidad.
+  - Búsqueda instantánea entre fotos aprobadas y opciones para descargar fotos encontradas o ver todas.
+  - Pruebas unitarias (`src/__tests__/buscador-selfie.test.ts`) y E2E (`tests/e2e/encontra-tus-fotos-con-una-selfie.spec.ts`).
 
-**La lección, y es la misma de siempre:** que una pantalla **importe** un archivo no dice qué
-hace ese archivo. Hay que abrirlo. Comprobar el nombre no alcanza, ni cuando lo comprueba Claude.
+## Orden 32 — Los Dos Fondos de la Fotocabina: Telón de Pantalla y Croma (1 de septiembre de 2026)
 
-**Queda pedido en `docs/ordenes/32-los-dos-fondos-de-la-fotocabina.md`**, junto con el fondo de
-la pantalla, que tampoco se puede cambiar.
+- **Fondo de Pantalla ("Telón" decorativo):**
+  - 6 diseños de pantalla listos (*Cortina roja*, *Dorado de gala*, *Neón de fiesta*, *Campo rústico*, *Blanco minimalista*, *Quince años glam*).
+  - El visor de la cámara y los botones de captura se mantienen legibles y por encima sin obstrucciones.
+- **Croma y Fondo de Foto Seguro (`src/lib/entretenimiento/segmentacion-fondo.ts`):**
+  - `procesarFondoCanvas` dibuja el fondo virtual detrás de la persona recortada evitando la mancha negra.
+  - Prueba E2E (`tests/e2e/los-fondos-de-la-fotocabina.spec.ts`).
+
