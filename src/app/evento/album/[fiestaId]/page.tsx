@@ -29,7 +29,7 @@ import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'invitados';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados';
 
 function isVideo(url: string = ''): boolean {
   return url.endsWith('.mp4') || url.endsWith('.webm') || url.includes('video');
@@ -101,6 +101,8 @@ export default function PublicAlbumPage() {
     if (activeTab === 'fotocabina') return posts.filter((p) => p.sourceModule === 'fotocabina');
     if (activeTab === '360') return posts.filter((p) => p.sourceModule === 'plataforma_360');
     if (activeTab === 'espejo') return posts.filter((p) => p.sourceModule === 'espejo_magico');
+    if (activeTab === 'bogue') return posts.filter((p) => p.sourceModule === 'bogue' || p.sourceModule === 'boomerang');
+    if (activeTab === 'buzon') return posts.filter((p) => p.sourceModule === 'buzon' || p.sourceModule === 'capsulaTiempo');
     if (activeTab === 'invitados') {
       return posts.filter((p) => !p.sourceModule || p.sourceModule === 'muro' || p.sourceModule === 'invitado');
     }
@@ -188,6 +190,8 @@ export default function PublicAlbumPage() {
               { id: 'fotocabina', label: '📸 Fotocabina' },
               { id: '360', label: '🌐 360°' },
               { id: 'espejo', label: '✨ Espejo' },
+              { id: 'bogue', label: '⚡ Boomerang' },
+              { id: 'buzon', label: '🎙️ Buzón' },
               { id: 'invitados', label: '📱 Invitados' },
             ].map((tab) => (
               <button
@@ -276,6 +280,11 @@ export default function PublicAlbumPage() {
                     <p className="text-sm font-bold truncate text-white">
                       {post.authorName || 'Invitado'}
                     </p>
+                    {post.caption && (
+                      <p className="text-xs text-zinc-300 line-clamp-2 mt-0.5">
+                        {post.caption}
+                      </p>
+                    )}
                     <div className="flex items-center gap-3 mt-1 text-xs text-zinc-300">
                       {post.likes ? (
                         <span className="flex items-center gap-1">

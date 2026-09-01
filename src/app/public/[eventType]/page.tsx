@@ -12,6 +12,7 @@ import { CallToActionBanner } from '@/components/public/CallToActionBanner';
 import { WhyChooseUs } from '@/components/public/WhyChooseUs';
 import { EventProcess } from '@/components/public/EventProcess';
 import { GallerySection } from '@/components/public/GallerySection';
+import { InteractiveTechShowcase } from '@/components/public/InteractiveTechShowcase';
 import { PublicFooter } from '@/components/public-footer';
 import { FAQJsonLd } from '@/components/seo/FAQJsonLd';
 import { BreadcrumbJsonLd } from '@/components/seo/BreadcrumbJsonLd';
@@ -96,6 +97,9 @@ export default async function EventTypePage({ params }: Props) {
         whatsappNumber={catalog.whatsappNumber}
         whatsappMessage={catalog.whatsappMessage}
       />
+
+      {/* Interactive Tech Showcase */}
+      <InteractiveTechShowcase />
 
       {/* Gallery */}
       <GallerySection images={catalog.gallery} />

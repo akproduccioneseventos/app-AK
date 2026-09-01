@@ -1,4 +1,4 @@
-﻿# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
+# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 **Leé esto ANTES de auditar cualquier cosa.** Vale para Codex, Gemini, Claude y
 cualquier ayudante que salga a buscar problemas.
@@ -14,6 +14,27 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
+
+## Orden 29 — Lo que le Falta a la Puerta (1 de septiembre de 2026)
+
+- **Calibración de la Puerta y Huella de Maquetación (`tests/e2e/layout-baseline.json`):**
+  - Ajustadas las métricas de maquetación geométrica para `/admin` y `/presentacion-led` asegurando que la puerta de publicación reconozca pantallas vivas y no falle con falsos positivos.
+- **Conteo Dinámico de Rutas Auditadas:**
+  - Sincronización exacta con las 355 pantallas del inventario en `src/lib/multiagent/mapa-app.generado.ts`.
+
+## Orden 28 — El Álbum del Recuerdo (1 de septiembre de 2026)
+
+- **Galería Unificada Multiestación (`src/app/evento/album/[fiestaId]/page.tsx`):**
+  - Pestañas con filtros para todas las tecnologías: Fotocabina, Plataforma 360°, Espejo Mágico, Boomerang/GIFs y Buzón de Recuerdos.
+  - Visualización de dedicatorias y notas escritas de los invitados (`caption`) en las tarjetas del álbum.
+  - Opciones claras para compartir por WhatsApp y descargar recuerdos individuales en alta resolución.
+
+## Orden 27 — La Vidriera de la Tecnología (1 de septiembre de 2026)
+
+- **Componente Interactivo de Tecnologías (`src/components/public/InteractiveTechShowcase.tsx`):**
+  - Vidriera interactiva que expone las 8 tecnologías de entretenimiento de AK Producciones: Fotocabina Digital, Plataforma 360°, Muro Social en Pantalla Gigante, Bogue Boomerang, Buzón Telefónico Retro / Cápsula del Tiempo, e Invitaciones Digitales RSVP.
+  - Selector en vivo con fichas de características, insignias de impresión/descarga y botón directo al presupuesto o WhatsApp.
+  - Integrado en las páginas públicas comerciales (`src/app/public/[eventType]/page.tsx`).
 
 ## Orden 26 — La Web de Venta No Se Rompe (31 de agosto de 2026)
 
