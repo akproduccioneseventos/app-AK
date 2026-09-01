@@ -45,7 +45,15 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
   const audioDeds = dedications.filter(d => !!d.audioUrl);
   const textDeds = dedications.filter(d => !d.audioUrl);
 
-  const customAlbumUrl = fiesta.galeriaUrl || 'https://wfolio.com/my/disk';
+  // El album profesional del fotografo vive afuera (Wfolio, Drive) y se carga por
+  // fiesta en `galeriaUrl`.
+  //
+  // ANTES, si esa fiesta no tenia el enlace cargado, el boton llevaba al DISCO
+  // GENERAL del fotografo, donde esta el trabajo de todos los clientes. Un
+  // cliente tocaba "ir al album" y terminaba en la fiesta de otro. Ahora, sin
+  // enlace, el boton no aparece: se le avisa que todavia se esta preparando.
+  const customAlbumUrl = fiesta.galeriaUrl?.trim() || '';
+  const hayAlbumProfesional = customAlbumUrl.length > 0;
   const eventName = fiesta.configuracion?.nombreEvento || 'Nuestra Fiesta';
 
   return (
@@ -103,12 +111,19 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                 </p>
               </div>
             </div>
-            <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer" className="block">
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold h-11 shadow-md">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Ir al Álbum Digital
-              </Button>
-            </a>
+            {hayAlbumProfesional ? (
+              <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer" className="block">
+                <Button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold h-11 shadow-md">
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Ir al Álbum Digital
+                </Button>
+              </a>
+            ) : (
+              <p className="rounded-xl bg-slate-100 p-3 text-xs text-slate-600">
+                El fotógrafo todavía está editando el material. Apenas esté listo, el enlace
+                aparece acá.
+              </p>
+            )}
           </CardContent>
         </Card>
       </motion.div>
@@ -131,11 +146,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{totalPhotos} fotos compartidas en vivo</p>
                   </div>
                 </div>
-                <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
                     <Download className="w-4 h-4 mr-1.5" /> Descargar
                   </Button>
-                </a>
+                </a>}
               </CardContent>
             </Card>
           </motion.div>
@@ -155,11 +170,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{totalVideos} clips de video subidos</p>
                   </div>
                 </div>
-                <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
                     <Download className="w-4 h-4 mr-1.5" /> Descargar
                   </Button>
-                </a>
+                </a>}
               </CardContent>
             </Card>
           </motion.div>
@@ -179,11 +194,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{total360} videos grabados en vivo</p>
                   </div>
                 </div>
-                <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
                     <Download className="w-4 h-4 mr-1.5" /> Descargar
                   </Button>
-                </a>
+                </a>}
               </CardContent>
             </Card>
           </motion.div>
@@ -203,11 +218,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{totalFotocabina} retratos guardados</p>
                   </div>
                 </div>
-                <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
                     <Download className="w-4 h-4 mr-1.5" /> Descargar
                   </Button>
-                </a>
+                </a>}
               </CardContent>
             </Card>
           </motion.div>

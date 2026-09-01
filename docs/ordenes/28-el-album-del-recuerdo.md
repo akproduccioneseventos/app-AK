@@ -42,17 +42,24 @@ y se toca para escuchar. Los videos igual.
 
 ---
 
-## BLOQUE 2 — Que el cliente elija cuáles entran
+## BLOQUE 2 — LO ELIGE LA APP Y LO AJUSTA EL EQUIPO. EL CLIENTE NO ELIGE NADA.
 
-Hoy elige el equipo con la moderación. **El dueño quiere que la gente pueda editarlo:** *"no con
-todas las fotos, sino con algunas, que se pueda editar"*.
+**Corrección del dueño, 1 de septiembre de 2026, textual: *"no, el cliente no elige nada"*.**
 
-- Desde su portal, el cliente ve todo lo de su fiesta y **marca lo que quiere en el álbum**.
-- **Arranca con una selección hecha sola** (bloque 3): que no tenga que elegir entre 400 fotos.
-- Puede **cambiar el orden** y **sacar** lo que no le gusta.
-- **Lo que el equipo ocultó por moderación no aparece nunca**, ni para elegir.
+Antes esta orden pedía que el cliente marcara qué fotos entraban al álbum. **Se saca.** El
+cliente **recibe** el álbum terminado; no se le da trabajo ni se lo hace decidir entre 400
+fotos.
 
----
+**Cómo queda:**
+
+- **La app arma la selección sola** (bloque 3). Ésa es la versión que se entrega.
+- **El equipo de AK puede ajustarla** desde la pantalla de la fiesta: sacar una foto que no
+  quedó bien, cambiar el orden. **Con lo que la app eligió ya alcanza**; el ajuste es la
+  excepción, no el paso obligatorio.
+- **Lo que el equipo ocultó por moderación no entra nunca**, ni siquiera para el ajuste.
+
+**No hagas ninguna pantalla de selección para el cliente**, ni de aprobación, ni de "elegí tus
+favoritas". No va.
 
 ## BLOQUE 3 — Que se arme SOLO, y bien
 

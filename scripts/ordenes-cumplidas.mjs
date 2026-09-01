@@ -33,7 +33,7 @@ import path from 'node:path';
 const CARPETA = path.join(process.cwd(), 'docs', 'ordenes');
 
 function leerComprobaciones(texto) {
-  const bloques = [...texto.matchAll(/```comprobar\r?\n([\s\S]*?)```/g)];
+  const bloques = [...texto.matchAll(/```comprobar\n([\s\S]*?)```/g)];
   return bloques.flatMap((b) =>
     b[1]
       .split('\n')
@@ -62,9 +62,23 @@ function comprobar(c) {
   return false;
 }
 
+// Se miran las ordenes Y el inventario de lo que la app dice tener. Lo segundo
+// es lo que pidio el dueno: *"una auditoria que revise que todo lo que tiene la
+// app este, para que no pase esto"*. Una app que dice tener algo y no lo tiene
+// le miente al que la usa y al que la vende.
+const INVENTARIO = path.join(process.cwd(), 'docs', 'QUE-HAY-EN-LA-APP.md');
+
 const archivos = fs.existsSync(CARPETA)
   ? fs.readdirSync(CARPETA).filter((f) => f.endsWith('.md')).sort()
   : [];
+if (fs.existsSync(INVENTARIO)) archivos.push('../QUE-HAY-EN-LA-APP.md');
+
+// Y lo arreglado. Pedido del dueno el 1 de septiembre de 2026: *"todo lo que te
+// pregunto y corregis debe estar registrado en la lista para no volver a
+// repetirlo, y debe figurar si es real que funciona; si no, no termino mas"*.
+// Anotar un arreglo en prosa no dice si SIGUE andando: esto lo comprueba.
+const RESUELTO = path.join(process.cwd(), 'docs', 'YA-RESUELTO.md');
+if (fs.existsSync(RESUELTO)) archivos.push('../YA-RESUELTO.md');
 
 const conComprobaciones = [];
 const sinComprobaciones = [];
@@ -79,6 +93,52 @@ for (const archivo of archivos) {
   const fallan = checks.filter((c) => !comprobar(c));
   conComprobaciones.push({ archivo, total: checks.length, fallan });
 }
+
+// ----- La comparacion con el rubro, funcion por funcion -----
+//
+// Pedido del dueno el 1 de septiembre de 2026: *"vas a tener que hacer un nuevo
+// mecanismo para eso tambien, que no vuelva a pasar; si paso en la fotocabina,
+// me aseguro que paso en los otros entretenimientos"*.
+//
+// El problema: se investigan diez plataformas, se escribe en la orden lo que
+// parecio importante, y **lo que no entro en la orden se pierde**. Nadie vuelve
+// a mirar la lista completa.
+//
+// Esto la deja escrita y la cuenta sola. En `docs/COMPARACION-CON-EL-RUBRO.md`,
+// un bloque por modulo:
+//
+//     ```rubro Fotocabina
+//     Tanda de fotos :: usa: fotosPorTanda en src/app/evento/fotocabina/[fiestaId]/page.tsx
+//     Fondo sin tela :: FALTA
+//     ```
+//
+// Y contesta: "Fotocabina: 18 de 26 funciones del rubro".
+function leerRubro(texto) {
+  const bloques = [...texto.matchAll(/```rubro ([^\n]+)\n([\s\S]*?)```/g)];
+  return bloques.map((b) => {
+    const modulo = b[1].trim();
+    const funciones = b[2]
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l && !l.startsWith('#'))
+      .map((linea) => {
+        const [nombre, ...resto] = linea.split('::');
+        const cond = resto.join('::').trim();
+        if (!cond || /^FALTA$/i.test(cond)) {
+          return { nombre: nombre.trim(), tenemos: false };
+        }
+        const [tipo, ...v] = cond.split(':');
+        return {
+          nombre: nombre.trim(),
+          tenemos: comprobar({ tipo: tipo.trim(), valor: v.join(':').trim() }),
+        };
+      });
+    return { modulo, funciones };
+  });
+}
+
+const RUBRO = path.join(process.cwd(), 'docs', 'COMPARACION-CON-EL-RUBRO.md');
+const comparaciones = fs.existsSync(RUBRO) ? leerRubro(fs.readFileSync(RUBRO, 'utf8')) : [];
 
 console.log('='.repeat(60));
 console.log('  ¿LAS ÓRDENES SE HICIERON, O SÓLO SE DIJO QUE SÍ?');
@@ -109,6 +169,19 @@ if (aMedias.length === 0 && conComprobaciones.length > 0) {
   console.log(`  ${aMedias.length} orden(es) dicen estar hechas y les falta trabajo.`);
 }
 console.log('='.repeat(60));
+
+if (comparaciones.length > 0) {
+  console.log('\n' + '='.repeat(60));
+  console.log('  CONTRA EL RUBRO: qué tienen ellos y qué tenemos nosotros');
+  console.log('='.repeat(60));
+  for (const c of comparaciones) {
+    const tenemos = c.funciones.filter((f) => f.tenemos).length;
+    console.log(`\n  ${c.modulo}: ${tenemos} de ${c.funciones.length} funciones del rubro`);
+    const faltan = c.funciones.filter((f) => !f.tenemos);
+    for (const f of faltan) console.log(`      falta -> ${f.nombre}`);
+  }
+  console.log('');
+}
 
 // Informa, no frena: una orden a medias no es un error del codigo.
 process.exit(0);

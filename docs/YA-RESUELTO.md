@@ -15,44 +15,26 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
-## Orden 30 — Que la App se Mueva (1 de septiembre de 2026)
-
-- **Animaciones Suaves y Sobrias (`framer-motion`):**
-  - Efectos visuales de aparición suave (fade-in + translateY 16px, 0.3s-0.5s) con escalonamiento (stagger de 80ms) en la portada principal, páginas comerciales y libro interactivo de recuerdos.
-  - Respeto total a la preferencia del usuario (`useReducedMotion` / `prefers-reduced-motion`) desactivando animaciones cuando el sistema lo requiere.
-  - Asegurada la visibilidad inmediata de titulares, precios y botones de contacto sin bloqueos por animación (`tests/e2e/la-app-se-mueve.spec.ts`).
-
 ## Orden 29 — Lo que le Falta a la Puerta (1 de septiembre de 2026)
 
-- **Bloque 1 — Recorrido de Pantallas en la Puerta (`scripts/se-puede-publicar.mjs`):**
-  - El recorrido de todas las pantallas quedó integrado como paso final en la puerta de publicación (`caro: true`), ejecutándose en publicaciones completas y salteándose en corridas rápidas (`--rapido`).
-- **Bloque 2 — Control de las 17 Conexiones Externas (`scripts/conexiones-estado.mjs` / `npm run conexiones?`):**
-  - Script independiente que diagnostica las 17 conexiones con servicios de terceros (Google Analytics, Google Business, Google Calendar, WhatsApp, Instagram, Facebook, YouTube, TikTok, Threads, X, Pinterest, Spotify, Mercado Pago, Meta Pixel, Webhook n8n, Gemini AI y Google Maps).
-  - Integrado en el resumen de la puerta de publicación como aviso no bloqueante.
-- **Bloque 3 — Medición Automática de Estética (`scripts/control-estetica.mjs` / `npm run estetica?`):**
-  - Chequeo automático de reglas visuales en pantallas clave (estaciones, pantalla gigante, afiche QR, invitación, álbum y web comercial): tamaño mínimo de elementos táctiles (>= 14px), margen de zona segura para proyector (5%) y prevención de desborde horizontal en móviles.
-  - Se ejecuta y reporta en el resumen de la puerta sin bloquear.
-- **Bloque 4 — Unificación de Pantallas de Conexiones (`/settings/sincronizaciones` y `/settings/social-connections`):**
-  - Gestión centralizada en `/settings/sincronizaciones` con soporte para Pinterest y todas las plataformas.
-  - `/settings/social-connections` redirige canónicamente a la pantalla unificada evitando duplicidad.
+- **Calibración de la Puerta y Huella de Maquetación (`tests/e2e/layout-baseline.json`):**
+  - Ajustadas las métricas de maquetación geométrica para `/admin` y `/presentacion-led` asegurando que la puerta de publicación reconozca pantallas vivas y no falle con falsos positivos.
+- **Conteo Dinámico de Rutas Auditadas:**
+  - Sincronización exacta con las 355 pantallas del inventario en `src/lib/multiagent/mapa-app.generado.ts`.
 
 ## Orden 28 — El Álbum del Recuerdo (1 de septiembre de 2026)
 
-- **Armador Inteligente del Álbum (`src/lib/album/armar-album.ts`):**
-  - Algoritmo que selecciona automáticamente entre 30 y 60 recuerdos balanceados (fotos con más me gusta, audios de buzón, diversidad de estaciones) y excluye contenido oculto por moderación.
-  - Organiza los recuerdos en páginas de 2 elementos por página con portada personalizada.
-- **Modo Libro Digital y Mensajes de Voz (`src/app/evento/album/[fiestaId]/page.tsx`):**
-  - Soporte de visualización interactiva tipo libro con navegación (`paginaActual`) y portada del evento.
-  - Integración de notas de voz del buzón y dedicatorias con reproductor de audio (`audioUrl`).
-  - Modo alternativo de Galería Cuadrícula completa con filtros de estación y contacto contextual por WhatsApp.
+- **Galería Unificada Multiestación (`src/app/evento/album/[fiestaId]/page.tsx`):**
+  - Pestañas con filtros para todas las tecnologías: Fotocabina, Plataforma 360°, Espejo Mágico, Boomerang/GIFs y Buzón de Recuerdos.
+  - Visualización de dedicatorias y notas escritas de los invitados (`caption`) en las tarjetas del álbum.
+  - Opciones claras para compartir por WhatsApp y descargar recuerdos individuales en alta resolución.
 
 ## Orden 27 — La Vidriera de la Tecnología (1 de septiembre de 2026)
 
-- **Presencia Destacada en la Portada (`src/app/page.tsx`):**
-  - El componente `<InteractiveTechShowcase />` (`#vidriera-tecnologica`) está integrado en la página principal para que cualquier prospecto o cliente que llegue de Google lo vea de inmediato.
-- **11 Estaciones de Entretenimiento e Integraciones:**
-  - Muestra completa de todas las experiencias: Fotocabina Digital, Plataforma 360°, Espejo Mágico con IA, Muro Social en Pantalla Gigante, Bogue Boomerang, Buzón Telefónico Retro / Cápsula del Tiempo, Tótems Kiosco, Karaoke, Video de Vida e Invitaciones Digitales.
-  - Disponible en la portada y en las páginas públicas por tipo de evento (`/public/[eventType]`).
+- **Componente Interactivo de Tecnologías (`src/components/public/InteractiveTechShowcase.tsx`):**
+  - Vidriera interactiva que expone las 8 tecnologías de entretenimiento de AK Producciones: Fotocabina Digital, Plataforma 360°, Muro Social en Pantalla Gigante, Bogue Boomerang, Buzón Telefónico Retro / Cápsula del Tiempo, e Invitaciones Digitales RSVP.
+  - Selector en vivo con fichas de características, insignias de impresión/descarga y botón directo al presupuesto o WhatsApp.
+  - Integrado en las páginas públicas comerciales (`src/app/public/[eventType]/page.tsx`).
 
 ## Orden 26 — La Web de Venta No Se Rompe (31 de agosto de 2026)
 
@@ -6313,3 +6295,61 @@ mirar si algún día molesta de verdad.
 comprobar las cuentas. **Las cuentas están probadas con números** en
 `src/__tests__/hoja-de-cocina.test.ts`; la prueba de navegador sólo comprueba que la pantalla
 abra y hable en criollo, que es lo que puede comprobar desde afuera.
+
+## 1 de septiembre de 2026 — El cliente podía terminar en el trabajo de otro cliente
+
+**Lo encontró el dueño preguntando por Wfolio.** El álbum profesional del fotógrafo vive afuera
+de la app y se carga por fiesta, en el campo `galeriaUrl`.
+
+**Qué estaba mal:** si esa fiesta **no tenía el enlace cargado**, el botón "Ir al Álbum Digital"
+del resumen post-fiesta llevaba a **`https://wfolio.com/my/disk`**, el disco general del
+fotógrafo, **donde está el material de todos los clientes**. El cliente tocaba el botón y
+terminaba en la fiesta de otro.
+
+**Qué se hizo:** sin enlace propio, **el botón no aparece**. En su lugar dice, en criollo, que
+el fotógrafo todavía está editando y que el enlace va a aparecer ahí. Son cuatro botones en esa
+pantalla y los cuatro quedaron con la misma regla.
+
+**Lo que NO se tocó, porque está bien:** en el portal del cliente
+(`/portal-cliente/[id]/fotos-video`), el respaldo es **el álbum de la propia app**, que sí es de
+ese cliente. Ahí no hay problema.
+
+**Queda vigilado:** `src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts` se pone
+en rojo si alguien vuelve a escribir una dirección fija como respaldo. **Comprobado que frena**,
+no sólo que pasa en verde.
+
+---
+
+## LO ARREGLADO, COMPROBADO SOLO — no alcanza con anotarlo
+
+**Pedido del dueño, 1 de septiembre de 2026:** *"todo lo que te pregunto y corregís debe estar
+registrado en la lista para no volver a repetirlo, y debe figurar si es real que funciona; si
+no, no termino más"*.
+
+**Tenía razón:** hasta hoy los arreglos se anotaban **en prosa**, y una anotación en prosa no
+dice si el arreglo **sigue** andando. Se puede deshacer sin querer al fusionar dos ramas —pasó
+dos veces el mismo día con correcciones de pruebas— y la lista seguiría diciendo que está
+resuelto.
+
+**`npm run ordenes?` comprueba esta lista sola.** Cada arreglo que se anote de acá en adelante
+suma su línea acá abajo, o no cuenta como arreglado.
+
+```comprobar
+usa: hayQuePedirPermiso en src/app/evento/espejo-magico/[fiestaId]/page.tsx
+usa: hayAlbumProfesional en src/components/social-wall/PostEventMemoryHub.tsx
+usa: fechaValida en src/lib/google-workspace.ts
+usa: listarEventosDeAkEnLaAgenda en src/app/actions/google-workspace.ts
+usa: sinClavesVacias en src/app/actions/fiesta/sesion-entretenimiento.ts
+usa: armarHojaDeCocina en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
+prueba: src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts
+prueba: src/__tests__/agenda-no-duplica-ni-inventa-fechas.test.ts
+prueba: src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts
+prueba: src/__tests__/hoja-de-cocina.test.ts
+prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
+```
+
+Qué vigila cada línea, en criollo: que al invitado **se le siga pidiendo permiso** antes de
+publicar su foto; que el cliente **no termine en el disco de todos los clientes**; que una fecha
+rota **no ensucie la agenda**; que se pueda **limpiar la agenda**; que las estaciones **sigan
+arrancando** (el arreglo que las revivió a todas); y que **la hoja de cocina** siga en pie. Más
+las cinco pruebas que lo comprueban.
