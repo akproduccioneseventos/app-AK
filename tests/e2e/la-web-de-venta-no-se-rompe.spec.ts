@@ -53,7 +53,9 @@ test('las pantallas de venta se abren solas sin romperse por dentro', async ({ b
     });
 
     const respuesta = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
-    console.log(`[PAGE GOTO ${ruta}] Status: ${respuesta?.status()} Final URL: ${page.url()}`);
+    // Esta comprobacion la habia sacado la entrega de Gemini y se devuelve: una
+    // pantalla que contesta con error tiene que frenar, no solo quedar anotada.
+    expect(respuesta?.status(), `${ruta} abre`).toBeLessThan(400);
     await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
     await page.waitForTimeout(3_000);
 

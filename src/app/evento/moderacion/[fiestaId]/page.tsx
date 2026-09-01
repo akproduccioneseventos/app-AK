@@ -146,6 +146,7 @@ export default function SwipeModerationPage() {
                 <SwipeCard
                   key={post.id}
                   post={post}
+                  allPosts={posts}
                   onApprove={() => handleModerate(post.id, 'approved')}
                   onReject={() => handleModerate(post.id, 'hidden')}
                   disabled={actioningId === post.id}
@@ -232,14 +233,25 @@ export default function SwipeModerationPage() {
   );
 }
 
+function checkPostAssistance(post: SocialGalleryPost, allPosts: SocialGalleryPost[]): { isDuplicate: boolean; hasSensitiveWords: boolean } {
+  const isDuplicate = allPosts.some(
+    p => p.id !== post.id && p.authorName === post.authorName && (p.imageUrl === post.imageUrl || Math.abs(new Date(p.timestamp).getTime() - new Date(post.timestamp).getTime()) < 30_000)
+  );
+  const SENSITIVE_WORDS = ['spam', 'insulto', 'estafa', 'troll', 'fake', 'ofensivo'];
+  const text = `${post.authorName || ''} ${post.caption || ''} ${post.dedication || ''}`.toLowerCase();
+  const hasSensitiveWords = SENSITIVE_WORDS.some(word => text.includes(word));
+  return { isDuplicate, hasSensitiveWords };
+}
+
 interface SwipeCardProps {
   post: SocialGalleryPost;
+  allPosts: SocialGalleryPost[];
   onApprove: () => void;
   onReject: () => void;
   disabled: boolean;
 }
 
-function SwipeCard({ post, onApprove, onReject, disabled }: SwipeCardProps) {
+function SwipeCard({ post, allPosts, onApprove, onReject, disabled }: SwipeCardProps) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -262,6 +274,7 @@ function SwipeCard({ post, onApprove, onReject, disabled }: SwipeCardProps) {
   };
 
   const isVideo = isVideoPost(post);
+  const assistance = checkPostAssistance(post, allPosts);
 
   return (
     <motion.div
@@ -306,6 +319,20 @@ function SwipeCard({ post, onApprove, onReject, disabled }: SwipeCardProps) {
         {/* Media type badge */}
         <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm p-2 rounded-full border border-white/10 text-white/70">
           {isVideo ? <VideoIcon className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
+        </div>
+
+        {/* Assistance Badges */}
+        <div className="absolute top-4 right-4 flex flex-col gap-1.5 items-end">
+          {assistance.isDuplicate && (
+            <span className="px-2.5 py-1 rounded-full bg-amber-500/90 text-black text-[10px] font-black uppercase tracking-wider shadow-md">
+              ⚠️ Posible repetida
+            </span>
+          )}
+          {assistance.hasSensitiveWords && (
+            <span className="px-2.5 py-1 rounded-full bg-rose-600/90 text-white text-[10px] font-black uppercase tracking-wider shadow-md">
+              🔍 Revisar texto
+            </span>
+          )}
         </div>
       </div>
 

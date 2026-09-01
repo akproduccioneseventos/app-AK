@@ -9,6 +9,7 @@ Van juntos a propósito. Dos manuales separados se despegan en un mes, y el que
 queda viejo hace más daño que no tener ninguno.
 
 **Tamaño de la app hoy: 355 pantallas y 43 opciones de menú.** Esos dos números
+**Tamaño de la app hoy: 354 pantallas y 43 opciones de menú.** Esos dos números
 no se escriben a mano: los cuenta el control automático, y si no coinciden con
 la app de verdad, se pone en rojo.
 

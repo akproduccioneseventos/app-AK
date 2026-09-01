@@ -22,7 +22,7 @@ está mirado **con el método más fuerte se descuenta** y no se vuelve a mirar.
 
 **El piso para dar algo por auditado es el 4.**
 
-## La lista de pantallas (6 de 353 con nivel 4 o más — 2%)
+## La lista de pantallas (6 de 354 con nivel 4 o más — 2%)
 
 | Qué | Método | Cuándo | Quién | Qué se encontró |
 |---|---|---|---|---|
@@ -62,7 +62,7 @@ está mirado **con el método más fuerte se descuenta** y no se vuelve a mirar.
 | `/empresa/activos-fijos/editar/[id]` | **1** | 31/08/2026 | ayudante | Sin auditar con método de navegador |
 | `/empresa/activos-fijos/nuevo` | **1** | 31/08/2026 | ayudante | Sin auditar con método de navegador |
 | `/empresa/activos-fijos` | **1** | 31/08/2026 | ayudante | Sin auditar con método de navegador |
-| *...y otras 317 pantallas en nivel 1* | **1** | 31/8/2026 | ayudante | Pendientes de recorrido navegador |
+| *...y otras 318 pantallas en nivel 1* | **1** | 31/8/2026 | ayudante | Pendientes de recorrido navegador |
 
 ## La otra mitad: LOS MÓDULOS (4 de 16)
 

@@ -58,3 +58,55 @@ una sola, se arreglan todas juntas.
 - **No cambies la prueba para que pase.** La prueba está bien y lo que falla es la app.
 - **No toques los textos de venta ni los precios**: son decisiones comerciales del dueño.
 - **Plata, cobros, comida y permisos: los hace Claude.**
+
+---
+
+## LO QUE YA SE INVESTIGO (1 de septiembre de 2026). NO LO REPITAS.
+
+**Se reprodujo el error con el mensaje completo**, levantando la app en modo desarrollo y
+abriendo `/blog`. Dice, textual:
+
+    Error: Rendered more hooks than during the previous render.
+      at updateMemo ... at Object.useMemo
+      at Router (next/dist/client/components/app-router.js:170)
+
+**O sea: el gancho que falla esta adentro del enrutador de Next**, no en una pantalla nuestra.
+Eso descarta que sea una pantalla suelta y explica por que son 16 a la vez.
+
+### Descartado, uno por uno, mirando el codigo
+
+- **El armazon de la app** (`src/components/app-shell.tsx`): corta temprano en la linea 310,
+  **pero no hay ningun gancho despues de ese corte.** No es.
+- **El asistente virtual** (`src/components/public/AsistenteVirtual.tsx`): corta en la linea 76
+  con `if (!hasFetchedSettings || ...) return null`, **y tampoco hay ganchos despues.** No es.
+- **Dos copias de React conviviendo** (era la sospecha mas fuerte, porque el Salon 3D falla por
+  algo parecido): **hay una sola**, `react@18.3.1`, sin copias fisicas duplicadas. No es.
+
+### La pista que queda, y es la buena
+
+**Justo antes del error aparece esto en la consola:**
+
+    Error cargando ajustes del asistente: TypeError: Failed to fetch
+
+Es una llamada al servidor que **falla**, y el error de React aparece **inmediatamente
+despues**. La sospecha es que **el enrutador de Next se vuelve a dibujar distinto cuando una
+llamada al servidor falla**, y ahi cambia la cantidad de ganchos.
+
+**Por donde seguir:**
+
+1. Que esa llamada **no falle nunca en silencio**: que el asistente atrape el error y no dispare
+   un redibujado del enrutador.
+2. Probar si con eso arreglado el error desaparece en las 16 pantallas.
+3. Si desaparece, **la causa era esa** y se arregla en un solo lugar.
+
+### UNA ADVERTENCIA IMPORTANTE ANTES DE TOCAR NADA
+
+**Puede que esto NO le pase a un visitante real.** En el entorno donde se probo, **las llamadas
+hacia afuera fallan siempre** (`ERR_TUNNEL_CONNECTION_FAILED`), y es justo una llamada fallida
+la que dispara el error.
+
+**Lo primero, entonces:** abrir `/blog` en la web publicada, de verdad, y mirar la consola del
+navegador. **Si ahi no aparece, el problema es del entorno de prueba y no de la app**, y se
+anota en `docs/YA-RESUELTO.md` como falso positivo en vez de tocar codigo.
+
+**Esa comprobacion va primero. No arregles nada antes de hacerla.**

@@ -861,6 +861,10 @@ export interface SocialGallerySettings {
   audioRhythm?: AudioRhythmSettings;
   playlistPlaying?: boolean;
   currentLayout?: 'slideshow' | 'masonry';
+  /** Modo Cine: foto sola a pantalla completa sin carteles ni chat, con movimiento suave */
+  cinemaMode?: boolean;
+  /** Efecto Ken Burns de movimiento lento en fotos */
+  kenBurnsEffect?: boolean;
   forcedScreenItem?: 'mural' | 'juego' | 'chat' | 'canciones' | 'dedicaciones' | 'pauta' | 'video' | 'sorteo' | null;
 }
 
@@ -876,7 +880,18 @@ export interface SocialGalleryBrand {
 }
 
 export type ScreenLayoutMode = 'auto' | 'landscape' | 'portrait';
-export type ScreenPlaylistItemType = 'video' | 'mural' | 'redes' | 'juego' | 'dedicaciones' | 'chat' | 'canciones' | 'audioritmico' | 'pauta';
+export type ScreenPlaylistItemType =
+  | 'video'
+  | 'mural'
+  | 'redes'
+  | 'juego'
+  | 'dedicaciones'
+  | 'chat'
+  | 'canciones'
+  | 'audioritmico'
+  | 'pauta'
+  | 'cronograma'
+  | 'patrocinador';
 
 export type TotemLayoutMode = 'portrait' | 'landscape' | 'square';
 export type TotemBackgroundMode = 'aurora' | 'spotlights' | 'particles' | 'photo-float' | 'social-rain';

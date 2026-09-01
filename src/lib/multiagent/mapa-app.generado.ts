@@ -520,6 +520,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/evento/moderacion/:fiestaId",
     "/evento/muro-en-vivo",
     "/evento/muro-en-vivo/:fiestaId",
+    "/evento/muro-en-vivo/:fiestaId/afiche",
     "/evento/plataforma-360",
     "/evento/plataforma-360/:fiestaId",
     "/evento/social/:fiestaId",

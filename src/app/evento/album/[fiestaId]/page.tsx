@@ -22,14 +22,15 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
+import { getDedications } from '@/app/actions/social-interactive';
 import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
-import type { SocialGalleryPost } from '@/types/social-gallery';
+import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 
-type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados';
+type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
 
 function isVideo(url: string = ''): boolean {
   return url.endsWith('.mp4') || url.endsWith('.webm') || url.includes('video');
@@ -42,6 +43,7 @@ export default function PublicAlbumPage() {
 
   const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
+  const [dedications, setDedications] = useState<Dedication[]>([]);
   const [enlaceResena, setEnlaceResena] = useState<string>('');
   const [activeTab, setActiveTab] = useState<FilterTab>('todas');
   const [isLoading, setIsLoading] = useState(true);
@@ -58,8 +60,12 @@ export default function PublicAlbumPage() {
   const loadPosts = useCallback(async () => {
     try {
       setHasError(false);
-      const data = await getPublicSocialPosts(fiestaId);
+      const [data, deds] = await Promise.all([
+        getPublicSocialPosts(fiestaId),
+        getDedications(fiestaId).catch(() => []),
+      ]);
       setPosts(data);
+      setDedications(deds);
     } catch {
       setHasError(true);
     } finally {
@@ -182,7 +188,7 @@ export default function PublicAlbumPage() {
       </header>
 
       {/* Filter Tabs */}
-      {posts.length > 0 && (
+      {(posts.length > 0 || dedications.length > 0) && (
         <div className="sticky top-0 z-20 bg-zinc-950/90 backdrop-blur-md border-b border-white/5 py-3 px-4">
           <div className="max-w-6xl mx-auto flex gap-2 overflow-x-auto hide-scrollbar justify-center sm:justify-start">
             {[
@@ -193,6 +199,7 @@ export default function PublicAlbumPage() {
               { id: 'bogue', label: '⚡ Boomerang' },
               { id: 'buzon', label: '🎙️ Buzón' },
               { id: 'invitados', label: '📱 Invitados' },
+              { id: 'mensajes', label: `💌 Mensajes (${dedications.length})` },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -212,7 +219,38 @@ export default function PublicAlbumPage() {
 
       {/* Gallery Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {isLoading && posts.length === 0 ? (
+        {activeTab === 'mensajes' ? (
+          dedications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center px-4">
+              <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-amber-400">
+                <MessageCircle className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Aún no hay dedicatorias</h3>
+              <p className="text-sm text-zinc-400 max-w-md">
+                Los mensajes y saludos grabados por los invitados aparecerán acá junto a las fotos.
+              </p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {dedications.map((ded) => (
+                <div
+                  key={ded.id}
+                  className="p-6 rounded-2xl bg-zinc-900/70 border border-white/10 space-y-3 shadow-lg"
+                >
+                  <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                    💌 Dedicatoria
+                  </span>
+                  <p className="text-lg font-medium text-white/90 leading-relaxed italic">
+                    "{ded.message}"
+                  </p>
+                  <p className="text-xs font-bold text-zinc-400 tracking-wider uppercase">
+                    — {ded.authorName || 'Invitado'}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )
+        ) : isLoading && posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center text-zinc-500">
             <Loader2 className="w-10 h-10 animate-spin text-amber-400 mb-4" />
             <p className="text-sm font-medium">Abriendo el álbum de fotos...</p>

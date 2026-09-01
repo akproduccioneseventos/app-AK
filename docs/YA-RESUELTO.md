@@ -71,6 +71,31 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - Consulta automática de disponibilidad de elementos entre eventos en la misma fecha para prevenir colisiones de inventario.
 - **Aclaración Documental en `src/ai/flows/generate-image-flow.ts`:**
   - Nota explícita documentando que se trata de un placeholder SVG y no de IA.
+## Orden 22 — La Pantalla Gigante y Funciones de Instawall (31 de agosto de 2026)
+
+- **Dedicatorias en Pantalla Grande (`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx`):**
+  - Manda el operador mediante el ajuste `showDedications` / `privateDedicationsMode` y el ítem de playlist `dedicaciones`.
+- **"Qué Viene Ahora" / Cronograma en Rotación (Bloque 2):**
+  - Diapositiva `CronogramaSlide` en el muro en vivo mostrando momentos activos y próximos con indicación de hora, badges "Ahora" / "Siguiente".
+  - Si la fiesta no tiene cronograma cargado, la diapositiva no se incluye y nunca queda un hueco vacío.
+- **Reacciones en Vivo y Aplausos Flotantes (Bloque 3):**
+  - Barra flotante de reacciones en el celular del invitado (`/evento/social/[fiestaId]`) con 👏 Aplausos, ❤️ Corazón y 🔥 Fuego.
+  - Capa de animación `FloatingReactionsLayer` en el muro en vivo con física flotante ascendente sobre el fondo y contenido sin cortar la rotación.
+- **Moderación Asistida sin IA de Pago (Bloque 4):**
+  - En `/evento/moderacion/[fiestaId]`, detección local asistida de posibles fotos repetidas del mismo autor (`⚠️ Posible repetida`) y palabras sensibles (`🔍 Revisar texto`), manteniendo el control y decisión de aprobación 100% humano.
+- **Tarjeta de Patrocinador y Salón (Bloque 5):**
+  - Diapositiva `PatrocinadorSlide` en el muro en vivo mostrando logo, nombre y frase institucional del salón o auspiciante.
+- **Mejoras Inspiradas en Instawall (Bloque 6):**
+  - **6.b Portada Personalizada en Espera:** `EmptyWallState` utiliza la portada del evento como fondo atenuado con el QR gigante de participación superpuesto.
+  - **6.c Afiche Imprimible para Mesas (`src/app/evento/muro-en-vivo/[fiestaId]/afiche/page.tsx`):** Pantalla y plantilla de soporte A4 lista para imprimir (`window.print()`) con QR grande, colores de la fiesta, llamada a la acción y logotipo.
+  - **6.d Álbum Completo de Recuerdos (`src/app/evento/album/[fiestaId]/page.tsx`):** Pestaña dedicada "💌 Mensajes" que muestra todas las dedicatorias y mensajes del buzón junto a la galería de fotos.
+  - **6.e Modo Cine (`cinemaMode`):** Presentación limpia a pantalla completa con la foto sola, sin cabeceras, marquesinas, paneles ni chat distractores. Se activa desde el panel de operador (`/fiestas/nueva/muro-social`) o con el atajo de teclado `Alt + C` en la pantalla en vivo.
+- **Estética Visual Cinematográfica y Cuidado en Proyección (Bloque 7):**
+  - **Movimiento Lento (Ken Burns):** Zoom y paneo suave y continuo durante la exhibición de cada fotografía en el slideshow.
+  - **Foto Vertical sin Deformar ni Recortar:** Relleno ambiental difuminado a pantalla completa de la misma foto (`blur-3xl opacity-30 scale-125`) con la fotografía nítida al centro preservando su proporción original intacta sin cortar rostros ni cabezas.
+  - **Tamaños para Mirar a Cinco Metros:** Tipografías grandes y de alto contraste (`text-3xl` a `text-6xl font-black`) legibles desde cualquier punto del salón.
+  - **Márgenes Seguros de Proyector (Safe Area Overscan):** Padding protector (`p-8 sm:p-12 md:p-16`) para evitar que proyectores o televisores de salón coman bordes de texto.
+  - **Color de la Fiesta en Detalles:** Acentos, barras de progreso y brillos sutiles adaptados al color principal del evento.
 
 ## Orden 21 — El Recorrido de las 353 Pantallas y la Lista Automática (31 de agosto de 2026)
 
