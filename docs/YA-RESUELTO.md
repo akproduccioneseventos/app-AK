@@ -6276,3 +6276,22 @@ mostrar ceros.
 
 **Lo que NO se hizo, y es a propósito:** no se tocó el menú ni los ingredientes. Decisión del
 dueño del 31 de agosto: la carta está decidida.
+
+## 1 de septiembre de 2026 — Las pantallas del equipo pierden la fiesta al abrirlas de una
+
+**Encontrado probando la hoja de cocina.** Si se abre una pantalla del equipo escribiendo la
+dirección con la fiesta adentro (`?fiestaId=...`), **la fiesta se pierde al pasar por el control
+de acceso** y la pantalla queda pidiendo que se elija un evento.
+
+**No es de una pantalla sola:** le pasa igual a la de comida
+(`/fiestas/nueva/catering`), que muestra "elegí un evento". Se ve sólo abriendo la dirección de
+una; navegando adentro de la app no pasa, porque la fiesta ya viene elegida.
+
+**Qué se hizo:** la hoja de cocina ahora lee la fiesta también de la dirección del navegador,
+para aguantar el caso. **No se tocó el flujo de acceso de toda la app**, que es lo que habría que
+mirar si algún día molesta de verdad.
+
+**Y lo que NO se hizo, a propósito:** no se escribió una prueba de navegador que finja
+comprobar las cuentas. **Las cuentas están probadas con números** en
+`src/__tests__/hoja-de-cocina.test.ts`; la prueba de navegador sólo comprueba que la pantalla
+abra y hable en criollo, que es lo que puede comprobar desde afuera.
