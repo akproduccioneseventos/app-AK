@@ -1,130 +1,133 @@
-# Orden 32 — Los DOS fondos de la fotocabina, y el que falta es el importante
+# Orden 32 — El fondo de la PANTALLA (el "telón") y el fondo de la FOTO
 
-**Para Gemini. Escrita el 1 de septiembre de 2026.**
+**Para Gemini. Escrita el 1 de septiembre de 2026. Reescrita el mismo día: la primera versión
+había entendido mal el pedido.**
 
-> **Lo preguntó el dueño y destapó un problema:** *"debo poder cambiar el fondo que aparece en la
-> pantalla, y adentro está la pantalla de la cámara... lo de atrás no sé cómo sería, eso es
-> físico"*.
+## Lo que pidió el dueño, con sus palabras
 
-## Primero, la distinción, porque se estaban mezclando
+> *"En esa pantalla hay un fondo que tiene forma de telón rojo, es una de las funcionalidades.
+> Cuando las personas ven la pantalla, ven un rectángulo horizontal o vertical donde se ven
+> ellos, que es la imagen de la cámara."*
 
-**Son dos fondos distintos y ninguno de los dos está bien hoy:**
+> *"Lo del croma no sé si se podrá: **un metro y medio para atrás es imposible**. Siempre hay
+> poco espacio y la fotocabina se pone donde la gente vea la pantalla."*
 
-1. **El fondo de la PANTALLA**: la decoración alrededor de la cámara, en el monitor de la
-   fotocabina. Es lo que ve la gente mientras espera su turno. **HOY NO SE PUEDE CAMBIAR.**
-2. **El fondo de la FOTO**: lo que aparece detrás de la persona **en la imagen que se lleva**. El
-   salón no cambia: se recorta a la persona y se le pone otro fondo en la foto, como en una
-   videollamada. **HOY SÓLO FUNCIONA CON TELÓN VERDE.**
+**Cuidado con la palabra "telón": NO es una tela colgada.** Es el **diseño de la pantalla**: el
+fondo decorado —una cortina roja, por ejemplo— que rodea al rectángulo de la cámara. Es lo que
+ve la gente mientras espera su turno. **Sparkbooth lo llama tema y lo trae hecho.**
+
+## Las tres cosas, y en este orden
+
+| | Qué es | Cómo está | Cuánto importa |
+|---|---|---|---|
+| **1** | **El fondo de la pantalla (el "telón")** | **No existe**: la fotocabina se ve igual en toda fiesta | **Lo que pidió** |
+| **2** | **El fondo de la foto SIN tela** | No existe | Lo que sirve en su salón |
+| **3** | El fondo de la foto CON tela verde (croma) | A medio conectar, deja mancha negra | **Casi no le sirve**: no tiene espacio |
 
 ---
 
+## BLOQUE 1 — EL FONDO DE LA PANTALLA, QUE ES LO QUE SE PIDIÓ
+
+Hoy la fotocabina se ve **igual en toda fiesta**: fondo oscuro, la cámara y un botón. Sin
+personalidad, y sin nada del cliente.
+
+**Qué tiene que pasar:**
+
+- **La pantalla tiene un fondo decorado**, y el rectángulo de la cámara va **adentro**, como un
+  cuadro colgado. Ese fondo es lo que le da carácter a la estación.
+- **Seis u ocho diseños listos**, con nombre en criollo: *Cortina roja*, *Dorado de gala*,
+  *Neón de fiesta*, *Campo*, *Blanco minimalista*, *Quince años*. Son fondos y marcos dibujados,
+  **no fotos**: tienen que verse bien en cualquier pantalla y no pesar.
+- **Y el cliente puede subir el suyo** para su fiesta, con el mismo campo de fondos que ya
+  existe.
+- **Se elige al armar la fiesta**, y se ve cómo queda antes de guardar.
+
+**Tres reglas para que no arruine la estación:**
+
+1. **El rectángulo de la cámara y el botón van siempre por encima y legibles.** Si el fondo es
+   claro, el texto se sigue leyendo. **Nunca un fondo que tape lo que hay que tocar.**
+2. **El rectángulo respeta si la cámara está vertical u horizontal** (eso ya existe): el fondo
+   se acomoda alrededor, no al revés.
+3. **Si no se eligió ninguno, queda el de hoy.** No se rompe nada.
+
+**Va también en Bogue, Touchpix y el Espejo. En la 360 no** (la cámara gira y la pantalla es
+otra cosa).
+
+**La prueba:** con un fondo elegido, la pantalla lo muestra y **el botón de sacar la foto sigue
+visible y se puede tocar**.
 
 ---
 
-## BLOQUE 0 — EL CROMA ESTÁ A MEDIO CONECTAR Y SALE UNA MANCHA NEGRA  ← ARRANCÁ POR ACÁ
+## BLOQUE 2 — EL FONDO DE LA FOTO SIN TELA, que es lo que sirve en su salón
 
-**Verificado abriendo el código.** Es un defecto que arruina la primera fiesta que lo use:
+**Esto es lo que cambia lo que se lleva la persona**, no cómo se ve la pantalla. El salón no se
+toca: se recorta a la persona y se le pone otro fondo **en la imagen**.
 
-- La fotocabina llama a `aplicarChromaKey(ctx, ancho, alto)` cuando el ajuste está prendido
-  (`src/app/evento/fotocabina/[fiestaId]/page.tsx:356`).
-- Esa función **borra el verde y lo deja transparente**
-  (`segmentacion-fondo.ts:58`, `data[i + 3] = 0`).
-- **Nadie dibuja el fondo nuevo detrás.** Y la foto se guarda como JPEG, que **no admite
-  transparencia**: el hueco sale **NEGRO**.
+**Y sin tela, porque con tela no se puede:** el dueño no tiene metro y medio libre detrás, y la
+estación va donde la gente vea la pantalla.
 
-**Resultado hoy:** se cuelga la tela verde, se prende el croma, y el invitado se lleva una foto
-con **una mancha negra atrás**.
+- **MediaPipe Selfie Segmentation** o el equivalente de TensorFlow.js, **corriendo en la
+  máquina**. **Si la única forma cuesta plata por mes, PARÁ Y AVISÁ.**
+- **El invitado elige el fondo antes de la foto** y ve el cambio en vivo, en una tira abajo de
+  la cámara. Primero va **"Sin cambiar"**, elegido de entrada.
+- **Si la máquina no da** (baja de 15 cuadros por segundo), se apaga solo y la estación sigue
+  andando. **Nunca colgada por esto.**
 
-**Y la función que sí sabe hacerlo bien —`procesarFondoCanvas`— está escrita y NO LA LLAMA
-NADIE** en la fotocabina.
+**La prueba:** con un fondo elegido y **sin tela verde**, la imagen final es **distinta** de la
+de sin fondo.
+
+---
+
+## BLOQUE 3 — El croma: arreglar lo que está roto y dejarlo como opción
+
+**El dueño dijo que casi no le sirve** —no tiene espacio— pero quiere **poder probarlo**. Así que
+no se saca: se arregla y se deja apagado por defecto.
+
+**El defecto, verificado:** la fotocabina llama a `aplicarChromaKey`
+(`fotocabina/[fiestaId]/page.tsx:356`), que **borra el verde y lo deja transparente**
+(`segmentacion-fondo.ts:58`). **Nadie dibuja el fondo nuevo detrás**, y como la foto se guarda en
+JPEG —que no admite transparencia— **el hueco sale NEGRO**.
+
+Y la función que sí lo hace bien, `procesarFondoCanvas`, **está escrita y no la llama nadie**.
 
 **Qué hacer:**
 
-1. **Que la fotocabina use `procesarFondoCanvas`**, que dibuja primero el fondo nuevo y después
-   la persona. Es la que ya está hecha.
-2. **Que haya de dónde elegir el fondo.** Hoy **no existe ninguna pantalla** para cargarlos ni
-   para que el invitado elija: el ajuste prende el croma y nada más.
-3. **Si el croma está prendido y no hay ningún fondo cargado, que el croma NO se aplique.**
-   Mejor la foto con la tela verde de fondo que con una mancha negra.
+1. Que la fotocabina use **`procesarFondoCanvas`**, que dibuja el fondo y después la persona.
+2. **Si el croma está prendido y no hay fondo cargado, que no se aplique.** Mejor la foto con la
+   tela verde detrás que con una mancha negra.
+3. **Que el ajuste avise lo que hace falta**: *"Necesita una tela verde lisa, bien iluminada, y
+   la gente a metro y medio. Si no tenés ese espacio, usá el cambio de fondo sin tela."*
 
-**La prueba:** con el croma prendido y un fondo cargado, **la imagen final no tiene ningún píxel
-negro donde estaba el verde**. Es lo único que hay que comprobar, y es lo que hoy falla.
-
-
-## BLOQUE 1 — EL CAMBIO DE FONDO SIN TELÓN NO ESTÁ HECHO  ← LO MÁS IMPORTANTE
-
-**Se dio por hecho y no lo está.** Verificado en `src/lib/entretenimiento/segmentacion-fondo.ts`:
-
-- Lo que hay es **`aplicarChromaKey`**: recorta **por color verde**, con tolerancia. **Necesita
-  la tela colgada.**
-- **No hay ningún modelo de reconocimiento de personas.** Cero menciones de MediaPipe,
-  TensorFlow o BodyPix, ni en el código ni en las dependencias.
-- El **"desenfoque"** que agregaste **desenfoca toda la imagen, incluida la cara** (línea ~92:
-  se dibuja el video con `blur` y después el mismo video encima). No es el efecto de fondo
-  desenfocado: es una foto borrosa.
-
-**Lo que falta, y es lo que vale:** que funcione **sin colgar nada**. Es la función que venden
-Simple Booth y dslrBooth, y la que hace que la estación se pueda poner en cualquier rincón del
-salón.
-
-**Cómo se hace, sin pagar por mes:** **MediaPipe Selfie Segmentation** o el equivalente de
-TensorFlow.js, **corriendo en la máquina**. El modelo se descarga con la app. **Si la única forma
-que encontrás cuesta plata por mes, PARÁ Y AVISÁ.**
-
-**Y que elija sola:** si detecta un fondo de color parejo, usa el telón (sale mejor y más
-rápido); si no, usa el reconocimiento. **El operador no configura nada.**
-
-**Si la máquina no da** —se traba o baja de 15 cuadros por segundo—, se apaga solo y la estación
-sigue andando como hoy. **Nunca dejarla colgada por esto.**
-
-### Y arreglá el desenfoque
-
-Que desenfoque **el fondo y no la persona**. Si no se puede sin el reconocimiento del punto
-anterior, **que la opción no aparezca** hasta que esté: una foto toda borrosa no la quiere nadie.
-
-**La prueba:** que con un fondo cargado y **sin telón verde**, la imagen final sea **distinta**
-de la de sin fondo. Con telón ya funciona; lo que hay que comprobar es lo otro.
+**Y arreglá el desenfoque**, que hoy **desenfoca toda la imagen, incluida la cara**
+(`segmentacion-fondo.ts`, ~línea 92). Si no se puede desenfocar sólo el fondo sin lo del bloque
+2, **que la opción no aparezca** hasta que esté.
 
 ---
 
-## BLOQUE 2 — El fondo de la PANTALLA, que no se puede cambiar
+## BLOQUE 4 — Que se entienda cuál es cuál
 
-Hoy la fotocabina se ve igual en toda fiesta: fondo oscuro y punto.
-
-- **Que use el fondo que el cliente cargó para su fiesta** —el mismo campo que ya existe—, con
-  la foto detrás y la cámara adelante.
-- **Si no cargó ninguno**, seis u ocho fondos listos que combinen con el color de la fiesta.
-- **La cámara y el botón siempre por encima y legibles**: si el fondo es claro, que el texto se
-  siga leyendo. **Nunca un fondo que tape lo que hay que tocar.**
-
-Va también en Bogue, Touchpix y el Espejo. **En la 360 no** (la cámara gira).
-
----
-
-## BLOQUE 3 — Que se entienda cuál es cuál
-
-Al armar la fiesta, hoy dice "fondo" y no se sabe de cuál habla. **Que diga:**
+Al armar la fiesta hoy dice "fondo" y no se sabe de cuál habla. **Que diga:**
 
 - **"Fondo de la pantalla"** — *"Lo que se ve alrededor de la cámara, mientras esperan su turno."*
 - **"Fondo de la foto"** — *"Lo que aparece detrás de la persona en la foto que se lleva. El salón
   no cambia."*
 
-Esa segunda explicación es literal del dueño y hay que dejarla: **la duda de si había que cambiar
-algo físico en el salón le pasó a él y le va a pasar a cualquiera.**
+**Esa segunda explicación es literal y se deja tal cual:** la duda de si había que cambiar algo
+físico en el salón le pasó al dueño y le va a pasar a cualquiera.
 
 ---
 
 ## LO QUE NO SE TOCA
 
-- **El recorte por telón verde anda**: se le suma el otro camino, no se reemplaza.
 - **Los marcos de la fotocabina** andan y están probados.
+- **La cámara vertical u horizontal** ya está hecha: el fondo se acomoda a ella.
 - **Nada que se pague por mes.**
 - **Plata, cobros, comida y permisos: los hace Claude.**
 
 ## Cómo se comprueba que esta orden está hecha
 
 ```comprobar
-usa: selfie_segmentation en package.json
 usa: fondoDePantalla en src/app/evento/fotocabina/[fiestaId]/page.tsx
-prueba: tests/e2e/el-fondo-sin-telon.spec.ts
+usa: procesarFondoCanvas en src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: tests/e2e/los-fondos-de-la-fotocabina.spec.ts
 ```
