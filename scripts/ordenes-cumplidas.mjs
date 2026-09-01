@@ -62,9 +62,23 @@ function comprobar(c) {
   return false;
 }
 
+// Se miran las ordenes Y el inventario de lo que la app dice tener. Lo segundo
+// es lo que pidio el dueno: *"una auditoria que revise que todo lo que tiene la
+// app este, para que no pase esto"*. Una app que dice tener algo y no lo tiene
+// le miente al que la usa y al que la vende.
+const INVENTARIO = path.join(process.cwd(), 'docs', 'QUE-HAY-EN-LA-APP.md');
+
 const archivos = fs.existsSync(CARPETA)
   ? fs.readdirSync(CARPETA).filter((f) => f.endsWith('.md')).sort()
   : [];
+if (fs.existsSync(INVENTARIO)) archivos.push('../QUE-HAY-EN-LA-APP.md');
+
+// Y lo arreglado. Pedido del dueno el 1 de septiembre de 2026: *"todo lo que te
+// pregunto y corregis debe estar registrado en la lista para no volver a
+// repetirlo, y debe figurar si es real que funciona; si no, no termino mas"*.
+// Anotar un arreglo en prosa no dice si SIGUE andando: esto lo comprueba.
+const RESUELTO = path.join(process.cwd(), 'docs', 'YA-RESUELTO.md');
+if (fs.existsSync(RESUELTO)) archivos.push('../YA-RESUELTO.md');
 
 const conComprobaciones = [];
 const sinComprobaciones = [];

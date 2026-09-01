@@ -588,3 +588,40 @@ Sparkbooth, todas de USD 69 por mes): AK tiene casi todo lo que cobran y **no pa
 faltan GIF, boomerang, filtros, fondo verde con IA, captura de correos y los numeros del
 evento. **La ventaja que ninguna puede igualar:** ellas necesitan que alguien arme una
 plantilla por evento; AK ya tiene la fiesta cargada con su invitacion y su arte.
+
+---
+
+## LO QUE LA APP DICE TENER, COMPROBADO SOLO
+
+**Pedido del dueño, 1 de septiembre de 2026:** *"una auditoría que revise que todo lo que tiene
+la app esté, para que no pase esto"*.
+
+**Por qué:** una app que dice tener algo y no lo tiene **le miente al que la usa y al que la
+vende**. Y hasta hoy no había forma de saberlo sin ir a mirar a mano, uno por uno.
+
+`npm run ordenes?` comprueba esta lista sola. **Cada cosa que se agregue acá se agrega también
+al bloque de abajo**, o no cuenta.
+
+```comprobar
+usa: speechSynthesis en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: generarGifDesdeImagenes en src/app/evento/bogue/[fiestaId]/page.tsx
+usa: cinemaMode en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+usa: hayQuePedirPermiso en src/app/evento/espejo-magico/[fiestaId]/page.tsx
+usa: generateGeminiImage en src/app/actions/espejo-magico-ai.ts
+usa: armarHojaDeCocina en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
+usa: revisarAgendaDeAK en src/components/settings/LimpiarAgenda.tsx
+usa: QRCodeSVG en src/app/evento/muro-en-vivo/[fiestaId]/afiche/page.tsx
+archivo: src/app/evento/inicio/page.tsx
+archivo: src/app/api/manifest-estacion/route.ts
+prueba: tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts
+prueba: tests/e2e/la-pantalla-gigante-anda.spec.ts
+prueba: tests/e2e/la-hoja-de-cocina.spec.ts
+prueba: tests/e2e/recorrido-de-pantallas.spec.ts
+```
+
+Qué comprueba cada línea, en criollo: que la fotocabina **hable**, que Bogue arme el
+**boomerang**, que la pantalla gigante tenga **modo cine**, que el espejo **pida permiso** antes
+de publicar la foto de alguien, que el cambio de cara use **inteligencia artificial de verdad**,
+que exista la **hoja de cocina**, el botón de **limpiar la agenda**, el **afiche del QR**, la
+**puerta de las estaciones** y que **cada estación se instale sola**. Más las cuatro pruebas que
+lo miran en pantalla.

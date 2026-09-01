@@ -6313,3 +6313,77 @@ mirar si algún día molesta de verdad.
 comprobar las cuentas. **Las cuentas están probadas con números** en
 `src/__tests__/hoja-de-cocina.test.ts`; la prueba de navegador sólo comprueba que la pantalla
 abra y hable en criollo, que es lo que puede comprobar desde afuera.
+
+## 1 de septiembre de 2026 — El cliente podía terminar en el trabajo de otro cliente
+
+**Lo encontró el dueño preguntando por Wfolio.** El álbum profesional del fotógrafo vive afuera
+de la app y se carga por fiesta, en el campo `galeriaUrl`.
+
+**Qué estaba mal:** si esa fiesta **no tenía el enlace cargado**, el botón "Ir al Álbum Digital"
+del resumen post-fiesta llevaba a **`https://wfolio.com/my/disk`**, el disco general del
+fotógrafo, **donde está el material de todos los clientes**. El cliente tocaba el botón y
+terminaba en la fiesta de otro.
+
+**Qué se hizo:** sin enlace propio, **el botón no aparece**. En su lugar dice, en criollo, que
+el fotógrafo todavía está editando y que el enlace va a aparecer ahí. Son cuatro botones en esa
+pantalla y los cuatro quedaron con la misma regla.
+
+**Lo que NO se tocó, porque está bien:** en el portal del cliente
+(`/portal-cliente/[id]/fotos-video`), el respaldo es **el álbum de la propia app**, que sí es de
+ese cliente. Ahí no hay problema.
+
+**Queda vigilado:** `src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts` se pone
+en rojo si alguien vuelve a escribir una dirección fija como respaldo. **Comprobado que frena**,
+no sólo que pasa en verde.
+
+---
+
+## LO ARREGLADO, COMPROBADO SOLO — no alcanza con anotarlo
+
+**Pedido del dueño, 1 de septiembre de 2026:** *"todo lo que te pregunto y corregís debe estar
+registrado en la lista para no volver a repetirlo, y debe figurar si es real que funciona; si
+no, no termino más"*.
+
+**Tenía razón:** hasta hoy los arreglos se anotaban **en prosa**, y una anotación en prosa no
+dice si el arreglo **sigue** andando. Se puede deshacer sin querer al fusionar dos ramas —pasó
+dos veces el mismo día con correcciones de pruebas— y la lista seguiría diciendo que está
+resuelto.
+
+**`npm run ordenes?` comprueba esta lista sola.** Cada arreglo que se anote de acá en adelante
+suma su línea acá abajo, o no cuenta como arreglado.
+
+```comprobar
+usa: hayQuePedirPermiso en src/app/evento/espejo-magico/[fiestaId]/page.tsx
+usa: hayAlbumProfesional en src/components/social-wall/PostEventMemoryHub.tsx
+usa: fechaValida en src/lib/google-workspace.ts
+usa: listarEventosDeAkEnLaAgenda en src/app/actions/google-workspace.ts
+usa: sinClavesVacias en src/app/actions/fiesta/sesion-entretenimiento.ts
+usa: armarHojaDeCocina en src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx
+prueba: src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts
+prueba: src/__tests__/agenda-no-duplica-ni-inventa-fechas.test.ts
+prueba: src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts
+prueba: src/__tests__/hoja-de-cocina.test.ts
+prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
+```
+
+Qué vigila cada línea, en criollo: que al invitado **se le siga pidiendo permiso** antes de
+publicar su foto; que el cliente **no termine en el disco de todos los clientes**; que una fecha
+rota **no ensucie la agenda**; que se pueda **limpiar la agenda**; que las estaciones **sigan
+arrancando** (el arreglo que las revivió a todas); y que **la hoja de cocina** siga en pie. Más
+las cinco pruebas que lo comprueban.
+
+## 1 de septiembre de 2026 — FALSO POSITIVO PROPIO: "el cambio de fondo sin telón está hecho"
+
+**Lo dije yo y estaba mal.** Al verificar la entrega de la tanda 4, se vio que las tres
+estaciones importan `segmentacion-fondo.ts` y se dio por hecho que el cambio de fondo sin telón
+funcionaba.
+
+**Abriendo el archivo, no:** lo único que hay es `aplicarChromaKey`, que **recorta por color
+verde y necesita la tela colgada**. No hay ningún modelo de reconocimiento de personas —cero
+menciones de MediaPipe, TensorFlow o BodyPix, ni en el código ni en las dependencias—.
+
+**La lección, y es la misma de siempre:** que una pantalla **importe** un archivo no dice qué
+hace ese archivo. Hay que abrirlo. Comprobar el nombre no alcanza, ni cuando lo comprueba Claude.
+
+**Queda pedido en `docs/ordenes/32-los-dos-fondos-de-la-fotocabina.md`**, junto con el fondo de
+la pantalla, que tampoco se puede cambiar.
