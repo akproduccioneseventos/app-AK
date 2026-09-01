@@ -730,6 +730,45 @@ despues comprobaba que existiera. Pasa siempre, con la app rota o sana.
 comprobar de que **tipo** es algo tampoco alcanza: que sea "un objeto" o "una funcion" no
 dice que haga lo que promete.
 
+## Cada orden dice CÓMO SE COMPRUEBA que está hecha: `npm run ordenes?`
+
+**Lo señaló el dueño el 1 de septiembre de 2026:** *"ajustá el mecanismo, sigue pasando cosas
+que no están"*. Tenía razón, y el agujero era de fondo.
+
+**La puerta detecta lo que se agrega MAL. No detecta lo que NO SE HIZO.** Si alguien dice "la
+orden está completa" y no programó nada, **no hay nada que se ponga en rojo**: no falta ninguna
+prueba, no hay código muerto, todo compila. **El silencio pasa el control.**
+
+Ese día se entregaron **siete órdenes "completas"** y dos no se habían tocado: el álbum del
+recuerdo (cero de cuatro) y la vidriera de la tecnología (uno de tres).
+
+### Cómo se cierra
+
+**Cada orden termina con un bloque que dice cómo comprobarla**, y `npm run ordenes?` lo verifica
+solo:
+
+```comprobar
+archivo: src/lib/album/armar-album.ts
+usa: audioUrl en src/app/evento/album/[fiestaId]/page.tsx
+prueba: tests/e2e/el-album-del-recuerdo.spec.ts
+```
+
+- **`archivo:`** tiene que existir.
+- **`usa:`** un nombre tiene que aparecer **en la pantalla que lo va a usar**. Es la más
+  importante: no alcanza con que exista en algún lado. **Es lo que separa "programado" de
+  "enganchado"**, que es la forma exacta que tuvieron todas las fallas de este año.
+- **`prueba:`** el archivo de prueba tiene que estar.
+
+### Las reglas
+
+1. **Una orden sin bloque de comprobación está mal escrita.** Si Claude no puede decir cómo se
+   comprueba, es que no investigó lo suficiente.
+2. **Se escribe al escribir la orden, no después.** Escrito después, se acomoda a lo que se hizo.
+3. **Informa, no frena.** Una orden a medias no es un error del código: es trabajo que falta, y
+   eso lo decide el dueño.
+4. **Se corre antes de dar una tanda por terminada**, y **antes de creerle a quien dice que
+   terminó.**
+
 ## La puerta se corre UNA vez, al final. Y lo que ensucia la corrida se limpia solo
 
 **Dos cosas que costaron horas el 1 de septiembre de 2026 y no se repiten.**
