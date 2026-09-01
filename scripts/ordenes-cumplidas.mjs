@@ -62,9 +62,16 @@ function comprobar(c) {
   return false;
 }
 
+// Se miran las ordenes Y el inventario de lo que la app dice tener. Lo segundo
+// es lo que pidio el dueno: *"una auditoria que revise que todo lo que tiene la
+// app este, para que no pase esto"*. Una app que dice tener algo y no lo tiene
+// le miente al que la usa y al que la vende.
+const INVENTARIO = path.join(process.cwd(), 'docs', 'QUE-HAY-EN-LA-APP.md');
+
 const archivos = fs.existsSync(CARPETA)
   ? fs.readdirSync(CARPETA).filter((f) => f.endsWith('.md')).sort()
   : [];
+if (fs.existsSync(INVENTARIO)) archivos.push('../QUE-HAY-EN-LA-APP.md');
 
 const conComprobaciones = [];
 const sinComprobaciones = [];
