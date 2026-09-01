@@ -73,6 +73,13 @@ const archivos = fs.existsSync(CARPETA)
   : [];
 if (fs.existsSync(INVENTARIO)) archivos.push('../QUE-HAY-EN-LA-APP.md');
 
+// Y lo arreglado. Pedido del dueno el 1 de septiembre de 2026: *"todo lo que te
+// pregunto y corregis debe estar registrado en la lista para no volver a
+// repetirlo, y debe figurar si es real que funciona; si no, no termino mas"*.
+// Anotar un arreglo en prosa no dice si SIGUE andando: esto lo comprueba.
+const RESUELTO = path.join(process.cwd(), 'docs', 'YA-RESUELTO.md');
+if (fs.existsSync(RESUELTO)) archivos.push('../YA-RESUELTO.md');
+
 const conComprobaciones = [];
 const sinComprobaciones = [];
 

@@ -767,6 +767,27 @@ prueba: tests/e2e/el-album-del-recuerdo.spec.ts
 
 ### Las reglas
 
+### Y vale para TODO lo que se arregla, no sólo para las órdenes
+
+**Pedido del dueño, 1 de septiembre de 2026:** *"todo lo que te pregunto y corregís debe estar
+registrado en la lista para no volver a repetirlo, y debe figurar si es real que funciona; si no,
+no termino más"*.
+
+**Anotar un arreglo en prosa no dice si SIGUE andando.** Se puede deshacer sin querer al fusionar
+dos ramas —pasó dos veces en un día con correcciones de pruebas— y la lista seguiría diciendo que
+está resuelto.
+
+Por eso `npm run ordenes?` mira **tres listas**, no una:
+
+- **`docs/ordenes/*.md`** — lo que se pidió: ¿se hizo?
+- **`docs/QUE-HAY-EN-LA-APP.md`** — lo que la app dice tener: ¿está?
+- **`docs/YA-RESUELTO.md`** — lo que se arregló: ¿sigue arreglado?
+
+**Cada arreglo que se anota suma su línea al bloque `comprobar` de `YA-RESUELTO.md`.** Un arreglo
+anotado sin su línea **no cuenta como arreglado**.
+
+### Las reglas
+
 1. **Una orden sin bloque de comprobación está mal escrita.** Si Claude no puede decir cómo se
    comprueba, es que no investigó lo suficiente.
 2. **Se escribe al escribir la orden, no después.** Escrito después, se acomoda a lo que se hizo.
