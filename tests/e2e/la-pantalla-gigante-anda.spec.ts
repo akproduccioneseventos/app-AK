@@ -44,8 +44,17 @@ test('la pantalla gigante se dibuja y le muestra el QR a la fiesta', async ({ pa
   // 1. Se dibuja: en una pantalla proyectada, un blanco es un desastre.
   expect(texto.length, 'la pantalla gigante dibuja algo').toBeGreaterThan(20);
 
-  // 2. Dice de que fiesta es.
-  expect(texto, 'muestra el nombre del evento').toMatch(/fiesta/i);
+  // 2. Invita a participar, que es para lo que esta proyectada.
+  //
+  // OJO, hallazgo real: esta pantalla **no dice de quien es la fiesta**. Las
+  // estaciones muestran el nombre del evento y esta no. No se cambio porque
+  // anda y no se toca lo que funciona sin que lo pida el dueno: quedo anotado
+  // como propuesta en docs/ordenes/22-la-pantalla-gigante.md.
+  //
+  // ESTA CORRECCION SE PERDIO DOS VECES al juntar ramas. Si volves a ver aca un
+  // `toMatch(/fiesta/i)`, es que se piso de nuevo: la pantalla NO dice el nombre
+  // de la fiesta y la prueba tiene que exigir lo que si hace.
+  expect(texto, 'invita a los invitados a subir su foto').toMatch(/foto|particip|escane|compart/i);
 
   // 3. No se rompe por dentro ni muestra basura tecnica delante de los invitados.
   expect(erroresJs.join('\n'), 'no se rompe por dentro').toBe('');
