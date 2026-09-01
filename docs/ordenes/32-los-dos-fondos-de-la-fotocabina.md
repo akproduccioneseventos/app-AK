@@ -18,6 +18,39 @@
 
 ---
 
+
+---
+
+## BLOQUE 0 — EL CROMA ESTÁ A MEDIO CONECTAR Y SALE UNA MANCHA NEGRA  ← ARRANCÁ POR ACÁ
+
+**Verificado abriendo el código.** Es un defecto que arruina la primera fiesta que lo use:
+
+- La fotocabina llama a `aplicarChromaKey(ctx, ancho, alto)` cuando el ajuste está prendido
+  (`src/app/evento/fotocabina/[fiestaId]/page.tsx:356`).
+- Esa función **borra el verde y lo deja transparente**
+  (`segmentacion-fondo.ts:58`, `data[i + 3] = 0`).
+- **Nadie dibuja el fondo nuevo detrás.** Y la foto se guarda como JPEG, que **no admite
+  transparencia**: el hueco sale **NEGRO**.
+
+**Resultado hoy:** se cuelga la tela verde, se prende el croma, y el invitado se lleva una foto
+con **una mancha negra atrás**.
+
+**Y la función que sí sabe hacerlo bien —`procesarFondoCanvas`— está escrita y NO LA LLAMA
+NADIE** en la fotocabina.
+
+**Qué hacer:**
+
+1. **Que la fotocabina use `procesarFondoCanvas`**, que dibuja primero el fondo nuevo y después
+   la persona. Es la que ya está hecha.
+2. **Que haya de dónde elegir el fondo.** Hoy **no existe ninguna pantalla** para cargarlos ni
+   para que el invitado elija: el ajuste prende el croma y nada más.
+3. **Si el croma está prendido y no hay ningún fondo cargado, que el croma NO se aplique.**
+   Mejor la foto con la tela verde de fondo que con una mancha negra.
+
+**La prueba:** con el croma prendido y un fondo cargado, **la imagen final no tiene ningún píxel
+negro donde estaba el verde**. Es lo único que hay que comprobar, y es lo que hoy falla.
+
+
 ## BLOQUE 1 — EL CAMBIO DE FONDO SIN TELÓN NO ESTÁ HECHO  ← LO MÁS IMPORTANTE
 
 **Se dio por hecho y no lo está.** Verificado en `src/lib/entretenimiento/segmentacion-fondo.ts`:
