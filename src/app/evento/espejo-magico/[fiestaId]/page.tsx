@@ -142,6 +142,8 @@ export default function EspejoMagicoPage() {
   const [aiStep, setAiStep] = useState<string>('idle'); // 'idle' | 'detecting' | 'aligning' | 'gemini' | 'rendering'
   const [sliderPosition, setSliderPosition] = useState<number>(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState<boolean>(false);
+  // Fondo virtual: mismo mecanismo que en fotocabina y bogue.
+  const [fondoVirtual, setFondoVirtual] = useState<string | null>(null);
 
   // Sync state
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -293,6 +295,8 @@ export default function EspejoMagicoPage() {
         if (!active) return;
         if (result.success && result.event) {
           setFiesta(result.event);
+          // Fondo virtual: toma el de la fiesta si el operador no eligió otro.
+          setFondoVirtual(result.event.station.fondoDePantalla ?? null);
           setErrorMsg(null);
         } else {
           setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
@@ -1684,3 +1688,4 @@ export default function EspejoMagicoPage() {
     </div>
   );
 }
+

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Facebook, Instagram, Music, MessageSquare } from 'lucide-react';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { cn } from '@/lib/utils';
 import { CompanyLogo } from '@/components/company-logo';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
@@ -58,7 +58,7 @@ export function MarketingBanner({
     useState<typeof FALLBACK_SOCIAL>(FALLBACK_SOCIAL);
 
   useEffect(() => {
-    getSocialConnections()
+    getSocialConnectionsPublicas()
       .then((connections) => {
         if (connections.length > 0) {
           const merged = FALLBACK_SOCIAL.map((fallback) => {
@@ -163,3 +163,4 @@ export function MarketingBanner({
     </div>
   );
 }
+

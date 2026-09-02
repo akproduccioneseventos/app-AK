@@ -172,6 +172,8 @@ export default function FotocabinaPage() {
   // Marca que la copia automatica ya salio, para que no se dispare dos veces
   // al volver a dibujarse la pantalla y para poder ofrecer "otra copia".
   const [yaSeImprimio, setYaSeImprimio] = useState(false);
+  // Cantidad de copias que el operador pidió. Se pasa a imprimirRecuerdo.
+  const copias = Math.max(1, Math.min(10, fiesta?.station.fotosPorTanda ?? 1));
 
   // Si el cliente no contrato el muro, el recuerdo no tiene a donde subir: la
   // cabina lo imprime ahi mismo en vez de dejar al invitado con las manos vacias.
@@ -491,7 +493,7 @@ export default function FotocabinaPage() {
     setIsPrinting(true);
     setYaSeImprimio(true);
     try {
-      const resultado = imprimirRecuerdo(capturedImage);
+      const resultado = imprimirRecuerdo(capturedImage, copias);
       if (!resultado.ok) {
         setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
         return;
@@ -1262,3 +1264,4 @@ export default function FotocabinaPage() {
     </div>
   );
 }
+

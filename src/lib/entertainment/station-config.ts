@@ -53,6 +53,8 @@ export interface EntertainmentStationRuntimeConfig {
   enableBeautyFilter?: boolean;
   enableChromaKey?: boolean;
   orientation?: 'vertical' | 'horizontal' | 'cuadrada';
+  fondoDePantalla?: string;
+  virtualBackgroundUrl?: string;
 }
 
 export interface PublicEntertainmentEvent {
@@ -313,3 +315,4 @@ export function getEntertainmentOperatorPath(
       return null;
   }
 }
+

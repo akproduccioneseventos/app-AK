@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -56,6 +56,8 @@ export default function PublicAlbumPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('libro');
   const [paginaActual, setPaginaActual] = useState<number>(0); // 0 = Portada, 1..N = Páginas
   const [audioReproduciendo, setAudioReproduciendo] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -613,3 +615,4 @@ export default function PublicAlbumPage() {
     </div>
   );
 }
+
