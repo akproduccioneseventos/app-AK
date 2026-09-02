@@ -97,7 +97,21 @@ test.describe('Recorrido de las 353 pantallas', () => {
   });
 
   test('abre y audita cada pantalla del sistema', async ({ browser, baseURL }) => {
-    const routes = getAllRoutes();
+    // Solo las pantallas que el cambio pudo romper, si el script las paso.
+    // Recorrer las 357 en cada propuesta cuesta 40 minutos y no se sostiene:
+    // lo marco el dueno el 2 de septiembre de 2026. El script decide cuales;
+    // aca solo se filtran.
+    const soloEstas = (process.env.AK_RECORRIDO_SOLO || '')
+      .split(',')
+      .map((r) => r.trim())
+      .filter(Boolean);
+    const routes = soloEstas.length > 0
+      ? getAllRoutes().filter((r: any) => soloEstas.includes(r.routeTemplate) || soloEstas.includes(r.pathname))
+      : getAllRoutes();
+
+    if (soloEstas.length > 0) {
+      console.log(`Recorriendo ${routes.length} de ${getAllRoutes().length} pantallas (solo las que toca este cambio).`);
+    }
     const outDir = path.join(process.cwd(), 'test-results', 'recorrido');
     fs.mkdirSync(outDir, { recursive: true });
 
