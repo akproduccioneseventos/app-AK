@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
+import { LandingMotionGrid, LandingMotionCard, LandingMotionBlock } from '@/components/landing/LandingMotionSection';
 import { ArrowRight, CalendarDays, CheckCircle2, MessageCircle, Star, ShieldCheck, Sparkles, Clock } from 'lucide-react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { HeroSection } from '@/components/landing/HeroSection';
@@ -32,21 +33,21 @@ export interface EventLandingPageProps {
 
 const TESTIMONIALS = [
   {
-    quote: 'La fiesta de 15 de mi hija fue inolvidable. El Espejo Mágico y la barra de tragos sin alcohol fueron un éxito total entre todos los chicos.',
-    author: 'Mariana G.',
-    role: 'Mamá de Sofia (Fiesta de 15)',
+    quote: "La organización fue impecable de punta a punta. No tuvimos que preocuparnos por nada durante la noche.",
+    author: "Familia Rodríguez",
+    role: "Boda en Salto",
     stars: 5,
   },
   {
-    quote: 'Nos acompañaron en cada detalle de nuestro casamiento. La ambientación con las luces cálidas y la comida impecable. Cero estrés.',
-    author: 'Gonzalo & Paula',
-    role: 'Novios (Boda de Gala)',
+    quote: "La fotocabina y el show de luces fueron la sensación de los 15 de mi hija. Excelente servicio técnico.",
+    author: "Mariana S.",
+    role: "Fiesta de 15",
     stars: 5,
   },
   {
-    quote: 'Festejé mis 40 con AK y salió todo perfecto. La música, la barra y el muro de fotos hicieron que todos bailaran toda la noche.',
-    author: 'Rodolfo M.',
-    role: 'Anfitrión (Cumpleaños)',
+    quote: "Cumplieron con todo lo presupuestado, sin sorpresas ni costos ocultos. Súper profesionales.",
+    author: "Martín G.",
+    role: "Evento Corporativo",
     stars: 5,
   },
 ];
@@ -103,25 +104,28 @@ export function EventLandingPage({
               <h2 className="mt-3 text-3xl font-black text-zinc-950 sm:text-4xl">Una propuesta hecha para tu evento</h2>
               <p className="mt-4 text-base leading-relaxed text-zinc-600">Armamos cada servicio alrededor de la fecha, las personas invitadas y el estilo que querés lograr.</p>
             </div>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
+            <LandingMotionGrid className="mt-10 grid gap-4 md:grid-cols-3">
               {services.map(({ title, description, icon: Icon }) => (
-                <article key={title} className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1 hover:border-red-200">
+                <LandingMotionCard
+                  key={title}
+                  className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1 hover:border-red-200"
+                >
                   <Icon className="h-6 w-6 text-red-700" aria-hidden="true" />
                   <h3 className="mt-5 text-lg font-bold text-zinc-950">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-zinc-600">{description}</p>
-                </article>
+                </LandingMotionCard>
               ))}
-            </div>
+            </LandingMotionGrid>
           </div>
         </section>
 
         {/* Experiencia y Acompañamiento */}
         <section id="experiencia" className="py-16 sm:py-24">
           <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-            <div className="relative min-h-80 overflow-hidden rounded-lg bg-zinc-200 sm:min-h-96">
+            <LandingMotionBlock className="relative min-h-80 overflow-hidden rounded-lg bg-zinc-200 sm:min-h-96">
               <Image src={detailImage} alt={detailImageAlt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-            </div>
-            <div className="max-w-xl">
+            </LandingMotionBlock>
+            <LandingMotionBlock delay={0.1} className="max-w-xl">
               <p className="text-sm font-bold uppercase tracking-widest text-red-700">Acompañamiento real</p>
               <h2 className="mt-3 text-3xl font-black text-zinc-950 sm:text-4xl">{detailTitle}</h2>
               <p className="mt-5 text-base leading-relaxed text-zinc-600">{detailDescription}</p>
@@ -138,7 +142,7 @@ export function EventLandingPage({
                   <MessageCircle className="h-4 w-4 text-emerald-600" /> Hablar con un productor
                 </a>
               </div>
-            </div>
+            </LandingMotionBlock>
           </div>
         </section>
 
@@ -149,9 +153,12 @@ export function EventLandingPage({
               <p className="text-xs font-bold uppercase tracking-widest text-red-400">Experiencias Verificadas</p>
               <h2 className="mt-2 text-2xl font-black sm:text-3xl">Lo que dicen las familias que festejaron con AK</h2>
             </div>
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
+            <LandingMotionGrid className="mt-10 grid gap-6 md:grid-cols-3">
               {TESTIMONIALS.map((t, idx) => (
-                <div key={idx} className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 shadow-xl backdrop-blur-sm">
+                <LandingMotionCard
+                  key={idx}
+                  className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 shadow-xl backdrop-blur-sm"
+                >
                   <div className="flex items-center gap-1 text-amber-400">
                     {[...Array(t.stars)].map((_, i) => (
                       <Star key={i} className="h-4 w-4 fill-amber-400" />
@@ -162,9 +169,9 @@ export function EventLandingPage({
                     <p className="text-sm font-bold text-white">{t.author}</p>
                     <p className="text-xs text-zinc-400">{t.role}</p>
                   </div>
-                </div>
+                </LandingMotionCard>
               ))}
-            </div>
+            </LandingMotionGrid>
           </div>
         </section>
 

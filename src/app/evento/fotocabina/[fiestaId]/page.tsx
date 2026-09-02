@@ -896,21 +896,53 @@ export default function FotocabinaPage() {
         {/* State: Idle / Welcome */}
         {localStatus === 'idle' && !capturedImage && !errorMsg && (
           <div className="relative w-full h-full">
-            {fondoVirtual.tipo === 'imagen' && fiesta?.imagenFondoUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={fiesta.imagenFondoUrl}
-                alt="Fondo virtual"
-                className="absolute inset-0 w-full h-full object-cover opacity-60 z-0"
+            {/* Live Preview de Fondo Virtual */}
+            {fondoVirtual.tipo === 'imagen' && fiesta?.imagenFondoUrl ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={fiesta.imagenFondoUrl}
+                  alt="Fondo virtual"
+                  className="absolute inset-0 w-full h-full object-cover z-0"
+                />
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`absolute inset-0 w-full h-full object-cover z-10 opacity-90 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                />
+              </>
+            ) : fondoVirtual.tipo === 'desenfoque' ? (
+              <>
+                <video
+                  autoPlay
+                  playsInline
+                  muted
+                  ref={(el) => {
+                    if (el && videoRef.current && el.srcObject !== videoRef.current.srcObject) {
+                      el.srcObject = videoRef.current.srcObject;
+                    }
+                  }}
+                  className={`absolute inset-0 w-full h-full object-cover blur-xl scale-110 z-0 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                />
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`absolute inset-0 w-full h-full object-cover z-10 [clip-path:ellipse(40%_48%_at_50%_50%)] shadow-2xl ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                />
+              </>
+            ) : (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className={`absolute inset-0 w-full h-full object-cover opacity-90 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
               />
             )}
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${fondoVirtual.tipo === 'desenfoque' ? 'blur-sm' : ''} ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
-            />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
@@ -1000,14 +1032,53 @@ export default function FotocabinaPage() {
         {/* State: Countdown */}
         {localStatus === 'countdown' && !capturedImage && (
           <div className="relative w-full h-full flex items-center justify-center">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
-            />
-            <div className="absolute inset-0 bg-black/45" />
+            {fondoVirtual.tipo === 'imagen' && fiesta?.imagenFondoUrl ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={fiesta.imagenFondoUrl}
+                  alt="Fondo virtual"
+                  className="absolute inset-0 w-full h-full object-cover z-0"
+                />
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`absolute inset-0 w-full h-full object-cover z-10 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                />
+              </>
+            ) : fondoVirtual.tipo === 'desenfoque' ? (
+              <>
+                <video
+                  autoPlay
+                  playsInline
+                  muted
+                  ref={(el) => {
+                    if (el && videoRef.current && el.srcObject !== videoRef.current.srcObject) {
+                      el.srcObject = videoRef.current.srcObject;
+                    }
+                  }}
+                  className={`absolute inset-0 w-full h-full object-cover blur-xl scale-110 z-0 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                />
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`absolute inset-0 w-full h-full object-cover z-10 [clip-path:ellipse(40%_48%_at_50%_50%)] shadow-2xl ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                />
+              </>
+            ) : (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+              />
+            )}
+            <div className="absolute inset-0 bg-black/25 z-20 pointer-events-none" />
 
             {/* Guia al invitado: cual va y que hacer. Sin esto se queda mirando
                 el numero sin saber que despues vienen dos mas. */}

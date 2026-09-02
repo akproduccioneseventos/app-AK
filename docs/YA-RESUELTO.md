@@ -17,9 +17,10 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Orden 34 — Lo que Falta de Verdad (2 de septiembre de 2026)
 
-- **Cambio de Fondo Virtual con Botones Táctiles (`src/lib/entretenimiento/segmentacion-fondo.ts`):**
+- **Cambio de Fondo Virtual y Vista Previa en Vivo (`src/lib/entretenimiento/segmentacion-fondo.ts`):**
   - Conexión real con botones táctiles en pantalla (*Sin fondo*, *Fondo borroso*, *De la fiesta*) en Fotocabina (`src/app/evento/fotocabina/[fiestaId]/page.tsx`), Bogue (`src/app/evento/bogue/[fiestaId]/page.tsx`) y Touchpix (`src/app/evento/touchpix/[fiestaId]/page.tsx`).
-  - Paso de imagen real cargada de la fiesta (`imagenFondoRef.current`) cuando se elige fondo virtual, y previsualización inmediata en vivo sin manchas negras.
+  - **Vista previa en vivo por capas**: al pulsar "Fondo borroso" o "De la fiesta", el invitado ve el efecto en tiempo real tanto en la pantalla de espera como en la cuenta regresiva antes del disparo, con recorte de retrato (`blur(20px)` en el entorno y sujeto nítido al centro).
+  - Carga real de la imagen de fondo del evento (`fiesta.imagenFondoUrl`) sin manchas negras ni `undefined`.
 - **Texto de Marca en Espejo Mágico (`src/app/evento/espejo-magico/[fiestaId]/page.tsx`):**
   - Visualización del `brandText` configurado junto al código QR en la pantalla de descarga y compartir.
 - **Color de la Fiesta en Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):**
@@ -40,9 +41,14 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 - **Animación en Componentes Públicos de Venta (`src/components/public/`):**
   - Integración de `framer-motion` en `TestimonialsCarousel`, `GallerySection`, `WhyChooseUs`, `EventProcess` y `CallToActionBanner`.
   - Visibilidad inmediata de elementos críticos (título, precio, botón de WhatsApp) sin retardos ni bloqueos.
-- **Landings y Secciones de Venta (`src/app/landing/`, `src/components/public/`):**
-  - Eliminación de envoltorios con `opacity: 0` de entrada. El título principal, el precio y el contacto son 100% visibles de inmediato para usuarios y Googlebot sin penalizaciones de LCP.
-  - Animación contenida con `whileInView` en las secciones internas.
+- **Animación Real en Landings de Eventos (`src/components/landing/EventLandingPage.tsx`):**
+  - Los servicios (`#servicios`), la sección de experiencia (`#experiencia`) y los testimonios se animan con `motion` real y cascada contenida (`SUAVE`, 0.4s).
+  - El título H1, el hero, los precios y el botón de WhatsApp arrancan 100% visibles de inmediato para usuarios y Googlebot (sin `opacity: 0` inicial).
+  - Se eliminaron hacks de elementos invisibles (`motion.aside sr-only`).
+- **Prevención de Canibalización SEO y Rutas Canónicas (`next.config.js`, `src/app/landing/`):**
+  - `/landing/bodas` redirige permanentemente (301) a `/bodas`.
+  - `/landing/xv-anos` redirige permanentemente (301) a `/quinceaneras`.
+  - Cero duplicación de páginas compitiendo entre sí en Google.
 - **Soporte Accesible de Movimiento Reducido (`src/app/ak-motion-effects.css`):**
   - Regla `@media (prefers-reduced-motion: reduce)` con tiempos forzados a 0.01ms para usuarios sensibles a mareos sin ocultar contenido.
 - **Suite de Pruebas E2E Rigurosa (`tests/e2e/la-web-de-venta-se-mueve.spec.ts`):**
