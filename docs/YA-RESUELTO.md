@@ -6441,3 +6441,69 @@ días para el lado equivocado.**
 usa: Decir la causa antes de medirla en CLAUDE.md
 usa: CADA ERROR SE ANOTA ACÁ en CLAUDE.md
 ```
+
+---
+
+## El control del rubro decía que faltaban 14 cosas que SÍ estaban (2 de septiembre de 2026)
+
+**Falso positivo verificado, y de los caros: mandaba a programar de nuevo lo que ya andaba.**
+
+`npm run ordenes?` daba por faltantes unas 50 funciones. Se verificaron **una por una, abriendo
+el archivo**: **catorce ya estaban programadas**. El control estaba mal escrito —buscaba un
+nombre que la pantalla nunca usó—, **no la app**.
+
+**Las catorce, para que ninguna auditoría las vuelva a reportar:**
+
+| Se reportaba como faltante | Dónde está de verdad |
+|---|---|
+| Bogue: velocidad del rebote | `bogue/[fiestaId]/page.tsx:713` (`recordingDurationSeconds`) |
+| Bogue: galería de la noche | mismo archivo, 634 (`handleAutoUpload`) |
+| Bogue: repetir la toma | mismo archivo, 1145 (`allowGuestRetake`) |
+| Espejo: galería de la noche | `espejo-magico/[fiestaId]/page.tsx:75` |
+| Espejo: imprimir | mismo archivo, 26 (`imprimirRecuerdo`) |
+| Buzón: fondo oscuro | `buzon/[fiestaId]/page.tsx:1070` |
+| Buzón: texto de marca y QR | mismo archivo, 1107 (`brandText`) |
+| Buzón: volver a grabar | mismo archivo, 1137 |
+| Buzón: la estación habla | mismo archivo, 34 (`speak`) |
+| Buzón: los mensajes entran al álbum | `src/lib/album/armar-album.ts:77` |
+| Muro: nombre del homenajeado | `muro-en-vivo/[fiestaId]/page.tsx:505` (`eventName`) |
+| Muro: portada sin fotos | mismo archivo, 547 (`EmptyWallState`) |
+| Álbum: audios del buzón, hojas que pasan, tapa con nombre y fecha | `evento/album/[fiestaId]/page.tsx` 58, 258, 165 |
+| Decoración: plano de mesas y catálogo | `fiestas/nueva/decoracion/page.tsx` 29, 67 |
+
+**Cómo quedó el conteo real** después de corregir el control: Buzón 11/12 · Pantalla gigante
+14/17 · Bogue 9/12 · Espejo 9/12 · Decoración 9/13 · Álbum 6/10 · 360 7/13 · **Fotocabina
+12/26, el único agujero grande de verdad.**
+
+**Y la lección de fondo, que es la que importa:** un control que busca un nombre y no lo
+encuentra **no prueba que la función falte**; prueba que el nombre cambió. Antes de escribir
+una orden a partir de lo que dice un control, **se abre el archivo**.
+
+## Una prueba apuntaba a una dirección que no existe y el Espejo parecía roto (1 de septiembre de 2026)
+
+**Falso positivo verificado.** La prueba del Espejo Mágico entraba con `?modo=foto`. La
+dirección de verdad es **`?mode=foto`**, en inglés, y además hay que pedir el módulo
+`espejoMagicoFoto`. Con la dirección equivocada la estación no arrancaba y **parecía rota
+estando sana**.
+
+**Qué queda:** cuando una prueba dice que una pantalla no anda, **primero se abre esa dirección
+a mano**. Una letra de diferencia y el informe miente con total seguridad.
+
+## Se editó un archivo que la puerta estaba usando, y se perdió la corrida entera (1 de septiembre de 2026)
+
+Mientras `npm run "publicar?"` corría, se modificó `scripts/recorrido-de-pantallas.mjs`, que es
+**uno de los archivos que la puerta ejecuta**. El resultado dejó de valer y hubo que empezar de
+cero: **45 minutos tirados.**
+
+**Qué queda, y son dos cosas distintas:**
+
+- **Mientras la puerta corre, no se toca nada de lo que ella usa** —ni `scripts/`, ni `src/`, ni
+  la configuración—. La documentación sí se puede tocar.
+- **Un resultado en verde vale para el árbol tal como estaba cuando arrancó.** Si se cambió algo
+  después, ese verde no cubre el cambio, aunque parezca chico.
+
+```comprobar
+usa: recordingDurationSeconds en src/app/evento/bogue/[fiestaId]/page.tsx
+usa: EmptyWallState en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+usa: mode=foto en tests/e2e/como-se-ven-las-estaciones.spec.ts
+```
