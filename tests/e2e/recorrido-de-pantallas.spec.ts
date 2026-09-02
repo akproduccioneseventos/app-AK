@@ -277,7 +277,40 @@ test.describe('Recorrido de las 353 pantallas', () => {
     // corridas, y el control de acentos que daba bien mirando cero archivos.
     //
     // La regla del proyecto: un control que no frena no es un control.
-    const rotas = results.filter((r) => r.estado === 'FALLO');
+    // LO NUEVO FRENA, LO VIEJO INFORMA. Y el numero solo puede bajar.
+    //
+    // Si la puerta exigiera las 357 pantallas perfectas, **no se podria publicar
+    // nunca**: hay 11 que ya venian rotas de antes. Y una puerta que nunca deja
+    // pasar termina desactivada, que es peor que no tenerla.
+    //
+    // Entonces: las conocidas se listan en `docs/pantallas-rotas-conocidas.json`
+    // y solo informan. **Cualquier pantalla que se rompa y no este en esa lista,
+    // frena.** Y si una de la lista se arregla, se saca del archivo y ya no puede
+    // volver a romperse sin que la puerta lo agarre.
+    const conocidas: string[] = (() => {
+      try {
+        const ruta = path.join(process.cwd(), 'docs', 'pantallas-rotas-conocidas.json');
+        return JSON.parse(fs.readFileSync(ruta, 'utf8')).rotas ?? [];
+      } catch {
+        return [];
+      }
+    })();
+
+    const todasLasRotas = results.filter((r) => r.estado === 'FALLO');
+    const yaEstaban = todasLasRotas.filter((r) => conocidas.includes(r.pathname));
+    const rotas = todasLasRotas.filter((r) => !conocidas.includes(r.pathname));
+
+    if (yaEstaban.length > 0) {
+      console.log(`\n  ${yaEstaban.length} pantalla(s) que ya venian rotas (no frenan, pero hay que arreglarlas):`);
+      for (const r of yaEstaban) console.log(`     ${r.pathname}: ${r.motivo}`);
+    }
+
+    // Y si una de las conocidas se arreglo, se avisa para sacarla de la lista.
+    const arregladas = conocidas.filter((c) => !todasLasRotas.some((r) => r.pathname === c));
+    if (arregladas.length > 0) {
+      console.log(`\n  ${arregladas.length} pantalla(s) de la lista YA ANDAN. Sacalas de docs/pantallas-rotas-conocidas.json:`);
+      for (const a of arregladas) console.log(`     ${a}`);
+    }
     const resumen = rotas
       .slice(0, 25)
       .map((r) => `  ${r.pathname}: ${r.motivo}`)

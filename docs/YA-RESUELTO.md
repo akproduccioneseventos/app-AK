@@ -6383,3 +6383,28 @@ motivo escrito adentro, en vez de aflojarla hasta que dé verde.
 **La misma vidriera se prueba en `/public/xv-anos` y PASA.** Lo que no se puede manejar es la
 portada, y ahí hay algo para mirar con calma: **una página que nunca queda quieta también puede
 molestar a un visitante**, no sólo a una prueba.
+
+## 2 de septiembre de 2026 — El recorrido entró a la puerta, y casi la traba para siempre
+
+**Qué pasó:** el recorrido de las 357 pantallas se sumó a `npm run "publicar?"` como paso que
+frena. Y frenó: **11 pantallas ya venían rotas de antes.**
+
+**El problema de fondo:** si la puerta exige las 357 perfectas, **no se puede publicar nunca**. Y
+una puerta que nunca deja pasar termina desactivada, que es peor que no tenerla. Es exactamente
+lo que el dueño venía marcando: *"la app sigue sin tener movimiento"*.
+
+**Cómo se resolvió, con la misma idea del trinquete:**
+
+- Las 11 conocidas están en **`docs/pantallas-rotas-conocidas.json`** y **sólo informan**.
+- **Cualquier pantalla que se rompa y no esté en esa lista, FRENA.**
+- **El número sólo puede bajar:** cuando una se arregla, se saca del archivo y **ya no puede
+  volver a romperse sin que la puerta la agarre**.
+- Y si una de la lista empieza a andar, **el recorrido avisa que la saques**.
+
+**Las 11 que quedan por arreglar**, y son de dos tipos:
+
+- **Cinco "pantallas muertas"** —el hub, la zona digital, el portal, el portal del cliente, las
+  mesas y las dos de proveedor—: se dibujan pero sin nada para tocar. Varias necesitan un dato
+  que la prueba no tiene, así que puede haber falsas alarmas ahí.
+- **Cuatro con error interno** —el invitado, una landing y las dos de prospectos—: es el mismo
+  error de React que se arregló en el blog y las landings principales. **Falta terminarlo ahí.**
