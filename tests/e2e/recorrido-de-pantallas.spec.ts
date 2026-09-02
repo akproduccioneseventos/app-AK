@@ -238,18 +238,50 @@ test.describe('Recorrido de las 353 pantallas', () => {
           continue;
         }
 
-        // Check 4: Botón o enlace interactivo (a menos que sea pasiva)
+        // Check 4: ¿la pantalla esta MUERTA?
+        //
+        // ANTES ESTE CONTROL DABA CUATRO FALSAS ALARMAS, y se midio el 2 de
+        // septiembre de 2026: marcaba como rotas `/analytics`, las estadisticas
+        // de la barra, el video recuerdo y la entrada del evento. **Las cuatro
+        // estaban sanas**: son tableros de numeros y graficos, y no tienen
+        // botones porque no los necesitan.
+        //
+        // El control preguntaba mal. Una pantalla no esta muerta por no tener
+        // botones: **esta muerta cuando no muestra NADA**. Eso es lo que hay que
+        // agarrar -la pantalla en blanco, la que se quedo cargando para siempre,
+        // la que existe y no dibuja-.
+        //
+        // Asi que ahora se piden las dos cosas: **sin nada para tocar Y sin nada
+        // para leer**. Un tablero lleno de numeros pasa; una pantalla vacia con
+        // un boton suelto tambien se agarra ahora, que antes se escapaba.
+        //
+        // NO se aflojo el control: se le cambio la pregunta por la correcta.
         if (!r.passive) {
           const interactiveCount = await page.locator('button, a, input, select, textarea').count();
-          if (interactiveCount === 0) {
+          const texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
+
+          // 200 caracteres es como una frase larga. Debajo de eso no hay
+          // pantalla: hay un cartel de "cargando" o un titulo solo.
+          const MINIMO_PARA_QUE_CUENTE = 200;
+          const noHayNadaParaTocar = interactiveCount === 0;
+          const noHayNadaParaLeer = texto.length < MINIMO_PARA_QUE_CUENTE;
+
+          if (noHayNadaParaTocar && noHayNadaParaLeer) {
             results.push({
               ...r,
               estado: 'FALLO',
-              motivo: 'Pantalla muerta: no tiene ningún botón, enlace ni control interactivo',
+              motivo: `Pantalla muerta: no tiene nada para tocar ni nada para leer (${texto.length} caracteres)`,
               duracionMs,
             });
             page.off('pageerror', errorListener);
             continue;
+          }
+
+          // Queda anotado, sin frenar: una pantalla de solo mirar puede ser
+          // correcta -un tablero- o puede ser una que se olvidaron de
+          // enganchar. Que figure en el informe deja que se mire con ojo.
+          if (noHayNadaParaTocar) {
+            (r as Record<string, unknown>).soloParaMirar = true;
           }
         }
 

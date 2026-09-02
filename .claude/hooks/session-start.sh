@@ -58,3 +58,17 @@ if [ -f ESTADO-ACTUAL.md ]; then
   echo "----- fin del traspaso -----"
   echo "Al cerrar la sesion, reescribi ESTADO-ACTUAL.md con el comando /aca-quede."
 fi
+
+# --- Que falta, sin que nadie pregunte ---------------------------------------
+# **Lo pidio el dueno el 2 de septiembre de 2026:** *"si no pregunto, no queda"*,
+# *"el algoritmo debe decirlo solo"*. Y tenia razon: habia cuatro listas y
+# ninguna las juntaba, asi que para saber que faltaba habia que preguntar, y lo
+# que no se pregunta no se hace.
+#
+# Ahora la sesion arranca con la lista completa y ordenada por lo que le cuesta
+# plata al negocio. Si falla, no se corta el arranque: es informacion, no un
+# control.
+if [ -f scripts/que-falta.mjs ]; then
+  echo ""
+  node scripts/que-falta.mjs 2>/dev/null || true
+fi

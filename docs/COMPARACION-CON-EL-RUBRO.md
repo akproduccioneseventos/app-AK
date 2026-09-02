@@ -133,7 +133,7 @@ Contra Instawall, Wedibox, Eventoly y las de video guest book.
 Mensaje en video :: usa: video en src/app/evento/buzon/[fiestaId]/page.tsx
 Mensaje de audio :: usa: audio en src/app/evento/buzon/[fiestaId]/page.tsx
 Foto con dedicatoria :: usa: foto en src/app/evento/buzon/[fiestaId]/page.tsx
-Cabina telefonica retro :: usa: cabina en src/app/evento/buzon/[fiestaId]/page.tsx
+Cabina telefonica retro :: usa: Cabina en src/app/evento/buzon/[fiestaId]/page.tsx
 Subir desde la galeria del celular :: usa: subir en src/app/evento/buzon/[fiestaId]/page.tsx
 Cuenta regresiva :: usa: countdownSeconds en src/app/evento/buzon/[fiestaId]/page.tsx
 Color de la fiesta :: usa: accentColor en src/app/evento/buzon/[fiestaId]/page.tsx
@@ -175,7 +175,7 @@ Contra Zola, The Knot, Joy y Zankyou.
 ```rubro Invitacion digital
 Portada con foto y nombres :: usa: fotoPortada en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
 Confirmacion con menu y alergias :: usa: alergiasEspecificas en src/app/invitacion/[fiestaId]/rsvp/page.tsx
-Cuenta regresiva :: usa: countdown en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
+Cuenta regresiva :: usa: Countdown en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
 Cronograma del dia :: usa: cronograma en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
 Lista de regalos con datos bancarios :: usa: datosBancarios en src/lib/invitacion-digital-defaults.ts
 Codigo de vestimenta :: usa: dressCode en src/lib/invitacion-digital-defaults.ts
