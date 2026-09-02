@@ -98,12 +98,12 @@ Marcos :: usa: marcosHabilitados en src/app/evento/bogue/[fiestaId]/page.tsx
 Marca de agua :: usa: brandText en src/app/evento/bogue/[fiestaId]/page.tsx
 Entrega por QR :: usa: qrCallout en src/app/evento/bogue/[fiestaId]/page.tsx
 La estacion habla :: usa: speechSynthesis en src/app/evento/bogue/[fiestaId]/page.tsx
-Velocidad del rebote :: FALTA
+Velocidad del rebote :: usa: recordingDurationSeconds en src/app/evento/bogue/[fiestaId]/page.tsx
 Cuantos cuadros tiene el loop :: FALTA
-Galeria de la noche :: FALTA
+Galeria de la noche :: usa: handleAutoUpload en src/app/evento/bogue/[fiestaId]/page.tsx
 Cambiar el fondo :: FALTA
 Filtro de belleza :: FALTA
-Repetir la toma :: FALTA
+Repetir la toma :: usa: allowGuestRetake en src/app/evento/bogue/[fiestaId]/page.tsx
 ```
 
 ## Espejo Magico
@@ -120,9 +120,9 @@ Pide permiso antes de publicar :: usa: hayQuePedirPermiso en src/app/evento/espe
 La estacion habla :: usa: speechSynthesis en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 Animaciones con locucion, las 200 de Mirror Me :: FALTA
 Texto de marca junto al QR :: FALTA
-Galeria de la noche :: FALTA
+Galeria de la noche :: usa: muro de la fiesta en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 Cambiar el fondo :: FALTA
-Imprimir :: FALTA
+Imprimir :: usa: imprimirRecuerdo en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 ```
 
 ## Buzon de recuerdos
@@ -137,11 +137,11 @@ Cabina telefonica retro :: usa: cabina en src/app/evento/buzon/[fiestaId]/page.t
 Subir desde la galeria del celular :: usa: subir en src/app/evento/buzon/[fiestaId]/page.tsx
 Cuenta regresiva :: usa: countdownSeconds en src/app/evento/buzon/[fiestaId]/page.tsx
 Color de la fiesta :: usa: accentColor en src/app/evento/buzon/[fiestaId]/page.tsx
-Fondo oscuro como las demas :: FALTA
-Texto de marca y del QR :: FALTA
-Volver a grabar :: FALTA
-La estacion habla :: FALTA
-Que los mensajes entren al album :: FALTA
+Fondo oscuro como las demas :: usa: bg-background en src/app/evento/buzon/[fiestaId]/page.tsx
+Texto de marca y del QR :: usa: brandText en src/app/evento/buzon/[fiestaId]/page.tsx
+Volver a grabar :: usa: Grabar otro recuerdo en src/app/evento/buzon/[fiestaId]/page.tsx
+La estacion habla :: usa: speak en src/app/evento/buzon/[fiestaId]/page.tsx
+Que los mensajes entren al album :: usa: sourceModule === 'buzon' en src/lib/album/armar-album.ts
 ```
 
 ## Pantalla gigante
@@ -161,9 +161,9 @@ Se mueve con la musica :: usa: AudioRhythmSlide en src/app/evento/muro-en-vivo/[
 Aviso si se corta internet :: usa: isReconnecting en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Modo cine, una foto sola :: usa: cinemaMode en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Dedicatorias en pantalla :: usa: dedicaciones en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
-Dice de quien es la fiesta :: FALTA
+Dice de quien es la fiesta :: usa: eventName en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Fondo elegible, los 100 de Instawall :: FALTA
-Portada mientras no hay fotos :: FALTA
+Portada mientras no hay fotos :: usa: EmptyWallState en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Moderacion que ayude sola :: FALTA
 Traer publicaciones de Instagram :: NO SE COPIA
 ```
@@ -202,7 +202,7 @@ Lista de lo que hay que montar :: usa: checklistDecoracion en src/app/(app)/fies
 Muestrario de fiestas anteriores :: usa: DecoMuestrario en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 El cliente ve su propuesta :: usa: enviarOpinionDecoracion en src/app/actions/fiesta/decoracion.actions.ts
 Imagen del salon decorado con IA :: usa: generarVisualizacionSalonAi en src/app/actions/fiesta/decoracion.actions.ts
-Plano para poner las mesas :: FALTA
+Plano para poner las mesas :: usa: DecoCanvas en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 Que cuente los invitados solo :: FALTA
 Que avise si un elemento ya esta usado :: FALTA
 Vista 3D que se dibuje :: FALTA
@@ -218,10 +218,10 @@ Junta las fotos de todas las estaciones :: usa: getPublicSocialPosts en src/app/
 Video recuerdo con musica :: usa: audioRef en src/app/evento/[id]/video-recuerdo/video-recuerdo-client.tsx
 Descargar todo junto :: usa: download-recuerdos en src/app/api/fiestas/[fiestaId]/download-recuerdos/route.ts
 Compartir con un enlace :: usa: handleShare en src/app/evento/album/[fiestaId]/page.tsx
-Los audios del buzon en el album :: FALTA
+Los audios del buzon en el album :: usa: audioReproduciendo en src/app/evento/album/[fiestaId]/page.tsx
 Se arma solo con los mejores :: FALTA
-Se pasan paginas como un libro :: FALTA
-Portada con el nombre de la fiesta :: FALTA
+Se pasan paginas como un libro :: usa: AnimatePresence en src/app/evento/album/[fiestaId]/page.tsx
+Portada con el nombre de la fiesta :: usa: nombreFiesta en src/app/evento/album/[fiestaId]/page.tsx
 Buscar tus fotos con una selfie :: FALTA
 Que el cliente elija :: NO SE COPIA
 ```

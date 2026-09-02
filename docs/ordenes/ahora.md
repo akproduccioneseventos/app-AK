@@ -18,6 +18,17 @@ en `docs/YA-RESUELTO.md` **con su línea en el bloque `comprobar`**.
 
 ---
 
+## LO PRIMERO: la orden 34
+
+**`docs/ordenes/34-lo-que-falta-de-verdad.md`** — escrita el 2 de septiembre de 2026 despues de
+verificar UNA POR UNA las ~50 funciones que el control decia que faltaban. **La mitad ya estaba
+hecha.** Esa orden trae solo lo que falta de verdad, con archivo y linea, y su bloque 0 dice
+que NO hay que tocar.
+
+Lo que sigue abajo queda como estaba, pero **el conteo contra el rubro cambio** al arreglar el
+control: Buzon 11/12 · Pantalla gigante 14/17 · Bogue 9/12 · Espejo 9/12 · Decoracion 9/13 ·
+Album 6/10 · 360 7/13 · **Fotocabina 12/26, el unico agujero grande de verdad.**
+
 ## EL ORDEN
 
 ### 1. Las tres de Firebase que no usa nadie
