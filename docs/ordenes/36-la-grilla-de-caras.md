@@ -35,8 +35,8 @@ agrupar por tu cuenta: eso ya está resuelto y probado.
    agrega un nombre.
 3. **Sólo entre las fotos aprobadas de esa fiesta.** Lo que la moderación ocultó **no entra ni
    para buscar**.
-4. **En una fiesta de 15 no se muestra la grilla de caras.** Lo decide la app sola por el tipo
-   de evento (bloque 4). No es un detalle: es lo que hace que esto se pueda usar con menores.
+4. **La grilla va en todas las fiestas** (bloque 4): no muestra nada que no fuera ya publico con
+   el enlace, solo lo ordena. Lo que si no se hace nunca es poner un nombre al lado de una cara.
 5. **Los números se borran cuando se cierra la fiesta.**
 6. **Si algo obliga a mandar una foto a un servicio de afuera, PARÁ Y AVISÁ.** No se hace: se
    paga por foto y las caras salen del país.
@@ -81,31 +81,42 @@ Un botón **"Encontrame a mí"** arriba de la grilla:
   éstas?"** con las dudosas, que el invitado confirma. **No las mezcles**: ésa es toda la mejora
   sobre el rubro.
 
-## BLOQUE 4 — LO DECIDE LA APP SOLA, por el tipo de evento
+## BLOQUE 4 — LA GRILLA VA EN TODAS LAS FIESTAS
 
-**Decisión tomada el 2 de septiembre de 2026. El dueño no elige fiesta por fiesta: *"no, lo
-decidís vos"*.** Y es la regla de siempre: **ante dos caminos, el automático**.
+**Decisión tomada y corregida el 2 de septiembre de 2026.** Primero se había puesto que en una
+fiesta de 15 no fuera la grilla, por los menores. **Estaba mal, por dos motivos:**
 
-**La app lo resuelve con el tipo de celebración que ya tiene cargado la fiesta:**
+1. **Dejaba la app PEOR que Wfolio** justo en el evento más importante del negocio. Y la regla
+   del dueño no tiene excepciones: **mejor o igual que las plataformas del rubro, siempre.**
+2. **La grilla no muestra nada nuevo.** Las fotos de la galería **ya son públicas con el enlace y
+   ya se pueden descargar** —es una decisión que el dueño tomó hace tiempo y está vigente—. La
+   grilla no abre ninguna puerta: **sólo ordena lo que ya estaba a la vista.** Poner un candado
+   ahí era ir en contra de algo ya decidido.
 
-| Tipo de evento | Qué se prende | Por qué |
-|---|---|---|
-| **Fiesta de 15** | **Sólo mis fotos** (la selfie) | Hay menores. Nadie con el enlace puede ver ni bajar todas las fotos de una chica |
-| **Casamiento** | **Grilla de caras** | Son todos adultos y la grilla es mucho más cómoda |
-| **Cumpleaños de adultos, empresa, egresados** | **Grilla de caras** | Igual que el casamiento |
-| **Cualquier otro, o sin tipo cargado** | **Sólo mis fotos** | Ante la duda, la opción cuidadosa |
+**Entonces: la grilla de caras va en todas las fiestas, encendida, sin preguntar.**
 
-**Escribilo como una función sola y con nombre claro** —algo como `queBusquedaDeCarasVa(tipo)`—
-para que la regla esté en **un solo lugar** y se pueda cambiar sin salir a buscarla por la app.
+**Y el interruptor queda igual**, en los ajustes de la fiesta, con tres valores —*Grilla de
+caras* (el que viene), *Sólo mis fotos* y *Apagado*—, para el cliente que pida otra cosa. **Nadie
+tiene que contestar nada para que esto ande.**
 
-**Y dejá el interruptor manual en los ajustes de la fiesta**, con tres valores —*Automático* (el
-que viene), *Sólo mis fotos* y *Grilla de caras*—, para la fiesta rara donde el cliente pida otra
-cosa. **Pero que venga en Automático: nadie tiene que contestar una pregunta para que esto ande.**
+## BLOQUE 4.b — Qué lo hace MEJOR que Wfolio, y no es opcional
 
-**Qué comprueba la prueba:** que una fiesta de 15 **sin tocar ningún ajuste** muestre el botón de
-la selfie y **NO** la grilla, y que un casamiento **sin tocar ningún ajuste** muestre la grilla.
-Una prueba que primero configure el ajuste y después lo compruebe **no prueba nada**: hay que
-mirar justo lo que pasa cuando nadie configuró nada.
+La grilla nos deja **iguales**. Estas cinco son las que nos dejan **mejor**, y las cinco se
+entregan:
+
+1. **El atajo de la selfie.** Wfolio te hace buscar tu cara entre todas. Acá, además, tocás
+   *"Encontrame a mí"* y listo. **Los dos caminos conviven**: la grilla para el que prefiere
+   mirar, la selfie para el que quiere terminar rápido.
+2. **Los dos cajones.** Es el agujero que el rubro reconoce y no resuelve: con un solo umbral, o
+   te faltan fotos o te aparecen de otro. Acá van *"Tus fotos"* y, aparte, *"¿Sos vos en éstas?"*
+   **No las mezcles: ésta es la mejora principal.**
+3. **Varios cuadros de la cara**, que arregla la mala luz y la cara de costado — donde más fallan.
+4. **Cuando no encuentra nada**, una pantalla que ayuda (bloque 5). En el rubro es lo peor
+   resuelto y es lo que más pasa.
+5. **Sin pagar por foto.** Ellos cobran unos 3 centavos de dólar por foto procesada: un
+   casamiento de 5.000 fotos son 150 dólares. Nosotros, cero, porque corre en el teléfono.
+
+**Si alguna de estas cinco no entra, avisá cuál y por qué. No la reemplaces por otra cosa.**
 
 ## BLOQUE 5 — Cuando no encuentra nada
 
@@ -140,7 +151,7 @@ archivo: src/lib/caras/agrupar-caras.ts
 usa: agruparEnPersonas en src/app/evento/galeria/[fiestaId]/page.tsx
 usa: buscarFotosDeUnaCara en src/app/evento/galeria/[fiestaId]/page.tsx
 usa: dudosas en src/app/evento/galeria/[fiestaId]/page.tsx
-usa: queBusquedaDeCarasVa en src/app/evento/galeria/[fiestaId]/page.tsx
+usa: Encontrame en src/app/evento/galeria/[fiestaId]/page.tsx
 prueba: src/__tests__/encontrar-fotos-por-cara.test.ts
 prueba: tests/e2e/la-grilla-de-caras.spec.ts
 ```
