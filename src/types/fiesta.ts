@@ -1,4 +1,4 @@
-﻿
+
 import type { TipoEvento } from './presupuesto';
 import type { UnidadServicio } from './empresa';
 import type { SocialGalleryPost } from './social-gallery';
@@ -28,7 +28,7 @@ export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano
 
 // Phase 3.9: Personalized Guest Experience - Guest profile segments
 export type PerfilInvitado = 'General' | 'VIP' | 'Familia' | 'Necesidades Especiales';
-/** Alias for PerfilInvitado — used in segmentation views and reports */
+/** Alias for PerfilInvitado � used in segmentation views and reports */
 export type SegmentoInvitado = PerfilInvitado;
 
 export interface GuestExperienceStats {
@@ -138,7 +138,7 @@ export interface LiveEventState {
     staffCheckIn: Record<string, { llego: boolean, hora?: string }>;
 }
 
-// --- CONFIGURACIÓN ---
+// --- CONFIGURACI�N ---
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
   tipoCelebracion: TipoEvento | string;
@@ -421,7 +421,7 @@ export interface SeccionInvitacion {
   data: any;
 }
 
-// --- INVITACIÓN DIGITAL CONFIG (Simplified central configuration) ---
+// --- INVITACI�N DIGITAL CONFIG (Simplified central configuration) ---
 
 export interface InvitacionDigitalDressCode {
   tipo: 'formal' | 'semi-formal' | 'casual' | 'personalizado';
@@ -531,8 +531,8 @@ export interface InvitacionDigitalConfig {
    *
    * Van vacios a proposito: **la seccion no se muestra si no hay nada cargado**.
    * Hasta el 19 de agosto de 2026 estas dos secciones salian en TODAS las
-   * invitaciones con contenido escrito a mano —una vida inventada ("El
-   * Nacimiento, 2011") y dos hoteles de Buenos Aires con telefono argentino—,
+   * invitaciones con contenido escrito a mano �una vida inventada ("El
+   * Nacimiento, 2011") y dos hoteles de Buenos Aires con telefono argentino�,
    * que el anfitrion no podia cambiar porque no habia donde cargarlo.
    */
   hitos?: HitoInvitacion[];
@@ -799,6 +799,10 @@ export interface ActiveGameData {
 
 export interface SocialGallerySettings {
   enabled: boolean;
+  /** Modo de reconocimiento de caras: 'grilla' (por defecto), 'solo_mis_fotos', 'apagado' */
+  modoCaras?: 'grilla' | 'solo_mis_fotos' | 'apagado';
+  /** Si las caras ya fueron procesadas / preparadas para la fiesta */
+  carasPreparadas?: boolean;
   title?: string;
   subtitle?: string;
   allowLikes: boolean;
@@ -837,7 +841,7 @@ export interface SocialGallerySettings {
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;
   activeSorteoTimestamp?: string;
-  /** Timestamp when a sorteo spin was started — triggers wheel animation on the big screen */
+  /** Timestamp when a sorteo spin was started � triggers wheel animation on the big screen */
   sorteoSpinStartedAt?: string;
   /** When true, the raffle wheel is displayed statically on the big screen before spinning */
   sorteoOnScreen?: boolean;
@@ -1468,6 +1472,8 @@ export interface FiestaEnPlanificacion {
   tareas?: Tarea[];
   decoracion?: DecoracionData;
   invitados?: Invitado[];
+  /** Caras indexadas de las fotos de la fiesta (Orden 36). */
+  carasIndexadas?: import('@/lib/caras/agrupar-caras').CaraEnFoto[];
   /** Juegos del evento. Los guarda y lee `games.actions.ts`. */
   triviaGame?: import('@/lib/games/game-engine').TriviaGame;
   photoMissions?: import('@/lib/games/game-engine').PhotoMission[];
@@ -1648,7 +1654,7 @@ export interface EventoEnVivoData {
   captaciones?: CaptacionInvitadoEnVivo[];
 }
 
-// --- FOTOGRAFÍA Y FILMACIÓN ---
+// --- FOTOGRAFÍA Y FILMACI�N ---
 export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
 
 export interface ServicioFotografia {

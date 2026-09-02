@@ -15,6 +15,31 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 37 — El celular y la velocidad (2 de septiembre de 2026)
+
+- **Bloque 1 — Que ande en el celular:**
+  - Corregidos los campos de texto con letra chica detectados en la auditoría para garantizar al menos 16px (`text-base`):
+    - `src/app/invitacion/[fiestaId]/rsvp/page.tsx`: campo de dedicatoria/mensaje (`textarea`), y campos de dieta/alergias, acompañantes y canciones para el DJ, asegurando que Safari y Chrome en celular no hagan zoom automático al tocarlos.
+    - `src/app/portal/mesas/page.tsx`: buscador y selector de grupo cambiados a `text-base` con anchos responsivos (`w-full sm:w-40`, `w-full sm:w-28`) en contenedor flex adaptativo para que no desborden en 360px.
+    - `src/components/landing/LeadCaptureForm.tsx`: todos los inputs y textarea del formulario de contacto público pasados de `text-sm` a `text-base` (16px) y botón de envío visible en pantalla.
+    - `src/components/public/QuinceaneraLeadPrompt.tsx` y `src/components/public/AsistenteVirtual.tsx`: inputs actualizados a `text-base`.
+  - Nueva suite de control E2E en celular: `tests/e2e/anda-en-el-celular.spec.ts`, probando a 360 píxeles de ancho que ninguna pantalla se corra para el costado (`document.documentElement.scrollWidth <= window.innerWidth`), que no haya campos con font-size < 16px y que el botón de enviar siga a la vista. Comprobado rompiéndolo a propósito con un elemento ancho y verificando que el control frena y vuelve a verde al sacarlo.
+
+- **Bloque 2 — Que cargue rápido:**
+  - `src/app/evento/galeria/[fiestaId]/page.tsx`: la cuadrícula de fotos y las secciones de caras ahora usan `post.thumbnailUrl || post.imageUrl`. Si la foto tiene miniatura, carga la versión chica liviana; si no la tiene, usa la original sin dejar ningún recuadro vacío. Al abrir la foto en el visor grande (lightbox) o descargarla, utiliza la foto completa en alta resolución `post.imageUrl`.
+  - Soporte de miniaturas de 400px en `src/app/actions/social-gallery.ts` (`uploadSocialPost` y `persistSocialMediaPostFromUrl`) con generación automática vía `sharp` (o archivo recibido en FormData) guardado en `_thumb.webp`, y generación en el cliente con `optimizeImageForUpload` a 400px en `src/app/evento/social/[fiestaId]/page.tsx`.
+  - Campo `thumbnailUrl?: string` agregado al tipo `SocialGalleryPost` en `src/types/social-gallery.ts`.
+  - Nueva suite de control de velocidad: `tests/e2e/carga-rapido.spec.ts`, midiendo LCP con umbral límite de 2,5 segundos (2500 ms) y control de peso de recursos en portada y landings (`/`, `/bodas`, `/quinceaneras`, `/cumpleanos`), además de verificar el uso de miniaturas en la galería.
+
+```comprobar
+prueba: tests/e2e/anda-en-el-celular.spec.ts
+prueba: tests/e2e/carga-rapido.spec.ts
+usa: 360 en tests/e2e/anda-en-el-celular.spec.ts
+usa: 2500 en tests/e2e/carga-rapido.spec.ts
+```
+
+---
+
 ## Orden 34 — Lo que Falta de Verdad (2 de septiembre de 2026)
 
 - **Cambio de Fondo Virtual y Vista Previa en Vivo (`src/lib/entretenimiento/segmentacion-fondo.ts`):**

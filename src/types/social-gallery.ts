@@ -11,6 +11,7 @@ export interface SocialGalleryPost {
   id: string;
   fiestaId: string;
   imageUrl: string;
+  thumbnailUrl?: string;
   mediaType?: 'image' | 'video';
   moderationStatus?: 'pending' | 'approved' | 'hidden';
   moderatedAt?: string;

@@ -61,6 +61,8 @@ import type { SocialConnection } from '@/types/settings';
 import type { GuestPortalSettings } from '@/types/fiesta';
 import { isRecapAvailable } from '@/lib/recap/recap-engine';
 import { MiniQuiosco } from './MiniQuiosco';
+import { motion } from 'framer-motion';
+import { SUAVE, DURACION } from '@/lib/motion';
 
 const DIETARY_LABELS: Record<string, string> = {
   Ninguna: '',
@@ -399,7 +401,14 @@ function GuestPortalContent() {
       </section>
 
       {portalActions.length > 0 && (
-        <section aria-labelledby="guest-actions-title" className="border-b border-slate-200 bg-white">
+        <motion.section
+          aria-labelledby="guest-actions-title"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-20px' }}
+          transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          className="border-b border-slate-200 bg-white"
+        >
           <div className="mx-auto w-full max-w-4xl px-4 py-7 sm:px-8">
             <div className="flex items-end justify-between gap-4">
               <div>
@@ -412,12 +421,19 @@ function GuestPortalContent() {
               {portalActions.map((action) => <PortalActionButton key={action.id} action={action} />)}
             </div>
           </div>
-        </section>
+        </motion.section>
       )}
 
       <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-8 sm:py-12">
         {/* Mi Asistencia / Pase VIP */}
-        <section id="mi-pase" className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <motion.section
+          id="mi-pase"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-20px' }}
+          transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+        >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-black uppercase text-red-700">Mi asistencia</p>
@@ -500,11 +516,18 @@ function GuestPortalContent() {
               <a href={rsvpHref} className="mt-2 inline-flex font-bold text-red-700 hover:underline">Modificar confirmación</a>
             </div>
           )}
-        </section>
+        </motion.section>
 
         {/* Datos del Evento */}
         {(config?.nombreLugar || fecha || dressCode?.tipo) && (
-          <section id="datos-evento" className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <motion.section
+            id="datos-evento"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+          >
             <p className="text-xs font-black uppercase text-sky-700">Datos del evento</p>
             <div className="mt-6 grid gap-6 sm:grid-cols-2">
               {config?.nombreLugar && (
@@ -546,12 +569,19 @@ function GuestPortalContent() {
                 <Navigation className="h-4 w-4" />Ver en Google Maps
               </a>
             )}
-          </section>
+          </motion.section>
         )}
 
         {/* Menú del Evento */}
         {menuEnabled && (fiesta.menuMesa || menuSections.length > 0) && (
-          <section id="menu-evento" className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <motion.section
+            id="menu-evento"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+          >
             <p className="text-xs font-black uppercase text-amber-700">Gastronomía</p>
             <h2 className="mt-1 text-2xl font-black text-slate-950">Menú seleccionado</h2>
             <div className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
@@ -572,12 +602,19 @@ function GuestPortalContent() {
                 </>
               )}
             </div>
-          </section>
+          </motion.section>
         )}
 
         {/* Recuerdos & Fotos */}
         {(socialEnabled || photosEnabled) && (
-          <section id="recuerdos" className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <motion.section
+            id="recuerdos"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+          >
             <div className="flex flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center sm:p-8">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-violet-100 text-violet-800">
@@ -608,12 +645,18 @@ function GuestPortalContent() {
               </div>
             </div>
             {photosEnabled && <SocialPhotosPreview fiestaId={fiestaId} />}
-          </section>
+          </motion.section>
         )}
 
         {/* Programa del Evento */}
         {programaEnabled && (
-          <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+          >
             <p className="text-xs font-black uppercase text-emerald-700"><Clock className="mr-1.5 inline h-4 w-4" />Programa</p>
             <ul className="mt-6 space-y-4">
               {fiesta.programa.map((item) => (
@@ -626,12 +669,19 @@ function GuestPortalContent() {
                 </li>
               ))}
             </ul>
-          </section>
+          </motion.section>
         )}
 
         {/* Branding & CTA AK Producciones */}
         {showAkCta && (
-          <section data-testid="guest-portal-ak-cta" className="border-t border-slate-300 pt-10 text-center">
+          <motion.section
+            data-testid="guest-portal-ak-cta"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            className="border-t border-slate-300 pt-10 text-center"
+          >
             <p className="text-xs font-black uppercase text-red-700">Una experiencia de</p>
             <p className="mt-2 text-2xl font-black text-slate-950">AK PRODUCCIONES</p>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-600">
@@ -669,7 +719,7 @@ function GuestPortalContent() {
                 Simular mi presupuesto
               </a>
             )}
-          </section>
+          </motion.section>
         )}
       </div>
 

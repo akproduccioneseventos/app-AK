@@ -44,7 +44,7 @@ function ordenesAMedias() {
   const salida = [];
   for (const archivo of fs.readdirSync(dir).filter((f) => f.endsWith('.md')).sort()) {
     const txt = fs.readFileSync(path.join(dir, archivo), 'utf8');
-    const lineas = [...txt.matchAll(/```comprobar\n([\s\S]*?)```/g)]
+    const lineas = [...txt.matchAll(/```comprobar\r?\n([\s\S]*?)```/g)]
       .flatMap((b) => b[1].split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#')));
     if (lineas.length === 0) continue;
     const faltan = lineas.filter((l) => {

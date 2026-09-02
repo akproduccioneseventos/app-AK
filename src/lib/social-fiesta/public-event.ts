@@ -11,6 +11,7 @@ export type PublicSocialEvent = Pick<
   | 'galeriaUrl'
   | 'momentoPaparazziActivo'
   | 'programa'
+  | 'carasIndexadas'
 > & {
   configuracion: Pick<FiestaEnPlanificacion['configuracion'], 'nombreEvento' | 'fechaEvento'>;
   clientAccessGranted: boolean;
@@ -49,5 +50,9 @@ export function toPublicSocialEvent(
     momentoPaparazziActivo: fiesta.momentoPaparazziActivo,
     programa: fiesta.programa,
     clientAccessGranted,
+    carasIndexadas:
+      fiesta.socialGallerySettings?.modoCaras === 'apagado'
+        ? []
+        : (fiesta.socialGallerySettings?.carasPreparadas || fiesta.carasIndexadas?.length ? fiesta.carasIndexadas : undefined),
   };
 }

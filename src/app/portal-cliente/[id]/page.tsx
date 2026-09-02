@@ -58,6 +58,8 @@ import { calcFiestaProgress } from '@/lib/fiesta-progress';
 import { defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { motion } from 'framer-motion';
+import { SUAVE, DURACION } from '@/lib/motion';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -632,7 +634,13 @@ export default function PortalClientePage() {
         )}
 
         {isEventPast && (
-          <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-5 shadow-sm sm:flex-row">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            className="flex flex-col items-center justify-between gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-5 shadow-sm sm:flex-row"
+          >
             <div className="flex gap-3.5 items-start">
               <span className="text-3xl shrink-0">✨</span>
               <div className="text-left">
@@ -648,15 +656,28 @@ export default function PortalClientePage() {
                 Acceder a Recuerdos
               </Button>
             </Link>
-          </div>
+          </motion.div>
         )}
 
         {/* ── Progreso del Evento ──────────────────────── */}
-        <EventProgressBar fiesta={fiesta} />
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-20px' }}
+          transition={{ duration: DURACION.entrar, ease: SUAVE }}
+        >
+          <EventProgressBar fiesta={fiesta} />
+        </motion.div>
 
         {/* ── Feature Navigation Cards (hidden in simplicityMode) ─── */}
         {!simplicityMode && (
-        <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-20px' }}
+          transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          className="grid grid-cols-2 sm:grid-cols-6 gap-3"
+        >
           {[
             { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
             { label: 'Música', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica`, desc: 'Tu lista de canciones' },
@@ -673,7 +694,7 @@ export default function PortalClientePage() {
               </div>
             </Link>
           ))}
-        </div>
+        </motion.div>
         )}
 
         {/* ── Catálogo Digital contextual ─────────────── */}
@@ -689,24 +710,37 @@ export default function PortalClientePage() {
           const emoji = isBoda ? <BookHeart className="w-6 h-6 text-rose-500" /> : isXV ? '👑' : '🎉';
           const label = isBoda ? 'Ver Catálogo Completo de Bodas' : isXV ? 'Ver Catálogo Completo de XV Años' : 'Ver Catálogo Completo de Fiestas';
           return (
-            <Link href={catalogoPath} className="block">
-              <div className="flex cursor-pointer items-center justify-between rounded-xl border border-primary/20 bg-primary/10 p-4 transition-colors hover:bg-primary/15">
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl">{emoji}</span>
-                  <div>
-                    <p className="font-black text-sm text-foreground">{label}</p>
-                    <p className="text-xs text-muted-foreground">Conocé todos los servicios disponibles</p>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            >
+              <Link href={catalogoPath} className="block">
+                <div className="flex cursor-pointer items-center justify-between rounded-xl border border-primary/20 bg-primary/10 p-4 transition-colors hover:bg-primary/15">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{emoji}</span>
+                    <div>
+                      <p className="font-black text-sm text-foreground">{label}</p>
+                      <p className="text-xs text-muted-foreground">Conocé todos los servicios disponibles</p>
+                    </div>
                   </div>
+                  <ChevronRight className="w-5 h-5 text-primary shrink-0" />
                 </div>
-                <ChevronRight className="w-5 h-5 text-primary shrink-0" />
-              </div>
-            </Link>
+              </Link>
+            </motion.div>
           );
         })()}
 
         {/* ── Llegadas en Vivo / Resumen post-evento ─────────── */}
         {(isEventToday || isEventPast) && (
-          <Card className={cn('rounded-xl border-border bg-card', isEventToday && 'border-emerald-500/30 bg-emerald-500/5')}>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          >
+            <Card className={cn('rounded-xl border-border bg-card', isEventToday && 'border-emerald-500/30 bg-emerald-500/5')}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base font-black text-foreground">
                 <Activity className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -803,6 +837,7 @@ export default function PortalClientePage() {
               )}
             </CardContent>
           </Card>
+          </motion.div>
         )}
 
         {/* ── Pendientes del Cliente ─────────────────────── */}
@@ -843,40 +878,53 @@ export default function PortalClientePage() {
           };
 
           return (
-            <Card className="rounded-xl border border-amber-500/20 bg-amber-500/10">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-base font-black text-amber-700 dark:text-amber-400">
-                  <Zap className="w-5 h-5 text-amber-500" /> Cosas pendientes
-                </CardTitle>
-                <CardDescription className="text-muted-foreground text-xs">
-                  Completá estos pasos para que tu evento esté 100% listo.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {pendientes.map((item, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      className="w-full flex items-center gap-3 p-3 bg-card rounded-xl border border-border text-sm cursor-pointer hover:bg-muted/40 transition-colors text-left"
-                      onClick={() => item.href && handlePendienteClick(item.href)}
-                    >
-                      <span className="text-xl shrink-0">{item.emoji}</span>
-                      <span className="flex-1 font-semibold text-foreground">{item.texto}</span>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            >
+              <Card className="rounded-xl border border-amber-500/20 bg-amber-500/10">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base font-black text-amber-700 dark:text-amber-400">
+                    <Zap className="w-5 h-5 text-amber-500" /> Cosas pendientes
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground text-xs">
+                    Completá estos pasos para que tu evento esté 100% listo.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {pendientes.map((item, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        className="w-full flex items-center gap-3 p-3 bg-card rounded-xl border border-border text-sm cursor-pointer hover:bg-muted/40 transition-colors text-left"
+                        onClick={() => item.href && handlePendienteClick(item.href)}
+                      >
+                        <span className="text-xl shrink-0">{item.emoji}</span>
+                        <span className="flex-1 font-semibold text-foreground">{item.texto}</span>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           );
         })()}
 
         {/* ── Secciones plegables ──────────────────────── */}
-        <Tabs defaultValue="progreso" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4 h-auto p-1">
-            <TabsTrigger value="progreso" className="py-2.5 text-sm font-bold">Progreso</TabsTrigger>
-            <TabsTrigger value="invitados" className="py-2.5 text-sm font-bold">Invitados</TabsTrigger>
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-20px' }}
+          transition={{ duration: DURACION.entrar, ease: SUAVE }}
+        >
+          <Tabs defaultValue="progreso" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-4 h-auto p-1">
+              <TabsTrigger value="progreso" className="py-2.5 text-sm font-bold">Progreso</TabsTrigger>
+              <TabsTrigger value="invitados" className="py-2.5 text-sm font-bold">Invitados</TabsTrigger>
             <TabsTrigger value="pagos" className="py-2.5 text-sm font-bold">Pagos</TabsTrigger>
           </TabsList>
 
@@ -1156,7 +1204,14 @@ export default function PortalClientePage() {
           <TabsContent value="invitados" className="mt-0">
           {/* ── Invitados ────────────────────────────────── */}
           {showInvitados && (
-            <section id="invitados" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+            <motion.section
+              id="invitados"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ duration: DURACION.entrar, ease: SUAVE }}
+              className="border border-border rounded-xl overflow-hidden bg-card shadow-sm"
+            >
               <div className="px-5 py-4 border-b border-border">
                 <span className="flex items-center gap-2 text-base font-black text-foreground">
                   <Users className="w-5 h-5 text-primary" /> Invitados
@@ -1228,7 +1283,7 @@ export default function PortalClientePage() {
                   </div>
                 )}
               </div>
-            </section>
+            </motion.section>
           )}
 
           </TabsContent>
@@ -1236,7 +1291,14 @@ export default function PortalClientePage() {
           <TabsContent value="pagos" className="mt-0">
           {/* ── Estado Financiero / Pagos ────────────────── */}
           {showFinancials && (
-            <section id="pagos" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+            <motion.section
+              id="pagos"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ duration: DURACION.entrar, ease: SUAVE }}
+              className="border border-border rounded-xl overflow-hidden bg-card shadow-sm"
+            >
               <div className="px-5 py-4 border-b border-border">
                 <span className="flex items-center gap-2 text-base font-black text-foreground">
                   <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Estado Financiero
@@ -1284,11 +1346,12 @@ export default function PortalClientePage() {
                   <p className="text-sm text-muted-foreground text-center py-4">No hay plan de pagos cargado aún.</p>
                 )}
               </div>
-            </section>
+            </motion.section>
           )}
 
           </TabsContent>
         </Tabs>
+        </motion.div>
 
       </main>
 
