@@ -138,6 +138,54 @@ export default function TouchpixPage() {
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
+  const imagenFondoRef = useRef<HTMLImageElement | null>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (fiesta?.imagenFondoUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = fiesta.imagenFondoUrl;
+      img.onload = () => {
+        imagenFondoRef.current = img;
+      };
+    } else {
+      imagenFondoRef.current = null;
+    }
+  }, [fiesta?.imagenFondoUrl]);
+
+  useEffect(() => {
+    let animId: number;
+    const renderLivePreview = () => {
+      const video = videoRef.current;
+      const canvas = previewCanvasRef.current;
+      if (video && canvas && video.readyState >= 2 && video.videoWidth > 0) {
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.save();
+          if (facingMode === 'user') {
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+          }
+          procesarFondoCanvas({
+            canvasDestino: canvas,
+            videoOrigen: video,
+            fondoSeleccionado: fondoVirtual,
+            imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
+            toleranciaChroma: 90,
+          });
+          ctx.restore();
+        }
+      }
+      animId = requestAnimationFrame(renderLivePreview);
+    };
+    animId = requestAnimationFrame(renderLivePreview);
+    return () => cancelAnimationFrame(animId);
+  }, [fondoVirtual, facingMode]);
 
   const speak = useCallback((text: string) => {
     if (!voiceEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
@@ -398,7 +446,7 @@ export default function TouchpixPage() {
         canvasDestino: canvas,
         videoOrigen: video,
         fondoSeleccionado: fondoVirtual,
-        imagenFondo: undefined,
+        imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
         toleranciaChroma: 90,
       });
     } else {
@@ -1248,7 +1296,12 @@ export default function TouchpixPage() {
                 autoPlay
                 playsInline
                 muted
-                className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+                className="hidden"
+              />
+              <canvas
+                ref={previewCanvasRef}
+                data-testid="preview-canvas"
+                className="absolute inset-0 w-full h-full object-cover"
                 style={{ filter: getLiveFilter() }}
               />
               {activeTab === 'foto' && selectedTheme !== 'original' && (
@@ -1493,6 +1546,52 @@ export default function TouchpixPage() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Selector de fondo virtual táctil */}
+            <div className="px-3 pt-2">
+              <div className="flex justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFondoVirtual({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' })}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition ${
+                    fondoVirtual.tipo === 'ninguno'
+                      ? 'border-white bg-white text-zinc-950 shadow-md'
+                      : 'border-white/10 bg-white/5 text-zinc-400'
+                  }`}
+                >
+                  Sin fondo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFondoVirtual({ id: 'desenfoque', nombre: 'Fondo borroso', tipo: 'desenfoque' })}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition ${
+                    fondoVirtual.tipo === 'desenfoque'
+                      ? 'border-fuchsia-400 bg-fuchsia-500 text-white shadow-md'
+                      : 'border-white/10 bg-white/5 text-zinc-400'
+                  }`}
+                >
+                  Fondo borroso
+                </button>
+                {fiesta?.imagenFondoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setFondoVirtual({
+                      id: 'imagen',
+                      nombre: 'De la fiesta',
+                      tipo: 'imagen',
+                      url: fiesta.imagenFondoUrl,
+                    })}
+                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition ${
+                      fondoVirtual.tipo === 'imagen'
+                        ? 'border-pink-400 bg-pink-500 text-white shadow-md'
+                        : 'border-white/10 bg-white/5 text-zinc-400'
+                    }`}
+                  >
+                    De la fiesta
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="flex justify-center pb-3 pt-1">
