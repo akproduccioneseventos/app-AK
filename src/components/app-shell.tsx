@@ -286,6 +286,25 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // EL PORTERO DE LA BASE (App Check).
+  //
+  // Sin esto, cualquiera que descubra la direccion del muro puede escribir un
+  // programita que suba mil fotos falsas o lea datos. **Y eso se paga**: Firebase
+  // cobra por lectura y por escritura.
+  //
+  // Va aca, arriba del corte que hace este armazon para las pantallas publicas,
+  // **a proposito**: las publicas —el muro, las estaciones, el simulador— son
+  // justo las que un robot puede golpear.
+  //
+  // Sin la llave configurada no hace nada y no rompe nada: queda listo para el
+  // dia que se cargue. **Y la exigencia NO se activa en la consola de Firebase
+  // sin avisar: si se activa mal, la app deja de funcionar para todos.**
+  useEffect(() => {
+    void import('@/lib/firebase/app-check')
+      .then((m) => m.initAppCheck())
+      .catch(() => undefined);
+  }, []);
+
 
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
