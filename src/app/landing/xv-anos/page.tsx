@@ -7,11 +7,7 @@ import { Camera, Sparkles, UtensilsCrossed, Music, GlassWater } from 'lucide-rea
 
 export default function LandingXVAnosPage() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: SUAVE }}
-    >
+    <div className="relative">
       <EventLandingPage
         eventType="Fiesta de 15 Años"
         source="landing-quince"
@@ -31,6 +27,14 @@ export default function LandingXVAnosPage() {
           { title: 'Decoración & Ambientación LED', description: 'Luces arquitectónicas, letras gigantes iluminadas y rincones temáticos para fotos.', icon: Sparkles },
         ]}
       />
-    </motion.div>
+      <motion.aside
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, ease: SUAVE }}
+        className="sr-only"
+        aria-hidden="true"
+      />
+    </div>
   );
 }

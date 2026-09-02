@@ -7,11 +7,7 @@ import { Camera, HeartHandshake, UtensilsCrossed, Music, Sparkles } from 'lucide
 
 export default function LandingBodasPage() {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, ease: SUAVE }}
-    >
+    <div className="relative">
       <EventLandingPage
         eventType="Bodas & Casamientos"
         source="landing-bodas"
@@ -31,6 +27,14 @@ export default function LandingBodasPage() {
           { title: 'Coordinación Total del Evento', description: 'Acompañamiento cercano desde la primera reunión hasta el último tema de la noche.', icon: Sparkles },
         ]}
       />
-    </motion.div>
+      <motion.aside
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, ease: SUAVE }}
+        className="sr-only"
+        aria-hidden="true"
+      />
+    </div>
   );
 }

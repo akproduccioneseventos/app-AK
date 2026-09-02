@@ -14,11 +14,7 @@ export function WhyChooseUs({ items, className }: WhyChooseUsProps) {
   if (!items.length) return null;
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.4, ease: SUAVE }}
+    <section
       className={cn('py-20 px-4 bg-gradient-to-br from-slate-900 to-purple-950 text-white', className)}
     >
       <div className="max-w-6xl mx-auto">
@@ -63,6 +59,6 @@ export function WhyChooseUs({ items, className }: WhyChooseUsProps) {
           ))}
         </motion.div>
       </div>
-    </motion.section>
+    </section>
   );
 }

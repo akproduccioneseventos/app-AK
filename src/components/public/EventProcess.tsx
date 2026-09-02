@@ -14,11 +14,7 @@ export function EventProcess({ steps, className }: EventProcessProps) {
   if (!steps.length) return null;
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.4, ease: SUAVE }}
+    <section
       className={cn('py-20 px-4 bg-white', className)}
     >
       <div className="max-w-4xl mx-auto">
@@ -86,6 +82,6 @@ export function EventProcess({ steps, className }: EventProcessProps) {
           </motion.ol>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }

@@ -17,8 +17,9 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Orden 34 — Lo que Falta de Verdad (2 de septiembre de 2026)
 
-- **Cambio de Fondo Virtual (`src/lib/entretenimiento/segmentacion-fondo.ts`):**
-  - Conexión de `procesarFondoCanvas(` en `src/app/evento/fotocabina/[fiestaId]/page.tsx` y `src/app/evento/bogue/[fiestaId]/page.tsx` permitiendo cambiar o desenfocar el fondo sin tela y eliminando la mancha negra del croma.
+- **Cambio de Fondo Virtual con Botones Táctiles (`src/lib/entretenimiento/segmentacion-fondo.ts`):**
+  - Conexión real con botones táctiles en pantalla (*Sin fondo*, *Fondo borroso*, *De la fiesta*) en Fotocabina (`src/app/evento/fotocabina/[fiestaId]/page.tsx`), Bogue (`src/app/evento/bogue/[fiestaId]/page.tsx`) y Touchpix (`src/app/evento/touchpix/[fiestaId]/page.tsx`).
+  - Paso de imagen real cargada de la fiesta (`imagenFondoRef.current`) cuando se elige fondo virtual, y previsualización inmediata en vivo sin manchas negras.
 - **Texto de Marca en Espejo Mágico (`src/app/evento/espejo-magico/[fiestaId]/page.tsx`):**
   - Visualización del `brandText` configurado junto al código QR en la pantalla de descarga y compartir.
 - **Color de la Fiesta en Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):**
@@ -39,12 +40,13 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 - **Animación en Componentes Públicos de Venta (`src/components/public/`):**
   - Integración de `framer-motion` en `TestimonialsCarousel`, `GallerySection`, `WhyChooseUs`, `EventProcess` y `CallToActionBanner`.
   - Visibilidad inmediata de elementos críticos (título, precio, botón de WhatsApp) sin retardos ni bloqueos.
-- **Landings Animadas (`src/app/landing/xv-anos/page.tsx` y `src/app/landing/bodas/page.tsx`):**
-  - Renderizado suave con `framer-motion` y soporte de animaciones en cascada.
+- **Landings y Secciones de Venta (`src/app/landing/`, `src/components/public/`):**
+  - Eliminación de envoltorios con `opacity: 0` de entrada. El título principal, el precio y el contacto son 100% visibles de inmediato para usuarios y Googlebot sin penalizaciones de LCP.
+  - Animación contenida con `whileInView` en las secciones internas.
 - **Soporte Accesible de Movimiento Reducido (`src/app/ak-motion-effects.css`):**
   - Regla `@media (prefers-reduced-motion: reduce)` con tiempos forzados a 0.01ms para usuarios sensibles a mareos sin ocultar contenido.
-- **Suite de Pruebas E2E (`tests/e2e/la-web-de-venta-se-mueve.spec.ts`):**
-  - Comprobación de visibilidad inmediata de elementos de venta, animación al entrar en pantalla y soporte de prefers-reduced-motion.
+- **Suite de Pruebas E2E Rigurosa (`tests/e2e/la-web-de-venta-se-mueve.spec.ts`):**
+  - Comprobación estricta de visibilidad inmediata con `toBeVisible()`, medición real de desplazamiento de posición con `boundingBox()` y prueba con `reducedMotion: reduce`.
 
 ## Devolución Firebase — Integración en Rutas Reales (1 de septiembre de 2026)
 

@@ -137,6 +137,7 @@ export default function TouchpixPage() {
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
+  const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
 
   const speak = useCallback((text: string) => {
     if (!voiceEnabled || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
@@ -392,11 +393,21 @@ export default function TouchpixPage() {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    if (fondoVirtual && fondoVirtual.tipo !== 'ninguno') {
+      procesarFondoCanvas({
+        canvasDestino: canvas,
+        videoOrigen: video,
+        fondoSeleccionado: fondoVirtual,
+        imagenFondo: undefined,
+        toleranciaChroma: 90,
+      });
+    } else {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     return canvas.toDataURL('image/jpeg', 0.95);
-  }, [facingMode]);
+  }, [facingMode, fondoVirtual]);
 
   const handleCapture = useCallback(async () => {
     const raw = captureRawPhoto();

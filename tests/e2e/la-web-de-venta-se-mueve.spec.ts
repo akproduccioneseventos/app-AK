@@ -1,33 +1,44 @@
 ﻿import { test, expect } from '@playwright/test';
 
 test.describe('Orden 30: Que la app se mueva (animaciones pro)', () => {
-  test('1. Elementos clave de venta muestran su texto de inmediato sin esperar animaciones', async ({ page }) => {
+  test('1. Elementos clave de venta son visibles de entrada sin esperar animaciones', async ({ page }) => {
     test.setTimeout(60_000);
+    // 2. QUE NO ESCONDA LO QUE VENDE: visible APENAS carga
     await page.goto('/landing/xv-anos', { waitUntil: 'domcontentloaded' });
+    const heading = page.getByRole('heading', { level: 1 }).first();
+    await expect(heading).toBeVisible();
+    await expect(heading).toContainText(/15|Quinceañeras|Fiesta/i);
 
-    // Título visible con su texto de venta
-    const titulo = page.getByRole('heading', { level: 1 }).first();
-    await expect(titulo).toContainText(/15|Quinceañeras|Fiesta/i);
-
-    // Enlace o botón de contacto con enlace directo
-    const botonContacto = page.locator('a[href*="wa.me"], a[href*="simulador"]').first();
-    await expect(botonContacto).toHaveAttribute('href', /wa\.me|simulador/);
+    const contactLink = page.locator('a[href*="wa.me"], a[href*="simulador"]').first();
+    await expect(contactLink).toBeVisible();
   });
 
-  test('2. Las secciones se animan y cambian de posición suavemente', async ({ page }) => {
+  test('2. Que se mueva de verdad: la posición cambia entre el momento de entrar y después', async ({ page }) => {
     test.setTimeout(60_000);
     await page.goto('/quinceaneras', { waitUntil: 'domcontentloaded' });
 
-    const seccion = page.locator('section').first();
-    await expect(seccion).toContainText(/15|AK Producciones/i);
+    // 1. QUE SE MUEVA DE VERDAD: la posición cambia entre el momento de entrar y después
+    const bloque = page.locator('section').nth(1);
+    await expect(bloque).toBeVisible();
+    const antes = await bloque.boundingBox();
+    await page.waitForTimeout(600);
+    const despues = await bloque.boundingBox();
+
+    if (antes && despues) {
+      expect(antes.y).not.toBeCloseTo(despues.y, 0);
+    } else {
+      expect(despues).toBeTruthy();
+    }
   });
 
-  test('3. Respeta prefers-reduced-motion sin romper el contenido textual', async ({ page }) => {
+  test('3. Que respete a quien pidió menos movimiento: quieto pero VISIBLE', async ({ page }) => {
     test.setTimeout(60_000);
+    // 3. QUE RESPETE A QUIEN PIDIO MENOS MOVIMIENTO: quieto, pero VISIBLE
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/landing/bodas', { waitUntil: 'domcontentloaded' });
 
-    const titulo = page.getByRole('heading', { level: 1 }).first();
-    await expect(titulo).toContainText(/Bodas|Casamientos/i);
+    const heading = page.getByRole('heading', { level: 1 }).first();
+    await expect(heading).toBeVisible();
+    await expect(heading).toContainText(/Bodas|Casamientos/i);
   });
 });

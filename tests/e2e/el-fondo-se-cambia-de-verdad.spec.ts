@@ -1,4 +1,4 @@
-﻿import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { procesarFondoCanvas } from '../../src/lib/entretenimiento/segmentacion-fondo';
 
 test.describe('Orden 34: El cambio de fondo se aplica de verdad', () => {
@@ -45,6 +45,7 @@ test.describe('Orden 34: El cambio de fondo se aplica de verdad', () => {
     test.setTimeout(60_000);
     await page.goto('/evento/fotocabina/fiesta-demo', { waitUntil: 'domcontentloaded' });
     const body = page.locator('body');
+    await expect(body).toBeVisible();
     await expect(body).toContainText(/AK Producciones|Fotocabina/i);
   });
 });

@@ -97,6 +97,20 @@ export default function FotocabinaPage() {
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
   const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
+  const imagenFondoRef = useRef<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    if (fiesta?.imagenFondoUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = fiesta.imagenFondoUrl;
+      img.onload = () => {
+        imagenFondoRef.current = img;
+      };
+    } else {
+      imagenFondoRef.current = null;
+    }
+  }, [fiesta?.imagenFondoUrl]);
 
   // Sync
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -352,7 +366,7 @@ export default function FotocabinaPage() {
         canvasDestino: canvas,
         videoOrigen: video,
         fondoSeleccionado: fondoVirtual,
-        imagenFondo: undefined,
+        imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
         toleranciaChroma: 90,
       });
     } else {
@@ -882,12 +896,20 @@ export default function FotocabinaPage() {
         {/* State: Idle / Welcome */}
         {localStatus === 'idle' && !capturedImage && !errorMsg && (
           <div className="relative w-full h-full">
+            {fondoVirtual.tipo === 'imagen' && fiesta?.imagenFondoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={fiesta.imagenFondoUrl}
+                alt="Fondo virtual"
+                className="absolute inset-0 w-full h-full object-cover opacity-60 z-0"
+              />
+            )}
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted
-              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${fondoVirtual.tipo === 'desenfoque' ? 'blur-sm' : ''} ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
@@ -907,7 +929,60 @@ export default function FotocabinaPage() {
                   </p>
                 </div>
 
-                <div className="pt-4">
+                {/* Selector táctil de fondo virtual */}
+                <div className="flex flex-col gap-2 w-full pt-1">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
+                    Elegí el fondo
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFondoVirtual({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' })}
+                      className={`h-12 rounded-xl text-xs font-black transition border ${
+                        fondoVirtual.tipo === 'ninguno'
+                          ? 'bg-white text-zinc-950 border-white shadow-lg'
+                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                      }`}
+                    >
+                      Sin fondo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFondoVirtual({ id: 'desenfoque', nombre: 'Fondo borroso', tipo: 'desenfoque' })}
+                      className={`h-12 rounded-xl text-xs font-black transition border ${
+                        fondoVirtual.tipo === 'desenfoque'
+                          ? 'bg-amber-400 text-zinc-950 border-amber-400 shadow-lg'
+                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                      }`}
+                    >
+                      Fondo borroso
+                    </button>
+                    {fiesta?.imagenFondoUrl ? (
+                      <button
+                        type="button"
+                        onClick={() => setFondoVirtual({
+                          id: 'imagen',
+                          nombre: 'Fondo de la fiesta',
+                          tipo: 'imagen',
+                          url: fiesta.imagenFondoUrl,
+                        })}
+                        className={`h-12 rounded-xl text-xs font-black transition border ${
+                          fondoVirtual.tipo === 'imagen'
+                            ? 'bg-purple-400 text-zinc-950 border-purple-400 shadow-lg'
+                            : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                        }`}
+                      >
+                        De la fiesta
+                      </button>
+                    ) : (
+                      <div className="h-12 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-[10px] text-zinc-500 font-bold">
+                        Sin fondo extra
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2">
                   <button
                     onClick={takePhoto}
                     className="w-full h-16 rounded-xl text-white font-black text-base uppercase tracking-wider transition shadow-xl flex items-center justify-center gap-2"
