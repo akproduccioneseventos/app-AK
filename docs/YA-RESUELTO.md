@@ -6607,3 +6607,36 @@ a proposito: sacando el album de la lista se pone en rojo, poniendolo vuelve a v
 prueba: src/__tests__/el-album-se-abre-con-el-enlace.test.ts
 usa: '/evento/album' en src/lib/auth/public-paths.ts
 ```
+
+---
+
+## El recorrido marcaba como rotos los tableros de numeros (2 de septiembre de 2026)
+
+**Falso positivo verificado, y a medias: de cuatro avisos, dos eran falsos y dos ciertos.**
+
+El recorrido daba por rota **toda pantalla sin ningun boton, enlace ni control para tocar**. Con
+esa regla marcaba `/analytics` y las estadisticas de la barra, que son **tableros de numeros y
+graficos**: no tienen botones porque no los necesitan.
+
+**El control preguntaba mal.** Una pantalla no esta muerta por no tener botones: **esta muerta
+cuando no muestra NADA**. Eso es lo que habia que agarrar -la pantalla en blanco, la que se
+quedo cargando para siempre-.
+
+**Como quedo:** ahora pide **las dos cosas juntas**, sin nada para tocar Y sin nada para leer
+(menos de 200 caracteres, que es como una frase larga). **No se afloja el control, se le cambio
+la pregunta**, y ademas ahora agarra un caso que antes se le escapaba: **la pantalla vacia que
+tiene un boton suelto**.
+
+**Y corrige un error propio:** se habia dicho que las cuatro eran falsa alarma. **Eran dos.** El
+video recuerdo y la entrada del evento dibujan **161 y 75 caracteres** en toda la pantalla: eso
+no es un tablero, es una pantalla casi en blanco, y estan rotas de verdad. Se midio despues de
+afirmarlo, que es justo lo que la regla 6 manda no hacer.
+
+**Comprobado en el navegador:** con el control corregido, `/analytics` y las estadisticas de la
+barra pasan, y las dos que estan casi en blanco siguen frenando, diciendo cuantos caracteres
+dibujaron.
+
+```comprobar
+usa: noHayNadaParaLeer en tests/e2e/recorrido-de-pantallas.spec.ts
+archivo: scripts/que-falta.mjs
+```

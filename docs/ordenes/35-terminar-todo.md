@@ -43,6 +43,8 @@ Por orden de importancia —las siete primeras las ve un cliente o un invitado�
 | `/landing/eventos` | Es una página que sólo redirige |
 | `/prospectos`, `/prospectos/[id]` | Error 310 |
 | `/proveedor/[id]`, `/proveedor/acceso/[token]` | No dibujan nada |
+| `/evento/[id]/video-recuerdo` | Casi en blanco: 161 caracteres |
+| `/evento/actual/checkin` | Casi en blanco: 75 caracteres |
 
 **Ojo con las que "no dibujan nada":** puede que la pantalla esté sana y le falte el dato de
 prueba. **Abrila a mano antes de tocar código.** Si es eso, no es un error: es que la prueba no
@@ -154,9 +156,12 @@ El menú y los ingredientes · el ajuste anual del 15% · el reloj del simulador
 **ningún texto que vea el cliente** · `apphosting.yaml` · y **nada que aumente lo que se paga
 por mes**.
 
-Y las cuatro pantallas que el recorrido marcaba mal —`/analytics`, las estadísticas de la barra,
-el video recuerdo y la entrada del evento— **están sanas**: son tableros de números. El control
-ya se corrigió. **No las toques.**
+**`/analytics` y las estadísticas de la barra están sanas**: son tableros de números y el
+control las marcaba mal. Ya se corrigió y ahora pasan. **No las toques.**
+
+**Pero el video recuerdo y la entrada del evento SÍ están rotas**, y se midió: dibujan **161 y
+75 caracteres** en toda la pantalla. Eso no es un tablero, es una pantalla casi en blanco.
+**Van al bloque 1**, con las demás.
 
 ## Antes de decir que terminaste
 
