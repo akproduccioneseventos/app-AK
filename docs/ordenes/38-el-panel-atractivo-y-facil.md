@@ -19,6 +19,39 @@ anima), `celular-primero` (es donde lo miran casi todos) y `vende`.
 
 ---
 
+## LO MEDIDO — dónde estás parado
+
+Comprobado archivo por archivo el 2 de septiembre de 2026:
+
+| Pantalla | Líneas | Se mueve |
+|---|---|---|
+| **El portal del cliente** `src/app/portal-cliente/[id]/page.tsx` | 1344 | **NADA. Cero.** |
+| **La pantalla del invitado** `src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx` | 719 | **NADA. Cero.** |
+| El resumen post-fiesta `src/components/social-wall/PostEventMemoryHub.tsx` | 299 | 16 entradas, pero **nada al bajar** |
+| El álbum `src/app/evento/album/[fiestaId]/page.tsx` | 615 | 6 |
+| La galería `src/app/evento/galeria/[fiestaId]/page.tsx` | 367 | 4 |
+
+**En las cinco pantallas juntas, `whileInView` aparece CERO veces.** O sea: **nada entra al
+llegar a la pantalla**. Todo está o no está.
+
+**Las dos que están completamente quietas son las dos principales:** el panel del cliente —donde
+sigue su fiesta— y la pantalla del invitado. Son 2.063 líneas sin una sola animación.
+
+## Las secciones que ya existen — NO las rehagas
+
+**El portal del cliente** (17 secciones): cabecera con el nombre del evento (569) · foto del
+protagonista (585) · bienvenida (617) · mensaje del organizador (623) · evento concluido (634) ·
+progreso (655) · **los seis botones grandes** —Menú, Música, Muro, Fotos, Invitados, FAQ— (659) ·
+catálogo (679) · llegadas en vivo (708) · **cosas pendientes** (809) · las solapas Progreso /
+Invitados / Pagos (876) · resumen (889) · **lo que tenés que llevar** (929) · menú e itinerario
+(984) · video de vida (1042) · decoración (1092) · invitados con mesa (1158).
+
+**La pantalla del invitado** (11 secciones): portada (360) · accesos rápidos (384) · todo tu
+evento (407) · **mi asistencia / pase VIP** (424) · **la credencial con el QR** (470) · datos del
+evento (508) · gastronomía (555) · recuerdos en vivo (587) · programa (617) · pie de AK (635).
+
+**Todo eso anda y se ve bien. Lo que falta es que se sienta vivo, no rehacerlo.**
+
 ## BLOQUE 1 — EL MOMENTO EN QUE SE ABRE
 
 **Es el que decide todo, y hoy no existe.** El cliente entra al portal por primera vez el día
@@ -86,6 +119,8 @@ traiga el próximo cliente:**
 
 ```comprobar
 usa: whileInView en src/components/social-wall/PostEventMemoryHub.tsx
+usa: whileInView en src/app/portal-cliente/[id]/page.tsx
+usa: whileInView en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
 usa: whileInView en src/app/evento/galeria/[fiestaId]/page.tsx
 usa: layoutId en src/app/evento/galeria/[fiestaId]/page.tsx
 usa: Enlace copiado en src/components/social-wall/PostEventMemoryHub.tsx
