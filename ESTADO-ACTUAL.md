@@ -6,40 +6,43 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 ---
 
 **Última actualización:** 1 de septiembre de 2026.
-**Rama:** `claude/ponte-al-dia-qtrho3`. Tiene adentro **las tres entregas de Gemini** ya
-revisadas y corregidas.
+**Lo primero al abrir una sesión: `npm run ordenes?`.** Contesta en un segundo qué está hecho y
+qué no. **Si dice "FALTA", falta, aunque las pruebas den verde.**
 
-## En qué se está
+## Lo que se fusionó y ya está andando
 
-Se auditó **toda la app por primera vez** con un método nuevo: abrir cada pantalla en el
-navegador y mirarla, en vez de leer código. **Las 353 pantallas: 328 andan, 25 quedaron
-marcadas.**
+- **La web de venta ya no se rompe** (16 pantallas, entre ellas el blog y las landings).
+- **Seis diseños nuevos de invitación** —ahora son ocho— y la red social con mesa, cronograma y
+  ranking.
+- **La pantalla gigante**: modo cine, afiche del QR para imprimir, reacciones, "qué viene ahora".
+- **Las estaciones**: filtro de belleza y cámara vertical u horizontal.
+- **La hoja de cocina** de la noche del evento, y **la agenda que ya no se duplica**.
+- **El cliente ya no puede terminar en el disco de todos los clientes** del fotógrafo.
 
-## Lo que se cerró
+## Los cuatro mecanismos nuevos, y qué error apaga cada uno
 
-- **El recorrido de las 353 pantallas existe y funciona.** Se corre con `npm run recorrido`.
-- **La agenda del dueño ya no se ensucia**: se duplicaban eventos y quedaban fechas viejas.
-  Arreglado, y hay un botón en Configuración → Sincronizaciones para limpiar lo que quedó.
-- **Las dedicatorias del invitado pueden salir en la pantalla grande** (estaban apagadas con un
-  candado en el código, mientras el operador tenía el botón para encenderlas).
-- **Comparación con más de 40 plataformas del rubro**, módulo por módulo, en
-  `docs/COMPARACION-CON-EL-RUBRO.md`. **Estamos al nivel o mejor en casi todo.**
-- **Reglas nuevas del dueño anotadas**: todo lo que se haga tiene que ser mejor que lo mejor del
-  rubro; el menú y los ingredientes no se tocan.
+- **`npm run ordenes?`** — dice si lo pedido se hizo, si lo que la app dice tener está, **y si lo
+  arreglado sigue arreglado**. Antes eso se contestaba yendo a mirar a mano.
+- **El bloque del rubro** — cuenta cuántas funciones de las 13 plataformas tenemos, por módulo.
+- **`npm run limpiar:corrida`** — descarta lo que escriben solas las pruebas.
+- **La regla del matafuego** (en `CLAUDE.md`): un arreglo sin control que lo impida **no está
+  terminado**.
 
-## Lo que quedó trabado, y por qué
+## Dónde estamos contra el rubro
 
-- **16 pantallas dan un error interno**, entre ellas el blog y las landings. **Se paró después
-  de tres intentos.** Está todo en `docs/ordenes/26-la-web-de-venta-se-rompe.md`: se reprodujo,
-  se descartaron tres causas y **puede ser del entorno de prueba, no de la app**. Lo primero es
-  abrir el blog en la web publicada y mirar. **No tocar código antes de eso.**
-- **La puerta no pasa por ese error**, así que **nada se puede fusionar hasta resolverlo**.
-- **Touchpix**: sigue sin comprobarse que muestre el texto de marca. Su botón de disparar no
-  tiene nombre y ninguna prueba lo puede tocar. Pedido en la orden 20.
+Invitación 11/14 · Pantalla gigante 12/17 · Decoración 8/13 · 360 7/13 · Espejo 7/12 ·
+Bogue 6/12 · Buzón 6/12 · **Fotocabina 12/26** · **Álbum 3/10, el más flojo.**
 
-## Lo próximo
+## Lo que sigue, en `docs/ordenes/ahora.md`
 
-1. **Orden 26**, la web de venta. Primero comprobar si el error existe de verdad.
-2. Fusionar lo que está listo: seis diseños de invitación, red social y pantalla gigante.
-3. Órdenes 24 (decoración), 25 (que el empleado confirme) y 20 (estaciones).
-4. **De Claude**: la hoja de cocina para la noche del evento.
+1. **Las tres de Firebase que no usa nadie** (da 0 de 3): achicar fotos, antibots y App Check.
+2. **Los dos fondos de la fotocabina**: el "telón" de la pantalla, el croma que deja mancha
+   negra, y el cambio de fondo sin tela.
+3. **El álbum** y **la fotocabina**, que son los dos más flojos contra el rubro.
+
+## Lo que costó tiempo hoy, y no se repite
+
+- **La puerta se corrió cinco veces** por no juntar los arreglos. **Se corre una vez, al final.**
+- **Dos correcciones propias se perdieron al fusionar.** Revisar las propias después de cada
+  fusión, y **fusionar de a una entrega**.
+- **Cuatro veces se dio por hecho algo que ya existía.** Antes de programar, `graphify query`.
