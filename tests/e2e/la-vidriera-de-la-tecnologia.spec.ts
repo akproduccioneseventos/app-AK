@@ -2,11 +2,18 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Orden 27: La Vidriera de la Tecnología', () => {
   test('La vidriera interactiva está presente en la portada y responde a la interacción', async ({ page }) => {
-    await page.goto('/');
+    test.setTimeout(180_000);
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle', { timeout: 25_000 }).catch(() => {});
 
-    // 1. Comprobar que la sección de tecnología interactiva está en la portada
+    // 1. Comprobar que la sección de tecnología interactiva está en la portada.
+    //
+    // OJO: hay que BAJAR primero. La portada dibuja cada sección cuando llega a
+    // la pantalla —son las animaciones al bajar de la orden 30—, así que
+    // buscarla sin bajar da "no está" aunque esté.
     const vidriera = page.locator('#vidriera-tecnologica');
-    await expect(vidriera).toBeVisible();
+    await vidriera.scrollIntoViewIfNeeded({ timeout: 60_000 });
+    await expect(vidriera).toBeVisible({ timeout: 30_000 });
 
     // 2. Comprobar que muestra el título y las estaciones
     await expect(vidriera).toContainText('Tecnología Interactiva');
@@ -21,10 +28,13 @@ test.describe('Orden 27: La Vidriera de la Tecnología', () => {
   });
 
   test('La vidriera interactiva está presente en las páginas de venta por tipo de evento', async ({ page }) => {
-    await page.goto('/public/xv-anos');
+    test.setTimeout(180_000);
+    await page.goto('/public/xv-anos', { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle', { timeout: 25_000 }).catch(() => {});
 
     const vidriera = page.locator('#vidriera-tecnologica');
-    await expect(vidriera).toBeVisible();
+    await vidriera.scrollIntoViewIfNeeded({ timeout: 60_000 });
+    await expect(vidriera).toBeVisible({ timeout: 30_000 });
     await expect(vidriera).toContainText('Fotocabina Digital');
   });
 });
