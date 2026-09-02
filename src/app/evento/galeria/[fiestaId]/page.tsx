@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Download, Share2, Heart, ArrowLeft, Loader2, Play, ChevronLeft, ChevronRight, X, ImageIcon, Camera } from 'lucide-react';
@@ -19,7 +19,16 @@ export default function GaleriaPage() {
 
   const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
-  const [activeTab, setActiveTab] = useState<FilterTab>('todas');
+  // El filtro puede venir en la direccion: el portal del cliente enlaza aca ya
+  // apuntando a una estacion (`?estacion=fotocabina`). **Se valida contra la
+  // lista**: lo que llega por la direccion lo escribe cualquiera, y un valor
+  // inventado tiene que caer en "todas", no romper la pantalla.
+  const FILTROS: FilterTab[] = ['todas', 'fotocabina', '360', 'espejo', 'invitados'];
+  const filtroPedido = useSearchParams().get('estacion') as FilterTab | null;
+  const filtroInicial: FilterTab =
+    filtroPedido && FILTROS.includes(filtroPedido) ? filtroPedido : 'todas';
+
+  const [activeTab, setActiveTab] = useState<FilterTab>(filtroInicial);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 

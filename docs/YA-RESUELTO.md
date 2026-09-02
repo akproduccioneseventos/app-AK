@@ -6646,3 +6646,70 @@ a proposito: sacando el album de la lista se pone en rojo, poniendolo vuelve a v
 prueba: src/__tests__/el-album-se-abre-con-el-enlace.test.ts
 usa: '/evento/album' en src/lib/auth/public-paths.ts
 ```
+
+---
+
+## El recorrido marcaba como rotos los tableros de numeros (2 de septiembre de 2026)
+
+**Falso positivo verificado, y a medias: de cuatro avisos, dos eran falsos y dos ciertos.**
+
+El recorrido daba por rota **toda pantalla sin ningun boton, enlace ni control para tocar**. Con
+esa regla marcaba `/analytics` y las estadisticas de la barra, que son **tableros de numeros y
+graficos**: no tienen botones porque no los necesitan.
+
+**El control preguntaba mal.** Una pantalla no esta muerta por no tener botones: **esta muerta
+cuando no muestra NADA**. Eso es lo que habia que agarrar -la pantalla en blanco, la que se
+quedo cargando para siempre-.
+
+**Como quedo:** ahora pide **las dos cosas juntas**, sin nada para tocar Y sin nada para leer
+(menos de 200 caracteres, que es como una frase larga). **No se afloja el control, se le cambio
+la pregunta**, y ademas ahora agarra un caso que antes se le escapaba: **la pantalla vacia que
+tiene un boton suelto**.
+
+**Y corrige un error propio:** se habia dicho que las cuatro eran falsa alarma. **Eran dos.** El
+video recuerdo y la entrada del evento dibujan **161 y 75 caracteres** en toda la pantalla: eso
+no es un tablero, es una pantalla casi en blanco, y estan rotas de verdad. Se midio despues de
+afirmarlo, que es justo lo que la regla 6 manda no hacer.
+
+**Comprobado en el navegador:** con el control corregido, `/analytics` y las estadisticas de la
+barra pasan, y las dos que estan casi en blanco siguen frenando, diciendo cuantos caracteres
+dibujaron.
+
+```comprobar
+usa: noHayNadaParaLeer en tests/e2e/recorrido-de-pantallas.spec.ts
+archivo: scripts/que-falta.mjs
+```
+
+---
+
+## El cliente veia sus fotos y no las podia bajar (2 de septiembre de 2026)
+
+**Lo causo una correccion propia del dia anterior, y es de lo mas caro que hay: toca lo que el
+cliente recibe.**
+
+Al sacar el enlace fijo que mandaba al disco de todos los clientes del fotografo, las **cuatro
+tarjetas de descarga** del portal quedaron colgadas del dato equivocado -`customAlbumUrl`, que es
+**el album editado del fotografo**, otro material-. Quedaba mal de las dos maneras:
+
+- **Sin ese enlace cargado:** el cliente veia *"247 fotos compartidas en vivo"* y **ningun
+  boton**. Una promesa sin forma de cumplirla.
+- **Con el enlace cargado:** el boton decia "Descargar" debajo de *"Fotos de los Invitados"* y
+  **lo llevaba al album del fotografo**, que es otra cosa.
+
+**Como quedo:** las cuatro tarjetas van a la **galeria publica de la fiesta**, filtrada por
+estacion (`/evento/galeria/[fiestaId]?estacion=fotocabina`), y la galeria ahora entiende ese
+filtro cuando le llega por la direccion, **validandolo contra su lista** -lo que viene por la
+direccion lo escribe cualquiera-.
+
+**La trampa que casi se pisa:** el primer arreglo iba a enchufarles la descarga interna
+`/api/fiestas/[fiestaId]/download-recuerdos`. **Esa pide sesion de administrador**: le habria
+contestado *"no autorizado"* al cliente. Se descubrio abriendo el archivo antes de tocar.
+
+**El matafuego:** `src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts`, comprobado
+rompiendolo a proposito.
+
+```comprobar
+prueba: src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts
+usa: enlaceALaGaleria en src/components/social-wall/PostEventMemoryHub.tsx
+usa: get('estacion') en src/app/evento/galeria/[fiestaId]/page.tsx
+```

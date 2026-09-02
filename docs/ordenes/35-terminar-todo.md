@@ -43,6 +43,8 @@ Por orden de importancia —las siete primeras las ve un cliente o un invitado�
 | `/landing/eventos` | Es una página que sólo redirige |
 | `/prospectos`, `/prospectos/[id]` | Error 310 |
 | `/proveedor/[id]`, `/proveedor/acceso/[token]` | No dibujan nada |
+| `/evento/[id]/video-recuerdo` | Casi en blanco: 161 caracteres |
+| `/evento/actual/checkin` | Casi en blanco: 75 caracteres |
 
 **Ojo con las que "no dibujan nada":** puede que la pantalla esté sana y le falte el dato de
 prueba. **Abrila a mano antes de tocar código.** Si es eso, no es un error: es que la prueba no
@@ -137,6 +139,26 @@ el álbum ella misma y después compruebe que existe **no prueba nada**.
 
 ---
 
+## BLOQUE 5.b — El invitado escribe su nombre cuando la app ya sabe quién es
+
+**Medido el 2 de septiembre de 2026.** Cuando el invitado entra a confirmar **desde su propio
+portal**, el enlace lleva quién es: `src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx:282`
+arma el enlace con `guestPath(...)`, que le agrega su identificador y su llave.
+
+**Y la pantalla de confirmación los ignora.** `src/app/invitacion/[fiestaId]/rsvp/page.tsx` **no
+lee nada de la dirección** —no usa `useSearchParams`— así que le pide el nombre igual, en la
+línea 454. La app sabe que es María García y le pregunta cómo se llama.
+
+**Qué hacer:** si la dirección trae el invitado, **traer su nombre y su teléfono ya escritos**, y
+dejarlos editables por si quiere corregirlos. Si no los trae —que es el caso del que llega por
+el enlace general— **todo sigue exactamente como está**: ahí escribir el nombre es correcto, es
+como la app se entera de quién confirmó.
+
+**Qué comprueba la prueba:** que entrando **con** el invitado en la dirección, el campo del
+nombre **ya viene lleno**; y que entrando **sin** él, sigue vacío y se puede confirmar igual. La
+segunda es la que importa: **no rompas el camino del que llega por el enlace general**, que son
+la mayoría.
+
 ## BLOQUE 6 — CAMBIAR COSAS SIN VOLVER A PUBLICAR
 
 `docs/ordenes/33-cambiar-sin-desplegar.md` — **da 0 de 3.** Es corta y ya está medida.
@@ -154,9 +176,12 @@ El menú y los ingredientes · el ajuste anual del 15% · el reloj del simulador
 **ningún texto que vea el cliente** · `apphosting.yaml` · y **nada que aumente lo que se paga
 por mes**.
 
-Y las cuatro pantallas que el recorrido marcaba mal —`/analytics`, las estadísticas de la barra,
-el video recuerdo y la entrada del evento— **están sanas**: son tableros de números. El control
-ya se corrigió. **No las toques.**
+**`/analytics` y las estadísticas de la barra están sanas**: son tableros de números y el
+control las marcaba mal. Ya se corrigió y ahora pasan. **No las toques.**
+
+**Pero el video recuerdo y la entrada del evento SÍ están rotas**, y se midió: dibujan **161 y
+75 caracteres** en toda la pantalla. Eso no es un tablero, es una pantalla casi en blanco.
+**Van al bloque 1**, con las demás.
 
 ## Antes de decir que terminaste
 

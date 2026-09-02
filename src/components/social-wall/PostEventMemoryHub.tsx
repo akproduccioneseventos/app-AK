@@ -34,6 +34,25 @@ function isVideoPost(post: SocialGalleryPost) {
   return post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
 }
 
+/**
+ * A donde va cada boton "Descargar" de las tarjetas del evento.
+ *
+ * **Va a la galeria publica de la fiesta, filtrada por estacion.** No a la
+ * descarga interna `/api/fiestas/[fiestaId]/download-recuerdos`, que **pide
+ * sesion de administrador** y le contestaria "no autorizado" al cliente.
+ *
+ * Y NO va al album del fotografo: ese es otro material -el trabajo editado- y
+ * tiene su propia tarjeta mas abajo. Confundirlos fue justo el error que se
+ * arreglo el 2 de septiembre de 2026: las cuatro tarjetas de la fiesta
+ * apuntaban al album profesional, asi que **sin ese enlace cargado el cliente
+ * veia "247 fotos compartidas en vivo" y ningun boton**, y con el enlace
+ * cargado el boton lo llevaba al material equivocado.
+ */
+function enlaceALaGaleria(fiestaId: string, estacion?: string) {
+  const base = `/evento/galeria/${fiestaId}`;
+  return estacion ? `${base}?estacion=${estacion}` : base;
+}
+
 export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostEventMemoryHubProps) {
   const downloads = getContractedDownloads(fiesta);
   
@@ -146,11 +165,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{totalPhotos} fotos compartidas en vivo</p>
                   </div>
                 </div>
-                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                <a href={enlaceALaGaleria(fiesta.id, 'invitados')}>
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
-                    <Download className="w-4 h-4 mr-1.5" /> Descargar
+                    <Download className="w-4 h-4 mr-1.5" /> Ver y descargar
                   </Button>
-                </a>}
+                </a>
               </CardContent>
             </Card>
           </motion.div>
@@ -170,11 +189,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{totalVideos} clips de video subidos</p>
                   </div>
                 </div>
-                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                <a href={enlaceALaGaleria(fiesta.id)}>
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
-                    <Download className="w-4 h-4 mr-1.5" /> Descargar
+                    <Download className="w-4 h-4 mr-1.5" /> Ver y descargar
                   </Button>
-                </a>}
+                </a>
               </CardContent>
             </Card>
           </motion.div>
@@ -194,11 +213,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{total360} videos grabados en vivo</p>
                   </div>
                 </div>
-                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                <a href={enlaceALaGaleria(fiesta.id, '360')}>
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
-                    <Download className="w-4 h-4 mr-1.5" /> Descargar
+                    <Download className="w-4 h-4 mr-1.5" /> Ver y descargar
                   </Button>
-                </a>}
+                </a>
               </CardContent>
             </Card>
           </motion.div>
@@ -218,11 +237,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{totalFotocabina} retratos guardados</p>
                   </div>
                 </div>
-                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                <a href={enlaceALaGaleria(fiesta.id, 'fotocabina')}>
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
-                    <Download className="w-4 h-4 mr-1.5" /> Descargar
+                    <Download className="w-4 h-4 mr-1.5" /> Ver y descargar
                   </Button>
-                </a>}
+                </a>
               </CardContent>
             </Card>
           </motion.div>
