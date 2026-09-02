@@ -25,6 +25,8 @@ import { MainNav } from './main-nav';
 import { LazyMultiAgentWidget } from '@/components/multiagent/lazy-multiagent-widget';
 import { ModuleNavigationDock } from '@/components/module-navigation-dock';
 import { MarketingAutomationTrigger } from '@/components/marketing/marketing-automation-trigger';
+import { initAppCheck } from '@/lib/firebase/app-check';
+import { getPerformanceInstance } from '@/lib/firebase/performance';
 
 
 const getPageTitle = (pathname: string): string => {
@@ -277,6 +279,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       }
     }
     fetchLogo();
+
+    if (typeof window !== 'undefined') {
+      initAppCheck().catch(() => null);
+      getPerformanceInstance().catch(() => null);
+    }
   }, []);
 
 

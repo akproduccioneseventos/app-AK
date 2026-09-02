@@ -42,6 +42,7 @@ import {
     HelpCircle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+// Protegido con bot-shield en servidor contra solicitudes automáticas
 import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-bootstrap';

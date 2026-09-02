@@ -15,6 +15,15 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Devolución Firebase — Integración en Rutas Reales (1 de septiembre de 2026)
+
+- **Optimización de Fotos en Subida Real (`src/app/evento/social/[fiestaId]/page.tsx` y `src/app/evento/video-vida/[fiestaId]/page.tsx`):**
+  - Conexión de `optimizeImageForUpload` de `@/lib/media/image-optimizer` directo en el flujo de selección y subida del invitado, reduciendo imágenes de 10 MB a WebP ligero (~300 KB) antes de subir a Storage.
+- **Escudo Antibots y Rate Limiting (`src/app/actions/armado-rapido.ts` y `src/app/simulador-de-presupuesto/page.tsx`):**
+  - Conexión de `checkBotShield` de `@/lib/security/bot-shield` protegiendo la generación pública de presupuestos y prospectos del simulador.
+- **App Check y Medición de Rendimiento (`src/components/app-shell.tsx`):**
+  - Inicialización limpia y segura de `initAppCheck` y `getPerformanceInstance` al cargar el cliente en el navegador.
+
 ## Orden 29 — Lo que le Falta a la Puerta (1 de septiembre de 2026)
 
 - **Calibración de la Puerta y Huella de Maquetación (`tests/e2e/layout-baseline.json`):**

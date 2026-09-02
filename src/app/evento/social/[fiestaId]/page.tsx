@@ -77,6 +77,7 @@ import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
 import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
 import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
+import { optimizeImageForUpload } from '@/lib/media/image-optimizer';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game' | 'missions' | 'schedule' | 'ranking';
 
@@ -550,9 +551,14 @@ export default function SocialEventPage() {
       }
     }
 
+    let finalFile = file;
+    if (image) {
+      finalFile = await optimizeImageForUpload(file);
+    }
+
     if (uploadPreview) URL.revokeObjectURL(uploadPreview);
-    setUploadFile(file);
-    setUploadPreview(URL.createObjectURL(file));
+    setUploadFile(finalFile);
+    setUploadPreview(URL.createObjectURL(finalFile));
   };
 
   const clearUpload = () => {
