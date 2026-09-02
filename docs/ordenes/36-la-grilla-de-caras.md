@@ -35,8 +35,8 @@ agrupar por tu cuenta: eso ya está resuelto y probado.
    agrega un nombre.
 3. **Sólo entre las fotos aprobadas de esa fiesta.** Lo que la moderación ocultó **no entra ni
    para buscar**.
-4. **Se apaga por fiesta**, y **viene apagado**. Ver bloque 4: no es un detalle, es lo que hace
-   que se pueda usar en unos quince.
+4. **En una fiesta de 15 no se muestra la grilla de caras.** Lo decide la app sola por el tipo
+   de evento (bloque 4). No es un detalle: es lo que hace que esto se pueda usar con menores.
 5. **Los números se borran cuando se cierra la fiesta.**
 6. **Si algo obliga a mandar una foto a un servicio de afuera, PARÁ Y AVISÁ.** No se hace: se
    paga por foto y las caras salen del país.
@@ -81,21 +81,31 @@ Un botón **"Encontrame a mí"** arriba de la grilla:
   éstas?"** con las dudosas, que el invitado confirma. **No las mezcles**: ésa es toda la mejora
   sobre el rubro.
 
-## BLOQUE 4 — El interruptor por fiesta
+## BLOQUE 4 — LO DECIDE LA APP SOLA, por el tipo de evento
 
-En los ajustes de la fiesta, **una sola opción con tres valores**, y **viene en la primera**:
+**Decisión tomada el 2 de septiembre de 2026. El dueño no elige fiesta por fiesta: *"no, lo
+decidís vos"*.** Y es la regla de siempre: **ante dos caminos, el automático**.
 
-| Valor | Qué hace |
-|---|---|
-| **Apagado** | No aparece nada. **Es el que viene puesto.** |
-| **Sólo mis fotos** | Únicamente el botón de la selfie. Cada uno ve las suyas |
-| **Grilla de caras** | Como Wfolio: se ven todas las caritas |
+**La app lo resuelve con el tipo de celebración que ya tiene cargado la fiesta:**
 
-**Y esto en pantalla, en criollo, al lado de la opción**, porque es una decisión del cliente y no
-una configuración técnica:
+| Tipo de evento | Qué se prende | Por qué |
+|---|---|---|
+| **Fiesta de 15** | **Sólo mis fotos** (la selfie) | Hay menores. Nadie con el enlace puede ver ni bajar todas las fotos de una chica |
+| **Casamiento** | **Grilla de caras** | Son todos adultos y la grilla es mucho más cómoda |
+| **Cumpleaños de adultos, empresa, egresados** | **Grilla de caras** | Igual que el casamiento |
+| **Cualquier otro, o sin tipo cargado** | **Sólo mis fotos** | Ante la duda, la opción cuidadosa |
 
-> *"Con la grilla, cualquiera que tenga el enlace puede ver y bajar todas las fotos de una
-> persona. Va bien en un casamiento. En unos quince, con menores, conviene 'sólo mis fotos'."*
+**Escribilo como una función sola y con nombre claro** —algo como `queBusquedaDeCarasVa(tipo)`—
+para que la regla esté en **un solo lugar** y se pueda cambiar sin salir a buscarla por la app.
+
+**Y dejá el interruptor manual en los ajustes de la fiesta**, con tres valores —*Automático* (el
+que viene), *Sólo mis fotos* y *Grilla de caras*—, para la fiesta rara donde el cliente pida otra
+cosa. **Pero que venga en Automático: nadie tiene que contestar una pregunta para que esto ande.**
+
+**Qué comprueba la prueba:** que una fiesta de 15 **sin tocar ningún ajuste** muestre el botón de
+la selfie y **NO** la grilla, y que un casamiento **sin tocar ningún ajuste** muestre la grilla.
+Una prueba que primero configure el ajuste y después lo compruebe **no prueba nada**: hay que
+mirar justo lo que pasa cuando nadie configuró nada.
 
 ## BLOQUE 5 — Cuando no encuentra nada
 
@@ -130,6 +140,7 @@ archivo: src/lib/caras/agrupar-caras.ts
 usa: agruparEnPersonas en src/app/evento/galeria/[fiestaId]/page.tsx
 usa: buscarFotosDeUnaCara en src/app/evento/galeria/[fiestaId]/page.tsx
 usa: dudosas en src/app/evento/galeria/[fiestaId]/page.tsx
+usa: queBusquedaDeCarasVa en src/app/evento/galeria/[fiestaId]/page.tsx
 prueba: src/__tests__/encontrar-fotos-por-cara.test.ts
 prueba: tests/e2e/la-grilla-de-caras.spec.ts
 ```
