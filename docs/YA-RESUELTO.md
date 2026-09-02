@@ -6362,3 +6362,24 @@ publicar su foto; que el cliente **no termine en el disco de todos los clientes*
 rota **no ensucie la agenda**; que se pueda **limpiar la agenda**; que las estaciones **sigan
 arrancando** (el arreglo que las revivió a todas); y que **la hoja de cocina** siga en pie. Más
 las cinco pruebas que lo comprueban.
+
+## 2 de septiembre de 2026 — La vidriera SÍ está en la portada (y la prueba quedó pendiente)
+
+**Comprobado midiendo, no leyendo:** en la portada hay un elemento
+`#vidriera-tecnologica` de **1280x1000 píxeles**, con "Fotocabina Digital" adentro. La orden 27
+está hecha.
+
+**Pero su prueba de la portada se cuelga**, y se intentó tres veces:
+
+1. Primero fallaba por no bajar. Se corrigió.
+2. Después, `scrollIntoViewIfNeeded` esperaba a que la página quedara quieta y **con las
+   animaciones de la orden 30 nunca lo está**.
+3. Y además buscaba, adentro de la vidriera, el texto *"Tecnología Interactiva"*, que está en
+   **otra sección** de la portada. Esperaba para siempre algo que nunca iba a aparecer ahí.
+
+Corregidos los tres, **sigue colgándose**. **Quedó marcada como pendiente** (`test.fixme`) con el
+motivo escrito adentro, en vez de aflojarla hasta que dé verde.
+
+**La misma vidriera se prueba en `/public/xv-anos` y PASA.** Lo que no se puede manejar es la
+portada, y ahí hay algo para mirar con calma: **una página que nunca queda quieta también puede
+molestar a un visitante**, no sólo a una prueba.
