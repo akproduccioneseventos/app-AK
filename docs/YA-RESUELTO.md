@@ -6408,3 +6408,36 @@ lo que el dueño venía marcando: *"la app sigue sin tener movimiento"*.
   que la prueba no tiene, así que puede haber falsas alarmas ahí.
 - **Cuatro con error interno** —el invitado, una landing y las dos de prospectos—: es el mismo
   error de React que se arregló en el blog y las landings principales. **Falta terminarlo ahí.**
+
+---
+
+## Claude afirmaba causas sin haberlas medido (2 de septiembre de 2026)
+
+**Lo marcó el dueño ese día: *"te pasás equivocando"*.** No era una impresión: fueron dos veces
+en la misma sesión, y las dos con la misma forma.
+
+- Se le dijo que **el cambio de fondo de la fotocabina estaba hecho**. No estaba: la función
+  existía y **no la llamaba ninguna pantalla**.
+- Se le explicó **por qué la puerta tardaba 45 minutos**, sin haber mirado dónde se iba el
+  tiempo. La explicación sonaba razonable y era falsa: el atajo que evita recorrer las 357
+  pantallas contaba como "toca todo" hasta a los archivos de prueba, que no pueden romper
+  ninguna pantalla.
+
+**Lo grave no es equivocarse: es que una causa inventada que suena bien manda a trabajar cinco
+días para el lado equivocado.**
+
+**Qué quedó escrito en `CLAUDE.md`**, y es lo que se comprueba:
+
+- **"Decir la causa antes de medirla"** (punto 6 de los errores ya cometidos): no se dice por
+  qué pasa algo hasta haberlo medido. Si no se midió, se dice *"todavía no sé"*.
+- **"Cada error se anota acá"**: vale también para los errores de Claude, no sólo los del
+  código. Una equivocación que no queda escrita se repite en el chat siguiente, porque el chat
+  siguiente arranca sin memoria de éste.
+
+**El matafuego** es que las dos reglas están comprobadas abajo: si alguien las borra de
+`CLAUDE.md`, `npm run ordenes?` lo marca.
+
+```comprobar
+usa: Decir la causa antes de medirla en CLAUDE.md
+usa: CADA ERROR SE ANOTA ACÁ en CLAUDE.md
+```

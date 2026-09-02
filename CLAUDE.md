@@ -616,6 +616,53 @@ diferencia era una mayúscula.
 días sin poder publicarse y nadie lo vio. **El build es control obligatorio**, no
 un extra.
 
+### 6. Decir la causa antes de medirla
+
+**Se lo señaló el dueño el 2 de septiembre de 2026: *"te pasás equivocando"*.** Tenía razón, y
+las equivocaciones del día eran todas la misma:
+
+- Se dijo que el cambio de fondo estaba hecho. **No estaba**: la función existía y no la
+  llamaba nadie.
+- Se explicó por qué la puerta tardaba 45 minutos **sin haber mirado dónde se iba el tiempo**.
+  La explicación sonaba bien y era la equivocada: el atajo que evitaba recorrer todo estaba mal
+  escrito y ni siquiera se estaba usando.
+
+No fueron fallas de capacidad. **Las dos veces se afirmó una causa sin haberla medido**, y las
+dos sonaban razonables. Eso es lo peor: una causa inventada que suena bien manda a trabajar
+para el lado equivocado.
+
+**La regla, y no tiene excepción:**
+
+1. **No se dice POR QUÉ pasa algo hasta haberlo medido.** Ni al dueño, ni en un informe, ni en
+   una orden.
+2. **Si no se midió, se dice "todavía no sé" y se va a medir.** Eso no es quedar mal: quedar
+   mal es mandar a programar cinco días para el lado equivocado.
+3. **Vale también para lo que parece obvio.** Las dos equivocaciones del 2 de septiembre eran
+   obvias, y eran falsas.
+4. **Antes de afirmar que algo está hecho, se abre el archivo.** Que la función exista no
+   alcanza: **hay que ver quién la llama.** Es la forma exacta que tuvieron todas las fallas de
+   este año.
+
+## CADA ERROR SE ANOTA ACÁ. Sin excepción.
+
+**Orden del dueño, 2 de septiembre de 2026:** *"anotalo para no hacerlo; cada error debés
+anotarlo en la memoria de la app para no cometerlo de nuevo"*.
+
+**No es sólo para los errores del código, es también para los errores de Claude.** Una
+equivocación que no queda escrita se repite en el chat siguiente, porque el chat siguiente
+arranca sin memoria de éste.
+
+Cómo se anota, y son tres renglones nada más:
+
+- **Qué se dijo o se hizo mal**, en criollo.
+- **Qué era lo cierto.**
+- **Qué se hace distinto** para que no vuelva.
+
+Va en la lista de arriba, **en la misma tanda en que pasó**, no al final del día. Y si el error
+fue en el código, además lleva su matafuego —el control que lo frena— como dice la regla del
+matafuego.
+
+
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
 - **El cliente NO elige fotos (1 de septiembre de 2026).** Palabras suyas: *"no, el cliente no
