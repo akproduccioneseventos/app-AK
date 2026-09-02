@@ -1,6 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { SUAVE, contenedorCascada, itemCascada } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { AK_SOCIAL_LINKS } from '@/lib/public-contact';
 import type { GalleryImage } from '@/types/public-landing';
@@ -21,7 +23,13 @@ export function GallerySection({
   if (!images.length) return null;
 
   return (
-    <section className={cn('py-20 px-4 bg-slate-50', className)}>
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.4, ease: SUAVE }}
+      className={cn('py-20 px-4 bg-slate-50', className)}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-12">
@@ -33,9 +41,16 @@ export function GallerySection({
         </div>
 
         {/* Masonry-like grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 auto-rows-[200px]">
+        <motion.div
+          variants={contenedorCascada}
+          initial="oculto"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid grid-cols-2 sm:grid-cols-3 gap-3 auto-rows-[200px]"
+        >
           {images.map((img) => (
-            <div
+            <motion.div
+              variants={itemCascada}
               key={img.id}
               tabIndex={0}
               role="img"
@@ -72,9 +87,9 @@ export function GallerySection({
               >
                 <span className="text-white text-xs font-bold drop-shadow">{img.alt}</span>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <p className="text-center mt-8 text-sm text-slate-400">
           📸 Seguinos en{' '}
@@ -89,6 +104,6 @@ export function GallerySection({
           para ver más.
         </p>
       </div>
-    </section>
+    </motion.section>
   );
 }

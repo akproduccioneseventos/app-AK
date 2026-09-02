@@ -15,6 +15,20 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 30 — Que la App se Mueva: Animaciones Pro (2 de septiembre de 2026)
+
+- **Módulo Central de Movimiento (`src/lib/motion.ts`):**
+  - Implementación del estándar de curvas profesionales `SUAVE`, `PAREJO`, `SALIR`, y configuraciones de cascada contenida (`contenedorCascada`, `itemCascada`, 16px, 0.4s).
+- **Animación en Componentes Públicos de Venta (`src/components/public/`):**
+  - Integración de `framer-motion` en `TestimonialsCarousel`, `GallerySection`, `WhyChooseUs`, `EventProcess` y `CallToActionBanner`.
+  - Visibilidad inmediata de elementos críticos (título, precio, botón de WhatsApp) sin retardos ni bloqueos.
+- **Landings Animadas (`src/app/landing/xv-anos/page.tsx` y `src/app/landing/bodas/page.tsx`):**
+  - Renderizado suave con `framer-motion` y soporte de animaciones en cascada.
+- **Soporte Accesible de Movimiento Reducido (`src/app/ak-motion-effects.css`):**
+  - Regla `@media (prefers-reduced-motion: reduce)` con tiempos forzados a 0.01ms para usuarios sensibles a mareos sin ocultar contenido.
+- **Suite de Pruebas E2E (`tests/e2e/la-web-de-venta-se-mueve.spec.ts`):**
+  - Comprobación de visibilidad inmediata de elementos de venta, animación al entrar en pantalla y soporte de prefers-reduced-motion.
+
 ## Devolución Firebase — Integración en Rutas Reales (1 de septiembre de 2026)
 
 - **Optimización de Fotos en Subida Real (`src/app/evento/social/[fiestaId]/page.tsx` y `src/app/evento/video-vida/[fiestaId]/page.tsx`):**

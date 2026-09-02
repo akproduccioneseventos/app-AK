@@ -33,7 +33,7 @@ import path from 'node:path';
 const CARPETA = path.join(process.cwd(), 'docs', 'ordenes');
 
 function leerComprobaciones(texto) {
-  const bloques = [...texto.matchAll(/```comprobar\n([\s\S]*?)```/g)];
+  const bloques = [...texto.matchAll(/```comprobar\r?\n([\s\S]*?)```/g)];
   return bloques.flatMap((b) =>
     b[1]
       .split('\n')
@@ -114,7 +114,7 @@ for (const archivo of archivos) {
 //
 // Y contesta: "Fotocabina: 18 de 26 funciones del rubro".
 function leerRubro(texto) {
-  const bloques = [...texto.matchAll(/```rubro ([^\n]+)\n([\s\S]*?)```/g)];
+  const bloques = [...texto.matchAll(/```rubro ([^\r\n]+)\r?\n([\s\S]*?)```/g)];
   return bloques.map((b) => {
     const modulo = b[1].trim();
     const funciones = b[2]

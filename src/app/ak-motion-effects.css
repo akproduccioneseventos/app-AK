@@ -1,4 +1,4 @@
-﻿@keyframes ak-motion-enter {
+@keyframes ak-motion-enter {
   from {
     opacity: 0.85;
     transform: translate3d(0, 8px, 0);
@@ -77,9 +77,9 @@
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms;
-    animation-iteration-count: 1;
-    scroll-behavior: auto;
-    transition-duration: 0.01ms;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

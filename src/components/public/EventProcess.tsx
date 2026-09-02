@@ -1,5 +1,7 @@
 'use client';
 
+import { motion } from 'framer-motion';
+import { SUAVE, contenedorCascada, itemCascada } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import type { ProcessStep } from '@/types/public-landing';
 
@@ -12,7 +14,13 @@ export function EventProcess({ steps, className }: EventProcessProps) {
   if (!steps.length) return null;
 
   return (
-    <section className={cn('py-20 px-4 bg-white', className)}>
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.4, ease: SUAVE }}
+      className={cn('py-20 px-4 bg-white', className)}
+    >
       <div className="max-w-4xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-16">
@@ -35,9 +43,19 @@ export function EventProcess({ steps, className }: EventProcessProps) {
             aria-hidden
           />
 
-          <ol className="space-y-8">
+          <motion.ol
+            variants={contenedorCascada}
+            initial="oculto"
+            whileInView="visible"
+            viewport={{ once: true }}
+            className="space-y-8"
+          >
             {steps.map((step, index) => (
-              <li key={step.id} className="relative flex gap-5 sm:gap-8 items-start">
+              <motion.li
+                variants={itemCascada}
+                key={step.id}
+                className="relative flex gap-5 sm:gap-8 items-start"
+              >
                 {/* Step icon circle */}
                 <div
                   className={cn(
@@ -63,11 +81,11 @@ export function EventProcess({ steps, className }: EventProcessProps) {
                   <h3 className="text-lg font-black text-slate-900">{step.title}</h3>
                   <p className="mt-1 text-sm text-slate-500 leading-relaxed">{step.description}</p>
                 </div>
-              </li>
+              </motion.li>
             ))}
-          </ol>
+          </motion.ol>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
