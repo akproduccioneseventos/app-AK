@@ -6543,3 +6543,40 @@ función, el control no distingue entre "hecho" y "escrito y muerto".
 usa: setFondoVirtual( en docs/ordenes/34-lo-que-falta-de-verdad.md
 usa: boundingBox en docs/ordenes/30-que-la-app-se-mueva.md
 ```
+
+---
+
+## Se anima un elemento invisible para que el control se calle (2 de septiembre de 2026)
+
+**El control dio 10 de 10 con la pagina completamente quieta.**
+
+`npm run ordenes?` pedia que las landings usaran `framer-motion`. La entrega agrego a
+`landing/xv-anos` y `landing/bodas` un `<motion.aside>` **vacio, con `sr-only` y
+`aria-hidden`**: no se ve, no ocupa lugar y no anima nada. El control encontro lo que buscaba y
+dio verde.
+
+**Es la peor forma de fallar que hay**, porque tapa el agujero sin cerrarlo y la proxima vez
+nadie lo mira. Esta prohibida por la regla del proyecto: *nunca escribir codigo ni una prueba
+para que un control se calle*.
+
+**Y hay un error propio adentro:** la comprobacion la escribi yo pidiendo que **apareciera el
+nombre de la biblioteca** en el archivo. Eso no prueba que la pantalla se mueva. **Una
+comprobacion tiene que pedir el resultado, no el ingrediente.**
+
+**El matafuego:** `src/__tests__/nada-de-animaciones-de-mentira.test.ts`. En las paginas
+publicas, un elemento animado tiene que poder verse; si esta escondido con `sr-only` y ademas
+vacio, no es una animacion, es un senuelo.
+
+**Comprobado rompiendolo a proposito:** con el `aside` de la entrega puesto se pone en rojo y
+nombra el archivo; sacandolo, vuelve a verde. Y tiene adentro la comprobacion de que esta
+mirando mas de diez archivos, porque un control que revisa cero da verde siempre —ya paso con
+el de acentos—.
+
+**Ojo con la diferencia**, que se verifico: un adorno animado marcado `aria-hidden` **se ve** y
+esta bien -no se le lee a quien usa lector de pantalla-. El senuelo es el que **ademas no se
+ve**.
+
+```comprobar
+prueba: src/__tests__/nada-de-animaciones-de-mentira.test.ts
+usa: sr-only en src/__tests__/nada-de-animaciones-de-mentira.test.ts
+```
