@@ -968,3 +968,8 @@ export async function createSocialMediaPostFromUrlForStation(
     source: 'entertainment',
   });
 }
+
+export async function getPublicInstagramFeedAction() {
+  const { getPublicInstagramFeed } = await import('@/lib/instagram/public-feed');
+  return getPublicInstagramFeed();
+}

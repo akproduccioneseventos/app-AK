@@ -96,6 +96,7 @@ export default function FotocabinaPage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
+  const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
 
   // Sync
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -346,7 +347,17 @@ export default function FotocabinaPage() {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    if (fondoVirtual && fondoVirtual.tipo !== 'ninguno') {
+      procesarFondoCanvas({
+        canvasDestino: canvas,
+        videoOrigen: video,
+        fondoSeleccionado: fondoVirtual,
+        imagenFondo: undefined,
+        toleranciaChroma: 90,
+      });
+    } else {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     // Aplicar filtros configurados de la estación

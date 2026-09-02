@@ -15,6 +15,23 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 34 — Lo que Falta de Verdad (2 de septiembre de 2026)
+
+- **Cambio de Fondo Virtual (`src/lib/entretenimiento/segmentacion-fondo.ts`):**
+  - Conexión de `procesarFondoCanvas(` en `src/app/evento/fotocabina/[fiestaId]/page.tsx` y `src/app/evento/bogue/[fiestaId]/page.tsx` permitiendo cambiar o desenfocar el fondo sin tela y eliminando la mancha negra del croma.
+- **Texto de Marca en Espejo Mágico (`src/app/evento/espejo-magico/[fiestaId]/page.tsx`):**
+  - Visualización del `brandText` configurado junto al código QR en la pantalla de descarga y compartir.
+- **Color de la Fiesta en Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):**
+  - Aplicación dinámica de `accentColor` de la estación y la fiesta en lugar de colores fijos.
+- **Feed Público de Instagram en Muro en Vivo (`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx`):**
+  - Conexión de `getPublicInstagramFeed` a través de Server Action enriqueciendo la pantalla gigante con publicaciones sociales.
+- **Impresión Profesional Multiformato (`src/lib/entretenimiento/imprimir-recuerdo.ts`):**
+  - Soporte de tamaños 10x15, 5x15 (tira) y 13x18, junto con paso de cantidad de copias a la ventana de impresión.
+- **Armado Autónomo de Álbum (`src/lib/album/armar-album.ts`):**
+  - Generación automática de portada, subtítulo y páginas estructuradas sin requerir selección manual de fotos por el cliente.
+- **Suites de Pruebas E2E:**
+  - `tests/e2e/el-fondo-se-cambia-de-verdad.spec.ts` y `tests/e2e/el-album-se-arma-solo.spec.ts`.
+
 ## Orden 30 — Que la App se Mueva: Animaciones Pro (2 de septiembre de 2026)
 
 - **Módulo Central de Movimiento (`src/lib/motion.ts`):**

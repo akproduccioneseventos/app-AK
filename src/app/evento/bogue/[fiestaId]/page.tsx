@@ -62,6 +62,7 @@ const BOGUE_FRAMES = [
 
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
 import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
+import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
 import {
   procesarFondoCanvas,
   type OpcionFondo,
@@ -118,6 +119,7 @@ export default function BoguePage() {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
   const [selectedFrame, setSelectedFrame] = useState('none');
+  const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [operatorError, setOperatorError] = useState<string | null>(null);
@@ -388,7 +390,20 @@ export default function BoguePage() {
           ctx.translate(canvas.width, 0);
           ctx.scale(-1, 1);
         }
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (fondoVirtual && fondoVirtual.tipo !== 'ninguno') {
+          procesarFondoCanvas({
+            canvasDestino: canvas,
+            videoOrigen: video,
+            fondoSeleccionado: fondoVirtual,
+            imagenFondo: undefined,
+            toleranciaChroma: 90,
+          });
+        } else {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
+        if (fiesta?.station.enableBeautyFilter) {
+          aplicarFiltroBelleza(ctx, canvas.width, canvas.height);
+        }
       }
 
       frames.push(canvas);

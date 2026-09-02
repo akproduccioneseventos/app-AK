@@ -15,15 +15,25 @@ export interface ResultadoDeImpresion {
   aviso?: string;
 }
 
-/** 10x15 cm, la hoja de foto comun. */
-const HOJA = '10cm 15cm';
+export type TamanoPapelImpresion = '10x15' | '5x15' | '13x18';
 
-export function imprimirRecuerdo(imagen: string, copias: number = 1): ResultadoDeImpresion {
+const TAMANOS_HOJA: Record<TamanoPapelImpresion, string> = {
+  '10x15': '10cm 15cm',
+  '5x15': '5cm 15cm',
+  '13x18': '13cm 18cm',
+};
+
+export function imprimirRecuerdo(
+  imagen: string,
+  copias: number = 1,
+  tamano: TamanoPapelImpresion = '10x15'
+): ResultadoDeImpresion {
   if (!imagen) {
     return { ok: false, aviso: 'Todavía no hay un recuerdo para imprimir.' };
   }
 
   const cantidadCopias = Math.max(1, Math.min(10, copias));
+  const hojaCss = TAMANOS_HOJA[tamano] || TAMANOS_HOJA['10x15'];
 
   try {
     const ventana = window.open('', '_blank', 'width=800,height=1100');
@@ -40,7 +50,7 @@ export function imprimirRecuerdo(imagen: string, copias: number = 1): ResultadoD
 
     ventana.document.write(
       `<html><head><title>Recuerdo</title><style>` +
-        `@page{size:${HOJA};margin:0}` +
+        `@page{size:${hojaCss};margin:0}` +
         `html,body{margin:0;padding:0;background:#fff}` +
         `.pagina{width:100%;height:100vh;page-break-after:always;display:flex;align-items:center;justify-content:center}` +
         `img{width:100%;height:100%;object-fit:contain;display:block}` +

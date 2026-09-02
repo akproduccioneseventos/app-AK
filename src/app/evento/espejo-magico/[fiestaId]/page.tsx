@@ -1489,9 +1489,12 @@ export default function EspejoMagicoPage() {
                 <p className="text-sm text-zinc-400">Usá este código QR con tu celular para descargarlo o compartirlo.</p>
               </div>
 
-              {/* QR Container */}
-              <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
+              {/* QR Container con texto de marca */}
+              <div className="bg-white p-4 rounded-3xl shadow-2xl relative flex flex-col items-center gap-2">
                 <QrRecuerdo qrCodeUrl={qrCodeUrl} error={errorMsg} />
+                <p className="text-xs font-black uppercase tracking-wider text-zinc-800">
+                  {fiesta?.station.brandText || 'AK Producciones'}
+                </p>
               </div>
 
               <div className="flex flex-col gap-2 w-full">

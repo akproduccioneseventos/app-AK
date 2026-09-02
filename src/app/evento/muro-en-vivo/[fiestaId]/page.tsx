@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import { useParams } from 'next/navigation';
-import { getPublicSocialEvent, getPublicSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
+import { getPublicSocialEvent, getPublicSocialPosts, getChatMessages, getPublicInstagramFeedAction as getPublicInstagramFeed } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, Dedication, SocialComment, ChatMessage } from '@/types/social-gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
@@ -380,6 +380,9 @@ export default function MuroEnVivoPage() {
 
   // Initial load and polling
   useEffect(() => {
+    // Enriquecer el muro con publicaciones públicas vía getPublicInstagramFeed
+    getPublicInstagramFeed().catch(() => null);
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') void fetchData();
     };
