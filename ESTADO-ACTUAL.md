@@ -5,44 +5,44 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 1 de septiembre de 2026.
-**Lo primero al abrir una sesión: `npm run ordenes?`.** Contesta en un segundo qué está hecho y
-qué no. **Si dice "FALTA", falta, aunque las pruebas den verde.**
+**Última actualización:** 2 de septiembre de 2026. **Rama: `revision-t6`.**
+**Lo primero: `npm run ordenes?`.** Si dice FALTA, falta, aunque las pruebas den verde.
+**Pero ojo, y es lo que se aprendió hoy: que dé verde tampoco alcanza.** Ver más abajo.
 
-## Lo que se fusionó y ya está andando
+## Lo que se hizo hoy
 
-- **La web de venta ya no se rompe** (16 pantallas, entre ellas el blog y las landings).
-- **Seis diseños nuevos de invitación** —ahora son ocho— y la red social con mesa, cronograma y
-  ranking.
-- **La pantalla gigante**: modo cine, afiche del QR para imprimir, reacciones, "qué viene ahora".
-- **Las estaciones**: filtro de belleza y cámara vertical u horizontal.
-- **La hoja de cocina** de la noche del evento, y **la agenda que ya no se duplica**.
-- **El cliente ya no puede terminar en el disco de todos los clientes** del fotógrafo.
+- **El álbum del recuerdo ya se abre con el enlace**, sin pedir cuenta. Era la única pantalla
+  del evento que pedía iniciar sesión: **el invitado no podía abrir el regalo del cliente.**
+- **La orden 34**, con lo que falta de verdad. Se verificaron una por una las ~50 funciones que
+  el control daba por faltantes: **catorce ya estaban hechas.** El conteo real quedó corregido.
+- **Cinco habilidades instaladas** en `.claude/skills/`: `animaciones-pro`, `que-te-encuentren`,
+  `que-cargue-rapido`, `celular-primero`, más las que ya estaban.
+- **Tres matafuegos nuevos**, los tres probados rompiéndolos a propósito.
 
-## Los cuatro mecanismos nuevos, y qué error apaga cada uno
+## La lección del día, y está en `CLAUDE.md` como regla 7
 
-- **`npm run ordenes?`** — dice si lo pedido se hizo, si lo que la app dice tener está, **y si lo
-  arreglado sigue arreglado**. Antes eso se contestaba yendo a mirar a mano.
-- **El bloque del rubro** — cuenta cuántas funciones de las 13 plataformas tenemos, por módulo.
-- **`npm run limpiar:corrida`** — descarta lo que escriben solas las pruebas.
-- **La regla del matafuego** (en `CLAUDE.md`): un arreglo sin control que lo impida **no está
-  terminado**.
+**El control dio 10 de 10 con la página completamente quieta.** La comprobación pedía que
+apareciera el nombre de la biblioteca en el archivo, y la entrega agregó un elemento **invisible
+y vacío** con la animación encima.
 
-## Dónde estamos contra el rubro
+**Una comprobación pide el RESULTADO, no el ingrediente.** La pregunta antes de escribir una:
+*¿esto podría dar verde con la función apagada?*
 
-Invitación 11/14 · Pantalla gigante 12/17 · Decoración 8/13 · 360 7/13 · Espejo 7/12 ·
-Bogue 6/12 · Buzón 6/12 · **Fotocabina 12/26** · **Álbum 3/10, el más flojo.**
+## Lo que sigue
 
-## Lo que sigue, en `docs/ordenes/ahora.md`
+1. **Gemini tiene la devolución** en `docs/ordenes/DEVOLUCION-ordenes-30-34.md`: sacar el
+   elemento trucho, devolver `/landing/bodas` a ser un enlace, la vista previa en vivo del
+   fondo, Touchpix, y **`/evento/actual`, la pantalla de la fiesta de esta noche, que está rota.**
+2. **La puerta frenó** en el recorrido: 18 pantallas rotas. Verificadas una por una, **la única
+   nueva de verdad es `/evento/actual`**; cuatro son falsa alarma del control (tableros de
+   números sin botones) y dos son páginas que sólo redirigen.
+3. **Sin decidir:** si se corrige el recorrido para que un tablero de números no cuente como
+   pantalla rota. **Es tocar un control y el dueño tiene que saberlo.**
+4. La orden 33 (Remote Config) y la 31 (buscar fotos con una selfie) siguen sin programar.
 
-1. **Las tres de Firebase que no usa nadie** (da 0 de 3): achicar fotos, antibots y App Check.
-2. **Los dos fondos de la fotocabina**: el "telón" de la pantalla, el croma que deja mancha
-   negra, y el cambio de fondo sin tela.
-3. **El álbum** y **la fotocabina**, que son los dos más flojos contra el rubro.
+## Lo que costó tiempo hoy
 
-## Lo que costó tiempo hoy, y no se repite
-
-- **La puerta se corrió cinco veces** por no juntar los arreglos. **Se corre una vez, al final.**
-- **Dos correcciones propias se perdieron al fusionar.** Revisar las propias después de cada
-  fusión, y **fusionar de a una entrega**.
-- **Cuatro veces se dio por hecho algo que ya existía.** Antes de programar, `graphify query`.
+- **La puerta tarda 45 minutos**, y lo grande no es el recorrido: son **las 39 tandas de pruebas
+  de navegador, que corren de a una** en una máquina de cuatro núcleos. Medido, no supuesto.
+- **Quedó una corrida huérfana** peleándole la máquina a la buena durante 42 minutos. Antes de
+  creerle a una falla: `ps aux | grep playwright`, y si hay más de una, el resultado no vale.
