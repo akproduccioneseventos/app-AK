@@ -23,6 +23,7 @@ test.describe('Orden 30: Que la app se mueva (animaciones pro)', () => {
     const bloque = page.locator('section').nth(1);
     await expect(bloque).toBeVisible();
     const antes = await bloque.boundingBox();
+    await bloque.scrollIntoViewIfNeeded();
     await page.waitForTimeout(600);
     const despues = await bloque.boundingBox();
 

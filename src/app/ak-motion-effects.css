@@ -16,15 +16,16 @@
 
 @keyframes ak-section-slide {
   from {
-    transform: translateY(24px);
+    transform: translateY(32px);
   }
   to {
     transform: translateY(0);
   }
 }
 
-.ak-section-slide {
-  animation: ak-section-slide 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+.ak-section-slide,
+#servicios.ak-section-slide {
+  animation: ak-section-slide 1.8s cubic-bezier(0.22, 1, 0.36, 1) both !important;
 }
 
 .ak-motion-rise,
@@ -41,8 +42,24 @@
 
 .bg-indigo-600\/20.blur-3xl,
 .bg-emerald-600\/20.blur-3xl,
-.bg-purple-600\/10.blur-3xl {
-  display: none;
+.bg-purple-600\/20.blur-3xl {
+  opacity: 0.8;
+}
+
+.ak-interactive-cta {
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.ak-interactive-cta:hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+.ak-interactive-cta:active {
+  transform: translate3d(0, 0, 0);
+}
+
+.ak-clean-canvas {
+  content-visibility: visible;
 }
 
 /* Todas las secciones públicas se renderizan visibles por defecto */
@@ -54,9 +71,9 @@
   .ak-motion-system main > section:not(#servicios),
   .ak-motion-system main > div,
   .ak-executive-panel,
-  .ak-red-premium-surface main > *,
-  .ak-red-premium-client main > *,
-  .ak-red-premium-live main > * {
+  .ak-red-premium-surface main > *:not(#servicios),
+  .ak-red-premium-client main > *:not(#servicios),
+  .ak-red-premium-live main > *:not(#servicios) {
     animation: ak-motion-enter 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
 

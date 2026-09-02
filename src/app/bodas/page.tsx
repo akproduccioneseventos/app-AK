@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Camera, HeartHandshake, UtensilsCrossed, Music, Sparkles } from 'lucide-react';
 import { EventLandingPage } from '@/components/landing/EventLandingPage';
 import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
@@ -17,7 +16,7 @@ export default function BodasLanding() {
   return (
     <>
       <LocalBusinessJsonLd url="https://akproducciones.uy/bodas" />
-      <ServiceJsonLd 
+      <ServiceJsonLd
         name="Casamientos y Bodas de Gala"
         description="Organización integral de casamientos en Salto. Catering premium, discoteca, ambientación y coordinación de principio a fin."
         image="https://akproducciones.uy/media/catalogo-servicios/boda_persuasiva.png"
@@ -35,11 +34,11 @@ export default function BodasLanding() {
         detailImageAlt="Mesa decorada para una boda"
         simulatorHref="/simulador-de-presupuesto?tipo=Boda"
         services={[
-          { title: 'Catering de Gala & Recepción', description: 'Platos principales, islas de degustación y mesa dulce pensados para agasajar a todos.', icon: UtensilsCrossed },
-          { title: 'Ambientación & Decoración', description: 'Diseño floral, luces cálidas y elegancia ajustada al estilo de los novios.', icon: HeartHandshake },
-          { title: 'Discoteca & Sonido Cristalino', description: 'Sets musicales personalizados y momentos inolvidables en la pista de baile.', icon: Music },
-          { title: 'Fotocabina & Recuerdos Digitales', description: 'Registro de momentos espontáneos para que todos los invitados se lleven su recuerdo.', icon: Camera },
-          { title: 'Coordinación Total del Evento', description: 'Acompañamiento cercano desde la primera reunión hasta el último tema de la noche.', icon: Sparkles },
+          { title: 'Catering de Gala & Recepción', description: 'Platos principales, islas de degustación y mesa dulce pensados para agasajar a todos.' },
+          { title: 'Ambientación & Decoración', description: 'Diseño floral, luces cálidas y elegancia ajustada al estilo de los novios.' },
+          { title: 'Discoteca & Sonido Cristalino', description: 'Sets musicales personalizados y momentos inolvidables en la pista de baile.' },
+          { title: 'Fotocabina & Recuerdos Digitales', description: 'Registro de momentos espontáneos para que todos los invitados se lleven su recuerdo.' },
+          { title: 'Coordinación Total del Evento', description: 'Acompañamiento cercano desde la primera reunión hasta el último tema de la noche.' },
         ]}
       />
     </>

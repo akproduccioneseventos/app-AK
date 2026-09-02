@@ -1,9 +1,27 @@
+'use client';
+
 import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
+import { SUAVE } from '@/lib/motion';
 import type { LucideIcon } from 'lucide-react';
-import { LandingMotionGrid, LandingMotionCard, LandingMotionBlock } from '@/components/landing/LandingMotionSection';
-import { ArrowRight, CalendarDays, CheckCircle2, MessageCircle, Star, ShieldCheck, Sparkles, Clock } from 'lucide-react';
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  MessageCircle,
+  Star,
+  ShieldCheck,
+  Sparkles,
+  Clock,
+  Camera,
+  HeartHandshake,
+  UtensilsCrossed,
+  Music,
+  GlassWater,
+  PartyPopper,
+} from 'lucide-react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { LeadCaptureForm } from '@/components/landing/LeadCaptureForm';
@@ -11,10 +29,35 @@ import { PublicFooter } from '@/components/public-footer';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import type { LandingLeadData } from '@/app/actions/crm';
 
-interface LandingService {
+export interface LandingService {
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  iconName?: string;
+}
+
+function resolveServiceIcon(title: string, iconName?: string, icon?: LucideIcon): LucideIcon {
+  if (icon) return icon;
+  const t = `${title} ${iconName ?? ''}`.toLowerCase();
+  if (t.includes('cater') || t.includes('comida') || t.includes('menú') || t.includes('parrilla') || t.includes('food') || t.includes('plato')) {
+    return UtensilsCrossed;
+  }
+  if (t.includes('ambient') || t.includes('decor') || t.includes('estilo') || t.includes('diseño floral')) {
+    return HeartHandshake;
+  }
+  if (t.includes('disco') || t.includes('sonido') || t.includes('músic') || t.includes('music') || t.includes('dj') || t.includes('muro') || t.includes('baile')) {
+    return Music;
+  }
+  if (t.includes('foto') || t.includes('espejo') || t.includes('cámar') || t.includes('camera') || t.includes('recuerdo')) {
+    return Camera;
+  }
+  if (t.includes('barra') || t.includes('trago') || t.includes('glass') || t.includes('coctel') || t.includes('cóctel') || t.includes('bebida')) {
+    return GlassWater;
+  }
+  if (t.includes('recuerdos') || t.includes('cumple') || t.includes('popp') || t.includes('fiesta')) {
+    return PartyPopper;
+  }
+  return Sparkles;
 }
 
 export interface EventLandingPageProps {
@@ -52,6 +95,27 @@ const TESTIMONIALS = [
   },
 ];
 
+const containerVariants = {
+  oculto: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const cardItemVariants = {
+  oculto: { opacity: 0, y: 16 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: SUAVE,
+    },
+  },
+};
+
 export function EventLandingPage({
   eventType,
   source,
@@ -65,6 +129,7 @@ export function EventLandingPage({
   simulatorHref,
   services,
 }: EventLandingPageProps) {
+  const reduceMotion = useReducedMotion();
   const whatsappMessage = `Hola AK Producciones, quiero cotizar ${eventType.toLowerCase()}.`;
   const whatsappHref = `https://wa.me/${AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -97,35 +162,76 @@ export function EventLandingPage({
         </div>
 
         {/* Servicios */}
-        <section id="servicios" className="bg-zinc-50 py-16 sm:py-24">
+        <motion.section
+          id="servicios"
+          initial={reduceMotion ? false : { opacity: 1, y: 24 }}
+          animate={reduceMotion ? false : { opacity: 1, y: 0 }}
+          whileInView={reduceMotion ? undefined : "visible"}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: SUAVE }}
+          variants={{
+            oculto: { opacity: 1, y: 24 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: SUAVE } },
+          }}
+          className="ak-section-slide bg-zinc-50 py-16 sm:py-24"
+        >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="max-w-2xl">
               <p className="text-sm font-bold uppercase tracking-widest text-red-700">Producción integral</p>
               <h2 className="mt-3 text-3xl font-black text-zinc-950 sm:text-4xl">Una propuesta hecha para tu evento</h2>
               <p className="mt-4 text-base leading-relaxed text-zinc-600">Armamos cada servicio alrededor de la fecha, las personas invitadas y el estilo que querés lograr.</p>
             </div>
-            <LandingMotionGrid className="mt-10 grid gap-4 md:grid-cols-3">
-              {services.map(({ title, description, icon: Icon }) => (
-                <LandingMotionCard
-                  key={title}
-                  className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1 hover:border-red-200"
-                >
-                  <Icon className="h-6 w-6 text-red-700" aria-hidden="true" />
-                  <h3 className="mt-5 text-lg font-bold text-zinc-950">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-zinc-600">{description}</p>
-                </LandingMotionCard>
-              ))}
-            </LandingMotionGrid>
+            <motion.div
+              variants={containerVariants}
+              initial={reduceMotion ? false : "oculto"}
+              whileInView={reduceMotion ? undefined : "visible"}
+              viewport={{ once: true, margin: '-50px' }}
+              className="mt-10 grid gap-4 md:grid-cols-3"
+            >
+              {services.map((srv) => {
+                const Icon = resolveServiceIcon(srv.title, srv.iconName, srv.icon);
+                return (
+                  <motion.article
+                    key={srv.title}
+                    variants={cardItemVariants}
+                    className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1 hover:border-red-200"
+                  >
+                    <Icon className="h-6 w-6 text-red-700" aria-hidden="true" />
+                    <h3 className="mt-5 text-lg font-bold text-zinc-950">{srv.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-zinc-600">{srv.description}</p>
+                  </motion.article>
+                );
+              })}
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Experiencia y Acompañamiento */}
-        <section id="experiencia" className="py-16 sm:py-24">
+        <motion.section
+          id="experiencia"
+          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.5, ease: SUAVE }}
+          className="py-16 sm:py-24"
+        >
           <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-            <LandingMotionBlock className="relative min-h-80 overflow-hidden rounded-lg bg-zinc-200 sm:min-h-96">
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, ease: SUAVE }}
+              className="relative min-h-80 overflow-hidden rounded-lg bg-zinc-200 sm:min-h-96"
+            >
               <Image src={detailImage} alt={detailImageAlt} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-            </LandingMotionBlock>
-            <LandingMotionBlock delay={0.1} className="max-w-xl">
+            </motion.div>
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: 0.1, ease: SUAVE }}
+              className="max-w-xl"
+            >
               <p className="text-sm font-bold uppercase tracking-widest text-red-700">Acompañamiento real</p>
               <h2 className="mt-3 text-3xl font-black text-zinc-950 sm:text-4xl">{detailTitle}</h2>
               <p className="mt-5 text-base leading-relaxed text-zinc-600">{detailDescription}</p>
@@ -142,21 +248,31 @@ export function EventLandingPage({
                   <MessageCircle className="h-4 w-4 text-emerald-600" /> Hablar con un productor
                 </a>
               </div>
-            </LandingMotionBlock>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Prueba Social / Testimoniales */}
-        <section className="bg-zinc-900 py-16 text-white sm:py-20">
+        <motion.section
+          variants={containerVariants}
+          initial={reduceMotion ? false : "oculto"}
+          whileInView={reduceMotion ? undefined : "visible"}
+          viewport={{ once: true, margin: '-50px' }}
+          className="bg-zinc-900 py-16 text-white sm:py-20"
+        >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <p className="text-xs font-bold uppercase tracking-widest text-red-400">Experiencias Verificadas</p>
               <h2 className="mt-2 text-2xl font-black sm:text-3xl">Lo que dicen las familias que festejaron con AK</h2>
             </div>
-            <LandingMotionGrid className="mt-10 grid gap-6 md:grid-cols-3">
+            <motion.div
+              variants={containerVariants}
+              className="mt-10 grid gap-6 md:grid-cols-3"
+            >
               {TESTIMONIALS.map((t, idx) => (
-                <LandingMotionCard
+                <motion.div
                   key={idx}
+                  variants={cardItemVariants}
                   className="rounded-xl border border-zinc-800 bg-zinc-950/60 p-6 shadow-xl backdrop-blur-sm"
                 >
                   <div className="flex items-center gap-1 text-amber-400">
@@ -169,16 +285,29 @@ export function EventLandingPage({
                     <p className="text-sm font-bold text-white">{t.author}</p>
                     <p className="text-xs text-zinc-400">{t.role}</p>
                   </div>
-                </LandingMotionCard>
+                </motion.div>
               ))}
-            </LandingMotionGrid>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
         {/* Contacto & Formulario */}
-        <section id="contacto" className="border-y border-zinc-200 bg-zinc-50 py-16 sm:py-24">
+        <motion.section
+          id="contacto"
+          initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-50px' }}
+          transition={{ duration: 0.5, ease: SUAVE }}
+          className="border-y border-zinc-200 bg-zinc-50 py-16 sm:py-24"
+        >
           <div className="mx-auto grid max-w-6xl items-start gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-8">
-            <div className="lg:pt-8">
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, ease: SUAVE }}
+              className="lg:pt-8"
+            >
               <CalendarDays className="h-7 w-7 text-red-700" aria-hidden="true" />
               <h2 className="mt-5 text-3xl font-black text-zinc-950 sm:text-4xl">Empecemos a planificar</h2>
               <p className="mt-4 text-base leading-relaxed text-zinc-600">Contanos la fecha aproximada y las personas invitadas. Nuestro equipo recibe tu consulta en el CRM para continuar por el canal que prefieras.</p>
@@ -196,15 +325,22 @@ export function EventLandingPage({
                   <span>Asesoramiento comercial personalizado</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
             {/* LeadCaptureForm usa useSearchParams para saber de que campania
                 viene el prospecto. Sin este Suspense, Next no puede generar la
                 landing y la compilacion de toda la app falla. */}
-            <Suspense fallback={null}>
-              <LeadCaptureForm fuente={source} tipoEventoDefault={eventType} title={`Cotizá ${eventType}`} subtitle="Dejanos tus datos y te contactamos con una propuesta para tu evento." />
-            </Suspense>
+            <motion.div
+              initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: 0.1, ease: SUAVE }}
+            >
+              <Suspense fallback={null}>
+                <LeadCaptureForm fuente={source} tipoEventoDefault={eventType} title={`Cotizá ${eventType}`} subtitle="Dejanos tus datos y te contactamos con una propuesta para tu evento." />
+              </Suspense>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
       </main>
       <PublicFooter variant="dark" />
 
