@@ -50,6 +50,20 @@ hacer nada. Lo que no se puede es dejarlo como está.
 
 ---
 
+## PRIMERO LEE LA HABILIDAD `animaciones-pro`
+
+**Esta instalada en el proyecto: `.claude/skills/animaciones-pro/SKILL.md`.** Trae las curvas
+exactas, los tiempos, el codigo del patron que se usa en el 90% de los casos, y **las tres
+pruebas** que separan una animacion profesional de una que espanta clientes. **No inventes
+tiempos ni curvas: estan definidos ahi y toda la app se tiene que mover igual.**
+
+Lo primero que pide es crear **`src/lib/motion.ts`** con las tres curvas, para que el movimiento
+salga de un solo lugar. Verificado el 2 de septiembre: **ese archivo todavia no existe**, asi
+que lo creas vos.
+
+Las reglas de abajo siguen valiendo y estan de acuerdo con la habilidad; **si algo se
+contradice, manda la habilidad**, que es la que se mantiene al dia.
+
 ## LAS REGLAS, primero, porque el movimiento mal hecho es PEOR que ninguno
 
 Una página que se sacude, rebota o hace esperar **se siente barata y lenta**. Esto no se
@@ -150,5 +164,6 @@ usa: framer-motion en src/components/public/CallToActionBanner.tsx
 usa: framer-motion en src/app/landing/xv-anos/page.tsx
 usa: framer-motion en src/app/landing/bodas/page.tsx
 usa: prefers-reduced-motion en src/app/ak-motion-effects.css
+archivo: src/lib/motion.ts
 prueba: tests/e2e/la-web-de-venta-se-mueve.spec.ts
 ```
