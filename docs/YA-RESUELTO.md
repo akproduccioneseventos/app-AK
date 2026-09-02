@@ -6507,3 +6507,39 @@ usa: recordingDurationSeconds en src/app/evento/bogue/[fiestaId]/page.tsx
 usa: EmptyWallState en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 usa: mode=foto en tests/e2e/como-se-ven-las-estaciones.spec.ts
 ```
+
+---
+
+## El control daba verde con la función muerta adentro (2 de septiembre de 2026)
+
+**Error propio, y del tipo que esta lista existe para frenar.**
+
+La entrega de las órdenes 30 y 34 dio **10 de 10 y 8 de 8** en `npm run ordenes?`. Al revisarla
+a mano, tres cosas estaban mal, y la más grave era justamente la que el control decía cumplida:
+
+**`procesarFondoCanvas` aparecía llamada en la fotocabina y en el Bogue, y no se ejecutaba
+nunca.** La llamada estaba adentro de un `if (fondoVirtual.tipo !== 'ninguno')`, el estado
+arrancaba en `'ninguno'`, y **`setFondoVirtual` no se llamaba en ningún lado**: no había ningún
+botón para elegir el fondo. La condición era siempre falsa.
+
+**La causa: `usa:` comprueba que el nombre APAREZCA, no que la función CORRA.** Alcanza para
+detectar lo que ni siquiera se escribió, y no alcanza para detectar lo escrito y desenchufado
+—que es la forma exacta que tuvieron todas las fallas de este año—.
+
+**El matafuego, y se probó contra la entrega real:** cuando algo se enciende desde la pantalla,
+la comprobación **exige también el interruptor**, no sólo la función. Acá, `setFondoVirtual(`
+con paréntesis: la declaración del estado no lo tiene, **sólo una llamada de verdad lo tiene**.
+Lo mismo para las pruebas de movimiento, que ahora exigen `boundingBox` —medir la posición— y
+`toBeVisible` en vez de `toContainText`, que pasa aunque el elemento esté invisible.
+
+**Comprobado rompiéndolo:** con el control reforzado, la misma entrega que daba 10 de 10 y 8 de
+8 ahora **frena en las cuatro líneas nuevas**.
+
+**La regla que queda:** cuando una comprobación cubra algo que el usuario enciende, **tiene que
+nombrar el control de la pantalla, no la función que hay detrás**. Si sólo se nombra la
+función, el control no distingue entre "hecho" y "escrito y muerto".
+
+```comprobar
+usa: setFondoVirtual( en docs/ordenes/34-lo-que-falta-de-verdad.md
+usa: boundingBox en docs/ordenes/30-que-la-app-se-mueva.md
+```

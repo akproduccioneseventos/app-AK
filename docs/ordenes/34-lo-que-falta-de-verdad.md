@@ -218,7 +218,9 @@ arreglo sin ese control no está terminado.
 ```comprobar
 archivo: src/lib/entretenimiento/segmentacion-fondo.ts
 usa: procesarFondoCanvas( en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: setFondoVirtual( en src/app/evento/fotocabina/[fiestaId]/page.tsx
 usa: procesarFondoCanvas( en src/app/evento/bogue/[fiestaId]/page.tsx
+usa: setFondoVirtual( en src/app/evento/bogue/[fiestaId]/page.tsx
 usa: brandText en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 usa: accentColor en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 usa: getPublicInstagramFeed en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx

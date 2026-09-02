@@ -166,4 +166,6 @@ usa: framer-motion en src/app/landing/bodas/page.tsx
 usa: prefers-reduced-motion en src/app/ak-motion-effects.css
 archivo: src/lib/motion.ts
 prueba: tests/e2e/la-web-de-venta-se-mueve.spec.ts
+usa: boundingBox en tests/e2e/la-web-de-venta-se-mueve.spec.ts
+usa: toBeVisible en tests/e2e/la-web-de-venta-se-mueve.spec.ts
 ```
