@@ -18,6 +18,16 @@ en `docs/YA-RESUELTO.md` **con su línea en el bloque `comprobar`**.
 
 ---
 
+## PARA GEMINI, EN ESTE ORDEN
+
+**1) La orden 30 — que la web de venta se mueva.** `docs/ordenes/30-que-la-app-se-mueva.md`,
+actualizada el 2 de septiembre con la medicion de hoy: **da 1 de 9**. Las ocho paginas de venta
+tienen CERO movimiento, y son las que ve quien llega de Google. Adentro de la app el movimiento
+ya esta (95 archivos): **el agujero es solo afuera**. Arranca por `.ak-motion-rise`, que ya esta
+escrita, se carga en todas las pantallas y **no la usa nadie**.
+
+**2) La orden 34 — lo que falta de verdad.** Abajo.
+
 ## LO PRIMERO: la orden 34
 
 **`docs/ordenes/34-lo-que-falta-de-verdad.md`** — escrita el 2 de septiembre de 2026 despues de

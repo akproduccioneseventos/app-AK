@@ -4,20 +4,45 @@
 
 > **Pedido del dueño:** *"la app sigue sin tener movimiento"*, *"movimiento de la estética"*.
 
-## Lo medido, y explica el problema
+## Lo medido el 2 de septiembre de 2026 (esto reemplaza la medición vieja)
 
-| Dónde | Archivos con movimiento |
-|---|---|
-| **Las landings** (`src/app/landing`) | **0 de 6** |
-| **Las páginas de venta** (`src/app/public`) | **0 de 4** |
-| **La invitación digital** | 2 de 7 |
-| El entretenimiento | 17 de 60 |
+**Las ocho páginas de venta tienen CERO movimiento.** Comprobado archivo por archivo:
 
-**Está al revés de lo que conviene.** Lo animado está adentro, en la fiesta; **lo quieto está
-afuera**, justo en las pantallas que ve un prospecto que llega de Google o de un anuncio, y en
-la invitación que la novia le manda a 200 personas.
+| Pantalla | Archivo | Movimiento |
+|---|---|---|
+| La portada | `src/app/page.tsx` | **0** |
+| Landing de quince | `src/app/landing/xv-anos/page.tsx` | **0** |
+| Landing de bodas | `src/app/landing/bodas/page.tsx` | **0** |
+| Landing de eventos | `src/app/landing/eventos/page.tsx` | **0** |
+| Landing general y la de campaña | `src/app/landing/page.tsx`, `landing/[slug]/page.tsx` | **0** |
+| Las de tipo de evento | `src/app/public/[eventType]/page.tsx` | **0** |
+| El blog | `src/app/public/blog/page.tsx` | **0** |
+| Bodas, cumpleaños, experiencia AK, club, catálogo | `src/app/{bodas,cumpleanos,experiencia-ak,club-uruguay,catalogo}/page.tsx` | **0** |
 
-**La app ya usa `framer-motion` en 57 pantallas: no hay que traer nada nuevo.**
+**Los trece bloques que arman esas páginas y NO se mueven** (`src/components/public/`), y son
+justo los que venden:
+
+`TestimonialsCarousel.tsx` · `GallerySection.tsx` · `WhyChooseUs.tsx` · `EventProcess.tsx` ·
+`PromotionsOrGifts.tsx` · `CallToActionBanner.tsx` · `FAQSection.tsx` · `PaymentMethods.tsx` ·
+`BlogInteractiveList.tsx` · `BlogFaq.tsx` · `PublicNavbar.tsx` · `QuinceaneraLeadPrompt.tsx` ·
+`LocalBusinessSchema.tsx` (este último no se ve, es para Google: **no lo toques**).
+
+**Los cinco que SÍ se mueven, y no hay que rehacer:** `HeroSection.tsx`, `AsistenteVirtual.tsx`,
+`FloatingActions.tsx`, `ServiceMenu.tsx`, `InteractiveTechShowcase.tsx`.
+
+**Adentro de la app el movimiento ya está**: 95 archivos usan `framer-motion`. **El problema es
+sólo afuera**, en lo que ve quien llega de Google o de un anuncio.
+
+## Y hay algo ya escrito que nadie usa: empezá por acá
+
+`src/app/ak-motion-effects.css` define **`.ak-motion-rise`** —exactamente el efecto de "aparecer
+subiendo" que pide esta orden—, y `src/app/layout.tsx:6` lo carga **en todas las pantallas de la
+app**. Comprobado el 2 de septiembre: **ningún componente lo usa.** Lo mismo con
+`.ak-deferred-section` y `.ak-led-stage-safe`: cero usos.
+
+**Qué hacer con eso, y decidilo vos:** si sirve para el bloque 1, **usalo** y te ahorrás la
+mitad del trabajo. Si no sirve, **borralo del CSS**, porque hoy se descarga en cada visita sin
+hacer nada. Lo que no se puede es dejarlo como está.
 
 ## CÓMO SE ENTREGA
 
@@ -103,3 +128,27 @@ carga se ve barata**, aunque el contenido sea bueno.
 Que **nada importante quede escondido esperando una animación**: abrir la portada y las landings
 y comprobar que **el título, el precio y el botón de contacto están visibles**. Ése es el riesgo
 real de esta orden: que por animar, el prospecto entre y no vea el precio.
+
+---
+
+## CÓMO SE COMPRUEBA QUE ESTÁ HECHA
+
+Sin este bloque nadie puede decir si la orden se cumplió: es lo que mira `npm run ordenes?`.
+
+**Y ojo con la prueba**, que acá está el riesgo de verdad: una prueba que sólo mire *"se ve el
+título"* **pasa igual con la página quieta**. Tiene que comprobar **las dos cosas**: que el
+elemento se mueve (que su posición o su opacidad cambian entre el momento de entrar y medio
+segundo después) **y que el título, el precio y el botón de contacto están visibles desde el
+principio**, sin esperar ninguna animación.
+
+```comprobar
+usa: framer-motion en src/components/public/TestimonialsCarousel.tsx
+usa: framer-motion en src/components/public/GallerySection.tsx
+usa: framer-motion en src/components/public/WhyChooseUs.tsx
+usa: framer-motion en src/components/public/EventProcess.tsx
+usa: framer-motion en src/components/public/CallToActionBanner.tsx
+usa: framer-motion en src/app/landing/xv-anos/page.tsx
+usa: framer-motion en src/app/landing/bodas/page.tsx
+usa: prefers-reduced-motion en src/app/ak-motion-effects.css
+prueba: tests/e2e/la-web-de-venta-se-mueve.spec.ts
+```
