@@ -616,6 +616,23 @@ diferencia era una mayúscula.
 días sin poder publicarse y nadie lo vio. **El build es control obligatorio**, no
 un extra.
 
+### 7. Escribir la comprobación pidiendo el ingrediente y no el resultado
+
+**Pasó el 2 de septiembre de 2026 y dejó pasar una entrega vacía.** La orden 30 pedía que las
+landings se movieran, y la comprobación que se escribió fue *"que aparezca `framer-motion` en
+el archivo"*. La entrega agregó a cada landing un elemento **invisible y vacío** con la
+animación encima. **El control dio 10 de 10 con la página completamente quieta.**
+
+**Lo cierto:** que la biblioteca aparezca en el archivo no dice que la pantalla se mueva.
+
+**Qué se hace distinto:** una línea del bloque `comprobar` tiene que pedir **el resultado**, no
+el ingrediente. Y cuando el resultado sólo se ve abriendo la pantalla —que se mueva, que
+imprima, que cambie el fondo—, la comprobación va acompañada de **una prueba de navegador que
+mire ese resultado**, no de un nombre buscado en el código.
+
+**La pregunta antes de escribir una línea de `comprobar`:** *¿esto podría dar verde con la
+función apagada?* Si la respuesta es que sí, está mal escrita.
+
 ### 6. Decir la causa antes de medirla
 
 **Se lo señaló el dueño el 2 de septiembre de 2026: *"te pasás equivocando"*.** Tenía razón, y
@@ -815,6 +832,7 @@ con otra cara.
 | El manual envejecía y mentía | `src/__tests__/mapa-de-la-app-al-dia.test.ts` |
 | La maquetación se movía sola | `tests/e2e/layout-baseline.spec.ts` |
 | Un control decía "todo bien" sin mirar nada | Todo control nuevo **se prueba rompiéndolo** |
+| Se animó un elemento invisible para que el control se callara | `src/__tests__/nada-de-animaciones-de-mentira.test.ts` |
 
 ### Cómo se elige el matafuego
 
