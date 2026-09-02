@@ -6619,3 +6619,30 @@ ve**.
 prueba: src/__tests__/nada-de-animaciones-de-mentira.test.ts
 usa: sr-only en src/__tests__/nada-de-animaciones-de-mentira.test.ts
 ```
+
+---
+
+## El album del recuerdo pedia iniciar sesion (2 de septiembre de 2026)
+
+**Era el unico regalo del cliente que el invitado no podia abrir.**
+
+`/evento/album/[fiestaId]` **no estaba** en la lista de pantallas publicas, mientras que la
+galeria, el muro en vivo y las seis estaciones si lo estaban. El invitado recibia el enlace del
+album, lo tocaba y **caia en la pantalla de iniciar sesion**.
+
+Fue un olvido, no una decision: se comprobo que la pantalla lee **exactamente las mismas
+fuentes publicas que la galeria** (`getPublicSocialEvent` y `getPublicSocialPosts`), asi que
+abrirla **no muestra nada que no se viera ya** con el enlace de la galeria. Y va por fiesta:
+quien tiene un enlace ve esa fiesta, no las demas.
+
+**Por que no se noto antes:** todo compilaba y para el equipo funcionaba, porque el equipo tiene
+cuenta. **El unico que se topaba con la pared era el invitado**, que es justo el que nadie
+prueba.
+
+**El matafuego:** `src/__tests__/el-album-se-abre-con-el-enlace.test.ts`. Comprobado rompiendolo
+a proposito: sacando el album de la lista se pone en rojo, poniendolo vuelve a verde.
+
+```comprobar
+prueba: src/__tests__/el-album-se-abre-con-el-enlace.test.ts
+usa: '/evento/album' en src/lib/auth/public-paths.ts
+```

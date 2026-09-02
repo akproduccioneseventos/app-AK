@@ -79,3 +79,30 @@ igual que estaban la fotocabina y el Bogue. Quedó afuera. Misma solución que e
 3. `npm run "publicar?"` completo, una sola vez, al final.
 4. `npm run limpiar:corrida`.
 5. Anotado en `docs/YA-RESUELTO.md` con su línea en el bloque `comprobar`.
+
+---
+
+## 5. Y aparte: la pantalla de la fiesta de esta noche está rota
+
+**`/evento/actual` se rompe con el error 310 de React.** Lo encontró el recorrido de la puerta el
+2 de septiembre de 2026, y **no lo rompió esta tanda**: ninguna de las dos propuestas tocó esa
+pantalla.
+
+Ese error quiere decir siempre lo mismo: **hay un `return` antes de los `useState`/`useEffect`**,
+o un hook adentro de un `if`. Se arregla subiendo todos los hooks arriba de cualquier `return`.
+
+**Es el mismo error que ya se arregló en el blog y en las landings principales**, así que hay de
+dónde copiar la solución. Falta terminarlo acá y en `/invitado/[fiestaId]/[invitadoId]`, que es
+la pantalla del invitado.
+
+**Importa más que el resto de esta devolución:** es la pantalla que se usa la noche del evento.
+
+## Nota sobre las otras "pantallas rotas" del recorrido
+
+Se verificaron una por una y **cuatro son falsa alarma del control**, no de la app:
+`/analytics`, las estadísticas de la barra, el video recuerdo y la entrada del evento **son
+tableros de números** — no tienen botones porque no los necesitan, y el recorrido marca como
+rota toda pantalla "sin ningún control para tocar". **No las toques.**
+
+Y `/landing/bodas` y `/landing/eventos` fallan por ser **páginas que sólo redirigen**; se
+resuelven con el punto 2 de esta devolución.
