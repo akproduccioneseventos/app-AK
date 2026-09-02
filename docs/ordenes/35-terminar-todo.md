@@ -139,6 +139,26 @@ el álbum ella misma y después compruebe que existe **no prueba nada**.
 
 ---
 
+## BLOQUE 5.b — El invitado escribe su nombre cuando la app ya sabe quién es
+
+**Medido el 2 de septiembre de 2026.** Cuando el invitado entra a confirmar **desde su propio
+portal**, el enlace lleva quién es: `src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx:282`
+arma el enlace con `guestPath(...)`, que le agrega su identificador y su llave.
+
+**Y la pantalla de confirmación los ignora.** `src/app/invitacion/[fiestaId]/rsvp/page.tsx` **no
+lee nada de la dirección** —no usa `useSearchParams`— así que le pide el nombre igual, en la
+línea 454. La app sabe que es María García y le pregunta cómo se llama.
+
+**Qué hacer:** si la dirección trae el invitado, **traer su nombre y su teléfono ya escritos**, y
+dejarlos editables por si quiere corregirlos. Si no los trae —que es el caso del que llega por
+el enlace general— **todo sigue exactamente como está**: ahí escribir el nombre es correcto, es
+como la app se entera de quién confirmó.
+
+**Qué comprueba la prueba:** que entrando **con** el invitado en la dirección, el campo del
+nombre **ya viene lleno**; y que entrando **sin** él, sigue vacío y se puede confirmar igual. La
+segunda es la que importa: **no rompas el camino del que llega por el enlace general**, que son
+la mayoría.
+
 ## BLOQUE 6 — CAMBIAR COSAS SIN VOLVER A PUBLICAR
 
 `docs/ordenes/33-cambiar-sin-desplegar.md` — **da 0 de 3.** Es corta y ya está medida.
