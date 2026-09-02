@@ -25,9 +25,32 @@ verdad. **No inventes criterios: están ahí.**
 
 ## BLOQUE 1 — QUE ANDE EN EL CELULAR
 
-### 1.a Los arreglos
+### 1.a Los arreglos — verificados uno por uno
 
-_(la lista medida se agrega abajo, con archivo y línea)_
+**De 36 avisos que trajo el barrido, 4 son ciertos.** El resto se comprobó y era falsa alarma;
+está listado abajo para que **no los toques**.
+
+**Los campos de texto con letra chica.** Menos de 16 píxeles hace que el teléfono **haga zoom
+solo** al tocarlos y descoloque la pantalla. Son tres:
+
+| Archivo | Línea | Qué tiene |
+|---|---|---|
+| `src/app/invitacion/[fiestaId]/rsvp/page.tsx` | 631 | `text-sm` en el campo de comentario |
+| `src/app/portal/mesas/page.tsx` | 350 | `text-xs` en el buscador |
+| `src/app/portal/mesas/page.tsx` | 352 | `text-xs` en el selector de grupo |
+
+**El primero es el que importa de verdad:** es donde el invitado confirma si viene, desde el
+teléfono, y es el momento en que más caro sale que la pantalla se descoloque.
+
+En `portal/mesas` mirá también los anchos fijos `w-40` y `w-28` de esos dos controles.
+
+### 1.a.bis LO QUE NO HAY QUE TOCAR — falsa alarma comprobada
+
+- **`max-w-[420px]` en el tótem.** Es un **máximo**, no un mínimo: nunca desborda. Y un tótem no
+  es un celular.
+- **Las grillas `grid-cols-4` y `grid-cols-5`** de las estaciones y de `en-vivo`. Una grilla
+  **se achica sola**; no empuja la página. Quedan apretadas, nada más.
+- **Las tablas.** Se revisaron todas y **ya están envueltas** para que se deslicen solas.
 
 ### 1.b El control que lo impide volver
 
@@ -52,9 +75,40 @@ ponga en rojo, y sacala. **Dejá escrito que lo comprobaste.**
 
 ## BLOQUE 2 — QUE CARGUE RÁPIDO
 
-### 2.a Los arreglos
+### 2.a El arreglo — uno solo, y es el que vale
 
-_(la lista medida se agrega abajo, con archivo y línea)_
+**LA GALERÍA BAJA LAS FOTOS ENTERAS PARA MOSTRARLAS CHIQUITAS.**
+
+En `src/app/evento/galeria/[fiestaId]/page.tsx:241` cada cuadradito de la grilla muestra
+`post.imageUrl`, que es **la foto original**. Se comprobó: **no existe ninguna versión chica**.
+El campo `thumbnailUrl` existe en `src/types/galeria.ts:27` pero **sólo lo llena el módulo de
+videos de la landing**; para las fotos de los invitados **no lo llena nadie**.
+
+**Por qué importa más que todo lo demás junto:** una foto de fiesta pesa varios megas. Una
+galería de 300 fotos son **cerca de mil megas** que se bajan enteros para mostrar cuadraditos, en
+el wifi de un salón, con 200 invitados a la vez. **Y Firebase cobra por lo que se baja.**
+
+**Qué hacer:**
+
+1. **Al subir cada foto, guardar además una versión chica** —el lado largo en 400 píxeles— en
+   `thumbnailUrl`.
+2. **La grilla usa la chica; la foto entera se baja sólo al abrirla.**
+3. **Para las fotos que ya están subidas**, que la grilla siga funcionando con la original si no
+   hay versión chica. **Nunca un cuadrado vacío.**
+
+**Qué comprueba la prueba:** que al abrir la galería, **lo que se baja pesa mucho menos que la
+suma de las fotos originales**. Una prueba que sólo mire que `thumbnailUrl` existe en el código
+**no prueba nada**: ya existe y no lo usa nadie.
+
+### 2.a.bis LO QUE NO HAY QUE TOCAR — falsa alarma comprobada
+
+- **Las 25 etiquetas `<img>` sueltas.** Se revisaron: casi todas muestran **la foto que acaba de
+  sacar la cámara**, que no se baja de ningún lado. Y las dos públicas —la tira de Instagram y la
+  de videos— **tienen escrito al lado por qué son así**: direcciones que caducan y medidas
+  variables. **Fueron decisiones tomadas, no descuidos.**
+- **Pedir datos de a uno adentro de un bucle: cero casos.** Se buscó y no hay.
+- **Bibliotecas pesadas en pantallas públicas: cero casos.**
+- **Fotos sin lugar reservado: cero casos.** Todas las que usan el componente lo tienen.
 
 ### 2.b El control
 
