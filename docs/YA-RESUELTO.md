@@ -6640,3 +6640,37 @@ dibujaron.
 usa: noHayNadaParaLeer en tests/e2e/recorrido-de-pantallas.spec.ts
 archivo: scripts/que-falta.mjs
 ```
+
+---
+
+## El cliente veia sus fotos y no las podia bajar (2 de septiembre de 2026)
+
+**Lo causo una correccion propia del dia anterior, y es de lo mas caro que hay: toca lo que el
+cliente recibe.**
+
+Al sacar el enlace fijo que mandaba al disco de todos los clientes del fotografo, las **cuatro
+tarjetas de descarga** del portal quedaron colgadas del dato equivocado -`customAlbumUrl`, que es
+**el album editado del fotografo**, otro material-. Quedaba mal de las dos maneras:
+
+- **Sin ese enlace cargado:** el cliente veia *"247 fotos compartidas en vivo"* y **ningun
+  boton**. Una promesa sin forma de cumplirla.
+- **Con el enlace cargado:** el boton decia "Descargar" debajo de *"Fotos de los Invitados"* y
+  **lo llevaba al album del fotografo**, que es otra cosa.
+
+**Como quedo:** las cuatro tarjetas van a la **galeria publica de la fiesta**, filtrada por
+estacion (`/evento/galeria/[fiestaId]?estacion=fotocabina`), y la galeria ahora entiende ese
+filtro cuando le llega por la direccion, **validandolo contra su lista** -lo que viene por la
+direccion lo escribe cualquiera-.
+
+**La trampa que casi se pisa:** el primer arreglo iba a enchufarles la descarga interna
+`/api/fiestas/[fiestaId]/download-recuerdos`. **Esa pide sesion de administrador**: le habria
+contestado *"no autorizado"* al cliente. Se descubrio abriendo el archivo antes de tocar.
+
+**El matafuego:** `src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts`, comprobado
+rompiendolo a proposito.
+
+```comprobar
+prueba: src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts
+usa: enlaceALaGaleria en src/components/social-wall/PostEventMemoryHub.tsx
+usa: get('estacion') en src/app/evento/galeria/[fiestaId]/page.tsx
+```
