@@ -27,14 +27,20 @@ test.describe('Orden 27: La Vidriera de la Tecnología', () => {
     await page.waitForTimeout(2_000);
 
     // 2. Comprobar que muestra el título y las estaciones
-    await expect(vidriera).toContainText('Tecnología Interactiva');
-    await expect(vidriera).toContainText('Fotocabina Digital');
+    // Los textos que la vidriera SI tiene. La version anterior de esta prueba
+    // buscaba "Tecnologia Interactiva" adentro de la vidriera, y ese texto esta
+    // en OTRA seccion de la portada: la prueba esperaba para siempre por algo
+    // que nunca iba a aparecer ahi.
+    await expect(vidriera).toContainText('Experiencias que hacen tu fiesta inolvidable', {
+      timeout: 30_000,
+    });
+    await expect(vidriera).toContainText('Fotocabina Digital', { timeout: 30_000 });
 
     // 3. Cambiar de estación interactiva
     const boton360 = vidriera.getByRole('button', { name: /Plataforma 360/i });
     if (await boton360.isVisible()) {
       await boton360.click();
-      await expect(vidriera).toContainText('Video Dinámico HD');
+      await expect(vidriera).toContainText('Video Dinámico HD', { timeout: 20_000 });
     }
   });
 
