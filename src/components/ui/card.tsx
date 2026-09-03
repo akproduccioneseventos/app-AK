@@ -35,6 +35,12 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
+    // Una marca invisible para que los controles puedan encontrar el titulo de
+    // una tarjeta. **No cambia nada de como se ve.** Hizo falta el 3 de
+    // septiembre de 2026: la pantalla de mesas muestra su titulo bien -"
+    // Organizador de Mesas e Invitados"- pero como aca se dibuja un `div` y no
+    // un titulo de verdad, el control la daba por vacia.
+    data-slot="card-title"
     className={cn(
       "text-xl font-black leading-tight tracking-normal text-foreground",
       className

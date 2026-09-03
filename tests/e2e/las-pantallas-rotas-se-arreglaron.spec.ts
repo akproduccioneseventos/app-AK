@@ -63,7 +63,7 @@ async function seComportaBien(page: Page, ruta: string) {
   // `components/ui/alert.tsx:39`- se dibuja como **h5**. Por eso daba por
   // rota la pantalla del proveedor, que en realidad muestra su cartel bien.
   const hayTitulo = await page
-    .locator('h1, h2, h3, h4, h5, h6, [role="heading"], [data-slot="alert-title"]')
+    .locator('h1, h2, h3, h4, h5, h6, [role="heading"], [data-slot="alert-title"], [data-slot="card-title"]')
     .first()
     .isVisible()
     .catch(() => false);
