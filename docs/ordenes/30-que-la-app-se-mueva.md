@@ -161,7 +161,7 @@ usa: framer-motion en src/components/public/GallerySection.tsx
 usa: framer-motion en src/components/public/WhyChooseUs.tsx
 usa: framer-motion en src/components/public/EventProcess.tsx
 usa: framer-motion en src/components/public/CallToActionBanner.tsx
-usa: framer-motion en src/components/landing/LandingMotionSection.tsx
+usa: whileInView en src/components/landing/EventLandingPage.tsx
 usa: prefers-reduced-motion en src/app/ak-motion-effects.css
 archivo: src/lib/motion.ts
 prueba: tests/e2e/la-web-de-venta-se-mueve.spec.ts
