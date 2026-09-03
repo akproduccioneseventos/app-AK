@@ -200,8 +200,9 @@ usa: setFondoVirtual( en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 usa: brandText en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 usa: accentColor en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 usa: getPublicInstagramFeed en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
-usa: copias en src/app/evento/fotocabina/[fiestaId]/page.tsx
-usa: audioRef en src/app/evento/album/[fiestaId]/page.tsx
+usa: copiasImpresion en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: tamanoPapel en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: audioRef.current en src/app/evento/album/[fiestaId]/page.tsx
 archivo: src/lib/firebase/ajustes-remotos.ts
 prueba: tests/e2e/la-fotocabina-imprime-lo-que-se-pide.spec.ts
 prueba: tests/e2e/el-album-se-arma-solo.spec.ts
