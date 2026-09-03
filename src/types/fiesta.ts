@@ -808,6 +808,9 @@ export interface SocialGallerySettings {
   allowLikes: boolean;
   allowComments: boolean;
   uploadsActive: boolean;
+  /** Música o canción del evento para el álbum digital */
+  cancionUrl?: string;
+  musicaFondoUrl?: string;
   privateDedicationsMode?: boolean;
   requireApproval?: boolean;
   marketingTickerText?: string;
@@ -1493,6 +1496,8 @@ export interface FiestaEnPlanificacion {
   socialGallerySettings?: SocialGallerySettings;
   googleSyncWarning?: string;
   musica?: MusicaFiesta;
+  cancionUrl?: string;
+  musicaFondoUrl?: string;
   reposteria?: ReposteriaData;
   bebidas?: BebidasData;
   listaDeCargaOperativa?: ListaDeCargaOperativa;

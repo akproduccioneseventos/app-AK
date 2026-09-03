@@ -60,6 +60,11 @@ export default function PublicAlbumPage() {
   const [musicaActiva, setMusicaActiva] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const cancionFiesta =
+    fiesta?.cancionUrl ||
+    fiesta?.socialGallerySettings?.cancionUrl ||
+    fiesta?.socialGallerySettings?.musicaFondoUrl;
+
   const toggleMusica = useCallback(() => {
     if (!audioRef.current) return;
     if (musicaActiva) {
@@ -264,29 +269,31 @@ export default function PublicAlbumPage() {
               )}
             </button>
 
-            {/* Música de fondo del álbum: arranca en silencio para no espantar */}
-            <button
-              onClick={toggleMusica}
-              aria-label={musicaActiva ? 'Silenciar música' : 'Activar música de fondo'}
-              data-testid="boton-musica-album"
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-all shadow-md active:scale-95 border ${
-                musicaActiva
-                  ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
-                  : 'bg-zinc-900 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
-              }`}
-            >
-              {musicaActiva ? (
-                <>
-                  <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                  <span>Música sonando</span>
-                </>
-              ) : (
-                <>
-                  <VolumeX className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>Música de fondo</span>
-                </>
-              )}
-            </button>
+            {/* Música de fondo del álbum: solo aparece si la fiesta tiene canción cargada */}
+            {cancionFiesta && (
+              <button
+                onClick={toggleMusica}
+                aria-label={musicaActiva ? 'Silenciar música' : 'Activar música de fondo'}
+                data-testid="boton-musica-album"
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-all shadow-md active:scale-95 border ${
+                  musicaActiva
+                    ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                    : 'bg-zinc-900 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                {musicaActiva ? (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                    <span>Música sonando</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>Música de fondo</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -662,14 +669,16 @@ export default function PublicAlbumPage() {
         )}
       </AnimatePresence>
 
-      {/* Música de fondo del álbum: arranca en silencio para no espantar */}
-      <audio
-        ref={audioRef}
-        src="/audio/album-ambiente.mp3"
-        loop
-        preload="auto"
-        data-testid="audio-fondo-album"
-      />
+      {/* Música de fondo del álbum: usa la canción de la fiesta y arranca en silencio */}
+      {cancionFiesta && (
+        <audio
+          ref={audioRef}
+          src={cancionFiesta}
+          loop
+          preload="auto"
+          data-testid="audio-fondo-album"
+        />
+      )}
     </div>
   );
 }
