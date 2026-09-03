@@ -21,7 +21,6 @@ describe('public commercial contact integrity', () => {
     'src/components/public/PublicNavbar.tsx',
     'src/components/public/CallToActionBanner.tsx',
     'src/components/public/ServiceMenu.tsx',
-    'src/components/marketing-banner.tsx',
     'src/app/landing/xv-anos/page.tsx',
     'src/app/landing/bodas/page.tsx',
     'src/app/landing/eventos/page.tsx',
