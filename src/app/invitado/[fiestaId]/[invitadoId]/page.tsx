@@ -13,6 +13,6 @@ export default async function LegacyGuestPage({
   const { token } = await searchParams;
   const query = token ? `?token=${encodeURIComponent(token)}` : '';
   redirect(
-    `/invitacion/${encodeURIComponent(fiestaId)}/invitado/${encodeURIComponent(invitadoId)}${query}`,
+    `/portal-invitado/${encodeURIComponent(fiestaId)}/${encodeURIComponent(invitadoId)}${query}`,
   );
 }
