@@ -95,8 +95,20 @@ function devolucionesAbiertas() {
 
 const VE_EL_CLIENTE = /^\/(portal|portal-cliente|invitado|invitacion|evento|landing|bodas|quinceaneras|public|simulador)/;
 
+// De que version se esta hablando. **Importa y confunde si no se dice:** esto
+// mide la rama en la que estas parado, y el trabajo que todavia esta en la rama
+// de Gemini figura como faltante hasta que se fusiona.
+let rama = '';
+try {
+  rama = execFileSync('git', ['branch', '--show-current'], { encoding: 'utf8' }).trim();
+} catch { /* sin git, no pasa nada */ }
+
 console.log('\n' + '='.repeat(64));
 console.log('  QUÉ FALTA — ordenado por lo que le cuesta plata al negocio');
+if (rama) {
+  console.log(`  Medido sobre la rama "${rama}". Lo que todavia esta sin fusionar`);
+  console.log('  figura como faltante aunque ya este programado en otra rama.');
+}
 console.log('='.repeat(64));
 
 // ---- 1. Lo roto que ve un cliente o un invitado ----

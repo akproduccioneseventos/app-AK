@@ -6,43 +6,52 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 ---
 
 **Última actualización:** 2 de septiembre de 2026. **Rama: `revision-t6`.**
-**Lo primero: `npm run ordenes?`.** Si dice FALTA, falta, aunque las pruebas den verde.
-**Pero ojo, y es lo que se aprendió hoy: que dé verde tampoco alcanza.** Ver más abajo.
 
-## Lo que se hizo hoy
+**`npm run "falta?"` se imprime solo al abrir la sesión** y contesta qué falta, ordenado por lo
+que le cuesta plata al negocio. **Ojo: mide la rama en la que estás.** Lo que Gemini ya programó
+en `feat/orden-34` figura como faltante hasta que se fusione.
 
-- **El álbum del recuerdo ya se abre con el enlace**, sin pedir cuenta. Era la única pantalla
-  del evento que pedía iniciar sesión: **el invitado no podía abrir el regalo del cliente.**
-- **La orden 34**, con lo que falta de verdad. Se verificaron una por una las ~50 funciones que
-  el control daba por faltantes: **catorce ya estaban hechas.** El conteo real quedó corregido.
-- **Cinco habilidades instaladas** en `.claude/skills/`: `animaciones-pro`, `que-te-encuentren`,
-  `que-cargue-rapido`, `celular-primero`, más las que ya estaban.
-- **Tres matafuegos nuevos**, los tres probados rompiéndolos a propósito.
+## Lo que se arregló hoy, y los dos primeros eran graves
 
-## La lección del día, y está en `CLAUDE.md` como regla 7
+- **El álbum del recuerdo se abre con el enlace.** Era la única pantalla del evento que pedía
+  cuenta: **el invitado no podía abrir el regalo del cliente.**
+- **El cliente ya puede bajar las fotos de su fiesta.** Las cuatro tarjetas de descarga del
+  portal llevaban al álbum del fotógrafo —otro material— o no mostraban botón. **Lo causé yo** al
+  sacar el enlace viejo.
+- **El control del rubro dejó de mentir:** catorce funciones que daba por faltantes ya estaban.
+- **El recorrido dejó de marcar los tableros de números como pantallas rotas.**
 
-**El control dio 10 de 10 con la página completamente quieta.** La comprobación pedía que
-apareciera el nombre de la biblioteca en el archivo, y la entrega agregó un elemento **invisible
-y vacío** con la animación encima.
+## Lo que está esperando a Gemini
 
-**Una comprobación pide el RESULTADO, no el ingrediente.** La pregunta antes de escribir una:
-*¿esto podría dar verde con la función apagada?*
+En `feat/orden-34` ya entregó y **verifiqué abriendo los archivos**: el movimiento de las
+landings (bien resuelto, en el componente compartido), el reproductor del álbum, las copias de
+impresión con su propio ajuste y el tamaño de papel.
 
-## Lo que sigue
+**Le queda una sola cosa:** `docs/ordenes/DEVOLUCION-la-musica-del-album.md` — el reproductor
+apunta a un archivo que no existe, así que el botón no suena. Se pide que use **la canción de esa
+fiesta** y que, si no hay, **el botón no aparezca**.
 
-1. **Gemini tiene la devolución** en `docs/ordenes/DEVOLUCION-ordenes-30-34.md`: sacar el
-   elemento trucho, devolver `/landing/bodas` a ser un enlace, la vista previa en vivo del
-   fondo, Touchpix, y **`/evento/actual`, la pantalla de la fiesta de esta noche, que está rota.**
-2. **La puerta frenó** en el recorrido: 18 pantallas rotas. Verificadas una por una, **la única
-   nueva de verdad es `/evento/actual`**; cuatro son falsa alarma del control (tableros de
-   números sin botones) y dos son páginas que sólo redirigen.
-3. **Sin decidir:** si se corrige el recorrido para que un tablero de números no cuente como
-   pantalla rota. **Es tocar un control y el dueño tiene que saberlo.**
-4. La orden 33 (Remote Config) y la 31 (buscar fotos con una selfie) siguen sin programar.
+**Y sin empezar:** órdenes 36 (la grilla de caras), 37 (celular y velocidad) y 38 (el panel
+atractivo).
 
-## Lo que costó tiempo hoy
+## Lo que hace Claude
 
-- **La puerta tarda 45 minutos**, y lo grande no es el recorrido: son **las 39 tandas de pruebas
-  de navegador, que corren de a una** en una máquina de cuatro núcleos. Medido, no supuesto.
-- **Quedó una corrida huérfana** peleándole la máquina a la buena durante 42 minutos. Antes de
-  creerle a una falla: `ps aux | grep playwright`, y si hay más de una, el resultado no vale.
+- **La orden 31/36 tiene el corazón hecho**: `src/lib/caras/agrupar-caras.ts`, con once pruebas.
+  Falta que Gemini traiga los números de las fotos y arme la pantalla.
+- Los controles y los matafuegos. **Ya son cinco**, todos probados rompiéndolos a propósito.
+
+## Las dos lecciones del día, y están en `CLAUDE.md`
+
+1. **Regla 6 — no digas la causa antes de medirla.** Si no lo mediste, decí "todavía no sé".
+2. **Regla 7 — una comprobación pide el RESULTADO, no el ingrediente.** La pregunta antes de
+   escribir una: *¿esto podría dar verde con la función apagada?* **La escribí y la rompí el
+   mismo día**: pedí que existiera una variable y llegó vacía.
+
+## Trampas que costaron tiempo y no se repiten
+
+- **La puerta tarda 45 minutos**, y no es el recorrido: son las 39 tandas de navegador **corriendo
+  de a una** en una máquina de cuatro núcleos.
+- **Antes de creerle a una falla:** `ps aux | grep playwright`. Si hay más de una corrida, el
+  resultado no vale. Quedó una huérfana peleando la máquina 42 minutos.
+- **La descarga interna `download-recuerdos` pide sesión de administrador.** No se la enchufes a
+  ninguna pantalla del cliente.
