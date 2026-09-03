@@ -12,6 +12,14 @@ solo al abrir cada sesión.**
 
 ## PARA GEMINI, EN ESTE ORDEN
 
+**0) `docs/ordenes/DEVOLUCION-la-grilla-de-caras.md`** — la pantalla esta impecable y **siempre
+vacia**: no hay nada que saque los numeros de las caras de las fotos. Es lo unico a medias.
+
+**0.b) `docs/ordenes/39-terminar-lo-que-falta.md`** — TODO lo que queda contra el rubro, medido.
+El bloque 1 es el mas barato: **nueve funciones que ya existen en otra estacion** y solo hay que
+compartirlas.
+
+
 1. **La devolución que está abierta** — `DEVOLUCION-ordenes-30-34-vuelta-3.md`. Falta **una sola
    cosa**: el movimiento en `src/components/landing/EventLandingPage.tsx`, que arma las landings
    de bodas y de quince. Un archivo y quedan las dos.
