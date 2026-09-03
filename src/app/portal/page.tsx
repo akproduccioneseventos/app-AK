@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -447,21 +447,36 @@ function ClientPortalContent() {
     );
   }
 
-  if (error) {
+  if (error || !fiesta) {
     return (
-      <div className="ak-public-page grid min-h-screen place-items-center p-4">
-        <Card className="ak-public-card max-w-md w-full text-center">
-          <CardHeader>
-            <AlertTriangle className="w-12 h-12 mx-auto text-red-300" />
-            <CardTitle>Acceso no disponible</CardTitle>
-            <CardDescription className="text-red-700">{error}</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+      <main className="ak-public-page grid min-h-screen place-items-center p-6 text-white">
+        <div className="max-w-lg w-full rounded-3xl border border-white/15 bg-slate-900/90 p-8 text-center shadow-2xl backdrop-blur-md">
+          <KeyRound className="mx-auto h-12 w-12 text-purple-400 mb-4" />
+          <h1 className="text-3xl font-black text-white">Portal de Planificación del Cliente</h1>
+          <p className="mt-4 text-sm leading-relaxed text-slate-300">
+            Este espacio es exclusivo para los anfitriones de eventos organizados por AK Producciones. Desde acá podés seguir cada detalle de tu evento: confirmar tu menú, organizar la música, chequear el cronograma del día, ver la lista de tareas y revisar el estado de pagos y contratos.
+          </p>
+          <p className="mt-3 text-xs leading-relaxed text-slate-400">
+            Para ingresar a tu fiesta, abrí el enlace personalizado que te envió tu coordinador o comunicate directamente con nuestro equipo para recibir tu acceso directo y resolver cualquier consulta.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-slate-200"
+            >
+              Ir a la página principal
+            </Link>
+            <Link
+              href="/presupuesto"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-white/10"
+            >
+              Cotizar mi fiesta
+            </Link>
+          </div>
+        </div>
+      </main>
     );
   }
-
-  if (!fiesta) return null;
 
   if (!isAuthenticated) {
     if (!fiesta.clientPortalSettings?.accessKey) {

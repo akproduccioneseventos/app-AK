@@ -123,16 +123,28 @@ export default function EventoHubPage() {
   if (!portal) {
     return (
       <main className="grid min-h-screen place-items-center bg-slate-950 p-6 text-center text-white">
-        <div className="max-w-md">
+        <div className="max-w-lg space-y-4">
           <TicketCheck className="mx-auto h-10 w-10 text-red-400" />
           <h1 className="mt-5 text-3xl font-black">Este acceso no es válido</h1>
           <p className="mt-3 leading-relaxed text-slate-300">
-            Abrí la zona digital desde tu invitación personal para entrar con seguridad.
+            Para ingresar a la zona digital de tu fiesta necesitás el enlace personalizado con tu token de invitado. Abrí la invitación que recibiste por WhatsApp o email y accedé desde ahí con seguridad.
           </p>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Si creés que es un error, comunicate con AK Producciones o con el organizador del evento para que te reenvíen tu invitación personal con el acceso correcto.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-slate-200"
+            >
+              Ir al inicio
+            </Link>
+          </div>
         </div>
       </main>
     );
   }
+
 
   const { fiesta, guest } = portal;
   const eventName = fiesta.configuracion.nombreEvento || 'Tu evento';

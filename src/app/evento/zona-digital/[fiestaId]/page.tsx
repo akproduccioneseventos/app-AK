@@ -156,11 +156,21 @@ export default function ZonaDigitalPublicPage() {
       <main className="ak-live-stage flex min-h-screen items-center justify-center p-6 text-white">
         {/* Fondo y borde explicitos: la clase .ak-live-panel pierde contra el
             blanco propio de Card, y con texto blanco el cartel quedaba invisible. */}
-        <Card className="max-w-md border border-white/15 bg-slate-900 text-white shadow-2xl">
+        <Card className="max-w-lg border border-white/15 bg-slate-900 text-white shadow-2xl">
           <CardContent className="space-y-4 p-6 text-center">
             <ShieldCheck className="mx-auto h-10 w-10 text-red-400" />
             <h1 className="text-2xl font-black">Zona digital no activa</h1>
-            <p className="text-white/70">Abrí esta sección desde tu invitación personal para ver los juegos de la fiesta.</p>
+            <p className="text-white/70 leading-relaxed">
+              Esta sección contiene los juegos interactivos, encuestas y actividades digitales de la fiesta. En este momento no está habilitada o necesitás acceder con tu enlace de invitado personal para poder participar.
+            </p>
+            <p className="text-xs text-white/50 leading-relaxed">
+              Si recibiste una invitación, buscá el enlace en tu mensaje de WhatsApp o email y abrí la zona digital desde ahí. Si tenés dudas, comunicate con el organizador o con AK Producciones.
+            </p>
+            <div className="pt-2">
+              <Button asChild variant="outline" className="border-white/20 bg-white/10 text-white hover:bg-white/20">
+                <Link href="/">Volver al inicio</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </main>
