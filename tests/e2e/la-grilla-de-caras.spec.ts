@@ -10,14 +10,14 @@ import type { CaraEnFoto } from '../../src/lib/caras/agrupar-caras';
 import type { SocialGalleryPost } from '../../src/types/social-gallery';
 
 /**
- * Orden 36 â€” La grilla de caras: "tocÃ¡ tu cara y llevate tus fotos"
+ * Orden 36 � La grilla de caras: "tocá tu cara y llevate tus fotos"
  *
  * Se comprueba:
- * 1. Con la fiesta sin preparar, el botÃ³n no aparece.
+ * 1. Con la fiesta sin preparar, el botón no aparece.
  * 2. Que la grilla muestra caritas sin nombres.
- * 3. Con el interruptor apagado no se ve ni la grilla ni el botÃ³n.
- * 4. Sin aceptar el permiso, la cÃ¡mara no se prende.
- * 5. La mÃ¡s importante: que la selfie no sale del telÃ©fono ni se manda a la red.
+ * 3. Con el interruptor apagado no se ve ni la grilla ni el botón.
+ * 4. Sin aceptar el permiso, la cámara no se prende.
+ * 5. La más importante: que la selfie no sale del teléfono ni se manda a la red.
  */
 
 function caraDe(semilla: number, ruido = 0): number[] {
@@ -156,14 +156,14 @@ test.afterAll(() => {
 });
 
 test.describe('Orden 36: La grilla de caras', () => {
-  test('con la fiesta sin preparar, el botÃ³n no aparece', async ({ page }, testInfo) => {
+  test('con la fiesta sin preparar, el botón no aparece', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
     test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto(`/evento/galeria/${ID_SIN_PREPARAR}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
-    // Nunca un botÃ³n que no hace nada: el atajo de la selfie no debe existir
+    // Nunca un botón que no hace nada: el atajo de la selfie no debe existir
     const botonEncontrame = page.getByRole('button', { name: /Encontrame/i });
     await expect(botonEncontrame).toHaveCount(0);
 
@@ -183,7 +183,7 @@ test.describe('Orden 36: La grilla de caras', () => {
     const grilla = page.locator('[data-testid="grilla-caras"]');
     await expect(grilla).toBeVisible();
 
-    // Deben haber 2 caras (Ana y Beto, el que pasaba por atrÃ¡s se filtrÃ³)
+    // Deben haber 2 caras (Ana y Beto, el que pasaba por atrás se filtró)
     const caritas = grilla.locator('button');
     await expect(caritas).toHaveCount(2);
 
@@ -201,11 +201,11 @@ test.describe('Orden 36: La grilla de caras', () => {
     await expect(botonVerTodas).toBeVisible();
     await botonVerTodas.click();
 
-    // Vuelve a la galerÃ­a completa
+    // Vuelve a la galería completa
     await expect(page.getByText(/Fotos de esta persona/i)).toHaveCount(0);
   });
 
-  test('con el interruptor apagado no se ve ni la grilla ni el botÃ³n', async ({ page }, testInfo) => {
+  test('con el interruptor apagado no se ve ni la grilla ni el botón', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
     test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
@@ -216,30 +216,30 @@ test.describe('Orden 36: La grilla de caras', () => {
     await expect(page.locator('[data-testid="grilla-caras"]')).toHaveCount(0);
   });
 
-  test('sin aceptar el permiso, la cÃ¡mara no se prende y la galerÃ­a sigue igual', async ({ page }, testInfo) => {
+  test('sin aceptar el permiso, la cámara no se prende y la galería sigue igual', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
     test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto(`/evento/galeria/${ID_PREPARADA}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
-    const boton = page.getByRole('button', { name: /Encontrame a mÃ­/i });
+    const boton = page.getByRole('button', { name: /Encontrame a mí/i });
     await expect(boton).toBeVisible();
     await boton.click();
 
     // Debe mostrar el cartel de permiso claro
     await expect(
-      page.getByText(/Vamos a mirar tu cara en este telÃ©fono para buscar tus fotos\. No se guarda ni se manda a ningÃºn lado\./i),
+      page.getByText(/Vamos a mirar tu cara en este teléfono para buscar tus fotos\. No se guarda ni se manda a ningún lado\./i),
     ).toBeVisible();
 
-    // Si cancela, el modal se cierra y la galerÃ­a sigue igual
+    // Si cancela, el modal se cierra y la galería sigue igual
     await page.getByRole('button', { name: /Cancelar/i }).click();
     await expect(
-      page.getByText(/Vamos a mirar tu cara en este telÃ©fono/i),
+      page.getByText(/Vamos a mirar tu cara en este teléfono/i),
     ).toHaveCount(0);
   });
 
-  test('la selfie no sale del telÃ©fono ni se manda a la red', async ({ page }, testInfo) => {
+  test('la selfie no sale del teléfono ni se manda a la red', async ({ page }, testInfo) => {
     test.setTimeout(120_000);
     test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
@@ -262,8 +262,8 @@ test.describe('Orden 36: La grilla de caras', () => {
     await page.goto(`/evento/galeria/${ID_PREPARADA}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
-    // Abrir "Encontrame a mÃ­"
-    await page.getByRole('button', { name: /Encontrame a mÃ­/i }).click();
+    // Abrir "Encontrame a mí"
+    await page.getByRole('button', { name: /Encontrame a mí/i }).click();
 
     // Aceptar permiso
     await page.getByRole('button', { name: /Entendido, buscar mis fotos/i }).click();
@@ -271,11 +271,11 @@ test.describe('Orden 36: La grilla de caras', () => {
     // Esperar a que tome los cuadros y cierre el modal
     await page.waitForTimeout(4000);
 
-    // LA REGLA MÃS IMPORTANTE: Que no se dispare ninguna llamada al servidor con la imagen
-    expect(llamadasConImagenes, 'la selfie no se enviÃ³ a ningÃºn servidor externo ni local').toHaveLength(0);
+    // LA REGLA MÁS IMPORTANTE: Que no se dispare ninguna llamada al servidor con la imagen
+    expect(llamadasConImagenes, 'la selfie no se envió a ningún servidor externo ni local').toHaveLength(0);
 
     // Debe mostrar la vista de resultados o mensaje de Bloque 5
-    const resultadosVisibles = await page.getByText(/Resultados de tu bÃºsqueda|No encontramos fotos tuyas todavÃ­a/i).isVisible();
+    const resultadosVisibles = await page.getByText(/Resultados de tu búsqueda|No encontramos fotos tuyas todavía/i).isVisible();
     expect(resultadosVisibles, 'muestra pantalla de resultados local').toBe(true);
   });
 });

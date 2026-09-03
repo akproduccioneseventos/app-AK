@@ -1859,3 +1859,13 @@ export interface SocialScreenConfig {
   visibleNetworks: ('instagram' | 'tiktok' | 'facebook' | 'whatsapp')[];
 }
 
+export interface AjustesEstacionEntretenimiento {
+  enabled?: boolean;
+  fotosPorTanda?: number;
+  copiasImpresion?: number;
+  tamanoPapel?: '10x15' | '5x15' | '13x18';
+  segundosCuentaRegresiva?: number;
+  marcosHabilitados?: string[];
+  [key: string]: unknown;
+}
+

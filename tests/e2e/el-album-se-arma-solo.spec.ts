@@ -1,4 +1,4 @@
-﻿import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { armarAlbumInteligente } from '../../src/lib/album/armar-album';
 import type { SocialGalleryPost } from '../../src/types/social-gallery';
 
@@ -66,5 +66,45 @@ test.describe('Orden 34: El álbum se arma solo al terminar la fiesta', () => {
     await page.goto('/evento/album/fiesta-demo', { waitUntil: 'domcontentloaded' });
     const body = page.locator('body');
     await expect(body).toContainText(/Álbum|Recuerdos|AK/i);
+  });
+
+  test('3. El álbum tiene reproductor de música de fondo, arranca en silencio y al tocar el botón comienza a sonar', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto('/evento/album/fiesta-demo', { waitUntil: 'domcontentloaded' });
+
+    // 1. El elemento de audio existe
+    const audioElement = page.locator('audio[data-testid="audio-fondo-album"]');
+    await expect(audioElement).toBeAttached();
+
+    // 2. Arranca en silencio (paused = true)
+    const initiallyPaused = await audioElement.evaluate((el: HTMLAudioElement) => el.paused);
+    expect(initiallyPaused).toBe(true);
+
+    // 3. El botón de música de fondo está visible
+    const botonMusica = page.locator('[data-testid="boton-musica-album"]');
+    await expect(botonMusica).toBeVisible();
+    await expect(botonMusica).toContainText(/Música/i);
+
+    // 4. Tocamos el botón para activar la música
+    // Mockeamos play() en el navegador para evitar restricciones de autoplay en navegadores headless
+    await page.evaluate(() => {
+      const audio = document.querySelector('audio[data-testid="audio-fondo-album"]') as HTMLAudioElement;
+      if (audio) {
+        audio.play = () => {
+          Object.defineProperty(audio, 'paused', { value: false, writable: true });
+          audio.dispatchEvent(new Event('play'));
+          return Promise.resolve();
+        };
+      }
+    });
+
+    await botonMusica.click();
+
+    // 5. El botón ahora indica que la música está sonando
+    await expect(botonMusica).toContainText(/sonando/i);
+
+    // 6. El audio está reproduciendo de verdad (paused = false)
+    const isPlaying = await audioElement.evaluate((el: HTMLAudioElement) => !el.paused);
+    expect(isPlaying).toBe(true);
   });
 });

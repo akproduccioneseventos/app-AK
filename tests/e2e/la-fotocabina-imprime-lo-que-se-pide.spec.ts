@@ -69,5 +69,55 @@ describe('Orden 35 Bloque 2: La fotocabina imprime lo que se pide', () => {
     expect(resultado.ok).toBe(false);
     expect(resultado.aviso).toBeTruthy();
   });
+
+  it('el tamaño de papel cambia la medida de la hoja en el CSS de impresión', () => {
+    const imagenFalsa = 'data:image/png;base64,CCCC';
+
+    // 1. Tira 5x15
+    jest.clearAllMocks();
+    (window.open as jest.Mock).mockImplementation(() => {
+      const doc: string[] = [];
+      return {
+        document: { write: (html: string) => doc.push(html), close: jest.fn() },
+        focus: jest.fn(),
+        print: jest.fn(),
+        _html: () => doc.join(''),
+      };
+    });
+    imprimirRecuerdo(imagenFalsa, 1, '5x15');
+    let ventana = (window.open as jest.Mock).mock.results[0].value;
+    expect(ventana._html()).toContain('@page{size:5cm 15cm;margin:0}');
+
+    // 2. Postal 10x15
+    jest.clearAllMocks();
+    (window.open as jest.Mock).mockImplementation(() => {
+      const doc: string[] = [];
+      return {
+        document: { write: (html: string) => doc.push(html), close: jest.fn() },
+        focus: jest.fn(),
+        print: jest.fn(),
+        _html: () => doc.join(''),
+      };
+    });
+    imprimirRecuerdo(imagenFalsa, 1, '10x15');
+    ventana = (window.open as jest.Mock).mock.results[0].value;
+    expect(ventana._html()).toContain('@page{size:10cm 15cm;margin:0}');
+
+    // 3. Grande 13x18
+    jest.clearAllMocks();
+    (window.open as jest.Mock).mockImplementation(() => {
+      const doc: string[] = [];
+      return {
+        document: { write: (html: string) => doc.push(html), close: jest.fn() },
+        focus: jest.fn(),
+        print: jest.fn(),
+        _html: () => doc.join(''),
+      };
+    });
+    imprimirRecuerdo(imagenFalsa, 1, '13x18');
+    ventana = (window.open as jest.Mock).mock.results[0].value;
+    expect(ventana._html()).toContain('@page{size:13cm 18cm;margin:0}');
+  });
 });
+
 

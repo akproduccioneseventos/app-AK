@@ -52,7 +52,7 @@ import {
   SEGUNDOS_PRIMERA_FOTO,
   GUIA_POR_FOTO,
 } from '@/lib/entretenimiento/tira-fotocabina';
-import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
+import { imprimirRecuerdo, type TamanoPapelImpresion } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
@@ -172,8 +172,10 @@ export default function FotocabinaPage() {
   // Marca que la copia automatica ya salio, para que no se dispare dos veces
   // al volver a dibujarse la pantalla y para poder ofrecer "otra copia".
   const [yaSeImprimio, setYaSeImprimio] = useState(false);
-  // Cantidad de copias que el operador pidió. Se pasa a imprimirRecuerdo.
-  const copias = Math.max(1, Math.min(10, fiesta?.station.fotosPorTanda ?? 1));
+  // Cantidad de copias que el operador configuró en copiasImpresion (default 1).
+  const copiasImpresion = Math.max(1, Math.min(10, fiesta?.station.copiasImpresion ?? 1));
+  // Tamaño de papel configurado en la estación (default '10x15').
+  const tamanoPapel: TamanoPapelImpresion = (fiesta?.station.tamanoPapel as TamanoPapelImpresion) || '10x15';
 
   // Si el cliente no contrato el muro, el recuerdo no tiene a donde subir: la
   // cabina lo imprime ahi mismo en vez de dejar al invitado con las manos vacias.
@@ -493,7 +495,7 @@ export default function FotocabinaPage() {
     setIsPrinting(true);
     setYaSeImprimio(true);
     try {
-      const resultado = imprimirRecuerdo(capturedImage, copias);
+      const resultado = imprimirRecuerdo(capturedImage, copiasImpresion, tamanoPapel);
       if (!resultado.ok) {
         setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
         return;
