@@ -1,58 +1,99 @@
-import { test, expect } from '@playwright/test';
-import { FIXTURE_IDS, crearCookieDeSesion } from '../../scripts/helpers/route-inventory.mjs';
-import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta } from './helpers/fiesta-de-prueba';
+import { test, expect, type Page } from '@playwright/test';
+import { FIXTURE_IDS } from '../../scripts/helpers/route-inventory.mjs';
 
 /**
- * Prueba que las pantallas que ESTABAN rotas ahora den una respuesta útil,
- * no una pantalla vacía ni un error de React.
+ * Las pantallas que estaban rotas, ahora dan una respuesta util.
  *
- * Regla: estas pantallas se probaron sin fiestaId y sin token (igual que el
- * recorrido las encontró). El resultado esperado es una PANTALLA INFORMATIVA,
- * no un 500 ni una pantalla completamente vacía.
+ * **La primera version de esta prueba pedia 20 caracteres en pantalla**, y eso
+ * pasa con una pantalla practicamente en blanco: un titulo suelto tiene mas de
+ * veinte letras. Ademas no miraba el **error 310 de React**, que era justamente
+ * lo que rompia la mitad de estas pantallas.
  *
- * Orden 35, Bloque 1.
+ * Ahora usa **el mismo criterio que el recorrido de la puerta**, para que no
+ * haya dos varas distintas midiendo lo mismo:
+ *
+ * - **200 caracteres**, que es como una frase larga. Debajo de eso no hay
+ *   pantalla: hay un cartel de "cargando" o un titulo solo.
+ * - **Ningun error de React en la consola.** Es el que deja la pantalla en
+ *   blanco sin avisar.
+ * - **Ni "undefined" ni "[object Object]"** a la vista del cliente.
+ *
+ * Estas pantallas se abren **sin datos y sin llave**, igual que las encontro el
+ * recorrido. Lo que se espera no es que anden con una fiesta cargada: es que
+ * **cuando no hay dato, lo digan en criollo** en vez de quedarse mudas.
  */
-test.describe('Pantallas del portal y del invitado: fallback amigable sin ID', () => {
-  const sessionCookie = crearCookieDeSesion();
 
-  test('/portal sin fiestaId muestra un aviso amigable', async ({ page }) => {
-    await page.goto('/portal');
-    const text = await page.locator('body').innerText();
-    // No debe estar vacío ni mostrar un error técnico
-    expect(text.length).toBeGreaterThan(30);
-    expect(text).not.toContain('undefined');
-    expect(text).not.toContain('[object Object]');
+const MINIMO_PARA_QUE_CUENTE = 200;
+
+/** Abre la pantalla y devuelve lo que dibujo y los errores que tiro. */
+async function abrir(page: Page, ruta: string) {
+  const errores: string[] = [];
+  page.on('pageerror', (e) => errores.push(String(e)));
+  page.on('console', (m) => {
+    if (m.type() === 'error' && /Minified React error|Warning: Each child/.test(m.text())) {
+      errores.push(m.text());
+    }
+  });
+  const respuesta = await page.goto(ruta, { waitUntil: 'networkidle' });
+  const texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
+  return { errores, texto, estado: respuesta?.status() ?? 0, url: page.url() };
+}
+
+/** Lo que se le exige a cualquiera de estas pantallas. */
+async function seComportaBien(page: Page, ruta: string) {
+  const r = await abrir(page, ruta);
+
+  expect(r.estado, `${ruta} contestó con un error del servidor`).toBeLessThan(400);
+
+  expect(
+    r.errores,
+    `${ruta} tiró un error de React. Es el que deja la pantalla en blanco sin avisar:\n${r.errores.join('\n')}`,
+  ).toEqual([]);
+
+  expect(
+    r.texto.length,
+    `${ruta} dibujó ${r.texto.length} caracteres. Eso no es una pantalla: es un cartel suelto. ` +
+      `Cuando no hay datos tiene que decirlo en criollo y ofrecer a dónde ir.`,
+  ).toBeGreaterThanOrEqual(MINIMO_PARA_QUE_CUENTE);
+
+  // Lo que nunca puede ver un cliente.
+  expect(r.texto).not.toContain('undefined');
+  expect(r.texto).not.toContain('[object Object]');
+  expect(r.texto).not.toMatch(/Minified React error|Application error/i);
+
+  return r;
+}
+
+test.describe('Las pantallas que estaban rotas', () => {
+  test('el portal del cliente, sin fiesta', async ({ page }) => {
+    await seComportaBien(page, '/portal');
   });
 
-  test('/portal-cliente redirige a /portal', async ({ page }) => {
-    const response = await page.goto('/portal-cliente');
-    // Debe redirigir, no dar error
-    expect(page.url()).toContain('/portal');
+  test('la distribución de mesas, sin fiesta', async ({ page }) => {
+    await seComportaBien(page, '/portal/mesas');
   });
 
-  test('/portal/mesas sin fiestaId muestra aviso amigable', async ({ page }) => {
-    await page.goto('/portal/mesas');
-    const text = await page.locator('body').innerText();
-    expect(text.length).toBeGreaterThan(20);
+  test('la pantalla del invitado, sin invitado', async ({ page }) => {
+    await seComportaBien(page, `/invitado/${FIXTURE_IDS.fiesta}/${FIXTURE_IDS.guest}`);
   });
 
-  test('/landing/eventos redirige correctamente', async ({ page }) => {
-    const response = await page.goto('/landing/eventos');
-    // No debe dar 404 ni 500
-    const finalUrl = page.url();
-    expect(finalUrl).not.toContain('404');
-    const status = response?.status() ?? 0;
-    expect(status).toBeLessThan(400);
+  test('el hub del evento', async ({ page }) => {
+    await seComportaBien(page, `/evento/hub/${FIXTURE_IDS.fiesta}`);
+  });
+
+  test('la zona digital', async ({ page }) => {
+    await seComportaBien(page, `/evento/zona-digital/${FIXTURE_IDS.fiesta}`);
+  });
+
+  test('el acceso del proveedor, con una llave que no existe', async ({ page }) => {
+    await seComportaBien(page, `/proveedor/acceso/${FIXTURE_IDS.token}`);
+  });
+
+  test('la landing de eventos lleva a algún lado', async ({ page }) => {
+    const r = await abrir(page, '/landing/eventos');
+    expect(r.estado).toBeLessThan(400);
+    expect(r.errores).toEqual([]);
+    // Es una direccion que redirige: lo que importa es que la de destino ande.
+    expect(r.texto.length).toBeGreaterThanOrEqual(MINIMO_PARA_QUE_CUENTE);
   });
 });
-
-test.describe('Portal del proveedor: fallback amigable con token inválido', () => {
-  test('/proveedor/acceso/token_demo_123 muestra aviso amigable', async ({ page }) => {
-    await page.goto(`/proveedor/acceso/${FIXTURE_IDS.token}`);
-    // El token de demo no existe: debe mostrar un aviso, no explotar
-    const text = await page.locator('body').innerText();
-    expect(text.length).toBeGreaterThan(20);
-    expect(text).not.toContain('undefined');
-  });
-});
-
