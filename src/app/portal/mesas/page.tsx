@@ -208,8 +208,44 @@ function AsignacionMesasContent() {
         });
   }, [fiesta]);
 
-  if (isLoading || !fiesta) {
-    return <div className="flex flex-col items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p>Cargando lista de invitados...</p></div>;
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+        <p>Cargando lista de invitados...</p>
+      </div>
+    );
+  }
+
+  if (!fiesta) {
+    return (
+      <main className="min-h-screen bg-muted/30 p-4 md:p-8 flex items-center justify-center">
+        <Card className="max-w-xl w-full shadow-xl border-primary/20 bg-white text-center p-6">
+          <CardHeader className="space-y-2">
+            <Users className="w-12 h-12 mx-auto text-primary" />
+            <CardTitle className="text-2xl font-bold font-headline text-primary">
+              Organizador de Mesas e Invitados
+            </CardTitle>
+            <CardDescription className="text-sm text-slate-600 leading-relaxed">
+              Este módulo permite a los anfitriones diagramar el salón de su fiesta, organizar a sus familiares y amigos por mesas numeradas o libres, y controlar los cupos de adultos y menores en tiempo real con AK Producciones.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Para ingresar a la distribución de tu fiesta necesitás acceder desde el enlace directo de tu evento o ingresar con tu cuenta de cliente. Si no tenés tu enlace a mano, podés volver al portal principal o comunicarte con tu coordinador.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <Button asChild variant="default">
+                <Link href="/portal">Ir al Portal de Clientes</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/">Página Principal</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
+    );
   }
 
   const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda'

@@ -2,6 +2,7 @@
 'use client';
 
 import { Suspense, useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   Accessibility,
@@ -254,10 +255,31 @@ function GuestPortalContent() {
   if (loadError || !fiesta || !guest) {
     return (
       <main className="grid min-h-screen place-items-center bg-slate-950 p-6 text-center text-white">
-        <div className="max-w-md"><AlertTriangle className="mx-auto h-10 w-10 text-red-400" /><h1 className="mt-5 text-2xl font-black">No pudimos abrir tu invitación</h1><p className="mt-3 text-sm text-slate-300">{loadError || 'Verificá el enlace o contactá al organizador.'}</p><Button onClick={loadData} className="mt-5 bg-white text-slate-950 hover:bg-slate-200">Reintentar</Button></div>
+        <div className="max-w-md space-y-4">
+          <AlertTriangle className="mx-auto h-10 w-10 text-red-400" />
+          <h1 className="mt-5 text-2xl font-black">No pudimos abrir tu invitación</h1>
+          <p className="mt-3 text-sm text-slate-300">
+            {loadError || 'Verificá el enlace o contactá al organizador del evento.'}
+          </p>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Puede que el enlace haya expirado, que el token de acceso sea incorrecto o que la fiesta ya no esté disponible. Revisá el mensaje de WhatsApp o email donde recibiste la invitación y abrí el enlace original completo.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
+            <Button onClick={loadData} className="bg-white text-slate-950 hover:bg-slate-200">
+              Reintentar
+            </Button>
+            <Link
+              href="/"
+              className="inline-flex min-h-10 items-center justify-center rounded-md border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+            >
+              Ir al inicio
+            </Link>
+          </div>
+        </div>
       </main>
     );
   }
+
 
   const config = fiesta.configuracion;
   const guestExp = fiesta.guestExperienceSettings;
