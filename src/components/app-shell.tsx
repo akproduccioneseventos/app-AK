@@ -25,7 +25,7 @@ import { MainNav } from './main-nav';
 import { LazyMultiAgentWidget } from '@/components/multiagent/lazy-multiagent-widget';
 import { ModuleNavigationDock } from '@/components/module-navigation-dock';
 import { MarketingAutomationTrigger } from '@/components/marketing/marketing-automation-trigger';
-import { initAppCheck } from '@/lib/firebase/app-check';
+import { inicializarAjustesRemotos } from '@/lib/firebase/ajustes-remotos';
 import { getPerformanceInstance } from '@/lib/firebase/performance';
 
 
@@ -281,7 +281,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     fetchLogo();
 
     if (typeof window !== 'undefined') {
-      initAppCheck().catch(() => null);
+      inicializarAjustesRemotos().catch(() => null);
       getPerformanceInstance().catch(() => null);
     }
   }, []);
@@ -444,3 +444,4 @@ export function AppShell({ children }: { children: ReactNode }) {
     </SidebarProvider>
   );
 }
+

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -11,6 +11,7 @@ import {
   Play,
   Pause,
   Volume2,
+  VolumeX,
   ChevronLeft,
   ChevronRight,
   X,
@@ -56,6 +57,37 @@ export default function PublicAlbumPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('libro');
   const [paginaActual, setPaginaActual] = useState<number>(0); // 0 = Portada, 1..N = Páginas
   const [audioReproduciendo, setAudioReproduciendo] = useState<string | null>(null);
+  const [musicaActiva, setMusicaActiva] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const cancionFiesta =
+    fiesta?.cancionUrl ||
+    fiesta?.socialGallerySettings?.cancionUrl ||
+    fiesta?.socialGallerySettings?.musicaFondoUrl;
+
+  const toggleMusica = useCallback(() => {
+    if (!audioRef.current) return;
+    if (musicaActiva) {
+      audioRef.current.pause();
+      setMusicaActiva(false);
+    } else {
+      audioRef.current.play()
+        .then(() => setMusicaActiva(true))
+        .catch((err) => {
+          console.error('Error al reproducir música del álbum:', err);
+        });
+    }
+  }, [musicaActiva]);
+
+  useEffect(() => {
+    const elementoAudio = audioRef.current;
+    return () => {
+      if (elementoAudio) {
+        elementoAudio.pause();
+      }
+    };
+  }, []);
+
 
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -236,6 +268,32 @@ export default function PublicAlbumPage() {
                 </>
               )}
             </button>
+
+            {/* Música de fondo del álbum: solo aparece si la fiesta tiene canción cargada */}
+            {cancionFiesta && (
+              <button
+                onClick={toggleMusica}
+                aria-label={musicaActiva ? 'Silenciar música' : 'Activar música de fondo'}
+                data-testid="boton-musica-album"
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-all shadow-md active:scale-95 border ${
+                  musicaActiva
+                    ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                    : 'bg-zinc-900 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                {musicaActiva ? (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                    <span>Música sonando</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>Música de fondo</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -610,6 +668,18 @@ export default function PublicAlbumPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Música de fondo del álbum: usa la canción de la fiesta y arranca en silencio */}
+      {cancionFiesta && (
+        <audio
+          ref={audioRef}
+          src={cancionFiesta}
+          loop
+          preload="auto"
+          data-testid="audio-fondo-album"
+        />
+      )}
     </div>
   );
 }
+

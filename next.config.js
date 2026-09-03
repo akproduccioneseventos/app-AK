@@ -1,4 +1,4 @@
-﻿const path = require('path');
+const path = require('path');
 const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   cacheOnFrontEndNav: false,
@@ -127,6 +127,11 @@ const nextConfig = {
       {
         source: '/landing',
         destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/landing/bodas',
+        destination: '/bodas',
         permanent: true,
       },
       {

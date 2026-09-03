@@ -49,7 +49,7 @@ function AsignacionMesasContent() {
   const [newName, setNewName] = useState('');
   const [newCategory, setNewCategory] = useState<CategoriaInvitado>('Adulto');
   const [newTag, setNewTag] = useState('');
-  
+
   const [editingGuest, setEditingGuest] = useState<Invitado | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -76,14 +76,14 @@ function AsignacionMesasContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handleSeatingModeChange = async (mode: 'numerada' | 'mixta' | 'libre') => {
     if (!fiestaId || !fiesta) return;
-    
+
     // Si no hay objeto decoracion, creamos uno base
     const currentDecoracion = fiesta.decoracion || { salonElements: [], pixelsPerMeter: 40, salonWidth: 15, salonHeight: 15 };
     const updatedDecoracion = { ...currentDecoracion, seatingMode: mode };
-    
+
     // Optimistic UI update
     setFiesta({ ...fiesta, decoracion: updatedDecoracion });
 
@@ -100,14 +100,14 @@ function AsignacionMesasContent() {
 
   const totalContractedAdults = fiesta ? Number(fiesta.configuracion.invitadosAdultos) || 0 : 0;
   const totalContractedKids = fiesta ? Number(fiesta.configuracion.invitadosNinos) || 0 : 0;
-  
+
   const currentTotalAdults = fiesta?.invitados?.reduce((sum, inv) => sum + getGuestAdultsCount(inv), 0) || 0;
   const currentTotalKids = fiesta?.invitados?.reduce((sum, inv) => sum + getGuestKidsCount(inv), 0) || 0;
 
   const handleAddGuest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fiestaId || !newName.trim()) return;
-    
+
     // Validar cupos según categoría
     if (newCategory === 'Adulto' && currentTotalAdults >= totalContractedAdults) {
         toast({ title: "Límite de Adultos alcanzado", variant: "destructive" });
@@ -212,7 +212,7 @@ function AsignacionMesasContent() {
     return <div className="flex flex-col items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p>Cargando lista de invitados...</p></div>;
   }
 
-  const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda' 
+  const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda'
     ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
     : ["Familia", "Amigos", "Trabajo", "Otros"];
 
@@ -238,12 +238,12 @@ function AsignacionMesasContent() {
                     <CardDescription>Define si tus invitados tendrán asientos asignados o ubicación libre.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <RadioGroup 
-                        value={seatingMode} 
+                    <RadioGroup
+                        value={seatingMode}
                         onValueChange={(v) => handleSeatingModeChange(v as any)}
                         className="grid grid-cols-1 md:grid-cols-3 gap-4"
                     >
-                        <div 
+                        <div
                             onClick={() => handleSeatingModeChange('numerada')}
                             className={cn(
                                 "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
@@ -256,7 +256,7 @@ function AsignacionMesasContent() {
                                 <p className="text-[10px] text-muted-foreground uppercase leading-tight mt-1">Todos los invitados tienen un lugar asignado.</p>
                             </Label>
                         </div>
-                        <div 
+                        <div
                             onClick={() => handleSeatingModeChange('mixta')}
                             className={cn(
                                 "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
@@ -269,7 +269,7 @@ function AsignacionMesasContent() {
                                 <p className="text-[10px] text-muted-foreground uppercase leading-tight mt-1">Mesas reservadas y zonas de ubicación libre.</p>
                             </Label>
                         </div>
-                        <div 
+                        <div
                             onClick={() => handleSeatingModeChange('libre')}
                             className={cn(
                                 "flex items-start space-x-3 p-4 border-2 rounded-2xl bg-white transition-all cursor-pointer",
@@ -344,12 +344,12 @@ function AsignacionMesasContent() {
 
                 <Card className="lg:col-span-8">
                     <CardHeader className="p-6 bg-slate-50/50 border-b">
-                        <div className="flex justify-between items-center">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <CardTitle>Listado</CardTitle>
-                            <div className="flex gap-2">
-                                <Input placeholder="Buscar..." className="h-9 w-40 text-xs" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
+                            <div className="flex flex-wrap sm:flex-nowrap gap-2">
+                                <Input placeholder="Buscar..." className="h-9 w-full sm:w-40 text-base" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}/>
                                 <Select value={tagFilter} onValueChange={setTagFilter}>
-                                    <SelectTrigger className="h-9 w-28 text-xs"><SelectValue placeholder="Grupo"/></SelectTrigger>
+                                    <SelectTrigger className="h-9 w-full sm:w-28 text-base"><SelectValue placeholder="Grupo"/></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">Todos</SelectItem>
                                         {allTags.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}

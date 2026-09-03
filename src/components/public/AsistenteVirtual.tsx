@@ -79,7 +79,7 @@ export function AsistenteVirtual() {
     if (!input.trim() || isLoading) return;
     const userText = input.trim();
     setInput('');
-    
+
     const newUserMsg: Message = { id: Date.now().toString(), role: 'user', text: userText };
     const newHistory = [...messages, newUserMsg];
     setMessages(newHistory);
@@ -101,9 +101,9 @@ export function AsistenteVirtual() {
 
       if (res.success) {
         const newAssistantMsgs: Message[] = [
-          { 
-            id: Date.now().toString(), 
-            role: 'assistant', 
+          {
+            id: Date.now().toString(),
+            role: 'assistant',
             text: res.text || 'Sin respuesta',
             isBudgetLink: res.budgetGenerated,
             budgetUrl: res.budgetUrl
@@ -122,21 +122,21 @@ export function AsistenteVirtual() {
         setMessages(prev => [...prev, ...newAssistantMsgs]);
       } else {
         setMessages(prev => [
-          ...prev, 
-          { 
-            id: Date.now().toString(), 
-            role: 'assistant', 
-            text: res.error || 'Ocurrió un error al procesar tu consulta. Por favor intenta de nuevo.' 
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: 'assistant',
+            text: res.error || 'Ocurrió un error al procesar tu consulta. Por favor intenta de nuevo.'
           }
         ]);
       }
     } catch (e: any) {
       setMessages(prev => [
-        ...prev, 
-        { 
-          id: Date.now().toString(), 
-          role: 'assistant', 
-          text: 'No pudimos conectar con el asistente en este momento. Escríbenos directamente por WhatsApp.' 
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: 'assistant',
+          text: 'No pudimos conectar con el asistente en este momento. Escríbenos directamente por WhatsApp.'
         }
       ]);
     } finally {
@@ -188,7 +188,7 @@ export function AsistenteVirtual() {
                   </p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsOpen(false)}
                 className="p-2 hover:bg-white/10 rounded-full transition-colors"
               >
@@ -203,26 +203,26 @@ export function AsistenteVirtual() {
                   Las respuestas son generadas por IA
                 </p>
               </div>
-              
+
               {messages.map((msg, idx) => (
-                <div 
-                  key={msg.id || idx} 
+                <div
+                  key={msg.id || idx}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div 
+                  <div
                     className={`max-w-[85%] rounded-2xl p-3 text-sm shadow-sm ${
-                      msg.role === 'user' 
-                        ? 'bg-indigo-600 text-white rounded-tr-none' 
+                      msg.role === 'user'
+                        ? 'bg-indigo-600 text-white rounded-tr-none'
                         : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none'
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{msg.text}</p>
-                    
+
                     {msg.isBudgetLink && msg.budgetUrl && (
                       <div className="mt-3">
-                        <Button 
+                        <Button
                           asChild
-                          size="sm" 
+                          size="sm"
                           className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
                         >
                           <a href={msg.budgetUrl} target="_blank" rel="noopener noreferrer">
@@ -235,7 +235,7 @@ export function AsistenteVirtual() {
                   </div>
                 </div>
               ))}
-              
+
               {isLoading && (
                 <div className="flex justify-start">
                   <div className="max-w-[85%] rounded-2xl p-4 bg-white border border-slate-100 rounded-tl-none shadow-sm flex items-center gap-2">
@@ -255,7 +255,7 @@ export function AsistenteVirtual() {
 
             {/* Input */}
             <div className="p-3 bg-white border-t border-slate-200">
-              <form 
+              <form
                 onSubmit={(e) => { e.preventDefault(); handleSend(); }}
                 className="flex items-center gap-2"
               >
@@ -264,7 +264,7 @@ export function AsistenteVirtual() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Escribí un mensaje..."
-                  className="flex-1 px-4 py-2 bg-slate-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-shadow"
+                  className="flex-1 px-4 py-2 bg-slate-100 rounded-full text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-shadow"
                   disabled={isLoading}
                 />
                 <button

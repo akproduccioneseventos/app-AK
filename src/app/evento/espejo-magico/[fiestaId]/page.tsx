@@ -142,6 +142,8 @@ export default function EspejoMagicoPage() {
   const [aiStep, setAiStep] = useState<string>('idle'); // 'idle' | 'detecting' | 'aligning' | 'gemini' | 'rendering'
   const [sliderPosition, setSliderPosition] = useState<number>(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState<boolean>(false);
+  // Fondo virtual: mismo mecanismo que en fotocabina y bogue.
+  const [fondoVirtual, setFondoVirtual] = useState<string | null>(null);
 
   // Sync state
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -293,6 +295,8 @@ export default function EspejoMagicoPage() {
         if (!active) return;
         if (result.success && result.event) {
           setFiesta(result.event);
+          // Fondo virtual: toma el de la fiesta si el operador no eligió otro.
+          setFondoVirtual(result.event.station.fondoDePantalla ?? null);
           setErrorMsg(null);
         } else {
           setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
@@ -1489,9 +1493,12 @@ export default function EspejoMagicoPage() {
                 <p className="text-sm text-zinc-400">Usá este código QR con tu celular para descargarlo o compartirlo.</p>
               </div>
 
-              {/* QR Container */}
-              <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
+              {/* QR Container con texto de marca */}
+              <div className="bg-white p-4 rounded-3xl shadow-2xl relative flex flex-col items-center gap-2">
                 <QrRecuerdo qrCodeUrl={qrCodeUrl} error={errorMsg} />
+                <p className="text-xs font-black uppercase tracking-wider text-zinc-800">
+                  {fiesta?.station.brandText || 'AK Producciones'}
+                </p>
               </div>
 
               <div className="flex flex-col gap-2 w-full">
@@ -1681,3 +1688,4 @@ export default function EspejoMagicoPage() {
     </div>
   );
 }
+

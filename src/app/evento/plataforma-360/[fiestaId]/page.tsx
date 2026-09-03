@@ -861,9 +861,17 @@ export default function Plataforma360Page() {
             
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-violet-500 shadow-lg shadow-violet-950/30">
-                  <Play className="w-10 h-10 text-white fill-white ml-1" />
-                </div>
+                {(() => {
+                  const accentColor = fiesta?.station.accentColor || fiesta?.primaryColor || '#8b5cf6';
+                  return (
+                    <div
+                      className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg shadow-lg"
+                      style={{ backgroundColor: accentColor, boxShadow: `0 10px 25px ${accentColor}40` }}
+                    >
+                      <Play className="w-10 h-10 text-white fill-white ml-1" />
+                    </div>
+                  );
+                })()}
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Plataforma 360</h2>
                   <p className="text-sm text-zinc-300">Preparate. La plataforma empezará a girar y grabará en cámara lenta. ¡Hacé tu mejor pose!</p>

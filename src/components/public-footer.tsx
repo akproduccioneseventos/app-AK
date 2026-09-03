@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, Music, MessageSquare, Building2, MapPin, Sparkles, Phone, ArrowUpRight, ShieldCheck, Heart } from 'lucide-react';
 import { CompanyLogo } from '@/components/company-logo';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { cn } from '@/lib/utils';
 import { AK_WHATSAPP_NUMBER, AK_SOCIAL_LINKS } from '@/lib/public-contact';
 
@@ -72,7 +72,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
   const [socialLinks, setSocialLinks] = useState<SocialLinkItem[]>(FALLBACK_SOCIAL);
 
   useEffect(() => {
-    getSocialConnections()
+    getSocialConnectionsPublicas()
       .then((connections) => {
         if (connections.length > 0) {
           const merged = FALLBACK_SOCIAL.map((fallback) => {
@@ -113,7 +113,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
 
       <div className="max-w-7xl mx-auto relative z-10 space-y-16">
-        
+
         {/* Top Banner Row */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center pb-12 border-b border-white/10">
           <div className="md:col-span-6 space-y-4">
@@ -161,7 +161,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
 
         {/* Middle Columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-          
+
           {/* Col 1: Salones y Propuesta */}
           <div className="space-y-4">
             <h4 className="text-xs font-black uppercase tracking-[0.25em] text-red-400 flex items-center gap-2">
@@ -305,3 +305,4 @@ export function PublicFooter({ className }: PublicFooterProps) {
     </footer>
   );
 }
+

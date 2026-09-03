@@ -15,6 +15,70 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 37 — El celular y la velocidad (2 de septiembre de 2026)
+
+- **Bloque 1 — Que ande en el celular:**
+  - Corregidos los campos de texto con letra chica detectados en la auditoría para garantizar al menos 16px (`text-base`):
+    - `src/app/invitacion/[fiestaId]/rsvp/page.tsx`: campo de dedicatoria/mensaje (`textarea`), y campos de dieta/alergias, acompañantes y canciones para el DJ, asegurando que Safari y Chrome en celular no hagan zoom automático al tocarlos.
+    - `src/app/portal/mesas/page.tsx`: buscador y selector de grupo cambiados a `text-base` con anchos responsivos (`w-full sm:w-40`, `w-full sm:w-28`) en contenedor flex adaptativo para que no desborden en 360px.
+    - `src/components/landing/LeadCaptureForm.tsx`: todos los inputs y textarea del formulario de contacto público pasados de `text-sm` a `text-base` (16px) y botón de envío visible en pantalla.
+    - `src/components/public/QuinceaneraLeadPrompt.tsx` y `src/components/public/AsistenteVirtual.tsx`: inputs actualizados a `text-base`.
+  - Nueva suite de control E2E en celular: `tests/e2e/anda-en-el-celular.spec.ts`, probando a 360 píxeles de ancho que ninguna pantalla se corra para el costado (`document.documentElement.scrollWidth <= window.innerWidth`), que no haya campos con font-size < 16px y que el botón de enviar siga a la vista. Comprobado rompiéndolo a propósito con un elemento ancho y verificando que el control frena y vuelve a verde al sacarlo.
+
+- **Bloque 2 — Que cargue rápido:**
+  - `src/app/evento/galeria/[fiestaId]/page.tsx`: la cuadrícula de fotos y las secciones de caras ahora usan `post.thumbnailUrl || post.imageUrl`. Si la foto tiene miniatura, carga la versión chica liviana; si no la tiene, usa la original sin dejar ningún recuadro vacío. Al abrir la foto en el visor grande (lightbox) o descargarla, utiliza la foto completa en alta resolución `post.imageUrl`.
+  - Soporte de miniaturas de 400px en `src/app/actions/social-gallery.ts` (`uploadSocialPost` y `persistSocialMediaPostFromUrl`) con generación automática vía `sharp` (o archivo recibido en FormData) guardado en `_thumb.webp`, y generación en el cliente con `optimizeImageForUpload` a 400px en `src/app/evento/social/[fiestaId]/page.tsx`.
+  - Campo `thumbnailUrl?: string` agregado al tipo `SocialGalleryPost` en `src/types/social-gallery.ts`.
+  - Nueva suite de control de velocidad: `tests/e2e/carga-rapido.spec.ts`, midiendo LCP con umbral límite de 2,5 segundos (2500 ms) y control de peso de recursos en portada y landings (`/`, `/bodas`, `/quinceaneras`, `/cumpleanos`), además de verificar el uso de miniaturas en la galería.
+
+```comprobar
+prueba: tests/e2e/anda-en-el-celular.spec.ts
+prueba: tests/e2e/carga-rapido.spec.ts
+usa: 360 en tests/e2e/anda-en-el-celular.spec.ts
+usa: 2500 en tests/e2e/carga-rapido.spec.ts
+```
+
+---
+
+## Orden 34 — Lo que Falta de Verdad (2 de septiembre de 2026)
+
+- **Cambio de Fondo Virtual y Vista Previa en Vivo (`src/lib/entretenimiento/segmentacion-fondo.ts`):**
+  - Conexión real con botones táctiles en pantalla (*Sin fondo*, *Fondo borroso*, *De la fiesta*) en Fotocabina (`src/app/evento/fotocabina/[fiestaId]/page.tsx`), Bogue (`src/app/evento/bogue/[fiestaId]/page.tsx`) y Touchpix (`src/app/evento/touchpix/[fiestaId]/page.tsx`).
+  - **Vista previa en vivo por capas**: al pulsar "Fondo borroso" o "De la fiesta", el invitado ve el efecto en tiempo real tanto en la pantalla de espera como en la cuenta regresiva antes del disparo, con recorte de retrato (`blur(20px)` en el entorno y sujeto nítido al centro).
+  - Carga real de la imagen de fondo del evento (`fiesta.imagenFondoUrl`) sin manchas negras ni `undefined`.
+- **Texto de Marca en Espejo Mágico (`src/app/evento/espejo-magico/[fiestaId]/page.tsx`):**
+  - Visualización del `brandText` configurado junto al código QR en la pantalla de descarga y compartir.
+- **Color de la Fiesta en Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):**
+  - Aplicación dinámica de `accentColor` de la estación y la fiesta en lugar de colores fijos.
+- **Feed Público de Instagram en Muro en Vivo (`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx`):**
+  - Conexión de `getPublicInstagramFeed` a través de Server Action enriqueciendo la pantalla gigante con publicaciones sociales.
+- **Impresión Profesional Multiformato (`src/lib/entretenimiento/imprimir-recuerdo.ts`):**
+  - Soporte de tamaños 10x15, 5x15 (tira) y 13x18, junto con paso de cantidad de copias a la ventana de impresión.
+- **Armado Autónomo de Álbum (`src/lib/album/armar-album.ts`):**
+  - Generación automática de portada, subtítulo y páginas estructuradas sin requerir selección manual de fotos por el cliente.
+- **Suites de Pruebas E2E:**
+  - `tests/e2e/el-fondo-se-cambia-de-verdad.spec.ts` y `tests/e2e/el-album-se-arma-solo.spec.ts`.
+
+## Orden 30 — Que la App se Mueva: Animaciones Pro (2 de septiembre de 2026)
+
+- **Módulo Central de Movimiento (`src/lib/motion.ts`):**
+  - Implementación del estándar de curvas profesionales `SUAVE`, `PAREJO`, `SALIR`, y configuraciones de cascada contenida (`contenedorCascada`, `itemCascada`, 16px, 0.4s).
+- **Animación en Componentes Públicos de Venta (`src/components/public/`):**
+  - Integración de `framer-motion` en `TestimonialsCarousel`, `GallerySection`, `WhyChooseUs`, `EventProcess` y `CallToActionBanner`.
+  - Visibilidad inmediata de elementos críticos (título, precio, botón de WhatsApp) sin retardos ni bloqueos.
+- **Animación Real en Landings de Eventos (`src/components/landing/EventLandingPage.tsx`):**
+  - Los servicios (`#servicios`), la sección de experiencia (`#experiencia`) y los testimonios se animan con `motion` real y cascada contenida (`SUAVE`, 0.4s).
+  - El título H1, el hero, los precios y el botón de WhatsApp arrancan 100% visibles de inmediato para usuarios y Googlebot (sin `opacity: 0` inicial).
+  - Se eliminaron hacks de elementos invisibles (`motion.aside sr-only`).
+- **Prevención de Canibalización SEO y Rutas Canónicas (`next.config.js`, `src/app/landing/`):**
+  - `/landing/bodas` redirige permanentemente (301) a `/bodas`.
+  - `/landing/xv-anos` redirige permanentemente (301) a `/quinceaneras`.
+  - Cero duplicación de páginas compitiendo entre sí en Google.
+- **Soporte Accesible de Movimiento Reducido (`src/app/ak-motion-effects.css`):**
+  - Regla `@media (prefers-reduced-motion: reduce)` con tiempos forzados a 0.01ms para usuarios sensibles a mareos sin ocultar contenido.
+- **Suite de Pruebas E2E Rigurosa (`tests/e2e/la-web-de-venta-se-mueve.spec.ts`):**
+  - Comprobación estricta de visibilidad inmediata con `toBeVisible()`, medición real de desplazamiento de posición con `boundingBox()` y prueba con `reducedMotion: reduce`.
+
 ## Devolución Firebase — Integración en Rutas Reales (1 de septiembre de 2026)
 
 - **Optimización de Fotos en Subida Real (`src/app/evento/social/[fiestaId]/page.tsx` y `src/app/evento/video-vida/[fiestaId]/page.tsx`):**

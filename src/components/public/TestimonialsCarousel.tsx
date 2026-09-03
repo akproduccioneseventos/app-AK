@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Instagram, MessageSquare, Star } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { SUAVE } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import type { Testimonial } from '@/types/public-landing';
 
@@ -50,7 +52,13 @@ export function TestimonialsCarousel({ testimonials, className }: TestimonialsCa
   const { Icon } = config;
 
   return (
-    <section className={cn('py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50', className)}>
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.4, ease: SUAVE }}
+      className={cn('py-20 px-4 bg-gradient-to-br from-purple-50 to-pink-50', className)}
+    >
       <div className="max-w-4xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-12">
@@ -82,33 +90,42 @@ export function TestimonialsCarousel({ testimonials, className }: TestimonialsCa
           )}
 
           {/* Quote card */}
-          <div className="w-full max-w-2xl bg-white rounded-3xl p-8 shadow-xl border border-slate-100 text-center relative">
-            {/* Source badge */}
-            <div className={cn('absolute top-4 right-4 flex items-center gap-1', config.colorClass)}>
-              <Icon className="w-4 h-4" />
-              <span className="text-xs font-bold">{config.label}</span>
-            </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.35, ease: SUAVE }}
+              className="w-full max-w-2xl bg-white rounded-3xl p-8 shadow-xl border border-slate-100 text-center relative"
+            >
+              {/* Source badge */}
+              <div className={cn('absolute top-4 right-4 flex items-center gap-1', config.colorClass)}>
+                <Icon className="w-4 h-4" />
+                <span className="text-xs font-bold">{config.label}</span>
+              </div>
 
-            {/* Stars */}
-            <div className="flex justify-center gap-1 mb-4">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
-              ))}
-            </div>
+              {/* Stars */}
+              <div className="flex justify-center gap-1 mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
 
-            {/* Quote text */}
-            <blockquote className="text-lg sm:text-xl text-slate-700 font-medium leading-relaxed italic">
-              &ldquo;{testimonial.text}&rdquo;
-            </blockquote>
+              {/* Quote text */}
+              <blockquote className="text-lg sm:text-xl text-slate-700 font-medium leading-relaxed italic">
+                &ldquo;{testimonial.text}&rdquo;
+              </blockquote>
 
-            {/* Author */}
-            <div className="mt-6">
-              <p className="font-black text-slate-900">{testimonial.authorName}</p>
-              {testimonial.date && (
-                <p className="text-sm text-slate-400 mt-1">{testimonial.date}</p>
-              )}
-            </div>
-          </div>
+              {/* Author */}
+              <div className="mt-6">
+                <p className="font-black text-slate-900">{testimonial.authorName}</p>
+                {testimonial.date && (
+                  <p className="text-sm text-slate-400 mt-1">{testimonial.date}</p>
+                )}
+              </div>
+            </motion.div>
+          </AnimatePresence>
 
           {/* Navigation */}
           {testimonials.length > 1 && (
@@ -147,6 +164,6 @@ export function TestimonialsCarousel({ testimonials, className }: TestimonialsCa
           )}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

@@ -11,9 +11,11 @@ export type PublicSocialEvent = Pick<
   | 'galeriaUrl'
   | 'momentoPaparazziActivo'
   | 'programa'
+  | 'carasIndexadas'
 > & {
   configuracion: Pick<FiestaEnPlanificacion['configuracion'], 'nombreEvento' | 'fechaEvento'>;
   clientAccessGranted: boolean;
+  cancionUrl?: string;
 };
 
 export function toPublicSocialEvent(
@@ -49,5 +51,17 @@ export function toPublicSocialEvent(
     momentoPaparazziActivo: fiesta.momentoPaparazziActivo,
     programa: fiesta.programa,
     clientAccessGranted,
+    cancionUrl:
+      (fiesta as any).cancionUrl ||
+      (fiesta as any).musicaFondoUrl ||
+      fiesta.invitacionConfig?.musicaFondoUrl ||
+      fiesta.invitacionDigital?.musicaFondoUrl ||
+      (fiesta.socialGallerySettings as any)?.cancionUrl ||
+      (fiesta.socialGallerySettings as any)?.musicaFondoUrl ||
+      undefined,
+    carasIndexadas:
+      fiesta.socialGallerySettings?.modoCaras === 'apagado'
+        ? []
+        : (fiesta.socialGallerySettings?.carasPreparadas || fiesta.carasIndexadas?.length ? fiesta.carasIndexadas : undefined),
   };
 }

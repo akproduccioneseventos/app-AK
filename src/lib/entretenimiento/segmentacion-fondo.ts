@@ -88,14 +88,21 @@ export function procesarFondoCanvas({
   }
 
   if (fondoSeleccionado.tipo === 'desenfoque') {
-    // Dibujar fondo desenfocado primero
+    // 1. Dibujar fondo desenfocado en los bordes
     ctx.save();
-    ctx.filter = 'blur(16px)';
+    ctx.filter = 'blur(20px)';
     ctx.drawImage(videoOrigen, -20, -20, ancho + 40, alto + 40);
     ctx.restore();
 
-    // Dibujar sujeto al centro con leve máscara de viñeta
+    // 2. Dibujar sujeto nítido al centro con máscara elíptica de retrato
     ctx.save();
+    ctx.beginPath();
+    const centroX = ancho / 2;
+    const centroY = alto / 2;
+    const radioX = ancho * 0.38;
+    const radioY = alto * 0.46;
+    ctx.ellipse(centroX, centroY, radioX, radioY, 0, 0, Math.PI * 2);
+    ctx.clip();
     ctx.drawImage(videoOrigen, 0, 0, ancho, alto);
     ctx.restore();
     return;

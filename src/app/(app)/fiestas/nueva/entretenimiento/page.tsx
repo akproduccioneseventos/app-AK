@@ -168,6 +168,8 @@ interface EntertainmentStation {
   media: EntertainmentMediaItem[];
   marcosHabilitados?: string[];
   fotosPorTanda?: number;
+  copiasImpresion?: number;
+  tamanoPapel?: '10x15' | '5x15' | '13x18';
 }
 
 interface EntertainmentTemplatePreset {

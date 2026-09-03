@@ -1,6 +1,8 @@
 'use client';
 
 import { MessageSquare } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { SUAVE } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
@@ -32,7 +34,11 @@ export function CallToActionBanner({
   };
 
   return (
-    <section
+    <motion.section
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.4, ease: SUAVE }}
       className={cn(
         'py-20 px-4 bg-gradient-to-br text-white',
         gradients[variant],
@@ -73,6 +79,6 @@ export function CallToActionBanner({
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

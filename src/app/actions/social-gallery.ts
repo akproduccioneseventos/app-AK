@@ -928,7 +928,7 @@ export async function moderateSocialPostByClient(
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
     const snap = await ref.get();
     if (!snap.exists) return { success: false, error: 'Publicación no encontrada.' };
-    
+
     // Validate that the post belongs to this event
     const postData = snap.data();
     if (postData?.fiestaId !== fiestaId) {
@@ -967,4 +967,53 @@ export async function createSocialMediaPostFromUrlForStation(
     ...input,
     source: 'entertainment',
   });
+}
+
+export async function getPublicInstagramFeedAction() {
+  const { getPublicInstagramFeed } = await import('@/lib/instagram/public-feed');
+  return getPublicInstagramFeed();
+}
+
+export async function getCarasDeFiesta(fiestaId: string): Promise<import('@/lib/caras/agrupar-caras').CaraEnFoto[]> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return [];
+    if (fiesta.socialGallerySettings?.modoCaras === 'apagado') return [];
+    if (!fiesta.socialGallerySettings?.carasPreparadas && !fiesta.carasIndexadas?.length) {
+      return [];
+    }
+    if (fiesta.carasIndexadas && fiesta.carasIndexadas.length > 0) {
+      return fiesta.carasIndexadas;
+    }
+    const caras = await readData<import('@/lib/caras/agrupar-caras').CaraEnFoto[]>(`caras/${fiestaId}.json`, []);
+    return caras || [];
+  } catch (err) {
+    logger.warn('[social-gallery] Error al leer caras de fiesta:', err);
+    return [];
+  }
+}
+
+export async function guardarCarasDeFiesta(
+  fiestaId: string,
+  caras: import('@/lib/caras/agrupar-caras').CaraEnFoto[],
+): Promise<{ ok: boolean }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { ok: false };
+    fiesta.carasIndexadas = caras;
+    fiesta.socialGallerySettings = {
+      ...fiesta.socialGallerySettings,
+      enabled: fiesta.socialGallerySettings?.enabled ?? true,
+      allowLikes: fiesta.socialGallerySettings?.allowLikes ?? true,
+      allowComments: fiesta.socialGallerySettings?.allowComments ?? true,
+      uploadsActive: fiesta.socialGallerySettings?.uploadsActive ?? true,
+      carasPreparadas: true,
+      modoCaras: fiesta.socialGallerySettings?.modoCaras ?? 'grilla',
+    };
+    await saveFiesta(fiesta);
+    return { ok: true };
+  } catch (err) {
+    logger.warn('[social-gallery] Error al guardar caras de fiesta:', err);
+    return { ok: false };
+  }
 }

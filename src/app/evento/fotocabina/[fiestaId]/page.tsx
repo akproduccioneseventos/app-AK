@@ -52,7 +52,7 @@ import {
   SEGUNDOS_PRIMERA_FOTO,
   GUIA_POR_FOTO,
 } from '@/lib/entretenimiento/tira-fotocabina';
-import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
+import { imprimirRecuerdo, type TamanoPapelImpresion } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
@@ -96,6 +96,56 @@ export default function FotocabinaPage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
+  const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
+  const imagenFondoRef = useRef<HTMLImageElement | null>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (fiesta?.imagenFondoUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = fiesta.imagenFondoUrl;
+      img.onload = () => {
+        imagenFondoRef.current = img;
+      };
+    } else {
+      imagenFondoRef.current = null;
+    }
+  }, [fiesta?.imagenFondoUrl]);
+
+  // Bucle de vista previa en vivo sobre el canvas de espera y countdown
+  useEffect(() => {
+    let animId: number;
+    const renderLivePreview = () => {
+      const video = videoRef.current;
+      const canvas = previewCanvasRef.current;
+      if (video && canvas && video.readyState >= 2 && video.videoWidth > 0) {
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.save();
+          if (facingMode === 'user') {
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+          }
+          procesarFondoCanvas({
+            canvasDestino: canvas,
+            videoOrigen: video,
+            fondoSeleccionado: fondoVirtual,
+            imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
+            toleranciaChroma: 90,
+          });
+          ctx.restore();
+        }
+      }
+      animId = requestAnimationFrame(renderLivePreview);
+    };
+    animId = requestAnimationFrame(renderLivePreview);
+    return () => cancelAnimationFrame(animId);
+  }, [fondoVirtual, facingMode]);
 
   // Sync
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -122,6 +172,10 @@ export default function FotocabinaPage() {
   // Marca que la copia automatica ya salio, para que no se dispare dos veces
   // al volver a dibujarse la pantalla y para poder ofrecer "otra copia".
   const [yaSeImprimio, setYaSeImprimio] = useState(false);
+  // Cantidad de copias que el operador configuró en copiasImpresion (default 1).
+  const copiasImpresion = Math.max(1, Math.min(10, fiesta?.station.copiasImpresion ?? 1));
+  // Tamaño de papel configurado en la estación (default '10x15').
+  const tamanoPapel: TamanoPapelImpresion = (fiesta?.station.tamanoPapel as TamanoPapelImpresion) || '10x15';
 
   // Si el cliente no contrato el muro, el recuerdo no tiene a donde subir: la
   // cabina lo imprime ahi mismo en vez de dejar al invitado con las manos vacias.
@@ -346,7 +400,17 @@ export default function FotocabinaPage() {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    if (fondoVirtual && fondoVirtual.tipo !== 'ninguno') {
+      procesarFondoCanvas({
+        canvasDestino: canvas,
+        videoOrigen: video,
+        fondoSeleccionado: fondoVirtual,
+        imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
+        toleranciaChroma: 90,
+      });
+    } else {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     // Aplicar filtros configurados de la estación
@@ -431,7 +495,7 @@ export default function FotocabinaPage() {
     setIsPrinting(true);
     setYaSeImprimio(true);
     try {
-      const resultado = imprimirRecuerdo(capturedImage);
+      const resultado = imprimirRecuerdo(capturedImage, copiasImpresion, tamanoPapel);
       if (!resultado.ok) {
         setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
         return;
@@ -871,12 +935,18 @@ export default function FotocabinaPage() {
         {/* State: Idle / Welcome */}
         {localStatus === 'idle' && !capturedImage && !errorMsg && (
           <div className="relative w-full h-full">
+            {/* Live Preview de Cámara pasándolo por procesarFondoCanvas en un <canvas> */}
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted
-              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+              className="hidden"
+            />
+            <canvas
+              ref={previewCanvasRef}
+              data-testid="preview-canvas"
+              className="absolute inset-0 w-full h-full object-cover"
             />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
@@ -896,7 +966,60 @@ export default function FotocabinaPage() {
                   </p>
                 </div>
 
-                <div className="pt-4">
+                {/* Selector táctil de fondo virtual */}
+                <div className="flex flex-col gap-2 w-full pt-1">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
+                    Elegí el fondo
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFondoVirtual({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' })}
+                      className={`h-12 rounded-xl text-xs font-black transition border ${
+                        fondoVirtual.tipo === 'ninguno'
+                          ? 'bg-white text-zinc-950 border-white shadow-lg'
+                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                      }`}
+                    >
+                      Sin fondo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFondoVirtual({ id: 'desenfoque', nombre: 'Fondo borroso', tipo: 'desenfoque' })}
+                      className={`h-12 rounded-xl text-xs font-black transition border ${
+                        fondoVirtual.tipo === 'desenfoque'
+                          ? 'bg-amber-400 text-zinc-950 border-amber-400 shadow-lg'
+                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                      }`}
+                    >
+                      Fondo borroso
+                    </button>
+                    {fiesta?.imagenFondoUrl ? (
+                      <button
+                        type="button"
+                        onClick={() => setFondoVirtual({
+                          id: 'imagen',
+                          nombre: 'Fondo de la fiesta',
+                          tipo: 'imagen',
+                          url: fiesta.imagenFondoUrl,
+                        })}
+                        className={`h-12 rounded-xl text-xs font-black transition border ${
+                          fondoVirtual.tipo === 'imagen'
+                            ? 'bg-purple-400 text-zinc-950 border-purple-400 shadow-lg'
+                            : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                        }`}
+                      >
+                        De la fiesta
+                      </button>
+                    ) : (
+                      <div className="h-12 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-[10px] text-zinc-500 font-bold">
+                        Sin fondo extra
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2">
                   <button
                     onClick={takePhoto}
                     className="w-full h-16 rounded-xl text-white font-black text-base uppercase tracking-wider transition shadow-xl flex items-center justify-center gap-2"
@@ -914,14 +1037,12 @@ export default function FotocabinaPage() {
         {/* State: Countdown */}
         {localStatus === 'countdown' && !capturedImage && (
           <div className="relative w-full h-full flex items-center justify-center">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+            <canvas
+              ref={previewCanvasRef}
+              data-testid="preview-canvas-countdown"
+              className="absolute inset-0 w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/45" />
+            <div className="absolute inset-0 bg-black/25 z-20 pointer-events-none" />
 
             {/* Guia al invitado: cual va y que hacer. Sin esto se queda mirando
                 el numero sin saber que despues vienen dos mas. */}
@@ -1145,3 +1266,4 @@ export default function FotocabinaPage() {
     </div>
   );
 }
+

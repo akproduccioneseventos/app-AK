@@ -36,6 +36,10 @@ export interface EntertainmentStationRuntimeConfig {
   deliveryChannels: string[];
   /** Cantidad de fotos por tanda (1 a 4, default 3). */
   fotosPorTanda?: number;
+  /** Cantidad de copias a imprimir por recuerdo (1 a 10, default 1). */
+  copiasImpresion?: number;
+  /** Tamaño del papel para impresión ('10x15' | '5x15' | '13x18', default '10x15'). */
+  tamanoPapel?: '10x15' | '5x15' | '13x18';
   /** Segundos de cuenta regresiva para la primera foto (default 10). */
   segundosCuentaRegresiva?: number;
   /** Marcos habilitados para la fiesta (subconjunto de 'none', 'golden', 'neon', 'flowers', 'ak_brand'). */
@@ -53,6 +57,8 @@ export interface EntertainmentStationRuntimeConfig {
   enableBeautyFilter?: boolean;
   enableChromaKey?: boolean;
   orientation?: 'vertical' | 'horizontal' | 'cuadrada';
+  fondoDePantalla?: string;
+  virtualBackgroundUrl?: string;
 }
 
 export interface PublicEntertainmentEvent {
@@ -166,6 +172,10 @@ export function getEntertainmentStationConfig(
       ? stored.allowedTemplateIds.filter((id: unknown) => typeof id === 'string' && id.length > 0)
       : [],
     fotosPorTanda: clampNumber(stored.fotosPorTanda || stored.photosPerSession, 3, 1, 4),
+    copiasImpresion: clampNumber(stored.copiasImpresion ?? stored.printCopies, 1, 1, 10),
+    tamanoPapel: (['10x15', '5x15', '13x18'].includes(stored.tamanoPapel || stored.paperSize)
+      ? (stored.tamanoPapel || stored.paperSize)
+      : '10x15') as '10x15' | '5x15' | '13x18',
     segundosCuentaRegresiva: clampNumber(stored.segundosCuentaRegresiva || stored.countdownSeconds, 10, 2, 30),
     marcosHabilitados: Array.isArray(stored.marcosHabilitados) && stored.marcosHabilitados.length > 0
       ? stored.marcosHabilitados
@@ -313,3 +323,4 @@ export function getEntertainmentOperatorPath(
       return null;
   }
 }
+
