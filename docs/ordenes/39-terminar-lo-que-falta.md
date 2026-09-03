@@ -114,4 +114,39 @@ usa: agruparEnPersonas en src/app/evento/album/[fiestaId]/page.tsx
 usa: DecoItem3D en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 prueba: tests/e2e/la-fotocabina-tiene-todo.spec.ts
 prueba: tests/e2e/el-album-se-baja-entero.spec.ts
+usa: /invitado/ en tests/e2e/las-pantallas-rotas-se-arreglaron.spec.ts
 ```
+
+---
+
+## BLOQUE 7 — LA PANTALLA DEL INVITADO SE ROMPE. Es la más urgente de esta orden.
+
+**`/invitado/[fiestaId]/[invitadoId]` tira el error 310 de React**, medido el 3 de septiembre de
+2026 abriéndola en el navegador. **Es la que abre el invitado con su enlace**: si se rompe, se
+entera en la fiesta.
+
+**Lo que YA descarté**, para que no pierdas el viaje:
+
+- **La pantalla del enlace está limpia**: `invitado/[fiestaId]/[invitadoId]/page.tsx` son 17
+  líneas, un reenvío del servidor, **sin un solo gancho**. El error viene del destino.
+- **El destino es `/portal-invitado/[fiestaId]/[guestId]`**, que son seis líneas que re-exportan
+  `invitacion/[fiestaId]/invitado/[guestId]/page.tsx`. **Ahí está el problema.**
+- **En esa pantalla los ganchos están bien ordenados**: todos entre las líneas 198 y 239, y los
+  cortes (`if (isLoading)`, `if (loadError)`, `if (allowGuestPortal === false)`) vienen después,
+  en las líneas 252, 255 y 298. **Comprobado: no hay ningún gancho después de un corte.**
+- **`MiniQuiosco.tsx` también está bien ordenado**: ganchos en 44-72, cortes en 143 y 147.
+
+**Entonces la causa es otra**, y el error 310 tiene dos más:
+
+1. **Un componente definido adentro de otro.** Si una función de componente se declara dentro del
+   cuerpo de otra, React la trata como nueva en cada dibujo y se le desordenan los ganchos. **Es
+   la causa más probable acá.** Buscá `function` o `=> (` que devuelvan pantalla **adentro** de
+   `GuestPortalContent`.
+2. **Un gancho adentro de un `if`, de un bucle o de un `&&`**, en cualquiera de los componentes
+   hijos que dibuja esa pantalla.
+
+**Qué comprueba la prueba:** que al abrir `/invitado/<fiesta>/<invitado>` **no aparezca ningún
+error de React en la consola**. Ya está escrita en
+`tests/e2e/las-pantallas-rotas-se-arreglaron.spec.ts` y hoy se saltea sola porque la pantalla
+figura en `docs/pantallas-rotas-conocidas.json`. **Cuando la arregles, sacala de ese archivo y la
+prueba empieza a exigírsela sola.** Ese número sólo puede bajar.
