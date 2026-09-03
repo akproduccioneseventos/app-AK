@@ -107,10 +107,25 @@ function armarIndice() {
       donde.add(archivo);
     }
     // Las rutas de pantalla no son palabras sueltas: se guardan enteras.
+    //
+    // **Y se guardan TAMBIEN sin la barra del final.** Una prueba escribe la
+    // direccion con el dato pegado -`/evento/zona-digital/${fiestaId}`- y lo
+    // que se alcanza a leer es `/evento/zona-digital/`, CON barra. Del otro
+    // lado se busca `/evento/zona-digital`, SIN barra. **Por ese solo caracter
+    // el control daba por no probadas dos pantallas que si tenian prueba**, el
+    // 3 de septiembre de 2026.
+    //
+    // Guardar las dos formas no lo afloja: si una pantalla no tiene prueba, su
+    // direccion no aparece en ningun archivo de prueba y no hay entrada de
+    // ninguna de las dos maneras. Comprobado agregando una pantalla nueva sin
+    // prueba: la sigue frenando.
     for (const ruta of new Set(texto.match(/\/[a-z0-9][a-z0-9\-\/[\]]*/gi) || [])) {
-      let donde = guia.get(ruta);
-      if (!donde) guia.set(ruta, (donde = new Set()));
-      donde.add(archivo);
+      for (const forma of new Set([ruta, ruta.replace(/\/+$/, '')])) {
+        if (!forma) continue;
+        let donde = guia.get(forma);
+        if (!donde) guia.set(forma, (donde = new Set()));
+        donde.add(archivo);
+      }
     }
   }
   INDICE = guia;
