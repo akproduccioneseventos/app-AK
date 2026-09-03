@@ -12,8 +12,12 @@ import { FIXTURE_IDS } from '../../scripts/helpers/route-inventory.mjs';
  * Ahora usa **el mismo criterio que el recorrido de la puerta**, para que no
  * haya dos varas distintas midiendo lo mismo:
  *
- * - **200 caracteres**, que es como una frase larga. Debajo de eso no hay
- *   pantalla: hay un cartel de "cargando" o un titulo solo.
+ * - **Un titulo visible y un texto que diga que hacer.** Al principio esto
+ *   pedia 200 caracteres, y **estaba mal**: el acceso del proveedor con una
+ *   llave vencida muestra *"Acceso no disponible - Solicita un enlace nuevo a
+ *   AK Producciones"*, que son 62 caracteres **y es exactamente lo correcto**.
+ *   Contar letras castiga al cartel bien hecho. Lo que importa es que **diga
+ *   que pasa y que hacer**, no que sea largo.
  * - **Ningun error de React en la consola.** Es el que deja la pantalla en
  *   blanco sin avisar.
  * - **Ni "undefined" ni "[object Object]"** a la vista del cliente.
@@ -23,7 +27,8 @@ import { FIXTURE_IDS } from '../../scripts/helpers/route-inventory.mjs';
  * **cuando no hay dato, lo digan en criollo** en vez de quedarse mudas.
  */
 
-const MINIMO_PARA_QUE_CUENTE = 200;
+// El aviso mas corto que se acepta: un titulo y una linea diciendo que hacer.
+const MINIMO_PARA_QUE_CUENTE = 40;
 
 /** Abre la pantalla y devuelve lo que dibujo y los errores que tiro. */
 async function abrir(page: Page, ruta: string) {
@@ -50,11 +55,25 @@ async function seComportaBien(page: Page, ruta: string) {
     `${ruta} tiró un error de React. Es el que deja la pantalla en blanco sin avisar:\n${r.errores.join('\n')}`,
   ).toEqual([]);
 
+  // Tiene que haber ALGO escrito con jerarquía: un título, un encabezado o el
+  // título de un aviso. Una pantalla en blanco no tiene ninguno de los tres.
+  const hayTitulo = await page
+    .locator('h1, h2, h3, [role="heading"], [class*="AlertTitle"], [data-slot="alert-title"]')
+    .first()
+    .isVisible()
+    .catch(() => false);
+
   expect(
-    r.texto.length,
-    `${ruta} dibujó ${r.texto.length} caracteres. Eso no es una pantalla: es un cartel suelto. ` +
-      `Cuando no hay datos tiene que decirlo en criollo y ofrecer a dónde ir.`,
-  ).toBeGreaterThanOrEqual(MINIMO_PARA_QUE_CUENTE);
+    hayTitulo,
+    `${ruta} no muestra ningún título. Dibujó ${r.texto.length} caracteres. ` +
+      `Cuando no hay datos, la pantalla tiene que decir qué pasa y qué hacer.`,
+  ).toBe(true);
+
+  // Y algo para leer, aunque sea corto: el aviso mas breve que se acepta ronda
+  // los 40 caracteres -"Acceso no disponible" mas la linea que dice que hacer-.
+  expect(r.texto.length, `${ruta} está prácticamente vacía`).toBeGreaterThanOrEqual(
+    MINIMO_PARA_QUE_CUENTE,
+  );
 
   // Lo que nunca puede ver un cliente.
   expect(r.texto).not.toContain('undefined');
@@ -93,7 +112,8 @@ test.describe('Las pantallas que estaban rotas', () => {
     const r = await abrir(page, '/landing/eventos');
     expect(r.estado).toBeLessThan(400);
     expect(r.errores).toEqual([]);
-    // Es una direccion que redirige: lo que importa es que la de destino ande.
-    expect(r.texto.length).toBeGreaterThanOrEqual(MINIMO_PARA_QUE_CUENTE);
+    // Es una direccion que redirige: lo que importa es que la de destino ande,
+    // y esa SI es una pantalla de verdad, asi que se le pide contenido.
+    expect(r.texto.length).toBeGreaterThanOrEqual(200);
   });
 });
