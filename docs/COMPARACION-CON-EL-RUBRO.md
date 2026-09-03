@@ -34,11 +34,11 @@ Filtro de belleza :: usa: aplicarFiltroBelleza en src/app/evento/fotocabina/[fie
 Camara vertical u horizontal :: usa: modos-captura en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Cambiar el fondo con tela verde :: usa: procesarFondoCanvas en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Cambiar el fondo SIN tela :: FALTA
-Fondo desenfocado de verdad :: FALTA
-Fondo de la pantalla, el telon :: FALTA
-Elegir el tamano de impresion :: FALTA
-Cuantas copias se imprimen :: FALTA
-Elegir la impresora :: FALTA
+Fondo desenfocado de verdad :: usa: desenfoque en src/app/evento/fotocabina/[fiestaId]/page.tsx
+Fondo de la pantalla, el telon :: usa: procesarFondoCanvas({ en src/app/evento/fotocabina/[fiestaId]/page.tsx
+Elegir el tamano de impresion :: usa: tamanoPapel en src/app/evento/fotocabina/[fiestaId]/page.tsx
+Cuantas copias se imprimen :: usa: copiasImpresion en src/app/evento/fotocabina/[fiestaId]/page.tsx
+Elegir la impresora :: NO SE COPIA
 Armar el diseno de la impresion :: FALTA
 Galeria de la noche :: FALTA
 Marcos animados :: FALTA
@@ -79,7 +79,7 @@ Marca de agua :: usa: brandText en src/app/evento/plataforma-360/[fiestaId]/page
 Entrega por QR :: usa: qrCallout en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Galeria de la noche :: usa: recentVideos en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Repetir la toma :: usa: maxRetakes en src/app/evento/plataforma-360/[fiestaId]/page.tsx
-Color de la fiesta :: FALTA
+Color de la fiesta :: usa: accentColor en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Musica sobre el video :: FALTA
 Cambios de velocidad, el efecto de moda :: FALTA
 Marco animado sobre el video :: FALTA
