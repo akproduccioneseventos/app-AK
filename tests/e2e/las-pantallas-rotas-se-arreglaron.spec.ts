@@ -57,8 +57,13 @@ async function seComportaBien(page: Page, ruta: string) {
 
   // Tiene que haber ALGO escrito con jerarquía: un título, un encabezado o el
   // título de un aviso. Una pantalla en blanco no tiene ninguno de los tres.
+  //
+  // **Van los seis niveles de título, del h1 al h6.** La primera version miraba
+  // solo hasta el h3, y el aviso de la app -`AlertTitle`, en
+  // `components/ui/alert.tsx:39`- se dibuja como **h5**. Por eso daba por
+  // rota la pantalla del proveedor, que en realidad muestra su cartel bien.
   const hayTitulo = await page
-    .locator('h1, h2, h3, [role="heading"], [class*="AlertTitle"], [data-slot="alert-title"]')
+    .locator('h1, h2, h3, h4, h5, h6, [role="heading"], [data-slot="alert-title"]')
     .first()
     .isVisible()
     .catch(() => false);
