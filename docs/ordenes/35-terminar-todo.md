@@ -204,7 +204,7 @@ usa: copiasImpresion en src/app/evento/fotocabina/[fiestaId]/page.tsx
 usa: tamanoPapel en src/app/evento/fotocabina/[fiestaId]/page.tsx
 usa: audioRef.current en src/app/evento/album/[fiestaId]/page.tsx
 archivo: src/lib/firebase/ajustes-remotos.ts
-prueba: tests/e2e/la-fotocabina-imprime-lo-que-se-pide.spec.ts
+prueba: src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts
 prueba: tests/e2e/el-album-se-arma-solo.spec.ts
 prueba: tests/e2e/las-pantallas-rotas-se-arreglaron.spec.ts
 ```

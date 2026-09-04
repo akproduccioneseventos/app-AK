@@ -27,6 +27,8 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import DecoCanvas from '@/components/decoracion/DecoCanvas';
+import { DecoItem3D } from '@/components/salon-3d/elements/DecoItem3D';
+import { SalonScene } from '@/components/salon-3d/SalonScene';
 import DecoElementLibrary from '@/components/decoracion/DecoElementLibrary';
 import DecoMuestrario from '@/components/decoracion/DecoMuestrario';
 import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
@@ -166,6 +168,7 @@ function DecoracionYDisenoEventoContent() {
   const [isMobilePropertiesOpen, setIsMobilePropertiesOpen] = useState(false);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [is3DMode, setIs3DMode] = useState(false);
 
   // Escape key exits fullscreen
   useEffect(() => {
@@ -269,7 +272,7 @@ function DecoracionYDisenoEventoContent() {
       } as ColorPalette,
     } as DecoracionData));
   };
-  
+
   const handleSelectPalette = (palette: ColorPalette) => {
     setDecoracionData(prev => ({ ...prev, paletaColores: palette }));
   };
@@ -1602,6 +1605,17 @@ function DecoracionYDisenoEventoContent() {
                   </Button>
                   <Button
                     type="button"
+                    variant={is3DMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setIs3DMode(m => !m)}
+                    className="rounded-xl h-8 text-xs gap-1 font-bold"
+                    title={is3DMode ? 'Volver a plano 2D' : 'Ver salón en 3D'}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    {is3DMode ? 'Plano 2D' : 'Vista 3D'}
+                  </Button>
+                  <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => setIsFullscreen(f => !f)}
@@ -1652,17 +1666,40 @@ function DecoracionYDisenoEventoContent() {
                 <div className={cn('relative', isFullscreen ? 'flex flex-1 gap-3 min-h-0' : '')}>
                   <Card className={cn("border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md overflow-hidden", isFullscreen ? 'flex-1 flex flex-col' : '')}>
                     <CardContent className={cn("p-4", isFullscreen ? 'flex-1 flex flex-col min-h-0' : '')}>
-                      <DecoCanvas
-                        elementos={canvasElementos}
-                        onChange={handleCanvasElementsChange}
-                        selectedId={selectedCanvasId}
-                        onSelectId={setSelectedCanvasId}
-                        hiddenZones={canvasHiddenZones}
-                        fondoColor={canvasFondoColor}
-                        fondoImagenUrl={canvasFondoImagenUrl || undefined}
-                        showGrid={showGrid}
-                        fullscreen={isFullscreen}
-                      />
+                      {is3DMode ? (
+                        <div className="w-full h-[600px] rounded-2xl overflow-hidden bg-slate-950 relative">
+                          <SalonScene
+                            decoracion={{
+                              ...decoracionData,
+                              salonElements: decoracionData.salonElements || [],
+                            }}
+                          />
+                          {/* 3D Items overlay demonstration */}
+                          <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-white text-xs flex items-center gap-2">
+                            <Layers className="w-3.5 h-3.5 text-primary" />
+                            <span>Vista 3D Interactiva del Salón (Prismm)</span>
+                          </div>
+                          {decoracionData.items?.length ? (
+                            <div className="hidden">
+                              {decoracionData.items.map((it, idx) => (
+                                <DecoItem3D key={it.id || idx} item={it as any} position={[0, 0, 0]} />
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : (
+                        <DecoCanvas
+                          elementos={canvasElementos}
+                          onChange={handleCanvasElementsChange}
+                          selectedId={selectedCanvasId}
+                          onSelectId={setSelectedCanvasId}
+                          hiddenZones={canvasHiddenZones}
+                          fondoColor={canvasFondoColor}
+                          fondoImagenUrl={canvasFondoImagenUrl || undefined}
+                          showGrid={showGrid}
+                          fullscreen={isFullscreen}
+                        />
+                      )}
                     </CardContent>
                   </Card>
 
@@ -2162,3 +2199,4 @@ export default function DecoracionPageWrapper() {
     </Suspense>
   );
 }
+

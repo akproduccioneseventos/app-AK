@@ -250,6 +250,7 @@ const nextConfig = {
       '@firebase/auth': path.resolve(__dirname, 'node_modules/firebase/node_modules/@firebase/auth/dist/node/index.js'),
       '@opentelemetry/exporter-jaeger': false,
       '@opentelemetry/sdk-node': false,
+      '@vladmandic/face-api': path.resolve(__dirname, 'src/lib/face-api-shim.js'),
       'canvg': false,
       'dompurify': false,
     };

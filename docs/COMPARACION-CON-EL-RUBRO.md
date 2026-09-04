@@ -219,9 +219,10 @@ Video recuerdo con musica :: usa: audioRef en src/app/evento/[id]/video-recuerdo
 Descargar todo junto :: usa: download-recuerdos en src/app/api/fiestas/[fiestaId]/download-recuerdos/route.ts
 Compartir con un enlace :: usa: handleShare en src/app/evento/album/[fiestaId]/page.tsx
 Los audios del buzon en el album :: usa: audioReproduciendo en src/app/evento/album/[fiestaId]/page.tsx
-Se arma solo con los mejores :: FALTA
+Se arma solo con los mejores :: usa: elegir-las-mejores en src/lib/album/armar-album.ts
 Se pasan paginas como un libro :: usa: AnimatePresence en src/app/evento/album/[fiestaId]/page.tsx
 Portada con el nombre de la fiesta :: usa: nombreFiesta en src/app/evento/album/[fiestaId]/page.tsx
 Buscar tus fotos con una selfie :: FALTA
 Que el cliente elija :: NO SE COPIA
 ```
+

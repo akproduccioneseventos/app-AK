@@ -52,6 +52,7 @@ import {
   type FaceSwapCategoryId,
 } from '@/lib/entertainment/espejo-magico-templates';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { procesarFondoCanvas } from '@/lib/entretenimiento/segmentacion-fondo';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -732,8 +733,18 @@ export default function EspejoMagicoPage() {
       ctx.scale(-1, 1);
     }
 
-    // Dibujar el video aplicando el recorte proporcional calculado
-    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    if (fondoVirtual && fondoVirtual !== 'ninguno') {
+      procesarFondoCanvas({
+        canvasDestino: canvas,
+        videoOrigen: video,
+        fondoSeleccionado: { id: fondoVirtual, nombre: 'Fondo Virtual', tipo: 'chroma' },
+        imagenFondo: null,
+        toleranciaChroma: 90,
+      });
+    } else {
+      // Dibujar el video aplicando el recorte proporcional calculado
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.filter = 'none';
 
@@ -1688,4 +1699,5 @@ export default function EspejoMagicoPage() {
     </div>
   );
 }
+
 

@@ -5,6 +5,8 @@ import { getDedications } from '@/app/actions/social-interactive';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { hasAppSession } from '@/lib/auth/require-session';
 
+// Ruta interna: download-recuerdos para empaquetado administrativo
+
 /**
  * Tope de peso del paquete que se arma de una vez.
  *
@@ -303,3 +305,4 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     return NextResponse.json({ error: 'Failed to create zip file.', details: error.message }, { status: 500 });
   }
 }
+

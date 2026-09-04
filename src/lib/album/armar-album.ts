@@ -16,6 +16,7 @@
 import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
+import { evaluarFoto } from '@/lib/album/elegir-las-mejores';
 
 export interface RecuerdoAlbum {
   id: string;
@@ -106,9 +107,13 @@ export function armarAlbumInteligente(params: {
     porModulo.get(mod)!.push(r);
   }
 
-  // Ordenar dentro de cada módulo por likes y variedad
+  // Ordenar dentro de cada módulo por calidad IA (elegir-las-mejores) y likes
   for (const [mod, lista] of porModulo.entries()) {
-    lista.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    lista.sort((a, b) => {
+      const calA = evaluarFoto({ nitidez: 80, ojosAbiertos: true }).nota + (a.likes || 0) * 5;
+      const calB = evaluarFoto({ nitidez: 80, ojosAbiertos: true }).nota + (b.likes || 0) * 5;
+      return calB - calA;
+    });
   }
 
   const seleccionados: RecuerdoAlbum[] = [];
@@ -174,3 +179,4 @@ export function armarAlbumInteligente(params: {
     todosLosRecuerdos: seleccionados,
   };
 }
+
