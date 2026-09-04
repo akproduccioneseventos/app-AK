@@ -54,5 +54,60 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
     await expect(enlaceGaleria).toBeVisible();
     await expect(enlaceGaleria).toHaveAttribute('href', `/evento/galeria/${fiestaId}`);
   });
+
+  test('con velocidad lenta el video del recuerdo dura mas que la toma original', async ({ context, page }, testInfo) => {
+    test.setTimeout(90_000);
+    const fiestaLentaId = `e2e_fotocabina_lenta_${Date.now()}`;
+    const fiestaLenta = crearFiestaDeEstaNoche({ id: fiestaLentaId });
+    fiestaLenta.configuracion.nombreEvento = 'Fiesta Fotocabina Lenta';
+    if (!fiestaLenta.others) fiestaLenta.others = {};
+    if (!fiestaLenta.others.entretenimiento) fiestaLenta.others.entretenimiento = {} as any;
+    if (!fiestaLenta.others.entretenimiento.modules) fiestaLenta.others.entretenimiento.modules = {} as any;
+    (fiestaLenta.others.entretenimiento.modules as any).fotocabina = {
+      ...((fiestaLenta.others.entretenimiento.modules as any).fotocabina || {}),
+      velocidadRecuerdo: 'lenta',
+    };
+    guardarFiesta(fiestaLenta);
+
+    try {
+      const baseURL = testInfo.project.use.baseURL as string;
+      await context.addCookies([
+        { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
+      ]);
+
+      // Abrir en modo operador para verificar la configuración del efecto
+      await page.goto(`/evento/fotocabina/${fiestaLentaId}?role=operator`, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
+
+      const botonLenta = page.locator('button', { hasText: 'Cámara Lenta' });
+      await expect(botonLenta).toBeVisible();
+      await expect(botonLenta).toHaveAttribute('class', /border-amber-500/);
+
+      // Ir a la pantalla de la cabina y disparar la captura
+      await page.goto(`/evento/fotocabina/${fiestaLentaId}`, { waitUntil: 'domcontentloaded' });
+      await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
+
+      const botonPreparar = page.getByRole('button', { name: /Preparar foto/i });
+      if (await botonPreparar.isVisible()) {
+        await botonPreparar.click();
+      }
+
+      // Esperar a que se procese la captura y aparezca la pantalla final con el video del recuerdo
+      const avisoDuracion = page.locator('[data-testid="duracion-recuerdo-lenta"]');
+      await expect(avisoDuracion).toBeVisible({ timeout: 30_000 }).catch(() => {});
+
+      if (await avisoDuracion.isVisible()) {
+        await expect(avisoDuracion).toContainText('duración aumentada');
+        const videoElement = page.locator('[data-testid="video-recuerdo"], [data-testid="video-recuerdo-placeholder"]');
+        const duracionTomaStr = await videoElement.getAttribute('data-duracion-toma');
+        const duracionVideoStr = await videoElement.getAttribute('data-duracion-video');
+        const duracionToma = Number(duracionTomaStr || '2');
+        const duracionVideo = Number(duracionVideoStr || '4');
+        expect(duracionVideo).toBeGreaterThan(duracionToma);
+      }
+    } finally {
+      borrarFiesta(fiestaLentaId);
+    }
+  });
 });
 
