@@ -96,7 +96,15 @@ test.describe('Recorrido de las 353 pantallas', () => {
     fs.writeFileSync(path.join(outDir, 'informe.md'), md, 'utf8');
   });
 
-  test('abre y audita cada pantalla del sistema', async ({ browser, baseURL }) => {
+  test('abre y audita cada pantalla del sistema', async ({ browser, baseURL }, testInfo) => {
+    /**
+     * ALCANZA CON UN NAVEGADOR. Antes corria dos veces -escritorio y celular- y
+     * tardaba el doble para contestar la misma pregunta: si cada pantalla abre y
+     * dice algo. Lo que se ve mal en un celular lo mira
+     * `anda-en-el-celular.spec.ts`, que es la prueba hecha para eso.
+     */
+    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador: el celular lo mira anda-en-el-celular.spec.ts');
+
     // Solo las pantallas que el cambio pudo romper, si el script las paso.
     // Recorrer las 357 en cada propuesta cuesta 40 minutos y no se sostiene:
     // lo marco el dueno el 2 de septiembre de 2026. El script decide cuales;
@@ -129,10 +137,22 @@ test.describe('Recorrido de las 353 pantallas', () => {
       },
     ]);
 
-    const page = await context.newPage();
+    /**
+     * SE RECORRE DE A VARIAS PANTALLAS A LA VEZ, no de a una.
+     *
+     * Recorrer las 357 de a una costaba CUARENTA MINUTOS y era, lejos, lo mas caro
+     * de toda la verificacion: el dueno lo marco tres veces. La maquina tiene cuatro
+     * nucleos y se usaba uno.
+     *
+     * Se puede hacer sin riesgo porque **el recorrido solo MIRA**: abre cada pantalla
+     * y lee lo que dice. No guarda nada, no toca la fiesta de prueba y no depende del
+     * orden. Por eso aca si se puede lo que en otras pruebas no.
+     *
+     * Cada carril tiene su propia pestana, con la misma sesion.
+     */
+    const CARRILES = Number(process.env.AK_RECORRIDO_CARRILES || 4);
 
-    for (let i = 0; i < routes.length; i++) {
-      const r = routes[i];
+    const procesarRuta = async (page: import('@playwright/test').Page, r: any, i: number) => {
       const startTime = Date.now();
       const pageErrors: string[] = [];
       const errorListener = (err: Error) => pageErrors.push(err.message);
@@ -159,7 +179,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
             duracionMs,
           });
           page.off('pageerror', errorListener);
-          continue;
+          return;
         }
 
         // Wait brief settling time for hydration
@@ -191,7 +211,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
               duracionMs,
             });
             page.off('pageerror', errorListener);
-            continue;
+            return;
           }
           results.push({
             ...r,
@@ -200,7 +220,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
             duracionMs,
           });
           page.off('pageerror', errorListener);
-          continue;
+          return;
         }
 
         // Check 2: Errores no capturados
@@ -212,7 +232,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
             duracionMs,
           });
           page.off('pageerror', errorListener);
-          continue;
+          return;
         }
 
         // Check 3: Fuga de términos técnicos
@@ -235,7 +255,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
             duracionMs,
           });
           page.off('pageerror', errorListener);
-          continue;
+          return;
         }
 
         // Check 4: ¿la pantalla esta MUERTA?
@@ -296,7 +316,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
                 duracionMs,
               });
               page.off('pageerror', errorListener);
-              continue;
+              return;
             }
           }
 
@@ -334,7 +354,32 @@ test.describe('Recorrido de las 353 pantallas', () => {
       } finally {
         page.off('pageerror', errorListener);
       }
-    }
+    };
+
+    let siguiente = 0;
+    /**
+     * PESTANA NUEVA POR PANTALLA, y no se discute.
+     *
+     * Reusando la misma pestana, un error que tira una pantalla llega tarde y se
+     * le cuenta A LA SIGUIENTE. El 4 de septiembre de 2026 eso hizo que el
+     * recorrido acusara nueve pantallas rotas cuando eran menos: `/compras` y el
+     * PDF de decoracion figuraban rotas y abiertas solas andan perfecto.
+     *
+     * Abrir una pestana cuesta milesimas; una falsa alarma cuesta horas.
+     */
+    const carriles = Array.from({ length: Math.max(1, Math.min(CARRILES, routes.length)) }, async () => {
+      for (;;) {
+        const i = siguiente++;
+        if (i >= routes.length) break;
+        const page = await context.newPage();
+        try {
+          await procesarRuta(page, routes[i], i);
+        } finally {
+          await page.close().catch(() => {});
+        }
+      }
+    });
+    await Promise.all(carriles);
 
     await context.close();
 
