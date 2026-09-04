@@ -169,12 +169,33 @@ function pistas(salida) {
     // pide que despues del circulo venga algo con forma de prueba.
     (l) => /^\s*\d+\)\s+\S+\.spec\.ts/.test(l) || /^\s*\u25cf\s+\S.*\s\u203a\s/.test(l),
   );
-  if (fallas.length === 0) return lineas.slice(-12).join('\n');
+  /**
+   * Lo que imprime el corredor de navegador por su cuenta, y que hay que mostrar
+   * SIEMPRE. Sin esto la puerta decia "una pantalla tiro un error de React" y no
+   * decia CUAL: para saberlo habia que volver a correr 45 minutos. Paso el 4 de
+   * septiembre de 2026, despues de que el mismo agujero costara ocho horas.
+   */
+  const delCorredor = lineas.filter(
+    (l) => /^\s*\u2715\s/.test(l) || /^\s{2,}\S+\s+->\s/.test(l) || /DONDE SE VA EL TIEMPO/.test(l),
+  );
+  // Las rutas que fallaron, que es el dato que uno busca cuando una pantalla se rompe.
+  const rutas = [...new Set(
+    lineas.flatMap((l) => [...l.matchAll(/(\/[a-z0-9\[\]_-]+(?:\/[a-z0-9\[\]_.-]+)*)\s+(?:tir|no |qued)/gi)].map((m) => m[1])),
+  )];
+
+  const extra = [];
+  if (rutas.length > 0) extra.push('', 'PANTALLAS QUE FALLARON:', ...rutas.map((r) => '  ' + r));
+  if (delCorredor.length > 0) extra.push('', ...delCorredor.map((l) => l.replace(/\s+$/, '')));
+
+  if (fallas.length === 0) {
+    return [...lineas.slice(-14), ...extra].join('\n');
+  }
   const listadas = [...new Set(fallas.map((l) => l.trim()))];
   return [
     listadas.length + ' prueba(s) fallaron. SON TODAS: arreglalas juntas.',
     '',
     ...listadas,
+    ...extra,
     '',
     '--- detalle de la ultima ---',
     ...lineas.slice(-12),

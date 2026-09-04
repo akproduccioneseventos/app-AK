@@ -30,6 +30,20 @@ const testEnvironment = {
 
 import { statSync } from "node:fs";
 
+/**
+ * Carpetas de src/ que NO son codigo: las escribe la propia corrida.
+ *
+ * **Esto costaba SIETE MINUTOS por corrida y nadie lo habia medido.** Las pruebas
+ * de navegador guardan datos de verdad -avisos, gasto de inteligencia artificial,
+ * el historial de redes- adentro de `src/data/`. Con eso, `src/` quedaba siempre
+ * mas nuevo que la compilacion, y la corrida siguiente **recompilaba la app
+ * entera aunque no se hubiera tocado una sola linea de codigo**.
+ *
+ * Se descubrio el 4 de septiembre de 2026: dos corridas seguidas del recorrido se
+ * pasaron de tiempo sin llegar a mirar una sola pantalla, las dos compilando.
+ */
+const NO_ES_CODIGO = ["data", "__tests__"];
+
 function getLatestSourceMtime(dir = "src") {
   let latest = 0;
   function traverse(current) {
@@ -38,6 +52,7 @@ function getLatestSourceMtime(dir = "src") {
       for (const entry of entries) {
         const full = path.join(current, entry.name);
         if (entry.isDirectory()) {
+          if (current === dir && NO_ES_CODIGO.includes(entry.name)) continue;
           traverse(full);
         } else if (entry.isFile()) {
           const mtime = statSync(full).mtimeMs;
