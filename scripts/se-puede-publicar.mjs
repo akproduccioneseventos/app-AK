@@ -149,8 +149,33 @@ function correr(comando) {
 }
 
 /** Las últimas líneas que sirven para entender qué falló, sin volcar miles. */
+/**
+ * Lo que se muestra cuando un paso falla.
+ *
+ * **ANTES MOSTRABA LAS ULTIMAS 12 LINEAS, Y ESO COSTO OCHO HORAS EL 3 DE
+ * SEPTIEMBRE DE 2026.** Las pruebas de navegador corren TODAS y encuentran
+ * TODAS las fallas, pero las ultimas 12 lineas son el rastro de UNA SOLA. Asi
+ * que se arreglaba una, se corrian 45 minutos de vuelta, y aparecia la
+ * siguiente. Cuatro veces seguidas.
+ *
+ * Ahora, cuando la salida trae varias fallas, **se listan todas juntas** y
+ * recien despues el detalle de la ultima. Se arreglan de una sola vez.
+ */
 function pistas(salida) {
-  return salida.trim().split('\n').filter((l) => l.trim()).slice(-12).join('\n');
+  const lineas = salida.trim().split('\n').filter((l) => l.trim());
+  const fallas = lineas.filter(
+    (l) => /^\s*\d+\)\s+\S+\.spec\.ts/.test(l) || /^\s*\u25cf\s/.test(l),
+  );
+  if (fallas.length === 0) return lineas.slice(-12).join('\n');
+  const listadas = [...new Set(fallas.map((l) => l.trim()))];
+  return [
+    listadas.length + ' prueba(s) fallaron. SON TODAS: arreglalas juntas.',
+    '',
+    ...listadas,
+    '',
+    '--- detalle de la ultima ---',
+    ...lineas.slice(-12),
+  ].join('\n');
 }
 
 const soloRapidos = process.argv.includes('--rapido');

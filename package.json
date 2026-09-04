@@ -50,7 +50,8 @@
     "limpiar:corrida": "node scripts/limpiar-corrida.mjs",
     "ordenes?": "node scripts/ordenes-cumplidas.mjs",
     "recorrido:todo": "node scripts/recorrido-de-pantallas.mjs --todo",
-    "falta?": "node scripts/que-falta.mjs"
+    "falta?": "node scripts/que-falta.mjs",
+    "otravez": "node scripts/run-playwright-production.mjs --last-failed"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
