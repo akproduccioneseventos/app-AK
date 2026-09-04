@@ -101,7 +101,12 @@ test('photobooth display receives a browser camera stream', async ({ context, pa
   const response = await page.goto(`/evento/fotocabina/${FIESTA_ID}`, { waitUntil: 'domcontentloaded' });
   expect(response?.status()).toBeLessThan(400);
   await expect(page.locator('body')).not.toContainText(/acceso de estacion no autorizado|no se pudo abrir esta estacion/i);
-  await expect(page.locator('video').first()).toBeVisible();
+  // El invitado tiene que VERSE. Puede ser en el `<video>` directo o en el
+  // lienzo de la vista previa: desde que la fotocabina cambia el fondo en vivo,
+  // el video queda oculto a proposito y lo que se muestra es el lienzo con el
+  // fondo ya aplicado. Lo que importa es que se vea la camara, no en cual de
+  // los dos elementos.
+  await expect(page.locator('video:visible, canvas:visible').first()).toBeVisible();
 });
 
 test('time capsule exposes every media mode and records the configured frame', async ({ context, page }, testInfo) => {
