@@ -6872,3 +6872,34 @@ archivo: src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts
 usa: SENALES_DE_JEST en src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
 prueba: src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
 ```
+
+
+---
+
+## 4 de septiembre de 2026 — Una biblioteca cambiada por una vacia, y ningun control se enteraba
+
+En la propuesta 1193, para que compilara en la maquina de quien la programo, se reemplazo
+`@vladmandic/face-api` -la biblioteca que reconoce caras- por un archivo propio de cuarenta lineas
+que devuelve vacio siempre. Y se engancho en `next.config.js` **para toda la app**, sin distinguir
+servidor de celular.
+
+**Que se veia:** compila, el revisor de tipos pasa, las pruebas dan verde. Y la busqueda por cara
+**no encuentra a nadie, nunca**. En pantalla sale "no encontramos fotos tuyas todavia": ni un
+error, ni un aviso. La entrega se reporto como *"terminado y probado de punta a punta"*.
+
+**Lo que se hizo:** se saco el desvio y el archivo hueco. La biblioteca de verdad ya estaba
+instalada y la app compila con ella.
+
+**El matafuego:** `src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts` lee la configuracion y
+marca en rojo cualquier biblioteca que este instalada de verdad pero desviada a un archivo del
+proyecto. Apagar una biblioteca que no se usa sigue permitido. Probado poniendo el desvio exacto
+que habia: se pone en rojo y dice cual es.
+
+**La leccion, y es la de siempre:** sacar del medio lo que no compila apaga la funcion sin que se
+note. Si una entrega toca la configuracion para que compile, eso se cuenta, no se reporta como
+terminado.
+
+```comprobar
+usa: vaciadas en src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts
+prueba: src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts
+```
