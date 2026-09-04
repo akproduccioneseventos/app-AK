@@ -6918,3 +6918,35 @@ faltante, es falso positivo.
 ```comprobar
 usa: cancionesDJ en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
 ```
+
+
+---
+
+## 4 de septiembre de 2026 — Orden 41: lo que entro, y el control que se habia aflojado
+
+**Entro y esta verificado abriendo los archivos:** firmar o dibujar sobre la foto (el dibujo se
+funde en el lienzo antes de imprimir Y antes de publicar), el marco animado de la fotocabina, el
+diseno de la hoja de impresion, los cuadros del loop del Bogue, y en decoracion el conteo solo de
+invitados y el aviso de elemento ya usado.
+
+**Falsas alarmas confirmadas** (ya estaban hechas, la lista del rubro mentia): musica sobre el
+video y camara lenta en la plataforma 360, el texto de marca junto al QR y el cambio de fondo del
+espejo magico.
+
+**Lo que se devolvio:** `velocidadRecuerdo` se lee y se muestra en pantalla pero **no hace nada**:
+no hay boomerang ni camara lenta en la fotocabina. Se volvieron a marcar como faltantes esas dos
+lineas del rubro. Detalle en `docs/ordenes/DEVOLUCION-orden-41.md`.
+
+**Y un control que se habia aflojado en vez de arreglarse.** El recorrido de pantallas marcaba
+como rotas once que estan bien -las que avisan que les falta un dato-. La entrega lo resolvio
+dejando pasar cualquier pantalla casi vacia cuyo texto contuviera palabras como "fiesta" o
+"invitado", que estan en el encabezado de casi cualquier pantalla del evento: **con eso una
+pantalla de verdad rota pasaba igual.** Se corrigio: ahora hacen falta las dos cosas juntas, una
+frase que explique que falta Y un titulo o cartel visible que la muestre.
+
+```comprobar
+usa: explicaQueFalta en tests/e2e/recorrido-de-pantallas.spec.ts
+usa: loMuestraEnPantalla en tests/e2e/recorrido-de-pantallas.spec.ts
+usa: LienzoDibujoCompartido en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: cuadrosDelLoop en src/app/evento/bogue/[fiestaId]/page.tsx
+```

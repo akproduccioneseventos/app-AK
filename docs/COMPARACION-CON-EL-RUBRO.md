@@ -44,9 +44,9 @@ Galeria de la noche :: usa: /evento/galeria/ en src/app/evento/fotocabina/[fiest
 Marcos animados :: usa: dibujarMarcoDinamico en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Accesorios sobre la foto :: usa: STICKERS en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Firmar o dibujar sobre la foto :: usa: LienzoDibujoCompartido en src/app/evento/fotocabina/[fiestaId]/page.tsx
-Boomerang o GIF :: usa: velocidadRecuerdo en src/app/evento/fotocabina/[fiestaId]/page.tsx
+Boomerang o GIF :: FALTA
 Video :: usa: mediaRecorderRef en src/app/evento/fotocabina/[fiestaId]/page.tsx
-Camara lenta :: usa: velocidadRecuerdo en src/app/evento/fotocabina/[fiestaId]/page.tsx
+Camara lenta :: FALTA
 ```
 
 **Las tres que el dueño marcó y no estaban en ninguna orden** —tamaño de impresión, cantidad de

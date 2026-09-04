@@ -267,9 +267,27 @@ test.describe('Recorrido de las 353 pantallas', () => {
           const noHayNadaParaLeer = texto.length < MINIMO_PARA_QUE_CUENTE;
 
           if (noHayNadaParaTocar && noHayNadaParaLeer) {
-            // Si la pantalla explica claramente al usuario qué dato falta o su estado, no cuenta como rota
-            const esExplicacionValida =
-              /iniciar sesi[oó]n|acceso|no encontrado|no existe|falta|requerid|especificar|invitad|fiesta/i.test(texto);
+            /**
+             * Una pantalla que EXPLICA que le falta un dato no esta rota.
+             *
+             * `/portal/mesas` sin el evento avisa "No se proporciono ID de evento";
+             * `/proveedor/acceso/<token falso>` avisa que el acceso no existe. Las dos
+             * hacen lo correcto y el recorrido las contaba como rotas.
+             *
+             * PERO no alcanza con que aparezca una palabra suelta: "fiesta" o
+             * "invitado" estan en el encabezado de casi cualquier pantalla del evento,
+             * y con eso una pantalla de verdad rota pasaba igual. Se piden las dos
+             * cosas juntas: una frase que explique, Y algo visible que la muestre
+             * (un titulo o un cartel de aviso).
+             */
+            const explicaQueFalta =
+              /no se proporcion|no encontrad|no existe|no es v[aá]lid|fue desactivad|iniciar sesi[oó]n|no est[aá] activ|sin permiso|enlace inv[aá]lid/i.test(texto);
+            const loMuestraEnPantalla = await page
+              .locator('h1, h2, h3, h4, h5, h6, [role="heading"], [role="alert"], [data-slot="alert-title"], [data-slot="card-title"]')
+              .first()
+              .isVisible()
+              .catch(() => false);
+            const esExplicacionValida = explicaQueFalta && loMuestraEnPantalla;
             if (!esExplicacionValida) {
               results.push({
                 ...r,
