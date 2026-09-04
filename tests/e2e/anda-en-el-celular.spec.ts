@@ -76,9 +76,15 @@ test.describe('Orden 37 — Que ande en el celular (360px)', () => {
     await page.waitForTimeout(1_000);
 
     const camposChicosContacto = await page.evaluate(() => {
+      // Solo los campos donde SE ESCRIBE hacen que el telefono acerque la pantalla
+      // solo. Una casilla de tildar o un boton no: su letra no importa y castigarlos
+      // marcaba en rojo un formulario correcto (paso el 4 de septiembre de 2026).
+      const SIN_ESCRITURA = ['checkbox', 'radio', 'button', 'submit', 'reset', 'hidden', 'file', 'range', 'color', 'image'];
       const inputs = Array.from(document.querySelectorAll('input, textarea, select'));
       return inputs
         .filter((el) => {
+          const tipo = (el.getAttribute('type') || '').toLowerCase();
+          if (SIN_ESCRITURA.includes(tipo)) return false;
           const style = window.getComputedStyle(el);
           const fontSize = parseFloat(style.fontSize);
           return fontSize > 0 && fontSize < 16;
@@ -96,9 +102,15 @@ test.describe('Orden 37 — Que ande en el celular (360px)', () => {
     await page.waitForTimeout(1_000);
 
     const camposChicosRsvp = await page.evaluate(() => {
+      // Solo los campos donde SE ESCRIBE hacen que el telefono acerque la pantalla
+      // solo. Una casilla de tildar o un boton no: su letra no importa y castigarlos
+      // marcaba en rojo un formulario correcto (paso el 4 de septiembre de 2026).
+      const SIN_ESCRITURA = ['checkbox', 'radio', 'button', 'submit', 'reset', 'hidden', 'file', 'range', 'color', 'image'];
       const inputs = Array.from(document.querySelectorAll('input, textarea, select'));
       return inputs
         .filter((el) => {
+          const tipo = (el.getAttribute('type') || '').toLowerCase();
+          if (SIN_ESCRITURA.includes(tipo)) return false;
           const style = window.getComputedStyle(el);
           const fontSize = parseFloat(style.fontSize);
           return fontSize > 0 && fontSize < 16;
@@ -120,12 +132,25 @@ test.describe('Orden 37 — Que ande en el celular (360px)', () => {
     await page.goto('/bodas', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1_000);
 
-    const inputNombre = page.locator('#landing-form-name, input[name="nombre"]').first();
+    // El campo se llama #lead-nombre. La version anterior buscaba
+    // "#landing-form-name, input[name=nombre]", que no existe en ninguna landing:
+    // la prueba se quedaba esperando 120 segundos y moria por tiempo agotado.
+    const inputNombre = page.locator('#lead-nombre');
     await inputNombre.scrollIntoViewIfNeeded();
     await expect(inputNombre).toBeVisible();
     await inputNombre.fill('María Pérez');
+    await page.locator('#lead-telefono').fill('099 123 456');
 
-    const botonEnviar = page.locator('button[type="submit"]').first();
+    // Y lo que de verdad importa: despues de escribir, el boton de enviar tiene que
+    // quedar DENTRO de la pantalla, no solo existir en el documento.
+    const botonEnviar = page.locator('form button[type="submit"]').first();
+    await botonEnviar.scrollIntoViewIfNeeded();
     await expect(botonEnviar).toBeVisible();
+
+    const botonADentro = await botonEnviar.evaluate((el) => {
+      const caja = el.getBoundingClientRect();
+      return caja.top >= 0 && caja.bottom <= window.innerHeight && caja.left >= 0 && caja.right <= window.innerWidth;
+    });
+    expect(botonADentro, 'Despues de escribir, el boton de enviar debe quedar dentro de la pantalla del celular').toBe(true);
   });
 });

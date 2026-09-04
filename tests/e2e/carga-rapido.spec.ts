@@ -28,8 +28,11 @@ test.describe('Orden 37 — Que cargue rápido (límite 2500 ms)', () => {
 
       expect(respuesta?.status(), `${ruta} debe responder exitosamente`).toBeLessThan(400);
 
-      // Comprobamos que el elemento principal sea visible
-      const contenidoPrincipal = page.locator('main').first();
+      // Que el contenido principal se vea. **No se pide un `<main>` a secas:**
+      // la portada no lo usa y las landings si, asi que exigirlo daba por lenta
+      // una pagina que carga bien. Lo que importa es que **haya algo grande
+      // dibujado**, y para eso sirve igual el titulo principal.
+      const contenidoPrincipal = page.locator('main, h1').first();
       await expect(contenidoPrincipal).toBeVisible({ timeout: 10_000 });
 
       // Verificamos que no supere el umbral máximo de 2500ms en condiciones normales

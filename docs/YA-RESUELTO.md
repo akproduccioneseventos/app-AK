@@ -6814,3 +6814,61 @@ cuando eso pasa** se corre la puerta completa, una sola vez.
 usa: SON TODAS en scripts/se-puede-publicar.mjs
 usa: otravez en package.json
 ```
+
+---
+
+## 4 de septiembre de 2026 — La prueba del celular castigaba un formulario correcto
+
+La puerta frenaba en el paso de navegador con dos fallas en `tests/e2e/anda-en-el-celular.spec.ts`.
+**Ninguna de las dos era un defecto de la pantalla: las dos eran de la prueba.**
+
+1. **La letra chica.** La prueba exigia que ningun campo tuviera letra menor a 16 pixeles, para
+   que el telefono no acerque la pantalla solo al tocarlo. Correcto, **pero contaba tambien la
+   casilla de tildar** del formulario de contacto, que vive dentro de un texto chico. Una casilla
+   **no hace que el telefono acerque nada**: eso solo pasa donde se escribe. Los seis campos donde
+   se escribe ya estaban en 16 pixeles. Ahora la prueba saltea casillas, botones y demas campos sin
+   escritura.
+2. **La espera de dos minutos.** La prueba del boton de enviar buscaba un campo llamado
+   `#landing-form-name` o `input[name="nombre"]`. **Ninguno de los dos existe en ninguna landing**
+   -el campo se llama `#lead-nombre`-, asi que se quedaba esperando hasta agotar el tiempo. Ademas
+   solo comprobaba que el boton existiera. Ahora escribe de verdad en nombre y telefono y comprueba
+   que el boton **quede dentro de la pantalla del celular**, que es lo que la prueba prometia mirar.
+
+**Lo que se aprende, y ya estaba escrito:** un control que castiga codigo correcto termina
+desactivado. Antes de creerle a una falla, hay que abrir la pantalla y ver si el problema existe.
+
+```comprobar
+usa: SIN_ESCRITURA en tests/e2e/anda-en-el-celular.spec.ts
+usa: lead-nombre en tests/e2e/anda-en-el-celular.spec.ts
+usa: botonADentro en tests/e2e/anda-en-el-celular.spec.ts
+```
+
+
+---
+
+## 4 de septiembre de 2026 — Una prueba guardada en la carpeta equivocada tumbaba cuatro
+
+La puerta frenaba en el paso de navegador y **no decia por que**: una tanda de cuatro archivos
+"termino con codigo 1 y no registro ninguna prueba".
+
+**La causa, medida:** `la-fotocabina-imprime-lo-que-se-pide.spec.ts` estaba dentro de `tests/e2e/`
+pero escrita con Jest (`beforeAll`, `jest.fn()`). Dos consecuencias, las dos malas:
+
+1. **Nadie la corria.** Jest ignora esa carpeta a proposito, asi que la prueba de la impresion
+   —cuantas copias salen y de que tamano es la hoja— estaba escrita y **muerta** desde que llego.
+2. **Se llevaba puestas a las otras tres.** Playwright se caia al cargarla, antes de empezar, y la
+   tanda entera —el humo interno, el movimiento de la app y la grilla de caras— quedaba sin correr.
+
+**Lo que se hizo:** se movio a `src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts` y se
+reescribio: la version original hacia `global.window = {...}`, que en jsdom no reemplaza la ventana
+de verdad, asi que tres de sus cuatro comprobaciones fallaban. Ahora usa `jest.spyOn(window, 'open')`
+y **se probo rompiendola**: con las copias apagadas, se pone en rojo.
+
+**El matafuego:** `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` lee todas las pruebas
+de navegador y marca en rojo cualquiera escrita con Jest. Tambien probado rompiendolo a proposito.
+
+```comprobar
+archivo: src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts
+usa: SENALES_DE_JEST en src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+prueba: src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+```

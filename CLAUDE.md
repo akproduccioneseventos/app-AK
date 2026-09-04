@@ -868,6 +868,7 @@ con otra cara.
 | El regalo del cliente pedía iniciar sesión | `src/__tests__/el-album-se-abre-con-el-enlace.test.ts` |
 | El cliente veía sus fotos y no las podía bajar | `src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts` |
 | La búsqueda por cara medía la luz, no las caras | `src/__tests__/las-caras-distinguen-personas.test.ts` |
+| Una prueba de Jest guardada entre las de navegador: no la corría nadie y tumbaba la tanda entera | `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` |
 
 ### Cómo se elige el matafuego
 

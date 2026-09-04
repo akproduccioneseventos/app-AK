@@ -274,8 +274,17 @@ test.describe('Orden 36: La grilla de caras', () => {
     // LA REGLA MÁS IMPORTANTE: Que no se dispare ninguna llamada al servidor con la imagen
     expect(llamadasConImagenes, 'la selfie no se envió a ningún servidor externo ni local').toHaveLength(0);
 
-    // Debe mostrar la vista de resultados o mensaje de Bloque 5
-    const resultadosVisibles = await page.getByText(/Resultados de tu búsqueda|No encontramos fotos tuyas todavía/i).isVisible();
-    expect(resultadosVisibles, 'muestra pantalla de resultados local').toBe(true);
+    // Debe mostrar la vista de resultados o el mensaje de "no encontramos".
+    // Los dos titulos conviven en la pantalla, asi que hay que contar cuantos se
+    // ven y no preguntar por "el" titulo: preguntando de a uno, Playwright corta
+    // por ambiguedad (paso el 4 de septiembre de 2026).
+    const titulos = page.getByRole('heading', {
+      name: /Resultados de tu búsqueda|No encontramos fotos tuyas todavía/i,
+    });
+    let visibles = 0;
+    for (let i = 0; i < (await titulos.count()); i += 1) {
+      if (await titulos.nth(i).isVisible()) visibles += 1;
+    }
+    expect(visibles, 'muestra la pantalla de resultados, armada en el propio teléfono').toBeGreaterThan(0);
   });
 });
