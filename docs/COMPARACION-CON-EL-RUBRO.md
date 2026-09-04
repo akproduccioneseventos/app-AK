@@ -40,12 +40,12 @@ Elegir el tamano de impresion :: usa: tamanoPapel en src/app/evento/fotocabina/[
 Cuantas copias se imprimen :: usa: copiasImpresion en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Elegir la impresora :: NO SE COPIA
 Armar el diseno de la impresion :: FALTA
-Galeria de la noche :: FALTA
+Galeria de la noche :: usa: /evento/galeria/ en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Marcos animados :: FALTA
-Accesorios que se arrastran :: FALTA
+Accesorios sobre la foto :: usa: STICKERS en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Firmar o dibujar sobre la foto :: FALTA
 Boomerang o GIF :: FALTA
-Video :: FALTA
+Video :: usa: mediaRecorderRef en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Camara lenta :: FALTA
 ```
 
@@ -222,7 +222,7 @@ Los audios del buzon en el album :: usa: audioReproduciendo en src/app/evento/al
 Se arma solo con los mejores :: usa: elegir-las-mejores en src/lib/album/armar-album.ts
 Se pasan paginas como un libro :: usa: AnimatePresence en src/app/evento/album/[fiestaId]/page.tsx
 Portada con el nombre de la fiesta :: usa: nombreFiesta en src/app/evento/album/[fiestaId]/page.tsx
-Buscar tus fotos con una selfie :: FALTA
+Encontrar tus fotos por la cara, la grilla estilo Wfolio :: usa: agruparEnPersonas en src/app/evento/galeria/[fiestaId]/page.tsx
 Que el cliente elija :: NO SE COPIA
 ```
 
