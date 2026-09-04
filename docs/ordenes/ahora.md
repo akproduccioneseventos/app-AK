@@ -12,6 +12,11 @@ solo al abrir cada sesión.**
 
 ## PARA GEMINI, EN ESTE ORDEN
 
+**1) `40-lo-que-hace-la-ia-en-el-rubro.md`** — lo que la IA hace en el rubro y nosotros no.
+Empieza por el bloque 1, elegir las fotos buenas: es lo que mas horas devuelve y **esta medio
+hecho**, porque la biblioteca de caras ya esta instalada.
+
+
 **0) `docs/ordenes/DEVOLUCION-la-grilla-de-caras.md`** — la pantalla esta impecable y **siempre
 vacia**: no hay nada que saque los numeros de las caras de las fotos. Es lo unico a medias.
 
