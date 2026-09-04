@@ -6814,3 +6814,31 @@ cuando eso pasa** se corre la puerta completa, una sola vez.
 usa: SON TODAS en scripts/se-puede-publicar.mjs
 usa: otravez en package.json
 ```
+
+---
+
+## 4 de septiembre de 2026 — La prueba del celular castigaba un formulario correcto
+
+La puerta frenaba en el paso de navegador con dos fallas en `tests/e2e/anda-en-el-celular.spec.ts`.
+**Ninguna de las dos era un defecto de la pantalla: las dos eran de la prueba.**
+
+1. **La letra chica.** La prueba exigia que ningun campo tuviera letra menor a 16 pixeles, para
+   que el telefono no acerque la pantalla solo al tocarlo. Correcto, **pero contaba tambien la
+   casilla de tildar** del formulario de contacto, que vive dentro de un texto chico. Una casilla
+   **no hace que el telefono acerque nada**: eso solo pasa donde se escribe. Los seis campos donde
+   se escribe ya estaban en 16 pixeles. Ahora la prueba saltea casillas, botones y demas campos sin
+   escritura.
+2. **La espera de dos minutos.** La prueba del boton de enviar buscaba un campo llamado
+   `#landing-form-name` o `input[name="nombre"]`. **Ninguno de los dos existe en ninguna landing**
+   -el campo se llama `#lead-nombre`-, asi que se quedaba esperando hasta agotar el tiempo. Ademas
+   solo comprobaba que el boton existiera. Ahora escribe de verdad en nombre y telefono y comprueba
+   que el boton **quede dentro de la pantalla del celular**, que es lo que la prueba prometia mirar.
+
+**Lo que se aprende, y ya estaba escrito:** un control que castiga codigo correcto termina
+desactivado. Antes de creerle a una falla, hay que abrir la pantalla y ver si el problema existe.
+
+```comprobar
+usa: SIN_ESCRITURA en tests/e2e/anda-en-el-celular.spec.ts
+usa: lead-nombre en tests/e2e/anda-en-el-celular.spec.ts
+usa: botonADentro en tests/e2e/anda-en-el-celular.spec.ts
+```
