@@ -863,6 +863,7 @@ con otra cara.
 | El manual envejecía y mentía | `src/__tests__/mapa-de-la-app-al-dia.test.ts` |
 | La maquetación se movía sola | `tests/e2e/layout-baseline.spec.ts` |
 | Un control decía "todo bien" sin mirar nada | Todo control nuevo **se prueba rompiéndolo** |
+| Ocho horas arreglando una prueba vieja por vez | `pistas()` lista TODAS las fallas · `npm run otravez` |
 | Se animó un elemento invisible para que el control se callara | `src/__tests__/nada-de-animaciones-de-mentira.test.ts` |
 | El regalo del cliente pedía iniciar sesión | `src/__tests__/el-album-se-abre-con-el-enlace.test.ts` |
 | El cliente veía sus fotos y no las podía bajar | `src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts` |
@@ -962,6 +963,22 @@ número viejo de pantallas, y dos correcciones propias que se habían perdido al
 pueden romper juntos —ya pasó con el archivo de facturas, que quedó protegido dos veces y dejaba
 la pantalla colgada al guardar—. Eso no se discute; lo que se ordena es **cuántas veces** se
 corre.
+
+### 1.b Cuando la puerta frena, LEER TODAS LAS FALLAS antes de tocar nada
+
+**Costó ocho horas el 3 de septiembre de 2026.** Cuatro corridas de 45 minutos, y cada una
+descubrió **una sola** prueba vieja. Ninguna era un error de la app.
+
+**Por qué pasaba:** la puerta mostraba las últimas 12 líneas del error, que son el rastro de
+**una** falla, aunque las pruebas corran todas y las encuentren todas. **Ya está arreglado**: hoy
+las lista todas juntas.
+
+**Y lo que no se hace más:** volver a correr la puerta entera para ver la siguiente. El orden es:
+
+1. **Leer la lista completa de fallas** que ahora imprime la puerta.
+2. **Arreglarlas todas.**
+3. **`npm run otravez`** — repite sólo las que fallaron. Son minutos.
+4. **Recién cuando eso pasa**, la puerta completa, una sola vez.
 
 ### 2. Después de fusionar varias ramas, REVISAR LAS PROPIAS CORRECCIONES
 

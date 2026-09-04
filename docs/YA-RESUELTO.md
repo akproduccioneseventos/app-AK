@@ -6779,3 +6779,38 @@ prueba: src/__tests__/las-caras-distinguen-personas.test.ts
 usa: faceRecognitionNet en src/components/social-gallery/PrepararGrillaDeCara.tsx
 usa: /models/caras en src/components/social-gallery/PrepararGrillaDeCara.tsx
 ```
+
+---
+
+## Ocho horas para arreglar cuatro pruebas viejas (3 de septiembre de 2026)
+
+**Lo dijo el dueno asi: *"me fui a dormir y seguis, 8h"*, *"no puede volver a pasar"*.** Tenia
+razon, y la culpa fue del mecanismo mas la forma de usarlo.
+
+**Que paso:** cuatro corridas de la puerta, 45 minutos cada una, y **cada una descubrio UNA sola
+prueba vieja**. Ninguna era un error de la app: eran pruebas que pedian cosas que habian cambiado
+a mejor -el video que ahora se dibuja en un lienzo, la musica que solo aparece si la fiesta tiene
+cancion-.
+
+**La causa, medida:** `pistas()` en `scripts/se-puede-publicar.mjs` mostraba **las ultimas 12
+lineas** de la salida. Las pruebas de navegador **corren todas y encuentran todas las fallas**,
+pero doce lineas son el rastro de **una**. Las otras estaban en el registro y no se veian.
+
+**Y el error propio encima:** en vez de leer el registro entero, se volvio a correr la puerta
+completa cada vez. **Cuatro veces.**
+
+**Los dos matafuegos:**
+
+1. **`pistas()` ahora lista TODAS las fallas juntas** y despues el detalle de la ultima. Si hay
+   cuatro pruebas rotas, se ven las cuatro en el primer intento.
+2. **`npm run otravez`** repite **solo las pruebas que fallaron**, en vez de las 39 tandas. Para
+   iterar en minutos. La puerta completa sigue siendo la que decide antes de fusionar.
+
+**La regla que queda:** cuando la puerta frena, **NO se vuelve a correr entera**. Se lee la lista
+completa de fallas, se arreglan **todas**, se corre `npm run otravez` -minutos- y **recien
+cuando eso pasa** se corre la puerta completa, una sola vez.
+
+```comprobar
+usa: SON TODAS en scripts/se-puede-publicar.mjs
+usa: otravez en package.json
+```
