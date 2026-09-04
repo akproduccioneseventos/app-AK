@@ -164,7 +164,10 @@ function correr(comando) {
 function pistas(salida) {
   const lineas = salida.trim().split('\n').filter((l) => l.trim());
   const fallas = lineas.filter(
-    (l) => /^\s*\d+\)\s+\S+\.spec\.ts/.test(l) || /^\s*\u25cf\s/.test(l),
+    // Jest marca la falla con el circulo Y el nombre de la prueba. El compilador
+    // tambien imprime circulos -"(SSG) prerendered as static HTML"-, asi que se
+    // pide que despues del circulo venga algo con forma de prueba.
+    (l) => /^\s*\d+\)\s+\S+\.spec\.ts/.test(l) || /^\s*\u25cf\s+\S.*\s\u203a\s/.test(l),
   );
   if (fallas.length === 0) return lineas.slice(-12).join('\n');
   const listadas = [...new Set(fallas.map((l) => l.trim()))];
