@@ -6950,3 +6950,29 @@ usa: loMuestraEnPantalla en tests/e2e/recorrido-de-pantallas.spec.ts
 usa: LienzoDibujoCompartido en src/app/evento/fotocabina/[fiestaId]/page.tsx
 usa: cuadrosDelLoop en src/app/evento/bogue/[fiestaId]/page.tsx
 ```
+
+
+---
+
+## 4 de septiembre de 2026 — Siete minutos por corrida recompilando al pedo
+
+**Medido, no supuesto.** Dos corridas seguidas del recorrido de pantallas se pasaron de tiempo
+**sin llegar a mirar una sola pantalla**: las dos se fueron enteras compilando.
+
+**La causa:** las pruebas de navegador guardan datos de verdad dentro de `src/data/` -avisos,
+gasto de inteligencia artificial, historial de redes-. El corredor decide si hay que recompilar
+mirando si algo de `src/` es mas nuevo que la compilacion. Como la propia corrida escribe ahi,
+**`src/` quedaba siempre mas nuevo y la corrida siguiente recompilaba la app entera aunque no se
+hubiera tocado una linea de codigo.** Siete minutos, cada vez, desde siempre.
+
+**Arreglado:** el reloj ignora `src/data/` y `src/__tests__/`, que no son codigo que se compile.
+**Probado en las dos direcciones**: tocando un dato de la corrida ya no pide recompilar, y tocando
+codigo de verdad sigue pidiendolo.
+
+Y en la misma pasada, la puerta ahora **nombra la pantalla que se rompio** en vez de decir solo
+que se rompio una: antes habia que volver a correr 45 minutos para saber cual.
+
+```comprobar
+usa: NO_ES_CODIGO en scripts/run-playwright-production.mjs
+usa: PANTALLAS QUE FALLARON en scripts/se-puede-publicar.mjs
+```

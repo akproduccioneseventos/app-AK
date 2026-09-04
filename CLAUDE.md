@@ -870,6 +870,8 @@ con otra cara.
 | La búsqueda por cara medía la luz, no las caras | `src/__tests__/las-caras-distinguen-personas.test.ts` |
 | Una prueba de Jest guardada entre las de navegador: no la corría nadie y tumbaba la tanda entera | `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` |
 | Una biblioteca cambiada por una vacía para que compilara: la función quedó apagada y todo daba verde | `src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts` |
+| Siete minutos por corrida recompilando porque la prueba escribe en `src/data/` | `NO_ES_CODIGO` en `scripts/run-playwright-production.mjs` |
+| La puerta decía "una pantalla se rompió" sin decir cuál | `PANTALLAS QUE FALLARON` en `scripts/se-puede-publicar.mjs` |
 
 ### Cómo se elige el matafuego
 
