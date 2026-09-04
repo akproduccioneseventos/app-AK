@@ -6738,3 +6738,44 @@ prueba: src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts
 usa: enlaceALaGaleria en src/components/social-wall/PostEventMemoryHub.tsx
 usa: get('estacion') en src/app/evento/galeria/[fiestaId]/page.tsx
 ```
+
+---
+
+## La grilla de caras media la luz, no las caras (3 de septiembre de 2026)
+
+**Se freno antes de entregarse, y era de lo mas grave que aparecio: caras de gente, muchas veces
+de menores.**
+
+El preparador guardaba, como "la cara de una persona", el **brillo promedio de 128 franjas de la
+foto**: achicaba la foto a 160x160, la partia en franjas y calculaba cuanta luz tenia cada una.
+**Eso describe como esta iluminada la foto, no quien sale en ella.**
+
+**Que pasaba en una fiesta:**
+
+- **Dos personas distintas sacadas en el mismo rincon y con la misma luz daban numeros casi
+  iguales.** El sistema las tomaba por la misma: **a un invitado le aparecian, y podia bajar, las
+  fotos de otro.**
+- **La misma persona con otra luz no se encontraba a si misma.**
+- **En iPhone y en Firefox** -donde no existe `FaceDetector`- **ni siquiera recortaba la cara**:
+  agrupaba fotos por parecido de luz.
+
+Ademas el detector elegido, `FaceDetector` del navegador, **solo dice donde hay una cara, no de
+quien es**: nunca podria haber servido para esto.
+
+**Como quedo:** `@vladmandic/face-api` con `faceRecognitionNet`, que devuelve **los 128 numeros
+que identifican a una persona** y no cambian con la luz ni con el angulo. **Los modelos vienen
+adentro del paquete** y se sirven desde `public/models/caras`: **no se baja nada de ningun
+servicio de afuera y no se paga por foto**, que era la condicion del dueno. Pesan 6,5 megas y el
+navegador los guarda despues de la primera vez.
+
+**El corazon `src/lib/caras/agrupar-caras.ts` no se toco**: la cuenta y los umbrales (0,50 y
+0,62) estaban bien; lo unico malo era de donde salian los numeros.
+
+**El matafuego:** `src/__tests__/las-caras-distinguen-personas.test.ts`, comprobado rompiendolo a
+proposito -al volver a meter la cuenta de brillo se pone en rojo-.
+
+```comprobar
+prueba: src/__tests__/las-caras-distinguen-personas.test.ts
+usa: faceRecognitionNet en src/components/social-gallery/PrepararGrillaDeCara.tsx
+usa: /models/caras en src/components/social-gallery/PrepararGrillaDeCara.tsx
+```

@@ -13,49 +13,69 @@ interface Props {
   onListo?: () => void;
 }
 
+/**
+ * **Los modelos se cargan una sola vez, y desde nuestro propio servidor.**
+ *
+ * Vienen adentro del paquete y se copian a `public/models/caras`, asi que **no
+ * se baja nada de ningun servicio de afuera y no se paga por foto**, que es la
+ * condicion del dueno. Pesan 6,5 megas entre los tres y el navegador los deja
+ * guardados despues de la primera vez.
+ */
+let modelosListos: Promise<void> | null = null;
+
+async function cargarModelos(): Promise<void> {
+  if (!modelosListos) {
+    modelosListos = (async () => {
+      const faceapi = await import('@vladmandic/face-api');
+      const ruta = '/models/caras';
+      await Promise.all([
+        faceapi.nets.tinyFaceDetector.loadFromUri(ruta),
+        faceapi.nets.faceLandmark68TinyNet.loadFromUri(ruta),
+        faceapi.nets.faceRecognitionNet.loadFromUri(ruta),
+      ]);
+    })();
+  }
+  return modelosListos;
+}
+
+/**
+ * Saca de una foto los numeros que **identifican a la persona**.
+ *
+ * **ANTES ESTO MEDIA LUZ Y NO CARAS**, y por eso se freno el 3 de septiembre de
+ * 2026: partia la foto en 128 franjas y guardaba el brillo promedio de cada
+ * una. Eso describe **como esta iluminada la foto**, no quien sale en ella. En
+ * una fiesta significaba que **dos personas distintas sacadas con la misma luz
+ * daban casi el mismo numero**, y a un invitado le podian aparecer -y bajar-
+ * las fotos de otro. Con caras de gente, y muchas veces de menores, eso no se
+ * entrega.
+ *
+ * Ahora usa `faceRecognitionNet`, que devuelve **los 128 numeros de verdad**:
+ * describen la forma de la cara y **no cambian con la luz ni con el angulo**.
+ * Son los que esperan `agrupar-caras.ts` y sus umbrales.
+ *
+ * **De cada foto se toma la cara mas grande**, que es la que se reconoce mejor.
+ * Si no se encuentra ninguna cara, la foto se saltea: **es preferible que a
+ * alguien le falte una foto a que le aparezca la de otro.**
+ */
 async function extraerVector(
   img: HTMLImageElement,
-  usarFaceDetector: boolean,
 ): Promise<{ vector: VectorDeCara; tamano: number } | null> {
   try {
-    const canvas = document.createElement('canvas');
-    canvas.width = 160;
-    canvas.height = 160;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
+    const faceapi = await import('@vladmandic/face-api');
+    await cargarModelos();
 
-    let tamano = 1;
+    const deteccion = await faceapi
+      .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions({ inputSize: 416 }))
+      .withFaceLandmarks(true)
+      .withFaceDescriptor();
 
-    if (usarFaceDetector && 'FaceDetector' in window) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const detector = new (window as any).FaceDetector({ fastMode: true });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const carasDetectadas: any[] = await detector.detect(img).catch(() => []);
-      if (carasDetectadas.length === 0) return null;
+    if (!deteccion?.descriptor) return null;
 
-      const box = carasDetectadas[0].boundingBox;
-      tamano = (box.width * box.height) / (img.naturalWidth * img.naturalHeight);
-      ctx.drawImage(img, box.x, box.y, box.width, box.height, 0, 0, 160, 160);
-    } else {
-      ctx.drawImage(img, 0, 0, 160, 160);
-    }
+    const caja = deteccion.detection.box;
+    const areaFoto = (img.naturalWidth || img.width) * (img.naturalHeight || img.height) || 1;
+    const tamano = Math.min(1, (caja.width * caja.height) / areaFoto);
 
-    const imgData = ctx.getImageData(0, 0, 160, 160);
-    const data = imgData.data;
-    const vector = new Array(128).fill(0);
-    const blockSize = Math.floor((data.length / 4) / 128);
-    for (let i = 0; i < 128; i++) {
-      let sum = 0;
-      const start = i * blockSize * 4;
-      const end = Math.min(start + blockSize * 4, data.length);
-      for (let j = start; j < end; j += 4) {
-        sum += 0.299 * data[j] + 0.587 * data[j + 1] + 0.114 * data[j + 2];
-      }
-      const count = (end - start) / 4 || 1;
-      vector[i] = (sum / count) / 255;
-    }
-    const norma = Math.sqrt(vector.reduce((acc, v) => acc + v * v, 0)) || 1;
-    return { vector: vector.map((v) => v / norma), tamano };
+    return { vector: Array.from(deteccion.descriptor), tamano };
   } catch {
     return null;
   }
@@ -87,7 +107,6 @@ export function PrepararGrillaDeCara({ fiestaId, fotosAprobadas, onListo }: Prop
     setProcesadas(0);
     setCarasEncontradas(0);
 
-    const usarFaceDetector = 'FaceDetector' in window;
     const caras: CaraEnFoto[] = [];
     const total = fotosAprobadas.length;
 
@@ -95,7 +114,7 @@ export function PrepararGrillaDeCara({ fiestaId, fotosAprobadas, onListo }: Prop
       const foto = fotosAprobadas[i];
       try {
         const img = await cargarImagen(foto.imageUrl);
-        const resultado = await extraerVector(img, usarFaceDetector);
+        const resultado = await extraerVector(img);
         if (resultado) {
           caras.push({ fotoId: foto.id, vector: resultado.vector, tamano: resultado.tamano });
           setCarasEncontradas((c) => c + 1);
@@ -128,6 +147,7 @@ export function PrepararGrillaDeCara({ fiestaId, fotosAprobadas, onListo }: Prop
           <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">
             Procesa las {fotosAprobadas.length} fotos aprobadas en este browser para activar la
             {' '}grilla de caras de los invitados. Corre aca mismo: ninguna foto sale del equipo.
+            {' '}La primera vez tarda unos segundos mas mientras se prepara.
           </p>
         </div>
       </div>

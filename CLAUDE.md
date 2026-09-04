@@ -835,6 +835,7 @@ con otra cara.
 | Se animó un elemento invisible para que el control se callara | `src/__tests__/nada-de-animaciones-de-mentira.test.ts` |
 | El regalo del cliente pedía iniciar sesión | `src/__tests__/el-album-se-abre-con-el-enlace.test.ts` |
 | El cliente veía sus fotos y no las podía bajar | `src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts` |
+| La búsqueda por cara medía la luz, no las caras | `src/__tests__/las-caras-distinguen-personas.test.ts` |
 
 ### Cómo se elige el matafuego
 
