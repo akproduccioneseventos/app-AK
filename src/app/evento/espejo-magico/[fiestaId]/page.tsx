@@ -53,6 +53,10 @@ import {
 } from '@/lib/entertainment/espejo-magico-templates';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { procesarFondoCanvas } from '@/lib/entretenimiento/segmentacion-fondo';
+import {
+  obtenerAnimacionPorMomento,
+  type AnimacionConLocucion,
+} from '@/lib/entretenimiento/animaciones-con-locucion';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -241,6 +245,22 @@ export default function EspejoMagicoPage() {
       console.error('SpeechSynthesis error:', e);
     }
   }, [voiceEnabled]);
+
+  const animacionActiva = useMemo(() => {
+    const allowedAnimIds = fiesta?.station?.allowedTemplateIds ?? [];
+    const tipoCelebracion = fiesta?.tipoCelebracion || fiesta?.station?.location;
+    if (localStatus === 'idle') return obtenerAnimacionPorMomento('saludo', allowedAnimIds, tipoCelebracion);
+    if (localStatus === 'countdown') return obtenerAnimacionPorMomento('cuenta', allowedAnimIds, tipoCelebracion);
+    if (localStatus === 'recording') return obtenerAnimacionPorMomento('pose', allowedAnimIds, tipoCelebracion);
+    if (localStatus === 'done') return obtenerAnimacionPorMomento('despedida', allowedAnimIds, tipoCelebracion);
+    return undefined;
+  }, [localStatus, fiesta?.station?.allowedTemplateIds, fiesta?.tipoCelebracion, fiesta?.station?.location]);
+
+  useEffect(() => {
+    if (animacionActiva?.textoHablado) {
+      speak(animacionActiva.textoHablado);
+    }
+  }, [animacionActiva, speak]);
 
   const playBeep = (freq = 880, duration = 0.1) => {
     try {
@@ -1147,6 +1167,22 @@ export default function EspejoMagicoPage() {
       </div>
 
       {flash && <div className="absolute inset-0 bg-white z-50 animate-pulse" />}
+
+      {/* Animación con Locución (Mirror Me) en pantalla */}
+      {animacionActiva && (
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 pointer-events-none text-center max-w-[90vw]">
+          <div className={`px-6 py-3 rounded-2xl bg-black/60 backdrop-blur-md border border-amber-400/40 text-white shadow-2xl ${animacionActiva.animacion}`}>
+            <p className="text-xl md:text-2xl font-black text-amber-300 drop-shadow-md">
+              {animacionActiva.emoji} {animacionActiva.titulo}
+            </p>
+            {animacionActiva.subtitulo && (
+              <p className="text-xs font-semibold text-white/90 mt-0.5 tracking-wider uppercase">
+                {animacionActiva.subtitulo}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* VIEWPORT */}
       <div

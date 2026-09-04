@@ -68,6 +68,7 @@ import {
 import {
   aplicarChromaKey,
   procesarFondoCanvas,
+  cargarSegmentadorSinTela,
   type OpcionFondo,
 } from '@/lib/entretenimiento/segmentacion-fondo';
 
@@ -108,6 +109,18 @@ export default function FotocabinaPage() {
     setActiveStickers((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
   const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
+  const recorteSinTela = fiesta?.station.recorteSinTela ?? false;
+  const [recorteSinTelaActivo, setRecorteSinTelaActivo] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (fiesta?.station.recorteSinTela !== undefined) {
+      setRecorteSinTelaActivo(fiesta.station.recorteSinTela);
+      if (fiesta.station.recorteSinTela) {
+        cargarSegmentadorSinTela();
+      }
+    }
+  }, [fiesta?.station.recorteSinTela]);
+
   const imagenFondoRef = useRef<HTMLImageElement | null>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -148,6 +161,7 @@ export default function FotocabinaPage() {
             fondoSeleccionado: fondoVirtual,
             imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
             toleranciaChroma: 90,
+            recorteSinTela: recorteSinTelaActivo,
           });
           ctx.restore();
         }
@@ -156,7 +170,7 @@ export default function FotocabinaPage() {
     };
     animId = requestAnimationFrame(renderLivePreview);
     return () => cancelAnimationFrame(animId);
-  }, [fondoVirtual, facingMode]);
+  }, [fondoVirtual, facingMode, recorteSinTelaActivo]);
 
   // Sync
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -376,6 +390,7 @@ export default function FotocabinaPage() {
               fondoSeleccionado: fondoVirtual,
               imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
               toleranciaChroma: 90,
+              recorteSinTela: recorteSinTelaActivo,
             });
           } else {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -396,7 +411,7 @@ export default function FotocabinaPage() {
         }
       }, intervalMs);
     });
-  }, [facingMode, fiesta?.station.accentColor, fiesta?.primaryColor, fiesta?.eventName, fiesta?.eventDate, fiesta?.nombreAgasajado, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey, fondoVirtual, selectedFrame]);
+  }, [facingMode, fiesta?.station.accentColor, fiesta?.primaryColor, fiesta?.eventName, fiesta?.eventDate, fiesta?.nombreAgasajado, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey, fondoVirtual, selectedFrame, recorteSinTelaActivo]);
 
   /**
    * Procesa la ráfaga de cuadros para generar el video del recuerdo:
@@ -585,6 +600,7 @@ export default function FotocabinaPage() {
         fondoSeleccionado: fondoVirtual,
         imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
         toleranciaChroma: 90,
+        recorteSinTela: recorteSinTelaActivo,
       });
     } else {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -1271,6 +1287,29 @@ export default function FotocabinaPage() {
                         Sin fondo extra
                       </div>
                     )}
+                  </div>
+
+                  {/* Opción de recorte sin tela verde */}
+                  <div className="mt-2 flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <div className="flex flex-col text-left">
+                      <span className="text-xs font-bold text-white">Recorte SIN tela verde</span>
+                      <span className="text-[10px] text-zinc-400">Segmentación con IA sin requerir croma físico</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nuevo = !recorteSinTelaActivo;
+                        setRecorteSinTelaActivo(nuevo);
+                        if (nuevo) cargarSegmentadorSinTela();
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                        recorteSinTelaActivo
+                          ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
+                          : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                      }`}
+                    >
+                      {recorteSinTelaActivo ? 'ACTIVADO' : 'APAGADO'}
+                    </button>
                   </div>
                 </div>
 

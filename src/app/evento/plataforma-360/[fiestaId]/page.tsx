@@ -49,6 +49,30 @@ const DURATION_OPTIONS = [
 ];
 
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
+import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
+
+/**
+ * Aplica cortina de fundido desde negro al inicio y hacia negro al final
+ * directamente sobre el lienzo del video.
+ */
+function aplicarCortinaVideo(
+  ctx: CanvasRenderingContext2D,
+  ancho: number,
+  alto: number,
+  frameIndex: number,
+  totalFrames: number
+) {
+  const duracionCortina = Math.max(3, Math.floor(totalFrames * 0.12));
+  if (frameIndex < duracionCortina) {
+    const alpha = (duracionCortina - frameIndex) / duracionCortina;
+    ctx.fillStyle = `rgba(0, 0, 0, ${alpha.toFixed(3)})`;
+    ctx.fillRect(0, 0, ancho, alto);
+  } else if (frameIndex >= totalFrames - duracionCortina) {
+    const alpha = (frameIndex - (totalFrames - duracionCortina)) / duracionCortina;
+    ctx.fillStyle = `rgba(0, 0, 0, ${alpha.toFixed(3)})`;
+    ctx.fillRect(0, 0, ancho, alto);
+  }
+}
 
 export default function Plataforma360Page() {
   const params = useParams();
@@ -505,6 +529,19 @@ export default function Plataforma360Page() {
         }
         ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
         ctx.drawImage(frames[frameIndex], 0, 0);
+
+        // Marco dinámico animado sobre el video
+        dibujarMarcoDinamico(ctx, drawCanvas.width, drawCanvas.height, {
+          estilo: 'elegante',
+          nombreAgasajado: fiesta?.nombreAgasajado,
+          nombreEvento: fiesta?.eventName,
+          fechaEvento: fiesta?.eventDate,
+          colorPrimario: fiesta?.primaryColor || fiesta?.station.accentColor || '#d97706',
+        });
+
+        // Cortina de entrada y salida grabada dentro del video
+        aplicarCortinaVideo(ctx, drawCanvas.width, drawCanvas.height, frameIndex, frames.length);
+
         frameIndex++;
         setTimeout(drawFrame, renderInterval);
       };
