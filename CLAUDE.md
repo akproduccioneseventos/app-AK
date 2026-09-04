@@ -680,6 +680,37 @@ fue en el código, además lleva su matafuego —el control que lo frena— como
 matafuego.
 
 
+## CÓMO SE TRABAJA: resultados, no relato
+
+**Orden del dueño, 3 de septiembre de 2026.** Palabras suyas: *"estoy medio cansado con el
+proceso, puro texto, quiero resultados"*, *"terminá de una vez y no hables tanto"*.
+
+**Tenía razón y es una falla de trabajo, no de estilo.** Un chat entero contando cada paso
+—"ahora corro esto", "esperá que compila", "encontré tal cosa, la verifico"— le hace leer
+veinte veces lo mismo para enterarse de una sola cosa. **Y él no programa: el detalle no le
+sirve para decidir nada.**
+
+### La regla
+
+1. **Se habla cuando hay un RESULTADO**, no cuando hay un avance. Terminó la puerta, se fusionó,
+   quedó arreglado, se frenó algo y por qué. **Eso es un resultado. "Ya empecé" no lo es.**
+2. **Mientras se trabaja, silencio.** Nada de narrar cada comando, cada verificación ni cada
+   espera. Si tarda, tarda: él no necesita el minuto a minuto.
+3. **Cuando se contesta, arriba va lo que le cambia el negocio**, en dos o tres líneas. El
+   detalle técnico, sólo si lo pide.
+4. **Nada de repetir lo ya dicho.** Si algo se contó, no se vuelve a contar en el mensaje
+   siguiente con otras palabras.
+5. **Una pregunta se contesta y se corta.** Sin resumen de la jornada pegado abajo.
+
+### Lo único que sí se cuenta aunque no sea un resultado
+
+- **Que algo se frenó y no se va a entregar**, con el motivo en una línea.
+- **Un error propio**, corto, y qué se hace distinto.
+- **Cuando hace falta una decisión suya** que la app no puede tomar sola.
+
+**La prueba antes de mandar un mensaje:** *¿esto le sirve para decidir algo, o le estoy contando
+lo que hice?* Si es lo segundo, no se manda.
+
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
 - **El cliente NO elige fotos (1 de septiembre de 2026).** Palabras suyas: *"no, el cliente no
