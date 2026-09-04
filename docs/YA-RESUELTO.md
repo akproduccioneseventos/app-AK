@@ -6842,3 +6842,33 @@ usa: SIN_ESCRITURA en tests/e2e/anda-en-el-celular.spec.ts
 usa: lead-nombre en tests/e2e/anda-en-el-celular.spec.ts
 usa: botonADentro en tests/e2e/anda-en-el-celular.spec.ts
 ```
+
+
+---
+
+## 4 de septiembre de 2026 — Una prueba guardada en la carpeta equivocada tumbaba cuatro
+
+La puerta frenaba en el paso de navegador y **no decia por que**: una tanda de cuatro archivos
+"termino con codigo 1 y no registro ninguna prueba".
+
+**La causa, medida:** `la-fotocabina-imprime-lo-que-se-pide.spec.ts` estaba dentro de `tests/e2e/`
+pero escrita con Jest (`beforeAll`, `jest.fn()`). Dos consecuencias, las dos malas:
+
+1. **Nadie la corria.** Jest ignora esa carpeta a proposito, asi que la prueba de la impresion
+   —cuantas copias salen y de que tamano es la hoja— estaba escrita y **muerta** desde que llego.
+2. **Se llevaba puestas a las otras tres.** Playwright se caia al cargarla, antes de empezar, y la
+   tanda entera —el humo interno, el movimiento de la app y la grilla de caras— quedaba sin correr.
+
+**Lo que se hizo:** se movio a `src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts` y se
+reescribio: la version original hacia `global.window = {...}`, que en jsdom no reemplaza la ventana
+de verdad, asi que tres de sus cuatro comprobaciones fallaban. Ahora usa `jest.spyOn(window, 'open')`
+y **se probo rompiendola**: con las copias apagadas, se pone en rojo.
+
+**El matafuego:** `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` lee todas las pruebas
+de navegador y marca en rojo cualquiera escrita con Jest. Tambien probado rompiendolo a proposito.
+
+```comprobar
+archivo: src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts
+usa: SENALES_DE_JEST en src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+prueba: src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+```
