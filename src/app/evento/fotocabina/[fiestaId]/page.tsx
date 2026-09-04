@@ -75,6 +75,8 @@ const FRAMES = [
   { id: 'ak_brand', label: 'AK Brand', bg: 'border-b-[40px] border-zinc-900 rounded-b-3xl' },
 ];
 
+const STICKERS = ['★', '♡', '✦', '✧', 'AK', '15', 'VIP', 'Love', 'Party', 'Smile', 'Wow', 'Gold'];
+
 export default function FotocabinaPage() {
   const params = useParams();
   const router = useRouter();
@@ -96,6 +98,10 @@ export default function FotocabinaPage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
+  const [activeStickers, setActiveStickers] = useState<string[]>([]);
+  const toggleSticker = (s: string) => {
+    setActiveStickers((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+  };
   const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
   const imagenFondoRef = useRef<HTMLImageElement | null>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -238,6 +244,8 @@ export default function FotocabinaPage() {
       ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
   }, [accessToken, facingMode, fiestaId, stopCamera]);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   // 1. Load details
   useEffect(() => {
@@ -1019,6 +1027,64 @@ export default function FotocabinaPage() {
                   </div>
                 </div>
 
+                {/* Selector de marcos */}
+                <div className="flex flex-col gap-2 w-full pt-1" data-testid="selector-marcos">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
+                    Marco decorativo
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {FRAMES.slice(0, 3).map((frame) => (
+                      <button
+                        key={frame.id}
+                        type="button"
+                        onClick={() => setSelectedFrame(frame.id)}
+                        className={`h-10 rounded-xl text-xs font-bold transition border ${
+                          selectedFrame === frame.id
+                            ? 'bg-amber-400 text-zinc-950 border-amber-400 shadow-md font-black'
+                            : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                        }`}
+                      >
+                        {frame.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Accesorios y stickers */}
+                <div className="flex flex-col gap-2 w-full pt-1" data-testid="selector-stickers">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
+                    Accesorios y Stickers
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 justify-center py-1">
+                    {STICKERS.map((sticker) => (
+                      <button
+                        key={sticker}
+                        type="button"
+                        onClick={() => toggleSticker(sticker)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-black transition border ${
+                          activeStickers.includes(sticker)
+                            ? 'bg-amber-400 text-zinc-950 border-amber-400 shadow'
+                            : 'bg-white/10 text-white border-white/15 hover:bg-white/20'
+                        }`}
+                      >
+                        {sticker}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Galería de la noche dentro de la estación */}
+                <div className="flex justify-center pt-1">
+                  <a
+                    href={`/evento/galeria/${fiestaId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-zinc-400 hover:text-amber-400 transition underline underline-offset-4"
+                  >
+                    Ver galería de la noche
+                  </a>
+                </div>
+
                 <div className="pt-2">
                   <button
                     onClick={takePhoto}
@@ -1266,4 +1332,5 @@ export default function FotocabinaPage() {
     </div>
   );
 }
+
 

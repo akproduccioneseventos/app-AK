@@ -281,7 +281,7 @@ function SceneContent({
 }
 
 // --- Exported component ---
-export default function SalonScene({ decoracion, onCapture, captureRef }: SalonSceneProps) {
+export function SalonScene({ decoracion, onCapture, captureRef }: SalonSceneProps) {
   return (
     <div className="w-full h-full rounded-[1.5rem] overflow-hidden bg-slate-900">
       <Canvas
@@ -303,3 +303,6 @@ export default function SalonScene({ decoracion, onCapture, captureRef }: SalonS
     </div>
   );
 }
+
+export default SalonScene;
+

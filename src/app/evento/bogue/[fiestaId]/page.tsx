@@ -43,6 +43,7 @@ import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initi
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { componerTiraDeFotos } from '@/lib/entretenimiento/tira-fotocabina';
+import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
 
 const BOGUE_FRAMES = [
   { id: 'none', label: 'Sin Marco', border: 'transparent' },
@@ -62,7 +63,6 @@ const BOGUE_FRAMES = [
 
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
 import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
-import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
 import {
   procesarFondoCanvas,
   type OpcionFondo,
@@ -90,14 +90,14 @@ export default function BoguePage() {
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
-  
+
   // Real-time Firestore sync
   const [session, setSession] = useState<EntertainmentSession | null>(null);
   const [localStatus, setLocalStatus] = useState<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
   const [countdown, setCountdown] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
   const [progressMsg, setProgressMsg] = useState('');
-  
+
   // Capturas
   const [capturedFrames, setCapturedFrames] = useState<HTMLCanvasElement[]>([]);
   const [recordingProgress, setRecordingProgress] = useState(0); // 0 to 100
@@ -229,16 +229,16 @@ export default function BoguePage() {
       const ctx = audioCtxRef.current;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      
+
       osc.frequency.value = freq;
       osc.type = 'sine';
-      
+
       gain.gain.setValueAtTime(0.3, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
-      
+
       osc.connect(gain);
       gain.connect(ctx.destination);
-      
+
       osc.start();
       osc.stop(ctx.currentTime + duration);
     } catch (e) {}
@@ -429,7 +429,7 @@ export default function BoguePage() {
 
     const captureTimer = setInterval(() => {
       if (!video) return;
-      
+
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth || 720;
       canvas.height = video.videoHeight || 1280;
@@ -494,7 +494,7 @@ export default function BoguePage() {
       const eventName = fiesta?.eventName || 'Bogue';
       const eventDate = fiesta?.eventDate || '';
       const colorDeAcento = fiesta?.station.accentColor || '#ec4899';
-      
+
       stripUrl = await componerTiraDeFotos({
         fotos: fotosBase64,
         nombreDelEvento: eventName,
@@ -526,7 +526,7 @@ export default function BoguePage() {
 
     // Stream & record canvas at 12fps
     const canvasStream = drawCanvas.captureStream(12);
-    
+
     // Choose appropriate mime type
     let mimeType = 'video/webm';
     const supportedTypes = [
@@ -554,7 +554,7 @@ export default function BoguePage() {
         const videoBlob = new Blob(chunks, { type: mimeType });
         const videoUrl = URL.createObjectURL(videoBlob);
         setFinalVideoUrl(videoUrl);
-        
+
         // Auto Upload
         await handleAutoUpload(videoBlob, stripUrl || undefined);
       };
@@ -572,7 +572,7 @@ export default function BoguePage() {
         }
 
         ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-        
+
         // Draw camera frame
         ctx.drawImage(loop[frameIndex], 0, 0);
 
@@ -616,7 +616,7 @@ export default function BoguePage() {
       });
       return;
     }
-    
+
     ctx.lineWidth = 0;
     ctx.shadowBlur = 0;
 
@@ -630,7 +630,7 @@ export default function BoguePage() {
       ctx.strokeStyle = 'rgba(234, 179, 8, 0.95)'; // gold
       ctx.lineWidth = 40;
       ctx.strokeRect(20, 20, w - 40, h - 40);
-      
+
       // Luxury corner decorations
       ctx.fillStyle = 'rgba(234, 179, 8, 1)';
       ctx.font = `${h * 0.03}px serif`;
@@ -642,7 +642,7 @@ export default function BoguePage() {
       ctx.strokeStyle = 'rgba(6, 182, 212, 0.9)'; // cyan
       ctx.lineWidth = 24;
       ctx.strokeRect(12, 12, w - 24, h - 24);
-      
+
       // Cyberpunk tag
       ctx.fillStyle = 'rgba(6, 182, 212, 0.9)';
       ctx.fillRect(w - 200, h - 80, 180, 50);
@@ -651,7 +651,7 @@ export default function BoguePage() {
       ctx.textAlign = 'center';
       ctx.fillText('BOGUE LIVE', w - 110, h - 48);
     }
-    
+
     // Reset shadow values
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'transparent';
@@ -678,7 +678,7 @@ export default function BoguePage() {
     grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
     grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.7)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
-    
+
     ctx.fillStyle = grad;
     ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
 
@@ -728,7 +728,7 @@ export default function BoguePage() {
       if (accessToken) formData.append('accessToken', accessToken);
 
       const res = await uploadEntretenimientoMedia(formData);
-      
+
       if (res.success) {
         const mediaUrl = res.media?.url || '';
         setUploadedPostUrl(mediaUrl);
@@ -742,7 +742,7 @@ export default function BoguePage() {
           accessToken
         );
         speak("¡Listo! Tu Boomerang ya está subido.");
-        
+
         // Auto reset after 12 seconds
         setTimeout(() => {
           completeGuestCycle();
@@ -958,7 +958,7 @@ export default function BoguePage() {
               : undefined
           }
         />
-        
+
         {/* State: Idle / Welcome Screen */}
         {localStatus === 'idle' && (
           <div className="relative w-full h-full">
@@ -975,7 +975,7 @@ export default function BoguePage() {
               data-testid="preview-canvas"
               className="absolute inset-0 w-full h-full object-cover"
             />
-            
+
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
                 <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-rose-500 shadow-lg shadow-rose-950/30">
@@ -1062,7 +1062,7 @@ export default function BoguePage() {
                     <Camera className="w-5 h-5" />
                     Grabar loop
                   </button>
-                  
+
                   {/* Selected Frame Indicator */}
                   <div className="flex justify-center gap-1.5 overflow-x-auto py-2">
                     {marcosDisponibles.map((f) => (
@@ -1154,15 +1154,15 @@ export default function BoguePage() {
         {/* State: Done (Boomerang Preview + Photo Strip + QR Download) */}
         {localStatus === 'done' && (
           <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
-            
+
             {/* Strip Display */}
             {finalStripUrl && (
               <div className="flex flex-col items-center gap-4 bg-zinc-900/60 p-6 rounded-2xl border border-white/5 shadow-2xl">
                 {/* La tira es un blob/data URL generado en el navegador y se imprime tal cual. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={finalStripUrl} 
-                  alt="Tira de recuerdo" 
+                <img
+                  src={finalStripUrl}
+                  alt="Tira de recuerdo"
                   className="h-80 md:h-[450px] object-contain rounded-md shadow-xl"
                 />
                 <button
@@ -1304,3 +1304,4 @@ export default function BoguePage() {
     </div>
   );
 }
+

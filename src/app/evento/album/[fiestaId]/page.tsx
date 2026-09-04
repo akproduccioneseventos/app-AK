@@ -36,6 +36,7 @@ import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 import { armarAlbumInteligente, type AlbumDigitalCompleto, type RecuerdoAlbum } from '@/lib/album/armar-album';
+import { agruparEnPersonas } from '@/lib/caras/agrupar-caras';
 
 type ViewMode = 'libro' | 'cuadricula';
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
@@ -91,6 +92,7 @@ export default function PublicAlbumPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [copied, setCopied] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -129,6 +131,13 @@ export default function PublicAlbumPage() {
     });
   }, [posts, dedications, fiesta]);
 
+  // Grilla de caras en el álbum (Orden 36 y 39)
+  const personasCaras = useMemo(() => {
+    const carasDisponibles = (fiesta as any)?.carasIndexadas || [];
+    if (!carasDisponibles.length) return [];
+    return agruparEnPersonas(carasDisponibles);
+  }, [fiesta]);
+
   const handleShare = async () => {
     const url = typeof window !== 'undefined' ? window.location.href : '';
     const title = fiesta?.configuracion?.nombreEvento || 'Álbum del Evento';
@@ -149,6 +158,63 @@ export default function PublicAlbumPage() {
         description: 'Ya podés pegarlo en WhatsApp para compartirlo con tu familia y amigos.',
       });
       setTimeout(() => setCopied(false), 3000);
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    if (isDownloadingAll) return;
+    setIsDownloadingAll(true);
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      const folder = zip.folder(`recuerdos-${fiestaId}`);
+
+      folder?.file(
+        'info-evento.txt',
+        `Evento: ${nombreFiesta}\nFecha: ${fechaFiesta}\nTotal de recuerdos: ${posts.length}\nGenerado por AK Producciones`
+      );
+
+      let count = 0;
+      for (let i = 0; i < posts.length; i++) {
+        const post = posts[i];
+        if (post.imageUrl) {
+          try {
+            const res = await fetch(post.imageUrl);
+            if (res.ok) {
+              const buffer = await res.arrayBuffer();
+              const ext = post.imageUrl.toLowerCase().includes('.png') ? 'png' : 'jpg';
+              folder?.file(`recuerdo_${i + 1}_${post.sourceModule || 'foto'}.${ext}`, buffer);
+              count++;
+            }
+          } catch {
+            // Ignorar errores individuales para no cortar el paquete
+          }
+        }
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const downloadUrl = URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `recuerdos-${fiestaId}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(downloadUrl);
+
+      toast({
+        title: '¡Descarga iniciada!',
+        description: `Se empaquetaron ${count > 0 ? count : posts.length} recuerdos en un archivo ZIP.`,
+      });
+    } catch (e) {
+      console.error('Error al descargar recuerdos:', e);
+      toast({
+        title: 'No se pudo descargar',
+        description: 'Ocurrió un error al empaquetar las fotos.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDownloadingAll(false);
     }
   };
 
@@ -265,6 +331,26 @@ export default function PublicAlbumPage() {
                 <>
                   <Share2 className="w-3.5 h-3.5" />
                   Compartir álbum
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleDownloadAll}
+              disabled={isDownloadingAll}
+              aria-label="Descargar todo el álbum"
+              data-testid="boton-descargar-album"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-white/10 text-white font-bold text-xs hover:bg-zinc-800 transition-all shadow-md active:scale-95 disabled:opacity-50"
+            >
+              {isDownloadingAll ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                  <span>Descargando...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Descargar todo</span>
                 </>
               )}
             </button>
@@ -682,4 +768,5 @@ export default function PublicAlbumPage() {
     </div>
   );
 }
+
 
