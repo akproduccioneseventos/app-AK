@@ -18,6 +18,8 @@ const ESCRITOS_POR_LA_CORRIDA = [
   'src/data/ai-usage.json',
   'src/data/social-history.json',
   'src/data/prospectos.json',
+  // La galeria social guarda los "me gusta" de la corrida y reescribe el archivo.
+  'src/data/social-gallery/metadata.json',
 ];
 
 const sucios = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' })
