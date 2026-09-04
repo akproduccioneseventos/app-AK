@@ -37,41 +37,41 @@ test.describe('Orden 40 Bloque 4: El asistente le contesta al invitado', () => {
   test('1. contesta la hora de inicio exacta de la fiesta', () => {
     const res = responderDudaInvitado('¿A qué hora empieza la fiesta?', datosFiesta);
     expect(res.tieneRespuestaExacta).toBe(true);
-    expect(res.respuesta).toContain('21:00');
+    expect(res.respuesta).toMatch(/21:00/);
   });
 
   test('2. contesta cómo llegar con el lugar y la dirección cargados', () => {
     const res = responderDudaInvitado('¿Cómo llego al salón y cuál es la dirección?', datosFiesta);
     expect(res.tieneRespuestaExacta).toBe(true);
-    expect(res.respuesta).toContain('Salón Los Robles');
-    expect(res.respuesta).toContain('Costanera Norte 1250');
+    expect(res.respuesta).toMatch(/Salón Los Robles/);
+    expect(res.respuesta).toMatch(/Costanera Norte 1250/);
   });
 
   test('3. contesta el código de vestimenta asignado al evento', () => {
     const res = responderDudaInvitado('¿Qué me pongo para la fiesta?', datosFiesta);
     expect(res.tieneRespuestaExacta).toBe(true);
-    expect(res.respuesta).toContain('Elegante');
+    expect(res.respuesta).toMatch(/Elegante/);
   });
 
   test('4. contesta la mesa asignada para el invitado que consulta', () => {
     const res = responderDudaInvitado('¿Dónde está mi mesa asignada?', datosFiesta);
     expect(res.tieneRespuestaExacta).toBe(true);
-    expect(res.respuesta).toContain('Mesa 7');
-    expect(res.respuesta).toContain('Valentina');
+    expect(res.respuesta).toMatch(/Mesa 7/);
+    expect(res.respuesta).toMatch(/Valentina/);
   });
 
   test('5. contesta el horario de música y fin de fiesta', () => {
     const res = responderDudaInvitado('¿Hasta qué hora hay música?', datosFiesta);
     expect(res.tieneRespuestaExacta).toBe(true);
-    expect(res.respuesta).toContain('05:00');
+    expect(res.respuesta).toMatch(/05:00/);
   });
 
   test('6. ante una duda desconocida no inventa y da el WhatsApp del organizador', () => {
     const res = responderDudaInvitado('¿Puedo llevar a mi loro a la fiesta?', datosFiesta);
     expect(res.tieneRespuestaExacta).toBe(false);
-    expect(res.respuesta).toContain('No tengo ese dato registrado');
-    expect(res.respuesta).toContain('WhatsApp');
-    expect(res.whatsappOrganizador).toContain('wa.me/098355530');
+    expect(res.respuesta).toMatch(/No tengo ese dato registrado/);
+    expect(res.respuesta).toMatch(/WhatsApp/);
+    expect(res.whatsappOrganizador).toMatch(/wa\.me\/098355530/);
   });
 
   test('7. la pantalla de invitacion y portal del invitado es publica sin pedir login previo', async ({ page }) => {
@@ -82,8 +82,7 @@ test.describe('Orden 40 Bloque 4: El asistente le contesta al invitado', () => {
     try {
       await page.goto('/invitacion/' + fiestaId, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 15_000 }).catch(() => {});
-      const body = page.locator('body');
-      await expect(body).toBeVisible();
+      await expect(page).toHaveURL(new RegExp('/invitacion/' + fiestaId));
     } finally {
       borrarFiesta(fiestaId);
     }

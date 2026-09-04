@@ -119,6 +119,7 @@ export default function BoguePage() {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
   const [selectedFrame, setSelectedFrame] = useState('none');
+  const cuadrosDelLoop = fiesta?.station.cuadrosDelLoop || 15;
   const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
   const imagenFondoRef = useRef<HTMLImageElement | null>(null);
 
@@ -376,7 +377,7 @@ export default function BoguePage() {
   };
 
   // 3. Capture & Process Boomerang (Display flow)
-  const startCaptureProcess = async (recordDuration = 3, totalFrames = 15) => {
+  const startCaptureProcess = async (recordDuration = 3, totalFrames = cuadrosDelLoop) => {
     setLocalStatus('countdown');
     if (role === 'display') {
       await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'countdown', {}, accessToken);
@@ -776,7 +777,7 @@ export default function BoguePage() {
       'bogue',
       {
         duration: fiesta?.station.recordingDurationSeconds || 4,
-        frameCount: 15,
+        frameCount: cuadrosDelLoop,
         frameId: selectedFrame,
         operatorName: fiesta?.station.operatorName,
       },
@@ -862,6 +863,15 @@ export default function BoguePage() {
                     {selectedFrame === f.id && <Check className="w-3.5 h-3.5" />}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Cuadros del Loop */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Cuadros del Loop</p>
+              <div className="flex items-center justify-between rounded-lg border border-white/5 bg-black/30 px-4 py-3 text-xs font-bold text-rose-300">
+                <span>Cuadros configurados</span>
+                <span className="text-sm font-black">{cuadrosDelLoop} cuadros</span>
               </div>
             </div>
 

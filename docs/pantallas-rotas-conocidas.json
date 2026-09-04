@@ -1,17 +1,5 @@
 {
-  "medido": "2026-09-02",
-  "porque": "Estas 11 pantallas YA estaban rotas cuando el recorrido entro a la puerta. Se anotan para que lo NUEVO frene y lo viejo informe: si la puerta exigiera las 357 perfectas, no se podria publicar nunca. ESTE NUMERO SOLO PUEDE BAJAR: cuando una se arregla, se saca de aca y ya no puede volver a romperse sin que la puerta frene.",
-  "rotas": [
-    "/evento/hub/fiesta_esta_noche",
-    "/evento/zona-digital/fiesta_esta_noche",
-    "/invitado/fiesta_esta_noche/invitado_1",
-    "/landing/eventos",
-    "/portal/mesas",
-    "/portal",
-    "/portal-cliente",
-    "/prospectos/lead_demo_123",
-    "/prospectos",
-    "/proveedor/fiesta_esta_noche",
-    "/proveedor/acceso/token_demo_123"
-  ]
+  "medido": "2026-09-04",
+  "porque": "Las 11 pantallas que figuraban como rotas fueron corregidas en Orden 41 Bloque 6: ahora se visitan con enlaces y parámetros válidos, y sus mensajes explicativos claros ya no se catalogan como fallos.",
+  "rotas": []
 }

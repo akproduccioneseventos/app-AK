@@ -59,6 +59,14 @@ export interface EntertainmentStationRuntimeConfig {
   orientation?: 'vertical' | 'horizontal' | 'cuadrada';
   fondoDePantalla?: string;
   virtualBackgroundUrl?: string;
+  /** Velocidad o efecto del recuerdo ('normal' | 'lenta' | 'boomerang'). */
+  velocidadRecuerdo?: 'normal' | 'lenta' | 'boomerang';
+  /** Diseño de la hoja de impresión ('una' | 'dos' | 'tira'). */
+  disenoImpresion?: 'una' | 'dos' | 'tira';
+  /** Vueltas del brazo en plataforma 360. */
+  vueltas360?: number;
+  /** Cuadros del loop en Bogue. */
+  cuadrosDelLoop?: number;
 }
 
 export interface PublicEntertainmentEvent {
@@ -180,6 +188,14 @@ export function getEntertainmentStationConfig(
     marcosHabilitados: Array.isArray(stored.marcosHabilitados) && stored.marcosHabilitados.length > 0
       ? stored.marcosHabilitados
       : ['none', 'golden', 'neon', 'flowers', 'ak_brand'],
+    velocidadRecuerdo: (['normal', 'lenta', 'boomerang'].includes(stored.velocidadRecuerdo)
+      ? stored.velocidadRecuerdo
+      : 'normal') as 'normal' | 'lenta' | 'boomerang',
+    disenoImpresion: (['una', 'dos', 'tira'].includes(stored.disenoImpresion)
+      ? stored.disenoImpresion
+      : 'tira') as 'una' | 'dos' | 'tira',
+    vueltas360: clampNumber(stored.vueltas360, 2, 1, 10),
+    cuadrosDelLoop: clampNumber(stored.cuadrosDelLoop, 15, 5, 60),
   };
 }
 

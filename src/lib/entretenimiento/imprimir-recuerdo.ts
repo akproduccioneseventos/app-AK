@@ -16,6 +16,7 @@ export interface ResultadoDeImpresion {
 }
 
 export type TamanoPapelImpresion = '10x15' | '5x15' | '13x18';
+export type DisenoImpresion = 'una' | 'dos' | 'tira';
 
 const TAMANOS_HOJA: Record<TamanoPapelImpresion, string> = {
   '10x15': '10cm 15cm',
@@ -26,7 +27,8 @@ const TAMANOS_HOJA: Record<TamanoPapelImpresion, string> = {
 export function imprimirRecuerdo(
   imagen: string,
   copias: number = 1,
-  tamano: TamanoPapelImpresion = '10x15'
+  tamano: TamanoPapelImpresion = '10x15',
+  disenoImpresion: DisenoImpresion = 'tira'
 ): ResultadoDeImpresion {
   if (!imagen) {
     return { ok: false, aviso: 'Todavía no hay un recuerdo para imprimir.' };
@@ -44,16 +46,27 @@ export function imprimirRecuerdo(
       };
     }
 
+    const fotosContenido = disenoImpresion === 'una'
+      ? `<div class="foto-una"><img src="${imagen}" alt="Recuerdo" /></div>`
+      : disenoImpresion === 'dos'
+      ? `<div class="foto-dos"><img src="${imagen}" alt="Recuerdo 1" /><img src="${imagen}" alt="Recuerdo 2" /></div>`
+      : `<div class="foto-tira"><img src="${imagen}" alt="Recuerdo" /></div>`;
+
     const paginasHtml = Array.from({ length: cantidadCopias })
-      .map(() => `<div class="pagina"><img src="${imagen}" alt="Recuerdo" /></div>`)
+      .map(() => `<div class="pagina" data-diseno="${disenoImpresion}">${fotosContenido}</div>`)
       .join('');
 
     ventana.document.write(
       `<html><head><title>Recuerdo</title><style>` +
         `@page{size:${hojaCss};margin:0}` +
         `html,body{margin:0;padding:0;background:#fff}` +
-        `.pagina{width:100%;height:100vh;page-break-after:always;display:flex;align-items:center;justify-content:center}` +
-        `img{width:100%;height:100%;object-fit:contain;display:block}` +
+        `.pagina{width:100%;height:100vh;page-break-after:always;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:8px}` +
+        `.foto-una{width:100%;height:100%;display:flex;align-items:center;justify-content:center}` +
+        `.foto-una img{width:100%;height:100%;object-fit:contain;display:block}` +
+        `.foto-dos{width:100%;height:100%;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:space-around}` +
+        `.foto-dos img{max-width:100%;max-height:48%;object-fit:contain;display:block}` +
+        `.foto-tira{width:100%;height:100%;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center}` +
+        `.foto-tira img{width:100%;height:100%;object-fit:contain;display:block}` +
         `</style></head><body>${paginasHtml}</body></html>`,
     );
     ventana.document.close();

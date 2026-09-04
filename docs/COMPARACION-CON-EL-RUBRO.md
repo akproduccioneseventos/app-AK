@@ -39,14 +39,14 @@ Fondo de la pantalla, el telon :: usa: procesarFondoCanvas({ en src/app/evento/f
 Elegir el tamano de impresion :: usa: tamanoPapel en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Cuantas copias se imprimen :: usa: copiasImpresion en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Elegir la impresora :: NO SE COPIA
-Armar el diseno de la impresion :: FALTA
+Armar el diseno de la impresion :: usa: disenoImpresion en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Galeria de la noche :: usa: /evento/galeria/ en src/app/evento/fotocabina/[fiestaId]/page.tsx
-Marcos animados :: FALTA
+Marcos animados :: usa: dibujarMarcoDinamico en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Accesorios sobre la foto :: usa: STICKERS en src/app/evento/fotocabina/[fiestaId]/page.tsx
-Firmar o dibujar sobre la foto :: FALTA
-Boomerang o GIF :: FALTA
+Firmar o dibujar sobre la foto :: usa: LienzoDibujoCompartido en src/app/evento/fotocabina/[fiestaId]/page.tsx
+Boomerang o GIF :: usa: velocidadRecuerdo en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Video :: usa: mediaRecorderRef en src/app/evento/fotocabina/[fiestaId]/page.tsx
-Camara lenta :: FALTA
+Camara lenta :: usa: velocidadRecuerdo en src/app/evento/fotocabina/[fiestaId]/page.tsx
 ```
 
 **Las tres que el dueño marcó y no estaban en ninguna orden** —tamaño de impresión, cantidad de
@@ -80,11 +80,11 @@ Entrega por QR :: usa: qrCallout en src/app/evento/plataforma-360/[fiestaId]/pag
 Galeria de la noche :: usa: recentVideos en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Repetir la toma :: usa: maxRetakes en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Color de la fiesta :: usa: accentColor en src/app/evento/plataforma-360/[fiestaId]/page.tsx
-Musica sobre el video :: FALTA
-Cambios de velocidad, el efecto de moda :: FALTA
+Musica sobre el video :: usa: customAudioRef en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+Cambios de velocidad, el efecto de moda :: usa: processSlowMotionVideo en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Marco animado sobre el video :: FALTA
 Cortina de entrada y de salida :: FALTA
-Elegir cuantas vueltas da :: FALTA
+Elegir cuantas vueltas da :: usa: vueltas360 en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 ```
 
 ## Bogue (boomerang)
@@ -99,10 +99,10 @@ Marca de agua :: usa: brandText en src/app/evento/bogue/[fiestaId]/page.tsx
 Entrega por QR :: usa: qrCallout en src/app/evento/bogue/[fiestaId]/page.tsx
 La estacion habla :: usa: speechSynthesis en src/app/evento/bogue/[fiestaId]/page.tsx
 Velocidad del rebote :: usa: recordingDurationSeconds en src/app/evento/bogue/[fiestaId]/page.tsx
-Cuantos cuadros tiene el loop :: FALTA
+Cuantos cuadros tiene el loop :: usa: cuadrosDelLoop en src/app/evento/bogue/[fiestaId]/page.tsx
 Galeria de la noche :: usa: handleAutoUpload en src/app/evento/bogue/[fiestaId]/page.tsx
-Cambiar el fondo :: FALTA
-Filtro de belleza :: FALTA
+Cambiar el fondo :: usa: procesarFondoCanvas en src/app/evento/bogue/[fiestaId]/page.tsx
+Filtro de belleza :: usa: aplicarFiltroBelleza en src/app/evento/bogue/[fiestaId]/page.tsx
 Repetir la toma :: usa: allowGuestRetake en src/app/evento/bogue/[fiestaId]/page.tsx
 ```
 
@@ -119,9 +119,9 @@ Filtros de imagen :: usa: filtro en src/app/evento/espejo-magico/[fiestaId]/page
 Pide permiso antes de publicar :: usa: hayQuePedirPermiso en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 La estacion habla :: usa: speechSynthesis en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 Animaciones con locucion, las 200 de Mirror Me :: FALTA
-Texto de marca junto al QR :: FALTA
+Texto de marca junto al QR :: usa: brandText en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 Galeria de la noche :: usa: muro de la fiesta en src/app/evento/espejo-magico/[fiestaId]/page.tsx
-Cambiar el fondo :: FALTA
+Cambiar el fondo :: usa: procesarFondoCanvas en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 Imprimir :: usa: imprimirRecuerdo en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 ```
 
@@ -203,8 +203,8 @@ Muestrario de fiestas anteriores :: usa: DecoMuestrario en src/app/(app)/fiestas
 El cliente ve su propuesta :: usa: enviarOpinionDecoracion en src/app/actions/fiesta/decoracion.actions.ts
 Imagen del salon decorado con IA :: usa: generarVisualizacionSalonAi en src/app/actions/fiesta/decoracion.actions.ts
 Plano para poner las mesas :: usa: DecoCanvas en src/app/(app)/fiestas/nueva/decoracion/page.tsx
-Que cuente los invitados solo :: FALTA
-Que avise si un elemento ya esta usado :: FALTA
+Que cuente los invitados solo :: usa: getGuestAdultsCount en src/app/(app)/fiestas/nueva/decoracion/page.tsx
+Que avise si un elemento ya esta usado :: usa: verificarElementoEnUso en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 Vista 3D que se dibuje :: FALTA
 Catalogo de 80.000 objetos como Merri :: NO SE COPIA
 ```

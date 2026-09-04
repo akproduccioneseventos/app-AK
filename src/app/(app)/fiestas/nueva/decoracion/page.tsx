@@ -36,6 +36,7 @@ import DecoColorPicker from '@/components/decoracion/DecoColorPicker';
 import DecoPropertiesPanel from '@/components/decoracion/DecoPropertiesPanel';
 import DecoTemplateGallery from '@/components/decoracion/DecoTemplateGallery';
 import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
+import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -134,6 +135,11 @@ function DecoracionYDisenoEventoContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [conteoInvitados, setConteoInvitados] = useState<{ adultos: number; ninos: number; total: number }>({ adultos: 0, ninos: 0, total: 0 });
+  const [elementosEnUso, setElementosEnUso] = useState<string[]>([]);
+  const verificarElementoEnUso = useCallback((nombreElemento: string) => {
+    return elementosEnUso.some(e => e.toLowerCase() === nombreElemento.toLowerCase());
+  }, [elementosEnUso]);
 
   // Zone management
   const [zonasDiseno, setZonasDiseno] = useState<ZonaDiseno[]>([DEFAULT_ZONA_DISENO]);
@@ -216,6 +222,12 @@ function DecoracionYDisenoEventoContent() {
           ...(loadedDecoracion.paletaColores || {})
         } as ColorPalette,
       });
+
+      // Conteo automático de invitados para dimensionar elementos decorativos
+      const listaInvitados = (fiestaData.invitados || []) as any[];
+      const adultos = listaInvitados.reduce((acc: number, g) => acc + getGuestAdultsCount(g), 0);
+      const ninos = listaInvitados.reduce((acc: number, g) => acc + getGuestKidsCount(g), 0);
+      setConteoInvitados({ adultos, ninos, total: adultos + ninos });
 
       // Load design zones
       if (loadedDecoracion.zonasDiseno && loadedDecoracion.zonasDiseno.length > 0) {
@@ -831,6 +843,11 @@ function DecoracionYDisenoEventoContent() {
         <div className="flex items-center gap-3">
           <Palette className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Decoración y Diseño</h1>
+          <Badge variant="outline" className="text-xs font-semibold px-3 py-1 bg-white border-slate-200">
+            {conteoInvitados.total > 0
+              ? `Invitados: ${conteoInvitados.total} (${conteoInvitados.adultos} adultos, ${conteoInvitados.ninos} niños)`
+              : 'Sin invitados cargados'}
+          </Badge>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button variant="ghost" size="sm" onClick={() => loadDecoracionData(true)}>

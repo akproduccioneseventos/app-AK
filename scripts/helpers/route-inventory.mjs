@@ -153,7 +153,7 @@ export function getAllRoutes(appRoot = path.join(process.cwd(), 'src', 'app')) {
     const stats = fs.statSync(filePath);
     let rel = path.relative(appRoot, path.dirname(filePath)).replace(/\\/g, '/');
     const rawSegments = rel ? rel.split('/') : [];
-    
+
     // Omit route groups like (app) in public URL
     const urlSegments = rawSegments.filter((s) => !s.startsWith('(') || !s.endsWith(')'));
     const resolvedSegments = resolveDynamicSegments(urlSegments);
@@ -187,10 +187,14 @@ export function getAllRoutes(appRoot = path.join(process.cwd(), 'src', 'app')) {
       const match = pathname.match(/\/evento\/([^\/]+)/);
       const moduloId = match ? match[1] : 'fotocabina';
       const permission = crearPermisoDeEstacion(FIXTURE_IDS.fiesta, moduloId);
-      query = `?access=${permission}`;
+      query = `?access=${permission}&fiestaId=${FIXTURE_IDS.fiesta}`;
       if (pathname.includes('/evento/espejo-magico')) {
         query += '&mode=foto';
       }
+    } else if (pathname.startsWith('/portal') || pathname.startsWith('/portal-cliente')) {
+      query = `?fiestaId=${FIXTURE_IDS.fiesta}`;
+    } else if (pathname.startsWith('/proveedor/acceso')) {
+      query = `?token=${FIXTURE_IDS.token}`;
     }
 
     const testUrl = `${pathname}${query}`;

@@ -75,4 +75,17 @@ describe('Orden 35 Bloque 2: La fotocabina imprime lo que se pide', () => {
       jest.restoreAllMocks();
     }
   });
+
+  it('el diseno de impresion configura el formato de grilla solicitado', () => {
+    const disenos = ['una', 'dos', 'tira'] as const;
+    for (const diseno of disenos) {
+      const html = espiarLaVentanaDeImpresion();
+      const resultado = imprimirRecuerdo('data:image/png;base64,DDDD', 1, '10x15', diseno);
+      expect(resultado.ok).toBe(true);
+      expect(html()).toContain(`data-diseno="${diseno}"`);
+      expect(html()).toContain(`foto-${diseno}`);
+      expect(html().match(/class="pagina"/g)?.length).toBe(1);
+      jest.restoreAllMocks();
+    }
+  });
 });

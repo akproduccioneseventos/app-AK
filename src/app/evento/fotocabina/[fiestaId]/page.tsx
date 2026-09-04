@@ -22,6 +22,7 @@ import {
   Share2,
   MessageCircle,
   Sparkles,
+  Edit3,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
@@ -52,7 +53,9 @@ import {
   SEGUNDOS_PRIMERA_FOTO,
   GUIA_POR_FOTO,
 } from '@/lib/entretenimiento/tira-fotocabina';
-import { imprimirRecuerdo, type TamanoPapelImpresion } from '@/lib/entretenimiento/imprimir-recuerdo';
+import { imprimirRecuerdo, type TamanoPapelImpresion, type DisenoImpresion } from '@/lib/entretenimiento/imprimir-recuerdo';
+import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
+import { LienzoDibujoCompartido, type LienzoDibujoHandles } from '@/components/entretenimiento/LienzoDibujoCompartido';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
@@ -73,6 +76,7 @@ const FRAMES = [
   { id: 'neon', label: 'Neón', bg: 'border-[12px] border-purple-500/80 shadow-[inset_0_0_20px_#a855f7] rounded-3xl' },
   { id: 'flowers', label: 'Flores', bg: 'border-[16px] border-pink-400/80 rounded-3xl' },
   { id: 'ak_brand', label: 'AK Brand', bg: 'border-b-[40px] border-zinc-900 rounded-b-3xl' },
+  { id: 'animado', label: 'Marco Dinámico', bg: 'border-[16px] border-amber-500 rounded-3xl' },
 ];
 
 const STICKERS = ['★', '♡', '✦', '✧', 'AK', '15', 'VIP', 'Love', 'Party', 'Smile', 'Wow', 'Gold'];
@@ -182,6 +186,12 @@ export default function FotocabinaPage() {
   const copiasImpresion = Math.max(1, Math.min(10, fiesta?.station.copiasImpresion ?? 1));
   // Tamaño de papel configurado en la estación (default '10x15').
   const tamanoPapel: TamanoPapelImpresion = (fiesta?.station.tamanoPapel as TamanoPapelImpresion) || '10x15';
+  // Diseño de la hoja de impresión ('una' | 'dos' | 'tira', default 'tira').
+  const disenoImpresion: DisenoImpresion = fiesta?.station.disenoImpresion || 'tira';
+  // Efecto / velocidad del recuerdo ('normal' | 'lenta' | 'boomerang').
+  const velocidadRecuerdo = fiesta?.station.velocidadRecuerdo || 'normal';
+  const lienzoDibujoRef = useRef<LienzoDibujoHandles | null>(null);
+  const [mostrarLienzoDibujo, setMostrarLienzoDibujo] = useState(false);
 
   // Si el cliente no contrato el muro, el recuerdo no tiene a donde subir: la
   // cabina lo imprime ahi mismo en vez de dejar al invitado con las manos vacias.
@@ -503,7 +513,13 @@ export default function FotocabinaPage() {
     setIsPrinting(true);
     setYaSeImprimio(true);
     try {
-      const resultado = imprimirRecuerdo(capturedImage, copiasImpresion, tamanoPapel);
+      let imagenAImprimir = capturedImage;
+      if (lienzoDibujoRef.current?.hasDrawing() && canvasRef.current) {
+        lienzoDibujoRef.current.mergeToCanvas(canvasRef.current);
+        imagenAImprimir = canvasRef.current.toDataURL('image/jpeg', 0.9);
+        setCapturedImage(imagenAImprimir);
+      }
+      const resultado = imprimirRecuerdo(imagenAImprimir, copiasImpresion, tamanoPapel, disenoImpresion);
       if (!resultado.ok) {
         setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
         return;
@@ -527,6 +543,17 @@ export default function FotocabinaPage() {
 
   const drawFrameOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (selectedFrame === 'none') return;
+
+    if (selectedFrame === 'animado') {
+      dibujarMarcoDinamico(ctx, w, h, {
+        estilo: 'elegante',
+        nombreAgasajado: fiesta?.nombreAgasajado,
+        nombreEvento: fiesta?.eventName,
+        fechaEvento: fiesta?.eventDate,
+        colorPrimario: fiesta?.primaryColor || fiesta?.station.accentColor || '#d97706',
+      });
+      return;
+    }
 
     ctx.lineWidth = 0;
 
@@ -602,6 +629,9 @@ export default function FotocabinaPage() {
 
   const handleAcceptAndPublish = async () => {
     if (!canvasRef.current) return;
+    if (lienzoDibujoRef.current?.hasDrawing()) {
+      lienzoDibujoRef.current.mergeToCanvas(canvasRef.current);
+    }
     setLocalStatus('processing');
     await updateEntertainmentSessionStatus(
       fiestaId,
@@ -855,6 +885,24 @@ export default function FotocabinaPage() {
                     {selectedFrame === f.id && <Check className="w-3.5 h-3.5" />}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Velocidad / Formato de Recuerdo */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Velocidad del Recuerdo</p>
+              <div className="flex items-center justify-between rounded-lg border border-white/5 bg-black/30 px-4 py-3 text-xs font-bold text-amber-300">
+                <span>Efecto configurado</span>
+                <span className="capitalize">{velocidadRecuerdo}</span>
+              </div>
+            </div>
+
+            {/* Diseño de Impresión */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Diseño de Impresión</p>
+              <div className="flex items-center justify-between rounded-lg border border-white/5 bg-black/30 px-4 py-3 text-xs font-bold text-amber-300">
+                <span>Formato de hoja</span>
+                <span className="capitalize">{disenoImpresion}</span>
               </div>
             </div>
 
@@ -1174,6 +1222,13 @@ export default function FotocabinaPage() {
               <div className="absolute left-4 top-4 rounded-lg bg-amber-400 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-zinc-950">
                 Asi se imprime
               </div>
+              {mostrarLienzoDibujo && (
+                <LienzoDibujoCompartido
+                  ref={lienzoDibujoRef}
+                  className="absolute inset-0 z-30"
+                  defaultColor="#ffffff"
+                />
+              )}
             </div>
 
             {/* Las tres fotos por separado. El recuerdo armado se ve chico en
@@ -1222,6 +1277,20 @@ export default function FotocabinaPage() {
               )}
 
               <div className="flex flex-col gap-2 w-full">
+                {/* Botón de dibujo / dedicatoria manuscrita sobre la foto */}
+                <button
+                  type="button"
+                  onClick={() => setMostrarLienzoDibujo((prev) => !prev)}
+                  className={`w-full h-11 rounded-xl font-bold text-xs border transition flex items-center justify-center gap-2 ${
+                    mostrarLienzoDibujo
+                      ? 'bg-amber-500/20 border-amber-500 text-amber-300'
+                      : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Edit3 className="w-4 h-4" />
+                  {mostrarLienzoDibujo ? 'Ocultar lienzo de firma' : 'Firmar o dibujar sobre la foto'}
+                </button>
+
                 {/* Imprimir va primero y siempre: es lo que el invitado se
                     lleva en la mano. El muro es el extra, y sin muro
                     contratado este es el unico camino. */}
