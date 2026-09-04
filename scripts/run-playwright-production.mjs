@@ -329,6 +329,8 @@ async function main() {
   const tandasCaidas = [];
   /** Cuanto tardo cada tanda. Se imprime al final, de la mas lenta a la mas rapida. */
   const relojPorTanda = [];
+  /** Segundos gastados solo en levantar el servidor, sumando las 39 veces. */
+  let segundosDeArranque = 0;
 
   // Se agrupan primero los que comparten la fiesta de prueba. Si quedaran
   // repartidos, cada tanda tendria uno adentro y **todas** correrian de a una,
@@ -380,6 +382,9 @@ async function main() {
 
     try {
       await waitForHealth(port);
+      // Cuanto costo levantar el servidor. Se levanta y se apaga UNA VEZ POR TANDA
+      // -39 veces en la corrida entera- y hasta ahora nadie habia medido cuanto pesa eso.
+      segundosDeArranque += Math.round((Date.now() - arrancoLaTanda) / 1000);
       const trabajadores = trabajadoresPara();
       const result = await runPlaywright(batch, [...flags, `--workers=${trabajadores}`]);
       const tests = extractTestsFromSuites(result.json?.suites);
@@ -473,7 +478,9 @@ async function main() {
   if (relojPorTanda.length > 1) {
     const lentas = [...relojPorTanda].sort((a, b) => b.segundos - a.segundos).slice(0, 5);
     const total = relojPorTanda.reduce((suma, t) => suma + t.segundos, 0);
-    console.log(`DONDE SE VA EL TIEMPO (total ${Math.round(total / 60)} min, las 5 tandas mas lentas):`);
+    console.log(`DONDE SE VA EL TIEMPO (total ${Math.round(total / 60)} min):`);
+    console.log(`  ${String(segundosDeArranque).padStart(5)}s  levantar el servidor ${relojPorTanda.length} veces (una por tanda)`);
+    console.log('  Las 5 tandas mas lentas:');
     for (const t of lentas) {
       console.log(`  ${String(t.segundos).padStart(5)}s  ${t.archivos.join(', ')}`);
     }
