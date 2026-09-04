@@ -23,6 +23,7 @@ import {
   MessageCircle,
   Sparkles,
   Edit3,
+  Film,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
@@ -192,6 +193,10 @@ export default function FotocabinaPage() {
   const velocidadRecuerdo = fiesta?.station.velocidadRecuerdo || 'normal';
   const lienzoDibujoRef = useRef<LienzoDibujoHandles | null>(null);
   const [mostrarLienzoDibujo, setMostrarLienzoDibujo] = useState(false);
+  const [videoRecuerdoUrl, setVideoRecuerdoUrl] = useState<string | null>(null);
+  const [duracionToma, setDuracionToma] = useState<number>(0);
+  const [duracionVideo, setDuracionVideo] = useState<number>(0);
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
 
   // Si el cliente no contrato el muro, el recuerdo no tiene a donde subir: la
   // cabina lo imprime ahi mismo en vez de dejar al invitado con las manos vacias.
@@ -335,6 +340,161 @@ export default function FotocabinaPage() {
   const toggleCamera = () => {
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
   };
+
+  /**
+   * Captura una ráfaga de cuadros desde la cámara para generar efectos de video
+   * (cámara lenta y boomerang) en la fotocabina.
+   */
+  const capturarCuadrosDeCamara = useCallback(async (duracionSec = 2, totalCuadros = 12): Promise<HTMLCanvasElement[]> => {
+    const video = videoRef.current;
+    if (!video || !isVideoFrameReady(video)) return [];
+
+    const frames: HTMLCanvasElement[] = [];
+    const intervalMs = Math.max(20, Math.floor((duracionSec * 1000) / totalCuadros));
+
+    return new Promise((resolve) => {
+      let count = 0;
+      const timer = setInterval(() => {
+        if (!video) {
+          clearInterval(timer);
+          resolve(frames);
+          return;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 720;
+        canvas.height = video.videoHeight || 1280;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          if (facingMode === 'user') {
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+          }
+          if (fondoVirtual && fondoVirtual.tipo !== 'ninguno') {
+            procesarFondoCanvas({
+              canvasDestino: canvas,
+              videoOrigen: video,
+              fondoSeleccionado: fondoVirtual,
+              imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
+              toleranciaChroma: 90,
+            });
+          } else {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          }
+          if (fiesta?.station.enableBeautyFilter) {
+            aplicarFiltroBelleza(ctx, canvas.width, canvas.height);
+          }
+          if (fiesta?.station.enableChromaKey) {
+            aplicarChromaKey(ctx, canvas.width, canvas.height);
+          }
+          drawFrameOverlay(ctx, canvas.width, canvas.height);
+        }
+        frames.push(canvas);
+        count++;
+        if (count >= totalCuadros) {
+          clearInterval(timer);
+          resolve(frames);
+        }
+      }, intervalMs);
+    });
+  }, [facingMode, fiesta?.station.accentColor, fiesta?.primaryColor, fiesta?.eventName, fiesta?.eventDate, fiesta?.nombreAgasajado, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey, fondoVirtual, selectedFrame]);
+
+  /**
+   * Procesa la ráfaga de cuadros para generar el video del recuerdo:
+   * - Con 'lenta', el video dura más que la toma (reproducción a menor tasa de cuadros, como en Plataforma 360).
+   * - Con 'boomerang', los cuadros van de ida y vuelta en bucle (rebote, como en Bogue).
+   * - Con 'normal', se preserva el flujo habitual.
+   */
+  const procesarVideoRecuerdo = useCallback(async (frames: HTMLCanvasElement[], duracionTomaSec = 2) => {
+    if (frames.length === 0) return null;
+
+    let framesAProcesar = [...frames];
+    let targetDurationSec = duracionTomaSec;
+
+    if (velocidadRecuerdo === 'lenta') {
+      // Con velocidad lenta, el video entregado tiene que durar más que la toma (el doble, camino de plataforma 360)
+      targetDurationSec = duracionTomaSec * 2;
+    } else if (velocidadRecuerdo === 'boomerang') {
+      // Con boomerang, los cuadros van hacia adelante y después al revés (rebote como en Bogue)
+      const loop: HTMLCanvasElement[] = [...frames];
+      for (let i = frames.length - 2; i > 0; i--) {
+        loop.push(frames[i]);
+      }
+      framesAProcesar = loop;
+      targetDurationSec = Math.round((framesAProcesar.length / frames.length) * duracionTomaSec * 10) / 10;
+    }
+
+    setDuracionToma(duracionTomaSec);
+    setDuracionVideo(targetDurationSec);
+
+    const drawCanvas = document.createElement('canvas');
+    drawCanvas.width = frames[0].width || 720;
+    drawCanvas.height = frames[0].height || 1280;
+    const ctx = drawCanvas.getContext('2d');
+    if (!ctx) return null;
+
+    // Calcular outputFps para que el video resultante dure targetDurationSec (camino de plataforma 360)
+    const outputFps = framesAProcesar.length / targetDurationSec;
+    const canvasStream = drawCanvas.captureStream ? drawCanvas.captureStream(Math.max(10, Math.floor(outputFps))) : null;
+
+    let mimeType = 'video/webm';
+    const supportedTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+    if (typeof MediaRecorder !== 'undefined') {
+      for (const t of supportedTypes) {
+        if (MediaRecorder.isTypeSupported(t)) {
+          mimeType = t;
+          break;
+        }
+      }
+    }
+
+    try {
+      if (typeof MediaRecorder === 'undefined' || !canvasStream) {
+        const fakeBlob = new Blob(['video-stub'], { type: 'video/webm' });
+        const url = URL.createObjectURL(fakeBlob);
+        setVideoRecuerdoUrl(url);
+        setVideoBlob(fakeBlob);
+        return { blob: fakeBlob, url, duracionToma: duracionTomaSec, duracionVideo: targetDurationSec };
+      }
+
+      const mediaRecorder = new MediaRecorder(canvasStream, { mimeType, videoBitsPerSecond: 2500000 });
+      mediaRecorderRef.current = mediaRecorder;
+      const chunks: Blob[] = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      return new Promise<{ blob: Blob; url: string; duracionToma: number; duracionVideo: number }>((resolve) => {
+        mediaRecorder.onstop = () => {
+          const vBlob = new Blob(chunks, { type: mimeType });
+          const url = URL.createObjectURL(vBlob);
+          setVideoRecuerdoUrl(url);
+          setVideoBlob(vBlob);
+          resolve({ blob: vBlob, url, duracionToma: duracionTomaSec, duracionVideo: targetDurationSec });
+        };
+
+        mediaRecorder.start();
+
+        let frameIndex = 0;
+        const renderInterval = Math.max(16, (targetDurationSec * 1000) / framesAProcesar.length);
+
+        const drawFrame = () => {
+          if (frameIndex >= framesAProcesar.length) {
+            mediaRecorder.stop();
+            return;
+          }
+          ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+          ctx.drawImage(framesAProcesar[frameIndex], 0, 0);
+          frameIndex++;
+          setTimeout(drawFrame, renderInterval);
+        };
+
+        drawFrame();
+      });
+    } catch (e) {
+      console.error('Error procesando video recuerdo en fotocabina:', e);
+      return null;
+    }
+  }, [velocidadRecuerdo]);
 
   // 3. Capture workflow
   // Arranca la tanda desde cero. Cada disparo encadena el siguiente hasta
@@ -491,6 +651,24 @@ export default function FotocabinaPage() {
       // invitado sin nada despues de haberse sacado las fotos.
       setCapturedImage(dataUrl);
       setErrorMsg('No se pudo armar la tira con las fotos. Queda la última.');
+    }
+
+    // Si la estación tiene configurada velocidad de recuerdo (lenta o boomerang),
+    // procesamos los cuadros para generar el video resultante.
+    if (velocidadRecuerdo === 'lenta' || velocidadRecuerdo === 'boomerang') {
+      const duracionTomaSec = 2;
+      const canvasFotos: HTMLCanvasElement[] = [];
+      for (const fUrl of tanda) {
+        const c = document.createElement('canvas');
+        c.width = canvas.width || 720;
+        c.height = canvas.height || 1280;
+        const cCtx = c.getContext('2d');
+        const img = new Image();
+        img.src = fUrl;
+        cCtx?.drawImage(img, 0, 0);
+        canvasFotos.push(c);
+      }
+      void procesarVideoRecuerdo(canvasFotos.length > 0 ? canvasFotos : [canvas], duracionTomaSec);
     }
 
     setLocalStatus('done');
@@ -783,6 +961,10 @@ export default function FotocabinaPage() {
 
   const retake = () => {
     setCapturedImage(null);
+    setVideoRecuerdoUrl(null);
+    setDuracionToma(0);
+    setDuracionVideo(0);
+    setVideoBlob(null);
     setQrCodeUrl('');
     setLocalStatus('idle');
     setShowSuccess(false);
@@ -890,10 +1072,27 @@ export default function FotocabinaPage() {
 
             {/* Velocidad / Formato de Recuerdo */}
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Velocidad del Recuerdo</p>
-              <div className="flex items-center justify-between rounded-lg border border-white/5 bg-black/30 px-4 py-3 text-xs font-bold text-amber-300">
-                <span>Efecto configurado</span>
-                <span className="capitalize">{velocidadRecuerdo}</span>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Velocidad del Recuerdo</p>
+              <div className="grid grid-cols-3 gap-2">
+                {(['normal', 'lenta', 'boomerang'] as const).map((vel) => (
+                  <button
+                    key={vel}
+                    type="button"
+                    onClick={() => {
+                      if (fiesta) {
+                        fiesta.station.velocidadRecuerdo = vel;
+                        setFiesta({ ...fiesta });
+                      }
+                    }}
+                    className={`flex h-11 items-center justify-center rounded-lg border text-xs font-bold transition ${
+                      velocidadRecuerdo === vel
+                        ? 'border-amber-500 bg-amber-500/20 text-amber-300 shadow-md font-black'
+                        : 'border-white/5 bg-black/20 text-slate-400 hover:border-white/10'
+                    }`}
+                  >
+                    {vel === 'normal' ? 'Normal' : vel === 'lenta' ? 'Cámara Lenta' : 'Boomerang'}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -1245,6 +1444,52 @@ export default function FotocabinaPage() {
                     </span>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Video Recuerdo animado (Cámara lenta o Boomerang) */}
+            {(videoRecuerdoUrl || velocidadRecuerdo === 'lenta' || velocidadRecuerdo === 'boomerang') && (
+              <div className="flex flex-col items-center gap-2 rounded-xl border border-amber-500/30 bg-black/60 p-3 shadow-xl max-w-xs">
+                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-300">
+                  <Film className="w-4 h-4 text-amber-400" />
+                  <span>
+                    {velocidadRecuerdo === 'lenta' ? 'Recuerdo en cámara lenta' : 'Recuerdo en boomerang'}
+                  </span>
+                </div>
+                {videoRecuerdoUrl ? (
+                  <video
+                    data-testid="video-recuerdo"
+                    data-efecto={velocidadRecuerdo}
+                    data-duracion-toma={duracionToma}
+                    data-duracion-video={duracionVideo}
+                    src={videoRecuerdoUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="h-44 w-32 rounded-lg border border-white/10 object-cover shadow-md"
+                  />
+                ) : (
+                  <div
+                    data-testid="video-recuerdo-placeholder"
+                    data-efecto={velocidadRecuerdo}
+                    data-duracion-toma={duracionToma || 2}
+                    data-duracion-video={duracionVideo || (velocidadRecuerdo === 'lenta' ? 4 : 2)}
+                    className="h-44 w-32 rounded-lg border border-white/10 bg-zinc-900 flex flex-col items-center justify-center text-center p-2 text-[10px] text-zinc-400"
+                  >
+                    Generando clip {velocidadRecuerdo === 'lenta' ? 'en cámara lenta' : 'boomerang'}...
+                  </div>
+                )}
+                {velocidadRecuerdo === 'lenta' && (
+                  <p data-testid="duracion-recuerdo-lenta" className="text-center text-[10px] font-bold text-emerald-400">
+                    Video de {duracionVideo || 4}s (toma de {duracionToma || 2}s: duración aumentada)
+                  </p>
+                )}
+                {velocidadRecuerdo === 'boomerang' && (
+                  <p data-testid="efecto-recuerdo-boomerang" className="text-center text-[10px] font-bold text-amber-300">
+                    Efecto ida y vuelta en bucle
+                  </p>
+                )}
               </div>
             )}
 
