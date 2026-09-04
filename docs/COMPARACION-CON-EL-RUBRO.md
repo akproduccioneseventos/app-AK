@@ -186,7 +186,7 @@ Compartir por WhatsApp :: usa: whatsappMensaje en src/app/invitacion/[fiestaId]/
 Varios disenos :: usa: XvModernaTemplate en src/components/invitacion/templates/index.ts
 Enlace propio para cada invitado :: usa: guestId en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
 Hoteles y como llegar de lejos :: NO SE COPIA
-Pedir canciones desde la invitacion :: FALTA
+Pedir canciones desde la invitacion :: usa: cancionesDJ en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
 ```
 
 ## Decoracion

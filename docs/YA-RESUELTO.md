@@ -6903,3 +6903,18 @@ terminado.
 usa: vaciadas en src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts
 prueba: src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts
 ```
+
+
+---
+
+## 4 de septiembre de 2026 — Falsa alarma: pedir canciones desde la invitacion YA estaba
+
+La lista del rubro daba por faltante *"pedir canciones desde la invitacion"*. **Ya estaba**: el
+invitado escribe la cancion al confirmar y se guarda en `cancionesDJ` para el DJ
+(`src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx`, el campo en la linea 151 y la
+casilla en pantalla en la 456). Se corrigio la linea del rubro. Si vuelve a aparecer como
+faltante, es falso positivo.
+
+```comprobar
+usa: cancionesDJ en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
+```
