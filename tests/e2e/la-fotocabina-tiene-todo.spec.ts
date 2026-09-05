@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, crearCookieDeSesion } from './helpers/fiesta-de-prueba';
+import { enchufarCamaraFalsa } from './helpers/camara-falsa';
 
 /**
  * Orden 39 Bloque 1 y 2: La fotocabina tiene todo.
@@ -32,6 +33,7 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
       { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
     ]);
 
+    await enchufarCamaraFalsa(page);
     await page.goto(`/evento/fotocabina/${fiestaId}`, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
@@ -76,7 +78,8 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
       ]);
 
       // Abrir en modo operador para verificar la configuración del efecto
-      await page.goto(`/evento/fotocabina/${fiestaLentaId}?role=operator`, { waitUntil: 'domcontentloaded' });
+      await enchufarCamaraFalsa(page);
+    await page.goto(`/evento/fotocabina/${fiestaLentaId}?role=operator`, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
       const botonLenta = page.locator('button', { hasText: 'Cámara Lenta' });
@@ -84,7 +87,8 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
       await expect(botonLenta).toHaveAttribute('class', /border-amber-500/);
 
       // Ir a la pantalla de la cabina y disparar la captura
-      await page.goto(`/evento/fotocabina/${fiestaLentaId}`, { waitUntil: 'domcontentloaded' });
+      await enchufarCamaraFalsa(page);
+    await page.goto(`/evento/fotocabina/${fiestaLentaId}`, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
       const botonPreparar = page.getByRole('button', { name: /Preparar foto/i });

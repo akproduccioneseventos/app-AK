@@ -43,8 +43,17 @@ export function responderDudaInvitado(
   const telLimpio = datos.telefonoOrganizador ? datos.telefonoOrganizador.replace(/[^0-9]/g, '') : '59898355530';
   const whatsappOrganizador = `https://wa.me/${telLimpio}`;
 
+  /**
+   * Ojo con esto: "hastA QUE HORA hay musica" contiene "a que hora", asi que caia en
+   * la rama del inicio y el invitado recibia la hora de arranque cuando preguntaba
+   * por el final. Se detecto el 5 de septiembre de 2026.
+   */
+  const preguntaPorElFinal =
+    p.includes('hasta') || p.includes('termina') || p.includes('final') || p.includes('cierra');
+
   // 1. Hora de inicio
-  if (p.includes('empieza') || p.includes('comienza') || p.includes('horario') || p.includes('a que hora') || p.includes('arranca')) {
+  if (!preguntaPorElFinal &&
+    (p.includes('empieza') || p.includes('comienza') || p.includes('horario') || p.includes('a que hora') || p.includes('arranca'))) {
     if (datos.horaInicio) {
       return {
         respuesta: `La fiesta empieza a las ${datos.horaInicio}. ¡Te esperamos!`,

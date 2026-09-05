@@ -114,9 +114,11 @@ test.describe('Orden 40 Bloque 2: El informe de la fiesta se arma solo', () => {
     await page.goto('/fiestas/nueva/post-evento?fiestaId=' + fiestaId, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
-    // Verifica que la interfaz post-evento está disponible
-    const titulo = page.getByRole('heading', { level: 1 });
-    await expect(titulo).toContainText(/Post-Evento/i);
+    // El h1 de la pantalla es la marca de la app -"AK Producciones"-, que esta en el
+    // encabezado de todas. Pedirle a ESE que diga "Post-Evento" no comprueba nada de
+    // esta pantalla: hay que buscar el titulo de la seccion, en cualquier nivel.
+    const titulo = page.getByRole('heading', { name: /post.?evento/i }).first();
+    await expect(titulo).toBeVisible({ timeout: 20_000 });
   });
 });
 
