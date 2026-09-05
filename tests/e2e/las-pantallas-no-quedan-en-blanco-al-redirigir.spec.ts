@@ -49,7 +49,7 @@ test.describe('Orden 44: Las pantallas no quedan en blanco al redirigir', () => 
     expect(erroresConsola.filter(e => e.includes('310') || e.includes('React error') || e.includes('Rendered'))).toEqual([]);
   });
 
-  test('al entrar por /prospectos, redirige a /login y muestra el formulario sin pantalla en blanco', async ({ page, context }) => {
+  test('al entrar por /prospectos se llega a una pantalla con titulo, sin quedar en blanco', async ({ page, context }) => {
     await context.clearCookies();
 
     const erroresConsola: string[] = [];
@@ -66,7 +66,10 @@ test.describe('Orden 44: Las pantallas no quedan en blanco al redirigir', () => 
     await page.goto('/prospectos', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
 
-    const heading = page.locator('h1, h2, [role="heading"]').first();
+    // El titulo de una pantalla no siempre es un <h1>: varias usan la tarjeta de la
+    // app, que dibuja un <div> con data-slot="card-title". Buscar solo h1 y h2 daba
+    // "pantalla sin titulo" en la de iniciar sesion, que tiene su titulo bien puesto.
+    const heading = page.locator('h1, h2, h3, [role="heading"], [data-slot="card-title"], [data-slot="alert-title"]').first();
     await expect(heading).toBeVisible({ timeout: 20_000 });
     expect(erroresConsola.filter(e => e.includes('310') || e.includes('React error') || e.includes('Rendered'))).toEqual([]);
   });
