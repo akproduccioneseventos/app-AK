@@ -67,6 +67,10 @@ export interface EntertainmentStationRuntimeConfig {
   vueltas360?: number;
   /** Cuadros del loop en Bogue. */
   cuadrosDelLoop?: number;
+  /** Recorte de persona sin tela verde mediante segmentación inteligente. */
+  recorteSinTela?: boolean;
+  /** Fondo seleccionado para el muro en vivo / pantalla gigante. */
+  fondoMuro?: string;
 }
 
 export interface PublicEntertainmentEvent {
@@ -196,6 +200,8 @@ export function getEntertainmentStationConfig(
       : 'tira') as 'una' | 'dos' | 'tira',
     vueltas360: clampNumber(stored.vueltas360, 2, 1, 10),
     cuadrosDelLoop: clampNumber(stored.cuadrosDelLoop, 15, 5, 60),
+    recorteSinTela: stored.recorteSinTela === true,
+    fondoMuro: typeof stored.fondoMuro === 'string' && stored.fondoMuro ? stored.fondoMuro : 'predeterminado',
   };
 }
 

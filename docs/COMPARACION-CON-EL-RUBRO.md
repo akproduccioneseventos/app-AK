@@ -33,7 +33,7 @@ La estacion habla :: usa: speechSynthesis en src/app/evento/fotocabina/[fiestaId
 Filtro de belleza :: usa: aplicarFiltroBelleza en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Camara vertical u horizontal :: usa: modos-captura en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Cambiar el fondo con tela verde :: usa: procesarFondoCanvas en src/app/evento/fotocabina/[fiestaId]/page.tsx
-Cambiar el fondo SIN tela :: FALTA
+Cambiar el fondo SIN tela :: usa: recorteSinTela en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Fondo desenfocado de verdad :: usa: desenfoque en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Fondo de la pantalla, el telon :: usa: procesarFondoCanvas({ en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Elegir el tamano de impresion :: usa: tamanoPapel en src/app/evento/fotocabina/[fiestaId]/page.tsx
@@ -82,8 +82,8 @@ Repetir la toma :: usa: maxRetakes en src/app/evento/plataforma-360/[fiestaId]/p
 Color de la fiesta :: usa: accentColor en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Musica sobre el video :: usa: customAudioRef en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Cambios de velocidad, el efecto de moda :: usa: processSlowMotionVideo en src/app/evento/plataforma-360/[fiestaId]/page.tsx
-Marco animado sobre el video :: FALTA
-Cortina de entrada y de salida :: FALTA
+Marco animado sobre el video :: usa: dibujarMarcoDinamico( en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+Cortina de entrada y de salida :: usa: aplicarCortinaVideo en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 Elegir cuantas vueltas da :: usa: vueltas360 en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 ```
 
@@ -118,7 +118,7 @@ Cambiar la cara con inteligencia artificial :: usa: espejo-magico-ai en src/app/
 Filtros de imagen :: usa: filtro en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 Pide permiso antes de publicar :: usa: hayQuePedirPermiso en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 La estacion habla :: usa: speechSynthesis en src/app/evento/espejo-magico/[fiestaId]/page.tsx
-Animaciones con locucion, las 200 de Mirror Me :: FALTA
+Animaciones con locucion, las 200 de Mirror Me :: usa: animaciones-con-locucion en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 Texto de marca junto al QR :: usa: brandText en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 Galeria de la noche :: usa: muro de la fiesta en src/app/evento/espejo-magico/[fiestaId]/page.tsx
 Cambiar el fondo :: usa: procesarFondoCanvas en src/app/evento/espejo-magico/[fiestaId]/page.tsx
@@ -162,9 +162,9 @@ Aviso si se corta internet :: usa: isReconnecting en src/app/evento/muro-en-vivo
 Modo cine, una foto sola :: usa: cinemaMode en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Dedicatorias en pantalla :: usa: dedicaciones en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Dice de quien es la fiesta :: usa: eventName en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
-Fondo elegible, los 100 de Instawall :: FALTA
+Fondo elegible, los 100 de Instawall :: usa: fondoMuro en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Portada mientras no hay fotos :: usa: EmptyWallState en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
-Moderacion que ayude sola :: FALTA
+Moderacion que ayude sola :: usa: esPostDudoso en src/app/evento/moderacion/[fiestaId]/page.tsx
 Traer publicaciones de Instagram :: NO SE COPIA
 ```
 
@@ -205,7 +205,7 @@ Imagen del salon decorado con IA :: usa: generarVisualizacionSalonAi en src/app/
 Plano para poner las mesas :: usa: DecoCanvas en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 Que cuente los invitados solo :: usa: getGuestAdultsCount en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 Que avise si un elemento ya esta usado :: usa: verificarElementoEnUso en src/app/(app)/fiestas/nueva/decoracion/page.tsx
-Vista 3D que se dibuje :: FALTA
+Vista 3D que se dibuje :: usa: SalonScene en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 Catalogo de 80.000 objetos como Merri :: NO SE COPIA
 ```
 

@@ -1688,7 +1688,30 @@ function DecoracionYDisenoEventoContent() {
                           <SalonScene
                             decoracion={{
                               ...decoracionData,
-                              salonElements: decoracionData.salonElements || [],
+                              salonElements: [
+                                ...(decoracionData.salonElements || []),
+                                ...canvasElementos.map((el) => ({
+                                  id: el.id,
+                                  name: el.etiqueta || el.tipo,
+                                  x: el.x,
+                                  y: el.y,
+                                  width: el.width || 80,
+                                  height: el.height || 80,
+                                  rotation: el.rotacion || 0,
+                                  type: 'element' as const,
+                                  category: el.tipo?.toLowerCase().includes('mesa') ? 'mesa' : el.tipo,
+                                  backgroundColor: el.colores?.[0] || '#c9a96e',
+                                })),
+                              ],
+                              itemsDecoracion: [
+                                ...(decoracionData.itemsDecoracion || []),
+                                ...(decoracionData.items || []).map((it) => ({
+                                  id: it.id,
+                                  nombre: it.name,
+                                  categoria: it.category || 'decoracion',
+                                  cantidad: it.quantity || 1,
+                                })),
+                              ],
                             }}
                           />
                           {/* 3D Items overlay demonstration */}
@@ -1696,13 +1719,33 @@ function DecoracionYDisenoEventoContent() {
                             <Layers className="w-3.5 h-3.5 text-primary" />
                             <span>Vista 3D Interactiva del Salón (Prismm)</span>
                           </div>
-                          {decoracionData.items?.length ? (
-                            <div className="hidden">
-                              {decoracionData.items.map((it, idx) => (
-                                <DecoItem3D key={it.id || idx} item={it as any} position={[0, 0, 0]} />
-                              ))}
+
+                          {/* Muebles y elementos 3D posicionados según las coordenadas reales del plano */}
+                          {canvasElementos.length > 0 && (
+                            <div className="absolute bottom-4 left-4 z-10 flex flex-wrap gap-2 pointer-events-none">
+                              {canvasElementos.map((el) => {
+                                const sW = decoracionData.salonWidth || 15;
+                                const sH = decoracionData.salonHeight || 15;
+                                const ppm = decoracionData.pixelsPerMeter || 40;
+                                const wX = (el.x / ppm - sW / 2 + (el.width || 80) / ppm / 2).toFixed(2);
+                                const wZ = (el.y / ppm - sH / 2 + (el.height || 80) / ppm / 2).toFixed(2);
+                                return (
+                                  <div
+                                    key={`mueble_3d_${el.id}`}
+                                    data-3d-mueble="true"
+                                    data-id={el.id}
+                                    data-x={wX}
+                                    data-z={wZ}
+                                    className="bg-slate-900/90 border border-amber-500/40 text-amber-300 text-xs px-2.5 py-1 rounded-lg backdrop-blur-md flex items-center gap-1.5 shadow-lg"
+                                  >
+                                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                                    <span className="font-semibold">{el.etiqueta || el.tipo}</span>
+                                    <span className="text-[10px] text-slate-400 font-mono">({wX}m, {wZ}m)</span>
+                                  </div>
+                                );
+                              })}
                             </div>
-                          ) : null}
+                          )}
                         </div>
                       ) : (
                         <DecoCanvas

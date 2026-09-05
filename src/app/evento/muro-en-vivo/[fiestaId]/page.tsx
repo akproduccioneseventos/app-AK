@@ -48,12 +48,52 @@ function isPostApprovedForScreen(post: SocialGalleryPost) {
 }
 
 
+const FONDOS_MURO: Record<string, { id: string; nombre: string; estilo: string; cssBackground: string }> = {
+  predeterminado: {
+    id: 'predeterminado',
+    nombre: 'Degradado Dinámico',
+    estilo: 'degradado',
+    cssBackground: 'linear-gradient(135deg, #020617, #0f172a 52%, #020617)',
+  },
+  'estrellas-vip': {
+    id: 'estrellas-vip',
+    nombre: 'Noche Estelar VIP',
+    estilo: 'estrellas',
+    cssBackground: 'radial-gradient(circle at 50% 50%, #1e1b4b 0%, #09090b 100%)',
+  },
+  'dorado-glamour': {
+    id: 'dorado-glamour',
+    nombre: 'Oro Glamour',
+    estilo: 'dorado',
+    cssBackground: 'radial-gradient(ellipse at bottom, #451a03 0%, #0c0a09 100%)',
+  },
+  'ondas-neon': {
+    id: 'ondas-neon',
+    nombre: 'Neón Fiesta',
+    estilo: 'neon',
+    cssBackground: 'linear-gradient(125deg, #2e026d 0%, #030712 60%, #172554 100%)',
+  },
+  'vintage-boda': {
+    id: 'vintage-boda',
+    nombre: 'Romántico Elegante',
+    estilo: 'vintage',
+    cssBackground: 'radial-gradient(circle at 20% 80%, #3f182c 0%, #09090b 80%)',
+  },
+  'dark-techno': {
+    id: 'dark-techno',
+    nombre: 'Black Minimal',
+    estilo: 'minimal',
+    cssBackground: '#02040a',
+  },
+};
+
 export default function MuroEnVivoPage() {
   const params = useParams();
   const fiestaId = params.fiestaId as string;
 
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [eventName, setEventName] = useState<string>('');
+  const [fondoMuro, setFondoMuro] = useState<string>('predeterminado');
   const [staticBranding, setStaticBranding] = useState<{
     companyInfo: any;
     templateSettings: any;
@@ -239,6 +279,8 @@ export default function MuroEnVivoPage() {
         if (fiestaData.socialGallerySettings?.mobileControlCoverUrl) {
           setCoverImageUrl(fiestaData.socialGallerySettings.mobileControlCoverUrl);
         }
+        const fMuro = (fiestaData as any)?.station?.fondoMuro || (fiestaData.socialGallerySettings as any)?.fondoMuro;
+        if (fMuro) setFondoMuro(fMuro);
       }
       if (fiestaData?.socialGallerySettings) {
         setSettings((prev) => ({ ...prev, ...fiestaData.socialGallerySettings }));
@@ -483,8 +525,16 @@ export default function MuroEnVivoPage() {
     ((activeGame !== null && activeScreenItem?.type !== 'juego') ||
     (activePoll !== null && settings.showPolls !== false && !activeGame));
 
+  const fondoConfig = FONDOS_MURO[fondoMuro] || FONDOS_MURO.predeterminado;
+
   return (
-    <div className="ak-live-stage fixed inset-0 flex select-none flex-col overflow-hidden bg-slate-950 text-white">
+    <div
+      className="ak-live-stage fixed inset-0 flex select-none flex-col overflow-hidden text-white"
+      data-fondo-muro={fondoMuro}
+      style={{
+        background: fondoConfig.cssBackground,
+      }}
+    >
 
       {/* Efecto destello cámara en pantalla completa al entrar foto nueva */}
       {showCameraFlash && <div className="ak-live-flash-overlay" />}
@@ -734,6 +784,7 @@ export default function MuroEnVivoPage() {
               posts={posts}
               eventName={eventName}
               fallbackQrUrl={`/evento/social/${fiestaId}`}
+              fondoMuro={fondoMuro}
             />
           )}
 
@@ -1321,11 +1372,13 @@ function AudioRhythmSlide({
   posts,
   eventName,
   fallbackQrUrl,
+  fondoMuro,
 }: {
   settings?: AudioRhythmSettings;
   posts: SocialGalleryPost[];
   eventName: string;
   fallbackQrUrl: string;
+  fondoMuro?: string;
 }) {
   const config = {
     enabled: settings?.enabled ?? true,
@@ -1391,12 +1444,15 @@ function AudioRhythmSlide({
 
   const intensity = Math.max(0.4, Math.min(1.6, config.intensity / 80));
   const barCount = config.visualStyle === 'equalizer' ? 54 : 36;
+  const fondoEstilo = fondoMuro && fondoMuro !== 'predeterminado' && FONDOS_MURO[fondoMuro]
+    ? FONDOS_MURO[fondoMuro].cssBackground
+    : `radial-gradient(circle at 18% 18%, ${config.accentColor}44, transparent 32%), radial-gradient(circle at 82% 16%, ${config.secondaryColor}44, transparent 28%), linear-gradient(135deg, #020617, #0f172a 52%, #020617)`;
 
   return (
     <div
       className="absolute inset-0 overflow-hidden bg-slate-950 text-white"
       style={{
-        background: `radial-gradient(circle at 18% 18%, ${config.accentColor}44, transparent 32%), radial-gradient(circle at 82% 16%, ${config.secondaryColor}44, transparent 28%), linear-gradient(135deg, #020617, #0f172a 52%, #020617)`,
+        background: fondoEstilo,
       }}
     >
       <div className="absolute inset-0 opacity-35" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)', backgroundSize: '54px 54px' }} />

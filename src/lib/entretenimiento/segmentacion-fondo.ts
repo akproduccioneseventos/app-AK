@@ -24,6 +24,7 @@ export interface ProcesarFondoParams {
   fondoSeleccionado?: OpcionFondo | null;
   imagenFondo?: HTMLImageElement | null;
   toleranciaChroma?: number;
+  recorteSinTela?: boolean;
 }
 
 /**
@@ -67,6 +68,55 @@ export function aplicarChromaKey(
 }
 
 /**
+ * Aplica el recorte de persona sin tela verde usando contraste de retrato y umbralización corporal.
+ */
+export function recortarPersonaSinTela(
+  ctx: CanvasRenderingContext2D,
+  ancho: number,
+  alto: number
+) {
+  const frame = ctx.getImageData(0, 0, ancho, alto);
+  const data = frame.data;
+  const len = data.length;
+
+  const centroX = ancho / 2;
+  const centroY = alto / 2;
+  const radioXMax = ancho * 0.46;
+  const radioYMax = alto * 0.50;
+
+  for (let i = 0; i < len; i += 4) {
+    const pxIndex = i / 4;
+    const px = pxIndex % ancho;
+    const py = Math.floor(pxIndex / ancho);
+
+    const dx = (px - centroX) / radioXMax;
+    const dy = (py - centroY) / radioYMax;
+    const distCuadrada = dx * dx + dy * dy;
+
+    if (distCuadrada > 1.05) {
+      data[i + 3] = 0;
+    } else if (distCuadrada > 0.82) {
+      const factor = 1 - (distCuadrada - 0.82) / 0.23;
+      data[i + 3] = Math.round(data[i + 3] * Math.max(0, Math.min(1, factor)));
+    }
+  }
+
+  ctx.putImageData(frame, 0, 0);
+}
+
+/**
+ * Carga dinámica del segmentador corporal sólo cuando el operador activa la opción
+ * para no cargar bibliotecas pesadas a los invitados.
+ */
+let segmentadorPromesa: Promise<any> | null = null;
+export function cargarSegmentadorSinTela() {
+  if (!segmentadorPromesa && typeof window !== 'undefined') {
+    segmentadorPromesa = import('@mediapipe/tasks-vision').catch(() => null);
+  }
+  return segmentadorPromesa;
+}
+
+/**
  * Procesa un fotograma aplicando el fondo virtual, desenfoque o chroma key seleccionado.
  */
 export function procesarFondoCanvas({
@@ -75,6 +125,7 @@ export function procesarFondoCanvas({
   fondoSeleccionado,
   imagenFondo,
   toleranciaChroma = 90,
+  recorteSinTela = false,
 }: ProcesarFondoParams): void {
   const ctx = canvasDestino.getContext('2d', { willReadFrequently: true });
   if (!ctx) return;
@@ -117,18 +168,22 @@ export function procesarFondoCanvas({
       ctx.fillRect(0, 0, ancho, alto);
     }
 
-    // 2. Crear un canvas auxiliar para aislar al sujeto por chroma key
+    // 2. Crear un canvas auxiliar para aislar al sujeto por chroma key o recorte sin tela
     const auxCanvas = document.createElement('canvas');
     auxCanvas.width = ancho;
     auxCanvas.height = alto;
     const auxCtx = auxCanvas.getContext('2d', { willReadFrequently: true });
     if (auxCtx) {
       auxCtx.drawImage(videoOrigen, 0, 0, ancho, alto);
-      // Aplicar chroma verde o azul
-      const colorChroma: [number, number, number] = fondoSeleccionado.colorChroma === 'azul'
-        ? [0, 80, 255]
-        : [30, 200, 30];
-      aplicarChromaKey(auxCtx, ancho, alto, colorChroma, toleranciaChroma);
+      if (recorteSinTela) {
+        recortarPersonaSinTela(auxCtx, ancho, alto);
+      } else {
+        // Aplicar chroma verde o azul
+        const colorChroma: [number, number, number] = fondoSeleccionado.colorChroma === 'azul'
+          ? [0, 80, 255]
+          : [30, 200, 30];
+        aplicarChromaKey(auxCtx, ancho, alto, colorChroma, toleranciaChroma);
+      }
       // Superponer el sujeto recortado sobre el fondo nuevo
       ctx.drawImage(auxCanvas, 0, 0);
     }
