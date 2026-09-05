@@ -7041,3 +7041,36 @@ con el archivo y la linea. **Un minuto de modo desarrollo evita una noche de bus
 archivo: tests/e2e/helpers/errores-que-no-son-de-la-app.ts
 usa: esErrorDelArmazonAlRedirigir en tests/e2e/recorrido-de-pantallas.spec.ts
 ```
+
+
+---
+
+## 5 de septiembre de 2026 — CORRECCION: la pantalla del invitado SI quedaba rota
+
+Unas horas antes, en este mismo archivo, se anoto que el error de React al redirigir era del
+armazon de Next y no rompia nada. **Era falso, y el error fue mio:** se midio en modo desarrollo,
+donde React se recupera solo. **En la app compilada de verdad, la pantalla del invitado mostraba
+"Application error"** — la pantalla rota que ve una persona, en el enlace que abre el invitado.
+
+**Lo cierto, medido con la app compilada:**
+
+| Como se entra | Que pasa |
+|---|---|
+| `/portal-invitado/<fiesta>/<invitado>` directo | anda perfecto |
+| `/invitado/<fiesta>/<invitado>`, que redirige a la anterior | **se rompe** |
+
+O sea: **la pantalla esta bien; lo que rompe es el redireccionamiento hecho desde la pantalla.**
+
+**El arreglo:** los redireccionamientos pasan a `next.config.js`, donde los hace el servidor y el
+navegador no tiene que cambiar de pantalla por su cuenta. Y se conserva la logica que tenian: el
+enlace viejo `/evento/actual?fiestaId=...` **sigue abriendo esa invitacion**, no la portada.
+
+**Que se hace distinto:** un error de React se mide **siempre en la app compilada**. En modo
+desarrollo se ve el nombre del componente, que sirve para ubicarlo, pero **no sirve para decidir
+si rompe o no**.
+
+```comprobar
+usa: /invitado/:fiestaId/:guestId en next.config.js
+usa: velocidadRecuerdo en src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts
+prueba: src/__tests__/la-vista-3d-pone-cada-mueble-en-su-lugar.test.ts
+```

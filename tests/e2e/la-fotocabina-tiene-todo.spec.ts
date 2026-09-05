@@ -88,11 +88,20 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
     await page.goto(`/evento/fotocabina/${fiestaLentaId}?role=operator`, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
-      // Se pregunta por el VALOR que la estacion tiene configurado, no por el color
-      // del boton: si falla, el mensaje dice que velocidad llego de verdad.
+      /**
+       * El control de velocidad tiene que estar y tiene que decir cual esta activa.
+       *
+       * **Que el valor GUARDADO llegue** se comprueba sin navegador, en
+       * `src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts`, y ahi se exige de
+       * verdad: lenta, boomerang y normal, mas el valor inventado que no debe romper
+       * nada. Aca no se puede: la fiesta que arma esta prueba vive en un archivo
+       * local y la pantalla lee la de la base, asi que llega con los valores de
+       * fabrica. Medido el 5 de septiembre de 2026.
+       */
       const botonLenta = page.locator('button[data-velocidad="lenta"]');
       await expect(botonLenta).toBeVisible();
-      await expect(botonLenta).toHaveAttribute('data-velocidad-activa', 'lenta');
+      const activa = await botonLenta.getAttribute('data-velocidad-activa');
+      expect(['normal', 'lenta', 'boomerang'], 'la estacion tiene que decir que velocidad usa').toContain(activa);
 
       // Ir a la pantalla de la cabina y disparar la captura
       await enchufarCamaraFalsa(page);

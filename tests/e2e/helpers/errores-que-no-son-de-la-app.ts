@@ -1,35 +1,25 @@
 /**
- * Errores que tira el ARMAZON de Next, no la app, y que no rompen ninguna pantalla.
+ * Errores que NO son de la app.
  *
- * **Medido el 5 de septiembre de 2026, con la app en modo desarrollo**, que es el
- * unico que dice de donde viene el error:
+ * **Correccion del 5 de septiembre de 2026.** Este archivo llego a decir que el
+ * error de React al redirigir era del armazon de Next y no rompia nada. **Era
+ * falso**: se habia medido en modo desarrollo, donde React se recupera. En la app
+ * compilada de verdad, la pantalla del invitado mostraba **"Application error"**,
+ * que es la pantalla rota que ve una persona.
  *
- *   Rendered more hooks than during the previous render
- *     at updateMemo (react-dom-client.development.js)
- *     at Router (next/dist/client/components/app-router.js:170)
+ * El arreglo de verdad fue hacer los redireccionamientos en la configuracion, para
+ * que el navegador no tenga que cambiar de pantalla por su cuenta.
  *
- * Aparece cuando una pantalla **redirige a otra** -`/invitado/...` al portal del
- * invitado, `/evento/actual` a la portada, `/prospectos` a iniciar sesion- y lo
- * tira el enrutador de Next mientras hace el cambio. **La pantalla de destino se
- * dibuja bien**: se comprobo que muestra su mensaje correcto y completo.
- *
- * Antes esto hacia que el recorrido acusara cuatro pantallas rotas que estaban
- * perfectas, y mando a buscar durante horas un defecto que no existia en el codigo
- * de la app.
- *
- * **Ojo: esto NO tapa errores de la app.** Un error de hooks en un componente
- * nuestro no dice "at Router (app-router)" y sigue frenando como antes.
+ * Queda la lista vacia a proposito: **hoy no hay ningun error que haya que
+ * perdonar**. Si algun dia hay que agregar uno, la regla es la de siempre: primero
+ * medirlo en la app COMPILADA, no en modo desarrollo.
  */
-const DEL_ARMAZON = [
-  /Rendered more hooks than during the previous render/i,
-  /Minified React error #310/i,
-];
+const DEL_ARMAZON: RegExp[] = [];
 
 export function esErrorDelArmazonAlRedirigir(mensaje: string): boolean {
   return DEL_ARMAZON.some((patron) => patron.test(mensaje));
 }
 
-/** Saca de la lista los errores que tira Next al redirigir. */
 export function soloErroresDeLaApp(errores: string[]): string[] {
   return errores.filter((e) => !esErrorDelArmazonAlRedirigir(e));
 }
