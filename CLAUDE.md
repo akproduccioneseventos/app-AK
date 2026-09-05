@@ -875,6 +875,7 @@ con otra cara.
 | Un recorte de fondo que dibujaba un óvalo en vez de mirar la imagen, y cortaba gente al medio | `src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts` |
 | Los muebles de la vista 3D dibujados todos en la posición cero | `src/__tests__/la-vista-3d-pone-cada-mueble-en-su-lugar.test.ts` |
 | Un ajuste del operador que no llegaba a la estación | `src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts` |
+| Un invitado marcado "Niño" importado como adulto: la comida salía mal | `src/__tests__/la-planilla-de-invitados-se-entiende.test.ts` |
 
 ### Cómo se elige el matafuego
 

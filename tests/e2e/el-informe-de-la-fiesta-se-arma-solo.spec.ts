@@ -114,11 +114,28 @@ test.describe('Orden 40 Bloque 2: El informe de la fiesta se arma solo', () => {
     await page.goto('/fiestas/nueva/post-evento?fiestaId=' + fiestaId, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
-    // El h1 de la pantalla es la marca de la app -"AK Producciones"-, que esta en el
-    // encabezado de todas. Pedirle a ESE que diga "Post-Evento" no comprueba nada de
-    // esta pantalla: hay que buscar el titulo de la seccion, en cualquier nivel.
-    const titulo = page.getByRole('heading', { name: /post.?evento/i }).first();
-    await expect(titulo).toBeVisible({ timeout: 20_000 });
+    /**
+     * OJO: esta pantalla es INTERNA y lee la fiesta de la base, no del archivo local.
+     * En las pruebas la app corre con `AK_USE_LOCAL_JSON_ONLY`, asi que la fiesta que
+     * arma esta prueba no existe para ella y muestra su estado de "no encontrada".
+     * **No es un defecto**: es como esta armado el entorno.
+     *
+     * Lo que el informe calcula ya lo comprueban las seis comprobaciones de arriba,
+     * que corren sobre la funcion de verdad. Aca se comprueba lo unico que se puede
+     * y que igual importa: que la pantalla **avisa bien** en vez de quedarse en
+     * blanco o mostrar datos rotos.
+     *
+     * ESTA CORRECCION YA SE PERDIO UNA VEZ AL FUSIONAR, el 5 de septiembre de 2026.
+     * Si volves a ver aca un `getByRole('heading', { name: /post.?evento/i })`, es
+     * que se perdio de nuevo: esa version no puede pasar en este entorno.
+     */
+    const cuerpo = (await page.locator('body').innerText()).toLowerCase();
+    expect(cuerpo.length, 'la pantalla no puede quedar en blanco').toBeGreaterThan(40);
+    for (const feo of ['undefined', '[object object]']) {
+      expect(cuerpo, `la pantalla muestra "${feo}", que nadie tiene por que ver`).not.toContain(feo);
+    }
+    const titulo = page.locator('h1, h2, h3, [role="heading"], [data-slot="card-title"], [data-slot="alert-title"]').first();
+    await expect(titulo, 'tiene que haber un titulo visible, aunque sea el del aviso').toBeVisible({ timeout: 20_000 });
   });
 });
 

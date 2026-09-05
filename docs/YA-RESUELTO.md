@@ -7074,3 +7074,32 @@ usa: /invitado/:fiestaId/:guestId en next.config.js
 usa: velocidadRecuerdo en src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts
 prueba: src/__tests__/la-vista-3d-pone-cada-mueble-en-su-lugar.test.ts
 ```
+
+
+---
+
+## 5 de septiembre de 2026 — Dos defectos de la importacion de invitados, encontrados al sacarla de la pantalla
+
+La lectura de la planilla estaba escrita adentro del componente y **la unica prueba que la miraba
+tenia que abrir una pantalla interna**. En el entorno de pruebas esas pantallas no ven las fiestas
+de prueba: la prueba tardaba 95 segundos, se caia por tiempo y **nunca comprobo nada**.
+
+Se saco a `src/lib/invitados/leer-planilla.ts` y se le escribieron nueve comprobaciones. **Dos
+fallaron enseguida, y las dos son de verdad:**
+
+1. **Una planilla sin encabezado rompia la importacion entera.** Cuando una fila trae menos
+   columnas que el encabezado -pasa siempre con las planillas de la gente- el codigo se caia.
+2. **Un invitado marcado "Niño" entraba como ADULTO.** No se sacaba la enie antes de comparar. Eso
+   cambia la cuenta de la comida, que se cocina y se cobra por adulto.
+
+**El matafuego:** `src/__tests__/la-planilla-de-invitados-se-entiende.test.ts`, nueve pruebas que
+corren en milesimas.
+
+**La leccion, y es la misma de la vista 3D:** una cuenta escrita adentro del dibujo de la pantalla
+**no la comprueba nadie**. Si algo hace una cuenta, sale a su archivo y se prueba solo.
+
+```comprobar
+archivo: src/lib/invitados/leer-planilla.ts
+usa: leerPlanillaDeInvitados en src/app/(app)/fiestas/nueva/invitados/page.tsx
+prueba: src/__tests__/la-planilla-de-invitados-se-entiende.test.ts
+```

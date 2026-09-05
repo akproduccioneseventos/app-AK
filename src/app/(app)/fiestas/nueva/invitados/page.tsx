@@ -45,6 +45,7 @@ import { Suspense } from 'react';
 import { RsvpStatusBadge } from '@/components/presupuestos/rsvp-status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
+import { leerPlanillaDeInvitados } from '@/lib/invitados/leer-planilla';
 
 const DIETARY_OPTIONS: DietaryRestriction[] = [
   'Ninguna', 'Celiaco', 'Vegetariano', 'Vegano', 'Sin Gluten', 'Sin Lactosa', 'Alergia Mariscos', 'Alergia Frutos Secos', 'Otro'
@@ -107,149 +108,11 @@ function InvitadosEventoContent() {
   } | null>(null);
 
   const procesarTextoPlanilla = (texto: string, listaActual: Invitado[]) => {
-    const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    if (lineas.length === 0) {
-      setPreviewPlanilla(null);
-      return;
-    }
-
-    // Detectar delimitador
-    const primera = lineas[0];
-    const delimitador = primera.includes(';') ? ';' : primera.includes('\t') ? '\t' : ',';
-
-    const parseLine = (line: string) => {
-      const parts: string[] = [];
-      let current = '';
-      let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        if (char === '"') {
-          inQuotes = !inQuotes;
-        } else if (char === delimitador && !inQuotes) {
-          parts.push(current.trim());
-          current = '';
-        } else {
-          current += char;
-        }
-      }
-      parts.push(current.trim());
-      return parts.map(p => p.replace(/^"|"$/g, '').trim());
-    };
-
-    const headerParts = parseLine(primera);
-    const normalizeHeader = (h: string) =>
-      h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-
-    let colNombre = -1;
-    let colCategoria = -1;
-    let colMesa = -1;
-    let colAcompanantes = -1;
-    let colRestriccion = -1;
-    let colContacto = -1;
-
-    headerParts.forEach((h, idx) => {
-      const norm = normalizeHeader(h);
-      if (norm.includes('nombre') || norm.includes('invitado') || norm === 'name' || norm.includes('persona')) {
-        colNombre = idx;
-      } else if (norm.includes('categoria') || norm.includes('tipo') || norm === 'category') {
-        colCategoria = idx;
-      } else if (norm.includes('mesa') || norm.includes('table')) {
-        colMesa = idx;
-      } else if (norm.includes('acompan') || norm.includes('companion')) {
-        colAcompanantes = idx;
-      } else if (norm.includes('restric') || norm.includes('dieta') || norm.includes('alergia') || norm.includes('dietary')) {
-        colRestriccion = idx;
-      } else if (norm.includes('contacto') || norm.includes('tel') || norm.includes('cel') || norm.includes('phone')) {
-        colContacto = idx;
-      }
-    });
-
-    let dataStartIndex = 0;
-    if (colNombre !== -1) {
-      dataStartIndex = 1;
-    } else {
-      colNombre = 0;
-      colMesa = 1;
-      colCategoria = 2;
-    }
-
-    const filas: Array<{
-      filaNum: number;
-      nombre: string;
-      categoria: CategoriaInvitado;
-      tableNumber?: string;
-      companionNames?: string[];
-      dietaryRestriction?: DietaryRestriction;
-      contacto?: string;
-      esRepetido?: boolean;
-      error?: string;
-    }> = [];
-
-    const filasSinNombre: number[] = [];
-    let repetidosCount = 0;
-    let validosCount = 0;
-    const nombresYaProcesados = new Set<string>();
-
-    for (let i = dataStartIndex; i < lineas.length; i++) {
-      const numFila = i + 1;
-      const cols = parseLine(lineas[i]);
-      const nombre = (cols[colNombre] || '').trim();
-      const rawCat = (colCategoria !== -1 ? cols[colCategoria] : '').toLowerCase();
-      const categoria: CategoriaInvitado = (rawCat.includes('nin') || rawCat.includes('adol') || rawCat.includes('chico'))
-        ? 'Niño/Adolescente'
-        : 'Adulto';
-      const mesa = colMesa !== -1 ? cols[colMesa] || undefined : undefined;
-      const rawAcomp = colAcompanantes !== -1 ? cols[colAcompanantes] || '' : '';
-      const companionNames = rawAcomp ? rawAcomp.split(/[,;/+]/).map(s => s.trim()).filter(Boolean) : undefined;
-      const rawDiet = (colRestriccion !== -1 ? cols[colRestriccion] || '' : '').toLowerCase();
-      let dietaryRestriction: DietaryRestriction = 'Ninguna';
-      if (rawDiet.includes('celiac')) dietaryRestriction = 'Celiaco';
-      else if (rawDiet.includes('vegano') || rawDiet.includes('vegana')) dietaryRestriction = 'Vegano';
-      else if (rawDiet.includes('vegetar')) dietaryRestriction = 'Vegetariano';
-      else if (rawDiet.includes('gluten')) dietaryRestriction = 'Sin Gluten';
-      else if (rawDiet.includes('lactos')) dietaryRestriction = 'Sin Lactosa';
-      else if (rawDiet.includes('marisc')) dietaryRestriction = 'Alergia Mariscos';
-      else if (rawDiet.includes('frutos')) dietaryRestriction = 'Alergia Frutos Secos';
-
-      const contacto = colContacto !== -1 ? cols[colContacto] || undefined : undefined;
-
-      let error: string | undefined = undefined;
-      if (!nombre) {
-        error = `Fila ${numFila}: falta el nombre del invitado.`;
-        filasSinNombre.push(numFila);
-      }
-
-      const nombreKey = nombre.toLowerCase();
-      const esRepetido = !!nombre && (
-        listaActual.some(inv => inv.nombre.toLowerCase() === nombreKey) ||
-        nombresYaProcesados.has(nombreKey)
-      );
-
-      if (nombre) {
-        nombresYaProcesados.add(nombreKey);
-        if (esRepetido) repetidosCount++;
-        validosCount++;
-      }
-
-      filas.push({
-        filaNum: numFila,
-        nombre,
-        categoria,
-        tableNumber: mesa,
-        companionNames,
-        dietaryRestriction,
-        contacto,
-        esRepetido,
-        error,
-      });
-    }
-
-    setPreviewPlanilla({
-      filas,
-      filasSinNombre,
-      repetidos: repetidosCount,
-      validos: validosCount,
-    });
+    // La lectura de la planilla vive en src/lib/invitados/leer-planilla.ts y tiene su
+    // propia prueba. Estaba escrita aca adentro y no la comprobaba nadie: la unica
+    // prueba que la miraba necesitaba abrir una pantalla interna, que en el entorno
+    // de pruebas no ve las fiestas de prueba, asi que nunca comprobo nada.
+    setPreviewPlanilla(leerPlanillaDeInvitados(texto, listaActual.map((i) => i.nombre)));
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
