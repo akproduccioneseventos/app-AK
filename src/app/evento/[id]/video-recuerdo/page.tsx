@@ -89,9 +89,20 @@ export default async function VideoRecuerdoPage({ params, searchParams }: Props)
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-white text-center space-y-4">
         <h1 className="text-3xl font-dancing_script">Recuerdos de {event.configuracion.nombreEvento}</h1>
         <p className="text-slate-400 max-w-sm">
-          Todavía se están procesando las fotos o no hay suficientes recuerdos aprobados para armar el video. 
-          ¡Volvé a entrar más tarde!
+          Todavía se están procesando las fotos, o no hay suficientes recuerdos aprobados
+          para armar el video. Volvé a entrar más tarde y va a estar listo.
         </p>
+        {/*
+          Una pantalla vacia SIN SALIDA es una pantalla perdida: el invitado llega,
+          lee que no hay nada y se va. Con el enlace a la galeria de la fiesta se
+          lleva algo igual, que es de lo que se trata.
+        */}
+        <a
+          href={`/evento/galeria/${fiestaId}`}
+          className="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3 text-base font-bold text-slate-950 transition hover:bg-slate-200"
+        >
+          Ver las fotos de la fiesta
+        </a>
       </div>
     );
   }
