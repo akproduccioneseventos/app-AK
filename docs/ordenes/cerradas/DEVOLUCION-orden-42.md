@@ -56,10 +56,25 @@ porque ese archivo es el que avisa cuando la maquetación se mueve sola.
 ## Cómo se comprueba
 
 ```comprobar
-usa: selfie_segmentation en src/lib/entretenimiento/segmentacion-fondo.ts
+usa: segmentForVideo en src/lib/entretenimiento/segmentacion-fondo.ts
 prueba: tests/e2e/la-fotocabina-tiene-todo.spec.ts
 ```
 
 Y la prueba tiene que mirar el resultado: **con la opción prendida y una imagen de prueba donde la
 persona NO está centrada, la persona sigue entera.** Una prueba con la persona en el medio daría
 verde con el óvalo puesto, que es exactamente lo que pasó.
+
+
+---
+
+## RESUELTO el 5 de septiembre de 2026 — lo hizo Claude
+
+El recorte sin tela ya esta hecho de verdad, con `@mediapipe/tasks-vision`: el modelo dice pixel
+por pixel que es persona y que es fondo. El motor y el modelo viven adentro de la app, se cargan
+solos y solo cuando el operador prende la opcion, y **no se paga ningun servicio por mes**.
+
+Si el modelo no cargo o el equipo no da, **no recorta**: se cae a la tela verde de siempre. Es
+preferible que el fondo no cambie unos segundos a que salga alguien cortado en la foto.
+
+El matafuego, probado devolviendole el ovalo a proposito:
+`src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts`.
