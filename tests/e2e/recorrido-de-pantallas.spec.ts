@@ -3,6 +3,7 @@ import path from 'node:path';
 import { test, expect } from '@playwright/test';
 import { getAllRoutes, crearCookieDeSesion, FIXTURE_IDS } from '../../scripts/helpers/route-inventory.mjs';
 import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta } from './helpers/fiesta-de-prueba';
+import { esErrorDelArmazonAlRedirigir } from './helpers/errores-que-no-son-de-la-app';
 
 const PROHIBITED_TECHNICAL_STRINGS = [
   'undefined',
@@ -155,7 +156,11 @@ test.describe('Recorrido de las 353 pantallas', () => {
     const procesarRuta = async (page: import('@playwright/test').Page, r: any, i: number) => {
       const startTime = Date.now();
       const pageErrors: string[] = [];
-      const errorListener = (err: Error) => pageErrors.push(err.message);
+      const errorListener = (err: Error) => {
+        // Los errores que tira el enrutador de Next al redirigir no son de la app y
+        // no rompen ninguna pantalla. El porque, medido, esta en el helper.
+        if (!esErrorDelArmazonAlRedirigir(err.message)) pageErrors.push(err.message);
+      };
       page.on('pageerror', errorListener);
 
       const shotFileName = `${String(i + 1).padStart(3, '0')}_${sanitizeFileName(r.routeTemplate)}.png`;

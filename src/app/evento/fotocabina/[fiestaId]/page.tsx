@@ -1100,6 +1100,8 @@ export default function FotocabinaPage() {
                         setFiesta({ ...fiesta });
                       }
                     }}
+                    data-velocidad={vel}
+                    data-velocidad-activa={velocidadRecuerdo}
                     className={`flex h-11 items-center justify-center rounded-lg border text-xs font-bold transition ${
                       velocidadRecuerdo === vel
                         ? 'border-amber-500 bg-amber-500/20 text-amber-300 shadow-md font-black'

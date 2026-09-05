@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect, type Page } from '@playwright/test';
 import { FIXTURE_IDS } from '../../scripts/helpers/route-inventory.mjs';
+import { soloErroresDeLaApp } from './helpers/errores-que-no-son-de-la-app';
 
 /**
  * Las que TODAVIA estan rotas, de `docs/pantallas-rotas-conocidas.json`.
@@ -65,7 +66,7 @@ async function abrir(page: Page, ruta: string) {
   });
   const respuesta = await page.goto(ruta, { waitUntil: 'networkidle' });
   const texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
-  return { errores, texto, estado: respuesta?.status() ?? 0, url: page.url() };
+  return { errores: soloErroresDeLaApp(errores), texto, estado: respuesta?.status() ?? 0, url: page.url() };
 }
 
 /** Lo que se le exige a cualquiera de estas pantallas. */

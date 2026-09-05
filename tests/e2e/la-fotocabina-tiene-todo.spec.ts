@@ -82,9 +82,11 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
     await page.goto(`/evento/fotocabina/${fiestaLentaId}?role=operator`, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
-      const botonLenta = page.locator('button', { hasText: 'Cámara Lenta' });
+      // Se pregunta por el VALOR que la estacion tiene configurado, no por el color
+      // del boton: si falla, el mensaje dice que velocidad llego de verdad.
+      const botonLenta = page.locator('button[data-velocidad="lenta"]');
       await expect(botonLenta).toBeVisible();
-      await expect(botonLenta).toHaveAttribute('class', /border-amber-500/);
+      await expect(botonLenta).toHaveAttribute('data-velocidad-activa', 'lenta');
 
       // Ir a la pantalla de la cabina y disparar la captura
       await enchufarCamaraFalsa(page);

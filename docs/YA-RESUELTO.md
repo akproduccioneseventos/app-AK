@@ -7007,3 +7007,37 @@ el ovalo a proposito: se pone en rojo en las dos pruebas.
 usa: segmentForVideo en src/lib/entretenimiento/segmentacion-fondo.ts
 prueba: src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts
 ```
+
+
+---
+
+## 5 de septiembre de 2026 — Falsa alarma grande: las pantallas que "quedaban en blanco" estaban bien
+
+Durante horas el recorrido acuso cuatro pantallas rotas con un error de React de los que dejan la
+pantalla vacia: la de la fiesta actual, el portal del invitado y las dos de prospectos. **Estaban
+bien las cuatro.**
+
+**Como se midio, y esto es lo que hay que repetir la proxima vez:** se levanto la app en modo
+desarrollo -el unico que dice DE DONDE viene el error- y se abrio la pantalla. El error sale del
+**enrutador de Next**, no de codigo nuestro:
+
+```
+Rendered more hooks than during the previous render
+  at Router (next/dist/client/components/app-router.js:170)
+```
+
+Lo tira el armazon mientras hace el cambio de una pantalla a otra, y **la pantalla de destino se
+dibuja completa y correcta**: se verifico que muestra su mensaje entero.
+
+**Que se hizo:** los controles ahora distinguen ese error del de la app
+(`tests/e2e/helpers/errores-que-no-son-de-la-app.ts`). **No tapa nada**: un error de hooks en un
+componente nuestro no dice "at Router" y sigue frenando igual.
+
+**La leccion, y ya paso tres veces este ano:** antes de buscar un defecto en el codigo, medir de
+donde viene el error. En produccion los errores de React vienen sin nombre; en desarrollo vienen
+con el archivo y la linea. **Un minuto de modo desarrollo evita una noche de busqueda.**
+
+```comprobar
+archivo: tests/e2e/helpers/errores-que-no-son-de-la-app.ts
+usa: esErrorDelArmazonAlRedirigir en tests/e2e/recorrido-de-pantallas.spec.ts
+```
