@@ -50,7 +50,7 @@ export function imprimirRecuerdo(
       ? `<div class="foto-una"><img src="${imagen}" alt="Recuerdo" /></div>`
       : disenoImpresion === 'dos'
       ? `<div class="foto-dos"><img src="${imagen}" alt="Recuerdo 1" /><img src="${imagen}" alt="Recuerdo 2" /></div>`
-      : `<div class="foto-tira"><img src="${imagen}" alt="Recuerdo" /></div>`;
+      : `<div class="foto-tira"><img src="${imagen}" alt="Recuerdo 1" /><img src="${imagen}" alt="Recuerdo 2" /><img src="${imagen}" alt="Recuerdo 3" /><img src="${imagen}" alt="Recuerdo 4" /></div>`;
 
     const paginasHtml = Array.from({ length: cantidadCopias })
       .map(() => `<div class="pagina" data-diseno="${disenoImpresion}">${fotosContenido}</div>`)
@@ -65,8 +65,8 @@ export function imprimirRecuerdo(
         `.foto-una img{width:100%;height:100%;object-fit:contain;display:block}` +
         `.foto-dos{width:100%;height:100%;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:space-around}` +
         `.foto-dos img{max-width:100%;max-height:48%;object-fit:contain;display:block}` +
-        `.foto-tira{width:100%;height:100%;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center}` +
-        `.foto-tira img{width:100%;height:100%;object-fit:contain;display:block}` +
+        `.foto-tira{width:100%;height:100%;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:space-between}` +
+        `.foto-tira img{max-width:100%;max-height:23%;object-fit:contain;display:block}` +
         `</style></head><body>${paginasHtml}</body></html>`,
     );
     ventana.document.close();
