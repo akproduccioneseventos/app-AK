@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, ArrowLeft, Heart, Sparkles, MessageSquare, CheckCircle2, Palette, Layers, Image as ImageIcon } from 'lucide-react';
+import { Loader2, ArrowLeft, Heart, Sparkles, MessageSquare, CheckCircle2, Palette, Layers, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { enviarOpinionDecoracion } from '@/app/actions/fiesta/decoracion.actions';
@@ -25,6 +25,8 @@ export default function ClientDecoracionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [comentario, setComentario] = useState('');
+  const [ideasPhotos, setIdeasPhotos] = useState<string[]>([]);
+  const [isSavingIdeas, setIsSavingIdeas] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -36,12 +38,36 @@ export default function ClientDecoracionPage() {
       if (data.decoracion?.opinionCliente?.comentario) {
         setComentario(data.decoracion.opinionCliente.comentario);
       }
+      if (data.decoracion?.fotosIdeasCliente) {
+        setIdeasPhotos(data.decoracion.fotosIdeasCliente);
+      }
     } catch {
       setLoadError(true);
     } finally {
       setIsLoading(false);
     }
   }, [fiestaId]);
+
+  const handleGuardarIdeas = async (nextPhotos: string[]) => {
+    setIsSavingIdeas(true);
+    try {
+      const { subirIdeasDecoracionCliente } = await import('@/app/actions/fiesta/portal.actions');
+      const res = await subirIdeasDecoracionCliente(fiestaId, nextPhotos);
+      if (res.success) {
+        setIdeasPhotos(nextPhotos);
+        toast({
+          title: 'Ideas guardadas',
+          description: 'El equipo de diseño ya puede ver tus fotos de referencia.',
+        });
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudieron guardar las fotos.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Error al conectar con el servidor.', variant: 'destructive' });
+    } finally {
+      setIsSavingIdeas(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -305,6 +331,75 @@ export default function ClientDecoracionPage() {
             </div>
           </section>
         )}
+
+        {/* Ideas y Fotos de Referencia del Cliente */}
+        <section className="space-y-4" data-testid="seccion-ideas-cliente">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+              Tus Fotos e Ideas de Referencia ({ideasPhotos.length}/6)
+            </h2>
+          </div>
+          <p className="text-xs text-slate-400">
+            Subí hasta 6 fotos de referencia (lo que viste en internet, tu vestido, colores, ambientaciones que te gusten) para que el equipo de diseño las tenga en cuenta.
+          </p>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            {ideasPhotos.map((url, idx) => (
+              <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-white/20 bg-slate-900 group">
+                <Image src={url} alt={`Idea ${idx + 1}`} fill className="object-cover" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = ideasPhotos.filter((_, i) => i !== idx);
+                    handleGuardarIdeas(next);
+                  }}
+                  className="absolute top-1 right-1 p-1 rounded-full bg-rose-600 text-white hover:bg-rose-700 opacity-80 group-hover:opacity-100 transition-opacity"
+                  title="Eliminar foto"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+
+            {ideasPhotos.length < 6 && (
+              <div className="flex flex-col items-center justify-center p-3 rounded-lg border border-dashed border-white/20 bg-slate-900/50 gap-2 min-h-[110px]">
+                <input
+                  type="file"
+                  id="file-ideas-decoracion"
+                  data-testid="input-ideas-decoracion"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                      const dataUrl = String(evt.target?.result || '');
+                      if (dataUrl) {
+                        const next = [...ideasPhotos, dataUrl].slice(0, 6);
+                        handleGuardarIdeas(next);
+                      }
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('file-ideas-decoracion')?.click()}
+                  disabled={isSavingIdeas}
+                  className="text-xs border-purple-500/40 text-purple-300 hover:bg-purple-950/50"
+                  data-testid="btn-subir-idea-decoracion"
+                >
+                  {isSavingIdeas ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : <Plus className="w-3 h-3 mr-1" />}
+                  Subir idea
+                </Button>
+              </div>
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );

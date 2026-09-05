@@ -2,7 +2,8 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings, ClientGuestCountChangeRequest } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings, ClientGuestCountChangeRequest, MensajePortalCliente } from '@/types/fiesta';
+export type { MensajePortalCliente };
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
@@ -1535,4 +1536,91 @@ export async function recuperarClavePortal(
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
   }
+}
+
+/**
+ * Permite al cliente enviar un mensaje al equipo desde su portal.
+ * Crea un aviso con createNotification para que el equipo se entere.
+ */
+export async function enviarMensajeCliente(
+  fiestaId: string,
+  texto: string,
+  autorNombre?: string
+): Promise<{ success: boolean; mensaje?: MensajePortalCliente; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  const limpio = String(texto ?? '').trim();
+  if (!limpio) {
+    return { success: false, error: 'El mensaje no puede estar vacío.' };
+  }
+
+  const nuevoMensaje: MensajePortalCliente = {
+    id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    autor: 'cliente',
+    remitenteNombre: (autorNombre?.trim()) || 'Cliente',
+    mensaje: limpio,
+    fecha: new Date().toISOString(),
+  };
+
+  const res = await updateFiestaData(fiestaId, data => ({
+    ...data,
+    mensajesCliente: [...(data.mensajesCliente || []), nuevoMensaje],
+  }));
+
+  if (res.success) {
+    await createNotification({
+      mensaje: `💬 Mensaje nuevo del cliente: "${limpio.slice(0, 50)}${limpio.length > 50 ? '...' : ''}"`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+      icono: 'MessageSquare',
+    });
+    return { success: true, mensaje: nuevoMensaje };
+  }
+  return res;
+}
+
+/**
+ * Devuelve el hilo de mensajes entre el cliente y el equipo para este evento.
+ */
+export async function getMensajesCliente(
+  fiestaId: string
+): Promise<{ success: boolean; mensajes?: MensajePortalCliente[]; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  const fiesta = await getFiestaById(fiestaId);
+  return { success: true, mensajes: fiesta?.mensajesCliente || [] };
+}
+
+/**
+ * Guarda las fotos de referencia o ideas de decoración que sube el cliente (hasta 6),
+ * y avisa al equipo con createNotification.
+ */
+export async function subirIdeasDecoracionCliente(
+  fiestaId: string,
+  fotos: string[]
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  const fotosValidas = (fotos || []).slice(0, 6);
+  const res = await updateFiestaData(fiestaId, data => {
+    const deco = data.decoracion || {};
+    return {
+      ...data,
+      decoracion: {
+        ...deco,
+        fotosIdeasCliente: fotosValidas,
+      },
+    };
+  });
+
+  if (res.success) {
+    await createNotification({
+      mensaje: `🎨 El cliente subió ${fotosValidas.length} foto(s) de ideas para la decoración.`,
+      href: `/fiestas/nueva/decoracion?fiestaId=${fiestaId}`,
+      icono: 'Palette',
+    });
+  }
+  return res;
 }

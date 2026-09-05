@@ -174,6 +174,21 @@ const nextConfig = {
         destination: '/settings/backup-final',
         permanent: true,
       },
+      {
+        source: '/evento/actual',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/prospectos',
+        destination: '/login?redirect=%2Fcontabilidad%2Fcrm',
+        permanent: false,
+      },
+      {
+        source: '/invitado/:fiestaId/:guestId',
+        destination: '/portal-invitado/:fiestaId/:guestId',
+        permanent: false,
+      },
     ];
   },
   async rewrites() {

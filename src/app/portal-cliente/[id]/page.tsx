@@ -676,12 +676,13 @@ export default function PortalClientePage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-20px' }}
           transition={{ duration: DURACION.entrar, ease: SUAVE }}
-          className="grid grid-cols-2 sm:grid-cols-6 gap-3"
         >
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
           {[
+            { label: 'Mensajes', emoji: '💬', href: `/portal-cliente/${fiestaId}/mensajes`, desc: 'Escribile al equipo' },
             { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
             { label: 'Música', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica`, desc: 'Tu lista de canciones' },
-            { label: 'Muro Social', emoji: '💬', href: `/portal-cliente/${fiestaId}/muro-social`, desc: 'Red social del evento' },
+            { label: 'Muro Social', emoji: '📱', href: `/portal-cliente/${fiestaId}/muro-social`, desc: 'Red social del evento' },
             { label: 'Fotos & Video', emoji: '📸', href: `/portal-cliente/${fiestaId}/fotos-video`, desc: 'Archivos y entregables' },
             { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Confirmaciones' },
             { label: 'Preguntas Frecuentes', emoji: '❓', href: `/portal-cliente/${fiestaId}/faq`, desc: 'Dudas & Consultas' },
@@ -694,6 +695,7 @@ export default function PortalClientePage() {
               </div>
             </Link>
           ))}
+          </div>
         </motion.div>
         )}
 

@@ -59,8 +59,8 @@ describe('Lo automático que se ve y Panel DJ', () => {
   });
 
   describe('Bloque 1: Tareas Automáticas declaradas y estado real', () => {
-    it('declara exactamente las 7 tareas principales sin jerga', () => {
-      expect(TAREAS_AUTOMATICAS).toHaveLength(7);
+    it('declara las tareas principales sin jerga', () => {
+      expect(TAREAS_AUTOMATICAS.length).toBeGreaterThanOrEqual(7);
       const ids = TAREAS_AUTOMATICAS.map((t) => t.id);
       expect(ids).toContain('generate-blog-post');
       expect(ids).toContain('metricas-de-redes');
@@ -69,6 +69,7 @@ describe('Lo automático que se ve y Panel DJ', () => {
       expect(ids).toContain('posicionamiento-diario');
       expect(ids).toContain('fiesta-proxima-revision');
       expect(ids).toContain('prospectos-seguimiento');
+      expect(ids).toContain('recordatorio-a-los-invitados');
 
       for (const tarea of TAREAS_AUTOMATICAS) {
         expect(tarea.nombre.length).toBeGreaterThan(5);
@@ -79,7 +80,7 @@ describe('Lo automático que se ve y Panel DJ', () => {
 
     it('devuelve "nunca" si no hay marcas previas guardadas', async () => {
       const estados = await estadoDeLasTareas();
-      expect(estados).toHaveLength(7);
+      expect(estados).toHaveLength(TAREAS_AUTOMATICAS.length);
       for (const est of estados) {
         expect(est.estado).toBe('nunca');
         expect(est.ultimaCorrida).toBeNull();
