@@ -51,11 +51,15 @@ test.describe('Orden 43: El cliente le escribe al equipo', () => {
     await btnEnviar.click();
 
     // Comprobación 1: Se visualiza en el hilo tras enviarlo
-    await expect(page.getByText(textoMensaje)).toBeVisible({ timeout: 10_000 });
+    const thread = page.locator('[data-testid="mensajes-thread"]');
+    await expect(thread).toBeVisible({ timeout: 10_000 });
+    await expect(thread).toContainText(textoMensaje);
 
     // Comprobación 2: Al recargar la pantalla, el mensaje sigue visible en el hilo
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: /Mensajes con el Equipo/i })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(textoMensaje)).toBeVisible({ timeout: 10_000 });
+    const threadRecargado = page.locator('[data-testid="mensajes-thread"]');
+    await expect(threadRecargado).toBeVisible({ timeout: 10_000 });
+    await expect(threadRecargado).toContainText(textoMensaje);
   });
 });
