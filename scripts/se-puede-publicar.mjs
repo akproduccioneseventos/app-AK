@@ -68,6 +68,12 @@ const PASOS = [
     queSignifica: 'La app compila pero no funciona: alguna pantalla no hace lo que dice. Es el único control que ve lo que ve el usuario.',
     caro: true,
   },
+  {
+    nombre: 'Recorrido de todas las pantallas',
+    comando: 'npm run recorrido',
+    queSignifica: 'Alguna de las pantallas del sistema falló al abrirse o renderizarse en producción.',
+    caro: true,
+  },
 ];
 
 /**
@@ -143,8 +149,57 @@ function correr(comando) {
 }
 
 /** Las últimas líneas que sirven para entender qué falló, sin volcar miles. */
+/**
+ * Lo que se muestra cuando un paso falla.
+ *
+ * **ANTES MOSTRABA LAS ULTIMAS 12 LINEAS, Y ESO COSTO OCHO HORAS EL 3 DE
+ * SEPTIEMBRE DE 2026.** Las pruebas de navegador corren TODAS y encuentran
+ * TODAS las fallas, pero las ultimas 12 lineas son el rastro de UNA SOLA. Asi
+ * que se arreglaba una, se corrian 45 minutos de vuelta, y aparecia la
+ * siguiente. Cuatro veces seguidas.
+ *
+ * Ahora, cuando la salida trae varias fallas, **se listan todas juntas** y
+ * recien despues el detalle de la ultima. Se arreglan de una sola vez.
+ */
 function pistas(salida) {
-  return salida.trim().split('\n').filter((l) => l.trim()).slice(-12).join('\n');
+  const lineas = salida.trim().split('\n').filter((l) => l.trim());
+  const fallas = lineas.filter(
+    // Jest marca la falla con el circulo Y el nombre de la prueba. El compilador
+    // tambien imprime circulos -"(SSG) prerendered as static HTML"-, asi que se
+    // pide que despues del circulo venga algo con forma de prueba.
+    (l) => /^\s*\d+\)\s+\S+\.spec\.ts/.test(l) || /^\s*\u25cf\s+\S.*\s\u203a\s/.test(l),
+  );
+  /**
+   * Lo que imprime el corredor de navegador por su cuenta, y que hay que mostrar
+   * SIEMPRE. Sin esto la puerta decia "una pantalla tiro un error de React" y no
+   * decia CUAL: para saberlo habia que volver a correr 45 minutos. Paso el 4 de
+   * septiembre de 2026, despues de que el mismo agujero costara ocho horas.
+   */
+  const delCorredor = lineas.filter(
+    (l) => /^\s*\u2715\s/.test(l) || /^\s{2,}\S+\s+->\s/.test(l) || /DONDE SE VA EL TIEMPO/.test(l),
+  );
+  // Las rutas que fallaron, que es el dato que uno busca cuando una pantalla se rompe.
+  const rutas = [...new Set(
+    lineas.flatMap((l) => [...l.matchAll(/(\/[a-z0-9\[\]_-]+(?:\/[a-z0-9\[\]_.-]+)*)\s+(?:tir|no |qued)/gi)].map((m) => m[1])),
+  )];
+
+  const extra = [];
+  if (rutas.length > 0) extra.push('', 'PANTALLAS QUE FALLARON:', ...rutas.map((r) => '  ' + r));
+  if (delCorredor.length > 0) extra.push('', ...delCorredor.map((l) => l.replace(/\s+$/, '')));
+
+  if (fallas.length === 0) {
+    return [...lineas.slice(-14), ...extra].join('\n');
+  }
+  const listadas = [...new Set(fallas.map((l) => l.trim()))];
+  return [
+    listadas.length + ' prueba(s) fallaron. SON TODAS: arreglalas juntas.',
+    '',
+    ...listadas,
+    ...extra,
+    '',
+    '--- detalle de la ultima ---',
+    ...lineas.slice(-12),
+  ].join('\n');
 }
 
 const soloRapidos = process.argv.includes('--rapido');
@@ -202,7 +257,19 @@ async function mostrarMetricasAuditadas() {
     const { calcularMetricasAuditadas } = await import('./actualizar-auditado.mjs');
     const metricas = calcularMetricasAuditadas();
     console.log(`  Auditadas de verdad: ${metricas.totalAuditadasNivel4Mas} de ${metricas.totalPantallas} pantallas (${metricas.porcentaje}%).`);
-    console.log(`  Módulos auditados con el método completo: ${metricas.modulosCompletos} de ${metricas.totalModulos}.\n`);
+    console.log(`  Módulos auditados con el método completo: ${metricas.modulosCompletos} de ${metricas.totalModulos}.`);
+  } catch {}
+
+  try {
+    const { verificarConexionesNode } = await import('./conexiones-estado.mjs');
+    const con = verificarConexionesNode();
+    console.log(`  ${con.resumenTexto}`);
+  } catch {}
+
+  try {
+    const { verificarEsteticaNode } = await import('./control-estetica.mjs');
+    const est = verificarEsteticaNode();
+    console.log(`  ${est.resumenTexto}\n`);
   } catch {}
 }
 

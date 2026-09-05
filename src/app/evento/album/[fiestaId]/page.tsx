@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -9,6 +9,9 @@ import {
   Heart,
   Loader2,
   Play,
+  Pause,
+  Volume2,
+  VolumeX,
   ChevronLeft,
   ChevronRight,
   X,
@@ -16,10 +19,13 @@ import {
   Sparkles,
   Calendar,
   Check,
+  BookOpen,
+  LayoutGrid,
   PartyPopper,
   ExternalLink,
   Star,
   MessageCircle,
+  Music,
 } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
 import { getDedications } from '@/app/actions/social-interactive';
@@ -29,7 +35,10 @@ import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
+import { armarAlbumInteligente, type AlbumDigitalCompleto, type RecuerdoAlbum } from '@/lib/album/armar-album';
+import { agruparEnPersonas } from '@/lib/caras/agrupar-caras';
 
+type ViewMode = 'libro' | 'cuadricula';
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
 
 function isVideo(url: string = ''): boolean {
@@ -46,10 +55,45 @@ export default function PublicAlbumPage() {
   const [dedications, setDedications] = useState<Dedication[]>([]);
   const [enlaceResena, setEnlaceResena] = useState<string>('');
   const [activeTab, setActiveTab] = useState<FilterTab>('todas');
+  const [viewMode, setViewMode] = useState<ViewMode>('libro');
+  const [paginaActual, setPaginaActual] = useState<number>(0); // 0 = Portada, 1..N = Páginas
+  const [audioReproduciendo, setAudioReproduciendo] = useState<string | null>(null);
+  const [musicaActiva, setMusicaActiva] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const cancionFiesta =
+    fiesta?.cancionUrl ||
+    fiesta?.socialGallerySettings?.cancionUrl ||
+    fiesta?.socialGallerySettings?.musicaFondoUrl;
+
+  const toggleMusica = useCallback(() => {
+    if (!audioRef.current) return;
+    if (musicaActiva) {
+      audioRef.current.pause();
+      setMusicaActiva(false);
+    } else {
+      audioRef.current.play()
+        .then(() => setMusicaActiva(true))
+        .catch((err) => {
+          console.error('Error al reproducir música del álbum:', err);
+        });
+    }
+  }, [musicaActiva]);
+
+  useEffect(() => {
+    const elementoAudio = audioRef.current;
+    return () => {
+      if (elementoAudio) {
+        elementoAudio.pause();
+      }
+    };
+  }, []);
+
+
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [copied, setCopied] = useState(false);
-
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -77,6 +121,23 @@ export default function PublicAlbumPage() {
     loadPosts();
   }, [loadPosts]);
 
+  // Armar álbum digital con selección inteligente
+  const albumDigital: AlbumDigitalCompleto = useMemo(() => {
+    return armarAlbumInteligente({
+      posts,
+      dedicatorias: dedications,
+      fiesta: fiesta as any,
+      maxRecuerdos: 40,
+    });
+  }, [posts, dedications, fiesta]);
+
+  // Grilla de caras en el álbum (Orden 36 y 39)
+  const personasCaras = useMemo(() => {
+    const carasDisponibles = (fiesta as any)?.carasIndexadas || [];
+    if (!carasDisponibles.length) return [];
+    return agruparEnPersonas(carasDisponibles);
+  }, [fiesta]);
+
   const handleShare = async () => {
     const url = typeof window !== 'undefined' ? window.location.href : '';
     const title = fiesta?.configuracion?.nombreEvento || 'Álbum del Evento';
@@ -86,9 +147,7 @@ export default function PublicAlbumPage() {
       try {
         await navigator.share({ title, text, url });
         return;
-      } catch {
-        // Fallback to clipboard
-      }
+      } catch {}
     }
 
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -99,6 +158,63 @@ export default function PublicAlbumPage() {
         description: 'Ya podés pegarlo en WhatsApp para compartirlo con tu familia y amigos.',
       });
       setTimeout(() => setCopied(false), 3000);
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    if (isDownloadingAll) return;
+    setIsDownloadingAll(true);
+    try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      const folder = zip.folder(`recuerdos-${fiestaId}`);
+
+      folder?.file(
+        'info-evento.txt',
+        `Evento: ${nombreFiesta}\nFecha: ${fechaFiesta}\nTotal de recuerdos: ${posts.length}\nGenerado por AK Producciones`
+      );
+
+      let count = 0;
+      for (let i = 0; i < posts.length; i++) {
+        const post = posts[i];
+        if (post.imageUrl) {
+          try {
+            const res = await fetch(post.imageUrl);
+            if (res.ok) {
+              const buffer = await res.arrayBuffer();
+              const ext = post.imageUrl.toLowerCase().includes('.png') ? 'png' : 'jpg';
+              folder?.file(`recuerdo_${i + 1}_${post.sourceModule || 'foto'}.${ext}`, buffer);
+              count++;
+            }
+          } catch {
+            // Ignorar errores individuales para no cortar el paquete
+          }
+        }
+      }
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const downloadUrl = URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `recuerdos-${fiestaId}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(downloadUrl);
+
+      toast({
+        title: '¡Descarga iniciada!',
+        description: `Se empaquetaron ${count > 0 ? count : posts.length} recuerdos en un archivo ZIP.`,
+      });
+    } catch (e) {
+      console.error('Error al descargar recuerdos:', e);
+      toast({
+        title: 'No se pudo descargar',
+        description: 'Ocurrió un error al empaquetar las fotos.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDownloadingAll(false);
     }
   };
 
@@ -127,14 +243,22 @@ export default function PublicAlbumPage() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (lightboxIndex === null) return;
-      if (e.key === 'ArrowRight') showNext();
-      if (e.key === 'ArrowLeft') showPrev();
-      if (e.key === 'Escape') setLightboxIndex(null);
+      if (lightboxIndex !== null) {
+        if (e.key === 'ArrowRight') showNext();
+        if (e.key === 'ArrowLeft') showPrev();
+        if (e.key === 'Escape') setLightboxIndex(null);
+      } else if (viewMode === 'libro') {
+        if (e.key === 'ArrowRight' && paginaActual < albumDigital.totalPaginas) {
+          setPaginaActual((p) => p + 1);
+        }
+        if (e.key === 'ArrowLeft' && paginaActual > 0) {
+          setPaginaActual((p) => p - 1);
+        }
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxIndex, showNext, showPrev]);
+  }, [lightboxIndex, showNext, showPrev, viewMode, paginaActual, albumDigital.totalPaginas]);
 
   const nombreFiesta = fiesta?.configuracion?.nombreEvento || 'Álbum del Evento';
   const fechaFiesta = fiesta?.configuracion?.fechaEvento
@@ -145,10 +269,12 @@ export default function PublicAlbumPage() {
       })
     : '';
 
+  const paginaItems = paginaActual > 0 ? albumDigital.paginas[paginaActual - 1]?.recuerdos || [] : [];
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white selection:bg-amber-500 selection:text-zinc-950">
       {/* Top Bar / Header */}
-      <header className="relative border-b border-white/10 bg-zinc-950/80 backdrop-blur-md pt-8 pb-10 px-4 sm:px-6">
+      <header className="relative border-b border-white/10 bg-zinc-950/80 backdrop-blur-md pt-8 pb-8 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col items-center text-center space-y-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" />
@@ -166,246 +292,407 @@ export default function PublicAlbumPage() {
             </p>
           )}
 
-          <div className="pt-2 flex items-center justify-center gap-3">
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <div className="inline-flex rounded-full bg-zinc-900 p-1 border border-white/10">
+              <button
+                onClick={() => setViewMode('libro')}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  viewMode === 'libro'
+                    ? 'bg-amber-400 text-zinc-950 shadow-md'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                Libro de Recuerdos
+              </button>
+              <button
+                onClick={() => setViewMode('cuadricula')}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                  viewMode === 'cuadricula'
+                    ? 'bg-amber-400 text-zinc-950 shadow-md'
+                    : 'text-zinc-400 hover:text-white'
+                }`}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                Galería Completa
+              </button>
+            </div>
+
             <button
               onClick={handleShare}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-zinc-950 font-bold text-sm hover:bg-zinc-200 transition-all shadow-lg hover:shadow-white/10 active:scale-95"
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white text-zinc-950 font-bold text-xs hover:bg-zinc-200 transition-all shadow-lg active:scale-95"
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-600" />
-                  ¡Enlace copiado!
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  ¡Copiado!
                 </>
               ) : (
                 <>
-                  <Share2 className="w-4 h-4" />
+                  <Share2 className="w-3.5 h-3.5" />
                   Compartir álbum
                 </>
               )}
             </button>
+
+            <button
+              onClick={handleDownloadAll}
+              disabled={isDownloadingAll}
+              aria-label="Descargar todo el álbum"
+              data-testid="boton-descargar-album"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-white/10 text-white font-bold text-xs hover:bg-zinc-800 transition-all shadow-md active:scale-95 disabled:opacity-50"
+            >
+              {isDownloadingAll ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                  <span>Descargando...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Descargar todo</span>
+                </>
+              )}
+            </button>
+
+            {/* Música de fondo del álbum: solo aparece si la fiesta tiene canción cargada */}
+            {cancionFiesta && (
+              <button
+                onClick={toggleMusica}
+                aria-label={musicaActiva ? 'Silenciar música' : 'Activar música de fondo'}
+                data-testid="boton-musica-album"
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-xs transition-all shadow-md active:scale-95 border ${
+                  musicaActiva
+                    ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                    : 'bg-zinc-900 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800'
+                }`}
+              >
+                {musicaActiva ? (
+                  <>
+                    <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                    <span>Música sonando</span>
+                  </>
+                ) : (
+                  <>
+                    <VolumeX className="w-3.5 h-3.5 text-zinc-400" />
+                    <span>Música de fondo</span>
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Filter Tabs */}
-      {(posts.length > 0 || dedications.length > 0) && (
-        <div className="sticky top-0 z-20 bg-zinc-950/90 backdrop-blur-md border-b border-white/5 py-3 px-4">
-          <div className="max-w-6xl mx-auto flex gap-2 overflow-x-auto hide-scrollbar justify-center sm:justify-start">
-            {[
-              { id: 'todas', label: `Todas (${posts.length})` },
-              { id: 'fotocabina', label: '📸 Fotocabina' },
-              { id: '360', label: '🌐 360°' },
-              { id: 'espejo', label: '✨ Espejo' },
-              { id: 'bogue', label: '⚡ Boomerang' },
-              { id: 'buzon', label: '🎙️ Buzón' },
-              { id: 'invitados', label: '📱 Invitados' },
-              { id: 'mensajes', label: `💌 Mensajes (${dedications.length})` },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as FilterTab)}
-                className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                  activeTab === tab.id
-                    ? 'bg-amber-400 text-zinc-950 border-amber-400'
-                    : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-200'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Gallery Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {activeTab === 'mensajes' ? (
-          dedications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center px-4">
-              <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-amber-400">
-                <MessageCircle className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Aún no hay dedicatorias</h3>
-              <p className="text-sm text-zinc-400 max-w-md">
-                Los mensajes y saludos grabados por los invitados aparecerán acá junto a las fotos.
-              </p>
-            </div>
-          ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {dedications.map((ded) => (
-                <div
-                  key={ded.id}
-                  className="p-6 rounded-2xl bg-zinc-900/70 border border-white/10 space-y-3 shadow-lg"
-                >
-                  <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
-                    💌 Dedicatoria
-                  </span>
-                  <p className="text-lg font-medium text-white/90 leading-relaxed italic">
-                    "{ded.message}"
-                  </p>
-                  <p className="text-xs font-bold text-zinc-400 tracking-wider uppercase">
-                    — {ded.authorName || 'Invitado'}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )
-        ) : isLoading && posts.length === 0 ? (
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        {isLoading && posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center text-zinc-500">
             <Loader2 className="w-10 h-10 animate-spin text-amber-400 mb-4" />
-            <p className="text-sm font-medium">Abriendo el álbum de fotos...</p>
+            <p className="text-sm font-medium">Cargando los recuerdos de la fiesta...</p>
           </div>
         ) : hasError && posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center text-zinc-500">
             <p className="text-lg font-bold text-red-400">No se pudieron cargar los recuerdos.</p>
-            <p className="text-sm mt-1">Por favor verificá tu conexión a internet.</p>
-            <button
-              onClick={loadPosts}
-              className="mt-6 px-6 py-2 bg-white text-zinc-950 rounded-full text-sm font-bold hover:bg-zinc-200 transition"
-            >
-              Reintentar
-            </button>
           </div>
-        ) : filteredPosts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center px-4">
-            <div className="h-16 w-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-amber-400">
-              <Camera className="w-8 h-8" />
+        ) : viewMode === 'libro' ? (
+          /* MODO LIBRO INTERACTIVO DE RECUERDOS */
+          <div className="space-y-6">
+            <div className="relative min-h-[500px] sm:min-h-[600px] rounded-3xl bg-zinc-900/90 border border-white/10 shadow-2xl p-6 sm:p-10 flex flex-col justify-between overflow-hidden">
+              <AnimatePresence mode="wait">
+                {paginaActual === 0 ? (
+                  /* PORTADA DEL ÁLBUM */
+                  <motion.div
+                    key="portada"
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.04 }}
+                    transition={{ duration: 0.4 }}
+                    className="flex flex-col items-center justify-center text-center my-auto py-12 space-y-6"
+                  >
+                    {albumDigital.portada.fotoPortadaUrl && (
+                      <div className="relative w-48 h-48 sm:w-64 sm:h-64 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 mx-auto group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={albumDigital.portada.fotoPortadaUrl}
+                          alt={nombreFiesta}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      </div>
+                    )}
+
+                    <div className="space-y-2 max-w-xl">
+                      <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                        Edición Especial
+                      </span>
+                      <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+                        {albumDigital.portada.titulo}
+                      </h2>
+                      <p className="text-sm sm:text-base text-zinc-300">
+                        {albumDigital.portada.subtitulo}
+                      </p>
+                      <p className="text-xs text-zinc-500 font-medium">
+                        {albumDigital.portada.fecha} · {albumDigital.totalRecuerdos} recuerdos seleccionados
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setPaginaActual(1)}
+                      className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black text-sm transition-all shadow-xl shadow-amber-400/20 active:scale-95"
+                    >
+                      Abrir Álbum <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </motion.div>
+                ) : (
+                  /* PÁGINAS DEL ÁLBUM (2 RECUERDOS POR PÁGINA) */
+                  <motion.div
+                    key={`pagina-${paginaActual}`}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.3 }}
+                    className="grid sm:grid-cols-2 gap-6 my-auto"
+                  >
+                    {paginaItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex flex-col bg-zinc-950/70 border border-white/10 rounded-2xl p-4 shadow-lg space-y-3 justify-between"
+                      >
+                        {item.tipo === 'audio' || item.audioUrl ? (
+                          /* TARJETA DE AUDIO DE BUZÓN */
+                          <div className="p-6 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-4 text-center my-auto">
+                            <div className="w-14 h-14 rounded-full bg-amber-400 text-zinc-950 flex items-center justify-center mx-auto shadow-lg">
+                              <Volume2 className="w-7 h-7" />
+                            </div>
+                            <div>
+                              <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                                🎙️ Mensaje de Voz del Buzón
+                              </span>
+                              <p className="text-sm font-semibold text-white mt-1">
+                                {item.autor}
+                              </p>
+                              {item.mensaje && (
+                                <p className="text-xs text-zinc-300 italic mt-2">
+                                  "{item.mensaje}"
+                                </p>
+                              )}
+                            </div>
+                            {item.audioUrl && (
+                              <audio
+                                src={item.audioUrl}
+                                controls
+                                className="w-full h-10 mt-2 rounded-lg"
+                              />
+                            )}
+                          </div>
+                        ) : item.tipo === 'video' ? (
+                          <div className="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center">
+                            <video
+                              src={item.imageUrl}
+                              controls
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          <div className="relative rounded-xl overflow-hidden bg-zinc-900 aspect-[4/3] group">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={item.imageUrl}
+                              alt={item.autor}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                              <p className="text-xs font-bold text-white truncate">{item.autor}</p>
+                              {item.mensaje && (
+                                <p className="text-[11px] text-zinc-300 line-clamp-2">{item.mensaje}</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-center justify-between text-xs text-zinc-400 pt-1">
+                          <span className="font-semibold text-zinc-300 truncate">
+                            {item.autor}
+                          </span>
+                          {item.modulo && (
+                            <span className="capitalize bg-white/10 px-2 py-0.5 rounded-full text-[10px]">
+                              {item.modulo.replace('_', ' ')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* CONTROLES DE PAGINACIÓN */}
+              <div className="flex items-center justify-between border-t border-white/10 pt-4 mt-6">
+                <button
+                  onClick={() => setPaginaActual((p) => Math.max(0, p - 1))}
+                  disabled={paginaActual === 0}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
+                >
+                  <ChevronLeft className="w-4 h-4" /> Anterior
+                </button>
+
+                <span className="text-xs font-semibold text-zinc-400">
+                  {paginaActual === 0
+                    ? 'Portada'
+                    : `Página ${paginaActual} de ${albumDigital.totalPaginas}`}
+                </span>
+
+                <button
+                  onClick={() => setPaginaActual((p) => Math.min(albumDigital.totalPaginas, p + 1))}
+                  disabled={paginaActual >= albumDigital.totalPaginas}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
+                >
+                  Siguiente <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">Aún no hay fotos en este álbum</h3>
-            <p className="text-sm text-zinc-400 max-w-md">
-              Apenas el fotógrafo o los invitados capturen recuerdos en la fiesta, las fotos aprobadas se mostrarán acá en alta definición.
-            </p>
           </div>
         ) : (
-          <div className="columns-2 sm:columns-3 lg:columns-4 gap-4 space-y-4">
-            {filteredPosts.map((post, index) => {
-              const video = isVideo(post.imageUrl);
-              return (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(index * 0.03, 0.5) }}
-                  className="break-inside-avoid relative group rounded-2xl overflow-hidden bg-zinc-900 border border-white/10 cursor-zoom-in shadow-md hover:shadow-2xl transition-all"
-                  onClick={() => setLightboxIndex(index)}
+          /* MODO CUADRÍCULA CON SOLAPAS DE ESTACIÓN */
+          <div className="space-y-6">
+            {/* Filter Tabs */}
+            <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+              {[
+                { id: 'todas', label: `Todas (${posts.length})` },
+                { id: 'fotocabina', label: '📸 Fotocabina' },
+                { id: '360', label: '🌐 360°' },
+                { id: 'espejo', label: '✨ Espejo' },
+                { id: 'bogue', label: '⚡ Boomerang' },
+                { id: 'buzon', label: '🎙️ Buzón' },
+                { id: 'invitados', label: '📱 Invitados' },
+                { id: 'mensajes', label: `💌 Mensajes (${dedications.length})` },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as FilterTab)}
+                  className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                    activeTab === tab.id
+                      ? 'bg-amber-400 text-zinc-950 border-amber-400'
+                      : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-200'
+                  }`}
                 >
-                  {video ? (
-                    <>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {activeTab === 'mensajes' ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {dedications.map((ded) => (
+                  <div
+                    key={ded.id}
+                    className="p-6 rounded-2xl bg-zinc-900/70 border border-white/10 space-y-3 shadow-lg"
+                  >
+                    <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                      💌 Dedicatoria
+                    </span>
+                    <p className="text-base font-medium text-white/90 leading-relaxed italic">
+                      "{ded.message}"
+                    </p>
+                    <p className="text-xs font-bold text-zinc-400 tracking-wider uppercase">
+                      — {ded.authorName || 'Invitado'}
+                    </p>
+                    {ded.audioUrl && (
+                      <audio src={ded.audioUrl} controls className="w-full h-8 mt-2" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : filteredPosts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 text-center">
+                <Camera className="w-12 h-12 text-zinc-700 mb-3" />
+                <p className="text-sm text-zinc-400">No hay fotos en esta sección todavía.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+                {filteredPosts.map((post, idx) => (
+                  <div
+                    key={post.id}
+                    onClick={() => setLightboxIndex(idx)}
+                    className="group relative rounded-2xl overflow-hidden bg-zinc-900 border border-white/5 cursor-pointer aspect-square"
+                  >
+                    {isVideo(post.imageUrl) ? (
                       <video
                         src={post.imageUrl}
-                        className="w-full h-auto"
-                        autoPlay
+                        className="w-full h-full object-cover"
                         muted
                         loop
                         playsInline
                       />
-                      <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md p-1.5 rounded-full">
-                        <Play className="w-3 h-3 text-white" />
-                      </div>
-                    </>
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={post.imageUrl}
-                      alt={post.authorName || 'Foto del evento'}
-                      className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  )}
-
-                  {/* Gradient Info Overlay */}
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-sm font-bold truncate text-white">
-                      {post.authorName || 'Invitado'}
-                    </p>
-                    {post.caption && (
-                      <p className="text-xs text-zinc-300 line-clamp-2 mt-0.5">
-                        {post.caption}
-                      </p>
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={post.imageUrl}
+                        alt={post.authorName || 'Recuerdo'}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
                     )}
-                    <div className="flex items-center gap-3 mt-1 text-xs text-zinc-300">
-                      {post.likes ? (
-                        <span className="flex items-center gap-1">
-                          <Heart className="w-3 h-3 text-rose-500 fill-current" /> {post.likes}
-                        </span>
-                      ) : null}
-                      {post.sourceModule && (
-                        <span className="capitalize bg-white/10 px-2 py-0.5 rounded-full text-[10px]">
-                          {post.sourceModule.replace('_', ' ')}
-                        </span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                      <p className="text-xs font-bold text-white truncate">{post.authorName || 'Invitado'}</p>
+                      {post.caption && (
+                        <p className="text-[10px] text-zinc-300 line-clamp-1">{post.caption}</p>
                       )}
                     </div>
                   </div>
-                </motion.div>
-              );
-            })}
+                ))}
+              </div>
+            )}
           </div>
         )}
 
-        {/* Botón de Reseña de Google para Invitado (Orden 6) */}
+        {/* Banner de reseña de Google para invitados */}
         {enlaceResena ? (
-          <div className="mt-14 max-w-md mx-auto px-4">
-            <a
-              href={enlaceResena}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-900/90 border border-zinc-800 hover:border-amber-500/50 transition group"
-            >
-              <div className="flex items-center gap-3 text-left">
-                <span className="grid h-10 w-10 flex-none place-items-center rounded-xl bg-amber-500/10 text-amber-400">
-                  <Star className="h-5 w-5 fill-current" />
-                </span>
-                <div>
-                  <p className="font-bold text-white text-sm">¿Te gustaron las fotos?</p>
-                  <p className="text-xs text-zinc-400">Contanos cómo la pasaste en Google</p>
-                </div>
-              </div>
-              <ExternalLink className="h-4 w-4 flex-none text-zinc-500 transition group-hover:translate-x-0.5 group-hover:text-amber-400" />
-            </a>
+          <div className="mt-12 p-6 rounded-3xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 text-center space-y-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold uppercase tracking-wider">
+              <Star className="w-3.5 h-3.5 fill-amber-400" />
+              Tu opinión nos ayuda a crecer
+            </span>
+            <h3 className="text-xl font-bold text-white">
+              ¿Disfrutaste de la fiesta?
+            </h3>
+            <p className="text-sm text-zinc-400 max-w-md mx-auto">
+              Contanos cómo la pasaste en Google y compartí tu experiencia con otros invitados y familias.
+            </p>
+            <div className="pt-2">
+              <a
+                href={enlaceResena}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-xs transition-all shadow-lg active:scale-95"
+              >
+                Contanos cómo la pasaste en Google <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
           </div>
         ) : null}
-
-        {/* Footer Comercial: Contacto directo para invitados */}
-        <footer className="mt-20 pt-10 pb-12 text-center border-t border-white/10 space-y-6">
-          <div className="flex flex-col items-center justify-center gap-2">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-zinc-300">
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-              <span>Organizado y capturado por AK Producciones</span>
-            </div>
-            <p className="text-sm font-semibold text-white">¿Querés que tu fiesta tenga esta tecnología y momentos?</p>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <a
-              href={buildAkWhatsAppUrl(
-                `¡Hola AK Producciones! Estuve viendo el álbum de fotos de ${
-                  fiesta?.configuracion?.nombreEvento || 'la fiesta'
-                } y me encantó. Quería consultarles para mi propio evento.`
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-900/30 transition-all hover:scale-105"
-            >
-              <MessageCircle className="h-4 w-4" />
-              <span>Escribinos por WhatsApp</span>
-            </a>
-
-            <a
-              href={appendCommercialAttribution('/simulador-de-presupuesto', {
-                source: 'guest_portal',
-                campaign: 'album_publico',
-                refFiestaId: fiestaId,
-              })}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-zinc-300 hover:text-white font-semibold text-xs border border-white/10 transition-all"
-            >
-              <span>Calcular presupuesto online</span>
-              <span aria-hidden="true">&rarr;</span>
-            </a>
-          </div>
-        </footer>
       </main>
+
+      {/* Footer comercial */}
+      <footer className="mt-16 border-t border-white/10 bg-zinc-950/90 py-8 px-4 text-center text-xs text-zinc-400">
+        <div className="max-w-4xl mx-auto space-y-4">
+          <p className="font-semibold text-zinc-300">
+            Organizado y capturado por AK Producciones
+          </p>
+          <div className="flex items-center justify-center gap-4">
+            <a
+              href={buildAkWhatsAppUrl(`Hola! Vi el álbum del evento ${nombreFiesta} y quiero consultar para mi fiesta.`)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all shadow-md"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Escribinos por WhatsApp
+            </a>
+          </div>
+        </div>
+      </footer>
 
       {/* Lightbox Modal */}
       <AnimatePresence>
@@ -414,112 +701,72 @@ export default function PublicAlbumPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center"
+            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
           >
-            {/* Top Bar */}
-            <div className="absolute top-0 inset-x-0 p-4 flex justify-between items-center z-10 bg-gradient-to-b from-black/80 to-transparent">
-              <div className="text-left">
-                <p className="font-bold text-white">
-                  {filteredPosts[lightboxIndex].authorName || 'Invitado'}
-                </p>
-                <p className="text-xs text-zinc-400">
-                  {new Date(
-                    filteredPosts[lightboxIndex].timestamp || Date.now()
-                  ).toLocaleDateString('es-UY', {
-                    day: 'numeric',
-                    month: 'short',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                {/* Enlace directo a propósito (YA-RESUELTO.md) */}
-                <a
-                  href={filteredPosts[lightboxIndex].imageUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
-                  className="p-2.5 bg-white/10 rounded-full hover:bg-white/20 text-white transition"
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label="Descargar foto"
-                  title="Descargar foto"
-                >
-                  <Download className="w-5 h-5" />
-                </a>
-                <button
-                  aria-label="Cerrar"
-                  onClick={() => setLightboxIndex(null)}
-                  className="p-2.5 bg-white/10 rounded-full hover:bg-white/20 text-white transition"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Left Button */}
-            {filteredPosts.length > 1 && (
-              <button
-                aria-label="Foto anterior"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  showPrev();
-                }}
-                className="absolute left-3 p-3 bg-black/60 hover:bg-white/10 rounded-full text-white transition z-10 md:left-6"
-              >
-                <ChevronLeft className="w-8 h-8" />
-              </button>
-            )}
-
-            {/* Media Canvas */}
-            <div
-              className="w-full h-full p-4 md:p-12 flex items-center justify-center relative select-none"
+            <button
               onClick={() => setLightboxIndex(null)}
+              className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all z-10"
             >
+              <X className="w-6 h-6" />
+            </button>
+
+            <button
+              onClick={showPrev}
+              className="absolute left-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all z-10"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            <button
+              onClick={showNext}
+              className="absolute right-4 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all z-10"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            <div className="max-w-4xl max-h-[85vh] flex flex-col items-center">
               {isVideo(filteredPosts[lightboxIndex].imageUrl) ? (
                 <video
                   src={filteredPosts[lightboxIndex].imageUrl}
                   controls
                   autoPlay
-                  loop
-                  playsInline
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-                  onClick={(e) => e.stopPropagation()}
+                  className="max-h-[75vh] w-auto rounded-xl object-contain"
                 />
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   src={filteredPosts[lightboxIndex].imageUrl}
-                  alt="Recuerdo en tamaño completo"
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
-                  onClick={(e) => e.stopPropagation()}
+                  alt="Recuerdo en grande"
+                  className="max-h-[75vh] w-auto rounded-xl object-contain shadow-2xl"
                 />
               )}
-            </div>
-
-            {/* Right Button */}
-            {filteredPosts.length > 1 && (
-              <button
-                aria-label="Foto siguiente"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  showNext();
-                }}
-                className="absolute right-3 p-3 bg-black/60 hover:bg-white/10 rounded-full text-white transition z-10 md:right-6"
-              >
-                <ChevronRight className="w-8 h-8" />
-              </button>
-            )}
-
-            {/* Bottom Counter */}
-            <div className="absolute bottom-4 inset-x-0 text-center z-10 pointer-events-none">
-              <span className="bg-black/70 px-4 py-1.5 rounded-full text-xs font-bold text-zinc-300 backdrop-blur-sm border border-white/10">
-                {lightboxIndex + 1} de {filteredPosts.length}
-              </span>
+              <div className="mt-4 text-center space-y-1">
+                <p className="text-sm font-bold text-white">
+                  {filteredPosts[lightboxIndex].authorName || 'Invitado'}
+                </p>
+                {filteredPosts[lightboxIndex].caption && (
+                  <p className="text-xs text-zinc-300 italic">
+                    "{filteredPosts[lightboxIndex].caption}"
+                  </p>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Música de fondo del álbum: usa la canción de la fiesta y arranca en silencio */}
+      {cancionFiesta && (
+        <audio
+          ref={audioRef}
+          src={cancionFiesta}
+          loop
+          preload="auto"
+          data-testid="audio-fondo-album"
+        />
+      )}
     </div>
   );
 }
+
+

@@ -52,6 +52,11 @@ import {
   type FaceSwapCategoryId,
 } from '@/lib/entertainment/espejo-magico-templates';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { procesarFondoCanvas } from '@/lib/entretenimiento/segmentacion-fondo';
+import {
+  obtenerAnimacionPorMomento,
+  type AnimacionConLocucion,
+} from '@/lib/entretenimiento/animaciones-con-locucion';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -142,6 +147,8 @@ export default function EspejoMagicoPage() {
   const [aiStep, setAiStep] = useState<string>('idle'); // 'idle' | 'detecting' | 'aligning' | 'gemini' | 'rendering'
   const [sliderPosition, setSliderPosition] = useState<number>(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState<boolean>(false);
+  // Fondo virtual: mismo mecanismo que en fotocabina y bogue.
+  const [fondoVirtual, setFondoVirtual] = useState<string | null>(null);
 
   // Sync state
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -239,6 +246,22 @@ export default function EspejoMagicoPage() {
     }
   }, [voiceEnabled]);
 
+  const animacionActiva = useMemo(() => {
+    const allowedAnimIds = fiesta?.station?.allowedTemplateIds ?? [];
+    const tipoCelebracion = fiesta?.tipoCelebracion || fiesta?.station?.location;
+    if (localStatus === 'idle') return obtenerAnimacionPorMomento('saludo', allowedAnimIds, tipoCelebracion);
+    if (localStatus === 'countdown') return obtenerAnimacionPorMomento('cuenta', allowedAnimIds, tipoCelebracion);
+    if (localStatus === 'recording') return obtenerAnimacionPorMomento('pose', allowedAnimIds, tipoCelebracion);
+    if (localStatus === 'done') return obtenerAnimacionPorMomento('despedida', allowedAnimIds, tipoCelebracion);
+    return undefined;
+  }, [localStatus, fiesta?.station?.allowedTemplateIds, fiesta?.tipoCelebracion, fiesta?.station?.location]);
+
+  useEffect(() => {
+    if (animacionActiva?.textoHablado) {
+      speak(animacionActiva.textoHablado);
+    }
+  }, [animacionActiva, speak]);
+
   const playBeep = (freq = 880, duration = 0.1) => {
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -293,6 +316,8 @@ export default function EspejoMagicoPage() {
         if (!active) return;
         if (result.success && result.event) {
           setFiesta(result.event);
+          // Fondo virtual: toma el de la fiesta si el operador no eligió otro.
+          setFondoVirtual(result.event.station.fondoDePantalla ?? null);
           setErrorMsg(null);
         } else {
           setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
@@ -728,8 +753,18 @@ export default function EspejoMagicoPage() {
       ctx.scale(-1, 1);
     }
 
-    // Dibujar el video aplicando el recorte proporcional calculado
-    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    if (fondoVirtual && fondoVirtual !== 'ninguno') {
+      procesarFondoCanvas({
+        canvasDestino: canvas,
+        videoOrigen: video,
+        fondoSeleccionado: { id: fondoVirtual, nombre: 'Fondo Virtual', tipo: 'chroma' },
+        imagenFondo: null,
+        toleranciaChroma: 90,
+      });
+    } else {
+      // Dibujar el video aplicando el recorte proporcional calculado
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.filter = 'none';
 
@@ -1133,6 +1168,22 @@ export default function EspejoMagicoPage() {
 
       {flash && <div className="absolute inset-0 bg-white z-50 animate-pulse" />}
 
+      {/* Animación con Locución (Mirror Me) en pantalla */}
+      {animacionActiva && (
+        <div className="absolute top-24 left-1/2 -translate-x-1/2 z-30 pointer-events-none text-center max-w-[90vw]">
+          <div className={`px-6 py-3 rounded-2xl bg-black/60 backdrop-blur-md border border-amber-400/40 text-white shadow-2xl ${animacionActiva.animacion}`}>
+            <p className="text-xl md:text-2xl font-black text-amber-300 drop-shadow-md">
+              {animacionActiva.emoji} {animacionActiva.titulo}
+            </p>
+            {animacionActiva.subtitulo && (
+              <p className="text-xs font-semibold text-white/90 mt-0.5 tracking-wider uppercase">
+                {animacionActiva.subtitulo}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* VIEWPORT */}
       <div
         className="relative m-2 flex-1 w-auto overflow-hidden rounded-lg border-4 border-zinc-800 bg-zinc-900"
@@ -1489,9 +1540,12 @@ export default function EspejoMagicoPage() {
                 <p className="text-sm text-zinc-400">Usá este código QR con tu celular para descargarlo o compartirlo.</p>
               </div>
 
-              {/* QR Container */}
-              <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
+              {/* QR Container con texto de marca */}
+              <div className="bg-white p-4 rounded-3xl shadow-2xl relative flex flex-col items-center gap-2">
                 <QrRecuerdo qrCodeUrl={qrCodeUrl} error={errorMsg} />
+                <p className="text-xs font-black uppercase tracking-wider text-zinc-800">
+                  {fiesta?.station.brandText || 'AK Producciones'}
+                </p>
               </div>
 
               <div className="flex flex-col gap-2 w-full">
@@ -1681,3 +1735,5 @@ export default function EspejoMagicoPage() {
     </div>
   );
 }
+
+

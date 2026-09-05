@@ -60,6 +60,17 @@ export const PUBLIC_PATH_PREFIXES = [
   '/evento/mi-mesa',
   '/evento/en-vivo',
   '/evento/galeria',
+  // EL ALBUM DEL RECUERDO ES EL REGALO FINAL DEL CLIENTE, y hasta el 2 de
+  // septiembre de 2026 **pedia iniciar sesion**: el invitado que recibia el
+  // enlace caia en el login y no lo podia abrir. Era la unica pantalla del
+  // evento que no era publica -la galeria, el muro y las seis estaciones si lo
+  // son-, y fue un olvido, no una decision.
+  //
+  // Se abre sin riesgo: lee **las mismas fuentes publicas que la galeria**
+  // (`getPublicSocialEvent` y `getPublicSocialPosts`), asi que no muestra nada
+  // que no se viera ya con el enlace de la galeria. Y va por fiesta: quien
+  // tiene el enlace de una fiesta ve esa, no las demas.
+  '/evento/album',
   '/evento/dj',
   '/evento/hub',
   '/evento/fotocabina',

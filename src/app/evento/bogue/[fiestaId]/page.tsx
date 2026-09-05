@@ -43,6 +43,7 @@ import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initi
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { componerTiraDeFotos } from '@/lib/entretenimiento/tira-fotocabina';
+import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
 
 const BOGUE_FRAMES = [
   { id: 'none', label: 'Sin Marco', border: 'transparent' },
@@ -89,14 +90,14 @@ export default function BoguePage() {
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
-  
+
   // Real-time Firestore sync
   const [session, setSession] = useState<EntertainmentSession | null>(null);
   const [localStatus, setLocalStatus] = useState<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
   const [countdown, setCountdown] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
   const [progressMsg, setProgressMsg] = useState('');
-  
+
   // Capturas
   const [capturedFrames, setCapturedFrames] = useState<HTMLCanvasElement[]>([]);
   const [recordingProgress, setRecordingProgress] = useState(0); // 0 to 100
@@ -118,6 +119,58 @@ export default function BoguePage() {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
   const [selectedFrame, setSelectedFrame] = useState('none');
+  const cuadrosDelLoop = fiesta?.station.cuadrosDelLoop || 15;
+  const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
+  const imagenFondoRef = useRef<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    if (fiesta?.imagenFondoUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = fiesta.imagenFondoUrl;
+      img.onload = () => {
+        imagenFondoRef.current = img;
+      };
+    } else {
+      imagenFondoRef.current = null;
+    }
+  }, [fiesta?.imagenFondoUrl]);
+
+  const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    let animId: number;
+    const renderLivePreview = () => {
+      const video = videoRef.current;
+      const canvas = previewCanvasRef.current;
+      if (video && canvas && video.readyState >= 2 && video.videoWidth > 0) {
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.save();
+          if (facingMode === 'user') {
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+          }
+          procesarFondoCanvas({
+            canvasDestino: canvas,
+            videoOrigen: video,
+            fondoSeleccionado: fondoVirtual,
+            imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
+            toleranciaChroma: 90,
+          });
+          ctx.restore();
+        }
+      }
+      animId = requestAnimationFrame(renderLivePreview);
+    };
+    animId = requestAnimationFrame(renderLivePreview);
+    return () => cancelAnimationFrame(animId);
+  }, [fondoVirtual, facingMode]);
+
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [operatorError, setOperatorError] = useState<string | null>(null);
@@ -177,16 +230,16 @@ export default function BoguePage() {
       const ctx = audioCtxRef.current;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      
+
       osc.frequency.value = freq;
       osc.type = 'sine';
-      
+
       gain.gain.setValueAtTime(0.3, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
-      
+
       osc.connect(gain);
       gain.connect(ctx.destination);
-      
+
       osc.start();
       osc.stop(ctx.currentTime + duration);
     } catch (e) {}
@@ -324,7 +377,7 @@ export default function BoguePage() {
   };
 
   // 3. Capture & Process Boomerang (Display flow)
-  const startCaptureProcess = async (recordDuration = 3, totalFrames = 15) => {
+  const startCaptureProcess = async (recordDuration = 3, totalFrames = cuadrosDelLoop) => {
     setLocalStatus('countdown');
     if (role === 'display') {
       await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'countdown', {}, accessToken);
@@ -377,7 +430,7 @@ export default function BoguePage() {
 
     const captureTimer = setInterval(() => {
       if (!video) return;
-      
+
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth || 720;
       canvas.height = video.videoHeight || 1280;
@@ -388,7 +441,20 @@ export default function BoguePage() {
           ctx.translate(canvas.width, 0);
           ctx.scale(-1, 1);
         }
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (fondoVirtual && fondoVirtual.tipo !== 'ninguno') {
+          procesarFondoCanvas({
+            canvasDestino: canvas,
+            videoOrigen: video,
+            fondoSeleccionado: fondoVirtual,
+            imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
+            toleranciaChroma: 90,
+          });
+        } else {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        }
+        if (fiesta?.station.enableBeautyFilter) {
+          aplicarFiltroBelleza(ctx, canvas.width, canvas.height);
+        }
       }
 
       frames.push(canvas);
@@ -429,7 +495,7 @@ export default function BoguePage() {
       const eventName = fiesta?.eventName || 'Bogue';
       const eventDate = fiesta?.eventDate || '';
       const colorDeAcento = fiesta?.station.accentColor || '#ec4899';
-      
+
       stripUrl = await componerTiraDeFotos({
         fotos: fotosBase64,
         nombreDelEvento: eventName,
@@ -461,7 +527,7 @@ export default function BoguePage() {
 
     // Stream & record canvas at 12fps
     const canvasStream = drawCanvas.captureStream(12);
-    
+
     // Choose appropriate mime type
     let mimeType = 'video/webm';
     const supportedTypes = [
@@ -489,7 +555,7 @@ export default function BoguePage() {
         const videoBlob = new Blob(chunks, { type: mimeType });
         const videoUrl = URL.createObjectURL(videoBlob);
         setFinalVideoUrl(videoUrl);
-        
+
         // Auto Upload
         await handleAutoUpload(videoBlob, stripUrl || undefined);
       };
@@ -507,7 +573,7 @@ export default function BoguePage() {
         }
 
         ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-        
+
         // Draw camera frame
         ctx.drawImage(loop[frameIndex], 0, 0);
 
@@ -551,7 +617,7 @@ export default function BoguePage() {
       });
       return;
     }
-    
+
     ctx.lineWidth = 0;
     ctx.shadowBlur = 0;
 
@@ -565,7 +631,7 @@ export default function BoguePage() {
       ctx.strokeStyle = 'rgba(234, 179, 8, 0.95)'; // gold
       ctx.lineWidth = 40;
       ctx.strokeRect(20, 20, w - 40, h - 40);
-      
+
       // Luxury corner decorations
       ctx.fillStyle = 'rgba(234, 179, 8, 1)';
       ctx.font = `${h * 0.03}px serif`;
@@ -577,7 +643,7 @@ export default function BoguePage() {
       ctx.strokeStyle = 'rgba(6, 182, 212, 0.9)'; // cyan
       ctx.lineWidth = 24;
       ctx.strokeRect(12, 12, w - 24, h - 24);
-      
+
       // Cyberpunk tag
       ctx.fillStyle = 'rgba(6, 182, 212, 0.9)';
       ctx.fillRect(w - 200, h - 80, 180, 50);
@@ -586,7 +652,7 @@ export default function BoguePage() {
       ctx.textAlign = 'center';
       ctx.fillText('BOGUE LIVE', w - 110, h - 48);
     }
-    
+
     // Reset shadow values
     ctx.shadowBlur = 0;
     ctx.shadowColor = 'transparent';
@@ -613,7 +679,7 @@ export default function BoguePage() {
     grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
     grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.7)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
-    
+
     ctx.fillStyle = grad;
     ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
 
@@ -663,7 +729,7 @@ export default function BoguePage() {
       if (accessToken) formData.append('accessToken', accessToken);
 
       const res = await uploadEntretenimientoMedia(formData);
-      
+
       if (res.success) {
         const mediaUrl = res.media?.url || '';
         setUploadedPostUrl(mediaUrl);
@@ -677,7 +743,7 @@ export default function BoguePage() {
           accessToken
         );
         speak("¡Listo! Tu Boomerang ya está subido.");
-        
+
         // Auto reset after 12 seconds
         setTimeout(() => {
           completeGuestCycle();
@@ -711,7 +777,7 @@ export default function BoguePage() {
       'bogue',
       {
         duration: fiesta?.station.recordingDurationSeconds || 4,
-        frameCount: 15,
+        frameCount: cuadrosDelLoop,
         frameId: selectedFrame,
         operatorName: fiesta?.station.operatorName,
       },
@@ -797,6 +863,15 @@ export default function BoguePage() {
                     {selectedFrame === f.id && <Check className="w-3.5 h-3.5" />}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Cuadros del Loop */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Cuadros del Loop</p>
+              <div className="flex items-center justify-between rounded-lg border border-white/5 bg-black/30 px-4 py-3 text-xs font-bold text-rose-300">
+                <span>Cuadros configurados</span>
+                <span className="text-sm font-black">{cuadrosDelLoop} cuadros</span>
               </div>
             </div>
 
@@ -893,18 +968,24 @@ export default function BoguePage() {
               : undefined
           }
         />
-        
+
         {/* State: Idle / Welcome Screen */}
         {localStatus === 'idle' && (
           <div className="relative w-full h-full">
+            {/* Live Preview de Cámara pasándolo por procesarFondoCanvas en un <canvas> */}
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted
-              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+              className="hidden"
             />
-            
+            <canvas
+              ref={previewCanvasRef}
+              data-testid="preview-canvas"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
                 <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-rose-500 shadow-lg shadow-rose-950/30">
@@ -915,7 +996,60 @@ export default function BoguePage() {
                   <p className="text-sm text-zinc-300">Prepara tu pose. Esta estacion crea un loop con la camara web.</p>
                 </div>
 
-                <div className="pt-4 space-y-3">
+                {/* Selector táctil de fondo virtual */}
+                <div className="flex flex-col gap-2 w-full pt-1">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
+                    Elegí el fondo
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFondoVirtual({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' })}
+                      className={`h-12 rounded-xl text-xs font-black transition border ${
+                        fondoVirtual.tipo === 'ninguno'
+                          ? 'bg-white text-zinc-950 border-white shadow-lg'
+                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                      }`}
+                    >
+                      Sin fondo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFondoVirtual({ id: 'desenfoque', nombre: 'Fondo borroso', tipo: 'desenfoque' })}
+                      className={`h-12 rounded-xl text-xs font-black transition border ${
+                        fondoVirtual.tipo === 'desenfoque'
+                          ? 'bg-pink-500 text-white border-pink-500 shadow-lg'
+                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                      }`}
+                    >
+                      Fondo borroso
+                    </button>
+                    {fiesta?.imagenFondoUrl ? (
+                      <button
+                        type="button"
+                        onClick={() => setFondoVirtual({
+                          id: 'imagen',
+                          nombre: 'Fondo de la fiesta',
+                          tipo: 'imagen',
+                          url: fiesta.imagenFondoUrl,
+                        })}
+                        className={`h-12 rounded-xl text-xs font-black transition border ${
+                          fondoVirtual.tipo === 'imagen'
+                            ? 'bg-fuchsia-500 text-white border-fuchsia-500 shadow-lg'
+                            : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                        }`}
+                      >
+                        De la fiesta
+                      </button>
+                    ) : (
+                      <div className="h-12 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-[10px] text-zinc-500 font-bold">
+                        Sin fondo extra
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2 space-y-3">
                   {cameraError && (
                     <div role="alert" className="rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-left">
                       <p className="text-xs font-semibold leading-5 text-rose-100">{cameraError}</p>
@@ -938,7 +1072,7 @@ export default function BoguePage() {
                     <Camera className="w-5 h-5" />
                     Grabar loop
                   </button>
-                  
+
                   {/* Selected Frame Indicator */}
                   <div className="flex justify-center gap-1.5 overflow-x-auto py-2">
                     {marcosDisponibles.map((f) => (
@@ -1030,15 +1164,15 @@ export default function BoguePage() {
         {/* State: Done (Boomerang Preview + Photo Strip + QR Download) */}
         {localStatus === 'done' && (
           <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
-            
+
             {/* Strip Display */}
             {finalStripUrl && (
               <div className="flex flex-col items-center gap-4 bg-zinc-900/60 p-6 rounded-2xl border border-white/5 shadow-2xl">
                 {/* La tira es un blob/data URL generado en el navegador y se imprime tal cual. */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img 
-                  src={finalStripUrl} 
-                  alt="Tira de recuerdo" 
+                <img
+                  src={finalStripUrl}
+                  alt="Tira de recuerdo"
                   className="h-80 md:h-[450px] object-contain rounded-md shadow-xl"
                 />
                 <button
@@ -1180,3 +1314,4 @@ export default function BoguePage() {
     </div>
   );
 }
+

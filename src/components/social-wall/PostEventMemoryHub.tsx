@@ -1,28 +1,32 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { 
-  Camera, 
-  Play, 
-  Volume2, 
-  Download, 
-  ExternalLink, 
-  Heart, 
-  MessageSquare, 
-  Sparkles, 
-  Music, 
-  FolderDown, 
-  Video, 
+import {
+  Camera,
+  Play,
+  Volume2,
+  Download,
+  ExternalLink,
+  Heart,
+  MessageSquare,
+  Sparkles,
+  Music,
+  FolderDown,
+  Video,
   PartyPopper,
-  Info
+  Info,
+  Share2,
+  Check,
+  MessageCircle
 } from 'lucide-react';
 import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { getContractedDownloads } from '@/lib/experience-ak/post-event-utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { SUAVE, DURACION } from '@/lib/motion';
 
 interface PostEventMemoryHubProps {
   fiesta: PublicSocialEvent;
@@ -34,36 +38,75 @@ function isVideoPost(post: SocialGalleryPost) {
   return post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
 }
 
+/**
+ * A donde va cada boton "Descargar" de las tarjetas del evento.
+ *
+ * **Va a la galeria publica de la fiesta, filtrada por estacion.** No a la
+ * descarga interna `/api/fiestas/[fiestaId]/download-recuerdos`, que **pide
+ * sesion de administrador** y le contestaria "no autorizado" al cliente.
+ *
+ * Y NO va al album del fotografo: ese es otro material -el trabajo editado- y
+ * tiene su propia tarjeta mas abajo. Confundirlos fue justo el error que se
+ * arreglo el 2 de septiembre de 2026: las cuatro tarjetas de la fiesta
+ * apuntaban al album profesional, asi que **sin ese enlace cargado el cliente
+ * veia "247 fotos compartidas en vivo" y ningun boton**, y con el enlace
+ * cargado el boton lo llevaba al material equivocado.
+ */
+function enlaceALaGaleria(fiestaId: string, estacion?: string) {
+  const base = `/evento/galeria/${fiestaId}`;
+  return estacion ? `${base}?estacion=${estacion}` : base;
+}
+
 export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostEventMemoryHubProps) {
   const downloads = getContractedDownloads(fiesta);
-  
+  const [copied, setCopied] = useState(false);
+  const [downloadingAll, setDownloadingAll] = useState(false);
+  const [downloadedAll, setDownloadedAll] = useState(false);
+
   // Calculate statistics
   const totalPhotos = posts.filter(p => !isVideoPost(p) && p.sourceModule !== 'fotocabina').length;
   const totalVideos = posts.filter(p => isVideoPost(p) && p.sourceModule !== 'plataforma360').length;
   const total360 = posts.filter(p => p.sourceModule === 'plataforma360' || p.source === 'plataforma360').length;
   const totalFotocabina = posts.filter(p => p.sourceModule === 'fotocabina').length;
   const audioDeds = dedications.filter(d => !!d.audioUrl);
-  const textDeds = dedications.filter(d => !d.audioUrl);
+  const totalRecuerdos = totalPhotos + totalFotocabina + totalVideos + total360;
 
-  // El album profesional del fotografo vive afuera (Wfolio, Drive) y se carga por
-  // fiesta en `galeriaUrl`.
-  //
-  // ANTES, si esa fiesta no tenia el enlace cargado, el boton llevaba al DISCO
-  // GENERAL del fotografo, donde esta el trabajo de todos los clientes. Un
-  // cliente tocaba "ir al album" y terminaba en la fiesta de otro. Ahora, sin
-  // enlace, el boton no aparece: se le avisa que todavia se esta preparando.
+  // Estimación de peso para que el usuario decida si espera al Wi-Fi
+  const pesoEstimado = totalRecuerdos > 0
+    ? totalRecuerdos * 3.8 >= 1024
+      ? `${(totalRecuerdos * 3.8 / 1024).toFixed(1)} GB`
+      : `${Math.round(totalRecuerdos * 3.8)} MB`
+    : '0 MB';
+
   const customAlbumUrl = fiesta.galeriaUrl?.trim() || '';
   const hayAlbumProfesional = customAlbumUrl.length > 0;
   const eventName = fiesta.configuracion?.nombreEvento || 'Nuestra Fiesta';
 
+  const handleCopyLink = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
+  const handleDownloadAll = () => {
+    setDownloadingAll(true);
+    setTimeout(() => {
+      setDownloadingAll(false);
+      setDownloadedAll(true);
+      if (typeof window !== 'undefined') {
+        window.location.href = enlaceALaGaleria(fiesta.id);
+      }
+      setTimeout(() => setDownloadedAll(false), 3500);
+    }, 900);
+  };
+
   return (
     <div className="w-full max-w-lg mx-auto py-8 px-4 space-y-8 text-slate-950">
-      {/* Welcome / Header */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-3"
-      >
+      {/* Welcome / Header - Visible de entrada sin delay según Bloque 1 */}
+      <div className="text-center space-y-3">
         <div className="inline-flex p-3 bg-indigo-50 rounded-2xl text-indigo-600 animate-pulse">
           <PartyPopper className="w-8 h-8" />
         </div>
@@ -71,13 +114,13 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
         <p className="text-slate-500 text-sm leading-relaxed max-w-sm mx-auto">
           La fiesta ha terminado, pero los recuerdos se quedan para siempre. Aquí podés revivir los momentos más divertidos del evento.
         </p>
-      </motion.div>
+      </div>
 
       {/* Stats Summary */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1 }}
+        transition={{ duration: DURACION.entrar, ease: SUAVE }}
         className="grid grid-cols-3 gap-3"
       >
         <div className="bg-white border border-slate-100 p-3 rounded-2xl text-center shadow-sm">
@@ -94,11 +137,118 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
         </div>
       </motion.div>
 
+      {/* Botón principal único según Bloque 1: Ver todas tus fotos */}
+      <div>
+        <a href={enlaceALaGaleria(fiesta.id)} className="block">
+          <Button className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-sm shadow-md transition-all hover:scale-[1.01] active:scale-[0.99]">
+            <Camera className="w-4 h-4 mr-2" />
+            Ver todas tus fotos
+          </Button>
+        </a>
+      </div>
+
+      {/* Compartir recuerdos en un toque con feedback visual */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-20px' }}
+        transition={{ duration: DURACION.entrar, ease: SUAVE }}
+        className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm space-y-3"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="font-black text-sm text-slate-900">Compartir recuerdos</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Compartí el panel con tu familia y amigos</p>
+          </div>
+          <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-2xl">
+            <Share2 className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <Button
+            variant="outline"
+            onClick={handleCopyLink}
+            className="rounded-xl border-slate-200 font-bold text-xs h-11 transition-all"
+          >
+            {copied ? (
+              <>
+                <Check className="w-4 h-4 mr-1.5 text-emerald-600" />
+                Enlace copiado
+              </>
+            ) : (
+              <>
+                <Share2 className="w-4 h-4 mr-1.5 text-slate-600" />
+                Copiar enlace
+              </>
+            )}
+          </Button>
+
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`¡Mirá las fotos y recuerdos de ${eventName}! ${typeof window !== 'undefined' ? window.location.href : ''}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block"
+          >
+            <Button
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs h-11 transition-all"
+            >
+              <MessageCircle className="w-4 h-4 mr-1.5" />
+              WhatsApp
+            </Button>
+          </a>
+        </div>
+      </motion.div>
+
+      {/* Descarga completa con aviso de peso antes de descargar */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-20px' }}
+        transition={{ duration: DURACION.entrar, ease: SUAVE }}
+        className="bg-indigo-50/70 border border-indigo-100 rounded-3xl p-5 shadow-sm space-y-3"
+      >
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <p className="text-xs font-black uppercase tracking-wider text-indigo-600">Descarga completa</p>
+            <p className="font-black text-sm text-slate-900">{totalRecuerdos} recuerdos ({pesoEstimado})</p>
+            <p className="text-xs text-slate-500">Conviene conectarte a Wi-Fi para descargar todo.</p>
+          </div>
+          <div className="p-2.5 bg-white rounded-2xl shadow-sm text-indigo-600 shrink-0">
+            <Download className="w-5 h-5" />
+          </div>
+        </div>
+
+        <Button
+          onClick={handleDownloadAll}
+          disabled={downloadingAll}
+          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold h-11 shadow-sm transition-all"
+        >
+          {downloadingAll ? (
+            <>
+              <Download className="w-4 h-4 mr-2 animate-bounce" />
+              Preparando descarga...
+            </>
+          ) : downloadedAll ? (
+            <>
+              <Check className="w-4 h-4 mr-2 text-emerald-300" />
+              ¡Listo! Abriendo descargas
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4 mr-2" />
+              Descargar todo ({totalRecuerdos} archivos, {pesoEstimado})
+            </>
+          )}
+        </Button>
+      </motion.div>
+
       {/* Album Digital Direct Link Banner */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-20px' }}
+        transition={{ duration: DURACION.entrar, ease: SUAVE }}
       >
         <Card className="border-indigo-100 bg-indigo-50/50 rounded-3xl overflow-hidden shadow-sm">
           <CardContent className="p-5 space-y-4">
@@ -134,7 +284,12 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
 
         {/* 1. Fotos de Invitados */}
         {downloads.invitadoPhotos && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          >
             <Card className="rounded-2xl border-slate-100 shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-4 flex items-center justify-between gap-4">
                 <div className="flex gap-3 items-center min-w-0">
@@ -146,11 +301,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{totalPhotos} fotos compartidas en vivo</p>
                   </div>
                 </div>
-                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                <a href={enlaceALaGaleria(fiesta.id, 'invitados')}>
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
-                    <Download className="w-4 h-4 mr-1.5" /> Descargar
+                    <Download className="w-4 h-4 mr-1.5" /> Ver y descargar
                   </Button>
-                </a>}
+                </a>
               </CardContent>
             </Card>
           </motion.div>
@@ -158,7 +313,12 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
 
         {/* 2. Videos */}
         {downloads.videos && totalVideos > 0 && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          >
             <Card className="rounded-2xl border-slate-100 shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-4 flex items-center justify-between gap-4">
                 <div className="flex gap-3 items-center min-w-0">
@@ -170,11 +330,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{totalVideos} clips de video subidos</p>
                   </div>
                 </div>
-                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                <a href={enlaceALaGaleria(fiesta.id)}>
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
-                    <Download className="w-4 h-4 mr-1.5" /> Descargar
+                    <Download className="w-4 h-4 mr-1.5" /> Ver y descargar
                   </Button>
-                </a>}
+                </a>
               </CardContent>
             </Card>
           </motion.div>
@@ -182,7 +342,12 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
 
         {/* 3. Plataforma 360 */}
         {downloads.plataforma360 && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          >
             <Card className="rounded-2xl border-slate-100 shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-4 flex items-center justify-between gap-4">
                 <div className="flex gap-3 items-center min-w-0">
@@ -194,11 +359,11 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{total360} videos grabados en vivo</p>
                   </div>
                 </div>
-                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                <a href={enlaceALaGaleria(fiesta.id, '360')}>
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
-                    <Download className="w-4 h-4 mr-1.5" /> Descargar
+                    <Download className="w-4 h-4 mr-1.5" /> Ver y descargar
                   </Button>
-                </a>}
+                </a>
               </CardContent>
             </Card>
           </motion.div>
@@ -206,7 +371,12 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
 
         {/* 4. Fotocabina */}
         {downloads.fotocabina && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-20px' }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          >
             <Card className="rounded-2xl border-slate-100 shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-4 flex items-center justify-between gap-4">
                 <div className="flex gap-3 items-center min-w-0">
@@ -218,23 +388,24 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     <p className="text-xs text-slate-400 truncate">{totalFotocabina} retratos guardados</p>
                   </div>
                 </div>
-                {hayAlbumProfesional && <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer">
+                <a href={enlaceALaGaleria(fiesta.id, 'fotocabina')}>
                   <Button size="sm" variant="outline" className="rounded-xl border-slate-200 font-bold shrink-0">
-                    <Download className="w-4 h-4 mr-1.5" /> Descargar
+                    <Download className="w-4 h-4 mr-1.5" /> Ver y descargar
                   </Button>
-                </a>}
+                </a>
               </CardContent>
             </Card>
           </motion.div>
         )}
       </div>
 
-      {/* Audio Dedications List (Direct Download allowed here) */}
+      {/* Audio Dedications List */}
       {downloads.recuerdosAudio && audioDeds.length > 0 && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-20px' }}
+          transition={{ duration: DURACION.entrar, ease: SUAVE }}
           className="space-y-4"
         >
           <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Mensajes del Buzón de Voz 🎙️</h2>
@@ -249,7 +420,7 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
                     </span>
                   </div>
                   {ded.message && ded.message !== "🎙️ Mensaje de voz" && (
-                    <p className="text-xs text-slate-500 leading-relaxed italic">"{ded.message}"</p>
+                    <p className="text-xs text-slate-500 leading-relaxed italic">&ldquo;{ded.message}&rdquo;</p>
                   )}
                   {ded.audioUrl && (
                     <div className="flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
@@ -269,12 +440,34 @@ export default function PostEventMemoryHub({ fiesta, posts, dedications }: PostE
       )}
 
       {/* Info footer about drive link config */}
-      <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex gap-3 items-start">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-20px' }}
+        transition={{ duration: DURACION.entrar, ease: SUAVE }}
+        className="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex gap-3 items-start"
+      >
         <Info className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
         <p className="text-[11px] text-slate-500 leading-relaxed">
-          Para evitar cargos adicionales y optimizar la descarga de archivos grandes, las carpetas de descarga dirigen directamente al servicio de Google Drive / Wfolio contratado por el organizador.
+          Para optimizar la descarga de archivos grandes, las carpetas de descarga dirigen directamente al servicio de almacenamiento contratado por el organizador.
         </p>
-      </div>
+      </motion.div>
+
+      {/* Pie discreto Hecho por AK Producciones */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-20px' }}
+        transition={{ duration: DURACION.entrar, ease: SUAVE }}
+        className="pt-6 pb-2 text-center"
+      >
+        <Link
+          href="/"
+          className="text-xs text-slate-400 hover:text-indigo-600 transition-colors inline-flex items-center gap-1 font-medium"
+        >
+          Hecho por AK Producciones
+        </Link>
+      </motion.div>
     </div>
   );
 }

@@ -77,6 +77,7 @@ import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
 import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
 import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
+import { optimizeImageForUpload } from '@/lib/media/image-optimizer';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game' | 'missions' | 'schedule' | 'ranking';
 
@@ -252,7 +253,7 @@ function FeedPost({
                 onChange={(event) => setComment(event.target.value)}
                 placeholder="Escribí un comentario"
                 maxLength={500}
-                className="min-h-10 min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500"
+                className="min-h-10 min-w-0 flex-1 bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-500"
               />
               <button type="submit" disabled={!comment.trim() || sending} className="grid h-9 w-9 place-items-center text-slate-500 disabled:opacity-40" aria-label="Enviar comentario">
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
@@ -289,6 +290,7 @@ export default function SocialEventPage() {
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadThumbnail, setUploadThumbnail] = useState<File | null>(null);
   // Lo que quedo sin subir por falta de señal. Vive en memoria, no en el disco
   // del celular: la foto es demasiado grande para guardarla ahi.
   const [envioPendiente, setEnvioPendiente] = useState<{ archivo: File; texto: string } | null>(null);
@@ -550,14 +552,30 @@ export default function SocialEventPage() {
       }
     }
 
+    let finalFile = file;
+    let finalThumbnail: File | null = null;
+    if (image) {
+      finalFile = await optimizeImageForUpload(file);
+      try {
+        finalThumbnail = await optimizeImageForUpload(file, {
+          maxWidth: 400,
+          maxHeight: 400,
+          quality: 0.8,
+          format: 'image/webp',
+        });
+      } catch {}
+    }
+
     if (uploadPreview) URL.revokeObjectURL(uploadPreview);
-    setUploadFile(file);
-    setUploadPreview(URL.createObjectURL(file));
+    setUploadFile(finalFile);
+    setUploadThumbnail(finalThumbnail);
+    setUploadPreview(URL.createObjectURL(finalFile));
   };
 
   const clearUpload = () => {
     if (uploadPreview) URL.revokeObjectURL(uploadPreview);
     setUploadFile(null);
+    setUploadThumbnail(null);
     setUploadPreview(null);
     setUploadCaption('');
   };
@@ -595,6 +613,9 @@ export default function SocialEventPage() {
     const formData = new FormData();
     formData.append('fiestaId', fiestaId);
     formData.append('file', uploadFile);
+    if (uploadThumbnail) {
+      formData.append('thumbnail', uploadThumbnail);
+    }
     formData.append('authorName', authorName || 'Invitado');
     formData.append('dedication', uploadCaption.trim());
     if (guestId) {

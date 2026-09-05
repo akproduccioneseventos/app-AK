@@ -36,6 +36,10 @@ export interface EntertainmentStationRuntimeConfig {
   deliveryChannels: string[];
   /** Cantidad de fotos por tanda (1 a 4, default 3). */
   fotosPorTanda?: number;
+  /** Cantidad de copias a imprimir por recuerdo (1 a 10, default 1). */
+  copiasImpresion?: number;
+  /** Tamaño del papel para impresión ('10x15' | '5x15' | '13x18', default '10x15'). */
+  tamanoPapel?: '10x15' | '5x15' | '13x18';
   /** Segundos de cuenta regresiva para la primera foto (default 10). */
   segundosCuentaRegresiva?: number;
   /** Marcos habilitados para la fiesta (subconjunto de 'none', 'golden', 'neon', 'flowers', 'ak_brand'). */
@@ -53,6 +57,20 @@ export interface EntertainmentStationRuntimeConfig {
   enableBeautyFilter?: boolean;
   enableChromaKey?: boolean;
   orientation?: 'vertical' | 'horizontal' | 'cuadrada';
+  fondoDePantalla?: string;
+  virtualBackgroundUrl?: string;
+  /** Velocidad o efecto del recuerdo ('normal' | 'lenta' | 'boomerang'). */
+  velocidadRecuerdo?: 'normal' | 'lenta' | 'boomerang';
+  /** Diseño de la hoja de impresión ('una' | 'dos' | 'tira'). */
+  disenoImpresion?: 'una' | 'dos' | 'tira';
+  /** Vueltas del brazo en plataforma 360. */
+  vueltas360?: number;
+  /** Cuadros del loop en Bogue. */
+  cuadrosDelLoop?: number;
+  /** Recorte de persona sin tela verde mediante segmentación inteligente. */
+  recorteSinTela?: boolean;
+  /** Fondo seleccionado para el muro en vivo / pantalla gigante. */
+  fondoMuro?: string;
 }
 
 export interface PublicEntertainmentEvent {
@@ -166,10 +184,24 @@ export function getEntertainmentStationConfig(
       ? stored.allowedTemplateIds.filter((id: unknown) => typeof id === 'string' && id.length > 0)
       : [],
     fotosPorTanda: clampNumber(stored.fotosPorTanda || stored.photosPerSession, 3, 1, 4),
+    copiasImpresion: clampNumber(stored.copiasImpresion ?? stored.printCopies, 1, 1, 10),
+    tamanoPapel: (['10x15', '5x15', '13x18'].includes(stored.tamanoPapel || stored.paperSize)
+      ? (stored.tamanoPapel || stored.paperSize)
+      : '10x15') as '10x15' | '5x15' | '13x18',
     segundosCuentaRegresiva: clampNumber(stored.segundosCuentaRegresiva || stored.countdownSeconds, 10, 2, 30),
     marcosHabilitados: Array.isArray(stored.marcosHabilitados) && stored.marcosHabilitados.length > 0
       ? stored.marcosHabilitados
       : ['none', 'golden', 'neon', 'flowers', 'ak_brand'],
+    velocidadRecuerdo: (['normal', 'lenta', 'boomerang'].includes(stored.velocidadRecuerdo)
+      ? stored.velocidadRecuerdo
+      : 'normal') as 'normal' | 'lenta' | 'boomerang',
+    disenoImpresion: (['una', 'dos', 'tira'].includes(stored.disenoImpresion)
+      ? stored.disenoImpresion
+      : 'tira') as 'una' | 'dos' | 'tira',
+    vueltas360: clampNumber(stored.vueltas360, 2, 1, 10),
+    cuadrosDelLoop: clampNumber(stored.cuadrosDelLoop, 15, 5, 60),
+    recorteSinTela: stored.recorteSinTela === true,
+    fondoMuro: typeof stored.fondoMuro === 'string' && stored.fondoMuro ? stored.fondoMuro : 'predeterminado',
   };
 }
 
@@ -313,3 +345,4 @@ export function getEntertainmentOperatorPath(
       return null;
   }
 }
+

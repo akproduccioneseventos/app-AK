@@ -1,4 +1,4 @@
-﻿const path = require('path');
+const path = require('path');
 const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   cacheOnFrontEndNav: false,
@@ -130,6 +130,11 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/landing/bodas',
+        destination: '/bodas',
+        permanent: true,
+      },
+      {
         source: '/landing/xv-anos',
         destination: '/quinceaneras',
         permanent: true,
@@ -168,6 +173,45 @@ const nextConfig = {
         source: '/configuracion/backup-final',
         destination: '/settings/backup-final',
         permanent: true,
+      },
+      {
+        /**
+         * ESTOS TRES REDIRECCIONAMIENTOS VAN ACA Y NO ADENTRO DE LA PANTALLA.
+         *
+         * Medido el 5 de septiembre de 2026 con la app compilada: cuando la pantalla
+         * redirige por su cuenta, el navegador tira un error de React y el invitado
+         * llega a ver **"Application error"** en vez de su invitacion. Hecho aca, el
+         * servidor manda directo al destino y no hay nada que se rompa.
+         *
+         * El primero conserva la fiesta del enlace: los enlaces viejos de invitaciones
+         * ya repartidas siguen abriendo la invitacion correcta, no la portada.
+         */
+        source: '/evento/actual',
+        has: [{ type: 'query', key: 'fiestaId' }],
+        destination: '/invitacion/:fiestaId',
+        permanent: false,
+      },
+      {
+        source: '/evento/actual',
+        destination: '/',
+        permanent: false,
+      },
+      {
+        source: '/invitado/:fiestaId/:guestId',
+        destination: '/portal-invitado/:fiestaId/:guestId',
+        permanent: false,
+      },
+      {
+        // A la lista de prospectos de siempre. Quien no tenga sesion, la propia
+        // pantalla de destino lo manda a iniciarla: aca no se decide eso.
+        source: '/prospectos',
+        destination: '/contabilidad/crm',
+        permanent: false,
+      },
+      {
+        source: '/prospectos/:prospectId',
+        destination: '/contabilidad/crm',
+        permanent: false,
       },
     ];
   },

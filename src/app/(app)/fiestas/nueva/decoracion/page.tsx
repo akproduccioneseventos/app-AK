@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download, Maximize2, Minimize2, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download, Maximize2, Minimize2, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { DecoracionData, ColorPalette, DecoItem, DecoChecklistItem, ZonaDiseno, ElementoDecorativo } from '@/types/fiesta';
@@ -27,6 +27,20 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import DecoCanvas from '@/components/decoracion/DecoCanvas';
+import type { DecoItem3D } from '@/components/salon-3d/elements/DecoItem3D';
+import dynamic from 'next/dynamic';
+
+const SalonScene = dynamic(
+  () => import('@/components/salon-3d/SalonScene').then((mod) => mod.SalonScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full w-full items-center justify-center bg-slate-950 text-amber-400">
+        <span className="font-medium">Cargando salón 3D...</span>
+      </div>
+    ),
+  }
+);
 import DecoElementLibrary from '@/components/decoracion/DecoElementLibrary';
 import DecoMuestrario from '@/components/decoracion/DecoMuestrario';
 import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
@@ -34,6 +48,8 @@ import DecoColorPicker from '@/components/decoracion/DecoColorPicker';
 import DecoPropertiesPanel from '@/components/decoracion/DecoPropertiesPanel';
 import DecoTemplateGallery from '@/components/decoracion/DecoTemplateGallery';
 import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
+import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
+import { ubicarMuebleEnLaEscena } from '@/lib/decoracion/plano-a-escena-3d';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -132,6 +148,11 @@ function DecoracionYDisenoEventoContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [conteoInvitados, setConteoInvitados] = useState<{ adultos: number; ninos: number; total: number }>({ adultos: 0, ninos: 0, total: 0 });
+  const [elementosEnUso, setElementosEnUso] = useState<string[]>([]);
+  const verificarElementoEnUso = useCallback((nombreElemento: string) => {
+    return elementosEnUso.some(e => e.toLowerCase() === nombreElemento.toLowerCase());
+  }, [elementosEnUso]);
 
   // Zone management
   const [zonasDiseno, setZonasDiseno] = useState<ZonaDiseno[]>([DEFAULT_ZONA_DISENO]);
@@ -166,6 +187,7 @@ function DecoracionYDisenoEventoContent() {
   const [isMobilePropertiesOpen, setIsMobilePropertiesOpen] = useState(false);
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [is3DMode, setIs3DMode] = useState(false);
 
   // Escape key exits fullscreen
   useEffect(() => {
@@ -213,6 +235,12 @@ function DecoracionYDisenoEventoContent() {
           ...(loadedDecoracion.paletaColores || {})
         } as ColorPalette,
       });
+
+      // Conteo automático de invitados para dimensionar elementos decorativos
+      const listaInvitados = (fiestaData.invitados || []) as any[];
+      const adultos = listaInvitados.reduce((acc: number, g) => acc + getGuestAdultsCount(g), 0);
+      const ninos = listaInvitados.reduce((acc: number, g) => acc + getGuestKidsCount(g), 0);
+      setConteoInvitados({ adultos, ninos, total: adultos + ninos });
 
       // Load design zones
       if (loadedDecoracion.zonasDiseno && loadedDecoracion.zonasDiseno.length > 0) {
@@ -269,7 +297,7 @@ function DecoracionYDisenoEventoContent() {
       } as ColorPalette,
     } as DecoracionData));
   };
-  
+
   const handleSelectPalette = (palette: ColorPalette) => {
     setDecoracionData(prev => ({ ...prev, paletaColores: palette }));
   };
@@ -828,6 +856,11 @@ function DecoracionYDisenoEventoContent() {
         <div className="flex items-center gap-3">
           <Palette className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Decoración y Diseño</h1>
+          <Badge variant="outline" className="text-xs font-semibold px-3 py-1 bg-white border-slate-200">
+            {conteoInvitados.total > 0
+              ? `Invitados: ${conteoInvitados.total} (${conteoInvitados.adultos} adultos, ${conteoInvitados.ninos} niños)`
+              : 'Sin invitados cargados'}
+          </Badge>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button variant="ghost" size="sm" onClick={() => loadDecoracionData(true)}>
@@ -1192,6 +1225,32 @@ function DecoracionYDisenoEventoContent() {
               )}
             </CardContent>
           </Card>
+
+          {/* Fotos de ideas subidas por el cliente */}
+          {!!(decoracionData.fotosIdeasCliente && decoracionData.fotosIdeasCliente.length > 0) && (
+            <Card className="border-purple-200 bg-purple-50/40 shadow-xl rounded-[2rem]">
+              <CardHeader className="p-6 pb-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-purple-600 text-white rounded-2xl shadow-lg shadow-purple-600/20">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="font-headline text-xl text-purple-950">Fotos de Referencia del Cliente</CardTitle>
+                    <CardDescription className="text-purple-700">El cliente subió estas {decoracionData.fotosIdeasCliente.length} imágenes desde su portal para guiar la ambientación.</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                  {decoracionData.fotosIdeasCliente.map((fotoUrl, fIdx) => (
+                    <div key={fIdx} className="relative aspect-square rounded-xl overflow-hidden border border-purple-200 bg-white shadow-sm">
+                      <NextImage src={fotoUrl} alt={`Referencia cliente ${fIdx + 1}`} layout="fill" objectFit="cover" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md">
             <CardHeader className="p-6">
@@ -1602,6 +1661,17 @@ function DecoracionYDisenoEventoContent() {
                   </Button>
                   <Button
                     type="button"
+                    variant={is3DMode ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setIs3DMode(m => !m)}
+                    className="rounded-xl h-8 text-xs gap-1 font-bold"
+                    title={is3DMode ? 'Volver a plano 2D' : 'Ver salón en 3D'}
+                  >
+                    <Layers className="w-3.5 h-3.5" />
+                    {is3DMode ? 'Plano 2D' : 'Vista 3D'}
+                  </Button>
+                  <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => setIsFullscreen(f => !f)}
@@ -1652,17 +1722,89 @@ function DecoracionYDisenoEventoContent() {
                 <div className={cn('relative', isFullscreen ? 'flex flex-1 gap-3 min-h-0' : '')}>
                   <Card className={cn("border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md overflow-hidden", isFullscreen ? 'flex-1 flex flex-col' : '')}>
                     <CardContent className={cn("p-4", isFullscreen ? 'flex-1 flex flex-col min-h-0' : '')}>
-                      <DecoCanvas
-                        elementos={canvasElementos}
-                        onChange={handleCanvasElementsChange}
-                        selectedId={selectedCanvasId}
-                        onSelectId={setSelectedCanvasId}
-                        hiddenZones={canvasHiddenZones}
-                        fondoColor={canvasFondoColor}
-                        fondoImagenUrl={canvasFondoImagenUrl || undefined}
-                        showGrid={showGrid}
-                        fullscreen={isFullscreen}
-                      />
+                      {is3DMode ? (
+                        <div className="w-full h-[600px] rounded-2xl overflow-hidden bg-slate-950 relative">
+                          <SalonScene
+                            decoracion={{
+                              ...decoracionData,
+                              salonElements: [
+                                ...(decoracionData.salonElements || []),
+                                ...canvasElementos.map((el) => ({
+                                  id: el.id,
+                                  name: el.etiqueta || el.tipo,
+                                  x: el.x,
+                                  y: el.y,
+                                  width: el.width || 80,
+                                  height: el.height || 80,
+                                  rotation: el.rotacion || 0,
+                                  type: 'element' as const,
+                                  category: el.tipo?.toLowerCase().includes('mesa') ? 'mesa' : el.tipo,
+                                  backgroundColor: el.colores?.[0] || '#c9a96e',
+                                })),
+                              ],
+                              itemsDecoracion: [
+                                ...(decoracionData.itemsDecoracion || []),
+                                ...(decoracionData.items || []).map((it) => ({
+                                  id: it.id,
+                                  nombre: it.name,
+                                  categoria: it.category || 'decoracion',
+                                  cantidad: it.quantity || 1,
+                                })),
+                              ],
+                            }}
+                          />
+                          {/* 3D Items overlay demonstration */}
+                          <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-white text-xs flex items-center gap-2">
+                            <Layers className="w-3.5 h-3.5 text-primary" />
+                            <span>Vista 3D Interactiva del Salón (Prismm)</span>
+                          </div>
+
+                          {/* Muebles y elementos 3D posicionados según las coordenadas reales del plano */}
+                          {canvasElementos.length > 0 && (
+                            <div className="absolute bottom-4 left-4 z-10 flex flex-wrap gap-2 pointer-events-none">
+                              {canvasElementos.map((el) => {
+                                // La cuenta vive en un archivo aparte y tiene su propia
+                                // prueba: antes estaba escrita aca adentro y nadie la
+                                // comprobaba, por eso los muebles caian todos en el cero.
+                                const { x: wX, z: wZ } = ubicarMuebleEnLaEscena(
+                                  { id: el.id, x: el.x, y: el.y, width: el.width, height: el.height },
+                                  {
+                                    salonWidth: decoracionData.salonWidth,
+                                    salonHeight: decoracionData.salonHeight,
+                                    pixelsPerMeter: decoracionData.pixelsPerMeter,
+                                  }
+                                );
+                                return (
+                                  <div
+                                    key={`mueble_3d_${el.id}`}
+                                    data-3d-mueble="true"
+                                    data-id={el.id}
+                                    data-x={wX}
+                                    data-z={wZ}
+                                    className="bg-slate-900/90 border border-amber-500/40 text-amber-300 text-xs px-2.5 py-1 rounded-lg backdrop-blur-md flex items-center gap-1.5 shadow-lg"
+                                  >
+                                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                                    <span className="font-semibold">{el.etiqueta || el.tipo}</span>
+                                    <span className="text-[10px] text-slate-400 font-mono">({wX}m, {wZ}m)</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <DecoCanvas
+                          elementos={canvasElementos}
+                          onChange={handleCanvasElementsChange}
+                          selectedId={selectedCanvasId}
+                          onSelectId={setSelectedCanvasId}
+                          hiddenZones={canvasHiddenZones}
+                          fondoColor={canvasFondoColor}
+                          fondoImagenUrl={canvasFondoImagenUrl || undefined}
+                          showGrid={showGrid}
+                          fullscreen={isFullscreen}
+                        />
+                      )}
                     </CardContent>
                   </Card>
 
@@ -2162,3 +2304,4 @@ export default function DecoracionPageWrapper() {
     </Suspense>
   );
 }
+

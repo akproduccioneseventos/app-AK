@@ -78,7 +78,7 @@ function CheckInContent() {
     return <div className="text-center p-8"><Loader2 className="w-16 h-16 animate-spin text-primary mx-auto" /><p className="mt-4 text-lg">Registrando entrada...</p></div>;
   }
   if (error) {
-    return <Card className="w-full max-w-md shadow-lg bg-destructive/10"><CardHeader className="text-center"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-3" /><CardTitle className="text-xl font-semibold text-destructive">Error en Check-in</CardTitle></CardHeader><CardContent className="text-center space-y-4 py-6"><p className="text-muted-foreground">{error}</p></CardContent></Card>;
+    return <Card className="w-full max-w-md shadow-lg bg-destructive/10"><CardHeader className="text-center"><AlertTriangle className="w-16 h-16 mx-auto text-destructive mb-3" /><CardTitle className="text-xl font-semibold text-destructive">Error en Check-in</CardTitle></CardHeader><CardContent className="text-center space-y-4 py-6"><p className="text-muted-foreground">{error}</p><p className="text-sm text-muted-foreground">Mostrale esta pantalla a alguien del equipo de AK y te hacemos la entrada a mano. No pierdas tu lugar en la fila.</p>{/* Una pantalla de error SIN SALIDA deja al invitado parado en la puerta sin saber que hacer. */}<a href={fiestaId ? `/evento/hub/${fiestaId}` : '/'} className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-base font-bold text-primary-foreground transition hover:opacity-90">Ir a la fiesta</a></CardContent></Card>;
   }
   if (!invitado) return null;
 

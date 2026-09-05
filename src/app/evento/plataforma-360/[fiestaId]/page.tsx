@@ -49,6 +49,30 @@ const DURATION_OPTIONS = [
 ];
 
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
+import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
+
+/**
+ * Aplica cortina de fundido desde negro al inicio y hacia negro al final
+ * directamente sobre el lienzo del video.
+ */
+function aplicarCortinaVideo(
+  ctx: CanvasRenderingContext2D,
+  ancho: number,
+  alto: number,
+  frameIndex: number,
+  totalFrames: number
+) {
+  const duracionCortina = Math.max(3, Math.floor(totalFrames * 0.12));
+  if (frameIndex < duracionCortina) {
+    const alpha = (duracionCortina - frameIndex) / duracionCortina;
+    ctx.fillStyle = `rgba(0, 0, 0, ${alpha.toFixed(3)})`;
+    ctx.fillRect(0, 0, ancho, alto);
+  } else if (frameIndex >= totalFrames - duracionCortina) {
+    const alpha = (frameIndex - (totalFrames - duracionCortina)) / duracionCortina;
+    ctx.fillStyle = `rgba(0, 0, 0, ${alpha.toFixed(3)})`;
+    ctx.fillRect(0, 0, ancho, alto);
+  }
+}
 
 export default function Plataforma360Page() {
   const params = useParams();
@@ -87,7 +111,7 @@ export default function Plataforma360Page() {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressMsg, setProgressMsg] = useState('');
@@ -99,7 +123,8 @@ export default function Plataforma360Page() {
   const [capturedFrames, setCapturedFrames] = useState<HTMLCanvasElement[]>([]);
   const customAudioRef = useRef<HTMLAudioElement | null>(null);
   const drawCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  
+  const vueltas360 = fiesta?.station.vueltas360 || 2;
+
   const audioCtxRef = useRef<AudioContext | null>(null);
   const customAudioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const customAudioDestinationRef = useRef<MediaStreamAudioDestinationNode | null>(null);
@@ -356,7 +381,7 @@ export default function Plataforma360Page() {
     grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
     grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.7)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
-    
+
     ctx.fillStyle = grad;
     ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
 
@@ -378,7 +403,7 @@ export default function Plataforma360Page() {
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'recording', {}, accessToken);
     speak("¡A bailar!");
-    
+
     if (customAudioRef.current) {
       customAudioRef.current.currentTime = 0;
       customAudioRef.current.play().catch(() => {});
@@ -390,10 +415,10 @@ export default function Plataforma360Page() {
     const captureFps = 15;
     const maxFrames = realCaptureSeconds * captureFps;
     const intervalMs = 1000 / captureFps;
-    
+
     const frames: HTMLCanvasElement[] = [];
     let count = 0;
-    
+
     // Setup capture canvas at 480p to avoid memory crash
     const captureW = 480;
     const captureH = (videoRef.current.videoHeight / videoRef.current.videoWidth) * captureW || 854;
@@ -425,7 +450,7 @@ export default function Plataforma360Page() {
     setLocalStatus('processing');
     await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'processing', {}, accessToken);
     setProgressMsg('Procesando efecto cámara lenta...');
-    
+
     if (frames.length === 0) {
       setProgressMsg('No se capturaron cuadros. Revisa la camara e intenta nuevamente.');
       setLocalStatus('idle');
@@ -441,9 +466,9 @@ export default function Plataforma360Page() {
     // Queremos que el video resultante dure `targetDurationSec`.
     // Tenemos N frames. Vamos a renderizarlos a una tasa más lenta.
     const outputFps = frames.length / targetDurationSec; // ej. 75 frames / 15s = 5 fps.
-    
+
     const canvasStream = drawCanvas.captureStream(Math.max(12, Math.floor(outputFps))); // Forzar un minimo
-    
+
     let combinedStream = canvasStream;
     // Si hay musica, agregarla al stream
     if (customAudioRef.current) {
@@ -456,7 +481,7 @@ export default function Plataforma360Page() {
         customAudioSourceRef.current.connect(customAudioDestinationRef.current);
         customAudioSourceRef.current.connect(audioCtxRef.current.destination);
       }
-      
+
       const audioTracks = customAudioDestinationRef.current.stream.getAudioTracks();
       if (audioTracks.length > 0) {
          combinedStream = new MediaStream([
@@ -479,7 +504,7 @@ export default function Plataforma360Page() {
       const mediaRecorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 2500000 });
       const chunks: Blob[] = [];
       mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
-      
+
       mediaRecorder.onstop = async () => {
         if (customAudioRef.current) {
           customAudioRef.current.pause();
@@ -504,10 +529,23 @@ export default function Plataforma360Page() {
         }
         ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
         ctx.drawImage(frames[frameIndex], 0, 0);
+
+        // Marco dinámico animado sobre el video
+        dibujarMarcoDinamico(ctx, drawCanvas.width, drawCanvas.height, {
+          estilo: 'elegante',
+          nombreAgasajado: fiesta?.nombreAgasajado,
+          nombreEvento: fiesta?.eventName,
+          fechaEvento: fiesta?.eventDate,
+          colorPrimario: fiesta?.primaryColor || fiesta?.station.accentColor || '#d97706',
+        });
+
+        // Cortina de entrada y salida grabada dentro del video
+        aplicarCortinaVideo(ctx, drawCanvas.width, drawCanvas.height, frameIndex, frames.length);
+
         frameIndex++;
         setTimeout(drawFrame, renderInterval);
       };
-      
+
       drawFrame();
     } catch (e) {
       console.error(e);
@@ -568,7 +606,7 @@ export default function Plataforma360Page() {
       if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
 
       const res = await uploadEntretenimientoMedia(formData);
-      
+
       if (res.success) {
         const mediaUrl = res.media?.url || '';
         setProgress(100);
@@ -643,6 +681,7 @@ export default function Plataforma360Page() {
       'plataforma360',
       {
         duration: selectedDuration,
+        vueltas360,
         countdownSeconds: fiesta?.station.countdownSeconds || 5,
         operatorName: fiesta?.station.operatorName,
       },
@@ -667,7 +706,7 @@ export default function Plataforma360Page() {
       <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
         <div className="mx-auto max-w-md space-y-5">
           <AvisoDeFallaEnEstacion mensaje={session?.lastError} cuando={session?.lastErrorAt} />
-          
+
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
@@ -693,10 +732,10 @@ export default function Plataforma360Page() {
               <label className="flex h-12 items-center justify-center gap-2 rounded-lg border border-white/5 bg-black/20 px-4 text-xs font-bold transition hover:border-white/10 cursor-pointer text-purple-300">
                 <Volume2 className="w-4 h-4" />
                 Cargar Archivo MP3
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   accept="audio/*"
-                  className="hidden" 
+                  className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     // En una app real, esto debería subir a Storage y actualizar Firebase.
@@ -745,6 +784,15 @@ export default function Plataforma360Page() {
               </div>
             </div>
 
+            {/* Vueltas del Brazo 360 */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Vueltas del Brazo</p>
+              <div className="flex items-center justify-between rounded-lg border border-white/5 bg-black/30 px-4 py-3 text-xs font-bold text-purple-300">
+                <span>Vueltas configuradas</span>
+                <span className="text-sm font-black">{vueltas360} vueltas</span>
+              </div>
+            </div>
+
             {/* Remote commands */}
             <div className="space-y-3 pt-2">
               <button
@@ -781,7 +829,7 @@ export default function Plataforma360Page() {
   // Display View UI
   return (
     <div className="fixed inset-0 bg-zinc-950 text-white flex flex-col overflow-hidden select-none">
-      
+
       {/* HEADER */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
         <button type="button" onClick={() => router.back()} aria-label="Volver" title="Volver" className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 backdrop-blur-md transition hover:bg-white/20">
@@ -797,10 +845,10 @@ export default function Plataforma360Page() {
           {role === 'operator' && localStatus === 'idle' && (
             <label className="flex h-11 items-center justify-center gap-2 rounded-lg bg-white/10 px-4 text-xs font-bold transition hover:bg-white/20 cursor-pointer text-purple-300">
               Música Cargable
-              <input 
-                type="file" 
+              <input
+                type="file"
                 accept="audio/*"
-                className="hidden" 
+                className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) selectCustomAudio(file);
@@ -847,7 +895,7 @@ export default function Plataforma360Page() {
               : undefined
           }
         />
-        
+
         {/* Idle Splash Screen */}
         {localStatus === 'idle' && (
           <div className="relative w-full h-full">
@@ -858,12 +906,20 @@ export default function Plataforma360Page() {
               muted
               className={`absolute inset-0 w-full h-full object-cover opacity-35 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
-            
+
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
-                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-violet-500 shadow-lg shadow-violet-950/30">
-                  <Play className="w-10 h-10 text-white fill-white ml-1" />
-                </div>
+                {(() => {
+                  const accentColor = fiesta?.station.accentColor || fiesta?.primaryColor || '#8b5cf6';
+                  return (
+                    <div
+                      className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg shadow-lg"
+                      style={{ backgroundColor: accentColor, boxShadow: `0 10px 25px ${accentColor}40` }}
+                    >
+                      <Play className="w-10 h-10 text-white fill-white ml-1" />
+                    </div>
+                  );
+                })()}
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Plataforma 360</h2>
                   <p className="text-sm text-zinc-300">Preparate. La plataforma empezará a girar y grabará en cámara lenta. ¡Hacé tu mejor pose!</p>
@@ -940,7 +996,7 @@ export default function Plataforma360Page() {
               muted
               className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
-            
+
             <div className="absolute bottom-10 left-10 right-10 z-10 flex flex-col items-center space-y-2">
               <span className="flex items-center gap-1.5 rounded-lg border border-violet-400/30 bg-black/60 px-4 py-1.5 text-sm font-black uppercase tracking-wide text-violet-200">
                 <span className="h-2.5 w-2.5 rounded-full bg-red-500 motion-safe:animate-pulse" /> Grabando ({recordingTimeLeft}s)
@@ -969,7 +1025,7 @@ export default function Plataforma360Page() {
         {/* Done / QR Screen */}
         {localStatus === 'done' && !uploadError && (
           <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
-            
+
             {/* Video preview */}
             <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-zinc-900 shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {finalVideoUrl && (

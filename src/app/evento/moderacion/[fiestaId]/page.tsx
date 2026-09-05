@@ -16,6 +16,25 @@ function isVideoPost(post: SocialGalleryPost) {
   return post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
 }
 
+const PALABRAS_DUDOSAS = [
+  'spam', 'insulto', 'estafa', 'troll', 'fake', 'ofensivo', 'mierda', 'puta',
+  'puto', 'verga', 'pija', 'culo', 'concha', 'teta', 'desnudo', 'droga',
+  'borracho', 'pelea', 'sexo', 'violencia', 'arma',
+];
+
+function esPostDudoso(post: SocialGalleryPost): { esDudoso: boolean; motivo?: string } {
+  const texto = `${post.authorName || ''} ${post.caption || ''} ${post.dedication || ''}`.toLowerCase();
+  for (const palabra of PALABRAS_DUDOSAS) {
+    if (texto.includes(palabra)) {
+      return { esDudoso: true, motivo: `Texto sospechoso ("${palabra}")` };
+    }
+  }
+  if ((post as any).isDark || (post as any).isBlurry || (post as any).aiFlags?.isNsfw) {
+    return { esDudoso: true, motivo: 'Posible foto oscura o movida' };
+  }
+  return { esDudoso: false };
+}
+
 export default function SwipeModerationPage() {
   const params = useParams();
   const router = useRouter();
@@ -50,11 +69,17 @@ export default function SwipeModerationPage() {
     return () => clearInterval(interval);
   }, [loadData]);
 
-  // Filter posts based on view mode
-  const filteredPosts = posts.filter(p => {
-    const status = p.moderationStatus ?? 'approved';
-    return status === viewMode;
-  });
+  // Filter posts based on view mode and prioritize doubtful posts first
+  const filteredPosts = posts
+    .filter(p => {
+      const status = p.moderationStatus ?? 'approved';
+      return status === viewMode;
+    })
+    .sort((a, b) => {
+      const dudosoA = esPostDudoso(a).esDudoso ? 1 : 0;
+      const dudosoB = esPostDudoso(b).esDudoso ? 1 : 0;
+      return dudosoB - dudosoA;
+    });
 
   const handleModerate = async (postId: string, status: 'approved' | 'hidden') => {
     setActioningId(postId);
@@ -323,6 +348,14 @@ function SwipeCard({ post, allPosts, onApprove, onReject, disabled }: SwipeCardP
 
         {/* Assistance Badges */}
         <div className="absolute top-4 right-4 flex flex-col gap-1.5 items-end">
+          {(() => {
+            const d = esPostDudoso(post);
+            return d.esDudoso ? (
+              <span className="px-2.5 py-1 rounded-full bg-amber-400 text-black text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
+                ⚠️ {d.motivo || 'Atención prioritaria'}
+              </span>
+            ) : null;
+          })()}
           {assistance.isDuplicate && (
             <span className="px-2.5 py-1 rounded-full bg-amber-500/90 text-black text-[10px] font-black uppercase tracking-wider shadow-md">
               ⚠️ Posible repetida

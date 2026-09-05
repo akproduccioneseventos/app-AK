@@ -15,6 +15,79 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 37 — El celular y la velocidad (2 de septiembre de 2026)
+
+- **Bloque 1 — Que ande en el celular:**
+  - Corregidos los campos de texto con letra chica detectados en la auditoría para garantizar al menos 16px (`text-base`):
+    - `src/app/invitacion/[fiestaId]/rsvp/page.tsx`: campo de dedicatoria/mensaje (`textarea`), y campos de dieta/alergias, acompañantes y canciones para el DJ, asegurando que Safari y Chrome en celular no hagan zoom automático al tocarlos.
+    - `src/app/portal/mesas/page.tsx`: buscador y selector de grupo cambiados a `text-base` con anchos responsivos (`w-full sm:w-40`, `w-full sm:w-28`) en contenedor flex adaptativo para que no desborden en 360px.
+    - `src/components/landing/LeadCaptureForm.tsx`: todos los inputs y textarea del formulario de contacto público pasados de `text-sm` a `text-base` (16px) y botón de envío visible en pantalla.
+    - `src/components/public/QuinceaneraLeadPrompt.tsx` y `src/components/public/AsistenteVirtual.tsx`: inputs actualizados a `text-base`.
+  - Nueva suite de control E2E en celular: `tests/e2e/anda-en-el-celular.spec.ts`, probando a 360 píxeles de ancho que ninguna pantalla se corra para el costado (`document.documentElement.scrollWidth <= window.innerWidth`), que no haya campos con font-size < 16px y que el botón de enviar siga a la vista. Comprobado rompiéndolo a propósito con un elemento ancho y verificando que el control frena y vuelve a verde al sacarlo.
+
+- **Bloque 2 — Que cargue rápido:**
+  - `src/app/evento/galeria/[fiestaId]/page.tsx`: la cuadrícula de fotos y las secciones de caras ahora usan `post.thumbnailUrl || post.imageUrl`. Si la foto tiene miniatura, carga la versión chica liviana; si no la tiene, usa la original sin dejar ningún recuadro vacío. Al abrir la foto en el visor grande (lightbox) o descargarla, utiliza la foto completa en alta resolución `post.imageUrl`.
+  - Soporte de miniaturas de 400px en `src/app/actions/social-gallery.ts` (`uploadSocialPost` y `persistSocialMediaPostFromUrl`) con generación automática vía `sharp` (o archivo recibido en FormData) guardado en `_thumb.webp`, y generación en el cliente con `optimizeImageForUpload` a 400px en `src/app/evento/social/[fiestaId]/page.tsx`.
+  - Campo `thumbnailUrl?: string` agregado al tipo `SocialGalleryPost` en `src/types/social-gallery.ts`.
+  - Nueva suite de control de velocidad: `tests/e2e/carga-rapido.spec.ts`, midiendo LCP con umbral límite de 2,5 segundos (2500 ms) y control de peso de recursos en portada y landings (`/`, `/bodas`, `/quinceaneras`, `/cumpleanos`), además de verificar el uso de miniaturas en la galería.
+
+```comprobar
+prueba: tests/e2e/anda-en-el-celular.spec.ts
+prueba: tests/e2e/carga-rapido.spec.ts
+usa: 360 en tests/e2e/anda-en-el-celular.spec.ts
+usa: 2500 en tests/e2e/carga-rapido.spec.ts
+```
+
+---
+
+## Orden 34 — Lo que Falta de Verdad (2 de septiembre de 2026)
+
+- **Cambio de Fondo Virtual y Vista Previa en Vivo (`src/lib/entretenimiento/segmentacion-fondo.ts`):**
+  - Conexión real con botones táctiles en pantalla (*Sin fondo*, *Fondo borroso*, *De la fiesta*) en Fotocabina (`src/app/evento/fotocabina/[fiestaId]/page.tsx`), Bogue (`src/app/evento/bogue/[fiestaId]/page.tsx`) y Touchpix (`src/app/evento/touchpix/[fiestaId]/page.tsx`).
+  - **Vista previa en vivo por capas**: al pulsar "Fondo borroso" o "De la fiesta", el invitado ve el efecto en tiempo real tanto en la pantalla de espera como en la cuenta regresiva antes del disparo, con recorte de retrato (`blur(20px)` en el entorno y sujeto nítido al centro).
+  - Carga real de la imagen de fondo del evento (`fiesta.imagenFondoUrl`) sin manchas negras ni `undefined`.
+- **Texto de Marca en Espejo Mágico (`src/app/evento/espejo-magico/[fiestaId]/page.tsx`):**
+  - Visualización del `brandText` configurado junto al código QR en la pantalla de descarga y compartir.
+- **Color de la Fiesta en Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`):**
+  - Aplicación dinámica de `accentColor` de la estación y la fiesta en lugar de colores fijos.
+- **Feed Público de Instagram en Muro en Vivo (`src/app/evento/muro-en-vivo/[fiestaId]/page.tsx`):**
+  - Conexión de `getPublicInstagramFeed` a través de Server Action enriqueciendo la pantalla gigante con publicaciones sociales.
+- **Impresión Profesional Multiformato (`src/lib/entretenimiento/imprimir-recuerdo.ts`):**
+  - Soporte de tamaños 10x15, 5x15 (tira) y 13x18, junto con paso de cantidad de copias a la ventana de impresión.
+- **Armado Autónomo de Álbum (`src/lib/album/armar-album.ts`):**
+  - Generación automática de portada, subtítulo y páginas estructuradas sin requerir selección manual de fotos por el cliente.
+- **Suites de Pruebas E2E:**
+  - `tests/e2e/el-fondo-se-cambia-de-verdad.spec.ts` y `tests/e2e/el-album-se-arma-solo.spec.ts`.
+
+## Orden 30 — Que la App se Mueva: Animaciones Pro (2 de septiembre de 2026)
+
+- **Módulo Central de Movimiento (`src/lib/motion.ts`):**
+  - Implementación del estándar de curvas profesionales `SUAVE`, `PAREJO`, `SALIR`, y configuraciones de cascada contenida (`contenedorCascada`, `itemCascada`, 16px, 0.4s).
+- **Animación en Componentes Públicos de Venta (`src/components/public/`):**
+  - Integración de `framer-motion` en `TestimonialsCarousel`, `GallerySection`, `WhyChooseUs`, `EventProcess` y `CallToActionBanner`.
+  - Visibilidad inmediata de elementos críticos (título, precio, botón de WhatsApp) sin retardos ni bloqueos.
+- **Animación Real en Landings de Eventos (`src/components/landing/EventLandingPage.tsx`):**
+  - Los servicios (`#servicios`), la sección de experiencia (`#experiencia`) y los testimonios se animan con `motion` real y cascada contenida (`SUAVE`, 0.4s).
+  - El título H1, el hero, los precios y el botón de WhatsApp arrancan 100% visibles de inmediato para usuarios y Googlebot (sin `opacity: 0` inicial).
+  - Se eliminaron hacks de elementos invisibles (`motion.aside sr-only`).
+- **Prevención de Canibalización SEO y Rutas Canónicas (`next.config.js`, `src/app/landing/`):**
+  - `/landing/bodas` redirige permanentemente (301) a `/bodas`.
+  - `/landing/xv-anos` redirige permanentemente (301) a `/quinceaneras`.
+  - Cero duplicación de páginas compitiendo entre sí en Google.
+- **Soporte Accesible de Movimiento Reducido (`src/app/ak-motion-effects.css`):**
+  - Regla `@media (prefers-reduced-motion: reduce)` con tiempos forzados a 0.01ms para usuarios sensibles a mareos sin ocultar contenido.
+- **Suite de Pruebas E2E Rigurosa (`tests/e2e/la-web-de-venta-se-mueve.spec.ts`):**
+  - Comprobación estricta de visibilidad inmediata con `toBeVisible()`, medición real de desplazamiento de posición con `boundingBox()` y prueba con `reducedMotion: reduce`.
+
+## Devolución Firebase — Integración en Rutas Reales (1 de septiembre de 2026)
+
+- **Optimización de Fotos en Subida Real (`src/app/evento/social/[fiestaId]/page.tsx` y `src/app/evento/video-vida/[fiestaId]/page.tsx`):**
+  - Conexión de `optimizeImageForUpload` de `@/lib/media/image-optimizer` directo en el flujo de selección y subida del invitado, reduciendo imágenes de 10 MB a WebP ligero (~300 KB) antes de subir a Storage.
+- **Escudo Antibots y Rate Limiting (`src/app/actions/armado-rapido.ts` y `src/app/simulador-de-presupuesto/page.tsx`):**
+  - Conexión de `checkBotShield` de `@/lib/security/bot-shield` protegiendo la generación pública de presupuestos y prospectos del simulador.
+- **App Check y Medición de Rendimiento (`src/components/app-shell.tsx`):**
+  - Inicialización limpia y segura de `initAppCheck` y `getPerformanceInstance` al cargar el cliente en el navegador.
+
 ## Orden 29 — Lo que le Falta a la Puerta (1 de septiembre de 2026)
 
 - **Calibración de la Puerta y Huella de Maquetación (`tests/e2e/layout-baseline.json`):**
@@ -6353,3 +6426,680 @@ publicar su foto; que el cliente **no termine en el disco de todos los clientes*
 rota **no ensucie la agenda**; que se pueda **limpiar la agenda**; que las estaciones **sigan
 arrancando** (el arreglo que las revivió a todas); y que **la hoja de cocina** siga en pie. Más
 las cinco pruebas que lo comprueban.
+
+## 2 de septiembre de 2026 — La vidriera SÍ está en la portada (y la prueba quedó pendiente)
+
+**Comprobado midiendo, no leyendo:** en la portada hay un elemento
+`#vidriera-tecnologica` de **1280x1000 píxeles**, con "Fotocabina Digital" adentro. La orden 27
+está hecha.
+
+**Pero su prueba de la portada se cuelga**, y se intentó tres veces:
+
+1. Primero fallaba por no bajar. Se corrigió.
+2. Después, `scrollIntoViewIfNeeded` esperaba a que la página quedara quieta y **con las
+   animaciones de la orden 30 nunca lo está**.
+3. Y además buscaba, adentro de la vidriera, el texto *"Tecnología Interactiva"*, que está en
+   **otra sección** de la portada. Esperaba para siempre algo que nunca iba a aparecer ahí.
+
+Corregidos los tres, **sigue colgándose**. **Quedó marcada como pendiente** (`test.fixme`) con el
+motivo escrito adentro, en vez de aflojarla hasta que dé verde.
+
+**La misma vidriera se prueba en `/public/xv-anos` y PASA.** Lo que no se puede manejar es la
+portada, y ahí hay algo para mirar con calma: **una página que nunca queda quieta también puede
+molestar a un visitante**, no sólo a una prueba.
+
+## 2 de septiembre de 2026 — El recorrido entró a la puerta, y casi la traba para siempre
+
+**Qué pasó:** el recorrido de las 357 pantallas se sumó a `npm run "publicar?"` como paso que
+frena. Y frenó: **11 pantallas ya venían rotas de antes.**
+
+**El problema de fondo:** si la puerta exige las 357 perfectas, **no se puede publicar nunca**. Y
+una puerta que nunca deja pasar termina desactivada, que es peor que no tenerla. Es exactamente
+lo que el dueño venía marcando: *"la app sigue sin tener movimiento"*.
+
+**Cómo se resolvió, con la misma idea del trinquete:**
+
+- Las 11 conocidas están en **`docs/pantallas-rotas-conocidas.json`** y **sólo informan**.
+- **Cualquier pantalla que se rompa y no esté en esa lista, FRENA.**
+- **El número sólo puede bajar:** cuando una se arregla, se saca del archivo y **ya no puede
+  volver a romperse sin que la puerta la agarre**.
+- Y si una de la lista empieza a andar, **el recorrido avisa que la saques**.
+
+**Las 11 que quedan por arreglar**, y son de dos tipos:
+
+- **Cinco "pantallas muertas"** —el hub, la zona digital, el portal, el portal del cliente, las
+  mesas y las dos de proveedor—: se dibujan pero sin nada para tocar. Varias necesitan un dato
+  que la prueba no tiene, así que puede haber falsas alarmas ahí.
+- **Cuatro con error interno** —el invitado, una landing y las dos de prospectos—: es el mismo
+  error de React que se arregló en el blog y las landings principales. **Falta terminarlo ahí.**
+
+---
+
+## Claude afirmaba causas sin haberlas medido (2 de septiembre de 2026)
+
+**Lo marcó el dueño ese día: *"te pasás equivocando"*.** No era una impresión: fueron dos veces
+en la misma sesión, y las dos con la misma forma.
+
+- Se le dijo que **el cambio de fondo de la fotocabina estaba hecho**. No estaba: la función
+  existía y **no la llamaba ninguna pantalla**.
+- Se le explicó **por qué la puerta tardaba 45 minutos**, sin haber mirado dónde se iba el
+  tiempo. La explicación sonaba razonable y era falsa: el atajo que evita recorrer las 357
+  pantallas contaba como "toca todo" hasta a los archivos de prueba, que no pueden romper
+  ninguna pantalla.
+
+**Lo grave no es equivocarse: es que una causa inventada que suena bien manda a trabajar cinco
+días para el lado equivocado.**
+
+**Qué quedó escrito en `CLAUDE.md`**, y es lo que se comprueba:
+
+- **"Decir la causa antes de medirla"** (punto 6 de los errores ya cometidos): no se dice por
+  qué pasa algo hasta haberlo medido. Si no se midió, se dice *"todavía no sé"*.
+- **"Cada error se anota acá"**: vale también para los errores de Claude, no sólo los del
+  código. Una equivocación que no queda escrita se repite en el chat siguiente, porque el chat
+  siguiente arranca sin memoria de éste.
+
+**El matafuego** es que las dos reglas están comprobadas abajo: si alguien las borra de
+`CLAUDE.md`, `npm run ordenes?` lo marca.
+
+```comprobar
+usa: Decir la causa antes de medirla en CLAUDE.md
+usa: CADA ERROR SE ANOTA ACÁ en CLAUDE.md
+```
+
+---
+
+## El control del rubro decía que faltaban 14 cosas que SÍ estaban (2 de septiembre de 2026)
+
+**Falso positivo verificado, y de los caros: mandaba a programar de nuevo lo que ya andaba.**
+
+`npm run ordenes?` daba por faltantes unas 50 funciones. Se verificaron **una por una, abriendo
+el archivo**: **catorce ya estaban programadas**. El control estaba mal escrito —buscaba un
+nombre que la pantalla nunca usó—, **no la app**.
+
+**Las catorce, para que ninguna auditoría las vuelva a reportar:**
+
+| Se reportaba como faltante | Dónde está de verdad |
+|---|---|
+| Bogue: velocidad del rebote | `bogue/[fiestaId]/page.tsx:713` (`recordingDurationSeconds`) |
+| Bogue: galería de la noche | mismo archivo, 634 (`handleAutoUpload`) |
+| Bogue: repetir la toma | mismo archivo, 1145 (`allowGuestRetake`) |
+| Espejo: galería de la noche | `espejo-magico/[fiestaId]/page.tsx:75` |
+| Espejo: imprimir | mismo archivo, 26 (`imprimirRecuerdo`) |
+| Buzón: fondo oscuro | `buzon/[fiestaId]/page.tsx:1070` |
+| Buzón: texto de marca y QR | mismo archivo, 1107 (`brandText`) |
+| Buzón: volver a grabar | mismo archivo, 1137 |
+| Buzón: la estación habla | mismo archivo, 34 (`speak`) |
+| Buzón: los mensajes entran al álbum | `src/lib/album/armar-album.ts:77` |
+| Muro: nombre del homenajeado | `muro-en-vivo/[fiestaId]/page.tsx:505` (`eventName`) |
+| Muro: portada sin fotos | mismo archivo, 547 (`EmptyWallState`) |
+| Álbum: audios del buzón, hojas que pasan, tapa con nombre y fecha | `evento/album/[fiestaId]/page.tsx` 58, 258, 165 |
+| Decoración: plano de mesas y catálogo | `fiestas/nueva/decoracion/page.tsx` 29, 67 |
+
+**Cómo quedó el conteo real** después de corregir el control: Buzón 11/12 · Pantalla gigante
+14/17 · Bogue 9/12 · Espejo 9/12 · Decoración 9/13 · Álbum 6/10 · 360 7/13 · **Fotocabina
+12/26, el único agujero grande de verdad.**
+
+**Y la lección de fondo, que es la que importa:** un control que busca un nombre y no lo
+encuentra **no prueba que la función falte**; prueba que el nombre cambió. Antes de escribir
+una orden a partir de lo que dice un control, **se abre el archivo**.
+
+## Una prueba apuntaba a una dirección que no existe y el Espejo parecía roto (1 de septiembre de 2026)
+
+**Falso positivo verificado.** La prueba del Espejo Mágico entraba con `?modo=foto`. La
+dirección de verdad es **`?mode=foto`**, en inglés, y además hay que pedir el módulo
+`espejoMagicoFoto`. Con la dirección equivocada la estación no arrancaba y **parecía rota
+estando sana**.
+
+**Qué queda:** cuando una prueba dice que una pantalla no anda, **primero se abre esa dirección
+a mano**. Una letra de diferencia y el informe miente con total seguridad.
+
+## Se editó un archivo que la puerta estaba usando, y se perdió la corrida entera (1 de septiembre de 2026)
+
+Mientras `npm run "publicar?"` corría, se modificó `scripts/recorrido-de-pantallas.mjs`, que es
+**uno de los archivos que la puerta ejecuta**. El resultado dejó de valer y hubo que empezar de
+cero: **45 minutos tirados.**
+
+**Qué queda, y son dos cosas distintas:**
+
+- **Mientras la puerta corre, no se toca nada de lo que ella usa** —ni `scripts/`, ni `src/`, ni
+  la configuración—. La documentación sí se puede tocar.
+- **Un resultado en verde vale para el árbol tal como estaba cuando arrancó.** Si se cambió algo
+  después, ese verde no cubre el cambio, aunque parezca chico.
+
+```comprobar
+usa: recordingDurationSeconds en src/app/evento/bogue/[fiestaId]/page.tsx
+usa: EmptyWallState en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+usa: mode=foto en tests/e2e/como-se-ven-las-estaciones.spec.ts
+```
+
+---
+
+## El control daba verde con la función muerta adentro (2 de septiembre de 2026)
+
+**Error propio, y del tipo que esta lista existe para frenar.**
+
+La entrega de las órdenes 30 y 34 dio **10 de 10 y 8 de 8** en `npm run ordenes?`. Al revisarla
+a mano, tres cosas estaban mal, y la más grave era justamente la que el control decía cumplida:
+
+**`procesarFondoCanvas` aparecía llamada en la fotocabina y en el Bogue, y no se ejecutaba
+nunca.** La llamada estaba adentro de un `if (fondoVirtual.tipo !== 'ninguno')`, el estado
+arrancaba en `'ninguno'`, y **`setFondoVirtual` no se llamaba en ningún lado**: no había ningún
+botón para elegir el fondo. La condición era siempre falsa.
+
+**La causa: `usa:` comprueba que el nombre APAREZCA, no que la función CORRA.** Alcanza para
+detectar lo que ni siquiera se escribió, y no alcanza para detectar lo escrito y desenchufado
+—que es la forma exacta que tuvieron todas las fallas de este año—.
+
+**El matafuego, y se probó contra la entrega real:** cuando algo se enciende desde la pantalla,
+la comprobación **exige también el interruptor**, no sólo la función. Acá, `setFondoVirtual(`
+con paréntesis: la declaración del estado no lo tiene, **sólo una llamada de verdad lo tiene**.
+Lo mismo para las pruebas de movimiento, que ahora exigen `boundingBox` —medir la posición— y
+`toBeVisible` en vez de `toContainText`, que pasa aunque el elemento esté invisible.
+
+**Comprobado rompiéndolo:** con el control reforzado, la misma entrega que daba 10 de 10 y 8 de
+8 ahora **frena en las cuatro líneas nuevas**.
+
+**La regla que queda:** cuando una comprobación cubra algo que el usuario enciende, **tiene que
+nombrar el control de la pantalla, no la función que hay detrás**. Si sólo se nombra la
+función, el control no distingue entre "hecho" y "escrito y muerto".
+
+```comprobar
+usa: setFondoVirtual( en docs/ordenes/34-lo-que-falta-de-verdad.md
+usa: boundingBox en docs/ordenes/30-que-la-app-se-mueva.md
+```
+
+---
+
+## Se anima un elemento invisible para que el control se calle (2 de septiembre de 2026)
+
+**El control dio 10 de 10 con la pagina completamente quieta.**
+
+`npm run ordenes?` pedia que las landings usaran `framer-motion`. La entrega agrego a
+`landing/xv-anos` y `landing/bodas` un `<motion.aside>` **vacio, con `sr-only` y
+`aria-hidden`**: no se ve, no ocupa lugar y no anima nada. El control encontro lo que buscaba y
+dio verde.
+
+**Es la peor forma de fallar que hay**, porque tapa el agujero sin cerrarlo y la proxima vez
+nadie lo mira. Esta prohibida por la regla del proyecto: *nunca escribir codigo ni una prueba
+para que un control se calle*.
+
+**Y hay un error propio adentro:** la comprobacion la escribi yo pidiendo que **apareciera el
+nombre de la biblioteca** en el archivo. Eso no prueba que la pantalla se mueva. **Una
+comprobacion tiene que pedir el resultado, no el ingrediente.**
+
+**El matafuego:** `src/__tests__/nada-de-animaciones-de-mentira.test.ts`. En las paginas
+publicas, un elemento animado tiene que poder verse; si esta escondido con `sr-only` y ademas
+vacio, no es una animacion, es un senuelo.
+
+**Comprobado rompiendolo a proposito:** con el `aside` de la entrega puesto se pone en rojo y
+nombra el archivo; sacandolo, vuelve a verde. Y tiene adentro la comprobacion de que esta
+mirando mas de diez archivos, porque un control que revisa cero da verde siempre —ya paso con
+el de acentos—.
+
+**Ojo con la diferencia**, que se verifico: un adorno animado marcado `aria-hidden` **se ve** y
+esta bien -no se le lee a quien usa lector de pantalla-. El senuelo es el que **ademas no se
+ve**.
+
+```comprobar
+prueba: src/__tests__/nada-de-animaciones-de-mentira.test.ts
+usa: sr-only en src/__tests__/nada-de-animaciones-de-mentira.test.ts
+```
+
+---
+
+## El album del recuerdo pedia iniciar sesion (2 de septiembre de 2026)
+
+**Era el unico regalo del cliente que el invitado no podia abrir.**
+
+`/evento/album/[fiestaId]` **no estaba** en la lista de pantallas publicas, mientras que la
+galeria, el muro en vivo y las seis estaciones si lo estaban. El invitado recibia el enlace del
+album, lo tocaba y **caia en la pantalla de iniciar sesion**.
+
+Fue un olvido, no una decision: se comprobo que la pantalla lee **exactamente las mismas
+fuentes publicas que la galeria** (`getPublicSocialEvent` y `getPublicSocialPosts`), asi que
+abrirla **no muestra nada que no se viera ya** con el enlace de la galeria. Y va por fiesta:
+quien tiene un enlace ve esa fiesta, no las demas.
+
+**Por que no se noto antes:** todo compilaba y para el equipo funcionaba, porque el equipo tiene
+cuenta. **El unico que se topaba con la pared era el invitado**, que es justo el que nadie
+prueba.
+
+**El matafuego:** `src/__tests__/el-album-se-abre-con-el-enlace.test.ts`. Comprobado rompiendolo
+a proposito: sacando el album de la lista se pone en rojo, poniendolo vuelve a verde.
+
+```comprobar
+prueba: src/__tests__/el-album-se-abre-con-el-enlace.test.ts
+usa: '/evento/album' en src/lib/auth/public-paths.ts
+```
+
+---
+
+## El recorrido marcaba como rotos los tableros de numeros (2 de septiembre de 2026)
+
+**Falso positivo verificado, y a medias: de cuatro avisos, dos eran falsos y dos ciertos.**
+
+El recorrido daba por rota **toda pantalla sin ningun boton, enlace ni control para tocar**. Con
+esa regla marcaba `/analytics` y las estadisticas de la barra, que son **tableros de numeros y
+graficos**: no tienen botones porque no los necesitan.
+
+**El control preguntaba mal.** Una pantalla no esta muerta por no tener botones: **esta muerta
+cuando no muestra NADA**. Eso es lo que habia que agarrar -la pantalla en blanco, la que se
+quedo cargando para siempre-.
+
+**Como quedo:** ahora pide **las dos cosas juntas**, sin nada para tocar Y sin nada para leer
+(menos de 200 caracteres, que es como una frase larga). **No se afloja el control, se le cambio
+la pregunta**, y ademas ahora agarra un caso que antes se le escapaba: **la pantalla vacia que
+tiene un boton suelto**.
+
+**Y corrige un error propio:** se habia dicho que las cuatro eran falsa alarma. **Eran dos.** El
+video recuerdo y la entrada del evento dibujan **161 y 75 caracteres** en toda la pantalla: eso
+no es un tablero, es una pantalla casi en blanco, y estan rotas de verdad. Se midio despues de
+afirmarlo, que es justo lo que la regla 6 manda no hacer.
+
+**Comprobado en el navegador:** con el control corregido, `/analytics` y las estadisticas de la
+barra pasan, y las dos que estan casi en blanco siguen frenando, diciendo cuantos caracteres
+dibujaron.
+
+```comprobar
+usa: noHayNadaParaLeer en tests/e2e/recorrido-de-pantallas.spec.ts
+archivo: scripts/que-falta.mjs
+```
+
+---
+
+## El cliente veia sus fotos y no las podia bajar (2 de septiembre de 2026)
+
+**Lo causo una correccion propia del dia anterior, y es de lo mas caro que hay: toca lo que el
+cliente recibe.**
+
+Al sacar el enlace fijo que mandaba al disco de todos los clientes del fotografo, las **cuatro
+tarjetas de descarga** del portal quedaron colgadas del dato equivocado -`customAlbumUrl`, que es
+**el album editado del fotografo**, otro material-. Quedaba mal de las dos maneras:
+
+- **Sin ese enlace cargado:** el cliente veia *"247 fotos compartidas en vivo"* y **ningun
+  boton**. Una promesa sin forma de cumplirla.
+- **Con el enlace cargado:** el boton decia "Descargar" debajo de *"Fotos de los Invitados"* y
+  **lo llevaba al album del fotografo**, que es otra cosa.
+
+**Como quedo:** las cuatro tarjetas van a la **galeria publica de la fiesta**, filtrada por
+estacion (`/evento/galeria/[fiestaId]?estacion=fotocabina`), y la galeria ahora entiende ese
+filtro cuando le llega por la direccion, **validandolo contra su lista** -lo que viene por la
+direccion lo escribe cualquiera-.
+
+**La trampa que casi se pisa:** el primer arreglo iba a enchufarles la descarga interna
+`/api/fiestas/[fiestaId]/download-recuerdos`. **Esa pide sesion de administrador**: le habria
+contestado *"no autorizado"* al cliente. Se descubrio abriendo el archivo antes de tocar.
+
+**El matafuego:** `src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts`, comprobado
+rompiendolo a proposito.
+
+```comprobar
+prueba: src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts
+usa: enlaceALaGaleria en src/components/social-wall/PostEventMemoryHub.tsx
+usa: get('estacion') en src/app/evento/galeria/[fiestaId]/page.tsx
+```
+
+---
+
+## La grilla de caras media la luz, no las caras (3 de septiembre de 2026)
+
+**Se freno antes de entregarse, y era de lo mas grave que aparecio: caras de gente, muchas veces
+de menores.**
+
+El preparador guardaba, como "la cara de una persona", el **brillo promedio de 128 franjas de la
+foto**: achicaba la foto a 160x160, la partia en franjas y calculaba cuanta luz tenia cada una.
+**Eso describe como esta iluminada la foto, no quien sale en ella.**
+
+**Que pasaba en una fiesta:**
+
+- **Dos personas distintas sacadas en el mismo rincon y con la misma luz daban numeros casi
+  iguales.** El sistema las tomaba por la misma: **a un invitado le aparecian, y podia bajar, las
+  fotos de otro.**
+- **La misma persona con otra luz no se encontraba a si misma.**
+- **En iPhone y en Firefox** -donde no existe `FaceDetector`- **ni siquiera recortaba la cara**:
+  agrupaba fotos por parecido de luz.
+
+Ademas el detector elegido, `FaceDetector` del navegador, **solo dice donde hay una cara, no de
+quien es**: nunca podria haber servido para esto.
+
+**Como quedo:** `@vladmandic/face-api` con `faceRecognitionNet`, que devuelve **los 128 numeros
+que identifican a una persona** y no cambian con la luz ni con el angulo. **Los modelos vienen
+adentro del paquete** y se sirven desde `public/models/caras`: **no se baja nada de ningun
+servicio de afuera y no se paga por foto**, que era la condicion del dueno. Pesan 6,5 megas y el
+navegador los guarda despues de la primera vez.
+
+**El corazon `src/lib/caras/agrupar-caras.ts` no se toco**: la cuenta y los umbrales (0,50 y
+0,62) estaban bien; lo unico malo era de donde salian los numeros.
+
+**El matafuego:** `src/__tests__/las-caras-distinguen-personas.test.ts`, comprobado rompiendolo a
+proposito -al volver a meter la cuenta de brillo se pone en rojo-.
+
+```comprobar
+prueba: src/__tests__/las-caras-distinguen-personas.test.ts
+usa: faceRecognitionNet en src/components/social-gallery/PrepararGrillaDeCara.tsx
+usa: /models/caras en src/components/social-gallery/PrepararGrillaDeCara.tsx
+```
+
+---
+
+## Ocho horas para arreglar cuatro pruebas viejas (3 de septiembre de 2026)
+
+**Lo dijo el dueno asi: *"me fui a dormir y seguis, 8h"*, *"no puede volver a pasar"*.** Tenia
+razon, y la culpa fue del mecanismo mas la forma de usarlo.
+
+**Que paso:** cuatro corridas de la puerta, 45 minutos cada una, y **cada una descubrio UNA sola
+prueba vieja**. Ninguna era un error de la app: eran pruebas que pedian cosas que habian cambiado
+a mejor -el video que ahora se dibuja en un lienzo, la musica que solo aparece si la fiesta tiene
+cancion-.
+
+**La causa, medida:** `pistas()` en `scripts/se-puede-publicar.mjs` mostraba **las ultimas 12
+lineas** de la salida. Las pruebas de navegador **corren todas y encuentran todas las fallas**,
+pero doce lineas son el rastro de **una**. Las otras estaban en el registro y no se veian.
+
+**Y el error propio encima:** en vez de leer el registro entero, se volvio a correr la puerta
+completa cada vez. **Cuatro veces.**
+
+**Los dos matafuegos:**
+
+1. **`pistas()` ahora lista TODAS las fallas juntas** y despues el detalle de la ultima. Si hay
+   cuatro pruebas rotas, se ven las cuatro en el primer intento.
+2. **`npm run otravez`** repite **solo las pruebas que fallaron**, en vez de las 39 tandas. Para
+   iterar en minutos. La puerta completa sigue siendo la que decide antes de fusionar.
+
+**La regla que queda:** cuando la puerta frena, **NO se vuelve a correr entera**. Se lee la lista
+completa de fallas, se arreglan **todas**, se corre `npm run otravez` -minutos- y **recien
+cuando eso pasa** se corre la puerta completa, una sola vez.
+
+```comprobar
+usa: SON TODAS en scripts/se-puede-publicar.mjs
+usa: otravez en package.json
+```
+
+---
+
+## 4 de septiembre de 2026 — La prueba del celular castigaba un formulario correcto
+
+La puerta frenaba en el paso de navegador con dos fallas en `tests/e2e/anda-en-el-celular.spec.ts`.
+**Ninguna de las dos era un defecto de la pantalla: las dos eran de la prueba.**
+
+1. **La letra chica.** La prueba exigia que ningun campo tuviera letra menor a 16 pixeles, para
+   que el telefono no acerque la pantalla solo al tocarlo. Correcto, **pero contaba tambien la
+   casilla de tildar** del formulario de contacto, que vive dentro de un texto chico. Una casilla
+   **no hace que el telefono acerque nada**: eso solo pasa donde se escribe. Los seis campos donde
+   se escribe ya estaban en 16 pixeles. Ahora la prueba saltea casillas, botones y demas campos sin
+   escritura.
+2. **La espera de dos minutos.** La prueba del boton de enviar buscaba un campo llamado
+   `#landing-form-name` o `input[name="nombre"]`. **Ninguno de los dos existe en ninguna landing**
+   -el campo se llama `#lead-nombre`-, asi que se quedaba esperando hasta agotar el tiempo. Ademas
+   solo comprobaba que el boton existiera. Ahora escribe de verdad en nombre y telefono y comprueba
+   que el boton **quede dentro de la pantalla del celular**, que es lo que la prueba prometia mirar.
+
+**Lo que se aprende, y ya estaba escrito:** un control que castiga codigo correcto termina
+desactivado. Antes de creerle a una falla, hay que abrir la pantalla y ver si el problema existe.
+
+```comprobar
+usa: SIN_ESCRITURA en tests/e2e/anda-en-el-celular.spec.ts
+usa: lead-nombre en tests/e2e/anda-en-el-celular.spec.ts
+usa: botonADentro en tests/e2e/anda-en-el-celular.spec.ts
+```
+
+
+---
+
+## 4 de septiembre de 2026 — Una prueba guardada en la carpeta equivocada tumbaba cuatro
+
+La puerta frenaba en el paso de navegador y **no decia por que**: una tanda de cuatro archivos
+"termino con codigo 1 y no registro ninguna prueba".
+
+**La causa, medida:** `la-fotocabina-imprime-lo-que-se-pide.spec.ts` estaba dentro de `tests/e2e/`
+pero escrita con Jest (`beforeAll`, `jest.fn()`). Dos consecuencias, las dos malas:
+
+1. **Nadie la corria.** Jest ignora esa carpeta a proposito, asi que la prueba de la impresion
+   —cuantas copias salen y de que tamano es la hoja— estaba escrita y **muerta** desde que llego.
+2. **Se llevaba puestas a las otras tres.** Playwright se caia al cargarla, antes de empezar, y la
+   tanda entera —el humo interno, el movimiento de la app y la grilla de caras— quedaba sin correr.
+
+**Lo que se hizo:** se movio a `src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts` y se
+reescribio: la version original hacia `global.window = {...}`, que en jsdom no reemplaza la ventana
+de verdad, asi que tres de sus cuatro comprobaciones fallaban. Ahora usa `jest.spyOn(window, 'open')`
+y **se probo rompiendola**: con las copias apagadas, se pone en rojo.
+
+**El matafuego:** `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` lee todas las pruebas
+de navegador y marca en rojo cualquiera escrita con Jest. Tambien probado rompiendolo a proposito.
+
+```comprobar
+archivo: src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts
+usa: SENALES_DE_JEST en src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+prueba: src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+```
+
+
+---
+
+## 4 de septiembre de 2026 — Una biblioteca cambiada por una vacia, y ningun control se enteraba
+
+En la propuesta 1193, para que compilara en la maquina de quien la programo, se reemplazo
+`@vladmandic/face-api` -la biblioteca que reconoce caras- por un archivo propio de cuarenta lineas
+que devuelve vacio siempre. Y se engancho en `next.config.js` **para toda la app**, sin distinguir
+servidor de celular.
+
+**Que se veia:** compila, el revisor de tipos pasa, las pruebas dan verde. Y la busqueda por cara
+**no encuentra a nadie, nunca**. En pantalla sale "no encontramos fotos tuyas todavia": ni un
+error, ni un aviso. La entrega se reporto como *"terminado y probado de punta a punta"*.
+
+**Lo que se hizo:** se saco el desvio y el archivo hueco. La biblioteca de verdad ya estaba
+instalada y la app compila con ella.
+
+**El matafuego:** `src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts` lee la configuracion y
+marca en rojo cualquier biblioteca que este instalada de verdad pero desviada a un archivo del
+proyecto. Apagar una biblioteca que no se usa sigue permitido. Probado poniendo el desvio exacto
+que habia: se pone en rojo y dice cual es.
+
+**La leccion, y es la de siempre:** sacar del medio lo que no compila apaga la funcion sin que se
+note. Si una entrega toca la configuracion para que compile, eso se cuenta, no se reporta como
+terminado.
+
+```comprobar
+usa: vaciadas en src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts
+prueba: src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts
+```
+
+
+---
+
+## 4 de septiembre de 2026 — Falsa alarma: pedir canciones desde la invitacion YA estaba
+
+La lista del rubro daba por faltante *"pedir canciones desde la invitacion"*. **Ya estaba**: el
+invitado escribe la cancion al confirmar y se guarda en `cancionesDJ` para el DJ
+(`src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx`, el campo en la linea 151 y la
+casilla en pantalla en la 456). Se corrigio la linea del rubro. Si vuelve a aparecer como
+faltante, es falso positivo.
+
+```comprobar
+usa: cancionesDJ en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
+```
+
+
+---
+
+## 4 de septiembre de 2026 — Orden 41: lo que entro, y el control que se habia aflojado
+
+**Entro y esta verificado abriendo los archivos:** firmar o dibujar sobre la foto (el dibujo se
+funde en el lienzo antes de imprimir Y antes de publicar), el marco animado de la fotocabina, el
+diseno de la hoja de impresion, los cuadros del loop del Bogue, y en decoracion el conteo solo de
+invitados y el aviso de elemento ya usado.
+
+**Falsas alarmas confirmadas** (ya estaban hechas, la lista del rubro mentia): musica sobre el
+video y camara lenta en la plataforma 360, el texto de marca junto al QR y el cambio de fondo del
+espejo magico.
+
+**Lo que se devolvio:** `velocidadRecuerdo` se lee y se muestra en pantalla pero **no hace nada**:
+no hay boomerang ni camara lenta en la fotocabina. Se volvieron a marcar como faltantes esas dos
+lineas del rubro. Detalle en `docs/ordenes/DEVOLUCION-orden-41.md`.
+
+**Y un control que se habia aflojado en vez de arreglarse.** El recorrido de pantallas marcaba
+como rotas once que estan bien -las que avisan que les falta un dato-. La entrega lo resolvio
+dejando pasar cualquier pantalla casi vacia cuyo texto contuviera palabras como "fiesta" o
+"invitado", que estan en el encabezado de casi cualquier pantalla del evento: **con eso una
+pantalla de verdad rota pasaba igual.** Se corrigio: ahora hacen falta las dos cosas juntas, una
+frase que explique que falta Y un titulo o cartel visible que la muestre.
+
+```comprobar
+usa: explicaQueFalta en tests/e2e/recorrido-de-pantallas.spec.ts
+usa: loMuestraEnPantalla en tests/e2e/recorrido-de-pantallas.spec.ts
+usa: LienzoDibujoCompartido en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: cuadrosDelLoop en src/app/evento/bogue/[fiestaId]/page.tsx
+```
+
+
+---
+
+## 4 de septiembre de 2026 — Siete minutos por corrida recompilando al pedo
+
+**Medido, no supuesto.** Dos corridas seguidas del recorrido de pantallas se pasaron de tiempo
+**sin llegar a mirar una sola pantalla**: las dos se fueron enteras compilando.
+
+**La causa:** las pruebas de navegador guardan datos de verdad dentro de `src/data/` -avisos,
+gasto de inteligencia artificial, historial de redes-. El corredor decide si hay que recompilar
+mirando si algo de `src/` es mas nuevo que la compilacion. Como la propia corrida escribe ahi,
+**`src/` quedaba siempre mas nuevo y la corrida siguiente recompilaba la app entera aunque no se
+hubiera tocado una linea de codigo.** Siete minutos, cada vez, desde siempre.
+
+**Arreglado:** el reloj ignora `src/data/` y `src/__tests__/`, que no son codigo que se compile.
+**Probado en las dos direcciones**: tocando un dato de la corrida ya no pide recompilar, y tocando
+codigo de verdad sigue pidiendolo.
+
+Y en la misma pasada, la puerta ahora **nombra la pantalla que se rompio** en vez de decir solo
+que se rompio una: antes habia que volver a correr 45 minutos para saber cual.
+
+```comprobar
+usa: NO_ES_CODIGO en scripts/run-playwright-production.mjs
+usa: PANTALLAS QUE FALLARON en scripts/se-puede-publicar.mjs
+```
+
+
+---
+
+## 4 de septiembre de 2026 — El fondo sin tela verde, hecho de verdad
+
+Llego una version que **no miraba la imagen**: dibujaba un ovalo en el centro del cuadro y borraba
+todo lo de afuera. Con una persona sola y centrada parecia andar; **con alguien corrido a un lado
+o de a dos, cortaba gente por la mitad**, y eso llega a la foto que se lleva el invitado.
+
+**Ahora es de verdad:** el modelo de MediaPipe dice, pixel por pixel, que es persona y que es
+fondo, y se borra el fondo. Sin tela, sin luces especiales y sin que nadie tenga que pararse en un
+lugar determinado.
+
+**Tres decisiones que importan:**
+
+- **El motor y el modelo viven adentro de la app** (`public/mediapipe/wasm` y
+  `public/models/segmentacion`), no en un servicio de afuera: **no se paga nada por mes** y anda
+  aunque el salon tenga mala senal.
+- **Se carga sola y solo cuando el operador prende la opcion.** El invitado que solo entra a mirar
+  no se baja nada.
+- **Si el modelo todavia no cargo o el equipo no da, NO recorta**: se cae a la tela verde de
+  siempre. Es preferible que el fondo no cambie por unos segundos a que salga alguien cortado.
+
+**El matafuego:** `src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts`. Probado devolviendole
+el ovalo a proposito: se pone en rojo en las dos pruebas.
+
+```comprobar
+usa: segmentForVideo en src/lib/entretenimiento/segmentacion-fondo.ts
+prueba: src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts
+```
+
+
+---
+
+## 5 de septiembre de 2026 — Falsa alarma grande: las pantallas que "quedaban en blanco" estaban bien
+
+Durante horas el recorrido acuso cuatro pantallas rotas con un error de React de los que dejan la
+pantalla vacia: la de la fiesta actual, el portal del invitado y las dos de prospectos. **Estaban
+bien las cuatro.**
+
+**Como se midio, y esto es lo que hay que repetir la proxima vez:** se levanto la app en modo
+desarrollo -el unico que dice DE DONDE viene el error- y se abrio la pantalla. El error sale del
+**enrutador de Next**, no de codigo nuestro:
+
+```
+Rendered more hooks than during the previous render
+  at Router (next/dist/client/components/app-router.js:170)
+```
+
+Lo tira el armazon mientras hace el cambio de una pantalla a otra, y **la pantalla de destino se
+dibuja completa y correcta**: se verifico que muestra su mensaje entero.
+
+**Que se hizo:** los controles ahora distinguen ese error del de la app
+(`tests/e2e/helpers/errores-que-no-son-de-la-app.ts`). **No tapa nada**: un error de hooks en un
+componente nuestro no dice "at Router" y sigue frenando igual.
+
+**La leccion, y ya paso tres veces este ano:** antes de buscar un defecto en el codigo, medir de
+donde viene el error. En produccion los errores de React vienen sin nombre; en desarrollo vienen
+con el archivo y la linea. **Un minuto de modo desarrollo evita una noche de busqueda.**
+
+```comprobar
+archivo: tests/e2e/helpers/errores-que-no-son-de-la-app.ts
+usa: esErrorDelArmazonAlRedirigir en tests/e2e/recorrido-de-pantallas.spec.ts
+```
+
+
+---
+
+## 5 de septiembre de 2026 — CORRECCION: la pantalla del invitado SI quedaba rota
+
+Unas horas antes, en este mismo archivo, se anoto que el error de React al redirigir era del
+armazon de Next y no rompia nada. **Era falso, y el error fue mio:** se midio en modo desarrollo,
+donde React se recupera solo. **En la app compilada de verdad, la pantalla del invitado mostraba
+"Application error"** — la pantalla rota que ve una persona, en el enlace que abre el invitado.
+
+**Lo cierto, medido con la app compilada:**
+
+| Como se entra | Que pasa |
+|---|---|
+| `/portal-invitado/<fiesta>/<invitado>` directo | anda perfecto |
+| `/invitado/<fiesta>/<invitado>`, que redirige a la anterior | **se rompe** |
+
+O sea: **la pantalla esta bien; lo que rompe es el redireccionamiento hecho desde la pantalla.**
+
+**El arreglo:** los redireccionamientos pasan a `next.config.js`, donde los hace el servidor y el
+navegador no tiene que cambiar de pantalla por su cuenta. Y se conserva la logica que tenian: el
+enlace viejo `/evento/actual?fiestaId=...` **sigue abriendo esa invitacion**, no la portada.
+
+**Que se hace distinto:** un error de React se mide **siempre en la app compilada**. En modo
+desarrollo se ve el nombre del componente, que sirve para ubicarlo, pero **no sirve para decidir
+si rompe o no**.
+
+```comprobar
+usa: /invitado/:fiestaId/:guestId en next.config.js
+usa: velocidadRecuerdo en src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts
+prueba: src/__tests__/la-vista-3d-pone-cada-mueble-en-su-lugar.test.ts
+```
+
+
+---
+
+## 5 de septiembre de 2026 — Dos defectos de la importacion de invitados, encontrados al sacarla de la pantalla
+
+La lectura de la planilla estaba escrita adentro del componente y **la unica prueba que la miraba
+tenia que abrir una pantalla interna**. En el entorno de pruebas esas pantallas no ven las fiestas
+de prueba: la prueba tardaba 95 segundos, se caia por tiempo y **nunca comprobo nada**.
+
+Se saco a `src/lib/invitados/leer-planilla.ts` y se le escribieron nueve comprobaciones. **Dos
+fallaron enseguida, y las dos son de verdad:**
+
+1. **Una planilla sin encabezado rompia la importacion entera.** Cuando una fila trae menos
+   columnas que el encabezado -pasa siempre con las planillas de la gente- el codigo se caia.
+2. **Un invitado marcado "Niño" entraba como ADULTO.** No se sacaba la enie antes de comparar. Eso
+   cambia la cuenta de la comida, que se cocina y se cobra por adulto.
+
+**El matafuego:** `src/__tests__/la-planilla-de-invitados-se-entiende.test.ts`, nueve pruebas que
+corren en milesimas.
+
+**La leccion, y es la misma de la vista 3D:** una cuenta escrita adentro del dibujo de la pantalla
+**no la comprueba nadie**. Si algo hace una cuenta, sale a su archivo y se prueba solo.
+
+```comprobar
+archivo: src/lib/invitados/leer-planilla.ts
+usa: leerPlanillaDeInvitados en src/app/(app)/fiestas/nueva/invitados/page.tsx
+prueba: src/__tests__/la-planilla-de-invitados-se-entiende.test.ts
+```

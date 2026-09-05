@@ -42,11 +42,17 @@
     "lo-que-se-dijo:todo": "node scripts/lo-que-se-dijo-es-lo-que-es.mjs --todo",
     "publicar?:rapido": "node scripts/se-puede-publicar.mjs --rapido",
     "recorrido": "node scripts/recorrido-de-pantallas.mjs",
+    "conexiones?": "node scripts/conexiones-estado.mjs",
+    "estetica?": "node scripts/control-estetica.mjs",
     "auditado": "node scripts/actualizar-auditado.mjs",
     "prepare": "node scripts/instalar-filtro.mjs",
     "filtro": "node scripts/se-puede-publicar.mjs --filtro",
     "limpiar:corrida": "node scripts/limpiar-corrida.mjs",
-    "ordenes?": "node scripts/ordenes-cumplidas.mjs"
+    "ordenes?": "node scripts/ordenes-cumplidas.mjs",
+    "recorrido:todo": "node scripts/recorrido-de-pantallas.mjs --todo",
+    "falta?": "node scripts/que-falta.mjs",
+    "otravez": "node scripts/run-playwright-production.mjs --last-failed",
+    "panel": "node scripts/panel.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -82,6 +88,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@react-three/drei": "^9.115.0",
     "@react-three/fiber": "^8.17.10",
+    "@vladmandic/face-api": "^1.7.15",
     "canvg": "^3.0.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

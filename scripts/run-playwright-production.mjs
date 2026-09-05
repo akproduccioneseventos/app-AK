@@ -30,6 +30,20 @@ const testEnvironment = {
 
 import { statSync } from "node:fs";
 
+/**
+ * Carpetas de src/ que NO son codigo: las escribe la propia corrida.
+ *
+ * **Esto costaba SIETE MINUTOS por corrida y nadie lo habia medido.** Las pruebas
+ * de navegador guardan datos de verdad -avisos, gasto de inteligencia artificial,
+ * el historial de redes- adentro de `src/data/`. Con eso, `src/` quedaba siempre
+ * mas nuevo que la compilacion, y la corrida siguiente **recompilaba la app
+ * entera aunque no se hubiera tocado una sola linea de codigo**.
+ *
+ * Se descubrio el 4 de septiembre de 2026: dos corridas seguidas del recorrido se
+ * pasaron de tiempo sin llegar a mirar una sola pantalla, las dos compilando.
+ */
+const NO_ES_CODIGO = ["data", "__tests__"];
+
 function getLatestSourceMtime(dir = "src") {
   let latest = 0;
   function traverse(current) {
@@ -38,6 +52,7 @@ function getLatestSourceMtime(dir = "src") {
       for (const entry of entries) {
         const full = path.join(current, entry.name);
         if (entry.isDirectory()) {
+          if (current === dir && NO_ES_CODIGO.includes(entry.name)) continue;
           traverse(full);
         } else if (entry.isFile()) {
           const mtime = statSync(full).mtimeMs;
@@ -327,6 +342,10 @@ async function main() {
    * peor que no tener control.
    */
   const tandasCaidas = [];
+  /** Cuanto tardo cada tanda. Se imprime al final, de la mas lenta a la mas rapida. */
+  const relojPorTanda = [];
+  /** Segundos gastados solo en levantar el servidor, sumando las 39 veces. */
+  let segundosDeArranque = 0;
 
   // Se agrupan primero los que comparten la fiesta de prueba. Si quedaran
   // repartidos, cada tanda tendria uno adentro y **todas** correrian de a una,
@@ -368,12 +387,19 @@ async function main() {
   for (let idx = 0; idx < tandas.length; idx++) {
     const batch = tandas[idx];
     console.log(`[Tanda ${idx + 1}/${tandas.length}] Corriendo ${batch.length} archivos: ${batch.map(b => path.basename(b)).join(", ")}`);
+    // El reloj por tanda existe para NO adivinar donde se va la hora. Sin esto solo
+    // se sabe que la corrida entera tardo 62 minutos, y con eso no se puede acelerar
+    // nada: se termina optimizando lo que no cuesta. Se agrego el 4 de septiembre de 2026.
+    const arrancoLaTanda = Date.now();
 
     await ensurePortFree(port);
     const serverInstance = startServer(port);
 
     try {
       await waitForHealth(port);
+      // Cuanto costo levantar el servidor. Se levanta y se apaga UNA VEZ POR TANDA
+      // -39 veces en la corrida entera- y hasta ahora nadie habia medido cuanto pesa eso.
+      segundosDeArranque += Math.round((Date.now() - arrancoLaTanda) / 1000);
       const trabajadores = trabajadoresPara();
       const result = await runPlaywright(batch, [...flags, `--workers=${trabajadores}`]);
       const tests = extractTestsFromSuites(result.json?.suites);
@@ -443,7 +469,9 @@ async function main() {
       await serverInstance.stop();
     }
 
-    console.log(`  ✓ Tanda ${idx + 1} finalizada.\n`);
+    const segundos = Math.round((Date.now() - arrancoLaTanda) / 1000);
+    relojPorTanda.push({ segundos, archivos: batch.map((b) => path.basename(b)) });
+    console.log(`  ✓ Tanda ${idx + 1} finalizada en ${segundos}s.\n`);
   }
 
   // Resumen Final
@@ -460,6 +488,19 @@ async function main() {
   console.log(`  - Fallas reales: ${fallasReales.length}`);
   console.log(`  - Descartadas por entorno (<500ms recuperadas): ${descartadasPorEntorno.length}`);
   console.log(`======================================================\n`);
+
+  // DONDE SE VA EL TIEMPO. Sin esta lista, acelerar la corrida es adivinar.
+  if (relojPorTanda.length > 1) {
+    const lentas = [...relojPorTanda].sort((a, b) => b.segundos - a.segundos).slice(0, 5);
+    const total = relojPorTanda.reduce((suma, t) => suma + t.segundos, 0);
+    console.log(`DONDE SE VA EL TIEMPO (total ${Math.round(total / 60)} min):`);
+    console.log(`  ${String(segundosDeArranque).padStart(5)}s  levantar el servidor ${relojPorTanda.length} veces (una por tanda)`);
+    console.log('  Las 5 tandas mas lentas:');
+    for (const t of lentas) {
+      console.log(`  ${String(t.segundos).padStart(5)}s  ${t.archivos.join(', ')}`);
+    }
+    console.log('');
+  }
 
   if (tandasCaidas.length > 0) {
     console.error(`TANDAS QUE NO LLEGARON A CORRER (${tandasCaidas.length}):`);

@@ -1,5 +1,7 @@
 'use client';
 
+import { motion } from 'framer-motion';
+import { SUAVE, contenedorCascada, itemCascada } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import type { WhyUsItem } from '@/types/public-landing';
 
@@ -12,7 +14,9 @@ export function WhyChooseUs({ items, className }: WhyChooseUsProps) {
   if (!items.length) return null;
 
   return (
-    <section className={cn('py-20 px-4 bg-gradient-to-br from-slate-900 to-purple-950 text-white', className)}>
+    <section
+      className={cn('py-20 px-4 bg-gradient-to-br from-slate-900 to-purple-950 text-white', className)}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-12">
@@ -29,9 +33,16 @@ export function WhyChooseUs({ items, className }: WhyChooseUsProps) {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div
+          variants={contenedorCascada}
+          initial="oculto"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {items.map((item) => (
-            <div
+            <motion.div
+              variants={itemCascada}
               key={item.id}
               className={cn(
                 'flex flex-col gap-3 p-6 rounded-3xl',
@@ -44,9 +55,9 @@ export function WhyChooseUs({ items, className }: WhyChooseUsProps) {
               </span>
               <h3 className="font-black text-lg text-white">{item.title}</h3>
               <p className="text-sm text-slate-300 leading-relaxed">{item.description}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

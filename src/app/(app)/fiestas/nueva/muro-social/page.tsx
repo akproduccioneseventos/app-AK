@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateSocialGallerySettingsFiestaActual } from '@/app/actions/fiesta-actual';
 import { getSocialPosts, clearGallery } from '@/app/actions/social-gallery';
+import { PrepararGrillaDeCara } from '@/components/social-gallery/PrepararGrillaDeCara';
 import type { ActiveGameData, ActiveGameType, FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
@@ -217,6 +218,7 @@ function MuroSocialContent() {
   const [akBrandSettings, setAkBrandSettings] = useState<SocialGalleryBrand>({});
   const [isSavingBrand, setIsSavingBrand] = useState(false);
   const [postCount, setPostCount] = useState<number | null>(null);
+  const [approvedPosts, setApprovedPosts] = useState<{ id: string; imageUrl: string }[]>([]);
   const [activeGame, setActiveGame] = useState<ActiveGameData | null>(null);
   const [isLaunchingGame, setIsLaunchingGame] = useState(false);
   const [gameCustomTitle, setGameCustomTitle] = useState('');
@@ -251,6 +253,10 @@ function MuroSocialContent() {
       }
       const posts = await getSocialPosts(fiestaId);
       setPostCount(posts.length);
+      const approved = posts
+        .filter((p: any) => p.moderationStatus !== 'hidden' && p.imageUrl && !p.imageUrl.toLowerCase().endsWith('.mp4') && !p.imageUrl.toLowerCase().endsWith('.mov'))
+        .map((p: any) => ({ id: p.id, imageUrl: p.imageUrl }));
+      setApprovedPosts(approved);
     } catch (error) {
       // Silent fail during background refresh — log for debugging
       console.error('[MuroSocial] Background refresh failed:', error);
@@ -319,12 +325,17 @@ function MuroSocialContent() {
       } catch {
         setActivePoll(null);
       }
-      // Load photo count for admin status panel
+      // Load photo count and approved photos for admin status and face indexer
       try {
         const posts = await getSocialPosts(fiestaId);
         setPostCount(posts.length);
+        const approved = posts
+          .filter((p: any) => p.moderationStatus !== 'hidden' && p.imageUrl && !p.imageUrl.toLowerCase().endsWith('.mp4') && !p.imageUrl.toLowerCase().endsWith('.mov'))
+          .map((p: any) => ({ id: p.id, imageUrl: p.imageUrl }));
+        setApprovedPosts(approved);
       } catch {
         setPostCount(null);
+        setApprovedPosts([]);
       }
     } catch (e: any) {
       toast({ title: 'Error', description: e.message, variant: 'destructive' });
@@ -1349,6 +1360,22 @@ function MuroSocialContent() {
                   }
                 </Button>
               </div>
+
+              {/* Orden 36: Preparar grilla de caras cuando el equipo cierra la galería */}
+              {fiestaId && (
+                <div className="pt-2">
+                  <PrepararGrillaDeCara
+                    fiestaId={fiestaId}
+                    fotosAprobadas={approvedPosts}
+                    onListo={() => {
+                      toast({
+                        title: 'Grilla de caras lista ✓',
+                        description: 'Los invitados ya pueden encontrar sus fotos tocando su cara.',
+                      });
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

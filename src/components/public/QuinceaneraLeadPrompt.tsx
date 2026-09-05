@@ -189,14 +189,14 @@ export function QuinceaneraLeadPrompt({
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               required
-              className="h-9 text-xs bg-white"
+              className="h-9 text-base bg-white"
             />
             <Input
               type="tel"
               placeholder="WhatsApp (opcional)"
               value={telefono}
               onChange={(e) => setTelefono(e.target.value)}
-              className="h-9 text-xs bg-white"
+              className="h-9 text-base bg-white"
             />
           </div>
 

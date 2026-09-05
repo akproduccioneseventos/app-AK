@@ -130,6 +130,7 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
   const ttConn = findSocial('tiktok');
   const thConn = findSocial('threads');
   const xConn = findSocial('twitter') || findSocial('x');
+  const pinConn = findSocial('pinterest');
   const spConn = findSocial('spotify');
 
   // Se le pregunta a cada servicio en vez de mirar lo que quedo guardado.
@@ -195,7 +196,7 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       estado: igConn ? 'conectada' : 'falta-configurarla',
       detalle: igConn ? `Cuenta: @${igConn.username || 'conectada'}` : 'Falta vincular cuenta de Instagram',
       queSePierdeSiFalta: 'No se pueden leer los comentarios de la gente ni publicar fotos de las fiestas directamente desde la app.',
-      enlaceConfiguracion: '/settings/social-connections',
+      enlaceConfiguracion: '/settings/sincronizaciones',
       historial: {
         totalPublicaciones: igPosts.length,
         fechaMasVieja: igDates[0],
@@ -212,7 +213,7 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       estado: fbConn ? 'conectada' : 'falta-configurarla',
       detalle: fbConn ? `Página: ${fbConn.username || 'conectada'}` : 'Falta vincular página de Facebook',
       queSePierdeSiFalta: 'No podés publicar posteos programados ni responder consultas de Facebook desde el panel.',
-      enlaceConfiguracion: '/settings/social-connections',
+      enlaceConfiguracion: '/settings/sincronizaciones',
     },
     {
       id: 'youtube',
@@ -230,7 +231,7 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
         ? `Leer videos que mandan los clientes: anda${ytConn ? ` · Canal guardado: ${ytConn.username || 'conectado'}` : ''}`
         : `Leer videos que mandan los clientes: ${sondeoYoutube.motivo}`,
       queSePierdeSiFalta: 'Los videos de YouTube que manda el cliente quedan como un enlace pelado: nadie sabe que tema es.',
-      enlaceConfiguracion: '/settings/social-connections',
+      enlaceConfiguracion: '/settings/sincronizaciones',
     },
     {
       id: 'tiktok',
@@ -239,7 +240,7 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       estado: ttConn ? 'conectada' : 'no-se-usa',
       detalle: ttConn ? `Perfil: ${ttConn.username}` : 'No configurado',
       queSePierdeSiFalta: 'Los videos cortos de 15 años y bodas no se enlazan desde el pie de la web.',
-      enlaceConfiguracion: '/settings/social-connections',
+      enlaceConfiguracion: '/settings/sincronizaciones',
     },
     {
       id: 'threads',
@@ -248,7 +249,7 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       estado: thConn ? 'conectada' : 'no-se-usa',
       detalle: thConn ? `Perfil: ${thConn.username}` : 'No configurado',
       queSePierdeSiFalta: 'No se enlaza el perfil de Threads desde la web.',
-      enlaceConfiguracion: '/settings/social-connections',
+      enlaceConfiguracion: '/settings/sincronizaciones',
     },
     {
       id: 'x',
@@ -257,7 +258,16 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       estado: xConn ? 'conectada' : 'no-se-usa',
       detalle: xConn ? `Usuario: @${xConn.username}` : 'No configurado',
       queSePierdeSiFalta: 'No se enlaza la cuenta de X en el pie de página.',
-      enlaceConfiguracion: '/settings/social-connections',
+      enlaceConfiguracion: '/settings/sincronizaciones',
+    },
+    {
+      id: 'pinterest',
+      nombre: 'Pinterest',
+      categoria: 'Redes sociales',
+      estado: pinConn ? 'conectada' : 'no-se-usa',
+      detalle: pinConn?.boardId || pinConn?.profileUrl ? `Tablero: ${pinConn.boardId || pinConn.profileUrl}` : 'No configurado',
+      queSePierdeSiFalta: 'No se enlazan los tableros de inspiración de eventos ni decoración.',
+      enlaceConfiguracion: '/settings/sincronizaciones',
     },
     {
       id: 'spotify',
@@ -278,7 +288,7 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
           }`
         : `Buscar canciones y abrir listas: ${sondeoSpotify.motivo}`,
       queSePierdeSiFalta: 'El DJ no puede ver las canciones de las listas que mandan los clientes.',
-      enlaceConfiguracion: '/settings/social-connections',
+      enlaceConfiguracion: '/settings/sincronizaciones',
     },
     {
       id: 'mercado-pago',

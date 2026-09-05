@@ -10,6 +10,7 @@ import { createNotification } from '@/lib/notifications/create-notification';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { checkBotShield } from '@/lib/security/bot-shield';
 import { requireAppSession } from '@/lib/auth/require-session';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
@@ -106,6 +107,11 @@ export async function generateBudgetAndLeadFromSimulator(
   }
 ): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; token?: string; error?: string }> {
   try {
+    const shield = checkBotShield(data.clienteContacto || data.clienteNombre || 'simulator-user', { maxRequests: 20, windowSeconds: 60 });
+    if (!shield.allowed) {
+      return { success: false, error: 'Demasiadas solicitudes seguidas. Por favor intentá en unos segundos.' };
+    }
+
     const requestedSource = options?.source;
     const source = requestedSource === 'simulator_assistant'
       ? 'simulator_assistant'

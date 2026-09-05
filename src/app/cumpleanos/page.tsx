@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { PartyPopper, UtensilsCrossed, Music, GlassWater, Sparkles } from 'lucide-react';
 import { EventLandingPage } from '@/components/landing/EventLandingPage';
 import { createEventLandingMetadata } from '@/lib/seo/event-landing';
 import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
@@ -28,11 +27,11 @@ export default function CumpleanosLanding() {
         detailImageAlt="Fiesta de cumpleaños con discoteca y amigos"
         simulatorHref="/simulador-de-presupuesto?tipo=Cumplea%C3%B1os"
         services={[
-          { title: 'Discoteca & DJ en Vivo', description: 'La mejor selección musical adaptada a tu gusto y la vibra de tus invitados.', icon: Music },
-          { title: 'Barra Libre de Tragos', description: 'Tragos clásicos, de autor y tragos temáticos preparados en el acto.', icon: GlassWater },
-          { title: 'Finger Food & Parrilla', description: 'Opciones ágiles, informales y deliciosas para disfrutar mientras bailás.', icon: UtensilsCrossed },
-          { title: 'Fotocabina & Recuerdos', description: 'Impresiones en el acto y registro digital de los momentos más divertidos.', icon: PartyPopper },
-          { title: 'Ambientación & Luces LED', description: 'Transformación del espacio con iluminación de fiesta y espacios lounge.', icon: Sparkles },
+          { title: 'Discoteca & DJ en Vivo', description: 'La mejor selección musical adaptada a tu gusto y la vibra de tus invitados.' },
+          { title: 'Barra Libre de Tragos', description: 'Tragos clásicos, de autor y tragos temáticos preparados en el acto.' },
+          { title: 'Finger Food & Parrilla', description: 'Opciones ágiles, informales y deliciosas para disfrutar mientras bailás.' },
+          { title: 'Fotocabina & Recuerdos', description: 'Impresiones en el acto y registro digital de los momentos más divertidos.' },
+          { title: 'Ambientación & Luces LED', description: 'Transformación del espacio con iluminación de fiesta y espacios lounge.' },
         ]}
       />
     </>

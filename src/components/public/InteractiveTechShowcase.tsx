@@ -18,6 +18,10 @@ import {
   Gamepad2,
   CheckCircle2,
   ArrowRight,
+  Monitor,
+  Mic2,
+  Film,
+  Smile,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -43,7 +47,7 @@ const STATIONS: TechStationItem[] = [
     badge: 'Tiras 2x6 y Fotos 10x15',
     tagline: 'Fotos impresas al instante con el diseño de tu fiesta',
     description:
-      'Tus invitados posan, se aplican filtros de belleza y se llevan la tira impresa personalizada en segundos, además de tenerla en digital en su celular por código QR.',
+      'Tus invitados posan, se aplican filtros de belleza facial y se llevan la tira térmica impresa personalizada en segundos, además de tenerla en digital en su celular por código QR.',
     icon: Camera,
     highlights: ['Impresión térmica rápida', 'Filtro de belleza facial', 'Marcos personalizados', 'QR sin instalar apps'],
     features: [
@@ -60,7 +64,7 @@ const STATIONS: TechStationItem[] = [
     badge: 'Video Dinámico HD',
     tagline: 'Videos espectaculares en cámara lenta con música',
     description:
-      'El brazo giratorio captura a tus invitados en 360 grados, aplicando efectos dinámicos de velocidad, música de fiesta y entrega instantánea por QR.',
+      'El brazo giratorio captura a tus invitados en 360 grados, aplicando efectos dinámicos de velocidad, música sincronizada y entrega instantánea por QR.',
     icon: Video,
     highlights: ['Efectos slow-motion y reversa', 'Música sincronizada', 'Iluminación profesional', 'Entrega inmediata'],
     features: [
@@ -72,20 +76,37 @@ const STATIONS: TechStationItem[] = [
     ctaText: 'Quiero Plataforma 360°',
   },
   {
+    id: 'espejo',
+    name: 'Espejo Mágico Interactivo',
+    badge: 'Animaciones & IA',
+    tagline: 'Espejo de cuerpo entero con firma táctil e inteligencia artificial',
+    description:
+      'Un espejo elegante de cuerpo entero donde los invitados tocan la pantalla, firman sus dedicatorias a mano y pueden transformar sus caras con filtros de IA.',
+    icon: Smile,
+    highlights: ['Pantalla táctil gigante', 'Firma y emojis dibujados', 'Filtros IA de transformación', 'Impresión de cuerpo entero'],
+    features: [
+      { icon: Smile, title: 'Animaciones interactivas', desc: 'El espejo habla y guía a los invitados con animaciones divertidas.' },
+      { icon: Sparkles, title: 'Firma a mano alzada', desc: 'Dedicatorias personalizadas escritas con el dedo en el espejo.' },
+      { icon: Printer, title: 'Foto postal 10x15', desc: 'Impresión de alta resolución con diseño de gala del evento.' },
+    ],
+    color: 'from-amber-500 to-yellow-600',
+    ctaText: 'Quiero Espejo Mágico',
+  },
+  {
     id: 'muro',
     name: 'Muro Social en Pantalla Gigante',
     badge: 'Interactivo en Vivo',
     tagline: 'La fiesta entera conectada en la pantalla grande',
     description:
-      'Los invitados escanean el QR de su mesa y suben fotos, mandan reacciones voladoras, votan en encuestas en vivo, juegan trivias y le piden temas al DJ.',
+      'Los invitados escanean el QR de su mesa y suben fotos, mandan reacciones voladoras en tiempo real, votan encuestas, juegan trivias y piden canciones al DJ.',
     icon: Tv,
-    highlights: ['Reacciones voladoras en vivo', 'Juegos y trivias por mesa', 'Pedidos de música al DJ', 'Moderación segura'],
+    highlights: ['Reacciones voladoras en vivo', 'Juegos y trivias por mesa', 'Pedidos de música al DJ', 'Modo cine con fotos lentas'],
     features: [
       { icon: Flame, title: 'Reacciones y aplausos', desc: 'Corazones, fuegos y aplausos cruzan la pantalla al instante cuando alguien los toca.' },
       { icon: Gamepad2, title: 'Juegos y podio por mesa', desc: 'Trivias de la quinceañera o los novios con ranking interactivo en vivo.' },
       { icon: Music, title: 'Pedidos al DJ', desc: 'Los invitados sugieren sus temas favoritos directamente a la cabina.' },
     ],
-    color: 'from-amber-500 to-orange-600',
+    color: 'from-red-500 to-orange-600',
     ctaText: 'Quiero Pantalla Interactiva',
   },
   {
@@ -107,20 +128,71 @@ const STATIONS: TechStationItem[] = [
   },
   {
     id: 'buzon',
-    name: 'Buzón de Mensajes & Teléfono Retro',
+    name: 'Buzón de Recuerdos & Teléfono Retro',
     badge: 'Cápsula del Tiempo',
     tagline: 'Saludos de voz y video que guardás para siempre',
     description:
-      'Tus familiares y amigos levantan el auricular del teléfono retro o graban desde la estación para dejarte sus mejores deseos con su propia voz.',
+      'Tus familiares y amigos levantan el auricular del teléfono vintage o graban desde la estación para dejarte sus mejores deseos con su propia voz.',
     icon: PhoneCall,
-    highlights: ['Teléfono retro interactivo', 'Audio y video de alta calidad', 'Entrega digital al cliente', 'Emotivo e inolvidable'],
+    highlights: ['Teléfono retro interactivo', 'Audio y video de alta calidad', 'Compilado sonoro final', 'Emotivo e inolvidable'],
     features: [
-      { icon: PhoneCall, title: 'Mensajes de voz auténticos', desc: 'El invitado escucha el saludo de los novios o cumpleañero y deja su mensaje al tono.' },
-      { icon: Heart, title: 'Emociones genuinas', desc: 'Un recuerdo único e íntimo con las voces de las personas que más querés.' },
-      { icon: Layers, title: 'Álbum sonoro final', desc: 'Te entregamos todos los audios compilados para revivirlos cuando quieras.' },
+      { icon: PhoneCall, title: 'Mensajes de voz auténticos', desc: 'El invitado escucha el saludo de los anfitriones y deja su mensaje al tono.' },
+      { icon: Heart, title: 'Emociones genuinas', desc: 'Un recuerdo único con la voz de abuelos, padres y amigos entrañables.' },
+      { icon: Layers, title: 'Álbum sonoro final', desc: 'Todos los audios recopilados en el álbum digital para revivirlos siempre.' },
     ],
     color: 'from-emerald-500 to-teal-600',
     ctaText: 'Quiero el Buzón de Recuerdos',
+  },
+  {
+    id: 'totem',
+    name: 'Tótems & Kioscos Interactivos',
+    badge: 'Puntos de Consulta',
+    tagline: 'Ubicación de mesas, cronograma interactivo y fotos',
+    description:
+      'Tótems táctiles verticales ubicados en la recepción del salón para que los invitados busquen su mesa, vean el menú y consulten el cronograma de la noche.',
+    icon: Monitor,
+    highlights: ['Buscador de mesas interactivo', 'Cronograma en vivo', 'Menú digital', 'Pantalla vertical 4K'],
+    features: [
+      { icon: Monitor, title: '¿Dónde me siento?', desc: 'Buscador instantáneo por nombre y apellido con mapa del salón.' },
+      { icon: CheckCircle2, title: 'Cronograma del evento', desc: 'Horarios de vals, cena, show y cotillón actualizados.' },
+      { icon: Smartphone, title: 'Acceso por QR', desc: 'También se sincroniza con el celular de cada invitado.' },
+    ],
+    color: 'from-blue-600 to-cyan-600',
+    ctaText: 'Quiero Tótems Interactivos',
+  },
+  {
+    id: 'karaoke',
+    name: 'Karaoke Digital de Pista',
+    badge: 'Diversión Total',
+    tagline: 'Catálogo con miles de canciones y letras en pantalla',
+    description:
+      'Estación de canto con micrófonos inalámbricos profesionales, letras sincronizadas en pantallas auxiliares y puntuación interactiva.',
+    icon: Mic2,
+    highlights: ['Catálogo actualizado', 'Micrófonos inalámbricos', 'Letras sincronizadas', 'Duelos por equipos'],
+    features: [
+      { icon: Mic2, title: 'Miles de canciones', desc: 'Desde clásicos de fiesta hasta los éxitos del momento.' },
+      { icon: Music, title: 'Sonido profesional', desc: 'Ecualización y efectos de voz para sonar como un artista.' },
+      { icon: Flame, title: 'Batallas de canto', desc: 'Dinámicas entre mesas con votación en el muro social.' },
+    ],
+    color: 'from-violet-600 to-purple-700',
+    ctaText: 'Quiero Karaoke en mi fiesta',
+  },
+  {
+    id: 'videodevida',
+    name: 'Video de Vida Cinematográfico',
+    badge: 'Producción Emotiva',
+    tagline: 'La historia del homenajeado en formato de película',
+    description:
+      'Edición audiovisual profesional con fotos de la infancia, testimonios de familiares y música emotiva para proyectar en el momento cumbre.',
+    icon: Film,
+    highlights: ['Edición cinematográfica', 'Guión emotivo', 'Proyección HD', 'Copia digital de regalo'],
+    features: [
+      { icon: Film, title: 'Narrativa emocionante', desc: 'Un recorrido visual que conmueve a toda la familia.' },
+      { icon: Music, title: 'Banda sonora a medida', desc: 'Canciones significativas que marcan cada etapa de la vida.' },
+      { icon: QrCode, title: 'Guardado para siempre', desc: 'Disponible en el álbum digital y video recuerdo en alta definición.' },
+    ],
+    color: 'from-amber-600 to-rose-600',
+    ctaText: 'Quiero Video de Vida',
   },
   {
     id: 'invitaciones',
@@ -128,7 +200,7 @@ const STATIONS: TechStationItem[] = [
     badge: 'Web Personalizada',
     tagline: 'Invitaciones interactivas con mapa, cronograma y confirmación',
     description:
-      'Diseños modernos y clásicos adaptados a tu estilo, con ubicación GPS con un toque, cuenta regresiva, mesa de regalos con datos bancarios y confirmación por WhatsApp.',
+      'Diseños modernos y clásicos adaptados a tu estilo, con ubicación GPS con un toque, cuenta regresiva, mesa de regalos y confirmación por WhatsApp.',
     icon: Smartphone,
     highlights: ['6 estilos de diseño exclusivos', 'Mapa interactivo al salón', 'Confirmación de asistencia online', 'Mesa de regalos segura'],
     features: [
@@ -150,17 +222,20 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
   )}`;
 
   return (
-    <section id="tecnologia" className={cn('py-20 px-4 bg-slate-900 text-white relative overflow-hidden', className)}>
+    <section
+      id="vidriera-tecnologica"
+      className={cn('py-20 px-4 bg-slate-900 text-white relative overflow-hidden rounded-3xl border border-slate-800 my-8 shadow-2xl', className)}
+    >
       {/* Background glow accents */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-purple-600/15 blur-[120px] pointer-events-none rounded-full" />
       <div className="absolute bottom-10 right-10 w-[400px] h-[250px] bg-pink-600/15 blur-[100px] pointer-events-none rounded-full" />
 
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-14">
+        <div className="text-center mb-12">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-black uppercase tracking-widest mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            Tecnología AK Producciones
+            Tecnología Interactiva AK Producciones
           </span>
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
             Experiencias que hacen tu fiesta inolvidable

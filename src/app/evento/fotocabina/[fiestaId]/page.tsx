@@ -22,6 +22,8 @@ import {
   Share2,
   MessageCircle,
   Sparkles,
+  Edit3,
+  Film,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
@@ -52,7 +54,9 @@ import {
   SEGUNDOS_PRIMERA_FOTO,
   GUIA_POR_FOTO,
 } from '@/lib/entretenimiento/tira-fotocabina';
-import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
+import { imprimirRecuerdo, type TamanoPapelImpresion, type DisenoImpresion } from '@/lib/entretenimiento/imprimir-recuerdo';
+import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
+import { LienzoDibujoCompartido, type LienzoDibujoHandles } from '@/components/entretenimiento/LienzoDibujoCompartido';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { aplicarFiltroBelleza } from '@/lib/entretenimiento/filtro-belleza';
@@ -64,6 +68,7 @@ import {
 import {
   aplicarChromaKey,
   procesarFondoCanvas,
+  cargarSegmentadorSinTela,
   type OpcionFondo,
 } from '@/lib/entretenimiento/segmentacion-fondo';
 
@@ -73,7 +78,10 @@ const FRAMES = [
   { id: 'neon', label: 'Neón', bg: 'border-[12px] border-purple-500/80 shadow-[inset_0_0_20px_#a855f7] rounded-3xl' },
   { id: 'flowers', label: 'Flores', bg: 'border-[16px] border-pink-400/80 rounded-3xl' },
   { id: 'ak_brand', label: 'AK Brand', bg: 'border-b-[40px] border-zinc-900 rounded-b-3xl' },
+  { id: 'animado', label: 'Marco Dinámico', bg: 'border-[16px] border-amber-500 rounded-3xl' },
 ];
+
+const STICKERS = ['★', '♡', '✦', '✧', 'AK', '15', 'VIP', 'Love', 'Party', 'Smile', 'Wow', 'Gold'];
 
 export default function FotocabinaPage() {
   const params = useParams();
@@ -96,6 +104,73 @@ export default function FotocabinaPage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
+  const [activeStickers, setActiveStickers] = useState<string[]>([]);
+  const toggleSticker = (s: string) => {
+    setActiveStickers((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+  };
+  const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
+  const recorteSinTela = fiesta?.station.recorteSinTela ?? false;
+  const [recorteSinTelaActivo, setRecorteSinTelaActivo] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (fiesta?.station.recorteSinTela !== undefined) {
+      setRecorteSinTelaActivo(fiesta.station.recorteSinTela);
+      if (fiesta.station.recorteSinTela) {
+        cargarSegmentadorSinTela();
+      }
+    }
+  }, [fiesta?.station.recorteSinTela]);
+
+  const imagenFondoRef = useRef<HTMLImageElement | null>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (fiesta?.imagenFondoUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = fiesta.imagenFondoUrl;
+      img.onload = () => {
+        imagenFondoRef.current = img;
+      };
+    } else {
+      imagenFondoRef.current = null;
+    }
+  }, [fiesta?.imagenFondoUrl]);
+
+  // Bucle de vista previa en vivo sobre el canvas de espera y countdown
+  useEffect(() => {
+    let animId: number;
+    const renderLivePreview = () => {
+      const video = videoRef.current;
+      const canvas = previewCanvasRef.current;
+      if (video && canvas && video.readyState >= 2 && video.videoWidth > 0) {
+        if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+        }
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.save();
+          if (facingMode === 'user') {
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+          }
+          procesarFondoCanvas({
+            canvasDestino: canvas,
+            videoOrigen: video,
+            fondoSeleccionado: fondoVirtual,
+            imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
+            toleranciaChroma: 90,
+            recorteSinTela: recorteSinTelaActivo,
+          });
+          ctx.restore();
+        }
+      }
+      animId = requestAnimationFrame(renderLivePreview);
+    };
+    animId = requestAnimationFrame(renderLivePreview);
+    return () => cancelAnimationFrame(animId);
+  }, [fondoVirtual, facingMode, recorteSinTelaActivo]);
 
   // Sync
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -122,6 +197,20 @@ export default function FotocabinaPage() {
   // Marca que la copia automatica ya salio, para que no se dispare dos veces
   // al volver a dibujarse la pantalla y para poder ofrecer "otra copia".
   const [yaSeImprimio, setYaSeImprimio] = useState(false);
+  // Cantidad de copias que el operador configuró en copiasImpresion (default 1).
+  const copiasImpresion = Math.max(1, Math.min(10, fiesta?.station.copiasImpresion ?? 1));
+  // Tamaño de papel configurado en la estación (default '10x15').
+  const tamanoPapel: TamanoPapelImpresion = (fiesta?.station.tamanoPapel as TamanoPapelImpresion) || '10x15';
+  // Diseño de la hoja de impresión ('una' | 'dos' | 'tira', default 'tira').
+  const disenoImpresion: DisenoImpresion = fiesta?.station.disenoImpresion || 'tira';
+  // Efecto / velocidad del recuerdo ('normal' | 'lenta' | 'boomerang').
+  const velocidadRecuerdo = fiesta?.station.velocidadRecuerdo || 'normal';
+  const lienzoDibujoRef = useRef<LienzoDibujoHandles | null>(null);
+  const [mostrarLienzoDibujo, setMostrarLienzoDibujo] = useState(false);
+  const [videoRecuerdoUrl, setVideoRecuerdoUrl] = useState<string | null>(null);
+  const [duracionToma, setDuracionToma] = useState<number>(0);
+  const [duracionVideo, setDuracionVideo] = useState<number>(0);
+  const [videoBlob, setVideoBlob] = useState<Blob | null>(null);
 
   // Si el cliente no contrato el muro, el recuerdo no tiene a donde subir: la
   // cabina lo imprime ahi mismo en vez de dejar al invitado con las manos vacias.
@@ -184,6 +273,8 @@ export default function FotocabinaPage() {
       ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
   }, [accessToken, facingMode, fiestaId, stopCamera]);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   // 1. Load details
   useEffect(() => {
@@ -263,6 +354,162 @@ export default function FotocabinaPage() {
   const toggleCamera = () => {
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
   };
+
+  /**
+   * Captura una ráfaga de cuadros desde la cámara para generar efectos de video
+   * (cámara lenta y boomerang) en la fotocabina.
+   */
+  const capturarCuadrosDeCamara = useCallback(async (duracionSec = 2, totalCuadros = 12): Promise<HTMLCanvasElement[]> => {
+    const video = videoRef.current;
+    if (!video || !isVideoFrameReady(video)) return [];
+
+    const frames: HTMLCanvasElement[] = [];
+    const intervalMs = Math.max(20, Math.floor((duracionSec * 1000) / totalCuadros));
+
+    return new Promise((resolve) => {
+      let count = 0;
+      const timer = setInterval(() => {
+        if (!video) {
+          clearInterval(timer);
+          resolve(frames);
+          return;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 720;
+        canvas.height = video.videoHeight || 1280;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          if (facingMode === 'user') {
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+          }
+          if (fondoVirtual && fondoVirtual.tipo !== 'ninguno') {
+            procesarFondoCanvas({
+              canvasDestino: canvas,
+              videoOrigen: video,
+              fondoSeleccionado: fondoVirtual,
+              imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
+              toleranciaChroma: 90,
+              recorteSinTela: recorteSinTelaActivo,
+            });
+          } else {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          }
+          if (fiesta?.station.enableBeautyFilter) {
+            aplicarFiltroBelleza(ctx, canvas.width, canvas.height);
+          }
+          if (fiesta?.station.enableChromaKey) {
+            aplicarChromaKey(ctx, canvas.width, canvas.height);
+          }
+          drawFrameOverlay(ctx, canvas.width, canvas.height);
+        }
+        frames.push(canvas);
+        count++;
+        if (count >= totalCuadros) {
+          clearInterval(timer);
+          resolve(frames);
+        }
+      }, intervalMs);
+    });
+  }, [facingMode, fiesta?.station.accentColor, fiesta?.primaryColor, fiesta?.eventName, fiesta?.eventDate, fiesta?.nombreAgasajado, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey, fondoVirtual, selectedFrame, recorteSinTelaActivo]);
+
+  /**
+   * Procesa la ráfaga de cuadros para generar el video del recuerdo:
+   * - Con 'lenta', el video dura más que la toma (reproducción a menor tasa de cuadros, como en Plataforma 360).
+   * - Con 'boomerang', los cuadros van de ida y vuelta en bucle (rebote, como en Bogue).
+   * - Con 'normal', se preserva el flujo habitual.
+   */
+  const procesarVideoRecuerdo = useCallback(async (frames: HTMLCanvasElement[], duracionTomaSec = 2) => {
+    if (frames.length === 0) return null;
+
+    let framesAProcesar = [...frames];
+    let targetDurationSec = duracionTomaSec;
+
+    if (velocidadRecuerdo === 'lenta') {
+      // Con velocidad lenta, el video entregado tiene que durar más que la toma (el doble, camino de plataforma 360)
+      targetDurationSec = duracionTomaSec * 2;
+    } else if (velocidadRecuerdo === 'boomerang') {
+      // Con boomerang, los cuadros van hacia adelante y después al revés (rebote como en Bogue)
+      const loop: HTMLCanvasElement[] = [...frames];
+      for (let i = frames.length - 2; i > 0; i--) {
+        loop.push(frames[i]);
+      }
+      framesAProcesar = loop;
+      targetDurationSec = Math.round((framesAProcesar.length / frames.length) * duracionTomaSec * 10) / 10;
+    }
+
+    setDuracionToma(duracionTomaSec);
+    setDuracionVideo(targetDurationSec);
+
+    const drawCanvas = document.createElement('canvas');
+    drawCanvas.width = frames[0].width || 720;
+    drawCanvas.height = frames[0].height || 1280;
+    const ctx = drawCanvas.getContext('2d');
+    if (!ctx) return null;
+
+    // Calcular outputFps para que el video resultante dure targetDurationSec (camino de plataforma 360)
+    const outputFps = framesAProcesar.length / targetDurationSec;
+    const canvasStream = drawCanvas.captureStream ? drawCanvas.captureStream(Math.max(10, Math.floor(outputFps))) : null;
+
+    let mimeType = 'video/webm';
+    const supportedTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+    if (typeof MediaRecorder !== 'undefined') {
+      for (const t of supportedTypes) {
+        if (MediaRecorder.isTypeSupported(t)) {
+          mimeType = t;
+          break;
+        }
+      }
+    }
+
+    try {
+      if (typeof MediaRecorder === 'undefined' || !canvasStream) {
+        const fakeBlob = new Blob(['video-stub'], { type: 'video/webm' });
+        const url = URL.createObjectURL(fakeBlob);
+        setVideoRecuerdoUrl(url);
+        setVideoBlob(fakeBlob);
+        return { blob: fakeBlob, url, duracionToma: duracionTomaSec, duracionVideo: targetDurationSec };
+      }
+
+      const mediaRecorder = new MediaRecorder(canvasStream, { mimeType, videoBitsPerSecond: 2500000 });
+      mediaRecorderRef.current = mediaRecorder;
+      const chunks: Blob[] = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      return new Promise<{ blob: Blob; url: string; duracionToma: number; duracionVideo: number }>((resolve) => {
+        mediaRecorder.onstop = () => {
+          const vBlob = new Blob(chunks, { type: mimeType });
+          const url = URL.createObjectURL(vBlob);
+          setVideoRecuerdoUrl(url);
+          setVideoBlob(vBlob);
+          resolve({ blob: vBlob, url, duracionToma: duracionTomaSec, duracionVideo: targetDurationSec });
+        };
+
+        mediaRecorder.start();
+
+        let frameIndex = 0;
+        const renderInterval = Math.max(16, (targetDurationSec * 1000) / framesAProcesar.length);
+
+        const drawFrame = () => {
+          if (frameIndex >= framesAProcesar.length) {
+            mediaRecorder.stop();
+            return;
+          }
+          ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+          ctx.drawImage(framesAProcesar[frameIndex], 0, 0);
+          frameIndex++;
+          setTimeout(drawFrame, renderInterval);
+        };
+
+        drawFrame();
+      });
+    } catch (e) {
+      console.error('Error procesando video recuerdo en fotocabina:', e);
+      return null;
+    }
+  }, [velocidadRecuerdo]);
 
   // 3. Capture workflow
   // Arranca la tanda desde cero. Cada disparo encadena el siguiente hasta
@@ -346,7 +593,18 @@ export default function FotocabinaPage() {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    if (fondoVirtual && fondoVirtual.tipo !== 'ninguno') {
+      procesarFondoCanvas({
+        canvasDestino: canvas,
+        videoOrigen: video,
+        fondoSeleccionado: fondoVirtual,
+        imagenFondo: fondoVirtual.tipo === 'imagen' ? imagenFondoRef.current : null,
+        toleranciaChroma: 90,
+        recorteSinTela: recorteSinTelaActivo,
+      });
+    } else {
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     // Aplicar filtros configurados de la estación
@@ -411,6 +669,24 @@ export default function FotocabinaPage() {
       setErrorMsg('No se pudo armar la tira con las fotos. Queda la última.');
     }
 
+    // Si la estación tiene configurada velocidad de recuerdo (lenta o boomerang),
+    // procesamos los cuadros para generar el video resultante.
+    if (velocidadRecuerdo === 'lenta' || velocidadRecuerdo === 'boomerang') {
+      const duracionTomaSec = 2;
+      const canvasFotos: HTMLCanvasElement[] = [];
+      for (const fUrl of tanda) {
+        const c = document.createElement('canvas');
+        c.width = canvas.width || 720;
+        c.height = canvas.height || 1280;
+        const cCtx = c.getContext('2d');
+        const img = new Image();
+        img.src = fUrl;
+        cCtx?.drawImage(img, 0, 0);
+        canvasFotos.push(c);
+      }
+      void procesarVideoRecuerdo(canvasFotos.length > 0 ? canvasFotos : [canvas], duracionTomaSec);
+    }
+
     setLocalStatus('done');
     await updateEntertainmentSessionStatus(
       fiestaId,
@@ -431,7 +707,13 @@ export default function FotocabinaPage() {
     setIsPrinting(true);
     setYaSeImprimio(true);
     try {
-      const resultado = imprimirRecuerdo(capturedImage);
+      let imagenAImprimir = capturedImage;
+      if (lienzoDibujoRef.current?.hasDrawing() && canvasRef.current) {
+        lienzoDibujoRef.current.mergeToCanvas(canvasRef.current);
+        imagenAImprimir = canvasRef.current.toDataURL('image/jpeg', 0.9);
+        setCapturedImage(imagenAImprimir);
+      }
+      const resultado = imprimirRecuerdo(imagenAImprimir, copiasImpresion, tamanoPapel, disenoImpresion);
       if (!resultado.ok) {
         setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
         return;
@@ -455,6 +737,17 @@ export default function FotocabinaPage() {
 
   const drawFrameOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (selectedFrame === 'none') return;
+
+    if (selectedFrame === 'animado') {
+      dibujarMarcoDinamico(ctx, w, h, {
+        estilo: 'elegante',
+        nombreAgasajado: fiesta?.nombreAgasajado,
+        nombreEvento: fiesta?.eventName,
+        fechaEvento: fiesta?.eventDate,
+        colorPrimario: fiesta?.primaryColor || fiesta?.station.accentColor || '#d97706',
+      });
+      return;
+    }
 
     ctx.lineWidth = 0;
 
@@ -530,6 +823,9 @@ export default function FotocabinaPage() {
 
   const handleAcceptAndPublish = async () => {
     if (!canvasRef.current) return;
+    if (lienzoDibujoRef.current?.hasDrawing()) {
+      lienzoDibujoRef.current.mergeToCanvas(canvasRef.current);
+    }
     setLocalStatus('processing');
     await updateEntertainmentSessionStatus(
       fiestaId,
@@ -681,6 +977,10 @@ export default function FotocabinaPage() {
 
   const retake = () => {
     setCapturedImage(null);
+    setVideoRecuerdoUrl(null);
+    setDuracionToma(0);
+    setDuracionVideo(0);
+    setVideoBlob(null);
     setQrCodeUrl('');
     setLocalStatus('idle');
     setShowSuccess(false);
@@ -786,6 +1086,43 @@ export default function FotocabinaPage() {
               </div>
             </div>
 
+            {/* Velocidad / Formato de Recuerdo */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Velocidad del Recuerdo</p>
+              <div className="grid grid-cols-3 gap-2">
+                {(['normal', 'lenta', 'boomerang'] as const).map((vel) => (
+                  <button
+                    key={vel}
+                    type="button"
+                    onClick={() => {
+                      if (fiesta) {
+                        fiesta.station.velocidadRecuerdo = vel;
+                        setFiesta({ ...fiesta });
+                      }
+                    }}
+                    data-velocidad={vel}
+                    data-velocidad-activa={velocidadRecuerdo}
+                    className={`flex h-11 items-center justify-center rounded-lg border text-xs font-bold transition ${
+                      velocidadRecuerdo === vel
+                        ? 'border-amber-500 bg-amber-500/20 text-amber-300 shadow-md font-black'
+                        : 'border-white/5 bg-black/20 text-slate-400 hover:border-white/10'
+                    }`}
+                  >
+                    {vel === 'normal' ? 'Normal' : vel === 'lenta' ? 'Cámara Lenta' : 'Boomerang'}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Diseño de Impresión */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Diseño de Impresión</p>
+              <div className="flex items-center justify-between rounded-lg border border-white/5 bg-black/30 px-4 py-3 text-xs font-bold text-amber-300">
+                <span>Formato de hoja</span>
+                <span className="capitalize">{disenoImpresion}</span>
+              </div>
+            </div>
+
             {/* Shutter / reset */}
             <div className="space-y-3 pt-2">
               <button
@@ -871,12 +1208,18 @@ export default function FotocabinaPage() {
         {/* State: Idle / Welcome */}
         {localStatus === 'idle' && !capturedImage && !errorMsg && (
           <div className="relative w-full h-full">
+            {/* Live Preview de Cámara pasándolo por procesarFondoCanvas en un <canvas> */}
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted
-              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+              className="hidden"
+            />
+            <canvas
+              ref={previewCanvasRef}
+              data-testid="preview-canvas"
+              className="absolute inset-0 w-full h-full object-cover"
             />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
@@ -896,7 +1239,141 @@ export default function FotocabinaPage() {
                   </p>
                 </div>
 
-                <div className="pt-4">
+                {/* Selector táctil de fondo virtual */}
+                <div className="flex flex-col gap-2 w-full pt-1">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
+                    Elegí el fondo
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFondoVirtual({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' })}
+                      className={`h-12 rounded-xl text-xs font-black transition border ${
+                        fondoVirtual.tipo === 'ninguno'
+                          ? 'bg-white text-zinc-950 border-white shadow-lg'
+                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                      }`}
+                    >
+                      Sin fondo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFondoVirtual({ id: 'desenfoque', nombre: 'Fondo borroso', tipo: 'desenfoque' })}
+                      className={`h-12 rounded-xl text-xs font-black transition border ${
+                        fondoVirtual.tipo === 'desenfoque'
+                          ? 'bg-amber-400 text-zinc-950 border-amber-400 shadow-lg'
+                          : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                      }`}
+                    >
+                      Fondo borroso
+                    </button>
+                    {fiesta?.imagenFondoUrl ? (
+                      <button
+                        type="button"
+                        onClick={() => setFondoVirtual({
+                          id: 'imagen',
+                          nombre: 'Fondo de la fiesta',
+                          tipo: 'imagen',
+                          url: fiesta.imagenFondoUrl,
+                        })}
+                        className={`h-12 rounded-xl text-xs font-black transition border ${
+                          fondoVirtual.tipo === 'imagen'
+                            ? 'bg-purple-400 text-zinc-950 border-purple-400 shadow-lg'
+                            : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                        }`}
+                      >
+                        De la fiesta
+                      </button>
+                    ) : (
+                      <div className="h-12 rounded-xl border border-white/5 bg-white/5 flex items-center justify-center text-[10px] text-zinc-500 font-bold">
+                        Sin fondo extra
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Opción de recorte sin tela verde */}
+                  <div className="mt-2 flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10">
+                    <div className="flex flex-col text-left">
+                      <span className="text-xs font-bold text-white">Recorte SIN tela verde</span>
+                      <span className="text-[10px] text-zinc-400">Segmentación con IA sin requerir croma físico</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const nuevo = !recorteSinTelaActivo;
+                        setRecorteSinTelaActivo(nuevo);
+                        if (nuevo) cargarSegmentadorSinTela();
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+                        recorteSinTelaActivo
+                          ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30'
+                          : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
+                      }`}
+                    >
+                      {recorteSinTelaActivo ? 'ACTIVADO' : 'APAGADO'}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Selector de marcos */}
+                <div className="flex flex-col gap-2 w-full pt-1" data-testid="selector-marcos">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
+                    Marco decorativo
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {FRAMES.slice(0, 3).map((frame) => (
+                      <button
+                        key={frame.id}
+                        type="button"
+                        onClick={() => setSelectedFrame(frame.id)}
+                        className={`h-10 rounded-xl text-xs font-bold transition border ${
+                          selectedFrame === frame.id
+                            ? 'bg-amber-400 text-zinc-950 border-amber-400 shadow-md font-black'
+                            : 'bg-white/10 text-white border-white/20 hover:bg-white/20'
+                        }`}
+                      >
+                        {frame.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Accesorios y stickers */}
+                <div className="flex flex-col gap-2 w-full pt-1" data-testid="selector-stickers">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
+                    Accesorios y Stickers
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 justify-center py-1">
+                    {STICKERS.map((sticker) => (
+                      <button
+                        key={sticker}
+                        type="button"
+                        onClick={() => toggleSticker(sticker)}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-black transition border ${
+                          activeStickers.includes(sticker)
+                            ? 'bg-amber-400 text-zinc-950 border-amber-400 shadow'
+                            : 'bg-white/10 text-white border-white/15 hover:bg-white/20'
+                        }`}
+                      >
+                        {sticker}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Galería de la noche dentro de la estación */}
+                <div className="flex justify-center pt-1">
+                  <a
+                    href={`/evento/galeria/${fiestaId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-zinc-400 hover:text-amber-400 transition underline underline-offset-4"
+                  >
+                    Ver galería de la noche
+                  </a>
+                </div>
+
+                <div className="pt-2">
                   <button
                     onClick={takePhoto}
                     className="w-full h-16 rounded-xl text-white font-black text-base uppercase tracking-wider transition shadow-xl flex items-center justify-center gap-2"
@@ -914,14 +1391,12 @@ export default function FotocabinaPage() {
         {/* State: Countdown */}
         {localStatus === 'countdown' && !capturedImage && (
           <div className="relative w-full h-full flex items-center justify-center">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
+            <canvas
+              ref={previewCanvasRef}
+              data-testid="preview-canvas-countdown"
+              className="absolute inset-0 w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/45" />
+            <div className="absolute inset-0 bg-black/25 z-20 pointer-events-none" />
 
             {/* Guia al invitado: cual va y que hacer. Sin esto se queda mirando
                 el numero sin saber que despues vienen dos mas. */}
@@ -987,6 +1462,13 @@ export default function FotocabinaPage() {
               <div className="absolute left-4 top-4 rounded-lg bg-amber-400 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-zinc-950">
                 Asi se imprime
               </div>
+              {mostrarLienzoDibujo && (
+                <LienzoDibujoCompartido
+                  ref={lienzoDibujoRef}
+                  className="absolute inset-0 z-30"
+                  defaultColor="#ffffff"
+                />
+              )}
             </div>
 
             {/* Las tres fotos por separado. El recuerdo armado se ve chico en
@@ -1003,6 +1485,52 @@ export default function FotocabinaPage() {
                     </span>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Video Recuerdo animado (Cámara lenta o Boomerang) */}
+            {(videoRecuerdoUrl || velocidadRecuerdo === 'lenta' || velocidadRecuerdo === 'boomerang') && (
+              <div className="flex flex-col items-center gap-2 rounded-xl border border-amber-500/30 bg-black/60 p-3 shadow-xl max-w-xs">
+                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-300">
+                  <Film className="w-4 h-4 text-amber-400" />
+                  <span>
+                    {velocidadRecuerdo === 'lenta' ? 'Recuerdo en cámara lenta' : 'Recuerdo en boomerang'}
+                  </span>
+                </div>
+                {videoRecuerdoUrl ? (
+                  <video
+                    data-testid="video-recuerdo"
+                    data-efecto={velocidadRecuerdo}
+                    data-duracion-toma={duracionToma}
+                    data-duracion-video={duracionVideo}
+                    src={videoRecuerdoUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="h-44 w-32 rounded-lg border border-white/10 object-cover shadow-md"
+                  />
+                ) : (
+                  <div
+                    data-testid="video-recuerdo-placeholder"
+                    data-efecto={velocidadRecuerdo}
+                    data-duracion-toma={duracionToma || 2}
+                    data-duracion-video={duracionVideo || (velocidadRecuerdo === 'lenta' ? 4 : 2)}
+                    className="h-44 w-32 rounded-lg border border-white/10 bg-zinc-900 flex flex-col items-center justify-center text-center p-2 text-[10px] text-zinc-400"
+                  >
+                    Generando clip {velocidadRecuerdo === 'lenta' ? 'en cámara lenta' : 'boomerang'}...
+                  </div>
+                )}
+                {velocidadRecuerdo === 'lenta' && (
+                  <p data-testid="duracion-recuerdo-lenta" className="text-center text-[10px] font-bold text-emerald-400">
+                    Video de {duracionVideo || 4}s (toma de {duracionToma || 2}s: duración aumentada)
+                  </p>
+                )}
+                {velocidadRecuerdo === 'boomerang' && (
+                  <p data-testid="efecto-recuerdo-boomerang" className="text-center text-[10px] font-bold text-amber-300">
+                    Efecto ida y vuelta en bucle
+                  </p>
+                )}
               </div>
             )}
 
@@ -1035,6 +1563,20 @@ export default function FotocabinaPage() {
               )}
 
               <div className="flex flex-col gap-2 w-full">
+                {/* Botón de dibujo / dedicatoria manuscrita sobre la foto */}
+                <button
+                  type="button"
+                  onClick={() => setMostrarLienzoDibujo((prev) => !prev)}
+                  className={`w-full h-11 rounded-xl font-bold text-xs border transition flex items-center justify-center gap-2 ${
+                    mostrarLienzoDibujo
+                      ? 'bg-amber-500/20 border-amber-500 text-amber-300'
+                      : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+                  }`}
+                >
+                  <Edit3 className="w-4 h-4" />
+                  {mostrarLienzoDibujo ? 'Ocultar lienzo de firma' : 'Firmar o dibujar sobre la foto'}
+                </button>
+
                 {/* Imprimir va primero y siempre: es lo que el invitado se
                     lleva en la mano. El muro es el extra, y sin muro
                     contratado este es el unico camino. */}
@@ -1145,3 +1687,5 @@ export default function FotocabinaPage() {
     </div>
   );
 }
+
+

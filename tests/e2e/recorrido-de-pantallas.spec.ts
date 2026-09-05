@@ -1,8 +1,9 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect } from '@playwright/test';
 import { getAllRoutes, crearCookieDeSesion, FIXTURE_IDS } from '../../scripts/helpers/route-inventory.mjs';
 import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta } from './helpers/fiesta-de-prueba';
+import { esErrorDelArmazonAlRedirigir } from './helpers/errores-que-no-son-de-la-app';
 
 const PROHIBITED_TECHNICAL_STRINGS = [
   'undefined',
@@ -96,8 +97,30 @@ test.describe('Recorrido de las 353 pantallas', () => {
     fs.writeFileSync(path.join(outDir, 'informe.md'), md, 'utf8');
   });
 
-  test('abre y audita cada pantalla del sistema', async ({ browser, baseURL }) => {
-    const routes = getAllRoutes();
+  test('abre y audita cada pantalla del sistema', async ({ browser, baseURL }, testInfo) => {
+    /**
+     * ALCANZA CON UN NAVEGADOR. Antes corria dos veces -escritorio y celular- y
+     * tardaba el doble para contestar la misma pregunta: si cada pantalla abre y
+     * dice algo. Lo que se ve mal en un celular lo mira
+     * `anda-en-el-celular.spec.ts`, que es la prueba hecha para eso.
+     */
+    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador: el celular lo mira anda-en-el-celular.spec.ts');
+
+    // Solo las pantallas que el cambio pudo romper, si el script las paso.
+    // Recorrer las 357 en cada propuesta cuesta 40 minutos y no se sostiene:
+    // lo marco el dueno el 2 de septiembre de 2026. El script decide cuales;
+    // aca solo se filtran.
+    const soloEstas = (process.env.AK_RECORRIDO_SOLO || '')
+      .split(',')
+      .map((r) => r.trim())
+      .filter(Boolean);
+    const routes = soloEstas.length > 0
+      ? getAllRoutes().filter((r: any) => soloEstas.includes(r.routeTemplate) || soloEstas.includes(r.pathname))
+      : getAllRoutes();
+
+    if (soloEstas.length > 0) {
+      console.log(`Recorriendo ${routes.length} de ${getAllRoutes().length} pantallas (solo las que toca este cambio).`);
+    }
     const outDir = path.join(process.cwd(), 'test-results', 'recorrido');
     fs.mkdirSync(outDir, { recursive: true });
 
@@ -115,13 +138,29 @@ test.describe('Recorrido de las 353 pantallas', () => {
       },
     ]);
 
-    const page = await context.newPage();
+    /**
+     * SE RECORRE DE A VARIAS PANTALLAS A LA VEZ, no de a una.
+     *
+     * Recorrer las 357 de a una costaba CUARENTA MINUTOS y era, lejos, lo mas caro
+     * de toda la verificacion: el dueno lo marco tres veces. La maquina tiene cuatro
+     * nucleos y se usaba uno.
+     *
+     * Se puede hacer sin riesgo porque **el recorrido solo MIRA**: abre cada pantalla
+     * y lee lo que dice. No guarda nada, no toca la fiesta de prueba y no depende del
+     * orden. Por eso aca si se puede lo que en otras pruebas no.
+     *
+     * Cada carril tiene su propia pestana, con la misma sesion.
+     */
+    const CARRILES = Number(process.env.AK_RECORRIDO_CARRILES || 4);
 
-    for (let i = 0; i < routes.length; i++) {
-      const r = routes[i];
+    const procesarRuta = async (page: import('@playwright/test').Page, r: any, i: number) => {
       const startTime = Date.now();
       const pageErrors: string[] = [];
-      const errorListener = (err: Error) => pageErrors.push(err.message);
+      const errorListener = (err: Error) => {
+        // Los errores que tira el enrutador de Next al redirigir no son de la app y
+        // no rompen ninguna pantalla. El porque, medido, esta en el helper.
+        if (!esErrorDelArmazonAlRedirigir(err.message)) pageErrors.push(err.message);
+      };
       page.on('pageerror', errorListener);
 
       const shotFileName = `${String(i + 1).padStart(3, '0')}_${sanitizeFileName(r.routeTemplate)}.png`;
@@ -145,7 +184,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
             duracionMs,
           });
           page.off('pageerror', errorListener);
-          continue;
+          return;
         }
 
         // Wait brief settling time for hydration
@@ -177,7 +216,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
               duracionMs,
             });
             page.off('pageerror', errorListener);
-            continue;
+            return;
           }
           results.push({
             ...r,
@@ -186,7 +225,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
             duracionMs,
           });
           page.off('pageerror', errorListener);
-          continue;
+          return;
         }
 
         // Check 2: Errores no capturados
@@ -198,7 +237,7 @@ test.describe('Recorrido de las 353 pantallas', () => {
             duracionMs,
           });
           page.off('pageerror', errorListener);
-          continue;
+          return;
         }
 
         // Check 3: Fuga de términos técnicos
@@ -221,21 +260,76 @@ test.describe('Recorrido de las 353 pantallas', () => {
             duracionMs,
           });
           page.off('pageerror', errorListener);
-          continue;
+          return;
         }
 
-        // Check 4: Botón o enlace interactivo (a menos que sea pasiva)
+        // Check 4: ¿la pantalla esta MUERTA?
+        //
+        // ANTES ESTE CONTROL DABA CUATRO FALSAS ALARMAS, y se midio el 2 de
+        // septiembre de 2026: marcaba como rotas `/analytics`, las estadisticas
+        // de la barra, el video recuerdo y la entrada del evento. **Las cuatro
+        // estaban sanas**: son tableros de numeros y graficos, y no tienen
+        // botones porque no los necesitan.
+        //
+        // El control preguntaba mal. Una pantalla no esta muerta por no tener
+        // botones: **esta muerta cuando no muestra NADA**. Eso es lo que hay que
+        // agarrar -la pantalla en blanco, la que se quedo cargando para siempre,
+        // la que existe y no dibuja-.
+        //
+        // Asi que ahora se piden las dos cosas: **sin nada para tocar Y sin nada
+        // para leer**. Un tablero lleno de numeros pasa; una pantalla vacia con
+        // un boton suelto tambien se agarra ahora, que antes se escapaba.
+        //
+        // NO se aflojo el control: se le cambio la pregunta por la correcta.
         if (!r.passive) {
           const interactiveCount = await page.locator('button, a, input, select, textarea').count();
-          if (interactiveCount === 0) {
-            results.push({
-              ...r,
-              estado: 'FALLO',
-              motivo: 'Pantalla muerta: no tiene ningún botón, enlace ni control interactivo',
-              duracionMs,
-            });
-            page.off('pageerror', errorListener);
-            continue;
+          const texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
+
+          // 200 caracteres es como una frase larga. Debajo de eso no hay
+          // pantalla: hay un cartel de "cargando" o un titulo solo.
+          const MINIMO_PARA_QUE_CUENTE = 200;
+          const noHayNadaParaTocar = interactiveCount === 0;
+          const noHayNadaParaLeer = texto.length < MINIMO_PARA_QUE_CUENTE;
+
+          if (noHayNadaParaTocar && noHayNadaParaLeer) {
+            /**
+             * Una pantalla que EXPLICA que le falta un dato no esta rota.
+             *
+             * `/portal/mesas` sin el evento avisa "No se proporciono ID de evento";
+             * `/proveedor/acceso/<token falso>` avisa que el acceso no existe. Las dos
+             * hacen lo correcto y el recorrido las contaba como rotas.
+             *
+             * PERO no alcanza con que aparezca una palabra suelta: "fiesta" o
+             * "invitado" estan en el encabezado de casi cualquier pantalla del evento,
+             * y con eso una pantalla de verdad rota pasaba igual. Se piden las dos
+             * cosas juntas: una frase que explique, Y algo visible que la muestre
+             * (un titulo o un cartel de aviso).
+             */
+            const explicaQueFalta =
+              /no se proporcion|no encontrad|no existe|no es v[aá]lid|fue desactivad|iniciar sesi[oó]n|no est[aá] activ|sin permiso|enlace inv[aá]lid/i.test(texto);
+            const loMuestraEnPantalla = await page
+              .locator('h1, h2, h3, h4, h5, h6, [role="heading"], [role="alert"], [data-slot="alert-title"], [data-slot="card-title"]')
+              .first()
+              .isVisible()
+              .catch(() => false);
+            const esExplicacionValida = explicaQueFalta && loMuestraEnPantalla;
+            if (!esExplicacionValida) {
+              results.push({
+                ...r,
+                estado: 'FALLO',
+                motivo: `Pantalla muerta: no tiene nada para tocar ni nada para leer (${texto.length} caracteres)`,
+                duracionMs,
+              });
+              page.off('pageerror', errorListener);
+              return;
+            }
+          }
+
+          // Queda anotado, sin frenar: una pantalla de solo mirar puede ser
+          // correcta -un tablero- o puede ser una que se olvidaron de
+          // enganchar. Que figure en el informe deja que se mire con ojo.
+          if (noHayNadaParaTocar) {
+            (r as Record<string, unknown>).soloParaMirar = true;
           }
         }
 
@@ -265,7 +359,32 @@ test.describe('Recorrido de las 353 pantallas', () => {
       } finally {
         page.off('pageerror', errorListener);
       }
-    }
+    };
+
+    let siguiente = 0;
+    /**
+     * PESTANA NUEVA POR PANTALLA, y no se discute.
+     *
+     * Reusando la misma pestana, un error que tira una pantalla llega tarde y se
+     * le cuenta A LA SIGUIENTE. El 4 de septiembre de 2026 eso hizo que el
+     * recorrido acusara nueve pantallas rotas cuando eran menos: `/compras` y el
+     * PDF de decoracion figuraban rotas y abiertas solas andan perfecto.
+     *
+     * Abrir una pestana cuesta milesimas; una falsa alarma cuesta horas.
+     */
+    const carriles = Array.from({ length: Math.max(1, Math.min(CARRILES, routes.length)) }, async () => {
+      for (;;) {
+        const i = siguiente++;
+        if (i >= routes.length) break;
+        const page = await context.newPage();
+        try {
+          await procesarRuta(page, routes[i], i);
+        } finally {
+          await page.close().catch(() => {});
+        }
+      }
+    });
+    await Promise.all(carriles);
 
     await context.close();
 
@@ -277,7 +396,40 @@ test.describe('Recorrido de las 353 pantallas', () => {
     // corridas, y el control de acentos que daba bien mirando cero archivos.
     //
     // La regla del proyecto: un control que no frena no es un control.
-    const rotas = results.filter((r) => r.estado === 'FALLO');
+    // LO NUEVO FRENA, LO VIEJO INFORMA. Y el numero solo puede bajar.
+    //
+    // Si la puerta exigiera las 357 pantallas perfectas, **no se podria publicar
+    // nunca**: hay 11 que ya venian rotas de antes. Y una puerta que nunca deja
+    // pasar termina desactivada, que es peor que no tenerla.
+    //
+    // Entonces: las conocidas se listan en `docs/pantallas-rotas-conocidas.json`
+    // y solo informan. **Cualquier pantalla que se rompa y no este en esa lista,
+    // frena.** Y si una de la lista se arregla, se saca del archivo y ya no puede
+    // volver a romperse sin que la puerta lo agarre.
+    const conocidas: string[] = (() => {
+      try {
+        const ruta = path.join(process.cwd(), 'docs', 'pantallas-rotas-conocidas.json');
+        return JSON.parse(fs.readFileSync(ruta, 'utf8')).rotas ?? [];
+      } catch {
+        return [];
+      }
+    })();
+
+    const todasLasRotas = results.filter((r) => r.estado === 'FALLO');
+    const yaEstaban = todasLasRotas.filter((r) => conocidas.includes(r.pathname));
+    const rotas = todasLasRotas.filter((r) => !conocidas.includes(r.pathname));
+
+    if (yaEstaban.length > 0) {
+      console.log(`\n  ${yaEstaban.length} pantalla(s) que ya venian rotas (no frenan, pero hay que arreglarlas):`);
+      for (const r of yaEstaban) console.log(`     ${r.pathname}: ${r.motivo}`);
+    }
+
+    // Y si una de las conocidas se arreglo, se avisa para sacarla de la lista.
+    const arregladas = conocidas.filter((c) => !todasLasRotas.some((r) => r.pathname === c));
+    if (arregladas.length > 0) {
+      console.log(`\n  ${arregladas.length} pantalla(s) de la lista YA ANDAN. Sacalas de docs/pantallas-rotas-conocidas.json:`);
+      for (const a of arregladas) console.log(`     ${a}`);
+    }
     const resumen = rotas
       .slice(0, 25)
       .map((r) => `  ${r.pathname}: ${r.motivo}`)

@@ -5,6 +5,7 @@ import { LandingNav } from "@/components/landing/LandingNav";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ServicesSection } from "@/components/landing/ServicesSection";
 import TechnologyExperienceSection from "@/components/landing/TechnologyExperienceSection";
+import { InteractiveTechShowcase } from "@/components/public/InteractiveTechShowcase";
 import { AkTeamStorySection } from "@/components/landing/AkTeamStorySection";
 import { AkDifferenceSection } from "@/components/landing/AkDifferenceSection";
 import { VideoSection } from "@/components/landing/VideoSection";
@@ -508,7 +509,12 @@ export default async function HomePage() {
             services={servicesForLanding}
           />
         }
-        technology={<TechnologyExperienceSection whatsappNumber={whatsapp} />}
+        technology={
+          <div className="space-y-6">
+            <InteractiveTechShowcase />
+            <TechnologyExperienceSection whatsappNumber={whatsapp} />
+          </div>
+        }
         salon={<SalonDestacadoSection photos={clubPhotos} capacity={clubSalon?.capacidad} />}
         team={<AkTeamStorySection />}
         process={null}

@@ -1,5 +1,1 @@
-﻿import { redirect } from 'next/navigation';
-
-export default function LandingEventosRedirect() {
-  redirect('/cumpleanos');
-}
+export { default, metadata } from '@/app/cumpleanos/page';

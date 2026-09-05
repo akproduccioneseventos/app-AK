@@ -535,7 +535,7 @@ function RsvpFormContent() {
                       value={alergiasEspecificas}
                       onChange={e => setAlergiasEspecificas(e.target.value)}
                       placeholder="Describí tu restricción o alergia específica"
-                      className="h-11 rounded-xl text-sm mt-2"
+                      className="h-11 rounded-xl text-base mt-2"
                     />
                   )}
                   {dietary !== 'Ninguna' && dietary !== 'Otro' && (
@@ -543,7 +543,7 @@ function RsvpFormContent() {
                       value={alergiasEspecificas}
                       onChange={e => setAlergiasEspecificas(e.target.value)}
                       placeholder="¿Alguna alergia específica? (opcional)"
-                      className="h-11 rounded-xl text-sm mt-2"
+                      className="h-11 rounded-xl text-base mt-2"
                     />
                   )}
                 </motion.div>
@@ -581,7 +581,7 @@ function RsvpFormContent() {
                           value={companionNames[i] ?? ''}
                           onChange={e => handleCompanionChange(i, e.target.value)}
                           placeholder={`Acompañante ${i + 1}`}
-                          className="h-11 rounded-xl text-sm"
+                          className="h-11 rounded-xl text-base"
                         />
                       ))}
                     </div>
@@ -606,7 +606,7 @@ function RsvpFormContent() {
                       value={song}
                       onChange={e => handleSongChange(i, e.target.value)}
                       placeholder={`Canción ${i + 1} – Artista`}
-                      className="h-11 rounded-xl text-sm"
+                      className="h-11 rounded-xl text-base"
                     />
                   ))}
                 </motion.div>
@@ -628,7 +628,7 @@ function RsvpFormContent() {
                     onChange={e => setMensaje(e.target.value)}
                     placeholder="Dejá un mensaje para el festejado/a…"
                     rows={3}
-                    className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-base resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                 </motion.div>
               )}

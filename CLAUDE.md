@@ -616,6 +616,101 @@ diferencia era una mayúscula.
 días sin poder publicarse y nadie lo vio. **El build es control obligatorio**, no
 un extra.
 
+### 7. Escribir la comprobación pidiendo el ingrediente y no el resultado
+
+**Pasó el 2 de septiembre de 2026 y dejó pasar una entrega vacía.** La orden 30 pedía que las
+landings se movieran, y la comprobación que se escribió fue *"que aparezca `framer-motion` en
+el archivo"*. La entrega agregó a cada landing un elemento **invisible y vacío** con la
+animación encima. **El control dio 10 de 10 con la página completamente quieta.**
+
+**Lo cierto:** que la biblioteca aparezca en el archivo no dice que la pantalla se mueva.
+
+**Qué se hace distinto:** una línea del bloque `comprobar` tiene que pedir **el resultado**, no
+el ingrediente. Y cuando el resultado sólo se ve abriendo la pantalla —que se mueva, que
+imprima, que cambie el fondo—, la comprobación va acompañada de **una prueba de navegador que
+mire ese resultado**, no de un nombre buscado en el código.
+
+**La pregunta antes de escribir una línea de `comprobar`:** *¿esto podría dar verde con la
+función apagada?* Si la respuesta es que sí, está mal escrita.
+
+### 6. Decir la causa antes de medirla
+
+**Se lo señaló el dueño el 2 de septiembre de 2026: *"te pasás equivocando"*.** Tenía razón, y
+las equivocaciones del día eran todas la misma:
+
+- Se dijo que el cambio de fondo estaba hecho. **No estaba**: la función existía y no la
+  llamaba nadie.
+- Se explicó por qué la puerta tardaba 45 minutos **sin haber mirado dónde se iba el tiempo**.
+  La explicación sonaba bien y era la equivocada: el atajo que evitaba recorrer todo estaba mal
+  escrito y ni siquiera se estaba usando.
+
+No fueron fallas de capacidad. **Las dos veces se afirmó una causa sin haberla medido**, y las
+dos sonaban razonables. Eso es lo peor: una causa inventada que suena bien manda a trabajar
+para el lado equivocado.
+
+**La regla, y no tiene excepción:**
+
+1. **No se dice POR QUÉ pasa algo hasta haberlo medido.** Ni al dueño, ni en un informe, ni en
+   una orden.
+2. **Si no se midió, se dice "todavía no sé" y se va a medir.** Eso no es quedar mal: quedar
+   mal es mandar a programar cinco días para el lado equivocado.
+3. **Vale también para lo que parece obvio.** Las dos equivocaciones del 2 de septiembre eran
+   obvias, y eran falsas.
+4. **Antes de afirmar que algo está hecho, se abre el archivo.** Que la función exista no
+   alcanza: **hay que ver quién la llama.** Es la forma exacta que tuvieron todas las fallas de
+   este año.
+
+## CADA ERROR SE ANOTA ACÁ. Sin excepción.
+
+**Orden del dueño, 2 de septiembre de 2026:** *"anotalo para no hacerlo; cada error debés
+anotarlo en la memoria de la app para no cometerlo de nuevo"*.
+
+**No es sólo para los errores del código, es también para los errores de Claude.** Una
+equivocación que no queda escrita se repite en el chat siguiente, porque el chat siguiente
+arranca sin memoria de éste.
+
+Cómo se anota, y son tres renglones nada más:
+
+- **Qué se dijo o se hizo mal**, en criollo.
+- **Qué era lo cierto.**
+- **Qué se hace distinto** para que no vuelva.
+
+Va en la lista de arriba, **en la misma tanda en que pasó**, no al final del día. Y si el error
+fue en el código, además lleva su matafuego —el control que lo frena— como dice la regla del
+matafuego.
+
+
+## CÓMO SE TRABAJA: resultados, no relato
+
+**Orden del dueño, 3 de septiembre de 2026.** Palabras suyas: *"estoy medio cansado con el
+proceso, puro texto, quiero resultados"*, *"terminá de una vez y no hables tanto"*.
+
+**Tenía razón y es una falla de trabajo, no de estilo.** Un chat entero contando cada paso
+—"ahora corro esto", "esperá que compila", "encontré tal cosa, la verifico"— le hace leer
+veinte veces lo mismo para enterarse de una sola cosa. **Y él no programa: el detalle no le
+sirve para decidir nada.**
+
+### La regla
+
+1. **Se habla cuando hay un RESULTADO**, no cuando hay un avance. Terminó la puerta, se fusionó,
+   quedó arreglado, se frenó algo y por qué. **Eso es un resultado. "Ya empecé" no lo es.**
+2. **Mientras se trabaja, silencio.** Nada de narrar cada comando, cada verificación ni cada
+   espera. Si tarda, tarda: él no necesita el minuto a minuto.
+3. **Cuando se contesta, arriba va lo que le cambia el negocio**, en dos o tres líneas. El
+   detalle técnico, sólo si lo pide.
+4. **Nada de repetir lo ya dicho.** Si algo se contó, no se vuelve a contar en el mensaje
+   siguiente con otras palabras.
+5. **Una pregunta se contesta y se corta.** Sin resumen de la jornada pegado abajo.
+
+### Lo único que sí se cuenta aunque no sea un resultado
+
+- **Que algo se frenó y no se va a entregar**, con el motivo en una línea.
+- **Un error propio**, corto, y qué se hace distinto.
+- **Cuando hace falta una decisión suya** que la app no puede tomar sola.
+
+**La prueba antes de mandar un mensaje:** *¿esto le sirve para decidir algo, o le estoy contando
+lo que hice?* Si es lo segundo, no se manda.
+
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
 - **El cliente NO elige fotos (1 de septiembre de 2026).** Palabras suyas: *"no, el cliente no
@@ -768,6 +863,19 @@ con otra cara.
 | El manual envejecía y mentía | `src/__tests__/mapa-de-la-app-al-dia.test.ts` |
 | La maquetación se movía sola | `tests/e2e/layout-baseline.spec.ts` |
 | Un control decía "todo bien" sin mirar nada | Todo control nuevo **se prueba rompiéndolo** |
+| Ocho horas arreglando una prueba vieja por vez | `pistas()` lista TODAS las fallas · `npm run otravez` |
+| Se animó un elemento invisible para que el control se callara | `src/__tests__/nada-de-animaciones-de-mentira.test.ts` |
+| El regalo del cliente pedía iniciar sesión | `src/__tests__/el-album-se-abre-con-el-enlace.test.ts` |
+| El cliente veía sus fotos y no las podía bajar | `src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts` |
+| La búsqueda por cara medía la luz, no las caras | `src/__tests__/las-caras-distinguen-personas.test.ts` |
+| Una prueba de Jest guardada entre las de navegador: no la corría nadie y tumbaba la tanda entera | `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` |
+| Una biblioteca cambiada por una vacía para que compilara: la función quedó apagada y todo daba verde | `src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts` |
+| Siete minutos por corrida recompilando porque la prueba escribe en `src/data/` | `NO_ES_CODIGO` en `scripts/run-playwright-production.mjs` |
+| La puerta decía "una pantalla se rompió" sin decir cuál | `PANTALLAS QUE FALLARON` en `scripts/se-puede-publicar.mjs` |
+| Un recorte de fondo que dibujaba un óvalo en vez de mirar la imagen, y cortaba gente al medio | `src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts` |
+| Los muebles de la vista 3D dibujados todos en la posición cero | `src/__tests__/la-vista-3d-pone-cada-mueble-en-su-lugar.test.ts` |
+| Un ajuste del operador que no llegaba a la estación | `src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts` |
+| Un invitado marcado "Niño" importado como adulto: la comida salía mal | `src/__tests__/la-planilla-de-invitados-se-entiende.test.ts` |
 
 ### Cómo se elige el matafuego
 
@@ -863,6 +971,22 @@ número viejo de pantallas, y dos correcciones propias que se habían perdido al
 pueden romper juntos —ya pasó con el archivo de facturas, que quedó protegido dos veces y dejaba
 la pantalla colgada al guardar—. Eso no se discute; lo que se ordena es **cuántas veces** se
 corre.
+
+### 1.b Cuando la puerta frena, LEER TODAS LAS FALLAS antes de tocar nada
+
+**Costó ocho horas el 3 de septiembre de 2026.** Cuatro corridas de 45 minutos, y cada una
+descubrió **una sola** prueba vieja. Ninguna era un error de la app.
+
+**Por qué pasaba:** la puerta mostraba las últimas 12 líneas del error, que son el rastro de
+**una** falla, aunque las pruebas corran todas y las encuentren todas. **Ya está arreglado**: hoy
+las lista todas juntas.
+
+**Y lo que no se hace más:** volver a correr la puerta entera para ver la siguiente. El orden es:
+
+1. **Leer la lista completa de fallas** que ahora imprime la puerta.
+2. **Arreglarlas todas.**
+3. **`npm run otravez`** — repite sólo las que fallaron. Son minutos.
+4. **Recién cuando eso pasa**, la puerta completa, una sola vez.
 
 ### 2. Después de fusionar varias ramas, REVISAR LAS PROPIAS CORRECCIONES
 
