@@ -68,7 +68,20 @@ export function aplicarChromaKey(
 }
 
 /**
- * Aplica el recorte de persona sin tela verde usando contraste de retrato y umbralización corporal.
+ * OJO: ESTO TODAVIA NO RECORTA A LA PERSONA. Viene apagado a proposito.
+ *
+ * No detecta a nadie: **dibuja un ovalo en el medio del cuadro y borra todo lo de
+ * afuera**. Con la persona centrada y sola parece que anda; corrida a un lado, con
+ * dos personas, o en plano abierto, las corta por la mitad. Y el fondo que queda
+ * ADENTRO del ovalo no se cambia.
+ *
+ * Queda escrito porque la cadena de alrededor -elegir el fondo y pintarlo- si esta
+ * bien y sirve. Lo que falta es el recorte de verdad, con
+ * `@mediapipe/selfie_segmentation` o `@tensorflow-models/body-segmentation`, cargado
+ * solo cuando el operador prende la opcion. Esta pedido en
+ * `docs/ordenes/DEVOLUCION-orden-42.md`.
+ *
+ * **No prendas `recorteSinTela` en una fiesta real hasta que eso este hecho.**
  */
 export function recortarPersonaSinTela(
   ctx: CanvasRenderingContext2D,
