@@ -509,3 +509,21 @@ casamiento, decoración, catering, personal, DJ). Detalle en `docs/COMPARACION-C
 
 **Y seis avisos de los ayudantes resultaron falsos**, verificados uno por uno. Están anotados en
 `docs/YA-RESUELTO.md` para que no se reporten de nuevo.
+
+
+## 5 de septiembre de 2026 — La app quedó publicable
+
+La puerta dio verde en las nueve etapas y se fusionó todo a la version principal. Los nueve
+modulos de entretenimiento quedaron completos contra el rubro (129 de 129).
+
+Lo mas importante que se arreglo, por lo que le costaba al negocio:
+
+1. **La pantalla del invitado mostraba "Application error"** al abrir su enlace. Era el
+   redireccionamiento hecho desde la pantalla; pasa a la configuracion.
+2. **Un invitado marcado "Niño" se importaba como adulto**, lo que cambiaba la cuenta de la
+   comida. Salio a la luz al sacar la lectura de la planilla a su propio archivo y probarla.
+3. **El fondo sin tela verde no miraba la imagen**: dibujaba un ovalo y cortaba gente. Se rehizo
+   con el modelo que segmenta de verdad, sin pagar nada por mes.
+
+Y la verificacion se acorto: el recorrido de pantallas bajo de 40 a 18 minutos, y se dejaron de
+perder siete minutos por corrida recompilando sin motivo.

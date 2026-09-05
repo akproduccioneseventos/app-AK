@@ -5,53 +5,39 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 2 de septiembre de 2026. **Rama: `revision-t6`.**
+**Última actualización:** 5 de septiembre de 2026. **Rama: `main`.**
 
-**`npm run "falta?"` se imprime solo al abrir la sesión** y contesta qué falta, ordenado por lo
-que le cuesta plata al negocio. **Ojo: mide la rama en la que estás.** Lo que Gemini ya programó
-en `feat/orden-34` figura como faltante hasta que se fusione.
+**Todo lo de la tanda anterior está fusionado y publicable.** La puerta
+(`npm run "publicar?"`) dio **SE PUEDE PUBLICAR** con las nueve etapas en verde, incluido el
+recorrido de las 358 pantallas.
 
-## Lo que se arregló hoy, y los dos primeros eran graves
+## Lo que quedó terminado
 
-- **El álbum del recuerdo se abre con el enlace.** Era la única pantalla del evento que pedía
-  cuenta: **el invitado no podía abrir el regalo del cliente.**
-- **El cliente ya puede bajar las fotos de su fiesta.** Las cuatro tarjetas de descarga del
-  portal llevaban al álbum del fotógrafo —otro material— o no mostraban botón. **Lo causé yo** al
-  sacar el enlace viejo.
-- **El control del rubro dejó de mentir:** catorce funciones que daba por faltantes ya estaban.
-- **El recorrido dejó de marcar los tableros de números como pantallas rotas.**
+- **129 de 129 funciones del rubro.** Los nueve módulos de entretenimiento, completos contra la
+  competencia. El panel lo muestra solo: `npm run panel`.
+- **El fondo sin tela verde, de verdad.** La versión que llegó dibujaba un óvalo en el medio y
+  cortaba gente por la mitad. Ahora el modelo mira la imagen. No se paga nada por mes.
+- **La pantalla del invitado ya no se rompe.** El enlace que abre el invitado mostraba
+  "Application error". Era el redireccionamiento; se hace desde la configuración y listo.
+- **Dos defectos de la importación de invitados**, encontrados al sacarla de la pantalla: una
+  planilla sin encabezado rompía todo, y **un "Niño" entraba como adulto** —eso cambiaba la
+  cuenta de la comida—.
+- **Dos pantallas vacías sin salida** (el video del recuerdo y el check-in) ahora tienen adónde ir.
+- **Las once devoluciones viejas quedaron cerradas.** El panel dice cero pendientes, que es cierto.
+- **La verificación es más corta:** el recorrido pasó de 40 a 18 minutos, y se dejaron de perder
+  siete minutos por corrida recompilando de gusto.
 
-## Lo que está esperando a Gemini
+## Lo que sigue, si nadie dice otra cosa
 
-En `feat/orden-34` ya entregó y **verifiqué abriendo los archivos**: el movimiento de las
-landings (bien resuelto, en el componente compartido), el reproductor del álbum, las copias de
-impresión con su propio ajuste y el tamaño de papel.
-
-**Le queda una sola cosa:** `docs/ordenes/DEVOLUCION-la-musica-del-album.md` — el reproductor
-apunta a un archivo que no existe, así que el botón no suena. Se pide que use **la canción de esa
-fiesta** y que, si no hay, **el botón no aparezca**.
-
-**Y sin empezar:** órdenes 36 (la grilla de caras), 37 (celular y velocidad) y 38 (el panel
-atractivo).
-
-## Lo que hace Claude
-
-- **La orden 31/36 tiene el corazón hecho**: `src/lib/caras/agrupar-caras.ts`, con once pruebas.
-  Falta que Gemini traiga los números de las fotos y arme la pantalla.
-- Los controles y los matafuegos. **Ya son cinco**, todos probados rompiéndolos a propósito.
-
-## Las dos lecciones del día, y están en `CLAUDE.md`
-
-1. **Regla 6 — no digas la causa antes de medirla.** Si no lo mediste, decí "todavía no sé".
-2. **Regla 7 — una comprobación pide el RESULTADO, no el ingrediente.** La pregunta antes de
-   escribir una: *¿esto podría dar verde con la función apagada?* **La escribí y la rompí el
-   mismo día**: pedí que existiera una variable y llegó vacía.
+Nada urgente. La app está publicable. Lo que aparezca lo pide el dueño o lo muestra una fiesta.
 
 ## Trampas que costaron tiempo y no se repiten
 
-- **La puerta tarda 45 minutos**, y no es el recorrido: son las 39 tandas de navegador **corriendo
-  de a una** en una máquina de cuatro núcleos.
-- **Antes de creerle a una falla:** `ps aux | grep playwright`. Si hay más de una corrida, el
-  resultado no vale. Quedó una huérfana peleando la máquina 42 minutos.
-- **La descarga interna `download-recuerdos` pide sesión de administrador.** No se la enchufes a
-  ninguna pantalla del cliente.
+- **Un error de React se mide con la app COMPILADA, no en modo desarrollo.** En desarrollo se
+  recupera solo y parece que no rompe nada. Me equivoqué por eso y lo anoté.
+- **Las pantallas internas no ven las fiestas que arman las pruebas** (la app de prueba lee
+  archivos locales). Toda prueba de navegador sobre una pantalla interna con una fiesta inventada
+  va a fallar: eso se comprueba sin navegador.
+- **Una fusión puede pisar un arreglo de hace un rato.** Pasó con la prueba del post-evento.
+  Después de fusionar, revisar las correcciones propias.
+- **No correr ayudantes mientras corre la puerta:** la corrida se pasa de tiempo y se pierde.
