@@ -77,6 +77,12 @@ export const TAREAS_AUTOMATICAS: TareaAutomatica[] = [
     siNoCorre: 'Los clientes que pidieron presupuesto no reciben seguimiento y se pierden ventas por falta de respuesta a tiempo.',
     cadaHoras: 24,
   },
+  {
+    id: 'recordatorio-a-los-invitados',
+    nombre: 'Recordarle al invitado antes de la fiesta',
+    siNoCorre: 'Los invitados confirmados no reciben la dirección, hora ni enlace a su invitación dos días antes ni el día de la fiesta.',
+    cadaHoras: 24,
+  },
 ];
 
 import type { OrigenDisparo } from '@/lib/automatico/control-concurrencia';

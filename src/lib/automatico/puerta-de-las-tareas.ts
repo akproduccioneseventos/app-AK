@@ -49,7 +49,8 @@ export type NombreDeTareaProgramada =
   | 'recordatorios-de-pago'
   | 'posicionamiento-diario'
   | 'fiesta-proxima-revision'
-  | 'prospectos-seguimiento';
+  | 'prospectos-seguimiento'
+  | 'recordatorio-a-los-invitados';
 
 /**
  * Las que pueden correr sin contrasena cuando no hay ninguna configurada.
@@ -62,6 +63,7 @@ const TAREAS_QUE_NO_HACEN_DANO: ReadonlySet<NombreDeTareaProgramada> = new Set([
   'posicionamiento-diario',
   'fiesta-proxima-revision',
   'prospectos-seguimiento',
+  'recordatorio-a-los-invitados',
   // Los recordatorios entraron el 20 de agosto, despues de comprobar que **no le
   // escriben a nadie**: dejan el mensaje en la bandeja de salida con estado
   // pendiente, y una persona lo manda con un toque desde su propio WhatsApp.

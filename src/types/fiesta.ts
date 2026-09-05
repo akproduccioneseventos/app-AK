@@ -368,6 +368,7 @@ export interface DecoracionData {
     comentario?: string;
     fecha: string;
   };
+  fotosIdeasCliente?: string[];
 }
 
 export interface GiftItem {
@@ -1461,8 +1462,17 @@ export interface ClientePortalExperience {
   clienteDebeLlevar?: ClienteDebeLlevarItem[];
 }
 
+export interface MensajePortalCliente {
+  id: string;
+  autor: 'cliente' | 'equipo';
+  remitenteNombre?: string;
+  mensaje: string;
+  fecha: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
+  mensajesCliente?: MensajePortalCliente[];
   invitacionSlug?: string;
   configuracion: ConfigEventoDataStorage;
   estado?: string;

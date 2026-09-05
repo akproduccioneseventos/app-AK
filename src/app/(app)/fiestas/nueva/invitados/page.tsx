@@ -9,10 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Plus, Trash2, Edit3, Save, Loader2, QrCode, Printer, Download, Crown, Users, User, Accessibility } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Edit3, Save, Loader2, QrCode, Printer, Download, Crown, Users, User, Accessibility, Upload, FileSpreadsheet, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Invitado, RsvpStatus, CategoriaInvitado, PerfilInvitado, DietaryRestriction } from '@/types/invitado';
 import { getFiestaById, addInvitadoFiestaActual, updateInvitadoFiestaActual, deleteInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { addInvitado } from '@/app/actions/fiesta/invitados.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import QRCodeStylized from 'qrcode.react';
 import { InvitadoQR } from '@/components/invitados/InvitadoQR';
@@ -83,6 +84,224 @@ function InvitadosEventoContent() {
   // QR modal state
   const [isMesaQrOpen, setIsMesaQrOpen] = useState(false);
   const [guestQrModal, setGuestQrModal] = useState<Invitado | null>(null);
+
+  // Import spreadsheet modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [planillaTexto, setPlanillaTexto] = useState('');
+  const [previewPlanilla, setPreviewPlanilla] = useState<{
+    filas: Array<{
+      filaNum: number;
+      nombre: string;
+      categoria: CategoriaInvitado;
+      tableNumber?: string;
+      companionNames?: string[];
+      dietaryRestriction?: DietaryRestriction;
+      contacto?: string;
+      esRepetido?: boolean;
+      error?: string;
+    }>;
+    filasSinNombre: number[];
+    repetidos: number;
+    validos: number;
+  } | null>(null);
+
+  const procesarTextoPlanilla = (texto: string, listaActual: Invitado[]) => {
+    const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (lineas.length === 0) {
+      setPreviewPlanilla(null);
+      return;
+    }
+
+    // Detectar delimitador
+    const primera = lineas[0];
+    const delimitador = primera.includes(';') ? ';' : primera.includes('\t') ? '\t' : ',';
+
+    const parseLine = (line: string) => {
+      const parts: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === delimitador && !inQuotes) {
+          parts.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      parts.push(current.trim());
+      return parts.map(p => p.replace(/^"|"$/g, '').trim());
+    };
+
+    const headerParts = parseLine(primera);
+    const normalizeHeader = (h: string) =>
+      h.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+    let colNombre = -1;
+    let colCategoria = -1;
+    let colMesa = -1;
+    let colAcompanantes = -1;
+    let colRestriccion = -1;
+    let colContacto = -1;
+
+    headerParts.forEach((h, idx) => {
+      const norm = normalizeHeader(h);
+      if (norm.includes('nombre') || norm.includes('invitado') || norm === 'name' || norm.includes('persona')) {
+        colNombre = idx;
+      } else if (norm.includes('categoria') || norm.includes('tipo') || norm === 'category') {
+        colCategoria = idx;
+      } else if (norm.includes('mesa') || norm.includes('table')) {
+        colMesa = idx;
+      } else if (norm.includes('acompan') || norm.includes('companion')) {
+        colAcompanantes = idx;
+      } else if (norm.includes('restric') || norm.includes('dieta') || norm.includes('alergia') || norm.includes('dietary')) {
+        colRestriccion = idx;
+      } else if (norm.includes('contacto') || norm.includes('tel') || norm.includes('cel') || norm.includes('phone')) {
+        colContacto = idx;
+      }
+    });
+
+    let dataStartIndex = 0;
+    if (colNombre !== -1) {
+      dataStartIndex = 1;
+    } else {
+      colNombre = 0;
+      colMesa = 1;
+      colCategoria = 2;
+    }
+
+    const filas: Array<{
+      filaNum: number;
+      nombre: string;
+      categoria: CategoriaInvitado;
+      tableNumber?: string;
+      companionNames?: string[];
+      dietaryRestriction?: DietaryRestriction;
+      contacto?: string;
+      esRepetido?: boolean;
+      error?: string;
+    }> = [];
+
+    const filasSinNombre: number[] = [];
+    let repetidosCount = 0;
+    let validosCount = 0;
+    const nombresYaProcesados = new Set<string>();
+
+    for (let i = dataStartIndex; i < lineas.length; i++) {
+      const numFila = i + 1;
+      const cols = parseLine(lineas[i]);
+      const nombre = (cols[colNombre] || '').trim();
+      const rawCat = (colCategoria !== -1 ? cols[colCategoria] : '').toLowerCase();
+      const categoria: CategoriaInvitado = (rawCat.includes('nin') || rawCat.includes('adol') || rawCat.includes('chico'))
+        ? 'Niño/Adolescente'
+        : 'Adulto';
+      const mesa = colMesa !== -1 ? cols[colMesa] || undefined : undefined;
+      const rawAcomp = colAcompanantes !== -1 ? cols[colAcompanantes] || '' : '';
+      const companionNames = rawAcomp ? rawAcomp.split(/[,;/+]/).map(s => s.trim()).filter(Boolean) : undefined;
+      const rawDiet = (colRestriccion !== -1 ? cols[colRestriccion] || '' : '').toLowerCase();
+      let dietaryRestriction: DietaryRestriction = 'Ninguna';
+      if (rawDiet.includes('celiac')) dietaryRestriction = 'Celiaco';
+      else if (rawDiet.includes('vegano') || rawDiet.includes('vegana')) dietaryRestriction = 'Vegano';
+      else if (rawDiet.includes('vegetar')) dietaryRestriction = 'Vegetariano';
+      else if (rawDiet.includes('gluten')) dietaryRestriction = 'Sin Gluten';
+      else if (rawDiet.includes('lactos')) dietaryRestriction = 'Sin Lactosa';
+      else if (rawDiet.includes('marisc')) dietaryRestriction = 'Alergia Mariscos';
+      else if (rawDiet.includes('frutos')) dietaryRestriction = 'Alergia Frutos Secos';
+
+      const contacto = colContacto !== -1 ? cols[colContacto] || undefined : undefined;
+
+      let error: string | undefined = undefined;
+      if (!nombre) {
+        error = `Fila ${numFila}: falta el nombre del invitado.`;
+        filasSinNombre.push(numFila);
+      }
+
+      const nombreKey = nombre.toLowerCase();
+      const esRepetido = !!nombre && (
+        listaActual.some(inv => inv.nombre.toLowerCase() === nombreKey) ||
+        nombresYaProcesados.has(nombreKey)
+      );
+
+      if (nombre) {
+        nombresYaProcesados.add(nombreKey);
+        if (esRepetido) repetidosCount++;
+        validosCount++;
+      }
+
+      filas.push({
+        filaNum: numFila,
+        nombre,
+        categoria,
+        tableNumber: mesa,
+        companionNames,
+        dietaryRestriction,
+        contacto,
+        esRepetido,
+        error,
+      });
+    }
+
+    setPreviewPlanilla({
+      filas,
+      filasSinNombre,
+      repetidos: repetidosCount,
+      validos: validosCount,
+    });
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = String(evt.target?.result || '');
+      setPlanillaTexto(text);
+      procesarTextoPlanilla(text, invitados);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleConfirmarImportacion = async () => {
+    if (!fiestaId || !previewPlanilla || previewPlanilla.filasSinNombre.length > 0) return;
+    setIsImporting(true);
+    try {
+      const validos = previewPlanilla.filas.filter(f => !f.error && f.nombre);
+      let guardados = 0;
+      for (const item of validos) {
+        const res = await addInvitado(fiestaId, {
+          nombre: item.nombre,
+          categoria: item.categoria,
+          tableNumber: item.tableNumber,
+          companionNames: item.companionNames && item.companionNames.length > 0 ? item.companionNames : undefined,
+          dietaryRestriction: item.dietaryRestriction,
+          contacto: item.contacto,
+          rsvp: 'Confirmado',
+          partySize: 1 + (item.companionNames?.length || 0),
+          isCeliac: item.dietaryRestriction === 'Celiaco',
+        });
+        if (res.success) guardados++;
+      }
+      toast({
+        title: 'Importación exitosa',
+        description: `Se importaron ${guardados} invitados correctamente a la fiesta.`,
+      });
+      await fetchInvitados();
+      setIsImportModalOpen(false);
+      setPlanillaTexto('');
+      setPreviewPlanilla(null);
+    } catch (err: any) {
+      toast({
+        title: 'Error en la importación',
+        description: err?.message || 'Ocurrió un error al guardar los invitados.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
   
   const fetchInvitados = useCallback(async () => {
     if (!fiestaId) return;
@@ -188,6 +407,9 @@ function InvitadosEventoContent() {
       <div className="flex justify-between items-center print:hidden">
         <h1 className="text-3xl font-bold font-headline">Gestión de Invitados</h1>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setIsImportModalOpen(true)} className="bg-card text-purple-700 border-purple-300 hover:bg-purple-50" data-testid="btn-abrir-importar-planilla">
+            <Upload className="w-4 h-4 mr-2" /> Importar Planilla
+          </Button>
           <Button variant="outline" onClick={() => window.print()} className="bg-card"><Printer className="w-4 h-4 mr-2" /> PDF / Imprimir</Button>
           <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
         </div>
@@ -532,6 +754,164 @@ function InvitadosEventoContent() {
               />
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Spreadsheet Dialog */}
+      <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+              <FileSpreadsheet className="w-5 h-5 text-purple-600" />
+              Importar lista de invitados desde una planilla
+            </DialogTitle>
+            <DialogDescription>
+              Subí un archivo CSV o pegá los datos. Podés previsualizar y validar toda la lista antes de guardar.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="input-archivo-planilla">Archivo CSV / Planilla</Label>
+              <Input
+                id="input-archivo-planilla"
+                data-testid="input-archivo-planilla"
+                type="file"
+                accept=".csv, .tsv, .txt"
+                onChange={handleFileUpload}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="textarea-pegar-planilla">O pegá el contenido de tu planilla acá (formato CSV o tabla copiada):</Label>
+              <Textarea
+                id="textarea-pegar-planilla"
+                data-testid="textarea-pegar-planilla"
+                placeholder={"Nombre,Mesa,Categoria,Acompañantes,Restricción\nJuan Pérez,Mesa 1,Adulto,María Gómez,Ninguna\nLucas Silva,Mesa 2,Niño,,Celiaco"}
+                value={planillaTexto}
+                rows={4}
+                onChange={(e) => {
+                  setPlanillaTexto(e.target.value);
+                  procesarTextoPlanilla(e.target.value, invitados);
+                }}
+                className="font-mono text-xs"
+              />
+            </div>
+
+            {previewPlanilla && (
+              <div className="space-y-3 pt-2" data-testid="preview-importacion">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="outline" data-testid="total-filas">
+                    Total filas: {previewPlanilla.filas.length}
+                  </Badge>
+                  <Badge className="bg-emerald-600 text-white" data-testid="total-validos">
+                    Válidos: {previewPlanilla.validos}
+                  </Badge>
+                  {previewPlanilla.repetidos > 0 && (
+                    <Badge className="bg-amber-600 text-white" data-testid="total-repetidos">
+                      Repetidos: {previewPlanilla.repetidos}
+                    </Badge>
+                  )}
+                  {previewPlanilla.filasSinNombre.length > 0 && (
+                    <Badge variant="destructive" data-testid="total-errores">
+                      Sin nombre: {previewPlanilla.filasSinNombre.length}
+                    </Badge>
+                  )}
+                </div>
+
+                {previewPlanilla.filasSinNombre.length > 0 && (
+                  <div
+                    data-testid="alerta-fila-sin-nombre"
+                    className="rounded-lg border border-rose-500/50 bg-rose-500/10 p-3 text-sm text-rose-700 dark:text-rose-300 space-y-1"
+                  >
+                    <p className="font-bold flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                      Atención: no se puede guardar la planilla completa porque hay filas sin nombre
+                    </p>
+                    <div className="text-xs space-y-0.5">
+                      {previewPlanilla.filasSinNombre.map((fn) => (
+                        <p key={fn}>• Fila {fn}: falta el nombre del invitado. Corregila antes de continuar.</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden max-h-60 overflow-y-auto">
+                  <Table className="text-xs">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-12">#</TableHead>
+                        <TableHead>Nombre</TableHead>
+                        <TableHead>Categoría</TableHead>
+                        <TableHead>Mesa</TableHead>
+                        <TableHead>Acompañantes</TableHead>
+                        <TableHead>Dieta</TableHead>
+                        <TableHead>Estado</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {previewPlanilla.filas.map((f) => (
+                        <TableRow
+                          key={f.filaNum}
+                          data-testid="preview-fila"
+                          className={f.error ? 'bg-rose-50/50 dark:bg-rose-950/20' : ''}
+                        >
+                          <TableCell className="font-mono text-muted-foreground">{f.filaNum}</TableCell>
+                          <TableCell className="font-medium">
+                            {f.nombre ? (
+                              f.nombre
+                            ) : (
+                              <span className="text-rose-600 font-semibold italic">Sin nombre (Error)</span>
+                            )}
+                          </TableCell>
+                          <TableCell>{f.categoria}</TableCell>
+                          <TableCell>{f.tableNumber || '-'}</TableCell>
+                          <TableCell>{f.companionNames?.join(', ') || '-'}</TableCell>
+                          <TableCell>{f.dietaryRestriction !== 'Ninguna' ? f.dietaryRestriction : '-'}</TableCell>
+                          <TableCell>
+                            {f.error ? (
+                              <Badge variant="destructive">Error</Badge>
+                            ) : f.esRepetido ? (
+                              <Badge variant="secondary">Repetido</Badge>
+                            ) : (
+                              <Badge className="bg-emerald-600 text-white">Válido</Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsImportModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              data-testid="btn-confirmar-guardado-planilla"
+              disabled={
+                isImporting ||
+                !previewPlanilla ||
+                previewPlanilla.filasSinNombre.length > 0 ||
+                previewPlanilla.validos === 0
+              }
+              onClick={handleConfirmarImportacion}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {isImporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Guardando...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4 mr-2" /> Confirmar e importar {previewPlanilla?.validos || 0} invitados
+                </>
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

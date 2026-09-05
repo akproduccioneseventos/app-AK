@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download, Maximize2, Minimize2, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Palette, Save, Loader2, Image as ImageIconLucide, Trash2, PlusCircle, Wand2, StickyNote, FileText, RefreshCw, Heart, Paintbrush, CheckSquare, DollarSign, MapPin, Star, Package, RefreshCcw, Layers, LayoutDashboard, ChevronsUp, ChevronsDown, Grid, ChevronRight, Download, Maximize2, Minimize2, ChevronUp, ChevronDown, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import type { DecoracionData, ColorPalette, DecoItem, DecoChecklistItem, ZonaDiseno, ElementoDecorativo } from '@/types/fiesta';
@@ -27,8 +27,20 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import DecoCanvas from '@/components/decoracion/DecoCanvas';
-import { DecoItem3D } from '@/components/salon-3d/elements/DecoItem3D';
-import { SalonScene } from '@/components/salon-3d/SalonScene';
+import type { DecoItem3D } from '@/components/salon-3d/elements/DecoItem3D';
+import dynamic from 'next/dynamic';
+
+const SalonScene = dynamic(
+  () => import('@/components/salon-3d/SalonScene').then((mod) => mod.SalonScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full w-full items-center justify-center bg-slate-950 text-amber-400">
+        <span className="font-medium">Cargando salón 3D...</span>
+      </div>
+    ),
+  }
+);
 import DecoElementLibrary from '@/components/decoracion/DecoElementLibrary';
 import DecoMuestrario from '@/components/decoracion/DecoMuestrario';
 import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
@@ -1213,6 +1225,32 @@ function DecoracionYDisenoEventoContent() {
               )}
             </CardContent>
           </Card>
+
+          {/* Fotos de ideas subidas por el cliente */}
+          {!!(decoracionData.fotosIdeasCliente && decoracionData.fotosIdeasCliente.length > 0) && (
+            <Card className="border-purple-200 bg-purple-50/40 shadow-xl rounded-[2rem]">
+              <CardHeader className="p-6 pb-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-purple-600 text-white rounded-2xl shadow-lg shadow-purple-600/20">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <CardTitle className="font-headline text-xl text-purple-950">Fotos de Referencia del Cliente</CardTitle>
+                    <CardDescription className="text-purple-700">El cliente subió estas {decoracionData.fotosIdeasCliente.length} imágenes desde su portal para guiar la ambientación.</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                  {decoracionData.fotosIdeasCliente.map((fotoUrl, fIdx) => (
+                    <div key={fIdx} className="relative aspect-square rounded-xl overflow-hidden border border-purple-200 bg-white shadow-sm">
+                      <NextImage src={fotoUrl} alt={`Referencia cliente ${fIdx + 1}`} layout="fill" objectFit="cover" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md">
             <CardHeader className="p-6">
