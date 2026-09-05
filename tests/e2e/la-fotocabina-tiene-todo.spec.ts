@@ -13,6 +13,7 @@ import { enchufarCamaraFalsa } from './helpers/camara-falsa';
  * - Enlace para ver la galería de la noche dentro de la estación.
  */
 
+const fiestaLentaId = `e2e_fotocabina_lenta_${Date.now()}`;
 const fiestaId = `e2e_fotocabina_todo_${Date.now()}`;
 
 test.describe('Orden 39: La fotocabina tiene todo', () => {
@@ -20,10 +21,26 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
     const fiesta = crearFiestaDeEstaNoche({ id: fiestaId });
     fiesta.configuracion.nombreEvento = 'Fiesta de Prueba - Fotocabina Completa';
     guardarFiesta(fiesta);
+
+    // OJO: esta fiesta se crea ACA y no adentro de la prueba. El servidor arma su
+    // lista al arrancar, asi que una fiesta creada despues no existe para el.
+    const fiestaLenta = crearFiestaDeEstaNoche({ id: fiestaLentaId });
+    fiestaLenta.configuracion.nombreEvento = 'Fiesta Fotocabina Lenta';
+    const others = (fiestaLenta as any).others || {};
+    others.entretenimiento = others.entretenimiento || {};
+    others.entretenimiento.modules = others.entretenimiento.modules || {};
+    others.entretenimiento.modules.fotocabina = {
+      ...(others.entretenimiento.modules.fotocabina || {}),
+      enabled: true,
+      velocidadRecuerdo: 'lenta',
+    };
+    (fiestaLenta as any).others = others;
+    guardarFiesta(fiestaLenta);
   });
 
   test.afterAll(async () => {
     borrarFiesta(fiestaId);
+    borrarFiesta(fiestaLentaId);
   });
 
   test('la fotocabina muestra stickers, marcos, fondos y enlace a la galería', async ({ context, page }, testInfo) => {
@@ -59,17 +76,6 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
 
   test('con velocidad lenta el video del recuerdo dura mas que la toma original', async ({ context, page }, testInfo) => {
     test.setTimeout(90_000);
-    const fiestaLentaId = `e2e_fotocabina_lenta_${Date.now()}`;
-    const fiestaLenta = crearFiestaDeEstaNoche({ id: fiestaLentaId });
-    fiestaLenta.configuracion.nombreEvento = 'Fiesta Fotocabina Lenta';
-    if (!fiestaLenta.others) fiestaLenta.others = {};
-    if (!fiestaLenta.others.entretenimiento) fiestaLenta.others.entretenimiento = {} as any;
-    if (!fiestaLenta.others.entretenimiento.modules) fiestaLenta.others.entretenimiento.modules = {} as any;
-    (fiestaLenta.others.entretenimiento.modules as any).fotocabina = {
-      ...((fiestaLenta.others.entretenimiento.modules as any).fotocabina || {}),
-      velocidadRecuerdo: 'lenta',
-    };
-    guardarFiesta(fiestaLenta);
 
     try {
       const baseURL = testInfo.project.use.baseURL as string;
@@ -112,7 +118,9 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
         expect(duracionVideo).toBeGreaterThan(duracionToma);
       }
     } finally {
-      borrarFiesta(fiestaLentaId);
+      // La fiesta se borra en el afterAll: si se creara y borrara adentro de la
+      // prueba, el servidor ya tiene la lista cargada y NO la ve. Paso el 5 de
+      // septiembre de 2026 y la velocidad llegaba siempre como "normal".
     }
   });
 });

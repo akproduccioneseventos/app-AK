@@ -37,6 +37,7 @@ import DecoPropertiesPanel from '@/components/decoracion/DecoPropertiesPanel';
 import DecoTemplateGallery from '@/components/decoracion/DecoTemplateGallery';
 import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
 import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
+import { ubicarMuebleEnLaEscena } from '@/lib/decoracion/plano-a-escena-3d';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -1724,11 +1725,17 @@ function DecoracionYDisenoEventoContent() {
                           {canvasElementos.length > 0 && (
                             <div className="absolute bottom-4 left-4 z-10 flex flex-wrap gap-2 pointer-events-none">
                               {canvasElementos.map((el) => {
-                                const sW = decoracionData.salonWidth || 15;
-                                const sH = decoracionData.salonHeight || 15;
-                                const ppm = decoracionData.pixelsPerMeter || 40;
-                                const wX = (el.x / ppm - sW / 2 + (el.width || 80) / ppm / 2).toFixed(2);
-                                const wZ = (el.y / ppm - sH / 2 + (el.height || 80) / ppm / 2).toFixed(2);
+                                // La cuenta vive en un archivo aparte y tiene su propia
+                                // prueba: antes estaba escrita aca adentro y nadie la
+                                // comprobaba, por eso los muebles caian todos en el cero.
+                                const { x: wX, z: wZ } = ubicarMuebleEnLaEscena(
+                                  { id: el.id, x: el.x, y: el.y, width: el.width, height: el.height },
+                                  {
+                                    salonWidth: decoracionData.salonWidth,
+                                    salonHeight: decoracionData.salonHeight,
+                                    pixelsPerMeter: decoracionData.pixelsPerMeter,
+                                  }
+                                );
                                 return (
                                   <div
                                     key={`mueble_3d_${el.id}`}
