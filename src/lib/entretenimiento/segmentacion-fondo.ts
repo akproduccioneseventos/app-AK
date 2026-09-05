@@ -68,65 +68,98 @@ export function aplicarChromaKey(
 }
 
 /**
- * OJO: ESTO TODAVIA NO RECORTA A LA PERSONA. Viene apagado a proposito.
+ * RECORTAR A LA PERSONA SIN TELA VERDE.
  *
- * No detecta a nadie: **dibuja un ovalo en el medio del cuadro y borra todo lo de
- * afuera**. Con la persona centrada y sola parece que anda; corrida a un lado, con
- * dos personas, o en plano abierto, las corta por la mitad. Y el fondo que queda
- * ADENTRO del ovalo no se cambia.
+ * **Que hace:** le pregunta al modelo, pixel por pixel, que parte de la imagen es
+ * una persona y que parte es fondo, y borra el fondo. Sin tela, sin luces
+ * especiales y sin que la gente tenga que pararse en un lugar determinado.
  *
- * Queda escrito porque la cadena de alrededor -elegir el fondo y pintarlo- si esta
- * bien y sirve. Lo que falta es el recorte de verdad, con
- * `@mediapipe/selfie_segmentation` o `@tensorflow-models/body-segmentation`, cargado
- * solo cuando el operador prende la opcion. Esta pedido en
- * `docs/ordenes/DEVOLUCION-orden-42.md`.
+ * **Que NO hace, y es lo que habia antes:** no dibuja un ovalo en el medio. Esa
+ * primera version parecia andar con una persona sola y centrada, y con alguien
+ * corrido a un lado o de a dos **cortaba gente por la mitad**. Se descarto el 4 de
+ * septiembre de 2026.
  *
- * **No prendas `recorteSinTela` en una fiesta real hasta que eso este hecho.**
+ * **Se carga sola y solo cuando el operador prende la opcion.** El modelo pesa un
+ * cuarto de mega y el motor esta guardado en la propia app: no se le baja nada al
+ * invitado que solo entra a mirar, y no se paga ningun servicio por mes.
+ *
+ * **Mientras no este lista, NO recorta**: deja la imagen entera. Es preferible que
+ * el fondo no cambie por unos segundos a que salga alguien cortado en la foto.
+ */
+let segmentador: any = null;
+let cargandoSegmentador: Promise<any> | null = null;
+
+/** El motor y el modelo viven en la propia app, no en un servicio de afuera. */
+const RUTA_WASM = '/mediapipe/wasm';
+const RUTA_MODELO = '/models/segmentacion/selfie_segmenter.tflite';
+
+export function cargarSegmentadorSinTela(): Promise<any> | null {
+  if (typeof window === 'undefined') return null;
+  if (segmentador) return Promise.resolve(segmentador);
+  if (!cargandoSegmentador) {
+    cargandoSegmentador = (async () => {
+      try {
+        const vision = await import('@mediapipe/tasks-vision');
+        const fileset = await vision.FilesetResolver.forVisionTasks(RUTA_WASM);
+        segmentador = await vision.ImageSegmenter.createFromOptions(fileset, {
+          baseOptions: { modelAssetPath: RUTA_MODELO, delegate: 'GPU' },
+          runningMode: 'VIDEO',
+          outputCategoryMask: true,
+          outputConfidenceMasks: false,
+        });
+        return segmentador;
+      } catch {
+        // Si el modelo no esta o el equipo no puede, se sigue sin recortar.
+        segmentador = null;
+        return null;
+      }
+    })();
+  }
+  return cargandoSegmentador;
+}
+
+/**
+ * Borra el fondo dejando solo a las personas.
+ *
+ * Devuelve `true` si de verdad recorto. Si devuelve `false`, el que llama tiene que
+ * dejar la imagen como estaba: **nunca inventar un recorte**.
  */
 export function recortarPersonaSinTela(
   ctx: CanvasRenderingContext2D,
   ancho: number,
-  alto: number
-) {
+  alto: number,
+  origen?: HTMLVideoElement | HTMLImageElement
+): boolean {
+  if (!segmentador || !origen) {
+    // Todavia no cargo: se pide la carga para la proxima vuelta y no se toca nada.
+    cargarSegmentadorSinTela();
+    return false;
+  }
+
+  let mascara: Uint8Array | null = null;
+  try {
+    const resultado = segmentador.segmentForVideo(origen, performance.now());
+    const cat = resultado?.categoryMask;
+    if (cat) {
+      mascara = cat.getAsUint8Array();
+      cat.close?.();
+    }
+    resultado?.close?.();
+  } catch {
+    return false;
+  }
+  if (!mascara || mascara.length < ancho * alto) return false;
+
   const frame = ctx.getImageData(0, 0, ancho, alto);
   const data = frame.data;
-  const len = data.length;
-
-  const centroX = ancho / 2;
-  const centroY = alto / 2;
-  const radioXMax = ancho * 0.46;
-  const radioYMax = alto * 0.50;
-
-  for (let i = 0; i < len; i += 4) {
-    const pxIndex = i / 4;
-    const px = pxIndex % ancho;
-    const py = Math.floor(pxIndex / ancho);
-
-    const dx = (px - centroX) / radioXMax;
-    const dy = (py - centroY) / radioYMax;
-    const distCuadrada = dx * dx + dy * dy;
-
-    if (distCuadrada > 1.05) {
-      data[i + 3] = 0;
-    } else if (distCuadrada > 0.82) {
-      const factor = 1 - (distCuadrada - 0.82) / 0.23;
-      data[i + 3] = Math.round(data[i + 3] * Math.max(0, Math.min(1, factor)));
+  for (let pixel = 0; pixel < ancho * alto; pixel += 1) {
+    // El modelo marca 0 = fondo. Todo lo que no sea persona se vuelve transparente.
+    if (mascara[pixel] === 0) {
+      data[pixel * 4 + 3] = 0;
     }
   }
-
   ctx.putImageData(frame, 0, 0);
-}
-
-/**
- * Carga dinámica del segmentador corporal sólo cuando el operador activa la opción
- * para no cargar bibliotecas pesadas a los invitados.
- */
-let segmentadorPromesa: Promise<any> | null = null;
-export function cargarSegmentadorSinTela() {
-  if (!segmentadorPromesa && typeof window !== 'undefined') {
-    segmentadorPromesa = import('@mediapipe/tasks-vision').catch(() => null);
-  }
-  return segmentadorPromesa;
+  return true;
 }
 
 /**
@@ -188,9 +221,11 @@ export function procesarFondoCanvas({
     const auxCtx = auxCanvas.getContext('2d', { willReadFrequently: true });
     if (auxCtx) {
       auxCtx.drawImage(videoOrigen, 0, 0, ancho, alto);
-      if (recorteSinTela) {
-        recortarPersonaSinTela(auxCtx, ancho, alto);
-      } else {
+      // Si el recorte sin tela no pudo hacerse -el modelo todavia carga, o el equipo
+      // no da- se cae a la tela verde de siempre. Lo que NUNCA se hace es inventar
+      // un recorte: sale gente cortada al medio y eso llega a la foto del invitado.
+      const recorto = recorteSinTela && recortarPersonaSinTela(auxCtx, ancho, alto, videoOrigen);
+      if (!recorto) {
         // Aplicar chroma verde o azul
         const colorChroma: [number, number, number] = fondoSeleccionado.colorChroma === 'azul'
           ? [0, 80, 255]

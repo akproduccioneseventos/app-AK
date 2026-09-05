@@ -33,7 +33,7 @@ La estacion habla :: usa: speechSynthesis en src/app/evento/fotocabina/[fiestaId
 Filtro de belleza :: usa: aplicarFiltroBelleza en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Camara vertical u horizontal :: usa: modos-captura en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Cambiar el fondo con tela verde :: usa: procesarFondoCanvas en src/app/evento/fotocabina/[fiestaId]/page.tsx
-Cambiar el fondo SIN tela :: FALTA
+Cambiar el fondo SIN tela :: usa: segmentForVideo en src/lib/entretenimiento/segmentacion-fondo.ts
 Fondo desenfocado de verdad :: usa: desenfoque en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Fondo de la pantalla, el telon :: usa: procesarFondoCanvas({ en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Elegir el tamano de impresion :: usa: tamanoPapel en src/app/evento/fotocabina/[fiestaId]/page.tsx

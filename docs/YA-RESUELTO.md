@@ -6976,3 +6976,34 @@ que se rompio una: antes habia que volver a correr 45 minutos para saber cual.
 usa: NO_ES_CODIGO en scripts/run-playwright-production.mjs
 usa: PANTALLAS QUE FALLARON en scripts/se-puede-publicar.mjs
 ```
+
+
+---
+
+## 4 de septiembre de 2026 — El fondo sin tela verde, hecho de verdad
+
+Llego una version que **no miraba la imagen**: dibujaba un ovalo en el centro del cuadro y borraba
+todo lo de afuera. Con una persona sola y centrada parecia andar; **con alguien corrido a un lado
+o de a dos, cortaba gente por la mitad**, y eso llega a la foto que se lleva el invitado.
+
+**Ahora es de verdad:** el modelo de MediaPipe dice, pixel por pixel, que es persona y que es
+fondo, y se borra el fondo. Sin tela, sin luces especiales y sin que nadie tenga que pararse en un
+lugar determinado.
+
+**Tres decisiones que importan:**
+
+- **El motor y el modelo viven adentro de la app** (`public/mediapipe/wasm` y
+  `public/models/segmentacion`), no en un servicio de afuera: **no se paga nada por mes** y anda
+  aunque el salon tenga mala senal.
+- **Se carga sola y solo cuando el operador prende la opcion.** El invitado que solo entra a mirar
+  no se baja nada.
+- **Si el modelo todavia no cargo o el equipo no da, NO recorta**: se cae a la tela verde de
+  siempre. Es preferible que el fondo no cambie por unos segundos a que salga alguien cortado.
+
+**El matafuego:** `src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts`. Probado devolviendole
+el ovalo a proposito: se pone en rojo en las dos pruebas.
+
+```comprobar
+usa: segmentForVideo en src/lib/entretenimiento/segmentacion-fondo.ts
+prueba: src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts
+```

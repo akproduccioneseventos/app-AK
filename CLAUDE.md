@@ -872,6 +872,7 @@ con otra cara.
 | Una biblioteca cambiada por una vacía para que compilara: la función quedó apagada y todo daba verde | `src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts` |
 | Siete minutos por corrida recompilando porque la prueba escribe en `src/data/` | `NO_ES_CODIGO` en `scripts/run-playwright-production.mjs` |
 | La puerta decía "una pantalla se rompió" sin decir cuál | `PANTALLAS QUE FALLARON` en `scripts/se-puede-publicar.mjs` |
+| Un recorte de fondo que dibujaba un óvalo en vez de mirar la imagen, y cortaba gente al medio | `src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts` |
 
 ### Cómo se elige el matafuego
 
