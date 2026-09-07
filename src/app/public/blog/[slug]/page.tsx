@@ -11,6 +11,7 @@ import { BlogFaq } from '@/components/public/BlogFaq';
 import { blogPosts as defaultBlogPosts } from '@/data/blog-posts';
 import { getBlogIcon } from '@/lib/blog-icons';
 import { getBlogCategoryLabel, getBlogPostCta, getBlogPostImage, getBlogPostImageAlt } from '@/lib/blog-display';
+import { CompartirArticulo } from '@/components/public/CompartirArticulo';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -75,7 +76,7 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) notFound();
 
   const Icon = getBlogIcon(post.icon);
-  
+
   // Get related posts
   let relatedFromDb = await getRelatedPosts(post);
   if (!relatedFromDb || relatedFromDb.length === 0) {
@@ -112,7 +113,7 @@ export default async function BlogPostPage({ params }: Props) {
           />
           <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-zinc-900/85 to-zinc-950/45" />
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:30px_30px] opacity-35" />
-          
+
           <div className="relative z-10 mx-auto max-w-4xl px-4">
             <div className="flex items-center justify-between mb-8">
               <Link
@@ -122,13 +123,13 @@ export default async function BlogPostPage({ params }: Props) {
                 <ArrowLeft className="h-4 w-4" />
                 Volver al blog
               </Link>
-              
+
               <div className="flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-white">
                 <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
                 AK Staff
               </div>
             </div>
- 
+
             <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
               <div className="max-w-3xl space-y-5">
                 <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em]">
@@ -205,7 +206,7 @@ export default async function BlogPostPage({ params }: Props) {
                   Chatear por WhatsApp
                 </a>
               </div>
- 
+
               <Link
                 href={articleCta.href}
                 className="group block overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-xl"
@@ -227,6 +228,12 @@ export default async function BlogPostPage({ params }: Props) {
                   </div>
                 </div>
               </Link>
+
+              {/* Compartir artículo */}
+              <CompartirArticulo
+                title={post.title}
+                url={`https://akproducciones.uy/public/blog/${post.slug}`}
+              />
 
               {/* FAQs Accordion */}
               <BlogFaq />
