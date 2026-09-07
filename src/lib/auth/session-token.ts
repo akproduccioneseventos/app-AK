@@ -25,9 +25,7 @@ export function hasPrivateSessionSecret() {
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
-    process.env.AUTH_SECRET ||
-    process.env.FIREBASE_PRIVATE_KEY ||
-    process.env.APP_PASSWORD
+    process.env.AUTH_SECRET
   );
 }
 
