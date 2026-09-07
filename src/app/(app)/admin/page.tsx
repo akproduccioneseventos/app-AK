@@ -274,7 +274,14 @@ export default function MainDashboardPage() {
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-0.5">Próximo Evento</p>
               <p className="font-black text-slate-800 text-base truncate">{kpiData.proximoEvento.nombre}</p>
-              <p className="text-xs text-slate-500 capitalize mt-0.5">{new Date(kpiData.proximoEvento.fecha).toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <p className="text-xs text-slate-500 capitalize mt-0.5">
+                {(() => {
+                  const d = new Date(kpiData.proximoEvento.fecha);
+                  return !Number.isNaN(d.getTime())
+                    ? d.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+                    : 'Fecha a confirmar';
+                })()}
+              </p>
             </div>
             <Button asChild size="sm" variant="outline" className="text-xs border-indigo-200 text-indigo-600 hover:bg-indigo-50"><Link href="/eventos">Ver evento <ArrowRight className="w-3 h-3 ml-1" /></Link></Button>
           </CardContent>

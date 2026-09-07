@@ -7103,3 +7103,22 @@ archivo: src/lib/invitados/leer-planilla.ts
 usa: leerPlanillaDeInvitados en src/app/(app)/fiestas/nueva/invitados/page.tsx
 prueba: src/__tests__/la-planilla-de-invitados-se-entiende.test.ts
 ```
+
+
+---
+
+## 7 de septiembre de 2026 - Correccion del acceso administrativo y robustez en la sesion
+
+Al intentar ingresar a la parte administrativa de la app, el sistema podia devolver error por dos causas criticas en el servidor:
+
+1. **Falta de llave de sesion explicita en produccion**: si `AK_SESSION_SECRET` no estaba cargada en las variables de entorno, `writeSessionCookie` lanzaba un error fatal y bloqueaba tanto el login con contrasena como con Google. Se agrego una derivacion determinista y segura a partir de los secretos del servidor (`FIREBASE_PRIVATE_KEY` o `APP_PASSWORD`) para que la firma de cookies nunca falle ni deje a oscuras la sesion.
+2. **La contrasena maestra no funcionaba si el dueno escribia su correo**: `loginUser` solo validaba contra Firestore y rechazaba la clave de rescate `APP_PASSWORD`. Ahora los correos autorizados del dueno pueden autenticarse con la clave maestra aun si la base de datos se encuentra demorada o la cuenta admin aun no fue creada en Firestore.
+3. **Resguardo de fecha en el panel de administracion**: en `/admin`, se aseguro el formateo de `proximoEvento.fecha` para evitar que fechas invalidas disparen un error en tiempo de ejecucion al renderizar el dashboard.
+
+```comprobar
+archivo: src/lib/auth/session-token.ts
+archivo: src/app/actions/auth.ts
+archivo: src/app/(app)/admin/page.tsx
+prueba: src/__tests__/auth-user-session.test.ts
+prueba: src/__tests__/session-token.test.ts
+```

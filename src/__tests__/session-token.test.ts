@@ -100,4 +100,36 @@ describe('signed session tokens', () => {
       isValid: false,
     });
   });
+
+  it('no lanza error en producción y usa el respaldo seguro si falta la variable explícita', async () => {
+    const prevSecret = process.env.AK_SESSION_SECRET;
+    const prevNodeEnv = process.env.NODE_ENV;
+    const prevAppPassword = process.env.APP_PASSWORD;
+
+    try {
+      delete process.env.AK_SESSION_SECRET;
+      delete process.env.AUTH_SESSION_SECRET;
+      delete process.env.SESSION_SECRET;
+      delete process.env.AUTH_SECRET;
+      (process.env as any).NODE_ENV = 'production';
+      process.env.APP_PASSWORD = 'Clave-Maestra-Servidor';
+
+      const user = {
+        email: 'akproduccionessalto@gmail.com',
+        role: 'admin',
+        userId: 'admin-dueno',
+      };
+
+      const token = await createSignedSessionToken(user);
+      expect(typeof token).toBe('string');
+      await expect(verifySignedSessionToken(token)).resolves.toEqual({
+        isValid: true,
+        user,
+      });
+    } finally {
+      process.env.AK_SESSION_SECRET = prevSecret;
+      (process.env as any).NODE_ENV = prevNodeEnv;
+      process.env.APP_PASSWORD = prevAppPassword;
+    }
+  });
 });
