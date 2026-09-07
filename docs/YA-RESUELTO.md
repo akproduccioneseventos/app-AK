@@ -15,6 +15,16 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Orden 18 — Lo que le falta a la web para estar completa (7 de septiembre de 2026)
+
+Rescatada y portada sobre main a partir de la auditoría de Codex sobre PR #1181:
+- **Bloque 1 — Migas de pan visibles:** En `src/app/public/[eventType]/page.tsx` se agregaron migas de pan visibles con `<Link href="/">Inicio</Link> / <span>{catalog.name}</span>` que coinciden 1:1 con lo declarado a Google en `BreadcrumbJsonLd`.
+- **Bloque 2 — Buscador dentro del sitio:** Se implementó `src/lib/buscador/buscar-sitio.ts` y la pantalla `src/app/buscar/page.tsx` indexando en memoria artículos de blog y catálogos de servicios con sinónimos (quince, casamiento, boda), sin costos mensuales ni llamadas a APIs externas.
+- **Bloque 4 — Página de mantenimiento:** Se incorporó `src/app/mantenimiento/page.tsx` con mensaje en criollo y botón directo de contacto por WhatsApp.
+- **Bloque 5 — Suscripción a novedades:** Se implementó `src/app/actions/novedades-suscripcion.ts` con validación estricta de correo y limitador de tasa `enforcePublicRateLimit`. No se realizan envíos automáticos sin intervención humana.
+- **Bloque 6 — Compartir artículo del blog:** Se creó el componente `src/components/public/CompartirArticulo.tsx` (WhatsApp, Facebook y copiar enlace con feedback visual) integrado en el sidebar de `src/app/public/blog/[slug]/page.tsx`.
+- **Pruebas:** `src/__tests__/orden-18-web-completa.test.ts`.
+
 ## Orden 37 — El celular y la velocidad (2 de septiembre de 2026)
 
 - **Bloque 1 — Que ande en el celular:**
