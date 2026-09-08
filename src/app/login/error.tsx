@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { isDeploymentMismatchError, recoverFromDeploymentMismatch } from '@/lib/deployment-recovery';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -10,6 +12,22 @@ interface ErrorProps {
 }
 
 export default function LoginError({ error, reset }: ErrorProps) {
+  useEffect(() => {
+    if (isDeploymentMismatchError(error)) {
+      void recoverFromDeploymentMismatch(error);
+    }
+  }, [error]);
+
+  const handleRetry = async () => {
+    if (isDeploymentMismatchError(error)) {
+      const recovered = await recoverFromDeploymentMismatch(error);
+      if (recovered) return;
+      window.location.reload();
+      return;
+    }
+    reset();
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/10 to-background p-4">
       <Card className="w-full max-w-md shadow-2xl">
@@ -26,7 +44,7 @@ export default function LoginError({ error, reset }: ErrorProps) {
           <p>Si el problema persiste, cerrá y volvé a abrir la página de login.</p>
         </CardContent>
         <CardFooter>
-          <Button className="w-full" onClick={reset}>
+          <Button className="w-full" onClick={handleRetry}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Intentar de nuevo
           </Button>

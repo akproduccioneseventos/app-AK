@@ -23,6 +23,10 @@ export function isDeploymentMismatchError(error: unknown): boolean {
     message.includes('failed to find server action') ||
     message.includes('older or newer deployment') ||
     message.includes('chunkloaderror') ||
+    message.includes('err_content_decoding_failed') ||
+    message.includes('decoding failed') ||
+    message.includes('failed to fetch dynamically imported module') ||
+    message.includes('error loading dynamically imported module') ||
     (message.includes('loading chunk') && message.includes('failed'))
   );
 }

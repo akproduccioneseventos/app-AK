@@ -29,7 +29,7 @@ export function hasPrivateSessionSecret() {
   );
 }
 
-function getSigningSecret() {
+function getSigningSecret(): string {
   const secret =
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
@@ -40,16 +40,19 @@ function getSigningSecret() {
     return secret;
   }
 
-  // Si no está configurado explícitamente, derivamos una llave criptográfica estable
-  // a partir de secretos existentes en el servidor (clave privada de Firebase o clave maestra).
-  // Esto garantiza que la app nunca bloquee al dueño en producción por falta de la variable.
-  const serverSeed =
-    process.env.FIREBASE_PRIVATE_KEY ||
-    process.env.APP_PASSWORD ||
-    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  // En el servidor, si falta la variable explícita, podemos derivar de forma segura
+  // y determinista a partir de la clave privada de servicio de Firebase (alta entropía,
+  // sólo accesible en servidor y compartida entre todas las instancias de Cloud Run).
+  const firebasePrivateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (firebasePrivateKey && firebasePrivateKey.length >= 32) {
+    return crypto.createHash('sha256').update(`ak-session-secret-derivation:${firebasePrivateKey}`).digest('hex');
+  }
 
-  if (serverSeed) {
-    return crypto.createHash('sha256').update(`ak-session-secret-seed:${serverSeed}`).digest('hex');
+  // En producción, la ausencia de un secreto privado del servidor debe emitir un
+  // diagnóstico de configuración estricto en lugar de generar una clave insegura
+  // o una clave aleatoria en memoria que rompería la sesión entre instancias.
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Diagnóstico de configuración: Falta configurar una clave privada de sesión (AK_SESSION_SECRET) en el servidor de producción.');
   }
 
   localDevelopmentSecret ||= crypto.randomBytes(32).toString('hex');

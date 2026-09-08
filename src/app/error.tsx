@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AlertTriangle, RotateCw, Home, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { isDeploymentMismatchError, recoverFromDeploymentMismatch } from '@/lib/deployment-recovery';
 
 export default function Error({
   error,
@@ -13,6 +14,22 @@ export default function Error({
   reset: () => void;
 }) {
   const [showDetails, setShowDetails] = useState(false);
+
+  useEffect(() => {
+    if (isDeploymentMismatchError(error)) {
+      void recoverFromDeploymentMismatch(error);
+    }
+  }, [error]);
+
+  const handleRetry = async () => {
+    if (isDeploymentMismatchError(error)) {
+      const recovered = await recoverFromDeploymentMismatch(error);
+      if (recovered) return;
+      window.location.reload();
+      return;
+    }
+    reset();
+  };
 
   return (
     <div className="flex items-center justify-center min-h-[60vh] p-6">
@@ -31,7 +48,7 @@ export default function Error({
         <CardContent className="space-y-4 pb-8 px-8">
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
-              onClick={reset}
+              onClick={handleRetry}
               className="rounded-xl h-12 px-6 font-bold shadow-lg shadow-primary/20"
             >
               <RotateCw className="w-4 h-4 mr-2" />

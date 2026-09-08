@@ -15,6 +15,32 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## Estabilización de Versión Publicada: Acceso Administrativo, Resiliencia Multiterminal y Simulador (8 de septiembre de 2026)
+
+- **Frente 1 — Firma de sesiones criptográficas y estabilidad entre instancias (`src/lib/auth/session-token.ts`):**
+  - Eliminados `NEXT_PUBLIC_FIREBASE_PROJECT_ID` y `APP_PASSWORD` del cálculo del secreto de firma.
+  - El token de sesión ahora se firma exclusivamente con secretos de servidor de alta entropía (`AK_SESSION_SECRET` o derivación criptográfica de `FIREBASE_PRIVATE_KEY`).
+  - En producción (`NODE_ENV === 'production'`), si falta la clave privada o el secreto de servidor, se lanza un error de diagnóstico explícito en lugar de generar claves efímeras en memoria o degradar a tokens inseguros, garantizando consistencia absoluta entre múltiples réplicas e instancias sin invalidar sesiones legítimas.
+  - La clave aleatoria en memoria queda restringida a entornos locales de desarrollo y pruebas.
+
+- **Frente 2 — Rescate acotado y tolerante en autenticación (`src/app/actions/auth.ts`):**
+  - La consulta y rescate administrativo en Firestore dentro de `loginUser` ahora cuenta con tope de espera estricto (`conTopeDeEspera(..., 1000)`).
+  - Si Firestore se encuentra degradado o excede el segundo de espera, no bloquea el inicio de sesión del dueño: adopta el ID determinista de bootstrap y emite la sesión segura de inmediato. Si Firestore responde a tiempo, asocia el ID persistido real.
+  - Escritura de cookies protegida con manejo seguro de excepciones para entornos y navegadores restringidos.
+
+- **Frente 3 — Resiliencia ante fallos de carga de chunks y red (`src/lib/deployment-recovery.ts`, `src/app/login/page.tsx`, `src/app/login/error.tsx`, `src/app/error.tsx`):**
+  - `isDeploymentMismatchError` reconoce de forma integral `ERR_CONTENT_DECODING_FAILED`, `decoding failed`, `failed to fetch dynamically imported module`, `error loading dynamically imported module` y `ChunkLoadError`.
+  - En `/login`, la carga diferida de Google Auth se condiciona a la presencia de parámetros de redirección reales en la URL, eliminando bucles de reintento de scripts faltantes que provocaban caídas a "Error al cargar".
+  - Límites de error (`error.tsx`) actualizados para invocar `recoverFromDeploymentMismatch`, refrescando scripts obsoletos en lugar de reintentar chunks viejos en caché.
+
+- **Frente 4 — Recorrido completo verificado (Acceso, Panel, Simulador y Presupuesto Formal):**
+  - Pruebas automatizadas en `src/__tests__/auth-session-multitenant-resilience.test.ts` (9 pruebas aprobadas) y `src/__tests__/simulator-budget-pdf-flow.test.ts` (3 pruebas aprobadas) que validan el flujo completo desde el login administrativo del dueño, bootstrap del simulador, persistencia de propuestas y cálculo formal de saldos y narrativa para PDF.
+
+```comprobar
+prueba: src/__tests__/auth-session-multitenant-resilience.test.ts
+prueba: src/__tests__/simulator-budget-pdf-flow.test.ts
+```
+
 ## Orden 37 — El celular y la velocidad (2 de septiembre de 2026)
 
 - **Bloque 1 — Que ande en el celular:**

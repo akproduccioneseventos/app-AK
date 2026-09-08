@@ -232,41 +232,59 @@ export async function loginUser(
   // La puerta de emergencia con contraseña maestra y correo autorizado funciona
   // siempre, incluso si la base no contesta o no tiene usuarios creados aún.
   if (isMasterPassword && allowedAdminEmails.has(normalizedEmail)) {
-    let bootstrapUserId = 'admin-bootstrap';
+    let bootstrapUserId = `rescue-admin-${normalizedEmail.replace(/[^a-z0-9]/g, '_')}`;
     if (dbAdmin) {
       try {
-        const snap = await dbAdmin
-          .collection('users')
-          .where('email', '==', normalizedEmail)
-          .limit(1)
-          .get();
-        if (!snap.empty) {
+        const snap = await conTopeDeEspera(
+          dbAdmin
+            .collection('users')
+            .where('email', '==', normalizedEmail)
+            .limit(1)
+            .get(),
+          1000
+        ).catch(() => null);
+
+        if (snap && !snap.empty) {
           bootstrapUserId = snap.docs[0].id;
-        } else {
-          const docRef = await dbAdmin.collection('users').add({
-            email: normalizedEmail,
-            passwordHash: hashValue(password),
-            role: 'admin',
-            modules: ['all'],
-            securityQuestions: {},
-            mustChangePassword: false,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          });
-          bootstrapUserId = docRef.id;
+        } else if (snap && snap.empty) {
+          const docRef = await conTopeDeEspera(
+            dbAdmin.collection('users').add({
+              email: normalizedEmail,
+              passwordHash: hashValue(password),
+              role: 'admin',
+              perfil: 'dueno',
+              modules: ['all'],
+              securityQuestions: {},
+              mustChangePassword: false,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }),
+            1000
+          ).catch(() => null);
+          if (docRef?.id) {
+            bootstrapUserId = docRef.id;
+          }
         }
       } catch {
-        // Continuar de todas formas con la sesión
+        // En caso de fallo o timeout de Firestore, continúa de todas formas con el rescate
       }
     }
 
-    await writeSessionCookie({
-      email: normalizedEmail,
-      role: 'admin',
-      userId: bootstrapUserId,
-      perfil: 'dueno',
-      modules: ['all'],
-    });
+    try {
+      await writeSessionCookie({
+        email: normalizedEmail,
+        role: 'admin',
+        userId: bootstrapUserId,
+        perfil: 'dueno',
+        modules: ['all'],
+      });
+    } catch (cookieError) {
+      return {
+        success: false,
+        error: 'No se pudo crear la cookie de sesión segura en el servidor.',
+        diagnostico: await diagnosticarAcceso().catch(() => undefined),
+      };
+    }
 
     return {
       success: true,
