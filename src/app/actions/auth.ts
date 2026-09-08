@@ -1,3 +1,4 @@
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 'use server';
 
 // src/app/actions/auth.ts
@@ -214,6 +215,31 @@ export async function loginUser(
   email: string,
   password: string
 ): Promise<LoginResult> {
+  /**
+   * TOPE DE INTENTOS. Sin esto se podian probar contrasenas para siempre.
+   *
+   * La pantalla de ingreso no tenia ningun limite: alguien podia dejar una maquina
+   * probando claves toda la noche contra el correo del dueno -que esta publicado en
+   * la web- hasta acertar. Con diez por minuto una persona entra tranquila y una
+   * maquina no llega a ningun lado.
+   *
+   * Se cuenta por correo Y por quien llama, asi un intento masivo desde un solo lado
+   * no deja afuera al dueno.
+   */
+  try {
+    await enforcePublicRateLimit({
+      scope: 'ingreso',
+      identity: email.trim().toLowerCase(),
+      limit: 10,
+      windowMs: 60_000,
+    });
+  } catch {
+    return {
+      success: false,
+      error: 'Demasiados intentos seguidos. Esperá un minuto y volvé a probar.',
+    };
+  }
+
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   // Auto-create admin on first use.
