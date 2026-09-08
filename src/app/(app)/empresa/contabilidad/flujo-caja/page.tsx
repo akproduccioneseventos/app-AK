@@ -13,6 +13,7 @@ import { KpiCard } from '@/components/dashboard/kpi-card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { queMostrarElFlujoDeCaja } from '@/lib/contabilidad/que-mostrar-flujo-caja';
 
 const formatCurrency = (amount: number) => 
     new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
@@ -27,12 +28,12 @@ export default function FlujoCajaProyectadoPage() {
   const fetchProjection = useCallback(async () => {
     setIsLoading(true);
     try {
-      const result = await getCashFlowProjection();
-      if (result.success && result.data) {
-        setData(result.data);
+      const que = queMostrarElFlujoDeCaja(await getCashFlowProjection());
+      if (que.modo === 'numeros') {
+        setData(que.meses);
         setError(null);
-        setFuentesCaidas((result as { fuentesCaidas?: string[] }).fuentesCaidas ?? []);
-      } else throw new Error(result.error);
+        setFuentesCaidas(que.faltan);
+      } else throw new Error(que.mensaje);
     } catch (e: any) {
       setError(e.message);
       toast({ title: "Error de Cálculo", description: e.message, variant: "destructive" });
