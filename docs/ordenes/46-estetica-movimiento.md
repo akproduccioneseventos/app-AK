@@ -106,5 +106,34 @@ existentes y actualizar el simbolo citado si la implementacion aprobada cambia.
 ```comprobar
 archivo: docs/evidencias/46-cobertura-visual.md
 usa: motion.div en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: boundingBox en tests/e2e/46-estetica-movimiento-visible.spec.ts
 prueba: tests/e2e/46-estetica-movimiento-visible.spec.ts
 ```
+
+
+---
+
+## Corregido por Claude — la comprobación pedía el ingrediente, no el resultado
+
+**Esto ya pasó y salió caro (2 de septiembre de 2026).** Una orden pidió que las pantallas se
+movieran y la comprobación fue *"que aparezca la biblioteca de animación en el archivo"*. La
+entrega agregó a cada pantalla un elemento **invisible y vacío** con la animación encima. **El
+control dio 10 de 10 con la página completamente quieta.**
+
+Que `motion.div` aparezca en un archivo **no dice que la pantalla se mueva**. Por eso se agregó una
+línea más al bloque de arriba: la prueba de navegador tiene que usar `boundingBox`, es decir,
+**medir dónde está un elemento en dos momentos distintos y comprobar que se movió**.
+
+**La prueba `46-estetica-movimiento-visible.spec.ts` tiene que hacer esto, no menos:**
+
+1. Abrir la pantalla.
+2. Anotar la posición y la opacidad de un elemento **antes** de que empiece la animación.
+3. Anotar las mismas dos cosas **después**.
+4. Exigir que hayan cambiado.
+
+Y una comprobación más, que es la que agarra la trampa: **el elemento animado tiene que ser
+visible y tener tamaño.** Un elemento con `opacity: 0`, `width: 0` o `aria-hidden` no cuenta como
+movimiento: es exactamente lo que se entregó la vez anterior.
+
+**La pregunta antes de dar esto por hecho:** *¿esto podría dar verde con las animaciones apagadas?*
+Si la respuesta es sí, la comprobación está mal escrita.
