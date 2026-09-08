@@ -66,7 +66,9 @@ export function QuinceaneraLeadPrompt({
     if (invitadoNombre && invitadoContacto) {
       setSubmitting(true);
       try {
-        await registerQuinceaneraPartyLead({
+        // Si no se guardo, NO se le dice al invitado que quedo anotado: seria un
+        // prospecto perdido y ademas no volveria a intentarlo.
+        const guardado = await registerQuinceaneraPartyLead({
           fiestaId,
           nombreFiesta,
           nombre: invitadoNombre,
@@ -75,6 +77,7 @@ export function QuinceaneraLeadPrompt({
           origen,
           invitadoId,
         });
+        if (!guardado?.success) throw new Error(guardado?.error || 'No se pudo registrar la respuesta.');
         localStorage.setItem(storageKey, option);
         setSubmitted(true);
       } catch (err) {
@@ -91,7 +94,7 @@ export function QuinceaneraLeadPrompt({
 
     setSubmitting(true);
     try {
-      await registerQuinceaneraPartyLead({
+      const guardadoConfirmado = await registerQuinceaneraPartyLead({
         fiestaId,
         nombreFiesta,
         nombre: nombre.trim(),
@@ -100,6 +103,9 @@ export function QuinceaneraLeadPrompt({
         origen,
         invitadoId,
       });
+      if (!guardadoConfirmado?.success) {
+        throw new Error(guardadoConfirmado?.error || 'No se pudo registrar la respuesta.');
+      }
       localStorage.setItem(storageKey, selectedResponse);
       setSubmitted(true);
     } catch (err) {

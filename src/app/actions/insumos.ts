@@ -28,7 +28,17 @@ export async function getInsumoById(id: string): Promise<ServicioEmpresa | null>
 /**
  * Sincroniza los cambios de un insumo en todos los menús que lo utilizan.
  */
-async function propagateInsumoChangesToMenus(updatedInsumo: ServicioEmpresa) {
+/**
+ * Lleva el cambio del insumo a todos los menus que lo usan.
+ *
+ * **Devuelve si pudo o no.** Antes no devolvia nada y guardaba cada menu sin mirar
+ * el resultado: si un menu no se guardaba, el insumo quedaba con el precio nuevo y
+ * el plato con el viejo, y **el costo de la comida salia mal sin que nadie lo
+ * notara**. Se corrigio el 8 de septiembre de 2026.
+ */
+async function propagateInsumoChangesToMenus(
+    updatedInsumo: ServicioEmpresa,
+): Promise<{ success: boolean; error?: string }> {
     const menus = await getMenus();
     let anyMenuChanged = false;
 
@@ -72,9 +82,13 @@ async function propagateInsumoChangesToMenus(updatedInsumo: ServicioEmpresa) {
 
     if (anyMenuChanged) {
         for (const m of updatedMenus) {
-            await saveMenu(m);
+            const guardado = await saveMenu(m);
+            if (guardado && guardado.success === false) {
+                return { success: false, error: guardado.error || `No se pudo actualizar el menu "${m.name || m.id}".` };
+            }
         }
     }
+    return { success: true };
 }
 
 export async function saveInsumo(
@@ -134,7 +148,17 @@ export async function saveInsumo(
   await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
   limpiarCacheInsumos();
   
-  await propagateInsumoChangesToMenus(finalItemData as ServicioEmpresa);
+  // Si esto falla, el insumo queda con el precio nuevo y **los menus con el viejo**:
+  // la lista de compras y el costo de la comida salen mal sin que nadie lo note.
+  const propagado = await propagateInsumoChangesToMenus(finalItemData as ServicioEmpresa);
+  if (!propagado?.success) {
+    return {
+      success: false,
+      error: propagado?.error || 'El insumo se guardo, pero los menus que lo usan no se pudieron actualizar. Revisa los costos.',
+      id: itemId,
+      servicio: finalItemData as ServicioEmpresa,
+    };
+  }
 
   return { success: true, id: itemId, servicio: finalItemData as ServicioEmpresa };
 }

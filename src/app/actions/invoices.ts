@@ -134,7 +134,7 @@ export async function addPaymentToInvoice(
 async function saveInvoiceInner(
   invoiceDataInput: NewInvoiceInput | Invoice,
   sourcePresupuestoId?: string
-): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
+): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string; aviso?: string }> {
   const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!permiso.ok) return { success: false, error: permiso.error };
   const auth = await verifySession();
@@ -316,11 +316,23 @@ async function saveInvoiceInner(
     }
     await writeData(INVOICES_FILE, invoices, (a,b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
 
+    let aviso: string | undefined;
     if (sourcePresupuestoId && !('id' in invoiceDataInput)) {
-      await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
+      /**
+       * LA FACTURA YA SE GUARDO: ACA NO SE CONTESTA QUE NO.
+       *
+       * Si se devolviera error, el usuario volveria a crear la factura y quedarian
+       * dos por el mismo trabajo, que es peor. Pero tampoco se calla: el presupuesto
+       * quedaria sin marcar como facturado y se puede facturar de nuevo sin querer.
+       */
+      const marcado = await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
+      if (!marcado?.success) {
+        aviso = 'La factura se guardo, pero el presupuesto no quedo marcado como facturado. Revisalo antes de volver a facturarlo.';
+        logger.error('No se pudo marcar el presupuesto como facturado', { presupuestoId: sourcePresupuestoId, invoiceId: finalInvoiceData.id });
+      }
     }
 
-    return { success: true, id: invoiceId, invoice: finalInvoiceData };
+    return { success: true, id: invoiceId, invoice: finalInvoiceData, aviso };
   } catch (error: any) {
     console.error('Error guardando factura:', error);
     return { success: false, error: error.message || 'Error al guardar la factura.' };
@@ -397,7 +409,12 @@ export async function registerBookingDeposit(data: {
         }
       }
       if (!data.skipFiestaSave && !(fiesta.invoiceIds || []).includes(existingReceipt.id)) {
-        await addInvoiceId(data.fiestaId, existingReceipt.id);
+        // Si esto falla, el recibo existe pero el evento no lo lista: el equipo no
+        // encuentra el comprobante de la sena cobrada.
+        const enganchado = await addInvoiceId(data.fiestaId, existingReceipt.id);
+        if (!enganchado?.success) {
+          logger.error('El recibo de sena no quedo enganchado al evento', { fiestaId: data.fiestaId, invoiceId: existingReceipt.id });
+        }
       }
       return { success: true, invoiceId: existingReceipt.id };
     }
@@ -481,7 +498,10 @@ export async function registerBookingDeposit(data: {
     }
 
     if (!data.skipFiestaSave) {
-      await addInvoiceId(data.fiestaId, invoiceResult.id);
+      const enganchadoNuevo = await addInvoiceId(data.fiestaId, invoiceResult.id);
+      if (!enganchadoNuevo?.success) {
+        logger.error('El recibo de sena no quedo enganchado al evento', { fiestaId: data.fiestaId, invoiceId: invoiceResult.id });
+      }
     }
     return { success: true, invoiceId: invoiceResult.id };
   } catch (error: any) {

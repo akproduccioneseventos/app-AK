@@ -473,6 +473,7 @@ export default function EspejoMagicoPage() {
       // pantalla de revision, con la foto original a la vista y los botones
       // para subirla o reintentar.
       setLocalStatus('recording');
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'idle', {}, accessToken);
     } finally {
       clearTimeout(stepTimer1);
@@ -628,6 +629,7 @@ export default function EspejoMagicoPage() {
     setErrorMsg(null);
     setLocalStatus('countdown');
     if (role === 'display') {
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'countdown', {}, accessToken);
     }
     setShowStickerPanel(false);
@@ -715,6 +717,7 @@ export default function EspejoMagicoPage() {
     }
 
     setLocalStatus('recording');
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(fiestaId, moduleId, 'recording', {}, accessToken);
 
     setFlash(true);
@@ -791,6 +794,7 @@ export default function EspejoMagicoPage() {
     } else if (mode === 'foto') {
       // If photo mode, directly upload
       setLocalStatus('processing');
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken);
       await handleUpload(dataUrl);
     } else {
@@ -887,6 +891,7 @@ export default function EspejoMagicoPage() {
       const mediaUrl = res.media?.url || '';
       setQrCodeUrl(mediaUrl);
       setLocalStatus('done');
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(
         fiestaId,
         moduleId,

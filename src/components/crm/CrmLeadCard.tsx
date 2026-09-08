@@ -146,6 +146,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
 
     // Record contact in background
     try {
+      // no-mira-el-resultado: solo anota que se abrio el chat; no cambia el estado del prospecto
       await recordWhatsAppOpened(lead.id, message);
     } catch {
       // non-blocking

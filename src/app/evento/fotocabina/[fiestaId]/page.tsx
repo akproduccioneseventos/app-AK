@@ -524,6 +524,7 @@ export default function FotocabinaPage() {
   const correrCuentaRegresiva = async (numeroDeFoto = 1) => {
     setLocalStatus('countdown');
     if (role === 'display') {
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'countdown', {}, accessToken);
     }
 
@@ -647,6 +648,7 @@ export default function FotocabinaPage() {
 
     stopCamera();
     setLocalStatus('processing');
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'processing', {}, accessToken);
 
     try {
@@ -688,6 +690,7 @@ export default function FotocabinaPage() {
     }
 
     setLocalStatus('done');
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(
       fiestaId,
       'fotocabina',
@@ -827,6 +830,7 @@ export default function FotocabinaPage() {
       lienzoDibujoRef.current.mergeToCanvas(canvasRef.current);
     }
     setLocalStatus('processing');
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(
       fiestaId,
       'fotocabina',
@@ -901,6 +905,7 @@ export default function FotocabinaPage() {
         const mediaUrl = res.media?.url || '';
         setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
+        // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
         await updateEntertainmentSessionStatus(
           fiestaId,
           'fotocabina',
@@ -952,6 +957,7 @@ export default function FotocabinaPage() {
       setQrCodeUrl('');
       setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('done');
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(
         fiestaId,
         'fotocabina',

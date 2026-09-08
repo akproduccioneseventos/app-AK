@@ -380,6 +380,7 @@ export default function BoguePage() {
   const startCaptureProcess = async (recordDuration = 3, totalFrames = cuadrosDelLoop) => {
     setLocalStatus('countdown');
     if (role === 'display') {
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'countdown', {}, accessToken);
     }
 
@@ -414,6 +415,7 @@ export default function BoguePage() {
 
   const captureFramesSequence = async (durationSec: number, maxFrames: number) => {
     setLocalStatus('recording');
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'recording', {}, accessToken);
     speak("¡Muévanse!");
 
@@ -476,6 +478,7 @@ export default function BoguePage() {
 
   const processBoomerangVideo = async (frames: HTMLCanvasElement[]) => {
     setLocalStatus('processing');
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'processing', {}, accessToken);
     setProgressMsg('Procesando la tanda de fotos...');
     speak("Procesando fotos");
@@ -735,6 +738,7 @@ export default function BoguePage() {
         setUploadedPostUrl(mediaUrl);
         setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
+        // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
         await updateEntertainmentSessionStatus(
           fiestaId,
           'bogue',
@@ -757,6 +761,7 @@ export default function BoguePage() {
       setUploadError((err as Error).message || 'No se pudo subir el video al muro.');
       setQrCodeUrl('');
       setLocalStatus('done');
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(
         fiestaId,
         'bogue',

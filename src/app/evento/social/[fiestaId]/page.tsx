@@ -1251,6 +1251,7 @@ export default function SocialEventPage() {
             onClick={async () => {
               try {
                 const { sendPublicReaction } = await import('@/app/actions/social-interactive');
+                // no-mira-el-resultado: un corazon del invitado; si no llega no se pierde nada y no se le corta la fiesta
                 await sendPublicReaction(fiestaId, 'aplausos');
                 toast({ title: '👏 ¡Aplausos enviados a la pantalla gigante!', duration: 1200 });
               } catch {}
@@ -1265,6 +1266,7 @@ export default function SocialEventPage() {
             onClick={async () => {
               try {
                 const { sendPublicReaction } = await import('@/app/actions/social-interactive');
+                // no-mira-el-resultado: un corazon del invitado; si no llega no se pierde nada y no se le corta la fiesta
                 await sendPublicReaction(fiestaId, 'corazon');
                 toast({ title: '❤️ ¡Corazón enviado a la pantalla gigante!', duration: 1200 });
               } catch {}
@@ -1279,6 +1281,7 @@ export default function SocialEventPage() {
             onClick={async () => {
               try {
                 const { sendPublicReaction } = await import('@/app/actions/social-interactive');
+                // no-mira-el-resultado: un corazon del invitado; si no llega no se pierde nada y no se le corta la fiesta
                 await sendPublicReaction(fiestaId, 'fuego');
                 toast({ title: '🔥 ¡Fuego enviado a la pantalla gigante!', duration: 1200 });
               } catch {}

@@ -736,6 +736,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       } as CrmLead));
     }
 
+    // no-mira-el-resultado: es un aviso en el panel interno; si no entra no cambia ningun dato
     await createNotification({
       mensaje: `¡Contratación Confirmada! ${finalName} es ahora cliente. ${contractFileName ? 'Contrato vinculado.' : 'El borrador del contrato está listo para revisar.'}`,
       href: `/fiestas/nueva?fiestaId=${newFiesta.id}`,
@@ -827,6 +828,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
       await moveCrmLead(lead.id, conversionStage.id);
     }
 
+    // no-mira-el-resultado: es un aviso en el panel interno; si no entra no cambia ningun dato
     await createNotification({
       mensaje: `¡Contratación Confirmada! ${lead.name} es ahora cliente.`,
       href: `/fiestas/nueva?fiestaId=${newFiesta.id}`,

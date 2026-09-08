@@ -903,6 +903,7 @@ con otra cara.
 | Dos cobros a la vez y uno desaparecía, con las dos pantallas diciendo "pago registrado" | `src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts` |
 | Una cuota se anunciaba cobrada —y le salía el mail al cliente— sin haberse guardado | `src/__tests__/la-contabilidad-no-miente.test.ts` |
 | Cualquiera del equipo con sesión podía leer todas las facturas de la empresa | `src/__tests__/la-contabilidad-no-miente.test.ts` |
+| "Dijo que sí y no pasó nada": se llama algo que devuelve el error y nadie lo mira | **`npm run "dice-que-si?"`**, enganchado al trinquete |
 
 ### Cómo se elige el matafuego
 

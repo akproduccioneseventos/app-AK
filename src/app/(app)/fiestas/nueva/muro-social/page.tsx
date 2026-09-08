@@ -715,6 +715,7 @@ function MuroSocialContent() {
     const spinRotations = 10 + Math.floor(Math.random() * 5);
     setSorteoWheelAngle(prev => prev + spinRotations * 360 + Math.floor(Math.random() * 360));
     // Also trigger spin animation on the big screen immediately (clears the static preview)
+    // no-mira-el-resultado: avisa a la pantalla gigante que gire; el sorteo se resuelve igual
     await startSorteoSpinOnScreen(fiestaId);
     // After animation (6s for suspense), persist to Firestore and reveal winner
     setTimeout(async () => {

@@ -58,6 +58,7 @@ export default function DJPage() {
 
   const handleMarkPlayed = async (req: SongRequest) => {
     setActionLoading(req.id);
+    // no-mira-el-resultado: marca visual del DJ; la lista se refresca sola en el proximo pedido
     await markSongPlayed(params.fiestaId, req.id);
     await fetchData(false);
     setActionLoading(null);
@@ -65,6 +66,7 @@ export default function DJPage() {
 
   const handleVote = async (req: SongRequest) => {
     setActionLoading(req.id + '_vote');
+    // no-mira-el-resultado: voto de un invitado a una cancion; si no entra, vuelve a tocar
     await voteSongRequest(params.fiestaId, req.id);
     await fetchData(false);
     setActionLoading(null);

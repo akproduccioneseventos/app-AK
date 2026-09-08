@@ -35,6 +35,7 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 const MIRAR_TODO = process.argv.includes('--todo') || process.argv.includes('--trinquete');
 const MODO_TRINQUETE = process.argv.includes('--trinquete');
 const ARCHIVO_DEUDA = 'docs/deuda-medida.json';
+import { llamadasQueTiranElError } from './nadie-dice-que-si-sin-mirar.mjs';
 
 function sh(comando) {
   const r = spawnSync(comando, { shell: true, encoding: 'utf8' });
@@ -328,7 +329,18 @@ if (mirados === 0) {
  * solo lado.
  */
 function contarPorClase(lista) {
-  const cuenta = { 'nadie-lo-llama': 0, 'sin-prueba-de-resultado': 0, 'prueba-que-solo-mira': 0 };
+  const cuenta = {
+    'nadie-lo-llama': 0,
+    'sin-prueba-de-resultado': 0,
+    'prueba-que-solo-mira': 0,
+    /**
+     * "Dijo que si y no paso nada": se llama a algo que DEVUELVE el error y nadie
+     * lo mira. Se sumo el 8 de septiembre de 2026, despues de que cinco defectos
+     * contables con esa forma exacta pasaran todos los controles anteriores.
+     * Lo cuenta `scripts/nadie-dice-que-si-sin-mirar.mjs`, en toda la app.
+     */
+    'tira-el-error': llamadasQueTiranElError().length,
+  };
   for (const h of lista) {
     if (h.que.startsWith('nadie lo llama')) cuenta['nadie-lo-llama']++;
     else if (h.que.includes('sólo mira')) cuenta['prueba-que-solo-mira']++;

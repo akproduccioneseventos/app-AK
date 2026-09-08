@@ -460,6 +460,7 @@ export default function TouchpixPage() {
   const handleCapture = useCallback(async () => {
     const raw = captureRawPhoto();
     if (!raw) return;
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(
       fiestaId,
       'espejoMagicoIA',
@@ -487,6 +488,7 @@ export default function TouchpixPage() {
       if (!character) return;
       setIsProcessing(true);
       setProcessingText('Generando transformación con IA...');
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(
         fiestaId,
         'espejoMagicoIA',
@@ -766,6 +768,7 @@ export default function TouchpixPage() {
       }
       uploadConfirmed = true;
 
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(
         fiestaId,
         'espejoMagicoIA',

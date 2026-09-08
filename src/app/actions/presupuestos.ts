@@ -476,7 +476,12 @@ export async function deletePresupuesto(id: string): Promise<{ success: boolean;
         const allFiestas = await getAllFiestas();
         const linked = allFiestas.filter(f => f.presupuestoId === id);
         for (const fiesta of linked) {
-          await saveFiesta({ ...fiesta, presupuestoId: undefined });
+          // Desenganchar el presupuesto de su fiesta: si no se guarda, la fiesta
+          // sigue apuntando a un presupuesto que ya no esta.
+          const desenganchado = await saveFiesta({ ...fiesta, presupuestoId: undefined });
+          if (!desenganchado.success) {
+            console.error('La fiesta siguio apuntando a un presupuesto que ya no esta:', desenganchado.error);
+          }
         }
       } catch (e) {
         // Non-fatal: log and continue
@@ -837,6 +842,7 @@ export async function importarPresupuestoDesdeTexto(
       const fiestaResult = await saveFiesta(newFiesta);
       if (fiestaResult.success && fiestaResult.fiesta) {
         fiestaId = fiestaResult.fiesta.id;
+        // no-mira-el-resultado: es un aviso en el panel interno; si no entra no cambia ningun dato
         await createNotification({
           mensaje: `Nuevo evento creado desde presupuesto importado: ${newFiesta.configuracion.nombreEvento}`,
           href: `/fiestas/nueva?fiestaId=${fiestaId}`,
@@ -916,6 +922,7 @@ export async function createFiestaFromPresupuesto(
     };
   }
 
+  // no-mira-el-resultado: es un aviso en el panel interno; si no entra no cambia ningun dato
   await createNotification({
     mensaje: `Nuevo evento creado desde presupuesto: ${newFiesta.configuracion.nombreEvento}`,
     href: `/fiestas/nueva?fiestaId=${result.fiesta.id}`,
@@ -1159,7 +1166,12 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
         const allFiestas = await getAllFiestas();
         const fiestasToUnlink = allFiestas.filter(fiesta => fiesta.presupuestoId && deletedIds.has(fiesta.presupuestoId));
         for (const fiesta of fiestasToUnlink) {
-          await saveFiesta({ ...fiesta, presupuestoId: undefined });
+          // Desenganchar el presupuesto de su fiesta: si no se guarda, la fiesta
+          // sigue apuntando a un presupuesto que ya no esta.
+          const desenganchado = await saveFiesta({ ...fiesta, presupuestoId: undefined });
+          if (!desenganchado.success) {
+            console.error('La fiesta siguio apuntando a un presupuesto que ya no esta:', desenganchado.error);
+          }
         }
       }
 

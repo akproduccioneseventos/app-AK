@@ -338,6 +338,7 @@ export default function Plataforma360Page() {
   const startDisplayCapture = async (duration: number) => {
     setLocalStatus('countdown');
     if (role === 'display') {
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(
         fiestaId,
         'plataforma360',
@@ -401,6 +402,7 @@ export default function Plataforma360Page() {
     }
 
     setLocalStatus('recording');
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'recording', {}, accessToken);
     speak("¡A bailar!");
 
@@ -448,6 +450,7 @@ export default function Plataforma360Page() {
 
   const processSlowMotionVideo = async (frames: HTMLCanvasElement[], targetDurationSec: number) => {
     setLocalStatus('processing');
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'processing', {}, accessToken);
     setProgressMsg('Procesando efecto cámara lenta...');
 
@@ -556,6 +559,7 @@ export default function Plataforma360Page() {
   const handleVideoUpload = async (blob: Blob) => {
     setUploadError(null);
     setLocalStatus('processing');
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
     await updateEntertainmentSessionStatus(
       fiestaId,
       'plataforma360',
@@ -613,6 +617,7 @@ export default function Plataforma360Page() {
         setUploadedPostUrl(mediaUrl);
         setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
+        // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
         await updateEntertainmentSessionStatus(
           fiestaId,
           'plataforma-360',
@@ -661,6 +666,7 @@ export default function Plataforma360Page() {
       setUploadError(message);
       setQrCodeUrl('');
       setLocalStatus('done');
+      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(
         fiestaId,
         'plataforma360',

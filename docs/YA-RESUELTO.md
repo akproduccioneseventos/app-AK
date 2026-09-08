@@ -7313,3 +7313,43 @@ usa: fuentesCaidas en src/app/(app)/empresa/contabilidad/flujo-caja/page.tsx
 prueba: src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts
 prueba: src/__tests__/la-contabilidad-no-miente.test.ts
 ```
+
+
+---
+
+## 8 de septiembre de 2026 — "Dijo que si y no paso nada": el control que lo frena en toda la app
+
+Arreglar los cinco defectos contables de uno en uno no alcanzaba. El dueno lo marco: *"hay que
+cambiar el metodo para que no suceda en toda la app"*. Y tenia razon: **la misma forma estaba
+repetida en ciento cuarenta lugares**, no en cinco.
+
+**Que se busca, y en toda la app:** una llamada que espera resultado, sola en su linea, a una
+funcion que **devuelve** el error en vez de tirarlo. Eso es tirar el error a la basura, y la
+pantalla contesta que salio bien igual. Lo hace `npm run "dice-que-si?"`, y va enganchado al
+trinquete: si aparece uno nuevo, **la puerta frena**.
+
+**Cuando de verdad no importa el resultado, se deja dicho** en la linea de arriba:
+`// no-mira-el-resultado: <motivo>`. Escribir el motivo obliga a pensarlo una vez.
+
+**Lo que se arreglo de verdad**, que es todo lo que toca plata, comida, permisos y prospectos:
+el contrato firmado que no quedaba registrado -sin factura de sena y sin portal del cliente-, los
+documentos subidos y borrados que no se guardaban, el presupuesto que no quedaba marcado como
+facturado, el recibo de sena que no se enganchaba al evento, los costos del evento que decian
+"sincronizados" sin guardarse, el ajuste de precios de toda la empresa que se marcaba revertido
+con los precios movidos, el insumo que cambiaba de precio y dejaba los menus con el viejo, y los
+prospectos del simulador y de la invitacion de quince que se perdian mientras al visitante se le
+decia que quedo anotado.
+
+**Lo que queda anotado y no puede crecer:** 108 lugares mas, todos de pantallas del evento,
+decoracion, portal y herramientas internas. La lista completa esta en
+`docs/donde-se-tira-el-error.md` y va por la orden 49.
+
+**El control se probo rompiendose a si mismo dos veces**, y las dos veces miraba de menos: se
+saltaba archivos enteros por guardar el lugar por donde iba, y se estiraba de una funcion a la
+firma de otra comiendose las del medio. Justo no veia `saveFiesta`, que es la que empezo todo.
+
+```comprobar
+archivo: scripts/nadie-dice-que-si-sin-mirar.mjs
+usa: llamadasQueTiranElError en scripts/lo-que-se-dijo-es-lo-que-es.mjs
+archivo: docs/donde-se-tira-el-error.md
+```

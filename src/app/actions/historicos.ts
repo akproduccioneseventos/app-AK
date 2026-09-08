@@ -47,6 +47,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
         let uniqueFilename: string | undefined = undefined;
 
         if (contractFile && contractFile.size > 0) {
+            // no-mira-el-resultado: preparar la carpeta; si no se puede, el guardado siguiente avisa
             await ensureDirectoryExists(CONTRACTS_DIR);
             uniqueFilename = `contract_${customerId}_${contractFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
             const bytes = await contractFile.arrayBuffer();

@@ -151,7 +151,12 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
             ...fiesta,
             othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
         };
-        await saveFiesta(updatedFiesta);
+        // El archivo ya esta subido y ocupando lugar: si la ficha no se guarda, el
+        // documento no aparece en ningun lado. Eso se avisa, no se calla.
+        const guardado = await saveFiesta(updatedFiesta);
+        if (!guardado.success) {
+            return { success: false, error: guardado.error || 'El archivo se subio pero no se pudo guardar en el evento.' };
+        }
 
         return { success: true };
     } catch(e:any) {
@@ -190,7 +195,12 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
             ...fiesta,
             othersDocumentos: (fiesta.othersDocumentos || []).filter(d => d.id !== docId)
         };
-        await saveFiesta(updatedFiesta);
+        // El archivo ya se borro: si la ficha no se guarda, el evento queda
+        // apuntando a un documento que no existe.
+        const guardado = await saveFiesta(updatedFiesta);
+        if (!guardado.success) {
+            return { success: false, error: guardado.error || 'El archivo se borro pero el evento no se pudo guardar.' };
+        }
 
         return { success: true };
     } catch(e:any) {
@@ -274,6 +284,8 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
                 });
                 if (depositResult.success && depositResult.invoiceId) {
                     updatedFiesta.invoiceIds = [...(updatedFiesta.invoiceIds || []), depositResult.invoiceId];
+                    // La factura queda enganchada porque el guardado del evento va
+                    // mas abajo, despues de este bloque. No hace falta guardar aca.
                 }
             } catch (e) {
                 console.warn("No se pudo auto-generar factura de seña:", e);
@@ -291,7 +303,19 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
             updatedFiesta.tareas = initialTasks.map((t, i) => ({ ...t, id: `auto_task_${Date.now()}_${i}_${Math.random().toString(36).substring(7)}` }));
         }
 
-        await saveFiesta(updatedFiesta);
+        /**
+         * FIRMAR EL CONTRATO ES LO MAS CARO QUE TIENE ESTA PANTALLA.
+         *
+         * Aca se pasa la fiesta a "Contratada", se habilita el portal del cliente y
+         * se genera la factura de sena. Si el guardado falla y nadie lo mira, el
+         * contrato figura firmado, **no hay factura de sena, el portal no se abre y
+         * la fiesta sigue esperando firma**. Y encima sale la notificacion diciendo
+         * que quedo registrado.
+         */
+        const guardado = await saveFiesta(updatedFiesta);
+        if (!guardado.success) {
+            return { success: false, error: guardado.error || 'El contrato se subio pero el evento no se pudo guardar. No quedo registrado como contratado.' };
+        }
 
         // Sincronizar fiesta con presupuesto
         if (updatedFiesta.presupuestoId) {

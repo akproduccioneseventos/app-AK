@@ -35,6 +35,7 @@ async function ensureFiestasDirectoryExists() {
 }
 
 async function readCustomersFile(): Promise<Customer[]> {
+  // no-mira-el-resultado: preparar el archivo; si no se puede, la lectura siguiente avisa
   await ensureDataFileExists(customersFilePath, '[]');
   try {
     const fileContent = await fs.readFile(customersFilePath, 'utf-8');

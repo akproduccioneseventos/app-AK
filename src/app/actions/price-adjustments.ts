@@ -146,11 +146,20 @@ export async function revertPriceAdjustment(
     // Revert by applying the inverse percentage
     const revertPercentage = -adjustment.percentage / (1 + adjustment.percentage / 100) * 100;
 
+    /**
+     * REVERTIR UN AJUSTE MUEVE TODOS LOS PRECIOS DE LA EMPRESA.
+     *
+     * Si falla y nadie lo mira, el ajuste queda marcado como revertido y los precios
+     * siguen movidos: el catalogo entero queda con el numero equivocado y nadie se
+     * entera hasta que se cotiza mal.
+     */
     if (adjustment.type === 'precios' || adjustment.type === 'ambos') {
-      await adjustAllServicePrices(revertPercentage);
+      const r = await adjustAllServicePrices(revertPercentage);
+      if (!r?.success) return { success: false, error: r?.error || 'No se pudieron revertir los precios.' };
     }
     if (adjustment.type === 'costos' || adjustment.type === 'ambos') {
-      await adjustAllServiceCosts(revertPercentage);
+      const r = await adjustAllServiceCosts(revertPercentage);
+      if (!r?.success) return { success: false, error: r?.error || 'No se pudieron revertir los costos.' };
     }
 
     // Mark as reverted

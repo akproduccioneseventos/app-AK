@@ -1439,12 +1439,17 @@ function SimuladorContent() {
             };
 
             try {
-                await generateBudgetAndLeadFromSimulator(data, {
+                // Este es el prospecto que llega desde Google: si no queda guardado,
+                // se perdio una venta y nadie se entera.
+                const guardado = await generateBudgetAndLeadFromSimulator(data, {
                     source: 'simulator_common',
                     eventoTipo,
                     acquisition,
                     salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
                 });
+                if (!guardado?.success) {
+                    console.error("El prospecto del simulador no quedo guardado:", guardado?.error);
+                }
             } catch (e) {
                 console.error("Failed to auto-sync budget changes:", e);
             }

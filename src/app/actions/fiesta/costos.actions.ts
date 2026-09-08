@@ -174,7 +174,12 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
             }
         };
 
-        await updateGestionCostos(fiestaId, updatedGestion);
+        // Sin mirar esto, la pantalla decia "costos sincronizados" y los costos
+        // seguian siendo los viejos al recargar.
+        const guardado = await updateGestionCostos(fiestaId, updatedGestion);
+        if (!guardado?.success) {
+            return { success: false, error: guardado?.error || 'No se pudieron guardar los costos.' };
+        }
         return { success: true };
 
     } catch (e: any) {
@@ -190,5 +195,10 @@ export async function syncLaundryCosts(fiestaId: string, guests: number, budgetI
 
     const costs = fiesta.gestionCostos || { costosItems: [], ingresosTotalesEstimados: 0 };
     const items = applyLaundryCosts(costs.costosItems || [], guests, budgetItems);
-    await updateGestionCostos(fiestaId, { ...costs, costosItems: items });
+    const guardado = await updateGestionCostos(fiestaId, { ...costs, costosItems: items });
+    if (!guardado?.success) {
+        // Esta funcion no devuelve resultado, asi que el unico lugar donde se puede
+        // dejar constancia es el registro. Callarlo seria perder el costo.
+        console.error('No se pudieron guardar los costos de ropa blanca:', guardado?.error);
+    }
 }

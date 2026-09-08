@@ -329,6 +329,7 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
       window.open(whatsappUrl, '_blank');
     }
     try {
+      // no-mira-el-resultado: anota que ya se pidio la resena; si falla se vuelve a ofrecer
       await marcarResenaSolicitadaAction(fiestaId);
       setResenasData((prev) => {
         if (!prev) return prev;
