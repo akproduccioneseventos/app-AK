@@ -127,7 +127,7 @@ export default function TouchpixPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingText, setProcessingText] = useState('');
   const [processingResult, setProcessingResult] = useState<ProcessingResult>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [queuedOffline, setQueuedOffline] = useState(false);
@@ -203,7 +203,7 @@ export default function TouchpixPage() {
   }, [voiceEnabled]);
   const eventName = fiesta?.station?.brandText || fiesta?.eventName || 'este gran evento';
   const accentColor = fiesta?.station?.accentColor || '#c026d3';
-  
+
   const triviaList = [
     `¿Sabías que ${eventName} fue planeado detalladamente para sorprenderte?`,
     "¡Los anfitriones ensayaron su entrada triunfal más de una docena de veces!",
@@ -1135,15 +1135,20 @@ export default function TouchpixPage() {
             {errorMsg}
           </div>
         ) : !capturedImage ? (
-          
+
           /* Progressive Wizard Steps or Camera Preview */
           wizardStep > 0 ? (
             <div className="absolute inset-0 z-30 bg-zinc-950/95 overflow-y-auto px-6 py-10 flex flex-col justify-start">
               <div className="w-full max-w-sm mx-auto space-y-6">
-                
+
                 {/* Step 1: Select Category */}
                 {wizardStep === 1 && (
-                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    data-testid="touchpix-wizard-step"
+                    className="space-y-6"
+                  >
                     <div className="text-center space-y-2">
                       <div className="w-16 h-16 mx-auto bg-fuchsia-500/10 rounded-full flex items-center justify-center text-3xl shadow-xl shadow-fuchsia-500/5 border border-fuchsia-500/30">
                         🪄
@@ -1377,7 +1382,7 @@ export default function TouchpixPage() {
                 >
                   <Sparkles className="w-16 h-16 text-fuchsia-300" />
                 </motion.div>
-                
+
                 <p className="text-xl font-black text-white mb-2">{processingText}</p>
                 <div className="flex gap-1.5 justify-center mb-6">
                   {[0, 1, 2].map(i => (
@@ -1438,7 +1443,7 @@ export default function TouchpixPage() {
 
       {/* ═══════════ BOTTOM CONTROLS ═══════════ */}
       <div className="relative z-20 shrink-0 bg-zinc-950/90 backdrop-blur-xl border-t border-white/5">
-        
+
         {/* Review Actions */}
         {isReviewMode && !isProcessing && (
           <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="px-4 pt-4 pb-3">
@@ -1616,6 +1621,7 @@ export default function TouchpixPage() {
           {tabs.map(tab => (
             <button
               key={tab.id}
+              data-testid={`touchpix-tab-${tab.id}`}
               onClick={() => {
                 if (capturedImage) retake();
                 setActiveTab(tab.id);
@@ -1631,7 +1637,11 @@ export default function TouchpixPage() {
               <div className="relative">
                 {tab.icon}
                 {activeTab === tab.id && (
-                  <motion.div layoutId="tab-indicator" className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-fuchsia-400" />
+                  <motion.div
+                    layoutId="tab-indicator"
+                    data-testid="touchpix-tab-indicator"
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-fuchsia-400"
+                  />
                 )}
               </div>
               <span className="text-[10px] font-bold">{tab.label}</span>
