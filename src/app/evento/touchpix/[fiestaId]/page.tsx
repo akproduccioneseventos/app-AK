@@ -723,17 +723,23 @@ export default function TouchpixPage() {
   }, [accessToken, fiestaId, startCamera]);
 
   useEffect(() => {
-    if (capturedImage && !isProcessing && fiesta?.station?.reviewSeconds) {
+    // Si la foto está capturada pero NO se está procesando NI subiendo, corre el temporizador de revisión.
+    // Si isUploading está activo, NO se reinicia para no borrar el recuerdo ni mezclar sesiones de fotos (ENT-03).
+    if (capturedImage && !isProcessing && !isUploading && fiesta?.station?.reviewSeconds) {
+      const currentSession = photoSessionId;
       const timer = setTimeout(() => {
-        retake();
+        if (currentSession === photoSessionId && !isUploading) {
+          retake();
+        }
       }, fiesta.station.reviewSeconds * 1000);
       return () => clearTimeout(timer);
     }
-  }, [capturedImage, isProcessing, fiesta?.station?.reviewSeconds, retake]);
+  }, [capturedImage, isProcessing, isUploading, fiesta?.station?.reviewSeconds, photoSessionId, retake]);
 
   /* ── Upload ── */
   const handleUpload = useCallback(async () => {
     if (!capturedImage) return;
+    const currentSession = photoSessionId;
     setIsUploading(true);
 
     let pendingFile: File | null = null;
@@ -774,11 +780,15 @@ export default function TouchpixPage() {
         accessToken
       );
       setQueuedOffline(false);
-      setShowSuccess(true);
-      setTimeout(() => {
-        setShowSuccess(false);
-        retake();
-      }, 3000);
+      if (currentSession === photoSessionId) {
+        setShowSuccess(true);
+        setTimeout(() => {
+          if (currentSession === photoSessionId) {
+            setShowSuccess(false);
+            retake();
+          }
+        }, 3000);
+      }
     } catch (err: any) {
       const errMsg = String(err?.message || '');
       const uploadDecision = classifyOfflineUploadError(errMsg);
@@ -787,11 +797,15 @@ export default function TouchpixPage() {
       // o el servidor la reconoció por su huella. En ambos casos no se vuelve a subir.
       if (uploadConfirmed || uploadDecision === 'duplicate') {
         setQueuedOffline(false);
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          retake();
-        }, 3000);
+        if (currentSession === photoSessionId) {
+          setShowSuccess(true);
+          setTimeout(() => {
+            if (currentSession === photoSessionId) {
+              setShowSuccess(false);
+              retake();
+            }
+          }, 3000);
+        }
         return;
       }
 
