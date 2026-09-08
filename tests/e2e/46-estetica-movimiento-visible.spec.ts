@@ -164,13 +164,30 @@ test.describe('Orden 46 - Movimiento visible medido con boundingBox', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    const titular = page.locator('h1').first();
-    await expect(titular).toBeVisible({ timeout: 15_000 });
-    const boxTitular = await titular.boundingBox();
-    expect(boxTitular!.width).toBeGreaterThan(0);
-    expect(boxTitular!.height).toBeGreaterThan(0);
+    /**
+     * OJO: antes esto buscaba `h1` a secas y el primero de la pagina puede ser el
+     * de otra seccion, que la portada monta y desmonta al armarse. Medido justo
+     * en el medio, el elemento ya no estaba y la prueba se caia con la portada
+     * perfecta. Se apunta al titular de la portada y se espera a que tenga
+     * tamano de verdad en vez de medirlo una sola vez.
+     */
+    const titular = page.locator('[data-testid="hero-section"] h1').first();
+    await expect(titular).toBeVisible({ timeout: 20_000 });
 
-    const opacidadTitular = await titular.evaluate((el) => parseFloat(window.getComputedStyle(el).opacity || '1'));
-    expect(opacidadTitular).toBe(1);
+    await expect
+      .poll(async () => (await titular.boundingBox())?.width ?? 0, { timeout: 15_000 })
+      .toBeGreaterThan(0);
+    await expect
+      .poll(async () => (await titular.boundingBox())?.height ?? 0, { timeout: 15_000 })
+      .toBeGreaterThan(0);
+
+    // Con el movimiento apagado el titular tiene que estar entero a la vista, no
+    // a medio aparecer.
+    await expect
+      .poll(
+        async () => titular.evaluate((el) => parseFloat(window.getComputedStyle(el).opacity || '1')),
+        { timeout: 15_000 }
+      )
+      .toBe(1);
   });
 });
