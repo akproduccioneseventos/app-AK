@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 8 de septiembre de 2026 - Ordenes 45 a 48, pendientes de ejecucion
+
+Codex reviso y preparo las ordenes numeradas en docs/ordenes/: evaluacion de pendientes,
+estetica/movimiento, marketing/redes y entretenimiento. Gemini programa; Claude Opus
+compila. Se reutilizan los antecedentes de Claude hasta el 5 de septiembre y se decide
+el menor consumo estimado por pedido, sin delegacion automatica ni duplicar revisiones.
+Cada orden termina con bloque comprobar y distingue pruebas propuestas de ejecutadas.
+El control actual verifica presencia/menciones, no funcionamiento: exigir evidencia del
+mismo commit. No hay correcciones de app, pruebas de hardware ni certificado nuevo aqui.
+Esta entrega contiene documentacion solamente y no fusiona ni modifica main.
+
+Regla del dueno: las ordenes deben subirse a GitHub y comprobarse alli antes de dar
+la entrega por terminada. Registrar enlace, rama y commit; una copia local no alcanza.
+No confundir disponibilidad remota con lectura o ejecucion por otra IA. No fusionar
+sin autorizacion del dueno.
+
 **Leé esto ANTES de auditar cualquier cosa.** Vale para Codex, Gemini, Claude y
 cualquier ayudante que salga a buscar problemas.
 
