@@ -4,6 +4,26 @@
 
 ### Revision contable adicional: orden 49 (pendiente de correccion)
 
+### Revision de web/ventas y tecnologia: orden 50 (parcial y pendiente)
+
+El dueno aclaro: la seccion Tecnologia debe mostrar LA APP PARA LAS FIESTAS, no
+ser principalmente catalogo de equipos. Codex registro guion portal cliente,
+invitacion/invitado, mural y participacion, barra/totem y album; demo aislada, sin
+datos reales ni promesas no comprobadas. Gemini programa y Claude compila.
+Skills ventas/neuromarketing/UX aplicadas. Intentos de navegador: portada y
+experiencia-ak devolvieron error upstream; simulador mostro error de catalogo y al
+reintentar error upstream. Causa y SHA del despliegue no determinados; NO afirmar
+caida global ni auditoria visual completa. Se revisaron fuentes main8c5 y diffs
+relevantes de PR1201/1202 sin aprobar esas PRs.
+Tres sondas aisladas fallan: feed incluye Borrador/Programado; parser pierde UTMs;
+saveLead reemplaza facebook por landing_bodas. Todo con datos ficticios, sin red ni
+escrituras de CRM. Evidencia en docs/evidencias/50-sondas-venta.cjs y orden 50.
+Conservar testimonios del catalogo aprobados por dueno: no repetir su borrado por
+error. No se modifico app ni se compilo. Fotos, responsive, PDF y flujos publicados
+siguen pendientes. No llamar terminado a lo escrito ni asumir otra IA ya lo ejecuto.
+
+### Detalle de revision contable 49
+
 Codex reviso contabilidad sobre codigo main 8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe,
 reutilizando los registros de Claude. Un agente economico reviso pantallas; Codex
 verifico los riesgos de dinero/permisos y ejecuto siete sondas aisladas con I/O falso.
