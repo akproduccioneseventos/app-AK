@@ -6,6 +6,7 @@ import {
   crearPermisoDeEstacion,
   crearCookieDeSesion,
 } from './helpers/fiesta-de-prueba';
+import { enchufarCamaraFalsa } from './helpers/camara-falsa';
 
 /**
  * Orden 46: Estética futurista y movimiento visible en toda AK.
@@ -27,46 +28,49 @@ test.afterAll(() => {
 });
 
 test.describe('Orden 46 - Movimiento visible medido con boundingBox', () => {
-  test('1. Portada pública: el elemento animado se mueve y mantiene dimensiones visibles reales', async ({ page }) => {
+  test('1. Portada publica: el resplandor animado cambia de tamano solo con el paso del tiempo', async ({ page }) => {
     test.setTimeout(90_000);
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    // Localizar una sección con animación de entrada y desplazamiento
-    const seccion = page.locator('section').nth(1);
-    await expect(seccion).toBeVisible({ timeout: 15_000 });
+    /**
+     * OJO: la version anterior de esta prueba desplazaba la pagina y exigia que
+     * el elemento cambiara de posicion. Eso NO mide la animacion: mide el
+     * desplazamiento, y daba rojo cuando el elemento ya estaba a la vista y no
+     * habia nada que desplazar.
+     *
+     * Lo que se mide ahora es el resultado de verdad: el resplandor de la
+     * portada late en bucle, asi que su tamano medido cambia **sin tocar nada**.
+     * Con las animaciones apagadas este elemento ni siquiera se dibuja, o sea
+     * que la prueba se pone en rojo si alguien apaga el movimiento.
+     */
+    const resplandor = page.locator('[data-testid="hero-resplandor"]');
+    await expect(resplandor).toBeVisible({ timeout: 20_000 });
 
-    // Medición 1: antes del desplazamiento / animación
-    const antes = await seccion.boundingBox();
-    expect(antes, 'El elemento a medir debe existir en la página').not.toBeNull();
+    const antes = await resplandor.boundingBox();
+    expect(antes, 'El elemento animado debe existir en la pagina').not.toBeNull();
     expect(antes!.width, 'El elemento no puede tener ancho cero').toBeGreaterThan(0);
     expect(antes!.height, 'El elemento no puede tener alto cero').toBeGreaterThan(0);
 
-    const opacidadAntes = await seccion.evaluate((el) => {
-      const estilo = window.getComputedStyle(el);
-      return parseFloat(estilo.opacity || '1');
-    });
-    expect(opacidadAntes, 'El elemento antes de la animación no puede ser invisible').toBeGreaterThan(0);
+    const opacidadAntes = await resplandor.evaluate((el) =>
+      parseFloat(window.getComputedStyle(el).opacity || '1')
+    );
+    expect(opacidadAntes, 'El elemento animado no puede ser invisible').toBeGreaterThan(0);
 
-    // Provocar el movimiento mediante desplazamiento a la vista
-    await seccion.scrollIntoViewIfNeeded();
-    await page.waitForTimeout(500);
+    // El latido dura 7 segundos: a los 1,8 segundos ya tiene otro tamano.
+    await page.waitForTimeout(1_800);
 
-    // Medición 2: después del movimiento
-    const despues = await seccion.boundingBox();
-    expect(despues, 'El elemento debe seguir existiendo tras la animación').not.toBeNull();
+    const despues = await resplandor.boundingBox();
+    expect(despues, 'El elemento debe seguir existiendo mientras se anima').not.toBeNull();
     expect(despues!.width, 'El elemento no puede colapsar a ancho cero').toBeGreaterThan(0);
     expect(despues!.height, 'El elemento no puede colapsar a alto cero').toBeGreaterThan(0);
 
-    const opacidadDespues = await seccion.evaluate((el) => {
-      const estilo = window.getComputedStyle(el);
-      return parseFloat(estilo.opacity || '1');
-    });
-    expect(opacidadDespues, 'El elemento después de la animación debe ser visible').toBeGreaterThan(0);
-
-    // Exigir que la posición se haya modificado (movimiento real medido)
-    const seMovio = antes!.y !== despues!.y || antes!.x !== despues!.x;
-    expect(seMovio, 'La posición del elemento debe cambiar entre antes y después').toBe(true);
+    const seMovio =
+      Math.abs(antes!.width - despues!.width) > 1 ||
+      Math.abs(antes!.height - despues!.height) > 1 ||
+      Math.abs(antes!.y - despues!.y) > 1 ||
+      Math.abs(antes!.x - despues!.x) > 1;
+    expect(seMovio, 'La portada tiene que moverse sola: el resplandor no cambio nada').toBe(true);
   });
 
   test('2. Touchpix: el indicador animado con motion.div cambia de coordenadas al interactuar', async ({ page, context }, testInfo) => {
@@ -78,8 +82,17 @@ test.describe('Orden 46 - Movimiento visible medido con boundingBox', () => {
       { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
     ]);
 
+    /**
+     * SIN `role=operator` A PROPOSITO. Con ese parametro la pantalla muestra el
+     * panel del operador, que NO tiene la barra de pestanas: la prueba buscaba
+     * un indicador que en esa vista no existe y siempre daba rojo.
+     *
+     * Y sin la camara de mentira la estacion muestra el cartel de "no se puede
+     * usar la camara" y desaparece todo el panel.
+     */
+    await enchufarCamaraFalsa(page);
     const tokenEstacion = crearPermisoDeEstacion(fiestaPrueba.id, 'espejoMagicoIA');
-    await page.goto(`/evento/touchpix/${fiestaPrueba.id}?access=${tokenEstacion}&role=operator`, {
+    await page.goto(`/evento/touchpix/${fiestaPrueba.id}?access=${tokenEstacion}`, {
       waitUntil: 'domcontentloaded',
     });
 

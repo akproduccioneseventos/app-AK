@@ -6,6 +6,7 @@ import {
   crearCookieDeSesion,
   crearPermisoDeEstacion,
 } from './helpers/fiesta-de-prueba';
+import { enchufarCamaraFalsa } from './helpers/camara-falsa';
 
 /**
  * Orden 45: Evaluación de recorridos pendientes y entrega de evidencia.
@@ -73,8 +74,14 @@ test.describe('Orden 45 - Recorridos humanos pendientes', () => {
       { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
     ]);
 
+    /**
+     * SIN `role=operator`: con ese parametro se abre el panel del operador, que
+     * no tiene barra de pestanas. Y sin camara de mentira la estacion muestra el
+     * cartel de error en vez del panel.
+     */
+    await enchufarCamaraFalsa(page);
     const token = crearPermisoDeEstacion(fiestaDemo.id, 'espejoMagicoIA');
-    await page.goto(`/evento/touchpix/${fiestaDemo.id}?access=${token}&role=operator`, {
+    await page.goto(`/evento/touchpix/${fiestaDemo.id}?access=${token}`, {
       waitUntil: 'domcontentloaded',
     });
 

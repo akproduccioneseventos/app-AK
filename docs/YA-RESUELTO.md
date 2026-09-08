@@ -7212,3 +7212,30 @@ correr esa sola.
 ```comprobar
 usa: hasta tres intentos en tests/e2e/recorrido-de-pantallas.spec.ts
 ```
+
+
+---
+
+## 8 de septiembre de 2026 — Dos pruebas nuevas daban rojo con la app sana
+
+Las dos que llegaron con las ordenes 45 y 46 frenaban la puerta, y **ninguna de las dos era un
+defecto de la aplicacion**: estaban mal escritas.
+
+**1. La estacion mirada por la ventana equivocada.** Las dos pruebas abrian Touchpix con
+`role=operator` y despues buscaban la barra de pestanas. Con ese parametro la pantalla muestra el
+**panel del operador**, que no tiene barra de pestanas: buscaban algo que en esa vista no existe.
+Ademas les faltaba la camara de mentira, sin la cual la estacion muestra el cartel de "no se puede
+usar la camara" y desaparece el panel entero.
+
+**2. La prueba de movimiento medía el desplazamiento, no la animacion.** Empujaba la pagina hacia
+abajo y exigia que el elemento cambiara de lugar. Cuando el elemento ya estaba a la vista no habia
+nada que empujar, y daba rojo con la portada moviendose perfectamente.
+
+**Como quedo:** ahora mide el resultado de verdad. El resplandor de la portada late en bucle, asi
+que **su tamano cambia solo con el paso del tiempo, sin tocar nada**. Y con el movimiento apagado
+ese elemento ni se dibuja, o sea que la prueba se pone en rojo si alguien apaga las animaciones.
+
+```comprobar
+usa: hero-resplandor en tests/e2e/46-estetica-movimiento-visible.spec.ts
+usa: enchufarCamaraFalsa en tests/e2e/45-recorridos-pendientes.spec.ts
+```

@@ -156,6 +156,13 @@ export function HeroSection({
       {!reduceMotion && (
         <>
           <motion.div
+            data-testid="hero-resplandor"
+            /**
+             * Este resplandor es lo que mide la prueba de movimiento
+             * (tests/e2e/46-estetica-movimiento-visible.spec.ts): late de forma
+             * continua, asi que su tamano medido cambia solo con el paso del
+             * tiempo. No le saques el data-testid.
+             */
             className="pointer-events-none absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-red-600/20 blur-[130px]"
             animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
             transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
