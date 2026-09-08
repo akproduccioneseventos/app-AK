@@ -660,6 +660,29 @@ para el lado equivocado.
    alcanza: **hay que ver quién la llama.** Es la forma exacta que tuvieron todas las fallas de
    este año.
 
+### 8. Auditar sólo el camino en que todo sale bien
+
+**El dueño lo preguntó el 8 de septiembre de 2026: *"¿cómo no lo viste, y eso siempre lo hiciste
+vos?"*.** Codex encontró cinco defectos contables —un cobro que desaparecía, una cuota anunciada
+como cobrada sin guardarse, una conciliación que fallaba en silencio, un flujo de caja en cero
+falso, y las facturas legibles por cualquiera del equipo— en un área que audité varias veces.
+
+**Qué se hizo mal:** las seis preguntas del método miran si algo **está y funciona**. Ninguna
+pregunta **qué pasa cuando falla** ni **qué pasa si dos personas lo hacen a la vez**. Los cinco
+defectos pasaban las seis preguntas: estaban escritos, los llamaba alguien, dejaban rastro y
+tenían pruebas en verde.
+
+**Qué era lo cierto:** en esta app varias funciones de guardado **devuelven** el error en vez de
+tirarlo. Si el que llama no lo mira, la pantalla dice que salió bien —y a veces le manda el aviso
+al cliente— sin haber guardado nada. Y toda función que lee, calcula y después guarda la lista
+entera pierde una de dos operaciones simultáneas, aunque tenga candado, si la lectura quedó
+afuera del turno.
+
+**Qué se hace distinto:** entró como séptima pregunta del método, en `docs/COMO-AUDITAR.md`, y se
+aplica primero a cobros, cuotas, facturas, presupuestos y sueldos. Y queda escrito el corolario:
+que la app esté terminada **no** significa que un área ya mirada quede mirada para siempre con
+las preguntas viejas; cuando el método suma una pregunta, lo que toca plata se vuelve a pasar.
+
 ## CADA ERROR SE ANOTA ACÁ. Sin excepción.
 
 **Orden del dueño, 2 de septiembre de 2026:** *"anotalo para no hacerlo; cada error debés

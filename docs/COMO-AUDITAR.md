@@ -253,3 +253,44 @@ npm run lo-que-se-dijo:todo    # la app entera. Informa, no frena.
 **Que no cuenta como prueba, y es lo que hay que recordar:** la prueba que recorre las 348
 pantallas de corrido **no prueba ninguna**. Solo mira que abran. Por ahi se colo la
 fotocabina rota, con la auditoria en verde.
+
+---
+
+## La septima pregunta: ¿QUE PASA CUANDO FALLA, Y QUE PASA SI SON DOS A LA VEZ? (8 de septiembre de 2026)
+
+**Esta pregunta falta desde el principio, y por eso se escaparon cinco defectos contables.**
+Los encontro Codex y eran todos ciertos: un cobro que desaparecia, una cuota anunciada como
+cobrada sin guardarse, una conciliacion que fallaba en silencio, un flujo de caja en cero falso,
+y las facturas de la empresa legibles por cualquiera del equipo.
+
+**Por que las preguntas anteriores no los agarraban.** Las seis miran el camino en que todo sale
+bien: ¿esta escrito?, ¿alguien lo llama?, ¿deja rastro?, ¿el dato llega?, ¿la prueba termina el
+trabajo? **Los cinco defectos pasaban las seis.** El codigo estaba escrito, lo llamaban, dejaba
+rastro, tenia pruebas y las pruebas daban verde. **Todos vivian en el camino de al lado: el que
+se recorre cuando algo falla, o cuando dos personas hacen lo mismo al mismo tiempo.**
+
+Las dos mitades, y las dos se preguntan sobre cada cosa que toca plata:
+
+**a) ¿Que pasa cuando el guardado falla?** No alcanza con que exista el `try`. Hay que ver
+**quien mira el resultado**. En esta app varias funciones de guardado **devuelven** el error en
+vez de tirarlo: si el que llama no lo mira, la app contesta que salio bien y no guardo nada. Y lo
+mas caro no es el dato perdido: es **lo que sale para afuera igual** —el mail al cliente
+diciendo que su cuota quedo paga—.
+
+**b) ¿Que pasa si dos personas lo hacen al mismo tiempo?** Cualquier cosa que **lea, calcule y
+despues guarde la lista entera** pierde una de las dos operaciones. El turno -el candado- no
+alcanza si la lectura quedo afuera: el segundo guarda su copia vieja encima del primero. La
+pregunta concreta es: **¿la lectura esta adentro del mismo turno que el guardado?**
+
+**Y una tercera, que es la misma familia:** ¿un cero en pantalla puede significar "no se pudo
+leer"? Si la respuesta es si, la pantalla esta mintiendo, porque cero y "no hay datos" se ven
+igual.
+
+**Donde se aplica primero:** cobros, cuotas, facturas, presupuestos y sueldos. Ahi un "dijo que
+si y no paso nada" es plata.
+
+**Y el corolario, que es lo que de verdad fallo:** *"la app esta terminada"* significa que no se
+sale a buscar problemas de gusto. **No significa que un area ya mirada quede mirada para
+siempre con las preguntas viejas.** Cuando se agrega una pregunta nueva al metodo, **se vuelve a
+pasar lo que toca plata**, aunque ya se haya auditado. Eso no es auditar por auditar: es que la
+pregunta no existia cuando se miro.
