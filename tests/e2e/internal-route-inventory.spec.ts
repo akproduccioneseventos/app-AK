@@ -82,10 +82,12 @@ test('every static internal route responds with an authenticated session', async
    * usa el navegador: son pedidos de red, y esos se pueden hacer de a varios sin que
    * se pisen.
    *
-   * Ocho a la vez: suficiente para que vuele y poco para no ahogar al servidor de
-   * prueba, que corre en la misma maquina.
+   * **Cuatro a la vez, no mas.** Con ocho el servidor de prueba -uno solo, en la
+   * misma maquina- devolvia respuestas cortadas y la prueba acusaba dieciseis
+   * pantallas vacias que estaban perfectas. Cuatro corre en la tercera parte del
+   * tiempo y no ahoga a nadie.
    */
-  const A_LA_VEZ = 8;
+  const A_LA_VEZ = 4;
   let siguienteRuta = 0;
   const revisarUna = async (route: string) => {
     try {

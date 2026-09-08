@@ -7148,3 +7148,28 @@ archivo: src/app/(app)/admin/page.tsx
 prueba: src/__tests__/auth-user-session.test.ts
 prueba: src/__tests__/session-token.test.ts
 ```
+
+
+---
+
+## 5 de septiembre de 2026 — Se saco la prueba que se comia media verificacion
+
+`tests/e2e/internal-route-inventory.spec.ts` pedia todas las pantallas internas **de a una** y
+tardaba **veinticuatro minutos de los cuarenta** que tardaba toda la verificacion. Ella sola era
+el paso mas caro de todos.
+
+Se intento acelerarla pidiendo de a ocho y de a cuatro a la vez. **No se puede:** el servidor de
+prueba es uno solo y con varios pedidos juntos devuelve respuestas cortadas. La prueba entonces
+acusaba entre diez y dieciseis pantallas vacias **distintas en cada corrida** — la firma exacta de
+una falsa alarma.
+
+**Se saco, y no se pierde nada:** `tests/e2e/recorrido-de-pantallas.spec.ts` recorre **las mismas
+rutas** -las dos usan `getAllRoutes()` y la misma cookie de sesion- pero con un navegador de
+verdad, y ademas mira los errores de React, las pantallas en blanco y los textos rotos. Es un
+control mas fuerte, no mas debil.
+
+**Resultado medido:** la verificacion completa pierde veinticuatro minutos de encima.
+
+```comprobar
+usa: getAllRoutes en tests/e2e/recorrido-de-pantallas.spec.ts
+```
