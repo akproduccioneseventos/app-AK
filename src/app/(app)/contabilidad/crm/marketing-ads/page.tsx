@@ -74,11 +74,18 @@ export default async function MarketingAdsPage() {
     }
   }
 
-  const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => ({
-    nombre: c.name,
-    presupuestoDiarioUYU: Math.max(0, Math.round(c.spend / 30)) || 500,
-    activa: true,
-  }));
+  // Solo se computan presupuestos diarios verificados y activos.
+  // No se inventan valores de respaldo ($500) ni se confunde gasto histórico con presupuesto diario futuro.
+  const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => {
+    const tienePresupuestoConfigurado = typeof (c as any).dailyBudget === 'number' && (c as any).dailyBudget > 0;
+    const esActiva = (c as any).status === 'ACTIVE' || (c as any).effectiveStatus === 'ACTIVE';
+    return {
+      nombre: c.name,
+      presupuestoDiarioUYU: tienePresupuestoConfigurado ? (c as any).dailyBudget : 0,
+      activa: esActiva,
+      verificado: tienePresupuestoConfigurado,
+    };
+  });
 
   const [estadoDelTope, historialAcciones, analisisClienteIdeal] = await Promise.all([
     getEstadoDelTope(campanasConPresupuesto),
