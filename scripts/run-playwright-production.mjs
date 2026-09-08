@@ -342,17 +342,28 @@ async function main() {
    *
    * Si agregas una prueba nueva que use `helpers/fiesta-de-prueba`, sumala aca.
    */
+  /**
+   * LAS QUE TIENEN QUE CORRER SOLAS, Y POR QUE CADA UNA.
+   *
+   * **Esta lista se reviso una por una el 5 de septiembre de 2026**, abriendo cada
+   * archivo. Estaba vieja: tenia nueve, y siete ya se arman su propia fiesta con
+   * nombre unico -`e2e_muro_<hora>`, `e2e_senal_<hora>`...-, asi que **podian correr
+   * en paralelo hace rato** y estaban frenando la verificacion entera de gusto.
+   *
+   * Quedan solo estas cuatro, y ninguna esta por las dudas:
+   */
   const COMPARTEN_LA_FIESTA_DE_PRUEBA = [
-    'entretenimientos-a-fondo.spec.ts',
-    'estaciones-sin-clave.spec.ts',
-    'fotocabina-de-punta-a-punta.spec.ts',
-    'fotos-de-la-app.spec.ts',
-    'muro-subir-foto.spec.ts',
+    // Su fiesta viene de afuera (AK_E2E_ID): dos procesos usarian la misma.
     'noche-de-fiesta.spec.ts',
+    // Escribe un prospecto de verdad en la lista del negocio, que es una sola.
     'prospecto-simulador.spec.ts',
-    'senal-mala.spec.ts',
-    'tarjetas-whatsapp.spec.ts',
+    // Usa un identificador fijo, no uno con la hora.
+    'fotos-de-la-app.spec.ts',
+    // Mide una cuenta regresiva: con la maquina cargada da fallas inventadas.
+    // **Comprobado**: en paralelo fallo, y sola paso en 126 segundos.
+    'las-estaciones-respetan-los-ajustes.spec.ts',
   ];
+
 
   /**
    * SE PROBO CORRER DE A TRES Y SE VOLVIO ATRAS. No lo intentes de nuevo sin leer esto.
