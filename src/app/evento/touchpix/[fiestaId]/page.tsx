@@ -127,7 +127,7 @@ export default function TouchpixPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingText, setProcessingText] = useState('');
   const [processingResult, setProcessingResult] = useState<ProcessingResult>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [queuedOffline, setQueuedOffline] = useState(false);
@@ -203,7 +203,7 @@ export default function TouchpixPage() {
   }, [voiceEnabled]);
   const eventName = fiesta?.station?.brandText || fiesta?.eventName || 'este gran evento';
   const accentColor = fiesta?.station?.accentColor || '#c026d3';
-  
+
   const triviaList = [
     `¿Sabías que ${eventName} fue planeado detalladamente para sorprenderte?`,
     "¡Los anfitriones ensayaron su entrada triunfal más de una docena de veces!",
@@ -1135,12 +1135,12 @@ export default function TouchpixPage() {
             {errorMsg}
           </div>
         ) : !capturedImage ? (
-          
+
           /* Progressive Wizard Steps or Camera Preview */
           wizardStep > 0 ? (
             <div className="absolute inset-0 z-30 bg-zinc-950/95 overflow-y-auto px-6 py-10 flex flex-col justify-start">
               <div className="w-full max-w-sm mx-auto space-y-6">
-                
+
                 {/* Step 1: Select Category */}
                 {wizardStep === 1 && (
                   <motion.div
@@ -1382,7 +1382,7 @@ export default function TouchpixPage() {
                 >
                   <Sparkles className="w-16 h-16 text-fuchsia-300" />
                 </motion.div>
-                
+
                 <p className="text-xl font-black text-white mb-2">{processingText}</p>
                 <div className="flex gap-1.5 justify-center mb-6">
                   {[0, 1, 2].map(i => (
@@ -1443,7 +1443,7 @@ export default function TouchpixPage() {
 
       {/* ═══════════ BOTTOM CONTROLS ═══════════ */}
       <div className="relative z-20 shrink-0 bg-zinc-950/90 backdrop-blur-xl border-t border-white/5">
-        
+
         {/* Review Actions */}
         {isReviewMode && !isProcessing && (
           <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="px-4 pt-4 pb-3">
