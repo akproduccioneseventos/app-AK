@@ -29,6 +29,7 @@ const testEnvironment = {
 };
 
 import os from "node:os";
+import { execFileSync } from "node:child_process";
 import { statSync } from "node:fs";
 
 /**
@@ -65,6 +66,31 @@ function getLatestSourceMtime(dir = "src") {
   if (existsSync(dir)) traverse(dir);
   return latest;
 }
+
+/**
+ * BARRER LO QUE QUEDO DE UNA CORRIDA ANTERIOR.
+ *
+ * Cuando una corrida se corta a la mitad -por tiempo, o porque alguien la para-
+ * quedan vivos el navegador y el servidor de prueba. **Se los vio: treinta y un
+ * procesos huerfanos**, con la maquina al triple de su carga, haciendo que la
+ * corrida siguiente tardara el doble y diera fallas inventadas.
+ *
+ * Es la trampa que ya costo cuarenta y dos minutos una vez. Ahora se barre solo.
+ */
+function barrerCorridasViejas() {
+  const mios = new Set([String(process.pid), String(process.ppid)]);
+  for (const patron of ["playwright", "chrome-linux/chrome", "next start"]) {
+    try {
+      const salida = execFileSync("pgrep", ["-f", patron], { encoding: "utf8" });
+      for (const pid of salida.split("\n").map((l) => l.trim()).filter(Boolean)) {
+        if (mios.has(pid)) continue;
+        try { process.kill(Number(pid), "SIGKILL"); } catch { /* ya no estaba */ }
+      }
+    } catch { /* no habia ninguno, que es lo normal */ }
+  }
+}
+
+barrerCorridasViejas();
 
 if (!existsSync(".next/BUILD_ID")) {
   console.log("[playwright-production] Compilando app para pruebas E2E (npm run build)...");
