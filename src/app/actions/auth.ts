@@ -1,5 +1,6 @@
-import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 'use server';
+
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 // src/app/actions/auth.ts
 // Server actions for the custom authentication system.
