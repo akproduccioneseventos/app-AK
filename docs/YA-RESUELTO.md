@@ -7210,7 +7210,7 @@ aparece **no son fallas nuevas, son falsas alarmas por falta de tiempo**. Antes 
 correr esa sola.
 
 ```comprobar
-usa: hasta tres intentos en tests/e2e/recorrido-de-pantallas.spec.ts
+usa: Hasta tres intentos en tests/e2e/recorrido-de-pantallas.spec.ts
 ```
 
 
@@ -7238,4 +7238,30 @@ ese elemento ni se dibuja, o sea que la prueba se pone en rojo si alguien apaga 
 ```comprobar
 usa: hero-resplandor en tests/e2e/46-estetica-movimiento-visible.spec.ts
 usa: enchufarCamaraFalsa en tests/e2e/45-recorridos-pendientes.spec.ts
+```
+
+
+---
+
+## 8 de septiembre de 2026 — El recorrido abria las 358 pantallas aunque el cambio tocara una
+
+Ya estaba acotado, pero mal: **cualquier cambio dentro de `src/` que no fuera una pantalla se
+tomaba como "algo compartido" y se recorria todo igual**. Como casi todo cambio toca un componente
+o una libreria, en la practica **se recorrian las 358 siempre**: quince minutos por corrida.
+
+**Como quedo:** cuando el cambio toca algo compartido ya no se da por vencido, **averigua a quien
+afecta**. Sube por el arbol de quien importa a quien y saca las pantallas que lo usan. Tocando el
+buscador recorre una pantalla; tocando la portada, siete.
+
+**Lo que NO se aflojo:** si el cambio toca algo que afecta a la app entera -la configuracion, el
+armazon comun, las dependencias- o si alcanza a mas de la mitad de las pantallas, **se recorren
+todas**. Un recorrido de mas cuesta minutos; uno de menos deja pasar una pantalla rota.
+
+El control se probo rompiendolo a proposito: sacandole el paso que sube por el arbol, la
+comprobacion del componente compartido se cae.
+
+```comprobar
+archivo: scripts/pantallas-tocadas.mjs
+usa: pantallasTocadas en scripts/recorrido-de-pantallas.mjs
+prueba: src/__tests__/el-recorrido-mira-lo-que-cambia.test.ts
 ```

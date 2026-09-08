@@ -1,5 +1,6 @@
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import process from 'node:process';
+import { pantallasTocadas } from './pantallas-tocadas.mjs';
 
 /**
  * El recorrido: abre las pantallas en el navegador y mira que anden.
@@ -23,78 +24,43 @@ import process from 'node:process';
 
 const TODO = process.argv.includes('--todo');
 
-/** Lo que cambio respecto de la version principal. */
-function loQueCambio() {
-  for (const base of ['origin/main', 'main']) {
-    try {
-      const salida = execFileSync('git', ['diff', '--name-only', `${base}...HEAD`], {
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'ignore'],
-      });
-      return salida.split('\n').map((l) => l.trim()).filter(Boolean);
-    } catch {
-      // Se prueba con la siguiente.
-    }
-  }
-  return null; // No se pudo saber: se recorre todo, por las dudas.
-}
-
-/** ¿El cambio toca algo compartido, que puede romper cualquier pantalla? */
-function tocaAlgoCompartido(archivos) {
-  return archivos.some(
-    (a) =>
-      (a.startsWith('src/') && !a.includes('/page.tsx')) ||
-      a.endsWith('.css') ||
-      a === 'package.json' ||
-      a === 'next.config.js' ||
-      a === 'tailwind.config.ts',
-  );
-}
-
-/** Las pantallas que cambiaron, como direcciones. */
-function pantallasQueCambiaron(archivos) {
-  return archivos
-    .filter((a) => a.startsWith('src/app/') && a.endsWith('/page.tsx'))
-    .map((a) =>
-      '/' +
-      a
-        .replace('src/app/', '')
-        .replace('/page.tsx', '')
-        .split('/')
-        .filter((s) => !s.startsWith('(')) // los grupos de carpetas no van en la direccion
-        .join('/'),
-    )
-    .map((r) => (r === '/' ? '/' : r.replace(/\/$/, '')));
-}
-
 console.log('='.repeat(60));
 console.log('RECORRIDO DE PANTALLAS');
 console.log('='.repeat(60));
 
 let soloEstas = null;
 
+/**
+ * QUE CAMBIO EL 8 DE SEPTIEMBRE DE 2026, Y POR QUE IMPORTA.
+ *
+ * Antes, cualquier cambio dentro de `src/` que no fuera una pantalla se
+ * consideraba "algo compartido" y **se recorrian las 358 igual**. Como casi todo
+ * cambio toca un componente o una libreria, en la practica se recorria todo
+ * siempre: quince minutos por corrida. El dueno lo marco: *"tiene que recorrer
+ * lo que se cambia, no todo"*.
+ *
+ * Ahora, cuando el cambio toca algo compartido **se averigua a quien afecta**:
+ * se sube por el arbol de quien importa a quien y salen las pantallas que lo
+ * usan. Solo se recorren las 358 cuando el cambio toca algo que afecta a la app
+ * entera -la configuracion, el armazon comun- o cuando alcanza a mas de la mitad
+ * de las pantallas, que es cuando acotar no ahorra nada.
+ */
 if (!TODO) {
-  const archivos = loQueCambio();
-  if (archivos === null) {
-    console.log('No se pudo saber que cambio. Se recorren todas, por las dudas.\n');
-  } else if (archivos.length === 0) {
-    console.log('No cambio nada respecto de la version principal. No hay nada que recorrer.\n');
+  const tocadas = pantallasTocadas();
+  if (tocadas === 'TODO') {
+    console.log('El cambio toca la app entera: se recorren TODAS.');
+    console.log('Mejor perder tiempo que publicar algo roto.\n');
+  } else if (tocadas.length === 0) {
+    console.log('El cambio no toca ninguna pantalla. No hay nada que recorrer.\n');
     process.exit(0);
-  } else if (tocaAlgoCompartido(archivos)) {
-    console.log('El cambio toca algo compartido: no se sabe a que pantallas afecta.');
-    console.log('Se recorren TODAS. Mejor perder tiempo que publicar algo roto.\n');
   } else {
-    soloEstas = pantallasQueCambiaron(archivos);
-    if (soloEstas.length === 0) {
-      console.log('El cambio no toca ninguna pantalla. No hay nada que recorrer.\n');
-      process.exit(0);
-    }
+    soloEstas = tocadas;
     console.log(`Solo las ${soloEstas.length} pantalla(s) que toca este cambio:`);
     for (const r of soloEstas) console.log(`   ${r}`);
-    console.log('\nPara recorrer las 357: npm run recorrido -- --todo\n');
+    console.log('\nPara recorrer las 358: npm run recorrido -- --todo\n');
   }
 } else {
-  console.log('Las 357, porque se pidio --todo.\n');
+  console.log('Las 358, porque se pidio --todo.\n');
 }
 
 const r = spawnSync(
