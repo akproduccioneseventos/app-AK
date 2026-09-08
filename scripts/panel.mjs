@@ -144,7 +144,7 @@ function filaModulo(m) {
   const tenemos = m.funciones.filter((f) => f.tenemos).length;
   const faltan = m.funciones.filter((f) => !f.tenemos);
   const pct = Math.round((tenemos / m.funciones.length) * 100);
-  const estado = pct === 100 ? 'ok' : pct >= 75 ? 'medio' : 'flojo';
+  const estado = pct === 100 && m.pruebas.length > 0 ? 'ok' : pct >= 75 ? 'medio' : 'flojo';
   return `
   <article class="modulo ${estado}">
     <div class="cabeza">
@@ -156,7 +156,9 @@ function filaModulo(m) {
       ? `${m.pruebas.length} prueba${m.pruebas.length === 1 ? '' : 's'} de navegador lo miran`
       : '<span class="sinojo">Ninguna prueba de navegador lo mira</span>'}</p>
     ${faltan.length === 0
-      ? '<p class="listo">Completo contra el rubro</p>'
+      ? (m.pruebas.length > 0
+          ? '<p class="listo">Completo, y hay pruebas que lo miran</p>'
+          : '<p class="ojo">Programado entero, pero <b>nadie comprueba que ande</b></p>')
       : `<ul class="faltan">${faltan.map((f) => `<li>${esc(f.nombre)}</li>`).join('')}</ul>`}
   </article>`;
 }
@@ -214,6 +216,7 @@ const html = `<title>Panel de AK</title>
   .mira{font-size:13px;color:var(--suave);margin:0}
   .sinojo{color:var(--flojo);font-weight:600}
   .listo{color:var(--ok);font-size:14px;margin:9px 0 0;font-weight:500}
+  .ojo{color:var(--medio);font-size:14px;margin:9px 0 0}
   .faltan{margin:9px 0 0;padding:0;list-style:none;font-size:14px}
   .faltan li{padding:3px 0 3px 15px;position:relative;color:var(--tinta)}
   .faltan li::before{content:"";position:absolute;left:0;top:11px;width:6px;height:1px;background:var(--suave)}
@@ -228,6 +231,9 @@ const html = `<title>Panel de AK</title>
   .quien.grave{color:var(--flojo);font-weight:600}
   .avance{font-family:"Archivo",sans-serif;font-size:13px;color:var(--suave);white-space:nowrap}
   .avance.hecho{color:var(--ok)}
+  .aviso{background:var(--papel);border:1px solid var(--borde);border-left:3px solid var(--acento);
+         border-radius:8px;padding:13px 16px;margin:0 0 26px;font-size:14px;line-height:1.5}
+  .aviso b{font-weight:600}
   .pie{color:var(--suave);font-size:13px;margin-top:44px;border-top:1px solid var(--borde);padding-top:16px}
   code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;
        background:var(--fondo);border:1px solid var(--borde);padding:1px 6px;border-radius:4px}
@@ -239,8 +245,16 @@ const html = `<title>Panel de AK</title>
      Al ${esc(hoy)}${rama ? `, sobre la version <code>${esc(rama)}</code>` : ''}.
      Lo que todavia no se fusiono figura como faltante.</p>
 
+  <div class="aviso">
+    <b>Que mide este panel, y que no.</b>
+    Mide que cada funcion <b>este programada y enganchada</b> en la pantalla que la usa. Eso
+    descarta lo que quedo escrito y no llama nadie, que fue la forma de casi todas las fallas del
+    año. <b>Pero no prueba que ande en una fiesta.</b> Eso lo dice la columna de cada modulo: si
+    ninguna prueba de navegador lo mira, el numero verde no alcanza.
+  </div>
+
   <div class="cifras">
-    <div class="cifra"><b>${tenemosRubro} de ${totalRubro}</b><span>funciones que ofrece el rubro</span></div>
+    <div class="cifra"><b>${tenemosRubro} de ${totalRubro}</b><span>funciones del rubro, programadas y enganchadas</span></div>
     <div class="cifra${rotas.length ? ' mal' : ''}"><b>${rotas.length}</b><span>pantallas que no abren bien</span></div>
     <div class="cifra"><b>${ordenes.filter((o) => o.faltan.length > 0).length}</b><span>pedidos a medias</span></div>
     <div class="cifra"><b>${devoluciones.length}</b><span>devoluciones esperando</span></div>

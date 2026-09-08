@@ -44,6 +44,8 @@ export interface EstadoDelTope {
   /** Lo que queda disponible. Nunca menos de cero. */
   disponibleUYU: number;
   diasQueQuedanDelMes: number;
+  /** Indica si el calculo proviene de presupuestos diarios verificados en Meta */
+  compromisoVerificado?: boolean;
 }
 
 export interface CampanaConPresupuesto {
@@ -51,6 +53,8 @@ export interface CampanaConPresupuesto {
   /** Presupuesto diario en pesos uruguayos. */
   presupuestoDiarioUYU: number;
   activa: boolean;
+  /** Si el presupuesto diario fue verificado directamente desde la configuracion de campana */
+  verificado?: boolean;
 }
 
 export type Veredicto =
@@ -157,11 +161,16 @@ export async function getEstadoDelTope(
 ): Promise<EstadoDelTope> {
   const { topeMensualUYU } = await getTopeDeGasto();
   const comprometidoUYU = calcularComprometido(campanas, ahora);
+  const activas = campanas.filter((c) => c.activa);
+  // Si no hay campañas activas, el compromiso es 0 y es verificado.
+  // Si hay campañas activas, todas deben tener presupuesto verificado para considerarlo verificado.
+  const compromisoVerificado = activas.length === 0 || activas.every((c) => c.verificado !== false && c.presupuestoDiarioUYU > 0);
   return {
     topeMensualUYU,
     comprometidoUYU,
     disponibleUYU: Math.max(0, topeMensualUYU - comprometidoUYU),
     diasQueQuedanDelMes: diasQueQuedanDelMes(ahora),
+    compromisoVerificado,
   };
 }
 

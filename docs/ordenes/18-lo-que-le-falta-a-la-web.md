@@ -95,3 +95,17 @@ pantalla.
   qué se eligió así**.
 - Antes de subir, `npm run "publicar?"`. Si no pasa, no subas.
 - **Cada cosa nueva necesita una prueba que mire el resultado**, o el control te la frena.
+
+---
+
+## CÓMO SE COMPRUEBA QUE ESTA ORDEN ESTÁ HECHA
+
+```comprobar
+archivo: src/app/buscar/page.tsx
+archivo: src/app/mantenimiento/page.tsx
+archivo: src/lib/buscador/buscar-sitio.ts
+archivo: src/app/actions/novedades-suscripcion.ts
+usa: CompartirArticulo en src/app/public/blog/[slug]/page.tsx
+usa: Migas de pan en src/app/public/[eventType]/page.tsx
+prueba: src/__tests__/orden-18-web-completa.test.ts
+```

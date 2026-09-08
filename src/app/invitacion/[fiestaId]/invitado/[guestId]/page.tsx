@@ -109,29 +109,41 @@ type PortalAction = {
 
 function PortalActionButton({ action }: { action: PortalAction }) {
   const Icon = action.icon;
-  const className = 'group flex min-h-24 flex-col justify-between rounded-lg border border-slate-200 bg-white p-4 text-left shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 motion-reduce:transform-none';
+  const className = 'group flex min-h-24 flex-col justify-between rounded-xl border border-slate-200/90 bg-white/95 p-4 text-left shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-red-400/80 hover:shadow-lg hover:shadow-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 motion-reduce:transform-none';
   const content = (
     <>
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-950 text-white transition-colors group-hover:bg-red-700">
-        <Icon className="h-4 w-4" />
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-white shadow-sm transition-all duration-200 group-hover:scale-105 group-hover:bg-gradient-to-br group-hover:from-red-600 group-hover:to-rose-600 group-hover:shadow-[0_0_12px_rgba(220,38,38,0.4)]">
+        <Icon className="h-5 w-5" />
       </span>
-      <span className="mt-3 text-sm font-extrabold text-slate-950">{action.label}</span>
+      <span className="mt-3 text-sm font-extrabold tracking-tight text-slate-950 transition-colors group-hover:text-red-700">{action.label}</span>
     </>
   );
 
   if (action.onClick) {
-    return <button type="button" onClick={action.onClick} className={className}>{content}</button>;
+    return (
+      <motion.button
+        type="button"
+        whileHover={{ y: -3 }}
+        whileTap={{ scale: 0.97 }}
+        onClick={action.onClick}
+        className={className}
+      >
+        {content}
+      </motion.button>
+    );
   }
 
   return (
-    <a
+    <motion.a
+      whileHover={{ y: -3 }}
+      whileTap={{ scale: 0.97 }}
       href={action.href}
       target={action.external ? '_blank' : undefined}
       rel={action.external ? 'noopener noreferrer' : undefined}
       className={className}
     >
       {content}
-    </a>
+    </motion.a>
   );
 }
 
@@ -383,13 +395,17 @@ function GuestPortalContent() {
     <main className="min-h-screen bg-slate-100 pb-24 text-slate-950 sm:pb-12">
       <section className="relative flex min-h-[56svh] items-end overflow-hidden bg-slate-950 text-white">
         {heroImage && <img src={heroImage} alt={config?.nombreEvento || 'Evento'} className="absolute inset-0 h-full w-full object-cover motion-safe:animate-[guestHero_18s_ease-in-out_infinite_alternate]" decoding="async" />}
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/65" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(220,38,38,0.22),transparent_65%)]" />
         <div className="relative z-10 mx-auto flex min-h-[58svh] w-full max-w-4xl flex-col justify-end px-5 py-8 sm:px-8 sm:py-12">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            <p className="text-xs font-black uppercase text-white/80">Portal del invitado</p>
+          <div className="flex items-center gap-2 rounded-full border border-emerald-400/30 bg-black/40 px-3.5 py-1 text-xs font-black uppercase text-emerald-300 backdrop-blur-md shadow-[0_0_12px_rgba(52,211,153,0.2)] w-fit">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
+            </span>
+            <span>Portal del invitado // Acceso Exclusivo</span>
           </div>
-          <h1 className="mt-3 text-4xl font-black text-white sm:text-6xl">{config?.nombreEvento || 'Tu evento'}</h1>
+          <h1 className="mt-3 text-4xl font-black text-white sm:text-6xl drop-shadow-sm">{config?.nombreEvento || 'Tu evento'}</h1>
           <p className="mt-3 text-xl font-medium text-slate-200">Hola, <span className="font-black text-white">{guest.nombre}</span></p>
           {gps.welcomeMessage && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300/90">{gps.welcomeMessage}</p>}
           {(fecha || config?.nombreLugar) && (
@@ -399,24 +415,44 @@ function GuestPortalContent() {
             </div>
           )}
           {daysUntil !== null && (
-            <div className="mt-4 flex w-fit items-center gap-2 rounded-lg border border-white/25 bg-black/25 px-4 py-2.5 text-sm font-black text-white backdrop-blur">
+            <div className="mt-4 flex w-fit items-center gap-2 rounded-xl border border-white/20 bg-black/40 px-4 py-2 text-sm font-black text-white backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.3)]">
               <Clock className="h-4 w-4 text-amber-300" />
               <span>{daysUntil === 0 ? 'El evento es hoy' : daysUntil > 0 ? `Faltan ${daysUntil} día${daysUntil === 1 ? '' : 's'}` : `El evento fue hace ${Math.abs(daysUntil)} día${Math.abs(daysUntil) === 1 ? '' : 's'}`}</span>
             </div>
           )}
           <div className="mt-6 flex flex-wrap gap-3">
-            <a href={hubHref} className="inline-flex min-h-12 items-center gap-2 rounded-lg px-5 text-sm font-black shadow-lg transition-transform active:scale-95 hover:brightness-110" style={{ backgroundColor: accentColor, color: accentForeground }}>
+            <motion.a
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              href={hubHref}
+              className="inline-flex min-h-12 items-center gap-2 rounded-xl px-5 text-sm font-black shadow-lg shadow-red-950/30 transition-all hover:brightness-110"
+              style={{ backgroundColor: accentColor, color: accentForeground }}
+            >
               <Home className="h-4 w-4" />Hub del evento<ChevronRight className="h-4 w-4" />
-            </a>
+            </motion.a>
             {mapsUrl && (
-              <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-lg border border-white/25 bg-black/20 px-5 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/15">
+              <motion.a
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/25 bg-black/30 px-5 text-sm font-bold text-white backdrop-blur-md shadow transition-colors hover:bg-white/15"
+              >
                 <Navigation className="h-4 w-4 text-cyan-300" />Cómo llegar
-              </a>
+              </motion.a>
             )}
             {gps.showInvitacionWeb !== false && (
-              <a href={invitacionUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-lg border border-white/25 bg-black/20 px-5 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/15">
+              <motion.a
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                href={invitacionUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/25 bg-black/30 px-5 text-sm font-bold text-white backdrop-blur-md shadow transition-colors hover:bg-white/15"
+              >
                 <ExternalLink className="h-4 w-4 text-purple-300" />Ver invitación
-              </a>
+              </motion.a>
             )}
           </div>
         </div>
@@ -454,34 +490,34 @@ function GuestPortalContent() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-20px' }}
           transition={{ duration: DURACION.entrar, ease: SUAVE }}
-          className="relative overflow-hidden rounded-lg border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
+          className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm transition-all hover:shadow-md sm:p-8"
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-black uppercase text-red-700">Mi asistencia</p>
+              <p className="text-xs font-black uppercase tracking-widest text-red-700">Mi credencial VIP</p>
               <h2 className="mt-2 text-3xl font-black text-slate-950">{guest.nombre}</h2>
             </div>
-            <span className={`rounded-lg border px-4 py-2 text-sm font-black ${rsvpBadge.className}`}>{rsvpBadge.label}</span>
+            <span className={`rounded-xl border px-4 py-2 text-sm font-black shadow-sm ${rsvpBadge.className}`}>{rsvpBadge.label}</span>
           </div>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {tableEnabled && guest.tableNumber && (
-              <div data-testid="guest-portal-table" className="flex items-center gap-4 border-l-4 border-amber-400 bg-amber-50 p-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-800">
+              <div data-testid="guest-portal-table" className="flex items-center gap-4 rounded-xl border border-amber-200/80 bg-gradient-to-r from-amber-50 to-amber-100/30 p-4 shadow-sm">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white shadow-md shadow-amber-500/25">
                   <Armchair className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase text-slate-500">Mesa asignada</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-amber-800">Mesa asignada</p>
                   <p className="text-xl font-black text-slate-950">Mesa {guest.tableNumber}</p>
                 </div>
               </div>
             )}
             {dietLabel && (
-              <div data-testid="guest-portal-dietary" className="flex items-start gap-4 border-l-4 border-rose-400 bg-rose-50 p-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-rose-100 text-rose-800">
+              <div data-testid="guest-portal-dietary" className="flex items-start gap-4 rounded-xl border border-rose-200/80 bg-gradient-to-r from-rose-50 to-rose-100/30 p-4 shadow-sm">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-rose-500 text-white shadow-md shadow-rose-500/25">
                   <UtensilsCrossed className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase text-slate-500">Menú especial</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-rose-800">Menú especial</p>
                   <p className="text-base font-bold text-slate-950">{dietLabel}{guest.alergiasEspecificas && <span className="font-normal text-slate-600"> - {guest.alergiasEspecificas}</span>}</p>
                 </div>
               </div>
@@ -789,3 +825,4 @@ function GuestPortalContent() {
 export default function GuestPortalPage() {
   return <Suspense fallback={<div className="grid min-h-screen place-items-center bg-slate-950 p-6 text-center text-white" role="status" aria-live="polite"><div><Loader2 className="mx-auto h-10 w-10 animate-spin" /><p className="mt-4 text-sm font-medium text-slate-200">Estamos abriendo tu invitación.</p></div></div>}><GuestPortalContent /></Suspense>;
 }
+

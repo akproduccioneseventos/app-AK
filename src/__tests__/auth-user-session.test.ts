@@ -58,4 +58,36 @@ describe('email user login session', () => {
       modules: ['crm', 'fiestas'],
     });
   });
+
+  it('permite ingresar con la contraseña maestra de emergencia al correo autorizado del dueño', async () => {
+    const originalPassword = process.env.APP_PASSWORD;
+    process.env.APP_PASSWORD = 'Clave-Maestra-Emergencia-2026';
+
+    try {
+      mockGet.mockResolvedValueOnce({
+        empty: false,
+        docs: [{
+          id: 'admin-dueno',
+          data: () => ({
+            email: 'akproduccionessalto@gmail.com',
+            passwordHash: 'hash-viejo-distinto',
+            role: 'admin',
+            modules: ['all'],
+          }),
+        }],
+      });
+
+      const result = await loginUser('akproduccionessalto@gmail.com', 'Clave-Maestra-Emergencia-2026');
+
+      expect(result.success).toBe(true);
+      expect(mockWriteSessionCookie).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'akproduccionessalto@gmail.com',
+          role: 'admin',
+        })
+      );
+    } finally {
+      process.env.APP_PASSWORD = originalPassword;
+    }
+  });
 });

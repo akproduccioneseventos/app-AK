@@ -91,14 +91,15 @@ export function TopeDeGastoControl({ estadoInicial, historialInicial }: Props) {
             </p>
           </div>
 
-          {/* Card 2: Comprometido */}
           <div className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4">
             <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Comprometido en el Mes</span>
             <p className="mt-2 text-2xl font-black text-amber-700">
               ${Math.round(estado.comprometidoUYU).toLocaleString('es-UY')}
             </p>
             <p className="mt-1 text-[11px] text-zinc-500 font-medium">
-              Por campañas activas en los {estado.diasQueQuedanDelMes} días restantes
+              {estado.compromisoVerificado === false
+                ? 'Compromiso pendiente de verificación en Meta'
+                : `Por campañas activas en los ${estado.diasQueQuedanDelMes} días restantes`}
             </p>
           </div>
 
@@ -109,7 +110,7 @@ export function TopeDeGastoControl({ estadoInicial, historialInicial }: Props) {
               ${Math.round(estado.disponibleUYU).toLocaleString('es-UY')}
             </p>
             <p className="mt-1 text-[11px] text-emerald-600 font-medium">
-              Margen libre para escalar o crear campañas
+              Margen libre para ajustar presupuesto en campañas activas
             </p>
           </div>
         </div>

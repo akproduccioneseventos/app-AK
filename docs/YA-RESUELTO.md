@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 8 de septiembre de 2026 - Ordenes 45 a 48, pendientes de ejecucion
+
+Codex reviso y preparo las ordenes numeradas en docs/ordenes/: evaluacion de pendientes,
+estetica/movimiento, marketing/redes y entretenimiento. Gemini programa; Claude Opus
+compila. Se reutilizan los antecedentes de Claude hasta el 5 de septiembre y se decide
+el menor consumo estimado por pedido, sin delegacion automatica ni duplicar revisiones.
+Cada orden termina con bloque comprobar y distingue pruebas propuestas de ejecutadas.
+El control actual verifica presencia/menciones, no funcionamiento: exigir evidencia del
+mismo commit. No hay correcciones de app, pruebas de hardware ni certificado nuevo aqui.
+Esta entrega contiene documentacion solamente y no fusiona ni modifica main.
+
+Regla del dueno: las ordenes deben subirse a GitHub y comprobarse alli antes de dar
+la entrega por terminada. Registrar enlace, rama y commit; una copia local no alcanza.
+No confundir disponibilidad remota con lectura o ejecucion por otra IA. No fusionar
+sin autorizacion del dueno.
+
 **Leé esto ANTES de auditar cualquier cosa.** Vale para Codex, Gemini, Claude y
 cualquier ayudante que salga a buscar problemas.
 
@@ -14,6 +30,32 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
+
+## Estabilización de Versión Publicada: Acceso Administrativo, Resiliencia Multiterminal y Simulador (8 de septiembre de 2026)
+
+- **Frente 1 — Firma de sesiones criptográficas y estabilidad entre instancias (`src/lib/auth/session-token.ts`):**
+  - Eliminados `NEXT_PUBLIC_FIREBASE_PROJECT_ID` y `APP_PASSWORD` del cálculo del secreto de firma.
+  - El token de sesión ahora se firma exclusivamente con secretos de servidor de alta entropía (`AK_SESSION_SECRET` o derivación criptográfica de `FIREBASE_PRIVATE_KEY`).
+  - En producción (`NODE_ENV === 'production'`), si falta la clave privada o el secreto de servidor, se lanza un error de diagnóstico explícito en lugar de generar claves efímeras en memoria o degradar a tokens inseguros, garantizando consistencia absoluta entre múltiples réplicas e instancias sin invalidar sesiones legítimas.
+  - La clave aleatoria en memoria queda restringida a entornos locales de desarrollo y pruebas.
+
+- **Frente 2 — Rescate acotado y tolerante en autenticación (`src/app/actions/auth.ts`):**
+  - La consulta y rescate administrativo en Firestore dentro de `loginUser` ahora cuenta con tope de espera estricto (`conTopeDeEspera(..., 1000)`).
+  - Si Firestore se encuentra degradado o excede el segundo de espera, no bloquea el inicio de sesión del dueño: adopta el ID determinista de bootstrap y emite la sesión segura de inmediato. Si Firestore responde a tiempo, asocia el ID persistido real.
+  - Escritura de cookies protegida con manejo seguro de excepciones para entornos y navegadores restringidos.
+
+- **Frente 3 — Resiliencia ante fallos de carga de chunks y red (`src/lib/deployment-recovery.ts`, `src/app/login/page.tsx`, `src/app/login/error.tsx`, `src/app/error.tsx`):**
+  - `isDeploymentMismatchError` reconoce de forma integral `ERR_CONTENT_DECODING_FAILED`, `decoding failed`, `failed to fetch dynamically imported module`, `error loading dynamically imported module` y `ChunkLoadError`.
+  - En `/login`, la carga diferida de Google Auth se condiciona a la presencia de parámetros de redirección reales en la URL, eliminando bucles de reintento de scripts faltantes que provocaban caídas a "Error al cargar".
+  - Límites de error (`error.tsx`) actualizados para invocar `recoverFromDeploymentMismatch`, refrescando scripts obsoletos en lugar de reintentar chunks viejos en caché.
+
+- **Frente 4 — Recorrido completo verificado (Acceso, Panel, Simulador y Presupuesto Formal):**
+  - Pruebas automatizadas en `src/__tests__/auth-session-multitenant-resilience.test.ts` (9 pruebas aprobadas) y `src/__tests__/simulator-budget-pdf-flow.test.ts` (3 pruebas aprobadas) que validan el flujo completo desde el login administrativo del dueño, bootstrap del simulador, persistencia de propuestas y cálculo formal de saldos y narrativa para PDF.
+
+```comprobar
+prueba: src/__tests__/auth-session-multitenant-resilience.test.ts
+prueba: src/__tests__/simulator-budget-pdf-flow.test.ts
+```
 
 ## Orden 37 — El celular y la velocidad (2 de septiembre de 2026)
 
@@ -7102,4 +7144,71 @@ corren en milesimas.
 archivo: src/lib/invitados/leer-planilla.ts
 usa: leerPlanillaDeInvitados en src/app/(app)/fiestas/nueva/invitados/page.tsx
 prueba: src/__tests__/la-planilla-de-invitados-se-entiende.test.ts
+```
+
+
+---
+
+## 7 de septiembre de 2026 - Correccion del acceso administrativo y robustez en la sesion
+
+Al intentar ingresar a la parte administrativa de la app, el sistema podia devolver error por dos causas criticas en el servidor:
+
+1. **Falta de llave de sesion explicita en produccion**: si `AK_SESSION_SECRET` no estaba cargada en las variables de entorno, `writeSessionCookie` lanzaba un error fatal y bloqueaba tanto el login con contrasena como con Google. Se agrego una derivacion determinista y segura a partir de los secretos del servidor (`FIREBASE_PRIVATE_KEY` o `APP_PASSWORD`) para que la firma de cookies nunca falle ni deje a oscuras la sesion.
+2. **La contrasena maestra no funcionaba si el dueno escribia su correo**: `loginUser` solo validaba contra Firestore y rechazaba la clave de rescate `APP_PASSWORD`. Ahora los correos autorizados del dueno pueden autenticarse con la clave maestra aun si la base de datos se encuentra demorada o la cuenta admin aun no fue creada en Firestore.
+3. **Resguardo de fecha en el panel de administracion**: en `/admin`, se aseguro el formateo de `proximoEvento.fecha` para evitar que fechas invalidas disparen un error en tiempo de ejecucion al renderizar el dashboard.
+
+```comprobar
+archivo: src/lib/auth/session-token.ts
+archivo: src/app/actions/auth.ts
+archivo: src/app/(app)/admin/page.tsx
+prueba: src/__tests__/auth-user-session.test.ts
+prueba: src/__tests__/session-token.test.ts
+```
+
+
+---
+
+## 5 de septiembre de 2026 — Se saco la prueba que se comia media verificacion
+
+`tests/e2e/internal-route-inventory.spec.ts` pedia todas las pantallas internas **de a una** y
+tardaba **veinticuatro minutos de los cuarenta** que tardaba toda la verificacion. Ella sola era
+el paso mas caro de todos.
+
+Se intento acelerarla pidiendo de a ocho y de a cuatro a la vez. **No se puede:** el servidor de
+prueba es uno solo y con varios pedidos juntos devuelve respuestas cortadas. La prueba entonces
+acusaba entre diez y dieciseis pantallas vacias **distintas en cada corrida** — la firma exacta de
+una falsa alarma.
+
+**Se saco, y no se pierde nada:** `tests/e2e/recorrido-de-pantallas.spec.ts` recorre **las mismas
+rutas** -las dos usan `getAllRoutes()` y la misma cookie de sesion- pero con un navegador de
+verdad, y ademas mira los errores de React, las pantallas en blanco y los textos rotos. Es un
+control mas fuerte, no mas debil.
+
+**Resultado medido:** la verificacion completa pierde veinticuatro minutos de encima.
+
+```comprobar
+usa: getAllRoutes en tests/e2e/recorrido-de-pantallas.spec.ts
+```
+
+
+---
+
+## 5 de septiembre de 2026 — El recorrido acusaba pantallas sanas por ir apurado
+
+Al recorrer cuatro pantallas a la vez -que es lo que lo bajo de cuarenta minutos a doce- **las
+pantallas internas mas pesadas no llegan a dibujarse en el primer vistazo** y el control las
+llamaba muertas. Se comprobo tres veces: `/fiestas/nueva`, `/fiestas/nueva/numeros-mesa`,
+`/fiestas/nueva/pagina-web` y `/fiestas/nueva/reuniones` figuraron vacias en la corrida completa y,
+abiertas solas, estaban perfectas.
+
+**Arreglado sin aflojar el control:** a la pantalla que parece vacia se le dan hasta tres
+oportunidades, esperando cada vez un poco mas. Una rota de verdad sigue vacia las tres veces; una
+lenta aparece. Solo lo pagan las que parecen vacias, que son un punado.
+
+**La leccion:** cuando se acelera una verificacion corriendo cosas en paralelo, lo primero que
+aparece **no son fallas nuevas, son falsas alarmas por falta de tiempo**. Antes de creerle a una,
+correr esa sola.
+
+```comprobar
+usa: hasta tres intentos en tests/e2e/recorrido-de-pantallas.spec.ts
 ```

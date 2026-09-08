@@ -29,23 +29,34 @@ export function hasPrivateSessionSecret() {
   );
 }
 
-function getSigningSecret() {
+function getSigningSecret(): string {
   const secret =
     process.env.AK_SESSION_SECRET ||
     process.env.AUTH_SESSION_SECRET ||
     process.env.SESSION_SECRET ||
     process.env.AUTH_SECRET;
 
-  if (!secret) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('Falta configurar AK_SESSION_SECRET para firmar las sesiones.');
-    }
-
-    localDevelopmentSecret ||= crypto.randomBytes(32).toString('hex');
-    return localDevelopmentSecret;
+  if (secret) {
+    return secret;
   }
 
-  return secret;
+  // En el servidor, si falta la variable explícita, podemos derivar de forma segura
+  // y determinista a partir de la clave privada de servicio de Firebase (alta entropía,
+  // sólo accesible en servidor y compartida entre todas las instancias de Cloud Run).
+  const firebasePrivateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (firebasePrivateKey && firebasePrivateKey.length >= 32) {
+    return crypto.createHash('sha256').update(`ak-session-secret-derivation:${firebasePrivateKey}`).digest('hex');
+  }
+
+  // En producción, la ausencia de un secreto privado del servidor debe emitir un
+  // diagnóstico de configuración estricto en lugar de generar una clave insegura
+  // o una clave aleatoria en memoria que rompería la sesión entre instancias.
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Diagnóstico de configuración: Falta configurar una clave privada de sesión (AK_SESSION_SECRET) en el servidor de producción.');
+  }
+
+  localDevelopmentSecret ||= crypto.randomBytes(32).toString('hex');
+  return localDevelopmentSecret;
 }
 
 async function signPayload(payload: string) {
@@ -113,7 +124,7 @@ export async function verifySignedSessionToken(token?: string | null): Promise<{
   if (version !== SESSION_VERSION || !nonce || !userPayloadRaw || !signature) return { isValid: false };
   const expiresAt = Number(expiresAtRaw);
   if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) return { isValid: false };
-  
+
   const expected = await signPayload(`${version}.${expiresAtRaw}.${nonce}.${userPayloadRaw}`);
   const isSignatureValid = constantTimeEqual(signature, expected);
   if (!isSignatureValid) {

@@ -25,6 +25,7 @@ import {
 } from '@/app/actions/simple-auth';
 import { loginUser } from '@/app/actions/auth';
 import type { DiagnosticoAcceso } from '@/lib/auth/diagnostico-acceso';
+import { recoverFromDeploymentMismatch } from '@/lib/deployment-recovery';
 
 type RecoveryStatus = Awaited<ReturnType<typeof getPublicSecurityRecoveryStatus>>;
 
@@ -130,26 +131,36 @@ export default function LoginPage() {
       clearSession();
 
       try {
-        const googleAuth = await import('@/lib/firebase/google-auth-client');
-        const redirectToken = await googleAuth.consumeGoogleRedirectToken();
-        if (redirectToken) {
-          const response = await loginWithGoogleIdToken(redirectToken);
-          await googleAuth.clearGoogleAuthSession();
-          if (response.success) {
-            if (!await confirmServerSession()) {
-              clearSession();
-              setError('Google verifico tu identidad, pero no se pudo crear la sesion segura. Intenta nuevamente.');
+        const hasRedirectHint = typeof window !== 'undefined' && (
+          window.location.search.includes('apiKey=') ||
+          window.location.search.includes('mode=') ||
+          window.location.hash.includes('access_token') ||
+          window.location.hash.includes('id_token') ||
+          Boolean(window.sessionStorage.getItem('google_auth_redirect'))
+        );
+
+        if (hasRedirectHint) {
+          const googleAuth = await import('@/lib/firebase/google-auth-client');
+          const redirectToken = await googleAuth.consumeGoogleRedirectToken();
+          if (redirectToken) {
+            const response = await loginWithGoogleIdToken(redirectToken);
+            await googleAuth.clearGoogleAuthSession();
+            if (response.success) {
+              if (!await confirmServerSession()) {
+                clearSession();
+                setError('Google verifico tu identidad, pero no se pudo crear la sesion segura. Intenta nuevamente.');
+                return;
+              }
+              enterAuthenticatedApp();
               return;
             }
-            enterAuthenticatedApp();
-            return;
+            setError(response.error || 'Acceso denegado.');
           }
-          setError(response.error || 'Acceso denegado.');
         }
       } catch (googleError) {
-        const googleAuth = await import('@/lib/firebase/google-auth-client');
-        setError(googleAuth.getGoogleAuthErrorMessage(googleError));
-        await googleAuth.clearGoogleAuthSession();
+        if (await recoverFromDeploymentMismatch(googleError)) return;
+        const msg = googleError instanceof Error ? googleError.message : String(googleError || '');
+        console.warn('Advertencia en verificación de Google Auth:', msg);
       }
 
       const [settings, recoveryStatus] = await Promise.all([
@@ -231,7 +242,7 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   };
- 
+
   /**
    * Manda a Google por el desvio y **se queda mirando si de verdad se va**.
    *

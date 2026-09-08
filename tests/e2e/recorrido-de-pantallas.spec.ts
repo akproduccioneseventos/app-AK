@@ -282,12 +282,36 @@ test.describe('Recorrido de las 353 pantallas', () => {
         //
         // NO se aflojo el control: se le cambio la pregunta por la correcta.
         if (!r.passive) {
-          const interactiveCount = await page.locator('button, a, input, select, textarea').count();
-          const texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
-
           // 200 caracteres es como una frase larga. Debajo de eso no hay
           // pantalla: hay un cartel de "cargando" o un titulo solo.
           const MINIMO_PARA_QUE_CUENTE = 200;
+
+          /**
+           * SEGUNDA MIRADA ANTES DE ACUSAR A UNA PANTALLA DE ESTAR MUERTA.
+           *
+           * Se recorren cuatro pantallas a la vez, y las internas mas pesadas
+           * -`/fiestas/nueva`, por ejemplo- a veces no llegan a dibujarse en el
+           * primer vistazo. **Comprobado el 5 de septiembre de 2026:** tres
+           * pantallas figuraron vacias en la corrida completa y, abiertas solas,
+           * estaban perfectas.
+           *
+           * Si parece vacia, se espera y se mira de nuevo. Una pantalla rota de
+           * verdad sigue vacia la segunda vez; una lenta, no. **No afloja el
+           * control: le da a la pantalla el tiempo que le da una persona.**
+           */
+          let interactiveCount = await page.locator('button, a, input, select, textarea').count();
+          let texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
+
+          // Se dan hasta tres intentos, esperando cada vez un poco mas. Una pantalla rota
+          // de verdad sigue vacia en los tres; una pesada aparece en el segundo o el
+          // tercero. Solo lo pagan las que parecen vacias, que son un punado.
+          for (const espera of [4_000, 6_000, 8_000]) {
+            if (interactiveCount > 0 || texto.length >= MINIMO_PARA_QUE_CUENTE) break;
+            await page.waitForTimeout(espera);
+            interactiveCount = await page.locator('button, a, input, select, textarea').count();
+            texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
+          }
+
           const noHayNadaParaTocar = interactiveCount === 0;
           const noHayNadaParaLeer = texto.length < MINIMO_PARA_QUE_CUENTE;
 

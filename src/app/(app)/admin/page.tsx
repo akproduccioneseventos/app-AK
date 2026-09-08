@@ -274,7 +274,14 @@ export default function MainDashboardPage() {
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-0.5">Próximo Evento</p>
               <p className="font-black text-slate-800 text-base truncate">{kpiData.proximoEvento.nombre}</p>
-              <p className="text-xs text-slate-500 capitalize mt-0.5">{new Date(kpiData.proximoEvento.fecha).toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <p className="text-xs text-slate-500 capitalize mt-0.5">
+                {(() => {
+                  const d = new Date(kpiData.proximoEvento.fecha);
+                  return !Number.isNaN(d.getTime())
+                    ? d.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+                    : 'Fecha a confirmar';
+                })()}
+              </p>
             </div>
             <Button asChild size="sm" variant="outline" className="text-xs border-indigo-200 text-indigo-600 hover:bg-indigo-50"><Link href="/eventos">Ver evento <ArrowRight className="w-3 h-3 ml-1" /></Link></Button>
           </CardContent>
@@ -323,14 +330,24 @@ export default function MainDashboardPage() {
               <QuickTool href="/pagos-rapidos" icon={Wallet} title="Registrar Pago Rápido" description="Cobrar y enviar recibo." />
               <QuickTool href="/contabilidad/crm/outbox" icon={Send} title="Envíos de WhatsApp" description="Mensajes del día pendientes." />
               <QuickTool href="/empresa/menus" icon={ChefHat} title="Planificador Gastronómico" description="Menús, recetas y bebidas." />
-              <div className="flex min-h-[104px] flex-col justify-between gap-3 rounded-lg border border-slate-100 bg-slate-950 p-4 shadow-sm sm:col-span-2 xl:col-span-3">
+              <div className="flex min-h-[104px] flex-col justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-950 p-4 shadow-xl sm:col-span-2 xl:col-span-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <div className="shrink-0 rounded-lg bg-white/10 p-3 text-white"><Monitor className="h-5 w-5" /></div>
-                  <div className="min-w-0 flex-1"><h3 className="text-sm font-black text-white">Modo Presentación LED</h3><p className="mt-1 text-xs font-semibold text-slate-400">Pantalla kiosco para reuniones y demo comercial.</p></div>
-                  <button onClick={() => { const url = typeof window !== 'undefined' ? `${window.location.origin}/presentacion` : '/presentacion'; navigator.clipboard.writeText(url).then(() => { setCopiedLink(true); toast({ title: 'Link copiado', description: url }); setTimeout(() => setCopiedLink(false), 2000); }); }} className="flex items-center justify-center gap-1.5 rounded-lg bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-white/20">
+                  <div className="shrink-0 rounded-xl border border-red-500/30 bg-red-950/80 p-3 text-red-300 shadow-[0_0_12px_rgba(239,68,68,0.25)]">
+                    <Monitor className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-black text-white">Modo Presentación LED</h3>
+                      <span className="rounded-full border border-emerald-500/40 bg-emerald-500/20 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-400">En vivo</span>
+                    </div>
+                    <p className="mt-1 text-xs font-semibold text-slate-400">Pantalla kiosco para reuniones y demo comercial.</p>
+                  </div>
+                  <button onClick={() => { const url = typeof window !== 'undefined' ? `${window.location.origin}/presentacion` : '/presentacion'; navigator.clipboard.writeText(url).then(() => { setCopiedLink(true); toast({ title: 'Link copiado', description: url }); setTimeout(() => setCopiedLink(false), 2000); }); }} className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-white/20">
                     {copiedLink ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}{copiedLink ? 'Copiado' : 'Copiar'}
                   </button>
-                  <Button asChild size="sm"><Link href="/presentacion" target="_blank">Abrir <ArrowRight className="w-3.5 h-3.5 ml-1" /></Link></Button>
+                  <Button asChild size="sm" className="rounded-xl bg-gradient-to-r from-red-600 to-rose-600 font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.35)] hover:brightness-110">
+                    <Link href="/presentacion" target="_blank">Abrir <ArrowRight className="w-3.5 h-3.5 ml-1" /></Link>
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -339,8 +356,8 @@ export default function MainDashboardPage() {
 
         <div className="lg:col-span-4">
           <Card className="min-h-[24rem] lg:h-full border-none shadow-2xl flex flex-col bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50/50 border-b border-indigo-100/50 pb-6 p-6 sm:p-8">
-              <CardTitle className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-800"><div className="p-2.5 bg-indigo-100 rounded-xl shadow-inner"><Bell className="w-5 h-5 text-indigo-600" /></div>Prioridades</CardTitle>
+            <CardHeader className="bg-gradient-to-r from-slate-50 to-red-50/40 border-b border-slate-100 pb-6 p-6 sm:p-8">
+              <CardTitle className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-800"><div className="p-2.5 bg-red-100/80 rounded-xl shadow-inner text-red-700"><Bell className="w-5 h-5" /></div>Prioridades</CardTitle>
             </CardHeader>
             <CardContent className="pt-4 px-0 flex-grow scrollbar-hide overflow-y-auto">
               {isLoading ? <div className="flex justify-center p-12"><Loader2 className="animate-spin text-primary/30 w-8 h-8" /></div> : alerts.length > 0 ? (
@@ -352,7 +369,7 @@ export default function MainDashboardPage() {
                         <div className="flex-grow min-w-0"><p className="text-xs sm:text-sm font-black text-slate-800 leading-tight group-hover:text-primary transition-colors">{alert.title}</p><p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 mt-1.5 leading-relaxed">{alert.description}</p></div>
                       </Link>
                       <button onClick={() => handleDismissPriority(alert.id)} className="shrink-0 self-center p-1.5 rounded-lg text-slate-300 hover:text-slate-700 hover:bg-slate-100 transition-colors" title="Descartar prioridad" aria-label="Descartar prioridad"><X className="w-3.5 h-3.5" /></button>
-                      {alert.severity === 'high' && <div className="absolute left-0 top-4 bottom-4 w-1 bg-slate-500 rounded-r-full" />}
+                      {alert.severity === 'high' && <div className="absolute left-0 top-4 bottom-4 w-1 bg-red-600 rounded-r-full" />}
                     </div>
                   ))}
                 </div>
@@ -390,7 +407,7 @@ export default function MainDashboardPage() {
                 <TabsTrigger
                   key={cat.id}
                   value={cat.id}
-                  className="rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 transition-all data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md flex items-center gap-2"
+                  className="rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 transition-all data-[state=active]:bg-white data-[state=active]:text-red-700 data-[state=active]:shadow-md flex items-center gap-2"
                 >
                   <Icon className="w-4 h-4 shrink-0" />
                   <span>{cat.label}</span>
@@ -418,14 +435,14 @@ export default function MainDashboardPage() {
                         transition={{ delay: idx * 0.02 }}
                       >
                         <Card className={cn(
-                          'group flex h-full min-h-[14rem] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10',
-                          item.featured && 'border-indigo-300 bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 shadow-md ring-2 ring-indigo-500/30'
+                          'group flex h-full min-h-[14rem] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-300 hover:shadow-xl hover:shadow-red-500/10',
+                          item.featured && 'border-red-300 bg-gradient-to-br from-white via-red-50/20 to-rose-50/20 shadow-md ring-2 ring-red-500/20'
                         )}>
                           <CardHeader className="space-y-3 p-6 pb-3">
-                            <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3', item.featured ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-indigo-500/30' : item.lightColor)}>
+                            <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3', item.featured ? 'bg-gradient-to-br from-red-600 to-rose-600 text-white shadow-red-500/30' : item.lightColor)}>
                               <item.icon className="h-6 w-6 shrink-0" />
                             </div>
-                            <CardTitle className={cn('text-lg font-bold leading-snug tracking-tight', item.featured ? 'text-indigo-900' : 'text-slate-900')}>
+                            <CardTitle className={cn('text-lg font-bold leading-snug tracking-tight', item.featured ? 'text-red-900' : 'text-slate-900')}>
                               {item.title}
                             </CardTitle>
                           </CardHeader>
@@ -433,7 +450,7 @@ export default function MainDashboardPage() {
                             <p className="text-sm font-medium leading-relaxed text-slate-600">{item.description}</p>
                           </CardContent>
                           <CardFooter className="px-6 pb-6 pt-0">
-                            <Button asChild variant={item.featured ? 'default' : 'secondary'} className={cn('h-11 w-full justify-between rounded-xl px-5 text-xs font-bold tracking-wide shadow-sm transition-all duration-300', item.featured ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25' : 'bg-slate-100 text-slate-800 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-500/20')}>
+                            <Button asChild variant={item.featured ? 'default' : 'secondary'} className={cn('h-11 w-full justify-between rounded-xl px-5 text-xs font-bold tracking-wide shadow-sm transition-all duration-300', item.featured ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white hover:from-red-700 hover:to-rose-700 hover:shadow-lg hover:shadow-red-500/25' : 'bg-slate-100 text-slate-800 hover:bg-red-600 hover:text-white hover:shadow-lg hover:shadow-red-500/20')}>
                               <Link href={item.href} className="w-full flex items-center justify-between">
                                 <span>Abrir módulo</span>
                                 <ArrowRight className="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
@@ -475,16 +492,21 @@ function UnavailablePanel({ title, onRetry }: { title: string; onRetry: () => vo
 function QuickTool({ href, icon: Icon, title, description }: { href: string; icon: any; title: string; description: string }) {
   return (
     <Link href={href} className="block h-full">
-      <div className="group flex h-full min-h-[96px] cursor-pointer items-center gap-3.5 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:border-indigo-300 hover:bg-slate-50/80 hover:shadow-md">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 shadow-inner transition-all duration-300 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-indigo-600/20">
+      <motion.div
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.98 }}
+        className="group flex h-full min-h-[96px] cursor-pointer items-center gap-3.5 rounded-xl border border-slate-200/90 bg-white p-4 shadow-sm transition-all duration-200 hover:border-red-400/80 hover:bg-slate-50/80 hover:shadow-md hover:shadow-red-500/5"
+      >
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-700 shadow-inner transition-all duration-300 group-hover:bg-gradient-to-br group-hover:from-red-600 group-hover:to-rose-600 group-hover:text-white group-hover:shadow-[0_0_12px_rgba(220,38,38,0.3)]">
           <Icon className="h-5 w-5 shrink-0" />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-sm font-bold leading-snug text-slate-900 group-hover:text-indigo-600 transition-colors">{title}</h3>
+          <h3 className="text-sm font-bold leading-snug text-slate-900 transition-colors group-hover:text-red-700">{title}</h3>
           <p className="mt-0.5 text-xs font-medium leading-snug text-slate-500">{description}</p>
         </div>
-        <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-indigo-600" />
-      </div>
+        <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-red-700" />
+      </motion.div>
     </Link>
   );
 }
+

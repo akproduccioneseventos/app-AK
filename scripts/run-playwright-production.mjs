@@ -28,7 +28,9 @@ const testEnvironment = {
   NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:test",
 };
 
-import { statSync } from "node:fs";
+import os from "node:os";
+import { execFileSync } from "node:child_process";
+import { statSync, readFileSync } from "node:fs";
 
 /**
  * Carpetas de src/ que NO son codigo: las escribe la propia corrida.
@@ -64,6 +66,46 @@ function getLatestSourceMtime(dir = "src") {
   if (existsSync(dir)) traverse(dir);
   return latest;
 }
+
+/**
+ * BARRER LO QUE QUEDO DE UNA CORRIDA ANTERIOR.
+ *
+ * Cuando una corrida se corta a la mitad -por tiempo, o porque alguien la para-
+ * quedan vivos el navegador y el servidor de prueba. **Se los vio: treinta y un
+ * procesos huerfanos**, con la maquina al triple de su carga, haciendo que la
+ * corrida siguiente tardara el doble y diera fallas inventadas.
+ *
+ * Es la trampa que ya costo cuarenta y dos minutos una vez. Ahora se barre solo.
+ */
+function barrerCorridasViejas() {
+  // La corrida de AHORA no se toca: se juntan todos los padres, abuelos y demas,
+  // porque el comando que la lanzo tambien dice "playwright" y la limpieza se
+  // mataba a si misma. Paso el 5 de septiembre de 2026.
+  const mios = new Set([String(process.pid)]);
+  let actual = process.ppid;
+  for (let salto = 0; salto < 12 && actual && actual > 1; salto += 1) {
+    mios.add(String(actual));
+    try {
+      const stat = readFileSync(`/proc/${actual}/stat`, "utf8");
+      const cierre = stat.lastIndexOf(")");
+      actual = Number(stat.slice(cierre + 2).split(" ")[1]);
+    } catch {
+      break;
+    }
+  }
+
+  for (const patron of ["playwright test", "chrome-linux/chrome", "next start"]) {
+    try {
+      const salida = execFileSync("pgrep", ["-f", patron], { encoding: "utf8" });
+      for (const pid of salida.split("\n").map((l) => l.trim()).filter(Boolean)) {
+        if (mios.has(pid)) continue;
+        try { process.kill(Number(pid), "SIGKILL"); } catch { /* ya no estaba */ }
+      }
+    } catch { /* no habia ninguno, que es lo normal */ }
+  }
+}
+
+barrerCorridasViejas();
 
 if (!existsSync(".next/BUILD_ID")) {
   console.log("[playwright-production] Compilando app para pruebas E2E (npm run build)...");
@@ -300,17 +342,28 @@ async function main() {
    *
    * Si agregas una prueba nueva que use `helpers/fiesta-de-prueba`, sumala aca.
    */
+  /**
+   * LAS QUE TIENEN QUE CORRER SOLAS, Y POR QUE CADA UNA.
+   *
+   * **Esta lista se reviso una por una el 5 de septiembre de 2026**, abriendo cada
+   * archivo. Estaba vieja: tenia nueve, y siete ya se arman su propia fiesta con
+   * nombre unico -`e2e_muro_<hora>`, `e2e_senal_<hora>`...-, asi que **podian correr
+   * en paralelo hace rato** y estaban frenando la verificacion entera de gusto.
+   *
+   * Quedan solo estas cuatro, y ninguna esta por las dudas:
+   */
   const COMPARTEN_LA_FIESTA_DE_PRUEBA = [
-    'entretenimientos-a-fondo.spec.ts',
-    'estaciones-sin-clave.spec.ts',
-    'fotocabina-de-punta-a-punta.spec.ts',
-    'fotos-de-la-app.spec.ts',
-    'muro-subir-foto.spec.ts',
+    // Su fiesta viene de afuera (AK_E2E_ID): dos procesos usarian la misma.
     'noche-de-fiesta.spec.ts',
+    // Escribe un prospecto de verdad en la lista del negocio, que es una sola.
     'prospecto-simulador.spec.ts',
-    'senal-mala.spec.ts',
-    'tarjetas-whatsapp.spec.ts',
+    // Usa un identificador fijo, no uno con la hora.
+    'fotos-de-la-app.spec.ts',
+    // Mide una cuenta regresiva: con la maquina cargada da fallas inventadas.
+    // **Comprobado**: en paralelo fallo, y sola paso en 126 segundos.
+    'las-estaciones-respetan-los-ajustes.spec.ts',
   ];
+
 
   /**
    * SE PROBO CORRER DE A TRES Y SE VOLVIO ATRAS. No lo intentes de nuevo sin leer esto.
@@ -329,7 +382,16 @@ async function main() {
    * gigantes que recorren las 348 pantallas una por una, y esas no se dividen entre
    * nucleos. Ahi hay que mirar si algun dia se quiere acelerar de verdad.
    */
-  const trabajadoresPara = () => 1;
+  /**
+   * Cuantos trabajadores usa cada tanda. Una sola para las que comparten la fiesta;
+   * para el resto, tantos como nucleos tenga la maquina menos uno (hay que dejarle
+   * aire al servidor de la app, que corre al lado).
+   */
+  const NUCLEOS = Math.max(1, (os.cpus?.().length || 4) - 1);
+  const trabajadoresPara = (batch) =>
+    batch.some((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)))
+      ? 1
+      : Math.min(NUCLEOS, Math.max(1, batch.length));
   const tandas = [];
   /**
    * Tandas que se cayeron sin llegar a correr una sola prueba.
@@ -356,9 +418,30 @@ async function main() {
     ...allSpecFiles.filter((f) => !COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f))),
   ];
 
-  for (let i = 0; i < ordenados.length; i += BATCH_SIZE) {
-    tandas.push(ordenados.slice(i, i + BATCH_SIZE));
+  /**
+   * DOS FORMAS DE CORRER, Y ES DE DONDE SALE LA HORA QUE SE AHORRA.
+   *
+   * Antes se hacian tandas de cuatro archivos y **cada tanda con un solo trabajador**:
+   * la maquina tiene cuatro nucleos y se usaba uno. Sesenta minutos, medidos.
+   *
+   * Ahora:
+   *  - Las que comparten la fiesta de prueba siguen de a una. No se toca: si corren
+   *    juntas, una sube una foto mientras la otra las cuenta y aparecen fallas
+   *    inventadas, que es lo mas caro que hay.
+   *  - **Todas las demas van en UNA sola corrida con varios trabajadores.** Playwright
+   *    reparte por archivo, asi que cada archivo sigue teniendo su propio proceso y su
+   *    propia fiesta: lo que rompia antes -dos archivos armandose la fiesta con la hora
+   *    exacta- no se da, porque nunca dos archivos comparten proceso.
+   *
+   * Y de paso el servidor se levanta dos veces en vez de treinta y nueve.
+   */
+  const compartenLaFiesta = ordenados.filter((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)));
+  const elResto = ordenados.filter((f) => !COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)));
+
+  for (let i = 0; i < compartenLaFiesta.length; i += BATCH_SIZE) {
+    tandas.push(compartenLaFiesta.slice(i, i + BATCH_SIZE));
   }
+  if (elResto.length > 0) tandas.push(elResto);
 
   console.log(`\n======================================================`);
   console.log(`  EJECUTANDO PRUEBAS E2E EN ${tandas.length} TANDAS (TOTAL ${allSpecFiles.length} ARCHIVOS)`);
@@ -400,7 +483,7 @@ async function main() {
       // Cuanto costo levantar el servidor. Se levanta y se apaga UNA VEZ POR TANDA
       // -39 veces en la corrida entera- y hasta ahora nadie habia medido cuanto pesa eso.
       segundosDeArranque += Math.round((Date.now() - arrancoLaTanda) / 1000);
-      const trabajadores = trabajadoresPara();
+      const trabajadores = trabajadoresPara(batch);
       const result = await runPlaywright(batch, [...flags, `--workers=${trabajadores}`]);
       const tests = extractTestsFromSuites(result.json?.suites);
 

@@ -100,10 +100,44 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
 
   const handleOneTouchPublish = () => {
     const adaptedText = adaptTextForPlatform(post.platform, post.text, post.link);
-    navigator.clipboard.writeText(adaptedText);
-    setCopiedText(true);
+    const actionUrl = getOneTouchActionUrl(post.platform, adaptedText);
 
-    // Si tiene archivo multimedia, disparar descarga automática
+    // Abrir ventana inmediatamente en el evento de clic del usuario para evitar bloqueo de popups
+    let openedWindow: Window | null = null;
+    try {
+      openedWindow = window.open(actionUrl, '_blank');
+    } catch {
+      // Ignorar fallo al abrir
+    }
+
+    // Gestionar copia en portapapeles con manejo honesto de rechazo/ausencia de API
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(adaptedText)
+        .then(() => {
+          setCopiedText(true);
+          const config = ONE_TOUCH_CONFIGS[post.platform];
+          toast({
+            title: `¡Listo para ${config?.displayName || post.platform}!`,
+            description: config?.instructions || 'Texto copiado. Pegalo en la aplicación que se acaba de abrir.',
+          });
+          setTimeout(() => setCopiedText(false), 2500);
+        })
+        .catch(() => {
+          toast({
+            title: "Texto no copiado al portapapeles",
+            description: "La red social se abrió, pero el permiso de portapapeles fue denegado.",
+            variant: "destructive",
+          });
+        });
+    } else {
+      toast({
+        title: "Portapapeles no disponible",
+        description: "La aplicación se abrió, pero debes copiar el texto manualmente.",
+        variant: "destructive",
+      });
+    }
+
+    // Si tiene archivo multimedia, iniciar la descarga del recurso
     if (post.mediaUrl) {
       const a = document.createElement('a');
       a.href = post.mediaUrl;
@@ -114,24 +148,26 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
       a.click();
       document.body.removeChild(a);
     }
-
-    const actionUrl = getOneTouchActionUrl(post.platform, adaptedText);
-    window.open(actionUrl, '_blank');
-
-    const config = ONE_TOUCH_CONFIGS[post.platform];
-    toast({
-      title: `¡Listo para ${config?.displayName || post.platform}!`,
-      description: config?.instructions || 'Texto copiado. Pegalo en la aplicación que se acaba de abrir.',
-    });
-    setTimeout(() => setCopiedText(false), 2500);
   };
 
-  const handleCopyText = () => {
+  const handleCopyText = async () => {
     const adaptedText = adaptTextForPlatform(post.platform, post.text, post.link);
-    navigator.clipboard.writeText(adaptedText);
-    setCopiedText(true);
-    toast({ title: `Texto adaptado para ${post.platform} copiado` });
-    setTimeout(() => setCopiedText(false), 2000);
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(adaptedText);
+        setCopiedText(true);
+        toast({ title: `Texto adaptado para ${post.platform} copiado` });
+        setTimeout(() => setCopiedText(false), 2000);
+      } else {
+        throw new Error('Portapapeles no disponible en este dispositivo');
+      }
+    } catch (err: any) {
+      toast({
+        title: "No se pudo copiar el texto",
+        description: err.message || "Permiso de portapapeles denegado.",
+        variant: "destructive",
+      });
+    }
   };
 
   const isFailed = post.status === 'Falló' || post.status === 'Error' || !!post.lastError;
@@ -172,7 +208,20 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
       <CardContent className="flex-grow space-y-3">
         {post.mediaUrl && (
           <div className="relative aspect-video rounded-md overflow-hidden bg-muted">
-             <NextImage src={post.mediaUrl} alt="Vista previa del post" layout="fill" objectFit="cover" />
+            {post.mediaType === 'video' || (post.mediaUrl && /\.(mp4|webm|mov)(\?.*)?$/i.test(post.mediaUrl)) ? (
+              <video
+                src={post.mediaUrl}
+                controls
+                playsInline
+                preload="metadata"
+                data-testid="post-video-player"
+                className="w-full h-full object-contain bg-black"
+              >
+                Tu navegador no soporta reproducción de video.
+              </video>
+            ) : (
+              <NextImage src={post.mediaUrl} alt="Vista previa del post" layout="fill" objectFit="cover" />
+            )}
           </div>
         )}
         <p className="text-sm text-foreground line-clamp-4 whitespace-pre-wrap">{post.text}</p>
