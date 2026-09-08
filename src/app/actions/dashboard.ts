@@ -280,12 +280,39 @@ export async function getCashFlowProjection() {
   await requireAppSession();
   try {
     await requireAppSession();
+    /**
+     * CERO NO ES LO MISMO QUE "NO SE PUDO LEER".
+     *
+     * Hasta el 8 de septiembre de 2026, si fallaban las cuatro fuentes esto
+     * devolvia seis meses en cero y decia que habia salido bien. En pantalla se
+     * veia un flujo de caja vacio, que es exactamente lo que se ve cuando no
+     * hay cobros: **el dueno no tenia forma de distinguir "no entro plata" de
+     * "no se pudieron leer los datos"**.
+     *
+     * Ahora se anota que fuente fallo. Si fallan todas, no se muestra un cero
+     * falso: se avisa. Si falla alguna, la proyeccion sale igual pero diciendo
+     * cual falta.
+     */
+    const fuentesCaidas: string[] = [];
+    const leer = async <T>(nombre: string, cargar: () => Promise<T[]>): Promise<T[]> => {
+      try {
+        return await cargar();
+      } catch (err) {
+        console.error(`CashFlow ${nombre} failed:`, err);
+        fuentesCaidas.push(nombre);
+        return [];
+      }
+    };
     const [fiestas, invoices, roles, presupuestos] = await Promise.all([
-      getAllFiestas().catch(err => { console.error('CashFlow getAllFiestas failed:', err); return []; }),
-      getInvoices().catch(err => { console.error('CashFlow getInvoices failed:', err); return []; }),
-      getRoles().catch(err => { console.error('CashFlow getRoles failed:', err); return []; }),
-      getPresupuestos().catch(err => { console.error('CashFlow getPresupuestos failed:', err); return []; }),
+      leer('eventos', getAllFiestas),
+      leer('facturas', getInvoices),
+      leer('personal', getRoles),
+      leer('presupuestos', getPresupuestos),
     ]);
+
+    if (fuentesCaidas.length === 4) {
+      return { success: false, error: 'No se pudieron leer los datos del flujo de caja. Los ceros que se ven no son reales.' };
+    }
 
     const today = startOfToday();
     const projectionMonths: CashFlowMonth[] = [];
@@ -359,7 +386,11 @@ export async function getCashFlowProjection() {
       m.balance = m.income - m.expenses;
     });
 
-    return { success: true, data: projectionMonths };
+    return {
+      success: true,
+      data: projectionMonths,
+      fuentesCaidas: fuentesCaidas.length > 0 ? fuentesCaidas : undefined,
+    };
   } catch (error: any) {
     console.error('Error calculating cash flow projection:', error);
     return { success: false, error: error.message };

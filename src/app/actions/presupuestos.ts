@@ -315,7 +315,25 @@ export async function updatePresupuesto(
   presupuestoData: Presupuesto,
   options: { preserveStoredTotal?: boolean } = {},
 ): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string; avisoCrm?: string }> {
-  return await presupuestosMutex.runExclusive(async () => {
+  return await presupuestosMutex.runExclusive(() => guardarPresupuestoSinTurno(presupuestoData, options));
+}
+
+/**
+ * El guardado de verdad, SIN pedir el turno.
+ *
+ * **Ojo: no se llama desde afuera.** El turno de los presupuestos no es reentrante:
+ * si esta funcion pidiera el turno estando ya adentro de uno, la pantalla se quedaria
+ * colgada para siempre esperandose a si misma.
+ *
+ * Existe separada para que los cobros puedan **leer el presupuesto y guardarlo sin
+ * soltar el turno en el medio**, que es lo que arreglo el 8 de septiembre de 2026 el
+ * cobro que se perdia.
+ */
+async function guardarPresupuestoSinTurno(
+  presupuestoData: Presupuesto,
+  options: { preserveStoredTotal?: boolean } = {},
+): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string; avisoCrm?: string }> {
+  {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     let presupuestos = await getPresupuestos(true);
@@ -376,7 +394,7 @@ export async function updatePresupuesto(
     await syncLinkedFiesta(updated);
 
     return { success: true, id: updated.id, presupuesto: updated };
-  });
+  }
 }
 
 /** Soft-delete: marks the presupuesto as archived so it disappears from active lists. */
@@ -547,81 +565,105 @@ export async function recalculatePresupuestoFromCatalog(presupuestoId: string): 
   return await updatePresupuesto({ ...presupuesto, itemsPresupuestados: updatedItems });
 }
 
+/**
+ * REGISTRAR UN COBRO DEL CLIENTE.
+ *
+ * **DOS COBROS AL MISMO TIEMPO PERDIAN UNO, Y LOS DOS DECIAN QUE SI.**
+ * Hasta el 8 de septiembre de 2026 esta funcion leia el presupuesto, armaba la lista
+ * de cobros y **recien despues** pedia el turno para guardar. Si dos personas cobraban
+ * a la vez -o una cobraba a mano mientras entraba el aviso de Mercado Pago-, la
+ * segunda guardaba su lista vieja **encima** de la primera: los dos veian "pago
+ * registrado" y en el presupuesto quedaba uno solo. Plata cobrada que desaparecia.
+ *
+ * Ahora **todo pasa adentro del mismo turno**: se lee el estado de ese momento, se
+ * controla el saldo, se agrega el cobro y se guarda, sin soltar el turno en el medio.
+ *
+ * Lo que NO cambio, a proposito: la regla del dueno de que dos cobros iguales del
+ * mismo dia son dos cobros legitimos, y la deduplicacion de la copia que llega de la
+ * factura.
+ */
 export async function addPagoToPresupuesto(
   presupuestoId: string,
   pago: Omit<PagoCliente, 'id'>
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  const presupuesto = await getPresupuestoById(presupuestoId);
-  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
-  const referencia = pago.referencia?.trim() || undefined;
-  if (shouldDedupePaymentReference(referencia)) {
-    const existingPayment = (presupuesto.pagosCliente || []).find(existing =>
-      existing.referencia === referencia && existing.estadoPago !== 'rechazado'
-    );
-    if (existingPayment) {
-      return { success: true, presupuesto };
-    }
-  }
 
-  // EL MISMO PAGO, CARGADO DOS VECES, CONTABA DOBLE.
-  //
-  // El caso, que es de todos los dias en un equipo chico: alguien cobra la cuota y la
-  // carga a mano (en pagos rapidos o en el presupuesto), y despues alguien carga ese
-  // mismo cobro en la factura. La factura copia su pago al presupuesto, y ahi quedaban
-  // los dos.
-  //
-  // El control que habia buscaba un pago con **la misma referencia**, y no coincidian:
-  // el de la mano decia "Efectivo" y el de la factura viene con una referencia
-  // automatica. Asi que entraba como pago nuevo.
-  //
-  // El panel contable elige la fuente mas completa entre la factura y el presupuesto en
-  // vez de sumar las dos —eso ya estaba bien pensado—, pero con el pago repetido
-  // adentro del presupuesto, esa fuente ya venia inflada: **el dueno veia el doble de
-  // lo cobrado**.
-  //
-  // Ahora, cuando llega la copia de una factura, se busca el gemelo cargado a mano: el
-  // mismo importe, el mismo dia, y sin referencia de copia. Si aparece, no se agrega
-  // otro: se le pone la referencia de la factura al que ya estaba, para que quede
-  // "tomado" y una segunda copia distinta no lo vuelva a agarrar.
-  if (esEspejoDeFactura(referencia)) {
+  const resultado = await presupuestosMutex.runExclusive(async () => {
+    const presupuesto = (await getPresupuestos(true)).find((p) => p.id === presupuestoId);
+    if (!presupuesto) return { success: false as const, error: 'Presupuesto no encontrado' };
+
+    const referencia = pago.referencia?.trim() || undefined;
     const pagos = presupuesto.pagosCliente || [];
-    const indiceGemelo = buscarGemeloCargadoAMano(pagos, pago);
 
-    if (indiceGemelo >= 0) {
-      const reclamados = pagos.map((existing, indice) =>
-        indice === indiceGemelo ? { ...existing, referencia } : existing
+    // Mismo cobro mandado dos veces: no se duplica y no se avisa de nuevo.
+    if (shouldDedupePaymentReference(referencia)) {
+      const existente = pagos.find(
+        (p) => p.referencia === referencia && p.estadoPago !== 'rechazado',
       );
-      const reclamo = await updatePresupuesto(
-        { ...presupuesto, pagosCliente: reclamados },
-        { preserveStoredTotal: true },
-      );
-      return { success: true, presupuesto: reclamo.presupuesto ?? presupuesto };
+      if (existente) return { success: true as const, presupuesto, avisar: false };
     }
-  }
-  const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });
-  if (!validation.ok) return { success: false, error: validation.error };
 
-  const newPago: PagoCliente = {
-    ...pago,
-    id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-    monto: roundMoney(pago.monto),
-    referencia,
-    estadoPago: pago.estadoPago ?? 'confirmado',
-  };
+    if (esEspejoDeFactura(referencia)) {
+      const indiceGemelo = buscarGemeloCargadoAMano(pagos, pago);
+      if (indiceGemelo >= 0) {
+        /**
+         * EL GEMELO SE TOMA, Y SI LA FACTURA LO CONFIRMA, QUEDA CONFIRMADO.
+         *
+         * Antes solo se le pegaba la referencia. Si el cobro cargado a mano estaba
+         * "esperando confirmacion" y la factura lo traia confirmado, quedaba
+         * confirmado en la factura y pendiente en el presupuesto: **el mismo cobro
+         * en dos estados distintos**, y los saldos no cerraban.
+         *
+         * Solo se confirma cuando la evidencia viene de la factura, nunca porque el
+         * cliente haya subido un comprobante.
+         */
+        const laFacturaLoConfirma = (pago.estadoPago ?? 'confirmado') === 'confirmado';
+        const reclamados = pagos.map((existente, indice) => {
+          if (indice !== indiceGemelo) return existente;
+          const tomado = { ...existente, referencia };
+          if (laFacturaLoConfirma && existente.estadoPago === 'pendiente_confirmacion') {
+            return { ...tomado, estadoPago: 'confirmado' as const };
+          }
+          return tomado;
+        });
+        const reclamo = await guardarPresupuestoSinTurno(
+          { ...presupuesto, pagosCliente: reclamados },
+          { preserveStoredTotal: true },
+        );
+        // Si el guardado fallo, NO se contesta que si: la factura seguiria su
+        // camino creyendo que la conciliacion quedo hecha.
+        if (!reclamo.success) {
+          return { success: false as const, error: reclamo.error || 'No se pudo conciliar el cobro con el presupuesto.' };
+        }
+        return { success: true as const, presupuesto: reclamo.presupuesto ?? presupuesto, avisar: false };
+      }
+    }
 
-  const updatedPagos = [...(presupuesto.pagosCliente || []), newPago];
-  const result = await updatePresupuesto(
-    { ...presupuesto, pagosCliente: updatedPagos },
-    { preserveStoredTotal: true },
-  );
+    const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });
+    if (!validation.ok) return { success: false as const, error: validation.error };
 
-  if (result.success) {
+    const newPago: PagoCliente = {
+      ...pago,
+      id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      monto: roundMoney(pago.monto),
+      referencia,
+      estadoPago: pago.estadoPago ?? 'confirmado',
+    };
+
+    const guardado = await guardarPresupuestoSinTurno(
+      { ...presupuesto, pagosCliente: [...pagos, newPago] },
+      { preserveStoredTotal: true },
+    );
+    if (!guardado.success) return { success: false as const, error: guardado.error };
+    return { success: true as const, presupuesto: guardado.presupuesto, avisar: true, clienteNombre: presupuesto.clienteNombre };
+  });
+
+  if (resultado.success && 'avisar' in resultado && resultado.avisar) {
     const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pago.monto);
     createNotification({
       titulo: 'Pago Registrado',
-      mensaje: `Pago de ${montoFmt} registrado para ${presupuesto.clienteNombre} (${pago.metodoPago}).`,
+      mensaje: `Pago de ${montoFmt} registrado para ${resultado.clienteNombre} (${pago.metodoPago}).`,
       href: `/presupuestos/${presupuestoId}/ver`,
       icono: 'ListChecks',
       tipo: 'exito',
@@ -630,7 +672,9 @@ export async function addPagoToPresupuesto(
     }).catch(err => console.warn('Error creating payment notification:', err));
   }
 
-  return result;
+  return resultado.success
+    ? { success: true, presupuesto: resultado.presupuesto }
+    : { success: false, error: resultado.error };
 }
 
 export async function deletePagoFromPresupuesto(

@@ -68,7 +68,12 @@ export async function savePlanDePagos(
     };
 
     const updatedFiesta: FiestaEnPlanificacion = { ...fiesta, planDePagos: newPlan };
-    await saveFiesta(updatedFiesta);
+    // `saveFiesta` DEVUELVE el error, no siempre lo tira. Ignorarlo hacia que el
+    // plan se diera por guardado sin haberse guardado.
+    const guardado = await saveFiesta(updatedFiesta);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar el plan de pagos.' };
+    }
     return { success: true, plan: newPlan };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -85,6 +90,9 @@ export async function updateCuotaEstado(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta || !fiesta.planDePagos) return { success: false, error: 'Plan de pagos no encontrado' };
 
+    const cuotaOriginal = fiesta.planDePagos.cuotas.find((c) => c.id === cuotaId);
+    if (!cuotaOriginal) return { success: false, error: 'La cuota no existe en este plan.' };
+
     const updatedCuotas = fiesta.planDePagos.cuotas.map(c =>
       normalizeCuotaPlanPago(c.id === cuotaId ? { ...c, ...updates } : c)
     );
@@ -94,11 +102,27 @@ export async function updateCuotaEstado(
       updatedAt: new Date().toISOString(),
     };
 
-    await saveFiesta({ ...fiesta, planDePagos: updatedPlan });
+    /**
+     * PRIMERO SE GUARDA, DESPUES SE AVISA. Y SI NO SE GUARDO, NO SE AVISA.
+     *
+     * Hasta el 8 de septiembre de 2026 esto no miraba el resultado de guardar:
+     * la pantalla decia "cuota cobrada", **le mandaba el mail de pago aprobado al
+     * cliente**, y al recargar la cuota seguia impaga. Un cobro anunciado que no
+     * quedo registrado es lo peor que puede pasar en la contabilidad.
+     *
+     * Y el aviso sale **una sola vez**: solo cuando la cuota pasa de no-pagada a
+     * pagada. Volver a guardar una cuota que ya estaba cobrada no le manda al
+     * cliente el mismo aviso de nuevo.
+     */
+    const guardado = await saveFiesta({ ...fiesta, planDePagos: updatedPlan });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la cuota.' };
+    }
 
     const updatedCuota = updatedCuotas.find((cuota) => cuota.id === cuotaId);
     const paidAmount = updatedCuota?.montoPagado ?? updatedCuota?.monto ?? 0;
-    if (updates.estado === 'pagado' && paidAmount > 0) {
+    const recienPagada = updates.estado === 'pagado' && cuotaOriginal.estado !== 'pagado';
+    if (recienPagada && paidAmount > 0) {
       notifyClientPaymentApproved(fiestaId, {
         id: `cuota_${cuotaId}`,
         monto: paidAmount,

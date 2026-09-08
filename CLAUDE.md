@@ -877,6 +877,9 @@ con otra cara.
 | Un ajuste del operador que no llegaba a la estación | `src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts` |
 | Un invitado marcado "Niño" importado como adulto: la comida salía mal | `src/__tests__/la-planilla-de-invitados-se-entiende.test.ts` |
 | El recorrido abría las 358 pantallas aunque el cambio tocara una | `src/__tests__/el-recorrido-mira-lo-que-cambia.test.ts` |
+| Dos cobros a la vez y uno desaparecía, con las dos pantallas diciendo "pago registrado" | `src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts` |
+| Una cuota se anunciaba cobrada —y le salía el mail al cliente— sin haberse guardado | `src/__tests__/la-contabilidad-no-miente.test.ts` |
+| Cualquiera del equipo con sesión podía leer todas las facturas de la empresa | `src/__tests__/la-contabilidad-no-miente.test.ts` |
 
 ### Cómo se elige el matafuego
 

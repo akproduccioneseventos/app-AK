@@ -4,7 +4,8 @@
 import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo, Tarea } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { headers } from 'next/headers';
-import { getInvoices, registerBookingDeposit } from '../invoices';
+import { registerBookingDeposit } from '../invoices';
+import { leerFacturasSinGuardia } from '@/lib/invoices/leer-facturas';
 import { isDepositReceiptInvoice } from '@/lib/commercial-flow/ledger-service';
 import { addDays } from 'date-fns';
 import { createNotification } from '@/lib/notifications/create-notification';
@@ -254,7 +255,9 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
 
         // Generar Factura de Seña si no existe (monto desde presupuesto)
         const eventInvoiceIds = new Set(updatedFiesta.invoiceIds || []);
-        const existingInvoices = await getInvoices();
+        // Lectura interna dentro de una accion ya guardada: firmar el contrato no
+        // exige el permiso de contabilidad, y esto solo mira si ya hay recibo de sena.
+        const existingInvoices = await leerFacturasSinGuardia();
         const hasDeposit = existingInvoices.some(invoice =>
             isDepositReceiptInvoice(invoice)
             && (eventInvoiceIds.has(invoice.id) || invoice.sourceFiestaId === fiesta.id)

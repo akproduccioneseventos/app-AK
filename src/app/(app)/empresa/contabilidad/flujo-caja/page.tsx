@@ -22,6 +22,7 @@ export default function FlujoCajaProyectadoPage() {
   const [data, setData] = useState<CashFlowMonth[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [fuentesCaidas, setFuentesCaidas] = useState<string[]>([]);
 
   const fetchProjection = useCallback(async () => {
     setIsLoading(true);
@@ -29,6 +30,8 @@ export default function FlujoCajaProyectadoPage() {
       const result = await getCashFlowProjection();
       if (result.success && result.data) {
         setData(result.data);
+        setError(null);
+        setFuentesCaidas((result as { fuentesCaidas?: string[] }).fuentesCaidas ?? []);
       } else throw new Error(result.error);
     } catch (e: any) {
       setError(e.message);
@@ -55,8 +58,38 @@ export default function FlujoCajaProyectadoPage() {
     return <div className="flex flex-col items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4" /><p className="font-bold text-slate-500 uppercase tracking-widest">Ejecutando CFO Virtual...</p></div>;
   }
 
+  /**
+   * UN CERO EQUIVOCADO ES PEOR QUE NO MOSTRAR NADA.
+   *
+   * Si no se pudieron leer los datos, esta pantalla mostraba los mismos numeros
+   * en cero que muestra cuando no hubo cobros. Un aviso que se va solo no
+   * alcanza: el dueno podia mirar la pantalla y creer que no entro plata.
+   */
+  if (error) {
+    return (
+      <div className="max-w-3xl mx-auto py-16 text-center space-y-4">
+        <h1 className="text-2xl font-black text-slate-800">No se pudo calcular el flujo de caja</h1>
+        <p className="text-slate-600">
+          {error} Los numeros de esta pantalla no se muestran para que nadie los tome por buenos.
+        </p>
+        <button
+          onClick={fetchProjection}
+          className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-6 py-3 font-bold text-white"
+        >
+          Probar de nuevo
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-10 pb-20">
+      {fuentesCaidas.length > 0 && (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-medium text-amber-900">
+          Faltan datos de: {fuentesCaidas.join(', ')}. La proyeccion esta incompleta y los totales
+          pueden quedar por debajo de lo real.
+        </div>
+      )}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <div className="p-4 bg-emerald-600 rounded-2xl shadow-xl shadow-emerald-100 text-white">

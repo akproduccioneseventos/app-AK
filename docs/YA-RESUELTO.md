@@ -7265,3 +7265,51 @@ archivo: scripts/pantallas-tocadas.mjs
 usa: pantallasTocadas en scripts/recorrido-de-pantallas.mjs
 prueba: src/__tests__/el-recorrido-mira-lo-que-cambia.test.ts
 ```
+
+
+---
+
+## 8 de septiembre de 2026 — Cinco cosas de la contabilidad que decian que si sin haber pasado
+
+Los encontro Codex y los comprobe uno por uno abriendo el codigo. **Los cinco eran ciertos**, y
+los cinco tenian la misma forma: la app contestaba que salio bien y no habia pasado nada.
+
+**1. Dos cobros al mismo tiempo y uno desaparecia.** Se leia el presupuesto, se armaba la lista
+de cobros y **recien despues** se pedia el turno para guardar. Si dos personas cobraban a la vez
+-o alguien cobraba a mano mientras entraba el aviso de Mercado Pago-, el segundo guardaba su
+lista vieja encima del primero: las dos pantallas decian "pago registrado" y en el presupuesto
+quedaba uno solo. **Plata cobrada que desaparecia.** Ahora se lee, se controla el saldo, se
+agrega y se guarda **sin soltar el turno en el medio**.
+
+**2. Una cuota se anunciaba cobrada aunque fallara guardar** —y con el mail al cliente incluido—.
+Guardar devuelve el error en vez de tirarlo, y nadie lo miraba. Ahora primero se guarda, se
+comprueba, y recien ahi se avisa. De paso: una cuota que ya estaba cobrada no le manda al cliente
+el mismo aviso otra vez, y una cuota que no existe se rechaza.
+
+**3. La conciliacion con la factura fallaba en silencio.** Si el guardado fallaba, igual
+contestaba que si, y la factura seguia su camino creyendo que estaba conciliada. Ademas, un cobro
+cargado a mano que estaba esperando confirmacion quedaba pendiente aunque la factura lo trajera
+confirmado: **el mismo cobro en dos estados distintos**. Se confirma solo con la evidencia de la
+factura, nunca porque el cliente haya subido un comprobante.
+
+**4. El flujo de caja mostraba cero cuando en realidad no habia podido leer nada.** Seis meses en
+cero se ven igual que "no entro plata". Ahora, si no se pueden leer los datos, la pantalla lo
+dice y **no muestra numeros**; si falta una fuente sola, avisa cual.
+
+**5. Las facturas las podia leer cualquiera del equipo con sesion.** La entrada solo miraba que
+hubiera sesion abierta, no el permiso de contabilidad. Un operador de estacion podia leer todas
+las facturas de la empresa llamando a la accion directo, aunque en su pantalla no hubiera boton.
+Esconder el boton no es un control. Ahora se pide el permiso de contabilidad para leer y para
+cargar cobros; los calculos internos que ya tienen su propia guardia leen por una funcion que no
+es una accion y no se puede llamar desde el navegador.
+
+La prueba de los dos cobros simultaneos **se probo rompiendola**: volviendo la lectura afuera del
+turno, se pone en rojo.
+
+```comprobar
+archivo: src/lib/invoices/leer-facturas.ts
+usa: guardarPresupuestoSinTurno en src/app/actions/presupuestos.ts
+usa: fuentesCaidas en src/app/(app)/empresa/contabilidad/flujo-caja/page.tsx
+prueba: src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts
+prueba: src/__tests__/la-contabilidad-no-miente.test.ts
+```

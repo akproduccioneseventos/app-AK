@@ -16,6 +16,7 @@ import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 import { invoiceMoneyTolerance, roundInvoiceMoney } from '@/lib/invoice-money';
 import { requirePermiso } from '@/lib/auth/require-session';
+import { leerFacturasSinGuardia } from '@/lib/invoices/leer-facturas';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import {
@@ -76,17 +77,28 @@ function hasSamePayment(current: Payment, incoming: Payment, currency: string): 
     && Number(current.installments ?? 0) === Number(incoming.installments ?? 0);
 }
 
+/**
+ * LA PUERTA DE LAS FACTURAS PIDE EL PERMISO DE CONTABILIDAD, NO SOLO SESION.
+ *
+ * Hasta el 8 de septiembre de 2026 alcanzaba con tener sesion abierta. Eso quiere
+ * decir que **un operador de estacion o alguien del personal podia leer todas las
+ * facturas de la empresa** llamando a la accion directo, aunque en su pantalla no
+ * hubiera ningun boton para hacerlo. Esconder el boton no es un control.
+ *
+ * Los calculos internos que ya tienen su propia guardia -el tablero, los reportes,
+ * el flujo de caja- leen por `leerFacturasSinGuardia`, que no es una accion y no se
+ * puede llamar desde el navegador.
+ */
 export async function getInvoices(): Promise<Invoice[]> {
-  const auth = await verifySession();
-  if (!auth.success) throw new Error('No autorizado');
-  const invoices = await readData<Invoice[]>(INVOICES_FILE, []);
-  return invoices.map(inv => ({ ...inv, payments: inv.payments || [] }));
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) throw new Error(permiso.error);
+  return leerFacturasSinGuardia();
 }
 
 export async function getInvoiceById(id: string): Promise<Invoice | null> {
-  const auth = await verifySession();
-  if (!auth.success) throw new Error('No autorizado');
-  const invoices = await getInvoices();
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) throw new Error(permiso.error);
+  const invoices = await leerFacturasSinGuardia();
   return invoices.find(inv => inv.id === id) || null;
 }
 
@@ -123,6 +135,8 @@ async function saveInvoiceInner(
   invoiceDataInput: NewInvoiceInput | Invoice,
   sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!invoiceDataInput.items || invoiceDataInput.items.some(item => normalizeQuantity(item.quantity) <= 0)) {
@@ -133,7 +147,7 @@ async function saveInvoiceInner(
   }
 
   try {
-    let invoices = await getInvoices();
+    let invoices = await leerFacturasSinGuardia();
     let finalInvoiceData: Invoice;
     let invoiceId: string;
 
@@ -354,7 +368,7 @@ export async function registerBookingDeposit(data: {
       linkedBudget = await getPresupuestoById(fiesta.presupuestoId);
     }
 
-    const existingReceipt = findExistingDepositReceipt(await getInvoices(), {
+    const existingReceipt = findExistingDepositReceipt(await leerFacturasSinGuardia(), {
       fiestaId: data.fiestaId,
       invoiceIds: fiesta.invoiceIds,
       amount: chargedAmount,
@@ -459,7 +473,7 @@ export async function registerBookingDeposit(data: {
         // Deshacer el recibo recien creado tambien es leer-modificar-escribir:
         // va con turno, o pisa lo que otro guardo entremedio.
         await invoicesMutex.runExclusive(async () => {
-          const invoicesWithoutDeposit = (await getInvoices()).filter((invoice) => invoice.id !== invoiceResult.id);
+          const invoicesWithoutDeposit = (await leerFacturasSinGuardia()).filter((invoice) => invoice.id !== invoiceResult.id);
           await writeData(INVOICES_FILE, invoicesWithoutDeposit);
         });
         throw new Error(paymentResult.error || 'No se pudo registrar la sena en el presupuesto.');
@@ -479,7 +493,7 @@ async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
-  const originalInvoices = await getInvoices();
+  const originalInvoices = await leerFacturasSinGuardia();
   // Borrar una factura cobrada hace desaparecer el comprobante del cobro.
   const aBorrar = originalInvoices.find(inv => inv.id === id);
   if (aBorrar && ((aBorrar.payments ?? []).length > 0 || aBorrar.status === 'Paid')) {
@@ -547,6 +561,8 @@ async function addPaymentToInvoiceInner(
   invoiceId: string,
   formData: FormData
 ): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   const paymentDate = formData.get('paymentDate') as string || new Date().toISOString();
@@ -556,7 +572,7 @@ async function addPaymentToInvoiceInner(
   const notes = formData.get('notes') as string | undefined;
   const transactionProofFile = formData.get('transactionProof') as File | null;
 
-  let invoices = await getInvoices();
+  let invoices = await leerFacturasSinGuardia();
   const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
   if (invoiceIndex === -1) return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
 
