@@ -30,7 +30,7 @@ const testEnvironment = {
 
 import os from "node:os";
 import { execFileSync } from "node:child_process";
-import { statSync } from "node:fs";
+import { statSync, readFileSync } from "node:fs";
 
 /**
  * Carpetas de src/ que NO son codigo: las escribe la propia corrida.
@@ -78,8 +78,23 @@ function getLatestSourceMtime(dir = "src") {
  * Es la trampa que ya costo cuarenta y dos minutos una vez. Ahora se barre solo.
  */
 function barrerCorridasViejas() {
-  const mios = new Set([String(process.pid), String(process.ppid)]);
-  for (const patron of ["playwright", "chrome-linux/chrome", "next start"]) {
+  // La corrida de AHORA no se toca: se juntan todos los padres, abuelos y demas,
+  // porque el comando que la lanzo tambien dice "playwright" y la limpieza se
+  // mataba a si misma. Paso el 5 de septiembre de 2026.
+  const mios = new Set([String(process.pid)]);
+  let actual = process.ppid;
+  for (let salto = 0; salto < 12 && actual && actual > 1; salto += 1) {
+    mios.add(String(actual));
+    try {
+      const stat = readFileSync(`/proc/${actual}/stat`, "utf8");
+      const cierre = stat.lastIndexOf(")");
+      actual = Number(stat.slice(cierre + 2).split(" ")[1]);
+    } catch {
+      break;
+    }
+  }
+
+  for (const patron of ["playwright test", "chrome-linux/chrome", "next start"]) {
     try {
       const salida = execFileSync("pgrep", ["-f", patron], { encoding: "utf8" });
       for (const pid of salida.split("\n").map((l) => l.trim()).filter(Boolean)) {
