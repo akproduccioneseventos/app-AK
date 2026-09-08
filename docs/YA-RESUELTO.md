@@ -2,6 +2,24 @@
 
 ## 8 de septiembre de 2026 - Ordenes 45 a 48, pendientes de ejecucion
 
+### Revision contable adicional: orden 49 (pendiente de correccion)
+
+Codex reviso contabilidad sobre codigo main 8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe,
+reutilizando los registros de Claude. Un agente economico reviso pantallas; Codex
+verifico los riesgos de dinero/permisos y ejecuto siete sondas aisladas con I/O falso.
+Reproducidos cinco grupos: plan/cuota informa exito con guardado fallido; conciliacion
+de factura oculta fallo o deja gemelo pendiente; dos cobros simultaneos pierden uno
+incluso con mutex local; flujo de caja convierte fuentes caidas en cero; getInvoices
+lee con sesion de operador sin permiso contable. Detalle y limites en orden 49 y
+docs/evidencias/49-auditoria-contable.md; script reproducible 49-sondas-contables.cjs.
+Las siete aserciones fallan sobre esta base: SON DEFECTOS PENDIENTES, no correcciones.
+Esto matiza la aprobacion general antigua del 15 de agosto sin borrarla. No repetir
+sus arreglos ni las pruebas que no cambiaron. No hubo build, navegador autenticado,
+revision de los 19 presupuestos en Firebase ni movimiento de datos reales. Gemini
+programa; Claude compila; el dueno fusiona. No hay certificado contable nuevo.
+
+### Entrega anterior 45 a 48
+
 Codex reviso y preparo las ordenes numeradas en docs/ordenes/: evaluacion de pendientes,
 estetica/movimiento, marketing/redes y entretenimiento. Gemini programa; Claude Opus
 compila. Se reutilizan los antecedentes de Claude hasta el 5 de septiembre y se decide
