@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -148,26 +148,29 @@ export function HeroSection({
         )}
       </div>
 
-      {/* Degradado oscuro envolvente para legibilidad perfecta */}
+      {/* Degradado oscuro envolvente para legibilidad perfecta con tinte cinematográfico */}
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/35" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(220,38,38,0.18),transparent_65%)]" />
 
-      {/* Resplandor ambiental suave */}
+      {/* Resplandor ambiental y haces de luz sutiles */}
       {!reduceMotion && (
         <>
           <motion.div
-            className="pointer-events-none absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-red-600/15 blur-[120px]"
-            animate={{ scale: [1, 1.25, 1], opacity: [0.35, 0.6, 0.35] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="pointer-events-none absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-red-600/20 blur-[130px]"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.7, 0.4] }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           />
-          <div
-            className="pointer-events-none absolute bottom-1/3 right-10 h-80 w-80 rounded-full bg-amber-500/10 blur-[110px]"
+          <motion.div
+            className="pointer-events-none absolute bottom-1/3 right-10 h-80 w-80 rounded-full bg-amber-500/15 blur-[120px]"
+            animate={{ scale: [1.1, 0.95, 1.1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
           />
         </>
       )}
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pb-20 lg:px-8">
         <div className="max-w-3xl">
-          {promoActiva && (
+          {promoActiva ? (
             <motion.div
               {...reveal}
               transition={reduceMotion ? undefined : { duration: 0.5, delay: 0.05 }}
@@ -176,13 +179,13 @@ export function HeroSection({
                 href={promoHref}
                 target={promoHref.startsWith("http") ? "_blank" : undefined}
                 rel={promoHref.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-black/40 px-4 py-1.5 text-xs font-bold text-amber-200 backdrop-blur-md transition-all hover:bg-black/60 hover:border-amber-400/60"
+                className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-black/50 px-4 py-1.5 text-xs font-bold text-amber-200 backdrop-blur-md shadow-[0_0_15px_rgba(245,158,11,0.2)] transition-all hover:bg-black/70 hover:border-amber-400"
               >
                 <ShieldCheck className="h-4 w-4 text-amber-400" aria-hidden="true" />
                 {promoActiva.titulo}
               </a>
             </motion.div>
-          )}
+          ) : null}
 
           <motion.p
             {...reveal}
@@ -196,7 +199,7 @@ export function HeroSection({
           <motion.h1
             {...reveal}
             transition={reduceMotion ? undefined : { duration: 0.65, delay: 0.14, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-4 font-headline text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-sm"
+            className="mt-4 font-headline text-4xl font-black leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl drop-shadow-md"
           >
             {headline}
           </motion.h1>
@@ -216,7 +219,7 @@ export function HeroSection({
           >
             {details.map((detail) => (
               <span key={detail} className="flex items-center gap-2 font-medium">
-                <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" aria-hidden="true" />
+                <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]" aria-hidden="true" />
                 {detail}
               </span>
             ))}
@@ -228,13 +231,13 @@ export function HeroSection({
             className="mt-9 flex flex-col gap-3.5 sm:flex-row"
           >
             <motion.div
-              whileHover={reduceMotion ? undefined : { scale: 1.025, y: -2 }}
+              whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
               whileTap={reduceMotion ? undefined : { scale: 0.98 }}
               className="inline-flex"
             >
               <Link
                 href={simulatorHref}
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-red-700 px-7 py-3.5 text-sm font-black text-white shadow-lg shadow-red-950/40 transition-all hover:bg-red-800"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-600 via-red-600 to-rose-600 px-7 py-3.5 text-sm font-black text-white shadow-[0_0_25px_rgba(220,38,38,0.45)] transition-all hover:shadow-[0_0_35px_rgba(220,38,38,0.65)] hover:brightness-110"
               >
                 {simulatorLabel}
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -242,7 +245,7 @@ export function HeroSection({
             </motion.div>
 
             <motion.div
-              whileHover={reduceMotion ? undefined : { scale: 1.025, y: -2 }}
+              whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
               whileTap={reduceMotion ? undefined : { scale: 0.98 }}
               className="inline-flex"
             >
@@ -250,7 +253,7 @@ export function HeroSection({
                 href={waHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20 hover:border-white/40"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md shadow-lg transition-all hover:bg-white/20 hover:border-white/40"
               >
                 <MessageCircle className="h-4 w-4 text-emerald-400" aria-hidden="true" />
                 {ctaLabel}
@@ -262,3 +265,4 @@ export function HeroSection({
     </section>
   );
 }
+

@@ -100,4 +100,50 @@ describe('signed session tokens', () => {
       isValid: false,
     });
   });
+
+  /**
+   * ESTA PRUEBA PEDIA LO CONTRARIO DE LO CORRECTO Y SE CORRIGIO EL 5 DE SEPTIEMBRE DE 2026.
+   *
+   * Exigia que en produccion, sin llave configurada, la app **no fallara** y se
+   * inventara una. Esa era justamente la version insegura: la llave llegaba a
+   * derivarse de un dato publico y cualquiera podia firmarse una sesion de
+   * administrador.
+   *
+   * Lo correcto es lo de ahora: **sin una llave secreta de verdad, en produccion se
+   * corta**. Es preferible que el dueno vea un aviso de configuracion a que entre
+   * cualquiera.
+   */
+  it('en produccion, sin una llave secreta de verdad, NO firma nada: se corta', async () => {
+    const prevSecret = process.env.AK_SESSION_SECRET;
+    const prevNodeEnv = process.env.NODE_ENV;
+    const prevPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
+    const prevProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+    try {
+      delete process.env.AK_SESSION_SECRET;
+      delete process.env.AUTH_SESSION_SECRET;
+      delete process.env.SESSION_SECRET;
+      delete process.env.AUTH_SECRET;
+      delete process.env.FIREBASE_PRIVATE_KEY;
+      // Un dato PUBLICO disponible no alcanza: si alcanzara, cualquiera que abre la
+      // web podria calcular la llave y hacerse pasar por el dueno.
+      process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = 'proyecto-visible-para-todos';
+      (process.env as any).NODE_ENV = 'production';
+
+      await expect(
+        createSignedSessionToken({
+          email: 'akproduccionessalto@gmail.com',
+          role: 'admin',
+          userId: 'admin-dueno',
+        })
+      ).rejects.toThrow();
+    } finally {
+      process.env.AK_SESSION_SECRET = prevSecret;
+      (process.env as any).NODE_ENV = prevNodeEnv;
+      if (prevPrivateKey === undefined) delete process.env.FIREBASE_PRIVATE_KEY;
+      else process.env.FIREBASE_PRIVATE_KEY = prevPrivateKey;
+      if (prevProjectId === undefined) delete process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+      else process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = prevProjectId;
+    }
+  });
 });
