@@ -1,6 +1,70 @@
 [
   {
     "mensaje": "💬 Mensaje nuevo del cliente: \"Hola equipo de AK, queremos consultar si podemos a...\"",
+    "href": "/fiestas/nueva?fiestaId=e2e_msg_1788876868454&tab=portal-cliente",
+    "icono": "MessageSquare",
+    "id": "notif_de48e7dc-66a7-4b4a-9a7b-25d7aa2b86f0",
+    "fecha": "2026-09-08T14:14:33.006Z",
+    "leida": false
+  },
+  {
+    "mensaje": "💬 Mensaje nuevo del cliente: \"Hola equipo de AK, queremos consultar si podemos a...\"",
+    "href": "/fiestas/nueva?fiestaId=e2e_msg_1788876143269&tab=portal-cliente",
+    "icono": "MessageSquare",
+    "id": "notif_235cbe31-07bd-4bc6-b3f6-e4ca9a0926cd",
+    "fecha": "2026-09-08T14:02:25.899Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_335e65d143950fb288637f05/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_335e65d143950fb288637f05",
+    "rolDestino": "admin",
+    "id": "notif_8304e7e8-415b-4dd1-936b-ddd6258d3ce0",
+    "fecha": "2026-09-08T14:00:20.073Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_e83d0ee63653eabd3c0c13a8/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_e83d0ee63653eabd3c0c13a8",
+    "rolDestino": "admin",
+    "id": "notif_20efa1af-189b-4bbe-8791-73252097ac55",
+    "fecha": "2026-09-08T13:55:28.652Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_7f62fbb422161b55616b5915/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_7f62fbb422161b55616b5915",
+    "rolDestino": "admin",
+    "id": "notif_c8114a62-e8cb-46b1-91d8-1cac45b82984",
+    "fecha": "2026-09-08T13:43:49.932Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_b8e24124f22c4af7ffd099ca/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_b8e24124f22c4af7ffd099ca",
+    "rolDestino": "admin",
+    "id": "notif_fafec0c1-7d82-45cf-af3c-c674e46cbb24",
+    "fecha": "2026-09-08T13:38:19.654Z",
+    "leida": false
+  },
+  {
+    "mensaje": "💬 Mensaje nuevo del cliente: \"Hola equipo de AK, queremos consultar si podemos a...\"",
     "href": "/fiestas/nueva?fiestaId=e2e_msg_1788579788823&tab=portal-cliente",
     "icono": "MessageSquare",
     "id": "notif_20577a75-38c9-4955-8420-d8a22127ad76",

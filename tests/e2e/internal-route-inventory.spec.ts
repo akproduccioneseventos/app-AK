@@ -73,7 +73,21 @@ test('every static internal route responds with an authenticated session', async
   ]);
 
   const failures: string[] = [];
-  for (const route of routes) {
+
+  /**
+   * SE PIDEN VARIAS RUTAS A LA VEZ.
+   *
+   * Esto pedia las rutas de a una y **tardaba veinticuatro minutos de los cuarenta
+   * que tarda toda la verificacion**: era, sola, el paso mas caro. No dibuja nada ni
+   * usa el navegador: son pedidos de red, y esos se pueden hacer de a varios sin que
+   * se pisen.
+   *
+   * Ocho a la vez: suficiente para que vuele y poco para no ahogar al servidor de
+   * prueba, que corre en la misma maquina.
+   */
+  const A_LA_VEZ = 8;
+  let siguienteRuta = 0;
+  const revisarUna = async (route: string) => {
     try {
       const response = await context.request.get(route, { timeout: 60_000 });
       const body = await response.text();
@@ -82,17 +96,17 @@ test('every static internal route responds with an authenticated session', async
 
       if (status >= 400) {
         failures.push(`${route}: HTTP ${status}`);
-        continue;
+        return;
       }
       if (finalUrl === '/login' || finalUrl === '/ingreso') {
         failures.push(`${route}: redirige a login inesperadamente`);
-        continue;
+        return;
       }
 
       // 1. Error explícito de aplicación
       if (/Application error|Internal Server Error|no puede cargar los datos del panel/i.test(body)) {
         failures.push(`${route}: muestra un error de aplicacion`);
-        continue;
+        return;
       }
 
       // 2. Extraer texto visible aproximado (removiendo tags html y scripts)
@@ -141,7 +155,16 @@ test('every static internal route responds with an authenticated session', async
     } catch (error) {
       failures.push(`${route}: ${error instanceof Error ? error.message : String(error)}`);
     }
-  }
+  };
+
+  const carriles = Array.from({ length: Math.min(A_LA_VEZ, routes.length) }, async () => {
+    for (;;) {
+      const i = siguienteRuta++;
+      if (i >= routes.length) break;
+      await revisarUna(routes[i]);
+    }
+  });
+  await Promise.all(carriles);
 
   expect(failures, failures.join('\n')).toEqual([]);
 });
