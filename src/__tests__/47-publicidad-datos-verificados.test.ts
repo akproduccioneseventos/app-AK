@@ -7,6 +7,11 @@ import {
   type CampanaConPresupuesto,
 } from '@/lib/marketing/tope-de-gasto-publicidad';
 
+jest.mock('@/lib/data-service', () => ({
+  readData: jest.fn().mockResolvedValue({ topeMensualUYU: 10000 }),
+  writeData: jest.fn().mockResolvedValue(undefined),
+}));
+
 /**
  * Orden 47: Marketing y redes - Datos publicitarios y presupuestos verificados.
  *
