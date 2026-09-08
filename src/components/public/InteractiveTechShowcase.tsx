@@ -224,46 +224,50 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
   return (
     <section
       id="vidriera-tecnologica"
-      className={cn('py-20 px-4 bg-slate-900 text-white relative overflow-hidden rounded-3xl border border-slate-800 my-8 shadow-2xl', className)}
+      className={cn('py-20 px-4 bg-slate-950 text-white relative overflow-hidden rounded-3xl border border-slate-800/80 my-8 shadow-2xl', className)}
     >
-      {/* Background glow accents */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-purple-600/15 blur-[120px] pointer-events-none rounded-full" />
-      <div className="absolute bottom-10 right-10 w-[400px] h-[250px] bg-pink-600/15 blur-[100px] pointer-events-none rounded-full" />
+      {/* Background glow accents con identidad luminosa AK */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[650px] h-[350px] bg-red-600/15 blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute bottom-10 right-10 w-[450px] h-[250px] bg-amber-500/10 blur-[110px] pointer-events-none rounded-full" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_black_90%)]" />
 
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-black uppercase tracking-widest mb-3">
-            <Sparkles className="w-3.5 h-3.5" />
-            Tecnología Interactiva AK Producciones
+          <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-red-950/60 border border-red-500/40 text-red-300 text-xs font-black uppercase tracking-widest mb-3 shadow-[0_0_15px_rgba(239,68,68,0.25)] backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-red-400" />
+            Tecnología Interactiva · AK Producciones
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white">
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white drop-shadow-sm">
             Experiencias que hacen tu fiesta inolvidable
           </h2>
-          <p className="mt-3 text-slate-400 max-w-2xl mx-auto font-medium text-sm sm:text-base">
+          <p className="mt-3 text-slate-300 max-w-2xl mx-auto font-medium text-sm sm:text-base">
             No es sólo equipamiento: es diversión en vivo, recuerdos impresos en el momento y conexión real con cada uno de tus invitados.
           </p>
         </div>
 
-        {/* Station Selector Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-8 hide-scrollbar justify-start sm:justify-center">
+        {/* Station Selector Tabs con micro-interacciones suaves */}
+        <div className="flex gap-2.5 overflow-x-auto pb-4 mb-8 hide-scrollbar justify-start sm:justify-center">
           {STATIONS.map((station) => {
             const Icon = station.icon;
             const isSelected = selectedStation.id === station.id;
             return (
-              <button
+              <motion.button
                 key={station.id}
+                type="button"
+                whileHover={reduceMotion ? undefined : { scale: 1.03, y: -1 }}
+                whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 onClick={() => setSelectedStation(station)}
                 className={cn(
-                  'flex items-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all shrink-0 border',
+                  'flex items-center gap-2 px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all shrink-0 border backdrop-blur-md',
                   isSelected
-                    ? 'bg-white text-slate-950 border-white shadow-lg shadow-white/10 scale-105'
-                    : 'bg-slate-800/80 text-slate-300 border-slate-700/60 hover:bg-slate-850 hover:text-white'
+                    ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.45)]'
+                    : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:bg-slate-800 hover:text-white hover:border-slate-700'
                 )}
               >
-                <Icon className={cn('w-4 h-4', isSelected ? 'text-purple-600' : 'text-slate-400')} />
+                <Icon className={cn('w-4 h-4', isSelected ? 'text-white' : 'text-slate-400')} />
                 {station.name}
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -374,3 +378,4 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
     </section>
   );
 }
+
