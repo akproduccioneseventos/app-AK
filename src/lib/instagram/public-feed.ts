@@ -26,13 +26,37 @@ export interface PublicInstagramFeedPost {
  * 2. Si el historial guardado está vacío (cuenta recién conectada o primera vez),
  *    consulta directamente a Meta Graph API como respaldo inmediato.
  */
+/**
+ * QUE PUBLICACIONES PUEDEN SALIR EN LA WEB, Y CUALES NO.
+ *
+ * **Hasta el 8 de septiembre de 2026 salian todas.** El unico filtro era que fuera de
+ * Instagram y tuviera imagen: un borrador a medio escribir, una publicacion programada
+ * para dentro de un mes o una que fallo al publicarse **aparecian igual en la galeria
+ * de la portada**, a la vista de cualquiera. Lo encontro Codex.
+ *
+ * La regla es al reves de como estaba: **solo pasa lo que esta explicitamente
+ * publicado o importado del historial de Instagram**. Un estado que no este en esta
+ * lista -uno nuevo que alguien agregue manana, o uno vacio- **no sale**. Ante la duda,
+ * no se muestra: una foto de menos no le cuesta nada al negocio, una de mas puede ser
+ * la fiesta de un cliente antes de tiempo.
+ */
+const ESTADOS_QUE_SE_MUESTRAN: readonly string[] = [
+  'Publicado',
+  'Importado de IG',
+  'Importado historial',
+];
+
+export function seMuestraEnPublico(estado?: string): boolean {
+  return ESTADOS_QUE_SE_MUESTRAN.includes(String(estado || '').trim());
+}
+
 export async function getPublicInstagramFeed(
   profileUrl = 'https://www.instagram.com/akproduccionesfiestasyeventos/',
 ): Promise<PublicInstagramFeedPost[]> {
   try {
     const savedPosts = await readData<SocialPost[]>(POSTS_FILE, []);
     const instagramSaved = savedPosts.filter(
-      (p) => p.platform === 'Instagram' && Boolean(p.mediaUrl),
+      (p) => p.platform === 'Instagram' && Boolean(p.mediaUrl) && seMuestraEnPublico(p.status),
     );
 
     if (instagramSaved.length > 0) {

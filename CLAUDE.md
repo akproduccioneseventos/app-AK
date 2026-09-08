@@ -904,6 +904,8 @@ con otra cara.
 | Una cuota se anunciaba cobrada —y le salía el mail al cliente— sin haberse guardado | `src/__tests__/la-contabilidad-no-miente.test.ts` |
 | Cualquiera del equipo con sesión podía leer todas las facturas de la empresa | `src/__tests__/la-contabilidad-no-miente.test.ts` |
 | "Dijo que sí y no pasó nada": se llama algo que devuelve el error y nadie lo mira | **`npm run "dice-que-si?"`**, enganchado al trinquete |
+| Borradores y publicaciones programadas salían en la galería pública de la portada | `src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts` |
+| El prospecto que llegaba de un anuncio pago se guardaba como si hubiera llegado solo | `src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts` |
 
 ### Cómo se elige el matafuego
 

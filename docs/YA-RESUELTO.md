@@ -7353,3 +7353,40 @@ archivo: scripts/nadie-dice-que-si-sin-mirar.mjs
 usa: llamadasQueTiranElError en scripts/lo-que-se-dijo-es-lo-que-es.mjs
 archivo: docs/donde-se-tira-el-error.md
 ```
+
+
+---
+
+## 8 de septiembre de 2026 — La web mostraba lo que no debia y perdia de donde venia el prospecto
+
+Dos hallazgos de la orden 50 de Codex, comprobados uno por uno sobre el codigo.
+
+**1. La galeria de la portada mostraba borradores.** El unico filtro era que la publicacion
+fuera de Instagram y tuviera imagen. Un borrador a medio escribir, una publicacion programada
+para dentro de un mes o una que fallo al publicarse **salian igual en la portada**, a la vista de
+cualquiera. Ahora solo sale lo que esta publicado o importado del historial, y **un estado que no
+este en esa lista no sale**: una foto de menos no cuesta nada, una de mas puede ser la fiesta de
+un cliente antes de tiempo.
+
+**2. El prospecto que llegaba de un anuncio pago se guardaba como si hubiera llegado solo.** Dos
+cosas distintas se pisaban: solo se leian `source` y `campaign`, y los anuncios de Facebook e
+Instagram mandan `utm_source` y `utm_campaign`, que es el nombre estandar. Y ademas, la landing
+donde aterrizaba **le pisaba el canal**: quien venia de un anuncio y caia en la pagina de bodas
+quedaba anotado como "landing_bodas" y el anuncio pago desaparecia. Como la mayoria de los
+prospectos llegan de publicidad, eso es no saber en que rinde la plata.
+
+Ahora el canal manda sobre la pagina, se leen las etiquetas de los anuncios, y los enlaces viejos
+siguen andando. **Lo desconocido sigue siendo desconocido:** no se marca nada como Facebook por
+las dudas.
+
+Las dos se probaron rompiendolas: sacando el filtro, la prueba de la galeria se pone en rojo.
+
+**Lo que NO se pudo comprobar:** si la web publica esta respondiendo. Desde donde se programa no
+hay salida a internet hacia el sitio, asi que no se puede confirmar ni desmentir lo que vio
+Codex. Eso lo tiene que mirar el dueno desde el celular.
+
+```comprobar
+usa: seMuestraEnPublico en src/lib/instagram/public-feed.ts
+usa: canalDelProspecto en src/app/actions/crm.ts
+prueba: src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts
+```

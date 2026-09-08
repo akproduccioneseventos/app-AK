@@ -18,7 +18,7 @@ import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudge
 import { verifySession } from '@/lib/auth/session-token';
 import { requireAppSession } from '@/lib/auth/require-session';
 import type { CommercialAttribution, CommercialSource } from '@/lib/commercial/acquisition';
-import { sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
+import { canalDelProspecto, sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -1057,10 +1057,22 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
           : (data.fuente === 'landing-eventos' || data.fuente === 'landing-cumpleanos')
             ? 'landing_eventos'
             : data.fuente;
+    /**
+     * DE DONDE VINO Y QUE PAGINA VISITO SON DOS COSAS DISTINTAS.
+     *
+     * Antes la pagina **pisaba** el canal: un prospecto que llegaba de un anuncio de
+     * Facebook y caia en la landing de bodas quedaba guardado como "landing_bodas", y
+     * **el anuncio que se pago desaparecia**. Lo encontro Codex el 8 de septiembre de
+     * 2026.
+     *
+     * Ahora el canal que ya venia -facebook, instagram, campana- manda, y la pagina
+     * solo se usa cuando no se sabe de donde vino. Lo desconocido sigue siendo
+     * desconocido: no se marca nada como Facebook por las dudas.
+     */
     const acquisition = sanitizeCommercialAttribution({
       ...data.acquisition,
-      source,
-      entryPath: data.acquisition?.entryPath || '/landing',
+      source: canalDelProspecto(data.acquisition?.source, source),
+      entryPath: data.acquisition?.entryPath || `/landing/${data.fuente || 'sin-detalle'}`,
     }, 'landing');
     await upsertPublicCommercialLead({
       name: data.nombre,

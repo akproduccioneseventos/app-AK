@@ -76,17 +76,47 @@ export function sanitizeCommercialAttribution(
   };
 }
 
+/**
+ * TAMBIEN SE LEEN LAS ETIQUETAS DE LOS ANUNCIOS (`utm_...`).
+ *
+ * **Antes solo se leian `source` y `campaign`.** Facebook e Instagram mandan al
+ * visitante con `utm_source` y `utm_campaign`, que son el nombre estandar y el que
+ * usan los anuncios de verdad. Resultado: el prospecto que llegaba pagando entraba
+ * como "directo" y **no se sabia que anuncio lo trajo**. Como la mayoria de los
+ * prospectos llegan de publicidad paga, eso es no saber en que rinde la plata.
+ * Lo encontro Codex el 8 de septiembre de 2026.
+ *
+ * Se sigue leyendo primero lo de siempre, para no romper los enlaces viejos.
+ */
 export function commercialAttributionFromSearchParams(
   params: SearchParamsReader,
   fallbackSource: CommercialSource = 'direct'
 ): CommercialAttribution {
   return sanitizeCommercialAttribution({
-    source: normalizeSource(params.get('source'), fallbackSource),
-    campaign: params.get('campaign') || undefined,
+    source: normalizeSource(params.get('source') || params.get('utm_source'), fallbackSource),
+    campaign: params.get('campaign') || params.get('utm_campaign') || undefined,
     refFiestaId: params.get('refFiesta') || undefined,
     refGuestId: params.get('refGuest') || undefined,
     entryPath: params.get('entry') || undefined,
   }, fallbackSource);
+}
+
+/**
+ * EL CANAL POR EL QUE LLEGO MANDA SOBRE LA PAGINA QUE VISITO.
+ *
+ * Son dos cosas distintas y se confundian: un prospecto que llega de un anuncio de
+ * Facebook y cae en la landing de bodas venia de **Facebook**; la landing es donde
+ * aterrizo, no de donde vino. Guardarlo como "landing_bodas" borraba el anuncio que
+ * se pago.
+ *
+ * La pagina solo decide cuando no se sabe de donde vino. **Lo desconocido sigue
+ * siendo desconocido:** nunca se marca como Facebook por las dudas.
+ */
+export function canalDelProspecto(
+  canalQueYaVenia: CommercialSource | undefined,
+  canalSegunLaPagina: CommercialSource,
+): CommercialSource {
+  return canalQueYaVenia && canalQueYaVenia !== 'direct' ? canalQueYaVenia : canalSegunLaPagina;
 }
 
 export function commercialAttributionFromRecord(
