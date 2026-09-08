@@ -1143,7 +1143,12 @@ export default function TouchpixPage() {
                 
                 {/* Step 1: Select Category */}
                 {wizardStep === 1 && (
-                  <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    data-testid="touchpix-wizard-step"
+                    className="space-y-6"
+                  >
                     <div className="text-center space-y-2">
                       <div className="w-16 h-16 mx-auto bg-fuchsia-500/10 rounded-full flex items-center justify-center text-3xl shadow-xl shadow-fuchsia-500/5 border border-fuchsia-500/30">
                         🪄
@@ -1616,6 +1621,7 @@ export default function TouchpixPage() {
           {tabs.map(tab => (
             <button
               key={tab.id}
+              data-testid={`touchpix-tab-${tab.id}`}
               onClick={() => {
                 if (capturedImage) retake();
                 setActiveTab(tab.id);
@@ -1631,7 +1637,11 @@ export default function TouchpixPage() {
               <div className="relative">
                 {tab.icon}
                 {activeTab === tab.id && (
-                  <motion.div layoutId="tab-indicator" className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-fuchsia-400" />
+                  <motion.div
+                    layoutId="tab-indicator"
+                    data-testid="touchpix-tab-indicator"
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-fuchsia-400"
+                  />
                 )}
               </div>
               <span className="text-[10px] font-bold">{tab.label}</span>
