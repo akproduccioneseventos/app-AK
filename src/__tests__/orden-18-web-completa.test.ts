@@ -37,17 +37,21 @@ describe('Orden 18: Lo que le falta a la web para estar completa', () => {
     });
   });
 
+  /**
+   * La suscripcion a novedades se comprueba en
+   * `src/__tests__/la-suscripcion-guarda-el-correo.test.ts`, y ahi se le pide lo que
+   * importa: **que el correo quede guardado**, y que si no se puede guardar NO se le
+   * conteste que si al visitante.
+   *
+   * Lo que habia aca comprobaba el texto del cartel -"Gracias por suscribirte"- y
+   * daba verde con la funcion sin guardar nada, que es exactamente lo que estaba
+   * pasando: el correo se perdia y el visitante se iba creyendo que quedo anotado.
+   */
   describe('Bloque 5: Suscripcion a novedades', () => {
-    it('valida correos invalidos', async () => {
+    it('un correo que no es correo no se acepta', async () => {
       const res = await suscribirANovedades('correo-sin-arroba');
       expect(res.success).toBe(false);
       expect(res.message).toContain('correo electrónico válido');
-    });
-
-    it('acepta suscripciones validas', async () => {
-      const res = await suscribirANovedades('invitado.nuevo@ejemplo.com');
-      expect(res.success).toBe(true);
-      expect(res.message).toContain('Gracias por suscribirte');
     });
   });
 
