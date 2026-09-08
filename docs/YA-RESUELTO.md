@@ -7189,3 +7189,26 @@ control mas fuerte, no mas debil.
 ```comprobar
 usa: getAllRoutes en tests/e2e/recorrido-de-pantallas.spec.ts
 ```
+
+
+---
+
+## 5 de septiembre de 2026 — El recorrido acusaba pantallas sanas por ir apurado
+
+Al recorrer cuatro pantallas a la vez -que es lo que lo bajo de cuarenta minutos a doce- **las
+pantallas internas mas pesadas no llegan a dibujarse en el primer vistazo** y el control las
+llamaba muertas. Se comprobo tres veces: `/fiestas/nueva`, `/fiestas/nueva/numeros-mesa`,
+`/fiestas/nueva/pagina-web` y `/fiestas/nueva/reuniones` figuraron vacias en la corrida completa y,
+abiertas solas, estaban perfectas.
+
+**Arreglado sin aflojar el control:** a la pantalla que parece vacia se le dan hasta tres
+oportunidades, esperando cada vez un poco mas. Una rota de verdad sigue vacia las tres veces; una
+lenta aparece. Solo lo pagan las que parecen vacias, que son un punado.
+
+**La leccion:** cuando se acelera una verificacion corriendo cosas en paralelo, lo primero que
+aparece **no son fallas nuevas, son falsas alarmas por falta de tiempo**. Antes de creerle a una,
+correr esa sola.
+
+```comprobar
+usa: hasta tres intentos en tests/e2e/recorrido-de-pantallas.spec.ts
+```

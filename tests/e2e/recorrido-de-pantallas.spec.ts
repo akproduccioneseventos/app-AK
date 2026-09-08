@@ -302,8 +302,12 @@ test.describe('Recorrido de las 353 pantallas', () => {
           let interactiveCount = await page.locator('button, a, input, select, textarea').count();
           let texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
 
-          if (interactiveCount === 0 && texto.length < MINIMO_PARA_QUE_CUENTE) {
-            await page.waitForTimeout(4_000);
+          // Hasta tres intentos, esperando cada vez un poco mas. Una pantalla rota
+          // de verdad sigue vacia en los tres; una pesada aparece en el segundo o el
+          // tercero. Solo lo pagan las que parecen vacias, que son un punado.
+          for (const espera of [4_000, 6_000, 8_000]) {
+            if (interactiveCount > 0 || texto.length >= MINIMO_PARA_QUE_CUENTE) break;
+            await page.waitForTimeout(espera);
             interactiveCount = await page.locator('button, a, input, select, textarea').count();
             texto = ((await page.locator('body').innerText().catch(() => '')) || '').trim();
           }
