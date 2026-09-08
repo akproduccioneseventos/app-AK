@@ -28,6 +28,7 @@ const testEnvironment = {
   NEXT_PUBLIC_FIREBASE_APP_ID: "1:000000000000:web:test",
 };
 
+import os from "node:os";
 import { statSync } from "node:fs";
 
 /**
@@ -329,7 +330,16 @@ async function main() {
    * gigantes que recorren las 348 pantallas una por una, y esas no se dividen entre
    * nucleos. Ahi hay que mirar si algun dia se quiere acelerar de verdad.
    */
-  const trabajadoresPara = () => 1;
+  /**
+   * Cuantos trabajadores usa cada tanda. Una sola para las que comparten la fiesta;
+   * para el resto, tantos como nucleos tenga la maquina menos uno (hay que dejarle
+   * aire al servidor de la app, que corre al lado).
+   */
+  const NUCLEOS = Math.max(1, (os.cpus?.().length || 4) - 1);
+  const trabajadoresPara = (batch) =>
+    batch.some((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)))
+      ? 1
+      : Math.min(NUCLEOS, Math.max(1, batch.length));
   const tandas = [];
   /**
    * Tandas que se cayeron sin llegar a correr una sola prueba.
@@ -356,9 +366,30 @@ async function main() {
     ...allSpecFiles.filter((f) => !COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f))),
   ];
 
-  for (let i = 0; i < ordenados.length; i += BATCH_SIZE) {
-    tandas.push(ordenados.slice(i, i + BATCH_SIZE));
+  /**
+   * DOS FORMAS DE CORRER, Y ES DE DONDE SALE LA HORA QUE SE AHORRA.
+   *
+   * Antes se hacian tandas de cuatro archivos y **cada tanda con un solo trabajador**:
+   * la maquina tiene cuatro nucleos y se usaba uno. Sesenta minutos, medidos.
+   *
+   * Ahora:
+   *  - Las que comparten la fiesta de prueba siguen de a una. No se toca: si corren
+   *    juntas, una sube una foto mientras la otra las cuenta y aparecen fallas
+   *    inventadas, que es lo mas caro que hay.
+   *  - **Todas las demas van en UNA sola corrida con varios trabajadores.** Playwright
+   *    reparte por archivo, asi que cada archivo sigue teniendo su propio proceso y su
+   *    propia fiesta: lo que rompia antes -dos archivos armandose la fiesta con la hora
+   *    exacta- no se da, porque nunca dos archivos comparten proceso.
+   *
+   * Y de paso el servidor se levanta dos veces en vez de treinta y nueve.
+   */
+  const compartenLaFiesta = ordenados.filter((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)));
+  const elResto = ordenados.filter((f) => !COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)));
+
+  for (let i = 0; i < compartenLaFiesta.length; i += BATCH_SIZE) {
+    tandas.push(compartenLaFiesta.slice(i, i + BATCH_SIZE));
   }
+  if (elResto.length > 0) tandas.push(elResto);
 
   console.log(`\n======================================================`);
   console.log(`  EJECUTANDO PRUEBAS E2E EN ${tandas.length} TANDAS (TOTAL ${allSpecFiles.length} ARCHIVOS)`);
@@ -400,7 +431,7 @@ async function main() {
       // Cuanto costo levantar el servidor. Se levanta y se apaga UNA VEZ POR TANDA
       // -39 veces en la corrida entera- y hasta ahora nadie habia medido cuanto pesa eso.
       segundosDeArranque += Math.round((Date.now() - arrancoLaTanda) / 1000);
-      const trabajadores = trabajadoresPara();
+      const trabajadores = trabajadoresPara(batch);
       const result = await runPlaywright(batch, [...flags, `--workers=${trabajadores}`]);
       const tests = extractTestsFromSuites(result.json?.suites);
 
