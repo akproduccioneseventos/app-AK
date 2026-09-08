@@ -42,6 +42,9 @@ test.describe('Orden 48 - Fotocabina: recuerdo seguro y descarga con dibujo', ()
 
     const visor = page.locator('[data-testid="preview-canvas"], canvas, video, button[aria-label*="foto"]').first();
     await expect(visor).toBeVisible({ timeout: 25_000 });
+
+    const botones = page.locator('button');
+    expect(await botones.count()).toBeGreaterThan(0);
   });
 
   test('2. Descarga y publicación conservan el recuerdo sin trabas ante desconexión', async ({ page, context }) => {
@@ -51,17 +54,17 @@ test.describe('Orden 48 - Fotocabina: recuerdo seguro y descarga con dibujo', ()
       waitUntil: 'domcontentloaded',
     });
 
-    // Verificar que los botones de acción de la fotocabina están presentes
     const btnCaptura = page.locator('button[aria-label*="foto"], button:has-text("Sacar foto"), button:has-text("Capturar")').first();
     await expect(btnCaptura).toBeVisible({ timeout: 25_000 });
+    await expect(btnCaptura).toContainText(/foto|captur/i);
 
-    // Simular que el navegador pasa a modo sin conexión
+    // Simular corte de red y verificar que la cabina no colapsa
     await context.setOffline(true);
     await page.waitForTimeout(300);
 
-    // Al restaurar la conexión, la cabina debe seguir operando de forma estable
+    // Al volver la red, el botón sigue disponible con su texto
     await context.setOffline(false);
     await page.waitForTimeout(300);
-    await expect(btnCaptura).toBeVisible();
+    await expect(btnCaptura).toContainText(/foto|captur/i);
   });
 });

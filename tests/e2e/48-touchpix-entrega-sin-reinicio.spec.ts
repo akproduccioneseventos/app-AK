@@ -44,6 +44,10 @@ test.describe('Orden 48 - Touchpix: entrega sin reinicio prematuro', () => {
 
     const botonFoto = page.locator('button[aria-label*="foto"], button[title*="foto"]').first();
     await expect(botonFoto).toBeVisible({ timeout: 25_000 });
+    await expect(botonFoto).toHaveAttribute('title', /foto/i);
+
+    const tabs = page.locator('[data-testid*="touchpix-tab-"]');
+    expect(await tabs.count()).toBeGreaterThan(0);
   });
 
   test('2. La estación no se reinicia abruptamente durante procesos en curso', async ({ page }) => {
@@ -55,17 +59,19 @@ test.describe('Orden 48 - Touchpix: entrega sin reinicio prematuro', () => {
 
     const barraInferior = page.locator('[data-testid="touchpix-tab-foto"]');
     await expect(barraInferior).toBeVisible({ timeout: 25_000 });
+    await expect(barraInferior).toContainText(/foto/i);
 
-    // Alternar entre pestañas y verificar estabilidad sin cierres involuntarios
+    // Alternar a la pestaña de rostros/IA y verificar estabilidad
     const tabFaceswap = page.locator('[data-testid="touchpix-tab-faceswap"]');
     await tabFaceswap.click();
     await page.waitForTimeout(400);
 
     const wizard = page.locator('[data-testid="touchpix-wizard-step"]');
     await expect(wizard).toBeVisible();
+    await expect(wizard).toContainText(/Asistente|Retrato|Transformación/i);
 
-    // Esperar unos segundos y confirmar que la pantalla sigue activa
+    // Esperar y confirmar que la pantalla sigue activa con su texto
     await page.waitForTimeout(1500);
-    await expect(wizard).toBeVisible();
+    await expect(wizard).toContainText(/Asistente|Retrato|Transformación/i);
   });
 });
