@@ -7549,6 +7549,12 @@ Es exactamente la trampa ya anotada: **cuando se acelera algo en paralelo, lo pr
 no son fallas nuevas, son falsas alarmas por falta de tiempo.** El recorrido quedo afuera del
 cortafuegos: ya tiene su propio paso y su propio acotado.
 
+Y volvio a pasar una segunda vez, ahora con la demo de la portada: pasaba sola y fallaba en la
+tanda. Por eso **el cortafuegos corre de a una prueba por vez**. Parece al reves de lo que se
+busca -que sea rapido- pero no lo es: **diez archivos tardan dos minutos**, y una respuesta que
+manda a investigar una falla que no existe cuesta mucho mas que eso. El cortafuegos tiene que ser
+confiable antes que rapido; el que tiene que ser rapido es el que no encuentra nada.
+
 ```comprobar
 archivo: scripts/pruebas-nuevas-primero.mjs
 usa: NO_ENTRAN en scripts/pruebas-nuevas-primero.mjs

@@ -441,10 +441,23 @@ async function main() {
    * aire al servidor de la app, que corre al lado).
    */
   const NUCLEOS = Math.max(1, (os.cpus?.().length || 4) - 1);
+  /**
+   * Cuantas pruebas a la vez. Se puede pedir de a una con `AK_TRABAJADORES=1`.
+   *
+   * **Para que existe esa perilla:** el cortafuegos -las pruebas nuevas corridas antes
+   * que el resto- necesita una respuesta en la que se pueda confiar, no la mas rapida.
+   * Corriendo varias a la vez en una maquina de cuatro nucleos, las pantallas pesadas
+   * se quedan sin maquina y acusan fallas que no existen: paso el 9 de septiembre de
+   * 2026 con siete pantallas "muertas" que estaban perfectas y con la demo de la
+   * portada. Ahi conviene ir de a una: son dos minutos igual.
+   */
+  const pedidas = Number(process.env.AK_TRABAJADORES || 0);
   const trabajadoresPara = (batch) =>
-    batch.some((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)))
-      ? 1
-      : Math.min(NUCLEOS, Math.max(1, batch.length));
+    pedidas > 0
+      ? pedidas
+      : batch.some((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)))
+        ? 1
+        : Math.min(NUCLEOS, Math.max(1, batch.length));
   const tandas = [];
   /**
    * Tandas que se cayeron sin llegar a correr una sola prueba.

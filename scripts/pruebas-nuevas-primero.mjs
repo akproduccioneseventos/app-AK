@@ -80,7 +80,12 @@ console.log('\nSe corren solas antes que el resto. Si algo esta mal, se sabe en 
 const r = spawnSync('node', ['scripts/run-playwright-production.mjs', ...specs], {
   stdio: 'inherit',
   shell: true,
-  env: { ...process.env, AK_RECORRIDO: 'true' },
+  /**
+   * DE A UNA POR VEZ. El cortafuegos tiene que dar una respuesta CONFIABLE, no la
+   * mas rapida: si acusa una falla que no existe, obliga a investigar de gusto, que
+   * es justo lo que se queria evitar. Con dos o tres archivos son un par de minutos.
+   */
+  env: { ...process.env, AK_RECORRIDO: 'true', AK_TRABAJADORES: '1' },
 });
 
 process.exit(r.status ?? 1);
