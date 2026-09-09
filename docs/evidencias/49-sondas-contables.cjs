@@ -44,10 +44,22 @@ const fixture = { id: 'audit-event', planDePagos: { cuotas: [
 ] } };
 
 function budgetContext(extra = {}) {
+  const mutex = evaluate(declarations('src/lib/mutex.ts', ['AsyncMutex']));
+  let storedBudget = clone(budget);
   return {
     ...money, ...duplicate,
+    presupuestosMutex: new mutex.AsyncMutex(),
     verifySession: async () => ({ success: true, user: { perfil: 'dueno' } }),
-    getPresupuestoById: async () => clone(budget),
+    getPresupuestoById: async () => clone(storedBudget),
+    getPresupuestos: async () => [storedBudget],
+    guardarPresupuestoSinTurno: async (p) => {
+      storedBudget = clone(p);
+      return { success: true, presupuesto: storedBudget };
+    },
+    updatePresupuesto: async (p) => {
+      storedBudget = clone(p);
+      return { success: true, presupuesto: storedBudget };
+    },
     shouldDedupePaymentReference: (ref) => !!ref?.startsWith('AK_SYNC:'),
     validatePaymentAgainstBudget: () => ({ ok: true }),
     createNotification: async () => {},
@@ -83,7 +95,8 @@ async function probe(id, run) {
   });
   await probe('CON-02a invoice mirror must propagate failed save', async () => {
     const actions = evaluate(budgetSource, budgetContext({
-      getPresupuestoById: async () => ({ ...clone(budget), pagosCliente: [{ ...payment, id: 'manual' }] }),
+      getPresupuestos: async () => [{ ...clone(budget), pagosCliente: [{ ...payment, id: 'manual' }] }],
+      guardarPresupuestoSinTurno: async () => ({ success: false, error: 'Injected storage failure' }),
       updatePresupuesto: async () => ({ success: false, error: 'Injected storage failure' }),
     }));
     const result = await actions.addPagoToPresupuesto(budget.id, { ...payment, referencia: 'AK_SYNC:invoice:i:payment:p' });
@@ -92,7 +105,8 @@ async function probe(id, run) {
   await probe('CON-02b confirmed mirror must resolve pending twin', async () => {
     let stored;
     const actions = evaluate(budgetSource, budgetContext({
-      getPresupuestoById: async () => ({ ...clone(budget), pagosCliente: [{ ...payment, id: 'manual', estadoPago: 'pendiente_confirmacion' }] }),
+      getPresupuestos: async () => [{ ...clone(budget), pagosCliente: [{ ...payment, id: 'manual', estadoPago: 'pendiente_confirmacion' }] }],
+      guardarPresupuestoSinTurno: async (value) => { stored = clone(value); return { success: true, presupuesto: value }; },
       updatePresupuesto: async (value) => { stored = clone(value); return { success: true, presupuesto: value }; },
     }));
     await actions.addPagoToPresupuesto(budget.id, { ...payment, referencia: 'AK_SYNC:invoice:i:payment:p' });
@@ -101,14 +115,14 @@ async function probe(id, run) {
   await probe('CON-03 two simultaneous payments must both remain', async () => {
     let stored = clone(budget);
     const mutex = evaluate(declarations('src/lib/mutex.ts', ['AsyncMutex']));
-    const actions = evaluate(budgetSource + '\n' + declarations('src/app/actions/presupuestos.ts', ['updatePresupuesto']), budgetContext({
-      presupuestosMutex: new mutex.AsyncMutex(), PRESUPUESTOS_FILE: 'test-only',
-      getPresupuestoById: async () => clone(stored), getPresupuestos: async () => [clone(stored)],
-      isBudgetContractSigned: async () => false, hasBudgetStructureChanged: () => false,
-      recalcularCostoItem: () => 0, normalizePresupuestoFinancials: (x) => x,
-      findLeadByBudgetOrCreate: async () => ({ lead: { id: 'fake-lead' } }),
-      writeData: async (_file, values) => { stored = clone(values[0]); },
-      syncLinkedFiesta: async () => {},
+    const sharedMutex = new mutex.AsyncMutex();
+    const actions = evaluate(budgetSource, budgetContext({
+      presupuestosMutex: sharedMutex,
+      getPresupuestos: async () => [clone(stored)],
+      guardarPresupuestoSinTurno: async (value) => {
+        stored = clone(value);
+        return { success: true, presupuesto: value };
+      },
     }));
     const responses = await Promise.all([
       actions.addPagoToPresupuesto(budget.id, { ...payment, monto: 1000 }),

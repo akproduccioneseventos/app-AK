@@ -74,10 +74,13 @@ export default async function MarketingAdsPage() {
     }
   }
 
+  // Los datos de insights representan gasto histórico, NO el presupuesto diario configurado ni el estado activo.
+  // No inventamos un valor de respaldo ($500) ni asumimos activa: true sin verificación real.
   const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => ({
     nombre: c.name,
-    presupuestoDiarioUYU: Math.max(0, Math.round(c.spend / 30)) || 500,
-    activa: true,
+    presupuestoDiarioUYU: 0,
+    activa: false,
+    verificado: false,
   }));
 
   const [estadoDelTope, historialAcciones, analisisClienteIdeal] = await Promise.all([

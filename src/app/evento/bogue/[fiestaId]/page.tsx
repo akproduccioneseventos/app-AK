@@ -117,6 +117,7 @@ export default function BoguePage() {
   const [isPrinting, setIsPrinting] = useState(false);
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [retakesCount, setRetakesCount] = useState(0);
 
   const [selectedFrame, setSelectedFrame] = useState('none');
   const cuadrosDelLoop = fiesta?.station.cuadrosDelLoop || 15;
@@ -372,6 +373,13 @@ export default function BoguePage() {
   };
 
   const completeGuestCycle = () => {
+    setRetakesCount(0);
+    void completeEntertainmentSessionCycle(fiestaId, 'bogue', accessToken);
+    resetLocalState();
+  };
+
+  const handleGuestRetake = () => {
+    setRetakesCount((prev) => prev + 1);
     void completeEntertainmentSessionCycle(fiestaId, 'bogue', accessToken);
     resetLocalState();
   };
@@ -1281,9 +1289,9 @@ export default function BoguePage() {
               )}
 
               <div className="space-y-3 w-full mt-4">
-                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
+                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && retakesCount < fiesta.station.maxRetakes && (
                   <button
-                    onClick={completeGuestCycle}
+                    onClick={handleGuestRetake}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
                     <RefreshCw className="w-4 h-4" /> Grabar otra vez

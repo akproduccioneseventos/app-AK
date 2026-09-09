@@ -44,6 +44,10 @@ export interface EstadoDelTope {
   /** Lo que queda disponible. Nunca menos de cero. */
   disponibleUYU: number;
   diasQueQuedanDelMes: number;
+  /** Indica si todas las fuentes de presupuesto están verificadas */
+  compromisoVerificado?: boolean;
+  /** Motivo en caso de que el compromiso no esté verificado */
+  motivoNoVerificado?: string;
 }
 
 export interface CampanaConPresupuesto {
@@ -51,6 +55,8 @@ export interface CampanaConPresupuesto {
   /** Presupuesto diario en pesos uruguayos. */
   presupuestoDiarioUYU: number;
   activa: boolean;
+  /** Si el presupuesto diario y estado fueron verificados con la API real de Meta o provienen de configuración confirmada. */
+  verificado?: boolean;
 }
 
 export type Veredicto =
@@ -156,12 +162,19 @@ export async function getEstadoDelTope(
   ahora = new Date()
 ): Promise<EstadoDelTope> {
   const { topeMensualUYU } = await getTopeDeGasto();
+  const campanasSinVerificar = campanas.filter((c) => c.verificado === false);
+  const tieneDatosFaltantes = campanasSinVerificar.length > 0;
+
   const comprometidoUYU = calcularComprometido(campanas, ahora);
   return {
     topeMensualUYU,
     comprometidoUYU,
-    disponibleUYU: Math.max(0, topeMensualUYU - comprometidoUYU),
+    disponibleUYU: tieneDatosFaltantes ? 0 : Math.max(0, topeMensualUYU - comprometidoUYU),
     diasQueQuedanDelMes: diasQueQuedanDelMes(ahora),
+    compromisoVerificado: !tieneDatosFaltantes,
+    motivoNoVerificado: tieneDatosFaltantes
+      ? `Hay ${campanasSinVerificar.length} campaña(s) sin presupuesto confirmado en Meta. No se asume saldo libre para prevenir sobregastos.`
+      : undefined,
   };
 }
 
@@ -178,20 +191,6 @@ export async function puedeComprometer(
     campanas: CampanaConPresupuesto[];
     presupuestoDiarioActualUYU: number;
     nuevoPresupuestoDiarioUYU: number;
-    /**
-     * Que se le esta por hacer a la campana. Encender y crear se niegan siempre,
-     * antes de mirar el tope: no es una cuestion de cuanta plata queda, es del dueno.
-     *
-     * **Es OBLIGATORIO, y lo es por algo que ya paso.** Nacio opcional, y la primera
-     * entrega que uso este modulo simplemente no lo mando en `crearCampana` ni en
-     * `reactivarCampana`. Al ser opcional, el revisor de tipos no dijo nada y **la
-     * prohibicion de encender campanas quedo salteada en silencio**: con lugar bajo el
-     * tope, el agente habria creado y reactivado campanas solo, que es exactamente lo
-     * unico que el dueno pidio que no pasara.
-     *
-     * Ahora olvidarlo **no compila**. Es la misma idea que gobierna todo el modulo: lo
-     * que protege plata no puede depender de que alguien se acuerde.
-     */
     tipo: TipoDeCambio;
   },
   ahora = new Date()
@@ -215,6 +214,13 @@ export async function puedeComprometer(
     return {
       permitido: true,
       disponibleDespuesUYU: Math.max(0, estado.disponibleUYU - diferenciaDiaria * dias),
+    };
+  }
+
+  if (campanas.some((c) => c.verificado === false)) {
+    return {
+      permitido: false,
+      motivo: 'No se puede comprometer plata porque existen campañas con presupuesto no verificado en Meta.',
     };
   }
 

@@ -830,14 +830,14 @@ export default function FotocabinaPage() {
       lienzoDibujoRef.current.mergeToCanvas(canvasRef.current);
     }
     setLocalStatus('processing');
-    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    await updateEntertainmentSessionStatus(
+    // no-mira-el-resultado: aviso secundario a la pantalla del operador; no debe frenar ni abortar el guardado local
+    void updateEntertainmentSessionStatus(
       fiestaId,
       'fotocabina',
       'processing',
       {},
       accessToken
-    );
+    ).catch(() => undefined);
     setIsUploading(true);
     speak("Subiendo tu foto al muro");
 
@@ -972,9 +972,17 @@ export default function FotocabinaPage() {
   };
 
   const handleDownload = () => {
-    if (!capturedImage) return;
+    if (!capturedImage && !canvasRef.current) return;
+    if (canvasRef.current && lienzoDibujoRef.current?.hasDrawing()) {
+      lienzoDibujoRef.current.mergeToCanvas(canvasRef.current);
+    }
+    const finalUrl = canvasRef.current
+      ? canvasRef.current.toDataURL('image/jpeg', 0.95)
+      : capturedImage;
+    if (!finalUrl) return;
+
     const a = document.createElement('a');
-    a.href = capturedImage;
+    a.href = finalUrl;
     a.download = `AK-Fotocabina-${Date.now()}.jpg`;
     document.body.appendChild(a);
     a.click();

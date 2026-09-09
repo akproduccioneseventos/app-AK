@@ -121,6 +121,7 @@ export default function Plataforma360Page() {
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [customAudioUrl, setCustomAudioUrl] = useState<string | null>(null);
   const [capturedFrames, setCapturedFrames] = useState<HTMLCanvasElement[]>([]);
+  const [retakesCount, setRetakesCount] = useState(0);
   const customAudioRef = useRef<HTMLAudioElement | null>(null);
   const drawCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const vueltas360 = fiesta?.station.vueltas360 || 2;
@@ -330,6 +331,13 @@ export default function Plataforma360Page() {
   };
 
   const completeGuestCycle = () => {
+    setRetakesCount(0);
+    void completeEntertainmentSessionCycle(fiestaId, 'plataforma360', accessToken);
+    resetLocalState();
+  };
+
+  const handleGuestRetake = () => {
+    setRetakesCount((prev) => prev + 1);
     void completeEntertainmentSessionCycle(fiestaId, 'plataforma360', accessToken);
     resetLocalState();
   };
@@ -1062,9 +1070,9 @@ export default function Plataforma360Page() {
               </div>
 
               <div className="space-y-3 w-full">
-                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
+                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && retakesCount < fiesta.station.maxRetakes && (
                   <button
-                    onClick={completeGuestCycle}
+                    onClick={handleGuestRetake}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
                     <RefreshCw className="w-4 h-4" /> Grabar otro video

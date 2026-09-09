@@ -100,10 +100,16 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
 
   const handleOneTouchPublish = () => {
     const adaptedText = adaptTextForPlatform(post.platform, post.text, post.link);
-    navigator.clipboard.writeText(adaptedText);
-    setCopiedText(true);
 
-    // Si tiene archivo multimedia, disparar descarga automática
+    // 1. Apertura inmediata para preservar el gesto de usuario y evitar que el navegador bloquee la ventana
+    const actionUrl = getOneTouchActionUrl(post.platform, adaptedText);
+    try {
+      window.open(actionUrl, '_blank');
+    } catch (e) {
+      console.warn('[SocialPostCard] No se pudo abrir la ventana de la red social:', e);
+    }
+
+    // 2. Si tiene archivo multimedia, disparar descarga automática
     if (post.mediaUrl) {
       const a = document.createElement('a');
       a.href = post.mediaUrl;
@@ -115,23 +121,58 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
       document.body.removeChild(a);
     }
 
-    const actionUrl = getOneTouchActionUrl(post.platform, adaptedText);
-    window.open(actionUrl, '_blank');
-
+    // 3. Copiado al portapapeles verificando el resultado de la promesa
     const config = ONE_TOUCH_CONFIGS[post.platform];
-    toast({
-      title: `¡Listo para ${config?.displayName || post.platform}!`,
-      description: config?.instructions || 'Texto copiado. Pegalo en la aplicación que se acaba de abrir.',
-    });
-    setTimeout(() => setCopiedText(false), 2500);
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(adaptedText)
+        .then(() => {
+          setCopiedText(true);
+          toast({
+            title: `¡Listo para ${config?.displayName || post.platform}!`,
+            description: config?.instructions || 'Texto copiado. Pegalo en la aplicación que se acaba de abrir.',
+          });
+          setTimeout(() => setCopiedText(false), 2500);
+        })
+        .catch((err) => {
+          console.warn('[SocialPostCard] Portapapeles rechazado:', err);
+          toast({
+            title: `Red social abierta`,
+            description: 'No se pudo copiar el texto automáticamente. Usá el botón Copiar manualmente.',
+            variant: 'destructive',
+          });
+        });
+    } else {
+      toast({
+        title: `Red social abierta`,
+        description: 'Tu navegador no permite copiar automáticamente al portapapeles.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleCopyText = () => {
+  const handleCopyText = async () => {
     const adaptedText = adaptTextForPlatform(post.platform, post.text, post.link);
-    navigator.clipboard.writeText(adaptedText);
-    setCopiedText(true);
-    toast({ title: `Texto adaptado para ${post.platform} copiado` });
-    setTimeout(() => setCopiedText(false), 2000);
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(adaptedText);
+        setCopiedText(true);
+        toast({ title: `Texto adaptado para ${post.platform} copiado` });
+        setTimeout(() => setCopiedText(false), 2000);
+      } catch (err: any) {
+        console.warn('[SocialPostCard] No se pudo copiar texto:', err);
+        toast({
+          title: 'No se pudo copiar el texto',
+          description: 'El navegador denegó el acceso al portapapeles.',
+          variant: 'destructive',
+        });
+      }
+    } else {
+      toast({
+        title: 'Portapapeles no disponible',
+        description: 'Este navegador o contexto no permite copiar.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const isFailed = post.status === 'Falló' || post.status === 'Error' || !!post.lastError;
@@ -145,7 +186,7 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
                 {platformIcons[post.platform]}
                 <CardTitle className="text-lg font-headline">{post.platform}</CardTitle>
             </div>
-            <Badge 
+            <Badge
               variant={isPublished ? 'default' : isFailed ? 'destructive' : 'secondary'}
               className={
                 post.status === 'Listo para copiar'
@@ -172,7 +213,19 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
       <CardContent className="flex-grow space-y-3">
         {post.mediaUrl && (
           <div className="relative aspect-video rounded-md overflow-hidden bg-muted">
-             <NextImage src={post.mediaUrl} alt="Vista previa del post" layout="fill" objectFit="cover" />
+            {post.mediaType === 'video' ? (
+              <video
+                src={post.mediaUrl}
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-cover"
+              >
+                Tu navegador no admite reproducción de video.
+              </video>
+            ) : (
+              <NextImage src={post.mediaUrl} alt="Vista previa del post" layout="fill" objectFit="cover" />
+            )}
           </div>
         )}
         <p className="text-sm text-foreground line-clamp-4 whitespace-pre-wrap">{post.text}</p>

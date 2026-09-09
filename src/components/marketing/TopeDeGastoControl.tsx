@@ -93,12 +93,21 @@ export function TopeDeGastoControl({ estadoInicial, historialInicial }: Props) {
 
           {/* Card 2: Comprometido */}
           <div className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-4">
-            <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Comprometido en el Mes</span>
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Comprometido en el Mes</span>
+              {estado.compromisoVerificado === false && (
+                <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">
+                  No verificado
+                </span>
+              )}
+            </div>
             <p className="mt-2 text-2xl font-black text-amber-700">
               ${Math.round(estado.comprometidoUYU).toLocaleString('es-UY')}
             </p>
             <p className="mt-1 text-[11px] text-zinc-500 font-medium">
-              Por campañas activas en los {estado.diasQueQuedanDelMes} días restantes
+              {estado.compromisoVerificado === false
+                ? (estado.motivoNoVerificado || 'Faltan presupuestos diarios verificados en Meta')
+                : `Por campañas activas en los ${estado.diasQueQuedanDelMes} días restantes`}
             </p>
           </div>
 
@@ -109,7 +118,9 @@ export function TopeDeGastoControl({ estadoInicial, historialInicial }: Props) {
               ${Math.round(estado.disponibleUYU).toLocaleString('es-UY')}
             </p>
             <p className="mt-1 text-[11px] text-emerald-600 font-medium">
-              Margen libre para escalar o crear campañas
+              {estado.compromisoVerificado === false
+                ? 'Sin saldo libre asignable hasta verificar presupuestos reales'
+                : 'Margen libre para optimizar presupuestos de campañas activas'}
             </p>
           </div>
         </div>

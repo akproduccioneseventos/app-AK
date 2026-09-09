@@ -136,6 +136,8 @@ export default function TouchpixPage() {
   const [session, setSession] = useState<EntertainmentSession | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+  const [retakesCount, setRetakesCount] = useState(0);
+  const activeUploadSessionIdRef = useRef<string | null>(null);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
   const imagenFondoRef = useRef<HTMLImageElement | null>(null);
@@ -711,7 +713,7 @@ export default function TouchpixPage() {
   }, [capturedImage]);
 
   /* ── Retake ── */
-  const retake = useCallback(() => {
+  const retake = useCallback((isUserInitiated = false) => {
     setCapturedImage(null);
     setRawCapturedImage(null);
     setIsProcessing(false);
@@ -720,23 +722,33 @@ export default function TouchpixPage() {
     setWizardStep(0);
     setConsentAccepted(false);
     setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+    if (!isUserInitiated) {
+      setRetakesCount(0);
+    }
     void completeEntertainmentSessionCycle(fiestaId, 'espejoMagicoIA', accessToken);
     startCamera();
   }, [accessToken, fiestaId, startCamera]);
 
+  const handleUserRetake = useCallback(() => {
+    setRetakesCount((prev) => prev + 1);
+    retake(true);
+  }, [retake]);
+
   useEffect(() => {
-    if (capturedImage && !isProcessing && fiesta?.station?.reviewSeconds) {
+    if (capturedImage && !isProcessing && !isUploading && fiesta?.station?.reviewSeconds) {
       const timer = setTimeout(() => {
         retake();
       }, fiesta.station.reviewSeconds * 1000);
       return () => clearTimeout(timer);
     }
-  }, [capturedImage, isProcessing, fiesta?.station?.reviewSeconds, retake]);
+  }, [capturedImage, isProcessing, isUploading, fiesta?.station?.reviewSeconds, retake]);
 
   /* ── Upload ── */
   const handleUpload = useCallback(async () => {
     if (!capturedImage) return;
     setIsUploading(true);
+    const sessionForThisUpload = photoSessionId;
+    activeUploadSessionIdRef.current = sessionForThisUpload;
 
     let pendingFile: File | null = null;
     let uploadConfirmed = false;
@@ -779,8 +791,10 @@ export default function TouchpixPage() {
       setQueuedOffline(false);
       setShowSuccess(true);
       setTimeout(() => {
-        setShowSuccess(false);
-        retake();
+        if (activeUploadSessionIdRef.current === sessionForThisUpload) {
+          setShowSuccess(false);
+          retake();
+        }
       }, 3000);
     } catch (err: any) {
       const errMsg = String(err?.message || '');
@@ -792,8 +806,10 @@ export default function TouchpixPage() {
         setQueuedOffline(false);
         setShowSuccess(true);
         setTimeout(() => {
-          setShowSuccess(false);
-          retake();
+          if (activeUploadSessionIdRef.current === sessionForThisUpload) {
+            setShowSuccess(false);
+            retake();
+          }
         }, 3000);
         return;
       }
@@ -831,8 +847,10 @@ export default function TouchpixPage() {
             accessToken,
           ).catch(() => undefined);
           setTimeout(() => {
-            setShowSuccess(false);
-            retake();
+            if (activeUploadSessionIdRef.current === sessionForThisUpload) {
+              setShowSuccess(false);
+              retake();
+            }
           }, 4000);
           return;
         } catch (offlineError) {
@@ -843,7 +861,7 @@ export default function TouchpixPage() {
     } finally {
       setIsUploading(false);
     }
-  }, [accessToken, activeTab, capturedImage, fiestaId, guestAccessToken, guestId, retake, selectedAiTheme, selectedCharacter]);
+  }, [accessToken, activeTab, capturedImage, fiestaId, guestAccessToken, guestId, photoSessionId, retake, selectedAiTheme, selectedCharacter]);
 
   /* ── Get current CSS filter for live preview ── */
   const getLiveFilter = (): string => {
@@ -1451,8 +1469,8 @@ export default function TouchpixPage() {
         {isReviewMode && !isProcessing && (
           <motion.div initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="px-4 pt-4 pb-3">
             <div className="flex items-center justify-around">
-              {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
-                <button onClick={retake} className="flex flex-col items-center gap-1.5 text-zinc-400 hover:text-white transition">
+              {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && retakesCount < fiesta.station.maxRetakes && (
+                <button onClick={handleUserRetake} className="flex flex-col items-center gap-1.5 text-zinc-400 hover:text-white transition">
                   <div className="h-[52px] w-[52px] rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                     <RefreshCw className="w-5 h-5" />
                   </div>
@@ -1520,8 +1538,8 @@ export default function TouchpixPage() {
               ))}
             </div>
             <div className="flex gap-2">
-              {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
-                <button onClick={retake} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-zinc-400 hover:text-white">← Repetir</button>
+              {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && retakesCount < fiesta.station.maxRetakes && (
+                <button onClick={handleUserRetake} className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-zinc-400 hover:text-white">← Repetir</button>
               )}
               <button
                 onClick={() => {
