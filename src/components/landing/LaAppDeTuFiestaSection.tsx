@@ -176,6 +176,10 @@ export function LaAppDeTuFiestaSection({
                 <button
                   key={m.id}
                   type="button"
+                  // Marca el boton de cada momento. La prueba de la orden 50 cuenta
+                  // estos y no "todos los botones de la seccion": adentro hay
+                  // tambien los de la demo, y contarlos todos la volvia fragil.
+                  data-testid="momento-de-la-app"
                   onClick={() => setMomentoActivo(m.id)}
                   className={cn(
                     "flex flex-shrink-0 items-center gap-2.5 rounded-2xl border px-4 py-3.5 text-left transition-all duration-200 sm:flex-col sm:items-start sm:gap-2 sm:p-4",

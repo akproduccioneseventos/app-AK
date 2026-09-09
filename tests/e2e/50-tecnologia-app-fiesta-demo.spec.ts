@@ -18,7 +18,7 @@ test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
     await expect(techSection.getByRole('heading', { level: 2, name: /La app de tu fiesta/i })).toHaveText(/La app de tu fiesta/);
 
     // Tabs de los 5 momentos
-    await expect(techSection.locator('button')).toHaveCount(5);
+    await expect(techSection.locator('[data-testid="momento-de-la-app"]')).toHaveCount(5);
 
     // Verificación de la fiesta demo identificada y segura
     await expect(techSection.locator('text=DEMO EN VIVO')).toHaveText(/DEMO EN VIVO/);

@@ -7422,3 +7422,34 @@ duplicada dentro de la galería: dos copias de la misma regla se despegan y la v
 usa: dailyBudgetUYU en src/app/(app)/contabilidad/crm/marketing-ads/page.tsx
 prueba: src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — Seis pruebas nuevas que daban falsa confianza, y un ancla repetida
+
+Las pruebas de navegador que llegaron con las ordenes 47, 48, 49 y 50 **no comprobaban nada**.
+Pedian cosas como que la cantidad de botones fuera "mayor o igual que cero" o que el primer texto
+de la pantalla no estuviera vacio: eso da verde con la pantalla apagada. Ademas apuntaban a una
+fiesta que no existe, asi que abrian el cartel de "evento no encontrado" y lo daban por bueno.
+
+Reescritas para pedir el resultado: la fotocabina tiene que levantar **con la camara andando**
+-si no, sale el cartel de error y no hay recuerdo-, Touchpix tiene que **responder al cambio de
+pestana** midiendo que el indicador se movio de lugar, el panel de publicidad tiene que decir si
+el presupuesto esta verificado **o** avisar que no, pero nunca las dos cosas, y el flujo de caja
+tiene que mostrar numeros **o** avisar, nunca ceros con un error al lado.
+
+Y donde el navegador no puede comprobar algo con honestidad, **se dice en la prueba y se apunta a
+donde si se comprueba**, en vez de escribir una version de mentira: los permisos de las facturas
+no se pueden probar en el navegador porque la sesion de prueba entra como dueno.
+
+**Un defecto de verdad encontrado en el camino:** la portada tenia **dos secciones con el mismo
+nombre de ancla** ("tecnologia"), la nueva de la app y la vieja de los equipos. El menu apunta ahi
+y el navegador elegia una a dedo. Es el mismo error que ya habia pasado con la portada. La seccion
+de la app se queda con el ancla; la de equipos sigue viendose, con otro nombre.
+
+```comprobar
+usa: enchufarCamaraFalsa en tests/e2e/48-fotocabina-recuerdo-seguro.spec.ts
+usa: momento-de-la-app en src/components/landing/LaAppDeTuFiestaSection.tsx
+prueba: tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts
+```

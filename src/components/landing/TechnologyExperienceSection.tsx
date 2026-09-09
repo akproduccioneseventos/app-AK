@@ -54,7 +54,16 @@ export default function TechnologyExperienceSection({
 
   return (
     <section
-      id="tecnologia"
+      /**
+       * OJO: acá NO va `id="tecnologia"`.
+       *
+       * Ese identificador lo lleva ahora `LaAppDeTuFiestaSection`, que es la sección
+       * de tecnología que pidió el dueño el 8 de septiembre de 2026: la de **la app**,
+       * no la de los equipos. Tenerlo en las dos deja la portada con dos elementos con
+       * el mismo nombre y el navegador elige uno a dedo, igual que pasó antes con la
+       * portada. Esta sección sigue existiendo y se ve; sólo no es el ancla.
+       */
+      id="tecnologia-equipos"
       className="border-y border-slate-200 bg-white py-20 text-slate-950 sm:py-24"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
