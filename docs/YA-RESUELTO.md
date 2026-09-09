@@ -7560,3 +7560,25 @@ archivo: scripts/pruebas-nuevas-primero.mjs
 usa: NO_ENTRAN en scripts/pruebas-nuevas-primero.mjs
 usa: ARCHIVO_DEL_TURNO en scripts/run-playwright-production.mjs
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — Las estaciones quedaron escondidas detras de un clic en la portada
+
+La entrega de la orden 50 puso la seccion de la app primero —que es lo que pidio el dueno— pero
+metio **la fotocabina, el 360 y el espejo adentro de un desplegable** ("Ver mas"). La prueba de la
+portada las encontro escondidas y freno la publicacion.
+
+**Y estaba bien que frenara.** Eso no es un detalle de programacion: es **una decision de venta**,
+y las decisiones de venta las toma el dueno. Las estaciones estaban a la vista desde siempre y son
+lo que mas se vende; un prospecto que no abre el desplegable -que son casi todos- deja de ver la
+mitad de la oferta.
+
+**Como quedo:** la app va primero, como se pidio, y las estaciones **siguen a la vista** abajo,
+presentadas como lo que son: lo que se monta en la fiesta. No se saco nada y no se escondio nada.
+
+```comprobar
+usa: InteractiveTechShowcase en src/app/page.tsx
+prueba: tests/e2e/la-app-se-mueve.spec.ts
+```
