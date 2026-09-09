@@ -19,9 +19,23 @@ export async function updateDecoracion(fiestaId: string, decoracion: DecoracionD
     const result = await saveFiesta(updatedData);
     if (!result.success) throw new Error(result.error);
 
-    // Auto-sincronización de costos de decoración con el módulo de gestión de costos
-    if (decoracion.itemsDecoracion && decoracion.itemsDecoracion.length > 0) {
-      void syncDecoGastosToModule(fiestaId, decoracion.itemsDecoracion).catch(() => {});
+    /**
+     * LOS GASTOS DE DECORACION SE SINCRONIZAN SIEMPRE, TAMBIEN CUANDO NO QUEDA NADA.
+     *
+     * **Antes solo se sincronizaba si habia elementos.** Al sacar toda la decoracion,
+     * los gastos de la decoracion vieja **quedaban cargados igual**: el costo del
+     * evento seguia contando adornos que ya no estaban, y la ganancia salia mal.
+     *
+     * Y no se mira "por las dudas": si la sincronizacion falla, se avisa. Antes se
+     * tiraba el resultado a la basura, asi que un error ahi no lo veia nadie.
+     */
+    const sincronizado = await syncDecoGastosToModule(fiestaId, decoracion.itemsDecoracion || []);
+    if (!sincronizado.success) {
+      return {
+        success: false,
+        error: sincronizado.error || 'La decoracion se guardo, pero los gastos no se pudieron actualizar.',
+        updatedData: result.fiesta?.decoracion,
+      };
     }
 
     return { success: true, updatedData: result.fiesta?.decoracion };

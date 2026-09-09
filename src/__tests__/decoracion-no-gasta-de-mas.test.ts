@@ -24,7 +24,12 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: (...args: unknown[]) => getFiestaById(...args),
   saveFiesta: (...args: unknown[]) => saveFiesta(...args),
 }));
-jest.mock('@/app/actions/fiesta/costos.actions', () => ({ updateGestionCostos: jest.fn() }));
+// Desde el 9 de septiembre de 2026 guardar la decoracion **siempre** sincroniza los
+// gastos -tambien cuando no queda ningun elemento- y mira el resultado. Sin este
+// mock devolviendo que si, el guardado contesta que no, que es justo lo que se pidio.
+jest.mock('@/app/actions/fiesta/costos.actions', () => ({
+  updateGestionCostos: jest.fn(async () => ({ success: true })),
+}));
 jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn() }));
 jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: jest.fn(async () => []) }));
 

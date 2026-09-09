@@ -6,7 +6,6 @@ import type { FiestaEnPlanificacion, CompraProveedorEstado, Tarea } from '@/type
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
-import { addTareaToFiestaActual } from '../fiesta-actual';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 const FIESTAS_DIR = 'fiestas';
@@ -29,30 +28,48 @@ export async function updateShoppingListStatus(fiestaId: string, estados: Compra
         let fiesta: FiestaEnPlanificacion = await getFiestaById(fiestaId) as FiestaEnPlanificacion;
         if (!fiesta) throw new Error("Fiesta no encontrada");
         
-        // Buscar cambios para crear tareas automáticas de pago
+        /**
+         * LA TAREA DE PAGO SE ARMA ACA Y SE GUARDA UNA SOLA VEZ.
+         *
+         * **Antes se perdia.** La tarea "Pagar insumos a: X" se guardaba por su lado
+         * llamando al modulo de tareas, y dos lineas mas abajo se guardaba la fiesta
+         * con la copia que se habia leido ANTES: esa copia no tenia la tarea nueva, asi
+         * que la pisaba. El equipo marcaba el pedido como hecho, la pantalla decia que
+         * si, y **el recordatorio de pagarle al proveedor no quedaba en ningun lado**.
+         *
+         * Ahora la tarea se agrega a la misma copia que se guarda, y se guarda una
+         * sola vez. Y no se duplica: si ya hay una tarea de pago para ese proveedor sin
+         * completar, no se agrega otra.
+         */
         const oldEstados = fiesta.estadosCompra || [];
+        let tareas = [...(fiesta.tareas || [])];
+
         for (const nuevo of estados) {
             const antiguo = oldEstados.find(o => o.proveedor === nuevo.proveedor);
-            if (!antiguo || antiguo.pedido !== nuevo.pedido) {
-                if (nuevo.pedido && !nuevo.pagado) {
-                    await addTareaToFiestaActual(fiestaId, {
-                        texto: `Pagar insumos a: ${nuevo.proveedor}`,
-                        descripcion: `Pedido realizado para el evento ${fiesta?.configuracion?.nombreEvento ?? 'Evento sin nombre'}. Pendiente de pago.`,
-                        asignadaA: 'Organizador'
-                    });
+            const tareaTexto = `Pagar insumos a: ${nuevo.proveedor}`;
+
+            if ((!antiguo || antiguo.pedido !== nuevo.pedido) && nuevo.pedido && !nuevo.pagado) {
+                const yaEsta = tareas.some(t => t.texto === tareaTexto && !t.completada);
+                if (!yaEsta) {
+                    tareas = [
+                        {
+                            id: `task_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+                            texto: tareaTexto,
+                            descripcion: `Pedido realizado para el evento ${fiesta?.configuracion?.nombreEvento ?? 'Evento sin nombre'}. Pendiente de pago.`,
+                            asignadaA: 'Organizador',
+                            completada: false,
+                        },
+                        ...tareas,
+                    ];
                 }
             }
-             if ((!antiguo || antiguo.pagado !== nuevo.pagado) && nuevo.pagado) {
-                 const tareaTexto = `Pagar insumos a: ${nuevo.proveedor}`;
-                 const tareaExistente = fiesta.tareas?.find(t => t.texto === tareaTexto);
-                 if (tareaExistente) {
-                     // Marcar como completada si ya existe (sin mutar el objeto original)
-                     fiesta = { ...fiesta, tareas: (fiesta.tareas || []).map(t => t.id === tareaExistente.id ? {...t, completada: true} : t) };
-                 }
-             }
+
+            if ((!antiguo || antiguo.pagado !== nuevo.pagado) && nuevo.pagado) {
+                tareas = tareas.map(t => (t.texto === tareaTexto ? { ...t, completada: true } : t));
+            }
         }
 
-        const updatedFiesta = { ...fiesta, estadosCompra: estados };
+        const updatedFiesta = { ...fiesta, tareas, estadosCompra: estados };
         const result = await saveFiesta(updatedFiesta);
         if (!result.success) throw new Error(result.error);
         

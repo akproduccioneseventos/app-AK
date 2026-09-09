@@ -7453,3 +7453,34 @@ usa: enchufarCamaraFalsa en tests/e2e/48-fotocabina-recuerdo-seguro.spec.ts
 usa: momento-de-la-app en src/components/landing/LaAppDeTuFiestaSection.tsx
 prueba: tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — Dos cosas de la planificacion que se perdian sin avisar
+
+De los seis hallazgos de la orden 51 de Codex, **cuatro ya estaban arreglados** en la tanda de
+esta semana: Codex audito la version principal y esos arreglos todavia no estan fusionados.
+Los otros dos eran ciertos y se corrigieron.
+
+**1. El recordatorio de pagarle al proveedor se creaba y se borraba solo.** Al marcar un pedido
+como hecho, la app creaba la tarea "Pagar insumos a: X" y, dos lineas mas abajo, guardaba la
+fiesta con la copia que habia leido **antes** de crearla: la pisaba. El equipo veia que el pedido
+quedaba marcado, y **el recordatorio de pagar no quedaba en ningun lado**. Ahora la tarea se
+arma en la misma copia que se guarda, se guarda una sola vez, no se duplica si ya hay una sin
+completar, y se completa sola cuando se marca como pagado.
+
+**2. Sacar toda la decoracion dejaba los gastos cargados.** Los costos solo se sincronizaban si
+quedaba al menos un elemento. Al vaciar el tablero, **el costo del evento seguia contando adornos
+que ya no estaban** y la ganancia salia mal. Ahora se sincroniza siempre, y si esa sincronizacion
+falla se avisa en vez de tirarla a la basura. Los gastos que no son de decoracion no se tocan.
+
+**Lo que queda pendiente y es de fondo:** dos modulos que se guardan al mismo tiempo -tareas y
+menu, por ejemplo- pueden pisarse, porque cada uno lee la fiesta entera y guarda su copia. El
+caso concreto que se veia -la tarea de pago- ya esta cerrado; **el patron general no**, y arreglarlo
+bien es cambiar como guarda cada modulo, no un parche. Va en la orden 51.
+
+```comprobar
+prueba: src/__tests__/la-planificacion-no-pierde-lo-que-guarda.test.ts
+usa: syncDecoGastosToModule en src/app/actions/fiesta/decoracion.actions.ts
+```

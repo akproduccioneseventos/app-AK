@@ -19,11 +19,17 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   }),
 }));
 
-jest.mock('@/app/actions/fiesta-actual', () => ({
-  addTareaToFiestaActual: jest.fn(async (_id: string, tarea: any) => {
-    tareasAbiertas.push(tarea);
-  }),
-}));
+/**
+ * ESTA PRUEBA MIRABA EL INGREDIENTE Y NO EL RESULTADO, Y SE CORRIGIO EL 9 DE
+ * SEPTIEMBRE DE 2026.
+ *
+ * Comprobaba que se **llamara** al modulo de tareas. Y se llamaba: la tarea se
+ * creaba... y dos lineas mas abajo la app guardaba una copia vieja de la fiesta que
+ * la borraba. **La prueba daba verde mientras el recordatorio de pagarle al
+ * proveedor se perdia.**
+ *
+ * Ahora mira lo unico que importa: **que la tarea quede en la fiesta guardada.**
+ */
 
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async () => []),
@@ -50,8 +56,9 @@ describe('Lista de compras y menú', () => {
     ]);
 
     expect(r.success).toBe(true);
-    expect(tareasAbiertas).toHaveLength(1);
-    expect(tareasAbiertas[0].texto).toBe('Pagar insumos a: Carnicería Salto');
+    const tareasGuardadas = (guardado.fiesta?.tareas || []).filter((t: any) => !t.completada);
+    expect(tareasGuardadas).toHaveLength(1);
+    expect(tareasGuardadas[0].texto).toBe('Pagar insumos a: Carnicería Salto');
   });
 
   it('si el pedido ya estaba marcado, no vuelve a abrir la misma tarea', async () => {
