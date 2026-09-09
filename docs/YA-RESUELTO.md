@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de septiembre de 2026 - Fotos AK y bloqueo de acceso, ordenes 52/53
+
+Codex miro tres fotos existentes del catalogo (XV lila, boda mesa, centro floral);
+registro objetos/materiales observados para no usar muebles genericos. Carga de
+salones comprobada por codigo: crear/guardar, editar, Fotos > Subir; no foto-a-3D
+automatica. Fotos sin medidas no dan plano fiable. Login integrado mostro error;
+control navegador luego agoto tiempos. GET /login independiente HTTP200, sin probar
+hidratacion ni sesion. Causa/stack y prueba Chrome pendientes; NO solucionado.
+docs/ordenes/53-desbloquear-ingreso-con-evidencia.md conserva diagnostico y criterio
+de cierre, sin parches React ni cambio de contrasena. Se pidio contraste al dueno.
+
+## 9 de septiembre de 2026 - Decoracion/salon 3D: orden 52, pendiente
+
+Codex reviso main8c5eb6e, reutilizando ordenes 24/42/51. Ocho sondas aisladas FAIL:
+foto de salon ignorada por IA; paleta manual desincronizada; generacion oculta fallo
+de guardado; cupo vulnerable a concurrencia; arco tratado como mesa; giro de barra
+ignorado; importar plano pierde escala; autoguardado del layout oculta fallo.
+Script docs/evidencias/52-sondas-decoracion-3d.cjs, sin IA paga, GPU ni datos reales.
+Ademas por lectura: Exportar PNG solo avisa hacer captura; preview puede anunciar
+guardado sin persistir; generador sin consumidor TSX encontrado. No atribuir gasto
+real a ese generador desconectado. Orden: docs/ordenes/52-decoracion-y-salon-3d-fieles.md.
+Propuestas de experiencia y movimiento separadas de errores; cambios de producto
+requieren aprobacion. Navegador bloqueo en login Error al cargar; visual interior pendiente.
+Descartado como P1: modelo3dUrl es enlace externo explicito, no importacion prometida.
+No repetir parche React18, div oculto ni costos/moodboard de orden51. Gemini programa,
+Claude compila; entrega documental en codex/ordenes-45-a-48, NO main ni arreglo hecho.
+
 ## 9 de septiembre de 2026 - Planificacion: orden 51, NO corregida
 
 Codex reutilizo registros y Graphify; base main 8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe.
