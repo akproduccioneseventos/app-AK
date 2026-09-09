@@ -926,6 +926,7 @@ con otra cara.
 | El recordatorio de pagarle al proveedor se creaba y se borraba solo; y sacar la decoración dejaba sus gastos | `src/__tests__/la-planificacion-no-pierde-lo-que-guarda.test.ts` |
 | La pantalla de ingreso se caía entera por un dato que no hace falta para entrar | `tests/e2e/la-puerta-de-entrada-anda.spec.ts` |
 | Dos corridas de pruebas a la vez se pisaban y una mataba a la otra | El turno `.ak-corrida-en-curso` en `scripts/run-playwright-production.mjs` |
+| Dos puertas enteras corriendo juntas, y una huérfana escribiendo donde nadie miraba | El turno `.ak-puerta-en-curso` en `scripts/se-puede-publicar.mjs` |
 | Enterarse a los 40 minutos de que una prueba nueva estaba mal | **Paso "Las pruebas nuevas, primero"** en `npm run "publicar?"` |
 
 ### Cómo se elige el matafuego

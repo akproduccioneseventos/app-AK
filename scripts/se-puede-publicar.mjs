@@ -22,6 +22,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 
 const PASOS = [
   {
@@ -239,6 +240,53 @@ const PASOS_DEL_FILTRO = new Set([
   'Revisor de tipos',
   'Pruebas',
 ]);
+/**
+ * UNA PUERTA POR VEZ.
+ *
+ * **Esto costo casi dos horas el 9 de septiembre de 2026.** Quedaron DOS puertas
+ * corriendo a la vez sobre la misma carpeta: se pelean la maquina, se pisan la
+ * compilacion y una da fallas inventadas. Peor todavia, una quedo huerfana escribiendo
+ * en un archivo que nadie miraba.
+ *
+ * El turno vale para la puerta entera, no solo para las pruebas de navegador: es el
+ * unico lugar donde se puede frenar antes de gastar los cincuenta minutos.
+ */
+const TURNO_DE_LA_PUERTA = '.ak-puerta-en-curso';
+
+function hayOtraPuertaAndando() {
+  if (!existsSync(TURNO_DE_LA_PUERTA)) return false;
+  try {
+    const pid = Number(readFileSync(TURNO_DE_LA_PUERTA, 'utf8').trim());
+    if (!pid || pid === process.pid) return false;
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+if (hayOtraPuertaAndando()) {
+  console.error('\nYA HAY UNA PUERTA CORRIENDO. Esta no arranca.\n');
+  console.error('  Dos a la vez se pelean la maquina y se pisan la compilacion:');
+  console.error('  la que sale de eso no dice nada cierto.\n');
+  console.error('  Espera a que termine la que esta andando.\n');
+  process.exit(1);
+}
+
+try {
+  writeFileSync(TURNO_DE_LA_PUERTA, String(process.pid));
+  const soltar = () => {
+    try {
+      if (existsSync(TURNO_DE_LA_PUERTA) && readFileSync(TURNO_DE_LA_PUERTA, 'utf8').trim() === String(process.pid)) {
+        unlinkSync(TURNO_DE_LA_PUERTA);
+      }
+    } catch {}
+  };
+  process.on('exit', soltar);
+  process.on('SIGINT', () => { soltar(); process.exit(130); });
+  process.on('SIGTERM', () => { soltar(); process.exit(143); });
+} catch {}
+
 const fallas = [];
 const salteadosPorqueLaAppNoCambio = [];
 const appPudoCambiar = laAppPudoCambiar();

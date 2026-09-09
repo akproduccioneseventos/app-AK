@@ -7532,9 +7532,12 @@ navegador nuevas o tocadas en este cambio**. Son dos o tres minutos. Si estan ma
 ahi. **No reemplaza a la tanda completa** —dos pruebas que pasan por separado pueden romper
 juntas—: lo unico que hace es fallar temprano y barato.
 
-**Y el otro cortafuegos, que es contra un error mio:** dos corridas de pruebas a la vez usan el
-mismo puerto y la misma compilacion, se pisan y una se lleva puesta a la otra. Me paso dos veces
-el mismo dia. Ahora **la segunda no arranca**: avisa que hay otra andando y se va sin tocar nada.
+**Y el otro cortafuegos, que es contra un error mio:** dos corridas a la vez usan el mismo puerto
+y la misma compilacion, se pisan y una se lleva puesta a la otra. Me paso **tres veces el mismo
+dia**, y la tercera fue la peor: quedaron dos puertas enteras corriendo juntas y una quedo
+huerfana escribiendo en un archivo que nadie miraba. Ahora **la segunda no arranca** -ni la
+corrida de pruebas ni la puerta entera-: avisa que hay otra andando y se va sin tocar nada. Se
+probo rompiendolo: con un turno tomado, la segunda se niega.
 
 ```comprobar
 archivo: scripts/pruebas-nuevas-primero.mjs
