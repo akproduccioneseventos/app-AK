@@ -7578,7 +7578,13 @@ mitad de la oferta.
 **Como quedo:** la app va primero, como se pidio, y las estaciones **siguen a la vista** abajo,
 presentadas como lo que son: lo que se monta en la fiesta. No se saco nada y no se escondio nada.
 
+**Y venia con una prueba que exigia esconderlas.** Pedia que el texto del desplegable estuviera
+en la portada: es decir, **una prueba que dejaba clavada una decision de venta**. Se corrigio para
+pedir lo que si corresponde -que la app vaya primero y que las estaciones sigan estando y se
+vean-, que es exactamente lo que pidio el dueno.
+
 ```comprobar
 usa: InteractiveTechShowcase en src/app/page.tsx
 prueba: tests/e2e/la-app-se-mueve.spec.ts
+prueba: src/__tests__/50-la-app-de-tu-fiesta-recorrido.test.ts
 ```
