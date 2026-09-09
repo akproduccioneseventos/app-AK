@@ -7539,8 +7539,18 @@ huerfana escribiendo en un archivo que nadie miraba. Ahora **la segunda no arran
 corrida de pruebas ni la puerta entera-: avisa que hay otra andando y se va sin tocar nada. Se
 probo rompiendolo: con un turno tomado, la segunda se niega.
 
+**Y la primera version del cortafuegos se equivoco, asi que queda anotado.** Metia tambien el
+recorrido de pantallas entre las "pruebas nuevas" -Gemini lo habia tocado-, y ahi pasaron dos
+cosas: tardo quince minutos, con lo cual **dejaba de ser barato y dejaba de ser un cortafuegos**;
+y al correr junto con otras pruebas en la misma tanda, se quedo sin maquina y acuso **siete
+pantallas muertas que estaban perfectas**. Abiertas solas, las siete pasaron.
+
+Es exactamente la trampa ya anotada: **cuando se acelera algo en paralelo, lo primero que aparece
+no son fallas nuevas, son falsas alarmas por falta de tiempo.** El recorrido quedo afuera del
+cortafuegos: ya tiene su propio paso y su propio acotado.
+
 ```comprobar
 archivo: scripts/pruebas-nuevas-primero.mjs
-usa: pruebas-nuevas-primero en scripts/se-puede-publicar.mjs
+usa: NO_ENTRAN en scripts/pruebas-nuevas-primero.mjs
 usa: ARCHIVO_DEL_TURNO en scripts/run-playwright-production.mjs
 ```

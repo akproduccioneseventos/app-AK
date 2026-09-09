@@ -39,8 +39,19 @@ function pruebasQueCambiaron() {
     .map((f) => f.trim())
     .filter(Boolean);
 
+  /**
+   * EL RECORRIDO DE PANTALLAS NO ENTRA ACA, Y ES A PROPOSITO.
+   *
+   * Tiene su propio paso en la puerta, con su propio acotado -recorre solo las
+   * pantallas que toca el cambio-. Metido aca tarda quince minutos y **deja de ser un
+   * cortafuegos**: el cortafuegos sirve porque es barato. Se aprendio en la primera
+   * corrida con esto puesto, que tardo eso mismo.
+   */
+  const NO_ENTRAN = ['recorrido-de-pantallas.spec.ts', 'fotos-de-la-app.spec.ts'];
+
   const specs = [...new Set(archivos)]
     .filter((f) => f.startsWith('tests/e2e/') && f.endsWith('.spec.ts'))
+    .filter((f) => !NO_ENTRAN.includes(path.basename(f)))
     .filter((f) => existsSync(path.join(process.cwd(), f)));
 
   return specs;
