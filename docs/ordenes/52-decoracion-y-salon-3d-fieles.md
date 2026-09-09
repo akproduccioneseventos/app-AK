@@ -6,9 +6,11 @@
 > PR #1204 observada en a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d;
 > no se certifico toda esa PR. Prevalece el reparto corregido de AGENTS.md:
 > Claude: dinero, cobros, contabilidad, comida y permisos; Gemini: resto.
-> DECO-03: la rama #1204 ya comprueba el resultado de guardar la imagen;
-> NO reimplementar; validar. La ruta concreta objetada por Claude aun no se
-> identifico; las rutas de esta auditoria deben revalidarse en la tanda.
+> CONTRASTE EJECUTADO: DECO-03 PASS; no reimplementar. Otros siete casos FAIL
+> en sondas aisladas, sin render GPU ni generacion real de IA.
+> Detalle vigente: [contraste de la tanda](../evidencias/contraste-1204-a0050d4.md).
+> La ruta objetada por Claude sigue sin identificarse; los archivos extraidos
+> por las sondas si existen en este SHA. Lo que sigue es evidencia historica.
 
 2026-09-09. Codex revisa y propone; Gemini programa; Claude Opus compila.
 Estado: revision parcial con ocho sondas fallidas reproducidas. No son correcciones.

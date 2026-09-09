@@ -6,6 +6,10 @@
 > PR #1204 observada en a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d;
 > no se certifico toda esa PR. Prevalece el reparto corregido de AGENTS.md:
 > Claude: dinero, cobros, contabilidad, comida y permisos; Gemini: resto.
+> CONTRASTE EJECUTADO: PORTAL-01a/01b PASS, no reimplementar. PORTAL-02a/02b
+> FAIL en proyeccion/vista activa. La clave de acceso sigue filtrada (PASS).
+> Detalle vigente: [contraste de la tanda](../evidencias/contraste-1204-a0050d4.md).
+> Claude lleva la privacidad pendiente. Lo que sigue es evidencia historica.
 
 2026-09-09. Codex revisa, Gemini programa, Claude Opus compila. No fusionar.
 Base de codigo main 8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe, confirmado vigente.

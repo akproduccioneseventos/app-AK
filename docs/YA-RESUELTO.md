@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de septiembre de 2026 - Contraste ejecutado de 51/52/54 en PR1204
+
+Se repitieron las sondas contra a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d,
+no contra main viejo: 19 comprobaciones, 7 PASS y 12 FAIL. Seis fallos historicos
+ahora pasan (PLAN-01/04/06, DECO-03, PORTAL-01a/01b); NO reimplementar.
+El septimo PASS conserva filtrado de clave. Persisten fallos de snapshots de tareas,
+costos vacios, decoracion/3D e itinerario privado, con limites de sondas simuladas.
+No son doce modulos nuevos ni prueba de produccion. Claude: comida/costos/privacidad;
+Gemini: decoracion/3D. Revalidar HEAD antes de editar. No se toco codigo de app,
+no hubo build, login, datos reales ni merge. Registro detallado y ordenes actualizadas:
+docs/evidencias/contraste-1204-a0050d4.md; ejecutor contrastar-sondas.cjs permite
+reutilizar evidencia por SHA sin reconstruir auditorias. La entrada siguiente es previa
+a estas ejecuciones y se conserva como historial, no como estado pendiente actual.
+
 ## 9 de septiembre de 2026 - Correccion del metodo de Codex por feedback de Claude
 
 No trasladar defectos de main a Gemini sin comparar la tanda. En PR1204 HEAD

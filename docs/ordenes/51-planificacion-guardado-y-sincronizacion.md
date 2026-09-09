@@ -6,9 +6,10 @@
 > PR #1204 observada en a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d;
 > no se certifico toda esa PR. Prevalece el reparto corregido de AGENTS.md:
 > Claude: dinero, cobros, contabilidad, comida y permisos; Gemini: resto.
-> PLAN-01, PLAN-04 y PLAN-06: correccion presente por lectura en #1204;
-> NO reimplementar. Falta ejecutar pruebas sobre ese SHA. La afirmacion de
-> cuatro casos ya corregidos proviene de Claude; aqui se contrastaron estos tres.
+> CONTRASTE EJECUTADO en ese SHA: PLAN-01/04/06 PASS; no reimplementar.
+> PLAN-02/03/05 FAIL en sondas aisladas, no pruebas de Firebase real.
+> Detalle vigente: [contraste de la tanda](../evidencias/contraste-1204-a0050d4.md).
+> Los resultados de seis fallos que siguen abajo son HISTORICOS de main.
 
 Fecha: 2026-09-09. Codex revisa; Gemini implementa; Claude Opus compila.
 Estado: AUDITORIA PARCIAL, seis fallos reproducidos en sondas aisladas; NO corregidos.
