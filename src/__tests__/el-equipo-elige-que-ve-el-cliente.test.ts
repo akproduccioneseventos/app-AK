@@ -1,5 +1,7 @@
-﻿/**
+/**
  * ORDEN 54 - EL EQUIPO ELIGE QUE VE EL CLIENTE
+ *
+ * Pantalla evaluada: /fiestas/nueva/itinerario
  *
  * Comprueba:
  * 1. Al alternar visibleParaCliente a false y guardar con updatePrograma, el momento
