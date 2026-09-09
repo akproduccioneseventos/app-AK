@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de septiembre de 2026 - Portal cliente: orden 54, pendiente
+
+Codex reviso codigo main8c5eb6e sin interferir con Gemini. Dos grupos reproducidos:
+helper del portal anuncia guardado/notifica pese a success:false; mapper y componente
+activo permiten itinerario visibleParaCliente:false y descripcion interna. Sonda
+docs/evidencias/54-sondas-portal-cliente.cjs: 4 FAIL, 1 PASS (clave sigue filtrada).
+No son correcciones ni pruebas de produccion. Orden54 identifica consumidores reales;
+PublicPortalView no es el componente usado por page.tsx y no certifica el recorrido.
+Navegador autenticado pendiente por orden53; pagina publica evento pendiente porque
+agente llego a limite antes de entregar. No iniciar mas agentes ni contar trabajo sin
+evidencia. Gemini programa, Claude compila; entrega en codex/ordenes-45-a-48, no main.
+
 ## 9 de septiembre de 2026 - Fotos AK y bloqueo de acceso, ordenes 52/53
 
 Codex miro tres fotos existentes del catalogo (XV lila, boda mesa, centro floral);
