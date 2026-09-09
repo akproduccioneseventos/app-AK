@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de septiembre de 2026 - Planificacion: orden 51, NO corregida
+
+Codex reutilizo registros y Graphify; base main 8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe.
+Seis sondas aisladas reproducen: tareas con exito falso; compras borra la tarea de
+pago recien creada; menu/tareas simultaneos pisan cambios; moodboard oculta fallo;
+decoracion vacia no limpia costos; sincronizar costos oculta fallo. Script ejecutado
+docs/evidencias/51-sondas-planificacion.cjs, salida 1 (6 FAIL esperados por defectos).
+No son arreglos, build ni pruebas Firebase real. Orden con fuentes y criterios:
+docs/ordenes/51-planificacion-guardado-y-sincronizacion.md. Gemini programa; Claude
+compila. Codex no cambio codigo de la app ni datos reales. Recorrido interno/estetica
+pendiente de sesion autorizada: ingreso protegido, sin acceso interior comprobado.
+Se descarto observacion incorrecta del agente: el servidor SI valida maximo dos roles.
+Preservar correcciones historicas; estos casos prueban fallos no cubiertos por ellas.
+Entrega en rama codex/ordenes-45-a-48, no main; no equivale a revision total aprobada.
+
 ## 8 de septiembre de 2026 - Ordenes 45 a 48, pendientes de ejecucion
 
 ### Revision contable adicional: orden 49 (pendiente de correccion)
