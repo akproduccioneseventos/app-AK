@@ -63,6 +63,23 @@ const PASOS = [
     queSignifica: 'Alguien podría ver o tocar datos que no le corresponden.',
   },
   {
+    /**
+     * EL CORTAFUEGOS. Va ANTES de la tanda completa, y por algo medido.
+     *
+     * La puerta entera son unos cincuenta minutos y, cuando frena, frena casi siempre
+     * en las pruebas de navegador, al minuto cuarenta. Se miraron las ultimas fallas:
+     * **ocho de ocho estaban en pruebas nuevas o recien tocadas**, ninguna en las
+     * viejas. Correr solo esas cuesta dos o tres minutos.
+     *
+     * No reemplaza a la tanda completa -dos pruebas que pasan por separado pueden
+     * romper juntas-: lo unico que hace es **fallar temprano y barato**.
+     */
+    nombre: 'Las pruebas nuevas, primero',
+    comando: 'node scripts/pruebas-nuevas-primero.mjs',
+    queSignifica: 'Una prueba de navegador nueva o recien tocada no pasa. Antes esto se descubria a los cuarenta minutos.',
+    caro: true,
+  },
+  {
     nombre: 'La app usada de verdad',
     comando: 'npm run test:e2e:production',
     queSignifica: 'La app compila pero no funciona: alguna pantalla no hace lo que dice. Es el único control que ve lo que ve el usuario.',

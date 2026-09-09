@@ -7513,3 +7513,31 @@ entrando directo como llegando redirigido desde una pantalla interna.
 prueba: tests/e2e/la-puerta-de-entrada-anda.spec.ts
 usa: withTimeout en src/app/login/page.tsx
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — El cortafuegos: las pruebas nuevas se corren primero
+
+**Pedido del dueno:** *"las corridas son largas, la mayoria estan mal, pone un cortafuegos"*.
+Tenia razon y el numero lo confirma.
+
+**Lo medido:** la puerta entera son unos cincuenta minutos y, cuando frena, frena casi siempre en
+el paso de las pruebas de navegador, **al minuto cuarenta**. Se miraron las ultimas fallas: **ocho
+de ocho estaban en pruebas nuevas o recien tocadas** -las que llegaron con las ordenes 45 a 50-,
+ninguna en las viejas. Es logico: lo viejo ya paso por la puerta muchas veces.
+
+**Como quedo:** despues de compilar y antes de la tanda completa, se corren **solo las pruebas de
+navegador nuevas o tocadas en este cambio**. Son dos o tres minutos. Si estan mal, la puerta frena
+ahi. **No reemplaza a la tanda completa** —dos pruebas que pasan por separado pueden romper
+juntas—: lo unico que hace es fallar temprano y barato.
+
+**Y el otro cortafuegos, que es contra un error mio:** dos corridas de pruebas a la vez usan el
+mismo puerto y la misma compilacion, se pisan y una se lleva puesta a la otra. Me paso dos veces
+el mismo dia. Ahora **la segunda no arranca**: avisa que hay otra andando y se va sin tocar nada.
+
+```comprobar
+archivo: scripts/pruebas-nuevas-primero.mjs
+usa: pruebas-nuevas-primero en scripts/se-puede-publicar.mjs
+usa: ARCHIVO_DEL_TURNO en scripts/run-playwright-production.mjs
+```

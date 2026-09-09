@@ -683,6 +683,22 @@ aplica primero a cobros, cuotas, facturas, presupuestos y sueldos. Y queda escri
 que la app esté terminada **no** significa que un área ya mirada quede mirada para siempre con
 las preguntas viejas; cuando el método suma una pregunta, lo que toca plata se vuelve a pasar.
 
+### 9. Correr una segunda tanda de pruebas mientras corre la puerta
+
+**Pasó dos veces el 9 de septiembre de 2026, con cuarenta minutos ya invertidos cada vez.** Con la
+puerta andando lancé otra corrida de pruebas para probar algo aparte. Las dos usan el mismo puerto
+y la misma carpeta compilada, así que se pisan; y al barrer los procesos sueltos me llevé puesta
+la corrida buena. **Casi dos horas perdidas por la misma distracción.**
+
+**Qué era lo cierto:** la regla ya estaba escrita —"no correr ayudantes mientras corre la
+puerta"—. Estaba escrita **y no enganchada**, que es exactamente el defecto que esta app persigue
+en el código.
+
+**Qué se hace distinto:** ahora está enganchada. La segunda corrida **no arranca**: avisa que hay
+otra andando y se va sin tocar nada (`.ak-corrida-en-curso` en
+`scripts/run-playwright-production.mjs`). Y para probar una prueba suelta mientras la puerta
+corre, la respuesta es **esperar**: no hay atajo.
+
 ## CADA ERROR SE ANOTA ACÁ. Sin excepción.
 
 **Orden del dueño, 2 de septiembre de 2026:** *"anotalo para no hacerlo; cada error debés
@@ -909,6 +925,8 @@ con otra cara.
 | El tope de publicidad inventaba $500 de presupuesto, y después quedó apagado para siempre | `src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts` |
 | El recordatorio de pagarle al proveedor se creaba y se borraba solo; y sacar la decoración dejaba sus gastos | `src/__tests__/la-planificacion-no-pierde-lo-que-guarda.test.ts` |
 | La pantalla de ingreso se caía entera por un dato que no hace falta para entrar | `tests/e2e/la-puerta-de-entrada-anda.spec.ts` |
+| Dos corridas de pruebas a la vez se pisaban y una mataba a la otra | El turno `.ak-corrida-en-curso` en `scripts/run-playwright-production.mjs` |
+| Enterarse a los 40 minutos de que una prueba nueva estaba mal | **Paso "Las pruebas nuevas, primero"** en `npm run "publicar?"` |
 
 ### Cómo se elige el matafuego
 
