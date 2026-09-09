@@ -13,6 +13,7 @@
  * programa sin filtrar, las dos primeras comprobaciones se ponen en rojo.
  */
 import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
+import { toPublicSocialEvent } from '@/lib/social-fiesta/public-event';
 
 const FIESTA = {
   id: 'fiesta-portal-1',
@@ -74,5 +75,31 @@ describe('El cliente no ve lo interno del itinerario', () => {
     // Si se ocultara lo que no dice nada, todos los clientes con fiesta ya armada
     // se quedarian con la pantalla vacia de un dia para el otro.
     expect(programa.map((p) => p.id)).toContain('p3');
+  });
+});
+
+/**
+ * Y EL MURO DE LA FIESTA, QUE ES PEOR: LO VE CUALQUIER INVITADO.
+ *
+ * El mismo defecto estaba en la pantalla que abre el invitado con el enlace. Se
+ * encontro al pasar toda la app con la pregunta nueva -*que le manda el servidor al
+ * navegador*- despues del defecto del portal del cliente.
+ */
+describe('El invitado tampoco ve lo interno del itinerario', () => {
+  const publico: any = toPublicSocialEvent(FIESTA, false);
+
+  it('los momentos internos no salen al muro de la fiesta', () => {
+    expect((publico.programa || []).map((p: any) => p.id)).not.toContain('p2');
+  });
+
+  it('las notas internas tampoco', () => {
+    const texto = JSON.stringify(publico.programa || []);
+    expect(texto).not.toContain('el padre llega tarde');
+    expect(texto).not.toContain('la torta la trae el proveedor');
+  });
+
+  it('lo que si es para el invitado le llega', () => {
+    const entrada = (publico.programa || []).find((p: any) => p.id === 'p1');
+    expect(entrada.titulo).toBe('Entrada de la quinceañera');
   });
 });

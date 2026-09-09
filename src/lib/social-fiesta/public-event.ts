@@ -1,5 +1,6 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { calculateLeaderboard } from '@/lib/games/game-engine';
+import { mapProgramaParaElCliente } from '@/lib/client-portal/public-fiesta';
 
 export type PublicSocialEvent = Pick<
   FiestaEnPlanificacion,
@@ -49,7 +50,19 @@ export function toPublicSocialEvent(
     buzonConfig: fiesta.buzonConfig,
     galeriaUrl: fiesta.galeriaUrl,
     momentoPaparazziActivo: fiesta.momentoPaparazziActivo,
-    programa: fiesta.programa,
+    /**
+     * EL ITINERARIO TAMBIEN SE RECORTA ACA, Y ACA IMPORTA MAS.
+     *
+     * Esto es lo que ve **el invitado** en el muro de la fiesta: cualquiera con el
+     * enlace. Mandaba el programa entero, con los momentos internos del equipo y sus
+     * notas adentro.
+     *
+     * Se encontro el 9 de septiembre de 2026 al pasar toda la app con la pregunta
+     * nueva -*¿que le manda el servidor al navegador?*- despues del mismo defecto en
+     * el portal del cliente. Se usa el mismo recorte, no una copia: dos copias de la
+     * misma regla se despegan y la vieja hace dano.
+     */
+    programa: mapProgramaParaElCliente(fiesta.programa) as FiestaEnPlanificacion['programa'],
     clientAccessGranted,
     cancionUrl:
       (fiesta as any).cancionUrl ||

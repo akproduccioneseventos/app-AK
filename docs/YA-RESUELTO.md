@@ -7642,7 +7642,13 @@ fiestas en curso.
 
 Se probo rompiendolo: devolviendo el programa sin filtrar, la comprobacion se pone en rojo.
 
+**Y aparecio un segundo lugar, peor, que no habia reportado nadie:** el muro de la fiesta -el que
+abre **cualquier invitado** con el enlace- mandaba el mismo itinerario completo. Salio de pasar
+toda la app con la pregunta nueva que trajo este hallazgo: *¿que le manda el servidor al
+navegador?*. Se arreglo con el mismo recorte, no con una copia.
+
 ```comprobar
 prueba: src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts
 usa: mapProgramaParaElCliente en src/lib/client-portal/public-fiesta.ts
+usa: mapProgramaParaElCliente en src/lib/social-fiesta/public-event.ts
 ```

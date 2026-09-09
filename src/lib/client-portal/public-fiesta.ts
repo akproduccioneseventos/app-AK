@@ -34,7 +34,7 @@ function mapDocument(doc: any) {
  *
  * Lo encontro Codex el 9 de septiembre de 2026.
  */
-function mapProgramaParaElCliente(programa: any[] | undefined) {
+export function mapProgramaParaElCliente(programa: any[] | undefined) {
   return (programa ?? [])
     .filter((item) => item?.visibleParaCliente !== false)
     .map((item) => ({

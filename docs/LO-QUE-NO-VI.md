@@ -88,7 +88,13 @@ está en la computadora del cliente igual.
 *"¿la pantalla lo muestra?"* sino **"¿el servidor se lo mandó?"**. Se filtra y se recorta en el
 servidor, y la pantalla es la segunda barrera, no la primera.
 
+**Y al pasar toda la app con la pregunta nueva apareció un segundo lugar, peor:** el muro de la
+fiesta —el que abre **cualquier invitado** con el enlace— mandaba el mismo itinerario completo.
+Ese no lo había reportado nadie: salió de aplicar la pregunta, que es exactamente para lo que
+sirve agregarla.
+
 ```comprobar
 prueba: src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts
 usa: mapProgramaParaElCliente en src/lib/client-portal/public-fiesta.ts
+usa: mapProgramaParaElCliente en src/lib/social-fiesta/public-event.ts
 ```
