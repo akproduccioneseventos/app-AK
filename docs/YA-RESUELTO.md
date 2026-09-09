@@ -7588,3 +7588,32 @@ usa: InteractiveTechShowcase en src/app/page.tsx
 prueba: tests/e2e/la-app-se-mueve.spec.ts
 prueba: src/__tests__/50-la-app-de-tu-fiesta-recorrido.test.ts
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — Lo que encuentra otro y yo no: se corrige el metodo, no solo el defecto
+
+**Orden del dueno:** *"cada cosa que Codex vea y vos no, sin que te diga corriges tu metodo
+automaticamente; guarda eso"*.
+
+Es la regla que hace que esto termine alguna vez. Cuando otro encuentra algo que se me paso, lo
+que fallo no fue la atencion: **fallo la pregunta que yo estaba haciendo**. Arreglar solo el
+defecto deja el agujero abierto y la proxima vez se escapa otro igual por el mismo lado.
+
+Ahora, cada hallazgo que se me escapa entra en `docs/LO-QUE-NO-VI.md` con tres cosas: que era,
+**que pregunta lo hubiera agarrado** -o cual se agrego al metodo- y el control que lo frena. Y
+**queda enganchado**: `npm run ordenes?` mira esa lista como mira las otras tres, asi que si el
+control de un hallazgo desaparece, lo dice. Escrito y no enganchado es justo el defecto que esta
+app persigue en el codigo; no se podia repetir en las reglas.
+
+Los tres que ya estaban se anotaron con su pregunta: los cinco defectos contables -que trajeron
+la septima pregunta del metodo-, la galeria que mostraba borradores -que trajo la regla de fallar
+cerrado en todo lo que se publica- y el 3D que dibujaba una mesa donde habia un arco -que trajo
+la pregunta de si una pantalla que **representa** algo coincide con lo que representa, en vez de
+solo verse-.
+
+```comprobar
+archivo: docs/LO-QUE-NO-VI.md
+usa: LO-QUE-NO-VI en scripts/ordenes-cumplidas.mjs
+```

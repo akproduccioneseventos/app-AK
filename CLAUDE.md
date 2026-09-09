@@ -699,6 +699,32 @@ otra andando y se va sin tocar nada (`.ak-corrida-en-curso` en
 `scripts/run-playwright-production.mjs`). Y para probar una prueba suelta mientras la puerta
 corre, la respuesta es **esperar**: no hay atajo.
 
+## LO QUE ENCUENTRA OTRO Y YO NO: se corrige el MÉTODO, no sólo el defecto
+
+**Orden del dueño, 9 de septiembre de 2026:** *"cada cosa que Codex vea y vos no, sin que te diga
+corregís tu método automáticamente; guardá eso"*.
+
+**Es la regla que hace que esto termine alguna vez.** Cuando otro encuentra algo que se me pasó,
+lo que falló no fue la atención: **falló la pregunta que yo estaba haciendo**. Arreglar sólo el
+defecto deja el agujero abierto: la próxima vez se escapa otro igual por el mismo lado.
+
+**Se hace solo, sin que el dueño lo pida, y en este orden:**
+
+1. **Antes de arreglar nada**, la pregunta es: *¿por qué mi método no lo agarró?*
+2. Si ninguna de mis preguntas lo hubiera agarrado, **se agrega la pregunta nueva** a
+   `docs/COMO-AUDITAR.md`, y **se vuelve a pasar con ella lo que toca plata**, aunque ya estuviera
+   auditado. Que un área esté mirada no la deja mirada para siempre con las preguntas viejas.
+3. **Se anota en `docs/LO-QUE-NO-VI.md`**: qué era, qué pregunta lo hubiera agarrado —o cuál se
+   agregó— y el control que lo frena.
+4. Recién ahí se arregla el defecto.
+
+**Y queda enganchado, no escrito:** `npm run ordenes?` mira esa lista como mira las otras tres.
+Si el control de un hallazgo desaparece, lo dice.
+
+**Lo que NO es esta lista:** no es para pedir perdón ni para llevar la cuenta de quién encontró
+más. Es la única forma de que el rango suba: cada cosa que se me escapó, se convierte en una
+pregunta que de ahí en adelante hago solo.
+
 ## CADA ERROR SE ANOTA ACÁ. Sin excepción.
 
 **Orden del dueño, 2 de septiembre de 2026:** *"anotalo para no hacerlo; cada error debés
@@ -980,11 +1006,12 @@ no termino más"*.
 dos ramas —pasó dos veces en un día con correcciones de pruebas— y la lista seguiría diciendo que
 está resuelto.
 
-Por eso `npm run ordenes?` mira **tres listas**, no una:
+Por eso `npm run ordenes?` mira **cuatro listas**, no una:
 
 - **`docs/ordenes/*.md`** — lo que se pidió: ¿se hizo?
 - **`docs/QUE-HAY-EN-LA-APP.md`** — lo que la app dice tener: ¿está?
 - **`docs/YA-RESUELTO.md`** — lo que se arregló: ¿sigue arreglado?
+- **`docs/LO-QUE-NO-VI.md`** — lo que encontró otro y yo no: ¿la pregunta nueva sigue puesta?
 
 **Cada arreglo que se anota suma su línea al bloque `comprobar` de `YA-RESUELTO.md`.** Un arreglo
 anotado sin su línea **no cuenta como arreglado**.
