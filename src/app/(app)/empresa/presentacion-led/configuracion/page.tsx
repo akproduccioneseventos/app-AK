@@ -151,12 +151,16 @@ export default function PresentacionLedConfiguracionPage() {
     if (!settings) return;
     setSaving(true);
     try {
-      await savePresentacionLedSettings({
+      const res = await savePresentacionLedSettings({
         ...settings,
         ledFotosServicios: fotosServicios,
         ledFotosMenuItems: fotosMenuItems,
         planPagosImagenUrl: planPagosUrl,
       });
+      if (!res.success) {
+        toast({ variant: 'destructive', title: 'Error', description: (res as any).error || 'No se pudo guardar la configuración.' });
+        return;
+      }
       toast({ title: 'Guardado', description: 'La configuración fue guardada correctamente.' });
     } catch {
       toast({ variant: 'destructive', title: 'Error', description: 'No se pudo guardar. Intentá de nuevo.' });

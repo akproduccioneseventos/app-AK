@@ -23,6 +23,10 @@ jest.mock('@/lib/ai/gemini-image', () => ({
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: (...args: unknown[]) => getFiestaById(...args),
   saveFiesta: (...args: unknown[]) => saveFiesta(...args),
+  updateFiestaPartial: jest.fn(async (id: string, partial: any) => {
+    saveFiesta({ id, ...partial });
+    return { success: true };
+  }),
 }));
 // Desde el 9 de septiembre de 2026 guardar la decoracion **siempre** sincroniza los
 // gastos -tambien cuando no queda ningun elemento- y mira el resultado. Sin este

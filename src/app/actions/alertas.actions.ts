@@ -114,7 +114,7 @@ export async function descartarAlerta(alertaId: string): Promise<{ success: bool
       idsDescartados.push(alertaId);
       await writeData(ALERTAS_DESCARTADAS_FILE, idsDescartados);
     }
-    // Also mark as read so it doesn't reappear in read-status checks
+    // no-mira-el-resultado: el descarte principal ya se guardo arriba, marcarla leida es complementario
     await marcarAlertaLeida(alertaId);
     return { success: true };
   } catch (error) {

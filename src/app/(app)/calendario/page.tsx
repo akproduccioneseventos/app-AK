@@ -738,7 +738,12 @@ export default function CalendarioInteractivoPage() {
 
                       {appt.estado === 'Agendada' && (
                         <Button variant="ghost" size="sm" className="w-full h-8 text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10" onClick={async () => {
-                          await updateAppointmentStatus(appt.id, 'Confirmada');
+                          const res = await updateAppointmentStatus(appt.id, 'Confirmada');
+                          if (!res?.success) {
+                            toast({ title: 'Error', description: res?.error || 'No se pudo confirmar la cita.', variant: 'destructive' });
+                            return;
+                          }
+                          toast({ title: 'Cita confirmada' });
                           fetchEvents();
                         }}>
                           Marcar Confirmada ✓

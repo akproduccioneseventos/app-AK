@@ -6,6 +6,7 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(),
   getFiestas: jest.fn(),
   saveFiesta: jest.fn(),
+  updateFiestaPartial: jest.fn().mockResolvedValue({ success: true }),
 }));
 
 jest.mock('@/lib/staff-agenda-conflicts', () => ({
@@ -29,7 +30,7 @@ jest.mock('@/lib/staff-agenda-data', () => ({
 
 import { updatePersonal } from '@/app/actions/fiesta/personal.actions';
 import { requirePermiso } from '@/lib/auth/require-session';
-import { getFiestaById, getFiestas, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById, getFiestas, saveFiesta, updateFiestaPartial } from '@/app/actions/fiesta/fiesta.actions';
 import { getEmpleados } from '@/app/actions/empleados';
 import { evaluarAgendaEmpleado } from '@/lib/staff-agenda-conflicts';
 import { syncFiestaToGoogleWorkspace } from '@/app/actions/google-workspace';
@@ -39,6 +40,7 @@ const mockRequirePermiso = requirePermiso as jest.MockedFunction<typeof requireP
 const mockGetFiestaById = getFiestaById as jest.MockedFunction<typeof getFiestaById>;
 const mockGetFiestas = getFiestas as jest.MockedFunction<typeof getFiestas>;
 const mockSaveFiesta = saveFiesta as jest.MockedFunction<typeof saveFiesta>;
+const mockUpdateFiestaPartial = updateFiestaPartial as jest.MockedFunction<typeof updateFiestaPartial>;
 const mockEvaluarAgenda = evaluarAgendaEmpleado as jest.MockedFunction<typeof evaluarAgendaEmpleado>;
 const mockGetEmpleados = getEmpleados as jest.MockedFunction<typeof getEmpleados>;
 const mockGoogleSync = syncFiestaToGoogleWorkspace as jest.MockedFunction<typeof syncFiestaToGoogleWorkspace>;
@@ -71,6 +73,7 @@ describe('bloqueo de agenda al guardar personal', () => {
     mockGetEmpleados.mockResolvedValue([{ id: 'emp-1', nombre: 'Ana' }] as any);
     mockEvaluarAgenda.mockReturnValue(sinConflictos);
     mockSaveFiesta.mockResolvedValue({ success: true, fiesta: fiestaBase });
+    mockUpdateFiestaPartial.mockResolvedValue({ success: true } as any);
     mockGoogleSync.mockResolvedValue({ success: true, warnings: [] });
   });
 
@@ -88,7 +91,10 @@ describe('bloqueo de agenda al guardar personal', () => {
     expect(result.success).toBe(true);
     expect(mockReadAgenda).toHaveBeenCalledTimes(1);
     expect(mockEvaluarAgenda).toHaveBeenCalledTimes(2);
-    expect(mockSaveFiesta).toHaveBeenCalledTimes(1);
+    expect(mockUpdateFiestaPartial).toHaveBeenCalledWith(
+      'fiesta-target',
+      expect.objectContaining({ personalAsignado: expect.any(Array) }),
+    );
   });
 
   it('no vuelve a leer la agenda al editar solamente el sueldo', async () => {
@@ -114,7 +120,7 @@ describe('bloqueo de agenda al guardar personal', () => {
     ]);
 
     expect(result).toEqual({ success: false, error: 'Firebase no disponible' });
-    expect(mockSaveFiesta).not.toHaveBeenCalled();
+    expect(mockUpdateFiestaPartial).not.toHaveBeenCalled();
     expect(mockGoogleSync).not.toHaveBeenCalled();
   });
 
@@ -135,7 +141,7 @@ describe('bloqueo de agenda al guardar personal', () => {
     expect(result.success).toBe(false);
     expect(result.error).toContain('Boda');
     expect(result.error).toContain('XV');
-    expect(mockSaveFiesta).not.toHaveBeenCalled();
+    expect(mockUpdateFiestaPartial).not.toHaveBeenCalled();
   });
 
   it('conserva un aviso cuando Google rechaza la sincronización sin lanzar error', async () => {
@@ -151,7 +157,8 @@ describe('bloqueo de agenda al guardar personal', () => {
 
     expect(result.success).toBe(true);
     expect(result.googleSyncWarning).toBe('Google sin permiso para este evento');
-    expect(mockSaveFiesta).toHaveBeenCalledWith(
+    expect(mockUpdateFiestaPartial).toHaveBeenCalledWith(
+      'fiesta-target',
       expect.objectContaining({ googleSyncWarning: 'Google sin permiso para este evento' }),
     );
   });

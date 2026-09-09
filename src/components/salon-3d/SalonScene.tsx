@@ -67,17 +67,27 @@ function SalonElement({
 
   const widthM = (element.width || 80) / ppm;
   const depthM = (element.height || 80) / ppm;
+  const rotRad = -((element.rotation || 0) * Math.PI) / 180;
   const cat = (element.category || '').toLowerCase();
+  const name = (element.name || '').toLowerCase();
 
-  if (cat.includes('pista')) {
-    return <PistaBaile3D position={pos3D} width={widthM} depth={depthM} primaryColor={primaryColor} />;
-  }
-  if (cat.includes('escenario')) {
-    return <Escenario3D position={pos3D} width={widthM} depth={depthM} />;
-  }
-  if (cat.includes('barra') || cat.includes('bar') || cat.includes('dj')) {
+  if (cat.includes('pista') || name.includes('pista')) {
     return (
-      <group position={pos3D}>
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
+        <PistaBaile3D position={[0, 0, 0]} width={widthM} depth={depthM} primaryColor={primaryColor} />
+      </group>
+    );
+  }
+  if (cat.includes('escenario') || name.includes('escenario')) {
+    return (
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
+        <Escenario3D position={[0, 0, 0]} width={widthM} depth={depthM} />
+      </group>
+    );
+  }
+  if (cat.includes('barra') || cat.includes('bar') || cat.includes('dj') || name.includes('barra') || name.includes('dj')) {
+    return (
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
         <mesh position={[0, 0.55, 0]} castShadow receiveShadow>
           <boxGeometry args={[widthM, 1.1, depthM]} />
           <meshStandardMaterial color="#5d4037" roughness={0.5} metalness={0.2} />
@@ -89,9 +99,9 @@ function SalonElement({
       </group>
     );
   }
-  if (cat.includes('living')) {
+  if (cat.includes('living') || name.includes('living')) {
     return (
-      <group position={pos3D}>
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
         {/* Sofá */}
         <mesh position={[0, 0.25, -depthM / 2 + 0.3]} castShadow>
           <boxGeometry args={[widthM * 0.9, 0.5, 0.6]} />
@@ -113,9 +123,30 @@ function SalonElement({
       </group>
     );
   }
+  if (cat.includes('arco') || name.includes('arco')) {
+    return (
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
+        <Arco3D width={widthM} height={Math.max(2.2, depthM * 1.5)} color={element.backgroundColor} />
+      </group>
+    );
+  }
+  if (cat.includes('pedestal') || name.includes('pedestal') || cat.includes('columna') || name.includes('columna')) {
+    return (
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
+        <Pedestal3D width={widthM} depth={depthM} height={1.2} color={element.backgroundColor} />
+      </group>
+    );
+  }
+  if (cat.includes('panel') || name.includes('panel') || cat.includes('neon') || name.includes('neon') || cat.includes('backdrop') || cat.includes('fondo') || cat.includes('pantalla')) {
+    return (
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
+        <PanelDecorativo3D width={widthM} height={Math.max(2.0, depthM)} color={element.backgroundColor} />
+      </group>
+    );
+  }
 
-  // Default: Mesa (redonda o rectangular)
-  if (cat.includes('mesa') || element.type === 'element') {
+  // Mesa: solo si explicitamente es mesa o si tiene asientos configurados
+  if (cat.includes('mesa') || name.includes('mesa') || (!cat && (element.seats || 0) > 0)) {
     return (
       <Mesa3D
         element={element}
@@ -128,16 +159,117 @@ function SalonElement({
 
   // Generic area/element
   return (
-    <mesh position={[pos3D[0], 0.05, pos3D[2]]} receiveShadow>
-      <boxGeometry args={[widthM, 0.1, depthM]} />
-      <meshStandardMaterial
-        color={element.backgroundColor || '#e2e8f0'}
-        roughness={0.8}
-        transparent
-        opacity={0.7}
-      />
-    </mesh>
+    <group position={pos3D} rotation={[0, rotRad, 0]}>
+      <mesh position={[0, 0.05, 0]} receiveShadow>
+        <boxGeometry args={[widthM, 0.1, depthM]} />
+        <meshStandardMaterial
+          color={element.backgroundColor || '#e2e8f0'}
+          roughness={0.8}
+          transparent
+          opacity={0.7}
+        />
+      </mesh>
+    </group>
   );
+}
+
+export function Arco3D({ width = 2, height = 2.4, color = '#ec4899' }: { width?: number; height?: number; color?: string }) {
+  const radius = Math.max(0.6, width / 2);
+  const tubeRadius = 0.15;
+  return (
+    <group>
+      <mesh position={[0, height - radius, 0]} castShadow>
+        <torusGeometry args={[radius, tubeRadius, 16, 32, Math.PI]} />
+        <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
+      </mesh>
+      {height > radius && (
+        <>
+          <mesh position={[-radius, (height - radius) / 2, 0]} castShadow>
+            <cylinderGeometry args={[tubeRadius, tubeRadius, height - radius, 16]} />
+            <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
+          </mesh>
+          <mesh position={[radius, (height - radius) / 2, 0]} castShadow>
+            <cylinderGeometry args={[tubeRadius, tubeRadius, height - radius, 16]} />
+            <meshStandardMaterial color={color} roughness={0.4} metalness={0.1} />
+          </mesh>
+        </>
+      )}
+      <mesh position={[-radius, 0.05, 0]} castShadow>
+        <cylinderGeometry args={[0.25, 0.28, 0.1, 16]} />
+        <meshStandardMaterial color="#475569" roughness={0.6} />
+      </mesh>
+      <mesh position={[radius, 0.05, 0]} castShadow>
+        <cylinderGeometry args={[0.25, 0.28, 0.1, 16]} />
+        <meshStandardMaterial color="#475569" roughness={0.6} />
+      </mesh>
+    </group>
+  );
+}
+
+export function Pedestal3D({ width = 0.5, depth = 0.5, height = 1.1, color = '#f8fafc' }: { width?: number; depth?: number; height?: number; color?: string }) {
+  const radius = Math.min(width, depth) / 2;
+  return (
+    <group>
+      <mesh position={[0, height / 2, 0]} castShadow>
+        <cylinderGeometry args={[radius, radius, height, 24]} />
+        <meshStandardMaterial color={color} roughness={0.3} metalness={0.1} />
+      </mesh>
+      <mesh position={[0, height + 0.02, 0]}>
+        <cylinderGeometry args={[radius + 0.05, radius + 0.05, 0.04, 24]} />
+        <meshStandardMaterial color="#d4af37" roughness={0.2} metalness={0.8} />
+      </mesh>
+    </group>
+  );
+}
+
+export function PanelDecorativo3D({ width = 2, height = 2.2, color = '#1e293b' }: { width?: number; height?: number; color?: string }) {
+  return (
+    <group>
+      <mesh position={[0, height / 2, 0]} castShadow>
+        <boxGeometry args={[width, height, 0.08]} />
+        <meshStandardMaterial color={color} roughness={0.5} metalness={0.2} />
+      </mesh>
+      <mesh position={[-width * 0.35, 0.05, 0]}>
+        <boxGeometry args={[0.1, 0.1, 0.6]} />
+        <meshStandardMaterial color="#334155" roughness={0.7} />
+      </mesh>
+      <mesh position={[width * 0.35, 0.05, 0]}>
+        <boxGeometry args={[0.1, 0.1, 0.6]} />
+        <meshStandardMaterial color="#334155" roughness={0.7} />
+      </mesh>
+    </group>
+  );
+}
+
+export function elegirObjeto3D(element: LayoutElement): React.ComponentType<any> | null {
+  const cat = (element.category || '').toLowerCase();
+  const name = (element.name || '').toLowerCase();
+
+  if (cat.includes('pista') || name.includes('pista')) return PistaBaile3D;
+  if (cat.includes('escenario') || name.includes('escenario')) return Escenario3D;
+  if (cat.includes('arco') || name.includes('arco')) return Arco3D;
+  if (cat.includes('pedestal') || name.includes('pedestal') || cat.includes('columna') || name.includes('columna')) return Pedestal3D;
+  if (cat.includes('panel') || name.includes('panel') || cat.includes('neon') || name.includes('neon') || cat.includes('backdrop') || cat.includes('fondo') || cat.includes('pantalla')) return PanelDecorativo3D;
+  if (cat.includes('mesa') || name.includes('mesa') || (!cat && (element.seats || 0) > 0)) {
+    return Mesa3D;
+  }
+  return null;
+}
+
+export function calcularDimensiones3DConRotacion(
+  element: LayoutElement,
+  pixelsPerMeter: number = 40
+): { anchoX: number; profundidadZ: number } {
+  const ppm = pixelsPerMeter || 40;
+  const w = (element.width || 80) / ppm;
+  const d = (element.height || 80) / ppm;
+  const rotRad = -((element.rotation || 0) * Math.PI) / 180;
+  const cos = Math.abs(Math.cos(rotRad));
+  const sin = Math.abs(Math.sin(rotRad));
+  return {
+    anchoX: Number((w * cos + d * sin).toFixed(3)),
+    profundidadZ: Number((w * sin + d * cos).toFixed(3)),
+  };
 }
 
 // --- Walls ---

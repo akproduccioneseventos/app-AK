@@ -230,7 +230,10 @@ export async function adjustAllInsumoCosts(
     limpiarCacheInsumos();
 
     for (const insumo of updatedInventario) {
-        await propagateInsumoChangesToMenus(insumo);
+        const propRes = await propagateInsumoChangesToMenus(insumo);
+        if (!propRes.success) {
+            console.warn(`[insumos] no se pudieron propagar cambios a los menús para ${insumo.nombre}:`, propRes.error);
+        }
     }
 
     return { success: true };

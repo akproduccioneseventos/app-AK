@@ -171,8 +171,16 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   }
 }
 
-export async function updateFiestaPartial(fiestaId: string, partialData: Partial<FiestaEnPlanificacion>): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+export async function updateFiestaPartial(
+  fiestaId: string,
+  partialData: Partial<FiestaEnPlanificacion>,
+  options?: { allowPortal?: boolean }
+): Promise<{ success: boolean; error?: string }> {
+  if (options?.allowPortal) {
+    await requireFiestaWriteAccess(fiestaId);
+  } else {
+    await requireAppSession();
+  }
   const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
   try {
@@ -686,7 +694,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
 
     const roles = await getRoles();
     const updatedFiesta = { ...fiesta };
-    
+
     const guests = presupuesto.invitadosCantidad || 100;
     const items = normalizeBudgetItemsForSync(presupuesto.itemsPresupuestados);
 
@@ -703,12 +711,12 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     modulos.decoracion = items.some(i => i.categoriaServicio === 'Servicio de decoración') || hasItem('decorac') || hasItem('ambientac');
     modulos.regalos = true; // Siempre activo para coordinar
     Object.assign(modulos, deriveBudgetModulesForSync(items));
-    
+
     updatedFiesta.modulosContratados = modulos;
 
     // 2. CÁLCULO DE PERSONAL AUTOMÁTICO (VACANTES)
     const personalReq: PersonalAsignadoDetalleStorage[] = [];
-    
+
     const addVacantes = (roleSearch: string, qty: number) => {
         const rol = roles.find(r => r.nombre.toLowerCase().includes(roleSearch.toLowerCase()));
         if (rol) {

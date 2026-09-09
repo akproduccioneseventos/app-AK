@@ -17,6 +17,10 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
     guardado.fiesta = f;
     return { success: true };
   }),
+  updateFiestaPartial: jest.fn(async (id: string, partial: any) => {
+    guardado.fiesta = { ...(guardado.fiesta || datos.fiesta), ...partial };
+    return { success: true };
+  }),
 }));
 
 /**

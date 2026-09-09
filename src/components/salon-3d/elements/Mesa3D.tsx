@@ -63,11 +63,12 @@ export function Mesa3D({ element, pixelsPerMeter, position, primaryColor = '#d4a
   const heightM = (element.height || 80) / pixelsPerMeter;
   const seats = element.seats || 8;
   const tableRadius = Math.min(widthM, heightM) / 2;
+  const rotRad = -((element.rotation || 0) * Math.PI) / 180;
 
   if (isRound) {
     const chairRadius = tableRadius + 0.55;
     return (
-      <group position={position}>
+      <group position={position} rotation={[0, rotRad, 0]}>
         {/* Mesa cilíndrica */}
         <mesh position={[0, 0.75, 0]} castShadow receiveShadow>
           <cylinderGeometry args={[tableRadius, tableRadius * 0.95, 0.07, 32]} />
@@ -123,7 +124,7 @@ export function Mesa3D({ element, pixelsPerMeter, position, primaryColor = '#d4a
   }
 
   return (
-    <group position={position}>
+    <group position={position} rotation={[0, rotRad, 0]}>
       {/* Tabla */}
       <mesh position={[0, 0.75, 0]} castShadow receiveShadow>
         <boxGeometry args={[widthM, 0.07, heightM]} />

@@ -2,23 +2,24 @@
 
 import type { FiestaEnPlanificacion, Reunion } from '@/types/fiesta';
 import { syncReunionToGoogleWorkspace } from '../google-workspace-extended';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, updateFiestaPartial } from './fiesta.actions';
+import { requireAppSession } from '@/lib/auth/require-session';
 
-async function updateFiestaData(
+async function updateFiestaReuniones(
   fiestaId: string,
-  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
+  updateFn: (data: FiestaEnPlanificacion) => Reunion[]
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) {
       throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
     }
-    const updatedData = updateFn(currentData);
-    const guardado = await saveFiesta(updatedData);
+    const updatedReuniones = updateFn(currentData);
+    const guardado = await updateFiestaPartial(fiestaId, { reuniones: updatedReuniones });
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudieron guardar las reuniones de la fiesta.' };
     }
-    return { success: true, updatedFiesta: updatedData };
+    return { success: true, updatedFiesta: { ...currentData, reuniones: updatedReuniones } };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -30,17 +31,14 @@ function syncReunionInBackground(fiestaId: string, reunion: Reunion, sendEmails 
     .catch((error) => console.warn('[Google Workspace] No se pudo sincronizar reunion:', error));
 }
 
-import { requireAppSession } from '@/lib/auth/require-session';
-
 export async function addReunion(reunionData: Omit<Reunion, 'id'>) {
   await requireAppSession();
   if (!reunionData.fiestaId) return { success: false, error: 'Fiesta ID es requerido.' };
 
   let newReunion: Reunion | null = null;
-  const result = await updateFiestaData(reunionData.fiestaId, data => {
+  const result = await updateFiestaReuniones(reunionData.fiestaId, data => {
     newReunion = { ...reunionData, id: `reunion_${Date.now()}` };
-    const reuniones = [...(data.reuniones || []), newReunion];
-    return { ...data, reuniones };
+    return [...(data.reuniones || []), newReunion];
   });
 
   if (result.success && newReunion) {
@@ -53,10 +51,9 @@ export async function addReunion(reunionData: Omit<Reunion, 'id'>) {
 export async function updateReunion(updatedReunion: Reunion) {
   await requireAppSession();
   if (!updatedReunion.fiestaId) return { success: false, error: 'Fiesta ID es requerido.' };
-  const result = await updateFiestaData(updatedReunion.fiestaId, data => ({
-    ...data,
-    reuniones: (data.reuniones || []).map(r => r.id === updatedReunion.id ? updatedReunion : r),
-  }));
+  const result = await updateFiestaReuniones(updatedReunion.fiestaId, data =>
+    (data.reuniones || []).map(r => r.id === updatedReunion.id ? updatedReunion : r)
+  );
 
   if (result.success) {
     syncReunionInBackground(updatedReunion.fiestaId, updatedReunion, true);
@@ -67,8 +64,7 @@ export async function updateReunion(updatedReunion: Reunion) {
 
 export async function deleteReunion(fiestaId: string, reunionId: string) {
   await requireAppSession();
-  return updateFiestaData(fiestaId, data => ({
-    ...data,
-    reuniones: (data.reuniones || []).filter(r => r.id !== reunionId),
-  }));
+  return updateFiestaReuniones(fiestaId, data =>
+    (data.reuniones || []).filter(r => r.id !== reunionId)
+  );
 }

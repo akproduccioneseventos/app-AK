@@ -245,7 +245,12 @@ export default function FeatureFlagsPage() {
                       <button
                         onClick={async () => {
                           setSaving(mod.id);
-                          await updateGlobalOverride(mod.id, null as unknown as boolean);
+                          const res = await updateGlobalOverride(mod.id, null as unknown as boolean);
+                          if (!res?.success) {
+                            toast({ title: 'Error', description: res?.error || 'No se pudo eliminar el override.', variant: 'destructive' });
+                            setSaving(null);
+                            return;
+                          }
                           setFlags(prev => {
                             if (!prev) return prev;
                             const next = { ...prev, globalOverrides: { ...prev.globalOverrides } };

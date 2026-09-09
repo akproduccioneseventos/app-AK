@@ -748,6 +748,7 @@ function SalonLayoutContent() {
                   salonElements: layout.salonElements || [],
                   salonWidth: layout.salonWidth || decoracion.salonWidth,
                   salonHeight: layout.salonHeight || decoracion.salonHeight,
+                  pixelsPerMeter: layout.pixelsPerMeter || decoracion.pixelsPerMeter,
                 });
                 setSalonSuggestion(null);
                 toast({ title: 'Diseño cargado', description: `Se cargó el diseño de ${salonSuggestion.nombre}.` });

@@ -117,6 +117,7 @@ export async function bookAppointmentFromSimulator(data: {
     try {
       if (newAppointment.leadId) {
         const { scheduleCrmMeeting } = await import('@/app/actions/crm');
+        // no-mira-el-resultado: la cita en la agenda ya se guardo; el registro en CRM es opcional y no bloquea al cliente
         await scheduleCrmMeeting(newAppointment.leadId, newAppointment.fechaHora, `Reunión en Oficina AK (${newAppointment.lugar})`);
       }
     } catch {

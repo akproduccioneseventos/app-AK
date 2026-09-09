@@ -22,6 +22,11 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
     fiestaGuardada = JSON.parse(JSON.stringify(f));
     return { success: true, fiesta: f };
   }),
+  updateFiestaPartial: jest.fn(async (id: string, partial: any) => {
+    fiestaGuardada = { ...fiestaGuardada, ...JSON.parse(JSON.stringify(partial)) };
+    guardadas.push(JSON.parse(JSON.stringify(fiestaGuardada)));
+    return { success: true };
+  }),
 }));
 
 const sincronizaciones: any[] = [];

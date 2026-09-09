@@ -54,7 +54,7 @@ async function correrTarea(request: Request) {
 
           const texto = `Hola ${inv.nombre}! ${momento} ${nombreFiesta}. Te esperamos a las ${hora} hs en ${lugar}.${mesa} Podés ver todos los detalles de tu invitación acá: ${link}`;
 
-          await saveScheduledMessage({
+          const saveRes = await saveScheduledMessage({
             targetType: 'cliente',
             targetId: inv.id,
             targetName: inv.nombre,
@@ -67,7 +67,9 @@ async function correrTarea(request: Request) {
             fiestaId: fiesta.id,
           });
 
-          mensajesPreparados++;
+          if (saveRes.success) {
+            mensajesPreparados++;
+          }
         }
       }
     }

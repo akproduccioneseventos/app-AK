@@ -5,19 +5,14 @@ import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, CompraProveedorEstado, Tarea } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import path from 'path';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 const FIESTAS_DIR = 'fiestas';
 
 export async function updateMenuAsignado(fiestaId: string, menuId?: string) {
   await requireAppSession();
-  const fiesta = await getFiestaById(fiestaId);
-  if (!fiesta) {
-      throw new Error("Fiesta no encontrada");
-  }
-  const updatedFiesta = { ...fiesta, menuAsignadoId: menuId };
-  return saveFiesta(updatedFiesta);
+  return updateFiestaPartial(fiestaId, { menuAsignadoId: menuId });
 }
 
 export async function updateShoppingListStatus(fiestaId: string, estados: CompraProveedorEstado[]): Promise<{ success: boolean, error?: string }> {

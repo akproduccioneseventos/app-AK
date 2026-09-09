@@ -2,7 +2,7 @@
 'use server';
 
 import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, CostoItem } from '@/types/fiesta';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { updateGestionCostos } from './costos.actions';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -13,11 +13,8 @@ export async function updateDecoracion(fiestaId: string, decoracion: DecoracionD
   // desde su portal. El guardado de abajo ya pide sesion del equipo O la clave del
   // cliente de esta fiesta.
   try {
-    const currentData = await getFiestaById(fiestaId);
-    if (!currentData) throw new Error("Fiesta no encontrada");
-    const updatedData = { ...currentData, decoracion };
-    const result = await saveFiesta(updatedData);
-    if (!result.success) throw new Error(result.error);
+    const result = await updateFiestaPartial(fiestaId, { decoracion }, { allowPortal: true });
+    if (!result.success) throw new Error(result.error || 'No se pudo guardar la decoración.');
 
     /**
      * LOS GASTOS DE DECORACION SE SINCRONIZAN SIEMPRE, TAMBIEN CUANDO NO QUEDA NADA.
@@ -34,11 +31,11 @@ export async function updateDecoracion(fiestaId: string, decoracion: DecoracionD
       return {
         success: false,
         error: sincronizado.error || 'La decoracion se guardo, pero los gastos no se pudieron actualizar.',
-        updatedData: result.fiesta?.decoracion,
+        updatedData: decoracion,
       };
     }
 
-    return { success: true, updatedData: result.fiesta?.decoracion };
+    return { success: true, updatedData: decoracion };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

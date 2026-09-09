@@ -150,6 +150,7 @@ export async function createPostEventPackage(fiestaId: string, notes?: string) {
     confidence: 'high',
   });
 
+  // no-mira-el-resultado: notificacion accesoria para administradores, los mensajes del evento ya quedaron guardados
   await createNotification({
     titulo: `Post-fiesta preparado: ${nombre}`,
     mensaje: 'Se guardaron mensajes de testimonio, autorización de fotos e idea de publicación.',

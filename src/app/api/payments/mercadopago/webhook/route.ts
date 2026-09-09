@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
     const result = await reconcileMercadoPagoPayment(payment);
     if (result.changed) {
       const approved = result.sessionStatus === 'approved';
+      // no-mira-el-resultado: el pago ya fue conciliado y el saldo actualizado; la notificacion al admin es secundaria
       await createNotification({
         titulo: approved ? 'Pago de Mercado Pago confirmado' : 'Pago de Mercado Pago revertido',
         mensaje: result.requiresReview

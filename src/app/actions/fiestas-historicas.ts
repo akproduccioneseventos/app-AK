@@ -133,6 +133,7 @@ export async function generarDesdeHistorico(
     const fiestaResult = await saveFiesta(newFiesta);
     if (!fiestaResult.success || !fiestaResult.fiesta) throw new Error(fiestaResult.error || "Error al crear evento.");
 
+    // no-mira-el-resultado: notificacion secundaria, la fiesta ya se guardo correctamente
     await createNotification({
       mensaje: `Nuevo evento generado desde histórico: ${newFiesta.configuracion.nombreEvento}`,
       href: `/fiestas/nueva?fiestaId=${fiestaResult.fiesta.id}`,

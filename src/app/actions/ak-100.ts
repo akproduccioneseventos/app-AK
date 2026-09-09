@@ -71,6 +71,7 @@ export async function createAk100ClosureTasks(fiestaId: string): Promise<{
       return { success: false, created: 0, error: result.error || 'No se pudieron guardar las tareas.' };
     }
 
+    // no-mira-el-resultado: la notificacion es un aviso secundario al equipo, las tareas ya quedaron guardadas
     await createNotification({
       titulo: 'AK 100% creo tareas de cierre',
       mensaje: `Se agregaron ${tasksToCreate.length} tarea(s) para cerrar "${readiness.eventName}".`,

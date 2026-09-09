@@ -2,9 +2,13 @@ jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue(undefined),
   requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: {} }),
 }));
+const saveFiestaMock = jest.fn();
+const updateFiestaPartialMock = jest.fn();
+
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(),
-  saveFiesta: jest.fn(),
+  saveFiesta: (...args: any[]) => saveFiestaMock(...args),
+  updateFiestaPartial: (...args: any[]) => updateFiestaPartialMock(...args),
 }));
 jest.mock('@/app/actions/fiesta-actual', () => ({
   getFiestaById: jest.fn(),
@@ -44,10 +48,13 @@ describe('Orden 49: Las acciones de fiesta verifican el resultado de saveFiesta'
     jest.clearAllMocks();
     (getFiestaById as jest.Mock).mockResolvedValue(FIESTA_BASE);
     (getFiestaByIdActual as jest.Mock).mockResolvedValue(FIESTA_BASE);
+    saveFiestaMock.mockResolvedValue({ success: true, fiesta: FIESTA_BASE });
+    updateFiestaPartialMock.mockResolvedValue({ success: true });
   });
 
   it('addMoodboardItem: si saveFiesta falla, devuelve success: false', async () => {
-    (saveFiesta as jest.Mock).mockResolvedValue({ success: false, error: 'Fallo simulado en base de datos' });
+    saveFiestaMock.mockResolvedValue({ success: false, error: 'Fallo simulado en base de datos' });
+    updateFiestaPartialMock.mockResolvedValue({ success: false, error: 'Fallo simulado en base de datos' });
 
     const res = await addMoodboardItem(FIESTA_BASE.id, {
       url: 'https://ejemplo.com/deco.jpg',
@@ -61,7 +68,8 @@ describe('Orden 49: Las acciones de fiesta verifican el resultado de saveFiesta'
   });
 
   it('saveSugerenciaMusical: si saveFiesta falla, devuelve success: false', async () => {
-    (saveFiesta as jest.Mock).mockResolvedValue({ success: false, error: 'Error de disco' });
+    saveFiestaMock.mockResolvedValue({ success: false, error: 'Error de disco' });
+    updateFiestaPartialMock.mockResolvedValue({ success: false, error: 'Error de disco' });
 
     const res = await saveSugerenciaMusical(FIESTA_BASE.id, {
       id: 'sug-1',
@@ -74,7 +82,8 @@ describe('Orden 49: Las acciones de fiesta verifican el resultado de saveFiesta'
   });
 
   it('saveSocialScreenConfig: si saveFiesta falla, devuelve success: false', async () => {
-    (saveFiesta as jest.Mock).mockResolvedValue({ success: false, error: 'Error al persistir pantalla' });
+    saveFiestaMock.mockResolvedValue({ success: false, error: 'Error al persistir pantalla' });
+    updateFiestaPartialMock.mockResolvedValue({ success: false, error: 'Error al persistir pantalla' });
 
     const res = await saveSocialScreenConfig(FIESTA_BASE.id, {
       theme: 'neon',
@@ -85,7 +94,8 @@ describe('Orden 49: Las acciones de fiesta verifican el resultado de saveFiesta'
   });
 
   it('updateConfiguracion y getFiestaActual: verifican guardado y estado', async () => {
-    (saveFiesta as jest.Mock).mockResolvedValue({ success: false, error: 'Error al guardar config' });
+    saveFiestaMock.mockResolvedValue({ success: false, error: 'Error al guardar config' });
+    updateFiestaPartialMock.mockResolvedValue({ success: false, error: 'Error al guardar config' });
     const res = await updateConfiguracion(FIESTA_BASE.id, { nombreEvento: 'Nuevo Nombre' } as any);
     expect(res.success).toEqual(false);
 
@@ -94,7 +104,8 @@ describe('Orden 49: Las acciones de fiesta verifican el resultado de saveFiesta'
   });
 
   it('live, regalos, reuniones, playlist, tareas y video vida: verifican guardado', async () => {
-    (saveFiesta as jest.Mock).mockResolvedValue({ success: false, error: 'Fallo general' });
+    saveFiestaMock.mockResolvedValue({ success: false, error: 'Fallo general' });
+    updateFiestaPartialMock.mockResolvedValue({ success: false, error: 'Fallo general' });
 
     const liveRes = await updateLiveState(FIESTA_BASE.id, (state) => ({ ...state }));
     expect(liveRes.success).toEqual(false);
@@ -116,7 +127,8 @@ describe('Orden 49: Las acciones de fiesta verifican el resultado de saveFiesta'
   });
 
   it('meeting-intelligence y multiagent: verifican guardado', async () => {
-    (saveFiesta as jest.Mock).mockResolvedValue({ success: false, error: 'Fallo al guardar minuta' });
+    saveFiestaMock.mockResolvedValue({ success: false, error: 'Fallo al guardar minuta' });
+    updateFiestaPartialMock.mockResolvedValue({ success: false, error: 'Fallo al guardar minuta' });
 
     const formData = {
       get: (k: string) => {

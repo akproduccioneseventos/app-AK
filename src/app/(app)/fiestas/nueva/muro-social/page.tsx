@@ -929,7 +929,15 @@ function MuroSocialContent() {
           : '';
 
         // Clear after successful download
-        await clearGallery(fiestaId);
+        const clearRes = await clearGallery(fiestaId);
+        if (!clearRes.success) {
+          toast({
+            title: 'Descarga completada con aviso',
+            description: `El ZIP se descargó pero no se pudo vaciar la galería: ${clearRes.error || 'error desconocido'}.`,
+            variant: 'destructive',
+          });
+          return;
+        }
         setPostCount(0);
         toast({
           title: 'Descarga completada y galería limpiada ✓',

@@ -2,7 +2,7 @@
 
 import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import { syncFiestaToGoogleWorkspace } from '../google-workspace';
-import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
+import { getFiestaById, getFiestas, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
@@ -53,7 +53,7 @@ export async function updatePersonal(
       const { acquireStaffAgendaLocks } = await import('@/lib/staff-agenda-lock');
       releaseAgendaLocks = await acquireStaffAgendaLocks(empleadosNuevos);
     }
-    let result: Awaited<ReturnType<typeof saveFiesta>>;
+    let result: Awaited<ReturnType<typeof updateFiestaPartial>>;
 
     try {
       if (fecha && empleadosNuevos.length > 0) {
@@ -92,7 +92,7 @@ export async function updatePersonal(
       }
 
       // La lectura y el guardado quedan dentro del mismo bloqueo por empleado.
-      result = await saveFiesta({ ...currentData, personalAsignado: personal });
+      result = await updateFiestaPartial(fiestaId, { personalAsignado: personal });
     } finally {
       await releaseAgendaLocks();
     }
@@ -119,8 +119,7 @@ export async function updatePersonal(
     // entrar, no solo en el momento. Si esta segunda escritura falla no cambia
     // el resultado: la asignacion ya quedo guardada, que es lo que importa.
     if (googleSyncWarning) {
-      const conAviso = await getFiestaById(fiestaId);
-      if (conAviso) await saveFiesta({ ...conAviso, googleSyncWarning });
+      await updateFiestaPartial(fiestaId, { googleSyncWarning });
     }
 
     return {
@@ -155,8 +154,7 @@ export async function retryPersonalGoogleSync(
       warning = err?.message || 'No se pudo completar el aviso por correo con Google Workspace.';
     }
 
-    const guardado = await saveFiesta({
-      ...currentData,
+    const guardado = await updateFiestaPartial(fiestaId, {
       googleSyncWarning: warning,
     });
     if (!guardado.success) {

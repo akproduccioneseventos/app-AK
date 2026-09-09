@@ -153,7 +153,8 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
           contratoUrl: uniqueFilename,
           observaciones: `Carga histórica del ${new Date().toLocaleDateString()}`
         };
-        await saveFiestaHistorica(historicalRecord);
+        const histRes = await saveFiestaHistorica(historicalRecord);
+        if (!histRes.success) throw new Error(histRes.error || "No se pudo guardar el registro histórico.");
 
         // 6. Save the Fiesta as an ACTIVE (but archived) event
         const fiestaId = `fiesta_hist_${Date.now()}`;
@@ -170,8 +171,9 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             invoiceIds: [invoiceResult.id]
         };
         const saveFiestaResult = await saveFiesta(newFiesta);
-        
+
         // 7. Notification
+        // no-mira-el-resultado: notificacion accesoria para el equipo, la fiesta historica ya se guardo
         await createNotification({
           mensaje: `Se cargó el evento histórico de ${clienteNombre}.`,
           href: `/contabilidad/fiestas-historicas`,

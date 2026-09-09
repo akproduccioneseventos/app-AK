@@ -389,7 +389,10 @@ export default function MarketingPage() {
       } else {
         const defaults = buildDefaultChecklist(semana);
         setChecklist(defaults);
-        await saveMarketingChecklist([...all, ...defaults]);
+        const saveRes = await saveMarketingChecklist([...all, ...defaults]);
+        if (!saveRes.success) {
+          console.warn('[marketing] no se pudo guardar checklist por defecto:', saveRes.error);
+        }
       }
     } finally {
       setIsLoadingChecklist(false);
@@ -502,7 +505,11 @@ export default function MarketingPage() {
     setChecklist(updated);
     const all = await getMarketingChecklist();
     const otherWeeks = all.filter(i => i.semana !== semana);
-    await saveMarketingChecklist([...otherWeeks, ...updated]);
+    const saveRes = await saveMarketingChecklist([...otherWeeks, ...updated]);
+    if (!saveRes.success) {
+      toast({ title: 'Error al guardar', description: saveRes.error || 'No se pudo actualizar el checklist.', variant: 'destructive' });
+      return;
+    }
   };
 
   // ── Backup ─────────────────────────────────────────────────────────────────

@@ -271,7 +271,11 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     if (!catalogItem || catalogItem.valorUnitarioEstimado === ing.costoUnitario) return;
     try {
         const updatedInsumo = { ...catalogItem, valorUnitarioEstimado: parseSafeNumber(ing.costoUnitario) };
-        await saveInsumo(updatedInsumo);
+        const res = await saveInsumo(updatedInsumo);
+        if (!res.success) {
+          toast({ title: "Error de Sincronización", description: res.error || "No se pudo actualizar el costo en el catálogo.", variant: "destructive"});
+          return;
+        }
         toast({ title: 'Catálogo Actualizado', description: `Costo de "${ing.name}" sincronizado.`});
         await fetchInitialData();
     } catch (e: any) {

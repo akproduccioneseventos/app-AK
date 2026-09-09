@@ -445,7 +445,14 @@ function CrearPresupuestoContent() {
             if (formData.cuponId && formData.cuponDescuento) {
               try {
                 const { registrarUsoCupon } = await import('@/app/actions/cupones');
-                await registrarUsoCupon(formData.cuponId, result.id, formData.clienteNombre, formData.cuponDescuento, descuentoValorNum);
+                const usoRes = await registrarUsoCupon(formData.cuponId, result.id, formData.clienteNombre, formData.cuponDescuento, descuentoValorNum);
+                if (!usoRes?.success) {
+                  toast({
+                    title: 'El cupón no quedó registrado',
+                    description: usoRes?.error || 'El descuento se aplicó al presupuesto, pero el uso del cupón no se pudo anotar. Revisalo a mano.',
+                    variant: 'destructive',
+                  });
+                }
               } catch (e) {
                 console.warn('Error registrando uso de cupón:', e);
                 toast({
