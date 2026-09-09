@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye, X, Sparkles } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye, EyeOff, X, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -62,29 +63,67 @@ const ALL_ICONS = [
   { value: 'PartyPopper', label: 'Fiesta' },
 ];
 
-function SortableItem({ item, hasOverlap, onEdit, onDelete }: { item: ProgramaEventoItem, hasOverlap?: boolean, onEdit: (item: ProgramaEventoItem) => void, onDelete: (id: string) => void }) {
+function SortableItem({
+  item,
+  hasOverlap,
+  onEdit,
+  onDelete,
+  onToggleVisible,
+}: {
+  item: ProgramaEventoItem;
+  hasOverlap?: boolean;
+  onEdit: (item: ProgramaEventoItem) => void;
+  onDelete: (id: string) => void;
+  onToggleVisible?: (id: string, visible: boolean) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
   const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
+  const isVisibleForClient = item.visibleParaCliente !== false;
 
   return (
     <div ref={setNodeRef} style={style} className={cn("flex items-center gap-3 p-3 bg-card border rounded-lg shadow-sm", hasOverlap && "border-amber-300 bg-amber-50/40")}>
       <div {...listeners} {...attributes} className="cursor-grab p-1 text-muted-foreground"><GripVertical className="w-5 h-5" /></div>
       <div className="p-2 bg-primary/10 rounded-md"><Icon className="w-5 h-5 text-primary" /></div>
       <div className="flex-grow">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <p className="font-semibold">{item.hora} - {item.titulo}</p>
           {hasOverlap && (
             <Badge variant="outline" className="border-amber-300 bg-amber-100/80 text-amber-900 text-[10px] font-bold">
               <AlertTriangle className="w-3 h-3 mr-1 text-amber-600 inline" /> Coincide horario
             </Badge>
           )}
+          {isVisibleForClient ? (
+            <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700 text-[10px] font-semibold">
+              <Eye className="w-3 h-3 mr-1 inline" /> Visible cliente
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="border-slate-200 bg-slate-100 text-slate-500 text-[10px]">
+              <EyeOff className="w-3 h-3 mr-1 inline" /> Oculto cliente
+            </Badge>
+          )}
         </div>
-        <p className="text-sm text-muted-foreground">{item.descripcion}</p>
+        {item.descripcion && <p className="text-sm text-muted-foreground">{item.descripcion}</p>}
+        {item.descripcionCliente && (
+          <p className="text-xs text-primary/80 mt-1">
+            <span className="font-medium">Texto para cliente:</span> {item.descripcionCliente}
+          </p>
+        )}
       </div>
-      <div className="flex gap-1">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(item)}><Edit className="w-4 h-4" /></Button>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(item.id)}><Trash2 className="w-4 h-4" /></Button>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 px-2 py-1 bg-muted/40 rounded-md border border-border/40" title="Alternar si el cliente ve este momento en su portal">
+          <Switch
+            id={`switch-vis-${item.id}`}
+            checked={isVisibleForClient}
+            onCheckedChange={(checked) => onToggleVisible?.(item.id, checked)}
+            aria-label="Alternar visibilidad para el cliente"
+          />
+          <Label htmlFor={`switch-vis-${item.id}`} className="text-xs cursor-pointer text-muted-foreground hidden sm:inline">
+            Portal
+          </Label>
+        </div>
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(item)} title="Editar momento"><Edit className="w-4 h-4" /></Button>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(item.id)} title="Eliminar momento"><Trash2 className="w-4 h-4" /></Button>
       </div>
     </div>
   );
@@ -233,8 +272,23 @@ function ItinerarioContent() {
   };
 
   const openModal = (item?: ProgramaEventoItem) => {
-    setCurrentItem(item || { hora: '20:00', titulo: '', descripcion: '', icono: 'Clock' });
+    setCurrentItem(
+      item
+        ? { ...item }
+        : {
+            hora: '20:00',
+            titulo: '',
+            descripcion: '',
+            descripcionCliente: '',
+            visibleParaCliente: true,
+            icono: 'Clock',
+          }
+    );
     setIsEditModalOpen(true);
+  };
+
+  const handleToggleVisibleCliente = (id: string, visible: boolean) => {
+    setPrograma(prev => prev.map(p => (p.id === id ? { ...p, visibleParaCliente: visible } : p)));
   };
 
   const handleSaveItem = (e: FormEvent) => {
@@ -356,11 +410,45 @@ function ItinerarioContent() {
               </div>
             </div>
             <div className="space-y-1"><Label htmlFor="item-titulo">Título*</Label><Input id="item-titulo" value={currentItem?.titulo || ''} onChange={(e) => setCurrentItem(p => p ? {...p, titulo: e.target.value} : null)} required /></div>
-            <div className="space-y-1"><Label htmlFor="item-desc">Descripción interna (solo organizador)</Label><Textarea id="item-desc" value={currentItem?.descripcion || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcion: e.target.value} : null)} rows={2} placeholder="Notas operativas (no visibles para el cliente)" /></div>
-            <div className="space-y-1"><Label htmlFor="item-desc-cliente">Descripción para el cliente (opcional)</Label><Textarea id="item-desc-cliente" value={currentItem?.descripcionCliente || ''} onChange={(e) => setCurrentItem(p => p ? {...p, descripcionCliente: e.target.value} : null)} rows={2} placeholder="Texto visible en el portal del cliente" /></div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="item-visible-cliente" checked={currentItem?.visibleParaCliente !== false} onChange={(e) => setCurrentItem(p => p ? {...p, visibleParaCliente: e.target.checked} : null)} className="w-4 h-4 rounded border-slate-300" />
-              <Label htmlFor="item-visible-cliente" className="font-normal text-sm">Visible en portal del cliente</Label>
+            <div className="space-y-1">
+              <Label htmlFor="item-desc">Descripción interna (solo organizador)</Label>
+              <Textarea
+                id="item-desc"
+                value={currentItem?.descripcion || ''}
+                onChange={(e) => setCurrentItem(p => p ? {...p, descripcion: e.target.value} : null)}
+                rows={2}
+                placeholder="Notas operativas del equipo (no visibles para el cliente)"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="item-desc-cliente" className="font-semibold text-foreground">
+                Texto que leerá el cliente en su portal (opcional)
+              </Label>
+              <Textarea
+                id="item-desc-cliente"
+                value={currentItem?.descripcionCliente || ''}
+                onChange={(e) => setCurrentItem(p => p ? {...p, descripcionCliente: e.target.value} : null)}
+                rows={2}
+                placeholder="Escribí acá el texto redactado para la familia (si se deja vacío, se mostrará el título/descripción)"
+              />
+              <p className="text-[11px] text-muted-foreground">
+                Permite escribir una redacción cuidada para el cliente, separada de las notas técnicas del equipo.
+              </p>
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/20">
+              <div className="space-y-0.5 pr-2">
+                <Label htmlFor="item-visible-cliente" className="text-sm font-semibold flex items-center gap-1.5 cursor-pointer">
+                  <Eye className="w-4 h-4 text-primary" /> Visible en el portal del cliente
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Marcá este interruptor para que este momento aparezca en el cronograma del portal VIP del cliente.
+                </p>
+              </div>
+              <Switch
+                id="item-visible-cliente"
+                checked={currentItem?.visibleParaCliente !== false}
+                onCheckedChange={(checked) => setCurrentItem(p => p ? {...p, visibleParaCliente: checked} : null)}
+              />
             </div>
             <DialogFooter className="pt-3">
               <DialogClose asChild><Button type="button" variant="outline">Cancelar</Button></DialogClose>
@@ -446,7 +534,14 @@ function ItinerarioContent() {
                 {programa.map(item => {
                   const hasOverlap = programa.some(p => p.id !== item.id && p.hora === item.hora);
                   return (
-                    <SortableItem key={item.id} item={item} hasOverlap={hasOverlap} onEdit={openModal} onDelete={handleDeleteItem} />
+                    <SortableItem
+                      key={item.id}
+                      item={item}
+                      hasOverlap={hasOverlap}
+                      onEdit={openModal}
+                      onDelete={handleDeleteItem}
+                      onToggleVisible={handleToggleVisibleCliente}
+                    />
                   );
                 })}
               </div>

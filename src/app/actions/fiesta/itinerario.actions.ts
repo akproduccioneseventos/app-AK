@@ -1,18 +1,15 @@
 'use server';
 
 import { requireAppSession } from '@/lib/auth/require-session';
-import type { FiestaEnPlanificacion, ProgramaEventoItem } from '@/types/fiesta';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import type { ProgramaEventoItem } from '@/types/fiesta';
+import { updateFiestaPartial } from './fiesta.actions';
 
 export async function updatePrograma(fiestaId: string, programa: ProgramaEventoItem[]): Promise<{ success: boolean; updatedData?: ProgramaEventoItem[]; error?: string }> {
   await requireAppSession();
   try {
-    const currentData = await getFiestaById(fiestaId);
-    if (!currentData) throw new Error("Fiesta no encontrada");
-    const updatedData = { ...currentData, programa };
-    const result = await saveFiesta(updatedData);
+    const result = await updateFiestaPartial(fiestaId, { programa });
     if (!result.success) throw new Error(result.error);
-    return { success: true, updatedData: result.fiesta?.programa };
+    return { success: true, updatedData: programa };
   } catch (e: any) {
     return { success: false, error: e.message };
   }

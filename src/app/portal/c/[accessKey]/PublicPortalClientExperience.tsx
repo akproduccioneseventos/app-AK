@@ -628,7 +628,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       title: 'Cronograma',
       icon: ClipboardList,
       badge: 'Solo información',
-      active: (fiesta?.timeline ?? []).length > 0 || (fiesta?.programa ?? []).length > 0 || settings?.itinerario?.visible,
+      active: (fiesta?.timeline ?? []).length > 0 || (fiesta?.programa ?? []).some((item: any) => item.visibleParaCliente !== false) || settings?.itinerario?.visible,
       text: 'Momentos importantes del día, ordenados por hora.',
     },
   ].filter(card => card.active || !presupuesto);
@@ -672,7 +672,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const musicMaybe = listaMusica.siEsPosible ?? [];
   const musicNo = listaMusica.noQuiero ?? [];
   const reuniones = fiesta?.reuniones ?? [];
-  const programaItems = (fiesta?.programa ?? []).map((item: any) => ({ id: item.id, time: item.hora, title: item.titulo, text: item.descripcionCliente || item.descripcion }));
+  const programaItems = (fiesta?.programa ?? [])
+    .filter((item: any) => item.visibleParaCliente !== false)
+    .map((item: any) => ({ id: item.id, time: item.hora, title: item.titulo, text: item.descripcionCliente || '' }));
   const timelineItems = programaItems.length > 0
     ? programaItems
     : (fiesta?.timeline ?? []).map((item: any) => ({ id: item.id, time: formatShortDate(item.fechaProgramada), title: item.nombre, text: item.notas }));
