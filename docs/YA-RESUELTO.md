@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de septiembre de 2026 - Correccion del metodo de Codex por feedback de Claude
+
+No trasladar defectos de main a Gemini sin comparar la tanda. En PR1204 HEAD
+a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d se leyeron guards existentes para
+PLAN-01/04/06 (tareas, moodboard, costos) y DECO-03 (guardar imagen). No se ejecutaron
+las sondas en ese SHA: estado correccion presente, pendiente validar; no reprogramar.
+Claude reporto cuatro casos de orden51; Codex verifico aqui tres, no inventar el cuarto.
+La ruta objetada en orden52 no fue identificada concretamente; verificar rutas del
+SHA destino antes de actuar. Mantener evidencia historica sin presentarla como actual.
+Se actualizaron cabeceras49-54 y AGENTS: dinero/comida/permisos a Claude; Gemini resto;
+Codex audita, Claude compila. Orden50 explicita fotocabina/360/espejo visibles sin
+expandir Ver mas. No es modificacion del sitio ni auditoria completa de las PR abiertas.
+No se encontro aun el documento adicional de Claude en las ubicaciones consultadas;
+se trabajo con el texto compartido por el dueno y el contraste remoto descrito.
+
 ## 9 de septiembre de 2026 - Portal cliente: orden 54, pendiente
 
 Codex reviso codigo main8c5eb6e sin interferir con Gemini. Dos grupos reproducidos:

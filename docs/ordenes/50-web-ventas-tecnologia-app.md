@@ -1,5 +1,15 @@
 # 50 - Web de ventas y tecnologia de LA APP para las fiestas
 
+> ACTUALIZACION 2026-09-09: evidencia historica de main8c5, NO una orden
+> para reprogramar todo. Contrastar cada caso con el HEAD de la tanda abierta
+> antes de editar y verificar alli rutas/simbolos/consumidores.
+> PR #1204 observada en a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d;
+> no se certifico toda esa PR. Prevalece el reparto corregido de AGENTS.md:
+> Claude: dinero, cobros, contabilidad, comida y permisos; Gemini: resto.
+> Fotocabina, plataforma 360 y espejo deben seguir visibles sin pulsar Ver mas.
+> Priorizar tecnologia de la app NO autoriza esconder los servicios vendidos.
+> No crear un test que obligue a ocultarlos; cambios comerciales los aprueba el dueno.
+
 Fecha: 2026-09-08. Estado: REVISION PARCIAL, implementacion y aprobacion pendientes.
 Codex audita y propone; Gemini programa; Claude Opus compila. El dueno fusiona.
 

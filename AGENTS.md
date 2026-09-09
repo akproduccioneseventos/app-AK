@@ -1,3 +1,23 @@
+## Control prioritario de auditoria AK - 2026-09-09
+
+Antes de convertir hallazgos en ordenes de programacion:
+- Identificar la tanda abierta y su HEAD exacto. Comparar main/publicado con esa rama;
+  un fallo en main puede estar ya corregido en la entrega pendiente.
+- Clasificar: fallo publicado, correccion presente en rama pendiente de validar,
+  reproducido tambien en la tanda, o no contrastado. No reimplementar lo existente.
+- Si no se conoce/accede a la rama de trabajo, poner NO CONTRASTADO CON LA TANDA
+  arriba de la orden y exigir contraste antes de programar. No inventar rama base.
+- Verificar archivo, simbolo y consumidor en el SHA de destino; lineas del historico
+  no garantizan que la ruta exista hoy. No emitir rutas supuestas.
+- Codex revisa/proporciona evidencia. Segun la aclaracion de reparto recibida el
+  9/9, Claude lleva dinero, cobros, contabilidad, comida y permisos; Gemini el resto.
+  Claude compila. Esto prevalece sobre la asignacion anterior generica a Gemini.
+- En cambios comerciales, fotocabina, plataforma 360 y espejo deben seguir visibles
+  sin expandir Ver mas, aunque puedan requerir scroll. No cambiar esa prioridad,
+  esconder servicios ni imponerlo mediante tests sin aprobacion expresa del dueno.
+- Mantener sondas de fallos y concurrencia, limites de cobertura y registro compartido.
+  No confundir correccion presente, prueba aprobada y despliegue verificado.
+
 ## ANTES DE AUDITAR: leé `docs/YA-RESUELTO.md`
 
 En este proyecto trabajan varias IA en paralelo, en cuentas distintas. Sin esa

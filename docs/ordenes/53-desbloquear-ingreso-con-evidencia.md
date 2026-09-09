@@ -1,5 +1,12 @@
 # Orden 53: desbloquear ingreso, sin parches a ciegas
 
+> ACTUALIZACION 2026-09-09: evidencia historica de main8c5, NO una orden
+> para reprogramar todo. Contrastar cada caso con el HEAD de la tanda abierta
+> antes de editar y verificar alli rutas/simbolos/consumidores.
+> PR #1204 observada en a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d;
+> no se certifico toda esa PR. Prevalece el reparto corregido de AGENTS.md:
+> Claude: dinero, cobros, contabilidad, comida y permisos; Gemini: resto.
+
 2026-09-09. P1, BLOQUEO OBSERVADO; causa sin determinar; NO solucionado.
 Codex diagnostica, Gemini programa, Claude compila. Incluir junto a la tanda abierta,
 no crear otra PR solo documental ni fusionar automaticamente.

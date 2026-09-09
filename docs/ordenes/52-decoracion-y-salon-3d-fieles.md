@@ -1,5 +1,15 @@
 # Orden 52: decoracion y salon 3D que representen la fiesta acordada
 
+> ACTUALIZACION 2026-09-09: evidencia historica de main8c5, NO una orden
+> para reprogramar todo. Contrastar cada caso con el HEAD de la tanda abierta
+> antes de editar y verificar alli rutas/simbolos/consumidores.
+> PR #1204 observada en a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d;
+> no se certifico toda esa PR. Prevalece el reparto corregido de AGENTS.md:
+> Claude: dinero, cobros, contabilidad, comida y permisos; Gemini: resto.
+> DECO-03: la rama #1204 ya comprueba el resultado de guardar la imagen;
+> NO reimplementar; validar. La ruta concreta objetada por Claude aun no se
+> identifico; las rutas de esta auditoria deben revalidarse en la tanda.
+
 2026-09-09. Codex revisa y propone; Gemini programa; Claude Opus compila.
 Estado: revision parcial con ocho sondas fallidas reproducidas. No son correcciones.
 Codigo auditado: main `8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe`, vigente al consultar.
