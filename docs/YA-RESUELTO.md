@@ -7484,3 +7484,32 @@ bien es cambiar como guarda cada modulo, no un parche. Va en la orden 51.
 prueba: src/__tests__/la-planificacion-no-pierde-lo-que-guarda.test.ts
 usa: syncDecoGastosToModule en src/app/actions/fiesta/decoracion.actions.ts
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — La pantalla de ingreso se podia caer entera por un dato que no hace falta
+
+Se reporto que la puerta de entrada mostraba **"Error al cargar"** y no se podia entrar. Desde
+donde se programa no hay salida a internet hacia el sitio publicado, asi que **la causa alla no
+se pudo medir**. Lo que si se encontro, mirando el codigo, es un agujero real que produce
+exactamente eso:
+
+Al abrir la pantalla de ingreso se piden dos cosas que **no hacen falta para entrar**: el logo y
+el estado de la recuperacion de clave. Se pedian con tope de tiempo, pero **el tope aguantaba la
+demora y no el error**: si la consulta fallaba de verdad -la base sin contestar, o el navegador
+con una version vieja de la pagina despues de publicar- el error se escapaba y **se llevaba
+puesta la pantalla entera**. El dueno veia el cartel de error con la puerta cerrada.
+
+Ahora pase lo que pase el formulario queda usable: si el logo no viene, no viene; el correo y la
+clave se escriben igual.
+
+**Y lo que faltaba, que es lo mas grave:** la pantalla por la que entra todo el equipo **era la
+unica que no tenia ninguna prueba de navegador**. Ahora la tiene, y comprueba lo minimo que no
+puede fallar nunca —que se pueda escribir y que una clave equivocada no deje entrar— tanto
+entrando directo como llegando redirigido desde una pantalla interna.
+
+```comprobar
+prueba: tests/e2e/la-puerta-de-entrada-anda.spec.ts
+usa: withTimeout en src/app/login/page.tsx
+```

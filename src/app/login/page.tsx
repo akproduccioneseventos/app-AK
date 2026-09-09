@@ -54,9 +54,20 @@ const RECOVERY_STATUS_FALLBACK: RecoveryStatus = {
  */
 const ESPERA_MAXIMA_MS = 25000;
 
+/**
+ * Pide un dato con tope de tiempo Y AGUANTA QUE FALLE.
+ *
+ * **Antes solo aguantaba la demora, no el error.** Si la consulta fallaba de verdad
+ * -la base sin contestar, o el navegador con una version vieja de la pagina despues
+ * de publicar- el error se escapaba y **la pantalla de ingreso entera se caia**: el
+ * dueno veia "Error al cargar" y no podia entrar. Ninguno de estos datos hace falta
+ * para escribir el correo y la clave: son el logo y el estado de recuperacion.
+ *
+ * Se corrigio el 9 de septiembre de 2026, con el bloqueo de ingreso reportado.
+ */
 function withTimeout<T>(promise: Promise<T>, fallback: T, timeoutMs = 3500): Promise<T> {
   return Promise.race([
-    promise,
+    Promise.resolve(promise).catch(() => fallback),
     new Promise<T>((resolve) => window.setTimeout(() => resolve(fallback), timeoutMs)),
   ]);
 }
@@ -171,7 +182,20 @@ export default function LoginPage() {
       setLogoUrl(settings.logoUrl);
       setRecovery(recoveryStatus);
     }
-    loadLoginData();
+    /**
+     * PASE LO QUE PASE, EL FORMULARIO QUEDA USABLE.
+     *
+     * Esta preparacion trae cosas que ayudan pero no hacen falta para entrar. Si algo
+     * de todo esto se cae, **no puede llevarse puesta la pantalla de ingreso**: el
+     * dueno tiene que poder escribir su correo y su clave igual. Sin este resguardo,
+     * un error aca terminaba en el cartel de "Error al cargar" y la puerta cerrada.
+     */
+    loadLoginData().catch((e) => {
+      console.warn('No se pudo preparar la pantalla de ingreso, pero se puede entrar igual:', e);
+      if (!active) return;
+      setLogoUrl(null);
+      setRecovery(RECOVERY_STATUS_FALLBACK);
+    });
 
     return () => {
       active = false;

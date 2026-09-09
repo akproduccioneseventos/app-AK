@@ -908,6 +908,7 @@ con otra cara.
 | El prospecto que llegaba de un anuncio pago se guardaba como si hubiera llegado solo | `src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts` |
 | El tope de publicidad inventaba $500 de presupuesto, y después quedó apagado para siempre | `src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts` |
 | El recordatorio de pagarle al proveedor se creaba y se borraba solo; y sacar la decoración dejaba sus gastos | `src/__tests__/la-planificacion-no-pierde-lo-que-guarda.test.ts` |
+| La pantalla de ingreso se caía entera por un dato que no hace falta para entrar | `tests/e2e/la-puerta-de-entrada-anda.spec.ts` |
 
 ### Cómo se elige el matafuego
 
