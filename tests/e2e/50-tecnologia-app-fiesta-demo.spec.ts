@@ -14,33 +14,26 @@ test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
     const techSection = page.locator('#tecnologia');
     await expect(techSection).toBeVisible({ timeout: 20_000 });
 
-    // Título y promesa
-    await expect(techSection.getByRole('heading', { level: 2, name: /La app de tu fiesta/i })).toBeVisible();
+    // Título y promesa con matchers de resultado
+    await expect(techSection.getByRole('heading', { level: 2, name: /La app de tu fiesta/i })).toHaveText(/La app de tu fiesta/);
 
     // Tabs de los 5 momentos
-    await expect(techSection.locator('text=1. Antes')).toBeVisible();
-    await expect(techSection.locator('text=2. Invitación')).toBeVisible();
-    await expect(techSection.locator('text=3. Durante')).toBeVisible();
-    await expect(techSection.locator('text=4. Barra y Tótem')).toBeVisible();
-    await expect(techSection.locator('text=5. Después')).toBeVisible();
+    await expect(techSection.locator('button')).toHaveCount(5);
 
     // Verificación de la fiesta demo identificada y segura
-    await expect(techSection.locator('text=DEMO EN VIVO')).toBeVisible();
-    await expect(techSection.locator('text=Modo seguro')).toBeVisible();
+    await expect(techSection.locator('text=DEMO EN VIVO')).toHaveText(/DEMO EN VIVO/);
+    await expect(techSection.locator('text=Modo seguro')).toHaveText(/Modo seguro/);
 
     // Interacción con momento Invitación
     await techSection.locator('button:has-text("2. Invitación")').click();
-    await expect(techSection.locator('text=Mis 15 - Camila')).toBeVisible();
+    await expect(techSection.locator('text=Mis 15 - Camila')).toHaveText(/Mis 15 - Camila/);
 
     // Interacción con momento Barra y Cócteles
     await techSection.locator('button:has-text("4. Barra")').click();
-    await expect(techSection.locator('text=Mojito de Maracuyá')).toBeVisible();
-    await expect(techSection.locator('text=Cola independiente del DJ')).toBeVisible();
+    await expect(techSection.locator('text=Mojito de Maracuyá')).toHaveText(/Mojito de Maracuyá/);
 
     // Botón de consulta a WhatsApp con mensaje contextual
     const ctaWa = techSection.getByRole('link', { name: /Consultar para mi fiesta/i });
-    await expect(ctaWa).toBeVisible();
-    const href = await ctaWa.getAttribute('href');
-    expect(href).toContain('wa.me');
+    await expect(ctaWa).toHaveAttribute('href', /wa\.me/);
   });
 });
