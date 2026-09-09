@@ -7652,3 +7652,26 @@ prueba: src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts
 usa: mapProgramaParaElCliente en src/lib/client-portal/public-fiesta.ts
 usa: mapProgramaParaElCliente en src/lib/social-fiesta/public-event.ts
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — El panel muestra tambien la deuda y lo que se aprendio
+
+Pedido del dueno: *"registra todo, completa el panel AK"*. El panel mostraba lo que la app tiene y
+lo que le falta contra la competencia, pero **no mostraba dos cosas que hoy existen y mandan**:
+
+**1. La deuda vieja medida, con su numero.** Son cosas de antes que no se reparan todas de una
+-frenar por ellas dejaria la app sin poder subir nada- pero que **no pueden crecer**: si aparece
+una nueva, la puerta frena. Ahora se ven las cuatro clases y cuantas hay de cada una, con la fecha
+de la medicion. Es un numero que solo puede ir para abajo, y verlo bajar es la unica forma de
+saber que se esta saldando.
+
+**2. Lo que encontro otro y yo no vi.** Cada uno de esos hallazgos trajo **una pregunta nueva** a
+la forma de auditar. Estan en el panel a proposito: la medida de que el metodo mejora no es
+cuantos errores se arreglaron, sino **cuantas preguntas nuevas se aprendieron**.
+
+```comprobar
+usa: deudaMedida en scripts/panel.mjs
+usa: loQueNoVi en scripts/panel.mjs
+```

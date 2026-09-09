@@ -124,6 +124,43 @@ function matafuegos() {
   return bloque[1].split('\n').filter((l) => l.trim().startsWith('|') && !l.includes('---')).length;
 }
 
+/**
+ * LA DEUDA MEDIDA, QUE ES EL NUMERO QUE NO PUEDE CRECER.
+ *
+ * No es para asustar: es para que se vea que baja. El trinquete guarda cuanta hay y
+ * frena si sube, asi que este numero **solo puede ir para abajo**.
+ */
+function deudaMedida() {
+  try {
+    const d = JSON.parse(leer('docs/deuda-medida.json'));
+    return { medida: d.medida, deuda: d.deuda || {} };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * LO QUE ENCONTRO OTRO Y CLAUDE NO VIO.
+ *
+ * Cada uno de estos trajo una pregunta nueva al metodo. Se cuentan porque es la unica
+ * medida honesta de cuanto mejoro la forma de auditar: no cuantos errores se
+ * arreglaron, sino cuantas preguntas nuevas se aprendieron.
+ */
+function loQueNoVi() {
+  const txt = leer('docs/LO-QUE-NO-VI.md') || '';
+  return txt
+    .split('\n')
+    .filter((l) => l.startsWith('## '))
+    .map((l) => l.replace(/^##\s*/, '').trim());
+}
+
+const NOMBRE_DE_LA_DEUDA = {
+  'nadie-lo-llama': 'escrito y sin que nadie lo llame',
+  'sin-prueba-de-resultado': 'sin una prueba que mire el resultado',
+  'prueba-que-solo-mira': 'pruebas que solo miran que se vea',
+  'tira-el-error': 'dice que si sin mirar si se guardo',
+};
+
 const VE_EL_CLIENTE = /^\/(portal|portal-cliente|invitado|invitacion|evento|landing|bodas|quinceaneras|public|simulador)/;
 
 let rama = '';
@@ -133,6 +170,8 @@ const modulos = rubro();
 const ordenes = ordenesAMedias();
 const rotas = pantallasRotas();
 const devoluciones = devolucionesAbiertas();
+const deuda = deudaMedida();
+const noVistos = loQueNoVi();
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const hoy = new Date().toLocaleDateString('es-UY', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -259,6 +298,7 @@ const html = `<title>Panel de AK</title>
     <div class="cifra"><b>${ordenes.filter((o) => o.faltan.length > 0).length}</b><span>pedidos a medias</span></div>
     <div class="cifra"><b>${devoluciones.length}</b><span>devoluciones esperando</span></div>
     <div class="cifra"><b>${matafuegos()}</b><span>controles que frenan errores</span></div>
+    <div class="cifra"><b>${noVistos.length}</b><span>preguntas nuevas aprendidas de lo que se paso por alto</span></div>
   </div>
 
   <h2>Modulo por modulo, del mas flojo al mejor</h2>
@@ -278,6 +318,25 @@ const html = `<title>Panel de AK</title>
   ${devoluciones.length === 0 ? '' : `<h2>Devuelto a quien lo programo, esperando que vuelva</h2>
   <div class="lista"><ul>${devoluciones.map((d) =>
     `<li><span>${esc(d.replace(/^DEVOLUCION-|\.md$/g, '').replace(/-/g, ' '))}</span></li>`).join('')}</ul></div>`}
+
+  ${!deuda ? '' : `<h2>La deuda vieja, que solo puede bajar</h2>
+  <div class="aviso">
+    Son cosas de antes que no se reparan todas de una: frenar por ellas dejaria la app sin poder
+    subir nada. Lo que si esta garantizado es que <b>no crecen</b>: si aparece una nueva, la
+    puerta frena. Medido el ${esc(deuda.medida || 'ultimo dia')}.
+  </div>
+  <div class="lista"><ul>${Object.entries(deuda.deuda).map(([clave, n]) =>
+    `<li><span>${esc(NOMBRE_DE_LA_DEUDA[clave] || clave)}</span><span class="avance">${n}</span></li>`
+  ).join('')}</ul></div>`}
+
+  ${noVistos.length === 0 ? '' : `<h2>Lo que encontro otro y yo no vi</h2>
+  <div class="aviso">
+    Cada uno de estos trajo <b>una pregunta nueva</b> a la forma de auditar. Estan aca a proposito:
+    la medida de que el metodo mejora no es cuantos errores se arreglaron, sino <b>cuantas
+    preguntas nuevas se aprendieron</b>. La lista entera, con la pregunta de cada uno, esta en
+    <code>docs/LO-QUE-NO-VI.md</code>.
+  </div>
+  <div class="lista"><ul>${noVistos.map((t) => `<li><span>${esc(t)}</span></li>`).join('')}</ul></div>`}
 
   <p class="pie">Se rehace con <code>npm run panel</code>.</p>
 </div>
