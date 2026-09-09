@@ -954,6 +954,7 @@ con otra cara.
 | Dos corridas de pruebas a la vez se pisaban y una mataba a la otra | El turno `.ak-corrida-en-curso` en `scripts/run-playwright-production.mjs` |
 | Dos puertas enteras corriendo juntas, y una huérfana escribiendo donde nadie miraba | El turno `.ak-puerta-en-curso` en `scripts/se-puede-publicar.mjs` |
 | Enterarse a los 40 minutos de que una prueba nueva estaba mal | **Paso "Las pruebas nuevas, primero"** en `npm run "publicar?"` |
+| El itinerario interno de la fiesta le llegaba al cliente en su portal | `src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts` |
 
 ### Cómo se elige el matafuego
 

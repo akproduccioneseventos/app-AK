@@ -672,7 +672,15 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const musicMaybe = listaMusica.siEsPosible ?? [];
   const musicNo = listaMusica.noQuiero ?? [];
   const reuniones = fiesta?.reuniones ?? [];
-  const programaItems = (fiesta?.programa ?? []).map((item: any) => ({ id: item.id, time: item.hora, title: item.titulo, text: item.descripcionCliente || item.descripcion }));
+  /**
+   * El servidor ya manda solo los momentos visibles y sin las notas internas. Aca se
+   * filtra igual, por las dudas, y **no se usa la nota interna como reemplazo**: si un
+   * momento no tiene texto para el cliente, va sin texto. Antes, cuando faltaba el
+   * texto del cliente, se mostraba la anotacion del equipo.
+   */
+  const programaItems = (fiesta?.programa ?? [])
+    .filter((item: any) => item?.visibleParaCliente !== false)
+    .map((item: any) => ({ id: item.id, time: item.hora, title: item.titulo, text: item.descripcionCliente || '' }));
   const timelineItems = programaItems.length > 0
     ? programaItems
     : (fiesta?.timeline ?? []).map((item: any) => ({ id: item.id, time: formatShortDate(item.fechaProgramada), title: item.nombre, text: item.notas }));

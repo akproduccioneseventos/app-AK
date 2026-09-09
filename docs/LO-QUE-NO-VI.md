@@ -72,3 +72,23 @@ medidas comparadas, no a ojo.
 ```comprobar
 archivo: docs/ordenes/52-el-3d-muestra-lo-que-se-acordo.md
 ```
+
+## 9 de septiembre de 2026 — El itinerario interno llegaba al cliente (Codex)
+
+**Qué era:** al portal del cliente se le mandaba **el programa entero**, incluidos los momentos
+que el equipo marca como internos —"cambio de turno del personal", "el padre llega tarde"— y las
+notas internas de cada momento. Una de las dos pantallas del portal los mostraba tal cual, y la
+otra los escondía **después de haberlos recibido**.
+
+**Por qué no lo vi:** yo comprobaba que la pantalla escondiera lo que no corresponde. Nunca me
+pregunté **qué se le manda al navegador**. Esconder algo que ya viajó no es esconderlo: el dato
+está en la computadora del cliente igual.
+
+**Qué pregunta se agregó:** en todo lo que sale hacia un cliente o un invitado, la pregunta no es
+*"¿la pantalla lo muestra?"* sino **"¿el servidor se lo mandó?"**. Se filtra y se recorta en el
+servidor, y la pantalla es la segunda barrera, no la primera.
+
+```comprobar
+prueba: src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts
+usa: mapProgramaParaElCliente en src/lib/client-portal/public-fiesta.ts
+```

@@ -7617,3 +7617,32 @@ solo verse-.
 archivo: docs/LO-QUE-NO-VI.md
 usa: LO-QUE-NO-VI en scripts/ordenes-cumplidas.mjs
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — El itinerario interno le llegaba al cliente
+
+Hallazgo de Codex (orden 54). De los dos que trajo, **uno ya estaba arreglado** en esta tanda -el
+guardado del portal que avisaba sin haber guardado- y **el otro era cierto y serio**.
+
+Al portal del cliente se le mandaba **el programa entero de la fiesta**: los momentos que el
+equipo marca como internos y las notas internas de cada momento. Una de las dos pantallas del
+portal los mostraba tal cual; la otra los escondia **despues de haberlos recibido**, que no es
+esconderlos: el dato ya estaba en la computadora del cliente.
+
+Y habia un segundo agujero mas fino: cuando un momento no tenia texto para el cliente, la pantalla
+usaba **la nota interna del equipo** como reemplazo.
+
+**Como quedo:** se filtra y se recorta en el servidor. Sale solo lo marcado como visible, y de
+cada momento solo la hora, el titulo y su texto para el cliente: la nota interna y el responsable
+**no salen**. Lo que no tiene marca de visibilidad se sigue viendo, a proposito: los itinerarios
+ya armados no la tienen y ocultarlos de golpe dejaria la pantalla vacia a los clientes de las
+fiestas en curso.
+
+Se probo rompiendolo: devolviendo el programa sin filtrar, la comprobacion se pone en rojo.
+
+```comprobar
+prueba: src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts
+usa: mapProgramaParaElCliente en src/lib/client-portal/public-fiesta.ts
+```
