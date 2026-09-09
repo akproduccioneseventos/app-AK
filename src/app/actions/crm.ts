@@ -694,7 +694,10 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       }
     };
     newFiesta.modulosContratados = { ...defaultModulosContratados };
-    await saveFiesta(newFiesta);
+    const savedFiesta = await saveFiesta(newFiesta);
+    if (!savedFiesta.success) {
+      return { success: false, error: savedFiesta.error || 'No se pudo crear la fiesta vinculada al contrato.' };
+    }
 
     // 7. Sync from budget (now uses fresh data)
     await syncFiestaFromBudget(newFiesta.id);
@@ -815,7 +818,10 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
 
     newFiesta.modulosContratados = { ...defaultModulosContratados };
 
-    await saveFiesta(newFiesta);
+    const savedFiesta = await saveFiesta(newFiesta);
+    if (!savedFiesta.success) {
+      return { success: false, error: savedFiesta.error || 'No se pudo crear la fiesta.' };
+    }
 
     // 3. Actualizar Presupuesto a Aceptado
     await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
@@ -825,7 +831,10 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
 
     // 5. Mover Lead a conversión solo si el usuario lo solicitó explícitamente
     if (archiveLead && conversionStage) {
-      await moveCrmLead(lead.id, conversionStage.id);
+      const movedLead = await moveCrmLead(lead.id, conversionStage.id);
+      if (!movedLead.success) {
+        logger.warn(`[convertLeadToClient] No se pudo mover el lead a etapa de conversión: ${movedLead.error}`);
+      }
     }
 
     // no-mira-el-resultado: es un aviso en el panel interno; si no entra no cambia ningun dato

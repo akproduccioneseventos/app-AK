@@ -245,6 +245,7 @@ export async function processIncomingMessage(
     if (conv.mode === 'bot') {
       if (config.mode === 'manual') {
         // Only notify, no automatic response
+        // no-mira-el-resultado: aviso secundario al panel; el mensaje de WhatsApp ya quedo recibido en la conversacion
         await createNotification({
           mensaje: `📱 Nuevo mensaje de WhatsApp de ${conv.clientName}: "${message.substring(0, 60)}${message.length > 60 ? '...' : ''}"`,
           href: `/settings/whatsapp-business/conversations`,
@@ -256,6 +257,7 @@ export async function processIncomingMessage(
         if (!botResponse) {
           // Notify for human to take over
           conversations[convIdx].status = 'waiting_human';
+          // no-mira-el-resultado: aviso secundario al panel; el estado ya cambio a waiting_human
           await createNotification({
             mensaje: `📱 WhatsApp: ${conv.clientName} necesita atención. "${message.substring(0, 60)}${message.length > 60 ? '...' : ''}"`,
             href: `/settings/whatsapp-business/conversations`,
@@ -286,6 +288,7 @@ export async function processIncomingMessage(
             deliveryStatus = 'failed';
             deliveryError = delivery.error || 'Meta rechazó la respuesta automática.';
             conversations[convIdx].status = 'waiting_human';
+            // no-mira-el-resultado: aviso secundario al panel; el fallo del bot ya quedo registrado con waiting_human
             await createNotification({
               mensaje: `WhatsApp no pudo responder a ${conv.clientName}. Requiere atención manual.`,
               href: `/settings/whatsapp-business/conversations`,

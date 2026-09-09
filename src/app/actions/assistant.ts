@@ -1412,9 +1412,14 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
             clausulas: d.clausulas || fiesta.contratoDatos?.clausulas,
           };
           const updatedFiesta = { ...fiesta, contratoDatos };
-          await saveFiesta(updatedFiesta);
-          actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}` };
-          finalResponse = `✅ Datos del contrato guardados para el evento de **${fiesta.configuracion?.clienteNombre || d.clienteNombre || 'el cliente'}**. Podés ver y firmar el contrato en [contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}).`;
+          const saveRes = await saveFiesta(updatedFiesta);
+          if (!saveRes.success) {
+            actionResult = { success: false, error: saveRes.error || 'No se pudieron guardar los datos del contrato.' };
+            finalResponse = `❌ No se pudieron guardar los datos del contrato: ${saveRes.error || 'Error al guardar'}.`;
+          } else {
+            actionResult = { success: true, href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}` };
+            finalResponse = `✅ Datos del contrato guardados para el evento de **${fiesta.configuracion?.clienteNombre || d.clienteNombre || 'el cliente'}**. Podés ver y firmar el contrato en [contrato-servicio](/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiesta.id}).`;
+          }
         } else if (d.fiestaId) {
           actionResult = { success: false, error: 'No se encontró el evento.' };
           finalResponse = `❌ No se pudo generar el contrato: No se encontró el evento. Verificalo en /fiestas/nueva.`;

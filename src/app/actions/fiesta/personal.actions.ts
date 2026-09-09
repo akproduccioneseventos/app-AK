@@ -155,10 +155,13 @@ export async function retryPersonalGoogleSync(
       warning = err?.message || 'No se pudo completar el aviso por correo con Google Workspace.';
     }
 
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...currentData,
       googleSyncWarning: warning,
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la sincronización del personal.' };
+    }
 
     return { success: !warning, warning: warning || undefined };
   } catch (e: any) {

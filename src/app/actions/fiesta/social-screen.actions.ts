@@ -17,7 +17,10 @@ export async function saveSocialScreenConfig(fiestaId: string, config: SocialScr
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
     const updated = { ...fiesta, socialScreenConfig: config };
-    await saveFiesta(updated);
+    const guardado = await saveFiesta(updated);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la configuración de la pantalla social.' };
+    }
     return { success: true };
   } catch (e) {
     return { success: false, error: String(e) };

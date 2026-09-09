@@ -33,7 +33,10 @@ async function aplicarEstadoEnVivo(fiestaId: string, updateFn: (state: LiveEvent
         const currentState = fiesta.liveState || initialLiveState;
         const newState = updateFn(currentState);
 
-        await saveFiesta({ ...fiesta, liveState: newState });
+        const guardado = await saveFiesta({ ...fiesta, liveState: newState });
+        if (!guardado.success) {
+            return { success: false, error: guardado.error || 'No se pudo guardar el estado en vivo.' };
+        }
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -137,7 +140,10 @@ export async function toggleReturnItem(fiestaId: string, categoryId: string, ite
         });
 
         fiesta.listaDeCargaOperativa.categorias = updatedCategorias;
-        await saveFiesta(fiesta);
+        const guardado = await saveFiesta(fiesta);
+        if (!guardado.success) {
+            return { success: false, error: guardado.error || 'No se pudo guardar la lista de carga operativa.' };
+        }
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };

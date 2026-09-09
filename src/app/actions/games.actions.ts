@@ -129,10 +129,13 @@ export async function submitTriviaScore(
         score: (participants[existingIndex].score || 0) + scoreToAdd,
       };
       
-      await saveFiesta({
+      const saveRes = await saveFiesta({
         ...fiesta,
         triviaGame: { ...triviaGame, participants }
       });
+      if (!saveRes.success) {
+        return { success: false, error: saveRes.error || 'No se pudo guardar el puntaje.' };
+      }
     }
     
     return { success: true };

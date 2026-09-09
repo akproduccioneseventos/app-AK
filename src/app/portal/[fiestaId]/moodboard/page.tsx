@@ -55,7 +55,10 @@ export default function ClientMoodboardPage() {
     setFiesta({ ...fiesta, decoracion: updatedDecoracion });
 
     try {
-        await updateDecoracion(fiestaId, updatedDecoracion);
+        const res = await updateDecoracion(fiestaId, updatedDecoracion);
+        if (!res.success) {
+          throw new Error(res.error || "No se pudo guardar la preferencia.");
+        }
         toast({ title: "Preferencia guardada" });
     } catch (e) {
         toast({
@@ -85,7 +88,10 @@ export default function ClientMoodboardPage() {
 
     setIsProcessing(true);
     try {
-        await updateDecoracion(fiestaId, updatedDecoracion);
+        const res = await updateDecoracion(fiestaId, updatedDecoracion);
+        if (!res.success) {
+          throw new Error(res.error || "No se pudo añadir la foto.");
+        }
         toast({ title: "¡Foto añadida!", description: "Tu organizador verá esta sugerencia." });
         await loadData();
     } catch (e) {

@@ -13,7 +13,10 @@ async function updateFiestaData(fiestaId: string, updateFn: (data: FiestaEnPlani
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");
     const updatedData = updateFn(currentData);
-    await saveFiesta(updatedData);
+    const guardado = await saveFiesta(updatedData);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la música de la fiesta.' };
+    }
     return { success: true, updatedData: updatedData.musica };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -48,7 +51,10 @@ export async function saveSugerenciaMusical(fiestaId: string, sugerencia: string
             }
         };
 
-        await saveFiesta(updatedFiesta);
+        const guardado = await saveFiesta(updatedFiesta);
+        if (!guardado.success) {
+            return { success: false, error: guardado.error || 'No se pudo guardar la sugerencia musical.' };
+        }
         return { success: true };
 
     } catch (e: any) {

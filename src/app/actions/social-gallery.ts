@@ -1010,7 +1010,10 @@ export async function guardarCarasDeFiesta(
       carasPreparadas: true,
       modoCaras: fiesta.socialGallerySettings?.modoCaras ?? 'grilla',
     };
-    await saveFiesta(fiesta);
+    const saveRes = await saveFiesta(fiesta);
+    if (!saveRes.success) {
+      return { ok: false };
+    }
     return { ok: true };
   } catch (err) {
     logger.warn('[social-gallery] Error al guardar caras de fiesta:', err);

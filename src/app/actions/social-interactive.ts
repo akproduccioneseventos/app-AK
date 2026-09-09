@@ -405,7 +405,8 @@ export async function addSorteoParticipanteRedes(
     const alreadyExists = existing.some(p => p.nombre.toLowerCase() === safeName.toLowerCase());
     if (alreadyExists) return { success: false, error: 'Ya estás registrado en el sorteo.' };
     const updated: typeof existing = [...existing, { nombre: safeName, timestamp: new Date().toISOString() }];
-    await saveFiesta({ ...fiesta, socialGallerySettings: { ...settings, sorteoParticipantesRedes: updated } });
+    const saveRes = await saveFiesta({ ...fiesta, socialGallerySettings: { ...settings, sorteoParticipantesRedes: updated } });
+    if (!saveRes.success) return { success: false, error: saveRes.error || 'No se pudo registrar en el sorteo.' };
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -424,7 +425,8 @@ export async function addSorteoGanador(
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = fiesta.socialGallerySettings ?? ({} as SocialGallerySettings);
     const ganadores = [...(settings.sorteoGanadores ?? []), sanitizeSocialText(nombre)];
-    await saveFiesta({ ...fiesta, socialGallerySettings: { ...settings, sorteoGanadores: ganadores } });
+    const saveRes = await saveFiesta({ ...fiesta, socialGallerySettings: { ...settings, sorteoGanadores: ganadores } });
+    if (!saveRes.success) return { success: false, error: saveRes.error || 'No se pudo guardar el ganador.' };
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -447,10 +449,11 @@ export async function activateMomento(
       ...existing.filter(m => m.id !== momento.id),
       { ...momento, timestamp: new Date().toISOString() },
     ];
-    await saveFiesta({
+    const saveRes = await saveFiesta({
       ...fiesta,
       socialGallerySettings: { ...settings, momentosActivos: withActivated },
     });
+    if (!saveRes.success) return { success: false, error: saveRes.error || 'No se pudo activar el momento.' };
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };

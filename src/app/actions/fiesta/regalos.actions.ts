@@ -16,7 +16,10 @@ async function updateFiestaData(
         throw new Error("Fiesta no encontrada para actualizar regalos.");
     }
     const updatedData = updateFn(currentData);
-    await saveFiesta(updatedData);
+    const guardado = await saveFiesta(updatedData);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la lista de regalos.' };
+    }
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };

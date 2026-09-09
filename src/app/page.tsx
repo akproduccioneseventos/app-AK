@@ -4,6 +4,7 @@ import { cache } from "react";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ServicesSection } from "@/components/landing/ServicesSection";
+import { LaAppDeTuFiestaSection } from "@/components/landing/LaAppDeTuFiestaSection";
 import TechnologyExperienceSection from "@/components/landing/TechnologyExperienceSection";
 import { InteractiveTechShowcase } from "@/components/public/InteractiveTechShowcase";
 import { AkTeamStorySection } from "@/components/landing/AkTeamStorySection";
@@ -511,8 +512,16 @@ export default async function HomePage() {
         }
         technology={
           <div className="space-y-6">
-            <InteractiveTechShowcase />
-            <TechnologyExperienceSection whatsappNumber={whatsapp} />
+            <LaAppDeTuFiestaSection whatsappNumber={whatsapp} />
+            <details className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 group">
+              <summary className="cursor-pointer list-none rounded-2xl border border-slate-200 bg-white p-4 text-center text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900">
+                ➕ Ver estaciones de entretenimiento y equipamiento complementario (Fotocabina, 360°, Espejo)
+              </summary>
+              <div className="mt-6 space-y-6">
+                <InteractiveTechShowcase />
+                <TechnologyExperienceSection whatsappNumber={whatsapp} />
+              </div>
+            </details>
           </div>
         }
         salon={<SalonDestacadoSection photos={clubPhotos} capacity={clubSalon?.capacidad} />}

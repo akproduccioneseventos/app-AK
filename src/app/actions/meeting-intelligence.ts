@@ -333,7 +333,10 @@ export async function processReunionIntelligence(formData: FormData) {
       } : fiesta.clientPortalSettings,
     };
 
-    await saveFiesta(nextFiesta);
+    const saveRes = await saveFiesta(nextFiesta);
+    if (!saveRes.success) {
+      return { success: false, error: saveRes.error || 'No se pudo guardar la fiesta con la minuta de reunión.' };
+    }
 
     try {
       const syncResult: any = await syncReunionToGoogleWorkspace(fiestaId, updatedReunion, { sendEmails: true, forceEmail: true });

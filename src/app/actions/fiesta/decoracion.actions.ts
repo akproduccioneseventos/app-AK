@@ -1,4 +1,4 @@
-﻿
+
 'use server';
 
 import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, CostoItem } from '@/types/fiesta';
@@ -49,7 +49,10 @@ export async function addMoodboardItem(fiestaId: string, url: string, descriptio
         };
 
         const updatedDecoracion = { ...decoracion, moodboardItems: [...items, newItem] };
-        await updateDecoracion(fiestaId, updatedDecoracion);
+        const guardado = await updateDecoracion(fiestaId, updatedDecoracion);
+        if (!guardado.success) {
+            return { success: false, error: guardado.error || 'No se pudo guardar la imagen en el moodboard.' };
+        }
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -66,7 +69,10 @@ export async function deleteMoodboardItem(fiestaId: string, itemId: string): Pro
         const items = (decoracion.moodboardItems || []).filter(i => i.id !== itemId);
 
         const updatedDecoracion = { ...decoracion, moodboardItems: items };
-        await updateDecoracion(fiestaId, updatedDecoracion);
+        const guardado = await updateDecoracion(fiestaId, updatedDecoracion);
+        if (!guardado.success) {
+            return { success: false, error: guardado.error || 'No se pudo eliminar la imagen del moodboard.' };
+        }
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -85,7 +91,10 @@ export async function toggleLikeMoodboardItem(fiestaId: string, itemId: string):
         );
 
         const updatedDecoracion = { ...decoracion, moodboardItems: items };
-        await updateDecoracion(fiestaId, updatedDecoracion);
+        const guardado = await updateDecoracion(fiestaId, updatedDecoracion);
+        if (!guardado.success) {
+            return { success: false, error: guardado.error || 'No se pudo actualizar la reacción en el moodboard.' };
+        }
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -130,7 +139,10 @@ export async function syncDecoGastosToModule(
       costosItems: [...otherItems, ...decoItems],
     };
 
-    await updateGestionCostos(fiestaId, updatedCostos);
+    const guardado = await updateGestionCostos(fiestaId, updatedCostos);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudieron sincronizar los costos de decoración.' };
+    }
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -208,7 +220,10 @@ export async function generarVisualizacionSalonAi(
     }
 
     const nextFotos = [...fotosExistentes, imageUrl];
-    await updateDecoracion(fiestaId, { ...decoracion, fotosGeneradasAi: nextFotos });
+    const guardado = await updateDecoracion(fiestaId, { ...decoracion, fotosGeneradasAi: nextFotos });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la imagen generada en la decoración.' };
+    }
 
     return { success: true, imageUrl };
   } catch (e: any) {

@@ -33,7 +33,10 @@ async function updateFiestaData(
 
     // Sync changes to the customer file if a customer is linked
     if (updatedData.configuracion.clienteId) {
-        await syncCustomerFromFiestaConfig(updatedData.configuracion.clienteId, updatedData.configuracion);
+      const syncRes = await syncCustomerFromFiestaConfig(updatedData.configuracion.clienteId, updatedData.configuracion);
+      if (!syncRes.success) {
+        return { success: false, error: syncRes.error || 'No se pudo sincronizar los datos del cliente.' };
+      }
     }
     
     return { success: true, updatedData };

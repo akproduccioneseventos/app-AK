@@ -17,7 +17,10 @@ export async function saveScreenPlaylist(fiestaId: string, playlist: ScreenPlayl
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
     const updated = { ...fiesta, screenPlaylist: playlist };
-    await saveFiesta(updated);
+    const guardado = await saveFiesta(updated);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la lista de reproducción de la pantalla.' };
+    }
     return { success: true };
   } catch (e) {
     return { success: false, error: String(e) };
@@ -34,7 +37,10 @@ export async function updatePlaylistItem(fiestaId: string, itemId: string, updat
     if (idx === -1) return { success: false, error: 'Item no encontrado' };
     playlist.items[idx] = { ...playlist.items[idx], ...updates };
     const updated = { ...fiesta, screenPlaylist: playlist };
-    await saveFiesta(updated);
+    const guardado = await saveFiesta(updated);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo actualizar el elemento de la pantalla.' };
+    }
     return { success: true };
   } catch (e) {
     return { success: false, error: String(e) };

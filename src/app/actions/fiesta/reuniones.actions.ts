@@ -14,7 +14,10 @@ async function updateFiestaData(
       throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
     }
     const updatedData = updateFn(currentData);
-    await saveFiesta(updatedData);
+    const guardado = await saveFiesta(updatedData);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudieron guardar las reuniones de la fiesta.' };
+    }
     return { success: true, updatedFiesta: updatedData };
   } catch (e: any) {
     return { success: false, error: e.message };

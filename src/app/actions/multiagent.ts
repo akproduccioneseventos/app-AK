@@ -6,6 +6,7 @@ import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { verifySession } from '@/lib/auth/session-token';
+import { requireAppSession } from '@/lib/auth/require-session';
 import type { Tarea } from '@/types/fiesta';
 import type { AkAgentChatSession, AkAgentType, AkMultiAgentMessage, AkMultiAgentOutput, AkPersistentMultiAgentOutput } from '@/types/multiagent';
 
@@ -213,7 +214,7 @@ export async function getChatsMultiagente(input?: {
 }): Promise<AkAgentChatSession[]> {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await verifySession();
+  await requireAppSession();
   return listMultiAgentChatSessions(input);
 }
 
@@ -227,7 +228,7 @@ export async function guardarAprendizajeAgente(input: {
 }) {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await verifySession();
+  await requireAppSession();
   return saveAgentLearning({
     agentType: input.agentType,
     title: input.title,
@@ -243,14 +244,14 @@ export async function guardarAprendizajeAgente(input: {
 export async function getMemoriasMultiagente() {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await verifySession();
+  await requireAppSession();
   return listAgentMemoryProfiles();
 }
 
 export async function getMultiAgentTeamBriefing() {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await verifySession();
+  await requireAppSession();
   const briefing = await buildMultiAgentTeamBriefing();
   return { success: true, data: briefing };
 }
@@ -267,7 +268,7 @@ async function persistAgentLearning(input: Parameters<typeof saveAgentLearning>[
 export async function runMultiAgentTeamReview() {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await verifySession();
+  await requireAppSession();
   const briefing = await buildMultiAgentTeamBriefing();
   const agentsToPersist: AkAgentType[] = ['secretaria', 'fiestas_general', 'contable', 'marketing', 'comercial'];
   let saved = 0;
@@ -306,6 +307,7 @@ export async function runMultiAgentTeamReview() {
     else failed++;
   }
 
+  // no-mira-el-resultado: aviso secundario al panel del equipo; la revision ya quedo guardada
   await createNotification({
     titulo: 'Revisión del equipo multiagente lista',
     mensaje: briefing.summary,
@@ -327,7 +329,7 @@ export async function crearTareaDesdeMultiagente(input: {
 }) {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await verifySession();
+  await requireAppSession();
   const fiesta = await getFiestaById(input.fiestaId);
   if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
 
@@ -351,6 +353,7 @@ export async function crearTareaDesdeMultiagente(input: {
   const result = await saveFiesta(updatedFiesta);
   if (!result.success) return { success: false, error: result.error || 'No se pudo guardar la tarea.' };
 
+  // no-mira-el-resultado: aviso secundario al panel del equipo; la tarea ya quedo guardada
   await createNotification({
     titulo: 'Tarea creada por Multiagente AK',
     mensaje: `Nueva tarea: ${tarea.texto}`,
@@ -383,7 +386,7 @@ export async function crearRecordatorioDesdeMultiagente(input: {
 }) {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await verifySession();
+  await requireAppSession();
   if (!input.mensaje.trim()) return { success: false, error: 'El recordatorio necesita mensaje.' };
 
   const result = await createNotification({
@@ -417,7 +420,7 @@ export async function enviarAprendizajeAFiestasGeneral(input: {
 }) {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await verifySession();
+  await requireAppSession();
   const title = input.title.trim();
   const content = input.content.trim();
   if (!title || !content) return { success: false, error: 'Falta título o contenido.' };
@@ -453,7 +456,7 @@ export async function cerrarFiestaConRetroalimentacion(input: {
 }) {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
-  await verifySession();
+  await requireAppSession();
   const fiesta = await getFiestaById(input.fiestaId);
   if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
 
@@ -491,6 +494,7 @@ export async function cerrarFiestaConRetroalimentacion(input: {
     confidence: 'high',
   });
 
+  // no-mira-el-resultado: aviso secundario al panel del equipo; el resumen y aprendizaje ya quedaron guardados
   await createNotification({
     titulo: 'Fiesta cerrada con aprendizaje',
     mensaje: `Se guardó el resumen final de ${nombre} y se envió al agente general de fiestas.`,

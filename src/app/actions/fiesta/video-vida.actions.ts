@@ -85,6 +85,7 @@ export async function saveLifeStoryVideoPhoto(
     // mas adelante la marca terminaba en el evento equivocado.
     const fiesta = await getFiestaById(fiestaId);
     if (fiesta && fiesta.videoVida && !fiesta.videoVida.photosUploaded) {
+      // no-mira-el-resultado: la foto ya se subio a Storage; si falla la marca, el panel igual ve las fotos
       await updateVideoVidaSettings(fiestaId, { ...fiesta.videoVida, photosUploaded: true });
     }
 

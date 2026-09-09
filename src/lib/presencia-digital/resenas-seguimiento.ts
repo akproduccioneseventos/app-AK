@@ -140,6 +140,6 @@ export async function marcarResenaSolicitada(fiestaId: string): Promise<boolean>
   fiesta.googleReviewRequested = true;
   fiesta.googleReviewRequestedAt = new Date().toISOString();
 
-  await saveFiesta(fiesta);
-  return true;
+  const res = await saveFiesta(fiesta);
+  return typeof res === 'boolean' ? res : Boolean(res?.success);
 }

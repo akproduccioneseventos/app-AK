@@ -69,13 +69,16 @@ async function patchScreenMode(
       ...currentMode,
       ...patch,
     };
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...normalizeSocialSettings(fiesta.socialGallerySettings),
         screenMode: updatedMode,
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al actualizar pantalla.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al actualizar pantalla.' };
@@ -100,13 +103,13 @@ export async function nextScreenItem(fiestaId: string): Promise<{ success: boole
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const mode = fiesta.socialGallerySettings?.screenMode;
-    const enabledItems = (mode?.playlist ?? []).filter(i => i.enabled);
-    if (enabledItems.length === 0) return { success: false, error: 'No hay ítems en la playlist.' };
-    const currentIndex = mode?.currentItemIndex ?? 0;
-    const nextIndex = (currentIndex + 1) % enabledItems.length;
-    return patchScreenMode(fiestaId, { currentItemIndex: nextIndex });
+    const playlist = mode?.playlist ?? [];
+    if (playlist.length === 0) return { success: true };
+    const current = mode?.currentItemIndex ?? 0;
+    const next = (current + 1) % playlist.length;
+    return patchScreenMode(fiestaId, { currentItemIndex: next, startedAt: new Date().toISOString() });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message || 'Error al avanzar ítem.' };
   }
 }
 
@@ -116,17 +119,32 @@ export async function prevScreenItem(fiestaId: string): Promise<{ success: boole
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const mode = fiesta.socialGallerySettings?.screenMode;
-    const enabledItems = (mode?.playlist ?? []).filter(i => i.enabled);
-    if (enabledItems.length === 0) return { success: false, error: 'No hay ítems en la playlist.' };
-    const currentIndex = mode?.currentItemIndex ?? 0;
-    const prevIndex = (currentIndex - 1 + enabledItems.length) % enabledItems.length;
-    return patchScreenMode(fiestaId, { currentItemIndex: prevIndex });
+    const playlist = mode?.playlist ?? [];
+    if (playlist.length === 0) return { success: true };
+    const current = mode?.currentItemIndex ?? 0;
+    const prev = (current - 1 + playlist.length) % playlist.length;
+    return patchScreenMode(fiestaId, { currentItemIndex: prev, startedAt: new Date().toISOString() });
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return { success: false, error: error.message || 'Error al retroceder ítem.' };
   }
 }
 
-/** Activa o desactiva el modo loop de la playlist */
+/** Salta directamente a un ítem por su ID */
+export async function goToScreenItem(fiestaId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
+  try {
+    const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
+    const mode = fiesta.socialGallerySettings?.screenMode;
+    const playlist = mode?.playlist ?? [];
+    const idx = playlist.findIndex(i => i.id === itemId);
+    if (idx === -1) return { success: false, error: 'Ítem no encontrado en la playlist.' };
+    return patchScreenMode(fiestaId, { currentItemIndex: idx, startedAt: new Date().toISOString() });
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al saltar al ítem.' };
+  }
+}
+
+/** Configura si la pantalla gigante debe ciclar en bucle continuo */
 export async function setScreenLoop(fiestaId: string, loop: boolean): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   return patchScreenMode(fiestaId, { loop });
@@ -140,13 +158,16 @@ export async function updateLedMessage(
   await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...normalizeSocialSettings(fiesta.socialGallerySettings),
         ledMarqueeText: text,
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al actualizar mensaje LED.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al actualizar mensaje LED.' };
@@ -163,13 +184,16 @@ export async function triggerLiveMoment(
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const existing = fiesta.socialGallerySettings?.momentosActivos ?? [];
     const newMoment = { ...moment, timestamp: new Date().toISOString() };
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...normalizeSocialSettings(fiesta.socialGallerySettings),
         momentosActivos: [...existing, newMoment],
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al registrar momento.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al registrar momento.' };
@@ -184,13 +208,16 @@ export async function updateScreenBrand(
   await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...normalizeSocialSettings(fiesta.socialGallerySettings),
         brand,
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al actualizar marca.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al actualizar marca.' };
@@ -233,13 +260,16 @@ export async function uploadScreenMediaAsset(
     };
 
     const nextLibrary = [...(fiesta.socialGallerySettings?.screenMediaLibrary ?? []), asset];
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...normalizeSocialSettings(fiesta.socialGallerySettings),
         screenMediaLibrary: nextLibrary,
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar el archivo en la biblioteca de la pantalla.' };
+    }
 
     return { success: true, asset };
   } catch (error: any) {
@@ -269,13 +299,16 @@ export async function launchGame(
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const activeGame: ActiveGameData = { ...game, launchedAt: new Date().toISOString() };
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...normalizeSocialSettings(fiesta.socialGallerySettings),
         activeGame,
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al lanzar el juego.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al lanzar el juego.' };
@@ -306,7 +339,10 @@ export async function clearActiveGame(
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { activeGame: _removed, ...settingsWithoutGame } = settings;
-    await saveFiesta({ ...fiesta, socialGallerySettings: settingsWithoutGame });
+    const guardado = await saveFiesta({ ...fiesta, socialGallerySettings: settingsWithoutGame });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al detener el juego.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al detener el juego.' };
@@ -327,7 +363,7 @@ export async function triggerSorteoWinner(
     const previousWinners = settings.sorteoGanadores ?? [];
     // Keep only the last MAX_SORTEO_HISTORY winners to prevent unbounded growth
     const updatedWinners = [...previousWinners, winner].slice(-MAX_SORTEO_HISTORY);
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...settings,
@@ -337,6 +373,9 @@ export async function triggerSorteoWinner(
         ...(premio !== undefined ? { sorteoPremio: premio } : {}),
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al lanzar sorteo.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al lanzar sorteo.' };
@@ -351,7 +390,7 @@ export async function startSorteoSpinOnScreen(
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...settings,
@@ -360,6 +399,9 @@ export async function startSorteoSpinOnScreen(
         activeSorteoWinner: undefined,
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al iniciar animación.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al iniciar animación.' };
@@ -374,7 +416,7 @@ export async function transferSorteoToScreen(
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...settings,
@@ -383,6 +425,9 @@ export async function transferSorteoToScreen(
         sorteoSpinStartedAt: undefined,
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al transferir sorteo a pantalla.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al transferir sorteo a pantalla.' };
@@ -437,7 +482,7 @@ export async function updateLedConfig(
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: {
         ...settings,
@@ -447,6 +492,9 @@ export async function updateLedConfig(
         ...(config.bgColor !== undefined ? { ledMarqueeBgColor: config.bgColor } : {}),
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al actualizar cartel LED.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al actualizar cartel LED.' };
@@ -494,10 +542,13 @@ export async function trackSocialFollowClick(
       ...existing,
       { nombre: authorName, timestamp: new Date().toISOString(), platform } as any,
     ];
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       socialGallerySettings: { ...settings, sorteoParticipantesRedes: updated },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'Error al registrar seguidor.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al registrar seguidor.' };

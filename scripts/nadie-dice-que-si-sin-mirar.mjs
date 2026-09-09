@@ -88,7 +88,7 @@ export function llamadasQueTiranElError() {
   return hallazgos;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('nadie-dice-que-si-sin-mirar.mjs')) {
   const hallazgos = llamadasQueTiranElError();
   if (hallazgos.length === 0) {
     console.log('Nadie dice que si sin mirar: bien, no hay llamadas que tiren el error.');

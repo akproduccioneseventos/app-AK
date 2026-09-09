@@ -301,7 +301,10 @@ export async function adjustAllDishMargins(percentage: number): Promise<{ succes
             const newSuggestedSellingPrice = Math.round((item.totalDishCost || 0) * (1 + newProfitMargin / 100));
             return { ...item, profitMargin: newProfitMargin, suggestedSellingPrice: newSuggestedSellingPrice };
         });
-        await saveMenu(menu);
+        const saveRes = await saveMenu(menu);
+        if (!saveRes.success) {
+          return { success: false, error: saveRes.error || `No se pudo guardar el menú ${menu.name || menu.id}.` };
+        }
     }
     invalidateMenusCache();
     return { success: true };

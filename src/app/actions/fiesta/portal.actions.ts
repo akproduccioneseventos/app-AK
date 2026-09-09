@@ -42,7 +42,10 @@ async function updateFiestaData(
     }
     const updatedData = await updateFn(currentData);
     
-    await saveFiesta(updatedData);
+    const guardado = await saveFiesta(updatedData);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudieron guardar los cambios en la fiesta.' };
+    }
 
     return { success: true };
   } catch (e: any) {
@@ -141,6 +144,7 @@ export async function updateClientChecklistItem(
     };
   });
   if (result.success) {
+    // no-mira-el-resultado: aviso interno al panel; el checklist ya quedo guardado
     await createNotification({
       mensaje: `✅ Cliente actualizó checklist en portal (${completed ? 'completó' : 'desmarcó'} una tarea).`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -154,6 +158,7 @@ export async function updateClientNotes(fiestaId: string, notes: string) {
   if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
   const result = await updateFiestaData(fiestaId, data => ({ ...data, clientNotes: notes }));
   if (result.success) {
+    // no-mira-el-resultado: aviso interno al panel; las notas ya quedaron guardadas
     await createNotification({
       mensaje: '📝 Cliente actualizó notas en el Portal VIP.',
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -333,8 +338,12 @@ export async function submitClientPayment(
       ],
     };
 
-    await saveFiesta(updated);
+    const guardado = await saveFiesta(updated);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo registrar el pago informado.' };
+    }
 
+    // no-mira-el-resultado: aviso interno al panel; el pago informado ya quedo guardado
     await createNotification({
       mensaje: `💳 Pago informado por cliente para "${fiesta.configuracion.nombreEvento}": $${safeMonto.toLocaleString('es-UY')}`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=pagos`,
@@ -382,11 +391,15 @@ export async function submitClientMenuChangeRequest(
       notaCliente: payload.notaCliente?.trim() || undefined,
     };
 
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       clientMenuChangeRequests: [...(fiesta.clientMenuChangeRequests ?? []), nextRequest],
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la solicitud de cambio de menú.' };
+    }
 
+    // no-mira-el-resultado: aviso interno al panel; la solicitud ya quedo guardada
     await createNotification({
       mensaje: `🧾 Solicitud de cambio de menú en "${fiesta.configuracion.nombreEvento}": +${nextRequest.adultosDelta} adultos, +${nextRequest.ninosAdolescentesDelta} niños/adolescentes.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -440,11 +453,15 @@ export async function submitClientServiceAddRequest(
       notaCliente: payload.notaCliente?.trim() || undefined,
     };
 
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       clientServiceChangeRequests: [...(fiesta.clientServiceChangeRequests ?? []), nextRequest],
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la solicitud de servicio extra.' };
+    }
 
+    // no-mira-el-resultado: aviso interno al panel; la solicitud ya quedo guardada
     await createNotification({
       mensaje: `Solicitud de servicio extra en "${fiesta.configuracion.nombreEvento}": ${nextRequest.nombreServicio} x${nextRequest.cantidad}.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -561,6 +578,7 @@ export async function updatePortalGuestRsvp(
     return { ...fiesta, invitados };
   });
   if (result.success) {
+    // no-mira-el-resultado: aviso interno al panel; la confirmacion RSVP ya quedo guardada
     await createNotification({
       mensaje: `🎟️ Un invitado actualizó su confirmación a "${rsvp}" desde el Portal VIP del evento (${fiestaId}).`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=invitados`,
@@ -596,6 +614,7 @@ export async function saveMenuSeleccion(
     },
   }));
   if (result.success) {
+    // no-mira-el-resultado: aviso interno al panel; la seleccion de menu ya quedo guardada
     await createNotification({
       mensaje: '🍽️ Cliente confirmó/cambió selección de menú desde el Portal VIP.',
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -618,6 +637,7 @@ export async function saveListaMusica(
     },
   }));
   if (result.success) {
+    // no-mira-el-resultado: aviso interno al panel; la lista musical ya quedo guardada
     await createNotification({
       mensaje: '🎵 Cliente actualizó la lista musical del Portal VIP.',
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=musica`,
@@ -653,6 +673,7 @@ export async function addClientMusicSuggestion(
     };
   });
   if (result.success) {
+    // no-mira-el-resultado: aviso interno al panel; la sugerencia musical ya quedo guardada
     await createNotification({
       mensaje: `🎶 Cliente agregó sugerencia musical (${listKey}) desde Portal VIP.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=musica`,
@@ -688,7 +709,10 @@ export async function approveClientMenuChangeRequest(fiestaId: string, requestId
       }
     }
 
-    await saveFiesta(fiesta);
+    const guardado = await saveFiesta(fiesta);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la aprobación del cambio de menú.' };
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
@@ -709,7 +733,10 @@ export async function rejectClientMenuChangeRequest(fiestaId: string, requestId:
     if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
 
     request.status = 'rechazada';
-    await saveFiesta(fiesta);
+    const guardado = await saveFiesta(fiesta);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar el rechazo del cambio de menú.' };
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
@@ -783,11 +810,15 @@ export async function submitClientGuestCountChangeRequest(
       notaCliente: payload.notaCliente?.trim() || undefined,
     };
 
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       clientGuestCountChangeRequests: [...pedidosPrevios, nextRequest],
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la solicitud de cambio de invitados.' };
+    }
 
+    // no-mira-el-resultado: aviso interno al panel; el pedido de cambio de invitados ya quedo guardado
     await createNotification({
       mensaje:
         `El cliente de "${fiesta.configuracion.nombreEvento}" pide pasar de ${contratados} a ${total} invitados ` +
@@ -840,7 +871,7 @@ export async function approveClientGuestCountChangeRequest(
       }
     }
 
-    await saveFiesta({
+    const guardado = await saveFiesta({
       ...fiesta,
       clientGuestCountChangeRequests: requests,
       configuracion: {
@@ -851,6 +882,9 @@ export async function approveClientGuestCountChangeRequest(
         invitadosNinos: request.ninos,
       },
     });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la aprobación del cambio de invitados.' };
+    }
 
     return { success: true };
   } catch (err: any) {
@@ -880,7 +914,10 @@ export async function rejectClientGuestCountChangeRequest(
       resueltoAt: new Date().toISOString(),
     };
 
-    await saveFiesta({ ...fiesta, clientGuestCountChangeRequests: requests });
+    const guardado = await saveFiesta({ ...fiesta, clientGuestCountChangeRequests: requests });
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar el rechazo del cambio de invitados.' };
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
@@ -922,7 +959,10 @@ export async function approveClientServiceChangeRequest(fiestaId: string, reques
       }
     }
 
-    await saveFiesta(fiesta);
+    const guardado = await saveFiesta(fiesta);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la aprobación del servicio extra.' };
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
@@ -943,7 +983,10 @@ export async function rejectClientServiceChangeRequest(fiestaId: string, request
     if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
 
     request.status = 'rechazada';
-    await saveFiesta(fiesta);
+    const guardado = await saveFiesta(fiesta);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar el rechazo del servicio extra.' };
+    }
     return { success: true };
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
@@ -1253,10 +1296,14 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       ...fiesta,
       othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
     };
-    await saveFiesta(updatedFiesta);
+    const guardado = await saveFiesta(updatedFiesta);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la cancelación.' };
+    }
 
     // Create system notification
     const { createNotification } = await import('@/lib/notifications/create-notification');
+    // no-mira-el-resultado: aviso interno al panel; la cancelacion ya quedo guardada
     await createNotification({
       mensaje: `⚠️ Cliente canceló ${payload.cancelAll ? 'toda la fiesta' : 'servicios'} en "${fiesta.configuracion.nombreEvento}". Contrato generado.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -1427,10 +1474,14 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       ...fiesta,
       othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
     };
-    await saveFiesta(updatedFiesta);
+    const guardado = await saveFiesta(updatedFiesta);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar el cambio de fecha.' };
+    }
 
     // Create system notification
     const { createNotification } = await import('@/lib/notifications/create-notification');
+    // no-mira-el-resultado: aviso interno al panel; el cambio de fecha ya quedo guardado
     await createNotification({
       mensaje: `📅 Cliente cambió fecha a ${newDateFmt} en "${fiesta.configuracion.nombreEvento}". Adenda generada.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -1569,6 +1620,7 @@ export async function enviarMensajeCliente(
   }));
 
   if (res.success) {
+    // no-mira-el-resultado: aviso interno al panel; el mensaje ya quedo guardado
     await createNotification({
       mensaje: `💬 Mensaje nuevo del cliente: "${limpio.slice(0, 50)}${limpio.length > 50 ? '...' : ''}"`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -1616,6 +1668,7 @@ export async function subirIdeasDecoracionCliente(
   });
 
   if (res.success) {
+    // no-mira-el-resultado: aviso interno al panel; las ideas de decoracion ya quedaron guardadas
     await createNotification({
       mensaje: `🎨 El cliente subió ${fotosValidas.length} foto(s) de ideas para la decoración.`,
       href: `/fiestas/nueva/decoracion?fiestaId=${fiestaId}`,

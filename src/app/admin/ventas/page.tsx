@@ -49,11 +49,14 @@ export default function VentasPage() {
   const handleMove = async (fiesta: FiestaEnPlanificacion, newStage: string) => {
     setMovingId(fiesta.id);
     try {
-      await saveFiesta({ ...fiesta, estado: newStage });
+      const saveRes = await saveFiesta({ ...fiesta, estado: newStage });
+      if (!saveRes.success) {
+        throw new Error(saveRes.error || 'No se pudo actualizar el estado.');
+      }
       setFiestas(prev => prev.map(f => f.id === fiesta.id ? { ...f, estado: newStage } : f));
       toast({ title: 'Movido', description: `${fiesta.configuracion.nombreEvento} → ${newStage}` });
-    } catch {
-      toast({ title: 'Error', description: 'No se pudo actualizar el estado.', variant: 'destructive' });
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || 'No se pudo actualizar el estado.', variant: 'destructive' });
     } finally {
       setMovingId(null);
     }

@@ -139,10 +139,13 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
           }];
         }
         const planActualizado = recalcularEstadoCuotas(fiesta.contratoDatos.planPagos, allPagos);
-        await saveFiesta({
+        const savePlanRes = await saveFiesta({
           ...fiesta,
           contratoDatos: { ...fiesta.contratoDatos, planPagos: planActualizado },
         });
+        if (!savePlanRes.success) {
+          console.warn('[registerContractDeposit] Error recalculando plan de pagos:', savePlanRes.error);
+        }
       }
     } catch (planError) {
       // Non-fatal: log but don't fail the deposit

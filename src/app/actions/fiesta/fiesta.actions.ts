@@ -875,7 +875,10 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
     const datePart = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0] : 'sin-fecha';
     const archiveFilename = `fiesta_archivada_${datePart}_${fiesta.id}.json`;
     await writeData(path.join(ARCHIVE_DIR, archiveFilename), fiesta);
-    await deleteFiesta(fiestaId);
+    const delRes = await deleteFiesta(fiestaId);
+    if (!delRes.success) {
+      return { success: false, error: delRes.error || "No se pudo borrar el evento tras archivarlo." };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
