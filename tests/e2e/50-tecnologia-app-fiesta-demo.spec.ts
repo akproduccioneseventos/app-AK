@@ -35,13 +35,34 @@ test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
      */
     const momentos = techSection.locator('[data-testid="momento-de-la-app"]');
 
+    /**
+     * SE INSISTE CON EL TOQUE HASTA QUE LA SECCION RESPONDE, Y POR UN MOTIVO CONCRETO.
+     *
+     * Se vio el 9 de septiembre de 2026 mirando el texto que devolvia la pantalla:
+     * despues de tocar "2. Invitacion" seguia mostrando el panel de "1. Antes". El
+     * boton estaba dibujado pero **todavia no respondia**: la pagina se dibuja en el
+     * servidor y los botones recien empiezan a funcionar cuando el navegador termina
+     * de prepararla. En el celular, y con la maquina cargada, eso tarda mas que el
+     * primer toque.
+     *
+     * Tocar de nuevo es inofensivo -elegir el mismo momento dos veces no cambia
+     * nada- y **no afloja el control**: si la app no cambia nunca de momento, esto
+     * se pone en rojo igual.
+     */
+    const tocarHastaQueResponda = async (indice: number, esperado: RegExp) => {
+      await expect
+        .poll(async () => {
+          await momentos.nth(indice).click().catch(() => {});
+          return esperado.test(await techSection.innerText());
+        }, { timeout: 30_000, intervals: [500, 1_000, 2_000, 3_000] })
+        .toBe(true);
+    };
+
     // 2. Invitación
-    await momentos.nth(1).click();
-    await expect(techSection).toContainText(/Mis 15 - Camila/, { timeout: 30_000 });
+    await tocarHastaQueResponda(1, /Mis 15 - Camila/);
 
     // 4. Barra y Tótem
-    await momentos.nth(3).click();
-    await expect(techSection).toContainText(/Mojito de Maracuyá/, { timeout: 30_000 });
+    await tocarHastaQueResponda(3, /Mojito de Maracuyá/);
 
     // Botón de consulta a WhatsApp con mensaje contextual
     const ctaWa = techSection.getByRole('link', { name: /Consultar para mi fiesta/i });

@@ -154,6 +154,19 @@ test.describe('huella de maquetación', () => {
       // titulo. Con el servidor despertandose, 2,5 segundos no alcanzaban y la
       // prueba avisaba "la ruta no existe o no carga" con la pantalla sana.
       await page.locator('h1, main, header').first().waitFor({ state: 'visible', timeout: 60_000 }).catch(() => {});
+      /**
+       * ANTES DE MEDIR, ESPERAR A QUE LAS LETRAS ESTEN CARGADAS.
+       *
+       * **Esto dio una falsa alarma el 9 de septiembre de 2026.** La pantalla de la
+       * presentacion acuso ocho pixeles de corrimiento en el titular; abierta sola,
+       * estaba perfecta. Con la maquina cargada, la tipografia termina de cargar
+       * DESPUES de la medicion, y el titular se acomoda unos pixeles: se estaba
+       * midiendo la pagina a medio vestir.
+       *
+       * Esperar a las letras no afloja el control: lo hace medir lo que el usuario
+       * ve de verdad, en vez de una foto sacada antes de tiempo.
+       */
+      await page.evaluate(() => (document as any).fonts?.ready).catch(() => {});
       await page.waitForTimeout(2500);
       const huella = await medirHuella(page);
       actual[clave(ruta)] = huella;

@@ -7696,6 +7696,20 @@ al cambiar de momento cambia lo que se muestra- sin depender de cuanta maquina h
 maquina esta descansada **no es una prueba, es una moneda al aire**. Y cuando una falla dos veces
 sola, lo que hay que arreglar es la prueba, no seguir corriendola.
 
+**Y al mirar el texto que devolvia la pantalla aparecio la causa de verdad, que no era la que yo
+suponia:** despues de tocar "2. Invitacion" seguia mostrando el panel de "1. Antes". El boton
+estaba dibujado **pero todavia no respondia**. La pagina se arma en el servidor y los botones
+recien empiezan a funcionar cuando el navegador termina de prepararla; en el celular, y con la
+maquina cargada, eso tarda mas que el primer toque. Ahora se insiste con el toque hasta que la
+seccion responde -elegir el mismo momento dos veces no cambia nada- y si la app no cambiara
+nunca, se pone en rojo igual.
+
+**Lo mismo, mas fino, en el control de la maquetacion:** acuso ocho pixeles de corrimiento en el
+titular de la pantalla de presentacion. Con la maquina cargada, la tipografia termina de cargar
+DESPUES de la medicion y el titular se acomoda: se estaba **midiendo la pagina a medio vestir**.
+Ahora se espera a que las letras esten cargadas antes de medir.
+
 ```comprobar
-usa: momento-de-la-app en tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts
+usa: tocarHastaQueResponda en tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts
+usa: fonts en tests/e2e/layout-baseline.spec.ts
 ```
