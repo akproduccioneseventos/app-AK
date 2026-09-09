@@ -24,13 +24,24 @@ test.describe('Orden 50: Tecnología de la app en la portada comercial', () => {
     await expect(techSection.locator('text=DEMO EN VIVO')).toHaveText(/DEMO EN VIVO/);
     await expect(techSection.locator('text=Modo seguro')).toHaveText(/Modo seguro/);
 
-    // Interacción con momento Invitación
-    await techSection.locator('button:has-text("2. Invitación")').click();
-    await expect(techSection.locator('text=Mis 15 - Camila')).toHaveText(/Mis 15 - Camila/);
+    /**
+     * SE TOCA EL MOMENTO POR SU LUGAR, NO POR SU TEXTO, Y SE MIRA LA SECCION ENTERA.
+     *
+     * Esta prueba fallo tres veces en la tanda completa y pasaba sola. Buscaba el
+     * texto del panel con un localizador que **tiene que resolver a un elemento**, y
+     * cuando la maquina esta cargada eso se cae con "no se encontro". Mirando la
+     * seccion entera con `toContainText` se comprueba lo mismo -que al cambiar de
+     * momento cambia lo que se muestra- y se reintenta solo hasta que aparece.
+     */
+    const momentos = techSection.locator('[data-testid="momento-de-la-app"]');
 
-    // Interacción con momento Barra y Cócteles
-    await techSection.locator('button:has-text("4. Barra")').click();
-    await expect(techSection.locator('text=Mojito de Maracuyá')).toHaveText(/Mojito de Maracuyá/);
+    // 2. Invitación
+    await momentos.nth(1).click();
+    await expect(techSection).toContainText(/Mis 15 - Camila/, { timeout: 30_000 });
+
+    // 4. Barra y Tótem
+    await momentos.nth(3).click();
+    await expect(techSection).toContainText(/Mojito de Maracuyá/, { timeout: 30_000 });
 
     // Botón de consulta a WhatsApp con mensaje contextual
     const ctaWa = techSection.getByRole('link', { name: /Consultar para mi fiesta/i });

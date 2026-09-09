@@ -7675,3 +7675,27 @@ cuantos errores se arreglaron, sino **cuantas preguntas nuevas se aprendieron**.
 usa: deudaMedida en scripts/panel.mjs
 usa: loQueNoVi en scripts/panel.mjs
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — La prueba de la demo de la portada fallaba solo con la maquina cargada
+
+Fallo **tres veces** en la tanda completa y pasaba siempre corriendola sola. No era la app.
+
+Buscaba el texto del panel con un localizador que **tiene que resolver a un elemento**; con la
+maquina cargada -varias pruebas a la vez en cuatro nucleos- eso se cae con "no se encontro"
+aunque el texto termine apareciendo. Ademas tocaba el momento por su texto, y en el celular parte
+de ese texto no se dibuja.
+
+**Como quedo:** se toca el momento **por su lugar** en la fila, no por su texto, y se mira **la
+seccion entera** con una comprobacion que se reintenta sola. Comprueba exactamente lo mismo -que
+al cambiar de momento cambia lo que se muestra- sin depender de cuanta maquina haya libre.
+
+**La leccion, que ya estaba anotada y volvio a costar:** una prueba que solo pasa cuando la
+maquina esta descansada **no es una prueba, es una moneda al aire**. Y cuando una falla dos veces
+sola, lo que hay que arreglar es la prueba, no seguir corriendola.
+
+```comprobar
+usa: momento-de-la-app en tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts
+```
