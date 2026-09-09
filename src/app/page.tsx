@@ -513,15 +513,25 @@ export default async function HomePage() {
         technology={
           <div className="space-y-6">
             <LaAppDeTuFiestaSection whatsappNumber={whatsapp} />
-            <details className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 group">
-              <summary className="cursor-pointer list-none rounded-2xl border border-slate-200 bg-white p-4 text-center text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:text-slate-900">
-                ➕ Ver estaciones de entretenimiento y equipamiento complementario (Fotocabina, 360°, Espejo)
-              </summary>
-              <div className="mt-6 space-y-6">
-                <InteractiveTechShowcase />
-                <TechnologyExperienceSection whatsappNumber={whatsapp} />
-              </div>
-            </details>
+            {/*
+              * LAS ESTACIONES SE VEN, NO SE ESCONDEN DETRAS DE UN CLIC.
+              *
+              * La app va primero, que es lo que pidio el dueno. Pero la fotocabina, el
+              * 360 y el espejo **son lo que mas se vende**, y estaban a la vista desde
+              * siempre: meterlas adentro de un desplegable es una decision de venta, y
+              * esas no se toman por afuera del dueno. Un prospecto que no abre el
+              * desplegable -que son casi todos- deja de ver la mitad de la oferta.
+              *
+              * Se corrigio el 9 de septiembre de 2026, cuando llegaron dentro de un
+              * "Ver mas" y la prueba de la portada las encontro escondidas.
+              */}
+            <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
+              <p className="text-center text-sm font-semibold uppercase tracking-widest text-slate-500">
+                Y además, las estaciones que se montan en tu fiesta
+              </p>
+              <InteractiveTechShowcase />
+              <TechnologyExperienceSection whatsappNumber={whatsapp} />
+            </div>
           </div>
         }
         salon={<SalonDestacadoSection photos={clubPhotos} capacity={clubSalon?.capacidad} />}

@@ -294,3 +294,39 @@ sale a buscar problemas de gusto. **No significa que un area ya mirada quede mir
 siempre con las preguntas viejas.** Cuando se agrega una pregunta nueva al metodo, **se vuelve a
 pasar lo que toca plata**, aunque ya se haya auditado. Eso no es auditar por auditar: es que la
 pregunta no existia cuando se miro.
+
+---
+
+## La octava pregunta: ¿EL SERVIDOR SE LO MANDÓ? (9 de septiembre de 2026)
+
+**Salió de un hallazgo de Codex que yo no vi**, y la anoto acá porque la pregunta que me faltaba
+era de fondo, no un descuido.
+
+**Qué pasó.** Al portal del cliente se le mandaba **el itinerario completo de la fiesta**: los
+momentos que el equipo marca como internos y las notas internas de cada uno. Una de las dos
+pantallas del portal los mostraba tal cual. La otra **los escondía**, y por eso parecía que estaba
+bien.
+
+**Por qué mi método no lo agarró.** Yo comprobaba lo que la pantalla muestra. Nunca me pregunté
+**qué le manda el servidor al navegador**. Y ahí está el error de fondo:
+
+> **Esconder algo que ya se mandó no es esconderlo.** El dato ya está en la computadora del
+> cliente: cualquiera que sepa mirar lo ve, y la próxima pantalla que alguien escriba lo va a
+> mostrar sin querer, porque está ahí.
+
+**La pregunta, y dónde se aplica.** En todo lo que sale hacia afuera —el portal del cliente, la
+invitación del invitado, la página pública del evento, la galería, cualquier respuesta que llega a
+un navegador que no es del equipo— la pregunta no es *"¿la pantalla lo muestra?"*. Es:
+
+1. **¿Qué campos salen del servidor?** Se mira la función que arma lo que se manda, no la pantalla.
+2. **¿Sale algo que el de afuera no tiene por qué tener?** Notas internas, nombres del personal,
+   costos, teléfonos de otros invitados, estados internos, claves de acceso.
+3. **¿Se filtra en el servidor o recién en la pantalla?** Si es lo segundo, está mal: **la pantalla
+   es la segunda barrera, no la primera.**
+
+**Y el detalle que se repite:** cuando falta el texto pensado para el de afuera, es muy común que
+el código use **el texto interno como reemplazo**. Ahí es donde una anotación del equipo termina
+leyéndola el cliente. Si no hay texto para mostrar, va sin texto.
+
+**Qué se hace al agregar esta pregunta:** se vuelve a pasar con ella **todo lo que proyecta datos
+hacia un cliente o un invitado**, aunque ya estuviera auditado.

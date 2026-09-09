@@ -25,7 +25,13 @@ general. La orden dice qué módulo tocar, en qué orden, con qué herramienta, 
 Tres defectos verificados: un arco de globos se dibuja como una mesa, lo que se gira en el plano
 no se gira en el 3D, y cargar un diseño guardado puede **duplicar las medidas**.
 
-## 4. `53-la-puerta-de-entrada.md` — casi todo hecho
+## 4. `54-el-portal-del-cliente-guarda-y-no-filtra.md` — una sola cosa, y es de pantalla
+
+Lo grueso ya lo hizo Claude: el itinerario interno ya no le llega ni al cliente ni al invitado.
+Queda que **el equipo pueda marcar qué momento ve el cliente sin adivinar**, con un interruptor
+por momento y un campo aparte para el texto que va a leer el cliente.
+
+## 5. `53-la-puerta-de-entrada.md` — casi todo hecho
 
 Claude ya corrigió lo que se podía corregir. **Lo que falta no es programar: es mirar.** No
 arranques con esta hasta que el dueño diga si sigue fallando.

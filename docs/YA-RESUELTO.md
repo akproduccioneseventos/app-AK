@@ -7513,3 +7513,165 @@ entrando directo como llegando redirigido desde una pantalla interna.
 prueba: tests/e2e/la-puerta-de-entrada-anda.spec.ts
 usa: withTimeout en src/app/login/page.tsx
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — El cortafuegos: las pruebas nuevas se corren primero
+
+**Pedido del dueno:** *"las corridas son largas, la mayoria estan mal, pone un cortafuegos"*.
+Tenia razon y el numero lo confirma.
+
+**Lo medido:** la puerta entera son unos cincuenta minutos y, cuando frena, frena casi siempre en
+el paso de las pruebas de navegador, **al minuto cuarenta**. Se miraron las ultimas fallas: **ocho
+de ocho estaban en pruebas nuevas o recien tocadas** -las que llegaron con las ordenes 45 a 50-,
+ninguna en las viejas. Es logico: lo viejo ya paso por la puerta muchas veces.
+
+**Como quedo:** despues de compilar y antes de la tanda completa, se corren **solo las pruebas de
+navegador nuevas o tocadas en este cambio**. Son dos o tres minutos. Si estan mal, la puerta frena
+ahi. **No reemplaza a la tanda completa** —dos pruebas que pasan por separado pueden romper
+juntas—: lo unico que hace es fallar temprano y barato.
+
+**Y el otro cortafuegos, que es contra un error mio:** dos corridas a la vez usan el mismo puerto
+y la misma compilacion, se pisan y una se lleva puesta a la otra. Me paso **tres veces el mismo
+dia**, y la tercera fue la peor: quedaron dos puertas enteras corriendo juntas y una quedo
+huerfana escribiendo en un archivo que nadie miraba. Ahora **la segunda no arranca** -ni la
+corrida de pruebas ni la puerta entera-: avisa que hay otra andando y se va sin tocar nada. Se
+probo rompiendolo: con un turno tomado, la segunda se niega.
+
+**Y la primera version del cortafuegos se equivoco, asi que queda anotado.** Metia tambien el
+recorrido de pantallas entre las "pruebas nuevas" -Gemini lo habia tocado-, y ahi pasaron dos
+cosas: tardo quince minutos, con lo cual **dejaba de ser barato y dejaba de ser un cortafuegos**;
+y al correr junto con otras pruebas en la misma tanda, se quedo sin maquina y acuso **siete
+pantallas muertas que estaban perfectas**. Abiertas solas, las siete pasaron.
+
+Es exactamente la trampa ya anotada: **cuando se acelera algo en paralelo, lo primero que aparece
+no son fallas nuevas, son falsas alarmas por falta de tiempo.** El recorrido quedo afuera del
+cortafuegos: ya tiene su propio paso y su propio acotado.
+
+Y volvio a pasar una segunda vez, ahora con la demo de la portada: pasaba sola y fallaba en la
+tanda. Por eso **el cortafuegos corre de a una prueba por vez**. Parece al reves de lo que se
+busca -que sea rapido- pero no lo es: **diez archivos tardan dos minutos**, y una respuesta que
+manda a investigar una falla que no existe cuesta mucho mas que eso. El cortafuegos tiene que ser
+confiable antes que rapido; el que tiene que ser rapido es el que no encuentra nada.
+
+```comprobar
+archivo: scripts/pruebas-nuevas-primero.mjs
+usa: NO_ENTRAN en scripts/pruebas-nuevas-primero.mjs
+usa: ARCHIVO_DEL_TURNO en scripts/run-playwright-production.mjs
+```
+
+
+---
+
+## 9 de septiembre de 2026 — Las estaciones quedaron escondidas detras de un clic en la portada
+
+La entrega de la orden 50 puso la seccion de la app primero —que es lo que pidio el dueno— pero
+metio **la fotocabina, el 360 y el espejo adentro de un desplegable** ("Ver mas"). La prueba de la
+portada las encontro escondidas y freno la publicacion.
+
+**Y estaba bien que frenara.** Eso no es un detalle de programacion: es **una decision de venta**,
+y las decisiones de venta las toma el dueno. Las estaciones estaban a la vista desde siempre y son
+lo que mas se vende; un prospecto que no abre el desplegable -que son casi todos- deja de ver la
+mitad de la oferta.
+
+**Como quedo:** la app va primero, como se pidio, y las estaciones **siguen a la vista** abajo,
+presentadas como lo que son: lo que se monta en la fiesta. No se saco nada y no se escondio nada.
+
+**Y venia con una prueba que exigia esconderlas.** Pedia que el texto del desplegable estuviera
+en la portada: es decir, **una prueba que dejaba clavada una decision de venta**. Se corrigio para
+pedir lo que si corresponde -que la app vaya primero y que las estaciones sigan estando y se
+vean-, que es exactamente lo que pidio el dueno.
+
+```comprobar
+usa: InteractiveTechShowcase en src/app/page.tsx
+prueba: tests/e2e/la-app-se-mueve.spec.ts
+prueba: src/__tests__/50-la-app-de-tu-fiesta-recorrido.test.ts
+```
+
+
+---
+
+## 9 de septiembre de 2026 — Lo que encuentra otro y yo no: se corrige el metodo, no solo el defecto
+
+**Orden del dueno:** *"cada cosa que Codex vea y vos no, sin que te diga corriges tu metodo
+automaticamente; guarda eso"*.
+
+Es la regla que hace que esto termine alguna vez. Cuando otro encuentra algo que se me paso, lo
+que fallo no fue la atencion: **fallo la pregunta que yo estaba haciendo**. Arreglar solo el
+defecto deja el agujero abierto y la proxima vez se escapa otro igual por el mismo lado.
+
+Ahora, cada hallazgo que se me escapa entra en `docs/LO-QUE-NO-VI.md` con tres cosas: que era,
+**que pregunta lo hubiera agarrado** -o cual se agrego al metodo- y el control que lo frena. Y
+**queda enganchado**: `npm run ordenes?` mira esa lista como mira las otras tres, asi que si el
+control de un hallazgo desaparece, lo dice. Escrito y no enganchado es justo el defecto que esta
+app persigue en el codigo; no se podia repetir en las reglas.
+
+Los tres que ya estaban se anotaron con su pregunta: los cinco defectos contables -que trajeron
+la septima pregunta del metodo-, la galeria que mostraba borradores -que trajo la regla de fallar
+cerrado en todo lo que se publica- y el 3D que dibujaba una mesa donde habia un arco -que trajo
+la pregunta de si una pantalla que **representa** algo coincide con lo que representa, en vez de
+solo verse-.
+
+```comprobar
+archivo: docs/LO-QUE-NO-VI.md
+usa: LO-QUE-NO-VI en scripts/ordenes-cumplidas.mjs
+```
+
+
+---
+
+## 9 de septiembre de 2026 — El itinerario interno le llegaba al cliente
+
+Hallazgo de Codex (orden 54). De los dos que trajo, **uno ya estaba arreglado** en esta tanda -el
+guardado del portal que avisaba sin haber guardado- y **el otro era cierto y serio**.
+
+Al portal del cliente se le mandaba **el programa entero de la fiesta**: los momentos que el
+equipo marca como internos y las notas internas de cada momento. Una de las dos pantallas del
+portal los mostraba tal cual; la otra los escondia **despues de haberlos recibido**, que no es
+esconderlos: el dato ya estaba en la computadora del cliente.
+
+Y habia un segundo agujero mas fino: cuando un momento no tenia texto para el cliente, la pantalla
+usaba **la nota interna del equipo** como reemplazo.
+
+**Como quedo:** se filtra y se recorta en el servidor. Sale solo lo marcado como visible, y de
+cada momento solo la hora, el titulo y su texto para el cliente: la nota interna y el responsable
+**no salen**. Lo que no tiene marca de visibilidad se sigue viendo, a proposito: los itinerarios
+ya armados no la tienen y ocultarlos de golpe dejaria la pantalla vacia a los clientes de las
+fiestas en curso.
+
+Se probo rompiendolo: devolviendo el programa sin filtrar, la comprobacion se pone en rojo.
+
+**Y aparecio un segundo lugar, peor, que no habia reportado nadie:** el muro de la fiesta -el que
+abre **cualquier invitado** con el enlace- mandaba el mismo itinerario completo. Salio de pasar
+toda la app con la pregunta nueva que trajo este hallazgo: *¿que le manda el servidor al
+navegador?*. Se arreglo con el mismo recorte, no con una copia.
+
+```comprobar
+prueba: src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts
+usa: mapProgramaParaElCliente en src/lib/client-portal/public-fiesta.ts
+usa: mapProgramaParaElCliente en src/lib/social-fiesta/public-event.ts
+```
+
+
+---
+
+## 9 de septiembre de 2026 — El panel muestra tambien la deuda y lo que se aprendio
+
+Pedido del dueno: *"registra todo, completa el panel AK"*. El panel mostraba lo que la app tiene y
+lo que le falta contra la competencia, pero **no mostraba dos cosas que hoy existen y mandan**:
+
+**1. La deuda vieja medida, con su numero.** Son cosas de antes que no se reparan todas de una
+-frenar por ellas dejaria la app sin poder subir nada- pero que **no pueden crecer**: si aparece
+una nueva, la puerta frena. Ahora se ven las cuatro clases y cuantas hay de cada una, con la fecha
+de la medicion. Es un numero que solo puede ir para abajo, y verlo bajar es la unica forma de
+saber que se esta saldando.
+
+**2. Lo que encontro otro y yo no vi.** Cada uno de esos hallazgos trajo **una pregunta nueva** a
+la forma de auditar. Estan en el panel a proposito: la medida de que el metodo mejora no es
+cuantos errores se arreglaron, sino **cuantas preguntas nuevas se aprendieron**.
+
+```comprobar
+usa: deudaMedida en scripts/panel.mjs
+usa: loQueNoVi en scripts/panel.mjs
+```

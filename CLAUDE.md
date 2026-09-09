@@ -683,6 +683,48 @@ aplica primero a cobros, cuotas, facturas, presupuestos y sueldos. Y queda escri
 que la app esté terminada **no** significa que un área ya mirada quede mirada para siempre con
 las preguntas viejas; cuando el método suma una pregunta, lo que toca plata se vuelve a pasar.
 
+### 9. Correr una segunda tanda de pruebas mientras corre la puerta
+
+**Pasó dos veces el 9 de septiembre de 2026, con cuarenta minutos ya invertidos cada vez.** Con la
+puerta andando lancé otra corrida de pruebas para probar algo aparte. Las dos usan el mismo puerto
+y la misma carpeta compilada, así que se pisan; y al barrer los procesos sueltos me llevé puesta
+la corrida buena. **Casi dos horas perdidas por la misma distracción.**
+
+**Qué era lo cierto:** la regla ya estaba escrita —"no correr ayudantes mientras corre la
+puerta"—. Estaba escrita **y no enganchada**, que es exactamente el defecto que esta app persigue
+en el código.
+
+**Qué se hace distinto:** ahora está enganchada. La segunda corrida **no arranca**: avisa que hay
+otra andando y se va sin tocar nada (`.ak-corrida-en-curso` en
+`scripts/run-playwright-production.mjs`). Y para probar una prueba suelta mientras la puerta
+corre, la respuesta es **esperar**: no hay atajo.
+
+## LO QUE ENCUENTRA OTRO Y YO NO: se corrige el MÉTODO, no sólo el defecto
+
+**Orden del dueño, 9 de septiembre de 2026:** *"cada cosa que Codex vea y vos no, sin que te diga
+corregís tu método automáticamente; guardá eso"*.
+
+**Es la regla que hace que esto termine alguna vez.** Cuando otro encuentra algo que se me pasó,
+lo que falló no fue la atención: **falló la pregunta que yo estaba haciendo**. Arreglar sólo el
+defecto deja el agujero abierto: la próxima vez se escapa otro igual por el mismo lado.
+
+**Se hace solo, sin que el dueño lo pida, y en este orden:**
+
+1. **Antes de arreglar nada**, la pregunta es: *¿por qué mi método no lo agarró?*
+2. Si ninguna de mis preguntas lo hubiera agarrado, **se agrega la pregunta nueva** a
+   `docs/COMO-AUDITAR.md`, y **se vuelve a pasar con ella lo que toca plata**, aunque ya estuviera
+   auditado. Que un área esté mirada no la deja mirada para siempre con las preguntas viejas.
+3. **Se anota en `docs/LO-QUE-NO-VI.md`**: qué era, qué pregunta lo hubiera agarrado —o cuál se
+   agregó— y el control que lo frena.
+4. Recién ahí se arregla el defecto.
+
+**Y queda enganchado, no escrito:** `npm run ordenes?` mira esa lista como mira las otras tres.
+Si el control de un hallazgo desaparece, lo dice.
+
+**Lo que NO es esta lista:** no es para pedir perdón ni para llevar la cuenta de quién encontró
+más. Es la única forma de que el rango suba: cada cosa que se me escapó, se convierte en una
+pregunta que de ahí en adelante hago solo.
+
 ## CADA ERROR SE ANOTA ACÁ. Sin excepción.
 
 **Orden del dueño, 2 de septiembre de 2026:** *"anotalo para no hacerlo; cada error debés
@@ -909,6 +951,10 @@ con otra cara.
 | El tope de publicidad inventaba $500 de presupuesto, y después quedó apagado para siempre | `src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts` |
 | El recordatorio de pagarle al proveedor se creaba y se borraba solo; y sacar la decoración dejaba sus gastos | `src/__tests__/la-planificacion-no-pierde-lo-que-guarda.test.ts` |
 | La pantalla de ingreso se caía entera por un dato que no hace falta para entrar | `tests/e2e/la-puerta-de-entrada-anda.spec.ts` |
+| Dos corridas de pruebas a la vez se pisaban y una mataba a la otra | El turno `.ak-corrida-en-curso` en `scripts/run-playwright-production.mjs` |
+| Dos puertas enteras corriendo juntas, y una huérfana escribiendo donde nadie miraba | El turno `.ak-puerta-en-curso` en `scripts/se-puede-publicar.mjs` |
+| Enterarse a los 40 minutos de que una prueba nueva estaba mal | **Paso "Las pruebas nuevas, primero"** en `npm run "publicar?"` |
+| El itinerario interno de la fiesta le llegaba al cliente en su portal | `src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts` |
 
 ### Cómo se elige el matafuego
 
@@ -961,11 +1007,12 @@ no termino más"*.
 dos ramas —pasó dos veces en un día con correcciones de pruebas— y la lista seguiría diciendo que
 está resuelto.
 
-Por eso `npm run ordenes?` mira **tres listas**, no una:
+Por eso `npm run ordenes?` mira **cuatro listas**, no una:
 
 - **`docs/ordenes/*.md`** — lo que se pidió: ¿se hizo?
 - **`docs/QUE-HAY-EN-LA-APP.md`** — lo que la app dice tener: ¿está?
 - **`docs/YA-RESUELTO.md`** — lo que se arregló: ¿sigue arreglado?
+- **`docs/LO-QUE-NO-VI.md`** — lo que encontró otro y yo no: ¿la pregunta nueva sigue puesta?
 
 **Cada arreglo que se anota suma su línea al bloque `comprobar` de `YA-RESUELTO.md`.** Un arreglo
 anotado sin su línea **no cuenta como arreglado**.

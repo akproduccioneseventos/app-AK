@@ -29,11 +29,31 @@ describe('Orden 50 / TEC-01: Recorrido comercial y tecnología de la app para fi
     expect(despues.loQueEntiende).toMatch(/recuerdos de tu fiesta/i);
   });
 
-  it('la portada de ventas (src/app/page.tsx) monta la sección comercial unificada', () => {
-    expect(pageSource).toContain('LaAppDeTuFiestaSection');
+  /**
+   * ESTA PRUEBA EXIGIA ESCONDER LO QUE MAS SE VENDE, Y SE CORRIGIO EL 9 DE
+   * SEPTIEMBRE DE 2026.
+   *
+   * Pedia que las estaciones -fotocabina, 360, espejo- estuvieran **replegadas**
+   * detras de un "Ver mas". Eso no es una regla de programacion: es una decision de
+   * venta, y las decisiones de venta las toma el dueno. Las estaciones estaban a la
+   * vista desde siempre y son lo que mas se vende; un prospecto que no abre el
+   * desplegable -que son casi todos- deja de ver la mitad de la oferta.
+   *
+   * Lo que si se le pide a la portada, y es lo que pidio el dueno: **la app va
+   * primero**, y las estaciones **siguen estando y se ven**.
+   */
+  it('la portada pone la app primero Y deja las estaciones a la vista', () => {
     expect(pageSource).toContain('<LaAppDeTuFiestaSection');
-    // Mantiene LaAppDeTuFiestaSection como protagonista y los equipos complementarios replegados
-    expect(pageSource).toContain('Ver estaciones de entretenimiento y equipamiento complementario');
+    expect(pageSource).toContain('<InteractiveTechShowcase');
+    expect(pageSource).toContain('<TechnologyExperienceSection');
+
+    // La app va antes que las estaciones.
+    expect(pageSource.indexOf('<LaAppDeTuFiestaSection')).toBeLessThan(
+      pageSource.indexOf('<InteractiveTechShowcase'),
+    );
+
+    // Y no quedan escondidas detras de un clic.
+    expect(pageSource).not.toContain('Ver estaciones de entretenimiento y equipamiento complementario');
   });
 
   it('el copy y la demostración cumplen con los criterios de transparencia y venta honesta', () => {

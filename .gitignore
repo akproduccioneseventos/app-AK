@@ -152,3 +152,5 @@ src/data/agentes-historial.json
 
 # El panel se arma solo con "npm run panel". No se sube: se rehace cuando se quiere ver.
 panel-de-la-app.html
+.ak-corrida-en-curso
+.ak-puerta-en-curso

@@ -1,5 +1,5 @@
 import { spawn, spawnSync, execSync } from "node:child_process";
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, writeFileSync, unlinkSync } from "node:fs";
 import { createRequire } from "node:module";
 import net from "node:net";
 import path from "node:path";
@@ -104,6 +104,59 @@ function barrerCorridasViejas() {
     } catch { /* no habia ninguno, que es lo normal */ }
   }
 }
+
+/**
+ * UNA CORRIDA POR VEZ, Y PUNTO.
+ *
+ * **Esto lo rompi yo dos veces el 9 de septiembre de 2026.** Con la puerta andando
+ * -cuarenta minutos ya invertidos- lance otra corrida de pruebas para probar algo
+ * aparte. Las dos usan el mismo puerto y la misma carpeta compilada: **se pisan**, y
+ * despues, al barrer los procesos sueltos, me lleve puesta la corrida buena. Cincuenta
+ * minutos perdidos, dos veces, por la misma distraccion.
+ *
+ * La regla ya estaba escrita —"no correr ayudantes mientras corre la puerta"— y no
+ * alcanzo, porque estaba escrita y no enganchada. Ahora esta enganchada: **la segunda
+ * corrida no arranca**, dice quien tiene el turno y se va sin tocar nada.
+ */
+const ARCHIVO_DEL_TURNO = ".ak-corrida-en-curso";
+
+function hayOtraCorridaAndando() {
+  if (!existsSync(ARCHIVO_DEL_TURNO)) return false;
+  try {
+    const pid = Number(readFileSync(ARCHIVO_DEL_TURNO, "utf8").trim());
+    if (!pid) return false;
+    process.kill(pid, 0); // no la mata: solo pregunta si sigue viva
+    return pid !== process.pid;
+  } catch {
+    return false; // el proceso ya no existe: el archivo quedo huerfano
+  }
+}
+
+if (hayOtraCorridaAndando()) {
+  console.error("");
+  console.error("YA HAY UNA CORRIDA DE PRUEBAS ANDANDO. Esta no arranca.");
+  console.error("");
+  console.error("  Dos corridas a la vez usan el mismo puerto y la misma compilacion:");
+  console.error("  se pisan, dan fallas inventadas y una se lleva puesta a la otra.");
+  console.error("");
+  console.error("  Espera a que termine la que esta corriendo, o paral" + "a a proposito.");
+  console.error("");
+  process.exit(1);
+}
+
+try {
+  writeFileSync(ARCHIVO_DEL_TURNO, String(process.pid));
+  const soltarElTurno = () => {
+    try {
+      if (existsSync(ARCHIVO_DEL_TURNO) && readFileSync(ARCHIVO_DEL_TURNO, "utf8").trim() === String(process.pid)) {
+        unlinkSync(ARCHIVO_DEL_TURNO);
+      }
+    } catch {}
+  };
+  process.on("exit", soltarElTurno);
+  process.on("SIGINT", () => { soltarElTurno(); process.exit(130); });
+  process.on("SIGTERM", () => { soltarElTurno(); process.exit(143); });
+} catch {}
 
 barrerCorridasViejas();
 
@@ -388,10 +441,23 @@ async function main() {
    * aire al servidor de la app, que corre al lado).
    */
   const NUCLEOS = Math.max(1, (os.cpus?.().length || 4) - 1);
+  /**
+   * Cuantas pruebas a la vez. Se puede pedir de a una con `AK_TRABAJADORES=1`.
+   *
+   * **Para que existe esa perilla:** el cortafuegos -las pruebas nuevas corridas antes
+   * que el resto- necesita una respuesta en la que se pueda confiar, no la mas rapida.
+   * Corriendo varias a la vez en una maquina de cuatro nucleos, las pantallas pesadas
+   * se quedan sin maquina y acusan fallas que no existen: paso el 9 de septiembre de
+   * 2026 con siete pantallas "muertas" que estaban perfectas y con la demo de la
+   * portada. Ahi conviene ir de a una: son dos minutos igual.
+   */
+  const pedidas = Number(process.env.AK_TRABAJADORES || 0);
   const trabajadoresPara = (batch) =>
-    batch.some((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)))
-      ? 1
-      : Math.min(NUCLEOS, Math.max(1, batch.length));
+    pedidas > 0
+      ? pedidas
+      : batch.some((f) => COMPARTEN_LA_FIESTA_DE_PRUEBA.includes(path.basename(f)))
+        ? 1
+        : Math.min(NUCLEOS, Math.max(1, batch.length));
   const tandas = [];
   /**
    * Tandas que se cayeron sin llegar a correr una sola prueba.

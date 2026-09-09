@@ -80,6 +80,19 @@ if (fs.existsSync(INVENTARIO)) archivos.push('../QUE-HAY-EN-LA-APP.md');
 const RESUELTO = path.join(process.cwd(), 'docs', 'YA-RESUELTO.md');
 if (fs.existsSync(RESUELTO)) archivos.push('../YA-RESUELTO.md');
 
+/**
+ * Y LO QUE ENCONTRO OTRO Y CLAUDE NO VIO.
+ *
+ * Orden del dueno, 9 de septiembre de 2026: *"cada cosa que Codex vea y vos no, sin
+ * que te diga corriges tu metodo automaticamente; guarda eso"*.
+ *
+ * Cada hallazgo que se le escapo a Claude entra en `docs/LO-QUE-NO-VI.md` con la
+ * pregunta nueva que lo hubiera agarrado y el control que lo frena. **Se mira aca
+ * para que no quede en prosa**: si el control desaparece, esto lo dice.
+ */
+const NO_VI = path.join(process.cwd(), 'docs', 'LO-QUE-NO-VI.md');
+if (fs.existsSync(NO_VI)) archivos.push('../LO-QUE-NO-VI.md');
+
 const conComprobaciones = [];
 const sinComprobaciones = [];
 
