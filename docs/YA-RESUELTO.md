@@ -7390,3 +7390,35 @@ usa: seMuestraEnPublico en src/lib/instagram/public-feed.ts
 usa: canalDelProspecto en src/app/actions/crm.ts
 prueba: src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts
 ```
+
+
+---
+
+## 9 de septiembre de 2026 — El panel de publicidad: ni inventar plata ni quedarse apagado
+
+Pasó dos veces en dos días, en direcciones opuestas y las dos mal.
+
+**Primero inventaba.** El presupuesto diario de cada campaña salía de dividir el gasto de los
+últimos treinta días y, si daba cero, se ponía **$500 fijos**. Un número inventado decidiendo
+cuánta plata queda para publicidad.
+
+**Después se apagó.** La corrección puso todas las campañas en cero y "sin verificar". Eso es
+honesto, pero dejaba el panel **muerto para siempre**: el saldo disponible daba cero siempre y
+nunca se podía ajustar una campaña, porque el dato que se pedía —el presupuesto configurado en
+Meta— **la app nunca se lo pedía a Meta**.
+
+**Como quedó:** ahora se le pregunta a Meta el presupuesto diario y si la campaña está encendida.
+Con el dato, el panel trabaja con lo real; sin el dato, la campaña queda sin verificar, el panel
+lo dice y **no se asume saldo libre**. Nunca se inventa un número.
+
+Y se repuso el porqué de que el tipo de cambio sea obligatorio, que una entrega borró al pasar por
+encima: **el motivo de una regla que protege plata no se borra**. Sin esa obligación, la
+prohibición de encender campañas solas ya quedó salteada en silencio una vez.
+
+También se sacó una copia de la regla de qué publicaciones salen en la web, que había quedado
+duplicada dentro de la galería: dos copias de la misma regla se despegan y la vieja hace daño.
+
+```comprobar
+usa: dailyBudgetUYU en src/app/(app)/contabilidad/crm/marketing-ads/page.tsx
+prueba: src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts
+```

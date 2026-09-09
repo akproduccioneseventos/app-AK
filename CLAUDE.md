@@ -906,6 +906,7 @@ con otra cara.
 | "Dijo que sí y no pasó nada": se llama algo que devuelve el error y nadie lo mira | **`npm run "dice-que-si?"`**, enganchado al trinquete |
 | Borradores y publicaciones programadas salían en la galería pública de la portada | `src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts` |
 | El prospecto que llegaba de un anuncio pago se guardaba como si hubiera llegado solo | `src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts` |
+| El tope de publicidad inventaba $500 de presupuesto, y después quedó apagado para siempre | `src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts` |
 
 ### Cómo se elige el matafuego
 

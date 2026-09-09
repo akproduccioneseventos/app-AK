@@ -54,14 +54,9 @@ export async function getPublicInstagramFeed(
   profileUrl = 'https://www.instagram.com/akproduccionesfiestasyeventos/',
 ): Promise<PublicInstagramFeedPost[]> {
   try {
-    const estadosValidos = ['Publicado', 'Importado de IG', 'Importado historial'];
-    const puedeMostrarse = typeof seMuestraEnPublico === 'function'
-      ? seMuestraEnPublico
-      : (st?: string) => estadosValidos.includes(String(st || '').trim());
-
     const savedPosts = await readData<SocialPost[]>(POSTS_FILE, []);
     const instagramSaved = savedPosts.filter(
-      (p) => p.platform === 'Instagram' && Boolean(p.mediaUrl) && puedeMostrarse(p.status),
+      (p) => p.platform === 'Instagram' && Boolean(p.mediaUrl) && seMuestraEnPublico(p.status),
     );
 
     if (instagramSaved.length > 0) {

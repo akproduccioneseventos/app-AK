@@ -5,6 +5,18 @@ import { normalizeMetaCampaign } from '@/lib/marketing/meta-commercial-metrics-c
 export interface MetaAdCampaign {
   id: string;
   name: string;
+  /**
+   * El presupuesto diario configurado en Meta, en la moneda de la cuenta.
+   *
+   * **No es lo mismo que el gasto.** Antes el panel del tope dividia el gasto de los
+   * ultimos treinta dias y, si daba cero, inventaba $500. Eso es un numero inventado
+   * decidiendo cuanta plata queda para publicidad. Ahora se pide el dato de verdad; si
+   * Meta no lo devuelve, queda `undefined` y el panel avisa que no esta verificado en
+   * vez de inventarlo.
+   */
+  dailyBudgetUYU?: number;
+  /** Si la campana esta encendida en Meta ahora mismo. `undefined` = no se pudo saber. */
+  activa?: boolean;
   spend: number;
   impressions: number;
   clicks: number;
@@ -31,6 +43,45 @@ export interface MetaAdsSummary {
   reportedCampaignsCount: number;
   topEventType?: string;
   campaigns: MetaAdCampaign[];
+}
+
+/**
+ * Le pregunta a Meta el presupuesto diario y el estado de cada campana.
+ *
+ * Devuelve un mapa vacio si no se puede leer: **el que llama tiene que poder
+ * distinguir "no hay presupuesto" de "no se pudo preguntar"**, y por eso el valor
+ * queda sin definir en vez de en cero.
+ */
+async function leerConfiguracionDeCampanas(
+  apiVersion: string,
+  adAccountId: string,
+  accessToken: string,
+): Promise<Map<string, { dailyBudgetUYU?: number; activa: boolean }>> {
+  const mapa = new Map<string, { dailyBudgetUYU?: number; activa: boolean }>();
+  try {
+    const url = new URL(`https://graph.facebook.com/${apiVersion}/act_${adAccountId}/campaigns`);
+    url.searchParams.set('fields', 'id,name,daily_budget,status,effective_status');
+    url.searchParams.set('limit', '500');
+    const respuesta = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!respuesta.ok) return mapa;
+    const datos = await respuesta.json() as { data?: Array<Record<string, unknown>> };
+    for (const fila of Array.isArray(datos.data) ? datos.data : []) {
+      const id = String(fila.id || '').trim();
+      if (!id) continue;
+      // Meta manda el presupuesto en centesimos de la moneda de la cuenta.
+      const centesimos = Number(fila.daily_budget);
+      const dailyBudgetUYU = Number.isFinite(centesimos) && centesimos > 0 ? centesimos / 100 : undefined;
+      const estado = String(fila.effective_status || fila.status || '').toUpperCase();
+      mapa.set(id, { dailyBudgetUYU, activa: estado === 'ACTIVE' });
+    }
+  } catch {
+    // Sin datos de configuracion: el panel avisa que no esta verificado.
+  }
+  return mapa;
 }
 
 export interface MetaCommercialAIRecommendation {
@@ -91,6 +142,19 @@ export async function getMetaAdsSummary(metrics: MetaCommercialMetrics): Promise
 
     const payload = await response.json() as { data?: Array<Record<string, unknown>> };
     const rows = Array.isArray(payload.data) ? payload.data : [];
+
+    /**
+     * SEGUNDA CONSULTA: el presupuesto y el estado de cada campana.
+     *
+     * La consulta de arriba (`insights`) trae **lo que se gasto**, no lo que esta
+     * configurado. El presupuesto diario y si la campana esta encendida viven en otra
+     * puerta de Meta. Sin esto, el panel del tope no tiene con que trabajar y queda
+     * diciendo "sin verificar" para siempre.
+     *
+     * Si esta consulta falla, no se rompe nada: las campanas quedan sin presupuesto
+     * verificado y el panel lo dice. **Nunca se inventa un numero.**
+     */
+    const configuracion = await leerConfiguracionDeCampanas(apiVersion, adAccountId, accessToken);
     const adCurrency = String(rows[0]?.account_currency || 'Sin datos');
     const currencyComparable = adCurrency !== 'Sin datos' && adCurrency === metrics.revenueCurrency;
     let totalSpend = 0;
@@ -102,6 +166,7 @@ export async function getMetaAdsSummary(metrics: MetaCommercialMetrics): Promise
       const impressions = Number(item.impressions || 0);
       const clicks = Number(item.clicks || 0);
       const commercial = metrics.campaigns[normalizeMetaCampaign(name)];
+      const config = configuracion.get(id);
       const leadsCount = commercial?.leadsCount || 0;
       const conversionsCount = commercial?.conversionsCount || 0;
       const revenue = commercial?.revenue || 0;
@@ -119,6 +184,8 @@ export async function getMetaAdsSummary(metrics: MetaCommercialMetrics): Promise
         conversionsCount,
         revenue,
         roasRatio: currencyComparable && spend > 0 ? revenue / spend : null,
+        dailyBudgetUYU: config?.dailyBudgetUYU,
+        activa: config?.activa,
       };
     });
 

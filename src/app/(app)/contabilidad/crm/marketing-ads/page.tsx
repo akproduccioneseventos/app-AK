@@ -74,13 +74,25 @@ export default async function MarketingAdsPage() {
     }
   }
 
-  // Los datos de insights representan gasto histórico, NO el presupuesto diario configurado ni el estado activo.
-  // No inventamos un valor de respaldo ($500) ni asumimos activa: true sin verificación real.
+  /**
+   * DE DONDE SALE EL PRESUPUESTO DE CADA CAMPAÑA.
+   *
+   * Antes se dividía el gasto de los últimos treinta días y, si daba cero, se
+   * inventaba $500. Un número inventado decidiendo cuánta plata queda para
+   * publicidad. La entrega siguiente lo puso todo en cero y sin verificar, y eso
+   * dejaba el panel **apagado para siempre**: nunca había saldo disponible y
+   * nunca se podía tocar una campaña.
+   *
+   * Ahora se le pregunta a Meta el presupuesto diario y si la campaña está
+   * encendida. Cuando el dato viene, el panel trabaja con lo real. Cuando Meta no
+   * lo devuelve, la campaña queda **sin verificar** y el panel lo dice: no se
+   * inventa un número ni se asume que hay saldo libre.
+   */
   const campanasConPresupuesto: CampanaConPresupuesto[] = summary.campaigns.map((c) => ({
     nombre: c.name,
-    presupuestoDiarioUYU: 0,
-    activa: false,
-    verificado: false,
+    presupuestoDiarioUYU: c.dailyBudgetUYU ?? 0,
+    activa: c.activa === true,
+    verificado: typeof c.dailyBudgetUYU === 'number' && c.activa !== undefined,
   }));
 
   const [estadoDelTope, historialAcciones, analisisClienteIdeal] = await Promise.all([

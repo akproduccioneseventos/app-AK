@@ -191,6 +191,23 @@ export async function puedeComprometer(
     campanas: CampanaConPresupuesto[];
     presupuestoDiarioActualUYU: number;
     nuevoPresupuestoDiarioUYU: number;
+    /**
+     * Que se le esta por hacer a la campana. Encender y crear se niegan siempre,
+     * antes de mirar el tope: no es una cuestion de cuanta plata queda, es del dueno.
+     *
+     * **Es OBLIGATORIO, y lo es por algo que ya paso.** Nacio opcional, y la primera
+     * entrega que uso este modulo simplemente no lo mando en `crearCampana` ni en
+     * `reactivarCampana`. Al ser opcional, el revisor de tipos no dijo nada y **la
+     * prohibicion de encender campanas quedo salteada en silencio**: con lugar bajo el
+     * tope, el agente habria creado y reactivado campanas solo, que es exactamente lo
+     * unico que el dueno pidio que no pasara.
+     *
+     * Ahora olvidarlo **no compila**. Es la misma idea que gobierna todo el modulo: lo
+     * que protege plata no puede depender de que alguien se acuerde.
+     *
+     * (Una entrega lo borro el 8 de septiembre de 2026 y se repuso: el porque de una
+     * regla que protege plata no se borra al pasar por encima.)
+     */
     tipo: TipoDeCambio;
   },
   ahora = new Date()
