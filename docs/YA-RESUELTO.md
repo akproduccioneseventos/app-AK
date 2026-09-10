@@ -31,6 +31,21 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## 10 de septiembre de 2026 - Estabilización de Arranque y Memoria en Producción (Envoy 503 / Resiliencia)
+
+- **Aumento de memoria y CPU en App Hosting (`apphosting.yaml`):**
+  - Se incrementó `memoryMiB` de 512 a 1024 en `runConfig`.
+  - Evita terminaciones intempestivas del contenedor por falta de memoria (OOM / SIGKILL) durante el arranque en frío (cold start) y la carga concurrente de recursos iniciales.
+  - Acelera el arranque en frío en Cloud Run al recibir mayor cuota de CPU.
+
+- **Protección de consultas en almacén genérico (`src/lib/generic-json-store.ts`):**
+  - Implementado `queryWithTimeout` (2500ms - 3000ms) en `readGenericJsonFile`, `syncGenericJsonFile` y `listGenericJsonDocuments`.
+  - Si la conexión con Firestore experimenta latencia o degradación en el arranque, la consulta expira de forma controlada y degrada limpiamente a datos locales o predeterminados en lugar de colgar el hilo del servidor y provocar el corte de conexión de Envoy (`upstream connect error / connection termination`).
+
+- **Optimización del Asistente Virtual en rutas públicas (`src/components/public/AsistenteVirtual.tsx`):**
+  - La llamada asíncrona a `getBudgetDisplaySettings()` se condiciona estrictamente a rutas públicas permitidas (`isPublicRoute`).
+  - Previene llamadas innecesarias al servidor durante la navegación y carga inicial de páginas administrativas o de acceso.
+
 ## Estabilización de Versión Publicada: Acceso Administrativo, Resiliencia Multiterminal y Simulador (8 de septiembre de 2026)
 
 - **Frente 1 — Firma de sesiones criptográficas y estabilidad entre instancias (`src/lib/auth/session-token.ts`):**
