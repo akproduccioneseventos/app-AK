@@ -57,19 +57,13 @@ test.describe('Orden 55: La decoración entrega lo que promete', () => {
     await page.waitForTimeout(2000);
 
     const botonExportar = page.locator('[data-testid="btn-exportar-png"]');
-    if ((await botonExportar.count()) > 0) {
-      await expect(botonExportar).toBeVisible();
+    await expect(botonExportar).toBeVisible();
 
-      const downloadPromise = page.waitForEvent('download', { timeout: 15000 }).catch(() => null);
-      await botonExportar.click();
-      const download = await downloadPromise;
+    const downloadPromise = page.waitForEvent('download', { timeout: 30000 });
+    await botonExportar.click();
+    const download = await downloadPromise;
 
-      if (download) {
-        expect(download.suggestedFilename().toLowerCase()).toMatch(/\.png$/);
-      } else {
-        expect(await page.locator('body').innerText()).toContain('Exportar PNG');
-      }
-    }
+    expect(download.suggestedFilename().toLowerCase()).toMatch(/\.png$/);
   });
 
   test('Bloque 2: La IA decoradora muestra cuantas quedan, lista fotos y se bloquea con tope 3', async ({

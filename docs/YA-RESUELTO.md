@@ -31,6 +31,24 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+## 10 de septiembre de 2026 - Órdenes 55 y 56
+
+### Orden 55 — La decoración entrega lo que promete
+- **Bloque 1 — Exportar PNG:** El botón de exportación en `/fiestas/[id]/decoracion` genera y descarga de forma real un archivo PNG (captura 3D del salón o lienzo 2D), comprobado en pruebas de extremo a extremo sin caídas a falso positivo.
+- **Bloque 2 — IA Decoradora:** Se muestra el contador de imágenes restantes con tope de 3 por fiesta, bloqueo ante cupo agotado, listado de fotos generadas y prevención de doble cobro.
+
+```comprobar
+prueba: tests/e2e/la-decoracion-se-baja-y-se-genera.spec.ts
+```
+
+### Orden 56 — Los avisos respetan lo que se apagó
+- Las preferencias de avisos (email y app por categoría) se respetan en el punto central de despacho (`createNotification`), evitando crear notificaciones en la aplicación si el usuario apagó dicha categoría.
+- Verificación con pruebas unitarias que comprueban que `createNotification` no persiste ni despacha cuando el usuario desmarcó la categoría correspondiente.
+
+```comprobar
+prueba: src/__tests__/los-avisos-respetan-lo-que-se-apago.test.ts
+```
+
 ## Estabilización de Versión Publicada: Acceso Administrativo, Resiliencia Multiterminal y Simulador (8 de septiembre de 2026)
 
 - **Frente 1 — Firma de sesiones criptográficas y estabilidad entre instancias (`src/lib/auth/session-token.ts`):**

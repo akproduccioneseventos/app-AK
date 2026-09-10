@@ -1,12 +1,15 @@
 const mockRequireAppSession = jest.fn();
+const mockHasAppSession = jest.fn().mockResolvedValue(true);
 const mockVerifySession = jest.fn();
 const mockReadData = jest.fn();
 const mockWriteData = jest.fn();
-const mockCreateNotification = jest.fn();
 const mockSendGoogleGmailMessage = jest.fn();
+const mockCreateDocument = jest.fn();
+const mockGetAllDocuments = jest.fn();
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: () => mockRequireAppSession(),
+  hasAppSession: () => mockHasAppSession(),
 }));
 
 jest.mock('@/lib/auth/session-token', () => ({
@@ -18,14 +21,30 @@ jest.mock('@/lib/data-service', () => ({
   writeData: (...args: unknown[]) => mockWriteData(...args),
 }));
 
-jest.mock('@/app/actions/notifications', () => ({
-  createNotification: (...args: unknown[]) => mockCreateNotification(...args),
+jest.mock('@/lib/firebase/firestore', () => ({
+  createDocument: (...args: unknown[]) => mockCreateDocument(...args),
+  getAllDocuments: (...args: unknown[]) => mockGetAllDocuments(...args),
+  updateDocument: jest.fn().mockResolvedValue({ success: true }),
+  deleteDocument: jest.fn().mockResolvedValue({ success: true }),
+  batchWrite: jest.fn().mockResolvedValue({ success: true }),
+  COLLECTIONS: {
+    NOTIFICACIONES: 'notificaciones',
+  },
+}));
+
+jest.mock('@/lib/firebase/server-messaging', () => ({
+  sendPushNotificationToAll: jest.fn().mockResolvedValue(true),
+}));
+
+jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
+  getFiestas: jest.fn().mockResolvedValue([]),
 }));
 
 jest.mock('@/lib/google-workspace', () => ({
   sendGoogleGmailMessage: (...args: unknown[]) => mockSendGoogleGmailMessage(...args),
 }));
 
+import { createNotification } from '@/app/actions/notifications';
 import {
   leerPreferenciasDeAvisos,
   guardarPreferenciasDeAvisos,
@@ -46,6 +65,7 @@ describe('Orden 56 — Los avisos respetan lo que se apagó', () => {
     memoryStore = {};
 
     mockRequireAppSession.mockResolvedValue({ user: { id: 'admin', role: 'admin' } });
+    mockHasAppSession.mockResolvedValue(true);
     mockVerifySession.mockResolvedValue({
       user: { userId: 'admin', role: 'admin' },
       role: 'admin',
@@ -59,9 +79,14 @@ describe('Orden 56 — Los avisos respetan lo que se apagó', () => {
       memoryStore[file] = data;
     });
 
-    mockCreateNotification.mockResolvedValue({
+    mockCreateDocument.mockResolvedValue({
       success: true,
-      notification: { id: 'notif-123', mensaje: 'Prueba', fecha: new Date().toISOString(), leida: false },
+      id: 'notif-123',
+    });
+
+    mockGetAllDocuments.mockResolvedValue({
+      success: true,
+      data: [],
     });
 
     mockSendGoogleGmailMessage.mockResolvedValue({ success: true, messageId: 'msg-456' });
@@ -135,39 +160,51 @@ describe('Orden 56 — Los avisos respetan lo que se apagó', () => {
     expect(mockSendGoogleGmailMessage).toHaveBeenCalled();
   });
 
-  it('NO crea notificación en app si el usuario apagó los avisos de la app', async () => {
+  it('createNotification (punto único central de los 29 lugares) NO persiste ni despacha si la categoría está apagada', async () => {
+    // Apagamos los avisos de la app para tareas
     await guardarPreferenciasDeAvisos({
       ...initialNotificationPreferences,
       taskUpdates: { email: true, app: false },
     });
 
-    const res = await enviarAvisoConPreferencia({
-      categoria: 'taskUpdates',
-      canal: 'app',
-      notificacion: {
-        mensaje: 'Tarea completada',
-      },
+    // Llamamos a createNotification directamente
+    const res = await createNotification({
+      titulo: 'Tarea pendiente',
+      mensaje: 'Falta confirmar catering de la fiesta',
     });
 
-    expect(res.enviado).toBe(false);
-    expect(mockCreateNotification).not.toHaveBeenCalled();
+    expect(res.success).toBe(true);
+    expect(mockCreateDocument).not.toHaveBeenCalled();
   });
 
-  it('SÍ crea notificación en app si el usuario tiene encendida la categoría', async () => {
+  it('createNotification SÍ persiste y despacha si la categoría está encendida', async () => {
     await guardarPreferenciasDeAvisos({
       ...initialNotificationPreferences,
       systemAlerts: { email: false, app: true },
     });
 
-    const res = await enviarAvisoConPreferencia({
-      categoria: 'systemAlerts',
-      canal: 'app',
-      notificacion: {
-        mensaje: 'Alerta de mantenimiento',
-      },
+    const res = await createNotification({
+      titulo: 'Alerta del sistema',
+      mensaje: 'Mantenimiento del servidor',
     });
 
-    expect(res.enviado).toBe(true);
-    expect(mockCreateNotification).toHaveBeenCalled();
+    expect(res.success).toBe(true);
+    expect(mockCreateDocument).toHaveBeenCalled();
+  });
+
+  it('createNotification respeta la categoría explícita pasada en los datos', async () => {
+    await guardarPreferenciasDeAvisos({
+      ...initialNotificationPreferences,
+      crmUpdates: { email: false, app: false },
+    });
+
+    const res = await createNotification({
+      titulo: 'Aviso especial',
+      mensaje: 'Mensaje especial',
+      categoria: 'crmUpdates',
+    } as any);
+
+    expect(res.success).toBe(true);
+    expect(mockCreateDocument).not.toHaveBeenCalled();
   });
 });
