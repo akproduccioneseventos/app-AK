@@ -181,10 +181,15 @@ export default function ContenidoPublicoSettingsPage() {
     data: autoSaveData,
     onSave: async (d) => {
       if (!d.presentacion || !d.catalogo) return { success: false, error: 'Sin datos' };
-      await Promise.all([
+      // Los dos resultados se miran: antes se anunciaba "guardado" aunque el
+      // guardado hubiera fallado y el texto de la web publica no cambiaba.
+      const [presentacion, catalogo] = await Promise.all([
         savePresentacionLedSettings(d.presentacion),
         saveCatalogoSettings(tipoCatalogo, d.catalogo),
       ]);
+      if (!presentacion?.success || !catalogo?.success) {
+        return { success: false, error: 'No se pudo guardar el contenido público. Probá de nuevo.' };
+      }
       return { success: true };
     },
     enabled: !loading && !!presentacion && !!catalogo,

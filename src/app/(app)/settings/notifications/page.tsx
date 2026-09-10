@@ -69,7 +69,11 @@ export default function NotificationsSettingsPage() {
     data: preferences,
     onSave: async (prefs) => {
       if (!prefs) return { success: false, error: 'Sin datos' };
-      await saveNotificationPreferences(prefs);
+      try {
+        await saveNotificationPreferences(prefs);
+      } catch (e: any) {
+        return { success: false, error: e?.message || 'No se pudieron guardar las preferencias.' };
+      }
       return { success: true };
     },
     debounceMs: 1500,

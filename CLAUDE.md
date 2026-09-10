@@ -957,6 +957,8 @@ con otra cara.
 | El itinerario interno de la fiesta le llegaba al cliente en su portal | `src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts` |
 | El control de "dijo que sí y no pasó nada" no veía las funciones que las pantallas usan de verdad | `siguiendoLasPuertasDePaso` en `scripts/nadie-dice-que-si-sin-mirar.mjs` |
 | Dos toques al botón pagaban dos imágenes de IA con lugar para una | `src/__tests__/decoracion-no-gasta-de-mas.test.ts` |
+| Un autoguardado que anunciaba "guardado" sin mirar si se guardó | `src/__tests__/el-autoguardado-no-miente.test.ts` |
+| La captura de la vista 3D se anunciaba en el portal del cliente y no llegaba | `src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts` |
 
 ### Cómo se elige el matafuego
 

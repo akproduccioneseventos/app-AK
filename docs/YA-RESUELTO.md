@@ -7749,3 +7749,23 @@ prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
 usa: visualizacionesMutex en src/app/actions/fiesta/decoracion.actions.ts
 usa: siguiendoLasPuertasDePaso en scripts/nadie-dice-que-si-sin-mirar.mjs
 ```
+
+## 10 de septiembre de 2026 — Otros dos autoguardados que decían "guardado" sin mirar
+
+Al poner el control nuevo del autoguardado sobre **todas** las pantallas que lo usan,
+aparecieron dos más que nadie había reportado: los ajustes de avisos y el contenido público
+de la web. El segundo es el que importa: guardaba **dos cosas a la vez** —la presentación y
+el catálogo— y no miraba ninguna de las dos. Si el texto de la web pública no se guardaba, la
+pantalla decía que sí igual.
+
+**Cómo quedó:** los dos miran el resultado, y el de contenido público mira los dos guardados.
+
+**Y algo que quedó anotado, no arreglado:** los ajustes de avisos (`/settings/notifications`)
+**no se guardan en ningún lado**: se escriben en el navegador de quien los toca, con una
+espera falsa de un segundo para que parezca que guarda. Cambiarlos ahí no cambia qué avisos
+manda la app, y desde otra computadora se ven distintos. Es una pantalla de mentira. Va en la
+orden 56 porque es trabajo de pantalla, no de plata.
+
+```comprobar
+prueba: src/__tests__/el-autoguardado-no-miente.test.ts
+```
