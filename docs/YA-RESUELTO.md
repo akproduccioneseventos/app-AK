@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de septiembre de 2026 - Orden52, entrega de decoracion al cliente comprobada
+
+Mismo PR1205/1b65b7c585c26fe14ac4f8c8d7bc7738e408dcac; no se repiten las 19
+comprobaciones previas. Sonda adicional 52-sondas-entrega-decoracion.cjs: 5 FAIL,
+1 PASS. Exportar PNG solo avisa; captura dice guardado aun con success:false;
+propuesta lee paleta vieja; mapper/vista actual no entregan preview3D; campo descrito
+como notas para equipo llega al cliente. Costos del fixture siguen fuera (conservar).
+No confundir portal antiguo, que SI muestra preview, con /portal/c/[accessKey].
+Detalle en docs/evidencias/52-entrega-decoracion-1205.md y misma orden52, no nueva PR.
+Gemini: descarga/UI/colores. Claude: privacidad/proyeccion; confirmar intencion del
+campo de notas con dueno, no publicar notas historicas ni todos los datos de decoracion.
+Son callbacks/proyecciones aislados, no navegador ni GPU ni Firebase. No hubo cambios
+de app, build, datos reales, llamadas IA ni merge. Pendiente implementacion y E2E.
+
 ## 9 de septiembre de 2026 - Contraste actualizado a PR1205; no repetir lo arreglado
 
 La #1204 se fusiono mientras Codex revisaba. Se cambio a #1205/1b65b7c585c26fe14ac4f8c8d7bc7738e408dcac,

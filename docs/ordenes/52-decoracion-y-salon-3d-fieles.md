@@ -1,5 +1,11 @@
 # Orden 52: decoracion y salon 3D que representen la fiesta acordada
 
+> AMPLIACION MISMO SHA 1205/1b65b7c: [entrega al cliente](../evidencias/52-entrega-decoracion-1205.md).
+> Seis sondas adicionales: cinco FAIL, un PASS. Exportar no descarga; captura
+> anuncia guardado fallido; propuesta usa paleta vieja; portal actual no recibe
+> preview; notas presentadas como del equipo llegan al cliente. No cinco modulos
+> nuevos: se completan pendientes de esta misma orden. Reparto y limites en evidencia.
+
 > ESTADO VIGENTE #1205/1b65b7c: DECO-03/05/06/07 PASS; DECO-01/02/04/08 FAIL.
 > [Evidencia y reparto actual](../evidencias/contraste-1205-1b65b7c.md).
 > No rehacer guardado de imagen, arco, giro ni escala. IA aun sin consumidor TSX.
