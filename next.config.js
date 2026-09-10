@@ -42,6 +42,34 @@ const nextConfig = {
   /* config options here */
   async headers() {
     return [
+      /**
+       * LAS PAGINAS DE VENTA LAS GUARDA GOOGLE, NO EL SERVIDOR DE AK.
+       *
+       * De donde sale, el 10 de setiembre de 2026: la app quedaba cargando y Google
+       * cortaba la conexion. El dueño lo dijo en una linea —*"esto le pasa a un
+       * prospecto y se va"*— y tenia razon: el que llega desde Google no recarga, se va.
+       *
+       * El servidor se duerme cuando nadie lo usa, y eso es decision del dueño para no
+       * pagar de mas. Lo que NO puede pasar es que el prospecto espere a que despierte.
+       *
+       * Con esto, la red de Google guarda la pagina armada y **se la entrega al
+       * prospecto sin tocar el servidor**. Si la copia guardada quedo vieja, igual se la
+       * entrega en el momento y pide una nueva por atras: nadie espera nunca.
+       *
+       * **Solo van las paginas que se ven IGUAL para todo el mundo.** Ninguna pantalla
+       * del equipo, ningun portal de cliente y nada que dependa de quien esta mirando:
+       * guardar una pagina personalizada es mostrarsela al siguiente. Por eso la lista
+       * esta escrita a mano, una por una, y hay una prueba que lo controla.
+       */
+      {
+        source: '/:ruta(|bodas|quinceaneras|cumpleanos|club-uruguay|blog|privacidad|experiencia-ak)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=60, stale-while-revalidate=86400',
+          },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [

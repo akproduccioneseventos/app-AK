@@ -7801,3 +7801,40 @@ el que no se confía termina ignorado.
 ```comprobar
 prueba: src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts
 ```
+
+## 10 de septiembre de 2026 — La app quedaba cargando y no abría
+
+**Qué pasaba:** al entrar, la pantalla quedaba cargando y Google cortaba con un cartel de error.
+El servidor no llegaba a contestar a tiempo.
+
+**Qué se hizo, y SIN gastar un peso más por mes.** El dueño pidió otra salida antes de subirle
+la memoria al servidor, y la hay: **las páginas de venta las guarda la red de Google y se las
+entrega al prospecto sin tocar el servidor de AK**. Se ven igual para todo el mundo, así que se
+pueden guardar. Si la copia guardada quedó vieja, igual se entrega en el momento y se pide una
+nueva por atrás: **nadie espera nunca**, ni con el servidor dormido.
+
+Va escrita a mano, una por una: portada, bodas, quince, cumpleaños, Club Uruguay, blog,
+privacidad y experiencia. **Ninguna pantalla del equipo y ningún portal de cliente**, porque
+guardar una pantalla que cambia según quién mira es mostrársela al siguiente que entre. Hay una
+prueba que controla las dos cosas.
+
+**La memoria del servidor queda en 512, como estaba.** Palabras del dueño ese día: *"esto le pasa
+a un prospecto y se va"* — y esta es la forma de que no le pase, sin cuota mensual.
+
+**Y se aliviana el arranque:** el asistente de la web ya no consulta sus ajustes en las pantallas
+internas; sólo en las páginas públicas de venta, que es donde se usa.
+
+**Lo que NO se hizo, aunque venía propuesto, y conviene que quede escrito:** ponerle un tope de
+dos segundos y medio a las consultas a la base. Suena prudente y es peligroso: hay un lugar donde
+la app **lee un dato, le suma lo nuevo y lo guarda entero**. Si esa lectura se pasa del tope, la
+app entiende que no había nada y **guarda encima sólo lo nuevo, borrando el resto**. Y pasaría
+justo cuando el servidor recién despierta, que es cuando la base tarda. Descartado.
+
+**Tampoco entró la clave de sesión de emergencia**, por los motivos anotados aparte: el servidor
+corre en varias copias y cada una se inventaría una distinta, echando al equipo al azar.
+
+```comprobar
+prueba: src/__tests__/las-paginas-de-venta-las-guarda-google.test.ts
+usa: stale-while-revalidate en next.config.js
+```
+
