@@ -7786,3 +7786,18 @@ es una prueba, es una decoración. Si sacando la app entera igual pasa, no sirve
 ```comprobar
 prueba: src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts
 ```
+
+## 10 de septiembre de 2026 — Dos controles decían números distintos de lo mismo
+
+**Qué estaba mal:** `npm run "falta?"` decía "Fotocabina: 26 de 26, completo" y
+`npm run ordenes?` decía "25 de 26, falta elegir la impresora". Los dos leen el mismo archivo.
+Uno entendía la marca **NO SE COPIA** —lo que se decidió que no va— y el otro la contaba como
+pendiente.
+
+**Cómo quedó:** los dos la entienden igual. Y quedó una prueba que corre los dos y compara lo
+que dicen, porque **dos controles que se contradicen hacen dudar de los dos**, y un control en
+el que no se confía termina ignorado.
+
+```comprobar
+prueba: src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts
+```

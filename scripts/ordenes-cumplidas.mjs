@@ -140,6 +140,14 @@ function leerRubro(texto) {
         if (!cond || /^FALTA$/i.test(cond)) {
           return { nombre: nombre.trim(), tenemos: false };
         }
+        // NO SE COPIA: el dueno decidio que esa funcion de la competencia no va.
+        // `npm run "falta?"` ya la contaba como resuelta y este control no, asi que
+        // los dos decian numeros distintos del mismo modulo -"25 de 26" contra
+        // "completo"- y el que miraba no sabia a cual creerle. Dos controles que se
+        // contradicen no informan: hacen dudar de los dos.
+        if (/^NO SE COPIA$/i.test(cond)) {
+          return { nombre: nombre.trim(), tenemos: true };
+        }
         const [tipo, ...v] = cond.split(':');
         return {
           nombre: nombre.trim(),
