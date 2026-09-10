@@ -208,7 +208,7 @@ export async function generarVisualizacionSalonAi(
     }
 
     const estilo = decoracion.estiloDecoracion || 'elegante';
-    const paleta = decoracion.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
+    const paleta = decoracion.paletaColores || decoracion.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
     const items = (decoracion.itemsDecoracion || []).map(i => i.nombre).slice(0, 8).join(', ');
     const tema = decoracion.tema || fiesta.configuracion.nombreEvento || 'Fiesta de gala';
 

@@ -1400,8 +1400,16 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <div className="space-y-2 text-sm text-slate-600">
                     <p className="rounded-lg bg-slate-50 p-3"><strong>Color principal:</strong> <span className="ml-2 inline-block h-3 w-8 rounded-full align-middle" style={{ background: eventColor }} /> {eventColor}</p>
                     {fiesta?.decoracion?.tema && <p className="rounded-lg bg-slate-50 p-3"><strong>Tema:</strong> {fiesta.decoracion.tema}</p>}
-                    {fiesta?.decoracion?.generalNotesDecoracion && <p className="rounded-lg bg-slate-50 p-3">{fiesta.decoracion.generalNotesDecoracion}</p>}
-                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.generalNotesDecoracion && <PortalEmptyState title="La decoración todavía está en preparación" description="AK publicará acá el concepto y las referencias cuando estén definidos." />}
+                    {fiesta?.decoracion?.salonPreview3dUrl && (
+                      <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm mt-3">
+                        <img
+                          src={fiesta.decoracion.salonPreview3dUrl}
+                          alt="Diseño 3D del salón"
+                          className="w-full object-cover max-h-64"
+                        />
+                      </div>
+                    )}
+                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.salonPreview3dUrl && <PortalEmptyState title="La decoración todavía está en preparación" description="AK publicará acá el concepto y las referencias cuando estén definidos." />}
                   </div>
                 </div>
               </div>

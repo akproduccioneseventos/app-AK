@@ -119,6 +119,7 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
       generalNotesDecoracion: decoration.generalNotesDecoracion,
       colorPalette: decoration.colorPalette,
       estiloDecoracion: decoration.estiloDecoracion,
+      salonPreview3dUrl: decoration.salonPreview3dUrl,
     } : undefined,
     socialGallerySettings: fiesta.socialGallerySettings,
     timeline: fiesta.timeline ?? [],

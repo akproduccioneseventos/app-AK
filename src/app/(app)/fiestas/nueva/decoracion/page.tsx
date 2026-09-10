@@ -29,6 +29,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import DecoCanvas from '@/components/decoracion/DecoCanvas';
 import type { DecoItem3D } from '@/components/salon-3d/elements/DecoItem3D';
 import dynamic from 'next/dynamic';
+import type { SalonSceneRef } from '@/components/salon-3d/SalonScene';
 
 const SalonScene = dynamic(
   () => import('@/components/salon-3d/SalonScene').then((mod) => mod.SalonScene),
@@ -188,6 +189,7 @@ function DecoracionYDisenoEventoContent() {
   const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [is3DMode, setIs3DMode] = useState(false);
+  const salonSceneRef = useRef<SalonSceneRef | null>(null);
 
   // Escape key exits fullscreen
   useEffect(() => {
@@ -665,9 +667,43 @@ function DecoracionYDisenoEventoContent() {
     setCanvasHasChanges(true);
   }, [selectedCanvasId, canvasElementos]);
 
-  const handleExportPng = useCallback(() => {
-    toast({ title: 'Exportar PNG', description: 'Usá la captura de pantalla de tu dispositivo para guardar el diseño.' });
-  }, [toast]);
+  const handleExportPng = useCallback(async () => {
+    try {
+      if (is3DMode && salonSceneRef.current) {
+        const dataUrl = salonSceneRef.current.captureScreenshot();
+        if (dataUrl) {
+          const link = document.createElement('a');
+          link.download = `decoracion-3d-${fiestaId || 'evento'}.png`;
+          link.href = dataUrl;
+          link.click();
+          toast({ title: 'PNG Exportado', description: 'La captura del salón 3D se descargó correctamente.' });
+          return;
+        }
+      }
+
+      const exportRoot = document.querySelector('[data-deco-canvas]') as HTMLElement | null;
+      if (!exportRoot) {
+        toast({ title: 'Exportar PNG', description: 'No se encontró el lienzo para exportar.', variant: 'destructive' });
+        return;
+      }
+
+      toast({ title: 'Exportando PNG...', description: 'Generando imagen del diseño.' });
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(exportRoot, {
+        backgroundColor: canvasFondoColor || '#ffffff',
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement('a');
+      link.download = `decoracion-${fiestaId || 'evento'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      toast({ title: 'PNG Exportado', description: 'El diseño se descargó correctamente.' });
+    } catch (err: any) {
+      console.error('Error al exportar PNG:', err);
+      toast({ title: 'Error al exportar', description: err.message || 'No se pudo generar la imagen.', variant: 'destructive' });
+    }
+  }, [is3DMode, canvasFondoColor, fiestaId, toast]);
 
   const saveCanvas = useCallback(async (silent = false) => {
     if (!fiestaId) return;
@@ -1725,6 +1761,7 @@ function DecoracionYDisenoEventoContent() {
                       {is3DMode ? (
                         <div className="w-full h-[600px] rounded-2xl overflow-hidden bg-slate-950 relative">
                           <SalonScene
+                            captureRef={salonSceneRef}
                             decoracion={{
                               ...decoracionData,
                               salonElements: [

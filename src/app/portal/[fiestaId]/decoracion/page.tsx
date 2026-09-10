@@ -140,7 +140,7 @@ export default function ClientDecoracionPage() {
   }
 
   const deco = fiesta.decoracion || {};
-  const palette = deco.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
+  const palette = deco.paletaColores || deco.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
   const items = deco.itemsDecoracion || [];
   const fotosAi = deco.fotosGeneradasAi || [];
   const moodboard = deco.moodboardItems || [];
