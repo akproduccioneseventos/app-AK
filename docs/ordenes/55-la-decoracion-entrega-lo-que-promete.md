@@ -24,7 +24,14 @@ Quedan dos cosas, y son de pantalla, así que van para vos.
 
 ---
 
-## Bloque 1 — "Exportar PNG" tiene que bajar el archivo
+## Bloque 1 — "Exportar PNG" tiene que bajar el archivo — **YA HECHO, NO REHACER**
+
+**Gemini lo entregó el 10 de septiembre de 2026, antes de que esta orden estuviera escrita.**
+El botón ahora baja el archivo de verdad: si está en vista 3D baja la captura del salón, y si
+no, pasa el lienzo por `html2canvas`. Además avisa en pantalla cuando falla. **Está bien y no
+se toca.** Lo que sigue debajo queda sólo como registro de qué estaba mal.
+
+
 
 **Qué pasa hoy.** En `src/app/(app)/fiestas/nueva/decoracion/page.tsx` línea ~668 hay esto:
 
