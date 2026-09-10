@@ -329,7 +329,10 @@ export interface DecoracionData {
   };
   items?: DecorationItem[];
   zonasContratadas?: ZonaContratada[];
+  /** Notas del EQUIPO. Nunca salen hacia el cliente ni hacia el muro. */
   generalNotesDecoracion?: string;
+  /** Lo que AK le quiere contar al cliente sobre su decoracion. Esto si se publica. */
+  notaDecoracionParaElCliente?: string;
   pdfNotasAdicionales?: string;
   salonWidth?: number;
   salonHeight?: number;

@@ -103,10 +103,40 @@ aparece en la pantalla.
 
 ---
 
+## Bloque 3 — El cuadro de notas que le escribe al cliente
+
+**Qué pasa hoy.** En `src/app/(app)/fiestas/nueva/decoracion/page.tsx` línea ~1262 hay un
+cuadro "Notas Generales" cuyo propio texto de ayuda dice *"ideas, conceptos, elementos clave,
+**notas para el equipo**"*. Y todo lo que se escribía ahí **se le publicaba al cliente en su
+portal, tal cual**. Lo encontró Codex.
+
+**Lo que ya hice yo, y no se toca:** el servidor dejó de mandarle esa nota al cliente. En su
+lugar manda un campo nuevo, `notaDecoracionParaElCliente`, que existe justamente para
+escribirle al cliente. La pantalla del portal ya lo muestra.
+
+**Qué te toca:** el cuadro para escribir esa nota, en la pantalla de decoración, **al lado del
+que ya está**.
+
+- El que ya está queda como está y se le aclara arriba: **"Notas del equipo — el cliente no
+  las ve"**.
+- El nuevo, debajo: **"Para el cliente — esto se publica en su portal"**. Guarda en
+  `notaDecoracionParaElCliente`.
+- La diferencia entre los dos tiene que verse de un vistazo, sin leer letra chica: el equipo
+  escribe ahí a las corridas y no puede equivocarse de cuadro.
+
+**Qué NO tocar:** el recorte que sale del servidor
+(`src/lib/client-portal/public-fiesta.ts`) y la pantalla del portal. Ya están.
+
+**Qué tiene que comprobar la prueba:** que lo escrito en el cuadro del equipo **no aparece**
+en el portal del cliente, y que lo escrito en el del cliente **sí aparece**.
+
+---
+
 ```comprobar
 archivo: src/components/decoracion/VistaDecorativaEditor.tsx
 archivo: src/app/actions/fiesta/decoracion.actions.ts
 usa: generarVisualizacionSalonAi en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 usa: fotosGeneradasAi en src/app/(app)/fiestas/nueva/decoracion/page.tsx
+usa: notaDecoracionParaElCliente en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 prueba: tests/e2e/la-decoracion-se-baja-y-se-genera.spec.ts
 ```

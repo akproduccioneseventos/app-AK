@@ -116,7 +116,11 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
       colorCubremantel: decoration.colorCubremantel,
       colorGlobos: decoration.colorGlobos,
       decoracionTorta: decoration.decoracionTorta,
-      generalNotesDecoracion: decoration.generalNotesDecoracion,
+      // LA NOTA INTERNA NO SALE. El cuadro "Notas Generales" de la pantalla de
+      // decoracion dice "notas para el equipo" y se le publicaba al cliente tal
+      // cual. Lo encontro Codex el 10 de septiembre de 2026. Al cliente le va la
+      // nota escrita para el, que es otro campo.
+      notaDecoracionParaElCliente: decoration.notaDecoracionParaElCliente,
       colorPalette: decoration.colorPalette,
       estiloDecoracion: decoration.estiloDecoracion,
       // La captura de la vista 3D: la pantalla del equipo anuncia "preview guardado

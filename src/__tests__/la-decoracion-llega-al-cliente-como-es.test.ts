@@ -25,6 +25,8 @@ const FIESTA = {
     paletaColores: { primary: '#123456', secondary: '#654321', accent: '#abcdef' },
     colorPalette: { primary: '#222222', secondary: '#333333', accent: '#444444' },
     salonPreview3dUrl: 'data:image/png;base64,laCaptura',
+    generalNotesDecoracion: 'OJO: el padre de la novia no quiere flores blancas, no decirle nada',
+    notaDecoracionParaElCliente: 'Elegimos jazmines y luces cálidas para tu entrada',
     itemsDecoracion: [{ nombre: 'Arco de flores', costo: 4500 }],
   },
 } as any;
@@ -41,6 +43,19 @@ describe('la decoracion llega al cliente como es', () => {
     // El orden que usa la pantalla: primero la editada.
     const paletaQueVeElCliente = deco?.paletaColores || deco?.colorPalette;
     expect(paletaQueVeElCliente?.primary).toBe('#123456');
+  });
+
+  /**
+   * El cuadro "Notas Generales" de la pantalla de decoracion dice, en su propio
+   * texto de ayuda, "notas para el equipo". Y se le publicaba al cliente tal cual.
+   * Lo encontro Codex el 10 de septiembre de 2026.
+   */
+  it('la nota INTERNA del equipo no sale del servidor', () => {
+    const paraElCliente = mapFiestaToClientPortal(FIESTA) as any;
+    const enviado = JSON.stringify(paraElCliente);
+    expect(enviado).not.toContain('no quiere flores blancas');
+    // Y la que si es para el cliente, viaja.
+    expect(paraElCliente.decoracion?.notaDecoracionParaElCliente).toContain('jazmines');
   });
 
   it('el costo de cada elemento de decoracion NO sale hacia el cliente', () => {

@@ -147,3 +147,25 @@ adentro del mismo turno.
 prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
 usa: visualizacionesMutex en src/app/actions/fiesta/decoracion.actions.ts
 ```
+
+## 10 de septiembre de 2026 — La nota "para el equipo" se le publicaba al cliente (Codex)
+
+**Qué era:** el cuadro "Notas Generales" de la pantalla de decoración dice, en su propio texto
+de ayuda, *"notas para el equipo"*. Y todo lo que el equipo escribía ahí se le publicaba al
+cliente en su portal, tal cual.
+
+**Por qué no lo vi:** el 9 de septiembre agregué la pregunta *"¿el servidor se lo mandó?"* y la
+pasé por el itinerario, que era donde había aparecido el defecto. **No la pasé por los otros
+campos que van al portal.** Agregar una pregunta y aplicarla sólo donde saltó el problema es
+media pregunta.
+
+**Qué se hace distinto:** cuando se agrega una pregunta al método, **se pasa por todo lo que
+sale hacia un cliente o un invitado, no por el caso que la motivó**. Y hay una señal barata que
+delata a estos: **si la pantalla que lo escribe dice "interno", "para el equipo" o "no mostrar",
+ese campo no puede estar en ningún recorte que salga del servidor.** Es texto contra texto, se
+busca en un minuto.
+
+```comprobar
+prueba: src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts
+usa: notaDecoracionParaElCliente en src/lib/client-portal/public-fiesta.ts
+```
