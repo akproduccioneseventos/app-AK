@@ -147,3 +147,19 @@ usa: fotosGeneradasAi en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 usa: notaDecoracionParaElCliente en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 prueba: tests/e2e/la-decoracion-se-baja-y-se-genera.spec.ts
 ```
+
+---
+
+## DEVOLUCIÓN, 10 de septiembre de 2026 — un detalle de la prueba, nada más
+
+Los tres bloques están hechos y andan. **Sólo hay que corregir la prueba del PNG.**
+
+Tal como está escrita, si la descarga no se dispara, la prueba **no falla**: se conforma con
+comprobar que en la pantalla dice "Exportar PNG". O sea, daría verde con el botón roto, que es
+justo el defecto que venía a impedir.
+
+**Cómo se arregla:** se espera la descarga y **si no llega, la prueba se pone en rojo**. Sin
+salida de emergencia. El nombre del archivo terminando en `.png` está bien pedido.
+
+Lo demás se conserva tal cual.
+
