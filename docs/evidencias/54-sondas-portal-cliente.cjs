@@ -42,7 +42,11 @@ const fixture = {
   await probe('PORTAL-01a failed save must reach client as failure', () => assert.equal(response.success, false));
   await probe('PORTAL-01b failed save must not notify organizer of completed task', () => assert.equal(notices, 0));
   const mapperFile = 'src/lib/client-portal/public-fiesta.ts';
-  const mapper = evaluate(['mapDocument', 'mapGuest', 'mapFiestaToClientPortal'].map(name => fn(mapperFile, name)).join('\n'));
+  const mapperNames = ['mapDocument', 'mapGuest', 'mapFiestaToClientPortal'];
+  if (fs.readFileSync(path.join(root, mapperFile), 'utf8').includes('function mapProgramaParaElCliente')) {
+    mapperNames.unshift('mapProgramaParaElCliente');
+  }
+  const mapper = evaluate(mapperNames.map(name => fn(mapperFile, name)).join('\n'));
   const projected = mapper.mapFiestaToClientPortal(fixture);
   await probe('PORTAL-02a server projection must remove internal itinerary', () => {
     assert.ok(!JSON.stringify(projected).includes('INTERNAL TEST NOTE'), 'Client DTO contains explicitly private itinerary');

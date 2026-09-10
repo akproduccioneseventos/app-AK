@@ -1,5 +1,9 @@
 # Orden 51: planificacion sin perdidas ni falsos exitos
 
+> ESTADO VIGENTE #1205/1b65b7c: seis sondas PASS. NO pedir estos seis arreglos
+> otra vez. Guardado real, concurrencia del mismo campo y E2E siguen sin certificar.
+> [Evidencia actual](../evidencias/contraste-1205-1b65b7c.md). Abajo: historial.
+
 > ACTUALIZACION 2026-09-09: evidencia historica de main8c5, NO una orden
 > para reprogramar todo. Contrastar cada caso con el HEAD de la tanda abierta
 > antes de editar y verificar alli rutas/simbolos/consumidores.
@@ -11,7 +15,7 @@
 > Detalle vigente: [contraste de la tanda](../evidencias/contraste-1204-a0050d4.md).
 > Los resultados de seis fallos que siguen abajo son HISTORICOS de main.
 
-Fecha: 2026-09-09. Codex revisa; Gemini implementa; Claude Opus compila.
+Fecha: 2026-09-09. Codex revisa; Claude lleva comida/costos/guardado; Gemini UI.
 Estado: AUDITORIA PARCIAL, seis fallos reproducidos en sondas aisladas; NO corregidos.
 Base de codigo: main `8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe`, confirmado vigente en GitHub.
 Entrega en rama `codex/ordenes-45-a-48`, NO en main. No fusionar automaticamente.
@@ -37,7 +41,7 @@ El recorrido `/fiestas/nueva` llego al ingreso protegido. Se solicito al dueno
 iniciar sesion, sin pedir contrasena por chat. Al retomar no habia pestanas abiertas.
 No se pudo evaluar visualmente todo el planificador ni certificar cada boton.
 
-## Correcciones para Gemini
+## Casos historicos para contrastar, no reimplementar
 
 ### PLAN-01 / P1: una tarea puede parecer guardada aunque falle
 
@@ -133,8 +137,8 @@ fallo confirmado. No duplicar costos de proveedores ni las ordenes contables 49.
 
 ## Cierre exigido y cobertura pendiente
 
-Gemini: corregir estos seis casos, sumar tests regresion vinculados a consumidores
-y registrar archivos/SHA/evidencia. Claude: compilar el mismo SHA, registrar entorno,
+Conservar los seis casos que pasan; no ordenar reprogramarlos. Las nuevas pruebas
+de comida/costos/guardado corresponden a Claude. Claude compila y registra entorno,
 comandos y resultados. Codex: contrastar evidencia, no afirmar que escribir esta orden
 inicia otra IA. El dueno conserva aprobacion de cambios de funcionamiento y fusion.
 

@@ -66,7 +66,11 @@ const imageApi = mocks => run(declaration(action, 'generarVisualizacionSalonAi')
     await Promise.all([api.generarVisualizacionSalonAi('audit-only'), api.generarVisualizacionSalonAi('audit-only')]);
     assert.equal(calls, 1, 'Both requests spend the last available generation');
   });
-  const scene = run(declaration('src/components/salon-3d/SalonScene.tsx', 'SalonElement') + '\nexports.render = SalonElement;', {
+  const sceneFile = 'src/components/salon-3d/SalonScene.tsx';
+  const sceneHelpers = ['Arco3D', 'Pedestal3D', 'PanelDecorativo3D']
+    .filter(name => ast(sceneFile).statements.some(n => ts.isFunctionDeclaration(n) && n.name?.text === name))
+    .map(name => declaration(sceneFile, name)).join('\n');
+  const scene = run(sceneHelpers + '\n' + declaration(sceneFile, 'SalonElement') + '\nexports.render = SalonElement;', {
     React: { createElement: (type, props, ...children) => ({ type, props, children }) },
     Mesa3D: 'TABLE_TEST_DOUBLE', PistaBaile3D: 'DANCE_TEST_DOUBLE', Escenario3D: 'STAGE_TEST_DOUBLE',
   });

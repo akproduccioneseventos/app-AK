@@ -1,5 +1,9 @@
 # Orden 54: portal cliente, privacidad y guardado real
 
+> ESTADO VIGENTE #1205/1b65b7c: cinco sondas PASS. No rehacer los arreglos.
+> [Evidencia actual](../evidencias/contraste-1205-1b65b7c.md). No equivale a E2E
+> autenticado ni auditoria completa de privacidad. Abajo: historial.
+
 > ACTUALIZACION 2026-09-09: evidencia historica de main8c5, NO una orden
 > para reprogramar todo. Contrastar cada caso con el HEAD de la tanda abierta
 > antes de editar y verificar alli rutas/simbolos/consumidores.
@@ -11,7 +15,7 @@
 > Detalle vigente: [contraste de la tanda](../evidencias/contraste-1204-a0050d4.md).
 > Claude lleva la privacidad pendiente. Lo que sigue es evidencia historica.
 
-2026-09-09. Codex revisa, Gemini programa, Claude Opus compila. No fusionar.
+2026-09-09. Codex revisa; Claude lleva privacidad/guardado y compila. No fusionar.
 Base de codigo main 8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe, confirmado vigente.
 Auditoria PARCIAL: dos grupos de defectos reproducidos; NO corregidos.
 Entrega documental en codex/ordenes-45-a-48, no main.
@@ -42,7 +46,7 @@ Consumidor real: `src/app/portal/page.tsx:378`, que SI comprueba result.success;
 no rehacer su rollback, corregir la respuesta servidor. Misma familia de helper en
 notas, musica, lista de lo que llevar y otros cambios; revisar dependencias directas.
 
-Gemini: propagar errores, no notificar antes de persistir. Probar marcar/desmarcar,
+Claude: conservar propagacion de errores, no notificar antes de persistir. Probar marcar/desmarcar,
 notas y musica con fallo, reintento y recarga; comprobar que llegan al organizador.
 Conservar controles de sesion por fiesta e idempotencia. Coordinar con orden51 para
 no reemplazar sus correcciones de concurrencia con otra escritura completa.
@@ -57,7 +61,7 @@ incluso visibleParaCliente:false, y :1411 los renderiza. Ademas utiliza descripc
 como respaldo cuando falta descripcionCliente. La sonda confirma que un momento
 privado y su nota interna llegan a la proyeccion y al listado del cliente.
 
-Gemini: filtrar en servidor segun visibilidad y proyectar SOLO campos destinados al
+Claude: conservar filtro servidor segun visibilidad y proyectar SOLO campos destinados al
 cliente. En elementos visibles, no usar notas internas como respaldo silencioso.
 Respetar compatibilidad de datos viejos: determinar la regla ya aprobada para
 visibleParaCliente ausente; no ocultar de golpe todo el itinerario ni publicar todo.
@@ -88,7 +92,7 @@ Lectura preliminar detecto getFiestaById/getFiestaBySlug amplios: requiere audit
 especifica de consumidores y autorizacion; NO se hizo explotacion ni certificacion
 de seguridad general. No protegerlos indiscriminadamente rompiendo invitaciones.
 
-Gemini entrega correcciones y tests regresion. Claude registra SHA, entorno y build.
+Claude conserva correcciones, verifica regresiones y registra SHA, entorno y build.
 Codex valida pruebas y recorrido sobre esa version antes de cerrar. La presencia de
 archivos y un build no demuestran que el cliente vea/guarde lo correcto.
 

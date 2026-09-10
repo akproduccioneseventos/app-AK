@@ -1,5 +1,8 @@
 # Contraste de ordenes 51, 52 y 54 contra la tanda abierta
 
+> HISTORICO: #1204 ya fue fusionada. Estado posterior:
+> [contraste1205](contraste-1205-1b65b7c.md). No enviar estos pendientes sin comparar.
+
 Fecha: 2026-09-09. Codex. No es una auditoria completa ni aprobacion de PR.
 PR: #1204, rama `feat/ordenes-47-48-49-pendientes`.
 Codigo probado: `a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d`.

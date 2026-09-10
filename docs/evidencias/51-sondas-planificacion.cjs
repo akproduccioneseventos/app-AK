@@ -7,6 +7,8 @@ const ts = require(process.argv[2] || 'typescript');
 const root = path.resolve(__dirname, '../..');
 const base = 'src/app/actions/fiesta/';
 const results = [];
+const hasTaskHelper = fs.readFileSync(path.join(root, base + 'tareas.actions.ts'), 'utf8').includes('function updateFiestaData');
+const taskFunctions = name => hasTaskHelper ? ['updateFiestaData', name] : [name];
 function source(file, names) {
   const ast = ts.createSourceFile(file, fs.readFileSync(path.join(root, file), 'utf8'), ts.ScriptTarget.Latest, true);
   return names.map(name => {
@@ -32,6 +34,7 @@ function memory() {
       requireAppSession: async () => {},
       getFiestaById: async () => clone(data),
       saveFiesta: async value => { data = clone(value); writes.push(clone(value)); return { success: true, fiesta: clone(value) }; },
+      updateFiestaPartial: async (_id, patch) => { data = { ...data, ...clone(patch) }; writes.push(clone(data)); return { success: true }; },
     },
   };
 }
@@ -42,14 +45,15 @@ async function probe(id, run) {
 (async () => {
   await probe('PLAN-01 tasks must report failed persistence', async () => {
     const store = memory();
-    const tasks = api(base + 'tareas.actions.ts', ['updateFiestaData', 'updateTareas'], {
+    const tasks = api(base + 'tareas.actions.ts', taskFunctions('updateTareas'), {
       ...store.mocks, saveFiesta: async () => ({ success: false, error: 'Audit injected failure' }),
+      updateFiestaPartial: async () => ({ success: false, error: 'Audit injected failure' }),
     });
     assert.equal((await tasks.updateTareas('audit-only', [{ id: 't1' }])).success, false);
   });
   await probe('PLAN-02 supplier payment task survives shopping status save', async () => {
     const store = memory();
-    const tasks = api(base + 'tareas.actions.ts', ['updateFiestaData', 'addTarea'], store.mocks);
+    const tasks = api(base + 'tareas.actions.ts', taskFunctions('addTarea'), store.mocks);
     const catering = api(base + 'catering.actions.ts', ['updateShoppingListStatus'], {
       ...store.mocks, addTareaToFiestaActual: tasks.addTarea,
     });
@@ -60,7 +64,7 @@ async function probe(id, run) {
   });
   await probe('PLAN-03 concurrent task and menu saves preserve both changes', async () => {
     const store = memory();
-    const tasks = api(base + 'tareas.actions.ts', ['updateFiestaData', 'updateTareas'], store.mocks);
+    const tasks = api(base + 'tareas.actions.ts', taskFunctions('updateTareas'), store.mocks);
     const catering = api(base + 'catering.actions.ts', ['updateMenuAsignado'], store.mocks);
     await Promise.all([tasks.updateTareas('audit-only', [{ id: 't1' }]), catering.updateMenuAsignado('audit-only', 'menu-test')]);
     assert.equal(store.get().menuAsignadoId, 'menu-test');

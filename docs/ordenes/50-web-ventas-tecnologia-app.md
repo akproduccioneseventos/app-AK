@@ -1,5 +1,9 @@
 # 50 - Web de ventas y tecnologia de LA APP para las fiestas
 
+> ESTADO 1205/1b65b7c: las estaciones ya no estan dentro de details cerrado y
+> la prueba que exigia ocultarlas fue corregida. No reimplementar. Falta comprobar
+> visibilidad en navegador: [evidencia actual](../evidencias/contraste-1205-1b65b7c.md).
+
 > ACTUALIZACION 2026-09-09: evidencia historica de main8c5, NO una orden
 > para reprogramar todo. Contrastar cada caso con el HEAD de la tanda abierta
 > antes de editar y verificar alli rutas/simbolos/consumidores.

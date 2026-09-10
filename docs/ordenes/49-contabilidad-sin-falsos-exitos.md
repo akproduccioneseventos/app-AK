@@ -1,5 +1,10 @@
 # 49 - Contabilidad: cobros completos, permisos y resultados verdaderos
 
+> NOTA DE TANDA: #1204 ya fue fusionada; #1205/1b65b7c contiene el registro de
+> correcciones contables de Claude. Esta vuelta NO repitio las pruebas de dinero.
+> No tratar los pendientes historicos de abajo como trabajo nuevo: comprobar las
+> suites existentes del SHA de entrega. Responsable de esta orden: Claude.
+
 > ACTUALIZACION 2026-09-09: evidencia historica de main8c5, NO una orden
 > para reprogramar todo. Contrastar cada caso con el HEAD de la tanda abierta
 > antes de editar y verificar alli rutas/simbolos/consumidores.
@@ -8,7 +13,7 @@
 > Claude: dinero, cobros, contabilidad, comida y permisos; Gemini: resto.
 
 Fecha: 2026-09-08. Estado: AUDITADO PARCIALMENTE; CORRECCIONES PENDIENTES.
-Codex revisa; Gemini programa; Claude Opus compila y comprueba. El dueno fusiona.
+Codex revisa; Claude programa contabilidad/permisos y compila. El dueno fusiona.
 No mezclar esta orden con cambios esteticos. No modificar datos reales para probar.
 
 ## Base y evidencia
@@ -44,7 +49,7 @@ cuotas y pagos. `addPaymentToInvoiceInner`, `addPagoToPresupuesto`, `confirmPago
 y `updateCuotaEstado` tambien usan sesion sin guardia contable explicita. El middleware
 solo revisa la presencia de cookie; ocultar botones no sustituye controles de servidor.
 
-Gemini: aplicar la politica existente con `requirePermiso(PERMISOS.CONTABILIDAD)`
+Claude: aplicar la politica existente con `requirePermiso(PERMISOS.CONTABILIDAD)`
 en las entradas internas apropiadas, antes de leer o escribir. Mantener las rutas
 publicas con token acotado y los portales autorizados; no romperlos exigiendoles un
 perfil del equipo. No dar permisos nuevos a perfiles para hacer pasar una prueba.
@@ -65,7 +70,7 @@ suficiente, dos cobros de 1000 y 2000, ambas respuestas success=true; la lista f
 solo suma 2000. Ocurre incluso dentro de una sola instancia. No es solamente la
 limitacion multiinstancia que ya documenta `src/lib/mutex.ts`.
 
-Gemini: validar saldo, leer estado actual y agregar/confirmar/rechazar el pago dentro
+Claude: validar saldo, leer estado actual y agregar/confirmar/rechazar el pago dentro
 de una operacion atomica sobre el presupuesto. Cubrir multiples instancias con la
 transaccion de base de datos, no solo otro mutex. Revisar concurrencia con el webhook
 Mercado Pago que ya usa transaccion, y con cualquier escritor de la lista completa:
@@ -85,7 +90,7 @@ Reproducido: saveFiesta=false; savePlanDePagos devuelve success=true. Marcar una
 cuota pagada devuelve success=true y llama una vez al aviso de pago al cliente
 aunque guardar haya fallado. El aviso fue simulado, no se envio correo real.
 
-Gemini: propagar el error y no notificar ni presentar exito antes de persistir.
+Claude: propagar el error y no notificar ni presentar exito antes de persistir.
 Rechazar cuota inexistente. Probar tambien reintento y transicion repetida a pagado
 para no anunciar varias veces el mismo cobro. Preservar la normalizacion ya probada
 en `src/__tests__/plan-de-pagos-cuentas-que-cierran.test.ts`.
@@ -105,7 +110,7 @@ factura y le asigna referencia. Dos casos comprobados:
    confirmado de factura, la rama solo cambia referencia: deja el gemelo pendiente.
    Hay un confirmado en factura y un pendiente en presupuesto para el mismo cobro.
 
-Gemini: conservar la deduplicacion existente; corregir propagacion del error y
+Claude: conservar la deduplicacion existente; corregir propagacion del error y
 conciliacion de estado cuando existe evidencia de confirmacion de la factura.
 No confirmar automaticamente un pago solo porque el cliente envio un comprobante.
 No crear un segundo pago para evitar tratar el estado del primero. Preservar archivo
@@ -126,7 +131,7 @@ Ademas, `src/app/(app)/empresa/contabilidad/flujo-caja/page.tsx:24-58` guarda er
 pero no lo renderiza; termina mostrando los KPIs en cero si la accion falla. Una
 alerta temporal no basta para distinguir falta de datos de falta de cobros.
 
-Gemini: reutilizar el patron sourceStatus/unavailableSources del dashboard. Ante
+Claude: reutilizar el patron sourceStatus/unavailableSources del dashboard. Ante
 fuentes fallidas no mostrar cero como cifra valida ni conclusiones de liquidez real.
 Error persistente, fuente faltante, reintento y ultima actualizacion comprobada.
 Un resultado parcial debe identificarse como parcial y no certificar totales.
@@ -166,8 +171,8 @@ recuperacion trae datos actuales y limpia error; fallo parcial no aparenta total
 5. Mercado Pago: revision de codigo constata transaccion y comprobaciones de monto,
    moneda y entorno; falta prueba integral sandbox de duplicado, reembolso y rechazo.
    No cobrar una tarjeta real, activar credenciales ni tocar pagos productivos.
-6. Claude registra SHA, entorno y resultados focalizados; compila cuando Gemini
-   termine. El inventario comprobar no ejecuta estas pruebas ni es certificado.
+6. Claude registra SHA, entorno y resultados focalizados; compila al cerrar la tanda.
+   El inventario comprobar no ejecuta estas pruebas ni es certificado.
 
 Las siguientes pruebas E2E son propuestas, NO archivos existentes ni ejecuciones.
 El script de sondas si existe y fue ejecutado; sus fallos son evidencia, no arreglos.

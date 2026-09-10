@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de septiembre de 2026 - Contraste actualizado a PR1205; no repetir lo arreglado
+
+La #1204 se fusiono mientras Codex revisaba. Se cambio a #1205/1b65b7c585c26fe14ac4f8c8d7bc7738e408dcac,
+leyendo primero registros/diff de Claude. Sondas adaptadas al nuevo guardado parcial,
+Arco3D y mapper: 19 comprobaciones, 15 PASS, 4 FAIL (DECO-01/02/04/08).
+Los errores del harness antiguo NO se reportan como defectos. Los seis PLAN y cinco
+PORTAL pasan: conservar. Son pruebas aisladas, no Firebase real, GPU ni build.
+18 rutas/12 consumidores de los bloques de ordenes49-54 existen y se usan en ese SHA.
+La ruta especifica objetada por Claude no se identifico; se agrego mapa completo en52.
+La portada ya deja estaciones fuera de details; no ordenar ese arreglo otra vez.
+Se quitaron asignaciones contradictorias del cuerpo de49/51/52/53/54: Claude lleva
+dinero/comida/permisos; Gemini UI/resto. Codex no modifico app ni datos ni fusiono.
+Detalle y limites: docs/evidencias/contraste-1205-1b65b7c.md. Las entradas siguientes
+conservan el historial, no son orden de rehacer lo que ya esta corregido.
+
 ## 9 de septiembre de 2026 - Contraste ejecutado de 51/52/54 en PR1204
 
 Se repitieron las sondas contra a0050d40181dbaf8f0e54ffa3f2d8ce191b7185d,

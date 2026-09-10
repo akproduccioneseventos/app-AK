@@ -1,5 +1,10 @@
 # Orden 53: desbloquear ingreso, sin parches a ciegas
 
+> ESTADO #1205/1b65b7c: withTimeout ya captura rechazos y retorna fallback;
+> loadLoginData tiene catch. Correccion presente por lectura, no reimplementar.
+> No se reprodujo login autenticado ni se confirmo despliegue en esta vuelta.
+> El bloqueo que sigue es evidencia historica del navegador, no diagnostico actual.
+
 > ACTUALIZACION 2026-09-09: evidencia historica de main8c5, NO una orden
 > para reprogramar todo. Contrastar cada caso con el HEAD de la tanda abierta
 > antes de editar y verificar alli rutas/simbolos/consumidores.
@@ -8,7 +13,8 @@
 > Claude: dinero, cobros, contabilidad, comida y permisos; Gemini: resto.
 
 2026-09-09. P1, BLOQUEO OBSERVADO; causa sin determinar; NO solucionado.
-Codex diagnostica, Gemini programa, Claude compila. Incluir junto a la tanda abierta,
+Codex diagnostica; Gemini lleva UI/carga, Claude sesion/permisos y compilacion.
+Incluir junto a la tanda abierta,
 no crear otra PR solo documental ni fusionar automaticamente.
 Base revisada main 8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe.
 
@@ -27,7 +33,7 @@ Base revisada main 8c5eb6e173e7b7b8dce6a8811cade7cf38411dfe.
 5. Se pregunto al dueno si /login tambien falla en Chrome fuera de Codex. Pendiente
    su respuesta. No borrar cookies, claves ni almacenamiento del usuario por suposicion.
 
-## Investigacion y correccion para Gemini
+## Investigacion: Gemini UI/carga; Claude sesion y permisos
 
 - Capturar error/stack y recurso fallido en navegador externo y version publicada;
   registrar fecha, navegador, ruta, SHA desplegado y digest sanitizado. No recopilar

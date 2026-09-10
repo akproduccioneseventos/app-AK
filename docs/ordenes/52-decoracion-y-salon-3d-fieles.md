@@ -1,5 +1,9 @@
 # Orden 52: decoracion y salon 3D que representen la fiesta acordada
 
+> ESTADO VIGENTE #1205/1b65b7c: DECO-03/05/06/07 PASS; DECO-01/02/04/08 FAIL.
+> [Evidencia y reparto actual](../evidencias/contraste-1205-1b65b7c.md).
+> No rehacer guardado de imagen, arco, giro ni escala. IA aun sin consumidor TSX.
+
 > ACTUALIZACION 2026-09-09: evidencia historica de main8c5, NO una orden
 > para reprogramar todo. Contrastar cada caso con el HEAD de la tanda abierta
 > antes de editar y verificar alli rutas/simbolos/consumidores.
@@ -19,6 +23,17 @@ Checkout `d4fc888ef` contiene ese codigo y commits adicionales solo documentales
 Entrega: rama `codex/ordenes-45-a-48`, NO main. Una tanda coherente, sin fusion automatica.
 
 ## Lo que necesita AK
+
+Mapa de archivos verificado en 1b65b7c (no confundir URL con ruta de codigo):
+- Editor: `src/app/(app)/fiestas/nueva/decoracion/page.tsx`.
+- Distribucion: `src/app/(app)/fiestas/nueva/invitados/layout/page.tsx`.
+- Propuesta: `src/app/portal/[fiestaId]/decoracion/page.tsx`.
+- Accion IA de esta orden: `src/app/actions/fiesta/decoracion.actions.ts`.
+- Escena: `src/components/salon-3d/SalonScene.tsx`.
+- Maestro: `src/app/(app)/empresa/salones/page.tsx`.
+- Croquis: `src/app/(app)/empresa/salones/[id]/croquis/page.tsx`.
+La carpeta `(app)` no aparece en la URL. Las referencias abreviadas que siguen
+son ubicaciones historicas; buscar el simbolo en estas rutas antes de editar.
 
 En una reunion, el cliente debe reconocer SU salon y entender donde quedaran la
 entrada, las mesas, la pista y la decoracion. El equipo debe poder montar eso mismo.
@@ -190,7 +205,8 @@ Modelo 3D o visor externo y explica que no cambia el editor. NO es por si solo u
 es un enlace separado. Integrarlo requeriria validar modelo, licencia, escala y
 rendimiento, y aprobacion del dueno. No prometer que cargar URL importa automaticamente.
 
-Gemini entrega una tanda con A-D y pruebas. Claude compila sobre el mismo SHA y
+Gemini entrega solo pendientes de UI/3D; Claude lleva cupos/gasto/permisos y revisa
+persistencia sensible. No rehacer casos PASS. Claude compila sobre el mismo SHA y
 registra resultado. Actualizar grafo solo al cambiar estructura importante.
 Exigir capturas desktop/movil con escena no vacia, comprobacion de pixeles y giro,
 escala 40/80, formas redonda/rectangular/arco/barra, paleta manual y cambio de estilo,
