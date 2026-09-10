@@ -7769,3 +7769,20 @@ orden 56 porque es trabajo de pantalla, no de plata.
 ```comprobar
 prueba: src/__tests__/el-autoguardado-no-miente.test.ts
 ```
+
+## 10 de septiembre de 2026 — Falso positivo descartado: la prueba que se comprobaba a sí misma
+
+Gemini entregó, junto con los arreglos de decoración, una prueba
+(`decoracion-exportacion-captura-y-portal.test.ts`) cuya segunda comprobación **no tocaba la
+app**: armaba un objeto adentro de la prueba, elegía la paleta ahí mismo y comprobaba que
+había elegido bien. Pasaba en verde con la aplicación entera borrada.
+
+**Se sacó.** Lo que esa prueba decía cubrir ya lo comprueba de verdad
+`la-decoracion-llega-al-cliente-como-es.test.ts`, que mira lo que sale del servidor.
+
+**Queda anotado para no volver a agregarla:** una prueba que crea lo que después comprueba no
+es una prueba, es una decoración. Si sacando la app entera igual pasa, no sirve.
+
+```comprobar
+prueba: src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts
+```
