@@ -13,36 +13,14 @@ import { Button } from '@/components/ui/button';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
-interface NotificationPreferences {
-  eventReminders: { email: boolean; app: boolean };
-  taskUpdates: { email: boolean; app: boolean };
-  clientMessages: { email: boolean; app: boolean };
-  systemAlerts: { email: boolean; app: boolean };
-  crmUpdates: { email: boolean; app: boolean };
-}
-
-const initialPreferences: NotificationPreferences = {
-  eventReminders: { email: true, app: true },
-  taskUpdates: { email: true, app: false },
-  clientMessages: { email: true, app: true },
-  systemAlerts: { email: false, app: true },
-  crmUpdates: { email: true, app: false },
-};
-
-// Simulate API calls for now
-async function getNotificationPreferences(): Promise<NotificationPreferences> {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const stored = typeof window !== 'undefined' ? localStorage.getItem('notification_prefs') : null;
-  return stored ? JSON.parse(stored) : initialPreferences;
-}
-
-async function saveNotificationPreferences(prefs: NotificationPreferences): Promise<void> {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('notification_prefs', JSON.stringify(prefs));
-  }
-}
-
+import {
+  leerPreferenciasDeAvisos,
+  guardarPreferenciasDeAvisos,
+} from '@/app/actions/preferencias-avisos';
+import {
+  initialNotificationPreferences,
+  type NotificationPreferences,
+} from '@/types/preferencias-avisos';
 
 export default function NotificationsSettingsPage() {
   const { toast } = useToast();
@@ -52,15 +30,33 @@ export default function NotificationsSettingsPage() {
   const loadPreferences = useCallback(async () => {
     setIsLoading(true);
     try {
-        const data = await getNotificationPreferences();
-        setPreferences(data);
-    } catch (e) {
-        toast({ title: "Error", description: "No se pudieron cargar las preferencias."});
+      const res = await leerPreferenciasDeAvisos();
+      let prefs = res.success && res.preferences ? res.preferences : initialNotificationPreferences;
+
+      if (typeof window !== 'undefined') {
+        const local = localStorage.getItem('notification_prefs');
+        if (local) {
+          try {
+            const parsed = JSON.parse(local);
+            prefs = { ...prefs, ...parsed };
+            const guardado = await guardarPreferenciasDeAvisos(prefs);
+            if (guardado.success) {
+              localStorage.removeItem('notification_prefs');
+            }
+          } catch {
+            localStorage.removeItem('notification_prefs');
+          }
+        }
+      }
+
+      setPreferences(prefs);
+    } catch {
+      toast({ title: 'Error', description: 'No se pudieron cargar las preferencias.' });
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   }, [toast]);
-  
+
   useEffect(() => {
     loadPreferences();
   }, [loadPreferences]);
@@ -69,10 +65,9 @@ export default function NotificationsSettingsPage() {
     data: preferences,
     onSave: async (prefs) => {
       if (!prefs) return { success: false, error: 'Sin datos' };
-      try {
-        await saveNotificationPreferences(prefs);
-      } catch (e: any) {
-        return { success: false, error: e?.message || 'No se pudieron guardar las preferencias.' };
+      const res = await guardarPreferenciasDeAvisos(prefs);
+      if (!res.success) {
+        return { success: false, error: res.error || 'No se pudieron guardar las preferencias.' };
       }
       return { success: true };
     },
@@ -109,7 +104,7 @@ export default function NotificationsSettingsPage() {
     { id: "clientMessages", title: "Mensajes de Clientes", description: "Avisos cuando un cliente envía un mensaje o responde.", isDisabled: false },
     { id: "systemAlerts", title: "Alertas del Sistema", description: "Notificaciones importantes sobre tu cuenta o el sistema.", isDisabled: false },
   ];
-  
+
   if (isLoading || !preferences) {
       return (
         <div className="flex items-center justify-center p-8">
