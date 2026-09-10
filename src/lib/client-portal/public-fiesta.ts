@@ -119,6 +119,9 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
       generalNotesDecoracion: decoration.generalNotesDecoracion,
       colorPalette: decoration.colorPalette,
       estiloDecoracion: decoration.estiloDecoracion,
+      // La captura de la vista 3D: la pantalla del equipo anuncia "preview guardado
+      // en el portal del cliente" desde siempre, y nunca viajaba hasta aca.
+      salonPreview3dUrl: decoration.salonPreview3dUrl,
     } : undefined,
     socialGallerySettings: fiesta.socialGallerySettings,
     timeline: fiesta.timeline ?? [],

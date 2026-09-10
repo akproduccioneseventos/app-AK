@@ -140,7 +140,9 @@ export default function ClientDecoracionPage() {
   }
 
   const deco = fiesta.decoracion || {};
-  const palette = deco.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
+  // El equipo edita `paletaColores`; `colorPalette` es la lista vieja. Mismo orden
+  // que la vista 3D: si no, el cliente veia colores que ya nadie eligio.
+  const palette = deco.paletaColores || deco.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
   const items = deco.itemsDecoracion || [];
   const fotosAi = deco.fotosGeneradasAi || [];
   const moodboard = deco.moodboardItems || [];

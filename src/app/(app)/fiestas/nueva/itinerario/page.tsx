@@ -192,7 +192,10 @@ function ItinerarioContent() {
       if (itinerario.length === 0) {
         const defaultItems = [...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random()}`}))];
         setPrograma(defaultItems);
-        await updateProgramaFiestaActual(fiestaId, defaultItems);
+        const guardado = await updateProgramaFiestaActual(fiestaId, defaultItems);
+        if (!guardado?.success) {
+          toast({ title: "El cronograma no quedó guardado", description: guardado?.error || "Se muestra el cronograma sugerido, pero todavía no se guardó. Tocá guardar para conservarlo.", variant: "destructive" });
+        }
       } else {
         setPrograma(itinerario);
       }

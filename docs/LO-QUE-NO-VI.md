@@ -98,3 +98,52 @@ prueba: src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts
 usa: mapProgramaParaElCliente en src/lib/client-portal/public-fiesta.ts
 usa: mapProgramaParaElCliente en src/lib/social-fiesta/public-event.ts
 ```
+
+## 10 de septiembre de 2026 — El autoguardado del salón decía "guardado" sin guardar (Codex)
+
+**Qué era:** el autoguardado de la distribución del salón llamaba al guardado, **tiraba el
+resultado a la basura** y contestaba que había salido bien. Si el guardado fallaba, el cartel
+decía "guardado" igual y el trabajo se perdía sin que nadie se enterara.
+
+**Por qué no lo vi, y ahí está el agujero de verdad:** el control que persigue exactamente este
+defecto en toda la app —`npm run "dice-que-si?"`— **sólo reconocía las funciones que escriben en
+su firma que devuelven `{ success }`**. Y las funciones que usan las pantallas no lo escriben:
+`src/app/actions/fiesta-actual.ts` tiene **57 puertas de paso de una línea** que le pasan la
+pelota al módulo de abajo y heredan el resultado sin declararlo. O sea: el control miraba para el
+lado del código que las pantallas **no** usan.
+
+**Qué se hace distinto:** el control ahora **sigue la cadena**. Si una función no hace más que
+devolver lo que devuelve otra que sí promete `{ success }`, también devuelve el error. Al
+encenderlo aparecieron **cuatro** lugares, no uno: el que reportó Codex, la captura de la vista 3D
+—que anunciaba "preview guardado en el portal del cliente"—, el autoguardado del planificador de
+costos y el cronograma sugerido. Los tres últimos no los había reportado nadie: salieron de
+arreglar el método, que es para lo que sirve.
+
+**La regla que queda:** un control que reconoce cosas **por cómo están escritas** se escapa todo
+lo que está escrito de otra manera. Antes de confiar en uno, hay que preguntarle **cuántas cosas
+encontró de las que tendría que ver**, no si dio verde.
+
+```comprobar
+archivo: scripts/nadie-dice-que-si-sin-mirar.mjs
+usa: siguiendoLasPuertasDePaso en scripts/nadie-dice-que-si-sin-mirar.mjs
+```
+
+## 10 de septiembre de 2026 — Dos toques al botón pagaban dos imágenes (Codex)
+
+**Qué era:** la imagen del salón decorado que arma la inteligencia artificial **se paga por
+unidad** y hay un tope de tres por fiesta. El tope se contaba antes de generar y se guardaba
+después; entre esas dos cosas entraba otro pedido. Con dos imágenes hechas y lugar para una, dos
+toques seguidos **pagaban dos**.
+
+**Por qué no lo vi:** la séptima pregunta del método —*"¿qué pasa si dos personas lo hacen a la
+vez?"*— la venía aplicando a lo que **guarda plata**: cobros, cuotas, facturas. No a lo que
+**gasta** plata. Un tope que se cuenta afuera del turno no es un tope.
+
+**Qué se hace distinto:** la pregunta de las dos personas a la vez se aplica igual a **todo cupo,
+tope o saldo que autorice un gasto**, no sólo a lo que registra un cobro. Contar y gastar van
+adentro del mismo turno.
+
+```comprobar
+prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
+usa: visualizacionesMutex en src/app/actions/fiesta/decoracion.actions.ts
+```

@@ -955,6 +955,8 @@ con otra cara.
 | Dos puertas enteras corriendo juntas, y una huérfana escribiendo donde nadie miraba | El turno `.ak-puerta-en-curso` en `scripts/se-puede-publicar.mjs` |
 | Enterarse a los 40 minutos de que una prueba nueva estaba mal | **Paso "Las pruebas nuevas, primero"** en `npm run "publicar?"` |
 | El itinerario interno de la fiesta le llegaba al cliente en su portal | `src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts` |
+| El control de "dijo que sí y no pasó nada" no veía las funciones que las pantallas usan de verdad | `siguiendoLasPuertasDePaso` en `scripts/nadie-dice-que-si-sin-mirar.mjs` |
+| Dos toques al botón pagaban dos imágenes de IA con lugar para una | `src/__tests__/decoracion-no-gasta-de-mas.test.ts` |
 
 ### Cómo se elige el matafuego
 

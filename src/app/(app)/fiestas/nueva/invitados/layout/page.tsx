@@ -363,7 +363,12 @@ function SalonLayoutContent() {
     data: decoracion,
     onSave: async (d) => {
       if (!fiestaId || !d) return { success: false, error: 'No hay datos de distribución para guardar' };
-      await updateDecoracionFiestaActual(fiestaId, d);
+      // Se mira el resultado a proposito: antes se anunciaba "guardado" aunque el
+      // guardado hubiera fallado, y el trabajo del salon se perdia sin aviso.
+      const guardado = await updateDecoracionFiestaActual(fiestaId, d);
+      if (!guardado?.success) {
+        return { success: false, error: guardado?.error || 'No se pudo guardar la distribución del salón.' };
+      }
       return { success: true };
     },
     debounceMs: 2000,
@@ -522,7 +527,11 @@ function SalonLayoutContent() {
       if (dataUrl) {
         const updatedDeco = { ...decoracion, salonPreview3dUrl: dataUrl };
         setDecoracion(updatedDeco);
-        await updateDecoracionFiestaActual(fiestaId, updatedDeco);
+        const guardado = await updateDecoracionFiestaActual(fiestaId, updatedDeco);
+        if (!guardado?.success) {
+          toast({ title: "No se pudo guardar la vista", description: guardado?.error || "La imagen no llegó al portal del cliente. Probá de nuevo.", variant: "destructive" });
+          return;
+        }
         toast({ title: "📸 Vista 3D capturada", description: "Preview guardado en el portal del cliente." });
       }
     } catch (e: any) {

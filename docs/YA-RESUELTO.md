@@ -7713,3 +7713,39 @@ Ahora se espera a que las letras esten cargadas antes de medir.
 usa: tocarHastaQueResponda en tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts
 usa: fonts en tests/e2e/layout-baseline.spec.ts
 ```
+
+## 10 de septiembre de 2026 — Cuatro pantallas decían "guardado" sin haber guardado
+
+**Qué estaba mal:** el autoguardado de la distribución del salón, el del planificador de costos,
+la captura de la vista 3D —que anunciaba "preview guardado en el portal del cliente"— y el
+cronograma sugerido llamaban al guardado y **no miraban si había salido bien**. Si fallaba, el
+cartel decía que sí igual y el trabajo se perdía sin aviso.
+
+**Cómo quedó:** las cuatro miran el resultado. El autoguardado muestra el error en el mismo
+cartelito que ya tenía, la captura avisa que la imagen no llegó al portal, y el cronograma avisa
+que se está mostrando pero todavía no se guardó.
+
+**Y lo importante no es el arreglo, es por qué se escapó:** el control que persigue este defecto
+en toda la app sólo reconocía funciones que **escriben en su firma** que devuelven `{ success }`.
+Las 57 funciones de una línea que usan las pantallas lo heredan sin escribirlo, así que el control
+miraba justo para el lado que no se usa. Ahora sigue la cadena, y de un defecto reportado
+aparecieron cuatro.
+
+## 10 de septiembre de 2026 — Dos toques al botón pagaban dos imágenes de IA
+
+**Qué estaba mal:** la imagen del salón decorado se paga por unidad, con tope de tres por fiesta.
+El tope se contaba antes de generar y se guardaba después, así que dos pedidos simultáneos
+contaban lo mismo, pasaban los dos y se pagaban dos generaciones habiendo lugar para una.
+
+**Cómo quedó:** contar, generar y guardar pasaron a ser **un solo turno**. El segundo pedido
+espera, vuelve a contar y ve el tope real.
+
+**Y de paso, la paleta:** la imagen se armaba con `colorPalette` —la lista de colores vieja—
+mientras el equipo edita `paletaColores`. Salían imágenes con colores que ya nadie había elegido.
+Ahora se miran en el mismo orden que la vista 3D.
+
+```comprobar
+prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
+usa: visualizacionesMutex en src/app/actions/fiesta/decoracion.actions.ts
+usa: siguiendoLasPuertasDePaso en scripts/nadie-dice-que-si-sin-mirar.mjs
+```

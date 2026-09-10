@@ -63,9 +63,48 @@ function funcionesQueDevuelvenElError(lista) {
   return nombres;
 }
 
+/**
+ * LAS PUERTAS DE PASO. Aca se escapo el defecto que encontro Codex el 10 de
+ * septiembre de 2026.
+ *
+ * `src/app/actions/fiesta-actual.ts` tiene 57 funciones de una linea que no hacen
+ * mas que pasarle la pelota al modulo de abajo:
+ *
+ *     export async function updateDecoracionFiestaActual(id, d) { return await DecoracionModule.updateDecoracion(id, d); }
+ *
+ * Ninguna dice `: Promise<{ success }>` —lo hereda sin escribirlo—, asi que el
+ * control no las veia. Y esas son justo las que llaman las pantallas. Resultado: el
+ * autoguardado de la distribucion del salon anunciaba "guardado" aunque el guardado
+ * hubiera fallado, y este control daba verde.
+ *
+ * Por eso ahora se sigue la cadena: si una funcion no hace mas que devolver lo que
+ * devuelve otra que SI promete `{ success }`, tambien devuelve el error.
+ */
+function siguiendoLasPuertasDePaso(lista, nombres) {
+  const pasos = [];
+  for (const archivo of lista) {
+    const texto = fs.readFileSync(archivo, 'utf8');
+    const regex = /(?:export\s+)?(?:async\s+)?function\s+([A-Za-z0-9_]+)\s*(?:<[^>]*>)?\s*\([^;{}]{0,2000}?\)\s*\{\s*return\s+(?:await\s+)?(?:[A-Za-z0-9_]+\s*\.\s*)?([A-Za-z0-9_]+)\s*\(/g;
+    let m;
+    while ((m = regex.exec(texto))) pasos.push({ de: m[1], a: m[2] });
+  }
+  // Se repite hasta que no aparece ninguna nueva: una puerta puede dar a otra puerta.
+  let crecio = true;
+  while (crecio) {
+    crecio = false;
+    for (const paso of pasos) {
+      if (nombres.has(paso.a) && !nombres.has(paso.de)) {
+        nombres.add(paso.de);
+        crecio = true;
+      }
+    }
+  }
+  return nombres;
+}
+
 export function llamadasQueTiranElError() {
   const lista = archivos(SRC);
-  const devuelven = funcionesQueDevuelvenElError(lista);
+  const devuelven = siguiendoLasPuertasDePaso(lista, funcionesQueDevuelvenElError(lista));
   const hallazgos = [];
 
   for (const archivo of lista) {

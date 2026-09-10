@@ -5,8 +5,23 @@ import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, Co
 import { getFiestaById, saveFiesta, updateFiestaPartial } from './fiesta.actions';
 import { updateGestionCostos } from './costos.actions';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
+import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
+import { AsyncMutex } from '@/lib/mutex';
+
+/**
+ * EL TURNO DE LAS IMAGENES QUE SE PAGAN.
+ *
+ * Cada imagen del salon decorado se paga por unidad y hay un tope de tres por
+ * fiesta. El tope se controlaba mirando cuantas habia y guardando despues; entre
+ * esas dos cosas cabe otro pedido. Dos toques seguidos al boton contaban las
+ * mismas dos imagenes, los dos pasaban el control, y se pagaban dos generaciones
+ * cuando quedaba lugar para una. Lo encontro Codex el 10 de septiembre de 2026.
+ *
+ * Con turno, el segundo pedido espera, vuelve a contar y ve el tope real.
+ */
+const visualizacionesMutex = new AsyncMutex();
 
 export async function updateDecoracion(fiestaId: string, decoracion: DecoracionData): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
   // SIN cuenta del equipo a proposito: el CLIENTE arma su tablero de decoracion
@@ -193,7 +208,10 @@ export async function generarVisualizacionSalonAi(
   salonFotoUrl?: string
 ): Promise<{ success: boolean; imageUrl?: string; error?: string }> {
   await requireAppSession();
+  return visualizacionesMutex.runExclusive(async () => {
   try {
+    // La cuenta se hace ADENTRO del turno: contar afuera es lo que dejaba pasar
+    // dos pedidos con un solo lugar libre.
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");
 
@@ -208,7 +226,10 @@ export async function generarVisualizacionSalonAi(
     }
 
     const estilo = decoracion.estiloDecoracion || 'elegante';
-    const paleta = decoracion.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
+    // La paleta que edita el equipo es `paletaColores`; `colorPalette` es la vieja
+    // que quedo de antes. Se miran en el mismo orden que la vista 3D, si no la
+    // imagen salia con colores que ya nadie eligio.
+    const paleta = decoracion.paletaColores || decoracion.colorPalette || { primary: '#9333ea', secondary: '#111827', accent: '#f59e0b' };
     const items = (decoracion.itemsDecoracion || []).map(i => i.nombre).slice(0, 8).join(', ');
     const tema = decoracion.tema || fiesta.configuracion.nombreEvento || 'Fiesta de gala';
 
@@ -220,8 +241,16 @@ export async function generarVisualizacionSalonAi(
       `Iluminación ambiental cálida con guirnaldas, luces tenues, centros de mesa y mobiliario premium. Gran angular, calidad fotográfica 4K, elegante y festivo.`,
     ].filter(Boolean).join(' ');
 
+    // La foto del salon de verdad, cuando la mandan: la IA decora ENCIMA de ese
+    // salon en vez de inventar uno. Si la direccion no es de confianza se descarta
+    // y se genera igual, sin foto.
+    const fotoDelSalon = await fotoDeReferenciaSegura(salonFotoUrl);
+
     const imageUrl = await generateGeminiImage({
-      prompt,
+      prompt: fotoDelSalon
+        ? `${prompt} Respetar la arquitectura, las medidas y los ventanales del salon de la foto de referencia: es este salon decorado, no otro.`
+        : prompt,
+      images: fotoDelSalon ? [fotoDelSalon] : [],
       aspectRatio: '16:9',
       imageSize: '1K',
     });
@@ -240,6 +269,7 @@ export async function generarVisualizacionSalonAi(
   } catch (e: any) {
     return { success: false, error: e.message || "Error al generar la imagen con IA." };
   }
+  });
 }
 
 export async function getDisponibilidadElementosDecoracion(

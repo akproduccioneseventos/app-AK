@@ -82,6 +82,61 @@ describe('la decoracion no gasta de mas', () => {
     expect(saveFiesta).toHaveBeenCalled();
   });
 
+  /**
+   * EL DEFECTO QUE ENCONTRO CODEX EL 10 DE SEPTIEMBRE DE 2026.
+   *
+   * Con dos imagenes ya generadas queda lugar para UNA. Si el boton se toca dos
+   * veces seguidas, los dos pedidos contaban las mismas dos, los dos pasaban el
+   * tope y **se pagaban dos generaciones**. La prueba falla si se saca el turno.
+   */
+  it('dos pedidos a la vez con un solo lugar libre pagan UNA sola imagen', async () => {
+    const fotos = ['una.jpg', 'dos.jpg'];
+    // La lista crece a medida que se guarda, igual que en la base.
+    getFiestaById.mockImplementation(async () => fiestaCon({ fotosGeneradasAi: [...fotos] }));
+    saveFiesta.mockImplementation(async (guardado: any) => {
+      const nuevas = guardado?.decoracion?.fotosGeneradasAi;
+      if (Array.isArray(nuevas)) fotos.splice(0, fotos.length, ...nuevas);
+      return { success: true };
+    });
+    // El generador tarda: sin turno, el segundo pedido entra mientras el primero
+    // todavia no guardo.
+    generateGeminiImage.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve('nueva.jpg'), 20)),
+    );
+
+    const [a, b] = await Promise.all([
+      generarVisualizacionSalonAi('fiesta-de-prueba'),
+      generarVisualizacionSalonAi('fiesta-de-prueba'),
+    ]);
+
+    expect(generateGeminiImage).toHaveBeenCalledTimes(1);
+    expect([a.success, b.success].filter(Boolean)).toHaveLength(1);
+    const rechazado = a.success ? b : a;
+    expect(rechazado.error).toMatch(/tope/i);
+    expect(fotos).toHaveLength(3);
+  });
+
+  /**
+   * La paleta que edita el equipo se guarda en `paletaColores`. La imagen leia
+   * solo `colorPalette` -la vieja- y salia con colores que ya nadie eligio.
+   */
+  it('la imagen usa la paleta que edito el equipo, no la vieja', async () => {
+    getFiestaById.mockResolvedValue(
+      fiestaCon({
+        fotosGeneradasAi: [],
+        paletaColores: { primary: '#ff0000', secondary: '#00ff00', accent: '#0000ff' },
+        colorPalette: { primary: '#111111', secondary: '#222222', accent: '#333333' },
+      }),
+    );
+    generateGeminiImage.mockResolvedValue('nueva.jpg');
+
+    await generarVisualizacionSalonAi('fiesta-de-prueba');
+
+    const prompt = generateGeminiImage.mock.calls[0]?.[0]?.prompt as string;
+    expect(prompt).toContain('#ff0000');
+    expect(prompt).not.toContain('#111111');
+  });
+
   it('la opinion del cliente sobre su decoracion queda guardada, con la fecha', async () => {
     getFiestaById.mockResolvedValue(fiestaCon({ estiloDecoracion: 'elegante' }));
 

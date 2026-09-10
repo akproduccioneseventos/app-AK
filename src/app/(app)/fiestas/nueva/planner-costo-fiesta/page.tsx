@@ -238,7 +238,10 @@ function SalonLayoutContent() {
     data: decoracion,
     onSave: async (d) => {
       if (!fiestaId || !d) return { success: false, error: 'No hay datos de diseño para guardar' };
-      await updateDecoracionFiestaActual(fiestaId, d);
+      const guardado = await updateDecoracionFiestaActual(fiestaId, d);
+      if (!guardado?.success) {
+        return { success: false, error: guardado?.error || 'No se pudo guardar el diseño.' };
+      }
       return { success: true };
     },
     debounceMs: 2000,
