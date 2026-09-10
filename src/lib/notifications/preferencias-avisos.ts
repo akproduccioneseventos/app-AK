@@ -1,10 +1,10 @@
-import 'server-only';
+﻿import 'server-only';
 import { readData } from '@/lib/data-service';
 import { initialNotificationPreferences, type NotificationPreferences } from '@/types/preferencias-avisos';
 
 export function getArchivoPreferencias(userId: string): string {
   const safeId = userId.replace(/[^a-zA-Z0-9_-]/g, '_');
-  return `usuarios/${safeId}/preferencias-avisos.json`;
+  return `preferencias-avisos/user_${safeId}.json`;
 }
 
 export function inferirCategoriaAviso(data: { titulo?: string; mensaje?: string; href?: string; categoria?: string }): keyof NotificationPreferences {

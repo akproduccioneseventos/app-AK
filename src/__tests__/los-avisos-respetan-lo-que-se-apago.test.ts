@@ -1,4 +1,4 @@
-const mockRequireAppSession = jest.fn();
+﻿const mockRequireAppSession = jest.fn();
 const mockHasAppSession = jest.fn().mockResolvedValue(true);
 const mockVerifySession = jest.fn();
 const mockReadData = jest.fn();
@@ -42,6 +42,7 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
 
 jest.mock('@/lib/google-workspace', () => ({
   sendGoogleGmailMessage: (...args: unknown[]) => mockSendGoogleGmailMessage(...args),
+  ensureFreshGoogleAccount: jest.fn(async (acc: any) => acc),
 }));
 
 import { createNotification } from '@/app/actions/notifications';
@@ -90,6 +91,9 @@ describe('Orden 56 — Los avisos respetan lo que se apagó', () => {
     });
 
     mockSendGoogleGmailMessage.mockResolvedValue({ success: true, messageId: 'msg-456' });
+    memoryStore['google-accounts.json'] = [
+      { id: 'company-1', kind: 'company', status: 'connected', accessToken: 'mock-valid-token' },
+    ];
   });
 
   it('exige sesión al leer y al guardar preferencias', async () => {
@@ -206,5 +210,25 @@ describe('Orden 56 — Los avisos respetan lo que se apagó', () => {
 
     expect(res.success).toBe(true);
     expect(mockCreateDocument).not.toHaveBeenCalled();
+  });
+
+  it('informa fallo de forma transparente si no hay cuenta de Google conectada para enviar correos', async () => {
+    memoryStore['google-accounts.json'] = [];
+    await guardarPreferenciasDeAvisos({
+      ...initialNotificationPreferences,
+      eventReminders: { email: true, app: true },
+    });
+
+    const envio = await enviarAviso({
+      categoria: 'eventReminders',
+      canal: 'email',
+      mensaje: 'Recordatorio sin cuenta conectada',
+      destinatarioEmail: 'organizador@example.com',
+    });
+
+    expect(envio.enviado).toBe(false);
+    expect(envio.success).toBe(false);
+    expect(envio.error || envio.motivo).toMatch(/no hay ninguna cuenta|no conectada/i);
+    expect(mockSendGoogleGmailMessage).not.toHaveBeenCalled();
   });
 });

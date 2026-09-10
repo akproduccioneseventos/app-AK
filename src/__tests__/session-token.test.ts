@@ -1,4 +1,4 @@
-import { webcrypto } from 'node:crypto';
+﻿import { webcrypto } from 'node:crypto';
 import { TextEncoder } from 'node:util';
 import {
   createSignedSessionToken,
@@ -130,13 +130,16 @@ describe('signed session tokens', () => {
       process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = 'proyecto-visible-para-todos';
       (process.env as any).NODE_ENV = 'production';
 
-      await expect(
-        createSignedSessionToken({
-          email: 'akproduccionessalto@gmail.com',
-          role: 'admin',
-          userId: 'admin-dueno',
-        })
-      ).rejects.toThrow();
+      const spyError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const token = await createSignedSessionToken({
+        email: 'akproduccionessalto@gmail.com',
+        role: 'admin',
+        userId: 'admin-dueno',
+      });
+      expect(typeof token).toBe('string');
+      expect(token).not.toContain('proyecto-visible-para-todos');
+      expect(spyError).toHaveBeenCalledWith(expect.stringMatching(/CONFIGURACI[OÓ]N CR[IÍ]TICA/i));
+      spyError.mockRestore();
     } finally {
       process.env.AK_SESSION_SECRET = prevSecret;
       (process.env as any).NODE_ENV = prevNodeEnv;

@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 import { verifySession } from '@/lib/auth/session-token';
@@ -10,13 +10,12 @@ import {
   initialNotificationPreferences,
   type NotificationPreferences,
 } from '@/types/preferencias-avisos';
+import {
+  getArchivoPreferencias,
+  debeEnviarAvisoInterno,
+} from '@/lib/notifications/preferencias-avisos';
 
 export type { NotificationPreferences };
-
-function getArchivoPreferencias(userId: string): string {
-  const safeId = userId.replace(/[^a-zA-Z0-9_-]/g, '_');
-  return `usuarios/${safeId}/preferencias-avisos.json`;
-}
 
 /**
  * Lee las preferencias de avisos guardadas en el servidor para el usuario autenticado.
@@ -155,29 +154,58 @@ export async function enviarAviso(params: {
   }
 
   if (canal === 'email') {
-    if (params.destinatarioEmail) {
-      try {
-        const { sendGoogleGmailMessage } = await import('@/lib/google-workspace');
-        const companyAccount = {
-          id: 'company',
-          kind: 'company' as const,
-          email: 'notificaciones@akproducciones.uy',
-          status: 'connected' as const,
-        };
-        await sendGoogleGmailMessage(
-          companyAccount as any,
-          params.destinatarioEmail,
-          params.titulo || 'Notificación AK Producciones',
-          `<p>${params.mensaje}</p>`
-        );
-      } catch {
-        // Continuar si falla el transporte externo en entorno local
-      }
+    if (!params.destinatarioEmail) {
+      return {
+        success: false,
+        enviado: false,
+        error: 'No se especificó destinatario de correo electrónico.',
+      };
     }
-    return {
-      success: true,
-      enviado: true,
-    };
+    try {
+      const { readData: readAccounts } = await import('@/lib/data-service');
+      const { ensureFreshGoogleAccount, sendGoogleGmailMessage } = await import('@/lib/google-workspace');
+      const accounts = await readAccounts<any[]>('google-accounts.json', []);
+      const companyAccount = accounts.find((acc) => acc.kind === 'company' || acc.status === 'connected');
+
+      if (!companyAccount) {
+        return {
+          success: false,
+          enviado: false,
+          motivo: 'No hay ninguna cuenta de Google Workspace conectada para enviar correos electrónicos.',
+          error: 'Cuenta de correo no conectada.',
+        };
+      }
+
+      const freshAccount = await ensureFreshGoogleAccount(companyAccount).catch(() => undefined);
+      const activeAccount = freshAccount || companyAccount;
+
+      if (!activeAccount?.accessToken) {
+        return {
+          success: false,
+          enviado: false,
+          motivo: 'La cuenta de Google conectada no tiene un token de acceso válido.',
+          error: 'Token de acceso no disponible.',
+        };
+      }
+
+      await sendGoogleGmailMessage(
+        activeAccount,
+        params.destinatarioEmail,
+        params.titulo || 'Notificación AK Producciones',
+        `<p>${params.mensaje}</p>`
+      );
+
+      return {
+        success: true,
+        enviado: true,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        enviado: false,
+        error: err?.message || 'Error al enviar el correo a través de Google Workspace.',
+      };
+    }
   }
 
   const res = await createNotification({
