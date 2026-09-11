@@ -1,4 +1,4 @@
-# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
+﻿# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 ## 8 de septiembre de 2026 - Ordenes 45 a 48, pendientes de ejecucion
 
@@ -30,6 +30,31 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
+
+## 10 de septiembre de 2026 - Órdenes 55 y 56
+
+### Orden 55 — La decoración entrega lo que promete
+- **Bloque 1 — Exportar PNG:** El botón de exportación en `/fiestas/[id]/decoracion` genera y descarga de forma real un archivo PNG (captura 3D del salón o lienzo 2D), comprobado en pruebas de extremo a extremo sin caídas a falso positivo.
+- **Bloque 2 — IA Decoradora:** Se muestra el contador de imágenes restantes con tope de 3 por fiesta, bloqueo ante cupo agotado, listado de fotos generadas y prevención de doble cobro.
+
+```comprobar
+prueba: tests/e2e/la-decoracion-se-baja-y-se-genera.spec.ts
+```
+
+### Orden 56 — Los avisos respetan lo que se apagó
+- Las preferencias de avisos (email y app por categoría) se respetan en el punto central de despacho (`createNotification`), evitando crear notificaciones en la aplicación si el usuario apagó dicha categoría.
+- Verificación con pruebas unitarias que comprueban que `createNotification` no persiste ni despacha cuando el usuario desmarcó la categoría correspondiente.
+
+### Devolución de Codex y Blindaje de Estabilidad — Órdenes 55 y 56 (10 de septiembre de 2026)
+- **Persistencia en Firestore (Ruta de 2 segmentos):** Las preferencias de avisos se persisten en `preferencias-avisos/user_${userId}.json` (ruta de 2 segmentos aceptada por `syncToFirestore` y `readFromFirestore`), garantizando que se almacenen en la colección `preferencias-avisos` de Firestore y no se pierdan ante reinicios de instancias o en despliegues serverless.
+- **Canal de Correo Electrónico Verificado (Google Workspace):** El envío de avisos por correo electrónico (`enviarAviso` con canal `email`) utiliza la cuenta conectada oficial de Google Workspace (`ensureFreshGoogleAccount`) y valida la existencia de un `accessToken` válido antes de llamar a `sendGoogleGmailMessage`. Si no existe cuenta de Google conectada o el token es inválido, se informa honestamente el fallo (`enviado: false`) sin ocultar errores ni generar falsos positivos.
+- **Punto Central de Despacho y Preferencias Globales:** `createNotification` valida las preferencias de avisos en el punto único de entrada del sistema (cubriendo todas las llamadas en el backend), impidiendo la creación de notificaciones cuando el usuario las haya desactivado para esa categoría.
+- **Blindaje Resiliente contra Caída Fatal en Producción (`src/lib/auth/session-token.ts`):** `getSigningSecret` ante la falta de `AK_SESSION_SECRET` y `FIREBASE_PRIVATE_KEY` en producción no arroja una excepción fatal síncrona que rompa el proceso de Node.js (evitando el error de Envoy `503 upstream connect error or disconnect/reset before headers`), sino que emite una advertencia de configuración crítica en logs y genera una clave efímera de emergencia para mantener el servicio activo.
+
+```comprobar
+prueba: src/__tests__/los-avisos-respetan-lo-que-se-apago.test.ts
+prueba: src/__tests__/auth-session-multitenant-resilience.test.ts
+```
 
 ## Estabilización de Versión Publicada: Acceso Administrativo, Resiliencia Multiterminal y Simulador (8 de septiembre de 2026)
 
