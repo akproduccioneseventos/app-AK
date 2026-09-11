@@ -960,7 +960,6 @@ con otra cara.
 | Un autoguardado que anunciaba "guardado" sin mirar si se guardó | `src/__tests__/el-autoguardado-no-miente.test.ts` |
 | La captura de la vista 3D se anunciaba en el portal del cliente y no llegaba | `src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts` |
 | Dos controles decían números distintos del mismo módulo | `src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts` |
-| El prospecto esperaba a que despertara el servidor y se iba | `src/__tests__/las-paginas-de-venta-las-guarda-google.test.ts` |
 
 ### Cómo se elige el matafuego
 

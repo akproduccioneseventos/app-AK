@@ -7838,3 +7838,29 @@ prueba: src/__tests__/las-paginas-de-venta-las-guarda-google.test.ts
 usa: stale-while-revalidate en next.config.js
 ```
 
+## 11 de septiembre de 2026 — Se SACA la copia guardada de las páginas: error mío
+
+**Qué hice mal.** Ayer puse que la red de Google guardara una copia de las páginas de venta,
+para que el prospecto no esperara al servidor dormido. Horas después el dueño reportó que **la
+web quedó lenta y que las fotos y los videos no cargan bien**, y aclaró lo que decide todo:
+*"antes tenía lo mismo y no era así"*.
+
+**Qué era lo cierto, y es un peligro que no vi.** La copia guardada es de la **página**, pero la
+página nombra por dentro los archivos de esa versión exacta. Cuando se publica una versión nueva,
+esos archivos cambian de nombre. Entonces la red entrega una página vieja que **pide archivos que
+ya no existen**: la pantalla aparece a medias, sin fotos, sin videos y lenta. Es exactamente lo
+que describió.
+
+**Qué se hace distinto, y es la lección de fondo:** guardar una copia de una página **sólo es
+seguro si al publicar una versión nueva la copia se tira**. Sin esa parte resuelta, no se guarda.
+Y la señal que lo delata no es un error en ninguna prueba: **es el dueño diciendo que antes
+andaba**. Cuando algo empeora justo después de un cambio propio, **se saca primero y se investiga
+después**.
+
+**Lo que queda:** el prospecto vuelve a esperar al servidor dormido, que era el problema original.
+Eso se resuelve por el otro lado —con más memoria o pagando que no duerma—, no guardando copias.
+
+```comprobar
+archivo: next.config.js
+```
+
