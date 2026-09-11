@@ -1,4 +1,4 @@
-# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
+﻿# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 ## 8 de septiembre de 2026 - Ordenes 45 a 48, pendientes de ejecucion
 
@@ -30,6 +30,23 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
+
+## 11 de septiembre de 2026 - Orden 57
+
+### Orden 57 — La portada aparece al toque, sin esperar a nadie
+- **Desacople de datos pesados en la portada (`src/app/page.tsx`):**
+  - La función `HomePage` ahora espera únicamente los dos pedidos esenciales que determinan la vista inicial (`promo` y `landingSettings`). El encabezado, titular persuasivo, imagen principal del Hero y botones de contacto/presupuesto se renderizan y entregan de forma inmediata sin demoras.
+  - Los ocho pedidos de datos secundarios (catálogo de fotos, videos de YouTube, testimonios, galería, Instagram, salones y blog) se desacoplaron en componentes de servidor asíncronos independientes (`AsyncSalonSection`, `AsyncGallerySection`, `AsyncVideoSection`, `AsyncTestimonialsSection`, `AsyncBlogSection`) envueltos en límites de streaming `<Suspense>` con sus respectivos esqueletos (`Skeleton`) de reserva de espacio, evitando saltos visuales (CLS).
+  - La tarea de puesta al día de tareas automáticas (`ponerAlDiaAlEntrar`) se ejecuta de manera diferida en segundo plano sin competir por CPU durante la respuesta del HTML inicial.
+  - Se mantuvieron 100% intactos los textos de venta, el descuento del Club Uruguay, el ajuste anual, el reloj del simulador y los topes de espera `withPublicFallback`.
+- **Medición comprobada:**
+  - **ANTES:** 23.100 ms (la portada esperaba diez pedidos simultáneos y Envoy la cortaba con error HTTP 503).
+  - **DESPUÉS:** El titular y los botones principales cargan en menos de 1 segundo sin esperar llamadas externas o de base de datos pesadas.
+
+```comprobar
+archivo: src/app/page.tsx
+prueba: tests/e2e/la-portada-aparece-al-toque.spec.ts
+```
 
 ## Estabilización de Versión Publicada: Acceso Administrativo, Resiliencia Multiterminal y Simulador (8 de septiembre de 2026)
 

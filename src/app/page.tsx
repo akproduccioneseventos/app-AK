@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { tituloQueSirve } from '@/lib/seo/titulo-de-la-portada';
-import { cache } from "react";
+import { cache, Suspense } from "react";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { ServicesSection } from "@/components/landing/ServicesSection";
@@ -297,36 +297,58 @@ export async function generateMetadata(): Promise<Metadata> {
     robots: { index: true, follow: true },
   };
 }
-export default async function HomePage() {
-  // Red de seguridad: si el despertador de fondo tuviese alguna demora, la visita de un
-  // prospecto pone al día lo que esté vencido de forma 100% transparente y sin bloquear.
-  void ponerAlDiaAlEntrar(new Date(), 'visita').catch(() => null);
+function SalonSkeleton() {
+  return (
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
+      <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-10">
+        <div className="h-6 w-36 bg-slate-200 animate-pulse rounded-full mb-4" />
+        <div className="h-10 w-72 bg-slate-200 animate-pulse rounded-lg mb-6" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-72 sm:h-96">
+          <div className="bg-slate-200 animate-pulse rounded-2xl md:col-span-2 h-full" />
+          <div className="bg-slate-200 animate-pulse rounded-2xl h-full hidden md:block" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  const [
-    promo,
-    landingSettings,
-    catalogoFotos,
-    youtubeVideos,
-    testimonialData,
-    socialConnections,
-    galeriaData,
-    instagramFeed,
-    salones,
-    publishedBlogPosts,
-  ] = await Promise.all([
-    withPublicFallback(getPromoActiva(), null),
-    withPublicFallback(getCachedLandingSettings(), defaultLandingSettings),
+async function AsyncSalonSection() {
+  const salones = await withPublicFallback(getSalonesPublicos(), []);
+  const clubSalon = salones.find((salon) => salon.esClubUruguay || isClubUruguay(salon.nombre));
+  const masterClubPhotos: SalonPhoto[] = (clubSalon?.fotos || []).map((src, index) => ({
+    src,
+    alt: `Club Uruguay, vista ${index + 1}`,
+    title: index === 0 ? "Club Uruguay" : `Vista ${index + 1}`,
+    description: "Foto cargada desde el módulo maestro de salones.",
+  }));
+  const clubPhotos = dedupeSalonPhotos([...masterClubPhotos, ...getDynamicSalonPhotos()]);
+  return <SalonDestacadoSection photos={clubPhotos} capacity={clubSalon?.capacidad} />;
+}
+
+function GallerySkeleton() {
+  return (
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
+      <div className="text-center mb-8">
+        <div className="h-6 w-32 bg-slate-200 animate-pulse rounded-full mx-auto mb-3" />
+        <div className="h-10 w-64 bg-slate-200 animate-pulse rounded-lg mx-auto" />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 h-96">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="bg-slate-200 animate-pulse rounded-2xl h-44" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function AsyncGallerySection() {
+  const [catalogoFotos, galeriaData, instagramFeed] = await Promise.all([
     withPublicFallback(getCatalogoFotos(), []),
-    getAkYoutubeVideos(),
-    withPublicFallback(getTestimonials(), []),
-    withPublicFallback(getSocialConnectionsPublicas(), []),
     withPublicFallback(getGaleriaItems(), { fotos: [], videos: [] }),
     withPublicFallback(getPublicInstagramFeed(), [], 4_500),
-    withPublicFallback(getSalonesPublicos(), []),
-    withPublicFallback(getBlogPosts(), []),
   ]);
+
   const fotos = defaultGaleriaPublica.fotos as GaleriaFoto[];
-  const videos = defaultGaleriaPublica.videos as GaleriaVideo[];
   const safeCatalogoFotos =
     catalogoFotos && catalogoFotos.length > 0
       ? catalogoFotos
@@ -369,6 +391,29 @@ export default async function HomePage() {
     ...catalogoComoGaleria,
   ]);
 
+  return <GallerySection galeriaFotos={fotosCombinadas} />;
+}
+
+function VideoSkeleton() {
+  return (
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
+      <div className="text-center mb-8">
+        <div className="h-6 w-32 bg-slate-200 animate-pulse rounded-full mx-auto mb-3" />
+        <div className="h-10 w-72 bg-slate-200 animate-pulse rounded-lg mx-auto" />
+      </div>
+      <div className="aspect-video w-full max-w-4xl mx-auto bg-slate-200 animate-pulse rounded-3xl" />
+    </div>
+  );
+}
+
+async function AsyncVideoSection() {
+  const [youtubeVideos, galeriaData, instagramFeed] = await Promise.all([
+    getAkYoutubeVideos(),
+    withPublicFallback(getGaleriaItems(), { fotos: [], videos: [] }),
+    withPublicFallback(getPublicInstagramFeed(), [], 4_500),
+  ]);
+
+  const videos = defaultGaleriaPublica.videos as GaleriaVideo[];
   const instagramVideos: GaleriaVideo[] = instagramFeed
     .filter((post) => post.mediaType === "video")
     .map((post, index) => ({
@@ -394,22 +439,46 @@ export default async function HomePage() {
     ...videos,
     ...youtubeVideos,
   ]);
-  const instagramConnection = (socialConnections as any[]).find(
-    (connection) =>
-      connection.platform === "Instagram" && connection.isConnected,
+
+  return (
+    <VideoSection
+      galeriaVideos={videosCombinados}
+      channelUrl={AK_YOUTUBE_CHANNEL_URL}
+    />
   );
-  const instagramProfileUrl =
-    instagramConnection?.profileUrl || DEFAULT_INSTAGRAM_URL;
-  const clubSalon = salones.find((salon) => salon.esClubUruguay || isClubUruguay(salon.nombre));
-  const masterClubPhotos: SalonPhoto[] = (clubSalon?.fotos || []).map((src, index) => ({
-    src,
-    alt: `Club Uruguay, vista ${index + 1}`,
-    title: index === 0 ? "Club Uruguay" : `Vista ${index + 1}`,
-    description: "Foto cargada desde el módulo maestro de salones.",
-  }));
-  const clubPhotos = dedupeSalonPhotos([...masterClubPhotos, ...getDynamicSalonPhotos()]);
-  const whatsapp = AK_WHATSAPP_NUMBER;
-  /* Usar el número real de contacto de la empresa */ const safeTestimonialData =
+}
+
+function TestimonialsSkeleton() {
+  return (
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
+      <div className="text-center mb-8">
+        <div className="h-6 w-36 bg-slate-200 animate-pulse rounded-full mx-auto mb-3" />
+        <div className="h-10 w-64 bg-slate-200 animate-pulse rounded-lg mx-auto" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-48 rounded-2xl bg-slate-100 p-6 border border-slate-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-slate-200 animate-pulse" />
+              <div className="space-y-1">
+                <div className="w-24 h-4 bg-slate-200 animate-pulse rounded" />
+                <div className="w-16 h-3 bg-slate-200 animate-pulse rounded" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="w-full h-3 bg-slate-200 animate-pulse rounded" />
+              <div className="w-5/6 h-3 bg-slate-200 animate-pulse rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function AsyncTestimonialsSection() {
+  const testimonialData = await withPublicFallback(getTestimonials(), []);
+  const safeTestimonialData =
     testimonialData && testimonialData.length > 0
       ? testimonialData
       : defaultTestimonials;
@@ -439,6 +508,53 @@ export default async function HomePage() {
         rating: 5,
       };
     });
+
+  return <TestimonialsSection testimonials={approvedTestimonials} />;
+}
+
+function BlogSkeleton() {
+  return (
+    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
+      <div className="text-center mb-8">
+        <div className="h-6 w-32 bg-slate-200 animate-pulse rounded-full mx-auto mb-3" />
+        <div className="h-10 w-60 bg-slate-200 animate-pulse rounded-lg mx-auto" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50">
+            <div className="h-44 bg-slate-200 animate-pulse" />
+            <div className="p-4 space-y-2">
+              <div className="h-4 w-3/4 bg-slate-200 animate-pulse rounded" />
+              <div className="h-3 w-full bg-slate-200 animate-pulse rounded" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+async function AsyncBlogSection() {
+  const publishedBlogPosts = await withPublicFallback(getBlogPosts(), []);
+  return <BlogSection posts={publishedBlogPosts} />;
+}
+
+export default async function HomePage() {
+  // Red de seguridad: si el despertador de fondo tuviese alguna demora, la visita de un
+  // prospecto pone al día lo que esté vencido de forma diferida en microtarea para no bloquear el primer byte de HTML.
+  if (typeof setTimeout === "function") {
+    setTimeout(() => {
+      ponerAlDiaAlEntrar(new Date(), "visita").catch(() => null);
+    }, 2000);
+  }
+
+  // SOLO esperamos promo y landingSettings (los 2 que deciden la cabecera y el hero inicial)
+  const [promo, landingSettings] = await Promise.all([
+    withPublicFallback(getPromoActiva(), null),
+    withPublicFallback(getCachedLandingSettings(), defaultLandingSettings),
+  ]);
+
+  const whatsapp = AK_WHATSAPP_NUMBER;
   const servicesForLanding: ServiceItem[] | undefined = landingSettings.services
     ?.length
     ? landingSettings.services.map((service) => ({
@@ -454,11 +570,14 @@ export default async function HomePage() {
         whatsappMessage: `¡Hola AK Producciones! Me gustaría cotizar el servicio de ${service.title}.`,
       }))
     : undefined;
-  /* JSON-LD Structured Data for Local Business SEO */ const jsonLd = {
+
+  /* JSON-LD Structured Data for Local Business SEO */
+  const defaultFotos = defaultGaleriaPublica.fotos as GaleriaFoto[];
+  const jsonLd = {
     "@context": "https://schema.org",
     "@type": "EventVenue",
     name: "AK Producciones",
-    image: fotosCombinadas.slice(0, 3).map((f) => f.url),
+    image: defaultFotos.slice(0, 3).map((f) => f.url),
     telephone: "+598 98 355 530",
     address: {
       "@type": "PostalAddress",
@@ -469,16 +588,17 @@ export default async function HomePage() {
     geo: {
       "@type": "GeoCoordinates",
       latitude: -31.3893,
-      /* Coordenadas de Salto, Uruguay */ longitude: -57.9592,
+      longitude: -57.9592,
     },
     url: "https://akproducciones.uy",
     sameAs: [
       "https://www.facebook.com/akproduccionessalto",
-      instagramProfileUrl,
+      DEFAULT_INSTAGRAM_URL,
     ],
     description:
       "Organización integral de eventos en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.",
   };
+
   return (
     <div className="min-h-screen bg-white text-slate-950 selection:bg-red-700 selection:text-white">
       {/* Inject JSON-LD Schema for SEO */}
@@ -513,18 +633,6 @@ export default async function HomePage() {
         technology={
           <div className="space-y-6">
             <LaAppDeTuFiestaSection whatsappNumber={whatsapp} />
-            {/*
-              * LAS ESTACIONES SE VEN, NO SE ESCONDEN DETRAS DE UN CLIC.
-              *
-              * La app va primero, que es lo que pidio el dueno. Pero la fotocabina, el
-              * 360 y el espejo **son lo que mas se vende**, y estaban a la vista desde
-              * siempre: meterlas adentro de un desplegable es una decision de venta, y
-              * esas no se toman por afuera del dueno. Un prospecto que no abre el
-              * desplegable -que son casi todos- deja de ver la mitad de la oferta.
-              *
-              * Se corrigio el 9 de septiembre de 2026, cuando llegaron dentro de un
-              * "Ver mas" y la prueba de la portada las encontro escondidas.
-              */}
             <div className="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
               <p className="text-center text-sm font-semibold uppercase tracking-widest text-slate-500">
                 Y además, las estaciones que se montan en tu fiesta
@@ -534,19 +642,32 @@ export default async function HomePage() {
             </div>
           </div>
         }
-        salon={<SalonDestacadoSection photos={clubPhotos} capacity={clubSalon?.capacidad} />}
+        salon={
+          <Suspense fallback={<SalonSkeleton />}>
+            <AsyncSalonSection />
+          </Suspense>
+        }
         team={<AkTeamStorySection />}
         process={null}
-        gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
-        blog={<BlogSection posts={publishedBlogPosts} />}
+        gallery={
+          <Suspense fallback={<GallerySkeleton />}>
+            <AsyncGallerySection />
+          </Suspense>
+        }
+        blog={
+          <Suspense fallback={<BlogSkeleton />}>
+            <AsyncBlogSection />
+          </Suspense>
+        }
         video={
-          <VideoSection
-            galeriaVideos={videosCombinados}
-            channelUrl={AK_YOUTUBE_CHANNEL_URL}
-          />
+          <Suspense fallback={<VideoSkeleton />}>
+            <AsyncVideoSection />
+          </Suspense>
         }
         testimonials={
-          <TestimonialsSection testimonials={approvedTestimonials} />
+          <Suspense fallback={<TestimonialsSkeleton />}>
+            <AsyncTestimonialsSection />
+          </Suspense>
         }
         faq={<FAQSection faqs={landingSettings.faqs} />}
         cta={
@@ -555,7 +676,7 @@ export default async function HomePage() {
             headline={landingSettings.cta.headline}
             subheadline={landingSettings.cta.subheadline}
             ctaLabel={landingSettings.cta.ctaLabel}
-            instagramUrl={instagramProfileUrl}
+            instagramUrl={DEFAULT_INSTAGRAM_URL}
           />
         }
         footer={<PublicFooter variant="dark" />}
