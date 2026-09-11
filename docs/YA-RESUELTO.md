@@ -7864,3 +7864,24 @@ Eso se resuelve por el otro lado —con más memoria o pagando que no duerma—,
 archivo: next.config.js
 ```
 
+
+## 11 de septiembre de 2026 — Verificado: la portada espera diez pedidos antes de dibujar nada
+
+**Cómo apareció.** Gemini midió el sitio en vivo —cosa que desde acá no se puede— y dio la
+portada en 23 segundos y el ingreso en 22. **Se verificó leyendo el código, no creyéndole:** en
+`src/app/page.tsx`, `HomePage` espera un `Promise.all` con **diez** pedidos de datos antes de
+dibujar. La página tarda lo que tarda el más lento, y varios salen a internet.
+
+**Coincide con lo medido acá:** el servidor prende en 3 segundos y la primera pantalla tarda 14.
+Las dos mediciones apuntan al mismo lado, así que la causa está confirmada por dos caminos.
+
+**Qué se decidió:** la portada tiene que mostrarse de entrada y que el resto llegue después.
+Queda escrito en `docs/ordenes/57-la-portada-aparece-al-toque.md`, con qué NO tocar y con la
+exigencia de medir antes y después. **Es trabajo de pantalla, así que lo programa Gemini.**
+
+**Y queda descartado, por ahora, pagar para que el servidor no duerma.** Si la portada aparece
+en un segundo, el cartel de error desaparece sin cuota mensual.
+
+```comprobar
+archivo: docs/ordenes/57-la-portada-aparece-al-toque.md
+```
