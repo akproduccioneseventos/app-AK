@@ -92,6 +92,34 @@ buscar nombres. No enviar publicaciones ni cambiar presupuestos reales para prob
 El control actual solo verifica existencia y menciones; Claude registra ejecucion y SHA.
 Si Gemini extrae helpers para corregir, actualizar los simbolos con sus consumidores reales.
 
+## Contraste Codex 14/9 - RED-01 apertura no comprobada
+
+PR1202, feat/orden-47-y-48-marketing-y-entretenimiento,
+SHA 6622427c604930b02910a2a2778bf20a72683f40. Pendiente en la tanda, no atribuido a publicado.
+
+P2: handleOneTouchPublish guarda window.open en openedWindow pero no usa su resultado.
+Si devuelve null y el portapapeles rechaza, el toast dice "La red social se abrio".
+Si devuelve null y no hay API de portapapeles, dice "La aplicacion se abrio".
+No se abrio ninguna en los dos escenarios simulados. Con apertura disponible y copia
+rechazada, el aviso es coherente (control PASS). No confundir esto con publicacion real.
+
+Sonda docs/evidencias/1202-redes-apertura.cjs: callback real extraido AST, navegador y
+portapapeles simulados; 2 FAIL, 1 PASS, salida 1. No publica, no descarga archivos.
+Node24/TypeScript5.9. Ejecutar con ruta de SocialPostCard.tsx del SHA como argumento;
+AUDIT_TYPESCRIPT opcional para TypeScript externo. No E2E/build ni navegador real.
+
+Gemini: separar resultado de apertura, copia y descarga. Si no hay confirmacion de apertura,
+avisar que no pudo comprobarse y ofrecer enlace manual; no afirmar que se publico.
+Conservar el manejo de error de copiar ya implementado. No cambiar estrategia comercial.
+Claude compila. Codex revisa pruebas del SHA corregido.
+
+La suite tests/e2e/47-redes-confirmaciones-y-videos.spec.ts puede aprobar sin video
+(espera cantidad cero) y sin boton Copiar (if isVisible omite el flujo).
+No prueba popup bloqueado ni verifica contenido real de portapapeles/toast.
+Usar fixtures con tarjeta de video y boton obligatorios, probar copia permitida/denegada,
+API ausente y apertura bloqueada. Las pruebas reforzadas quedan pendientes, no aprobadas.
+No se afirma que todo el panel falle ni se repiten cifras/contabilidad en este punto.
+
 ```comprobar
 archivo: src/components/social-media/SocialPostCard.tsx
 usa: handleCopyText en src/components/social-media/SocialPostCard.tsx

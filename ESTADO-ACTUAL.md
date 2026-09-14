@@ -13,3 +13,7 @@ Claude compila; dueno decide fusion. No se fusiono ni programo la app.
 - Consultar docs/auditoria/INDICE-CORTO.md, despues historico solo por tema.
 - Proximo: verificar correcciones por nuevo SHA; resto PR1202 aun no cubierto en esta vuelta.
 - Copia original desconectada, Graphify no disponible; fuentes remotas y AST puntuales.
+
+- Redes PR1202: RED-01 apertura bloqueada se anuncia abierta, 2 FAIL/1 PASS aislados.
+- Orden47 ampliada; sonda 1202-redes-apertura.cjs; Gemini corrige y refuerza fixtures E2E.
+- No se repitieron ENT-03, decoracion, avisos ni persistencia sin cambio de SHA.

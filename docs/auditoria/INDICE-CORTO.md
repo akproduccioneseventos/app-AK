@@ -12,6 +12,8 @@ Primero confirmar PR/HEAD actual. Ninguna fila vale automaticamente para otra ve
 
 | Touchpix | 1202 / 6622427c604930b02910a2a2778bf20a72683f40 | 1 FAIL, 1 PASS aislados; [orden48](../ordenes/48-entretenimiento-recuerdos.md) | Gemini: callback de A no reinicia B |
 
+| Redes / apertura | 1202 / 6622427c604930b02910a2a2778bf20a72683f40 | 2 FAIL, 1 PASS aislados; [orden47](../ordenes/47-marketing-redes.md) | Gemini: no afirmar apertura bloqueada; pruebas obligatorias |
+
 ## Validez
 
 Sondas aisladas AST, sesion y almacenamiento simulados. No navegador, build ni Firebase real.
