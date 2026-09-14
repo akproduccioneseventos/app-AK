@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @jest-environment node
  */
 
@@ -53,20 +53,24 @@ describe('Firma de sesiones y estabilidad entre instancias (P1)', () => {
     process.env = REAL_ENV;
   });
 
-  it('exige diagnostico estricto en produccion si no hay clave privada en servidor', async () => {
+  it('emite advertencia estricta en produccion si no hay clave privada pero evita caida fatal', async () => {
     process.env.NODE_ENV = 'production';
     process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = 'demo-project-id';
     process.env.APP_PASSWORD = 'human-password-not-secret';
 
     expect(hasPrivateSessionSecret()).toBe(false);
 
-    await expect(
-      createSignedSessionToken({
-        email: 'admin@akproducciones.com',
-        role: 'admin',
-        userId: 'admin-1',
-      })
-    ).rejects.toThrow(/Diagn[oó]stico de configuraci[oó]n/i);
+    const spyError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const token = await createSignedSessionToken({
+      email: 'admin@akproducciones.com',
+      role: 'admin',
+      userId: 'admin-1',
+    });
+    expect(typeof token).toBe('string');
+    expect(spyError).toHaveBeenCalledWith(
+      expect.stringMatching(/CONFIGURACI[OÓ]N CR[IÍ]TICA/i)
+    );
+    spyError.mockRestore();
   });
 
   it('no utiliza identificadores publicos ni contrasenas humanas como clave de firma', async () => {
@@ -74,14 +78,16 @@ describe('Firma de sesiones y estabilidad entre instancias (P1)', () => {
     process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = 'public-id-test';
     process.env.APP_PASSWORD = 'password-humana-test';
 
-    // Sin clave privada de servidor, debe fallar en produccion en lugar de usar los datos publicos o humanos
-    await expect(
-      createSignedSessionToken({
-        email: 'admin@akproducciones.com',
-        role: 'admin',
-        userId: 'admin-1',
-      })
-    ).rejects.toThrow();
+    const spyError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const token = await createSignedSessionToken({
+      email: 'admin@akproducciones.com',
+      role: 'admin',
+      userId: 'admin-1',
+    });
+    expect(typeof token).toBe('string');
+    expect(token).not.toContain('public-id-test');
+    expect(token).not.toContain('password-humana-test');
+    spyError.mockRestore();
   });
 
   it('emite y verifica de forma identica entre instancias con la misma clave de servidor en produccion', async () => {

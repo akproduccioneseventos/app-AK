@@ -87,6 +87,25 @@ export async function createNotification(
   ) {
     throw new Error('Creacion de notificacion no autorizada.');
   }
+
+  // Respetar las preferencias de avisos: si el usuario apagó esta categoría en la app, no crearla
+  try {
+    const { debeEnviarAvisoInterno, inferirCategoriaAviso } = await import('@/lib/notifications/preferencias-avisos');
+    const categoria = (data as any).categoria || inferirCategoriaAviso(data);
+    let userId = (data as any).userId;
+    if (!userId) {
+      const { verifySession } = await import('@/lib/auth/session-token');
+      const session = await verifySession().catch(() => null);
+      userId = session?.user?.userId || 'admin';
+    }
+    const permitido = await debeEnviarAvisoInterno(categoria, 'app', userId);
+    if (!permitido) {
+      return { success: true, isDuplicate: false };
+    }
+  } catch {
+    // Si falla la consulta de preferencias, continuar con el flujo normal
+  }
+
   try {
     const existing = isRecentDuplicateNotification(await getNotificationsInternal(), data);
     if (existing) return { success: true, notification: existing, isDuplicate: true };

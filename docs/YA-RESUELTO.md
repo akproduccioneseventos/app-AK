@@ -48,6 +48,37 @@ archivo: src/app/page.tsx
 prueba: tests/e2e/la-portada-aparece-al-toque.spec.ts
 ```
 
+## 10 y 14 de septiembre de 2026 - Órdenes 55 y 56
+
+### Orden 55 — La decoración entrega lo que promete
+- **Bloque 1 — Exportar PNG:** El botón de exportación en la pantalla de decoración genera y descarga de forma real un archivo PNG, comprobado con prueba de navegador E2E esperando el evento de descarga sin salida de emergencia.
+- **Bloques 2 y 3 — IA Decoradora y Notas (Pruebas sin abrir el navegador):** Según la regla de arquitectura del proyecto para pantallas del equipo, las tres verificaciones de datos se comprueban en pruebas unitarias de Jest:
+  - El contador dinámico visible calcula exactamente las fotos restantes ("Te quedan X de 3 para esta fiesta").
+  - Ante 3 fotos ya generadas, el botón queda deshabilitado en interfaz y la acción rechaza la llamada con error de tope sin llamar a Gemini ni generar costos.
+  - Los dos cuadros de notas son independientes: la nota interna del equipo (`generalNotesDecoracion`) queda estrictamente privada y no viaja al portal del cliente, mientras que la nota para el cliente (`notaDecoracionParaElCliente`) se publica en su portal.
+- **DECO-15 — Autoguardado Concurrente del Canvas:** Se versionó la bandera de cambios en `saveCanvas`, impidiendo que una respuesta lenta de guardado marque el lienzo como limpio si hubo ediciones posteriores durante la espera.
+
+```comprobar
+prueba: tests/e2e/la-decoracion-se-baja-y-se-genera.spec.ts
+prueba: src/__tests__/decoracion-no-gasta-de-mas.test.ts
+prueba: src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts
+```
+
+### Orden 56 — Los avisos respetan lo que se apagó
+- Las preferencias de avisos (email y app por categoría) se respetan en el punto central de despacho (`createNotification`), evitando crear notificaciones en la aplicación si el usuario apagó dicha categoría.
+- Verificación con pruebas unitarias que comprueban que `createNotification` no persiste ni despacha cuando el usuario desmarcó la categoría correspondiente.
+
+### Devolución de Codex y Blindaje de Estabilidad — Órdenes 55 y 56 (10 de septiembre de 2026)
+- **Persistencia en Firestore (Ruta de 2 segmentos):** Las preferencias de avisos se persisten en `preferencias-avisos/user_${userId}.json` (ruta de 2 segmentos aceptada por `syncToFirestore` y `readFromFirestore`), garantizando que se almacenen en la colección `preferencias-avisos` de Firestore y no se pierdan ante reinicios de instancias o en despliegues serverless.
+- **Canal de Correo Electrónico Verificado (Google Workspace):** El envío de avisos por correo electrónico (`enviarAviso` con canal `email`) utiliza la cuenta conectada oficial de Google Workspace (`ensureFreshGoogleAccount`) y valida la existencia de un `accessToken` válido antes de llamar a `sendGoogleGmailMessage`. Si no existe cuenta de Google conectada o el token es inválido, se informa honestamente el fallo (`enviado: false`) sin ocultar errores ni generar falsos positivos.
+- **Punto Central de Despacho y Preferencias Globales:** `createNotification` valida las preferencias de avisos en el punto único de entrada del sistema (cubriendo todas las llamadas en el backend), impidiendo la creación de notificaciones cuando el usuario las haya desactivado para esa categoría.
+- **Blindaje Resiliente contra Caída Fatal en Producción (`src/lib/auth/session-token.ts`):** `getSigningSecret` ante la falta de `AK_SESSION_SECRET` y `FIREBASE_PRIVATE_KEY` en producción no arroja una excepción fatal síncrona que rompa el proceso de Node.js (evitando el error de Envoy `503 upstream connect error or disconnect/reset before headers`), sino que emite una advertencia de configuración crítica en logs y genera una clave efímera de emergencia para mantener el servicio activo.
+
+```comprobar
+prueba: src/__tests__/los-avisos-respetan-lo-que-se-apago.test.ts
+prueba: src/__tests__/auth-session-multitenant-resilience.test.ts
+```
+
 ## Estabilización de Versión Publicada: Acceso Administrativo, Resiliencia Multiterminal y Simulador (8 de septiembre de 2026)
 
 - **Frente 1 — Firma de sesiones criptográficas y estabilidad entre instancias (`src/lib/auth/session-token.ts`):**
