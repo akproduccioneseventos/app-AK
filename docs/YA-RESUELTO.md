@@ -7927,3 +7927,22 @@ que no tener ninguna.
 ```comprobar
 prueba: tests/e2e/la-portada-aparece-al-toque.spec.ts
 ```
+
+## 14 de septiembre de 2026 — ENT-03: Fotocabina y Touchpix no reinician la pantalla a la persona siguiente
+
+**Qué pasaba:**
+En Touchpix y Fotocabina, una respuesta diferida de subida (o su temporizador de éxito de 3 a 20 segundos) reiniciaba la pantalla a la persona siguiente en la fila. El control previo sólo miraba si era la subida más nueva (`activeUploadSessionIdRef`), pero si alguien empezaba una sesión nueva sin subir nada (tocando la pantalla o iniciando su turno), la respuesta vieja pasaba igual y llamaba a `retake()`, borrándole la captura o la pantalla al nuevo participante. Además, en React, la clausura léxica retenía el `photoSessionId` del render que inició la subida, haciendo que comparaciones con variables de estado locales siempre dieran verdadero.
+
+**Cómo se resolvió:**
+1. **Identidad viva por Ref**: Tanto en `src/app/evento/touchpix/[fiestaId]/page.tsx` como en `src/app/evento/fotocabina/[fiestaId]/page.tsx` se incorporó `currentPhotoSessionIdRef` que se sincroniza de forma inmediata y síncrona ante cualquier cambio o inicio de turno (`retake()`).
+2. **Validación en respuestas lentas**: Al completar la subida (y en los caminos de duplicado, offline y error), se valida `currentPhotoSessionIdRef.current === sessionWhenStarted`. Si la sesión cambió porque otra persona tomó la cabina, se aborta inmediatamente cualquier modificación de UI (`setShowSuccess`) y no se programa ningún `retake()`.
+3. **Cancelación inmediata de temporizadores**: Se agregó `resetTimerRef`. Cada inicio de sesión o toque de usuario cancela de inmediato cualquier temporizador de reinicio de la persona anterior.
+4. **Sonda y pruebas automatizadas**: La sonda `docs/evidencias/1202-touchpix-sesion.cjs` da 100% PASS (control normal reinicia 1 vez; con sesión cambiada durante la subida da 0 resets y 0 éxitos para la sesión siguiente). Pruebas unitarias en `src/__tests__/entretenimiento-sesion-segura.test.ts`.
+
+```comprobar
+archivo: src/app/evento/touchpix/[fiestaId]/page.tsx
+archivo: src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: docs/evidencias/1202-touchpix-sesion.cjs
+prueba: src/__tests__/entretenimiento-sesion-segura.test.ts
+```
+

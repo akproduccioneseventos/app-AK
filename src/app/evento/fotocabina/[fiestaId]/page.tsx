@@ -182,6 +182,13 @@ export default function FotocabinaPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [photoSessionId, setPhotoSessionId] = useState<string>(() => `cab_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+  const currentPhotoSessionIdRef = useRef<string>(photoSessionId);
+  const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    currentPhotoSessionIdRef.current = photoSessionId;
+  }, [photoSessionId]);
 
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
@@ -515,6 +522,10 @@ export default function FotocabinaPage() {
   // Arranca la tanda desde cero. Cada disparo encadena el siguiente hasta
   // completar las tres fotos, y recien ahi se arma el recuerdo.
   const takePhoto = async () => {
+    if (resetTimerRef.current) {
+      clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
+    }
     fotosDeLaTandaRef.current = [];
     setFotosDeLaTanda([]);
     setFotoEnCurso(1);
@@ -841,6 +852,9 @@ export default function FotocabinaPage() {
     setIsUploading(true);
     speak("Subiendo tu foto al muro");
 
+    const sessionWhenStarted = currentPhotoSessionIdRef.current;
+    const isLiveSession = () => currentPhotoSessionIdRef.current === sessionWhenStarted;
+
     try {
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al generar la imagen');
@@ -878,14 +892,18 @@ export default function FotocabinaPage() {
           return;
         }
 
+        if (!isLiveSession()) return;
         setQrCodeUrl('');
         setLocalStatus('done');
         speak("¡Excelente! Tu foto quedó guardada y se subirá apenas vuelva la señal.");
         setShowSuccess(true);
 
-        setTimeout(() => {
-          setShowSuccess(false);
-          retake();
+        if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = setTimeout(() => {
+          if (isLiveSession()) {
+            setShowSuccess(false);
+            retake();
+          }
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
         return;
       }
@@ -902,6 +920,7 @@ export default function FotocabinaPage() {
 
       const res = await uploadEntretenimientoMedia(formData);
       if (res.success) {
+        if (!isLiveSession()) return;
         const mediaUrl = res.media?.url || '';
         setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
@@ -916,10 +935,13 @@ export default function FotocabinaPage() {
         speak("¡Excelente! Tu foto ya está lista.");
         setShowSuccess(true);
 
-        // Auto reset after 12 seconds
-        setTimeout(() => {
-          setShowSuccess(false);
-          retake();
+        // Auto reset tras revisión
+        if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = setTimeout(() => {
+          if (isLiveSession()) {
+            setShowSuccess(false);
+            retake();
+          }
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
       } else {
         throw new Error(res.error || 'Error al subir');
@@ -941,12 +963,16 @@ export default function FotocabinaPage() {
             guestAccessToken,
             accessToken,
           });
+          if (!isLiveSession()) return;
           speak("Tu foto quedó guardada y se subirá cuando vuelva la señal.");
           setLocalStatus('done');
           setShowSuccess(true);
-          setTimeout(() => {
-            setShowSuccess(false);
-            retake();
+          if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+          resetTimerRef.current = setTimeout(() => {
+            if (isLiveSession()) {
+              setShowSuccess(false);
+              retake();
+            }
           }, (fiesta?.station.reviewSeconds || 20) * 1000);
           return;
         }
@@ -954,6 +980,7 @@ export default function FotocabinaPage() {
         console.error('[Fotocabina] Error al encolar en IndexedDB:', fallbackErr);
       }
 
+      if (!isLiveSession()) return;
       setQrCodeUrl('');
       setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('done');
@@ -967,7 +994,9 @@ export default function FotocabinaPage() {
       );
       speak("No se pudo subir al muro, pero puedes guardarla");
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -990,6 +1019,10 @@ export default function FotocabinaPage() {
   };
 
   const retake = () => {
+    if (resetTimerRef.current) {
+      clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
+    }
     setCapturedImage(null);
     setVideoRecuerdoUrl(null);
     setDuracionToma(0);
@@ -1004,6 +1037,9 @@ export default function FotocabinaPage() {
     setFotosDeLaTanda([]);
     setFotoEnCurso(0);
     setYaSeImprimio(false);
+    const nextSessionId = `cab_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    currentPhotoSessionIdRef.current = nextSessionId;
+    setPhotoSessionId(nextSessionId);
     void completeEntertainmentSessionCycle(fiestaId, 'fotocabina', accessToken);
     if (role === 'display') {
       startCamera();
