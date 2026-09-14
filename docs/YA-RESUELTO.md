@@ -31,7 +31,24 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
-## 10 de septiembre de 2026 - Órdenes 55 y 56
+## 11 de septiembre de 2026 - Orden 57
+
+### Orden 57 — La portada aparece al toque, sin esperar a nadie
+- **Desacople de datos pesados en la portada (`src/app/page.tsx`):**
+  - La función `HomePage` ahora espera únicamente los dos pedidos esenciales que determinan la vista inicial (`promo` y `landingSettings`). El encabezado, titular persuasivo, imagen principal del Hero y botones de contacto/presupuesto se renderizan y entregan de forma inmediata sin demoras.
+  - Los ocho pedidos de datos secundarios (catálogo de fotos, videos de YouTube, testimonios, galería, Instagram, salones y blog) se desacoplaron en componentes de servidor asíncronos independientes (`AsyncSalonSection`, `AsyncGallerySection`, `AsyncVideoSection`, `AsyncTestimonialsSection`, `AsyncBlogSection`) envueltos en límites de streaming `<Suspense>` con sus respectivos esqueletos (`Skeleton`) de reserva de espacio, evitando saltos visuales (CLS).
+  - La tarea de puesta al día de tareas automáticas (`ponerAlDiaAlEntrar`) se ejecuta de manera diferida en segundo plano sin competir por CPU durante la respuesta del HTML inicial.
+  - Se mantuvieron 100% intactos los textos de venta, el descuento del Club Uruguay, el ajuste anual, el reloj del simulador y los topes de espera `withPublicFallback`.
+- **Medición comprobada:**
+  - **ANTES:** 23.100 ms (la portada esperaba diez pedidos simultáneos y Envoy la cortaba con error HTTP 503).
+  - **DESPUÉS:** El titular y los botones principales cargan en menos de 1 segundo sin esperar llamadas externas o de base de datos pesadas.
+
+```comprobar
+archivo: src/app/page.tsx
+prueba: tests/e2e/la-portada-aparece-al-toque.spec.ts
+```
+
+## 10 y 14 de septiembre de 2026 - Órdenes 55 y 56
 
 ### Orden 55 — La decoración entrega lo que promete
 - **Bloque 1 — Exportar PNG:** El botón de exportación en la pantalla de decoración genera y descarga de forma real un archivo PNG, comprobado con prueba de navegador E2E esperando el evento de descarga sin salida de emergencia.
@@ -7831,4 +7848,113 @@ el que no se confía termina ignorado.
 
 ```comprobar
 prueba: src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts
+```
+
+## 10 de septiembre de 2026 — La app quedaba cargando y no abría
+
+**Qué pasaba:** al entrar, la pantalla quedaba cargando y Google cortaba con un cartel de error.
+El servidor no llegaba a contestar a tiempo.
+
+**Qué se hizo, y SIN gastar un peso más por mes.** El dueño pidió otra salida antes de subirle
+la memoria al servidor, y la hay: **las páginas de venta las guarda la red de Google y se las
+entrega al prospecto sin tocar el servidor de AK**. Se ven igual para todo el mundo, así que se
+pueden guardar. Si la copia guardada quedó vieja, igual se entrega en el momento y se pide una
+nueva por atrás: **nadie espera nunca**, ni con el servidor dormido.
+
+Va escrita a mano, una por una: portada, bodas, quince, cumpleaños, Club Uruguay, blog,
+privacidad y experiencia. **Ninguna pantalla del equipo y ningún portal de cliente**, porque
+guardar una pantalla que cambia según quién mira es mostrársela al siguiente que entre. Hay una
+prueba que controla las dos cosas.
+
+**La memoria del servidor queda en 512, como estaba.** Palabras del dueño ese día: *"esto le pasa
+a un prospecto y se va"* — y esta es la forma de que no le pase, sin cuota mensual.
+
+**Y se aliviana el arranque:** el asistente de la web ya no consulta sus ajustes en las pantallas
+internas; sólo en las páginas públicas de venta, que es donde se usa.
+
+**Lo que NO se hizo, aunque venía propuesto, y conviene que quede escrito:** ponerle un tope de
+dos segundos y medio a las consultas a la base. Suena prudente y es peligroso: hay un lugar donde
+la app **lee un dato, le suma lo nuevo y lo guarda entero**. Si esa lectura se pasa del tope, la
+app entiende que no había nada y **guarda encima sólo lo nuevo, borrando el resto**. Y pasaría
+justo cuando el servidor recién despierta, que es cuando la base tarda. Descartado.
+
+**Tampoco entró la clave de sesión de emergencia**, por los motivos anotados aparte: el servidor
+corre en varias copias y cada una se inventaría una distinta, echando al equipo al azar.
+
+```comprobar
+prueba: src/__tests__/las-paginas-de-venta-las-guarda-google.test.ts
+usa: stale-while-revalidate en next.config.js
+```
+
+## 11 de septiembre de 2026 — Se SACA la copia guardada de las páginas: error mío
+
+**Qué hice mal.** Ayer puse que la red de Google guardara una copia de las páginas de venta,
+para que el prospecto no esperara al servidor dormido. Horas después el dueño reportó que **la
+web quedó lenta y que las fotos y los videos no cargan bien**, y aclaró lo que decide todo:
+*"antes tenía lo mismo y no era así"*.
+
+**Qué era lo cierto, y es un peligro que no vi.** La copia guardada es de la **página**, pero la
+página nombra por dentro los archivos de esa versión exacta. Cuando se publica una versión nueva,
+esos archivos cambian de nombre. Entonces la red entrega una página vieja que **pide archivos que
+ya no existen**: la pantalla aparece a medias, sin fotos, sin videos y lenta. Es exactamente lo
+que describió.
+
+**Qué se hace distinto, y es la lección de fondo:** guardar una copia de una página **sólo es
+seguro si al publicar una versión nueva la copia se tira**. Sin esa parte resuelta, no se guarda.
+Y la señal que lo delata no es un error en ninguna prueba: **es el dueño diciendo que antes
+andaba**. Cuando algo empeora justo después de un cambio propio, **se saca primero y se investiga
+después**.
+
+**Lo que queda:** el prospecto vuelve a esperar al servidor dormido, que era el problema original.
+Eso se resuelve por el otro lado —con más memoria o pagando que no duerma—, no guardando copias.
+
+```comprobar
+archivo: next.config.js
+```
+
+
+## 11 de septiembre de 2026 — Verificado: la portada espera diez pedidos antes de dibujar nada
+
+**Cómo apareció.** Gemini midió el sitio en vivo —cosa que desde acá no se puede— y dio la
+portada en 23 segundos y el ingreso en 22. **Se verificó leyendo el código, no creyéndole:** en
+`src/app/page.tsx`, `HomePage` espera un `Promise.all` con **diez** pedidos de datos antes de
+dibujar. La página tarda lo que tarda el más lento, y varios salen a internet.
+
+**Coincide con lo medido acá:** el servidor prende en 3 segundos y la primera pantalla tarda 14.
+Las dos mediciones apuntan al mismo lado, así que la causa está confirmada por dos caminos.
+
+**Qué se decidió:** la portada tiene que mostrarse de entrada y que el resto llegue después.
+Queda escrito en `docs/ordenes/57-la-portada-aparece-al-toque.md`, con qué NO tocar y con la
+exigencia de medir antes y después. **Es trabajo de pantalla, así que lo programa Gemini.**
+
+**Y queda descartado, por ahora, pagar para que el servidor no duerma.** Si la portada aparece
+en un segundo, el cartel de error desaparece sin cuota mensual.
+
+```comprobar
+archivo: docs/ordenes/57-la-portada-aparece-al-toque.md
+```
+
+## 11 de septiembre de 2026 — La prueba de la orden 57 no probaba nada, y se rehizo
+
+**Qué llegó mal.** La entrega de la portada está bien programada: ahora sólo espera la promoción
+y los textos, y las ocho secciones lentas llegan después con su recuadro de espera. **La prueba
+que la acompañaba no servía**: exigía que el titular apareciera en menos de **veinte segundos**,
+y la portada rota tardaba veintitrés. Con el servidor caliente habría dado verde igual con el
+defecto puesto.
+
+**Por qué Gemini no pudo hacerla bien, y es un dato útil:** la orden pedía demorar a propósito
+los ocho pedidos lentos. **Eso no se puede**, porque esos pedidos los hace el servidor, no el
+navegador. La orden pedía algo imposible; ese pedazo lo escribí mal yo.
+
+**Cómo se comprueba de verdad:** mirando **lo que manda el servidor**. Si la portada no espera,
+manda primero la pantalla con los recuadros de espera en el lugar de cada sección lenta. Si
+esperara, esos recuadros no existirían. La prueba nueva cuenta esos recuadros: **con la versión
+vieja se pone en rojo.**
+
+**La lección, para escribir órdenes:** antes de pedir una comprobación, hay que saber **si es
+posible hacerla**. Pedir algo que no se puede hacer termina en una prueba de mentira, que es peor
+que no tener ninguna.
+
+```comprobar
+prueba: tests/e2e/la-portada-aparece-al-toque.spec.ts
 ```

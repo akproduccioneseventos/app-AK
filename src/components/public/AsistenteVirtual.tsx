@@ -45,9 +45,13 @@ export function AsistenteVirtual() {
   const [assistantFinalMsg, setAssistantFinalMsg] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isPublicRoute) return;
+    let active = true;
+
     async function init() {
       try {
         const settings = await getBudgetDisplaySettings();
+        if (!active) return;
         if (settings?.virtualAssistantEnabled) {
           setEnabled(true);
           setAssistantFinalMsg(settings.assistantFinalMessage || null);
@@ -62,10 +66,14 @@ export function AsistenteVirtual() {
       } catch (e) {
         console.error('Error cargando ajustes del asistente', e);
       }
-      setHasFetchedSettings(true);
+      if (active) setHasFetchedSettings(true);
     }
     init();
-  }, []);
+
+    return () => {
+      active = false;
+    };
+  }, [isPublicRoute]);
 
   useEffect(() => {
     if (isOpen) {
