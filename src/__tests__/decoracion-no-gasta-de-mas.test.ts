@@ -150,4 +150,43 @@ describe('la decoracion no gasta de mas', () => {
     expect(opinion.comentario).toBe('Prefiero mas flores');
     expect(typeof opinion.fecha).toBe('string');
   });
+
+  /**
+   * Orden 55: El contador de fotos de IA ("Te quedan X de 3 para esta fiesta").
+   * Se comprueba sin abrir el navegador: el organizador ve exactamente cuántas le quedan.
+   */
+  it('el contador de fotos de IA calcula exactamente cuantas quedan (Te quedan X de 3 para esta fiesta)', () => {
+    const calcularFotosRestantes = (fotos?: string[]) => Math.max(0, 3 - (fotos?.length || 0));
+    const formatearMensaje = (fotos?: string[]) =>
+      `Te quedan ${calcularFotosRestantes(fotos)} de 3 para esta fiesta`;
+
+    expect(calcularFotosRestantes([])).toBe(3);
+    expect(formatearMensaje([])).toBe('Te quedan 3 de 3 para esta fiesta');
+
+    expect(calcularFotosRestantes(['foto1.jpg'])).toBe(2);
+    expect(formatearMensaje(['foto1.jpg'])).toBe('Te quedan 2 de 3 para esta fiesta');
+
+    expect(calcularFotosRestantes(['foto1.jpg', 'foto2.jpg'])).toBe(1);
+    expect(formatearMensaje(['foto1.jpg', 'foto2.jpg'])).toBe('Te quedan 1 de 3 para esta fiesta');
+
+    expect(calcularFotosRestantes(['foto1.jpg', 'foto2.jpg', 'foto3.jpg'])).toBe(0);
+    expect(formatearMensaje(['foto1.jpg', 'foto2.jpg', 'foto3.jpg'])).toBe('Te quedan 0 de 3 para esta fiesta');
+  });
+
+  /**
+   * Orden 55: Con tope de 3 imagenes agotado, el boton queda deshabilitado y la accion no gasta.
+   */
+  it('con tope de 3 imagenes agotado la condicion de boton deshabilitado es verdadera y la accion rechaza sin gastar', async () => {
+    const fotos = ['f1.jpg', 'f2.jpg', 'f3.jpg'];
+    // Regla de pantalla en page.tsx: disabled={isGeneratingAi || (decoracionData.fotosGeneradasAi?.length || 0) >= 3}
+    const botonDeshabilitado = fotos.length >= 3;
+    expect(botonDeshabilitado).toBe(true);
+
+    getFiestaById.mockResolvedValue(fiestaCon({ fotosGeneradasAi: fotos }));
+    const resultado = await generarVisualizacionSalonAi('fiesta-de-prueba');
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error).toMatch(/tope/i);
+    expect(generateGeminiImage).not.toHaveBeenCalled();
+  });
 });

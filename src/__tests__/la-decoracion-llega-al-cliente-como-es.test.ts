@@ -63,4 +63,33 @@ describe('la decoracion llega al cliente como es', () => {
     const enviado = JSON.stringify(paraElCliente.decoracion || {});
     expect(enviado).not.toContain('4500');
   });
+
+  /**
+   * Orden 55: Los dos cuadros de notas (equipo vs cliente).
+   * Se comprueba sin abrir el navegador: la nota del equipo queda privada y la del cliente se publica.
+   */
+  it('los dos cuadros de notas son independientes: la del equipo es privada y la del cliente se publica en su portal', () => {
+    const fiesta = {
+      id: 'fiesta-notas-test',
+      configuracion: { nombreEvento: 'Fiesta con notas' },
+      decoracion: {
+        generalNotesDecoracion: 'SECRETO INTERNO: proveedor cobra recargo si terminamos despues de las 4am',
+        notaDecoracionParaElCliente: 'Ambientacion con telas doradas, flores naturales y luces calidas en la recepcion',
+      },
+    } as any;
+
+    const portal = mapFiestaToClientPortal(fiesta) as any;
+    const jsonPortal = JSON.stringify(portal);
+
+    // 1. La nota interna del equipo no aparece en el portal del cliente
+    expect(jsonPortal).not.toContain('SECRETO INTERNO');
+    expect(jsonPortal).not.toContain('recargo si terminamos despues de las 4am');
+    expect(portal.decoracion?.generalNotesDecoracion).toBeUndefined();
+
+    // 2. La nota para el cliente sí aparece en el portal del cliente
+    expect(portal.decoracion?.notaDecoracionParaElCliente).toBe(
+      'Ambientacion con telas doradas, flores naturales y luces calidas en la recepcion',
+    );
+    expect(jsonPortal).toContain('Ambientacion con telas doradas');
+  });
 });
