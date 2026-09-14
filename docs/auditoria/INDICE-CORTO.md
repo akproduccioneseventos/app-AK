@@ -8,6 +8,8 @@ Primero confirmar PR/HEAD actual. Ninguna fila vale automaticamente para otra ve
 | Decoracion | 1206 / 0f03c998cc36922f754d6e06e21e8c22ea47a796 | 2 FAIL, 2 PASS, propuesta no aprobada; [detalle](../evidencias/55-contraste-1206-opinion-y-guardado.md) | Claude: feedback/costos; Gemini: edicion durante guardado |
 | Avisos | 1206 / 0f03c998cc36922f754d6e06e21e8c22ea47a796 | 3 FAIL, 2 PASS; [detalle](../evidencias/56-contraste-1206-avisos.md) | Defaults, destinatario/resultado, validacion |
 
+| Persistencia / arranque | 1207 / 29943cdd80ed7c14ceabc650544eb2aa304516a2 | 1 FAIL, 1 PASS; [orden58](../ordenes/58-guardar-sin-borrar-por-demora.md) | Claude: no escribir tras lectura incierta |
+
 ## Validez
 
 Sondas aisladas AST, sesion y almacenamiento simulados. No navegador, build ni Firebase real.

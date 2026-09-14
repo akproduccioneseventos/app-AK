@@ -7919,3 +7919,12 @@ AGENTS.md prioriza indice corto + busqueda dirigida del historico, evidencia por
 delegacion segun costo total y traspaso acotado. docs/auditoria/INDICE-CORTO.md indexa SOLO las
 dos auditorias actuales con sus limites. No inventaria todo el pasado ni declara la app lista.
 No se borra historial. Sin dependencias ni cambios de app. Ahorro real de tokens no medido.
+
+
+## 14 septiembre 2026 - Codex PR1207 STORE-01
+
+HEAD 29943cdd80ed7c14ceabc650544eb2aa304516a2: timeout leido como ausencia permite que
+updateDataPartial reemplace campos existentes por solo el parcial. 1 FAIL y 1 control PASS
+con AST/IO simulado. No corregido ni probado en Firebase. Claude: datos/compilacion.
+Orden58 y sonda 1207-timeout-datos.cjs. Registro CPU incorrecto: yaml cambia solo memoria.
+No repetir PR1206 (mismo SHA); 1208 fusionada, no revisada como abierta.
