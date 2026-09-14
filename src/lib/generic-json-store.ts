@@ -20,6 +20,22 @@ function unwrapGenericDocument(data: Record<string, any> | undefined): any | nul
   return rest;
 }
 
+async function queryWithTimeout<T>(promise: Promise<T>, timeoutMs = 2500): Promise<T> {
+  let timeoutId: any;
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error(`Timeout de consulta a base de datos superado (${timeoutMs}ms)`));
+    }, timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
+}
+
 async function getDbAdmin() {
   const { dbAdmin } = await import('./firebase/server');
   if (!dbAdmin) throw new Error('[Generic JSON Store] Firebase no disponible.');
@@ -35,16 +51,16 @@ export async function syncGenericJsonFile(filePath: string, data: any): Promise<
   const docId = getGenericDocId(normalizedPath);
 
   if (Array.isArray(data)) {
-    await db.collection(GENERIC_JSON_COLLECTION).doc(docId).set({ _filePath: normalizedPath, _arrayData: data, _syncedAt: new Date().toISOString() });
+    await queryWithTimeout(db.collection(GENERIC_JSON_COLLECTION).doc(docId).set({ _filePath: normalizedPath, _arrayData: data, _syncedAt: new Date().toISOString() }), 3000);
     return;
   }
 
   if (data && typeof data === 'object') {
-    await db.collection(GENERIC_JSON_COLLECTION).doc(docId).set({ _filePath: normalizedPath, _data: data, _syncedAt: new Date().toISOString() });
+    await queryWithTimeout(db.collection(GENERIC_JSON_COLLECTION).doc(docId).set({ _filePath: normalizedPath, _data: data, _syncedAt: new Date().toISOString() }), 3000);
     return;
   }
 
-  await db.collection(GENERIC_JSON_COLLECTION).doc(docId).set({ _filePath: normalizedPath, _value: data, _syncedAt: new Date().toISOString() });
+  await queryWithTimeout(db.collection(GENERIC_JSON_COLLECTION).doc(docId).set({ _filePath: normalizedPath, _value: data, _syncedAt: new Date().toISOString() }), 3000);
 }
 
 export async function readGenericJsonFile(filePath: string): Promise<any | null> {
@@ -54,7 +70,7 @@ export async function readGenericJsonFile(filePath: string): Promise<any | null>
 
   try {
     const db = await getDbAdmin();
-    const doc = await db.collection(GENERIC_JSON_COLLECTION).doc(getGenericDocId(normalizedPath)).get();
+    const doc = await queryWithTimeout(db.collection(GENERIC_JSON_COLLECTION).doc(getGenericDocId(normalizedPath)).get(), 2500);
     if (!doc.exists) return null;
     return unwrapGenericDocument(doc.data());
   } catch (error) {
@@ -70,7 +86,7 @@ export async function listGenericJsonDocuments(): Promise<Record<string, any>> {
 
   try {
     const db = await getDbAdmin();
-    const snapshot = await db.collection(GENERIC_JSON_COLLECTION).get();
+    const snapshot = await queryWithTimeout(db.collection(GENERIC_JSON_COLLECTION).get(), 3000);
     if (snapshot.empty) return {};
 
     const result: Record<string, any> = {};
