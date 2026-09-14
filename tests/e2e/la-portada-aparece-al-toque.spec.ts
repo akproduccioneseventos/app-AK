@@ -1,55 +1,57 @@
-﻿import { expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 /**
- * Orden 57 — La portada aparece al toque, sin esperar a nadie.
+ * ORDEN 57 — LA PORTADA APARECE AL TOQUE, SIN ESPERAR A NADIE.
  *
- * Esta prueba comprueba que:
- * 1. Lo primero que se ve (el titular h1, la cabecera y el botón de contacto/acción)
- *    aparece de inmediato en pantalla.
- * 2. Aunque las llamadas lentas (YouTube, Instagram, galerías, blogs) demoren o se
- *    intercepten con retrasos artificiales, el titular y los botones principales
- *    NO se quedan esperando y se muestran al instante.
+ * De donde sale. El dueño no podia entrar y la portada le tiraba el cartel de error de
+ * Google: *"esto le pasa a un prospecto y se va"*. La causa, verificada en el codigo y
+ * medida de los dos lados: la portada esperaba **diez** pedidos de datos —YouTube,
+ * Instagram, galeria, blog, salones, testimonios— antes de dibujar un solo pixel, asi
+ * que tardaba lo que tardaba el mas lento.
  *
- * Métrica de referencia:
- * - ANTES: 23.100 ms (la portada esperaba 10 pedidos y daba timeout 503).
- * - DESPUÉS: < 2.500 ms en carga completa y < 1.000 ms para visibilidad de titular.
+ * QUE COMPRUEBA ESTA PRUEBA, Y POR QUE ASI.
+ *
+ * Los ocho pedidos lentos **los hace el servidor**, no el navegador, asi que no se los
+ * puede demorar desde afuera para ver si la pantalla los espera. La forma de probarlo
+ * es otra y es mas firme: **mirar lo que manda el servidor**.
+ *
+ * Cuando la portada no espera, el servidor manda primero la pantalla armada con los
+ * **recuadros de espera** en el lugar de cada seccion lenta —marcados con `aria-busy`—
+ * y va completando el resto a medida que llega. Si la portada esperara, esos recuadros
+ * **no existirian en ningun lado**: la respuesta saldria entera y tarde.
+ *
+ * Por eso alcanza con una cosa, y es la que separa el antes del despues: **que el
+ * titular y los recuadros de espera esten en lo que manda el servidor**. Con la version
+ * vieja esta prueba se pone en rojo, porque ahi no habia recuadros.
  */
 
-test.describe('Orden 57 — La portada aparece al toque', () => {
-  test('el titular y el botón de contacto están visibles de inmediato sin esperar datos lentos', async ({ page }, testInfo) => {
-    test.setTimeout(180_000);
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador de escritorio.');
+test.describe('Orden 57 - la portada aparece al toque', () => {
+  test('el servidor manda el titular y los recuadros de espera, sin aguardar a los ocho pedidos lentos', async ({ request }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
-    // En Next.js dev server, la primera carga compila la página en frío. Hacemos la carga inicial
-    // para que la medición refleje el tiempo real de entrega de la portada sin la compilación on-the-fly de dev.
-    await page.goto('/', { waitUntil: 'domcontentloaded', timeout: 180_000 });
+    const respuesta = await request.get('/');
+    expect(respuesta.status(), 'la portada tiene que contestar bien').toBeLessThan(400);
 
-    const inicio = Date.now();
+    const html = await respuesta.text();
 
-    // 1. Navegamos a la portada midiendo el tiempo de respuesta real
-    const respuesta = await page.goto('/', { waitUntil: 'domcontentloaded' });
-    const tiempoDom = Date.now() - inicio;
+    // 1. El titular viaja en lo primero que manda el servidor.
+    expect(html, 'el titular tiene que venir en la pagina').toMatch(/<h1[\s>]/);
 
-    expect(respuesta?.status(), 'La portada debe responder con HTTP exitoso').toBeLessThan(400);
+    // 2. Y las secciones lentas viajan como recuadros de espera, no como contenido ya
+    //    resuelto. Esto es lo que demuestra que la pantalla no las espero.
+    const recuadros = (html.match(/aria-busy="true"/g) || []).length;
+    expect(recuadros, 'tienen que venir los recuadros de espera de las secciones lentas').toBeGreaterThanOrEqual(3);
+  });
 
-    // 2. El titular principal (h1) debe estar visible de inmediato
-    const titular = page.locator('h1').first();
-    await expect(titular).toBeVisible({ timeout: 15_000 });
-    const tiempoTitular = Date.now() - inicio;
+  test('la portada se ve, y el boton para pedir presupuesto se puede tocar', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
-    // 3. Los botones de contacto y proyección deben estar visibles e interactivos
-    const botonAccion = page.locator('a[href*="simulador-de-presupuesto"], a[href*="wa.me"], a[href*="whatsapp"]').first();
-    await expect(botonAccion).toBeVisible({ timeout: 15_000 });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    console.log(`[Orden 57 Medición] Tiempo hasta DOM: ${tiempoDom} ms`);
-    console.log(`[Orden 57 Medición] Tiempo hasta Titular visible: ${tiempoTitular} ms`);
-    console.log(`[Orden 57 Referencia] Tiempo ANTES del arreglo: 23.100 ms (Timeout Envoy 503)`);
-
-    // 4. Verificamos que el contenedor principal de la experiencia esté presente
-    const contenedorPrincipal = page.locator('.ak-landing-experience');
-    await expect(contenedorPrincipal).toBeVisible();
-
-    // 5. El titular y el Hero no deben quedar bloqueados por los componentes diferidos
-    expect(tiempoTitular, 'El titular debe estar disponible sin demoras críticas').toBeLessThan(20_000);
+    await expect(page.locator('h1').first()).toBeVisible({ timeout: 20_000 });
+    const boton = page
+      .locator('a[href*="simulador-de-presupuesto"], a[href*="wa.me"], a[href*="whatsapp"]')
+      .first();
+    await expect(boton).toBeVisible({ timeout: 20_000 });
   });
 });

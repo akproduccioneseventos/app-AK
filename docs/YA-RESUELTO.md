@@ -1,4 +1,4 @@
-﻿# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
+# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 ## 8 de septiembre de 2026 - Ordenes 45 a 48, pendientes de ejecucion
 
@@ -7901,4 +7901,29 @@ en un segundo, el cartel de error desaparece sin cuota mensual.
 
 ```comprobar
 archivo: docs/ordenes/57-la-portada-aparece-al-toque.md
+```
+
+## 11 de septiembre de 2026 — La prueba de la orden 57 no probaba nada, y se rehizo
+
+**Qué llegó mal.** La entrega de la portada está bien programada: ahora sólo espera la promoción
+y los textos, y las ocho secciones lentas llegan después con su recuadro de espera. **La prueba
+que la acompañaba no servía**: exigía que el titular apareciera en menos de **veinte segundos**,
+y la portada rota tardaba veintitrés. Con el servidor caliente habría dado verde igual con el
+defecto puesto.
+
+**Por qué Gemini no pudo hacerla bien, y es un dato útil:** la orden pedía demorar a propósito
+los ocho pedidos lentos. **Eso no se puede**, porque esos pedidos los hace el servidor, no el
+navegador. La orden pedía algo imposible; ese pedazo lo escribí mal yo.
+
+**Cómo se comprueba de verdad:** mirando **lo que manda el servidor**. Si la portada no espera,
+manda primero la pantalla con los recuadros de espera en el lugar de cada sección lenta. Si
+esperara, esos recuadros no existirían. La prueba nueva cuenta esos recuadros: **con la versión
+vieja se pone en rojo.**
+
+**La lección, para escribir órdenes:** antes de pedir una comprobación, hay que saber **si es
+posible hacerla**. Pedir algo que no se puede hacer termina en una prueba de mentira, que es peor
+que no tener ninguna.
+
+```comprobar
+prueba: tests/e2e/la-portada-aparece-al-toque.spec.ts
 ```
