@@ -138,6 +138,12 @@ export default function TouchpixPage() {
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
   const [retakesCount, setRetakesCount] = useState(0);
   const activeUploadSessionIdRef = useRef<string | null>(null);
+  const currentPhotoSessionIdRef = useRef<string>(photoSessionId);
+  const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    currentPhotoSessionIdRef.current = photoSessionId;
+  }, [photoSessionId]);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
   const imagenFondoRef = useRef<HTMLImageElement | null>(null);
@@ -714,14 +720,26 @@ export default function TouchpixPage() {
 
   /* ── Retake ── */
   const retake = useCallback((isUserInitiated = false) => {
+    if (typeof resetTimerRef !== 'undefined' && resetTimerRef?.current) {
+      clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
+    }
     setCapturedImage(null);
     setRawCapturedImage(null);
     setIsProcessing(false);
     setProcessingResult(null);
     setQueuedOffline(false);
+    setShowSuccess(false);
     setWizardStep(0);
     setConsentAccepted(false);
-    setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+    const nextSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    if (typeof currentPhotoSessionIdRef !== 'undefined') {
+      currentPhotoSessionIdRef.current = nextSessionId;
+    }
+    if (typeof activeUploadSessionIdRef !== 'undefined') {
+      activeUploadSessionIdRef.current = nextSessionId;
+    }
+    setPhotoSessionId(nextSessionId);
     if (!isUserInitiated) {
       setRetakesCount(0);
     }
@@ -736,8 +754,11 @@ export default function TouchpixPage() {
 
   useEffect(() => {
     if (capturedImage && !isProcessing && !isUploading && fiesta?.station?.reviewSeconds) {
+      const sessionAtStart = currentPhotoSessionIdRef.current;
       const timer = setTimeout(() => {
-        retake();
+        if (currentPhotoSessionIdRef.current === sessionAtStart && !isUploading) {
+          retake();
+        }
       }, fiesta.station.reviewSeconds * 1000);
       return () => clearTimeout(timer);
     }
@@ -747,8 +768,34 @@ export default function TouchpixPage() {
   const handleUpload = useCallback(async () => {
     if (!capturedImage) return;
     setIsUploading(true);
-    const sessionForThisUpload = photoSessionId;
-    activeUploadSessionIdRef.current = sessionForThisUpload;
+    const sessionForThisUpload = (typeof currentPhotoSessionIdRef !== 'undefined' && currentPhotoSessionIdRef?.current)
+      ? currentPhotoSessionIdRef.current
+      : photoSessionId;
+    if (typeof activeUploadSessionIdRef !== 'undefined') {
+      activeUploadSessionIdRef.current = sessionForThisUpload;
+    }
+
+    const isLiveSession = () => {
+      try {
+        // @ts-ignore
+        if (typeof liveSession !== 'undefined') return liveSession === sessionForThisUpload;
+      } catch {}
+      try {
+        // @ts-ignore
+        if (typeof currentPhotoSessionIdRef !== 'undefined' && currentPhotoSessionIdRef?.current) {
+          // @ts-ignore
+          return currentPhotoSessionIdRef.current === sessionForThisUpload;
+        }
+      } catch {}
+      try {
+        // @ts-ignore
+        if (typeof activeUploadSessionIdRef !== 'undefined' && activeUploadSessionIdRef?.current) {
+          // @ts-ignore
+          return activeUploadSessionIdRef.current === sessionForThisUpload;
+        }
+      } catch {}
+      return photoSessionId === sessionForThisUpload;
+    };
 
     let pendingFile: File | null = null;
     let uploadConfirmed = false;
@@ -789,13 +836,24 @@ export default function TouchpixPage() {
         accessToken
       );
       setQueuedOffline(false);
+
+      if (!isLiveSession()) {
+        return;
+      }
+
       setShowSuccess(true);
-      setTimeout(() => {
-        if (activeUploadSessionIdRef.current === sessionForThisUpload) {
+      if (typeof resetTimerRef !== 'undefined' && resetTimerRef?.current) {
+        clearTimeout(resetTimerRef.current);
+      }
+      const t = setTimeout(() => {
+        if (isLiveSession()) {
           setShowSuccess(false);
           retake();
         }
       }, 3000);
+      if (typeof resetTimerRef !== 'undefined') {
+        resetTimerRef.current = t;
+      }
     } catch (err: any) {
       const errMsg = String(err?.message || '');
       const uploadDecision = classifyOfflineUploadError(errMsg);
@@ -804,13 +862,20 @@ export default function TouchpixPage() {
       // o el servidor la reconoció por su huella. En ambos casos no se vuelve a subir.
       if (uploadConfirmed || uploadDecision === 'duplicate') {
         setQueuedOffline(false);
+        if (!isLiveSession()) return;
         setShowSuccess(true);
-        setTimeout(() => {
-          if (activeUploadSessionIdRef.current === sessionForThisUpload) {
+        if (typeof resetTimerRef !== 'undefined' && resetTimerRef?.current) {
+          clearTimeout(resetTimerRef.current);
+        }
+        const t = setTimeout(() => {
+          if (isLiveSession()) {
             setShowSuccess(false);
             retake();
           }
         }, 3000);
+        if (typeof resetTimerRef !== 'undefined') {
+          resetTimerRef.current = t;
+        }
         return;
       }
 
@@ -838,6 +903,7 @@ export default function TouchpixPage() {
             },
           });
           setQueuedOffline(true);
+          if (!isLiveSession()) return;
           setShowSuccess(true);
           void updateEntertainmentSessionStatus(
             fiestaId,
@@ -846,20 +912,30 @@ export default function TouchpixPage() {
             { mediaUrl: null, reviewPending: true },
             accessToken,
           ).catch(() => undefined);
-          setTimeout(() => {
-            if (activeUploadSessionIdRef.current === sessionForThisUpload) {
+          if (typeof resetTimerRef !== 'undefined' && resetTimerRef?.current) {
+            clearTimeout(resetTimerRef.current);
+          }
+          const t = setTimeout(() => {
+            if (isLiveSession()) {
               setShowSuccess(false);
               retake();
             }
           }, 4000);
+          if (typeof resetTimerRef !== 'undefined') {
+            resetTimerRef.current = t;
+          }
           return;
         } catch (offlineError) {
           console.error('[Touchpix] No se pudo guardar la foto sin conexión:', offlineError);
         }
       }
-      alert('No se pudo subir la foto: ' + errMsg);
+      if (isLiveSession()) {
+        alert('No se pudo subir la foto: ' + errMsg);
+      }
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   }, [accessToken, activeTab, capturedImage, fiestaId, guestAccessToken, guestId, photoSessionId, retake, selectedAiTheme, selectedCharacter]);
 
