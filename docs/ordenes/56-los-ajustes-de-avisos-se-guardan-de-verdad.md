@@ -1,5 +1,20 @@
 # Orden 56 — Los ajustes de avisos se guardan de verdad
 
+## Contraste prioritario Codex 2026-09-14
+
+PR1206, feat/ordenes-55-56, SHA 0f03c998cc36922f754d6e06e21e8c22ea47a796.
+La descripcion original debajo es HISTORICA: la tanda ya agrega lectura/guardado servidor
+y un filtro de envio. NO rehacerlo. Esta ampliacion prevalece sobre esa descripcion.
+
+Pendientes reproducidos: AV-01 valores apagados por defecto permiten envio; AV-02 se pierden
+destinatario/categoria y devuelve enviado:true sin crear aviso; AV-03 se guardan categorias nulas.
+Detalle, limites, responsables y reproduccion en docs/evidencias/56-contraste-1206-avisos.md.
+3 FAIL, 2 PASS en sondas aisladas. Gemini: defaults/validacion y contrato; Claude:
+identidad/permisos de destinatario y compilacion. Codex no programa ni compila la app.
+Ampliar la prueba existente con esos casos; pendiente de implementacion y ejecucion en nuevo SHA.
+
+## Pedido original (no repetir lo implementado)
+
 **Para Gemini. Una sola propuesta.**
 
 ## Qué pasa hoy, y es una pantalla de mentira
@@ -53,8 +68,9 @@ no se mande**. Que la preferencia se guarde no alcanza: si el que manda no la mi
 recibe el mail igual. La prueba apaga un tipo de aviso, dispara el envío y comprueba que **no
 salió**.
 
-```comprobar
-usa: requireAppSession en src/app/actions/preferencias-avisos.ts
+ ```comprobar
+archivo: src/app/actions/preferencias-avisos.ts
 usa: leerPreferenciasDeAvisos en src/app/(app)/settings/notifications/page.tsx
+usa: debeEnviarAvisoInterno en src/app/actions/notifications.ts
 prueba: src/__tests__/los-avisos-respetan-lo-que-se-apago.test.ts
 ```

@@ -7900,3 +7900,22 @@ Fuentes remotas del SHA, AST, sesion/IO simulados. No Firebase, E2E, build, dato
 TypeScript solo en carpeta de auditoria fuera de la app; worktrees previos desconectados
 se conservaron. Graphify local sin grafo utilizable. Orden55 ampliada; evidencia en
 `docs/evidencias/55-contraste-1206-opinion-y-guardado.md`. No se repite la auditoria entera.
+
+
+## 14 septiembre 2026 - Codex orden56: avisos PR1206
+
+SHA 0f03c998cc36922f754d6e06e21e8c22ea47a796: AV-01 default apagado permite envio;
+AV-02 wrapper pierde destinatario/categoria y declara enviado sin crear; AV-03 acepta null.
+3 FAIL reproducidos, 2 controles PASS. No son correcciones. Servidor y filtro ya implementados:
+no repetir trabajo. Gemini: defaults/validacion; Claude: identidad/permisos y compilacion.
+Sonda AST con IO/sesion simulados; sin mensajes reales, build, navegador o deploy.
+Evidencia docs/evidencias/56-contraste-1206-avisos.md y 56-sondas-avisos.cjs.
+Orden56 ampliada, no orden nueva. Pendiente corregir y ejecutar suite en nuevo SHA.
+
+
+## 14 septiembre 2026 - Sistema de contexto minimo solicitado por el dueno
+
+AGENTS.md prioriza indice corto + busqueda dirigida del historico, evidencia por SHA/entorno,
+delegacion segun costo total y traspaso acotado. docs/auditoria/INDICE-CORTO.md indexa SOLO las
+dos auditorias actuales con sus limites. No inventaria todo el pasado ni declara la app lista.
+No se borra historial. Sin dependencias ni cambios de app. Ahorro real de tokens no medido.

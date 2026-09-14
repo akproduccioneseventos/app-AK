@@ -1,3 +1,28 @@
+## Prioridad AK: contexto minimo por pedido (2026-09-14)
+
+Este bloque prevalece sobre instrucciones antiguas incompatibles de lectura completa,
+delegacion automatica o aprobacion por mera presencia en el registro.
+- Inicio: leer ESTADO-ACTUAL.md y docs/auditoria/INDICE-CORTO.md; confirmar HEAD de la tanda.
+- YA-RESUELTO sigue siendo obligatorio como consulta y registro: buscar por modulo/ID con
+  rg -n -i y abrir solo coincidencias con contexto. No volcar el historico entero al chat.
+- Usar evidencia del indice solo para su SHA, entorno, alcance y dependencias. Cambios de
+  configuracion, datos, permisos, proveedores o despliegue pueden invalidarla aun con igual SHA.
+  "Ya resuelto" no demuestra ausencia de regresion ni equivale a aprobado.
+- Abrir primero diff y consumidores directos; ampliar solo si hay una dependencia o riesgo.
+  Consultar Graphify puntual si esta disponible; no reconstruirlo por cada consulta.
+- Elegir directo, agente acotado o directiva segun menor consumo total estimado. No delegar
+  por rutina, copiar el chat entero ni repetir localmente la revision delegada.
+- Codex audita/documenta; Claude lleva dinero, comida, cobros, contabilidad, permisos y build;
+  Gemini el resto. El dueno aprueba cambios de funcionamiento y fusion.
+- Entrega entre IA: objetivo, SHA, rutas/simbolos reales, evidencia, criterio de aceptacion,
+  responsable y limites. Maximo 25 lineas de resumen; detalles enlazados.
+- Al cerrar: actualizar indice corto + registro historico en la misma tanda. Publicar y
+  verificar remoto; una rama documental no esta en main ni inicia otra IA automaticamente.
+- No omitir pruebas sensibles por ahorrar. No repetir build vigente sin causa; Claude valida
+  el conjunto final. Registrar causa si se invalida evidencia y repetir solo lo necesario.
+- Medir caracteres de contexto elegido, llamadas repetidas y tiempo; tokens reales solo si
+  disponibles. No equiparar caracteres a tokens ni prometer porcentajes de ahorro.
+
 ## ANTES DE AUDITAR: leé `docs/YA-RESUELTO.md`
 
 En este proyecto trabajan varias IA en paralelo, en cuentas distintas. Sin esa

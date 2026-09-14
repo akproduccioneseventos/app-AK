@@ -13,3 +13,11 @@ PR revisada: #1206, HEAD 0f03c998cc36922f754d6e06e21e8c22ea47a796.
 - Evidencia: docs/evidencias/55-contraste-1206-opinion-y-guardado.md.
 - Sin E2E, Firebase real o despliegue en esta vuelta. No certificado final.
 - Copia local original ausente; antiguos worktrees desconectados conservados.
+
+- Orden56 contrastada en el mismo SHA: 3 fallos de avisos, 2 controles PASS.
+- Evidencia: docs/evidencias/56-contraste-1206-avisos.md. Correcciones aun pendientes.
+- No repetir decoracion/avisos en este SHA; siguiente revision sobre entrega corregida.
+
+- Pedido nuevo: sistema de contexto minimo en AGENTS.md + docs/auditoria/INDICE-CORTO.md.
+- Reusar los 2 informes enlazados; no releer los 532553 caracteres del historico sin busqueda.
+- Ahorro real sin medir. Protocolo publicado en rama documental, aun no en main.
