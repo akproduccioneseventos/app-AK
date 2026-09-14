@@ -10,6 +10,8 @@ Primero confirmar PR/HEAD actual. Ninguna fila vale automaticamente para otra ve
 
 | Persistencia / arranque | 1207 / 29943cdd80ed7c14ceabc650544eb2aa304516a2 | 1 FAIL, 1 PASS; [orden58](../ordenes/58-guardar-sin-borrar-por-demora.md) | Claude: no escribir tras lectura incierta |
 
+| Touchpix | 1202 / 6622427c604930b02910a2a2778bf20a72683f40 | 1 FAIL, 1 PASS aislados; [orden48](../ordenes/48-entretenimiento-recuerdos.md) | Gemini: callback de A no reinicia B |
+
 ## Validez
 
 Sondas aisladas AST, sesion y almacenamiento simulados. No navegador, build ni Firebase real.

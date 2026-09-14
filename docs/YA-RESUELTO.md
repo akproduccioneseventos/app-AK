@@ -7928,3 +7928,31 @@ updateDataPartial reemplace campos existentes por solo el parcial. 1 FAIL y 1 co
 con AST/IO simulado. No corregido ni probado en Firebase. Claude: datos/compilacion.
 Orden58 y sonda 1207-timeout-datos.cjs. Registro CPU incorrecto: yaml cambia solo memoria.
 No repetir PR1206 (mismo SHA); 1208 fusionada, no revisada como abierta.
+
+
+## Contraste Codex 14/9: ENT-03 sigue pendiente en PR1202
+
+Rama feat/orden-47-y-48-marketing-y-entretenimiento.
+SHA 6622427c604930b02910a2a2778bf20a72683f40. No atribuir a publicado.
+
+P1: handleUpload captura photoSessionId y luego compara currentSession con ese mismo
+photoSessionId de su render. La respuesta y el timeout no consultan la sesion vigente.
+Las pestanas siguen llamando retake al cambiar de modo con imagen capturada.
+No basta agregar photoSessionId a dependencias: el callback ya pendiente sigue viejo.
+
+Sonda docs/evidencias/1202-touchpix-sesion.cjs extrae handleUpload real por AST.
+CONTROL A sin cambio: muestra exito y reinicia una vez (PASS).
+Escenario A pendiente, B actual, termina A: muestra exito y reinicia una vez (FAIL).
+Se simula el cambio de render conservando el callback A; NO se ejecuta React completo.
+Red, archivos y estado de entretenimiento son simulados. Node24/TS5.9, salida 1.
+Ejecutar con Node, TypeScript disponible (AUDIT_TYPESCRIPT opcional), pasando page.tsx del SHA.
+No hubo camara, foto real, Firebase, E2E ni build. No es una auditoria completa de PR1202.
+
+Gemini: usar identidad vigente accesible al callback pendiente, invalidar callbacks/timers
+de la sesion anterior y proteger tambien los caminos offline, duplicate y finally.
+No perder la foto A ya capturada/subida ni reiniciar B. Claude compila.
+La pausa por isUploading en reviewSeconds ya esta: conservarla, no rehacerla.
+El test tests/e2e/48-touchpix-entrega-sin-reinicio.spec.ts solo cambia pestana y espera;
+no captura, no bloquea upload, no inicia B ni libera respuesta A. Completarlo con ese
+escenario y un control normal; falta ejecutarlo en navegador contra la correccion.
+
