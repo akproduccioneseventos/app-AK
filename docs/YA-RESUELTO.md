@@ -31,6 +31,9 @@ creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
 anotado, la próxima auditoría lo va a volver a encontrar.
 
+<!-- Las ordenes 55 y 56 todavia NO estan fusionadas: su anotacion viaja con ellas.
+     Anotar aca algo que no esta en el codigo es justo lo que esta lista no puede hacer. -->
+
 ## 11 de septiembre de 2026 - Orden 57
 
 ### Orden 57 — La portada aparece al toque, sin esperar a nadie
@@ -7825,7 +7828,9 @@ prueba: src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts
 El servidor no llegaba a contestar a tiempo.
 
 **Qué se hizo, y SIN gastar un peso más por mes.** El dueño pidió otra salida antes de subirle
-la memoria al servidor, y la hay: **las páginas de venta las guarda la red de Google y se las
+la memoria al servidor. Se probó guardar una copia de las páginas —y **salió mal, se deshizo al
+día siguiente**; está contado abajo—. Lo que sí quedó es la portada que no espera a nadie.
+Lo que se había intentado: **las páginas de venta las guarda la red de Google y se las
 entrega al prospecto sin tocar el servidor de AK**. Se ven igual para todo el mundo, así que se
 pueden guardar. Si la copia guardada quedó vieja, igual se entrega en el momento y se pide una
 nueva por atrás: **nadie espera nunca**, ni con el servidor dormido.
@@ -7851,9 +7856,11 @@ justo cuando el servidor recién despierta, que es cuando la base tarda. Descart
 corre en varias copias y cada una se inventaría una distinta, echando al equipo al azar.
 
 ```comprobar
-prueba: src/__tests__/las-paginas-de-venta-las-guarda-google.test.ts
-usa: stale-while-revalidate en next.config.js
+archivo: apphosting.yaml
 ```
+
+**OJO: la parte de la copia guardada se DESHIZO al dia siguiente.** Enlentecio la web y rompio
+las fotos y los videos. El detalle esta en la anotacion que sigue.
 
 ## 11 de septiembre de 2026 — Se SACA la copia guardada de las páginas: error mío
 
@@ -7926,4 +7933,18 @@ que no tener ninguna.
 
 ```comprobar
 prueba: tests/e2e/la-portada-aparece-al-toque.spec.ts
+```
+
+## 14 de septiembre de 2026 — Guardar un cambio ya no puede borrar lo demás
+
+**Qué estaba mal:** al guardar un cambio parcial, si la lectura de lo que ya había fallaba, la app
+guardaba encima sólo lo nuevo y **borraba el resto del documento**, en silencio. Pasaba justo
+cuando la base andaba lenta, que es cuando más duele. Lo reprodujo Codex.
+
+**Cómo quedó:** el camino que guarda usa una lectura que **dice si pudo leer**. Si no pudo, **no
+se guarda nada** y el que llamó se entera con un aviso en criollo: que pruebe de nuevo en un
+momento. Es preferible no guardar un cambio a borrar cinco.
+
+```comprobar
+prueba: src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts
 ```

@@ -65,6 +65,43 @@ export async function readGenericJsonFile(filePath: string): Promise<any | null>
   }
 }
 
+/**
+ * LEER PARA GUARDAR ENCIMA: HAY QUE SABER SI SE PUDO LEER.
+ *
+ * De donde sale, y es de las peores que aparecieron. Cuando se guarda un cambio
+ * parcial -por ejemplo, solo el telefono de un contacto-, la app **lee lo que habia,
+ * le suma lo nuevo y guarda el conjunto entero**. `readGenericJsonFile` devuelve
+ * `null` en dos casos que no son lo mismo: cuando el documento **no existe**, y
+ * cuando **no se pudo leer** -la base tardo, se corto la red, fallo el permiso-.
+ *
+ * Con el segundo caso confundido con el primero, la app entiende que no habia nada
+ * y **guarda encima solo el pedacito nuevo: el resto se borra**. Sin aviso, sin
+ * error en pantalla, y justo cuando la base anda mal, que es cuando mas duele.
+ *
+ * Lo reprodujo Codex el 14 de septiembre de 2026. Por eso el camino que guarda usa
+ * esta funcion y no la otra: **dice si pudo leer**. Si no pudo, no se guarda nada.
+ */
+export async function leerGenericJsonParaGuardarEncima(
+  filePath: string,
+): Promise<{ sePudoLeer: boolean; datos: any | null }> {
+  const normalizedPath = filePath.replace(/\\/g, '/');
+  if (!isSafeTopLevelJsonFile(normalizedPath)) return { sePudoLeer: true, datos: null };
+  if (logger.shouldSkipFirestoreDuringBuild()) return { sePudoLeer: true, datos: null };
+
+  try {
+    const db = await getDbAdmin();
+    const doc = await db.collection(GENERIC_JSON_COLLECTION).doc(getGenericDocId(normalizedPath)).get();
+    if (!doc.exists) return { sePudoLeer: true, datos: null };
+    return { sePudoLeer: true, datos: unwrapGenericDocument(doc.data()) };
+  } catch (error) {
+    logger.warn(
+      `[Generic JSON Store] No se pudo leer "${normalizedPath}" antes de guardar encima:`,
+      logger.compactError(error),
+    );
+    return { sePudoLeer: false, datos: null };
+  }
+}
+
 export async function listGenericJsonDocuments(): Promise<Record<string, any>> {
   if (logger.shouldSkipFirestoreDuringBuild()) return {};
 

@@ -5,7 +5,7 @@
 "use server";
 
 import { syncToFirestore, readFromFirestore } from "./firebase-sync";
-import { readGenericJsonFile, syncGenericJsonFile } from "./generic-json-store";
+import { readGenericJsonFile, syncGenericJsonFile, leerGenericJsonParaGuardarEncima } from "./generic-json-store";
 import { isSafeTopLevelJsonFile } from "./backup/backup-registry";
 import * as logger from "./logger";
 
@@ -380,11 +380,16 @@ export async function updateDataPartial<T extends Record<string, any>>(
   try {
     await syncToFirestore(normalizedFilePath, partialData);
     if (isSafeTopLevelJsonFile(normalizedFilePath)) {
-      const existing =
-        ((await readGenericJsonFile(normalizedFilePath)) as Record<
-          string,
-          any
-        >) || {};
+      // Si NO se pudo leer lo que habia, no se guarda: guardar encima con la mano
+      // vacia borraria todo lo demas del documento. Ver el comentario largo en
+      // leerGenericJsonParaGuardarEncima.
+      const lectura = await leerGenericJsonParaGuardarEncima(normalizedFilePath);
+      if (!lectura.sePudoLeer) {
+        throw new Error(
+          'No se pudo leer lo que ya estaba guardado, asi que el cambio no se guardo para no borrar el resto. Probá de nuevo en un momento.',
+        );
+      }
+      const existing = (lectura.datos as Record<string, any>) || {};
       const merged = deepMerge(existing, partialData);
       await syncGenericJsonFile(normalizedFilePath, merged);
       await writeLocalJsonFallback(normalizedFilePath, merged);
