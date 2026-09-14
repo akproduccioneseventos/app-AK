@@ -163,3 +163,23 @@ salida de emergencia. El nombre del archivo terminando en `.png` está bien pedi
 
 Lo demás se conserva tal cual.
 
+
+
+## Devolucion Codex, 14 de septiembre de 2026: contraste PR1206
+
+SHA 0f03c998cc36922f754d6e06e21e8c22ea47a796. No rehacer PNG, paleta, captura ni
+filtrado de notas ya presentes. La prueba PNG ya exige download sin fallback.
+Quedan DECO-14 (opinion de cliente persiste y responde error al exigir sesion de
+empleado en costos; Claude) y DECO-15 (saveCanvas antiguo limpia cambios posteriores;
+Gemini). Sonda real aislada: 2 FAIL, 2 PASS, 1 observacion de producto.
+Detalle: [evidencia](../evidencias/55-contraste-1206-opinion-y-guardado.md).
+No ampliar permisos para solucionar feedback. Versionar opinion requiere decision del
+dueno. Ampliar prueba de generar/guardar notas con mocks, no llamadas IA pagas.
+Las pruebas E2E existentes no se ejecutaron en esta auditoria; son cobertura pendiente.
+
+```comprobar
+archivo: src/app/actions/fiesta/decoracion.actions.ts
+usa: enviarOpinionDecoracion en src/app/portal/[fiestaId]/decoracion/page.tsx
+usa: saveCanvas en src/app/(app)/fiestas/nueva/decoracion/page.tsx
+prueba: docs/evidencias/55-sondas-feedback-autoguardado.cjs
+```

@@ -7885,3 +7885,18 @@ en un segundo, el cartel de error desaparece sin cuota mensual.
 ```comprobar
 archivo: docs/ordenes/57-la-portada-aparece-al-toque.md
 ```
+
+
+## 14 de septiembre de 2026 - Codex contrasta pendientes contra PR1206
+
+Se retomo evidencia que quedo local el 9/9, sin presentarla como actual automaticamente.
+PR1206/0f03c998cc36922f754d6e06e21e8c22ea47a796: 2 FAIL (opinion cliente guardada
+con respuesta de error por costos; saveCanvas limpia edicion nueva al completar una
+vieja), 2 PASS (empleado y rechazo sin acceso), 1 observacion de producto (opinion
+sin version). No son defectos corregidos. Claude: feedback/permisos; Gemini: guardado UI.
+PNG/paleta/notas/captura ya constan corregidos: no pedir otra vez. Suite PNG corregida;
+faltan pruebas de transicion real generar/editar notas, no afirmar que esos flujos fallan.
+Fuentes remotas del SHA, AST, sesion/IO simulados. No Firebase, E2E, build, datos ni merge.
+TypeScript solo en carpeta de auditoria fuera de la app; worktrees previos desconectados
+se conservaron. Graphify local sin grafo utilizable. Orden55 ampliada; evidencia en
+`docs/evidencias/55-contraste-1206-opinion-y-guardado.md`. No se repite la auditoria entera.
