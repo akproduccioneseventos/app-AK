@@ -7948,3 +7948,36 @@ momento. Es preferible no guardar un cambio a borrar cinco.
 ```comprobar
 prueba: src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts
 ```
+
+## 15 de septiembre de 2026 — La puerta retoma donde quedo, y la pantalla que no abrio se mira de nuevo
+
+**Que pasaba:** dos cosas, y las dos costaron casi dos horas la misma noche.
+
+1. **La puerta empezaba de cero cada vez que se caia el contenedor.** Acentos, tipos,
+   pruebas y seis minutos de compilacion que ya habian dado bien sobre el mismo codigo,
+   repetidos enteros porque el contenedor se reinicio a la mitad. Cincuenta minutos por
+   cada caida. El dueno lo marco: *"tenes que buscar un mecanismo mas corto a prueba de
+   errores"*.
+2. **Una sola pantalla que no abre a tiempo frenaba la corrida entera.**
+   `/contabilidad/crm/ciclo-comercial` no contesto en quince segundos con cuatro carriles
+   peleandose la maquina; abierta sola despues, contesto en un segundo. No estaba rota:
+   estaba la maquina cargada.
+
+**Como se resolvio:**
+
+- La puerta guarda **que paso bien y sobre que codigo exacto** (`.ak-puerta-avance.json`).
+  La huella mezcla el commit, lo que esta sin guardar y lo que esta sin agregar: si se
+  toca una coma, la huella cambia y **no se saltea nada**. Se tira sola a las doce horas.
+  Para ignorarla a proposito, `AK_PUERTA_DESDE_CERO=true`.
+- El recorrido, al terminar, **vuelve a abrir de a una** las pantallas que se quedaron sin
+  abrir por tiempo. La que sigue sin abrir sola, sin nadie compitiendo, **frena igual**.
+
+**Probado rompiendolo, como manda la regla:** con el codigo cambiado a proposito la puerta
+volvio a correr todos los pasos en vez de saltearlos; y con el tiempo de apertura puesto en
+una milesima, el recorrido miro la pantalla de nuevo, siguio sin abrir y **freno**.
+
+```comprobar
+archivo: scripts/se-puede-publicar.mjs
+usa: leerAvance en scripts/se-puede-publicar.mjs
+usa: seQuedaronSinAbrir en tests/e2e/recorrido-de-pantallas.spec.ts
+```

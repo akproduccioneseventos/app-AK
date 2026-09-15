@@ -169,7 +169,10 @@ test.describe('Recorrido de las 353 pantallas', () => {
 
       try {
         const response = await page.goto(r.testUrl, {
-          timeout: 15_000,
+          // Los quince segundos son los de siempre. La variable existe para poder
+          // PROBAR el segundo intento rompiendolo a proposito, como pide la regla
+          // de que un control nuevo se prueba fallando.
+          timeout: Number(process.env.AK_RECORRIDO_TIMEOUT_MS || 15_000),
           waitUntil: 'domcontentloaded',
         });
 
@@ -409,6 +412,45 @@ test.describe('Recorrido de las 353 pantallas', () => {
       }
     });
     await Promise.all(carriles);
+
+    /**
+     * LA PANTALLA QUE NO ABRIO A TIEMPO SE MIRA DE NUEVO, SOLA.
+     *
+     * **Costo una corrida entera de cincuenta minutos el 14 de septiembre de 2026.**
+     * `/contabilidad/crm/ciclo-comercial` no llego a contestar en quince segundos con
+     * cuatro carriles peleandose la maquina, y eso freno la puerta. Abierta sola
+     * despues, contesto en un segundo: **no estaba rota, estaba la maquina cargada**.
+     *
+     * El resto de este archivo ya hace lo mismo con la pantalla que "parece vacia":
+     * se espera y se mira de nuevo. Faltaba hacerlo con la que **ni siquiera llego a
+     * abrir**, que es la misma clase de falsa alarma.
+     *
+     * NO afloja el control: la que sigue sin abrir la segunda vez, sola y sin nadie
+     * compitiendo, **frena igual**. Solo se le da el segundo intento a la que fallo
+     * por tiempo al abrir, que es lo unico que la maquina cargada puede provocar.
+     */
+    const seQuedaronSinAbrir = results
+      .map((r, idx) => ({ r, idx }))
+      .filter(({ r }) => r.estado === 'FALLO' && /page\.goto: Timeout/.test(String(r.motivo || '')));
+
+    if (seQuedaronSinAbrir.length > 0) {
+      console.log(`\n  ${seQuedaronSinAbrir.length} pantalla(s) no abrieron a tiempo con la maquina cargada. Se miran de nuevo, de a una:`);
+      for (const { r, idx } of seQuedaronSinAbrir) {
+        const rutaOriginal = routes.find((x: any) => x.testUrl === r.testUrl) || r;
+        const antes = results.length;
+        const page = await context.newPage();
+        try {
+          await procesarRuta(page, rutaOriginal, idx);
+        } finally {
+          await page.close().catch(() => {});
+        }
+        const segundaMirada = results.splice(antes, results.length - antes)[0];
+        if (segundaMirada) {
+          results[idx] = segundaMirada;
+          console.log(`     ${r.pathname}: ${segundaMirada.estado === 'PASO' ? 'abre bien sola (era la maquina cargada)' : `sigue sin abrir: ${segundaMirada.motivo}`}`);
+        }
+      }
+    }
 
     await context.close();
 
