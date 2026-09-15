@@ -186,11 +186,28 @@ function laAppPudoCambiar() {
 const AVANCE = '.ak-puerta-avance.json';
 const HORAS_QUE_VALE = 12;
 
+/**
+ * Lo que la propia corrida escribe NO cuenta para la huella.
+ *
+ * Primer intento fallido, la misma noche: la puerta anotaba su medicion de deuda y los
+ * datos de prueba, la huella cambiaba sola **entre una corrida y la siguiente sin que
+ * nadie tocara una linea**, y el avance no servia para nada. Se miran solo los archivos
+ * del codigo.
+ */
+const NO_ES_CODIGO_PARA_LA_HUELLA = [
+  ':(exclude)data',
+  ':(exclude)src/data',
+  ':(exclude)docs/deuda-medida.json',
+  ':(exclude)docs/auditado.json',
+  ':(exclude)test-results',
+];
+
 function huellaDelCodigo() {
+  const filtro = NO_ES_CODIGO_PARA_LA_HUELLA.map((p) => `'${p}'`).join(' ');
   const partes = [
     spawnSync('git rev-parse HEAD', { shell: true, encoding: 'utf8' }).stdout || '',
-    spawnSync('git status --porcelain', { shell: true, encoding: 'utf8' }).stdout || '',
-    spawnSync('git diff HEAD', { shell: true, encoding: 'utf8' }).stdout || '',
+    spawnSync(`git status --porcelain -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
+    spawnSync(`git diff HEAD -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
   ];
   return createHash('sha1').update(partes.join('|')).digest('hex');
 }
