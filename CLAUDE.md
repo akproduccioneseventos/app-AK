@@ -174,6 +174,23 @@ lo que no había que gastar.
 **Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
 comida o permisos? Si la respuesta es no, va a una orden.**
 
+### CADA TANDA TERMINA CON TRABAJO ESCRITO PARA GEMINI
+
+**Orden del dueño, 16 de septiembre de 2026:** *"no te olvides de siempre pasarle a Gemini"*.
+
+Cuando llega una revisión —de Codex, del dueño o propia—, los hallazgos se **reparten en el
+acto**, no se guardan para después:
+
+- **Lo de Claude** (plata, cobros, comida, permisos, quién ve qué) se arregla en la misma tanda.
+- **Todo lo demás sale como orden escrita** en `docs/ordenes/`, **antes de cerrar la tanda**.
+  Pantallas, carteles, entretenimiento, impresos, pruebas de componentes: eso es de Gemini.
+
+**Una tanda que arregla lo propio y deja el resto "anotado para más adelante" está incompleta.**
+Mientras no esté escrito como orden, Gemini está parado y el hallazgo se enfría.
+
+Y lo de siempre: **una sola propuesta con todos los bloques**, con los nombres exactos, qué no
+tocar, y qué tiene que comprobar la prueba.
+
 ### Claude dirige. Y una orden se escribe MASTICADA, no en general
 
 **Orden del dueño, 27 de agosto de 2026.** Palabras suyas: *"vos sos el jefe"*, y *"debés
