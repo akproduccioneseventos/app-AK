@@ -1,6 +1,7 @@
 'use server';
 
 import { getInvoices } from './invoices';
+import { inRange } from '@/lib/reportes/rango-de-dias';
 import { getPresupuestos } from './presupuestos';
 import { getAllFiestas } from './fiesta/fiesta.actions';
 import { getRoles } from './roles';
@@ -51,13 +52,6 @@ function roundMoney(value: unknown): number {
   const parsed = Number(value ?? 0);
   if (!Number.isFinite(parsed)) return 0;
   return Math.max(0, Math.round(parsed));
-}
-
-function inRange(dateValue: string | undefined, from: Date, to: Date): boolean {
-  if (!dateValue) return false;
-  const date = new Date(dateValue);
-  if (Number.isNaN(date.getTime())) return false;
-  return date >= from && date <= to;
 }
 
 function isFirmBudgetStatus(estado?: string) {

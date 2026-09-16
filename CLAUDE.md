@@ -1011,6 +1011,9 @@ con otra cara.
 | El despertador de afuera se daba de baja solo, porque la puerta no contestaba hasta terminar todas las tareas | `src/__tests__/el-despertador-contesta-sin-trabajar.test.ts` |
 | Un respaldo al que le faltaban partes se guardaba como completo, y la rotacion borraba la copia buena | `src/__tests__/el-respaldo-no-miente.test.ts` |
 | Cualquiera con sesion podia borrar respaldos y bajarse todo el negocio en un archivo | `src/__tests__/el-respaldo-no-miente.test.ts` |
+| Al reporte le faltaban los cobros del ultimo dia, por comparar la hora en vez del dia | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
+| Dos personas mandando invitaciones a la vez: al invitado le llegaban dos | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
+| Una restauracion a medias se anunciaba como completa y la recarga tapaba el aviso | `src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts` |
 
 ### Cómo se elige el matafuego
 

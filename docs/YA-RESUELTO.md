@@ -8040,3 +8040,40 @@ archivo: src/app/actions/backup.ts
 usa: requirePermiso en src/app/actions/backup.ts
 prueba: src/__tests__/el-respaldo-no-miente.test.ts
 ```
+
+## 16 de septiembre de 2026 — Al reporte le faltaba el ultimo dia, y al invitado le llegaban dos invitaciones
+
+**Los dos los encontro Codex y los dos eran ciertos.**
+
+1. **El reporte dejaba afuera los cobros del ultimo dia del rango.** El filtro comparaba la
+   HORA exacta: pedir "hasta el 30" llegaba como la medianoche del 30, asi que un cobro de
+   ese mismo dia a las diez de la manana quedaba afuera. El mes cerraba con menos plata de la
+   que entro, y el numero se ve razonable, asi que nadie lo notaba. Habia un segundo problema
+   de la misma familia: una fecha guardada como `2026-09-30` sola se entiende como medianoche
+   de Greenwich, que en Uruguay es el 29 a la noche, y el cobro se corria de dia. **Ahora se
+   compara el dia calendario**, como lo entiende una persona, con los dos extremos incluidos.
+2. **Dos personas mandando las invitaciones a la vez le mandaban dos al mismo invitado.** La
+   lista de "a quien ya se le mando" se leia al principio y se guardaba al final. Ahora leer,
+   mandar y anotar son un solo turno, y **se anota apenas se manda cada uno**: si la corrida
+   se corta por la mitad, lo ya mandado no se repite.
+
+**Probado rompiendolo:** volviendo el filtro a comparar horas y sacando el turno de las
+invitaciones, las dos pruebas se pusieron en rojo.
+
+```comprobar
+archivo: src/lib/reportes/rango-de-dias.ts
+usa: inRange en src/app/actions/reportes.ts
+prueba: src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
+```
+
+## 16 de septiembre de 2026 — La restauracion parcial ya no se anuncia como completa (segunda parte)
+
+La decision de que decirle a la persona despues de restaurar salio de la pantalla a
+`src/lib/respaldos/como-salio-la-restauracion.ts`, para poder probarla sin abrir un navegador
+y para que las tres salidas —completa, a medias, fallida— se vean juntas.
+
+```comprobar
+archivo: src/lib/respaldos/como-salio-la-restauracion.ts
+usa: comoSalioLaRestauracion en src/app/(app)/settings/backup/page.tsx
+prueba: src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts
+```
