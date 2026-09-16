@@ -197,3 +197,27 @@ se guarda encima.
 prueba: src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts
 usa: leerGenericJsonParaGuardarEncima en src/lib/data-service.ts
 ```
+
+## 16 de septiembre de 2026 — Arreglé un turno y rompí el de al lado (lo vio Codex)
+
+**Qué era:** la fotocabina y el espejo quedaban colgados en "Subiendo..." para la persona
+siguiente de la fila. Yo frené la entrega de Gemini por eso —bien frenada— y le indiqué que el
+apagado de ese cartel fuera **sin condición**. Codex probó los dos turnos con una sonda sobre el
+código real y mostró que mi indicación **arregla un caso y abre otro**: si la persona siguiente
+ya empezó SU PROPIA subida, la respuesta tardía de la anterior **le apaga el cartel a ella**.
+
+**Por qué no lo vi:** miré el turno que fallaba —la persona siguiente esperando— y no el turno de
+al lado —la persona siguiente ya trabajando—. El cartel de subiendo es de la pantalla, no de la
+persona, y con estado compartido entre turnos hay más de un camino.
+
+**La pregunta que lo hubiera agarrado, y que queda puesta:** ante cualquier arreglo sobre estado
+compartido, *"¿de quién es lo que estoy tocando, y qué pasa si el siguiente ya empezó lo suyo?"*.
+Con su mitad obligatoria: **el turno nuevo limpia lo heredado**, en vez de confiar en que el que
+termina tarde se abstenga.
+
+**Y el corolario para las órdenes:** una comprobación no pide la forma del código —"que no haya
+un `if` ahí"— sino el resultado en pantalla con las dos personas.
+
+```comprobar
+archivo: docs/ordenes/DEVOLUCION-48-entretenimiento-sesion-segura.md
+```

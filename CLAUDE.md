@@ -683,6 +683,33 @@ aplica primero a cobros, cuotas, facturas, presupuestos y sueldos. Y queda escri
 que la app esté terminada **no** significa que un área ya mirada quede mirada para siempre con
 las preguntas viejas; cuando el método suma una pregunta, lo que toca plata se vuelve a pasar.
 
+### 10. Arreglar un caso y romper el de al lado, por mirar un solo turno
+
+**Lo encontro Codex el 16 de septiembre de 2026, sobre una devolucion que yo mismo habia
+escrito.** La fotocabina dejaba la pantalla colgada en "Subiendo..." para la persona
+siguiente, y yo le indique a Gemini que el apagado del cartel fuera **sin condicion**.
+Eso arregla el caso de la persona B que esta mirando su captura **y rompe el de al lado**:
+si B ya empezo SU PROPIA subida, la respuesta tardia de A **le apaga el cartel a B**.
+
+**Que era lo cierto:** el cartel de subiendo, el de "guardada sin senal" y los demas
+avisos **son de la pantalla, no de la persona**. Con estado compartido entre turnos no
+alcanza con preguntar "¿esto arregla lo que se reporto?": hay que recorrer **quien viene
+despues y en que estado esta**.
+
+**Que se hace distinto, y es una pregunta nueva antes de mandar cualquier arreglo sobre
+estado compartido:**
+
+1. **¿De quien es el estado que estoy tocando?** Una operacion solo puede finalizar lo que
+   le pertenece.
+2. **¿Que pasa si el siguiente ya empezo lo suyo?** Se recorren los dos casos, no uno: el
+   siguiente esperando, y el siguiente ya trabajando.
+3. **El turno nuevo LIMPIA lo heredado.** Es la mitad que faltaba: no alcanza con que el
+   que termina tarde se abstenga; el que entra tiene que dejar la pantalla como si recien
+   se prendiera.
+
+Y el corolario para las ordenes: **una comprobacion no pide la forma del codigo** —"que el
+`finally` no tenga un `if`"— sino el resultado en pantalla con las dos personas.
+
 ### 9. Correr una segunda tanda de pruebas mientras corre la puerta
 
 **Pasó dos veces el 9 de septiembre de 2026, con cuarenta minutos ya invertidos cada vez.** Con la
