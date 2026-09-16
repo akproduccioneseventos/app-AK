@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, Suspense } from 'react';
+import { queSeLeDiceAlImportar } from '@/lib/presupuestos/aviso-de-importacion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -95,20 +96,13 @@ function ImportarPageContent() {
         return;
       }
       // SI ALGO QUEDO A MEDIAS, SE DICE ANTES DE IRSE DE LA PANTALLA.
-      // El caso real: el presupuesto se crea y la fiesta no. Antes el aviso se
-      // guardaba en una lista que sólo se mostraba cuando la importación fallaba
-      // entera, así que en este caso no lo veía nadie: la pantalla saltaba al
-      // presupuesto nuevo y el evento nunca existió.
-      if (result.warnings && result.warnings.length > 0) {
-        toast({
-          title: 'Importado, pero algo quedó a medias',
-          description: result.warnings.join(' '),
-          variant: 'destructive',
-          duration: 15000,
-        });
-      } else {
-        toast({ title: 'Presupuesto importado', description: `Se creó el presupuesto ${result.presupuestoId}.` });
-      }
+      // La decision vive en `queSeLeDiceAlImportar`, que se prueba aparte.
+      const aviso = queSeLeDiceAlImportar(result);
+      toast({
+        title: aviso.titulo,
+        description: aviso.detalle,
+        ...(aviso.esAMedias ? { variant: 'destructive' as const, duration: 15000 } : {}),
+      });
       router.push(`/presupuestos/${result.presupuestoId}/ver`);
     } finally {
       setLoading(false);

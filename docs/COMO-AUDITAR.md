@@ -331,7 +331,7 @@ leyéndola el cliente. Si no hay texto para mostrar, va sin texto.
 **Qué se hace al agregar esta pregunta:** se vuelve a pasar con ella **todo lo que proyecta datos
 hacia un cliente o un invitado**, aunque ya estuviera auditado.
 
-## La octava pregunta: ¿PUEDE TERMINAR A MEDIAS Y DECIR QUE TERMINO? (16 de septiembre de 2026)
+## La novena pregunta: ¿PUEDE TERMINAR A MEDIAS Y DECIR QUE TERMINO? (16 de septiembre de 2026)
 
 **Salio de tres defectos de respaldos que encontro Codex**, y los tres pasaban las siete
 preguntas anteriores: estaban escritos, alguien los llamaba, dejaban rastro, tenian prueba en

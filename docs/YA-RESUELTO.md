@@ -8113,3 +8113,20 @@ archivo: src/app/actions/admin-reset.ts
 usa: avisoAMedias en src/components/crm/RegisterDepositDialog.tsx
 prueba: src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts
 ```
+
+## 16 de septiembre de 2026 — Las nueve preguntas en una sola hoja, para que no se empiece de cero
+
+El dueno lo planteo asi: *"quizas conviene que Gemini audite con eso, para que si Codex
+encuentra algo no sea desde eso y empecemos de cero"*. Las preguntas del metodo estaban
+repartidas en un documento largo que lee Claude cuando audita, y **el que programa no las
+tenia a mano**.
+
+Ahora estan juntas en `docs/ANTES-DE-ENTREGAR.md`: nueve preguntas, cortas, para hacerselas a
+lo que uno acaba de tocar antes de decir que esta terminado. La orden 61 le pide a Gemini
+pasarlas por sus areas —entretenimiento, invitado, portal, impresos y operacion—, y decir en
+una linea las que dan limpias.
+
+```comprobar
+archivo: docs/ANTES-DE-ENTREGAR.md
+archivo: docs/ordenes/61-pasar-las-nueve-preguntas-por-lo-tuyo.md
+```
