@@ -133,6 +133,12 @@ export default function EspejoMagicoPage() {
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFilter, setSelectedFilter] = useState(FILTERS[0]);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+  const currentPhotoSessionIdRef = useRef<string>(photoSessionId);
+  const autoRetakeTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    currentPhotoSessionIdRef.current = photoSessionId;
+  }, [photoSessionId]);
 
   const [stickers, setStickers] = useState<{ id: string; emoji: string; x: number; y: number }[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -857,6 +863,9 @@ export default function EspejoMagicoPage() {
   const handleUpload = async (imageOverride?: string) => {
     if (!canvasRef.current || (!capturedImage && !imageOverride)) return;
 
+    const sessionForThisUpload = currentPhotoSessionIdRef.current;
+    const isLiveSession = () => currentPhotoSessionIdRef.current === sessionForThisUpload;
+
     setIsUploading(true);
     setLocalStatus('processing');
     void updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken).catch(() => undefined);
@@ -901,8 +910,9 @@ export default function EspejoMagicoPage() {
       );
       speak('Listo. Foto enviada al muro.');
 
-      setTimeout(() => {
-        retake();
+      if (autoRetakeTimerRef.current) clearTimeout(autoRetakeTimerRef.current);
+      autoRetakeTimerRef.current = setTimeout(() => {
+        if (isLiveSession()) retake();
       }, 12000);
     } catch (err) {
       console.error(err);
@@ -931,8 +941,9 @@ export default function EspejoMagicoPage() {
             accessToken,
           ).catch(() => undefined);
           speak('Tu foto quedó guardada y se subirá cuando vuelva la señal.');
-          setTimeout(() => {
-            retake();
+          if (autoRetakeTimerRef.current) clearTimeout(autoRetakeTimerRef.current);
+          autoRetakeTimerRef.current = setTimeout(() => {
+            if (isLiveSession()) retake();
           }, 5000);
           return;
         } catch (offlineError) {
@@ -951,11 +962,18 @@ export default function EspejoMagicoPage() {
       ).catch(() => undefined);
       speak('No se pudo guardar la foto. Podés reintentar o descargarla en este dispositivo.');
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   };
 
   const retake = () => {
+    if (autoRetakeTimerRef.current) {
+      clearTimeout(autoRetakeTimerRef.current);
+      autoRetakeTimerRef.current = null;
+    }
+    setIsUploading(false);
     setErrorMsg(null);
     setCapturedImage(null);
     setStickers([]);
@@ -965,7 +983,9 @@ export default function EspejoMagicoPage() {
     setAiStep('idle');
     setAiProcessing(false);
     setLocalStatus('idle');
-    setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+    const nextSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    currentPhotoSessionIdRef.current = nextSessionId;
+    setPhotoSessionId(nextSessionId);
     setSliderPosition(50);
     void completeEntertainmentSessionCycle(fiestaId, moduleId, accessToken);
     if (role === 'display') {
