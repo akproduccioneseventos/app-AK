@@ -17,6 +17,7 @@ import type { PagoCliente } from '@/types/presupuesto';
 import type { GoogleWorkspaceAccount, GoogleWorkspaceSyncRecord } from '@/types/google-workspace';
 
 import { requireAppSession } from '@/lib/auth/require-session';
+import { AsyncMutex } from '@/lib/mutex';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 const ACCOUNTS_FILE = '_google-workspace-accounts.json';
@@ -407,8 +408,27 @@ export async function syncReunionToGoogleWorkspace(
   return { success: true, warnings };
 }
 
+/**
+ * UNA INVITACION POR INVITADO, AUNQUE TOQUEN EL BOTON DOS PERSONAS A LA VEZ.
+ *
+ * **Lo encontro Codex el 16 de septiembre de 2026.** La lista de "a quien ya se le
+ * mando" se leia **al principio**, se mandaban todos los correos, y recien al final se
+ * guardaba. Si dos personas del equipo apretaban el boton casi juntas, las dos leian la
+ * misma lista vacia y **al invitado le llegaban dos invitaciones**. Queda feo con el
+ * invitado del cliente, que es exactamente donde no hay que quedar mal.
+ *
+ * El turno hace que leer, mandar y anotar sean una sola cosa. Y ademas **se anota apenas
+ * se manda cada uno**, no al final: si algo corta la corrida por la mitad, lo ya mandado
+ * queda registrado y no se repite.
+ */
+const turnoDeInvitaciones = new AsyncMutex();
+
 export async function notifyGuestsWithCalendarLinks(fiestaId: string, options: { forceEmail?: boolean } = {}) {
   await requireAppSession();
+  return turnoDeInvitaciones.runExclusive(() => notifyGuestsWithCalendarLinksInterno(fiestaId, options));
+}
+
+async function notifyGuestsWithCalendarLinksInterno(fiestaId: string, options: { forceEmail?: boolean } = {}) {
   const [fiesta, records] = await Promise.all([getFiestaById(fiestaId), readSyncRecords()]);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -444,6 +464,9 @@ export async function notifyGuestsWithCalendarLinks(fiestaId: string, options: {
           [invitado.id]: new Date().toISOString(),
         },
       };
+      // Se anota apenas se manda, no al final: si la corrida se corta por la mitad,
+      // lo ya mandado no se repite.
+      await writeSyncRecords(upsertRecord(await readSyncRecords(), record));
     }
   }
 

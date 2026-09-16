@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { comoSalioLaRestauracion, queSeLeDice } from '@/lib/respaldos/como-salio-la-restauracion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,9 +60,19 @@ export default function BackupPage() {
       if (!response.ok) {
         throw new Error(result.error || 'Error al restaurar el respaldo.');
       }
-      toast({ title: '✅ Restauración Completa', description: 'Los datos fueron restaurados. La aplicación se recargará.' });
+      // UNA RESTAURACIÓN A MEDIAS NO SE ANUNCIA COMO COMPLETA.
+      // La decisión vive en `comoSalioLaRestauracion`, que se prueba aparte.
+      const como = comoSalioLaRestauracion(result);
+      const aviso = queSeLeDice(como);
+      toast({
+        title: aviso.titulo,
+        description: aviso.detalle,
+        ...(como.estado === 'parcial' ? { variant: 'destructive' as const, duration: 15000 } : {}),
+      });
       setFile(null);
-      setTimeout(() => window.location.reload(), 1500);
+      if (aviso.puedeRecargar) {
+        setTimeout(() => window.location.reload(), 1500);
+      }
     } catch (error: any) {
       toast({ title: 'Error en la Restauración', description: error.message, variant: 'destructive' });
     } finally {

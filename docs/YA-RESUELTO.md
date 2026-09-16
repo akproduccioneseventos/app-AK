@@ -8044,3 +8044,99 @@ archivo: scripts/se-puede-publicar.mjs
 usa: leerAvance en scripts/se-puede-publicar.mjs
 usa: seQuedaronSinAbrir en tests/e2e/recorrido-de-pantallas.spec.ts
 ```
+
+## 15 de septiembre de 2026 — El despertador de afuera se daba de baja solo por "errores"
+
+**Que pasaba:** el dueno tenia un servicio gratuito de afuera golpeando la app cada tanto
+para que las tareas automaticas no dependieran de que alguien entrara. **El servicio le
+aviso por correo que lo daba de baja por acumular errores.**
+
+**Que era lo cierto:** el servicio golpeaba `/api/cron-despachador`, y esa puerta **no
+contesta hasta terminar TODAS las tareas** —metricas, publicaciones programadas, una nota
+de blog hecha con inteligencia artificial, los recordatorios de cuota—. Si ademas el
+servidor estaba dormido, se sumaba la despertada. Un servicio de afuera corta a los treinta
+segundos y lo anota como fallo; a los pocos fallos, da de baja el aviso. No era un error de
+la app: era una puerta que tarda lo que tarda el trabajo.
+
+**Como se resolvio:** se agrego `/api/despertar`, que hace una sola cosa y rapido —deja
+constancia del toque y contesta—. **No corre ninguna tarea**, asi que no puede demorar por
+el trabajo. El trabajo sigue donde hay paciencia: el despertador de Google (dos minutos de
+espera) y las visitas a la web.
+
+**Por que no se contesta primero y se trabaja despues:** en este hosting el servidor deja de
+tener maquina apenas contesta, asi que las tareas quedarian cortadas por la mitad sin que
+nadie se entere. Eso es peor que no correrlas.
+
+**Probado rompiendolo:** con una llamada a las tareas metida adentro de la puerta nueva, la
+prueba se puso en rojo.
+
+```comprobar
+archivo: src/app/api/despertar/route.ts
+usa: marcarToqueDespertador en src/app/api/despertar/route.ts
+prueba: src/__tests__/el-despertador-contesta-sin-trabajar.test.ts
+```
+
+## 16 de septiembre de 2026 — Los respaldos: tres formas de decir que estaba todo bien sin estarlo
+
+**Los encontro Codex y los tres eran ciertos.** Se arreglaron los tres, con su control.
+
+1. **Una copia a la que le faltaban cosas se guardaba marcada como completa.** Si una parte
+   no se podia leer —la base lenta, cortada, un permiso—, se la salteaba con un aviso en el
+   registro que no mira nadie y el respaldo salia igual. Y al guardarse, **la rotacion
+   borraba una copia vieja que si estaba entera**: justo cuando la base falla, el negocio
+   se quedaba sin la ultima copia buena creyendo que tenia una nueva. Ahora, si falta algo,
+   **no se guarda nada** y se avisa que falto y que la copia anterior sigue intacta.
+2. **Cualquiera con sesion podia borrar y restaurar respaldos, y bajarse todo el negocio en
+   un archivo.** El operador de fiesta tiene sesion. Ahora las cuatro puertas —crear,
+   restaurar, borrar y la descarga completa— piden el permiso de administracion, que es el
+   que ya tenia la app definido para crear usuarios y borrar datos. La descarga incluye
+   sueldos y ganancias, asi que la secretaria tampoco la baja.
+3. **Una restauracion a medias se anunciaba como "Restauracion Completa"** y la pantalla se
+   recargaba enseguida, tapando el aviso. Ahora, si alguna parte no entro, el cartel dice
+   que se restauro solo una parte, nombra lo que falto y **no recarga**, para que se lea.
+
+**Probado rompiendolo:** sacando el permiso de borrar y el freno de la copia parcial, la
+prueba se puso en rojo en los dos casos.
+
+```comprobar
+archivo: src/app/actions/backup.ts
+usa: requirePermiso en src/app/actions/backup.ts
+prueba: src/__tests__/el-respaldo-no-miente.test.ts
+```
+
+## 16 de septiembre de 2026 — Al reporte le faltaba el ultimo dia, y al invitado le llegaban dos invitaciones
+
+**Los dos los encontro Codex y los dos eran ciertos.**
+
+1. **El reporte dejaba afuera los cobros del ultimo dia del rango.** El filtro comparaba la
+   HORA exacta: pedir "hasta el 30" llegaba como la medianoche del 30, asi que un cobro de
+   ese mismo dia a las diez de la manana quedaba afuera. El mes cerraba con menos plata de la
+   que entro, y el numero se ve razonable, asi que nadie lo notaba. Habia un segundo problema
+   de la misma familia: una fecha guardada como `2026-09-30` sola se entiende como medianoche
+   de Greenwich, que en Uruguay es el 29 a la noche, y el cobro se corria de dia. **Ahora se
+   compara el dia calendario**, como lo entiende una persona, con los dos extremos incluidos.
+2. **Dos personas mandando las invitaciones a la vez le mandaban dos al mismo invitado.** La
+   lista de "a quien ya se le mando" se leia al principio y se guardaba al final. Ahora leer,
+   mandar y anotar son un solo turno, y **se anota apenas se manda cada uno**: si la corrida
+   se corta por la mitad, lo ya mandado no se repite.
+
+**Probado rompiendolo:** volviendo el filtro a comparar horas y sacando el turno de las
+invitaciones, las dos pruebas se pusieron en rojo.
+
+```comprobar
+archivo: src/lib/reportes/rango-de-dias.ts
+usa: inRange en src/app/actions/reportes.ts
+prueba: src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
+```
+
+## 16 de septiembre de 2026 — La restauracion parcial ya no se anuncia como completa (segunda parte)
+
+La decision de que decirle a la persona despues de restaurar salio de la pantalla a
+`src/lib/respaldos/como-salio-la-restauracion.ts`, para poder probarla sin abrir un navegador
+y para que las tres salidas —completa, a medias, fallida— se vean juntas.
+
+```comprobar
+archivo: src/lib/respaldos/como-salio-la-restauracion.ts
+usa: comoSalioLaRestauracion en src/app/(app)/settings/backup/page.tsx
+prueba: src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts
+```

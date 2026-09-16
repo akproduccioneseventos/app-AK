@@ -36,3 +36,15 @@ El proyecto cuenta con dos motores automáticos coordinados:
 
 Entrá a **Configuración → Tareas Automáticas** (`/settings/tareas-automaticas`).
 Ahí vas a ver cada tarea con su estado (**Al día**), la fecha/hora exacta en la que corrió por última vez y quién la disparó (*Despertador de fondo* o *Visita a la web*).
+
+## Si se usa un despertador de afuera (servicio gratuito)
+
+**Que golpee `/api/despertar`, NO `/api/cron-despachador`.**
+
+El despachador no contesta hasta terminar todas las tareas —incluida una nota de blog
+hecha con inteligencia artificial—, asi que desde afuera se ve como una demora eterna.
+Los servicios gratuitos cortan a los treinta segundos, lo anotan como fallo, y a los
+pocos fallos **dan de baja el aviso**. Paso el 15 de septiembre de 2026.
+
+`/api/despertar` deja constancia del toque y contesta en el acto. El trabajo lo hacen el
+despertador de Google (que espera dos minutos) y las visitas a la web.
