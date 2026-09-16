@@ -1,5 +1,17 @@
 [
   {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_a533f86f8078f31de51e4135/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_a533f86f8078f31de51e4135",
+    "rolDestino": "admin",
+    "id": "notif_cbfd6095-d7cc-467a-bb18-b59ef5cdfc8e",
+    "fecha": "2026-09-16T13:54:13.284Z",
+    "leida": false
+  },
+  {
     "mensaje": "💬 Mensaje nuevo del cliente: \"Hola equipo de AK, queremos consultar si podemos a...\"",
     "href": "/fiestas/nueva?fiestaId=e2e_msg_1788894247698&tab=portal-cliente",
     "icono": "MessageSquare",
