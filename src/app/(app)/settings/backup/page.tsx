@@ -196,7 +196,7 @@ export default function BackupPage() {
                   </Badge>
                 </div>
                 <CardDescription className="text-slate-600">
-                  Consultando el estado de los respaldos automáticos en Firestore...
+                  Averiguando estado... Consultando el estado de los respaldos automáticos en Firestore...
                 </CardDescription>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                   <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
