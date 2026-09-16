@@ -24,7 +24,7 @@ import { createRestorePoint, getRestorePoints, restoreFromPoint, deleteRestorePo
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { resolveBackupUIState } from '@/lib/backup/backup-ui-state';
+import { comoEstaElRespaldo } from '@/lib/respaldos/como-esta-el-respaldo';
 
 export default function BackupPage() {
   const { toast } = useToast();
@@ -176,26 +176,26 @@ export default function BackupPage() {
       )}
 
       {(() => {
-        const uiState = resolveBackupUIState({
-          isLoading: isLoadingPoints,
+        const estado = comoEstaElRespaldo({
+          cargando: isLoadingPoints,
           backupStatus,
-          statusLoadError,
+          falloConsulta: statusLoadError,
         });
 
-        if (uiState === 'cargando') {
+        if (estado === 'cargando') {
           return (
-            <Card className="shadow-md overflow-hidden border-amber-200 bg-gradient-to-r from-amber-50/60 to-white" data-testid="card-backup-cargando">
+            <Card className="shadow-md overflow-hidden border-slate-200 bg-slate-50/80" data-testid="card-backup-cargando">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between gap-3">
-                  <CardTitle className="text-lg flex items-center gap-2 text-amber-800">
-                    <RotateCw className="w-6 h-6 text-amber-600 animate-spin" />
+                  <CardTitle className="text-lg flex items-center gap-2 text-slate-700">
+                    <RotateCw className="w-6 h-6 text-slate-500 animate-spin" />
                     Estado de Respaldo
                   </CardTitle>
-                  <Badge className="bg-amber-500 text-white border-none">
-                    AVERIGUANDO ESTADO...
+                  <Badge variant="outline" className="bg-white text-slate-700 border-slate-300">
+                    Averiguando estado...
                   </Badge>
                 </div>
-                <CardDescription className="text-amber-700">
+                <CardDescription className="text-slate-600">
                   Consultando el estado de los respaldos automáticos en Firestore...
                 </CardDescription>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
@@ -203,9 +203,9 @@ export default function BackupPage() {
                     <p className="text-xs text-muted-foreground">Respaldos guardados</p>
                     <p className="text-2xl font-black text-slate-800">{restorePoints.length}</p>
                   </div>
-                  <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3">
+                  <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
                     <p className="text-xs text-muted-foreground">Último respaldo bueno</p>
-                    <p className="text-sm font-semibold text-amber-800">Averiguando...</p>
+                    <p className="text-sm font-semibold text-slate-700">Averiguando...</p>
                   </div>
                 </div>
               </CardHeader>
@@ -213,7 +213,7 @@ export default function BackupPage() {
           );
         }
 
-        if (uiState === 'no_se_pudo_saber') {
+        if (estado === 'no-se-pudo-saber') {
           return (
             <Card className="shadow-md overflow-hidden border-amber-300 bg-gradient-to-r from-amber-50 to-white" data-testid="card-backup-desconocido">
               <CardHeader className="pb-3">
@@ -223,11 +223,11 @@ export default function BackupPage() {
                     Estado de Respaldo
                   </CardTitle>
                   <Badge className="bg-amber-600 text-white border-none">
-                    ESTADO DESCONOCIDO: NO SE PUDO SABER
+                    NO SE PUDO SABER
                   </Badge>
                 </div>
                 <CardDescription className="text-amber-800">
-                  ⚠️ No se pudo comprobar el estado de los respaldos automáticos. Te recomendamos verificar la conexión o generar un punto manual.
+                  No se pudo averiguar cómo están los respaldos. Probá recargar; si sigue, creá un punto manual.
                 </CardDescription>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                   <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
@@ -246,7 +246,7 @@ export default function BackupPage() {
           );
         }
 
-        if (uiState === 'sin_respaldo_reciente') {
+        if (estado === 'vencido') {
           return (
             <Card className="shadow-md overflow-hidden border-red-300 bg-gradient-to-r from-red-50 to-white" data-testid="card-backup-stale">
               <CardHeader className="pb-3">
@@ -475,3 +475,4 @@ export default function BackupPage() {
     </div>
   );
 }
+

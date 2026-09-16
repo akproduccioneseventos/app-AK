@@ -811,11 +811,11 @@ export default function TouchpixPage() {
         { mediaUrl: res.post?.imageUrl, reviewPending: false },
         accessToken
       );
-      setQueuedOffline(false);
 
       if (!isLiveSession()) {
         return;
       }
+      setQueuedOffline(false);
 
       setShowSuccess(true);
       if (resetTimerRef.current) {
@@ -834,8 +834,8 @@ export default function TouchpixPage() {
       // La foto ya llegó aunque haya fallado la actualización secundaria del estado,
       // o el servidor la reconoció por su huella. En ambos casos no se vuelve a subir.
       if (uploadConfirmed || uploadDecision === 'duplicate') {
-        setQueuedOffline(false);
         if (!isLiveSession()) return;
+        setQueuedOffline(false);
         setShowSuccess(true);
         if (resetTimerRef.current) {
           clearTimeout(resetTimerRef.current);
@@ -872,8 +872,8 @@ export default function TouchpixPage() {
                 : undefined,
             },
           });
-          setQueuedOffline(true);
           if (!isLiveSession()) return;
+          setQueuedOffline(true);
           setShowSuccess(true);
           void updateEntertainmentSessionStatus(
             fiestaId,
@@ -900,7 +900,9 @@ export default function TouchpixPage() {
         alert('No se pudo subir la foto: ' + errMsg);
       }
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   }, [accessToken, activeTab, capturedImage, fiestaId, guestAccessToken, guestId, photoSessionId, retake, selectedAiTheme, selectedCharacter]);
 
@@ -1724,3 +1726,4 @@ export default function TouchpixPage() {
     </div>
   );
 }
+

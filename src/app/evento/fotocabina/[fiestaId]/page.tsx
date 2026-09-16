@@ -994,7 +994,9 @@ export default function FotocabinaPage() {
       );
       speak("No se pudo subir al muro, pero puedes guardarla");
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -1736,5 +1738,6 @@ export default function FotocabinaPage() {
     </div>
   );
 }
+
 
 

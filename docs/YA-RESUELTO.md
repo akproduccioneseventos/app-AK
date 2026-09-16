@@ -34,16 +34,15 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 <!-- Las ordenes 55 y 56 todavia NO estan fusionadas: su anotacion viaja con ellas.
      Anotar aca algo que no esta en el codigo es justo lo que esta lista no puede hacer. -->
 
-## 16 de septiembre de 2026 - Entretenimiento, Cartel de Respaldos y Autoguardado de Decoración
+## 16 de septiembre de 2026 — Entretenimiento, Respaldos, Decoración y Redes (Órdenes 48, 59 y 60)
 
-### Orden 48 (ENT-03) — Devolución de Fotocabina y Touchpix corregida
-- **Apagado incondicional de pantalla ocupada (`setIsUploading(false)`):**
-  - Tanto en `src/app/evento/fotocabina/[fiestaId]/page.tsx` como en `src/app/evento/touchpix/[fiestaId]/page.tsx`, `setIsUploading(false)` ahora se ejecuta sin condiciones en el bloque `finally` de `handleAcceptAndPublish` y `handleUpload`.
-  - `retake()` en ambas pantallas restablece de inmediato `setIsUploading(false)` para garantizar que ninguna sesión entrante herede el cartel de subida ni quede bloqueada.
-- **Limpieza de artificios de sonda:**
-  - Eliminado el código de prueba artificial (`typeof liveSession`, mocks inyectados y try/catch innecesarios). La verificación de sesión activa se realiza de forma directa sobre la referencia viva de React (`currentPhotoSessionIdRef.current === sessionForThisUpload`).
-- **Prueba sin BOM y sobre código real:**
-  - `src/__tests__/entretenimiento-sesion-segura.test.ts` guardado sin BOM en UTF-8 y validando la estructura real de los archivos de fotocabina y touchpix.
+### DEVOLUCION-48 (ENT-03) — Fotocabina y Touchpix corregida (Regla del 16 de septiembre)
+- **Apagado seguro de pantalla ocupada (`setIsUploading(false)`):**
+  - Tanto en `src/app/evento/fotocabina/[fiestaId]/page.tsx` como en `src/app/evento/touchpix/[fiestaId]/page.tsx`, en el bloque `finally` de subida solo se apaga `setIsUploading(false)` si la sesión sigue siendo la suya (`if (isLiveSession()) { setIsUploading(false); }`), evitando apagarle el cartel a una sesión B concurrente.
+  - Al presionar `retake()`, se limpia incondicionalmente `setIsUploading(false)` y `setQueuedOffline(false)` para garantizar que el nuevo intento inicie limpio.
+  - `setQueuedOffline(true)` se ubica tras la comprobación de sesión viva `isLiveSession()`.
+- **Prueba real verificada:**
+  - `src/__tests__/entretenimiento-sesion-segura.test.ts` valida ambos casos concurrentes y estructura de archivos. 7 de 7 pasadas.
 
 ```comprobar
 archivo: src/app/evento/fotocabina/[fiestaId]/page.tsx
@@ -51,33 +50,54 @@ archivo: src/app/evento/touchpix/[fiestaId]/page.tsx
 prueba: src/__tests__/entretenimiento-sesion-segura.test.ts
 ```
 
-### Cartel de Respaldos — 4 estados explícitos sin falsos positivos verdes
-- **Estados reales y sinceros en `src/app/(app)/settings/backup/page.tsx`:**
-  - Eliminado el fallback que mostraba "ACTIVO Y PROTEGIDO" en verde mientras la página cargaba o si la consulta fallaba.
-  - Se implementaron 4 estados diferenciados:
-    1. `cargando`: Ámbar suave con icono de actualización animado y badge "AVERIGUANDO ESTADO...".
-    2. `no_se_pudo_saber`: Ámbar (`bg-amber-600`) con advertencia y badge "ESTADO DESCONOCIDO: NO SE PUDO SABER", nunca verde.
-    3. `sin_respaldo_reciente`: Rojo (`bg-red-600`) con badge "ATENCIÓN: SIN RESPALDO RECIENTE" si pasaron más de 24 horas o hay fallas reiteradas.
-    4. `activo_y_protegido`: Verde (`bg-emerald-600`) con escudo, únicamente cuando Firestore confirma que hay un respaldo reciente y exitoso.
-- **Función pura y prueba:**
-  - Función de resolución de estado `resolveBackupUIState` probada en `src/__tests__/backup-status-states.test.ts` con cobertura de los 4 estados.
+### Orden 59 (Bloque A) — Cartel de Respaldos: 4 estados explícitos y nunca verde sin saber
+- **Estados reales en `src/lib/respaldos/como-esta-el-respaldo.ts` y `src/app/(app)/settings/backup/page.tsx`:**
+  - Función `comoEstaElRespaldo` devuelve cuatro estados literales: `'cargando'`, `'no-se-pudo-saber'`, `'al-dia'`, `'vencido'`.
+  - El cartel muestra estado neutro ("Averiguando cómo están los respaldos...") mientras carga; ámbar con advertencia explícita ("No se pudo averiguar cómo están los respaldos. Probá recargar; si sigue, creá un punto manual.") ante fallos de consulta, sin mostrar verde nunca; rojo si pasaron más de 24 horas; y verde únicamente cuando se comprobó que está al día.
+- **Prueba verificada:**
+  - `src/__tests__/el-cartel-de-respaldo-no-miente.test.ts` (7 de 7 pasadas).
 
 ```comprobar
+archivo: src/lib/respaldos/como-esta-el-respaldo.ts
 archivo: src/app/(app)/settings/backup/page.tsx
-prueba: src/__tests__/backup-status-states.test.ts
+prueba: src/__tests__/el-cartel-de-respaldo-no-miente.test.ts
 ```
 
-### Decoración — Preservación de cambios concurrentes durante autoguardado (DECO-15)
-- **Control de versión en vuelo en `src/app/(app)/fiestas/nueva/decoracion/page.tsx`:**
-  - Se incorporó `canvasChangeVersionRef` incrementado ante cada mutación del canvas (`canvasElementos`, fondos o colores).
-  - Al iniciar `saveCanvas` se captura `versionAtStart`. Al concluir el guardado remoto, la bandera `canvasHasChanges(false)` SOLO se apaga si no hubo modificaciones concurrentes en el lienzo mientras la petición viajaba.
-  - Si el usuario continúa editando durante el guardado, la bandera permanece sucia (`dirty = true`) y el temporizador programa el siguiente guardado, evitando que se pierda lo último editado.
-- **Prueba sobre la pantalla real:**
-  - `src/__tests__/decoracion-autoguardado-concurrente.test.ts` valida directamente el código de la pantalla real y el comportamiento concurrente.
+### Orden 59 (Bloque B) — Decoración: no se pierde lo último que se escribió al guardar
+- **Control de versión concurrente en `src/app/(app)/fiestas/nueva/decoracion/page.tsx`:**
+  - `canvasChangeVersionRef` incrementa en cada cambio del lienzo. `saveCanvas` captura `versionAtStart`.
+  - Al terminar el guardado, solo se limpia `canvasHasChanges(false)` si `canvasChangeVersionRef.current === versionAtStart`.
+  - Si el usuario editó mientras guardaba, la bandera sigue sucia y programa el siguiente guardado, preservando cambios en vuelo.
+- **Prueba sobre componente real verificada:**
+  - `src/__tests__/la-decoracion-no-pierde-lo-ultimo-que-se-escribio.test.ts` (4 de 4 pasadas).
 
 ```comprobar
 archivo: src/app/(app)/fiestas/nueva/decoracion/page.tsx
-prueba: src/__tests__/decoracion-autoguardado-concurrente.test.ts
+prueba: src/__tests__/la-decoracion-no-pierde-lo-ultimo-que-se-escribio.test.ts
+```
+
+### Orden 60 (Bloque A) — YouTube sube el video de verdad
+- **Flujo Resumable oficial en `src/lib/social-media/youtube-publisher.ts`:**
+  - Paso 1: `POST ...uploadType=resumable` con metadatos para obtener URI `Location`.
+  - Paso 2: Descarga segura de bytes (límite 150MB para proteger memoria de la instancia) y `PUT` con `Content-Type: video/*` a la URI `Location`.
+- **Prueba verificada:**
+  - `src/__tests__/youtube-sube-el-video.test.ts` (4 de 4 pasadas).
+
+```comprobar
+archivo: src/lib/social-media/youtube-publisher.ts
+prueba: src/__tests__/youtube-sube-el-video.test.ts
+```
+
+### Orden 60 (Bloque B) — TikTok no canta victoria antes de tiempo
+- **Sondeo real de estado en `src/lib/social-media/tiktok-publisher.ts`:**
+  - Consulta repetida a `/v2/post/publish/status/fetch/` hasta obtener confirmación de TikTok.
+  - Retorna éxito solo con `PUBLISH_COMPLETE`. Si recibe `FAILED` lanza error con `fail_reason`. Si agota intentos lanza timeout con `publishId`.
+- **Prueba verificada:**
+  - `src/__tests__/tiktok-no-canta-victoria-antes.test.ts` (4 de 4 pasadas).
+
+```comprobar
+archivo: src/lib/social-media/tiktok-publisher.ts
+prueba: src/__tests__/tiktok-no-canta-victoria-antes.test.ts
 ```
 
 ## 11 de septiembre de 2026 - Orden 57

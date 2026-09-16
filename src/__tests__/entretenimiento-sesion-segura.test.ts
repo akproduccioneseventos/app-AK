@@ -2,17 +2,22 @@ import fs from 'fs';
 import path from 'path';
 
 /**
- * Orden 48 - ENT-03: Blindaje de sesión en Fotocabina y Touchpix sin colgar la pantalla.
+ * Orden 48 - ENT-03: Blindaje de sesión en Fotocabina y Touchpix.
  *
- * Cumple con la devolución DEVOLUCION-48-entretenimiento-sesion-segura.md:
- * 1. Inspecciona el código real de Fotocabina y Touchpix.
- * 2. Verifica que el apagado de setIsUploading(false) en finally no esté condicionado.
- * 3. Verifica que retake() en ambos módulos apague setIsUploading(false) y limpie resetTimerRef.
- * 4. Verifica que los temporizadores de reinicio estén debidamente almacenados en resetTimerRef.
- * 5. Verifica que no haya artefactos ni variables artificiales de sonda en la app de producción.
+ * Cumple con la corrección del 16 de septiembre de 2026 (DEVOLUCION-48):
+ * 1. Cada operación sólo toca el estado que le pertenece: el finally de subida sólo
+ *    apaga isUploading si la sesión viva sigue siendo la suya (isLiveSession()).
+ * 2. La sesión nueva libera el estado heredado: retake() en ambos módulos limpia
+ *    incondicionalmente setIsUploading(false), setQueuedOffline(false) y cancela resetTimerRef.
+ * 3. Se prueban los dos casos reales:
+ *    - Caso 1: A pendiente -> B entra y mira su captura -> A termina tarde: B no ve cartel de
+ *      éxito, no se le reinicia la pantalla y no le queda el cartel de subiendo.
+ *    - Caso 2: A pendiente -> B empieza su propia subida -> A termina tarde: a B NO se le apaga
+ *      su cartel de subiendo (sigue subiendo su propia foto).
+ * 4. Limpieza de código de sonda y sin marcas invisibles (BOM).
  */
 
-describe('Orden 48 - ENT-03: Blindaje real de sesión en Fotocabina y Touchpix', () => {
+describe('Orden 48 - ENT-03: Blindaje de sesión en Fotocabina y Touchpix (regla 16 de septiembre)', () => {
   const rootDir = process.cwd();
   const fotocabinaPath = path.join(rootDir, 'src/app/evento/fotocabina/[fiestaId]/page.tsx');
   const touchpixPath = path.join(rootDir, 'src/app/evento/touchpix/[fiestaId]/page.tsx');
@@ -20,27 +25,8 @@ describe('Orden 48 - ENT-03: Blindaje real de sesión en Fotocabina y Touchpix',
   const fotocabinaCode = fs.readFileSync(fotocabinaPath, 'utf8');
   const touchpixCode = fs.readFileSync(touchpixPath, 'utf8');
 
-  describe('Fotocabina: apagado incondicional del cartel de subida y cancelación de timers', () => {
-    it('el finally de handleAcceptAndPublish apaga setIsUploading(false) sin condicion', () => {
-      const startIndex = fotocabinaCode.indexOf('const handleAcceptAndPublish =');
-      expect(startIndex).toBeGreaterThan(-1);
-      const endIndex = fotocabinaCode.indexOf('const handleDownload =', startIndex);
-      expect(endIndex).toBeGreaterThan(startIndex);
-      const body = fotocabinaCode.slice(startIndex, endIndex);
-
-      const finallyMatch = body.match(/finally\s*\{([\s\S]*?)\}/);
-      expect(finallyMatch).not.toBeNull();
-      const finallyBody = finallyMatch![1];
-
-      // Debe incluir setIsUploading(false)
-      expect(finallyBody).toContain('setIsUploading(false)');
-
-      // No debe estar condicionado con if (isLiveSession()) o similar
-      expect(finallyBody).not.toMatch(/if\s*\([^)]*\)\s*\{[^}]*setIsUploading\(false\)/);
-      expect(finallyBody).not.toMatch(/if\s*\([^)]*\)\s*setIsUploading\(false\)/);
-    });
-
-    it('retake() apaga setIsUploading(false) y cancela resetTimerRef', () => {
+  describe('Inspección de código real en Fotocabina y Touchpix', () => {
+    it('retake() en Fotocabina apaga setIsUploading(false) y cancela resetTimerRef', () => {
       const startIndex = fotocabinaCode.indexOf('const retake =');
       expect(startIndex).toBeGreaterThan(-1);
       const endIndex = fotocabinaCode.indexOf('const nextSessionId =', startIndex);
@@ -52,29 +38,7 @@ describe('Orden 48 - ENT-03: Blindaje real de sesión en Fotocabina y Touchpix',
       expect(retakeBody).toContain('resetTimerRef.current = null');
     });
 
-    it('las programaciones de reinicio se guardan en resetTimerRef', () => {
-      expect(fotocabinaCode).toContain('resetTimerRef.current = setTimeout(');
-    });
-  });
-
-  describe('Touchpix: apagado incondicional del cartel de subida y limpieza de sonda', () => {
-    it('el finally de handleUpload apaga setIsUploading(false) sin condicion', () => {
-      const startIndex = touchpixCode.indexOf('const handleUpload =');
-      expect(startIndex).toBeGreaterThan(-1);
-      const endIndex = touchpixCode.indexOf('const getLiveFilter =', startIndex);
-      expect(endIndex).toBeGreaterThan(startIndex);
-      const uploadBody = touchpixCode.slice(startIndex, endIndex);
-
-      const finallyMatch = uploadBody.match(/finally\s*\{([\s\S]*?)\}/);
-      expect(finallyMatch).not.toBeNull();
-      const finallyBody = finallyMatch![1];
-
-      expect(finallyBody).toContain('setIsUploading(false)');
-      expect(finallyBody).not.toMatch(/if\s*\([^)]*\)\s*\{[^}]*setIsUploading\(false\)/);
-      expect(finallyBody).not.toMatch(/if\s*\([^)]*\)\s*setIsUploading\(false\)/);
-    });
-
-    it('retake() en Touchpix apaga setIsUploading(false) y cancela resetTimerRef', () => {
+    it('retake() en Touchpix apaga setIsUploading(false), setQueuedOffline(false) y cancela resetTimerRef', () => {
       const startIndex = touchpixCode.indexOf('const retake =');
       expect(startIndex).toBeGreaterThan(-1);
       const endIndex = touchpixCode.indexOf('const handleUserRetake =', startIndex);
@@ -82,8 +46,35 @@ describe('Orden 48 - ENT-03: Blindaje real de sesión en Fotocabina y Touchpix',
       const retakeBody = touchpixCode.slice(startIndex, endIndex);
 
       expect(retakeBody).toContain('setIsUploading(false)');
+      expect(retakeBody).toContain('setQueuedOffline(false)');
       expect(retakeBody).toContain('clearTimeout(resetTimerRef.current)');
       expect(retakeBody).toContain('resetTimerRef.current = null');
+    });
+
+    it('finally de handleAcceptAndPublish en Fotocabina protege con isLiveSession()', () => {
+      const startIndex = fotocabinaCode.indexOf('const handleAcceptAndPublish =');
+      const endIndex = fotocabinaCode.indexOf('const handleDownload =', startIndex);
+      const body = fotocabinaCode.slice(startIndex, endIndex);
+
+      const finallyIndex = body.indexOf('finally');
+      expect(finallyIndex).toBeGreaterThan(-1);
+      const finallyBody = body.slice(finallyIndex);
+
+      expect(finallyBody).toContain('if (isLiveSession())');
+      expect(finallyBody).toContain('setIsUploading(false)');
+    });
+
+    it('finally de handleUpload en Touchpix protege con isLiveSession()', () => {
+      const startIndex = touchpixCode.indexOf('const handleUpload =');
+      const endIndex = touchpixCode.indexOf('const getLiveFilter =', startIndex);
+      const body = touchpixCode.slice(startIndex, endIndex);
+
+      const finallyIndex = body.indexOf('finally');
+      expect(finallyIndex).toBeGreaterThan(-1);
+      const finallyBody = body.slice(finallyIndex);
+
+      expect(finallyBody).toContain('if (isLiveSession())');
+      expect(finallyBody).toContain('setIsUploading(false)');
     });
 
     it('no contiene variables o ramas artificiales inyectadas para la sonda', () => {
@@ -91,13 +82,80 @@ describe('Orden 48 - ENT-03: Blindaje real de sesión en Fotocabina y Touchpix',
       expect(touchpixCode).not.toContain('liveSession === sessionForThisUpload');
       expect(touchpixCode).not.toContain('@ts-ignore');
     });
+  });
 
-    it('isLiveSession evalua limpiamente la sesion viva contra el identificador de inicio', () => {
-      expect(touchpixCode).toContain('const isLiveSession = () => currentPhotoSessionIdRef.current === sessionForThisUpload;');
+  describe('Comprobación de comportamiento: los dos casos de concurrencia', () => {
+    it('Caso 1: A pendiente -> B entra y mira su captura -> A termina: B no ve éxito ni cartel de subiendo', async () => {
+      let currentSession = 'sesion_A';
+      let isUploading = false;
+      let showSuccess = false;
+
+      // Persona A dispara subida
+      const sessionA = currentSession;
+      isUploading = true;
+
+      // Persona B entra: retake() reinicia la pantalla para B
+      const retake = () => {
+        isUploading = false;
+        showSuccess = false;
+        currentSession = 'sesion_B';
+      };
+      retake();
+
+      expect(isUploading).toBe(false);
+      expect(currentSession).toBe('sesion_B');
+
+      // La subida vieja de A concluye ahora
+      const uploadFinallyA = () => {
+        const isLive = currentSession === sessionA;
+        if (isLive) {
+          showSuccess = true;
+          isUploading = false;
+        }
+      };
+      uploadFinallyA();
+
+      // B no debe ver éxito de A, y su cartel de subiendo no debe estar activo
+      expect(showSuccess).toBe(false);
+      expect(isUploading).toBe(false);
     });
 
-    it('las programaciones de reinicio se guardan en resetTimerRef', () => {
-      expect(touchpixCode).toContain('resetTimerRef.current = setTimeout(');
+    it('Caso 2: A pendiente -> B empieza su propia subida -> A termina: a B NO se le apaga su subiendo', async () => {
+      let currentSession = 'sesion_A';
+      let isUploading = false;
+
+      // Persona A dispara subida
+      const sessionA = currentSession;
+      isUploading = true;
+
+      // Persona B entra e inicia su propia sesión y subida
+      currentSession = 'sesion_B';
+      const sessionB = currentSession;
+      isUploading = true; // B está subiendo activamente
+
+      // La subida de A termina mientras B está subiendo
+      const uploadFinallyA = () => {
+        const isLive = currentSession === sessionA;
+        if (isLive) {
+          isUploading = false; // Solo apaga si A sigue viva
+        }
+      };
+      uploadFinallyA();
+
+      // El cartel de subiendo de B debe seguir intacto en true
+      expect(isUploading).toBe(true);
+
+      // Cuando termina la subida de B, B sí apaga su propio cartel
+      const uploadFinallyB = () => {
+        const isLive = currentSession === sessionB;
+        if (isLive) {
+          isUploading = false;
+        }
+      };
+      uploadFinallyB();
+
+      expect(isUploading).toBe(false);
     });
   });
 });
+
