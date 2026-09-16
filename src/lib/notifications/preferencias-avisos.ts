@@ -1,4 +1,4 @@
-﻿import 'server-only';
+import 'server-only';
 import { readData } from '@/lib/data-service';
 import { initialNotificationPreferences, type NotificationPreferences } from '@/types/preferencias-avisos';
 
@@ -27,10 +27,14 @@ export async function debeEnviarAvisoInterno(
   try {
     const archivo = getArchivoPreferencias(userId);
     const stored = await readData<NotificationPreferences | null>(archivo, null);
-    if (!stored) return true;
-    if (stored[categoria] === undefined) return true;
-    return stored[categoria][canal] ?? true;
+    if (!stored) {
+      return initialNotificationPreferences[categoria]?.[canal] ?? true;
+    }
+    if (stored[categoria] === undefined || stored[categoria]?.[canal] === undefined) {
+      return initialNotificationPreferences[categoria]?.[canal] ?? true;
+    }
+    return Boolean(stored[categoria][canal]);
   } catch {
-    return true;
+    return initialNotificationPreferences[categoria]?.[canal] ?? true;
   }
 }

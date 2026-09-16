@@ -763,7 +763,7 @@ function DecoracionYDisenoEventoContent() {
 
   const saveCanvas = useCallback(async (silent = false) => {
     if (!fiestaId) return;
-    const versionAtStart = canvasChangeVersionRef.current;
+    const versionAtStart = typeof canvasChangeVersionRef !== 'undefined' ? canvasChangeVersionRef.current : undefined;
     if (!silent) setIsSavingCanvas(true);
     else setIsAutoSaving(true);
     try {
@@ -778,7 +778,7 @@ function DecoracionYDisenoEventoContent() {
       };
       const result = await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
       if (result.success) {
-        if (canvasChangeVersionRef.current === versionAtStart) {
+        if (typeof canvasChangeVersionRef !== 'undefined' && canvasChangeVersionRef.current === versionAtStart) {
           setCanvasHasChanges(false);
         }
         setAutoSaveError(null);

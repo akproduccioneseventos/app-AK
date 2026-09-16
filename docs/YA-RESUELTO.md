@@ -56,7 +56,8 @@ prueba: tests/e2e/la-portada-aparece-al-toque.spec.ts
   - El contador dinámico visible calcula exactamente las fotos restantes ("Te quedan X de 3 para esta fiesta").
   - Ante 3 fotos ya generadas, el botón queda deshabilitado en interfaz y la acción rechaza la llamada con error de tope sin llamar a Gemini ni generar costos.
   - Los dos cuadros de notas son independientes: la nota interna del equipo (`generalNotesDecoracion`) queda estrictamente privada y no viaja al portal del cliente, mientras que la nota para el cliente (`notaDecoracionParaElCliente`) se publica en su portal.
-- **DECO-15 — Autoguardado Concurrente del Canvas:** Se versionó la bandera de cambios en `saveCanvas`, impidiendo que una respuesta lenta de guardado marque el lienzo como limpio si hubo ediciones posteriores durante la espera.
+- **DECO-14 — Opinión de Decoración sin Sesión de Empleado:** `enviarOpinionDecoracion` persiste la opinión del cliente (`leGusta` y `comentario`) mediante `updateFiestaPartial(..., { allowPortal: true })` de forma directa sin llamar a `syncDecoGastosToModule`, evitando exigir sesión interna de empleado a clientes autorizados en su portal y manteniendo separados los costos operativos del feedback del cliente.
+- **DECO-15 — Autoguardado Concurrente del Canvas:** Se versionó la bandera de cambios en `saveCanvas` mediante verificación segura con `typeof canvasChangeVersionRef`, impidiendo que una respuesta lenta de guardado marque el lienzo como limpio si hubo ediciones posteriores durante la espera.
 
 ```comprobar
 prueba: tests/e2e/la-decoracion-se-baja-y-se-genera.spec.ts
@@ -66,6 +67,9 @@ prueba: src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts
 
 ### Orden 56 — Los avisos respetan lo que se apagó
 - Las preferencias de avisos (email y app por categoría) se respetan en el punto central de despacho (`createNotification`), evitando crear notificaciones en la aplicación si el usuario apagó dicha categoría.
+- **AV-01 — Alineación de Valores por Defecto:** `debeEnviarAvisoInterno` utiliza `initialNotificationPreferences` cuando un usuario no tiene preferencias guardadas aún, garantizando que el valor mostrado en pantalla (ej. CRM app apagado) coincida con la compuerta de despacho.
+- **AV-02 — Preservación de Destinatario y Categoría:** `enviarAvisoConPreferencia` y `enviarAviso` transmiten de forma explícita `userId` y `categoria` al llamar a `createNotification`, impidiendo que se evalúen las preferencias del emisor en lugar del destinatario y validando la existencia de `res.notification` antes de confirmar `enviado: true`.
+- **AV-03 — Validación Estructural Estricta:** `guardarPreferenciasDeAvisos` valida que las cinco categorías requeridas existan y que sus canales `email` y `app` sean valores booleanos estrictos antes de persistir, rechazando estructuras nulas o incompletas (como `{ taskUpdates: null }`) sin escribir datos corruptos.
 - Verificación con pruebas unitarias que comprueban que `createNotification` no persiste ni despacha cuando el usuario desmarcó la categoría correspondiente.
 
 ### Devolución de Codex y Blindaje de Estabilidad — Órdenes 55 y 56 (10 de septiembre de 2026)

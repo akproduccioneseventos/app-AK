@@ -194,8 +194,8 @@ export async function enviarOpinionDecoracion(
       },
     };
 
-    const res = await updateDecoracion(fiestaId, updatedDecoracion);
-    if (!res.success) throw new Error(res.error);
+    const res = await updateFiestaPartial(fiestaId, { decoracion: updatedDecoracion }, { allowPortal: true });
+    if (!res.success) throw new Error(res.error || 'No se pudo guardar la opinión.');
 
     return { success: true };
   } catch (e: any) {

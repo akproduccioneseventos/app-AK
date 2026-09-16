@@ -1,4 +1,4 @@
-﻿const mockRequireAppSession = jest.fn();
+const mockRequireAppSession = jest.fn();
 const mockHasAppSession = jest.fn().mockResolvedValue(true);
 const mockVerifySession = jest.fn();
 const mockReadData = jest.fn();
@@ -231,4 +231,49 @@ describe('Orden 56 — Los avisos respetan lo que se apagó', () => {
     expect(envio.error || envio.motivo).toMatch(/no hay ninguna cuenta|no conectada/i);
     expect(mockSendGoogleGmailMessage).not.toHaveBeenCalled();
   });
+
+  it('AV-01: valores por defecto sin guardar coinciden entre lectura y despacho interno', async () => {
+    const res = await leerPreferenciasDeAvisos();
+    expect(res.preferences?.crmUpdates.app).toBe(false);
+
+    const permitido = await debeEnviarAviso('crmUpdates', 'app', 'usuario-nuevo');
+    expect(permitido).toBe(false);
+  });
+
+  it('AV-02: enviarAvisoConPreferencia respeta al destinatario target y no al emisor', async () => {
+    // Emisor tiene clientMessages apagado
+    memoryStore['preferencias-avisos/user_admin.json'] = {
+      ...initialNotificationPreferences,
+      clientMessages: { email: false, app: false },
+      crmUpdates: { email: false, app: false },
+    };
+    // Destinatario target tiene crmUpdates prendido
+    memoryStore['preferencias-avisos/user_destinatario_1.json'] = {
+      ...initialNotificationPreferences,
+      crmUpdates: { email: true, app: true },
+    };
+
+    const res = await enviarAvisoConPreferencia({
+      userId: 'destinatario_1',
+      categoria: 'crmUpdates',
+      notificacion: {
+        titulo: 'Aviso CRM',
+        mensaje: 'Nuevo lead recibido',
+      },
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.enviado).toBe(true);
+    expect(res.notification).toBeDefined();
+    expect(mockCreateDocument).toHaveBeenCalled();
+  });
+
+  it('AV-03: rechaza preferencias con estructura nula o malformada sin escribir en disco', async () => {
+    mockWriteData.mockClear();
+    const res = await guardarPreferenciasDeAvisos({ taskUpdates: null } as any);
+    expect(res.success).toBe(false);
+    expect(res.error).toMatch(/estructura no válida|preferencias no válidas/i);
+    expect(mockWriteData).not.toHaveBeenCalled();
+  });
 });
+

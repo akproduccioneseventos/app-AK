@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 import { verifySession } from '@/lib/auth/session-token';
@@ -46,13 +46,32 @@ export async function leerPreferenciasDeAvisos(): Promise<{
 /**
  * Guarda las preferencias de avisos en el servidor para el usuario autenticado.
  */
+/**
+ * Guarda las preferencias de avisos en el servidor para el usuario autenticado.
+ */
 export async function guardarPreferenciasDeAvisos(
   prefs: NotificationPreferences
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    if (!prefs || typeof prefs !== 'object') {
+    if (!prefs || typeof prefs !== 'object' || Array.isArray(prefs)) {
       return { success: false, error: 'Preferencias no válidas' };
+    }
+    const categories: (keyof NotificationPreferences)[] = [
+      'eventReminders',
+      'taskUpdates',
+      'clientMessages',
+      'systemAlerts',
+      'crmUpdates',
+    ];
+    for (const cat of categories) {
+      const item = prefs[cat];
+      if (!item || typeof item !== 'object' || Array.isArray(item)) {
+        return { success: false, error: `Estructura no válida para categoría ${cat}` };
+      }
+      if (typeof item.email !== 'boolean' || typeof item.app !== 'boolean') {
+        return { success: false, error: `Valores booleanos inválidos en ${cat}` };
+      }
     }
     const session = await verifySession();
     const userId = session.user?.userId || 'admin';
@@ -73,14 +92,7 @@ export async function debeEnviarAviso(
   userId: string = 'admin'
 ): Promise<boolean> {
   await requireAppSession();
-  try {
-    const archivo = getArchivoPreferencias(userId);
-    const prefs = await readData<NotificationPreferences>(archivo, initialNotificationPreferences);
-    if (!prefs || !prefs[categoria]) return true;
-    return prefs[categoria][canal] ?? true;
-  } catch {
-    return true;
-  }
+  return debeEnviarAvisoInterno(categoria, canal, userId);
 }
 
 /**
@@ -112,10 +124,17 @@ export async function enviarAvisoConPreferencia(params: {
     };
   }
 
-  const res = await createNotification(params.notificacion);
+  const res = await createNotification({
+    ...params.notificacion,
+    userId,
+    categoria: params.categoria,
+  } as any);
+
+  const enviado = Boolean(res.success && res.notification);
   return {
     success: res.success,
-    enviado: res.success,
+    enviado,
+    motivo: !enviado && res.success ? 'Aviso omitido por preferencias' : undefined,
     notification: res.notification,
     error: res.error,
   };
@@ -212,11 +231,15 @@ export async function enviarAviso(params: {
     titulo: params.titulo,
     mensaje: params.mensaje,
     href: params.href,
-  });
+    userId,
+    categoria: params.categoria,
+  } as any);
 
+  const enviado = Boolean(res.success && res.notification);
   return {
     success: res.success,
-    enviado: res.success,
+    enviado,
+    motivo: !enviado && res.success ? 'Aviso omitido por preferencias' : undefined,
     notification: res.notification,
     error: res.error,
   };
