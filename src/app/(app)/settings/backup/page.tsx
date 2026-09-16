@@ -192,7 +192,7 @@ export default function BackupPage() {
                     Estado de Respaldo
                   </CardTitle>
                   <Badge variant="outline" className="bg-white text-slate-700 border-slate-300">
-                    Averiguando estado...
+                    AVERIGUANDO ESTADO...
                   </Badge>
                 </div>
                 <CardDescription className="text-slate-600">
@@ -223,7 +223,7 @@ export default function BackupPage() {
                     Estado de Respaldo
                   </CardTitle>
                   <Badge className="bg-amber-600 text-white border-none">
-                    NO SE PUDO SABER
+                    ESTADO DESCONOCIDO: NO SE PUDO SABER
                   </Badge>
                 </div>
                 <CardDescription className="text-amber-800">
