@@ -42,3 +42,8 @@ No instala herramientas ni cambia modelos, plan, facturacion o comportamiento de
 ## Actualizacion prioritaria 2026-09-16
 
 Las filas anteriores son historicas. [Diagnostico conjunto](DIAGNOSTICO-CONJUNTO-2026-09-16.md) contiene contraste con main da6c566 y los cinco HEAD abiertos. STORE01: correccion presente en main, no nueva prueba Firebase. DECO15: correccion presente en 1206/4cd2d024, pendiente validacion. ENT03: 1209/f6b619a corrige reset tardio pero sonda real reproduce Subiendo persistente y cola alterada (1 PASS/1 FAIL). No certificado de toda la app; [inventario 360 paginas](INVENTARIO-PANTALLAS-2026-09-16.md) no implica recorridos ejecutados.
+
+
+## Respaldos - 2026-09-16
+
+Main da6c566: 3 fallos reproducidos / 4 controles correctos en sonda aislada. Copia parcial completa; borrar punto con sesion operador; UI anuncia restauracion parcial como completa. [Detalle y limites](RESPALDOS-2026-09-16.md). Ninguna de las cinco PR abiertas toca estos archivos. Responsable Claude; sin cambios de app ni pruebas destructivas reales.
