@@ -177,6 +177,10 @@ function DecoracionYDisenoEventoContent() {
   const [canvasFondoColor, setCanvasFondoColor] = useState('#F8F9FA');
   const [canvasFondoImagenUrl, setCanvasFondoImagenUrl] = useState('');
   const [canvasHasChanges, setCanvasHasChanges] = useState(false);
+  const canvasChangeVersionRef = useRef(0);
+  useEffect(() => {
+    canvasChangeVersionRef.current += 1;
+  }, [canvasElementos, canvasFondoColor, canvasFondoImagenUrl]);
   const [isSavingCanvas, setIsSavingCanvas] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
@@ -707,6 +711,7 @@ function DecoracionYDisenoEventoContent() {
 
   const saveCanvas = useCallback(async (silent = false) => {
     if (!fiestaId) return;
+    const versionAtStart = canvasChangeVersionRef.current;
     if (!silent) setIsSavingCanvas(true);
     else setIsAutoSaving(true);
     try {
@@ -721,7 +726,9 @@ function DecoracionYDisenoEventoContent() {
       };
       const result = await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
       if (result.success) {
-        setCanvasHasChanges(false);
+        if (canvasChangeVersionRef.current === versionAtStart) {
+          setCanvasHasChanges(false);
+        }
         setAutoSaveError(null);
       } else throw new Error(result.error || 'Error al guardar el canvas');
     } catch (err: any) {

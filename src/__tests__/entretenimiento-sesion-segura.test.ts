@@ -1,194 +1,103 @@
-﻿import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import fs from 'fs';
+import path from 'path';
 
 /**
- * Orden 48 - ENT-03: Blindaje de sesion en Fotocabina y Touchpix.
+ * Orden 48 - ENT-03: Blindaje de sesión en Fotocabina y Touchpix sin colgar la pantalla.
  *
- * Garantiza que:
- * 1. Una respuesta de subida diferida (de la persona A) NO reinicie la pantalla ni muestre
- *    exito en la sesion de la persona siguiente (persona B).
- * 2. Si alguien comienza una sesion nueva sin subir nada (o presiona repetir), cualquier
- *    temporizador pendiente de la sesion previa se cancela inmediatamente.
- * 3. La pantalla de la persona siguiente en la fila permanece estable sin perdida de capturas.
+ * Cumple con la devolución DEVOLUCION-48-entretenimiento-sesion-segura.md:
+ * 1. Inspecciona el código real de Fotocabina y Touchpix.
+ * 2. Verifica que el apagado de setIsUploading(false) en finally no esté condicionado.
+ * 3. Verifica que retake() en ambos módulos apague setIsUploading(false) y limpie resetTimerRef.
+ * 4. Verifica que los temporizadores de reinicio estén debidamente almacenados en resetTimerRef.
+ * 5. Verifica que no haya artefactos ni variables artificiales de sonda en la app de producción.
  */
 
-describe('Orden 48 - ENT-03: Entretenimiento sin reinicio a la persona siguiente', () => {
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
+describe('Orden 48 - ENT-03: Blindaje real de sesión en Fotocabina y Touchpix', () => {
+  const rootDir = process.cwd();
+  const fotocabinaPath = path.join(rootDir, 'src/app/evento/fotocabina/[fiestaId]/page.tsx');
+  const touchpixPath = path.join(rootDir, 'src/app/evento/touchpix/[fiestaId]/page.tsx');
 
-  afterEach(() => {
-    jest.useRealTimers();
-  });
+  const fotocabinaCode = fs.readFileSync(fotocabinaPath, 'utf8');
+  const touchpixCode = fs.readFileSync(touchpixPath, 'utf8');
 
-  describe('Touchpix: aislamiento de sesion entre participantes', () => {
-    it('no reinicia la sesion B cuando la subida de A termina con retraso', async () => {
-      let liveSessionId = 'sess_persona_A';
-      let resetsCount = 0;
-      let successCount = 0;
-      let pendingUploadResolve: (value: any) => void;
+  describe('Fotocabina: apagado incondicional del cartel de subida y cancelación de timers', () => {
+    it('el finally de handleAcceptAndPublish apaga setIsUploading(false) sin condicion', () => {
+      const startIndex = fotocabinaCode.indexOf('const handleAcceptAndPublish =');
+      expect(startIndex).toBeGreaterThan(-1);
+      const endIndex = fotocabinaCode.indexOf('const handleDownload =', startIndex);
+      expect(endIndex).toBeGreaterThan(startIndex);
+      const body = fotocabinaCode.slice(startIndex, endIndex);
 
-      const uploadPromise = new Promise((resolve) => {
-        pendingUploadResolve = resolve;
-      });
+      const finallyMatch = body.match(/finally\s*\{([\s\S]*?)\}/);
+      expect(finallyMatch).not.toBeNull();
+      const finallyBody = finallyMatch![1];
 
-      const sessionWhenStarted = liveSessionId;
-      const isLiveSession = () => liveSessionId === sessionWhenStarted;
+      // Debe incluir setIsUploading(false)
+      expect(finallyBody).toContain('setIsUploading(false)');
 
-      let resetTimer: any = null;
-
-      const onUploadComplete = async () => {
-        await uploadPromise;
-        if (!isLiveSession()) {
-          // Persona B ya esta en la cabina: NO tocar la UI ni reiniciar
-          return;
-        }
-        successCount++;
-        resetTimer = setTimeout(() => {
-          if (isLiveSession()) {
-            resetsCount++;
-          }
-        }, 3000);
-      };
-
-      const uploadExecution = onUploadComplete();
-
-      // La Persona B se acerca e inicia nueva sesion (o retake) antes de que A termine
-      liveSessionId = 'sess_persona_B';
-      if (resetTimer) clearTimeout(resetTimer);
-
-      // Ahora termina la subida lenta de A
-      pendingUploadResolve!({ success: true, post: { imageUrl: 'https://ejemplo.com/fotoA.jpg' } });
-      await uploadExecution;
-
-      jest.advanceTimersByTime(5000);
-
-      expect(successCount).toBe(0);
-      expect(resetsCount).toBe(0);
+      // No debe estar condicionado con if (isLiveSession()) o similar
+      expect(finallyBody).not.toMatch(/if\s*\([^)]*\)\s*\{[^}]*setIsUploading\(false\)/);
+      expect(finallyBody).not.toMatch(/if\s*\([^)]*\)\s*setIsUploading\(false\)/);
     });
 
-    it('ejecuta exito y reinicio normalmente si la Persona A permanece en su misma sesion', async () => {
-      let liveSessionId = 'sess_persona_A';
-      let resetsCount = 0;
-      let successCount = 0;
-      let pendingUploadResolve: (value: any) => void;
+    it('retake() apaga setIsUploading(false) y cancela resetTimerRef', () => {
+      const startIndex = fotocabinaCode.indexOf('const retake =');
+      expect(startIndex).toBeGreaterThan(-1);
+      const endIndex = fotocabinaCode.indexOf('const nextSessionId =', startIndex);
+      expect(endIndex).toBeGreaterThan(startIndex);
+      const retakeBody = fotocabinaCode.slice(startIndex, endIndex);
 
-      const uploadPromise = new Promise((resolve) => {
-        pendingUploadResolve = resolve;
-      });
-
-      const sessionWhenStarted = liveSessionId;
-      const isLiveSession = () => liveSessionId === sessionWhenStarted;
-
-      let resetTimer: any = null;
-
-      const onUploadComplete = async () => {
-        await uploadPromise;
-        if (!isLiveSession()) return;
-        successCount++;
-        resetTimer = setTimeout(() => {
-          if (isLiveSession()) {
-            resetsCount++;
-          }
-        }, 3000);
-      };
-
-      const uploadExecution = onUploadComplete();
-
-      pendingUploadResolve!({ success: true, post: { imageUrl: 'https://ejemplo.com/fotoA.jpg' } });
-      await uploadExecution;
-
-      expect(successCount).toBe(1);
-      expect(resetsCount).toBe(0);
-
-      jest.advanceTimersByTime(3000);
-      expect(resetsCount).toBe(1);
+      expect(retakeBody).toContain('setIsUploading(false)');
+      expect(retakeBody).toContain('clearTimeout(resetTimerRef.current)');
+      expect(retakeBody).toContain('resetTimerRef.current = null');
     });
 
-    it('cancela el temporizador de reinicio previo si el participante toca Repetir a mano', () => {
-      let liveSessionId = 'sess_persona_A';
-      let resetsTriggered = 0;
-      let resetTimer: any = null;
-
-      const sessionAtStart = liveSessionId;
-      resetTimer = setTimeout(() => {
-        if (liveSessionId === sessionAtStart) {
-          resetsTriggered++;
-        }
-      }, 3000);
-
-      jest.advanceTimersByTime(1000);
-      clearTimeout(resetTimer);
-      resetTimer = null;
-      liveSessionId = 'sess_persona_B';
-
-      jest.advanceTimersByTime(5000);
-
-      expect(resetsTriggered).toBe(0);
+    it('las programaciones de reinicio se guardan en resetTimerRef', () => {
+      expect(fotocabinaCode).toContain('resetTimerRef.current = setTimeout(');
     });
   });
 
-  describe('Fotocabina: proteccion de tanda y cola de espera', () => {
-    it('una respuesta tardia de fotocabina no sobreescribe la pantalla del siguiente invitado', async () => {
-      let liveSessionId = 'cab_persona_A';
-      let showedSuccess = false;
-      let resetsCount = 0;
-      let pendingUploadResolve: (value: any) => void;
+  describe('Touchpix: apagado incondicional del cartel de subida y limpieza de sonda', () => {
+    it('el finally de handleUpload apaga setIsUploading(false) sin condicion', () => {
+      const startIndex = touchpixCode.indexOf('const handleUpload =');
+      expect(startIndex).toBeGreaterThan(-1);
+      const endIndex = touchpixCode.indexOf('const getLiveFilter =', startIndex);
+      expect(endIndex).toBeGreaterThan(startIndex);
+      const uploadBody = touchpixCode.slice(startIndex, endIndex);
 
-      const uploadPromise = new Promise((resolve) => {
-        pendingUploadResolve = resolve;
-      });
+      const finallyMatch = uploadBody.match(/finally\s*\{([\s\S]*?)\}/);
+      expect(finallyMatch).not.toBeNull();
+      const finallyBody = finallyMatch![1];
 
-      const sessionWhenStarted = liveSessionId;
-      const isLiveSession = () => liveSessionId === sessionWhenStarted;
-
-      let resetTimer: any = null;
-
-      const handleAcceptAndPublishMock = async () => {
-        const res = await uploadPromise as any;
-        if (!isLiveSession()) return;
-        if (res.success) {
-          showedSuccess = true;
-          resetTimer = setTimeout(() => {
-            if (isLiveSession()) {
-              resetsCount++;
-            }
-          }, 20000);
-        }
-      };
-
-      const uploadTask = handleAcceptAndPublishMock();
-
-      liveSessionId = 'cab_persona_B';
-      if (resetTimer) clearTimeout(resetTimer);
-
-      pendingUploadResolve!({ success: true, media: { url: 'https://ejemplo.com/tiraA.jpg' } });
-      await uploadTask;
-
-      jest.advanceTimersByTime(25000);
-
-      expect(showedSuccess).toBe(false);
-      expect(resetsCount).toBe(0);
+      expect(finallyBody).toContain('setIsUploading(false)');
+      expect(finallyBody).not.toMatch(/if\s*\([^)]*\)\s*\{[^}]*setIsUploading\(false\)/);
+      expect(finallyBody).not.toMatch(/if\s*\([^)]*\)\s*setIsUploading\(false\)/);
     });
 
-    it('iniciar una toma nueva cancela de inmediato cualquier reinicio pendiente', () => {
-      let liveSessionId = 'cab_persona_A';
-      let resetFired = false;
+    it('retake() en Touchpix apaga setIsUploading(false) y cancela resetTimerRef', () => {
+      const startIndex = touchpixCode.indexOf('const retake =');
+      expect(startIndex).toBeGreaterThan(-1);
+      const endIndex = touchpixCode.indexOf('const handleUserRetake =', startIndex);
+      expect(endIndex).toBeGreaterThan(startIndex);
+      const retakeBody = touchpixCode.slice(startIndex, endIndex);
 
-      const sessionAtStart = liveSessionId;
-      let timer: any = setTimeout(() => {
-        if (liveSessionId === sessionAtStart) {
-          resetFired = true;
-        }
-      }, 20000);
+      expect(retakeBody).toContain('setIsUploading(false)');
+      expect(retakeBody).toContain('clearTimeout(resetTimerRef.current)');
+      expect(retakeBody).toContain('resetTimerRef.current = null');
+    });
 
-      jest.advanceTimersByTime(5000);
-      clearTimeout(timer);
-      timer = null;
-      liveSessionId = 'cab_persona_B';
+    it('no contiene variables o ramas artificiales inyectadas para la sonda', () => {
+      expect(touchpixCode).not.toContain('typeof liveSession !==');
+      expect(touchpixCode).not.toContain('liveSession === sessionForThisUpload');
+      expect(touchpixCode).not.toContain('@ts-ignore');
+    });
 
-      jest.advanceTimersByTime(20000);
+    it('isLiveSession evalua limpiamente la sesion viva contra el identificador de inicio', () => {
+      expect(touchpixCode).toContain('const isLiveSession = () => currentPhotoSessionIdRef.current === sessionForThisUpload;');
+    });
 
-      expect(resetFired).toBe(false);
+    it('las programaciones de reinicio se guardan en resetTimerRef', () => {
+      expect(touchpixCode).toContain('resetTimerRef.current = setTimeout(');
     });
   });
 });

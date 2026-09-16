@@ -34,6 +34,52 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 <!-- Las ordenes 55 y 56 todavia NO estan fusionadas: su anotacion viaja con ellas.
      Anotar aca algo que no esta en el codigo es justo lo que esta lista no puede hacer. -->
 
+## 16 de septiembre de 2026 - Entretenimiento, Cartel de Respaldos y Autoguardado de Decoración
+
+### Orden 48 (ENT-03) — Devolución de Fotocabina y Touchpix corregida
+- **Apagado incondicional de pantalla ocupada (`setIsUploading(false)`):**
+  - Tanto en `src/app/evento/fotocabina/[fiestaId]/page.tsx` como en `src/app/evento/touchpix/[fiestaId]/page.tsx`, `setIsUploading(false)` ahora se ejecuta sin condiciones en el bloque `finally` de `handleAcceptAndPublish` y `handleUpload`.
+  - `retake()` en ambas pantallas restablece de inmediato `setIsUploading(false)` para garantizar que ninguna sesión entrante herede el cartel de subida ni quede bloqueada.
+- **Limpieza de artificios de sonda:**
+  - Eliminado el código de prueba artificial (`typeof liveSession`, mocks inyectados y try/catch innecesarios). La verificación de sesión activa se realiza de forma directa sobre la referencia viva de React (`currentPhotoSessionIdRef.current === sessionForThisUpload`).
+- **Prueba sin BOM y sobre código real:**
+  - `src/__tests__/entretenimiento-sesion-segura.test.ts` guardado sin BOM en UTF-8 y validando la estructura real de los archivos de fotocabina y touchpix.
+
+```comprobar
+archivo: src/app/evento/fotocabina/[fiestaId]/page.tsx
+archivo: src/app/evento/touchpix/[fiestaId]/page.tsx
+prueba: src/__tests__/entretenimiento-sesion-segura.test.ts
+```
+
+### Cartel de Respaldos — 4 estados explícitos sin falsos positivos verdes
+- **Estados reales y sinceros en `src/app/(app)/settings/backup/page.tsx`:**
+  - Eliminado el fallback que mostraba "ACTIVO Y PROTEGIDO" en verde mientras la página cargaba o si la consulta fallaba.
+  - Se implementaron 4 estados diferenciados:
+    1. `cargando`: Ámbar suave con icono de actualización animado y badge "AVERIGUANDO ESTADO...".
+    2. `no_se_pudo_saber`: Ámbar (`bg-amber-600`) con advertencia y badge "ESTADO DESCONOCIDO: NO SE PUDO SABER", nunca verde.
+    3. `sin_respaldo_reciente`: Rojo (`bg-red-600`) con badge "ATENCIÓN: SIN RESPALDO RECIENTE" si pasaron más de 24 horas o hay fallas reiteradas.
+    4. `activo_y_protegido`: Verde (`bg-emerald-600`) con escudo, únicamente cuando Firestore confirma que hay un respaldo reciente y exitoso.
+- **Función pura y prueba:**
+  - Función de resolución de estado `resolveBackupUIState` probada en `src/__tests__/backup-status-states.test.ts` con cobertura de los 4 estados.
+
+```comprobar
+archivo: src/app/(app)/settings/backup/page.tsx
+prueba: src/__tests__/backup-status-states.test.ts
+```
+
+### Decoración — Preservación de cambios concurrentes durante autoguardado (DECO-15)
+- **Control de versión en vuelo en `src/app/(app)/fiestas/nueva/decoracion/page.tsx`:**
+  - Se incorporó `canvasChangeVersionRef` incrementado ante cada mutación del canvas (`canvasElementos`, fondos o colores).
+  - Al iniciar `saveCanvas` se captura `versionAtStart`. Al concluir el guardado remoto, la bandera `canvasHasChanges(false)` SOLO se apaga si no hubo modificaciones concurrentes en el lienzo mientras la petición viajaba.
+  - Si el usuario continúa editando durante el guardado, la bandera permanece sucia (`dirty = true`) y el temporizador programa el siguiente guardado, evitando que se pierda lo último editado.
+- **Prueba sobre la pantalla real:**
+  - `src/__tests__/decoracion-autoguardado-concurrente.test.ts` valida directamente el código de la pantalla real y el comportamiento concurrente.
+
+```comprobar
+archivo: src/app/(app)/fiestas/nueva/decoracion/page.tsx
+prueba: src/__tests__/decoracion-autoguardado-concurrente.test.ts
+```
+
 ## 11 de septiembre de 2026 - Orden 57
 
 ### Orden 57 — La portada aparece al toque, sin esperar a nadie

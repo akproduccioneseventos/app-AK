@@ -720,7 +720,8 @@ export default function TouchpixPage() {
 
   /* ── Retake ── */
   const retake = useCallback((isUserInitiated = false) => {
-    if (typeof resetTimerRef !== 'undefined' && resetTimerRef?.current) {
+    setIsUploading(false);
+    if (resetTimerRef.current) {
       clearTimeout(resetTimerRef.current);
       resetTimerRef.current = null;
     }
@@ -733,12 +734,8 @@ export default function TouchpixPage() {
     setWizardStep(0);
     setConsentAccepted(false);
     const nextSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    if (typeof currentPhotoSessionIdRef !== 'undefined') {
-      currentPhotoSessionIdRef.current = nextSessionId;
-    }
-    if (typeof activeUploadSessionIdRef !== 'undefined') {
-      activeUploadSessionIdRef.current = nextSessionId;
-    }
+    currentPhotoSessionIdRef.current = nextSessionId;
+    activeUploadSessionIdRef.current = nextSessionId;
     setPhotoSessionId(nextSessionId);
     if (!isUserInitiated) {
       setRetakesCount(0);
@@ -748,15 +745,18 @@ export default function TouchpixPage() {
   }, [accessToken, fiestaId, startCamera]);
 
   const handleUserRetake = useCallback(() => {
-    setRetakesCount((prev) => prev + 1);
-    retake(true);
-  }, [retake]);
+    const maxRetakes = fiesta?.station?.maxRetakes ?? 3;
+    if (retakesCount < maxRetakes) {
+      setRetakesCount(prev => prev + 1);
+      retake(true);
+    }
+  }, [fiesta?.station?.maxRetakes, retake, retakesCount]);
 
+  /* ── Auto Review Timer: returns to camera if idle ── */
   useEffect(() => {
     if (capturedImage && !isProcessing && !isUploading && fiesta?.station?.reviewSeconds) {
-      const sessionAtStart = currentPhotoSessionIdRef.current;
       const timer = setTimeout(() => {
-        if (currentPhotoSessionIdRef.current === sessionAtStart && !isUploading) {
+        if (capturedImage && !isProcessing && !isUploading) {
           retake();
         }
       }, fiesta.station.reviewSeconds * 1000);
@@ -768,34 +768,10 @@ export default function TouchpixPage() {
   const handleUpload = useCallback(async () => {
     if (!capturedImage) return;
     setIsUploading(true);
-    const sessionForThisUpload = (typeof currentPhotoSessionIdRef !== 'undefined' && currentPhotoSessionIdRef?.current)
-      ? currentPhotoSessionIdRef.current
-      : photoSessionId;
-    if (typeof activeUploadSessionIdRef !== 'undefined') {
-      activeUploadSessionIdRef.current = sessionForThisUpload;
-    }
+    const sessionForThisUpload = currentPhotoSessionIdRef.current || photoSessionId;
+    activeUploadSessionIdRef.current = sessionForThisUpload;
 
-    const isLiveSession = () => {
-      try {
-        // @ts-ignore
-        if (typeof liveSession !== 'undefined') return liveSession === sessionForThisUpload;
-      } catch {}
-      try {
-        // @ts-ignore
-        if (typeof currentPhotoSessionIdRef !== 'undefined' && currentPhotoSessionIdRef?.current) {
-          // @ts-ignore
-          return currentPhotoSessionIdRef.current === sessionForThisUpload;
-        }
-      } catch {}
-      try {
-        // @ts-ignore
-        if (typeof activeUploadSessionIdRef !== 'undefined' && activeUploadSessionIdRef?.current) {
-          // @ts-ignore
-          return activeUploadSessionIdRef.current === sessionForThisUpload;
-        }
-      } catch {}
-      return photoSessionId === sessionForThisUpload;
-    };
+    const isLiveSession = () => currentPhotoSessionIdRef.current === sessionForThisUpload;
 
     let pendingFile: File | null = null;
     let uploadConfirmed = false;
@@ -842,18 +818,15 @@ export default function TouchpixPage() {
       }
 
       setShowSuccess(true);
-      if (typeof resetTimerRef !== 'undefined' && resetTimerRef?.current) {
+      if (resetTimerRef.current) {
         clearTimeout(resetTimerRef.current);
       }
-      const t = setTimeout(() => {
+      resetTimerRef.current = setTimeout(() => {
         if (isLiveSession()) {
           setShowSuccess(false);
           retake();
         }
       }, 3000);
-      if (typeof resetTimerRef !== 'undefined') {
-        resetTimerRef.current = t;
-      }
     } catch (err: any) {
       const errMsg = String(err?.message || '');
       const uploadDecision = classifyOfflineUploadError(errMsg);
@@ -864,18 +837,15 @@ export default function TouchpixPage() {
         setQueuedOffline(false);
         if (!isLiveSession()) return;
         setShowSuccess(true);
-        if (typeof resetTimerRef !== 'undefined' && resetTimerRef?.current) {
+        if (resetTimerRef.current) {
           clearTimeout(resetTimerRef.current);
         }
-        const t = setTimeout(() => {
+        resetTimerRef.current = setTimeout(() => {
           if (isLiveSession()) {
             setShowSuccess(false);
             retake();
           }
         }, 3000);
-        if (typeof resetTimerRef !== 'undefined') {
-          resetTimerRef.current = t;
-        }
         return;
       }
 
@@ -912,18 +882,15 @@ export default function TouchpixPage() {
             { mediaUrl: null, reviewPending: true },
             accessToken,
           ).catch(() => undefined);
-          if (typeof resetTimerRef !== 'undefined' && resetTimerRef?.current) {
+          if (resetTimerRef.current) {
             clearTimeout(resetTimerRef.current);
           }
-          const t = setTimeout(() => {
+          resetTimerRef.current = setTimeout(() => {
             if (isLiveSession()) {
               setShowSuccess(false);
               retake();
             }
           }, 4000);
-          if (typeof resetTimerRef !== 'undefined') {
-            resetTimerRef.current = t;
-          }
           return;
         } catch (offlineError) {
           console.error('[Touchpix] No se pudo guardar la foto sin conexión:', offlineError);
@@ -933,9 +900,7 @@ export default function TouchpixPage() {
         alert('No se pudo subir la foto: ' + errMsg);
       }
     } finally {
-      if (isLiveSession()) {
-        setIsUploading(false);
-      }
+      setIsUploading(false);
     }
   }, [accessToken, activeTab, capturedImage, fiestaId, guestAccessToken, guestId, photoSessionId, retake, selectedAiTheme, selectedCharacter]);
 

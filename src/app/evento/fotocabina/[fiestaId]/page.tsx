@@ -994,9 +994,7 @@ export default function FotocabinaPage() {
       );
       speak("No se pudo subir al muro, pero puedes guardarla");
     } finally {
-      if (isLiveSession()) {
-        setIsUploading(false);
-      }
+      setIsUploading(false);
     }
   };
 
@@ -1019,6 +1017,7 @@ export default function FotocabinaPage() {
   };
 
   const retake = () => {
+    setIsUploading(false);
     if (resetTimerRef.current) {
       clearTimeout(resetTimerRef.current);
       resetTimerRef.current = null;
