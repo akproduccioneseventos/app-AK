@@ -20,12 +20,7 @@ async function probe(changeSession) {
     updateEntertainmentSessionStatus: async () => {}, setQueuedOffline: () => {},
     setShowSuccess: value => { if (value) success++; },
     setTimeout: fn => { timers.push(fn); }, retake: () => { resets++; },
-    classifyOfflineUploadError: () => 'permanent', alert: () => {}, console,
-    get liveSession() { return liveSession; },
-    get currentPhotoSessionId() { return liveSession; },
-    currentPhotoSessionIdRef: { get current() { return liveSession; } },
-    activeUploadSessionIdRef: { get current() { return liveSession; } },
-    liveSessionRef: { get current() { return liveSession; } },
+    classifyOfflineUploadError: () => 'permanent', alert: () => {}, console
   };
   // React callbacks retain the lexical values of the render that created them.
   const code = ts.transpileModule('const run = ' + callback + '; run;', {compilerOptions:{target:ts.ScriptTarget.ES2020}}).outputText;

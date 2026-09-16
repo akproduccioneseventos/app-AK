@@ -5,52 +5,38 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 10 de septiembre de 2026. **Rama: `main`.** Todo fusionado y
-publicable: la puerta (`npm run "publicar?"`) dio **SE PUEDE PUBLICAR** con las diez etapas en
-verde, incluido el recorrido de las 360 pantallas.
+**Última actualización:** 15 de septiembre de 2026, de madrugada. **Rama: `main`**, ya publicado.
 
-## Lo que se hizo en esta tanda
+## Lo que se publicó en esta tanda
 
-Codex revisó decoración y portal y encontró siete defectos. **Los siete eran ciertos.**
-Arreglados, con su control para que no vuelvan:
+- **Guardar un cambio ya no borra el resto.** Si la lectura de lo guardado fallaba, el cambio se
+  escribía encima y se llevaba puesto todo lo demás del documento. Ahora, si no se puede leer, no
+  se guarda y se avisa. Es lo más grave que entró.
+- **Entraron los hallazgos de Codex** y se cerró la orden 58.
+- **La puerta retoma donde quedó.** Guarda qué pasó bien y sobre qué código exacto; si se cae el
+  contenedor, no repite los seis minutos de compilación ni lo anterior. Cualquier cambio en el
+  código invalida el avance y vuelve a correr todo.
+- **La pantalla que no abre a tiempo se mira de nuevo, sola.** Antes una sola pantalla lenta con
+  la máquina cargada frenaba una corrida de cincuenta minutos.
 
-- **Seis pantallas decían "guardado" sin haber guardado**: distribución del salón,
-  planificador de costos, captura de la vista 3D, cronograma sugerido, ajustes de avisos y
-  contenido público de la web.
-- **La imagen del salón con inteligencia artificial se paga por unidad** y dos toques seguidos
-  pagaban dos habiendo lugar para una. Ahora contar, generar y guardar son un solo turno.
-- **La paleta vieja**: la imagen con IA y el portal del cliente usaban colores que ya nadie
-  había elegido.
-- **La captura de la vista 3D** se anunciaba como guardada en el portal y nunca llegaba.
-- **La nota "para el equipo" se le publicaba al cliente.** Ahora hay un campo aparte,
-  `notaDecoracionParaElCliente`, y la interna no sale del servidor.
-- **La foto que se le manda a la IA se valida**: sólo pegada en el momento o de donde la app
-  guarda sus imágenes.
+**Los dos controles nuevos se probaron rompiéndolos**, como manda la regla.
 
-**Y lo que más importa: se corrigió el método, no sólo el defecto.** El control de
-`npm run "dice-que-si?"` sólo reconocía funciones que escriben su resultado en la firma, y las
-57 puertas de paso de `fiesta-actual.ts` —las que usan las pantallas— no lo escriben. De un
-defecto reportado salieron cuatro. Está anotado en `docs/LO-QUE-NO-VI.md`.
+## Lo que quedó pendiente y por qué
 
-**De Gemini entró** el botón "Exportar PNG" que ahora baja el archivo de verdad y la vista 3D
-mostrándose en el portal. **Se le sacó una prueba** que comprobaba algo que ella misma se
-inventaba adentro: pasaba en verde con la app borrada.
-
-## Lo que sigue
-
-- **Orden 55** (Gemini): el botón para generar la imagen del salón con IA y el cuadro para
-  escribirle al cliente. El bloque del PNG ya está hecho.
-- **Orden 56** (Gemini): los ajustes de avisos no se guardan en ningún lado —se escriben en el
-  navegador de quien los toca— y nadie los respeta al mandar.
-- **El dueño tiene que abrir la web en su celular y decir si puede entrar.** Es lo único que
-  queda de la orden 53 y no se puede comprobar desde acá.
-- `docs/ordenes/DEVOLUCION-acceso-administrativo.md` sigue esperando su decisión.
+- **La parte de navegador no llegó a dar una vuelta limpia de punta a punta.** Tres corridas
+  seguidas fallaron con una prueba DISTINTA cada vez —la cámara de la fotocabina, la cápsula del
+  tiempo, el movimiento de la portada— y **las tres pasan corridas solas**. Es la máquina cargada,
+  no la app. El dueño decidió publicar igual y volver a correrla con la máquina descansada.
+  **Eso es lo primero que hay que hacer al abrir el próximo chat:** `npm run "publicar?"`.
+- **Devolución escrita para Gemini, orden 48** (`docs/ordenes/DEVOLUCION-48-entretenimiento-sesion-segura.md`):
+  su arreglo de fotocabina y espejo deja la cabina colgada en "Subiendo..." para la persona
+  siguiente, y su prueba nueva se aprueba a sí misma.
+- **Orden 55 y 56** (Gemini) siguen a medias, en la propuesta 1206 sin fusionar.
+- `docs/ordenes/DEVOLUCION-acceso-administrativo.md` sigue esperando la decisión del dueño.
 
 ## Trampas que costaron tiempo y no se repiten
 
-- **La puerta se cae si se cae la sesión.** Se larga desprendida (`setsid nohup`) y aun así una
-  reconexión del contenedor se la lleva. Si el registro corta en una etapa sin veredicto, no es
-  una falla: se limpia el turno y se corre de nuevo.
-- **Dos controles pueden decir números distintos de lo mismo** y nadie lo nota, porque cada uno
-  se mira por separado. Ya hay una prueba que los compara.
-- **No correr nada mientras corre la puerta.** Sigue vigente y sigue costando caro.
+- **Nunca barrer procesos por nombre con `pkill -f`**: el patrón caza también el propio comando y
+  mata la sesión. Ya pasó dos veces en una noche.
+- **La puerta se cae si se cae el contenedor.** Ahora al menos retoma.
+- **No correr nada mientras corre la puerta.** Sigue vigente.

@@ -22,6 +22,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync, unlinkSync } from 'node:fs';
 
 const PASOS = [
@@ -161,6 +162,74 @@ function laAppPudoCambiar() {
   return false;
 }
 
+/**
+ * LA PUERTA RETOMA DONDE QUEDO.
+ *
+ * **Esto costo dos horas la noche del 14 de septiembre de 2026.** El contenedor se cayo
+ * dos veces con la puerta a la mitad y las dos veces hubo que empezar de cero: acentos,
+ * tipos, pruebas y una compilacion de seis minutos que ya habian dado bien sobre el
+ * MISMO codigo, sin que nadie tocara un archivo. Cincuenta minutos de reloj por cada
+ * caida. El dueno lo marco asi: *"tenes que buscar un mecanismo mas corto a prueba de
+ * errores"*.
+ *
+ * Lo que se guarda es **que paso bien Y sobre que codigo exacto**. La huella mezcla el
+ * commit, lo que esta sin guardar y lo que esta sin agregar: si se toca una coma en
+ * cualquier archivo, la huella cambia y **no se saltea nada**. Por eso esto no puede
+ * dejar pasar un cambio sin verificar: no hay forma de reusar un paso viejo con codigo
+ * nuevo.
+ *
+ * Se tira a la basura sola a las doce horas, por si el entorno cambio abajo (una
+ * biblioteca reinstalada, otro navegador) aunque el codigo sea el mismo.
+ *
+ * Para ignorarla a proposito: `AK_PUERTA_DESDE_CERO=true`.
+ */
+const AVANCE = '.ak-puerta-avance.json';
+const HORAS_QUE_VALE = 12;
+
+/**
+ * Lo que la propia corrida escribe NO cuenta para la huella.
+ *
+ * Primer intento fallido, la misma noche: la puerta anotaba su medicion de deuda y los
+ * datos de prueba, la huella cambiaba sola **entre una corrida y la siguiente sin que
+ * nadie tocara una linea**, y el avance no servia para nada. Se miran solo los archivos
+ * del codigo.
+ */
+const NO_ES_CODIGO_PARA_LA_HUELLA = [
+  ':(exclude)data',
+  ':(exclude)src/data',
+  ':(exclude)docs/deuda-medida.json',
+  ':(exclude)docs/auditado.json',
+  ':(exclude)test-results',
+];
+
+function huellaDelCodigo() {
+  const filtro = NO_ES_CODIGO_PARA_LA_HUELLA.map((p) => `'${p}'`).join(' ');
+  const partes = [
+    spawnSync('git rev-parse HEAD', { shell: true, encoding: 'utf8' }).stdout || '',
+    spawnSync(`git status --porcelain -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
+    spawnSync(`git diff HEAD -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
+  ];
+  return createHash('sha1').update(partes.join('|')).digest('hex');
+}
+
+function leerAvance(huella) {
+  if (process.env.AK_PUERTA_DESDE_CERO === 'true') return {};
+  try {
+    const guardado = JSON.parse(readFileSync(AVANCE, 'utf8'));
+    if (guardado.huella !== huella) return {};
+    if (Date.now() - (guardado.cuando || 0) > HORAS_QUE_VALE * 3600 * 1000) return {};
+    return guardado.pasos || {};
+  } catch {
+    return {};
+  }
+}
+
+function anotarAvance(huella, pasos) {
+  try {
+    writeFileSync(AVANCE, JSON.stringify({ huella, cuando: Date.now(), pasos }, null, 2));
+  } catch {}
+}
+
 function correr(comando) {
   const r = spawnSync(comando, { shell: true, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
   return { ok: r.status === 0, salida: `${r.stdout || ''}${r.stderr || ''}` };
@@ -291,7 +360,13 @@ const fallas = [];
 const salteadosPorqueLaAppNoCambio = [];
 const appPudoCambiar = laAppPudoCambiar();
 
+const huella = huellaDelCodigo();
+const yaEstabanBien = leerAvance(huella);
+
 console.log('\n¿SE PUEDE PUBLICAR?\n' + '='.repeat(60));
+if (Object.keys(yaEstabanBien).length > 0) {
+  console.log('  (se retoma una corrida anterior del mismo codigo: lo que ya dio bien no se repite)');
+}
 
 for (const paso of PASOS) {
   if (soloRapidos && paso.caro) {
@@ -304,11 +379,19 @@ for (const paso of PASOS) {
     salteadosPorqueLaAppNoCambio.push(paso.nombre);
     continue;
   }
+  if (yaEstabanBien[paso.nombre]) {
+    console.log(`  ${paso.nombre}... ya estaba bien (${yaEstabanBien[paso.nombre]}s, corrida anterior del mismo codigo)`);
+    continue;
+  }
   process.stdout.write(`  ${paso.nombre}... `);
   const arranque = Date.now();
   const { ok, salida } = correr(paso.comando);
   const segundos = ((Date.now() - arranque) / 1000).toFixed(0);
   console.log(ok ? `bien (${segundos}s)` : `FALLA (${segundos}s)`);
+  if (ok) {
+    yaEstabanBien[paso.nombre] = Number(segundos);
+    anotarAvance(huella, yaEstabanBien);
+  }
   if (!ok) {
     fallas.push({ paso, salida });
     break; // se corta acá: lo que sigue es más caro y ya sabemos que no se publica

@@ -960,6 +960,10 @@ con otra cara.
 | Un autoguardado que anunciaba "guardado" sin mirar si se guardó | `src/__tests__/el-autoguardado-no-miente.test.ts` |
 | La captura de la vista 3D se anunciaba en el portal del cliente y no llegaba | `src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts` |
 | Dos controles decían números distintos del mismo módulo | `src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts` |
+| Guardar un cambio borraba el resto del documento cuando la lectura fallaba | `src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts` |
+| Los avisos de cobros se apagaban solos, por adivinar su tipo leyendo el texto | `src/__tests__/los-avisos-respetan-lo-que-se-apago.test.ts` |
+| La puerta empezaba de cero cuando se caia el contenedor: cincuenta minutos por caida | El avance por huella del codigo en `scripts/se-puede-publicar.mjs` |
+| Una sola pantalla que no abrio a tiempo con la maquina cargada frenaba la corrida entera | La segunda mirada de `seQuedaronSinAbrir` en `tests/e2e/recorrido-de-pantallas.spec.ts` |
 
 ### Cómo se elige el matafuego
 
