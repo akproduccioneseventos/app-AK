@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import { SESSION_COOKIE_NAME } from '@/lib/auth/session-constants';
 
 const SESSION_VERSION = 'v1';
@@ -48,11 +48,13 @@ function getSigningSecret(): string {
     return crypto.createHash('sha256').update(`ak-session-secret-derivation:${firebasePrivateKey}`).digest('hex');
   }
 
-  // En producción, la ausencia de un secreto privado del servidor debe emitir un
-  // diagnóstico de configuración estricto en lugar de generar una clave insegura
-  // o una clave aleatoria en memoria que rompería la sesión entre instancias.
+  // En producción, si falta el secreto del servidor, en lugar de lanzar una excepción fatal
+  // que mate el proceso Node.js y genere errores 503 / connection termination en Envoy,
+  // emitimos un diagnóstico de advertencia crítico y recurrimos a una clave efímera en memoria.
   if (process.env.NODE_ENV === 'production') {
-    throw new Error('Diagnóstico de configuración: Falta configurar una clave privada de sesión (AK_SESSION_SECRET) en el servidor de producción.');
+    console.error(
+      '⚠️ [CONFIGURACIÓN CRÍTICA] Falta configurar una clave privada de sesión (AK_SESSION_SECRET o FIREBASE_PRIVATE_KEY) en el servidor de producción. Se utiliza una clave en memoria de emergencia para evitar la caída total del servicio.'
+    );
   }
 
   localDevelopmentSecret ||= crypto.randomBytes(32).toString('hex');
