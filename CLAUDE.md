@@ -1014,6 +1014,7 @@ con otra cara.
 | Al reporte le faltaban los cobros del ultimo dia, por comparar la hora en vez del dia | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
 | Dos personas mandando invitaciones a la vez: al invitado le llegaban dos | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
 | Una restauracion a medias se anunciaba como completa y la recarga tapaba el aviso | `src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts` |
+| Invitaciones "enviadas" sin cuenta conectada, recordatorios de cobro a medias, borrado total parcial y la sena sin recibo enganchado | `src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts` |
 
 ### Cómo se elige el matafuego
 

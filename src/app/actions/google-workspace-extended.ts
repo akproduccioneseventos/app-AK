@@ -439,7 +439,17 @@ async function notifyGuestsWithCalendarLinksInterno(fiestaId: string, options: {
   const event = buildClientEventCalendarEvent(fiesta);
   const calendarTemplateUrl = buildGoogleCalendarTemplateUrl(event);
 
-  if (!companyAccount) return { success: true, sent, warnings };
+  // SIN CUENTA CONECTADA NO SE MANDO NADA, Y ESO NO ES UN EXITO.
+  // Antes contestaba que si con cero mails mandados: el equipo tocaba "Enviar
+  // invitaciones", veia un cartel verde y los invitados nunca recibian nada.
+  if (!companyAccount) {
+    return {
+      success: false,
+      sent: 0,
+      warnings,
+      error: 'No hay una cuenta de Google conectada, asi que no se mando ninguna invitacion. Conectala en Ajustes y proba de nuevo.',
+    };
+  }
 
   for (const invitado of fiesta.invitados || []) {
     const email = getGuestEmail(invitado);

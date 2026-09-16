@@ -8077,3 +8077,39 @@ archivo: src/lib/respaldos/como-salio-la-restauracion.ts
 usa: comoSalioLaRestauracion en src/app/(app)/settings/backup/page.tsx
 prueba: src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts
 ```
+
+## 16 de septiembre de 2026 — Barrido de la octava pregunta sobre plata y sobre lo que sale para afuera
+
+El dueno pidio pasar la pregunta nueva —*"¿puede terminar a medias y decir que termino?"*— por
+todo lo que mueve plata o manda algo para afuera, de una sola vez, en vez de esperar a que la
+encuentren de a una. Se revisaron cobros, cuotas, facturas, sueldos, reportes, importaciones,
+envios en tanda y sincronizaciones. **Cinco hallazgos ciertos, arreglados:**
+
+1. **Las invitaciones contestaban que si SIN una cuenta de Google conectada.** Cero mails
+   mandados y el cartel en verde: el equipo creia que los invitados habian recibido su
+   invitacion. Ahora contesta que no se pudo y dice por que.
+2. **Los recordatorios de cobro contestaban que si con la lista de errores adentro.** Clientes
+   con deuda se quedaban sin su aviso y nadie se enteraba. Ahora, si alguno no salio, el
+   resultado no es un exito.
+3. **El borrado total decia "aplicacion limpia" habiendo borrado una parte.** Si tres de las
+   siete cosas fallaban, quedaban facturas y presupuestos viejos mezclados con los nuevos.
+   Ahora avisa que quedo a medias y **nombra lo que no se pudo borrar**.
+4. **La sena se registraba y el recibo podia no quedar enganchado al evento.** La pantalla
+   decia "Sena Registrada" a secas y despues el equipo buscaba el comprobante en la fiesta y no
+   estaba. Ahora la pantalla dice que falta engancharlo.
+5. **Al importar un presupuesto, si la fiesta no se creaba, el aviso no lo veia nadie**: la
+   pantalla saltaba al presupuesto nuevo y el evento nunca habia existido. Ahora el aviso sale
+   antes de irse de la pantalla.
+
+**Verificados y NO tocados** (avisan bien en pantalla, no son defectos): la sincronizacion con
+Google y la de redes sociales muestran sus advertencias en la misma pantalla, y el aprendizaje
+de los agentes internos no toca plata ni al cliente.
+
+**Probado rompiendolo:** sacando el aviso del borrado a medias y volviendo las invitaciones a
+contestar que si sin cuenta conectada, la prueba se puso en rojo en los dos casos.
+
+```comprobar
+archivo: src/app/actions/admin-reset.ts
+usa: avisoAMedias en src/components/crm/RegisterDepositDialog.tsx
+prueba: src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts
+```

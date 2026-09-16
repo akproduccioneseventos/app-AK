@@ -347,7 +347,7 @@ export async function registerBookingDeposit(data: {
   installments?: number;
   skipBudgetPayment?: boolean;
   skipFiestaSave?: boolean;
-}): Promise<{ success: boolean; invoiceId?: string; error?: string }> {
+}): Promise<{ success: boolean; invoiceId?: string; error?: string; avisoAMedias?: string }> {
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
@@ -414,6 +414,11 @@ export async function registerBookingDeposit(data: {
         const enganchado = await addInvoiceId(data.fiestaId, existingReceipt.id);
         if (!enganchado?.success) {
           logger.error('El recibo de sena no quedo enganchado al evento', { fiestaId: data.fiestaId, invoiceId: existingReceipt.id });
+          return {
+            success: true,
+            invoiceId: existingReceipt.id,
+            avisoAMedias: 'La sena quedo registrada, pero el recibo NO quedo enganchado al evento. Buscalo en Facturas y engancharlo a mano, o volve a intentar.',
+          };
         }
       }
       return { success: true, invoiceId: existingReceipt.id };
@@ -500,7 +505,16 @@ export async function registerBookingDeposit(data: {
     if (!data.skipFiestaSave) {
       const enganchadoNuevo = await addInvoiceId(data.fiestaId, invoiceResult.id);
       if (!enganchadoNuevo?.success) {
+        // LA PLATA ENTRO PERO EL COMPROBANTE NO APARECE EN EL EVENTO.
+        // Antes esto solo se anotaba en el registro y la pantalla decia "Sena
+        // Registrada" a secas: despues el equipo buscaba el recibo en la fiesta
+        // y no estaba. Ahora se dice, para que alguien lo enganche a mano.
         logger.error('El recibo de sena no quedo enganchado al evento', { fiestaId: data.fiestaId, invoiceId: invoiceResult.id });
+        return {
+          success: true,
+          invoiceId: invoiceResult.id,
+          avisoAMedias: 'La sena quedo registrada, pero el recibo NO quedo enganchado al evento. Buscalo en Facturas y engancharlo a mano, o volve a intentar.',
+        };
       }
     }
     return { success: true, invoiceId: invoiceResult.id };
@@ -716,7 +730,11 @@ export async function ejecutarEscaneoDeRecordatorios(
     if (result.errors.length > 0) errors.push(...result.errors);
   }
 
-  return { success: true, triggeredCount, errors };
+  // SI ALGUNO NO SALIO, NO SE DICE QUE SALIO TODO.
+  // Antes esto contestaba que si con la lista de errores adentro, y la pantalla
+  // miraba solo el "si": clientes con deuda se quedaban sin su recordatorio y
+  // nadie se enteraba.
+  return { success: errors.length === 0, triggeredCount, errors };
 }
 
 export async function scanAndTriggerPaymentReminders(): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
