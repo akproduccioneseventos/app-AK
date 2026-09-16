@@ -7981,3 +7981,34 @@ archivo: scripts/se-puede-publicar.mjs
 usa: leerAvance en scripts/se-puede-publicar.mjs
 usa: seQuedaronSinAbrir en tests/e2e/recorrido-de-pantallas.spec.ts
 ```
+
+## 15 de septiembre de 2026 — El despertador de afuera se daba de baja solo por "errores"
+
+**Que pasaba:** el dueno tenia un servicio gratuito de afuera golpeando la app cada tanto
+para que las tareas automaticas no dependieran de que alguien entrara. **El servicio le
+aviso por correo que lo daba de baja por acumular errores.**
+
+**Que era lo cierto:** el servicio golpeaba `/api/cron-despachador`, y esa puerta **no
+contesta hasta terminar TODAS las tareas** —metricas, publicaciones programadas, una nota
+de blog hecha con inteligencia artificial, los recordatorios de cuota—. Si ademas el
+servidor estaba dormido, se sumaba la despertada. Un servicio de afuera corta a los treinta
+segundos y lo anota como fallo; a los pocos fallos, da de baja el aviso. No era un error de
+la app: era una puerta que tarda lo que tarda el trabajo.
+
+**Como se resolvio:** se agrego `/api/despertar`, que hace una sola cosa y rapido —deja
+constancia del toque y contesta—. **No corre ninguna tarea**, asi que no puede demorar por
+el trabajo. El trabajo sigue donde hay paciencia: el despertador de Google (dos minutos de
+espera) y las visitas a la web.
+
+**Por que no se contesta primero y se trabaja despues:** en este hosting el servidor deja de
+tener maquina apenas contesta, asi que las tareas quedarian cortadas por la mitad sin que
+nadie se entere. Eso es peor que no correrlas.
+
+**Probado rompiendolo:** con una llamada a las tareas metida adentro de la puerta nueva, la
+prueba se puso en rojo.
+
+```comprobar
+archivo: src/app/api/despertar/route.ts
+usa: marcarToqueDespertador en src/app/api/despertar/route.ts
+prueba: src/__tests__/el-despertador-contesta-sin-trabajar.test.ts
+```
