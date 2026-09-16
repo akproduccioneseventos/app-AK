@@ -8012,3 +8012,31 @@ archivo: src/app/api/despertar/route.ts
 usa: marcarToqueDespertador en src/app/api/despertar/route.ts
 prueba: src/__tests__/el-despertador-contesta-sin-trabajar.test.ts
 ```
+
+## 16 de septiembre de 2026 — Los respaldos: tres formas de decir que estaba todo bien sin estarlo
+
+**Los encontro Codex y los tres eran ciertos.** Se arreglaron los tres, con su control.
+
+1. **Una copia a la que le faltaban cosas se guardaba marcada como completa.** Si una parte
+   no se podia leer —la base lenta, cortada, un permiso—, se la salteaba con un aviso en el
+   registro que no mira nadie y el respaldo salia igual. Y al guardarse, **la rotacion
+   borraba una copia vieja que si estaba entera**: justo cuando la base falla, el negocio
+   se quedaba sin la ultima copia buena creyendo que tenia una nueva. Ahora, si falta algo,
+   **no se guarda nada** y se avisa que falto y que la copia anterior sigue intacta.
+2. **Cualquiera con sesion podia borrar y restaurar respaldos, y bajarse todo el negocio en
+   un archivo.** El operador de fiesta tiene sesion. Ahora las cuatro puertas —crear,
+   restaurar, borrar y la descarga completa— piden el permiso de administracion, que es el
+   que ya tenia la app definido para crear usuarios y borrar datos. La descarga incluye
+   sueldos y ganancias, asi que la secretaria tampoco la baja.
+3. **Una restauracion a medias se anunciaba como "Restauracion Completa"** y la pantalla se
+   recargaba enseguida, tapando el aviso. Ahora, si alguna parte no entro, el cartel dice
+   que se restauro solo una parte, nombra lo que falto y **no recarga**, para que se lea.
+
+**Probado rompiendolo:** sacando el permiso de borrar y el freno de la copia parcial, la
+prueba se puso en rojo en los dos casos.
+
+```comprobar
+archivo: src/app/actions/backup.ts
+usa: requirePermiso en src/app/actions/backup.ts
+prueba: src/__tests__/el-respaldo-no-miente.test.ts
+```

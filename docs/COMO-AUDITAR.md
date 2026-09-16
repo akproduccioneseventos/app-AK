@@ -330,3 +330,26 @@ leyéndola el cliente. Si no hay texto para mostrar, va sin texto.
 
 **Qué se hace al agregar esta pregunta:** se vuelve a pasar con ella **todo lo que proyecta datos
 hacia un cliente o un invitado**, aunque ya estuviera auditado.
+
+## La octava pregunta: ¿PUEDE TERMINAR A MEDIAS Y DECIR QUE TERMINO? (16 de septiembre de 2026)
+
+**Salio de tres defectos de respaldos que encontro Codex**, y los tres pasaban las siete
+preguntas anteriores: estaban escritos, alguien los llamaba, dejaban rastro, tenian prueba en
+verde y **no fallaban**. Salian a medias y terminaban bien.
+
+- Una copia a la que no se le pudo leer una parte se guardaba **marcada como completa**, y la
+  rotacion borraba una copia vieja que si estaba entera.
+- Una restauracion que dejaba archivos afuera anunciaba **"Restauracion Completa"** y recargaba
+  la pantalla, tapando el aviso.
+
+**La pregunta, y donde se aplica primero:** en todo lo que recorre una lista y sigue despues de
+un tropiezo —respaldos, restauraciones, importaciones, envios en tanda, sincronizaciones—, hay
+que buscar el **camino del medio**: ni todo ni nada.
+
+Tres cosas que tiene que cumplir cualquiera de esos:
+
+1. **Lo que salio a medias no dice que salio.** El resultado distingue completo, parcial y
+   fallido, y el parcial **nombra lo que falto**.
+2. **Lo que salio a medias no pisa ni borra lo anterior.** Es lo que convierte un aviso molesto
+   en una perdida de datos.
+3. **El aviso se puede leer.** Nada de recargar la pantalla arriba del cartel.

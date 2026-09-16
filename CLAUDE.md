@@ -992,6 +992,8 @@ con otra cara.
 | La puerta empezaba de cero cuando se caia el contenedor: cincuenta minutos por caida | El avance por huella del codigo en `scripts/se-puede-publicar.mjs` |
 | Una sola pantalla que no abrio a tiempo con la maquina cargada frenaba la corrida entera | La segunda mirada de `seQuedaronSinAbrir` en `tests/e2e/recorrido-de-pantallas.spec.ts` |
 | El despertador de afuera se daba de baja solo, porque la puerta no contestaba hasta terminar todas las tareas | `src/__tests__/el-despertador-contesta-sin-trabajar.test.ts` |
+| Un respaldo al que le faltaban partes se guardaba como completo, y la rotacion borraba la copia buena | `src/__tests__/el-respaldo-no-miente.test.ts` |
+| Cualquiera con sesion podia borrar respaldos y bajarse todo el negocio en un archivo | `src/__tests__/el-respaldo-no-miente.test.ts` |
 
 ### Cómo se elige el matafuego
 

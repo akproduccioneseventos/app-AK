@@ -221,3 +221,25 @@ un `if` ahí"— sino el resultado en pantalla con las dos personas.
 ```comprobar
 archivo: docs/ordenes/DEVOLUCION-48-entretenimiento-sesion-segura.md
 ```
+
+## 16 de septiembre de 2026 — El trabajo que sale A MEDIAS, no el que falla (lo vio Codex)
+
+**Qué era:** tres defectos de respaldos. Una copia a la que le faltaban partes se guardaba
+**marcada como completa** —y la rotación borraba una copia vieja que sí estaba entera—; una
+restauración que dejaba archivos afuera anunciaba **"Restauración Completa"**; y cualquiera con
+sesión podía borrar respaldos o bajarse todo el negocio en un archivo.
+
+**Por qué no lo vi:** mi séptima pregunta es *"¿qué pasa cuando falla?"*, y estos tres **no
+fallan**: salen a medias y **terminan bien**. Devuelven éxito, escriben su registro y dejan la
+pantalla en verde. El camino del medio —ni todo ni nada— no lo estaba mirando nadie.
+
+**La pregunta nueva, que queda puesta en `docs/COMO-AUDITAR.md`:** *"¿puede terminar a medias y
+decir que terminó?"*. Se aplica a todo lo que recorre una lista y sigue después de un tropiezo:
+respaldos, restauraciones, importaciones, envíos en tanda, sincronizaciones.
+
+**Y la regla de fondo:** lo que salió a medias **no puede decir que salió**, y sobre todo **no
+puede pisar ni borrar lo anterior**, que es lo que convierte un aviso en una pérdida.
+
+```comprobar
+prueba: src/__tests__/el-respaldo-no-miente.test.ts
+```

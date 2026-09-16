@@ -18,10 +18,13 @@ async function readFromFirestoreDirect(filePath: string): Promise<any | null> {
 
 export async function GET() {
   try {
-    const { verifySession } = await import('@/lib/auth/session-token');
-    const auth = await verifySession();
-    if (!auth.success) {
-      return new NextResponse(JSON.stringify({ error: 'No autorizado' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
+    // Esta descarga se lleva TODO el negocio en un archivo: plata, sueldos, clientes.
+    // Con sesion sola la bajaba cualquiera del equipo (BKP02, Codex, 16/9/2026).
+    const { requirePermiso } = await import('@/lib/auth/require-session');
+    const { PERMISOS } = await import('@/lib/auth/perfiles');
+    const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+    if (!permiso.ok) {
+      return new NextResponse(JSON.stringify({ error: permiso.error }), { status: 403, headers: { 'Content-Type': 'application/json' } });
     }
 
     const zip = new JSZip();

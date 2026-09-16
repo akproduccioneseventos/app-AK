@@ -57,6 +57,21 @@ export default function BackupPage() {
       if (!response.ok) {
         throw new Error(result.error || 'Error al restaurar el respaldo.');
       }
+      // UNA RESTAURACIÓN A MEDIAS NO SE ANUNCIA COMO COMPLETA.
+      // Antes esto miraba sólo si la respuesta había llegado bien, y decía "Restauración
+      // Completa" aunque adentro viniera la lista de lo que falló; la recarga inmediata
+      // tapaba el aviso. Lo encontró Codex el 16 de septiembre de 2026 (BKP03).
+      const faltaron: string[] = Array.isArray(result.errors) ? result.errors : [];
+      if (faltaron.length > 0) {
+        toast({
+          title: '⚠️ Se restauró sólo una parte',
+          description: `No se pudo restaurar: ${faltaron.join(', ')}. El resto sí quedó. Volvé a intentar con el mismo archivo antes de seguir trabajando.`,
+          variant: 'destructive',
+          duration: 15000,
+        });
+        setFile(null);
+        return;
+      }
       toast({ title: '✅ Restauración Completa', description: 'Los datos fueron restaurados. La aplicación se recargará.' });
       setFile(null);
       setTimeout(() => window.location.reload(), 1500);
