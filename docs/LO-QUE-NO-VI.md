@@ -169,3 +169,31 @@ busca en un minuto.
 prueba: src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts
 usa: notaDecoracionParaElCliente en src/lib/client-portal/public-fiesta.ts
 ```
+
+## 14 de septiembre de 2026 — Guardar un cambio podía borrar el resto (Codex)
+
+**Qué era:** cuando se guarda un cambio parcial —sólo el teléfono de un contacto, un dato de
+ajustes— la app **lee lo que había, le suma lo nuevo y guarda el conjunto entero**. La función
+que lee devolvía lo mismo —"nada"— en dos casos que no son iguales: cuando el documento **no
+existe**, y cuando **no se pudo leer**. Con la base lenta o cortada, la app entendía que no había
+nada y **guardaba encima sólo el pedacito nuevo. El resto se borraba**, sin aviso.
+
+**Por qué no lo vi, y es la parte que corrijo del método.** Yo había mirado este mismo lugar dos
+días antes, y lo miré bien: frené un cambio que le ponía un tope de espera a la lectura, y dije
+que si esa lectura se pasaba del tope se borraba el resto. **Vi el peligro y lo até al cambio que
+lo traía.** Nunca me pregunté si el mismo agujero estaba abierto sin ese cambio. Y lo estaba:
+cualquier falla de lectura hace lo mismo.
+
+**Qué se hace distinto:** cuando se rechaza un cambio porque **abre** un agujero, la pregunta que
+sigue es *"¿ese agujero ya está abierto por otro lado?"*. Rechazar algo peligroso no arregla lo
+que ya era peligroso. Es la misma forma del error de la nota interna: aplicar una pregunta nueva
+sólo donde saltó, en vez de pasarla por todo.
+
+**Y la regla de fondo que queda escrita:** una función que devuelve "no hay nada" **tiene que
+distinguir "está vacío" de "no pude mirar"**, siempre que lo que devuelve se use para decidir qué
+se guarda encima.
+
+```comprobar
+prueba: src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts
+usa: leerGenericJsonParaGuardarEncima en src/lib/data-service.ts
+```
