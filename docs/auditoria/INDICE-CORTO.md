@@ -37,3 +37,8 @@ En cada tarea anotar en el traspaso: documentos elegidos, pruebas reutilizadas/r
 y motivo. Tokens reales y ahorro porcentual: no medidos; no inferirlos del numero de agentes.
 Fuente de instrucciones Codex: [AGENTS.md oficial](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
 No instala herramientas ni cambia modelos, plan, facturacion o comportamiento de la app.
+
+
+## Actualizacion prioritaria 2026-09-16
+
+Las filas anteriores son historicas. [Diagnostico conjunto](DIAGNOSTICO-CONJUNTO-2026-09-16.md) contiene contraste con main da6c566 y los cinco HEAD abiertos. STORE01: correccion presente en main, no nueva prueba Firebase. DECO15: correccion presente en 1206/4cd2d024, pendiente validacion. ENT03: 1209/f6b619a corrige reset tardio pero sonda real reproduce Subiendo persistente y cola alterada (1 PASS/1 FAIL). No certificado de toda la app; [inventario 360 paginas](INVENTARIO-PANTALLAS-2026-09-16.md) no implica recorridos ejecutados.

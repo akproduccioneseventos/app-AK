@@ -7985,3 +7985,8 @@ No prueba popup bloqueado ni verifica contenido real de portapapeles/toast.
 Usar fixtures con tarjeta de video y boton obligatorios, probar copia permitida/denegada,
 API ausente y apertura bloqueada. Las pruebas reforzadas quedan pendientes, no aprobadas.
 No se afirma que todo el panel falle ni se repiten cifras/contabilidad en este punto.
+
+
+## 16 de septiembre de 2026 - Codex: diagnostico conjunto, no certificado
+
+Ver docs/auditoria/DIAGNOSTICO-CONJUNTO-2026-09-16.md e INVENTARIO-PANTALLAS-2026-09-16.md. main contrastado da6c566fbefdf82efec484f7fc9830db6ab5c4de; cinco PR abiertas identificadas por SHA. La proteccion de lectura antes de guardar ya esta presente en main; no rehacer orden 58. PR1209 f6b619a: sonda sobre callbacks reales confirma bloqueo Subiendo tras retake y cambio del indicador de cola del siguiente participante (1 PASS, 1 FAIL). Ampliacion de devolucion 48 de Claude: finally incondicional tampoco protege una subida nueva de B; cada operacion debe finalizar solo su estado. Pruebas actuales de PR1209 recrean logica y no importan pantallas. No hubo build, merge ni cambios a datos reales. Inventario 360 paginas NO es auditoria funcional de 360 recorridos. Evidencias previas conservadas; correccion presente, prueba ejecutada y despliegue verificado se distinguen. Falta sesion/fiesta aislada y equipos reales para cerrar matriz. No certificado global.
