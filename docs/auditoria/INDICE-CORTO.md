@@ -57,3 +57,8 @@ PR1209 b4c6929 incorpora correcciones. [Contraste vigente](CONTRASTE-1209-2026-0
 ## Respaldos revalidados 17/9
 
 PR1209 b4c6929: 9 PASS / 1 FAIL aislados. Permisos y aviso parcial mejorados; BKP01 sigue abierto al incluir readData real (error -> default vacio -> copia completa). [Detalle](RESPALDOS-REVALIDACION-2026-09-17.md). Sin build ni Firebase real.
+
+
+## Area nueva post-fiesta 17/9
+
+Main da6c566: [encuestas/resenas](POSTFIESTA-2026-09-17.md), 2 PASS/3 FAIL aislados. PF01 rechazo bloquea formulario; PF02 concurrencia pierde respuesta; PF03 campos publicos no validados. No todo post-fiesta auditado, no pruebas reales externas.

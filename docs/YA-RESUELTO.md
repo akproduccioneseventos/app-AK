@@ -8005,3 +8005,8 @@ Ver docs/auditoria/REPORTES-CONEXIONES-2026-09-16.md (historia main) y CONTRASTE
 ## 17/9/2026 - Codex: revalidacion de respaldos PR1209 b4c6929
 
 Detalle: docs/auditoria/RESPALDOS-REVALIDACION-2026-09-17.md. Sonda docs/evidencias/backup-b4c692-retest.cjs: 9 PASS, 1 FAIL. Correcciones de permiso/aviso parcial/estado desconocido pasan casos aislados. BKP01 no cierra: readData real convierte fallo remoto sin fallback en defaultValue; snapshot sigue complete con colecciones vacias. Lectores inferiores simulados; no datos reales, restauracion, build ni merge. Conservar mejoras, arreglar lectura estricta especifica de respaldos sin rehacer todo. Codex revisa; Claude compila.
+
+
+## 17/9/2026 - Codex: area nueva post-fiesta, no reauditoria de PR
+
+Detalle docs/auditoria/POSTFIESTA-2026-09-17.md, sonda docs/evidencias/postfiesta-sonda.cjs. Main da6c566; cinco PR abiertas no modifican esos archivos. 2 PASS/3 FAIL aislados: rechazo bloquea Enviando, dos respuestas concurrentes dejan solo una, servidor acepta NPS99 y googleReviewRequested aportado por navegador. Inspeccion de syncToFirestore confirma reemplazo con borrado de ausentes; no Firebase real. Propuestas humanas: no llamar Detractor al cliente, evaluar mejoras opcionales con dueno, contrastar promesa de contacto con tarea real. Pedido de resenas YA EXISTE, conservar; no rehacer. Sin build, cambios app, envios reales ni merge. Codex revisa; Claude compila.
