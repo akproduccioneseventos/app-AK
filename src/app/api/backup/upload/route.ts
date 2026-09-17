@@ -28,10 +28,13 @@ async function restoreJsonFile(file: File) {
 
 export async function POST(request: Request) {
   try {
-    const { verifySession } = await import('@/lib/auth/session-token');
-    const auth = await verifySession();
-    if (!auth.success) {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    // Restaurar pisa TODOS los datos del negocio. Tener sesion no alcanza: eso lo tiene
+    // cualquier operador de fiesta. Lo encontro Codex el 16 de septiembre de 2026 (BKP02).
+    const { requirePermiso } = await import('@/lib/auth/require-session');
+    const { PERMISOS } = await import('@/lib/auth/perfiles');
+    const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+    if (!permiso.ok) {
+      return NextResponse.json({ error: permiso.error }, { status: 403 });
     }
 
     const formData = await request.formData();
@@ -43,7 +46,7 @@ export async function POST(request: Request) {
     if (jsonResult) {
       const message = `Importacion restaurada correctamente: ${summarizeRestoreSummary(jsonResult.summary)}.`;
       logger.info(`[Backup] Confirmed events JSON restore completed at ${new Date().toISOString()}: ${summarizeRestoreSummary(jsonResult.summary)}`);
-      return NextResponse.json({ success: true, message, summary: jsonResult.summary, errors: [], skipped: jsonResult.skipped });
+      return NextResponse.json({ success: true, completo: true, message, summary: jsonResult.summary, errors: [], skipped: jsonResult.skipped });
     }
 
     if (!VALID_ZIP_TYPES.has(file.type) && !file.name.toLowerCase().endsWith('.zip')) return NextResponse.json({ error: 'El archivo debe ser de tipo .zip o .json.' }, { status: 400 });
@@ -62,7 +65,7 @@ export async function POST(request: Request) {
         const bundleResult = await restoreConfirmedEventsBundle(parsed, bundleFileName);
         const message = `Importacion restaurada correctamente: ${summarizeRestoreSummary(bundleResult.summary)}.`;
         logger.info(`[Backup] Confirmed events ZIP restore completed at ${new Date().toISOString()}: ${summarizeRestoreSummary(bundleResult.summary)}`);
-        return NextResponse.json({ success: true, message, summary: bundleResult.summary, errors: [], skipped: bundleResult.skipped });
+        return NextResponse.json({ success: true, completo: true, message, summary: bundleResult.summary, errors: [], skipped: bundleResult.skipped });
       }
     }
 
@@ -98,7 +101,17 @@ export async function POST(request: Request) {
     const summaryParts = summarizeRestoreSummary(summary);
     const message = errors.length > 0 ? `Backup parcialmente restaurado: ${summaryParts}. Errores en: ${errors.join(', ')}.` : `Backup restaurado correctamente: ${summaryParts}.`;
     logger.info(`[Backup] Restore completed at ${new Date().toISOString()}: ${summaryParts}`);
-    return NextResponse.json({ success: true, message, summary, errors, skipped });
+    // SI FALTO ALGO, SE DICE. Antes esto contestaba `success: true` con la lista de
+    // errores adentro, la pantalla miraba solo si la respuesta habia llegado bien, y
+    // anunciaba "Restauracion Completa" habiendo restaurado la mitad (BKP03).
+    return NextResponse.json({
+      success: errors.length === 0,
+      completo: errors.length === 0,
+      message,
+      summary,
+      errors,
+      skipped,
+    });
   } catch (error: any) {
     logger.error('[Backup] Error restoring backup:', error.message || error);
     const details = process.env.NODE_ENV === 'production' ? undefined : error.message;

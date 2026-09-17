@@ -174,6 +174,40 @@ lo que no había que gastar.
 **Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
 comida o permisos? Si la respuesta es no, va a una orden.**
 
+### LA LISTA DE LAS QUINCE PREGUNTAS: `docs/ANTES-DE-ENTREGAR.md`
+
+**Idea del dueño, 16 de septiembre de 2026.** Sus palabras: *"quizás conviene que Gemini
+audite con eso, para que si Codex encuentra algo no sea desde eso y empecemos de cero"*.
+
+**Tenía razón y es la forma de que esto converja.** Desde que Codex empezó a revisar encontró
+**unos veinte defectos y todos eran ciertos**, y ninguno estaba roto a la vista. De cada uno
+salió una pregunta o un control. Si el que programa **no se hace esas preguntas antes**, el
+que revisa las vuelve a encontrar y se arranca de cero cada vuelta.
+
+Por eso las quince preguntas viven juntas en `docs/ANTES-DE-ENTREGAR.md`, cortas y en criollo:
+
+- **Se leen antes de decir "terminé"**, sobre lo que uno acaba de tocar. No es una auditoría
+  general: eso sigue prohibido.
+- **Toda orden que se escriba la nombra**, para que Gemini la use sin que haya que explicarla.
+- **Cuando una revisión suma una pregunta nueva, se agrega ahí**, no sólo en el método.
+
+### CADA TANDA TERMINA CON TRABAJO ESCRITO PARA GEMINI
+
+**Orden del dueño, 16 de septiembre de 2026:** *"no te olvides de siempre pasarle a Gemini"*.
+
+Cuando llega una revisión —de Codex, del dueño o propia—, los hallazgos se **reparten en el
+acto**, no se guardan para después:
+
+- **Lo de Claude** (plata, cobros, comida, permisos, quién ve qué) se arregla en la misma tanda.
+- **Todo lo demás sale como orden escrita** en `docs/ordenes/`, **antes de cerrar la tanda**.
+  Pantallas, carteles, entretenimiento, impresos, pruebas de componentes: eso es de Gemini.
+
+**Una tanda que arregla lo propio y deja el resto "anotado para más adelante" está incompleta.**
+Mientras no esté escrito como orden, Gemini está parado y el hallazgo se enfría.
+
+Y lo de siempre: **una sola propuesta con todos los bloques**, con los nombres exactos, qué no
+tocar, y qué tiene que comprobar la prueba.
+
 ### Claude dirige. Y una orden se escribe MASTICADA, no en general
 
 **Orden del dueño, 27 de agosto de 2026.** Palabras suyas: *"vos sos el jefe"*, y *"debés
@@ -683,6 +717,50 @@ aplica primero a cobros, cuotas, facturas, presupuestos y sueldos. Y queda escri
 que la app esté terminada **no** significa que un área ya mirada quede mirada para siempre con
 las preguntas viejas; cuando el método suma una pregunta, lo que toca plata se vuelve a pasar.
 
+### 11. Una prueba de "dos a la vez" que comparte la lista en memoria NO puede fallar nunca
+
+**Pasó el 17 de septiembre de 2026, y lo agarré yo al romper el control a propósito**, que es
+justamente para lo que sirve esa costumbre.
+
+**Qué se hizo mal:** escribí la prueba de dos respuestas simultáneas con una base de mentira que
+**devolvía siempre el mismo arreglo en memoria**. Las dos operaciones escribían sobre la misma
+lista, así que nunca se pisaban. La prueba daba verde **con el turno puesto y sin el turno
+puesto**: no probaba nada.
+
+**Qué era lo cierto:** la base de verdad devuelve **una copia** en cada lectura. Ahí es donde se
+pierde una de las dos operaciones.
+
+**Qué se hace distinto:** en toda prueba de "dos a la vez", la base de mentira **devuelve una
+copia**, nunca la misma lista. Y la prueba se da por buena recién cuando **se puso en rojo al
+sacar el turno**, no cuando dio verde.
+
+### 10. Arreglar un caso y romper el de al lado, por mirar un solo turno
+
+**Lo encontro Codex el 16 de septiembre de 2026, sobre una devolucion que yo mismo habia
+escrito.** La fotocabina dejaba la pantalla colgada en "Subiendo..." para la persona
+siguiente, y yo le indique a Gemini que el apagado del cartel fuera **sin condicion**.
+Eso arregla el caso de la persona B que esta mirando su captura **y rompe el de al lado**:
+si B ya empezo SU PROPIA subida, la respuesta tardia de A **le apaga el cartel a B**.
+
+**Que era lo cierto:** el cartel de subiendo, el de "guardada sin senal" y los demas
+avisos **son de la pantalla, no de la persona**. Con estado compartido entre turnos no
+alcanza con preguntar "¿esto arregla lo que se reporto?": hay que recorrer **quien viene
+despues y en que estado esta**.
+
+**Que se hace distinto, y es una pregunta nueva antes de mandar cualquier arreglo sobre
+estado compartido:**
+
+1. **¿De quien es el estado que estoy tocando?** Una operacion solo puede finalizar lo que
+   le pertenece.
+2. **¿Que pasa si el siguiente ya empezo lo suyo?** Se recorren los dos casos, no uno: el
+   siguiente esperando, y el siguiente ya trabajando.
+3. **El turno nuevo LIMPIA lo heredado.** Es la mitad que faltaba: no alcanza con que el
+   que termina tarde se abstenga; el que entra tiene que dejar la pantalla como si recien
+   se prendiera.
+
+Y el corolario para las ordenes: **una comprobacion no pide la forma del codigo** —"que el
+`finally` no tenga un `if`"— sino el resultado en pantalla con las dos personas.
+
 ### 9. Correr una segunda tanda de pruebas mientras corre la puerta
 
 **Pasó dos veces el 9 de septiembre de 2026, con cuarenta minutos ya invertidos cada vez.** Con la
@@ -964,6 +1042,20 @@ con otra cara.
 | Los avisos de cobros se apagaban solos, por adivinar su tipo leyendo el texto | `src/__tests__/los-avisos-respetan-lo-que-se-apago.test.ts` |
 | La puerta empezaba de cero cuando se caia el contenedor: cincuenta minutos por caida | El avance por huella del codigo en `scripts/se-puede-publicar.mjs` |
 | Una sola pantalla que no abrio a tiempo con la maquina cargada frenaba la corrida entera | La segunda mirada de `seQuedaronSinAbrir` en `tests/e2e/recorrido-de-pantallas.spec.ts` |
+| Cincuenta minutos de compilacion y navegador repetidos por tocar un documento | Las dos huellas de `huellaDelPaso` en `scripts/se-puede-publicar.mjs` |
+| El despertador de afuera se daba de baja solo, porque la puerta no contestaba hasta terminar todas las tareas | `src/__tests__/el-despertador-contesta-sin-trabajar.test.ts` |
+| Un respaldo al que le faltaban partes se guardaba como completo, y la rotacion borraba la copia buena | `src/__tests__/el-respaldo-no-miente.test.ts` |
+| Cualquiera con sesion podia borrar respaldos y bajarse todo el negocio en un archivo | `src/__tests__/el-respaldo-no-miente.test.ts` |
+| Al reporte le faltaban los cobros del ultimo dia, por comparar la hora en vez del dia | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
+| Dos personas mandando invitaciones a la vez: al invitado le llegaban dos | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
+| Una restauracion a medias se anunciaba como completa y la recarga tapaba el aviso | `src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts` |
+| Invitaciones "enviadas" sin cuenta conectada, recordatorios de cobro a medias, borrado total parcial y la sena sin recibo enganchado | `src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts` |
+| Un respaldo de cero datos guardado como copia completa, porque leer no falla: devuelve vacio | `readDataConDetalle` en `src/lib/data-service.ts`, con `src/__tests__/el-respaldo-no-miente.test.ts` |
+| Un cobro de la noche del ultimo dia afuera del reporte, por contar los dias en hora de Greenwich | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
+| La encuesta del cliente aceptaba notas de 99 y campos internos del navegador, y dos respuestas a la vez perdian una | `src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts` |
+| El boton de una pantalla publica quedaba en "Enviando..." para siempre al cortarse la senal | `src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts` |
+| Guardados que reescriben la lista entera sin turno: ingredientes, menus, ajustes de precio y la ficha de la empresa | `src/__tests__/los-guardados-de-lista-tienen-turno.test.ts` |
+| Un control que miraba el archivo entero y pasaba por el turno de la funcion de al lado | El mismo control, acotado al cuerpo de cada funcion |
 
 ### Cómo se elige el matafuego
 

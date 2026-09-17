@@ -83,10 +83,17 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
                              const colorMatch = platformStyles[post.platform].match(/text-([a-z]+)-(\d+)/);
                              const color = colorMatch ? `${colorMatch[1]}-${colorMatch[2]}` : 'black';
                              return (
-                                <li key={post.id} className="text-xs flex items-start gap-1.5">
-                                    <Icon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{color: `var(--tw-color-${color})`}}/>
-                                    <span>{post.text.substring(0, 50)}{post.text.length > 50 ? '...' : ''}</span>
-                                </li>
+                                 <li key={post.id} className="text-xs flex flex-col gap-0.5">
+                                     <div className="flex items-start gap-1.5">
+                                         <Icon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{color: `var(--tw-color-${color})`}}/>
+                                         <span>{post.text.substring(0, 50)}{post.text.length > 50 ? '...' : ''}</span>
+                                     </div>
+                                     {post.platform === 'TikTok' && post.publishId && post.status !== 'Publicado' && (
+                                         <span className="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                                             TikTok: se envio, falta que TikTok termine de procesarlo
+                                         </span>
+                                     )}
+                                 </li>
                              )
                         })}
                     </ul>

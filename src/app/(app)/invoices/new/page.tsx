@@ -20,6 +20,7 @@ import { getPresupuestoById } from '@/app/actions/presupuestos';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice, InvoiceItem, InvoiceStatus } from '@/types/invoice';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 
 // Constants for vendor details - eventually move to settings
 const VENDOR_NAME = "AK Producciones"; // Placeholder
@@ -183,7 +184,7 @@ function NewInvoicePageContent() {
     };
 
     try {
-      const result = await saveInvoice(invoiceData, sourcePresupuestoId || undefined);
+      const result = await conTopeDeEspera(saveInvoice(invoiceData, sourcePresupuestoId || undefined));
       if (result.success && result.id) {
         toast({ title: "¡Factura Creada!", description: `La factura ${result.invoice?.invoiceNumber} ha sido creada.` });
         router.push('/invoices');

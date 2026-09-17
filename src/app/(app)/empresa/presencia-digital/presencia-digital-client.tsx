@@ -390,13 +390,27 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
     try {
       const res = await publishApprovedSocialPost(postId);
       if (res.success) {
-        setPosts((prev) =>
-          prev.map((p) => (p.id === postId ? { ...p, status: 'Publicado' } : p))
-        );
-        const details = res.publishedTo?.map((plat) => `Publicado en ${plat}`) || [];
+        if (res.post) {
+          setPosts((prev) =>
+            prev.map((p) => (p.id === postId ? res.post! : p))
+          );
+        } else if (res.publishedTo && res.publishedTo.length > 0) {
+          setPosts((prev) =>
+            prev.map((p) => (p.id === postId ? { ...p, status: 'Publicado' } : p))
+          );
+        }
+        const publishedDetails = res.publishedTo?.map((plat) => `Publicado en ${plat}`) || [];
+        const enProcesoDetails = res.enProceso?.map((plat) => `${plat}: se envio, falta que ${plat} termine de procesarlo`) || [];
+        const details = [...publishedDetails, ...enProcesoDetails];
+
+        let message = '¡Publicación enviada con éxito!';
+        if (res.enProceso && res.enProceso.length > 0 && (!res.publishedTo || res.publishedTo.length === 0)) {
+          message = res.enProceso.map((plat) => `${plat}: se envio, falta que ${plat} termine de procesarlo`).join('. ');
+        }
+
         setPublishFeedback({
           success: true,
-          message: '¡Publicación enviada con éxito!',
+          message,
           details,
         });
       } else {
@@ -1638,55 +1652,70 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
           </div>
 
           <div className="space-y-3">
-            {posts.map((post) => (
-              <div
-                key={post.id}
-                className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div className="space-y-1.5 max-w-2xl">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold px-2.5 py-0.5 bg-slate-800 text-slate-300 rounded-md border border-slate-700">
-                      {post.platform}
-                    </span>
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-0.5 rounded-md ${
-                        post.status === 'Publicado'
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                          : post.status === 'Programado'
-                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
-                          : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
-                      }`}
-                    >
-                      {post.status}
-                    </span>
-                    {post.publishDate && (
-                      <span className="text-xs text-slate-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(post.publishDate).toLocaleDateString('es-UY')}
+            {posts.map((post) => {
+              const isEnProcesoTikTok = post.platform === 'TikTok' && !!post.publishId && post.status !== 'Publicado';
+              return (
+                <div
+                  key={post.id}
+                  className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1.5 max-w-2xl">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold px-2.5 py-0.5 bg-slate-800 text-slate-300 rounded-md border border-slate-700">
+                        {post.platform}
                       </span>
+                      <span
+                        className={`text-xs font-semibold px-2.5 py-0.5 rounded-md ${
+                          post.status === 'Publicado'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                            : post.status === 'Programado'
+                            ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
+                            : isEnProcesoTikTok
+                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                            : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                        }`}
+                      >
+                        {isEnProcesoTikTok ? 'En proceso' : post.status}
+                      </span>
+                      {post.publishDate && (
+                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                          <Calendar className="w-3 h-3" />
+                          {new Date(post.publishDate).toLocaleDateString('es-UY')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-200 line-clamp-3 whitespace-pre-wrap">{post.text}</p>
+                    {isEnProcesoTikTok && (
+                      <div className="text-xs text-amber-300 font-medium bg-amber-950/40 p-2 rounded-lg border border-amber-800/60 flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-pulse" />
+                        <span>TikTok: se envio, falta que TikTok termine de procesarlo</span>
+                      </div>
                     )}
                   </div>
-                  <p className="text-sm text-slate-200 line-clamp-3 whitespace-pre-wrap">{post.text}</p>
-                </div>
 
-                <div className="shrink-0 flex items-center gap-2">
-                  {post.status !== 'Publicado' ? (
-                    <button
-                      onClick={() => handlePublishPost(post.id)}
-                      disabled={publishingId === post.id}
-                      className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition disabled:opacity-50 flex items-center gap-1.5"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                      {publishingId === post.id ? 'Publicando...' : 'Aprobar y Publicar'}
-                    </button>
-                  ) : (
-                    <div className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" /> Ya publicado
-                    </div>
-                  )}
+                  <div className="shrink-0 flex items-center gap-2">
+                    {post.status === 'Publicado' ? (
+                      <div className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                        <CheckCircle2 className="w-4 h-4" /> Ya publicado
+                      </div>
+                    ) : isEnProcesoTikTok ? (
+                      <div className="text-xs font-bold text-amber-400 flex items-center gap-1 bg-amber-950/30 px-3 py-2 rounded-xl border border-amber-800/40">
+                        <Clock className="w-3.5 h-3.5 animate-pulse" /> En proceso en TikTok
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handlePublishPost(post.id)}
+                        disabled={publishingId === post.id}
+                        className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition disabled:opacity-50 flex items-center gap-1.5"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                        {publishingId === post.id ? 'Publicando...' : 'Aprobar y Publicar'}
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

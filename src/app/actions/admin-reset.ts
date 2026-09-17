@@ -83,7 +83,34 @@ export async function resetAppCompleto(): Promise<{
     };
 
     const totalDeleted = Object.values(results).reduce((sum, n) => sum + n, 0);
-    logger.info('[ResetCompleto] Reset completo finalizado.', { results, totalDeleted });
+
+    // UN BORRADO A MEDIAS NO ES "APLICACION LIMPIA".
+    // Antes, si tres de las siete colecciones fallaban, se contaban las que si
+    // salieron y se contestaba que si. Quedaban facturas y presupuestos viejos
+    // mezclados con los nuevos, y la contabilidad de despues no cerraba.
+    const noSePudieronBorrar: string[] = [];
+    const revisar: Array<[string, PromiseSettledResult<{ success: boolean }>]> = [
+      ['clientes', clientesResult],
+      ['facturas', facturasResult],
+      ['presupuestos', presupuestosResult],
+      ['fiestas', fiestasResult],
+      ['prospectos', crmResult],
+      ['notificaciones', notificacionesResult],
+      ['fiestas historicas', fiestasHistoricasResult],
+    ];
+    for (const [nombre, resultado] of revisar) {
+      if (resultado.status !== 'fulfilled' || !resultado.value.success) noSePudieronBorrar.push(nombre);
+    }
+
+    logger.info('[ResetCompleto] Reset completo finalizado.', { results, totalDeleted, noSePudieronBorrar });
+
+    if (noSePudieronBorrar.length > 0) {
+      return {
+        success: false,
+        results,
+        error: `Se borro una parte, pero NO se pudo borrar: ${noSePudieronBorrar.join(', ')}. La aplicacion quedo a medias: proba de nuevo antes de empezar a cargar datos nuevos.`,
+      };
+    }
 
     return { success: true, results };
   } catch (error: any) {

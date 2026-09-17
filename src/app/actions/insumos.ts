@@ -5,6 +5,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { getMenus, saveMenu } from './menus-catering';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { leerInsumosCrudos, limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
+import { AsyncMutex } from '@/lib/mutex';
 
 const INSUMOS_FILE = 'insumos.json';
 
@@ -91,7 +92,7 @@ async function propagateInsumoChangesToMenus(
     return { success: true };
 }
 
-export async function saveInsumo(
+async function saveInsumoInterno(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
   await requireAppSession();
@@ -163,7 +164,7 @@ export async function saveInsumo(
   return { success: true, id: itemId, servicio: finalItemData as ServicioEmpresa };
 }
 
-export async function deleteInsumo(id: string): Promise<{ success: boolean; error?: string }> {
+async function deleteInsumoInterno(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   const { getMenus } = await import('./menus-catering');
   const menus = await getMenus();
@@ -189,7 +190,7 @@ export async function deleteInsumo(id: string): Promise<{ success: boolean; erro
   return { success: true };
 }
 
-export async function adjustAllInsumoCosts(
+async function adjustAllInsumoCostsInterno(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
@@ -241,4 +242,35 @@ export async function adjustAllInsumoCosts(
     console.error("Error adjusting insumo costs:", error);
     return { success: false, error: "Ocurrió un error al intentar ajustar los costos de los insumos." };
   }
+}
+
+/**
+ * UN TURNO PARA QUE DOS GUARDADOS NO SE PISEN.
+ *
+ * Cada guardado aca lee la lista entera, le cambia un renglon y vuelve a escribir la lista
+ * entera. Sin turno, si dos personas guardan casi al mismo tiempo, **el segundo escribe encima
+ * de la lista vieja y el cambio del primero desaparece**, con las dos pantallas diciendo
+ * "guardado". Con turno, el segundo espera y trabaja sobre lo que ya quedo guardado.
+ */
+const turnoDeInsumos = new AsyncMutex();
+
+export async function saveInsumo(...datos: Parameters<typeof saveInsumoInterno>): ReturnType<typeof saveInsumoInterno> {
+  // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
+  // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
+  await requireAppSession();
+  return turnoDeInsumos.runExclusive(() => saveInsumoInterno(...datos));
+}
+
+export async function deleteInsumo(...datos: Parameters<typeof deleteInsumoInterno>): ReturnType<typeof deleteInsumoInterno> {
+  // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
+  // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
+  await requireAppSession();
+  return turnoDeInsumos.runExclusive(() => deleteInsumoInterno(...datos));
+}
+
+export async function adjustAllInsumoCosts(...datos: Parameters<typeof adjustAllInsumoCostsInterno>): ReturnType<typeof adjustAllInsumoCostsInterno> {
+  // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
+  // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
+  await requireAppSession();
+  return turnoDeInsumos.runExclusive(() => adjustAllInsumoCostsInterno(...datos));
 }

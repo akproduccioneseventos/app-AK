@@ -197,3 +197,100 @@ se guarda encima.
 prueba: src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts
 usa: leerGenericJsonParaGuardarEncima en src/lib/data-service.ts
 ```
+
+## 16 de septiembre de 2026 — Arreglé un turno y rompí el de al lado (lo vio Codex)
+
+**Qué era:** la fotocabina y el espejo quedaban colgados en "Subiendo..." para la persona
+siguiente de la fila. Yo frené la entrega de Gemini por eso —bien frenada— y le indiqué que el
+apagado de ese cartel fuera **sin condición**. Codex probó los dos turnos con una sonda sobre el
+código real y mostró que mi indicación **arregla un caso y abre otro**: si la persona siguiente
+ya empezó SU PROPIA subida, la respuesta tardía de la anterior **le apaga el cartel a ella**.
+
+**Por qué no lo vi:** miré el turno que fallaba —la persona siguiente esperando— y no el turno de
+al lado —la persona siguiente ya trabajando—. El cartel de subiendo es de la pantalla, no de la
+persona, y con estado compartido entre turnos hay más de un camino.
+
+**La pregunta que lo hubiera agarrado, y que queda puesta:** ante cualquier arreglo sobre estado
+compartido, *"¿de quién es lo que estoy tocando, y qué pasa si el siguiente ya empezó lo suyo?"*.
+Con su mitad obligatoria: **el turno nuevo limpia lo heredado**, en vez de confiar en que el que
+termina tarde se abstenga.
+
+**Y el corolario para las órdenes:** una comprobación no pide la forma del código —"que no haya
+un `if` ahí"— sino el resultado en pantalla con las dos personas.
+
+```comprobar
+archivo: docs/ordenes/DEVOLUCION-48-entretenimiento-sesion-segura.md
+```
+
+## 16 de septiembre de 2026 — El trabajo que sale A MEDIAS, no el que falla (lo vio Codex)
+
+**Qué era:** tres defectos de respaldos. Una copia a la que le faltaban partes se guardaba
+**marcada como completa** —y la rotación borraba una copia vieja que sí estaba entera—; una
+restauración que dejaba archivos afuera anunciaba **"Restauración Completa"**; y cualquiera con
+sesión podía borrar respaldos o bajarse todo el negocio en un archivo.
+
+**Por qué no lo vi:** mi séptima pregunta es *"¿qué pasa cuando falla?"*, y estos tres **no
+fallan**: salen a medias y **terminan bien**. Devuelven éxito, escriben su registro y dejan la
+pantalla en verde. El camino del medio —ni todo ni nada— no lo estaba mirando nadie.
+
+**La pregunta nueva, que queda puesta en `docs/COMO-AUDITAR.md`:** *"¿puede terminar a medias y
+decir que terminó?"*. Se aplica a todo lo que recorre una lista y sigue después de un tropiezo:
+respaldos, restauraciones, importaciones, envíos en tanda, sincronizaciones.
+
+**Y la regla de fondo:** lo que salió a medias **no puede decir que salió**, y sobre todo **no
+puede pisar ni borrar lo anterior**, que es lo que convierte un aviso en una pérdida.
+
+```comprobar
+prueba: src/__tests__/el-respaldo-no-miente.test.ts
+```
+
+## 17 de septiembre de 2026 — El arreglo que tapa el caso ruidoso y deja el silencioso (lo vio Codex)
+
+**Qué era:** dos arreglos MÍOS del día anterior, los dos incompletos por la misma razón.
+
+- El respaldo frenaba cuando la lectura **tiraba un error**. Pero leer acá casi nunca tira error:
+  devuelve vacío. El respaldo seguía guardando **cero datos marcados como copia completa**.
+- El reporte ya comparaba días en vez de horas, pero tomaba el día **tal cual venía escrito**, y
+  los cobros vienen con hora de Greenwich: los de la noche del último día seguían afuera.
+
+**Por qué no lo vi:** arreglé **el caso que me contaron** y no recorrí los otros caminos por los
+que entra el mismo dato. Le pregunté al código *"¿qué pasa cuando falla?"* y me quedé con la
+forma ruidosa de fallar —la excepción— sin preguntarme **cómo falla esto en silencio**.
+
+**La pregunta nueva, que queda puesta en `docs/COMO-AUDITAR.md`:** *"¿de cuántas formas puede
+venir mal este dato, y cuál de ellas no hace ruido?"*. Un arreglo se prueba con **todas las
+formas del dato** —vacío, con zona horaria, sin ella, a medias— no sólo con la que se reportó.
+
+**Y el corolario, que vale para cualquier arreglo mío de acá en adelante:** **verificar un arreglo
+propio es mirar el caso de al lado**, no repetir el caso que lo originó. Los dos defectos de este
+día habrían aparecido escribiendo una segunda prueba con el dato entrando por la otra puerta.
+
+```comprobar
+prueba: src/__tests__/el-respaldo-no-miente.test.ts
+prueba: src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
+```
+
+## 17 de septiembre de 2026 — Lo que entra por una puerta pública, y la prueba que no puede fallar (lo vio Codex)
+
+**Qué era:** tres defectos en la encuesta post fiesta. El botón quedaba en "Enviando..." para
+siempre si se cortaba la señal; dos respuestas simultáneas perdían una; y se aceptaba cualquier
+cosa que llegara del navegador —una nota de 99, y el campo interno que hace que **no se le pida
+nunca más la reseña en Google a ese cliente**.
+
+**Por qué no lo vi:** miré la encuesta como una pantalla del cliente y no como **una puerta
+abierta al público**. Es de los poquísimos lugares de la app donde alguien sin cuenta manda datos
+al servidor, y ahí la pregunta no es "¿funciona?" sino **"¿qué pasa si lo que llega no es lo que
+manda la pantalla?"**. Con sesión, esa pregunta casi no hace falta; sin sesión, es la primera.
+
+**La pregunta nueva, que queda puesta en `docs/COMO-AUDITAR.md`:** *"esto lo puede mandar
+cualquiera: ¿qué campos se copian sin mirar?"*. Se aplica a todo lo que contesta un invitado o un
+cliente sin cuenta: encuesta, confirmación de asistencia, buzón de recuerdos, muro.
+
+**Y lo segundo, que me lo agarré yo solo al romper el control a propósito:** la prueba de "dos a
+la vez" que escribí **no podía fallar**, porque la base de mentira devolvía siempre la misma lista
+en memoria. Quedó anotado en la lista de errores de `CLAUDE.md`.
+
+```comprobar
+prueba: src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
+prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
+```

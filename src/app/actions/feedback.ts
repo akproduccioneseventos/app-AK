@@ -4,6 +4,8 @@
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
 import { readData, writeData } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { AsyncMutex } from '@/lib/mutex';
+import { limpiarEncuesta } from '@/lib/feedback/lo-que-llega-de-afuera';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { getCompanyInfoPublica } from '@/app/actions/settings';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -35,49 +37,80 @@ function yaSeLePidioPorEstaFiesta(todos: FeedbackSubmission[], fiestaId: string)
 
 const sortFn = (a: any, b: any) => new Date(b.timestamp || b.createdAt || 0).getTime() - new Date(a.timestamp || a.createdAt || 0).getTime();
 
-export async function saveFeedback(submission: Omit<FeedbackSubmission, 'id' | 'timestamp'>): Promise<{ success: boolean, feedback?: FeedbackSubmission, error?: string }> {
-  await enforcePublicRateLimit({
-    scope: 'event-feedback',
-    identity: `${submission.fiestaId}|${submission.clientName}`,
-    limit: 3,
-    windowMs: 24 * 60 * 60 * 1000,
-  });
-  const allFeedback = await readData<FeedbackSubmission[]>(FEEDBACK_FILE, []);
-  const newFeedback: FeedbackSubmission = {
-    ...submission,
-    id: `fb_${Date.now()}`,
-    timestamp: new Date().toISOString(),
-  };
+/**
+ * Un turno para que dos encuestas contestadas al mismo tiempo no se pisen.
+ *
+ * **Lo encontro Codex el 17 de septiembre de 2026.** Se leia la lista entera, se le agregaba la
+ * respuesta nueva y se guardaba la lista entera. Dos clientes contestando a la vez —o el mismo
+ * apretando dos veces— y **una de las dos respuestas desaparecia**, sin aviso.
+ */
+const turnoDeEncuestas = new AsyncMutex();
 
-  /**
-   * Pedido de resena en Google: **se le pide a TODOS los clientes, sin mirar la
-   * nota**.
-   *
-   * Antes se pedia solo a los que ponian 9 o 10. Eso se llama filtrar resenas y
-   * Google lo sanciona **borrando todas las resenas del negocio**, no solo las
-   * filtradas, aunque el pedido sea amable y no se ofrezca nada a cambio. En una
-   * ciudad chica eso es la diferencia entre aparecer y desaparecer.
-   *
-   * Al que puso nota baja se le manda el mismo enlace, con un texto distinto que
-   * primero se hace cargo. No se le esconde.
-   */
-  if (!yaSeLePidioPorEstaFiesta(allFeedback, newFeedback.fiestaId)) {
-    try {
-      const company = await getCompanyInfoPublica();
-      if (company.enableGoogleReviewsAutoRequest && company.googleReviewsLink) {
-        const result = await enviarPedidoDeResena(newFeedback, company);
-        if (result.success) {
-           newFeedback.googleReviewRequested = true;
-        }
-      }
-    } catch (e) {
-      console.error("Error auto-requesting Google Review", e);
-    }
+export async function saveFeedback(submission: unknown): Promise<{ success: boolean, feedback?: FeedbackSubmission, error?: string }> {
+  const revisada = limpiarEncuesta(submission);
+  if (!revisada.ok) {
+    return { success: false, error: revisada.error };
+  }
+  const encuesta = revisada.encuesta;
+
+  try {
+    await enforcePublicRateLimit({
+      scope: 'event-feedback',
+      identity: `${encuesta.fiestaId}|${encuesta.clientName}`,
+      limit: 3,
+      windowMs: 24 * 60 * 60 * 1000,
+    });
+  } catch {
+    // El tope se pasa cuando alguien manda la encuesta muchas veces seguidas. Se contesta con
+    // un aviso, no con una excepcion: si esto explota, la pantalla queda en "Enviando..."
+    return { success: false, error: 'Ya recibimos tus comentarios. Gracias, no hace falta mandarlos de nuevo.' };
   }
 
-  allFeedback.push(newFeedback);
-  await writeData(FEEDBACK_FILE, allFeedback, sortFn);
-  return { success: true, feedback: newFeedback };
+  return turnoDeEncuestas.runExclusive(async () => {
+    // La lectura va ADENTRO del turno: si quedara afuera, el segundo guardaria la lista vieja
+    // y se llevaria puesta la respuesta del primero. Es el defecto que se esta arreglando.
+    const allFeedback = await readData<FeedbackSubmission[]>(FEEDBACK_FILE, []);
+    const newFeedback: FeedbackSubmission = {
+      ...encuesta,
+      id: `fb_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      timestamp: new Date().toISOString(),
+    };
+
+    /**
+     * Pedido de resena en Google: **se le pide a TODOS los clientes, sin mirar la
+     * nota**.
+     *
+     * Antes se pedia solo a los que ponian 9 o 10. Eso se llama filtrar resenas y
+     * Google lo sanciona **borrando todas las resenas del negocio**, no solo las
+     * filtradas, aunque el pedido sea amable y no se ofrezca nada a cambio. En una
+     * ciudad chica eso es la diferencia entre aparecer y desaparecer.
+     *
+     * Al que puso nota baja se le manda el mismo enlace, con un texto distinto que
+     * primero se hace cargo. No se le esconde.
+     */
+    if (!yaSeLePidioPorEstaFiesta(allFeedback, newFeedback.fiestaId)) {
+      try {
+        const company = await getCompanyInfoPublica();
+        if (company.enableGoogleReviewsAutoRequest && company.googleReviewsLink) {
+          const result = await enviarPedidoDeResena(newFeedback, company);
+          if (result.success) {
+             newFeedback.googleReviewRequested = true;
+          }
+        }
+      } catch (e) {
+        console.error("Error auto-requesting Google Review", e);
+      }
+    }
+
+    allFeedback.push(newFeedback);
+    try {
+      await writeData(FEEDBACK_FILE, allFeedback, sortFn);
+    } catch (e) {
+      console.error('[Encuesta] No se pudo guardar la respuesta', e);
+      return { success: false, error: 'No pudimos guardar tus comentarios. Proba de nuevo en un momento.' };
+    }
+    return { success: true, feedback: newFeedback };
+  });
 }
 
 export async function getFeedback(): Promise<FeedbackSubmission[]> {

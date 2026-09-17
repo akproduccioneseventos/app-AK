@@ -330,3 +330,123 @@ leyéndola el cliente. Si no hay texto para mostrar, va sin texto.
 
 **Qué se hace al agregar esta pregunta:** se vuelve a pasar con ella **todo lo que proyecta datos
 hacia un cliente o un invitado**, aunque ya estuviera auditado.
+
+## La novena pregunta: ¿PUEDE TERMINAR A MEDIAS Y DECIR QUE TERMINO? (16 de septiembre de 2026)
+
+**Salio de tres defectos de respaldos que encontro Codex**, y los tres pasaban las siete
+preguntas anteriores: estaban escritos, alguien los llamaba, dejaban rastro, tenian prueba en
+verde y **no fallaban**. Salian a medias y terminaban bien.
+
+- Una copia a la que no se le pudo leer una parte se guardaba **marcada como completa**, y la
+  rotacion borraba una copia vieja que si estaba entera.
+- Una restauracion que dejaba archivos afuera anunciaba **"Restauracion Completa"** y recargaba
+  la pantalla, tapando el aviso.
+
+**La pregunta, y donde se aplica primero:** en todo lo que recorre una lista y sigue despues de
+un tropiezo —respaldos, restauraciones, importaciones, envios en tanda, sincronizaciones—, hay
+que buscar el **camino del medio**: ni todo ni nada.
+
+Tres cosas que tiene que cumplir cualquiera de esos:
+
+1. **Lo que salio a medias no dice que salio.** El resultado distingue completo, parcial y
+   fallido, y el parcial **nombra lo que falto**.
+2. **Lo que salio a medias no pisa ni borra lo anterior.** Es lo que convierte un aviso molesto
+   en una perdida de datos.
+3. **El aviso se puede leer.** Nada de recargar la pantalla arriba del cartel.
+
+## La decima pregunta: ¿DE CUANTAS FORMAS PUEDE VENIR MAL ESTE DATO, Y CUAL NO HACE RUIDO? (17 de septiembre de 2026)
+
+**Salio de dos arreglos mios que Codex tuvo que volver a encontrar al dia siguiente.** Los dos
+tapaban el caso que me habian reportado y dejaban abierto el de al lado:
+
+- El respaldo frenaba cuando la lectura **tiraba un error**. Pero leer en esta app casi nunca tira
+  error: cuando la base no contesta, **devuelve la lista vacia** para no romper la pantalla. El
+  respaldo seguia guardando cero datos, marcado como copia completa.
+- El reporte ya comparaba dias en vez de horas, pero tomaba el dia **tal cual venia escrito**, y
+  los cobros vienen con hora de Greenwich. Los de la noche del ultimo dia seguian afuera.
+
+**La forma del defecto es siempre la misma:** un dato puede venir mal de varias maneras, y **la
+que hace ruido se arregla; la que se calla queda**. La excepcion se ve; la lista vacia no. La
+fecha rota se ve; la fecha corrida tres horas no.
+
+**Como se hace la pregunta, sobre lo que uno acaba de tocar:**
+
+1. **Listar las formas en que ese dato puede venir mal**, no la que se reporto: vacio, nulo, con
+   zona horaria, sin zona, a medias, duplicado, viejo.
+2. **Marcar cual de esas NO hace ruido** —no tira error, no deja rastro, sale en verde—. Esa es la
+   que hay que probar primero.
+3. **Un arreglo se prueba con el dato entrando por la otra puerta**, no repitiendo el caso que lo
+   origino. Si la unica prueba nueva es la del caso reportado, el arreglo esta a medias.
+
+**Se aplica primero a lo que toca plata**, y **antes que nada a verificar un arreglo propio**: es
+exactamente ahi donde se escaparon los dos.
+
+## La once pregunta: ESTO LO PUEDE MANDAR CUALQUIERA, ¿QUE CAMPOS SE COPIAN SIN MIRAR? (17 de septiembre de 2026)
+
+**Salio de la encuesta post fiesta, que encontro Codex.** La app es casi toda con sesion, asi que
+la costumbre es confiar en lo que llega. Pero hay unas pocas puertas abiertas al publico —la
+encuesta, la confirmacion de asistencia, el buzon de recuerdos, el muro de fotos— y ahi lo que
+llega **no lo manda la pantalla necesariamente**.
+
+En la encuesta se guardaba lo que llegaba **tal cual**, con un copiado entero. Con eso entraba una
+nota de 99 —que ensucia los promedios del panel— y, peor, un campo interno que marca "a este
+cliente ya se le pidio la resena en Google": mandandolo, **la resena no se pide nunca mas**.
+
+**Como se hace la pregunta, sobre cualquier cosa que conteste alguien sin cuenta:**
+
+1. **Buscar el copiado entero** —`...loQueLlego`— en lo que se guarda. Ahi entra todo lo que
+   manden.
+2. **Listar que campos son del que contesta y cuales son de la app.** Los de la app —marcas de
+   "ya se hizo", identificadores, estados— **no pueden venir de afuera nunca**.
+3. **Preguntar por cada numero: ¿que pasa si viene 99, -5 o con coma?** Si el panel lo muestra o
+   lo promedia, tiene que rechazarse, no acomodarse.
+4. **Y lo de siempre en estas puertas:** si dos personas contestan al mismo tiempo, ¿se pierde
+   una? La lectura va adentro del turno.
+
+## Las cuatro preguntas de la forma de Codex (17 de septiembre de 2026)
+
+**Orden del dueno: "suma mas preguntas como hace Codex".** Estas cuatro no salen de un hallazgo
+suelto: salen de mirar **que tienen en comun los veinticinco que encontro**. Todos pasan las
+preguntas viejas —estan escritos, los llama alguien, dejan rastro, tienen prueba en verde— y
+fallan igual. La forma es siempre la misma: **el camino en que todo sale bien esta mirado; el de
+al lado, no.**
+
+### La doce: ¿QUE PASA SI TOCA DOS VECES?
+
+No es lo mismo que "dos personas a la vez". Es **una sola persona con el dedo nervioso o la senal
+lenta**: aprieta "Enviar", no ve respuesta, aprieta de nuevo.
+
+- ¿Se cobra dos veces, se manda el mensaje dos veces, se genera la imagen dos veces —que se paga—?
+- ¿El boton se apaga mientras trabaja, y se vuelve a prender **pase lo que pase**?
+- ¿La segunda vez se guarda un registro repetido que despues alguien tiene que limpiar a mano?
+
+### La trece: ¿ESTE CALCULO USA LA HORA DE URUGUAY?
+
+El servidor trabaja en hora de Greenwich; el negocio, en hora de Salto. **Tres horas de
+diferencia alcanzan para que un cobro de la noche caiga en el mes siguiente.**
+
+- Todo lo que corte por dia, mes o semana —reportes, cierres, vencimientos de cuota,
+  recordatorios, "lo de hoy"— se pregunta **en que hora esta cortando**.
+- Una fecha guardada con `Z` al final **no es el dia que dice**: es tres horas mas tarde que aca.
+
+### La catorce: ¿QUE VE EL QUE ADIVINA EL ENLACE?
+
+Varias pantallas se abren sin cuenta a proposito —la invitacion, el album, la encuesta, el muro—.
+La pregunta no es si esta bien que sean publicas: es **que trae de mas la que se abre**.
+
+- ¿Viene pegado algo interno: el presupuesto, el telefono del cliente, la lista del personal, el
+  itinerario de la empresa?
+- Y la otra mitad: lo que **manda** el que no tiene cuenta, ¿se copia entero? Ahi entran los
+  campos internos. (Es la pregunta once, y van juntas: lo que sale y lo que entra.)
+
+### La quince: ¿QUE PASA CUANDO LA LISTA SE HACE LARGA?
+
+La app guarda listas enteras en un solo lugar: cada cambio lee todo y escribe todo. Con veinte
+fiestas anda. **La pregunta es con mil.**
+
+- ¿Se escribe la lista completa para cambiar un renglon? Eso es lo que hace que dos guardados se
+  pisen, y lo que un dia no entra mas.
+- ¿La pantalla los trae todos para mostrar diez?
+
+**Como se usan estas cuatro:** igual que las once anteriores, **sobre lo que uno acaba de tocar**,
+antes de decir "terminé". No son una auditoria general: eso sigue prohibido.

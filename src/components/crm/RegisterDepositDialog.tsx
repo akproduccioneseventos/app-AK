@@ -60,7 +60,19 @@ export function RegisterDepositDialog({ isOpen, onOpenChange, fiestaId, onComple
       });
 
       if (result.success) {
-        toast({ title: "Seña Registrada", description: "Se ha generado el recibo y actualizado el saldo." });
+        // Si la plata entro pero el recibo no quedo enganchado al evento, eso NO
+        // se anuncia como si hubiera salido todo bien: alguien tiene que ir a
+        // engancharlo o el comprobante no aparece en la fiesta.
+        if (result.avisoAMedias) {
+          toast({
+            title: "Seña registrada, pero falta algo",
+            description: result.avisoAMedias,
+            variant: "destructive",
+            duration: 15000,
+          });
+        } else {
+          toast({ title: "Seña Registrada", description: "Se ha generado el recibo y actualizado el saldo." });
+        }
         onCompleted();
       } else throw new Error(result.error);
     } catch (e: any) {

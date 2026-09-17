@@ -12,6 +12,7 @@ import { Loader2, AlertTriangle, CheckCircle, Send, PartyPopper, Star } from 'lu
 import { useToast } from '@/hooks/use-toast';
 import { getPublicGuestEvent } from '@/app/actions/public-guest-portal';
 import { saveFeedback, getEnlaceDeResenaPublico } from '@/app/actions/feedback';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
 import { cn } from '@/lib/utils';
@@ -82,7 +83,7 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
   // El enlace de resenas sale de Ajustes, nunca escrito a mano acá.
   const [googleReviewsUrl, setGoogleReviewsUrl] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fiestaNombre, setFiestaNombre] = useState('');
@@ -119,33 +120,45 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!fiestaId) return;
+    if (isSubmitting || !fiestaId) return;
     if (!clientName.trim() || !enjoyedMost.trim() || !toImprove.trim()) {
       toast({ title: "Campos Requeridos", description: "Por favor, completa todos los campos obligatorios.", variant: "destructive" });
       return;
     }
     setIsSubmitting(true);
-    const result = await saveFeedback({
-      fiestaId: fiestaId,
-      fiestaNombre,
-      clientName,
-      enjoyedMost,
-      toImprove,
-      generalComments,
-      npsScore,
-      ratingComida: ratingComida || undefined,
-      ratingMusica: ratingMusica || undefined,
-      ratingOrganizacion: ratingOrganizacion || undefined,
-      ratingLugar: ratingLugar || undefined,
-    });
-    if (result.success) {
-      setIsSubmitted(true);
-    } else {
-      toast({ title: "Error al Enviar", description: result.error, variant: "destructive" });
+    // El `finally` no es un adorno: si el envio se cae -se corto el wifi, el servidor no
+    // contesta- sin esto el boton se queda en "Enviando..." para siempre y el cliente cree que
+    // mando sus comentarios. Lo encontro Codex el 17 de septiembre de 2026.
+    try {
+      const result = await conTopeDeEspera(saveFeedback({
+        fiestaId: fiestaId,
+        fiestaNombre,
+        clientName,
+        enjoyedMost,
+        toImprove,
+        generalComments,
+        npsScore,
+        ratingComida: ratingComida || undefined,
+        ratingMusica: ratingMusica || undefined,
+        ratingOrganizacion: ratingOrganizacion || undefined,
+        ratingLugar: ratingLugar || undefined,
+      }));
+      if (result.success) {
+        setIsSubmitted(true);
+      } else {
+        toast({ title: "Error al Enviar", description: result.error, variant: "destructive" });
+      }
+    } catch {
+      toast({
+        title: "No se pudieron enviar tus comentarios",
+        description: "Fijate si tenes senal y proba de nuevo. No se perdio nada de lo que escribiste.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
-  
+
   if (isLoading) {
       return <div className="flex justify-center items-center min-h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
   }
@@ -153,7 +166,7 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
   if (error) {
     return <div className="flex justify-center items-center min-h-screen p-4 text-center text-destructive"><AlertTriangle className="w-8 h-8 mr-2"/>{error}</div>
   }
-  
+
   if (isSubmitted) {
     const isDetractor = npsScore !== undefined && npsScore < 7;
 

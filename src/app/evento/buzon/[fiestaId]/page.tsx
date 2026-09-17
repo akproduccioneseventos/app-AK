@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { uploadBuzonMessage } from '@/app/actions/buzon';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
+import { saveOfflineMedia } from '@/lib/offline/offline-db';
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
@@ -988,6 +990,7 @@ export default function GuestBuzonPage() {
 
   // Submit Handler
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     const trimmedName = authorName.trim();
     if (!trimmedName) {
       toast({
@@ -1010,16 +1013,32 @@ export default function GuestBuzonPage() {
       if (recipientNote.trim()) formData.append('recipientNote', recipientNote.trim());
     }
 
+    let pendingBlob: Blob | null = null;
+    let pendingFileName = '';
+    let pendingMimeType = '';
+    let mediaType = 'audio';
+
     if (activeTab === 'photo' && photoFile) {
+      pendingBlob = photoFile;
+      pendingFileName = photoFile.name;
+      pendingMimeType = photoFile.type || 'image/jpeg';
+      mediaType = 'photo';
       formData.append('file', photoFile, photoFile.name);
       formData.append('mediaType', 'photo');
       formData.append('durationSeconds', '0');
     } else if (activeTab === 'audio' && audioBlob) {
-      const audioFileName = audioBlob instanceof File ? audioBlob.name : 'saludo_voz.webm';
-      formData.append('file', audioBlob, audioFileName);
+      pendingBlob = audioBlob;
+      pendingFileName = audioBlob instanceof File ? audioBlob.name : 'saludo_voz.webm';
+      pendingMimeType = audioBlob.type || 'audio/webm';
+      mediaType = 'audio';
+      formData.append('file', audioBlob, pendingFileName);
       formData.append('mediaType', 'audio');
       formData.append('durationSeconds', recordingSeconds.toString());
     } else if (activeTab === 'video' && videoFile) {
+      pendingBlob = videoFile;
+      pendingFileName = videoFile.name;
+      pendingMimeType = videoFile.type || 'video/webm';
+      mediaType = 'video';
       formData.append('file', videoFile, videoFile.name);
       formData.append('mediaType', 'video');
       formData.append('durationSeconds', Math.round(videoDuration).toString());
@@ -1034,7 +1053,11 @@ export default function GuestBuzonPage() {
     }
 
     try {
-      const result = await uploadBuzonMessage(formData);
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('Sin conexión');
+      }
+
+      const result = await conTopeDeEspera(uploadBuzonMessage(formData));
       if (result.success) {
         setShowCelebration(true);
         resetAudioRecording();
@@ -1048,16 +1071,46 @@ export default function GuestBuzonPage() {
           setShowCelebration(false);
         }, 5000);
       } else {
-        toast({
-          title: 'Error al subir',
-          description: result.error || 'Ocurrió un error al subir.',
-          variant: 'destructive',
-        });
+        throw new Error(result.error || 'Ocurrió un error al subir.');
       }
-    } catch (err) {
+    } catch (err: any) {
+      // Fallback offline: no perder el saludo si no hay conexión en el evento
+      if (pendingBlob) {
+        try {
+          await saveOfflineMedia({
+            fiestaId,
+            moduleId: 'buzon',
+            fileBlob: pendingBlob,
+            fileName: pendingFileName,
+            mimeType: pendingMimeType,
+            authorName: trimmedName,
+            metadata: {
+              mediaType,
+              timeCapsuleYears: isTimeCapsule ? unlockYears : undefined,
+              recipientNote: recipientNote.trim() || undefined,
+            },
+            accessToken,
+          });
+          setShowCelebration(true);
+          resetAudioRecording();
+          resetVideoUpload();
+          resetPhotoUpload();
+          toast({
+            title: '¡Saludo guardado en el equipo!',
+            description: 'Tu mensaje quedó guardado sin conexión y se subirá automáticamente al volver la señal.',
+          });
+          setTimeout(() => {
+            setShowCelebration(false);
+          }, 5000);
+          return;
+        } catch (offlineErr) {
+          console.error('[Buzon] Error al guardar offline:', offlineErr);
+        }
+      }
+
       toast({
-        title: 'Error de Red',
-        description: 'No se pudo conectar con el servidor.',
+        title: 'Error al enviar saludo',
+        description: err?.message || 'No se pudo conectar con el servidor ni guardar en el equipo.',
         variant: 'destructive',
       });
     } finally {
@@ -1815,3 +1868,4 @@ export default function GuestBuzonPage() {
     </div>
   );
 }
+

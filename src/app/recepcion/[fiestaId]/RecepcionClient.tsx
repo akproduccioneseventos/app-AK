@@ -3,18 +3,19 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Invitado } from '@/types/invitado';
 import { checkInGuest } from '@/app/actions/fiesta/invitados.actions';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, CheckCircle2, UserPlus, AlertCircle, XCircle, Moon, Sun, WifiOff } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { enqueueOfflineAction, flushOfflineQueue } from '@/lib/offline/offline-action-queue';
 
-export default function RecepcionClient({ 
-  fiestaId, 
-  initialInvitados, 
-  fiestaName 
-}: { 
-  fiestaId: string; 
+export default function RecepcionClient({
+  fiestaId,
+  initialInvitados,
+  fiestaName
+}: {
+  fiestaId: string;
   initialInvitados: Invitado[];
   fiestaName: string;
 }) {
@@ -47,13 +48,14 @@ export default function RecepcionClient({
   const filteredInvitados = useMemo(() => {
     if (!search.trim()) return invitados;
     const lower = search.toLowerCase();
-    return invitados.filter(i => 
-      i.nombre.toLowerCase().includes(lower) || 
+    return invitados.filter(i =>
+      i.nombre.toLowerCase().includes(lower) ||
       (i.tableNumber && i.tableNumber.toLowerCase().includes(lower))
     );
   }, [invitados, search]);
 
   const handleCheckIn = async (guestId: string) => {
+    if (isCheckingIn) return;
     setIsCheckingIn(guestId);
     try {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
@@ -68,7 +70,7 @@ export default function RecepcionClient({
         return;
       }
 
-      const res = await checkInGuest(fiestaId, guestId);
+      const res = await conTopeDeEspera(checkInGuest(fiestaId, guestId));
       if (res.success && res.invitado) {
         const checkInInvitado = res.invitado;
         setInvitados(prev => prev.map(inv => inv.id === guestId ? checkInInvitado : inv));
@@ -137,9 +139,9 @@ export default function RecepcionClient({
 
         <div className="relative mt-2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-6 h-6" />
-          <Input 
-            type="text" 
-            placeholder="Buscar por nombre o mesa..." 
+          <Input
+            type="text"
+            placeholder="Buscar por nombre o mesa..."
             className={`pl-12 py-6 text-lg rounded-xl font-bold ${nightMode ? 'bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-500' : 'bg-white text-black'}`}
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -162,10 +164,10 @@ export default function RecepcionClient({
         ) : (
           <div className="flex flex-col gap-3">
             {filteredInvitados.map(inv => (
-              <div 
-                key={inv.id} 
+              <div
+                key={inv.id}
                 className={`p-4 rounded-xl border-2 transition-all ${
-                  inv.checkedIn 
+                  inv.checkedIn
                     ? (nightMode ? 'bg-emerald-950/40 border-emerald-500/60' : 'bg-green-50 border-green-200')
                     : (nightMode ? 'bg-zinc-900 border-zinc-800 shadow-sm' : 'bg-white border-gray-100 shadow-sm')
                 }`}
@@ -189,7 +191,7 @@ export default function RecepcionClient({
                       )}
                     </div>
                   </div>
-                  
+
                   <div>
                     {inv.checkedIn ? (
                       <div className={`flex flex-col items-center justify-center p-2 rounded-lg ${nightMode ? 'text-emerald-400 bg-emerald-900/30' : 'text-green-600 bg-green-100'}`}>
@@ -197,7 +199,7 @@ export default function RecepcionClient({
                         <span className="text-[10px] font-black uppercase mt-1">Presente</span>
                       </div>
                     ) : (
-                      <Button 
+                      <Button
                         size="lg"
                         className="bg-amber-400 hover:bg-amber-300 text-zinc-950 font-black rounded-xl h-14 px-6 shadow-md"
                         disabled={isCheckingIn === inv.id}

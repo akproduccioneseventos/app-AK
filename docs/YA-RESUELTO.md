@@ -34,6 +34,149 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 <!-- Las ordenes 55 y 56 todavia NO estan fusionadas: su anotacion viaja con ellas.
      Anotar aca algo que no esta en el codigo es justo lo que esta lista no puede hacer. -->
 
+## 17 de septiembre de 2026 — Orden 64: Las pantallas del invitado pasan las preguntas nuevas
+
+- **Bloque 1 — Prueba E2E de Playwright (`tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts`)**:
+  - Prueba de navegador real que corta la respuesta del servidor con `page.route` en `/feedback/<id>` y en `/invitacion/<id>/rsvp`.
+  - Verifica que el botón vuelva a su texto normal ("Enviar Mis Comentarios" y "Confirmar asistencia") y quede habilitado (no colgado en "Enviando...").
+  - Verifica que el aviso de error se muestre y que lo escrito por el invitado en los campos no se pierda.
+  - Se probó rompiéndola a propósito (quitando el `finally` de `feedback` y verificando que Playwright se puso en rojo por timeout del botón) y luego restaurando a verde.
+- **Bloque 2 — Pregunta 12 (¿Qué pasa si toca dos veces?)**:
+  - En `src/app/actions/buzon.ts`: desduplicación de saludos en el buzón mediante hash SHA-256 (`contentHash`) para que dos toques con el mismo archivo no creen dos registros en la base ni dos notificaciones en pantalla.
+  - Guardas `if (isSubmitting) return;` e `if (isUploading) return;` en `src/app/feedback/[fiestaId]/page.tsx`, `src/app/invitacion/[fiestaId]/rsvp/page.tsx`, `src/app/evento/buzon/[fiestaId]/page.tsx`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`, `src/app/evento/espejo-magico/[fiestaId]/page.tsx`, `src/app/evento/plataforma-360/[fiestaId]/page.tsx` y `src/app/recepcion/[fiestaId]/RecepcionClient.tsx`.
+  - `finally` garantizado para apagar el estado de carga en todas las pantallas.
+- **Bloque 3 — Pregunta 14 (¿Qué ve el que adivina el enlace?)**:
+  - En `src/lib/guest-portal-public-data.ts`: se eliminó el fallback a `item.descripcion` (las notas internas del equipo del itinerario), dejando solo `descripcion: item.descripcionCliente`.
+  - Verificado con prueba unitaria `src/__tests__/el-invitado-no-ve-lo-interno-en-pantallas-publicas.test.ts` (probada rompiéndola en rojo y vuelta a verde).
+- **Bloque 4 — Pregunta 12 en pantallas que no son de plata**:
+  - Se aplicó `conTopeDeEspera` en las llamadas del servidor en: buzón (`uploadBuzonMessage`), fotocabina (`uploadEntretenimientoMedia`), espejo mágico (`uploadEntretenimientoMedia`), plataforma 360 (`uploadEntretenimientoMedia`), muro social (`uploadSocialPost`, `addSongRequest`, `addDedication`, `addChatMessage`) y recepción (`checkInGuest`).
+  - Registrado y comprobado automáticamente en `src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts`.
+
+```comprobar
+prueba: tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts
+usa: finally en src/app/invitacion/[fiestaId]/rsvp/page.tsx
+archivo: docs/ANTES-DE-ENTREGAR.md
+```
+
+## 17 de septiembre de 2026 — Orden 63: TikTok no puede decir "Publicado" mientras todavía procesa
+
+- **Publicador de Redes (`src/lib/presencia-digital/publicador.ts`)**:
+  - Se separó el caso `ttResult.status === 'PROCESSING'`: ya no ingresa en `publishedTo`, sino que se acumula en una nueva lista `enProceso: string[]` devuelta en `PublicarResultado`.
+  - El posteo **solo** pasa a `status: 'Publicado'` si `publishedTo.length > 0`. Si TikTok quedó en proceso y era la única red seleccionada, el post no cambia a "Publicado": conserva su estado previo y almacena el `publishId: ttResult.publishId` para seguimiento posterior.
+  - En `procesarPosteosProgramados`: solo se suma a `publicados` si `res.publishedTo && res.publishedTo.length > 0`.
+- **Acciones y Respuestas de Redes (`src/app/actions/social-media.ts`, `src/app/actions/presencia-digital.ts`)**:
+  - `publicarPosteoAhoraAction` informa con el mensaje exacto si una red quedó en proceso: `"TikTok: se envio, falta que TikTok termine de procesarlo"`, ni "Publicado" ni "Error".
+  - `publishApprovedSocialPost` tipado con `PublicarResultado` propagando `enProceso`.
+- **Pantalla y Tarjeta de Redes (`src/components/social-media/SocialPostCard.tsx`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`, `src/components/social-media/SocialMediaCalendar.tsx`)**:
+  - En la tarjeta (`SocialPostCard`) y en la vista de publicaciones de presencia digital, cuando un posteo de TikTok tiene `publishId` y aún no está publicado, el badge muestra "En proceso" (en lugar de "Publicado" o "Error") y se muestra el cartel `"TikTok: se envio, falta que TikTok termine de procesarlo"`.
+  - El toast y el feedback de publicación informan el estado en proceso sin cantar victoria antes de tiempo.
+- **Pruebas Automatizadas (`src/__tests__/tiktok-no-canta-victoria-antes.test.ts`)**:
+  - Simulación de `publishToTikTok` con `PROCESSING` comprobando que el post NO queda con `status: 'Publicado'` y guarda `publishId`.
+  - Simulación con `PUBLISH_COMPLETE` comprobando que sí pasa a `status: 'Publicado'`.
+  - Control verificado rompiéndolo a propósito con rojo comprobado y vuelta a verde.
+
+```comprobar
+archivo: src/lib/presencia-digital/publicador.ts
+usa: PROCESSING en src/lib/presencia-digital/publicador.ts
+prueba: src/__tests__/tiktok-no-canta-victoria-antes.test.ts
+```
+
+## 16 de septiembre de 2026 — Orden 61: Las Nueve Preguntas en las Áreas de Gemini
+
+### Orden 61 (Barrido de las 5 áreas)
+- **Área 1: Entretenimiento (Espejo Mágico, Plataforma 360, Bogue y Buzón)**:
+  - **Espejo Mágico (`src/app/evento/espejo-magico/[fiestaId]/page.tsx`)**: `finally` de `handleUpload` protegido con sesión activa (`if (isLiveSession()) { setIsUploading(false); }`); `retake()` restablece incondicionalmente `setIsUploading(false)` y cancela temporizadores automáticos en vuelo (`autoRetakeTimerRef`).
+  - **Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`)**: `finally` de `handleUploadVideo` protegido con `isLiveSession()`; temporizadores de auto-reset cancelados limpiamente en `resetLocalState` y `handleGuestRetake`.
+  - **Bogue Boomerang (`src/app/evento/bogue/[fiestaId]/page.tsx`)**: subida con `isLiveSession()`; fallback automático a `saveOfflineMedia` ante corte de señal o fallo de red en el evento; limpieza de timers al reiniciar.
+  - **Buzón de Recuerdos (`src/app/evento/buzon/[fiestaId]/page.tsx`)**: resiliencia offline conectada con `saveOfflineMedia` ante caídas de internet (`!navigator.onLine` o fallo de red); el saludo se guarda de forma segura en el equipo y se anuncia sinceramente al invitado.
+- **Área 2: Pantallas del invitado**:
+  - Invitación digital, confirmación de asistencia, muro, álbum y mesas verificadas sin fallas de concurrencia ni pérdida de datos.
+- **Área 3: Portal del cliente**:
+  - Verificado sin hallazgos tras la incorporación del versionado concurrente en propuesta de decoración (Orden 59).
+- **Área 4: Impresos y descargas**:
+  - Tira de fotos, álbum del recuerdo y números de mesa verificados.
+- **Área 5: Herramientas internas de operación (Gestión de Invitados)**:
+  - **Importación masiva (`src/app/(app)/fiestas/nueva/invitados/page.tsx` y `src/lib/invitados/aviso-importacion-invitados.ts`)**: ante fallos parciales al guardar filas en Firestore, el sistema NO dice "Importación exitosa"; evalúa el resultado, avisa exactamente cuántos se guardaron y cuántos faltaron nombrando a cada uno con su motivo de fallo, mantiene el modal abierto y conserva únicamente las filas con error en la planilla para corregirlas sin duplicar las ya guardadas.
+
+```comprobar
+archivo: src/lib/invitados/aviso-importacion-invitados.ts
+archivo: src/app/(app)/fiestas/nueva/invitados/page.tsx
+archivo: src/app/evento/espejo-magico/[fiestaId]/page.tsx
+archivo: src/app/evento/buzon/[fiestaId]/page.tsx
+archivo: src/app/evento/plataforma-360/[fiestaId]/page.tsx
+archivo: src/app/evento/bogue/[fiestaId]/page.tsx
+prueba: src/__tests__/la-importacion-de-invitados-no-miente.test.ts
+prueba: src/__tests__/espejo-magico-sesion-segura.test.ts
+prueba: src/__tests__/buzon-guarda-offline.test.ts
+prueba: src/__tests__/entretenimiento-resiliencia-offline.test.ts
+```
+
+## 16 de septiembre de 2026 — Entretenimiento, Respaldos, Decoración y Redes (Órdenes 48, 59 y 60)
+
+### DEVOLUCION-48 (ENT-03) — Fotocabina y Touchpix corregida (Regla del 16 de septiembre)
+- **Apagado seguro de pantalla ocupada (`setIsUploading(false)`):**
+  - Tanto en `src/app/evento/fotocabina/[fiestaId]/page.tsx` como en `src/app/evento/touchpix/[fiestaId]/page.tsx`, en el bloque `finally` de subida solo se apaga `setIsUploading(false)` si la sesión sigue siendo la suya (`if (isLiveSession()) { setIsUploading(false); }`), evitando apagarle el cartel a una sesión B concurrente.
+  - Al presionar `retake()`, se limpia incondicionalmente `setIsUploading(false)` y `setQueuedOffline(false)` para garantizar que el nuevo intento inicie limpio.
+  - `setQueuedOffline(true)` se ubica tras la comprobación de sesión viva `isLiveSession()`.
+- **Prueba real verificada:**
+  - `src/__tests__/entretenimiento-sesion-segura.test.ts` valida ambos casos concurrentes y estructura de archivos. 7 de 7 pasadas.
+
+```comprobar
+archivo: src/app/evento/fotocabina/[fiestaId]/page.tsx
+archivo: src/app/evento/touchpix/[fiestaId]/page.tsx
+prueba: src/__tests__/entretenimiento-sesion-segura.test.ts
+```
+
+### Orden 59 (Bloque A) — Cartel de Respaldos: 4 estados explícitos y nunca verde sin saber
+- **Estados reales en `src/lib/respaldos/como-esta-el-respaldo.ts` y `src/app/(app)/settings/backup/page.tsx`:**
+  - Función `comoEstaElRespaldo` devuelve cuatro estados literales: `'cargando'`, `'no-se-pudo-saber'`, `'al-dia'`, `'vencido'`.
+  - El cartel muestra estado neutro ("Averiguando cómo están los respaldos...") mientras carga; ámbar con advertencia explícita ("No se pudo averiguar cómo están los respaldos. Probá recargar; si sigue, creá un punto manual.") ante fallos de consulta, sin mostrar verde nunca; rojo si pasaron más de 24 horas; y verde únicamente cuando se comprobó que está al día.
+- **Prueba verificada:**
+  - `src/__tests__/el-cartel-de-respaldo-no-miente.test.ts` (7 de 7 pasadas).
+
+```comprobar
+archivo: src/lib/respaldos/como-esta-el-respaldo.ts
+archivo: src/app/(app)/settings/backup/page.tsx
+prueba: src/__tests__/el-cartel-de-respaldo-no-miente.test.ts
+```
+
+### Orden 59 (Bloque B) — Decoración: no se pierde lo último que se escribió al guardar
+- **Control de versión concurrente en `src/app/(app)/fiestas/nueva/decoracion/page.tsx`:**
+  - `canvasChangeVersionRef` incrementa en cada cambio del lienzo. `saveCanvas` captura `versionAtStart`.
+  - Al terminar el guardado, solo se limpia `canvasHasChanges(false)` si `canvasChangeVersionRef.current === versionAtStart`.
+  - Si el usuario editó mientras guardaba, la bandera sigue sucia y programa el siguiente guardado, preservando cambios en vuelo.
+- **Prueba sobre componente real verificada:**
+  - `src/__tests__/la-decoracion-no-pierde-lo-ultimo-que-se-escribio.test.ts` (4 de 4 pasadas).
+
+```comprobar
+archivo: src/app/(app)/fiestas/nueva/decoracion/page.tsx
+prueba: src/__tests__/la-decoracion-no-pierde-lo-ultimo-que-se-escribio.test.ts
+```
+
+### Orden 60 (Bloque A) — YouTube sube el video de verdad
+- **Flujo Resumable oficial en `src/lib/social-media/youtube-publisher.ts`:**
+  - Paso 1: `POST ...uploadType=resumable` con metadatos para obtener URI `Location`.
+  - Paso 2: Descarga segura de bytes (límite 150MB para proteger memoria de la instancia) y `PUT` con `Content-Type: video/*` a la URI `Location`.
+- **Prueba verificada:**
+  - `src/__tests__/youtube-sube-el-video.test.ts` (4 de 4 pasadas).
+
+```comprobar
+archivo: src/lib/social-media/youtube-publisher.ts
+prueba: src/__tests__/youtube-sube-el-video.test.ts
+```
+
+### Orden 60 (Bloque B) — TikTok no canta victoria antes de tiempo
+- **Sondeo real de estado en `src/lib/social-media/tiktok-publisher.ts`:**
+  - Consulta repetida a `/v2/post/publish/status/fetch/` hasta obtener confirmación de TikTok.
+  - Retorna éxito solo con `PUBLISH_COMPLETE`. Si recibe `FAILED` lanza error con `fail_reason`. Si agota intentos lanza timeout con `publishId`.
+- **Prueba verificada:**
+  - `src/__tests__/tiktok-no-canta-victoria-antes.test.ts` (4 de 4 pasadas).
+
+```comprobar
+archivo: src/lib/social-media/tiktok-publisher.ts
+prueba: src/__tests__/tiktok-no-canta-victoria-antes.test.ts
+```
+
 ## 11 de septiembre de 2026 - Orden 57
 
 ### Orden 57 — La portada aparece al toque, sin esperar a nadie
@@ -7935,6 +8078,23 @@ que no tener ninguna.
 prueba: tests/e2e/la-portada-aparece-al-toque.spec.ts
 ```
 
+## 14 de septiembre de 2026 — ENT-03: Fotocabina y Touchpix no reinician la pantalla a la persona siguiente
+
+**Qué pasaba:**
+En Touchpix y Fotocabina, una respuesta diferida de subida (o su temporizador de éxito de 3 a 20 segundos) reiniciaba la pantalla a la persona siguiente en la fila. El control previo sólo miraba si era la subida más nueva (`activeUploadSessionIdRef`), pero si alguien empezaba una sesión nueva sin subir nada (tocando la pantalla o iniciando su turno), la respuesta vieja pasaba igual y llamaba a `retake()`, borrándole la captura o la pantalla al nuevo participante. Además, en React, la clausura léxica retenía el `photoSessionId` del render que inició la subida, haciendo que comparaciones con variables de estado locales siempre dieran verdadero.
+
+**Cómo se resolvió:**
+1. **Identidad viva por Ref**: Tanto en `src/app/evento/touchpix/[fiestaId]/page.tsx` como en `src/app/evento/fotocabina/[fiestaId]/page.tsx` se incorporó `currentPhotoSessionIdRef` que se sincroniza de forma inmediata y síncrona ante cualquier cambio o inicio de turno (`retake()`).
+2. **Validación en respuestas lentas**: Al completar la subida (y en los caminos de duplicado, offline y error), se valida `currentPhotoSessionIdRef.current === sessionWhenStarted`. Si la sesión cambió porque otra persona tomó la cabina, se aborta inmediatamente cualquier modificación de UI (`setShowSuccess`) y no se programa ningún `retake()`.
+3. **Cancelación inmediata de temporizadores**: Se agregó `resetTimerRef`. Cada inicio de sesión o toque de usuario cancela de inmediato cualquier temporizador de reinicio de la persona anterior.
+4. **Pruebas automatizadas**: Pruebas unitarias en `src/__tests__/entretenimiento-sesion-segura.test.ts`.
+
+```comprobar
+archivo: src/app/evento/touchpix/[fiestaId]/page.tsx
+archivo: src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: src/__tests__/entretenimiento-sesion-segura.test.ts
+```
+
 ## 14 de septiembre de 2026 — Guardar un cambio ya no puede borrar lo demás
 
 **Qué estaba mal:** al guardar un cambio parcial, si la lectura de lo que ya había fallaba, la app
@@ -7980,4 +8140,283 @@ una milesima, el recorrido miro la pantalla de nuevo, siguio sin abrir y **freno
 archivo: scripts/se-puede-publicar.mjs
 usa: leerAvance en scripts/se-puede-publicar.mjs
 usa: seQuedaronSinAbrir en tests/e2e/recorrido-de-pantallas.spec.ts
+```
+
+## 15 de septiembre de 2026 — El despertador de afuera se daba de baja solo por "errores"
+
+**Que pasaba:** el dueno tenia un servicio gratuito de afuera golpeando la app cada tanto
+para que las tareas automaticas no dependieran de que alguien entrara. **El servicio le
+aviso por correo que lo daba de baja por acumular errores.**
+
+**Que era lo cierto:** el servicio golpeaba `/api/cron-despachador`, y esa puerta **no
+contesta hasta terminar TODAS las tareas** —metricas, publicaciones programadas, una nota
+de blog hecha con inteligencia artificial, los recordatorios de cuota—. Si ademas el
+servidor estaba dormido, se sumaba la despertada. Un servicio de afuera corta a los treinta
+segundos y lo anota como fallo; a los pocos fallos, da de baja el aviso. No era un error de
+la app: era una puerta que tarda lo que tarda el trabajo.
+
+**Como se resolvio:** se agrego `/api/despertar`, que hace una sola cosa y rapido —deja
+constancia del toque y contesta—. **No corre ninguna tarea**, asi que no puede demorar por
+el trabajo. El trabajo sigue donde hay paciencia: el despertador de Google (dos minutos de
+espera) y las visitas a la web.
+
+**Por que no se contesta primero y se trabaja despues:** en este hosting el servidor deja de
+tener maquina apenas contesta, asi que las tareas quedarian cortadas por la mitad sin que
+nadie se entere. Eso es peor que no correrlas.
+
+**Probado rompiendolo:** con una llamada a las tareas metida adentro de la puerta nueva, la
+prueba se puso en rojo.
+
+```comprobar
+archivo: src/app/api/despertar/route.ts
+usa: marcarToqueDespertador en src/app/api/despertar/route.ts
+prueba: src/__tests__/el-despertador-contesta-sin-trabajar.test.ts
+```
+
+## 16 de septiembre de 2026 — Los respaldos: tres formas de decir que estaba todo bien sin estarlo
+
+**Los encontro Codex y los tres eran ciertos.** Se arreglaron los tres, con su control.
+
+1. **Una copia a la que le faltaban cosas se guardaba marcada como completa.** Si una parte
+   no se podia leer —la base lenta, cortada, un permiso—, se la salteaba con un aviso en el
+   registro que no mira nadie y el respaldo salia igual. Y al guardarse, **la rotacion
+   borraba una copia vieja que si estaba entera**: justo cuando la base falla, el negocio
+   se quedaba sin la ultima copia buena creyendo que tenia una nueva. Ahora, si falta algo,
+   **no se guarda nada** y se avisa que falto y que la copia anterior sigue intacta.
+2. **Cualquiera con sesion podia borrar y restaurar respaldos, y bajarse todo el negocio en
+   un archivo.** El operador de fiesta tiene sesion. Ahora las cuatro puertas —crear,
+   restaurar, borrar y la descarga completa— piden el permiso de administracion, que es el
+   que ya tenia la app definido para crear usuarios y borrar datos. La descarga incluye
+   sueldos y ganancias, asi que la secretaria tampoco la baja.
+3. **Una restauracion a medias se anunciaba como "Restauracion Completa"** y la pantalla se
+   recargaba enseguida, tapando el aviso. Ahora, si alguna parte no entro, el cartel dice
+   que se restauro solo una parte, nombra lo que falto y **no recarga**, para que se lea.
+
+**Probado rompiendolo:** sacando el permiso de borrar y el freno de la copia parcial, la
+prueba se puso en rojo en los dos casos.
+
+```comprobar
+archivo: src/app/actions/backup.ts
+usa: requirePermiso en src/app/actions/backup.ts
+prueba: src/__tests__/el-respaldo-no-miente.test.ts
+```
+
+## 16 de septiembre de 2026 — Al reporte le faltaba el ultimo dia, y al invitado le llegaban dos invitaciones
+
+**Los dos los encontro Codex y los dos eran ciertos.**
+
+1. **El reporte dejaba afuera los cobros del ultimo dia del rango.** El filtro comparaba la
+   HORA exacta: pedir "hasta el 30" llegaba como la medianoche del 30, asi que un cobro de
+   ese mismo dia a las diez de la manana quedaba afuera. El mes cerraba con menos plata de la
+   que entro, y el numero se ve razonable, asi que nadie lo notaba. Habia un segundo problema
+   de la misma familia: una fecha guardada como `2026-09-30` sola se entiende como medianoche
+   de Greenwich, que en Uruguay es el 29 a la noche, y el cobro se corria de dia. **Ahora se
+   compara el dia calendario**, como lo entiende una persona, con los dos extremos incluidos.
+2. **Dos personas mandando las invitaciones a la vez le mandaban dos al mismo invitado.** La
+   lista de "a quien ya se le mando" se leia al principio y se guardaba al final. Ahora leer,
+   mandar y anotar son un solo turno, y **se anota apenas se manda cada uno**: si la corrida
+   se corta por la mitad, lo ya mandado no se repite.
+
+**Probado rompiendolo:** volviendo el filtro a comparar horas y sacando el turno de las
+invitaciones, las dos pruebas se pusieron en rojo.
+
+```comprobar
+archivo: src/lib/reportes/rango-de-dias.ts
+usa: inRange en src/app/actions/reportes.ts
+prueba: src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
+```
+
+## 16 de septiembre de 2026 — La restauracion parcial ya no se anuncia como completa (segunda parte)
+
+La decision de que decirle a la persona despues de restaurar salio de la pantalla a
+`src/lib/respaldos/como-salio-la-restauracion.ts`, para poder probarla sin abrir un navegador
+y para que las tres salidas —completa, a medias, fallida— se vean juntas.
+
+```comprobar
+archivo: src/lib/respaldos/como-salio-la-restauracion.ts
+usa: comoSalioLaRestauracion en src/app/(app)/settings/backup/page.tsx
+prueba: src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts
+```
+
+## 16 de septiembre de 2026 — Barrido de la octava pregunta sobre plata y sobre lo que sale para afuera
+
+El dueno pidio pasar la pregunta nueva —*"¿puede terminar a medias y decir que termino?"*— por
+todo lo que mueve plata o manda algo para afuera, de una sola vez, en vez de esperar a que la
+encuentren de a una. Se revisaron cobros, cuotas, facturas, sueldos, reportes, importaciones,
+envios en tanda y sincronizaciones. **Cinco hallazgos ciertos, arreglados:**
+
+1. **Las invitaciones contestaban que si SIN una cuenta de Google conectada.** Cero mails
+   mandados y el cartel en verde: el equipo creia que los invitados habian recibido su
+   invitacion. Ahora contesta que no se pudo y dice por que.
+2. **Los recordatorios de cobro contestaban que si con la lista de errores adentro.** Clientes
+   con deuda se quedaban sin su aviso y nadie se enteraba. Ahora, si alguno no salio, el
+   resultado no es un exito.
+3. **El borrado total decia "aplicacion limpia" habiendo borrado una parte.** Si tres de las
+   siete cosas fallaban, quedaban facturas y presupuestos viejos mezclados con los nuevos.
+   Ahora avisa que quedo a medias y **nombra lo que no se pudo borrar**.
+4. **La sena se registraba y el recibo podia no quedar enganchado al evento.** La pantalla
+   decia "Sena Registrada" a secas y despues el equipo buscaba el comprobante en la fiesta y no
+   estaba. Ahora la pantalla dice que falta engancharlo.
+5. **Al importar un presupuesto, si la fiesta no se creaba, el aviso no lo veia nadie**: la
+   pantalla saltaba al presupuesto nuevo y el evento nunca habia existido. Ahora el aviso sale
+   antes de irse de la pantalla.
+
+**Verificados y NO tocados** (avisan bien en pantalla, no son defectos): la sincronizacion con
+Google y la de redes sociales muestran sus advertencias en la misma pantalla, y el aprendizaje
+de los agentes internos no toca plata ni al cliente.
+
+**Probado rompiendolo:** sacando el aviso del borrado a medias y volviendo las invitaciones a
+contestar que si sin cuenta conectada, la prueba se puso en rojo en los dos casos.
+
+```comprobar
+archivo: src/app/actions/admin-reset.ts
+usa: avisoAMedias en src/components/crm/RegisterDepositDialog.tsx
+prueba: src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts
+```
+
+## 16 de septiembre de 2026 — Las nueve preguntas en una sola hoja, para que no se empiece de cero
+
+El dueno lo planteo asi: *"quizas conviene que Gemini audite con eso, para que si Codex
+encuentra algo no sea desde eso y empecemos de cero"*. Las preguntas del metodo estaban
+repartidas en un documento largo que lee Claude cuando audita, y **el que programa no las
+tenia a mano**.
+
+Ahora estan juntas en `docs/ANTES-DE-ENTREGAR.md`: nueve preguntas, cortas, para hacerselas a
+lo que uno acaba de tocar antes de decir que esta terminado. La orden 61 le pide a Gemini
+pasarlas por sus areas —entretenimiento, invitado, portal, impresos y operacion—, y decir en
+una linea las que dan limpias.
+
+```comprobar
+archivo: docs/ANTES-DE-ENTREGAR.md
+archivo: docs/ordenes/61-pasar-las-nueve-preguntas-por-lo-tuyo.md
+```
+
+
+
+## 17 de septiembre de 2026 — La verificacion deja de repetir lo que no puede haber cambiado
+
+**El dueno lo pidio dos veces:** *"tenes que buscar un mecanismo mas corto a prueba de
+errores"* y *"debes reducir a la mitad del proceso"*.
+
+**Donde se iba el tiempo, medido:** de los 55 minutos, **45 son la compilacion y las dos
+corridas de navegador**. Y se repetian enteras por cambios que **no pueden afectarlas**:
+escribir una orden para Gemini, anotar un arreglo, corregir un texto de la documentacion.
+
+**Que se hizo:** cada paso mira ahora **solo lo que de verdad lo puede cambiar**. Los que
+miran el codigo —tipos, pruebas, compilacion, seguridad de la base y las dos de navegador—
+no se enteran de que se toco un documento. Los que miran todo —acentos, "lo que se dijo es
+lo que es" y el trinquete— siguen corriendo siempre, porque leen los documentos tambien.
+
+**No afloja nada:** cualquier cambio en el codigo sigue obligando a correr todo. Lo unico
+que se evita es pagar cincuenta minutos por una coma en un documento.
+
+**Probado rompiendolo:** tocando solo un documento, los pasos del codigo se saltearon; y al
+cambiar una linea de codigo, volvieron a correr todos.
+
+```comprobar
+archivo: scripts/se-puede-publicar.mjs
+usa: huellaDelPaso en scripts/se-puede-publicar.mjs
+```
+
+
+## 17 de septiembre de 2026 — Una lectura que fallo ya no se guarda como respaldo completo
+
+**Lo encontro Codex, y es la segunda vuelta del defecto del dia anterior.** El arreglo de ayer
+frenaba el respaldo cuando la lectura **tiraba un error**. El problema es que leer datos en esta
+app **casi nunca tira error**: si la base no contesta, la app devuelve la lista vacia para no
+romper la pantalla. Con eso, el respaldo guardaba **cero fiestas, cero presupuestos y cero
+facturas como si la empresa no tuviera ninguna**, lo marcaba completo, y la rotacion borraba la
+ultima copia buena.
+
+**Que se hizo:** ahora hay una lectura que ademas del dato dice **si hubo falla**
+(`readDataConDetalle`). El respaldo la usa: si algo no se pudo leer de verdad —aunque haya
+devuelto una lista vacia— **no se guarda nada** y la copia anterior queda intacta. Para el resto
+de la app no cambia nada: la lectura de siempre sigue igual de tolerante, que es lo que hace falta
+en una pantalla.
+
+**Probado rompiendolo**: haciendo que la lectura se calle, la prueba se pone en rojo.
+
+```comprobar
+archivo: src/lib/data-service.ts
+usa: readDataConDetalle en src/app/actions/backup.ts
+prueba: src/__tests__/el-respaldo-no-miente.test.ts
+```
+
+## 17 de septiembre de 2026 — El reporte cuenta los dias en hora de Uruguay
+
+**Lo encontro Codex, y tambien es segunda vuelta.** Ayer se arreglo que el reporte comparara dias
+en vez de horas. Pero los cobros se guardan con hora de Greenwich: **uno del 30 de septiembre a
+las diez de la noche queda escrito como el 1 de octubre a la una**. El reporte de septiembre lo
+seguia dejando afuera. Es la misma plata que falta, por el otro extremo del mes.
+
+**Que se hizo:** el dia se calcula en hora de Uruguay —tres horas menos que Greenwich, sin horario
+de verano— siempre que el dato traiga zona horaria. Una fecha escrita como dia suelto se respeta
+tal cual, que es lo que corresponde: eso lo escribio alguien aca.
+
+**Probado rompiendolo**: volviendo a tomar el dia tal cual venia escrito, la prueba se pone en
+rojo.
+
+```comprobar
+archivo: src/lib/reportes/rango-de-dias.ts
+usa: inRange en src/app/actions/reportes.ts
+prueba: src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
+```
+
+
+## 17 de septiembre de 2026 — La encuesta post fiesta: no se cuelga, no se pisa y no se traga cualquier cosa
+
+**Los encontro Codex.** Tres defectos en la encuesta que contesta el cliente despues de la fiesta,
+que es publica a proposito —se contesta desde el celular, sin cuenta—:
+
+1. **El boton quedaba en "Enviando..." para siempre** si se cortaba la senal o el servidor no
+   contestaba. El cliente se iba creyendo que mando sus comentarios. Ahora el cartel se apaga pase
+   lo que pase y se le avisa que pruebe de nuevo, sin perder lo que escribio.
+2. **Dos respuestas al mismo tiempo y una desaparecia.** Se leia la lista entera, se agregaba la
+   nueva y se guardaba la lista entera: el segundo pisaba al primero. Ahora hay turno, con la
+   lectura adentro del turno.
+3. **Se aceptaba cualquier cosa que llegara del navegador.** Una nota de 99 ensuciaba los
+   promedios del panel, y —lo mas grave— se podia mandar el campo interno que marca "a este
+   cliente ya se le pidio la resena en Google": con eso, **no se le pedia la resena nunca mas**.
+   Ahora se copia campo por campo lo que si es del cliente y lo demas se tira.
+
+**Probado rompiendolo**: sacando el turno, sacando el filtro de campos y sacando el apagado
+seguro del cartel, las pruebas se ponen en rojo.
+
+```comprobar
+archivo: src/lib/feedback/lo-que-llega-de-afuera.ts
+usa: limpiarEncuesta en src/app/actions/feedback.ts
+prueba: src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
+prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
+```
+
+
+## 17 de septiembre de 2026 — Diez guardados que reescribían la lista entera ahora tienen turno
+
+**Salió de aplicar la pregunta quince del método**, la de "¿qué pasa cuando la lista se hace
+larga y dos guardan a la vez?". En esta app cada guardado lee la lista completa, cambia un renglón
+y vuelve a escribir todo. Sin turno, **el segundo escribe encima de la lista vieja y el cambio del
+primero desaparece**, con las dos pantallas diciendo "guardado".
+
+Se les puso turno a: los ingredientes (guardar, borrar y el ajuste de costos), los menús de
+catering (guardar, borrar y el ajuste de márgenes), los ajustes de precio (aplicar y revertir),
+la ficha de la empresa y la plantilla de facturas, y la reparación de fechas de presupuestos, que
+reescribía la lista entera de presupuestos por fuera del turno que ya existía.
+
+También se les puso tope de espera a cuatro botones de plata que quedaban girando para siempre si
+el servidor no contestaba: cobrar una factura, crear una factura, cobrar contra un presupuesto y
+guardar desde el configurador de reunión.
+
+Y los recordatorios de cobro **cuentan el día en hora de Uruguay**: el servidor está en hora de
+Greenwich, que a la noche ya está en el día siguiente, así que una cuota podía avisarse un día
+antes de lo que corresponde.
+
+**Probado rompiéndolo**: el control se probó dos veces, porque la primera versión **no frenaba**
+—miraba el archivo entero y el turno de la función de al lado la hacía pasar—. Ahora mira el
+cuerpo de cada función.
+
+```comprobar
+archivo: src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
+usa: AsyncMutex en src/app/actions/insumos.ts
+prueba: src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
+prueba: src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts
 ```
