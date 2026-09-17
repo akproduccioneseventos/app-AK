@@ -63,6 +63,25 @@ describe('El reporte cuenta todos los dias, incluido el ultimo', () => {
     expect(inRange('2026-09-01', desde, hasta)).toBe(true);
   });
 
+  /**
+   * LA SEGUNDA VUELTA: la encontro Codex el 17 de septiembre de 2026. Comparar dias tapo el
+   * caso del ultimo dia, pero los cobros se guardan con hora de Greenwich: uno del 30 de
+   * septiembre a las diez de la noche queda escrito como el 1 de octubre a la una. El reporte
+   * de septiembre lo seguia dejando afuera. Es la misma plata, por el otro extremo del mes.
+   */
+  it('un cobro de la noche del ultimo dia entra, aunque Greenwich lo anote al dia siguiente', async () => {
+    const { inRange } = await import('@/lib/reportes/rango-de-dias');
+    const desde = new Date('2026-09-01T03:00:00Z');
+    const hasta = new Date('2026-09-30T03:00:00Z');
+
+    // 30 de septiembre, 22:00 en Uruguay.
+    expect(inRange('2026-10-01T01:00:00.000Z', desde, hasta)).toBe(true);
+    // 1 de octubre, 01:00 en Uruguay: eso si es del mes que viene.
+    expect(inRange('2026-10-01T04:00:00.000Z', desde, hasta)).toBe(false);
+    // Y el primero del mes, temprano, sigue adentro.
+    expect(inRange('2026-09-01T12:00:00.000Z', desde, hasta)).toBe(true);
+  });
+
   it('lo del mes siguiente sigue afuera', async () => {
     const { inRange } = await import('@/lib/reportes/rango-de-dias');
 

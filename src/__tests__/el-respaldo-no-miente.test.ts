@@ -18,6 +18,10 @@
 const verifySession = jest.fn();
 const readData = jest.fn();
 const writeData = jest.fn(async () => undefined);
+const readDataConDetalle = jest.fn(async (archivo: string, porDefecto: any) => ({
+  valor: await readData(archivo, porDefecto),
+  huboFalla: false,
+}));
 
 jest.mock('@/lib/auth/session-token', () => ({
   verifySession: (...args: unknown[]) => verifySession(...(args as [])),
@@ -25,10 +29,18 @@ jest.mock('@/lib/auth/session-token', () => ({
 
 jest.mock('@/lib/data-service', () => ({
   readData: (...args: unknown[]) => readData(...(args as [])),
+  readDataConDetalle: (...args: unknown[]) => readDataConDetalle(...(args as [])),
   writeData: (...args: unknown[]) => writeData(...(args as [])),
 }));
 
-jest.mock('@/lib/logger', () => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn() }));
+jest.mock('@/lib/logger', () => ({
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  isBuildTime: () => false,
+  isDefaultCredentialError: () => false,
+  compactError: (e: any) => e,
+}));
 
 /**
  * Una base de mentira, en memoria. Alcanza para lo que se comprueba aca: que el
@@ -65,6 +77,10 @@ describe('El respaldo no miente', () => {
     (global as any).__BORRADOS__ = SNAPSHOTS_BORRADOS;
     verifySession.mockResolvedValue({ success: true, user: { role: 'admin' } });
     readData.mockResolvedValue([]);
+    readDataConDetalle.mockImplementation(async (archivo: string, porDefecto: any) => ({
+      valor: await readData(archivo, porDefecto),
+      huboFalla: false,
+    }));
   });
 
   describe('Quien puede tocar los respaldos', () => {
@@ -129,6 +145,51 @@ describe('El respaldo no miente', () => {
       expect(resultado.success).toBe(true);
       expect(MANIFIESTOS_GUARDADOS).toHaveLength(1);
       expect(MANIFIESTOS_GUARDADOS[0].status).toBe('complete');
+    });
+
+    /**
+     * LA SEGUNDA VUELTA, Y ES LA QUE IMPORTA: la volvio a encontrar Codex el 17 de septiembre
+     * de 2026. Leer NO tira el error casi nunca: cuando la base no contesta, la app devuelve la
+     * lista vacia para no romper la pantalla. Con eso, el respaldo guardaba **cero fiestas como
+     * si la empresa no tuviera ninguna**, lo marcaba completo, y la rotacion borraba la copia
+     * buena. Es la forma silenciosa del mismo desastre.
+     */
+    it('si la lectura fallo y devolvio vacio, TAMPOCO se guarda: vacio no es una copia', async () => {
+      verifySession.mockResolvedValue({ success: true, user: { perfil: 'dueno' } });
+      readDataConDetalle.mockImplementation(async (archivo: string, porDefecto: any) => {
+        if (archivo === 'presupuestos.json') return { valor: [], huboFalla: true };
+        return { valor: porDefecto ?? [], huboFalla: false };
+      });
+
+      const { createRestorePoint } = await import('@/app/actions/backup');
+      const resultado = await createRestorePoint();
+
+      expect(resultado.success).toBe(false);
+      expect(resultado.error).toMatch(/presupuestos/);
+      expect(MANIFIESTOS_GUARDADOS).toHaveLength(0);
+      expect(SNAPSHOTS_BORRADOS).toHaveLength(0);
+    });
+
+    it('cuando la base se cae, la lectura avisa que fallo en vez de devolver vacio y callarse', async () => {
+      jest.resetModules();
+      jest.doMock('@/lib/firebase-sync', () => ({
+        readFromFirestore: async () => { throw new Error('la base no contesta'); },
+        syncToFirestore: async () => undefined,
+      }));
+      jest.doMock('@/lib/generic-json-store', () => ({
+        readGenericJsonFile: async () => { throw new Error('la base no contesta'); },
+        syncGenericJsonFile: async () => undefined,
+        leerGenericJsonParaGuardarEncima: async () => null,
+      }));
+
+      // requireActual a proposito: arriba el archivo tiene mockeado data-service entero, y lo
+      // que se comprueba aca es el codigo de verdad.
+      const { readDataConDetalle: real } = jest.requireActual('@/lib/data-service');
+      const resultado = await real('presupuestos.json', [] as any[]);
+
+      expect(resultado.huboFalla).toBe(true);
+      jest.dontMock('@/lib/firebase-sync');
+      jest.dontMock('@/lib/generic-json-store');
     });
   });
 });

@@ -1,7 +1,7 @@
 'use server';
 
 import type { Firestore } from 'firebase-admin/firestore';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
 import { BACKUP_COLLECTIONS, getBackupValueCount, isRestorableDataFile } from '@/lib/backup/backup-registry';
 import { decodeSnapshotValue, encodeSnapshotValue, type EncodedSnapshotChunk } from '@/lib/backup/snapshot-codec';
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
@@ -154,13 +154,18 @@ async function pruneV2Snapshots(db: Firestore): Promise<void> {
  * Por eso esto devuelve las dos cosas: lo que se leyo **y lo que no**.
  */
 async function readAllBackupData(): Promise<{ leidas: Array<{ file: string; value: any }>; noSePudieronLeer: string[] }> {
+  // OJO: `readData` casi nunca tira el error: cuando la base no contesta devuelve la lista
+  // vacia. Si se confia en eso, el respaldo guarda cero fiestas como si no hubiera ninguna,
+  // queda marcado completo y la rotacion borra la copia buena. Por eso se pregunta ademas si
+  // la lectura salio bien. Lo encontro Codex el 17 de septiembre de 2026.
   const results = await Promise.all(BACKUP_COLLECTIONS.map(async (collection) => {
     try {
-      return {
-        ok: true as const,
-        file: collection.file,
-        value: await readData(collection.file, collection.defaultValue),
-      };
+      const { valor, huboFalla } = await readDataConDetalle(collection.file, collection.defaultValue);
+      if (huboFalla) {
+        console.warn(`[Backup] Lectura con fallas en ${collection.file}: no se guarda el snapshot`);
+        return { ok: false as const, file: collection.file };
+      }
+      return { ok: true as const, file: collection.file, value: valor };
     } catch (error) {
       console.warn(`[Backup] No se pudo leer ${collection.file} para snapshot`, error);
       return { ok: false as const, file: collection.file };

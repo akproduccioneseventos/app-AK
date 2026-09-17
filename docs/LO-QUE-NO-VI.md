@@ -243,3 +243,29 @@ puede pisar ni borrar lo anterior**, que es lo que convierte un aviso en una pé
 ```comprobar
 prueba: src/__tests__/el-respaldo-no-miente.test.ts
 ```
+
+## 17 de septiembre de 2026 — El arreglo que tapa el caso ruidoso y deja el silencioso (lo vio Codex)
+
+**Qué era:** dos arreglos MÍOS del día anterior, los dos incompletos por la misma razón.
+
+- El respaldo frenaba cuando la lectura **tiraba un error**. Pero leer acá casi nunca tira error:
+  devuelve vacío. El respaldo seguía guardando **cero datos marcados como copia completa**.
+- El reporte ya comparaba días en vez de horas, pero tomaba el día **tal cual venía escrito**, y
+  los cobros vienen con hora de Greenwich: los de la noche del último día seguían afuera.
+
+**Por qué no lo vi:** arreglé **el caso que me contaron** y no recorrí los otros caminos por los
+que entra el mismo dato. Le pregunté al código *"¿qué pasa cuando falla?"* y me quedé con la
+forma ruidosa de fallar —la excepción— sin preguntarme **cómo falla esto en silencio**.
+
+**La pregunta nueva, que queda puesta en `docs/COMO-AUDITAR.md`:** *"¿de cuántas formas puede
+venir mal este dato, y cuál de ellas no hace ruido?"*. Un arreglo se prueba con **todas las
+formas del dato** —vacío, con zona horaria, sin ella, a medias— no sólo con la que se reportó.
+
+**Y el corolario, que vale para cualquier arreglo mío de acá en adelante:** **verificar un arreglo
+propio es mirar el caso de al lado**, no repetir el caso que lo originó. Los dos defectos de este
+día habrían aparecido escribiendo una segunda prueba con el dato entrando por la otra puerta.
+
+```comprobar
+prueba: src/__tests__/el-respaldo-no-miente.test.ts
+prueba: src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
+```

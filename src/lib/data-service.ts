@@ -117,34 +117,48 @@ async function writeLocalJsonFallback<T>(
   }
 }
 
-export async function readData<T>(
+/**
+ * LEER SABIENDO SI DE VERDAD SE PUDO LEER.
+ *
+ * **Lo encontro Codex el 17 de septiembre de 2026.** `readData` nunca falla a la vista: si la
+ * base no contesta, prueba los respaldos y, si tampoco, **devuelve la lista vacia**. Para casi
+ * toda la app eso esta bien —una pantalla vacia es mejor que una pantalla rota—, pero para el
+ * respaldo es lo peor que puede pasar: guarda cero fiestas **como si la empresa no tuviera
+ * ninguna**, lo marca completo, y la rotacion borra la copia buena.
+ *
+ * Por eso ahora hay una version que ademas del dato dice **si hubo falla**. La de siempre queda
+ * igual para todos los demas.
+ */
+export async function readDataConDetalle<T>(
   filePath: string,
   defaultValue: T,
-): Promise<T> {
+): Promise<{ valor: T; huboFalla: boolean }> {
   if (filePath.includes("..") || filePath.startsWith("/"))
     throw new Error("Invalid data file path");
   const normalizedFilePath = filePath.replace(/\\/g, "/");
 
   if (shouldUseLocalJsonOnly()) {
     const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
-    return fallbackData ?? defaultValue;
+    return { valor: fallbackData ?? defaultValue, huboFalla: false };
   }
 
   try {
     const data = await readFromFirestore(normalizedFilePath);
     if (data !== null && data !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(data))
-        return defaultValue;
-      return data as T;
+        return { valor: defaultValue, huboFalla: false };
+      return { valor: data as T, huboFalla: false };
     }
     const genericData = await readGenericJsonFile(normalizedFilePath);
     if (genericData !== null && genericData !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(genericData))
-        return defaultValue;
-      return genericData as T;
+        return { valor: defaultValue, huboFalla: false };
+      return { valor: genericData as T, huboFalla: false };
     }
     const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
-    if (fallbackData !== null) return fallbackData;
+    if (fallbackData !== null) return { valor: fallbackData, huboFalla: false };
+    // No hay dato en ningun lado y nada fallo: esto todavia no se escribio nunca.
+    return { valor: defaultValue, huboFalla: false };
   } catch (e) {
     if (!logger.isBuildTime() || !logger.isDefaultCredentialError(e)) {
       logger.error(
@@ -152,16 +166,29 @@ export async function readData<T>(
         logger.compactError(e),
       );
     }
-    const genericData = await readGenericJsonFile(normalizedFilePath);
-    if (genericData !== null && genericData !== undefined) {
-      if (Array.isArray(defaultValue) && !Array.isArray(genericData))
-        return defaultValue;
-      return genericData as T;
+    try {
+      const genericData = await readGenericJsonFile(normalizedFilePath);
+      if (genericData !== null && genericData !== undefined) {
+        if (Array.isArray(defaultValue) && !Array.isArray(genericData))
+          return { valor: defaultValue, huboFalla: true };
+        return { valor: genericData as T, huboFalla: false };
+      }
+    } catch {
+      // Si el segundo intento tambien se cae, sigue siendo una falla de lectura.
     }
     const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
-    if (fallbackData !== null) return fallbackData;
+    // El archivo local puede estar viejo: sirve para mostrar, no para dar por buena una copia.
+    if (fallbackData !== null) return { valor: fallbackData, huboFalla: true };
+    return { valor: defaultValue, huboFalla: true };
   }
-  return defaultValue;
+}
+
+export async function readData<T>(
+  filePath: string,
+  defaultValue: T,
+): Promise<T> {
+  const { valor } = await readDataConDetalle(filePath, defaultValue);
+  return valor;
 }
 
 export async function writeData<T>(

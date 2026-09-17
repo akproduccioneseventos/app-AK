@@ -353,3 +353,30 @@ Tres cosas que tiene que cumplir cualquiera de esos:
 2. **Lo que salio a medias no pisa ni borra lo anterior.** Es lo que convierte un aviso molesto
    en una perdida de datos.
 3. **El aviso se puede leer.** Nada de recargar la pantalla arriba del cartel.
+
+## La decima pregunta: ¿DE CUANTAS FORMAS PUEDE VENIR MAL ESTE DATO, Y CUAL NO HACE RUIDO? (17 de septiembre de 2026)
+
+**Salio de dos arreglos mios que Codex tuvo que volver a encontrar al dia siguiente.** Los dos
+tapaban el caso que me habian reportado y dejaban abierto el de al lado:
+
+- El respaldo frenaba cuando la lectura **tiraba un error**. Pero leer en esta app casi nunca tira
+  error: cuando la base no contesta, **devuelve la lista vacia** para no romper la pantalla. El
+  respaldo seguia guardando cero datos, marcado como copia completa.
+- El reporte ya comparaba dias en vez de horas, pero tomaba el dia **tal cual venia escrito**, y
+  los cobros vienen con hora de Greenwich. Los de la noche del ultimo dia seguian afuera.
+
+**La forma del defecto es siempre la misma:** un dato puede venir mal de varias maneras, y **la
+que hace ruido se arregla; la que se calla queda**. La excepcion se ve; la lista vacia no. La
+fecha rota se ve; la fecha corrida tres horas no.
+
+**Como se hace la pregunta, sobre lo que uno acaba de tocar:**
+
+1. **Listar las formas en que ese dato puede venir mal**, no la que se reporto: vacio, nulo, con
+   zona horaria, sin zona, a medias, duplicado, viejo.
+2. **Marcar cual de esas NO hace ruido** —no tira error, no deja rastro, sale en verde—. Esa es la
+   que hay que probar primero.
+3. **Un arreglo se prueba con el dato entrando por la otra puerta**, no repitiendo el caso que lo
+   origino. Si la unica prueba nueva es la del caso reportado, el arreglo esta a medias.
+
+**Se aplica primero a lo que toca plata**, y **antes que nada a verificar un arreglo propio**: es
+exactamente ahi donde se escaparon los dos.

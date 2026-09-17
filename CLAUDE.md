@@ -1033,6 +1033,8 @@ con otra cara.
 | Dos personas mandando invitaciones a la vez: al invitado le llegaban dos | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
 | Una restauracion a medias se anunciaba como completa y la recarga tapaba el aviso | `src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts` |
 | Invitaciones "enviadas" sin cuenta conectada, recordatorios de cobro a medias, borrado total parcial y la sena sin recibo enganchado | `src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts` |
+| Un respaldo de cero datos guardado como copia completa, porque leer no falla: devuelve vacio | `readDataConDetalle` en `src/lib/data-service.ts`, con `src/__tests__/el-respaldo-no-miente.test.ts` |
+| Un cobro de la noche del ultimo dia afuera del reporte, por contar los dias en hora de Greenwich | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
 
 ### Cómo se elige el matafuego
 

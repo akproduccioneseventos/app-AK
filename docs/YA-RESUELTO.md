@@ -8270,3 +8270,47 @@ cambiar una linea de codigo, volvieron a correr todos.
 archivo: scripts/se-puede-publicar.mjs
 usa: huellaDelPaso en scripts/se-puede-publicar.mjs
 ```
+
+
+## 17 de septiembre de 2026 — Una lectura que fallo ya no se guarda como respaldo completo
+
+**Lo encontro Codex, y es la segunda vuelta del defecto del dia anterior.** El arreglo de ayer
+frenaba el respaldo cuando la lectura **tiraba un error**. El problema es que leer datos en esta
+app **casi nunca tira error**: si la base no contesta, la app devuelve la lista vacia para no
+romper la pantalla. Con eso, el respaldo guardaba **cero fiestas, cero presupuestos y cero
+facturas como si la empresa no tuviera ninguna**, lo marcaba completo, y la rotacion borraba la
+ultima copia buena.
+
+**Que se hizo:** ahora hay una lectura que ademas del dato dice **si hubo falla**
+(`readDataConDetalle`). El respaldo la usa: si algo no se pudo leer de verdad —aunque haya
+devuelto una lista vacia— **no se guarda nada** y la copia anterior queda intacta. Para el resto
+de la app no cambia nada: la lectura de siempre sigue igual de tolerante, que es lo que hace falta
+en una pantalla.
+
+**Probado rompiendolo**: haciendo que la lectura se calle, la prueba se pone en rojo.
+
+```comprobar
+archivo: src/lib/data-service.ts
+usa: readDataConDetalle en src/app/actions/backup.ts
+prueba: src/__tests__/el-respaldo-no-miente.test.ts
+```
+
+## 17 de septiembre de 2026 — El reporte cuenta los dias en hora de Uruguay
+
+**Lo encontro Codex, y tambien es segunda vuelta.** Ayer se arreglo que el reporte comparara dias
+en vez de horas. Pero los cobros se guardan con hora de Greenwich: **uno del 30 de septiembre a
+las diez de la noche queda escrito como el 1 de octubre a la una**. El reporte de septiembre lo
+seguia dejando afuera. Es la misma plata que falta, por el otro extremo del mes.
+
+**Que se hizo:** el dia se calcula en hora de Uruguay —tres horas menos que Greenwich, sin horario
+de verano— siempre que el dato traiga zona horaria. Una fecha escrita como dia suelto se respeta
+tal cual, que es lo que corresponde: eso lo escribio alguien aca.
+
+**Probado rompiendolo**: volviendo a tomar el dia tal cual venia escrito, la prueba se pone en
+rojo.
+
+```comprobar
+archivo: src/lib/reportes/rango-de-dias.ts
+usa: inRange en src/app/actions/reportes.ts
+prueba: src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
+```
