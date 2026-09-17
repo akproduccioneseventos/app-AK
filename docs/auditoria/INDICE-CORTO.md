@@ -52,3 +52,8 @@ Main da6c566: 3 fallos reproducidos / 4 controles correctos en sonda aislada. Co
 ## Actualizacion 17/9 - reportes y conexiones
 
 PR1209 b4c6929 incorpora correcciones. [Contraste vigente](CONTRASTE-1209-2026-09-17.md): 1 PASS / 2 FAIL aislados (zona horaria reporte y consumidor TikTok). [Historia main](REPORTES-CONEXIONES-2026-09-16.md) no es orden de rehacer lo presente. Gmail distribuido/limite memoria YouTube pendientes de validar; sin certificacion integral.
+
+
+## Respaldos revalidados 17/9
+
+PR1209 b4c6929: 9 PASS / 1 FAIL aislados. Permisos y aviso parcial mejorados; BKP01 sigue abierto al incluir readData real (error -> default vacio -> copia completa). [Detalle](RESPALDOS-REVALIDACION-2026-09-17.md). Sin build ni Firebase real.

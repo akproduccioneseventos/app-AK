@@ -8000,3 +8000,8 @@ Main da6c566fbefdf82efec484f7fc9830db6ab5c4de. Contraste de cinco PR abiertas: n
 ## 17/9/2026 - Codex: reportes/conexiones contrastados contra PR1209 nueva
 
 Ver docs/auditoria/REPORTES-CONEXIONES-2026-09-16.md (historia main) y CONTRASTE-1209-2026-09-17.md (estado pendiente b4c6929). Gemini/Claude incorporaron correcciones: no rehacer YouTube, rango diario, mutex Gmail ni sondeo TikTok. Sonda nueva 1 PASS/2 FAIL: dia local incluido; instante UTC del mismo dia Uruguay excluido; TikTok PROCESSING sigue persistido Publicado por consumidor. Gmail mutex solo local, YouTube limite de tamano posterior a arrayBuffer: limites por validar, no pruebas reales nuevas. Sin cambios app/build/merge/envios reales. BKP/ENT de nueva tanda no certificados. Registro evita repetir hallazgos ya implementados.
+
+
+## 17/9/2026 - Codex: revalidacion de respaldos PR1209 b4c6929
+
+Detalle: docs/auditoria/RESPALDOS-REVALIDACION-2026-09-17.md. Sonda docs/evidencias/backup-b4c692-retest.cjs: 9 PASS, 1 FAIL. Correcciones de permiso/aviso parcial/estado desconocido pasan casos aislados. BKP01 no cierra: readData real convierte fallo remoto sin fallback en defaultValue; snapshot sigue complete con colecciones vacias. Lectores inferiores simulados; no datos reales, restauracion, build ni merge. Conservar mejoras, arreglar lectura estricta especifica de respaldos sin rehacer todo. Codex revisa; Claude compila.
