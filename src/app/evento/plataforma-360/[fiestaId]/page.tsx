@@ -1184,3 +1184,4 @@ export default function Plataforma360Page() {
     </div>
   );
 }
+

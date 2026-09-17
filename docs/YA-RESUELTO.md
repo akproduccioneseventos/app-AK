@@ -34,6 +34,36 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 <!-- Las ordenes 55 y 56 todavia NO estan fusionadas: su anotacion viaja con ellas.
      Anotar aca algo que no esta en el codigo es justo lo que esta lista no puede hacer. -->
 
+## 16 de septiembre de 2026 — Orden 61: Las Nueve Preguntas en las Áreas de Gemini
+
+### Orden 61 (Barrido de las 5 áreas)
+- **Área 1: Entretenimiento (Espejo Mágico, Plataforma 360, Bogue y Buzón)**:
+  - **Espejo Mágico (`src/app/evento/espejo-magico/[fiestaId]/page.tsx`)**: `finally` de `handleUpload` protegido con sesión activa (`if (isLiveSession()) { setIsUploading(false); }`); `retake()` restablece incondicionalmente `setIsUploading(false)` y cancela temporizadores automáticos en vuelo (`autoRetakeTimerRef`).
+  - **Plataforma 360 (`src/app/evento/plataforma-360/[fiestaId]/page.tsx`)**: `finally` de `handleUploadVideo` protegido con `isLiveSession()`; temporizadores de auto-reset cancelados limpiamente en `resetLocalState` y `handleGuestRetake`.
+  - **Bogue Boomerang (`src/app/evento/bogue/[fiestaId]/page.tsx`)**: subida con `isLiveSession()`; fallback automático a `saveOfflineMedia` ante corte de señal o fallo de red en el evento; limpieza de timers al reiniciar.
+  - **Buzón de Recuerdos (`src/app/evento/buzon/[fiestaId]/page.tsx`)**: resiliencia offline conectada con `saveOfflineMedia` ante caídas de internet (`!navigator.onLine` o fallo de red); el saludo se guarda de forma segura en el equipo y se anuncia sinceramente al invitado.
+- **Área 2: Pantallas del invitado**:
+  - Invitación digital, confirmación de asistencia, muro, álbum y mesas verificadas sin fallas de concurrencia ni pérdida de datos.
+- **Área 3: Portal del cliente**:
+  - Verificado sin hallazgos tras la incorporación del versionado concurrente en propuesta de decoración (Orden 59).
+- **Área 4: Impresos y descargas**:
+  - Tira de fotos, álbum del recuerdo y números de mesa verificados.
+- **Área 5: Herramientas internas de operación (Gestión de Invitados)**:
+  - **Importación masiva (`src/app/(app)/fiestas/nueva/invitados/page.tsx` y `src/lib/invitados/aviso-importacion-invitados.ts`)**: ante fallos parciales al guardar filas en Firestore, el sistema NO dice "Importación exitosa"; evalúa el resultado, avisa exactamente cuántos se guardaron y cuántos faltaron nombrando a cada uno con su motivo de fallo, mantiene el modal abierto y conserva únicamente las filas con error en la planilla para corregirlas sin duplicar las ya guardadas.
+
+```comprobar
+archivo: src/lib/invitados/aviso-importacion-invitados.ts
+archivo: src/app/(app)/fiestas/nueva/invitados/page.tsx
+archivo: src/app/evento/espejo-magico/[fiestaId]/page.tsx
+archivo: src/app/evento/buzon/[fiestaId]/page.tsx
+archivo: src/app/evento/plataforma-360/[fiestaId]/page.tsx
+archivo: src/app/evento/bogue/[fiestaId]/page.tsx
+prueba: src/__tests__/la-importacion-de-invitados-no-miente.test.ts
+prueba: src/__tests__/espejo-magico-sesion-segura.test.ts
+prueba: src/__tests__/buzon-guarda-offline.test.ts
+prueba: src/__tests__/entretenimiento-resiliencia-offline.test.ts
+```
+
 ## 16 de septiembre de 2026 — Entretenimiento, Respaldos, Decoración y Redes (Órdenes 48, 59 y 60)
 
 ### DEVOLUCION-48 (ENT-03) — Fotocabina y Touchpix corregida (Regla del 16 de septiembre)
@@ -8213,3 +8243,4 @@ una linea las que dan limpias.
 archivo: docs/ANTES-DE-ENTREGAR.md
 archivo: docs/ordenes/61-pasar-las-nueve-preguntas-por-lo-tuyo.md
 ```
+

@@ -47,3 +47,4 @@ describe('Espejo Mágico: Sesión Segura y Timers Limpios (Orden 61 - Pregunta 7
     expect(isUploading).toBe(true);
   });
 });
+

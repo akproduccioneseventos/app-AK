@@ -64,13 +64,13 @@ function InvitadosEventoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fiestaId = searchParams.get('fiestaId');
-  
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [tableNames, setTableNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false); 
-  
+  const [isSaving, setIsSaving] = useState(false);
+
   // New guest form state
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevaCategoria, setNewCategoria] = useState<CategoriaInvitado>('Adulto');
@@ -208,14 +208,14 @@ function InvitadosEventoContent() {
       setIsImporting(false);
     }
   };
-  
+
   const fetchInvitados = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
-      
+
       setFiesta(fiestaData);
       setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
       const tables = (fiestaData.decoracion?.salonElements || [])
@@ -243,7 +243,7 @@ function InvitadosEventoContent() {
       0,
     );
     const vips = invitados.filter(i => i.perfil === 'VIP').length;
-    
+
     return {
         adults: { confirmed: adultsConfirmed, contracted: Number(fiesta?.configuracion.invitadosAdultos) || 0 },
         kids: { confirmed: kidsConfirmed, contracted: Number(fiesta?.configuracion.invitadosNinos) || 0 },
@@ -320,7 +320,7 @@ function InvitadosEventoContent() {
           <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
         </div>
       </div>
-      
+
       <div className="hidden print:block mb-4">
         <h1 className="text-2xl font-bold">Lista de Invitados - {fiesta?.configuracion.nombreAgasajado || 'Evento'}</h1>
         <p className="text-sm text-muted-foreground">Generado el {new Date().toLocaleDateString()}</p>
@@ -829,3 +829,4 @@ export default function InvitadosEventoPage() {
         <Suspense fallback={null}><InvitadosEventoContent/></Suspense>
     )
 }
+

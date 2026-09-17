@@ -22,3 +22,4 @@ describe('Buzón de Recuerdos: No pierde saludos sin señal (Orden 61 - Pregunta
     expect(code).toMatch(/Tu mensaje quedó guardado sin conexión y se subirá automáticamente al volver la señal/);
   });
 });
+

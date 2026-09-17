@@ -67,3 +67,4 @@ export function evaluarResultadoImportacionInvitados(resultado: ResultadoImporta
     esFalloTotal: false,
   };
 }
+

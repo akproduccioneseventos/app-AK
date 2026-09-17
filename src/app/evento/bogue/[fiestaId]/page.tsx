@@ -40,6 +40,7 @@ import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-confi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
+import { saveOfflineMedia } from '@/lib/offline/offline-db';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { componerTiraDeFotos } from '@/lib/entretenimiento/tira-fotocabina';
@@ -87,6 +88,8 @@ export default function BoguePage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const autoResetTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const currentSessionIdRef = useRef<string>(`sess_bogue_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
@@ -358,6 +361,11 @@ export default function BoguePage() {
   };
 
   const resetLocalState = () => {
+    if (autoResetTimerRef.current) {
+      clearTimeout(autoResetTimerRef.current);
+      autoResetTimerRef.current = null;
+    }
+    currentSessionIdRef.current = `sess_bogue_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     setLocalStatus('idle');
     setCountdown(null);
     setCapturedFrames([]);
@@ -373,12 +381,20 @@ export default function BoguePage() {
   };
 
   const completeGuestCycle = () => {
+    if (autoResetTimerRef.current) {
+      clearTimeout(autoResetTimerRef.current);
+      autoResetTimerRef.current = null;
+    }
     setRetakesCount(0);
     void completeEntertainmentSessionCycle(fiestaId, 'bogue', accessToken);
     resetLocalState();
   };
 
   const handleGuestRetake = () => {
+    if (autoResetTimerRef.current) {
+      clearTimeout(autoResetTimerRef.current);
+      autoResetTimerRef.current = null;
+    }
     setRetakesCount((prev) => prev + 1);
     void completeEntertainmentSessionCycle(fiestaId, 'bogue', accessToken);
     resetLocalState();
@@ -709,6 +725,9 @@ export default function BoguePage() {
   };
 
   const handleAutoUpload = async (blob: Blob, stripBase64?: string) => {
+    const sessionForThisUpload = currentSessionIdRef.current;
+    const isLiveSession = () => currentSessionIdRef.current === sessionForThisUpload;
+
     setIsUploading(true);
     setUploadError(null);
     setProgressMsg('Subiendo al muro social de la fiesta...');
@@ -729,6 +748,10 @@ export default function BoguePage() {
         } catch (e) {
           console.error('Error subiendo tira de fotos:', e);
         }
+      }
+
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('Sin conexión');
       }
 
       const file = new File([blob], `bogue-${Date.now()}.mp4`, { type: blob.type });
@@ -757,14 +780,38 @@ export default function BoguePage() {
         speak("¡Listo! Tu Boomerang ya está subido.");
 
         // Auto reset after 12 seconds
-        setTimeout(() => {
-          completeGuestCycle();
+        if (autoResetTimerRef.current) clearTimeout(autoResetTimerRef.current);
+        autoResetTimerRef.current = setTimeout(() => {
+          if (isLiveSession()) completeGuestCycle();
         }, 12000);
       } else {
         throw new Error(res.error || 'Fallo al subir archivo');
       }
     } catch (err) {
       console.error(err);
+
+      try {
+        await saveOfflineMedia({
+          fiestaId,
+          moduleId: 'bogue',
+          fileBlob: blob,
+          fileName: `bogue-${Date.now()}.mp4`,
+          mimeType: blob.type || 'video/mp4',
+          authorName: 'Bogue Boomerang',
+          accessToken,
+        });
+        setProgressMsg('Tu Boomerang quedó guardado en el equipo y se subirá cuando vuelva la señal.');
+        setLocalStatus('done');
+        speak("Tu Boomerang quedó guardado y se subirá cuando vuelva la señal.");
+        if (autoResetTimerRef.current) clearTimeout(autoResetTimerRef.current);
+        autoResetTimerRef.current = setTimeout(() => {
+          if (isLiveSession()) completeGuestCycle();
+        }, 12000);
+        return;
+      } catch (offlineErr) {
+        console.error('[Bogue] Error al guardar offline:', offlineErr);
+      }
+
       setProgressMsg('No se pudo subir al muro. Conservamos el video para reintentar.');
       setUploadError((err as Error).message || 'No se pudo subir el video al muro.');
       setQrCodeUrl('');
@@ -778,7 +825,9 @@ export default function BoguePage() {
         accessToken,
       );
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -1327,4 +1376,5 @@ export default function BoguePage() {
     </div>
   );
 }
+
 
