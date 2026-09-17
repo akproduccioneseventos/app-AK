@@ -8341,3 +8341,35 @@ usa: limpiarEncuesta en src/app/actions/feedback.ts
 prueba: src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
 prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
 ```
+
+
+## 17 de septiembre de 2026 — Diez guardados que reescribían la lista entera ahora tienen turno
+
+**Salió de aplicar la pregunta quince del método**, la de "¿qué pasa cuando la lista se hace
+larga y dos guardan a la vez?". En esta app cada guardado lee la lista completa, cambia un renglón
+y vuelve a escribir todo. Sin turno, **el segundo escribe encima de la lista vieja y el cambio del
+primero desaparece**, con las dos pantallas diciendo "guardado".
+
+Se les puso turno a: los ingredientes (guardar, borrar y el ajuste de costos), los menús de
+catering (guardar, borrar y el ajuste de márgenes), los ajustes de precio (aplicar y revertir),
+la ficha de la empresa y la plantilla de facturas, y la reparación de fechas de presupuestos, que
+reescribía la lista entera de presupuestos por fuera del turno que ya existía.
+
+También se les puso tope de espera a cuatro botones de plata que quedaban girando para siempre si
+el servidor no contestaba: cobrar una factura, crear una factura, cobrar contra un presupuesto y
+guardar desde el configurador de reunión.
+
+Y los recordatorios de cobro **cuentan el día en hora de Uruguay**: el servidor está en hora de
+Greenwich, que a la noche ya está en el día siguiente, así que una cuota podía avisarse un día
+antes de lo que corresponde.
+
+**Probado rompiéndolo**: el control se probó dos veces, porque la primera versión **no frenaba**
+—miraba el archivo entero y el turno de la función de al lado la hacía pasar—. Ahora mira el
+cuerpo de cada función.
+
+```comprobar
+archivo: src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
+usa: AsyncMutex en src/app/actions/insumos.ts
+prueba: src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
+prueba: src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts
+```

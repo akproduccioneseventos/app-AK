@@ -44,6 +44,7 @@ import {
 } from '@/lib/budget/formal-budget';
 import { montoDeSenia } from '@/lib/budget/monto-de-senia';
 import { calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -458,12 +459,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     }
     setIsSavingPago(true);
     try {
-      const result = await addPagoToPresupuesto(presupuesto.id, {
+      const result = await conTopeDeEspera(addPagoToPresupuesto(presupuesto.id, {
         fecha: `${newPagoFecha}T12:00:00.000Z`,
         monto,
         metodoPago: newPagoMetodo,
         referencia: newPagoReferencia.trim() || undefined,
-      });
+      }));
       if (!result.success) throw new Error(result.error);
       setPresupuesto(result.presupuesto!);
       setNewPagoMonto('');

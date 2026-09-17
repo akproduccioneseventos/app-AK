@@ -1054,6 +1054,8 @@ con otra cara.
 | Un cobro de la noche del ultimo dia afuera del reporte, por contar los dias en hora de Greenwich | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
 | La encuesta del cliente aceptaba notas de 99 y campos internos del navegador, y dos respuestas a la vez perdian una | `src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts` |
 | El boton de una pantalla publica quedaba en "Enviando..." para siempre al cortarse la senal | `src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts` |
+| Guardados que reescriben la lista entera sin turno: ingredientes, menus, ajustes de precio y la ficha de la empresa | `src/__tests__/los-guardados-de-lista-tienen-turno.test.ts` |
+| Un control que miraba el archivo entero y pasaba por el turno de la funcion de al lado | El mismo control, acotado al cuerpo de cada funcion |
 
 ### Cómo se elige el matafuego
 
