@@ -29,6 +29,16 @@ const POSTS_FILE = 'social-posts.json';
 const CONNECTIONS_FILE = 'social-connections.json';
 const MAX_POR_CORRIDA_DEFAULT = 3;
 
+export interface PublicarResultado {
+  success: boolean;
+  publishedTo?: string[];
+  enProceso?: string[];
+  failedPlatforms?: Array<{ platform: string; reason: string }>;
+  readyForManualCopy?: boolean;
+  post?: SocialPost;
+  error?: string;
+}
+
 /**
  * Ejecutor interno de publicación de posteos sociales.
  * No requiere sesión interactiva para poder ser invocado de forma desatendida por el cron.
@@ -39,14 +49,7 @@ const MAX_POR_CORRIDA_DEFAULT = 3;
 export async function publishPostInternal(
   postId: string,
   targetPlatforms?: PlatformName[]
-): Promise<{
-  success: boolean;
-  publishedTo?: string[];
-  failedPlatforms?: Array<{ platform: string; reason: string }>;
-  readyForManualCopy?: boolean;
-  post?: SocialPost;
-  error?: string;
-}> {
+): Promise<PublicarResultado> {
   try {
     const posts = await readData<SocialPost[]>(POSTS_FILE, []);
     const postIndex = posts.findIndex((p) => p.id === postId);
@@ -95,6 +98,7 @@ export async function publishPostInternal(
     }
 
     const publishedTo: string[] = [];
+    const enProceso: string[] = [];
     const failedPlatforms: Array<{ platform: string; reason: string }> = [];
     let isOnlyManualNetworks = true;
     // Una red que SI se puede automatizar y falla por falta de configuracion es un
@@ -102,6 +106,7 @@ export async function publishPostInternal(
     // quedaba marcado como listo para copiar y el dueño nunca se enteraba de que la
     // conexion estaba caida: creia que solo habia que pegar el texto a mano.
     let huboFalloDeConexion = false;
+    let tiktokPublishId: string | undefined;
 
     for (const plat of selectedPlatforms) {
       const conn = connections.find((c) => c.platform === plat);
@@ -183,8 +188,21 @@ export async function publishPostInternal(
           title: targetPost.text,
         });
 
-        if (ttResult.success) publishedTo.push('TikTok');
-        else failedPlatforms.push({ platform: 'TikTok', reason: ttResult.error || 'Error en TikTok' });
+        if (ttResult.success) {
+          if (ttResult.status === 'PROCESSING') {
+            enProceso.push('TikTok');
+            if (ttResult.publishId) {
+              tiktokPublishId = ttResult.publishId;
+            }
+          } else {
+            publishedTo.push('TikTok');
+            if (ttResult.publishId) {
+              tiktokPublishId = ttResult.publishId;
+            }
+          }
+        } else {
+          failedPlatforms.push({ platform: 'TikTok', reason: ttResult.error || 'Error en TikTok' });
+        }
 
       } else if (plat === 'YouTube') {
         if (!conn?.accessToken) {
@@ -297,7 +315,7 @@ export async function publishPostInternal(
     }
 
     // Si todas las redes seleccionadas son manuales (TikTok, Threads, X, WhatsApp)
-    if (isOnlyManualNetworks && !huboFalloDeConexion && publishedTo.length === 0) {
+    if (isOnlyManualNetworks && !huboFalloDeConexion && publishedTo.length === 0 && enProceso.length === 0) {
       const manualPost: SocialPost = {
         ...targetPost,
         status: 'Listo para copiar',
@@ -310,11 +328,13 @@ export async function publishPostInternal(
         readyForManualCopy: true,
         post: manualPost,
         failedPlatforms,
+        publishedTo,
+        enProceso,
       };
     }
 
-    // Si fallaron todas las redes automáticas
-    if (publishedTo.length === 0 && failedPlatforms.length > 0) {
+    // Si fallaron todas las redes automáticas y ninguna quedó en proceso
+    if (publishedTo.length === 0 && enProceso.length === 0 && failedPlatforms.length > 0) {
       const errorMsg = failedPlatforms.map((f) => `${f.platform}: ${f.reason}`).join(' | ');
       const failedRetryCount = (targetPost.retryCount || 0) + 1;
       const willMarkFailed = failedRetryCount >= 3;
@@ -335,7 +355,30 @@ export async function publishPostInternal(
         success: false,
         error: `No se pudo publicar en las redes seleccionadas: ${errorMsg}`,
         failedPlatforms,
+        publishedTo,
+        enProceso,
         post: updatedFailedPost,
+      };
+    }
+
+    // Si ninguna red logró publicarse definitivamente pero al menos una quedó en proceso (ej. TikTok PROCESSING)
+    // El post NO pasa a "Publicado": queda como está y se guarda el publishId
+    if (publishedTo.length === 0 && enProceso.length > 0) {
+      const updatedProcessingPost: SocialPost = {
+        ...targetPost,
+        ...(tiktokPublishId ? { publishId: tiktokPublishId } : {}),
+        updatedAt: new Date().toISOString(),
+      };
+
+      posts[postIndex] = updatedProcessingPost;
+      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+
+      return {
+        success: true,
+        publishedTo,
+        enProceso,
+        failedPlatforms,
+        post: updatedProcessingPost,
       };
     }
 
@@ -346,6 +389,7 @@ export async function publishPostInternal(
       publishDate: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       lastError: undefined,
+      ...(tiktokPublishId ? { publishId: tiktokPublishId } : {}),
     };
 
     posts[postIndex] = updatedPost;
@@ -354,6 +398,7 @@ export async function publishPostInternal(
     return {
       success: true,
       publishedTo,
+      enProceso,
       failedPlatforms,
       post: updatedPost,
     };
@@ -424,7 +469,7 @@ export async function procesarPosteosProgramados(
     if (res.success) {
       if (res.readyForManualCopy) {
         listosParaCopiar.push(post.id);
-      } else {
+      } else if (res.publishedTo && res.publishedTo.length > 0) {
         publicados.push(post.id);
       }
     } else {

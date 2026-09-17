@@ -34,6 +34,29 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 <!-- Las ordenes 55 y 56 todavia NO estan fusionadas: su anotacion viaja con ellas.
      Anotar aca algo que no esta en el codigo es justo lo que esta lista no puede hacer. -->
 
+## 17 de septiembre de 2026 — Orden 63: TikTok no puede decir "Publicado" mientras todavía procesa
+
+- **Publicador de Redes (`src/lib/presencia-digital/publicador.ts`)**:
+  - Se separó el caso `ttResult.status === 'PROCESSING'`: ya no ingresa en `publishedTo`, sino que se acumula en una nueva lista `enProceso: string[]` devuelta en `PublicarResultado`.
+  - El posteo **solo** pasa a `status: 'Publicado'` si `publishedTo.length > 0`. Si TikTok quedó en proceso y era la única red seleccionada, el post no cambia a "Publicado": conserva su estado previo y almacena el `publishId: ttResult.publishId` para seguimiento posterior.
+  - En `procesarPosteosProgramados`: solo se suma a `publicados` si `res.publishedTo && res.publishedTo.length > 0`.
+- **Acciones y Respuestas de Redes (`src/app/actions/social-media.ts`, `src/app/actions/presencia-digital.ts`)**:
+  - `publicarPosteoAhoraAction` informa con el mensaje exacto si una red quedó en proceso: `"TikTok: se envio, falta que TikTok termine de procesarlo"`, ni "Publicado" ni "Error".
+  - `publishApprovedSocialPost` tipado con `PublicarResultado` propagando `enProceso`.
+- **Pantalla y Tarjeta de Redes (`src/components/social-media/SocialPostCard.tsx`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`, `src/components/social-media/SocialMediaCalendar.tsx`)**:
+  - En la tarjeta (`SocialPostCard`) y en la vista de publicaciones de presencia digital, cuando un posteo de TikTok tiene `publishId` y aún no está publicado, el badge muestra "En proceso" (en lugar de "Publicado" o "Error") y se muestra el cartel `"TikTok: se envio, falta que TikTok termine de procesarlo"`.
+  - El toast y el feedback de publicación informan el estado en proceso sin cantar victoria antes de tiempo.
+- **Pruebas Automatizadas (`src/__tests__/tiktok-no-canta-victoria-antes.test.ts`)**:
+  - Simulación de `publishToTikTok` con `PROCESSING` comprobando que el post NO queda con `status: 'Publicado'` y guarda `publishId`.
+  - Simulación con `PUBLISH_COMPLETE` comprobando que sí pasa a `status: 'Publicado'`.
+  - Control verificado rompiéndolo a propósito con rojo comprobado y vuelta a verde.
+
+```comprobar
+archivo: src/lib/presencia-digital/publicador.ts
+usa: PROCESSING en src/lib/presencia-digital/publicador.ts
+prueba: src/__tests__/tiktok-no-canta-victoria-antes.test.ts
+```
+
 ## 16 de septiembre de 2026 — Orden 61: Las Nueve Preguntas en las Áreas de Gemini
 
 ### Orden 61 (Barrido de las 5 áreas)

@@ -42,6 +42,8 @@ export interface SocialPost {
     retryCount?: number;
     lastError?: string;
     lastAttemptAt?: string;
+    // Identificador de publicación en plataformas asíncronas (ej. TikTok)
+    publishId?: string;
 }
 
 export type NewSocialPostData = Omit<SocialPost, 'id' | 'createdAt' | 'updatedAt' | 'mediaUrl' | 'mediaType'> & {
