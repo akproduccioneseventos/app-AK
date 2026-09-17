@@ -380,3 +380,25 @@ fecha rota se ve; la fecha corrida tres horas no.
 
 **Se aplica primero a lo que toca plata**, y **antes que nada a verificar un arreglo propio**: es
 exactamente ahi donde se escaparon los dos.
+
+## La once pregunta: ESTO LO PUEDE MANDAR CUALQUIERA, ¿QUE CAMPOS SE COPIAN SIN MIRAR? (17 de septiembre de 2026)
+
+**Salio de la encuesta post fiesta, que encontro Codex.** La app es casi toda con sesion, asi que
+la costumbre es confiar en lo que llega. Pero hay unas pocas puertas abiertas al publico —la
+encuesta, la confirmacion de asistencia, el buzon de recuerdos, el muro de fotos— y ahi lo que
+llega **no lo manda la pantalla necesariamente**.
+
+En la encuesta se guardaba lo que llegaba **tal cual**, con un copiado entero. Con eso entraba una
+nota de 99 —que ensucia los promedios del panel— y, peor, un campo interno que marca "a este
+cliente ya se le pidio la resena en Google": mandandolo, **la resena no se pide nunca mas**.
+
+**Como se hace la pregunta, sobre cualquier cosa que conteste alguien sin cuenta:**
+
+1. **Buscar el copiado entero** —`...loQueLlego`— en lo que se guarda. Ahi entra todo lo que
+   manden.
+2. **Listar que campos son del que contesta y cuales son de la app.** Los de la app —marcas de
+   "ya se hizo", identificadores, estados— **no pueden venir de afuera nunca**.
+3. **Preguntar por cada numero: ¿que pasa si viene 99, -5 o con coma?** Si el panel lo muestra o
+   lo promedia, tiene que rechazarse, no acomodarse.
+4. **Y lo de siempre en estas puertas:** si dos personas contestan al mismo tiempo, ¿se pierde
+   una? La lectura va adentro del turno.

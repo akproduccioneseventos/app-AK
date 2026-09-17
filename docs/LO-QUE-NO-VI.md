@@ -269,3 +269,28 @@ día habrían aparecido escribiendo una segunda prueba con el dato entrando por 
 prueba: src/__tests__/el-respaldo-no-miente.test.ts
 prueba: src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
 ```
+
+## 17 de septiembre de 2026 — Lo que entra por una puerta pública, y la prueba que no puede fallar (lo vio Codex)
+
+**Qué era:** tres defectos en la encuesta post fiesta. El botón quedaba en "Enviando..." para
+siempre si se cortaba la señal; dos respuestas simultáneas perdían una; y se aceptaba cualquier
+cosa que llegara del navegador —una nota de 99, y el campo interno que hace que **no se le pida
+nunca más la reseña en Google a ese cliente**.
+
+**Por qué no lo vi:** miré la encuesta como una pantalla del cliente y no como **una puerta
+abierta al público**. Es de los poquísimos lugares de la app donde alguien sin cuenta manda datos
+al servidor, y ahí la pregunta no es "¿funciona?" sino **"¿qué pasa si lo que llega no es lo que
+manda la pantalla?"**. Con sesión, esa pregunta casi no hace falta; sin sesión, es la primera.
+
+**La pregunta nueva, que queda puesta en `docs/COMO-AUDITAR.md`:** *"esto lo puede mandar
+cualquiera: ¿qué campos se copian sin mirar?"*. Se aplica a todo lo que contesta un invitado o un
+cliente sin cuenta: encuesta, confirmación de asistencia, buzón de recuerdos, muro.
+
+**Y lo segundo, que me lo agarré yo solo al romper el control a propósito:** la prueba de "dos a
+la vez" que escribí **no podía fallar**, porque la base de mentira devolvía siempre la misma lista
+en memoria. Quedó anotado en la lista de errores de `CLAUDE.md`.
+
+```comprobar
+prueba: src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
+prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
+```
