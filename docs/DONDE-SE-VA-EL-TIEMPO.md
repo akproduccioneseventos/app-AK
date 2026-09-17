@@ -29,6 +29,23 @@ de las corridas reales de este contenedor.
 2. **Cada paso mira sólo lo que lo puede cambiar** (17 de septiembre). Tocar un documento ya no
    dispara la compilación ni el navegador: pasa de 40 minutos a menos de 5.
 
+## Lo que se probó y NO funcionó (no repetirlo)
+
+**Correr las pruebas de navegador de a más.** Ya está hecho: hoy corren de a tres, en una sola
+tanda, salvo cuatro que tienen que ir solas porque comparten la fiesta de prueba. Pasar de tres a
+cuatro ganó el 9% y empezó a dar fallas inventadas. **El tiempo no está en la falta de paralelo.**
+
+## Dónde está de verdad, y cómo se va a saber
+
+Son **182 pruebas de navegador que tardan 31 minutos corriendo de a tres**: unos 30 segundos cada
+una. El problema era que nadie sabía **cuáles** se llevan el tiempo, y averiguarlo costaba otra
+corrida de 31 minutos.
+
+Los tiempos ya venían en el informe de cada corrida **y se tiraban**. Desde el 17 de septiembre de
+2026 se imprimen: al final de cada verificación sale **la lista de las cinco pruebas más lentas y
+cuánto pesan sobre el total**. Con esa lista se decide qué se acelera; sin ella se adivina, y
+adivinar acá ya costó caro dos veces.
+
 ## Lo que falta, y por qué no se hizo de una
 
 **El navegador corre de a una prueba por vez** (`workers: 1` en `playwright.config.ts`) en una

@@ -636,6 +636,34 @@ async function main() {
   }
   console.log(`  - Fallas reales: ${fallasReales.length}`);
   console.log(`  - Descartadas por entorno (<500ms recuperadas): ${descartadasPorEntorno.length}`);
+
+  /**
+   * DONDE SE FUE EL TIEMPO. Se imprime SIEMPRE, aunque este todo verde.
+   *
+   * **Orden del dueno, 17 de septiembre de 2026: "el navegador es el que hay que optimizar".**
+   * Tenia razon: de los 40 minutos de la verificacion, 31 son esta tanda. El problema era que
+   * nadie sabia **cual** de las 66 pruebas se los llevaba: para averiguarlo habia que correr
+   * todo de nuevo mirando el reloj, o sea otros 31 minutos.
+   *
+   * Los tiempos ya venian en el informe de cada corrida y se tiraban a la basura. Ahora quedan
+   * a la vista: cada vez que corre la verificacion, dice cuales son las cinco mas lentas y
+   * cuanto pesan sobre el total. **Acelerar se decide con esta lista, no de memoria.**
+   */
+  const tiempoPorArchivo = new Map();
+  for (const t of [...totalPasadas, ...fallasReales]) {
+    const archivo = (t.file || '').split('/').pop() || 'sin nombre';
+    tiempoPorArchivo.set(archivo, (tiempoPorArchivo.get(archivo) || 0) + (t.duration || 0));
+  }
+  const ranking = [...tiempoPorArchivo.entries()].sort((a, b) => b[1] - a[1]);
+  const totalMs = ranking.reduce((suma, [, ms]) => suma + ms, 0);
+  if (ranking.length > 0 && totalMs > 0) {
+    console.log(`------------------------------------------------------`);
+    console.log(`  DONDE SE FUE EL TIEMPO (total ${Math.round(totalMs / 1000)}s)`);
+    for (const [archivo, ms] of ranking.slice(0, 5)) {
+      const porcentaje = Math.round((ms / totalMs) * 100);
+      console.log(`    ${String(Math.round(ms / 1000)).padStart(5)}s  ${String(porcentaje).padStart(3)}%  ${archivo}`);
+    }
+  }
   console.log(`======================================================\n`);
 
   // DONDE SE VA EL TIEMPO. Sin esta lista, acelerar la corrida es adivinar.

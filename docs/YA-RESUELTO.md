@@ -8373,3 +8373,23 @@ usa: AsyncMutex en src/app/actions/insumos.ts
 prueba: src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
 prueba: src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts
 ```
+
+
+## 17 de septiembre de 2026 — La verificación dice dónde se le fue el tiempo
+
+**Orden del dueño: "el navegador es el que hay que optimizar".** Estaba en lo cierto y quedó
+medido: de los 40 minutos, **31 son las pruebas de navegador** y 6 la compilación.
+
+El problema para acelerarlas era que **no se sabía cuáles de las 182 se llevan el tiempo**, y
+averiguarlo costaba otra corrida entera. Los tiempos ya venían en el informe de cada corrida y se
+tiraban a la basura.
+
+Ahora, al final de cada verificación sale **la lista de las cinco pruebas más lentas con cuánto
+pesan sobre el total**. Con esa lista se decide qué acelerar, en vez de adivinar. Y quedó escrito
+en `docs/DONDE-SE-VA-EL-TIEMPO.md` lo que ya se probó y no sirvió —correr de a cuatro en vez de
+tres ganó 9% y empezó a dar fallas inventadas—, para que nadie lo repita.
+
+```comprobar
+archivo: docs/DONDE-SE-VA-EL-TIEMPO.md
+usa: DONDE SE FUE EL TIEMPO en scripts/run-playwright-production.mjs
+```
