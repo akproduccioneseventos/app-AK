@@ -8417,3 +8417,19 @@ línea de código de la app, sí.
 archivo: scripts/se-puede-publicar.mjs
 usa: NO_AFECTA_AL_NAVEGADOR en scripts/se-puede-publicar.mjs
 ```
+
+
+## 17 de septiembre de 2026 — La verificación avisa si se arrancó con el trabajo a medio terminar
+
+**Error propio, y es el que se llevó la hora de esta sesión.** La verificación se lanzó tres
+veces; dos de ellas antes de terminar de trabajar, y después se siguió tocando código. Cada
+cambio deja sin valor lo que la corrida ya hizo: treinta minutos tirados cada vez.
+
+La regla —"se corre una sola vez, al final"— estaba escrita y no enganchada. Ahora está: avisa al
+arrancar si hay código sin guardar, y **al final dice "este resultado no vale" si se tocó el
+código mientras corría**, en vez de dar un verde que no significa nada.
+
+```comprobar
+archivo: scripts/se-puede-publicar.mjs
+usa: huellaAlEmpezar en scripts/se-puede-publicar.mjs
+```

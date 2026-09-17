@@ -717,6 +717,21 @@ aplica primero a cobros, cuotas, facturas, presupuestos y sueldos. Y queda escri
 que la app esté terminada **no** significa que un área ya mirada quede mirada para siempre con
 las preguntas viejas; cuando el método suma una pregunta, lo que toca plata se vuelve a pasar.
 
+### 12. Arrancar la verificación con el trabajo a medio terminar
+
+**Pasó el 17 de septiembre de 2026 y costó más de una hora, en una sesión donde el dueño ya venía
+pidiendo acelerar.** Lancé la verificación completa **tres veces**. Dos de ellas fue porque la
+arranqué antes de terminar y después seguí tocando archivos: cada cambio de código deja sin valor
+lo que la corrida ya hizo, así que fueron treinta minutos tirados cada vez.
+
+**Qué era lo cierto:** el problema no era la velocidad de la herramienta. La regla —"la puerta se
+corre UNA vez, al final"— ya estaba escrita **y no estaba enganchada**, que es el mismo defecto
+que esta app persigue en el código.
+
+**Qué se hace distinto, y ya está enganchado:** la verificación avisa al arrancar si hay código
+sin guardar, y **al final dice "este resultado no vale" si se tocó el código mientras corría**.
+Y la costumbre: primero se termina la tanda entera, se commitea, y recién ahí se arranca.
+
 ### 11. Una prueba de "dos a la vez" que comparte la lista en memoria NO puede fallar nunca
 
 **Pasó el 17 de septiembre de 2026, y lo agarré yo al romper el control a propósito**, que es
@@ -1057,6 +1072,7 @@ con otra cara.
 | Guardados que reescriben la lista entera sin turno: ingredientes, menus, ajustes de precio y la ficha de la empresa | `src/__tests__/los-guardados-de-lista-tienen-turno.test.ts` |
 | Un control que miraba el archivo entero y pasaba por el turno de la funcion de al lado | El mismo control, acotado al cuerpo de cada funcion |
 | Media hora de navegador repetida por un commit de documentacion o por agregar una prueba de Jest | `NO_AFECTA_AL_NAVEGADOR` y la huella por contenido en `scripts/se-puede-publicar.mjs` |
+| Arrancar la verificacion con el trabajo a medio terminar y tirar media hora | El aviso al empezar y el "este resultado no vale" de `scripts/se-puede-publicar.mjs` |
 
 ### Cómo se elige el matafuego
 

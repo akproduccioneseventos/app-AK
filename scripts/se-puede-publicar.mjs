@@ -444,7 +444,30 @@ const appPudoCambiar = laAppPudoCambiar();
 const huellas = { codigo: huellaDelCodigo(), todo: huellaDeTodo(), app: huellaDeLaApp() };
 const yaEstabanBien = leerAvance();
 
+/**
+ * NO SE ARRANCA LA VERIFICACION CON TRABAJO A MEDIO TERMINAR.
+ *
+ * **Error propio del 17 de septiembre de 2026, y costo mas de una hora.** Lance la verificacion
+ * tres veces en una sesion: dos de ellas la arranque antes de terminar de trabajar y despues
+ * segui tocando archivos. Cada vez que se toca codigo, lo que la corrida ya hizo **deja de
+ * valer**, y son treinta minutos tirados.
+ *
+ * La regla estaba escrita —"la puerta se corre UNA vez, al final"— y no estaba enganchada, que
+ * es el mismo defecto que esta app persigue en el codigo. Ahora esta enganchada: avisa antes de
+ * gastar el tiempo, y al final dice si el resultado sigue valiendo.
+ */
+const huellaAlEmpezar = huellas.codigo;
+const hayTrabajoSinCommitear = (spawnSync(
+  `git status --porcelain -- . ${[...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS].map((p) => `'${p}'`).join(' ')}`,
+  { shell: true, encoding: 'utf8' },
+).stdout || '').trim();
+
 console.log('\n¿SE PUEDE PUBLICAR?\n' + '='.repeat(60));
+if (hayTrabajoSinCommitear) {
+  console.log('  OJO: hay codigo sin guardar. Si lo seguis tocando mientras esto corre,');
+  console.log('  lo que ya se hizo deja de valer y hay que empezar de nuevo.');
+  console.log('  Conviene terminar y commitear ANTES de arrancar.');
+}
 if (Object.keys(yaEstabanBien).length > 0) {
   console.log('  (se retoma lo que ya dio bien: cada paso mira solo lo que de verdad lo puede cambiar)');
 }
@@ -526,6 +549,13 @@ if (fallas.length === 0) {
     console.log('  Lo demas —acentos, tipos, pruebas y la base protegida— si paso.\n');
     await mostrarMetricasAuditadas();
     process.exit(0);
+  }
+  if (huellaDelCodigo() !== huellaAlEmpezar) {
+    console.log('\n  ESTE RESULTADO NO VALE.\n');
+    console.log('  Se toco el codigo mientras la verificacion corria, asi que lo que');
+    console.log('  paso se probo sobre una version que ya no existe. Hay que correrla');
+    console.log('  de nuevo, entera, con el trabajo terminado.\n');
+    process.exit(1);
   }
   console.log('\n  SE PUEDE PUBLICAR.\n');
   console.log('  Todo marcha: acentos, tipos, pruebas, compila, la base protegida');
