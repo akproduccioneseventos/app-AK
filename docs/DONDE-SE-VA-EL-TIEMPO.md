@@ -46,6 +46,19 @@ Los tiempos ya venían en el informe de cada corrida **y se tiraban**. Desde el 
 cuánto pesan sobre el total**. Con esa lista se decide qué se acelera; sin ella se adivina, y
 adivinar acá ya costó caro dos veces.
 
+## Lo tercero que se hizo, y es lo que más saca (17 de septiembre de 2026)
+
+**El navegador se repetía por cosas que no lo pueden cambiar.** Dos, medidas:
+
+- **Cualquier commit invalidaba todo**, porque la huella incluía en qué commit estamos. Anotar un
+  arreglo en la documentación costaba media hora de navegador.
+- **Agregar una prueba de Jest también.** Esa prueba no entra en la aplicación: no se compila en
+  ninguna pantalla y el usuario no la ve nunca.
+
+Hoy la huella mira **el contenido de los archivos que ese control puede leer**. Una tanda que
+arregla código sigue pagando los 24 minutos —bien que así sea—; una que sólo suma pruebas o
+documentación, no paga nada.
+
 ## Lo que falta, y por qué no se hizo de una
 
 **El navegador corre de a una prueba por vez** (`workers: 1` en `playwright.config.ts`) en una

@@ -214,6 +214,8 @@ const NO_ES_CODIGO_PARA_LA_HUELLA = [
  *
  * - Los pasos que miran **el codigo** —tipos, pruebas, compilacion, seguridad de la base y
  *   las dos de navegador— usan la huella del codigo: no la mueve tocar un documento.
+ *   Y las dos de navegador usan una todavia mas acotada: tampoco las mueve agregar una
+ *   prueba de Jest, que no entra en la aplicacion.
  * - Los pasos que miran **todo** —acentos, "lo que se dijo es lo que es" y el trinquete—
  *   usan la huella completa, porque leen los documentos tambien.
  *
@@ -232,12 +234,42 @@ const PASOS_QUE_MIRAN_TODO = new Set([
   'El trinquete',
 ]);
 
+/**
+ * LAS PRUEBAS DE JEST NO PUEDEN CAMBIAR LO QUE VE EL USUARIO.
+ *
+ * **Orden del dueno, 17 de septiembre de 2026: "el navegador es el que hay que optimizar".**
+ * Medido: el navegador son 24 de los 30 minutos. Y se repetia entero por agregar **una prueba
+ * de Jest**, que no entra en la aplicacion: no se compila en la pagina, no la ve nadie desde el
+ * navegador, no puede romper una pantalla.
+ *
+ * En una tanda normal se agregan tres o cuatro pruebas de esas. Eso era una hora de navegador
+ * repetido para nada.
+ */
+const NO_AFECTA_AL_NAVEGADOR = [
+  ':(exclude)src/__tests__',
+  ':(exclude)jest.config.js',
+  ':(exclude)jest.setup.js',
+];
+
+const PASOS_DEL_NAVEGADOR = new Set([
+  'La app usada de verdad',
+  'Recorrido de todas las pantallas',
+]);
+
+/**
+ * La huella mira el CONTENIDO de los archivos que le importan a ese paso, no en que commit
+ * estamos.
+ *
+ * Antes entraba `git rev-parse HEAD`, asi que **cualquier commit invalidaba todo**: anotar un
+ * arreglo en la documentacion y volver a esperar media hora de navegador. Ahora se miran los
+ * archivos: si su contenido es el mismo, el paso ya se sabe que da bien.
+ */
 function huellaCon(filtros) {
   const filtro = filtros.map((p) => `'${p}'`).join(' ');
   const partes = [
-    spawnSync('git rev-parse HEAD', { shell: true, encoding: 'utf8' }).stdout || '',
+    spawnSync(`git ls-files -s -- . ${filtro}`, { shell: true, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '',
     spawnSync(`git status --porcelain -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
-    spawnSync(`git diff HEAD -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
+    spawnSync(`git diff HEAD -- . ${filtro}`, { shell: true, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '',
   ];
   return createHash('sha1').update(partes.join('|')).digest('hex');
 }
@@ -250,9 +282,16 @@ function huellaDeTodo() {
   return huellaCon(NO_ES_CODIGO_PARA_LA_HUELLA);
 }
 
+/** El codigo que de verdad puede cambiar lo que se ve en el navegador. */
+function huellaDeLaApp() {
+  return huellaCon([...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS, ...NO_AFECTA_AL_NAVEGADOR]);
+}
+
 /** Que huella le corresponde a cada paso. */
 function huellaDelPaso(nombre, huellas) {
-  return PASOS_QUE_MIRAN_TODO.has(nombre) ? huellas.todo : huellas.codigo;
+  if (PASOS_QUE_MIRAN_TODO.has(nombre)) return huellas.todo;
+  if (PASOS_DEL_NAVEGADOR.has(nombre)) return huellas.app;
+  return huellas.codigo;
 }
 
 function leerAvance() {
@@ -402,7 +441,7 @@ const fallas = [];
 const salteadosPorqueLaAppNoCambio = [];
 const appPudoCambiar = laAppPudoCambiar();
 
-const huellas = { codigo: huellaDelCodigo(), todo: huellaDeTodo() };
+const huellas = { codigo: huellaDelCodigo(), todo: huellaDeTodo(), app: huellaDeLaApp() };
 const yaEstabanBien = leerAvance();
 
 console.log('\n¿SE PUEDE PUBLICAR?\n' + '='.repeat(60));

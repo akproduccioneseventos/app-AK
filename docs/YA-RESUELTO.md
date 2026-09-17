@@ -8393,3 +8393,27 @@ tres ganó 9% y empezó a dar fallas inventadas—, para que nadie lo repita.
 archivo: docs/DONDE-SE-VA-EL-TIEMPO.md
 usa: DONDE SE FUE EL TIEMPO en scripts/run-playwright-production.mjs
 ```
+
+
+## 17 de septiembre de 2026 — El navegador deja de repetirse por cosas que no lo pueden cambiar
+
+**Orden del dueño: "el navegador es el que hay que optimizar".** Estaba medido: son 24 de los 30
+minutos. Lo que se encontró al mirarlo en serio fueron **dos repeticiones al pedo**:
+
+1. **Cualquier commit repetía todo.** La huella que decide si un control ya se sabe que da bien
+   incluía en qué commit estamos. Anotar un arreglo en la documentación y volver a esperar media
+   hora de navegador. Ahora mira **el contenido de los archivos**, no el commit.
+2. **Agregar una prueba de Jest repetía el navegador entero.** Una prueba de esas no entra en la
+   aplicación: no se compila en ninguna pantalla y el usuario no la ve nunca. En una tanda normal
+   se agregan tres o cuatro. Eran horas de navegador repetido para nada.
+
+**Lo que NO afloja:** cualquier cambio en el código de la app —una pantalla, una acción, una
+librería— sigue obligando a correr el navegador completo.
+
+**Probado en los dos sentidos**: agregando una prueba de Jest la huella no se movió; tocando una
+línea de código de la app, sí.
+
+```comprobar
+archivo: scripts/se-puede-publicar.mjs
+usa: NO_AFECTA_AL_NAVEGADOR en scripts/se-puede-publicar.mjs
+```
