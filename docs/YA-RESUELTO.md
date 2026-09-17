@@ -8244,3 +8244,29 @@ archivo: docs/ANTES-DE-ENTREGAR.md
 archivo: docs/ordenes/61-pasar-las-nueve-preguntas-por-lo-tuyo.md
 ```
 
+
+
+## 17 de septiembre de 2026 — La verificacion deja de repetir lo que no puede haber cambiado
+
+**El dueno lo pidio dos veces:** *"tenes que buscar un mecanismo mas corto a prueba de
+errores"* y *"debes reducir a la mitad del proceso"*.
+
+**Donde se iba el tiempo, medido:** de los 55 minutos, **45 son la compilacion y las dos
+corridas de navegador**. Y se repetian enteras por cambios que **no pueden afectarlas**:
+escribir una orden para Gemini, anotar un arreglo, corregir un texto de la documentacion.
+
+**Que se hizo:** cada paso mira ahora **solo lo que de verdad lo puede cambiar**. Los que
+miran el codigo —tipos, pruebas, compilacion, seguridad de la base y las dos de navegador—
+no se enteran de que se toco un documento. Los que miran todo —acentos, "lo que se dijo es
+lo que es" y el trinquete— siguen corriendo siempre, porque leen los documentos tambien.
+
+**No afloja nada:** cualquier cambio en el codigo sigue obligando a correr todo. Lo unico
+que se evita es pagar cincuenta minutos por una coma en un documento.
+
+**Probado rompiendolo:** tocando solo un documento, los pasos del codigo se saltearon; y al
+cambiar una linea de codigo, volvieron a correr todos.
+
+```comprobar
+archivo: scripts/se-puede-publicar.mjs
+usa: huellaDelPaso en scripts/se-puede-publicar.mjs
+```

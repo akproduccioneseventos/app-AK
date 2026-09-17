@@ -202,8 +202,38 @@ const NO_ES_CODIGO_PARA_LA_HUELLA = [
   ':(exclude)test-results',
 ];
 
-function huellaDelCodigo() {
-  const filtro = NO_ES_CODIGO_PARA_LA_HUELLA.map((p) => `'${p}'`).join(' ');
+/**
+ * DOS HUELLAS, PORQUE NO TODO DEPENDE DE TODO.
+ *
+ * **El dueno lo pidio dos veces: "reduci a la mitad el proceso".** La mitad del tiempo se
+ * iba repitiendo la compilacion y las pruebas de navegador —45 de los 55 minutos— por
+ * cambios que **no pueden afectarlas**: escribir una orden, anotar un arreglo, corregir un
+ * texto de la documentacion.
+ *
+ * Asi que cada paso mira lo que de verdad lo puede cambiar:
+ *
+ * - Los pasos que miran **el codigo** —tipos, pruebas, compilacion, seguridad de la base y
+ *   las dos de navegador— usan la huella del codigo: no la mueve tocar un documento.
+ * - Los pasos que miran **todo** —acentos, "lo que se dijo es lo que es" y el trinquete—
+ *   usan la huella completa, porque leen los documentos tambien.
+ *
+ * **Esto no afloja nada:** lo que cambia el codigo sigue obligando a correr todo. Lo unico
+ * que se evita es repetir cincuenta minutos por una coma en un documento.
+ */
+const SOLO_DOCUMENTOS = [
+  ':(exclude)docs',
+  ':(exclude)*.md',
+  ':(exclude)ESTADO-ACTUAL.md',
+];
+
+const PASOS_QUE_MIRAN_TODO = new Set([
+  'Acentos',
+  'Lo que se dijo es lo que es',
+  'El trinquete',
+]);
+
+function huellaCon(filtros) {
+  const filtro = filtros.map((p) => `'${p}'`).join(' ');
   const partes = [
     spawnSync('git rev-parse HEAD', { shell: true, encoding: 'utf8' }).stdout || '',
     spawnSync(`git status --porcelain -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
@@ -212,11 +242,23 @@ function huellaDelCodigo() {
   return createHash('sha1').update(partes.join('|')).digest('hex');
 }
 
-function leerAvance(huella) {
+function huellaDelCodigo() {
+  return huellaCon([...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS]);
+}
+
+function huellaDeTodo() {
+  return huellaCon(NO_ES_CODIGO_PARA_LA_HUELLA);
+}
+
+/** Que huella le corresponde a cada paso. */
+function huellaDelPaso(nombre, huellas) {
+  return PASOS_QUE_MIRAN_TODO.has(nombre) ? huellas.todo : huellas.codigo;
+}
+
+function leerAvance() {
   if (process.env.AK_PUERTA_DESDE_CERO === 'true') return {};
   try {
     const guardado = JSON.parse(readFileSync(AVANCE, 'utf8'));
-    if (guardado.huella !== huella) return {};
     if (Date.now() - (guardado.cuando || 0) > HORAS_QUE_VALE * 3600 * 1000) return {};
     return guardado.pasos || {};
   } catch {
@@ -224,9 +266,9 @@ function leerAvance(huella) {
   }
 }
 
-function anotarAvance(huella, pasos) {
+function anotarAvance(pasos) {
   try {
-    writeFileSync(AVANCE, JSON.stringify({ huella, cuando: Date.now(), pasos }, null, 2));
+    writeFileSync(AVANCE, JSON.stringify({ cuando: Date.now(), pasos }, null, 2));
   } catch {}
 }
 
@@ -360,12 +402,12 @@ const fallas = [];
 const salteadosPorqueLaAppNoCambio = [];
 const appPudoCambiar = laAppPudoCambiar();
 
-const huella = huellaDelCodigo();
-const yaEstabanBien = leerAvance(huella);
+const huellas = { codigo: huellaDelCodigo(), todo: huellaDeTodo() };
+const yaEstabanBien = leerAvance();
 
 console.log('\n¿SE PUEDE PUBLICAR?\n' + '='.repeat(60));
 if (Object.keys(yaEstabanBien).length > 0) {
-  console.log('  (se retoma una corrida anterior del mismo codigo: lo que ya dio bien no se repite)');
+  console.log('  (se retoma lo que ya dio bien: cada paso mira solo lo que de verdad lo puede cambiar)');
 }
 
 for (const paso of PASOS) {
@@ -379,8 +421,10 @@ for (const paso of PASOS) {
     salteadosPorqueLaAppNoCambio.push(paso.nombre);
     continue;
   }
-  if (yaEstabanBien[paso.nombre]) {
-    console.log(`  ${paso.nombre}... ya estaba bien (${yaEstabanBien[paso.nombre]}s, corrida anterior del mismo codigo)`);
+  const huellaAhora = huellaDelPaso(paso.nombre, huellas);
+  const anterior = yaEstabanBien[paso.nombre];
+  if (anterior && anterior.huella === huellaAhora) {
+    console.log(`  ${paso.nombre}... ya estaba bien (${anterior.segundos}s, corrida anterior sobre lo mismo)`);
     continue;
   }
   process.stdout.write(`  ${paso.nombre}... `);
@@ -389,8 +433,8 @@ for (const paso of PASOS) {
   const segundos = ((Date.now() - arranque) / 1000).toFixed(0);
   console.log(ok ? `bien (${segundos}s)` : `FALLA (${segundos}s)`);
   if (ok) {
-    yaEstabanBien[paso.nombre] = Number(segundos);
-    anotarAvance(huella, yaEstabanBien);
+    yaEstabanBien[paso.nombre] = { segundos: Number(segundos), huella: huellaAhora };
+    anotarAvance(yaEstabanBien);
   }
   if (!ok) {
     fallas.push({ paso, salida });
