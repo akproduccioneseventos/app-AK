@@ -26,6 +26,7 @@ import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
 } from '@/app/actions/fiesta/entretenimiento.actions';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -580,6 +581,7 @@ export default function Plataforma360Page() {
   };
 
   const handleVideoUpload = async (blob: Blob) => {
+    if (isUploading) return;
     setUploadError(null);
     setLocalStatus('processing');
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
@@ -636,7 +638,7 @@ export default function Plataforma360Page() {
       if (guestId) formData.append('guestId', guestId);
       if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
 
-      const res = await uploadEntretenimientoMedia(formData);
+      const res = await conTopeDeEspera(uploadEntretenimientoMedia(formData));
 
       if (res.success) {
         const mediaUrl = res.media?.url || '';
@@ -704,9 +706,7 @@ export default function Plataforma360Page() {
         accessToken,
       );
     } finally {
-      if (isLiveSession()) {
-        setIsUploading(false);
-      }
+      setIsUploading(false);
     }
   };
 

@@ -34,6 +34,30 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 <!-- Las ordenes 55 y 56 todavia NO estan fusionadas: su anotacion viaja con ellas.
      Anotar aca algo que no esta en el codigo es justo lo que esta lista no puede hacer. -->
 
+## 17 de septiembre de 2026 — Orden 64: Las pantallas del invitado pasan las preguntas nuevas
+
+- **Bloque 1 — Prueba E2E de Playwright (`tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts`)**:
+  - Prueba de navegador real que corta la respuesta del servidor con `page.route` en `/feedback/<id>` y en `/invitacion/<id>/rsvp`.
+  - Verifica que el botón vuelva a su texto normal ("Enviar Mis Comentarios" y "Confirmar asistencia") y quede habilitado (no colgado en "Enviando...").
+  - Verifica que el aviso de error se muestre y que lo escrito por el invitado en los campos no se pierda.
+  - Se probó rompiéndola a propósito (quitando el `finally` de `feedback` y verificando que Playwright se puso en rojo por timeout del botón) y luego restaurando a verde.
+- **Bloque 2 — Pregunta 12 (¿Qué pasa si toca dos veces?)**:
+  - En `src/app/actions/buzon.ts`: desduplicación de saludos en el buzón mediante hash SHA-256 (`contentHash`) para que dos toques con el mismo archivo no creen dos registros en la base ni dos notificaciones en pantalla.
+  - Guardas `if (isSubmitting) return;` e `if (isUploading) return;` en `src/app/feedback/[fiestaId]/page.tsx`, `src/app/invitacion/[fiestaId]/rsvp/page.tsx`, `src/app/evento/buzon/[fiestaId]/page.tsx`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`, `src/app/evento/espejo-magico/[fiestaId]/page.tsx`, `src/app/evento/plataforma-360/[fiestaId]/page.tsx` y `src/app/recepcion/[fiestaId]/RecepcionClient.tsx`.
+  - `finally` garantizado para apagar el estado de carga en todas las pantallas.
+- **Bloque 3 — Pregunta 14 (¿Qué ve el que adivina el enlace?)**:
+  - En `src/lib/guest-portal-public-data.ts`: se eliminó el fallback a `item.descripcion` (las notas internas del equipo del itinerario), dejando solo `descripcion: item.descripcionCliente`.
+  - Verificado con prueba unitaria `src/__tests__/el-invitado-no-ve-lo-interno-en-pantallas-publicas.test.ts` (probada rompiéndola en rojo y vuelta a verde).
+- **Bloque 4 — Pregunta 12 en pantallas que no son de plata**:
+  - Se aplicó `conTopeDeEspera` en las llamadas del servidor en: buzón (`uploadBuzonMessage`), fotocabina (`uploadEntretenimientoMedia`), espejo mágico (`uploadEntretenimientoMedia`), plataforma 360 (`uploadEntretenimientoMedia`), muro social (`uploadSocialPost`, `addSongRequest`, `addDedication`, `addChatMessage`) y recepción (`checkInGuest`).
+  - Registrado y comprobado automáticamente en `src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts`.
+
+```comprobar
+prueba: tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts
+usa: finally en src/app/invitacion/[fiestaId]/rsvp/page.tsx
+archivo: docs/ANTES-DE-ENTREGAR.md
+```
+
 ## 17 de septiembre de 2026 — Orden 63: TikTok no puede decir "Publicado" mientras todavía procesa
 
 - **Publicador de Redes (`src/lib/presencia-digital/publicador.ts`)**:

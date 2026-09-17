@@ -32,6 +32,7 @@ import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
 } from '@/app/actions/fiesta/entretenimiento.actions';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -836,6 +837,7 @@ export default function FotocabinaPage() {
   };
 
   const handleAcceptAndPublish = async () => {
+    if (isUploading) return;
     if (!canvasRef.current) return;
     if (lienzoDibujoRef.current?.hasDrawing()) {
       lienzoDibujoRef.current.mergeToCanvas(canvasRef.current);
@@ -918,7 +920,7 @@ export default function FotocabinaPage() {
       if (guestId) formData.append('guestId', guestId);
       if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
 
-      const res = await uploadEntretenimientoMedia(formData);
+      const res = await conTopeDeEspera(uploadEntretenimientoMedia(formData));
       if (res.success) {
         if (!isLiveSession()) return;
         const mediaUrl = res.media?.url || '';
@@ -994,9 +996,7 @@ export default function FotocabinaPage() {
       );
       speak("No se pudo subir al muro, pero puedes guardarla");
     } finally {
-      if (isLiveSession()) {
-        setIsUploading(false);
-      }
+      setIsUploading(false);
     }
   };
 
