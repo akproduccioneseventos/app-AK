@@ -174,7 +174,7 @@ lo que no había que gastar.
 **Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
 comida o permisos? Si la respuesta es no, va a una orden.**
 
-### LA LISTA DE LAS NUEVE PREGUNTAS: `docs/ANTES-DE-ENTREGAR.md`
+### LA LISTA DE LAS QUINCE PREGUNTAS: `docs/ANTES-DE-ENTREGAR.md`
 
 **Idea del dueño, 16 de septiembre de 2026.** Sus palabras: *"quizás conviene que Gemini
 audite con eso, para que si Codex encuentra algo no sea desde eso y empecemos de cero"*.
@@ -184,7 +184,7 @@ audite con eso, para que si Codex encuentra algo no sea desde eso y empecemos de
 salió una pregunta o un control. Si el que programa **no se hace esas preguntas antes**, el
 que revisa las vuelve a encontrar y se arranca de cero cada vuelta.
 
-Por eso las nueve preguntas viven juntas en `docs/ANTES-DE-ENTREGAR.md`, cortas y en criollo:
+Por eso las quince preguntas viven juntas en `docs/ANTES-DE-ENTREGAR.md`, cortas y en criollo:
 
 - **Se leen antes de decir "terminé"**, sobre lo que uno acaba de tocar. No es una auditoría
   general: eso sigue prohibido.

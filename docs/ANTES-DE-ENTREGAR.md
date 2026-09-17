@@ -1,4 +1,4 @@
-# Antes de decir "terminé": las nueve preguntas
+# Antes de decir "terminé": las quince preguntas
 
 **Para las tres IA que programan esta app, y para cualquier entrega.** Es la lista corta de
 lo que hay que mirarle al propio trabajo antes de decir que está hecho. No es una auditoría
@@ -7,14 +7,14 @@ general —eso está prohibido—: es el repaso de **lo que uno acaba de tocar**
 **Por qué existe, y con números.** Desde que Codex empezó a revisar, encontró **alrededor de
 veinte defectos y todos eran ciertos**. Ninguno estaba roto a la vista: todos compilaban,
 tenían pruebas en verde y decían que funcionaban. Cada uno dejó una pregunta nueva o un
-control automático, y hoy hay **nueve preguntas** y **más de cincuenta controles** puestos.
+control automático, y hoy hay **quince preguntas** y **más de cincuenta controles** puestos.
 
-**La idea de esta lista es que el que programa se haga las nueve preguntas ANTES**, para que
+**La idea de esta lista es que el que programa se haga las quince preguntas ANTES**, para que
 cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 ---
 
-## Las nueve preguntas
+## Las quince preguntas
 
 1. **¿Dejó rastro?** Lo que tiene que pasar solo —una tarea, un aviso, un cierre—, ¿cuándo
    pasó por última vez? "Nunca" es una falla.
@@ -39,6 +39,26 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
    - El aviso **se puede leer**: nada de recargar la pantalla arriba del cartel.
 
 ---
+
+10. **¿De cuántas formas puede venir mal este dato, y cuál NO hace ruido?** La excepción se ve;
+    la lista vacía no; la fecha corrida tres horas tampoco. Se prueba **la forma silenciosa**,
+    no la que te reportaron.
+
+11. **Esto lo puede mandar cualquiera: ¿qué campos se copian sin mirar?** En lo que contesta
+    alguien sin cuenta —encuesta, asistencia, buzón, muro— nunca se copia entero lo que llega.
+    Los campos internos de la app **no pueden venir de afuera**.
+
+12. **¿Qué pasa si toca dos veces?** El dedo nervioso con la señal lenta: ¿se cobra dos veces, se
+    manda el mensaje dos veces, se paga dos veces una imagen?
+
+13. **¿Este cálculo usa la hora de Uruguay?** El servidor está en hora de Greenwich. Tres horas
+    alcanzan para que un cobro de la noche caiga en el mes siguiente.
+
+14. **¿Qué ve el que adivina el enlace?** Lo que se abre sin cuenta, ¿trae pegado algo interno:
+    el presupuesto, el teléfono, la lista del personal?
+
+15. **¿Qué pasa cuando la lista se hace larga?** Con veinte anda. La pregunta es con mil: ¿se
+    escribe la lista entera para cambiar un renglón?
 
 ## Y dos reglas que valen para las pruebas
 
