@@ -8,6 +8,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 import { numerosDeMenuInvalidos } from '@/lib/catering/numeros-de-menu';
 
 import { leerInsumosCrudos } from '@/lib/insumos/leer-insumos';
+import { AsyncMutex } from '@/lib/mutex';
 const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
 
 let cachedMenus: FullMenu[] | null = null;
@@ -196,7 +197,7 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
   invalidateMenusCache();
 }
 
-export async function saveMenu(
+async function saveMenuInterno(
   menuDataInput: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
 ): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
   await requireAppSession();
@@ -245,7 +246,7 @@ export async function saveMenu(
   return { success: true, id: menuId, menu: menus.find(m => m.id === menuId) };
 }
 
-export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
+async function deleteMenuInterno(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
 
   const targetMenu = await getMenuById(id);
@@ -290,7 +291,7 @@ export async function duplicateMenu(id: string): Promise<{ success: boolean; err
     return saveMenu(newMenu);
 }
 
-export async function adjustAllDishMargins(percentage: number): Promise<{ success: boolean; error?: string }> {
+async function adjustAllDishMarginsInterno(percentage: number): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
     invalidateMenusCache();
@@ -311,4 +312,35 @@ export async function adjustAllDishMargins(percentage: number): Promise<{ succes
   } catch (error: any) {
     return { success: false, error: "Ocurrió un error al intentar ajustar los márgenes." };
   }
+}
+
+/**
+ * UN TURNO PARA QUE DOS GUARDADOS NO SE PISEN.
+ *
+ * Cada guardado aca lee la lista entera, le cambia un renglon y vuelve a escribir la lista
+ * entera. Sin turno, si dos personas guardan casi al mismo tiempo, **el segundo escribe encima
+ * de la lista vieja y el cambio del primero desaparece**, con las dos pantallas diciendo
+ * "guardado". Con turno, el segundo espera y trabaja sobre lo que ya quedo guardado.
+ */
+const turnoDeMenus = new AsyncMutex();
+
+export async function saveMenu(...datos: Parameters<typeof saveMenuInterno>): ReturnType<typeof saveMenuInterno> {
+  // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
+  // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
+  await requireAppSession();
+  return turnoDeMenus.runExclusive(() => saveMenuInterno(...datos));
+}
+
+export async function deleteMenu(...datos: Parameters<typeof deleteMenuInterno>): ReturnType<typeof deleteMenuInterno> {
+  // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
+  // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
+  await requireAppSession();
+  return turnoDeMenus.runExclusive(() => deleteMenuInterno(...datos));
+}
+
+export async function adjustAllDishMargins(...datos: Parameters<typeof adjustAllDishMarginsInterno>): ReturnType<typeof adjustAllDishMarginsInterno> {
+  // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
+  // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
+  await requireAppSession();
+  return turnoDeMenus.runExclusive(() => adjustAllDishMarginsInterno(...datos));
 }

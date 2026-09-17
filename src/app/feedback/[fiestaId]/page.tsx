@@ -125,25 +125,37 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
       return;
     }
     setIsSubmitting(true);
-    const result = await saveFeedback({
-      fiestaId: fiestaId,
-      fiestaNombre,
-      clientName,
-      enjoyedMost,
-      toImprove,
-      generalComments,
-      npsScore,
-      ratingComida: ratingComida || undefined,
-      ratingMusica: ratingMusica || undefined,
-      ratingOrganizacion: ratingOrganizacion || undefined,
-      ratingLugar: ratingLugar || undefined,
-    });
-    if (result.success) {
-      setIsSubmitted(true);
-    } else {
-      toast({ title: "Error al Enviar", description: result.error, variant: "destructive" });
+    // El `finally` no es un adorno: si el envio se cae -se corto el wifi, el servidor no
+    // contesta- sin esto el boton se queda en "Enviando..." para siempre y el cliente cree que
+    // mando sus comentarios. Lo encontro Codex el 17 de septiembre de 2026.
+    try {
+      const result = await saveFeedback({
+        fiestaId: fiestaId,
+        fiestaNombre,
+        clientName,
+        enjoyedMost,
+        toImprove,
+        generalComments,
+        npsScore,
+        ratingComida: ratingComida || undefined,
+        ratingMusica: ratingMusica || undefined,
+        ratingOrganizacion: ratingOrganizacion || undefined,
+        ratingLugar: ratingLugar || undefined,
+      });
+      if (result.success) {
+        setIsSubmitted(true);
+      } else {
+        toast({ title: "Error al Enviar", description: result.error, variant: "destructive" });
+      }
+    } catch {
+      toast({
+        title: "No se pudieron enviar tus comentarios",
+        description: "Fijate si tenes senal y proba de nuevo. No se perdio nada de lo que escribiste.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
   
   if (isLoading) {

@@ -49,4 +49,31 @@ describe('Los botones de mutación y plata no se cuelgan', () => {
     // tarda. Cortar antes seria peor que no tener tope.
     expect(fuente).toContain('25_000');
   });
+
+  /**
+   * Estas cuatro pantallas quedaron afuera hasta el 17 de septiembre de 2026: el servidor ya
+   * evitaba el cobro repetido, pero **si el servidor no contestaba, el boton se quedaba
+   * girando para siempre** y el del mostrador no sabia si habia cobrado o no.
+   */
+  it('las pantallas /invoices/new y /invoices/[id] no dejan el boton girando', () => {
+    // Las dos pantallas de facturas: la de crear y la de cobrar. Si el servidor no contesta, el
+    // boton tiene que soltarse igual; si no, el del mostrador no sabe si cobro o no.
+    const crear = leer('src/app/(app)/invoices/new/page.tsx');
+    const cobrar = leer('src/app/(app)/invoices/[id]/page.tsx');
+
+    expect(crear).toContain('conTopeDeEspera(saveInvoice(');
+    expect(cobrar).toContain('conTopeDeEspera(addPaymentToInvoice(');
+    expect(crear.split('finally').length).toBeGreaterThan(1);
+    expect(cobrar.split('finally').length).toBeGreaterThan(1);
+  });
+
+  it('registrar un cobro y crear una factura tienen tope de espera', () => {
+    expect(leer('src/app/(app)/invoices/[id]/page.tsx')).toContain('conTopeDeEspera(addPaymentToInvoice(');
+    expect(leer('src/app/(app)/invoices/new/page.tsx')).toContain('conTopeDeEspera(saveInvoice(');
+  });
+
+  it('cobrar contra un presupuesto y guardarlo desde el configurador tienen tope de espera', () => {
+    expect(leer('src/app/(app)/presupuestos/[id]/ver/page.tsx')).toContain('conTopeDeEspera(addPagoToPresupuesto(');
+    expect(leer('src/app/(app)/empresa/configurador-reunion/page.tsx')).toContain('conTopeDeEspera(savePresupuesto(');
+  });
 });

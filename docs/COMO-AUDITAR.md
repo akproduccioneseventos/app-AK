@@ -380,3 +380,73 @@ fecha rota se ve; la fecha corrida tres horas no.
 
 **Se aplica primero a lo que toca plata**, y **antes que nada a verificar un arreglo propio**: es
 exactamente ahi donde se escaparon los dos.
+
+## La once pregunta: ESTO LO PUEDE MANDAR CUALQUIERA, ¿QUE CAMPOS SE COPIAN SIN MIRAR? (17 de septiembre de 2026)
+
+**Salio de la encuesta post fiesta, que encontro Codex.** La app es casi toda con sesion, asi que
+la costumbre es confiar en lo que llega. Pero hay unas pocas puertas abiertas al publico —la
+encuesta, la confirmacion de asistencia, el buzon de recuerdos, el muro de fotos— y ahi lo que
+llega **no lo manda la pantalla necesariamente**.
+
+En la encuesta se guardaba lo que llegaba **tal cual**, con un copiado entero. Con eso entraba una
+nota de 99 —que ensucia los promedios del panel— y, peor, un campo interno que marca "a este
+cliente ya se le pidio la resena en Google": mandandolo, **la resena no se pide nunca mas**.
+
+**Como se hace la pregunta, sobre cualquier cosa que conteste alguien sin cuenta:**
+
+1. **Buscar el copiado entero** —`...loQueLlego`— en lo que se guarda. Ahi entra todo lo que
+   manden.
+2. **Listar que campos son del que contesta y cuales son de la app.** Los de la app —marcas de
+   "ya se hizo", identificadores, estados— **no pueden venir de afuera nunca**.
+3. **Preguntar por cada numero: ¿que pasa si viene 99, -5 o con coma?** Si el panel lo muestra o
+   lo promedia, tiene que rechazarse, no acomodarse.
+4. **Y lo de siempre en estas puertas:** si dos personas contestan al mismo tiempo, ¿se pierde
+   una? La lectura va adentro del turno.
+
+## Las cuatro preguntas de la forma de Codex (17 de septiembre de 2026)
+
+**Orden del dueno: "suma mas preguntas como hace Codex".** Estas cuatro no salen de un hallazgo
+suelto: salen de mirar **que tienen en comun los veinticinco que encontro**. Todos pasan las
+preguntas viejas —estan escritos, los llama alguien, dejan rastro, tienen prueba en verde— y
+fallan igual. La forma es siempre la misma: **el camino en que todo sale bien esta mirado; el de
+al lado, no.**
+
+### La doce: ¿QUE PASA SI TOCA DOS VECES?
+
+No es lo mismo que "dos personas a la vez". Es **una sola persona con el dedo nervioso o la senal
+lenta**: aprieta "Enviar", no ve respuesta, aprieta de nuevo.
+
+- ¿Se cobra dos veces, se manda el mensaje dos veces, se genera la imagen dos veces —que se paga—?
+- ¿El boton se apaga mientras trabaja, y se vuelve a prender **pase lo que pase**?
+- ¿La segunda vez se guarda un registro repetido que despues alguien tiene que limpiar a mano?
+
+### La trece: ¿ESTE CALCULO USA LA HORA DE URUGUAY?
+
+El servidor trabaja en hora de Greenwich; el negocio, en hora de Salto. **Tres horas de
+diferencia alcanzan para que un cobro de la noche caiga en el mes siguiente.**
+
+- Todo lo que corte por dia, mes o semana —reportes, cierres, vencimientos de cuota,
+  recordatorios, "lo de hoy"— se pregunta **en que hora esta cortando**.
+- Una fecha guardada con `Z` al final **no es el dia que dice**: es tres horas mas tarde que aca.
+
+### La catorce: ¿QUE VE EL QUE ADIVINA EL ENLACE?
+
+Varias pantallas se abren sin cuenta a proposito —la invitacion, el album, la encuesta, el muro—.
+La pregunta no es si esta bien que sean publicas: es **que trae de mas la que se abre**.
+
+- ¿Viene pegado algo interno: el presupuesto, el telefono del cliente, la lista del personal, el
+  itinerario de la empresa?
+- Y la otra mitad: lo que **manda** el que no tiene cuenta, ¿se copia entero? Ahi entran los
+  campos internos. (Es la pregunta once, y van juntas: lo que sale y lo que entra.)
+
+### La quince: ¿QUE PASA CUANDO LA LISTA SE HACE LARGA?
+
+La app guarda listas enteras en un solo lugar: cada cambio lee todo y escribe todo. Con veinte
+fiestas anda. **La pregunta es con mil.**
+
+- ¿Se escribe la lista completa para cambiar un renglon? Eso es lo que hace que dos guardados se
+  pisen, y lo que un dia no entra mas.
+- ¿La pantalla los trae todos para mostrar diez?
+
+**Como se usan estas cuatro:** igual que las once anteriores, **sobre lo que uno acaba de tocar**,
+antes de decir "terminé". No son una auditoria general: eso sigue prohibido.

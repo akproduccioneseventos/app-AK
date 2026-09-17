@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { InvoiceTemplateSettings } from '@/types/settings';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 
 // Helper to convert numbers to Spanish words
 function numberToSpanishWords(n: number): string {
@@ -132,7 +133,7 @@ export default function ViewInvoicePage() {
     if (paymentProofFile) formData.append('transactionProof', paymentProofFile);
 
     try {
-      const result = await addPaymentToInvoice(invoice.id, formData);
+      const result = await conTopeDeEspera(addPaymentToInvoice(invoice.id, formData));
       if (result.success) {
         toast({ title: "Pago Registrado" });
         await fetchData();

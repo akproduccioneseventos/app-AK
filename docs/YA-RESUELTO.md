@@ -8337,3 +8337,62 @@ archivo: src/lib/reportes/rango-de-dias.ts
 usa: inRange en src/app/actions/reportes.ts
 prueba: src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts
 ```
+
+
+## 17 de septiembre de 2026 — La encuesta post fiesta: no se cuelga, no se pisa y no se traga cualquier cosa
+
+**Los encontro Codex.** Tres defectos en la encuesta que contesta el cliente despues de la fiesta,
+que es publica a proposito —se contesta desde el celular, sin cuenta—:
+
+1. **El boton quedaba en "Enviando..." para siempre** si se cortaba la senal o el servidor no
+   contestaba. El cliente se iba creyendo que mando sus comentarios. Ahora el cartel se apaga pase
+   lo que pase y se le avisa que pruebe de nuevo, sin perder lo que escribio.
+2. **Dos respuestas al mismo tiempo y una desaparecia.** Se leia la lista entera, se agregaba la
+   nueva y se guardaba la lista entera: el segundo pisaba al primero. Ahora hay turno, con la
+   lectura adentro del turno.
+3. **Se aceptaba cualquier cosa que llegara del navegador.** Una nota de 99 ensuciaba los
+   promedios del panel, y —lo mas grave— se podia mandar el campo interno que marca "a este
+   cliente ya se le pidio la resena en Google": con eso, **no se le pedia la resena nunca mas**.
+   Ahora se copia campo por campo lo que si es del cliente y lo demas se tira.
+
+**Probado rompiendolo**: sacando el turno, sacando el filtro de campos y sacando el apagado
+seguro del cartel, las pruebas se ponen en rojo.
+
+```comprobar
+archivo: src/lib/feedback/lo-que-llega-de-afuera.ts
+usa: limpiarEncuesta en src/app/actions/feedback.ts
+prueba: src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
+prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
+```
+
+
+## 17 de septiembre de 2026 — Diez guardados que reescribían la lista entera ahora tienen turno
+
+**Salió de aplicar la pregunta quince del método**, la de "¿qué pasa cuando la lista se hace
+larga y dos guardan a la vez?". En esta app cada guardado lee la lista completa, cambia un renglón
+y vuelve a escribir todo. Sin turno, **el segundo escribe encima de la lista vieja y el cambio del
+primero desaparece**, con las dos pantallas diciendo "guardado".
+
+Se les puso turno a: los ingredientes (guardar, borrar y el ajuste de costos), los menús de
+catering (guardar, borrar y el ajuste de márgenes), los ajustes de precio (aplicar y revertir),
+la ficha de la empresa y la plantilla de facturas, y la reparación de fechas de presupuestos, que
+reescribía la lista entera de presupuestos por fuera del turno que ya existía.
+
+También se les puso tope de espera a cuatro botones de plata que quedaban girando para siempre si
+el servidor no contestaba: cobrar una factura, crear una factura, cobrar contra un presupuesto y
+guardar desde el configurador de reunión.
+
+Y los recordatorios de cobro **cuentan el día en hora de Uruguay**: el servidor está en hora de
+Greenwich, que a la noche ya está en el día siguiente, así que una cuota podía avisarse un día
+antes de lo que corresponde.
+
+**Probado rompiéndolo**: el control se probó dos veces, porque la primera versión **no frenaba**
+—miraba el archivo entero y el turno de la función de al lado la hacía pasar—. Ahora mira el
+cuerpo de cada función.
+
+```comprobar
+archivo: src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
+usa: AsyncMutex en src/app/actions/insumos.ts
+prueba: src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
+prueba: src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts
+```

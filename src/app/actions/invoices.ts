@@ -679,10 +679,15 @@ async function addPaymentToInvoiceInner(
   return { success: true, invoice: invoices[invoiceIndex] };
 }
 
+/**
+ * Una fecha de vencimiento escrita como dia suelto se toma como ese dia, sin hora. Tiene que
+ * quedar en la misma base que el "hoy" de Uruguay que usa el escaneo: si una se mide en hora del
+ * servidor y la otra en hora de aca, los avisos salen corridos un dia.
+ */
 function parseDateStringLocal(dateStr: string): Date {
   const match = (dateStr || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (match) {
-    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
   }
   return new Date(dateStr);
 }

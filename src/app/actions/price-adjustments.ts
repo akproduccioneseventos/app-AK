@@ -3,6 +3,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import { adjustAllServicePrices, adjustAllServiceCosts, getServiciosEmpresa } from './servicios-empresa';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { AsyncMutex } from '@/lib/mutex';
 
 export interface PriceAdjustmentRecord {
   id: string;
@@ -75,7 +76,7 @@ export async function previewPriceAdjustment(
   }
 }
 
-export async function applyPriceAdjustment(
+async function applyPriceAdjustmentInterno(
   percentage: number,
   type: 'precios' | 'costos' | 'ambos' = 'ambos'
 ): Promise<{ success: boolean; error?: string; record?: PriceAdjustmentRecord }> {
@@ -132,7 +133,7 @@ export async function applyPriceAdjustment(
   }
 }
 
-export async function revertPriceAdjustment(
+async function revertPriceAdjustmentInterno(
   adjustmentId: string
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
@@ -172,4 +173,28 @@ export async function revertPriceAdjustment(
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al revertir.' };
   }
+}
+
+/**
+ * UN TURNO PARA QUE DOS GUARDADOS NO SE PISEN.
+ *
+ * Cada guardado aca lee la lista entera, le cambia un renglon y vuelve a escribir la lista
+ * entera. Sin turno, si dos personas guardan casi al mismo tiempo, **el segundo escribe encima
+ * de la lista vieja y el cambio del primero desaparece**, con las dos pantallas diciendo
+ * "guardado". Con turno, el segundo espera y trabaja sobre lo que ya quedo guardado.
+ */
+const turnoDeAjustesDePrecio = new AsyncMutex();
+
+export async function applyPriceAdjustment(...datos: Parameters<typeof applyPriceAdjustmentInterno>): ReturnType<typeof applyPriceAdjustmentInterno> {
+  // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
+  // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
+  await requireAppSession();
+  return turnoDeAjustesDePrecio.runExclusive(() => applyPriceAdjustmentInterno(...datos));
+}
+
+export async function revertPriceAdjustment(...datos: Parameters<typeof revertPriceAdjustmentInterno>): ReturnType<typeof revertPriceAdjustmentInterno> {
+  // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
+  // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
+  await requireAppSession();
+  return turnoDeAjustesDePrecio.runExclusive(() => revertPriceAdjustmentInterno(...datos));
 }

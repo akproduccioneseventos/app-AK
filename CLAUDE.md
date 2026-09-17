@@ -174,7 +174,7 @@ lo que no había que gastar.
 **Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
 comida o permisos? Si la respuesta es no, va a una orden.**
 
-### LA LISTA DE LAS NUEVE PREGUNTAS: `docs/ANTES-DE-ENTREGAR.md`
+### LA LISTA DE LAS QUINCE PREGUNTAS: `docs/ANTES-DE-ENTREGAR.md`
 
 **Idea del dueño, 16 de septiembre de 2026.** Sus palabras: *"quizás conviene que Gemini
 audite con eso, para que si Codex encuentra algo no sea desde eso y empecemos de cero"*.
@@ -184,7 +184,7 @@ audite con eso, para que si Codex encuentra algo no sea desde eso y empecemos de
 salió una pregunta o un control. Si el que programa **no se hace esas preguntas antes**, el
 que revisa las vuelve a encontrar y se arranca de cero cada vuelta.
 
-Por eso las nueve preguntas viven juntas en `docs/ANTES-DE-ENTREGAR.md`, cortas y en criollo:
+Por eso las quince preguntas viven juntas en `docs/ANTES-DE-ENTREGAR.md`, cortas y en criollo:
 
 - **Se leen antes de decir "terminé"**, sobre lo que uno acaba de tocar. No es una auditoría
   general: eso sigue prohibido.
@@ -717,6 +717,23 @@ aplica primero a cobros, cuotas, facturas, presupuestos y sueldos. Y queda escri
 que la app esté terminada **no** significa que un área ya mirada quede mirada para siempre con
 las preguntas viejas; cuando el método suma una pregunta, lo que toca plata se vuelve a pasar.
 
+### 11. Una prueba de "dos a la vez" que comparte la lista en memoria NO puede fallar nunca
+
+**Pasó el 17 de septiembre de 2026, y lo agarré yo al romper el control a propósito**, que es
+justamente para lo que sirve esa costumbre.
+
+**Qué se hizo mal:** escribí la prueba de dos respuestas simultáneas con una base de mentira que
+**devolvía siempre el mismo arreglo en memoria**. Las dos operaciones escribían sobre la misma
+lista, así que nunca se pisaban. La prueba daba verde **con el turno puesto y sin el turno
+puesto**: no probaba nada.
+
+**Qué era lo cierto:** la base de verdad devuelve **una copia** en cada lectura. Ahí es donde se
+pierde una de las dos operaciones.
+
+**Qué se hace distinto:** en toda prueba de "dos a la vez", la base de mentira **devuelve una
+copia**, nunca la misma lista. Y la prueba se da por buena recién cuando **se puso en rojo al
+sacar el turno**, no cuando dio verde.
+
 ### 10. Arreglar un caso y romper el de al lado, por mirar un solo turno
 
 **Lo encontro Codex el 16 de septiembre de 2026, sobre una devolucion que yo mismo habia
@@ -1035,6 +1052,10 @@ con otra cara.
 | Invitaciones "enviadas" sin cuenta conectada, recordatorios de cobro a medias, borrado total parcial y la sena sin recibo enganchado | `src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts` |
 | Un respaldo de cero datos guardado como copia completa, porque leer no falla: devuelve vacio | `readDataConDetalle` en `src/lib/data-service.ts`, con `src/__tests__/el-respaldo-no-miente.test.ts` |
 | Un cobro de la noche del ultimo dia afuera del reporte, por contar los dias en hora de Greenwich | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
+| La encuesta del cliente aceptaba notas de 99 y campos internos del navegador, y dos respuestas a la vez perdian una | `src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts` |
+| El boton de una pantalla publica quedaba en "Enviando..." para siempre al cortarse la senal | `src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts` |
+| Guardados que reescriben la lista entera sin turno: ingredientes, menus, ajustes de precio y la ficha de la empresa | `src/__tests__/los-guardados-de-lista-tienen-turno.test.ts` |
+| Un control que miraba el archivo entero y pasaba por el turno de la funcion de al lado | El mismo control, acotado al cuerpo de cada funcion |
 
 ### Cómo se elige el matafuego
 

@@ -11,6 +11,7 @@ import { verifySession } from '@/lib/auth/session-token';
 import { findInvalidWhatsAppTemplateMarkers } from '@/lib/whatsapp-template-markers';
 
 import { requireAppSession } from '@/lib/auth/require-session';
+import { AsyncMutex } from '@/lib/mutex';
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
 const COMPANY_INFO_FILE = 'company-info.json';
@@ -214,7 +215,7 @@ export async function getCompanyInfoPublica(): Promise<CompanyInfo> {
   return { ...info, cuentasBancariasPortal: [] };
 }
 
-export async function saveCompanyInfo(
+async function saveCompanyInfoInterno(
   settings: Partial<CompanyInfo>
 ): Promise<{ success: boolean; data?: CompanyInfo; error?: string }> {
   try {
@@ -441,7 +442,7 @@ export async function getInvoiceTemplateSettings(): Promise<InvoiceTemplateSetti
   }
 }
 
-export async function saveInvoiceTemplateSettings(
+async function saveInvoiceTemplateSettingsInterno(
   settings: Partial<InvoiceTemplateSettings>
 ): Promise<{ success: boolean; settings?: InvoiceTemplateSettings; error?: string }> {
   try {
@@ -741,4 +742,21 @@ export async function testGeminiConnection(): Promise<{ ok: boolean; error?: str
   } catch (error: any) {
     return { ok: false, error: error?.message || String(error) };
   }
+}
+
+/**
+ * UN TURNO PARA LOS AJUSTES DE LA EMPRESA.
+ *
+ * Los dos guardados leen la ficha entera, le cambian un campo y la escriben entera. Si dos
+ * personas tocan Ajustes al mismo tiempo, el segundo pisa al primero y el dato que se perdio
+ * despues sale mal en los contratos y en las facturas.
+ */
+const turnoDeAjustes = new AsyncMutex();
+
+export async function saveCompanyInfo(...datos: Parameters<typeof saveCompanyInfoInterno>): ReturnType<typeof saveCompanyInfoInterno> {
+  return turnoDeAjustes.runExclusive(() => saveCompanyInfoInterno(...datos));
+}
+
+export async function saveInvoiceTemplateSettings(...datos: Parameters<typeof saveInvoiceTemplateSettingsInterno>): ReturnType<typeof saveInvoiceTemplateSettingsInterno> {
+  return turnoDeAjustes.runExclusive(() => saveInvoiceTemplateSettingsInterno(...datos));
 }

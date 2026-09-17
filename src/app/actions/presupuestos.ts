@@ -81,12 +81,17 @@ export async function repairVerifiedBudgetDates(): Promise<{ success: boolean; c
   if (!auth.success) return { success: false, changedCount: 0, error: auth.error };
 
   try {
+    // Adentro del turno: esta funcion reescribe la lista ENTERA de presupuestos. Sin turno, un
+    // presupuesto que alguien guarda en ese mismo momento desaparece sin aviso.
+    const { changedCount } = await presupuestosMutex.runExclusive(async () => {
     const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
     const { budgets, changedCount } = migrateVerifiedBudgetDates(all);
     if (changedCount > 0) {
       await writeData(PRESUPUESTOS_FILE, budgets);
       logger.info(`[Presupuesto] Se corrigieron ${changedCount} fechas documentales importadas.`);
     }
+      return { changedCount };
+    });
     return { success: true, changedCount };
   } catch (error) {
     logger.error('[Presupuesto] No se pudieron corregir las fechas importadas:', error);
