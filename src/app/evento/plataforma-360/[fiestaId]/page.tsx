@@ -706,7 +706,9 @@ export default function Plataforma360Page() {
         accessToken,
       );
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   };
 

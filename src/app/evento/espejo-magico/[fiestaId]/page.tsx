@@ -964,7 +964,9 @@ export default function EspejoMagicoPage() {
       ).catch(() => undefined);
       speak('No se pudo guardar la foto. Podés reintentar o descargarla en este dispositivo.');
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   };
 
