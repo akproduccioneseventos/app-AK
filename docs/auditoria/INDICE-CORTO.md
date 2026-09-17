@@ -47,3 +47,8 @@ Las filas anteriores son historicas. [Diagnostico conjunto](DIAGNOSTICO-CONJUNTO
 ## Respaldos - 2026-09-16
 
 Main da6c566: 3 fallos reproducidos / 4 controles correctos en sonda aislada. Copia parcial completa; borrar punto con sesion operador; UI anuncia restauracion parcial como completa. [Detalle y limites](RESPALDOS-2026-09-16.md). Ninguna de las cinco PR abiertas toca estos archivos. Responsable Claude; sin cambios de app ni pruebas destructivas reales.
+
+
+## Actualizacion 17/9 - reportes y conexiones
+
+PR1209 b4c6929 incorpora correcciones. [Contraste vigente](CONTRASTE-1209-2026-09-17.md): 1 PASS / 2 FAIL aislados (zona horaria reporte y consumidor TikTok). [Historia main](REPORTES-CONEXIONES-2026-09-16.md) no es orden de rehacer lo presente. Gmail distribuido/limite memoria YouTube pendientes de validar; sin certificacion integral.
