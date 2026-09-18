@@ -8480,3 +8480,23 @@ código mientras corría**, en vez de dar un verde que no significa nada.
 archivo: scripts/se-puede-publicar.mjs
 usa: huellaAlEmpezar en scripts/se-puede-publicar.mjs
 ```
+
+
+## 18 de septiembre de 2026 — Renombrar un equipo ya no permite borrarlo estando asignado
+
+**Lo encontró Codex.** El control que impide borrar un equipo asignado a una fiesta miraba dos
+campos que **no son los que usa la lista de carga** —ahí el equipo del catálogo se guarda en
+`origenId`—, así que la única defensa que quedaba en pie era comparar el **nombre**. Con
+renombrar el equipo, se podía borrar aunque estuviera asignado: la fiesta se quedaba sin él y el
+día del evento no lo iba a buscar nadie.
+
+Ahora se mira el campo correcto, y se dejaron también los viejos por si alguna lista antigua los
+usa.
+
+**Probado rompiéndolo**: sacando la comprobación nueva, la prueba se pone en rojo.
+
+```comprobar
+archivo: src/app/actions/activos-fijos.ts
+usa: origenId en src/app/actions/activos-fijos.ts
+prueba: src/__tests__/no-se-borra-un-equipo-asignado.test.ts
+```

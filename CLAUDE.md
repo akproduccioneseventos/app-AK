@@ -1073,6 +1073,7 @@ con otra cara.
 | Un control que miraba el archivo entero y pasaba por el turno de la funcion de al lado | El mismo control, acotado al cuerpo de cada funcion |
 | Media hora de navegador repetida por un commit de documentacion o por agregar una prueba de Jest | `NO_AFECTA_AL_NAVEGADOR` y la huella por contenido en `scripts/se-puede-publicar.mjs` |
 | Arrancar la verificacion con el trabajo a medio terminar y tirar media hora | El aviso al empezar y el "este resultado no vale" de `scripts/se-puede-publicar.mjs` |
+| Renombrar un equipo y poder borrarlo estando asignado a una fiesta, porque el control miraba un campo que no existe | `src/__tests__/no-se-borra-un-equipo-asignado.test.ts` |
 
 ### Cómo se elige el matafuego
 

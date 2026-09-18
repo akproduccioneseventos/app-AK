@@ -450,3 +450,22 @@ fiestas anda. **La pregunta es con mil.**
 
 **Como se usan estas cuatro:** igual que las once anteriores, **sobre lo que uno acaba de tocar**,
 antes de decir "terminé". No son una auditoria general: eso sigue prohibido.
+
+## La dieciseis: EL CAMPO QUE ESTE CONTROL COMPARA, ¿EXISTE EN EL DATO QUE LE LLEGA? (18 de septiembre de 2026)
+
+**Salio del borrado de equipos, que encontro Codex.** El control que impide borrar un equipo
+asignado comparaba `item.id` y `item.activoId`. **Ninguno de los dos existe** en la lista de
+carga: ahi el equipo del catalogo se guarda en `origenId`. La comparacion nunca acertaba, asi que
+el control decia siempre "no esta asignado".
+
+**Lo peligroso es que se ve igual que uno que funciona**: esta escrito, lo llama alguien, deja
+rastro y tiene prueba en verde. Solo falla cuando importa.
+
+**Como se hace la pregunta:**
+
+1. En todo control de "no se puede borrar", "ya esta usado" o "no se puede duplicar", **abrir el
+   tipo del dato que le llega** y confirmar que el campo comparado existe ahi.
+2. Ojo con `(item as any).loQueSea`: eso apaga al revisor de tipos, que es justo quien avisaria.
+3. **Probar el control con el dato de verdad**, no con uno armado a mano en la prueba con los
+   campos que el control espera. Si la prueba construye el dato a medida, la comparacion siempre
+   acierta y no se prueba nada.

@@ -294,3 +294,23 @@ en memoria. Quedó anotado en la lista de errores de `CLAUDE.md`.
 prueba: src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
 prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
 ```
+
+## 18 de septiembre de 2026 — El control que mira un campo que no existe (lo vio Codex)
+
+**Qué era:** el borrado de un equipo comprobaba que no estuviera asignado mirando `item.id` y
+`item.activoId`. **Esos campos no existen en la lista de carga**, que guarda el equipo del
+catálogo en `origenId`. El control parecía puesto y en los hechos sólo comparaba el nombre: con
+renombrar el equipo se podía borrar igual.
+
+**Por qué no lo vi:** mis preguntas comprueban que el control **exista** y que **alguien lo
+llame**. Ninguna comprueba que **el campo que mira sea el que el dato tiene de verdad**. Un
+control que lee un campo inexistente da siempre "no hay conflicto" y **se ve idéntico a uno que
+funciona**.
+
+**La pregunta nueva, puesta en `docs/COMO-AUDITAR.md`:** *"el campo que este control compara,
+¿existe en el dato que le llega?"*. Se aplica a todo control de "no se puede borrar / no se puede
+duplicar / ya está usado", que es donde una comparación que nunca acierta pasa desapercibida.
+
+```comprobar
+prueba: src/__tests__/no-se-borra-un-equipo-asignado.test.ts
+```
