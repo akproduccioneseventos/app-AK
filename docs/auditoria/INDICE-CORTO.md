@@ -68,3 +68,5 @@ Main da6c566: [encuestas/resenas](POSTFIESTA-2026-09-17.md), 2 PASS/3 FAIL aisla
 - 2026-09-18: RETORNOS-2026-09-18.md, e43260f, 2 PASS/2 FAIL: LOG03 cantidades remotas y LOG04 orden de respuestas. Retorno basico conserva autoria; no certifica modulo completo.
 
 - 2026-09-18: INSUMOS-2026-09-18.md, PR1209 e43260f, 1 PASS/2 FAIL: ajuste masivo oculta propagacion fallida y escribe menus no vinculados. Responsable Claude; pendiente correccion.
+
+- 2026-09-18: HOJA-DJ-2026-09-18.md, PR1209 e43260f, 1 PASS/2 FAIL: fecha y copia de enlace. Solo hoja imprimible, no reauditoria de musica/DJ.

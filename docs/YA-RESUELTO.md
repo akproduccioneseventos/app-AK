@@ -8022,3 +8022,7 @@ PR1209 e43260f: 2 PASS/2 FAIL en funciones reales aisladas. Retorno y preservaci
 
 ## Codex - insumos ajuste masivo 2026-09-18 (pendiente de Claude)
 PR1209 e43260f: INS01 devuelve exito aunque falle propagacion de costos a menus; INS02 guarda menus ajenos al insumo. Sonda aislada 1 PASS/2 FAIL, docs/auditoria/INSUMOS-2026-09-18.md y docs/evidencias/insumos-sonda.cjs. Guardado individual ya informa fallo: no rehacerlo. Reintento no debe reaplicar porcentaje. Sin build, cambios app ni datos reales.
+
+
+## Codex - hoja DJ 2026-09-18 (observaciones nuevas, no corregidas)
+PR1209 e43260f: DJ01 fecha calendario se muestra un dia antes en Uruguay; DJ02 anuncia copia aunque clipboard rechace. Sonda funciones reales 1 PASS/2 FAIL. docs/auditoria/HOJA-DJ-2026-09-18.md y docs/evidencias/musica-hoja-sonda.cjs. No repetida sincronizacion musical ni pruebas previas; no PDF renderizado, build o datos reales.
