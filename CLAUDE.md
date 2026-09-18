@@ -814,6 +814,32 @@ defecto deja el agujero abierto: la próxima vez se escapa otro igual por el mis
 **Y queda enganchado, no escrito:** `npm run ordenes?` mira esa lista como mira las otras tres.
 Si el control de un hallazgo desaparece, lo dice.
 
+### Y con la pregunta nueva, GEMINI BARRE LA APP. Sin preguntar.
+
+**Orden del dueño, 18 de septiembre de 2026:** *"todo lo nuevo que encuentre Codex, sin
+preguntarme mejorás tu mecanismo, y con ese mecanismo nuevo le pedís a Gemini que busque en la
+app"*.
+
+**Es el paso que faltaba y es el que multiplica.** Hasta ahora, cuando Codex encontraba algo yo
+agregaba la pregunta y arreglaba **ese** caso. Pero un defecto nunca está solo: la misma forma
+está repetida en otros diez lugares que nadie miró con esa pregunta puesta. Quedaban esperando a
+que Codex los encontrara de a uno, y cada vuelta cuesta una sesión.
+
+**Se hace solo, en la misma tanda, y va después del paso 3:**
+
+4. **Se escribe una orden para Gemini que barra la app entera con la pregunta nueva**, en
+   `docs/ordenes/`. Con la búsqueda mecánica exacta —qué buscar, en qué carpetas—, qué cuenta
+   como hallazgo y qué no, y **qué NO tiene que tocar**: lo de plata, cobros, comida y permisos
+   lo lista y me lo pasa, no lo arregla.
+5. **Una sola propuesta**, como siempre, y con la prueba que mire el resultado.
+
+**Por qué a Gemini y no a los ayudantes económicos:** buscar es barato, pero **arreglar los
+veinte lugares es programar**, y eso es trabajo de Gemini. Los ayudantes siguen para contar y
+ubicar.
+
+**La única excepción:** si la pregunta nueva sólo puede aplicarse a plata, cobros, comida o
+permisos, el barrido es mío y no hay orden.
+
 **Lo que NO es esta lista:** no es para pedir perdón ni para llevar la cuenta de quién encontró
 más. Es la única forma de que el rango suba: cada cosa que se me escapó, se convierte en una
 pregunta que de ahí en adelante hago solo.
@@ -1074,6 +1100,7 @@ con otra cara.
 | Media hora de navegador repetida por un commit de documentacion o por agregar una prueba de Jest | `NO_AFECTA_AL_NAVEGADOR` y la huella por contenido en `scripts/se-puede-publicar.mjs` |
 | Arrancar la verificacion con el trabajo a medio terminar y tirar media hora | El aviso al empezar y el "este resultado no vale" de `scripts/se-puede-publicar.mjs` |
 | Renombrar un equipo y poder borrarlo estando asignado a una fiesta, porque el control miraba un campo que no existe | `src/__tests__/no-se-borra-un-equipo-asignado.test.ts` |
+| El ajuste de costos decia "listo" con los menus sin actualizar, y reescribia menus que nadie toco | `src/__tests__/el-ajuste-de-costos-no-miente.test.ts` |
 
 ### Cómo se elige el matafuego
 

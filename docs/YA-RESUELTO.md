@@ -8500,3 +8500,26 @@ archivo: src/app/actions/activos-fijos.ts
 usa: origenId en src/app/actions/activos-fijos.ts
 prueba: src/__tests__/no-se-borra-un-equipo-asignado.test.ts
 ```
+
+
+## 18 de septiembre de 2026 — El ajuste de costos no dice "listo" si los menús quedaron con el precio viejo
+
+**Lo encontró Codex.** Al ajustar los costos de los insumos por porcentaje pasaban dos cosas:
+
+1. **Si un menú no se podía guardar, el error se anotaba en un registro que no mira nadie y la
+   pantalla decía "listo" igual.** Los platos seguían costando lo viejo y **el presupuesto
+   siguiente salía con precios de antes**: plata que no se cobra.
+2. **Se guardaban todos los menús**, no sólo los que usan el insumo que cambió. Además de tardar,
+   pisaba menús que nadie había tocado.
+
+Ahora se guardan sólo los que cambiaron, y si alguno no se pudo actualizar **se avisa con los
+nombres y se dice que esos platos siguen con el precio viejo**, para revisarlos antes de armar un
+presupuesto.
+
+**Probado rompiéndolo**: con el aviso apagado y guardando todos, las pruebas se ponen en rojo.
+
+```comprobar
+archivo: src/app/actions/insumos.ts
+usa: noSePudieronActualizar en src/app/actions/insumos.ts
+prueba: src/__tests__/el-ajuste-de-costos-no-miente.test.ts
+```

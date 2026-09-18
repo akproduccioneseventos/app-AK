@@ -37,13 +37,23 @@ export async function getInsumoById(id: string): Promise<ServicioEmpresa | null>
  * el plato con el viejo, y **el costo de la comida salia mal sin que nadie lo
  * notara**. Se corrigio el 8 de septiembre de 2026.
  */
+/**
+ * LLEVA EL CAMBIO DE UN INSUMO A LOS MENUS QUE LO USAN.
+ *
+ * **Dos cosas que encontro Codex el 18 de septiembre de 2026:**
+ *
+ * 1. **Se guardaban TODOS los menus**, no solo los que usan ese insumo: si cambiaba uno, se
+ *    reescribian los veinte. Ademas de tardar, pisaba menus que nadie habia tocado.
+ * 2. **Si un menu no se podia guardar, el ajuste igual decia "listo"**, asi que los platos
+ *    seguian costando lo viejo y el presupuesto siguiente salia con precios de antes.
+ */
 async function propagateInsumoChangesToMenus(
     updatedInsumo: ServicioEmpresa,
 ): Promise<{ success: boolean; error?: string }> {
     const menus = await getMenus();
-    let anyMenuChanged = false;
+    const menusQueCambiaron: typeof menus = [];
 
-    const updatedMenus = menus.map(menu => {
+    for (const menu of menus) {
         let menuChanged = false;
         const updatedItems = menu.items.map(item => {
             let itemChanged = false;
@@ -51,7 +61,6 @@ async function propagateInsumoChangesToMenus(
                 if (ing.origenId === updatedInsumo.id) {
                     itemChanged = true;
                     menuChanged = true;
-                    anyMenuChanged = true;
                     return {
                         ...ing,
                         name: updatedInsumo.nombre,
@@ -69,28 +78,23 @@ async function propagateInsumoChangesToMenus(
                 return ing;
             });
 
-            if (itemChanged) {
-                return { ...item, ingredients: updatedIngredients };
-            }
-            return item;
+            return itemChanged ? { ...item, ingredients: updatedIngredients } : item;
         });
 
-        if (menuChanged) {
-            return { ...menu, items: updatedItems };
-        }
-        return menu;
-    });
+        // Solo el que cambio de verdad. Guardar los demas los pisa sin necesidad.
+        if (menuChanged) menusQueCambiaron.push({ ...menu, items: updatedItems });
+    }
 
-    if (anyMenuChanged) {
-        for (const m of updatedMenus) {
-            const guardado = await saveMenu(m);
-            if (guardado && guardado.success === false) {
-                return { success: false, error: guardado.error || `No se pudo actualizar el menu "${m.name || m.id}".` };
-            }
+    for (const m of menusQueCambiaron) {
+        const guardado = await saveMenu(m);
+        if (guardado && guardado.success === false) {
+            return { success: false, error: guardado.error || `No se pudo actualizar el menu "${m.name || m.id}".` };
         }
     }
     return { success: true };
 }
+
+
 
 async function saveInsumoInterno(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
@@ -230,11 +234,24 @@ async function adjustAllInsumoCostsInterno(
     await writeData(INSUMOS_FILE, updatedInventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
     limpiarCacheInsumos();
 
+    // Antes esto se anotaba en un registro que no mira nadie y la pantalla decia "listo" igual:
+    // los platos seguian costando lo viejo y el presupuesto siguiente salia con precios de antes.
+    const noSePudieronActualizar: string[] = [];
     for (const insumo of updatedInventario) {
         const propRes = await propagateInsumoChangesToMenus(insumo);
         if (!propRes.success) {
             console.warn(`[insumos] no se pudieron propagar cambios a los menús para ${insumo.nombre}:`, propRes.error);
+            noSePudieronActualizar.push(insumo.nombre);
         }
+    }
+
+    if (noSePudieronActualizar.length > 0) {
+        const cuales = noSePudieronActualizar.slice(0, 5).join(', ');
+        const resto = noSePudieronActualizar.length > 5 ? ` y ${noSePudieronActualizar.length - 5} mas` : '';
+        return {
+            success: false,
+            error: `Los costos de los insumos quedaron ajustados, pero NO se pudo actualizar el costo en los menus de: ${cuales}${resto}. Esos platos siguen con el precio viejo: revisalos antes de armar un presupuesto.`,
+        };
     }
 
     return { success: true };
