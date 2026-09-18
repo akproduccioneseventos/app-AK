@@ -42,7 +42,14 @@ Se pueden pedir 12 parlantes teniendo 10 sin que nadie avise. El día de la fies
 **Es la misma pantalla que la 65: hacelas juntas**, en el mismo bloque, para no tocar dos veces el
 mismo archivo.
 
-### 4. Orden 67 — Barrer la app con las preguntas nuevas
+### 4. Orden 68 — La hoja del DJ dice la verdad
+
+`docs/ordenes/68-la-hoja-del-dj-dice-la-verdad.md`
+
+La fecha puede salir impresa un día antes, y "Enlace copiado" aparece aunque no se haya copiado.
+Las dos se arreglan en el mismo archivo y las dos se repiten en otras pantallas: corregilas todas.
+
+### 5. Orden 67 — Barrer la app con las preguntas nuevas
 
 `docs/ordenes/67-barrer-la-app-con-las-preguntas-nuevas.md`
 
@@ -50,7 +57,7 @@ Es la más larga y la que más rinde: la misma forma de defecto que Codex viene 
 está repetida en varios lugares. **Lo que toque plata, cobros, comida o permisos NO lo toques**:
 anotalo en `docs/auditoria/BARRIDO-PREGUNTAS-NUEVAS.md` con archivo y línea, que lo arreglo yo.
 
-### 5. Orden 55 — La decoración entrega lo que promete (va 1 de 6)
+### 6. Orden 55 — La decoración entrega lo que promete (va 1 de 6)
 
 `docs/ordenes/55-la-decoracion-entrega-lo-que-promete.md`
 
@@ -78,6 +85,7 @@ Las dos primeras entran en esta misma propuesta.
 - **Nada que aumente lo que se paga por mes.**
 
 ```comprobar
+archivo: docs/ordenes/68-la-hoja-del-dj-dice-la-verdad.md
 archivo: docs/ordenes/65-la-carga-operativa-avisa-cuando-no-alcanza.md
 archivo: docs/ordenes/66-la-carga-operativa-se-sincroniza-entre-operadores.md
 archivo: docs/ordenes/67-barrer-la-app-con-las-preguntas-nuevas.md

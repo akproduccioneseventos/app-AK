@@ -79,6 +79,19 @@ no hace ruido.
 
 **Si toca plata o comida, no lo arregles: anotalo.**
 
+## Bloque 6 — Anuncios que no miran si la cosa salió
+
+**Salió de la hoja del DJ, el 18 de septiembre de 2026:** el botón de compartir mostraba "Enlace
+Copiado" sin esperar ni mirar si el portapapeles había funcionado.
+
+**Buscar:** en `src/app/` y `src/components/`, `navigator.clipboard`, `navigator.share`,
+`document.execCommand('copy')` y descargas armadas a mano, donde **el cartel de éxito sale sin
+`await` y sin `catch`**.
+
+**Es hallazgo si:** se anuncia que salió bien algo que puede fallar en silencio. Y el arreglo no es
+sólo avisar el error: **hay que dejarle al que lo usa una forma de seguir** —el enlace a la vista
+para copiar a mano, por ejemplo—.
+
 ## Lo que NO se toca en toda la orden
 
 - Los textos que ve el cliente, las promociones, los descuentos y el reloj del simulador.
