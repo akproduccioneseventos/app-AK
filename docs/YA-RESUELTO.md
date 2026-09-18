@@ -8018,3 +8018,7 @@ PR1209 e43260f068a751b5c6e2cc519db84e595c14c89f: sonda real aislada 3 PASS/2 FAI
 
 ## Codex - retornos y sincronizacion 2026-09-18 (NO corregido)
 PR1209 e43260f: 2 PASS/2 FAIL en funciones reales aisladas. Retorno y preservacion al guardar estructura pasan. LOG03: cantidad remota 8 sigue mostrando 2; LOG04: respuestas invertidas retroceden marcas visibles, sin evidencia de perdida persistida. Informe docs/auditoria/RETORNOS-2026-09-18.md; sonda docs/evidencias/retornos-sonda.cjs. Pendiente navegador y correccion; no build ni datos reales.
+
+
+## Codex - insumos ajuste masivo 2026-09-18 (pendiente de Claude)
+PR1209 e43260f: INS01 devuelve exito aunque falle propagacion de costos a menus; INS02 guarda menus ajenos al insumo. Sonda aislada 1 PASS/2 FAIL, docs/auditoria/INSUMOS-2026-09-18.md y docs/evidencias/insumos-sonda.cjs. Guardado individual ya informa fallo: no rehacerlo. Reintento no debe reaplicar porcentaje. Sin build, cambios app ni datos reales.
