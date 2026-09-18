@@ -64,3 +64,5 @@ PR1209 b4c6929: 9 PASS / 1 FAIL aislados. Permisos y aviso parcial mejorados; BK
 Main da6c566: [encuestas/resenas](POSTFIESTA-2026-09-17.md), 2 PASS/3 FAIL aislados. PF01 rechazo bloquea formulario; PF02 concurrencia pierde respuesta; PF03 campos publicos no validados. No todo post-fiesta auditado, no pruebas reales externas.
 
 - 2026-09-18: LOGISTICA-2026-09-18.md; PR1209 e43260f, 3 PASS/2 FAIL; disponibilidad por origenId y borrado de activo renombrado. Hallazgos abiertos, no modulo completo probado.
+
+- 2026-09-18: RETORNOS-2026-09-18.md, e43260f, 2 PASS/2 FAIL: LOG03 cantidades remotas y LOG04 orden de respuestas. Retorno basico conserva autoria; no certifica modulo completo.

@@ -8014,3 +8014,7 @@ Detalle docs/auditoria/POSTFIESTA-2026-09-17.md, sonda docs/evidencias/postfiest
 
 ## Codex - logistica 2026-09-18 (observaciones, NO corregido)
 PR1209 e43260f068a751b5c6e2cc519db84e595c14c89f: sonda real aislada 3 PASS/2 FAIL. LOG01 no suma activo repetido (6+6 contra 10 sin alerta); LOG02 borrar activo renombrado omite origenId y permite eliminar uno asignado. Informe docs/auditoria/LOGISTICA-2026-09-18.md y sonda docs/evidencias/logistica-sonda.cjs. No build, no produccion, no datos reales modificados. Pendientes navegador, movimientos, devoluciones y concurrencia. No repetir estos casos sin cambio de SHA/simbolo.
+
+
+## Codex - retornos y sincronizacion 2026-09-18 (NO corregido)
+PR1209 e43260f: 2 PASS/2 FAIL en funciones reales aisladas. Retorno y preservacion al guardar estructura pasan. LOG03: cantidad remota 8 sigue mostrando 2; LOG04: respuestas invertidas retroceden marcas visibles, sin evidencia de perdida persistida. Informe docs/auditoria/RETORNOS-2026-09-18.md; sonda docs/evidencias/retornos-sonda.cjs. Pendiente navegador y correccion; no build ni datos reales.
