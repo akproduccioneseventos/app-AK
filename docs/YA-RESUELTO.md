@@ -34,6 +34,53 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 <!-- Las ordenes 55 y 56 todavia NO estan fusionadas: su anotacion viaja con ellas.
      Anotar aca algo que no esta en el codigo es justo lo que esta lista no puede hacer. -->
 
+## 17 de septiembre de 2026 — Orden 64: Las pantallas del invitado pasan las preguntas nuevas
+
+- **Bloque 1 — Prueba E2E de Playwright (`tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts`)**:
+  - Prueba de navegador real que corta la respuesta del servidor con `page.route` en `/feedback/<id>` y en `/invitacion/<id>/rsvp`.
+  - Verifica que el botón vuelva a su texto normal ("Enviar Mis Comentarios" y "Confirmar asistencia") y quede habilitado (no colgado en "Enviando...").
+  - Verifica que el aviso de error se muestre y que lo escrito por el invitado en los campos no se pierda.
+  - Se probó rompiéndola a propósito (quitando el `finally` de `feedback` y verificando que Playwright se puso en rojo por timeout del botón) y luego restaurando a verde.
+- **Bloque 2 — Pregunta 12 (¿Qué pasa si toca dos veces?)**:
+  - En `src/app/actions/buzon.ts`: desduplicación de saludos en el buzón mediante hash SHA-256 (`contentHash`) para que dos toques con el mismo archivo no creen dos registros en la base ni dos notificaciones en pantalla.
+  - Guardas `if (isSubmitting) return;` e `if (isUploading) return;` en `src/app/feedback/[fiestaId]/page.tsx`, `src/app/invitacion/[fiestaId]/rsvp/page.tsx`, `src/app/evento/buzon/[fiestaId]/page.tsx`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`, `src/app/evento/espejo-magico/[fiestaId]/page.tsx`, `src/app/evento/plataforma-360/[fiestaId]/page.tsx` y `src/app/recepcion/[fiestaId]/RecepcionClient.tsx`.
+  - `finally` garantizado para apagar el estado de carga en todas las pantallas.
+- **Bloque 3 — Pregunta 14 (¿Qué ve el que adivina el enlace?)**:
+  - En `src/lib/guest-portal-public-data.ts`: se eliminó el fallback a `item.descripcion` (las notas internas del equipo del itinerario), dejando solo `descripcion: item.descripcionCliente`.
+  - Verificado con prueba unitaria `src/__tests__/el-invitado-no-ve-lo-interno-en-pantallas-publicas.test.ts` (probada rompiéndola en rojo y vuelta a verde).
+- **Bloque 4 — Pregunta 12 en pantallas que no son de plata**:
+  - Se aplicó `conTopeDeEspera` en las llamadas del servidor en: buzón (`uploadBuzonMessage`), fotocabina (`uploadEntretenimientoMedia`), espejo mágico (`uploadEntretenimientoMedia`), plataforma 360 (`uploadEntretenimientoMedia`), muro social (`uploadSocialPost`, `addSongRequest`, `addDedication`, `addChatMessage`) y recepción (`checkInGuest`).
+  - Registrado y comprobado automáticamente en `src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts`.
+
+```comprobar
+prueba: tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts
+usa: finally en src/app/invitacion/[fiestaId]/rsvp/page.tsx
+archivo: docs/ANTES-DE-ENTREGAR.md
+```
+
+## 17 de septiembre de 2026 — Orden 63: TikTok no puede decir "Publicado" mientras todavía procesa
+
+- **Publicador de Redes (`src/lib/presencia-digital/publicador.ts`)**:
+  - Se separó el caso `ttResult.status === 'PROCESSING'`: ya no ingresa en `publishedTo`, sino que se acumula en una nueva lista `enProceso: string[]` devuelta en `PublicarResultado`.
+  - El posteo **solo** pasa a `status: 'Publicado'` si `publishedTo.length > 0`. Si TikTok quedó en proceso y era la única red seleccionada, el post no cambia a "Publicado": conserva su estado previo y almacena el `publishId: ttResult.publishId` para seguimiento posterior.
+  - En `procesarPosteosProgramados`: solo se suma a `publicados` si `res.publishedTo && res.publishedTo.length > 0`.
+- **Acciones y Respuestas de Redes (`src/app/actions/social-media.ts`, `src/app/actions/presencia-digital.ts`)**:
+  - `publicarPosteoAhoraAction` informa con el mensaje exacto si una red quedó en proceso: `"TikTok: se envio, falta que TikTok termine de procesarlo"`, ni "Publicado" ni "Error".
+  - `publishApprovedSocialPost` tipado con `PublicarResultado` propagando `enProceso`.
+- **Pantalla y Tarjeta de Redes (`src/components/social-media/SocialPostCard.tsx`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`, `src/components/social-media/SocialMediaCalendar.tsx`)**:
+  - En la tarjeta (`SocialPostCard`) y en la vista de publicaciones de presencia digital, cuando un posteo de TikTok tiene `publishId` y aún no está publicado, el badge muestra "En proceso" (en lugar de "Publicado" o "Error") y se muestra el cartel `"TikTok: se envio, falta que TikTok termine de procesarlo"`.
+  - El toast y el feedback de publicación informan el estado en proceso sin cantar victoria antes de tiempo.
+- **Pruebas Automatizadas (`src/__tests__/tiktok-no-canta-victoria-antes.test.ts`)**:
+  - Simulación de `publishToTikTok` con `PROCESSING` comprobando que el post NO queda con `status: 'Publicado'` y guarda `publishId`.
+  - Simulación con `PUBLISH_COMPLETE` comprobando que sí pasa a `status: 'Publicado'`.
+  - Control verificado rompiéndolo a propósito con rojo comprobado y vuelta a verde.
+
+```comprobar
+archivo: src/lib/presencia-digital/publicador.ts
+usa: PROCESSING en src/lib/presencia-digital/publicador.ts
+prueba: src/__tests__/tiktok-no-canta-victoria-antes.test.ts
+```
+
 ## 16 de septiembre de 2026 — Orden 61: Las Nueve Preguntas en las Áreas de Gemini
 
 ### Orden 61 (Barrido de las 5 áreas)

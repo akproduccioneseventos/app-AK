@@ -74,8 +74,9 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
     try {
       const res = await publicarPosteoAhoraAction(post.id);
       if (res.success) {
+        const esTikTokProcesando = res.message?.includes('TikTok') && res.message?.includes('procesarlo');
         toast({
-          title: "Publicación realizada",
+          title: esTikTokProcesando ? "Publicación en proceso" : "Publicación realizada",
           description: res.message || "La publicación se envió correctamente.",
         });
         onUpdate();
@@ -175,11 +176,12 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
     }
   };
 
-  const isFailed = post.status === 'Falló' || post.status === 'Error' || !!post.lastError;
+  const isEnProcesoTikTok = post.platform === 'TikTok' && !!post.publishId && post.status !== 'Publicado';
+  const isFailed = !isEnProcesoTikTok && (post.status === 'Falló' || post.status === 'Error' || !!post.lastError);
   const isPublished = post.status === 'Publicado' || post.status === 'Importado de IG' || post.status === 'Importado historial';
 
   return (
-    <Card className={`flex flex-col h-full shadow-md hover:shadow-lg transition-shadow ${isFailed ? 'border-rose-300 bg-rose-50/20' : ''}`}>
+    <Card className={`flex flex-col h-full shadow-md hover:shadow-lg transition-shadow ${isFailed ? 'border-rose-300 bg-rose-50/20' : isEnProcesoTikTok ? 'border-amber-300 bg-amber-50/10' : ''}`}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
             <div className="flex items-center gap-2">
@@ -187,23 +189,31 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
                 <CardTitle className="text-lg font-headline">{post.platform}</CardTitle>
             </div>
             <Badge
-              variant={isPublished ? 'default' : isFailed ? 'destructive' : 'secondary'}
+              variant={isPublished ? 'default' : isFailed ? 'destructive' : isEnProcesoTikTok ? 'outline' : 'secondary'}
               className={
-                post.status === 'Listo para copiar'
+                isEnProcesoTikTok
+                  ? 'border-amber-400 text-amber-800 bg-amber-50 dark:bg-amber-950 dark:text-amber-200'
+                  : post.status === 'Listo para copiar'
                   ? 'border-amber-300 text-amber-900 bg-amber-50'
                   : post.status === 'Importado de IG'
                     ? 'border-pink-300 text-pink-700 bg-pink-50 dark:bg-pink-950 dark:text-pink-300'
                     : ''
               }
             >
-              {post.status}
+              {isEnProcesoTikTok ? 'En proceso' : post.status}
             </Badge>
         </div>
         <CardDescription>
           Para: {post.isGeneralCampaign ? 'Campaña General' : post.eventName || 'Evento Específico'}
         </CardDescription>
          <p className="text-xs text-muted-foreground">Publicar: {formatDateTime(post.publishDate)}</p>
-         {post.lastError && (
+         {isEnProcesoTikTok && (
+           <div className="mt-1 flex items-start gap-1 text-xs text-amber-800 font-medium bg-amber-50 p-2 rounded border border-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:border-amber-800/60">
+             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
+             <span>TikTok: se envio, falta que TikTok termine de procesarlo</span>
+           </div>
+         )}
+         {post.lastError && !isEnProcesoTikTok && (
            <div className="mt-1 flex items-start gap-1 text-xs text-rose-700 font-medium bg-rose-50 p-2 rounded border border-rose-200">
              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
              <span>{post.lastError}</span>

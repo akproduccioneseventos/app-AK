@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { uploadBuzonMessage } from '@/app/actions/buzon';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
@@ -989,6 +990,7 @@ export default function GuestBuzonPage() {
 
   // Submit Handler
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     const trimmedName = authorName.trim();
     if (!trimmedName) {
       toast({
@@ -1055,7 +1057,7 @@ export default function GuestBuzonPage() {
         throw new Error('Sin conexión');
       }
 
-      const result = await uploadBuzonMessage(formData);
+      const result = await conTopeDeEspera(uploadBuzonMessage(formData));
       if (result.success) {
         setShowCelebration(true);
         resetAudioRecording();

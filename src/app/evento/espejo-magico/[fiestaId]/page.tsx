@@ -30,6 +30,7 @@ import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
 } from '@/app/actions/fiesta/entretenimiento.actions';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -861,6 +862,7 @@ export default function EspejoMagicoPage() {
   };
 
   const handleUpload = async (imageOverride?: string) => {
+    if (isUploading) return;
     if (!canvasRef.current || (!capturedImage && !imageOverride)) return;
 
     const sessionForThisUpload = currentPhotoSessionIdRef.current;
@@ -894,7 +896,7 @@ export default function EspejoMagicoPage() {
       if (guestId) formData.append('guestId', guestId);
       if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
 
-      const res = await uploadEntretenimientoMedia(formData);
+      const res = await conTopeDeEspera(uploadEntretenimientoMedia(formData));
       if (!res.success) throw new Error(res.error || 'Error al subir');
 
       const mediaUrl = res.media?.url || '';

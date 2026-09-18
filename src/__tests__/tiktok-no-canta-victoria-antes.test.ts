@@ -11,7 +11,19 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import * as dataService from '@/lib/data-service';
 import { publishToTikTok } from '@/lib/social-media/tiktok-publisher';
+import { publishPostInternal } from '@/lib/presencia-digital/publicador';
+
+jest.mock('@/lib/data-service');
+
+jest.mock('@/lib/social-media/tiktok-publisher', () => {
+  const actual = jest.requireActual('@/lib/social-media/tiktok-publisher');
+  return {
+    ...actual,
+    publishToTikTok: jest.fn((...args: any[]) => actual.publishToTikTok(...args)),
+  };
+});
 
 describe('Orden 60 - Bloque B: TikTok no canta victoria antes', () => {
   const publisherPath = path.join(process.cwd(), 'src/lib/social-media/tiktok-publisher.ts');
@@ -163,6 +175,97 @@ describe('Orden 60 - Bloque B: TikTok no canta victoria antes', () => {
       expect(res.status).toBe('PROCESSING');
       expect(res.status).not.toBe('PUBLISH_COMPLETE');
       expect(res.message).toMatch(/falta que termine de procesarlo/i);
+    });
+  });
+
+  describe('Orden 63: El publicador no canta victoria mientras TikTok procesa', () => {
+    const publicadorPath = path.join(process.cwd(), 'src/lib/presencia-digital/publicador.ts');
+    const publicadorCode = fs.readFileSync(publicadorPath, 'utf8');
+
+    it('el archivo publicador.ts usa PROCESSING y la lista enProceso', () => {
+      expect(publicadorCode).toContain('PROCESSING');
+      expect(publicadorCode).toContain('enProceso');
+    });
+
+    const mockPost = {
+      id: 'post_tt_orden63',
+      platform: 'TikTok' as const,
+      isGeneralCampaign: true,
+      publishDate: '2026-09-17T12:00:00Z',
+      text: 'Video de fiesta en TikTok',
+      status: 'Programado' as const,
+      mediaUrl: 'https://ejemplo.com/video.mp4',
+      mediaType: 'video' as const,
+      createdAt: '2026-09-17T10:00:00Z',
+      updatedAt: '2026-09-17T10:00:00Z',
+    };
+
+    const mockConnections = [
+      {
+        platform: 'TikTok' as const,
+        isConnected: true,
+        accessToken: 'token_tt_valido',
+      },
+    ];
+
+    let currentPosts: any[];
+
+    beforeEach(() => {
+      currentPosts = [JSON.parse(JSON.stringify(mockPost))];
+
+      (dataService.readData as jest.Mock).mockImplementation((file: string, fallback: any) => {
+        if (file === 'social-posts.json') return Promise.resolve(currentPosts);
+        if (file === 'social-connections.json') return Promise.resolve(mockConnections);
+        return Promise.resolve(fallback);
+      });
+
+      (dataService.writeData as jest.Mock).mockImplementation((file: string, data: any) => {
+        if (file === 'social-posts.json') {
+          currentPosts = data;
+        }
+        return Promise.resolve();
+      });
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('1. simula publishToTikTok con PROCESSING: el post NO queda con status Publicado y guarda publishId', async () => {
+      (publishToTikTok as jest.Mock).mockResolvedValueOnce({
+        success: true,
+        status: 'PROCESSING',
+        publishId: 'pub_tt_proc_orden63',
+        message: 'TikTok: se envio, falta que TikTok termine de procesarlo',
+      });
+
+      const res = await publishPostInternal('post_tt_orden63');
+
+      expect(res.success).toBe(true);
+      expect(res.publishedTo).toEqual([]);
+      expect(res.enProceso).toContain('TikTok');
+      expect(res.post?.status).not.toBe('Publicado');
+      expect(res.post?.status).toBe('Programado');
+      expect(res.post?.publishId).toBe('pub_tt_proc_orden63');
+      expect(currentPosts[0].status).not.toBe('Publicado');
+      expect(currentPosts[0].publishId).toBe('pub_tt_proc_orden63');
+    });
+
+    it('2. simula publishToTikTok con PUBLISH_COMPLETE: el post SI queda publicado', async () => {
+      (publishToTikTok as jest.Mock).mockResolvedValueOnce({
+        success: true,
+        status: 'PUBLISH_COMPLETE',
+        publishId: 'pub_tt_ok_orden63',
+      });
+
+      const res = await publishPostInternal('post_tt_orden63');
+
+      expect(res.success).toBe(true);
+      expect(res.publishedTo).toContain('TikTok');
+      expect(res.post?.status).toBe('Publicado');
+      expect(res.post?.publishId).toBe('pub_tt_ok_orden63');
+      expect(currentPosts[0].status).toBe('Publicado');
+      expect(currentPosts[0].publishId).toBe('pub_tt_ok_orden63');
     });
   });
 });

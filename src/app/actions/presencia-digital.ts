@@ -25,7 +25,7 @@ import {
 import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { buildMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics-core';
-import { publishPostInternal } from '@/lib/presencia-digital/publicador';
+import { publishPostInternal, type PublicarResultado } from '@/lib/presencia-digital/publicador';
 
 const REVIEW_FILE = 'digital-presence-review.json';
 const POSTS_FILE = 'social-posts.json';
@@ -235,13 +235,7 @@ export async function getWebsiteAnalyticsData(periodoDias: number = 30) {
 export async function publishApprovedSocialPost(
   postId: string,
   targetPlatforms?: PlatformName[]
-): Promise<{
-  success: boolean;
-  publishedTo?: string[];
-  failedPlatforms?: Array<{ platform: string; reason: string }>;
-  post?: SocialPost;
-  error?: string;
-}> {
+): Promise<PublicarResultado> {
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return { success: false, error: permiso.error };
 

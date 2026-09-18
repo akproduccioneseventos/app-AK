@@ -33,9 +33,22 @@ export async function publicarPosteoAhoraAction(
         message: 'La publicación quedó lista para copiar y publicar en la red elegida.',
       };
     }
+    if (result.enProceso && result.enProceso.includes('TikTok') && (!result.publishedTo || result.publishedTo.length === 0)) {
+      return {
+        success: true,
+        message: 'TikTok: se envio, falta que TikTok termine de procesarlo',
+      };
+    }
+    const partes: string[] = [];
+    if (result.publishedTo && result.publishedTo.length > 0) {
+      partes.push(`Publicado con éxito en: ${result.publishedTo.join(', ')}`);
+    }
+    if (result.enProceso && result.enProceso.length > 0) {
+      partes.push(...result.enProceso.map((p) => `${p}: se envio, falta que ${p} termine de procesarlo`));
+    }
     return {
       success: true,
-      message: `Publicado con éxito en: ${(result.publishedTo || []).join(', ')}`,
+      message: partes.join('. ') || 'Publicación procesada.',
     };
   }
 

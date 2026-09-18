@@ -6,6 +6,7 @@ import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { addChatMessage } from '@/app/actions/social-gallery';
 import { requireAppSession } from '@/lib/auth/require-session';
 import * as logger from '@/lib/logger';
+import crypto from 'crypto';
 import path from 'path';
 import { hasEntertainmentGuestAccess } from '@/lib/auth/entertainment-token';
 import { getEntertainmentStationConfig } from '@/lib/entertainment/station-config';
@@ -27,6 +28,7 @@ export interface BuzonMessage {
   durationSeconds: number;
   timestamp: string;
   storagePath: string;
+  contentHash?: string;
   // Bloque G: Cápsula del tiempo para abrir en el futuro
   isTimeCapsule?: boolean;
   unlockYears?: number; // ej. 1, 3, 5, 10, 15
@@ -119,7 +121,26 @@ export async function uploadBuzonMessage(
       return { success: false, error: 'El contenido del archivo no coincide con un audio, video o foto válido.' };
     }
 
+    const contentHash = crypto.createHash('sha256').update(bytes).digest('hex');
     const db = await getDb();
+
+    // Pregunta 12: si el invitado toca dos veces el botón, no crear dos saludos iguales
+    try {
+      const duplicateSnapshot = await db
+        .collection(BUZON_COLLECTION)
+        .where('fiestaId', '==', fiestaId)
+        .where('contentHash', '==', contentHash)
+        .limit(1)
+        .get();
+
+      if (!duplicateSnapshot.empty) {
+        const existing = duplicateSnapshot.docs[0].data() as BuzonMessage;
+        return { success: true, message: existing };
+      }
+    } catch (dedupError) {
+      logger.warn('[buzon] Error checking for duplicate message:', dedupError);
+    }
+
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const storagePath = `fiestas/${fiestaId}/buzon/${messageId}${detectedMedia.extension}`;
     const durationLimit = detectedMedia.mediaType === 'audio' ? 60 : detectedMedia.mediaType === 'video' ? 15 : 0;
@@ -155,6 +176,7 @@ export async function uploadBuzonMessage(
       durationSeconds,
       timestamp: new Date().toISOString(),
       storagePath,
+      contentHash,
       ...(isTimeCapsule ? { isTimeCapsule: true, unlockYears, unlockDate, recipientNote } : {}),
     };
 

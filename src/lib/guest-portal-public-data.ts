@@ -145,7 +145,7 @@ export function buildPublicGuestEvent(
         id: item.id,
         hora: item.hora,
         titulo: item.titulo,
-        descripcion: item.descripcionCliente || item.descripcion,
+        descripcion: item.descripcionCliente,
         icono: item.icono,
       })),
     menuMesa: fiesta.menuMesa
