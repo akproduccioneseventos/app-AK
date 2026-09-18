@@ -8030,3 +8030,7 @@ PR1209 e43260f: DJ01 fecha calendario se muestra un dia antes en Uruguay; DJ02 a
 
 ## Codex - video de vida 2026-09-18 (pendiente, no corregido)
 PR1209 e43260f: VID01 interfaz permite 200 pero upload rechaza desde 51; VID02 eliminacion ignora fallo Storage y anuncia exito. 2 PASS/2 FAIL aislados. docs/auditoria/VIDEO-VIDA-2026-09-18.md y docs/evidencias/video-vida-sonda.cjs. No se repitieron permisos/optimizacion; no archivos reales borrados, build ni merge.
+
+
+## Codex - ZIP video de vida 2026-09-18 (no corregido)
+PR1209 e43260f: VID03 omite fotos con HTTP fallido y entrega ZIP parcial/vacio con 200 sin aviso. 1 PASS/2 FAIL en logica real con HTTP/JSZip simulados. docs/auditoria/VIDEO-ZIP-2026-09-18.md y docs/evidencias/video-zip-sonda.cjs. Aviso 50MB ya existe, no rehacer. No repetir limites/borrado/permisos previos. Sin archivos reales, build ni merge.
