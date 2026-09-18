@@ -88,6 +88,15 @@ Copiado" sin esperar ni mirar si el portapapeles había funcionado.
 `document.execCommand('copy')` y descargas armadas a mano, donde **el cartel de éxito sale sin
 `await` y sin `catch`**.
 
+**Buscar también:** `.catch(() => {})`, `.catch(() => null)` y cualquier `catch` vacío dentro de un
+`Promise.all` que borre, mande o suba cosas. Ahí cada fallo se tira a la basura y después se
+devuelve éxito: es el mismo defecto con otra cara, y ya apareció en el borrado de fotos del video
+de vida.
+
+**Y una tercera forma, la del tope que no coincide:** un límite escrito en la pantalla y otro
+distinto en el servidor. La pantalla deja configurar 200 y el servidor rechaza desde la 51. Buscá
+números sueltos —`max=`, `> 50`, `length > `— que aparezcan en los dos lados con valores distintos.
+
 **Es hallazgo si:** se anuncia que salió bien algo que puede fallar en silencio. Y el arreglo no es
 sólo avisar el error: **hay que dejarle al que lo usa una forma de seguir** —el enlace a la vista
 para copiar a mano, por ejemplo—.

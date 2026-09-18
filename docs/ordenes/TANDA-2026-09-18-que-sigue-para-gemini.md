@@ -49,7 +49,14 @@ mismo archivo.
 La fecha puede salir impresa un día antes, y "Enlace copiado" aparece aunque no se haya copiado.
 Las dos se arreglan en el mismo archivo y las dos se repiten en otras pantallas: corregilas todas.
 
-### 5. Orden 67 — Barrer la app con las preguntas nuevas
+### 5. Orden 69 — El video de vida: ni 200 fotos que no entran, ni borrados que mienten
+
+`docs/ordenes/69-el-video-de-vida-no-promete-lo-que-no-cumple.md`
+
+Deja configurar 200 fotos y rechaza desde la 51, y avisa "Fotos eliminadas" aunque no haya borrado
+ninguna. **El tope real es 50 y no se sube**: eso se paga por mes.
+
+### 6. Orden 67 — Barrer la app con las preguntas nuevas
 
 `docs/ordenes/67-barrer-la-app-con-las-preguntas-nuevas.md`
 
@@ -57,7 +64,7 @@ Es la más larga y la que más rinde: la misma forma de defecto que Codex viene 
 está repetida en varios lugares. **Lo que toque plata, cobros, comida o permisos NO lo toques**:
 anotalo en `docs/auditoria/BARRIDO-PREGUNTAS-NUEVAS.md` con archivo y línea, que lo arreglo yo.
 
-### 6. Orden 55 — La decoración entrega lo que promete (va 1 de 6)
+### 7. Orden 55 — La decoración entrega lo que promete (va 1 de 6)
 
 `docs/ordenes/55-la-decoracion-entrega-lo-que-promete.md`
 
@@ -86,6 +93,7 @@ Las dos primeras entran en esta misma propuesta.
 
 ```comprobar
 archivo: docs/ordenes/68-la-hoja-del-dj-dice-la-verdad.md
+archivo: docs/ordenes/69-el-video-de-vida-no-promete-lo-que-no-cumple.md
 archivo: docs/ordenes/65-la-carga-operativa-avisa-cuando-no-alcanza.md
 archivo: docs/ordenes/66-la-carga-operativa-se-sincroniza-entre-operadores.md
 archivo: docs/ordenes/67-barrer-la-app-con-las-preguntas-nuevas.md
