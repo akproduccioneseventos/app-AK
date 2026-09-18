@@ -8010,3 +8010,7 @@ Detalle: docs/auditoria/RESPALDOS-REVALIDACION-2026-09-17.md. Sonda docs/evidenc
 ## 17/9/2026 - Codex: area nueva post-fiesta, no reauditoria de PR
 
 Detalle docs/auditoria/POSTFIESTA-2026-09-17.md, sonda docs/evidencias/postfiesta-sonda.cjs. Main da6c566; cinco PR abiertas no modifican esos archivos. 2 PASS/3 FAIL aislados: rechazo bloquea Enviando, dos respuestas concurrentes dejan solo una, servidor acepta NPS99 y googleReviewRequested aportado por navegador. Inspeccion de syncToFirestore confirma reemplazo con borrado de ausentes; no Firebase real. Propuestas humanas: no llamar Detractor al cliente, evaluar mejoras opcionales con dueno, contrastar promesa de contacto con tarea real. Pedido de resenas YA EXISTE, conservar; no rehacer. Sin build, cambios app, envios reales ni merge. Codex revisa; Claude compila.
+
+
+## Codex - logistica 2026-09-18 (observaciones, NO corregido)
+PR1209 e43260f068a751b5c6e2cc519db84e595c14c89f: sonda real aislada 3 PASS/2 FAIL. LOG01 no suma activo repetido (6+6 contra 10 sin alerta); LOG02 borrar activo renombrado omite origenId y permite eliminar uno asignado. Informe docs/auditoria/LOGISTICA-2026-09-18.md y sonda docs/evidencias/logistica-sonda.cjs. No build, no produccion, no datos reales modificados. Pendientes navegador, movimientos, devoluciones y concurrencia. No repetir estos casos sin cambio de SHA/simbolo.
