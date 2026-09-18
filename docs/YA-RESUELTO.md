@@ -8523,3 +8523,40 @@ archivo: src/app/actions/insumos.ts
 usa: noSePudieronActualizar en src/app/actions/insumos.ts
 prueba: src/__tests__/el-ajuste-de-costos-no-miente.test.ts
 ```
+
+
+## 18 de septiembre de 2026 — Las preguntas se volvieron un control que corre solo
+
+**Orden del dueño: "mejorá el mecanismo, Codex sigue encontrando cosas".** Tenía razón, y el
+problema era de fondo: **mis preguntas son preguntas.** Dependen de que alguien se acuerde de
+hacérselas antes de entregar. Codex encuentra cosas porque **lee el código**, no porque tenga
+mejores preguntas.
+
+Lo que sí funciona en esta app son los controles que corren solos. Así que las formas de defecto
+que Codex ya encontró **ahora se buscan solas en todo el código, en cada verificación**:
+
+- **el error que se tira a la basura** —un borrado o un envío que falla, se ignora, y después se
+  devuelve éxito—;
+- **el cartel de éxito que no espera el resultado** —"Enlace copiado" con el portapapeles
+  bloqueado—;
+- **la comparación que apaga al revisor de tipos**, que puede estar mirando un campo que no
+  existe y entonces no frena nunca;
+- **la fecha suelta que el navegador corre un día**, por la diferencia con Greenwich.
+
+**Lo que midió la primera corrida: 95 lugares en la app.** Esa es la respuesta a por qué Codex
+seguía encontrando: las mismas formas estaban repetidas por todos lados y nadie las buscaba.
+
+**Tiene puerta de escape, y pide el motivo escrito.** A veces está bien ignorar una falla —que no
+suene la música de fondo no rompe nada—, pero hay que poder decirlo con palabras: se escribe un
+comentario que empiece con *"no pasa nada si falla:"* y el control lo deja pasar. Si no está
+escrito, lo cuenta. Eso separa una decisión de un descuido.
+
+**Frena sólo por lo que cambia**, como el control de "lo que se dijo es lo que es". Para lo viejo
+informa sin frenar, y esa lista es la que va a barrer Gemini.
+
+**Probado rompiéndolo**: agregando un error tirado a la basura a propósito, la verificación frena.
+
+```comprobar
+archivo: scripts/las-formas-que-mienten.mjs
+usa: formas-que-mienten en package.json
+```

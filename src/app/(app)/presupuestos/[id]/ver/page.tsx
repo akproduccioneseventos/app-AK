@@ -214,6 +214,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         + (presupuesto.invitadosNinos || 0),
     })
       .then((resultado) => { if (vigente) setAvisoMargen(resultado); })
+      // no pasa nada si falla: es un aviso de margen; si no llega, la pantalla se ve igual.
       .catch(() => { /* si falla, simplemente no se muestra el aviso */ });
     return () => { vigente = false; };
   }, [presupuesto, publicToken]);
@@ -1009,7 +1010,21 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                             )}
                             
                             <div className="flex flex-wrap justify-center gap-2">
-                                <Button variant="ghost" onClick={() => { navigator.clipboard.writeText(window.location.href); toast({title: "Enlace Copiado"}); }} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                                <Button variant="ghost" onClick={async () => {
+                                    // Antes decia "Enlace Copiado" sin mirar si se habia copiado: si el
+                                    // navegador no da permiso, el que lo usa pega cualquier cosa en el
+                                    // WhatsApp del cliente. Lo encontro Codex el 18 de septiembre de 2026.
+                                    try {
+                                      await navigator.clipboard.writeText(window.location.href);
+                                      toast({ title: "Enlace Copiado" });
+                                    } catch {
+                                      toast({
+                                        title: "No se pudo copiar solo",
+                                        description: `Copialo de la barra de arriba: ${window.location.href}`,
+                                        variant: "destructive",
+                                      });
+                                    }
+                                  }} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">
                                     <Share2 className="w-3.5 h-3.5 mr-2"/> Compartir Presupuesto
                                 </Button>
                                 <Button variant="ghost" onClick={() => window.print()} className="h-10 rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">

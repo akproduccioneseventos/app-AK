@@ -535,7 +535,11 @@ export async function generateDraftPostsFromPartyPhotos(
       }
 
       if (aiUsedCount > 0) {
-        await registrarConsumoIA('material-post-evento', aiUsedCount).catch(() => {});
+        // Esto es plata: si no se anota el consumo de inteligencia artificial, el tope mensual
+        // queda corriendo con una cuenta que no es. Antes se tiraba el error a la basura.
+        await registrarConsumoIA('material-post-evento', aiUsedCount).catch((e) => {
+          console.warn('[social-media] no se pudo anotar el consumo de IA del material post evento:', e);
+        });
       }
     } else {
       // Sin presupuesto de IA o fallback: usar templates

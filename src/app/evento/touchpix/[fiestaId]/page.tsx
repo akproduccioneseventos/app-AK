@@ -922,6 +922,8 @@ export default function TouchpixPage() {
     useEffect(() => {
       import('qrcode.react').then(mod => {
         setQRComponent(() => mod.QRCodeSVG);
+      // no pasa nada si falla: es el dibujo del codigo QR; si no carga, la pantalla sigue
+      // andando y la foto se sube igual.
       }).catch(() => {});
     }, []);
 

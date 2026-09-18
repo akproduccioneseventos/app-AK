@@ -174,7 +174,7 @@ async function deleteInsumoInterno(id: string): Promise<{ success: boolean; erro
   const menus = await getMenus();
   const menusEnUso = menus.filter(m =>
     m.items?.some(item =>
-      item.ingredients?.some(ing => ing.origenId === id || (ing as any).insumoId === id)
+      item.ingredients?.some(ing => ing.origenId === id)
     )
   );
   if (menusEnUso.length > 0) {

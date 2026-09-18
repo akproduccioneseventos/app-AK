@@ -13,6 +13,25 @@ Cada vuelta cuesta una sesión entera.
 Esta orden cierra eso: **las seis preguntas nuevas se pasan por toda la app, de una vez.** Están
 en `docs/ANTES-DE-ENTREGAR.md`, numeradas 10 a 16. Acá va la búsqueda mecánica de cada una.
 
+## LA LISTA YA ESTÁ HECHA: no la busques a mano
+
+**Desde el 18 de septiembre de 2026 hay un comando que la imprime sola:**
+
+```
+npm run formas-que-mienten
+```
+
+Te dice, con archivo y línea, los **84 lugares** donde está cada una de las cuatro formas que ya
+nos costaron caro, y cómo se arregla cada una. **Empezá por ahí**: los bloques de abajo explican
+el porqué de cada forma y qué cuenta como hallazgo, pero la búsqueda no la hagas vos.
+
+**Si en algún caso está bien ignorar la falla** —que no suene la música de fondo no rompe nada—,
+se escribe el motivo en un comentario que empiece con `no pasa nada si falla:` y el control lo
+deja pasar. **Sin motivo escrito, no vale**: eso es lo que separa una decisión de un descuido.
+
+**Ojo:** ese mismo control **frena la verificación** por lo que toques de ahora en adelante. Así
+que si arreglás diez y dejás uno a medias con un `catch` vacío sin motivo, no vas a poder subir.
+
 ## Cómo se entrega cada hallazgo
 
 - **Lo que es tuyo** —pantallas, entretenimiento, invitado, impresos, herramientas internas—:

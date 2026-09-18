@@ -1101,6 +1101,7 @@ con otra cara.
 | Arrancar la verificacion con el trabajo a medio terminar y tirar media hora | El aviso al empezar y el "este resultado no vale" de `scripts/se-puede-publicar.mjs` |
 | Renombrar un equipo y poder borrarlo estando asignado a una fiesta, porque el control miraba un campo que no existe | `src/__tests__/no-se-borra-un-equipo-asignado.test.ts` |
 | El ajuste de costos decia "listo" con los menus sin actualizar, y reescribia menus que nadie toco | `src/__tests__/el-ajuste-de-costos-no-miente.test.ts` |
+| Las formas que Codex encontraba de a una estaban repetidas en 95 lugares y nadie las buscaba | **`npm run formas-que-mienten`**, enganchado a la puerta |
 
 ### Cómo se elige el matafuego
 

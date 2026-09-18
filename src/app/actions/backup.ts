@@ -418,6 +418,8 @@ async function createRestorePointInternal(isAuto: boolean): Promise<{ success: b
     return { success: true, point: toRestorePoint(manifest) };
   } catch (error: any) {
     if (db && name) {
+      // no pasa nada si falla: es limpieza de un respaldo que quedo a medias; lo peor que pasa
+      // es que ocupe lugar, y la proxima rotacion lo vuelve a intentar.
       await deleteV2Snapshot(db, name).catch(() => {});
     }
     return { success: false, error: error?.message || 'Error al crear el punto de restauracion.' };
@@ -490,6 +492,8 @@ async function runAutoBackup(): Promise<void> {
     }
     await finishAutoBackupLease(db);
   } catch (error) {
+    // no pasa nada si falla: se esta soltando el turno mientras ya se va a tirar el error de
+    // arriba, que es el que importa.
     await finishAutoBackupLease(db, error).catch(() => {});
     throw error;
   }

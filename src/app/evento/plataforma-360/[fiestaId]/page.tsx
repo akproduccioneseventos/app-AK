@@ -432,6 +432,8 @@ export default function Plataforma360Page() {
 
     if (customAudioRef.current) {
       customAudioRef.current.currentTime = 0;
+      // no pasa nada si falla: el navegador puede bloquear el audio hasta que el invitado toque
+      // la pantalla. El video se graba igual.
       customAudioRef.current.play().catch(() => {});
     }
 

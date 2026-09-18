@@ -38,6 +38,11 @@ const PASOS = [
       'Se agregó algo que dice hacer una cosa y nadie comprobó que la haga: código que no llama nadie, una pantalla sin una prueba que mire el resultado, o una prueba que sólo confirma que la pantalla abrió. Es la forma exacta que tuvieron las fallas de la fotocabina y del tablero: escritas, compilando, en verde, y sin hacer nada.',
   },
   {
+    nombre: 'Las formas que mienten',
+    comando: 'node scripts/las-formas-que-mienten.mjs --lo-que-cambio',
+    queSignifica: 'Se agrego una de las formas de defecto que ya nos costaron caro: un error que se tira a la basura, un cartel de exito que no espera el resultado, una comparacion que apaga al revisor de tipos, o una fecha suelta que el navegador corre un dia.',
+  },
+  {
     nombre: 'El trinquete',
     comando: 'node scripts/lo-que-se-dijo-es-lo-que-es.mjs --trinquete',
     queSignifica:
@@ -231,6 +236,7 @@ const SOLO_DOCUMENTOS = [
 const PASOS_QUE_MIRAN_TODO = new Set([
   'Acentos',
   'Lo que se dijo es lo que es',
+  'Las formas que mienten',
   'El trinquete',
 ]);
 
