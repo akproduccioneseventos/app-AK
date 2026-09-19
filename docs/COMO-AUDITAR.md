@@ -469,3 +469,24 @@ rastro y tiene prueba en verde. Solo falla cuando importa.
 3. **Probar el control con el dato de verdad**, no con uno armado a mano en la prueba con los
    campos que el control espera. Si la prueba construye el dato a medida, la comparacion siempre
    acierta y no se prueba nada.
+
+
+## Cuatro estados, no dos: lo propuso Codex el 19 de septiembre de 2026
+
+Hasta ahora una cosa estaba "hecha" o "no hecha", y ahí se escondía el problema: **una prueba
+aislada no es lo mismo que el recorrido real, y ninguna de las dos es lo mismo que verlo andar
+publicado.** Cuando todo se anota igual, una aprobación termina cubriendo más de lo que de verdad
+se comprobó.
+
+**De ahora en adelante, cada arreglo se anota en uno de cuatro estados:**
+
+1. **Programado** — el código está escrito.
+2. **Probado suelto** — hay una prueba que **falla antes del arreglo y pasa después**. Esa es la
+   única prueba que vale: si no se la vio en rojo, no prueba nada.
+3. **Probado de punta a punta** — se recorrió la pantalla de verdad y **se miró lo que quedó
+   guardado**, no sólo lo que dijo el cartel.
+4. **Visto andando publicado** — alguien lo usó en la app de verdad.
+
+**Y la regla que va con eso:** al contar un arreglo, se dice en qué estado está. Decir "arreglado"
+sin aclarar que es el estado 2 es exactamente la forma en que esta app engañó a todo el mundo
+durante meses.
