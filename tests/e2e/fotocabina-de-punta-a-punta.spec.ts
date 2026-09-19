@@ -82,10 +82,19 @@ test('la fotocabina saca la tanda y arma la tira de recuerdo', async ({ context,
   expect(texto, 'no muestra texto tecnico').not.toMatch(/undefined|firestore|is not a valid/i);
 
   // La cámara tiene que estar entrando: sin imagen no hay foto.
-  const hayCamara = await page.evaluate(() => {
-    const v = document.querySelector('video');
-    return Boolean(v && (v as HTMLVideoElement).srcObject);
-  });
+  //
+  // **Se espera hasta 15 segundos, no se mira una sola vez.** Con la máquina cargada —las 182
+  // pruebas corriendo de a tres— la cámara de mentira tarda más en engancharse, y esta prueba
+  // frenó la verificación entera dos veces por eso, siempre pasando cuando corría sola. Lo que
+  // se comprueba sigue siendo lo mismo: que la cámara entre. Sólo se le da tiempo.
+  let hayCamara = false;
+  for (let intento = 0; intento < 15 && !hayCamara; intento++) {
+    hayCamara = await page.evaluate(() => {
+      const v = document.querySelector('video');
+      return Boolean(v && (v as HTMLVideoElement).srcObject);
+    });
+    if (!hayCamara) await page.waitForTimeout(1_000);
+  }
   expect(hayCamara, 'la camara entra en la pantalla').toBe(true);
 
   // Disparar la tanda.

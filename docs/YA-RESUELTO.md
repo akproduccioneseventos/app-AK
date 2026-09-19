@@ -8579,3 +8579,38 @@ archivo: src/app/actions/incidents.ts
 usa: turnoDeIncidentes en src/app/actions/incidents.ts
 prueba: src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
 ```
+
+
+## 19 de septiembre de 2026 — Una reunión borrada ya no dice que se guardó
+
+**Lo encontró Codex.** Si alguien borraba una reunión mientras otra persona la tenía abierta
+editándola, al guardar **la app decía que se guardó** —no coincidía ninguna, no cambiaba nada— y,
+peor, **disparaba la sincronización con el calendario**: al cliente le podía llegar el aviso de
+una reunión que ya no existe.
+
+Ahora, si la reunión ya no está, se avisa en criollo —*"alguien la borró mientras la estabas
+editando, refrescá la pantalla"*— y **no se le manda nada al calendario**.
+
+**Probado rompiéndolo**: sacando la comprobación, el control se pone en rojo.
+
+```comprobar
+archivo: src/app/actions/fiesta/reuniones.actions.ts
+usa: existia en src/app/actions/fiesta/reuniones.actions.ts
+prueba: src/__tests__/una-reunion-borrada-no-dice-que-se-guardo.test.ts
+```
+
+## 19 de septiembre de 2026 — La prueba de la fotocabina ya no frena la verificación por la máquina cargada
+
+La prueba miraba **una sola vez** si la cámara había entrado en pantalla. Con las 182 pruebas
+corriendo de a tres, la cámara de mentira tarda más en engancharse: **frenó la verificación
+entera dos veces**, y las dos veces pasó cuando corrió sola. Ahora espera hasta quince segundos.
+Comprueba exactamente lo mismo; sólo le da tiempo.
+
+Y la lista de **cuánto tarda cada prueba** ahora queda escrita en `docs/tiempo-de-las-pruebas.md`,
+porque impresa se perdía: cuando la verificación frena sólo muestra un pedacito de la salida, que
+es justo cuando más se necesita.
+
+```comprobar
+archivo: docs/tiempo-de-las-pruebas.md
+prueba: tests/e2e/fotocabina-de-punta-a-punta.spec.ts
+```

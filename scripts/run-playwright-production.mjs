@@ -663,6 +663,39 @@ async function main() {
       const porcentaje = Math.round((ms / totalMs) * 100);
       console.log(`    ${String(Math.round(ms / 1000)).padStart(5)}s  ${String(porcentaje).padStart(3)}%  ${archivo}`);
     }
+
+    /**
+     * Y ademas queda ESCRITO en un archivo.
+     *
+     * **Porque impreso no alcanza:** cuando la verificacion frena, solo muestra un pedacito de
+     * la salida del paso que fallo, y esta lista se pierde justo la vez que mas se necesita.
+     * Escrita, se lee cuando uno quiere, sin volver a esperar media hora.
+     */
+    try {
+      const fs = await import('node:fs/promises');
+      const lineas = ranking.map(([archivo, ms]) => {
+        const porcentaje = Math.round((ms / totalMs) * 100);
+        return `| ${archivo} | ${Math.round(ms / 1000)}s | ${porcentaje}% |`;
+      });
+      await fs.writeFile(
+        'docs/tiempo-de-las-pruebas.md',
+        [
+          '# Cuanto tarda cada prueba de navegador',
+          '',
+          'Lo escribe solo la ultima corrida. **No se edita a mano.**',
+          '',
+          `Medido el ${new Date().toISOString().slice(0, 10)} — total ${Math.round(totalMs / 1000)}s.`,
+          '',
+          '| Prueba | Tarda | Del total |',
+          '| --- | --- | --- |',
+          ...lineas,
+          '',
+        ].join('\n'),
+        'utf-8',
+      );
+    } catch {
+      // no pasa nada si falla: es informativo y la lista ya salio impresa arriba.
+    }
   }
   console.log(`======================================================\n`);
 
