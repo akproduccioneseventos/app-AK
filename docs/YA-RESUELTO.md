@@ -8042,3 +8042,7 @@ PR1209 e43260f: REG01 loadData repuebla lista vacia con ejemplos; no es persiste
 
 ## Codex - reserva regalos 2026-09-19 (pendiente)
 PR1209 e43260f: REG02 claimGift confirma exito para regalo ya reservado o eliminado, consumidor Grazia muestra reservado. 1 PASS/2 FAIL aislados, no carrera ni permisos probados. docs/auditoria/RESERVA-REGALOS-2026-09-19.md y docs/evidencias/reserva-regalo-sonda.cjs. Sin reauditar REG01 ni permisos heredados; sin datos reales/build/merge.
+
+
+## Codex - incidentes simultaneos 2026-09-19 (pendiente)
+PR1209 e43260f: INC01 actualizacion + resolver superpuestos pierden comentario con ambas respuestas exitosas en sonda aislada snapshot/reemplazo. 1 PASS/1 FAIL; Firebase real pendiente. docs/auditoria/INCIDENTES-2026-09-19.md y docs/evidencias/incidentes-sonda.cjs. No se repitieron timeout/enlaces previos; sin datos reales/build/merge. Orden vigente: completar primera pasada antes de revalidar arreglos.
