@@ -8038,3 +8038,7 @@ PR1209 e43260f: VID03 omite fotos con HTTP fallido y entrega ZIP parcial/vacio c
 
 ## Codex - regalos vacios 2026-09-19 (pendiente, no corregido)
 PR1209 e43260f: REG01 loadData repuebla lista vacia con ejemplos; no es persistencia automatica, otro Guardar puede publicarlos. 1 PASS/1 FAIL aislados; docs/auditoria/REGALOS-2026-09-19.md y docs/evidencias/regalos-sonda.cjs. Sin datos reales, build ni merge. Informe ZIP anterior confirmado en remoto, sin repetir sonda.
+
+
+## Codex - reserva regalos 2026-09-19 (pendiente)
+PR1209 e43260f: REG02 claimGift confirma exito para regalo ya reservado o eliminado, consumidor Grazia muestra reservado. 1 PASS/2 FAIL aislados, no carrera ni permisos probados. docs/auditoria/RESERVA-REGALOS-2026-09-19.md y docs/evidencias/reserva-regalo-sonda.cjs. Sin reauditar REG01 ni permisos heredados; sin datos reales/build/merge.
