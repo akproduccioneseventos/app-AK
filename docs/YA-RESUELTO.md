@@ -8050,3 +8050,7 @@ PR1209 e43260f: INC01 actualizacion + resolver superpuestos pierden comentario c
 
 ## Codex - guias armado reintento 2026-09-19 (pendiente)
 PR1209 e43260f: GUI01 fallo del historial posterior a saveFiesta devuelve 0 tareas aunque las guardo; reintentar duplica. Sonda 1 PASS/1 FAIL aislados, docs/auditoria/GUIAS-ARMADO-2026-09-19.md y docs/evidencias/playbooks-sonda.cjs. No repetir identidad/enlaces; no tareas reales, build ni merge. Primera pasada, no revalidacion.
+
+
+## Guia compartida de auditoria para Claude/Gemini/Codex - 2026-09-19
+Por pedido del dueno se documento metodo practico: resultado humano, fallos parciales, reintentos, concurrencia, respuestas viejas, limites, evidencia integrada y peligros de dobles/AST. docs/auditoria/GUIA-AUDITORIA-PARA-CLAUDE-2026-09-19.md. No atribuye motivos a omisiones de otras IA ni afirma que Codex sea infalible. Sin cambios de app ni pruebas nuevas. Primera pasada antes de revalidar arreglos se mantiene.
