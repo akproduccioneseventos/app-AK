@@ -490,3 +490,43 @@ se comprobó.
 **Y la regla que va con eso:** al contar un arreglo, se dice en qué estado está. Decir "arreglado"
 sin aclarar que es el estado 2 es exactamente la forma en que esta app engañó a todo el mundo
 durante meses.
+
+
+## LA MATRIZ DE DIEZ ESCENARIOS (la trajo Codex el 19 de septiembre de 2026, y reemplaza a la lista larga)
+
+**Las dieciséis preguntas funcionaban, pero son una lista larga y se leen de arriba abajo.** Esto
+es mejor: **diez escenarios, y se eligen según lo que el cambio puede perder** —datos, plata,
+acceso o confianza—. No se corren los diez en cada botón.
+
+| Escenario | Cómo provocarlo | Qué mirar |
+| --- | --- | --- |
+| Normal | Datos válidos de verdad | Que el resultado **quede guardado**, no sólo que salga el cartel |
+| Vacío y límite | 0, 1, el máximo, el máximo más uno | Que la pantalla y el servidor digan **el mismo límite**, y que un vacío a propósito no se rellene con ejemplos |
+| Falla antes | Que falle la lectura o el primer guardado | Que no escriba encima ni anuncie éxito |
+| Falla a medias | Que falle el segundo guardado | Que diga **qué quedó hecho** y qué no |
+| Reintento | Repetir el mismo pedido después de un fallo | Que **no duplique** ni cobre dos veces |
+| Dos operadores | Los dos leen, después los dos escriben | Que se conserven los dos cambios, o que uno sea rechazado con un motivo claro |
+| Respuestas cruzadas | Demorar la primera, que llegue la segunda, y recién ahí soltar la primera | Que **el estado nuevo no retroceda** |
+| Pantalla vieja | Que otro reserve o borre antes del clic | Que no confirme algo que ya no existe |
+| Servicio de afuera | Que tarde, rechace o quede pendiente | Sin falso éxito ni descarga incompleta callada |
+| Rol y dispositivo | Dos sesiones distintas, y en pantalla chica | Sin acceso de más ni botones que no se alcanzan |
+
+**Dos cosas más que agregó, y son ciertas:**
+
+- **Un total se compara contra una cuenta hecha aparte**, no contra el mismo cálculo que lo
+  produjo. Si no, la prueba se da la razón sola.
+- **Un turno en memoria no alcanza si la app corre en más de un servidor.** Los turnos que puso
+  Claude ordenan a dos personas atendidas por la **misma** instancia. Hoy alcanza, porque el
+  servidor de esta app se despierta de a uno; pero **no es lo mismo que una transacción en la
+  base**, y hay que decirlo así cuando se cuenta que algo está arreglado.
+
+## LOS CINCO NIVELES DE EVIDENCIA (no son lo mismo y no se mezclan)
+
+1. **Mirado** — se leyó el código.
+2. **Probado suelto** — una prueba que **falla antes del arreglo y pasa después**.
+3. **Probado de punta a punta** — se recorrió pantalla, servidor y **lo que quedó guardado**.
+4. **Probado en navegador** — se abrió la pantalla de verdad y se miró el resultado.
+5. **Visto andando publicado** — alguien lo usó en la app real.
+
+**Al cerrar, se dice qué recorridos pasaron en qué versión, y cuáles quedan.** Nunca "cero
+errores en toda la app": eso es exactamente lo que ya engañó a todo el mundo una vez.
