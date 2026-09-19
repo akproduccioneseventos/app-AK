@@ -8054,3 +8054,7 @@ PR1209 e43260f: GUI01 fallo del historial posterior a saveFiesta devuelve 0 tare
 
 ## Guia compartida de auditoria para Claude/Gemini/Codex - 2026-09-19
 Por pedido del dueno se documento metodo practico: resultado humano, fallos parciales, reintentos, concurrencia, respuestas viejas, limites, evidencia integrada y peligros de dobles/AST. docs/auditoria/GUIA-AUDITORIA-PARA-CLAUDE-2026-09-19.md. No atribuye motivos a omisiones de otras IA ni afirma que Codex sea infalible. Sin cambios de app ni pruebas nuevas. Primera pasada antes de revalidar arreglos se mantiene.
+
+
+## Codex - guias documentos/compras 2026-09-19 (pendiente)
+PR1209 e43260f: GUI02 cuenta definiciones de documentos como generados sin crearlos en applyPlaybookToFiesta. 1 PASS/1 FAIL aislados, saveFiesta inspeccionado. Compras de plantilla no transferidas; decidir alcance con dueno antes de automatizar. docs/auditoria/GUIAS-DOCUMENTOS-2026-09-19.md y docs/evidencias/guias-documentos-sonda.cjs. No repetido GUI01; sin datos reales/build/merge.

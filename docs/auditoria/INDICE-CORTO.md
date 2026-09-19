@@ -84,3 +84,5 @@ Main da6c566: [encuestas/resenas](POSTFIESTA-2026-09-17.md), 2 PASS/3 FAIL aisla
 - 2026-09-19: GUIAS-ARMADO-2026-09-19.md, e43260f, GUI01 fallo parcial + reintento duplica tareas; 1 PASS/1 FAIL aislados. Documentos/compras no certificados.
 
 - Metodo compartido: [Guia practica para Claude, Gemini y Codex](GUIA-AUDITORIA-PARA-CLAUDE-2026-09-19.md). No certificado; explica casos negativos, evidencia y limites de las sondas.
+
+- 2026-09-19: GUIAS-DOCUMENTOS-2026-09-19.md, e43260f, GUI02 documentos contados sin crear; 1 PASS/1 FAIL. Compras sugeridas requieren decision de alcance. Nuevo pendiente, no revalidacion GUI01.
