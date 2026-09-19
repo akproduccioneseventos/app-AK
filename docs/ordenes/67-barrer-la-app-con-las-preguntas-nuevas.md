@@ -120,6 +120,37 @@ números sueltos —`max=`, `> 50`, `length > `— que aparezcan en los dos lado
 sólo avisar el error: **hay que dejarle al que lo usa una forma de seguir** —el enlace a la vista
 para copiar a mano, por ejemplo—.
 
+## Bloque 7 — Datos de ejemplo tratados como datos reales
+
+**Salió de la lista de regalos, el 19 de septiembre de 2026:** si el cliente la dejaba vacía a
+propósito, la pantalla la rellenaba sola con ejemplos y el guardado siguiente los escribía como si
+los hubiera elegido él.
+
+**Buscar:** `length === 0` seguido de un relleno con algo que se llame `default...`, `ejemplo`,
+`sugerid`, `demo` o `placeholder`, en `src/app/(app)/` y `src/app/evento/`.
+
+**Es hallazgo si:** la pantalla **no distingue "todavía no cargó nada" de "lo dejó vacío a
+propósito"**, y lo rellenado se puede terminar guardando.
+
+**Cómo se arregla, siempre igual:** la lista queda vacía, y el relleno pasa a ser **un botón que
+la persona toca**.
+
+## Bloque 8 — Dos guardados seguidos, y el segundo que falla borra la verdad del primero
+
+**Salió de las guías de armado, el 19 de septiembre de 2026:** se guardaban las tareas y después
+se anotaba en el historial. Si lo segundo fallaba, la función devolvía "no se hizo nada" **con las
+tareas ya creadas**, y el reintento las duplicaba.
+
+**Buscar:** en `src/app/actions/`, funciones con **dos `await` de guardado seguidos** —dos
+`saveFiesta`, `writeData`, `set`, `update`— donde el `catch` o el segundo `if (!ok)` devuelve
+`success: false` **con los contadores en cero**.
+
+**Es hallazgo si:** después de ese error, **algo quedó guardado igual** y el que llama no tiene
+cómo enterarse. La pregunta es siempre: *¿qué pasa si el operador aprieta de nuevo?*
+
+**Cómo se arregla:** decir la verdad de lo que sí se hizo, cerrar la puerta al reintento ciego, y
+—cuando se pueda— preguntar antes de repetir una operación que ya figura hecha.
+
 ## Lo que NO se toca en toda la orden
 
 - Los textos que ve el cliente, las promociones, los descuentos y el reloj del simulador.

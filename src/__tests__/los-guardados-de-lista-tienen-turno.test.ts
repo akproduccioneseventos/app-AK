@@ -24,6 +24,12 @@ const DEBEN_TENER_TURNO: Array<{ archivo: string; funciones: string[] }> = [
   { archivo: 'src/app/actions/price-adjustments.ts', funciones: ['applyPriceAdjustment', 'revertPriceAdjustment'] },
   { archivo: 'src/app/actions/settings.ts', funciones: ['saveCompanyInfo', 'saveInvoiceTemplateSettings'] },
   { archivo: 'src/app/actions/feedback.ts', funciones: ['saveFeedback'] },
+  // Los incidentes se cargan EN PLENA FIESTA, con dos personas a la vez: uno comenta y el otro
+  // resuelve. Sin turno, el comentario desaparecia. Lo encontro Codex el 19 de septiembre de 2026.
+  {
+    archivo: 'src/app/actions/incidents.ts',
+    funciones: ['createIncidente', 'updateIncidente', 'addActualizacionIncidente', 'resolverIncidente', 'cerrarIncidente'],
+  },
 ];
 
 function leer(relativo: string): string {

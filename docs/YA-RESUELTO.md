@@ -8560,3 +8560,22 @@ informa sin frenar, y esa lista es la que va a barrer Gemini.
 archivo: scripts/las-formas-que-mienten.mjs
 usa: formas-que-mienten en package.json
 ```
+
+
+## 19 de septiembre de 2026 — Los incidentes de la fiesta ya no se pisan entre dos personas
+
+**Lo encontró Codex.** Los incidentes se cargan **en plena fiesta**, y ahí es normal que dos del
+equipo toquen a la vez: uno agrega un comentario mientras el otro marca el incidente como
+resuelto. Cada guardado leía la lista entera y la escribía entera, así que **el segundo pisaba al
+primero y el comentario desaparecía**, con las dos pantallas diciendo que se había guardado.
+
+Ahora las cinco operaciones —crear, editar, comentar, resolver y cerrar— hacen fila. Se arregló
+acá y no se delegó porque es algo que falla en una fiesta de verdad.
+
+**Probado rompiéndolo**: sacando el turno de "resolver", el control se pone en rojo.
+
+```comprobar
+archivo: src/app/actions/incidents.ts
+usa: turnoDeIncidentes en src/app/actions/incidents.ts
+prueba: src/__tests__/los-guardados-de-lista-tienen-turno.test.ts
+```

@@ -60,6 +60,28 @@ ahí**. Y hay algo peor todavía: si la conexión con el almacenamiento no está
 - El caso de "no hay conexión con el almacenamiento" **no es éxito**: es un aviso de que no se pudo
   hacer nada.
 
+## Bloque 3 — El ZIP que se entrega con fotos de menos, o vacío, y sin decirlo
+
+Lo encontró Codex el 19 de septiembre de 2026. En
+`src/app/api/video-vida-photos/[fiestaId]/download/route.ts`, línea ~55:
+
+```ts
+if (!res.ok) continue;
+```
+
+**Cada foto que no se pudo bajar se saltea en silencio.** El cliente recibe un ZIP con menos
+fotos de las que subió —o **vacío**, si fallan todas— y nada se lo dice. Es el regalo del
+recuerdo: ahí no se puede entregar algo incompleto sin avisar.
+
+**Qué hacer, y ya está resuelto en otra parte de la app: copiá ese patrón.** En
+`src/app/api/social-gallery/[fiestaId]/download/route.ts` se juntan las que no entraron en
+`omittedFiles` y se escribe un **manifiesto adentro del ZIP** con cuántas se incluyeron y cuáles
+faltaron. Hacé lo mismo acá.
+
+**Y el caso que falta en las dos:** si no entró **ninguna** foto, no se entrega el ZIP vacío. Se
+contesta con un error claro —*"no se pudo preparar la descarga; probá de nuevo en un rato"*— para
+que el operador no le mande al cliente un archivo vacío creyendo que le mandó el recuerdo.
+
 ## Lo que NO se toca
 
 - **No subas el tope de 50** ni toques nada del almacenamiento: eso se paga por mes.
