@@ -8034,3 +8034,7 @@ PR1209 e43260f: VID01 interfaz permite 200 pero upload rechaza desde 51; VID02 e
 
 ## Codex - ZIP video de vida 2026-09-18 (no corregido)
 PR1209 e43260f: VID03 omite fotos con HTTP fallido y entrega ZIP parcial/vacio con 200 sin aviso. 1 PASS/2 FAIL en logica real con HTTP/JSZip simulados. docs/auditoria/VIDEO-ZIP-2026-09-18.md y docs/evidencias/video-zip-sonda.cjs. Aviso 50MB ya existe, no rehacer. No repetir limites/borrado/permisos previos. Sin archivos reales, build ni merge.
+
+
+## Codex - regalos vacios 2026-09-19 (pendiente, no corregido)
+PR1209 e43260f: REG01 loadData repuebla lista vacia con ejemplos; no es persistencia automatica, otro Guardar puede publicarlos. 1 PASS/1 FAIL aislados; docs/auditoria/REGALOS-2026-09-19.md y docs/evidencias/regalos-sonda.cjs. Sin datos reales, build ni merge. Informe ZIP anterior confirmado en remoto, sin repetir sonda.

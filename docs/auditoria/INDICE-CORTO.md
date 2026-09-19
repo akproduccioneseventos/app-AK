@@ -74,3 +74,5 @@ Main da6c566: [encuestas/resenas](POSTFIESTA-2026-09-17.md), 2 PASS/3 FAIL aisla
 - 2026-09-18: VIDEO-VIDA-2026-09-18.md, PR1209 e43260f, 2 PASS/2 FAIL: limite de fotos y borrado fallido. No reauditoria de permisos ni optimizacion.
 
 - 2026-09-18: VIDEO-ZIP-2026-09-18.md, e43260f, VID03: descarga parcial/vacia sin aviso HTTP. 1 PASS/2 FAIL aislados; ZIP binario real pendiente.
+
+- 2026-09-19: REGALOS-2026-09-19.md, e43260f, REG01 vacio intencional repoblado con ejemplos; 1 PASS/1 FAIL. Reserva/publico no auditados.
