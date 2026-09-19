@@ -22,10 +22,9 @@ test.describe('Orden 68: La hoja del DJ dice la verdad', () => {
     fiesta.configuracion.fechaEvento = '2026-09-30';
     fiesta.musica = {
       cancionEntrada: 'Entrada Triunfal',
-      valsPrincipal: 'Vals de las Mariposas',
-      generosPreferidos: ['Cumbia', 'Rock'],
-      artistasFavoritos: ['No Te Va Gustar'],
-      cancionesProhibidas: ['Reggaeton explícito'],
+      cancionVals: 'Vals de las Mariposas',
+      playlistFiesta: 'Cumbia, Rock, No Te Va Gustar',
+      listaNoReproducir: 'Reggaeton explícito',
     };
     guardarFiesta(fiesta);
   });

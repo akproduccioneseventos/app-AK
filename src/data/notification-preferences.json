@@ -5,8 +5,8 @@
       "app": true
     },
     "taskUpdates": {
-      "email": false,
-      "app": true
+      "email": true,
+      "app": false
     },
     "clientMessages": {
       "email": true,
@@ -17,7 +17,7 @@
       "app": true
     },
     "crmUpdates": {
-      "email": true,
+      "email": false,
       "app": false
     }
   }

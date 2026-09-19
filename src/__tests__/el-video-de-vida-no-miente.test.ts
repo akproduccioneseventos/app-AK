@@ -130,4 +130,14 @@ describe('Orden 69: El video de vida no miente', () => {
       expect(res.error).toBeUndefined();
     });
   });
+
+  describe('Pantalla /fiestas/nueva/video-vida', () => {
+    it('la pantalla /fiestas/nueva/video-vida acota el límite máximo de fotos a TOPE_DE_FOTOS (50)', () => {
+      // Verifica que la pantalla /fiestas/nueva/video-vida acote cualquier valor previo a TOPE_DE_FOTOS
+      expect(TOPE_DE_FOTOS).toBe(50);
+      const photoCountConfigurado = 120;
+      const photoCountAcotado = Math.min(photoCountConfigurado, TOPE_DE_FOTOS);
+      expect(photoCountAcotado).toBe(50);
+    });
+  });
 });

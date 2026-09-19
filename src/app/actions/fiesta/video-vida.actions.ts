@@ -48,13 +48,15 @@ export async function updateVideoVidaSettings(
         photoCount: Math.min(Number(videoVidaData.photoCount) || TOPE_DE_FOTOS, TOPE_DE_FOTOS),
       },
     };
-    await saveFiesta(updatedFiesta);
+    const guardado = await saveFiesta(updatedFiesta);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la configuración de video de vida.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 }
-
 
 export async function saveLifeStoryVideoPhoto(
   formData: FormData

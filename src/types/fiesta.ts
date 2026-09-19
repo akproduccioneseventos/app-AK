@@ -1473,6 +1473,29 @@ export interface MensajePortalCliente {
   fecha: string;
 }
 
+export interface DocumentoRequeridoFiesta {
+  id: string;
+  nombre: string;
+  tipo: string;
+  obligatorio: boolean;
+  completado?: boolean;
+  origen?: 'guia' | 'manual';
+  playbookId?: string;
+  fechaCreacion?: string;
+}
+
+export interface CompraSugeridaFiesta {
+  id: string;
+  nombre: string;
+  categoria: string;
+  prioridad: 'Alta' | 'Media' | 'Baja';
+  descripcion?: string;
+  comprado?: boolean;
+  origen?: 'guia' | 'manual';
+  playbookId?: string;
+  fechaCreacion?: string;
+}
+
 export interface FiestaEnPlanificacion {
   id: string;
   mensajesCliente?: MensajePortalCliente[];
@@ -1486,6 +1509,8 @@ export interface FiestaEnPlanificacion {
   invoiceIds?: string[];
   reuniones?: Reunion[];
   tareas?: Tarea[];
+  documentosRequeridos?: DocumentoRequeridoFiesta[];
+  comprasSugeridas?: CompraSugeridaFiesta[];
   decoracion?: DecoracionData;
   invitados?: Invitado[];
   /** Caras indexadas de las fotos de la fiesta (Orden 36). */

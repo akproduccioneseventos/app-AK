@@ -10,12 +10,25 @@
 process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
 process.env.AK_ALLOW_LOCAL_JSON_WRITES = 'true';
 
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn().mockResolvedValue({ user: { id: 'test_user_orden_56', role: 'admin' } }),
+  requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: {} }),
+}));
+
+jest.mock('@/lib/auth/session-token', () => ({
+  verifySession: jest.fn().mockResolvedValue({
+    success: true,
+    user: { userId: 'test_user_orden_56', role: 'admin' },
+  }),
+}));
+
 import {
   guardarPreferenciasUsuario,
   getPreferenciasUsuario,
   debeEnviarAvisoInterno,
   inferirCategoriaAviso,
 } from '@/lib/notifications/preferencias-avisos';
+import { leerPreferenciasDeAvisos, guardarPreferenciasDeAvisos } from '@/app/actions/preferencias-avisos';
 import { initialNotificationPreferences } from '@/types/preferencias-avisos';
 import { createNotification } from '@/app/actions/notifications';
 import { NOTIFICATION_INTERNAL_TOKEN } from '@/lib/notifications/internal-token';
@@ -106,5 +119,17 @@ describe('Orden 56: Los avisos respetan lo que se apagó', () => {
     expect(resEncendido.success).toBe(true);
     expect(resEncendido.notification).toBeDefined();
     expect(resEncendido.notification?.mensaje).toContain('iluminación');
+  });
+
+  it('las acciones del servidor guardarPreferenciasDeAvisos y leerPreferenciasDeAvisos persisten y leen las preferencias', async () => {
+    const resGuardar = await guardarPreferenciasDeAvisos({
+      ...initialNotificationPreferences,
+      crmUpdates: { email: false, app: false },
+    });
+    expect(resGuardar.success).toBe(true);
+
+    const resLeer = await leerPreferenciasDeAvisos();
+    expect(resLeer.success).toBe(true);
+    expect(resLeer.preferences.crmUpdates.app).toBe(false);
   });
 });

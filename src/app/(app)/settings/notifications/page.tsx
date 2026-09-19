@@ -37,10 +37,12 @@ export default function NotificationsSettingsPage() {
             try {
               const parsedLegacy = JSON.parse(legacy);
               const merged = { ...res.preferences, ...parsedLegacy };
-              await guardarPreferenciasDeAvisos(merged);
-              localStorage.removeItem('notification_prefs');
-              setPreferences(merged);
-              return;
+              const resMigracion = await guardarPreferenciasDeAvisos(merged);
+              if (resMigracion.success) {
+                localStorage.removeItem('notification_prefs');
+                setPreferences(merged);
+                return;
+              }
             } catch {
               localStorage.removeItem('notification_prefs');
             }
@@ -58,7 +60,7 @@ export default function NotificationsSettingsPage() {
       setIsLoading(false);
     }
   }, [toast]);
-  
+
   useEffect(() => {
     loadPreferences();
   }, [loadPreferences]);
@@ -106,7 +108,7 @@ export default function NotificationsSettingsPage() {
     { id: "clientMessages", title: "Mensajes de Clientes", description: "Avisos cuando un cliente envía un mensaje o responde.", isDisabled: false },
     { id: "systemAlerts", title: "Alertas del Sistema", description: "Notificaciones importantes sobre tu cuenta o el sistema.", isDisabled: false },
   ];
-  
+
   if (isLoading || !preferences) {
       return (
         <div className="flex items-center justify-center p-8">
