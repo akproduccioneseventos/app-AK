@@ -63,7 +63,7 @@ ninguna. **El tope real es 50 y no se sube**: eso se paga por mes.
 Si el cliente borra todos los regalos y guarda, la app se los vuelve a poner sola y el invitado ve
 una lista inventada. Es chico de arreglar y lo ve el invitado.
 
-### 7. Orden 71 — Las guías de armado no duplican tareas al reintentar
+### 7. Orden 71 — Las guías de armado: no duplican tareas Y hacen lo que prometen
 
 `docs/ordenes/71-las-guias-de-armado-no-duplican-tareas.md`
 

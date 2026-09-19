@@ -36,6 +36,42 @@ guardado que ya entró es más riesgoso que informarlo bien.
    confirmación —*"esta guía ya se aplicó el 12 de septiembre; ¿querés aplicarla igual?"*—. No lo
    prohíbas: aplicarla dos veces a propósito tiene que seguir siendo posible.
 
+## Bloque 2 — Que la guía HAGA los documentos y las compras que promete
+
+Lo encontró Codex el 19 de septiembre de 2026 y lo verifiqué: al aplicar una guía, el cartel dice
+*"Se generaron N tarea(s) y N documento(s)"*, pero **de los documentos sólo se cuenta el número**
+—`documentosGenerados: playbook.documentos.length`, línea ~150— y **las compras (`playbook.compras`)
+no se tocan en ningún lado**: la palabra "compras" no aparece una sola vez en
+`src/app/actions/playbooks.ts`.
+
+**El dueño decidió el 19 de septiembre de 2026 que las haga de verdad**, no que se saque la
+promesa. Sus palabras: *"que lo hagan de verdad"*.
+
+### Qué es cada cosa, para que no lo adivines
+
+- **`PlaybookDocumento`** (`src/types/playbook.ts` línea ~11) es `{ nombre, tipo, obligatorio }`.
+  **No es un archivo**: es **un documento que la fiesta tiene que tener** —el contrato firmado, el
+  seguro—. Generarlo quiere decir **dejarlo anotado como pendiente en la gestión documental de esa
+  fiesta**, para que el equipo vea qué falta. **No inventes un PDF.**
+- **`PlaybookCompra`** (línea ~17) es `{ nombre, categoria, prioridad, descripcion? }`. Son compras
+  que **no salen del catering** —pilas para el micrófono, cinta, velas—. La lista de compras de hoy
+  se arma sola con los ingredientes del catering
+  (`src/app/(app)/fiestas/nueva/catering/page.tsx`, línea ~285). Estas van **aparte y agregadas**,
+  no mezcladas con el cálculo automático.
+
+### Qué hay que hacer
+
+1. Agregar a la fiesta dos listas nuevas —`documentosRequeridos` y `comprasSugeridas`— con el
+   **origen anotado** (`origen: 'guia'` y el id de la guía), para que se distinga de lo que cargó
+   una persona.
+2. Que `applyPlaybookToFiesta` las complete al aplicar la guía, **en el mismo guardado que las
+   tareas**, no en uno aparte: ya sabemos lo que pasa cuando el segundo guardado falla.
+3. Mostrarlas: los documentos pendientes en la pantalla de gestión documental, y las compras en la
+   lista de compras, en un bloque propio que diga **"agregadas por la guía"**.
+4. Que el cartel diga **lo que de verdad pasó**, con los tres números reales.
+5. **Se pueden borrar a mano**: si el equipo decide que un documento no va, lo saca. No se
+   reponen solos al volver a entrar —ése es el defecto de la lista de regalos, no lo repitas—.
+
 ## Lo que NO se toca
 
 - El contenido de las guías ni las tareas que generan.
@@ -50,8 +86,12 @@ guardado que ya entró es más riesgoso que informarlo bien.
 3. Con todo bien, se aplica una vez y quedan las tareas una sola vez.
 4. Rompela a propósito —volviendo a devolver cero— y verificá que se ponga en rojo.
 
+5. **Documentos y compras:** aplicar una guía con 2 documentos y 3 compras **deja los 5 anotados
+   en la fiesta**, visibles en sus pantallas, y el cartel dice esos números.
+
 ```comprobar
 archivo: src/app/actions/playbooks.ts
+usa: comprasSugeridas en src/app/(app)/fiestas/nueva/catering/page.tsx
 usa: historialNoAnotado en src/app/(app)/playbooks/page.tsx
 prueba: src/__tests__/las-guias-de-armado-no-duplican-tareas.test.ts
 ```
