@@ -80,3 +80,5 @@ Main da6c566: [encuestas/resenas](POSTFIESTA-2026-09-17.md), 2 PASS/3 FAIL aisla
 - 2026-09-19: RESERVA-REGALOS-2026-09-19.md, e43260f, REG02 reserva no disponible confirma exito. 1 PASS/2 FAIL; concurrencia distribuida pendiente.
 
 - 2026-09-19: INCIDENTES-2026-09-19.md, e43260f, INC01 comentario/resolucion concurrentes; 1 PASS/1 FAIL aislados, Firebase pendiente. Primera pasada, no revalidacion.
+
+- 2026-09-19: GUIAS-ARMADO-2026-09-19.md, e43260f, GUI01 fallo parcial + reintento duplica tareas; 1 PASS/1 FAIL aislados. Documentos/compras no certificados.

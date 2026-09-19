@@ -8046,3 +8046,7 @@ PR1209 e43260f: REG02 claimGift confirma exito para regalo ya reservado o elimin
 
 ## Codex - incidentes simultaneos 2026-09-19 (pendiente)
 PR1209 e43260f: INC01 actualizacion + resolver superpuestos pierden comentario con ambas respuestas exitosas en sonda aislada snapshot/reemplazo. 1 PASS/1 FAIL; Firebase real pendiente. docs/auditoria/INCIDENTES-2026-09-19.md y docs/evidencias/incidentes-sonda.cjs. No se repitieron timeout/enlaces previos; sin datos reales/build/merge. Orden vigente: completar primera pasada antes de revalidar arreglos.
+
+
+## Codex - guias armado reintento 2026-09-19 (pendiente)
+PR1209 e43260f: GUI01 fallo del historial posterior a saveFiesta devuelve 0 tareas aunque las guardo; reintentar duplica. Sonda 1 PASS/1 FAIL aislados, docs/auditoria/GUIAS-ARMADO-2026-09-19.md y docs/evidencias/playbooks-sonda.cjs. No repetir identidad/enlaces; no tareas reales, build ni merge. Primera pasada, no revalidacion.
