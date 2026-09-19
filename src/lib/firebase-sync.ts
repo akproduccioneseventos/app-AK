@@ -99,6 +99,7 @@ const CONFIG_FILES: Record<string, string> = {
   'whatsapp-config.json': 'whatsapp-config',
   'presentacion-led-settings.json': 'presentacion-led-settings',
   'catalogo-settings.json': 'catalogo-settings',
+  'notification-preferences.json': 'notification-preferences',
 };
 
 const MAX_RETRIES = 2;

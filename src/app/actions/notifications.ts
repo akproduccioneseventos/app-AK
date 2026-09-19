@@ -87,6 +87,22 @@ export async function createNotification(
   ) {
     throw new Error('Creacion de notificacion no autorizada.');
   }
+
+  // Comprobar preferencias del usuario antes de crear el aviso
+  try {
+    const { inferirCategoriaAviso, debeEnviarAvisoInterno } = await import(
+      '@/lib/notifications/preferencias-avisos'
+    );
+    const categoria = (data as any).categoria || inferirCategoriaAviso(data);
+    const userId = (data as any).userId || 'admin';
+    const habilitado = await debeEnviarAvisoInterno(categoria, 'app', userId);
+    if (!habilitado) {
+      return { success: true, notification: undefined, isDuplicate: false };
+    }
+  } catch {
+    // Si falla la consulta de preferencias, continuar con el flujo normal
+  }
+
   try {
     const existing = isRecentDuplicateNotification(await getNotificationsInternal(), data);
     if (existing) return { success: true, notification: existing, isDuplicate: true };

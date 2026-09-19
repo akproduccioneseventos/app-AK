@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -40,13 +40,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Progress } from '@/components/ui/progress';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
-function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQuantityChange, onQuantityCommit, onDelete }: {
+function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQuantityChange, onQuantityCommit, onQuantityFocus, onQuantityBlur, onDelete }: {
     item: CargaOperativaItem;
     categoryId: string;
     onToggle: (categoryId: string, itemId: string) => void;
     onToggleRetornado: (categoryId: string, itemId: string) => void;
     onQuantityChange: (categoryId: string, itemId: string, quantity: string) => void;
     onQuantityCommit: (categoryId: string, itemId: string, quantity: string) => void;
+    onQuantityFocus?: (itemId: string) => void;
+    onQuantityBlur?: () => void;
     onDelete: (categoryId: string, itemId: string) => void;
 }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
@@ -118,8 +120,12 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
                     <Input
                         type="text"
                         value={item.cantidad}
+                        onFocus={() => onQuantityFocus?.(item.id)}
                         onChange={(e) => onQuantityChange(categoryId, item.id, e.target.value)}
-                        onBlur={(e) => onQuantityCommit(categoryId, item.id, e.target.value)}
+                        onBlur={(e) => {
+                          onQuantityBlur?.();
+                          onQuantityCommit(categoryId, item.id, e.target.value);
+                        }}
                         className={cn(
                             "h-9 w-20 text-center font-black text-primary rounded-lg transition-colors",
                             item.hasConflict ? "border-rose-400 focus-visible:ring-rose-400 bg-white" : "bg-muted/50 border-none"
@@ -140,6 +146,7 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
 function mergeRemoteOperationalState(
   local: ListaDeCargaOperativa,
   remote: ListaDeCargaOperativa,
+  focusedItemId?: string | null,
 ): ListaDeCargaOperativa {
   const remoteItems = new Map(
     (remote.categorias || []).flatMap((category) =>
@@ -156,16 +163,34 @@ function mergeRemoteOperationalState(
       items: (category.items || []).map((item) => {
         const remoteItem = remoteItems.get(`${category.id}:${item.id}`);
         if (!remoteItem) return item;
+
+        // Orden 66 (Bloque 2): Descartar respuestas retrasadas si tienen actualizadoAt más viejo que el local
+        if (item.actualizadoAt && remoteItem.actualizadoAt) {
+          const localTime = new Date(item.actualizadoAt).getTime();
+          const remoteTime = new Date(remoteItem.actualizadoAt).getTime();
+          if (remoteTime < localTime) {
+            return item;
+          }
+        }
+
+        // Orden 66 (Bloque 1): Si el operador tiene el foco en este ítem, no pisamos la cantidad que escribe
+        const cantidad = (focusedItemId && focusedItemId === item.id)
+          ? item.cantidad
+          : (remoteItem.cantidad !== undefined ? remoteItem.cantidad : item.cantidad);
+
         return {
           ...item,
+          cantidad,
           cargado: remoteItem.cargado,
           retornado: remoteItem.retornado,
           cargadoAt: remoteItem.cargadoAt,
           cargadoPor: remoteItem.cargadoPor,
           retornadoAt: remoteItem.retornadoAt,
           retornadoPor: remoteItem.retornadoPor,
-          actualizadoAt: remoteItem.actualizadoAt,
-          actualizadoPor: remoteItem.actualizadoPor,
+          actualizadoAt: remoteItem.actualizadoAt || item.actualizadoAt,
+          actualizadoPor: remoteItem.actualizadoPor || item.actualizadoPor,
+          hasConflict: remoteItem.hasConflict !== undefined ? remoteItem.hasConflict : item.hasConflict,
+          availableStockAtDate: remoteItem.availableStockAtDate !== undefined ? remoteItem.availableStockAtDate : item.availableStockAtDate,
         };
       }),
     })),
@@ -189,6 +214,7 @@ function ListaDeCargaOperativaContent() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasPendingStructure, setHasPendingStructure] = useState(false);
+  const focusedItemIdRef = useRef<string | null>(null);
 
   const [newCategoryName, setNewCategoryName] = useState('');
   
@@ -265,7 +291,7 @@ function ListaDeCargaOperativaContent() {
       if (document.visibilityState !== 'visible' || pendingItemUpdates > 0) return;
       const result = await getCargaOperativaAccessView(fiestaId);
       if (!result.success || !result.data) return;
-      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.data!.lista));
+      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.data!.lista, focusedItemIdRef.current));
     };
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') void refreshOperationalState();
@@ -297,7 +323,7 @@ function ListaDeCargaOperativaContent() {
       if (!result.success || !result.updatedData) {
         throw new Error(result.error || 'No se pudo guardar el cambio.');
       }
-      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.updatedData!));
+      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.updatedData!, focusedItemIdRef.current));
       setLastSaved(new Date());
     } catch (patchError) {
       setSaveError(patchError instanceof Error ? patchError.message : 'No se pudo guardar.');
@@ -600,8 +626,39 @@ function ListaDeCargaOperativaContent() {
     }));
   };
 
-  const handleItemQuantityCommit = (categoryId: string, itemId: string, quantity: string) => {
+  const handleItemQuantityCommit = async (categoryId: string, itemId: string, quantity: string) => {
     void persistItemPatch(categoryId, itemId, { cantidad: quantity });
+    if (!fiestaId || !fiesta?.configuracion?.fechaEvento) return;
+    const cat = (listaDeCarga.categorias || []).find((c) => c.id === categoryId);
+    const item = (cat?.items || []).find((i) => i.id === itemId);
+    if (!item) return;
+    const itemConNuevaCantidad = { ...item, cantidad: quantity };
+    const checked = (await checkAssetConflicts(
+      fiestaId,
+      fiesta.configuracion.fechaEvento,
+      [itemConNuevaCantidad]
+    ))[0];
+    if (checked) {
+      setListaDeCarga((prev) => ({
+        ...prev,
+        categorias: (prev.categorias || []).map((c) =>
+          c.id === categoryId
+            ? {
+                ...c,
+                items: (c.items || []).map((i) =>
+                  i.id === itemId
+                    ? {
+                        ...i,
+                        hasConflict: checked.hasConflict,
+                        availableStockAtDate: checked.availableStockAtDate,
+                      }
+                    : i
+                ),
+              }
+            : c
+        ),
+      }));
+    }
   };
 
   const handleDeleteItem = (categoryId: string, itemId: string) => {
@@ -815,6 +872,8 @@ function ListaDeCargaOperativaContent() {
                                         onToggleRetornado={toggleItemRetornado}
                                         onQuantityChange={handleItemQuantityChange}
                                         onQuantityCommit={handleItemQuantityCommit}
+                                        onQuantityFocus={(id) => { focusedItemIdRef.current = id; }}
+                                        onQuantityBlur={() => { focusedItemIdRef.current = null; }}
                                         onDelete={handleDeleteItem}
                                     />
                                 ))}
