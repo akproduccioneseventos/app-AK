@@ -60,20 +60,20 @@ interface TemplateProps {
   selectedSectionId?: string | null;
 }
 
-export const AllegriaTemplate: React.FC<TemplateProps> = ({ 
-    fiesta, 
-    invitacionData, 
-    socialConnections, 
-    onUpdate, 
-    onSectionClick, 
+export const AllegriaTemplate: React.FC<TemplateProps> = ({
+    fiesta,
+    invitacionData,
+    socialConnections,
+    onUpdate,
+    onSectionClick,
     onRsvpSubmit,
-    selectedSectionId, 
-    isPreview 
+    selectedSectionId,
+    isPreview
 }) => {
     const { toast } = useToast();
     const paleta = invitacionData.cabecera.paletaColores;
     const primaryColor = paleta?.primary || '#E11D48';
-    
+
     const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
     const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
     const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
@@ -176,10 +176,16 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         if (isPreview || gift.isClaimed) return;
         const guestName = prompt("Para reservar este regalo, dinos tu nombre:");
         if (!guestName) return;
-        
+
         const res = await claimGift(fiesta.id, gift.id, guestName);
         if (res.success) {
             toast({ title: "¡Regalo Reservado!", description: "Gracias por tu detalle." });
+        } else {
+            toast({
+                title: "No se pudo reservar",
+                description: res.error || "Justo lo eligió otro invitado; elegí otro de la lista.",
+                variant: "destructive"
+            });
         }
     };
 
@@ -218,17 +224,17 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     const headerEventDate = formatDate(fiesta.configuracion.fechaEvento);
 
     const isXV = fiesta.configuracion.tipoCelebracion === 'XV años';
-    const displayWelcomeTitle = (isXV && invitacionData.bienvenida.titulo.text === '¡Nos Casamos!') 
-        ? '¡Mis 15 Años!' 
+    const displayWelcomeTitle = (isXV && invitacionData.bienvenida.titulo.text === '¡Nos Casamos!')
+        ? '¡Mis 15 Años!'
         : invitacionData.bienvenida.titulo.text;
 
-    const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda' 
+    const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda'
         ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
         : ["Familia", "Amigos", "Trabajo", "Otros"];
 
     return (
         <div className={cn("font-body text-slate-900 bg-white w-full max-w-full overflow-x-hidden selection:bg-primary/10", isPreview && "h-full overflow-y-auto")}>
-            <section 
+            <section
                 onClick={() => onSectionClick?.('cabecera')}
                 className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-end pb-16 sm:pb-24 md:pb-32 overflow-hidden"
             >
@@ -237,7 +243,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                   primaryColor={primaryColor}
                   count={12}
                 />
-                <motion.div 
+                <motion.div
                     initial={{ scale: 1.2 }}
                     animate={{ scale: 1 }}
                     transition={{ duration: 15, ease: "linear" }}
@@ -248,9 +254,9 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                             <source src={invitacionData.cabecera.videoFondoUrl} type="video/mp4" />
                         </video>
                     ) : (
-                        <NextImage 
-                            src={invitacionData.cabecera.imagenFondoUrl || FONDO_SIN_FOTO} 
-                            alt="" layout="fill" objectFit="cover" 
+                        <NextImage
+                            src={invitacionData.cabecera.imagenFondoUrl || FONDO_SIN_FOTO}
+                            alt="" layout="fill" objectFit="cover"
                         />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/90"></div>
@@ -277,7 +283,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         <div className="h-px w-8 sm:w-16 bg-white/30"></div>
                     </motion.div>
                 </div>
-                
+
                 {isPreview && selectedSectionId === 'cabecera' && <div className="absolute inset-0 border-8 border-primary z-50 pointer-events-none"></div>}
             </section>
 
@@ -311,7 +317,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             <section className="py-16 sm:py-24 md:py-48 bg-slate-50 px-4 sm:px-6 overflow-hidden">
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-16 md:gap-24 items-center">
                     {[invitacionData.detallesEvento.ceremoniaReligiosa, invitacionData.detallesEvento.celebracion].filter(d => d.visible).map((detalle, i) => (
-                        <motion.div 
+                        <motion.div
                             key={i}
                             initial={{ opacity: 0, x: i === 0 ? -50 : 50 }}
                             whileInView={{ opacity: 1, x: 0 }}
@@ -366,16 +372,16 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         <Sparkles className="w-20 h-20 mx-auto text-primary" style={{ color: primaryColor }} />
                         <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold tracking-tighter">Plan de Vuelo</h2>
                         <p className="text-lg sm:text-xl md:text-2xl text-slate-400 font-medium italic">Todo lo que pasará en esta noche mágica.</p>
-                        <Button 
+                        <Button
                             onClick={(e) => { e.stopPropagation(); setIsItineraryModalOpen(true); }}
-                            size="lg" 
+                            size="lg"
                             className="h-12 sm:h-16 md:h-20 px-6 sm:px-10 md:px-16 rounded-full text-sm sm:text-xl md:text-2xl font-bold shadow-3xl shadow-primary/20 hover:scale-105 transition-all w-full sm:w-auto"
                             style={{ backgroundColor: primaryColor }}
                         >
                             VER ITINERARIO
                         </Button>
                     </div>
-                    
+
                     <Dialog open={isItineraryModalOpen} onOpenChange={setIsItineraryModalOpen}>
                         <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto rounded-2xl md:rounded-[3rem] p-6 sm:p-8 md:p-12 border-none shadow-3xl">
                             <DialogHeader className="text-center pb-10 border-b border-slate-100">
@@ -411,15 +417,15 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         <p className="text-lg sm:text-xl md:text-2xl text-slate-500 font-medium leading-relaxed max-w-2xl mx-auto">
                             {invitacionData.regalos.texto.text}
                         </p>
-                        
+
                         {invitacionData.regalos.datosBancarios && (
                             <div className="p-6 sm:p-8 md:p-12 border border-slate-200 rounded-2xl md:rounded-[4rem] bg-slate-50/50 backdrop-blur relative group shadow-2xl shadow-slate-100">
                                 <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Datos para el regalo</span>
                                 <p className="font-mono text-lg sm:text-2xl md:text-4xl tracking-tighter font-black text-slate-900 break-all mb-6 md:mb-8">
                                     {invitacionData.regalos.datosBancarios}
                                 </p>
-                                <Button 
-                                    variant="outline" 
+                                <Button
+                                    variant="outline"
                                     className="h-14 px-10 rounded-2xl border-slate-200 font-bold hover:bg-white"
                                     onClick={() => handleCopyAccount(invitacionData.regalos.datosBancarios)}
                                 >
@@ -429,7 +435,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         )}
 
                         {(invitacionData.regalos.items && invitacionData.regalos.items.length > 0) && (
-                            <Button 
+                            <Button
                                 onClick={(e) => { e.stopPropagation(); setIsGiftModalOpen(true); }}
                                 size="lg"
                                 className="h-12 sm:h-16 md:h-20 px-6 sm:px-10 md:px-16 rounded-2xl md:rounded-[2rem] text-sm sm:text-xl md:text-2xl font-bold shadow-3xl shadow-primary/20 w-full sm:w-auto"
@@ -448,8 +454,8 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                             </DialogHeader>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 pt-12">
                                 {(invitacionData.regalos.items || []).map((item: GiftItem) => (
-                                    <Card 
-                                        key={item.id} 
+                                    <Card
+                                        key={item.id}
                                         onClick={() => handleClaimGift(item)}
                                         className={cn(
                                             "group border-none shadow-xl rounded-[2.5rem] overflow-hidden bg-white transition-all",
@@ -500,10 +506,10 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                     </div>
                                 </ScrollArea>
                                 <form onSubmit={handleSendChat} className="p-6 bg-white border-t flex gap-3">
-                                    <Input 
-                                        value={newChatMsg} 
-                                        onChange={e => setNewChatMsg(e.target.value)} 
-                                        placeholder="Escribe un saludo..." 
+                                    <Input
+                                        value={newChatMsg}
+                                        onChange={e => setNewChatMsg(e.target.value)}
+                                        placeholder="Escribe un saludo..."
                                         className="h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-slate-50 border-none px-4 sm:px-6"
                                     />
                                     <Button type="submit" disabled={isSendingChat || !newChatMsg.trim()} size="icon" className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl shadow-xl shrink-0" style={{ backgroundColor: primaryColor }}>
@@ -522,7 +528,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         <span className="text-xs font-black tracking-[0.6em] uppercase opacity-40">RSVP</span>
                         <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
                         <p className="text-lg sm:text-xl md:text-2xl text-slate-400 font-medium leading-relaxed">
-                            Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del 
+                            Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del
                             <span className="block mt-2 text-white font-bold text-xl sm:text-2xl md:text-3xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
                         </p>
                         {rsvpCount !== null && rsvpCount > 0 && (
@@ -533,10 +539,10 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                             </span>
                           </div>
                         )}
-                        <Button 
+                        <Button
                             onClick={() => setIsRsvpModalOpen(true)}
-                            size="lg" 
-                            className="h-12 sm:h-16 md:h-20 px-6 sm:px-10 md:px-16 rounded-full text-sm sm:text-xl md:text-2xl font-bold shadow-3xl shadow-primary/20 hover:scale-105 transition-all duration-500 w-full sm:w-auto" 
+                            size="lg"
+                            className="h-12 sm:h-16 md:h-20 px-6 sm:px-10 md:px-16 rounded-full text-sm sm:text-xl md:text-2xl font-bold shadow-3xl shadow-primary/20 hover:scale-105 transition-all duration-500 w-full sm:w-auto"
                             style={{ backgroundColor: primaryColor }}
                         >
                             CONFIRMAR ASISTENCIA

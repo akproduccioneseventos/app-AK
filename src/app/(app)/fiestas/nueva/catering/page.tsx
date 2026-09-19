@@ -21,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 
 function PlannerGastronomicoFiestaContent() {
@@ -292,6 +293,43 @@ function PlannerGastronomicoFiestaContent() {
              <ShoppingCart className="w-4 h-4 mr-2"/> Ver Lista de Compras
            </Link></Button>
       </div>
+
+       {fiesta?.comprasSugeridas && fiesta.comprasSugeridas.length > 0 && (
+         <Card className="border-amber-200 bg-amber-50/40 shadow-sm">
+           <CardHeader className="pb-3">
+             <div className="flex items-center justify-between">
+               <CardTitle className="text-lg flex items-center gap-2 text-amber-950 font-bold">
+                 <ShoppingCart className="w-5 h-5 text-amber-600" />
+                 Compras agregadas por la guía
+               </CardTitle>
+               <Badge variant="outline" className="border-amber-300 bg-amber-100 text-amber-800 text-xs">
+                 {fiesta.comprasSugeridas.length} sugerencias
+               </Badge>
+             </div>
+             <CardDescription className="text-amber-800 text-xs">
+               Compras y materiales sugeridos automáticamente por las guías de armado aplicadas al evento.
+             </CardDescription>
+           </CardHeader>
+           <CardContent className="space-y-2">
+             <div className="grid gap-2 sm:grid-cols-2">
+               {fiesta.comprasSugeridas.map((compra) => (
+                 <div key={compra.id} className="p-3 bg-white rounded-xl border border-amber-200 shadow-sm flex items-start justify-between gap-2">
+                   <div>
+                     <p className="font-semibold text-sm text-slate-900">{compra.nombre}</p>
+                     {compra.descripcion && <p className="text-xs text-slate-500">{compra.descripcion}</p>}
+                     <span className="text-[10px] text-amber-700 bg-amber-100 px-2 py-0.5 rounded-full inline-block mt-1">
+                       {compra.categoria}
+                     </span>
+                   </div>
+                   <Badge variant="secondary" className="text-[10px]">
+                     {compra.prioridad}
+                   </Badge>
+                 </div>
+               ))}
+             </div>
+           </CardContent>
+         </Card>
+       )}
 
        {isLoading ? <div className="text-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div> :
         <>

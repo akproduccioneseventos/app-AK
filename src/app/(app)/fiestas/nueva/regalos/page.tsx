@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Gift, Save, Loader2, PlusCircle, Trash2, Edit, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Gift, Save, Loader2, PlusCircle, Trash2, Edit, ExternalLink, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { updateGiftRegistry } from '@/app/actions/fiesta/regalos.actions';
@@ -35,27 +35,18 @@ function GiftRegistryPageContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [giftList, setGiftList] = useState<GiftItem[]>([]);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<Partial<GiftItem> | null>(null);
-  
+
   const loadData = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (fiestaData) setFiesta(fiestaData);
-      
-      let currentGiftList = fiestaData?.invitacionDigital?.regalos?.items || [];
 
-      // If the list is empty, populate with defaults
-      if (currentGiftList.length === 0) {
-        currentGiftList = defaultGiftItems.map(item => ({
-          ...item,
-          id: `gift_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-          isClaimed: false,
-        }));
-      }
+      const currentGiftList = fiestaData?.invitacionDigital?.regalos?.items || [];
       setGiftList(currentGiftList);
     } catch (e) {
       toast({ title: "Error", description: "No se pudo cargar la lista de regalos.", variant: "destructive" });
@@ -72,11 +63,11 @@ function GiftRegistryPageContent() {
     setCurrentItem(item ? { ...item } : { name: '', description: '', imageUrl: '', isClaimed: false });
     setIsModalOpen(true);
   };
-  
+
   const handleItemChange = (field: keyof GiftItem, value: any) => {
     setCurrentItem(prev => (prev ? { ...prev, [field]: value } : null));
   };
-  
+
   const handleSaveItem = () => {
     if (!currentItem || !currentItem.name?.trim()) {
       toast({ title: "Nombre requerido", variant: "destructive" });
@@ -100,9 +91,19 @@ function GiftRegistryPageContent() {
     });
     setIsModalOpen(false);
   };
-  
+
   const handleDeleteItem = (itemId: string) => {
     setGiftList(prev => prev.filter(i => i.id !== itemId));
+  };
+
+  const handleCargarSugerencias = () => {
+    const sugeridos = defaultGiftItems.map(item => ({
+      ...item,
+      id: `gift_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      isClaimed: false,
+    }));
+    setGiftList(sugeridos);
+    toast({ title: "Sugerencias cargadas", description: "Revisá los regalos y guardá los cambios cuando estés listo." });
   };
 
   const handleSaveChanges = async () => {
@@ -170,7 +171,15 @@ function GiftRegistryPageContent() {
           <CardDescription>Añade, edita o elimina los ítems que tus invitados podrán ver en la página del evento. Los regalos marcados como "reclamados" no pueden desmarcarse desde aquí.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-           <Button onClick={() => openItemModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Regalo</Button>
+           <div className="flex items-center justify-between gap-2 flex-wrap">
+             <Button onClick={() => openItemModal()}><PlusCircle className="w-4 h-4 mr-2"/>Añadir Regalo</Button>
+             {giftList.length === 0 && (
+               <Button type="button" variant="outline" onClick={handleCargarSugerencias}>
+                 <Sparkles className="w-4 h-4 mr-2 text-primary" />
+                 Cargar sugerencias
+               </Button>
+             )}
+           </div>
            <div className="space-y-3">
             {giftList.length > 0 ? (
                 giftList.map(item => (
@@ -191,7 +200,16 @@ function GiftRegistryPageContent() {
                        </div>
                     </Card>
                 ))
-            ) : <p className="text-center text-muted-foreground py-4">Aún no has añadido ningún regalo a la lista.</p>}
+            ) : (
+              <div className="text-center py-8 px-4 border border-dashed rounded-xl space-y-3 bg-slate-50/50">
+                <Gift className="w-8 h-8 text-muted-foreground mx-auto opacity-50" />
+                <p className="text-muted-foreground text-sm font-medium">Todavía no hay regalos en la lista</p>
+                <Button type="button" variant="outline" size="sm" onClick={handleCargarSugerencias}>
+                  <Sparkles className="w-4 h-4 mr-2 text-primary" />
+                  Cargar sugerencias
+                </Button>
+              </div>
+            )}
            </div>
         </CardContent>
          <CardFooter className="border-t pt-4">

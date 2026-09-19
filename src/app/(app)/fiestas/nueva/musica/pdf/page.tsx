@@ -13,17 +13,9 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { WatermarkedImage } from '@/components/watermarked-image';
 import { useSearchParams } from 'next/navigation';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
 
-const formatDate = (dateString?: string) => {
-  if (!dateString) return "Fecha no definida";
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
-  } catch (e) {
-    return "Fecha inválida";
-  }
-};
+const formatDate = formatearFechaEvento;
 
 const companyName = "AK Producciones";
 
@@ -33,6 +25,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [shareUrlToShow, setShareUrlToShow] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -76,14 +69,28 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
     try {
       if (navigator.share && navigator.canShare(shareData)) {
         await navigator.share(shareData);
-      } else {
-        throw new Error();
+        return;
       }
-    } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
+    } catch {
+      // Intento con clipboard
+    }
+
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.writeText) {
+        throw new Error('Portapapeles no disponible');
+      }
+      await navigator.clipboard.writeText(shareData.url);
+      setShareUrlToShow(null);
       toast({
         title: "Enlace Copiado",
         description: "El enlace ha sido copiado a tu portapapeles.",
+      });
+    } catch {
+      setShareUrlToShow(shareData.url);
+      toast({
+        title: "No se pudo copiar automáticamente",
+        description: "Copiá el enlace que aparece en pantalla.",
+        variant: "destructive",
       });
     }
   };
@@ -126,6 +133,19 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
             <Button onClick={handlePrint} size="sm"><PrinterIcon className="w-4 h-4 mr-1.5" />Imprimir / Guardar PDF</Button>
           </div>
         </div>
+
+        {shareUrlToShow && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs space-y-1 mb-4 print:hidden" data-testid="share-url-fallback">
+            <p className="font-bold text-amber-800">No se pudo copiar automáticamente. Copiá este enlace a mano:</p>
+            <input
+              type="text"
+              readOnly
+              value={shareUrlToShow}
+              className="w-full p-1.5 border rounded bg-white select-all text-slate-700 text-xs font-mono"
+              onClick={(e) => (e.target as HTMLInputElement).select()}
+            />
+          </div>
+        )}
 
         <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
           <h1 className="text-xl font-bold text-primary print:text-lg flex items-center justify-center gap-2">

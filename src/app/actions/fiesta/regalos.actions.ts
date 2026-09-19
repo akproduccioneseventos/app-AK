@@ -7,7 +7,7 @@ import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 async function updateFiestaData(
-    fiestaId: string, 
+    fiestaId: string,
     updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -77,10 +77,18 @@ export async function claimGift(fiestaId: string, giftId: string, guestName: str
     return updateFiestaData(fiestaId, data => {
         const invitacionDigital = data.invitacionDigital || initialFiestaActualData.invitacionDigital!;
         const regalos = invitacionDigital.regalos || { visible: true, titulo: { text: '' }, texto: { text: '' }, datosBancarios: '', items: [] };
-        
+
         const currentItems = regalos.items || [];
+        const targetGift = currentItems.find(gift => gift.id === giftId);
+        if (!targetGift) {
+            throw new Error('Regalo no encontrado.');
+        }
+        if (targetGift.isClaimed) {
+            throw new Error('Justo lo eligió otro invitado; elegí otro de la lista.');
+        }
+
         const updatedItems = currentItems.map(gift => {
-            if (gift.id === giftId && !gift.isClaimed) {
+            if (gift.id === giftId) {
                 return { ...gift, isClaimed: true, claimedBy: guestName };
             }
             return gift;
@@ -97,4 +105,4 @@ export async function claimGift(fiestaId: string, giftId: string, guestName: str
         };
     });
 }
-    
+

@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { BookOpen, CheckCircle2, FileText, ShoppingCart, Layers, Play, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
-import { getPlaybooks, applyPlaybookToFiesta } from '@/app/actions/playbooks';
+import { getPlaybooks, applyPlaybookToFiesta, getPlaybookAplicaciones } from '@/app/actions/playbooks';
 import type { Playbook } from '@/types/playbook';
 
 function PlaybooksContent() {
@@ -53,11 +53,38 @@ function PlaybooksContent() {
     }
     setApplying(true);
     try {
-      const result = await applyPlaybookToFiesta(selectedPlaybook.id, fiestaIdInput.trim(), 'admin');
+      const targetFiestaId = fiestaIdInput.trim();
+      const aplicaciones = await getPlaybookAplicaciones().catch(() => []);
+      const yaAplicada = aplicaciones.find(
+        (a) => a.playbookId === selectedPlaybook.id && a.fiestaId === targetFiestaId
+      );
+
+      if (yaAplicada) {
+        const fecha = yaAplicada.aplicadoEn ? new Date(yaAplicada.aplicadoEn).toLocaleDateString('es-UY') : 'recientemente';
+        const confirma = window.confirm(
+          `Esta guía ya se aplicó a este evento el ${fecha}. ¿Querés aplicarla igual?`
+        );
+        if (!confirma) {
+          setApplying(false);
+          return;
+        }
+      }
+
+      const result = await applyPlaybookToFiesta(selectedPlaybook.id, targetFiestaId, 'admin');
       if (result.success) {
+        if (result.historialNoAnotado) {
+          toast({
+            title: 'Atención: tareas creadas',
+            description: `Se crearon ${result.tareasGeneradas} tareas, pero no se pudo anotar la aplicación en el historial. No vuelvas a aplicarla: las tareas ya están.`,
+            variant: 'destructive',
+          });
+          setApplyDialogOpen(false);
+          return;
+        }
+
         toast({
           title: 'Playbook aplicado',
-          description: `Se generaron ${result.tareasGeneradas} tarea(s) y ${result.documentosGenerados} documento(s).`,
+          description: `Se generaron ${result.tareasGeneradas} tarea(s), ${result.documentosGenerados} documento(s) y ${result.comprasGeneradas ?? 0} compra(s).`,
         });
         setApplyDialogOpen(false);
       } else {
