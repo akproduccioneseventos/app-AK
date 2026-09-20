@@ -52,6 +52,20 @@ prueba: tests/e2e/importar-invitados-de-una-planilla.spec.ts
 
 ---
 
+## Bloque 1.b — En el celular no se puede confirmar la importación
+
+**Medido el 20 de septiembre de 2026, con la prueba ya despierta:** en pantalla de celular, el
+botón `[data-testid="btn-confirmar-guardado-planilla"]` del cuadro de importación **no se puede
+tocar**: el toque se queda esperando hasta que la prueba muere a los 90 segundos. En
+computadora anda perfecto.
+
+Es un defecto de pantalla en el celular —el botón queda tapado o fuera de alcance dentro del
+cuadro—. Leé la habilidad `celular-primero`. **Mientras tanto la prueba corre sólo en
+computadora, con el motivo escrito adentro; al arreglarlo, sacá esa línea y que corra en los
+dos.**
+
+---
+
 ## Bloque 2 — La prueba de los botones que se pisan no puede apagarse sola
 
 En `tests/e2e/sofia-composer.spec.ts:43`, si uno de los dos botones —enviar y WhatsApp— **no

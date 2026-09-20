@@ -8814,3 +8814,21 @@ archivo: src/lib/decoracion/generar-layout-automatico.ts
 usa: rsvp en src/lib/decoracion/generar-layout-automatico.ts
 prueba: src/__tests__/salon-3d-y-piezas-layout.test.ts
 ```
+
+## 20 de septiembre de 2026 — La prueba despierta de importar invitados: tres cosas, dos de ella y una de la app
+
+Al despertarla aparecieron tres cosas, y conviene dejarlas separadas:
+
+- **La prueba pedia "Fila 2" y la app dice "Fila 3".** La app tiene razon: la planilla trae
+  encabezado, asi que la fila vacia es la tercera del archivo, que es la que ve el operador.
+- **Buscaba nombres que aparecen dos veces en pantalla** (en la vista previa y en la lista de
+  atras) y se caia por eso.
+- **En el celular no se puede tocar el boton de confirmar la importacion.** Eso SI es un
+  defecto de pantalla, quedo medido y pedido en la orden 76; mientras tanto la prueba corre
+  solo en computadora, con el motivo escrito adentro.
+
+```comprobar
+archivo: tests/e2e/importar-invitados-de-una-planilla.spec.ts
+usa: Fila 3 en tests/e2e/importar-invitados-de-una-planilla.spec.ts
+prueba: tests/e2e/importar-invitados-de-una-planilla.spec.ts
+```

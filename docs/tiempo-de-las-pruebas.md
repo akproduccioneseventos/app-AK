@@ -2,8 +2,9 @@
 
 Lo escribe solo la ultima corrida. **No se edita a mano.**
 
-Medido el 2026-09-20 — total 38s.
+Medido el 2026-09-20 — total 36s.
 
 | Prueba | Tarda | Del total |
 | --- | --- | --- |
-| 48-touchpix-entrega-sin-reinicio.spec.ts | 38s | 100% |
+| importar-invitados-de-una-planilla.spec.ts | 21s | 59% |
+| la-hoja-de-cocina.spec.ts | 15s | 41% |
