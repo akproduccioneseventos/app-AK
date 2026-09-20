@@ -36,31 +36,49 @@ sigue abierto es tuyo.
 
 ## Lo que falta y es tuyo
 
-**Las cuatro pruebas siguen fallando cuando corren juntas.** Sueltas andan; en tanda, no.
-Medido el 20 de septiembre de 2026 sobre la rama `fix/despertador-de-afuera`, con
-`npm run test:e2e:production -- <archivo>`:
+**Medido el 20 de septiembre de 2026**, corriendo las cuatro juntas sobre
+`fix/despertador-de-afuera`. La causa de fondo era mía de encontrar y **ya está arreglada**:
 
-- `la-carga-operativa-avisa-cuando-no-alcanza.spec.ts` — no encuentra
-  `input[placeholder="Cant."]`.
-- `la-carga-operativa-se-sincroniza.spec.ts` — misma pantalla, mismo síntoma.
-- `la-hoja-del-dj-dice-la-verdad.spec.ts` — la pantalla queda en "Elegí una fiesta".
-- `la-lista-de-regalos-queda-como-la-dejaron.spec.ts` — la pantalla no termina de cargar.
+> **La sesión del equipo son DOS mitades**: la cookie firmada, que mira el portero del
+> servidor, y una marca en el navegador (`localStorage`/`sessionStorage`), que mira el guardia
+> de la pantalla. Tus cuatro pruebas ponían sólo la cookie, así que el guardia mandaba al
+> ingreso y en ese rebote se perdía el `?fiestaId=...`. La pantalla volvía sin fiesta y se
+> quedaba en "elegí una fiesta" o cargando: **parecía un defecto de la pantalla y no lo era.**
+>
+> Queda un único ayudante, **`ponerSesionDelEquipo(context, baseURL)`** en
+> `tests/e2e/helpers/fiesta-de-prueba.ts`. **Usalo siempre; no armes la cookie a mano.**
 
-**Todas fallan igual: la pantalla abre sin la fiesta.** Sola, cada una anda; con cuatro
-archivos a la vez, no. Eso apunta a la fiesta de prueba, no a las pantallas.
+Con eso, **`la-hoja-del-dj-dice-la-verdad.spec.ts` pasa en verde.** Quedan tres, y son tuyas:
 
-**Lo que hay que revisar, y en este orden:**
+### 1. `la-carga-operativa-avisa-cuando-no-alcanza.spec.ts` — no aparece "Falta Stock"
 
-1. **Cada prueba crea su fiesta en `beforeAll` y la borra en `afterAll`.** Con varias corriendo
-   a la vez, un `afterAll` de una **borra el archivo mientras la otra lo está usando** si los
-   identificadores chocan. Los identificadores se arman con `Date.now()`, que **se repite** entre
-   procesos que arrancan juntos. Ponéles algo que no se repita (por ejemplo el número de proceso
-   además de la hora).
-2. **Comprobá que la fiesta exista JUSTO ANTES de mirar la pantalla**, con `leerFiesta` del
-   ayudante `tests/e2e/helpers/fiesta-de-prueba.ts`. Si no está, la prueba tiene que fallar
-   diciendo *"la fiesta de prueba no está"*, no *"no encuentro el campo"*: eso es lo que me hizo
-   perder una hora buscando del lado equivocado.
-3. **Recién después** mirá los selectores.
+El cartel existe en la pantalla: `src/app/(app)/fiestas/nueva/carga-operativa/page.tsx:135`,
+y se muestra cuando `item.hasConflict` es verdadero. **`hasConflict` no lo pone la pantalla**:
+lo calcula `checkAssetConflicts` comparando contra el **catálogo de activos** de la empresa.
+
+Tu fiesta de prueba no deja ningún activo en el catálogo, así que **nunca puede haber
+conflicto** y el cartel nunca aparece. Hay que sembrar el catálogo en el `beforeAll` (el equipo
+con su cantidad disponible) para que pedir 12 teniendo 10 dé conflicto de verdad.
+
+### 2. `la-carga-operativa-se-sincroniza.spec.ts` — no encuentra `input[placeholder="Cant."]`
+
+Misma pantalla y probablemente la misma raíz: la lista no llega a dibujarse. Antes de mirar el
+selector, **comprobá que la pantalla cargó la lista**: si `checkAssetConflicts` falla, la
+pantalla queda en "No se pudo cargar la lista de carga operativa" y ningún selector existe.
+La prueba tiene que fallar diciendo **eso**, no "no encuentro el campo".
+
+### 3. `la-lista-de-regalos-queda-como-la-dejaron.spec.ts` — la pantalla no termina de cargar
+
+Con la sesión completa la pantalla ya no rebota, pero la prueba sigue agotando el tiempo. Mirá
+qué muestra el cuerpo de la página antes de buscar el texto: si dice que el módulo no está
+contratado, falta `modulosContratados.regalos` en la fiesta de prueba.
+
+### La regla que sale de esto, y vale para toda prueba nueva
+
+**Una prueba tiene que fallar diciendo lo que pasó, no lo que no encontró.** Antes de buscar un
+campo, comprobá que la pantalla cargó: una línea que espere el título o el listado. Si no,
+cualquier problema de datos se disfraza de "selector equivocado" y se van horas buscando del
+lado equivocado. Eso fue exactamente lo que pasó hoy.
 
 **Cómo se comprueba que quedó bien:** las cuatro tienen que pasar **corriendo juntas**, no una
 por una:
