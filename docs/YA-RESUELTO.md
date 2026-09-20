@@ -8765,3 +8765,18 @@ archivo: src/app/actions/multiagent.ts
 usa: addCrmLead en src/app/actions/multiagent.ts
 prueba: src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts
 ```
+
+## 20 de septiembre de 2026 — El briefing del DJ decia "Copiado" sin copiar
+
+**Que estaba mal:** el boton que copia el briefing para el DJ anunciaba "Copiado" **sin esperar
+el resultado**. Con el portapapeles bloqueado, el operador se iba creyendo que lo tenia y el
+texto no estaba en ningun lado. Es la misma forma que ya se arreglo en otros tres botones.
+
+**Que se hizo:** espera el resultado y, si no pudo, avisa y dice que seleccione el texto del
+cuadro de arriba.
+
+```comprobar
+archivo: src/app/(app)/fiestas/nueva/musica/page.tsx
+usa: No se pudo copiar solo en src/app/(app)/fiestas/nueva/musica/page.tsx
+prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
+```

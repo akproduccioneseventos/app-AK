@@ -406,9 +406,19 @@ function MusicaContent() {
                   <Button 
                     type="button" 
                     variant="outline" 
-                    onClick={() => {
-                      navigator.clipboard.writeText(djBrief);
-                      toast({ title: 'Copiado', description: 'Briefing copiado al portapapeles.' });
+                    onClick={async () => {
+                      // "Copiado" solo cuando de verdad se copio: con el portapapeles
+                      // bloqueado el cartel mentia y el operador se quedaba sin el texto.
+                      try {
+                        await navigator.clipboard.writeText(djBrief);
+                        toast({ title: 'Copiado', description: 'Briefing copiado al portapapeles.' });
+                      } catch {
+                        toast({
+                          title: 'No se pudo copiar solo',
+                          description: 'Seleccioná el texto del cuadro de arriba y copialo a mano.',
+                          variant: 'destructive',
+                        });
+                      }
                     }}
                     className="w-full text-indigo-700 border-indigo-300 hover:bg-indigo-100"
                   >
