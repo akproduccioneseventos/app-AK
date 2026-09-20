@@ -35,12 +35,16 @@ export function calculateReadinessScore(fiesta: FiestaEnPlanificacion): Readines
   }
 
   // --- Pagos pendientes (cuotas del plan de pagos) ---
+  //
+  // OJO, ya costo caro: esto leia `fiesta.planPago` (sin "s") con un `as any`, y ese
+  // campo NO EXISTE. Siempre daba cero cuotas pendientes, asi que el indicador podia
+  // marcar 100% con el cliente debiendo. El plan de pagos de la fiesta es `planDePagos`,
+  // el mismo que leen la pantalla de cobros y el panel contable, y sus estados son
+  // 'pendiente' | 'pagado' | 'vencido' | 'parcial'.
   let pagosPendientes = 0;
-  const planPago = (fiesta as any).planPago;
-  if (planPago?.cuotas) {
-    pagosPendientes = planPago.cuotas.filter(
-      (c: any) => c.estado === 'pendiente' || c.estado === 'vencido'
-    ).length;
+  const cuotasDelPlan = fiesta.planDePagos?.cuotas;
+  if (Array.isArray(cuotasDelPlan)) {
+    pagosPendientes = cuotasDelPlan.filter((c) => c.estado !== 'pagado').length;
   }
 
   const deduccionPagos = Math.min(pagosPendientes * 5, 20);

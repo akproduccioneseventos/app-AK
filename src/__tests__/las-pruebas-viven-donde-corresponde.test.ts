@@ -60,6 +60,41 @@ describe('Las pruebas viven donde corresponde', () => {
     expect(problemas).toEqual([]);
   });
 
+  /**
+   * Segunda forma del mismo desastre, y paso el 20 de septiembre de 2026:
+   * `la-lista-de-regalos-queda-como-la-dejaron.spec.ts` importaba una accion del
+   * servidor (`src/app/actions/fiesta/regalos.actions.ts`) para llamarla directo.
+   * Toda accion del servidor arrastra `server-only`, que revienta al cargarse fuera
+   * de Next. El archivo no cargaba y la tanda entera de ocho archivos termino
+   * "sin registrar ninguna prueba". Se veia igual que un fallo del codigo y no lo era.
+   *
+   * Las pruebas de navegador entran por la pantalla. Lo que hay que probar llamando
+   * a una accion del servidor va a una prueba de Jest, en src/__tests__/.
+   */
+  it('ninguna prueba de navegador importa una accion del servidor', () => {
+    const problemas: string[] = [];
+    // import ... from '.../app/actions/...' (el `import type` no trae codigo y no molesta)
+    const IMPORTA_UNA_ACCION = /^\s*import\s+(?!type\b)[^;]*?from\s+['"][^'"]*app\/actions\/[^'"]*['"]/gm;
+
+    for (const archivo of archivosDePruebaDeNavegador(CARPETA_E2E)) {
+      const contenido = fs.readFileSync(archivo, 'utf-8');
+      const encontrados = contenido.match(IMPORTA_UNA_ACCION);
+      if (encontrados) {
+        problemas.push(`${path.relative(process.cwd(), archivo)}: ${encontrados[0].trim()}`);
+      }
+    }
+
+    if (problemas.length > 0) {
+      throw new Error(
+        'Estas pruebas de navegador importan una accion del servidor. La accion trae ' +
+          '"server-only", el archivo no carga y se lleva puesta la tanda entera sin ' +
+          'registrar ninguna prueba. Moverlo a una prueba de Jest en src/__tests__/.\n  ' +
+          problemas.join('\n  ')
+      );
+    }
+    expect(problemas).toEqual([]);
+  });
+
   it('la carpeta de pruebas de navegador no quedo vacia (si no, este control no mira nada)', () => {
     expect(archivosDePruebaDeNavegador(CARPETA_E2E).length).toBeGreaterThan(10);
   });

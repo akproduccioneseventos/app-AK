@@ -45,7 +45,9 @@ export async function middleware(request: NextRequest) {
   // and every protected server action validate the signed cookie at runtime.
   if (!sessionCookie?.value) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    // Con el pathname pelado se perdia lo que venia en la direccion (?fiestaId=...),
+    // asi que al volver del ingreso la pantalla quedaba sin fiesta y colgada cargando.
+    loginUrl.searchParams.set('redirect', `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(loginUrl);
   }
 

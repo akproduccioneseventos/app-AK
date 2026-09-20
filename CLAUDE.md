@@ -717,6 +717,20 @@ aplica primero a cobros, cuotas, facturas, presupuestos y sueldos. Y queda escri
 que la app esté terminada **no** significa que un área ya mirada quede mirada para siempre con
 las preguntas viejas; cuando el método suma una pregunta, lo que toca plata se vuelve a pasar.
 
+### 13. Subir con "agregar todo" y llevarse puestos los datos de la corrida
+
+**Pasó el 20 de septiembre de 2026.** Al subir una prueba nueva usé un agregado de todo y
+entraron **dos archivos que había escrito la corrida de pruebas** —el registro de guías
+aplicadas a la fiesta de prueba—. La regla estaba escrita: *lo que escribe la corrida nunca se
+sube*.
+
+**Qué era lo cierto:** la lista de limpieza no conocía esos dos archivos, así que
+`npm run limpiar:corrida` no los borraba y quedaban como si fueran trabajo.
+
+**Qué se hace distinto:** los dos archivos entraron a la lista de limpieza y a la de ignorados.
+Y la costumbre: **antes de subir, mirar qué archivos entran**, sobre todo después de correr
+pruebas. Un agregado de todo, después de una corrida, arrastra lo que escribió la corrida.
+
 ### 12. Arrancar la verificación con el trabajo a medio terminar
 
 **Pasó el 17 de septiembre de 2026 y costó más de una hora, en una sesión donde el dueño ya venía

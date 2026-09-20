@@ -8614,3 +8614,100 @@ es justo cuando más se necesita.
 archivo: docs/tiempo-de-las-pruebas.md
 prueba: tests/e2e/fotocabina-de-punta-a-punta.spec.ts
 ```
+
+
+## 20 de septiembre de 2026 — Tres botones de copiar que decían "copiado" sin copiar
+
+Aparecieron al verificar la tanda de Gemini: el enlace de carga del video de vida y **los datos
+bancarios del regalo en dos plantillas de invitación**. Los tres anunciaban éxito sin esperar ni
+mirar si el navegador había dejado copiar.
+
+El de los datos bancarios es el que importa: **si el invitado cree que copió y pega cualquier
+cosa, la transferencia del regalo va a otro lado.** Ahora, si no se pudo copiar, se avisa y se
+muestran los datos para copiarlos a mano.
+
+Los encontró solo el control `npm run formas-que-mienten`, que es para lo que se hizo.
+
+```comprobar
+archivo: scripts/las-formas-que-mienten.mjs
+usa: clipboard en src/components/invitacion/templates/GraziaTemplate.tsx
+```
+
+
+## 20 de septiembre de 2026 — La pantalla de guías de armado tiene una prueba que mira el resultado
+
+La tanda de Gemini dejó la pantalla de guías sin ninguna prueba, y el control de la verificación
+lo frenó. Ahora hay una prueba de navegador que **aplica una guía a una fiesta de prueba y después
+abre lo guardado**: comprueba que las tareas, los documentos que tienen que estar y las compras
+**quedaron en la fiesta**, no sólo anunciados en el cartel.
+
+**Probada rompiéndola**: sacando la creación de los documentos, se pone en rojo.
+
+```comprobar
+prueba: tests/e2e/las-guias-de-armado-se-aplican-de-verdad.spec.ts
+usa: documentosRequeridos en src/app/actions/playbooks.ts
+```
+
+## 20 de septiembre de 2026 — Al volver del ingreso se perdia la fiesta
+
+**Que estaba mal:** el portero mandaba a la pantalla de ingreso guardando solo la ruta y
+tiraba lo que venia despues del "?" (`?fiestaId=...`). Al volver, la pantalla abria sin
+fiesta. En la lista de regalos eso dejaba la rueda girando para siempre, sin decir nada.
+
+**Que se hizo:** el portero guarda la direccion entera, y la lista de regalos, cuando no
+hay fiesta en la direccion, lo dice en pantalla en vez de quedarse cargando.
+
+```comprobar
+archivo: src/middleware.ts
+usa: nextUrl.search en src/middleware.ts
+prueba: src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts
+```
+
+## 20 de septiembre de 2026 — Una prueba de navegador que llamaba al servidor tumbaba la tanda entera
+
+**Que estaba mal:** `tests/e2e/la-lista-de-regalos-queda-como-la-dejaron.spec.ts` importaba
+una accion del servidor para llamarla directo. Toda accion del servidor arrastra
+`server-only`, que revienta fuera de Next: el archivo no cargaba y la tanda de ocho
+archivos terminaba "sin registrar ninguna prueba", como si fuera una falla del codigo.
+
+**Que se hizo:** esa comprobacion se mudo a una prueba de Jest, y el control de "las
+pruebas viven donde corresponde" ahora marca en rojo cualquier prueba de navegador que
+importe una accion del servidor.
+
+```comprobar
+archivo: src/__tests__/un-regalo-no-se-reserva-dos-veces.test.ts
+usa: app/actions en src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+prueba: src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+```
+
+## 20 de septiembre de 2026 — El indicador de preparacion daba 100% con el cliente debiendo
+
+**Que estaba mal:** el calculo leia un campo de pagos que **no existe** (`planPago`, sin "s"),
+escondido detras de un `as any`. La cuenta de cuotas pendientes daba siempre cero, asi que la
+fiesta figuraba lista aunque la pantalla de cobros mostrara cuotas sin pagar.
+
+**Que se hizo:** lee `planDePagos`, el mismo plan que usan cobros y el panel contable, y cuenta
+como pendiente toda cuota que no este pagada (pendiente, parcial o vencida).
+
+```comprobar
+archivo: src/lib/readiness-score.ts
+usa: planDePagos en src/lib/readiness-score.ts
+prueba: src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts
+```
+
+## 20 de septiembre de 2026 — La lista de compras sumaba gramos como si fueran kilos
+
+**Que estaba mal:** los renglones se juntaban por nombre y proveedor, **sin mirar la unidad**.
+200 g de manteca de un plato y 2 kg de otro terminaban sumados como "202" de lo que viniera
+primero: o se compraba de mas, o la fiesta se quedaba sin comida.
+
+**Que se hizo:** la unidad entra en la clave con la que se juntan los renglones, y hay un
+unico lugar (`src/lib/compras/unidades.ts`) que pasa gramos a kilos y mililitros a litros,
+con la plata convertida igual para que el total no cambie. Lo toman las dos pantallas que
+arman la lista.
+
+```comprobar
+archivo: src/lib/compras/unidades.ts
+usa: claveDeConsolidado en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+prueba: src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts
+```

@@ -1,0 +1,24 @@
+{
+  "test_user_orden_56": {
+    "eventReminders": {
+      "email": true,
+      "app": true
+    },
+    "taskUpdates": {
+      "email": true,
+      "app": false
+    },
+    "clientMessages": {
+      "email": true,
+      "app": true
+    },
+    "systemAlerts": {
+      "email": false,
+      "app": true
+    },
+    "crmUpdates": {
+      "email": false,
+      "app": false
+    }
+  }
+}

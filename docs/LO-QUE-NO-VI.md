@@ -314,3 +314,38 @@ duplicar / ya está usado", que es donde una comparación que nunca acierta pasa
 ```comprobar
 prueba: src/__tests__/no-se-borra-un-equipo-asignado.test.ts
 ```
+
+## 20 de septiembre de 2026 — La direccion se perdia al pasar por el ingreso
+
+**Que era:** al rebotar por la pantalla de ingreso, la app se quedaba con la ruta y tiraba
+el `?fiestaId=...`. La pantalla volvia sin fiesta y quedaba cargando para siempre.
+
+**Que pregunta lo hubiera agarrado:** ninguna de las que tenia. Todas miran la pantalla
+abierta directo. **Pregunta nueva:** *"si esta pantalla se abre con datos en la direccion,
+¿sobreviven a un rebote por el ingreso?"* — y su hermana: *"cuando falta ese dato, ¿la
+pantalla lo dice, o se queda cargando?"*
+
+**El control que lo frena:** `src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts`.
+
+## 20 de septiembre de 2026 — Un campo que no existe, escondido en un `as any`
+
+**Que era:** el indicador de preparacion leia `fiesta.planPago`, que no existe (es
+`planDePagos`). Con `as any` el revisor de tipos no dice nada y la cuenta da cero para
+siempre: 100% de preparacion con cuotas sin cobrar.
+
+**Que pregunta lo hubiera agarrado:** ninguna. **Pregunta nueva:** *"cada `as any` que lee
+un campo, ¿ese campo existe en el tipo? ¿Lo escribe alguien alguna vez?"* Un `as any` que
+lee es una cuenta que puede estar dando cero desde siempre sin que nadie se entere.
+
+**El control que lo frena:** `src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts`,
+y el barrido de todos los `as any` que leen campos queda como orden para Gemini.
+
+## 20 de septiembre de 2026 — Juntar renglones sin mirar la unidad
+
+**Que era:** la lista de compras sumaba 200 g con 2 kg como si fueran lo mismo.
+
+**Que pregunta lo hubiera agarrado:** ninguna de las mias miraba las claves con las que se
+agrupa. **Pregunta nueva:** *"cuando se juntan cosas para sumarlas, ¿la clave incluye TODO lo
+que las hace distintas (unidad, moneda, impuesto, fecha)? Si falta una, el total miente."*
+
+**El control que lo frena:** `src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts`.
