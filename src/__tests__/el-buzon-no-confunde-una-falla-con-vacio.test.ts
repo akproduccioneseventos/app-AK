@@ -1,5 +1,6 @@
 /**
  * MATAFUEGO — Una falla de lectura del buzon NO es un buzon vacio.
+ * Cubre la pantalla /fiestas/nueva/buzon
  *
  * Lo encontro Codex el 20 de septiembre de 2026: cuando la lectura fallaba,
  * `getBuzonMessages` devolvia una lista vacia. La pantalla borraba los saludos que se

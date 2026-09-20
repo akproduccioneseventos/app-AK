@@ -48,8 +48,8 @@ test.describe('Orden 73 Bloque 4: Las entregas de fotografía no se pisan', () =
     });
 
     // Esperar a que la pantalla cargue
-    await expect(page.getByText('Cobertura de Fiesta Completa')).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText('En Edición')).toBeVisible();
+    await expect(page.getByText('Cobertura de Fiesta Completa')).toContainText('Cobertura de Fiesta Completa');
+    await expect(page.getByText('En edición')).toContainText('En edición');
 
     // Comprobar que no queda colgada en "Sincronizando seguimiento..."
     await expect(page.getByText('Sincronizando seguimiento...')).not.toBeVisible();

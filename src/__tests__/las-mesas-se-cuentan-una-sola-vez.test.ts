@@ -1,5 +1,6 @@
 /**
  * Orden 73 — Bloque 3: Números de mesa: cuenta idéntico a cartelería y no se queda cargando
+ * Cubre la pantalla /fiestas/nueva/numeros-mesa y /fiestas/nueva/carteleria
  *
  * Se probó rompiéndola a propósito:
  * - Si cartelería y números de mesa usaban lógicas de conteo distintas (una por categoría y otra por nombre/seats),

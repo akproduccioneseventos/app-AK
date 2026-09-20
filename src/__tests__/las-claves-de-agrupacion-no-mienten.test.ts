@@ -4,6 +4,7 @@ import { claveDeConsolidado, normalizarUnidad } from '@/lib/compras/unidades';
 
 /**
  * Orden 72 — Bloque 3: Claves de agrupación a las que les falta una parte.
+ * Cubre la pantalla /fiestas/nueva/resumen-planificacion
  *
  * La lista de compras juntaba los renglones por nombre y proveedor sin la unidad,
  * por lo que 200 g y 2 kg se sumaban erróneamente.

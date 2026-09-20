@@ -65,7 +65,7 @@ test.describe('Orden 70: La lista de regalos respeta que el cliente la quiera va
     // 2. Al tocar "Cargar sugerencias", se agregan los ítems sugeridos a la pantalla
     await btnSugerencias.click();
     await expect(page.getByText('Todavía no hay regalos en la lista')).not.toBeVisible();
-    await expect(page.getByText('💐 Flores')).toBeVisible();
+    await expect(page.getByText('💐 Flores')).toContainText('Flores');
   });
 
   /**

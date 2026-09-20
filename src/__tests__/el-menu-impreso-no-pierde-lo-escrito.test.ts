@@ -1,5 +1,6 @@
 /**
  * Orden 73 — Bloque 2: Menú impreso: si falla el guardado, no se pierde lo que estabas escribiendo
+ * Cubre la pantalla /fiestas/nueva/menu-mesa
  *
  * Se probó rompiéndola a propósito:
  * Si la pantalla restauraba los datos anteriores al fallar el guardado (setData(lastSavedDataRef.current)),
