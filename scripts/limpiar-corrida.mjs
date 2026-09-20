@@ -14,6 +14,10 @@ import { execFileSync } from 'node:child_process';
 const ESCRITOS_POR_LA_CORRIDA = [
   'data/notifications.json',
   'src/data/notifications.json',
+  // Lo escribe la prueba de las guias de armado al aplicar una a la fiesta de prueba.
+  // **Se me colo commiteado una vez**, el 20 de septiembre de 2026: por eso esta en la lista.
+  'data/playbook-aplicaciones.json',
+  'src/data/playbook-aplicaciones.json',
   'src/data/parte-manana-cache.json',
   'src/data/ai-usage.json',
   'src/data/social-history.json',
