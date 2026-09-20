@@ -1,0 +1,82 @@
+{
+  "total": 12,
+  "pass": 6,
+  "fail": 6,
+  "results": [
+    {
+      "case": "kit-normal",
+      "success": true,
+      "saving": false,
+      "localUpdates": 1,
+      "passed": true
+    },
+    {
+      "case": "kit-partial",
+      "success": true,
+      "saving": false,
+      "localUpdates": 1,
+      "passed": false
+    },
+    {
+      "case": "kit-throws",
+      "success": false,
+      "saving": false,
+      "localUpdates": 0,
+      "passed": true
+    },
+    {
+      "case": "date-carteleria.tsx",
+      "actual": "09/10/2026",
+      "passed": false
+    },
+    {
+      "case": "date-numeros.tsx",
+      "actual": "10/10/26",
+      "passed": true
+    },
+    {
+      "case": "menu-normal",
+      "local": "Nuevo",
+      "saving": false,
+      "errorNotice": false,
+      "passed": true
+    },
+    {
+      "case": "menu-failure",
+      "local": "Anterior",
+      "saving": false,
+      "errorNotice": true,
+      "passed": false
+    },
+    {
+      "case": "menu-late-failure",
+      "local": "Anterior",
+      "saving": false,
+      "errorNotice": true,
+      "passed": false
+    },
+    {
+      "case": "numbers-category",
+      "count": 1,
+      "spinner": false,
+      "passed": true
+    },
+    {
+      "case": "numbers-seats",
+      "count": 20,
+      "spinner": false,
+      "passed": false
+    },
+    {
+      "case": "numbers-fails",
+      "count": 20,
+      "spinner": true,
+      "passed": false
+    },
+    {
+      "case": "kit-seats",
+      "count": 1,
+      "passed": true
+    }
+  ]
+}

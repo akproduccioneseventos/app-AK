@@ -8066,3 +8066,8 @@ Informe: docs/auditoria/OPERACION-TRES-PARTES-2026-09-20.md. Evidencia: docs/evi
 Bases: PR1209 e43260f068a751b5c6e2cc519db84e595c14c89f (12 casos) y PR1210 d2f35915590b9901243d9d7b2f68e1d21713ebd5 (15 casos nuevos). Total 27: 17 PASS, 10 FAIL. Sondas AST aisladas, no E2E ni produccion.
 FOTO-01 nombre cambiado pierde entrega; FOTO-02 respuesta tardia pisa borrador; FOTO-03 carga fallida queda sincronizando. ITI-01 IA pisa edicion durante espera; ITI-02 acepta hora 29:90; ITI-03 programa vaciado se repuebla y guarda al abrir. REU-02 inicializacion fallida no libera stream; REU-03 deduplica tareas de responsables distintos; REU-04 acta activa FAQ oculta. REU-01 reunion eliminada: correccion presente en 1210, NO revalidada, no reimplementar.
 Sin codigo de app, build, fusion, datos reales ni servicios pagos. Reparto y pruebas pendientes detallados en informe. Continuar primera pasada; no repetir estos casos sin cambio relevante. No es certificado final.
+
+
+## 2026-09-20 - Impresos de mesas, primera pasada
+
+[Informe](auditoria/IMPRESOS-MESAS-2026-09-20.md). Base PR1210 d2f35915590b9901243d9d7b2f68e1d21713ebd5. 12 casos nuevos: 6 PASS/6 FAIL, cinco hallazgos. IMP-01 kit confirma guardado parcial; IMP-02 fecha retrocede un dia; IMP-03 menu descarta borrador ante fallo; IMP-04 criterios de mesa inconsistentes (fixture: 1 vs default20); IMP-05 carga fallida queda esperando. Sin correccion en archivos de las seis PR abiertas contrastadas. Evidencias: docs/evidencias/impresos-sonda.cjs y impresos-resultados-2026-09-20.json. Sondas aisladas, no E2E/impresion/Firebase/build. No repetir sin cambio; Gemini interfaz, Claude consistencia y compilacion. No app modificada ni fusion.
