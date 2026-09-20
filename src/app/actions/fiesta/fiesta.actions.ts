@@ -193,12 +193,30 @@ export async function updateFiestaPartial(
 }
 
 export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
-    const activePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+    const activePath = `${FIESTAS_DIR}/${fiestaId}.json`;
     let fiesta: FiestaEnPlanificacion | null = null;
     try {
         const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
         if (active && active.id === fiestaId) fiesta = active;
     } catch (e) {}
+    if (!fiesta) {
+        try {
+            const localCandidates = [
+                path.join(process.cwd(), 'data', FIESTAS_DIR, `${fiestaId}.json`),
+                path.join(process.cwd(), 'src', 'data', FIESTAS_DIR, `${fiestaId}.json`),
+            ];
+            for (const lp of localCandidates) {
+                try {
+                    const raw = await fs.readFile(lp, 'utf-8');
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.id === fiestaId) {
+                        fiesta = parsed;
+                        break;
+                    }
+                } catch {}
+            }
+        } catch {}
+    }
     if (!fiesta) {
         const archivadas = await getHistorialFiestas();
         fiesta = archivadas.find(f => f.id === fiestaId) || null;

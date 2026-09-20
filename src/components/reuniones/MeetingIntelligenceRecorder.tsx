@@ -76,9 +76,10 @@ export function MeetingIntelligenceRecorder({ fiestaId, reunion, onProcessed }: 
       recognitionRef.current?.stop?.();
     } catch {
       // Browser speech recognition can throw if already stopped.
+    } finally {
+      recognitionRef.current = null;
+      setLiveTranscript('');
     }
-    recognitionRef.current = null;
-    setLiveTranscript('');
   };
 
   const startSpeechRecognition = () => {
@@ -175,13 +176,28 @@ export function MeetingIntelligenceRecorder({ fiestaId, reunion, onProcessed }: 
 
   const stopRecording = () => {
     if (!isRecording) return;
-    recorderRef.current?.stop();
-    recorderRef.current = null;
-    stopSpeechRecognition();
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = null;
-    setElapsedSeconds((Date.now() - startedAtRef.current) / 1000);
-    setIsRecording(false);
+    try {
+      if (recorderRef.current && recorderRef.current.state !== 'inactive') {
+        recorderRef.current.stop();
+      }
+    } catch (e) {
+      console.warn('Error al detener recorder:', e);
+    } finally {
+      recorderRef.current = null;
+      stopSpeechRecognition();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => {
+          try {
+            track.stop();
+          } catch {}
+        });
+        streamRef.current = null;
+      }
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = null;
+      setElapsedSeconds((Date.now() - startedAtRef.current) / 1000);
+      setIsRecording(false);
+    }
   };
 
   const processMeeting = async () => {

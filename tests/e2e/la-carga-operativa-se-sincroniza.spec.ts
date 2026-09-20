@@ -9,12 +9,13 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, borrarFiestasHuerfanas, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
 
 const FIESTA_ID = `e2e_carga_sync_${process.pid}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
 test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operadores', () => {
   test.beforeAll(async () => {
+    borrarFiestasHuerfanas();
     const fiesta = crearFiestaDeEstaNoche({ id: FIESTA_ID });
     fiesta.configuracion.nombreEvento = 'Fiesta E2E Carga Operativa Sync';
     fiesta.listaDeCargaOperativa = {

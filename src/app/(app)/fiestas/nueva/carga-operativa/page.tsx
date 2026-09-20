@@ -31,6 +31,7 @@ import {
   updateListaDeCargaOperativa,
   generateCargaFromActivos,
 } from '@/app/actions/fiesta/carga-operativa.actions';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { mergeGeneratedCargaWithManualItems } from '@/lib/logistics/carga-operativa';
 import type { CargaOperativaItemPatch } from '@/lib/logistics/carga-operativa';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -204,7 +205,7 @@ function ListaDeCargaOperativaContent() {
 
   const [listaDeCarga, setListaDeCarga] = useState<ListaDeCargaOperativa>({ categorias: [], notasGenerales: '' });
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]); 
+  const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -217,7 +218,7 @@ function ListaDeCargaOperativaContent() {
   const focusedItemIdRef = useRef<string | null>(null);
 
   const [newCategoryName, setNewCategoryName] = useState('');
-  
+
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [categoryForCatalogSelect, setCategoryForCatalogSelect] = useState<CargaOperativaCategoria | null>(null);
@@ -225,7 +226,10 @@ function ListaDeCargaOperativaContent() {
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const loadData = useCallback(async (showLoading = true) => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
@@ -234,29 +238,33 @@ function ListaDeCargaOperativaContent() {
         getActivosFijos(),
         getCargaOperativaMasterTemplate()
       ]);
-      
+
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
-      
+
       let loadedLista = fiestaData.listaDeCargaOperativa;
-      
+
       const hasNoData = !loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0;
-      
+
       if (hasNoData) {
           loadedLista = { ...masterTemplate };
       }
 
       // Módulo 1: Procesar conflictos al cargar
       if (fiestaData.configuracion.fechaEvento && loadedLista?.categorias) {
-          const updatedCategorias = await Promise.all(loadedLista.categorias.map(async cat => ({
-              ...cat,
-              items: await checkAssetConflicts(fiestaId, fiestaData.configuracion.fechaEvento!, cat.items || [])
-          })));
-          loadedLista.categorias = updatedCategorias;
+          const allItems = loadedLista.categorias.flatMap(cat => cat.items || []);
+          if (allItems.length > 0) {
+              const checkedItems = await checkAssetConflicts(fiestaId, fiestaData.configuracion.fechaEvento!, allItems);
+              const checkedMap = new Map(checkedItems.map(item => [item.id, item]));
+              loadedLista.categorias = loadedLista.categorias.map(cat => ({
+                  ...cat,
+                  items: (cat.items || []).map(item => checkedMap.get(item.id) || item)
+              }));
+          }
       }
 
       const categoriasConItems = (loadedLista?.categorias || []).map(cat => ({
         ...cat,
-        items: cat.items || [] 
+        items: cat.items || []
       }));
       setListaDeCarga({ ...(loadedLista || { categorias: [], notasGenerales: '' }), categorias: categoriasConItems });
       setHasPendingStructure(false);
@@ -354,7 +362,7 @@ function ListaDeCargaOperativaContent() {
       if (!presupuesto) throw new Error("No se pudo obtener el presupuesto.");
 
       const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 100;
-      
+
       const targetAssetCategories = new Set<string>();
       presupuesto.itemsPresupuestados.forEach(item => {
           const cat = (item.categoriaServicio || '').toLowerCase();
@@ -533,13 +541,13 @@ function ListaDeCargaOperativaContent() {
     }));
     setHasPendingStructure(true);
   };
-  
+
   const handleCatalogItemSelected = async (selectedAsset: ServicioEmpresa) => {
     if (!categoryForCatalogSelect) return;
-    
-    const guests = Number(fiesta?.configuracion.invitadosEstimados) || 100; 
+
+    const guests = Number(fiesta?.configuracion.invitadosEstimados) || 100;
     let qty = '1';
-    
+
     if (selectedAsset.categoria?.includes('Vajilla')) {
         qty = String(guests);
     } else if (selectedAsset.categoria?.includes('Mantelería') && selectedAsset.nombre.toLowerCase().includes('mantel')) {
@@ -561,7 +569,7 @@ function ListaDeCargaOperativaContent() {
 
     // Módulo 1: Chequear conflicto para el nuevo ítem
     const checkedItem = (await checkAssetConflicts(fiestaId!, fiesta?.configuracion.fechaEvento!, [newItem]))[0];
-    
+
     setListaDeCarga(prev => ({
       ...prev,
       categorias: (prev.categorias || []).map(cat =>
@@ -571,10 +579,10 @@ function ListaDeCargaOperativaContent() {
       ),
     }));
     setHasPendingStructure(true);
-    
+
     toast({ description: `"${selectedAsset.nombre}" añadido.` });
   };
-  
+
   const openSelectFromCatalogModal = (category: CargaOperativaCategoria) => {
     setCategoryForCatalogSelect(category);
     setCatalogSearchTerm('');
@@ -614,7 +622,7 @@ function ListaDeCargaOperativaContent() {
     }));
     void persistItemPatch(categoryId, itemId, { retornado });
   };
-  
+
   const handleItemQuantityChange = (categoryId: string, itemId: string, newQuantity: string) => {
     setListaDeCarga(prev => ({
       ...prev,
@@ -672,7 +680,7 @@ function ListaDeCargaOperativaContent() {
     }));
     setHasPendingStructure(true);
   };
-  
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over, activatorEvent } = event;
     const categoryId = (activatorEvent.target as HTMLElement).closest('[data-category-id]')?.getAttribute('data-category-id');
@@ -692,12 +700,12 @@ function ListaDeCargaOperativaContent() {
         setHasPendingStructure(true);
     }
   };
-  
+
   const filteredCatalogItems = useMemo(() => {
     if (!catalogSearchTerm) return activosCatalogo;
     const lowerSearch = catalogSearchTerm.toLowerCase();
     return activosCatalogo.filter(
-      item => item.nombre.toLowerCase().includes(lowerSearch) || 
+      item => item.nombre.toLowerCase().includes(lowerSearch) ||
               item.categoria?.toLowerCase().includes(lowerSearch)
     );
   }, [activosCatalogo, catalogSearchTerm]);
@@ -730,10 +738,20 @@ function ListaDeCargaOperativaContent() {
     );
   }
 
+  if (!fiestaId) {
+    return (
+      <EmptyStateModulo
+        titulo="Carga Operativa"
+        descripcion="Entrá al control de carga operativa desde la fiesta: elegí el evento en el listado y abrí su logística."
+        fiestaId=""
+      />
+    );
+  }
+
   return (
     <div data-testid="carga-operativa-page" className="max-w-4xl mx-auto space-y-8 pb-20">
        <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}><DialogContent className="sm:max-w-lg rounded-3xl border-none"><DialogHeader><DialogTitle className="font-headline text-2xl">Catálogo de Activos</DialogTitle><DialogDescription>Añadiendo a: <span className="font-bold text-primary">{categoryForCatalogSelect?.nombre}</span></DialogDescription></DialogHeader><div className="py-2 space-y-4"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><Input type="text" placeholder="Buscar por nombre o categoría..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10 rounded-xl h-12 bg-slate-50 border-none shadow-inner"/></div><ScrollArea className="h-[350px] border-none pr-4">{isLoading ? <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div> : filteredCatalogItems.length > 0 ? (<div className="space-y-2">{filteredCatalogItems.map(item => (<Button key={item.id} type="button" variant="ghost" className="w-full justify-start text-left h-auto py-3 px-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-bold text-slate-800">{item.nombre}</p><p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{item.categoria} • Stock: {item.cantidadDisponible || 0}</p></div></Button>))}</div>) : (<div className="p-12 text-center space-y-3 text-slate-400"><PackageSearch className="w-12 h-12 mx-auto opacity-20"/><p className="text-sm font-medium">No se encontraron activos.</p></div>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline" className="rounded-xl h-12 w-full sm:w-auto">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
-       
+
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <div className="p-4 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white">
@@ -784,7 +802,7 @@ function ListaDeCargaOperativaContent() {
           )}
         </div>
       </div>
-      
+
       {/* Progress Bar */}
       {totalItems > 0 && (
         <Card className="rounded-2xl shadow-sm border-slate-100">
@@ -857,7 +875,7 @@ function ListaDeCargaOperativaContent() {
                         <BookOpen className="w-4 h-4 mr-2 text-primary"/> Añadir desde Catálogo
                         </Button>
                     </div>
-                    
+
                     <ScrollArea className="h-auto max-h-[500px] pr-2">
                         {category.items && category.items.length > 0 ? (
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

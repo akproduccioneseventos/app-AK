@@ -205,10 +205,19 @@ export async function checkAssetConflicts(fiestaId: string, date: string, items:
         if (!item.origenId) return item;
 
         const asset = assetsCatalog.find(a => a.id === item.origenId);
-        if (!asset) return item;
+        if (!asset) {
+            if (typeof item.availableStockAtDate === 'number') {
+                const currentNeed = parseFloat(item.cantidad) || 0;
+                return {
+                    ...item,
+                    hasConflict: currentNeed > item.availableStockAtDate,
+                };
+            }
+            return item;
+        }
 
         const totalStock = asset.cantidadDisponible || 0;
-        
+
         // Calcular cuánto de este activo están usando otros eventos el mismo día
         let sumOtherEvents = 0;
         otherFiestasSameDay.forEach(f => {
