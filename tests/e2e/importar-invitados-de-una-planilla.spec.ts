@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, crearCookieDeSesion } from './helpers/fiesta-de-prueba';
+import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 
 /**
  * Orden 43 Bloque 1: Importar invitados desde una planilla.
@@ -33,7 +33,11 @@ const fiestaId = `e2e_import_${Date.now()}`;
  * **Como volver a prenderla:** el dia que las pruebas puedan crear fiestas que las
  * pantallas internas vean, se saca el `.skip` y tiene que pasar sin tocar nada mas.
  */
-test.describe.skip('Orden 43: Importar invitados desde una planilla', () => {
+// SE DESPERTO EL 20 DE SEPTIEMBRE DE 2026. Estaba apagada con `.skip` porque la pantalla
+// interna nunca terminaba de cargar: la sesion se ponia a medias y rebotaba al ingreso.
+// Arreglado eso (`ponerSesionDelEquipo`), se cumple lo que decia el comentario de arriba:
+// "cuando las pantallas internas vean, se saca el .skip y tiene que pasar sin tocar nada mas".
+test.describe('Orden 43: Importar invitados desde una planilla', () => {
   test.beforeAll(async () => {
     const fiesta = crearFiestaDeEstaNoche({ id: fiestaId });
     fiesta.configuracion.nombreEvento = 'Fiesta E2E Importar Planilla';
@@ -46,9 +50,7 @@ test.describe.skip('Orden 43: Importar invitados desde una planilla', () => {
 
   test('muestra los 3 invitados antes de guardar y los suma a la lista tras confirmar', async ({ page, context }, testInfo) => {
     const baseURL = testInfo.project.use.baseURL as string;
-    await context.addCookies([
-      { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
-    ]);
+    await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/invitados?fiestaId=${fiestaId}`, { waitUntil: 'domcontentloaded' });
     /**
@@ -69,13 +71,14 @@ test.describe.skip('Orden 43: Importar invitados desde una planilla', () => {
     await page.waitForLoadState('networkidle', { timeout: 25_000 }).catch(() => {});
     await page.waitForTimeout(3_000);
 
-    const titulo = page.getByRole('heading', { name: /Gestión de Invitados/i });
-    if ((await titulo.count()) === 0) {
-      const cuerpo = await page.locator('body').innerText();
-      expect(cuerpo.length, 'la pantalla no puede quedar en blanco').toBeGreaterThan(20);
-      test.skip(true, 'La pantalla interna no ve la fiesta de prueba en este entorno; la logica se comprueba sin navegador.');
-    }
-    await expect(titulo).toBeVisible({ timeout: 20_000 });
+    // ANTES ESTO SE SALTEABA: la pantalla no veia la fiesta de prueba porque la sesion
+    // se ponia a medias y rebotaba al ingreso. Eso quedo arreglado el 20 de septiembre de
+    // 2026 (`ponerSesionDelEquipo`), asi que ahora **si la pantalla no abre, es una falla**.
+    // Saltear esto dejo dos pruebas de la comida apagadas sin que nadie se enterara.
+    // `.last()` a proposito: el titulo aparece dos veces, en la barra de arriba y en la
+    // pantalla; el de la pantalla es el segundo.
+    const titulo = page.getByRole('heading', { name: /Gestión de Invitados/i }).last();
+    await expect(titulo, 'la pantalla de invitados tiene que abrir con la fiesta de prueba').toBeVisible({ timeout: 20_000 });
 
     // Abrir modal de importación
     await page.locator('[data-testid="btn-abrir-importar-planilla"]').click();
@@ -109,9 +112,7 @@ test.describe.skip('Orden 43: Importar invitados desde una planilla', () => {
 
   test('una planilla con una fila sin nombre no se guarda y avisa cuál fila está mal', async ({ page, context }, testInfo) => {
     const baseURL = testInfo.project.use.baseURL as string;
-    await context.addCookies([
-      { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
-    ]);
+    await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/invitados?fiestaId=${fiestaId}`, { waitUntil: 'domcontentloaded' });
     /**
@@ -132,13 +133,14 @@ test.describe.skip('Orden 43: Importar invitados desde una planilla', () => {
     await page.waitForLoadState('networkidle', { timeout: 25_000 }).catch(() => {});
     await page.waitForTimeout(3_000);
 
-    const titulo = page.getByRole('heading', { name: /Gestión de Invitados/i });
-    if ((await titulo.count()) === 0) {
-      const cuerpo = await page.locator('body').innerText();
-      expect(cuerpo.length, 'la pantalla no puede quedar en blanco').toBeGreaterThan(20);
-      test.skip(true, 'La pantalla interna no ve la fiesta de prueba en este entorno; la logica se comprueba sin navegador.');
-    }
-    await expect(titulo).toBeVisible({ timeout: 20_000 });
+    // ANTES ESTO SE SALTEABA: la pantalla no veia la fiesta de prueba porque la sesion
+    // se ponia a medias y rebotaba al ingreso. Eso quedo arreglado el 20 de septiembre de
+    // 2026 (`ponerSesionDelEquipo`), asi que ahora **si la pantalla no abre, es una falla**.
+    // Saltear esto dejo dos pruebas de la comida apagadas sin que nadie se enterara.
+    // `.last()` a proposito: el titulo aparece dos veces, en la barra de arriba y en la
+    // pantalla; el de la pantalla es el segundo.
+    const titulo = page.getByRole('heading', { name: /Gestión de Invitados/i }).last();
+    await expect(titulo, 'la pantalla de invitados tiene que abrir con la fiesta de prueba').toBeVisible({ timeout: 20_000 });
 
     // Abrir modal de importación
     await page.locator('[data-testid="btn-abrir-importar-planilla"]').click();

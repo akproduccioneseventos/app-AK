@@ -361,3 +361,14 @@ que el asistente puede DECIDIR hacer, ¿alguien lo ejecuta? ¿Y lo que ejecuta, 
 Las tres listas —el tipo, las instrucciones y el ejecutor— tienen que decir lo mismo.
 
 **El control que lo frena:** `src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts`.
+
+## 20 de septiembre de 2026 — Controles dormidos, que es de donde sale casi todo lo que encuentra Codex
+
+**Que era:** dos pruebas de comida apagadas hacia semanas, y una prueba de la vista 3D que
+siempre salia por una puerta de emergencia. Ninguna estaba rota: **ninguna miraba**.
+
+**Que pregunta lo hubiera agarrado:** ninguna de las mias mira a los controles. **Pregunta
+nueva:** *"¿este control esta mirando de verdad, o se saltea solo cuando no encuentra datos?"*
+Un control que se apaga solo es peor que no tenerlo, porque da verde.
+
+**El control que lo frena:** `src/__tests__/ninguna-prueba-esta-apagada.test.ts`.

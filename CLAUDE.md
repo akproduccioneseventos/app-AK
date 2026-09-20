@@ -1179,6 +1179,7 @@ con otra cara.
 | Al volver del ingreso se perdia la fiesta y la pantalla quedaba cargando para siempre | `src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts` |
 | Una prueba de navegador que llamaba al servidor tumbaba la tanda entera sin decir cual era | `archivosQueNoCargan` en `scripts/run-playwright-production.mjs`, con `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` |
 | El secretario decia haber anotado un prospecto y nadie ejecutaba esa accion | `src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts` |
+| Dos pruebas de comida apagadas hacia semanas, y nadie se entero | `src/__tests__/ninguna-prueba-esta-apagada.test.ts` |
 
 ### Cómo se elige el matafuego
 

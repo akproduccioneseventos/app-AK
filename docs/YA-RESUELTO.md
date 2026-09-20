@@ -8780,3 +8780,20 @@ archivo: src/app/(app)/fiestas/nueva/musica/page.tsx
 usa: No se pudo copiar solo en src/app/(app)/fiestas/nueva/musica/page.tsx
 prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
 ```
+
+## 20 de septiembre de 2026 — Dos pruebas de comida estaban apagadas hacia semanas
+
+**Que estaba mal:** `importar-invitados-de-una-planilla.spec.ts` estaba apagada entera y
+`la-hoja-de-cocina.spec.ts` se salteaba sola. Las dos por el mismo motivo —la pantalla interna
+no veia la fiesta de prueba porque la sesion se ponia a medias—, y ese motivo ya no existe.
+**Una prueba apagada es un defecto que nadie va a encontrar**, y estas dos cuidan la comida.
+
+**Que se hizo:** las dos se despertaron. La hoja de cocina pasa en verde. La de importar llega
+a la pantalla y se cae adentro con los pasos viejos: eso quedo escrito en la orden 76. Y entro
+el control que impide que vuelva a pasar: una prueba apagada sin motivo escrito se pone en rojo.
+
+```comprobar
+archivo: src/__tests__/ninguna-prueba-esta-apagada.test.ts
+usa: apagada a proposito en tests/e2e/sofia-composer.spec.ts
+prueba: src/__tests__/ninguna-prueba-esta-apagada.test.ts
+```
