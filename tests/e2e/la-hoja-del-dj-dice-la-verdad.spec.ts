@@ -10,7 +10,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
 
 const FIESTA_ID = `e2e_hoja_dj_${Date.now()}`;
 
@@ -40,13 +40,7 @@ test.describe('Orden 68: La hoja del DJ dice la verdad', () => {
   test('la fecha muestra 30 de septiembre y si el portapapeles falla se muestra el enlace a mano', async ({ context, page, baseURL }) => {
     test.setTimeout(60_000);
 
-    await context.addCookies([
-      {
-        name: 'ak_session',
-        value: crearCookieDeSesion(),
-        url: baseURL!,
-      },
-    ]);
+    await ponerSesionDelEquipo(context, baseURL);
 
     // 1. Simular que navigator.clipboard.writeText falla a propósito
     await page.addInitScript(() => {

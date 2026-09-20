@@ -418,6 +418,35 @@ Ya está arreglado en `scripts/build-next-with-memory.mjs`: si el entorno trae u
 tope más chico del necesario, lo sube solo. Pero la costumbre queda: **un error de
 compilación que no nombra un archivo del código no es un error del código.**
 
+### SI ALGO ESTA TRANCADO, SE DESTRANCA. NO SE DA VUELTA ALREDEDOR.
+
+**Orden del dueño, 20 de septiembre de 2026**, despues de una hora perdida: *"si ves que hay
+algo trancado, paras y lo solucionas, sin que eso siga como un bucle; termina lo que falta,
+todo"*.
+
+**Es distinto de parar ante un muro, y las dos reglas conviven:**
+
+- **Parar** es dejar de empujar por donde no sale.
+- **Destrancar** es lo que va INMEDIATAMENTE DESPUES: mirar **qué** es lo que traba, y
+  arreglar eso, aunque no sea lo que uno estaba haciendo.
+
+**Lo que NO se hace, y es lo que paso ese dia:** seguir intentando la misma cosa con variantes,
+o dejar el bloqueo para que lo resuelva otro y volver a chocar con el en la vuelta siguiente.
+**Esperar a que otra IA arregle lo que a mi me traba es un bucle**: si el arreglo es chico y
+mecanico, lo hago yo y se lo aviso.
+
+**Las tres preguntas, en orden, apenas algo falla por segunda vez:**
+
+1. **¿Qué es lo que traba, exactamente?** No la tarea: el obstaculo. Medirlo, no suponerlo.
+2. **¿El obstaculo es mio o de otro?** Si es de otro **y es chico**, lo arreglo igual y lo
+   aviso. Si es grande, se devuelve escrito y **se sigue con otra cosa**, no se espera.
+3. **¿Qué control hace que esto no vuelva a trabar?** Un destranque sin ese control es la
+   misma hora perdida el mes que viene.
+
+**Y la regla de fondo:** trabado quiere decir **frenado**, no lento. Mientras haya algo que
+avance, se avanza; lo trabado se destranca de una y se sigue. **Nunca se cierra una tanda
+dejando el mismo bloqueo en pie para la proxima.**
+
 ### PARAR ANTE UN MURO (regla dura)
 
 Pasó una vez: hora y media y todos los tokens del día quemados persiguiendo un

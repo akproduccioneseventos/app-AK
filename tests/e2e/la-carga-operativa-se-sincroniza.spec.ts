@@ -9,7 +9,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
 
 const FIESTA_ID = `e2e_carga_sync_${Date.now()}`;
 
@@ -56,20 +56,15 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
   test('dos operadores sincronizan cambios sin pisar foco ni aceptar respuestas atrasadas', async ({ browser, baseURL }) => {
     test.setTimeout(90_000);
 
-    const sessionCookie = {
-      name: 'ak_session',
-      value: crearCookieDeSesion(),
-      url: baseURL!,
-    };
 
     // Contexto y Pestaña Operador A
     const contextA = await browser.newContext();
-    await contextA.addCookies([sessionCookie]);
+    await ponerSesionDelEquipo(contextA, baseURL);
     const pageA = await contextA.newPage();
 
     // Contexto y Pestaña Operador B
     const contextB = await browser.newContext();
-    await contextB.addCookies([sessionCookie]);
+    await ponerSesionDelEquipo(contextB, baseURL);
     const pageB = await contextB.newPage();
 
     try {

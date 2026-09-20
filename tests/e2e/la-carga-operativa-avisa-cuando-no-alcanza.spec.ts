@@ -9,7 +9,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
 
 const FIESTA_ID = `e2e_carga_stock_${Date.now()}`;
 
@@ -48,13 +48,7 @@ test.describe('Orden 65: La carga operativa avisa cuando no alcanza el equipo', 
     test.setTimeout(60_000);
 
     // Inyectar sesión de administrador
-    await context.addCookies([
-      {
-        name: 'ak_session',
-        value: crearCookieDeSesion(),
-        url: baseURL!,
-      },
-    ]);
+    await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/carga-operativa?fiestaId=${FIESTA_ID}`, {
       waitUntil: 'domcontentloaded',

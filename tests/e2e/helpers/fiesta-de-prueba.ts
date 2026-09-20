@@ -25,6 +25,42 @@ export function crearCookieDeSesion() {
 }
 
 /**
+ * Deja la sesion del equipo puesta en el navegador de la prueba.
+ *
+ * **Se usa esto y no `addCookies` a mano.** Costo una hora el 20 de septiembre de 2026:
+ * una cookie puesta sin `sameSite` la toma Chromium como `None`, y una cookie `None` sin
+ * `Secure` **se descarta en http**. La pantalla abria sin sesion, rebotaba al ingreso, y de
+ * paso perdia lo que venia en la direccion (`?fiestaId=...`): quedaba en "elegi una fiesta"
+ * o cargando para siempre, como si el defecto fuera de la pantalla.
+ */
+export async function ponerSesionDelEquipo(
+  context: {
+    addCookies: (c: any[]) => Promise<unknown>;
+    addInitScript: (fn: any) => Promise<unknown>;
+  },
+  baseURL: string | undefined,
+) {
+  // Las DOS mitades, y sin la segunda la pantalla rebota al ingreso:
+  // 1) la cookie firmada, que es lo que mira el portero del servidor;
+  // 2) la marca en el navegador, que es lo que mira el guardia de la pantalla
+  //    (`AuthGuard`, `getSession()`). Con la cookie sola, el guardia manda al ingreso
+  //    y de paso se pierde lo que venia en la direccion (`?fiestaId=...`).
+  await context.addInitScript(() => {
+    window.localStorage.setItem('ak_session', 'true');
+    window.sessionStorage.setItem('ak_session', 'true');
+  });
+  await context.addCookies([
+    {
+      name: 'ak_session',
+      value: crearCookieDeSesion(),
+      url: baseURL,
+      httpOnly: true,
+      sameSite: 'Lax' as const,
+    },
+  ]);
+}
+
+/**
  * Permiso de estación, igual que el que genera el equipo desde el Centro de
  * Fiesta. Las estaciones (buzón, fotocabina, espejo, 360) no se abren con el
  * link pelado: hay que llegar con este permiso, que es lo que lleva el QR.

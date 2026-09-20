@@ -8711,3 +8711,21 @@ archivo: src/lib/compras/unidades.ts
 usa: claveDeConsolidado en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
 prueba: src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts
 ```
+
+## 20 de septiembre de 2026 — Las pruebas de navegador entraban sin sesion y rebotaban al ingreso
+
+**Que estaba mal:** la sesion del equipo tiene DOS mitades: la cookie firmada, que mira el
+portero del servidor, y una marca en el navegador, que mira el guardia de la pantalla
+(`AuthGuard`). Las pruebas nuevas ponian solo la cookie. El guardia mandaba al ingreso, y en
+ese rebote se perdia lo que venia en la direccion (`?fiestaId=...`): la pantalla volvia sin
+fiesta y quedaba en "elegi una fiesta" o cargando para siempre. Se veia igual que un defecto
+de la pantalla y no lo era.
+
+**Que se hizo:** un unico ayudante, `ponerSesionDelEquipo`, deja las dos mitades puestas. Las
+pruebas no vuelven a armar la cookie a mano.
+
+```comprobar
+archivo: tests/e2e/helpers/fiesta-de-prueba.ts
+usa: ponerSesionDelEquipo en tests/e2e/la-hoja-del-dj-dice-la-verdad.spec.ts
+prueba: tests/e2e/la-hoja-del-dj-dice-la-verdad.spec.ts
+```

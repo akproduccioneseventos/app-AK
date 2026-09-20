@@ -10,7 +10,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
 
 const FIESTA_ID = `e2e_regalos_vacia_${Date.now()}`;
 
@@ -41,13 +41,7 @@ test.describe('Orden 70: La lista de regalos respeta que el cliente la quiera va
   test('1. Al cargar con lista vacía, no inventa regalos y muestra estado vacío con "Cargar sugerencias"', async ({ context, page, baseURL }) => {
     test.setTimeout(60_000);
 
-    await context.addCookies([
-      {
-        name: 'ak_session',
-        value: crearCookieDeSesion(),
-        url: baseURL!,
-      },
-    ]);
+    await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/regalos?fiestaId=${FIESTA_ID}`, { waitUntil: 'networkidle' });
 
