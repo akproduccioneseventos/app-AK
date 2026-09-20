@@ -5,41 +5,46 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 20 de septiembre de 2026. **Rama `fix/despertador-de-afuera`**,
-todo subido, **sin fusionar**.
+**Última actualización:** 20 de septiembre de 2026, de noche. **Rama
+`fix/despertador-de-afuera`**, todo subido, **sin fusionar**.
 
-## Lo arreglado hoy (todo con su control, probado rompiéndolo)
+## Lo que entró en esta tanda
 
-- **El indicador de preparación daba 100% con el cliente debiendo**: leía un campo de pagos que
-  no existe. Ahora mira el mismo plan que la pantalla de cobros.
-- **La lista de compras sumaba gramos como si fueran kilos** (200 g + 2 kg = "202"). La unidad
-  entra en la cuenta, en las dos pantallas.
-- **El buzón decía "Sincronizado" con la lista borrada** y la descarga bajaba un archivo vacío.
-  Ahora avisa que falló la lectura y no borra lo que se ve.
-- **Al volver del ingreso se perdía la fiesta** y la pantalla quedaba cargando para siempre.
-- **Las pruebas de navegador entraban con media sesión**: era la causa de que varias pantallas
-  parecieran rotas. Queda un único ayudante, `ponerSesionDelEquipo`.
+- **Plata:** el indicador de preparación daba 100% con el cliente debiendo.
+- **Comida:** la lista de compras sumaba gramos como si fueran kilos; y el salón que se arma
+  solo contaba los invitados con un campo que no existe.
+- **El buzón** decía "Sincronizado" con la lista borrada y la descarga bajaba un archivo vacío.
+- **El secretario que habla** anotaba prospectos de mentira: decía que sí y no guardaba nada.
+- **Al volver del ingreso** se perdía la fiesta y la pantalla quedaba cargando para siempre.
+- **De Gemini:** el salón en 3D para el cliente (gira con el dedo, con la foto de respaldo), el
+  armado automático, cinco piezas nuevas, y el botón de Vista 3D que no abría.
 
-## El mecanismo
+## Lo que cambió en el mecanismo
 
-- **Preguntas 17, 18 y 19** en `docs/COMO-AUDITAR.md`: campos leídos que no existen, claves de
-  agrupación incompletas, y datos de la dirección que no sobreviven al ingreso.
-- **La corrida dice qué archivo no carga** cuando una tanda no registra ninguna prueba. Eso fue
-  lo que costó la hora.
-- **Errores propios 14 y 15** anotados en `CLAUDE.md`, con la regla nueva de **destrancar**.
+- **Preguntas 17, 18 y 19** en `docs/COMO-AUDITAR.md`.
+- **Control nuevo: ninguna prueba apagada.** Aparecieron **dos de comida dormidas hacía
+  semanas**; ya despertaron y pasan.
+- **Control nuevo: el secretario hace lo que dice que hace** (una acción declarada que nadie
+  ejecuta se pone en rojo).
+- **La corrida dice qué archivo no carga** cuando una tanda no registra ninguna prueba.
 
-## Lo que falta
+## Lo único que falta para poder fusionar
 
-- **Tres pruebas de Gemini siguen en rojo** (carga operativa x2 y regalos): son de contenido, no
-  de sesión. Están devueltas con el diagnóstico medido en
-  `docs/ordenes/DEVOLUCION-71-las-cuatro-pruebas-de-navegador.md`.
-- **Por eso la puerta completa todavía no está en verde.** Lo mío sí: compila, 2725 pruebas en
-  verde, sin acentos rotos.
-- **Órdenes abiertas para Gemini: 72 y 73**, más las nueve anteriores. Todo en UNA propuesta.
-- **Fusionar**: queda para el dueño.
+- **`tests/e2e/48-touchpix-entrega-sin-reinicio.spec.ts`, de Gemini, no pasa.** Medido dos
+  veces, sola y en tanda: la estación contesta *"La validacion del evento demoro demasiado"* en
+  vez de mostrar el botón de sacar la foto. Devuelto en
+  `docs/ordenes/DEVOLUCION-48b-la-prueba-nueva-de-touchpix-no-pasa.md`.
+- **Todo lo demás está en verde**: compila, 2762 pruebas, sin acentos rotos, y la puerta llegó
+  hasta el paso del navegador con nueve controles pasados.
 
-## Trampas que costaron tiempo y no se repiten
+## Lo que está esperando a Gemini
 
-- **La sesión del equipo son dos mitades**: cookie + marca en el navegador.
-- **Una prueba tiene que fallar diciendo qué pasó**, no "no encuentro el campo".
-- **Lo que escriben las pruebas no se sube**: `npm run limpiar:corrida`.
+Órdenes **74** (secretario manos libres), **76** (importar planilla en el celular: el botón de
+confirmar no se puede tocar) y **77** (el portal con clave también tiene que mostrar el 3D, sin
+copiar el código), más la devolución de arriba.
+
+## Trampas que no se repiten
+
+- **La sesión del equipo son dos mitades**: cookie + marca en el navegador (`ponerSesionDelEquipo`).
+- **No se sube lo que escribe la corrida**: `npm run limpiar:corrida`.
+- **No se toca código mientras corre la puerta**: la tira abajo y no deja subir.
