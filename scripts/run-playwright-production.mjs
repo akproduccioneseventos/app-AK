@@ -328,6 +328,38 @@ function extractTestsFromSuites(suites, parentFile = "") {
   return tests;
 }
 
+/**
+ * Cual de los archivos de la tanda NO CARGA.
+ *
+ * Costo una hora el 20 de septiembre de 2026: un archivo que importaba una accion del
+ * servidor reventaba al cargarse y Playwright se iba sin correr NADA. La tanda decia
+ * "no registro ninguna prueba" y no decia cual de los ocho archivos era. Buscarlo a
+ * ciegas fue casi todo el tiempo perdido.
+ *
+ * Esto pregunta archivo por archivo "¿cuantas pruebas tenes?" (--list, sin servidor y
+ * sin navegador: son segundos) y devuelve el nombre del que se cae, con su error.
+ */
+async function archivosQueNoCargan(files) {
+  const rotos = [];
+  for (const archivo of files) {
+    const salida = await new Promise((resolve) => {
+      const pw = spawn(process.execPath, [playwrightBin, "test", archivo, "--list"], {
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env, ...testEnvironment },
+      });
+      let texto = "";
+      pw.stdout.on("data", (c) => { texto += c.toString(); });
+      pw.stderr.on("data", (c) => { texto += c.toString(); });
+      pw.on("close", (code) => resolve({ code, texto }));
+    });
+    if (salida.code !== 0 || /No tests found/i.test(salida.texto)) {
+      const motivo = (salida.texto.split("\n").find((l) => /^Error:/.test(l.trim())) || "no carga").trim();
+      rotos.push(`${path.basename(archivo)} -> ${motivo}`);
+    }
+  }
+  return rotos;
+}
+
 async function runPlaywright(files, extraArgs = []) {
   return new Promise((resolve) => {
     const pw = spawn(
@@ -556,9 +588,19 @@ async function main() {
       if (tests.length === 0) {
         if (result.code !== 0) {
           console.warn(`  ⚠ La tanda terminó con código ${result.code} sin pruebas registradas en JSON.`);
-          tandasCaidas.push(
-            `Tanda ${idx + 1} (${batch.map((b) => path.basename(b)).join(", ")}): terminó con código ${result.code} y no registró ninguna prueba.`,
-          );
+          // Antes de acusar a la tanda entera, decir CUAL archivo no carga.
+          const rotos = await archivosQueNoCargan(batch);
+          if (rotos.length > 0) {
+            console.warn(`  ⚠ ARCHIVO QUE NO CARGA (se lleva puesta la tanda entera):`);
+            for (const roto of rotos) console.warn(`      ${roto}`);
+            tandasCaidas.push(
+              `Tanda ${idx + 1}: no corrio ninguna prueba porque estos archivos no cargan:\n      ${rotos.join("\n      ")}`,
+            );
+          } else {
+            tandasCaidas.push(
+              `Tanda ${idx + 1} (${batch.map((b) => path.basename(b)).join(", ")}): terminó con código ${result.code} y no registró ninguna prueba.`,
+            );
+          }
         }
       }
 

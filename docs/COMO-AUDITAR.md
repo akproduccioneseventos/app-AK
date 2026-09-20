@@ -530,3 +530,46 @@ acceso o confianza—. No se corren los diez en cada botón.
 
 **Al cerrar, se dice qué recorridos pasaron en qué versión, y cuáles quedan.** Nunca "cero
 errores en toda la app": eso es exactamente lo que ya engañó a todo el mundo una vez.
+
+---
+
+## Preguntas 17, 18 y 19 — las que sumó el 20 de septiembre de 2026
+
+Las tres salieron de cosas que encontró Codex y mi método no. Van con lo de siempre: **primero
+se pasan por lo que toca plata, cobros, comida y permisos**, aunque esa área ya estuviera
+auditada. Que un área esté mirada no la deja mirada para siempre con las preguntas viejas.
+
+### 17. Cada `as any` que LEE un campo, ¿lee un campo que existe?
+
+Un `as any` apaga al revisor de tipos. Si el nombre del campo está mal —una "s" de más o de
+menos— la lectura da vacío **para siempre** y nadie se entera: no hay error, no hay rojo, la
+cuenta simplemente da cero.
+
+Fue exactamente eso: el indicador de preparación leía `fiesta.planPago` en vez de
+`planDePagos`. **Daba 100% de fiesta lista con el cliente debiendo una cuota.**
+
+La comprobación es mecánica: buscar `as any)` seguido de un punto y un nombre, y por cada uno
+preguntar **si ese campo existe en el tipo y si alguien lo escribe alguna vez**. Si no, esa
+cuenta viene dando cero desde siempre.
+
+### 18. Cuando se juntan cosas para sumarlas, ¿la clave incluye todo lo que las hace distintas?
+
+La lista de compras juntaba los renglones por nombre y proveedor, **sin la unidad**. 200 g de
+manteca de un plato y 2 kg de otro se sumaban como "202". Según cuál unidad quedara, se compraba
+diez veces de más o la fiesta se quedaba sin comida.
+
+La pregunta vale para toda clave armada a mano: **unidad de medida, moneda, impuesto, fecha,
+fiesta.** Si falta una, el total miente y nadie lo ve, porque el número se muestra prolijo.
+
+### 19. Si la pantalla se abre con datos en la dirección, ¿sobreviven a un rebote por el ingreso? Y si falta el dato, ¿lo dice o se queda cargando?
+
+Son dos mitades del mismo agujero, y las dos pasaron el mismo día:
+
+- El portero mandaba al ingreso guardando sólo la ruta y tiraba el `?fiestaId=...`. Al volver,
+  la pantalla abría **sin fiesta**.
+- La lista de regalos, sin fiesta, salía de la carga **sin apagar la rueda**: giraba para
+  siempre y no decía nada.
+
+Se mira igual en toda pantalla que se abre con un dato en la dirección: **entrar sin ese dato**
+y ver qué pasa. Una pantalla que se queda cargando es un error, aunque el código esté bien
+escrito: el equipo la mira y cree que el sistema está pensando.
