@@ -8614,3 +8614,21 @@ es justo cuando más se necesita.
 archivo: docs/tiempo-de-las-pruebas.md
 prueba: tests/e2e/fotocabina-de-punta-a-punta.spec.ts
 ```
+
+
+## 20 de septiembre de 2026 — Tres botones de copiar que decían "copiado" sin copiar
+
+Aparecieron al verificar la tanda de Gemini: el enlace de carga del video de vida y **los datos
+bancarios del regalo en dos plantillas de invitación**. Los tres anunciaban éxito sin esperar ni
+mirar si el navegador había dejado copiar.
+
+El de los datos bancarios es el que importa: **si el invitado cree que copió y pega cualquier
+cosa, la transferencia del regalo va a otro lado.** Ahora, si no se pudo copiar, se avisa y se
+muestran los datos para copiarlos a mano.
+
+Los encontró solo el control `npm run formas-que-mienten`, que es para lo que se hizo.
+
+```comprobar
+archivo: scripts/las-formas-que-mienten.mjs
+usa: clipboard en src/components/invitacion/templates/GraziaTemplate.tsx
+```

@@ -202,9 +202,19 @@ export default function VideoVidaAdminPage() {
     return '';
   };
   
-  const handleCopyLink = () => {
-      navigator.clipboard.writeText(getPublicLink());
-      toast({title: "Enlace Copiado", description: "El enlace de carga se ha copiado al portapapeles."});
+  const handleCopyLink = async () => {
+      // Antes decia "Enlace Copiado" sin mirar si se habia copiado: si el navegador no da
+      // permiso, el que lo usa pega cualquier cosa. Se avisa y se deja el enlace a la vista.
+      try {
+        await navigator.clipboard.writeText(getPublicLink());
+        toast({title: "Enlace Copiado", description: "El enlace de carga se ha copiado al portapapeles."});
+      } catch {
+        toast({
+          title: "No se pudo copiar solo",
+          description: `Copialo de aca: ${getPublicLink()}`,
+          variant: "destructive",
+        });
+      }
   };
 
   const handleDownloadAll = async () => {

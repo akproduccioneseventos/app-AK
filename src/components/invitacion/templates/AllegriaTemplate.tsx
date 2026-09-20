@@ -155,9 +155,19 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
     };
 
-    const handleCopyAccount = (text: string) => {
-        navigator.clipboard.writeText(text);
-        toast({ title: "Copiado", description: "Los datos bancarios se han copiado." });
+    const handleCopyAccount = async (text: string) => {
+        // Son los datos bancarios del regalo: si el navegador no deja copiar y el invitado
+        // cree que si, pega cualquier cosa y la transferencia va a otro lado.
+        try {
+            await navigator.clipboard.writeText(text);
+            toast({ title: "Copiado", description: "Los datos bancarios se han copiado." });
+        } catch {
+            toast({
+                title: "No se pudo copiar solo",
+                description: `Copialos a mano: ${text}`,
+                variant: "destructive",
+            });
+        }
     };
 
     const handleSendChat = async (e: React.FormEvent) => {

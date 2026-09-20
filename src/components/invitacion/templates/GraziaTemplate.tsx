@@ -387,9 +387,19 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       }
   };
 
-  const handleCopyAccount = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({ title: "Copiado", description: "Los datos bancarios se han copiado al portapapeles." });
+  const handleCopyAccount = async (text: string) => {
+    // Son los datos bancarios del regalo: si el navegador no deja copiar y el invitado cree
+    // que si, pega cualquier cosa y la transferencia va a otro lado.
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Copiado", description: "Los datos bancarios se han copiado al portapapeles." });
+    } catch {
+      toast({
+        title: "No se pudo copiar solo",
+        description: `Copialos a mano: ${text}`,
+        variant: "destructive",
+      });
+    }
   };
 
   const renderSectionComponent = (seccion: SeccionInvitacion) => {
