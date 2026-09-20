@@ -8632,3 +8632,18 @@ Los encontró solo el control `npm run formas-que-mienten`, que es para lo que s
 archivo: scripts/las-formas-que-mienten.mjs
 usa: clipboard en src/components/invitacion/templates/GraziaTemplate.tsx
 ```
+
+
+## 20 de septiembre de 2026 — La pantalla de guías de armado tiene una prueba que mira el resultado
+
+La tanda de Gemini dejó la pantalla de guías sin ninguna prueba, y el control de la verificación
+lo frenó. Ahora hay una prueba de navegador que **aplica una guía a una fiesta de prueba y después
+abre lo guardado**: comprueba que las tareas, los documentos que tienen que estar y las compras
+**quedaron en la fiesta**, no sólo anunciados en el cartel.
+
+**Probada rompiéndola**: sacando la creación de los documentos, se pone en rojo.
+
+```comprobar
+prueba: tests/e2e/las-guias-de-armado-se-aplican-de-verdad.spec.ts
+usa: documentosRequeridos en src/app/actions/playbooks.ts
+```
