@@ -8747,3 +8747,21 @@ archivo: src/app/actions/buzon.ts
 usa: getBuzonMessagesConDetalle en src/app/(app)/fiestas/nueva/buzon/page.tsx
 prueba: src/__tests__/el-buzon-no-confunde-una-falla-con-vacio.test.ts
 ```
+
+## 20 de septiembre de 2026 — El secretario decia haber anotado un prospecto y no anotaba nada
+
+**Que estaba mal:** al secretario que habla se le ofrecian siete acciones, y el servidor
+**solo ejecutaba dos**. Si le contabas de un prospecto —"me escribio Ana por un cumple de 15"—
+contestaba como si lo hubiera anotado y **el prospecto no existia en ningun lado**. Lo mismo
+con "armame un presupuesto" y "prepara un mensaje de WhatsApp".
+
+**Que se hizo:** anotar un prospecto ahora llega de verdad al listado de prospectos, con el
+mismo control de duplicados que usa la pantalla. El presupuesto y el mensaje de WhatsApp **no
+se automatizan** —son decision del dueño— pero dejaron de mentir: el secretario dice que tomo
+los datos y quien los cierra es una persona.
+
+```comprobar
+archivo: src/app/actions/multiagent.ts
+usa: addCrmLead en src/app/actions/multiagent.ts
+prueba: src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts
+```

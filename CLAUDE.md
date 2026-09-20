@@ -1178,6 +1178,7 @@ con otra cara.
 | La lista de compras sumaba 200 g con 2 kg como si fueran lo mismo | `src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts` |
 | Al volver del ingreso se perdia la fiesta y la pantalla quedaba cargando para siempre | `src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts` |
 | Una prueba de navegador que llamaba al servidor tumbaba la tanda entera sin decir cual era | `archivosQueNoCargan` en `scripts/run-playwright-production.mjs`, con `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` |
+| El secretario decia haber anotado un prospecto y nadie ejecutaba esa accion | `src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts` |
 
 ### Cómo se elige el matafuego
 

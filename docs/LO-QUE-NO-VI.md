@@ -349,3 +349,15 @@ agrupa. **Pregunta nueva:** *"cuando se juntan cosas para sumarlas, ¿la clave i
 que las hace distintas (unidad, moneda, impuesto, fecha)? Si falta una, el total miente."*
 
 **El control que lo frena:** `src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts`.
+
+## 20 de septiembre de 2026 — Acciones ofrecidas a la inteligencia artificial que nadie ejecuta
+
+**Que era:** el texto de instrucciones le ofrecia al asistente siete acciones y el servidor
+ejecutaba dos. Contestaba como si hubiera hecho las otras cinco.
+
+**Que pregunta lo hubiera agarrado:** ninguna. Las mias miran si algo que existe funciona;
+esta mira **lo que se le promete a la inteligencia artificial**. **Pregunta nueva:** *"todo lo
+que el asistente puede DECIDIR hacer, ¿alguien lo ejecuta? ¿Y lo que ejecuta, esta declarado?"*
+Las tres listas —el tipo, las instrucciones y el ejecutor— tienen que decir lo mismo.
+
+**El control que lo frena:** `src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts`.

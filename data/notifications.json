@@ -3,6 +3,14 @@
     "mensaje": "🚨 VENCE HOY: Tarea de iluminación",
     "categoria": "taskUpdates",
     "userId": "test_user_orden_56",
+    "id": "notif_9d6a10a2-0fe7-43b4-9f28-46376319f27f",
+    "fecha": "2026-09-20T18:27:55.671Z",
+    "leida": false
+  },
+  {
+    "mensaje": "🚨 VENCE HOY: Tarea de iluminación",
+    "categoria": "taskUpdates",
+    "userId": "test_user_orden_56",
     "id": "notif_13af07ed-36fa-438f-b426-be29af8af970",
     "fecha": "2026-09-19T23:58:59.509Z",
     "leida": false
@@ -541,18 +549,6 @@
     "rolDestino": "admin",
     "id": "notif_916f8c09-6ee9-4e4e-a5f9-088ceb989d0b",
     "fecha": "2026-08-28T02:04:29.171Z",
-    "leida": false
-  },
-  {
-    "titulo": "Nuevo presupuesto del simulador",
-    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
-    "href": "/presupuestos/pres_public_fcf2a1458328e22715747c14/ver",
-    "icono": "Sparkles",
-    "tipo": "aviso",
-    "entidadRelacionadaId": "pres_public_fcf2a1458328e22715747c14",
-    "rolDestino": "admin",
-    "id": "notif_629786cf-27c2-471a-b8a5-2d8a6b174007",
-    "fecha": "2026-08-23T03:34:44.359Z",
     "leida": false
   }
 ]
