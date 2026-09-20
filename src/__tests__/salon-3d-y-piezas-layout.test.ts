@@ -9,24 +9,27 @@ describe('Orden 3D: Salón en 3D, Generación Automática y 5 Piezas de Layout',
   const layoutPagePath = path.join(rootDir, 'src/app/(app)/fiestas/nueva/invitados/layout/page.tsx');
   const salonScenePath = path.join(rootDir, 'src/components/salon-3d/SalonScene.tsx');
   const portalDecoPath = path.join(rootDir, 'src/app/portal/[fiestaId]/decoracion/page.tsx');
+  const salon3DViewPath = path.join(rootDir, 'src/components/salon-3d/Salon3DClienteView.tsx');
 
   const layoutPageCode = fs.readFileSync(layoutPagePath, 'utf8');
   const salonSceneCode = fs.readFileSync(salonScenePath, 'utf8');
   const portalDecoCode = fs.readFileSync(portalDecoPath, 'utf8');
+  const salon3DViewCode = fs.readFileSync(salon3DViewPath, 'utf8');
 
   describe('1. Salón en 3D en el Portal del Cliente y Fallback a Foto', () => {
-    it('el portal del cliente contiene la sección de Salón en 3D con giro táctil', () => {
-      expect(portalDecoCode).toContain('Tu Salón en 3D');
-      expect(portalDecoCode).toContain('data-testid="seccion-salon-3d"');
-      expect(portalDecoCode).toContain('Girá el salón con el dedo');
-      expect(portalDecoCode).toContain('<SalonScene decoracion={deco} />');
+    it('el portal del cliente contiene la sección de Salón en 3D con giro táctil vía Salon3DClienteView', () => {
+      expect(portalDecoCode).toContain('Salon3DClienteView');
+      expect(salon3DViewCode).toContain('Tu Salón en 3D');
+      expect(salon3DViewCode).toContain('data-testid="seccion-salon-3d"');
+      expect(salon3DViewCode).toContain('Girá el salón con el dedo');
+      expect(salon3DViewCode).toContain('<SalonScene');
     });
 
     it('cuenta con detección de WebGL y fallback a foto para dispositivos que no pueden dibujarlo', () => {
-      expect(portalDecoCode).toContain('canRenderWebGL');
-      expect(portalDecoCode).toContain('fallback=');
-      expect(portalDecoCode).toContain('tu dispositivo no soporta aceleración 3D');
-      expect(portalDecoCode).toContain('SalonSceneAislada');
+      expect(salon3DViewCode).toContain('canRenderWebGL');
+      expect(salon3DViewCode).toContain('fallback=');
+      expect(salon3DViewCode).toContain('tu dispositivo no soporta aceleración 3D');
+      expect(salon3DViewCode).toContain('SalonSceneAislada');
     });
   });
 

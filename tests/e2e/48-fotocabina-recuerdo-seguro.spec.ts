@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, crearPermisoDeEstacion } from './helpers/fiesta-de-prueba';
+import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, crearPermisoDeEstacion, crearCookieDeSesion } from './helpers/fiesta-de-prueba';
 import { enchufarCamaraFalsa } from './helpers/camara-falsa';
 
 /**
@@ -19,8 +19,12 @@ test.beforeAll(() => guardarFiesta(fiesta));
 test.afterAll(() => borrarFiesta(fiesta.id));
 
 test.describe('Orden 48: la fotocabina levanta y deja sacar la foto', () => {
-  test('ENT-01: la estacion abre con la camara andando y el boton de sacar foto', async ({ page }) => {
+  test('ENT-01: la estacion abre con la camara andando y el boton de sacar foto', async ({ page, context }, testInfo) => {
     test.setTimeout(90_000);
+    const baseURL = testInfo.project.use.baseURL as string;
+    await context.addCookies([
+      { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
+    ]);
     await enchufarCamaraFalsa(page);
 
     const permiso = crearPermisoDeEstacion(fiesta.id, 'fotocabina');
@@ -39,5 +43,9 @@ test.describe('Orden 48: la fotocabina levanta y deja sacar la foto', () => {
     expect(caja?.height ?? 0).toBeGreaterThan(0);
 
     await expect(page.locator('[data-testid="selector-marcos"]')).toBeVisible({ timeout: 20_000 });
+
+    // Y el botón para sacar la foto está presente y listo
+    const btnFoto = page.getByRole('button', { name: /preparar foto|sacar foto/i });
+    await expect(btnFoto).toBeVisible({ timeout: 20_000 });
   });
 });

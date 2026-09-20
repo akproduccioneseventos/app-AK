@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, crearCookieDeSesion } from './helpers/fiesta-de-prueba';
+import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
 
 /**
  * Orden 43 Bloque 1: Importar invitados desde una planilla.
@@ -12,28 +12,7 @@ import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, crearCookieDeSesio
 
 const fiestaId = `e2e_import_${Date.now()}`;
 
-/**
- * ESTA PRUEBA NO PUEDE CORRER EN ESTE ENTORNO, Y NO ES UN DEFECTO DE LA APP.
- *
- * La pantalla de invitados es INTERNA y lee la fiesta de la base. En las pruebas la
- * app corre con `AK_USE_LOCAL_JSON_ONLY`, asi que **no ve las fiestas que arman las
- * pruebas**: la pantalla nunca termina de cargar y la prueba muere por tiempo a los
- * 95 segundos. Se comprobo el 5 de septiembre de 2026, con la app compilada.
- *
- * **Lo que la importacion hace SI se comprueba, y de verdad**, en
- * `src/__tests__/la-planilla-de-invitados-se-entiende.test.ts`: comas, punto y coma,
- * tabulaciones, encabezados con y sin acentos, filas sin nombre, repetidos,
- * restricciones alimentarias y planilla sin encabezado. Corre en milesimas.
- *
- * **Esas nueve comprobaciones encontraron dos defectos reales** que esta prueba, en
- * los 95 segundos que tardaba, no encontro nunca: una planilla sin encabezado rompia
- * la importacion entera, y un invitado marcado "Niño" entraba como adulto -lo que
- * cambia la cuenta de la comida-.
- *
- * **Como volver a prenderla:** el dia que las pruebas puedan crear fiestas que las
- * pantallas internas vean, se saca el `.skip` y tiene que pasar sin tocar nada mas.
- */
-test.describe.skip('Orden 43: Importar invitados desde una planilla', () => {
+test.describe('Orden 43: Importar invitados desde una planilla', () => {
   test.beforeAll(async () => {
     const fiesta = crearFiestaDeEstaNoche({ id: fiestaId });
     fiesta.configuracion.nombreEvento = 'Fiesta E2E Importar Planilla';
@@ -46,9 +25,7 @@ test.describe.skip('Orden 43: Importar invitados desde una planilla', () => {
 
   test('muestra los 3 invitados antes de guardar y los suma a la lista tras confirmar', async ({ page, context }, testInfo) => {
     const baseURL = testInfo.project.use.baseURL as string;
-    await context.addCookies([
-      { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
-    ]);
+    await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/invitados?fiestaId=${fiestaId}`, { waitUntil: 'domcontentloaded' });
     /**
@@ -109,9 +86,7 @@ test.describe.skip('Orden 43: Importar invitados desde una planilla', () => {
 
   test('una planilla con una fila sin nombre no se guarda y avisa cuál fila está mal', async ({ page, context }, testInfo) => {
     const baseURL = testInfo.project.use.baseURL as string;
-    await context.addCookies([
-      { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
-    ]);
+    await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/invitados?fiestaId=${fiestaId}`, { waitUntil: 'domcontentloaded' });
     /**
