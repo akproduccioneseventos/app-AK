@@ -738,9 +738,13 @@ export default function FotocabinaPage() {
       // copia, la pantalla se queda donde esta para que pueda pedir mas.
       if (esAutomatica) {
         setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          retake();
+        if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+        const sessionWhenPrinted = currentPhotoSessionIdRef.current;
+        resetTimerRef.current = setTimeout(() => {
+          if (currentPhotoSessionIdRef.current === sessionWhenPrinted) {
+            setShowSuccess(false);
+            retake();
+          }
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
       }
     } catch (err) {

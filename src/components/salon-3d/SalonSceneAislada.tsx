@@ -21,10 +21,10 @@ import { AlertTriangle } from 'lucide-react';
  * evita es que un widget se lleve puesta la reunión.
  */
 export class SalonSceneAislada extends React.Component<
-  { children: React.ReactNode },
+  { children: React.ReactNode; fallback?: React.ReactNode },
   { fallo: boolean }
 > {
-  constructor(props: { children: React.ReactNode }) {
+  constructor(props: { children: React.ReactNode; fallback?: React.ReactNode }) {
     super(props);
     this.state = { fallo: false };
   }
@@ -39,6 +39,9 @@ export class SalonSceneAislada extends React.Component<
 
   render() {
     if (this.state.fallo) {
+      if (this.props.fallback) {
+        return <>{this.props.fallback}</>;
+      }
       return (
         <div className="flex h-full min-h-[320px] w-full flex-col items-center justify-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/5 p-6 text-center">
           <AlertTriangle className="h-7 w-7 text-amber-600" />
