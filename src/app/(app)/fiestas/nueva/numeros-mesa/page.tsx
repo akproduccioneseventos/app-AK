@@ -23,6 +23,8 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { contarMesasDeSalon } from '@/lib/mesas/contar-mesas';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAutoSave } from '@/hooks/use-auto-save';
@@ -230,6 +232,7 @@ function NumerosDeMesaContent() {
   const [data, setData] = useState<NumerosMesaData>(defaultNumerosMesaData);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [tableCount, setTableCount] = useState(20);
   const [layoutMode, setLayoutMode] = useState<'2-per-page' | '4-per-page'>('2-per-page');
   const [previewTable, setPreviewTable] = useState<number | null>(null);
@@ -242,11 +245,11 @@ function NumerosDeMesaContent() {
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
-      toast({ title: 'Error', description: 'No se encontró el ID del evento.', variant: 'destructive' });
-      router.replace('/eventos');
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);
+    setError(null);
     try {
       const [fiestaData, settings] = await Promise.all([
         getFiestaById(fiestaId),
@@ -267,14 +270,16 @@ function NumerosDeMesaContent() {
         mergedData.fechaEvento = formatDate(fiestaData.configuracion.fechaEvento);
       }
       setData(mergedData);
-      const tables = fiestaData.decoracion?.salonElements?.filter(el => el.category?.toLowerCase().includes('mesa')) || [];
-      if (tables.length > 0) setTableCount(tables.length);
+      const numMesasSalon = contarMesasDeSalon(fiestaData.decoracion?.salonElements);
+      if (numMesasSalon > 0) setTableCount(numMesasSalon);
     } catch (e: unknown) {
-      toast({ title: 'Error', description: e instanceof Error ? e.message : 'Error al cargar', variant: 'destructive' });
+      const msg = e instanceof Error ? e.message : 'Error al cargar los datos';
+      setError(msg);
+      toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, router, toast]);
+  }, [fiestaId, toast]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -286,10 +291,29 @@ function NumerosDeMesaContent() {
     setData(prev => ({ ...prev, labels: { ...(prev.labels || {}), [tableNum]: label } }));
   };
 
-  if (isLoading || !fiesta) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!fiestaId) {
+    return (
+      <EmptyStateModulo
+        titulo="Números de Mesa"
+        descripcion="Elegí una fiesta desde el listado para configurar los números de mesa."
+        fiestaId=""
+      />
+    );
+  }
+
+  if (error || !fiesta) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto text-center space-y-4">
+        <p className="text-destructive font-semibold">{error || 'No se pudo cargar la información del evento.'}</p>
+        <Button onClick={() => loadData()} variant="outline">Reintentar</Button>
       </div>
     );
   }

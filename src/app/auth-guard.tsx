@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { clearSessionCookie, getSessionStatus } from '@/app/actions/session';
-import { getSession, clearSession } from '@/lib/auth';
+import { getSession, setSession, clearSession } from '@/lib/auth';
 import { BUDGET_VIEW_REGEX, PUBLIC_EXACT_PATHS, isPublicPathPrefix } from '@/lib/auth/public-paths';
 
 export async function triggerAppLogout() {
@@ -76,7 +76,15 @@ export function AuthGuard({ children }: AuthGuardProps) {
 
     async function verifyAccess() {
       if (!getSession()) {
-        router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+        const isValid = await getSessionStatus();
+        if (!active) return;
+        if (isValid) {
+          setSession();
+          setIsVerified(true);
+          return;
+        }
+        const fullPath = typeof window !== 'undefined' ? `${pathname}${window.location.search}` : pathname;
+        router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`);
         return;
       }
 
@@ -86,7 +94,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
         if (!isValid) {
           clearSession();
           await clearSessionCookie().catch(() => undefined);
-          router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+          const fullPath = typeof window !== 'undefined' ? `${pathname}${window.location.search}` : pathname;
+          router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`);
           return;
         }
         setIsVerified(true);
@@ -94,7 +103,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
         if (!active) return;
         console.error('[AuthGuard] Failed to verify session on server:', err);
         clearSession();
-        router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+        const fullPath = typeof window !== 'undefined' ? `${pathname}${window.location.search}` : pathname;
+        router.replace(`/login?redirect=${encodeURIComponent(fullPath)}`);
       }
     }
 

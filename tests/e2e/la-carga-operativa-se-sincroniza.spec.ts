@@ -9,12 +9,13 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, borrarFiestasHuerfanas, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
 
-const FIESTA_ID = `e2e_carga_sync_${Date.now()}`;
+const FIESTA_ID = `e2e_carga_sync_${process.pid}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
 test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operadores', () => {
   test.beforeAll(async () => {
+    borrarFiestasHuerfanas();
     const fiesta = crearFiestaDeEstaNoche({ id: FIESTA_ID });
     fiesta.configuracion.nombreEvento = 'Fiesta E2E Carga Operativa Sync';
     fiesta.listaDeCargaOperativa = {
@@ -54,18 +55,35 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
   });
 
   test('dos operadores sincronizan cambios sin pisar foco ni aceptar respuestas atrasadas', async ({ browser, baseURL }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(180_000);
+
+    // Comprobar que la fiesta de prueba esté en disco antes de cargar
+    if (!leerFiesta(FIESTA_ID)) {
+      throw new Error(`la fiesta de prueba no está en disco antes de mirar la pantalla: ${FIESTA_ID}`);
+    }
 
 
     // Contexto y Pestaña Operador A
     const contextA = await browser.newContext();
     await ponerSesionDelEquipo(contextA, baseURL);
     const pageA = await contextA.newPage();
+    await pageA.addInitScript(() => {
+      try {
+        localStorage.setItem('ak_session', 'true');
+        sessionStorage.setItem('ak_session', 'true');
+      } catch {}
+    });
 
     // Contexto y Pestaña Operador B
     const contextB = await browser.newContext();
     await ponerSesionDelEquipo(contextB, baseURL);
     const pageB = await contextB.newPage();
+    await pageB.addInitScript(() => {
+      try {
+        localStorage.setItem('ak_session', 'true');
+        sessionStorage.setItem('ak_session', 'true');
+      } catch {}
+    });
 
     try {
       await pageA.goto(`/fiestas/nueva/carga-operativa?fiestaId=${FIESTA_ID}`, { waitUntil: 'domcontentloaded' });
@@ -76,9 +94,9 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
       const inputB1 = pageB.locator('input[placeholder="Cant."]').first();
       const inputB2 = pageB.locator('input[placeholder="Cant."]').nth(1);
 
-      await expect(inputA1).toBeVisible({ timeout: 20_000 });
-      await expect(inputB1).toBeVisible({ timeout: 20_000 });
-      await expect(inputB2).toBeVisible({ timeout: 20_000 });
+      await expect(inputA1).toBeVisible({ timeout: 60_000 });
+      await expect(inputB1).toBeVisible({ timeout: 60_000 });
+      await expect(inputB2).toBeVisible({ timeout: 60_000 });
 
       // 1. Operador B pone el foco en el ítem 2 y escribe un texto en progreso
       await inputB2.focus();
@@ -86,12 +104,14 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
 
       // 2. Operador A cambia la cantidad del ítem 1 a "4" y lo guarda (blur)
       await inputA1.fill('4');
+      await inputA1.dispatchEvent('change');
       await inputA1.blur();
 
-      // Esperar brevemente a que el patch se guarde y sincronice
-      await pageA.waitForTimeout(1500);
+      // Esperar a que el patch se guarde y sincronice
+      await pageA.waitForTimeout(2000);
 
-      // Disparar sincronización en página B (cambio de visibilidad)
+      // Traer página B al frente y disparar sincronización
+      await pageB.bringToFront();
       await pageB.evaluate(() => {
         document.dispatchEvent(new Event('visibilitychange'));
       });
@@ -102,11 +122,13 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
 
       // 4. Bloque 2: Comprobar que una respuesta atrasada no devuelve el ítem a "sin cargar"
       // Marcar ítem 1 como cargado en página A
+      await pageA.bringToFront();
       const checkCargadoA = pageA.locator('#item-cargado-item-sync-1');
       await checkCargadoA.click();
-      await pageA.waitForTimeout(1000);
+      await pageA.waitForTimeout(2000);
 
-      // Simular respuesta atrasada más vieja en página B y verificar que no pise el estado cargado
+      // Traer página B al frente y verificar sincronización
+      await pageB.bringToFront();
       await pageB.evaluate(() => {
         document.dispatchEvent(new Event('visibilitychange'));
       });

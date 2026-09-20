@@ -85,7 +85,10 @@ function TareasEventoContent() {
 
 
   const loadTareas = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -108,6 +111,7 @@ function TareasEventoContent() {
 
   useEffect(() => {
     if (!fiestaId) {
+        setIsLoading(false);
         toast({ title: "Elegí una fiesta", description: "Entrá desde el evento con el que querés trabajar." });
         router.replace('/eventos');
         return;

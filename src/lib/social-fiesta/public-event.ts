@@ -65,12 +65,8 @@ export function toPublicSocialEvent(
     programa: mapProgramaParaElCliente(fiesta.programa) as FiestaEnPlanificacion['programa'],
     clientAccessGranted,
     cancionUrl:
-      (fiesta as any).cancionUrl ||
-      (fiesta as any).musicaFondoUrl ||
       fiesta.invitacionConfig?.musicaFondoUrl ||
       fiesta.invitacionDigital?.musicaFondoUrl ||
-      (fiesta.socialGallerySettings as any)?.cancionUrl ||
-      (fiesta.socialGallerySettings as any)?.musicaFondoUrl ||
       undefined,
     carasIndexadas:
       fiesta.socialGallerySettings?.modoCaras === 'apagado'

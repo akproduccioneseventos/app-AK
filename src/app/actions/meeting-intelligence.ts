@@ -214,9 +214,10 @@ function buildDetectedTasks(params: {
 
 function mergeTasks(existing: Tarea[] | undefined, detected: MeetingTask[]): Tarea[] {
   const merged = Array.isArray(existing) ? [...existing] : [];
-  const keys = new Set(merged.map((task) => normalizeKey(task.texto)));
+  const taskKey = (t: { texto: string; asignadaA?: string }) => `${normalizeKey(t.texto)}__${normalizeKey(t.asignadaA || '')}`;
+  const keys = new Set(merged.map(taskKey));
   for (const task of detected) {
-    const key = normalizeKey(task.texto);
+    const key = taskKey(task);
     if (!keys.has(key)) {
       merged.push(task);
       keys.add(key);
@@ -328,7 +329,7 @@ export async function processReunionIntelligence(formData: FormData) {
         ...fiesta.clientPortalSettings,
         faq: {
           ...fiesta.clientPortalSettings.faq,
-          visible: true,
+          visible: fiesta.clientPortalSettings.faq?.visible ?? false,
         },
       } : fiesta.clientPortalSettings,
     };

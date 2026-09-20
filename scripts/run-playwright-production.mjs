@@ -103,6 +103,18 @@ function barrerCorridasViejas() {
       }
     } catch { /* no habia ninguno, que es lo normal */ }
   }
+
+  // Limpiar fiestas de prueba huérfanas de corridas cortadas
+  for (const dir of ["data/fiestas", "src/data/fiestas"]) {
+    if (!existsSync(dir)) continue;
+    try {
+      for (const f of readdirSync(dir)) {
+        if (f.startsWith("e2e_") && f.endsWith(".json")) {
+          try { unlinkSync(path.join(dir, f)); } catch {}
+        }
+      }
+    } catch {}
+  }
 }
 
 /**
@@ -447,6 +459,11 @@ async function main() {
     // Mide una cuenta regresiva: con la maquina cargada da fallas inventadas.
     // **Comprobado**: en paralelo fallo, y sola paso en 126 segundos.
     'las-estaciones-respetan-los-ajustes.spec.ts',
+    // Pruebas que usan helpers/fiesta-de-prueba y carga operativa con dos navegadores:
+    'la-hoja-del-dj-dice-la-verdad.spec.ts',
+    'la-lista-de-regalos-queda-como-la-dejaron.spec.ts',
+    'la-carga-operativa-avisa-cuando-no-alcanza.spec.ts',
+    'la-carga-operativa-se-sincroniza.spec.ts',
   ];
 
 

@@ -2,11 +2,11 @@
 
 Lo escribe solo la ultima corrida. **No se edita a mano.**
 
-Medido el 2026-09-20 — total 175s.
+Medido el 2026-09-20 — total 77s.
 
 | Prueba | Tarda | Del total |
 | --- | --- | --- |
-| la-lista-de-regalos-queda-como-la-dejaron.spec.ts | 68s | 39% |
-| la-carga-operativa-se-sincroniza.spec.ts | 63s | 36% |
-| la-carga-operativa-avisa-cuando-no-alcanza.spec.ts | 37s | 21% |
-| la-hoja-del-dj-dice-la-verdad.spec.ts | 7s | 4% |
+| la-carga-operativa-se-sincroniza.spec.ts | 37s | 49% |
+| la-carga-operativa-avisa-cuando-no-alcanza.spec.ts | 23s | 29% |
+| la-lista-de-regalos-queda-como-la-dejaron.spec.ts | 11s | 14% |
+| la-hoja-del-dj-dice-la-verdad.spec.ts | 6s | 8% |

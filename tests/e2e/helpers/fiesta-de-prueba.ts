@@ -112,6 +112,19 @@ export function borrarFiesta(fiestaId: string) {
   }
 }
 
+export function borrarFiestasHuerfanas() {
+  for (const dir of CARPETAS_DATOS) {
+    if (!fs.existsSync(dir)) continue;
+    try {
+      for (const f of fs.readdirSync(dir)) {
+        if (f.startsWith('e2e_') && f.endsWith('.json')) {
+          try { fs.unlinkSync(path.join(dir, f)); } catch {}
+        }
+      }
+    } catch {}
+  }
+}
+
 /**
  * Fiesta "de esta noche": todos los módulos contratados, invitados ya
  * confirmados con mesa asignada y el portal del cliente abierto.
