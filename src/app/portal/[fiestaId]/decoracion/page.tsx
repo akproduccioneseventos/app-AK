@@ -3,16 +3,28 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, ArrowLeft, Heart, Sparkles, MessageSquare, CheckCircle2, Palette, Layers, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Heart, Sparkles, MessageSquare, CheckCircle2, Palette, Layers, Image as ImageIcon, Plus, Trash2, Box } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { enviarOpinionDecoracion } from '@/app/actions/fiesta/decoracion.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { SalonSceneAislada } from '@/components/salon-3d/SalonSceneAislada';
+
+const SalonScene = dynamic(() => import('@/components/salon-3d/SalonScene'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex flex-col items-center justify-center h-full min-h-[350px] gap-4 bg-slate-900 rounded-2xl">
+      <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+      <p className="text-white/60 text-xs font-bold uppercase tracking-widest">Cargando salón en 3D...</p>
+    </div>
+  ),
+});
 
 export default function ClientDecoracionPage() {
   const resolvedParams = useParams<{ fiestaId: string }>();
@@ -23,6 +35,7 @@ export default function ClientDecoracionPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [canRenderWebGL, setCanRenderWebGL] = useState<boolean | null>(null);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [comentario, setComentario] = useState('');
   const [ideasPhotos, setIdeasPhotos] = useState<string[]>([]);
@@ -72,6 +85,20 @@ export default function ClientDecoracionPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const supported = Boolean(
+        typeof window !== 'undefined' &&
+          window.WebGLRenderingContext &&
+          (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+      );
+      setCanRenderWebGL(supported);
+    } catch {
+      setCanRenderWebGL(false);
+    }
+  }, []);
 
   const handleOpinion = async (leGusta: boolean) => {
     setIsSubmitting(true);
@@ -241,6 +268,58 @@ export default function ClientDecoracionPage() {
             </CardContent>
           </Card>
         </section>
+
+        {/* Tu Salón en 3D */}
+        {(deco.salonElements?.length || 0) > 0 && (
+          <section className="space-y-4" data-testid="seccion-salon-3d">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Box className="w-5 h-5 text-purple-400" />
+                  Tu Salón en 3D
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Girá el salón con el dedo para recorrer la distribución de mesas, pista y sectores.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative w-full h-[380px] sm:h-[480px] rounded-2xl overflow-hidden border border-white/15 bg-slate-900 shadow-2xl">
+              {canRenderWebGL === false ? (
+                // Si el teléfono no puede dibujarlo, le sigue apareciendo la foto de siempre: nunca un cuadro vacío
+                <div className="relative w-full h-full">
+                  <Image
+                    src={fotosAi[0] || deco.salonPlanBackgroundImageUrl || '/media/salones/default.jpg'}
+                    alt="Visualización del Salón"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg text-[11px] text-slate-300">
+                    Vista en foto (tu dispositivo no soporta aceleración 3D)
+                  </div>
+                </div>
+              ) : (
+                <SalonSceneAislada
+                  fallback={
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={fotosAi[0] || deco.salonPlanBackgroundImageUrl || '/media/salones/default.jpg'}
+                        alt="Visualización del Salón"
+                        fill
+                        className="object-cover"
+                      />
+                      <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg text-[11px] text-slate-300">
+                        Vista en foto
+                      </div>
+                    </div>
+                  }
+                >
+                  <SalonScene decoracion={deco} />
+                </SalonSceneAislada>
+              )}
+            </div>
+          </section>
+        )}
 
         {/* AI Visualizations & Salón Render */}
         {fotosAi.length > 0 && (

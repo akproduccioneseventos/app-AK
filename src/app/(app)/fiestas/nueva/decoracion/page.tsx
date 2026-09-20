@@ -29,9 +29,10 @@ import DecoCanvas from '@/components/decoracion/DecoCanvas';
 import type { DecoItem3D } from '@/components/salon-3d/elements/DecoItem3D';
 import dynamic from 'next/dynamic';
 import type { SalonSceneRef } from '@/components/salon-3d/SalonScene';
+import { SalonSceneAislada } from '@/components/salon-3d/SalonSceneAislada';
 
 const SalonScene = dynamic(
-  () => import('@/components/salon-3d/SalonScene').then((mod) => mod.SalonScene),
+  () => import('@/components/salon-3d/SalonScene'),
   {
     ssr: false,
     loading: () => (
@@ -1880,6 +1881,7 @@ function DecoracionYDisenoEventoContent() {
                   </Button>
                   <Button
                     type="button"
+                    data-testid="btn-vista-3d"
                     variant={is3DMode ? "default" : "outline"}
                     size="sm"
                     onClick={() => setIs3DMode(m => !m)}
@@ -1943,36 +1945,38 @@ function DecoracionYDisenoEventoContent() {
                     <CardContent className={cn("p-4", isFullscreen ? 'flex-1 flex flex-col min-h-0' : '')}>
                       {is3DMode ? (
                         <div className="w-full h-[600px] rounded-2xl overflow-hidden bg-slate-950 relative">
-                          <SalonScene
-                            captureRef={salonSceneRef}
-                            decoracion={{
-                              ...decoracionData,
-                              salonElements: [
-                                ...(decoracionData.salonElements || []),
-                                ...canvasElementos.map((el) => ({
-                                  id: el.id,
-                                  name: el.etiqueta || el.tipo,
-                                  x: el.x,
-                                  y: el.y,
-                                  width: el.width || 80,
-                                  height: el.height || 80,
-                                  rotation: el.rotacion || 0,
-                                  type: 'element' as const,
-                                  category: el.tipo?.toLowerCase().includes('mesa') ? 'mesa' : el.tipo,
-                                  backgroundColor: el.colores?.[0] || '#c9a96e',
-                                })),
-                              ],
-                              itemsDecoracion: [
-                                ...(decoracionData.itemsDecoracion || []),
-                                ...(decoracionData.items || []).map((it) => ({
-                                  id: it.id,
-                                  nombre: it.name,
-                                  categoria: it.category || 'decoracion',
-                                  cantidad: it.quantity || 1,
-                                })),
-                              ],
-                            }}
-                          />
+                          <SalonSceneAislada>
+                            <SalonScene
+                              captureRef={salonSceneRef}
+                              decoracion={{
+                                ...decoracionData,
+                                salonElements: [
+                                  ...(decoracionData.salonElements || []),
+                                  ...canvasElementos.map((el) => ({
+                                    id: el.id,
+                                    name: el.etiqueta || el.tipo,
+                                    x: el.x,
+                                    y: el.y,
+                                    width: el.width || 80,
+                                    height: el.height || 80,
+                                    rotation: el.rotacion || 0,
+                                    type: 'element' as const,
+                                    category: el.tipo?.toLowerCase().includes('mesa') ? 'mesa' : el.tipo,
+                                    backgroundColor: el.colores?.[0] || '#c9a96e',
+                                  })),
+                                ],
+                                itemsDecoracion: [
+                                  ...(decoracionData.itemsDecoracion || []),
+                                  ...(decoracionData.items || []).map((it) => ({
+                                    id: it.id,
+                                    nombre: it.name,
+                                    categoria: it.category || 'decoracion',
+                                    cantidad: it.quantity || 1,
+                                  })),
+                                ],
+                              }}
+                            />
+                          </SalonSceneAislada>
                           {/* 3D Items overlay demonstration */}
                           <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-white text-xs flex items-center gap-2">
                             <Layers className="w-3.5 h-3.5 text-primary" />

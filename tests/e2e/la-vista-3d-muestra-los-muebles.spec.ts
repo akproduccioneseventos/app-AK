@@ -4,6 +4,7 @@ import {
   guardarFiesta,
   borrarFiesta,
   crearCookieDeSesion,
+  ponerSesionDelEquipo,
 } from './helpers/fiesta-de-prueba';
 
 /**
@@ -72,9 +73,7 @@ test.describe('Orden 42 Bloque 4: La vista 3D muestra los muebles del plano', ()
     test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     const baseURL = testInfo.project.use.baseURL as string;
-    await context.addCookies([
-      { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL, httpOnly: true, sameSite: 'Lax' },
-    ]);
+    await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/decoracion?fiestaId=${ID}`, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(3000);
