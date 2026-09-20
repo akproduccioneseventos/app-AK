@@ -8679,3 +8679,35 @@ archivo: src/__tests__/un-regalo-no-se-reserva-dos-veces.test.ts
 usa: app/actions en src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
 prueba: src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
 ```
+
+## 20 de septiembre de 2026 — El indicador de preparacion daba 100% con el cliente debiendo
+
+**Que estaba mal:** el calculo leia un campo de pagos que **no existe** (`planPago`, sin "s"),
+escondido detras de un `as any`. La cuenta de cuotas pendientes daba siempre cero, asi que la
+fiesta figuraba lista aunque la pantalla de cobros mostrara cuotas sin pagar.
+
+**Que se hizo:** lee `planDePagos`, el mismo plan que usan cobros y el panel contable, y cuenta
+como pendiente toda cuota que no este pagada (pendiente, parcial o vencida).
+
+```comprobar
+archivo: src/lib/readiness-score.ts
+usa: planDePagos en src/lib/readiness-score.ts
+prueba: src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts
+```
+
+## 20 de septiembre de 2026 — La lista de compras sumaba gramos como si fueran kilos
+
+**Que estaba mal:** los renglones se juntaban por nombre y proveedor, **sin mirar la unidad**.
+200 g de manteca de un plato y 2 kg de otro terminaban sumados como "202" de lo que viniera
+primero: o se compraba de mas, o la fiesta se quedaba sin comida.
+
+**Que se hizo:** la unidad entra en la clave con la que se juntan los renglones, y hay un
+unico lugar (`src/lib/compras/unidades.ts`) que pasa gramos a kilos y mililitros a litros,
+con la plata convertida igual para que el total no cambie. Lo toman las dos pantallas que
+arman la lista.
+
+```comprobar
+archivo: src/lib/compras/unidades.ts
+usa: claveDeConsolidado en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+prueba: src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts
+```
