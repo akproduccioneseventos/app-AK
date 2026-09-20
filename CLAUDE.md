@@ -1172,6 +1172,8 @@ con otra cara.
 | El ajuste de costos decia "listo" con los menus sin actualizar, y reescribia menus que nadie toco | `src/__tests__/el-ajuste-de-costos-no-miente.test.ts` |
 | Las formas que Codex encontraba de a una estaban repetidas en 95 lugares y nadie las buscaba | **`npm run formas-que-mienten`**, enganchado a la puerta |
 | Editar una reunion que otro ya borro decia "guardado" y le mandaba el aviso al calendario del cliente | `src/__tests__/una-reunion-borrada-no-dice-que-se-guardo.test.ts` |
+| El buzon decia "Sincronizado" con la lista borrada, y la descarga bajaba un archivo vacio | `src/__tests__/el-buzon-no-confunde-una-falla-con-vacio.test.ts` |
+| Una prueba de navegador con media sesion puesta: la pantalla rebotaba al ingreso y parecia rota | `ponerSesionDelEquipo` en `tests/e2e/helpers/fiesta-de-prueba.ts` |
 | El indicador de preparacion daba 100% con cuotas sin cobrar, por leer un campo que no existe | `src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts` |
 | La lista de compras sumaba 200 g con 2 kg como si fueran lo mismo | `src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts` |
 | Al volver del ingreso se perdia la fiesta y la pantalla quedaba cargando para siempre | `src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts` |

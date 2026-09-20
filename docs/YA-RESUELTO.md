@@ -8729,3 +8729,21 @@ archivo: tests/e2e/helpers/fiesta-de-prueba.ts
 usa: ponerSesionDelEquipo en tests/e2e/la-hoja-del-dj-dice-la-verdad.spec.ts
 prueba: tests/e2e/la-hoja-del-dj-dice-la-verdad.spec.ts
 ```
+
+## 20 de septiembre de 2026 — El buzon decia "Sincronizado" con la lista borrada
+
+**Que estaba mal:** cuando fallaba la lectura, la funcion del buzon devolvia una lista vacia.
+La pantalla borraba los saludos que se estaban viendo y anunciaba **"Sincronizado"**, y la
+descarga armaba un archivo **vacio** como si fueran todos los recuerdos de la fiesta. Los
+saludos seguian guardados: lo que mentia era la pantalla.
+
+**Que se hizo:** la lectura avisa si fallo. Si fallo, la pantalla **deja lo que ya se veia**,
+muestra un cartel en amarillo aclarando que no se perdio nada, y no dice "Sincronizado". La
+descarga contesta que no se pudo leer en vez de bajar un archivo vacio. De paso, la sesion se
+comprueba antes: quien no tiene permiso recibe un error, no un "no se pudo leer".
+
+```comprobar
+archivo: src/app/actions/buzon.ts
+usa: getBuzonMessagesConDetalle en src/app/(app)/fiestas/nueva/buzon/page.tsx
+prueba: src/__tests__/el-buzon-no-confunde-una-falla-con-vacio.test.ts
+```
