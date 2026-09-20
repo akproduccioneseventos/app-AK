@@ -2,8 +2,8 @@
 
 Lo escribe solo la ultima corrida. **No se edita a mano.**
 
-Medido el 2026-09-20 — total 124s.
+Medido el 2026-09-20 — total 38s.
 
 | Prueba | Tarda | Del total |
 | --- | --- | --- |
-| importar-invitados-de-una-planilla.spec.ts | 124s | 100% |
+| 48-touchpix-entrega-sin-reinicio.spec.ts | 38s | 100% |
