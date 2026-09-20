@@ -9,7 +9,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
 
 const FIESTA_ID = `e2e_carga_sync_${process.pid}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
@@ -61,17 +61,10 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
       throw new Error(`la fiesta de prueba no está en disco antes de mirar la pantalla: ${FIESTA_ID}`);
     }
 
-    const sessionCookie = {
-      name: 'ak_session',
-      value: crearCookieDeSesion(),
-      url: baseURL!,
-      httpOnly: true,
-      sameSite: 'Lax' as const,
-    };
 
     // Contexto y Pestaña Operador A
     const contextA = await browser.newContext();
-    await contextA.addCookies([sessionCookie]);
+    await ponerSesionDelEquipo(contextA, baseURL);
     const pageA = await contextA.newPage();
     await pageA.addInitScript(() => {
       try {
@@ -82,7 +75,7 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
 
     // Contexto y Pestaña Operador B
     const contextB = await browser.newContext();
-    await contextB.addCookies([sessionCookie]);
+    await ponerSesionDelEquipo(contextB, baseURL);
     const pageB = await contextB.newPage();
     await pageB.addInitScript(() => {
       try {

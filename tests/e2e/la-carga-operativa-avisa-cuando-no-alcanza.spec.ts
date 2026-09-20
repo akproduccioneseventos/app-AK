@@ -9,7 +9,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
 
 const FIESTA_ID = `e2e_carga_stock_${process.pid}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
@@ -53,23 +53,8 @@ test.describe('Orden 65: La carga operativa avisa cuando no alcanza el equipo', 
       throw new Error(`la fiesta de prueba no está en disco antes de mirar la pantalla: ${FIESTA_ID}`);
     }
 
-    // Inyectar sesión de administrador en cookies y localStorage
-    await context.addCookies([
-      {
-        name: 'ak_session',
-        value: crearCookieDeSesion(),
-        url: baseURL!,
-        httpOnly: true,
-        sameSite: 'Lax',
-      },
-    ]);
-
-    await page.addInitScript(() => {
-      try {
-        localStorage.setItem('ak_session', 'true');
-        sessionStorage.setItem('ak_session', 'true');
-      } catch {}
-    });
+    // Inyectar sesión de administrador
+    await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/carga-operativa?fiestaId=${FIESTA_ID}`, {
       waitUntil: 'domcontentloaded',

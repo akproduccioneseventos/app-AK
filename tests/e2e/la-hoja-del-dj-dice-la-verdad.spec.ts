@@ -10,7 +10,7 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
 
 const FIESTA_ID = `e2e_hoja_dj_${process.pid}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
@@ -45,15 +45,7 @@ test.describe('Orden 68: La hoja del DJ dice la verdad', () => {
       throw new Error(`la fiesta de prueba no está en disco antes de mirar la pantalla: ${FIESTA_ID}`);
     }
 
-    await context.addCookies([
-      {
-        name: 'ak_session',
-        value: crearCookieDeSesion(),
-        url: baseURL!,
-        httpOnly: true,
-        sameSite: 'Lax',
-      },
-    ]);
+    await ponerSesionDelEquipo(context, baseURL);
 
     await page.addInitScript(() => {
       try {

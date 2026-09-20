@@ -46,23 +46,46 @@ async function getDb(): Promise<Firestore> {
 /**
  * Gets all mailbox messages for a given party.
  */
-export async function getBuzonMessages(fiestaId: string): Promise<BuzonMessage[]> {
-  if (!fiestaId) return [];
+/**
+ * Los saludos del buzon, diciendo ademas SI SE PUDO LEER.
+ *
+ * Lo encontro Codex el 20 de septiembre de 2026: cuando la lectura fallaba, esto
+ * devolvia una lista vacia y la pantalla mostraba "Sincronizado" con el buzon en
+ * blanco. Los saludos seguian guardados, pero el equipo veia que no habia ninguno; y
+ * la descarga armaba un archivo VACIO como si fueran todos los recuerdos.
+ *
+ * Por eso una falla de lectura se avisa y no se disfraza de "no hay nada".
+ */
+export async function getBuzonMessagesConDetalle(
+  fiestaId: string,
+): Promise<{ mensajes: BuzonMessage[]; huboFalla: boolean }> {
+  // La sesion se comprueba ANTES del try: quien no tiene permiso recibe un error,
+  // no un "no se pudo leer" que se confunde con un problema de conexion.
+  await requireAppSession();
+  if (!fiestaId) return { mensajes: [], huboFalla: false };
   try {
-    await requireAppSession();
     const db = await getDb();
     const snapshot = await db
       .collection(BUZON_COLLECTION)
       .where('fiestaId', '==', fiestaId)
       .get();
 
-    return snapshot.docs
-      .map((doc: QueryDocumentSnapshot) => doc.data() as BuzonMessage)
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return {
+      mensajes: snapshot.docs
+        .map((doc: QueryDocumentSnapshot) => doc.data() as BuzonMessage)
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
+      huboFalla: false,
+    };
   } catch (error) {
     logger.warn('[buzon] getBuzonMessages failed:', error);
-    return [];
+    return { mensajes: [], huboFalla: true };
   }
+}
+
+export async function getBuzonMessages(fiestaId: string): Promise<BuzonMessage[]> {
+  await requireAppSession();
+  const { mensajes } = await getBuzonMessagesConDetalle(fiestaId);
+  return mensajes;
 }
 
 /**
