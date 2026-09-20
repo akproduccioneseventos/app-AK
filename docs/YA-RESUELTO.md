@@ -8058,3 +8058,11 @@ Por pedido del dueno se documento metodo practico: resultado humano, fallos parc
 
 ## Codex - guias documentos/compras 2026-09-19 (pendiente)
 PR1209 e43260f: GUI02 cuenta definiciones de documentos como generados sin crearlos en applyPlaybookToFiesta. 1 PASS/1 FAIL aislados, saveFiesta inspeccionado. Compras de plantilla no transferidas; decidir alcance con dueno antes de automatizar. docs/auditoria/GUIAS-DOCUMENTOS-2026-09-19.md y docs/evidencias/guias-documentos-sonda.cjs. No repetido GUI01; sin datos reales/build/merge.
+
+
+## 2026-09-20 - Codex - Tres partes: fotografia, itinerario y reuniones
+
+Informe: docs/auditoria/OPERACION-TRES-PARTES-2026-09-20.md. Evidencia: docs/evidencias/operacion-sonda.cjs y operacion-ampliada-sonda.cjs.
+Bases: PR1209 e43260f068a751b5c6e2cc519db84e595c14c89f (12 casos) y PR1210 d2f35915590b9901243d9d7b2f68e1d21713ebd5 (15 casos nuevos). Total 27: 17 PASS, 10 FAIL. Sondas AST aisladas, no E2E ni produccion.
+FOTO-01 nombre cambiado pierde entrega; FOTO-02 respuesta tardia pisa borrador; FOTO-03 carga fallida queda sincronizando. ITI-01 IA pisa edicion durante espera; ITI-02 acepta hora 29:90; ITI-03 programa vaciado se repuebla y guarda al abrir. REU-02 inicializacion fallida no libera stream; REU-03 deduplica tareas de responsables distintos; REU-04 acta activa FAQ oculta. REU-01 reunion eliminada: correccion presente en 1210, NO revalidada, no reimplementar.
+Sin codigo de app, build, fusion, datos reales ni servicios pagos. Reparto y pruebas pendientes detallados en informe. Continuar primera pasada; no repetir estos casos sin cambio relevante. No es certificado final.

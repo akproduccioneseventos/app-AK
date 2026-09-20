@@ -86,3 +86,11 @@ Main da6c566: [encuestas/resenas](POSTFIESTA-2026-09-17.md), 2 PASS/3 FAIL aisla
 - Metodo compartido: [Guia practica para Claude, Gemini y Codex](GUIA-AUDITORIA-PARA-CLAUDE-2026-09-19.md). No certificado; explica casos negativos, evidencia y limites de las sondas.
 
 - 2026-09-19: GUIAS-DOCUMENTOS-2026-09-19.md, e43260f, GUI02 documentos contados sin crear; 1 PASS/1 FAIL. Compras sugeridas requieren decision de alcance. Nuevo pendiente, no revalidacion GUI01.
+
+
+## 2026-09-20 - Codex - Tres partes: fotografia, itinerario y reuniones
+
+Informe: docs/auditoria/OPERACION-TRES-PARTES-2026-09-20.md. Evidencia: docs/evidencias/operacion-sonda.cjs y operacion-ampliada-sonda.cjs.
+Bases: PR1209 e43260f068a751b5c6e2cc519db84e595c14c89f (12 casos) y PR1210 d2f35915590b9901243d9d7b2f68e1d21713ebd5 (15 casos nuevos). Total 27: 17 PASS, 10 FAIL. Sondas AST aisladas, no E2E ni produccion.
+FOTO-01 nombre cambiado pierde entrega; FOTO-02 respuesta tardia pisa borrador; FOTO-03 carga fallida queda sincronizando. ITI-01 IA pisa edicion durante espera; ITI-02 acepta hora 29:90; ITI-03 programa vaciado se repuebla y guarda al abrir. REU-02 inicializacion fallida no libera stream; REU-03 deduplica tareas de responsables distintos; REU-04 acta activa FAQ oculta. REU-01 reunion eliminada: correccion presente en 1210, NO revalidada, no reimplementar.
+Sin codigo de app, build, fusion, datos reales ni servicios pagos. Reparto y pruebas pendientes detallados en informe. Continuar primera pasada; no repetir estos casos sin cambio relevante. No es certificado final.
