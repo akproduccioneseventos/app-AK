@@ -8797,3 +8797,20 @@ archivo: src/__tests__/ninguna-prueba-esta-apagada.test.ts
 usa: apagada a proposito en tests/e2e/sofia-composer.spec.ts
 prueba: src/__tests__/ninguna-prueba-esta-apagada.test.ts
 ```
+
+## 20 de septiembre de 2026 — El armado automatico del salon contaba invitados con un campo que no existe
+
+**Que estaba mal:** la funcion que arma el salon sola leia `asistencia` y `confirmado` de cada
+invitado con un `as any`. Esos campos **no existen**: los invitados se confirman con `rsvp`. La
+cuenta daba cero confirmados siempre y las mesas salian del numero estimado del presupuesto, no
+de la gente que de verdad viene. **La prueba que lo acompañaba usaba el mismo campo inventado**,
+asi que daba verde probando una ficcion.
+
+**Que se hizo:** cuenta por `rsvp` y `partySize`, sin `as any`, y la prueba usa los campos de
+verdad. Es la pregunta 17 del metodo, y la encontro el control de las formas que mienten.
+
+```comprobar
+archivo: src/lib/decoracion/generar-layout-automatico.ts
+usa: rsvp en src/lib/decoracion/generar-layout-automatico.ts
+prueba: src/__tests__/salon-3d-y-piezas-layout.test.ts
+```

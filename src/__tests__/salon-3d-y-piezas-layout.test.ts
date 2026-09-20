@@ -39,11 +39,14 @@ describe('Orden 3D: Salón en 3D, Generación Automática y 5 Piezas de Layout',
         tipoCelebracion: 'Boda',
         invitadosEstimados: 80,
       } as any,
+      // OJO: los invitados se confirman con `rsvp`, que es lo que escribe la app.
+      // Esta prueba nacio usando `asistencia`, un campo que NO EXISTE: contaba cero
+      // confirmados y el resultado salia del numero estimado, no de la gente de verdad.
       invitados: [
-        { id: 'inv_1', nombre: 'Familia Perez', asistencia: 'confirmado', partySize: 4 } as any,
-        { id: 'inv_2', nombre: 'Familia Lopez', asistencia: 'confirmado', partySize: 6 } as any,
-        { id: 'inv_3', nombre: 'Familia Gomez', asistencia: 'confirmado', partySize: 15 } as any,
-        { id: 'inv_4', nombre: 'Amigo Pendiente', asistencia: 'pendiente', partySize: 2 } as any,
+        { id: 'inv_1', nombre: 'Familia Perez', rsvp: 'Confirmado', partySize: 4 } as any,
+        { id: 'inv_2', nombre: 'Familia Lopez', rsvp: 'Confirmado', partySize: 6 } as any,
+        { id: 'inv_3', nombre: 'Familia Gomez', rsvp: 'Confirmado', partySize: 15 } as any,
+        { id: 'inv_4', nombre: 'Amigo Pendiente', rsvp: 'Pendiente', partySize: 2 } as any,
       ],
       decoracion: {
         salonWidth: 16,

@@ -47,17 +47,13 @@ export function generarEscenaAutomatica(params: {
   const salonHeightPx = salonHeightM * ppm;
 
   // 1. Contar confirmados o estimados
+  // Los invitados tienen `rsvp` y `partySize`, y nada mas: `asistencia`, `confirmado` y
+  // `cantidadPersonas` NO existen en el tipo ni los escribe nadie. Leerlos con `as any`
+  // daba siempre vacio y apagaba al revisor de tipos. Es la pregunta 17 del metodo.
   const confirmados = (fiesta.invitados || []).filter(
-    (inv) =>
-      inv.rsvp === 'Confirmado' ||
-      String(inv.rsvp || '').toLowerCase() === 'confirmado' ||
-      (inv as any).asistencia === 'confirmado' ||
-      (inv as any).confirmado === true
+    (inv) => String(inv.rsvp || '').toLowerCase() === 'confirmado'
   );
-  const personasConfirmadas = confirmados.reduce(
-    (sum, inv) => sum + (inv.partySize || (inv as any).cantidadPersonas || 1),
-    0
-  );
+  const personasConfirmadas = confirmados.reduce((sum, inv) => sum + (inv.partySize || 1), 0);
   const totalPersonas =
     personasConfirmadas > 0
       ? personasConfirmadas
