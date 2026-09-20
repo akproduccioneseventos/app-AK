@@ -731,6 +731,32 @@ sube*.
 Y la costumbre: **antes de subir, mirar qué archivos entran**, sobre todo después de correr
 pruebas. Un agregado de todo, después de una corrida, arrastra lo que escribió la corrida.
 
+### 14. Reparar las pruebas de otra IA en vez de devolverlas, y a ciegas
+
+**Pasó el 20 de septiembre de 2026 y costó casi una hora, con el dueño pidiendo velocidad.**
+Una entrega de Gemini traía cuatro pruebas de navegador que no corrían. En vez de devolverlas
+—que es lo que manda la regla— me puse a repararlas. Y encima a ciegas: la corrida decía
+*"la tanda terminó sin registrar ninguna prueba"* **sin decir cuál de los ocho archivos era**.
+
+**Qué era lo cierto:** un solo archivo importaba una acción del servidor. Eso arrastra
+`server-only`, revienta al cargarse fuera de Next, y Playwright se va sin correr nada. No era
+una falla del código de la app: era un archivo que no carga.
+
+**Qué se hace distinto, y ya está enganchado:** cuando una tanda no registra ninguna prueba, la
+corrida pregunta archivo por archivo cuántas pruebas tiene (`--list`, segundos, sin servidor) y
+**dice el nombre del que no carga y por qué** (`archivosQueNoCargan` en
+`scripts/run-playwright-production.mjs`). Y la costumbre: **una entrega que no corre se devuelve
+en el momento**, sin diagnosticarla a fondo.
+
+### 15. Contar el avance en vez de entregar el arreglo
+
+**Mismo día.** Con el dueño diciendo *"sigues demorando"*, la respuesta fue un mensaje largo
+contando lo que estaba haciendo. **La regla de "resultados, no relato" ya estaba escrita.**
+
+**Qué se hace distinto:** cuando algo se traba, se deja de empujar ahí y se agarra el defecto
+de plata o de comida que está esperando. **Un arreglo entregado vale más que una explicación
+de por qué el otro no sale.**
+
 ### 12. Arrancar la verificación con el trabajo a medio terminar
 
 **Pasó el 17 de septiembre de 2026 y costó más de una hora, en una sesión donde el dueño ya venía
@@ -1117,6 +1143,10 @@ con otra cara.
 | El ajuste de costos decia "listo" con los menus sin actualizar, y reescribia menus que nadie toco | `src/__tests__/el-ajuste-de-costos-no-miente.test.ts` |
 | Las formas que Codex encontraba de a una estaban repetidas en 95 lugares y nadie las buscaba | **`npm run formas-que-mienten`**, enganchado a la puerta |
 | Editar una reunion que otro ya borro decia "guardado" y le mandaba el aviso al calendario del cliente | `src/__tests__/una-reunion-borrada-no-dice-que-se-guardo.test.ts` |
+| El indicador de preparacion daba 100% con cuotas sin cobrar, por leer un campo que no existe | `src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts` |
+| La lista de compras sumaba 200 g con 2 kg como si fueran lo mismo | `src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts` |
+| Al volver del ingreso se perdia la fiesta y la pantalla quedaba cargando para siempre | `src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts` |
+| Una prueba de navegador que llamaba al servidor tumbaba la tanda entera sin decir cual era | `archivosQueNoCargan` en `scripts/run-playwright-production.mjs`, con `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` |
 
 ### Cómo se elige el matafuego
 
