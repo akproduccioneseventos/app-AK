@@ -40,7 +40,12 @@ function GiftRegistryPageContent() {
   const [currentItem, setCurrentItem] = useState<Partial<GiftItem> | null>(null);
 
   const loadData = useCallback(async () => {
-    if (!fiestaId) return;
+    // Sin fiesta no hay nada que cargar: antes se salia dejando la rueda girando
+    // para siempre y la pantalla no decia nada.
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const fiestaData = await getFiestaById(fiestaId);
@@ -126,6 +131,16 @@ function GiftRegistryPageContent() {
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
+
+  if (!fiestaId) {
+    return (
+      <EmptyStateModulo
+        titulo="Lista de Regalos"
+        descripcion="Entra a la lista de regalos desde la fiesta: elegi el evento en el listado y abri su planificador."
+        fiestaId=""
+      />
+    );
   }
 
   if (fiesta && fiesta.modulosContratados && !fiesta.modulosContratados.regalos) {

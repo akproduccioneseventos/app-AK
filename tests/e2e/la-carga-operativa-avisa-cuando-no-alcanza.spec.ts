@@ -44,7 +44,7 @@ test.describe('Orden 65: La carga operativa avisa cuando no alcanza el equipo', 
     borrarFiesta(FIESTA_ID);
   });
 
-  test('al cambiar la cantidad a mano a un número mayor al disponible aparece "Falta Stock" y al bajarlo desaparece', async ({ context, page }) => {
+  test('al cambiar la cantidad a mano a un número mayor al disponible aparece "Falta Stock" y al bajarlo desaparece', async ({ context, page, baseURL }) => {
     test.setTimeout(60_000);
 
     // Inyectar sesión de administrador
@@ -52,8 +52,7 @@ test.describe('Orden 65: La carga operativa avisa cuando no alcanza el equipo', 
       {
         name: 'ak_session',
         value: crearCookieDeSesion(),
-        domain: 'localhost',
-        path: '/',
+        url: baseURL!,
       },
     ]);
 

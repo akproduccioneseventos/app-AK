@@ -53,14 +53,13 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
     borrarFiesta(FIESTA_ID);
   });
 
-  test('dos operadores sincronizan cambios sin pisar foco ni aceptar respuestas atrasadas', async ({ browser }) => {
+  test('dos operadores sincronizan cambios sin pisar foco ni aceptar respuestas atrasadas', async ({ browser, baseURL }) => {
     test.setTimeout(90_000);
 
     const sessionCookie = {
       name: 'ak_session',
       value: crearCookieDeSesion(),
-      domain: 'localhost',
-      path: '/',
+      url: baseURL!,
     };
 
     // Contexto y Pestaña Operador A

@@ -314,3 +314,15 @@ duplicar / ya está usado", que es donde una comparación que nunca acierta pasa
 ```comprobar
 prueba: src/__tests__/no-se-borra-un-equipo-asignado.test.ts
 ```
+
+## 20 de septiembre de 2026 — La direccion se perdia al pasar por el ingreso
+
+**Que era:** al rebotar por la pantalla de ingreso, la app se quedaba con la ruta y tiraba
+el `?fiestaId=...`. La pantalla volvia sin fiesta y quedaba cargando para siempre.
+
+**Que pregunta lo hubiera agarrado:** ninguna de las que tenia. Todas miran la pantalla
+abierta directo. **Pregunta nueva:** *"si esta pantalla se abre con datos en la direccion,
+¿sobreviven a un rebote por el ingreso?"* — y su hermana: *"cuando falta ese dato, ¿la
+pantalla lo dice, o se queda cargando?"*
+
+**El control que lo frena:** `src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts`.

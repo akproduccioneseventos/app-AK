@@ -37,15 +37,14 @@ test.describe('Orden 68: La hoja del DJ dice la verdad', () => {
     timezoneId: 'America/Montevideo',
   });
 
-  test('la fecha muestra 30 de septiembre y si el portapapeles falla se muestra el enlace a mano', async ({ context, page }) => {
+  test('la fecha muestra 30 de septiembre y si el portapapeles falla se muestra el enlace a mano', async ({ context, page, baseURL }) => {
     test.setTimeout(60_000);
 
     await context.addCookies([
       {
         name: 'ak_session',
         value: crearCookieDeSesion(),
-        domain: 'localhost',
-        path: '/',
+        url: baseURL!,
       },
     ]);
 
@@ -68,10 +67,11 @@ test.describe('Orden 68: La hoja del DJ dice la verdad', () => {
       waitUntil: 'domcontentloaded',
     });
 
-    // 2. Comprobar que la fecha en pantalla dice "30 de septiembre de 2026" (no 29)
-    const headerFecha = page.getByText(/30 de septiembre de 2026/i);
+    // 2. La fecha en pantalla dice el 30 (no el 29). La app escribe "setiembre",
+    // como se dice en Uruguay, asi que se acepta con "p" y sin "p".
+    const headerFecha = page.getByText(/30 de se(p)?tiembre de 2026/i);
     await expect(headerFecha).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(/29 de septiembre/i)).not.toBeVisible();
+    await expect(page.getByText(/29 de se(p)?tiembre/i)).not.toBeVisible();
 
     // 3. Tocar el botón de compartir
     const btnCompartir = page.getByRole('button', { name: /Compartir/i });

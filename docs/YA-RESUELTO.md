@@ -8647,3 +8647,35 @@ abre lo guardado**: comprueba que las tareas, los documentos que tienen que esta
 prueba: tests/e2e/las-guias-de-armado-se-aplican-de-verdad.spec.ts
 usa: documentosRequeridos en src/app/actions/playbooks.ts
 ```
+
+## 20 de septiembre de 2026 — Al volver del ingreso se perdia la fiesta
+
+**Que estaba mal:** el portero mandaba a la pantalla de ingreso guardando solo la ruta y
+tiraba lo que venia despues del "?" (`?fiestaId=...`). Al volver, la pantalla abria sin
+fiesta. En la lista de regalos eso dejaba la rueda girando para siempre, sin decir nada.
+
+**Que se hizo:** el portero guarda la direccion entera, y la lista de regalos, cuando no
+hay fiesta en la direccion, lo dice en pantalla en vez de quedarse cargando.
+
+```comprobar
+archivo: src/middleware.ts
+usa: nextUrl.search en src/middleware.ts
+prueba: src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts
+```
+
+## 20 de septiembre de 2026 — Una prueba de navegador que llamaba al servidor tumbaba la tanda entera
+
+**Que estaba mal:** `tests/e2e/la-lista-de-regalos-queda-como-la-dejaron.spec.ts` importaba
+una accion del servidor para llamarla directo. Toda accion del servidor arrastra
+`server-only`, que revienta fuera de Next: el archivo no cargaba y la tanda de ocho
+archivos terminaba "sin registrar ninguna prueba", como si fuera una falla del codigo.
+
+**Que se hizo:** esa comprobacion se mudo a una prueba de Jest, y el control de "las
+pruebas viven donde corresponde" ahora marca en rojo cualquier prueba de navegador que
+importe una accion del servidor.
+
+```comprobar
+archivo: src/__tests__/un-regalo-no-se-reserva-dos-veces.test.ts
+usa: app/actions en src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+prueba: src/__tests__/las-pruebas-viven-donde-corresponde.test.ts
+```
