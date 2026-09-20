@@ -82,6 +82,48 @@ describe('Orden 48 - ENT-03: Blindaje de sesión en Fotocabina y Touchpix (regla
       expect(touchpixCode).not.toContain('liveSession === sessionForThisUpload');
       expect(touchpixCode).not.toContain('@ts-ignore');
     });
+
+    it('todo setTimeout en fotocabina que llama a retake() se guarda en resetTimerRef', () => {
+      const fotocabinaLines = fotocabinaCode.split('\n');
+      const retakeLines = fotocabinaLines
+        .map((line, idx) => ({ line, idx }))
+        .filter(({ line }) => line.includes('retake()'));
+
+      expect(retakeLines.length).toBeGreaterThan(0);
+      let foundTimeouts = 0;
+
+      for (const { idx } of retakeLines) {
+        // Miramos hasta 10 líneas arriba para ver si este retake() vive adentro de un setTimeout
+        const preceding = fotocabinaLines.slice(Math.max(0, idx - 10), idx).join('\n');
+        if (preceding.includes('setTimeout')) {
+          expect(preceding).toContain('resetTimerRef.current = setTimeout');
+          foundTimeouts++;
+        }
+      }
+
+      // Verificamos que al menos se encontraron los timers automáticos de reseteo
+      expect(foundTimeouts).toBeGreaterThan(0);
+    });
+
+    it('en Touchpix, setQueuedOffline está protegido por isLiveSession()', () => {
+      // Las llamadas a setQueuedOffline en handleUpload deben estar después del guard isLiveSession
+      const handleUploadIndex = touchpixCode.indexOf('const handleUpload =');
+      const handleUploadEnd = touchpixCode.indexOf('const getLiveFilter =', handleUploadIndex);
+      const handleUploadBody = touchpixCode.slice(handleUploadIndex, handleUploadEnd);
+
+      // Verificamos que ninguna llamada a setQueuedOffline ocurra sin comprobación previa de isLiveSession
+      const queuedMatches = [...handleUploadBody.matchAll(/setQueuedOffline\((true|false)\)/g)];
+      expect(queuedMatches.length).toBeGreaterThan(0);
+      for (const match of queuedMatches) {
+        const precedingCode = handleUploadBody.slice(0, match.index);
+        const lastGuard = Math.max(
+          precedingCode.lastIndexOf('if (!isLiveSession()) return;'),
+          precedingCode.lastIndexOf('if (!isLiveSession()) {'),
+          precedingCode.lastIndexOf('if (isLiveSession())')
+        );
+        expect(lastGuard).toBeGreaterThan(-1);
+      }
+    });
   });
 
   describe('Comprobación de comportamiento: los dos casos de concurrencia', () => {
