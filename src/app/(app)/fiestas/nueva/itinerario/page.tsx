@@ -18,6 +18,7 @@ import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } fro
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
 import { generateTimelineAction } from '@/app/actions/timeline-ia.actions';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -163,7 +164,10 @@ function ItinerarioContent() {
   });
 
   const loadData = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
@@ -351,6 +355,16 @@ function ItinerarioContent() {
         return arrayMove(items, oldIndex, newIndex);
       });
     }
+  }
+
+  if (!fiestaId) {
+    return (
+      <EmptyStateModulo
+        titulo="Itinerario y Cronograma"
+        descripcion="Entrá al itinerario desde la fiesta: elegí el evento en el listado y abrí su planificador."
+        fiestaId=""
+      />
+    );
   }
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;

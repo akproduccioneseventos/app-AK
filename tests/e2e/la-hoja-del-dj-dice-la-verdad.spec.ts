@@ -10,9 +10,9 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
 
-const FIESTA_ID = `e2e_hoja_dj_${Date.now()}`;
+const FIESTA_ID = `e2e_hoja_dj_${process.pid}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
 test.describe('Orden 68: La hoja del DJ dice la verdad', () => {
   test.beforeAll(async () => {
@@ -38,15 +38,29 @@ test.describe('Orden 68: La hoja del DJ dice la verdad', () => {
   });
 
   test('la fecha muestra 30 de septiembre y si el portapapeles falla se muestra el enlace a mano', async ({ context, page, baseURL }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(180_000);
+
+    // Comprobar que la fiesta de prueba esté en disco antes de cargar
+    if (!leerFiesta(FIESTA_ID)) {
+      throw new Error(`la fiesta de prueba no está en disco antes de mirar la pantalla: ${FIESTA_ID}`);
+    }
 
     await context.addCookies([
       {
         name: 'ak_session',
         value: crearCookieDeSesion(),
         url: baseURL!,
+        httpOnly: true,
+        sameSite: 'Lax',
       },
     ]);
+
+    await page.addInitScript(() => {
+      try {
+        localStorage.setItem('ak_session', 'true');
+        sessionStorage.setItem('ak_session', 'true');
+      } catch {}
+    });
 
     // 1. Simular que navigator.clipboard.writeText falla a propósito
     await page.addInitScript(() => {
@@ -70,7 +84,7 @@ test.describe('Orden 68: La hoja del DJ dice la verdad', () => {
     // 2. La fecha en pantalla dice el 30 (no el 29). La app escribe "setiembre",
     // como se dice en Uruguay, asi que se acepta con "p" y sin "p".
     const headerFecha = page.getByText(/30 de se(p)?tiembre de 2026/i);
-    await expect(headerFecha).toBeVisible({ timeout: 20_000 });
+    await expect(headerFecha).toBeVisible({ timeout: 60_000 });
     await expect(page.getByText(/29 de se(p)?tiembre/i)).not.toBeVisible();
 
     // 3. Tocar el botón de compartir

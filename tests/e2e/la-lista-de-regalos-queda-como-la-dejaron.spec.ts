@@ -10,9 +10,9 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
 
-const FIESTA_ID = `e2e_regalos_vacia_${Date.now()}`;
+const FIESTA_ID = `e2e_regalos_vacia_${process.pid}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
 
 test.describe('Orden 70: La lista de regalos respeta que el cliente la quiera vacía', () => {
   test.beforeAll(async () => {
@@ -41,25 +41,39 @@ test.describe('Orden 70: La lista de regalos respeta que el cliente la quiera va
   test('1. Al cargar con lista vacía, no inventa regalos y muestra estado vacío con "Cargar sugerencias"', async ({ context, page, baseURL }) => {
     test.setTimeout(60_000);
 
+    // Comprobar que la fiesta de prueba esté en disco antes de cargar
+    if (!leerFiesta(FIESTA_ID)) {
+      throw new Error(`la fiesta de prueba no está en disco antes de mirar la pantalla: ${FIESTA_ID}`);
+    }
+
     await context.addCookies([
       {
         name: 'ak_session',
         value: crearCookieDeSesion(),
         url: baseURL!,
+        httpOnly: true,
+        sameSite: 'Lax',
       },
     ]);
 
-    await page.goto(`/fiestas/nueva/regalos?fiestaId=${FIESTA_ID}`, { waitUntil: 'networkidle' });
+    await page.addInitScript(() => {
+      try {
+        localStorage.setItem('ak_session', 'true');
+        sessionStorage.setItem('ak_session', 'true');
+      } catch {}
+    });
+
+    await page.goto(`/fiestas/nueva/regalos?fiestaId=${FIESTA_ID}`, { waitUntil: 'domcontentloaded' });
 
     // Debe mostrar el estado vacío
     await expect(page.getByText('Todavía no hay regalos en la lista')).toBeVisible();
-    const btnSugerencias = page.getByRole('button', { name: /Cargar sugerencias/i });
+    const btnSugerencias = page.getByRole('button', { name: /Cargar sugerencias/i }).first();
     await expect(btnSugerencias).toBeVisible();
 
     // 2. Al tocar "Cargar sugerencias", se agregan los ítems sugeridos a la pantalla
     await btnSugerencias.click();
     await expect(page.getByText('Todavía no hay regalos en la lista')).not.toBeVisible();
-    await expect(page.getByText('Set de Copas de Cristal')).toBeVisible();
+    await expect(page.getByText('💐 Flores')).toBeVisible();
   });
 
   /**

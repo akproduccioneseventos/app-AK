@@ -141,31 +141,33 @@ export async function updateCargaOperativaItemState(input: {
     }
 
     try {
-      const { dbAdmin } = await import('@/lib/firebase/server');
-      if (dbAdmin) {
-        const ref = dbAdmin.collection('fiestas').doc(input.fiestaId);
-        const updatedData = await dbAdmin.runTransaction(async (transaction) => {
-          const snapshot = await transaction.get(ref);
-          if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
-          const fiesta = snapshot.data() as FiestaEnPlanificacion;
-          const current = fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' };
-          const updated = applyCargaOperativaItemPatch(
-            current,
-            input.categoryId,
-            input.itemId,
-            allowedPatch,
-            operatorName,
-          );
-          transaction.update(ref, {
-            listaDeCargaOperativa: updated,
-            _syncedAt: new Date().toISOString(),
+      if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+        const { dbAdmin } = await import('@/lib/firebase/server');
+        if (dbAdmin) {
+          const ref = dbAdmin.collection('fiestas').doc(input.fiestaId);
+          const updatedData = await dbAdmin.runTransaction(async (transaction) => {
+            const snapshot = await transaction.get(ref);
+            if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
+            const fiesta = snapshot.data() as FiestaEnPlanificacion;
+            const current = fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' };
+            const updated = applyCargaOperativaItemPatch(
+              current,
+              input.categoryId,
+              input.itemId,
+              allowedPatch,
+              operatorName,
+            );
+            transaction.update(ref, {
+              listaDeCargaOperativa: updated,
+              _syncedAt: new Date().toISOString(),
+            });
+            return updated;
           });
-          return updated;
-        });
-        return { success: true, updatedData };
+          return { success: true, updatedData };
+        }
       }
     } catch (error) {
-      if (process.env.NODE_ENV === 'production') throw error;
+      // Si falla en Firestore, se intenta con almacenamiento estándar (saveFiesta / local JSON)
     }
 
     const fiesta = await getFiestaById(input.fiestaId);

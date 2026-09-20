@@ -94,7 +94,10 @@ function ResumenPlanificacionContent() {
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const [fiestaData, emps, rolesData, allMenus, catalogoInsumos] = await Promise.all([
