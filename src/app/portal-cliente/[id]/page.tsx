@@ -58,6 +58,7 @@ import { calcFiestaProgress } from '@/lib/fiesta-progress';
 import { defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
 
@@ -1159,18 +1160,13 @@ export default function PortalClientePage() {
                     </div>
                   </div>
                 )}
-                {fiesta.decoracion?.salonPreview3dUrl && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Vista del Salón</p>
-                    <div className="relative rounded-2xl overflow-hidden border border-border shadow-sm" style={{ aspectRatio: '16/9' }}>
-                      <NextImage
-                        src={fiesta.decoracion.salonPreview3dUrl}
-                        alt="Vista 3D del salón"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  </div>
+                {(fiesta.decoracion?.salonPreview3dUrl || (fiesta.decoracion?.salonElements?.length || 0) > 0) && (
+                  <Salon3DClienteView
+                    decoracion={fiesta.decoracion}
+                    fotoFallbackUrl={fiesta.decoracion?.salonPreview3dUrl}
+                    titulo="Vista del Salón"
+                    subtitulo="Girá el salón con el dedo para recorrer la distribución de mesas y sectores."
+                  />
                 )}
                 {fiesta.decoracion?.moodboardItems && fiesta.decoracion.moodboardItems.length > 0 && (
                   <div className="space-y-2">
