@@ -1180,6 +1180,8 @@ con otra cara.
 | Una prueba de navegador que llamaba al servidor tumbaba la tanda entera sin decir cual era | `archivosQueNoCargan` en `scripts/run-playwright-production.mjs`, con `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` |
 | El secretario decia haber anotado un prospecto y nadie ejecutaba esa accion | `src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts` |
 | Dos pruebas de comida apagadas hacia semanas, y nadie se entero | `src/__tests__/ninguna-prueba-esta-apagada.test.ts` |
+| "Total cobrado" del personal sumaba los recibos pendientes | `src/__tests__/el-total-cobrado-del-personal-no-miente.test.ts` |
+| Dos personas guardando el mismo proveedor se pisaban, y las dos decian que salio bien | `src/__tests__/dos-personas-no-se-pisan-en-proveedores.test.ts` |
 
 ### Cómo se elige el matafuego
 

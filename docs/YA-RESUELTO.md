@@ -8832,3 +8832,37 @@ archivo: tests/e2e/importar-invitados-de-una-planilla.spec.ts
 usa: Fila 3 en tests/e2e/importar-invitados-de-una-planilla.spec.ts
 prueba: tests/e2e/importar-invitados-de-una-planilla.spec.ts
 ```
+
+## 21 de septiembre de 2026 — "Total cobrado" del personal sumaba lo que todavia se debe
+
+**Que estaba mal:** en el historial de un empleado, el cartel "Total cobrado" sumaba **todos**
+los renglones del periodo, estuvieran cobrados o pendientes. El numero decia que se le habia
+pagado plata que todavia se le debe, y con eso se decide a quien hay que pagarle. Lo mismo
+salia en la version impresa.
+
+**Que se hizo:** cuenta como cobrado solo lo que esta 'pagado' o 'firmado_subido'; lo que falta
+se muestra aparte como "Pendiente de cobro", en pantalla y en el impreso. El promedio tambien
+se calcula sobre los cobrados.
+
+```comprobar
+archivo: src/app/(app)/empleados/[id]/historial/page.tsx
+usa: totalPendiente en src/app/(app)/empleados/[id]/historial/page.tsx
+prueba: src/__tests__/el-total-cobrado-del-personal-no-miente.test.ts
+```
+
+## 21 de septiembre de 2026 — Dos personas guardando el mismo proveedor se pisaban
+
+**Que estaba mal:** guardar un proveedor era leer la lista, mezclar y escribir, en tres momentos
+distintos. Dos personas guardando a la vez: el segundo escribia encima con su copia vieja y **el
+cambio del primero desaparecia**, con las dos pantallas diciendo que se guardo. Al crear pasaba
+lo mismo con el control de repetidos, que miraba una lista ya vieja.
+
+**Que se hizo:** guardar y borrar pasan por un turno, con la lectura **adentro** del turno -si
+queda afuera, el que espera trabaja con la lista vieja y el turno no sirve-. La sesion se
+comprueba antes del turno.
+
+```comprobar
+archivo: src/app/actions/proveedores.ts
+usa: turnoDeProveedores en src/app/actions/proveedores.ts
+prueba: src/__tests__/dos-personas-no-se-pisan-en-proveedores.test.ts
+```

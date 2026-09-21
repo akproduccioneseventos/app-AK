@@ -4,6 +4,7 @@
 import type { Proveedor, NuevoProveedorFormData } from '@/types/proveedor';
 import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { AsyncMutex } from '@/lib/mutex';
 
 const PROVEEDORES_FILE = 'proveedores.json';
 const PROVEEDORES_COLLECTION = 'proveedores';
@@ -22,10 +23,28 @@ export async function getProveedorById(id: string): Promise<Proveedor | null> {
   return proveedores.find(p => p.id === id) || null;
 }
 
+/**
+ * Turno de proveedores.
+ *
+ * Lo encontro Codex el 21 de septiembre de 2026: dos personas guardando el mismo
+ * proveedor a la vez se pisaban -leer la lista, mezclar y escribir eran tres momentos
+ * distintos- y **las dos pantallas decian que salio bien**. Lo mismo al crear: el control
+ * de repetidos miraba una lista que ya podia estar vieja, asi que entraban dos veces.
+ */
+const turnoDeProveedores = new AsyncMutex();
+
 export async function saveProveedor(
   proveedorData: NuevoProveedorFormData | Proveedor
 ): Promise<{ success: boolean; id?: string; proveedor?: Proveedor; error?: string }> {
   await requireAppSession();
+  return turnoDeProveedores.runExclusive(() => saveProveedorInterno(proveedorData));
+}
+
+async function saveProveedorInterno(
+  proveedorData: NuevoProveedorFormData | Proveedor
+): Promise<{ success: boolean; id?: string; proveedor?: Proveedor; error?: string }> {
+  // La lectura entra ADENTRO del turno a proposito: si quedara afuera, el que espera
+  // trabajaria con la lista vieja y volveriamos al mismo problema.
   let proveedores = await getProveedores();
   let finalProveedorData: Proveedor;
   let proveedorId: string;
@@ -85,6 +104,10 @@ import { getInsumos } from './insumos';
 
 export async function deleteProveedor(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  return turnoDeProveedores.runExclusive(() => deleteProveedorInterno(id));
+}
+
+async function deleteProveedorInterno(id: string): Promise<{ success: boolean; error?: string }> {
 
   // Borrarlo de una deja a sus insumos apuntando a un proveedor que ya no existe:
   // en la lista de compras esos productos quedan sin a quien pedirselos, y nadie
