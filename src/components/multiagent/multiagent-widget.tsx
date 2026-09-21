@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { getSession } from '@/lib/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -13,6 +13,7 @@ import {
   Megaphone,
   MessageSquare,
   PartyPopper,
+  Radio,
   Send,
   Sparkles,
   Trash2,
@@ -75,15 +76,10 @@ function selectBestSpanishVoice(): SpeechSynthesisVoice | null {
 }
 
 function truncateForSpeech(text: string): string {
-  const cleaned = text
+  return text
     .replace(/[*#_`~>]/g, '')
     .replace(/https?:\/\/\S+/g, '')
     .trim();
-  const sentences = cleaned.split(/(?<=[.!?])\s+/);
-  if (sentences.length <= 3) {
-    return cleaned;
-  }
-  return `${sentences.slice(0, 3).join(' ')} ¿Querés que siga con más detalle?`;
 }
 
 type ChatMessage = AkMultiAgentMessage & {
@@ -262,14 +258,44 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
   const [messages, setMessages] = useState<ChatMessage[]>(
     () => readStorage<ChatMessage[]>(HISTORY_STORAGE_KEY, [])
   );
+  const [isHandsFree, setIsHandsFree] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [isVoiceMuted, setIsVoiceMuted] = useState(false);
   const recognitionRef = useRef<any>(null);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isHandsFreeRef = useRef(isHandsFree);
+  const isVoiceMutedRef = useRef(isVoiceMuted);
+  const isSendingRef = useRef(isSending);
+  const isSpeakingRef = useRef(isSpeaking);
+  const startListeningRef = useRef<() => void>(() => {});
+  const handleSendRef = useRef<(override?: string) => Promise<void>>(async () => {});
+  const accumulatedSpeechRef = useRef('');
+
+  useEffect(() => {
+    isHandsFreeRef.current = isHandsFree;
+  }, [isHandsFree]);
+
+  useEffect(() => {
+    isVoiceMutedRef.current = isVoiceMuted;
+  }, [isVoiceMuted]);
+
+  useEffect(() => {
+    isSendingRef.current = isSending;
+  }, [isSending]);
+
+  useEffect(() => {
+    isSpeakingRef.current = isSpeaking;
+  }, [isSpeaking]);
 
   useEffect(() => {
     return () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
+      }
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
       }
       try {
         recognitionRef.current?.stop?.();
@@ -277,42 +303,156 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
     };
   }, []);
 
-  const toggleVoiceRecording = () => {
-    if (isRecordingVoice) {
-      try { recognitionRef.current?.stop?.(); } catch {}
-      setIsRecordingVoice(false);
+  const stopListening = useCallback(() => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+    try {
+      recognitionRef.current?.stop?.();
+    } catch {}
+    setIsRecordingVoice(false);
+  }, []);
+
+  const speakText = useCallback((text: string, onFinish?: () => void) => {
+    if (isVoiceMutedRef.current || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      onFinish?.();
       return;
     }
+
+    try {
+      window.speechSynthesis.cancel();
+      const bestVoice = selectBestSpanishVoice();
+      const speechText = truncateForSpeech(text);
+      const utterance = new SpeechSynthesisUtterance(speechText);
+      if (bestVoice) {
+        utterance.voice = bestVoice;
+        utterance.lang = bestVoice.lang;
+      } else {
+        utterance.lang = 'es-UY';
+      }
+      utterance.rate = 1.02;
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => {
+        setIsSpeaking(false);
+        onFinish?.();
+      };
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        onFinish?.();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      setIsSpeaking(false);
+      onFinish?.();
+    }
+  }, []);
+
+  const startListening = useCallback(() => {
+    if (typeof window === 'undefined') return;
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setToast({ message: 'Tu navegador no soporta dictado por voz.', type: 'warning' });
       return;
     }
+
     try {
+      stopListening();
+      accumulatedSpeechRef.current = '';
       const recognition = new SpeechRecognition();
       recognition.lang = 'es-UY';
-      recognition.continuous = false;
+      recognition.continuous = true;
       recognition.interimResults = true;
+
       recognition.onresult = (e: any) => {
+        let interim = '';
         let final = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          const text = e.results[i][0]?.transcript || '';
-          if (e.results[i].isFinal) final += text + ' ';
+        for (let i = 0; i < e.results.length; i++) {
+          const item = e.results[i];
+          const transcript = item[0]?.transcript || '';
+          if (item.isFinal) {
+            final += transcript + ' ';
+          } else {
+            interim += transcript;
+          }
         }
-        if (final) {
-          setInput(prev => (prev ? prev + ' ' : '') + final.trim());
-          setIsRecordingVoice(false);
-          recognition.stop();
+
+        const fullText = (final + interim).trim();
+        if (fullText) {
+          accumulatedSpeechRef.current = fullText;
+          setInput(fullText);
+
+          if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = setTimeout(() => {
+            const textToSend = accumulatedSpeechRef.current.trim();
+            if (textToSend) {
+              stopListening();
+              void handleSendRef.current(textToSend);
+            }
+          }, 1600);
         }
       };
-      recognition.onerror = () => setIsRecordingVoice(false);
-      recognition.onend = () => setIsRecordingVoice(false);
+
+      recognition.onerror = (event: any) => {
+        setIsRecordingVoice(false);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          setToast({ message: 'No se pudo acceder al micrófono. Revisá los permisos del navegador.', type: 'warning' });
+          setIsHandsFree(false);
+        } else if (event.error === 'no-speech') {
+          if (isHandsFreeRef.current && !isSendingRef.current && !isSpeakingRef.current) {
+            setTimeout(() => {
+              if (isHandsFreeRef.current && !isSendingRef.current && !isSpeakingRef.current) {
+                startListening();
+              }
+            }, 800);
+          }
+        } else if (event.error === 'audio-capture') {
+          setToast({ message: 'No se detectó ningún micrófono conectado.', type: 'warning' });
+          setIsHandsFree(false);
+        } else if (event.error !== 'aborted') {
+          setToast({ message: `Error en el micrófono: ${event.error}`, type: 'warning' });
+        }
+      };
+
+      recognition.onend = () => {
+        setIsRecordingVoice(false);
+        const textToSend = accumulatedSpeechRef.current.trim();
+        if (textToSend && !isSendingRef.current) {
+          void handleSendRef.current(textToSend);
+        } else if (isHandsFreeRef.current && !isSendingRef.current && !isSpeakingRef.current) {
+          setTimeout(() => {
+            if (isHandsFreeRef.current && !isSendingRef.current && !isSpeakingRef.current) {
+              startListening();
+            }
+          }, 600);
+        }
+      };
+
       recognitionRef.current = recognition;
       recognition.start();
       setIsRecordingVoice(true);
-    } catch (e) {
+    } catch {
       setIsRecordingVoice(false);
+      setToast({ message: 'No se pudo iniciar el micrófono. Revisá los permisos.', type: 'warning' });
     }
+  }, [stopListening]);
+
+  useEffect(() => {
+    startListeningRef.current = startListening;
+  }, [startListening]);
+
+  const toggleVoiceRecording = () => {
+    if (isRecordingVoice) {
+      stopListening();
+      const textToSend = accumulatedSpeechRef.current.trim() || input.trim();
+      if (textToSend) {
+        void handleSendRef.current(textToSend);
+      }
+      return;
+    }
+    startListening();
   };
 
   // Solo mostrar el widget si hay sesión activa (usuario autenticado)
@@ -432,6 +572,9 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
     const text = (override ?? input).trim();
     if (!text || isSending) return;
 
+    stopListening();
+    accumulatedSpeechRef.current = '';
+
     const currentSessionKey = sessionKey;
     const userMsg: ChatMessage = {
       id: `user_${Date.now()}`,
@@ -486,20 +629,11 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
         }
       }
 
-      if (!isVoiceMuted && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const bestVoice = selectBestSpanishVoice();
-        const speechText = truncateForSpeech(result.response);
-        const utterance = new SpeechSynthesisUtterance(speechText);
-        if (bestVoice) {
-          utterance.voice = bestVoice;
-          utterance.lang = bestVoice.lang;
-        } else {
-          utterance.lang = 'es-AR';
+      speakText(result.response, () => {
+        if (isHandsFreeRef.current) {
+          startListeningRef.current();
         }
-        utterance.rate = 1.02;
-        window.speechSynthesis.speak(utterance);
-      }
+      });
 
       setMessages(prev => [
         ...prev,
@@ -514,12 +648,18 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
         },
       ]);
     } catch {
+      const errorResponse = 'No pude responder ahora. No marqué nada como hecho.';
+      speakText(errorResponse, () => {
+        if (isHandsFreeRef.current) {
+          startListeningRef.current();
+        }
+      });
       setMessages(prev => [
         ...prev,
         {
           id: `asst_err_${Date.now()}`,
           role: 'assistant',
-          content: 'No pude responder ahora. No marqué nada como hecho.',
+          content: errorResponse,
           agentName: style.label,
           agentType: activeAgent,
           fiestaId,
@@ -530,6 +670,10 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
       setIsSending(false);
     }
   }
+
+  useEffect(() => {
+    handleSendRef.current = handleSend;
+  });
 
   /* ── Chat panel alignment ───────────────────────────────── */
   const cardAlign = dockSide === 'left' ? 'left-0' : 'right-0';
@@ -562,6 +706,31 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !isHandsFree;
+                    setIsHandsFree(next);
+                    if (next) {
+                      setToast({ message: 'Modo manos libres activado: hablá cuando quieras.', type: 'success' });
+                      if (!isRecordingVoice && !isSending) {
+                        startListening();
+                      }
+                    } else {
+                      setToast({ message: 'Modo manos libres desactivado.', type: 'info' });
+                      stopListening();
+                    }
+                  }}
+                  title={isHandsFree ? 'Desactivar modo manos libres' : 'Activar modo manos libres (conversación continua por voz)'}
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-full transition',
+                    isHandsFree
+                      ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/40 animate-pulse'
+                      : 'text-white/70 hover:bg-white/15 hover:text-white'
+                  )}
+                >
+                  <Radio className="h-4 w-4" />
+                </button>
                 <button
                   type="button"
                   onClick={toggleSide}
@@ -728,10 +897,14 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
                   variant="outline"
                   onClick={toggleVoiceRecording}
                   disabled={isSending}
-                  className={cn("h-auto shrink-0 rounded-xl px-3 border-slate-200 transition-all", isRecordingVoice && "bg-red-50 text-red-600 border-red-200 animate-pulse hover:bg-red-100 hover:text-red-700")}
-                  title={isRecordingVoice ? 'Detener dictado' : 'Dictar por voz'}
+                  className={cn(
+                    "h-auto shrink-0 rounded-xl px-3 border-slate-200 transition-all",
+                    isRecordingVoice && "bg-red-50 text-red-600 border-red-200 animate-pulse hover:bg-red-100 hover:text-red-700",
+                    isSpeaking && "bg-emerald-50 text-emerald-600 border-emerald-200 animate-pulse"
+                  )}
+                  title={isRecordingVoice ? 'Detener dictado y enviar' : isSpeaking ? 'Hablando respuesta...' : 'Dictar por voz (envío automático)'}
                 >
-                  <Mic className="h-4 w-4" />
+                  {isSpeaking ? <Volume2 className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                 </Button>
                 <Button
                   onClick={() => handleSend()}

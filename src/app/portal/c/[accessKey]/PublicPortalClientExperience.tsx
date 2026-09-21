@@ -56,6 +56,7 @@ import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { textoDeCuentaRegresiva } from '@/lib/portal/cuenta-regresiva';
 import { elegirFotoDePortada } from '@/lib/portal/foto-de-portada';
+import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
 
 type PublicPortalClientExperienceProps = {
   fiesta: any;
@@ -692,7 +693,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const [cancelarModalOpen, setCancelarModalOpen] = useState(false);
   const [cancellationMode, setCancellationMode] = useState<'partial' | 'all'>('partial');
   const [selectedServicesToCancel, setSelectedServicesToCancel] = useState<string[]>([]);
-  
+
   const [cambioFechaModalOpen, setCambioFechaModalOpen] = useState(false);
   const [newProposedDate, setNewProposedDate] = useState('');
   const [dateChecking, setDateChecking] = useState(false);
@@ -706,8 +707,8 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const [actionSuccessData, setActionSuccessData] = useState<{ fileName: string; refundAmount?: number; pendingDue?: number; penaltyAmount?: number; newBalance?: number } | null>(null);
 
   const getCancellationImpact = () => {
-    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato 
-      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear() 
+    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato
+      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear()
       : new Date().getFullYear();
     const currentYear = new Date().getFullYear();
     const yearsDiff = Math.max(0, currentYear - signingYear);
@@ -739,13 +740,13 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       const refund = paid > newTotal ? (paid - newTotal) : 0;
       const owed = newTotal > paid ? (newTotal - paid) : 0;
 
-      return { 
-        adjustedTotal: adjustedCancelled, 
-        penalty, 
-        newTotal, 
-        refund, 
-        owed, 
-        factorAjuste, 
+      return {
+        adjustedTotal: adjustedCancelled,
+        penalty,
+        newTotal,
+        refund,
+        owed,
+        factorAjuste,
         yearsDiff,
         cancelledOriginalSum
       };
@@ -1107,7 +1108,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <p className="mt-1 text-sm leading-6 text-slate-600">{nextStep.text}</p>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               {nextStep.action === 'payment' ? (
                 <Button className="h-11 w-full font-extrabold" onClick={() => setPaymentModalOpen(true)}>
@@ -1131,7 +1132,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <ChevronRight className="h-4 w-4" /> {nextStep.label}
                 </Button>
               )}
-              
+
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" className="w-full text-slate-700 border-slate-300 rounded-xl h-10" asChild>
                   <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
@@ -1180,7 +1181,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         {/* Dashboard Superior Destacado */}
         <div className="mb-8 grid gap-4 md:grid-cols-3">
           {/* Tarjeta Pagos */}
-          <div 
+          <div
             className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
             onClick={() => {
               const el = document.getElementById('portal-contable');
@@ -1212,7 +1213,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
 
           {/* Tarjeta Menú */}
-          <div 
+          <div
             className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
             onClick={() => {
               const el = document.getElementById('portal-organizacion');
@@ -1244,7 +1245,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
 
           {/* Tarjeta Link de Invitados */}
-          <div 
+          <div
             className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
             onClick={() => {
               const url = fiesta?.invitacionSlug ? `/i/${fiesta.invitacionSlug}` : `/invitacion/${fiesta.id}`;
@@ -1401,16 +1402,17 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     <p className="rounded-lg bg-slate-50 p-3"><strong>Color principal:</strong> <span className="ml-2 inline-block h-3 w-8 rounded-full align-middle" style={{ background: eventColor }} /> {eventColor}</p>
                     {fiesta?.decoracion?.tema && <p className="rounded-lg bg-slate-50 p-3"><strong>Tema:</strong> {fiesta.decoracion.tema}</p>}
                     {fiesta?.decoracion?.notaDecoracionParaElCliente && <p className="rounded-lg bg-slate-50 p-3">{fiesta.decoracion.notaDecoracionParaElCliente}</p>}
-                    {fiesta?.decoracion?.salonPreview3dUrl && (
-                      <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm mt-3">
-                        <img
-                          src={fiesta.decoracion.salonPreview3dUrl}
-                          alt="Diseño 3D del salón"
-                          className="w-full object-cover max-h-64"
+                    {(fiesta?.decoracion?.salonPreview3dUrl || (fiesta?.decoracion?.salonElements && fiesta.decoracion.salonElements.length > 0)) && (
+                      <div className="mt-3">
+                        <Salon3DClienteView
+                          decoracion={fiesta?.decoracion}
+                          fotoFallbackUrl={fiesta?.decoracion?.salonPreview3dUrl}
                         />
                       </div>
                     )}
-                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.notaDecoracionParaElCliente && !fiesta?.decoracion?.salonPreview3dUrl && <PortalEmptyState title="La decoración todavía está en preparación" description="AK publicará acá el concepto y las referencias cuando estén definidos." />}
+                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.notaDecoracionParaElCliente && !fiesta?.decoracion?.salonPreview3dUrl && (!fiesta?.decoracion?.salonElements || fiesta.decoracion.salonElements.length === 0) && (
+                      <PortalEmptyState title="La decoración todavía está en preparación" description="AK publicará acá el concepto y las referencias cuando estén definidos." />
+                    )}
                   </div>
                 </div>
               </div>
@@ -1677,7 +1679,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-4 space-y-4 max-h-[75vh] overflow-y-auto">
               <div>
                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Diseños Predeterminados</p>
@@ -1815,7 +1817,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="flex gap-4 p-1 bg-slate-100 rounded-xl">
                 <button
@@ -1912,7 +1914,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <span className="text-slate-600">Total ya abonado por vos:</span>
                       <span className="font-bold text-emerald-700">{formatPortalMoney(paymentSummary.paid)}</span>
                     </div>
-                    
+
                     <div className={`p-3 rounded-xl border flex items-center justify-between text-sm ${impact.refund > 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
                       <span className="font-black flex items-center gap-1.5">
                         {impact.refund > 0 ? <CheckCircle2 className="h-5 w-5 animate-none" /> : <AlertTriangle className="h-5 w-5 animate-none" />}
@@ -1963,7 +1965,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-5 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="proposed-new-date" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Elegí la nueva fecha solicitada:</Label>
@@ -1993,7 +1995,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3 text-xs text-rose-800 space-y-2.5">
                       <p className="font-bold flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 text-rose-600" /> Fecha no disponible</p>
                       <p>Lamentablemente ya hay otra fiesta agendada para esa fecha. Te sugerimos las siguientes opciones libres cercanas:</p>
-                      
+
                       {dateAvailabilityResult.suggestions && dateAvailabilityResult.suggestions.length > 0 ? (
                         <div className="grid grid-cols-2 gap-2 mt-1">
                           {dateAvailabilityResult.suggestions.map((sugDate) => {
@@ -2087,7 +2089,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-5 space-y-4">
               {!actionSuccessData ? (
                 <>

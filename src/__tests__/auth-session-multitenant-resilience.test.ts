@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @jest-environment node
  */
 
@@ -9,6 +9,11 @@ const mockWriteSessionCookie = jest.fn();
 jest.mock('@/lib/firebase/server', () => ({
   dbAdmin: {
     collection: jest.fn(() => ({
+      doc: jest.fn(() => ({
+        get: jest.fn(() => Promise.resolve({ exists: false })),
+        set: jest.fn(() => Promise.resolve()),
+        update: jest.fn(() => Promise.resolve()),
+      })),
       where: jest.fn(() => ({
         limit: jest.fn(() => ({
           get: () => mockGet(),
@@ -183,3 +188,4 @@ describe('Rescate acotado y tolerante a fallas en loginUser (P2)', () => {
     expect(result.success).toBe(false);
   });
 });
+

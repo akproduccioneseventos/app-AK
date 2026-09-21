@@ -371,14 +371,21 @@ export default function TouchpixPage() {
     overlayMainEmoji?: string
   ) => {
     const offscreen = processingCanvasRef.current;
-    if (!offscreen) return;
+    if (!offscreen) {
+      onComplete(sourceDataUrl);
+      return;
+    }
 
     const img = new Image();
+    img.onerror = () => onComplete(sourceDataUrl);
     img.onload = () => {
       offscreen.width = img.width;
       offscreen.height = img.height;
       const ctx = offscreen.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) {
+        onComplete(sourceDataUrl);
+        return;
+      }
 
       ctx.filter = filterStr;
       ctx.drawImage(img, 0, 0);
@@ -424,7 +431,7 @@ export default function TouchpixPage() {
       onComplete(offscreen.toDataURL('image/jpeg', 0.92));
     };
     img.src = sourceDataUrl;
-  }, [drawWatermark]);
+  }, [drawWatermark, selectedTheme, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey]);
 
   /* ── Capture ── */
   const captureRawPhoto = useCallback((): string | null => {
@@ -469,13 +476,13 @@ export default function TouchpixPage() {
     const raw = captureRawPhoto();
     if (!raw) return;
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    await updateEntertainmentSessionStatus(
+    void updateEntertainmentSessionStatus(
       fiestaId,
       'espejoMagicoIA',
       'recording',
       {},
       accessToken
-    );
+    ).catch(() => undefined);
     setRawCapturedImage(raw);
     setProcessingResult(null);
     stopCamera();

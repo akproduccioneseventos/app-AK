@@ -57,8 +57,12 @@ test.describe('Orden 70: La lista de regalos respeta que el cliente la quiera va
 
     await page.goto(`/fiestas/nueva/regalos?fiestaId=${FIESTA_ID}`, { waitUntil: 'domcontentloaded' });
 
+    // Comprobar que no diga que el módulo no está contratado y esperar el encabezado
+    await expect(page.getByText(/El módulo de Lista de Regalos no está contratado/i)).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: /Lista de Regalos/i })).toBeVisible({ timeout: 60_000 });
+
     // Debe mostrar el estado vacío
-    await expect(page.getByText('Todavía no hay regalos en la lista')).toBeVisible();
+    await expect(page.getByText('Todavía no hay regalos en la lista')).toBeVisible({ timeout: 30_000 });
     const btnSugerencias = page.getByRole('button', { name: /Cargar sugerencias/i }).first();
     await expect(btnSugerencias).toBeVisible();
 

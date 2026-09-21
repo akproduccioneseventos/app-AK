@@ -100,7 +100,7 @@ test.describe('Orden 48: Touchpix levanta entero', () => {
 
     // Esperamos a que termine la cuenta regresiva (1s) y aparezca el botón de subir
     const botonSubir = page.locator('button:has-text("Publicar al muro"), button:has-text("Guardar foto")').first();
-    await expect(botonSubir).toBeVisible({ timeout: 15_000 });
+    await expect(botonSubir, 'La captura no llegó a mostrarse tras sacar la foto').toBeVisible({ timeout: 15_000 });
 
     // 2. Persona A dispara la subida lenta
     await botonSubir.click();

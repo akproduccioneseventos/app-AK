@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildAkDemoFiesta } from '../../../src/lib/experience-ak/demo-fiesta-factory';
@@ -267,8 +267,57 @@ export function borrarProspectosDePrueba() {
       if (limpios.length !== leads.length) {
         fs.writeFileSync(archivo, `${JSON.stringify(limpios, null, 2)}\n`);
       }
-    } catch {
-      // Si el archivo no se puede leer, no es la prueba quien tiene que arreglarlo.
-    }
+    } catch {}
   }
 }
+
+/**
+ * Siembra un activo en el catálogo para comprobar conflictos de stock en carga operativa.
+ */
+export function sembrarActivoDePrueba(activo: { id: string; nombre: string; cantidadDisponible: number }) {
+  for (const carpeta of ['data', path.join('src', 'data')]) {
+    const archivo = path.join(process.cwd(), carpeta, 'activos-fijos.json');
+    let lista: any[] = [];
+    if (fs.existsSync(archivo)) {
+      try {
+        lista = JSON.parse(fs.readFileSync(archivo, 'utf8'));
+      } catch {}
+    }
+    const idx = lista.findIndex((a) => a.id === activo.id);
+    const item = {
+      id: activo.id,
+      nombre: activo.nombre,
+      tipoItem: 'Activo Fijo',
+      categoria: 'Equipamiento de Prueba',
+      cantidadDisponible: activo.cantidadDisponible,
+      valorUnitarioEstimado: 100,
+      unidad: 'Uds.',
+      calculationMethod: 'fijo',
+    };
+    if (idx >= 0) {
+      lista[idx] = item;
+    } else {
+      lista.push(item);
+    }
+    fs.mkdirSync(path.dirname(archivo), { recursive: true });
+    fs.writeFileSync(archivo, `${JSON.stringify(lista, null, 2)}\n`);
+  }
+}
+
+/**
+ * Borra del catálogo el activo que dejó la prueba.
+ */
+export function borrarActivoDePrueba(activoId: string) {
+  for (const carpeta of ['data', path.join('src', 'data')]) {
+    const archivo = path.join(process.cwd(), carpeta, 'activos-fijos.json');
+    if (!fs.existsSync(archivo)) continue;
+    try {
+      const lista = JSON.parse(fs.readFileSync(archivo, 'utf8'));
+      if (Array.isArray(lista)) {
+        const limpia = lista.filter((a) => a.id !== activoId);
+        fs.writeFileSync(archivo, `${JSON.stringify(limpia, null, 2)}\n`);
+      }
+    } catch {}
+  }
+}
+

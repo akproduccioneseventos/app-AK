@@ -9,13 +9,28 @@
  */
 
 import { expect, test } from '@playwright/test';
-import { borrarFiesta, borrarFiestasHuerfanas, ponerSesionDelEquipo, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta } from './helpers/fiesta-de-prueba';
+import {
+  borrarFiesta,
+  borrarFiestasHuerfanas,
+  ponerSesionDelEquipo,
+  crearFiestaDeEstaNoche,
+  guardarFiesta,
+  leerFiesta,
+  sembrarActivoDePrueba,
+  borrarActivoDePrueba,
+} from './helpers/fiesta-de-prueba';
 
 const FIESTA_ID = `e2e_carga_stock_${process.pid}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+const ACTIVO_ID = `activo_stock_${process.pid}_${Date.now()}`;
 
 test.describe('Orden 65: La carga operativa avisa cuando no alcanza el equipo', () => {
   test.beforeAll(async () => {
     borrarFiestasHuerfanas();
+    sembrarActivoDePrueba({
+      id: ACTIVO_ID,
+      nombre: 'Parlantes JBL EON',
+      cantidadDisponible: 10,
+    });
     const fiesta = crearFiestaDeEstaNoche({ id: FIESTA_ID, fechaEvento: '2028-11-20' });
     fiesta.configuracion.nombreEvento = 'Fiesta E2E Carga Operativa Stock';
     fiesta.listaDeCargaOperativa = {
@@ -26,7 +41,7 @@ test.describe('Orden 65: La carga operativa avisa cuando no alcanza el equipo', 
           items: [
             {
               id: 'item-parlantes-1',
-              origenId: 'lc_bandejashorno',
+              origenId: ACTIVO_ID,
               nombre: 'Parlantes JBL EON',
               cantidad: '5',
               unidad: 'Uds.',
@@ -44,6 +59,7 @@ test.describe('Orden 65: La carga operativa avisa cuando no alcanza el equipo', 
 
   test.afterAll(async () => {
     borrarFiesta(FIESTA_ID);
+    borrarActivoDePrueba(ACTIVO_ID);
   });
 
   test('al cambiar la cantidad a mano a un número mayor al disponible aparece "Falta Stock" y al bajarlo desaparece', async ({ context, page, baseURL }) => {
@@ -60,6 +76,10 @@ test.describe('Orden 65: La carga operativa avisa cuando no alcanza el equipo', 
     await page.goto(`/fiestas/nueva/carga-operativa?fiestaId=${FIESTA_ID}`, {
       waitUntil: 'domcontentloaded',
     });
+
+    // Esperar a que la pantalla cargue sin errores antes de buscar elementos
+    await expect(page.getByText(/No se pudo cargar la lista/i)).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: /Carga Operativa/i })).toBeVisible({ timeout: 60_000 });
 
     // Esperar a que la lista cargue
     const inputCantidad = page.locator('input[placeholder="Cant."]').first();
