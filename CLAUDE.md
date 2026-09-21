@@ -1182,6 +1182,7 @@ con otra cara.
 | Dos pruebas de comida apagadas hacia semanas, y nadie se entero | `src/__tests__/ninguna-prueba-esta-apagada.test.ts` |
 | "Total cobrado" del personal sumaba los recibos pendientes | `src/__tests__/el-total-cobrado-del-personal-no-miente.test.ts` |
 | Dos personas guardando el mismo proveedor se pisaban, y las dos decian que salio bien | `src/__tests__/dos-personas-no-se-pisan-en-proveedores.test.ts` |
+| Cambiar una clave le cambiaba la clave a los otros administradores | `src/__tests__/la-clave-de-uno-no-le-cambia-la-clave-a-otro.test.ts` |
 
 ### Cómo se elige el matafuego
 

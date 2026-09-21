@@ -8866,3 +8866,21 @@ archivo: src/app/actions/proveedores.ts
 usa: turnoDeProveedores en src/app/actions/proveedores.ts
 prueba: src/__tests__/dos-personas-no-se-pisan-en-proveedores.test.ts
 ```
+
+## 21 de septiembre de 2026 — Cambiar una clave le cambiaba la clave a los otros administradores
+
+**Que estaba mal:** en una entrega que buscaba que el dueño pudiera entrar por los dos caminos,
+la sincronizacion de claves tenia un repuesto: si ninguna cuenta coincidia por correo, **le ponia
+esa misma clave a los primeros cinco usuarios con rol de administrador** y les sacaba el aviso de
+"tiene que cambiarla". Una persona cambiaba su clave y se llevaba puestas las cuentas de las
+demas, sin que nadie se enterara.
+
+**Que se hizo:** se saco ese repuesto. La clave de una persona se sincroniza **solo con su propia
+cuenta, por correo**; si no existe ninguna cuenta con ese correo, se crea la del dueño y nada mas.
+Entrar con la clave propia de cada administrador sigue andando: eso **comprueba**, no escribe.
+
+```comprobar
+archivo: src/app/actions/simple-auth.ts
+usa: where('email', '==', email) en src/app/actions/simple-auth.ts
+prueba: src/__tests__/la-clave-de-uno-no-le-cambia-la-clave-a-otro.test.ts
+```

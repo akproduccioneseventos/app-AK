@@ -303,23 +303,17 @@ async function syncPasswordToUsersCollection(newPassword: string): Promise<void>
       }
     }
 
-    // Si ningún usuario coincidió por correo, actualizar los que tengan rol 'admin'
-    if (!updatedAny) {
-      const adminSnap = await conTopeDeEspera(
-        dbAdmin.collection('users').where('role', '==', 'admin').limit(5).get(),
-        3000
-      ).catch(() => null);
-      if (adminSnap && !adminSnap.empty) {
-        for (const doc of adminSnap.docs) {
-          await doc.ref.update({
-            passwordHash: newHash,
-            mustChangePassword: false,
-            updatedAt: new Date().toISOString(),
-          }).catch(() => undefined);
-          updatedAny = true;
-        }
-      }
-    }
+    /**
+     * ACA NO VA UN REPUESTO QUE LE CAMBIE LA CLAVE A TODOS LOS ADMINISTRADORES.
+     *
+     * Venia escrito asi: si ningun usuario coincidia por correo, le ponia ESTA MISMA clave
+     * a los primeros cinco usuarios con rol de administrador. O sea que cambiar la clave de
+     * uno **le cambiaba la clave a los otros sin que nadie se enterara**, y ademas les
+     * sacaba el "tiene que cambiarla". Eso es entregarle la cuenta de uno a otro.
+     *
+     * La clave de una persona se sincroniza SOLO con su propia cuenta, por correo. Si no
+     * hay ninguna cuenta con ese correo, se crea la del dueño (abajo) y nada mas.
+     */
 
     // Si todavía no hay ningún usuario en `users`, crear el administrador por defecto
     if (!updatedAny) {
