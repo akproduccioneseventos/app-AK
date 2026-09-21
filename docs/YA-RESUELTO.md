@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21 de septiembre de 2026 — Cuatro archivos que escribe la corrida quedaban como si fueran trabajo
+
+- **Que estaba mal.** El recorrido de pantallas escribe la lista de marketing y la de activos
+  fijos al abrirlas. No estaban en la lista de limpieza, asi que `npm run limpiar:corrida` no
+  los borraba y quedaban ahi como cambios pendientes. Es la misma forma exacta con la que el
+  20 de septiembre se colaron commiteados los archivos de las guias de armado.
+- **Que se hizo.** Los cuatro entraron a `scripts/limpiar-corrida.mjs`, y el unico que no
+  estaba ignorado entro a la lista de ignorados.
+
+```comprobar
+archivo: scripts/limpiar-corrida.mjs
+usa: marketing-checklist.json en scripts/limpiar-corrida.mjs
+```
+
+
 ## 21 de septiembre de 2026 — La pantalla de ingreso se contradecia y mandaba por el camino equivocado
 
 - **Que estaba mal.** Al quinto intento fallido el acceso queda pausado quince minutos. La

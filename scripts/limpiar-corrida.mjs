@@ -24,6 +24,13 @@ const ESCRITOS_POR_LA_CORRIDA = [
   'src/data/prospectos.json',
   // La galeria social guarda los "me gusta" de la corrida y reescribe el archivo.
   'src/data/social-gallery/metadata.json',
+  // Los escribe el recorrido de pantallas al abrir marketing y activos fijos.
+  // **Aparecieron sin estar en la lista** el 21 de septiembre de 2026: quedaban como si
+  // fueran trabajo pendiente, que es exactamente como se colo el de las guias de armado.
+  'data/marketing-checklist.json',
+  'src/data/marketing-checklist.json',
+  'data/activos-fijos.json',
+  'src/data/activos-fijos.json',
 ];
 
 const sucios = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' })
