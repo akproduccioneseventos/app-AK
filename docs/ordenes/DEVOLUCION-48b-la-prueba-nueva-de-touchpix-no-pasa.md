@@ -35,3 +35,30 @@ A no pisa la sesión de B".
 archivo: tests/e2e/48-touchpix-entrega-sin-reinicio.spec.ts
 prueba: tests/e2e/48-touchpix-entrega-sin-reinicio.spec.ts
 ```
+
+
+---
+
+## Al dia 21 de septiembre de 2026: lo encontre yo, y queda un solo paso
+
+**Eran dos cosas del freno de la prueba, no de la app**, y las dos estan arregladas:
+
+1. La prueba frenaba **todos** los pedidos POST de la pantalla desde antes de abrirla. Esa
+   pantalla usa POST a su misma direccion para **tres** cosas: validar el evento al abrir,
+   avisar en que anda la estacion, y subir la foto. Al frenar la validacion, la estacion
+   mostraba *"La validacion del evento demoro demasiado"*.
+2. Frenando todo despues de abrir, se comia el aviso de "sacando foto" y la captura nunca
+   aparecia.
+
+Ahora el freno se pone despues de abrir y **solo sobre la subida** (se reconoce por el peso:
+una foto pesa, los avisos son dos renglones). **Con eso pasa en celular.**
+
+**Lo que queda, y es tuyo:** en pantalla de computadora, despues de tocar "Sacar foto", **no
+aparece el boton de publicar** (`Publicar al muro` / `Guardar foto`, linea ~1537 de
+`src/app/evento/touchpix/[fiestaId]/page.tsx`). En celular aparece y la prueba pasa. Medido
+tres veces, sola y en tanda.
+
+Averigua **por que la captura no termina de mostrarse en pantalla grande**: puede ser la
+pantalla o puede ser la prueba, pero hay que medirlo antes de tocar. Si al final resulta que la
+captura si funciona y lo que falla es el selector, la prueba tiene que **fallar diciendo que la
+captura no aparecio**, no "no encuentro el boton".
