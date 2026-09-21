@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21 de septiembre de 2026 — La pantalla de ingreso se contradecia y mandaba por el camino equivocado
+
+- **Que estaba mal.** Al quinto intento fallido el acceso queda pausado quince minutos. La
+  linea roja lo avisaba bien, pero el cartel explicativo de abajo (`diagnosticarAcceso`)
+  no conocia ese caso: contestaba **"el correo o la clave no coinciden, toca Olvide mi
+  contraseña"**. La misma pantalla decia dos cosas distintas y la segunda manda a recuperar
+  una clave que esta perfecta. Quien esta pausado se queda afuera creyendo que se olvido
+  la contraseña.
+- **Que se hizo.** `src/lib/auth/diagnostico-acceso.ts` tiene un aviso nuevo, `pausado`:
+  dice cuantos minutos faltan y ofrece el unico camino que sirve en ese momento —entrar
+  con Google, que no pasa por la pausa y ademas la levanta (`clearLoginProtection`)—.
+- **Falso positivo ya descartado, no volver a reportarlo:** la pausa de quince minutos **se
+  queda**. Es lo que frena a quien prueba claves de a miles. Lo que estaba mal era el
+  cartel, no la pausa.
+- **Probado rompiendolo:** sacando el paso de la pausa, `el-cartel-del-ingreso-no-se-contradice`
+  se pone en rojo.
+
+```comprobar
+archivo: src/lib/auth/diagnostico-acceso.ts
+usa: pausado en src/lib/auth/diagnostico-acceso.ts
+prueba: src/__tests__/el-cartel-del-ingreso-no-se-contradice.test.ts
+```
+
+
 ## 8 de septiembre de 2026 - Ordenes 45 a 48, pendientes de ejecucion
 
 Codex reviso y preparo las ordenes numeradas en docs/ordenes/: evaluacion de pendientes,
