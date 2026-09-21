@@ -1,0 +1,1810 @@
+{
+  "schemaVersion": 1,
+  "sourceSha": "bc7fbb3d9226585f234b331e157490e861e0b3b4",
+  "inventoryDate": "2026-09-21",
+  "purpose": "Reconciliar evidencia anterior antes de ejecutar; no implica ausencia de auditoria historica ni aprobacion",
+  "pageCount": 360,
+  "evidenceIndex": "docs/auditoria/INDICE-CORTO.md",
+  "pages": [
+    {
+      "path": "src/app/(app)/admin/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/admin/usuarios/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/alertas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/aprobaciones/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/auditoria/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/calendario/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/comparativa-ganancias/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/contabilidad/comercial-360/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/contabilidad/crm/agenda/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/contabilidad/crm/atraccion-fiestas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/contabilidad/crm/ciclo-comercial/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/contabilidad/crm/marketing-ads/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/contabilidad/crm/outbox/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/contabilidad/crm/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/contabilidad/fiestas-historicas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/contabilidad/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/customers/[id]/edit/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/customers/[id]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/customers/new/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/customers/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/customers/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empleados/[id]/editar/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empleados/[id]/historial/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empleados/nuevo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empleados/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empleados/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empleados/roles/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/activos-fijos/editar/[id]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/activos-fijos/nuevo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/activos-fijos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/activos-fijos/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/configurador-reunion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/contabilidad/flujo-caja/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/contabilidad/gastos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/contabilidad/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/contabilidad/reportes/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/creador-anuncios/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/crm/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/dashboard/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/empleados/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/galeria/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/insumos/[id]/editar/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/insumos/editar/[id]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/insumos/nuevo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/insumos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/insumos/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/landing-editor/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/marketing/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/menus/[menuId]/editar/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/menus/catalogo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/menus/nuevo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/menus/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/menus/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/menus/tragos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/personal/[empleadoId]/historial/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/presencia-digital/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/presentacion-led/configuracion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/red-social-eventos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/redes-sociales/ia-marketing/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/redes-sociales/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/salones/[id]/croquis/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/salones/[id]/diseno/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/salones/club-uruguay/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/salones/experiencia-visual/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/salones/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/servicios/[...slugs]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/servicios/editar/[id]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/servicios/nuevo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/servicios/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/servicios/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/empresa/todos-los-servicios/[id]/editar/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/eventos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/ak-100/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/centro-de-mando/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/centro-experiencia/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/centro/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/cierre-mundial/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/comando-total/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/entretenimiento/control/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/experiencia-tecnologica-ak/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/show-control/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/[id]/timeline/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/accesos-personal/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/alergias/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/asistente/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/barra-tecnologica/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/buzon/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/carga-operativa/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/carga-operativa/pdf/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/carta-tragos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/carteleria/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/catering/hoja-de-cocina/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/catering/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/centro-total/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/centro/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/configuracion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/decoracion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/decoracion/pdf/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/en-vivo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/entretenimiento/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/fiesta-lista/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/fotografia/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-documental/cambio-fecha/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-contrato/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-documental/cancelacion-parcial/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-documental/contrato-salon/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-documental/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/gestion-documental/recibo-pago/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/invitados/layout/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/invitados/numeros-mesa/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/invitados/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/itinerario/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/itinerario/pdf/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/logistica/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/menu-mesa/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/mission-control/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/modulo-invitado/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/muro-social/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/musica/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/musica/pdf/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/numeros-mesa/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/pagina-web/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/pantallas-totem/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/personal/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/personal/recibos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/plan-pagos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/planner-costo-fiesta/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/playlist-pantalla/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/portal-cliente/cierre-final/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/portal-cliente/experiencia-mundial/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/portal-cliente/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/post-evento/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/proveedores-portal/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/readiness/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/regalos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/resumen-imprimible/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/reuniones/imprimir/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/reuniones/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/servicios-contratados/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/social-fiesta-pro/cierre-final/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/social-fiesta-pro/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/tareas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/video-vida/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/fiestas/nueva/zona-digital/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/incidentes/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/invoices/[id]/edit/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/invoices/[id]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/invoices/new/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/invoices/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/mi-dia/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/multiagente/acciones/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/multiagente/contable/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/multiagente/equipo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/multiagente/fiestas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/multiagente/memoria/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/multiagente/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/pagos-rapidos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/perfil/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/playbooks/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/[id]/edit/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/[id]/editar/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/[id]/estado-de-cuenta/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/[id]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/[id]/recibo-contrato/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/[id]/ver/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/importar/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/nuevo/crear/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/nuevo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/presupuestos/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/proveedores/[id]/edit/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/proveedores/new/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/proveedores/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/proveedores/reporte/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/repaso-diario/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/accesos-personal/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/account/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/agentes-autonomos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/ai-assistant/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/ajuste-precios/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/asistentes-contextuales/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/backup-final/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/backup/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/biblioteca-visual-ak/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/budget-display/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/catalogo-servicios/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/cierre-global-producto/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/cierre-operativo-final/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/company/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/contenido-publico/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/contratos/clausulas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/contratos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/cupones/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/datos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/feature-flags/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/feedback/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/google-workspace/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/instalar-app/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/lanzamiento-cto/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/mapa-tecnologico-ak/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/notifications/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/promos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/sincronizaciones/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/social-connections/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/tareas-automaticas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/task-templates/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/templates/carga-operativa/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/templates/contrato/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/templates/invitaciones/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/templates/layouts/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/templates/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/templates/reuniones/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/whatsapp-business/conversations/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/whatsapp-business/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/whatsapp-templates/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/(app)/settings/whatsapp/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/acceso-personal/[tokenId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/admin/asistente-ak/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/admin/carga-historicos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/admin/finanzas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/admin/ventas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/album/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/analytics/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/blog/[slug]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/blog/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/bodas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/buscar/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/catalogo/[tipo]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/catalogo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/club-uruguay/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/compras/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/configuracion/backup-final/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/control-tower/automatizaciones/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/control-tower/comercial/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/control-tower/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/control-tower/post-fiesta/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/control-tower/preparacion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/cumpleanos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/[id]/video-recuerdo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/accesos/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/actual/checkin/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/actual/mesa/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/actual/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/album/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/barra/[fiestaId]/barman/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/barra/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/barra/[fiestaId]/stats/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/barra/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/bogue/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/buzon/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/buzon/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/dj/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/dj/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/en-vivo/[fiestaId]/invitados/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/en-vivo/[fiestaId]/organizador/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/en-vivo/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/en-vivo/[fiestaId]/pantalla/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/espejo-magico/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/espejo-magico/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/fotocabina/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/galeria/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/hub/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/impresion/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/impresion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/inicio/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/logistica/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/mi-mesa/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/moderacion/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/muro-en-vivo/[fiestaId]/afiche/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/muro-en-vivo/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/muro-en-vivo/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/plataforma-360/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/plataforma-360/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/social/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/staff/[fiestaId]/cronograma/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/totem/[fiestaId]/[totemId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/totem/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/touchpix/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/touchpix/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/video-vida/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/video-vida/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/evento/zona-digital/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/experiencia-ak/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/feedback/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/galeria-led/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/i/[slug]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/invitacion/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/invitacion/[fiestaId]/recap/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/invitacion/[fiestaId]/rsvp/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/invitado/[fiestaId]/[invitadoId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/landing/[slug]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/landing/bodas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/landing/eventos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/landing/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/landing/xv-anos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/login/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/mantenimiento/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/marketing/checklist/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/marketing/demo-tecnologia/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/marketing/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/marketing/plantillas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/pago/mercadopago/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/personal/[empleadoId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/confirmar-invitados/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/decoracion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/faq/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/fotos-video/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/mensajes/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/menu/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/muro-social/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/musica/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/[id]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-cliente/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal-invitado/[fiestaId]/[guestId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal/[fiestaId]/[module]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal/[fiestaId]/contrato/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal/[fiestaId]/decoracion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal/[fiestaId]/moodboard/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal/c/[accessKey]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal/mesas/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/portal/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/post-fiesta/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/presentacion-led/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/presentacion-led/portafolio/fiesta/[id]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/presentacion-led/portafolio/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/presentacion/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/privacidad/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/prospectos/[prospectId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/prospectos/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/proveedor/[id]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/proveedor/acceso/[token]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/public/[eventType]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/public/blog/[slug]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/public/blog/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/public/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/q/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/quinceaneras/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/recepcion/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/recursos-multi-evento/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/secretaria-ak/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/signup/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/simulador-ak/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/simulador-de-presupuesto/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/simulador/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/video-vida/[fiestaId]/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    },
+    {
+      "path": "src/app/video-vida/page.tsx",
+      "coverage": "pendiente_de_reconciliar_evidencia",
+      "runtimeStatus": "no_certificado_en_esta_tanda"
+    }
+  ]
+}

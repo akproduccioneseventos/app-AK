@@ -1,0 +1,105 @@
+{
+  "total": 10,
+  "pass": 6,
+  "fail": 4,
+  "results": [
+    {
+      "case": "receipts-paid",
+      "total": 200,
+      "expected": 200,
+      "passed": true
+    },
+    {
+      "case": "receipts-pending",
+      "total": 100,
+      "expected": 0,
+      "passed": false
+    },
+    {
+      "case": "receipts-mixed",
+      "total": 200,
+      "expected": 100,
+      "passed": false
+    },
+    {
+      "case": "provider-normal",
+      "success": [
+        true
+      ],
+      "done": 1,
+      "state": "Pendiente",
+      "note": "",
+      "writes": 1,
+      "passed": true
+    },
+    {
+      "case": "provider-inactive",
+      "success": [
+        false
+      ],
+      "done": 0,
+      "state": "Pendiente",
+      "note": "",
+      "writes": 0,
+      "passed": true
+    },
+    {
+      "case": "provider-missing-task",
+      "success": [
+        false
+      ],
+      "done": 0,
+      "state": "Pendiente",
+      "note": "",
+      "writes": 0,
+      "passed": true
+    },
+    {
+      "case": "provider-write-failure",
+      "success": [
+        false
+      ],
+      "done": 0,
+      "state": "Pendiente",
+      "note": "",
+      "writes": 0,
+      "passed": true
+    },
+    {
+      "case": "provider-sequential",
+      "success": [
+        true,
+        true
+      ],
+      "done": 2,
+      "state": "Pendiente",
+      "note": "",
+      "writes": 2,
+      "passed": true
+    },
+    {
+      "case": "provider-concurrent-tasks",
+      "success": [
+        true,
+        true
+      ],
+      "done": 1,
+      "state": "Pendiente",
+      "note": "",
+      "writes": 2,
+      "passed": false
+    },
+    {
+      "case": "provider-arrival-note",
+      "success": [
+        true,
+        true
+      ],
+      "done": 0,
+      "state": "Pendiente",
+      "note": "Llegamos",
+      "writes": 2,
+      "passed": false
+    }
+  ]
+}

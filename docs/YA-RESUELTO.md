@@ -8076,3 +8076,8 @@ Sin codigo de app, build, fusion, datos reales ni servicios pagos. Reparto y pru
 ## 2026-09-21 - Control operativo (evidencia 20/9)
 
 Informe docs/auditoria/CONTROL-OPERATIVO-2026-09-20.md. Sonda docs/evidencias/control-operativo-sonda.cjs. Historico d2f359: 14 casos, 7 PASS/7 FAIL, seis hallazgos. Contraste actual PR1210 bc7fbb3: CTRL01 planDePagos, CTRL04 unidad de consolidacion y CTRL06 lectura de buzon tienen correcciones presentes NO revalidadas; no reimplementar. CTRL02 vencimiento del dia, CTRL03 catering por categorias vacias y CTRL05 cero adultos siguen pendientes por contraste de codigo. Sin app modificada/build/fusion ni datos reales. Continuar primera pasada.
+
+
+## 2026-09-21 - Equipo y cobertura
+
+Informe docs/auditoria/EQUIPO-Y-COBERTURA-2026-09-21.md. PR1210 bc7fbb3: 10 casos nuevos,6 PASS/4 FAIL. EQU01 Total cobrado incluye pendientes; EQU02 operaciones concurrentes de proveedor pisan tareas/llegada. Sonda y resultados en docs/evidencias/equipo*. No Firebase/E2E/build. Matriz mecanica de360 paginas en COBERTURA-PANTALLAS-2026-09-21.json: pendiente reconciliar evidencia, NO360 pruebas ejecutadas. Login publico observado sin sesion; solicitado entorno de prueba de PR1210 para cierre por roles. Un agente economico realizo solo inventario, cerrado al terminar. No app modificada ni fusion.

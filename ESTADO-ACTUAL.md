@@ -1,19 +1,12 @@
-# Aca quede
+# Acá quedó Codex
 
-14/9/2026. Rama documental codex/contraste-1206-20260914, no main.
-Codex revisa/documenta; Gemini programa salvo dinero/comida/permisos de Claude.
-Claude compila; dueno decide fusion. No se fusiono ni programo la app.
+Actualizado 2026-09-21. Rama documental codex/contraste-1206-20260914. Sin fusionar.
 
-- PR1202 SHA 6622427c604930b02910a2a2778bf20a72683f40: ENT-03 sigue pendiente.
-- Callback Touchpix compara sesion vieja consigo misma; 1 FAIL y 1 control PASS aislados.
-- Orden48 ampliada, sonda 1202-touchpix-sesion.cjs; Gemini debe completar prueba con A/B.
-- Sin camara, navegador, Firebase, build o deploy; no certificado de toda PR1202.
-- PR1206 y PR1207 conservan SHA: no se repitieron sondas anteriores. Fallos pendientes.
-- PR1208 fusionada; no despliegue certificado por Codex.
-- Consultar docs/auditoria/INDICE-CORTO.md, despues historico solo por tema.
-- Proximo: verificar correcciones por nuevo SHA; resto PR1202 aun no cubierto en esta vuelta.
-- Copia original desconectada, Graphify no disponible; fuentes remotas y AST puntuales.
-
-- Redes PR1202: RED-01 apertura bloqueada se anuncia abierta, 2 FAIL/1 PASS aislados.
-- Orden47 ampliada; sonda 1202-redes-apertura.cjs; Gemini corrige y refuerza fixtures E2E.
-- No se repitieron ENT-03, decoracion, avisos ni persistencia sin cambio de SHA.
+- Codigo de referencia: PR1210 bc7fbb3d9226585f234b331e157490e861e0b3b4.
+- Control operativo publicado: evidencia historica14 casos sobre d2f359; correcciones CTRL01/04/06 presentes en bc7fbb3, no revalidadas. No reimplementar.
+- Equipo:10 casos nuevos,6 PASS/4 FAIL. Total cobrado incluye pendientes; proveedor pierde cambios concurrentes. Informe EQUIPO-Y-COBERTURA-2026-09-21.md.
+- Inventario de360 paginas actualizado por arbol; matriz pide reconciliar evidencia anterior, no repetir pruebas a ciegas.
+- Login publico carga sin sesion. Falta URL de entorno de PR1210 y sesion de pruebas para cierre por roles. No pedir contrasenas en chat.
+- Codex audita/documenta; Claude dinero/datos/permisos y compila; Gemini interfaz. No build, app edits ni merge por Codex.
+- Antes de continuar: refrescar HEAD, leer indice y consultar historico por tema. No certificar app completa.
+- ESTADO-ACTUAL de la rama de implementacion puede diferir; este es traspaso solo de la rama documental.
