@@ -119,6 +119,16 @@ function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
       timestamp: n.timestamp,
       comprobanteNombre: n.comprobanteNombre,
     })),
+    decoracion: fiesta.decoracion ? {
+      tema: fiesta.decoracion.tema,
+      notaDecoracionParaElCliente: fiesta.decoracion.notaDecoracionParaElCliente,
+      salonPreview3dUrl: fiesta.decoracion.salonPreview3dUrl,
+      salonPlanBackgroundImageUrl: fiesta.decoracion.salonPlanBackgroundImageUrl,
+      salonWidth: fiesta.decoracion.salonWidth,
+      salonHeight: fiesta.decoracion.salonHeight,
+      pixelsPerMeter: fiesta.decoracion.pixelsPerMeter,
+      salonElements: fiesta.decoracion.salonElements,
+    } : undefined,
   };
 }
 
