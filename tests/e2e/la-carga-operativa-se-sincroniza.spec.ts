@@ -89,6 +89,12 @@ test.describe('Orden 66: La carga operativa se sincroniza bien entre dos operado
       await pageA.goto(`/fiestas/nueva/carga-operativa?fiestaId=${FIESTA_ID}`, { waitUntil: 'domcontentloaded' });
       await pageB.goto(`/fiestas/nueva/carga-operativa?fiestaId=${FIESTA_ID}`, { waitUntil: 'domcontentloaded' });
 
+      // Comprobar que no haya errores de carga y que la pantalla cargó
+      await expect(pageA.getByText(/No se pudo cargar la lista/i)).toHaveCount(0);
+      await expect(pageB.getByText(/No se pudo cargar la lista/i)).toHaveCount(0);
+      await expect(pageA.getByRole('heading', { name: /Carga Operativa/i })).toBeVisible({ timeout: 60_000 });
+      await expect(pageB.getByRole('heading', { name: /Carga Operativa/i })).toBeVisible({ timeout: 60_000 });
+
       // Esperar a que carguen ambas pestañas
       const inputA1 = pageA.locator('input[placeholder="Cant."]').first();
       const inputB1 = pageB.locator('input[placeholder="Cant."]').first();

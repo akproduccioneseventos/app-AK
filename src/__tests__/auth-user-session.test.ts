@@ -1,11 +1,21 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 
 const mockGet = jest.fn();
+const mockDocGet = jest.fn();
+const mockDocSet = jest.fn();
+const mockDocUpdate = jest.fn();
+const mockAdd = jest.fn();
 const mockWriteSessionCookie = jest.fn();
 
 jest.mock('@/lib/firebase/server', () => ({
   dbAdmin: {
     collection: jest.fn(() => ({
+      doc: jest.fn(() => ({
+        get: () => mockDocGet(),
+        set: (...args: unknown[]) => mockDocSet(...args),
+        update: (...args: unknown[]) => mockDocUpdate(...args),
+      })),
+      add: (...args: unknown[]) => mockAdd(...args),
       limit: jest.fn(() => ({ get: mockGet })),
       where: jest.fn(() => ({
         limit: jest.fn(() => ({ get: mockGet })),
@@ -24,6 +34,10 @@ import { loginUser } from '@/app/actions/auth';
 describe('email user login session', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockDocGet.mockResolvedValue({ exists: false });
+    mockDocSet.mockResolvedValue({ success: true });
+    mockDocUpdate.mockResolvedValue({ success: true });
+    mockAdd.mockResolvedValue({ id: 'new-user-id' });
   });
 
   it('creates the signed server session with the stored role and modules', async () => {
@@ -35,6 +49,7 @@ describe('email user login session', () => {
         empty: false,
         docs: [{
           id: 'user-1',
+          ref: { update: mockDocUpdate },
           data: () => ({
             email: 'equipo@akproducciones.uy',
             passwordHash,
@@ -68,6 +83,7 @@ describe('email user login session', () => {
         empty: false,
         docs: [{
           id: 'admin-dueno',
+          ref: { update: mockDocUpdate },
           data: () => ({
             email: 'akproduccionessalto@gmail.com',
             passwordHash: 'hash-viejo-distinto',
@@ -90,4 +106,87 @@ describe('email user login session', () => {
       process.env.APP_PASSWORD = originalPassword;
     }
   });
+
+  it('permite ingresar y sincroniza cuando la contraseña de users está desfasada pero coincide con app-settings/auth', async () => {
+    const newPassword = 'NuevaClaveRecuperada2026';
+    const newPasswordHash = crypto.createHash('sha256').update(newPassword).digest('hex');
+
+    // 1. initializeAdminIfNeeded
+    mockGet.mockResolvedValueOnce({ empty: false });
+    // 2. Query users by email: has old password hash
+    mockGet.mockResolvedValueOnce({
+      empty: false,
+      docs: [{
+        id: 'admin-1',
+        ref: { update: mockDocUpdate },
+        data: () => ({
+          email: 'akproduccionessalto@gmail.com',
+          passwordHash: 'hash-viejo-stale',
+          role: 'admin',
+          modules: ['all'],
+        }),
+      }],
+    });
+
+    // 3. app-settings/auth doc has the new password hash
+    mockDocGet.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        passwordHash: newPasswordHash,
+        recoveryEmail: 'akproduccionessalto@gmail.com',
+      }),
+    });
+
+    const result = await loginUser('akproduccionessalto@gmail.com', newPassword);
+
+    expect(result.success).toBe(true);
+    expect(mockDocUpdate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        passwordHash: newPasswordHash,
+      })
+    );
+    expect(mockWriteSessionCookie).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'akproduccionessalto@gmail.com',
+        role: 'admin',
+      })
+    );
+  });
+
+  it('permite ingresar y crea el usuario cuando no existe en users pero coincide con app-settings/auth', async () => {
+    const newPassword = 'ClaveConfigurada2026';
+    const newPasswordHash = crypto.createHash('sha256').update(newPassword).digest('hex');
+
+    // 1. initializeAdminIfNeeded
+    mockGet.mockResolvedValueOnce({ empty: false });
+    // 2. Query users by email: empty
+    mockGet.mockResolvedValueOnce({ empty: true });
+
+    // 3. app-settings/auth doc has the password
+    mockDocGet.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        passwordHash: newPasswordHash,
+        recoveryEmail: 'akproduccionessalto@gmail.com',
+      }),
+    });
+
+    const result = await loginUser('akproduccionessalto@gmail.com', newPassword);
+
+    expect(result.success).toBe(true);
+    expect(mockAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'akproduccionessalto@gmail.com',
+        passwordHash: newPasswordHash,
+        role: 'admin',
+      })
+    );
+    expect(mockWriteSessionCookie).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'akproduccionessalto@gmail.com',
+        role: 'admin',
+      })
+    );
+  });
 });
+

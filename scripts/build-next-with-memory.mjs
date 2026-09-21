@@ -37,6 +37,7 @@ const child = spawn(process.execPath, [nextBin, 'build'], {
   env: {
     ...process.env,
     NEXT_TELEMETRY_DISABLED: process.env.NEXT_TELEMETRY_DISABLED || '1',
+    AK_DISABLE_STANDALONE: process.env.AK_DISABLE_STANDALONE || (process.platform === 'win32' ? 'true' : 'false'),
     NODE_OPTIONS: nodeOptions,
   },
 });

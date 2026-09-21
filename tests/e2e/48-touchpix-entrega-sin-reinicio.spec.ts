@@ -66,27 +66,29 @@ test.describe('Orden 48: Touchpix levanta entero', () => {
       responderSubida = resolve;
     });
 
-    // Interceptamos cualquier POST de subida para frenarlo artificialmente
-    await page.route('**/evento/touchpix/**', async (route) => {
-      if (route.request().method() === 'POST') {
-        await subidaEnPausa;
-        await route.continue();
-      } else {
-        await route.continue();
-      }
-    });
-
-    const permiso = crearPermisoDeEstacion(fiesta.id, 'espejoMagicoIA');
-    await page.goto(`/evento/touchpix/${fiesta.id}?access=${permiso}`, { waitUntil: 'domcontentloaded' });
-
     // 1. Persona A saca una foto
     const botonSacar = page.locator('button[aria-label="Sacar foto"]');
     await expect(botonSacar).toBeVisible({ timeout: 30_000 });
+
+    /**
+     * El freno se pone RECIEN ACA y SOLO sobre la subida de la foto. Las dos cosas importan.
+     * La foto pesa; los avisos son dos renglones. Por eso se frena por tamaño.
+     */
+    const PESO_DE_UNA_FOTO = 50_000;
+    await page.route('**/evento/touchpix/**', async (route) => {
+      const pedido = route.request();
+      const cuerpo = pedido.postData() || '';
+      if (pedido.method() === 'POST' && cuerpo.length > PESO_DE_UNA_FOTO) {
+        await subidaEnPausa;
+      }
+      await route.continue();
+    });
+
     await botonSacar.click();
 
     // Esperamos a que termine la cuenta regresiva (1s) y aparezca el botón de subir
     const botonSubir = page.locator('button:has-text("Publicar al muro"), button:has-text("Guardar foto")').first();
-    await expect(botonSubir).toBeVisible({ timeout: 15_000 });
+    await expect(botonSubir, 'La captura no llegó a mostrarse tras sacar la foto').toBeVisible({ timeout: 15_000 });
 
     // 2. Persona A dispara la subida lenta
     await botonSubir.click();

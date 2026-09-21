@@ -1,4 +1,4 @@
-import { dbAdmin } from '@/lib/firebase/server';
+﻿import { dbAdmin } from '@/lib/firebase/server';
 import { hasPrivateSessionSecret } from '@/lib/auth/session-token';
 
 /**
@@ -66,7 +66,13 @@ async function hayAlgunaCuenta(): Promise<boolean> {
   if (!dbAdmin) return false;
   try {
     const snap = await dbAdmin.collection('users').limit(1).get();
-    return !snap.empty;
+    if (!snap.empty) return true;
+    const authDoc = await dbAdmin.collection('app-settings').doc('auth').get().catch(() => null);
+    if (authDoc?.exists) {
+      const data = authDoc.data();
+      if (data?.passwordHash || data?.password) return true;
+    }
+    return false;
   } catch {
     // Si no se puede leer, no se afirma que no hay cuentas: eso seria inventar.
     return true;
@@ -119,3 +125,4 @@ export async function diagnosticarAcceso(): Promise<DiagnosticoAcceso> {
     queHacer: 'Entonces el correo o la clave no coinciden. Tocá "Olvidé mi contraseña" para recuperarla, o entrá con Google.',
   };
 }
+

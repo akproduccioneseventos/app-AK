@@ -76,15 +76,10 @@ function selectBestSpanishVoice(): SpeechSynthesisVoice | null {
 }
 
 function truncateForSpeech(text: string): string {
-  const cleaned = text
+  return text
     .replace(/[*#_`~>]/g, '')
     .replace(/https?:\/\/\S+/g, '')
     .trim();
-  const sentences = cleaned.split(/(?<=[.!?])\s+/);
-  if (sentences.length <= 3) {
-    return cleaned;
-  }
-  return `${sentences.slice(0, 3).join(' ')} ¿Querés que siga con más detalle?`;
 }
 
 type ChatMessage = AkMultiAgentMessage & {

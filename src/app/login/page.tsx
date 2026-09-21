@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, type FormEvent, type MouseEvent, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -604,6 +604,27 @@ export default function LoginPage() {
                   <div className="space-y-2">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Elige el método de verificación</p>
                     <div className="grid gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className={`w-full justify-start py-5 text-left border hover:bg-muted/50 transition-all ${
+                          !recovery?.gmailConnected ? 'border-primary/40 bg-primary/5' : ''
+                        }`}
+                        onClick={() => { setSelectedMethod('google'); setRecoveryStep('verify'); setError(''); setNotice(''); }}
+                        disabled={isSubmitting}
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-semibold text-sm flex items-center gap-1.5">
+                            <GoogleMark />
+                            Verificar con Google
+                            {!recovery?.gmailConnected && (
+                              <span className="text-[10px] bg-primary/10 text-primary font-medium px-1.5 py-0.5 rounded">Recomendado</span>
+                            )}
+                          </span>
+                          <span className="text-xs text-muted-foreground">Confirma rápido con tu cuenta autorizada</span>
+                        </div>
+                      </Button>
+
                       {recovery?.hasRecoveryEmail && (
                         <Button
                           type="button"
@@ -618,19 +639,6 @@ export default function LoginPage() {
                           </div>
                         </Button>
                       )}
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full justify-start py-5 text-left border hover:bg-muted/50 transition-all"
-                        onClick={() => { setSelectedMethod('google'); setRecoveryStep('verify'); setError(''); setNotice(''); }}
-                        disabled={isSubmitting}
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-sm">Verificar con Google</span>
-                          <span className="text-xs text-muted-foreground">Confirma rápido con tu cuenta autorizada</span>
-                        </div>
-                      </Button>
 
                       {recovery?.hasBackupCodes && (
                         <Button
@@ -674,7 +682,7 @@ export default function LoginPage() {
                         <p className="text-sm font-semibold">Recibir un código por correo</p>
                         {!recovery?.gmailConnected && recovery?.hasRecoveryEmail ? (
                           <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium leading-relaxed text-amber-800">
-                            El botón vuelve a verificar Gmail al tocarlo. Si la cuenta sigue desconectada, usa códigos de respaldo o preguntas de seguridad y reconecta Google Workspace desde Ajustes.
+                            Gmail todavía no está conectado en el servidor para enviar correos. Podés volver atrás y usar &quot;Verificar con Google&quot; para recuperar el acceso al instante.
                           </p>
                         ) : null}
                         <Button type="button" variant="outline" className="w-full" onClick={handleRequestCode} disabled={isSubmitting || !recovery?.hasRecoveryEmail}>
@@ -840,3 +848,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
