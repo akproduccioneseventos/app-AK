@@ -53,12 +53,19 @@ prueba: tests/e2e/48-touchpix-entrega-sin-reinicio.spec.ts
 Ahora el freno se pone despues de abrir y **solo sobre la subida** (se reconoce por el peso:
 una foto pesa, los avisos son dos renglones). **Con eso pasa en celular.**
 
-**Lo que queda, y es tuyo:** en pantalla de computadora, despues de tocar "Sacar foto", **no
-aparece el boton de publicar** (`Publicar al muro` / `Guardar foto`, linea ~1537 de
-`src/app/evento/touchpix/[fiestaId]/page.tsx`). En celular aparece y la prueba pasa. Medido
-tres veces, sola y en tanda.
+**Lo que queda, y es tuyo: la captura no llega a mostrarse.** Despues de tocar "Sacar foto",
+la pantalla **se queda en modo camara** y el boton de publicar (`Publicar al muro` /
+`Guardar foto`, linea ~1537 de `src/app/evento/touchpix/[fiestaId]/page.tsx`) no aparece nunca.
 
-Averigua **por que la captura no termina de mostrarse en pantalla grande**: puede ser la
-pantalla o puede ser la prueba, pero hay que medirlo antes de tocar. Si al final resulta que la
-captura si funciona y lo que falla es el selector, la prueba tiene que **fallar diciendo que la
-captura no aparecio**, no "no encuentro el boton".
+**Medido, y con una correccion de por medio:** primero parecio que fallaba solo en pantalla de
+computadora, porque una corrida en celular habia pasado. **Era casualidad**: repitiendolo, falla
+igual en las dos. Y falla **con el freno de la subida sacado del todo**, asi que tampoco es cosa
+del freno.
+
+Averigua **por que la captura no termina**. `handleCapture`
+(`src/app/evento/touchpix/[fiestaId]/page.tsx:468`) espera un aviso al servidor **antes** de
+mostrar la foto, y despues aplica el filtro; si algo de eso no vuelve, la pantalla se queda como
+estaba y **el invitado no se entera de nada**. Eso, si pasa en una fiesta, es peor que la prueba.
+
+Y cuando lo arregles: la prueba tiene que **fallar diciendo que la captura no aparecio**, no "no
+encuentro el boton".
