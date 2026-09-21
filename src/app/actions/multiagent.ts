@@ -130,6 +130,46 @@ export async function sendPersistentMultiAgentMessage(input: {
         } else {
           result.response += `\n\n⚠️ **Che, para crear una tarea primero tenés que estar dentro de una fiesta específica.** Pero te puedo crear un recordatorio general si querés, pedímelo. 😉`;
         }
+      } else if (action.type === 'create_lead') {
+        // Antes esto NO LO EJECUTABA NADIE: la inteligencia artificial contestaba como si
+        // hubiera anotado al prospecto y el prospecto no existia en ningun lado. Lo mismo
+        // pasaba con el presupuesto y el mensaje de WhatsApp (mas abajo).
+        const data = action.data as any;
+        const { addCrmLead } = await import('@/app/actions/crm');
+        const notas = [data.notes, data.nextAction ? `Proximo paso: ${data.nextAction}` : '']
+          .filter(Boolean)
+          .join(' · ');
+        const leadRes = await addCrmLead({
+          name: data.name || '',
+          phone: data.phone,
+          email: data.email,
+          partyType: data.partyType,
+          guestCount: typeof data.guestCount === 'number' ? data.guestCount : undefined,
+          followUpDate: data.eventDate,
+          notes: notas || undefined,
+        } as any);
+        if (leadRes.success) {
+          result.response += `\n\n🙋 **Prospecto anotado**\n• **Nombre**: ${leadRes.lead?.name || data.name}` +
+            (data.partyType ? `\n• **Fiesta**: ${data.partyType}` : '') +
+            (data.eventDate ? `\n• **Fecha estimada**: ${data.eventDate}` : '');
+        } else if (leadRes.duplicate) {
+          result.response += `\n\n⚠️ **Ese prospecto ya estaba anotado** como "${leadRes.duplicate.name}". No lo dupliqué.`;
+        } else {
+          result.response += `\n\n❌ **No pude anotar el prospecto**: ${leadRes.error || 'error desconocido'}`;
+        }
+      } else if (action.type === 'draft_budget') {
+        // Un presupuesto lo cierra una persona, no la inteligencia artificial. Lo que SI se
+        // puede es no mentir: se dice que quedó tomado el pedido y dónde seguir.
+        const data = action.data as any;
+        result.response += `\n\n📋 **Tomé los datos para el presupuesto**` +
+          (data?.clientName ? `\n• **Cliente**: ${data.clientName}` : '') +
+          (data?.guestCount ? `\n• **Invitados**: ${data.guestCount}` : '') +
+          `\n\n**El presupuesto lo armás vos** en "Presupuestos → Nuevo": yo no lo cierro ni le pongo precio.`;
+      } else if (action.type === 'prepare_whatsapp') {
+        const data = action.data as any;
+        result.response += `\n\n💬 **El mensaje quedó escrito acá arriba, listo para copiar.**` +
+          (data?.recipientName ? ` Es para ${data.recipientName}.` : '') +
+          `\n**No lo mando yo**: lo mandás vos desde tu WhatsApp.`;
       } else if (action.type === 'create_reminder') {
         const data = action.data as any;
         const reminderRes = await crearRecordatorioDesdeMultiagente({

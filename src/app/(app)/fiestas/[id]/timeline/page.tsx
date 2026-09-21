@@ -13,6 +13,7 @@ import { Loader2, ArrowLeft, AlertTriangle, Save, CheckCircle } from 'lucide-rea
 import { useToast } from '@/hooks/use-toast';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 
 function generarTimelineDesdeTemplate(fiesta: FiestaEnPlanificacion): TimelineHito[] {
   const tipoEvento = fiesta.configuracion?.tipoCelebracion ?? '';
@@ -67,7 +68,10 @@ export default function TimelinePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     getFiestaById(fiestaId)
       .then(data => {
         if (!data) { setError('Evento no encontrado.'); return; }
@@ -96,6 +100,16 @@ export default function TimelinePage() {
       return { ...h, completado, fechaCompletado: completado ? new Date().toISOString() : undefined };
     }));
   }, []);
+
+  if (!fiestaId) {
+    return (
+      <EmptyStateModulo
+        titulo="Línea de Tiempo del Evento"
+        descripcion="Entrá a la línea de tiempo desde la fiesta: elegí el evento en el listado y abrí su planificador."
+        fiestaId=""
+      />
+    );
+  }
 
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-screen">

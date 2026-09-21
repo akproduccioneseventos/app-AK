@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
-import { getBuzonMessages } from '@/app/actions/buzon';
+import { getBuzonMessagesConDetalle } from '@/app/actions/buzon';
 import { hasAppSession } from '@/lib/auth/require-session';
 
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
@@ -33,8 +33,17 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
   }
 
   try {
-    const messages = await getBuzonMessages(fiestaId);
-    
+    const { mensajes: messages, huboFalla } = await getBuzonMessagesConDetalle(fiestaId);
+
+    // Una lectura que fallo NO es un buzon vacio: bajar un archivo vacio como si
+    // fueran todos los recuerdos es peor que no bajar nada.
+    if (huboFalla) {
+      return NextResponse.json(
+        { error: 'No se pudieron leer los saludos del buzon. Probá de nuevo en un momento.' },
+        { status: 503 },
+      );
+    }
+
     if (messages.length === 0) {
       return NextResponse.json({ error: 'No messages found for this event mailbox.' }, { status: 404 });
     }

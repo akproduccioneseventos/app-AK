@@ -51,9 +51,31 @@ export async function addReunion(reunionData: Omit<Reunion, 'id'>) {
 export async function updateReunion(updatedReunion: Reunion) {
   await requireAppSession();
   if (!updatedReunion.fiestaId) return { success: false, error: 'Fiesta ID es requerido.' };
+
+  /**
+   * SI LA REUNION YA NO ESTA, NO SE DICE QUE SE GUARDO.
+   *
+   * **Lo encontro Codex el 19 de septiembre de 2026.** Antes se recorria la lista cambiando la
+   * que coincidiera; si otra persona la habia borrado mientras esta estaba abierta, **no
+   * coincidia ninguna, no se cambiaba nada y se contestaba que salio bien**. Peor todavia: se
+   * disparaba la sincronizacion con el calendario, asi que al cliente le podia llegar el aviso
+   * de una reunion **que ya no existe**.
+   */
+  let existia = false;
   const result = await updateFiestaReuniones(updatedReunion.fiestaId, data =>
-    (data.reuniones || []).map(r => r.id === updatedReunion.id ? updatedReunion : r)
+    (data.reuniones || []).map(r => {
+      if (r.id !== updatedReunion.id) return r;
+      existia = true;
+      return updatedReunion;
+    })
   );
+
+  if (result.success && !existia) {
+    return {
+      success: false,
+      error: 'Esa reunion ya no existe: alguien la borro mientras la estabas editando. Refresca la pantalla.',
+    };
+  }
 
   if (result.success) {
     syncReunionInBackground(updatedReunion.fiestaId, updatedReunion, true);

@@ -81,6 +81,7 @@ export const BACKUP_COLLECTIONS: BackupCollection[] = [
   { file: 'aprobaciones.json', defaultValue: [] },
   { file: 'incidentes.json', defaultValue: [] },
   { file: 'personal-recibos.json', defaultValue: [] },
+  { file: 'notification-preferences.json', defaultValue: {} },
 ];
 
 export const BACKUP_METADATA_FILES = new Set([

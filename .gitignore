@@ -155,3 +155,9 @@ panel-de-la-app.html
 .ak-corrida-en-curso
 .ak-puerta-en-curso
 .ak-puerta-avance.json
+
+# Lo que escribe la corrida de pruebas: el registro de guias aplicadas a la fiesta
+# de prueba. Ya se colo una vez en un commit (error 13 de CLAUDE.md).
+data/playbook-aplicaciones.json
+src/data/playbook-aplicaciones.json
+data/activos-fijos.json

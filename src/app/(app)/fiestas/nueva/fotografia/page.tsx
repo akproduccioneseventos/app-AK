@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, useRef, type FormEvent } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,9 @@ function FotografiaContent() {
     const [formData, setFormData] = useState<FotografiaYFilmacionData | null>(null);
     const [eventDate, setEventDate] = useState<string | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
-    
+    const [loadError, setLoadError] = useState<string | null>(null);
+    const lastEditTimestampRef = useRef<number>(0);
+
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentItem, setCurrentItem] = useState<Partial<ServicioFotografia> | null>(null);
@@ -54,8 +56,12 @@ function FotografiaContent() {
         data: formData,
         onSave: async (d) => {
             if (!d || !fiestaId) return { success: false, error: 'Sin datos' };
+            const saveStartedAt = Date.now();
             const result = await updateFotografia(fiestaId, d);
-            if (result.updatedData) setFormData(result.updatedData);
+            // Si el operador hizo cambios más nuevos durante el viaje de red, no pisar
+            if (result.updatedData && lastEditTimestampRef.current <= saveStartedAt) {
+                setFormData(result.updatedData);
+            }
             return result;
         },
         enabled: !isLoading && !!fiestaId && !!formData,
@@ -64,9 +70,13 @@ function FotografiaContent() {
     const token = searchParams.get('token') || undefined;
 
     const loadData = useCallback(async (showLoading = true) => {
-        if (!fiestaId) return;
+        if (!fiestaId) {
+            setIsLoading(false);
+            return;
+        }
         if(showLoading) setIsLoading(true);
         setAccessError(null);
+        setLoadError(null);
         try {
             const auth = await verifyAccesoPersonalToken(fiestaId, 'fotografia', token);
             if (!auth.authorized) {
@@ -83,7 +93,7 @@ function FotografiaContent() {
 
             const fiesta = await getFiestaById(fiestaId);
             if (!fiesta) throw new Error("Fiesta no encontrada");
-            
+
             setEventDate(fiesta.configuracion.fechaEvento);
             let currentFotoData = fiesta.fotografiaYFilmacion || { servicios: [], notasGenerales: '' };
 
@@ -94,13 +104,13 @@ function FotografiaContent() {
                     const budgetServices = presupuesto.itemsPresupuestados.filter(item => {
                         const lowerName = item.nombreServicio.toLowerCase();
                         // Filtrar solo foto/filmación real, excluyendo fotocabina y video de vida
-                        return (lowerName.includes('foto') || lowerName.includes('film') || lowerName.includes('video')) 
-                               && !lowerName.includes('cabina') 
+                        return (lowerName.includes('foto') || lowerName.includes('film') || lowerName.includes('video'))
+                               && !lowerName.includes('cabina')
                                && !lowerName.includes('vida');
                     });
 
                     const currentServicios = currentFotoData.servicios || [];
-                    
+
                     // Separar manuales de automáticos
                     // Los automáticos son los que tienen un ID que empieza por 'sync_'
                     const manualItems = currentServicios.filter(s => !s.id.startsWith('sync_'));
@@ -112,13 +122,20 @@ function FotografiaContent() {
                     budgetServices.forEach(item => {
                         const name = item.nombreServicio;
                         const lowerName = name.toLowerCase();
-                        
-                        // Buscar si ya existe un item automático para este servicio del presupuesto
-                        const existingAuto = autoItems.find(s => s.nombre.toLowerCase() === lowerName);
-                        
+
+                        // Seguir por identificador de catálogo para no perder el rastro si renombran el servicio
+                        const existingAuto = autoItems.find(s =>
+                            s.id.startsWith(`sync_${item.idServicioCatalogo}_`) ||
+                            s.id === `sync_${item.idServicioCatalogo}` ||
+                            s.nombre.toLowerCase() === lowerName
+                        );
+
                         if (existingAuto) {
-                            // Mantener el existente para no perder estados/links
-                            updatedAutoItems.push(existingAuto);
+                            // Mantener el existente (con su estado, fecha y link) actualizando el nombre si cambió
+                            updatedAutoItems.push({
+                                ...existingAuto,
+                                nombre: name,
+                            });
                         } else {
                             // Nuevo servicio detectado en el presupuesto
                             hasChanges = true;
@@ -145,9 +162,9 @@ function FotografiaContent() {
                     }
 
                     if (hasChanges) {
-                        currentFotoData = { 
-                            ...currentFotoData, 
-                            servicios: [...manualItems, ...updatedAutoItems] 
+                        currentFotoData = {
+                            ...currentFotoData,
+                            servicios: [...manualItems, ...updatedAutoItems]
                         };
                         if (!showLoading) {
                             toast({ title: "Sincronización completa", description: "Se ha actualizado la lista según los servicios del presupuesto actual." });
@@ -158,7 +175,9 @@ function FotografiaContent() {
 
             setFormData(currentFotoData);
         } catch (e) {
-            toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
+            const msg = e instanceof Error ? e.message : 'No se pudieron cargar los datos.';
+            setLoadError(msg);
+            toast({ title: "Error", description: msg, variant: "destructive" });
         } finally {
             setIsLoading(false);
         }
@@ -167,7 +186,7 @@ function FotografiaContent() {
     useEffect(() => {
         loadData();
     }, [loadData]);
-    
+
     const handleSave = saveNow;
 
     const openItemModal = (item?: ServicioFotografia) => {
@@ -190,6 +209,7 @@ function FotografiaContent() {
             linkEntrega: currentItem.linkEntrega
         };
 
+        lastEditTimestampRef.current = Date.now();
         setFormData(prev => {
             if (!prev) return null;
             const servicios = prev.servicios || [];
@@ -204,8 +224,9 @@ function FotografiaContent() {
         setIsModalOpen(false);
         setCurrentItem(null);
     };
-    
+
     const handleDeleteItem = (itemId: string) => {
+        lastEditTimestampRef.current = Date.now();
         setFormData(prev => {
             if (!prev) return null;
             return { ...prev, servicios: (prev.servicios || []).filter(s => s.id !== itemId) }
@@ -226,8 +247,18 @@ function FotografiaContent() {
         );
     }
 
-    if (isLoading || !formData) {
-        return <div className="p-8 max-w-2xl mx-auto flex flex-col items-center justify-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4"/><p>Sincronizando seguimiento...</p></div>
+    if (isLoading) {
+        return <div className="p-8 max-w-2xl mx-auto flex flex-col items-center justify-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4"/><p>Sincronizando seguimiento...</p></div>;
+    }
+
+    if (loadError || !formData) {
+        return (
+            <div className="p-8 max-w-2xl mx-auto text-center space-y-4">
+                <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-2" />
+                <p className="text-destructive font-semibold">{loadError || 'No se pudo cargar el seguimiento de fotografía.'}</p>
+                <Button onClick={() => loadData()} variant="outline">Reintentar</Button>
+            </div>
+        );
     }
 
     return (
@@ -292,7 +323,7 @@ function FotografiaContent() {
                     <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
                 </div>
             </div>
-            
+
             <Card className="bg-blue-50 border-blue-200">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-semibold flex items-center gap-2 text-blue-800">
@@ -314,8 +345,8 @@ function FotografiaContent() {
                 <CardContent className="space-y-4">
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {(formData.servicios || []).map(servicio => (
-                            <Card key={servicio.id} className={cn("p-4 border-l-4 transition-all hover:shadow-md", 
-                                servicio.estado === 'Entregado completo' ? 'border-l-green-500 bg-green-50/10' : 
+                            <Card key={servicio.id} className={cn("p-4 border-l-4 transition-all hover:shadow-md",
+                                servicio.estado === 'Entregado completo' ? 'border-l-green-500 bg-green-50/10' :
                                 servicio.estado === 'En edición' ? 'border-l-blue-500 bg-blue-50/10' : 'border-l-amber-500 bg-amber-50/10'
                             )}>
                                <div className="flex justify-between items-start gap-2">
@@ -323,13 +354,13 @@ function FotografiaContent() {
                                       <div className="flex items-center justify-between">
                                           <p className="font-bold text-lg">{servicio.nombre}</p>
                                           <Badge variant={servicio.estado === 'Entregado completo' ? 'default' : 'secondary'} className={cn(
-                                              servicio.estado === 'Entregado completo' ? 'bg-green-100 text-green-700' : 
+                                              servicio.estado === 'Entregado completo' ? 'bg-green-100 text-green-700' :
                                               servicio.estado === 'En edición' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
                                           )}>
                                               {servicio.estado}
                                           </Badge>
                                       </div>
-                                      
+
                                       <div className="space-y-1 text-sm text-muted-foreground">
                                           <div className="flex items-center gap-2">
                                               <Clock className="w-4 h-4 text-primary/60"/>

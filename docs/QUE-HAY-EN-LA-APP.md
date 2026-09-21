@@ -466,6 +466,19 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **Pedido a proveedores por WhatsApp en lista de compras — ANDA.** Botones en `/fiestas/nueva/catering/lista-compras` para enviar o copiar el pedido de insumos formateado a cada proveedor sin alterar fórmulas de costos.
 - **Generador de borradores para redes sociales desde fiesta — ANDA.** Acción `generateDraftPostsFromPartyPhotos` y botón en `/empresa/redes-sociales` que crea 4 borradores con copy y hashtags listos para que el equipo los revise.
 - **De quién es cada foto del muro — ANDA a medias (17 de agosto de 2026).** La foto que sube un invitado al muro queda guardada con su dueño, pero **sólo si abrió su enlace personal**: un identificador suelto no se guarda nunca, así nadie se adueña de las fotos de otro. Si no hay enlace personal, la foto se sube igual y queda sin dueño. **Falta que lo hagan las estaciones** (fotocabina, espejo mágico, plataforma 360), que hoy ni siquiera reciben ese enlace. Verificado de nuevo el 19 de agosto de 2026: sigue sin hacerse. **Este pedido se perdió una vez** al rotar la orden y hubo que reponerlo; está en el bloque 5 de `docs/ordenes/ahora.md`. **Sirve de acá en adelante**: las fiestas ya pasadas no tienen el dato.
+- **El cliente ve su salón en 3D y lo gira — ANDA (20 de septiembre de 2026).** En la pantalla de
+  decoración de su portal (`/portal/[fiestaId]/decoracion`), el cliente abre el salón en tres
+  dimensiones y lo gira con el dedo desde el celular. Si el teléfono no puede dibujarlo, le
+  aparece la foto de la vista 3D como antes: nunca un cuadro vacío. **Se le manda sólo el plano
+  del salón**, nunca las notas internas ni los costos.
+- **El salón se arma solo con lo contratado — ANDA (20 de septiembre de 2026).** Desde la
+  pantalla del plano, un botón arma la primera versión: las mesas según los invitados que
+  confirmaron —y si no hay confirmados, según lo presupuestado— más la pista, el escenario, la
+  barra, el living, la mesa de la torta, el photo-opportunity y la pantalla LED, según lo que
+  tenga el presupuesto. **Nunca pisa un plano que ya tenga cosas.**
+- **Cinco piezas nuevas en el salón 3D — ANDA (20 de septiembre de 2026).** Barra, sector de
+  sillones, mesa de la torta, photo-opportunity y pantalla LED, elegibles desde la pantalla del
+  plano y dibujadas en la escena.
 - **Explicación narrativa del presupuesto — ANDA.** Resumen descriptivo fiel en `BudgetDocument.tsx` y visor de presupuestos que explica los servicios contratados sin inventar números ni precios.
 - **Ejecución automática de pruebas de navegador en tandas — ANDA (21 de agosto de 2026).** `npm run test:e2e` corre los 20 archivos de Playwright en tandas de 4 levantando y liberando su servidor, aplicando el criterio de medio segundo (<500ms) para reintentar saturaciones de entorno y consolidar un único informe.
 - **Control de puertas públicas en la auditoría — ANDA (21 de agosto de 2026).** Pasada 5 en `npm run auditoria` que detecta y avisa en criollo si una función requerida por pantallas públicas recibe control de sesión indebido (`requireAppSession`), protegiendo las pantallas de tótem, barra, simulador y portal.

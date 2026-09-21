@@ -6,6 +6,7 @@ import type { VideoVidaData } from '@/types/fiesta';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
+import { TOPE_DE_FOTOS } from '@/lib/video-vida/tope-de-fotos';
 import admin from 'firebase-admin';
 
 const STORAGE_BUCKET =
@@ -35,20 +36,27 @@ export async function updateVideoVidaSettings(
     videoVidaData: VideoVidaData
   ): Promise<{ success: boolean; error?: string }> {
   try {
+    if (videoVidaData.photoCount && videoVidaData.photoCount > TOPE_DE_FOTOS) {
+      return { success: false, error: `El máximo son ${TOPE_DE_FOTOS} fotos.` };
+    }
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error('No encontramos la fiesta.');
     const updatedFiesta = {
       ...fiesta,
-      videoVida: videoVidaData,
+      videoVida: {
+        ...videoVidaData,
+        photoCount: Math.min(Number(videoVidaData.photoCount) || TOPE_DE_FOTOS, TOPE_DE_FOTOS),
+      },
     };
-    const result = await saveFiesta(updatedFiesta);
-    if (!result.success) throw new Error(result.error);
+    const guardado = await saveFiesta(updatedFiesta);
+    if (!guardado.success) {
+      return { success: false, error: guardado.error || 'No se pudo guardar la configuración de video de vida.' };
+    }
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
 }
-
 
 export async function saveLifeStoryVideoPhoto(
   formData: FormData
@@ -62,7 +70,7 @@ export async function saveLifeStoryVideoPhoto(
   }
 
   const photoNumber = parseInt(photoNumberStr, 10);
-  if (isNaN(photoNumber) || photoNumber < 1 || photoNumber > 50) {
+  if (isNaN(photoNumber) || photoNumber < 1 || photoNumber > TOPE_DE_FOTOS) {
     return { success: false, error: 'Número de foto inválido.' };
   }
 
@@ -133,11 +141,40 @@ export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ succ
   try {
     const { requireAppSession } = await import('@/lib/auth/require-session');
     await requireAppSession();
-    if (!admin.apps.length) return { success: true };
+    if (!admin.apps.length) {
+      return {
+        success: false,
+        error: 'No hay conexión con el almacenamiento. No se pudieron borrar las fotos.',
+      };
+    }
     const bucket = admin.storage().bucket(STORAGE_BUCKET);
     const prefix = `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/`;
     const [files] = await bucket.getFiles({ prefix });
-    await Promise.all((files as StorageFile[]).map((file) => file.delete().catch(() => { /* ignore */ })));
+    if (!files.length) {
+      return { success: true };
+    }
+
+    let borradas = 0;
+    let fallidas = 0;
+
+    await Promise.all(
+      (files as StorageFile[]).map(async (file) => {
+        try {
+          await file.delete();
+          borradas++;
+        } catch {
+          fallidas++;
+        }
+      })
+    );
+
+    if (fallidas > 0) {
+      return {
+        success: false,
+        error: `Se borraron ${borradas} de ${files.length}; ${fallidas} quedaron en el servidor, probá de nuevo.`,
+      };
+    }
+
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

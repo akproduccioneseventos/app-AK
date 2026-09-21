@@ -85,41 +85,38 @@ function SalonElement({
       </group>
     );
   }
-  if (cat.includes('barra') || cat.includes('bar') || cat.includes('dj') || name.includes('barra') || name.includes('dj')) {
+  if (cat.includes('barra') || cat.includes('bar') || name.includes('barra') || cat.includes('dj') || name.includes('dj')) {
     return (
       <group position={pos3D} rotation={[0, rotRad, 0]}>
-        <mesh position={[0, 0.55, 0]} castShadow receiveShadow>
-          <boxGeometry args={[widthM, 1.1, depthM]} />
-          <meshStandardMaterial color="#5d4037" roughness={0.5} metalness={0.2} />
-        </mesh>
-        <mesh position={[0, 1.12, 0]}>
-          <boxGeometry args={[widthM + 0.1, 0.06, depthM + 0.1]} />
-          <meshStandardMaterial color="#4a2c0a" roughness={0.3} metalness={0.3} />
-        </mesh>
+        <Barra3D width={widthM} depth={depthM} />
       </group>
     );
   }
-  if (cat.includes('living') || name.includes('living')) {
+  if (cat.includes('living') || cat.includes('sillon') || cat.includes('sillones') || name.includes('living') || name.includes('sillon')) {
     return (
       <group position={pos3D} rotation={[0, rotRad, 0]}>
-        {/* Sofá */}
-        <mesh position={[0, 0.25, -depthM / 2 + 0.3]} castShadow>
-          <boxGeometry args={[widthM * 0.9, 0.5, 0.6]} />
-          <meshStandardMaterial color="#7c6f64" roughness={0.8} />
-        </mesh>
-        <mesh position={[0, 0.55, -depthM / 2 + 0.1]} castShadow>
-          <boxGeometry args={[widthM * 0.9, 0.6, 0.15]} />
-          <meshStandardMaterial color="#7c6f64" roughness={0.8} />
-        </mesh>
-        {/* Mesa de centro */}
-        <mesh position={[0, 0.22, 0.1]} castShadow>
-          <boxGeometry args={[widthM * 0.4, 0.44, depthM * 0.35]} />
-          <meshStandardMaterial color="#8b7355" roughness={0.5} />
-        </mesh>
-        <mesh position={[0, 0.46, 0.1]}>
-          <boxGeometry args={[widthM * 0.45, 0.04, depthM * 0.4]} />
-          <meshStandardMaterial color="#5d4037" roughness={0.3} metalness={0.2} />
-        </mesh>
+        <SectorSillones3D width={widthM} depth={depthM} />
+      </group>
+    );
+  }
+  if (cat.includes('torta') || name.includes('torta')) {
+    return (
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
+        <MesaTorta3D width={widthM} depth={depthM} primaryColor={primaryColor} />
+      </group>
+    );
+  }
+  if (cat.includes('photo') || cat.includes('foto') || name.includes('photo') || name.includes('foto')) {
+    return (
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
+        <PhotoOpportunity3D width={widthM} depth={depthM} primaryColor={primaryColor} />
+      </group>
+    );
+  }
+  if (cat.includes('led') || cat.includes('pantalla') || name.includes('led') || name.includes('pantalla')) {
+    return (
+      <group position={pos3D} rotation={[0, rotRad, 0]}>
+        <PantallaLed3D width={widthM} depth={depthM} />
       </group>
     );
   }
@@ -137,7 +134,7 @@ function SalonElement({
       </group>
     );
   }
-  if (cat.includes('panel') || name.includes('panel') || cat.includes('neon') || name.includes('neon') || cat.includes('backdrop') || cat.includes('fondo') || cat.includes('pantalla')) {
+  if (cat.includes('panel') || name.includes('panel') || cat.includes('neon') || name.includes('neon') || cat.includes('backdrop') || cat.includes('fondo')) {
     return (
       <group position={pos3D} rotation={[0, rotRad, 0]}>
         <PanelDecorativo3D width={widthM} height={Math.max(2.0, depthM)} color={element.backgroundColor} />
@@ -241,15 +238,153 @@ export function PanelDecorativo3D({ width = 2, height = 2.2, color = '#1e293b' }
   );
 }
 
+export function Barra3D({ width = 4, depth = 1.5 }: { width?: number; depth?: number }) {
+  return (
+    <group>
+      <mesh position={[0, 0.55, 0]} castShadow receiveShadow>
+        <boxGeometry args={[width, 1.1, depth]} />
+        <meshStandardMaterial color="#5d4037" roughness={0.5} metalness={0.2} />
+      </mesh>
+      <mesh position={[0, 1.12, 0]}>
+        <boxGeometry args={[width + 0.1, 0.06, depth + 0.1]} />
+        <meshStandardMaterial color="#4a2c0a" roughness={0.3} metalness={0.3} />
+      </mesh>
+      <mesh position={[0, 0.7, -depth * 0.3]}>
+        <boxGeometry args={[width * 0.8, 0.04, 0.25]} />
+        <meshStandardMaterial color="#3e2723" roughness={0.4} />
+      </mesh>
+    </group>
+  );
+}
+
+export function SectorSillones3D({ width = 3.5, depth = 3 }: { width?: number; depth?: number }) {
+  return (
+    <group>
+      <mesh position={[0, 0.25, -depth / 2 + 0.3]} castShadow>
+        <boxGeometry args={[width * 0.9, 0.5, 0.6]} />
+        <meshStandardMaterial color="#7c6f64" roughness={0.8} />
+      </mesh>
+      <mesh position={[0, 0.55, -depth / 2 + 0.1]} castShadow>
+        <boxGeometry args={[width * 0.9, 0.6, 0.15]} />
+        <meshStandardMaterial color="#7c6f64" roughness={0.8} />
+      </mesh>
+      <mesh position={[-width / 2 + 0.35, 0.25, 0]} rotation={[0, Math.PI / 2, 0]} castShadow>
+        <boxGeometry args={[depth * 0.5, 0.5, 0.5]} />
+        <meshStandardMaterial color="#8c7f74" roughness={0.8} />
+      </mesh>
+      <mesh position={[0, 0.22, 0.1]} castShadow>
+        <boxGeometry args={[width * 0.4, 0.44, depth * 0.35]} />
+        <meshStandardMaterial color="#8b7355" roughness={0.5} />
+      </mesh>
+      <mesh position={[0, 0.46, 0.1]}>
+        <boxGeometry args={[width * 0.45, 0.04, depth * 0.4]} />
+        <meshStandardMaterial color="#5d4037" roughness={0.3} metalness={0.2} />
+      </mesh>
+    </group>
+  );
+}
+
+export function MesaTorta3D({ width = 2, depth = 2, primaryColor = '#ec4899' }: { width?: number; depth?: number; primaryColor?: string }) {
+  const radius = Math.min(width, depth) / 2;
+  return (
+    <group>
+      <mesh position={[0, 0.45, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[radius, radius + 0.1, 0.9, 32]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.4} />
+      </mesh>
+      <mesh position={[0, 0.905, 0]}>
+        <cylinderGeometry args={[radius * 0.95, radius * 0.95, 0.02, 32]} />
+        <meshStandardMaterial color={primaryColor} roughness={0.5} />
+      </mesh>
+      <mesh position={[0, 0.96, 0]} castShadow>
+        <cylinderGeometry args={[0.25, 0.15, 0.1, 24]} />
+        <meshStandardMaterial color="#d4af37" metalness={0.8} roughness={0.2} />
+      </mesh>
+      <mesh position={[0, 1.08, 0]} castShadow>
+        <cylinderGeometry args={[0.35, 0.35, 0.16, 24]} />
+        <meshStandardMaterial color="#fff5f5" roughness={0.3} />
+      </mesh>
+      <mesh position={[0, 1.22, 0]} castShadow>
+        <cylinderGeometry args={[0.25, 0.25, 0.14, 24]} />
+        <meshStandardMaterial color="#fff0f5" roughness={0.3} />
+      </mesh>
+      <mesh position={[0, 1.34, 0]} castShadow>
+        <cylinderGeometry args={[0.15, 0.15, 0.12, 24]} />
+        <meshStandardMaterial color="#ffffff" roughness={0.3} />
+      </mesh>
+    </group>
+  );
+}
+
+export function PhotoOpportunity3D({ width = 3, depth = 2, primaryColor = '#ec4899' }: { width?: number; depth?: number; primaryColor?: string }) {
+  return (
+    <group>
+      <mesh position={[0, 0.01, depth * 0.2]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[width * 0.8, depth * 0.7]} />
+        <meshStandardMaterial color="#991b1b" roughness={0.9} />
+      </mesh>
+      <mesh position={[0, 1.25, -depth * 0.3]} castShadow>
+        <boxGeometry args={[width, 2.4, 0.08]} />
+        <meshStandardMaterial color="#1e1b4b" roughness={0.5} metalness={0.2} />
+      </mesh>
+      <mesh position={[0, 1.5, -depth * 0.3 + 0.06]}>
+        <torusGeometry args={[0.5, 0.04, 16, 32]} />
+        <meshStandardMaterial color={primaryColor} emissive={primaryColor} emissiveIntensity={0.8} />
+      </mesh>
+      <mesh position={[-width / 2 + 0.08, 1.25, -depth * 0.3]}>
+        <cylinderGeometry args={[0.04, 0.04, 2.5, 16]} />
+        <meshStandardMaterial color="#d4af37" metalness={0.8} roughness={0.2} />
+      </mesh>
+      <mesh position={[width / 2 - 0.08, 1.25, -depth * 0.3]}>
+        <cylinderGeometry args={[0.04, 0.04, 2.5, 16]} />
+        <meshStandardMaterial color="#d4af37" metalness={0.8} roughness={0.2} />
+      </mesh>
+    </group>
+  );
+}
+
+export function PantallaLed3D({ width = 3.5, depth = 1 }: { width?: number; depth?: number }) {
+  return (
+    <group>
+      <mesh position={[-width / 2 + 0.15, 1.5, 0]} castShadow>
+        <boxGeometry args={[0.2, 3.0, 0.2]} />
+        <meshStandardMaterial color="#475569" metalness={0.7} roughness={0.3} />
+      </mesh>
+      <mesh position={[width / 2 - 0.15, 1.5, 0]} castShadow>
+        <boxGeometry args={[0.2, 3.0, 0.2]} />
+        <meshStandardMaterial color="#475569" metalness={0.7} roughness={0.3} />
+      </mesh>
+      <mesh position={[0, 2.0, 0]} castShadow>
+        <boxGeometry args={[width, 1.8, 0.12]} />
+        <meshStandardMaterial color="#09090b" roughness={0.8} />
+      </mesh>
+      <mesh position={[0, 2.0, 0.07]}>
+        <planeGeometry args={[width - 0.1, 1.65]} />
+        <meshStandardMaterial
+          color="#1e1b4b"
+          emissive="#3b82f6"
+          emissiveIntensity={0.5}
+          roughness={0.2}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 export function elegirObjeto3D(element: LayoutElement): React.ComponentType<any> | null {
   const cat = (element.category || '').toLowerCase();
   const name = (element.name || '').toLowerCase();
 
   if (cat.includes('pista') || name.includes('pista')) return PistaBaile3D;
   if (cat.includes('escenario') || name.includes('escenario')) return Escenario3D;
+  if (cat.includes('barra') || cat.includes('bar') || name.includes('barra')) return Barra3D;
+  if (cat.includes('living') || cat.includes('sillon') || cat.includes('sillones') || name.includes('living') || name.includes('sillon')) return SectorSillones3D;
+  if (cat.includes('torta') || name.includes('torta')) return MesaTorta3D;
+  if (cat.includes('photo') || cat.includes('foto') || name.includes('photo') || name.includes('foto')) return PhotoOpportunity3D;
+  if (cat.includes('led') || cat.includes('pantalla') || name.includes('led') || name.includes('pantalla')) return PantallaLed3D;
   if (cat.includes('arco') || name.includes('arco')) return Arco3D;
   if (cat.includes('pedestal') || name.includes('pedestal') || cat.includes('columna') || name.includes('columna')) return Pedestal3D;
-  if (cat.includes('panel') || name.includes('panel') || cat.includes('neon') || name.includes('neon') || cat.includes('backdrop') || cat.includes('fondo') || cat.includes('pantalla')) return PanelDecorativo3D;
+  if (cat.includes('panel') || name.includes('panel') || cat.includes('neon') || name.includes('neon') || cat.includes('backdrop') || cat.includes('fondo')) return PanelDecorativo3D;
   if (cat.includes('mesa') || name.includes('mesa') || (!cat && (element.seats || 0) > 0)) {
     return Mesa3D;
   }

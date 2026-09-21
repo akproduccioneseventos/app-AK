@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
-import { getBuzonMessages, deleteBuzonMessage, uploadWelcomeAudio, deleteWelcomeAudio } from '@/app/actions/buzon';
+import { getBuzonMessagesConDetalle, deleteBuzonMessage, uploadWelcomeAudio, deleteWelcomeAudio } from '@/app/actions/buzon';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { BuzonMessage } from '@/app/actions/buzon';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ function BuzonAdminContent() {
   const [messages, setMessages] = useState<BuzonMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [huboFallaAlLeer, setHuboFallaAlLeer] = useState(false);
   const [isWelcomeSaving, setIsWelcomeSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
@@ -51,17 +52,30 @@ function BuzonAdminContent() {
 
   // Load Data
   const loadData = useCallback(async (silent = false) => {
-    if (!fiestaId) return;
+    // Sin fiesta no hay nada que cargar, pero la rueda se apaga igual: si no,
+    // la pantalla gira para siempre sin decir nada.
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     if (!silent) setIsLoading(true);
     try {
-      const [fData, mData] = await Promise.all([
+      const [fData, detalle] = await Promise.all([
         getFiestaById(fiestaId),
-        getBuzonMessages(fiestaId)
+        getBuzonMessagesConDetalle(fiestaId)
       ]);
       setFiesta(fData);
-      setMessages(mData);
+      // Una lectura que falla NO es un buzon vacio. Si fallo, se deja lo que ya
+      // estaba en pantalla y se avisa: los saludos siguen guardados.
+      if (detalle.huboFalla) {
+        setHuboFallaAlLeer(true);
+      } else {
+        setHuboFallaAlLeer(false);
+        setMessages(detalle.mensajes);
+      }
     } catch (err) {
       console.error(err);
+      setHuboFallaAlLeer(true);
     } finally {
       if (!silent) setIsLoading(false);
     }
@@ -71,8 +85,20 @@ function BuzonAdminContent() {
     if (!fiestaId) return;
     setIsRefreshing(true);
     try {
-      const mData = await getBuzonMessages(fiestaId);
-      setMessages(mData);
+      const detalle = await getBuzonMessagesConDetalle(fiestaId);
+      // "Sincronizado" solo cuando de verdad se leyo. Antes, una falla de conexion
+      // vaciaba la lista en pantalla y encima decia que estaba todo al dia.
+      if (detalle.huboFalla) {
+        setHuboFallaAlLeer(true);
+        toast({
+          title: "No se pudieron traer los saludos",
+          description: "Sigue guardado todo lo que habia. Probá de nuevo en un momento.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setHuboFallaAlLeer(false);
+      setMessages(detalle.mensajes);
       toast({
         title: "Sincronizado",
         description: "Se actualizaron los mensajes del buzón.",
@@ -95,8 +121,13 @@ function BuzonAdminContent() {
     // Polling automático cada 15 segundos para mantenerlo sincronizado sin recargar
     const interval = setInterval(() => {
       if (fiestaId) {
-        getBuzonMessages(fiestaId)
-          .then(mData => setMessages(mData))
+        getBuzonMessagesConDetalle(fiestaId)
+          .then(detalle => {
+            // Igual que arriba: si fallo la lectura, no se borra lo que se ve.
+            if (detalle.huboFalla) { setHuboFallaAlLeer(true); return; }
+            setHuboFallaAlLeer(false);
+            setMessages(detalle.mensajes);
+          })
           .catch(err => console.error('Error in buzon polling:', err));
       }
     }, 15000);
@@ -411,7 +442,18 @@ function BuzonAdminContent() {
             </CardHeader>
             <CardContent className="flex-1 p-6">
 
-              {messages.length === 0 ? (
+              {huboFallaAlLeer && (
+                <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                  <p className="font-bold">No se pudieron traer los saludos</p>
+                  <p>
+                    Se cortó la conexión con el servidor. <strong>No se perdió nada:</strong> los saludos
+                    siguen guardados. Lo que ves acá puede estar desactualizado; tocá "Actualizar" en un
+                    momento.
+                  </p>
+                </div>
+              )}
+
+              {messages.length === 0 && !huboFallaAlLeer ? (
                 <div className="flex flex-col items-center justify-center h-full text-center py-12 text-slate-400 gap-3">
                   <Info className="w-12 h-12 text-slate-300" />
                   <div>

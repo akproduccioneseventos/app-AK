@@ -100,3 +100,37 @@ invisible antes del primer `import`. Hay que guardarlo sin ella.
 
 **Una sola propuesta** con los cuatro puntos. Si alguno se traba, se entrega el
 resto igual en la misma propuesta, avisando cual falto.
+## CORRECCION AL PUNTO 1 (16 de septiembre de 2026, con la sonda de Codex)
+
+Codex reprodujo el defecto sobre los callbacks reales y encontro que **mi indicacion
+anterior estaba incompleta y, tomada al pie de la letra, crea otro defecto**: poner
+`setIsUploading(false)` sin condicion en el `finally` arregla el caso de A que termina
+tarde **con B mirando su captura**, pero rompe el caso de **A que termina tarde cuando B
+ya empezo SU PROPIA subida**: ahi el `finally` de A le apaga el cartel a B.
+
+**La regla correcta, y es la que hay que programar:**
+
+1. **Cada operacion solo toca el estado que le pertenece.** La subida de A apaga el cartel
+   de subiendo **solo si la sesion viva sigue siendo la de A**.
+2. **La sesion nueva libera el estado heredado.** `retake()` —en los dos archivos— tiene
+   que dejar la pantalla limpia para el que llega: `setIsUploading(false)` y
+   `setQueuedOffline(false)`, ademas de lo que ya hace. Asi nadie hereda el cartel del
+   anterior, sin depender de que el que termina tarde lo apague.
+
+**Y dos lugares mas que marco la sonda, en Touchpix:**
+
+- `setQueuedOffline(false)` de las lineas ~839 y ~865 corre **antes** del control de
+  sesion: le borra a B el aviso de "guardada, se sube cuando vuelva la senal". Va despues
+  del control, como todo lo que toca la pantalla.
+- `setQueuedOffline(true)` de la linea ~905 tiene el mismo problema al reves: le prende a
+  B un aviso que es de A.
+
+**Y la prueba que cierra esto tiene que mirar los dos casos, no uno:**
+
+- A pendiente -> B solo mira su captura -> A termina: B no ve cartel de exito, no se le
+  reinicia la pantalla y **no le queda el cartel de subiendo**.
+- A pendiente -> **B empieza su propia subida** -> A termina: a B **no se le apaga** su
+  cartel de subiendo, que es de ella.
+
+**Lo que NO hay que hacer:** una prueba que exija que el `finally` no tenga un `if`. Eso
+mira la forma del codigo y no el resultado, y ademas pide lo incorrecto.

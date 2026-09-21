@@ -9,21 +9,21 @@ import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import { CountdownTimer } from '@/components/countdown-timer';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Church, 
-  MapPin, 
-  Play, 
-  Pause, 
-  Heart, 
-  PartyPopper, 
-  Clock, 
-  Utensils, 
-  GlassWater, 
-  Music, 
-  CakeSlice, 
-  Camera as CameraIcon, 
-  Diamond, 
-  Sparkles, 
+import {
+  Church,
+  MapPin,
+  Play,
+  Pause,
+  Heart,
+  PartyPopper,
+  Clock,
+  Utensils,
+  GlassWater,
+  Music,
+  CakeSlice,
+  Camera as CameraIcon,
+  Diamond,
+  Sparkles,
   Gift as GiftIcon,
   ClipboardCopy,
   Calendar,
@@ -136,9 +136,9 @@ const SectionWrapper: React.FC<{
 
 const SectionHeader: React.FC<{ icon: React.ElementType, title: string, subtitle?: string, color: string, style?: TextStyle }> = ({ icon: Icon, title, subtitle, color, style }) => (
     <div className="mb-12 md:mb-16 space-y-4 md:space-y-6 text-center">
-        <motion.div 
-            initial={{ scale: 0, rotate: -180 }} 
-            whileInView={{ scale: 1, rotate: 0 }} 
+        <motion.div
+            initial={{ scale: 0, rotate: -180 }}
+            whileInView={{ scale: 1, rotate: 0 }}
             viewport={{ once: true }}
             transition={{ type: "spring", damping: 15, stiffness: 100 }}
             className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white shadow-xl flex items-center justify-center mx-auto mb-6 md:mb-8 border border-slate-50"
@@ -172,7 +172,7 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
               primaryColor={paleta.primary || '#8b5cf6'}
               count={12}
             />
-            <motion.div 
+            <motion.div
                 initial={{ scale: 1.2, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 2, ease: "easeOut" }}
@@ -195,7 +195,7 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
                         <NextImage src={data.logoUrl} alt="Logo" width={100} height={100} className="mx-auto drop-shadow-2xl md:w-[120px] md:h-[120px]" />
                     </motion.div>
                 )}
-                
+
                 <div className="space-y-4 md:space-y-6">
                     <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-[10px] md:text-sm font-black tracking-[0.6em] uppercase text-primary block" style={{ color: paleta.primary }}>
                         {subtitleText}
@@ -218,7 +218,7 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
                 </motion.div>
             </div>
 
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 3, duration: 1 }}
@@ -244,7 +244,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
   const [isItineraryModalOpen, setIsItineraryModalOpen] = useState(false);
   const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
-  
+
   // RSVP form state - Refactorizado para cupos por categoría
   const [rsvpName, setRsvpName] = useState('');
   const [numAdults, setNumAdults] = useState(1);
@@ -330,7 +330,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     e.preventDefault();
     if (!rsvpName.trim() || !onRsvpSubmit) return;
     setIsSubmittingRsvp(true);
-    
+
     try {
       const success = await onRsvpSubmit({
         nombreCompleto: rsvpName,
@@ -342,7 +342,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
         companionNames: companionNames,
         tag: rsvpTag || undefined
       });
-      
+
       if (success) {
         setIsRsvpModalOpen(false);
         setRsvpName('');
@@ -374,16 +374,32 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
       if (isPreview || gift.isClaimed) return;
       const guestName = prompt("Para reservar este regalo, dinos tu nombre:");
       if (!guestName) return;
-      
+
       const res = await claimGift(fiesta.id, gift.id, guestName);
       if (res.success) {
           toast({ title: "¡Regalo Reservado!", description: "Gracias por tu detalle." });
+      } else {
+          toast({
+              title: "No se pudo reservar",
+              description: res.error || "Justo lo eligió otro invitado; elegí otro de la lista.",
+              variant: "destructive"
+          });
       }
   };
 
-  const handleCopyAccount = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast({ title: "Copiado", description: "Los datos bancarios se han copiado al portapapeles." });
+  const handleCopyAccount = async (text: string) => {
+    // Son los datos bancarios del regalo: si el navegador no deja copiar y el invitado cree
+    // que si, pega cualquier cosa y la transferencia va a otro lado.
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Copiado", description: "Los datos bancarios se han copiado al portapapeles." });
+    } catch {
+      toast({
+        title: "No se pudo copiar solo",
+        description: `Copialos a mano: ${text}`,
+        variant: "destructive",
+      });
+    }
   };
 
   const renderSectionComponent = (seccion: SeccionInvitacion) => {
@@ -404,11 +420,11 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionHeader icon={Heart} title={welcomeTitle} color={primaryColor} style={seccion.data.titulo.style} />
             <div className="max-w-2xl mx-auto text-center">
               <div className="text-lg md:text-2xl text-slate-500 font-medium leading-relaxed italic">
-                <EditableText 
-                    initialValue={seccion.data.texto.text} 
-                    style={seccion.data.texto.style} 
-                    onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...seccion.data.texto, text: v } } })} 
-                    textarea 
+                <EditableText
+                    initialValue={seccion.data.texto.text}
+                    style={seccion.data.texto.style}
+                    onSave={v => onUpdate?.({ bienvenida: { ...seccion.data, texto: { ...seccion.data.texto, text: v } } })}
+                    textarea
                 />
               </div>
             </div>
@@ -430,8 +446,8 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           <SectionWrapper {...wrapperProps} className="bg-white" innerClassName="max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-8">
               {[seccion.data.ceremoniaReligiosa, seccion.data.ceremoniaCivil, seccion.data.celebracion].filter(d => d?.visible).map((detalle, idx) => (
-                <motion.div 
-                    key={idx} 
+                <motion.div
+                    key={idx}
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -484,16 +500,16 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           <SectionWrapper {...wrapperProps} className="bg-slate-50 text-center">
             <SectionHeader icon={Clock} title="Itinerario" subtitle="Los momentos que harán esta noche mágica" color={primaryColor} />
             <div className="max-w-xl mx-auto">
-                <Button 
+                <Button
                     onClick={(e) => { e.stopPropagation(); setIsItineraryModalOpen(true); }}
-                    size="lg" 
+                    size="lg"
                     className="rounded-2xl h-14 md:h-16 px-10 md:px-12 text-base md:text-lg font-bold shadow-2xl hover:scale-105 transition-all"
                     style={{ backgroundColor: primaryColor }}
                 >
                     <Clock className="w-4 h-4 md:w-5 md:h-5 mr-3"/> ABRIR CRONOGRAMA
                 </Button>
             </div>
-            
+
             <Dialog open={isItineraryModalOpen} onOpenChange={setIsItineraryModalOpen}>
                 <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 border-none shadow-3xl">
                     <DialogHeader className="text-center pb-6 md:pb-8 border-b">
@@ -529,9 +545,9 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionHeader icon={CameraIcon} title="Nuestros Momentos" color={primaryColor} />
             <div className="columns-2 md:columns-3 lg:columns-4 gap-4 md:gap-6 space-y-4 md:space-y-6">
               {(seccion.data.fotos || []).map((url: string, i: number) => (
-                <motion.div 
-                    key={i} 
-                    whileHover={{ y: -5 }} 
+                <motion.div
+                    key={i}
+                    whileHover={{ y: -5 }}
                     className="relative rounded-2xl md:rounded-3xl overflow-hidden shadow-xl md:shadow-2xl border-2 md:border-4 border-white inline-block w-full"
                 >
                   <NextImage src={url} alt="" width={800} height={1200} className="w-full h-auto" />
@@ -547,16 +563,16 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             <SectionHeader icon={GiftIcon} title={seccion.data.titulo.text} subtitle="Ideas por si quieres obsequiarnos algo" color={primaryColor} style={seccion.data.titulo.style} />
             <div className="max-w-2xl mx-auto space-y-8 md:space-y-12 text-center">
                 <p className="text-lg md:text-xl text-slate-500 font-medium leading-relaxed italic">{seccion.data.texto.text}</p>
-                
+
                 {seccion.data.datosBancarios && (
                     <div className="p-8 md:p-12 border border-slate-200 rounded-[2.5rem] md:rounded-[3rem] bg-white shadow-xl md:shadow-2xl shadow-slate-200/50 relative group">
                         <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.4em] text-slate-300 mb-3 md:mb-4">Transferencia Bancaria</p>
                         <p className="text-xl md:text-2xl font-mono break-all font-black text-slate-800 tracking-tight">
                             {seccion.data.datosBancarios}
                         </p>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
+                        <Button
+                            variant="ghost"
+                            size="sm"
                             className="mt-4 md:mt-6 text-primary font-bold hover:bg-primary/5 rounded-full text-xs"
                             onClick={(e) => { e.stopPropagation(); handleCopyAccount(seccion.data.datosBancarios); }}
                         >
@@ -566,7 +582,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 )}
 
                 {(seccion.data.items && seccion.data.items.length > 0) && (
-                    <Button 
+                    <Button
                         onClick={(e) => { e.stopPropagation(); setIsGiftModalOpen(true); }}
                         size="lg"
                         className="rounded-full h-14 md:h-16 px-10 md:px-12 text-base md:text-lg font-bold shadow-2xl hover:scale-105 transition-all"
@@ -585,8 +601,8 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     </DialogHeader>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 pt-8 md:pt-10">
                         {(seccion.data.items || []).map((item: GiftItem) => (
-                            <Card 
-                                key={item.id} 
+                            <Card
+                                key={item.id}
                                 onClick={() => handleClaimGift(item)}
                                 className={cn(
                                     "group border-none shadow-lg md:shadow-xl rounded-[1.5rem] md:rounded-[2rem] overflow-hidden bg-slate-50 transition-all",
@@ -637,10 +653,10 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                         </div>
                     </ScrollArea>
                     <form onSubmit={handleSendChat} className="p-4 md:p-6 bg-white border-t flex gap-2 md:gap-3">
-                        <Input 
-                            value={newChatMsg} 
-                            onChange={e => setNewChatMsg(e.target.value)} 
-                            placeholder="Escribe un saludo..." 
+                        <Input
+                            value={newChatMsg}
+                            onChange={e => setNewChatMsg(e.target.value)}
+                            placeholder="Escribe un saludo..."
                             className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none px-4 md:px-6 text-sm focus-visible:ring-2"
                             style={{ "--tw-ring-color": primaryColor } as any}
                         />
@@ -664,7 +680,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.6em] text-primary/60" style={{ color: `${primaryColor}99` }}>RSVP</span>
               <h2 className="text-4xl sm:text-5xl md:text-8xl font-headline font-bold leading-none tracking-tighter" style={{ color: primaryColor }}>¿Vienes?</h2>
               <p className="text-lg md:text-xl text-slate-400 font-medium leading-relaxed px-4">
-                Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del 
+                Tu presencia es el mejor regalo. Por favor, confirma tu asistencia antes del
                 <span className="block mt-2 text-white font-bold text-xl md:text-2xl uppercase tracking-widest">{formatDate(fiesta.configuracion.fechaEvento)}</span>
               </p>
               {rsvpCount !== null && rsvpCount > 0 && (
@@ -686,7 +702,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     }
   };
 
-  const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda' 
+  const relationshipOptions = fiesta.configuracion.tipoCelebracion === 'Boda'
     ? ["Familia Novio", "Familia Novia", "Amigos Novio", "Amigos Novia", "Trabajo", "Otros"]
     : ["Familia", "Amigos", "Trabajo", "Otros"];
 
@@ -695,14 +711,14 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   return (
     <div className={cn("min-h-screen w-full max-w-full overflow-x-hidden bg-white font-body selection:bg-primary/20 selection:text-white", isPreview && "h-full overflow-y-auto")}>
       <GraziaCabecera data={invitacionData.cabecera} fiesta={fiesta} paleta={paletaColores} isPreview={isPreview} />
-      
+
       <main className="relative">
         <div className="fixed top-2 right-2 sm:top-4 sm:right-4 md:top-8 md:right-8 z-50 flex flex-col gap-2 sm:gap-3 md:gap-4">
             {invitacionData.musicaFondoUrl && !isPreview && (
-                <motion.button 
-                    whileHover={{ scale: 1.1 }} 
-                    whileTap={{ scale: 0.9 }} 
-                    onClick={togglePlayPause} 
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={togglePlayPause}
                     className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-[1.5rem] bg-white shadow-2xl flex items-center justify-center border border-slate-100 group"
                 >
                     {isPlaying ? <Pause className="w-5 h-5 md:w-6 md:h-6 text-primary animate-pulse" /> : <Play className="w-5 h-5 md:w-6 md:h-6 text-slate-400 group-hover:text-primary transition-colors" />}
@@ -759,7 +775,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
             </div>
         </motion.div>
       </footer>
-      
+
       <audio ref={audioRef} src={invitacionData.musicaFondoUrl} loop />
 
       {/* WhatsApp share button */}
@@ -793,7 +809,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
               <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Tu Nombre Completo</Label>
               <Input value={rsvpName} onChange={e => setRsvpName(e.target.value)} className="h-12 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 border-none text-base md:text-lg font-bold focus-visible:ring-2" style={{ "--tw-ring-color": primaryColor } as any} required />
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2 md:space-y-3">
                     <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Nº Adultos</Label>
@@ -826,7 +842,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     </Select>
                 </div>
             )}
-            
+
             <div className="flex items-center justify-between p-4 bg-amber-50 rounded-2xl border border-amber-100">
                 <div className="flex items-center gap-3">
                     <AlertTriangle className="w-5 h-5 text-amber-600" />
@@ -843,7 +859,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                 }} className="h-10 md:h-12 rounded-lg md:rounded-xl bg-slate-50 border-none text-sm" />
               </div>
             ))}
-            
+
             {invitacionData.musica?.visible && (
                 <div className="space-y-2 md:space-y-3">
                     <Label className="text-[9px] md:text-[10px] uppercase font-black tracking-widest text-slate-400 px-1">Sugerencia Musical</Label>

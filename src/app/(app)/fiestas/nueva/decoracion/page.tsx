@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -20,9 +20,8 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 import { UploadButton } from '@/components/invitacion/edit/UploadButton';
-import { addMoodboardItem, deleteMoodboardItem, syncDecoGastosToModule } from '@/app/actions/fiesta/decoracion.actions';
+import { addMoodboardItem, deleteMoodboardItem, syncDecoGastosToModule, generarVisualizacionSalonAi } from '@/app/actions/fiesta/decoracion.actions';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -30,9 +29,10 @@ import DecoCanvas from '@/components/decoracion/DecoCanvas';
 import type { DecoItem3D } from '@/components/salon-3d/elements/DecoItem3D';
 import dynamic from 'next/dynamic';
 import type { SalonSceneRef } from '@/components/salon-3d/SalonScene';
+import { SalonSceneAislada } from '@/components/salon-3d/SalonSceneAislada';
 
 const SalonScene = dynamic(
-  () => import('@/components/salon-3d/SalonScene').then((mod) => mod.SalonScene),
+  () => import('@/components/salon-3d/SalonScene'),
   {
     ssr: false,
     loading: () => (
@@ -48,6 +48,7 @@ import DecoZonaPanel from '@/components/decoracion/DecoZonaPanel';
 import DecoColorPicker from '@/components/decoracion/DecoColorPicker';
 import DecoPropertiesPanel from '@/components/decoracion/DecoPropertiesPanel';
 import DecoTemplateGallery from '@/components/decoracion/DecoTemplateGallery';
+import VistaDecorativaEditor from '@/components/decoracion/VistaDecorativaEditor';
 import type { LibraryElement } from '@/components/decoracion/DecoElementLibrary';
 import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
 import { ubicarMuebleEnLaEscena } from '@/lib/decoracion/plano-a-escena-3d';
@@ -141,6 +142,7 @@ const predefinedPalettes: { name: string; colors: ColorPalette }[] = [
 
 
 function DecoracionYDisenoEventoContent() {
+  void VistaDecorativaEditor;
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
@@ -177,6 +179,10 @@ function DecoracionYDisenoEventoContent() {
   const [canvasFondoColor, setCanvasFondoColor] = useState('#F8F9FA');
   const [canvasFondoImagenUrl, setCanvasFondoImagenUrl] = useState('');
   const [canvasHasChanges, setCanvasHasChanges] = useState(false);
+  const canvasChangeVersionRef = useRef(0);
+  useEffect(() => {
+    canvasChangeVersionRef.current += 1;
+  }, [canvasElementos, canvasFondoColor, canvasFondoImagenUrl]);
   const [isSavingCanvas, setIsSavingCanvas] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
@@ -190,6 +196,56 @@ function DecoracionYDisenoEventoContent() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [is3DMode, setIs3DMode] = useState(false);
   const salonSceneRef = useRef<SalonSceneRef | null>(null);
+
+  // IA Salón Visualización
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [selectedAiImage, setSelectedAiImage] = useState<string | null>(null);
+
+  const handleGenerarAi = useCallback(async () => {
+    if (!fiestaId) {
+      toast({ title: 'Atención', description: 'Guardá la fiesta antes de generar imágenes.', variant: 'destructive' });
+      return;
+    }
+
+    const fotosExistentes = decoracionData.fotosGeneradasAi || [];
+    if (fotosExistentes.length >= 3) {
+      toast({
+        title: 'Tope alcanzado',
+        description: 'Se alcanzó el tope de 3 imágenes generadas con IA para esta fiesta.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsGeneratingAi(true);
+    try {
+      const res = await generarVisualizacionSalonAi(fiestaId, decoracionData.salonPlanBackgroundImageUrl || undefined);
+      if (res.success && res.imageUrl) {
+        setDecoracionData(prev => ({
+          ...prev,
+          fotosGeneradasAi: [...(prev.fotosGeneradasAi || []), res.imageUrl!],
+        }));
+        toast({
+          title: '¡Salón decorado!',
+          description: 'La imagen con IA se generó y guardó correctamente.',
+        });
+      } else {
+        toast({
+          title: 'No se pudo generar',
+          description: res.error || 'Error al generar la imagen con IA.',
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err?.message || 'Error al comunicarse con el generador de imágenes.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  }, [fiestaId, decoracionData.fotosGeneradasAi, decoracionData.salonPlanBackgroundImageUrl, toast]);
 
   // Escape key exits fullscreen
   useEffect(() => {
@@ -232,6 +288,9 @@ function DecoracionYDisenoEventoContent() {
         moodboardItems: loadedDecoracion.moodboardItems || [],
         zonasContratadas: mergedZonas,
         salonElements: loadedDecoracion.salonElements || [],
+        fotosGeneradasAi: loadedDecoracion.fotosGeneradasAi || [],
+        generalNotesDecoracion: loadedDecoracion.generalNotesDecoracion || '',
+        notaDecoracionParaElCliente: loadedDecoracion.notaDecoracionParaElCliente || '',
         paletaColores: {
           ...defaultDecoracion.paletaColores,
           ...(loadedDecoracion.paletaColores || {})
@@ -707,6 +766,7 @@ function DecoracionYDisenoEventoContent() {
 
   const saveCanvas = useCallback(async (silent = false) => {
     if (!fiestaId) return;
+    const versionAtStart = canvasChangeVersionRef.current;
     if (!silent) setIsSavingCanvas(true);
     else setIsAutoSaving(true);
     try {
@@ -721,7 +781,9 @@ function DecoracionYDisenoEventoContent() {
       };
       const result = await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
       if (result.success) {
-        setCanvasHasChanges(false);
+        if (canvasChangeVersionRef.current === versionAtStart) {
+          setCanvasHasChanges(false);
+        }
         setAutoSaveError(null);
       } else throw new Error(result.error || 'Error al guardar el canvas');
     } catch (err: any) {
@@ -1005,6 +1067,79 @@ function DecoracionYDisenoEventoContent() {
                   <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Color Cubremantel</Label>
                   <Input value={decoracionData.colorCubremantel || ''} onChange={e => handleInputChange('colorCubremantel', e.target.value)} placeholder="Ej: Blanco, Azul Marino" className="rounded-xl h-12 bg-slate-50 border-none text-slate-900" />
                 </div>
+              </div>
+
+              <Separator />
+
+              {/* Bloque 2 Orden 55: Visualización del Salón con IA */}
+              <div className="space-y-4 rounded-2xl border-2 border-purple-200 bg-gradient-to-br from-purple-50/60 to-indigo-50/40 p-6">
+                <div className="flex items-start justify-between flex-wrap gap-4">
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-purple-950 flex items-center gap-2">
+                      <Wand2 className="w-5 h-5 text-purple-600" />
+                      Visualización del Salón con Inteligencia Artificial
+                    </h3>
+                    <p className="text-sm text-purple-700">
+                      Generá una imagen realista del salón decorado según el estilo y la paleta elegidos.
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <Button
+                      type="button"
+                      data-testid="btn-generar-salon-ai"
+                      onClick={handleGenerarAi}
+                      disabled={isGeneratingAi || (decoracionData.fotosGeneradasAi?.length || 0) >= 3}
+                      className="rounded-2xl gap-2 bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-600/25 h-12 px-6"
+                    >
+                      {isGeneratingAi ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Generando imagen con IA...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5" />
+                          Ver el salón decorado (imagen con IA)
+                        </>
+                      )}
+                    </Button>
+                    <p data-testid="contador-fotos-ai" className="text-xs font-semibold text-purple-800">
+                      Te quedan {Math.max(0, 3 - (decoracionData.fotosGeneradasAi?.length || 0))} de 3 para esta fiesta
+                    </p>
+                  </div>
+                </div>
+
+                {/* Galería de imágenes generadas */}
+                {(decoracionData.fotosGeneradasAi?.length || 0) > 0 && (
+                  <div className="space-y-3 pt-3 border-t border-purple-100">
+                    <Label className="text-xs font-bold text-purple-900 uppercase tracking-wider">
+                      Imágenes Generadas ({decoracionData.fotosGeneradasAi?.length} de 3)
+                    </Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4" data-testid="galeria-fotos-ai">
+                      {decoracionData.fotosGeneradasAi?.map((fotoUrl, idx) => (
+                        <div
+                          key={idx}
+                          data-testid={`foto-generada-ai-${idx}`}
+                          onClick={() => setSelectedAiImage(fotoUrl)}
+                          className="group relative aspect-video rounded-xl overflow-hidden border-2 border-purple-200 bg-purple-950 cursor-pointer shadow-md hover:shadow-xl transition-all"
+                        >
+                          <NextImage
+                            src={fotoUrl}
+                            alt={`Visualización salón ${idx + 1}`}
+                            layout="fill"
+                            objectFit="cover"
+                            className="group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span className="text-white text-xs font-bold bg-black/60 px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                              <Maximize2 className="w-3.5 h-3.5" /> Ampliar
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
             <CardFooter className="border-t p-6">
@@ -1291,11 +1426,60 @@ function DecoracionYDisenoEventoContent() {
           <Card className="border-none shadow-xl rounded-[2rem] bg-white/80 backdrop-blur-md">
             <CardHeader className="p-6">
               <CardTitle className="font-headline text-xl flex items-center gap-2">
-                <StickyNote className="w-5 h-5 text-primary" /> Notas Generales
+                <StickyNote className="w-5 h-5 text-primary" /> Notas de la Decoración
               </CardTitle>
+              <CardDescription>
+                Diferenciá las notas internas del equipo del mensaje que verá el cliente en su portal.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 pt-0">
-              <Textarea value={decoracionData.generalNotesDecoracion || ''} onChange={e => handleInputChange('generalNotesDecoracion', e.target.value)} rows={4} placeholder="Ideas, conceptos, elementos clave, notas para el equipo..." className="rounded-xl bg-slate-50 border-none resize-none text-slate-900" />
+            <CardContent className="p-6 pt-0 space-y-6">
+              {/* Notas del equipo — el cliente no las ve */}
+              <div className="space-y-2 p-5 rounded-2xl border-2 border-amber-200 bg-amber-50/40">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="generalNotesDecoracion" className="font-bold text-amber-950 flex items-center gap-2 text-sm">
+                    🔒 Notas del equipo — el cliente no las ve
+                  </Label>
+                  <Badge variant="outline" className="border-amber-300 bg-amber-100 text-amber-800 text-[10px]">
+                    Privado del equipo
+                  </Badge>
+                </div>
+                <p className="text-xs text-amber-700">
+                  Anotaciones internas del staff sobre montaje, proveedores, costos o detalles confidenciales.
+                </p>
+                <Textarea
+                  id="generalNotesDecoracion"
+                  data-testid="textarea-notas-equipo"
+                  value={decoracionData.generalNotesDecoracion || ''}
+                  onChange={e => handleInputChange('generalNotesDecoracion', e.target.value)}
+                  rows={4}
+                  placeholder="Ideas, conceptos, elementos clave, notas para el equipo..."
+                  className="rounded-xl bg-white border-amber-200 resize-none text-slate-900 shadow-sm"
+                />
+              </div>
+
+              {/* Para el cliente — esto se publica en su portal */}
+              <div className="space-y-2 p-5 rounded-2xl border-2 border-purple-200 bg-purple-50/40">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="notaDecoracionParaElCliente" className="font-bold text-purple-950 flex items-center gap-2 text-sm">
+                    🌐 Para el cliente — esto se publica en su portal
+                  </Label>
+                  <Badge variant="outline" className="border-purple-300 bg-purple-100 text-purple-800 text-[10px]">
+                    Visible en el portal
+                  </Badge>
+                </div>
+                <p className="text-xs text-purple-700">
+                  Este mensaje se publica directamente en la sección de decoración del portal del cliente.
+                </p>
+                <Textarea
+                  id="notaDecoracionParaElCliente"
+                  data-testid="textarea-notas-cliente"
+                  value={decoracionData.notaDecoracionParaElCliente || ''}
+                  onChange={e => handleInputChange('notaDecoracionParaElCliente', e.target.value)}
+                  rows={4}
+                  placeholder="Escribí acá el mensaje o la propuesta de decoración que verá tu cliente..."
+                  className="rounded-xl bg-white border-purple-200 resize-none text-slate-900 shadow-sm"
+                />
+              </div>
             </CardContent>
             <CardFooter className="border-t p-6">
               <Button onClick={handleSaveClick} size="lg" className="w-full sm:w-auto rounded-2xl shadow-lg shadow-primary/20" disabled={isSaving}>
@@ -1655,7 +1839,7 @@ function DecoracionYDisenoEventoContent() {
                   <Badge variant="secondary" className="rounded-full h-6 text-[10px] px-2.5">
                     {canvasElementos.length} elementos
                   </Badge>
-                  <Button type="button" variant="outline" size="sm" onClick={handleExportPng} className="rounded-xl h-8 text-xs gap-1">
+                  <Button type="button" data-testid="btn-exportar-png" variant="outline" size="sm" onClick={handleExportPng} className="rounded-xl h-8 text-xs gap-1">
                     <Download className="w-3 h-3" /> Exportar PNG
                   </Button>
                   <AlertDialog>
@@ -1697,6 +1881,7 @@ function DecoracionYDisenoEventoContent() {
                   </Button>
                   <Button
                     type="button"
+                    data-testid="btn-vista-3d"
                     variant={is3DMode ? "default" : "outline"}
                     size="sm"
                     onClick={() => setIs3DMode(m => !m)}
@@ -1760,36 +1945,38 @@ function DecoracionYDisenoEventoContent() {
                     <CardContent className={cn("p-4", isFullscreen ? 'flex-1 flex flex-col min-h-0' : '')}>
                       {is3DMode ? (
                         <div className="w-full h-[600px] rounded-2xl overflow-hidden bg-slate-950 relative">
-                          <SalonScene
-                            captureRef={salonSceneRef}
-                            decoracion={{
-                              ...decoracionData,
-                              salonElements: [
-                                ...(decoracionData.salonElements || []),
-                                ...canvasElementos.map((el) => ({
-                                  id: el.id,
-                                  name: el.etiqueta || el.tipo,
-                                  x: el.x,
-                                  y: el.y,
-                                  width: el.width || 80,
-                                  height: el.height || 80,
-                                  rotation: el.rotacion || 0,
-                                  type: 'element' as const,
-                                  category: el.tipo?.toLowerCase().includes('mesa') ? 'mesa' : el.tipo,
-                                  backgroundColor: el.colores?.[0] || '#c9a96e',
-                                })),
-                              ],
-                              itemsDecoracion: [
-                                ...(decoracionData.itemsDecoracion || []),
-                                ...(decoracionData.items || []).map((it) => ({
-                                  id: it.id,
-                                  nombre: it.name,
-                                  categoria: it.category || 'decoracion',
-                                  cantidad: it.quantity || 1,
-                                })),
-                              ],
-                            }}
-                          />
+                          <SalonSceneAislada>
+                            <SalonScene
+                              captureRef={salonSceneRef}
+                              decoracion={{
+                                ...decoracionData,
+                                salonElements: [
+                                  ...(decoracionData.salonElements || []),
+                                  ...canvasElementos.map((el) => ({
+                                    id: el.id,
+                                    name: el.etiqueta || el.tipo,
+                                    x: el.x,
+                                    y: el.y,
+                                    width: el.width || 80,
+                                    height: el.height || 80,
+                                    rotation: el.rotacion || 0,
+                                    type: 'element' as const,
+                                    category: el.tipo?.toLowerCase().includes('mesa') ? 'mesa' : el.tipo,
+                                    backgroundColor: el.colores?.[0] || '#c9a96e',
+                                  })),
+                                ],
+                                itemsDecoracion: [
+                                  ...(decoracionData.itemsDecoracion || []),
+                                  ...(decoracionData.items || []).map((it) => ({
+                                    id: it.id,
+                                    nombre: it.name,
+                                    categoria: it.category || 'decoracion',
+                                    cantidad: it.quantity || 1,
+                                  })),
+                                ],
+                              }}
+                            />
+                          </SalonSceneAislada>
                           {/* 3D Items overlay demonstration */}
                           <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-white text-xs flex items-center gap-2">
                             <Layers className="w-3.5 h-3.5 text-primary" />
@@ -2304,6 +2491,28 @@ function DecoracionYDisenoEventoContent() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Dialog para ampliar imagen generada con IA */}
+      <Dialog open={!!selectedAiImage} onOpenChange={open => !open && setSelectedAiImage(null)}>
+        <DialogContent className="max-w-4xl rounded-3xl p-3 border-none bg-slate-950 shadow-2xl">
+          <DialogHeader className="p-4 pb-2 text-white">
+            <DialogTitle className="font-headline text-lg text-slate-100 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+              Vista del Salón Decorado con IA
+            </DialogTitle>
+          </DialogHeader>
+          <div className="relative aspect-video w-full rounded-2xl overflow-hidden mt-1">
+            {selectedAiImage && (
+              <NextImage
+                src={selectedAiImage}
+                alt="Salón decorado IA ampliado"
+                layout="fill"
+                objectFit="contain"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

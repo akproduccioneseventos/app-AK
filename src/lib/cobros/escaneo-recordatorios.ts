@@ -34,10 +34,18 @@ export interface AvisoAEnviar {
   balance: number;
 }
 
+/**
+ * EL DIA DE HOY ES EL DE URUGUAY, NO EL DEL SERVIDOR.
+ *
+ * El servidor trabaja en hora de Greenwich, que a la noche ya esta en el dia siguiente: entre
+ * las nueve de la noche y la medianoche de aca, "hoy" para el servidor era **manana**. Con eso,
+ * el recordatorio de una cuota salia un dia antes de lo que corresponde.
+ */
+const HORAS_DE_DIFERENCIA_CON_GREENWICH = -3;
+
 function aMedianoche(fecha: Date): Date {
-  const copia = new Date(fecha);
-  copia.setHours(0, 0, 0, 0);
-  return copia;
+  const enUruguay = new Date(fecha.getTime() + HORAS_DE_DIFERENCIA_CON_GREENWICH * 60 * 60 * 1000);
+  return new Date(Date.UTC(enUruguay.getUTCFullYear(), enUruguay.getUTCMonth(), enUruguay.getUTCDate()));
 }
 
 /**

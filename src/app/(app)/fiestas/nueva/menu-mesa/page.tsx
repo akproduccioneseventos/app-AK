@@ -29,7 +29,7 @@ function MenuDeMesaContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [data, setData] = useState<MenuMesaData>(defaultMenuMesaData);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -49,7 +49,7 @@ function MenuDeMesaContent() {
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
       setLogoUrl(settings.logoUrl ?? null);
-      
+
       const mergedData = { ...defaultMenuMesaData, ...(fiestaData.menuMesa || {}) };
       lastSavedDataRef.current = mergedData;
       setData(mergedData);
@@ -64,11 +64,11 @@ function MenuDeMesaContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handleUpdate = (field: keyof Omit<MenuMesaData, 'paletaColores' | 'empresa'>, value: string) => {
     setData(prev => ({ ...prev, [field]: value }));
   };
-  
+
   const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent' | 'background', value: string) => {
     setData(prev => ({
         ...prev,
@@ -78,7 +78,7 @@ function MenuDeMesaContent() {
         }
     }));
   };
-  
+
   const handleEmpresaUpdate = (field: keyof MenuMesaData['empresa'], value: string) => {
       setData(prev => ({ ...prev, empresa: { ...(prev.empresa || defaultMenuMesaData.empresa), [field]: value } }));
   }
@@ -107,22 +107,28 @@ function MenuDeMesaContent() {
 
   const lastSavedDataRef = React.useRef<MenuMesaData>(data);
 
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const handleSave = async () => {
     if (!fiestaId) return;
     setIsSaving(true);
+    setSaveError(null);
     try {
       const result = await updateMenuMesaAction(fiestaId, data);
       if (result.success) {
         lastSavedDataRef.current = data;
+        setSaveError(null);
         toast({ title: "¡Guardado!", description: "El menú de mesa ha sido actualizado." });
       } else {
         throw new Error(result.error || "No se pudo guardar la configuración.");
       }
     } catch (e: any) {
-      setData(lastSavedDataRef.current);
+      // No descartar lo escrito: el usuario conserva su trabajo para corregirlo
+      const msg = e.message || 'Error de conexión';
+      setSaveError(msg);
       toast({
         title: "No se pudo guardar la configuración",
-        description: `${e.message || 'Error de conexión'}. Se restauró la versión anterior.`,
+        description: `${msg}. El texto escrito se mantiene para que lo puedas corregir.`,
         variant: "destructive"
       });
     } finally {
@@ -136,10 +142,10 @@ function MenuDeMesaContent() {
     if (!printRef.current) return;
     toast({ title: "Generando imagen...", description: "Por favor, espera un momento."});
     try {
-        const canvas = await html2canvas(printRef.current, { 
+        const canvas = await html2canvas(printRef.current, {
             scale: 2, // Increase resolution
             useCORS: true, // For external images
-            backgroundColor: '#ffffff', 
+            backgroundColor: '#ffffff',
         });
         const link = document.createElement('a');
         link.download = `menu-mesa-${fiesta?.configuracion.nombreEvento}.jpg`;
@@ -158,7 +164,7 @@ function MenuDeMesaContent() {
   if (error) {
     return <div className="p-8 max-w-4xl mx-auto text-center">{error}</div>;
   }
-  
+
   return (
     <div className="bg-background print:bg-white">
         <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-card border-b border-border shadow-sm sticky top-0 z-50">
@@ -178,6 +184,12 @@ function MenuDeMesaContent() {
                </div>
             </div>
         </div>
+        {saveError && (
+          <div className="mx-4 my-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm flex items-center justify-between">
+            <span><strong>No se pudo guardar:</strong> {saveError}. Tu trabajo se mantiene en pantalla para que lo puedas corregir.</span>
+            <Button size="sm" variant="outline" onClick={() => setSaveError(null)}>Cerrar</Button>
+          </div>
+        )}
         <div className="w-[29.7cm] h-[21cm] mx-auto my-4 bg-white shadow-lg print:shadow-none print:my-0 print:mx-auto flex gap-4 p-4" ref={printRef}>
             <div className="w-1/2 h-full relative">
                 <MenuMesaTemplate

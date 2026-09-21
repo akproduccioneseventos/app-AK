@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import crypto from 'crypto';
 import { dbAdmin, verifyIdToken } from '@/lib/firebase/server';
@@ -51,13 +51,13 @@ function laBaseNoContesto(err: unknown): boolean {
     .test(texto);
 }
 
-async function conTopeDeEspera<T>(tarea: Promise<T>): Promise<T> {
+async function conTopeDeEspera<T>(tarea: Promise<T>, topeMs = TOPE_BASE_MS): Promise<T> {
   let reloj: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
       tarea,
       new Promise<never>((_, rechazar) => {
-        reloj = setTimeout(() => rechazar(new BaseSinRespuesta()), TOPE_BASE_MS);
+        reloj = setTimeout(() => rechazar(new BaseSinRespuesta()), topeMs);
       }),
     ]);
   } finally {
@@ -269,6 +269,77 @@ async function writeRecoveredAdminSession(userId: string) {
   });
 }
 
+async function syncPasswordToUsersCollection(newPassword: string): Promise<void> {
+  if (!dbAdmin) return;
+  try {
+    const newHash = hashValue(newPassword);
+    const adminEmails = Array.from(
+      new Set([
+        DEFAULT_RECOVERY_EMAIL,
+        ...(process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS || '')
+          .split(',')
+          .map((e) => normalizeEmail(e))
+          .filter(Boolean),
+        ...(process.env.AUTH_ALLOWED_EMAILS || '')
+          .split(',')
+          .map((e) => normalizeEmail(e))
+          .filter(Boolean),
+      ])
+    );
+
+    let updatedAny = false;
+    for (const email of adminEmails) {
+      const snap = await conTopeDeEspera(
+        dbAdmin.collection('users').where('email', '==', email).limit(1).get(),
+        3000
+      ).catch(() => null);
+      if (snap && !snap.empty) {
+        await snap.docs[0].ref.update({
+          passwordHash: newHash,
+          mustChangePassword: false,
+          updatedAt: new Date().toISOString(),
+        }).catch(() => undefined);
+        updatedAny = true;
+      }
+    }
+
+    /**
+     * ACA NO VA UN REPUESTO QUE LE CAMBIE LA CLAVE A TODOS LOS ADMINISTRADORES.
+     *
+     * Venia escrito asi: si ningun usuario coincidia por correo, le ponia ESTA MISMA clave
+     * a los primeros cinco usuarios con rol de administrador. O sea que cambiar la clave de
+     * uno **le cambiaba la clave a los otros sin que nadie se enterara**, y ademas les
+     * sacaba el "tiene que cambiarla". Eso es entregarle la cuenta de uno a otro.
+     *
+     * La clave de una persona se sincroniza SOLO con su propia cuenta, por correo. Si no
+     * hay ninguna cuenta con ese correo, se crea la del dueño (abajo) y nada mas.
+     */
+
+    // Si todavía no hay ningún usuario en `users`, crear el administrador por defecto
+    if (!updatedAny) {
+      const anyUserSnap = await conTopeDeEspera(
+        dbAdmin.collection('users').limit(1).get(),
+        3000
+      ).catch(() => null);
+      if (anyUserSnap && anyUserSnap.empty) {
+        await dbAdmin.collection('users').add({
+          email: DEFAULT_RECOVERY_EMAIL,
+          passwordHash: newHash,
+          role: 'admin',
+          perfil: 'dueno',
+          modules: ['all'],
+          securityQuestions: {},
+          mustChangePassword: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }).catch(() => undefined);
+      }
+    }
+  } catch (err) {
+    console.error('[simple-auth] Error syncing password to users collection:', err);
+  }
+}
+
 function getResetRequestPatch(config: SimpleAuthConfig | null): { patch?: Partial<SimpleAuthConfig>; error?: string } {
   const now = Date.now();
   const lastRequest = config?.resetCodeRequestedAt ? new Date(config.resetCodeRequestedAt).getTime() : 0;
@@ -389,6 +460,34 @@ async function verifyPassword(password: string): Promise<{ success: boolean; err
       return { success: true };
     }
 
+    // Comprobación de respaldo: si no coincide con app-settings/auth, verificar si coincide
+    // con algún usuario con rol de administrador en la colección `users`.
+    if (dbAdmin) {
+      try {
+        const usersSnap = await conTopeDeEspera(
+          dbAdmin.collection('users').where('role', '==', 'admin').limit(5).get(),
+          3000
+        ).catch(() => null);
+        if (usersSnap && !usersSnap.empty) {
+          for (const userDoc of usersSnap.docs) {
+            const userData = userDoc.data();
+            if (verifyHash(password, userData.passwordHash)) {
+              await saveAuthConfig({
+                passwordHash: userData.passwordHash || hashValue(password),
+                password: '',
+                failedLoginCount: 0,
+                loginLockedUntil: '',
+              });
+              await clearLoginProtection();
+              return { success: true };
+            }
+          }
+        }
+      } catch {
+        // Si falla la consulta, continúa al registro de intento fallido
+      }
+    }
+
     return { success: false, error: await registerFailedLogin(config) };
   } catch (err) {
     console.error('[simple-auth] verifyPassword error:', err);
@@ -436,7 +535,7 @@ export async function changeAppPassword(
   if (passwordError) return { success: false, error: passwordError };
 
   try {
-    return await saveAuthConfig({
+    const result = await saveAuthConfig({
       passwordHash: hashValue(newPassword),
       password: '',
       resetCodeHash: '',
@@ -447,6 +546,10 @@ export async function changeAppPassword(
       recoveryLockedUntil: '',
       passwordChangedAt: new Date().toISOString(),
     });
+    if (result.success) {
+      await syncPasswordToUsersCollection(newPassword);
+    }
+    return result;
   } catch (err) {
     console.error('[simple-auth] changeAppPassword error:', err);
     return { success: false, error: 'Error al cambiar la contraseña.' };
@@ -568,7 +671,7 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
     if (!gmail.connected) {
       return {
         success: false,
-        error: `${gmail.reason || 'Gmail no esta conectado.'} Conecta la cuenta en Ajustes > Google Workspace para enviar codigos de recuperacion.`,
+        error: `${gmail.reason || 'Gmail no está conectado.'} Podés usar "Verificar con Google", "Código de Respaldo" o "Preguntas de Seguridad" para recuperar el acceso al instante.`,
       };
     }
 
@@ -643,6 +746,7 @@ export async function resetPasswordWithCode(code: string, newPassword: string): 
   });
 
   if (!result.success) return { success: false, error: result.error };
+  await syncPasswordToUsersCollection(newPassword);
   await writeRecoveredAdminSession('recovery-email-code');
   return { success: true };
 }
@@ -680,6 +784,7 @@ export async function resetPasswordWithSecurityAnswers(input: {
   });
 
   if (!result.success) return { success: false, error: result.error };
+  await syncPasswordToUsersCollection(input.newPassword);
   await writeRecoveredAdminSession('recovery-security-questions');
   return { success: true };
 }
@@ -723,6 +828,7 @@ export async function resetPasswordWithRecoveryCode(
   });
 
   if (!result.success) return { success: false, error: result.error };
+  await syncPasswordToUsersCollection(newPassword);
   await writeRecoveredAdminSession('recovery-backup-code');
   return { success: true };
 }
@@ -742,6 +848,10 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
     const allowedEmails = parseAllowedGoogleEmails(
       process.env.AUTH_ALLOWED_EMAILS || process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS
     );
+    const authConfig = await getAuthDoc().catch(() => null);
+    if (authConfig?.recoveryEmail) {
+      allowedEmails.add(normalizeEmail(authConfig.recoveryEmail));
+    }
     if (storedUserDoc && normalizedEmail && !allowedEmails.has(normalizedEmail)) {
       allowedEmails.add(normalizedEmail);
     }
@@ -751,47 +861,23 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
     );
     if (!validation.success) return validation;
 
-    // **La app se crea sola la primera cuenta, y aca esta el por que.**
-    //
-    // Paso de verdad: el dueno no podia entrar de ninguna manera, y el diagnostico de
-    // la pantalla de entrada dijo la razon: **no habia ninguna cuenta creada**. La app
-    // solo sabia crear el primer administrador si encontraba una clave inicial cargada
-    // en el servidor; si no estaba, anotaba el problema en un registro que nadie lee y
-    // **se quedaba asi para siempre**. Un callejon sin salida: no se puede entrar a
-    // crear la cuenta porque no hay cuenta con la cual entrar.
-    //
-    // Entrar con Google si funcionaba —no necesita cuenta guardada— pero no dejaba
-    // ninguna anotada, asi que la app seguia vacia y la entrada por contrasena nunca
-    // llegaba a andar.
-    //
-    // Ahora, cuando alguien entra con Google, esta en la lista de correos autorizados
-    // y **la app todavia no tiene ninguna cuenta**, se le crea la suya de administrador.
-    //
-    // **Por que esto no abre ninguna puerta:** la identidad ya la comprobo Google y ya
-    // paso el control de correos autorizados de arriba —quien no esta en esa lista no
-    // llega hasta aca—. Ademas solo ocurre con la base **completamente vacia**: con una
-    // sola cuenta existente no se crea nada. Y no da nada que esa persona no tuviera:
-    // sin este cambio igual entraba, con sesion de administrador; lo unico que cambia es
-    // que ahora queda anotada, y la app deja de estar vacia.
     let cuentaCreada = storedUserDoc?.id;
     if (!storedUserDoc && dbAdmin && normalizedEmail) {
       try {
-        const hayCuentas = await dbAdmin.collection('users').limit(1).get();
-        if (hayCuentas.empty) {
-          const nueva = await dbAdmin.collection('users').add({
-            email: normalizedEmail,
-            role: 'admin',
-            modules: ['all'],
-            securityQuestions: {},
-            creadaPor: 'primer-ingreso-con-google',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          });
-          cuentaCreada = nueva.id;
-        }
+        const nueva = await dbAdmin.collection('users').add({
+          email: normalizedEmail,
+          role: 'admin',
+          perfil: 'dueno',
+          modules: ['all'],
+          securityQuestions: {},
+          creadaPor: 'ingreso-con-google',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        });
+        cuentaCreada = nueva.id;
       } catch (errorAlCrear) {
         // Si no se puede crear, no se corta la entrada: la persona igual pasa.
-        console.error('[simple-auth] no se pudo crear la primera cuenta:', errorAlCrear);
+        console.error('[simple-auth] no se pudo crear la cuenta de usuario:', errorAlCrear);
       }
     }
 
@@ -820,9 +906,16 @@ export async function resetPasswordWithGoogleIdToken(
   try {
     if (!idToken) return { success: false, error: 'Google no devolvio una credencial valida.' };
     const decodedToken = await verifyIdToken(idToken);
+    const allowedEmails = parseAllowedGoogleEmails(
+      process.env.AUTH_ALLOWED_EMAILS || process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS
+    );
+    const authConfig = await getAuthDoc().catch(() => null);
+    if (authConfig?.recoveryEmail) {
+      allowedEmails.add(normalizeEmail(authConfig.recoveryEmail));
+    }
     const validation = validateGoogleIdentityClaims(
       decodedToken,
-      parseAllowedGoogleEmails(process.env.AUTH_ALLOWED_EMAILS || process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS),
+      allowedEmails,
       { maxAuthAgeSeconds: GOOGLE_RECOVERY_MAX_AUTH_AGE_SECONDS }
     );
     if (!validation.success) return validation;
@@ -838,6 +931,8 @@ export async function resetPasswordWithGoogleIdToken(
     });
     if (!result.success) return { success: false, error: result.error };
 
+    await syncPasswordToUsersCollection(newPassword);
+
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
     await writeSessionCookie({
       email: decodedToken?.email ?? 'google-user@akproducciones.com',
@@ -850,3 +945,4 @@ export async function resetPasswordWithGoogleIdToken(
     return { success: false, error: 'No se pudo recuperar el acceso con Google.' };
   }
 }
+

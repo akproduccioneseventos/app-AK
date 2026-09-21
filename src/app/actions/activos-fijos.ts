@@ -104,7 +104,18 @@ export async function deleteActivoFijo(id: string): Promise<{ success: boolean; 
   const fiestas = await getFiestas(false);
   const fiestasEnUso = fiestas.filter(f =>
     f.listaDeCargaOperativa?.categorias?.some(cat =>
-      cat.items?.some(item => item.id === id || (item as any).activoId === id || (activo && item.nombre === activo.nombre))
+      // OJO: en la lista de carga, el equipo del catalogo se guarda en `origenId`. Antes se
+      // miraban `item.id` y `activoId` -que no existen ahi- y quedaba el nombre como unica
+      // defensa: **con renombrar el equipo, se podia borrar aunque estuviera asignado a una
+      // fiesta**, y esa fiesta se quedaba sin el equipo sin que nadie se enterara. Lo encontro
+      // Codex el 18 de septiembre de 2026.
+      // Sin `as any`: si manana alguien renombra el campo, el revisor de tipos avisa. Con
+      // `as any` no avisaba nadie, y esa es justamente la forma en que este control se rompio.
+      cat.items?.some(item =>
+        item.origenId === id
+        || item.id === id
+        || (activo && item.nombre === activo.nombre)
+      )
     )
   );
   if (fiestasEnUso.length > 0) {

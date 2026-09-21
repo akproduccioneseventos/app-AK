@@ -1,4 +1,4 @@
-import { dbAdmin } from '@/lib/firebase/server';
+﻿import { dbAdmin } from '@/lib/firebase/server';
 import { hasPrivateSessionSecret } from '@/lib/auth/session-token';
 
 /**
@@ -39,7 +39,7 @@ export interface DiagnosticoAcceso {
   /** El proximo paso concreto para quien esta mirando la pantalla. */
   queHacer: string;
   /** Para las pruebas y el registro. No se muestra. */
-  codigo: 'sin-base' | 'base-caida' | 'sin-llave-de-sesion' | 'sin-cuentas' | 'credenciales';
+  codigo: 'sin-base' | 'base-caida' | 'sin-llave-de-sesion' | 'pausado' | 'sin-cuentas' | 'credenciales';
 }
 
 const TOPE_MS = 6000;
@@ -66,10 +66,42 @@ async function hayAlgunaCuenta(): Promise<boolean> {
   if (!dbAdmin) return false;
   try {
     const snap = await dbAdmin.collection('users').limit(1).get();
-    return !snap.empty;
+    if (!snap.empty) return true;
+    const authDoc = await dbAdmin.collection('app-settings').doc('auth').get().catch(() => null);
+    if (authDoc?.exists) {
+      const data = authDoc.data();
+      if (data?.passwordHash || data?.password) return true;
+    }
+    return false;
   } catch {
     // Si no se puede leer, no se afirma que no hay cuentas: eso seria inventar.
     return true;
+  }
+}
+
+/**
+ * Cuantos minutos falta para que se levante la pausa por intentos fallidos, o `null`
+ * si no hay ninguna pausa activa.
+ *
+ * **Por que existe.** Al quinto intento fallido el acceso queda pausado quince minutos.
+ * La linea roja lo decia bien, pero el cartel de abajo —este diagnostico— seguia
+ * contestando "el correo o la clave no coinciden" y mandaba a recuperar la contrasena.
+ * O sea: la pantalla se contradecia a si misma, y el camino que ofrecia era el
+ * equivocado. Quien esta pausado no tiene nada que recuperar: tiene que esperar, o
+ * entrar con Google, que no pasa por esta pausa y ademas la levanta.
+ */
+async function minutosDePausa(): Promise<number | null> {
+  if (!dbAdmin) return null;
+  try {
+    const doc = await dbAdmin.collection('app-settings').doc('auth').get();
+    const hasta = doc.exists ? (doc.data()?.loginLockedUntil as string | undefined) : undefined;
+    if (!hasta) return null;
+    const cuando = new Date(hasta).getTime();
+    if (!Number.isFinite(cuando) || cuando <= Date.now()) return null;
+    return Math.max(1, Math.ceil((cuando - Date.now()) / 60000));
+  } catch {
+    // Si no se puede leer, no se afirma que hay pausa: eso seria inventar.
+    return null;
   }
 }
 
@@ -100,6 +132,15 @@ export async function diagnosticarAcceso(): Promise<DiagnosticoAcceso> {
     };
   }
 
+  const pausa = await minutosDePausa();
+  if (pausa !== null) {
+    return {
+      codigo: 'pausado',
+      causa: `El acceso quedo pausado por seguridad despues de varios intentos fallidos. Faltan ${pausa} minuto(s).`,
+      queHacer: 'No hace falta recuperar nada ni cambiar la clave: la pausa se levanta sola. Si no queres esperar, toca "Ingresar con Google" con tu cuenta de siempre: ese camino no pasa por la pausa y ademas la levanta.',
+    };
+  }
+
   if (!(await hayAlgunaCuenta())) {
     return {
       codigo: 'sin-cuentas',
@@ -119,3 +160,4 @@ export async function diagnosticarAcceso(): Promise<DiagnosticoAcceso> {
     queHacer: 'Entonces el correo o la clave no coinciden. Tocá "Olvidé mi contraseña" para recuperarla, o entrá con Google.',
   };
 }
+

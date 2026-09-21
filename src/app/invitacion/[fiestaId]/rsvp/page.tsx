@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { Loader2, AlertTriangle, CheckCircle, Music, Utensils, Users, Download, MapPin, CalendarDays, Instagram, MessageCircle, ExternalLink } from 'lucide-react';
 import { getPublicGuestEvent } from '@/app/actions/public-guest-portal';
 import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import type { DietaryRestriction, Invitado } from '@/types/fiesta';
 import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
@@ -101,13 +102,14 @@ function RsvpFormContent() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     if (!nombre.trim()) {
       toast({ title: 'Falta tu nombre', description: 'Por favor ingresa tu nombre completo.', variant: 'destructive' });
       return;
     }
     setIsSubmitting(true);
     try {
-      const result = await submitPublicRsvp(fiestaId, {
+      const result = await conTopeDeEspera(submitPublicRsvp(fiestaId, {
         nombre: nombre.trim(),
         contacto: contacto.trim() || undefined,
         asistencia,
@@ -118,7 +120,7 @@ function RsvpFormContent() {
         cancionesDJ: songs.filter(s => s.trim()),
         mensaje: mensaje.trim() || undefined,
         requiereAccesibilidad: requiereAccesibilidad || undefined,
-      });
+      }));
       if (result.success && result.invitado) {
         setConfirmedGuest(result.invitado);
       } else {

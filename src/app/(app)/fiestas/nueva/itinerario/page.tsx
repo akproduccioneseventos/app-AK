@@ -18,6 +18,7 @@ import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } fro
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
 import { generateTimelineAction } from '@/app/actions/timeline-ia.actions';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -163,13 +164,16 @@ function ItinerarioContent() {
   });
 
   const loadData = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("No se encontró el evento.");
-      
+
       const activeServices: string[] = [];
       const modulos = fiestaData.modulosContratados;
       if (modulos) {
@@ -188,16 +192,12 @@ function ItinerarioContent() {
         servicios: activeServices.length > 0 ? activeServices : ['Catering', 'Música', 'Bebidas'],
       });
 
-      const itinerario = fiestaData.programa || [];
-      if (itinerario.length === 0) {
-        const defaultItems = [...defaultPrograma.map(p => ({...p, id: `prog_${Date.now()}_${Math.random()}`}))];
-        setPrograma(defaultItems);
-        const guardado = await updateProgramaFiestaActual(fiestaId, defaultItems);
-        if (!guardado?.success) {
-          toast({ title: "El cronograma no quedó guardado", description: guardado?.error || "Se muestra el cronograma sugerido, pero todavía no se guardó. Tocá guardar para conservarlo.", variant: "destructive" });
-        }
-      } else {
+      const itinerario = fiestaData.programa;
+      if (Array.isArray(itinerario)) {
+        // Respetar lo que decidió el usuario (incluso si está vacío)
         setPrograma(itinerario);
+      } else {
+        setPrograma([]);
       }
     } catch (err: any) {
       setError("No se pudo cargar el cronograma.");
@@ -210,7 +210,7 @@ function ItinerarioContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handleOpenLoadTemplateModal = async () => {
     setIsLoadingTemplates(true);
     setIsLoadTemplateModalOpen(true);
@@ -228,7 +228,7 @@ function ItinerarioContent() {
     setTemplateName('');
     setIsSaveTemplateModalOpen(true);
   };
-  
+
   const handleSaveTemplate = async () => {
     if (!templateName.trim()) {
       toast({title: "Nombre requerido", variant: "destructive"});
@@ -306,9 +306,11 @@ function ItinerarioContent() {
     const overlapping = programa.find(p => p.hora === newItem.hora && p.id !== newItem.id);
     if (overlapping) {
       toast({
-        title: "⚠️ Advertencia de horario coincidente",
-        description: `"${newItem.titulo}" coincide en horario (${newItem.hora}) con "${overlapping.titulo}". Se permite guardar para momentos simultáneos.`,
+        title: "Horario duplicado",
+        description: `No se pueden programar dos momentos a la misma hora (${newItem.hora}). Ya existe "${overlapping.titulo}". Modificá la hora para continuar.`,
+        variant: "destructive",
       });
+      return;
     }
 
     if (currentItem.id) {
@@ -323,15 +325,26 @@ function ItinerarioContent() {
   const handleDeleteItem = (id: string) => {
     setPrograma(prev => prev.filter(p => p.id !== id));
   };
-  
+
   const handleGenerateIA = async () => {
     setIsGeneratingIA(true);
     try {
       toast({ title: "Generando...", description: "La IA está diseñando tu cronograma ideal." });
       const res = await generateTimelineAction(fiestaInfo.tipo, fiestaInfo.inicio, 8, fiestaInfo.servicios);
       if (res.success && res.data) {
-        setPrograma(res.data);
-        toast({ title: "Cronograma Generado", description: "Revisa y ajusta el itinerario propuesto." });
+        const sugeridos = res.data;
+        setPrograma(prev => {
+          if (prev.length === 0) return sugeridos;
+          const horasExistentes = new Set(prev.map(p => p.hora));
+          const titulosExistentes = new Set(prev.map(p => p.titulo.toLowerCase().trim()));
+
+          // No pisar lo que el usuario cargó o modificó mientras esperaba
+          const noChocan = sugeridos.filter(
+            s => !horasExistentes.has(s.hora) && !titulosExistentes.has(s.titulo.toLowerCase().trim())
+          );
+          return [...prev, ...noChocan].sort((a, b) => a.hora.localeCompare(b.hora));
+        });
+        toast({ title: "Cronograma Generado", description: "Se incorporaron las sugerencias respetando los momentos que ya tenías cargados." });
       } else {
         throw new Error(res.error || 'Error desconocido');
       }
@@ -341,7 +354,7 @@ function ItinerarioContent() {
       setIsGeneratingIA(false);
     }
   };
-  
+
   function handleDragEnd(event: DragEndEvent) {
     const {active, over} = event;
     if (over && active.id !== over.id) {
@@ -351,6 +364,16 @@ function ItinerarioContent() {
         return arrayMove(items, oldIndex, newIndex);
       });
     }
+  }
+
+  if (!fiestaId) {
+    return (
+      <EmptyStateModulo
+        titulo="Itinerario y Cronograma"
+        descripcion="Entrá al itinerario desde la fiesta: elegí el evento en el listado y abrí su planificador."
+        fiestaId=""
+      />
+    );
   }
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;

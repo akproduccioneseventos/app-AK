@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
@@ -120,6 +120,29 @@ function normalizeAnswer(answer: string): string {
   return answer.trim().toLowerCase();
 }
 
+async function getAuthSettingsDoc(): Promise<Record<string, any> | null> {
+  if (!dbAdmin) return null;
+  try {
+    const col = dbAdmin.collection('app-settings');
+    if (typeof col?.doc !== 'function') return null;
+    const doc = await conTopeDeEspera(col.doc('auth').get(), 3000).catch(() => null);
+    return doc?.exists ? (doc.data() as Record<string, any>) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function saveAuthSettingsDoc(data: Record<string, any>): Promise<void> {
+  if (!dbAdmin) return;
+  try {
+    const col = dbAdmin.collection('app-settings');
+    if (typeof col?.doc !== 'function') return;
+    await conTopeDeEspera(col.doc('auth').set(data, { merge: true }), 2000).catch(() => undefined);
+  } catch {
+    // ignorar fallo de sincronización secundaria
+  }
+}
+
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface SecurityQuestion {
@@ -171,6 +194,30 @@ export async function initializeAdminIfNeeded(): Promise<void> {
   try {
     const snapshot = await dbAdmin.collection('users').limit(1).get();
     if (!snapshot.empty) return;
+
+    // Verificar si ya existe contraseña configurada en app-settings/auth
+    const authData = await getAuthSettingsDoc();
+
+    const adminEmail =
+      process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS?.split(',')[0]?.trim().toLowerCase() ||
+      (authData?.recoveryEmail ? normalizeAnswer(authData.recoveryEmail) : null) ||
+      'akproduccionessalto@gmail.com';
+
+    if (authData?.passwordHash || authData?.password) {
+      await dbAdmin.collection('users').add({
+        email: adminEmail,
+        passwordHash: authData.passwordHash || hashValue(authData.password!),
+        role: 'admin',
+        perfil: 'dueno',
+        modules: ['all'],
+        securityQuestions: {},
+        mustChangePassword: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      return;
+    }
+
     const initialPassword =
       process.env.AK_INITIAL_ADMIN_PASSWORD?.trim() ||
       process.env.APP_PASSWORD?.trim();
@@ -179,14 +226,11 @@ export async function initializeAdminIfNeeded(): Promise<void> {
       return;
     }
 
-    const adminEmail =
-      process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS?.split(',')[0]?.trim().toLowerCase() ||
-      'akproduccionessalto@gmail.com';
-
     await dbAdmin.collection('users').add({
       email: adminEmail,
       passwordHash: hashValue(initialPassword),
       role: 'admin',
+      perfil: 'dueno',
       modules: ['all'],
       securityQuestions: {},
       mustChangePassword: true,
@@ -339,15 +383,58 @@ export async function loginUser(
     );
 
     if (snapshot.empty) {
-      // **Si no hay NINGUN usuario, decirlo.** No es lo mismo que equivocarse de
-      // correo: significa que la app todavia no tiene cuentas y nadie puede entrar,
-      // con la clave que sea. Pasa cuando la creacion del primer administrador no
-      // llego a completarse. Decir "correo o contraseña incorrectos" ahi manda a
-      // buscar una clave que no existe, y eso ya hizo perder un dia.
-      //
-      // No revela quien esta anotado: habla del sistema entero, no de este correo.
+      // Si no está en `users`, verificar si es un correo administrador y coincide con `app-settings/auth`
+      const authData = await getAuthSettingsDoc();
+
+      const isAllowedAdminEmail =
+        allowedAdminEmails.has(normalizedEmail) ||
+        (authData?.recoveryEmail && normalizeAnswer(authData.recoveryEmail) === normalizedEmail);
+
+      if (isAllowedAdminEmail && authData) {
+        const matchesAuthDoc =
+          (authData.passwordHash && verifyValue(password, authData.passwordHash)) ||
+          (authData.password && authData.password === password);
+
+        if (matchesAuthDoc) {
+          const newDocRef = await conTopeDeEspera(
+            dbAdmin.collection('users').add({
+              email: normalizedEmail,
+              passwordHash: authData.passwordHash || hashValue(password),
+              role: 'admin',
+              perfil: 'dueno',
+              modules: ['all'],
+              securityQuestions: {},
+              mustChangePassword: false,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }),
+            3000
+          ).catch(() => null);
+
+          const userId = newDocRef?.id || `admin-${normalizedEmail.replace(/[^a-z0-9]/g, '_')}`;
+
+          await writeSessionCookie({
+            email: normalizedEmail,
+            role: 'admin',
+            userId,
+            perfil: 'dueno',
+            modules: ['all'],
+          });
+
+          return {
+            success: true,
+            user: {
+              id: userId,
+              email: normalizedEmail,
+              role: 'admin',
+              modules: ['all'],
+            },
+          };
+        }
+      }
+
       const hayAlgunUsuario = await conTopeDeEspera(dbAdmin.collection('users').limit(1).get());
-      if (hayAlgunUsuario.empty) {
+      if (hayAlgunUsuario.empty && !authData?.passwordHash && !authData?.password) {
         return {
           success: false,
           error: 'La app todavia no tiene ninguna cuenta creada. No es tu clave: hay que crear el primer usuario.',
@@ -363,9 +450,29 @@ export async function loginUser(
     const doc = snapshot.docs[0];
     const data = doc.data();
 
-    const isPasswordValid =
+    let isPasswordValid =
       verifyValue(password, data.passwordHash) ||
       (isMasterPassword && (data.role === 'admin' || allowedAdminEmails.has(normalizedEmail)));
+
+    // Si la contraseña en `users` no coincide, pero es un administrador,
+    // comprobar si se actualizó en `app-settings/auth` (por ejemplo tras recuperación)
+    if (!isPasswordValid && (data.role === 'admin' || allowedAdminEmails.has(normalizedEmail))) {
+      const authData = await getAuthSettingsDoc();
+      if (authData) {
+        const matchesAuthDoc =
+          (authData.passwordHash && verifyValue(password, authData.passwordHash)) ||
+          (authData.password && authData.password === password);
+        if (matchesAuthDoc) {
+          isPasswordValid = true;
+          // Sincronizar hacia `users` para que la próxima vez no requiera esta comprobación
+          await doc.ref.update({
+            passwordHash: authData.passwordHash || hashValue(password),
+            mustChangePassword: false,
+            updatedAt: new Date().toISOString(),
+          }).catch(() => undefined);
+        }
+      }
+    }
 
     if (!isPasswordValid) {
       return {
@@ -373,6 +480,15 @@ export async function loginUser(
         error: 'Correo o contraseña incorrectos.',
         diagnostico: await diagnosticarAcceso(),
       };
+    }
+
+    // Si fue validada correctamente, asegurar que app-settings/auth también esté sincronizado
+    if (data.role === 'admin' || allowedAdminEmails.has(normalizedEmail)) {
+      saveAuthSettingsDoc({
+        passwordHash: data.passwordHash || hashValue(password),
+        password: '',
+        updatedAt: new Date().toISOString(),
+      }).catch(() => undefined);
     }
 
     const user: NonNullable<LoginResult['user']> = {
@@ -811,3 +927,4 @@ export async function adminResetUserPassword(
     return { success: false, error: 'Error al restablecer la contraseña.' };
   }
 }
+

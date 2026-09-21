@@ -26,6 +26,7 @@ import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
 } from '@/app/actions/fiesta/entretenimiento.actions';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -91,6 +92,8 @@ export default function Plataforma360Page() {
   const resetLocalStateRef = useRef<() => void>(() => undefined);
   const startDisplayCaptureRef = useRef<(duration: number) => void>(() => undefined);
   const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
+  const autoResetTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const currentSessionIdRef = useRef<string>(`sess_360_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [isEventLoading, setIsEventLoading] = useState(true);
@@ -308,6 +311,11 @@ export default function Plataforma360Page() {
   };
 
   const resetLocalState = () => {
+    if (autoResetTimerRef.current) {
+      clearTimeout(autoResetTimerRef.current);
+      autoResetTimerRef.current = null;
+    }
+    currentSessionIdRef.current = `sess_360_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     setLocalStatus('idle');
     setCountdown(null);
     setCapturedFrames([]);
@@ -331,12 +339,20 @@ export default function Plataforma360Page() {
   };
 
   const completeGuestCycle = () => {
+    if (autoResetTimerRef.current) {
+      clearTimeout(autoResetTimerRef.current);
+      autoResetTimerRef.current = null;
+    }
     setRetakesCount(0);
     void completeEntertainmentSessionCycle(fiestaId, 'plataforma360', accessToken);
     resetLocalState();
   };
 
   const handleGuestRetake = () => {
+    if (autoResetTimerRef.current) {
+      clearTimeout(autoResetTimerRef.current);
+      autoResetTimerRef.current = null;
+    }
     setRetakesCount((prev) => prev + 1);
     void completeEntertainmentSessionCycle(fiestaId, 'plataforma360', accessToken);
     resetLocalState();
@@ -416,6 +432,8 @@ export default function Plataforma360Page() {
 
     if (customAudioRef.current) {
       customAudioRef.current.currentTime = 0;
+      // no pasa nada si falla: el navegador puede bloquear el audio hasta que el invitado toque
+      // la pantalla. El video se graba igual.
       customAudioRef.current.play().catch(() => {});
     }
 
@@ -565,6 +583,7 @@ export default function Plataforma360Page() {
   };
 
   const handleVideoUpload = async (blob: Blob) => {
+    if (isUploading) return;
     setUploadError(null);
     setLocalStatus('processing');
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
@@ -575,6 +594,9 @@ export default function Plataforma360Page() {
       {},
       accessToken
     );
+    const sessionForThisUpload = currentSessionIdRef.current;
+    const isLiveSession = () => currentSessionIdRef.current === sessionForThisUpload;
+
     setIsUploading(true);
     setProgressMsg('Subiendo tu video 360 al muro...');
 
@@ -601,8 +623,9 @@ export default function Plataforma360Page() {
         setLocalStatus('done');
         speak("¡Buenísimo! Tu video quedó guardado y se subirá apenas vuelva la señal.");
 
-        setTimeout(() => {
-          completeGuestCycle();
+        if (autoResetTimerRef.current) clearTimeout(autoResetTimerRef.current);
+        autoResetTimerRef.current = setTimeout(() => {
+          if (isLiveSession()) completeGuestCycle();
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
         return;
       }
@@ -617,7 +640,7 @@ export default function Plataforma360Page() {
       if (guestId) formData.append('guestId', guestId);
       if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
 
-      const res = await uploadEntretenimientoMedia(formData);
+      const res = await conTopeDeEspera(uploadEntretenimientoMedia(formData));
 
       if (res.success) {
         const mediaUrl = res.media?.url || '';
@@ -636,9 +659,10 @@ export default function Plataforma360Page() {
         speak("¡Buenísimo! Tu video ya está subido.");
         loadRecentVideos();
 
-        // Auto reset after 12 seconds
-        setTimeout(() => {
-          completeGuestCycle();
+        // Auto reset after review seconds
+        if (autoResetTimerRef.current) clearTimeout(autoResetTimerRef.current);
+        autoResetTimerRef.current = setTimeout(() => {
+          if (isLiveSession()) completeGuestCycle();
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
       } else {
         throw new Error(res.error || 'Error de subida');
@@ -661,8 +685,9 @@ export default function Plataforma360Page() {
         setProgress(100);
         setLocalStatus('done');
         speak("Tu video quedó guardado y se subirá cuando vuelva la señal.");
-        setTimeout(() => {
-          completeGuestCycle();
+        if (autoResetTimerRef.current) clearTimeout(autoResetTimerRef.current);
+        autoResetTimerRef.current = setTimeout(() => {
+          if (isLiveSession()) completeGuestCycle();
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
         return;
       } catch (fallbackErr) {
@@ -683,7 +708,9 @@ export default function Plataforma360Page() {
         accessToken,
       );
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -1161,3 +1188,4 @@ export default function Plataforma360Page() {
     </div>
   );
 }
+

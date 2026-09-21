@@ -33,6 +33,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
+import { claveDeConsolidado } from '@/lib/compras/unidades';
 
 // --- HELPERS ---
 const formatCurrency = (amount?: number) => {
@@ -93,7 +94,10 @@ function ResumenPlanificacionContent() {
   const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const [fiestaData, emps, rolesData, allMenus, catalogoInsumos] = await Promise.all([
@@ -186,7 +190,9 @@ function ResumenPlanificacionContent() {
 
       const consolidated: Record<string, ShoppingListItem> = {};
       rawList.forEach(raw => {
-          const key = `${raw.nombre.toLowerCase()}-${raw.proveedor.toLowerCase()}`;
+          // La unidad va en la clave A PROPOSITO: sin ella, 200 g de un plato y 2 kg
+          // de otro caian en el mismo renglon y se sumaban como si fueran lo mismo.
+          const key = claveDeConsolidado(raw.nombre, raw.proveedor, raw.unit);
           if (consolidated[key]) {
               consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
           } else {

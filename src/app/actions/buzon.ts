@@ -6,6 +6,7 @@ import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { addChatMessage } from '@/app/actions/social-gallery';
 import { requireAppSession } from '@/lib/auth/require-session';
 import * as logger from '@/lib/logger';
+import crypto from 'crypto';
 import path from 'path';
 import { hasEntertainmentGuestAccess } from '@/lib/auth/entertainment-token';
 import { getEntertainmentStationConfig } from '@/lib/entertainment/station-config';
@@ -27,6 +28,7 @@ export interface BuzonMessage {
   durationSeconds: number;
   timestamp: string;
   storagePath: string;
+  contentHash?: string;
   // Bloque G: Cápsula del tiempo para abrir en el futuro
   isTimeCapsule?: boolean;
   unlockYears?: number; // ej. 1, 3, 5, 10, 15
@@ -44,23 +46,46 @@ async function getDb(): Promise<Firestore> {
 /**
  * Gets all mailbox messages for a given party.
  */
-export async function getBuzonMessages(fiestaId: string): Promise<BuzonMessage[]> {
-  if (!fiestaId) return [];
+/**
+ * Los saludos del buzon, diciendo ademas SI SE PUDO LEER.
+ *
+ * Lo encontro Codex el 20 de septiembre de 2026: cuando la lectura fallaba, esto
+ * devolvia una lista vacia y la pantalla mostraba "Sincronizado" con el buzon en
+ * blanco. Los saludos seguian guardados, pero el equipo veia que no habia ninguno; y
+ * la descarga armaba un archivo VACIO como si fueran todos los recuerdos.
+ *
+ * Por eso una falla de lectura se avisa y no se disfraza de "no hay nada".
+ */
+export async function getBuzonMessagesConDetalle(
+  fiestaId: string,
+): Promise<{ mensajes: BuzonMessage[]; huboFalla: boolean }> {
+  // La sesion se comprueba ANTES del try: quien no tiene permiso recibe un error,
+  // no un "no se pudo leer" que se confunde con un problema de conexion.
+  await requireAppSession();
+  if (!fiestaId) return { mensajes: [], huboFalla: false };
   try {
-    await requireAppSession();
     const db = await getDb();
     const snapshot = await db
       .collection(BUZON_COLLECTION)
       .where('fiestaId', '==', fiestaId)
       .get();
 
-    return snapshot.docs
-      .map((doc: QueryDocumentSnapshot) => doc.data() as BuzonMessage)
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return {
+      mensajes: snapshot.docs
+        .map((doc: QueryDocumentSnapshot) => doc.data() as BuzonMessage)
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()),
+      huboFalla: false,
+    };
   } catch (error) {
     logger.warn('[buzon] getBuzonMessages failed:', error);
-    return [];
+    return { mensajes: [], huboFalla: true };
   }
+}
+
+export async function getBuzonMessages(fiestaId: string): Promise<BuzonMessage[]> {
+  await requireAppSession();
+  const { mensajes } = await getBuzonMessagesConDetalle(fiestaId);
+  return mensajes;
 }
 
 /**
@@ -119,7 +144,26 @@ export async function uploadBuzonMessage(
       return { success: false, error: 'El contenido del archivo no coincide con un audio, video o foto válido.' };
     }
 
+    const contentHash = crypto.createHash('sha256').update(bytes).digest('hex');
     const db = await getDb();
+
+    // Pregunta 12: si el invitado toca dos veces el botón, no crear dos saludos iguales
+    try {
+      const duplicateSnapshot = await db
+        .collection(BUZON_COLLECTION)
+        .where('fiestaId', '==', fiestaId)
+        .where('contentHash', '==', contentHash)
+        .limit(1)
+        .get();
+
+      if (!duplicateSnapshot.empty) {
+        const existing = duplicateSnapshot.docs[0].data() as BuzonMessage;
+        return { success: true, message: existing };
+      }
+    } catch (dedupError) {
+      logger.warn('[buzon] Error checking for duplicate message:', dedupError);
+    }
+
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const storagePath = `fiestas/${fiestaId}/buzon/${messageId}${detectedMedia.extension}`;
     const durationLimit = detectedMedia.mediaType === 'audio' ? 60 : detectedMedia.mediaType === 'video' ? 15 : 0;
@@ -155,6 +199,7 @@ export async function uploadBuzonMessage(
       durationSeconds,
       timestamp: new Date().toISOString(),
       storagePath,
+      contentHash,
       ...(isTimeCapsule ? { isTimeCapsule: true, unlockYears, unlockDate, recipientNote } : {}),
     };
 

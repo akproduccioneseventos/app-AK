@@ -20,6 +20,7 @@ import { InvitadoQR } from '@/components/invitados/InvitadoQR';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
+import { evaluarResultadoImportacionInvitados, type FilaErrorImportacion } from '@/lib/invitados/aviso-importacion-invitados';
 
 import {
   Dialog,
@@ -63,13 +64,13 @@ function InvitadosEventoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fiestaId = searchParams.get('fiestaId');
-  
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [tableNames, setTableNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false); 
-  
+  const [isSaving, setIsSaving] = useState(false);
+
   // New guest form state
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevaCategoria, setNewCategoria] = useState<CategoriaInvitado>('Adulto');
@@ -133,28 +134,70 @@ function InvitadosEventoContent() {
     try {
       const validos = previewPlanilla.filas.filter(f => !f.error && f.nombre);
       let guardados = 0;
+      const fallidos: FilaErrorImportacion[] = [];
+
       for (const item of validos) {
-        const res = await addInvitado(fiestaId, {
-          nombre: item.nombre,
-          categoria: item.categoria,
-          tableNumber: item.tableNumber,
-          companionNames: item.companionNames && item.companionNames.length > 0 ? item.companionNames : undefined,
-          dietaryRestriction: item.dietaryRestriction,
-          contacto: item.contacto,
-          rsvp: 'Confirmado',
-          partySize: 1 + (item.companionNames?.length || 0),
-          isCeliac: item.dietaryRestriction === 'Celiaco',
-        });
-        if (res.success) guardados++;
+        try {
+          const res = await addInvitado(fiestaId, {
+            nombre: item.nombre,
+            categoria: item.categoria,
+            tableNumber: item.tableNumber,
+            companionNames: item.companionNames && item.companionNames.length > 0 ? item.companionNames : undefined,
+            dietaryRestriction: item.dietaryRestriction,
+            contacto: item.contacto,
+            rsvp: 'Confirmado',
+            partySize: 1 + (item.companionNames?.length || 0),
+            isCeliac: item.dietaryRestriction === 'Celiaco',
+          });
+          if (res.success) {
+            guardados++;
+          } else {
+            fallidos.push({
+              nombre: item.nombre,
+              motivo: res.error || 'Error al guardar en el servidor',
+            });
+          }
+        } catch (err: any) {
+          fallidos.push({
+            nombre: item.nombre,
+            motivo: err?.message || 'Fallo de conexión o servidor',
+          });
+        }
       }
-      toast({
-        title: 'Importación exitosa',
-        description: `Se importaron ${guardados} invitados correctamente a la fiesta.`,
+
+      const informe = evaluarResultadoImportacionInvitados({
+        totalEsperados: validos.length,
+        guardados,
+        fallidos,
       });
+
       await fetchInvitados();
-      setIsImportModalOpen(false);
-      setPlanillaTexto('');
-      setPreviewPlanilla(null);
+
+      if (informe.esCompleta) {
+        toast({
+          title: informe.titulo,
+          description: informe.detalle,
+        });
+        setIsImportModalOpen(false);
+        setPlanillaTexto('');
+        setPreviewPlanilla(null);
+      } else {
+        // Si quedó a medias o falló, avisamos con detalle y conservamos solo las filas fallidas
+        toast({
+          title: informe.titulo,
+          description: informe.detalle,
+          variant: 'destructive',
+          duration: 8000,
+        });
+        const nombresFallidos = new Set(fallidos.map(f => f.nombre));
+        const filasPendientes = previewPlanilla.filas.filter(f => nombresFallidos.has(f.nombre));
+        setPreviewPlanilla({
+          ...previewPlanilla,
+          filas: filasPendientes,
+          validos: filasPendientes.length,
+        });
+        setPlanillaTexto(filasPendientes.map(f => (f as any).lineaOriginal || f.nombre).join('\n'));
+      }
     } catch (err: any) {
       toast({
         title: 'Error en la importación',
@@ -165,14 +208,14 @@ function InvitadosEventoContent() {
       setIsImporting(false);
     }
   };
-  
+
   const fetchInvitados = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
-      
+
       setFiesta(fiestaData);
       setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
       const tables = (fiestaData.decoracion?.salonElements || [])
@@ -200,7 +243,7 @@ function InvitadosEventoContent() {
       0,
     );
     const vips = invitados.filter(i => i.perfil === 'VIP').length;
-    
+
     return {
         adults: { confirmed: adultsConfirmed, contracted: Number(fiesta?.configuracion.invitadosAdultos) || 0 },
         kids: { confirmed: kidsConfirmed, contracted: Number(fiesta?.configuracion.invitadosNinos) || 0 },
@@ -277,7 +320,7 @@ function InvitadosEventoContent() {
           <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
         </div>
       </div>
-      
+
       <div className="hidden print:block mb-4">
         <h1 className="text-2xl font-bold">Lista de Invitados - {fiesta?.configuracion.nombreAgasajado || 'Evento'}</h1>
         <p className="text-sm text-muted-foreground">Generado el {new Date().toLocaleDateString()}</p>
@@ -786,3 +829,4 @@ export default function InvitadosEventoPage() {
         <Suspense fallback={null}><InvitadosEventoContent/></Suspense>
     )
 }
+

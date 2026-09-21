@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
 import { cn } from '@/lib/utils';
+import { claveDeConsolidado } from '@/lib/compras/unidades';
 
 interface ShoppingListItem {
   id: string;
@@ -256,7 +257,9 @@ function ListaDeComprasContent() {
           const matchedInsumo = catalogoInsumos.find(ci => ci.id === raw.origenId);
           const resolvedProvider = matchedInsumo?.proveedor || raw.proveedor || 'Sin especificar';
           const rawProveedorId = toProviderKey(resolvedProvider);
-          const key = `${raw.nombre.toLowerCase()}-${rawProveedorId}`;
+          // La unidad va en la clave A PROPOSITO: sin ella, 200 g de un plato y 2 kg
+          // de otro caian en el mismo renglon y se sumaban como si fueran lo mismo.
+          const key = claveDeConsolidado(raw.nombre, rawProveedorId, raw.unit);
           if (consolidated[key]) {
               consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
               if (!consolidated[key].origen.includes(raw.origen)) consolidated[key].origen += `, ${raw.origen}`;

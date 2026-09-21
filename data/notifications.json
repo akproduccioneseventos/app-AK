@@ -1,5 +1,109 @@
 [
   {
+    "mensaje": "🚨 VENCE HOY: Tarea de iluminación",
+    "categoria": "taskUpdates",
+    "userId": "test_user_orden_56",
+    "id": "notif_9d6a10a2-0fe7-43b4-9f28-46376319f27f",
+    "fecha": "2026-09-20T18:27:55.671Z",
+    "leida": false
+  },
+  {
+    "mensaje": "🚨 VENCE HOY: Tarea de iluminación",
+    "categoria": "taskUpdates",
+    "userId": "test_user_orden_56",
+    "id": "notif_13af07ed-36fa-438f-b426-be29af8af970",
+    "fecha": "2026-09-19T23:58:59.509Z",
+    "leida": false
+  },
+  {
+    "mensaje": "💬 Mensaje nuevo del cliente: \"Hola equipo de AK, queremos consultar si podemos a...\"",
+    "href": "/fiestas/nueva?fiestaId=e2e_msg_1789857136448&tab=portal-cliente",
+    "icono": "MessageSquare",
+    "id": "notif_a97036df-3883-44a1-bf2b-8902ad40993a",
+    "fecha": "2026-09-19T22:32:17.379Z",
+    "leida": false
+  },
+  {
+    "mensaje": "💬 Mensaje nuevo del cliente: \"Hola equipo de AK, queremos consultar si podemos a...\"",
+    "href": "/fiestas/nueva?fiestaId=e2e_msg_1789856669248&tab=portal-cliente",
+    "icono": "MessageSquare",
+    "id": "notif_362b78e1-0faf-4262-a6ff-329d99b05fe6",
+    "fecha": "2026-09-19T22:24:30.801Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_563ec0f102afb5764609d9cc/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_563ec0f102afb5764609d9cc",
+    "rolDestino": "admin",
+    "id": "notif_25957c2a-075b-430d-9c53-0f14a57ee54f",
+    "fecha": "2026-09-19T22:23:15.859Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_e51fdcf2b1acee251221771e/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_e51fdcf2b1acee251221771e",
+    "rolDestino": "admin",
+    "id": "notif_a58f9a96-f9e7-45e5-b61a-83d71233478e",
+    "fecha": "2026-09-19T22:20:02.286Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_aebb0cbc90603fd03a56e03a/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_aebb0cbc90603fd03a56e03a",
+    "rolDestino": "admin",
+    "id": "notif_ee3ad9d0-4a16-4357-a2ce-169ecd795a0d",
+    "fecha": "2026-09-18T12:26:12.834Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_633fc6336da998a9674c361d/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_633fc6336da998a9674c361d",
+    "rolDestino": "admin",
+    "id": "notif_02185937-8de7-467f-b523-c02ed2f84959",
+    "fecha": "2026-09-17T13:23:51.761Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_8643d4fe03d821a49d977e73/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_8643d4fe03d821a49d977e73",
+    "rolDestino": "admin",
+    "id": "notif_8066277e-5fe4-4d94-b846-499af7e9f5cc",
+    "fecha": "2026-09-17T13:20:38.569Z",
+    "leida": false
+  },
+  {
+    "titulo": "Nuevo presupuesto del simulador",
+    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
+    "href": "/presupuestos/pres_public_a533f86f8078f31de51e4135/ver",
+    "icono": "Sparkles",
+    "tipo": "aviso",
+    "entidadRelacionadaId": "pres_public_a533f86f8078f31de51e4135",
+    "rolDestino": "admin",
+    "id": "notif_cbfd6095-d7cc-467a-bb18-b59ef5cdfc8e",
+    "fecha": "2026-09-16T13:54:13.284Z",
+    "leida": false
+  },
+  {
     "mensaje": "💬 Mensaje nuevo del cliente: \"Hola equipo de AK, queremos consultar si podemos a...\"",
     "href": "/fiestas/nueva?fiestaId=e2e_msg_1788894247698&tab=portal-cliente",
     "icono": "MessageSquare",
@@ -445,54 +549,6 @@
     "rolDestino": "admin",
     "id": "notif_916f8c09-6ee9-4e4e-a5f9-088ceb989d0b",
     "fecha": "2026-08-28T02:04:29.171Z",
-    "leida": false
-  },
-  {
-    "titulo": "Nuevo presupuesto del simulador",
-    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
-    "href": "/presupuestos/pres_public_fcf2a1458328e22715747c14/ver",
-    "icono": "Sparkles",
-    "tipo": "aviso",
-    "entidadRelacionadaId": "pres_public_fcf2a1458328e22715747c14",
-    "rolDestino": "admin",
-    "id": "notif_629786cf-27c2-471a-b8a5-2d8a6b174007",
-    "fecha": "2026-08-23T03:34:44.359Z",
-    "leida": false
-  },
-  {
-    "titulo": "Nuevo presupuesto del simulador",
-    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
-    "href": "/presupuestos/pres_public_6561a9354876f3faf42fa3cb/ver",
-    "icono": "Sparkles",
-    "tipo": "aviso",
-    "entidadRelacionadaId": "pres_public_6561a9354876f3faf42fa3cb",
-    "rolDestino": "admin",
-    "id": "notif_5576a080-cb78-459e-a8fb-8b34f18131f8",
-    "fecha": "2026-08-23T03:32:57.783Z",
-    "leida": false
-  },
-  {
-    "titulo": "Nuevo presupuesto del simulador",
-    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
-    "href": "/presupuestos/pres_public_29252b50f329495f6c7135ba/ver",
-    "icono": "Sparkles",
-    "tipo": "aviso",
-    "entidadRelacionadaId": "pres_public_29252b50f329495f6c7135ba",
-    "rolDestino": "admin",
-    "id": "notif_eaa9b5d7-8688-4ffe-9f71-cbce92e4a5c0",
-    "fecha": "2026-08-22T15:32:11.869Z",
-    "leida": false
-  },
-  {
-    "titulo": "Nuevo presupuesto del simulador",
-    "mensaje": "Prospecto de prueba completo el simulador (Cumpleaños).",
-    "href": "/presupuestos/pres_public_2bf38b02209a4deb76bd2365/ver",
-    "icono": "Sparkles",
-    "tipo": "aviso",
-    "entidadRelacionadaId": "pres_public_2bf38b02209a4deb76bd2365",
-    "rolDestino": "admin",
-    "id": "notif_19143392-183f-480b-9118-7bb75bf75e10",
-    "fecha": "2026-08-04T19:02:51.309Z",
     "leida": false
   }
 ]

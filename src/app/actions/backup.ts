@@ -1,10 +1,11 @@
 'use server';
 
 import type { Firestore } from 'firebase-admin/firestore';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
 import { BACKUP_COLLECTIONS, getBackupValueCount, isRestorableDataFile } from '@/lib/backup/backup-registry';
 import { decodeSnapshotValue, encodeSnapshotValue, type EncodedSnapshotChunk } from '@/lib/backup/snapshot-codec';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { AUTO_BACKUP_INTERNAL_TOKEN } from '@/lib/backup/internal-token';
 
 const LEGACY_SNAPSHOTS_FILE = '_backup-snapshots.json';
@@ -140,23 +141,43 @@ async function pruneV2Snapshots(db: Firestore): Promise<void> {
   }
 }
 
-async function readAllBackupData(): Promise<Array<{ file: string; value: any }>> {
+/**
+ * UN RESPALDO AL QUE LE FALTAN COSAS NO ES UN RESPALDO.
+ *
+ * **Lo encontro Codex el 16 de septiembre de 2026 (BKP01).** Antes, si una coleccion no se
+ * podia leer -la base lenta, cortada, un permiso-, se la salteaba con un aviso en el
+ * registro que no mira nadie, y el respaldo se guardaba igual **marcado como completo**.
+ * Peor todavia: al guardarse, la rotacion **borraba un respaldo viejo que si estaba
+ * entero**. O sea que justo cuando la base falla, el negocio pierde la ultima copia buena
+ * y cree que tiene una nueva.
+ *
+ * Por eso esto devuelve las dos cosas: lo que se leyo **y lo que no**.
+ */
+async function readAllBackupData(): Promise<{ leidas: Array<{ file: string; value: any }>; noSePudieronLeer: string[] }> {
+  // OJO: `readData` casi nunca tira el error: cuando la base no contesta devuelve la lista
+  // vacia. Si se confia en eso, el respaldo guarda cero fiestas como si no hubiera ninguna,
+  // queda marcado completo y la rotacion borra la copia buena. Por eso se pregunta ademas si
+  // la lectura salio bien. Lo encontro Codex el 17 de septiembre de 2026.
   const results = await Promise.all(BACKUP_COLLECTIONS.map(async (collection) => {
     try {
-      return {
-        ok: true as const,
-        file: collection.file,
-        value: await readData(collection.file, collection.defaultValue),
-      };
+      const { valor, huboFalla } = await readDataConDetalle(collection.file, collection.defaultValue);
+      if (huboFalla) {
+        console.warn(`[Backup] Lectura con fallas en ${collection.file}: no se guarda el snapshot`);
+        return { ok: false as const, file: collection.file };
+      }
+      return { ok: true as const, file: collection.file, value: valor };
     } catch (error) {
       console.warn(`[Backup] No se pudo leer ${collection.file} para snapshot`, error);
       return { ok: false as const, file: collection.file };
     }
   }));
 
-  return results
-    .filter((result): result is Extract<(typeof results)[number], { ok: true }> => result.ok)
-    .map(({ file, value }) => ({ file, value }));
+  return {
+    leidas: results
+      .filter((result): result is Extract<(typeof results)[number], { ok: true }> => result.ok)
+      .map(({ file, value }) => ({ file, value })),
+    noSePudieronLeer: results.filter((result) => !result.ok).map((result) => result.file),
+  };
 }
 
 async function readV2Snapshot(
@@ -344,7 +365,17 @@ async function createRestorePointInternal(isAuto: boolean): Promise<{ success: b
     const timestamp = new Date().toISOString();
     name = `backup-${isAuto ? 'AUTO-' : ''}${timestamp.replace(/[:.]/g, '_')}`;
     const manifestRef = db.collection(SNAPSHOTS_COLLECTION).doc(name);
-    const backupData = await readAllBackupData();
+    const lectura = await readAllBackupData();
+    if (lectura.noSePudieronLeer.length > 0) {
+      // No se guarda nada: un respaldo al que le falta una parte, marcado como completo,
+      // es peor que no tenerlo. Y sin guardarlo, la rotacion no toca la ultima copia buena.
+      const faltantes = lectura.noSePudieronLeer.map((archivo) => archivo.replace('.json', '')).join(', ');
+      return {
+        success: false,
+        error: `No se pudo leer todo lo que hay que guardar (falto: ${faltantes}), asi que no se guardo el respaldo. La copia anterior sigue intacta. Proba de nuevo en un momento.`,
+      };
+    }
+    const backupData = lectura.leidas;
     const files: SnapshotFileManifest[] = [];
     const writes: Array<{ ref: FirebaseFirestore.DocumentReference; data: Record<string, unknown> }> = [];
 
@@ -387,6 +418,8 @@ async function createRestorePointInternal(isAuto: boolean): Promise<{ success: b
     return { success: true, point: toRestorePoint(manifest) };
   } catch (error: any) {
     if (db && name) {
+      // no pasa nada si falla: es limpieza de un respaldo que quedo a medias; lo peor que pasa
+      // es que ocupe lugar, y la proxima rotacion lo vuelve a intentar.
       await deleteV2Snapshot(db, name).catch(() => {});
     }
     return { success: false, error: error?.message || 'Error al crear el punto de restauracion.' };
@@ -394,12 +427,14 @@ async function createRestorePointInternal(isAuto: boolean): Promise<{ success: b
 }
 
 export async function createRestorePoint(): Promise<{ success: boolean; error?: string; point?: RestorePoint }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   return createRestorePointInternal(false);
 }
 
 export async function restoreFromPoint(pointName: string): Promise<{ success: boolean; error?: string; summary?: RestoreSummaryItem[] }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   try {
     const db = await getBackupDb();
     const v2Snapshot = await readV2Snapshot(db, pointName);
@@ -426,7 +461,8 @@ export async function restoreFromPoint(pointName: string): Promise<{ success: bo
 }
 
 export async function deleteRestorePoint(pointName: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   try {
     const db = await getBackupDb();
     const v2Document = await db.collection(SNAPSHOTS_COLLECTION).doc(pointName).get();
@@ -456,6 +492,8 @@ async function runAutoBackup(): Promise<void> {
     }
     await finishAutoBackupLease(db);
   } catch (error) {
+    // no pasa nada si falla: se esta soltando el turno mientras ya se va a tirar el error de
+    // arriba, que es el que importa.
     await finishAutoBackupLease(db, error).catch(() => {});
     throw error;
   }

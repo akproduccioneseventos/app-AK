@@ -3,16 +3,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, ArrowLeft, Heart, Sparkles, MessageSquare, CheckCircle2, Palette, Layers, Image as ImageIcon, Plus, Trash2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Heart, Sparkles, MessageSquare, CheckCircle2, Palette, Layers, Image as ImageIcon, Plus, Trash2, Box } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { enviarOpinionDecoracion } from '@/app/actions/fiesta/decoracion.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
 
 export default function ClientDecoracionPage() {
   const resolvedParams = useParams<{ fiestaId: string }>();
@@ -23,6 +25,7 @@ export default function ClientDecoracionPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [canRenderWebGL, setCanRenderWebGL] = useState<boolean | null>(null);
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [comentario, setComentario] = useState('');
   const [ideasPhotos, setIdeasPhotos] = useState<string[]>([]);
@@ -72,6 +75,20 @@ export default function ClientDecoracionPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    try {
+      const canvas = document.createElement('canvas');
+      const supported = Boolean(
+        typeof window !== 'undefined' &&
+          window.WebGLRenderingContext &&
+          (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+      );
+      setCanRenderWebGL(supported);
+    } catch {
+      setCanRenderWebGL(false);
+    }
+  }, []);
 
   const handleOpinion = async (leGusta: boolean) => {
     setIsSubmitting(true);
@@ -241,6 +258,15 @@ export default function ClientDecoracionPage() {
             </CardContent>
           </Card>
         </section>
+
+        {/* Tu Salón en 3D */}
+        {(deco.salonElements?.length || 0) > 0 && (
+          <Salon3DClienteView
+            decoracion={deco}
+            fotosAi={fotosAi}
+            fotoFallbackUrl={fotosAi[0] || deco.salonPlanBackgroundImageUrl}
+          />
+        )}
 
         {/* AI Visualizations & Salón Render */}
         {fotosAi.length > 0 && (

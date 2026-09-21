@@ -22,7 +22,11 @@ export default function LogisticaPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setError('Falta el identificador del evento.');
+      setIsLoading(false);
+      return;
+    }
     getPublicGuestEvent(fiestaId)
       .then(data => {
         if (!data) { setError('Evento no encontrado.'); return; }

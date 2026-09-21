@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+﻿import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildAkDemoFiesta } from '../../../src/lib/experience-ak/demo-fiesta-factory';
@@ -22,6 +22,42 @@ export const SESSION_SECRET = 'playwright-session-secret-with-enough-entropy';
 export function crearCookieDeSesion() {
   const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}`;
   return `${payload}.${crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')}`;
+}
+
+/**
+ * Deja la sesion del equipo puesta en el navegador de la prueba.
+ *
+ * **Se usa esto y no `addCookies` a mano.** Costo una hora el 20 de septiembre de 2026:
+ * una cookie puesta sin `sameSite` la toma Chromium como `None`, y una cookie `None` sin
+ * `Secure` **se descarta en http**. La pantalla abria sin sesion, rebotaba al ingreso, y de
+ * paso perdia lo que venia en la direccion (`?fiestaId=...`): quedaba en "elegi una fiesta"
+ * o cargando para siempre, como si el defecto fuera de la pantalla.
+ */
+export async function ponerSesionDelEquipo(
+  context: {
+    addCookies: (c: any[]) => Promise<unknown>;
+    addInitScript: (fn: any) => Promise<unknown>;
+  },
+  baseURL: string | undefined,
+) {
+  // Las DOS mitades, y sin la segunda la pantalla rebota al ingreso:
+  // 1) la cookie firmada, que es lo que mira el portero del servidor;
+  // 2) la marca en el navegador, que es lo que mira el guardia de la pantalla
+  //    (`AuthGuard`, `getSession()`). Con la cookie sola, el guardia manda al ingreso
+  //    y de paso se pierde lo que venia en la direccion (`?fiestaId=...`).
+  await context.addInitScript(() => {
+    window.localStorage.setItem('ak_session', 'true');
+    window.sessionStorage.setItem('ak_session', 'true');
+  });
+  await context.addCookies([
+    {
+      name: 'ak_session',
+      value: crearCookieDeSesion(),
+      url: baseURL,
+      httpOnly: true,
+      sameSite: 'Lax' as const,
+    },
+  ]);
 }
 
 /**
@@ -73,6 +109,19 @@ export function leerFiesta(fiestaId: string): any | null {
 export function borrarFiesta(fiestaId: string) {
   for (const archivo of archivosDe(fiestaId)) {
     if (fs.existsSync(archivo)) fs.unlinkSync(archivo);
+  }
+}
+
+export function borrarFiestasHuerfanas() {
+  for (const dir of CARPETAS_DATOS) {
+    if (!fs.existsSync(dir)) continue;
+    try {
+      for (const f of fs.readdirSync(dir)) {
+        if (f.startsWith('e2e_') && f.endsWith('.json')) {
+          try { fs.unlinkSync(path.join(dir, f)); } catch {}
+        }
+      }
+    } catch {}
   }
 }
 
@@ -218,8 +267,57 @@ export function borrarProspectosDePrueba() {
       if (limpios.length !== leads.length) {
         fs.writeFileSync(archivo, `${JSON.stringify(limpios, null, 2)}\n`);
       }
-    } catch {
-      // Si el archivo no se puede leer, no es la prueba quien tiene que arreglarlo.
-    }
+    } catch {}
   }
 }
+
+/**
+ * Siembra un activo en el catálogo para comprobar conflictos de stock en carga operativa.
+ */
+export function sembrarActivoDePrueba(activo: { id: string; nombre: string; cantidadDisponible: number }) {
+  for (const carpeta of ['data', path.join('src', 'data')]) {
+    const archivo = path.join(process.cwd(), carpeta, 'activos-fijos.json');
+    let lista: any[] = [];
+    if (fs.existsSync(archivo)) {
+      try {
+        lista = JSON.parse(fs.readFileSync(archivo, 'utf8'));
+      } catch {}
+    }
+    const idx = lista.findIndex((a) => a.id === activo.id);
+    const item = {
+      id: activo.id,
+      nombre: activo.nombre,
+      tipoItem: 'Activo Fijo',
+      categoria: 'Equipamiento de Prueba',
+      cantidadDisponible: activo.cantidadDisponible,
+      valorUnitarioEstimado: 100,
+      unidad: 'Uds.',
+      calculationMethod: 'fijo',
+    };
+    if (idx >= 0) {
+      lista[idx] = item;
+    } else {
+      lista.push(item);
+    }
+    fs.mkdirSync(path.dirname(archivo), { recursive: true });
+    fs.writeFileSync(archivo, `${JSON.stringify(lista, null, 2)}\n`);
+  }
+}
+
+/**
+ * Borra del catálogo el activo que dejó la prueba.
+ */
+export function borrarActivoDePrueba(activoId: string) {
+  for (const carpeta of ['data', path.join('src', 'data')]) {
+    const archivo = path.join(process.cwd(), carpeta, 'activos-fijos.json');
+    if (!fs.existsSync(archivo)) continue;
+    try {
+      const lista = JSON.parse(fs.readFileSync(archivo, 'utf8'));
+      if (Array.isArray(lista)) {
+        const limpia = lista.filter((a) => a.id !== activoId);
+        fs.writeFileSync(archivo, `${JSON.stringify(limpia, null, 2)}\n`);
+      }
+    } catch {}
+  }
+}
+

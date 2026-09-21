@@ -33,9 +33,22 @@ export async function publicarPosteoAhoraAction(
         message: 'La publicación quedó lista para copiar y publicar en la red elegida.',
       };
     }
+    if (result.enProceso && result.enProceso.includes('TikTok') && (!result.publishedTo || result.publishedTo.length === 0)) {
+      return {
+        success: true,
+        message: 'TikTok: se envio, falta que TikTok termine de procesarlo',
+      };
+    }
+    const partes: string[] = [];
+    if (result.publishedTo && result.publishedTo.length > 0) {
+      partes.push(`Publicado con éxito en: ${result.publishedTo.join(', ')}`);
+    }
+    if (result.enProceso && result.enProceso.length > 0) {
+      partes.push(...result.enProceso.map((p) => `${p}: se envio, falta que ${p} termine de procesarlo`));
+    }
     return {
       success: true,
-      message: `Publicado con éxito en: ${(result.publishedTo || []).join(', ')}`,
+      message: partes.join('. ') || 'Publicación procesada.',
     };
   }
 
@@ -522,7 +535,11 @@ export async function generateDraftPostsFromPartyPhotos(
       }
 
       if (aiUsedCount > 0) {
-        await registrarConsumoIA('material-post-evento', aiUsedCount).catch(() => {});
+        // Esto es plata: si no se anota el consumo de inteligencia artificial, el tope mensual
+        // queda corriendo con una cuenta que no es. Antes se tiraba el error a la basura.
+        await registrarConsumoIA('material-post-evento', aiUsedCount).catch((e) => {
+          console.warn('[social-media] no se pudo anotar el consumo de IA del material post evento:', e);
+        });
       }
     } else {
       // Sin presupuesto de IA o fallback: usar templates

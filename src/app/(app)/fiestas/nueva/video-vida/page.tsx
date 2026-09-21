@@ -16,6 +16,7 @@ import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
 import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { getFiestaActual, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
 import { getLifeStoryVideoPhotos, saveLifeStoryVideoPhoto, deleteAllVideoVidaPhotos } from '@/app/actions/fiesta/video-vida.actions';
+import { TOPE_DE_FOTOS } from '@/lib/video-vida/tope-de-fotos';
 import { Separator } from '@/components/ui/separator';
 import {
   AlertDialog,
@@ -129,11 +130,17 @@ export default function VideoVidaAdminPage() {
       const fiestaData = await getFiestaActual();
       setFiesta(fiestaData);
       const currentVideoVidaData = fiestaData.videoVida || { galleryEnabled: true, photosUploaded: false, photoCount: 50 };
-      setVideoVidaData(currentVideoVidaData);
+      const rawCount = currentVideoVidaData.photoCount || TOPE_DE_FOTOS;
+      const clampedCount = Math.min(Number(rawCount) || TOPE_DE_FOTOS, TOPE_DE_FOTOS);
+      const currentVideoVidaDataClamped = {
+        ...currentVideoVidaData,
+        photoCount: clampedCount,
+      };
+      setVideoVidaData(currentVideoVidaDataClamped);
       
       const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
       
-      const slotCount = currentVideoVidaData.photoCount || 50;
+      const slotCount = clampedCount;
       const slots: PhotoSlot[] = Array.from({ length: slotCount }).map((_, index) => {
         const photoNumber = index + 1;
         const matchingPhoto = photoUrls.find(url => {
@@ -167,6 +174,14 @@ export default function VideoVidaAdminPage() {
   
   const handleSaveSettings = async () => {
     if (!videoVidaData || !fiesta?.id) return;
+    if (Number(videoVidaData.photoCount) > TOPE_DE_FOTOS) {
+      toast({
+        title: "Tope de fotos excedido",
+        description: `El máximo son ${TOPE_DE_FOTOS} fotos.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setIsSaving(true);
     // Se manda el id explicito: guardar "en la fiesta actual" hacia que los
     // ajustes cayeran en el evento equivocado si habia otro mas proximo.
@@ -187,9 +202,19 @@ export default function VideoVidaAdminPage() {
     return '';
   };
   
-  const handleCopyLink = () => {
-      navigator.clipboard.writeText(getPublicLink());
-      toast({title: "Enlace Copiado", description: "El enlace de carga se ha copiado al portapapeles."});
+  const handleCopyLink = async () => {
+      // Antes decia "Enlace Copiado" sin mirar si se habia copiado: si el navegador no da
+      // permiso, el que lo usa pega cualquier cosa. Se avisa y se deja el enlace a la vista.
+      try {
+        await navigator.clipboard.writeText(getPublicLink());
+        toast({title: "Enlace Copiado", description: "El enlace de carga se ha copiado al portapapeles."});
+      } catch {
+        toast({
+          title: "No se pudo copiar solo",
+          description: `Copialo de aca: ${getPublicLink()}`,
+          variant: "destructive",
+        });
+      }
   };
 
   const handleDownloadAll = async () => {
@@ -309,8 +334,8 @@ export default function VideoVidaAdminPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <div className="space-y-2">
                     <Label htmlFor="photo-count" className="flex items-center gap-2">Cantidad de Fotos a Solicitar</Label>
-                    <Input id="photo-count" type="number" value={videoVidaData.photoCount || 50} onChange={e => handleSettingsChange('photoCount', e.target.value)} min="1" max="200" disabled={isSaving}/>
-                    <p className="text-xs text-muted-foreground">Cambia este número para agregar o quitar cuadros de la galería.</p>
+                    <Input id="photo-count" type="number" value={videoVidaData.photoCount || 50} onChange={e => handleSettingsChange('photoCount', e.target.value)} min="1" max={String(TOPE_DE_FOTOS)} disabled={isSaving}/>
+                    <p className="text-xs text-muted-foreground">El máximo son 50 fotos. Cambia este número para agregar o quitar cuadros de la galería.</p>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="song-suggestion" className="flex items-center gap-2"><Music2 className="w-4 h-4 text-primary"/>Canción Sugerida</Label>

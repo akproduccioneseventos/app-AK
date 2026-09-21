@@ -174,6 +174,40 @@ lo que no había que gastar.
 **Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
 comida o permisos? Si la respuesta es no, va a una orden.**
 
+### LA LISTA DE LAS QUINCE PREGUNTAS: `docs/ANTES-DE-ENTREGAR.md`
+
+**Idea del dueño, 16 de septiembre de 2026.** Sus palabras: *"quizás conviene que Gemini
+audite con eso, para que si Codex encuentra algo no sea desde eso y empecemos de cero"*.
+
+**Tenía razón y es la forma de que esto converja.** Desde que Codex empezó a revisar encontró
+**unos veinte defectos y todos eran ciertos**, y ninguno estaba roto a la vista. De cada uno
+salió una pregunta o un control. Si el que programa **no se hace esas preguntas antes**, el
+que revisa las vuelve a encontrar y se arranca de cero cada vuelta.
+
+Por eso las quince preguntas viven juntas en `docs/ANTES-DE-ENTREGAR.md`, cortas y en criollo:
+
+- **Se leen antes de decir "terminé"**, sobre lo que uno acaba de tocar. No es una auditoría
+  general: eso sigue prohibido.
+- **Toda orden que se escriba la nombra**, para que Gemini la use sin que haya que explicarla.
+- **Cuando una revisión suma una pregunta nueva, se agrega ahí**, no sólo en el método.
+
+### CADA TANDA TERMINA CON TRABAJO ESCRITO PARA GEMINI
+
+**Orden del dueño, 16 de septiembre de 2026:** *"no te olvides de siempre pasarle a Gemini"*.
+
+Cuando llega una revisión —de Codex, del dueño o propia—, los hallazgos se **reparten en el
+acto**, no se guardan para después:
+
+- **Lo de Claude** (plata, cobros, comida, permisos, quién ve qué) se arregla en la misma tanda.
+- **Todo lo demás sale como orden escrita** en `docs/ordenes/`, **antes de cerrar la tanda**.
+  Pantallas, carteles, entretenimiento, impresos, pruebas de componentes: eso es de Gemini.
+
+**Una tanda que arregla lo propio y deja el resto "anotado para más adelante" está incompleta.**
+Mientras no esté escrito como orden, Gemini está parado y el hallazgo se enfría.
+
+Y lo de siempre: **una sola propuesta con todos los bloques**, con los nombres exactos, qué no
+tocar, y qué tiene que comprobar la prueba.
+
 ### Claude dirige. Y una orden se escribe MASTICADA, no en general
 
 **Orden del dueño, 27 de agosto de 2026.** Palabras suyas: *"vos sos el jefe"*, y *"debés
@@ -383,6 +417,35 @@ Dos señales de que es el entorno y no el código, y ninguna necesita leer el c�
 Ya está arreglado en `scripts/build-next-with-memory.mjs`: si el entorno trae un
 tope más chico del necesario, lo sube solo. Pero la costumbre queda: **un error de
 compilación que no nombra un archivo del código no es un error del código.**
+
+### SI ALGO ESTA TRANCADO, SE DESTRANCA. NO SE DA VUELTA ALREDEDOR.
+
+**Orden del dueño, 20 de septiembre de 2026**, despues de una hora perdida: *"si ves que hay
+algo trancado, paras y lo solucionas, sin que eso siga como un bucle; termina lo que falta,
+todo"*.
+
+**Es distinto de parar ante un muro, y las dos reglas conviven:**
+
+- **Parar** es dejar de empujar por donde no sale.
+- **Destrancar** es lo que va INMEDIATAMENTE DESPUES: mirar **qué** es lo que traba, y
+  arreglar eso, aunque no sea lo que uno estaba haciendo.
+
+**Lo que NO se hace, y es lo que paso ese dia:** seguir intentando la misma cosa con variantes,
+o dejar el bloqueo para que lo resuelva otro y volver a chocar con el en la vuelta siguiente.
+**Esperar a que otra IA arregle lo que a mi me traba es un bucle**: si el arreglo es chico y
+mecanico, lo hago yo y se lo aviso.
+
+**Las tres preguntas, en orden, apenas algo falla por segunda vez:**
+
+1. **¿Qué es lo que traba, exactamente?** No la tarea: el obstaculo. Medirlo, no suponerlo.
+2. **¿El obstaculo es mio o de otro?** Si es de otro **y es chico**, lo arreglo igual y lo
+   aviso. Si es grande, se devuelve escrito y **se sigue con otra cosa**, no se espera.
+3. **¿Qué control hace que esto no vuelva a trabar?** Un destranque sin ese control es la
+   misma hora perdida el mes que viene.
+
+**Y la regla de fondo:** trabado quiere decir **frenado**, no lento. Mientras haya algo que
+avance, se avanza; lo trabado se destranca de una y se sigue. **Nunca se cierra una tanda
+dejando el mismo bloqueo en pie para la proxima.**
 
 ### PARAR ANTE UN MURO (regla dura)
 
@@ -683,6 +746,105 @@ aplica primero a cobros, cuotas, facturas, presupuestos y sueldos. Y queda escri
 que la app esté terminada **no** significa que un área ya mirada quede mirada para siempre con
 las preguntas viejas; cuando el método suma una pregunta, lo que toca plata se vuelve a pasar.
 
+### 13. Subir con "agregar todo" y llevarse puestos los datos de la corrida
+
+**Pasó el 20 de septiembre de 2026.** Al subir una prueba nueva usé un agregado de todo y
+entraron **dos archivos que había escrito la corrida de pruebas** —el registro de guías
+aplicadas a la fiesta de prueba—. La regla estaba escrita: *lo que escribe la corrida nunca se
+sube*.
+
+**Qué era lo cierto:** la lista de limpieza no conocía esos dos archivos, así que
+`npm run limpiar:corrida` no los borraba y quedaban como si fueran trabajo.
+
+**Qué se hace distinto:** los dos archivos entraron a la lista de limpieza y a la de ignorados.
+Y la costumbre: **antes de subir, mirar qué archivos entran**, sobre todo después de correr
+pruebas. Un agregado de todo, después de una corrida, arrastra lo que escribió la corrida.
+
+### 14. Reparar las pruebas de otra IA en vez de devolverlas, y a ciegas
+
+**Pasó el 20 de septiembre de 2026 y costó casi una hora, con el dueño pidiendo velocidad.**
+Una entrega de Gemini traía cuatro pruebas de navegador que no corrían. En vez de devolverlas
+—que es lo que manda la regla— me puse a repararlas. Y encima a ciegas: la corrida decía
+*"la tanda terminó sin registrar ninguna prueba"* **sin decir cuál de los ocho archivos era**.
+
+**Qué era lo cierto:** un solo archivo importaba una acción del servidor. Eso arrastra
+`server-only`, revienta al cargarse fuera de Next, y Playwright se va sin correr nada. No era
+una falla del código de la app: era un archivo que no carga.
+
+**Qué se hace distinto, y ya está enganchado:** cuando una tanda no registra ninguna prueba, la
+corrida pregunta archivo por archivo cuántas pruebas tiene (`--list`, segundos, sin servidor) y
+**dice el nombre del que no carga y por qué** (`archivosQueNoCargan` en
+`scripts/run-playwright-production.mjs`). Y la costumbre: **una entrega que no corre se devuelve
+en el momento**, sin diagnosticarla a fondo.
+
+### 15. Contar el avance en vez de entregar el arreglo
+
+**Mismo día.** Con el dueño diciendo *"sigues demorando"*, la respuesta fue un mensaje largo
+contando lo que estaba haciendo. **La regla de "resultados, no relato" ya estaba escrita.**
+
+**Qué se hace distinto:** cuando algo se traba, se deja de empujar ahí y se agarra el defecto
+de plata o de comida que está esperando. **Un arreglo entregado vale más que una explicación
+de por qué el otro no sale.**
+
+### 12. Arrancar la verificación con el trabajo a medio terminar
+
+**Pasó el 17 de septiembre de 2026 y costó más de una hora, en una sesión donde el dueño ya venía
+pidiendo acelerar.** Lancé la verificación completa **tres veces**. Dos de ellas fue porque la
+arranqué antes de terminar y después seguí tocando archivos: cada cambio de código deja sin valor
+lo que la corrida ya hizo, así que fueron treinta minutos tirados cada vez.
+
+**Qué era lo cierto:** el problema no era la velocidad de la herramienta. La regla —"la puerta se
+corre UNA vez, al final"— ya estaba escrita **y no estaba enganchada**, que es el mismo defecto
+que esta app persigue en el código.
+
+**Qué se hace distinto, y ya está enganchado:** la verificación avisa al arrancar si hay código
+sin guardar, y **al final dice "este resultado no vale" si se tocó el código mientras corría**.
+Y la costumbre: primero se termina la tanda entera, se commitea, y recién ahí se arranca.
+
+### 11. Una prueba de "dos a la vez" que comparte la lista en memoria NO puede fallar nunca
+
+**Pasó el 17 de septiembre de 2026, y lo agarré yo al romper el control a propósito**, que es
+justamente para lo que sirve esa costumbre.
+
+**Qué se hizo mal:** escribí la prueba de dos respuestas simultáneas con una base de mentira que
+**devolvía siempre el mismo arreglo en memoria**. Las dos operaciones escribían sobre la misma
+lista, así que nunca se pisaban. La prueba daba verde **con el turno puesto y sin el turno
+puesto**: no probaba nada.
+
+**Qué era lo cierto:** la base de verdad devuelve **una copia** en cada lectura. Ahí es donde se
+pierde una de las dos operaciones.
+
+**Qué se hace distinto:** en toda prueba de "dos a la vez", la base de mentira **devuelve una
+copia**, nunca la misma lista. Y la prueba se da por buena recién cuando **se puso en rojo al
+sacar el turno**, no cuando dio verde.
+
+### 10. Arreglar un caso y romper el de al lado, por mirar un solo turno
+
+**Lo encontro Codex el 16 de septiembre de 2026, sobre una devolucion que yo mismo habia
+escrito.** La fotocabina dejaba la pantalla colgada en "Subiendo..." para la persona
+siguiente, y yo le indique a Gemini que el apagado del cartel fuera **sin condicion**.
+Eso arregla el caso de la persona B que esta mirando su captura **y rompe el de al lado**:
+si B ya empezo SU PROPIA subida, la respuesta tardia de A **le apaga el cartel a B**.
+
+**Que era lo cierto:** el cartel de subiendo, el de "guardada sin senal" y los demas
+avisos **son de la pantalla, no de la persona**. Con estado compartido entre turnos no
+alcanza con preguntar "¿esto arregla lo que se reporto?": hay que recorrer **quien viene
+despues y en que estado esta**.
+
+**Que se hace distinto, y es una pregunta nueva antes de mandar cualquier arreglo sobre
+estado compartido:**
+
+1. **¿De quien es el estado que estoy tocando?** Una operacion solo puede finalizar lo que
+   le pertenece.
+2. **¿Que pasa si el siguiente ya empezo lo suyo?** Se recorren los dos casos, no uno: el
+   siguiente esperando, y el siguiente ya trabajando.
+3. **El turno nuevo LIMPIA lo heredado.** Es la mitad que faltaba: no alcanza con que el
+   que termina tarde se abstenga; el que entra tiene que dejar la pantalla como si recien
+   se prendiera.
+
+Y el corolario para las ordenes: **una comprobacion no pide la forma del codigo** —"que el
+`finally` no tenga un `if`"— sino el resultado en pantalla con las dos personas.
+
 ### 9. Correr una segunda tanda de pruebas mientras corre la puerta
 
 **Pasó dos veces el 9 de septiembre de 2026, con cuarenta minutos ya invertidos cada vez.** Con la
@@ -720,6 +882,32 @@ defecto deja el agujero abierto: la próxima vez se escapa otro igual por el mis
 
 **Y queda enganchado, no escrito:** `npm run ordenes?` mira esa lista como mira las otras tres.
 Si el control de un hallazgo desaparece, lo dice.
+
+### Y con la pregunta nueva, GEMINI BARRE LA APP. Sin preguntar.
+
+**Orden del dueño, 18 de septiembre de 2026:** *"todo lo nuevo que encuentre Codex, sin
+preguntarme mejorás tu mecanismo, y con ese mecanismo nuevo le pedís a Gemini que busque en la
+app"*.
+
+**Es el paso que faltaba y es el que multiplica.** Hasta ahora, cuando Codex encontraba algo yo
+agregaba la pregunta y arreglaba **ese** caso. Pero un defecto nunca está solo: la misma forma
+está repetida en otros diez lugares que nadie miró con esa pregunta puesta. Quedaban esperando a
+que Codex los encontrara de a uno, y cada vuelta cuesta una sesión.
+
+**Se hace solo, en la misma tanda, y va después del paso 3:**
+
+4. **Se escribe una orden para Gemini que barra la app entera con la pregunta nueva**, en
+   `docs/ordenes/`. Con la búsqueda mecánica exacta —qué buscar, en qué carpetas—, qué cuenta
+   como hallazgo y qué no, y **qué NO tiene que tocar**: lo de plata, cobros, comida y permisos
+   lo lista y me lo pasa, no lo arregla.
+5. **Una sola propuesta**, como siempre, y con la prueba que mire el resultado.
+
+**Por qué a Gemini y no a los ayudantes económicos:** buscar es barato, pero **arreglar los
+veinte lugares es programar**, y eso es trabajo de Gemini. Los ayudantes siguen para contar y
+ubicar.
+
+**La única excepción:** si la pregunta nueva sólo puede aplicarse a plata, cobros, comida o
+permisos, el barrido es mío y no hay orden.
 
 **Lo que NO es esta lista:** no es para pedir perdón ni para llevar la cuenta de quién encontró
 más. Es la única forma de que el rango suba: cada cosa que se me escapó, se convierte en una
@@ -964,6 +1152,39 @@ con otra cara.
 | Los avisos de cobros se apagaban solos, por adivinar su tipo leyendo el texto | `src/__tests__/los-avisos-respetan-lo-que-se-apago.test.ts` |
 | La puerta empezaba de cero cuando se caia el contenedor: cincuenta minutos por caida | El avance por huella del codigo en `scripts/se-puede-publicar.mjs` |
 | Una sola pantalla que no abrio a tiempo con la maquina cargada frenaba la corrida entera | La segunda mirada de `seQuedaronSinAbrir` en `tests/e2e/recorrido-de-pantallas.spec.ts` |
+| Cincuenta minutos de compilacion y navegador repetidos por tocar un documento | Las dos huellas de `huellaDelPaso` en `scripts/se-puede-publicar.mjs` |
+| El despertador de afuera se daba de baja solo, porque la puerta no contestaba hasta terminar todas las tareas | `src/__tests__/el-despertador-contesta-sin-trabajar.test.ts` |
+| Un respaldo al que le faltaban partes se guardaba como completo, y la rotacion borraba la copia buena | `src/__tests__/el-respaldo-no-miente.test.ts` |
+| Cualquiera con sesion podia borrar respaldos y bajarse todo el negocio en un archivo | `src/__tests__/el-respaldo-no-miente.test.ts` |
+| Al reporte le faltaban los cobros del ultimo dia, por comparar la hora en vez del dia | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
+| Dos personas mandando invitaciones a la vez: al invitado le llegaban dos | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
+| Una restauracion a medias se anunciaba como completa y la recarga tapaba el aviso | `src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts` |
+| Invitaciones "enviadas" sin cuenta conectada, recordatorios de cobro a medias, borrado total parcial y la sena sin recibo enganchado | `src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts` |
+| Un respaldo de cero datos guardado como copia completa, porque leer no falla: devuelve vacio | `readDataConDetalle` en `src/lib/data-service.ts`, con `src/__tests__/el-respaldo-no-miente.test.ts` |
+| Un cobro de la noche del ultimo dia afuera del reporte, por contar los dias en hora de Greenwich | `src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts` |
+| La encuesta del cliente aceptaba notas de 99 y campos internos del navegador, y dos respuestas a la vez perdian una | `src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts` |
+| El boton de una pantalla publica quedaba en "Enviando..." para siempre al cortarse la senal | `src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts` |
+| Guardados que reescriben la lista entera sin turno: ingredientes, menus, ajustes de precio y la ficha de la empresa | `src/__tests__/los-guardados-de-lista-tienen-turno.test.ts` |
+| Un control que miraba el archivo entero y pasaba por el turno de la funcion de al lado | El mismo control, acotado al cuerpo de cada funcion |
+| Media hora de navegador repetida por un commit de documentacion o por agregar una prueba de Jest | `NO_AFECTA_AL_NAVEGADOR` y la huella por contenido en `scripts/se-puede-publicar.mjs` |
+| Arrancar la verificacion con el trabajo a medio terminar y tirar media hora | El aviso al empezar y el "este resultado no vale" de `scripts/se-puede-publicar.mjs` |
+| Renombrar un equipo y poder borrarlo estando asignado a una fiesta, porque el control miraba un campo que no existe | `src/__tests__/no-se-borra-un-equipo-asignado.test.ts` |
+| El ajuste de costos decia "listo" con los menus sin actualizar, y reescribia menus que nadie toco | `src/__tests__/el-ajuste-de-costos-no-miente.test.ts` |
+| Las formas que Codex encontraba de a una estaban repetidas en 95 lugares y nadie las buscaba | **`npm run formas-que-mienten`**, enganchado a la puerta |
+| Editar una reunion que otro ya borro decia "guardado" y le mandaba el aviso al calendario del cliente | `src/__tests__/una-reunion-borrada-no-dice-que-se-guardo.test.ts` |
+| El buzon decia "Sincronizado" con la lista borrada, y la descarga bajaba un archivo vacio | `src/__tests__/el-buzon-no-confunde-una-falla-con-vacio.test.ts` |
+| Una prueba de navegador con media sesion puesta: la pantalla rebotaba al ingreso y parecia rota | `ponerSesionDelEquipo` en `tests/e2e/helpers/fiesta-de-prueba.ts` |
+| El indicador de preparacion daba 100% con cuotas sin cobrar, por leer un campo que no existe | `src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts` |
+| La lista de compras sumaba 200 g con 2 kg como si fueran lo mismo | `src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts` |
+| Al volver del ingreso se perdia la fiesta y la pantalla quedaba cargando para siempre | `src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts` |
+| Una prueba de navegador que llamaba al servidor tumbaba la tanda entera sin decir cual era | `archivosQueNoCargan` en `scripts/run-playwright-production.mjs`, con `src/__tests__/las-pruebas-viven-donde-corresponde.test.ts` |
+| El secretario decia haber anotado un prospecto y nadie ejecutaba esa accion | `src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts` |
+| Dos pruebas de comida apagadas hacia semanas, y nadie se entero | `src/__tests__/ninguna-prueba-esta-apagada.test.ts` |
+| "Total cobrado" del personal sumaba los recibos pendientes | `src/__tests__/el-total-cobrado-del-personal-no-miente.test.ts` |
+| Dos personas guardando el mismo proveedor se pisaban, y las dos decian que salio bien | `src/__tests__/dos-personas-no-se-pisan-en-proveedores.test.ts` |
+| Cambiar una clave le cambiaba la clave a los otros administradores | `src/__tests__/la-clave-de-uno-no-le-cambia-la-clave-a-otro.test.ts` |
+| El acceso pausado por intentos fallidos y el cartel diciendo "tu clave esta mal, recuperala" | `src/__tests__/el-cartel-del-ingreso-no-se-contradice.test.ts` |
+| Una lectura colgada de la base llegaba al corte del portero y la app se veia caida | `src/__tests__/una-lectura-colgada-no-tumba-la-pantalla.test.ts` |
 
 ### Cómo se elige el matafuego
 

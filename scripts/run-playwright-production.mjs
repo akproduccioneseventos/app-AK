@@ -103,6 +103,18 @@ function barrerCorridasViejas() {
       }
     } catch { /* no habia ninguno, que es lo normal */ }
   }
+
+  // Limpiar fiestas de prueba huérfanas de corridas cortadas
+  for (const dir of ["data/fiestas", "src/data/fiestas"]) {
+    if (!existsSync(dir)) continue;
+    try {
+      for (const f of readdirSync(dir)) {
+        if (f.startsWith("e2e_") && f.endsWith(".json")) {
+          try { unlinkSync(path.join(dir, f)); } catch {}
+        }
+      }
+    } catch {}
+  }
 }
 
 /**
@@ -328,6 +340,38 @@ function extractTestsFromSuites(suites, parentFile = "") {
   return tests;
 }
 
+/**
+ * Cual de los archivos de la tanda NO CARGA.
+ *
+ * Costo una hora el 20 de septiembre de 2026: un archivo que importaba una accion del
+ * servidor reventaba al cargarse y Playwright se iba sin correr NADA. La tanda decia
+ * "no registro ninguna prueba" y no decia cual de los ocho archivos era. Buscarlo a
+ * ciegas fue casi todo el tiempo perdido.
+ *
+ * Esto pregunta archivo por archivo "¿cuantas pruebas tenes?" (--list, sin servidor y
+ * sin navegador: son segundos) y devuelve el nombre del que se cae, con su error.
+ */
+async function archivosQueNoCargan(files) {
+  const rotos = [];
+  for (const archivo of files) {
+    const salida = await new Promise((resolve) => {
+      const pw = spawn(process.execPath, [playwrightBin, "test", archivo, "--list"], {
+        stdio: ["ignore", "pipe", "pipe"],
+        env: { ...process.env, ...testEnvironment },
+      });
+      let texto = "";
+      pw.stdout.on("data", (c) => { texto += c.toString(); });
+      pw.stderr.on("data", (c) => { texto += c.toString(); });
+      pw.on("close", (code) => resolve({ code, texto }));
+    });
+    if (salida.code !== 0 || /No tests found/i.test(salida.texto)) {
+      const motivo = (salida.texto.split("\n").find((l) => /^Error:/.test(l.trim())) || "no carga").trim();
+      rotos.push(`${path.basename(archivo)} -> ${motivo}`);
+    }
+  }
+  return rotos;
+}
+
 async function runPlaywright(files, extraArgs = []) {
   return new Promise((resolve) => {
     const pw = spawn(
@@ -415,6 +459,11 @@ async function main() {
     // Mide una cuenta regresiva: con la maquina cargada da fallas inventadas.
     // **Comprobado**: en paralelo fallo, y sola paso en 126 segundos.
     'las-estaciones-respetan-los-ajustes.spec.ts',
+    // Pruebas que usan helpers/fiesta-de-prueba y carga operativa con dos navegadores:
+    'la-hoja-del-dj-dice-la-verdad.spec.ts',
+    'la-lista-de-regalos-queda-como-la-dejaron.spec.ts',
+    'la-carga-operativa-avisa-cuando-no-alcanza.spec.ts',
+    'la-carga-operativa-se-sincroniza.spec.ts',
   ];
 
 
@@ -556,9 +605,19 @@ async function main() {
       if (tests.length === 0) {
         if (result.code !== 0) {
           console.warn(`  ⚠ La tanda terminó con código ${result.code} sin pruebas registradas en JSON.`);
-          tandasCaidas.push(
-            `Tanda ${idx + 1} (${batch.map((b) => path.basename(b)).join(", ")}): terminó con código ${result.code} y no registró ninguna prueba.`,
-          );
+          // Antes de acusar a la tanda entera, decir CUAL archivo no carga.
+          const rotos = await archivosQueNoCargan(batch);
+          if (rotos.length > 0) {
+            console.warn(`  ⚠ ARCHIVO QUE NO CARGA (se lleva puesta la tanda entera):`);
+            for (const roto of rotos) console.warn(`      ${roto}`);
+            tandasCaidas.push(
+              `Tanda ${idx + 1}: no corrio ninguna prueba porque estos archivos no cargan:\n      ${rotos.join("\n      ")}`,
+            );
+          } else {
+            tandasCaidas.push(
+              `Tanda ${idx + 1} (${batch.map((b) => path.basename(b)).join(", ")}): terminó con código ${result.code} y no registró ninguna prueba.`,
+            );
+          }
         }
       }
 
@@ -636,6 +695,67 @@ async function main() {
   }
   console.log(`  - Fallas reales: ${fallasReales.length}`);
   console.log(`  - Descartadas por entorno (<500ms recuperadas): ${descartadasPorEntorno.length}`);
+
+  /**
+   * DONDE SE FUE EL TIEMPO. Se imprime SIEMPRE, aunque este todo verde.
+   *
+   * **Orden del dueno, 17 de septiembre de 2026: "el navegador es el que hay que optimizar".**
+   * Tenia razon: de los 40 minutos de la verificacion, 31 son esta tanda. El problema era que
+   * nadie sabia **cual** de las 66 pruebas se los llevaba: para averiguarlo habia que correr
+   * todo de nuevo mirando el reloj, o sea otros 31 minutos.
+   *
+   * Los tiempos ya venian en el informe de cada corrida y se tiraban a la basura. Ahora quedan
+   * a la vista: cada vez que corre la verificacion, dice cuales son las cinco mas lentas y
+   * cuanto pesan sobre el total. **Acelerar se decide con esta lista, no de memoria.**
+   */
+  const tiempoPorArchivo = new Map();
+  for (const t of [...totalPasadas, ...fallasReales]) {
+    const archivo = (t.file || '').split('/').pop() || 'sin nombre';
+    tiempoPorArchivo.set(archivo, (tiempoPorArchivo.get(archivo) || 0) + (t.duration || 0));
+  }
+  const ranking = [...tiempoPorArchivo.entries()].sort((a, b) => b[1] - a[1]);
+  const totalMs = ranking.reduce((suma, [, ms]) => suma + ms, 0);
+  if (ranking.length > 0 && totalMs > 0) {
+    console.log(`------------------------------------------------------`);
+    console.log(`  DONDE SE FUE EL TIEMPO (total ${Math.round(totalMs / 1000)}s)`);
+    for (const [archivo, ms] of ranking.slice(0, 5)) {
+      const porcentaje = Math.round((ms / totalMs) * 100);
+      console.log(`    ${String(Math.round(ms / 1000)).padStart(5)}s  ${String(porcentaje).padStart(3)}%  ${archivo}`);
+    }
+
+    /**
+     * Y ademas queda ESCRITO en un archivo.
+     *
+     * **Porque impreso no alcanza:** cuando la verificacion frena, solo muestra un pedacito de
+     * la salida del paso que fallo, y esta lista se pierde justo la vez que mas se necesita.
+     * Escrita, se lee cuando uno quiere, sin volver a esperar media hora.
+     */
+    try {
+      const fs = await import('node:fs/promises');
+      const lineas = ranking.map(([archivo, ms]) => {
+        const porcentaje = Math.round((ms / totalMs) * 100);
+        return `| ${archivo} | ${Math.round(ms / 1000)}s | ${porcentaje}% |`;
+      });
+      await fs.writeFile(
+        'docs/tiempo-de-las-pruebas.md',
+        [
+          '# Cuanto tarda cada prueba de navegador',
+          '',
+          'Lo escribe solo la ultima corrida. **No se edita a mano.**',
+          '',
+          `Medido el ${new Date().toISOString().slice(0, 10)} — total ${Math.round(totalMs / 1000)}s.`,
+          '',
+          '| Prueba | Tarda | Del total |',
+          '| --- | --- | --- |',
+          ...lineas,
+          '',
+        ].join('\n'),
+        'utf-8',
+      );
+    } catch {
+      // no pasa nada si falla: es informativo y la lista ya salio impresa arriba.
+    }
+  }
   console.log(`======================================================\n`);
 
   // DONDE SE VA EL TIEMPO. Sin esta lista, acelerar la corrida es adivinar.

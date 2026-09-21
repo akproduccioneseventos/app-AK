@@ -330,3 +330,246 @@ leyéndola el cliente. Si no hay texto para mostrar, va sin texto.
 
 **Qué se hace al agregar esta pregunta:** se vuelve a pasar con ella **todo lo que proyecta datos
 hacia un cliente o un invitado**, aunque ya estuviera auditado.
+
+## La novena pregunta: ¿PUEDE TERMINAR A MEDIAS Y DECIR QUE TERMINO? (16 de septiembre de 2026)
+
+**Salio de tres defectos de respaldos que encontro Codex**, y los tres pasaban las siete
+preguntas anteriores: estaban escritos, alguien los llamaba, dejaban rastro, tenian prueba en
+verde y **no fallaban**. Salian a medias y terminaban bien.
+
+- Una copia a la que no se le pudo leer una parte se guardaba **marcada como completa**, y la
+  rotacion borraba una copia vieja que si estaba entera.
+- Una restauracion que dejaba archivos afuera anunciaba **"Restauracion Completa"** y recargaba
+  la pantalla, tapando el aviso.
+
+**La pregunta, y donde se aplica primero:** en todo lo que recorre una lista y sigue despues de
+un tropiezo —respaldos, restauraciones, importaciones, envios en tanda, sincronizaciones—, hay
+que buscar el **camino del medio**: ni todo ni nada.
+
+Tres cosas que tiene que cumplir cualquiera de esos:
+
+1. **Lo que salio a medias no dice que salio.** El resultado distingue completo, parcial y
+   fallido, y el parcial **nombra lo que falto**.
+2. **Lo que salio a medias no pisa ni borra lo anterior.** Es lo que convierte un aviso molesto
+   en una perdida de datos.
+3. **El aviso se puede leer.** Nada de recargar la pantalla arriba del cartel.
+
+## La decima pregunta: ¿DE CUANTAS FORMAS PUEDE VENIR MAL ESTE DATO, Y CUAL NO HACE RUIDO? (17 de septiembre de 2026)
+
+**Salio de dos arreglos mios que Codex tuvo que volver a encontrar al dia siguiente.** Los dos
+tapaban el caso que me habian reportado y dejaban abierto el de al lado:
+
+- El respaldo frenaba cuando la lectura **tiraba un error**. Pero leer en esta app casi nunca tira
+  error: cuando la base no contesta, **devuelve la lista vacia** para no romper la pantalla. El
+  respaldo seguia guardando cero datos, marcado como copia completa.
+- El reporte ya comparaba dias en vez de horas, pero tomaba el dia **tal cual venia escrito**, y
+  los cobros vienen con hora de Greenwich. Los de la noche del ultimo dia seguian afuera.
+
+**La forma del defecto es siempre la misma:** un dato puede venir mal de varias maneras, y **la
+que hace ruido se arregla; la que se calla queda**. La excepcion se ve; la lista vacia no. La
+fecha rota se ve; la fecha corrida tres horas no.
+
+**Como se hace la pregunta, sobre lo que uno acaba de tocar:**
+
+1. **Listar las formas en que ese dato puede venir mal**, no la que se reporto: vacio, nulo, con
+   zona horaria, sin zona, a medias, duplicado, viejo.
+2. **Marcar cual de esas NO hace ruido** —no tira error, no deja rastro, sale en verde—. Esa es la
+   que hay que probar primero.
+3. **Un arreglo se prueba con el dato entrando por la otra puerta**, no repitiendo el caso que lo
+   origino. Si la unica prueba nueva es la del caso reportado, el arreglo esta a medias.
+
+**Se aplica primero a lo que toca plata**, y **antes que nada a verificar un arreglo propio**: es
+exactamente ahi donde se escaparon los dos.
+
+## La once pregunta: ESTO LO PUEDE MANDAR CUALQUIERA, ¿QUE CAMPOS SE COPIAN SIN MIRAR? (17 de septiembre de 2026)
+
+**Salio de la encuesta post fiesta, que encontro Codex.** La app es casi toda con sesion, asi que
+la costumbre es confiar en lo que llega. Pero hay unas pocas puertas abiertas al publico —la
+encuesta, la confirmacion de asistencia, el buzon de recuerdos, el muro de fotos— y ahi lo que
+llega **no lo manda la pantalla necesariamente**.
+
+En la encuesta se guardaba lo que llegaba **tal cual**, con un copiado entero. Con eso entraba una
+nota de 99 —que ensucia los promedios del panel— y, peor, un campo interno que marca "a este
+cliente ya se le pidio la resena en Google": mandandolo, **la resena no se pide nunca mas**.
+
+**Como se hace la pregunta, sobre cualquier cosa que conteste alguien sin cuenta:**
+
+1. **Buscar el copiado entero** —`...loQueLlego`— en lo que se guarda. Ahi entra todo lo que
+   manden.
+2. **Listar que campos son del que contesta y cuales son de la app.** Los de la app —marcas de
+   "ya se hizo", identificadores, estados— **no pueden venir de afuera nunca**.
+3. **Preguntar por cada numero: ¿que pasa si viene 99, -5 o con coma?** Si el panel lo muestra o
+   lo promedia, tiene que rechazarse, no acomodarse.
+4. **Y lo de siempre en estas puertas:** si dos personas contestan al mismo tiempo, ¿se pierde
+   una? La lectura va adentro del turno.
+
+## Las cuatro preguntas de la forma de Codex (17 de septiembre de 2026)
+
+**Orden del dueno: "suma mas preguntas como hace Codex".** Estas cuatro no salen de un hallazgo
+suelto: salen de mirar **que tienen en comun los veinticinco que encontro**. Todos pasan las
+preguntas viejas —estan escritos, los llama alguien, dejan rastro, tienen prueba en verde— y
+fallan igual. La forma es siempre la misma: **el camino en que todo sale bien esta mirado; el de
+al lado, no.**
+
+### La doce: ¿QUE PASA SI TOCA DOS VECES?
+
+No es lo mismo que "dos personas a la vez". Es **una sola persona con el dedo nervioso o la senal
+lenta**: aprieta "Enviar", no ve respuesta, aprieta de nuevo.
+
+- ¿Se cobra dos veces, se manda el mensaje dos veces, se genera la imagen dos veces —que se paga—?
+- ¿El boton se apaga mientras trabaja, y se vuelve a prender **pase lo que pase**?
+- ¿La segunda vez se guarda un registro repetido que despues alguien tiene que limpiar a mano?
+
+### La trece: ¿ESTE CALCULO USA LA HORA DE URUGUAY?
+
+El servidor trabaja en hora de Greenwich; el negocio, en hora de Salto. **Tres horas de
+diferencia alcanzan para que un cobro de la noche caiga en el mes siguiente.**
+
+- Todo lo que corte por dia, mes o semana —reportes, cierres, vencimientos de cuota,
+  recordatorios, "lo de hoy"— se pregunta **en que hora esta cortando**.
+- Una fecha guardada con `Z` al final **no es el dia que dice**: es tres horas mas tarde que aca.
+
+### La catorce: ¿QUE VE EL QUE ADIVINA EL ENLACE?
+
+Varias pantallas se abren sin cuenta a proposito —la invitacion, el album, la encuesta, el muro—.
+La pregunta no es si esta bien que sean publicas: es **que trae de mas la que se abre**.
+
+- ¿Viene pegado algo interno: el presupuesto, el telefono del cliente, la lista del personal, el
+  itinerario de la empresa?
+- Y la otra mitad: lo que **manda** el que no tiene cuenta, ¿se copia entero? Ahi entran los
+  campos internos. (Es la pregunta once, y van juntas: lo que sale y lo que entra.)
+
+### La quince: ¿QUE PASA CUANDO LA LISTA SE HACE LARGA?
+
+La app guarda listas enteras en un solo lugar: cada cambio lee todo y escribe todo. Con veinte
+fiestas anda. **La pregunta es con mil.**
+
+- ¿Se escribe la lista completa para cambiar un renglon? Eso es lo que hace que dos guardados se
+  pisen, y lo que un dia no entra mas.
+- ¿La pantalla los trae todos para mostrar diez?
+
+**Como se usan estas cuatro:** igual que las once anteriores, **sobre lo que uno acaba de tocar**,
+antes de decir "terminé". No son una auditoria general: eso sigue prohibido.
+
+## La dieciseis: EL CAMPO QUE ESTE CONTROL COMPARA, ¿EXISTE EN EL DATO QUE LE LLEGA? (18 de septiembre de 2026)
+
+**Salio del borrado de equipos, que encontro Codex.** El control que impide borrar un equipo
+asignado comparaba `item.id` y `item.activoId`. **Ninguno de los dos existe** en la lista de
+carga: ahi el equipo del catalogo se guarda en `origenId`. La comparacion nunca acertaba, asi que
+el control decia siempre "no esta asignado".
+
+**Lo peligroso es que se ve igual que uno que funciona**: esta escrito, lo llama alguien, deja
+rastro y tiene prueba en verde. Solo falla cuando importa.
+
+**Como se hace la pregunta:**
+
+1. En todo control de "no se puede borrar", "ya esta usado" o "no se puede duplicar", **abrir el
+   tipo del dato que le llega** y confirmar que el campo comparado existe ahi.
+2. Ojo con `(item as any).loQueSea`: eso apaga al revisor de tipos, que es justo quien avisaria.
+3. **Probar el control con el dato de verdad**, no con uno armado a mano en la prueba con los
+   campos que el control espera. Si la prueba construye el dato a medida, la comparacion siempre
+   acierta y no se prueba nada.
+
+
+## Cuatro estados, no dos: lo propuso Codex el 19 de septiembre de 2026
+
+Hasta ahora una cosa estaba "hecha" o "no hecha", y ahí se escondía el problema: **una prueba
+aislada no es lo mismo que el recorrido real, y ninguna de las dos es lo mismo que verlo andar
+publicado.** Cuando todo se anota igual, una aprobación termina cubriendo más de lo que de verdad
+se comprobó.
+
+**De ahora en adelante, cada arreglo se anota en uno de cuatro estados:**
+
+1. **Programado** — el código está escrito.
+2. **Probado suelto** — hay una prueba que **falla antes del arreglo y pasa después**. Esa es la
+   única prueba que vale: si no se la vio en rojo, no prueba nada.
+3. **Probado de punta a punta** — se recorrió la pantalla de verdad y **se miró lo que quedó
+   guardado**, no sólo lo que dijo el cartel.
+4. **Visto andando publicado** — alguien lo usó en la app de verdad.
+
+**Y la regla que va con eso:** al contar un arreglo, se dice en qué estado está. Decir "arreglado"
+sin aclarar que es el estado 2 es exactamente la forma en que esta app engañó a todo el mundo
+durante meses.
+
+
+## LA MATRIZ DE DIEZ ESCENARIOS (la trajo Codex el 19 de septiembre de 2026, y reemplaza a la lista larga)
+
+**Las dieciséis preguntas funcionaban, pero son una lista larga y se leen de arriba abajo.** Esto
+es mejor: **diez escenarios, y se eligen según lo que el cambio puede perder** —datos, plata,
+acceso o confianza—. No se corren los diez en cada botón.
+
+| Escenario | Cómo provocarlo | Qué mirar |
+| --- | --- | --- |
+| Normal | Datos válidos de verdad | Que el resultado **quede guardado**, no sólo que salga el cartel |
+| Vacío y límite | 0, 1, el máximo, el máximo más uno | Que la pantalla y el servidor digan **el mismo límite**, y que un vacío a propósito no se rellene con ejemplos |
+| Falla antes | Que falle la lectura o el primer guardado | Que no escriba encima ni anuncie éxito |
+| Falla a medias | Que falle el segundo guardado | Que diga **qué quedó hecho** y qué no |
+| Reintento | Repetir el mismo pedido después de un fallo | Que **no duplique** ni cobre dos veces |
+| Dos operadores | Los dos leen, después los dos escriben | Que se conserven los dos cambios, o que uno sea rechazado con un motivo claro |
+| Respuestas cruzadas | Demorar la primera, que llegue la segunda, y recién ahí soltar la primera | Que **el estado nuevo no retroceda** |
+| Pantalla vieja | Que otro reserve o borre antes del clic | Que no confirme algo que ya no existe |
+| Servicio de afuera | Que tarde, rechace o quede pendiente | Sin falso éxito ni descarga incompleta callada |
+| Rol y dispositivo | Dos sesiones distintas, y en pantalla chica | Sin acceso de más ni botones que no se alcanzan |
+
+**Dos cosas más que agregó, y son ciertas:**
+
+- **Un total se compara contra una cuenta hecha aparte**, no contra el mismo cálculo que lo
+  produjo. Si no, la prueba se da la razón sola.
+- **Un turno en memoria no alcanza si la app corre en más de un servidor.** Los turnos que puso
+  Claude ordenan a dos personas atendidas por la **misma** instancia. Hoy alcanza, porque el
+  servidor de esta app se despierta de a uno; pero **no es lo mismo que una transacción en la
+  base**, y hay que decirlo así cuando se cuenta que algo está arreglado.
+
+## LOS CINCO NIVELES DE EVIDENCIA (no son lo mismo y no se mezclan)
+
+1. **Mirado** — se leyó el código.
+2. **Probado suelto** — una prueba que **falla antes del arreglo y pasa después**.
+3. **Probado de punta a punta** — se recorrió pantalla, servidor y **lo que quedó guardado**.
+4. **Probado en navegador** — se abrió la pantalla de verdad y se miró el resultado.
+5. **Visto andando publicado** — alguien lo usó en la app real.
+
+**Al cerrar, se dice qué recorridos pasaron en qué versión, y cuáles quedan.** Nunca "cero
+errores en toda la app": eso es exactamente lo que ya engañó a todo el mundo una vez.
+
+---
+
+## Preguntas 17, 18 y 19 — las que sumó el 20 de septiembre de 2026
+
+Las tres salieron de cosas que encontró Codex y mi método no. Van con lo de siempre: **primero
+se pasan por lo que toca plata, cobros, comida y permisos**, aunque esa área ya estuviera
+auditada. Que un área esté mirada no la deja mirada para siempre con las preguntas viejas.
+
+### 17. Cada `as any` que LEE un campo, ¿lee un campo que existe?
+
+Un `as any` apaga al revisor de tipos. Si el nombre del campo está mal —una "s" de más o de
+menos— la lectura da vacío **para siempre** y nadie se entera: no hay error, no hay rojo, la
+cuenta simplemente da cero.
+
+Fue exactamente eso: el indicador de preparación leía `fiesta.planPago` en vez de
+`planDePagos`. **Daba 100% de fiesta lista con el cliente debiendo una cuota.**
+
+La comprobación es mecánica: buscar `as any)` seguido de un punto y un nombre, y por cada uno
+preguntar **si ese campo existe en el tipo y si alguien lo escribe alguna vez**. Si no, esa
+cuenta viene dando cero desde siempre.
+
+### 18. Cuando se juntan cosas para sumarlas, ¿la clave incluye todo lo que las hace distintas?
+
+La lista de compras juntaba los renglones por nombre y proveedor, **sin la unidad**. 200 g de
+manteca de un plato y 2 kg de otro se sumaban como "202". Según cuál unidad quedara, se compraba
+diez veces de más o la fiesta se quedaba sin comida.
+
+La pregunta vale para toda clave armada a mano: **unidad de medida, moneda, impuesto, fecha,
+fiesta.** Si falta una, el total miente y nadie lo ve, porque el número se muestra prolijo.
+
+### 19. Si la pantalla se abre con datos en la dirección, ¿sobreviven a un rebote por el ingreso? Y si falta el dato, ¿lo dice o se queda cargando?
+
+Son dos mitades del mismo agujero, y las dos pasaron el mismo día:
+
+- El portero mandaba al ingreso guardando sólo la ruta y tiraba el `?fiestaId=...`. Al volver,
+  la pantalla abría **sin fiesta**.
+- La lista de regalos, sin fiesta, salía de la carga **sin apagar la rueda**: giraba para
+  siempre y no decía nada.
+
+Se mira igual en toda pantalla que se abre con un dato en la dirección: **entrar sin ese dato**
+y ver qué pasa. Una pantalla que se queda cargando es un error, aunque el código esté bien
+escrito: el equipo la mira y cree que el sistema está pensando.

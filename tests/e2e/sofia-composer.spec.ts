@@ -39,7 +39,10 @@ test.describe('asistente Sofia', () => {
       return Math.round(anchoComun * altoComun);
     });
 
-    // null = alguno de los dos no estaba en pantalla; la prueba no aplica.
+    // apagada a proposito: si alguno de los dos botones no esta en pantalla, no hay
+    // superposicion que medir. Queda anotado para que se vea y se pueda contar: lo
+    // correcto seria que la falta de un boton sea una falla, y eso esta pedido en la
+    // orden 76.
     if (solape === null) test.skip();
     expect(solape, `el boton de WhatsApp cubre ${solape}px2 del boton de enviar`).toBe(0);
   });

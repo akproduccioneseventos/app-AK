@@ -68,6 +68,7 @@ import {
   waitForInitialPublicLoad,
   withPublicRequestTimeout,
 } from '@/lib/public-experience/wait-for-initial-public-load';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { MAX_DEDICATION_RECORDING_SECONDS } from '@/lib/social-fiesta/guardrails';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { ChatMessage, Dedication, SocialGalleryPost, SocialPoll, SongRequest } from '@/types/social-gallery';
@@ -637,7 +638,7 @@ export default function SocialEventPage() {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         throw new Error('Sin conexión');
       }
-      const result = await uploadSocialPost(formData);
+      const result = await conTopeDeEspera(uploadSocialPost(formData));
       if (result.success) {
         toast({
           title: settings.requireApproval ? 'Momento enviado' : 'Momento publicado',
@@ -661,8 +662,9 @@ export default function SocialEventPage() {
         description: 'No cierres esta pantalla: lo subimos solos apenas vuelva la señal.',
       });
       setUploadOpen(false);
+    } finally {
+      setUploading(false);
     }
-    setUploading(false);
   };
 
   const likePost = async (postId: string) => {
@@ -705,18 +707,23 @@ export default function SocialEventPage() {
     }
 
     setSubmitting(true);
-    const result = await addSongRequest(fiestaId, songDraft.trim(), authorName || 'Invitado');
-    if (result.success) {
-      setSongDraft('');
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(requestedCountKey, String(currentRequestedCount + 1));
+    try {
+      const result = await conTopeDeEspera(addSongRequest(fiestaId, songDraft.trim(), authorName || 'Invitado'));
+      if (result.success) {
+        setSongDraft('');
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(requestedCountKey, String(currentRequestedCount + 1));
+        }
+        toast({ title: 'Canción enviada al DJ' });
+        await loadSection('songs');
+      } else {
+        toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
       }
-      toast({ title: 'Canción enviada al DJ' });
-      await loadSection('songs');
-    } else {
-      toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    } catch {
+      toast({ title: 'No se pudo enviar', description: 'El servidor está tardando. Probá de nuevo.', variant: 'destructive' });
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   };
 
   const voteSong = async (songId: string, like: boolean) => {
@@ -779,26 +786,30 @@ export default function SocialEventPage() {
     eventForm.preventDefault();
     if ((!dedicationDraft.trim() && !audioBlob) || submitting) return;
     setSubmitting(true);
-    let audioUrl: string | undefined;
-    if (audioBlob) {
-      const formData = new FormData();
-      formData.append('file', new File([audioBlob], 'mensaje.webm', { type: 'audio/webm' }));
-      const upload = await uploadDedicationAudio(fiestaId, formData);
-      if (!upload.success) {
-        toast({ title: 'No se pudo subir el audio', description: upload.error, variant: 'destructive' });
-        setSubmitting(false);
-        return;
+    try {
+      let audioUrl: string | undefined;
+      if (audioBlob) {
+        const formData = new FormData();
+        formData.append('file', new File([audioBlob], 'mensaje.webm', { type: 'audio/webm' }));
+        const upload = await conTopeDeEspera(uploadDedicationAudio(fiestaId, formData));
+        if (!upload.success) {
+          toast({ title: 'No se pudo subir el audio', description: upload.error, variant: 'destructive' });
+          return;
+        }
+        audioUrl = upload.audioUrl;
       }
-      audioUrl = upload.audioUrl;
+      const result = await conTopeDeEspera(addDedication(fiestaId, dedicationDraft.trim() || 'Mensaje de voz', authorName || 'Invitado', audioUrl));
+      if (result.success) {
+        setDedicationDraft('');
+        clearAudio();
+        toast({ title: settings.privateDedicationsMode ? 'Mensaje privado enviado' : 'Mensaje compartido' });
+        await loadSection('dedications');
+      } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    } catch {
+      toast({ title: 'No se pudo enviar', description: 'El servidor tardó en contestar. Probá de nuevo.', variant: 'destructive' });
+    } finally {
+      setSubmitting(false);
     }
-    const result = await addDedication(fiestaId, dedicationDraft.trim() || 'Mensaje de voz', authorName || 'Invitado', audioUrl);
-    if (result.success) {
-      setDedicationDraft('');
-      clearAudio();
-      toast({ title: settings.privateDedicationsMode ? 'Mensaje privado enviado' : 'Mensaje compartido' });
-      await loadSection('dedications');
-    } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
-    setSubmitting(false);
   };
 
   const submitChat = async (eventForm: FormEvent) => {
@@ -806,12 +817,17 @@ export default function SocialEventPage() {
     const text = chatDraft.trim();
     if (!text || submitting) return;
     setSubmitting(true);
-    const result = await addChatMessage(fiestaId, text, authorName || 'Invitado', interactionCredentials);
-    if (result.success) {
-      setChatDraft('');
-      await loadSection('chat');
-    } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
-    setSubmitting(false);
+    try {
+      const result = await conTopeDeEspera(addChatMessage(fiestaId, text, authorName || 'Invitado', interactionCredentials));
+      if (result.success) {
+        setChatDraft('');
+        await loadSection('chat');
+      } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    } catch {
+      toast({ title: 'No se pudo enviar', description: 'El servidor tardó en contestar. Probá de nuevo.', variant: 'destructive' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const submitPollVote = async (optionId: string) => {

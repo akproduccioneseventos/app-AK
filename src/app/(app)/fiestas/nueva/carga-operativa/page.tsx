@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -31,6 +31,7 @@ import {
   updateListaDeCargaOperativa,
   generateCargaFromActivos,
 } from '@/app/actions/fiesta/carga-operativa.actions';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { mergeGeneratedCargaWithManualItems } from '@/lib/logistics/carga-operativa';
 import type { CargaOperativaItemPatch } from '@/lib/logistics/carga-operativa';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -40,13 +41,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Progress } from '@/components/ui/progress';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
-function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQuantityChange, onQuantityCommit, onDelete }: {
+function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQuantityChange, onQuantityCommit, onQuantityFocus, onQuantityBlur, onDelete }: {
     item: CargaOperativaItem;
     categoryId: string;
     onToggle: (categoryId: string, itemId: string) => void;
     onToggleRetornado: (categoryId: string, itemId: string) => void;
     onQuantityChange: (categoryId: string, itemId: string, quantity: string) => void;
     onQuantityCommit: (categoryId: string, itemId: string, quantity: string) => void;
+    onQuantityFocus?: (itemId: string) => void;
+    onQuantityBlur?: () => void;
     onDelete: (categoryId: string, itemId: string) => void;
 }) {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
@@ -118,8 +121,12 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
                     <Input
                         type="text"
                         value={item.cantidad}
+                        onFocus={() => onQuantityFocus?.(item.id)}
                         onChange={(e) => onQuantityChange(categoryId, item.id, e.target.value)}
-                        onBlur={(e) => onQuantityCommit(categoryId, item.id, e.target.value)}
+                        onBlur={(e) => {
+                          onQuantityBlur?.();
+                          onQuantityCommit(categoryId, item.id, e.target.value);
+                        }}
                         className={cn(
                             "h-9 w-20 text-center font-black text-primary rounded-lg transition-colors",
                             item.hasConflict ? "border-rose-400 focus-visible:ring-rose-400 bg-white" : "bg-muted/50 border-none"
@@ -140,6 +147,7 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
 function mergeRemoteOperationalState(
   local: ListaDeCargaOperativa,
   remote: ListaDeCargaOperativa,
+  focusedItemId?: string | null,
 ): ListaDeCargaOperativa {
   const remoteItems = new Map(
     (remote.categorias || []).flatMap((category) =>
@@ -156,16 +164,34 @@ function mergeRemoteOperationalState(
       items: (category.items || []).map((item) => {
         const remoteItem = remoteItems.get(`${category.id}:${item.id}`);
         if (!remoteItem) return item;
+
+        // Orden 66 (Bloque 2): Descartar respuestas retrasadas si tienen actualizadoAt más viejo que el local
+        if (item.actualizadoAt && remoteItem.actualizadoAt) {
+          const localTime = new Date(item.actualizadoAt).getTime();
+          const remoteTime = new Date(remoteItem.actualizadoAt).getTime();
+          if (remoteTime < localTime) {
+            return item;
+          }
+        }
+
+        // Orden 66 (Bloque 1): Si el operador tiene el foco en este ítem, no pisamos la cantidad que escribe
+        const cantidad = (focusedItemId && focusedItemId === item.id)
+          ? item.cantidad
+          : (remoteItem.cantidad !== undefined ? remoteItem.cantidad : item.cantidad);
+
         return {
           ...item,
+          cantidad,
           cargado: remoteItem.cargado,
           retornado: remoteItem.retornado,
           cargadoAt: remoteItem.cargadoAt,
           cargadoPor: remoteItem.cargadoPor,
           retornadoAt: remoteItem.retornadoAt,
           retornadoPor: remoteItem.retornadoPor,
-          actualizadoAt: remoteItem.actualizadoAt,
-          actualizadoPor: remoteItem.actualizadoPor,
+          actualizadoAt: remoteItem.actualizadoAt || item.actualizadoAt,
+          actualizadoPor: remoteItem.actualizadoPor || item.actualizadoPor,
+          hasConflict: remoteItem.hasConflict !== undefined ? remoteItem.hasConflict : item.hasConflict,
+          availableStockAtDate: remoteItem.availableStockAtDate !== undefined ? remoteItem.availableStockAtDate : item.availableStockAtDate,
         };
       }),
     })),
@@ -179,7 +205,7 @@ function ListaDeCargaOperativaContent() {
 
   const [listaDeCarga, setListaDeCarga] = useState<ListaDeCargaOperativa>({ categorias: [], notasGenerales: '' });
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]); 
+  const [activosCatalogo, setActivosCatalogo] = useState<ServicioEmpresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -189,9 +215,10 @@ function ListaDeCargaOperativaContent() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasPendingStructure, setHasPendingStructure] = useState(false);
+  const focusedItemIdRef = useRef<string | null>(null);
 
   const [newCategoryName, setNewCategoryName] = useState('');
-  
+
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [categoryForCatalogSelect, setCategoryForCatalogSelect] = useState<CargaOperativaCategoria | null>(null);
@@ -199,7 +226,10 @@ function ListaDeCargaOperativaContent() {
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const loadData = useCallback(async (showLoading = true) => {
-    if (!fiestaId) return;
+    if (!fiestaId) {
+      setIsLoading(false);
+      return;
+    }
     if (showLoading) setIsLoading(true);
     setError(null);
     try {
@@ -208,29 +238,33 @@ function ListaDeCargaOperativaContent() {
         getActivosFijos(),
         getCargaOperativaMasterTemplate()
       ]);
-      
+
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
-      
+
       let loadedLista = fiestaData.listaDeCargaOperativa;
-      
+
       const hasNoData = !loadedLista || !loadedLista.categorias || loadedLista.categorias.length === 0;
-      
+
       if (hasNoData) {
           loadedLista = { ...masterTemplate };
       }
 
       // Módulo 1: Procesar conflictos al cargar
       if (fiestaData.configuracion.fechaEvento && loadedLista?.categorias) {
-          const updatedCategorias = await Promise.all(loadedLista.categorias.map(async cat => ({
-              ...cat,
-              items: await checkAssetConflicts(fiestaId, fiestaData.configuracion.fechaEvento!, cat.items || [])
-          })));
-          loadedLista.categorias = updatedCategorias;
+          const allItems = loadedLista.categorias.flatMap(cat => cat.items || []);
+          if (allItems.length > 0) {
+              const checkedItems = await checkAssetConflicts(fiestaId, fiestaData.configuracion.fechaEvento!, allItems);
+              const checkedMap = new Map(checkedItems.map(item => [item.id, item]));
+              loadedLista.categorias = loadedLista.categorias.map(cat => ({
+                  ...cat,
+                  items: (cat.items || []).map(item => checkedMap.get(item.id) || item)
+              }));
+          }
       }
 
       const categoriasConItems = (loadedLista?.categorias || []).map(cat => ({
         ...cat,
-        items: cat.items || [] 
+        items: cat.items || []
       }));
       setListaDeCarga({ ...(loadedLista || { categorias: [], notasGenerales: '' }), categorias: categoriasConItems });
       setHasPendingStructure(false);
@@ -265,7 +299,7 @@ function ListaDeCargaOperativaContent() {
       if (document.visibilityState !== 'visible' || pendingItemUpdates > 0) return;
       const result = await getCargaOperativaAccessView(fiestaId);
       if (!result.success || !result.data) return;
-      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.data!.lista));
+      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.data!.lista, focusedItemIdRef.current));
     };
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') void refreshOperationalState();
@@ -297,7 +331,7 @@ function ListaDeCargaOperativaContent() {
       if (!result.success || !result.updatedData) {
         throw new Error(result.error || 'No se pudo guardar el cambio.');
       }
-      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.updatedData!));
+      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.updatedData!, focusedItemIdRef.current));
       setLastSaved(new Date());
     } catch (patchError) {
       setSaveError(patchError instanceof Error ? patchError.message : 'No se pudo guardar.');
@@ -328,7 +362,7 @@ function ListaDeCargaOperativaContent() {
       if (!presupuesto) throw new Error("No se pudo obtener el presupuesto.");
 
       const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 100;
-      
+
       const targetAssetCategories = new Set<string>();
       presupuesto.itemsPresupuestados.forEach(item => {
           const cat = (item.categoriaServicio || '').toLowerCase();
@@ -507,13 +541,13 @@ function ListaDeCargaOperativaContent() {
     }));
     setHasPendingStructure(true);
   };
-  
+
   const handleCatalogItemSelected = async (selectedAsset: ServicioEmpresa) => {
     if (!categoryForCatalogSelect) return;
-    
-    const guests = Number(fiesta?.configuracion.invitadosEstimados) || 100; 
+
+    const guests = Number(fiesta?.configuracion.invitadosEstimados) || 100;
     let qty = '1';
-    
+
     if (selectedAsset.categoria?.includes('Vajilla')) {
         qty = String(guests);
     } else if (selectedAsset.categoria?.includes('Mantelería') && selectedAsset.nombre.toLowerCase().includes('mantel')) {
@@ -535,7 +569,7 @@ function ListaDeCargaOperativaContent() {
 
     // Módulo 1: Chequear conflicto para el nuevo ítem
     const checkedItem = (await checkAssetConflicts(fiestaId!, fiesta?.configuracion.fechaEvento!, [newItem]))[0];
-    
+
     setListaDeCarga(prev => ({
       ...prev,
       categorias: (prev.categorias || []).map(cat =>
@@ -545,10 +579,10 @@ function ListaDeCargaOperativaContent() {
       ),
     }));
     setHasPendingStructure(true);
-    
+
     toast({ description: `"${selectedAsset.nombre}" añadido.` });
   };
-  
+
   const openSelectFromCatalogModal = (category: CargaOperativaCategoria) => {
     setCategoryForCatalogSelect(category);
     setCatalogSearchTerm('');
@@ -588,7 +622,7 @@ function ListaDeCargaOperativaContent() {
     }));
     void persistItemPatch(categoryId, itemId, { retornado });
   };
-  
+
   const handleItemQuantityChange = (categoryId: string, itemId: string, newQuantity: string) => {
     setListaDeCarga(prev => ({
       ...prev,
@@ -600,8 +634,39 @@ function ListaDeCargaOperativaContent() {
     }));
   };
 
-  const handleItemQuantityCommit = (categoryId: string, itemId: string, quantity: string) => {
+  const handleItemQuantityCommit = async (categoryId: string, itemId: string, quantity: string) => {
     void persistItemPatch(categoryId, itemId, { cantidad: quantity });
+    if (!fiestaId || !fiesta?.configuracion?.fechaEvento) return;
+    const cat = (listaDeCarga.categorias || []).find((c) => c.id === categoryId);
+    const item = (cat?.items || []).find((i) => i.id === itemId);
+    if (!item) return;
+    const itemConNuevaCantidad = { ...item, cantidad: quantity };
+    const checked = (await checkAssetConflicts(
+      fiestaId,
+      fiesta.configuracion.fechaEvento,
+      [itemConNuevaCantidad]
+    ))[0];
+    if (checked) {
+      setListaDeCarga((prev) => ({
+        ...prev,
+        categorias: (prev.categorias || []).map((c) =>
+          c.id === categoryId
+            ? {
+                ...c,
+                items: (c.items || []).map((i) =>
+                  i.id === itemId
+                    ? {
+                        ...i,
+                        hasConflict: checked.hasConflict,
+                        availableStockAtDate: checked.availableStockAtDate,
+                      }
+                    : i
+                ),
+              }
+            : c
+        ),
+      }));
+    }
   };
 
   const handleDeleteItem = (categoryId: string, itemId: string) => {
@@ -615,7 +680,7 @@ function ListaDeCargaOperativaContent() {
     }));
     setHasPendingStructure(true);
   };
-  
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over, activatorEvent } = event;
     const categoryId = (activatorEvent.target as HTMLElement).closest('[data-category-id]')?.getAttribute('data-category-id');
@@ -635,12 +700,12 @@ function ListaDeCargaOperativaContent() {
         setHasPendingStructure(true);
     }
   };
-  
+
   const filteredCatalogItems = useMemo(() => {
     if (!catalogSearchTerm) return activosCatalogo;
     const lowerSearch = catalogSearchTerm.toLowerCase();
     return activosCatalogo.filter(
-      item => item.nombre.toLowerCase().includes(lowerSearch) || 
+      item => item.nombre.toLowerCase().includes(lowerSearch) ||
               item.categoria?.toLowerCase().includes(lowerSearch)
     );
   }, [activosCatalogo, catalogSearchTerm]);
@@ -673,10 +738,20 @@ function ListaDeCargaOperativaContent() {
     );
   }
 
+  if (!fiestaId) {
+    return (
+      <EmptyStateModulo
+        titulo="Carga Operativa"
+        descripcion="Entrá al control de carga operativa desde la fiesta: elegí el evento en el listado y abrí su logística."
+        fiestaId=""
+      />
+    );
+  }
+
   return (
     <div data-testid="carga-operativa-page" className="max-w-4xl mx-auto space-y-8 pb-20">
        <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}><DialogContent className="sm:max-w-lg rounded-3xl border-none"><DialogHeader><DialogTitle className="font-headline text-2xl">Catálogo de Activos</DialogTitle><DialogDescription>Añadiendo a: <span className="font-bold text-primary">{categoryForCatalogSelect?.nombre}</span></DialogDescription></DialogHeader><div className="py-2 space-y-4"><div className="relative"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><Input type="text" placeholder="Buscar por nombre o categoría..." value={catalogSearchTerm} onChange={(e) => setCatalogSearchTerm(e.target.value)} className="w-full pl-10 rounded-xl h-12 bg-slate-50 border-none shadow-inner"/></div><ScrollArea className="h-[350px] border-none pr-4">{isLoading ? <div className="p-12 text-center"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary"/></div> : filteredCatalogItems.length > 0 ? (<div className="space-y-2">{filteredCatalogItems.map(item => (<Button key={item.id} type="button" variant="ghost" className="w-full justify-start text-left h-auto py-3 px-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100" onClick={() => handleCatalogItemSelected(item)}><div><p className="font-bold text-slate-800">{item.nombre}</p><p className="text-[10px] uppercase font-black tracking-widest text-slate-400">{item.categoria} • Stock: {item.cantidadDisponible || 0}</p></div></Button>))}</div>) : (<div className="p-12 text-center space-y-3 text-slate-400"><PackageSearch className="w-12 h-12 mx-auto opacity-20"/><p className="text-sm font-medium">No se encontraron activos.</p></div>)}</ScrollArea></div><DialogFooter><DialogClose asChild><Button type="button" variant="outline" className="rounded-xl h-12 w-full sm:w-auto">Cerrar</Button></DialogClose></DialogFooter></DialogContent></Dialog>
-       
+
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <div className="p-4 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white">
@@ -727,7 +802,7 @@ function ListaDeCargaOperativaContent() {
           )}
         </div>
       </div>
-      
+
       {/* Progress Bar */}
       {totalItems > 0 && (
         <Card className="rounded-2xl shadow-sm border-slate-100">
@@ -800,7 +875,7 @@ function ListaDeCargaOperativaContent() {
                         <BookOpen className="w-4 h-4 mr-2 text-primary"/> Añadir desde Catálogo
                         </Button>
                     </div>
-                    
+
                     <ScrollArea className="h-auto max-h-[500px] pr-2">
                         {category.items && category.items.length > 0 ? (
                         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -815,6 +890,8 @@ function ListaDeCargaOperativaContent() {
                                         onToggleRetornado={toggleItemRetornado}
                                         onQuantityChange={handleItemQuantityChange}
                                         onQuantityCommit={handleItemQuantityCommit}
+                                        onQuantityFocus={(id) => { focusedItemIdRef.current = id; }}
+                                        onQuantityBlur={() => { focusedItemIdRef.current = null; }}
                                         onDelete={handleDeleteItem}
                                     />
                                 ))}

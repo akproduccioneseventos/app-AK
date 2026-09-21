@@ -38,6 +38,7 @@ import { calculateSimulatorPricing, type SimulatorPriceStats } from '@/lib/simul
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
 import type { DecoracionData, LayoutElement } from '@/types/fiesta';
+import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 
 // Carga diferida del componente Three.js 3D para evitar errores de renderizado en el servidor
 const SalonScene = dynamic(
@@ -262,7 +263,7 @@ export default function ConfiguradorReunionPage() {
       }));
 
       const totalGuests = (Number(adultos) || 0) + (Number(menores) || 0);
-      const res = await savePresupuesto({
+      const res = await conTopeDeEspera(savePresupuesto({
         clienteNombre: clienteNombre.trim(),
         clienteContacto: clienteTelefono.trim(),
         eventoTipo: tipoEvento,
@@ -279,7 +280,7 @@ export default function ConfiguradorReunionPage() {
         descuentoTipo: 'fijo',
         estado: 'Borrador',
         timestamp: new Date().toISOString(),
-      });
+      }));
 
       if (res.success && res.id) {
         setSavedResult({ id: res.id, numero: res.presupuesto?.numero });

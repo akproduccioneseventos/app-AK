@@ -138,6 +138,12 @@ export default function TouchpixPage() {
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
   const [retakesCount, setRetakesCount] = useState(0);
   const activeUploadSessionIdRef = useRef<string | null>(null);
+  const currentPhotoSessionIdRef = useRef<string>(photoSessionId);
+  const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    currentPhotoSessionIdRef.current = photoSessionId;
+  }, [photoSessionId]);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [fondoVirtual, setFondoVirtual] = useState<OpcionFondo>({ id: 'ninguno', nombre: 'Sin fondo', tipo: 'ninguno' });
   const imagenFondoRef = useRef<HTMLImageElement | null>(null);
@@ -365,14 +371,21 @@ export default function TouchpixPage() {
     overlayMainEmoji?: string
   ) => {
     const offscreen = processingCanvasRef.current;
-    if (!offscreen) return;
+    if (!offscreen) {
+      onComplete(sourceDataUrl);
+      return;
+    }
 
     const img = new Image();
+    img.onerror = () => onComplete(sourceDataUrl);
     img.onload = () => {
       offscreen.width = img.width;
       offscreen.height = img.height;
       const ctx = offscreen.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) {
+        onComplete(sourceDataUrl);
+        return;
+      }
 
       ctx.filter = filterStr;
       ctx.drawImage(img, 0, 0);
@@ -418,7 +431,7 @@ export default function TouchpixPage() {
       onComplete(offscreen.toDataURL('image/jpeg', 0.92));
     };
     img.src = sourceDataUrl;
-  }, [drawWatermark]);
+  }, [drawWatermark, selectedTheme, fiesta?.station.enableBeautyFilter, fiesta?.station.enableChromaKey]);
 
   /* ── Capture ── */
   const captureRawPhoto = useCallback((): string | null => {
@@ -463,13 +476,13 @@ export default function TouchpixPage() {
     const raw = captureRawPhoto();
     if (!raw) return;
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    await updateEntertainmentSessionStatus(
+    void updateEntertainmentSessionStatus(
       fiestaId,
       'espejoMagicoIA',
       'recording',
       {},
       accessToken
-    );
+    ).catch(() => undefined);
     setRawCapturedImage(raw);
     setProcessingResult(null);
     stopCamera();
@@ -714,14 +727,23 @@ export default function TouchpixPage() {
 
   /* ── Retake ── */
   const retake = useCallback((isUserInitiated = false) => {
+    setIsUploading(false);
+    if (resetTimerRef.current) {
+      clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
+    }
     setCapturedImage(null);
     setRawCapturedImage(null);
     setIsProcessing(false);
     setProcessingResult(null);
     setQueuedOffline(false);
+    setShowSuccess(false);
     setWizardStep(0);
     setConsentAccepted(false);
-    setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+    const nextSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    currentPhotoSessionIdRef.current = nextSessionId;
+    activeUploadSessionIdRef.current = nextSessionId;
+    setPhotoSessionId(nextSessionId);
     if (!isUserInitiated) {
       setRetakesCount(0);
     }
@@ -730,14 +752,20 @@ export default function TouchpixPage() {
   }, [accessToken, fiestaId, startCamera]);
 
   const handleUserRetake = useCallback(() => {
-    setRetakesCount((prev) => prev + 1);
-    retake(true);
-  }, [retake]);
+    const maxRetakes = fiesta?.station?.maxRetakes ?? 3;
+    if (retakesCount < maxRetakes) {
+      setRetakesCount(prev => prev + 1);
+      retake(true);
+    }
+  }, [fiesta?.station?.maxRetakes, retake, retakesCount]);
 
+  /* ── Auto Review Timer: returns to camera if idle ── */
   useEffect(() => {
     if (capturedImage && !isProcessing && !isUploading && fiesta?.station?.reviewSeconds) {
       const timer = setTimeout(() => {
-        retake();
+        if (capturedImage && !isProcessing && !isUploading) {
+          retake();
+        }
       }, fiesta.station.reviewSeconds * 1000);
       return () => clearTimeout(timer);
     }
@@ -747,8 +775,10 @@ export default function TouchpixPage() {
   const handleUpload = useCallback(async () => {
     if (!capturedImage) return;
     setIsUploading(true);
-    const sessionForThisUpload = photoSessionId;
+    const sessionForThisUpload = currentPhotoSessionIdRef.current || photoSessionId;
     activeUploadSessionIdRef.current = sessionForThisUpload;
+
+    const isLiveSession = () => currentPhotoSessionIdRef.current === sessionForThisUpload;
 
     let pendingFile: File | null = null;
     let uploadConfirmed = false;
@@ -788,10 +818,18 @@ export default function TouchpixPage() {
         { mediaUrl: res.post?.imageUrl, reviewPending: false },
         accessToken
       );
+
+      if (!isLiveSession()) {
+        return;
+      }
       setQueuedOffline(false);
+
       setShowSuccess(true);
-      setTimeout(() => {
-        if (activeUploadSessionIdRef.current === sessionForThisUpload) {
+      if (resetTimerRef.current) {
+        clearTimeout(resetTimerRef.current);
+      }
+      resetTimerRef.current = setTimeout(() => {
+        if (isLiveSession()) {
           setShowSuccess(false);
           retake();
         }
@@ -803,10 +841,14 @@ export default function TouchpixPage() {
       // La foto ya llegó aunque haya fallado la actualización secundaria del estado,
       // o el servidor la reconoció por su huella. En ambos casos no se vuelve a subir.
       if (uploadConfirmed || uploadDecision === 'duplicate') {
+        if (!isLiveSession()) return;
         setQueuedOffline(false);
         setShowSuccess(true);
-        setTimeout(() => {
-          if (activeUploadSessionIdRef.current === sessionForThisUpload) {
+        if (resetTimerRef.current) {
+          clearTimeout(resetTimerRef.current);
+        }
+        resetTimerRef.current = setTimeout(() => {
+          if (isLiveSession()) {
             setShowSuccess(false);
             retake();
           }
@@ -837,6 +879,7 @@ export default function TouchpixPage() {
                 : undefined,
             },
           });
+          if (!isLiveSession()) return;
           setQueuedOffline(true);
           setShowSuccess(true);
           void updateEntertainmentSessionStatus(
@@ -846,8 +889,11 @@ export default function TouchpixPage() {
             { mediaUrl: null, reviewPending: true },
             accessToken,
           ).catch(() => undefined);
-          setTimeout(() => {
-            if (activeUploadSessionIdRef.current === sessionForThisUpload) {
+          if (resetTimerRef.current) {
+            clearTimeout(resetTimerRef.current);
+          }
+          resetTimerRef.current = setTimeout(() => {
+            if (isLiveSession()) {
               setShowSuccess(false);
               retake();
             }
@@ -857,9 +903,13 @@ export default function TouchpixPage() {
           console.error('[Touchpix] No se pudo guardar la foto sin conexión:', offlineError);
         }
       }
-      alert('No se pudo subir la foto: ' + errMsg);
+      if (isLiveSession()) {
+        alert('No se pudo subir la foto: ' + errMsg);
+      }
     } finally {
-      setIsUploading(false);
+      if (isLiveSession()) {
+        setIsUploading(false);
+      }
     }
   }, [accessToken, activeTab, capturedImage, fiestaId, guestAccessToken, guestId, photoSessionId, retake, selectedAiTheme, selectedCharacter]);
 
@@ -879,6 +929,8 @@ export default function TouchpixPage() {
     useEffect(() => {
       import('qrcode.react').then(mod => {
         setQRComponent(() => mod.QRCodeSVG);
+      // no pasa nada si falla: es el dibujo del codigo QR; si no carga, la pantalla sigue
+      // andando y la foto se sube igual.
       }).catch(() => {});
     }, []);
 
@@ -1683,3 +1735,4 @@ export default function TouchpixPage() {
     </div>
   );
 }
+

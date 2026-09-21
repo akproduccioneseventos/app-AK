@@ -91,11 +91,11 @@ test('desde la comida se llega a la hoja de cocina en un toque', async ({ contex
   const aLaLista = await page.locator(`a[href*="/fiestas/nueva/catering/lista-compras"]`).count();
   const aLaHoja = await page.locator(`a[href*="/fiestas/nueva/catering/hoja-de-cocina"]`).count();
 
-  if (aLaLista === 0) {
-    // La pantalla no dibujo sus botones (pide elegir un evento): no hay nada que
-    // comprobar, y decir que paso seria mentir. Se deja dicho.
-    test.skip(true, 'La pantalla de comida pidio elegir un evento: no dibujo ningun boton.');
-  }
+  // ANTES ESTO SE SALTEABA cuando la pantalla pedia elegir un evento. Eso pasaba porque
+  // la sesion se ponia a medias y la fiesta de prueba no llegaba; quedo arreglado el 20 de
+  // septiembre de 2026. Ahora, si la pantalla de comida no dibuja sus botones, **es una
+  // falla**: era una puerta de emergencia que tenia apagada esta prueba.
+  expect(aLaLista, 'la pantalla de comida tiene que llevar a la lista de compras').toBeGreaterThan(0);
 
   expect(aLaHoja, 'si se llega a la lista de compras, se llega a la hoja de cocina').toBeGreaterThan(0);
 });

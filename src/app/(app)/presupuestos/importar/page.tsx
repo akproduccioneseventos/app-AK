@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, Suspense } from 'react';
+import { queSeLeDiceAlImportar } from '@/lib/presupuestos/aviso-de-importacion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -94,7 +95,14 @@ function ImportarPageContent() {
         setWarnings(result.warnings || []);
         return;
       }
-      toast({ title: 'Presupuesto importado', description: `Se creó el presupuesto ${result.presupuestoId}.` });
+      // SI ALGO QUEDO A MEDIAS, SE DICE ANTES DE IRSE DE LA PANTALLA.
+      // La decision vive en `queSeLeDiceAlImportar`, que se prueba aparte.
+      const aviso = queSeLeDiceAlImportar(result);
+      toast({
+        title: aviso.titulo,
+        description: aviso.detalle,
+        ...(aviso.esAMedias ? { variant: 'destructive' as const, duration: 15000 } : {}),
+      });
       router.push(`/presupuestos/${result.presupuestoId}/ver`);
     } finally {
       setLoading(false);

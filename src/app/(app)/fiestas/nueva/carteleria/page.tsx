@@ -79,18 +79,14 @@ const TENT_FOLD_TOP_MM = 30;
 const TENT_FOLD_BASE_MM = 87;
 const TENT_FOLD_FACE_MM = 90;
 
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+
 const formatDate = (dateString?: string) => {
   if (!dateString) return '';
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  } catch {
-    return dateString;
-  }
+  return formatearFechaEvento(dateString);
 };
 
-/** Extrae los elementos de tipo mesa de la lista de elementos del diseño de salón */
-const filterTableElements = (salonElements: LayoutElement[]) =>
-  salonElements.filter(el => el.type === 'element' && (el.seats != null || el.name?.toLowerCase().includes('mesa')));
+import { filterTableElements } from '@/lib/mesas/contar-mesas';
 
 // ---------------------------------------------------------------------------
 // QR Card (Social Wall) – 10×15 cm card
@@ -440,12 +436,28 @@ function CarteleriaContent() {
         carteleriaQrTexto: qrSubtitle,
       };
 
-      await Promise.all([
+      const [resTragos, resMenu, resMesas, resConfig] = await Promise.all([
         updateCartaTragos(fiestaId, cartaTragos),
         updateMenuMesa(fiestaId, menuMesa),
         updateNumerosMesa(fiestaId, numerosMesa),
         updateConfiguracionFiestaActual(fiestaId, configToSave),
       ]);
+
+      const fallos: string[] = [];
+      if (!resTragos?.success) fallos.push('Carta de tragos');
+      if (!resMenu?.success) fallos.push('Menú de mesa');
+      if (!resMesas?.success) fallos.push('Números de mesa');
+      if (!resConfig?.success) fallos.push('Configuración general');
+
+      if (fallos.length > 0) {
+        toast({
+          title: 'Error al guardar cartelería',
+          description: `No se pudo guardar: ${fallos.join(', ')}.`,
+          variant: 'destructive',
+        });
+        return;
+      }
+
       setFiesta(prev => prev ? ({ ...prev, configuracion: configToSave }) : prev);
       toast({ title: '¡Kit guardado!', description: 'La cartelería ha sido actualizada.' });
     } catch (e: unknown) {

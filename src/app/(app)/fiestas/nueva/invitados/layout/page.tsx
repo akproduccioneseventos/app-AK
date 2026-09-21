@@ -8,12 +8,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers, Ruler, Filter, Group, Box, Monitor, Wand2 } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, AlertTriangle, Square, Circle, Users, GripVertical, Trash2, Edit, RotateCw, PlusCircle, LayoutDashboard, Disc, Clapperboard, Sofa, Camera as CameraIcon, Search, Printer, Settings2, FolderDown, FolderUp, Maximize, ZoomIn, ZoomOut, Upload, Map, ChevronsUp, ChevronsDown, X, Armchair, PartyPopper, Ticket, UserMinus, CookingPot, Beer, Layers, Ruler, Filter, Group, Box, Monitor, Wand2, Tv, Sparkles } from 'lucide-react';
 import Draggable, { type DraggableData, type DraggableEvent } from 'react-draggable';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, LayoutElementType } from '@/types/fiesta';
 import { updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { generarEscenaAutomatica } from '@/lib/decoracion/generar-layout-automatico';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -129,9 +131,9 @@ const Seat: React.FC<{
     const seatSpacing = perimeter / total;
     let currentPosition = index * seatSpacing;
     let x = 0, y = 0;
-    if (currentPosition <= width) { x = currentPosition; y = -15; } 
-    else if (currentPosition <= width + height) { x = width + 15; y = currentPosition - width; } 
-    else if (currentPosition <= 2 * width + height) { x = width - (currentPosition - (width + height)); y = height + 15; } 
+    if (currentPosition <= width) { x = currentPosition; y = -15; }
+    else if (currentPosition <= width + height) { x = width + 15; y = currentPosition - width; }
+    else if (currentPosition <= 2 * width + height) { x = width - (currentPosition - (width + height)); y = height + 15; }
     else { x = -15; y = height - (currentPosition - (2 * width + height)); }
     style = { left: `${x}px`, top: `${y}px`, transform: 'translate(-50%, -50%)' };
   }
@@ -206,9 +208,9 @@ const DraggableElement: React.FC<{
                     {!isArea && Array.from({ length: el.seats || 0 }).map((_, i) => (
                         <Seat key={i} index={i} total={el.seats || 0} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width ?? 0} height={el.height ?? 0} />
                     ))}
-                    <div 
+                    <div
                         className={cn(
-                            'w-full h-full border-2 flex flex-col p-2 overflow-hidden transition-all duration-300', 
+                            'w-full h-full border-2 flex flex-col p-2 overflow-hidden transition-all duration-300',
                             isRound && 'rounded-full',
                             isSelected ? 'border-primary shadow-2xl' : 'border-slate-400 shadow-sm',
                             isOver && 'border-primary bg-primary/10 ring-4 ring-primary/20',
@@ -243,13 +245,13 @@ const DraggableElement: React.FC<{
                         </div>
                     </div>
                 </div>
-                
+
                 {/* Modern Toolbar */}
                 {isSelected && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white/90 backdrop-blur-md border border-slate-200 shadow-2xl p-1.5 rounded-2xl z-[100]" 
+                        className="absolute -top-14 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white/90 backdrop-blur-md border border-slate-200 shadow-2xl p-1.5 rounded-2xl z-[100]"
                         style={{ transform: `translateX(-50%) rotate(-${el.rotation}deg)` }}
                     >
                         <Button variant="ghost" size="icon" className="h-8 w-8 rounded-xl hover:bg-slate-100" onClick={(e) => { e.stopPropagation(); onEdit(); }} title="Editar medidas"><Settings2 className="w-4 h-4"/></Button>
@@ -285,14 +287,14 @@ function SalonLayoutContent() {
   const [view3d, setView3d] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const salonSceneRef = useRef<{ captureScreenshot: () => string | null } | null>(null);
-  
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingElement, setEditingElement] = useState<LayoutElement | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
 
   const [isCustomElementModalOpen, setIsCustomElementModalOpen] = useState(false);
   const [customElement, setCustomElement] = useState({ name: '', width: 2, height: 1, type: 'element' as 'element' | 'area', shape: 'rectangle' as 'rectangle' | 'circle' });
-  
+
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
@@ -316,17 +318,34 @@ function SalonLayoutContent() {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setFiesta(fiestaData);
-      const deco = fiestaData.decoracion || { salonElements: [], pixelsPerMeter: PIXELS_PER_METER_DEFAULT, salonWidth: 15, salonHeight: 15 };
+      let deco = fiestaData.decoracion || { salonElements: [], pixelsPerMeter: PIXELS_PER_METER_DEFAULT, salonWidth: 15, salonHeight: 15 };
       // Sanitize: ensure salonElements is always an array with valid entries
       if (!Array.isArray(deco.salonElements)) deco.salonElements = [];
       deco.salonElements = deco.salonElements.filter(el => el && el.id && typeof el.x === 'number' && typeof el.y === 'number');
       deco.pixelsPerMeter = deco.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
       deco.salonWidth = deco.salonWidth || 15;
       deco.salonHeight = deco.salonHeight || 15;
+
+      // Si el plano está vacío, se arma solo con lo contratado sin pisar nada si ya existe
+      if ((deco.salonElements || []).length === 0) {
+        let pres = null;
+        if (fiestaData.presupuestoId) {
+          try {
+            pres = await getPresupuestoById(fiestaData.presupuestoId);
+          } catch {
+            // Ignorar fallo al cargar presupuesto secundario
+          }
+        }
+        const auto = generarEscenaAutomatica({ fiesta: fiestaData, presupuesto: pres });
+        if (auto.aplicado && auto.elementosGenerados > 0) {
+          deco = auto.decoracion;
+        }
+      }
+
       setDecoracion(deco);
 
       // If the current layout is empty, check if the fiesta's venue matches a salon with a saved layout
-      if (deco.salonElements.length === 0 && fiestaData.configuracion.nombreLugar) {
+      if ((deco.salonElements || []).length === 0 && fiestaData.configuracion.nombreLugar) {
         try {
           const salones = await getSalones();
           const normalizedVenue = fiestaData.configuracion.nombreLugar.toLowerCase().trim();
@@ -374,7 +393,7 @@ function SalonLayoutContent() {
     debounceMs: 2000,
     enabled: !!fiestaId && !isLoading && !!decoracion,
   });
-  
+
   const handleDragStop = (e: any, data: DraggableData, elementId: string) => {
     if (!decoracion) return;
     const newElements = (decoracion.salonElements || []).map(el =>
@@ -382,39 +401,73 @@ function SalonLayoutContent() {
     );
     setDecoracion({ ...decoracion, salonElements: newElements });
   };
-  
- const addElement = (category: string, customProps?: Partial<LayoutElement>, type: LayoutElementType = 'element') => {
+
+  const addElement = (category: string, customProps?: Partial<LayoutElement>, type: LayoutElementType = 'element') => {
     if (!decoracion) return;
     const ppm = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
     let defaultProps: Partial<LayoutElement> = { width: 2 * ppm, height: 2 * ppm, seats: 8, shape: 'circle' };
 
-    if (category === 'Mesa Rectangular') { defaultProps = { width: 3 * ppm, height: 1.5 * ppm, seats: 8, shape: 'rectangle' }; }
-    else if (category === 'Pista de Baile') { defaultProps = { width: 6 * ppm, height: 5 * ppm, seats: undefined, backgroundColor: 'rgba(56, 189, 248, 0.2)', shape: 'rectangle' }; }
-    else if (category === 'Escenario') { defaultProps = { width: 5 * ppm, height: 3 * ppm, seats: undefined, backgroundColor: 'rgba(139, 92, 246, 0.2)', shape: 'rectangle' }; }
-    else if (category === 'Living') { defaultProps = { width: 4 * ppm, height: 4 * ppm, seats: undefined, backgroundColor: 'rgba(234, 179, 8, 0.2)', shape: 'rectangle' }; }
-    else if (category === 'Área de Fotos') { defaultProps = { width: 3 * ppm, height: 2.5 * ppm, seats: undefined, backgroundColor: 'rgba(236, 72, 153, 0.2)', shape: 'rectangle' }; }
-    else if (category === 'Barra') { defaultProps = { width: 4 * ppm, height: 1.5 * ppm, seats: undefined, backgroundColor: 'rgba(16, 185, 129, 0.2)', shape: 'rectangle' }; }
+    if (category === 'Mesa Rectangular') {
+      defaultProps = { width: 3 * ppm, height: 1.5 * ppm, seats: 8, shape: 'rectangle' };
+    } else if (category === 'Pista de Baile') {
+      defaultProps = { width: 6 * ppm, height: 5 * ppm, seats: undefined, backgroundColor: 'rgba(56, 189, 248, 0.2)', shape: 'rectangle' };
+    } else if (category === 'Escenario') {
+      defaultProps = { width: 5 * ppm, height: 3 * ppm, seats: undefined, backgroundColor: 'rgba(139, 92, 246, 0.2)', shape: 'rectangle' };
+    } else if (category === 'Living' || category === 'Sector de Sillones') {
+      defaultProps = { width: 3.5 * ppm, height: 3 * ppm, seats: undefined, backgroundColor: 'rgba(234, 179, 8, 0.2)', shape: 'rectangle' };
+    } else if (category === 'Área de Fotos' || category === 'Photo-opportunity') {
+      defaultProps = { width: 3 * ppm, height: 2 * ppm, seats: undefined, backgroundColor: 'rgba(236, 72, 153, 0.2)', shape: 'rectangle' };
+    } else if (category === 'Barra') {
+      defaultProps = { width: 4 * ppm, height: 1.5 * ppm, seats: undefined, backgroundColor: 'rgba(16, 185, 129, 0.2)', shape: 'rectangle' };
+    } else if (category === 'Mesa de la Torta') {
+      defaultProps = { width: 2 * ppm, height: 2 * ppm, seats: 0, backgroundColor: '#ffffff', shape: 'circle' };
+    } else if (category === 'Pantalla LED') {
+      defaultProps = { width: 3.5 * ppm, height: 1 * ppm, seats: undefined, backgroundColor: '#09090b', shape: 'rectangle' };
+    }
 
     const newElement: LayoutElement = {
-      id: `el_${Date.now()}`, 
+      id: `el_${Date.now()}`,
       name: customProps?.name || `${category} ${(decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
-      x: 40, y: 40, rotation: 0, 
+      x: 40, y: 40, rotation: 0,
       zIndex: type === 'area' ? 0 : (decoracion.salonElements?.length || 0) + 1,
-      ...defaultProps, 
-      ...customProps, 
-      category, 
+      ...defaultProps,
+      ...customProps,
+      category,
       type: type,
     };
     setDecoracion(prev => prev ? ({ ...prev, salonElements: [...(prev.salonElements || []), newElement] }) : null);
   };
-  
+
+  const handleAutoArmar = async () => {
+    if (!fiesta) return;
+    if ((decoracion?.salonElements || []).length > 0) {
+      toast({
+        title: "El plano ya está armado",
+        description: "Para no pisar el trabajo hecho, el auto-armado solo corre en planos vacíos.",
+      });
+      return;
+    }
+    let pres = null;
+    if (fiesta.presupuestoId) {
+      try { pres = await getPresupuestoById(fiesta.presupuestoId); } catch {}
+    }
+    const res = generarEscenaAutomatica({ fiesta, presupuesto: pres });
+    if (res.aplicado && res.elementosGenerados > 0) {
+      setDecoracion(res.decoracion);
+      toast({
+        title: "Escena armada con éxito",
+        description: `Se distribuyeron ${res.elementosGenerados} elementos según lo contratado.`,
+      });
+    }
+  };
+
   const handleUpdateElement = () => {
     if (!editingElement || !decoracion) return;
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).map(el => el.id === editingElement.id ? editingElement : el ) });
     setIsEditModalOpen(false);
     setEditingElement(null);
   };
-  
+
   const handleElementRotation = (elementId: string) => {
     if (!decoracion) return;
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).map(el => el.id === elementId ? { ...el, rotation: (el.rotation || 0) + 45 % 360 } : el ) });
@@ -436,11 +489,11 @@ function SalonLayoutContent() {
     if (!decoracion) return;
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).filter(el => el.id !== elementId) });
   };
-  
+
   const handleSaveAll = () => {
     saveNow();
   };
-  
+
   const handleLoadTemplate = async () => {
     setIsTemplateActionLoading(true);
     try {
@@ -485,7 +538,7 @@ function SalonLayoutContent() {
       setProcessingPointName(null);
     }
   };
-  
+
   const handleAssignGuestToTable = async (guestId: string, tableName: string | null) => {
     const guestToUpdate = fiesta?.invitados?.find(inv => inv.id === guestId);
     if (!guestToUpdate || !fiestaId) return;
@@ -546,7 +599,7 @@ function SalonLayoutContent() {
     if (!decoracion) return;
 
     const ppm = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
-    
+
     const newElementData: Partial<LayoutElement> = {
         name: customElement.name,
         width: (customElement.width || 2) * ppm,
@@ -556,9 +609,9 @@ function SalonLayoutContent() {
         seats: customElement.shape === 'circle' ? 8 : undefined,
         backgroundColor: customElement.type === 'area' ? 'rgba(59, 130, 246, 0.1)' : undefined,
     };
-    
+
     addElement(newElementData.category!, newElementData, customElement.type);
-    
+
     setIsCustomElementModalOpen(false);
     setCustomElement({ name: '', width: 2, height: 1, type: 'element', shape: 'rectangle' });
   };
@@ -593,7 +646,7 @@ function SalonLayoutContent() {
   const filteredInvitados = useMemo(() => {
     if (!fiesta?.invitados) return { conMesa: [], sinMesa: [] };
     const lowerCaseSearch = guestSearchTerm.toLowerCase();
-    
+
     const guestsToConsider = fiesta.invitados.filter(g => {
         const matchesSearch = g.nombre.toLowerCase().includes(lowerCaseSearch);
         const matchesTag = tagFilter === 'all' || g.tag === tagFilter;
@@ -608,7 +661,7 @@ function SalonLayoutContent() {
 
   if (isLoading || !fiestaId) return <div className="flex items-center justify-center h-[calc(100vh-200px)]"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>
   if (error || !decoracion || !fiesta) return <div className="text-destructive text-center p-4">{error}</div>
-  
+
   const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
 
   return (
@@ -665,7 +718,7 @@ function SalonLayoutContent() {
       <Dialog open={isLoadTemplateModalOpen} onOpenChange={setIsLoadTemplateModalOpen}>
         <DialogContent className="rounded-3xl border-none">
           <DialogHeader><DialogTitle className="font-headline text-2xl">Cargar Plantilla</DialogTitle></DialogHeader>
-          {isTemplateActionLoading ? <div className="p-8 text-center"><Loader2 className="w-12 h-12 animate-spin text-primary mx-auto"/></div> : 
+          {isTemplateActionLoading ? <div className="p-8 text-center"><Loader2 className="w-12 h-12 animate-spin text-primary mx-auto"/></div> :
             templates.length === 0 ? <p className="text-center text-slate-400 py-12">No hay plantillas guardadas.</p> :
             <ScrollArea className="max-h-[60vh] pr-4">
                 <div className="space-y-3">
@@ -709,7 +762,7 @@ function SalonLayoutContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-       
+
        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
          <div className="flex items-center gap-4">
             <div className="p-3 bg-primary rounded-2xl shadow-xl shadow-primary/20 text-white">
@@ -822,14 +875,14 @@ function SalonLayoutContent() {
                     <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800">Invitados Sin Mesa</CardTitle>
                     <Badge variant="secondary" className="rounded-full bg-primary/10 text-primary border-none">{filteredInvitados.sinMesa.length}</Badge>
                   </div>
-                  
+
                   {/* Smart Seating Filters */}
                   <div className="space-y-3">
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                         <Input placeholder="Buscar por nombre..." value={guestSearchTerm} onChange={(e) => setGuestSearchTerm(e.target.value)} className="w-full pl-10 h-10 text-xs rounded-xl bg-white border-slate-200"/>
                     </div>
-                    
+
                     <div className="space-y-1.5">
                         <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
                             <Filter className="w-3 h-3"/> Agrupar por Relación
@@ -847,9 +900,9 @@ function SalonLayoutContent() {
                             </SelectContent>
                         </Select>
                     </div>
-                    
-                    <Button 
-                      variant="outline" 
+
+                    <Button
+                      variant="outline"
                       className="w-full mt-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border-indigo-200"
                       onClick={handleAutoAssign}
                       disabled={isAssigning}
@@ -929,28 +982,43 @@ function SalonLayoutContent() {
                             </Button>
                           </div>
                           {!view3d && (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="default" className="rounded-xl h-10 px-6 font-bold shadow-lg shadow-primary/20"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Elemento</Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2">
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2 text-primary"/> Mesa Redonda</DropdownMenuItem>
-                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2 text-primary"/> Mesa Rectangular</DropdownMenuItem>
-                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Living')}><Sofa className="w-4 h-4 mr-2 text-primary"/> Living / Relax</DropdownMenuItem>
-                                    </DropdownMenuGroup>
-                                    <DropdownMenuSeparator/>
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Pista de Baile', undefined, 'area')}><Disc className="w-4 h-4 mr-2 text-indigo-500"/> Pista de Baile</DropdownMenuItem>
-                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Escenario', undefined, 'area')}><Clapperboard className="w-4 h-4 mr-2 text-indigo-500"/> Escenario</DropdownMenuItem>
-                                        <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Barra', undefined, 'area')}><Beer className="w-4 h-4 mr-2 text-emerald-500"/> Barra de Tragos</DropdownMenuItem>
-                                    </DropdownMenuGroup>
-                                    <DropdownMenuSeparator/>
-                                    <DropdownMenuItem className="rounded-xl font-bold text-primary" onClick={() => setIsCustomElementModalOpen(true)}>
-                                        <PlusCircle className="w-4 h-4 mr-2"/> Crear Personalizado...
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleAutoArmar}
+                                className="rounded-xl h-10 px-4 font-bold border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 shadow-sm"
+                                title="Armar distribución según lo contratado sin pisar planos existentes"
+                              >
+                                <Wand2 className="w-4 h-4 mr-1.5" /> Armar Escena
+                              </Button>
+
+                              <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                      <Button variant="default" className="rounded-xl h-10 px-6 font-bold shadow-lg shadow-primary/20"><PlusCircle className="w-4 h-4 mr-2"/>Añadir Elemento</Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end" className="w-60 rounded-2xl p-2">
+                                      <DropdownMenuGroup>
+                                          <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Mesa Redonda')}><Circle className="w-4 h-4 mr-2 text-primary"/> Mesa Redonda</DropdownMenuItem>
+                                          <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Mesa Rectangular')}><Square className="w-4 h-4 mr-2 text-primary"/> Mesa Rectangular</DropdownMenuItem>
+                                          <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Mesa de la Torta')}><Sparkles className="w-4 h-4 mr-2 text-pink-500"/> Mesa de la Torta</DropdownMenuItem>
+                                      </DropdownMenuGroup>
+                                      <DropdownMenuSeparator/>
+                                      <DropdownMenuGroup>
+                                          <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Pista de Baile', undefined, 'area')}><Disc className="w-4 h-4 mr-2 text-indigo-500"/> Pista de Baile</DropdownMenuItem>
+                                          <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Escenario', undefined, 'area')}><Clapperboard className="w-4 h-4 mr-2 text-indigo-500"/> Escenario</DropdownMenuItem>
+                                          <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Barra', undefined, 'area')}><Beer className="w-4 h-4 mr-2 text-emerald-500"/> Barra</DropdownMenuItem>
+                                          <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Sector de Sillones', undefined, 'area')}><Sofa className="w-4 h-4 mr-2 text-amber-500"/> Sector de Sillones</DropdownMenuItem>
+                                          <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Photo-opportunity', undefined, 'area')}><CameraIcon className="w-4 h-4 mr-2 text-fuchsia-500"/> Photo-opportunity</DropdownMenuItem>
+                                          <DropdownMenuItem className="rounded-xl" onClick={() => addElement('Pantalla LED')}><Tv className="w-4 h-4 mr-2 text-blue-500"/> Pantalla LED</DropdownMenuItem>
+                                      </DropdownMenuGroup>
+                                      <DropdownMenuSeparator/>
+                                      <DropdownMenuItem className="rounded-xl font-bold text-primary" onClick={() => setIsCustomElementModalOpen(true)}>
+                                          <PlusCircle className="w-4 h-4 mr-2"/> Crear Personalizado...
+                                      </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                              </DropdownMenu>
+                            </>
                           )}
                       </div>
                     </CardHeader>
@@ -966,9 +1034,9 @@ function SalonLayoutContent() {
                                 const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
                                 const assignedSeatsCount = assignedGuests.reduce((sum, g) => sum + (g.partySize || 1), 0);
                                 return (
-                                    <DraggableElement 
-                                        key={el.id} 
-                                        el={el} 
+                                    <DraggableElement
+                                        key={el.id}
+                                        el={el}
                                         isSelected={selectedElementId === el.id}
                                         onSelect={() => setSelectedElementId(el.id)}
                                         onStop={(e, data) => handleDragStop(e, data, el.id)}

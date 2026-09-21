@@ -38,6 +38,11 @@ const PASOS = [
       'Se agregó algo que dice hacer una cosa y nadie comprobó que la haga: código que no llama nadie, una pantalla sin una prueba que mire el resultado, o una prueba que sólo confirma que la pantalla abrió. Es la forma exacta que tuvieron las fallas de la fotocabina y del tablero: escritas, compilando, en verde, y sin hacer nada.',
   },
   {
+    nombre: 'Las formas que mienten',
+    comando: 'node scripts/las-formas-que-mienten.mjs --lo-que-cambio',
+    queSignifica: 'Se agrego una de las formas de defecto que ya nos costaron caro: un error que se tira a la basura, un cartel de exito que no espera el resultado, una comparacion que apaga al revisor de tipos, o una fecha suelta que el navegador corre un dia.',
+  },
+  {
     nombre: 'El trinquete',
     comando: 'node scripts/lo-que-se-dijo-es-lo-que-es.mjs --trinquete',
     queSignifica:
@@ -202,21 +207,103 @@ const NO_ES_CODIGO_PARA_LA_HUELLA = [
   ':(exclude)test-results',
 ];
 
-function huellaDelCodigo() {
-  const filtro = NO_ES_CODIGO_PARA_LA_HUELLA.map((p) => `'${p}'`).join(' ');
+/**
+ * DOS HUELLAS, PORQUE NO TODO DEPENDE DE TODO.
+ *
+ * **El dueno lo pidio dos veces: "reduci a la mitad el proceso".** La mitad del tiempo se
+ * iba repitiendo la compilacion y las pruebas de navegador —45 de los 55 minutos— por
+ * cambios que **no pueden afectarlas**: escribir una orden, anotar un arreglo, corregir un
+ * texto de la documentacion.
+ *
+ * Asi que cada paso mira lo que de verdad lo puede cambiar:
+ *
+ * - Los pasos que miran **el codigo** —tipos, pruebas, compilacion, seguridad de la base y
+ *   las dos de navegador— usan la huella del codigo: no la mueve tocar un documento.
+ *   Y las dos de navegador usan una todavia mas acotada: tampoco las mueve agregar una
+ *   prueba de Jest, que no entra en la aplicacion.
+ * - Los pasos que miran **todo** —acentos, "lo que se dijo es lo que es" y el trinquete—
+ *   usan la huella completa, porque leen los documentos tambien.
+ *
+ * **Esto no afloja nada:** lo que cambia el codigo sigue obligando a correr todo. Lo unico
+ * que se evita es repetir cincuenta minutos por una coma en un documento.
+ */
+const SOLO_DOCUMENTOS = [
+  ':(exclude)docs',
+  ':(exclude)*.md',
+  ':(exclude)ESTADO-ACTUAL.md',
+];
+
+const PASOS_QUE_MIRAN_TODO = new Set([
+  'Acentos',
+  'Lo que se dijo es lo que es',
+  'Las formas que mienten',
+  'El trinquete',
+]);
+
+/**
+ * LAS PRUEBAS DE JEST NO PUEDEN CAMBIAR LO QUE VE EL USUARIO.
+ *
+ * **Orden del dueno, 17 de septiembre de 2026: "el navegador es el que hay que optimizar".**
+ * Medido: el navegador son 24 de los 30 minutos. Y se repetia entero por agregar **una prueba
+ * de Jest**, que no entra en la aplicacion: no se compila en la pagina, no la ve nadie desde el
+ * navegador, no puede romper una pantalla.
+ *
+ * En una tanda normal se agregan tres o cuatro pruebas de esas. Eso era una hora de navegador
+ * repetido para nada.
+ */
+const NO_AFECTA_AL_NAVEGADOR = [
+  ':(exclude)src/__tests__',
+  ':(exclude)jest.config.js',
+  ':(exclude)jest.setup.js',
+];
+
+const PASOS_DEL_NAVEGADOR = new Set([
+  'La app usada de verdad',
+  'Recorrido de todas las pantallas',
+]);
+
+/**
+ * La huella mira el CONTENIDO de los archivos que le importan a ese paso, no en que commit
+ * estamos.
+ *
+ * Antes entraba `git rev-parse HEAD`, asi que **cualquier commit invalidaba todo**: anotar un
+ * arreglo en la documentacion y volver a esperar media hora de navegador. Ahora se miran los
+ * archivos: si su contenido es el mismo, el paso ya se sabe que da bien.
+ */
+function huellaCon(filtros) {
+  const filtro = filtros.map((p) => `'${p}'`).join(' ');
   const partes = [
-    spawnSync('git rev-parse HEAD', { shell: true, encoding: 'utf8' }).stdout || '',
+    spawnSync(`git ls-files -s -- . ${filtro}`, { shell: true, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '',
     spawnSync(`git status --porcelain -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
-    spawnSync(`git diff HEAD -- . ${filtro}`, { shell: true, encoding: 'utf8' }).stdout || '',
+    spawnSync(`git diff HEAD -- . ${filtro}`, { shell: true, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).stdout || '',
   ];
   return createHash('sha1').update(partes.join('|')).digest('hex');
 }
 
-function leerAvance(huella) {
+function huellaDelCodigo() {
+  return huellaCon([...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS]);
+}
+
+function huellaDeTodo() {
+  return huellaCon(NO_ES_CODIGO_PARA_LA_HUELLA);
+}
+
+/** El codigo que de verdad puede cambiar lo que se ve en el navegador. */
+function huellaDeLaApp() {
+  return huellaCon([...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS, ...NO_AFECTA_AL_NAVEGADOR]);
+}
+
+/** Que huella le corresponde a cada paso. */
+function huellaDelPaso(nombre, huellas) {
+  if (PASOS_QUE_MIRAN_TODO.has(nombre)) return huellas.todo;
+  if (PASOS_DEL_NAVEGADOR.has(nombre)) return huellas.app;
+  return huellas.codigo;
+}
+
+function leerAvance() {
   if (process.env.AK_PUERTA_DESDE_CERO === 'true') return {};
   try {
     const guardado = JSON.parse(readFileSync(AVANCE, 'utf8'));
-    if (guardado.huella !== huella) return {};
     if (Date.now() - (guardado.cuando || 0) > HORAS_QUE_VALE * 3600 * 1000) return {};
     return guardado.pasos || {};
   } catch {
@@ -224,9 +311,9 @@ function leerAvance(huella) {
   }
 }
 
-function anotarAvance(huella, pasos) {
+function anotarAvance(pasos) {
   try {
-    writeFileSync(AVANCE, JSON.stringify({ huella, cuando: Date.now(), pasos }, null, 2));
+    writeFileSync(AVANCE, JSON.stringify({ cuando: Date.now(), pasos }, null, 2));
   } catch {}
 }
 
@@ -360,12 +447,35 @@ const fallas = [];
 const salteadosPorqueLaAppNoCambio = [];
 const appPudoCambiar = laAppPudoCambiar();
 
-const huella = huellaDelCodigo();
-const yaEstabanBien = leerAvance(huella);
+const huellas = { codigo: huellaDelCodigo(), todo: huellaDeTodo(), app: huellaDeLaApp() };
+const yaEstabanBien = leerAvance();
+
+/**
+ * NO SE ARRANCA LA VERIFICACION CON TRABAJO A MEDIO TERMINAR.
+ *
+ * **Error propio del 17 de septiembre de 2026, y costo mas de una hora.** Lance la verificacion
+ * tres veces en una sesion: dos de ellas la arranque antes de terminar de trabajar y despues
+ * segui tocando archivos. Cada vez que se toca codigo, lo que la corrida ya hizo **deja de
+ * valer**, y son treinta minutos tirados.
+ *
+ * La regla estaba escrita —"la puerta se corre UNA vez, al final"— y no estaba enganchada, que
+ * es el mismo defecto que esta app persigue en el codigo. Ahora esta enganchada: avisa antes de
+ * gastar el tiempo, y al final dice si el resultado sigue valiendo.
+ */
+const huellaAlEmpezar = huellas.codigo;
+const hayTrabajoSinCommitear = (spawnSync(
+  `git status --porcelain -- . ${[...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS].map((p) => `'${p}'`).join(' ')}`,
+  { shell: true, encoding: 'utf8' },
+).stdout || '').trim();
 
 console.log('\n¿SE PUEDE PUBLICAR?\n' + '='.repeat(60));
+if (hayTrabajoSinCommitear) {
+  console.log('  OJO: hay codigo sin guardar. Si lo seguis tocando mientras esto corre,');
+  console.log('  lo que ya se hizo deja de valer y hay que empezar de nuevo.');
+  console.log('  Conviene terminar y commitear ANTES de arrancar.');
+}
 if (Object.keys(yaEstabanBien).length > 0) {
-  console.log('  (se retoma una corrida anterior del mismo codigo: lo que ya dio bien no se repite)');
+  console.log('  (se retoma lo que ya dio bien: cada paso mira solo lo que de verdad lo puede cambiar)');
 }
 
 for (const paso of PASOS) {
@@ -379,8 +489,10 @@ for (const paso of PASOS) {
     salteadosPorqueLaAppNoCambio.push(paso.nombre);
     continue;
   }
-  if (yaEstabanBien[paso.nombre]) {
-    console.log(`  ${paso.nombre}... ya estaba bien (${yaEstabanBien[paso.nombre]}s, corrida anterior del mismo codigo)`);
+  const huellaAhora = huellaDelPaso(paso.nombre, huellas);
+  const anterior = yaEstabanBien[paso.nombre];
+  if (anterior && anterior.huella === huellaAhora) {
+    console.log(`  ${paso.nombre}... ya estaba bien (${anterior.segundos}s, corrida anterior sobre lo mismo)`);
     continue;
   }
   process.stdout.write(`  ${paso.nombre}... `);
@@ -389,8 +501,8 @@ for (const paso of PASOS) {
   const segundos = ((Date.now() - arranque) / 1000).toFixed(0);
   console.log(ok ? `bien (${segundos}s)` : `FALLA (${segundos}s)`);
   if (ok) {
-    yaEstabanBien[paso.nombre] = Number(segundos);
-    anotarAvance(huella, yaEstabanBien);
+    yaEstabanBien[paso.nombre] = { segundos: Number(segundos), huella: huellaAhora };
+    anotarAvance(yaEstabanBien);
   }
   if (!ok) {
     fallas.push({ paso, salida });
@@ -443,6 +555,13 @@ if (fallas.length === 0) {
     console.log('  Lo demas —acentos, tipos, pruebas y la base protegida— si paso.\n');
     await mostrarMetricasAuditadas();
     process.exit(0);
+  }
+  if (huellaDelCodigo() !== huellaAlEmpezar) {
+    console.log('\n  ESTE RESULTADO NO VALE.\n');
+    console.log('  Se toco el codigo mientras la verificacion corria, asi que lo que');
+    console.log('  paso se probo sobre una version que ya no existe. Hay que correrla');
+    console.log('  de nuevo, entera, con el trabajo terminado.\n');
+    process.exit(1);
   }
   console.log('\n  SE PUEDE PUBLICAR.\n');
   console.log('  Todo marcha: acentos, tipos, pruebas, compila, la base protegida');

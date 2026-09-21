@@ -148,11 +148,28 @@ export default function EmpleadoHistorialPage() {
     });
   }, [editableByFiesta, estadoFilter, fromDate, historialRows, toDate]);
 
+  /**
+   * "Total cobrado" es lo que de verdad se le pago: un recibo PENDIENTE no esta cobrado.
+   * Antes se sumaban todos los renglones sin mirar el estado, asi que el numero decia que
+   * se habia pagado plata que todavia se debe. Lo encontro Codex el 21 de septiembre de 2026.
+   */
+  const montoDe = (row: HistorialRow) =>
+    Number(editableByFiesta[row.fiestaId]?.monto ?? row.montoBase);
+  const estaCobrado = (row: HistorialRow) => {
+    const estado = editableByFiesta[row.fiestaId]?.estado || 'pendiente';
+    return estado === 'pagado' || estado === 'firmado_subido';
+  };
+
   const totalCobrado = useMemo(
-    () => filteredRows.reduce((sum, row) => sum + Number(editableByFiesta[row.fiestaId]?.monto ?? row.montoBase), 0),
+    () => filteredRows.filter(estaCobrado).reduce((sum, row) => sum + montoDe(row), 0),
     [editableByFiesta, filteredRows]
   );
-  const promedio = filteredRows.length > 0 ? totalCobrado / filteredRows.length : 0;
+  const totalPendiente = useMemo(
+    () => filteredRows.filter((row) => !estaCobrado(row)).reduce((sum, row) => sum + montoDe(row), 0),
+    [editableByFiesta, filteredRows]
+  );
+  const cantidadCobrados = filteredRows.filter(estaCobrado).length;
+  const promedio = cantidadCobrados > 0 ? totalCobrado / cantidadCobrados : 0;
 
   const updateEditable = (fiestaId: string, changes: Partial<ReciboEditable>) => {
     setEditableByFiesta((prev) => ({ ...prev, [fiestaId]: { ...prev[fiestaId], ...changes } }));
@@ -312,6 +329,7 @@ export default function EmpleadoHistorialPage() {
             <tbody>${rowsHtml}</tbody>
           </table>
           <p class="totals">Total cobrado: ${escapeHtml(formatCurrency(totalCobrado))}</p>
+          ${totalPendiente > 0 ? `<p class="totals">Pendiente de cobro: ${escapeHtml(formatCurrency(totalPendiente))}</p>` : ''}
           <p class="totals">Promedio por fiesta: ${escapeHtml(formatCurrency(promedio))}</p>
         </body>
       </html>
@@ -357,7 +375,14 @@ export default function EmpleadoHistorialPage() {
         </Card>
         <Card className="rounded-2xl">
           <CardHeader className="pb-2"><CardTitle className="text-sm">Total cobrado</CardTitle></CardHeader>
-          <CardContent className="text-2xl font-semibold">{formatCurrency(totalCobrado)}</CardContent>
+          <CardContent className="text-2xl font-semibold">
+            {formatCurrency(totalCobrado)}
+            {totalPendiente > 0 && (
+              <p className="text-xs font-normal text-amber-700 mt-1">
+                Pendiente de cobro: {formatCurrency(totalPendiente)}
+              </p>
+            )}
+          </CardContent>
         </Card>
         <Card className="rounded-2xl">
           <CardHeader className="pb-2"><CardTitle className="text-sm">Promedio por fiesta</CardTitle></CardHeader>

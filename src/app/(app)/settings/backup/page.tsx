@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { comoSalioLaRestauracion, queSeLeDice } from '@/lib/respaldos/como-salio-la-restauracion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,7 @@ import { createRestorePoint, getRestorePoints, restoreFromPoint, deleteRestorePo
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { comoEstaElRespaldo } from '@/lib/respaldos/como-esta-el-respaldo';
 
 export default function BackupPage() {
   const { toast } = useToast();
@@ -31,6 +33,7 @@ export default function BackupPage() {
   const [restorePoints, setRestorePoints] = useState<RestorePoint[]>([]);
   const [backupStatus, setBackupStatus] = useState<AutoBackupStatus | null>(null);
   const [isLoadingPoints, setIsLoadingPoints] = useState(true);
+  const [statusLoadError, setStatusLoadError] = useState(false);
   const [isCreatingPoint, setIsCreatingPoint] = useState(false);
   const [processingPointName, setProcessingPointName] = useState<string | null>(null);
 
@@ -57,9 +60,19 @@ export default function BackupPage() {
       if (!response.ok) {
         throw new Error(result.error || 'Error al restaurar el respaldo.');
       }
-      toast({ title: '✅ Restauración Completa', description: 'Los datos fueron restaurados. La aplicación se recargará.' });
+      // UNA RESTAURACIÓN A MEDIAS NO SE ANUNCIA COMO COMPLETA.
+      // La decisión vive en `comoSalioLaRestauracion`, que se prueba aparte.
+      const como = comoSalioLaRestauracion(result);
+      const aviso = queSeLeDice(como);
+      toast({
+        title: aviso.titulo,
+        description: aviso.detalle,
+        ...(como.estado === 'parcial' ? { variant: 'destructive' as const, duration: 15000 } : {}),
+      });
       setFile(null);
-      setTimeout(() => window.location.reload(), 1500);
+      if (aviso.puedeRecargar) {
+        setTimeout(() => window.location.reload(), 1500);
+      }
     } catch (error: any) {
       toast({ title: 'Error en la Restauración', description: error.message, variant: 'destructive' });
     } finally {
@@ -69,6 +82,7 @@ export default function BackupPage() {
 
   const loadRestorePoints = useCallback(async () => {
     setIsLoadingPoints(true);
+    setStatusLoadError(false);
     try {
       const [points, status] = await Promise.all([
         getRestorePoints(),
@@ -76,7 +90,11 @@ export default function BackupPage() {
       ]);
       setRestorePoints(points);
       setBackupStatus(status);
+      if (!status) {
+        setStatusLoadError(true);
+      }
     } catch (e) {
+      setStatusLoadError(true);
       toast({ title: "Error", description: "No se pudieron cargar los puntos de restauración.", variant: "destructive" });
     } finally {
       setIsLoadingPoints(false);
@@ -157,48 +175,145 @@ export default function BackupPage() {
         </Alert>
       )}
 
-      <Card className={`shadow-md overflow-hidden ${
-        backupStatus?.isStale
-          ? 'border-red-300 bg-gradient-to-r from-red-50 to-white'
-          : 'border-emerald-200 bg-gradient-to-r from-emerald-50 to-white'
-      }`}>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between gap-3">
-            <CardTitle className={`text-lg flex items-center gap-2 ${
-              backupStatus?.isStale ? 'text-red-800' : 'text-emerald-800'
-            }`}>
-              <ShieldCheck className={`w-6 h-6 ${backupStatus?.isStale ? 'text-red-600' : 'text-emerald-600'}`} />
-              Estado de Respaldo
-            </CardTitle>
-            <Badge className={backupStatus?.isStale ? 'bg-red-600 text-white border-none' : 'bg-emerald-600 text-white border-none'}>
-              {backupStatus?.isStale ? 'ATENCIÓN: SIN RESPALDO RECIENTE' : 'ACTIVO Y PROTEGIDO'}
-            </Badge>
-          </div>
-          <CardDescription className={backupStatus?.isStale ? 'text-red-700' : 'text-emerald-700'}>
-            {backupStatus?.isStale
-              ? '⚠️ Hace más de 24 horas que no se completa un respaldo automático exitoso. Te recomendamos generar uno manual.'
-              : 'Los respaldos se guardan en Firestore y persisten aunque se redespliegue la app.'}
-          </CardDescription>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
-              <p className="text-xs text-muted-foreground">Respaldos guardados</p>
-              <p className="text-2xl font-black text-slate-800">{restorePoints.length}</p>
-            </div>
-            <div className={`rounded-xl border p-3 ${
-              backupStatus?.isStale
-                ? 'border-red-300 bg-red-50/70'
-                : 'border-emerald-200 bg-white/70'
-            }`}>
-              <p className="text-xs text-muted-foreground">Último respaldo bueno</p>
-              <p className={`text-sm font-semibold ${backupStatus?.isStale ? 'text-red-800 font-bold' : 'text-slate-800'}`}>
-                {backupStatus?.lastSuccessfulBackup
-                  ? `${new Date(backupStatus.lastSuccessfulBackup).toLocaleDateString('es-UY', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${new Date(backupStatus.lastSuccessfulBackup).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs`
-                  : latestPoint ? latestPoint.displayDate : 'Sin respaldos buenos aún'}
-              </p>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
+      {(() => {
+        const estado = comoEstaElRespaldo({
+          cargando: isLoadingPoints,
+          backupStatus,
+          falloConsulta: statusLoadError,
+        });
+
+        if (estado === 'cargando') {
+          return (
+            <Card className="shadow-md overflow-hidden border-slate-200 bg-slate-50/80" data-testid="card-backup-cargando">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between gap-3">
+                  <CardTitle className="text-lg flex items-center gap-2 text-slate-700">
+                    <RotateCw className="w-6 h-6 text-slate-500 animate-spin" />
+                    Estado de Respaldo
+                  </CardTitle>
+                  <Badge variant="outline" className="bg-white text-slate-700 border-slate-300">
+                    AVERIGUANDO ESTADO...
+                  </Badge>
+                </div>
+                <CardDescription className="text-slate-600">
+                  Averiguando estado... Consultando el estado de los respaldos automáticos en Firestore...
+                </CardDescription>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                  <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
+                    <p className="text-xs text-muted-foreground">Respaldos guardados</p>
+                    <p className="text-2xl font-black text-slate-800">{restorePoints.length}</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
+                    <p className="text-xs text-muted-foreground">Último respaldo bueno</p>
+                    <p className="text-sm font-semibold text-slate-700">Averiguando...</p>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          );
+        }
+
+        if (estado === 'no-se-pudo-saber') {
+          return (
+            <Card className="shadow-md overflow-hidden border-amber-300 bg-gradient-to-r from-amber-50 to-white" data-testid="card-backup-desconocido">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between gap-3">
+                  <CardTitle className="text-lg flex items-center gap-2 text-amber-800">
+                    <AlertTriangle className="w-6 h-6 text-amber-600" />
+                    Estado de Respaldo
+                  </CardTitle>
+                  <Badge className="bg-amber-600 text-white border-none">
+                    ESTADO DESCONOCIDO: NO SE PUDO SABER
+                  </Badge>
+                </div>
+                <CardDescription className="text-amber-800">
+                  No se pudo averiguar cómo están los respaldos. Probá recargar; si sigue, creá un punto manual.
+                </CardDescription>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                  <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
+                    <p className="text-xs text-muted-foreground">Respaldos guardados</p>
+                    <p className="text-2xl font-black text-slate-800">{restorePoints.length}</p>
+                  </div>
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-3">
+                    <p className="text-xs text-muted-foreground">Último respaldo bueno</p>
+                    <p className="text-sm font-semibold text-amber-900">
+                      {latestPoint ? `${latestPoint.displayDate} (manual)` : 'No se pudo verificar'}
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          );
+        }
+
+        if (estado === 'vencido') {
+          return (
+            <Card className="shadow-md overflow-hidden border-red-300 bg-gradient-to-r from-red-50 to-white" data-testid="card-backup-stale">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between gap-3">
+                  <CardTitle className="text-lg flex items-center gap-2 text-red-800">
+                    <AlertTriangle className="w-6 h-6 text-red-600" />
+                    Estado de Respaldo
+                  </CardTitle>
+                  <Badge className="bg-red-600 text-white border-none">
+                    ATENCIÓN: SIN RESPALDO RECIENTE
+                  </Badge>
+                </div>
+                <CardDescription className="text-red-700">
+                  ⚠️ Hace más de 24 horas que no se completa un respaldo automático exitoso. Te recomendamos generar uno manual.
+                </CardDescription>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                  <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
+                    <p className="text-xs text-muted-foreground">Respaldos guardados</p>
+                    <p className="text-2xl font-black text-slate-800">{restorePoints.length}</p>
+                  </div>
+                  <div className="rounded-xl border border-red-300 bg-red-50/70 p-3">
+                    <p className="text-xs text-muted-foreground">Último respaldo bueno</p>
+                    <p className="text-sm font-semibold text-red-800 font-bold">
+                      {backupStatus?.lastSuccessfulBackup
+                        ? `${new Date(backupStatus.lastSuccessfulBackup).toLocaleDateString('es-UY', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${new Date(backupStatus.lastSuccessfulBackup).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs`
+                        : latestPoint ? latestPoint.displayDate : 'Sin respaldos buenos aún'}
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          );
+        }
+
+        return (
+          <Card className="shadow-md overflow-hidden border-emerald-200 bg-gradient-to-r from-emerald-50 to-white" data-testid="card-backup-activo">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between gap-3">
+                <CardTitle className="text-lg flex items-center gap-2 text-emerald-800">
+                  <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                  Estado de Respaldo
+                </CardTitle>
+                <Badge className="bg-emerald-600 text-white border-none">
+                  ACTIVO Y PROTEGIDO
+                </Badge>
+              </div>
+              <CardDescription className="text-emerald-700">
+                Los respaldos se guardan en Firestore y persisten aunque se redespliegue la app.
+              </CardDescription>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                <div className="rounded-xl border border-slate-200 bg-white/70 p-3">
+                  <p className="text-xs text-muted-foreground">Respaldos guardados</p>
+                  <p className="text-2xl font-black text-slate-800">{restorePoints.length}</p>
+                </div>
+                <div className="rounded-xl border border-emerald-200 bg-white/70 p-3">
+                  <p className="text-xs text-muted-foreground">Último respaldo bueno</p>
+                  <p className="text-sm font-semibold text-slate-800">
+                    {backupStatus?.lastSuccessfulBackup
+                      ? `${new Date(backupStatus.lastSuccessfulBackup).toLocaleDateString('es-UY', { day: 'numeric', month: 'long', year: 'numeric' })} a las ${new Date(backupStatus.lastSuccessfulBackup).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs`
+                      : latestPoint ? latestPoint.displayDate : 'Sin respaldos buenos aún'}
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+          </Card>
+        );
+      })()}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-8">
@@ -360,3 +475,4 @@ export default function BackupPage() {
     </div>
   );
 }
+
