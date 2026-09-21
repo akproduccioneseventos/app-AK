@@ -96,3 +96,8 @@ FOTO-01 nombre cambiado pierde entrega; FOTO-02 respuesta tardia pisa borrador; 
 Sin codigo de app, build, fusion, datos reales ni servicios pagos. Reparto y pruebas pendientes detallados en informe. Continuar primera pasada; no repetir estos casos sin cambio relevante. No es certificado final.
 
 - 2026-09-20: [Impresos de mesas](IMPRESOS-MESAS-2026-09-20.md), PR1210 d2f3591. 12 casos nuevos, 6 PASS/6 FAIL, IMP01-05. Kit falso exito parcial, fecha, borrador menu, cantidades de mesas, carga fallida. No impresion real ni E2E; primera pasada.
+
+
+## 2026-09-21 - Control operativo (evidencia 20/9)
+
+Informe docs/auditoria/CONTROL-OPERATIVO-2026-09-20.md. Sonda docs/evidencias/control-operativo-sonda.cjs. Historico d2f359: 14 casos, 7 PASS/7 FAIL, seis hallazgos. Contraste actual PR1210 bc7fbb3: CTRL01 planDePagos, CTRL04 unidad de consolidacion y CTRL06 lectura de buzon tienen correcciones presentes NO revalidadas; no reimplementar. CTRL02 vencimiento del dia, CTRL03 catering por categorias vacias y CTRL05 cero adultos siguen pendientes por contraste de codigo. Sin app modificada/build/fusion ni datos reales. Continuar primera pasada.

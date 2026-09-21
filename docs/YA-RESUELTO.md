@@ -8071,3 +8071,8 @@ Sin codigo de app, build, fusion, datos reales ni servicios pagos. Reparto y pru
 ## 2026-09-20 - Impresos de mesas, primera pasada
 
 [Informe](auditoria/IMPRESOS-MESAS-2026-09-20.md). Base PR1210 d2f35915590b9901243d9d7b2f68e1d21713ebd5. 12 casos nuevos: 6 PASS/6 FAIL, cinco hallazgos. IMP-01 kit confirma guardado parcial; IMP-02 fecha retrocede un dia; IMP-03 menu descarta borrador ante fallo; IMP-04 criterios de mesa inconsistentes (fixture: 1 vs default20); IMP-05 carga fallida queda esperando. Sin correccion en archivos de las seis PR abiertas contrastadas. Evidencias: docs/evidencias/impresos-sonda.cjs y impresos-resultados-2026-09-20.json. Sondas aisladas, no E2E/impresion/Firebase/build. No repetir sin cambio; Gemini interfaz, Claude consistencia y compilacion. No app modificada ni fusion.
+
+
+## 2026-09-21 - Control operativo (evidencia 20/9)
+
+Informe docs/auditoria/CONTROL-OPERATIVO-2026-09-20.md. Sonda docs/evidencias/control-operativo-sonda.cjs. Historico d2f359: 14 casos, 7 PASS/7 FAIL, seis hallazgos. Contraste actual PR1210 bc7fbb3: CTRL01 planDePagos, CTRL04 unidad de consolidacion y CTRL06 lectura de buzon tienen correcciones presentes NO revalidadas; no reimplementar. CTRL02 vencimiento del dia, CTRL03 catering por categorias vacias y CTRL05 cero adultos siguen pendientes por contraste de codigo. Sin app modificada/build/fusion ni datos reales. Continuar primera pasada.
