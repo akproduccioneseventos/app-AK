@@ -66,6 +66,9 @@ test.describe('Orden 48: Touchpix levanta entero', () => {
       responderSubida = resolve;
     });
 
+    const permiso = crearPermisoDeEstacion(fiesta.id, 'espejoMagicoIA');
+    await page.goto(`/evento/touchpix/${fiesta.id}?access=${permiso}`, { waitUntil: 'domcontentloaded' });
+
     // 1. Persona A saca una foto
     const botonSacar = page.locator('button[aria-label="Sacar foto"]');
     await expect(botonSacar).toBeVisible({ timeout: 30_000 });
