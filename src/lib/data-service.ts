@@ -129,6 +129,55 @@ async function writeLocalJsonFallback<T>(
  * Por eso ahora hay una version que ademas del dato dice **si hubo falla**. La de siempre queda
  * igual para todos los demas.
  */
+/**
+ * Tope de espera para LEER de la base.
+ *
+ * **Por que existe, y es lo que tiraba la app abajo.** Delante del servidor hay un portero
+ * que corta cualquier pedido que pase de unos diez segundos. Si una lectura de la base se
+ * quedaba colgada, el pedido entero llegaba a ese corte y el visitante no veia una pantalla
+ * vacia: veia **el error del servidor**, con la app aparentemente caida. Asi se reporto en
+ * produccion el 10 de setiembre de 2026.
+ *
+ * Con el tope, a los ocho segundos la lectura se da por fallada **antes** de que corte el
+ * portero. Ahi entra el camino que ya existia: se prueba el otro deposito, despues la copia
+ * local, y si no hay nada se devuelve el valor por defecto. La pantalla abre.
+ *
+ * **Se usa solo para leer, nunca para guardar.** Un guardado cortado por tiempo puede haber
+ * quedado hecho igual, y decirle a alguien "no se guardo" cuando si se guardo es peor que
+ * esperar: con un cobro, seria cobrarle dos veces.
+ *
+ * Y la falla se sigue contando como falla (`huboFalla`), para que el respaldo no guarde cero
+ * fiestas como si la empresa no tuviera ninguna.
+ */
+const TOPE_DE_LECTURA_MS = 8000;
+
+class LecturaDemorada extends Error {
+  readonly esLecturaDemorada = true;
+  constructor(queSeLeia: string) {
+    super(`La base no contesto a tiempo leyendo ${queSeLeia}.`);
+  }
+}
+
+/**
+ * El tope es UNO para toda la lectura, no uno por intento.
+ *
+ * Con un tope por intento, una base colgada sumaba ocho segundos del primer deposito mas
+ * ocho del segundo: dieciseis en total, o sea **mas que los diez del portero**, y el arreglo
+ * no arreglaba nada. Por eso se reparte un unico plazo entre todos los intentos.
+ */
+function conTopeDeLectura<T>(tarea: Promise<T>, queSeLeia: string, vence: number): Promise<T> {
+  const restante = Math.max(0, vence - Date.now());
+  let reloj: ReturnType<typeof setTimeout> | undefined;
+  return Promise.race([
+    tarea,
+    new Promise<never>((_, rechazar) => {
+      reloj = setTimeout(() => rechazar(new LecturaDemorada(queSeLeia)), restante);
+    }),
+  ]).finally(() => {
+    if (reloj) clearTimeout(reloj);
+  });
+}
+
 export async function readDataConDetalle<T>(
   filePath: string,
   defaultValue: T,
@@ -136,6 +185,8 @@ export async function readDataConDetalle<T>(
   if (filePath.includes("..") || filePath.startsWith("/"))
     throw new Error("Invalid data file path");
   const normalizedFilePath = filePath.replace(/\\/g, "/");
+  // El plazo se cuenta desde aca y lo comparten todos los intentos.
+  const vence = Date.now() + TOPE_DE_LECTURA_MS;
 
   if (shouldUseLocalJsonOnly()) {
     const fallbackData = await readLocalJsonFallback<T>(normalizedFilePath);
@@ -143,13 +194,13 @@ export async function readDataConDetalle<T>(
   }
 
   try {
-    const data = await readFromFirestore(normalizedFilePath);
+    const data = await conTopeDeLectura(readFromFirestore(normalizedFilePath), normalizedFilePath, vence);
     if (data !== null && data !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(data))
         return { valor: defaultValue, huboFalla: false };
       return { valor: data as T, huboFalla: false };
     }
-    const genericData = await readGenericJsonFile(normalizedFilePath);
+    const genericData = await conTopeDeLectura(readGenericJsonFile(normalizedFilePath), normalizedFilePath, vence);
     if (genericData !== null && genericData !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(genericData))
         return { valor: defaultValue, huboFalla: false };
@@ -167,7 +218,7 @@ export async function readDataConDetalle<T>(
       );
     }
     try {
-      const genericData = await readGenericJsonFile(normalizedFilePath);
+      const genericData = await conTopeDeLectura(readGenericJsonFile(normalizedFilePath), normalizedFilePath, vence);
       if (genericData !== null && genericData !== undefined) {
         if (Array.isArray(defaultValue) && !Array.isArray(genericData))
           return { valor: defaultValue, huboFalla: true };

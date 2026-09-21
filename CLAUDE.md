@@ -1184,6 +1184,7 @@ con otra cara.
 | Dos personas guardando el mismo proveedor se pisaban, y las dos decian que salio bien | `src/__tests__/dos-personas-no-se-pisan-en-proveedores.test.ts` |
 | Cambiar una clave le cambiaba la clave a los otros administradores | `src/__tests__/la-clave-de-uno-no-le-cambia-la-clave-a-otro.test.ts` |
 | El acceso pausado por intentos fallidos y el cartel diciendo "tu clave esta mal, recuperala" | `src/__tests__/el-cartel-del-ingreso-no-se-contradice.test.ts` |
+| Una lectura colgada de la base llegaba al corte del portero y la app se veia caida | `src/__tests__/una-lectura-colgada-no-tumba-la-pantalla.test.ts` |
 
 ### Cómo se elige el matafuego
 

@@ -1,5 +1,33 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 21 de septiembre de 2026 — Una lectura colgada de la base tumbaba la pantalla entera
+
+- **Que estaba mal.** `src/lib/data-service.ts` —por donde pasan TODAS las lecturas de la
+  app— no tenia ningun tope de espera. Delante del servidor hay un portero que corta
+  cualquier pedido que pase de unos diez segundos: si la base se colgaba, el visitante no
+  veia una pantalla vacia, veia **el error del servidor**, con la app aparentemente caida.
+  Asi se reporto en produccion el 10 de setiembre de 2026.
+- **Que se hizo.** Tope de ocho segundos, que salta antes que el portero. Ahi entra el camino
+  de respaldo que ya existia: el otro deposito, la copia local, y si no hay nada el valor por
+  defecto. La pantalla abre.
+- **El plazo es UNO para toda la lectura, no uno por intento.** Con un tope por intento serian
+  ocho segundos del primer deposito mas ocho del segundo: dieciseis, mas que los diez del
+  portero, y no serviria de nada.
+- **Solo para leer, nunca para guardar, y es a proposito.** Un guardado cortado por tiempo
+  puede haber quedado hecho igual; decir "no se guardo" cuando si se guardo, con un cobro,
+  seria cobrarle dos veces al cliente. **No volver a reportarlo como si faltara.**
+- **Lo que no cambia:** la falla se sigue contando como falla (`huboFalla`), para que el
+  respaldo no guarde cero fiestas como si la empresa no tuviera ninguna.
+- **Probado rompiendolo:** sacando el tope, la prueba se queda colgada y da rojo por tiempo
+  agotado.
+
+```comprobar
+archivo: src/lib/data-service.ts
+usa: conTopeDeLectura en src/lib/data-service.ts
+prueba: src/__tests__/una-lectura-colgada-no-tumba-la-pantalla.test.ts
+```
+
+
 ## 21 de septiembre de 2026 — Cuatro archivos que escribe la corrida quedaban como si fueran trabajo
 
 - **Que estaba mal.** El recorrido de pantallas escribe la lista de marketing y la de activos
