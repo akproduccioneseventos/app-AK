@@ -966,6 +966,14 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **La confirmacion publica sigue devolviendo el QR de entrada (22 de septiembre de 2026).**
+  Se reporto que escribir el nombre de un invitado ya anotado devuelve su credencial, y con
+  ella su QR. Palabras del dueno: *"nadie te roba; ademas, si no llevas el QR, gente mayor con
+  nombre y apellido entra"*. **En sus fiestas la entrada la controla el nombre.** Esa
+  credencial solo abre lo propio del invitado —su galeria, su video, sus toques—, nunca datos
+  de otros ni plata. **Falso positivo: no se vuelve a plantear ni se le agrega un paso al
+  invitado para confirmarse.**
+
 - **El cliente NO elige fotos (1 de septiembre de 2026).** Palabras suyas: *"no, el cliente no
   elige nada"*. El álbum del recuerdo **se arma solo y se entrega terminado**; si hay que
   retocar la selección, la retoca el equipo de AK. **No se hacen pantallas de "elegí tus
