@@ -1,24 +1,21 @@
 # Traspaso Codex - 22/09/2026
 
-Solo rama codex/contraste-1206-20260914; no reemplaza main ni estado del equipo.
-Codigo base main54cd6230d8fd10d91b031c5ae5320125e8d1bd41.
-PR1209/1210 ya fusionadas. Abiertas1207/1206/1202/1197 contrastadas.
+Solo rama codex/contraste-1206-20260914; no estado del main publicado.
+Base actual auditada main659d696e4807b3fcd543a53988c21c189cf3e806.
 
-## Diagnostico nuevo
-- Informe BARRA-INVITADOS-CATALOGOS-2026-09-22.md en docs/auditoria.
-- Orden78 en docs/ordenes. Veinte sondas:9PASS/11FAIL,8hallazgos.
-- Prioridad: respuesta publica RSVP incluye datos ajenos; nombre entrega credencial.
-- Barra: falso exito/stock huerfano, cadena fallback rota, reemplazo pierde pedido.
-- Fotos/salones: perdidas concurrentes; ultimo borrado no persiste.
-- Informe anterior CALENDARIO-NAVEGACION-Y-CIERRE conserva8casos y7hallazgos.
-- Ambos conjuntos son sondas aisladas, no uso real ni despliegue verificado.
+## Ultima revalidacion
+- Informe docs/auditoria/REVALIDACION-659d696-2026-09-22.md.
+-11sondas aisladas:7PASS/4FAIL; no Firestore/navegador real.
+- Pasan: reuniones no mueven fiesta, fecha corrupta aislada, nocheUruguay,
+  fecha imposible rechazada y reposicion stock ante respaldo success:false.
+- Fallan: dia civil sin hora, cambio con TZUTC, excepcion respaldo y reposicion fallida.
+- QR por nombre: decision aceptada del dueno; no reabrir INV02.
+- INV01 datos ajenos en respuesta es distinto y permanece pendiente.
+- CAT01-03/BAR02-03 sin cambios: reutilizar evidencia anterior, no repetir exploracion.
 
-## Reparto y limites
-- Claude: permisos,datos,stock y compilacion. Gemini:UI/mensajes.
-- Cambio de identificacion RSVP requiere decision del dueno; no quitar cambiar respuesta.
-- Actualizar HEAD antes de programar; no reimplementar arreglos ya presentes.
-- Tests integrados propuestos en orden78: PENDIENTES, no fingir ejecucion.
-- No app modificada/build/fusion/credenciales reales. Agente cerrado.
-- Pedido del dueno: no insistir con login ni repetir auditorias vigentes.
-- Auditoria total NO completada: falta evidencia por roles,hardware,terceros e integrado.
-- Registrar resultados por SHA y conservar documentos previos; no emitir cero errores.
+## Entrega
+- Orden80 sustituye78deCodex (colision con78deGemini sobre portada).
+- Claude datos/stock/permisos/compilacion; Gemini interfaz; Codex audita.
+- Actualizar contraste de HEAD antes de programar. No reimplementar arreglos presentes.
+- Sin codigo de app, build ni fusion. No prometer cero errores.
+- NO cierre global: faltan correcciones y pruebas integradas/reales por roles/equipos.
