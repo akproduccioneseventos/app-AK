@@ -436,22 +436,45 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     // un stock que miente, no.
     const db = await getDb();
     let seGuardo = false;
+    // El respaldo puede **devolver** el error o **tirarlo**: las dos cosas significan lo
+    // mismo —el pedido no quedo guardado— y antes solo se miraba la primera. Lo marco Codex
+    // el 22 de setiembre de 2026.
+    const guardarEnElRespaldo = async () => {
+      try {
+        const respaldo = await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+        return respaldo?.success !== false;
+      } catch (error) {
+        logger.warn('[barra-tecnologica] el guardado de respaldo tiro error:', error);
+        return false;
+      }
+    };
+
     if (db) {
       try {
         await db.collection(BAR_ORDERS_COLLECTION).doc(order.id).set(order);
         seGuardo = true;
       } catch (error) {
         logger.warn('[barra-tecnologica] firestore order write failed, using fallback:', error);
-        const respaldo = await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
-        seGuardo = respaldo?.success !== false;
+        seGuardo = await guardarEnElRespaldo();
       }
     } else {
-      const respaldo = await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
-      seGuardo = respaldo?.success !== false;
+      seGuardo = await guardarEnElRespaldo();
     }
 
     if (!seGuardo) {
-      await reponerStock(order.stockMovements || []).catch(() => undefined);
+      // Se devuelven las botellas. Si **tampoco se pueden devolver**, queda escrito con el
+      // detalle de cuanto de que: sin eso, el stock queda bajo por un pedido que no existe y
+      // nadie se entera nunca. Igual se contesta que no se pudo, que es lo cierto para el
+      // invitado.
+      try {
+        await reponerStock(order.stockMovements || []);
+      } catch (error) {
+        logger.error(
+          '[barra-tecnologica] no se pudieron devolver las botellas de un pedido que no se guardo. '
+          + 'Hay que corregir el stock a mano:',
+          { pedido: order.id, trago: order.drinkName, movimientos: order.stockMovements, error },
+        );
+      }
       return { success: false, error: 'No se pudo registrar el pedido. Proba de nuevo en un momento.' };
     }
 
@@ -570,10 +593,18 @@ export async function changeBarDrinkOrder(
     }
     if (existing.drinkId === newDrinkId) return { success: true, order: existing };
 
-    const cancellation = await updateBarDrinkOrderStatusInternal(fiestaId, orderId, 'cancelado');
-    if (!cancellation.success) return { success: false, error: cancellation.error };
-
-    return createBarDrinkOrder({
+    // **Primero se consigue el trago nuevo, y recien despues se cancela el viejo.**
+    //
+    // Antes era al reves: se cancelaba y despues se pedia. Si el trago nuevo no salia —sin
+    // stock, la barra pausada, fuera de horario, o el guardado fallado— el invitado se
+    // quedaba **sin nada**: el viejo cancelado y el nuevo sin existir. Lo encontro Codex el
+    // 22 de setiembre de 2026.
+    //
+    // Y si lo que falla es la cancelacion del viejo, **se cancela el nuevo**, que devuelve
+    // sus botellas al stock. Asi el invitado se queda con el trago que ya tenia y se le dice
+    // que el cambio no salio. Nunca con dos, que le costaria dos tragos a la barra, ni con
+    // cero.
+    const nuevo = await createBarDrinkOrder({
       fiestaId,
       drinkId: newDrinkId,
       guestName: existing.guestName,
@@ -581,6 +612,16 @@ export async function changeBarDrinkOrder(
       tableNumber: existing.tableNumber,
       note: existing.note,
     });
+    if (!nuevo.success || !nuevo.order) return nuevo;
+
+    const cancellation = await updateBarDrinkOrderStatusInternal(fiestaId, orderId, 'cancelado');
+    if (!cancellation.success) {
+      await updateBarDrinkOrderStatusInternal(fiestaId, nuevo.order.id, 'cancelado')
+        .catch(() => undefined);
+      return { success: false, error: cancellation.error || 'No se pudo cambiar el pedido. El anterior sigue en pie.' };
+    }
+
+    return nuevo;
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo cambiar el pedido.' };
   }

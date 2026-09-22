@@ -111,6 +111,12 @@ const ALLOW_EMPTY_ARRAY_RESET_FILES = new Set([
   'notifications.json',
   'crm-leads.json',
   'invoices.json',
+  // Borrar la ULTIMA foto del catalogo o el ULTIMO salon son cosas que el equipo hace de
+  // verdad, y sin esto **no quedaban guardadas**: la tarjeta desaparecia de la pantalla, la
+  // escritura de lista vacia se ignoraba para no perder datos, y al recargar volvia a estar.
+  // Lo encontro Codex el 22 de setiembre de 2026.
+  'catalogo-fotos.json',
+  'salones.json',
 ]);
 
 function sanitizeForFirestore(value: unknown): unknown {
