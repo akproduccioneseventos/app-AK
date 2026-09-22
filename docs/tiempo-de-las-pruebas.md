@@ -2,9 +2,8 @@
 
 Lo escribe solo la ultima corrida. **No se edita a mano.**
 
-Medido el 2026-09-22 — total 20s.
+Medido el 2026-09-22 — total 28s.
 
 | Prueba | Tarda | Del total |
 | --- | --- | --- |
-| los-enlaces-llegan-a-donde-dicen.spec.ts | 12s | 61% |
-| la-portada-espera-sin-cajas-grises.spec.ts | 8s | 39% |
+| recorrido-de-pantallas.spec.ts | 28s | 100% |
