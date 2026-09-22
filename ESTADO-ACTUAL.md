@@ -5,46 +5,43 @@ Lo histórico va a `docs/YA-RESUELTO.md`. **Se pisa, no se acumula.**
 
 ---
 
-**Última actualización:** 20 de septiembre de 2026, de noche. **Rama
-`fix/despertador-de-afuera`**, todo subido, **sin fusionar**.
+**22 de septiembre de 2026.** Rama `fix/traspaso-22-septiembre`, sólo con esta hoja.
+**Todo lo de hoy ya está fusionado y publicándose** (propuestas 1211, 1212 y 1213, las tres
+con la verificación completa en verde).
 
-## Lo que entró en esta tanda
+## Lo que entró hoy
 
-- **Plata:** el indicador de preparación daba 100% con el cliente debiendo.
-- **Comida:** la lista de compras sumaba gramos como si fueran kilos; y el salón que se arma
-  solo contaba los invitados con un campo que no existe.
-- **El buzón** decía "Sincronizado" con la lista borrada y la descarga bajaba un archivo vacío.
-- **El secretario que habla** anotaba prospectos de mentira: decía que sí y no guardaba nada.
-- **Al volver del ingreso** se perdía la fiesta y la pantalla quedaba cargando para siempre.
-- **De Gemini:** el salón en 3D para el cliente (gira con el dedo, con la foto de respaldo), el
-  armado automático, cinco piezas nuevas, y el botón de Vista 3D que no abría.
+- **No se podía entrar a la app.** Una lectura colgada de la base tumbaba la pantalla entera:
+  se veía el error del servidor. Ahora corta a los ocho segundos y usa el respaldo. Ya entra.
+- **Calendario:** arrastrar una reunión reprogramaba la fiesta y le avisaba al cliente; una
+  fecha rota vaciaba el calendario; las fiestas de noche salían al día siguiente y bloqueaban
+  el día equivocado para vender; una fecha imposible se guardaba como otra.
+- **Plata:** el contrato de seña imprimía la fecha corrida un día, y cuatro botones decían
+  "copiado" sin serlo.
+- **Barra:** un trago que no se guardaba dejaba las botellas descontadas y decía "pedido
+  enviado" mientras al barman no le llegaba nada.
+- **Ingreso con Google** ahora dice qué falló; la recuperación no deja códigos que nadie recibió.
+- **De Gemini:** los ocho enlaces muertos y la portada sin cajas grises. Le corregí dos cosas.
 
-## Lo que cambió en el mecanismo
+## Espera decisión del dueño
 
-- **Preguntas 17, 18 y 19** en `docs/COMO-AUDITAR.md`.
-- **Control nuevo: ninguna prueba apagada.** Aparecieron **dos de comida dormidas hacía
-  semanas**; ya despertaron y pasan.
-- **Control nuevo: el secretario hace lo que dice que hace** (una acción declarada que nadie
-  ejecuta se pone en rojo).
-- **La corrida dice qué archivo no carga** cuando una tanda no registra ninguna prueba.
+- **Subir la memoria del servidor.** Lo último de la caída de producción, y lo único que
+  **aumenta la factura mensual**. Está en la propuesta 1207, que ya choca con el resto.
 
-## Lo único que falta para poder fusionar
+## Pendiente, y es mío
 
-- **`tests/e2e/48-touchpix-entrega-sin-reinicio.spec.ts`, de Gemini, no pasa.** Medido dos
-  veces, sola y en tanda: la estación contesta *"La validacion del evento demoro demasiado"* en
-  vez de mostrar el botón de sacar la foto. Devuelto en
-  `docs/ordenes/DEVOLUCION-48b-la-prueba-nueva-de-touchpix-no-pasa.md`.
-- **Todo lo demás está en verde**: compila, 2762 pruebas, sin acentos rotos, y la puerta llegó
-  hasta el paso del navegador con nueve controles pasados.
+- **Siete carteles más que dicen "copiado" sin serlo**: activos fijos, insumos, menús,
+  alergias, clientes, administración y cambio de fecha contractual. Listados por Gemini en
+  `docs/auditoria/BARRIDO-PREGUNTAS-NUEVAS.md`.
+- **De Codex, sin mirar:** dos personas editando fotos o salones a la vez pierden cambios, y
+  borrar la última foto o el último salón puede dejar el registro guardado igual.
 
-## Lo que está esperando a Gemini
+## Espera a Gemini
 
-Órdenes **74** (secretario manos libres), **76** (importar planilla en el celular: el botón de
-confirmar no se puede tocar) y **77** (el portal con clave también tiene que mostrar el 3D, sin
-copiar el código), más la devolución de arriba.
+Órdenes **74**, **75** y **77**, más las devoluciones ya escritas en `docs/ordenes/`.
 
 ## Trampas que no se repiten
 
-- **La sesión del equipo son dos mitades**: cookie + marca en el navegador (`ponerSesionDelEquipo`).
+- La sesión del equipo son **dos mitades** (`ponerSesionDelEquipo`).
 - **No se sube lo que escribe la corrida**: `npm run limpiar:corrida`.
-- **No se toca código mientras corre la puerta**: la tira abajo y no deja subir.
+- **No se toca código ni se sube mientras corre la verificación**: la tira abajo.
