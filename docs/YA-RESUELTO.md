@@ -8081,3 +8081,8 @@ Informe docs/auditoria/CONTROL-OPERATIVO-2026-09-20.md. Sonda docs/evidencias/co
 ## 2026-09-21 - Equipo y cobertura
 
 Informe docs/auditoria/EQUIPO-Y-COBERTURA-2026-09-21.md. PR1210 bc7fbb3: 10 casos nuevos,6 PASS/4 FAIL. EQU01 Total cobrado incluye pendientes; EQU02 operaciones concurrentes de proveedor pisan tareas/llegada. Sonda y resultados en docs/evidencias/equipo*. No Firebase/E2E/build. Matriz mecanica de360 paginas en COBERTURA-PANTALLAS-2026-09-21.json: pendiente reconciliar evidencia, NO360 pruebas ejecutadas. Login publico observado sin sesion; solicitado entorno de prueba de PR1210 para cierre por roles. Un agente economico realizo solo inventario, cerrado al terminar. No app modificada ni fusion.
+
+
+## 2026-09-22 - Calendario, enlaces y cierre no certificado
+
+Base main54cd623; PR1209/1210 fusionadas. Informe docs/auditoria/CALENDARIO-NAVEGACION-Y-CIERRE-2026-09-22.md. Agenda: 8 casos aislados,4 PASS/4 FAIL; CAL01 arrastrar reunion escribe fecha de fiesta, CAL02 fecha corrupta vacia calendario, CAL03 UTC desplaza noche uruguaya, CAL04 fecha imposible normalizada. AST:360 paginas/412 enlaces literales,12 candidatos;4 descartados como rutas validas,8 enlaces a3 destinos sin pagina/redirect (portal Cotizar, ajustes de redes, retorno a fiestas). No360 pantallas probadas. Cuatro PR abiertas contrastadas sin cambios en archivos principales. Evidencias agenda/enlaces en docs/evidencias. Un agente reconcilio handoff historico con PR1210, no repitio Touchpix ni compilo. Sin datos reales, login, build, modificaciones de app ni fusion. Falta cierre por roles, hardware y terceros; no certificado final. Claude datos/fechas y compilacion; Gemini UI/enlaces. Actualizar HEAD antes de implementar.

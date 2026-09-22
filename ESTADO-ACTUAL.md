@@ -1,12 +1,25 @@
-# Acá quedó Codex
+# Traspaso de Codex - 22 de septiembre de 2026
 
-Actualizado 2026-09-21. Rama documental codex/contraste-1206-20260914. Sin fusionar.
+Esta hoja corresponde SOLO a codex/contraste-1206-20260914, no al main publicado.
+Auditoria/documentacion, no fusionar sola ni sustituir instrucciones del equipo.
 
-- Codigo de referencia: PR1210 bc7fbb3d9226585f234b331e157490e861e0b3b4.
-- Control operativo publicado: evidencia historica14 casos sobre d2f359; correcciones CTRL01/04/06 presentes en bc7fbb3, no revalidadas. No reimplementar.
-- Equipo:10 casos nuevos,6 PASS/4 FAIL. Total cobrado incluye pendientes; proveedor pierde cambios concurrentes. Informe EQUIPO-Y-COBERTURA-2026-09-21.md.
-- Inventario de360 paginas actualizado por arbol; matriz pide reconciliar evidencia anterior, no repetir pruebas a ciegas.
-- Login publico carga sin sesion. Falta URL de entorno de PR1210 y sesion de pruebas para cierre por roles. No pedir contrasenas en chat.
-- Codex audita/documenta; Claude dinero/datos/permisos y compila; Gemini interfaz. No build, app edits ni merge por Codex.
-- Antes de continuar: refrescar HEAD, leer indice y consultar historico por tema. No certificar app completa.
-- ESTADO-ACTUAL de la rama de implementacion puede diferir; este es traspaso solo de la rama documental.
+## Base
+- Codigo: main54cd6230d8fd10d91b031c5ae5320125e8d1bd41; PR1209/1210 ya fusionadas.
+- PR abiertas contrastadas:1207/1206/1202/1197; SHA en informe.
+- El handoff del main del20/9 es historico, no estado vigente de despliegue.
+
+## Tanda nueva
+- Informe docs/auditoria/CALENDARIO-NAVEGACION-Y-CIERRE-2026-09-22.md.
+- Agenda8casos:4PASS/4FAIL. Mover reunion modifica fiesta; fecha corrupta vacia lista;
+  noche Uruguay cambia dia; fecha imposible se acepta y sincroniza.
+- AST360paginas/412enlaces literales:8 enlaces a3 destinos inexistentes.
+- Evidencias agenda/enlaces en docs/evidencias. Sin datos reales ni build.
+- Un agente economico reconcilio declaraciones anteriores; cerrado.
+
+## Pendiente
+- Gemini:UI/enlaces. Claude:fechas/integridad/sincronizacion y compilacion del conjunto.
+- Actualizar HEAD antes de tocar codigo. No reimplementar Touchpix ya corregido.
+- Reconciliar importacion movil/vidriera y evidencia E2E con tanda siguiente.
+- No insistir con login por pedido del dueno; continuar codigo cuando aporte evidencia.
+- NO auditoria total certificada: falta matriz vigente de roles, hardware y terceros.
+- No se cambiaron funciones de app ni se fusiono. Historicos preservados en indice.

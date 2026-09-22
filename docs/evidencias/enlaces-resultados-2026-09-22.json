@@ -1,0 +1,95 @@
+{
+  "sha": "54cd6230d8fd10d91b031c5ae5320125e8d1bd41",
+  "scope": "Static literal links only; unresolved candidates require redirect/API/consumer verification. Not runtime coverage.",
+  "pages": 360,
+  "sourceFiles": 1916,
+  "literalLinks": 412,
+  "candidates": [
+    {
+      "file": "src/app/(app)/contabilidad/crm/atraccion-fiestas/page.tsx",
+      "line": 216,
+      "kind": "href",
+      "url": "/fiestas"
+    },
+    {
+      "file": "src/app/(app)/empresa/presencia-digital/page.tsx",
+      "line": 50,
+      "kind": "href",
+      "url": "/ajustes/redes-sociales"
+    },
+    {
+      "file": "src/app/(app)/empresa/presencia-digital/seo-posicionamiento-tab.tsx",
+      "line": 99,
+      "kind": "href",
+      "url": "/sitemap.xml"
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/carga-operativa/pdf/page.tsx",
+      "line": 181,
+      "kind": "href",
+      "url": "/fiestas"
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/reporte/page.tsx",
+      "line": 95,
+      "kind": "href",
+      "url": "/fiestas"
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/itinerario/pdf/page.tsx",
+      "line": 109,
+      "kind": "href",
+      "url": "/fiestas"
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/musica/pdf/page.tsx",
+      "line": 112,
+      "kind": "href",
+      "url": "/fiestas"
+    },
+    {
+      "file": "src/app/(app)/fiestas/nueva/resumen-imprimible/page.tsx",
+      "line": 180,
+      "kind": "href",
+      "url": "/fiestas"
+    },
+    {
+      "file": "src/app/(app)/settings/backup/page.tsx",
+      "line": 418,
+      "kind": "href",
+      "url": "/api/backup/download"
+    },
+    {
+      "file": "src/app/(app)/settings/backup-final/page.tsx",
+      "line": 40,
+      "kind": "href",
+      "url": "/api/backup/download"
+    },
+    {
+      "file": "src/app/(app)/settings/google-workspace/page.tsx",
+      "line": 165,
+      "kind": "href",
+      "url": "/api/google/oauth/start?kind=company"
+    },
+    {
+      "file": "src/app/portal/page.tsx",
+      "line": 470,
+      "kind": "href",
+      "url": "/presupuesto"
+    }
+  ],
+  "classification": {
+    "validCandidates": [
+      "/sitemap.xml",
+      "/api/backup/download",
+      "/api/google/oauth/start?kind=company"
+    ],
+    "unresolvedDestinations": [
+      "/fiestas",
+      "/ajustes/redes-sociales",
+      "/presupuesto"
+    ],
+    "unresolvedOccurrences": 8,
+    "runtimeTested": false
+  }
+}

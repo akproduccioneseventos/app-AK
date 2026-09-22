@@ -1,0 +1,56 @@
+{
+  "sha": "54cd6230d8fd10d91b031c5ae5320125e8d1bd41",
+  "kind": "isolated_AST_functions_with_mocks",
+  "total": 8,
+  "pass": 4,
+  "fail": 4,
+  "results": [
+    {
+      "case": "calendar-normal",
+      "count": 1,
+      "date": "2026-10-10",
+      "passed": true
+    },
+    {
+      "case": "calendar-corrupt",
+      "count": 0,
+      "passed": false
+    },
+    {
+      "case": "calendar-late",
+      "count": 1,
+      "date": "2026-10-11",
+      "passed": false
+    },
+    {
+      "case": "drag-party",
+      "partyWrites": 1,
+      "passed": true
+    },
+    {
+      "case": "drag-meeting",
+      "partyWrites": 1,
+      "passed": false
+    },
+    {
+      "case": "move-normal",
+      "success": true,
+      "date": "2026-10-12T21:00:00.000Z",
+      "sync": 1,
+      "passed": true
+    },
+    {
+      "case": "move-invalid",
+      "success": true,
+      "date": "2026-03-03T21:00:00.000Z",
+      "sync": 1,
+      "passed": false
+    },
+    {
+      "case": "move-save-failure",
+      "success": false,
+      "sync": 0,
+      "passed": true
+    }
+  ]
+}
