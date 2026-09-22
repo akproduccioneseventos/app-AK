@@ -89,9 +89,39 @@ export function shouldFallbackToGoogleRedirect(error: unknown): boolean {
     || code === 'auth/operation-not-supported-in-this-environment';
 }
 
+/**
+ * Traduce la falla de Google a algo que se entienda, y **si no la conoce, dice el codigo**.
+ *
+ * **Por que dice el codigo.** El 21 de setiembre de 2026 el dueno toco "Ingresar con
+ * Google" y la pantalla contesto *"No se pudo completar el ingreso con Google"*, que es
+ * lo que se decia cuando la falla no estaba en esta lista. Esa frase **no dice nada**: no
+ * distingue entre el navegador bloqueando el guardado, la cuenta deshabilitada, o Google
+ * sin contestar. Sin el codigo, averiguar por que tardaba un viaje entero de ida y vuelta.
+ *
+ * Ahora la lista cubre las fallas que de verdad pasan, y lo que queda afuera se muestra
+ * **con su codigo entre parentesis**: fea de leer, pero se resuelve en un mensaje en vez
+ * de en una sesion. No expone nada privado: es el nombre de la falla, no un dato de nadie.
+ */
 export function getGoogleAuthErrorMessage(error: unknown): string {
   const code = (error as { code?: string })?.code;
   switch (code) {
+    case 'auth/web-storage-unsupported':
+    case 'auth/operation-not-supported-in-this-environment':
+      // Pasa en Safari de iPhone y en la app instalada: el navegador bloquea el guardado
+      // que Google necesita. El desvio tampoco sirve ahi, asi que se ofrece la salida real.
+      return 'Tu navegador esta bloqueando el ingreso con Google. Entra con tu correo y contrasena, o proba desde otro navegador.';
+    case 'auth/account-exists-with-different-credential':
+      return 'Ese correo ya entra por otro camino. Usa tu correo y contrasena.';
+    case 'auth/user-disabled':
+      return 'Esa cuenta de Google esta deshabilitada. Entra con tu correo y contrasena.';
+    case 'auth/timeout':
+      return 'Google tardo demasiado en contestar. Proba de nuevo en un momento.';
+    case 'auth/too-many-requests':
+      return 'Hubo demasiados intentos seguidos. Espera unos minutos y proba de nuevo.';
+    case 'auth/internal-error':
+      return 'Google devolvio un error inesperado. Proba de nuevo, y si sigue igual entra con tu correo y contrasena.';
+    case 'auth/invalid-api-key':
+      return 'El ingreso con Google no esta bien configurado en el servidor. Entra con tu correo y contrasena.';
     case 'auth/unauthorized-domain':
       return 'Este dominio todavia no esta autorizado en Firebase Authentication.';
     case 'auth/operation-not-allowed':
@@ -105,6 +135,8 @@ export function getGoogleAuthErrorMessage(error: unknown): string {
       // configurado", que no le dice nada a nadie y ademas asusta.
       return 'El ingreso con Google no esta disponible. Entra con tu correo y contrasena.';
     default:
-      return 'No se pudo completar el ingreso con Google.';
+      return code
+        ? `No se pudo completar el ingreso con Google (${code}). Entra con tu correo y contrasena.`
+        : 'No se pudo completar el ingreso con Google. Entra con tu correo y contrasena.';
   }
 }

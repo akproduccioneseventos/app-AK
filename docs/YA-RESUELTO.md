@@ -1,5 +1,73 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22 de septiembre de 2026 — DECISION DEL DUENO: la confirmacion publica sigue devolviendo el QR. NO es un hallazgo.
+
+**Que se reporto (Codex):** en la pantalla publica de confirmacion, escribir el nombre de un
+invitado que ya esta en la lista devuelve su ficha **con su credencial de acceso**, y con eso
+se arma el QR de entrada. O sea que alguien podria quedarse con el QR de otro.
+
+**Que decidio el dueno, y cierra el tema:** *"nadie te roba; ademas, si no llevas el QR, gente
+mayor con nombre y apellido entra"*. **En sus fiestas la entrada la controla el nombre, no el
+QR.** Devolverle el QR a quien escribe el nombre no da acceso a nada que esa persona no
+consiguiera igual presentandose en la puerta.
+
+**Que se comprobo antes de dejarlo asi:** esa credencial solo abre **lo propio del invitado**
+—su galeria, su video del recuerdo y el registro de sus toques—. No abre datos de otros
+invitados, ni plata, ni nada del equipo.
+
+**Lo que se descarto a proposito:** pedirle el telefono o el mail con el que esta anotado para
+devolverle el QR. Le agrega un paso al invitado y no evita nada que importe.
+
+**No volver a reportarlo ni a "arreglarlo".** Si una revision lo marca, es falso positivo.
+
+
+## 22 de septiembre de 2026 — Los cuatro defectos del calendario que encontro Codex
+
+- **Arrastrar una reunion reprogramaba la fiesta entera**, con aviso al cliente incluido. Las
+  reuniones y las fiestas se dibujan igual y las dos llevan el numero de la fiesta. Ahora, al
+  arrastrar una reunion, **no se toca nada** y se avisa en pantalla. **Mover la reunion a otro
+  dia queda para la orden 79**: se eligio no hacer nada antes que hacer lo equivocado.
+- **Una fiesta con la fecha ilegible dejaba el calendario entero vacio.** Ahora se saltea esa
+  sola, las demas se ven, y queda escrito en el registro del servidor cual hay que corregir.
+- **Las fiestas de noche aparecian al dia siguiente**, y marcaban ocupado el dia equivocado
+  para vender. El dia ahora se calcula en la hora de Uruguay, no en la de Greenwich. Es la
+  misma equivocacion que ya habia dejado un cobro de la ultima noche afuera del reporte: **la
+  pregunta trece estaba puesta y no se habia barrido el calendario con ella.**
+- **Una fecha imposible se guardaba como otra.** El 31 de febrero no falla: se corre solo al 3
+  de marzo. Ahora se rechaza **antes** de guardar y antes de avisarle al cliente.
+- **Falso positivo ya verificado:** los enlaces de `sitemap.xml`, los dos del respaldo y el de
+  Google **estan bien**. Codex los comprobo. No volver a reportarlos.
+- **Probado rompiendolo:** los cuatro, uno por uno.
+
+```comprobar
+archivo: src/app/actions/agenda.ts
+usa: diaCivilEnUruguay en src/app/actions/agenda.ts
+prueba: src/__tests__/el-calendario-no-mueve-la-fiesta-equivocada.test.ts
+## 21 de septiembre de 2026 — El ingreso con Google no decia que pasaba, y un codigo de recuperacion quedaba vivo sin mandarse
+
+- **El ingreso con Google.** Cualquier falla que no estuviera en la lista contestaba
+  *"No se pudo completar el ingreso con Google"*, que no distingue entre el navegador
+  bloqueando el guardado que Google necesita, la cuenta deshabilitada o Google sin
+  contestar. Ahora cada una tiene su frase, y **lo que no esta en la lista se muestra con
+  su codigo entre parentesis**: se resuelve en un mensaje y no en una sesion. El codigo es
+  el nombre de la falla, no un dato de nadie.
+- **La recuperacion por correo.** El codigo se guarda antes de mandarlo —tiene que ser asi,
+  para que coincida con el mail—, pero si el correo no salia **el codigo quedaba vivo quince
+  minutos sin que nadie lo hubiera recibido**, con el intento igual consumido. Ahora se borra.
+- **Falso positivo ya verificado:** la pantalla de recuperacion **no miente**. Dice si hay
+  correo configurado, si la cuenta de Google de la empresa esta conectada y cuantos codigos
+  de respaldo quedan, y destaca los caminos que si funcionan cuando el correo no puede
+  salir. **No hace falta rehacerla.**
+- **Probado rompiendolo:** con la respuesta generica de vuelta, y sacando el borrado del
+  codigo, las dos pruebas se ponen en rojo.
+
+```comprobar
+archivo: src/lib/firebase/google-auth-client.ts
+usa: auth/web-storage-unsupported en src/lib/firebase/google-auth-client.ts
+prueba: src/__tests__/el-ingreso-con-google-dice-que-paso.test.ts
+```
+
+
 ## 21 de septiembre de 2026 — Una lectura colgada de la base tumbaba la pantalla entera
 
 - **Que estaba mal.** `src/lib/data-service.ts` —por donde pasan TODAS las lecturas de la

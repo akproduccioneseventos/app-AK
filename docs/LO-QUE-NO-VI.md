@@ -19,6 +19,38 @@ agregó— y el control que lo frena.
 
 ---
 
+## 22 de septiembre de 2026 — Cuatro defectos del calendario (Codex)
+
+**Qué eran:**
+
+1. **Arrastrar una reunión reprogramaba la fiesta entera**, y le salía el aviso al cliente con
+   la fecha nueva. Las reuniones y las fiestas se dibujan igual y las dos llevan el número de
+   la fiesta; había una sola acción para las dos.
+2. **Una fiesta con la fecha ilegible dejaba el calendario completamente vacío.** El error se
+   comía la lista entera, y una agenda sin nada se ve igual que no tener fiestas.
+3. **Las fiestas de noche aparecían al día siguiente**, y marcaban ocupado el día equivocado
+   para vender.
+4. **Una fecha imposible se guardaba como otra.** El 31 de febrero no falla: se corre solo al
+   3 de marzo, se guarda cambiado y sale el aviso al cliente con ese día.
+
+**Por qué mi método no los agarró.** El tercero sí lo tenía —la pregunta trece, la hora de
+Uruguay— y **no lo volví a pasar por el calendario** cuando lo arreglé en el reporte de cobros:
+ese es un error mío de alcance, no de método. Los otros tres **no los agarraba ninguna de las
+diecinueve preguntas**: todas miran si algo funciona, ninguna preguntaba **sobre qué está
+funcionando** ni qué pasa con el registro roto de al lado.
+
+**Qué preguntas se agregaron:** la **20** —si dos cosas distintas se dibujan igual, ¿la acción
+sabe cuál agarró?— y la **21** —un registro roto, ¿se lleva puesta la lista entera?—, las dos
+en `docs/COMO-AUDITAR.md`.
+
+**Y la corrección de alcance, que es la que más me importa:** cuando una pregunta del método
+arregla un caso, **hay que barrer con ella los demás lugares que tengan la misma forma**, no
+sólo el que se reportó. La pregunta trece estaba puesta desde el 8 de septiembre y el calendario
+siguió contando los días en hora de Greenwich dos semanas más.
+
+**El control que lo frena:** `src/__tests__/el-calendario-no-mueve-la-fiesta-equivocada.test.ts`,
+con las cuatro comprobaciones, cada una probada rompiéndola.
+
 ## 8 de septiembre de 2026 — Cinco defectos contables (Codex)
 
 **Qué eran:** un cobro que desaparecía cuando dos personas cobraban a la vez; una cuota que se

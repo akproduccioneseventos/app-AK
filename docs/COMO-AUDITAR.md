@@ -573,3 +573,45 @@ Son dos mitades del mismo agujero, y las dos pasaron el mismo día:
 Se mira igual en toda pantalla que se abre con un dato en la dirección: **entrar sin ese dato**
 y ver qué pasa. Una pantalla que se queda cargando es un error, aunque el código esté bien
 escrito: el equipo la mira y cree que el sistema está pensando.
+
+## Preguntas 20 y 21 — las que sumó el 22 de septiembre de 2026
+
+**Las trajo Codex, sobre el calendario, y ninguna de las diecinueve anteriores las hubiera
+agarrado.** Las dos son de la misma familia: no preguntan si algo funciona, preguntan
+**sobre qué está funcionando**.
+
+### 20. Si dos cosas distintas se dibujan igual, ¿la acción sabe cuál agarró?
+
+En el calendario, una **reunión** y una **fiesta** se ven iguales, se arrastran igual y las
+dos llevan el número de la fiesta. Y había **una sola acción** para las dos: arrastrar una
+entrevista **reprogramaba la celebración entera y le mandaba el aviso al cliente**.
+
+La pregunta se hace en cualquier lista, calendario o tablero donde convivan dos tipos de
+cosa:
+
+1. **¿Qué tipos de cosa entran en esta lista?** No "qué muestra": qué cosas **distintas**
+   terminan dibujadas ahí.
+2. **¿La acción distingue una de otra antes de tocar nada?** Si las dos comparten un
+   identificador —el número de la fiesta, el del cliente—, tener el identificador **no dice
+   qué se agarró**.
+3. **¿Cuál es el daño de equivocarse?** Si lo que se toca es una fecha que le sale por
+   correo al cliente, o plata, no alcanza con que "casi siempre" sea el tipo correcto.
+
+**Y el corolario:** si mover una cosa todavía no está programado, **no se la deja arrastrar
+y se avisa**. Dejar que se arrastre y que haga otra cosa es lo peor de los tres caminos.
+
+### 21. Un registro roto en la lista, ¿se lleva puesta la lista entera?
+
+Una sola fiesta con la fecha ilegible dejaba el calendario **completamente vacío**: la
+conversión tiraba error, el `catch` de afuera devolvía una lista vacía, y en pantalla no se
+veía ni un error — se veía **una agenda sin nada**, que es exactamente igual a no tener
+fiestas.
+
+Dónde se busca: en todo `map`, `forEach` o `for` que arme una lista para mostrar, con un
+`try` **por fuera del ciclo** en vez de adentro.
+
+1. **¿El error se aísla en el registro, o se come la lista?** Adentro del ciclo, no afuera.
+2. **¿Una lista vacía por falla se distingue de una lista vacía de verdad?** Si no, la
+   pantalla miente con toda tranquilidad. Es la misma forma del respaldo que guardaba cero
+   fiestas como si la empresa no tuviera ninguna.
+3. **¿Queda dicho cuál es el registro que hay que arreglar?** Si no, nadie lo arregla nunca.

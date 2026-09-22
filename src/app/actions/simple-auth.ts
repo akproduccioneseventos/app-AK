@@ -687,6 +687,11 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
 
     const mail = await sendSecurityEmail(recoveryEmail, code);
     if (!mail.sent) {
+      // El codigo se guarda ANTES de mandarlo, porque el mail que sale tiene que coincidir
+      // con lo guardado. Si el mail no salio, ese codigo **no lo recibio nadie** y quedaba
+      // valido quince minutos: un codigo vivo que nadie pidio y que nadie puede usar, con
+      // el intento igual consumido. Se borra.
+      await saveAuthConfig({ resetCodeHash: '', resetCodeExpiresAt: '' }).catch(() => undefined);
       return {
         success: false,
         error: mail.warning || 'No se pudo enviar el codigo por Gmail. Reconecta Google Workspace e intenta nuevamente.',
