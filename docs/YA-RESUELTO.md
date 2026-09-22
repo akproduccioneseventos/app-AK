@@ -1,5 +1,30 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22 de septiembre de 2026 — Los cuatro defectos del calendario que encontro Codex
+
+- **Arrastrar una reunion reprogramaba la fiesta entera**, con aviso al cliente incluido. Las
+  reuniones y las fiestas se dibujan igual y las dos llevan el numero de la fiesta. Ahora, al
+  arrastrar una reunion, **no se toca nada** y se avisa en pantalla. **Mover la reunion a otro
+  dia queda para la orden 79**: se eligio no hacer nada antes que hacer lo equivocado.
+- **Una fiesta con la fecha ilegible dejaba el calendario entero vacio.** Ahora se saltea esa
+  sola, las demas se ven, y queda escrito en el registro del servidor cual hay que corregir.
+- **Las fiestas de noche aparecian al dia siguiente**, y marcaban ocupado el dia equivocado
+  para vender. El dia ahora se calcula en la hora de Uruguay, no en la de Greenwich. Es la
+  misma equivocacion que ya habia dejado un cobro de la ultima noche afuera del reporte: **la
+  pregunta trece estaba puesta y no se habia barrido el calendario con ella.**
+- **Una fecha imposible se guardaba como otra.** El 31 de febrero no falla: se corre solo al 3
+  de marzo. Ahora se rechaza **antes** de guardar y antes de avisarle al cliente.
+- **Falso positivo ya verificado:** los enlaces de `sitemap.xml`, los dos del respaldo y el de
+  Google **estan bien**. Codex los comprobo. No volver a reportarlos.
+- **Probado rompiendolo:** los cuatro, uno por uno.
+
+```comprobar
+archivo: src/app/actions/agenda.ts
+usa: diaCivilEnUruguay en src/app/actions/agenda.ts
+prueba: src/__tests__/el-calendario-no-mueve-la-fiesta-equivocada.test.ts
+```
+
+
 ## 21 de septiembre de 2026 — Una lectura colgada de la base tumbaba la pantalla entera
 
 - **Que estaba mal.** `src/lib/data-service.ts` —por donde pasan TODAS las lecturas de la

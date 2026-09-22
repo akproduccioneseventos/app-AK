@@ -26,6 +26,47 @@ function getFiestaStatus(fiesta: FiestaEnPlanificacion, isArchived: boolean): Ca
   return 'pending';
 }
 
+/**
+ * El dia del calendario en Uruguay, no en Greenwich.
+ *
+ * **Por que.** Antes el dia se sacaba de la fecha en formato universal, que es el dia **en
+ * hora de Greenwich**. Una fiesta a las 23:00 de Uruguay son las 02:00 del dia siguiente
+ * alla, asi que el calendario la mostraba **un dia despues**: justo las fiestas de noche,
+ * que son casi todas. Es la misma equivocacion que ya habia dejado un cobro de la ultima
+ * noche afuera del reporte.
+ *
+ * Devuelve `null` si la fecha guardada no se entiende, para que el que llama decida —y no
+ * reviente toda la lista, que es lo que pasaba—.
+ */
+function diaCivilEnUruguay(valor: string): string | null {
+  const cuando = new Date(valor);
+  if (Number.isNaN(cuando.getTime())) return null;
+  // 'en-CA' da el formato ano-mes-dia, que es el que usa el calendario.
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Montevideo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(cuando);
+}
+
+/**
+ * Comprueba que una fecha escrita como ano-mes-dia exista de verdad.
+ *
+ * **Por que.** `setFullYear(2026, 1, 31)` no falla con el 31 de febrero: lo corre solo al
+ * 3 de marzo. O sea que una fecha imposible se guardaba **como otra fecha**, y encima
+ * salia el aviso al cliente con el dia cambiado.
+ */
+function esUnDiaQueExiste(texto: string): boolean {
+  const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(texto);
+  if (!partes) return false;
+  const [, a, m, d] = partes;
+  const prueba = new Date(Date.UTC(Number(a), Number(m) - 1, Number(d)));
+  return prueba.getUTCFullYear() === Number(a)
+    && prueba.getUTCMonth() === Number(m) - 1
+    && prueba.getUTCDate() === Number(d);
+}
+
 export async function getCalendarEvents(): Promise<CalendarEvent[]> {
   // Devuelve el calendario entero: todas las fiestas con su fecha y su cliente.
   // Estaba abierta, y la usa solo la pantalla del calendario, que ya pide cuenta.
@@ -39,7 +80,14 @@ export async function getCalendarEvents(): Promise<CalendarEvent[]> {
     const toCalendarEvent = (fiesta: FiestaEnPlanificacion, isArchived: boolean): CalendarEvent | null => {
       if (!fiesta.configuracion.fechaEvento) return null;
       const dateTime = fiesta.configuracion.fechaEvento;
-      const date = new Date(dateTime).toISOString().split('T')[0];
+      // Una sola fiesta con la fecha rota dejaba el calendario ENTERO vacio: la conversion
+      // tiraba error y el catch de afuera devolvia una lista vacia. Ahora se saltea esa y
+      // las demas se ven. Las reuniones ya estaban protegidas una por una; las fiestas no.
+      const date = diaCivilEnUruguay(dateTime);
+      if (!date) {
+        console.error(`[agenda] La fiesta ${fiesta.id} tiene una fecha que no se entiende:`, dateTime);
+        return null;
+      }
       return {
         id: `cal_${fiesta.id}`,
         fiestaId: fiesta.id,
@@ -66,7 +114,8 @@ export async function getCalendarEvents(): Promise<CalendarEvent[]> {
           if (r.fecha) {
             try {
               const dateTime = r.fecha;
-              const date = new Date(dateTime).toISOString().split('T')[0];
+              const date = diaCivilEnUruguay(dateTime);
+              if (!date) continue;
               const lugar = (r as any).lugar || fiesta.configuracion.nombreLugar || '';
               const contacto = (r as any).conQuien || (fiesta.configuracion as any).nombreCliente || fiesta.configuracion.protagonista1Nombre || '';
               reunionEvents.push({
@@ -106,6 +155,13 @@ export async function updateFiestaDate(
     // supiera el numero de una fiesta podia moverle la fecha, sin cuenta. La usa
     // solo el calendario del equipo, al arrastrar el evento a otro dia.
     await requireAppSession();
+    // Una fecha imposible —un 31 de febrero— no falla al guardarse: se corre sola al 3 de
+    // marzo, se guarda como otra fecha y **le sale el aviso al cliente con el dia cambiado**.
+    // Se rechaza antes de tocar nada.
+    if (!esUnDiaQueExiste(newDate)) {
+      return { success: false, error: 'Esa fecha no existe. Revisala y proba de nuevo.' };
+    }
+
     const fiestas = await getFiestas(false);
     const fiesta = fiestas.find(f => f.id === fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -150,7 +206,11 @@ export async function getOcupiedDates(): Promise<string[]> {
 
     fiestas.forEach(fiesta => {
       if (fiesta.configuracion.fechaEvento) {
-        occupiedDates.push(new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0]);
+        // El mismo dia civil que usa el calendario. Con el dia de Greenwich, una fiesta de
+        // las 23:00 marcaba ocupado **el dia siguiente**: el dia que de verdad estaba tomado
+        // quedaba libre para vender, y el de al lado bloqueado sin motivo.
+        const dia = diaCivilEnUruguay(fiesta.configuracion.fechaEvento);
+        if (dia) occupiedDates.push(dia);
       }
     });
 

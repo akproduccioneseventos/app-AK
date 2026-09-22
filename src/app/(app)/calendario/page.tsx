@@ -517,6 +517,22 @@ export default function CalendarioInteractivoPage() {
     const draggedEvent = events.find(ev => ev.id === eventId);
     if (!draggedEvent || draggedEvent.date === newDateStr) return;
 
+    // **Una reunion NO es la fiesta.** Las dos se dibujan igual en el calendario y las dos
+    // llevan el numero de la fiesta, asi que al arrastrar una reunion se terminaba
+    // **reprogramando la celebracion entera** —y saliendo el aviso al cliente con la fecha
+    // nueva—. Lo reporto Codex el 22 de setiembre de 2026.
+    //
+    // Mover la reunion a otro dia es algo que se va a poder hacer, pero todavia no esta
+    // programado. Hasta que este, se avisa y no se toca nada: equivocarse sin hacer nada es
+    // barato, mover la fiesta de un cliente no.
+    if (draggedEvent.type === 'Reunión' || eventId.startsWith('reunion_')) {
+      toast({
+        title: 'La reunion no se mueve desde aca',
+        description: 'Para cambiarle el dia a una reunion, entra a la fiesta y editala ahi. Arrastrar aca movia la fiesta entera.',
+      });
+      return;
+    }
+
     // Optimistic update — preserve original time portion using parseISO
     setEvents(prev =>
       prev.map(ev => {
