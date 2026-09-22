@@ -22,6 +22,28 @@
 archivo: src/app/actions/agenda.ts
 usa: diaCivilEnUruguay en src/app/actions/agenda.ts
 prueba: src/__tests__/el-calendario-no-mueve-la-fiesta-equivocada.test.ts
+## 21 de septiembre de 2026 — El ingreso con Google no decia que pasaba, y un codigo de recuperacion quedaba vivo sin mandarse
+
+- **El ingreso con Google.** Cualquier falla que no estuviera en la lista contestaba
+  *"No se pudo completar el ingreso con Google"*, que no distingue entre el navegador
+  bloqueando el guardado que Google necesita, la cuenta deshabilitada o Google sin
+  contestar. Ahora cada una tiene su frase, y **lo que no esta en la lista se muestra con
+  su codigo entre parentesis**: se resuelve en un mensaje y no en una sesion. El codigo es
+  el nombre de la falla, no un dato de nadie.
+- **La recuperacion por correo.** El codigo se guarda antes de mandarlo —tiene que ser asi,
+  para que coincida con el mail—, pero si el correo no salia **el codigo quedaba vivo quince
+  minutos sin que nadie lo hubiera recibido**, con el intento igual consumido. Ahora se borra.
+- **Falso positivo ya verificado:** la pantalla de recuperacion **no miente**. Dice si hay
+  correo configurado, si la cuenta de Google de la empresa esta conectada y cuantos codigos
+  de respaldo quedan, y destaca los caminos que si funcionan cuando el correo no puede
+  salir. **No hace falta rehacerla.**
+- **Probado rompiendolo:** con la respuesta generica de vuelta, y sacando el borrado del
+  codigo, las dos pruebas se ponen en rojo.
+
+```comprobar
+archivo: src/lib/firebase/google-auth-client.ts
+usa: auth/web-storage-unsupported en src/lib/firebase/google-auth-client.ts
+prueba: src/__tests__/el-ingreso-con-google-dice-que-paso.test.ts
 ```
 
 
