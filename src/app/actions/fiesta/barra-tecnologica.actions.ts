@@ -616,8 +616,18 @@ export async function changeBarDrinkOrder(
 
     const cancellation = await updateBarDrinkOrderStatusInternal(fiestaId, orderId, 'cancelado');
     if (!cancellation.success) {
-      await updateBarDrinkOrderStatusInternal(fiestaId, nuevo.order.id, 'cancelado')
-        .catch(() => undefined);
+      // Se deshace el pedido nuevo, y **se mira si se pudo deshacer**. Si tampoco se pudo,
+      // el invitado queda con dos pedidos y eso le cuesta dos tragos a la barra: tiene que
+      // quedar escrito con los dos numeros para arreglarlo a mano.
+      const deshacer = await updateBarDrinkOrderStatusInternal(fiestaId, nuevo.order.id, 'cancelado')
+        .catch((error) => ({ success: false, error: String(error) }));
+      if (!deshacer.success) {
+        logger.error(
+          '[barra-tecnologica] no se pudo cancelar el pedido nuevo despues de fallar la cancelacion '
+          + 'del anterior. El invitado quedo con DOS pedidos; hay que cancelar uno a mano:',
+          { anterior: orderId, nuevo: nuevo.order.id, motivo: deshacer.error },
+        );
+      }
       return { success: false, error: cancellation.error || 'No se pudo cambiar el pedido. El anterior sigue en pie.' };
     }
 
