@@ -446,8 +446,11 @@ function VideoSkeleton() {
           <p className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-red-400">
             <Play className="h-4 w-4" /> Momentos reales
           </p>
+          {/* El MISMO titulo que muestra la seccion de verdad (`VideoSection`, "Historias en
+              movimiento"). Si el cartel de espera dice otra cosa, el visitante ve el titulo
+              cambiar delante suyo, que es justo el salto que este arreglo venia a sacar. */}
           <h2 className="font-headline text-4xl font-black leading-tight text-white sm:text-5xl">
-            Videos de producciones
+            Historias en movimiento
           </h2>
           <p className="mt-2 text-base text-zinc-400">
             Registros en video de ambientaciones, shows, cabinas y pistas.

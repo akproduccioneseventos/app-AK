@@ -24,7 +24,7 @@ test.describe('Orden 78 - la portada espera sin cajas grises', () => {
     // 1. Títulos reales ya presentes en la entrega inicial del servidor
     expect(html, 'El título del salón destacado tiene que venir en la primera entrega').toContain('Club Uruguay');
     expect(html, 'El título de la galería tiene que venir en la primera entrega').toContain('Galería de eventos');
-    expect(html, 'El título de videos tiene que venir en la primera entrega').toContain('Videos de producciones');
+    expect(html, 'El título de videos tiene que venir en la primera entrega').toContain('Historias en movimiento');
     expect(html, 'El título de testimonios tiene que venir en la primera entrega').toContain('Experiencias compartidas');
     expect(html, 'El título del blog tiene que venir en la primera entrega').toContain('Contenido para planificar tu evento sin estrés');
 
@@ -38,10 +38,13 @@ test.describe('Orden 78 - la portada espera sin cajas grises', () => {
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
+    // `exact: true` en los cuatro titulos: sin eso, "Club Uruguay" tambien empareja con el
+    // titulo de un video ("XV anos Belen en Club Uruguay") y la prueba falla por ambiguedad,
+    // no porque la portada este mal. Corregido al verificar la entrega, 22/9/2026.
     await expect(page.locator('h1').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole('heading', { name: 'Club Uruguay' })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole('heading', { name: 'Galería de eventos' })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole('heading', { name: 'Videos de producciones' })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole('heading', { name: 'Experiencias compartidas' })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'Club Uruguay', exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'Galería de eventos', exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'Historias en movimiento', exact: true })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('heading', { name: 'Experiencias compartidas', exact: true })).toBeVisible({ timeout: 20_000 });
   });
 });

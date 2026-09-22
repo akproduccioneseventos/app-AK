@@ -420,16 +420,39 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
 
     order.stockMovements = await descontarStock(drink);
 
+    // **El pedido se guarda, Y SE MIRA SI SE GUARDO.**
+    //
+    // Antes pasaban dos cosas, las dos reportadas por Codex el 22 de setiembre de 2026:
+    //
+    // 1. El guardado de respaldo **devuelve** el error en vez de tirarlo, y nadie lo miraba:
+    //    si fallaba, se seguia de largo y se contestaba "pedido enviado". El invitado veia su
+    //    trago confirmado y **al barman no le llegaba nada**.
+    // 2. Las botellas ya estaban descontadas. O sea que ademas quedaba el stock bajado por un
+    //    pedido que no existe: la barra se quedaba sin bebida con el sistema diciendo que
+    //    habia de sobra.
+    //
+    // Ahora, si no se pudo guardar en ningun lado, **se devuelven las botellas** y se contesta
+    // que no se pudo. Un invitado que vuelve a tocar es barato; un trago que nadie prepara y
+    // un stock que miente, no.
     const db = await getDb();
+    let seGuardo = false;
     if (db) {
       try {
         await db.collection(BAR_ORDERS_COLLECTION).doc(order.id).set(order);
+        seGuardo = true;
       } catch (error) {
         logger.warn('[barra-tecnologica] firestore order write failed, using fallback:', error);
-        await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+        const respaldo = await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+        seGuardo = respaldo?.success !== false;
       }
     } else {
-      await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+      const respaldo = await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+      seGuardo = respaldo?.success !== false;
+    }
+
+    if (!seGuardo) {
+      await reponerStock(order.stockMovements || []).catch(() => undefined);
+      return { success: false, error: 'No se pudo registrar el pedido. Proba de nuevo en un momento.' };
     }
 
     // El pedido del invitado tambien consume botellas. Solo descontaba el que

@@ -1,5 +1,42 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22 de septiembre de 2026 — La barra: un trago que no se guardo dejaba botellas descontadas y decia "pedido enviado"
+
+- **Lo que estaba mal (lo encontro Codex).** El guardado de respaldo **devuelve** el error en
+  vez de tirarlo, y nadie lo miraba: si fallaba, se seguia de largo y se contestaba que si. El
+  invitado veia su trago confirmado y **al barman no le llegaba nada**. Y encima las botellas
+  ya estaban descontadas, asi que la barra se quedaba sin bebida con el sistema marcando que
+  habia de sobra.
+- **Lo que se hizo.** Se mira si se guardo. Si no se pudo en ningun lado, **se devuelven las
+  botellas** y se contesta que no se pudo.
+- **Por que asi y no al reves** —guardar primero y descontar despues—: el descuento de stock
+  corre dentro de un turno de la base que ya estaba probado, y moverlo obligaba a una segunda
+  escritura. Devolver lo descontado es un solo paso y deja el stock igual que antes.
+- **Probado rompiendolo:** sacando la mirada al respaldo, y sacando la devolucion de botellas.
+
+```comprobar
+archivo: src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: reponerStock en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/un-trago-que-no-se-guardo-no-descuenta-botellas.test.ts
+```
+
+## 22 de septiembre de 2026 — Entrega de Gemini (ordenes 78 y 79), con dos correcciones al verificarla
+
+- **Entro bien:** los ocho enlaces muertos corregidos —el de "Cotizar mi fiesta" del portal ya
+  va al simulador de verdad, y los cinco impresos vuelven **a su fiesta** conservando el
+  identificador—, y la portada dejo de mostrar cajas grises: durante la espera ya se ven los
+  titulos y los bordes definitivos.
+- **Correccion mia 1:** el cartel de espera de los videos decia *"Videos de producciones"* y la
+  seccion de verdad se llama **"Historias en movimiento"**. O sea que el titulo **cambiaba
+  delante del visitante**, que es justo el salto que el arreglo venia a sacar. Ahora dice lo
+  mismo que despues.
+- **Correccion mia 2:** la prueba nueva buscaba el titulo "Club Uruguay" sin exigir
+  coincidencia exacta y emparejaba tambien con el titulo de un video, asi que fallaba por
+  ambiguedad y no porque la portada estuviera mal.
+- **Se saco del commit** `src/data/notifications.json`, que lo escribe la corrida de pruebas y
+  no se sube nunca.
+
+
 ## 22 de septiembre de 2026 — Los cuatro defectos del calendario que encontro Codex
 
 - **Arrastrar una reunion reprogramaba la fiesta entera**, con aviso al cliente incluido. Las
