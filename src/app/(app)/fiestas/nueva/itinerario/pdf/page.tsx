@@ -65,11 +65,11 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handlePrint = () => {
     window.print();
   };
-  
+
   const handleShare = async () => {
     if (!fiesta) return;
     const shareData = {
@@ -84,11 +84,22 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
         throw new Error();
       }
     } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({
-        title: "Enlace Copiado",
-        description: "El enlace ha sido copiado a tu portapapeles.",
-      });
+      // Se espera el resultado de la copia: antes decia "Enlace Copiado" pase lo que pase, y
+      // con el portapapeles bloqueado por el navegador el enlace no estaba en ningun lado.
+      // Si no se pudo, se dice, y se muestra el enlace para poder llevarselo a mano.
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        toast({
+          title: "Enlace Copiado",
+          description: "El enlace ha sido copiado a tu portapapeles.",
+        });
+      } catch {
+        toast({
+          variant: 'destructive',
+          title: "No se pudo copiar",
+          description: `Tu navegador bloqueo el portapapeles. El enlace es: ${shareData.url}`,
+        });
+      }
     }
   };
 
@@ -106,8 +117,8 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
         </p>
         <div className="pt-2">
           <Button asChild>
-            <Link href="/fiestas">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de fiestas
+            <Link href={fiestaId ? `/fiestas/nueva/itinerario?fiestaId=${fiestaId}` : "/eventos"}>
+              <ArrowLeft className="w-4 h-4 mr-2" /> {fiestaId ? "Volver a la fiesta" : "Ir al listado de eventos"}
             </Link>
           </Button>
         </div>
@@ -153,7 +164,7 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
           <p className="text-md text-gray-700 print:text-sm mt-1">{fiesta.configuracion.nombreEvento}</p>
           <p className="text-xs text-gray-500 print:text-[8pt]">{formatDate(fiesta.configuracion.fechaEvento)}</p>
         </header>
-        
+
         <div className="relative max-w-xl mx-auto pl-12 print:pl-8">
           <div className="absolute left-[3.25rem] h-full w-0.5 bg-primary/25 -z-10 print:left-[2.25rem]"></div>
           {displayPrograma.map((item) => {

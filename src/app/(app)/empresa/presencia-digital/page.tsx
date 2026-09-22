@@ -47,7 +47,7 @@ export default async function PresenciaDigitalPage() {
             Planificador Clásico
           </Link>
           <Link
-            href="/ajustes/redes-sociales"
+            href="/settings/social-connections"
             className="px-4 py-2 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 text-sm font-semibold rounded-xl border border-amber-500/30 transition"
           >
             Conexiones

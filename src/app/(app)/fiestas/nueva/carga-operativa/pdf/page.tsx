@@ -116,11 +116,11 @@ function CargaOperativaPdfContent() {
         setIsUpdating(null);
     }
   };
-  
+
   const handlePrint = () => {
     window.print();
   };
-  
+
   const handleShare = async () => {
     let shareUrl = window.location.href;
     if (!accessToken && fiestaId) {
@@ -148,7 +148,18 @@ function CargaOperativaPdfContent() {
       typeof navigator.share === 'function'
       && (typeof navigator.canShare !== 'function' || navigator.canShare(shareData))
     ) {
-        navigator.share(shareData).catch(err => console.error("Error al compartir:", err));
+        // Se espera el resultado: antes el aviso de compartir se mandaba y nadie miraba si
+        // habia salido, asi que con el compartir bloqueado no pasaba nada y el que lo usaba
+        // se quedaba mirando un boton que no hizo nada. Si no sale, se abre WhatsApp, que es
+        // el camino que si funciona. Que la persona cancele no es una falla: ahi no se
+        // insiste.
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          if ((err as { name?: string })?.name === 'AbortError') return;
+          const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
+          window.open(whatsappUrl, '_blank');
+        }
     } else {
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
         window.open(whatsappUrl, '_blank');
@@ -178,8 +189,8 @@ function CargaOperativaPdfContent() {
         </p>
         <div className="pt-2">
           <Button asChild>
-            <Link href="/fiestas">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de fiestas
+            <Link href={fiestaId ? `/fiestas/nueva/carga-operativa?fiestaId=${fiestaId}` : "/eventos"}>
+              <ArrowLeft className="w-4 h-4 mr-2" /> {fiestaId ? "Volver a la fiesta" : "Ir al listado de eventos"}
             </Link>
           </Button>
         </div>
@@ -237,7 +248,7 @@ function CargaOperativaPdfContent() {
                 <p className="text-xs text-gray-500 print:text-[8pt]">Impresión: {new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
             </header>
-            
+
             {(listaDeCarga.categorias || []).length === 0 ? (
                 <div className="text-center py-10 text-muted-foreground border-2 border-dashed rounded-lg">
                     <Info className="w-10 h-10 mx-auto mb-2 opacity-50"/>
@@ -258,7 +269,7 @@ function CargaOperativaPdfContent() {
                                 item.cargado ? "bg-green-50/50" : "bg-gray-50/30 print:bg-transparent"
                             )}>
                                 <div className="relative flex-shrink-0 mt-0.5">
-                                    <Checkbox 
+                                    <Checkbox
                                         checked={item.cargado}
                                         onCheckedChange={() => handleToggleItem(categoria.id, item.id, 'cargado')}
                                         className="w-6 h-6 border-2 border-gray-400 rounded-md print:w-5 print:h-5 print:border-gray-600 bg-white"

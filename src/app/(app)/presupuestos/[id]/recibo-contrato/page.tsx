@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
@@ -212,7 +213,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       clienteCi: overriddenCi,
       clienteTelefono: overriddenTelefono || '___________________',
       fechaEvento: overriddenFecha
-        ? `${new Date(overriddenFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
+        ? `${diaDelEventoParaElPapel(overriddenFecha)}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
         : '___________________',
       salon: overriddenSalon,
       montoSena: montoSenaStr,
@@ -235,7 +236,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       clienteCi: overriddenCi,
       clienteTelefono: overriddenTelefono || '___________________',
       fechaEvento: overriddenFecha
-        ? `${new Date(overriddenFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
+        ? `${diaDelEventoParaElPapel(overriddenFecha)}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
         : '___________________',
       salon: overriddenSalon,
       montoSena: montoSenaStr,
@@ -624,6 +625,21 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       `}</style>
     </div>
   );
+}
+
+/**
+ * El dia del evento como se escribio, sin que la zona horaria lo mueva.
+ *
+ * **Por que.** `new Date('2026-10-10').toLocaleDateString(...)` entiende el dia suelto como
+ * medianoche de Greenwich y en Uruguay lo muestra **un dia antes**. Eso salia impreso en el
+ * recibo y en el contrato de sena: el papel que firma el cliente con la fecha de su fiesta
+ * corrida un dia. Lo reporto el barrido del 22 de setiembre de 2026.
+ */
+function diaDelEventoParaElPapel(valor: string): string {
+  const dia = diaCalendario(valor);
+  if (!dia) return '___________________';
+  const [a, m, d] = dia.split('-');
+  return `${d}/${m}/${a}`;
 }
 
 export default function ReciboContratoPage() {
