@@ -76,3 +76,16 @@ Siguiendo las instrucciones de la **Orden 67**, los hallazgos en áreas de **pla
   - `src/app/evento/galeria/[fiestaId]/page.tsx`: Autoplay de video y carga opcional de caras documentados con motivo explícito.
   - `src/lib/entretenimiento/tira-fotocabina.ts`: Detección de `roundRect` en canvas actualizada sin apagar el revisor de tipos (`'roundRect' in ctx`).
   - `src/lib/automatico/parte-manana.ts:109`: Formateo de fecha de evento alineado con `formatearFechaEvento` para evitar desfasaje UTC.
+
+---
+
+## 5. Barrido con Preguntas 20 y 21 (Orden 79 — 22 de Septiembre 2026)
+
+### Pregunta 20: ¿Dos cosas distintas se dibujan igual y la acción no distingue?
+- **Calendario / Agenda:** Arreglado por Claude en `src/app/actions/agenda.ts` y `src/app/(app)/calendario/page.tsx` (las reuniones no se mueven por arrastre y se avisa; no se reprograma la fiesta por error).
+- **Tableros y Layouts (`invitados/layout`, `planner-costo-fiesta`):** Se verificó que los manejadores `onDrop` solo procesan `GuestDragItem` identificados con `guestId`, sin colisión con mobiliario ni otros tipos de elementos.
+
+### Pregunta 21: ¿Un registro roto se lleva puesta la lista entera?
+- **Enlaces de Retorno en Reportes:** Los 5 reportes e impresos de fiestas (`carga-operativa/pdf`, `gestion-costos-rentabilidad/reporte`, `itinerario/pdf`, `musica/pdf`, `resumen-imprimible`) ahora discriminan si hay `fiestaId` para volver a la fiesta activa o enviar a `/eventos`, evitando que una fiesta sin datos o con error deje al usuario frente a un enlace roto `/fiestas`.
+- **Portada Pública (`src/app/page.tsx`):** Las cinco secciones lentas (`AsyncSalonSection`, `AsyncGallerySection`, `AsyncVideoSection`, `AsyncTestimonialsSection`, `AsyncBlogSection`) utilizan `withPublicFallback` individualmente por cada fuente, asegurando que un fallo de red o formato en una sola fuente (ej. Instagram o YouTube) no vacíe el resto del catálogo ni de la galería.
+

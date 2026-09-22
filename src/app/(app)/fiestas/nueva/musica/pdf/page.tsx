@@ -54,11 +54,11 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handlePrint = () => {
     window.print();
   };
-  
+
   const handleShare = async () => {
     if (!fiesta) return;
     const shareData = {
@@ -109,8 +109,8 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
         </p>
         <div className="pt-2">
           <Button asChild>
-            <Link href="/fiestas">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de fiestas
+            <Link href={fiestaId ? `/fiestas/nueva/musica?fiestaId=${fiestaId}` : "/eventos"}>
+              <ArrowLeft className="w-4 h-4 mr-2" /> {fiestaId ? "Volver a la fiesta" : "Ir al listado de eventos"}
             </Link>
           </Button>
         </div>
@@ -154,7 +154,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
           <p className="text-md text-gray-700 print:text-sm mt-1">{fiesta.configuracion.nombreEvento}</p>
           <p className="text-xs text-gray-500 print:text-[8pt]">{formatDate(fiesta.configuracion.fechaEvento)}</p>
         </header>
-        
+
         <div className="space-y-6 print:space-y-3">
             <section>
                 <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2">Canciones Clave</h2>
@@ -176,7 +176,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
                 <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2">Playlist y Sugerencias</h2>
                 <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-gray-50 p-2 rounded-md">{musica.playlistFiesta || 'No hay sugerencias generales.'}</p>
             </section>
-            
+
             <section>
                 <h2 className="text-lg font-semibold text-red-600 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><Ban className="w-5 h-5"/>Lista de "NO Reproducir"</h2>
                 <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-red-50 p-2 rounded-md">{musica.listaNoReproducir || 'No hay canciones o artistas en la lista de exclusión.'}</p>

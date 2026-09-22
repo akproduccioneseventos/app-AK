@@ -213,7 +213,7 @@ export default function AtraccionPorFiestaPage() {
               </p>
               <div className="flex gap-3">
                 <Button asChild variant="outline">
-                  <Link href="/fiestas">Ver Fiestas Activas</Link>
+                  <Link href="/eventos">Ver Fiestas Activas</Link>
                 </Button>
                 <Button asChild className="bg-amber-600 hover:bg-amber-500 text-white">
                   <Link href="/simulador-de-presupuesto" target="_blank">Probar Simulador</Link>

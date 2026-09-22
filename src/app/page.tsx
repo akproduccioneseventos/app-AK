@@ -36,6 +36,14 @@ import {
   getAkYoutubeVideos,
   AK_YOUTUBE_CHANNEL_URL,
 } from "@/lib/youtube/ak-channel";
+import {
+  Building2,
+  MapPin,
+  Users,
+  Play,
+  HeartHandshake,
+  BookOpen,
+} from "lucide-react";
 import { PromoWidget } from "@/components/promo/PromoWidget";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
 import { LandingSpaContainer } from "@/components/landing/LandingSpaContainer";
@@ -299,16 +307,43 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 function SalonSkeleton() {
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
-      <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-10">
-        <div className="h-6 w-36 bg-slate-200 animate-pulse rounded-full mb-4" />
-        <div className="h-10 w-72 bg-slate-200 animate-pulse rounded-lg mb-6" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-72 sm:h-96">
-          <div className="bg-slate-200 animate-pulse rounded-2xl md:col-span-2 h-full" />
-          <div className="bg-slate-200 animate-pulse rounded-2xl h-full hidden md:block" />
+    <section className="border-y border-slate-200 bg-slate-50 py-20 text-slate-950 sm:py-24" aria-busy="true">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center lg:px-8">
+        <div className="max-w-xl">
+          <p className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-red-700">
+            <Building2 className="h-4 w-4" aria-hidden="true" /> Salón destacado
+          </p>
+          <h2 className="mt-4 font-headline text-4xl font-black leading-tight sm:text-5xl lg:text-6xl tracking-tight text-slate-950">
+            Club Uruguay
+          </h2>
+          <p className="mt-5 text-base sm:text-lg font-medium leading-relaxed text-slate-600">
+            Un espacio emblemático en el centro de Salto, preparado por AK Producciones con catering, música, ambientación, personal y tecnología coordinados en una sola propuesta.
+          </p>
+          <div className="mt-7 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <MapPin className="h-5 w-5 text-red-700" aria-hidden="true" />
+              <p className="mt-3 font-black text-slate-950">Centro de Salto</p>
+              <p className="mt-1 text-xs sm:text-sm text-slate-600">Club Uruguay, un salón conocido para celebrar.</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <Users className="h-5 w-5 text-red-700" aria-hidden="true" />
+              <p className="mt-3 font-black text-slate-950">Salón para eventos</p>
+              <p className="mt-1 text-xs sm:text-sm text-slate-600">Espacio preparado para grandes celebraciones.</p>
+            </div>
+          </div>
+        </div>
+        <div className="grid gap-3.5 sm:grid-cols-12">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-slate-900 shadow-xl sm:col-span-8 sm:row-span-2 sm:aspect-auto sm:min-h-[500px] flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2 text-slate-400">
+              <div className="h-8 w-8 rounded-full border-2 border-red-600/40 border-t-red-600 animate-spin" />
+              <span className="text-xs font-semibold tracking-wider text-slate-300">Cargando vistas del salón...</span>
+            </div>
+          </div>
+          <div className="hidden sm:block sm:col-span-4 rounded-3xl bg-slate-200/60 border border-slate-200/80 min-h-[240px]" />
+          <div className="hidden sm:block sm:col-span-4 rounded-3xl bg-slate-200/60 border border-slate-200/80 min-h-[240px]" />
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -327,17 +362,26 @@ async function AsyncSalonSection() {
 
 function GallerySkeleton() {
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
-      <div className="text-center mb-8">
-        <div className="h-6 w-32 bg-slate-200 animate-pulse rounded-full mx-auto mb-3" />
-        <div className="h-10 w-64 bg-slate-200 animate-pulse rounded-lg mx-auto" />
+    <section id="galeria" data-testid="gallery-section" className="border-y border-neutral-200 bg-neutral-100 py-20 text-slate-950 sm:py-24" aria-busy="true">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 max-w-2xl">
+          <p className="text-sm font-bold text-red-700">Eventos reales</p>
+          <h2 className="mt-3 font-headline text-4xl font-black leading-tight text-slate-950 sm:text-5xl">
+            Galería de eventos
+          </h2>
+          <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+            Momentos reales de nuestras producciones: gastronomía, salones, pista LED, discoteca y ambientación.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 min-h-[384px]">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="rounded-2xl border border-neutral-300/80 bg-neutral-200/50 h-44 flex items-center justify-center">
+              <span className="text-xs font-medium text-neutral-400">Cargando...</span>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 h-96">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="bg-slate-200 animate-pulse rounded-2xl h-44" />
-        ))}
-      </div>
-    </div>
+    </section>
   );
 }
 
@@ -396,13 +440,29 @@ async function AsyncGallerySection() {
 
 function VideoSkeleton() {
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
-      <div className="text-center mb-8">
-        <div className="h-6 w-32 bg-slate-200 animate-pulse rounded-full mx-auto mb-3" />
-        <div className="h-10 w-72 bg-slate-200 animate-pulse rounded-lg mx-auto" />
+    <section id="videos" data-testid="video-section" className="border-y border-white/10 bg-zinc-900 py-20 text-white sm:py-24" aria-busy="true">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 max-w-2xl">
+          <p className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-red-400">
+            <Play className="h-4 w-4" /> Momentos reales
+          </p>
+          <h2 className="font-headline text-4xl font-black leading-tight text-white sm:text-5xl">
+            Videos de producciones
+          </h2>
+          <p className="mt-2 text-base text-zinc-400">
+            Registros en video de ambientaciones, shows, cabinas y pistas.
+          </p>
+        </div>
+        <div className="aspect-video w-full max-w-4xl mx-auto rounded-3xl border border-white/10 bg-zinc-800/80 flex items-center justify-center shadow-2xl">
+          <div className="flex flex-col items-center gap-3 text-zinc-400">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 text-white backdrop-blur-sm">
+              <Play className="ml-1 h-7 w-7 fill-current opacity-80" />
+            </div>
+            <span className="text-xs font-semibold tracking-wider text-zinc-300">Cargando videos de producciones...</span>
+          </div>
+        </div>
       </div>
-      <div className="aspect-video w-full max-w-4xl mx-auto bg-slate-200 animate-pulse rounded-3xl" />
-    </div>
+    </section>
   );
 }
 
@@ -450,29 +510,43 @@ async function AsyncVideoSection() {
 
 function TestimonialsSkeleton() {
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
-      <div className="text-center mb-8">
-        <div className="h-6 w-36 bg-slate-200 animate-pulse rounded-full mx-auto mb-3" />
-        <div className="h-10 w-64 bg-slate-200 animate-pulse rounded-lg mx-auto" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-48 rounded-2xl bg-slate-100 p-6 border border-slate-200">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-slate-200 animate-pulse" />
-              <div className="space-y-1">
-                <div className="w-24 h-4 bg-slate-200 animate-pulse rounded" />
-                <div className="w-16 h-3 bg-slate-200 animate-pulse rounded" />
+    <section className="relative overflow-hidden border-y border-slate-200 bg-slate-50 py-20 sm:py-24" aria-busy="true">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-16">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-red-500/10 border border-red-500/20 text-xs font-black uppercase tracking-widest text-red-400 mb-4">
+            <HeartHandshake className="w-3.5 h-3.5" />
+            Reseñas de clientes
+          </span>
+          <h2 className="mb-4 font-headline text-5xl font-black leading-tight text-slate-950 sm:text-6xl">
+            Experiencias compartidas
+          </h2>
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-slate-600">
+            Opiniones compartidas por clientes sobre su experiencia con AK Producciones.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex min-h-[220px] flex-col justify-between rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="space-y-4">
+                <div className="h-6 w-24 rounded bg-slate-100 border border-slate-200" />
+                <div className="h-4 w-32 rounded bg-amber-100/60" />
+                <div className="space-y-2">
+                  <div className="h-3.5 w-full rounded bg-slate-100" />
+                  <div className="h-3.5 w-4/5 rounded bg-slate-100" />
+                </div>
+              </div>
+              <div className="mt-4 flex items-center gap-3 border-t border-slate-100 pt-4">
+                <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500 text-xs">AK</div>
+                <div className="space-y-1">
+                  <div className="h-3.5 w-24 rounded bg-slate-100" />
+                  <div className="h-3 w-16 rounded bg-slate-100" />
+                </div>
               </div>
             </div>
-            <div className="space-y-2">
-              <div className="w-full h-3 bg-slate-200 animate-pulse rounded" />
-              <div className="w-5/6 h-3 bg-slate-200 animate-pulse rounded" />
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -514,23 +588,38 @@ async function AsyncTestimonialsSection() {
 
 function BlogSkeleton() {
   return (
-    <div className="w-full py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" aria-busy="true">
-      <div className="text-center mb-8">
-        <div className="h-6 w-32 bg-slate-200 animate-pulse rounded-full mx-auto mb-3" />
-        <div className="h-10 w-60 bg-slate-200 animate-pulse rounded-lg mx-auto" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50">
-            <div className="h-44 bg-slate-200 animate-pulse" />
-            <div className="p-4 space-y-2">
-              <div className="h-4 w-3/4 bg-slate-200 animate-pulse rounded" />
-              <div className="h-3 w-full bg-slate-200 animate-pulse rounded" />
-            </div>
+    <section id="blog" className="overflow-hidden border-y border-slate-200 bg-white py-24 text-slate-950" aria-busy="true">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div className="max-w-2xl">
+            <span className="mb-4 inline-flex items-center gap-2 rounded-md border border-red-100 bg-red-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-red-700">
+              <BookOpen className="h-3.5 w-3.5" />
+              Consejos AK
+            </span>
+            <h2 className="font-headline text-4xl font-black leading-tight text-slate-950 sm:text-5xl">
+              Contenido para planificar tu evento sin estrés
+            </h2>
+            <p className="mt-4 text-lg leading-relaxed text-slate-600">
+              Guías simples sobre presupuesto, comida, XV años, bodas y listas de organización.
+            </p>
           </div>
-        ))}
+        </div>
+        <div className="grid gap-8 md:grid-cols-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="rounded-2xl border border-slate-200 overflow-hidden bg-slate-50 min-h-[340px]">
+              <div className="h-48 bg-slate-100 flex items-center justify-center">
+                <BookOpen className="h-8 w-8 text-slate-300" />
+              </div>
+              <div className="p-6 space-y-3">
+                <div className="h-5 w-3/4 rounded bg-slate-200/70" />
+                <div className="h-3.5 w-full rounded bg-slate-100" />
+                <div className="h-3.5 w-2/3 rounded bg-slate-100" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 

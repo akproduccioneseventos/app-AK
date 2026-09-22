@@ -39,7 +39,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
           ),
           getInvoiceTemplateSettings()
       ]);
-      
+
       if (reportResult.success && reportResult.data) {
         setReportData(reportResult.data);
       } else {
@@ -58,7 +58,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
   useEffect(() => {
     fetchReportData();
   }, [fetchReportData]);
-  
+
   const handlePrint = () => {
     window.print();
   };
@@ -81,7 +81,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
   }
-  
+
   if (error || !reportData) {
     return (
       <div className="p-8 max-w-xl mx-auto text-center bg-card rounded-2xl border shadow-sm my-12 space-y-4">
@@ -92,8 +92,8 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
         </p>
         <div className="pt-2">
           <Button asChild>
-            <Link href="/fiestas">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de fiestas
+            <Link href={fiestaId ? `/fiestas/nueva/gestion-costos-rentabilidad?fiestaId=${fiestaId}` : "/eventos"}>
+              <ArrowLeft className="w-4 h-4 mr-2" /> {fiestaId ? "Volver a la fiesta" : "Ir al listado de eventos"}
             </Link>
           </Button>
         </div>
@@ -120,7 +120,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
           <p className="text-md text-gray-700 print:text-sm mt-1">{reportData.nombreEvento}</p>
           <p className="text-xs text-gray-500 print:text-[8pt]">Generado el: {new Date().toLocaleDateString('es-ES')}</p>
         </header>
-        
+
         <Card className="shadow-none border-none mb-4">
             <CardHeader className="p-0 pb-2"><CardTitle className="text-lg">Resumen General</CardTitle></CardHeader>
             <CardContent className="p-0 grid grid-cols-2 lg:grid-cols-4 gap-2 text-center">
@@ -130,7 +130,7 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
                  <div className="p-2 border rounded-md bg-purple-50 text-purple-800"><h3 className="text-xs font-semibold">Margen</h3><p className="text-lg font-bold">{reportData.margen.toFixed(2)}%</p></div>
             </CardContent>
         </Card>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div>
                 <h3 className="text-md font-semibold mb-2 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-green-600"/>Detalle de Ingresos</h3>

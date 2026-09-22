@@ -61,7 +61,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
         getFiestaById(fiestaId),
         getInvoiceTemplateSettings()
       ]);
-      
+
       if (!fiestaData) throw new Error("Evento no encontrado.");
       setFiesta(fiestaData);
       setLogoUrl(templateSettings.logoUrl ?? null);
@@ -74,7 +74,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
       if (fiestaData.menuAsignadoId) {
         dataPromises.push(getMenuById(fiestaData.menuAsignadoId));
       } else { dataPromises.push(Promise.resolve(null)); }
-      
+
       if (fiestaData.personalAsignado && fiestaData.personalAsignado.length > 0) {
         dataPromises.push(getEmpleados());
         dataPromises.push(getRoles());
@@ -82,7 +82,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
         dataPromises.push(Promise.resolve([]));
         dataPromises.push(Promise.resolve([]));
       }
-      
+
       const [clienteData, menuData, empleadosData, rolesData] = await Promise.all(dataPromises);
 
       setCliente(clienteData);
@@ -110,7 +110,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handlePrint = () => window.print();
 
   const handleDownloadJpg = async () => {
@@ -139,14 +139,14 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
       url: window.location.href,
     };
     try {
-      if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); } 
+      if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); }
       else { throw new Error(); }
     } catch (err) {
       navigator.clipboard.writeText(shareData.url);
       toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." });
     }
   };
-  
+
   const platosAgrupados = React.useMemo(() => {
     if (!menu) return {};
     return menu.items.reduce((acc, item) => {
@@ -157,13 +157,13 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
     }, {} as Record<string, MenuItem[]>);
   }, [menu]);
 
-  const itemsDecoracionAgrupados = React.useMemo(() => 
+  const itemsDecoracionAgrupados = React.useMemo(() =>
     (fiesta?.decoracion?.items || []).reduce((acc, item) => {
         const categoria = item.category || 'Otros';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
         return acc;
-    }, {} as Record<string, DecorationItem[]>), 
+    }, {} as Record<string, DecorationItem[]>),
   [fiesta?.decoracion?.items]);
 
   if (isLoading) { return <div className="p-8 max-w-3xl mx-auto bg-white"><div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div></div>; }
@@ -177,15 +177,15 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
         </p>
         <div className="pt-2">
           <Button asChild>
-            <Link href="/fiestas">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Ir al listado de fiestas
+            <Link href={fiestaId ? `/fiestas/nueva?fiestaId=${fiestaId}` : "/eventos"}>
+              <ArrowLeft className="w-4 h-4 mr-2" /> {fiestaId ? "Volver a la fiesta" : "Ir al listado de eventos"}
             </Link>
           </Button>
         </div>
       </div>
     );
   }
-  
+
   const { configuracion, decoracion, tareas } = fiesta;
   const tareasPendientes = tareas?.filter(t => !t.completada) || [];
 
@@ -212,7 +212,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
             <p className="text-md text-gray-700 print:text-sm mt-1">{configuracion.nombreEvento}</p>
             {cliente && <p className="text-sm text-gray-600 print:text-xs">Cliente: {cliente.name || cliente.companyName}</p>}
             </header>
-            
+
             <section className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm print:text-xs mb-4">
                 <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md"><CalendarDays className="w-4 h-4 text-primary"/><span>{formatDate(configuracion.fechaEvento)}</span></div>
                 <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md"><Users className="w-4 h-4 text-primary"/><span>{configuracion.invitadosEstimados} Invitados</span></div>
@@ -246,7 +246,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
                     </div>
                 ) : <p className="text-sm text-muted-foreground italic">No hay menú asignado.</p>}
             </section>
-            
+
             <section className="mb-4 print:mb-2 print:break-inside-avoid">
                 <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><Palette className="w-5 h-5"/>Decoración</h2>
                 <p className="text-sm">Tema: <span className="font-medium">{decoracion?.tema || 'No definido'}</span></p>
@@ -274,7 +274,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
                     <ul className="space-y-1 text-sm print:text-xs">{personal.map(p => <li key={p.nombre}>{p.nombre} ({p.rol})</li>)}</ul>
                 ) : <p className="text-sm text-muted-foreground italic">No hay personal asignado.</p>}
             </section>
-            
+
             <section className="mb-4 print:mb-2 print:break-before-page print:break-inside-avoid">
                 <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><ListChecks className="w-5 h-5"/>Tareas Pendientes</h2>
                 {tareasPendientes.length > 0 ? (
@@ -283,7 +283,7 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
                     </ul>
                 ) : <p className="text-sm text-muted-foreground italic">No hay tareas pendientes.</p>}
             </section>
-            
+
             <footer className="mt-8 pt-4 border-t text-center text-xs text-gray-400 print:mt-5 print:pt-2 print:border-gray-300">
             <p>Generado por {companyName} el: {new Date().toLocaleString('es-ES')}</p>
             </footer>
