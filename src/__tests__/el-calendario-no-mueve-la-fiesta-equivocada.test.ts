@@ -19,6 +19,7 @@
  * comprobacion que le corresponde se pone en rojo.
  */
 import fs from 'fs';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import path from 'path';
 
 const leer = (...partes: string[]) =>
@@ -53,10 +54,17 @@ describe('El calendario no mueve la fiesta equivocada', () => {
     expect(fn).toContain('return null;');
   });
 
-  it('el dia se calcula en Uruguay, no en Greenwich', () => {
-    expect(AGENDA).toContain("timeZone: 'America/Montevideo'");
-    // Y no queda ningun dia sacado de la hora de Greenwich.
+  it('el dia se calcula en Uruguay, no en Greenwich, y con la regla que ya existia', () => {
+    // La regla vive en UN solo lugar (`diaCalendario`), que distingue un dia suelto de un
+    // instante. Tener una copia propia aca fue justamente el segundo defecto: la copia
+    // mandaba el 10 de octubre al 9. Lo marco Codex el 22 de setiembre de 2026.
+    expect(AGENDA).toContain('diaCalendario');
     expect(AGENDA).not.toContain("toISOString().split('T')[0]");
+  });
+
+  it('un dia suelto no retrocede, y una fiesta de las once de la noche no salta', () => {
+    expect(diaCalendario('2026-10-10')).toBe('2026-10-10');
+    expect(diaCalendario('2026-10-10T23:00:00-03:00')).toBe('2026-10-10');
   });
 
   it('una fecha que no existe se rechaza antes de guardar y de avisarle al cliente', () => {

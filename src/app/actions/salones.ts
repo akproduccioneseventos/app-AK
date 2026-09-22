@@ -2,11 +2,25 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
+import { AsyncMutex } from '@/lib/mutex';
 import type { Salon, SalonPago } from '@/types/salon';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { requireAppSession } from '@/lib/auth/require-session';
 
 const SALONES_FILE = 'salones.json';
+
+/**
+ * Turno para tocar la lista de salones.
+ *
+ * **Por que.** Guardar un salon lee la lista entera, la cambia y la escribe entera. Dos
+ * personas editando **salones distintos** al mismo tiempo leen la misma lista y la segunda
+ * escribe encima: **el cambio de la primera se pierde** y las dos pantallas dicen que salio
+ * bien. Lo encontro Codex el 22 de setiembre de 2026.
+ *
+ * **La lectura va ADENTRO del turno**, que es la mitad que siempre se olvida: con la lectura
+ * afuera el candado no sirve de nada.
+ */
+const turnoDeSalones = new AsyncMutex();
 const SALONES_STORAGE_PREFIX = 'salones';
 
 export async function getSalones(): Promise<Salon[]> {
@@ -45,37 +59,41 @@ export async function saveSalon(
     return { success: false, error: 'Poné para cuántas personas es el salón.' };
   }
 
-  const salones = await leerSalones();
-  let savedSalon: Salon;
+  return turnoDeSalones.runExclusive(async () => {
+    const salones = await leerSalones();
+    let savedSalon: Salon;
 
-  if ('id' in salonData && salonData.id) {
-    const idx = salones.findIndex((s) => s.id === salonData.id);
-    if (idx === -1) {
-      return { success: false, error: 'Salón no encontrado para actualizar.' };
+    if ('id' in salonData && salonData.id) {
+      const idx = salones.findIndex((s) => s.id === salonData.id);
+      if (idx === -1) {
+        return { success: false, error: 'Salón no encontrado para actualizar.' };
+      }
+      savedSalon = { ...salones[idx], ...salonData };
+      salones[idx] = savedSalon;
+    } else {
+      savedSalon = { ...salonData, id: `salon_${crypto.randomUUID()}` };
+      salones.push(savedSalon);
     }
-    savedSalon = { ...salones[idx], ...salonData };
-    salones[idx] = savedSalon;
-  } else {
-    savedSalon = { ...salonData, id: `salon_${crypto.randomUUID()}` };
-    salones.push(savedSalon);
-  }
 
-  await writeData(SALONES_FILE, salones);
-  return { success: true, salon: savedSalon };
+    await writeData(SALONES_FILE, salones);
+    return { success: true, salon: savedSalon };
+  });
 }
 
 export async function deleteSalon(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  const salones = await leerSalones();
-  const idx = salones.findIndex((s) => s.id === id);
-  if (idx === -1) {
-    return { success: false, error: 'Salón no encontrado.' };
-  }
-  salones.splice(idx, 1);
-  await writeData(SALONES_FILE, salones);
-  return { success: true };
+  return turnoDeSalones.runExclusive(async () => {
+    const salones = await leerSalones();
+    const idx = salones.findIndex((s) => s.id === id);
+    if (idx === -1) {
+      return { success: false, error: 'Salón no encontrado.' };
+    }
+    salones.splice(idx, 1);
+    await writeData(SALONES_FILE, salones);
+    return { success: true };
+  });
 }
 
 /**

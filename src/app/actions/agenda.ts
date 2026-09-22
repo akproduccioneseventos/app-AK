@@ -1,6 +1,7 @@
 'use server';
 
 import { getFiestas, getHistorialFiestas, saveFiesta } from './fiesta/fiesta.actions';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import { syncFiestaToGoogleWorkspace } from './google-workspace';
 import { requireAppSession } from '@/lib/auth/require-session';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -29,25 +30,23 @@ function getFiestaStatus(fiesta: FiestaEnPlanificacion, isArchived: boolean): Ca
 /**
  * El dia del calendario en Uruguay, no en Greenwich.
  *
- * **Por que.** Antes el dia se sacaba de la fecha en formato universal, que es el dia **en
- * hora de Greenwich**. Una fiesta a las 23:00 de Uruguay son las 02:00 del dia siguiente
- * alla, asi que el calendario la mostraba **un dia despues**: justo las fiestas de noche,
- * que son casi todas. Es la misma equivocacion que ya habia dejado un cobro de la ultima
- * noche afuera del reporte.
+ * **Por que.** Antes el dia se sacaba de la fecha en formato universal, que es el dia en hora
+ * de Greenwich. Una fiesta a las 23:00 de Uruguay son las 02:00 del dia siguiente alla, asi
+ * que el calendario la mostraba **un dia despues**: justo las fiestas de noche, que son casi
+ * todas.
+ *
+ * **Y la segunda mitad, que se me escapo en el primer arreglo (lo marco Codex el 22 de
+ * setiembre de 2026):** una fecha escrita como dia suelto —`2026-10-10`, sin hora— **no es
+ * un instante**, es un dia. Convertirla como si fuera un instante la manda a la medianoche
+ * de Greenwich, que en Uruguay son las nueve de la noche del dia ANTERIOR, y el 10 se
+ * dibujaba el 9. Por eso esto usa `diaCalendario`, que ya distingue los dos casos y es el
+ * unico lugar donde vive esa regla.
  *
  * Devuelve `null` si la fecha guardada no se entiende, para que el que llama decida —y no
  * reviente toda la lista, que es lo que pasaba—.
  */
 function diaCivilEnUruguay(valor: string): string | null {
-  const cuando = new Date(valor);
-  if (Number.isNaN(cuando.getTime())) return null;
-  // 'en-CA' da el formato ano-mes-dia, que es el que usa el calendario.
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Montevideo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(cuando);
+  return diaCalendario(valor);
 }
 
 /**
@@ -166,12 +165,31 @@ export async function updateFiestaDate(
     const fiesta = fiestas.find(f => f.id === fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
-    // Preserve the original time, update only the date
-    const originalDate = fiesta.configuracion.fechaEvento
+    // **Se cambia el dia y se conserva la hora DE URUGUAY.**
+    //
+    // `setFullYear` trabaja con la hora del servidor, no con la de aca. Si el servidor corre
+    // en hora de Greenwich —que es lo normal—, una fiesta de las 23:00 de Uruguay es para el
+    // servidor las 02:00 del dia siguiente: al pedir el 12 de octubre terminaba guardando el
+    // 11 en hora de Uruguay. Lo marco Codex el 22 de setiembre de 2026.
+    //
+    // Por eso se arma la fecha nueva a mano, con la hora de Uruguay que ya tenia y el dia que
+    // se pidio, y se le suman las tres horas de diferencia para guardarla como instante.
+    const HORAS_MENOS_QUE_GREENWICH = 3;
+    const original = fiesta.configuracion.fechaEvento
       ? new Date(fiesta.configuracion.fechaEvento)
       : new Date();
+    // La hora tal como se ve en Uruguay, sin importar donde corra el servidor.
+    const enUruguay = new Date(original.getTime() - HORAS_MENOS_QUE_GREENWICH * 60 * 60 * 1000);
     const [year, month, day] = newDate.split('-').map(Number);
-    originalDate.setFullYear(year, month - 1, day);
+    const originalDate = new Date(Date.UTC(
+      year,
+      month - 1,
+      day,
+      enUruguay.getUTCHours() + HORAS_MENOS_QUE_GREENWICH,
+      enUruguay.getUTCMinutes(),
+      enUruguay.getUTCSeconds(),
+      enUruguay.getUTCMilliseconds(),
+    ));
 
     const updatedFiesta: FiestaEnPlanificacion = {
       ...fiesta,

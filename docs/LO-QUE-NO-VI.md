@@ -19,6 +19,28 @@ agregó— y el control que lo frena.
 
 ---
 
+## 22 de septiembre de 2026 (tarde) — La fiesta entera saliendo por la pantalla publica (Codex)
+
+**Qué era:** cinco funciones que tocan un invitado devolvían **la fiesta completa** —todos los
+invitados con sus teléfonos y alergias, las mesas, los datos del cliente— y las cinco se pueden
+llamar desde internet sin cuenta, porque las usa la pantalla pública de la invitación.
+
+**Por qué mi método no lo agarró, y es lo importante:** yo había mirado **qué campos del
+invitado** se devolvían, y me quedé discutiendo el QR. **No miré el resto del objeto que
+viajaba al lado.** La pregunta que yo hacía era "¿este dato puede salir?"; la que faltaba es
+**"¿qué MÁS sale junto con él?"**. El dato problemático no estaba pedido por nadie: venía de
+arrastre porque la función de guardar devuelve todo.
+
+**La pregunta que queda, y vale para toda acción pública:** *¿qué devuelve esta función,
+entero?* No los campos que a uno le interesan: **el objeto completo que sale por el cable.** Si
+adentro viene algo que el que llama no necesita, sobra, y si el que llama es cualquiera de
+internet, es una fuga.
+
+**Y la corrección de alcance, otra vez la misma:** cuando el dueño cerró la discusión del QR,
+di el tema por cerrado entero. **Una decisión del dueño cierra lo que él decidió, no el archivo.**
+
+**El control que lo frena:** `src/__tests__/la-pantalla-publica-no-devuelve-la-lista-de-invitados.test.ts`.
+
 ## 22 de septiembre de 2026 — Cuatro defectos del calendario (Codex)
 
 **Qué eran:**

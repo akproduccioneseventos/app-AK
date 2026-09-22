@@ -1,5 +1,39 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22 de septiembre de 2026 (tarde) — Lo que encontro Codex en invitados, barra y catalogos
+
+- **LO MAS GRAVE: la pantalla publica devolvia la lista completa de invitados.** Las funciones
+  que tocan un invitado guardan con un ayudante que devuelve **la fiesta entera** —todos los
+  invitados con telefonos y alergias, las mesas, los datos del cliente, lo interno—, y cinco
+  de ellas la reenviaban tal cual. Esas cinco **se pueden llamar sin cuenta**: cualquiera que
+  abriera el enlace de una invitacion y confirmara asistencia se llevaba la lista entera.
+  Ninguna pantalla la usaba: se mandaba de puro descuido. Ahora sale solo el invitado.
+  **Ojo: esto NO es lo del QR por nombre**, que el dueno decidio que queda como esta.
+- **Fotos y salones:** dos personas guardando a la vez perdian un cambio, y **borrar la ultima
+  foto o el ultimo salon no quedaba guardado** —la tarjeta desaparecia y al recargar volvia—,
+  porque escribir una lista vacia se ignora a proposito. Ahora los dos tienen turno, con la
+  lectura adentro, y esos dos archivos si pueden quedar vacios.
+- **Cambiar de trago dejaba al invitado sin nada**: se cancelaba el viejo y despues se pedia
+  el nuevo; si el nuevo no salia, no quedaba ninguno. Ahora se consigue el nuevo primero, y si
+  falla cancelar el viejo se cancela el nuevo: nunca dos, nunca cero.
+- **El respaldo de la barra que TIRA el error** contaba como guardado. Y si tampoco se pueden
+  devolver las botellas, ahora queda escrito con el detalle para corregir el stock a mano.
+- **Dos cosas mias del calendario que Codex volvio a medir y tenia razon:** un dia suelto
+  —`2026-10-10`, sin hora— se dibujaba el 9, porque mi arreglo lo trataba como un instante; y
+  mover una fiesta de noche guardaba el dia anterior si el servidor corre en hora de
+  Greenwich. **La regla del dia vive en un solo lugar** (`diaCalendario`): tener una copia
+  propia fue el error.
+
+```comprobar
+archivo: src/app/actions/fiesta/invitados.actions.ts
+usa: soloLoDelInvitado en src/app/actions/fiesta/invitados.actions.ts
+prueba: src/__tests__/la-pantalla-publica-no-devuelve-la-lista-de-invitados.test.ts
+archivo: src/app/actions/salones.ts
+usa: turnoDeSalones en src/app/actions/salones.ts
+prueba: src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts
+```
+
+
 ## 22 de septiembre de 2026 — El recibo y el contrato de sena imprimian la fecha corrida un dia, y cuatro carteles de exito que mentian
 
 - **El papel que firma el cliente.** En el recibo y en el contrato de sena, el dia del evento
