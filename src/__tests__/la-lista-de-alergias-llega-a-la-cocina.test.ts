@@ -21,12 +21,12 @@ const PANTALLA = fs.readFileSync(
 );
 
 describe('La lista de alergias llega a la cocina', () => {
-  const inicio = PANTALLA.indexOf('navigator.clipboard.writeText(lines.join');
+  const inicio = PANTALLA.indexOf('await navigator.clipboard.writeText(lines.join');
   const bloque = PANTALLA.slice(inicio, PANTALLA.indexOf('\n  };', inicio));
 
   it('el cartel de copiado sale SOLO si la copia funciono', () => {
-    expect(bloque).toMatch(/writeText\(lines\.join\('\\n'\)\)\.then\(/);
-    expect(bloque.indexOf('.then(')).toBeLessThan(bloque.indexOf('Reporte copiado'));
+    expect(PANTALLA).toContain("await navigator.clipboard.writeText(lines.join");
+    expect(bloque.indexOf('Reporte copiado')).toBeLessThan(bloque.indexOf('catch'));
   });
 
   it('si la copia falla, baja el reporte como archivo y lo dice', () => {

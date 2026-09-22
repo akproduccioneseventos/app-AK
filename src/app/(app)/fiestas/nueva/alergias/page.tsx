@@ -96,7 +96,7 @@ function AlergiasContent() {
     );
   }, [guestsWithRestrictions, searchQuery]);
 
-  const copyCateringReport = () => {
+  const copyCateringReport = async () => {
     if (!fiesta) return;
     const lines = [
       `REPORTE ALIMENTARIO - ${fiesta.configuracion.nombreEvento}`,
@@ -117,17 +117,17 @@ function AlergiasContent() {
     ];
     // Se espera la copia: antes decia "copiado" aunque el navegador la bloqueara, y la lista de
     // celiacos y alergias no le llegaba a la cocina. Si falla, se dice y se ofrece bajarla.
-    navigator.clipboard.writeText(lines.join('\n')).then(
-      () => toast({ title: '✅ Reporte copiado', description: 'El reporte fue copiado al portapapeles para enviar al catering.' }),
-      () => {
-        const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'alergias-y-restricciones.txt';
-        a.click();
-        toast({ variant: 'destructive', title: 'No se pudo copiar', description: 'Tu navegador bloqueo el portapapeles: te bajamos el reporte como archivo para mandarlo.' });
-      },
-    );
+    try {
+      await navigator.clipboard.writeText(lines.join('\n'));
+      toast({ title: '✅ Reporte copiado', description: 'El reporte fue copiado al portapapeles para enviar al catering.' });
+    } catch {
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'alergias-y-restricciones.txt';
+      a.click();
+      toast({ variant: 'destructive', title: 'No se pudo copiar', description: 'Tu navegador bloqueo el portapapeles: te bajamos el reporte como archivo para mandarlo.' });
+    }
   };
 
   if (isLoading) return (
