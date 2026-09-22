@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22 de septiembre de 2026 — DECISION DEL DUENO: la confirmacion publica sigue devolviendo el QR. NO es un hallazgo.
+
+**Que se reporto (Codex):** en la pantalla publica de confirmacion, escribir el nombre de un
+invitado que ya esta en la lista devuelve su ficha **con su credencial de acceso**, y con eso
+se arma el QR de entrada. O sea que alguien podria quedarse con el QR de otro.
+
+**Que decidio el dueno, y cierra el tema:** *"nadie te roba; ademas, si no llevas el QR, gente
+mayor con nombre y apellido entra"*. **En sus fiestas la entrada la controla el nombre, no el
+QR.** Devolverle el QR a quien escribe el nombre no da acceso a nada que esa persona no
+consiguiera igual presentandose en la puerta.
+
+**Que se comprobo antes de dejarlo asi:** esa credencial solo abre **lo propio del invitado**
+—su galeria, su video del recuerdo y el registro de sus toques—. No abre datos de otros
+invitados, ni plata, ni nada del equipo.
+
+**Lo que se descarto a proposito:** pedirle el telefono o el mail con el que esta anotado para
+devolverle el QR. Le agrega un paso al invitado y no evita nada que importe.
+
+**No volver a reportarlo ni a "arreglarlo".** Si una revision lo marca, es falso positivo.
+
+
 ## 22 de septiembre de 2026 — Los cuatro defectos del calendario que encontro Codex
 
 - **Arrastrar una reunion reprogramaba la fiesta entera**, con aviso al cliente incluido. Las
