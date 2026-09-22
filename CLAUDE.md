@@ -1188,6 +1188,7 @@ con otra cara.
 | El ingreso con Google fallaba con una frase que no decia nada, para cualquier causa | `src/__tests__/el-ingreso-con-google-dice-que-paso.test.ts` |
 | Un codigo de recuperacion que no se llego a mandar quedaba vivo quince minutos | `src/__tests__/un-codigo-que-no-se-mando-no-queda-vivo.test.ts` |
 | Un trago que no se guardo dejaba las botellas descontadas y decia "pedido enviado" | `src/__tests__/un-trago-que-no-se-guardo-no-descuenta-botellas.test.ts` |
+| El recibo y el contrato de sena imprimian la fecha del evento corrida un dia | `src/__tests__/el-recibo-y-el-contrato-no-corren-la-fecha.test.ts` |
 
 ### Cómo se elige el matafuego
 

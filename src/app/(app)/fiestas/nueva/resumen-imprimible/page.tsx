@@ -142,8 +142,15 @@ function ResumenImprimibleContent({ fiestaId }: { fiestaId: string | null }) {
       if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); }
       else { throw new Error(); }
     } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." });
+      // Se espera el resultado de la copia: antes decia "Enlace Copiado" pase lo que pase, y
+      // con el portapapeles bloqueado por el navegador el enlace no estaba en ningun lado.
+      // Si no se pudo, se dice, y se muestra el enlace para poder llevarselo a mano.
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." });
+      } catch {
+        toast({ variant: 'destructive', title: "No se pudo copiar", description: `Tu navegador bloqueo el portapapeles. El enlace es: ${shareData.url}` });
+      }
     }
   };
 

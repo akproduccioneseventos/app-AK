@@ -70,7 +70,18 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
       url: window.location.href,
     };
     if (typeof navigator.share !== 'undefined' && navigator.canShare(shareData)) {
-        navigator.share(shareData).catch(err => console.error("Error al compartir:", err));
+        // Se espera el resultado: antes el aviso de compartir se mandaba y nadie miraba si
+        // habia salido, asi que con el compartir bloqueado no pasaba nada y el que lo usaba
+        // se quedaba mirando un boton que no hizo nada. Si no sale, se abre WhatsApp, que es
+        // el camino que si funciona. Que la persona cancele no es una falla: ahi no se
+        // insiste.
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          if ((err as { name?: string })?.name === 'AbortError') return;
+          const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
+          window.open(whatsappUrl, '_blank');
+        }
     } else {
         const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareData.text + '\n' + shareData.url)}`;
         window.open(whatsappUrl, '_blank');

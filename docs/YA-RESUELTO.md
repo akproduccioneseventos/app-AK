@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 22 de septiembre de 2026 — El recibo y el contrato de sena imprimian la fecha corrida un dia, y cuatro carteles de exito que mentian
+
+- **El papel que firma el cliente.** En el recibo y en el contrato de sena, el dia del evento
+  se convertia con el reloj del navegador: un dia suelto se entiende como medianoche de
+  Greenwich y en Uruguay se imprime **un dia antes**. O sea, **el contrato salia con la fecha
+  de la fiesta corrida**. Es la misma equivocacion que dejo un cobro de la ultima noche afuera
+  del reporte y que mostraba las fiestas de noche al dia siguiente en el calendario: la
+  pregunta del metodo estaba puesta y faltaba barrer con ella lo que se imprime.
+- **Cuatro carteles que decian "copiado" o "compartido" sin mirar si habia funcionado**, en la
+  carga operativa, el reporte de costos y rentabilidad, el itinerario y el resumen imprimible.
+  Ahora se espera el resultado: si el navegador bloquea el portapapeles se dice, y se muestra
+  el enlace para llevarselo a mano; si falla el compartir, se abre WhatsApp, que es el camino
+  que si funciona. Que la persona cancele no se cuenta como falla.
+- **Probado rompiendolo:** volviendo las dos fechas del papel a la conversion del navegador.
+
+```comprobar
+archivo: src/app/(app)/presupuestos/[id]/recibo-contrato/page.tsx
+usa: diaDelEventoParaElPapel en src/app/(app)/presupuestos/[id]/recibo-contrato/page.tsx
+prueba: src/__tests__/el-recibo-y-el-contrato-no-corren-la-fecha.test.ts
+```
+
+
 ## 22 de septiembre de 2026 — La barra: un trago que no se guardo dejaba botellas descontadas y decia "pedido enviado"
 
 - **Lo que estaba mal (lo encontro Codex).** El guardado de respaldo **devuelve** el error en
