@@ -1,0 +1,153 @@
+{
+  "sha": "54cd6230d8fd10d91b031c5ae5320125e8d1bd41",
+  "scope": "AST isolated real functions, mocked persistence/auth/storage. No production calls.",
+  "total": 20,
+  "pass": 9,
+  "fail": 11,
+  "results": [
+    {
+      "name": "bar-create-normal",
+      "passed": true,
+      "success": true,
+      "persisted": 1,
+      "stock": 9,
+      "fallbackWrites": 0
+    },
+    {
+      "name": "bar-create-paused",
+      "passed": true,
+      "success": false,
+      "persisted": 0,
+      "stock": 10,
+      "fallbackWrites": 0
+    },
+    {
+      "name": "bar-create-fallback-false",
+      "passed": false,
+      "success": true,
+      "persisted": 0,
+      "stock": 9,
+      "fallbackWrites": 1
+    },
+    {
+      "name": "bar-create-both-fail",
+      "passed": false,
+      "success": true,
+      "persisted": 0,
+      "stock": 9,
+      "fallbackWrites": 1
+    },
+    {
+      "name": "bar-create-throw",
+      "passed": false,
+      "success": false,
+      "persisted": 0,
+      "stock": 9,
+      "fallbackWrites": 1
+    },
+    {
+      "name": "bar-stock-recovers-after-transient-failure",
+      "passed": false,
+      "firstFailed": true,
+      "secondFailed": true,
+      "reads": 1,
+      "writes": 1,
+      "stock": 10
+    },
+    {
+      "name": "bar-change-normal",
+      "passed": true,
+      "success": true,
+      "oldStatus": "cancelado",
+      "created": 1
+    },
+    {
+      "name": "bar-change-same",
+      "passed": true,
+      "success": true,
+      "oldStatus": "nuevo",
+      "created": 0
+    },
+    {
+      "name": "bar-change-failure",
+      "passed": false,
+      "success": false,
+      "oldStatus": "cancelado",
+      "created": 0
+    },
+    {
+      "name": "rsvp-new-no-private-party-in-response",
+      "passed": false,
+      "success": true,
+      "privateMarkerReturned": true,
+      "otherGuestReturned": true,
+      "clientAccessKeyReturned": false,
+      "writes": 1
+    },
+    {
+      "name": "rsvp-new-own-guest-created",
+      "passed": true,
+      "success": true,
+      "guestCreated": true
+    },
+    {
+      "name": "rsvp-existing-name-does-not-grant-credential",
+      "passed": false,
+      "success": true,
+      "credentialAccepted": true,
+      "writes": 1
+    },
+    {
+      "name": "catalog-add-sequential",
+      "passed": true,
+      "count": 2
+    },
+    {
+      "name": "catalog-add-concurrent",
+      "passed": false,
+      "count": 1
+    },
+    {
+      "name": "salons-edit-sequential",
+      "passed": true,
+      "successes": 2,
+      "capacities": [
+        11,
+        21
+      ]
+    },
+    {
+      "name": "salons-edit-concurrent",
+      "passed": false,
+      "successes": 2,
+      "capacities": [
+        10,
+        21
+      ]
+    },
+    {
+      "name": "delete-photo-from-2",
+      "passed": true,
+      "remaining": 1,
+      "expected": 1
+    },
+    {
+      "name": "delete-photo-from-1",
+      "passed": false,
+      "remaining": 1,
+      "expected": 0
+    },
+    {
+      "name": "delete-salon-from-2",
+      "passed": true,
+      "remaining": 1,
+      "expected": 1
+    },
+    {
+      "name": "delete-salon-from-1",
+      "passed": false,
+      "remaining": 1,
+      "expected": 0
+    }
+  ]
+}

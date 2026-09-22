@@ -1,25 +1,24 @@
-# Traspaso de Codex - 22 de septiembre de 2026
+# Traspaso Codex - 22/09/2026
 
-Esta hoja corresponde SOLO a codex/contraste-1206-20260914, no al main publicado.
-Auditoria/documentacion, no fusionar sola ni sustituir instrucciones del equipo.
+Solo rama codex/contraste-1206-20260914; no reemplaza main ni estado del equipo.
+Codigo base main54cd6230d8fd10d91b031c5ae5320125e8d1bd41.
+PR1209/1210 ya fusionadas. Abiertas1207/1206/1202/1197 contrastadas.
 
-## Base
-- Codigo: main54cd6230d8fd10d91b031c5ae5320125e8d1bd41; PR1209/1210 ya fusionadas.
-- PR abiertas contrastadas:1207/1206/1202/1197; SHA en informe.
-- El handoff del main del20/9 es historico, no estado vigente de despliegue.
+## Diagnostico nuevo
+- Informe BARRA-INVITADOS-CATALOGOS-2026-09-22.md en docs/auditoria.
+- Orden78 en docs/ordenes. Veinte sondas:9PASS/11FAIL,8hallazgos.
+- Prioridad: respuesta publica RSVP incluye datos ajenos; nombre entrega credencial.
+- Barra: falso exito/stock huerfano, cadena fallback rota, reemplazo pierde pedido.
+- Fotos/salones: perdidas concurrentes; ultimo borrado no persiste.
+- Informe anterior CALENDARIO-NAVEGACION-Y-CIERRE conserva8casos y7hallazgos.
+- Ambos conjuntos son sondas aisladas, no uso real ni despliegue verificado.
 
-## Tanda nueva
-- Informe docs/auditoria/CALENDARIO-NAVEGACION-Y-CIERRE-2026-09-22.md.
-- Agenda8casos:4PASS/4FAIL. Mover reunion modifica fiesta; fecha corrupta vacia lista;
-  noche Uruguay cambia dia; fecha imposible se acepta y sincroniza.
-- AST360paginas/412enlaces literales:8 enlaces a3 destinos inexistentes.
-- Evidencias agenda/enlaces en docs/evidencias. Sin datos reales ni build.
-- Un agente economico reconcilio declaraciones anteriores; cerrado.
-
-## Pendiente
-- Gemini:UI/enlaces. Claude:fechas/integridad/sincronizacion y compilacion del conjunto.
-- Actualizar HEAD antes de tocar codigo. No reimplementar Touchpix ya corregido.
-- Reconciliar importacion movil/vidriera y evidencia E2E con tanda siguiente.
-- No insistir con login por pedido del dueno; continuar codigo cuando aporte evidencia.
-- NO auditoria total certificada: falta matriz vigente de roles, hardware y terceros.
-- No se cambiaron funciones de app ni se fusiono. Historicos preservados en indice.
+## Reparto y limites
+- Claude: permisos,datos,stock y compilacion. Gemini:UI/mensajes.
+- Cambio de identificacion RSVP requiere decision del dueno; no quitar cambiar respuesta.
+- Actualizar HEAD antes de programar; no reimplementar arreglos ya presentes.
+- Tests integrados propuestos en orden78: PENDIENTES, no fingir ejecucion.
+- No app modificada/build/fusion/credenciales reales. Agente cerrado.
+- Pedido del dueno: no insistir con login ni repetir auditorias vigentes.
+- Auditoria total NO completada: falta evidencia por roles,hardware,terceros e integrado.
+- Registrar resultados por SHA y conservar documentos previos; no emitir cero errores.
