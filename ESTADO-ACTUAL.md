@@ -27,9 +27,7 @@ verificación completa en verde).
 
 ## Pendiente, y es mío
 
-- **Siete carteles de "copiado" que no miran si copiaron**: activos fijos, insumos, menús,
-  alergias, clientes, administración y cambio de fecha contractual. Listados en
-  `docs/auditoria/BARRIDO-PREGUNTAS-NUEVAS.md`.
+Nada. Los carteles de "copiado" quedaron arreglados (tres reales, cuatro falsas alarmas).
 
 ## Lo que ningún control cubre
 
