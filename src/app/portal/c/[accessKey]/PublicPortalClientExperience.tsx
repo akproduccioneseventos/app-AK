@@ -56,7 +56,8 @@ import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { textoDeCuentaRegresiva } from '@/lib/portal/cuenta-regresiva';
 import { elegirFotoDePortada } from '@/lib/portal/foto-de-portada';
-import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
+import { SalonDelClienteEn3D } from '@/components/decoracion/SalonDelClienteEn3D';
+// Soporte de renderizado 3D interactivo para el cliente vía SalonScene / SalonDelClienteEn3D / Salon3DClienteView
 
 type PublicPortalClientExperienceProps = {
   fiesta: any;
@@ -1404,7 +1405,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     {fiesta?.decoracion?.notaDecoracionParaElCliente && <p className="rounded-lg bg-slate-50 p-3">{fiesta.decoracion.notaDecoracionParaElCliente}</p>}
                     {(fiesta?.decoracion?.salonPreview3dUrl || (fiesta?.decoracion?.salonElements && fiesta.decoracion.salonElements.length > 0)) && (
                       <div className="mt-3">
-                        <Salon3DClienteView
+                        <SalonDelClienteEn3D
                           decoracion={fiesta?.decoracion}
                           fotoFallbackUrl={fiesta?.decoracion?.salonPreview3dUrl}
                         />

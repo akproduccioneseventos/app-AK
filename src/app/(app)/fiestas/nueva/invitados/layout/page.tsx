@@ -15,6 +15,7 @@ import type { FiestaEnPlanificacion, LayoutElement, Invitado, DecoracionData, La
 import { updateInvitadoFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById, updateDecoracionFiestaActual } from '@/app/actions/fiesta-actual';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { contarMesas } from '@/lib/mesas/contar-mesas';
 import { generarEscenaAutomatica } from '@/lib/decoracion/generar-layout-automatico';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -417,7 +418,7 @@ function SalonLayoutContent() {
       defaultProps = { width: 3.5 * ppm, height: 3 * ppm, seats: undefined, backgroundColor: 'rgba(234, 179, 8, 0.2)', shape: 'rectangle' };
     } else if (category === 'Área de Fotos' || category === 'Photo-opportunity') {
       defaultProps = { width: 3 * ppm, height: 2 * ppm, seats: undefined, backgroundColor: 'rgba(236, 72, 153, 0.2)', shape: 'rectangle' };
-    } else if (category === 'Barra') {
+    } else if (category === 'Barra' || category.toLowerCase() === 'barra') {
       defaultProps = { width: 4 * ppm, height: 1.5 * ppm, seats: undefined, backgroundColor: 'rgba(16, 185, 129, 0.2)', shape: 'rectangle' };
     } else if (category === 'Mesa de la Torta') {
       defaultProps = { width: 2 * ppm, height: 2 * ppm, seats: 0, backgroundColor: '#ffffff', shape: 'circle' };

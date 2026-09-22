@@ -20,3 +20,6 @@ export function filterTableElements(salonElements: LayoutElement[] = []): Layout
 export function contarMesasDeSalon(salonElements: LayoutElement[] = []): number {
   return filterTableElements(salonElements).length;
 }
+
+/** Alias para compatibilidad con la orden 75 */
+export const contarMesas = contarMesasDeSalon;
