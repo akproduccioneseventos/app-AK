@@ -21,6 +21,13 @@ archivo: src/lib/data-service.ts
 usa: mutateDataItem en src/app/actions/salones.ts
 prueba: src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts
 ```
+## 22 de septiembre de 2026 (noche) — Los carteles de "copiado" que quedaban
+
+- **Arreglados tres:** la lista de alergias y celiacos para la cocina (si el navegador bloquea
+  la copia, ahora se baja como archivo y se avisa), el enlace de la presentacion en
+  administracion y el enlace del cambio de fecha contractual.
+- **Falso positivo verificado:** los reportes de activos fijos, insumos, menus y clientes que
+  listo el barrido de Gemini **no copian nada al portapapeles**: no hay cartel que mienta ahi.
 
 
 ## 22 de septiembre de 2026 (tarde) — Lo que encontro Codex en invitados, barra y catalogos
