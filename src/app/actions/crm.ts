@@ -3,7 +3,7 @@
 
 import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types/crm';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
 import { saveCustomer, getCustomers } from '@/app/actions/customers';
 import { addPagoToPresupuesto, getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
@@ -34,9 +34,12 @@ import { AsyncMutex } from '@/lib/mutex';
 
 const crmMutex = new AsyncMutex();
 const LEADS_FILE = 'crm-leads.json';
+const CRM_LEADS_COLLECTION = 'prospectos';
 const STAGES_FILE = 'crm-stages.json';
 const GOOGLE_ACCOUNTS_FILE = '_google-workspace-accounts.json';
 const TRASH_NAMES = ['test', 'prueba', 'asdf', 'qwerty', 'xxx', 'zzz', 'aaa', 'bbb', 'admin', 'usuario', 'user', 'nombre'];
+
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 /** Normalizes a phone number: removes spaces, dashes, parens and keeps the last 9 digits. */
 function normalizePhone(phone: string): string {
@@ -53,12 +56,8 @@ function cleanCrmLeadForFirestore(lead: CrmLead): CrmLead {
 }
 
 async function createCrmLeadDocument(newLead: CrmLead, knownLeads?: CrmLead[]): Promise<void> {
-  const { dbAdmin } = await import('@/lib/firebase/server');
-  if (dbAdmin) {
-    await dbAdmin.collection('prospectos').doc(newLead.id).create({
-      ...cleanCrmLeadForFirestore(newLead),
-      _syncedAt: new Date().toISOString(),
-    });
+  if (!SIN_BASE()) {
+    await createDataItem(LEADS_FILE, CRM_LEADS_COLLECTION, newLead.id, cleanCrmLeadForFirestore(newLead));
     return;
   }
   await crmMutex.runExclusive(async () => {
@@ -71,22 +70,10 @@ async function mutateCrmLeadDocument(
   leadId: string,
   mutate: (lead: CrmLead) => CrmLead,
 ): Promise<CrmLead | null> {
-  const { dbAdmin } = await import('@/lib/firebase/server');
-  if (dbAdmin) {
-    let updated: CrmLead | null = null;
-    const ref = dbAdmin.collection('prospectos').doc(leadId);
-    await dbAdmin.runTransaction(async (transaction) => {
-      const snapshot = await transaction.get(ref);
-      if (!snapshot.exists) return;
-      const data = { ...snapshot.data() } as CrmLead & { _syncedAt?: string };
-      delete data._syncedAt;
-      updated = cleanCrmLeadForFirestore(mutate(data));
-      transaction.set(ref, {
-        ...updated,
-        _syncedAt: new Date().toISOString(),
-      });
+  if (!SIN_BASE()) {
+    return mutateDataItem<CrmLead>(LEADS_FILE, CRM_LEADS_COLLECTION, leadId, (actual) => {
+      return cleanCrmLeadForFirestore(mutate(actual));
     });
-    return updated;
   }
 
   return crmMutex.runExclusive(async () => {
@@ -100,13 +87,8 @@ async function mutateCrmLeadDocument(
 }
 
 async function deleteCrmLeadDocument(leadId: string): Promise<boolean> {
-  const { dbAdmin } = await import('@/lib/firebase/server');
-  if (dbAdmin) {
-    const ref = dbAdmin.collection('prospectos').doc(leadId);
-    const snapshot = await ref.get();
-    if (!snapshot.exists) return false;
-    await ref.delete();
-    return true;
+  if (!SIN_BASE()) {
+    return deleteDataItem(LEADS_FILE, CRM_LEADS_COLLECTION, leadId);
   }
   return crmMutex.runExclusive(async () => {
     const leads = await readData<CrmLead[]>(LEADS_FILE, []);
@@ -272,13 +254,13 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
 
   const newLead: CrmLead = {
     ...sanitizedData,
-    id: `lead_${Date.now()}`,
+    id: `lead_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     createdAt: now,
     updatedAt: now,
     currentStageId: sanitizedData.currentStageId || stages[0].id,
     timeline: [
       {
-        id: `tl_${Date.now()}`,
+        id: `tl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         type: 'lead_created',
         timestamp: now,
         description: 'Prospecto creado',

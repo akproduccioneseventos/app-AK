@@ -1,13 +1,17 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
 import type { ScheduledMessage, ScheduledMessageStatus } from '@/types/whatsapp-automation';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import { AsyncMutex } from '@/lib/mutex';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 const SCHEDULED_MESSAGES_FILE = 'scheduled-messages.json';
+const SCHEDULED_MESSAGES_COLLECTION = 'scheduled_messages';
+const scheduledMessagesMutex = new AsyncMutex();
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 export async function getScheduledMessages(internalToken?: symbol): Promise<ScheduledMessage[]> {
   if (internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN) {
@@ -38,13 +42,21 @@ export async function saveScheduledMessage(
   }
 
   try {
-    const messages = await getScheduledMessages(internalToken);
     const newMessage: ScheduledMessage = {
       ...message,
-      id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
+      id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       createdAt: new Date().toISOString(),
     };
-    await writeData(SCHEDULED_MESSAGES_FILE, [...messages, newMessage]);
+
+    if (!SIN_BASE()) {
+      await createDataItem(SCHEDULED_MESSAGES_FILE, SCHEDULED_MESSAGES_COLLECTION, newMessage.id, newMessage);
+    } else {
+      await scheduledMessagesMutex.runExclusive(async () => {
+        const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+        await writeData(SCHEDULED_MESSAGES_FILE, [...messages, newMessage]);
+      });
+    }
+
     return { success: true, message: newMessage };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -58,14 +70,25 @@ export async function markMessageAsSent(
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return { success: false, error: permiso.error };
   try {
-    const messages = await getScheduledMessages();
-    const updated = messages.map(m =>
-      m.id === messageId
-        ? { ...m, status: 'enviado' as ScheduledMessageStatus, sentAt: new Date().toISOString(), sentBy }
-        : m
-    );
-    await writeData(SCHEDULED_MESSAGES_FILE, updated);
-    return { success: true };
+    if (!SIN_BASE()) {
+      const actualizado = await mutateDataItem<ScheduledMessage>(SCHEDULED_MESSAGES_FILE, SCHEDULED_MESSAGES_COLLECTION, messageId, (m) => ({
+        ...m,
+        status: 'enviado' as ScheduledMessageStatus,
+        sentAt: new Date().toISOString(),
+        sentBy,
+      }));
+      if (!actualizado) return { success: false, error: 'Mensaje no encontrado' };
+      return { success: true };
+    }
+
+    return scheduledMessagesMutex.runExclusive(async () => {
+      const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+      const idx = messages.findIndex(m => m.id === messageId);
+      if (idx === -1) return { success: false, error: 'Mensaje no encontrado' };
+      messages[idx] = { ...messages[idx], status: 'enviado', sentAt: new Date().toISOString(), sentBy };
+      await writeData(SCHEDULED_MESSAGES_FILE, messages);
+      return { success: true };
+    });
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -78,19 +101,25 @@ export async function rescheduleMessage(
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return { success: false, error: permiso.error };
   try {
-    const messages = await getScheduledMessages();
-    const updated = messages.map(m =>
-      m.id === messageId
-        ? {
-            ...m,
-            status: 'reprogramado' as ScheduledMessageStatus,
-            rescheduledTo: newDate,
-            scheduledAt: newDate,
-          }
-        : m
-    );
-    await writeData(SCHEDULED_MESSAGES_FILE, updated);
-    return { success: true };
+    if (!SIN_BASE()) {
+      const actualizado = await mutateDataItem<ScheduledMessage>(SCHEDULED_MESSAGES_FILE, SCHEDULED_MESSAGES_COLLECTION, messageId, (m) => ({
+        ...m,
+        status: 'reprogramado' as ScheduledMessageStatus,
+        rescheduledTo: newDate,
+        scheduledAt: newDate,
+      }));
+      if (!actualizado) return { success: false, error: 'Mensaje no encontrado' };
+      return { success: true };
+    }
+
+    return scheduledMessagesMutex.runExclusive(async () => {
+      const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+      const idx = messages.findIndex(m => m.id === messageId);
+      if (idx === -1) return { success: false, error: 'Mensaje no encontrado' };
+      messages[idx] = { ...messages[idx], status: 'reprogramado', rescheduledTo: newDate, scheduledAt: newDate };
+      await writeData(SCHEDULED_MESSAGES_FILE, messages);
+      return { success: true };
+    });
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -103,18 +132,24 @@ export async function cancelScheduledMessage(
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return { success: false, error: permiso.error };
   try {
-    const messages = await getScheduledMessages();
-    const updated = messages.map(m =>
-      m.id === messageId
-        ? {
-            ...m,
-            status: 'cancelado' as ScheduledMessageStatus,
-            cancelReason: reason || 'Cancelado manualmente',
-          }
-        : m
-    );
-    await writeData(SCHEDULED_MESSAGES_FILE, updated);
-    return { success: true };
+    if (!SIN_BASE()) {
+      const actualizado = await mutateDataItem<ScheduledMessage>(SCHEDULED_MESSAGES_FILE, SCHEDULED_MESSAGES_COLLECTION, messageId, (m) => ({
+        ...m,
+        status: 'cancelado' as ScheduledMessageStatus,
+        cancelReason: reason || 'Cancelado manualmente',
+      }));
+      if (!actualizado) return { success: false, error: 'Mensaje no encontrado' };
+      return { success: true };
+    }
+
+    return scheduledMessagesMutex.runExclusive(async () => {
+      const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+      const idx = messages.findIndex(m => m.id === messageId);
+      if (idx === -1) return { success: false, error: 'Mensaje no encontrado' };
+      messages[idx] = { ...messages[idx], status: 'cancelado', cancelReason: reason || 'Cancelado manualmente' };
+      await writeData(SCHEDULED_MESSAGES_FILE, messages);
+      return { success: true };
+    });
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -126,19 +161,28 @@ export async function unmarkMessageAsSent(
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return { success: false, error: permiso.error };
   try {
-    const messages = await getScheduledMessages();
-    const updated = messages.map(m =>
-      m.id === messageId
-        ? {
-            ...m,
-            status: 'pendiente' as ScheduledMessageStatus,
-            sentAt: undefined,
-            sentBy: undefined,
-          }
-        : m
-    );
-    await writeData(SCHEDULED_MESSAGES_FILE, updated);
-    return { success: true };
+    if (!SIN_BASE()) {
+      const actualizado = await mutateDataItem<ScheduledMessage>(SCHEDULED_MESSAGES_FILE, SCHEDULED_MESSAGES_COLLECTION, messageId, (m) => {
+        const next = { ...m, status: 'pendiente' as ScheduledMessageStatus };
+        delete next.sentAt;
+        delete next.sentBy;
+        return next;
+      });
+      if (!actualizado) return { success: false, error: 'Mensaje no encontrado' };
+      return { success: true };
+    }
+
+    return scheduledMessagesMutex.runExclusive(async () => {
+      const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+      const idx = messages.findIndex(m => m.id === messageId);
+      if (idx === -1) return { success: false, error: 'Mensaje no encontrado' };
+      const next = { ...messages[idx], status: 'pendiente' as ScheduledMessageStatus };
+      delete next.sentAt;
+      delete next.sentBy;
+      messages[idx] = next;
+      await writeData(SCHEDULED_MESSAGES_FILE, messages);
+      return { success: true };
+    });
   } catch (e: any) {
     return { success: false, error: e.message };
   }
@@ -151,17 +195,23 @@ export async function updateScheduledMessageText(
   const permiso = await requirePermiso(PERMISOS.CRM);
   if (!permiso.ok) return { success: false, error: permiso.error };
   try {
-    const messages = await getScheduledMessages();
-    const updated = messages.map(m =>
-      m.id === messageId
-        ? {
-            ...m,
-            messageText: newMessageText,
-          }
-        : m
-    );
-    await writeData(SCHEDULED_MESSAGES_FILE, updated);
-    return { success: true };
+    if (!SIN_BASE()) {
+      const actualizado = await mutateDataItem<ScheduledMessage>(SCHEDULED_MESSAGES_FILE, SCHEDULED_MESSAGES_COLLECTION, messageId, (m) => ({
+        ...m,
+        messageText: newMessageText,
+      }));
+      if (!actualizado) return { success: false, error: 'Mensaje no encontrado' };
+      return { success: true };
+    }
+
+    return scheduledMessagesMutex.runExclusive(async () => {
+      const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+      const idx = messages.findIndex(m => m.id === messageId);
+      if (idx === -1) return { success: false, error: 'Mensaje no encontrado' };
+      messages[idx] = { ...messages[idx], messageText: newMessageText };
+      await writeData(SCHEDULED_MESSAGES_FILE, messages);
+      return { success: true };
+    });
   } catch (e: any) {
     return { success: false, error: e.message };
   }
