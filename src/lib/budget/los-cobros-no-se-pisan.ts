@@ -55,10 +55,17 @@ export function facturaConLosPagosDeLaBase(
 }
 
 /**
- * Colecciones de plata donde guardar la lista entera NO borra lo que falta en la lista.
+ * Colecciones de plata y comida donde guardar la lista entera NO borra lo que falta en la lista.
  *
  * Una lista leida un rato antes no trae lo que otro creo mientras tanto; borrar "lo que
  * no esta" borraba ese presupuesto o esa factura recien creados. En estas dos, borrar
  * es siempre explicito (`forceDeleteDocFromFirestore`), nunca por omision.
  */
-export const COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION = new Set(['presupuestos', 'facturas']);
+export const COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION = new Set([
+  'presupuestos',
+  'facturas',
+  // La comida: el ajuste de todos los costos guarda la lista entera, y una lista vieja
+  // borraba el insumo o el menu que otro acababa de crear.
+  'insumos',
+  'menus_catering',
+]);

@@ -1,13 +1,21 @@
 'use server';
 
 import type { ServicioEmpresa } from '@/types/empresa';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
 import { getMenus, saveMenu } from './menus-catering';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { leerInsumosCrudos, limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
 import { AsyncMutex } from '@/lib/mutex';
 
 const INSUMOS_FILE = 'insumos.json';
+const INSUMOS_COLLECTION = 'insumos';
+/**
+ * Con base, un insumo se guarda y se borra SOLO, no la lista entera (23 de septiembre de
+ * 2026). La lista leida un rato antes, guardada desde otro servidor, le volvia el costo
+ * viejo al insumo que otro acababa de cambiar, o borraba el que otro acababa de crear.
+ * El ajuste de todos los costos a la vez sigue guardando la lista: cambia todos a proposito.
+ */
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 export async function invalidateInsumosCache() {
   await requireAppSession();
@@ -150,7 +158,19 @@ async function saveInsumoInterno(
     inventario.push(finalItemData as ServicioEmpresa);
   }
   
-  await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+  if (SIN_BASE()) {
+    await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+  } else if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
+    const cambios = dataWithParsedNumbers;
+    const guardado = await mutateDataItem<ServicioEmpresa>(INSUMOS_FILE, INSUMOS_COLLECTION, itemId, (actual) => ({ ...actual, ...cambios } as ServicioEmpresa));
+    if (!guardado) {
+      limpiarCacheInsumos();
+      return { success: false, error: 'Ese insumo ya no existe: lo borró otra persona.' };
+    }
+    finalItemData = guardado;
+  } else {
+    await createDataItem(INSUMOS_FILE, INSUMOS_COLLECTION, itemId, finalItemData as ServicioEmpresa);
+  }
   limpiarCacheInsumos();
   
   // Si esto falla, el insumo queda con el precio nuevo y **los menus con el viejo**:
@@ -185,6 +205,11 @@ async function deleteInsumoInterno(id: string): Promise<{ success: boolean; erro
   }
 
   limpiarCacheInsumos();
+  if (!SIN_BASE()) {
+    const borrado = await deleteDataItem(INSUMOS_FILE, INSUMOS_COLLECTION, id);
+    limpiarCacheInsumos();
+    return borrado ? { success: true } : { success: false, error: `Insumo con ID ${id} no encontrado para eliminar.` };
+  }
   let inventario = await leerInsumosCrudos();
   const initialLength = inventario.length;
   inventario = inventario.filter(s => s.id !== id);
