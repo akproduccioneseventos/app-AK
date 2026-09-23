@@ -164,6 +164,8 @@ devolverle el QR. Le agrega un paso al invitado y no evita nada que importe.
 archivo: src/app/actions/agenda.ts
 usa: diaCivilEnUruguay en src/app/actions/agenda.ts
 prueba: src/__tests__/el-calendario-no-mueve-la-fiesta-equivocada.test.ts
+```
+
 ## 21 de septiembre de 2026 — El ingreso con Google no decia que pasaba, y un codigo de recuperacion quedaba vivo sin mandarse
 
 - **El ingreso con Google.** Cualquier falla que no estuviera en la lista contestaba
