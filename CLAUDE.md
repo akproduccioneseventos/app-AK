@@ -805,6 +805,22 @@ juntos. Además, **la puerta compilaba dos veces** (6 minutos tirados por corrid
 La costumbre: **antes de esperar una corrida, mirar en la primera línea cuántos archivos va a
 correr.**
 
+### 17. Dar la plata por auditada mirando un solo servidor
+
+**Pasó el 23 de septiembre de 2026.** El dueño, al enterarse: *"yo pensé que eso ya estaba
+hecho"*. La app estaba declarada con "plata auditada sin hallazgos", y ese día aparecieron
+cobros que se podían perder, facturas y presupuestos que se podían borrar y un cupón de un uso
+que servía dos veces.
+
+**Qué era lo cierto:** las auditorías anteriores preguntaban si la lectura estaba adentro del
+turno, y el turno **sólo cuida un servidor**. Nadie había preguntado qué pasa con dos servidores,
+ni quién más guarda la lista entera donde vive un cobro. Además, cuatro funciones de cobros
+leían afuera del turno y la pregunta 8 no se les había vuelto a pasar.
+
+**Qué se hace distinto:** preguntas 22 y 23 en `docs/COMO-AUDITAR.md`, y los controles de
+`una-lista-vieja-no-borra-plata` y `la-plata-no-se-pierde-entre-servidores`. Y la costumbre:
+**"auditado" dice con qué preguntas se auditó**, no que no puede haber nada más.
+
 ### 12. Arrancar la verificación con el trabajo a medio terminar
 
 **Pasó el 17 de septiembre de 2026 y costó más de una hora, en una sesión donde el dueño ya venía
