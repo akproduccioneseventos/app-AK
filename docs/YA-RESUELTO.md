@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23 de septiembre de 2026 — La clave del portal no viaja al navegador (entrega 74/75/77)
+
+- La entrega de Gemini agrego la clave del cliente a lo que la pagina del portal manda al
+  navegador. Hoy llegaba vacia porque la capa de abajo ya la saca, pero la linea no tenia que
+  estar: se saco y una prueba frena si vuelve.
+
+```comprobar
+prueba: src/__tests__/release-security-boundaries.test.ts
+```
+
 ## 23 de septiembre de 2026 — Lo que quedaba de barra, fotos y salones (Codex)
 
 - **Varios servidores a la vez.** El turno en memoria del 22 ordenaba los pedidos de UN
