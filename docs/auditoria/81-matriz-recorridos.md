@@ -41,3 +41,16 @@ fusiona). Pruebas de comportamiento, no de nombres: base de mentira que devuelve
 | Operador | Operador de otra fiesta no maneja votaciones ni borra contenido | Probado | `la-noche-no-se-maneja-de-costado` |
 | Offline | Captura reenviada no se publica dos veces; cola no entrega fotos al siguiente; sin cachés de datos | Corregido / falsa alarma verificada | `offline-sync-manager.ts`, `next.config.js` |
 | Equipos | Ensayo real con cámara, 360, barra y red del lugar | Requiere equipo | — |
+
+## Parte de Gemini — resultado (23 de septiembre de 2026)
+
+Probado y verificado en la rama `feat/orden-81-gemini-recorridos-offline-equipo`.
+
+| Bloque | Qué se probó | Estado | Evidencia |
+|---|---|---|---|
+| Offline | Captura en fotocabina sin internet -> guardado local en IndexedDB -> reconexión -> entrega única; sin QR falso ni URL inventada | Probado | `tests/e2e/81-captura-reconexion-entrega.spec.ts` |
+| Offline | Cola de subida aislada por fiesta; identidad (guestId) aislada por captura; reintento conserva datos en IndexedDB sin perder fotos | Probado | `tests/e2e/81-cola-aislamiento-y-reintento.spec.ts` |
+| Equipos | Centro de fiesta calcula preparación con `buildAk100Readiness`; reporta faltantes reales y no finge equipo listo sin ensayo físico | Probado | `tests/e2e/81-prueba-previa-no-finge-equipo.spec.ts` |
+| Invitado | Barra tecnológica: pedido con `createBarDrinkOrder` desde MiniQuiosco; no duplica por doble clic (`clientRequestId`); sin botones de barman | Probado | `tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts` |
+| Entrega | Galería de recuerdos accesible en segunda pantalla (`/evento/galeria/[fiestaId]`) para retiro mientras otro invitado usa la cabina | Probado | `src/app/evento/galeria/[fiestaId]/page.tsx` |
+

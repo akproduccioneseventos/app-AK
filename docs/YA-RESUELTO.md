@@ -1,6 +1,28 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23 de septiembre de 2026 (noche) — Orden 81: fotocabina sin internet, colas aisladas, ensayo de equipo y barra
 
+- **De Gemini:**
+  - **Continuidad offline y fotocabina sin red:** La fotocabina guarda en IndexedDB localmente sin anunciar URLs falsas ni QR inaccesibles. La sincronización posterior entrega de forma única sin duplicados (`tests/e2e/81-captura-reconexion-entrega.spec.ts`).
+  - **Cola y aislamiento:** Las colas de subida de IndexedDB aíslan las capturas por evento (`fiestaId`), conservan la identidad de origen (`guestId`), y no descartan elementos si la conexión falla (`tests/e2e/81-cola-aislamiento-y-reintento.spec.ts`).
+  - **Comprobación previa de equipo (AK-100):** El Centro de Fiesta calcula la preparación operativa mediante `buildAk100Readiness`, indicando faltantes reales y sin fingir ensayo de hardware completado si aún no se realizó (`tests/e2e/81-prueba-previa-no-finge-equipo.spec.ts`).
+  - **Barra tecnológica y pedidos:** Pedidos desde el MiniQuiosco con `createBarDrinkOrder`, protegidos contra doble clic (`clientRequestId`) y sin acceso del invitado a controles administrativos de barman (`tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts`).
+  - **Segunda pantalla de recuerdos:** Galería (`/evento/galeria/[fiestaId]`) permite retirar y visualizar recuerdos sin bloquear la cámara de la cabina.
+
+```comprobar
+archivo: src/lib/offline/offline-db.ts
+usa: saveOfflineMedia en src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: tests/e2e/81-captura-reconexion-entrega.spec.ts
+archivo: src/lib/offline/offline-sync-manager.ts
+usa: processOfflineMediaQueue en src/components/offline/sync-status-indicator.tsx
+prueba: tests/e2e/81-cola-aislamiento-y-reintento.spec.ts
+archivo: src/lib/ak-100/ak-100-readiness.ts
+usa: buildAk100Readiness en src/app/(app)/fiestas/[id]/centro/page.tsx
+prueba: tests/e2e/81-prueba-previa-no-finge-equipo.spec.ts
+archivo: src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: createBarDrinkOrder en src/app/invitacion/[fiestaId]/invitado/[guestId]/MiniQuiosco.tsx
+prueba: tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts
+```
 
 ## 23 de septiembre de 2026 (noche) — Orden 82: prospectos, clientes, agenda y mensajes no se pisan
 
