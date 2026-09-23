@@ -1,5 +1,6 @@
 'use client';
 
+import '@/lib/react-three-fiber-compat';
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -65,6 +66,7 @@ export function Salon3DClienteView({
         src={imagenFallback}
         alt="Visualización del Salón"
         fill
+        unoptimized
         className="object-cover"
       />
       <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg text-[11px] text-slate-300">
@@ -103,3 +105,4 @@ export function Salon3DClienteView({
     </section>
   );
 }
+

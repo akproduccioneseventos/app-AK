@@ -35,6 +35,8 @@ function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
     clientPortalSettings: fiesta.clientPortalSettings ? {
       enabled: fiesta.clientPortalSettings.enabled,
       accessKey: routeAccessKey,
+      accessPhase: fiesta.clientPortalSettings.accessPhase,
+      liveAccessDaysBefore: fiesta.clientPortalSettings.liveAccessDaysBefore,
       musica: fiesta.clientPortalSettings.musica,
       videoVida: fiesta.clientPortalSettings.videoVida,
       fotografiaYFilmacion: fiesta.clientPortalSettings.fotografiaYFilmacion,
@@ -205,4 +207,5 @@ export default async function PublicPortalPage(props: PageProps) {
     />
   );
 }
+
 

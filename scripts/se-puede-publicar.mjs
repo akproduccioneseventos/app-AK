@@ -88,7 +88,10 @@ const PASOS = [
   },
   {
     nombre: 'La app usada de verdad',
-    comando: 'npm run test:e2e:production',
+    // NO `npm run test:e2e:production`: ese compila de nuevo, y el paso "Compilacion" ya
+    // lo hizo. Eran 6 minutos tirados en cada corrida (medido el 23 de septiembre de 2026).
+    // El corredor igual recompila solo si falta la compilacion o si el codigo es mas nuevo.
+    comando: 'node scripts/run-playwright-production.mjs --lo-que-toca',
     queSignifica: 'La app compila pero no funciona: alguna pantalla no hace lo que dice. Es el único control que ve lo que ve el usuario.',
     caro: true,
   },
@@ -311,6 +314,16 @@ function leerAvance() {
   }
 }
 
+/** Si la corrida anterior dejo anotado que archivos fallaron. Sin lista, se corre todo. */
+function hayFallasAnotadas() {
+  try {
+    const lista = JSON.parse(readFileSync('test-results/.ak-ultimas-fallas.json', 'utf8'));
+    return Array.isArray(lista) && lista.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 function anotarAvance(pasos) {
   try {
     writeFileSync(AVANCE, JSON.stringify({ cuando: Date.now(), pasos }, null, 2));
@@ -491,13 +504,25 @@ for (const paso of PASOS) {
   }
   const huellaAhora = huellaDelPaso(paso.nombre, huellas);
   const anterior = yaEstabanBien[paso.nombre];
-  if (anterior && anterior.huella === huellaAhora) {
+  if (anterior && !anterior.fallo && anterior.huella === huellaAhora) {
     console.log(`  ${paso.nombre}... ya estaba bien (${anterior.segundos}s, corrida anterior sobre lo mismo)`);
     continue;
   }
-  process.stdout.write(`  ${paso.nombre}... `);
+  /**
+   * SOBRE LA MISMA APP, SE REPITE SOLO LO QUE FALLO.
+   *
+   * Pedido del dueno, 23 de septiembre de 2026: *"deberia correr solo por lo nuevo, no
+   * todo"*. Si la corrida anterior de las pruebas de navegador fallo y la app no cambio
+   * desde entonces, las otras 79 ya pasaron sobre esta misma app: volver a correrlas son
+   * 24 minutos que no dicen nada nuevo. Se repiten solo los archivos que fallaron
+   * (`npm run otravez`). **Si la app cambio, corre todo**: dos arreglos que pasan sueltos
+   * pueden romper juntos, y eso no se negocia.
+   */
+  const soloLoQueFallo = paso.nombre === 'La app usada de verdad'
+    && anterior?.fallo && anterior.huella === huellaAhora && hayFallasAnotadas();
+  process.stdout.write(`  ${paso.nombre}${soloLoQueFallo ? ' (solo lo que fallo la vez anterior, la app no cambio)' : ''}... `);
   const arranque = Date.now();
-  const { ok, salida } = correr(paso.comando);
+  const { ok, salida } = correr(soloLoQueFallo ? 'npm run otravez' : paso.comando);
   const segundos = ((Date.now() - arranque) / 1000).toFixed(0);
   console.log(ok ? `bien (${segundos}s)` : `FALLA (${segundos}s)`);
   if (ok) {
@@ -505,6 +530,10 @@ for (const paso of PASOS) {
     anotarAvance(yaEstabanBien);
   }
   if (!ok) {
+    if (paso.nombre === 'La app usada de verdad') {
+      yaEstabanBien[paso.nombre] = { segundos: Number(segundos), huella: huellaAhora, fallo: true };
+      anotarAvance(yaEstabanBien);
+    }
     fallas.push({ paso, salida });
     break; // se corta acá: lo que sigue es más caro y ya sabemos que no se publica
   }

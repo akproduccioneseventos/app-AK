@@ -1,6 +1,7 @@
 // @ts-nocheck
 'use client';
 
+import '@/lib/react-three-fiber-compat';
 import React, { useRef, useEffect } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Grid, Environment } from '@react-three/drei';
@@ -572,4 +573,5 @@ export function SalonScene({ decoracion, onCapture, captureRef }: SalonSceneProp
 }
 
 export default SalonScene;
+
 

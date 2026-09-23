@@ -28,10 +28,11 @@ export function LazyMultiAgentWidget() {
       type="button"
       onClick={() => setActivated(true)}
       className="fixed bottom-24 right-4 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-slate-950 text-white shadow-xl ring-4 ring-white transition hover:-translate-y-1 hover:bg-red-700 focus-visible:outline-none focus-visible:ring-red-300"
-      aria-label="Abrir asistentes inteligentes AK"
-      title="Abrir asistentes inteligentes AK"
+      aria-label="Abrir Asistente IA AK"
+      title="Abrir Asistente IA AK"
     >
       <Bot className="h-6 w-6" />
     </button>
   );
 }
+

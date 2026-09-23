@@ -126,6 +126,11 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
       // La captura de la vista 3D: la pantalla del equipo anuncia "preview guardado
       // en el portal del cliente" desde siempre, y nunca viajaba hasta aca.
       salonPreview3dUrl: decoration.salonPreview3dUrl,
+      // Plano 3D para el cliente (Orden 75/77)
+      salonElements: decoration.salonElements,
+      pixelsPerMeter: decoration.pixelsPerMeter,
+      salonWidth: decoration.salonWidth,
+      salonHeight: decoration.salonHeight,
     } : undefined,
     socialGallerySettings: fiesta.socialGallerySettings,
     timeline: fiesta.timeline ?? [],
@@ -159,3 +164,4 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
     personalAsignado: [],
   } as unknown as FiestaEnPlanificacion;
 }
+

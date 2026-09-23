@@ -311,4 +311,10 @@ describe('release security boundaries', () => {
     expect(portalLayer).not.toContain('insertAdjacentElement');
     expect(portalLayer).toContain('return null');
   });
+  it('la pagina del portal no le manda la clave del cliente al navegador', () => {
+    // Ya paso una vez (orden 75/77): se agrego clientPassword a lo que viaja al navegador.
+    // Hoy llega vacio porque la capa de abajo lo saca, pero no tiene que figurar.
+    const portalPage = readSource('src/app/portal/c/[accessKey]/page.tsx');
+    expect(portalPage).not.toMatch(/clientPassword\s*:/);
+  });
 });
