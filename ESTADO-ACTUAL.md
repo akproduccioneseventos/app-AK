@@ -1,21 +1,23 @@
-# Traspaso Codex - 22/09/2026
+# Traspaso de la rama de auditoria Codex
+Actualizado 2026-09-23. Rama codex/contraste-1206-20260914, NO main.
+Solo ordenes/evidencias: no significa que la app haya cambiado.
 
-Solo rama codex/contraste-1206-20260914; no estado del main publicado.
-Base actual auditada main659d696e4807b3fcd543a53988c21c189cf3e806.
+## Ultima entrega
+- Orden81: docs/ordenes/81-cierre-recorridos-y-evolucion.md.
+- Matriz: docs/auditoria/81-matriz-recorridos.md; pendiente de reconciliar, no pruebas ejecutadas.
+- Main contrastado2f413228cf97dce5cef6f6bb818c504ec66cef74.
+- PR abiertas1214/1207/1206/1202/1197, HEAD/solapes en orden81. Actualizar antes de programar.
 
-## Ultima revalidacion
-- Informe docs/auditoria/REVALIDACION-659d696-2026-09-22.md.
--11sondas aisladas:7PASS/4FAIL; no Firestore/navegador real.
-- Pasan: reuniones no mueven fiesta, fecha corrupta aislada, nocheUruguay,
-  fecha imposible rechazada y reposicion stock ante respaldo success:false.
-- Fallan: dia civil sin hora, cambio con TZUTC, excepcion respaldo y reposicion fallida.
-- QR por nombre: decision aceptada del dueno; no reabrir INV02.
-- INV01 datos ajenos en respuesta es distinto y permanece pendiente.
-- CAT01-03/BAR02-03 sin cambios: reutilizar evidencia anterior, no repetir exploracion.
+## Primero
+- Orden80 actualizada y CIERRE-CONTRASTE-2026-09-23.md:28 PASS/4 FAIL aislados.
+- Claude: residuales stock barra y concurrencia entre instancias catalogos.
+- Gemini: devolucion1214 (seis E2E) y orden81 sin duplicar trabajo ya vigente.
+- Offline/galeria/Centro ya existen: completar y probar, no inventar otro sistema.
 
-## Entrega
-- Orden80 sustituye78deCodex (colision con78deGemini sobre portada).
-- Claude datos/stock/permisos/compilacion; Gemini interfaz; Codex audita.
-- Actualizar contraste de HEAD antes de programar. No reimplementar arreglos presentes.
-- Sin codigo de app, build ni fusion. No prometer cero errores.
-- NO cierre global: faltan correcciones y pruebas integradas/reales por roles/equipos.
+## Reparto y limites
+- Codex audita; Gemini programa interfaz/entretenimiento.
+- Claude dinero/comida/permisos/datos y compilacion del conjunto.
+- No merge automatico, no memoria extra ni servicios pagos.
+- Una entrega integrada; dueño fusiona.
+- Falta ensayo real por roles/equipos/conexiones.
+- Documentar resultados reales en YA-RESUELTO y matriz por SHA; no prometer cero errores.
