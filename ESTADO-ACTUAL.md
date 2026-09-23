@@ -21,10 +21,10 @@
 
 Nada. Insumos y menús también quedaron protegidos (rama `fix/comida-entre-servidores`).
 
-## Espera decisión del dueño
+## Memoria del servidor
 
-- **Subir la memoria del servidor** (propuesta 1207). Recomendación: no subirla; nunca se midió
-  que sea la causa.
+Subida a 1024 MB con el "sí" del dueño, después de medirla. Propuesta 1207 cerrada: traía
+además un tope de tiempo a los guardados que no se quiere.
 
 ## Espera a Gemini
 

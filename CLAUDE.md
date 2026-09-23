@@ -805,6 +805,22 @@ juntos. Además, **la puerta compilaba dos veces** (6 minutos tirados por corrid
 La costumbre: **antes de esperar una corrida, mirar en la primera línea cuántos archivos va a
 correr.**
 
+### 17. Dar la plata por auditada mirando un solo servidor
+
+**Pasó el 23 de septiembre de 2026.** El dueño, al enterarse: *"yo pensé que eso ya estaba
+hecho"*. La app estaba declarada con "plata auditada sin hallazgos", y ese día aparecieron
+cobros que se podían perder, facturas y presupuestos que se podían borrar y un cupón de un uso
+que servía dos veces.
+
+**Qué era lo cierto:** las auditorías anteriores preguntaban si la lectura estaba adentro del
+turno, y el turno **sólo cuida un servidor**. Nadie había preguntado qué pasa con dos servidores,
+ni quién más guarda la lista entera donde vive un cobro. Además, cuatro funciones de cobros
+leían afuera del turno y la pregunta 8 no se les había vuelto a pasar.
+
+**Qué se hace distinto:** preguntas 22 y 23 en `docs/COMO-AUDITAR.md`, y los controles de
+`una-lista-vieja-no-borra-plata` y `la-plata-no-se-pierde-entre-servidores`. Y la costumbre:
+**"auditado" dice con qué preguntas se auditó**, no que no puede haber nada más.
+
 ### 12. Arrancar la verificación con el trabajo a medio terminar
 
 **Pasó el 17 de septiembre de 2026 y costó más de una hora, en una sesión donde el dueño ya venía
@@ -1014,8 +1030,11 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
 - **Los controles rojos de GitHub son por facturación bloqueada.** No investigarlos
   ni reportarlos. Lo que vale es lo que se verifica localmente.
 - **El servidor se queda dormido, y está bien así (20 de agosto de 2026).** En
-  `apphosting.yaml`, `minInstances: 0` y `memoryMiB: 512` **no se tocan**: dejarlo
-  siempre despierto se paga todos los meses y el dueño dijo que no. Si una auditoría
+  `apphosting.yaml`, `minInstances: 0` **no se toca**: dejarlo siempre despierto se paga
+  todos los meses y el dueño dijo que no. **La memoria SÍ se subió a 1024 MB (23 de
+  septiembre de 2026, con el "sí" del dueño)**, después de medir que con 512 la app anda al
+  límite y con poco tope se cae al arrancar (ver `YA-RESUELTO.md` de esa noche). No se baja
+  sin volver a medir. Si una auditoría
   lo marca como problema de velocidad, es falso positivo. La app en sí no es lenta
   (cada pantalla contesta entre 5 y 25 milésimas) y las páginas de venta salen
   armadas de antes, así que el prospecto que llega desde Google no espera.

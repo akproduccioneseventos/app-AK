@@ -1,5 +1,34 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+
+## 23 de septiembre de 2026 (noche) — Memoria del servidor: MEDIDA, y propuestas viejas cerradas
+
+**Medido en este contenedor, con la versión compilada de la app** (sin la base de datos, que en
+producción suma más):
+
+| Tope de memoria para la app | Resultado |
+|---|---|
+| Sin tope | 560 MB al arrancar, pico de 590 MB con 30 pedidos a la vez |
+| 256 MB | **Se cae al arrancar**, antes de atender a nadie |
+| 320 MB | Arranca y aguanta 120 pedidos (30 a la vez): 410 MB, sin fallas |
+| 384 MB | Arranca y aguanta: 496 MB, pegado al techo de 512 |
+
+**Conclusión:** con 512 MB la app anda **al límite**. No es una pérdida de memoria (no crece con
+el uso): es lo que ocupa. **El dueño dijo que sí y se subió a 1024 MB** (sólo la memoria; lo
+demás de la 1207 no entró).
+
+```comprobar
+usa: memoryMiB: 1024 en apphosting.yaml
+```
+
+- **Propuestas 1197, 1202 y 1206 cerradas:** lo que traían (órdenes 18, 47, 48, 55 y 56) ya
+  está en la versión principal. Lo que tenían distinto era una versión vieja; y la 1206 además
+  cambiaba el ingreso para que, sin la clave del servidor, usara una clave de emergencia en
+  vez de frenar, que rompe las sesiones entre servidores.
+- **Propuesta 1207: NO se fusiona tal como está.** Además de la memoria, les pone un tope de
+  tiempo a los **guardados**: si el guardado tarda, contesta "falló" aunque después se guarde,
+  y el que reintenta duplica. Las **lecturas** ya tienen su tope desde el 22 de septiembre.
+
 ## 23 de septiembre de 2026 (noche) — La comida tampoco se pisa entre servidores
 
 - **Insumos y menús** se guardaban con la lista entera: una lista vieja le volvía el costo
