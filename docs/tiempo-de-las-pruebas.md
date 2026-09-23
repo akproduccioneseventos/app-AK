@@ -2,83 +2,8 @@
 
 Lo escribe solo la ultima corrida. **No se edita a mano.**
 
-Medido el 2026-09-23 — total 3114s.
+Medido el 2026-09-23 — total 8s.
 
 | Prueba | Tarda | Del total |
 | --- | --- | --- |
-| mobile-overflow.spec.ts | 405s | 13% |
-| noche-de-fiesta.spec.ts | 360s | 12% |
-| entretenimientos-a-fondo.spec.ts | 166s | 5% |
-| las-estaciones-respetan-los-ajustes.spec.ts | 113s | 4% |
-| layout-baseline.spec.ts | 106s | 3% |
-| senal-mala.spec.ts | 100s | 3% |
-| la-web-de-venta-no-se-rompe.spec.ts | 94s | 3% |
-| la-fotocabina-tiene-todo.spec.ts | 79s | 3% |
-| el-panel-del-cliente-enamora.spec.ts | 78s | 3% |
-| public-experience-matrix.spec.ts | 74s | 2% |
-| las-pantallas-rotas-se-arreglaron.spec.ts | 68s | 2% |
-| public-smoke.spec.ts | 61s | 2% |
-| fotocabina-de-punta-a-punta.spec.ts | 57s | 2% |
-| muro-subir-foto.spec.ts | 56s | 2% |
-| 46-estetica-movimiento-visible.spec.ts | 56s | 2% |
-| la-web-publica-se-ve.spec.ts | 52s | 2% |
-| impresion-a4.spec.ts | 48s | 2% |
-| trabajos-completos.spec.ts | 47s | 2% |
-| como-se-ven-las-estaciones.spec.ts | 45s | 1% |
-| catalogo-publico.spec.ts | 44s | 1% |
-| entertainment-stations.spec.ts | 42s | 1% |
-| las-pantallas-no-quedan-en-blanco-al-redirigir.spec.ts | 40s | 1% |
-| prospecto-simulador.spec.ts | 38s | 1% |
-| simulator-budget-journey.spec.ts | 38s | 1% |
-| 45-recorridos-pendientes.spec.ts | 38s | 1% |
-| la-web-de-venta-se-mueve.spec.ts | 36s | 1% |
-| las-pantallas-del-invitado-no-quedan-colgadas.spec.ts | 33s | 1% |
-| importar-invitados-de-una-planilla.spec.ts | 32s | 1% |
-| viaje-invitado.spec.ts | 32s | 1% |
-| la-app-se-mueve.spec.ts | 32s | 1% |
-| 48-touchpix-entrega-sin-reinicio.spec.ts | 31s | 1% |
-| 50-venta-origen-y-galeria-publica.spec.ts | 30s | 1% |
-| la-grilla-de-caras.spec.ts | 30s | 1% |
-| anda-en-el-celular.spec.ts | 29s | 1% |
-| el-album-del-recuerdo.spec.ts | 25s | 1% |
-| internal-smoke.spec.ts | 25s | 1% |
-| 50-tecnologia-app-fiesta-demo.spec.ts | 24s | 1% |
-| internal-dynamic-route-inventory.spec.ts | 24s | 1% |
-| la-puerta-de-entrada-anda.spec.ts | 22s | 1% |
-| el-album-se-baja-entero.spec.ts | 22s | 1% |
-| carga-rapido.spec.ts | 22s | 1% |
-| la-red-social-de-la-fiesta.spec.ts | 20s | 1% |
-| los-enlaces-llegan-a-donde-dicen.spec.ts | 19s | 1% |
-| salon-3d-cliente.spec.ts | 19s | 1% |
-| la-carga-operativa-se-sincroniza.spec.ts | 19s | 1% |
-| las-guias-de-armado-se-aplican-de-verdad.spec.ts | 16s | 1% |
-| espejo-pide-permiso.spec.ts | 15s | 0% |
-| la-hoja-de-cocina.spec.ts | 15s | 0% |
-| la-vidriera-de-la-tecnologia.spec.ts | 13s | 0% |
-| 47-redes-confirmaciones-y-videos.spec.ts | 12s | 0% |
-| 49-contabilidad-permisos-y-errores.spec.ts | 12s | 0% |
-| el-informe-de-la-fiesta-se-arma-solo.spec.ts | 12s | 0% |
-| salon-3d-se-dibuja.spec.ts | 11s | 0% |
-| la-pantalla-gigante-anda.spec.ts | 11s | 0% |
-| la-carteleria-dice-la-verdad.spec.ts | 11s | 0% |
-| las-entregas-de-fotografia-no-se-pisan.spec.ts | 10s | 0% |
-| el-fondo-se-cambia-de-verdad.spec.ts | 10s | 0% |
-| la-lista-de-regalos-queda-como-la-dejaron.spec.ts | 10s | 0% |
-| 49-contabilidad-cobros-conciliados.spec.ts | 9s | 0% |
-| sofia-composer.spec.ts | 9s | 0% |
-| el-album-se-arma-solo.spec.ts | 9s | 0% |
-| el-asistente-le-contesta-al-invitado.spec.ts | 9s | 0% |
-| la-decoracion-se-baja-y-se-genera.spec.ts | 9s | 0% |
-| la-vista-3d-muestra-los-muebles.spec.ts | 9s | 0% |
-| la-carga-operativa-avisa-cuando-no-alcanza.spec.ts | 9s | 0% |
-| la-portada-espera-sin-cajas-grises.spec.ts | 8s | 0% |
-| el-cliente-le-escribe-al-equipo.spec.ts | 8s | 0% |
-| planner-missing-portals.spec.ts | 7s | 0% |
-| limpiar-la-agenda.spec.ts | 7s | 0% |
-| estaciones-sin-clave.spec.ts | 7s | 0% |
-| 48-fotocabina-recuerdo-seguro.spec.ts | 7s | 0% |
-| el-album-suena-o-no-muestra-el-boton.spec.ts | 6s | 0% |
-| instalar-solo-la-estacion.spec.ts | 4s | 0% |
-| la-portada-aparece-al-toque.spec.ts | 4s | 0% |
-| la-hoja-del-dj-dice-la-verdad.spec.ts | 3s | 0% |
-| tarjetas-whatsapp.spec.ts | 1s | 0% |
+| recorrido-de-pantallas.spec.ts | 8s | 100% |
