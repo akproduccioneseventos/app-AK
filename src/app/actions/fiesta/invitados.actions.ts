@@ -77,6 +77,31 @@ async function updateFiestaData(
   }
 }
 
+/**
+ * Lo unico que sale para afuera despues de tocar un invitado: si salio bien, el error, y
+ * **el invitado, nada mas**.
+ *
+ * **Por que existe, y es lo mas grave que se encontro.** `updateFiestaData` devuelve la
+ * **fiesta entera** —todos los invitados con sus telefonos y sus alergias, la mesa de cada
+ * uno, los datos del cliente, lo interno de la fiesta—. Cinco de estas funciones la
+ * reenviaban tal cual, y **cinco de ellas se pueden llamar desde internet sin cuenta**,
+ * porque las usa la pantalla publica de la invitacion. O sea que cualquiera que abriera el
+ * enlace de una invitacion y confirmara asistencia **se llevaba la lista completa de
+ * invitados**. Lo encontro Codex el 22 de setiembre de 2026.
+ *
+ * Ninguna pantalla usaba esa fiesta entera: se mandaba de puro descuido.
+ *
+ * **Lo que si se devuelve es el invitado**, con su credencial, porque con eso se arma su QR
+ * de entrada y **el dueno decidio que eso queda asi** (en sus fiestas la entrada la controla
+ * el nombre). Eso es de esa persona; la lista de los demas no.
+ */
+function soloLoDelInvitado(
+  resultado: { success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string },
+  invitado?: Invitado,
+): { success: boolean; error?: string; invitado?: Invitado } {
+  return { success: resultado.success, error: resultado.error, invitado };
+}
+
 // ─── Guest queries ───────────────────────────────────────────────────────────
 
 export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
@@ -133,7 +158,7 @@ export async function updateInvitado(fiestaId: string, invitadoActualizado: Invi
     );
     return { ...data, invitados };
   });
-  return { ...result, invitado: invitadoActualizado };
+  return soloLoDelInvitado(result, invitadoActualizado);
 }
 
 export async function deleteInvitado(fiestaId: string, invitadoId: string) {
@@ -188,7 +213,7 @@ export async function updateGuestRsvp(
     });
     return { ...data, invitados };
   });
-  return { ...result, invitado: updatedInvitado };
+  return soloLoDelInvitado(result, updatedInvitado);
 }
 
 /** Legacy full-form RSVP used by the invitation templates. */
@@ -286,7 +311,7 @@ export async function handleRsvpSubmission(
     return data;
   });
 
-  return { ...result, invitado: updatedInvitado };
+  return soloLoDelInvitado(result, updatedInvitado);
 }
 
 // ─── Personalized experience ─────────────────────────────────────────────────
@@ -339,7 +364,7 @@ export async function updateGuestDetails(
     });
     return { ...data, invitados };
   });
-  return { ...result, invitado: updatedInvitado };
+  return soloLoDelInvitado(result, updatedInvitado);
 }
 
 // ─── Check-in ────────────────────────────────────────────────────────────────
@@ -368,7 +393,7 @@ export async function checkInGuest(
   });
 
   if (!found) return { success: false, error: 'Invitado no encontrado.' };
-  return { ...result, invitado: invitadoActualizado };
+  return soloLoDelInvitado(result, invitadoActualizado);
 }
 
 // ─── Public RSVP (invitation page) ───────────────────────────────────────────
@@ -490,7 +515,7 @@ export async function submitPublicRsvp(
     }
   }, { publicRsvp: true });
 
-  return { ...result, invitado: savedInvitado };
+  return soloLoDelInvitado(result, savedInvitado);
 }
 
 // ─── Guest CTA click tracking ──────────────────────────────────────────────

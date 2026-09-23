@@ -4,8 +4,22 @@ import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import type { CatalogoFoto } from '@/types/catalogo';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { AsyncMutex } from '@/lib/mutex';
 
 const CATALOGO_FILE = 'catalogo-fotos.json';
+
+/**
+ * Turno para tocar el catalogo de fotos.
+ *
+ * **Por que.** Cada una de estas funciones lee la lista entera, la cambia y la vuelve a
+ * escribir entera. Si dos personas suben una foto al mismo tiempo, las dos leen la misma
+ * lista y la segunda escribe encima: **una de las dos fotos desaparece** y las dos pantallas
+ * dicen que salio bien. Lo encontro Codex el 22 de setiembre de 2026.
+ *
+ * **La lectura va ADENTRO del turno**, no afuera: con la lectura afuera el candado no sirve
+ * de nada, que es la forma exacta que ya habia aparecido en cobros y en proveedores.
+ */
+const turnoDelCatalogo = new AsyncMutex();
 
 export async function getCatalogoFotos(): Promise<CatalogoFoto[]> {
   return readData<CatalogoFoto[]>(CATALOGO_FILE, []);
@@ -13,35 +27,43 @@ export async function getCatalogoFotos(): Promise<CatalogoFoto[]> {
 
 export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
   await requireAppSession();
-  const fotos = await getCatalogoFotos();
-  fotos.push(foto);
-  await writeData(CATALOGO_FILE, fotos);
+  await turnoDelCatalogo.runExclusive(async () => {
+    const fotos = await getCatalogoFotos();
+    fotos.push(foto);
+    await writeData(CATALOGO_FILE, fotos);
+  });
 }
 
 export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
   await requireAppSession();
-  const fotos = await getCatalogoFotos();
-  const idx = fotos.findIndex(f => f.id === foto.id);
-  if (idx !== -1) {
-    fotos[idx] = foto;
-    await writeData(CATALOGO_FILE, fotos);
-  }
+  await turnoDelCatalogo.runExclusive(async () => {
+    const fotos = await getCatalogoFotos();
+    const idx = fotos.findIndex(f => f.id === foto.id);
+    if (idx !== -1) {
+      fotos[idx] = foto;
+      await writeData(CATALOGO_FILE, fotos);
+    }
+  });
 }
 
 export async function deleteCatalogoFoto(id: string): Promise<void> {
   await requireAppSession();
-  const fotos = await getCatalogoFotos();
-  await writeData(CATALOGO_FILE, fotos.filter(f => f.id !== id));
+  await turnoDelCatalogo.runExclusive(async () => {
+    const fotos = await getCatalogoFotos();
+    await writeData(CATALOGO_FILE, fotos.filter(f => f.id !== id));
+  });
 }
 
 export async function toggleCatalogoFotoDestacada(id: string): Promise<void> {
   await requireAppSession();
-  const fotos = await getCatalogoFotos();
-  const idx = fotos.findIndex(f => f.id === id);
-  if (idx !== -1) {
-    fotos[idx] = { ...fotos[idx], destacada: !fotos[idx].destacada };
-    await writeData(CATALOGO_FILE, fotos);
-  }
+  await turnoDelCatalogo.runExclusive(async () => {
+    const fotos = await getCatalogoFotos();
+    const idx = fotos.findIndex(f => f.id === id);
+    if (idx !== -1) {
+      fotos[idx] = { ...fotos[idx], destacada: !fotos[idx].destacada };
+      await writeData(CATALOGO_FILE, fotos);
+    }
+  });
 }
 
 export async function getCatalogoFotosByCategoria(categoria: string): Promise<CatalogoFoto[]> {

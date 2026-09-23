@@ -1197,6 +1197,8 @@ con otra cara.
 | Un codigo de recuperacion que no se llego a mandar quedaba vivo quince minutos | `src/__tests__/un-codigo-que-no-se-mando-no-queda-vivo.test.ts` |
 | Un trago que no se guardo dejaba las botellas descontadas y decia "pedido enviado" | `src/__tests__/un-trago-que-no-se-guardo-no-descuenta-botellas.test.ts` |
 | El recibo y el contrato de sena imprimian la fecha del evento corrida un dia | `src/__tests__/el-recibo-y-el-contrato-no-corren-la-fecha.test.ts` |
+| Confirmar asistencia en la pantalla publica devolvia la lista completa de invitados de la fiesta | `src/__tests__/la-pantalla-publica-no-devuelve-la-lista-de-invitados.test.ts` |
+| Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
 
 ### Cómo se elige el matafuego
 
