@@ -83,6 +83,14 @@ export interface CreateBarDrinkOrderInput {
   drinkId: string;
   guestName?: string;
   guestId?: string;
+  /** Obligatorio si llega guestId: sin el, cualquiera podia pedir a nombre de otro invitado. */
+  guestAccessToken?: string;
+  /**
+   * Identificador del pedido que arma el que pide, UNO por toque. Si el mismo pedido llega
+   * dos veces (se corto la respuesta y se reintento, o la cola sin senal lo reenvia), el
+   * segundo devuelve el primero y no descuenta botellas de nuevo.
+   */
+  clientRequestId?: string;
   tableNumber?: string;
   note?: string;
 }

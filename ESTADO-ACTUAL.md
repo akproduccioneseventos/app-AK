@@ -12,10 +12,16 @@ fusionado** (1217 y 1214, las dos con la verificación completa en verde).
   de navegador que el cambio alcanza, repite sólo lo que falló y compila una vez. Si el cambio
   toca algo general, corre todo.
 
+## La parte de Claude de la orden 81: hecha (esta rama)
+
+- **Plata:** cobros, facturas, recibos de sueldo, gastos y cupones ya no se pierden con dos
+  operaciones a la vez ni entre servidores. Una lista vieja no pisa cobros ni borra.
+- **Noche:** un voto por invitado, operadores sólo en su fiesta, trago sólo con su enlace.
+
 ## Pendiente, y es mío
 
-- **Resto de la orden 81 de Codex** (rama `codex/contraste-1206-20260914`, commit 85e110a):
-  la parte de datos, permisos, plata y comida, por rol.
+- **Límite conocido:** insumos y menús siguen guardando la lista entera (dos personas
+  editando el catálogo de comida a la vez en servidores distintos). Bajo riesgo; no se tocó.
 
 ## Espera decisión del dueño
 
@@ -24,14 +30,12 @@ fusionado** (1217 y 1214, las dos con la verificación completa en verde).
 
 ## Espera a Gemini
 
+- **Orden 81** (su parte: interfaz, recorridos, entretenimiento) y **orden 82** (prospectos,
+  clientes, agenda y mensajes con la misma protección que la plata).
 - Devoluciones viejas: 42, 48, 48b, 61, 71, 74-77 pantallas equivocadas, acceso administrativo.
 
 ## Lo que ningún control cubre
 
 Falta **un ensayo real** por rol, con fotocabina, 360, barra y conexiones de afuera.
 
-## Trampas que no se repiten
-
-- **Antes de esperar una corrida, mirar en la primera línea cuántas pruebas va a correr.**
-- **No se sube lo que escribe la corrida**: `npm run limpiar:corrida`.
-- **No se toca código ni se sube mientras corre la verificación.**
+## Trampas: mirar cuántas pruebas va a correr antes de esperar; `npm run limpiar:corrida`; no tocar código con la verificación andando.

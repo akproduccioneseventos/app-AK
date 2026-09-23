@@ -145,6 +145,8 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
           formData.append('file', file);
           formData.append('authorName', item.authorName || 'Puesto AK');
           formData.append('moduleId', item.moduleId);
+          // El mismo identificador en cada reintento: el servidor no la publica dos veces.
+          formData.append('clientMediaId', String(item.id));
           if (runtimeCredentials.accessToken) formData.append('accessToken', runtimeCredentials.accessToken);
           if (runtimeCredentials.guestId) formData.append('guestId', runtimeCredentials.guestId);
           if (runtimeCredentials.guestAccessToken) formData.append('guestAccessToken', runtimeCredentials.guestAccessToken);

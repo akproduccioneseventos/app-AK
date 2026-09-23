@@ -13,6 +13,12 @@ const BACKUP_EXCLUDED_FILES = new Set(["_backup-snapshots.json"]);
 
 export interface WriteDataOptions {
   skipAutoBackup?: boolean;
+  /**
+   * Solo para restaurar un respaldo: la lista entera manda, tambien sobre los cobros y
+   * sobre lo que hay que borrar. Cualquier otro guardado de presupuestos o facturas toma
+   * los cobros de la base y no borra por omision (ver los-cobros-no-se-pisan.ts).
+   */
+  esRestauracion?: boolean;
 }
 
 function shouldUseLocalJsonOnly(): boolean {
@@ -267,7 +273,7 @@ export async function writeData<T>(
   }
 
   try {
-    await syncToFirestore(normalizedFilePath, dataToWrite);
+    await syncToFirestore(normalizedFilePath, dataToWrite, { esRestauracion: options?.esRestauracion });
     if (isSafeTopLevelJsonFile(normalizedFilePath)) {
       const persisted = await readFromFirestore(normalizedFilePath);
       if (persisted === null || persisted === undefined) {

@@ -6,6 +6,7 @@
 'use server';
 
 import * as logger from './logger';
+import { COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION, conLosCobrosDeLaBase, facturaConLosPagosDeLaBase } from './budget/los-cobros-no-se-pisan';
 import type { Firestore, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 // Mapping of JSON file names to Firestore collection names
@@ -183,7 +184,28 @@ async function queryWithTimeout<T>(promise: Promise<T>, timeoutMs = 3500): Promi
  * Synchronize data written to a JSON file to the corresponding Firestore collection.
  * This is called asynchronously from data-service.ts writeData() when USE_FIREBASE_DATA=true.
  */
-export async function syncToFirestore(filePath: string, data: any): Promise<void> {
+/** Presupuestos y facturas: una lista vieja no pisa los cobros (los-cobros-no-se-pisan.ts). */
+function protegerLaPlata(
+  collectionName: string,
+  entrante: Record<string, unknown>,
+  enLaBase: Record<string, unknown> | undefined,
+): Record<string, unknown> {
+  if (collectionName === 'presupuestos') return conLosCobrosDeLaBase(entrante, enLaBase);
+  if (collectionName === 'facturas') return facturaConLosPagosDeLaBase(entrante, enLaBase);
+  // El contador de usos de un cupon lo sube solo el registro de uso, con transaccion. Una
+  // lista vieja (por ejemplo, activar otro cupon) lo bajaba y un cupon de un uso servia dos.
+  if (collectionName === 'cupones' && enLaBase && enLaBase.usosActuales !== undefined) {
+    return { ...entrante, usosActuales: enLaBase.usosActuales };
+  }
+  return entrante;
+}
+
+export async function syncToFirestore(
+  filePath: string,
+  data: any,
+  // Solo la restauracion de un respaldo manda sobre los cobros y borra por omision.
+  opciones: { esRestauracion?: boolean } = {},
+): Promise<void> {
   if (logger.shouldSkipFirestoreDuringBuild()) return;
 
   let db: Firestore;
@@ -248,16 +270,19 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
             return;
           }
 
-          const toDelete = querySnapshot.docs.filter((doc) => !newIds.has(doc.id));
+          const noBorrarPorOmision = COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION.has(collectionName) && !opciones.esRestauracion;
+          const toDelete = noBorrarPorOmision ? [] : querySnapshot.docs.filter((doc) => !newIds.has(doc.id));
           toDelete.forEach((doc) => {
             transaction.delete(doc.ref);
           });
 
+          const enLaBasePorId = new Map(querySnapshot.docs.map((doc) => [doc.id, doc.data() as Record<string, unknown>]));
           for (const item of data) {
             const docId = getItemDocId(item);
             if (!docId) continue;
             const ref = db.collection(collectionName).doc(docId);
-            const cleanData = sanitizeForFirestore(item) as Record<string, unknown>;
+            let cleanData = sanitizeForFirestore(item) as Record<string, unknown>;
+            if (!opciones.esRestauracion) cleanData = protegerLaPlata(collectionName, cleanData, enLaBasePorId.get(docId));
             transaction.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
           }
         }), `transaction-sync: ${collectionName}`);
@@ -267,6 +292,7 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
       }
 
       const existingSnapshot = await db.collection(collectionName).get();
+      const enLaBaseFueraDeTransaccion = new Map(existingSnapshot.docs.map((doc) => [doc.id, doc.data() as Record<string, unknown>]));
       const existingIds = new Set<string>(existingSnapshot.docs.map((d: QueryDocumentSnapshot) => d.id));
       const newIds = new Set<string>(data.map(getItemDocId).filter((id: string | null): id is string => Boolean(id)));
       if (data.length === 0 && existingIds.size > 0) {
@@ -285,7 +311,9 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
         logger.warn(`⚠️ [Firebase Sync] "${collectionName}" — escritura con array vacío ignorada para prevenir pérdida de datos. (${existingIds.size} documentos existentes conservados)`);
         return;
       }
-      const toDelete = [...existingIds].filter((id: string) => !newIds.has(id));
+      const toDelete = COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION.has(collectionName) && !opciones.esRestauracion
+        ? []
+        : [...existingIds].filter((id: string) => !newIds.has(id));
       if (toDelete.length > 0) {
         for (let i = 0; i < toDelete.length; i += batchSize) {
           const deleteBatch = db.batch();
@@ -307,7 +335,8 @@ export async function syncToFirestore(filePath: string, data: any): Promise<void
           const docId = getItemDocId(item);
           if (!docId) continue;
           const ref = db.collection(collectionName).doc(docId);
-          const cleanData = sanitizeForFirestore(item) as Record<string, unknown>;
+          let cleanData = sanitizeForFirestore(item) as Record<string, unknown>;
+          if (!opciones.esRestauracion) cleanData = protegerLaPlata(collectionName, cleanData, enLaBaseFueraDeTransaccion.get(docId));
           batch.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
         }
         

@@ -2,7 +2,7 @@
 
 import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, PresupuestoSource } from '@/types/presupuesto';
 import { buscarGemeloCargadoAMano, esEspejoDeFactura } from '@/lib/budget/pago-duplicado';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, mutateDataItem } from '@/lib/data-service';
 // Nota: este archivo NO debe llamar a `saveInvoice` ni a `addPaymentToInvoice`.
 // Esas dos esperan el turno del candado de facturas, y a su vez llaman de vuelta
 // a los presupuestos: si el llamado va en ese sentido, la operacion se queda
@@ -162,6 +162,81 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
     } catch (e) {
         console.error("Error auto-syncing fiesta from budget:", e);
     }
+}
+
+/**
+ * EL UNICO CAMINO PARA CAMBIAR LOS COBROS DE UN PRESUPUESTO.
+ *
+ * Hasta el 23 de septiembre de 2026 cada funcion de cobros leia el presupuesto, le
+ * agregaba o cambiaba un pago y guardaba **la lista entera**. Dos defectos, los dos de
+ * plata:
+ *
+ *  1. Varias leian **afuera del turno** (confirmar, rechazar, borrar, el pago informado
+ *     por el cliente): con dos operaciones a la vez, la segunda guardaba la lista vieja
+ *     y **el primer cobro desaparecia**, aun en un solo servidor.
+ *  2. El turno vive en la memoria de UN servidor, y la app puede correr en varios. Dos
+ *     cobros en servidores distintos se pisaban igual.
+ *
+ * Ahora el cambio se hace adentro de una transaccion de la base, sobre el presupuesto
+ * leido EN ESE MOMENTO: si otro lo cambio entre medio, la base repite la operacion con
+ * el dato nuevo. Y el guardado general de presupuestos ya no puede pisar los cobros con
+ * una lista vieja (`firebase-sync.ts`, "LOS COBROS NO SE PISAN").
+ */
+type CambioDeCobros =
+  | { pagos: PagoCliente[] }
+  | { error: string }
+  | { sinCambios: true };
+
+const SIN_BASE_DE_DATOS = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+
+async function cambiarCobrosDelPresupuesto(
+  presupuestoId: string,
+  cambiar: (presupuesto: Presupuesto) => CambioDeCobros,
+): Promise<{ success: true; presupuesto: Presupuesto; cambio: boolean } | { success: false; error: string }> {
+  const resultado = await presupuestosMutex.runExclusive(async () => {
+    if (SIN_BASE_DE_DATOS()) {
+      const presupuesto = (await getPresupuestos(true)).find((p) => p.id === presupuestoId);
+      if (!presupuesto) return { success: false as const, error: 'Presupuesto no encontrado' };
+      const cambio = cambiar(presupuesto);
+      if ('error' in cambio) return { success: false as const, error: cambio.error };
+      if ('sinCambios' in cambio) return { success: true as const, presupuesto, cambio: false, yaSincronizado: true };
+      const guardado = await guardarPresupuestoSinTurno(
+        { ...presupuesto, pagosCliente: cambio.pagos },
+        { preserveStoredTotal: true },
+      );
+      if (!guardado.success || !guardado.presupuesto) {
+        return { success: false as const, error: guardado.error || 'No se pudo guardar el cobro.' };
+      }
+      return { success: true as const, presupuesto: guardado.presupuesto, cambio: true, yaSincronizado: true };
+    }
+
+    let rechazo: string | undefined;
+    let sinCambios: Presupuesto | undefined;
+    const actualizado = await mutateDataItem<Presupuesto>(PRESUPUESTOS_FILE, 'presupuestos', presupuestoId, (actual) => {
+      // La base puede repetir esta funcion si otro cambio el presupuesto: se limpia todo.
+      rechazo = undefined;
+      sinCambios = undefined;
+      const presupuesto = { ...actual, id: actual.id || presupuestoId };
+      const cambio = cambiar(presupuesto);
+      if ('error' in cambio) { rechazo = cambio.error; return null; }
+      if ('sinCambios' in cambio) { sinCambios = presupuesto; return null; }
+      return normalizePresupuestoFinancials(
+        { ...presupuesto, pagosCliente: cambio.pagos },
+        { preserveStoredTotal: true },
+      );
+    });
+    if (rechazo) return { success: false as const, error: rechazo };
+    if (sinCambios) return { success: true as const, presupuesto: sinCambios, cambio: false, yaSincronizado: true };
+    if (!actualizado) return { success: false as const, error: 'Presupuesto no encontrado' };
+    return { success: true as const, presupuesto: actualizado, cambio: true, yaSincronizado: false };
+  });
+
+  if (resultado.success && resultado.cambio && !resultado.yaSincronizado) {
+    await syncLinkedFiesta(resultado.presupuesto);
+  }
+  return resultado.success
+    ? { success: true, presupuesto: resultado.presupuesto, cambio: resultado.cambio }
+    : resultado;
 }
 
 export async function savePresupuesto(
@@ -594,16 +669,18 @@ export async function recalculatePresupuestoFromCatalog(presupuestoId: string): 
  */
 export async function addPagoToPresupuesto(
   presupuestoId: string,
-  pago: Omit<PagoCliente, 'id'>
+  // El id se puede pasar cuando el cobro ya esta enganchado a otra cosa (la factura).
+  pago: Omit<PagoCliente, 'id'> & { id?: string }
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
 
-  const resultado = await presupuestosMutex.runExclusive(async () => {
-    const presupuesto = (await getPresupuestos(true)).find((p) => p.id === presupuestoId);
-    if (!presupuesto) return { success: false as const, error: 'Presupuesto no encontrado' };
-
-    const referencia = pago.referencia?.trim() || undefined;
+  const referencia = pago.referencia?.trim() || undefined;
+  let clienteNombre = '';
+  let entroUnCobroNuevo = false as boolean;
+  const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (presupuesto) => {
+    clienteNombre = presupuesto.clienteNombre;
+    entroUnCobroNuevo = false;
     const pagos = presupuesto.pagosCliente || [];
 
     // Mismo cobro mandado dos veces: no se duplica y no se avisa de nuevo.
@@ -611,7 +688,7 @@ export async function addPagoToPresupuesto(
       const existente = pagos.find(
         (p) => p.referencia === referencia && p.estadoPago !== 'rechazado',
       );
-      if (existente) return { success: true as const, presupuesto, avisar: false };
+      if (existente) return { sinCambios: true };
     }
 
     if (esEspejoDeFactura(referencia)) {
@@ -629,45 +706,43 @@ export async function addPagoToPresupuesto(
          * cliente haya subido un comprobante.
          */
         const laFacturaLoConfirma = (pago.estadoPago ?? 'confirmado') === 'confirmado';
-        const reclamados = pagos.map((existente, indice) => {
-          if (indice !== indiceGemelo) return existente;
-          const tomado = { ...existente, referencia };
-          if (laFacturaLoConfirma && existente.estadoPago === 'pendiente_confirmacion') {
-            return { ...tomado, estadoPago: 'confirmado' as const };
-          }
-          return tomado;
-        });
-        const reclamo = await guardarPresupuestoSinTurno(
-          { ...presupuesto, pagosCliente: reclamados },
-          { preserveStoredTotal: true },
-        );
-        // Si el guardado fallo, NO se contesta que si: la factura seguiria su
-        // camino creyendo que la conciliacion quedo hecha.
-        if (!reclamo.success) {
-          return { success: false as const, error: reclamo.error || 'No se pudo conciliar el cobro con el presupuesto.' };
-        }
-        return { success: true as const, presupuesto: reclamo.presupuesto ?? presupuesto, avisar: false };
+        return {
+          pagos: pagos.map((existente, indice) => {
+            if (indice !== indiceGemelo) return existente;
+            const tomado = { ...existente, referencia };
+            if (laFacturaLoConfirma && existente.estadoPago === 'pendiente_confirmacion') {
+              return { ...tomado, estadoPago: 'confirmado' as const };
+            }
+            return tomado;
+          }),
+        };
       }
     }
 
     const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });
-    if (!validation.ok) return { success: false as const, error: validation.error };
+    if (!validation.ok) return { error: validation.error || 'El cobro no entra en el presupuesto.' };
 
+    if (pago.id && pagos.some((p) => p.id === pago.id)) return { sinCambios: true };
     const newPago: PagoCliente = {
       ...pago,
-      id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      id: pago.id || `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       monto: roundMoney(pago.monto),
       referencia,
       estadoPago: pago.estadoPago ?? 'confirmado',
     };
-
-    const guardado = await guardarPresupuestoSinTurno(
-      { ...presupuesto, pagosCliente: [...pagos, newPago] },
-      { preserveStoredTotal: true },
-    );
-    if (!guardado.success) return { success: false as const, error: guardado.error };
-    return { success: true as const, presupuesto: guardado.presupuesto, avisar: true, clienteNombre: presupuesto.clienteNombre };
+    entroUnCobroNuevo = true;
+    return { pagos: [...pagos, newPago] };
   });
+
+  // Se avisa solo cuando entro un cobro NUEVO: ni el repetido ni el gemelo de la factura.
+  const resultado = cambio.success
+    ? {
+        success: true as const,
+        presupuesto: cambio.presupuesto,
+        avisar: cambio.cambio && entroUnCobroNuevo,
+        clienteNombre,
+      }
+    : { success: false as const, error: cambio.error };
 
   if (resultado.success && 'avisar' in resultado && resultado.avisar) {
     const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pago.monto);
@@ -693,14 +768,14 @@ export async function deletePagoFromPresupuesto(
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  const presupuesto = await getPresupuestoById(presupuestoId);
-  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
-
-  const updatedPagos = (presupuesto.pagosCliente || []).filter(p => p.id !== pagoId);
-  return updatePresupuesto(
-    { ...presupuesto, pagosCliente: updatedPagos },
-    { preserveStoredTotal: true },
-  );
+  const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (presupuesto) => {
+    const pagos = presupuesto.pagosCliente || [];
+    if (!pagos.some(p => p.id === pagoId)) return { sinCambios: true };
+    return { pagos: pagos.filter(p => p.id !== pagoId) };
+  });
+  return cambio.success
+    ? { success: true, presupuesto: cambio.presupuesto }
+    : { success: false, error: cambio.error };
 }
 
 export interface ImportarPresupuestoOptions {
@@ -993,21 +1068,21 @@ export async function addPagoClienteFromPortal(
   await requireAppSession();
   const presupuesto = await getPresupuestoById(presupuestoId, token);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
-  const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });
-  if (!validation.ok) return { success: false, error: validation.error };
 
-  const newPago: PagoCliente = {
-    ...pago,
-    id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-    monto: roundMoney(pago.monto),
-    estadoPago: 'pendiente_confirmacion',
-  };
-
-  const updatedPagos = [...(presupuesto.pagosCliente || []), newPago];
-  const result = await updatePresupuesto(
-    { ...presupuesto, pagosCliente: updatedPagos },
-    { preserveStoredTotal: true },
-  );
+  const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (actual) => {
+    const validation = validatePaymentAgainstBudget(actual, pago.monto, { includePendingForLimit: true });
+    if (!validation.ok) return { error: validation.error || 'El cobro no entra en el presupuesto.' };
+    const newPago: PagoCliente = {
+      ...pago,
+      id: `pago_${presupuestoId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      monto: roundMoney(pago.monto),
+      estadoPago: 'pendiente_confirmacion',
+    };
+    return { pagos: [...(actual.pagosCliente || []), newPago] };
+  });
+  const result = cambio.success
+    ? { success: true, presupuesto: cambio.presupuesto }
+    : { success: false, error: cambio.error };
 
   if (result.success) {
     const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pago.monto);
@@ -1031,23 +1106,27 @@ export async function confirmPagoCliente(
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  const presupuesto = await getPresupuestoById(presupuestoId);
-  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+  let monto = 0;
+  const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (presupuesto) => {
+    const pagos = presupuesto.pagosCliente || [];
+    const pagoIndex = pagos.findIndex(p => p.id === pagoId);
+    if (pagoIndex === -1) return { error: 'Pago no encontrado' };
+    monto = pagos[pagoIndex].monto;
+    // Dos personas confirmando el mismo pago: el segundo no cambia nada.
+    if (pagos[pagoIndex].estadoPago === 'confirmado') return { sinCambios: true };
+    const validation = validatePaymentAgainstBudget(presupuesto, pagos[pagoIndex].monto, { excludePaymentId: pagoId });
+    if (!validation.ok) return { error: validation.error || 'El cobro no entra en el presupuesto.' };
+    return {
+      pagos: pagos.map((p, i) => i === pagoIndex ? { ...p, estadoPago: 'confirmado' as EstadoPago, motivoRechazo: undefined } : p),
+    };
+  });
+  const result = cambio.success
+    ? { success: true, presupuesto: cambio.presupuesto }
+    : { success: false, error: cambio.error };
+  const presupuesto = cambio.success ? cambio.presupuesto : undefined;
 
-  const pagos = presupuesto.pagosCliente || [];
-  const pagoIndex = pagos.findIndex(p => p.id === pagoId);
-  if (pagoIndex === -1) return { success: false, error: 'Pago no encontrado' };
-  const validation = validatePaymentAgainstBudget(presupuesto, pagos[pagoIndex].monto, { excludePaymentId: pagoId });
-  if (!validation.ok) return { success: false, error: validation.error };
-
-  pagos[pagoIndex] = { ...pagos[pagoIndex], estadoPago: 'confirmado', motivoRechazo: undefined };
-  const result = await updatePresupuesto(
-    { ...presupuesto, pagosCliente: pagos },
-    { preserveStoredTotal: true },
-  );
-
-  if (result.success) {
-    const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pagos[pagoIndex].monto);
+  if (result.success && presupuesto && cambio.success && cambio.cambio) {
+    const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(monto);
     createNotification({
       titulo: 'Pago Confirmado',
       mensaje: `Pago de ${montoFmt} confirmado para ${presupuesto.clienteNombre}.`,
@@ -1069,25 +1148,24 @@ export async function rejectPagoCliente(
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  const presupuesto = await getPresupuestoById(presupuestoId);
-  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
-
-  const pagos = presupuesto.pagosCliente || [];
-  const pagoIndex = pagos.findIndex(p => p.id === pagoId);
-  if (pagoIndex === -1) return { success: false, error: 'Pago no encontrado' };
-
   const safeMotivo = motivo.trim() || 'Pago rechazado por administracion';
-  const updatedPagos = pagos.map(pago =>
-    pago.id === pagoId
-      ? { ...pago, estadoPago: 'rechazado' as EstadoPago, motivoRechazo: safeMotivo }
-      : pago
-  );
-  const result = await updatePresupuesto(
-    { ...presupuesto, pagosCliente: updatedPagos },
-    { preserveStoredTotal: true },
-  );
+  const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (actual) => {
+    const pagos = actual.pagosCliente || [];
+    if (!pagos.some(p => p.id === pagoId)) return { error: 'Pago no encontrado' };
+    return {
+      pagos: pagos.map(pago =>
+        pago.id === pagoId
+          ? { ...pago, estadoPago: 'rechazado' as EstadoPago, motivoRechazo: safeMotivo }
+          : pago
+      ),
+    };
+  });
+  const result = cambio.success
+    ? { success: true, presupuesto: cambio.presupuesto }
+    : { success: false, error: cambio.error };
+  const presupuesto = cambio.success ? cambio.presupuesto : undefined;
 
-  if (result.success) {
+  if (result.success && presupuesto) {
     createNotification({
       titulo: 'Pago Rechazado',
       mensaje: `Pago rechazado para ${presupuesto.clienteNombre}. Motivo: ${safeMotivo}`,

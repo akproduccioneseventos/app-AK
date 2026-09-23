@@ -606,6 +606,8 @@ export default function BarraTecnologicaTouchPage() {
           drinkId: action.payload.drinkId,
           guestName: action.payload.guestName,
           tableNumber: action.payload.tableNumber,
+          // El mismo identificador del primer intento: si aquel llego, no se duplica.
+          clientRequestId: action.payload.clientRequestId || action.id,
         });
         return { success: res.success, error: res.error };
       }, { fiestaId, types: ['barra_pedido'] });
@@ -645,6 +647,8 @@ export default function BarraTecnologicaTouchPage() {
       return;
     }
     const currentDrink = selectedDrink;
+    // Uno por toque, y el mismo si el pedido termina en la cola sin senal.
+    const pedidoId = crypto.randomUUID();
     setIsOrdering(true);
     try {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
@@ -655,6 +659,7 @@ export default function BarraTecnologicaTouchPage() {
         drinkId: currentDrink.id,
         guestName,
         tableNumber: 'Totem Táctil',
+        clientRequestId: pedidoId,
       });
       if (result.success && result.order) {
         setLastOrder(result.order);
@@ -673,6 +678,7 @@ export default function BarraTecnologicaTouchPage() {
           drinkName: currentDrink.nombre,
           guestName,
           tableNumber: 'Totem Táctil',
+          clientRequestId: pedidoId,
         },
       });
       setLastOrderedDrink(currentDrink);

@@ -33,6 +33,8 @@ jest.mock('@/app/actions/invoices', () => ({
 // ─── Mock presupuestos actions ────────────────────────────────────────────────
 jest.mock('@/app/actions/presupuestos', () => ({
   getPresupuestoById: jest.fn(),
+  // La sena entra por el camino de cobros (23 de septiembre de 2026).
+  addPagoToPresupuesto: jest.fn(async (_id: string, pago: any) => ({ success: true, presupuesto: undefined, pago })),
   updatePresupuesto: jest.fn().mockResolvedValue({ success: true }),
   markPresupuestoAsFacturado: jest.fn().mockResolvedValue({ success: true }),
 }));
@@ -51,6 +53,10 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
 jest.mock('@/lib/auth/require-session', () => ({
   hasAppSession: jest.fn().mockResolvedValue(true),
   requireAppSession: jest.fn().mockResolvedValue(undefined),
+}));
+// Los controles de la noche piden permiso POR FIESTA desde el 23 de septiembre de 2026.
+jest.mock('@/lib/auth/event-access', () => ({
+  requireEventPermission: jest.fn().mockResolvedValue(undefined),
 }));
 
 // `registerContractDeposit` valida la sesion con `verifySession`, que lee la

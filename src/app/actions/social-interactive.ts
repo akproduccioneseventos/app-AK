@@ -25,7 +25,9 @@ import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
 import { getSignedUrl, uploadToStorage } from '@/lib/firebase/storage';
-import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { hasAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   canReadDedications,
   isDedicationAudioOwnedByEvent,
@@ -99,7 +101,7 @@ export async function createPoll(
   options: string[]
 ): Promise<{ success: boolean; poll?: SocialPoll; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const questionReview = reviewSocialContent({ type: 'text', text: question, moderationMode: 'automatico' });
     if (questionReview.status === 'blocked') return { success: false, error: questionReview.message };
     const reviewedOptions = options.map((option) => reviewSocialContent({ type: 'text', text: option, moderationMode: 'automatico' }));
@@ -172,7 +174,7 @@ export async function closePoll(
   pollId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const db = await getDb();
     await db.collection(POLLS_COLLECTION).doc(pollId).update({ active: false });
     return { success: true };
@@ -264,7 +266,7 @@ export async function markSongPlayed(
   requestId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const db = await getDb();
     const ref = db.collection(SONGS_COLLECTION).doc(requestId);
     const snapshot = await ref.get();
@@ -369,7 +371,7 @@ export async function highlightDedication(
   highlighted: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const db = await getDb();
     await db.collection(DEDICATIONS_COLLECTION).doc(dedicationId).update({ highlighted });
     return { success: true };
@@ -418,7 +420,7 @@ export async function addSorteoGanador(
   nombre: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const review = reviewSocialContent({ type: 'text', text: nombre, authorName: nombre, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const fiesta = await getFiestaById(fiestaId);
@@ -440,7 +442,7 @@ export async function activateMomento(
   momento: FiestaMomento
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = fiesta.socialGallerySettings ?? ({} as SocialGallerySettings);

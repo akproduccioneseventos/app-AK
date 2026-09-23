@@ -615,3 +615,38 @@ Dónde se busca: en todo `map`, `forEach` o `for` que arme una lista para mostra
    pantalla miente con toda tranquilidad. Es la misma forma del respaldo que guardaba cero
    fiestas como si la empresa no tuviera ninguna.
 3. **¿Queda dicho cuál es el registro que hay que arreglar?** Si no, nadie lo arregla nunca.
+
+## Preguntas 22 y 23 — las que sumó el 23 de septiembre de 2026
+
+### 22. ¿Quién MÁS guarda la lista entera donde vive este dato?
+
+La pregunta 8 ya preguntaba si la lectura estaba adentro del turno. No alcanza: **el turno
+cuida un solo servidor**, y la app corre en varios. Y aunque la función que cobra esté
+perfecta, **cualquier otra** que guarde la lista entera de presupuestos —crear uno, archivar
+otro, cambiar un ítem— la escribe con la versión que leyó un rato antes: pisa el cobro que
+otro anotó y **borra el presupuesto que otro creó**, porque guardar la lista borraba "lo que
+no está".
+
+Dónde se busca: `writeData(` sobre una colección (las de `FILE_TO_COLLECTION` en
+`src/lib/firebase-sync.ts`) o sobre un documento que guarda una lista entera.
+
+1. **¿Este dato lo cambia más de una función?** Si sí, las que no son dueñas del dato no lo
+   pueden reescribir con una lista vieja. Plata: `los-cobros-no-se-pisan.ts`.
+2. **¿Guardar la lista puede borrar lo que otro creó?** En presupuestos y facturas ya no
+   (`COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION`): se borra explícito.
+3. **¿El cambio se hace sobre el dato leído EN ESE MOMENTO?** `mutateDataItem` para un
+   registro, `mutateGenericJsonArray` para una lista guardada en un solo documento.
+
+### 23. Lo que llega del invitado o del operador, ¿se comprueba que sea DE ESTA fiesta?
+
+Un invitado votaba las veces que quisiera porque su enlace llegaba y nadie lo miraba; un
+operador de otra fiesta cerraba votaciones de ésta porque la acción pedía "tener sesión" y
+no "estar asignado a esta fiesta"; un invitado pedía tragos a nombre de otro.
+
+1. **¿El identificador del invitado viene con su enlace, y se compara?** Sin enlace, el
+   identificador no prueba nada.
+2. **¿La acción del equipo pide permiso POR FIESTA** (`requireEventPermission`) y no sólo
+   sesión?
+3. **¿Repetir la misma operación la cuenta dos veces?** Un identificador fijo por operación
+   (el pedido, la captura, el uso del cupón) la vuelve inofensiva.
+

@@ -18,6 +18,9 @@ jest.mock('@/app/actions/presupuestos', () => ({
   markPresupuestoAsFacturado: jest.fn(),
 }));
 jest.mock('@/lib/firebase/storage', () => ({ uploadToStorage: jest.fn() }));
+// Desde el 23 de septiembre de 2026 borrar una factura es explicito (la lista entera ya
+// no borra por omision). Aca se simula la base.
+jest.mock('@/lib/firebase-sync', () => ({ forceDeleteDocFromFirestore: jest.fn().mockResolvedValue(undefined) }));
 
 import { deleteInvoice } from '@/app/actions/invoices';
 import { readData, writeData } from '@/lib/data-service';

@@ -25,3 +25,19 @@ Todas las filas inician PENDIENTE DE RECONCILIAR; algunos subcasos ya tienen evi
 
 Formato por caso: ID; ruta; rol; SHA; entorno; fixture; pasos; esperado; observado; estado; evidencia; fecha; responsable; limites.
 No datos reales/contactos/tokens en capturas. PR1214 conserva su devolucion de seis E2E; orden80 conserva residuales. Reutilizar ambas, no abrir tareas duplicadas.
+
+## Parte de Claude — resultado (23 de septiembre de 2026)
+
+Probado con Jest sobre la rama `fix/traspaso-23` (el SHA exacto queda en la propuesta que la
+fusiona). Pruebas de comportamiento, no de nombres: base de mentira que devuelve copias y tarda.
+
+| Bloque | Qué se probó | Estado | Evidencia |
+|---|---|---|---|
+| Dinero | Cobros simultáneos (confirmar + anotar, rechazar + borrar, mismo cobro dos veces); lista vieja no pisa cobros ni borra presupuestos/facturas; restauración sí manda | Probado | `la-plata-no-se-pierde-entre-servidores`, `una-lista-vieja-no-borra-plata` |
+| Dinero | Cupón de un uso con dos presupuestos a la vez; mismo presupuesto dos veces | Probado | `un-cupon-de-un-uso-sirve-una-vez` |
+| Dinero | Pendiente/rechazado no suma; doble envío del comprobante | Ya estaba bien (revisado) | `financial-guardrails.ts`, `submitClientPayment` |
+| Invitado | Un voto por invitado, votación cerrada, pantalla pública sin votantes | Probado | `la-noche-no-se-maneja-de-costado` |
+| Invitado | Trago a nombre de otro; pedido reenviado no descuenta dos veces | Probado (en el código) | `un-trago-que-no-se-guardo-no-descuenta-botellas` |
+| Operador | Operador de otra fiesta no maneja votaciones ni borra contenido | Probado | `la-noche-no-se-maneja-de-costado` |
+| Offline | Captura reenviada no se publica dos veces; cola no entrega fotos al siguiente; sin cachés de datos | Corregido / falsa alarma verificada | `offline-sync-manager.ts`, `next.config.js` |
+| Equipos | Ensayo real con cámara, 360, barra y red del lugar | Requiere equipo | — |

@@ -5,7 +5,7 @@ import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer, getCustomers } from '@/app/actions/customers';
-import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
+import { addPagoToPresupuesto, getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
 import { createNotification } from '@/lib/notifications/create-notification';
@@ -498,7 +498,13 @@ export async function registerContractDeposit(params: {
     estadoPago: 'confirmado',
   };
 
-  const updatedPagosCliente = [...(presupuesto.pagosCliente ?? []), newPago];
+  // El cobro entra por el camino de cobros, que relee el presupuesto adentro de una
+  // transaccion. El guardado general que viene despues ya no puede tocar los cobros.
+  const anotado = await addPagoToPresupuesto(presupuesto.id, newPago);
+  if (!anotado.success) {
+    throw new Error(anotado.error || 'No se pudo registrar la seña en el presupuesto.');
+  }
+  const updatedPagosCliente = anotado.presupuesto?.pagosCliente ?? [...(presupuesto.pagosCliente ?? []), newPago];
 
   const updatedPresupuesto: Presupuesto = normalizePresupuestoFinancials({
     ...presupuesto,
@@ -674,7 +680,12 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     }
 
     // 5. Save the fully updated presupuesto
-    await updatePresupuesto(finalPresupuesto);
+    // Se mira si se guardo: seguir de largo creaba la fiesta con el presupuesto sin
+    // los datos del contrato, y la pantalla decia que el contrato quedo firmado.
+    const guardadoDelPresupuesto = await updatePresupuesto(finalPresupuesto);
+    if (!guardadoDelPresupuesto.success) {
+      return { success: false, error: guardadoDelPresupuesto.error || 'No se pudo guardar el presupuesto del contrato.' };
+    }
 
     // 6. Create Fiesta using updated presupuesto data
     const newFiesta: FiestaEnPlanificacion = {

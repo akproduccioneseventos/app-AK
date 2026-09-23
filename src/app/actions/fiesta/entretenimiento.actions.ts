@@ -180,7 +180,18 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
     }
 
     const extension = path.extname(file.name || '') || (file.type.startsWith('video/') ? '.mp4' : '.jpg');
-    const mediaId = `ent_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    // Una captura guardada sin senal trae su propio identificador. Si el reenvio llega
+    // dos veces (el servidor la guardo pero la respuesta se corto), la segunda no se
+    // publica de nuevo: sin esto la misma foto aparecia dos veces en la pantalla grande.
+    const clientMediaId = String(formData.get('clientMediaId') || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
+    const mediaId = clientMediaId
+      ? `ent_${clientMediaId}`
+      : `ent_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    if (clientMediaId) {
+      const yaGuardada = (getStoredEntertainment(fiesta)?.modules?.[moduleId]?.media || [])
+        .find((item: { id?: string }) => item.id === mediaId);
+      if (yaGuardada) return { success: true, media: yaGuardada, duplicate: true };
+    }
     const storagePath = `entertainment/${fiestaId}/${moduleId}/${mediaId}${extension}`;
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);

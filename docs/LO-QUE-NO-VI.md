@@ -19,6 +19,33 @@ agregó— y el control que lo frena.
 
 ---
 
+## 23 de septiembre de 2026 — Plata entre servidores, votos y permisos por fiesta (orden 81 de Codex)
+
+Codex pidió revisar idempotencia, permisos del operador y conciliación. Revisándolo apareció
+más de lo pedido, y ninguna pregunta mía lo hubiera agarrado:
+
+- **Un cobro se perdía con dos operaciones a la vez**, aun en un solo servidor: confirmar,
+  rechazar y borrar leían afuera del turno. La pregunta 8 existía y **no se había vuelto a
+  pasar sobre esas cuatro funciones**.
+- **Guardar la lista entera de presupuestos o facturas pisaba cobros y borraba lo que otro
+  creó.** El turno cuida un servidor; la app corre en varios. Pregunta nueva: **22**.
+- **Recibos de sueldo, gastos y cupones**, la misma forma. El cupón de un uso servía dos.
+- **Votos repetidos, pedidos de trago a nombre de otro y operadores de otra fiesta manejando
+  ésta.** Pregunta nueva: **23**.
+- **Los ajustes del Video de Vida se podían cambiar sin cuenta.**
+
+Controles: `la-plata-no-se-pierde-entre-servidores.test.ts`, `una-lista-vieja-no-borra-plata.test.ts`,
+`un-cupon-de-un-uso-sirve-una-vez.test.ts`, `la-noche-no-se-maneja-de-costado.test.ts`.
+
+```comprobar
+prueba: src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts
+prueba: src/__tests__/una-lista-vieja-no-borra-plata.test.ts
+prueba: src/__tests__/un-cupon-de-un-uso-sirve-una-vez.test.ts
+prueba: src/__tests__/la-noche-no-se-maneja-de-costado.test.ts
+usa: conLosCobrosDeLaBase en src/lib/firebase-sync.ts
+usa: requireEventPermission en src/app/actions/evento-en-vivo.ts
+```
+
 ## 22 de septiembre de 2026 (tarde) — La fiesta entera saliendo por la pantalla publica (Codex)
 
 **Qué era:** cinco funciones que tocan un invitado devolvían **la fiesta completa** —todos los
