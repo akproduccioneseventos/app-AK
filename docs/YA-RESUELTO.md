@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23 de septiembre de 2026 — Lo que quedaba de barra, fotos y salones (Codex)
+
+- **Varios servidores a la vez.** El turno en memoria del 22 ordenaba los pedidos de UN
+  servidor, pero la app corre en hasta cuatro: dos personas en servidores distintos seguian
+  pisandose. Ahora, con la base de verdad, **cada cambio toca un solo registro dentro de una
+  transaccion** (`mutateDataItem`, `createDataItem`, `deleteDataItem`). Vale para las fotos
+  del catalogo, los salones, **sus fotos y sus pagos** —los pagos ni siquiera tenian turno:
+  dos cargados a la vez perdian uno—. El turno queda solo para el modo de prueba local.
+- **La cola del stock de la barra quedaba trabada** despues de un error, y todo pedido
+  siguiente fallaba sin intentar nada. Ahora la cola se limpia para el siguiente; el que fallo
+  igual recibe su error.
+- **Botellas que no se pudieron devolver** quedan anotadas y **se devuelven solas** en el
+  proximo pedido. Se sacan de la lista antes de devolverlas para no devolver dos veces.
+- **Limite conocido y dicho:** la lista de devoluciones pendientes es chica y solo se toca
+  cuando fallan dos cosas seguidas; no tiene proteccion entre servidores.
+
+```comprobar
+archivo: src/lib/data-service.ts
+usa: mutateDataItem en src/app/actions/salones.ts
+prueba: src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts
+```
 ## 22 de septiembre de 2026 (noche) — Los carteles de "copiado" que quedaban
 
 - **Arreglados tres:** la lista de alergias y celiacos para la cocina (si el navegador bloquea

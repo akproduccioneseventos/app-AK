@@ -112,3 +112,42 @@ describe('Un trago que no se guardo no descuenta botellas', () => {
     expect(dentro).toContain("updateBarDrinkOrderStatusInternal(fiestaId, nuevo.order.id, 'cancelado')");
   });
 });
+
+/**
+ * Tercera vuelta, 23 de setiembre de 2026 (Codex):
+ * - La cola del stock quedaba **rechazada para siempre** despues de un error, y todo pedido
+ *   siguiente fallaba sin intentar nada.
+ * - Si tambien fallaba la devolucion de botellas, solo quedaba un aviso: ahora se anota y se
+ *   reintenta sola en el proximo pedido, sin devolver dos veces.
+ */
+describe('La barra se recupera sola de un error de stock', () => {
+  it('la cola del stock sigue andando despues de una tarea fallada', () => {
+    const inicio = CODIGO.indexOf('function enLaColaDeStock(');
+    const fn = CODIGO.slice(inicio, CODIGO.indexOf('\n}', inicio));
+    expect(fn).toMatch(/stockPromiseChain = esta\.catch\(/);
+    // Y nadie mas vuelve a guardar la cola sin limpiarla.
+    expect(CODIGO).not.toContain('stockPromiseChain = nextPromise');
+  });
+
+  it('una devolucion de botellas que falla queda anotada para reintentar', () => {
+    const pedido = cuerpoDelPedido();
+    const corte = pedido.indexOf('await reponerStock(order.stockMovements');
+    const siguiente = pedido.slice(corte, pedido.indexOf('return {', corte));
+    expect(siguiente).toContain('anotarDevolucionPendiente(order.id');
+  });
+
+  it('antes de cada pedido se reintentan las devoluciones pendientes', () => {
+    const pedido = cuerpoDelPedido();
+    // Primero que ESTE: un indexOf de -1 tambien es "menor" y daba verde con la llamada sacada.
+    const reintento = pedido.indexOf('await reintentarDevolucionesPendientes()');
+    expect(reintento).toBeGreaterThan(-1);
+    expect(reintento).toBeLessThan(pedido.indexOf('descontarStock('));
+  });
+
+  it('la pendiente se saca de la lista ANTES de devolver, para no devolver dos veces', () => {
+    const inicio = CODIGO.indexOf('async function reintentarDevolucionesPendientes(');
+    const fn = CODIGO.slice(inicio, CODIGO.indexOf('\n}', inicio));
+    expect(fn.indexOf('writeData(DEVOLUCIONES_PENDIENTES_FILE, [])')).toBeLessThan(fn.indexOf('reponerStock('));
+  });
+});
+
