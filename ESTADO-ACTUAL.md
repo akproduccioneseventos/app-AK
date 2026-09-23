@@ -21,12 +21,10 @@
 
 Nada. Insumos y menús también quedaron protegidos (rama `fix/comida-entre-servidores`).
 
-## Espera decisión del dueño
+## Memoria del servidor
 
-- **Subir la memoria del servidor.** YA MEDIDO (ver YA-RESUELTO del 23 a la noche): con 512 MB
-  la app anda al límite y con poco tope se cae al arrancar. La 1207 no se fusiona como está (le
-  pone tope de tiempo a los guardados); si el dueño dice que sí, se hace una propuesta limpia
-  sólo con la memoria.
+Subida a 1024 MB con el "sí" del dueño, después de medirla. Propuesta 1207 cerrada: traía
+además un tope de tiempo a los guardados que no se quiere.
 
 ## Espera a Gemini
 

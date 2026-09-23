@@ -1030,8 +1030,11 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
 - **Los controles rojos de GitHub son por facturación bloqueada.** No investigarlos
   ni reportarlos. Lo que vale es lo que se verifica localmente.
 - **El servidor se queda dormido, y está bien así (20 de agosto de 2026).** En
-  `apphosting.yaml`, `minInstances: 0` y `memoryMiB: 512` **no se tocan**: dejarlo
-  siempre despierto se paga todos los meses y el dueño dijo que no. Si una auditoría
+  `apphosting.yaml`, `minInstances: 0` **no se toca**: dejarlo siempre despierto se paga
+  todos los meses y el dueño dijo que no. **La memoria SÍ se subió a 1024 MB (23 de
+  septiembre de 2026, con el "sí" del dueño)**, después de medir que con 512 la app anda al
+  límite y con poco tope se cae al arrancar (ver `YA-RESUELTO.md` de esa noche). No se baja
+  sin volver a medir. Si una auditoría
   lo marca como problema de velocidad, es falso positivo. La app en sí no es lenta
   (cada pantalla contesta entre 5 y 25 milésimas) y las páginas de venta salen
   armadas de antes, así que el prospecto que llega desde Google no espera.

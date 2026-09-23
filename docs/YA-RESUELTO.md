@@ -14,7 +14,12 @@ producción suma más):
 | 384 MB | Arranca y aguanta: 496 MB, pegado al techo de 512 |
 
 **Conclusión:** con 512 MB la app anda **al límite**. No es una pérdida de memoria (no crece con
-el uso): es lo que ocupa. Subir a 1024 MB es la decisión del dueño, porque sube la factura.
+el uso): es lo que ocupa. **El dueño dijo que sí y se subió a 1024 MB** (sólo la memoria; lo
+demás de la 1207 no entró).
+
+```comprobar
+usa: memoryMiB: 1024 en apphosting.yaml
+```
 
 - **Propuestas 1197, 1202 y 1206 cerradas:** lo que traían (órdenes 18, 47, 48, 55 y 56) ya
   está en la versión principal. Lo que tenían distinto era una versión vieja; y la 1206 además
