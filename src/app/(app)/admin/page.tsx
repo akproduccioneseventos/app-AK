@@ -342,7 +342,7 @@ export default function MainDashboardPage() {
                     </div>
                     <p className="mt-1 text-xs font-semibold text-slate-400">Pantalla kiosco para reuniones y demo comercial.</p>
                   </div>
-                  <button onClick={() => { const url = typeof window !== 'undefined' ? `${window.location.origin}/presentacion` : '/presentacion'; navigator.clipboard.writeText(url).then(() => { setCopiedLink(true); toast({ title: 'Link copiado', description: url }); setTimeout(() => setCopiedLink(false), 2000); }); }} className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-white/20">
+                  <button onClick={async () => { const url = typeof window !== 'undefined' ? `${window.location.origin}/presentacion` : '/presentacion'; try { await navigator.clipboard.writeText(url); setCopiedLink(true); toast({ title: 'Link copiado', description: url }); setTimeout(() => setCopiedLink(false), 2000); } catch { toast({ variant: 'destructive', title: 'No se pudo copiar', description: url }); } }} className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-xs font-black uppercase tracking-wider text-white transition-all hover:bg-white/20">
                     {copiedLink ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}{copiedLink ? 'Copiado' : 'Copiar'}
                   </button>
                   <Button asChild size="sm" className="rounded-xl bg-gradient-to-r from-red-600 to-rose-600 font-bold text-white shadow-[0_0_15px_rgba(220,38,38,0.35)] hover:brightness-110">

@@ -165,8 +165,13 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
       if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); } 
       else { throw new Error('Share API not supported'); }
     } catch (err) {
-      navigator.clipboard.writeText(shareData.url);
-      toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." });
+      // Se espera la copia: antes decia "copiado" con el portapapeles bloqueado.
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        toast({ title: "Enlace Copiado", description: "El enlace ha sido copiado a tu portapapeles." });
+      } catch {
+        toast({ variant: 'destructive', title: "No se pudo copiar", description: `Tu navegador bloqueo el portapapeles. El enlace es: ${shareData.url}` });
+      }
     }
   };
 
