@@ -1678,6 +1678,8 @@ export interface VotacionEnVivo {
   opciones: VotacionOpcion[];
   activa: boolean;
   timestamp: string;
+  /** Invitados identificados que ya votaron. Interno: no sale en la pantalla publica. */
+  votantes?: string[];
 }
 
 export interface CaptacionInvitadoEnVivo {

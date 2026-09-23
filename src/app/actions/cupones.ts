@@ -1,6 +1,6 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, mutateDataItem, createDataItem } from '@/lib/data-service';
 import type { Coupon, CouponUsage, CouponValidationResult } from '@/types/coupon';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { AsyncMutex } from '@/lib/mutex';
@@ -253,6 +253,81 @@ export async function validarCupon(
 
 // ===== REGISTRAR USO =====
 
+/** Lo que impide usar el cupon ahora, o null si se puede. */
+function motivoParaNoUsar(cupon: Coupon): string | null {
+  if (!cupon.activo) return 'Este cupón está desactivado.';
+  const fin = new Date(cupon.fechaFin);
+  if (!isNaN(fin.getTime())) {
+    fin.setHours(23, 59, 59, 999);
+    if (new Date() > fin) return 'Este cupón ha expirado.';
+  }
+  if (cupon.usosMaximos > 0 && cupon.usosActuales >= cupon.usosMaximos) {
+    return 'Este cupón ya alcanzó el límite de usos.';
+  }
+  return null;
+}
+
+/**
+ * El uso de un cupon, con la base: el contador se sube adentro de una transaccion y el
+ * uso se anota con un identificador fijo por presupuesto.
+ *
+ * Antes se guardaba la lista entera de cupones: dos presupuestos en servidores distintos
+ * usaban el mismo cupon de un solo uso y los dos pasaban, porque el turno solo cuida un
+ * servidor. Y un presupuesto guardado dos veces a la vez gastaba dos usos.
+ */
+async function registrarUsoCuponEnLaBase(
+  couponId: string,
+  presupuestoId: string,
+  clienteNombre: string,
+  montoDescuento: number,
+  montoPresupuesto: number,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const usages = await readData<CouponUsage[]>(CUPONES_USAGE_FILE, []);
+    if (usages.some(u => u.couponId === couponId && u.presupuestoId === presupuestoId)) {
+      return { success: true };
+    }
+
+    let rechazo: string | undefined;
+    let codigo = '';
+    const actualizado = await mutateDataItem<Coupon>(CUPONES_FILE, 'cupones', couponId, (cupon) => {
+      rechazo = motivoParaNoUsar(cupon) ?? undefined;
+      if (rechazo) return null;
+      codigo = cupon.codigo;
+      return { ...cupon, usosActuales: (Number(cupon.usosActuales) || 0) + 1, actualizadoEn: new Date().toISOString() };
+    });
+    if (rechazo) return { success: false, error: rechazo };
+    if (!actualizado) return { success: false, error: 'Cupón no encontrado.' };
+
+    const usoId = `cupu_${couponId}_${presupuestoId}`.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 200);
+    try {
+      await createDataItem<CouponUsage>(CUPONES_USAGE_FILE, 'cupones_usage', usoId, {
+        id: usoId,
+        couponId,
+        codigoCupon: codigo,
+        presupuestoId,
+        clienteNombre,
+        fechaUso: new Date().toISOString(),
+        montoDescuento,
+        montoPresupuesto,
+      });
+    } catch (error: any) {
+      // Otro guardado del mismo presupuesto ya lo anoto: se devuelve el uso de mas.
+      // Si no se pudo anotar por otra causa, tambien se devuelve y se avisa.
+      await mutateDataItem<Coupon>(CUPONES_FILE, 'cupones', couponId, (cupon) => ({
+        ...cupon,
+        usosActuales: Math.max(0, (Number(cupon.usosActuales) || 0) - 1),
+        actualizadoEn: new Date().toISOString(),
+      }));
+      const yaEstaba = error?.code === 6 || /already exists/i.test(String(error?.message || ''));
+      return yaEstaba ? { success: true } : { success: false, error: 'No se pudo registrar el uso del cupón.' };
+    }
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
+}
+
 export async function registrarUsoCupon(
   couponId: string,
   presupuestoId: string,
@@ -261,6 +336,9 @@ export async function registrarUsoCupon(
   montoPresupuesto: number
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    return registrarUsoCuponEnLaBase(couponId, presupuestoId, clienteNombre, montoDescuento, montoPresupuesto);
+  }
   try {
     return await cuponMutex.runExclusive(async () => {
       // Incrementar usos del cupón

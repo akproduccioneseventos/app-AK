@@ -2,7 +2,8 @@
 
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
 import type { Presupuesto } from '@/types/presupuesto';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, mutateDataItem } from '@/lib/data-service';
+import { forceDeleteDocFromFirestore } from '@/lib/firebase-sync';
 import { AsyncMutex } from '@/lib/mutex';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado } from './presupuestos';
 import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
@@ -497,6 +498,8 @@ export async function registerBookingDeposit(data: {
         await invoicesMutex.runExclusive(async () => {
           const invoicesWithoutDeposit = (await leerFacturasSinGuardia()).filter((invoice) => invoice.id !== invoiceResult.id);
           await writeData(INVOICES_FILE, invoicesWithoutDeposit);
+          // La lista entera ya no borra facturas por omision: se borra explicito.
+          if (invoiceResult.id && process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') await forceDeleteDocFromFirestore('facturas', invoiceResult.id);
         });
         throw new Error(paymentResult.error || 'No se pudo registrar la sena en el presupuesto.');
       }
@@ -541,6 +544,9 @@ async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<
   let deletionPersisted = false;
   try {
     await writeData(INVOICES_FILE, invoices);
+    // La lista entera ya no borra facturas por omision (una lista vieja borraba las que
+    // otro acababa de crear): el borrado de esta es explicito.
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') await forceDeleteDocFromFirestore('facturas', id);
     deletionPersisted = true;
     if (linkedFiestaId) {
       const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
@@ -667,7 +673,18 @@ async function addPaymentToInvoiceInner(
     if (!budgetPaymentResult.success) {
       invoices[invoiceIndex] = invoice;
       try {
-        await writeData(INVOICES_FILE, invoices);
+        // Se saca SOLO este pago de SU factura, releyendola en el momento. Guardar la
+        // lista entera no alcanza: los pagos de la base se conservan (una lista vieja no
+        // pisa cobros), asi que el pago quedaba puesto aunque aca se dijera que no.
+        if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+          await writeData(INVOICES_FILE, invoices);
+        } else {
+          await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => ({
+            ...actual,
+            payments: (actual.payments || []).filter((p) => p.id !== paymentId),
+            status: invoice.status,
+          }));
+        }
       } catch (rollbackError) {
         logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
         return { success: false, error: 'El pago quedó pendiente de conciliación. No lo ingreses nuevamente y revisa el presupuesto vinculado.' };

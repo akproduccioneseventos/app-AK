@@ -20,7 +20,14 @@ describe('financial flow consistency', () => {
     const budgets = read('src/app/actions/presupuestos.ts');
 
     expect(persistence).toContain('{ preserveStoredTotal: true }');
-    expect(budgets.match(/preserveStoredTotal: true/g)?.length ?? 0).toBeGreaterThanOrEqual(5);
+    // Los cambios de cobros pasan todos por un solo camino, que conserva el total guardado
+    // en sus dos ramas (con base y sin base).
+    const camino = budgets.slice(
+      budgets.indexOf('async function cambiarCobrosDelPresupuesto('),
+      budgets.indexOf('export async function savePresupuesto('),
+    );
+    expect(camino.match(/preserveStoredTotal: true/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+    expect(budgets.match(/cambiarCobrosDelPresupuesto\(presupuestoId/g)?.length ?? 0).toBeGreaterThanOrEqual(5);
     expect(budgets).toContain("referencia.startsWith('AK_SYNC:')");
   });
 

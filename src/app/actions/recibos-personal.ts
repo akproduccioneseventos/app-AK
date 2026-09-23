@@ -1,6 +1,7 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import type { ReciboFirmado } from '@/types/empleado';
 import { randomUUID } from 'crypto';
 import { requirePermiso } from '@/lib/auth/require-session';
@@ -66,22 +67,15 @@ export async function getRecibosFirmadosByEmpleado(empleadoId: string): Promise<
   return all.filter((item) => item.empleadoId === empleadoId);
 }
 
-export async function saveReciboFirmado(
-  payload: Partial<ReciboFirmado> & Pick<ReciboFirmado, 'fiestaId' | 'empleadoId'>
-): Promise<{ success: boolean; recibo?: ReciboFirmado; error?: string }> {
-  const permiso = await requirePermiso(PERMISOS.SUELDOS);
-  if (!permiso.ok) return { success: false, error: permiso.error };
-  if (!payload.empleadoId?.trim()) {
-    return { success: false, error: 'El empleado es obligatorio.' };
-  }
-  if (!payload.fiestaId?.trim()) {
-    return { success: false, error: 'La fiesta es obligatoria.' };
-  }
-
-  const username = permiso.user?.email || 'Administrador';
-
-  return recibosMutex.runExclusive(async () => {
-    const all = await getRecibosFirmados();
+/**
+ * El cambio de un recibo, sin guardar: sirve igual para la transaccion de la base y para
+ * el modo sin base. Devuelve la lista nueva o el motivo por el que no se puede.
+ */
+function aplicarRecibo(
+  all: ReciboFirmado[],
+  payload: Partial<ReciboFirmado> & Pick<ReciboFirmado, 'fiestaId' | 'empleadoId'>,
+  username: string,
+): { lista: ReciboFirmado[]; recibo: ReciboFirmado } | { error: string } {
     const now = new Date().toISOString();
     const existingIndex = all.findIndex(
       (item) =>
@@ -108,13 +102,11 @@ export async function saveReciboFirmado(
         const cambiaLaFecha = payload.fecha !== undefined && payload.fecha !== anterior.fecha;
         if (cambiaElMonto || cambiaLaFecha) {
           return {
-            success: false,
             error: 'Este recibo ya está pagado: no se puede cambiar el monto ni la fecha. Si hay un error, registrá un ajuste aparte.',
           };
         }
         if (payload.estado === 'pendiente') {
           return {
-            success: false,
             error: 'Un recibo pagado no puede volver a quedar pendiente.',
           };
         }
@@ -127,8 +119,7 @@ export async function saveReciboFirmado(
         updatedAt: now,
       });
       all[existingIndex] = merged;
-      await writeData(RECIBOS_PERSONAL_FILE, all);
-      return { success: true, recibo: merged };
+      return { lista: all, recibo: merged };
     }
 
     const nuevo = normalizeRecibo({
@@ -140,7 +131,42 @@ export async function saveReciboFirmado(
     });
 
     all.push(nuevo);
-    await writeData(RECIBOS_PERSONAL_FILE, all);
-    return { success: true, recibo: nuevo };
+    return { lista: all, recibo: nuevo };
+}
+
+export async function saveReciboFirmado(
+  payload: Partial<ReciboFirmado> & Pick<ReciboFirmado, 'fiestaId' | 'empleadoId'>
+): Promise<{ success: boolean; recibo?: ReciboFirmado; error?: string }> {
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) return { success: false, error: permiso.error };
+  if (!payload.empleadoId?.trim()) {
+    return { success: false, error: 'El empleado es obligatorio.' };
+  }
+  if (!payload.fiestaId?.trim()) {
+    return { success: false, error: 'La fiesta es obligatoria.' };
+  }
+
+  const username = permiso.user?.email || 'Administrador';
+
+  // Con base, se lee y se guarda adentro de una transaccion: dos personas cargando
+  // recibos a la vez en servidores distintos perdian uno (23 de septiembre de 2026).
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    let respuesta: { success: boolean; recibo?: ReciboFirmado; error?: string } = { success: false, error: 'No se pudo guardar el recibo.' };
+    await mutateGenericJsonArray<Partial<ReciboFirmado>>(RECIBOS_PERSONAL_FILE, (crudos) => {
+      const all = crudos.map(normalizeRecibo).filter((item) => item.fiestaId && item.empleadoId);
+      const cambio = aplicarRecibo(all, payload, username);
+      if ('error' in cambio) { respuesta = { success: false, error: cambio.error }; return null; }
+      respuesta = { success: true, recibo: cambio.recibo };
+      return cambio.lista;
+    });
+    return respuesta;
+  }
+
+  return recibosMutex.runExclusive(async () => {
+    const all = await getRecibosFirmados();
+    const cambio = aplicarRecibo(all, payload, username);
+    if ('error' in cambio) return { success: false, error: cambio.error };
+    await writeData(RECIBOS_PERSONAL_FILE, cambio.lista);
+    return { success: true, recibo: cambio.recibo };
   });
 }

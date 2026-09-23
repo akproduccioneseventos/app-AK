@@ -1220,6 +1220,9 @@ con otra cara.
 | `otravez` corria las 80 pruebas para repetir una: 24 minutos por vuelta | `src/__tests__/otravez-repite-solo-lo-que-fallo.test.ts` |
 | La puerta corria las 80 pruebas de navegador por cualquier arreglo, y compilaba dos veces | `src/__tests__/se-prueba-lo-nuevo-no-toda-la-app.test.ts` |
 | La clave del portal del cliente agregada a lo que viaja al navegador | `src/__tests__/release-security-boundaries.test.ts` |
+| Un cobro se perdia con dos operaciones a la vez, y una lista vieja de presupuestos pisaba cobros y borraba lo que otro creo | `src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts` y `src/__tests__/una-lista-vieja-no-borra-plata.test.ts` |
+| Un cupon de un solo uso servia dos veces | `src/__tests__/un-cupon-de-un-uso-sirve-una-vez.test.ts` |
+| Votos repetidos y operadores de otra fiesta manejando esta | `src/__tests__/la-noche-no-se-maneja-de-costado.test.ts` |
 | Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
 
 ### Cómo se elige el matafuego

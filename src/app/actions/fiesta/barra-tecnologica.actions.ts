@@ -460,24 +460,43 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     // stock que se mira para este pedido ya esta corregido.
     await reintentarDevolucionesPendientes();
 
+    const pedidoId = input.clientRequestId
+      ? `bar_${String(input.clientRequestId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64)}`
+      : '';
+    if (pedidoId) {
+      const yaEsta = await findBarOrder(fiesta, pedidoId);
+      if (yaEsta) {
+        if (yaEsta.fiestaId !== input.fiestaId) return { success: false, error: 'Pedido invalido.' };
+        return { success: true, order: yaEsta };
+      }
+    }
+
     const drinks = await getBarDrinks(fiesta);
     const drink = drinks.find((item) => item.id === input.drinkId);
     if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
     if ((drink.stockDisponible ?? 1) <= 0) return { success: false, error: 'Ese trago figura sin stock disponible.' };
 
-    const guestName = sanitizeText(input.guestName, 'Invitado');
+    // Pedir a nombre de un invitado exige SU enlace. El totem de la barra pide por
+    // nombre, sin invitado, y eso sigue igual.
+    let invitado: ReturnType<typeof findAuthorizedGuest> = null;
+    if (input.guestId) {
+      invitado = findAuthorizedGuest(fiesta, input.guestId, input.guestAccessToken || '');
+      if (!invitado) return { success: false, error: 'Tu enlace de invitado no corresponde a esta fiesta.' };
+    }
+
+    const guestName = invitado ? sanitizeText(invitado.nombre, 'Invitado') : sanitizeText(input.guestName, 'Invitado');
     if (stored.settings.requireGuestName && guestName === 'Invitado') {
       return { success: false, error: 'Ingresa tu nombre para pedir el trago.' };
     }
 
     const now = new Date().toISOString();
     const order: BarDrinkOrder = {
-      id: `bar_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: pedidoId || `bar_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       fiestaId: input.fiestaId,
       drinkId: drink.id,
       drinkName: drink.nombre,
       guestName,
-      guestId: sanitizeText(input.guestId),
+      guestId: invitado?.id,
       tableNumber: sanitizeText(input.tableNumber),
       note: sanitizeText(input.note),
       status: 'nuevo',

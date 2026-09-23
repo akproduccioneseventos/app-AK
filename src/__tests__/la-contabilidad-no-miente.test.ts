@@ -54,20 +54,32 @@ describe('La contabilidad no dice que si sin haberlo hecho', () => {
       fuente.indexOf('export async function deletePagoFromPresupuesto('),
     );
 
-    it('lee el presupuesto adentro del turno, no antes', () => {
-      const turno = alta.indexOf('presupuestosMutex.runExclusive');
-      const lectura = alta.indexOf('await getPresupuestos(true)');
+    // Desde el 23 de septiembre de 2026 el cobro pasa por `cambiarCobrosDelPresupuesto`:
+    // lee y guarda adentro de una transaccion de la base (y del turno, sin base). Ver
+    // src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts, que lo prueba andando.
+    const camino = fuente.slice(
+      fuente.indexOf('async function cambiarCobrosDelPresupuesto('),
+      fuente.indexOf('export async function savePresupuesto('),
+    );
+
+    it('lee el presupuesto adentro del turno y de la transaccion, no antes', () => {
+      expect(alta).toContain('cambiarCobrosDelPresupuesto(presupuestoId');
+      const turno = camino.indexOf('presupuestosMutex.runExclusive');
+      const lectura = camino.indexOf('await getPresupuestos(true)');
       expect(turno).toBeGreaterThan(-1);
       expect(lectura).toBeGreaterThan(turno);
+      expect(camino).toContain('mutateDataItem<Presupuesto>(');
     });
 
     it('no vuelve a pedir el turno estando adentro: guardaria colgado para siempre', () => {
-      expect(alta).toContain('guardarPresupuestoSinTurno');
+      expect(camino).toContain('guardarPresupuestoSinTurno');
+      expect(camino).not.toContain('await updatePresupuesto(');
       expect(alta).not.toContain('await updatePresupuesto(');
     });
 
-    it('si falla la conciliacion con la factura, NO contesta que salio bien', () => {
-      expect(alta).toContain('if (!reclamo.success)');
+    it('si falla el guardado del cobro, NO contesta que salio bien', () => {
+      expect(camino).toContain("if (!guardado.success || !guardado.presupuesto)");
+      expect(alta).toContain('cambio.success');
     });
 
     it('un cobro que la factura trae confirmado deja de estar pendiente en el presupuesto', () => {

@@ -1,5 +1,44 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23 de septiembre de 2026 — La parte de Claude de la orden 81: plata, votos, barra y permisos
+
+- **Cobros.** Confirmar, rechazar, borrar un cobro y el pago informado por el cliente leían
+  el presupuesto afuera del turno: con dos operaciones a la vez se perdía una. Ahora todo
+  cambio de cobros pasa por `cambiarCobrosDelPresupuesto`, que lee y guarda adentro de una
+  transacción de la base. La seña del contrato y la del recibo también.
+- **Guardar la lista entera de presupuestos o facturas** (crear, archivar, editar) ya no
+  pisa los cobros de la base ni borra lo que otro creó mientras tanto. Borrar es explícito.
+  Sólo la restauración de un respaldo manda sobre todo. **Por qué así:** la app puede correr
+  en varios servidores y el turno sólo cuida uno.
+- **Facturas:** los pagos se juntan (base + nuevos); deshacer un pago saca sólo ese.
+- **Recibos de sueldo, gastos generales y cupones:** con transacción o de a un registro. Un
+  cupón de un uso ya no sirve dos veces y un presupuesto guardado dos veces gasta un uso.
+- **Barra:** pedir a nombre de un invitado exige su enlace; un mismo pedido reenviado (doble
+  toque o la cola sin señal) no descuenta botellas dos veces.
+- **Votaciones:** un voto por invitado identificado, no se vota en una cerrada, los votos
+  simultáneos no se pierden, y la pantalla pública no recibe quién votó. El que vota sin
+  enlace (desde el código de la pantalla) sigue pudiendo votar, como siempre.
+- **Controles de la noche** (votaciones, canciones, mensajes, sorteo, momentos): piden estar
+  asignado a esa fiesta, no sólo tener sesión.
+- **Video de Vida:** los ajustes piden cuenta. La subida de fotos del cliente sigue abierta.
+- **Entretenimiento sin señal:** una captura reenviada no se publica dos veces.
+- **Falsas alarmas descartadas:** la cola sin señal NO le entrega fotos al invitado
+  siguiente (cada captura viaja con su propio dueño y en pantalla sólo se ve la cantidad);
+  aprobar el mismo pago del portal dos veces no lo duplicaba en un servidor (la referencia
+  lo frenaba); el service worker no guarda respuestas del servidor.
+
+```comprobar
+prueba: src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts
+prueba: src/__tests__/una-lista-vieja-no-borra-plata.test.ts
+prueba: src/__tests__/un-cupon-de-un-uso-sirve-una-vez.test.ts
+prueba: src/__tests__/la-noche-no-se-maneja-de-costado.test.ts
+usa: cambiarCobrosDelPresupuesto en src/app/actions/presupuestos.ts
+usa: mutateGenericJsonArray en src/app/actions/recibos-personal.ts
+usa: registrarUsoCuponEnLaBase en src/app/actions/cupones.ts
+usa: clientRequestId en src/app/evento/barra/[fiestaId]/page.tsx
+usa: clientMediaId en src/lib/offline/offline-sync-manager.ts
+```
+
 ## 23 de septiembre de 2026 — Repetir una prueba ya no corre las 80
 
 - `npm run otravez` corria todas las pruebas de navegador para repetir una (24 minutos). Ahora

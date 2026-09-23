@@ -89,7 +89,7 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
 
     // 2. Si tenemos presupuestoId, actualizar presupuesto.pagosCliente y senia/saldo
     if (presupuestoId) {
-      const { getPresupuestoById, updatePresupuesto } = await import('@/app/actions/presupuestos');
+      const { getPresupuestoById, updatePresupuesto, addPagoToPresupuesto } = await import('@/app/actions/presupuestos');
       const presupuesto = existingBudget ?? await getPresupuestoById(presupuestoId);
 
       if (presupuesto && !existingPayment) {
@@ -102,18 +102,20 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
           estadoPago: 'confirmado' as const,
         };
 
-        const pagosActualizados = [...(presupuesto.pagosCliente ?? []), newPago];
-        const totalPagado = sumConfirmedClientPayments(pagosActualizados);
-        const totalPresupuesto =
-          presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado ?? 0;
-        const saldoActualizado = Math.max(0, totalPresupuesto - totalPagado);
-
-        await updatePresupuesto({
-          ...presupuesto,
-          pagosCliente: pagosActualizados,
-          senia: roundMoney((presupuesto.senia ?? 0) + normalizedAmount),
-          saldo: saldoActualizado,
+        // El cobro entra por el camino de cobros (con transaccion). Antes se guardaba la
+        // lista de cobros leida un rato antes: si mientras tanto entraba otro cobro, uno
+        // de los dos desaparecia. Y no se miraba si se guardo.
+        const anotado = await addPagoToPresupuesto(presupuestoId, newPago);
+        if (!anotado.success || !anotado.presupuesto) {
+          throw new Error(anotado.error || 'No se pudo registrar la seña en el presupuesto.');
+        }
+        const guardado = await updatePresupuesto({
+          ...anotado.presupuesto,
+          senia: roundMoney((anotado.presupuesto.senia ?? 0) + normalizedAmount),
         });
+        if (!guardado.success) {
+          throw new Error(guardado.error || 'La seña quedó cobrada, pero no se pudo actualizar el monto de seña del presupuesto.');
+        }
       }
     }
 

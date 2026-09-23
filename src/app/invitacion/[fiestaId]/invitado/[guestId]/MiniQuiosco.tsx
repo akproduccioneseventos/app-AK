@@ -84,6 +84,8 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
         drinkId,
         guestName: guest.nombre,
         guestId: guest.id,
+        guestAccessToken,
+        clientRequestId: crypto.randomUUID(),
         tableNumber: guest.tableNumber,
       });
     if (result.success) {

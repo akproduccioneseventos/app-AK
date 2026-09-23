@@ -47,6 +47,35 @@ export async function syncGenericJsonFile(filePath: string, data: any): Promise<
   await db.collection(GENERIC_JSON_COLLECTION).doc(docId).set({ _filePath: normalizedPath, _value: data, _syncedAt: new Date().toISOString() });
 }
 
+/**
+ * CAMBIAR UNA LISTA GUARDADA COMO UN SOLO DOCUMENTO, SIN PISAR A OTRO.
+ *
+ * Estas listas (por ejemplo, los recibos de sueldo) viven enteras en un documento. Leerla,
+ * cambiarla y guardarla en tres pasos perdia el cambio de otro servidor que guardo en el
+ * medio. Aca se lee y se guarda adentro de una transaccion: si otro la cambio, la base
+ * repite `cambiar` con la lista nueva. `cambiar` devuelve null para no guardar nada.
+ */
+export async function mutateGenericJsonArray<T>(
+  filePath: string,
+  cambiar: (lista: T[]) => T[] | null,
+): Promise<T[] | null> {
+  const normalizedPath = filePath.replace(/\\/g, '/');
+  if (!isSafeTopLevelJsonFile(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
+  const db = await getDbAdmin();
+  const ref = db.collection(GENERIC_JSON_COLLECTION).doc(getGenericDocId(normalizedPath));
+  let resultado: T[] | null = null;
+  await db.runTransaction(async (transaction) => {
+    resultado = null;
+    const snapshot = await transaction.get(ref);
+    const actual = snapshot.exists ? unwrapGenericDocument(snapshot.data()) : [];
+    const nueva = cambiar(Array.isArray(actual) ? (actual as T[]) : []);
+    if (!nueva) return;
+    transaction.set(ref, { _filePath: normalizedPath, _arrayData: nueva, _syncedAt: new Date().toISOString() });
+    resultado = nueva;
+  });
+  return resultado;
+}
+
 export async function readGenericJsonFile(filePath: string): Promise<any | null> {
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeTopLevelJsonFile(normalizedPath)) return null;

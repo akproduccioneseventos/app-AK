@@ -15,6 +15,9 @@ import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
 import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
 
 export type PublicEventoEnVivoData = Omit<EventoEnVivoData, 'captaciones'>;
@@ -37,7 +40,11 @@ export async function getEventoEnVivoData(fiestaId: string): Promise<PublicEvent
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { fotos: [], solicitudesCanciones: [], mensajes: [], votaciones: [] };
   const { captaciones: _privateCaptures, ...publicData } = getOrInitData(fiesta);
-  return publicData;
+  // Quien voto es interno: la pantalla publica solo necesita los totales.
+  return {
+    ...publicData,
+    votaciones: publicData.votaciones.map(({ votantes: _votantes, ...votacion }) => votacion),
+  };
 }
 
 export async function getFotosEnVivo(fiestaId: string): Promise<FotoEnVivo[]> {
@@ -226,7 +233,7 @@ export async function marcarCancionReproducida(
   solicitudId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -276,7 +283,7 @@ export async function toggleMensajeDestacado(
   mensajeId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -300,7 +307,7 @@ export async function createVotacion(
   votacion: Omit<VotacionEnVivo, 'id' | 'timestamp' | 'activa'>
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -316,6 +323,18 @@ export async function createVotacion(
   }
 }
 
+/**
+ * Un voto por invitado, y ningun voto perdido.
+ *
+ * Antes: el invitado identificado podia votar las veces que quisiera (su enlace no se
+ * miraba), se podia votar en una votacion cerrada, y como se leia la fiesta entera,
+ * se sumaba y se guardaba entera, **dos votos al mismo tiempo se pisaban y uno se
+ * perdia**, que en una fiesta con la pantalla grande pidiendo votar es lo normal.
+ *
+ * Ahora: si llega el enlace del invitado se comprueba y se anota que ya voto; el voto
+ * se suma adentro de una transaccion de la base. El que vota sin enlace —el que escanea
+ * el codigo de la pantalla— sigue pudiendo votar, con el tope por direccion de siempre.
+ */
 export async function votarEnVivo(
   fiestaId: string,
   votacionId: string,
@@ -332,17 +351,54 @@ export async function votarEnVivo(
     });
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    const data = getOrInitData(fiesta);
-    data.votaciones = data.votaciones.map(v => {
-      if (v.id !== votacionId) return v;
+
+    let votante: string | undefined;
+    if (guestId) {
+      const invitado = fiesta.invitados?.find(item => item.id === guestId);
+      if (!hasPublicGuestAccess(invitado, guestId, guestAccessToken || '')) {
+        return { success: false, error: 'Tu enlace de invitado no corresponde a esta fiesta.' };
+      }
+      votante = guestId;
+    }
+
+    const aplicarVoto = (data: EventoEnVivoData): { data: EventoEnVivoData } | { error: string } => {
+      const votacion = data.votaciones.find(v => v.id === votacionId);
+      if (!votacion) return { error: 'La votación ya no existe.' };
+      if (!votacion.activa) return { error: 'La votación ya cerró.' };
+      if (!votacion.opciones.some(o => o.id === opcionId)) return { error: 'Esa opción no existe.' };
+      if (votante && (votacion.votantes || []).includes(votante)) return { error: 'Ya votaste en esta votación.' };
       return {
-        ...v,
-        opciones: v.opciones.map(o =>
-          o.id === opcionId ? { ...o, votos: o.votos + 1 } : o
-        ),
+        data: {
+          ...data,
+          votaciones: data.votaciones.map(v => v.id !== votacionId ? v : {
+            ...v,
+            opciones: v.opciones.map(o => o.id === opcionId ? { ...o, votos: o.votos + 1 } : o),
+            votantes: votante ? [...(v.votantes || []), votante] : v.votantes,
+          }),
+        },
       };
-    });
-    return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
+    };
+
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        const ref = dbAdmin.collection('fiestas').doc(fiestaId);
+        let rechazo: string | undefined;
+        await dbAdmin.runTransaction(async (transaction) => {
+          rechazo = undefined;
+          const snapshot = await transaction.get(ref);
+          if (!snapshot.exists) { rechazo = 'Evento no encontrado.'; return; }
+          const resultado = aplicarVoto(getOrInitData(snapshot.data() as FiestaEnPlanificacion));
+          if ('error' in resultado) { rechazo = resultado.error; return; }
+          transaction.update(ref, { eventoEnVivo: resultado.data, _syncedAt: new Date().toISOString() });
+        });
+        return rechazo ? { success: false, error: rechazo } : { success: true };
+      }
+    }
+
+    const resultado = aplicarVoto(getOrInitData(fiesta));
+    if ('error' in resultado) return { success: false, error: resultado.error };
+    return (await saveFiesta({ ...fiesta, eventoEnVivo: resultado.data })) as { success: boolean; error?: string };
   } catch {
     return { success: false, error: 'No se pudo registrar el voto.' };
   }
@@ -353,7 +409,7 @@ export async function toggleVotacionActiva(
   votacionId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -372,7 +428,7 @@ export async function deleteContenidoEnVivo(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);

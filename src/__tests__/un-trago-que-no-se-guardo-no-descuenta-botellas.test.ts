@@ -151,3 +151,20 @@ describe('La barra se recupera sola de un error de stock', () => {
   });
 });
 
+describe('Un trago no se pide a nombre de otro ni se descuenta dos veces (orden 81)', () => {
+  const pedido = cuerpoDelPedido();
+
+  it('pedir a nombre de un invitado exige SU enlace', () => {
+    // Antes el guestId se guardaba tal como llegaba: cualquiera podia pedir a nombre de otro.
+    expect(pedido).toContain('findAuthorizedGuest(fiesta, input.guestId');
+    expect(pedido).not.toMatch(/guestId:\s*sanitizeText\(input\.guestId\)/);
+  });
+
+  it('el mismo pedido reenviado devuelve el primero ANTES de descontar botellas', () => {
+    const mira = pedido.indexOf('findBarOrder(fiesta, pedidoId)');
+    const descuenta = pedido.indexOf('await descontarStock(');
+    expect(mira).toBeGreaterThan(-1);
+    expect(descuenta).toBeGreaterThan(mira);
+  });
+});
+

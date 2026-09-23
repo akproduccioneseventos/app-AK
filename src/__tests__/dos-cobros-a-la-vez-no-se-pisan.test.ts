@@ -43,6 +43,19 @@ jest.mock('@/lib/data-service', () => ({
     await new Promise((seguir) => setTimeout(seguir, 20));
     almacen[archivo] = JSON.parse(JSON.stringify(datos));
   }),
+  // Desde el 23 de septiembre de 2026 los cobros van por transaccion: lee el documento
+  // en ese momento y escribe sin que nadie se meta en el medio.
+  mutateDataItem: jest.fn(async (archivo: string, _coleccion: string, id: string, cambiar: (x: any) => any) => {
+    await new Promise((seguir) => setTimeout(seguir, 20));
+    const lista = almacen[archivo] || [];
+    const indice = lista.findIndex((p: any) => p.id === id);
+    if (indice === -1) return null;
+    const nuevo = cambiar(JSON.parse(JSON.stringify(lista[indice])));
+    if (!nuevo) return null;
+    lista[indice] = JSON.parse(JSON.stringify(nuevo));
+    almacen[archivo] = lista;
+    return nuevo;
+  }),
 }));
 
 import { addPagoToPresupuesto } from '@/app/actions/presupuestos';

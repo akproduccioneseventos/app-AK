@@ -31,7 +31,26 @@ type StorageFile = {
  * agendada mas adelante, los ajustes del video de vida terminaban en el evento
  * equivocado.
  */
+/**
+ * Los ajustes del Video de Vida los cambia el equipo. La funcion estaba abierta: como
+ * toda accion del servidor se puede llamar directo, cualquiera con el numero de la
+ * fiesta podia reescribirle los ajustes. La subida de fotos del cliente sigue abierta
+ * (decision ya tomada): esa marca "ya subieron fotos" con la version interna.
+ */
 export async function updateVideoVidaSettings(
+    fiestaId: string,
+    videoVidaData: VideoVidaData
+  ): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { requireAppSession } = await import('@/lib/auth/require-session');
+    await requireAppSession();
+  } catch {
+    return { success: false, error: 'Sesión no autorizada.' };
+  }
+  return guardarAjustesVideoVida(fiestaId, videoVidaData);
+}
+
+async function guardarAjustesVideoVida(
     fiestaId: string,
     videoVidaData: VideoVidaData
   ): Promise<{ success: boolean; error?: string }> {
@@ -94,7 +113,7 @@ export async function saveLifeStoryVideoPhoto(
     const fiesta = await getFiestaById(fiestaId);
     if (fiesta && fiesta.videoVida && !fiesta.videoVida.photosUploaded) {
       // no-mira-el-resultado: la foto ya se subio a Storage; si falla la marca, el panel igual ve las fotos
-      await updateVideoVidaSettings(fiestaId, { ...fiesta.videoVida, photosUploaded: true });
+      await guardarAjustesVideoVida(fiestaId, { ...fiesta.videoVida, photosUploaded: true });
     }
 
     return { success: true, url: publicUrl };

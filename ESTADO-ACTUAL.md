@@ -1,40 +1,41 @@
 # Acá quedé
 
-**22 de septiembre de 2026, noche.** Rama `fix/traspaso-22-noche`, sólo con esta hoja.
-**Todo lo mío está fusionado** (propuestas 1211 a 1213 y 1215, las cuatro con la
-verificación completa en verde).
+**23 de septiembre de 2026.** Rama `fix/traspaso-23`, sólo con esta hoja. **Todo lo mío está
+fusionado** (1217 y 1214, las dos con la verificación completa en verde).
 
 ## Lo que entró hoy
 
-- **Privacidad:** confirmar asistencia en la invitación pública devolvía **la lista completa
-  de invitados** de la fiesta. Ahora sale sólo el invitado. (El QR por nombre sigue igual:
-  es decisión del dueño.)
-- **Entrar a la app**, **calendario** (reuniones, fechas de noche, días sueltos, fechas
-  imposibles), **contrato de seña** con la fecha corrida, **barra** (stock y cambio de trago),
-  **fotos y salones** (dos a la vez, borrar el último), **Google** y **recuperación**.
-- **De Gemini:** enlaces muertos y portada sin cajas grises.
+- **Barra, fotos, salones y pagos de salones** aguantan varios servidores a la vez (1217).
+- **De Gemini (1214):** secretario manos libres, salón 3D en el portal del cliente (con y sin
+  clave) y escena armada sola. Se le sacó una línea que mandaba la clave del portal al navegador.
+- **La verificación prueba lo nuevo, no toda la app** (orden del dueño): corre sólo las pruebas
+  de navegador que el cambio alcanza, repite sólo lo que falló y compila una vez. Si el cambio
+  toca algo general, corre todo.
 
-## Espera a Gemini
+## La parte de Claude de la orden 81: hecha (esta rama)
 
-- **Propuesta 1214 (órdenes 74, 75 y 77): devuelta, NO fusionada.** Seis pruebas de navegador
-  no pasan. El detalle —y las dos causas más probables— está en
-  `docs/ordenes/DEVOLUCION-74-75-77-seis-pruebas-no-pasan.md`.
-
-## Espera decisión del dueño
-
-- **Subir la memoria del servidor** (propuesta 1207). Único arreglo que queda de la caída de
-  producción y único que **aumenta la factura mensual**.
+- **Plata:** cobros, facturas, recibos de sueldo, gastos y cupones ya no se pierden con dos
+  operaciones a la vez ni entre servidores. Una lista vieja no pisa cobros ni borra.
+- **Noche:** un voto por invitado, operadores sólo en su fiesta, trago sólo con su enlace.
 
 ## Pendiente, y es mío
 
-Nada. Los carteles de "copiado" quedaron arreglados (tres reales, cuatro falsas alarmas).
+- **Límite conocido:** insumos y menús siguen guardando la lista entera (dos personas
+  editando el catálogo de comida a la vez en servidores distintos). Bajo riesgo; no se tocó.
+
+## Espera decisión del dueño
+
+- **Subir la memoria del servidor** (propuesta 1207). Recomendación: no subirla; nunca se midió
+  que sea la causa.
+
+## Espera a Gemini
+
+- **Orden 81** (su parte: interfaz, recorridos, entretenimiento) y **orden 82** (prospectos,
+  clientes, agenda y mensajes con la misma protección que la plata).
+- Devoluciones viejas: 42, 48, 48b, 61, 71, 74-77 pantallas equivocadas, acceso administrativo.
 
 ## Lo que ningún control cubre
 
 Falta **un ensayo real** por rol, con fotocabina, 360, barra y conexiones de afuera.
 
-## Trampas que no se repiten
-
-- La sesión del equipo son **dos mitades** (`ponerSesionDelEquipo`).
-- **No se sube lo que escribe la corrida**: `npm run limpiar:corrida`.
-- **No se toca código ni se sube mientras corre la verificación.**
+## Trampas: mirar cuántas pruebas va a correr antes de esperar; `npm run limpiar:corrida`; no tocar código con la verificación andando.

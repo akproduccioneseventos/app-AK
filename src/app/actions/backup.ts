@@ -450,7 +450,7 @@ export async function restoreFromPoint(pointName: string): Promise<{ success: bo
     const summary: RestoreSummaryItem[] = [];
     for (const [file, value] of Object.entries(data)) {
       if (!isRestorableDataFile(file)) continue;
-      await writeData(file, value, undefined, { skipAutoBackup: true });
+      await writeData(file, value, undefined, { skipAutoBackup: true, esRestauracion: true });
       summary.push({ file: file.replace('.json', ''), count: getBackupValueCount(value) });
     }
 
