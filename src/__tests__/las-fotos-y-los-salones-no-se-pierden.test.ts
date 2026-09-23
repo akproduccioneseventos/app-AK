@@ -60,3 +60,44 @@ describe('Las fotos y los salones no se pierden', () => {
     expect(lista).toContain("'salones.json'");
   });
 });
+
+/**
+ * Segunda vuelta, 23 de setiembre de 2026: **el turno en memoria no alcanza con varios
+ * servidores.** La app puede correr en hasta cuatro, cada uno con su propio turno, y Codex
+ * midio que dos altas de fotos en servidores distintos seguian perdiendo una. Y **los pagos de
+ * los salones** ni siquiera tenian turno.
+ *
+ * Con la base de verdad, cada cambio tiene que tocar UN registro, dentro de una transaccion.
+ * Se probo rompiendolo: volviendo cualquiera de estos a la escritura de la lista entera, se
+ * pone en rojo.
+ */
+describe('Con varios servidores, cada cambio toca un solo registro', () => {
+  it('las fotos del catalogo se crean, cambian y borran de a una en la base', () => {
+    expect(cuerpo(FOTOS, 'addCatalogoFoto')).toContain('createDataItem(');
+    expect(cuerpo(FOTOS, 'updateCatalogoFoto')).toContain('mutateDataItem');
+    expect(cuerpo(FOTOS, 'deleteCatalogoFoto')).toContain('deleteDataItem(');
+    expect(cuerpo(FOTOS, 'toggleCatalogoFotoDestacada')).toContain('mutateDataItem');
+  });
+
+  it.each(['saveSalon', 'uploadSalonFoto', 'deleteSalonFoto', 'addSalonPago', 'deleteSalonPago'])(
+    '%s cambia un solo salon dentro de una transaccion',
+    (nombre) => {
+      expect(cuerpo(SALONES, nombre)).toContain('cambiarUnSalon(');
+    },
+  );
+
+  it('con la base de verdad, cambiar un salon es una transaccion sobre ese salon', () => {
+    const inicio = SALONES.indexOf('async function cambiarUnSalon(');
+    const fn = SALONES.slice(inicio, SALONES.indexOf('\n}', inicio));
+    expect(fn).toContain('mutateDataItem<Salon>(');
+  });
+
+  it('la transaccion lee Y escribe adentro de la base, no afuera', () => {
+    const DATOS = leer('src', 'lib', 'data-service.ts');
+    const inicio = DATOS.indexOf('export async function mutateDataItem');
+    const fn = DATOS.slice(inicio, DATOS.indexOf('\nexport ', inicio + 10));
+    const transaccion = fn.slice(fn.indexOf('runTransaction'));
+    expect(transaccion).toContain('transaction.get(ref)');
+    expect(transaccion).toContain('transaction.set(ref');
+  });
+});

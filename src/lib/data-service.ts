@@ -390,6 +390,51 @@ export async function deleteDataItem(
   return deleted;
 }
 
+/**
+ * Cambia UN registro de una coleccion, leyendo y escribiendo **dentro de la misma transaccion
+ * de la base**.
+ *
+ * **Por que existe.** Leer la lista, cambiarla y escribirla entera pierde cambios cuando dos
+ * personas guardan a la vez. Un turno en memoria lo arregla en un servidor, pero la app puede
+ * correr en **hasta cuatro servidores a la vez** y cada uno tiene su propio turno: lo encontro
+ * Codex el 23 de setiembre de 2026 en fotos, salones y pagos de salones. La transaccion vive en
+ * la base, que es una sola: si otro cambio el registro en el medio, se vuelve a leer y se
+ * reintenta solo.
+ *
+ * Devuelve el registro como quedo, o `null` si no existe (o si `cambiar` devuelve `null`).
+ */
+export async function mutateDataItem<T extends object>(
+  filePath: string,
+  collectionName: string,
+  documentId: string,
+  cambiar: (actual: T) => T | null,
+  options?: WriteDataOptions,
+): Promise<T | null> {
+  validateCollectionMutationInput(filePath, collectionName, documentId);
+  if (shouldUseLocalJsonOnly()) {
+    throw new Error("La escritura esta deshabilitada en el modo local de pruebas.");
+  }
+
+  const normalizedFilePath = filePath.replace(/\\/g, "/");
+  const { dbAdmin } = await import("./firebase/server");
+  if (!dbAdmin) throw new Error("Firestore no esta disponible.");
+  const ref = dbAdmin.collection(collectionName).doc(documentId);
+  let resultado: T | null = null;
+  await dbAdmin.runTransaction(async (transaction) => {
+    resultado = null;
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists) return;
+    const { _syncedAt, ...actual } = snapshot.data() as T & { _syncedAt?: string };
+    void _syncedAt;
+    const nuevo = cambiar(actual as T);
+    if (!nuevo) return;
+    transaction.set(ref, { ...cleanCollectionItem(nuevo), _syncedAt: new Date().toISOString() });
+    resultado = nuevo;
+  });
+  if (resultado) await refreshCollectionFallback(normalizedFilePath, options);
+  return resultado;
+}
+
 function deepMerge(target: any, source: any): any {
   if (Array.isArray(target) && Array.isArray(source)) {
     const merged = [...target];
