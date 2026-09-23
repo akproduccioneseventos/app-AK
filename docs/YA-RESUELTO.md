@@ -6,9 +6,14 @@
   el corredor anota que archivos fallaron y repite solo esos (40 segundos, medido). La puerta
   hace lo mismo si la app no cambio desde la falla; si cambio, corre todo, a proposito.
 
+- La puerta corre solo las pruebas de navegador que el cambio alcanza (todas, si toca algo
+  general) y compila una vez en vez de dos. Orden del dueno: probar lo nuevo, no toda la app.
+
 ```comprobar
 prueba: src/__tests__/otravez-repite-solo-lo-que-fallo.test.ts
 usa: hayFallasAnotadas en scripts/se-puede-publicar.mjs
+prueba: src/__tests__/se-prueba-lo-nuevo-no-toda-la-app.test.ts
+usa: pruebasQueTocan en scripts/run-playwright-production.mjs
 ```
 
 ## 23 de septiembre de 2026 — La clave del portal no viaja al navegador (entrega 74/75/77)

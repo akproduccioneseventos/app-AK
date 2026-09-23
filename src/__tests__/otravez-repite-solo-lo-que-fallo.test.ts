@@ -37,3 +37,12 @@ describe('otravez repite solo lo que fallo', () => {
     expect(r.stdout).not.toContain('EJECUTANDO PRUEBAS');
   });
 });
+
+describe('la puerta no compila dos veces', () => {
+  it('el paso de navegador no vuelve a compilar lo que el paso de compilacion ya compilo', () => {
+    const puerta = fs.readFileSync(path.join(process.cwd(), 'scripts/se-puede-publicar.mjs'), 'utf8');
+    const paso = puerta.slice(puerta.indexOf("nombre: 'La app usada de verdad'"));
+    const comando = paso.match(/comando:\s*'([^']+)'/)?.[1] ?? '';
+    expect(comando).toBe('node scripts/run-playwright-production.mjs --lo-que-toca');
+  });
+});

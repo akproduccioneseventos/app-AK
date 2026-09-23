@@ -88,7 +88,10 @@ const PASOS = [
   },
   {
     nombre: 'La app usada de verdad',
-    comando: 'npm run test:e2e:production',
+    // NO `npm run test:e2e:production`: ese compila de nuevo, y el paso "Compilacion" ya
+    // lo hizo. Eran 6 minutos tirados en cada corrida (medido el 23 de septiembre de 2026).
+    // El corredor igual recompila solo si falta la compilacion o si el codigo es mas nuevo.
+    comando: 'node scripts/run-playwright-production.mjs --lo-que-toca',
     queSignifica: 'La app compila pero no funciona: alguna pantalla no hace lo que dice. Es el único control que ve lo que ve el usuario.',
     caro: true,
   },

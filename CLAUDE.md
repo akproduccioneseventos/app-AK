@@ -800,8 +800,10 @@ todas.
 (`test-results/.ak-ultimas-fallas.json`) y `otravez` repite sólo esos: **40 segundos en vez de
 24 minutos**. Y la puerta hace lo mismo sola: si la app no cambió desde la falla, repite sólo lo
 que falló; **si la app cambió, corre todo**, porque dos arreglos que pasan sueltos pueden romper
-juntos. La costumbre: **antes de esperar una corrida, mirar en la primera línea cuántos archivos
-va a correr.**
+juntos. Además, **la puerta compilaba dos veces** (6 minutos tirados por corrida) y **corría las
+80 pruebas por cualquier arreglo**: ahora compila una vez y corre sólo las que el cambio alcanza.
+La costumbre: **antes de esperar una corrida, mirar en la primera línea cuántos archivos va a
+correr.**
 
 ### 12. Arrancar la verificación con el trabajo a medio terminar
 
@@ -1216,6 +1218,7 @@ con otra cara.
 | El recibo y el contrato de sena imprimian la fecha del evento corrida un dia | `src/__tests__/el-recibo-y-el-contrato-no-corren-la-fecha.test.ts` |
 | Confirmar asistencia en la pantalla publica devolvia la lista completa de invitados de la fiesta | `src/__tests__/la-pantalla-publica-no-devuelve-la-lista-de-invitados.test.ts` |
 | `otravez` corria las 80 pruebas para repetir una: 24 minutos por vuelta | `src/__tests__/otravez-repite-solo-lo-que-fallo.test.ts` |
+| La puerta corria las 80 pruebas de navegador por cualquier arreglo, y compilaba dos veces | `src/__tests__/se-prueba-lo-nuevo-no-toda-la-app.test.ts` |
 | La clave del portal del cliente agregada a lo que viaja al navegador | `src/__tests__/release-security-boundaries.test.ts` |
 | Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
 
@@ -1310,10 +1313,22 @@ número viejo de pantallas, y dos correcciones propias que se habían perdido al
   `node scripts/lo-que-se-dijo-es-lo-que-es.mjs`.
 - **Recién cuando todo eso pasa, correr la puerta entera, una vez.**
 
-**Por qué la puerta corre todo y no sólo lo que cambió:** dos arreglos que pasan por separado
-pueden romper juntos —ya pasó con el archivo de facturas, que quedó protegido dos veces y dejaba
-la pantalla colgada al guardar—. Eso no se discute; lo que se ordena es **cuántas veces** se
-corre.
+**La puerta prueba LO NUEVO, no toda la app (orden del dueño, 23 de septiembre de 2026).**
+Palabras suyas: *"se debe probar lo nuevo, no toda la app; optimizalo al máximo"*. Media hora de
+navegador por cada arreglo no va más. Cómo quedó:
+
+- **Pruebas de navegador:** corren las que el cambio alcanza (`scripts/pruebas-que-tocan.mjs`):
+  las pruebas nuevas o tocadas, las que visitan las pantallas que el cambio alcanza subiendo por
+  quién importa a quién, y tres de humo (portada, ingreso, panel). **Corren todas sólo si el
+  cambio toca algo general**: configuración, el armazón de la app, algo que usan más de la mitad
+  de las pantallas, o los ayudantes de las pruebas. `AK_PRUEBAS_TODAS=true` fuerza todas.
+- **Recorrido de pantallas:** ya abría sólo las que toca el cambio.
+- **Si falla algo y la app no cambió:** se repite sólo lo que falló.
+- **Se compila una vez**, no dos.
+
+Lo que cuidaba la regla vieja —dos arreglos que pasan sueltos y rompen juntos— sigue cubierto
+porque la selección se hace sobre **todo lo que cambió respecto de la versión principal**, no
+sobre el último arreglo.
 
 ### 1.b Cuando la puerta frena, LEER TODAS LAS FALLAS antes de tocar nada
 

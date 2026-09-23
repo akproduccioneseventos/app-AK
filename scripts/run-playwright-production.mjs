@@ -198,6 +198,8 @@ try {
 
 barrerCorridasViejas();
 
+/** Compila si hace falta. Se llama recien cuando se sabe que hay algo para correr. */
+function asegurarCompilacion() {
 if (!existsSync(".next/BUILD_ID")) {
   console.log("[playwright-production] Compilando app para pruebas E2E (npm run build)...");
   const buildResult = spawnSync("npm", ["run", "build"], {
@@ -222,6 +224,7 @@ if (!existsSync(".next/BUILD_ID")) {
       process.exit(1);
     }
   }
+}
 }
 
 function isPortFree(p, host = "127.0.0.1") {
@@ -460,6 +463,27 @@ async function main() {
     // Para la prueba de Jest: decir que correria, sin levantar servidor ni navegador.
     if (process.env.AK_SOLO_DECIR_QUE_CORRERIA === "true") process.exit(0);
   }
+
+  /**
+   * `--lo-que-toca`: SOLO LAS PRUEBAS QUE EL CAMBIO ALCANZA (orden del dueno, 23 de
+   * septiembre de 2026: "se debe probar lo nuevo, no toda la app"). Lo elige
+   * `pruebas-que-tocan.mjs`; si el cambio toca algo general, corren todas.
+   */
+  if (flags.includes("--lo-que-toca")) {
+    flags.splice(flags.indexOf("--lo-que-toca"), 1);
+    if (specArgs.length === 0) {
+      const { pruebasQueTocan } = await import("./pruebas-que-tocan.mjs");
+      const elegidas = pruebasQueTocan();
+      if (elegidas === "TODAS") {
+        console.log("El cambio toca algo general de la app: corren TODAS las pruebas de navegador.");
+      } else {
+        console.log(`El cambio alcanza ${elegidas.length} prueba/s de navegador (de ${readdirSync(path.join(process.cwd(), "tests", "e2e")).filter((f) => f.endsWith(".spec.ts")).length}): ${elegidas.map((f) => path.basename(f)).join(", ")}`);
+        specArgs = elegidas;
+      }
+    }
+  }
+
+  asegurarCompilacion();
 
   const e2eDir = path.join(process.cwd(), "tests", "e2e");
   const allSpecFiles = specArgs.length > 0
