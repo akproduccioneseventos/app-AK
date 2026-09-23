@@ -140,7 +140,73 @@ async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
 }
 
 let stockPromiseChain = Promise.resolve();
+
+/**
+ * Pone una tarea de stock en la cola, **y la cola sigue andando aunque la tarea falle**.
+ *
+ * **Por que.** Antes la cola se guardaba tal cual: si una tarea fallaba —un corte momentaneo
+ * al guardar—, la cola quedaba **rechazada para siempre**, y cada pedido siguiente se colgaba
+ * de ella y fallaba **sin llegar a intentar nada**. Un solo error dejaba la barra sin poder
+ * descontar ni devolver botellas hasta reiniciar el servidor. Lo midio Codex el 23 de
+ * setiembre de 2026.
+ *
+ * El que llama igual recibe el error de SU tarea: no se esconde. Lo que se limpia es solo la
+ * cola, para el que viene despues.
+ */
+function enLaColaDeStock(tarea: () => Promise<void>): Promise<void> {
+  const esta = stockPromiseChain.then(tarea);
+  stockPromiseChain = esta.catch(() => undefined);
+  return esta;
+}
 const INSUMOS_FILE = 'insumos.json';
+
+/**
+ * **Botellas que hay que devolver y no se pudo.**
+ *
+ * Cuando un pedido no se guarda, se devuelven las botellas que se habian descontado. Si
+ * **tambien** falla esa devolucion, antes quedaba solo un aviso en el registro del servidor y
+ * el stock quedaba bajo para siempre —marcando "sin stock" un trago que habia—. Lo marco Codex
+ * el 23 de setiembre de 2026.
+ *
+ * Ahora la devolucion pendiente queda **anotada**, y **se reintenta sola** al llegar el
+ * proximo pedido. Cada una se identifica por el pedido que la genero, y se saca de la lista
+ * **antes** de devolver: si la devolucion vuelve a fallar se vuelve a anotar. Asi nunca se
+ * devuelven dos veces las mismas botellas, que inflaria el stock.
+ */
+const DEVOLUCIONES_PENDIENTES_FILE = 'barra-devoluciones-pendientes.json';
+type DevolucionPendiente = { pedido: string; movimientos: BarStockMovement[]; anotadaEn: string };
+
+async function anotarDevolucionPendiente(pedido: string, movimientos: BarStockMovement[]) {
+  await enLaColaDeStock(async () => {
+    const lista = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
+    if (lista.some((d) => d.pedido === pedido)) return;
+    lista.push({ pedido, movimientos, anotadaEn: new Date().toISOString() });
+    await writeData(DEVOLUCIONES_PENDIENTES_FILE, lista);
+  });
+}
+
+async function reintentarDevolucionesPendientes() {
+  let pendientes: DevolucionPendiente[] = [];
+  try {
+    await enLaColaDeStock(async () => {
+      pendientes = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
+      if (pendientes.length > 0) await writeData(DEVOLUCIONES_PENDIENTES_FILE, []);
+    });
+  } catch (error) {
+    logger.warn('[barra-tecnologica] no se pudo leer la lista de devoluciones pendientes:', error);
+    return;
+  }
+  for (const pendiente of pendientes) {
+    try {
+      await reponerStock(pendiente.movimientos);
+      logger.info(`[barra-tecnologica] se devolvieron las botellas pendientes del pedido ${pendiente.pedido}.`);
+    } catch (error) {
+      await anotarDevolucionPendiente(pendiente.pedido, pendiente.movimientos).catch(() => {
+        logger.error('[barra-tecnologica] devolucion pendiente perdida, corregir a mano:', { ...pendiente, error });
+      });
+    }
+  }
+}
 
 function aggregateRecipe(drink: Trago): Array<{ insumoId: string; cantidad: number }> {
   const totals = new Map<string, number>();
@@ -175,7 +241,7 @@ async function descontarStock(drink: Trago): Promise<BarStockMovement[]> {
   }
 
   const movements: BarStockMovement[] = [];
-  const nextPromise = stockPromiseChain.then(async () => {
+  const nextPromise = enLaColaDeStock(async () => {
     const inventory = await readData<ServicioEmpresa[]>(INSUMOS_FILE, []);
     for (const item of recipe) {
       const supply = inventory.find(candidate => candidate.id === item.insumoId);
@@ -188,7 +254,6 @@ async function descontarStock(drink: Trago): Promise<BarStockMovement[]> {
     await invalidateInsumosCache();
   });
 
-  stockPromiseChain = nextPromise;
   await nextPromise;
   return movements;
 }
@@ -211,7 +276,7 @@ async function reponerStock(movements: BarStockMovement[]) {
     return;
   }
 
-  const nextPromise = stockPromiseChain.then(async () => {
+  const nextPromise = enLaColaDeStock(async () => {
     const inventory = await readData<ServicioEmpresa[]>(INSUMOS_FILE, []);
     for (const movement of movements) {
       const supply = inventory.find(candidate => candidate.id === movement.insumoId);
@@ -221,7 +286,6 @@ async function reponerStock(movements: BarStockMovement[]) {
     await invalidateInsumosCache();
   });
 
-  stockPromiseChain = nextPromise;
   await nextPromise;
 }
 
@@ -392,6 +456,10 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     const scheduleError = getBarScheduleError(stored.settings);
     if (scheduleError) return { success: false, error: scheduleError };
 
+    // Primero se devuelven las botellas que quedaron pendientes de algun pedido fallado, asi el
+    // stock que se mira para este pedido ya esta corregido.
+    await reintentarDevolucionesPendientes();
+
     const drinks = await getBarDrinks(fiesta);
     const drink = drinks.find((item) => item.id === input.drinkId);
     if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
@@ -471,9 +539,14 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
       } catch (error) {
         logger.error(
           '[barra-tecnologica] no se pudieron devolver las botellas de un pedido que no se guardo. '
-          + 'Hay que corregir el stock a mano:',
+          + 'Queda anotado para reintentar solo:',
           { pedido: order.id, trago: order.drinkName, movimientos: order.stockMovements, error },
         );
+        await anotarDevolucionPendiente(order.id, order.stockMovements || []).catch((errorAlAnotar) => {
+          logger.error('[barra-tecnologica] tampoco se pudo anotar la devolucion. Corregir a mano:', {
+            pedido: order.id, movimientos: order.stockMovements, errorAlAnotar,
+          });
+        });
       }
       return { success: false, error: 'No se pudo registrar el pedido. Proba de nuevo en un momento.' };
     }

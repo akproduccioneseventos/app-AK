@@ -1,6 +1,6 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, deleteDataItem, mutateDataItem } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import type { CatalogoFoto } from '@/types/catalogo';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -20,6 +20,15 @@ const CATALOGO_FILE = 'catalogo-fotos.json';
  * de nada, que es la forma exacta que ya habia aparecido en cobros y en proveedores.
  */
 const turnoDelCatalogo = new AsyncMutex();
+const CATALOGO_COLLECTION = 'catalogo_fotos';
+
+/**
+ * **Con la base de verdad, cada cambio toca UNA foto dentro de la base**, no la lista entera.
+ * El turno de arriba ordena los pedidos de un solo servidor, pero la app puede correr en
+ * hasta cuatro: dos altas en servidores distintos seguian perdiendo una (lo midio Codex el 23
+ * de setiembre de 2026). El turno queda para el modo de prueba local, donde hay uno solo.
+ */
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 export async function getCatalogoFotos(): Promise<CatalogoFoto[]> {
   return readData<CatalogoFoto[]>(CATALOGO_FILE, []);
@@ -27,6 +36,10 @@ export async function getCatalogoFotos(): Promise<CatalogoFoto[]> {
 
 export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
   await requireAppSession();
+  if (!SIN_BASE()) {
+    await createDataItem(CATALOGO_FILE, CATALOGO_COLLECTION, foto.id, foto);
+    return;
+  }
   await turnoDelCatalogo.runExclusive(async () => {
     const fotos = await getCatalogoFotos();
     fotos.push(foto);
@@ -36,6 +49,10 @@ export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
 
 export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
   await requireAppSession();
+  if (!SIN_BASE()) {
+    await mutateDataItem<CatalogoFoto>(CATALOGO_FILE, CATALOGO_COLLECTION, foto.id, () => foto);
+    return;
+  }
   await turnoDelCatalogo.runExclusive(async () => {
     const fotos = await getCatalogoFotos();
     const idx = fotos.findIndex(f => f.id === foto.id);
@@ -48,6 +65,10 @@ export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
 
 export async function deleteCatalogoFoto(id: string): Promise<void> {
   await requireAppSession();
+  if (!SIN_BASE()) {
+    await deleteDataItem(CATALOGO_FILE, CATALOGO_COLLECTION, id);
+    return;
+  }
   await turnoDelCatalogo.runExclusive(async () => {
     const fotos = await getCatalogoFotos();
     await writeData(CATALOGO_FILE, fotos.filter(f => f.id !== id));
@@ -56,6 +77,14 @@ export async function deleteCatalogoFoto(id: string): Promise<void> {
 
 export async function toggleCatalogoFotoDestacada(id: string): Promise<void> {
   await requireAppSession();
+  if (!SIN_BASE()) {
+    // Adentro de la transaccion: dos toques a la vez dan vuelta el valor dos veces, no una.
+    await mutateDataItem<CatalogoFoto>(CATALOGO_FILE, CATALOGO_COLLECTION, id, (actual) => ({
+      ...actual,
+      destacada: !actual.destacada,
+    }));
+    return;
+  }
   await turnoDelCatalogo.runExclusive(async () => {
     const fotos = await getCatalogoFotos();
     const idx = fotos.findIndex(f => f.id === id);

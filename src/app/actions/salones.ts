@@ -1,7 +1,7 @@
 
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, deleteDataItem, mutateDataItem } from '@/lib/data-service';
 import { AsyncMutex } from '@/lib/mutex';
 import type { Salon, SalonPago } from '@/types/salon';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
@@ -22,6 +22,40 @@ const SALONES_FILE = 'salones.json';
  */
 const turnoDeSalones = new AsyncMutex();
 const SALONES_STORAGE_PREFIX = 'salones';
+const SALONES_COLLECTION = 'salones';
+
+/**
+ * **Cada cambio toca UN salon, dentro de la base, no la lista entera.**
+ *
+ * El turno de arriba solo ordena los pedidos dentro de un mismo servidor, y la app puede
+ * correr en hasta cuatro a la vez: con dos personas en servidores distintos seguia
+ * perdiendose un cambio. Lo encontro Codex el 23 de setiembre de 2026 —capacidades que
+ * terminaban en [10, 21] en vez de [11, 21]—. Y lo mismo pasaba con **los pagos del salon**,
+ * que ni siquiera tenian turno: dos pagos cargados a la vez perdian uno.
+ *
+ * Con la base de verdad, el cambio es una transaccion sobre ese unico salon. En el modo de
+ * prueba local (sin base) se sigue usando el turno y la lista, que ahi hay un solo servidor.
+ */
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+
+async function cambiarUnSalon(
+  salonId: string,
+  cambiar: (salon: Salon) => Salon | null,
+): Promise<Salon | null> {
+  if (!SIN_BASE()) {
+    return mutateDataItem<Salon>(SALONES_FILE, SALONES_COLLECTION, salonId, cambiar);
+  }
+  return turnoDeSalones.runExclusive(async () => {
+    const salones = await leerSalones();
+    const idx = salones.findIndex((s) => s.id === salonId);
+    if (idx === -1) return null;
+    const nuevo = cambiar(salones[idx]);
+    if (!nuevo) return null;
+    salones[idx] = nuevo;
+    await writeData(SALONES_FILE, salones);
+    return nuevo;
+  });
+}
 
 export async function getSalones(): Promise<Salon[]> {
   // La ficha del salon guarda el contacto del gerente (su WhatsApp y su correo).
@@ -59,31 +93,33 @@ export async function saveSalon(
     return { success: false, error: 'Poné para cuántas personas es el salón.' };
   }
 
-  return turnoDeSalones.runExclusive(async () => {
-    const salones = await leerSalones();
-    let savedSalon: Salon;
-
-    if ('id' in salonData && salonData.id) {
-      const idx = salones.findIndex((s) => s.id === salonData.id);
-      if (idx === -1) {
-        return { success: false, error: 'Salón no encontrado para actualizar.' };
-      }
-      savedSalon = { ...salones[idx], ...salonData };
-      salones[idx] = savedSalon;
-    } else {
-      savedSalon = { ...salonData, id: `salon_${crypto.randomUUID()}` };
-      salones.push(savedSalon);
-    }
-
-    await writeData(SALONES_FILE, salones);
+  if ('id' in salonData && salonData.id) {
+    const savedSalon = await cambiarUnSalon(salonData.id, (actual) => ({ ...actual, ...salonData }));
+    if (!savedSalon) return { success: false, error: 'Salón no encontrado para actualizar.' };
     return { success: true, salon: savedSalon };
-  });
+  }
+
+  const savedSalon: Salon = { ...salonData, id: `salon_${crypto.randomUUID()}` };
+  if (!SIN_BASE()) {
+    await createDataItem(SALONES_FILE, SALONES_COLLECTION, savedSalon.id, savedSalon);
+  } else {
+    await turnoDeSalones.runExclusive(async () => {
+      const salones = await leerSalones();
+      salones.push(savedSalon);
+      await writeData(SALONES_FILE, salones);
+    });
+  }
+  return { success: true, salon: savedSalon };
 }
 
 export async function deleteSalon(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  if (!SIN_BASE()) {
+    const borrado = await deleteDataItem(SALONES_FILE, SALONES_COLLECTION, id);
+    return borrado ? { success: true } : { success: false, error: 'Salón no encontrado.' };
+  }
   return turnoDeSalones.runExclusive(async () => {
     const salones = await leerSalones();
     const idx = salones.findIndex((s) => s.id === id);
@@ -122,15 +158,11 @@ export async function uploadSalonFoto(
     const bytes = await file.arrayBuffer();
     const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type, true);
 
-    const salones = await leerSalones();
-    const idx = salones.findIndex((s) => s.id === salonId);
-    if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
-
-    salones[idx] = {
-      ...salones[idx],
-      fotos: [...(salones[idx].fotos || []), url],
-    };
-    await writeData(SALONES_FILE, salones);
+    const cambiado = await cambiarUnSalon(salonId, (salon) => ({
+      ...salon,
+      fotos: [...(salon.fotos || []), url],
+    }));
+    if (!cambiado) return { success: false, error: 'Salón no encontrado.' };
 
     return { success: true, url };
   } catch (e: any) {
@@ -147,15 +179,11 @@ export async function deleteSalonFoto(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const salones = await leerSalones();
-    const idx = salones.findIndex((s) => s.id === salonId);
-    if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
-
-    salones[idx] = {
-      ...salones[idx],
-      fotos: (salones[idx].fotos || []).filter((u) => u !== fotoUrl),
-    };
-    await writeData(SALONES_FILE, salones);
+    const cambiado = await cambiarUnSalon(salonId, (salon) => ({
+      ...salon,
+      fotos: (salon.fotos || []).filter((u) => u !== fotoUrl),
+    }));
+    if (!cambiado) return { success: false, error: 'Salón no encontrado.' };
 
     // Best-effort delete from Storage (storage path derived from URL)
     try {
@@ -193,20 +221,16 @@ export async function addSalonPago(
 ): Promise<{ success: boolean; pago?: SalonPago; error?: string }> {
   await requireAppSession();
   try {
-    const salones = await leerSalones();
-    const idx = salones.findIndex((s) => s.id === salonId);
-    if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
-
     const newPago: SalonPago = {
       ...pago,
       id: `pago_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
     };
 
-    salones[idx] = {
-      ...salones[idx],
-      pagos: [...(salones[idx].pagos || []), newPago],
-    };
-    await writeData(SALONES_FILE, salones);
+    const cambiado = await cambiarUnSalon(salonId, (salon) => ({
+      ...salon,
+      pagos: [...(salon.pagos || []), newPago],
+    }));
+    if (!cambiado) return { success: false, error: 'Salón no encontrado.' };
     return { success: true, pago: newPago };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -222,15 +246,11 @@ export async function deleteSalonPago(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const salones = await leerSalones();
-    const idx = salones.findIndex((s) => s.id === salonId);
-    if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
-
-    salones[idx] = {
-      ...salones[idx],
-      pagos: (salones[idx].pagos || []).filter((p) => p.id !== pagoId),
-    };
-    await writeData(SALONES_FILE, salones);
+    const cambiado = await cambiarUnSalon(salonId, (salon) => ({
+      ...salon,
+      pagos: (salon.pagos || []).filter((p) => p.id !== pagoId),
+    }));
+    if (!cambiado) return { success: false, error: 'Salón no encontrado.' };
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
