@@ -67,6 +67,34 @@ const almacen: Record<string, any[]> = {};
 const copia = <T,>(x: T): T => JSON.parse(JSON.stringify(x));
 const esperar = () => new Promise((seguir) => setTimeout(seguir, 15));
 
+/**
+ * Que cada archivo vaya a SU coleccion de la base. La primera version de esta prueba no lo
+ * miraba y dejo pasar las citas escritas en una coleccion que la agenda no lee (las citas
+ * viven en un solo documento, no en una coleccion). Ahora, un par archivo/coleccion que no
+ * existe en la base de verdad hace fallar la prueba.
+ */
+const COLECCION_DE: Record<string, string> = {
+  'crm-leads.json': 'prospectos',
+  'customers.json': 'clientes',
+  'scheduled-messages.json': 'scheduled_messages',
+};
+function mismaColeccion(archivo: string, coleccion: string) {
+  if (COLECCION_DE[archivo] !== coleccion) {
+    throw new Error(`${archivo} no vive en la coleccion "${coleccion}"`);
+  }
+}
+
+jest.mock('@/lib/generic-json-store', () => ({
+  // Una lista guardada entera en un solo documento, cambiada adentro de una transaccion.
+  mutateGenericJsonArray: jest.fn(async (archivo: string, cambiar: (lista: any[]) => any[] | null) => {
+    await esperar();
+    const nueva = cambiar(copia(almacen[archivo] || []));
+    if (!nueva) return null;
+    almacen[archivo] = copia(nueva);
+    return nueva;
+  }),
+}));
+
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (archivo: string, porDefecto: any) => {
     const guardado = almacen[archivo];
@@ -76,7 +104,8 @@ jest.mock('@/lib/data-service', () => ({
     await esperar();
     almacen[archivo] = copia(datos);
   }),
-  createDataItem: jest.fn(async (archivo: string, _coleccion: string, id: string, item: any) => {
+  createDataItem: jest.fn(async (archivo: string, coleccion: string, id: string, item: any) => {
+    mismaColeccion(archivo, coleccion);
     await esperar();
     const lista = almacen[archivo] || [];
     if (lista.some((x: any) => x.id === id)) {
@@ -85,7 +114,8 @@ jest.mock('@/lib/data-service', () => ({
     lista.push(copia(item));
     almacen[archivo] = lista;
   }),
-  mutateDataItem: jest.fn(async (archivo: string, _coleccion: string, id: string, cambiar: (x: any) => any) => {
+  mutateDataItem: jest.fn(async (archivo: string, coleccion: string, id: string, cambiar: (x: any) => any) => {
+    mismaColeccion(archivo, coleccion);
     await esperar();
     const lista = almacen[archivo] || [];
     const indice = lista.findIndex((p: any) => p.id === id);
@@ -96,7 +126,8 @@ jest.mock('@/lib/data-service', () => ({
     almacen[archivo] = lista;
     return nuevo;
   }),
-  deleteDataItem: jest.fn(async (archivo: string, _coleccion: string, id: string) => {
+  deleteDataItem: jest.fn(async (archivo: string, coleccion: string, id: string) => {
+    mismaColeccion(archivo, coleccion);
     await esperar();
     const lista = almacen[archivo] || [];
     const indice = lista.findIndex((p: any) => p.id === id);

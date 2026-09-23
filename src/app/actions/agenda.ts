@@ -244,12 +244,16 @@ export async function getOcupiedDates(): Promise<string[]> {
 // CITAS Y REUNIONES COMERCIALES (CRM & AGENDA)
 // ──────────────────────────────────────────────────────────────────────────────
 
-import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
+import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import type { CrmAppointment } from '@/types/crm';
 import { AsyncMutex } from '@/lib/mutex';
 
 const APPOINTMENTS_FILE = 'crm-appointments.json';
-const APPOINTMENTS_COLLECTION = 'crm_meetings';
+// OJO: las citas NO son una coleccion de la base: viven enteras en UN documento (no estan en
+// FILE_TO_COLLECTION de firebase-sync). Por eso se cambian con `mutateGenericJsonArray`, que
+// relee ese documento adentro de una transaccion. Con createDataItem/mutateDataItem iban a
+// parar a otra coleccion que la agenda no lee (23 de septiembre de 2026).
 const agendaMutex = new AsyncMutex();
 const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
@@ -289,7 +293,7 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
     };
 
     if (!SIN_BASE()) {
-      await createDataItem(APPOINTMENTS_FILE, APPOINTMENTS_COLLECTION, newAppointment.id, newAppointment);
+      await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, (lista) => [...lista, newAppointment]);
     } else {
       await agendaMutex.runExclusive(async () => {
         const appointments = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
@@ -335,14 +339,17 @@ export async function updateAppointmentStatus(
   try {
     await requireAppSession();
     if (!SIN_BASE()) {
-      const actualizado = await mutateDataItem<CrmAppointment>(APPOINTMENTS_FILE, APPOINTMENTS_COLLECTION, id, (actual) => {
-        const nuevo = { ...actual, estado };
-        if (estado === 'Confirmada') {
-          nuevo.recordatorioEnviado = true;
-        }
-        return nuevo;
+      let encontrada = false;
+      await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, (lista) => {
+        encontrada = false;
+        const idx = lista.findIndex(a => a.id === id);
+        if (idx === -1) return null;
+        encontrada = true;
+        const nuevo = { ...lista[idx], estado };
+        if (estado === 'Confirmada') nuevo.recordatorioEnviado = true;
+        return lista.map((a, i) => (i === idx ? nuevo : a));
       });
-      if (!actualizado) return { success: false, error: 'Cita no encontrada' };
+      if (!encontrada) return { success: false, error: 'Cita no encontrada' };
       return { success: true };
     }
 
@@ -388,16 +395,19 @@ export async function updateAppointment(
 
     if (!SIN_BASE()) {
       let citaCancelada = false;
-      const actualizado = await mutateDataItem<CrmAppointment>(APPOINTMENTS_FILE, APPOINTMENTS_COLLECTION, id, (actual) => {
-        if (actual.estado === 'Cancelada') {
+      let actualizado: CrmAppointment | null = null;
+      await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, (lista) => {
+        citaCancelada = false;
+        actualizado = null;
+        const idx = lista.findIndex(a => a.id === id);
+        if (idx === -1) return null;
+        if (lista[idx].estado === 'Cancelada') {
           citaCancelada = true;
           return null;
         }
-        return {
-          ...actual,
-          ...cambios,
-          ...(nombre ? { clienteNombre: nombre } : {}),
-        };
+        const nuevo: CrmAppointment = { ...lista[idx], ...cambios, ...(nombre ? { clienteNombre: nombre } : {}) };
+        actualizado = nuevo;
+        return lista.map((a, i) => (i === idx ? nuevo : a));
       });
 
       if (citaCancelada) {
