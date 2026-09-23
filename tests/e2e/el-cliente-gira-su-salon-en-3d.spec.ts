@@ -13,19 +13,39 @@ import {
  * Puerta 2: /portal/c/[accessKey]
  */
 
-const ID_CON_PLANO = `e2e_salon_con_plano_${Date.now()}`;
-const CLAVE_CON_PLANO = `clave-3d-${Date.now()}`;
+let ID_CON_PLANO = '';
+let CLAVE_CON_PLANO = '';
 
-const ID_SIN_PLANO = `e2e_salon_sin_plano_${Date.now()}`;
-const CLAVE_SIN_PLANO = `clave-sin-plano-${Date.now()}`;
+let ID_SIN_PLANO = '';
+let CLAVE_SIN_PLANO = '';
 
 test.describe('Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas puertas', () => {
-  test.beforeAll(() => {
+  test.beforeAll(({}, workerInfo) => {
+    const suffix = (workerInfo?.project?.name || 'desktop').replace(/[^a-zA-Z0-9]/g, '_');
+    ID_CON_PLANO = `e2e_3d_con_${suffix}_${Date.now()}`;
+    CLAVE_CON_PLANO = `clave-3d-${suffix}-${Date.now()}`;
+    ID_SIN_PLANO = `e2e_3d_sin_${suffix}_${Date.now()}`;
+    CLAVE_SIN_PLANO = `clave-sin-${suffix}-${Date.now()}`;
+
     // Fiesta CON plano armado
     const fiestaConPlano = crearFiestaDeEstaNoche({
       id: ID_CON_PLANO,
       clavePortal: CLAVE_CON_PLANO,
     });
+    fiestaConPlano.configuracion = {
+      ...fiestaConPlano.configuracion,
+      nombreEvento: 'Boda de Prueba 3D',
+    };
+    fiestaConPlano.clientePortalExperience = {
+      ...fiestaConPlano.clientePortalExperience,
+      eventDisplayName: 'Boda de Prueba 3D',
+    };
+    if (fiestaConPlano.clientPortalSettings) {
+      fiestaConPlano.clientPortalSettings.enabled = true;
+      fiestaConPlano.clientPortalSettings.accessKey = CLAVE_CON_PLANO;
+      fiestaConPlano.clientPortalSettings.clientPassword = CLAVE_CON_PLANO;
+      fiestaConPlano.clientPortalSettings.accessPhase = 'en_vivo';
+    }
     fiestaConPlano.decoracion = {
       ...fiestaConPlano.decoracion,
       salonWidth: 20,
@@ -75,6 +95,20 @@ test.describe('Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas p
       id: ID_SIN_PLANO,
       clavePortal: CLAVE_SIN_PLANO,
     });
+    fiestaSinPlano.configuracion = {
+      ...fiestaSinPlano.configuracion,
+      nombreEvento: 'Fiesta Sin Plano 3D',
+    };
+    fiestaSinPlano.clientePortalExperience = {
+      ...fiestaSinPlano.clientePortalExperience,
+      eventDisplayName: 'Fiesta Sin Plano 3D',
+    };
+    if (fiestaSinPlano.clientPortalSettings) {
+      fiestaSinPlano.clientPortalSettings.enabled = true;
+      fiestaSinPlano.clientPortalSettings.accessKey = CLAVE_SIN_PLANO;
+      fiestaSinPlano.clientPortalSettings.clientPassword = CLAVE_SIN_PLANO;
+      fiestaSinPlano.clientPortalSettings.accessPhase = 'en_vivo';
+    }
     fiestaSinPlano.decoracion = {
       salonWidth: 15,
       salonHeight: 15,
@@ -88,14 +122,15 @@ test.describe('Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas p
   });
 
   test.afterAll(() => {
-    borrarFiesta(ID_CON_PLANO);
-    borrarFiesta(ID_SIN_PLANO);
+    if (ID_CON_PLANO) borrarFiesta(ID_CON_PLANO);
+    if (ID_SIN_PLANO) borrarFiesta(ID_SIN_PLANO);
   });
 
   test('Puerta 1 (/portal/[fiestaId]/decoracion): con plano muestra salón 3D y permite girar', async ({ page }) => {
     test.setTimeout(60_000);
 
-    await page.goto(`/portal/${ID_CON_PLANO}/decoracion`, { waitUntil: 'domcontentloaded' });
+    const res = await page.goto(`/portal/${ID_CON_PLANO}/decoracion`, { waitUntil: 'domcontentloaded' });
+    expect(res?.status()).toBeLessThan(400);
     await page.waitForTimeout(2000);
 
     const seccion3D = page.locator('[data-testid="seccion-salon-3d"]');
@@ -106,9 +141,8 @@ test.describe('Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas p
     expect(cuerpo).not.toMatch(/undefined|null|error en 3d|crashed/i);
 
     // Debe contener el contenedor de la escena (canvas 3D o foto de fallback)
-    const hayCanvas = await seccion3D.locator('canvas').count();
-    const hayImagen = await seccion3D.locator('img').count();
-    expect(hayCanvas + hayImagen, 'debe tener canvas 3D o foto de fallback').toBeGreaterThan(0);
+    const escena = seccion3D.locator('canvas, img');
+    await expect(escena.first()).toBeVisible({ timeout: 25_000 });
 
     // Gesto de giro: arrastrar con el mouse o dedo
     const caja = await seccion3D.boundingBox();
@@ -123,16 +157,20 @@ test.describe('Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas p
   test('Puerta 2 (/portal/c/[accessKey]): con plano muestra salón 3D y permite girar', async ({ page }) => {
     test.setTimeout(60_000);
 
-    await page.goto(`/portal/c/${CLAVE_CON_PLANO}`, { waitUntil: 'domcontentloaded' });
+    const res = await page.goto(`/portal/c/${CLAVE_CON_PLANO}`, { waitUntil: 'domcontentloaded' });
+    expect(res?.status()).toBeLessThan(400);
     await page.waitForTimeout(2000);
+
+    // Comprobamos en pantalla que el portal encontró la fiesta
+    await expect(page.getByText(/404|no encontrada|no existe/i)).not.toBeVisible();
+    await expect(page.getByText('Boda de Prueba 3D').first()).toBeVisible({ timeout: 20_000 });
 
     // En el portal con clave, debe aparecer la sección del salón 3D
     const seccion3D = page.locator('[data-testid="seccion-salon-3d"]');
     await expect(seccion3D).toBeVisible({ timeout: 20_000 });
 
-    const hayCanvas = await seccion3D.locator('canvas').count();
-    const hayImagen = await seccion3D.locator('img').count();
-    expect(hayCanvas + hayImagen, 'debe tener canvas 3D o foto de fallback').toBeGreaterThan(0);
+    const escena = seccion3D.locator('canvas, img');
+    await expect(escena.first()).toBeVisible({ timeout: 25_000 });
 
     // Gesto de giro
     const caja = await seccion3D.boundingBox();
@@ -150,8 +188,13 @@ test.describe('Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas p
   test('Puerta 2 (/portal/c/[accessKey]): sin plano muestra cartel de preparación y NO un cuadro roto', async ({ page }) => {
     test.setTimeout(60_000);
 
-    await page.goto(`/portal/c/${CLAVE_SIN_PLANO}`, { waitUntil: 'domcontentloaded' });
+    const res = await page.goto(`/portal/c/${CLAVE_SIN_PLANO}`, { waitUntil: 'domcontentloaded' });
+    expect(res?.status()).toBeLessThan(400);
     await page.waitForTimeout(2000);
+
+    // Comprobamos en pantalla que el portal encontró la fiesta
+    await expect(page.getByText(/404|no encontrada|no existe/i)).not.toBeVisible();
+    await expect(page.getByText('Fiesta Sin Plano 3D').first()).toBeVisible({ timeout: 20_000 });
 
     // Debe mostrar el cartel de decoración en preparación
     await expect(page.getByText(/decoración todavía está en preparación|en preparación/i)).toBeVisible({ timeout: 15_000 });
@@ -161,3 +204,4 @@ test.describe('Orden 75 & 77: El cliente ve su salón en 3D y lo gira en ambas p
     expect(cuerpo).not.toMatch(/crashed|error al cargar 3d|exception/i);
   });
 });
+

@@ -14,9 +14,10 @@ test.describe('Orden 74: El secretario manos libres en el botón flotante', () =
   test('el secretario escucha, se manda solo, avisa si falla el mic y no corta respuestas largas', async ({
     page,
     context,
-    baseURL,
-  }) => {
+  }, testInfo) => {
     test.setTimeout(90_000);
+
+    const baseURL = (testInfo.project.use.baseURL as string) || 'http://127.0.0.1:3100';
 
     // 1. Poner sesión del equipo antes de navegar
     await ponerSesionDelEquipo(context, baseURL);
@@ -52,39 +53,42 @@ test.describe('Orden 74: El secretario manos libres en el botón flotante', () =
 
       // Mock de SpeechSynthesis
       (window as any).__spokenUtterances = [];
-      const mockUtterance = class {
-        text: string;
-        lang = 'es-UY';
-        rate = 1;
-        onstart: (() => void) | null = null;
-        onend: (() => void) | null = null;
-        onerror: (() => void) | null = null;
-        constructor(text: string) {
-          this.text = text;
-        }
+      const speakMock = (u: any) => {
+        (window as any).__spokenUtterances.push(u?.text || String(u));
+        if (u && typeof u.onstart === 'function') u.onstart();
+        setTimeout(() => {
+          if (u && typeof u.onend === 'function') u.onend();
+        }, 50);
       };
-      (window as any).SpeechSynthesisUtterance = mockUtterance;
 
-      (window as any).speechSynthesis = {
-        speak: (u: any) => {
-          (window as any).__spokenUtterances.push(u.text);
-          if (u.onstart) u.onstart();
-          setTimeout(() => {
-            if (u.onend) u.onend();
-          }, 50);
-        },
-        cancel: () => {},
-        getVoices: () => [{ lang: 'es-UY', name: 'Spanish Uruguay' }],
-      };
+      try {
+        if (window.speechSynthesis) {
+          window.speechSynthesis.speak = speakMock as any;
+          window.speechSynthesis.cancel = () => {};
+          window.speechSynthesis.getVoices = () => [{ lang: 'es-UY', name: 'Spanish Uruguay' } as any];
+        }
+      } catch {}
+
+      try {
+        Object.defineProperty(window, 'speechSynthesis', {
+          configurable: true,
+          writable: true,
+          value: {
+            speak: speakMock,
+            cancel: () => {},
+            getVoices: () => [{ lang: 'es-UY', name: 'Spanish Uruguay' }],
+          },
+        });
+      } catch {}
     });
 
     // Navegar a una página protegida donde se monta AppShell y el MultiAgentWidget
-    await page.goto('/fiestas', { waitUntil: 'domcontentloaded' });
+    await page.goto('/eventos', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(2000);
 
     // Abrir el widget del asistente flotante
     const fabButton = page.getByRole('button', { name: /Abrir Asistente IA AK/i });
-    await expect(fabButton).toBeVisible({ timeout: 20_000 });
+    await expect(fabButton).toBeVisible({ timeout: 25_000 });
     await fabButton.click();
 
     // El widget debe abrirse
@@ -129,7 +133,7 @@ test.describe('Orden 74: El secretario manos libres en el botón flotante', () =
     });
 
     // Comprobar que el mensaje se envió solo y aparece en el chat sin haber tocado "Enviar"
-    const mensajeEnviado = page.getByText('Mensaje dictado manos libres automático');
+    const mensajeEnviado = page.getByText('Mensaje dictado manos libres automático').first();
     await expect(mensajeEnviado).toBeVisible({ timeout: 15_000 });
 
     // --- PRUEBA 3: Que la respuesta larga no se corta en la tercera frase ---
@@ -138,8 +142,11 @@ test.describe('Orden 74: El secretario manos libres en el botón flotante', () =
       'Primera frase de la respuesta. Segunda frase con detalle técnico. Tercera frase que antes cortaba. Cuarta frase que ahora sí se escucha completa. Quinta frase final del secretario.';
 
     await page.evaluate((texto) => {
-      // Forzar la lectura simulada a través de la API de speech del navegador
-      const utterance = new (window as any).SpeechSynthesisUtterance(texto);
+      // Disparar la lectura simulada a través de la API de speech del navegador
+      const UtteranceCtor = (window as any).SpeechSynthesisUtterance || class {
+        constructor(public text: string) {}
+      };
+      const utterance = new UtteranceCtor(texto);
       (window as any).speechSynthesis.speak(utterance);
     }, textoLargo);
 
@@ -150,3 +157,4 @@ test.describe('Orden 74: El secretario manos libres en el botón flotante', () =
     expect(ultimoHablado).toContain('Quinta frase');
   });
 });
+

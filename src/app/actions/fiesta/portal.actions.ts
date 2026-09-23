@@ -41,7 +41,7 @@ async function updateFiestaData(
         throw new Error("No se pudo encontrar el archivo de la fiesta activa.");
     }
     const updatedData = await updateFn(currentData);
-    
+
     const guardado = await saveFiesta(updatedData);
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudieron guardar los cambios en la fiesta.' };
@@ -169,7 +169,7 @@ export async function updateClientNotes(fiestaId: string, notes: string) {
 }
 
 export async function updatePortalSettings(
-  fiestaId: string, 
+  fiestaId: string,
   clientSettings: ClientPortalSettings
 ) {
   await requireAppSession();
@@ -209,24 +209,26 @@ export async function updateSocialGallerySettings(
 export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnPlanificacion | null> {
   if (!accessKey || accessKey.trim() === '') return null;
   const safeAccessKey = accessKey.trim();
-  try {
-    const { dbAdmin } = await import('@/lib/firebase/server');
-    if (dbAdmin) {
-      const snapshot = await dbAdmin
-        .collection('fiestas')
-        .where('clientPortalSettings.enabled', '==', true)
-        .where('clientPortalSettings.accessKey', '==', safeAccessKey)
-        .limit(1)
-        .get();
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    try {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        const snapshot = await dbAdmin
+          .collection('fiestas')
+          .where('clientPortalSettings.enabled', '==', true)
+          .where('clientPortalSettings.accessKey', '==', safeAccessKey)
+          .limit(1)
+          .get();
 
-      if (!snapshot.empty) {
-        const data = snapshot.docs[0].data();
-        delete data._syncedAt;
-        return mapFiestaToClientPortal(data as FiestaEnPlanificacion);
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data();
+          delete data._syncedAt;
+          return mapFiestaToClientPortal(data as FiestaEnPlanificacion);
+        }
       }
+    } catch {
+      // Fall back to the compatible reader below.
     }
-  } catch {
-    // Fall back to the compatible reader below.
   }
 
   try {
@@ -312,7 +314,7 @@ export async function submitClientPayment(
           const filename = comprobanteNombre || 'comprobante.png';
           const docId = `cpn_${crypto.randomUUID()}`;
           const storagePath = `payments/${fiestaId}/${docId}_${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-          
+
           await uploadToStorage(buffer, storagePath, mimeType, false);
           comprobanteUrl = storagePath;
         }
@@ -588,7 +590,7 @@ export async function updatePortalGuestRsvp(
   return result;
 }
 
-    
+
 export async function saveTimeline(
   fiestaId: string,
   timeline: TimelineHito[]
@@ -1015,15 +1017,15 @@ export async function checkDateAvailability(
   try {
     const allFiestas = await leerFiestasCrudas(false);
     const targetDate = new Date(targetDateStr).toISOString().split('T')[0];
-    const isBusy = allFiestas.some(f => 
-      f.id !== fiestaId && 
-      f.configuracion?.fechaEvento && 
+    const isBusy = allFiestas.some(f =>
+      f.id !== fiestaId &&
+      f.configuracion?.fechaEvento &&
       new Date(f.configuracion.fechaEvento).toISOString().split('T')[0] === targetDate
     );
     if (!isBusy) {
       return { success: true, available: true };
     }
-    
+
     // Find alternative dates (weekends or nearby dates)
     const baseDate = new Date(targetDateStr);
     const suggestions: string[] = [];
@@ -1033,9 +1035,9 @@ export async function checkDateAvailability(
       const altDate = new Date(baseDate);
       altDate.setDate(altDate.getDate() + offset);
       const altDateStr = altDate.toISOString().split('T')[0];
-      const altBusy = allFiestas.some(f => 
-        f.id !== fiestaId && 
-        f.configuracion?.fechaEvento && 
+      const altBusy = allFiestas.some(f =>
+        f.id !== fiestaId &&
+        f.configuracion?.fechaEvento &&
         new Date(f.configuracion.fechaEvento).toISOString().split('T')[0] === altDateStr
       );
       if (!altBusy) {
@@ -1087,8 +1089,8 @@ export async function cancelServicesOrParty(
     const totalPagado = paymentSummary.paid;
 
     // Calculate inflation adjustment factor based on cancellation year
-    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato 
-      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear() 
+    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato
+      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear()
       : new Date().getFullYear();
     const cancellationYear = new Date().getFullYear();
     const yearsDiff = Math.max(0, cancellationYear - signingYear);
@@ -1144,7 +1146,7 @@ CÁLCULO ECONÓMICO (CLÁUSULA 4):
 
 - Monto abonado por el cliente a la fecha: $${totalPagado.toLocaleString('es-UY')}
 - Resultado:
-  ${totalPagado > penaltyTotal 
+  ${totalPagado > penaltyTotal
     ? `* Se le devolverá al cliente: $${(totalPagado - penaltyTotal).toLocaleString('es-UY')}`
     : `* El cliente adeuda de saldo pendiente: $${(penaltyTotal - totalPagado).toLocaleString('es-UY')}`}
 
@@ -1207,14 +1209,14 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       const remainingSubtotal = remainingItems
         .filter(item => !item.esRegalo && item.idServicioCatalogo !== 'multa_cancelacion_total' && !item.idServicioCatalogo.startsWith('multa_cancelacion_'))
         .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
-      
+
       let discount = 0;
       if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
         discount = presupuesto.descuentoTipo === 'porcentaje'
           ? Math.round(remainingSubtotal * presupuesto.descuentoValor / 100)
           : presupuesto.descuentoValor;
       }
-      
+
       nuevoTotal = Math.max(0, remainingSubtotal - discount) + penaltyTotal;
 
       docContent = `============================================================
@@ -1240,7 +1242,7 @@ CÁLCULO ECONÓMICO (CLÁUSULA 4):
 
 - Monto abonado por el cliente a la fecha: $${totalPagado.toLocaleString('es-UY')}
 - Resultado:
-  ${totalPagado > nuevoTotal 
+  ${totalPagado > nuevoTotal
     ? `* Se le devolverá al cliente: $${(totalPagado - nuevoTotal).toLocaleString('es-UY')}`
     : `* El cliente adeuda de saldo pendiente: $${(nuevoTotal - totalPagado).toLocaleString('es-UY')}`}
 
@@ -1270,7 +1272,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     presupuesto.costoTotalEstimado = updatedItems
       .filter(item => !item.esRegalo)
       .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
-    
+
     let discount = 0;
     if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
       discount = presupuesto.descuentoTipo === 'porcentaje'
@@ -1444,7 +1446,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     presupuesto.costoTotalEstimado = updatedItems
       .filter(item => !item.esRegalo)
       .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
-    
+
     let discount = 0;
     if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
       discount = presupuesto.descuentoTipo === 'porcentaje'
@@ -1677,3 +1679,4 @@ export async function subirIdeasDecoracionCliente(
   }
   return res;
 }
+
