@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23 de septiembre de 2026 (noche) — La comida tampoco se pisa entre servidores
+
+- **Insumos y menús** se guardaban con la lista entera: una lista vieja le volvía el costo
+  viejo al insumo o al menú que otro acababa de cambiar, o borraba el que otro acababa de
+  crear. Ahora cada uno se guarda y se borra solo, y guardar la lista entera ya no borra
+  por omisión. **Por qué así:** es lo mismo que se hizo con la plata; el costo de la comida
+  entra directo al presupuesto. El ajuste de todos los costos a la vez sigue guardando la
+  lista entera, a propósito: cambia todos.
+
+```comprobar
+prueba: src/__tests__/una-lista-vieja-no-borra-plata.test.ts
+usa: mutateDataItem en src/app/actions/insumos.ts
+usa: updateDataItem en src/app/actions/menus-catering.ts
+```
+
 ## 23 de septiembre de 2026 — La parte de Claude de la orden 81: plata, votos, barra y permisos
 
 - **Cobros.** Confirmar, rechazar, borrar un cobro y el pago informado por el cliente leían

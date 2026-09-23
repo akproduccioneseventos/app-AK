@@ -2,7 +2,7 @@
 
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, updateDataItem, deleteDataItem } from '@/lib/data-service';
 import { getInsumos } from './insumos';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { numerosDeMenuInvalidos } from '@/lib/catering/numeros-de-menu';
@@ -10,6 +10,17 @@ import { numerosDeMenuInvalidos } from '@/lib/catering/numeros-de-menu';
 import { leerInsumosCrudos } from '@/lib/insumos/leer-insumos';
 import { AsyncMutex } from '@/lib/mutex';
 const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
+const MENUS_CATERING_COLLECTION = 'menus_catering';
+/**
+ * Con base, un menu se guarda y se borra SOLO, no la lista entera (23 de septiembre de
+ * 2026). La lista leida un rato antes, guardada desde otro servidor, le volvia al costo
+ * viejo el menu que otro acababa de cambiar, o borraba el que otro acababa de crear.
+ */
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+const sinBuffetVirtual = (menu: FullMenu): FullMenu => ({
+  ...menu,
+  items: menu.items.filter(item => !item.id.endsWith('_virtual_buffet')),
+});
 
 let cachedMenus: FullMenu[] | null = null;
 
@@ -231,6 +242,12 @@ async function saveMenuInterno(
     const index = menus.findIndex(m => m.id === menuId);
     if (index === -1) return { success: false, error: `Menú con ID ${menuId} no encontrado.` };
     menus[index] = { ...menuToSave, updatedAt: new Date().toISOString() } as FullMenu;
+    if (!SIN_BASE()) {
+      const guardado = await updateDataItem(MENUS_CATERING_COLLECTION_JSON, MENUS_CATERING_COLLECTION, menuId, sinBuffetVirtual(menus[index]));
+      invalidateMenusCache();
+      if (!guardado) return { success: false, error: 'Ese menú ya no existe: lo borró otra persona.' };
+      return { success: true, id: menuId, menu: menus[index] };
+    }
   } else {
     menuId = `menu_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newMenu: FullMenu = {
@@ -240,6 +257,11 @@ async function saveMenuInterno(
       updatedAt: new Date().toISOString(),
     };
     menus.push(newMenu);
+    if (!SIN_BASE()) {
+      await createDataItem(MENUS_CATERING_COLLECTION_JSON, MENUS_CATERING_COLLECTION, menuId, sinBuffetVirtual(newMenu));
+      invalidateMenusCache();
+      return { success: true, id: menuId, menu: newMenu };
+    }
   }
   await writeMenusFile(menus);
   invalidateMenusCache();
@@ -270,6 +292,11 @@ async function deleteMenuInterno(id: string): Promise<{ success: boolean; error?
   }
 
   invalidateMenusCache();
+  if (!SIN_BASE()) {
+    const borrado = await deleteDataItem(MENUS_CATERING_COLLECTION_JSON, MENUS_CATERING_COLLECTION, id);
+    invalidateMenusCache();
+    return borrado ? { success: true } : { success: false, error: `Menú con ID ${id} no encontrado para eliminar.` };
+  }
   let menus = await readMenusFile();
   const initialLength = menus.length;
   menus = menus.filter(menu => menu.id !== id);

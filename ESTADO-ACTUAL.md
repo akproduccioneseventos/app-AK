@@ -1,7 +1,6 @@
 # Acá quedé
 
-**23 de septiembre de 2026.** Rama `fix/traspaso-23`, sólo con esta hoja. **Todo lo mío está
-fusionado** (1217 y 1214, las dos con la verificación completa en verde).
+**23 de septiembre de 2026.** **Todo lo mío está fusionado** (1217, 1214, 1218 y la de la comida).
 
 ## Lo que entró hoy
 
@@ -20,8 +19,7 @@ fusionado** (1217 y 1214, las dos con la verificación completa en verde).
 
 ## Pendiente, y es mío
 
-- **Límite conocido:** insumos y menús siguen guardando la lista entera (dos personas
-  editando el catálogo de comida a la vez en servidores distintos). Bajo riesgo; no se tocó.
+Nada. Insumos y menús también quedaron protegidos (rama `fix/comida-entre-servidores`).
 
 ## Espera decisión del dueño
 

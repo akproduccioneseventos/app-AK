@@ -90,6 +90,15 @@ describe('Una lista vieja no borra ni pisa plata', () => {
     expect(base.cupones['cup-1'].activo).toBe(false);
   });
 
+  it('una lista vieja de insumos o menus no borra el que otro creo', async () => {
+    base.insumos = { 'ins-1': { id: 'ins-1', nombre: 'Harina' }, 'ins-nuevo': { id: 'ins-nuevo', nombre: 'Azucar' } };
+    base.menus_catering = { 'menu-1': { id: 'menu-1', items: [] }, 'menu-nuevo': { id: 'menu-nuevo', items: [] } };
+    await syncToFirestore('insumos.json', [{ id: 'ins-1', nombre: 'Harina 000' }]);
+    await syncToFirestore('menus-catering.json', [{ id: 'menu-1', items: [] }]);
+    expect(base.insumos['ins-nuevo']).toBeDefined();
+    expect(base.menus_catering['menu-nuevo']).toBeDefined();
+  });
+
   it('restaurar un respaldo SI repone los cobros y borra lo que no esta', async () => {
     base.presupuestos = { 'pres-a': { ...copia(PRES_A), pagosCliente: [{ id: 'malo', monto: 1 }] }, 'pres-x': { id: 'pres-x' } };
     await syncToFirestore('presupuestos.json', [PRES_A], { esRestauracion: true });
