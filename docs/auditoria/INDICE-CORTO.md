@@ -121,3 +121,8 @@ Base main54cd623. Informe docs/auditoria/BARRA-INVITADOS-CATALOGOS-2026-09-22.md
 ## 2026-09-22 - Revalidacion main659d696; QR por nombre aceptado
 
 Informe docs/auditoria/REVALIDACION-659d696-2026-09-22.md.11 sondas aisladas:7 PASS/4 FAIL. Confirma arreglos de reunion/fecha corrupta/noche/fecha imposible y stock ante success:false. Residuales: fecha civil sin hora retrocede, cambio con TZUTC corre dia, excepcion respaldo no compensa y fallo de reposicion se oculta. INV02 se retira por decision del dueno c3808cb (QR por nombre): no cambiar recorrido. INV01 datos de otros invitados es independiente y sigue pendiente; archivos sin cambios, evidencia reutilizada. CAT01-03/BAR02-03 sin cambios, no reejecutados. Orden80 sustituye orden78 de Codex para evitar colision con78Gemini; no reimplementar portada/enlaces. Sin codigo de app/build/fusion ni pruebas reales. NO certificacion final.
+
+
+## 2026-09-23 - Contraste final de esta tanda
+
+[Resultado vigente](CIERRE-CONTRASTE-2026-09-23.md), main2f41322:32 ejecuciones aisladas,28 PASS/4 FAIL; no cobertura total. Calendario/RSVP/reemplazo barra/ultimo borrado cerrados en sondas. Residuales: cola stock rechazada, recuperacion de compensacion, concurrencia entre instancias fotos/salones. PR1214 seis E2E de Claude pendientes; ensayo hardware pendiente; memoria sin cambio. Orden80 actualizada, no repetir corregidos. Codex no programa ni compila. NO certificado de lanzamiento.

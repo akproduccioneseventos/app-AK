@@ -1,3 +1,7 @@
+# Estado prioritario 2026-09-23
+
+Contraste main2f413228cf97dce5cef6f6bb818c504ec66cef74: [resultado vigente](../auditoria/CIERRE-CONTRASTE-2026-09-23.md). NO rehacer CAL05/CAL06/INV01/BAR03 ni ultimo borrado: sondas pasan. Concurrencia local pasa, distribuida sigue fallando. Pendientes: BAR02 cola rechazada, BAR01 recuperacion tras reposicion fallida, CAT01/CAT02 entre instancias. Claude lleva estos residuales de datos/stock. Lo que sigue es texto historico y conserva criterios, no una orden de repetir todo.
+
 # Orden 80: cierre residual, sin rehacer lo corregido
 
 Base main659d696e4807b3fcd543a53988c21c189cf3e806. Sustituye la orden78 de Codex invitados-barra-catalogos, NO las ordenes78/79 de Gemini sobre portada y enlaces. Ver docs/auditoria/REVALIDACION-659d696-2026-09-22.md. Contrastar cualquier tanda nueva antes de programar.
