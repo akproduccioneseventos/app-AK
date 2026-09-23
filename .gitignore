@@ -161,3 +161,7 @@ panel-de-la-app.html
 data/playbook-aplicaciones.json
 src/data/playbook-aplicaciones.json
 data/activos-fijos.json
+
+# Lo escribe la corrida de pruebas (charlas del secretario): nunca se sube
+/data/multiagent/
+/src/data/multiagent/

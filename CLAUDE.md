@@ -786,6 +786,23 @@ contando lo que estaba haciendo. **La regla de "resultados, no relato" ya estaba
 de plata o de comida que está esperando. **Un arreglo entregado vale más que una explicación
 de por qué el otro no sale.**
 
+### 16. Creer que "otravez" repetía sólo lo que falló, y esperar 24 minutos por una prueba
+
+**Pasó el 23 de septiembre de 2026**, con el dueño pidiendo *"debería correr sólo por lo nuevo,
+no todo; guardalo para no cometer el mismo error"*. Una sola prueba falló en la verificación y la
+repetí con `npm run otravez`: **corrió las 80 enteras**. Nadie lo había medido.
+
+**Qué era lo cierto:** `otravez` le pasaba `--last-failed` a Playwright, que con el informe en
+JSON y una corrida por tanda **no anota qué falló**. Repetir una prueba costaba lo mismo que
+todas.
+
+**Qué se hace distinto, y ya está enganchado:** el corredor anota qué archivos fallaron
+(`test-results/.ak-ultimas-fallas.json`) y `otravez` repite sólo esos: **40 segundos en vez de
+24 minutos**. Y la puerta hace lo mismo sola: si la app no cambió desde la falla, repite sólo lo
+que falló; **si la app cambió, corre todo**, porque dos arreglos que pasan sueltos pueden romper
+juntos. La costumbre: **antes de esperar una corrida, mirar en la primera línea cuántos archivos
+va a correr.**
+
 ### 12. Arrancar la verificación con el trabajo a medio terminar
 
 **Pasó el 17 de septiembre de 2026 y costó más de una hora, en una sesión donde el dueño ya venía
@@ -1198,6 +1215,8 @@ con otra cara.
 | Un trago que no se guardo dejaba las botellas descontadas y decia "pedido enviado" | `src/__tests__/un-trago-que-no-se-guardo-no-descuenta-botellas.test.ts` |
 | El recibo y el contrato de sena imprimian la fecha del evento corrida un dia | `src/__tests__/el-recibo-y-el-contrato-no-corren-la-fecha.test.ts` |
 | Confirmar asistencia en la pantalla publica devolvia la lista completa de invitados de la fiesta | `src/__tests__/la-pantalla-publica-no-devuelve-la-lista-de-invitados.test.ts` |
+| `otravez` corria las 80 pruebas para repetir una: 24 minutos por vuelta | `src/__tests__/otravez-repite-solo-lo-que-fallo.test.ts` |
+| La clave del portal del cliente agregada a lo que viaja al navegador | `src/__tests__/release-security-boundaries.test.ts` |
 | Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
 
 ### Cómo se elige el matafuego

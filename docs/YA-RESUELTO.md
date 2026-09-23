@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23 de septiembre de 2026 — Repetir una prueba ya no corre las 80
+
+- `npm run otravez` corria todas las pruebas de navegador para repetir una (24 minutos). Ahora
+  el corredor anota que archivos fallaron y repite solo esos (40 segundos, medido). La puerta
+  hace lo mismo si la app no cambio desde la falla; si cambio, corre todo, a proposito.
+
+```comprobar
+prueba: src/__tests__/otravez-repite-solo-lo-que-fallo.test.ts
+usa: hayFallasAnotadas en scripts/se-puede-publicar.mjs
+```
+
 ## 23 de septiembre de 2026 — La clave del portal no viaja al navegador (entrega 74/75/77)
 
 - La entrega de Gemini agrego la clave del cliente a lo que la pagina del portal manda al

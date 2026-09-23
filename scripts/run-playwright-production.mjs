@@ -1,5 +1,5 @@
 import { spawn, spawnSync, execSync } from "node:child_process";
-import { existsSync, readdirSync, writeFileSync, unlinkSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, writeFileSync, unlinkSync } from "node:fs";
 import { createRequire } from "node:module";
 import net from "node:net";
 import path from "node:path";
@@ -131,6 +131,32 @@ function barrerCorridasViejas() {
  * corrida no arranca**, dice quien tiene el turno y se va sin tocar nada.
  */
 const ARCHIVO_DEL_TURNO = ".ak-corrida-en-curso";
+
+/** Donde queda anotado que archivos fallaron, para que `npm run otravez` repita solo esos. */
+const ARCHIVO_DE_FALLAS = process.env.AK_ARCHIVO_DE_FALLAS || path.join("test-results", ".ak-ultimas-fallas.json");
+
+function archivosQueFallaron(fallas) {
+  return [...new Set(fallas.map((f) => `tests/e2e/${path.basename(String(f.file || ""))}`))]
+    .filter((f) => f !== "tests/e2e/");
+}
+
+function anotarFallas(fallas) {
+  try {
+    mkdirSync(path.dirname(ARCHIVO_DE_FALLAS), { recursive: true });
+    writeFileSync(ARCHIVO_DE_FALLAS, JSON.stringify(archivosQueFallaron(fallas), null, 2));
+  } catch (err) {
+    console.warn(`  ⚠ No se pudo anotar la lista de fallas para "otravez": ${err.message}`);
+  }
+}
+
+function leerFallasAnotadas() {
+  try {
+    const lista = JSON.parse(readFileSync(ARCHIVO_DE_FALLAS, "utf8"));
+    return Array.isArray(lista) ? lista.filter((f) => existsSync(f)) : [];
+  } catch {
+    return [];
+  }
+}
 
 function hayOtraCorridaAndando() {
   if (!existsSync(ARCHIVO_DEL_TURNO)) return false;
@@ -410,8 +436,30 @@ async function runPlaywright(files, extraArgs = []) {
 // -------------------------------------------------------------
 async function main() {
   const cliArgs = process.argv.slice(2);
-  const specArgs = cliArgs.filter((a) => a.endsWith(".spec.ts") || a.includes(".spec."));
-  const flags = cliArgs.filter((a) => !a.endsWith(".spec.ts") && !a.includes(".spec."));
+  let specArgs = cliArgs.filter((a) => a.endsWith(".spec.ts") || a.includes(".spec."));
+  const flags = cliArgs.filter((a) => !a.endsWith(".spec.ts") && !a.includes(".spec.") && a !== "--last-failed");
+
+  /**
+   * `npm run otravez`: SOLO LOS ARCHIVOS QUE FALLARON LA ULTIMA VEZ.
+   *
+   * Costo 24 minutos por vuelta hasta el 23 de septiembre de 2026: se le pasaba
+   * `--last-failed` a Playwright, pero con el informe en JSON y una corrida por tanda
+   * Playwright no guarda que fallo, asi que **corria las 80 enteras** para repetir una.
+   * Ahora la lista la anota este mismo corredor al terminar (ARCHIVO_DE_FALLAS) y se
+   * repiten esos archivos enteros —no una prueba suelta: dentro de un archivo las
+   * pruebas dependen entre si—.
+   */
+  if (cliArgs.includes("--last-failed") && specArgs.length === 0) {
+    const anotadas = leerFallasAnotadas();
+    if (anotadas.length === 0) {
+      console.log("No hay fallas anotadas de la ultima corrida: no hay nada que repetir.");
+      process.exit(0);
+    }
+    console.log(`Repitiendo solo lo que fallo la ultima vez (${anotadas.length} archivo/s): ${anotadas.map((f) => path.basename(f)).join(", ")}`);
+    specArgs = anotadas;
+    // Para la prueba de Jest: decir que correria, sin levantar servidor ni navegador.
+    if (process.env.AK_SOLO_DECIR_QUE_CORRERIA === "true") process.exit(0);
+  }
 
   const e2eDir = path.join(process.cwd(), "tests", "e2e");
   const allSpecFiles = specArgs.length > 0
@@ -519,6 +567,8 @@ async function main() {
    * peor que no tener control.
    */
   const tandasCaidas = [];
+  /** Los archivos de esas tandas: `otravez` tiene que repetirlos, aunque no haya una falla con nombre. */
+  const archivosDeTandasCaidas = [];
   /** Cuanto tardo cada tanda. Se imprime al final, de la mas lenta a la mas rapida. */
   const relojPorTanda = [];
   /** Segundos gastados solo en levantar el servidor, sumando las 39 veces. */
@@ -610,10 +660,12 @@ async function main() {
           if (rotos.length > 0) {
             console.warn(`  ⚠ ARCHIVO QUE NO CARGA (se lleva puesta la tanda entera):`);
             for (const roto of rotos) console.warn(`      ${roto}`);
+            archivosDeTandasCaidas.push(...batch);
             tandasCaidas.push(
               `Tanda ${idx + 1}: no corrio ninguna prueba porque estos archivos no cargan:\n      ${rotos.join("\n      ")}`,
             );
           } else {
+            archivosDeTandasCaidas.push(...batch);
             tandasCaidas.push(
               `Tanda ${idx + 1} (${batch.map((b) => path.basename(b)).join(", ")}): terminó con código ${result.code} y no registró ninguna prueba.`,
             );
@@ -669,7 +721,8 @@ async function main() {
       }
     } catch (err) {
       console.error(`  ✕ Error en la tanda ${idx + 1}:`, err.message);
-      tandasCaidas.push(`Tanda ${idx + 1} (${batch.map((b) => path.basename(b)).join(", ")}): ${err.message}`);
+      archivosDeTandasCaidas.push(...batch);
+            tandasCaidas.push(`Tanda ${idx + 1} (${batch.map((b) => path.basename(b)).join(", ")}): ${err.message}`);
       const recentOutput = serverInstance.getRecentOutput().trim();
       if (recentOutput) {
         console.error(`  Últimos logs del servidor:\n${recentOutput}`);
@@ -776,6 +829,8 @@ async function main() {
     for (const detalle of tandasCaidas) console.error(`  ✕ ${detalle}`);
     console.error('');
   }
+
+  anotarFallas([...fallasReales, ...archivosDeTandasCaidas.map((file) => ({ file }))]);
 
   if (fallasReales.length > 0 || tandasCaidas.length > 0) {
     if (fallasReales.length > 0) console.error(`DETALLE DE FALLAS REALES (${fallasReales.length}):`);
