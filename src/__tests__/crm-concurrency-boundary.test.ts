@@ -11,8 +11,8 @@ function actionBody(name: string, nextName: string) {
 
 describe('CRM concurrency boundary', () => {
   it('creates and updates individual Firestore documents', () => {
-    expect(source).toContain("collection('prospectos').doc(newLead.id).create");
-    expect(source).toContain('dbAdmin.runTransaction');
+    expect(source).toContain('createDataItem');
+    expect(source).toContain('mutateDataItem');
     expect(source).toContain('mutateCrmLeadDocument');
   });
 

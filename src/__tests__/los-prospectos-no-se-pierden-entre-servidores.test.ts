@@ -37,6 +37,16 @@ jest.mock('@/app/actions/google-workspace', () => ({
   upsertGoogleContact: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('@/lib/firebase/server', () => ({
+  dbAdmin: null,
+  authAdmin: null,
+  storageAdmin: null,
+}));
+
+jest.mock('@/lib/firebase/firestore', () => ({
+  db: null,
+}));
+
 jest.mock('@/lib/firebase/storage', () => ({
   uploadToStorage: jest.fn().mockResolvedValue('https://storage.mock/file.pdf'),
   deleteFromStorage: jest.fn().mockResolvedValue(undefined),

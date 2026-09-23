@@ -14,6 +14,26 @@ jest.mock('@/lib/data-service', () => ({
   writeData: jest.fn(async (file: string, data: any) => {
     datosGuardados[file] = JSON.parse(JSON.stringify(data));
   }),
+  createDataItem: jest.fn(async (file: string, _col: string, _id: string, item: any) => {
+    datosGuardados[file] = [...(datosGuardados[file] || []), JSON.parse(JSON.stringify(item))];
+  }),
+  mutateDataItem: jest.fn(async (file: string, _col: string, id: string, mutate: (actual: any) => any) => {
+    const list = datosGuardados[file] || [];
+    const idx = list.findIndex((x: any) => x.id === id);
+    if (idx === -1) return null;
+    const updated = mutate(JSON.parse(JSON.stringify(list[idx])));
+    if (!updated) return null;
+    list[idx] = updated;
+    datosGuardados[file] = list;
+    return updated;
+  }),
+  deleteDataItem: jest.fn(async (file: string, _col: string, id: string) => {
+    const list = datosGuardados[file] || [];
+    const next = list.filter((x: any) => x.id !== id);
+    if (next.length === list.length) return false;
+    datosGuardados[file] = next;
+    return true;
+  }),
 }));
 
 jest.mock('@/lib/auth/require-session', () => ({
