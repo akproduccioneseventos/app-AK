@@ -245,9 +245,17 @@ export async function getOcupiedDates(): Promise<string[]> {
 // ──────────────────────────────────────────────────────────────────────────────
 
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import type { CrmAppointment } from '@/types/crm';
+import { AsyncMutex } from '@/lib/mutex';
 
 const APPOINTMENTS_FILE = 'crm-appointments.json';
+// OJO: las citas NO son una coleccion de la base: viven enteras en UN documento (no estan en
+// FILE_TO_COLLECTION de firebase-sync). Por eso se cambian con `mutateGenericJsonArray`, que
+// relee ese documento adentro de una transaccion. Con createDataItem/mutateDataItem iban a
+// parar a otra coleccion que la agenda no lee (23 de septiembre de 2026).
+const agendaMutex = new AsyncMutex();
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 export async function getAppointments(): Promise<CrmAppointment[]> {
   // Las reuniones agendadas con los clientes, con sus datos. Estaba abierta.
@@ -277,16 +285,22 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
 }> {
   try {
     await requireAppSession();
-    const appointments = await getAppointments();
     const newAppointment: CrmAppointment = {
       ...data,
-      id: `cita_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      id: `cita_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       estado: data.estado || 'Agendada',
       creadoEn: new Date().toISOString(),
     };
 
-    appointments.push(newAppointment);
-    await writeData(APPOINTMENTS_FILE, appointments);
+    if (!SIN_BASE()) {
+      await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, (lista) => [...lista, newAppointment]);
+    } else {
+      await agendaMutex.runExclusive(async () => {
+        const appointments = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
+        appointments.push(newAppointment);
+        await writeData(APPOINTMENTS_FILE, appointments);
+      });
+    }
 
     // Sincronizacion automatica con Google Workspace (Calendar + Gmail de la Empresa & Cliente)
     const { syncAppointmentToGoogleWorkspace } = await import('@/app/actions/google-workspace');
@@ -324,17 +338,34 @@ export async function updateAppointmentStatus(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireAppSession();
-    const appointments = await getAppointments();
-    const idx = appointments.findIndex(a => a.id === id);
-    if (idx === -1) return { success: false, error: 'Cita no encontrada' };
-
-    appointments[idx].estado = estado;
-    if (estado === 'Confirmada') {
-      appointments[idx].recordatorioEnviado = true;
+    if (!SIN_BASE()) {
+      let encontrada = false;
+      await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, (lista) => {
+        encontrada = false;
+        const idx = lista.findIndex(a => a.id === id);
+        if (idx === -1) return null;
+        encontrada = true;
+        const nuevo = { ...lista[idx], estado };
+        if (estado === 'Confirmada') nuevo.recordatorioEnviado = true;
+        return lista.map((a, i) => (i === idx ? nuevo : a));
+      });
+      if (!encontrada) return { success: false, error: 'Cita no encontrada' };
+      return { success: true };
     }
 
-    await writeData(APPOINTMENTS_FILE, appointments);
-    return { success: true };
+    return agendaMutex.runExclusive(async () => {
+      const appointments = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
+      const idx = appointments.findIndex(a => a.id === id);
+      if (idx === -1) return { success: false, error: 'Cita no encontrada' };
+
+      appointments[idx].estado = estado;
+      if (estado === 'Confirmada') {
+        appointments[idx].recordatorioEnviado = true;
+      }
+
+      await writeData(APPOINTMENTS_FILE, appointments);
+      return { success: true };
+    });
   } catch (e: any) {
     return { success: false, error: e.message || 'Error al actualizar cita' };
   }
@@ -353,13 +384,6 @@ export async function updateAppointment(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireAppSession();
-    const appointments = await getAppointments();
-    const idx = appointments.findIndex(a => a.id === id);
-    if (idx === -1) return { success: false, error: 'Cita no encontrada' };
-
-    if (appointments[idx].estado === 'Cancelada') {
-      return { success: false, error: 'La cita está cancelada. Agendá una nueva en vez de reescribir ésta.' };
-    }
 
     const nombre = cambios.clienteNombre?.trim();
     if (cambios.clienteNombre !== undefined && !nombre) {
@@ -369,16 +393,57 @@ export async function updateAppointment(
       return { success: false, error: 'La fecha de la cita no se entiende.' };
     }
 
-    appointments[idx] = { ...appointments[idx], ...cambios, ...(nombre ? { clienteNombre: nombre } : {}) };
-    await writeData(APPOINTMENTS_FILE, appointments);
+    if (!SIN_BASE()) {
+      let citaCancelada = false;
+      let actualizado: CrmAppointment | null = null;
+      await mutateGenericJsonArray<CrmAppointment>(APPOINTMENTS_FILE, (lista) => {
+        citaCancelada = false;
+        actualizado = null;
+        const idx = lista.findIndex(a => a.id === id);
+        if (idx === -1) return null;
+        if (lista[idx].estado === 'Cancelada') {
+          citaCancelada = true;
+          return null;
+        }
+        const nuevo: CrmAppointment = { ...lista[idx], ...cambios, ...(nombre ? { clienteNombre: nombre } : {}) };
+        actualizado = nuevo;
+        return lista.map((a, i) => (i === idx ? nuevo : a));
+      });
 
-    // Sincronizar actualización con Google Workspace
-    const { syncAppointmentToGoogleWorkspace } = await import('@/app/actions/google-workspace');
-    syncAppointmentToGoogleWorkspace(appointments[idx]).catch((err) => {
-      console.warn('[agenda] Google Workspace appointment update sync failed:', err);
+      if (citaCancelada) {
+        return { success: false, error: 'La cita está cancelada. Agendá una nueva en vez de reescribir ésta.' };
+      }
+      if (!actualizado) return { success: false, error: 'Cita no encontrada' };
+
+      // Sincronizar actualización con Google Workspace
+      const { syncAppointmentToGoogleWorkspace } = await import('@/app/actions/google-workspace');
+      syncAppointmentToGoogleWorkspace(actualizado).catch((err) => {
+        console.warn('[agenda] Google Workspace appointment update sync failed:', err);
+      });
+
+      return { success: true };
+    }
+
+    return agendaMutex.runExclusive(async () => {
+      const appointments = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
+      const idx = appointments.findIndex(a => a.id === id);
+      if (idx === -1) return { success: false, error: 'Cita no encontrada' };
+
+      if (appointments[idx].estado === 'Cancelada') {
+        return { success: false, error: 'La cita está cancelada. Agendá una nueva en vez de reescribir ésta.' };
+      }
+
+      appointments[idx] = { ...appointments[idx], ...cambios, ...(nombre ? { clienteNombre: nombre } : {}) };
+      await writeData(APPOINTMENTS_FILE, appointments);
+
+      // Sincronizar actualización con Google Workspace
+      const { syncAppointmentToGoogleWorkspace } = await import('@/app/actions/google-workspace');
+      syncAppointmentToGoogleWorkspace(appointments[idx]).catch((err) => {
+        console.warn('[agenda] Google Workspace appointment update sync failed:', err);
+      });
+
+      return { success: true };
     });
-
-    return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message || 'Error al actualizar cita' };
   }

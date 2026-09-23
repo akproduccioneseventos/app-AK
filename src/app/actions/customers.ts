@@ -2,15 +2,19 @@
 'use server';
 
 import type { Customer, CustomerStatus } from '@/types/customer';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import * as logger from '@/lib/logger';
 import { verifySession } from '@/lib/auth/session-token';
+import { AsyncMutex } from '@/lib/mutex';
 
 const CUSTOMERS_FILE = 'customers.json';
+const CUSTOMERS_COLLECTION = 'clientes';
+const customersMutex = new AsyncMutex();
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 // Storage paths for different document types
 const STORAGE_CONTRACTS_PATH = 'contracts';
@@ -39,11 +43,11 @@ export async function saveCustomer(
   if (!auth.success) return { success: false, error: auth.error };
   let customers = await getCustomers();
   let customerId: string;
-  let customerToSave: Partial<Customer> = {}; 
+  let customerToSave: Partial<Customer> = {};
   let isNewCustomer = false;
 
   let contractFile: File | null = null;
-  let budgetFile: File | null = null; 
+  let budgetFile: File | null = null;
   let salonContractFile: File | null = null;
 
   if (customerData instanceof FormData) {
@@ -52,7 +56,7 @@ export async function saveCustomer(
     customerToSave.address = customerData.get('address') as string | undefined;
     customerToSave.phone = customerData.get('phone') as string | undefined;
     customerToSave.taxId = customerData.get('taxId') as string | undefined;
-    
+
     customerToSave.partyDate = customerData.get('partyDate') as string | undefined;
     customerToSave.partyTime = customerData.get('partyTime') as string | undefined;
     customerToSave.partyType = customerData.get('partyType') as string | undefined;
@@ -62,7 +66,7 @@ export async function saveCustomer(
     customerToSave.venueName = customerData.get('venueName') as string | undefined;
 
     contractFile = customerData.get('contract') as File | null;
-    budgetFile = customerData.get('budget') as File | null; 
+    budgetFile = customerData.get('budget') as File | null;
     salonContractFile = customerData.get('salonContract') as File | null;
 
     const formId = customerData.get('id') as string | undefined;
@@ -78,41 +82,40 @@ export async function saveCustomer(
   if (!customerToSave.name?.trim() && !customerToSave.companyName?.trim()) {
     return { success: false, error: 'El nombre del cliente o de la empresa es obligatorio.' };
   }
-  
+
   if (customerToSave.id) { // Update
     customerId = customerToSave.id;
-    const index = customers.findIndex(c => c.id === customerId);
-    if (index === -1) {
-      return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };
+    if (SIN_BASE()) {
+      const index = customers.findIndex(c => c.id === customerId);
+      if (index === -1) {
+        return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };
+      }
+      const existingCustomer = customers[index];
+      customerToSave = {
+        ...existingCustomer,
+        ...customerToSave,
+        name: customerToSave.name || customerToSave.companyName || existingCustomer.name || 'Sin Nombre Asignado',
+        estadoCliente: customerToSave.estadoCliente || existingCustomer.estadoCliente || 'Actual',
+        contractFileName: contractFile ? undefined : (customerToSave.contractFileName || existingCustomer.contractFileName),
+        budgetFileName: budgetFile ? undefined : (customerToSave.budgetFileName || existingCustomer.budgetFileName),
+        salonContractFileName: salonContractFile ? undefined : (customerToSave.salonContractFileName || existingCustomer.salonContractFileName),
+      };
     }
-    const existingCustomer = customers[index];
-    customers[index] = {
-      ...existingCustomer,
-      ...customerToSave,
-      name: customerToSave.name || customerToSave.companyName || existingCustomer.name || 'Sin Nombre Asignado',
-      estadoCliente: customerToSave.estadoCliente || existingCustomer.estadoCliente || 'Actual',
-      contractFileName: contractFile ? undefined : (customerToSave.contractFileName || existingCustomer.contractFileName),
-      budgetFileName: budgetFile ? undefined : (customerToSave.budgetFileName || existingCustomer.budgetFileName),
-      salonContractFileName: salonContractFile ? undefined : (customerToSave.salonContractFileName || existingCustomer.salonContractFileName),
-    };
-    customerToSave = customers[index]; 
   } else { // Create
     isNewCustomer = true;
-    customerId = `cust_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    customerId = `cust_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const newCustomerBase: Omit<Customer, 'id'> = {
-        ...(customerToSave as Omit<Customer, 'id'>), 
+        ...(customerToSave as Omit<Customer, 'id'>),
         name: customerToSave.name || customerToSave.companyName || 'Sin Nombre Asignado',
         estadoCliente: customerToSave.estadoCliente || 'Actual',
     };
-    const newCustomerWithId = {
+    customerToSave = {
       ...newCustomerBase,
       id: customerId,
       name: newCustomerBase.name || newCustomerBase.companyName || '', // Ensure name is set on creation
     };
-    customers.push(newCustomerWithId);
-    customerToSave = newCustomerWithId;
   }
-  
+
   if (contractFile && contractFile.size > 0) {
     try {
       if (contractFile.type !== 'application/pdf') {
@@ -146,7 +149,7 @@ export async function saveCustomer(
       return { success: false, error: `Error al guardar archivo de presupuesto: ${fileError.message}` };
     }
   }
-  
+
   if (salonContractFile && salonContractFile.size > 0) {
     try {
       if (salonContractFile.type !== 'application/pdf') {
@@ -163,12 +166,36 @@ export async function saveCustomer(
       return { success: false, error: `Error al guardar archivo de contrato del salón: ${fileError.message}` };
     }
   }
-  
-  const finalIndex = customers.findIndex(c => c.id === customerId);
-  if (finalIndex !== -1) customers[finalIndex] = customerToSave as Customer;
-  
+
   try {
-    await writeData(CUSTOMERS_FILE, customers, (a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
+    if (!SIN_BASE()) {
+      if (isNewCustomer) {
+        await createDataItem(CUSTOMERS_FILE, CUSTOMERS_COLLECTION, customerId, customerToSave as Customer);
+      } else {
+        const guardado = await mutateDataItem<Customer>(CUSTOMERS_FILE, CUSTOMERS_COLLECTION, customerId, (actual) => ({
+          ...actual,
+          ...customerToSave,
+          name: customerToSave.name || customerToSave.companyName || actual.name || actual.companyName || 'Sin Nombre Asignado',
+          estadoCliente: customerToSave.estadoCliente || actual.estadoCliente || 'Actual',
+          contractFileName: customerToSave.contractFileName || actual.contractFileName,
+          budgetFileName: customerToSave.budgetFileName || actual.budgetFileName,
+          salonContractFileName: customerToSave.salonContractFileName || actual.salonContractFileName,
+        }));
+        if (!guardado) return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };
+        customerToSave = guardado;
+      }
+    } else {
+      await customersMutex.runExclusive(async () => {
+        const list = await readData<Customer[]>(CUSTOMERS_FILE, []);
+        const idx = list.findIndex(c => c.id === customerId);
+        if (idx !== -1) {
+          list[idx] = customerToSave as Customer;
+        } else {
+          list.push(customerToSave as Customer);
+        }
+        await writeData(CUSTOMERS_FILE, list, (a, b) => (a.companyName || a.name || '').localeCompare(b.companyName || b.name || ''));
+      });
+    }
     logger.info('[Cliente] Guardado exitoso:', customerId, (customerToSave as Customer).name);
   } catch (writeError: any) {
     logger.error('[Cliente] Error al guardar:', writeError.message || writeError);
@@ -207,7 +234,7 @@ export async function saveCustomer(
       logger.warn('[WhatsApp] Automation trigger failed for cliente_nuevo:', err.message)
     );
   }
-  
+
   return { success: true, id: customerId, customer: customerToSave as Customer };
 }
 
@@ -218,12 +245,6 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
   let customers = await getCustomers();
   const customerToDelete = customers.find(c => c.id === id);
   const initialLength = customers.length;
-  customers = customers.filter(c => c.id !== id);
-
-  if (customers.length === initialLength) {
-    return { success: false, error: `Cliente con ID ${id} no encontrado para eliminar.` };
-  }
-
   if (customerToDelete?.contractFileName) {
     try {
       await deleteFromStorage(customerToDelete.contractFileName);
@@ -231,14 +252,14 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
       console.warn(`Error deleting contract file ${customerToDelete.contractFileName}:`, fileError.message);
     }
   }
-  if (customerToDelete?.budgetFileName) { 
+  if (customerToDelete?.budgetFileName) {
     try {
       await deleteFromStorage(customerToDelete.budgetFileName);
     } catch (fileError: any) {
       console.warn(`Error deleting budget file ${customerToDelete.budgetFileName}:`, fileError.message);
     }
   }
-  if (customerToDelete?.salonContractFileName) { 
+  if (customerToDelete?.salonContractFileName) {
     try {
       await deleteFromStorage(customerToDelete.salonContractFileName);
     } catch (fileError: any) {
@@ -246,18 +267,22 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean; er
     }
   }
 
-  await writeData(CUSTOMERS_FILE, customers);
-
-  // Explicitly delete the Firestore document to avoid it being restored on the next sync
-  try {
-    const { forceDeleteDocFromFirestore } = await import('@/lib/firebase-sync');
-    await forceDeleteDocFromFirestore('clientes', id);
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    console.warn('[Clientes] Could not force-delete Firestore doc for customer:', msg);
+  if (!SIN_BASE()) {
+    const borrado = await deleteDataItem(CUSTOMERS_FILE, CUSTOMERS_COLLECTION, id);
+    if (!borrado) return { success: false, error: `Cliente con ID ${id} no encontrado para eliminar.` };
+    return { success: true };
   }
 
-  return { success: true };
+  return customersMutex.runExclusive(async () => {
+    let list = await readData<Customer[]>(CUSTOMERS_FILE, []);
+    const initialLength = list.length;
+    list = list.filter(c => c.id !== id);
+    if (list.length === initialLength) {
+      return { success: false, error: `Cliente con ID ${id} no encontrado para eliminar.` };
+    }
+    await writeData(CUSTOMERS_FILE, list);
+    return { success: true };
+  });
 }
 
 export async function getContractFilePath(filename: string): Promise<string | null> {
@@ -302,7 +327,7 @@ export async function syncCustomerFromFiestaConfig(
       customerToUpdate.partyDate = newPartyDateISO;
       updated = true;
   }
-  
+
   let partyTimeStr = '';
   if (config.horaInicio) partyTimeStr += config.horaInicio;
   if (config.horaFin) partyTimeStr += ` - ${config.horaFin}`;
@@ -315,7 +340,7 @@ export async function syncCustomerFromFiestaConfig(
     customerToUpdate.partyType = config.tipoCelebracion;
     updated = true;
   }
-  
+
   const newGuestCount = config.invitadosEstimados !== undefined ? Number(config.invitadosEstimados) : undefined;
   if(newGuestCount !== undefined && customerToUpdate.guestCount !== newGuestCount) {
     customerToUpdate.guestCount = newGuestCount;
@@ -333,7 +358,7 @@ export async function syncCustomerFromFiestaConfig(
       return { success: false, error: saveResult.error || "Failed to save synced customer data." };
     }
   }
-  
+
   return { success: true };
 }
 
@@ -371,24 +396,42 @@ export async function resetAllCustomers(): Promise<{ success: boolean; deletedCo
   }
 }
 
-export async function addDocumentReferenceToCustomer(customerId: string, documentType: 'contract' | 'budget' | 'salonContract', filename: string): Promise<{ success: boolean, error?: string}> {
-    const auth = await verifySession();
-    if (!auth.success) return { success: false, error: auth.error };
-    const customers = await getCustomers();
+export async function addDocumentReferenceToCustomer(
+  customerId: string,
+  documentType: 'contract' | 'budget' | 'salonContract',
+  filename: string,
+): Promise<{ success: boolean; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error };
+
+  if (!SIN_BASE()) {
+    const actualizado = await mutateDataItem<Customer>(CUSTOMERS_FILE, CUSTOMERS_COLLECTION, customerId, (actual) => {
+      const next = { ...actual };
+      if (documentType === 'contract') next.contractFileName = filename;
+      else if (documentType === 'budget') next.budgetFileName = filename;
+      else if (documentType === 'salonContract') next.salonContractFileName = filename;
+      return next;
+    });
+    if (!actualizado) return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };
+    return { success: true };
+  }
+
+  return customersMutex.runExclusive(async () => {
+    const customers = await readData<Customer[]>(CUSTOMERS_FILE, []);
     const customerIndex = customers.findIndex(c => c.id === customerId);
     if (customerIndex === -1) {
-        return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };
+      return { success: false, error: `Cliente con ID ${customerId} no encontrado.` };
     }
 
-    if(documentType === 'contract') {
-        customers[customerIndex].contractFileName = filename;
+    if (documentType === 'contract') {
+      customers[customerIndex].contractFileName = filename;
     } else if (documentType === 'budget') {
-        customers[customerIndex].budgetFileName = filename;
+      customers[customerIndex].budgetFileName = filename;
     } else if (documentType === 'salonContract') {
-        customers[customerIndex].salonContractFileName = filename;
+      customers[customerIndex].salonContractFileName = filename;
     }
-
 
     await writeData(CUSTOMERS_FILE, customers);
     return { success: true };
+  });
 }

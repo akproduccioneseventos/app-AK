@@ -1,6 +1,23 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
 
+
+## 23 de septiembre de 2026 (noche) — Orden 82: prospectos, clientes, agenda y mensajes no se pisan
+
+- **De Gemini:** prospectos, clientes y mensajes programados se guardan de a uno en la base;
+  una lista vieja ya no borra ni pisa lo que otro guardó.
+- **Arreglado al revisarla (el error era de mi orden):** las citas de la agenda **no son una
+  colección**: viven enteras en un solo documento. La orden pedía `mutateDataItem`, y con eso
+  las citas nuevas iban a parar a otra colección que la agenda no lee (la cita no aparecía y
+  las existentes daban "no encontrada"). Ahora usan `mutateGenericJsonArray`, que relee el
+  documento adentro de una transacción. La prueba ahora falla si un archivo se escribe en una
+  colección que no es la suya.
+
+```comprobar
+usa: mutateGenericJsonArray en src/app/actions/agenda.ts
+prueba: src/__tests__/los-prospectos-no-se-pierden-entre-servidores.test.ts
+```
+
 ## 23 de septiembre de 2026 (noche) — Memoria del servidor: MEDIDA, y propuestas viejas cerradas
 
 **Medido en este contenedor, con la versión compilada de la app** (sin la base de datos, que en

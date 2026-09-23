@@ -821,6 +821,18 @@ leían afuera del turno y la pregunta 8 no se les había vuelto a pasar.
 `una-lista-vieja-no-borra-plata` y `la-plata-no-se-pierde-entre-servidores`. Y la costumbre:
 **"auditado" dice con qué preguntas se auditó**, no que no puede haber nada más.
 
+### 18. Mandar a guardar "de a un registro" algo que no es una colección
+
+**Pasó el 23 de septiembre de 2026, en la orden 82.** Le pedí a Gemini que las citas de la
+agenda usaran `mutateDataItem`, sin mirar dónde vivían. **No son una colección**: están enteras
+en un solo documento. La entrega hizo exactamente lo pedido y las citas nuevas iban a un lugar
+que la agenda no lee. La prueba de la entrega pasaba igual, porque no miraba el lugar.
+
+**Qué se hace distinto:** antes de mandar a guardar de a un registro, **fijarse en
+`FILE_TO_COLLECTION` (`src/lib/firebase-sync.ts`) si el archivo es una colección**. Si no está,
+es un documento entero y va `mutateGenericJsonArray`. Y las pruebas de este tipo **comprueban el
+par archivo/colección**, no sólo que se guarde.
+
 ### 12. Arrancar la verificación con el trabajo a medio terminar
 
 **Pasó el 17 de septiembre de 2026 y costó más de una hora, en una sesión donde el dueño ya venía
