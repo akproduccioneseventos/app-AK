@@ -80,3 +80,28 @@ prueba: tests/e2e/81-prueba-previa-no-finge-equipo.spec.ts
 prueba: tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts
 usa: SyncStatusIndicator en src/app/evento/fotocabina/[fiestaId]/page.tsx
 ```
+
+---
+
+## Segunda vuelta (24 de septiembre de 2026): las cuatro pruebas fallan
+
+Se corrió `npm run "publicar?"` sobre la propuesta junto con la versión principal. Compila y
+Jest pasa, pero **las cuatro pruebas de navegador nuevas fallan, en escritorio y en celular**.
+"Pasó todos los controles" no incluía las pruebas de navegador: **corrélas antes de entregar**
+(`npm run test:e2e -- tests/e2e/81-*.spec.ts`).
+
+1. **Captura y cola** (`81-captura-reconexion-entrega`, `81-cola-aislamiento-y-reintento`): en
+   pantalla SÍ aparece "Guardada en este equipo, se sube cuando vuelva la señal", pero **no hay
+   ningún elemento con `data-testid="aviso-guardada-offline"`** a la vista: el texto lo pinta
+   otro componente. Poné el `data-testid` en el elemento que realmente muestra ese texto. Y
+   `toContainText('guardada en este equipo')` distingue mayúsculas: el texto empieza con "G".
+2. **Prueba previa** (`81-prueba-previa-no-finge-equipo`, línea 42): `readiness-area-tecnologia`
+   no contiene "Falta entretenimiento conectado". Copiá el texto exacto de `missing` en
+   `src/lib/ak-100/ak-100-readiness.ts`, o comprobá que el área existe y tiene al menos un faltante.
+3. **Barra** (`81-roles-y-pedidos-sin-duplicados`, línea 69): después del doble toque **nunca
+   aparece "Pedido registrado"**. Mirá la captura en `test-results/` para ver qué muestra la
+   pantalla: puede que el pedido falle (el invitado necesita su `guestAccessToken` válido) o que
+   el texto de éxito sea otro.
+
+Se corrige en esta misma propuesta. Se da por buena cuando las cuatro pasan en verde **y** se
+ponen en rojo al romperlas a propósito.
