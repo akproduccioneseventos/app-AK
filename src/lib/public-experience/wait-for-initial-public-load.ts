@@ -1,4 +1,4 @@
-export const DEFAULT_PUBLIC_LOAD_TIMEOUT_MS = 12_000;
+export const DEFAULT_PUBLIC_LOAD_TIMEOUT_MS = 35_000;
 
 export class PublicRequestTimeoutError extends Error {
   constructor() {

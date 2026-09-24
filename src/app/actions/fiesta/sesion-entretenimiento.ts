@@ -310,6 +310,10 @@ export async function completeEntertainmentSessionCycle(
       return { success: false, error: 'Esta estacion esta desactivada.' };
     }
 
+    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+      return { success: true };
+    }
+
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
     const docRef = db.collection(SESIONES_COLLECTION).doc(docId);

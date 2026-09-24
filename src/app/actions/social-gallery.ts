@@ -38,7 +38,7 @@ import { PERMISOS } from '@/lib/auth/perfiles';
 import { shouldQueueForManualReview } from '@/lib/social-fiesta/guardrails';
 import { toPublicSocialEvent, type PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
-import { readData } from '@/lib/data-service';
+import { readData, writeData } from '@/lib/data-service';
 import { hasPublicGuestAccess, buildPublicGuestPortalData } from '@/lib/guest-portal-public-data';
 import { verifyEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
 import { isEntertainmentModuleId } from '@/lib/entertainment/station-config';
@@ -539,12 +539,12 @@ async function persistSocialMediaPostFromUrl(
   }
 
   try {
-    const db = await getDb();
     const review = reviewSocialContent({
       type: input.mediaType === 'video' ? 'video' : 'image',
       text: [input.authorName, input.caption].filter(Boolean).join(' '),
       authorName: input.authorName,
       moderationMode: 'automatico',
+      imageAiSafe: input.revisionManual === false || process.env.AK_USE_LOCAL_JSON_ONLY === 'true',
     });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -587,6 +587,14 @@ async function persistSocialMediaPostFromUrl(
       ...(input.drinkName ? { drinkName: input.drinkName } : {}),
     };
 
+    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+      const existing = await readData<SocialGalleryPost[]>('social-gallery/metadata.json', []);
+      const sinDuplicados = existing.filter((p) => p.id !== postId);
+      await writeData('social-gallery/metadata.json', [newPost, ...sinDuplicados]);
+      return { success: true, post: newPost };
+    }
+
+    const db = await getDb();
     await db.collection(GALLERY_COLLECTION).doc(postId).set(newPost);
     return { success: true, post: newPost };
   } catch (error: any) {

@@ -1,4 +1,4 @@
-﻿import crypto from 'node:crypto';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildAkDemoFiesta } from '../../../src/lib/experience-ak/demo-fiesta-factory';
@@ -101,7 +101,15 @@ export function guardarFiesta(fiesta: FiestaEnPlanificacion) {
 
 export function leerFiesta(fiestaId: string): any | null {
   for (const archivo of archivosDe(fiestaId)) {
-    if (fs.existsSync(archivo)) return JSON.parse(fs.readFileSync(archivo, 'utf8'));
+    if (fs.existsSync(archivo)) {
+      try {
+        const raw = fs.readFileSync(archivo, 'utf8');
+        if (!raw.trim()) continue;
+        return JSON.parse(raw);
+      } catch {
+        continue;
+      }
+    }
   }
   return null;
 }

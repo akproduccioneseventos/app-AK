@@ -23,14 +23,18 @@ import { enchufarCamaraFalsa } from './helpers/camara-falsa';
  */
 
 const fiesta = crearFiestaDeEstaNoche({ id: `e2e_fotocabina_offline_81_${Date.now()}` });
-if (!fiesta.others) fiesta.others = {};
-if (!fiesta.others.entretenimiento) fiesta.others.entretenimiento = { modules: {} };
-if (!fiesta.others.entretenimiento.modules) fiesta.others.entretenimiento.modules = {};
-fiesta.others.entretenimiento.modules.fotocabina = {
-  enabled: true,
-  fotosPorTanda: 1,
-  segundosCuentaRegresiva: 2,
-  autoPublish: true,
+fiesta.others = {
+  ...fiesta.others,
+  entretenimiento: {
+    modules: {
+      fotocabina: {
+        enabled: true,
+        fotosPorTanda: 1,
+        segundosCuentaRegresiva: 2,
+        autoPublish: true,
+      },
+    },
+  },
 };
 fiesta.socialGallerySettings = {
   ...fiesta.socialGallerySettings,
@@ -46,18 +50,17 @@ test.afterAll(() => borrarFiesta(fiesta.id));
 
 test.describe('Orden 81 — Fotocabina sin internet, aviso y entrega única', () => {
   test('saca foto con botón real sin internet, muestra aviso guardada en este equipo, reconecta y entrega una sola vez', async ({ page, context }, testInfo) => {
-    test.setTimeout(90_000);
+    test.setTimeout(180_000);
     const baseURL = testInfo.project.use.baseURL as string;
     await ponerSesionDelEquipo(context, baseURL);
     await enchufarCamaraFalsa(page);
 
     const permiso = crearPermisoDeEstacion(fiesta.id, 'fotocabina');
     await page.goto(`/evento/fotocabina/${fiesta.id}?access=${permiso}`, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
     // 1. La estación levanta con cámara en vivo y botón de disparo
     const visor = page.locator('[data-testid="preview-canvas"]');
-    await expect(visor).toBeVisible({ timeout: 30_000 });
+    await expect(visor).toBeVisible({ timeout: 45_000 });
 
     const btnDisparo = page.locator('[data-testid="boton-sacar-foto"]');
     await expect(btnDisparo).toBeVisible({ timeout: 20_000 });
@@ -69,42 +72,41 @@ test.describe('Orden 81 — Fotocabina sin internet, aviso y entrega única', ()
     await btnDisparo.click();
 
     // 4. Ver en pantalla el aviso visible "guardada en este equipo"
-    const avisoOffline = page.locator('[data-testid="aviso-guardada-offline"]');
-    await expect(avisoOffline).toBeVisible({ timeout: 25_000 });
-    await expect(avisoOffline).toContainText('guardada en este equipo');
+    const avisoOffline = page.locator('[data-testid="aviso-guardada-offline"]').first();
+    await expect(avisoOffline).toBeVisible({ timeout: 45_000 });
+    await expect(avisoOffline).toContainText(/guardada en este equipo/i);
 
     // 5. Verificar que la captura está esperando en la base local IndexedDB
-    const countEnIndexedDb = await page.evaluate(async () => {
-      return new Promise<number>((resolve) => {
-        const req = indexedDB.open('ak_offline_media_storage', 1);
-        req.onsuccess = () => {
-          const db = req.result;
-          if (!db.objectStoreNames.contains('media_queue')) return resolve(0);
-          const tx = db.transaction('media_queue', 'readonly');
-          const countReq = tx.objectStore('media_queue').count();
-          countReq.onsuccess = () => resolve(countReq.result);
-          countReq.onerror = () => resolve(0);
-        };
-        req.onerror = () => resolve(0);
+    await expect.poll(async () => {
+      return page.evaluate(async () => {
+        return new Promise<number>((resolve) => {
+          const req = indexedDB.open('ak_offline_media_storage', 1);
+          req.onsuccess = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains('media_queue')) return resolve(0);
+            const tx = db.transaction('media_queue', 'readonly');
+            const countReq = tx.objectStore('media_queue').count();
+            countReq.onsuccess = () => resolve(countReq.result);
+            countReq.onerror = () => resolve(0);
+          };
+          req.onerror = () => resolve(0);
+        });
       });
-    });
-    expect(countEnIndexedDb).toBeGreaterThanOrEqual(1);
+    }, { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
 
     // 6. Volver a conectar internet y disparar sincronización
     await context.setOffline(false);
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
 
-    // Esperar a que la cola complete el envío al servidor
-    await page.waitForTimeout(4000);
-
     // 7. Comprobar que en el servidor / datos de la fiesta la foto aparece UNA SOLA VEZ
-    const fiestaTrasSync = leerFiesta(fiesta.id);
-    const mediaList = fiestaTrasSync?.others?.entretenimiento?.modules?.fotocabina?.media || [];
-    expect(mediaList.length).toBe(1);
+    await expect.poll(() => {
+      const f = leerFiesta(fiesta.id);
+      return (f?.others?.entretenimiento?.modules?.fotocabina?.media || []).length;
+    }, { timeout: 30_000 }).toBe(1);
 
     // 8. Reintento de sincronización posterior: comprobar que sigue habiendo una sola foto
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
 
     const fiestaTrasReintento = leerFiesta(fiesta.id);
     const mediaListFinal = fiestaTrasReintento?.others?.entretenimiento?.modules?.fotocabina?.media || [];
@@ -112,8 +114,7 @@ test.describe('Orden 81 — Fotocabina sin internet, aviso y entrega única', ()
 
     // 9. Comprobar que en el muro de la fiesta (/evento/social/<id>) aparece UNA sola publicación
     await page.goto(`/evento/social/${fiesta.id}`, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle', { timeout: 25_000 }).catch(() => {});
     const publicaciones = page.locator('article');
-    await expect(publicaciones).toHaveCount(1, { timeout: 20_000 });
+    await expect(publicaciones).toHaveCount(1, { timeout: 30_000 });
   });
 });

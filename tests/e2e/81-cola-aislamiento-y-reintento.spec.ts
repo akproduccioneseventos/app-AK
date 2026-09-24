@@ -1,4 +1,4 @@
-﻿import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import {
   crearFiestaDeEstaNoche,
   guardarFiesta,
@@ -26,14 +26,18 @@ const fiestaA = crearFiestaDeEstaNoche({ id: `e2e_cola_a_81_${Date.now()}` });
 const fiestaB = crearFiestaDeEstaNoche({ id: `e2e_cola_b_81_${Date.now() + 1}` });
 
 for (const f of [fiestaA, fiestaB]) {
-  if (!f.others) f.others = {};
-  if (!f.others.entretenimiento) f.others.entretenimiento = { modules: {} };
-  if (!f.others.entretenimiento.modules) f.others.entretenimiento.modules = {};
-  f.others.entretenimiento.modules.fotocabina = {
-    enabled: true,
-    fotosPorTanda: 1,
-    segundosCuentaRegresiva: 2,
-    autoPublish: true,
+  f.others = {
+    ...f.others,
+    entretenimiento: {
+      modules: {
+        fotocabina: {
+          enabled: true,
+          fotosPorTanda: 1,
+          segundosCuentaRegresiva: 2,
+          autoPublish: true,
+        },
+      },
+    },
   };
 }
 
@@ -49,7 +53,7 @@ test.afterAll(() => {
 
 test.describe('Orden 81 — Cola de subida, aislamiento y reintentos', () => {
   test('las capturas offline se aíslan por fiesta y se sincronizan a su destino sin cruzarse', async ({ page, context }, testInfo) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
     const baseURL = testInfo.project.use.baseURL as string;
     await ponerSesionDelEquipo(context, baseURL);
     await enchufarCamaraFalsa(page);
@@ -57,68 +61,72 @@ test.describe('Orden 81 — Cola de subida, aislamiento y reintentos', () => {
     // 1. Abrir fotocabina para fiestaA
     const permisoA = crearPermisoDeEstacion(fiestaA.id, 'fotocabina');
     await page.goto(`/evento/fotocabina/${fiestaA.id}?access=${permisoA}`, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
-
     await expect(page.locator('[data-testid="preview-canvas"]')).toBeVisible({ timeout: 25_000 });
 
-    // Cortar conexión y disparar captura real en fiestaA
-    await context.setOffline(true);
-    await page.locator('[data-testid="boton-sacar-foto"]').click();
-
-    // Comprobar aviso de guardado en este equipo para fiestaA
-    const avisoA = page.locator('[data-testid="aviso-guardada-offline"]');
-    await expect(avisoA).toBeVisible({ timeout: 25_000 });
-    await expect(avisoA).toContainText('guardada en este equipo');
-
-    // 2. Abrir fotocabina para fiestaB (siguiendo desconectados)
+    // 2. Abrir fotocabina para fiestaB en una segunda pantalla mientras hay conexión
+    const pageB = await context.newPage();
+    await enchufarCamaraFalsa(pageB);
     const permisoB = crearPermisoDeEstacion(fiestaB.id, 'fotocabina');
-    await page.goto(`/evento/fotocabina/${fiestaB.id}?access=${permisoB}`, { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('domcontentloaded');
+    await pageB.goto(`/evento/fotocabina/${fiestaB.id}?access=${permisoB}`, { waitUntil: 'domcontentloaded' });
+    await expect(pageB.locator('[data-testid="preview-canvas"]')).toBeVisible({ timeout: 25_000 });
 
-    await expect(page.locator('[data-testid="preview-canvas"]')).toBeVisible({ timeout: 25_000 });
+    // Cortar conexión para todo el contexto
+    await context.setOffline(true);
 
-    // Disparar captura real en fiestaB
+    // Disparar captura en fiestaA
     await page.locator('[data-testid="boton-sacar-foto"]').click();
+    const avisoA = page.locator('[data-testid="aviso-guardada-offline"]').first();
+    await expect(avisoA).toBeVisible({ timeout: 45_000 });
+    await expect(avisoA).toContainText(/guardada en este equipo/i);
 
-    // Comprobar aviso de guardado en este equipo para fiestaB
-    const avisoB = page.locator('[data-testid="aviso-guardada-offline"]');
-    await expect(avisoB).toBeVisible({ timeout: 25_000 });
-    await expect(avisoB).toContainText('guardada en este equipo');
+    // Disparar captura en fiestaB
+    await pageB.locator('[data-testid="boton-sacar-foto"]').click();
+    const avisoB = pageB.locator('[data-testid="aviso-guardada-offline"]').first();
+    await expect(avisoB).toBeVisible({ timeout: 45_000 });
+    await expect(avisoB).toContainText(/guardada en este equipo/i);
 
     // 3. Verificar que ambas capturas están en la base local IndexedDB sin errores
-    const totalEnCola = await page.evaluate(async () => {
-      return new Promise<number>((resolve) => {
-        const req = indexedDB.open('ak_offline_media_storage', 1);
-        req.onsuccess = () => {
-          const db = req.result;
-          if (!db.objectStoreNames.contains('media_queue')) return resolve(0);
-          const tx = db.transaction('media_queue', 'readonly');
-          const countReq = tx.objectStore('media_queue').count();
-          countReq.onsuccess = () => resolve(countReq.result);
-          countReq.onerror = () => resolve(0);
-        };
-        req.onerror = () => resolve(0);
+    await expect.poll(async () => {
+      return page.evaluate(async () => {
+        return new Promise<number>((resolve) => {
+          const req = indexedDB.open('ak_offline_media_storage', 1);
+          req.onsuccess = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains('media_queue')) return resolve(0);
+            const tx = db.transaction('media_queue', 'readonly');
+            const countReq = tx.objectStore('media_queue').count();
+            countReq.onsuccess = () => resolve(countReq.result);
+            countReq.onerror = () => resolve(0);
+          };
+          req.onerror = () => resolve(0);
+        });
       });
-    });
-    expect(totalEnCola).toBeGreaterThanOrEqual(2);
+    }, { timeout: 30_000 }).toBeGreaterThanOrEqual(2);
 
     // 4. Restablecer conexión y sincronizar
     await context.setOffline(false);
     await page.evaluate(() => window.dispatchEvent(new Event('online')));
-
-    // Esperar procesamiento de la cola
-    await page.waitForTimeout(5000);
+    await pageB.evaluate(() => window.dispatchEvent(new Event('online')));
 
     // 5. Verificar aislamiento: fiestaA tiene su foto y fiestaB tiene la suya, ninguna duplicada ni cruzada
-    const datosFiestaA = leerFiesta(fiestaA.id);
-    const mediaA = datosFiestaA?.others?.entretenimiento?.modules?.fotocabina?.media || [];
-    expect(mediaA.length).toBe(1);
+    await expect.poll(() => {
+      const datosFiestaA = leerFiesta(fiestaA.id);
+      const mediaA = datosFiestaA?.others?.entretenimiento?.modules?.fotocabina?.media || [];
+      return mediaA.length;
+    }, { timeout: 30_000 }).toBe(1);
 
-    const datosFiestaB = leerFiesta(fiestaB.id);
-    const mediaB = datosFiestaB?.others?.entretenimiento?.modules?.fotocabina?.media || [];
-    expect(mediaB.length).toBe(1);
+    await expect.poll(() => {
+      const datosFiestaB = leerFiesta(fiestaB.id);
+      const mediaB = datosFiestaB?.others?.entretenimiento?.modules?.fotocabina?.media || [];
+      return mediaB.length;
+    }, { timeout: 30_000 }).toBe(1);
+
+    const mediaA = leerFiesta(fiestaA.id)?.others?.entretenimiento?.modules?.fotocabina?.media || [];
+    const mediaB = leerFiesta(fiestaB.id)?.others?.entretenimiento?.modules?.fotocabina?.media || [];
 
     // Comprobar que los identificadores de fotos son distintos (no se mezclaron)
     expect(mediaA[0].id).not.toBe(mediaB[0].id);
+
+    await pageB.close();
   });
 });

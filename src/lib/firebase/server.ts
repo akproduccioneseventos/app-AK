@@ -64,7 +64,10 @@ let dbInstance: admin.firestore.Firestore | null = null;
 let authInstance: admin.auth.Auth | null = null;
 
 try {
-  if (admin.apps.length > 0) {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' && !process.env.FIRESTORE_EMULATOR_HOST) {
+    // Modo local exclusivo sin emulador: Firestore no se expone para evitar timeouts de red
+    dbInstance = null;
+  } else if (admin.apps.length > 0) {
     dbInstance = admin.firestore();
     authInstance = admin.auth();
     console.log('Firestore and Auth instances obtained successfully.');

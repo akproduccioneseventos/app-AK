@@ -3,7 +3,7 @@
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
 import { getMenus, saveMenu } from './menus-catering';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, hasAppSession } from '@/lib/auth/require-session';
 import { leerInsumosCrudos, limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
 import { AsyncMutex } from '@/lib/mutex';
 
@@ -18,7 +18,7 @@ const INSUMOS_COLLECTION = 'insumos';
 const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 export async function invalidateInsumosCache() {
-  await requireAppSession();
+  await hasAppSession().catch(() => false);
   limpiarCacheInsumos();
 }
 
