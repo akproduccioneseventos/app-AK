@@ -28,8 +28,11 @@ además un tope de tiempo a los guardados que no se quiere.
 
 ## Espera a Gemini
 
-- **Orden 81** (su parte: interfaz, recorridos, entretenimiento) y **orden 82** (prospectos,
-  clientes, agenda y mensajes con la misma protección que la plata).
+- **Orden 82:** fusionada (propuesta 1221), con el arreglo de la agenda hecho por Claude.
+- **Orden 81, propuesta 1222: DEVUELTA.** Traía sólo cuatro pruebas que no prueban la app
+  (meten la foto en la cola ellas mismas, no tocan botones). Qué corregir, en la misma
+  propuesta: `docs/ordenes/DEVOLUCION-81-las-pruebas-no-prueban-la-app.md`. Cuando vuelva:
+  revisar contra esa devolución, correr la puerta y fusionar junto con esta rama de docs.
 - Devoluciones viejas: 42, 48, 48b, 61, 71, 74-77 pantallas equivocadas, acceso administrativo.
 
 ## Lo que ningún control cubre
