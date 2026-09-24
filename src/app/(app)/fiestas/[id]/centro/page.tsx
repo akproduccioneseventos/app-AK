@@ -25,6 +25,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { AhoraEnVivo, type PuntoDelPrograma } from './ahora-en-vivo';
 import { EquipoCheckIn } from '@/components/centro/EquipoCheckIn';
 import { DownloadPartyBookButton } from '@/components/fiesta/DownloadPartyBookButton';
+import { ComprobacionEquipo } from './comprobacion-equipo';
 
 /**
  * Centro de Fiesta: la única pantalla para dirigir la noche.
@@ -117,7 +118,8 @@ export default async function CentroDeFiestaPage(props: PageProps) {
     getRoles().catch(() => []),
   ]);
 
-  const nombre = buildAk100Readiness(fiesta).eventName;
+  const readiness = buildAk100Readiness(fiesta);
+  const nombre = readiness.eventName;
   const config = fiesta.configuracion ?? ({} as typeof fiesta.configuracion);
   const fecha = formatEventDate(config?.fechaEvento);
 
@@ -221,6 +223,65 @@ export default async function CentroDeFiestaPage(props: PageProps) {
             )}
           </section>
         )}
+
+        {/* Preparación previa AK-100: cada área que no está lista muestra qué le falta */}
+        <section className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5 space-y-4" data-testid="seccion-preparacion-ak100">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest text-red-400">Preparación previa</p>
+              <h2 className="text-lg font-black tracking-tight text-white md:text-xl">
+                Estado previo de la fiesta — {readiness.globalScore}% listo
+              </h2>
+            </div>
+            <Link
+              href={`/fiestas/${encodeURIComponent(params.id)}/ak-100`}
+              className="text-xs font-bold text-red-300 hover:text-red-200 underline"
+            >
+              Ver detalle AK-100
+            </Link>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {readiness.areas.map((area) => (
+              <div
+                key={area.id}
+                data-testid={`readiness-area-${area.id}`}
+                className="rounded-xl border border-white/10 bg-slate-900/60 p-3.5 space-y-2"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-black text-slate-100">{area.title}</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                    area.status === 'listo'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  }`}>
+                    {area.score}%
+                  </span>
+                </div>
+                {area.missing.length > 0 && (
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-amber-300/80">Falta para el evento:</p>
+                    <ul className="space-y-0.5">
+                      {area.missing.map((falta, idx) => (
+                        <li key={idx} className="text-xs font-medium text-slate-300 flex items-start gap-1.5" data-testid="readiness-missing-item">
+                          <span className="text-amber-400 shrink-0">•</span>
+                          <span>{falta}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {area.ready.length > 0 && area.missing.length === 0 && (
+                  <p className="text-xs font-medium text-emerald-400 flex items-center gap-1.5">
+                    <span>✓</span> <span>Todo listo</span>
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <ComprobacionEquipo fiestaId={params.id} />
 
         {bloques.map((bloque) => (
           <section key={bloque.titulo} className="space-y-3">

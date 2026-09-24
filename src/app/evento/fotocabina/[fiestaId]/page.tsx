@@ -99,6 +99,7 @@ export default function FotocabinaPage() {
   const streamRef = useRef<MediaStream | null>(null);
   const takePhotoRef = useRef<() => void>(() => undefined);
   const retakeRef = useRef<() => void>(() => undefined);
+  const acceptAndPublishRef = useRef<() => void>(() => undefined);
   const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
@@ -182,6 +183,7 @@ export default function FotocabinaPage() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [guardadaEnEsteEquipo, setGuardadaEnEsteEquipo] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `cab_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
   const currentPhotoSessionIdRef = useRef<string>(photoSessionId);
@@ -710,6 +712,12 @@ export default function FotocabinaPage() {
       { reviewPending: true },
       accessToken
     );
+
+    if (fiesta?.station.autoPublish || !hayMuro || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+      setTimeout(() => {
+        acceptAndPublishRef.current();
+      }, 100);
+    }
   };
 
   /**
@@ -862,7 +870,9 @@ export default function FotocabinaPage() {
     const isLiveSession = () => currentPhotoSessionIdRef.current === sessionWhenStarted;
 
     try {
-      const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
+      const blob = capturedImage
+        ? await fetch(capturedImage).then((r) => r.blob()).catch(() => null)
+        : await new Promise<Blob | null>((resolve) => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al generar la imagen');
 
       const fileName = `fotocabina-${Date.now()}.jpg`;
@@ -900,6 +910,7 @@ export default function FotocabinaPage() {
 
         if (!isLiveSession()) return;
         setQrCodeUrl('');
+        setGuardadaEnEsteEquipo(true);
         setLocalStatus('done');
         speak("¡Excelente! Tu foto quedó guardada y se subirá apenas vuelva la señal.");
         setShowSuccess(true);
@@ -956,7 +967,9 @@ export default function FotocabinaPage() {
       console.warn('[Fotocabina] Falla en subida directa, encolando en IndexedDB...', err);
       // Respaldo en IndexedDB ante cualquier error de red durante la subida
       try {
-        const blob = await new Promise<Blob | null>(resolve => canvasRef.current?.toBlob(resolve, 'image/jpeg', 0.9));
+        const blob = capturedImage
+          ? await fetch(capturedImage).then((r) => r.blob()).catch(() => null)
+          : await new Promise<Blob | null>((resolve) => canvasRef.current?.toBlob(resolve, 'image/jpeg', 0.9));
         if (blob) {
           await saveOfflineMedia({
             fiestaId,
@@ -971,6 +984,7 @@ export default function FotocabinaPage() {
           });
           if (!isLiveSession()) return;
           speak("Tu foto quedó guardada y se subirá cuando vuelva la señal.");
+          setGuardadaEnEsteEquipo(true);
           setLocalStatus('done');
           setShowSuccess(true);
           if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
@@ -1038,6 +1052,7 @@ export default function FotocabinaPage() {
     setQrCodeUrl('');
     setLocalStatus('idle');
     setShowSuccess(false);
+    setGuardadaEnEsteEquipo(false);
     // La tanda se rehace entera: si se dejan las fotos viejas, la proxima
     // vuelve con cuatro o cinco pegadas.
     fotosDeLaTandaRef.current = [];
@@ -1056,6 +1071,7 @@ export default function FotocabinaPage() {
   useEffect(() => {
     takePhotoRef.current = () => { void takePhoto(); };
     retakeRef.current = retake;
+    acceptAndPublishRef.current = () => { void handleAcceptAndPublish(); };
   });
 
   // Impresion automatica: apenas el recuerdo esta armado sale la copia, sin
@@ -1433,6 +1449,7 @@ export default function FotocabinaPage() {
                 <div className="pt-2">
                   <button
                     onClick={takePhoto}
+                    data-testid="boton-sacar-foto"
                     className="w-full h-16 rounded-xl text-white font-black text-base uppercase tracking-wider transition shadow-xl flex items-center justify-center gap-2"
                     style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
                   >
@@ -1599,15 +1616,32 @@ export default function FotocabinaPage() {
                   foto habia quedado publicada. */}
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">
-                  {qrCodeUrl ? 'Tu recuerdo esta listo' : errorMsg ? 'No se pudo publicar' : 'Tus tres fotos'}
+                  {qrCodeUrl
+                    ? 'Tu recuerdo esta listo'
+                    : guardadaEnEsteEquipo
+                      ? 'Foto guardada en este equipo'
+                      : errorMsg
+                        ? 'No se pudo publicar'
+                        : 'Tus tres fotos'}
                 </h3>
                 <p className="text-sm text-zinc-400">
                   {qrCodeUrl
                     ? fiesta?.station.qrCallout
-                    : errorMsg
-                      ? 'Tu foto no llego al muro. Podes imprimirla o volver a intentar.'
-                      : 'Imprimila para llevartela, o repetí la tanda si alguna no te gustó.'}
+                    : guardadaEnEsteEquipo
+                      ? 'Tu foto quedó guardada en este equipo y se subirá automáticamente apenas vuelva internet.'
+                      : errorMsg
+                        ? 'Tu foto no llego al muro. Podes imprimirla o volver a intentar.'
+                        : 'Imprimila para llevartela, o repetí la tanda si alguna no te gustó.'}
                 </p>
+                {guardadaEnEsteEquipo && (
+                  <div
+                    data-testid="aviso-guardada-offline"
+                    className="mx-auto flex items-center justify-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/15 p-3 text-xs font-black uppercase tracking-wider text-amber-300 shadow-lg"
+                  >
+                    <Check className="h-4 w-4 text-amber-400" />
+                    <span>Guardada en este equipo, se sube cuando vuelva la señal</span>
+                  </div>
+                )}
                 {!qrCodeUrl && errorMsg && (
                   <p className="text-xs font-bold text-rose-400" role="alert">{errorMsg}</p>
                 )}

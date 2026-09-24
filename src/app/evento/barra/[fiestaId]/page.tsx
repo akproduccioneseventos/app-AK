@@ -104,6 +104,8 @@ export default function BarraTecnologicaTouchPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const isSubmittingOrderRef = useRef(false);
+  const currentClientRequestIdRef = useRef<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
 
@@ -642,14 +644,19 @@ export default function BarraTecnologicaTouchPage() {
   };
 
   const submitOrder = async () => {
+    if (isSubmittingOrderRef.current) return;
     if (!selectedDrink || !guestName.trim()) {
       toast({ title: 'Falta tu nombre', description: 'Por favor, ingresá tu nombre.', variant: 'destructive' });
       return;
     }
-    const currentDrink = selectedDrink;
-    // Uno por toque, y el mismo si el pedido termina en la cola sin senal.
-    const pedidoId = crypto.randomUUID();
+    isSubmittingOrderRef.current = true;
     setIsOrdering(true);
+    const currentDrink = selectedDrink;
+    // Uno por toque, y el mismo si el pedido termina en la cola sin senal o reintentos.
+    if (!currentClientRequestIdRef.current) {
+      currentClientRequestIdRef.current = crypto.randomUUID();
+    }
+    const pedidoId = currentClientRequestIdRef.current;
     try {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         throw new Error('Sin conexión');
@@ -662,6 +669,7 @@ export default function BarraTecnologicaTouchPage() {
         clientRequestId: pedidoId,
       });
       if (result.success && result.order) {
+        currentClientRequestIdRef.current = null;
         setLastOrder(result.order);
         setLastOrderedDrink(currentDrink);
         setSelectedDrink(null);
@@ -681,6 +689,7 @@ export default function BarraTecnologicaTouchPage() {
           clientRequestId: pedidoId,
         },
       });
+      currentClientRequestIdRef.current = null;
       setLastOrderedDrink(currentDrink);
       setSelectedDrink(null);
       toast({
@@ -688,6 +697,7 @@ export default function BarraTecnologicaTouchPage() {
         description: 'Tu pedido se enviará a la barra automáticamente cuando vuelva la señal.',
       });
     } finally {
+      isSubmittingOrderRef.current = false;
       setIsOrdering(false);
     }
   };
@@ -1008,6 +1018,7 @@ export default function BarraTecnologicaTouchPage() {
                   return (
                     <motion.button
                       key={drink.id}
+                      data-testid="tarjeta-trago"
                       whileHover={{ y: -4 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedDrink(drink)}
@@ -1145,6 +1156,7 @@ export default function BarraTecnologicaTouchPage() {
                         <Button
                           onClick={submitOrder}
                           disabled={isOrdering}
+                          data-testid="boton-enviar-barra"
                           className="h-14 flex-1 rounded-lg bg-red-600 text-base font-black text-white shadow-lg hover:bg-red-500"
                         >
                           {isOrdering ? <Loader2 className="h-6 w-6 animate-spin" /> : <><CheckCircle2 className="mr-2 h-5 w-5" /> Enviar a la barra</>}

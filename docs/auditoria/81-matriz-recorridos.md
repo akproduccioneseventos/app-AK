@@ -44,13 +44,12 @@ fusiona). Pruebas de comportamiento, no de nombres: base de mentira que devuelve
 
 ## Parte de Gemini — resultado (23 de septiembre de 2026)
 
-Probado y verificado en la rama `feat/orden-81-gemini-recorridos-offline-equipo`.
+Probado y verificado en la rama `feat/orden-81-gemini-recorridos-offline-equipo`. Implementación real en pantalla y pruebas Playwright verificadas:
 
 | Bloque | Qué se probó | Estado | Evidencia |
 |---|---|---|---|
-| Offline | Captura en fotocabina sin internet -> guardado local en IndexedDB -> reconexión -> entrega única; sin QR falso ni URL inventada | Probado | `tests/e2e/81-captura-reconexion-entrega.spec.ts` |
-| Offline | Cola de subida aislada por fiesta; identidad (guestId) aislada por captura; reintento conserva datos en IndexedDB sin perder fotos | Probado | `tests/e2e/81-cola-aislamiento-y-reintento.spec.ts` |
-| Equipos | Centro de fiesta calcula preparación con `buildAk100Readiness`; reporta faltantes reales y no finge equipo listo sin ensayo físico | Probado | `tests/e2e/81-prueba-previa-no-finge-equipo.spec.ts` |
-| Invitado | Barra tecnológica: pedido con `createBarDrinkOrder` desde MiniQuiosco; no duplica por doble clic (`clientRequestId`); sin botones de barman | Probado | `tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts` |
+| Offline | Captura en fotocabina con botón real sin internet -> aviso visible "Foto guardada en este equipo" -> reconexión -> entrega única al servidor sin duplicar | Probado | `src/app/evento/fotocabina/[fiestaId]/page.tsx`, `tests/e2e/81-captura-reconexion-entrega.spec.ts` |
+| Offline | Cola de subida aislada por fiesta (dos eventos sin mezclar fotos); aislamiento de credenciales de invitado; reintento conserva cola | Probado | `tests/e2e/81-cola-aislamiento-y-reintento.spec.ts`, `src/__tests__/cola-aislamiento-y-reintento.test.ts` |
+| Equipos | Módulo interactivo de comprobación de equipo dentro del Centro de Fiesta (`ComprobacionEquipo`): 5 pasos (cámara, pantalla, conexión real, almacenamiento local, captura de prueba), botones "Probar de nuevo" por paso, estados visibles (`no probado`, `pasó`, `falló`, `requiere equipo`) y fecha/hora | Probado | `src/app/(app)/fiestas/[id]/centro/comprobacion-equipo.tsx`, `tests/e2e/81-prueba-previa-no-finge-equipo.spec.ts` |
+| Invitado | Barra tecnológica: pedido con doble toque rápido en la interfaz; protección anti-duplicados por referencia y `clientRequestId`; barman recibe exactamente un pedido | Probado | `src/app/evento/barra/[fiestaId]/page.tsx`, `MiniQuiosco.tsx`, `tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts` |
 | Entrega | Galería de recuerdos accesible en segunda pantalla (`/evento/galeria/[fiestaId]`) para retiro mientras otro invitado usa la cabina | Probado | `src/app/evento/galeria/[fiestaId]/page.tsx` |
-

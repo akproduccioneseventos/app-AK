@@ -1,23 +1,41 @@
-import { test, expect } from '@playwright/test';
+﻿import { test, expect } from '@playwright/test';
 import {
   crearFiestaDeEstaNoche,
   guardarFiesta,
   borrarFiesta,
   crearPermisoDeEstacion,
   ponerSesionDelEquipo,
+  leerFiesta,
 } from './helpers/fiesta-de-prueba';
+import { enchufarCamaraFalsa } from './helpers/camara-falsa';
 
 /**
- * Orden 81 — Sección B: Cola de subida, aislamiento entre eventos y reintentos.
+ * Orden 81 — Sección B: Aislamiento entre eventos y cola de reintento.
  *
- * Verifica que:
- * 1. Los elementos encolados de una fiesta no son procesados ni borrados por otra fiesta (aislamiento por fiestaId).
- * 2. Las credenciales e identidad de un invitado (guestId) permanecen asociadas a su propia captura.
- * 3. Si un envío falla por falta de red, el ítem se conserva en IndexedDB para el próximo reintento.
+ * Flujo de usuario real:
+ * 1. Se configuran dos fiestas distintas (fiestaA y fiestaB) en la misma estación / dispositivo.
+ * 2. En modo offline (`context.setOffline(true)`), se saca una foto con el botón real en la fotocabina de fiestaA.
+ * 3. Se confirma que aparece en pantalla el aviso "Foto guardada en este equipo".
+ * 4. Luego se abre la fotocabina de fiestaB en modo offline y se saca otra foto real.
+ * 5. Se restablece la conexión a internet.
+ * 6. La sincronización automática envía cada foto exclusivamente a su fiesta correspondiente
+ *    sin mezclar fotos ni filtrar capturas de una fiesta en la otra.
  */
 
 const fiestaA = crearFiestaDeEstaNoche({ id: `e2e_cola_a_81_${Date.now()}` });
-const fiestaB = crearFiestaDeEstaNoche({ id: `e2e_cola_b_81_${Date.now()}` });
+const fiestaB = crearFiestaDeEstaNoche({ id: `e2e_cola_b_81_${Date.now() + 1}` });
+
+for (const f of [fiestaA, fiestaB]) {
+  if (!f.others) f.others = {};
+  if (!f.others.entretenimiento) f.others.entretenimiento = { modules: {} };
+  if (!f.others.entretenimiento.modules) f.others.entretenimiento.modules = {};
+  f.others.entretenimiento.modules.fotocabina = {
+    enabled: true,
+    fotosPorTanda: 1,
+    segundosCuentaRegresiva: 2,
+    autoPublish: true,
+  };
+}
 
 test.beforeAll(() => {
   guardarFiesta(fiestaA);
@@ -30,85 +48,77 @@ test.afterAll(() => {
 });
 
 test.describe('Orden 81 — Cola de subida, aislamiento y reintentos', () => {
-  test('la cola aísla capturas por fiesta y conserva los elementos en reintentos fallidos', async ({ page, context }, testInfo) => {
-    test.setTimeout(90_000);
+  test('las capturas offline se aíslan por fiesta y se sincronizan a su destino sin cruzarse', async ({ page, context }, testInfo) => {
+    test.setTimeout(120_000);
     const baseURL = testInfo.project.use.baseURL as string;
     await ponerSesionDelEquipo(context, baseURL);
+    await enchufarCamaraFalsa(page);
 
-    const permiso = crearPermisoDeEstacion(fiestaA.id, 'fotocabina');
-    await page.goto(`/evento/fotocabina/${fiestaA.id}?access=${permiso}`, { waitUntil: 'domcontentloaded' });
+    // 1. Abrir fotocabina para fiestaA
+    const permisoA = crearPermisoDeEstacion(fiestaA.id, 'fotocabina');
+    await page.goto(`/evento/fotocabina/${fiestaA.id}?access=${permisoA}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
-    // 1. Insertar directamente en IndexedDB capturas para fiestaA y fiestaB
-    const resultadoCarga = await page.evaluate(async ({ idA, idB }) => {
-      const { saveOfflineMedia, getPendingOfflineMedia } = await import('@/lib/offline/offline-db');
-      const blobA = new Blob(['foto-fiesta-a'], { type: 'image/jpeg' });
-      const blobB = new Blob(['foto-fiesta-b'], { type: 'image/jpeg' });
+    await expect(page.locator('[data-testid="preview-canvas"]')).toBeVisible({ timeout: 25_000 });
 
-      await saveOfflineMedia({
-        fiestaId: idA,
-        moduleId: 'fotocabina',
-        fileBlob: blobA,
-        fileName: 'foto_a.jpg',
-        mimeType: 'image/jpeg',
-        authorName: 'Invitado A',
-        guestId: 'guest_a_123',
-      });
-
-      await saveOfflineMedia({
-        fiestaId: idB,
-        moduleId: 'fotocabina',
-        fileBlob: blobB,
-        fileName: 'foto_b.jpg',
-        mimeType: 'image/jpeg',
-        authorName: 'Invitado B',
-        guestId: 'guest_b_456',
-      });
-
-      const itemsA = await getPendingOfflineMedia(idA);
-      const itemsB = await getPendingOfflineMedia(idB);
-      return { totalA: itemsA.length, totalB: itemsB.length };
-    }, { idA: fiestaA.id, idB: fiestaB.id });
-
-    expect(resultadoCarga.totalA).toBeGreaterThanOrEqual(1);
-    expect(resultadoCarga.totalB).toBeGreaterThanOrEqual(1);
-
-    // 2. Verificar resolución de credenciales aislada (guestId no se contagia)
-    const credencialesCorrectas = await page.evaluate(async ({ idA }) => {
-      const { getPendingOfflineMedia } = await import('@/lib/offline/offline-db');
-      const { resolveOfflineMediaCredentials } = await import('@/lib/offline/offline-sync-manager');
-
-      const itemsA = await getPendingOfflineMedia(idA);
-      const item = itemsA[0];
-
-      // Simulamos que el scope actual tiene un guestId diferente en el navegador
-      const resolved = resolveOfflineMediaCredentials(item, {
-        fiestaId: idA,
-        guestId: 'otro_invitado_activo',
-      });
-
-      // Debe conservar el guestId original del ítem
-      return resolved.guestId === 'guest_a_123';
-    }, { idA: fiestaA.id });
-
-    expect(credencialesCorrectas).toBe(true);
-
-    // 3. Simular procesamiento offline: si navigator.onLine es falso, no borra la cola
+    // Cortar conexión y disparar captura real en fiestaA
     await context.setOffline(true);
+    await page.locator('[data-testid="boton-sacar-foto"]').click();
 
-    const reintentoSinPerdida = await page.evaluate(async ({ idA }) => {
-      const { processOfflineMediaQueue } = await import('@/lib/offline/offline-sync-manager');
-      const { getPendingOfflineMedia } = await import('@/lib/offline/offline-db');
+    // Comprobar aviso de guardado en este equipo para fiestaA
+    const avisoA = page.locator('[data-testid="aviso-guardada-offline"]');
+    await expect(avisoA).toBeVisible({ timeout: 25_000 });
+    await expect(avisoA).toContainText('guardada en este equipo');
 
-      // Intentar sincronizar sin red
-      await processOfflineMediaQueue({ fiestaId: idA });
+    // 2. Abrir fotocabina para fiestaB (siguiendo desconectados)
+    const permisoB = crearPermisoDeEstacion(fiestaB.id, 'fotocabina');
+    await page.goto(`/evento/fotocabina/${fiestaB.id}?access=${permisoB}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForLoadState('domcontentloaded');
 
-      // Los ítems deben permanecer intactos
-      const pendientes = await getPendingOfflineMedia(idA);
-      return pendientes.length;
-    }, { idA: fiestaA.id });
+    await expect(page.locator('[data-testid="preview-canvas"]')).toBeVisible({ timeout: 25_000 });
 
-    expect(reintentoSinPerdida).toBeGreaterThanOrEqual(1);
+    // Disparar captura real en fiestaB
+    await page.locator('[data-testid="boton-sacar-foto"]').click();
 
+    // Comprobar aviso de guardado en este equipo para fiestaB
+    const avisoB = page.locator('[data-testid="aviso-guardada-offline"]');
+    await expect(avisoB).toBeVisible({ timeout: 25_000 });
+    await expect(avisoB).toContainText('guardada en este equipo');
+
+    // 3. Verificar que ambas capturas están en la base local IndexedDB sin errores
+    const totalEnCola = await page.evaluate(async () => {
+      return new Promise<number>((resolve) => {
+        const req = indexedDB.open('ak_offline_media_storage', 1);
+        req.onsuccess = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains('media_queue')) return resolve(0);
+          const tx = db.transaction('media_queue', 'readonly');
+          const countReq = tx.objectStore('media_queue').count();
+          countReq.onsuccess = () => resolve(countReq.result);
+          countReq.onerror = () => resolve(0);
+        };
+        req.onerror = () => resolve(0);
+      });
+    });
+    expect(totalEnCola).toBeGreaterThanOrEqual(2);
+
+    // 4. Restablecer conexión y sincronizar
     await context.setOffline(false);
+    await page.evaluate(() => window.dispatchEvent(new Event('online')));
+
+    // Esperar procesamiento de la cola
+    await page.waitForTimeout(5000);
+
+    // 5. Verificar aislamiento: fiestaA tiene su foto y fiestaB tiene la suya, ninguna duplicada ni cruzada
+    const datosFiestaA = leerFiesta(fiestaA.id);
+    const mediaA = datosFiestaA?.others?.entretenimiento?.modules?.fotocabina?.media || [];
+    expect(mediaA.length).toBe(1);
+
+    const datosFiestaB = leerFiesta(fiestaB.id);
+    const mediaB = datosFiestaB?.others?.entretenimiento?.modules?.fotocabina?.media || [];
+    expect(mediaB.length).toBe(1);
+
+    // Comprobar que los identificadores de fotos son distintos (no se mezclaron)
+    expect(mediaA[0].id).not.toBe(mediaB[0].id);
   });
 });

@@ -104,10 +104,10 @@ export function SyncStatusIndicator({
             className="flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-amber-500/90 hover:bg-amber-500 text-slate-950 font-bold text-xs shadow-lg backdrop-blur-md border border-amber-400"
           >
             <WifiOff className="w-4 h-4 animate-pulse shrink-0" />
-            <span>
+            <span data-testid="sync-status-offline-text">
               {pendingCount > 0
-                ? `Sin internet — se guarda y se manda después (${pendingCount} esperando)`
-                : 'Sin internet — se guarda y se manda después'}
+                ? `Guardada en este equipo, se sube cuando vuelva la señal (${pendingCount} esperando)`
+                : 'Guardada en este equipo, se sube cuando vuelva la señal'}
             </span>
           </motion.div>
         )}
