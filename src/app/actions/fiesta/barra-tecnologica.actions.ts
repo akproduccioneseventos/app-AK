@@ -16,7 +16,7 @@ import type {
 } from '@/types/barra-tecnologica';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import { mergeMasterTragosWithFiesta } from '@/lib/carta-tragos-master';
-import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions';
+import { leerCartaTragosMaster } from '@/lib/carta-tragos/leer-carta-master';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
@@ -121,7 +121,7 @@ async function getDb(): Promise<Firestore | null> {
 }
 
 async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
-  const masterItems = await getCartaTragosMaster().catch(() => defaultCartaTragosData.items);
+  const masterItems = await leerCartaTragosMaster().catch(() => defaultCartaTragosData.items);
   const fiestaItems = fiesta.cartaTragos?.items || defaultCartaTragosData.items;
   const merged = mergeMasterTragosWithFiesta(masterItems, fiestaItems);
 

@@ -1,29 +1,13 @@
 'use server';
 
 import type { Trago } from '@/types/fiesta';
-import { readData, writeData } from '@/lib/data-service';
-import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
+import { writeData } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
-
-const CARTA_TRAGOS_MASTER_FILE = 'carta-tragos-master.json';
-
-const normalizeMasterItems = (items: Trago[]): Trago[] => {
-  return items.map((item) => {
-    const { ingredientes, recetaIngredientes, stockDisponible, ...rest } = item;
-    return {
-      ...rest,
-      ingredientes: ingredientes || [],
-      recetaIngredientes: recetaIngredientes || [],
-      stockDisponible: stockDisponible ?? 0,
-    };
-  });
-};
+import { CARTA_TRAGOS_MASTER_FILE, leerCartaTragosMaster, normalizeMasterItems } from '@/lib/carta-tragos/leer-carta-master';
 
 export async function getCartaTragosMaster(): Promise<Trago[]> {
   await requireAppSession();
-  const fallback = normalizeMasterItems(defaultCartaTragosData.items);
-  const data = await readData<Trago[]>(CARTA_TRAGOS_MASTER_FILE, fallback);
-  return normalizeMasterItems(Array.isArray(data) ? data : fallback);
+  return leerCartaTragosMaster();
 }
 
 export async function saveCartaTragosMaster(items: Trago[]): Promise<{ success: boolean; data?: Trago[]; error?: string }> {

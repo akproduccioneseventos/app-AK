@@ -9,7 +9,12 @@
  * La barra atiende a invitados, asi que no puede llamar a ninguna accion que pida sesion
  * del equipo para limpiar un cache: usa `limpiarCacheInsumos`, que no es una accion.
  *
- * Se probo rompiendolo: volviendo a importar `invalidateInsumosCache` se pone en rojo.
+ * Lo mismo pasaba con la carta de tragos de la empresa: `getCartaTragosMaster` pide sesion,
+ * fallaba en silencio y al invitado le salia la carta de fabrica. Ahora se lee con
+ * `leerCartaTragosMaster`, que no es una accion.
+ *
+ * Se probo rompiendolo: volviendo a importar `invalidateInsumosCache` o
+ * `getCartaTragosMaster` se pone en rojo.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -28,6 +33,11 @@ describe('El invitado pide un trago sin sesion del equipo', () => {
     expect(texto).toMatch(/import \{ limpiarCacheInsumos \} from '@\/lib\/insumos\/leer-insumos'/);
     const usos = texto.match(/limpiarCacheInsumos\(\)/g) || [];
     expect(usos.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it('la carta de la empresa se lee sin pedir sesion: el invitado no ve la de fabrica', () => {
+    expect(texto).not.toMatch(/getCartaTragosMaster/);
+    expect(texto).toMatch(/leerCartaTragosMaster\(\)/);
   });
 
   it('las devoluciones pendientes se toman y vacian en una sola operacion con base', () => {
