@@ -1,0 +1,46 @@
+{
+  "sha": "2c652dddeaf33e4d709256a60a57ceac6376a225",
+  "scope": "AST real functions with mocked persistence/auth; no external messages",
+  "results": [
+    {
+      "case": "feedback-ui-success",
+      "passed": true,
+      "busy": false,
+      "submitted": true
+    },
+    {
+      "case": "feedback-ui-failure",
+      "passed": true,
+      "busy": false,
+      "submitted": false
+    },
+    {
+      "case": "feedback-one-instance",
+      "passed": true,
+      "count": 2,
+      "successes": 2
+    },
+    {
+      "case": "feedback-two-instances",
+      "passed": false,
+      "count": 1,
+      "successes": 2
+    },
+    {
+      "case": "feedback-invalid-score",
+      "passed": true
+    },
+    {
+      "case": "feedback-internal-flag-stripped",
+      "passed": true
+    },
+    {
+      "case": "playbook-partial-log-closes-and-warns",
+      "passed": true,
+      "busy": false,
+      "open": false,
+      "calls": 1,
+      "notice": "Se crearon 1 tareas, pero no se pudo anotar la aplicación en el historial. No vuelvas a aplicarla: las tareas ya están."
+    }
+  ]
+}

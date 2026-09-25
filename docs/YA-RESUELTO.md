@@ -8116,3 +8116,8 @@ Main2c652dd, sin PR abiertas al consultar.7 PASS/1 FAIL aislados. Video:6 PASS, 
 ## 2026-09-25 - Codex: logistica y retornos, cierre parcial
 
 Main2c652dd.9 sondas aisladas,7 PASS/2 FAIL. LOG02 borrar activo asignado renombrado y LOG03 cantidad remota pasan. LOG01 stock del mismo activo en dos renglones6+6 con disponible10 no alerta. LOG04 snapshot viejo sin actualizadoAt revierte cargado nuevo en pantalla; proteccion actual solo compara si ambos tienen marca. Informe docs/auditoria/LOGISTICA-RETORNOS-REVALIDACION-2026-09-25.md. Claude stock/datos, Gemini merge UI; no duplicar lo corregido. Sin app/build/merge/datos reales. No cierre total.
+
+
+## 2026-09-25 - Codex: encuestas y guias,6 PASS/1 FAIL
+
+Main2c652dd. PF01 formulario libera al fallar y PF03 saneamiento pasan. GUI01 pantalla avisa tareas creadas y cierra si falla historial; no reintenta automaticamente, no usar antigua sonda de reintento forzado para acusar UI. PF02 parcial: dos instancias guardan solo una encuesta con dos exitos; una instancia conserva ambas. Claude corrige persistencia distribuida. Informe docs/auditoria/POSTFIESTA-GUIAS-REVALIDACION-2026-09-25.md. AST con mocks, timeout no probado, sin app/build/merge/mensajes reales. No certificacion total.
