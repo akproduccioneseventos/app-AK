@@ -50,14 +50,17 @@ function comprobar(c) {
   if (c.tipo === 'archivo' || c.tipo === 'prueba') {
     return fs.existsSync(path.join(process.cwd(), c.valor));
   }
-  if (c.tipo === 'usa') {
-    // "usa: nombre en ruta/al/archivo.tsx"
+  if (c.tipo === 'usa' || c.tipo === 'no-usa') {
+    // "usa: nombre en ruta/al/archivo.tsx" — tiene que estar.
+    // "no-usa: texto en ruta/al/archivo.tsx" — lo que la orden pide SACAR, tiene que no estar
+    // (25 de septiembre de 2026: una orden que pedia sacar una exclusion daba "hecha" igual).
     const m = c.valor.match(/^(.+?)\s+en\s+(.+)$/);
     if (!m) return false;
     const [, simbolo, archivo] = m;
     const ruta = path.join(process.cwd(), archivo.trim());
     if (!fs.existsSync(ruta)) return false;
-    return fs.readFileSync(ruta, 'utf8').includes(simbolo.trim());
+    const esta = fs.readFileSync(ruta, 'utf8').includes(simbolo.trim());
+    return c.tipo === 'usa' ? esta : !esta;
   }
   return false;
 }

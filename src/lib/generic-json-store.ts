@@ -76,6 +76,39 @@ export async function mutateGenericJsonArray<T>(
   return resultado;
 }
 
+/**
+ * Como `mutateGenericJsonArray`, pero `cambiar` recibe la transaccion y puede leer y
+ * escribir OTROS documentos adentro de la misma operacion. O pasa todo, o no pasa nada.
+ *
+ * Lo pidio Codex el 25 de septiembre de 2026 para la barra: vaciar la lista de botellas por
+ * devolver y devolverlas eran dos pasos; un reinicio en el medio perdia la devolucion.
+ * `cambiar` tiene que hacer TODAS sus lecturas antes de cualquier escritura (regla de la base).
+ */
+export async function mutateGenericJsonArrayConTransaccion<T>(
+  filePath: string,
+  cambiar: (
+    lista: T[],
+    transaction: FirebaseFirestore.Transaction,
+    db: FirebaseFirestore.Firestore,
+  ) => Promise<T[] | null>,
+): Promise<T[] | null> {
+  const normalizedPath = filePath.replace(/\\/g, '/');
+  if (!isSafeTopLevelJsonFile(normalizedPath)) throw new Error(`Archivo no permitido: ${normalizedPath}`);
+  const db = await getDbAdmin();
+  const ref = db.collection(GENERIC_JSON_COLLECTION).doc(getGenericDocId(normalizedPath));
+  let resultado: T[] | null = null;
+  await db.runTransaction(async (transaction) => {
+    resultado = null;
+    const snapshot = await transaction.get(ref);
+    const actual = snapshot.exists ? unwrapGenericDocument(snapshot.data()) : [];
+    const nueva = await cambiar(Array.isArray(actual) ? (actual as T[]) : [], transaction, db);
+    if (!nueva) return;
+    transaction.set(ref, { _filePath: normalizedPath, _arrayData: nueva, _syncedAt: new Date().toISOString() });
+    resultado = nueva;
+  });
+  return resultado;
+}
+
 export async function readGenericJsonFile(filePath: string): Promise<any | null> {
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeTopLevelJsonFile(normalizedPath)) return null;

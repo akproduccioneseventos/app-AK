@@ -467,3 +467,25 @@ invitado, ¿llama a alguna acción que pida sesión del equipo?"*
 
 **El control que lo frena:** `src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts`, y el
 barrido del resto de la app en la orden 83.
+
+## 25 de septiembre de 2026 — Dos escrituras que tienen que ir juntas, separadas (BAR01, Codex)
+
+**Qué era:** la barra vaciaba la lista de botellas por devolver y después las devolvía, en dos
+operaciones. Un corte del servidor en el medio perdía la devolución. Yo había mirado esa función
+con la pregunta 22 (dos servidores a la vez) y la di por buena: **no pregunté qué pasa si el
+servidor se corta entre dos pasos**.
+
+**Pregunta nueva, la 25:** *"si el servidor se corta entre este paso y el siguiente, ¿queda algo
+a medias sin rastro?"*
+
+**El control que lo frena:** `src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts`.
+
+## 25 de septiembre de 2026 — Una comprobación que no sabía pedir que algo se saque (Codex)
+
+**Qué era:** la orden 76 pedía sacar una exclusión de una prueba y figuraba cumplida sin
+hacerlo, porque `comprobar` sólo podía pedir que algo estuviera.
+
+**Qué pregunta lo hubiera agarrado:** la de siempre al escribir `comprobar` —*"¿esto podría dar
+verde sin que se haya hecho?"*— aplicada también a lo que la orden pide **sacar**.
+
+**El control que lo frena:** el tipo `no-usa:` y la devolución 76b.

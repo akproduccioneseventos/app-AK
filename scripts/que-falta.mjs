@@ -29,11 +29,15 @@ const leer = (p) => {
 /** Las mismas comprobaciones que usa `npm run ordenes?`. */
 function comprobar(tipo, valor) {
   if (tipo === 'archivo' || tipo === 'prueba') return fs.existsSync(path.join(raiz, valor));
-  if (tipo === 'usa') {
+  if (tipo === 'usa' || tipo === 'no-usa') {
     const m = valor.match(/^(.+?)\s+en\s+(.+)$/);
     if (!m) return false;
     const c = leer(m[2].trim());
-    return Boolean(c && c.includes(m[1].trim()));
+    if (c === null) return false;
+    const esta = c.includes(m[1].trim());
+    // `no-usa`: lo que la orden pide SACAR (25 de septiembre de 2026). Sin esto, una orden
+    // que pedia sacar una exclusion de una prueba daba "hecha" sin haberla sacado.
+    return tipo === 'usa' ? esta : !esta;
   }
   return false;
 }

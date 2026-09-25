@@ -9399,3 +9399,50 @@ Se probó rompiéndolo: sacando la marca de cerrada, la 48 vuelve a aparecer.
 ```comprobar
 usa: Cerrada en scripts/que-falta.mjs
 ```
+
+## 25 de septiembre de 2026 — Las botellas por devolver se perdían si el servidor se cortaba en el medio (BAR01, Codex)
+
+**Que estaba mal:** la barra vaciaba la lista de botellas por devolver en una operación y las
+devolvía en otra. Un reinicio del servidor entre las dos dejaba la lista vacía y el stock sin
+devolver, sin rastro.
+
+**Que se hizo:** con base, devolver el stock y sacar el pendiente de la lista van en **una sola
+transacción** (`mutateGenericJsonArrayConTransaccion` en `src/lib/generic-json-store.ts`): o
+pasan las dos o ninguna, y si dos servidores lo intentan a la vez las botellas vuelven una vez.
+Sin base (modo de pruebas) sigue el camino de antes: no hay dónde guardar nada durable.
+
+```comprobar
+usa: mutateGenericJsonArrayConTransaccion<DevolucionPendiente> en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts
+```
+
+## 25 de septiembre de 2026 — Una orden que pedía SACAR algo daba "hecha" sin haberlo sacado
+
+**Que estaba mal:** el bloque `comprobar` sólo sabía pedir que algo **estuviera**. La orden 76
+pedía sacar la exclusión del celular de la prueba de importación de invitados; no se sacó y la
+orden figuraba cumplida. Lo encontró Codex.
+
+**Que se hizo:** nuevo tipo `no-usa: texto en archivo` en `scripts/ordenes-cumplidas.mjs` y
+`scripts/que-falta.mjs`. Se probó: con la exclusión todavía puesta, la devolución 76b aparece
+como pendiente.
+
+```comprobar
+usa: no-usa en scripts/ordenes-cumplidas.mjs
+usa: no-usa en scripts/que-falta.mjs
+```
+
+## 25 de septiembre de 2026 — El pedido de trago descontaba botellas y guardaba en dos pasos
+
+**Que estaba mal (pregunta 25):** con base, el pedido del invitado descontaba las botellas en una
+operación y guardaba el pedido en otra. Un corte en el medio dejaba botellas descontadas por un
+pedido que no existe. Y dos toques del mismo pedido que caían en dos servidores a la vez pasaban
+los dos el control de "ya está" y **descontaban dos veces**.
+
+**Que se hizo:** `descontarYGuardarEnUnaOperacion` hace las dos cosas en una sola transacción, y
+adentro mira si el pedido ya estaba. Si la transacción no pasa, no se tocó nada y sigue el camino
+de respaldo de siempre.
+
+```comprobar
+usa: descontarYGuardarEnUnaOperacion en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts
+```

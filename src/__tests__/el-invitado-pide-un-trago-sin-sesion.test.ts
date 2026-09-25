@@ -40,8 +40,10 @@ describe('El invitado pide un trago sin sesion del equipo', () => {
     expect(texto).toMatch(/leerCartaTragosMaster\(\)/);
   });
 
-  it('las devoluciones pendientes se toman y vacian en una sola operacion con base', () => {
+  it('las devoluciones pendientes se devuelven y se sacan de la lista en una sola operacion con base', () => {
+    // Desde el 25 de septiembre de 2026 va en la misma transaccion que el stock: ver
+    // `las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts`, que lo prueba de verdad.
     const cuerpo = texto.slice(texto.indexOf('async function reintentarDevolucionesPendientes'));
-    expect(cuerpo.slice(0, 900)).toMatch(/mutateGenericJsonArray<DevolucionPendiente>/);
+    expect(cuerpo.slice(0, 1500)).toMatch(/mutateGenericJsonArrayConTransaccion<DevolucionPendiente>/);
   });
 });

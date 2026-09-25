@@ -24,7 +24,7 @@ import { createEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
 import { calculateActualStockMovement, getBarScheduleError, isTruthyFollowConfirmation, isValidBarOrderTransition, normalizeBarTime } from '@/lib/barra-tecnologica';
 import { limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
 import { readData, writeData } from '@/lib/data-service';
-import { mutateGenericJsonArray } from '@/lib/generic-json-store';
+import { mutateGenericJsonArray, mutateGenericJsonArrayConTransaccion } from '@/lib/generic-json-store';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import * as logger from '@/lib/logger';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -197,21 +197,60 @@ async function anotarDevolucionPendiente(pedido: string, movimientos: BarStockMo
 }
 
 async function reintentarDevolucionesPendientes() {
+  const db = await getDb();
+  if (db) {
+    // Devolver las botellas y sacarlas de la lista es UNA sola operacion de la base (25 de
+    // septiembre de 2026, lo marco Codex). Antes se vaciaba la lista y despues se devolvia:
+    // un reinicio del servidor en el medio perdia la devolucion. Ahora, si algo se corta,
+    // no paso nada y la lista sigue ahi para el proximo pedido. Y si dos servidores lo
+    // intentan a la vez, la base repite la operacion del segundo con la lista ya vacia:
+    // las botellas se devuelven una sola vez.
+    let devueltas: DevolucionPendiente[] = [];
+    try {
+      await mutateGenericJsonArrayConTransaccion<DevolucionPendiente>(
+        DEVOLUCIONES_PENDIENTES_FILE,
+        async (lista, transaction, base) => {
+          devueltas = [];
+          if (lista.length === 0) return null;
+          const totales = new Map<string, number>();
+          for (const pendiente of lista) {
+            for (const mov of pendiente.movimientos || []) {
+              if (!mov?.insumoId || !(mov.cantidad > 0)) continue;
+              totales.set(mov.insumoId, (totales.get(mov.insumoId) || 0) + mov.cantidad);
+            }
+          }
+          const ids = [...totales.keys()];
+          const refs = ids.map((id) => base.collection('insumos').doc(id));
+          const snapshots = refs.length > 0 ? await transaction.getAll(...refs) : [];
+          snapshots.forEach((snapshot, index) => {
+            if (!snapshot.exists) return;
+            const available = Number(snapshot.data()?.cantidadDisponible);
+            if (!Number.isFinite(available)) return;
+            transaction.update(snapshot.ref, { cantidadDisponible: available + (totales.get(ids[index]) || 0) });
+          });
+          devueltas = lista;
+          return [];
+        },
+      );
+    } catch (error) {
+      logger.warn('[barra-tecnologica] no se pudieron devolver las botellas pendientes; quedan anotadas:', error);
+      return;
+    }
+    if (devueltas.length > 0) {
+      limpiarCacheInsumos();
+      for (const d of devueltas) logger.info(`[barra-tecnologica] se devolvieron las botellas pendientes del pedido ${d.pedido}.`);
+    }
+    return;
+  }
+
+  // Sin base (modo local de pruebas): un solo servidor, con su turno. No se promete
+  // durabilidad ante un corte: no hay donde guardarla.
   let pendientes: DevolucionPendiente[] = [];
   try {
-    if (await getDb()) {
-      // Tomar y vaciar la lista es UNA operacion: si dos servidores la leian a la vez, los
-      // dos devolvian las mismas botellas y el stock quedaba de mas.
-      await mutateGenericJsonArray<DevolucionPendiente>(DEVOLUCIONES_PENDIENTES_FILE, (lista) => {
-        pendientes = lista;
-        return lista.length > 0 ? [] : null;
-      });
-    } else {
-      await enLaColaDeStock(async () => {
-        pendientes = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
-        if (pendientes.length > 0) await writeData(DEVOLUCIONES_PENDIENTES_FILE, []);
-      });
-    }
+    await enLaColaDeStock(async () => {
+      pendientes = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
+      if (pendientes.length > 0) await writeData(DEVOLUCIONES_PENDIENTES_FILE, []);
+    });
   } catch (error) {
     logger.warn('[barra-tecnologica] no se pudo leer la lista de devoluciones pendientes:', error);
     return;
@@ -276,6 +315,42 @@ async function descontarStock(drink: Trago): Promise<BarStockMovement[]> {
 
   await nextPromise;
   return movements;
+}
+
+/**
+ * Descontar las botellas y guardar el pedido en UNA sola operacion de la base (25 de
+ * septiembre de 2026, pregunta 25). Antes eran dos: si el servidor se cortaba entre
+ * descontar y guardar, las botellas quedaban descontadas por un pedido que no existe.
+ *
+ * Ademas mira adentro de la misma operacion si el pedido ya estaba: dos toques que caen en
+ * dos servidores a la vez descuentan una sola vez.
+ */
+async function descontarYGuardarEnUnaOperacion(
+  db: Firestore,
+  drink: Trago,
+  order: BarDrinkOrder,
+): Promise<{ yaEstaba?: BarDrinkOrder; movimientos: BarStockMovement[] }> {
+  const recipe = aggregateRecipe(drink);
+  const resultado = await db.runTransaction(async (transaction) => {
+    const orderRef = db.collection(BAR_ORDERS_COLLECTION).doc(order.id);
+    const existente = await transaction.get(orderRef);
+    if (existente.exists) return { yaEstaba: existente.data() as BarDrinkOrder, movimientos: [] };
+    const refs = recipe.map((item) => db.collection('insumos').doc(item.insumoId));
+    const snapshots = refs.length > 0 ? await transaction.getAll(...refs) : [];
+    const movimientos: BarStockMovement[] = [];
+    snapshots.forEach((snapshot, index) => {
+      if (!snapshot.exists) return;
+      const available = Number(snapshot.data()?.cantidadDisponible);
+      if (!Number.isFinite(available)) return;
+      const cantidad = calculateActualStockMovement(available, recipe[index].cantidad);
+      transaction.update(snapshot.ref, { cantidadDisponible: available - cantidad });
+      if (cantidad > 0) movimientos.push({ insumoId: recipe[index].insumoId, cantidad });
+    });
+    transaction.set(orderRef, { ...order, stockMovements: movimientos });
+    return { movimientos };
+  });
+  if (!resultado.yaEstaba) limpiarCacheInsumos();
+  return resultado;
 }
 
 async function reponerStock(movements: BarStockMovement[]) {
@@ -552,6 +627,25 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
       source: 'touchscreen',
     };
 
+    let hechoEnUnaOperacion = false;
+    const dbDelPedido = await getDb();
+    if (dbDelPedido) {
+      try {
+        const r = await descontarYGuardarEnUnaOperacion(dbDelPedido, drink, order);
+        if (r.yaEstaba) {
+          if (r.yaEstaba.fiestaId !== input.fiestaId) return { success: false, error: 'Pedido invalido.' };
+          return { success: true, order: r.yaEstaba };
+        }
+        order.stockMovements = r.movimientos;
+        hechoEnUnaOperacion = true;
+      } catch (error) {
+        // La operacion no paso entera: no se desconto ni se guardo nada. Se sigue por el
+        // camino de respaldo de siempre.
+        logger.warn('[barra-tecnologica] no se pudo descontar y guardar en una operacion, se usa el respaldo:', error);
+      }
+    }
+
+    if (!hechoEnUnaOperacion) {
     order.stockMovements = await descontarStock(drink);
 
     // **El pedido se guarda, Y SE MIRA SI SE GUARDO.**
@@ -615,6 +709,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
         });
       }
       return { success: false, error: 'No se pudo registrar el pedido. Proba de nuevo en un momento.' };
+    }
     }
 
     // El pedido del invitado tambien consume botellas. Solo descontaba el que
