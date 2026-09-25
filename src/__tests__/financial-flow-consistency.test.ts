@@ -37,7 +37,9 @@ describe('financial flow consistency', () => {
 
     expect(invoices).toContain('const inputPayments');
     expect(invoices).toContain('sourcePresupuestoId: invoiceDataInput.sourcePresupuestoId || sourcePresupuestoId');
-    expect(invoices).toContain('AK_SYNC:invoice:');
+    // La referencia del espejo vive en un solo lugar desde el 25 de septiembre de 2026.
+    expect(invoices).toContain('referenciaDelCobro(invoiceId, paymentId)');
+    expect(read('src/lib/commercial-flow/cobros-sin-pasar-al-presupuesto.ts')).toContain('AK_SYNC:invoice:');
     expect(invoices).toContain('invoices[invoiceIndex] = invoice;');
     expect(historical).toContain('pagosCliente: [{');
     expect(historical).toContain("estadoPago: 'confirmado'");

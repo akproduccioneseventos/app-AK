@@ -6,7 +6,7 @@ const PARTE_CACHE_FILE = 'parte-manana-cache.json';
 
 export interface ItemParteManana {
   id: string;
-  tipo: 'cobranza' | 'fiesta_proxima' | 'prospecto' | 'contador';
+  tipo: 'cobranza' | 'fiesta_proxima' | 'prospecto' | 'contador' | 'conciliacion';
   titulo: string;
   detalle: string;
   accionHref?: string;
@@ -144,6 +144,28 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
       accionHref: `/empresa/contabilidad/reportes?mes=${mes.clave}`,
       accionTexto: 'Ver y mandar',
     });
+  }
+
+  // 5. Cobros de factura que no llegaron al presupuesto (un corte del servidor en el medio).
+  //    Si quedan así, al cliente le puede llegar un recordatorio de algo que ya pagó.
+  try {
+    const [{ leerFacturasSinGuardia }, { cobrosDeFacturaSinPasarAlPresupuesto }] = await Promise.all([
+      import('@/lib/invoices/leer-facturas'),
+      import('@/lib/commercial-flow/cobros-sin-pasar-al-presupuesto'),
+    ]);
+    const sinPasar = cobrosDeFacturaSinPasarAlPresupuesto(await leerFacturasSinGuardia(), presupuestos);
+    if (sinPasar.length > 0) {
+      items.unshift({
+        id: 'conciliacion_cobros',
+        tipo: 'conciliacion',
+        titulo: `Pasar ${sinPasar.length === 1 ? 'un cobro' : `${sinPasar.length} cobros`} de factura al presupuesto`,
+        detalle: 'Quedaron cobrados en la factura pero no en el presupuesto. Se pasan con un toque, sin duplicar.',
+        accionHref: '/empresa/contabilidad/facturas?conciliar=1',
+        accionTexto: 'Pasar ahora',
+      });
+    }
+  } catch {
+    // El parte no se cae por esto.
   }
 
   const itemsPrincipales = items.slice(0, 3);

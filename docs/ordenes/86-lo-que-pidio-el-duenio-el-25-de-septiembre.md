@@ -122,6 +122,14 @@ el parte de la mañana avisa los primeros cinco días del mes con enlace a
 **No tocar:** `src/lib/contabilidad/resumen-para-el-contador.ts` ni `getProfitAndLossData`: plata,
 de Claude.
 
+## Bloque 9 — Pasar al presupuesto los cobros de factura que quedaron a medias
+
+Claude hizo `pasarCobrosPendientesAlPresupuesto()` en `src/app/actions/invoices.ts` (pide permiso
+de contabilidad, no duplica). El parte de la mañana avisa con enlace a
+`/empresa/contabilidad/facturas?conciliar=1`. En esa pantalla, si viene `conciliar=1`, mostrar
+arriba un cartel "Hay cobros de factura que no llegaron al presupuesto" con el botón **"Pasar
+ahora"** que llama a esa acción y muestra cuántos pasó. **No tocar la acción:** es plata.
+
 ---
 
 ## Qué NO se toca, en general
@@ -158,4 +166,5 @@ archivo: src/lib/social-media/google-business-resenas.ts
 usa: caricatura en src/app/actions/touchpix-ai.ts
 usa: confirmarReservaDeFirmaDigital en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
 usa: armarResumenParaElContador en src/app/(app)/empresa/contabilidad/reportes/page.tsx
+usa: pasarCobrosPendientesAlPresupuesto en src/app/(app)/empresa/contabilidad/facturas/page.tsx
 ```

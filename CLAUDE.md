@@ -1308,6 +1308,7 @@ con otra cara.
 | **DE RAIZ:** guardar una lista entera deshacia o borraba lo que otro hizo al mismo tiempo (160 lugares) | `src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts` y `src/lib/marca-de-lectura.ts` |
 | La firma digital del cliente no puede dar la fiesta por contratada ni anotar la seña sola | `src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts` |
 | El pedido al proveedor pedia todo lo de la receta aunque hubiera stock | `src/__tests__/el-pedido-al-proveedor-pide-lo-que-falta.test.ts` |
+| Un cobro de factura cortado entre la factura y el presupuesto no dejaba rastro | `src/__tests__/un-cobro-cortado-a-medias-se-detecta.test.ts` |
 
 ### Cómo se elige el matafuego
 

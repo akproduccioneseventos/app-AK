@@ -9597,3 +9597,23 @@ prueba: src/__tests__/el-resumen-del-contador-cuadra.test.ts
 - **No se hacen:** presupuesto en video, canciones con inteligencia artificial, equipos físicos
   (proyección, piso de LED, pulseras, holograma).
 - **Cuando vuelve la señal, no se avisa nada.**
+
+## 25 de septiembre de 2026 — Un cobro de factura cortado a medias ahora deja rastro (pregunta 25)
+
+**Que estaba mal:** cobrar una factura que viene de un presupuesto son dos pasos (factura y
+presupuesto). Un corte del servidor entre los dos dejaba la factura cobrada y el presupuesto con
+saldo: al cliente le podía llegar un recordatorio de cuota ya pagada. Los reportes no mentían
+(suman las dos fuentes), pero el saldo sí.
+
+**Que se hizo:** el cobro se guarda en la factura marcado `pasadoAlPresupuesto: false` **antes** del
+segundo paso, y se marca `true` cuando el presupuesto lo tiene. El parte de la mañana avisa si
+queda alguno a medias y se pasa con un toque (`pasarCobrosPendientesAlPresupuesto`), sin
+duplicar: el presupuesto reconoce el cobro por su referencia. **Por qué con la marca y no
+comparando referencias:** la seña va al revés (del presupuesto a la factura) y los cobros viejos
+no tienen esa referencia; compararlas daba falsas alarmas y podía duplicar plata.
+
+```comprobar
+usa: pasadoAlPresupuesto: false en src/app/actions/invoices.ts
+usa: cobrosDeFacturaSinPasarAlPresupuesto en src/lib/automatico/parte-manana.ts
+prueba: src/__tests__/un-cobro-cortado-a-medias-se-detecta.test.ts
+```
