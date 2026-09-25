@@ -453,3 +453,17 @@ nueva:** *"¿este control esta mirando de verdad, o se saltea solo cuando no enc
 Un control que se apaga solo es peor que no tenerlo, porque da verde.
 
 **El control que lo frena:** `src/__tests__/ninguna-prueba-esta-apagada.test.ts`.
+
+## 25 de septiembre de 2026 — Una acción pública que llama a una acción del equipo
+
+**Qué era:** la barra atiende invitados y llamaba a dos acciones que piden sesión del equipo (la
+limpieza del cache de insumos y la carta de la empresa). Una tiraba error y cortaba el pedido con
+las botellas ya descontadas; la otra fallaba en silencio y mostraba la carta de fábrica. Lo
+destapó una prueba de navegador de Gemini, no una auditoría mía.
+
+**Qué pregunta lo hubiera agarrado:** ninguna. La 23 pregunta si lo que llega del invitado es de
+esta fiesta; no pregunta **qué llama después**. Se agregó la **pregunta 24**: *"lo que atiende al
+invitado, ¿llama a alguna acción que pida sesión del equipo?"*
+
+**El control que lo frena:** `src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts`, y el
+barrido del resto de la app en la orden 83.
