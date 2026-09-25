@@ -1,4 +1,5 @@
-import { mandarAlContador, enviarResumenAlContador, type ProfitAndLossData } from '@/app/actions/reportes';
+import type { ProfitAndLossData } from '@/app/actions/reportes';
+import { mandarResumenAlContador as mandarAlContador } from '@/lib/contabilidad/mandar-resumen-al-contador';
 import * as requireSessionModule from '@/lib/auth/require-session';
 import * as googleWorkspaceModule from '@/lib/google-workspace';
 import * as dataServiceModule from '@/lib/data-service';
@@ -107,24 +108,29 @@ describe('Orden 86 Bloque 8: Resumen del mes para el contador', () => {
     expect(attachmentArg.content).toContain('DJ Principal');
   });
 
-  it('enviarResumenAlContador funciona exactamente igual', async () => {
-    (settingsModule.getCompanyInfo as jest.Mock).mockResolvedValue({
-      name: 'AK Producciones',
-      emailContador: 'contador@estudio.com.uy',
+  it('la acción de la pantalla no acepta números: recibe el período y el resumen se calcula en el servidor', async () => {
+    (settingsModule.getCompanyInfo as jest.Mock).mockResolvedValue({ name: 'AK Producciones', emailContador: 'contador@estudio.com.uy' });
+    (dataServiceModule.readData as jest.Mock).mockImplementation((file: string) =>
+      Promise.resolve(file.includes('google-workspace-accounts') ? [googleCompanyAccount] : []));
+    let accion: any;
+    jest.isolateModules(() => {
+      jest.doMock('@/app/actions/invoices', () => ({ getInvoices: jest.fn(async () => []) }));
+      jest.doMock('@/app/actions/presupuestos', () => ({ getPresupuestos: jest.fn(async () => []) }));
+      jest.doMock('@/app/actions/fiesta/fiesta.actions', () => ({ getAllFiestas: jest.fn(async () => []) }));
+      jest.doMock('@/app/actions/roles', () => ({ getRoles: jest.fn(async () => []) }));
+      jest.doMock('@/app/actions/gastos', () => ({ getGastosGenerales: jest.fn(async () => []) }));
+      jest.doMock('@/lib/auth/session-token', () => ({ verifySession: jest.fn(async () => ({ success: true })) }));
+      accion = require('@/app/actions/reportes');
     });
-
-    (dataServiceModule.readData as jest.Mock).mockImplementation((file: string) => {
-      if (file.includes('google-workspace-accounts')) {
-        return Promise.resolve([googleCompanyAccount]);
-      }
-      return Promise.resolve([]);
-    });
-
-    const resultado = await enviarResumenAlContador(dummyDatos, 'septiembre de 2026');
-    expect(resultado.success).toBe(true);
-    expect(googleWorkspaceModule.sendGoogleGmailMessage).toHaveBeenCalledTimes(1);
-    expect(
-      (googleWorkspaceModule.sendGoogleGmailMessage as jest.Mock).mock.calls[0][2]
-    ).toBe('AK Producciones — resumen de septiembre de 2026');
+    // Alguien arma números en el navegador y se los pasa a la acción: no llegan al contador.
+    const r = await accion.mandarAlContador(dummyDatos as any, 'agosto de 2026');
+    expect(r.success).toBe(false);
+    expect(googleWorkspaceModule.sendGoogleGmailMessage).not.toHaveBeenCalled();
+    // Con el período, manda lo que calculó el servidor (sin movimientos: cero), no lo inventado.
+    const ok = await accion.mandarAlContador({ from: new Date(2026, 7, 1), to: new Date(2026, 7, 31, 23, 59) }, 'agosto de 2026');
+    expect(ok.success).toBe(true);
+    const html = (googleWorkspaceModule.sendGoogleGmailMessage as jest.Mock).mock.calls[0][3];
+    expect(html).not.toContain('150.000');
+    expect(accion.enviarResumenAlContador).toBeUndefined();
   });
 });

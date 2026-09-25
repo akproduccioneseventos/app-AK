@@ -253,6 +253,7 @@ export async function getPendingMessagesForToday(): Promise<ScheduledMessage[]> 
 }
 
 export async function checkGoogleMailStatus(): Promise<{ connected: boolean; email?: string }> {
+  await requireAppSession();
   try {
     const accounts = await readData<GoogleWorkspaceAccount[]>('_google-workspace-accounts.json', []);
     const company = accounts.find((a) => a.kind === 'company');
@@ -319,7 +320,7 @@ export async function sendScheduledMessageByEmail(
     <div style="font-family: sans-serif; padding: 20px; color: #1e293b; line-height: 1.6;">
       <h2 style="color: #e11d48; margin-top: 0;">AK Producciones</h2>
       <div style="white-space: pre-wrap; font-size: 15px; margin: 16px 0;">
-        ${message.messageText}
+        ${String(message.messageText || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
       </div>
       <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0 10px 0;" />
       <p style="font-size: 12px; color: #64748b; margin: 0;">

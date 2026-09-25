@@ -29,6 +29,10 @@ export function proponerEquipoParaFiesta(
   opciones: ProponerEquipoOpciones,
 ): PersonalAsignadoDetalleStorage[] {
   const { fiestaActual, todasLasFiestas, empleados, roles, requiredRoles } = opciones;
+  // Lo que ya está asignado en esta fiesta NO se reemplaza: se conserva con su empleado y su
+  // sueldo (puede haberse cargado a mano), y la propuesta sólo completa los lugares vacíos.
+  const actuales = (opciones.asignacionesActuales ?? fiestaActual.personalAsignado ?? []) as PersonalAsignadoDetalleStorage[];
+  const sinUsar = actuales.filter((a) => a.empleadoId);
 
   const fechaActualStr = (fiestaActual.configuracion?.fechaEvento || '').slice(0, 10);
 
@@ -64,12 +68,19 @@ export function proponerEquipoParaFiesta(
   // 2. Contador local de asignaciones en la fiesta actual
   const asignadosEnEstaFiesta: Record<string, number> = {};
   const propuesta: PersonalAsignadoDetalleStorage[] = [];
+  for (const a of sinUsar) asignadosEnEstaFiesta[a.empleadoId] = (asignadosEnEstaFiesta[a.empleadoId] || 0) + 1;
 
   for (const req of requiredRoles) {
     const rolDef = roles.find((r) => r.id === req.roleId);
     const sueldo = req.customSalary ?? rolDef?.sueldoPorEvento ?? 0;
 
     for (let i = 0; i < req.quantity; i++) {
+      const yaEstaba = sinUsar.findIndex((a) => a.rolId === req.roleId);
+      if (yaEstaba !== -1) {
+        propuesta.push(sinUsar[yaEstaba]);
+        sinUsar.splice(yaEstaba, 1);
+        continue;
+      }
       // Filtrar empleados capacitados para este rol
       const candidatos = empleados.filter((emp) => {
         // Habilitado para este rol
@@ -122,5 +133,7 @@ export function proponerEquipoParaFiesta(
     }
   }
 
+  // Los asignados que no encajan en ningún rol pedido (extras cargados a mano) también quedan.
+  propuesta.push(...sinUsar);
   return propuesta;
 }

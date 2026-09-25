@@ -135,3 +135,23 @@ describe('Orden 86 Bloque 5: Proponer turnos de personal solos', () => {
     expect(propuesta[0].empleadoId).toBe('emp-4');
   });
 });
+
+describe('Proponer equipo no pisa lo que ya estaba cargado (sueldos)', () => {
+  it('conserva al asignado con su sueldo cargado a mano y sólo completa lo vacío', () => {
+    const { proponerEquipoParaFiesta } = require('@/lib/personal/proponer-equipo');
+    const fiestaActual: any = {
+      id: 'f1', estado: 'Confirmada', configuracion: { fechaEvento: '2026-10-10' },
+      personalAsignado: [{ empleadoId: 'e1', rolId: 'mozo', eventSalary: 9999 }],
+    };
+    const propuesta = proponerEquipoParaFiesta({
+      fiestaActual,
+      todasLasFiestas: [fiestaActual],
+      empleados: [{ id: 'e1', rolIds: ['mozo'] }, { id: 'e2', rolIds: ['mozo'] }] as any,
+      roles: [{ id: 'mozo', sueldoPorEvento: 1000 }] as any,
+      requiredRoles: [{ roleId: 'mozo', roleName: 'Mozo', quantity: 2 }],
+    });
+    expect(propuesta).toContainEqual({ empleadoId: 'e1', rolId: 'mozo', eventSalary: 9999 });
+    expect(propuesta.filter((p: any) => p.empleadoId === 'e2')).toHaveLength(1);
+    expect(propuesta).toHaveLength(2);
+  });
+});

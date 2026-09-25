@@ -10,17 +10,8 @@ import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { getReconciledSalePayments, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
 import { verifySession } from '@/lib/auth/session-token';
 import { requireAppSession } from '@/lib/auth/require-session';
-import { armarResumenParaElContador } from '@/lib/contabilidad/resumen-para-el-contador';
 import { getCompanyInfo } from './settings';
-import { readData } from '@/lib/data-service';
-import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
-import {
-  sendGoogleGmailMessage,
-  ensureFreshGoogleAccount,
-  hasServiceAccountKey,
-  getServiceAccountAccessToken,
-  GOOGLE_WORKSPACE_SCOPES,
-} from '@/lib/google-workspace';
+import { mandarResumenAlContador, type ResultadoMandarAlContador } from '@/lib/contabilidad/mandar-resumen-al-contador';
 
 interface DateRange {
   from: Date;
@@ -266,87 +257,24 @@ export async function getProfitAndLossData(
 
 /**
  * MANDAR AL CONTADOR (25 de septiembre de 2026, pedido del dueño).
- * Arma el resumen del mes (ingresos, costos y resultado) con la planilla adjunta (.csv)
- * y lo envía por mail al contador configurado en Ajustes de Empresa.
+ * Recibe el RANGO, no los números: el resumen se calcula acá, en el servidor, con
+ * `getProfitAndLossData`. Así nadie puede mandarle al contador cifras armadas en el navegador.
  */
 export async function mandarAlContador(
-  datos: ProfitAndLossData,
+  rango: DateRange,
   nombreDelMes: string
-): Promise<{ success: boolean; error?: string; notice?: string; enviadoA?: string }> {
+): Promise<ResultadoMandarAlContador> {
   await requireAppSession();
-
-  const company = await getCompanyInfo();
-  if (!company.emailContador || !company.emailContador.trim()) {
-    return {
-      success: false,
-      error: 'Falta configurar el mail del contador en Ajustes de Empresa.',
-      notice: 'Falta mail del contador en Ajustes',
-    };
+  const desde = new Date(rango?.from as any);
+  const hasta = new Date(rango?.to as any);
+  if (Number.isNaN(desde.getTime()) || Number.isNaN(hasta.getTime())) {
+    return { success: false, error: 'Elegí el período antes de mandar el resumen.' };
   }
-
-  const { asunto, texto, csv } = armarResumenParaElContador(datos, nombreDelMes);
-
-  const accounts = await readData<GoogleWorkspaceAccount[]>('_google-workspace-accounts.json', []);
-  let companyAccount = accounts.find((a) => a.kind === 'company');
-  if (!companyAccount && hasServiceAccountKey()) {
-    const saToken = await getServiceAccountAccessToken();
-    if (saToken) {
-      companyAccount = {
-        id: 'company',
-        kind: 'company',
-        email: 'akproduccionessalto@gmail.com',
-        calendarId: process.env.GOOGLE_WORKSPACE_CALENDAR_ID || 'primary',
-        accessToken: saToken,
-        scope: GOOGLE_WORKSPACE_SCOPES.join(' '),
-        tokenType: 'Bearer',
-        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
-        connectedAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: 'connected',
-      };
-    }
+  const reporte = await getProfitAndLossData({ from: desde, to: hasta });
+  if (!reporte.success || !reporte.data) {
+    return { success: false, error: reporte.error || 'No se pudo armar el resumen del período.' };
   }
-
-  const freshCompany = companyAccount ? await ensureFreshGoogleAccount(companyAccount).catch(() => null) : null;
-  if (!freshCompany || freshCompany.status !== 'connected' || !freshCompany.accessToken) {
-    return {
-      success: false,
-      error: 'Conectá Google en Ajustes para enviar mails.',
-      notice: 'Conectá Google en Ajustes',
-    };
-  }
-
-  const html = `
-    <div style="font-family: sans-serif; padding: 20px; color: #1e293b; line-height: 1.6;">
-      <h2 style="color: #e11d48; margin-top: 0;">AK Producciones</h2>
-      <div style="white-space: pre-wrap; font-size: 15px; margin: 16px 0;">
-        ${texto.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-      </div>
-      <p style="font-size: 13px; color: #64748b;">(Se adjunta la planilla detallada en formato CSV)</p>
-      <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0 10px 0;" />
-      <p style="font-size: 12px; color: #64748b; margin: 0;">
-        AK Producciones — Salto, Uruguay | www.akproducciones.uy
-      </p>
-    </div>
-  `;
-
-  const filename = `resumen-${nombreDelMes.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.csv`;
-
-  await sendGoogleGmailMessage(freshCompany, company.emailContador.trim(), asunto, html, {
-    filename,
-    content: csv,
-    contentType: 'text/csv; charset=UTF-8',
-  });
-
-  return { success: true, enviadoA: company.emailContador.trim() };
-}
-
-export async function enviarResumenAlContador(
-  datos: ProfitAndLossData,
-  nombreDelMes: string
-): Promise<{ success: boolean; error?: string; notice?: string; enviadoA?: string }> {
-  await requireAppSession();
-  return mandarAlContador(datos, nombreDelMes);
+  return mandarResumenAlContador(reporte.data, nombreDelMes);
 }
 
 export async function getEmailContador(): Promise<string | undefined> {

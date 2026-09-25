@@ -62,6 +62,8 @@ function ReportesContabilidadContent() {
   const [error, setError] = useState<string | null>(null);
   const [emailContador, setEmailContador] = useState<string | null>(null);
   const [isSendingContador, setIsSendingContador] = useState(false);
+  // El período del reporte que se ve: el resumen al contador se recalcula en el servidor con él.
+  const [rangoDelReporte, setRangoDelReporte] = useState<{ from: Date; to: Date } | null>(null);
 
   useEffect(() => {
     getEmailContador()
@@ -85,6 +87,7 @@ function ReportesContabilidadContent() {
       const result = await getProfitAndLossData({ from, to });
       if (result.success && result.data) {
         setReportData(result.data);
+        setRangoDelReporte({ from, to });
       } else {
         throw new Error(result.error || 'No se pudo generar el reporte.');
       }
@@ -117,7 +120,7 @@ function ReportesContabilidadContent() {
   };
 
   const handleMandarAlContador = async () => {
-    if (!reportData) return;
+    if (!reportData || !rangoDelReporte) return;
     if (!emailContador) {
       toast({
         title: 'Falta mail del contador',
@@ -128,7 +131,7 @@ function ReportesContabilidadContent() {
     }
     setIsSendingContador(true);
     try {
-      const res = await mandarAlContador(reportData, getNombreMes());
+      const res = await mandarAlContador(rangoDelReporte, getNombreMes());
       if (res.success) {
         toast({
           title: '¡Resumen enviado!',

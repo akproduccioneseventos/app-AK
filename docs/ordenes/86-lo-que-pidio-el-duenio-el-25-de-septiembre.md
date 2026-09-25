@@ -171,7 +171,7 @@ Cada prueba **se rompe a propósito antes de entregar** y tiene que ponerse en r
 ```comprobar
 archivo: src/components/invitacion/AsistenteDelInvitado.tsx
 usa: AsistenteDelInvitado en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
-no-usa: Quiero Karaoke en mi fiesta en src/components/public/InteractiveTechShowcase.tsx
+no-usa: Karaoke en src/components/public/InteractiveTechShowcase.tsx
 usa: sendGoogleGmailMessage en src/app/actions/scheduled-messages.ts
 archivo: src/lib/social-media/google-business-resenas.ts
 usa: caricatura en src/app/actions/touchpix-ai.ts
