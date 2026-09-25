@@ -90,7 +90,19 @@ function pantallasRotas() {
 function devolucionesAbiertas() {
   const dir = path.join(raiz, 'docs', 'ordenes');
   if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir).filter((f) => f.startsWith('DEVOLUCION') && f.endsWith('.md'));
+  // Antes listaba TODAS las devoluciones que existian, hechas o no: la lista decia
+  // "esperando" para siempre y parecia que siempre faltaba algo (25 de septiembre de
+  // 2026). Ahora una devolucion esta abierta si su bloque `comprobar` todavia falla, o si
+  // no tiene bloque y nadie la marco con `**Cerrada:**` y el motivo.
+  const aMedias = new Set(ordenesAMedias().map((o) => o.archivo));
+  return fs.readdirSync(dir)
+    .filter((f) => f.startsWith('DEVOLUCION') && f.endsWith('.md'))
+    .filter((f) => {
+      if (aMedias.has(f)) return true;
+      const txt = fs.readFileSync(path.join(dir, f), 'utf8');
+      if (/```comprobar/.test(txt)) return false;
+      return !/^\*\*Cerrada:\*\*/m.test(txt);
+    });
 }
 
 const VE_EL_CLIENTE = /^\/(portal|portal-cliente|invitado|invitacion|evento|landing|bodas|quinceaneras|public|simulador)/;

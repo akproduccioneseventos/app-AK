@@ -29,7 +29,9 @@ describe('CRM agenda performance', () => {
   });
 
   it('records scheduled meetings in the prospect timeline', () => {
-    const actions = read('src/app/actions/crm.ts');
+    // Desde la orden 83 la reunion se anota en una sola copia, que usan el equipo y la web.
+    const actions = read('src/lib/crm/crm-meeting.ts');
+    expect(read('src/app/actions/crm.ts')).toContain('scheduleCrmMeetingInternal');
     expect(actions).toContain("type: 'meeting_scheduled'");
     expect(actions).toContain('tl_meeting_');
     expect(actions).toContain("error: 'La fecha de la reunión no es válida.'");

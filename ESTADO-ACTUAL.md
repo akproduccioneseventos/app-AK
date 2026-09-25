@@ -18,10 +18,17 @@ completa en verde y fusionada.
 - **Toda la app:** la pantalla ya no se recarga sola cuando vuelve el wifi (cortaba fotocabina y
   barra en plena fiesta).
 
+- **Orden 83 (propuesta 1223):** la reunión que agenda un prospecto en la web ya queda en su
+  ficha; una sola copia de cómo se anota. La lista de "qué falta" muestra sólo lo abierto.
+
 ## Espera a Gemini
 
-- **Orden 83:** barrido con la pregunta 24 (lo del invitado no llama acciones del equipo).
-- Devoluciones viejas: 42, 48, 48b, 61, 71, 74-77 pantallas equivocadas, acceso administrativo.
+Nada. Todas las órdenes y devoluciones están cerradas.
+
+## Decisión del dueño (25 de septiembre)
+
+**Cuando vuelve la señal, no se avisa nada.** Palabras suyas: *"está bueno que vuelva la señal y
+la persona no se dé cuenta"*. No se hace un cartel de "volvió la señal".
 
 ## Pendiente, y es mío
 
@@ -29,7 +36,7 @@ Nada.
 
 ## Lo que ningún control cubre
 
-Falta **un ensayo real** por rol, con fotocabina, 360, barra y conexiones de afuera.
+Falta **un ensayo real**. La lista para hacerlo en media hora: `docs/ENSAYO-EN-EL-SALON.md`.
 
 ## Trampas
 

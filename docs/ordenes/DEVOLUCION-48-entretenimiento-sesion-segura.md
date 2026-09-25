@@ -134,3 +134,5 @@ ya empezo SU PROPIA subida**: ahi el `finally` de A le apaga el cartel a B.
 
 **Lo que NO hay que hacer:** una prueba que exija que el `finally` no tenga un `if`. Eso
 mira la forma del codigo y no el resultado, y ademas pide lo incorrecto.
+
+**Cerrada:** 25 de septiembre de 2026. El defecto está arreglado en `main`: `retake()` de fotocabina y touchpix apaga `setIsUploading(false)` al empezar el turno nuevo, y el `finally` sólo apaga lo de su propia sesión (ver error 10 de `CLAUDE.md`).

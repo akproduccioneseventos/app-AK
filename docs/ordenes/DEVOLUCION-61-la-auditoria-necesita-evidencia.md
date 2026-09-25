@@ -50,3 +50,5 @@ que está mal.
 **Una sola propuesta.** El arreglo de la 48 con su prueba, y la auditoría corregida en un
 archivo de texto con la evidencia de arriba. Si un área te da limpia de verdad, con la
 evidencia escrita **vale como trabajo hecho** y no se vuelve a mirar.
+
+**Cerrada:** 25 de septiembre de 2026. Era un informe de auditoría rechazado, no código. Lo que marcaba (la cabina trabada en "Subiendo…") quedó arreglado con la devolución 48.
