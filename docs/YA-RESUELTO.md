@@ -9364,3 +9364,24 @@ sesión del equipo). El pedido manual del barman y el cambio de estado miran si 
 usa: conElPedidoNuevo en src/app/actions/fiesta/barra-tecnologica.actions.ts
 prueba: src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts
 ```
+
+## 25 de septiembre de 2026 — La reunión que agendaba un prospecto en la web no quedaba en su ficha (orden 83)
+
+**Que estaba mal:** el simulador de la web, al agendar la reunión, llamaba a `scheduleCrmMeeting`,
+una acción del equipo que pide sesión. El prospecto no la tiene: fallaba en silencio, la cita
+quedaba en la agenda pero **su ficha no se enteraba** (sin fecha de seguimiento ni aviso en la
+historia). Además, las invitaciones Allegria y Grazia pedían las fotos del muro con la lectura del
+equipo; ahora usan `getPublicSocialPosts`, que devuelve sólo las aprobadas.
+
+**Que se hizo (Gemini, orden 83):** la reunión se anota con `scheduleCrmMeetingInternal`
+(`src/lib/crm/crm-meeting.ts`), que no es una acción. **Claude** hizo que la acción del equipo
+use esa misma copia, así hay una sola manera de anotar la reunión.
+
+**Descartados en el barrido:** `getServiciosEmpresaPublicos` y `getCompanyInfoPublica` son
+lecturas públicas a propósito; `getWhatsAppConfig` en la encuesta pasa su permiso interno.
+
+```comprobar
+usa: scheduleCrmMeetingInternal en src/app/actions/simulator-agenda.ts
+usa: scheduleCrmMeetingInternal en src/app/actions/crm.ts
+prueba: src/__tests__/orden-83-lo-del-invitado-no-llama-acciones-del-equipo.test.ts
+```

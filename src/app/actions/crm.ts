@@ -30,6 +30,7 @@ import {
 } from '@/lib/google-workspace';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
+import { scheduleCrmMeetingInternal } from '@/lib/crm/crm-meeting';
 import { AsyncMutex } from '@/lib/mutex';
 
 const crmMutex = new AsyncMutex();
@@ -300,32 +301,9 @@ export async function moveCrmLead(leadId: string, newStageId: string, meetingDat
 export async function scheduleCrmMeeting(leadId: string, date: string, title?: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const parsedDate = new Date(date);
-    if (!date || Number.isNaN(parsedDate.getTime())) {
-      return { success: false, error: 'La fecha de la reunión no es válida.' };
-    }
-    const normalizedDate = parsedDate.toISOString();
-    const lead = await mutateCrmLeadDocument(leadId, (current) => {
-      const existingNotes = current.notes || '';
-      const now = new Date().toISOString();
-      const meetingTitle = title?.trim() || 'Reunión de seguimiento';
-      return {
-        ...current,
-        followUpDate: normalizedDate,
-        updatedAt: now,
-        ...(title ? { notes: `${existingNotes}\n[REUNIÓN AGENDADA: ${meetingTitle} para el ${parsedDate.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })}]`.trim() } : {}),
-        timeline: [
-          ...(current.timeline || []),
-          {
-            id: `tl_meeting_${Date.now()}`,
-            type: 'meeting_scheduled',
-            timestamp: now,
-            description: `${meetingTitle}: ${parsedDate.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })}`,
-          },
-        ],
-      };
-    });
-    return lead ? { success: true, lead } : { success: false, error: 'Prospecto no encontrado' };
+    // Una sola copia de como se anota la reunion: la usan el equipo (aca, con sesion) y el
+    // simulador de la web (sin sesion). Dos copias se despegan en un mes.
+    return scheduleCrmMeetingInternal(leadId, date, title);
 }
 
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
