@@ -160,7 +160,7 @@ export default function OutboxPage() {
     try {
       const res = await sendScheduledMessageByEmail(msg.id);
       if (res.success) {
-        toast({ title: 'Mail enviado', description: `Se envió el correo a ${msg.targetEmail} con éxito.` });
+        toast({ title: 'Mail enviado', description: res.notice || `Se envió el correo a ${msg.targetEmail} con éxito.` });
         fetchMessages();
       } else {
         toast({

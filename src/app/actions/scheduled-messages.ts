@@ -330,6 +330,10 @@ export async function sendScheduledMessageByEmail(
   `;
 
   await sendGoogleGmailMessage(freshCompany, message.targetEmail, subject, html);
-  await markMessageAsSent(messageId, 'mail-google');
+  const marcado = await markMessageAsSent(messageId, 'mail-google');
+  if (!marcado.success) {
+    // El mail ya salió: no se devuelve falla (la persona lo mandaría dos veces), se avisa.
+    return { success: true, notice: 'El mail salió, pero no quedó marcado como enviado. No lo mandes de nuevo.' };
+  }
   return { success: true };
 }
