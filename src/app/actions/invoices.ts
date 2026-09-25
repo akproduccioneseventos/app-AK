@@ -597,6 +597,17 @@ async function resetAllInvoicesInner(): Promise<{ success: boolean; deletedCount
   }
 }
 
+function estadoTrasElPago(invoice: Invoice, pagos: Payment[]): Invoice['status'] {
+  const totalPaid = pagos.reduce((sum, p) => sum + roundInvoiceMoney(p.amount, invoice.currency), 0);
+  if (totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
+    return 'Paid';
+  }
+  if (totalPaid > 0 && invoice.status !== 'Overdue' && invoice.status !== 'Paid') {
+    return invoice.status === 'Draft' ? 'Sent' : invoice.status;
+  }
+  return invoice.status;
+}
+
 async function addPaymentToInvoiceInner(
   invoiceId: string,
   formData: FormData
@@ -651,16 +662,33 @@ async function addPaymentToInvoiceInner(
   };
 
   const updatedPayments = [...payments, newPayment];
-  const totalPaid = updatedPayments.reduce((sum, p) => sum + roundInvoiceMoney(p.amount, invoice.currency), 0);
-  let newStatus = invoice.status;
-  if (totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
-    newStatus = 'Paid';
-  } else if (totalPaid > 0 && invoice.status !== 'Overdue' && invoice.status !== 'Paid') {
-    newStatus = invoice.status === 'Draft' ? 'Sent' : invoice.status;
-  }
+  const newStatus = estadoTrasElPago(invoice, updatedPayments);
 
-  invoices[invoiceIndex] = { ...invoice, payments: updatedPayments, status: newStatus };
-  await writeData(INVOICES_FILE, invoices);
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    invoices[invoiceIndex] = { ...invoice, payments: updatedPayments, status: newStatus };
+    await writeData(INVOICES_FILE, invoices);
+  } else {
+    // El saldo se vuelve a mirar ADENTRO de la transaccion, con la factura leida en ese
+    // momento. El turno cuida un solo servidor: dos cobros en dos servidores pasaban el
+    // control con el mismo saldo viejo y la factura quedaba cobrada de mas.
+    let saldoAlGuardar: number | null = null;
+    const guardada = await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => {
+      const saldo = getInvoiceBalance(actual);
+      if (amount > saldo + invoiceMoneyTolerance(actual.currency)) {
+        saldoAlGuardar = saldo;
+        return null;
+      }
+      saldoAlGuardar = null;
+      return { ...actual, payments: [...(actual.payments || []), newPayment], status: estadoTrasElPago(actual, [...(actual.payments || []), newPayment]) };
+    });
+    if (!guardada) {
+      if (saldoAlGuardar !== null) {
+        return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${(saldoAlGuardar as number).toLocaleString('es-UY')} ${invoice.currency}.` };
+      }
+      return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+    }
+    invoices[invoiceIndex] = guardada;
+  }
 
   if (invoice.sourcePresupuestoId) {
     const budgetPaymentResult = await addPagoToPresupuesto(invoice.sourcePresupuestoId, {
