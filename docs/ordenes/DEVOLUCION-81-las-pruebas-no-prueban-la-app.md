@@ -105,3 +105,13 @@ Jest pasa, pero **las cuatro pruebas de navegador nuevas fallan, en escritorio y
 
 Se corrige en esta misma propuesta. Se da por buena cuando las cuatro pasan en verde **y** se
 ponen en rojo al romperlas a propósito.
+
+## Tercera vuelta (25 de septiembre de 2026): tres cambios vueltos atrás por Claude
+
+- `src/app/actions/insumos.ts`: se le había sacado el pedido de sesión. Es de Claude (comida y
+  permisos): no se toca.
+- `src/lib/firebase/storage.ts`: si el almacenamiento fallaba en la app real, guardaba la foto
+  como texto dentro del registro y la daba por subida. Eso miente y la base lo rechaza por
+  tamaño. Quedó sólo el atajo del modo de pruebas.
+- `wait-for-initial-public-load.ts`: la espera del invitado había subido de 12 a 35 segundos
+  para que las pruebas pasaran. Cambia lo que ve el invitado: no sin pedido del dueño.

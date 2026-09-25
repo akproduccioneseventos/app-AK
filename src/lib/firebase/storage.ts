@@ -74,10 +74,8 @@ export async function uploadToStorage(
     });
     return signedUrl;
   } catch (error: any) {
-    if (error?.code === 404 || /bucket does not exist/i.test(error?.message || '')) {
-      const base64 = buffer.toString('base64');
-      return `data:${contentType};base64,${base64}`;
-    }
+    // Si el almacenamiento falla, se avisa: guardar la foto adentro del registro como texto
+    // la haria pasar por subida sin estarlo, y la base rechaza registros tan grandes.
     throw error;
   }
 }
