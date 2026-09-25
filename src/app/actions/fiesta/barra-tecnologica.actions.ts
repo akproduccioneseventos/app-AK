@@ -22,8 +22,9 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
 import { createEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
 import { calculateActualStockMovement, getBarScheduleError, isTruthyFollowConfirmation, isValidBarOrderTransition, normalizeBarTime } from '@/lib/barra-tecnologica';
-import { invalidateInsumosCache } from '@/app/actions/insumos';
+import { limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
 import * as logger from '@/lib/logger';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -177,6 +178,15 @@ const DEVOLUCIONES_PENDIENTES_FILE = 'barra-devoluciones-pendientes.json';
 type DevolucionPendiente = { pedido: string; movimientos: BarStockMovement[]; anotadaEn: string };
 
 async function anotarDevolucionPendiente(pedido: string, movimientos: BarStockMovement[]) {
+  // Con base, la lista se cambia adentro de una transaccion: el turno de abajo cuida un
+  // solo servidor, y dos servidores anotando a la vez perdian una devolucion.
+  if (await getDb()) {
+    await mutateGenericJsonArray<DevolucionPendiente>(DEVOLUCIONES_PENDIENTES_FILE, (lista) =>
+      lista.some((d) => d.pedido === pedido)
+        ? null
+        : [...lista, { pedido, movimientos, anotadaEn: new Date().toISOString() }]);
+    return;
+  }
   await enLaColaDeStock(async () => {
     const lista = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
     if (lista.some((d) => d.pedido === pedido)) return;
@@ -188,10 +198,19 @@ async function anotarDevolucionPendiente(pedido: string, movimientos: BarStockMo
 async function reintentarDevolucionesPendientes() {
   let pendientes: DevolucionPendiente[] = [];
   try {
-    await enLaColaDeStock(async () => {
-      pendientes = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
-      if (pendientes.length > 0) await writeData(DEVOLUCIONES_PENDIENTES_FILE, []);
-    });
+    if (await getDb()) {
+      // Tomar y vaciar la lista es UNA operacion: si dos servidores la leian a la vez, los
+      // dos devolvian las mismas botellas y el stock quedaba de mas.
+      await mutateGenericJsonArray<DevolucionPendiente>(DEVOLUCIONES_PENDIENTES_FILE, (lista) => {
+        pendientes = lista;
+        return lista.length > 0 ? [] : null;
+      });
+    } else {
+      await enLaColaDeStock(async () => {
+        pendientes = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
+        if (pendientes.length > 0) await writeData(DEVOLUCIONES_PENDIENTES_FILE, []);
+      });
+    }
   } catch (error) {
     logger.warn('[barra-tecnologica] no se pudo leer la lista de devoluciones pendientes:', error);
     return;
@@ -236,7 +255,7 @@ async function descontarStock(drink: Trago): Promise<BarStockMovement[]> {
       });
       return applied;
     });
-    await invalidateInsumosCache();
+    limpiarCacheInsumos();
     return movements;
   }
 
@@ -251,7 +270,7 @@ async function descontarStock(drink: Trago): Promise<BarStockMovement[]> {
       if (cantidad > 0) movements.push({ insumoId: item.insumoId, cantidad });
     }
     await writeData(INSUMOS_FILE, inventory);
-    await invalidateInsumosCache();
+    limpiarCacheInsumos();
   });
 
   await nextPromise;
@@ -272,7 +291,7 @@ async function reponerStock(movements: BarStockMovement[]) {
         transaction.update(snapshot.ref, { cantidadDisponible: available + movements[index].cantidad });
       });
     });
-    await invalidateInsumosCache();
+    limpiarCacheInsumos();
     return;
   }
 
@@ -283,7 +302,7 @@ async function reponerStock(movements: BarStockMovement[]) {
       if (supply && supply.cantidadDisponible !== undefined) supply.cantidadDisponible += movement.cantidad;
     }
     await writeData(INSUMOS_FILE, inventory);
-    await invalidateInsumosCache();
+    limpiarCacheInsumos();
   });
 
   await nextPromise;
@@ -786,7 +805,7 @@ async function updateBarDrinkOrderStatusInternal(
         const updatedOrder = transactionResult.order;
         if (!updatedOrder) throw new Error('No se pudo recuperar el pedido actualizado.');
 
-        if (updatedOrder.stockRestoredAt === updatedAt) await invalidateInsumosCache();
+        if (updatedOrder.stockRestoredAt === updatedAt) limpiarCacheInsumos();
 
         return { success: true, order: updatedOrder };
       } catch (error) {
