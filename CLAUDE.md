@@ -1288,6 +1288,7 @@ con otra cara.
 | El control de stock de la carga no sumaba dos renglones del mismo equipo y faltaba material sin aviso | `src/__tests__/carga-stock-total-por-origen.test.ts` |
 | Una orden que pedia SACAR algo figuraba cumplida sin haberlo sacado | El tipo `no-usa:` de `comprobar` en `scripts/ordenes-cumplidas.mjs` |
 | Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
+| **DE RAIZ:** guardar una lista entera deshacia o borraba lo que otro hizo al mismo tiempo (160 lugares) | `src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts` y `src/lib/marca-de-lectura.ts` |
 
 ### Cómo se elige el matafuego
 

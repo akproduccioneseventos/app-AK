@@ -489,3 +489,16 @@ hacerlo, porque `comprobar` sólo podía pedir que algo estuviera.
 verde sin que se haya hecho?"*— aplicada también a lo que la orden pide **sacar**.
 
 **El control que lo frena:** el tipo `no-usa:` y la devolución 76b.
+
+## 25 de septiembre de 2026 — Arreglar de a uno lo que era una sola falla
+
+**Qué era:** Codex encontró la misma falla (guardar la lista entera pisa lo de otro) en
+incidentes, encuestas, logística y antes en cobros, prospectos y fotos. Yo la arreglaba lugar por
+lugar y ya había escrito la pregunta 22, **pero no medí cuántos lugares tenían esa forma**: eran
+unos 160. El dueño: *"estoy cansado, Codex sigue encontrando errores"*.
+
+**Qué pregunta lo hubiera agarrado:** *"¿esta falla vive en un lugar, o en el mecanismo que usan
+todos?"* Si vive en el mecanismo, se arregla en el mecanismo.
+
+**El control que lo frena:** `src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts`, contra
+la forma de guardar que usan todos.

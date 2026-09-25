@@ -681,3 +681,12 @@ La barra vaciaba la lista de botellas por devolver y después las devolvía. Pas
 2. **¿Van en la misma transacción de la base?** Si no, un corte en el medio deja una sola hecha.
 3. **Si no se pueden juntar**, ¿queda anotado ANTES lo que falta hacer, para que el próximo lo
    termine? Borrar el pendiente antes de hacerlo es perderlo.
+
+## Pregunta 26 — la que sumó el 25 de septiembre de 2026
+
+### 26. ¿Esta falla vive en un lugar, o en el mecanismo que usan todos?
+
+Antes de arreglar, **contar cuántos lugares tienen la misma forma**. Si son muchos, se arregla el
+mecanismo común (como `marca-de-lectura.ts` para las listas enteras) y se le pone una prueba que lo
+mire directamente, en vez de ir de a uno. Arreglar de a uno lo que era una sola falla hizo que
+Codex la encontrara siete veces.

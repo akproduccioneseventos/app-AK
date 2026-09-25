@@ -8,6 +8,7 @@ import { syncToFirestore, readFromFirestore } from "./firebase-sync";
 import { readGenericJsonFile, syncGenericJsonFile, leerGenericJsonParaGuardarEncima } from "./generic-json-store";
 import { isSafeTopLevelJsonFile } from "./backup/backup-registry";
 import * as logger from "./logger";
+import { sacarMarcas } from "./marca-de-lectura";
 
 const BACKUP_EXCLUDED_FILES = new Set(["_backup-snapshots.json"]);
 
@@ -110,7 +111,7 @@ async function writeLocalJsonFallback<T>(
     for (const localPath of localCandidates) {
       try {
         await fs.mkdir(path.dirname(localPath), { recursive: true });
-        await fs.writeFile(localPath, JSON.stringify(data, null, 2), "utf-8");
+        await fs.writeFile(localPath, JSON.stringify(sacarMarcas(data), null, 2), "utf-8");
       } catch {
         // ignore write error for this candidate, try others
       }
@@ -200,7 +201,7 @@ export async function readDataConDetalle<T>(
   }
 
   try {
-    const data = await conTopeDeLectura(readFromFirestore(normalizedFilePath), normalizedFilePath, vence);
+    const data = await conTopeDeLectura(readFromFirestore(normalizedFilePath, { conMarcas: true }), normalizedFilePath, vence);
     if (data !== null && data !== undefined) {
       if (Array.isArray(defaultValue) && !Array.isArray(data))
         return { valor: defaultValue, huboFalla: false };
@@ -304,7 +305,8 @@ function validateCollectionMutationInput(filePath: string, collectionName: strin
 }
 
 function cleanCollectionItem<T extends object>(item: T): T {
-  return JSON.parse(JSON.stringify(item)) as T;
+  // La marca de lectura (marca-de-lectura.ts) nunca se guarda.
+  return sacarMarcas(JSON.parse(JSON.stringify(item))) as T;
 }
 
 async function refreshCollectionFallback(

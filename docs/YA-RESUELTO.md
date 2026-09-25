@@ -9496,3 +9496,32 @@ siempre, con su turno.
 usa: createDataItem(FEEDBACK_FILE, FEEDBACK_COLLECTION en src/app/actions/feedback.ts
 prueba: src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
 ```
+
+## 25 de septiembre de 2026 — DE RAÍZ: guardar una lista entera ya no pisa ni borra lo de otro
+
+**Que estaba mal:** en unos 160 lugares la app lee una lista entera, cambia un renglón y guarda
+la lista entera. Con dos personas o dos servidores a la vez, el segundo **deshacía** lo que había
+cambiado el primero y **borraba** lo que el primero había creado, con las dos pantallas diciendo
+"guardado". Codex lo encontraba de a uno (incidentes, encuestas, prospectos, cobros...) y cada
+arreglo tapaba un solo lugar.
+
+**Que se hizo, una sola vez, donde se guarda todo:** cada renglón que se lee de la base lleva una
+marca invisible con su versión (`src/lib/marca-de-lectura.ts`). Al guardar la lista entera
+(`syncToFirestore`):
+
+1. un renglón que nadie tocó **no se vuelve a escribir**, así no deshace lo de otro;
+2. un renglón cambiado que en la base también cambió desde la lectura **no se pisa**: se avisa
+   "otra persona cambió este dato, recargá y probá de nuevo";
+3. **sólo se borra lo que el que guarda llegó a ver**; lo creado después queda.
+
+Una lista armada de cero (sin haber leído) sigue reemplazando como siempre, para no romper nada
+que ya andaba. La marca nunca se guarda en la base ni en la copia local. La restauración de un
+respaldo sigue mandando sobre todo. Los arreglos puntuales anteriores (cobros, incidentes,
+encuesta, etc.) se quedan: son la primera línea; esto es la red de abajo.
+
+```comprobar
+archivo: src/lib/marca-de-lectura.ts
+usa: decidirGuardado en src/lib/firebase-sync.ts
+usa: conMarcas: true en src/lib/data-service.ts
+prueba: src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts
+```
