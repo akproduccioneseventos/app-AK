@@ -1,0 +1,9 @@
+const fs=require('node:fs'),path=require('node:path'),ts=require(process.env.AUDIT_TYPESCRIPT||'typescript');
+const root=process.argv[2],actions=[],controls=[];
+function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(x=>x.isDirectory()?walk(path.join(dir,x.name)):[path.join(dir,x.name)]);}
+for(const abs of walk(path.join(root,'src'))){if(!/\.tsx?$/.test(abs))continue;const rel=path.relative(root,abs).replaceAll('\\','/'),s=ts.createSourceFile(rel,fs.readFileSync(abs,'utf8'),ts.ScriptTarget.Latest,true,abs.endsWith('.tsx')?ts.ScriptKind.TSX:ts.ScriptKind.TS);function v(n){const line=s.getLineAndCharacterOfPosition(n.getStart(s)).line+1;
+ if(rel.startsWith('src/app/actions/')&&ts.isFunctionDeclaration(n)&&n.modifiers?.some(m=>m.kind===ts.SyntaxKind.ExportKeyword))actions.push([rel,line,n.name?.text||'default']);
+ if(ts.isJsxOpeningElement(n)||ts.isJsxSelfClosingElement(n)){const tag=n.tagName.getText(s),attrs=n.attributes.properties.filter(ts.isJsxAttribute),names=attrs.map(a=>a.name.getText(s));if(/^(button|a|input|select|textarea|Button|Link|Checkbox|Switch|Slider|Select|TabsTrigger|DropdownMenuItem|DialogTrigger)$/.test(tag)||names.some(x=>/^on(Click|Submit|Change|Select|ValueChange|CheckedChange)$/.test(x)))controls.push([rel,line,tag,names.filter(x=>x==='href'||/^on/.test(x)).join(',')]);}
+ ts.forEachChild(n,v);}v(s);}
+console.log(JSON.stringify({sha:'512eca79b57090beb8423a8ca9fbf17d756ac635',status:'INVENTARIO_ESTATICO_NO_PRUEBA',columns:{actions:['file','line','exportedFunction'],controls:['file','line','jsxTag','eventOrHrefAttributes']},limits:'Dynamic controls, cards without handlers, reexports, variable exports and non-JSX engines require runtime reconciliation; repeated component definitions do not equal displayed controls.',counts:{exportedFunctionDeclarations:actions.length,controlDeclarations:controls.length},actions,controls}));
+

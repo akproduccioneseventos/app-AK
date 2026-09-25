@@ -8126,3 +8126,8 @@ Main2c652dd. PF01 formulario libera al fallar y PF03 saneamiento pasan. GUI01 pa
 ## 2026-09-25 - Codex: insumos y ZIP,4 PASS/2 FAIL
 
 Main2c652dd. Insumos: ajuste/aviso de menu fallido/solo menu vinculado pasan. VID03 sigue: fallo HTTP de una o todas las fotos entrega200 sin manifiesto; consumidor inicia descarga normal. Gemini corrige aviso y error si ninguna, Claude permisos si cambia/compilacion. Informe docs/auditoria/INSUMOS-VIDEOZIP-REVALIDACION-2026-09-25.md. Sondas AST con JSZip/HTTP simulados, no archivo binario real ni datos reales. Sin app/build/merge. No cerrar descarga por limite50MB: ese aviso no cubre HTTP fallidos.
+
+
+## 2026-09-25 - Codex: cobertura integral y nueva tanda contrastada
+
+Main512eca7.7 sondas PASS: INC01/PF02/LOG01/BAR01 corregidos en los casos ensayados con persistencia simulada. PR1225 c4019c2:LOG04 pasa4 casos aislados; no build/E2E, movil presente sin validar. VID03ZIP sigue sin correccion. Inventario360paginas/43endpoints/155modulos acciones/87archivos codigo E2E, mas875funciones exportadas y5559declaraciones controles. Son superficie estatica, NO cobertura aprobada. Matriz docs/auditoria/CIERRE-INTEGRAL-2026-09-25.md; orden81 actualizada sin duplicar85/76b/86. Agente economico inventario cerrado. Sin app/build/merge/datos reales. No certificado total; falta reconciliar evidencia y ensayo fisico.

@@ -1,0 +1,40 @@
+{
+  "sha": "512eca79b57090beb8423a8ca9fbf17d756ac635",
+  "scope": "AST; transactional boundary mocked; no Firestore/build/E2E",
+  "results": [
+    {
+      "case": "INC01-two-instances",
+      "passed": true,
+      "comments": 1
+    },
+    {
+      "case": "PF02-two-instances",
+      "passed": true,
+      "count": 2
+    },
+    {
+      "case": "LOG01-stock-6",
+      "passed": true
+    },
+    {
+      "case": "LOG01-stock-11",
+      "passed": true
+    },
+    {
+      "case": "LOG01-stock-6+6",
+      "passed": true
+    },
+    {
+      "case": "BAR01-committed-transaction",
+      "passed": true,
+      "stock": 13,
+      "pending": 0
+    },
+    {
+      "case": "BAR01-aborted-transaction",
+      "passed": true,
+      "stock": 10,
+      "pending": 1
+    }
+  ]
+}

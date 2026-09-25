@@ -1,0 +1,29 @@
+{
+  "pr": 1225,
+  "sha": "c4019c233777409f0bdc5ec00203a0136a1d53f7",
+  "scope": "function isolated; helpers from main512eca7; not E2E",
+  "results": [
+    {
+      "case": "return-recorded",
+      "passed": true
+    },
+    {
+      "case": "save-structure-preserves-return",
+      "passed": true
+    },
+    {
+      "case": "remote-quantity-sync",
+      "expected": "8",
+      "actual": "8",
+      "passed": true
+    },
+    {
+      "case": "reversed-responses-preserve-newer",
+      "actual": [
+        true,
+        true
+      ],
+      "passed": true
+    }
+  ]
+}

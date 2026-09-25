@@ -1,3 +1,7 @@
+# Estado prioritario25/09: cobertura integral
+
+Continuar esta orden sin crear modulos duplicados. [Matriz y cierre vigente](../auditoria/CIERRE-INTEGRAL-2026-09-25.md). Main512eca7 corrige BAR01/INC01/PF02/LOG01 en sondas; no rehacer. LOG04 presente en PR1225 con4 sondas aprobadas, movil pendiente E2E. VID03 ZIP sigue abierto. Inventarios completos adjuntos no son pruebas ejecutadas; cerrar cada recorrido con evidencia de uso. No afirmar cero errores ni acusar al hardware sin diagnostico.
+
 # Orden 81 - Cierre por recorridos y evolucion util, sin duplicar AK
 
 Fecha: 2026-09-23. Autorizacion del dueno: "hace todo, acuerdate para claude y gemini programa".
