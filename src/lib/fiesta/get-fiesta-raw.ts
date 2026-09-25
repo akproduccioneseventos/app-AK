@@ -1,6 +1,7 @@
 import { readData } from '@/lib/data-service';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import path from 'path';
+import { reponerLoRecortado } from './recortar-para-afuera';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -23,14 +24,19 @@ export async function preserveFiestaSecrets(
   fiestaId: string,
   data: FiestaEnPlanificacion,
 ): Promise<FiestaEnPlanificacion> {
-  const settings = data.clientPortalSettings;
-  if (!settings || settings.accessKey !== undefined) return data;
-
   const stored = await getFiestaByIdRaw(fiestaId);
-  const claveGuardada = stored?.clientPortalSettings?.accessKey;
-  if (!claveGuardada) return data;
+  if (!stored) return data;
+  // Lo que `getFiestaById` le recorta a quien no es del equipo llega AUSENTE: se repone, para
+  // que una pantalla pública que lee y guarda no borre los sueldos, el contrato ni el contacto
+  // de los invitados.
+  const repuesta = reponerLoRecortado(data, stored);
 
-  return { ...data, clientPortalSettings: { ...settings, accessKey: claveGuardada } };
+  const settings = repuesta.clientPortalSettings;
+  if (!settings || settings.accessKey !== undefined) return repuesta;
+  const claveGuardada = stored.clientPortalSettings?.accessKey;
+  if (!claveGuardada) return repuesta;
+
+  return { ...repuesta, clientPortalSettings: { ...settings, accessKey: claveGuardada } };
 }
 
 export async function getFiestaByIdRaw(fiestaId: string): Promise<FiestaEnPlanificacion | null> {

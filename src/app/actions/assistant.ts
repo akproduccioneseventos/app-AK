@@ -1,6 +1,7 @@
 'use server';
 
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
+import { hoyEnUruguay } from '@/lib/utils';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import { getDashboardKpiData, type GlobalAlert } from './dashboard';
 import { getCompanyInfo, getAiAssistantSettings } from './settings';
@@ -1059,8 +1060,9 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         const subtotal = invoiceItems.reduce((sum, i) => sum + i.total, 0);
         const invoiceData: Omit<Invoice, 'id' | 'invoiceNumber'> = {
           customer,
-          issueDate: new Date().toISOString().split('T')[0],
-          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          // Días de Uruguay: a la noche, el de Greenwich ya es mañana (pregunta 13).
+          issueDate: hoyEnUruguay(),
+          dueDate: hoyEnUruguay(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
           items: invoiceItems,
           subtotal,
           totalAmount: subtotal,

@@ -856,6 +856,21 @@ corrió contra la versión anterior.
 (`pgrep -x next-server | xargs -r kill`), nunca por un pedazo del comando. Y antes de creerle a
 una prueba contra un servidor propio, **mirar en su registro que no diga `EADDRINUSE`**.
 
+### 23. Agregar un bloque a una orden cumplida sin su comprobación, y pedir dos veces lo mismo
+
+**Pasó el 19 y el 25 de septiembre de 2026.** Un hallazgo de Codex, la descarga del Video de Vida
+con fotos de menos, lo agregué como bloque nuevo a la orden 69, que ya daba HECHA, **sin sumar su
+línea a `comprobar`**. Nadie lo programó y Codex lo encontró otra vez. Encima escribí la orden 87
+sin ver que ya estaba pedido. El dueño: *"tu mecanismo falla, corregite"*.
+
+**Qué era lo cierto:** `npm run ordenes?` sólo miraba las líneas que existían. Un bloque sin línea
+era invisible.
+
+**Qué se hace distinto, y ya está enganchado:** el control marca como falta todo `## Bloque` que
+nombra un archivo que ninguna línea de `comprobar` mira (`bloquesSinComprobacion`). Y antes de
+escribir una orden por un hallazgo, **buscar la ruta del archivo en `docs/ordenes/`**: si ya está
+pedido, se completa esa orden, no se abre otra.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1314,6 +1329,10 @@ con otra cara.
 | La firma digital del cliente no puede dar la fiesta por contratada ni anotar la seña sola | `src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts` |
 | El pedido al proveedor pedia todo lo de la receta aunque hubiera stock | `src/__tests__/el-pedido-al-proveedor-pide-lo-que-falta.test.ts` |
 | Un cobro de factura cortado entre la factura y el presupuesto no dejaba rastro | `src/__tests__/un-cobro-cortado-a-medias-se-detecta.test.ts` |
+| Un bloque agregado a una orden cumplida quedaba sin comprobar y la orden decía HECHA | `bloquesSinComprobacion` en `scripts/ordenes-cumplidas.mjs`, con `src/__tests__/un-bloque-agregado-sin-comprobacion-no-da-hecha.test.ts` |
+| La descarga del Video de Vida entregaba fotos de menos, o un archivo vacío, sin avisar | `src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts` |
+| Con el número de la fiesta, cualquiera se llevaba sueldos, contrato, pagos y el teléfono y la credencial de cada invitado | `src/__tests__/la-fiesta-no-viaja-entera-a-quien-no-es-del-equipo.test.ts` |
+| "Hoy" calculado en hora de Greenwich: a la noche ya era mañana | `src/__tests__/hoy-es-el-dia-de-uruguay.test.ts` |
 
 ### Cómo se elige el matafuego
 

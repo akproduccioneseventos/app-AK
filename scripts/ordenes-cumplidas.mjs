@@ -46,6 +46,41 @@ function leerComprobaciones(texto) {
   );
 }
 
+/**
+ * UN BLOQUE AGREGADO SIN SU COMPROBACION NO PUEDE DAR LA ORDEN POR HECHA.
+ *
+ * Paso el 19 de septiembre de 2026 y volvio el 25: Codex encontro que la descarga del Video de
+ * Vida entregaba el archivo con fotos de menos sin avisar. Se agrego como "Bloque 3" a la orden
+ * 69, que ya estaba hecha, **sin sumar su linea al bloque `comprobar`**. Las lineas viejas
+ * seguian en verde, la orden figuro HECHA, nadie programo el bloque, y Codex lo volvio a
+ * encontrar.
+ *
+ * Ahora: cada seccion `## Bloque ...` que nombra un archivo del codigo tiene que tener al menos
+ * uno de esos archivos en alguna linea de `comprobar`. Si no, cuenta como falta.
+ */
+function bloquesSinComprobacion(texto, checks) {
+  const lineas = checks.map((c) => c.linea).join('\n');
+  // Un bloque tambien queda cubierto si el `comprobar` lo nombra en un comentario (`# Bloque 3`)
+  // seguido de al menos una linea real: sirve cuando lo hecho vive en un archivo nuevo.
+  const crudo = [...texto.matchAll(/```comprobar\r?\n([\s\S]*?)```/g)].map((b) => b[1]).join('\n');
+  const nombrados = new Set(
+    [...crudo.matchAll(/^#\s*Bloque\s+(\d+)[^\n]*\n(?=\s*[a-z-]+:)/gim)].map((m) => m[1]),
+  );
+  const secciones = texto.split(/^(?=## Bloque\b)/m).filter((s) => /^## Bloque\b/.test(s));
+  const faltan = [];
+  for (const sec of secciones) {
+    const cuerpo = sec.split(/^## (?!Bloque\b)/m)[0];
+    const titulo = cuerpo.split('\n')[0].replace(/^##\s*/, '').trim();
+    const rutas = [...cuerpo.matchAll(/`((?:src|tests|scripts)\/[^`\s]+\.(?:tsx?|mjs|js))`/g)].map((m) => m[1]);
+    if (rutas.length === 0) continue;
+    const numero = titulo.match(/^Bloque\s+(\d+)/i)?.[1];
+    if (numero && nombrados.has(numero)) continue;
+    if (rutas.some((r) => lineas.includes(r))) continue;
+    faltan.push({ tipo: 'bloque', valor: titulo, linea: `bloque sin comprobación -> ${titulo}` });
+  }
+  return faltan;
+}
+
 function comprobar(c) {
   if (c.tipo === 'archivo' || c.tipo === 'prueba') {
     return fs.existsSync(path.join(process.cwd(), c.valor));
@@ -107,7 +142,8 @@ for (const archivo of archivos) {
     continue;
   }
   const fallan = checks.filter((c) => !comprobar(c));
-  conComprobaciones.push({ archivo, total: checks.length, fallan });
+  const sinCubrir = archivo.startsWith('../') ? [] : bloquesSinComprobacion(texto, checks);
+  conComprobaciones.push({ archivo, total: checks.length + sinCubrir.length, fallan: [...fallan, ...sinCubrir] });
 }
 
 // ----- La comparacion con el rubro, funcion por funcion -----

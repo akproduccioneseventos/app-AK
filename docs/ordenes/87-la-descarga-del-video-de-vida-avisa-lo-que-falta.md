@@ -1,5 +1,8 @@
 # Orden 87 — La descarga del Video de Vida avisa lo que falta (VID03, Codex 25/9)
 
+**CERRADA: la hizo Claude el 25 de septiembre de 2026, por pedido del dueño.** Gemini no la
+tiene que hacer. Era el bloque 3 de la orden 69, que se había escapado.
+
 **Para Gemini. UNA SOLA PROPUESTA.** Arrancá de la versión principal actualizada. Antes de decir
 "terminé", leé `docs/ANTES-DE-ENTREGAR.md` y corré tus pruebas.
 

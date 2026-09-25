@@ -1,6 +1,7 @@
 'use server';
 
 import { randomUUID } from 'crypto';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, DietaryRestriction } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { writeData } from '@/lib/data-service';
@@ -48,7 +49,7 @@ async function updateFiestaData(
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   const releaseLock = await acquireFiestaUpdateLock(fiestaId);
   try {
-    const currentData = await getFiestaById(fiestaId);
+    const currentData = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!currentData) {
       throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
     }
@@ -105,7 +106,7 @@ function soloLoDelInvitado(
 // ─── Guest queries ───────────────────────────────────────────────────────────
 
 export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   return fiesta?.invitados || [];
 }
 
@@ -116,7 +117,7 @@ export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
  * 'Confirmado'.
  */
 export async function getConfirmedRsvpCount(fiestaId: string): Promise<number> {
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta?.invitados) return 0;
   return fiesta.invitados
     .filter(i => i.rsvp === 'Confirmado')

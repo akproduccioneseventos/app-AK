@@ -134,4 +134,6 @@ Tiene que comprobar, y cada línea tiene que poder ponerse en rojo:
 archivo: src/components/multiagent/multiagent-widget.tsx
 usa: handleSend en src/components/multiagent/multiagent-widget.tsx
 prueba: tests/e2e/el-secretario-escucha-y-hace.spec.ts
+# Bloque 5 (va en la orden 88)
+usa: complete_task en src/types/multiagent.ts
 ```

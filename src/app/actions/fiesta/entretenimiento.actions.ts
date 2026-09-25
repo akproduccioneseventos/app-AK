@@ -1,6 +1,7 @@
 'use server';
 
 import path from 'path';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
 import { uploadToStorage } from '@/lib/firebase/storage';
@@ -48,7 +49,7 @@ function getStoredEntertainment(fiesta: any) {
 export async function getEntretenimientoFiesta(fiestaId: string) {
   try {
     await requireAppSession();
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada');
 
     return {
@@ -70,7 +71,7 @@ export async function getPublicEntertainmentEvent(
     if (!isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
       return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
@@ -97,7 +98,7 @@ export async function getEntertainmentLaunchToken(
     if (!isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     return {
       success: true,
@@ -112,7 +113,7 @@ export async function getEntertainmentLaunchToken(
 export async function saveEntretenimientoFiesta(fiestaId: string, entretenimiento: any) {
   try {
     await requireAppSession();
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada');
 
     const nextEntertainment = normalizeEntertainmentData(entretenimiento);
@@ -169,7 +170,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
     if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
       return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
     }
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada');
     if (!isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'El modulo de entretenimiento no es valido.' };

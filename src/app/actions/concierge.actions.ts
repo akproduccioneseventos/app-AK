@@ -1,6 +1,7 @@
 'use server'
 
 import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { answerConciergeQuestion } from '@/lib/concierge/concierge-engine';
 import { buildPublicGuestPortalData } from '@/lib/guest-portal-public-data';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -14,7 +15,7 @@ export async function askConcierge(
   const normalizedQuestion = question.trim().slice(0, 300);
   if (!normalizedQuestion) throw new Error('Escribí una consulta.');
 
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) {
     throw new Error('Fiesta no encontrada');
   }

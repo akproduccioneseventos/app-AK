@@ -28,6 +28,15 @@ export function getUruguayParts(date: Date = new Date()) {
   };
 }
 
+/**
+ * El día de hoy EN URUGUAY, como `AAAA-MM-DD`. `new Date().toISOString().slice(0, 10)` da el
+ * día de Greenwich: de las nueve de la noche en adelante ya es mañana (pregunta 13).
+ */
+export function hoyEnUruguay(fecha: Date = new Date()): string {
+  const { year, month, day } = getUruguayParts(fecha);
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
 export function parseUruguayDate(dateStr: string): Date {
   if (!dateStr) return new Date();
   const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);

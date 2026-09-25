@@ -73,6 +73,12 @@ tiene que fallar si se saca el `finally`; la del bloque 2, si se saca el bloqueo
 prueba: tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts
 usa: finally en src/app/invitacion/[fiestaId]/rsvp/page.tsx
 archivo: docs/ANTES-DE-ENTREGAR.md
+# Bloque 2 (verificado el 25/9)
+usa: duplicateSnapshot en src/app/actions/buzon.ts
+# Bloque 3 (lo hizo Claude el 25/9: getFiestaById recorta la fiesta a quien no es del equipo)
+prueba: src/__tests__/la-fiesta-no-viaja-entera-a-quien-no-es-del-equipo.test.ts
+# Bloque 4 (verificado el 25/9)
+usa: src/app/evento/buzon en src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts
 ```
 
 ## Bloque 4 — Pregunta doce en las pantallas que NO son de plata

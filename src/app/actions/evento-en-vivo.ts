@@ -1,6 +1,7 @@
 'use server';
 
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import type {
   FiestaEnPlanificacion,
   FotoEnVivo,
@@ -37,7 +38,7 @@ function randomId() {
 }
 
 export async function getEventoEnVivoData(fiestaId: string): Promise<PublicEventoEnVivoData> {
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) return { fotos: [], solicitudesCanciones: [], mensajes: [], votaciones: [] };
   const { captaciones: _privateCaptures, ...publicData } = getOrInitData(fiesta);
   // Quien voto es interno: la pantalla publica solo necesita los totales.
@@ -79,7 +80,7 @@ export async function registerGuestLiveInterest(
       windowMs: 60 * 60 * 1000,
     });
 
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const now = new Date().toISOString();
     const capture: CaptacionInvitadoEnVivo = {
@@ -175,7 +176,7 @@ export async function addFotoEnVivo(
       limit: 12,
       windowMs: 60_000,
     });
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     
     let resolvedAuthor = foto.autor;
@@ -213,7 +214,7 @@ export async function addSolicitudCancion(
       limit: 12,
       windowMs: 60_000,
     });
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
     data.solicitudesCanciones.push({
@@ -234,7 +235,7 @@ export async function marcarCancionReproducida(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
     data.solicitudesCanciones = data.solicitudesCanciones.map(s =>
@@ -263,7 +264,7 @@ export async function addMensajeEnVivo(
       limit: 20,
       windowMs: 60_000,
     });
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
     data.mensajes.push({
@@ -284,7 +285,7 @@ export async function toggleMensajeDestacado(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
     data.mensajes = data.mensajes.map(m =>
@@ -308,7 +309,7 @@ export async function createVotacion(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
     data.votaciones.push({
@@ -349,7 +350,7 @@ export async function votarEnVivo(
       limit: 40,
       windowMs: 60_000,
     });
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
     let votante: string | undefined;
@@ -410,7 +411,7 @@ export async function toggleVotacionActiva(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
     data.votaciones = data.votaciones.map(v =>
@@ -429,7 +430,7 @@ export async function deleteContenidoEnVivo(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
     switch (tipo) {

@@ -100,4 +100,8 @@ que el operador no le mande al cliente un archivo vacío creyendo que le mandó 
 archivo: src/lib/video-vida/tope-de-fotos.ts
 usa: TOPE_DE_FOTOS en src/app/actions/fiesta/video-vida.actions.ts
 prueba: src/__tests__/el-video-de-vida-no-miente.test.ts
+# Bloque 3 (lo hizo Claude el 25/9, después de que Codex lo encontrara dos veces)
+usa: FALTAN_FOTOS en src/app/api/video-vida-photos/[fiestaId]/download/route.ts
+usa: X-Fotos-Fallidas en src/app/(app)/fiestas/nueva/video-vida/page.tsx
+prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
 ```

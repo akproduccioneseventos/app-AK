@@ -502,3 +502,27 @@ todos?"* Si vive en el mecanismo, se arregla en el mecanismo.
 
 **El control que lo frena:** `src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts`, contra
 la forma de guardar que usan todos.
+
+## 25 de septiembre de 2026 — El mismo hallazgo dos veces: un bloque agregado sin su comprobación (Codex)
+
+**Qué era:** la descarga del Video de Vida entregaba fotos de menos, o un archivo vacío, sin
+avisar. Codex lo encontró el 19 de septiembre. Yo lo agregué como "Bloque 3" a la orden 69, que ya
+estaba cumplida, **sin sumar su línea al bloque `comprobar`**. La orden siguió diciendo HECHA,
+nadie lo programó, y Codex lo volvió a encontrar el 25. Encima escribí una orden nueva, la 87,
+sin ver que ya estaba pedido. El dueño: *"ya te lo había pasado y volvió a pasar; tu mecanismo
+falla"*.
+
+**Qué pregunta lo hubiera agarrado:** *"¿cada bloque de la orden tiene su propia línea de
+comprobación, o sólo el primero?"* Y antes de escribir una orden por un hallazgo: *"¿ya hay
+una orden que nombre este archivo?"* (buscar la ruta en `docs/ordenes/`).
+
+**El control que lo frena:** `bloquesSinComprobacion` en `scripts/ordenes-cumplidas.mjs`. Una
+sección `## Bloque` que nombra un archivo que ninguna línea de `comprobar` mira cuenta como
+falta. Lo prueba `src/__tests__/un-bloque-agregado-sin-comprobacion-no-da-hecha.test.ts`. Al
+prenderlo aparecieron **16 bloques viejos** en la misma situación, y se revisaron uno por uno.
+
+```comprobar
+usa: bloquesSinComprobacion en scripts/ordenes-cumplidas.mjs
+prueba: src/__tests__/un-bloque-agregado-sin-comprobacion-no-da-hecha.test.ts
+prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
+```

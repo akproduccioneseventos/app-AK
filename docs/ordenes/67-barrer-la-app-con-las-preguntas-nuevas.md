@@ -165,4 +165,8 @@ función apagada**. Romper cada una a propósito una vez y dejarlo escrito arrib
 ```comprobar
 archivo: docs/auditoria/BARRIDO-PREGUNTAS-NUEVAS.md
 archivo: docs/ANTES-DE-ENTREGAR.md
+# Bloque 3 (lo hizo Claude el 25/9)
+prueba: src/__tests__/la-fiesta-no-viaja-entera-a-quien-no-es-del-equipo.test.ts
+# Bloque 2 (va en la orden 88)
+prueba: src/__tests__/hoy-es-uruguay-en-todos-lados.test.ts
 ```

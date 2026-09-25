@@ -72,4 +72,6 @@ navegador— sobre la misma fiesta:
 archivo: src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
 usa: actualizadoAt en src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
 prueba: tests/e2e/la-carga-operativa-se-sincroniza.spec.ts
+# Bloque 2 (hecho en la orden 85)
+usa: mergeRemoteOperationalState en src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
 ```

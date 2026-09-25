@@ -1,6 +1,7 @@
 "use server";
 
 import { getFiestaById } from "@/app/actions/fiesta/fiesta.actions";
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import {
   buildPublicGuestEvent,
   buildPublicGuestPortalData,
@@ -69,7 +70,7 @@ function buildGuestEntertainmentLinks(
 export async function getPublicGuestEvent(
   fiestaId: string,
 ): Promise<PublicGuestEvent | null> {
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   return fiesta ? buildPublicGuestEvent(fiesta) : null;
 }
 
@@ -79,7 +80,7 @@ export async function getPublicGuestPortalData(
   guestAccessToken: string,
 ): Promise<(PublicGuestPortalData & { entertainmentLinks: PublicGuestEntertainmentLink[] }) | null> {
   if (!guestAccessToken) return null;
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) return null;
 
   const portalData = buildPublicGuestPortalData(fiesta, guestId, guestAccessToken);
@@ -91,7 +92,7 @@ export async function getPublicGuestPortalData(
 export async function getPublicLiveDisplayEvent(
   fiestaId: string,
 ): Promise<PublicLiveDisplayEvent | null> {
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) return null;
   return {
     configuracion: {
@@ -108,7 +109,7 @@ export async function getPublicGuestEntertainmentLinks(
   guestId: string,
   guestAccessToken: string,
 ): Promise<PublicGuestEntertainmentLink[]> {
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta || !buildPublicGuestPortalData(fiesta, guestId, guestAccessToken)) return [];
   return buildGuestEntertainmentLinks(fiesta, guestId, guestAccessToken);
 }
@@ -135,7 +136,7 @@ export async function searchPublicGuestTable(
     windowMs: 60_000,
   });
 
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) return [];
 
   return (fiesta.invitados || [])
