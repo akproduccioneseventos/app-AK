@@ -833,6 +833,18 @@ que la agenda no lee. La prueba de la entrega pasaba igual, porque no miraba el 
 es un documento entero y va `mutateGenericJsonArray`. Y las pruebas de este tipo **comprueban el
 par archivo/colección**, no sólo que se guarde.
 
+### 20. Apagar procesos buscando por un pedazo de texto y matar la propia orden
+
+**Pasó tres veces el 24 y 25 de septiembre de 2026.** Para apagar un servidor de prueba usé
+`pkill -f` / `pgrep -f` con un pedazo del comando (`"next start -H"`, `"until ! pgrep"`). Ese
+texto **también estaba en mi propia orden**, así que la orden se mató a sí misma (código 144) y
+lo que venía después no corrió. Además, una vez el servidor viejo quedó prendido y la prueba
+corrió contra la versión anterior.
+
+**Qué se hace distinto:** los servidores se apagan por **nombre exacto de proceso**
+(`pgrep -x next-server | xargs -r kill`), nunca por un pedazo del comando. Y antes de creerle a
+una prueba contra un servidor propio, **mirar en su registro que no diga `EADDRINUSE`**.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
