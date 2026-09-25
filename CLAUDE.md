@@ -1284,6 +1284,7 @@ con otra cara.
 | Con la base caida, el pedido del invitado se perdia porque el respaldo pedia permiso del equipo | `src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts` |
 | Las botellas por devolver se perdian si el servidor se cortaba entre vaciar la lista y devolverlas | `src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts` |
 | Dos toques del mismo trago en dos servidores descontaban las botellas dos veces | `src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts` |
+| Con dos servidores, un comentario de un incidente se perdia diciendo que se guardo | `src/__tests__/incidentes-dos-servidores-no-pierden-comentarios.test.ts` |
 | Una orden que pedia SACAR algo figuraba cumplida sin haberlo sacado | El tipo `no-usa:` de `comprobar` en `scripts/ordenes-cumplidas.mjs` |
 | Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
 

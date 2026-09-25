@@ -9446,3 +9446,20 @@ de respaldo de siempre.
 usa: descontarYGuardarEnUnaOperacion en src/app/actions/fiesta/barra-tecnologica.actions.ts
 prueba: src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts
 ```
+
+## 25 de septiembre de 2026 — Con dos servidores, un comentario de un incidente se perdía (INC01, Codex)
+
+**Que estaba mal:** los incidentes se guardaban reescribiendo la lista entera. El turno cuidaba
+un solo servidor: un comentario y un "resuelto" en dos servidores dejaban el incidente resuelto y
+sin el comentario, con las dos pantallas diciendo que se guardó.
+
+**Que se hizo:** con base, crear usa `createDataItem` y cambiar usa `mutateDataItem` sobre ese
+solo incidente (`cambiarUnIncidente` en `src/app/actions/incidents.ts`). Los identificadores
+llevan algo al azar y el del comentario se arma afuera de la operación, así una repetición de la
+base no lo duplica. Sin base (pruebas) queda el camino de siempre, con su turno.
+
+```comprobar
+usa: cambiarUnIncidente en src/app/actions/incidents.ts
+usa: addActualizacionIncidente en src/app/(app)/incidentes/page.tsx
+prueba: src/__tests__/incidentes-dos-servidores-no-pierden-comentarios.test.ts
+```

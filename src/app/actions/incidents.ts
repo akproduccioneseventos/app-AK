@@ -1,7 +1,7 @@
 'use server';
 
 import type { Incidente, IncidenteActualizacion } from '@/types/incident';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { AsyncMutex } from '@/lib/mutex';
 
@@ -14,20 +14,52 @@ export async function getIncidentes(fiestaId?: string): Promise<Incidente[]> {
   return all;
 }
 
+const INCIDENTES_COLLECTION = 'incidentes';
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+const idNuevo = (prefijo: string) => `${prefijo}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+/**
+ * CAMBIAR UN INCIDENTE, SIN PISAR LO QUE OTRO GUARDO (25 de septiembre de 2026, Codex).
+ *
+ * El turno de abajo cuida UN servidor, y la app corre en varios: un comentario y un "resuelto"
+ * que caian en dos servidores leian la lista vieja, y el segundo borraba el comentario del
+ * primero con las dos pantallas diciendo que se guardo. Con base, ahora se cambia **ese solo
+ * incidente**, leido adentro de la operacion (`mutateDataItem`): si otro lo cambio en el medio,
+ * la base repite el cambio sobre lo nuevo. Sin base (pruebas) queda el camino de siempre.
+ */
+async function cambiarUnIncidente(
+  id: string,
+  cambiar: (actual: Incidente) => Incidente,
+): Promise<Incidente | null> {
+  if (!SIN_BASE()) {
+    return mutateDataItem<Incidente>(INCIDENTES_FILE, INCIDENTES_COLLECTION, id, (actual) => cambiar(actual));
+  }
+  const all = await readData<Incidente[]>(INCIDENTES_FILE, []);
+  const index = all.findIndex(i => i.id === id);
+  if (index === -1) return null;
+  all[index] = cambiar(all[index]);
+  await writeData(INCIDENTES_FILE, all);
+  return all[index];
+}
+
 async function createIncidenteInterno(
   data: Omit<Incidente, 'id' | 'registradoEn' | 'actualizaciones'>
 ): Promise<{ success: boolean; incidente?: Incidente; error?: string }> {
   await requireAppSession();
   try {
-    const all = await readData<Incidente[]>(INCIDENTES_FILE, []);
     const newIncidente: Incidente = {
       ...data,
-      id: `inc_${Date.now()}`,
+      id: idNuevo('inc'),
       registradoEn: new Date().toISOString(),
       actualizaciones: [],
     };
-    all.push(newIncidente);
-    await writeData(INCIDENTES_FILE, all);
+    if (!SIN_BASE()) {
+      await createDataItem(INCIDENTES_FILE, INCIDENTES_COLLECTION, newIncidente.id, newIncidente);
+    } else {
+      const all = await readData<Incidente[]>(INCIDENTES_FILE, []);
+      all.push(newIncidente);
+      await writeData(INCIDENTES_FILE, all);
+    }
     return { success: true, incidente: newIncidente };
   } catch (error) {
     return { success: false, error: String(error) };
@@ -40,12 +72,9 @@ async function updateIncidenteInterno(
 ): Promise<{ success: boolean; incidente?: Incidente; error?: string }> {
   await requireAppSession();
   try {
-    const all = await readData<Incidente[]>(INCIDENTES_FILE, []);
-    const index = all.findIndex(i => i.id === id);
-    if (index === -1) return { success: false, error: 'Incidente no encontrado.' };
-    all[index] = { ...all[index], ...data };
-    await writeData(INCIDENTES_FILE, all);
-    return { success: true, incidente: all[index] };
+    const incidente = await cambiarUnIncidente(id, (actual) => ({ ...actual, ...data }));
+    if (!incidente) return { success: false, error: 'Incidente no encontrado.' };
+    return { success: true, incidente };
   } catch (error) {
     return { success: false, error: String(error) };
   }
@@ -58,17 +87,19 @@ async function addActualizacionIncidenteInterno(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const all = await readData<Incidente[]>(INCIDENTES_FILE, []);
-    const index = all.findIndex(i => i.id === id);
-    if (index === -1) return { success: false, error: 'Incidente no encontrado.' };
+    // El identificador se arma AFUERA: si la base repite el cambio, es el mismo comentario.
     const actualizacion: IncidenteActualizacion = {
-      id: `upd_${Date.now()}`,
+      id: idNuevo('upd'),
       texto,
       autor,
       timestamp: new Date().toISOString(),
     };
-    all[index].actualizaciones = [...all[index].actualizaciones, actualizacion];
-    await writeData(INCIDENTES_FILE, all);
+    const incidente = await cambiarUnIncidente(id, (actual) => {
+      const previas = actual.actualizaciones || [];
+      if (previas.some((a) => a.id === actualizacion.id)) return actual;
+      return { ...actual, actualizaciones: [...previas, actualizacion] };
+    });
+    if (!incidente) return { success: false, error: 'Incidente no encontrado.' };
     return { success: true };
   } catch (error) {
     return { success: false, error: String(error) };
@@ -81,16 +112,14 @@ async function resolverIncidenteInterno(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const all = await readData<Incidente[]>(INCIDENTES_FILE, []);
-    const index = all.findIndex(i => i.id === id);
-    if (index === -1) return { success: false, error: 'Incidente no encontrado.' };
-    all[index] = {
-      ...all[index],
+    const resolvedAt = new Date().toISOString();
+    const incidente = await cambiarUnIncidente(id, (actual) => ({
+      ...actual,
       estado: 'Resuelto',
-      resolvedAt: new Date().toISOString(),
+      resolvedAt,
       ...(leccionesAprendidas ? { leccionesAprendidas } : {}),
-    };
-    await writeData(INCIDENTES_FILE, all);
+    }));
+    if (!incidente) return { success: false, error: 'Incidente no encontrado.' };
     return { success: true };
   } catch (error) {
     return { success: false, error: String(error) };
@@ -100,11 +129,8 @@ async function resolverIncidenteInterno(
 async function cerrarIncidenteInterno(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const all = await readData<Incidente[]>(INCIDENTES_FILE, []);
-    const index = all.findIndex(i => i.id === id);
-    if (index === -1) return { success: false, error: 'Incidente no encontrado.' };
-    all[index] = { ...all[index], estado: 'Cerrado' };
-    await writeData(INCIDENTES_FILE, all);
+    const incidente = await cambiarUnIncidente(id, (actual) => ({ ...actual, estado: 'Cerrado' }));
+    if (!incidente) return { success: false, error: 'Incidente no encontrado.' };
     return { success: true };
   } catch (error) {
     return { success: false, error: String(error) };
