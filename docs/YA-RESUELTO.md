@@ -9310,3 +9310,17 @@ usa: leerCartaTragosMaster en src/app/actions/fiesta/barra-tecnologica.actions.t
 usa: limpiarCacheInsumos en src/app/actions/fiesta/barra-tecnologica.actions.ts
 prueba: src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts
 ```
+
+## 25 de septiembre de 2026 — La pantalla se recargaba sola cada vez que volvía la señal
+
+**Que estaba mal:** `reloadOnOnline: true` en `next.config.js` recargaba cualquier pantalla al
+volver la conexión. En el salón, la fotocabina y la barra se recargaban en medio de la foto o del
+pedido cada vez que el wifi volvía. Lo mostró la prueba de navegador de la orden 81.
+
+**Que se hizo:** quedó en `false`. Lo guardado sin señal lo sube la cola de cada pantalla, sin
+recargar.
+
+```comprobar
+usa: reloadOnOnline: false en next.config.js
+prueba: src/__tests__/la-pantalla-no-se-recarga-al-volver-la-senal.test.ts
+```
