@@ -833,6 +833,17 @@ que la agenda no lee. La prueba de la entrega pasaba igual, porque no miraba el 
 es un documento entero y va `mutateGenericJsonArray`. Y las pruebas de este tipo **comprueban el
 par archivo/colección**, no sólo que se guarde.
 
+### 21. Contestarle al dueño desde un inventario viejo, sin mirar el código
+
+**Pasó el 25 de septiembre de 2026.** Le dije que la app no publicaba en redes, no medía Google y
+no mandaba mails. Las tres cosas existen. Lo saqué de `QUE-HAY-EN-LA-APP.md`, que tenía líneas de
+agosto que nadie había corregido. Encima un ayudante me dijo que el pedido al proveedor "no se
+mandaba", y ya existía (lo que tenía era otro defecto: pedía de más).
+
+**Qué se hace distinto:** antes de decirle al dueño que algo **no está**, se busca en el código
+(sin distinguir mayúsculas, con sinónimos) y se mira quién lo llama. El inventario sirve para
+orientarse, no para afirmar. Y cuando se encuentra una línea vieja, se corrige en el acto.
+
 ### 20. Apagar procesos buscando por un pedazo de texto y matar la propia orden
 
 **Pasó tres veces el 24 y 25 de septiembre de 2026.** Para apagar un servidor de prueba usé
@@ -1036,6 +1047,12 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **El recontacto de prospectos por WhatsApp sale solo, y se apaga desde Ajustes (25 de
+  septiembre de 2026).** Excepción que eligió el dueño a "preparar sí, mandar no". **No hay
+  karaoke, todo va en español**, y quedaron afuera el presupuesto en video, las canciones con
+  inteligencia artificial y los equipos físicos. La firma digital va, pero **la reserva y la seña
+  las confirma una persona**.
 
 - **La confirmacion publica sigue devolviendo el QR de entrada (22 de septiembre de 2026).**
   Se reporto que escribir el nombre de un invitado ya anotado devuelve su credencial, y con
@@ -1289,6 +1306,8 @@ con otra cara.
 | Una orden que pedia SACAR algo figuraba cumplida sin haberlo sacado | El tipo `no-usa:` de `comprobar` en `scripts/ordenes-cumplidas.mjs` |
 | Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
 | **DE RAIZ:** guardar una lista entera deshacia o borraba lo que otro hizo al mismo tiempo (160 lugares) | `src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts` y `src/lib/marca-de-lectura.ts` |
+| La firma digital del cliente no puede dar la fiesta por contratada ni anotar la seña sola | `src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts` |
+| El pedido al proveedor pedia todo lo de la receta aunque hubiera stock | `src/__tests__/el-pedido-al-proveedor-pide-lo-que-falta.test.ts` |
 
 ### Cómo se elige el matafuego
 

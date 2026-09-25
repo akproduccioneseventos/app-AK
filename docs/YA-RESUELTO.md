@@ -9542,3 +9542,58 @@ pasos del navegador de la puerta): `firebase-sync.ts`, `generic-json-store.ts` y
 usa: SOLO_CON_LA_BASE_REAL en scripts/pantallas-tocadas.mjs
 prueba: src/__tests__/se-prueba-lo-nuevo-no-toda-la-app.test.ts
 ```
+
+## 25 de septiembre de 2026 — Firma digital del contrato, prendida (pedido del dueño)
+
+**Cómo funciona:** el cliente firma desde su portal (`signContractDigitally`) y queda registrado
+quién firmó, cuándo, desde qué conexión, si aceptó el plan de pagos y la huella del texto exacto
+que firmó. **No pasa la fiesta a "Contratada" ni anota la seña:** eso lo confirma una persona del
+equipo con un toque (`confirmarReservaDeFirmaDigital`), que hace lo mismo que subir el contrato en
+papel. **Por qué así:** regla del dueño, la app no da nada por aceptado ni registra plata sola. El
+contrato en papel y la firma digital comparten una sola copia de "dejar la fiesta contratada"
+(`dejarLaFiestaContratada`). Las pantallas van en la orden 86.
+
+```comprobar
+usa: pendienteDeConfirmar en src/app/actions/fiesta/documentos.actions.ts
+usa: dejarLaFiestaContratada en src/app/actions/fiesta/documentos.actions.ts
+prueba: src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts
+```
+
+## 25 de septiembre de 2026 — El pedido al proveedor pedía todo, aunque hubiera stock
+
+**Que estaba mal:** el botón de mandar el pedido por WhatsApp de la lista de compras usaba lo que
+pide la receta para toda la fiesta (`cantidadNecesaria`), no lo que falta después del depósito
+(`cantidadAComprar`), y mandaba también lo que no hacía falta comprar. Se le pedía al proveedor
+de más.
+
+**Que se hizo:** `armarPedidoAlProveedor` (`src/lib/catering/pedido-al-proveedor.ts`) pide sólo lo
+que falta, en unidades enteras para arriba cuando son unidades. La pantalla lo usa.
+
+```comprobar
+usa: armarPedidoAlProveedor en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+prueba: src/__tests__/el-pedido-al-proveedor-pide-lo-que-falta.test.ts
+```
+
+## 25 de septiembre de 2026 — El resumen del mes para el contador
+
+**Cómo funciona:** `armarResumenParaElContador` arma, con los números del reporte de ganancias,
+el texto (cobrado, gastado, resultado) y la planilla renglón por renglón (gastos en negativo, así
+la suma da el resultado). Los primeros cinco días del mes el parte de la mañana avisa que está
+listo. **Lo manda una persona con un toque** (es plata y sale para afuera); la pantalla va en la
+orden 86.
+
+```comprobar
+usa: mesAnteriorA en src/lib/automatico/parte-manana.ts
+prueba: src/__tests__/el-resumen-del-contador-cuadra.test.ts
+```
+
+## 25 de septiembre de 2026 — Decisiones del dueño
+
+- **El recontacto de prospectos por WhatsApp sale solo**, a propósito, y se apaga desde Ajustes →
+  Contenido público → "Recontacto automático". Es una excepción que él eligió a "preparar sí,
+  mandar no". No es un defecto.
+- **No hay karaoke.** Se saca de la página pública (orden 86).
+- **Todo en español.** No se traduce la invitación ni la pantalla.
+- **No se hacen:** presupuesto en video, canciones con inteligencia artificial, equipos físicos
+  (proyección, piso de LED, pulseras, holograma).
+- **Cuando vuelve la señal, no se avisa nada.**

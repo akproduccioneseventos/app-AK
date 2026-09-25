@@ -6,7 +6,7 @@ const PARTE_CACHE_FILE = 'parte-manana-cache.json';
 
 export interface ItemParteManana {
   id: string;
-  tipo: 'cobranza' | 'fiesta_proxima' | 'prospecto';
+  tipo: 'cobranza' | 'fiesta_proxima' | 'prospecto' | 'contador';
   titulo: string;
   detalle: string;
   accionHref?: string;
@@ -129,6 +129,21 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
         });
       }
     }
+  }
+
+  // 4. Los primeros cinco días del mes: el resumen del mes anterior para el contador está
+  //    listo para mandar (25 de septiembre de 2026, pedido del dueño). Va primero: es plata.
+  if (ahora.getDate() <= 5) {
+    const { mesAnteriorA } = await import('@/lib/contabilidad/resumen-para-el-contador');
+    const mes = mesAnteriorA(ahora);
+    items.unshift({
+      id: `contador_${mes.clave}`,
+      tipo: 'contador',
+      titulo: `Mandar el resumen de ${mes.nombre} al contador`,
+      detalle: 'Está armado con lo cobrado y lo gastado del mes. Se manda con un toque.',
+      accionHref: `/empresa/contabilidad/reportes?mes=${mes.clave}`,
+      accionTexto: 'Ver y mandar',
+    });
   }
 
   const itemsPrincipales = items.slice(0, 3);

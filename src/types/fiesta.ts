@@ -1599,6 +1599,11 @@ export interface ContratoFirmaInfo {
     ip?: string;
     physicalContractUrl?: string;
     notes?: string;
+    /** Firma digital: huella del texto exacto que se firmó (sha256). */
+    textoHuella?: string;
+    planPagosAceptado?: boolean;
+    /** Firma digital hecha por el cliente, esperando que el equipo confirme la reserva. */
+    pendienteDeConfirmar?: boolean;
 }
 
 export interface CuotaPlanPagoContrato {

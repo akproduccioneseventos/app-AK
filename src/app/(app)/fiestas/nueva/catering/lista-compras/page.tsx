@@ -1,5 +1,6 @@
 'use client';
 
+import { armarPedidoAlProveedor } from '@/lib/catering/pedido-al-proveedor';
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -372,22 +373,13 @@ function ListaDeComprasContent() {
 
   const [copiedProviderId, setCopiedProviderId] = useState<string | null>(null);
 
-  const buildProviderOrderMessage = (providerName: string, items: ShoppingListItem[]) => {
-    const nombreEvento = fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.clienteNombre || 'Evento AK Producciones';
-    const fechaEvento = fiesta?.configuracion?.fechaEvento || '';
-
-    let msg = `*Pedido de Insumos - AK Producciones*\n`;
-    msg += `🎉 *Evento:* ${nombreEvento}${fechaEvento ? ` (${fechaEvento})` : ''}\n`;
-    msg += `📦 *Proveedor:* ${providerName}\n\n`;
-    msg += `*Detalle del pedido:*\n`;
-    items.forEach((item) => {
-      const isInteger = item.unit.toLowerCase() === 'u' || item.unit.toLowerCase() === 'un' || item.unit.toLowerCase() === 'unidad' || item.unit.toLowerCase() === 'unidades';
-      const qty = isInteger ? Math.round(item.cantidadNecesaria) : Number(item.cantidadNecesaria || 0).toFixed(2);
-      msg += `• ${item.nombre}: ${qty} ${item.unit}\n`;
+  const buildProviderOrderMessage = (providerName: string, items: ShoppingListItem[]) =>
+    armarPedidoAlProveedor({
+      nombreEvento: fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.clienteNombre || 'Evento AK Producciones',
+      fechaEvento: fiesta?.configuracion?.fechaEvento || '',
+      proveedor: providerName,
+      renglones: items,
     });
-    msg += `\nPor favor confirmar disponibilidad y fecha de entrega. ¡Muchas gracias!`;
-    return msg;
-  };
 
   const handleSendWhatsAppOrder = (providerName: string, items: ShoppingListItem[]) => {
     const msg = buildProviderOrderMessage(providerName, items);

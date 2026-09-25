@@ -126,6 +126,7 @@ export async function updateFotografiaYFilmacionFiestaActual(fiestaId: string, f
 export async function uploadDocumentoFiesta(formData: FormData) { return await DocumentosModule.uploadDocumento(formData); }
 export async function deleteDocumentoFiesta(fiestaId: string, docId: string) { return await DocumentosModule.deleteDocumento(fiestaId, docId); }
 export async function signContractDigitally(fiestaId: string, name: string, acceptedPlanPagos?: boolean) { return await DocumentosModule.signContractDigitally(fiestaId, name, acceptedPlanPagos); }
+export async function confirmarReservaDeFirmaDigital(fiestaId: string) { return await DocumentosModule.confirmarReservaDeFirmaDigital(fiestaId); }
 export async function uploadPhysicalContract(formData: FormData) { return await DocumentosModule.uploadPhysicalContract(formData); }
 export async function getContractSigningSummary(fiestaId: string) { return await DocumentosModule.getContractSigningSummary(fiestaId); }
 
