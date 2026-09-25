@@ -94,7 +94,8 @@ test.describe('Orden 86: las pantallas nuevas hacen lo que dicen', () => {
     await expect(campo).toBeEditable({ timeout: 30_000 });
     await campo.fill(mail);
     await page.getByRole('button', { name: /Guardar Información/ }).click();
-    await expect(page.getByRole('button', { name: /Guardar Información/ })).toBeEnabled({ timeout: 20_000 });
+    // Se espera el aviso de guardado: el botón sigue habilitado un instante después del toque.
+    await expect(page.getByText('Información Guardada').first()).toBeVisible({ timeout: 20_000 });
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.locator('#email-contador')).toHaveValue(mail, { timeout: 30_000 });
   });
