@@ -132,8 +132,8 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     useEffect(() => {
         if (!isPostEvent || isPreview || !fiesta.id) return;
         // Dynamic import to avoid including this server action in the initial bundle
-        import('@/app/actions/social-gallery').then(({ getSocialPosts }) => {
-            getSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12)));
+        import('@/app/actions/social-gallery').then(({ getPublicSocialPosts }) => {
+            getPublicSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12)));
         });
     }, [isPostEvent, isPreview, fiesta.id]);
 

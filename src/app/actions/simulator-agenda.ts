@@ -116,9 +116,9 @@ export async function bookAppointmentFromSimulator(data: {
     // Registrar en el CRM si corresponde
     try {
       if (newAppointment.leadId) {
-        const { scheduleCrmMeeting } = await import('@/app/actions/crm');
+        const { scheduleCrmMeetingInternal } = await import('@/lib/crm/crm-meeting');
         // no-mira-el-resultado: la cita en la agenda ya se guardo; el registro en CRM es opcional y no bloquea al cliente
-        await scheduleCrmMeeting(newAppointment.leadId, newAppointment.fechaHora, `Reunión en Oficina AK (${newAppointment.lugar})`);
+        await scheduleCrmMeetingInternal(newAppointment.leadId, newAppointment.fechaHora, `Reunión en Oficina AK (${newAppointment.lugar})`);
       }
     } catch {
       // Ignorar errores de CRM no bloqueantes
