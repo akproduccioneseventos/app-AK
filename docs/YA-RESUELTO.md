@@ -9481,3 +9481,18 @@ usa: necesidadPorEquipo en src/app/actions/fiesta/carga-operativa.actions.ts
 usa: listaCompleta en src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
 prueba: src/__tests__/carga-stock-total-por-origen.test.ts
 ```
+
+## 25 de septiembre de 2026 — Dos respuestas de encuesta en dos servidores: quedaba una sola (Codex)
+
+**Que estaba mal:** la encuesta post fiesta guardaba la lista entera de respuestas. El turno
+cuidaba un solo servidor: dos clientes contestando a la vez en dos servidores veían "gracias" y
+se guardaba una sola.
+
+**Que se hizo:** con base, la respuesta se agrega sola con `createDataItem`, y la marca de
+"reseña pedida" se pone con `mutateDataItem` sobre esa respuesta. Sin base queda el camino de
+siempre, con su turno.
+
+```comprobar
+usa: createDataItem(FEEDBACK_FILE, FEEDBACK_COLLECTION en src/app/actions/feedback.ts
+prueba: src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
+```
