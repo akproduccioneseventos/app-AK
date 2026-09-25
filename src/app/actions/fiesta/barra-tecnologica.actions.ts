@@ -25,6 +25,7 @@ import { calculateActualStockMovement, getBarScheduleError, isTruthyFollowConfir
 import { limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
 import { readData, writeData } from '@/lib/data-service';
 import { mutateGenericJsonArray } from '@/lib/generic-json-store';
+import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import * as logger from '@/lib/logger';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -322,20 +323,47 @@ async function getFirestoreOrders(fiestaId: string): Promise<BarDrinkOrder[] | n
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-async function saveFallbackOrders(fiesta: FiestaEnPlanificacion, orders: BarDrinkOrder[]) {
-  const stored = getStoredBarData(fiesta);
-  return saveFiesta({
-    ...fiesta,
-    others: {
-      ...(fiesta.others || {}),
-      barraTecnologica: {
-        ...stored,
-        orders,
-        updatedAt: new Date().toISOString(),
+/**
+ * Guardado de respaldo de los pedidos, dentro de la fiesta.
+ *
+ * **No pasa por `saveFiesta`** (25 de septiembre de 2026): esa accion pide permiso del equipo,
+ * y el pedido de un invitado nunca lo tiene. El respaldo tiraba "No autorizado", el pedido del
+ * invitado se perdia y se le contestaba que no se pudo. Quien llama ya comprobo quien pide
+ * (el enlace del invitado, o la sesion del equipo).
+ *
+ * Y la fiesta **se vuelve a leer adentro del turno**: guardar la que se leyo al principio
+ * pisaba lo que el equipo hubiera cambiado mientras tanto. Solo se tocan los pedidos.
+ */
+let colaDeRespaldo: Promise<unknown> = Promise.resolve();
+
+async function saveFallbackOrders(
+  fiestaId: string,
+  cambiar: (orders: BarDrinkOrder[]) => BarDrinkOrder[],
+): Promise<{ success: boolean; error?: string }> {
+  const turno = colaDeRespaldo.then(async () => {
+    const fresca = await getFiestaById(fiestaId);
+    if (!fresca) return { success: false, error: 'Fiesta no encontrada.' };
+    const stored = getStoredBarData(fresca);
+    const actualizada: FiestaEnPlanificacion = {
+      ...fresca,
+      others: {
+        ...(fresca.others || {}),
+        barraTecnologica: {
+          ...stored,
+          orders: cambiar(stored.orders || []),
+          updatedAt: new Date().toISOString(),
+        },
       },
-    },
+    };
+    await writeData(`fiestas/${fiestaId}.json`, await preserveFiestaSecrets(fiestaId, actualizada));
+    return { success: true };
   });
+  colaDeRespaldo = turno.catch(() => undefined);
+  return turno;
 }
+
+const conElPedidoNuevo = (order: BarDrinkOrder) => (orders: BarDrinkOrder[]) =>
+  orders.some((o) => o.id === order.id) ? orders : [order, ...orders];
 
 export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ success: boolean; data?: BarTechnologyDashboard; error?: string }> {
   try {
@@ -547,7 +575,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     // el 22 de setiembre de 2026.
     const guardarEnElRespaldo = async () => {
       try {
-        const respaldo = await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+        const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
         return respaldo?.success !== false;
       } catch (error) {
         logger.warn('[barra-tecnologica] el guardado de respaldo tiro error:', error);
@@ -637,10 +665,12 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
       try {
         await db.collection(BAR_ORDERS_COLLECTION).doc(order.id).set(order);
       } catch (error) {
-        await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+        const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
+        if (!respaldo.success) throw new Error(respaldo.error || 'No se pudo guardar el pedido manual.');
       }
     } else {
-      await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+      const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
+      if (!respaldo.success) throw new Error(respaldo.error || 'No se pudo guardar el pedido manual.');
     }
 
     return { success: true, order };
@@ -831,7 +861,10 @@ async function updateBarDrinkOrderStatusInternal(
     const orders = (stored.orders || []).map((order) => (
       order.id === orderId ? { ...order, status, updatedAt, stockRestoredAt } : order
     ));
-    await saveFallbackOrders(fiesta, orders);
+    const respaldo = await saveFallbackOrders(fiestaId, (actuales) => actuales.map((order) => (
+      order.id === orderId ? { ...order, status, updatedAt, stockRestoredAt } : order
+    )));
+    if (!respaldo.success) return { success: false, error: respaldo.error || 'No se pudo actualizar el pedido.' };
     const updatedOrder = orders.find((order) => order.id === orderId);
 
     return { success: true, order: updatedOrder };

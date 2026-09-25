@@ -9324,3 +9324,21 @@ recargar.
 usa: reloadOnOnline: false en next.config.js
 prueba: src/__tests__/la-pantalla-no-se-recarga-al-volver-la-senal.test.ts
 ```
+
+## 25 de septiembre de 2026 — Con la base caída, el pedido del invitado se perdía siempre
+
+**Que estaba mal (medido con el registro del servidor):** el guardado de respaldo de la barra
+pasaba por `saveFiesta`, que pide permiso del equipo. El invitado no lo tiene: el servidor
+anotaba "No autorizado para modificar este evento", devolvía las botellas y el pedido se perdía.
+Pasaba cada vez que la base fallaba al guardar, y también al cancelar o cambiar un trago. Además
+el respaldo guardaba la fiesta leída al principio y pisaba lo que el equipo cambiara mientras
+tanto.
+
+**Que se hizo:** `saveFallbackOrders` escribe la fiesta directo, en su propio turno, **releyéndola**
+y tocando sólo los pedidos. Quien la llama ya comprobó quién pide (el enlace del invitado o la
+sesión del equipo). El pedido manual del barman y el cambio de estado miran si se guardó.
+
+```comprobar
+usa: conElPedidoNuevo en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts
+```

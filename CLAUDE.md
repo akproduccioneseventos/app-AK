@@ -1269,6 +1269,7 @@ con otra cara.
 | Dos cobros en dos servidores dejaban una factura cobrada de mas | `src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts` |
 | El invitado pedia un trago, se descontaban botellas y el pedido se cortaba por pedirle sesion del equipo | `src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts` |
 | La fotocabina y la barra se recargaban solas cada vez que volvia el wifi | `src/__tests__/la-pantalla-no-se-recarga-al-volver-la-senal.test.ts` |
+| Con la base caida, el pedido del invitado se perdia porque el respaldo pedia permiso del equipo | `src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts` |
 | Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
 
 ### Cómo se elige el matafuego
