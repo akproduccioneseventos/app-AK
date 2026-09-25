@@ -160,7 +160,7 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
         tipo: 'conciliacion',
         titulo: `Pasar ${sinPasar.length === 1 ? 'un cobro' : `${sinPasar.length} cobros`} de factura al presupuesto`,
         detalle: 'Quedaron cobrados en la factura pero no en el presupuesto. Se pasan con un toque, sin duplicar.',
-        accionHref: '/empresa/contabilidad/facturas?conciliar=1',
+        accionHref: '/invoices?conciliar=1',
         accionTexto: 'Pasar ahora',
       });
     }
