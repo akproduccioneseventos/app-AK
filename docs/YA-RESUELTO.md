@@ -9525,3 +9525,20 @@ usa: decidirGuardado en src/lib/firebase-sync.ts
 usa: conMarcas: true en src/lib/data-service.ts
 prueba: src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts
 ```
+
+## 25 de septiembre de 2026 — Veinte minutos de navegador por un cambio que el navegador no ve
+
+**Que estaba mal:** tocar `generic-json-store.ts` hacía correr las 84 pruebas de navegador, porque
+la selección lo contaba como algo que usan todas las pantallas. Pero las pruebas de navegador
+corren con la base local y ese código sólo corre con la base de verdad: veinte minutos sin probar
+nada nuevo. El dueño: *"cada cambio es una lentitud"*.
+
+**Que se hizo:** `SOLO_CON_LA_BASE_REAL` en `scripts/pantallas-tocadas.mjs` (y en la huella de los
+pasos del navegador de la puerta): `firebase-sync.ts`, `generic-json-store.ts` y
+`marca-de-lectura.ts` no hacen correr pruebas de navegador. Los cuidan sus pruebas de Jest.
+`data-service.ts` sí sigue corriendo todo, porque tiene también el camino local.
+
+```comprobar
+usa: SOLO_CON_LA_BASE_REAL en scripts/pantallas-tocadas.mjs
+prueba: src/__tests__/se-prueba-lo-nuevo-no-toda-la-app.test.ts
+```
