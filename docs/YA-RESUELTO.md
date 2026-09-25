@@ -9660,4 +9660,10 @@ archivo: src/lib/contabilidad/mandar-resumen-al-contador.ts
 usa: asignacionesActuales en src/lib/personal/proponer-equipo.ts
 prueba: src/__tests__/resumen-contador.test.ts
 prueba: src/__tests__/proponer-equipo-sin-solapamiento.test.ts
+prueba: src/__tests__/orden-86-acciones.test.ts
+prueba: tests/e2e/orden-86-pantallas.spec.ts
 ```
+
+**Además:** el botón "Conectá Google en Ajustes" de la bandeja de salida llevaba a una pantalla que
+no existe (`/empresa/ajustes`). Ahora lleva a `/settings/google-workspace`. Las pruebas que
+faltaban de la entrega las escribió Claude por pedido del dueño.

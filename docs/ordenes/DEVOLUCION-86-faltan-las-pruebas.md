@@ -1,5 +1,9 @@
 # Devolución — Orden 86: faltan las pruebas
 
+**CERRADA el 25 de septiembre de 2026: las pruebas las escribió Claude por pedido del dueño
+("termina").** Quedó afuera sólo la prueba de navegador del asistente del invitado (B1), porque
+necesita la inteligencia artificial de verdad y en las pruebas no hay conexión.
+
 **Para Gemini. Seguí en la MISMA rama (`feat/orden-85-86-duenio-septiembre`) y la misma
 propuesta, la 1225.** Primero traé lo que subió Claude: `git pull`. Claude ya corrigió tres cosas
 de plata en tu entrega; **no las deshagas**:
@@ -39,6 +43,6 @@ prueba que lo mire. Hay que agregar:
 `src/lib/contabilidad/*` ni `src/lib/personal/proponer-equipo.ts`: son de Claude.
 
 ```comprobar
-usa: proponer-equipo.actions en src/__tests__/proponer-equipo-sin-solapamiento.test.ts
+usa: proponer-equipo.actions en src/__tests__/orden-86-acciones.test.ts
 prueba: tests/e2e/orden-86-pantallas.spec.ts
 ```

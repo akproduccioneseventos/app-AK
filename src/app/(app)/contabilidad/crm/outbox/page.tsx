@@ -231,7 +231,7 @@ export default function OutboxPage() {
                 className="text-amber-700 border-amber-300 bg-amber-50 hover:bg-amber-100 text-xs"
                 asChild
               >
-                <Link href="/empresa/ajustes">
+                <Link href="/settings/google-workspace">
                   <Mail className="w-3.5 h-3.5 mr-1.5 text-amber-600" />
                   Conectá Google en Ajustes
                 </Link>
