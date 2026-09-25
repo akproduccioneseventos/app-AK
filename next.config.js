@@ -3,7 +3,11 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   cacheOnFrontEndNav: false,
   aggressiveFrontEndNavCaching: false,
-  reloadOnOnline: true,
+  // NO se recarga la pantalla al volver la senal (25 de septiembre de 2026). Con `true`, la
+  // fotocabina, la barra y las estaciones se recargaban en plena fiesta cada vez que el wifi
+  // del salon volvia, cortando al invitado a mitad de la foto o del pedido. Lo guardado sin
+  // senal lo sube la cola de cada pantalla (`SyncStatusIndicator`), sin recargar.
+  reloadOnOnline: false,
   disable: process.env.NODE_ENV === 'development' || process.env.AK_DISABLE_PWA_BUILD === 'true',
   workboxOptions: {
     disableDevLogs: true,

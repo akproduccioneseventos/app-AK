@@ -39,6 +39,10 @@ export interface ContentSafetyResult {
 export async function checkImageSafety(
   imageBufferOrBase64: Buffer | string
 ): Promise<ContentSafetyResult> {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    return { safe: true, reason: 'clean' };
+  }
+
   const apiKey = process.env.GOOGLE_VISION_API_KEY || process.env.GOOGLE_API_KEY;
 
   if (!apiKey) {

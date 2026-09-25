@@ -1,6 +1,28 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 23 de septiembre de 2026 (noche) — Orden 81: fotocabina sin internet, colas aisladas, ensayo de equipo y barra
 
+- **De Gemini:**
+  - **Continuidad offline y fotocabina sin red:** La fotocabina guarda en IndexedDB localmente sin anunciar URLs falsas ni QR inaccesibles. La sincronización posterior entrega de forma única sin duplicados (`tests/e2e/81-captura-reconexion-entrega.spec.ts`).
+  - **Cola y aislamiento:** Las colas de subida de IndexedDB aíslan las capturas por evento (`fiestaId`), conservan la identidad de origen (`guestId`), y no descartan elementos si la conexión falla (`tests/e2e/81-cola-aislamiento-y-reintento.spec.ts`).
+  - **Comprobación previa de equipo (AK-100):** El Centro de Fiesta calcula la preparación operativa mediante `buildAk100Readiness`, indicando faltantes reales y sin fingir ensayo de hardware completado si aún no se realizó (`tests/e2e/81-prueba-previa-no-finge-equipo.spec.ts`).
+  - **Barra tecnológica y pedidos:** Pedidos desde el MiniQuiosco con `createBarDrinkOrder`, protegidos contra doble clic (`clientRequestId`) y sin acceso del invitado a controles administrativos de barman (`tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts`).
+  - **Segunda pantalla de recuerdos:** Galería (`/evento/galeria/[fiestaId]`) permite retirar y visualizar recuerdos sin bloquear la cámara de la cabina.
+
+```comprobar
+archivo: src/lib/offline/offline-db.ts
+usa: saveOfflineMedia en src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: tests/e2e/81-captura-reconexion-entrega.spec.ts
+archivo: src/lib/offline/offline-sync-manager.ts
+usa: processOfflineMediaQueue en src/components/offline/sync-status-indicator.tsx
+prueba: tests/e2e/81-cola-aislamiento-y-reintento.spec.ts
+archivo: src/lib/ak-100/ak-100-readiness.ts
+usa: buildAk100Readiness en src/app/(app)/fiestas/[id]/centro/page.tsx
+prueba: tests/e2e/81-prueba-previa-no-finge-equipo.spec.ts
+archivo: src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: createBarDrinkOrder en src/app/invitacion/[fiestaId]/invitado/[guestId]/MiniQuiosco.tsx
+prueba: tests/e2e/81-roles-y-pedidos-sin-duplicados.spec.ts
+```
 
 ## 23 de septiembre de 2026 (noche) — Orden 82: prospectos, clientes, agenda y mensajes no se pisan
 
@@ -9267,4 +9289,78 @@ Entrar con la clave propia de cada administrador sigue andando: eso **comprueba*
 archivo: src/app/actions/simple-auth.ts
 usa: where('email', '==', email) en src/app/actions/simple-auth.ts
 prueba: src/__tests__/la-clave-de-uno-no-le-cambia-la-clave-a-otro.test.ts
+```
+
+## 25 de septiembre de 2026 — Una factura se podía cobrar de más con dos servidores
+
+**Que estaba mal:** `addPaymentToInvoice` miraba el saldo con la factura leída al principio y
+guardaba la lista entera después. El turno cuida un solo servidor: dos cobros en dos servidores
+veían el mismo saldo viejo y entraban los dos. La prueba de antes, además, **perdía uno de los dos
+cobros**.
+
+**Que se hizo:** con base, el pago se agrega con `mutateDataItem` sobre esa factura, y el saldo se
+vuelve a mirar **adentro** de la transacción. Si ya no alcanza, se rechaza con el saldo del
+momento. El estado (pagada / enviada) se calcula con `estadoTrasElPago`, el mismo en los dos
+caminos.
+
+```comprobar
+usa: estadoTrasElPago en src/app/actions/invoices.ts
+prueba: src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts
+```
+
+## 25 de septiembre de 2026 — El invitado pedía un trago y se le descontaban botellas sin pedido
+
+**Que estaba mal:** la barra, después de descontar las botellas, limpiaba el cache de insumos con
+`invalidateInsumosCache`, que es una acción del equipo y **pide sesión**. El invitado no la tiene:
+la llamada fallaba, el pedido no se guardaba y **las botellas quedaban descontadas**. Lo destapó
+la prueba de navegador de la orden 81. Lo mismo con la carta: `getCartaTragosMaster` pide sesión,
+fallaba en silencio y al invitado le salía **la carta de fábrica**, con recetas que no son las
+cargadas.
+
+**Que se hizo:** la barra usa las lecturas internas `limpiarCacheInsumos` y
+`leerCartaTragosMaster` (`src/lib/carta-tragos/leer-carta-master.ts`), que no son acciones y no
+piden sesión. Las acciones del equipo siguen pidiéndola. Además, la lista de botellas por devolver
+se toma y se vacía **en una sola operación** (`mutateGenericJsonArray`): con dos servidores, los
+dos devolvían las mismas botellas.
+
+**Falso positivo verificado:** Gemini le había sacado la sesión a `invalidateInsumosCache` para
+que su prueba pasara. Se volvió atrás —abría una acción del equipo a cualquiera— y se arregló en
+la barra, que es donde estaba el problema.
+
+```comprobar
+usa: leerCartaTragosMaster en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: limpiarCacheInsumos en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts
+```
+
+## 25 de septiembre de 2026 — La pantalla se recargaba sola cada vez que volvía la señal
+
+**Que estaba mal:** `reloadOnOnline: true` en `next.config.js` recargaba cualquier pantalla al
+volver la conexión. En el salón, la fotocabina y la barra se recargaban en medio de la foto o del
+pedido cada vez que el wifi volvía. Lo mostró la prueba de navegador de la orden 81.
+
+**Que se hizo:** quedó en `false`. Lo guardado sin señal lo sube la cola de cada pantalla, sin
+recargar.
+
+```comprobar
+usa: reloadOnOnline: false en next.config.js
+prueba: src/__tests__/la-pantalla-no-se-recarga-al-volver-la-senal.test.ts
+```
+
+## 25 de septiembre de 2026 — Con la base caída, el pedido del invitado se perdía siempre
+
+**Que estaba mal (medido con el registro del servidor):** el guardado de respaldo de la barra
+pasaba por `saveFiesta`, que pide permiso del equipo. El invitado no lo tiene: el servidor
+anotaba "No autorizado para modificar este evento", devolvía las botellas y el pedido se perdía.
+Pasaba cada vez que la base fallaba al guardar, y también al cancelar o cambiar un trago. Además
+el respaldo guardaba la fiesta leída al principio y pisaba lo que el equipo cambiara mientras
+tanto.
+
+**Que se hizo:** `saveFallbackOrders` escribe la fiesta directo, en su propio turno, **releyéndola**
+y tocando sólo los pedidos. Quien la llama ya comprobó quién pide (el enlace del invitado o la
+sesión del equipo). El pedido manual del barman y el cambio de estado miran si se guardó.
+
+```comprobar
+usa: conElPedidoNuevo en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts
 ```

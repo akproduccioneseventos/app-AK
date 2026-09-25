@@ -31,6 +31,9 @@ const ESCRITOS_POR_LA_CORRIDA = [
   'src/data/marketing-checklist.json',
   'data/activos-fijos.json',
   'src/data/activos-fijos.json',
+  // Los escribe la prueba de la barra (orden 81) al descontar botellas de un pedido.
+  // **Aparecio sin estar en la lista** el 25 de septiembre de 2026.
+  'src/data/insumos.json',
 ];
 
 const sucios = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' })

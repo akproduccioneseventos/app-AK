@@ -46,27 +46,38 @@ export async function uploadToStorage(
   contentType: string,
   isPublic: boolean = false
 ): Promise<string> {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    const base64 = buffer.toString('base64');
+    return `data:${contentType};base64,${base64}`;
+  }
+
   const bucket = getBucket();
   if (!bucket) throw new Error('Firebase Storage no está disponible.');
 
-  const file = bucket.file(storagePath);
+  try {
+    const file = bucket.file(storagePath);
 
-  await file.save(buffer, {
-    metadata: { contentType },
-    resumable: false,
-  });
+    await file.save(buffer, {
+      metadata: { contentType },
+      resumable: false,
+    });
 
-  if (isPublic) {
-    await file.makePublic();
-    return `https://storage.googleapis.com/${STORAGE_BUCKET}/${storagePath}`;
+    if (isPublic) {
+      await file.makePublic();
+      return `https://storage.googleapis.com/${STORAGE_BUCKET}/${storagePath}`;
+    }
+
+    // Return a signed URL valid for 7 days
+    const [signedUrl] = await file.getSignedUrl({
+      action: 'read',
+      expires: new Date(Date.now() + DEFAULT_SIGNED_URL_EXPIRY_MS),
+    });
+    return signedUrl;
+  } catch (error: any) {
+    // Si el almacenamiento falla, se avisa: guardar la foto adentro del registro como texto
+    // la haria pasar por subida sin estarlo, y la base rechaza registros tan grandes.
+    throw error;
   }
-
-  // Return a signed URL valid for 7 days
-  const [signedUrl] = await file.getSignedUrl({
-    action: 'read',
-    expires: new Date(Date.now() + DEFAULT_SIGNED_URL_EXPIRY_MS),
-  });
-  return signedUrl;
 }
 
 /**
@@ -75,6 +86,7 @@ export async function uploadToStorage(
  * @param urlOrPath Full public/signed URL or the raw storage path (e.g. "contracts/cust_123/file.pdf").
  */
 export async function deleteFromStorage(urlOrPath: string): Promise<void> {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') return;
   const bucket = getBucket();
   if (!bucket) return; // If Storage is not available, skip silently
 

@@ -16,14 +16,16 @@ import type {
 } from '@/types/barra-tecnologica';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import { mergeMasterTragosWithFiesta } from '@/lib/carta-tragos-master';
-import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions';
+import { leerCartaTragosMaster } from '@/lib/carta-tragos/leer-carta-master';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
 import { createEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
 import { calculateActualStockMovement, getBarScheduleError, isTruthyFollowConfirmation, isValidBarOrderTransition, normalizeBarTime } from '@/lib/barra-tecnologica';
-import { invalidateInsumosCache } from '@/app/actions/insumos';
+import { limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
+import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import * as logger from '@/lib/logger';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -120,7 +122,7 @@ async function getDb(): Promise<Firestore | null> {
 }
 
 async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
-  const masterItems = await getCartaTragosMaster().catch(() => defaultCartaTragosData.items);
+  const masterItems = await leerCartaTragosMaster().catch(() => defaultCartaTragosData.items);
   const fiestaItems = fiesta.cartaTragos?.items || defaultCartaTragosData.items;
   const merged = mergeMasterTragosWithFiesta(masterItems, fiestaItems);
 
@@ -177,6 +179,15 @@ const DEVOLUCIONES_PENDIENTES_FILE = 'barra-devoluciones-pendientes.json';
 type DevolucionPendiente = { pedido: string; movimientos: BarStockMovement[]; anotadaEn: string };
 
 async function anotarDevolucionPendiente(pedido: string, movimientos: BarStockMovement[]) {
+  // Con base, la lista se cambia adentro de una transaccion: el turno de abajo cuida un
+  // solo servidor, y dos servidores anotando a la vez perdian una devolucion.
+  if (await getDb()) {
+    await mutateGenericJsonArray<DevolucionPendiente>(DEVOLUCIONES_PENDIENTES_FILE, (lista) =>
+      lista.some((d) => d.pedido === pedido)
+        ? null
+        : [...lista, { pedido, movimientos, anotadaEn: new Date().toISOString() }]);
+    return;
+  }
   await enLaColaDeStock(async () => {
     const lista = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
     if (lista.some((d) => d.pedido === pedido)) return;
@@ -188,10 +199,19 @@ async function anotarDevolucionPendiente(pedido: string, movimientos: BarStockMo
 async function reintentarDevolucionesPendientes() {
   let pendientes: DevolucionPendiente[] = [];
   try {
-    await enLaColaDeStock(async () => {
-      pendientes = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
-      if (pendientes.length > 0) await writeData(DEVOLUCIONES_PENDIENTES_FILE, []);
-    });
+    if (await getDb()) {
+      // Tomar y vaciar la lista es UNA operacion: si dos servidores la leian a la vez, los
+      // dos devolvian las mismas botellas y el stock quedaba de mas.
+      await mutateGenericJsonArray<DevolucionPendiente>(DEVOLUCIONES_PENDIENTES_FILE, (lista) => {
+        pendientes = lista;
+        return lista.length > 0 ? [] : null;
+      });
+    } else {
+      await enLaColaDeStock(async () => {
+        pendientes = await readData<DevolucionPendiente[]>(DEVOLUCIONES_PENDIENTES_FILE, []);
+        if (pendientes.length > 0) await writeData(DEVOLUCIONES_PENDIENTES_FILE, []);
+      });
+    }
   } catch (error) {
     logger.warn('[barra-tecnologica] no se pudo leer la lista de devoluciones pendientes:', error);
     return;
@@ -236,7 +256,7 @@ async function descontarStock(drink: Trago): Promise<BarStockMovement[]> {
       });
       return applied;
     });
-    await invalidateInsumosCache();
+    limpiarCacheInsumos();
     return movements;
   }
 
@@ -251,7 +271,7 @@ async function descontarStock(drink: Trago): Promise<BarStockMovement[]> {
       if (cantidad > 0) movements.push({ insumoId: item.insumoId, cantidad });
     }
     await writeData(INSUMOS_FILE, inventory);
-    await invalidateInsumosCache();
+    limpiarCacheInsumos();
   });
 
   await nextPromise;
@@ -272,7 +292,7 @@ async function reponerStock(movements: BarStockMovement[]) {
         transaction.update(snapshot.ref, { cantidadDisponible: available + movements[index].cantidad });
       });
     });
-    await invalidateInsumosCache();
+    limpiarCacheInsumos();
     return;
   }
 
@@ -283,7 +303,7 @@ async function reponerStock(movements: BarStockMovement[]) {
       if (supply && supply.cantidadDisponible !== undefined) supply.cantidadDisponible += movement.cantidad;
     }
     await writeData(INSUMOS_FILE, inventory);
-    await invalidateInsumosCache();
+    limpiarCacheInsumos();
   });
 
   await nextPromise;
@@ -303,20 +323,47 @@ async function getFirestoreOrders(fiestaId: string): Promise<BarDrinkOrder[] | n
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-async function saveFallbackOrders(fiesta: FiestaEnPlanificacion, orders: BarDrinkOrder[]) {
-  const stored = getStoredBarData(fiesta);
-  return saveFiesta({
-    ...fiesta,
-    others: {
-      ...(fiesta.others || {}),
-      barraTecnologica: {
-        ...stored,
-        orders,
-        updatedAt: new Date().toISOString(),
+/**
+ * Guardado de respaldo de los pedidos, dentro de la fiesta.
+ *
+ * **No pasa por `saveFiesta`** (25 de septiembre de 2026): esa accion pide permiso del equipo,
+ * y el pedido de un invitado nunca lo tiene. El respaldo tiraba "No autorizado", el pedido del
+ * invitado se perdia y se le contestaba que no se pudo. Quien llama ya comprobo quien pide
+ * (el enlace del invitado, o la sesion del equipo).
+ *
+ * Y la fiesta **se vuelve a leer adentro del turno**: guardar la que se leyo al principio
+ * pisaba lo que el equipo hubiera cambiado mientras tanto. Solo se tocan los pedidos.
+ */
+let colaDeRespaldo: Promise<unknown> = Promise.resolve();
+
+async function saveFallbackOrders(
+  fiestaId: string,
+  cambiar: (orders: BarDrinkOrder[]) => BarDrinkOrder[],
+): Promise<{ success: boolean; error?: string }> {
+  const turno = colaDeRespaldo.then(async () => {
+    const fresca = await getFiestaById(fiestaId);
+    if (!fresca) return { success: false, error: 'Fiesta no encontrada.' };
+    const stored = getStoredBarData(fresca);
+    const actualizada: FiestaEnPlanificacion = {
+      ...fresca,
+      others: {
+        ...(fresca.others || {}),
+        barraTecnologica: {
+          ...stored,
+          orders: cambiar(stored.orders || []),
+          updatedAt: new Date().toISOString(),
+        },
       },
-    },
+    };
+    await writeData(`fiestas/${fiestaId}.json`, await preserveFiestaSecrets(fiestaId, actualizada));
+    return { success: true };
   });
+  colaDeRespaldo = turno.catch(() => undefined);
+  return turno;
 }
+
+const conElPedidoNuevo = (order: BarDrinkOrder) => (orders: BarDrinkOrder[]) =>
+  orders.some((o) => o.id === order.id) ? orders : [order, ...orders];
 
 export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ success: boolean; data?: BarTechnologyDashboard; error?: string }> {
   try {
@@ -528,7 +575,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     // el 22 de setiembre de 2026.
     const guardarEnElRespaldo = async () => {
       try {
-        const respaldo = await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+        const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
         return respaldo?.success !== false;
       } catch (error) {
         logger.warn('[barra-tecnologica] el guardado de respaldo tiro error:', error);
@@ -618,10 +665,12 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
       try {
         await db.collection(BAR_ORDERS_COLLECTION).doc(order.id).set(order);
       } catch (error) {
-        await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+        const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
+        if (!respaldo.success) throw new Error(respaldo.error || 'No se pudo guardar el pedido manual.');
       }
     } else {
-      await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
+      const respaldo = await saveFallbackOrders(input.fiestaId, conElPedidoNuevo(order));
+      if (!respaldo.success) throw new Error(respaldo.error || 'No se pudo guardar el pedido manual.');
     }
 
     return { success: true, order };
@@ -786,7 +835,7 @@ async function updateBarDrinkOrderStatusInternal(
         const updatedOrder = transactionResult.order;
         if (!updatedOrder) throw new Error('No se pudo recuperar el pedido actualizado.');
 
-        if (updatedOrder.stockRestoredAt === updatedAt) await invalidateInsumosCache();
+        if (updatedOrder.stockRestoredAt === updatedAt) limpiarCacheInsumos();
 
         return { success: true, order: updatedOrder };
       } catch (error) {
@@ -812,7 +861,10 @@ async function updateBarDrinkOrderStatusInternal(
     const orders = (stored.orders || []).map((order) => (
       order.id === orderId ? { ...order, status, updatedAt, stockRestoredAt } : order
     ));
-    await saveFallbackOrders(fiesta, orders);
+    const respaldo = await saveFallbackOrders(fiestaId, (actuales) => actuales.map((order) => (
+      order.id === orderId ? { ...order, status, updatedAt, stockRestoredAt } : order
+    )));
+    if (!respaldo.success) return { success: false, error: respaldo.error || 'No se pudo actualizar el pedido.' };
     const updatedOrder = orders.find((order) => order.id === orderId);
 
     return { success: true, order: updatedOrder };

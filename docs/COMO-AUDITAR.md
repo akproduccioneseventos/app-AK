@@ -650,3 +650,21 @@ no "estar asignado a esta fiesta"; un invitado pedía tragos a nombre de otro.
 3. **¿Repetir la misma operación la cuenta dos veces?** Un identificador fijo por operación
    (el pedido, la captura, el uso del cupón) la vuelve inofensiva.
 
+
+## Pregunta 24 — la que sumó el 25 de septiembre de 2026
+
+### 24. Lo que atiende al invitado, ¿llama a alguna acción que pida sesión del equipo?
+
+La barra atendía al invitado y, adentro, llamaba a dos acciones del equipo. Para el invitado
+**una tiraba error después de descontar botellas** y la otra **fallaba en silencio y devolvía
+datos de fábrica**. Las dos pasaban todas las preguntas anteriores: estaban escritas, las llamaba
+alguien y tenían pruebas en verde, porque las pruebas corrían con sesión.
+
+1. **¿La función la usa alguien sin sesión?** (invitado, prospecto, estación con permiso).
+2. **¿Adentro llama a una función exportada de `src/app/actions/` que empieza con
+   `requireAppSession`, `requirePermiso` o `verifySession`?** Si sí, para ese visitante falla.
+3. **¿El error se ve, o hay un `.catch(() => valorDeFabrica)` que lo tapa?** Lo segundo es peor:
+   muestra datos que no son los cargados.
+
+El arreglo no es sacarle la guardia a la acción del equipo: es una lectura interna en `src/lib/`
+(como `leer-insumos.ts` o `leer-carta-master.ts`) que sólo se llama desde el servidor.

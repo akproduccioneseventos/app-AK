@@ -406,7 +406,7 @@ export default function SocialEventPage() {
   useEffect(() => {
     let active = true;
     const refreshPublicData = async (isInitialLoad = false) => {
-      if ((!isInitialLoad && document.visibilityState !== 'visible') || pollingRef.current) return;
+      if ((!isInitialLoad && document.visibilityState !== 'visible') || (!isInitialLoad && pollingRef.current)) return;
       pollingRef.current = true;
 
       const requestTask = (async () => {
@@ -450,6 +450,7 @@ export default function SocialEventPage() {
     }, 7000);
     return () => {
       active = false;
+      pollingRef.current = false;
       clearInterval(timer);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };

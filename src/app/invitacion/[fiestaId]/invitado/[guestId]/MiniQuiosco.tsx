@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import NextImage from 'next/image';
 import {
   BellRing,
@@ -75,28 +75,42 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
     return () => window.clearInterval(interval);
   }, [loadData]);
 
+  const isSubmittingOrderRef = useRef(false);
+  const currentClientRequestIdRef = useRef<string | null>(null);
+
   const submitOrder = async (drinkId: string) => {
+    if (isSubmittingOrderRef.current) return;
+    isSubmittingOrderRef.current = true;
     setIsOrdering(true);
-    const result = drinkToChange
-      ? await changeBarDrinkOrder(fiestaId, drinkToChange.id, drinkId, guest.id, guestAccessToken)
-      : await createBarDrinkOrder({
-        fiestaId,
-        drinkId,
-        guestName: guest.nombre,
-        guestId: guest.id,
-        guestAccessToken,
-        clientRequestId: crypto.randomUUID(),
-        tableNumber: guest.tableNumber,
-      });
-    if (result.success) {
-      toast({ title: 'Pedido registrado', description: 'Te avisaremos cuando este listo.' });
-      setSelectedDrink(null);
-      setDrinkToChange(null);
-      await loadData();
-    } else {
-      toast({ title: 'No se pudo registrar', description: 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
+    if (!currentClientRequestIdRef.current) {
+      currentClientRequestIdRef.current = crypto.randomUUID();
     }
-    setIsOrdering(false);
+    const clientRequestId = currentClientRequestIdRef.current;
+    try {
+      const result = drinkToChange
+        ? await changeBarDrinkOrder(fiestaId, drinkToChange.id, drinkId, guest.id, guestAccessToken)
+        : await createBarDrinkOrder({
+          fiestaId,
+          drinkId,
+          guestName: guest.nombre,
+          guestId: guest.id,
+          guestAccessToken,
+          clientRequestId,
+          tableNumber: guest.tableNumber,
+        });
+      if (result.success) {
+        currentClientRequestIdRef.current = null;
+        toast({ title: 'Pedido registrado', description: 'Te avisaremos cuando este listo.' });
+        setSelectedDrink(null);
+        setDrinkToChange(null);
+        await loadData();
+      } else {
+        toast({ title: 'No se pudo registrar', description: 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
+      }
+    } finally {
+      isSubmittingOrderRef.current = false;
+      setIsOrdering(false);
+    }
   };
 
   const handleCancel = async (orderId: string) => {
@@ -205,6 +219,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
                   <Button
                     onClick={() => setSelectedDrink(drink)}
                     disabled={Boolean(activeOrder)}
+                    data-testid="boton-pedir-trago"
                     className="mt-4 min-h-12 w-full rounded-xl text-base font-bold text-white"
                     style={{ backgroundColor: accentColor }}
                   >
@@ -222,7 +237,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
         <DialogContent className="w-[calc(100%-2rem)] rounded-lg border-slate-200 bg-white text-slate-950 sm:max-w-md">
           <DialogHeader><DialogTitle className="text-xl font-black">{drinkToChange ? 'Cambiar trago' : 'Confirmar pedido'}</DialogTitle></DialogHeader>
           {selectedDrink ? <div className="py-3"><div className="grid h-14 w-14 place-items-center rounded-lg bg-slate-100" style={{ color: accentColor }}><Martini className="h-7 w-7" /></div><p className="mt-4 text-lg font-black">{selectedDrink.nombre}</p><p className="mt-1 text-sm text-slate-500">Se preparara a nombre de {guest.nombre}.</p></div> : <p className="py-3 text-sm leading-relaxed text-slate-600">Elegí el nuevo trago de la carta para cambiar tu pedido actual.</p>}
-          <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => { setSelectedDrink(null); setDrinkToChange(null); }} className="min-h-11 rounded-lg">Cancelar</Button><Button onClick={() => selectedDrink && submitOrder(selectedDrink.id)} disabled={!selectedDrink || isOrdering} className="min-h-11 rounded-lg text-white" style={{ backgroundColor: accentColor }}>{isOrdering ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirmar'}</Button></div>
+          <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => { setSelectedDrink(null); setDrinkToChange(null); }} className="min-h-11 rounded-lg">Cancelar</Button><Button onClick={() => selectedDrink && submitOrder(selectedDrink.id)} disabled={!selectedDrink || isOrdering} data-testid="boton-confirmar-pedido" className="min-h-11 rounded-lg text-white" style={{ backgroundColor: accentColor }}>{isOrdering ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirmar'}</Button></div>
         </DialogContent>
       </Dialog>
     </div>
