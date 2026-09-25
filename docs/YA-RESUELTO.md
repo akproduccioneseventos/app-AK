@@ -9385,3 +9385,17 @@ usa: scheduleCrmMeetingInternal en src/app/actions/simulator-agenda.ts
 usa: scheduleCrmMeetingInternal en src/app/actions/crm.ts
 prueba: src/__tests__/orden-83-lo-del-invitado-no-llama-acciones-del-equipo.test.ts
 ```
+
+## 25 de septiembre de 2026 — La lista de "qué falta" decía que siempre faltaba algo
+
+**Que estaba mal:** `npm run "falta?"` mostraba como "esperando que vuelvan" **todas** las
+devoluciones escritas, aunque ya estuvieran hechas. Ocho aparecían pendientes y ninguna lo estaba.
+
+**Que se hizo:** una devolución figura abierta sólo si su bloque `comprobar` todavía falla, o si no
+tiene bloque y nadie la marcó `**Cerrada:**` con el motivo. Se cerraron la 48 (la cabina ya no
+queda trabada en "Subiendo…": `retake()` limpia el cartel) y la 61 (era un informe, no código).
+Se probó rompiéndolo: sacando la marca de cerrada, la 48 vuelve a aparecer.
+
+```comprobar
+usa: Cerrada en scripts/que-falta.mjs
+```
