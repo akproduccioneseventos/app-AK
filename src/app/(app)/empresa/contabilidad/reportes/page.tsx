@@ -70,6 +70,7 @@ function ReportesContabilidadContent() {
       .then((email) => {
         setEmailContador(email || null);
       })
+      // no pasa nada si falla: sin el mail, el botón avisa que falta cargarlo y no manda nada.
       .catch(() => {});
   }, []);
 
