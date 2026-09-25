@@ -120,7 +120,12 @@ export default function ClientContractPage() {
       )
   }
 
-  const firma = fiesta.contratoFirmaInfo;
+  // La firma del portal es una constancia (la reserva sale del papel), pero ya firmado no se
+  // le vuelve a ofrecer firmar.
+  const constancia = fiesta.firmaDigitalConstancia;
+  const firma = fiesta.contratoFirmaInfo?.isSigned || !constancia
+    ? fiesta.contratoFirmaInfo
+    : { isSigned: true, method: 'digital' as const, signedAt: constancia.signedAt, ip: constancia.ip };
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">

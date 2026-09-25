@@ -1529,6 +1529,7 @@ export interface FiestaEnPlanificacion {
   contratoSalonTexto?: string;
   contratoGenerado?: ContratoGeneradoInfo;
   contratoFirmaInfo?: ContratoFirmaInfo;
+  firmaDigitalConstancia?: FirmaDigitalConstancia;
   contratoDatos?: ContratoDatos;
   clientPortalSettings?: ClientPortalSettings;
   socialGallerySettings?: SocialGallerySettings;
@@ -1599,6 +1600,19 @@ export interface ContratoFirmaInfo {
     ip?: string;
     physicalContractUrl?: string;
     notes?: string;
+}
+
+/**
+ * Constancia de la firma que el cliente hace en su portal. NO es el contrato firmado: la
+ * reserva sale sólo del contrato en papel (decisión del dueño, 25 de septiembre de 2026).
+ */
+export interface FirmaDigitalConstancia {
+    signedAt: string;
+    signedBy: string;
+    ip?: string;
+    /** Huella del texto exacto que se firmó (sha256). */
+    textoHuella: string;
+    planPagosAceptado: boolean;
 }
 
 export interface CuotaPlanPagoContrato {

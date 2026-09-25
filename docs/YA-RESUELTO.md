@@ -9399,3 +9399,232 @@ Se probó rompiéndolo: sacando la marca de cerrada, la 48 vuelve a aparecer.
 ```comprobar
 usa: Cerrada en scripts/que-falta.mjs
 ```
+
+## 25 de septiembre de 2026 — Las botellas por devolver se perdían si el servidor se cortaba en el medio (BAR01, Codex)
+
+**Que estaba mal:** la barra vaciaba la lista de botellas por devolver en una operación y las
+devolvía en otra. Un reinicio del servidor entre las dos dejaba la lista vacía y el stock sin
+devolver, sin rastro.
+
+**Que se hizo:** con base, devolver el stock y sacar el pendiente de la lista van en **una sola
+transacción** (`mutateGenericJsonArrayConTransaccion` en `src/lib/generic-json-store.ts`): o
+pasan las dos o ninguna, y si dos servidores lo intentan a la vez las botellas vuelven una vez.
+Sin base (modo de pruebas) sigue el camino de antes: no hay dónde guardar nada durable.
+
+```comprobar
+usa: mutateGenericJsonArrayConTransaccion<DevolucionPendiente> en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts
+```
+
+## 25 de septiembre de 2026 — Una orden que pedía SACAR algo daba "hecha" sin haberlo sacado
+
+**Que estaba mal:** el bloque `comprobar` sólo sabía pedir que algo **estuviera**. La orden 76
+pedía sacar la exclusión del celular de la prueba de importación de invitados; no se sacó y la
+orden figuraba cumplida. Lo encontró Codex.
+
+**Que se hizo:** nuevo tipo `no-usa: texto en archivo` en `scripts/ordenes-cumplidas.mjs` y
+`scripts/que-falta.mjs`. Se probó: con la exclusión todavía puesta, la devolución 76b aparece
+como pendiente.
+
+```comprobar
+usa: no-usa en scripts/ordenes-cumplidas.mjs
+usa: no-usa en scripts/que-falta.mjs
+```
+
+## 25 de septiembre de 2026 — El pedido de trago descontaba botellas y guardaba en dos pasos
+
+**Que estaba mal (pregunta 25):** con base, el pedido del invitado descontaba las botellas en una
+operación y guardaba el pedido en otra. Un corte en el medio dejaba botellas descontadas por un
+pedido que no existe. Y dos toques del mismo pedido que caían en dos servidores a la vez pasaban
+los dos el control de "ya está" y **descontaban dos veces**.
+
+**Que se hizo:** `descontarYGuardarEnUnaOperacion` hace las dos cosas en una sola transacción, y
+adentro mira si el pedido ya estaba. Si la transacción no pasa, no se tocó nada y sigue el camino
+de respaldo de siempre.
+
+```comprobar
+usa: descontarYGuardarEnUnaOperacion en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts
+```
+
+## 25 de septiembre de 2026 — Con dos servidores, un comentario de un incidente se perdía (INC01, Codex)
+
+**Que estaba mal:** los incidentes se guardaban reescribiendo la lista entera. El turno cuidaba
+un solo servidor: un comentario y un "resuelto" en dos servidores dejaban el incidente resuelto y
+sin el comentario, con las dos pantallas diciendo que se guardó.
+
+**Que se hizo:** con base, crear usa `createDataItem` y cambiar usa `mutateDataItem` sobre ese
+solo incidente (`cambiarUnIncidente` en `src/app/actions/incidents.ts`). Los identificadores
+llevan algo al azar y el del comentario se arma afuera de la operación, así una repetición de la
+base no lo duplica. Sin base (pruebas) queda el camino de siempre, con su turno.
+
+```comprobar
+usa: cambiarUnIncidente en src/app/actions/incidents.ts
+usa: addActualizacionIncidente en src/app/(app)/incidentes/page.tsx
+prueba: src/__tests__/incidentes-dos-servidores-no-pierden-comentarios.test.ts
+```
+
+## 25 de septiembre de 2026 — El control de stock de la carga no sumaba renglones del mismo equipo (LOG01, Codex)
+
+**Que estaba mal:** `checkAssetConflicts` comparaba cada renglón contra el stock por separado.
+Dos renglones de 6 sillas con 10 en depósito no avisaban nada, y en la fiesta faltaban 2.
+
+**Que se hizo:** se suma lo que la fiesta necesita de cada equipo en **todos** sus renglones y
+categorías (`necesidadPorEquipo`, `src/lib/logistica/necesidad-por-equipo.ts`). La base es la
+lista guardada de la fiesta, o la lista completa que manda la pantalla; lo que se está editando la
+pisa por identificador, así una edición no se cuenta dos veces. Aplicar la plantilla manda su
+propia lista completa. Si hay duda se cuenta de más: un aviso de más se ve, un faltante no.
+La parte de pantalla (una respuesta vieja que desmarca lo cargado, LOG04) quedó en la orden 85.
+
+```comprobar
+usa: necesidadPorEquipo en src/app/actions/fiesta/carga-operativa.actions.ts
+usa: listaCompleta en src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
+prueba: src/__tests__/carga-stock-total-por-origen.test.ts
+```
+
+## 25 de septiembre de 2026 — Dos respuestas de encuesta en dos servidores: quedaba una sola (Codex)
+
+**Que estaba mal:** la encuesta post fiesta guardaba la lista entera de respuestas. El turno
+cuidaba un solo servidor: dos clientes contestando a la vez en dos servidores veían "gracias" y
+se guardaba una sola.
+
+**Que se hizo:** con base, la respuesta se agrega sola con `createDataItem`, y la marca de
+"reseña pedida" se pone con `mutateDataItem` sobre esa respuesta. Sin base queda el camino de
+siempre, con su turno.
+
+```comprobar
+usa: createDataItem(FEEDBACK_FILE, FEEDBACK_COLLECTION en src/app/actions/feedback.ts
+prueba: src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts
+```
+
+## 25 de septiembre de 2026 — DE RAÍZ: guardar una lista entera ya no pisa ni borra lo de otro
+
+**Que estaba mal:** en unos 160 lugares la app lee una lista entera, cambia un renglón y guarda
+la lista entera. Con dos personas o dos servidores a la vez, el segundo **deshacía** lo que había
+cambiado el primero y **borraba** lo que el primero había creado, con las dos pantallas diciendo
+"guardado". Codex lo encontraba de a uno (incidentes, encuestas, prospectos, cobros...) y cada
+arreglo tapaba un solo lugar.
+
+**Que se hizo, una sola vez, donde se guarda todo:** cada renglón que se lee de la base lleva una
+marca invisible con su versión (`src/lib/marca-de-lectura.ts`). Al guardar la lista entera
+(`syncToFirestore`):
+
+1. un renglón que nadie tocó **no se vuelve a escribir**, así no deshace lo de otro;
+2. un renglón cambiado que en la base también cambió desde la lectura **no se pisa**: se avisa
+   "otra persona cambió este dato, recargá y probá de nuevo";
+3. **sólo se borra lo que el que guarda llegó a ver**; lo creado después queda.
+
+Una lista armada de cero (sin haber leído) sigue reemplazando como siempre, para no romper nada
+que ya andaba. La marca nunca se guarda en la base ni en la copia local. La restauración de un
+respaldo sigue mandando sobre todo. Los arreglos puntuales anteriores (cobros, incidentes,
+encuesta, etc.) se quedan: son la primera línea; esto es la red de abajo.
+
+```comprobar
+archivo: src/lib/marca-de-lectura.ts
+usa: decidirGuardado en src/lib/firebase-sync.ts
+usa: conMarcas: true en src/lib/data-service.ts
+prueba: src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts
+```
+
+## 25 de septiembre de 2026 — Veinte minutos de navegador por un cambio que el navegador no ve
+
+**Que estaba mal:** tocar `generic-json-store.ts` hacía correr las 84 pruebas de navegador, porque
+la selección lo contaba como algo que usan todas las pantallas. Pero las pruebas de navegador
+corren con la base local y ese código sólo corre con la base de verdad: veinte minutos sin probar
+nada nuevo. El dueño: *"cada cambio es una lentitud"*.
+
+**Que se hizo:** `SOLO_CON_LA_BASE_REAL` en `scripts/pantallas-tocadas.mjs` (y en la huella de los
+pasos del navegador de la puerta): `firebase-sync.ts`, `generic-json-store.ts` y
+`marca-de-lectura.ts` no hacen correr pruebas de navegador. Los cuidan sus pruebas de Jest.
+`data-service.ts` sí sigue corriendo todo, porque tiene también el camino local.
+
+```comprobar
+usa: SOLO_CON_LA_BASE_REAL en scripts/pantallas-tocadas.mjs
+prueba: src/__tests__/se-prueba-lo-nuevo-no-toda-la-app.test.ts
+```
+
+## 25 de septiembre de 2026 — Firma del contrato: en el portal es constancia, el papel es obligatorio
+
+**Decisión del dueño:** *"las dos, papel obligatorio"*. El cliente firma desde su portal
+(`signContractDigitally`) y queda registrado quién, cuándo, desde qué conexión, si aceptó el plan
+de pagos y la huella del texto exacto. **Se guarda aparte, en `firmaDigitalConstancia`, y no en
+`contratoFirmaInfo`**, porque la etapa comercial, el presupuesto, la preparación y el portal leen
+`contratoFirmaInfo.isSigned` como "contrato firmado". **La reserva, la seña y "Contratada" salen
+sólo del contrato en papel** (`uploadPhysicalContract`). Se sacó el botón "Confirmar reserva" por
+firma digital que había quedado a mitad del día: no hay atajo digital. Las pantallas, orden 86.
+
+```comprobar
+usa: firmaDigitalConstancia en src/app/actions/fiesta/documentos.actions.ts
+no-usa: confirmarReservaDeFirmaDigital en src/app/actions/fiesta-actual.ts
+prueba: src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts
+```
+
+## 25 de septiembre de 2026 — El pedido al proveedor pedía todo, aunque hubiera stock
+
+**Que estaba mal:** el botón de mandar el pedido por WhatsApp de la lista de compras usaba lo que
+pide la receta para toda la fiesta (`cantidadNecesaria`), no lo que falta después del depósito
+(`cantidadAComprar`), y mandaba también lo que no hacía falta comprar. Se le pedía al proveedor
+de más.
+
+**Que se hizo:** `armarPedidoAlProveedor` (`src/lib/catering/pedido-al-proveedor.ts`) pide sólo lo
+que falta, en unidades enteras para arriba cuando son unidades. La pantalla lo usa.
+
+```comprobar
+usa: armarPedidoAlProveedor en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+prueba: src/__tests__/el-pedido-al-proveedor-pide-lo-que-falta.test.ts
+```
+
+## 25 de septiembre de 2026 — El resumen del mes para el contador
+
+**Cómo funciona:** `armarResumenParaElContador` arma, con los números del reporte de ganancias,
+el texto (cobrado, gastado, resultado) y la planilla renglón por renglón (gastos en negativo, así
+la suma da el resultado). Los primeros cinco días del mes el parte de la mañana avisa que está
+listo. **Lo manda una persona con un toque** (es plata y sale para afuera); la pantalla va en la
+orden 86.
+
+```comprobar
+usa: mesAnteriorA en src/lib/automatico/parte-manana.ts
+prueba: src/__tests__/el-resumen-del-contador-cuadra.test.ts
+```
+
+## 25 de septiembre de 2026 — Decisiones del dueño
+
+- **El recontacto de prospectos por WhatsApp sale solo**, a propósito, y se apaga desde Ajustes →
+  Contenido público → "Recontacto automático". Es una excepción que él eligió a "preparar sí,
+  mandar no". No es un defecto.
+- **No hay karaoke.** Se saca de la página pública (orden 86).
+- **Todo en español.** No se traduce la invitación ni la pantalla.
+- **No se hacen:** presupuesto en video, canciones con inteligencia artificial, equipos físicos
+  (proyección, piso de LED, pulseras, holograma).
+- **Cuando vuelve la señal, no se avisa nada.**
+
+## 25 de septiembre de 2026 — Un cobro de factura cortado a medias ahora deja rastro (pregunta 25)
+
+**Que estaba mal:** cobrar una factura que viene de un presupuesto son dos pasos (factura y
+presupuesto). Un corte del servidor entre los dos dejaba la factura cobrada y el presupuesto con
+saldo: al cliente le podía llegar un recordatorio de cuota ya pagada. Los reportes no mentían
+(suman las dos fuentes), pero el saldo sí.
+
+**Que se hizo:** el cobro se guarda en la factura marcado `pasadoAlPresupuesto: false` **antes** del
+segundo paso, y se marca `true` cuando el presupuesto lo tiene. El parte de la mañana avisa si
+queda alguno a medias y se pasa con un toque (`pasarCobrosPendientesAlPresupuesto`), sin
+duplicar: el presupuesto reconoce el cobro por su referencia. **Por qué con la marca y no
+comparando referencias:** la seña va al revés (del presupuesto a la factura) y los cobros viejos
+no tienen esa referencia; compararlas daba falsas alarmas y podía duplicar plata.
+
+```comprobar
+usa: pasadoAlPresupuesto: false en src/app/actions/invoices.ts
+usa: cobrosDeFacturaSinPasarAlPresupuesto en src/lib/automatico/parte-manana.ts
+prueba: src/__tests__/un-cobro-cortado-a-medias-se-detecta.test.ts
+```
+
+## 25 de septiembre de 2026 — El parte de la mañana decía la fecha de la fiesta un día antes
+
+**Que estaba mal:** "falta confirmar menú para el evento del ..." armaba la fecha con
+`new Date('2026-10-10')`, que se entiende como hora de Greenwich: en Uruguay mostraba el 9.
+**Que se hizo:** `fechaDelEventoLegible` usa `diaCalendario` (el día tal como se escribió). Lo
+agarró el control de las formas que mienten al tocar el archivo.
+
+```comprobar
+usa: fechaDelEventoLegible en src/lib/automatico/parte-manana.ts
+```

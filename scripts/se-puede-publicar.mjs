@@ -256,6 +256,11 @@ const PASOS_QUE_MIRAN_TODO = new Set([
  */
 const NO_AFECTA_AL_NAVEGADOR = [
   ':(exclude)src/__tests__',
+  // Solo corren contra la base de verdad; el navegador de las pruebas no los ve
+  // (SOLO_CON_LA_BASE_REAL en scripts/pantallas-tocadas.mjs).
+  ':(exclude)src/lib/firebase-sync.ts',
+  ':(exclude)src/lib/generic-json-store.ts',
+  ':(exclude)src/lib/marca-de-lectura.ts',
   ':(exclude)jest.config.js',
   ':(exclude)jest.setup.js',
 ];

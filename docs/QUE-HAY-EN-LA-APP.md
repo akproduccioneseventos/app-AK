@@ -302,8 +302,10 @@ una, mirando si alguna pantalla las llama.** Que exista un archivo no alcanza.
 
 - **Cloudinary** — cero apariciones en el código. Las fotos van a Firebase
   Storage, que funciona bien, pero no es lo que dice el papel.
-- **Resend** — cero apariciones. Y más importante: **la aplicación no manda
-  ningún mail, por ningún medio.** No hay confirmación de asistencia por correo.
+- **Resend** — cero apariciones. ~~La aplicación no manda ningún mail.~~ **CORREGIDO el 25 de
+  septiembre de 2026:** sí manda mails **con la cuenta de Google conectada**
+  (`sendGoogleGmailMessage`, `src/lib/google-workspace.ts`): invitaciones, confirmación de citas
+  y el código de recuperación de clave. Lo que no hay es un servicio aparte de mails.
 - **Notion** — cero apariciones.
 - **Microsoft Clarity** (mapas de calor) — sólo el nombre de una variable en el
   archivo de ejemplo. Ninguna pantalla carga nada.
@@ -337,8 +339,11 @@ informe, se comprueba si alguna pantalla llama a eso.
 
 ### No está
 
-- **Publicar automáticamente en Instagram, Facebook, TikTok o YouTube.** No hay
-  nada. Todo el publicado es manual.
+- ~~Publicar automáticamente en Instagram, Facebook, TikTok o YouTube: no hay nada.~~
+  **CORREGIDO el 25 de septiembre de 2026: SÍ ANDA** (con las cuentas conectadas).
+  `src/lib/presencia-digital/publicador.ts` publica en Facebook, Instagram y TikTok, lo llaman
+  la pantalla de Presencia digital y la tarea `publicar-programados`. Esta línea había quedado
+  vieja y se le dijo mal al dueño.
 - Sincronización de comentarios, seguidores o "me gusta".
 - Avisos automáticos que lleguen desde las redes hacia la app.
 

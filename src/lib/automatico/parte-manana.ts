@@ -1,12 +1,25 @@
 ﻿import { readData, writeData } from '@/lib/data-service';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 
 const PARTE_CACHE_FILE = 'parte-manana-cache.json';
 
+/**
+ * La fecha del evento como la escribió el equipo (día/mes/año), sin que la zona horaria la
+ * corra un día. Antes se armaba con `new Date('2026-10-10')`, que se entiende como hora de
+ * Greenwich, y en Uruguay el parte decía el 9 (25 de septiembre de 2026).
+ */
+function fechaDelEventoLegible(fecha: string): string {
+  const dia = diaCalendario(fecha);
+  if (!dia) return fecha;
+  const [a, m, d] = dia.split('-');
+  return `${Number(d)}/${Number(m)}/${a}`;
+}
+
 export interface ItemParteManana {
   id: string;
-  tipo: 'cobranza' | 'fiesta_proxima' | 'prospecto';
+  tipo: 'cobranza' | 'fiesta_proxima' | 'prospecto' | 'contador' | 'conciliacion';
   titulo: string;
   detalle: string;
   accionHref?: string;
@@ -106,7 +119,7 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
           id: `fiesta_${fiesta.id}`,
           tipo: 'fiesta_proxima',
           titulo: `Coordinación de ${nombre}`,
-          detalle: `Falta ${faltantes.join(' y ')} para el evento del ${new Date(fechaStr).toLocaleDateString('es-UY')}.`,
+          detalle: `Falta ${faltantes.join(' y ')} para el evento del ${fechaDelEventoLegible(fechaStr)}.`,
           accionHref: `/fiestas/nueva?fiestaId=${fiesta.id}`,
           accionTexto: 'Abrir fiesta',
         });
@@ -129,6 +142,43 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
         });
       }
     }
+  }
+
+  // 4. Los primeros cinco días del mes: el resumen del mes anterior para el contador está
+  //    listo para mandar (25 de septiembre de 2026, pedido del dueño). Va primero: es plata.
+  if (ahora.getDate() <= 5) {
+    const { mesAnteriorA } = await import('@/lib/contabilidad/resumen-para-el-contador');
+    const mes = mesAnteriorA(ahora);
+    items.unshift({
+      id: `contador_${mes.clave}`,
+      tipo: 'contador',
+      titulo: `Mandar el resumen de ${mes.nombre} al contador`,
+      detalle: 'Está armado con lo cobrado y lo gastado del mes. Se manda con un toque.',
+      accionHref: `/empresa/contabilidad/reportes?mes=${mes.clave}`,
+      accionTexto: 'Ver y mandar',
+    });
+  }
+
+  // 5. Cobros de factura que no llegaron al presupuesto (un corte del servidor en el medio).
+  //    Si quedan así, al cliente le puede llegar un recordatorio de algo que ya pagó.
+  try {
+    const [{ leerFacturasSinGuardia }, { cobrosDeFacturaSinPasarAlPresupuesto }] = await Promise.all([
+      import('@/lib/invoices/leer-facturas'),
+      import('@/lib/commercial-flow/cobros-sin-pasar-al-presupuesto'),
+    ]);
+    const sinPasar = cobrosDeFacturaSinPasarAlPresupuesto(await leerFacturasSinGuardia(), presupuestos);
+    if (sinPasar.length > 0) {
+      items.unshift({
+        id: 'conciliacion_cobros',
+        tipo: 'conciliacion',
+        titulo: `Pasar ${sinPasar.length === 1 ? 'un cobro' : `${sinPasar.length} cobros`} de factura al presupuesto`,
+        detalle: 'Quedaron cobrados en la factura pero no en el presupuesto. Se pasan con un toque, sin duplicar.',
+        accionHref: '/invoices?conciliar=1',
+        accionTexto: 'Pasar ahora',
+      });
+    }
+  } catch {
+    // El parte no se cae por esto.
   }
 
   const itemsPrincipales = items.slice(0, 3);

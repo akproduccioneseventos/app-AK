@@ -833,6 +833,17 @@ que la agenda no lee. La prueba de la entrega pasaba igual, porque no miraba el 
 es un documento entero y va `mutateGenericJsonArray`. Y las pruebas de este tipo **comprueban el
 par archivo/colección**, no sólo que se guarde.
 
+### 21. Contestarle al dueño desde un inventario viejo, sin mirar el código
+
+**Pasó el 25 de septiembre de 2026.** Le dije que la app no publicaba en redes, no medía Google y
+no mandaba mails. Las tres cosas existen. Lo saqué de `QUE-HAY-EN-LA-APP.md`, que tenía líneas de
+agosto que nadie había corregido. Encima un ayudante me dijo que el pedido al proveedor "no se
+mandaba", y ya existía (lo que tenía era otro defecto: pedía de más).
+
+**Qué se hace distinto:** antes de decirle al dueño que algo **no está**, se busca en el código
+(sin distinguir mayúsculas, con sinónimos) y se mira quién lo llama. El inventario sirve para
+orientarse, no para afirmar. Y cuando se encuentra una línea vieja, se corrige en el acto.
+
 ### 20. Apagar procesos buscando por un pedazo de texto y matar la propia orden
 
 **Pasó tres veces el 24 y 25 de septiembre de 2026.** Para apagar un servidor de prueba usé
@@ -1036,6 +1047,17 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **El recontacto de prospectos por WhatsApp sale solo, y se apaga desde Ajustes (25 de
+  septiembre de 2026).** Excepción que eligió el dueño a "preparar sí, mandar no". **No hay
+  karaoke, todo va en español**, y quedaron afuera el presupuesto en video, las canciones con
+  inteligencia artificial y los equipos físicos. La firma digital va, pero **la reserva y la seña
+  las confirma una persona**.
+
+- **Contratos: las dos firmas, el papel es obligatorio (25 de septiembre de 2026).** La firma
+  del cliente en su portal es una **constancia** (`firmaDigitalConstancia`); la reserva, la seña y
+  "Contratada" salen **sólo** del contrato en papel. No se agrega un botón que confirme la reserva
+  por la firma digital.
 
 - **La confirmacion publica sigue devolviendo el QR de entrada (22 de septiembre de 2026).**
   Se reporto que escribir el nombre de un invitado ya anotado devuelve su credencial, y con
@@ -1282,7 +1304,16 @@ con otra cara.
 | El invitado pedia un trago, se descontaban botellas y el pedido se cortaba por pedirle sesion del equipo | `src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts` |
 | La fotocabina y la barra se recargaban solas cada vez que volvia el wifi | `src/__tests__/la-pantalla-no-se-recarga-al-volver-la-senal.test.ts` |
 | Con la base caida, el pedido del invitado se perdia porque el respaldo pedia permiso del equipo | `src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts` |
+| Las botellas por devolver se perdian si el servidor se cortaba entre vaciar la lista y devolverlas | `src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts` |
+| Dos toques del mismo trago en dos servidores descontaban las botellas dos veces | `src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts` |
+| Con dos servidores, un comentario de un incidente se perdia diciendo que se guardo | `src/__tests__/incidentes-dos-servidores-no-pierden-comentarios.test.ts` |
+| El control de stock de la carga no sumaba dos renglones del mismo equipo y faltaba material sin aviso | `src/__tests__/carga-stock-total-por-origen.test.ts` |
+| Una orden que pedia SACAR algo figuraba cumplida sin haberlo sacado | El tipo `no-usa:` de `comprobar` en `scripts/ordenes-cumplidas.mjs` |
 | Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
+| **DE RAIZ:** guardar una lista entera deshacia o borraba lo que otro hizo al mismo tiempo (160 lugares) | `src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts` y `src/lib/marca-de-lectura.ts` |
+| La firma digital del cliente no puede dar la fiesta por contratada ni anotar la seña sola | `src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts` |
+| El pedido al proveedor pedia todo lo de la receta aunque hubiera stock | `src/__tests__/el-pedido-al-proveedor-pide-lo-que-falta.test.ts` |
+| Un cobro de factura cortado entre la factura y el presupuesto no dejaba rastro | `src/__tests__/un-cobro-cortado-a-medias-se-detecta.test.ts` |
 
 ### Cómo se elige el matafuego
 

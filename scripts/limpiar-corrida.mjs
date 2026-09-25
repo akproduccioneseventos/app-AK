@@ -34,6 +34,11 @@ const ESCRITOS_POR_LA_CORRIDA = [
   // Los escribe la prueba de la barra (orden 81) al descontar botellas de un pedido.
   // **Aparecio sin estar en la lista** el 25 de septiembre de 2026.
   'src/data/insumos.json',
+  // Los escriben las pruebas de la encuesta y del muro; aparecieron sin estar en la lista el
+  // 25 de septiembre de 2026.
+  'data/feedback.json',
+  'src/data/feedback.json',
+  'src/data/social-gallery/metadata.json',
 ];
 
 const sucios = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' })

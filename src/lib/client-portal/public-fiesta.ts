@@ -150,6 +150,15 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
     contratoFirmaInfo: fiesta.contratoFirmaInfo ? {
       isSigned: fiesta.contratoFirmaInfo.isSigned,
     } : {},
+    // Su propia firma en el portal (constancia): para no ofrecerle firmar dos veces.
+    ...(fiesta.firmaDigitalConstancia ? {
+      firmaDigitalConstancia: {
+        signedAt: fiesta.firmaDigitalConstancia.signedAt,
+        signedBy: fiesta.firmaDigitalConstancia.signedBy,
+        textoHuella: fiesta.firmaDigitalConstancia.textoHuella,
+        planPagosAceptado: fiesta.firmaDigitalConstancia.planPagosAceptado,
+      },
+    } : {}),
     contratoServicioTexto: fiesta.contratoServicioTexto ?? '',
     documentos: (legacyFiesta.documentos ?? []).map(mapDocument),
     otrosDocumentos: (legacyFiesta.otrosDocumentos ?? []).map(mapDocument),

@@ -5,6 +5,9 @@ import { getAccesoPersonalPortalView } from '@/app/actions/accesos-personal-view
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(),
   writeData: jest.fn(),
+  // Con base, la respuesta de la encuesta se agrega sola (25 de septiembre de 2026).
+  createDataItem: jest.fn(async () => undefined),
+  mutateDataItem: jest.fn(async (_f: string, _c: string, _id: string, cambiar: any) => cambiar({})),
 }));
 
 jest.mock('@/app/actions/settings', () => ({

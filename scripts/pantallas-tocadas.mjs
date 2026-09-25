@@ -112,8 +112,23 @@ export function pantallasTocadas() {
  * La parte que se puede probar sin git: se le pasa la lista de archivos
  * cambiados y devuelve las pantallas, o `TODO`.
  */
-export function pantallasTocadasDesde(cambiados) {
-  if (!cambiados) return 'TODO';
+/**
+ * Codigo que SOLO corre contra la base de verdad. Las pruebas de navegador y el recorrido corren
+ * con la base de prueba local (`AK_USE_LOCAL_JSON_ONLY`), asi que no lo ejecutan nunca: tocarlo
+ * no puede cambiar nada de lo que ellas ven. Lo cuidan sus pruebas de Jest.
+ *
+ * Medido el 25 de septiembre de 2026: un cambio en `generic-json-store.ts` hacia correr las 84
+ * pruebas de navegador (veinte minutos) sin que ninguna pasara por ese codigo.
+ */
+export const SOLO_CON_LA_BASE_REAL = [
+  'src/lib/firebase-sync.ts',
+  'src/lib/generic-json-store.ts',
+  'src/lib/marca-de-lectura.ts',
+];
+
+export function pantallasTocadasDesde(cambiadosTodos) {
+  if (!cambiadosTodos) return 'TODO';
+  const cambiados = cambiadosTodos.filter((f) => !SOLO_CON_LA_BASE_REAL.includes(f));
   if (cambiados.length === 0) return [];
   if (cambiados.some((f) => AFECTAN_TODO.some((p) => p.test(f)))) return 'TODO';
 

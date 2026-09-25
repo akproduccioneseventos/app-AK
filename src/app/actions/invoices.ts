@@ -5,7 +5,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import { readData, writeData, mutateDataItem } from '@/lib/data-service';
 import { forceDeleteDocFromFirestore } from '@/lib/firebase-sync';
 import { AsyncMutex } from '@/lib/mutex';
-import { addPagoToPresupuesto, markPresupuestoAsFacturado } from './presupuestos';
+import { addPagoToPresupuesto, markPresupuestoAsFacturado, getPresupuestos } from './presupuestos';
 import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
@@ -18,6 +18,7 @@ import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 import { invoiceMoneyTolerance, roundInvoiceMoney } from '@/lib/invoice-money';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { leerFacturasSinGuardia } from '@/lib/invoices/leer-facturas';
+import { cobrosDeFacturaSinPasarAlPresupuesto, referenciaDelCobro } from '@/lib/commercial-flow/cobros-sin-pasar-al-presupuesto';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import {
@@ -659,6 +660,7 @@ async function addPaymentToInvoiceInner(
     method,
     notes: notes?.trim() || undefined,
     transactionProofUrl,
+    ...(invoice.sourcePresupuestoId ? { pasadoAlPresupuesto: false } : {}),
   };
 
   const updatedPayments = [...payments, newPayment];
@@ -695,9 +697,16 @@ async function addPaymentToInvoiceInner(
       fecha: paymentDate,
       monto: amount,
       metodoPago: mapDepositMethodToBudgetMethod(method),
-      referencia: `AK_SYNC:invoice:${invoiceId}:payment:${paymentId}`,
+      referencia: referenciaDelCobro(invoiceId, paymentId),
       estadoPago: 'confirmado',
     });
+    if (budgetPaymentResult.success) {
+      await marcarCobroPasadoAlPresupuesto(invoiceId, paymentId).catch((error) => {
+        // Si esto falla, el cobro sigue marcado como no pasado y el parte de la mañana lo
+        // avisa; pasarlo de nuevo no lo duplica (se reconoce por la referencia).
+        logger.warn('[Facturas] No se pudo marcar el cobro como pasado al presupuesto:', error);
+      });
+    }
     if (!budgetPaymentResult.success) {
       invoices[invoiceIndex] = invoice;
       try {
@@ -791,4 +800,46 @@ export async function scanAndTriggerPaymentReminders(): Promise<{ success: boole
   const auth = await verifySession();
   if (!auth.success) throw new Error('No autorizado');
   return ejecutarEscaneoDeRecordatorios();
+}
+
+/** Marca un cobro de factura como ya pasado al presupuesto. */
+async function marcarCobroPasadoAlPresupuesto(invoiceId: string, paymentId: string): Promise<void> {
+  const marcar = (factura: Invoice): Invoice => ({
+    ...factura,
+    payments: (factura.payments || []).map((p) => (p.id === paymentId ? { ...p, pasadoAlPresupuesto: true } : p)),
+  });
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    const todas = await leerFacturasSinGuardia();
+    await writeData(INVOICES_FILE, todas.map((f) => (f.id === invoiceId ? marcar(f) : f)));
+    return;
+  }
+  await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => marcar(actual));
+}
+
+/**
+ * Pasa al presupuesto los cobros de factura que quedaron a medio camino (un corte del servidor
+ * entre los dos pasos). Lo toca una persona de contabilidad; no corre solo porque es plata.
+ * Pasarlo dos veces no lo duplica: el presupuesto reconoce el cobro por su referencia.
+ */
+export async function pasarCobrosPendientesAlPresupuesto(): Promise<{ success: boolean; pasados: number; error?: string }> {
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) return { success: false, pasados: 0, error: permiso.error };
+  const [facturas, presupuestos] = await Promise.all([leerFacturasSinGuardia(), getPresupuestos()]);
+  const pendientes = cobrosDeFacturaSinPasarAlPresupuesto(facturas, presupuestos);
+  let pasados = 0;
+  for (const c of pendientes) {
+    const r = await addPagoToPresupuesto(c.presupuestoId, {
+      fecha: c.fecha,
+      monto: c.monto,
+      metodoPago: mapDepositMethodToBudgetMethod(c.metodo),
+      referencia: c.referencia,
+      estadoPago: 'confirmado',
+    });
+    if (!r.success) {
+      return { success: false, pasados, error: r.error || `No se pudo pasar el cobro de la factura ${c.invoiceNumber}.` };
+    }
+    await marcarCobroPasadoAlPresupuesto(c.invoiceId, c.paymentId);
+    pasados += 1;
+  }
+  return { success: true, pasados };
 }

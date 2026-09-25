@@ -437,9 +437,11 @@ function ListaDeCargaOperativaContent() {
   const handleRestoreFromTemplate = async () => {
     try {
       const masterTemplate = await getCargaOperativaMasterTemplate();
+      // La plantilla REEMPLAZA la lista: se cuenta contra ella, no contra la lista vieja.
+      const listaDeLaPlantilla = masterTemplate.categorias.flatMap(cat => cat.items.map(i => ({ ...i, cargado: false })));
       const itemsWithConflicts = await Promise.all(masterTemplate.categorias.map(async cat => ({
           ...cat,
-          items: await checkAssetConflicts(fiestaId!, fiesta?.configuracion.fechaEvento!, cat.items.map(i => ({ ...i, cargado: false })))
+          items: await checkAssetConflicts(fiestaId!, fiesta?.configuracion.fechaEvento!, cat.items.map(i => ({ ...i, cargado: false })), { listaCompleta: listaDeLaPlantilla })
       })));
 
        setListaDeCarga({

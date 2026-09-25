@@ -32,6 +32,14 @@ jest.mock('@/lib/data-service', () => ({
     await new Promise((listo) => setTimeout(listo, 5));
     archivos[archivo] = valor;
   }),
+  // Con base: se agrega ESA respuesta sola, leyendo lo que hay en ese momento.
+  createDataItem: jest.fn(async (archivo: string, _c: string, id: string, item: any) => {
+    await new Promise((listo) => setTimeout(listo, 5));
+    const lista = (archivos[archivo] as any[]) || [];
+    if (lista.some((x) => x.id === id)) throw new Error('ya existe');
+    archivos[archivo] = [...lista, { ...item }];
+  }),
+  mutateDataItem: jest.fn(),
 }));
 
 jest.mock('@/lib/commercial/public-rate-limit', () => ({
@@ -72,6 +80,28 @@ describe('La encuesta post fiesta no se traga cualquier cosa', () => {
     const guardadas = archivos['feedback.json'] as any[];
     expect(guardadas).toHaveLength(2);
     expect(guardadas.map((f) => f.clientName).sort()).toEqual(['Ana', 'Beto']);
+  });
+
+  it('dos respuestas a la vez en DOS servidores: quedan las dos (Codex, 25 de septiembre de 2026)', async () => {
+    // Cada servidor con su propio turno: el turno no alcanza, tiene que ser la base.
+    const servidor = () => {
+      let m: any;
+      jest.isolateModules(() => { m = require('@/app/actions/feedback'); });
+      return m as typeof import('@/app/actions/feedback');
+    };
+    const antes = process.env.AK_USE_LOCAL_JSON_ONLY;
+    delete process.env.AK_USE_LOCAL_JSON_ONLY;
+    try {
+      const [a, b] = await Promise.all([
+        servidor().saveFeedback({ ...encuestaValida, clientName: 'Ana' }),
+        servidor().saveFeedback({ ...encuestaValida, clientName: 'Beto' }),
+      ]);
+      expect(a.success && b.success).toBe(true);
+      expect((archivos['feedback.json'] as any[]).map((f) => f.clientName).sort()).toEqual(['Ana', 'Beto']);
+    } finally {
+      if (antes === undefined) delete process.env.AK_USE_LOCAL_JSON_ONLY;
+      else process.env.AK_USE_LOCAL_JSON_ONLY = antes;
+    }
   });
 
   it('una nota de 99 no entra: se avisa y no se guarda nada', async () => {

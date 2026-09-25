@@ -2,7 +2,7 @@
 'use server';
 
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { AsyncMutex } from '@/lib/mutex';
 import { limpiarEncuesta } from '@/lib/feedback/lo-que-llega-de-afuera';
@@ -16,6 +16,7 @@ import type { CompanyInfo } from '@/types/settings';
 import type { Customer } from '@/types/customer';
 
 const FEEDBACK_FILE = 'feedback.json';
+const FEEDBACK_COLLECTION = 'feedback';
 const TESTIMONIALS_FILE = 'testimonials.json';
 const CUSTOMERS_FILE = 'customers.json';
 
@@ -104,7 +105,14 @@ export async function saveFeedback(submission: unknown): Promise<{ success: bool
 
     allFeedback.push(newFeedback);
     try {
-      await writeData(FEEDBACK_FILE, allFeedback, sortFn);
+      // Con base, la respuesta se agrega sola (25 de septiembre de 2026, Codex): guardar la
+      // lista entera, con dos servidores, dejaba una sola de dos respuestas simultaneas y
+      // las dos pantallas decian "gracias". El turno de arriba cuida un servidor nomas.
+      if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+        await createDataItem(FEEDBACK_FILE, FEEDBACK_COLLECTION, newFeedback.id, newFeedback);
+      } else {
+        await writeData(FEEDBACK_FILE, allFeedback, sortFn);
+      }
     } catch (e) {
       console.error('[Encuesta] No se pudo guardar la respuesta', e);
       return { success: false, error: 'No pudimos guardar tus comentarios. Proba de nuevo en un momento.' };
@@ -266,7 +274,11 @@ export async function requestGoogleReviewManual(feedbackId: string): Promise<{ s
   
   if (result.success) {
     allFeedback[index].googleReviewRequested = true;
-    await writeData(FEEDBACK_FILE, allFeedback, sortFn);
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+      await mutateDataItem<FeedbackSubmission>(FEEDBACK_FILE, FEEDBACK_COLLECTION, feedbackId, (actual) => ({ ...actual, googleReviewRequested: true }));
+    } else {
+      await writeData(FEEDBACK_FILE, allFeedback, sortFn);
+    }
   }
 
   return result;

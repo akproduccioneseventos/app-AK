@@ -8,6 +8,7 @@
 import * as logger from './logger';
 import { COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION, conLosCobrosDeLaBase, facturaConLosPagosDeLaBase } from './budget/los-cobros-no-se-pisan';
 import type { Firestore, QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import { ChoqueAlGuardar, decidirGuardado, marcarLectura, sacarMarcas } from './marca-de-lectura';
 
 // Mapping of JSON file names to Firestore collection names
 const FILE_TO_COLLECTION: Record<string, string> = {
@@ -122,6 +123,12 @@ const ALLOW_EMPTY_ARRAY_RESET_FILES = new Set([
 
 function sanitizeForFirestore(value: unknown): unknown {
   if (value === undefined) return OMIT_FIRESTORE_VALUE;
+  if (value && typeof value === 'object' && !Array.isArray(value) && '_leido' in (value as object)) {
+    // La marca de lectura (marca-de-lectura.ts) nunca se guarda.
+    const { _leido, ...resto } = value as Record<string, unknown>;
+    void _leido;
+    return sanitizeForFirestore(resto);
+  }
   if (Array.isArray(value)) {
     return value
       .map((item) => sanitizeForFirestore(item))
@@ -152,6 +159,8 @@ async function withRetry<T>(fn: () => Promise<T>, context: string): Promise<T> {
       return result;
     } catch (error) {
       lastError = error;
+      // Un choque no se arregla reintentando: otra persona cambio el dato.
+      if (error instanceof ChoqueAlGuardar) throw error;
       if (attempt < MAX_RETRIES) {
         const delay = Math.pow(2, attempt) * 500; // 500ms, 1000ms
         if (isDev) {
@@ -271,13 +280,25 @@ export async function syncToFirestore(
           }
 
           const noBorrarPorOmision = COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION.has(collectionName) && !opciones.esRestauracion;
-          const toDelete = noBorrarPorOmision ? [] : querySnapshot.docs.filter((doc) => !newIds.has(doc.id));
+          const enLaBasePorId = new Map(querySnapshot.docs.map((doc) => [doc.id, doc.data() as Record<string, unknown>]));
+
+          // Guardar sin pisar lo de otro (marca-de-lectura.ts). La restauracion de un respaldo
+          // manda sobre todo y sigue como antes.
+          let aEscribir: any[] = data;
+          let toDelete = noBorrarPorOmision ? [] : querySnapshot.docs.filter((doc) => !newIds.has(doc.id));
+          if (!opciones.esRestauracion) {
+            const versiones = new Map(querySnapshot.docs.map((doc) => [doc.id, String((doc.data() as any)?._syncedAt ?? '')]));
+            const decision = decidirGuardado(data, getItemDocId, versiones);
+            if (decision.choques.length > 0) throw new ChoqueAlGuardar(collectionName, decision.choques);
+            aEscribir = decision.escribir;
+            const borrables = new Set(decision.borrar);
+            toDelete = noBorrarPorOmision ? [] : querySnapshot.docs.filter((doc) => borrables.has(doc.id));
+          }
           toDelete.forEach((doc) => {
             transaction.delete(doc.ref);
           });
 
-          const enLaBasePorId = new Map(querySnapshot.docs.map((doc) => [doc.id, doc.data() as Record<string, unknown>]));
-          for (const item of data) {
+          for (const item of aEscribir) {
             const docId = getItemDocId(item);
             if (!docId) continue;
             const ref = db.collection(collectionName).doc(docId);
@@ -288,6 +309,7 @@ export async function syncToFirestore(
         }), `transaction-sync: ${collectionName}`);
         return;
       } catch (err) {
+        if (err instanceof ChoqueAlGuardar) throw err;
         logger.warn(`🔄 [Firebase Sync] Fallback a lotes para "${collectionName}" debido a error en transacción: ${err}`);
       }
 
@@ -311,9 +333,18 @@ export async function syncToFirestore(
         logger.warn(`⚠️ [Firebase Sync] "${collectionName}" — escritura con array vacío ignorada para prevenir pérdida de datos. (${existingIds.size} documentos existentes conservados)`);
         return;
       }
-      const toDelete = COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION.has(collectionName) && !opciones.esRestauracion
+      let aEscribirEnLotes: any[] = data;
+      let toDelete = COLECCIONES_QUE_NO_SE_BORRAN_POR_OMISION.has(collectionName) && !opciones.esRestauracion
         ? []
         : [...existingIds].filter((id: string) => !newIds.has(id));
+      if (!opciones.esRestauracion) {
+        const versiones = new Map(existingSnapshot.docs.map((doc) => [doc.id, String((doc.data() as any)?._syncedAt ?? '')]));
+        const decision = decidirGuardado(data, getItemDocId, versiones);
+        if (decision.choques.length > 0) throw new ChoqueAlGuardar(collectionName, decision.choques);
+        aEscribirEnLotes = decision.escribir;
+        const borrables = new Set(decision.borrar);
+        toDelete = toDelete.filter((id) => borrables.has(id));
+      }
       if (toDelete.length > 0) {
         for (let i = 0; i < toDelete.length; i += batchSize) {
           const deleteBatch = db.batch();
@@ -327,9 +358,9 @@ export async function syncToFirestore(
         }
       }
 
-      for (let i = 0; i < data.length; i += batchSize) {
+      for (let i = 0; i < aEscribirEnLotes.length; i += batchSize) {
         const batch = db.batch();
-        const chunk = data.slice(i, i + batchSize);
+        const chunk = aEscribirEnLotes.slice(i, i + batchSize);
         
         for (const item of chunk) {
           const docId = getItemDocId(item);
@@ -388,7 +419,7 @@ export async function syncToFirestore(
  * Read data from Firestore for a given file path.
  * Returns null if no data is found or Firebase is unavailable.
  */
-export async function readFromFirestore(filePath: string): Promise<any> {
+export async function readFromFirestore(filePath: string, opciones: { conMarcas?: boolean } = {}): Promise<any> {
   if (logger.shouldSkipFirestoreDuringBuild()) return null;
 
   let db: Firestore;
@@ -421,6 +452,15 @@ export async function readFromFirestore(filePath: string): Promise<any> {
     if (collectionName) {
       const snapshot = await queryWithTimeout(db.collection(collectionName).get());
       if (snapshot.empty) return ALLOW_EMPTY_ARRAY_RESET_FILES.has(normalizedPath) ? [] : null;
+      if (opciones.conMarcas) {
+        // Cada renglon sale con su marca de lectura, para que al guardar no se pise lo de otro.
+        return marcarLectura(snapshot.docs.map((doc: QueryDocumentSnapshot) => {
+          const data = doc.data();
+          const version = String(data._syncedAt ?? '');
+          delete data._syncedAt;
+          return { datos: sacarMarcas(data), version };
+        }));
+      }
       return snapshot.docs.map((doc: QueryDocumentSnapshot) => {
         const data = doc.data();
         delete data._syncedAt;

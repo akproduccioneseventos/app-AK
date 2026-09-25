@@ -32,6 +32,14 @@ describe('Se prueba lo nuevo, no toda la app', () => {
     expect(r).not.toContain('tests/e2e/salon-3d-cliente.spec.ts');
   });
 
+  it('tocar codigo que solo corre con la base de verdad no hace correr todas (25/9/2026)', () => {
+    // Las pruebas de navegador corren con la base local: `generic-json-store.ts` no lo ven.
+    // Antes esto hacia correr las 84 (veinte minutos) sin probar nada nuevo.
+    const r = pruebasQueTocanDesde(['src/lib/generic-json-store.ts', 'src/lib/firebase-sync.ts'], PRUEBAS, leer);
+    expect(r).not.toBe('TODAS');
+    expect([...(r as string[])].sort()).toEqual([...HUMO].sort());
+  });
+
   it('una prueba nueva o tocada corre siempre', () => {
     const r = pruebasQueTocanDesde(['tests/e2e/muro-subir-foto.spec.ts'], PRUEBAS, leer);
     expect(r).toContain('tests/e2e/muro-subir-foto.spec.ts');

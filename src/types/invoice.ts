@@ -23,6 +23,12 @@ export interface Payment {
   baseAmount?: number;
   surchargeAmount?: number;
   installments?: number;
+  /**
+   * Cobro de una factura que viene de un presupuesto: `false` hasta que el mismo cobro queda en
+   * el presupuesto. Se anota ANTES del segundo paso, así un corte en el medio deja rastro
+   * (pregunta 25). Sin valor = cobro viejo o de otro camino: no se toca.
+   */
+  pasadoAlPresupuesto?: boolean;
 }
 
 export interface Invoice {
