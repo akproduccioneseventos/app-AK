@@ -1,0 +1,56 @@
+{
+  "sha": "2c652dddeaf33e4d709256a60a57ceac6376a225",
+  "insumos": [
+    {
+      "case": "all-saved",
+      "result": {
+        "success": true
+      },
+      "cost": 110,
+      "warnings": 0,
+      "passed": true
+    },
+    {
+      "case": "menu-save-failed",
+      "result": {
+        "success": false,
+        "error": "Los costos de los insumos quedaron ajustados, pero NO se pudo actualizar el costo en los menus de: Harina. Esos platos siguen con el precio viejo: revisalos antes de armar un presupuesto."
+      },
+      "cost": 110,
+      "warnings": 1,
+      "passed": true
+    },
+    {
+      "case": "only-linked-menu-written",
+      "writes": [
+        "linked"
+      ],
+      "passed": true
+    }
+  ],
+  "videozip": [
+    {
+      "case": "complete",
+      "status": 200,
+      "files": [
+        "a.jpg",
+        "b.jpg"
+      ],
+      "passed": true
+    },
+    {
+      "case": "one-http-failure",
+      "status": 200,
+      "files": [
+        "a.jpg"
+      ],
+      "passed": false
+    },
+    {
+      "case": "all-http-failures",
+      "status": 200,
+      "files": [],
+      "passed": false
+    }
+  ]
+}
