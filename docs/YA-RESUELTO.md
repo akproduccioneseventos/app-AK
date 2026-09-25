@@ -9543,19 +9543,19 @@ usa: SOLO_CON_LA_BASE_REAL en scripts/pantallas-tocadas.mjs
 prueba: src/__tests__/se-prueba-lo-nuevo-no-toda-la-app.test.ts
 ```
 
-## 25 de septiembre de 2026 — Firma digital del contrato, prendida (pedido del dueño)
+## 25 de septiembre de 2026 — Firma del contrato: en el portal es constancia, el papel es obligatorio
 
-**Cómo funciona:** el cliente firma desde su portal (`signContractDigitally`) y queda registrado
-quién firmó, cuándo, desde qué conexión, si aceptó el plan de pagos y la huella del texto exacto
-que firmó. **No pasa la fiesta a "Contratada" ni anota la seña:** eso lo confirma una persona del
-equipo con un toque (`confirmarReservaDeFirmaDigital`), que hace lo mismo que subir el contrato en
-papel. **Por qué así:** regla del dueño, la app no da nada por aceptado ni registra plata sola. El
-contrato en papel y la firma digital comparten una sola copia de "dejar la fiesta contratada"
-(`dejarLaFiestaContratada`). Las pantallas van en la orden 86.
+**Decisión del dueño:** *"las dos, papel obligatorio"*. El cliente firma desde su portal
+(`signContractDigitally`) y queda registrado quién, cuándo, desde qué conexión, si aceptó el plan
+de pagos y la huella del texto exacto. **Se guarda aparte, en `firmaDigitalConstancia`, y no en
+`contratoFirmaInfo`**, porque la etapa comercial, el presupuesto, la preparación y el portal leen
+`contratoFirmaInfo.isSigned` como "contrato firmado". **La reserva, la seña y "Contratada" salen
+sólo del contrato en papel** (`uploadPhysicalContract`). Se sacó el botón "Confirmar reserva" por
+firma digital que había quedado a mitad del día: no hay atajo digital. Las pantallas, orden 86.
 
 ```comprobar
-usa: pendienteDeConfirmar en src/app/actions/fiesta/documentos.actions.ts
-usa: dejarLaFiestaContratada en src/app/actions/fiesta/documentos.actions.ts
+usa: firmaDigitalConstancia en src/app/actions/fiesta/documentos.actions.ts
+no-usa: confirmarReservaDeFirmaDigital en src/app/actions/fiesta-actual.ts
 prueba: src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts
 ```
 

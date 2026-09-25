@@ -1,9 +1,11 @@
 /**
- * MATAFUEGO — La firma digital del cliente queda registrada, pero la reserva y la seña las
- * confirma una persona del equipo (25 de septiembre de 2026, decisión del dueño).
+ * MATAFUEGO — La firma del cliente en su portal es sólo una CONSTANCIA: la reserva sale del
+ * contrato en papel (25 de septiembre de 2026, decisión del dueño: "las dos, papel obligatorio").
  *
- * Se probo rompiendolo: si `signContractDigitally` pasa la fiesta a "Contratada" o registra la
- * seña, la primera se pone en rojo; si la confirmación no pide sesión del equipo, la tercera.
+ * Se probo rompiendolo: si `signContractDigitally` guarda en `contratoFirmaInfo` (que el resto
+ * de la app lee como "contrato firmado"), pasa la fiesta a "Contratada" o anota la seña, la
+ * primera se pone en rojo; si vuelve a existir un atajo digital para confirmar la reserva, la
+ * tercera.
  */
 let fiestaGuardada: any;
 const parciales: any[] = [];
@@ -27,9 +29,11 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   syncFiestaFromBudget: jest.fn(async () => ({ success: true })),
 }));
 
-import { signContractDigitally, confirmarReservaDeFirmaDigital } from '@/app/actions/fiesta/documentos.actions';
+import * as Documentos from '@/app/actions/fiesta/documentos.actions';
+import * as FiestaActual from '@/app/actions/fiesta-actual';
+import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
+const { signContractDigitally } = Documentos;
 import { registerBookingDeposit } from '@/app/actions/invoices';
-import { requireAppSession } from '@/lib/auth/require-session';
 
 function fiestaDePrueba(extra: any = {}) {
   return {
@@ -48,41 +52,39 @@ describe('La firma digital no da nada por aceptado', () => {
     (registerBookingDeposit as jest.Mock).mockClear();
   });
 
-  it('firmar registra quién, cuándo y qué texto, sin contratar ni anotar seña', async () => {
+  it('firmar deja la constancia aparte, sin marcar el contrato como firmado, sin contratar ni anotar seña', async () => {
     const r = await signContractDigitally('f1', 'Ana Pérez', false);
     expect(r.success).toBe(true);
-    const firma = fiestaGuardada.contratoFirmaInfo;
-    expect(firma).toMatchObject({ isSigned: true, method: 'digital', signedBy: 'Ana Pérez', ip: '1.2.3.4', pendienteDeConfirmar: true });
-    expect(firma.textoHuella).toMatch(/^[a-f0-9]{64}$/);
+    const c = fiestaGuardada.firmaDigitalConstancia;
+    expect(c).toMatchObject({ signedBy: 'Ana Pérez', ip: '1.2.3.4', planPagosAceptado: false });
+    expect(c.textoHuella).toMatch(/^[a-f0-9]{64}$/);
+    expect(fiestaGuardada.contratoFirmaInfo).toBeUndefined();
     expect(fiestaGuardada.estado).toBe('Presupuestada');
     expect(registerBookingDeposit).not.toHaveBeenCalled();
-    // Sólo se tocó la firma, nada más de la fiesta.
-    expect(Object.keys(parciales[0])).toEqual(['contratoFirmaInfo']);
+    // Sólo se tocó la constancia, nada más de la fiesta.
+    expect(Object.keys(parciales[0])).toEqual(['firmaDigitalConstancia']);
   });
 
   it('con plan de pagos, no se firma sin aceptarlo; y no se firma dos veces', async () => {
     fiestaGuardada = fiestaDePrueba({ contratoDatos: { planPagos: { activo: true } } });
     expect((await signContractDigitally('f1', 'Ana', false)).success).toBe(false);
     expect((await signContractDigitally('f1', 'Ana', true)).success).toBe(true);
-    const primera = fiestaGuardada.contratoFirmaInfo.signedAt;
+    const primera = fiestaGuardada.firmaDigitalConstancia.signedAt;
     expect((await signContractDigitally('f1', 'Otro', true)).success).toBe(true);
-    expect(fiestaGuardada.contratoFirmaInfo.signedAt).toBe(primera);
-    expect(fiestaGuardada.contratoFirmaInfo.signedBy).toBe('Ana');
+    expect(fiestaGuardada.firmaDigitalConstancia.signedAt).toBe(primera);
+    expect(fiestaGuardada.firmaDigitalConstancia.signedBy).toBe('Ana');
   });
 
-  it('la reserva la confirma el equipo: pide sesión, contrata y anota la seña una vez', async () => {
+  it('no hay atajo digital para confirmar la reserva: sólo el contrato en papel', () => {
+    const nombres = [...Object.keys(Documentos), ...Object.keys(FiestaActual)];
+    expect(nombres.filter((n) => /confirmar.*firma|firma.*digital.*reserva/i.test(n))).toEqual([]);
+    expect(typeof Documentos.uploadPhysicalContract).toBe('function');
+  });
+
+  it('el cliente ve su constancia en el portal, pero no la IP', async () => {
     await signContractDigitally('f1', 'Ana Pérez', false);
-    (requireAppSession as jest.Mock).mockRejectedValueOnce(new Error('Sesion no autorizada.'));
-    await expect(confirmarReservaDeFirmaDigital('f1')).rejects.toThrow();
-    expect(fiestaGuardada.estado).toBe('Presupuestada');
-
-    const r = await confirmarReservaDeFirmaDigital('f1');
-    expect(r.success).toBe(true);
-    expect(fiestaGuardada.estado).toBe('Contratada');
-    expect(fiestaGuardada.contratoFirmaInfo.pendienteDeConfirmar).toBe(false);
-    expect(registerBookingDeposit).toHaveBeenCalledTimes(1);
-
-    await confirmarReservaDeFirmaDigital('f1');
-    expect(registerBookingDeposit).toHaveBeenCalledTimes(1);
+    const vista: any = mapFiestaToClientPortal({ ...fiestaGuardada, clientPortalSettings: { enabled: true } });
+    expect(vista.firmaDigitalConstancia.signedBy).toBe('Ana Pérez');
+    expect(vista.firmaDigitalConstancia.ip).toBeUndefined();
   });
 });

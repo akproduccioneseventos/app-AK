@@ -89,20 +89,30 @@ Agregar un tema `caricatura` en `src/app/actions/touchpix-ai.ts`: al tipo `Touch
 `{ id: 'caricatura', label: 'Caricatura', emoji: '🎨', ... }`. El pedido a la IA: caricatura
 divertida y amable, rasgos exagerados con cariño, **nunca burlona**, fondo de fiesta.
 
-## Bloque 7 — Firma digital del contrato: las dos pantallas
+## Bloque 7 — Firma del contrato en el portal: sólo una constancia, el papel es obligatorio
 
-Claude ya hizo la parte del servidor (`signContractDigitally` y `confirmarReservaDeFirmaDigital`
-en `src/app/actions/fiesta/documentos.actions.ts`, exportadas en `src/app/actions/fiesta-actual.ts`).
+**Decisión del dueño (25 de septiembre):** *las dos firmas, papel obligatorio.* El cliente firma
+en su portal para dejar constancia, pero **la reserva se confirma únicamente subiendo el contrato
+firmado en papel** (`uploadPhysicalContract`, como hoy). **No hay botón de "Confirmar reserva"
+por la firma digital**: no existe y no se agrega.
+
+Claude ya hizo el servidor: `signContractDigitally` (`src/app/actions/fiesta/documentos.actions.ts`)
+guarda la constancia en `fiesta.firmaDigitalConstancia` (`{ signedAt, signedBy, ip?, textoHuella,
+planPagosAceptado }`, tipo `FirmaDigitalConstancia` en `src/types/fiesta.ts`), **no** en
+`contratoFirmaInfo`. El portal recibe la constancia sin la IP.
 
 1. **Portal del cliente** (`src/app/portal/[fiestaId]/contrato/page.tsx` ~línea 85): hoy el
    nombre del que firma se adivina del nombre del evento. Agregar un campo obligatorio **"Tu
-   nombre completo"** y mandarlo en `signContractDigitally`. Después de firmar, mostrar
-   "Firmaste el contrato. AK va a confirmar tu reserva."
-2. **Pantalla del equipo** (`src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx`):
-   si `fiesta.contratoFirmaInfo?.pendienteDeConfirmar`, mostrar quién firmó y cuándo, y un botón
-   **"Confirmar reserva"** que llama a `confirmarReservaDeFirmaDigital(fiestaId)`.
+   nombre completo"** y mandarlo en `signContractDigitally`. Con `fiesta.firmaDigitalConstancia`
+   y sin `contratoFirmaInfo?.isSigned`, el cartel verde dice **"Firmaste el contrato el {fecha}.
+   Para confirmar tu reserva falta firmar el contrato en papel con AK."** (hoy dice "Firmado y
+   Validado ... desde la IP", y la IP no llega: sacar esa parte).
+2. **Pantalla del equipo** (`src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx`
+   ~línea 344): si hay `fiesta.firmaDigitalConstancia` y el contrato en papel todavía no se subió,
+   mostrar **"{signedBy} firmó en el portal el {fecha}. Falta el contrato firmado en papel."**,
+   junto al botón de subir el contrato en papel que ya existe.
 
-**No tocar:** las dos acciones del servidor. Son de Claude (plata y contrato).
+**No tocar:** `signContractDigitally`, `uploadPhysicalContract`, `public-fiesta.ts`. Son de Claude.
 
 ## Bloque 8 — El resumen del mes para el contador, a un toque
 
@@ -150,8 +160,9 @@ propuesta y se lo pasás a Claude.
   la acción de publicar.
 - **B5:** Jest: con dos fiestas el mismo día, la propuesta **no pone al mismo empleado en las dos**.
 - **B6:** Jest: `caricatura` existe en `THEME_DEFINITIONS` y en `TOUCHPIX_THEMES`.
-- **B7:** prueba de navegador: el botón "Confirmar reserva" aparece sólo con una firma digital
-  pendiente.
+- **B7:** prueba de navegador: con una constancia de firma y sin contrato en papel, la pantalla
+  del equipo muestra "Falta el contrato firmado en papel"; y no aparece ningún botón que
+  confirme la reserva sin el papel.
 - **B8:** Jest: sin mail del contador, "Mandar al contador" no manda nada y avisa; con mail, manda
   un mail con el asunto del mes y el archivo adjunto.
 
@@ -164,7 +175,7 @@ no-usa: Quiero Karaoke en mi fiesta en src/components/public/InteractiveTechShow
 usa: sendGoogleGmailMessage en src/app/actions/scheduled-messages.ts
 archivo: src/lib/social-media/google-business-resenas.ts
 usa: caricatura en src/app/actions/touchpix-ai.ts
-usa: confirmarReservaDeFirmaDigital en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
+usa: firmaDigitalConstancia en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
 usa: armarResumenParaElContador en src/app/(app)/empresa/contabilidad/reportes/page.tsx
 usa: pasarCobrosPendientesAlPresupuesto en src/app/(app)/invoices/page.tsx
 ```

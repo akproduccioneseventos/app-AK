@@ -211,14 +211,15 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
 // --- TOQUE DE ORO 2: AUTOMATIZACIÓN DE FLUJOS (DOMINÓ) ---
 
 /**
- * FIRMA DIGITAL DEL CONTRATO DESDE EL PORTAL DEL CLIENTE (25 de septiembre de 2026, pedido
- * del dueño).
+ * FIRMA DIGITAL DEL CONTRATO DESDE EL PORTAL DEL CLIENTE — sólo una CONSTANCIA (25 de
+ * septiembre de 2026, decisión del dueño: "las dos, papel obligatorio").
  *
- * El cliente firma y queda REGISTRADO: quién, cuándo, desde dónde, si aceptó el plan de
- * pagos, y la huella del texto exacto que firmó (si después se cambia el contrato, se ve que
- * no es el mismo). **No pasa la fiesta a "Contratada" ni anota la seña**: eso lo confirma el
- * equipo con un toque (`confirmarReservaDeFirmaDigital`). Es la regla del dueño: la app no da
- * nada por aceptado ni registra plata sola.
+ * El cliente firma en su portal y queda registrado quién, cuándo, desde dónde, si aceptó el
+ * plan de pagos y la huella del texto exacto que firmó. **Se guarda aparte
+ * (`firmaDigitalConstancia`), NO en `contratoFirmaInfo`**: varias partes de la app leen
+ * `contratoFirmaInfo.isSigned` como "contrato firmado" (etapa comercial, presupuesto
+ * bloqueado, preparación). La reserva, la seña y el estado "Contratada" salen ÚNICAMENTE del
+ * contrato en papel (`uploadPhysicalContract`). No hay atajo digital para contratar.
  */
 export async function signContractDigitally(fiestaId: string, signerName: string, acceptedPlanPagos?: boolean): Promise<{ success: boolean; error?: string }> {
     if (!(await verifyPortalSession(fiestaId))) {
@@ -227,7 +228,8 @@ export async function signContractDigitally(fiestaId: string, signerName: string
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-        if (fiesta.contratoFirmaInfo?.isSigned) return { success: true }; // ya firmado: no se firma dos veces
+        // Ya firmado (en el portal o en papel): no se firma dos veces.
+        if (fiesta.firmaDigitalConstancia || fiesta.contratoFirmaInfo?.isSigned) return { success: true };
         const texto = fiesta.contratoServicioTexto;
         if (!texto || !texto.trim()) return { success: false, error: 'El contrato todavía no está listo para firmar.' };
         if (fiesta.contratoDatos?.planPagos?.activo && !acceptedPlanPagos) {
@@ -237,56 +239,29 @@ export async function signContractDigitally(fiestaId: string, signerName: string
         const h = await headers();
         const ip = (h.get('x-forwarded-for') || h.get('x-real-ip') || '').split(',')[0].trim() || undefined;
         const { createHash } = await import('crypto');
-        const contratoFirmaInfo = {
-            isSigned: true,
+        const firmaDigitalConstancia = {
             signedAt: new Date().toISOString(),
-            method: 'digital' as const,
             signedBy: nombre,
             ...(ip ? { ip } : {}),
             textoHuella: createHash('sha256').update(texto).digest('hex'),
             planPagosAceptado: Boolean(acceptedPlanPagos),
-            pendienteDeConfirmar: true,
         };
         const { updateFiestaPartial } = await import('./fiesta.actions');
-        const guardado = await updateFiestaPartial(fiestaId, { contratoFirmaInfo }, { allowPortal: true });
+        const guardado = await updateFiestaPartial(fiestaId, { firmaDigitalConstancia }, { allowPortal: true });
         if (!guardado.success) return { success: false, error: guardado.error || 'No se pudo registrar la firma.' };
 
         createNotification({
-            titulo: 'El cliente firmó el contrato',
-            mensaje: `${nombre} firmó el contrato de ${fiesta.configuracion.nombreEvento || fiesta.id}. Confirmá la reserva y la seña con un toque.`,
+            titulo: 'El cliente firmó el contrato en su portal',
+            mensaje: `${nombre} firmó en el portal el contrato de ${fiesta.configuracion.nombreEvento || fiesta.id}. Falta el contrato firmado en papel para confirmar la reserva.`,
             href: `/fiestas/nueva/gestion-documental/contrato-servicio?fiestaId=${fiestaId}`,
             icono: 'ListChecks',
-            tipo: 'exito',
+            tipo: 'info',
             entidadRelacionadaId: fiestaId,
             rolDestino: 'admin',
         }).catch(err => console.warn('Error creating digital contract notification:', err));
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e?.message || 'No se pudo registrar la firma.' };
-    }
-}
-
-/**
- * El equipo confirma la reserva de un contrato firmado digitalmente: lo mismo que pasa al
- * subir el contrato en papel (Contratada, portal abierto, recibo de seña, tareas iniciales).
- * Lo hace una persona, con sesión del equipo.
- */
-export async function confirmarReservaDeFirmaDigital(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-    await requireAppSession();
-    try {
-        const fiesta = await getFiestaById(fiestaId);
-        if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-        const firma = fiesta.contratoFirmaInfo;
-        if (!firma?.isSigned || firma.method !== 'digital') {
-            return { success: false, error: 'Este contrato no tiene una firma digital para confirmar.' };
-        }
-        if (!firma.pendienteDeConfirmar) return { success: true }; // ya confirmada
-        return await dejarLaFiestaContratada(fiesta, { ...firma, pendienteDeConfirmar: false }, {
-            titulo: 'Reserva confirmada',
-            mensaje: `Reserva confirmada con la firma digital de ${firma.signedBy || 'el cliente'} para ${fiesta.configuracion.nombreEvento || fiesta.id}.`,
-        });
-    } catch (e: any) {
-        return { success: false, error: e?.message || 'No se pudo confirmar la reserva.' };
     }
 }
 
@@ -332,7 +307,7 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
 
 /**
  * Deja la fiesta contratada: estado, portal del cliente, recibo de seña y tareas iniciales.
- * Lo comparten el contrato en papel y la confirmación de la firma digital: una sola copia.
+ * Sale sólo del contrato en papel (decisión del dueño): la firma del portal es una constancia.
  */
 async function dejarLaFiestaContratada(
     fiesta: FiestaEnPlanificacion,

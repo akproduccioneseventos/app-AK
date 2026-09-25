@@ -1054,6 +1054,11 @@ lo que hice?* Si es lo segundo, no se manda.
   inteligencia artificial y los equipos físicos. La firma digital va, pero **la reserva y la seña
   las confirma una persona**.
 
+- **Contratos: las dos firmas, el papel es obligatorio (25 de septiembre de 2026).** La firma
+  del cliente en su portal es una **constancia** (`firmaDigitalConstancia`); la reserva, la seña y
+  "Contratada" salen **sólo** del contrato en papel. No se agrega un botón que confirme la reserva
+  por la firma digital.
+
 - **La confirmacion publica sigue devolviendo el QR de entrada (22 de septiembre de 2026).**
   Se reporto que escribir el nombre de un invitado ya anotado devuelve su credencial, y con
   ella su QR. Palabras del dueno: *"nadie te roba; ademas, si no llevas el QR, gente mayor con
