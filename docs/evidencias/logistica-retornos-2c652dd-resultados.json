@@ -1,0 +1,69 @@
+{
+  "sha": "2c652dddeaf33e4d709256a60a57ceac6376a225",
+  "logistica": [
+    {
+      "case": "stock-6",
+      "conflicts": [
+        false
+      ],
+      "passed": true
+    },
+    {
+      "case": "stock-11",
+      "conflicts": [
+        true
+      ],
+      "passed": true
+    },
+    {
+      "case": "stock-6+6",
+      "conflicts": [
+        false,
+        false
+      ],
+      "passed": false
+    },
+    {
+      "case": "delete-assigned-original",
+      "result": {
+        "success": false,
+        "error": "No se puede eliminar el activo fijo porque está asignado en la lista de carga de 1 evento(s)."
+      },
+      "deleted": false,
+      "passed": true
+    },
+    {
+      "case": "delete-assigned-renamed",
+      "result": {
+        "success": false,
+        "error": "No se puede eliminar el activo fijo porque está asignado en la lista de carga de 1 evento(s)."
+      },
+      "deleted": false,
+      "passed": true
+    }
+  ],
+  "retornos": [
+    {
+      "case": "return-recorded",
+      "passed": true
+    },
+    {
+      "case": "save-structure-preserves-return",
+      "passed": true
+    },
+    {
+      "case": "remote-quantity-sync",
+      "expected": "8",
+      "actual": "8",
+      "passed": true
+    },
+    {
+      "case": "reversed-responses-preserve-newer",
+      "actual": [
+        true,
+        false
+      ],
+      "passed": false
+    }
+  ]
+}

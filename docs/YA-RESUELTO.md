@@ -8111,3 +8111,8 @@ Main834fc98; PR1223/4881e4b no toca barra. Informe docs/auditoria/REVALIDACION-A
 ## 2026-09-25 - Codex: video de vida e incidentes revalidados
 
 Main2c652dd, sin PR abiertas al consultar.7 PASS/1 FAIL aislados. Video:6 PASS, limite vigente50 (no100), borrado fallido/parcial/sin almacenamiento informa error. INC01 pasa en un servidor, falla en dos: resolucion conserva estado pero pierde comentario con dos exitos. Claude completa con mutacion individual transaccional; no repetir mutex local. Informe docs/auditoria/VIDEO-INCIDENTES-REVALIDACION-2026-09-25.md, sonda/resultados asociados. No build/E2E/Storage real ni codigo/merge. No certificacion total; solo cierre de casos especificos.
+
+
+## 2026-09-25 - Codex: logistica y retornos, cierre parcial
+
+Main2c652dd.9 sondas aisladas,7 PASS/2 FAIL. LOG02 borrar activo asignado renombrado y LOG03 cantidad remota pasan. LOG01 stock del mismo activo en dos renglones6+6 con disponible10 no alerta. LOG04 snapshot viejo sin actualizadoAt revierte cargado nuevo en pantalla; proteccion actual solo compara si ambos tienen marca. Informe docs/auditoria/LOGISTICA-RETORNOS-REVALIDACION-2026-09-25.md. Claude stock/datos, Gemini merge UI; no duplicar lo corregido. Sin app/build/merge/datos reales. No cierre total.
