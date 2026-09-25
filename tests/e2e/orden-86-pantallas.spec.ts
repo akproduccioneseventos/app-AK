@@ -25,6 +25,9 @@ fiesta.firmaDigitalConstancia = {
   planPagosAceptado: false,
 };
 delete fiesta.contratoFirmaInfo;
+// La pantalla del contrato pide cliente y presupuesto asignados, como una fiesta de verdad.
+fiesta.configuracion = { ...fiesta.configuracion, clienteId: 'cli_e2e_orden86' };
+fiesta.presupuestoId = 'pre_e2e_orden86';
 
 let mensajesAntes: string | null = null;
 let empresaAntes: string | null = null;
@@ -33,6 +36,9 @@ test.beforeAll(() => {
   guardarFiesta(fiesta);
   mensajesAntes = fs.existsSync(MENSAJES) ? fs.readFileSync(MENSAJES, 'utf8') : null;
   empresaAntes = fs.existsSync(EMPRESA) ? fs.readFileSync(EMPRESA, 'utf8') : null;
+  // Guardar la ficha pide nombre y RUT (salen en contratos y facturas): la de prueba los trae.
+  const empresa = empresaAntes ? JSON.parse(empresaAntes) : {};
+  fs.writeFileSync(EMPRESA, JSON.stringify({ ...empresa, companyName: 'AK Producciones', companyTaxId: '210000000019', cuentasBancariasPortal: [] }, null, 2));
   fs.writeFileSync(MENSAJES, JSON.stringify([{
     id: 'msg_orden86_mail',
     targetType: 'cliente',
@@ -52,7 +58,8 @@ test.afterAll(() => {
   borrarFiesta(fiesta.id);
   if (mensajesAntes === null) fs.rmSync(MENSAJES, { force: true });
   else fs.writeFileSync(MENSAJES, mensajesAntes);
-  if (empresaAntes !== null) fs.writeFileSync(EMPRESA, empresaAntes);
+  if (empresaAntes === null) fs.rmSync(EMPRESA, { force: true });
+  else fs.writeFileSync(EMPRESA, empresaAntes);
 });
 
 test.describe('Orden 86: las pantallas nuevas hacen lo que dicen', () => {
