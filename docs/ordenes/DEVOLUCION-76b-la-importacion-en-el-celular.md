@@ -35,3 +35,18 @@ celular al tapar el botón a propósito.
 no-usa: La planilla se importa desde la computadora. en tests/e2e/importar-invitados-de-una-planilla.spec.ts
 prueba: tests/e2e/importar-invitados-de-una-planilla.spec.ts
 ```
+
+
+## Vuelta 2 (25 de septiembre de 2026): sigue sin andar en el celular
+
+La entrega sacó el `test.skip` de la prueba **sin arreglar la pantalla**. Al correrla en el
+celular, el botón `btn-confirmar-guardado-planilla` no se puede tocar: Playwright mide que lo
+tapa una celda de la tabla de vista previa (`<td>Niño/Adolescente</td>`), que vive dentro de
+`<div className="flex-1 ... overflow-y-auto">` (~línea 679 de
+`src/app/(app)/fiestas/nueva/invitados/page.tsx`). Claude le agregó `min-h-0` a ese div y
+**no alcanzó**. Hay que mirar en un celular de 390 × 844 por qué la zona que se desplaza queda
+encima del pie del cuadro, que es el `DialogFooter` con `sticky bottom-0`, ~línea 795. Puede ser
+la tabla `max-h-60` dentro de otra zona que se desplaza.
+
+Claude volvió a poner el `test.skip` para poder fusionar lo demás. **Sacalo recién cuando la
+prueba pase en `chromium-mobile`.**

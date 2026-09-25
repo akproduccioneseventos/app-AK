@@ -2,6 +2,7 @@ import type { Empleado } from '@/types/empleado';
 import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import type { Rol } from '@/types/rol';
 import type { GoogleTokenResponse, GoogleWorkspaceAccount, GoogleWorkspaceAccountKind } from '@/types/google-workspace';
+export type { GoogleTokenResponse, GoogleWorkspaceAccount, GoogleWorkspaceAccountKind };
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -335,7 +336,7 @@ export async function ensureFreshGoogleAccount(account: GoogleWorkspaceAccount) 
   return refreshGoogleAccount(account);
 }
 
-export function hasGoogleContactsScope(account?: Pick<GoogleWorkspaceAccount, 'scope'>) {
+export function hasGoogleContactsScope(account?: { scope?: string }) {
   return Boolean(account?.scope?.split(/\s+/).includes(GOOGLE_CONTACTS_SCOPE));
 }
 
@@ -622,15 +623,47 @@ export async function upsertGoogleCalendarEvent(
   return (await response.json()) as { id: string; htmlLink?: string };
 }
 
-export async function sendGoogleGmailMessage(account: GoogleWorkspaceAccount, to: string, subject: string, html: string) {
-  const rawMessage = [
-    `To: ${to}`,
-    `Subject: =?UTF-8?B?${Buffer.from(subject, 'utf8').toString('base64')}?=`,
-    'MIME-Version: 1.0',
-    'Content-Type: text/html; charset=UTF-8',
-    '',
-    html,
-  ].join('\r\n');
+export async function sendGoogleGmailMessage(
+  account: GoogleWorkspaceAccount,
+  to: string,
+  subject: string,
+  html: string,
+  attachment?: { filename: string; content: string; contentType?: string }
+) {
+  let rawMessage: string;
+  if (!attachment) {
+    rawMessage = [
+      `To: ${to}`,
+      `Subject: =?UTF-8?B?${Buffer.from(subject, 'utf8').toString('base64')}?=`,
+      'MIME-Version: 1.0',
+      'Content-Type: text/html; charset=UTF-8',
+      '',
+      html,
+    ].join('\r\n');
+  } else {
+    const boundary = `boundary_${Date.now().toString(16)}`;
+    const encodedAttachment = Buffer.from(attachment.content, 'utf8').toString('base64');
+    const contentType = attachment.contentType || 'text/csv; charset=UTF-8';
+    rawMessage = [
+      `To: ${to}`,
+      `Subject: =?UTF-8?B?${Buffer.from(subject, 'utf8').toString('base64')}?=`,
+      'MIME-Version: 1.0',
+      `Content-Type: multipart/mixed; boundary="${boundary}"`,
+      '',
+      `--${boundary}`,
+      'Content-Type: text/html; charset=UTF-8',
+      '',
+      html,
+      '',
+      `--${boundary}`,
+      `Content-Type: ${contentType}; name="${attachment.filename}"`,
+      'Content-Transfer-Encoding: base64',
+      `Content-Disposition: attachment; filename="${attachment.filename}"`,
+      '',
+      encodedAttachment,
+      `--${boundary}--`,
+    ].join('\r\n');
+  }
 
   const response = await fetch(`${GOOGLE_GMAIL_API}/users/me/messages/send`, {
     method: 'POST',

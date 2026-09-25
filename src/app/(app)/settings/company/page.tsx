@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Building, Save, Loader2, Image as ImageIconLucide, FileSignature, Plus, Trash2, Building2, Star } from 'lucide-react';
+import { ArrowLeft, Building, Save, Loader2, Image as ImageIconLucide, FileSignature, Plus, Trash2, Building2, Star, FileText } from 'lucide-react';
 import React, { useState, type FormEvent, useEffect, useCallback, type ChangeEvent } from 'react';
 import NextImage from 'next/image';
 import { Switch } from '@/components/ui/switch';
@@ -236,6 +236,30 @@ export default function CompanySettingsPage() {
                     {!companyInfo.googleReviewsLink?.trim() && (
                       <p className="text-xs text-amber-600">Debes ingresar el enlace de Google para poder activar el envío automático.</p>
                     )}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Mail del Contador */}
+                <div className="space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
+                  <Label className="text-base font-medium flex items-center gap-2 text-slate-800">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    Mail del Contador
+                  </Label>
+                  <CardDescription className="text-xs">
+                    Dirección de correo electrónico de tu contador para enviarle el resumen mensual de cobros y gastos con la planilla adjunta con un solo toque.
+                  </CardDescription>
+                  <div className="space-y-2">
+                    <Label htmlFor="email-contador">Correo electrónico del contador</Label>
+                    <Input
+                      id="email-contador"
+                      type="email"
+                      value={companyInfo.emailContador || ''}
+                      onChange={(e) => handleInfoChange('emailContador', e.target.value)}
+                      placeholder="contador@estudio.com.uy"
+                      disabled={isSaving}
+                    />
                   </div>
                 </div>
 

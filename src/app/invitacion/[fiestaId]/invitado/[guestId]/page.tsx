@@ -62,6 +62,7 @@ import type { SocialConnection } from '@/types/settings';
 import type { GuestPortalSettings } from '@/types/fiesta';
 import { isRecapAvailable } from '@/lib/recap/recap-engine';
 import { MiniQuiosco } from './MiniQuiosco';
+import { AsistenteDelInvitado } from '@/components/invitacion/AsistenteDelInvitado';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
 
@@ -746,6 +747,7 @@ function GuestPortalContent() {
               {guestExp?.ctaDescription || guestExp?.ctaText || 'Conocé cómo organizamos eventos completos, tranquilos e inolvidables.'}
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {/* no pasa nada si falla: contar el toque es estadística; el enlace abre igual. */}
               {instagramUrl && guestExp?.showSocialCta !== false && (
                 <a href={instagramUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-instagram" onClick={() => trackGuestCtaClick(fiestaId, guest.id, guestAccessToken, 'clickedInstagram').catch(() => {})} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-slate-100">
                   <Instagram className="h-4 w-4 text-pink-700" />Instagram
@@ -761,17 +763,20 @@ function GuestPortalContent() {
                   TikTok
                 </a>
               )}
+              {/* no pasa nada si falla: contar el toque es estadística; el enlace abre igual. */}
               {whatsappUrl && guestExp?.showSocialCta !== false && (
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-whatsapp" onClick={() => trackGuestCtaClick(fiestaId, guest.id, guestAccessToken, 'clickedWhatsapp').catch(() => {})} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-slate-100">
                   <MessageCircle className="h-4 w-4 text-emerald-700" />WhatsApp
                 </a>
               )}
             </div>
+            {/* no pasa nada si falla: contar el toque es estadística; el enlace abre igual. */}
             {landingUrl && guestExp?.showLandingCta !== false && (
               <a href={landingUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-landing" onClick={() => trackGuestCtaClick(fiestaId, guest.id, guestAccessToken, 'clickedLanding').catch(() => {})} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-6 text-sm font-bold text-red-800 transition-colors hover:bg-red-100">
                 <Globe className="h-4 w-4" />Quiero organizar mi evento
               </a>
             )}
+            {/* no pasa nada si falla: contar el toque es estadística; el enlace abre igual. */}
             {simulatorUrl && guestExp?.showBudgetSimulatorCta && (
               <a href={simulatorUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-simulator" onClick={() => trackGuestCtaClick(fiestaId, guest.id, guestAccessToken, 'clickedSimulator').catch(() => {})} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-lg bg-slate-950 px-6 text-sm font-black text-white shadow-sm transition-colors hover:bg-red-800">
                 Simular mi presupuesto
@@ -805,6 +810,14 @@ function GuestPortalContent() {
           guestAccessToken={guestAccessToken}
           canShareToSocial={socialEnabled}
           onClose={() => setShowQuiosco(false)}
+        />
+      )}
+
+      {guest && (
+        <AsistenteDelInvitado
+          fiestaId={fiestaId}
+          invitadoNombre={guest.nombre}
+          mesaAsignada={guest.tableNumber}
         />
       )}
 

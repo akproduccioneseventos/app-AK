@@ -32,7 +32,8 @@ export type TouchpixThemeId =
   | "pop_art"
   | "golden_luxury"
   | "cosmic_galaxy"
-  | "carnival_fiesta";
+  | "carnival_fiesta"
+  | "caricatura";
 
 interface ThemeDefinition {
   label: string;
@@ -88,6 +89,13 @@ const THEME_DEFINITIONS: Record<TouchpixThemeId, ThemeDefinition> = {
       "Apply a vibrant carnival fiesta transformation: shower the scene with colorful confetti and streamers falling around the person, add festive party lights (bokeh circles in rainbow colors) in the background, include subtle party elements like a feathered mask silhouette or bunting flags at the top, apply a warm and joyful color grade with boosted vibrancy. Keep the person's face, body, and pose completely intact and recognizable.",
     cssFallbackHint:
       "saturate(1.5) brightness(1.1) contrast(1.1) hue-rotate(30deg)",
+  },
+  caricatura: {
+    label: "Caricatura",
+    promptDescription:
+      "Apply a fun, friendly and loving caricature transformation: exaggerated facial features with warmth and affection, playful and cheerful cartoon drawing style, never mean-spirited or mocking, with a lively party background with colorful festive elements. Keep the person's unique likeness recognizable and smiling.",
+    cssFallbackHint:
+      "contrast(1.3) saturate(1.4) brightness(1.05)",
   },
 };
 

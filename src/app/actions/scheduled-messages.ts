@@ -8,6 +8,15 @@ import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-toke
 import { AsyncMutex } from '@/lib/mutex';
 
 import { requireAppSession } from '@/lib/auth/require-session';
+import {
+  sendGoogleGmailMessage,
+  ensureFreshGoogleAccount,
+  hasServiceAccountKey,
+  getServiceAccountAccessToken,
+  GOOGLE_WORKSPACE_SCOPES,
+} from '@/lib/google-workspace';
+import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
+
 const SCHEDULED_MESSAGES_FILE = 'scheduled-messages.json';
 const SCHEDULED_MESSAGES_COLLECTION = 'scheduled_messages';
 const scheduledMessagesMutex = new AsyncMutex();
@@ -241,4 +250,90 @@ export async function getPendingMessagesForToday(): Promise<ScheduledMessage[]> 
     const scheduled = new Date(m.scheduledAt);
     return scheduled < tomorrow;
   });
+}
+
+export async function checkGoogleMailStatus(): Promise<{ connected: boolean; email?: string }> {
+  await requireAppSession();
+  try {
+    const accounts = await readData<GoogleWorkspaceAccount[]>('_google-workspace-accounts.json', []);
+    const company = accounts.find((a) => a.kind === 'company');
+    if (company?.status === 'connected' && company.accessToken) {
+      return { connected: true, email: company.email };
+    }
+    if (hasServiceAccountKey()) {
+      const saToken = await getServiceAccountAccessToken();
+      if (saToken) return { connected: true, email: 'akproduccionessalto@gmail.com' };
+    }
+    return { connected: false };
+  } catch {
+    return { connected: false };
+  }
+}
+
+export async function sendScheduledMessageByEmail(
+  messageId: string,
+): Promise<{ success: boolean; error?: string; notice?: string }> {
+  await requireAppSession();
+
+  const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+  const message = messages.find((m) => m.id === messageId);
+  if (!message) {
+    return { success: false, error: 'Mensaje no encontrado.' };
+  }
+
+  if (!message.targetEmail) {
+    return { success: false, error: 'El mensaje no tiene un email de destino asignado.' };
+  }
+
+  const accounts = await readData<GoogleWorkspaceAccount[]>('_google-workspace-accounts.json', []);
+  let companyAccount = accounts.find((a) => a.kind === 'company');
+  if (!companyAccount && hasServiceAccountKey()) {
+    const saToken = await getServiceAccountAccessToken();
+    if (saToken) {
+      companyAccount = {
+        id: 'company',
+        kind: 'company',
+        email: 'akproduccionessalto@gmail.com',
+        calendarId: process.env.GOOGLE_WORKSPACE_CALENDAR_ID || 'primary',
+        accessToken: saToken,
+        scope: GOOGLE_WORKSPACE_SCOPES.join(' '),
+        tokenType: 'Bearer',
+        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
+        connectedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: 'connected',
+      };
+    }
+  }
+
+  const freshCompany = companyAccount ? await ensureFreshGoogleAccount(companyAccount).catch(() => null) : null;
+  if (!freshCompany || freshCompany.status !== 'connected' || !freshCompany.accessToken) {
+    return {
+      success: false,
+      error: 'Conectá Google en Ajustes para enviar mails.',
+      notice: 'Conectá Google en Ajustes',
+    };
+  }
+
+  const subject = message.subject || `AK Producciones - Mensaje para ${message.targetName}`;
+  const html = `
+    <div style="font-family: sans-serif; padding: 20px; color: #1e293b; line-height: 1.6;">
+      <h2 style="color: #e11d48; margin-top: 0;">AK Producciones</h2>
+      <div style="white-space: pre-wrap; font-size: 15px; margin: 16px 0;">
+        ${String(message.messageText || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+      </div>
+      <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0 10px 0;" />
+      <p style="font-size: 12px; color: #64748b; margin: 0;">
+        AK Producciones — Salto, Uruguay | www.akproducciones.uy
+      </p>
+    </div>
+  `;
+
+  await sendGoogleGmailMessage(freshCompany, message.targetEmail, subject, html);
+  const marcado = await markMessageAsSent(messageId, 'mail-google');
+  if (!marcado.success) {
+    // El mail ya salió: no se devuelve falla (la persona lo mandaría dos veces), se avisa.
+    return { success: true, notice: 'El mail salió, pero no quedó marcado como enviado. No lo mandes de nuevo.' };
+  }
+  return { success: true };
 }

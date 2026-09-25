@@ -15,6 +15,7 @@ import type { CompanyInfo } from '@/types/settings';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import NextImage from 'next/image';
 
@@ -37,6 +38,7 @@ export default function ClientContractPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [isSigning, setIsSaving] = useState(false);
+  const [signerFullName, setSignerFullName] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPlanPagos, setAcceptedPlanPagos] = useState(false);
   const [summary, setSummary] = useState<{
@@ -76,16 +78,23 @@ export default function ClientContractPage() {
   }, [loadData]);
 
   const handleSign = async () => {
+    if (!signerFullName.trim()) {
+      toast({
+        title: "Tu nombre completo es obligatorio",
+        description: "Por favor ingresá tu nombre completo para dejar constancia de la firma.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (!acceptedTerms || !fiesta) return;
     const planPagos = fiesta.contratoDatos?.planPagos;
     if (planPagos?.activo && !acceptedPlanPagos) return;
-    
+
     setIsSaving(true);
     try {
-        const signerName = fiesta.configuracion.nombreEvento.split(' de ')[1] || 'Cliente';
-        const result = await signContractDigitally(fiestaId, signerName, acceptedPlanPagos);
+        const result = await signContractDigitally(fiestaId, signerFullName.trim(), acceptedPlanPagos);
         if (result.success) {
-            toast({ title: "¡Contrato Firmado!", description: "Se ha registrado tu firma digital con éxito." });
+            toast({ title: "¡Constancia Registrada!", description: "Se ha registrado tu firma digital como constancia en el portal." });
             await loadData();
         } else throw new Error(result.error);
     } catch {
@@ -144,16 +153,18 @@ export default function ClientContractPage() {
             </header>
 
             {firma?.isSigned && (
-                <div className="bg-green-600 text-white p-6 rounded-3xl shadow-xl flex items-center gap-4 animate-in fade-in zoom-in duration-500">
+                <div className="bg-emerald-600 text-white p-6 rounded-3xl shadow-xl flex items-center gap-4 animate-in fade-in zoom-in duration-500">
                     <div className="p-3 bg-white/20 rounded-2xl">
                         <ShieldCheck className="w-8 h-8 text-white"/>
                     </div>
                     <div>
-                        <p className="font-black uppercase tracking-widest text-xs">Documento Firmado y Validado</p>
-                        <p className="text-sm opacity-90">
-                            {firma.method === 'digital' 
-                                ? `Firmado digitalmente el ${new Date(firma.signedAt!).toLocaleString('es-UY')} desde la IP ${firma.ip}`
-                                : `Contrato físico registrado el ${new Date(firma.signedAt!).toLocaleString('es-UY')}`
+                        <p className="font-black uppercase tracking-widest text-xs">
+                          {fiesta.contratoFirmaInfo?.isSigned ? 'Contrato Físico Registrado' : 'Constancia de Firma'}
+                        </p>
+                        <p className="text-sm opacity-90 mt-0.5">
+                            {fiesta.contratoFirmaInfo?.isSigned
+                                ? `Contrato físico registrado el ${new Date(fiesta.contratoFirmaInfo.signedAt!).toLocaleDateString('es-UY')}.`
+                                : `Firmaste el contrato el ${new Date(constancia!.signedAt).toLocaleDateString('es-UY')}. Para confirmar tu reserva falta firmar el contrato en papel con AK.`
                             }
                         </p>
                     </div>
@@ -327,6 +338,78 @@ export default function ClientContractPage() {
                             </div>
                           );
                         })()}
+
+                        {/* Bloque para dejar constancia digital */}
+                        <div className="flex flex-col gap-4 p-6 bg-slate-50 border border-slate-200 rounded-3xl w-full text-left">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-purple-100 text-purple-700 rounded-xl">
+                                <FileSignature className="w-5 h-5" />
+                              </div>
+                              <div>
+                                <h3 className="font-black text-slate-900 uppercase text-xs tracking-wider">Firma Digital (Constancia de Aceptación)</h3>
+                                <p className="text-xs text-slate-500">Dejá constancia de haber leído y aceptado el contrato en el portal.</p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                              <Label htmlFor="input-nombre-firmante" className="text-xs font-bold text-slate-700">
+                                Tu nombre completo <span className="text-red-500">*</span>
+                              </Label>
+                              <Input
+                                id="input-nombre-firmante"
+                                placeholder="Escribí tu nombre y apellido completo..."
+                                value={signerFullName}
+                                onChange={(e) => setSignerFullName(e.target.value)}
+                                className="bg-white text-sm"
+                              />
+                            </div>
+
+                            <div className="flex items-start space-x-2 pt-1">
+                              <Checkbox
+                                id="acceptedTerms"
+                                checked={acceptedTerms}
+                                onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                              />
+                              <label
+                                htmlFor="acceptedTerms"
+                                className="text-xs font-medium leading-relaxed text-slate-700 cursor-pointer"
+                              >
+                                He leído y acepto los Términos y Condiciones del Contrato de Servicio.
+                              </label>
+                            </div>
+
+                            {fiesta.contratoDatos?.planPagos?.activo && (
+                              <div className="flex items-start space-x-2">
+                                <Checkbox
+                                  id="acceptedPlanPagos"
+                                  checked={acceptedPlanPagos}
+                                  onCheckedChange={(checked) => setAcceptedPlanPagos(checked as boolean)}
+                                />
+                                <label
+                                  htmlFor="acceptedPlanPagos"
+                                  className="text-xs font-medium leading-relaxed text-slate-700 cursor-pointer"
+                                >
+                                  Acepto el Plan de Pagos programado y las condiciones de caución.
+                                </label>
+                              </div>
+                            )}
+
+                            <Button
+                              onClick={handleSign}
+                              disabled={isSigning || !signerFullName.trim() || !acceptedTerms || (fiesta.contratoDatos?.planPagos?.activo && !acceptedPlanPagos)}
+                              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold h-12 rounded-xl shadow-md"
+                            >
+                              {isSigning ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Registrando firma...
+                                </>
+                              ) : (
+                                <>
+                                  <FileSignature className="w-4 h-4 mr-2" /> Dejar Constancia de Firma Digital
+                                </>
+                              )}
+                            </Button>
+                        </div>
 
                         <div className="flex flex-col items-center gap-4 p-6 bg-amber-50 border border-amber-200 rounded-3xl w-full text-center">
                             <AlertTriangle className="w-8 h-8 text-amber-600"/>

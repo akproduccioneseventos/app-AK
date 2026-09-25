@@ -665,10 +665,10 @@ function InvitadosEventoContent() {
 
       {/* Import Spreadsheet Dialog */}
       <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[90dvh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogHeader className="p-4 sm:p-6 pb-3 border-b shrink-0 pr-10">
             <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-              <FileSpreadsheet className="w-5 h-5 text-purple-600" />
+              <FileSpreadsheet className="w-5 h-5 text-purple-600 shrink-0" />
               Importar lista de invitados desde una planilla
             </DialogTitle>
             <DialogDescription>
@@ -676,7 +676,7 @@ function InvitadosEventoContent() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
+          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="input-archivo-planilla">Archivo CSV / Planilla</Label>
               <Input
@@ -792,7 +792,7 @@ function InvitadosEventoContent() {
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="p-4 border-t bg-muted/40 shrink-0 sticky bottom-0 z-10 flex flex-col-reverse sm:flex-row gap-2 justify-end">
             <Button variant="outline" onClick={() => setIsImportModalOpen(false)}>
               Cancelar
             </Button>
@@ -805,7 +805,7 @@ function InvitadosEventoContent() {
                 previewPlanilla.validos === 0
               }
               onClick={handleConfirmarImportacion}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
+              className="bg-purple-600 hover:bg-purple-700 text-white min-h-[44px] touch-manipulation shadow-md"
             >
               {isImporting ? (
                 <>

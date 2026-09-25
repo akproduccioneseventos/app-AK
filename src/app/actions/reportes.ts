@@ -9,6 +9,9 @@ import { getGastosGenerales } from './gastos';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { getReconciledSalePayments, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
 import { verifySession } from '@/lib/auth/session-token';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { getCompanyInfo } from './settings';
+import { mandarResumenAlContador, type ResultadoMandarAlContador } from '@/lib/contabilidad/mandar-resumen-al-contador';
 
 interface DateRange {
   from: Date;
@@ -250,4 +253,32 @@ export async function getProfitAndLossData(
     console.error('Error calculating global P&L:', error);
     return { success: false, error: 'Fallo al consolidar el reporte contable global.' };
   }
+}
+
+/**
+ * MANDAR AL CONTADOR (25 de septiembre de 2026, pedido del dueño).
+ * Recibe el RANGO, no los números: el resumen se calcula acá, en el servidor, con
+ * `getProfitAndLossData`. Así nadie puede mandarle al contador cifras armadas en el navegador.
+ */
+export async function mandarAlContador(
+  rango: DateRange,
+  nombreDelMes: string
+): Promise<ResultadoMandarAlContador> {
+  await requireAppSession();
+  const desde = new Date(rango?.from as any);
+  const hasta = new Date(rango?.to as any);
+  if (Number.isNaN(desde.getTime()) || Number.isNaN(hasta.getTime())) {
+    return { success: false, error: 'Elegí el período antes de mandar el resumen.' };
+  }
+  const reporte = await getProfitAndLossData({ from: desde, to: hasta });
+  if (!reporte.success || !reporte.data) {
+    return { success: false, error: reporte.error || 'No se pudo armar el resumen del período.' };
+  }
+  return mandarResumenAlContador(reporte.data, nombreDelMes);
+}
+
+export async function getEmailContador(): Promise<string | undefined> {
+  await requireAppSession();
+  const company = await getCompanyInfo().catch(() => null);
+  return company?.emailContador;
 }

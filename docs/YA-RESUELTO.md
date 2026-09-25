@@ -9628,3 +9628,42 @@ agarró el control de las formas que mienten al tocar el archivo.
 ```comprobar
 usa: fechaDelEventoLegible en src/lib/automatico/parte-manana.ts
 ```
+
+## 25 de septiembre de 2026 — Orden 86 (Gemini), con tres ajustes de plata de Claude
+
+**Entró:**
+- el asistente del invitado;
+- la vidriera sin karaoke;
+- el mail preparado en la bandeja de salida, que se manda con un toque;
+- las respuestas a reseñas de Google, que se publican con un toque;
+- "Proponer equipo";
+- la caricatura;
+- las pantallas de la firma como constancia;
+- "Mandar al contador";
+- "Pasar ahora" en facturas;
+- la orden 85 y la devolución 76b.
+
+**Ajustes de Claude al verificar:**
+1. **El resumen al contador se calculaba con los números que mandaba la pantalla.** Desde el
+   navegador se le podía mandar al contador cualquier cifra con el sello de AK. Ahora la acción
+   recibe el período y calcula el resumen en el servidor con `getProfitAndLossData`. El envío
+   quedó en `src/lib/contabilidad/mandar-resumen-al-contador.ts`, que no es una acción.
+2. **"Proponer equipo" reemplazaba a los que ya estaban asignados** y perdía los sueldos
+   cargados a mano. Ahora conserva lo asignado y sólo completa los lugares vacíos.
+3. **Bandeja de salida:**
+   - saber si Google está conectado ahora pide sesión del equipo;
+   - el texto del mail se escapa antes de armarlo.
+
+```comprobar
+usa: getProfitAndLossData en src/app/actions/reportes.ts
+archivo: src/lib/contabilidad/mandar-resumen-al-contador.ts
+usa: asignacionesActuales en src/lib/personal/proponer-equipo.ts
+prueba: src/__tests__/resumen-contador.test.ts
+prueba: src/__tests__/proponer-equipo-sin-solapamiento.test.ts
+prueba: src/__tests__/orden-86-acciones.test.ts
+prueba: tests/e2e/orden-86-pantallas.spec.ts
+```
+
+**Además:** el botón "Conectá Google en Ajustes" de la bandeja de salida llevaba a una pantalla que
+no existe (`/empresa/ajustes`). Ahora lleva a `/settings/google-workspace`. Las pruebas que
+faltaban de la entrega las escribió Claude por pedido del dueño.

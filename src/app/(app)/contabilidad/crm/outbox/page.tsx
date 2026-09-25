@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, MessageCircle, Loader2, Send, Calendar, AlertTriangle, CheckCircle2, X, Edit3, RotateCcw } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Loader2, Send, Calendar, AlertTriangle, CheckCircle2, X, Edit3, RotateCcw, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   getScheduledMessages,
@@ -17,6 +17,8 @@ import {
   rescheduleMessage,
   cancelScheduledMessage,
   updateScheduledMessageText,
+  sendScheduledMessageByEmail,
+  checkGoogleMailStatus,
 } from '@/app/actions/scheduled-messages';
 import { toWhatsAppNumber } from '@/lib/commercial/contact';
 import type { ScheduledMessage } from '@/types/whatsapp-automation';
@@ -34,6 +36,8 @@ export default function OutboxPage() {
   const { toast } = useToast();
   const [messages, setMessages] = useState<ScheduledMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [googleConnected, setGoogleConnected] = useState<boolean | null>(null);
+  const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
   const [rescheduleDialog, setRescheduleDialog] = useState<{ open: boolean; messageId: string; newDate: string }>({
     open: false,
     messageId: '',
@@ -48,8 +52,12 @@ export default function OutboxPage() {
   const fetchMessages = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getScheduledMessages();
+      const [data, googleStatus] = await Promise.all([
+        getScheduledMessages(),
+        checkGoogleMailStatus().catch(() => ({ connected: false })),
+      ]);
       setMessages(data);
+      setGoogleConnected(googleStatus.connected);
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar los mensajes.', variant: 'destructive' });
     } finally {
@@ -139,6 +147,39 @@ export default function OutboxPage() {
     }
   };
 
+  const handleSendEmail = async (msg: ScheduledMessage) => {
+    if (!googleConnected) {
+      toast({
+        title: 'Google no conectado',
+        description: 'Conectá Google en Ajustes para enviar mails.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setSendingEmailId(msg.id);
+    try {
+      const res = await sendScheduledMessageByEmail(msg.id);
+      if (res.success) {
+        toast({ title: 'Mail enviado', description: res.notice || `Se envió el correo a ${msg.targetEmail} con éxito.` });
+        fetchMessages();
+      } else {
+        toast({
+          title: 'No se pudo enviar',
+          description: res.notice || res.error || 'No se pudo enviar el correo.',
+          variant: 'destructive',
+        });
+      }
+    } catch (e: any) {
+      toast({
+        title: 'Error al enviar',
+        description: e.message || 'Error al comunicarse con Gmail.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSendingEmailId(null);
+    }
+  };
+
   const pendingMessages = messages.filter(m => m.status === 'pendiente' || m.status === 'reprogramado');
   const overdueMessages = pendingMessages.filter(m => isPast(new Date(m.scheduledAt)) && !isToday(new Date(m.scheduledAt)));
   const todayMessages = pendingMessages.filter(m => isToday(new Date(m.scheduledAt)));
@@ -151,6 +192,12 @@ export default function OutboxPage() {
         <div>
           <p className="font-semibold">{msg.targetName}</p>
           {msg.targetPhone && <p className="text-sm text-muted-foreground">{msg.targetPhone}</p>}
+          {msg.targetEmail && (
+            <p className="text-sm text-slate-600 flex items-center gap-1 mt-0.5">
+              <Mail className="w-3.5 h-3.5 text-blue-500" />
+              {msg.targetEmail}
+            </p>
+          )}
         </div>
         <Badge variant={msg.status === 'enviado' ? 'default' : isPast(new Date(msg.scheduledAt)) ? 'destructive' : 'secondary'}>
           {msg.status === 'enviado' ? 'Enviado' : msg.status === 'cancelado' ? 'Cancelado' : isPast(new Date(msg.scheduledAt)) ? 'Atrasado' : 'Pendiente'}
@@ -176,6 +223,35 @@ export default function OutboxPage() {
             <Send className="w-3.5 h-3.5 mr-1.5" />
             Enviar por WhatsApp
           </Button>
+          {msg.targetEmail && (
+            googleConnected === false ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-amber-700 border-amber-300 bg-amber-50 hover:bg-amber-100 text-xs"
+                asChild
+              >
+                <Link href="/settings/google-workspace">
+                  <Mail className="w-3.5 h-3.5 mr-1.5 text-amber-600" />
+                  Conectá Google en Ajustes
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                disabled={sendingEmailId === msg.id}
+                onClick={() => handleSendEmail(msg)}
+              >
+                {sendingEmailId === msg.id ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                ) : (
+                  <Mail className="w-3.5 h-3.5 mr-1.5" />
+                )}
+                Enviar por mail
+              </Button>
+            )
+          )}
           <Button size="sm" variant="outline" onClick={() => setEditDialog({ open: true, messageId: msg.id, text: msg.messageText })}>
             <Edit3 className="w-3.5 h-3.5 mr-1.5" />
             Editar texto

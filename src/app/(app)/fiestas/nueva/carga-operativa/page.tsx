@@ -38,6 +38,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { mergeRemoteOperationalState } from '@/lib/logistica/mezclar-carga';
 import { Progress } from '@/components/ui/progress';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
@@ -144,59 +145,7 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
     );
 }
 
-function mergeRemoteOperationalState(
-  local: ListaDeCargaOperativa,
-  remote: ListaDeCargaOperativa,
-  focusedItemId?: string | null,
-): ListaDeCargaOperativa {
-  const remoteItems = new Map(
-    (remote.categorias || []).flatMap((category) =>
-      (category.items || []).map((item) => [`${category.id}:${item.id}`, item] as const),
-    ),
-  );
 
-  return {
-    ...local,
-    updatedAt: remote.updatedAt,
-    updatedBy: remote.updatedBy,
-    categorias: (local.categorias || []).map((category) => ({
-      ...category,
-      items: (category.items || []).map((item) => {
-        const remoteItem = remoteItems.get(`${category.id}:${item.id}`);
-        if (!remoteItem) return item;
-
-        // Orden 66 (Bloque 2): Descartar respuestas retrasadas si tienen actualizadoAt más viejo que el local
-        if (item.actualizadoAt && remoteItem.actualizadoAt) {
-          const localTime = new Date(item.actualizadoAt).getTime();
-          const remoteTime = new Date(remoteItem.actualizadoAt).getTime();
-          if (remoteTime < localTime) {
-            return item;
-          }
-        }
-
-        // Orden 66 (Bloque 1): Si el operador tiene el foco en este ítem, no pisamos la cantidad que escribe
-        const cantidad = (focusedItemId && focusedItemId === item.id)
-          ? item.cantidad
-          : (remoteItem.cantidad !== undefined ? remoteItem.cantidad : item.cantidad);
-
-        return {
-          ...item,
-          cantidad,
-          cargado: remoteItem.cargado,
-          retornado: remoteItem.retornado,
-          cargadoAt: remoteItem.cargadoAt,
-          cargadoPor: remoteItem.cargadoPor,
-          retornadoAt: remoteItem.retornadoAt,
-          retornadoPor: remoteItem.retornadoPor,
-          actualizadoAt: remoteItem.actualizadoAt || item.actualizadoAt,
-          actualizadoPor: remoteItem.actualizadoPor || item.actualizadoPor,
-          hasConflict: remoteItem.hasConflict !== undefined ? remoteItem.hasConflict : item.hasConflict,
-          availableStockAtDate: remoteItem.availableStockAtDate !== undefined ? remoteItem.availableStockAtDate : item.availableStockAtDate,
-        };
-      }),
-    })),
-  };
-}
 
 function ListaDeCargaOperativaContent() {
   const { toast } = useToast();
@@ -216,6 +165,7 @@ function ListaDeCargaOperativaContent() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasPendingStructure, setHasPendingStructure] = useState(false);
   const focusedItemIdRef = useRef<string | null>(null);
+  const lastAppliedUpdatedAtRef = useRef<string | null>(null);
 
   const [newCategoryName, setNewCategoryName] = useState('');
 
@@ -267,6 +217,7 @@ function ListaDeCargaOperativaContent() {
         items: cat.items || []
       }));
       setListaDeCarga({ ...(loadedLista || { categorias: [], notasGenerales: '' }), categorias: categoriasConItems });
+      lastAppliedUpdatedAtRef.current = loadedLista?.updatedAt || null;
       setHasPendingStructure(false);
       setFiesta(fiestaData);
       setActivosCatalogo(catalogoData);
@@ -299,7 +250,18 @@ function ListaDeCargaOperativaContent() {
       if (document.visibilityState !== 'visible' || pendingItemUpdates > 0) return;
       const result = await getCargaOperativaAccessView(fiestaId);
       if (!result.success || !result.data) return;
-      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.data!.lista, focusedItemIdRef.current));
+      setListaDeCarga((current) => {
+        const next = mergeRemoteOperationalState(current, result.data!.lista, {
+          focusedItemId: focusedItemIdRef.current,
+          currentFiestaId: fiestaId,
+          remoteFiestaId: result.data!.fiestaId || fiestaId,
+          lastAppliedUpdatedAt: lastAppliedUpdatedAtRef.current,
+        });
+        if (next.updatedAt) {
+          lastAppliedUpdatedAtRef.current = next.updatedAt;
+        }
+        return next;
+      });
     };
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') void refreshOperationalState();
@@ -331,7 +293,18 @@ function ListaDeCargaOperativaContent() {
       if (!result.success || !result.updatedData) {
         throw new Error(result.error || 'No se pudo guardar el cambio.');
       }
-      setListaDeCarga((current) => mergeRemoteOperationalState(current, result.updatedData!, focusedItemIdRef.current));
+      setListaDeCarga((current) => {
+        const next = mergeRemoteOperationalState(current, result.updatedData!, {
+          focusedItemId: focusedItemIdRef.current,
+          currentFiestaId: fiestaId,
+          remoteFiestaId: fiestaId,
+          lastAppliedUpdatedAt: lastAppliedUpdatedAtRef.current,
+        });
+        if (next.updatedAt) {
+          lastAppliedUpdatedAtRef.current = next.updatedAt;
+        }
+        return next;
+      });
       setLastSaved(new Date());
     } catch (patchError) {
       setSaveError(patchError instanceof Error ? patchError.message : 'No se pudo guardar.');

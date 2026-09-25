@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
@@ -8,9 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History, Search } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History, Search, Sparkles } from 'lucide-react';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { PersonalAsignadoDetalleStorage, FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
 import { retryPersonalGoogleSync } from '@/app/actions/fiesta/personal.actions';
+import { obtenerPropuestaEquipoAction } from '@/app/actions/fiesta/proponer-equipo.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
 import { Badge } from '@/components/ui/badge';
@@ -95,6 +96,12 @@ function AsignarPersonalEventoContent() {
     isLoading: false,
     summaryPhone: '',
   });
+
+  const [propuestaModal, setPropuestaModal] = useState<{ open: boolean; propuesta: PersonalAsignadoDetalleStorage[] }>({
+    open: false,
+    propuesta: [],
+  });
+  const [isProponiendo, setIsProponiendo] = useState(false);
 
   const fetchInitialData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
@@ -338,6 +345,44 @@ function AsignarPersonalEventoContent() {
       }
   };
 
+  const handleProponerEquipo = async () => {
+    if (!fiestaId) return;
+    setIsProponiendo(true);
+    try {
+      const res = await obtenerPropuestaEquipoAction(fiestaId, requiredRoles);
+      if (res.success && res.propuesta) {
+        setPropuestaModal({ open: true, propuesta: res.propuesta });
+      } else {
+        toast({
+          title: 'No se pudo generar la propuesta',
+          description: res.error || 'Ocurrió un error al analizar la agenda del personal.',
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Error al proponer equipo.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProponiendo(false);
+    }
+  };
+
+  const handleGuardarPropuesta = async () => {
+    if (!propuestaModal.propuesta.length) return;
+    const saved = await handleAutoSave(propuestaModal.propuesta);
+    if (saved) {
+      setAssignedStaff(propuestaModal.propuesta);
+      setPropuestaModal({ open: false, propuesta: [] });
+      toast({
+        title: 'Equipo guardado',
+        description: 'Se guardó la asignación propuesta con éxito.',
+      });
+    }
+  };
+
   const sanitizePhone = (raw: string) => raw.replace(/\D/g, '');
 
   const formatEventDate = (fechaEvento: string | undefined, long = false) => {
@@ -531,6 +576,20 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
                   className="pl-9 h-9 text-xs rounded-xl"
                 />
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleProponerEquipo}
+                disabled={isProponiendo || isSaving}
+                className="border-purple-300 text-purple-700 hover:bg-purple-50 gap-1.5"
+              >
+                {isProponiendo ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                )}
+                Proponer equipo
+              </Button>
               <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
             </div>
           </div>
@@ -809,6 +868,74 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
           <DialogFooter>
             <Button variant="outline" onClick={() => setRegistroDialog(prev => ({ ...prev, open: false }))}>
               Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Propuesta de Equipo Dialog */}
+      <Dialog open={propuestaModal.open} onOpenChange={(open) => !open && setPropuestaModal({ open: false, propuesta: [] })}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              Propuesta de Equipo Automática
+            </DialogTitle>
+            <DialogDescription>
+              Asignación equilibrada para la fecha del evento, verificando que ningún empleado esté ocupado en otra fiesta el mismo día.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2 max-h-[60vh] overflow-y-auto">
+            {propuestaModal.propuesta.map((item, i) => {
+              const rol = allRoles.find((r) => r.id === item.rolId);
+              const emp = allEmpleados.find((e) => e.id === item.empleadoId);
+              return (
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-slate-50 dark:bg-slate-900"
+                >
+                  <div>
+                    <p className="font-semibold text-sm">{rol?.nombre || 'Rol'}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {emp ? (
+                        <span className="text-slate-800 dark:text-slate-200 font-medium">{emp.nombre}</span>
+                      ) : (
+                        <span className="text-amber-600 font-medium">Sin empleado disponible libre</span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-mono text-sm font-bold text-slate-800 dark:text-slate-200">
+                      {formatCurrency(item.eventSalary)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setPropuestaModal({ open: false, propuesta: [] })}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleGuardarPropuesta}
+              disabled={isSaving}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Guardando...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" /> Guardar propuesta con un toque
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
