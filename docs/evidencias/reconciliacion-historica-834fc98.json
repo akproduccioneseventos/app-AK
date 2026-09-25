@@ -1,0 +1,1101 @@
+{
+  "sha": "834fc98e312d657f0486993138e10028bbe49308",
+  "scope": "Historical entries September 8-21; excludes new order81; existence is not execution",
+  "total": 73,
+  "missing": [],
+  "rows": [
+    {
+      "title": "21 de septiembre de 2026 — El ingreso con Google no decia que pasaba, y un codigo de recuperacion quedaba vivo sin mandarse",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/firebase/google-auth-client.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-ingreso-con-google-dice-que-paso.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "21 de septiembre de 2026 — Una lectura colgada de la base tumbaba la pantalla entera",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/data-service.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/una-lectura-colgada-no-tumba-la-pantalla.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "21 de septiembre de 2026 — Cuatro archivos que escribe la corrida quedaban como si fueran trabajo",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/limpiar-corrida.mjs",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "21 de septiembre de 2026 — La pantalla de ingreso se contradecia y mandaba por el camino equivocado",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/auth/diagnostico-acceso.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-cartel-del-ingreso-no-se-contradice.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "8 de septiembre de 2026 - Ordenes 45 a 48, pendientes de ejecucion",
+      "references": [],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — Orden 64: Las pantallas del invitado pasan las preguntas nuevas",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "docs/ANTES-DE-ENTREGAR.md",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — Orden 63: TikTok no puede decir \"Publicado\" mientras todavía procesa",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/presencia-digital/publicador.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/tiktok-no-canta-victoria-antes.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "16 de septiembre de 2026 — Orden 61: Las Nueve Preguntas en las Áreas de Gemini",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/invitados/aviso-importacion-invitados.ts",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/app/(app)/fiestas/nueva/invitados/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/app/evento/espejo-magico/[fiestaId]/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/app/evento/buzon/[fiestaId]/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/app/evento/plataforma-360/[fiestaId]/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/app/evento/bogue/[fiestaId]/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-importacion-de-invitados-no-miente.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/espejo-magico-sesion-segura.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/buzon-guarda-offline.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/entretenimiento-resiliencia-offline.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "16 de septiembre de 2026 — Entretenimiento, Respaldos, Decoración y Redes (Órdenes 48, 59 y 60)",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/app/evento/touchpix/[fiestaId]/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/entretenimiento-sesion-segura.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/lib/respaldos/como-esta-el-respaldo.ts",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/app/(app)/settings/backup/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-cartel-de-respaldo-no-miente.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/app/(app)/fiestas/nueva/decoracion/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-decoracion-no-pierde-lo-ultimo-que-se-escribio.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/lib/social-media/youtube-publisher.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/youtube-sube-el-video.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/lib/social-media/tiktok-publisher.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/tiktok-no-canta-victoria-antes.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "11 de septiembre de 2026 - Orden 57",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/la-portada-aparece-al-toque.spec.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "8 de septiembre de 2026 — Dos pruebas nuevas daban rojo con la app sana",
+      "references": [],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "8 de septiembre de 2026 — El recorrido abria las 358 pantallas aunque el cambio tocara una",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/pantallas-tocadas.mjs",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-recorrido-mira-lo-que-cambia.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "8 de septiembre de 2026 — Cinco cosas de la contabilidad que decian que si sin haber pasado",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/invoices/leer-facturas.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/dos-cobros-a-la-vez-no-se-pisan.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-contabilidad-no-miente.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "8 de septiembre de 2026 — \"Dijo que si y no paso nada\": el control que lo frena en toda la app",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/nadie-dice-que-si-sin-mirar.mjs",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "docs/donde-se-tira-el-error.md",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "8 de septiembre de 2026 — La web mostraba lo que no debia y perdia de donde venia el prospecto",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-web-no-muestra-ni-pierde-lo-que-no-debe.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — El panel de publicidad: ni inventar plata ni quedarse apagado",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — Seis pruebas nuevas que daban falsa confianza, y un ancla repetida",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/50-tecnologia-app-fiesta-demo.spec.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — Dos cosas de la planificacion que se perdian sin avisar",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-planificacion-no-pierde-lo-que-guarda.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — La pantalla de ingreso se podia caer entera por un dato que no hace falta",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/la-puerta-de-entrada-anda.spec.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — El cortafuegos: las pruebas nuevas se corren primero",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/pruebas-nuevas-primero.mjs",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — Las estaciones quedaron escondidas detras de un clic en la portada",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/la-app-se-mueve.spec.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/50-la-app-de-tu-fiesta-recorrido.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — Lo que encuentra otro y yo no: se corrige el metodo, no solo el defecto",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "docs/LO-QUE-NO-VI.md",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — El itinerario interno le llegaba al cliente",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — El panel muestra tambien la deuda y lo que se aprendio",
+      "references": [],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "9 de septiembre de 2026 — La prueba de la demo de la portada fallaba solo con la maquina cargada",
+      "references": [],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "10 de septiembre de 2026 — Cuatro pantallas decían \"guardado\" sin haber guardado",
+      "references": [],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "10 de septiembre de 2026 — Dos toques al botón pagaban dos imágenes de IA",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/decoracion-no-gasta-de-mas.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "10 de septiembre de 2026 — Otros dos autoguardados que decían \"guardado\" sin mirar",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-autoguardado-no-miente.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "10 de septiembre de 2026 — Falso positivo descartado: la prueba que se comprobaba a sí misma",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-decoracion-llega-al-cliente-como-es.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "10 de septiembre de 2026 — Dos controles decían números distintos de lo mismo",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "10 de septiembre de 2026 — La app quedaba cargando y no abría",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "apphosting.yaml",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "11 de septiembre de 2026 — Se SACA la copia guardada de las páginas: error mío",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "next.config.js",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "11 de septiembre de 2026 — Verificado: la portada espera diez pedidos antes de dibujar nada",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "docs/ordenes/57-la-portada-aparece-al-toque.md",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "11 de septiembre de 2026 — La prueba de la orden 57 no probaba nada, y se rehizo",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/la-portada-aparece-al-toque.spec.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "14 de septiembre de 2026 — ENT-03: Fotocabina y Touchpix no reinician la pantalla a la persona siguiente",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/evento/touchpix/[fiestaId]/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/entretenimiento-sesion-segura.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "14 de septiembre de 2026 — Guardar un cambio ya no puede borrar lo demás",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "15 de septiembre de 2026 — La puerta retoma donde quedo, y la pantalla que no abrio se mira de nuevo",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/se-puede-publicar.mjs",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "15 de septiembre de 2026 — El despertador de afuera se daba de baja solo por \"errores\"",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/api/despertar/route.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-despertador-contesta-sin-trabajar.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "16 de septiembre de 2026 — Los respaldos: tres formas de decir que estaba todo bien sin estarlo",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/backup.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-respaldo-no-miente.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "16 de septiembre de 2026 — Al reporte le faltaba el ultimo dia, y al invitado le llegaban dos invitaciones",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/reportes/rango-de-dias.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "16 de septiembre de 2026 — La restauracion parcial ya no se anuncia como completa (segunda parte)",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/respaldos/como-salio-la-restauracion.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "16 de septiembre de 2026 — Barrido de la octava pregunta sobre plata y sobre lo que sale para afuera",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/admin-reset.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "16 de septiembre de 2026 — Las nueve preguntas en una sola hoja, para que no se empiece de cero",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "docs/ANTES-DE-ENTREGAR.md",
+          "exists": true
+        },
+        {
+          "kind": "archivo",
+          "path": "docs/ordenes/61-pasar-las-nueve-preguntas-por-lo-tuyo.md",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — La verificacion deja de repetir lo que no puede haber cambiado",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/se-puede-publicar.mjs",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — Una lectura que fallo ya no se guarda como respaldo completo",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/data-service.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-respaldo-no-miente.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — El reporte cuenta los dias en hora de Uruguay",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/reportes/rango-de-dias.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — La encuesta post fiesta: no se cuelga, no se pisa y no se traga cualquier cosa",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/feedback/lo-que-llega-de-afuera.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — Diez guardados que reescribían la lista entera ahora tienen turno",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/__tests__/los-guardados-de-lista-tienen-turno.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/los-guardados-de-lista-tienen-turno.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — La verificación dice dónde se le fue el tiempo",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "docs/DONDE-SE-VA-EL-TIEMPO.md",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — El navegador deja de repetirse por cosas que no lo pueden cambiar",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/se-puede-publicar.mjs",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "17 de septiembre de 2026 — La verificación avisa si se arrancó con el trabajo a medio terminar",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/se-puede-publicar.mjs",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "18 de septiembre de 2026 — Renombrar un equipo ya no permite borrarlo estando asignado",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/activos-fijos.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/no-se-borra-un-equipo-asignado.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "18 de septiembre de 2026 — El ajuste de costos no dice \"listo\" si los menús quedaron con el precio viejo",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/insumos.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-ajuste-de-costos-no-miente.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "18 de septiembre de 2026 — Las preguntas se volvieron un control que corre solo",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/las-formas-que-mienten.mjs",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "19 de septiembre de 2026 — Los incidentes de la fiesta ya no se pisan entre dos personas",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/incidents.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/los-guardados-de-lista-tienen-turno.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "19 de septiembre de 2026 — Una reunión borrada ya no dice que se guardó",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/fiesta/reuniones.actions.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/una-reunion-borrada-no-dice-que-se-guardo.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "19 de septiembre de 2026 — La prueba de la fotocabina ya no frena la verificación por la máquina cargada",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "docs/tiempo-de-las-pruebas.md",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/fotocabina-de-punta-a-punta.spec.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — Tres botones de copiar que decían \"copiado\" sin copiar",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "scripts/las-formas-que-mienten.mjs",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — La pantalla de guías de armado tiene una prueba que mira el resultado",
+      "references": [
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/las-guias-de-armado-se-aplican-de-verdad.spec.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — Al volver del ingreso se perdia la fiesta",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/middleware.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — Una prueba de navegador que llamaba al servidor tumbaba la tanda entera",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/__tests__/un-regalo-no-se-reserva-dos-veces.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/las-pruebas-viven-donde-corresponde.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — El indicador de preparacion daba 100% con el cliente debiendo",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/readiness-score.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — La lista de compras sumaba gramos como si fueran kilos",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/compras/unidades.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — Las pruebas de navegador entraban sin sesion y rebotaban al ingreso",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "tests/e2e/helpers/fiesta-de-prueba.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/la-hoja-del-dj-dice-la-verdad.spec.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — El buzon decia \"Sincronizado\" con la lista borrada",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/buzon.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-buzon-no-confunde-una-falla-con-vacio.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — El secretario decia haber anotado un prospecto y no anotaba nada",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/multiagent.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — El briefing del DJ decia \"Copiado\" sin copiar",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/(app)/fiestas/nueva/musica/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — Dos pruebas de comida estaban apagadas hacia semanas",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/__tests__/ninguna-prueba-esta-apagada.test.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/ninguna-prueba-esta-apagada.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — El armado automatico del salon contaba invitados con un campo que no existe",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/lib/decoracion/generar-layout-automatico.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/salon-3d-y-piezas-layout.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "20 de septiembre de 2026 — La prueba despierta de importar invitados: tres cosas, dos de ella y una de la app",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "tests/e2e/importar-invitados-de-una-planilla.spec.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "tests/e2e/importar-invitados-de-una-planilla.spec.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "21 de septiembre de 2026 — \"Total cobrado\" del personal sumaba lo que todavia se debe",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/(app)/empleados/[id]/historial/page.tsx",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/el-total-cobrado-del-personal-no-miente.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "21 de septiembre de 2026 — Dos personas guardando el mismo proveedor se pisaban",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/proveedores.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/dos-personas-no-se-pisan-en-proveedores.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    },
+    {
+      "title": "21 de septiembre de 2026 — Cambiar una clave le cambiaba la clave a los otros administradores",
+      "references": [
+        {
+          "kind": "archivo",
+          "path": "src/app/actions/simple-auth.ts",
+          "exists": true
+        },
+        {
+          "kind": "prueba",
+          "path": "src/__tests__/la-clave-de-uno-no-le-cambia-la-clave-a-otro.test.ts",
+          "exists": true
+        }
+      ],
+      "status": "Registro historico contrastado con existencia de artefactos; NO validacion funcional"
+    }
+  ]
+}

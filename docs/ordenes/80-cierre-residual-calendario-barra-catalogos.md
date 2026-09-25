@@ -1,3 +1,7 @@
+# Actualizacion prioritaria 25/09/2026
+
+Main834fc98. Ver [revalidacion actual](../auditoria/REVALIDACION-ANTERIORES-2026-09-25.md). BAR02 ahora PASS. Catalogos/salones tienen mutaciones individuales presentes; no rehacer el mutex. BAR01 parcial: el reintento borra registro antes de devolver stock y puede perderlo ante reinicio; Claude debe cerrar recuperacion durable/idempotente segun informe. Lo que sigue es historico y NO ordena reimplementar correcciones presentes.
+
 # Estado prioritario 2026-09-23
 
 Contraste main2f413228cf97dce5cef6f6bb818c504ec66cef74: [resultado vigente](../auditoria/CIERRE-CONTRASTE-2026-09-23.md). NO rehacer CAL05/CAL06/INV01/BAR03 ni ultimo borrado: sondas pasan. Concurrencia local pasa, distribuida sigue fallando. Pendientes: BAR02 cola rechazada, BAR01 recuperacion tras reposicion fallida, CAT01/CAT02 entre instancias. Claude lleva estos residuales de datos/stock. Lo que sigue es texto historico y conserva criterios, no una orden de repetir todo.
