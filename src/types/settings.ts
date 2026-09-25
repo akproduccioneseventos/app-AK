@@ -149,6 +149,7 @@ export interface CompanyInfo {
     signatureUrl?: string | null;
     cuentasBancariasPortal?: CuentaBancaria[];
     googleReviewsLink?: string;
+    emailContador?: string;
     enableGoogleReviewsAutoRequest?: boolean;
 }
 

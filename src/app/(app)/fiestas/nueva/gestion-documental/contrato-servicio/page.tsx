@@ -342,6 +342,7 @@ function ContratoServicioContent() {
   }
 
   const firma = fiesta?.contratoFirmaInfo;
+  const constancia = fiesta?.firmaDigitalConstancia;
   const selectedTemplate = templates.find(t => t.type === selectedType);
 
   return (
@@ -360,6 +361,10 @@ function ContratoServicioContent() {
                         firma.method === 'digital' ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
                     )}>
                         {firma.method === 'digital' ? 'FIRMADO DIGITALMENTE' : 'FIRMADO FÍSICO'}
+                    </Badge>
+                ) : constancia ? (
+                    <Badge className="bg-amber-100 text-amber-800 border-amber-300 text-[9px] font-black tracking-widest">
+                        CONSTANCIA DIGITAL (FALTA PAPEL)
                     </Badge>
                 ) : <Badge variant="outline" className="text-[9px] font-black tracking-widest">PENDIENTE DE FIRMA</Badge>}
             </div>
@@ -397,6 +402,29 @@ function ContratoServicioContent() {
             )}
           </div>
         </div>
+
+        {/* Banner de constancia digital en el portal: falta el papel */}
+        {constancia && !firma?.isSigned && (
+          <div className="print:hidden px-4">
+            <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-amber-900 shadow-sm">
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                <p className="text-sm font-semibold">
+                  {constancia.signedBy} firmó en el portal el {new Date(constancia.signedAt).toLocaleDateString('es-UY')}. Falta el contrato firmado en papel.
+                </p>
+              </div>
+              <Label htmlFor="upload-signed-banner" className="cursor-pointer shrink-0">
+                <Button variant="default" size="sm" asChild disabled={isUploading} className="bg-amber-600 hover:bg-amber-700 text-white font-bold">
+                  <span>
+                    {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UploadCloud className="w-4 h-4 mr-2" />}
+                    Subir contrato en papel
+                  </span>
+                </Button>
+                <input id="upload-signed-banner" type="file" accept="application/pdf,image/*" className="hidden" onChange={handlePhysicalUpload}/>
+              </Label>
+            </div>
+          </div>
+        )}
         <div className="print:hidden px-4">
           <Card className="border-dashed">
             <CardHeader className="pb-2">

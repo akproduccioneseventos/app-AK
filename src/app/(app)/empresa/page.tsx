@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -209,6 +209,14 @@ const MARKETING_ITEMS: HubItem[] = [
     href: '/contabilidad/crm/outbox',
     icon: Send,
     color: 'text-emerald-600 bg-emerald-50',
+  },
+  {
+    title: 'Reseñas de Google',
+    description: 'Borradores sugeridos con IA y respuestas a clientes de Google Maps a un toque.',
+    href: '/empresa/resenas-google',
+    icon: Sparkles,
+    color: 'text-amber-600 bg-amber-50',
+    badge: 'Google Maps',
   },
   {
     title: 'Rendimiento de Anuncios',

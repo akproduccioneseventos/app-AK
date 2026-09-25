@@ -48,6 +48,8 @@ export interface ScheduledMessage {
   targetId: string; // leadId or fiestaId
   targetName: string;
   targetPhone?: string;
+  targetEmail?: string;
+  subject?: string;
   // Message details
   templateType: MessageTemplateType;
   messageText: string; // Pre-rendered text

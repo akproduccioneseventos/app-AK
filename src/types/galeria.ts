@@ -94,6 +94,6 @@ export const SERVICIOS_GALERIA = [
 export const SUBCATEGORIAS_POR_SERVICIO: Record<string, string[]> = {
   Fotografía: ['Exteriores', 'Civil', 'Iglesia', 'Pintada', 'Disco'],
   Filmación: ['Exteriores', 'Civil', 'Iglesia', 'Evento completo'],
-  Discoteca: ['Pista de baile', 'Efectos especiales', 'Karaoke'],
+  Discoteca: ['Pista de baile', 'Efectos especiales'],
   Catering: ['Platos principales', 'Postres', 'Barra de tragos', 'Candy bar'],
 };

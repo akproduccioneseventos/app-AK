@@ -160,23 +160,7 @@ const STATIONS: TechStationItem[] = [
     color: 'from-blue-600 to-cyan-600',
     ctaText: 'Quiero Tótems Interactivos',
   },
-  {
-    id: 'karaoke',
-    name: 'Karaoke Digital de Pista',
-    badge: 'Diversión Total',
-    tagline: 'Catálogo con miles de canciones y letras en pantalla',
-    description:
-      'Estación de canto con micrófonos inalámbricos profesionales, letras sincronizadas en pantallas auxiliares y puntuación interactiva.',
-    icon: Mic2,
-    highlights: ['Catálogo actualizado', 'Micrófonos inalámbricos', 'Letras sincronizadas', 'Duelos por equipos'],
-    features: [
-      { icon: Mic2, title: 'Miles de canciones', desc: 'Desde clásicos de fiesta hasta los éxitos del momento.' },
-      { icon: Music, title: 'Sonido profesional', desc: 'Ecualización y efectos de voz para sonar como un artista.' },
-      { icon: Flame, title: 'Batallas de canto', desc: 'Dinámicas entre mesas con votación en el muro social.' },
-    ],
-    color: 'from-violet-600 to-purple-700',
-    ctaText: 'Quiero Karaoke en mi fiesta',
-  },
+
   {
     id: 'videodevida',
     name: 'Video de Vida Cinematográfico',

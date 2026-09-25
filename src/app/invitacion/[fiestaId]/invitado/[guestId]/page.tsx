@@ -62,6 +62,7 @@ import type { SocialConnection } from '@/types/settings';
 import type { GuestPortalSettings } from '@/types/fiesta';
 import { isRecapAvailable } from '@/lib/recap/recap-engine';
 import { MiniQuiosco } from './MiniQuiosco';
+import { AsistenteDelInvitado } from '@/components/invitacion/AsistenteDelInvitado';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
 
@@ -805,6 +806,14 @@ function GuestPortalContent() {
           guestAccessToken={guestAccessToken}
           canShareToSocial={socialEnabled}
           onClose={() => setShowQuiosco(false)}
+        />
+      )}
+
+      {guest && (
+        <AsistenteDelInvitado
+          fiestaId={fiestaId}
+          invitadoNombre={guest.nombre}
+          mesaAsignada={guest.tableNumber}
         />
       )}
 

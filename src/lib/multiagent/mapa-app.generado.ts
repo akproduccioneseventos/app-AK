@@ -296,6 +296,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/empresa/red-social-eventos",
     "/empresa/redes-sociales",
     "/empresa/redes-sociales/ia-marketing",
+    "/empresa/resenas-google",
     "/empresa/salones",
     "/empresa/salones/:id/croquis",
     "/empresa/salones/:id/diseno",

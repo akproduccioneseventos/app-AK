@@ -66,6 +66,7 @@ const TOUCHPIX_THEMES = [
   { id: 'fantasy_enchanted', label: 'Fantasía', emoji: '🧚', gradient: 'from-emerald-500 to-teal-700', cssFilter: 'brightness(1.05) saturate(0.9) hue-rotate(90deg) contrast(1.05)', description: 'Mundo mágico' },
   { id: 'pop_art', label: 'Arte Pop', emoji: '🎨', gradient: 'from-yellow-500 to-red-600', cssFilter: 'saturate(2.5) contrast(1.4) brightness(1.05)', description: 'Estilo Pop Art' },
   { id: 'golden_luxury', label: 'Elegante', emoji: '👑', gradient: 'from-amber-500 to-yellow-700', cssFilter: 'sepia(0.5) saturate(1.5) brightness(1.1) contrast(1.1)', description: 'Dorado premium' },
+  { id: 'caricatura', label: 'Caricatura', emoji: '🎨', gradient: 'from-amber-500 to-orange-600', cssFilter: 'contrast(1.3) saturate(1.4) brightness(1.05)', description: 'Caricatura divertida y amable' },
 ];
 
 /* ───────────────────── Face Swap Characters ───────────────────── */
