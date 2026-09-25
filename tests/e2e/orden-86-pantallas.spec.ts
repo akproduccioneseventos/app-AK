@@ -90,6 +90,8 @@ test.describe('Orden 86: las pantallas nuevas hacen lo que dicen', () => {
     test.setTimeout(90_000);
     const mail = `contador-${Date.now()}@estudio.com.uy`;
     await page.goto('/settings/company', { waitUntil: 'domcontentloaded' });
+    // Se espera a que la ficha termine de cargar: si se escribe antes, la carga lo pisa.
+    await expect(page.locator('#company-name')).not.toHaveValue('', { timeout: 30_000 });
     const campo = page.locator('#email-contador');
     await expect(campo).toBeEditable({ timeout: 30_000 });
     await campo.fill(mail);
