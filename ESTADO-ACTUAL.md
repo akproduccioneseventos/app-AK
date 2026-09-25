@@ -1,39 +1,38 @@
 # Acá quedé
 
-**23 de septiembre de 2026.** **Todo lo mío está fusionado** (1217, 1214, 1218 y la de la comida).
+**25 de septiembre de 2026.** Propuesta 1222 (orden 81 de Gemini + arreglos de Claude): puerta
+completa en verde y fusionada.
 
-## Lo que entró hoy
+## Lo que entró
 
-- **Barra, fotos, salones y pagos de salones** aguantan varios servidores a la vez (1217).
-- **De Gemini (1214):** secretario manos libres, salón 3D en el portal del cliente (con y sin
-  clave) y escena armada sola. Se le sacó una línea que mandaba la clave del portal al navegador.
-- **La verificación prueba lo nuevo, no toda la app** (orden del dueño): corre sólo las pruebas
-  de navegador que el cambio alcanza, repite sólo lo que falló y compila una vez. Si el cambio
-  toca algo general, corre todo.
-
-## La parte de Claude de la orden 81: hecha (esta rama)
-
-- **Plata:** cobros, facturas, recibos de sueldo, gastos y cupones ya no se pierden con dos
-  operaciones a la vez ni entre servidores. Una lista vieja no pisa cobros ni borra.
-- **Noche:** un voto por invitado, operadores sólo en su fiesta, trago sólo con su enlace.
-
-## Pendiente, y es mío
-
-Nada. Insumos y menús también quedaron protegidos (rama `fix/comida-entre-servidores`).
-
-## Memoria del servidor
-
-Subida a 1024 MB con el "sí" del dueño, después de medirla. Propuesta 1207 cerrada: traía
-además un tope de tiempo a los guardados que no se quiere.
+- **De Gemini (orden 81):** fotocabina sin señal con aviso "guardada en este equipo" y subida
+  única al volver; comprobación del equipo en el Centro de Fiesta con "probar de nuevo"; doble
+  toque en la barra sin pedidos repetidos. Cuatro pruebas de navegador que tocan los botones.
+- **Se le sacaron tres cosas a la entrega:** le quitaba la sesión a una acción de insumos, daba
+  por subida una foto que no se subió, y subía a 35 s la espera del invitado.
+- **Plata (Claude):** una factura ya no se cobra de más con dos servidores a la vez.
+- **Barra (Claude):** el invitado pide sin que le pidan sesión del equipo (antes se descontaban
+  botellas y el pedido se cortaba); ve la carta de la empresa y no la de fábrica; con la base
+  caída el pedido se guarda igual sin pisar la fiesta; las botellas por devolver no se devuelven
+  dos veces.
+- **Toda la app:** la pantalla ya no se recarga sola cuando vuelve el wifi (cortaba fotocabina y
+  barra en plena fiesta).
 
 ## Espera a Gemini
 
-- **Orden 82:** FUSIONADA (propuesta 1221). Prospectos, clientes, agenda y mensajes protegidos entre servidores.
-- **Orden 81, propuesta 1222: en verificación (tercera vuelta).** Si pasa la puerta, se fusiona.
-- Devoluciones viejas: todas al día en verde.
+- **Orden 83:** barrido con la pregunta 24 (lo del invitado no llama acciones del equipo).
+- Devoluciones viejas: 42, 48, 48b, 61, 71, 74-77 pantallas equivocadas, acceso administrativo.
+
+## Pendiente, y es mío
+
+Nada.
 
 ## Lo que ningún control cubre
 
 Falta **un ensayo real** por rol, con fotocabina, 360, barra y conexiones de afuera.
 
-## Trampas: mirar cuántas pruebas va a correr antes de esperar; `npm run limpiar:corrida`; no tocar código con la verificación andando.
+## Trampas
+
+- Apagar servidores con `pgrep -x next-server | xargs -r kill`, nunca por texto (error 20).
+- Mirar `EADDRINUSE` en el registro antes de creerle a una prueba contra servidor propio.
+- `npm run limpiar:corrida` después de cada corrida; no tocar código con la puerta andando.
