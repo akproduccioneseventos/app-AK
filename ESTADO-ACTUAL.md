@@ -1,7 +1,6 @@
 # Acá quedé
 
-**25 de septiembre de 2026.** Propuesta 1222 (orden 81 de Gemini + arreglos de Claude): puerta
-completa en verde y fusionada.
+**25 de septiembre de 2026.** Propuestas 1224 y 1225 fusionadas, con la puerta completa en verde.
 
 ## Lo que entró
 
@@ -23,16 +22,16 @@ completa en verde y fusionada.
 
 ## Espera a Gemini
 
-Nada. Todas las órdenes y devoluciones están cerradas.
+- **Orden 87:** la descarga del Video de Vida avisa lo que falta (VID03 de Codex).
+- **Devolución 76b, vuelta 2:** en el celular no se puede tocar el botón de confirmar la planilla
+  de invitados. `min-h-0` no alcanzó. La prueba del celular quedó salteada hasta que ande.
 
-## Decisión del dueño (25 de septiembre)
-
-**Cuando vuelve la señal, no se avisa nada.** Palabras suyas: *"está bueno que vuelva la señal y
-la persona no se dé cuenta"*. No se hace un cartel de "volvió la señal".
+Las dos van en UNA sola propuesta.
 
 ## Pendiente, y es mío
 
-Nada.
+- Nada. La prueba de navegador del asistente del invitado (B1) no se hizo: necesita la
+  inteligencia artificial de verdad.
 
 ## Lo que ningún control cubre
 
