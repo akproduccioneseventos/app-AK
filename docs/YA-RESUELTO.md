@@ -9617,3 +9617,14 @@ usa: pasadoAlPresupuesto: false en src/app/actions/invoices.ts
 usa: cobrosDeFacturaSinPasarAlPresupuesto en src/lib/automatico/parte-manana.ts
 prueba: src/__tests__/un-cobro-cortado-a-medias-se-detecta.test.ts
 ```
+
+## 25 de septiembre de 2026 — El parte de la mañana decía la fecha de la fiesta un día antes
+
+**Que estaba mal:** "falta confirmar menú para el evento del ..." armaba la fecha con
+`new Date('2026-10-10')`, que se entiende como hora de Greenwich: en Uruguay mostraba el 9.
+**Que se hizo:** `fechaDelEventoLegible` usa `diaCalendario` (el día tal como se escribió). Lo
+agarró el control de las formas que mienten al tocar el archivo.
+
+```comprobar
+usa: fechaDelEventoLegible en src/lib/automatico/parte-manana.ts
+```

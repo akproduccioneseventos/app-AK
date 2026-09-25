@@ -1,8 +1,21 @@
 ﻿import { readData, writeData } from '@/lib/data-service';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 
 const PARTE_CACHE_FILE = 'parte-manana-cache.json';
+
+/**
+ * La fecha del evento como la escribió el equipo (día/mes/año), sin que la zona horaria la
+ * corra un día. Antes se armaba con `new Date('2026-10-10')`, que se entiende como hora de
+ * Greenwich, y en Uruguay el parte decía el 9 (25 de septiembre de 2026).
+ */
+function fechaDelEventoLegible(fecha: string): string {
+  const dia = diaCalendario(fecha);
+  if (!dia) return fecha;
+  const [a, m, d] = dia.split('-');
+  return `${Number(d)}/${Number(m)}/${a}`;
+}
 
 export interface ItemParteManana {
   id: string;
@@ -106,7 +119,7 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
           id: `fiesta_${fiesta.id}`,
           tipo: 'fiesta_proxima',
           titulo: `Coordinación de ${nombre}`,
-          detalle: `Falta ${faltantes.join(' y ')} para el evento del ${new Date(fechaStr).toLocaleDateString('es-UY')}.`,
+          detalle: `Falta ${faltantes.join(' y ')} para el evento del ${fechaDelEventoLegible(fechaStr)}.`,
           accionHref: `/fiestas/nueva?fiestaId=${fiesta.id}`,
           accionTexto: 'Abrir fiesta',
         });
