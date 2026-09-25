@@ -9463,3 +9463,21 @@ usa: cambiarUnIncidente en src/app/actions/incidents.ts
 usa: addActualizacionIncidente en src/app/(app)/incidentes/page.tsx
 prueba: src/__tests__/incidentes-dos-servidores-no-pierden-comentarios.test.ts
 ```
+
+## 25 de septiembre de 2026 — El control de stock de la carga no sumaba renglones del mismo equipo (LOG01, Codex)
+
+**Que estaba mal:** `checkAssetConflicts` comparaba cada renglón contra el stock por separado.
+Dos renglones de 6 sillas con 10 en depósito no avisaban nada, y en la fiesta faltaban 2.
+
+**Que se hizo:** se suma lo que la fiesta necesita de cada equipo en **todos** sus renglones y
+categorías (`necesidadPorEquipo`, `src/lib/logistica/necesidad-por-equipo.ts`). La base es la
+lista guardada de la fiesta, o la lista completa que manda la pantalla; lo que se está editando la
+pisa por identificador, así una edición no se cuenta dos veces. Aplicar la plantilla manda su
+propia lista completa. Si hay duda se cuenta de más: un aviso de más se ve, un faltante no.
+La parte de pantalla (una respuesta vieja que desmarca lo cargado, LOG04) quedó en la orden 85.
+
+```comprobar
+usa: necesidadPorEquipo en src/app/actions/fiesta/carga-operativa.actions.ts
+usa: listaCompleta en src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
+prueba: src/__tests__/carga-stock-total-por-origen.test.ts
+```

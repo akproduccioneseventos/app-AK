@@ -3,6 +3,7 @@
 
 import type { ListaDeCargaOperativa, CargaOperativaCategoria, CargaOperativaItem, FiestaEnPlanificacion } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
+import { necesidadPorEquipo } from '@/lib/logistica/necesidad-por-equipo';
 import { getFiestas, getFiestaById, saveFiesta } from './fiesta.actions';
 import { getActivosFijos } from '../activos-fijos';
 import { isSameDay } from 'date-fns';
@@ -195,19 +196,31 @@ export async function updateCargaOperativaItemState(input: {
 /**
  * Escanea todos los eventos activos en una fecha específica para detectar conflictos de stock.
  */
-export async function checkAssetConflicts(fiestaId: string, date: string, items: CargaOperativaItem[]): Promise<CargaOperativaItem[]> {
+export async function checkAssetConflicts(
+  fiestaId: string,
+  date: string,
+  items: CargaOperativaItem[],
+  opciones?: { listaCompleta?: CargaOperativaItem[] },
+): Promise<CargaOperativaItem[]> {
   await requireAppSession();
     const allFiestas = await getFiestas(false); // Solo activas
     const assetsCatalog = await getActivosFijos();
     const otherFiestasSameDay = allFiestas.filter(f => f.id !== fiestaId && f.configuracion.fechaEvento && f.configuracion.fechaEvento === date);
 
+    // La base es la lista completa que manda la pantalla, o si no la manda, la guardada de
+    // esta fiesta. Si hay duda, se cuenta de mas: un aviso de mas se ve, un faltante no.
+    const estaFiesta = allFiestas.find(f => f.id === fiestaId);
+    const base = opciones?.listaCompleta
+      ?? (estaFiesta?.listaDeCargaOperativa?.categorias || []).flatMap(cat => cat.items || []);
+    const necesidad = necesidadPorEquipo(base, items);
+
     return items.map(item => {
         if (!item.origenId) return item;
 
         const asset = assetsCatalog.find(a => a.id === item.origenId);
+        const currentNeed = necesidad.get(item.origenId) ?? (parseFloat(item.cantidad) || 0);
         if (!asset) {
             if (typeof item.availableStockAtDate === 'number') {
-                const currentNeed = parseFloat(item.cantidad) || 0;
                 return {
                     ...item,
                     hasConflict: currentNeed > item.availableStockAtDate,
@@ -230,7 +243,6 @@ export async function checkAssetConflicts(fiestaId: string, date: string, items:
             });
         });
 
-        const currentNeed = parseFloat(item.cantidad) || 0;
         const availableStock = totalStock - sumOtherEvents;
         const hasConflict = currentNeed > availableStock;
 
