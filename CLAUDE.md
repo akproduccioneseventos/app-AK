@@ -833,6 +833,18 @@ que la agenda no lee. La prueba de la entrega pasaba igual, porque no miraba el 
 es un documento entero y va `mutateGenericJsonArray`. Y las pruebas de este tipo **comprueban el
 par archivo/colección**, no sólo que se guarde.
 
+### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
+
+**Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
+lo volví atrás porque es un permiso. Volverlo atrás estaba bien; **no preguntar por qué lo había
+hecho, no**. Lo había hecho porque la barra, atendiendo a un invitado, llamaba a esa acción y el
+pedido se cortaba con las botellas ya descontadas. **Era un defecto de plata mío**, y casi quedó
+tapado de nuevo.
+
+**Qué se hace distinto:** cuando una entrega trae un cambio raro en algo mío, antes de volverlo
+atrás se pregunta **qué prueba lo necesitaba**. Ese cambio suele ser el síntoma de un defecto
+real del lado mío. Se vuelve atrás el remiendo **y** se arregla la causa.
+
 ### 12. Arrancar la verificación con el trabajo a medio terminar
 
 **Pasó el 17 de septiembre de 2026 y costó más de una hora, en una sesión donde el dueño ya venía
@@ -1254,6 +1266,8 @@ con otra cara.
 | Un cobro se perdia con dos operaciones a la vez, y una lista vieja de presupuestos pisaba cobros y borraba lo que otro creo | `src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts` y `src/__tests__/una-lista-vieja-no-borra-plata.test.ts` |
 | Un cupon de un solo uso servia dos veces | `src/__tests__/un-cupon-de-un-uso-sirve-una-vez.test.ts` |
 | Votos repetidos y operadores de otra fiesta manejando esta | `src/__tests__/la-noche-no-se-maneja-de-costado.test.ts` |
+| Dos cobros en dos servidores dejaban una factura cobrada de mas | `src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts` |
+| El invitado pedia un trago, se descontaban botellas y el pedido se cortaba por pedirle sesion del equipo | `src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts` |
 | Dos personas guardando fotos o salones perdian un cambio, y borrar el ultimo no quedaba | `src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts` |
 
 ### Cómo se elige el matafuego
