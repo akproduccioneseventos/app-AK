@@ -8106,3 +8106,8 @@ Solo documentacion, no implementacion. Dueno autorizo preparar trabajo para Gemi
 ## 2026-09-25 - Codex: contraste anterior a nuevas mejoras81
 
 Main834fc98; PR1223/4881e4b no toca barra. Informe docs/auditoria/REVALIDACION-ANTERIORES-2026-09-25.md.8 controles aislados PASS(regalos,documentos,cola stock),1 FAIL: BAR01 reintento vacia pendiente antes de devolver stock; riesgo de perder devolucion si reinicia entre ambos. No caida real ejecutada. Catalogos/salones transaccionales presentes; PR1214 fusionada y devolucion archivada.73 entradas historicas reconciliadas por referencias; no certificacion funcional. Importacion movil sigue excluida del E2E. Errores de invocacion de sondas antiguas NO se cuentan como fallos app. Sin codigo/build/merge/datos reales. Claude atiende BAR01; no repetir lo corregido.
+
+
+## 2026-09-25 - Codex: video de vida e incidentes revalidados
+
+Main2c652dd, sin PR abiertas al consultar.7 PASS/1 FAIL aislados. Video:6 PASS, limite vigente50 (no100), borrado fallido/parcial/sin almacenamiento informa error. INC01 pasa en un servidor, falla en dos: resolucion conserva estado pero pierde comentario con dos exitos. Claude completa con mutacion individual transaccional; no repetir mutex local. Informe docs/auditoria/VIDEO-INCIDENTES-REVALIDACION-2026-09-25.md, sonda/resultados asociados. No build/E2E/Storage real ni codigo/merge. No certificacion total; solo cierre de casos especificos.
