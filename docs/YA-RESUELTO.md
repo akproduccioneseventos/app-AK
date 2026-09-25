@@ -9667,3 +9667,67 @@ prueba: tests/e2e/orden-86-pantallas.spec.ts
 **Además:** el botón "Conectá Google en Ajustes" de la bandeja de salida llevaba a una pantalla que
 no existe (`/empresa/ajustes`). Ahora lleva a `/settings/google-workspace`. Las pruebas que
 faltaban de la entrega las escribió Claude por pedido del dueño.
+
+## 25 de septiembre de 2026 — La descarga del Video de Vida avisa lo que falta (VID03), y el mecanismo que lo dejó escapar
+
+**Qué estaba mal:** una foto que no bajaba se salteaba en silencio y el archivo salía con fotos
+de menos. Si fallaban todas, salía **vacío** y la pantalla decía "Descarga Iniciada". Además, una
+ruta local vieja podía leer cualquier archivo del servidor.
+
+**Cómo quedó:**
+- se cuenta cada foto que falla;
+- adentro del archivo va `FALTAN_FOTOS.txt`, con los nombres y **sin** la dirección, que lleva la
+  firma de acceso;
+- la pantalla dice "Se bajaron N de M fotos";
+- si no entró ninguna, no se entrega nada: sale un aviso para probar de nuevo;
+- dos fotos con el mismo nombre ya no se pisan;
+- la ruta local sólo lee adentro de la carpeta de la app.
+
+**El mecanismo:** el hallazgo ya se había pedido el 19/9 como bloque 3 de la orden 69, sin
+comprobación. Ahora `npm run ordenes?` marca todo bloque que nombra un archivo sin línea de
+`comprobar` (ver `docs/LO-QUE-NO-VI.md`).
+
+```comprobar
+usa: FALTAN_FOTOS en src/app/api/video-vida-photos/[fiestaId]/download/route.ts
+usa: X-Fotos-Fallidas en src/app/(app)/fiestas/nueva/video-vida/page.tsx
+prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
+usa: bloquesSinComprobacion en scripts/ordenes-cumplidas.mjs
+```
+
+## 25 de septiembre de 2026 — La fiesta no viaja entera a quien no es del equipo (órdenes 64 y 67, pregunta 14)
+
+**Qué estaba mal:** `getFiestaById` es una acción del servidor que usan también las pantallas
+públicas. Cualquiera con el número de la fiesta, que va en el enlace de todos los invitados, se
+llevaba la fiesta entera:
+- los sueldos del personal y los costos;
+- el contrato y los avisos de pago;
+- el teléfono y la credencial de cada invitado.
+
+Lo pedían los bloques 3 de las órdenes 64 y 67, que habían quedado sin comprobación y sin hacer.
+
+**Cómo quedó:**
+- **Sin sesión:** se recortan lo interno del equipo, lo privado del cliente y el contacto, las
+  notas y la credencial de cada invitado (`src/lib/fiesta/recortar-para-afuera.ts`).
+- **El cliente con su portal:** ve su contrato, sus pagos y las credenciales de sus invitados,
+  pero no los sueldos ni los costos.
+- **Al guardar:** lo que llegó recortado se repone desde lo guardado (`reponerLoRecortado`, dentro
+  de `preserveFiestaSecrets`). Así una pantalla pública que lee y guarda no borra nada.
+- **Las acciones que atienden al invitado** leen la fiesta entera con la marca `LECTURA_COMPLETA`
+  (`src/lib/fiesta/lectura-completa.ts`). Es un `Symbol`, que desde el navegador no se puede
+  mandar.
+- **`saveFiesta`** ya no le devuelve la fiesta guardada a quien no es del equipo.
+
+**Además, pregunta 13:** `hoyEnUruguay()` en `src/lib/utils.ts`.
+- La factura que arma el asistente y la lista de fiestas próximas de un empleado ya usan el día
+  de Uruguay.
+- Los demás lugares van en la orden 88.
+
+```comprobar
+prueba: src/__tests__/la-fiesta-no-viaja-entera-a-quien-no-es-del-equipo.test.ts
+usa: recortarFiestaParaAfuera en src/app/actions/fiesta/fiesta.actions.ts
+usa: reponerLoRecortado en src/lib/fiesta/get-fiesta-raw.ts
+usa: LECTURA_COMPLETA en src/app/actions/fiesta/barra-tecnologica.actions.ts
+prueba: src/__tests__/hoy-es-el-dia-de-uruguay.test.ts
+usa: hoyEnUruguay en src/app/actions/assistant.ts
+```
+

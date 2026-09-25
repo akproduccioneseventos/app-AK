@@ -99,6 +99,11 @@ usa: verifyPortalSession en src/app/actions/fiesta/portal.actions.ts
 usa: createNotification en src/app/actions/fiesta/portal.actions.ts
 prueba: tests/e2e/importar-invitados-de-una-planilla.spec.ts
 prueba: tests/e2e/el-cliente-le-escribe-al-equipo.spec.ts
+# Bloque 2 (verificado el 25/9)
+usa: marcarCorrida en src/app/api/cron/recordatorio-a-los-invitados/route.ts
+# Bloque 4 (verificado el 25/9)
+usa: subirIdeasDecoracionCliente en src/app/portal/[fiestaId]/decoracion/page.tsx
+usa: fotosIdeasCliente en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 ```
 
 **Y las pruebas de navegador tienen que mirar el resultado:**

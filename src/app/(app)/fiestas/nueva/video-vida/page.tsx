@@ -224,8 +224,8 @@ export default function VideoVidaAdminPage() {
     try {
       const response = await fetch(`/api/video-vida-photos/${fiesta.id}/download`);
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || 'No se pudo generar el archivo ZIP.');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.details || 'No se pudo generar el archivo ZIP.');
       }
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -236,7 +236,18 @@ export default function VideoVidaAdminPage() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      toast({ title: "Descarga Iniciada" });
+      const fallidas = Number(response.headers.get('X-Fotos-Fallidas') || 0);
+      if (fallidas > 0) {
+        const pedidas = Number(response.headers.get('X-Fotos-Pedidas') || 0);
+        const incluidas = Number(response.headers.get('X-Fotos-Incluidas') || 0);
+        toast({
+          title: `Se bajaron ${incluidas} de ${pedidas} fotos`,
+          description: `Faltaron ${fallidas}: probá de nuevo más tarde. Adentro del archivo está la lista.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: "Descarga Iniciada" });
+      }
     } catch (error: any) {
       toast({ title: "Error en la Descarga", description: error.message, variant: "destructive" });
     } finally {

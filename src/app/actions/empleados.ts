@@ -160,7 +160,10 @@ async function fiestasFuturasConEsteEmpleado(empleadoId: string): Promise<string
   try {
     const { getAllFiestas } = await import('./fiesta/fiesta.actions');
     const fiestas = await getAllFiestas();
-    const hoy = new Date().toISOString().slice(0, 10);
+    // El día de HOY en Uruguay: a la noche, para el servidor ya es mañana y la fiesta de esta
+    // noche quedaba afuera, así que se podía borrar a alguien que trabaja hoy (pregunta 13).
+    const { hoyEnUruguay } = await import('@/lib/utils');
+    const hoy = hoyEnUruguay();
 
     return fiestas
       .filter((fiesta: any) => {

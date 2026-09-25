@@ -39,28 +39,62 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
       return NextResponse.json({ error: 'No photos found for this event.' }, { status: 404 });
     }
 
+    // VID03 (Codex, 19 y 25 de septiembre de 2026): una foto que no bajaba se salteaba en
+    // silencio y se entregaba el archivo con fotos de menos —o vacío— como si estuviera
+    // completo. Ahora se cuenta cada falla, se avisa adentro del archivo y en la respuesta, y
+    // si no entró ninguna no se entrega nada.
     const zip = new JSZip();
     let totalSize = 0;
     let limitExceeded = false;
+    const faltan: string[] = [];
+    const usados = new Map<string, number>();
+    let incluidas = 0;
+
+    const nombreSinRepetir = (nombre: string) => {
+      const veces = (usados.get(nombre) || 0) + 1;
+      usados.set(nombre, veces);
+      if (veces === 1) return nombre;
+      const punto = nombre.lastIndexOf('.');
+      return punto > 0 ? `${nombre.slice(0, punto)}-${veces}${nombre.slice(punto)}` : `${nombre}-${veces}`;
+    };
+    // Sólo el nombre del archivo: la dirección completa lleva la firma de acceso.
+    const nombreDe = (url: string) => {
+      const crudo = url.split('/').pop()?.split('?')[0] || 'foto.jpg';
+      try { return decodeURIComponent(crudo).split('/').pop() || crudo; } catch { return crudo; }
+    };
 
     for (const url of photoUrls) {
+      const name = nombreDe(url);
       let fileContent: Buffer;
-      let name: string;
-      if (url.startsWith('https://') || url.startsWith('http://')) {
-        if (!isUrlAllowed(url)) {
-          console.warn(`[SSRF Guard] Blocked download of unsafe URL: ${url}`);
-          continue;
+      try {
+        if (url.startsWith('https://') || url.startsWith('http://')) {
+          if (!isUrlAllowed(url)) {
+            console.warn(`[SSRF Guard] Blocked download of unsafe URL: ${url}`);
+            faltan.push(`${name} (dirección no permitida)`);
+            continue;
+          }
+          const res = await fetch(url);
+          if (!res.ok) {
+            faltan.push(`${name} (no se pudo bajar: ${res.status})`);
+            continue;
+          }
+          fileContent = Buffer.from(await res.arrayBuffer());
+        } else {
+          // Ruta local vieja: sólo adentro de la carpeta de la app, nunca un archivo cualquiera
+          // del servidor.
+          const fs = await import('fs/promises');
+          const path = await import('path');
+          const base = path.resolve(process.cwd());
+          const ruta = path.resolve(base, url);
+          if (!ruta.startsWith(base + path.sep)) {
+            faltan.push(`${name} (dirección no permitida)`);
+            continue;
+          }
+          fileContent = await fs.readFile(ruta);
         }
-        const res = await fetch(url);
-        if (!res.ok) continue;
-        fileContent = Buffer.from(await res.arrayBuffer());
-        name = url.split('/').pop()?.split('?')[0] ?? `photo_${Date.now()}.jpg`;
-      } else {
-        // Legacy local path
-        const fs = await import('fs/promises');
-        const path = await import('path');
-        fileContent = await fs.readFile(url);
-        name = path.basename(url);
+      } catch {
+        faltan.push(`${name} (se cortó al bajarla)`);
+        continue;
       }
 
       totalSize += fileContent.length;
@@ -68,9 +102,23 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
         limitExceeded = true;
         break;
       }
-      zip.file(name, fileContent);
+      zip.file(nombreSinRepetir(name), fileContent);
+      incluidas++;
     }
 
+    if (incluidas === 0) {
+      return NextResponse.json(
+        { error: 'No se pudo bajar ninguna foto. Probá de nuevo en un rato.' },
+        { status: 502 },
+      );
+    }
+
+    if (faltan.length > 0) {
+      zip.file(
+        'FALTAN_FOTOS.txt',
+        `Faltan ${faltan.length} de ${photoUrls.length} fotos. No se pudieron bajar:\n\n${faltan.join('\n')}\n\nProbá bajar de nuevo en un rato.`,
+      );
+    }
     if (limitExceeded) {
       zip.file('DESCARGA_INCOMPLETA_LIMITE_50MB.txt', 'Se ha superado el límite máximo de 50MB de descarga. Algunos archivos no fueron incluidos para evitar agotar los recursos del servidor.');
     }
@@ -81,6 +129,9 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     const headers = new Headers();
     headers.set('Content-Type', 'application/zip');
     headers.set('Content-Disposition', `attachment; filename="${zipFilename}"`);
+    headers.set('X-Fotos-Pedidas', String(photoUrls.length));
+    headers.set('X-Fotos-Incluidas', String(incluidas));
+    headers.set('X-Fotos-Fallidas', String(faltan.length));
 
     return new NextResponse(zipBuffer as any, { status: 200, headers });
 

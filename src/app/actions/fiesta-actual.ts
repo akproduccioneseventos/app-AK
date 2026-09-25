@@ -65,7 +65,7 @@ export async function createFiestaVacia(clienteId?: string, clienteNombre?: stri
 export async function createDemoFiesta(kind: import('@/lib/experience-ak/demo-fiesta-factory').AkDemoFiestaKind) {
   return await FiestaModule.createDemoFiesta(kind);
 }
-export async function getFiestaById(fiestaId: string) { return await FiestaModule.getFiestaById(fiestaId); }
+export async function getFiestaById(fiestaId: string, lectura?: symbol) { return await FiestaModule.getFiestaById(fiestaId, lectura); }
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion) { return await FiestaModule.saveFiesta(fiestaData); }
 export async function addInvoiceIdToFiestaActual(fiestaId: string, invoiceId: string) { return await FiestaModule.addInvoiceId(fiestaId, invoiceId); }
 export async function removeInvoiceIdFromFiestaActual(fiestaId: string, invoiceId: string) { return await FiestaModule.removeInvoiceId(fiestaId, invoiceId); }

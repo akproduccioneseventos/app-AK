@@ -130,4 +130,6 @@ usa: getGuestAdultsCount en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 usa: social-gallery en src/app/evento/album/[fiestaId]/page.tsx
 prueba: tests/e2e/la-fotocabina-tiene-todo.spec.ts
 prueba: tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts
+# Bloque 6 (verificado el 25/9)
+usa: crearFiestaDeEstaNoche en tests/e2e/recorrido-de-pantallas.spec.ts
 ```

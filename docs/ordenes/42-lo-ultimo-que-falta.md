@@ -112,6 +112,9 @@ usa: animaciones-con-locucion en src/app/evento/espejo-magico/[fiestaId]/page.ts
 usa: fondoMuro en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 prueba: tests/e2e/las-estaciones-respetan-los-ajustes.spec.ts
 prueba: tests/e2e/la-vista-3d-muestra-los-muebles.spec.ts
+# Bloque 4 (verificado el 25/9)
+prueba: src/__tests__/la-vista-3d-pone-cada-mueble-en-su-lugar.test.ts
+usa: ubicarMueblesEnLaEscena en src/lib/decoracion/plano-a-escena-3d.ts
 ```
 
 **Y tres pruebas de navegador que miren lo que se ve, no lo que está escrito:**

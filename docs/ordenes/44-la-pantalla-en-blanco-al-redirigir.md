@@ -78,6 +78,8 @@ la escena en vez del bloque oculto. **Esto se arregla primero**, o la vista 3D n
 ```comprobar
 usa: next/dynamic en src/app/(app)/fiestas/nueva/decoracion/page.tsx
 prueba: tests/e2e/las-pantallas-no-quedan-en-blanco-al-redirigir.spec.ts
+# Bloque 1 (verificado el 25/9)
+prueba: tests/e2e/las-pantallas-no-quedan-en-blanco-al-redirigir.spec.ts
 ```
 
 **La prueba tiene que mirar el resultado**, y es fácil de escribir porque el defecto es

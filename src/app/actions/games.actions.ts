@@ -1,6 +1,7 @@
 'use server';
 
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta-actual';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { TriviaGame, PhotoMission, TriviaParticipant } from '@/lib/games/game-engine';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
@@ -12,7 +13,7 @@ import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
  */
 export async function saveTriviaGame(fiestaId: string, game: TriviaGame): Promise<boolean> {
   await requireAppSession();
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) return false;
 
   const result = await saveFiesta({
@@ -24,13 +25,13 @@ export async function saveTriviaGame(fiestaId: string, game: TriviaGame): Promis
 
 export async function getTriviaGame(fiestaId: string): Promise<TriviaGame | null> {
   await requireAppSession();
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   return fiesta?.triviaGame || null;
 }
 
 export async function savePhotoMissions(fiestaId: string, missions: PhotoMission[]): Promise<boolean> {
   await requireAppSession();
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) return false;
 
   const result = await saveFiesta({
@@ -42,7 +43,7 @@ export async function savePhotoMissions(fiestaId: string, missions: PhotoMission
 
 export async function getPhotoMissions(fiestaId: string): Promise<PhotoMission[] | null> {
   await requireAppSession();
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   return fiesta?.photoMissions || null;
 }
 
@@ -60,7 +61,7 @@ export async function joinTriviaGame(
     const tableNumber = portal?.guest?.tableNumber;
     const realName = portal?.guest?.nombre || guestName;
 
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
 
     const defaultTrivia: TriviaGame = {
@@ -114,7 +115,7 @@ export async function submitTriviaScore(
     const portal = await getPublicGuestPortalData(fiestaId, guestId, guestAccessToken);
     if (!portal) return { success: false, error: 'Credenciales inválidas' };
 
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
 
     const triviaGame = fiesta.triviaGame;

@@ -68,4 +68,6 @@ cliente— y arreglá igual los que anuncien sin mirar.
 archivo: src/app/(app)/fiestas/nueva/musica/pdf/page.tsx
 usa: clipboard en src/app/(app)/fiestas/nueva/musica/pdf/page.tsx
 prueba: tests/e2e/la-hoja-del-dj-dice-la-verdad.spec.ts
+# Bloque 1 (verificado el 25/9)
+usa: formatearFechaEvento en src/app/(app)/fiestas/nueva/musica/pdf/page.tsx
 ```

@@ -51,6 +51,7 @@ import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion
 import { buildAkDemoFiesta, type AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
 import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 
 const FIESTAS_DIR = 'fiestas';
@@ -165,6 +166,10 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   try {
     const filePath = path.join(FIESTAS_DIR, `${fiestaData.id}.json`);
     await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaData));
+    // A quien no es del equipo no se le devuelve la fiesta entera: varias acciones públicas
+    // devuelven directo lo que contesta esto (ver recortar-para-afuera).
+    const { verifySession } = await import('@/lib/auth/session-token');
+    if (!(await verifySession()).success) return { success: true };
     return { success: true, fiesta: fiestaData };
   } catch (error: any) {
     return { success: false, error: "No se pudo guardar el evento." };
@@ -192,7 +197,7 @@ export async function updateFiestaPartial(
   }
 }
 
-export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
+export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise<FiestaEnPlanificacion | null> {
     const activePath = `${FIESTAS_DIR}/${fiestaId}.json`;
     let fiesta: FiestaEnPlanificacion | null = null;
     try {
@@ -231,13 +236,18 @@ export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanifica
         }
         const { verifySession } = await import('@/lib/auth/session-token');
         const sessionAuth = await verifySession();
-        if (!sessionAuth.success) {
+        if (!sessionAuth.success && lectura !== LECTURA_COMPLETA) {
             if (fiesta.clientPortalSettings) {
                 fiesta.clientPortalSettings = {
                     ...fiesta.clientPortalSettings,
                     accessKey: undefined as any,
                 };
             }
+            // Quien no es del equipo no se lleva la fiesta entera (ver recortar-para-afuera).
+            const { verifyPortalSession } = await import('@/lib/security/portal-session');
+            const esCliente = await verifyPortalSession(fiestaId).catch(() => false);
+            const { recortarFiestaParaAfuera } = await import('@/lib/fiesta/recortar-para-afuera');
+            fiesta = recortarFiestaParaAfuera(fiesta, { esCliente });
         }
     }
     return fiesta;

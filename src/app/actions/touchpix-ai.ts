@@ -14,6 +14,7 @@
  */
 
 import { createHash } from "node:crypto";
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { uploadSocialPost } from "@/app/actions/social-gallery";
 import { getFiestaById } from "@/app/actions/fiesta/fiesta.actions";
 import { hasEntertainmentGuestAccess } from "@/lib/auth/entertainment-token";
@@ -307,7 +308,7 @@ async function ensureTouchpixAccess(
     accessToken,
   );
   if (!authorized) throw new Error("Acceso de cabina IA no autorizado.");
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) throw new Error("Evento no encontrado.");
   if (!getEntertainmentStationConfig(fiesta, "espejoMagicoIA").enabled) {
     throw new Error("La cabina IA esta desactivada.");

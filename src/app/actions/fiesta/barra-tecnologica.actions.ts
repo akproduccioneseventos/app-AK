@@ -1,6 +1,7 @@
 'use server';
 
 import path from 'path';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import type { Firestore, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import type { FiestaEnPlanificacion, Trago } from '@/types/fiesta';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -416,7 +417,7 @@ async function saveFallbackOrders(
   cambiar: (orders: BarDrinkOrder[]) => BarDrinkOrder[],
 ): Promise<{ success: boolean; error?: string }> {
   const turno = colaDeRespaldo.then(async () => {
-    const fresca = await getFiestaById(fiestaId);
+    const fresca = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fresca) return { success: false, error: 'Fiesta no encontrada.' };
     const stored = getStoredBarData(fresca);
     const actualizada: FiestaEnPlanificacion = {
@@ -443,7 +444,7 @@ const conElPedidoNuevo = (order: BarDrinkOrder) => (orders: BarDrinkOrder[]) =>
 export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ success: boolean; data?: BarTechnologyDashboard; error?: string }> {
   try {
     await requireAppSession();
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
     const stored = getStoredBarData(fiesta);
@@ -498,7 +499,7 @@ export async function getPublicBarraTecnologicaDashboard(
   fiestaId: string,
 ): Promise<{ success: boolean; data?: PublicBarTechnologyDashboard; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
     const stored = getStoredBarData(fiesta);
@@ -535,7 +536,7 @@ export async function saveBarraTecnologicaSettings(
 ): Promise<{ success: boolean; data?: BarTechnologySettings; error?: string }> {
   try {
     await requireAppSession();
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
     const stored = getStoredBarData(fiesta);
@@ -569,7 +570,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
       limit: 30,
       windowMs: 60_000,
     });
-    const fiesta = await getFiestaById(input.fiestaId);
+    const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
     const stored = getStoredBarData(fiesta);
@@ -732,7 +733,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
 export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
   try {
     await requireAppSession();
-    const fiesta = await getFiestaById(input.fiestaId);
+    const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
     const drinks = await getBarDrinks(fiesta);
@@ -780,7 +781,7 @@ export async function getGuestBarOrders(
   guestAccessToken: string,
 ): Promise<{ success: boolean; orders?: BarDrinkOrder[]; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
     const guest = findAuthorizedGuest(fiesta, guestId, guestAccessToken);
     if (!guest) return { success: false, error: 'Acceso de invitado no autorizado.' };
@@ -798,7 +799,7 @@ export async function cancelBarDrinkOrder(
   guestId: string,
   guestAccessToken: string,
 ): Promise<{ success: boolean; error?: string }> {
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
   const guest = findAuthorizedGuest(fiesta, guestId, guestAccessToken);
   if (!guest) return { success: false, error: 'Acceso de invitado no autorizado.' };
@@ -816,7 +817,7 @@ export async function changeBarDrinkOrder(
   guestAccessToken: string,
 ): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
     const guest = findAuthorizedGuest(fiesta, guestId, guestAccessToken);
     if (!guest) return { success: false, error: 'Acceso de invitado no autorizado.' };
@@ -938,7 +939,7 @@ async function updateBarDrinkOrderStatusInternal(
       }
     }
 
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
     const stored = getStoredBarData(fiesta);
     const currentOrder = (stored.orders || []).find((order) => order.id === orderId);
@@ -1017,7 +1018,7 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
   }
 
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
     const settings = getStoredBarData(fiesta).settings;
     if (!settings.allowPhotoCapture) return { success: false, error: 'La captura de fotos esta pausada.' };

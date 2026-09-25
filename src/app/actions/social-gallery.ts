@@ -21,6 +21,7 @@
  */
 
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
+import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
@@ -116,7 +117,7 @@ async function resolveSocialInteractionContext(
   submittedAuthorName: string,
   credentials: SocialInteractionCredentials = {},
 ) {
-  const fiesta = await getFiestaById(fiestaId);
+  const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) return null;
 
   const appSession = await hasAppSession();
@@ -218,7 +219,7 @@ export async function getPublicSocialPostCount(
   guestAccessToken: string,
 ): Promise<number> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta || !buildPublicGuestPortalData(fiesta, guestId, guestAccessToken)) return 0;
 
     if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
@@ -247,7 +248,7 @@ export async function getPublicSocialEvent(
   const normalizedKey = accessKey?.trim();
   const fiesta = normalizedKey
     ? await getFiestaByAccessKey(normalizedKey)
-    : await getFiestaById(fiestaId);
+    : await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta || fiesta.id !== fiestaId) return null;
 
   return toPublicSocialEvent(fiesta, Boolean(normalizedKey));
@@ -333,7 +334,7 @@ export async function uploadSocialPost(
   }
 
   try {
-    const fiestaData = await getFiestaById(fiestaId);
+    const fiestaData = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiestaData) return { success: false, error: 'Evento no encontrado.' };
 
     const appSession = await hasAppSession();
@@ -552,7 +553,7 @@ async function persistSocialMediaPostFromUrl(
     // revisar solo: los videos, y las fotos cuando el analisis automatico no
     // estuvo disponible. En ese caso queda esperando el visto bueno en vez de
     // salir directo a la pantalla grande.
-    const fiesta = await getFiestaById(input.fiestaId);
+    const fiesta = await getFiestaById(input.fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const requireApproval = fiesta.socialGallerySettings?.requireApproval !== false;
     const esperaAprobacion = requireApproval || review.status === 'pending_review' || input.revisionManual === true;
@@ -984,7 +985,7 @@ export async function getPublicInstagramFeedAction() {
 
 export async function getCarasDeFiesta(fiestaId: string): Promise<import('@/lib/caras/agrupar-caras').CaraEnFoto[]> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return [];
     if (fiesta.socialGallerySettings?.modoCaras === 'apagado') return [];
     if (!fiesta.socialGallerySettings?.carasPreparadas && !fiesta.carasIndexadas?.length) {
@@ -1006,7 +1007,7 @@ export async function guardarCarasDeFiesta(
   caras: import('@/lib/caras/agrupar-caras').CaraEnFoto[],
 ): Promise<{ ok: boolean }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { ok: false };
     fiesta.carasIndexadas = caras;
     fiesta.socialGallerySettings = {

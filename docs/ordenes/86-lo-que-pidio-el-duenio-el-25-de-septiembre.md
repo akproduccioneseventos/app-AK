@@ -178,4 +178,8 @@ usa: caricatura en src/app/actions/touchpix-ai.ts
 usa: firmaDigitalConstancia en src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx
 usa: armarResumenParaElContador en src/app/(app)/empresa/contabilidad/reportes/page.tsx
 usa: pasarCobrosPendientesAlPresupuesto en src/app/(app)/invoices/page.tsx
+# Bloque 5
+usa: obtenerPropuestaEquipoAction en src/app/(app)/fiestas/nueva/personal/page.tsx
+# Bloque 9
+usa: pasarCobrosPendientesAlPresupuesto en src/app/(app)/invoices/page.tsx
 ```
