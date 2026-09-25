@@ -29,7 +29,7 @@ además un tope de tiempo a los guardados que no se quiere.
 ## Espera a Gemini
 
 - **Orden 82:** FUSIONADA (propuesta 1221). Prospectos, clientes, agenda y mensajes protegidos entre servidores.
-- **Orden 81 (Gemini):** HECHA en `feat/orden-81-gemini-recorridos-offline-equipo`. Fotocabina offline, colas aisladas, comprobación previa AK-100 y barra tecnológica con sus 4 pruebas E2E.
+- **Orden 81, propuesta 1222: en verificación (tercera vuelta).** Si pasa la puerta, se fusiona.
 - Devoluciones viejas: todas al día en verde.
 
 ## Lo que ningún control cubre
