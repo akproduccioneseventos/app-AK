@@ -539,6 +539,10 @@ equipo. Pero no seguí el trabajo hasta el cartel final:
 segundo plano, ¿lleva todo su contexto, y el aviso final sale del resultado real?* También quedó
 como pregunta 16 en `docs/ANTES-DE-ENTREGAR.md`.
 
+**Segunda vuelta, mismo día:** Codex encontró además que la respuesta tardía de la IA de A cerraba la
+captura de B y que el operador seguía trabado. La pregunta 27 sumó el punto 4: **el servidor compara
+de qué captura es la respuesta**. Control: `src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts`.
+
 **El control que lo frena:** `src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts`
 (cada salida con su cartel, y la original retenida que la cola no sube antes de tiempo) y la prueba
 de navegador `tests/e2e/89-ia-no-frena-la-fila.spec.ts`: una subida por captura, y sin señal no dice
@@ -548,6 +552,7 @@ de navegador `tests/e2e/89-ia-no-frena-la-fila.spec.ts`: una subida por captura,
 archivo: src/lib/touchpix/terminar-trabajo-ia.ts
 usa: terminarTrabajoIA en src/app/evento/touchpix/[fiestaId]/page.tsx
 usa: retenidaHasta en src/lib/offline/offline-sync-manager.ts
+prueba: src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts
 prueba: src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts
 ```
 

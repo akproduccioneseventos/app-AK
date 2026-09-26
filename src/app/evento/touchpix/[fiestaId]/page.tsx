@@ -104,6 +104,8 @@ interface TrabajoIA {
   guestAccessToken?: string;
   /** La original guardada en el equipo, retenida mientras trabaja la IA. */
   originalEnEquipoId?: string;
+  /** La captura de la sesión del operador de la que salió este trabajo (T89-05). */
+  capturaDeLaSesion?: string;
   destino?: DestinoDeLaFoto;
 }
 
@@ -536,17 +538,38 @@ export default function TouchpixPage() {
     }
   }, [fiestaId, accessToken]);
 
+  /**
+   * LA ESTACIÓN SE LIBERA CUANDO LA CAPTURA QUEDÓ GUARDADA (T89-06, Codex, 26 de septiembre de
+   * 2026). Antes la sesión quedaba en "grabando" hasta que volvía la IA, y el operador no podía
+   * iniciar al siguiente aunque la pantalla del invitado sí. Ahora, apenas la captura quedó como
+   * trabajo pendiente, la sesión pasa a "lista" con la captura de la que salió: si la IA vuelve
+   * tarde, el servidor ignora su aviso cuando la estación ya está con otra.
+   */
+  const liberarEstacion = useCallback((trabajo: TrabajoIA) => {
+    // no-mira-el-resultado: aviso a la pantalla del operador; si falla, el botón Reiniciar sigue.
+    void updateEntertainmentSessionStatus(
+      fiestaId,
+      'espejoMagicoIA',
+      'done',
+      { reviewPending: false, ...(trabajo.capturaDeLaSesion ? { captureId: trabajo.capturaDeLaSesion } : {}) },
+      accessToken
+    ).catch(() => undefined);
+  }, [accessToken, fiestaId]);
+
   const handleCapture = useCallback(async () => {
     const raw = captureRawPhoto();
     if (!raw) return;
-    // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    void updateEntertainmentSessionStatus(
+    // Aviso a la pantalla del operador. Se espera (es una sola consulta) porque devuelve la captura
+    // de la sesión, que el trabajo lleva para que su respuesta tardía no pise a la siguiente
+    // (T89-05). Si falla, se usa la última conocida y la foto sigue igual.
+    const grabando = await updateEntertainmentSessionStatus(
       fiestaId,
       'espejoMagicoIA',
       'recording',
       {},
       accessToken
     ).catch(() => undefined);
+    const capturaDeLaSesion = grabando?.captureId || session?.captureId;
     setRawCapturedImage(raw);
     setProcessingResult(null);
 
@@ -580,8 +603,10 @@ export default function TouchpixPage() {
         consentimiento: consentAccepted,
         guestId,
         guestAccessToken,
+        capturaDeLaSesion,
       };
       nuevoTrabajo.originalEnEquipoId = await guardarOriginalRetenida(nuevoTrabajo);
+      liberarEstacion(nuevoTrabajo);
       setTrabajosIA(prev => [...prev, nuevoTrabajo]);
       setUltimoAvisoIA({ id: capturaId, raw, timestamp: Date.now() });
       // La pantalla queda libre de inmediato para la próxima captura
@@ -599,8 +624,10 @@ export default function TouchpixPage() {
         consentimiento: consentAccepted,
         guestId,
         guestAccessToken,
+        capturaDeLaSesion,
       };
       nuevoTrabajo.originalEnEquipoId = await guardarOriginalRetenida(nuevoTrabajo);
+      liberarEstacion(nuevoTrabajo);
       setTrabajosIA(prev => [...prev, nuevoTrabajo]);
       setUltimoAvisoIA({ id: capturaId, raw, timestamp: Date.now() });
       // La pantalla queda libre de inmediato para la próxima captura
@@ -619,6 +646,8 @@ export default function TouchpixPage() {
     guestId,
     guestAccessToken,
     guardarOriginalRetenida,
+    liberarEstacion,
+    session?.captureId,
   ]);
 
   const procesarTrabajoIA = useCallback(async (trabajo: TrabajoIA) => {
@@ -719,7 +748,12 @@ export default function TouchpixPage() {
               fiestaId,
               'espejoMagicoIA',
               'done',
-              { mediaUrl: res.post?.imageUrl, reviewPending: false },
+              {
+                mediaUrl: res.post?.imageUrl,
+                reviewPending: false,
+                // Si la estación ya está con otra captura, el servidor no le pisa el medio (T89-05).
+                ...(trabajo.capturaDeLaSesion ? { captureId: trabajo.capturaDeLaSesion } : {}),
+              },
               accessToken
             ).catch(() => undefined);
           }

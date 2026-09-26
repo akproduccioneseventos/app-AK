@@ -707,6 +707,11 @@ cosas a la vez, y las tres se escaparon en la cabina con IA:
 3. **La promesa de "queda guardado".** Si se dice que la original queda a salvo, tiene que quedar
    **antes** de mandar el trabajo, en un lugar que sobreviva a recargar.
 
+4. **La respuesta tardía.** Cuando el trabajo termina, la estación puede estar con el siguiente. El
+   **servidor** tiene que comparar de qué captura es la respuesta y no aplicársela a otra; una
+   comparación en la pantalla no alcanza. Y cada captura nueva tiene que tener identidad nueva, venga
+   de donde venga (Codex encontró que "lista → cuenta regresiva" heredaba la del anterior).
+
 Al verificar: se sigue el trabajo hasta el cartel final **en cada salida**: bien, sin señal,
 rechazo y sin lugar. Mirar sólo el camino que falla, como hice yo, deja pasar el cartel.
 

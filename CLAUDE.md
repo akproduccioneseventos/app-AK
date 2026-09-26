@@ -884,6 +884,11 @@ cartel. Y el trabajo termina cuando la pantalla ya es de otro.
 **Qué se hace distinto:** pregunta 27 del método y 16 de `ANTES-DE-ENTREGAR.md`. Al verificar, se
 recorre **cada salida hasta el cartel**, y se mira que el trabajo lleve copia de su contexto.
 
+**Y en la segunda vuelta se me escaparon dos más** (la respuesta tardía de A cerraba a B, y el
+operador trabado). Lo que no me pregunté: **¿qué pasa en el SERVIDOR cuando la respuesta llega y ya
+hay otro?** Quedó como punto 4 de la pregunta 27. Y un error mío de ese día: apagué la puerta con
+`pkill -f` y maté mi propia orden (error 20 otra vez); **sólo por número de proceso o nombre exacto**.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1347,6 +1352,7 @@ con otra cara.
 | Con el número de la fiesta, cualquiera se llevaba sueldos, contrato, pagos y el teléfono y la credencial de cada invitado | `src/__tests__/la-fiesta-no-viaja-entera-a-quien-no-es-del-equipo.test.ts` |
 | "Hoy" calculado en hora de Greenwich: a la noche ya era mañana | `src/__tests__/hoy-es-el-dia-de-uruguay.test.ts` |
 | La cabina con IA decía "en la galería" aunque la foto no se subiera, y perdía la original al recargar | `src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts` |
+| La respuesta tardía de la IA cerraba la captura del siguiente, y el operador quedaba trabado | `src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts` |
 
 ### Cómo se elige el matafuego
 

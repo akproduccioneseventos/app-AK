@@ -9799,6 +9799,17 @@ prueba: tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts
 - **Cada captura fija al empezar** su identidad, su invitado y su consentimiento. El tope de
   intentos es por captura.
 - **La prueba cuenta las subidas por captura:** con dos subidas de la misma, se pone en rojo.
+- **T89-05, respuesta tardía (Codex):** la IA de A volvía cuando la estación ya estaba con B y la
+  cerraba con la foto de A. Ahora el trabajo lleva la captura de la sesión de la que salió (el servidor
+  se la devuelve al empezar a grabar) y `updateEntertainmentSessionStatus` **ignora la respuesta si la
+  estación está con otra captura**. Además, toda cuenta regresiva nueva es captura nueva: antes, empezar
+  desde "lista" heredaba la identidad de la anterior.
+- **T89-06, el operador quedaba trabado (Codex):** la sesión seguía en "grabando" hasta que volvía la
+  IA. Ahora, apenas la captura queda guardada como trabajo, pasa a "lista" (`liberarEstacion`) y el
+  operador puede empezar al siguiente sin reiniciar.
+- **Por qué es prueba de Jest y no de navegador:** en el entorno de pruebas la base de la sesión no
+  está, así que la pantalla del operador no se puede recorrer. La prueba usa las acciones reales con
+  una base de mentira que devuelve copias.
 - **La prueba hace que el servidor ACEPTE la subida.** En el entorno de pruebas la base no está y
   toda subida falla. Así, el reintento legítimo de la cola parecía un duplicado, y un duplicado de
   verdad pasaba en verde: se midió rompiéndolo.
@@ -9807,6 +9818,9 @@ prueba: tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts
 
 ```comprobar
 usa: avisoDelDestino en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: liberarEstacion en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: capturaEsperada en src/app/actions/fiesta/sesion-entretenimiento.ts
+prueba: src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts
 usa: photoSessionId', trabajo.id en src/app/evento/touchpix/[fiestaId]/page.tsx
 prueba: src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts
 prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts

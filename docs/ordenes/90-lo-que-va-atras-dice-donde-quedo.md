@@ -36,6 +36,13 @@ lugar en el equipo):
 4. Un trabajo que termina después de un `await` largo (grabación, render, IA) y lee `guestId`, el
    consentimiento o el nombre **del estado de la pantalla** en vez de una copia tomada al empezar.
 
+5. Un aviso de "terminó" (`updateEntertainmentSessionStatus(..., 'done', { mediaUrl })`) que sale
+   **después** de un `await` largo sin decir de qué captura es. Desde esta tanda, la llamada que
+   pasa a `'recording'` **devuelve `captureId`**. Guardalo al empezar y mandalo como
+   `{ captureId }` en el `'done'` tardío: si la estación ya está con otro, el servidor lo ignora.
+   El modelo es `handleCapture` y `liberarEstacion` en `src/app/evento/touchpix/[fiestaId]/page.tsx`.
+   **No toques `sesion-entretenimiento.ts`**: la comparación ya está hecha.
+
 **Qué NO cuenta:** los carteles de "subiendo…" mientras se espera, ni los que ya dependen del
 resultado. **No cambies los textos que andan bien**; sólo los que mienten.
 

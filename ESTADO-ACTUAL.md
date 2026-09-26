@@ -5,7 +5,8 @@
 ## Lo último que entró
 
 - **Devolución 89 (Codex):** la cabina con IA dice dónde quedó la foto de verdad, guarda la
-  original al capturar y cada captura tiene su propio tope de intentos.
+  original al capturar y cada captura tiene su propio tope de intentos. La respuesta tardía de la
+  IA ya no cierra la captura del siguiente, y el operador queda libre al guardar la foto.
 
 - **1228, orden 89 recortada:**
   - la IA de la fotocabina ya no frena la fila;
