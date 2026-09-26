@@ -13,6 +13,7 @@
 import type { ToolResult } from '../tool-registry';
 import * as logger from '@/lib/logger';
 import { ASSISTANT_ROUTES } from '../app-routes';
+import { hoyEnUruguay } from '@/lib/utils';
 
 // ── Modo seguro operativo ─────────────────────────────────────────────────────
 
@@ -149,7 +150,7 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
   if (existing) {
     // Lead existe: agendar reunión
     const meetingTitle = `Reunión con ${existing.name}${input.time ? ` a las ${input.time}` : ''}`;
-    const result = await scheduleCrmMeeting(existing.id, input.followUpDate || new Date().toISOString().slice(0, 10), meetingTitle);
+    const result = await scheduleCrmMeeting(existing.id, input.followUpDate || hoyEnUruguay(), meetingTitle);
     if (!result.success) {
       return { success: false, error: result.error || 'No se pudo agendar la cita.', message: result.error || 'No se pudo agendar la cita.' };
     }
@@ -182,7 +183,7 @@ export async function executeAgendarCita(input: AgendarCitaInput): Promise<ToolR
       // Agendar con el duplicado
       const sched = await scheduleCrmMeeting(
         leadResult.duplicate.id,
-        input.followUpDate || new Date().toISOString().slice(0, 10),
+        input.followUpDate || hoyEnUruguay(),
         `Reunión con ${leadResult.duplicate.name}`,
       );
       if (sched.success) {
@@ -418,7 +419,7 @@ export async function executeRegistrarPago(input: RegistrarPagoInput): Promise<T
   const metodo: MetodoPagoInterno = (METODO_PAGO_MAP[input.metodoPago ?? ''] as MetodoPagoInterno | undefined) ?? 'Efectivo';
 
   const result = await addPagoToPresupuesto(presupuestoId, {
-    fecha: new Date().toISOString().slice(0, 10),
+    fecha: hoyEnUruguay(),
     monto: input.monto,
     metodoPago: metodo,
     referencia: input.referencia,

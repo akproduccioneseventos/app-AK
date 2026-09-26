@@ -15,7 +15,7 @@ import {
   notifyClientPaymentSubmitted,
 } from '../google-workspace-extended';
 import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
-import { sanitizeActionError } from '@/lib/utils';
+import { sanitizeActionError, hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
@@ -1016,29 +1016,32 @@ export async function checkDateAvailability(
   if (!(await verifyPortalSession(fiestaId))) return { success: false, available: false, error: 'Sesión no autorizada.' };
   try {
     const allFiestas = await leerFiestasCrudas(false);
-    const targetDate = new Date(targetDateStr).toISOString().split('T')[0];
+    const targetDate = targetDateStr.includes('T')
+      ? hoyEnUruguay(new Date(targetDateStr))
+      : targetDateStr.slice(0, 10);
+    const toDateStr = (raw: string) => (raw.includes('T') ? hoyEnUruguay(new Date(raw)) : raw.slice(0, 10));
     const isBusy = allFiestas.some(f =>
       f.id !== fiestaId &&
       f.configuracion?.fechaEvento &&
-      new Date(f.configuracion.fechaEvento).toISOString().split('T')[0] === targetDate
+      toDateStr(f.configuracion.fechaEvento) === targetDate
     );
     if (!isBusy) {
       return { success: true, available: true };
     }
 
     // Find alternative dates (weekends or nearby dates)
-    const baseDate = new Date(targetDateStr);
+    const baseDate = parseUruguayDate(targetDate);
     const suggestions: string[] = [];
     // We check +1d, -1d, +7d, -7d, +2d, -2d, +8d, -8d, +14d, -14d
     const offsets = [1, -1, 7, -7, 2, -2, 8, -8, 14, -14];
     for (const offset of offsets) {
       const altDate = new Date(baseDate);
       altDate.setDate(altDate.getDate() + offset);
-      const altDateStr = altDate.toISOString().split('T')[0];
+      const altDateStr = hoyEnUruguay(altDate);
       const altBusy = allFiestas.some(f =>
         f.id !== fiestaId &&
         f.configuracion?.fechaEvento &&
-        new Date(f.configuracion.fechaEvento).toISOString().split('T')[0] === altDateStr
+        toDateStr(f.configuracion.fechaEvento) === altDateStr
       );
       if (!altBusy) {
         suggestions.push(altDate.toISOString());

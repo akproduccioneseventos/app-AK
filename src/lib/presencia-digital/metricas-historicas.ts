@@ -10,6 +10,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { MetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { normalizeMetaCampaign } from '@/lib/marketing/meta-commercial-metrics-core';
+import { hoyEnUruguay } from '@/lib/utils';
 
 export const HISTORY_FILE = 'social-analytics-history.json';
 
@@ -27,7 +28,7 @@ export function buildDailySnapshots(params: {
   revenueToday: number;
   existingSnapshots?: DailySocialMetricSnapshot[];
 }): DailySocialMetricSnapshot[] {
-  const date = params.dateIso || new Date().toISOString().split('T')[0];
+  const date = params.dateIso || hoyEnUruguay();
   const nowIso = new Date().toISOString();
 
   // Calcular métricas agregadas de publicaciones de los últimos 30 días

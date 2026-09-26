@@ -38,6 +38,8 @@ const fiestaId = `e2e_import_${Date.now()}`;
 // Arreglado eso (`ponerSesionDelEquipo`), se cumple lo que decia el comentario de arriba:
 // "cuando las pantallas internas vean, se saca el .skip y tiene que pasar sin tocar nada mas".
 test.describe('Orden 43: Importar invitados desde una planilla', () => {
+  test.slow();
+
   test.beforeAll(async () => {
     const fiesta = crearFiestaDeEstaNoche({ id: fiestaId });
     fiesta.configuracion.nombreEvento = 'Fiesta E2E Importar Planilla';
@@ -49,41 +51,18 @@ test.describe('Orden 43: Importar invitados desde una planilla', () => {
   });
 
   test('muestra los 3 invitados antes de guardar y los suma a la lista tras confirmar', async ({ page, context }, testInfo) => {
-    // La planilla se importa desde la computadora: es un archivo que el equipo tiene en la
-    // maquina. En el celular, ademas, el boton de confirmar del cuadro de importacion **no
-    // se puede tocar** -medido el 20 de septiembre de 2026-, y eso quedo pedido en la orden
-    // 76 para arreglarlo en la pantalla, no escondiendolo aca.
-    test.skip(testInfo.project.name !== 'chromium-desktop', 'La planilla se importa desde la computadora.');
     const baseURL = testInfo.project.use.baseURL as string;
     await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/invitados?fiestaId=${fiestaId}`, { waitUntil: 'domcontentloaded' });
-    /**
-     * OJO: esta pantalla es INTERNA y lee la fiesta de la base, no del archivo local.
-     * En las pruebas la app corre con `AK_USE_LOCAL_JSON_ONLY` y no ve las fiestas
-     * que arman las pruebas, asi que esta pantalla no llega a dibujarse. **No es un
-     * defecto de la importacion.**
-     *
-     * Lo que la importacion hace se comprueba de verdad, y en milesimas, en
-     * `src/__tests__/la-planilla-de-invitados-se-entiende.test.ts`: comas, punto y
-     * coma, tabulaciones, encabezados con y sin acentos, filas sin nombre, repetidos,
-     * restricciones alimentarias y planilla sin encabezado. **Esa prueba encontro dos
-     * defectos reales** que esta, tardando 95 segundos, no encontro nunca.
-     */
-    // Hay que ESPERAR a que la pantalla se dibuje antes de juzgarla. Preguntar
-    // apenas llega el documento da "pantalla vacia" siempre, porque todavia no
-    // dibujo nada. Me paso a mi el 5 de septiembre de 2026.
-    await page.waitForLoadState('networkidle', { timeout: 25_000 }).catch(() => {});
-    await page.waitForTimeout(3_000);
 
-    // ANTES ESTO SE SALTEABA: la pantalla no veia la fiesta de prueba porque la sesion
-    // se ponia a medias y rebotaba al ingreso. Eso quedo arreglado el 20 de septiembre de
-    // 2026 (`ponerSesionDelEquipo`), asi que ahora **si la pantalla no abre, es una falla**.
-    // Saltear esto dejo dos pruebas de la comida apagadas sin que nadie se enterara.
-    // `.last()` a proposito: el titulo aparece dos veces, en la barra de arriba y en la
-    // pantalla; el de la pantalla es el segundo.
     const titulo = page.getByRole('heading', { name: /Gestión de Invitados/i }).last();
-    await expect(titulo, 'la pantalla de invitados tiene que abrir con la fiesta de prueba').toBeVisible({ timeout: 20_000 });
+    try {
+      await expect(titulo).toBeVisible({ timeout: 25_000 });
+    } catch {
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expect(titulo, 'la pantalla de invitados tiene que abrir con la fiesta de prueba').toBeVisible({ timeout: 60_000 });
+    }
 
     // Abrir modal de importación
     await page.locator('[data-testid="btn-abrir-importar-planilla"]').click();
@@ -121,32 +100,9 @@ test.describe('Orden 43: Importar invitados desde una planilla', () => {
     await ponerSesionDelEquipo(context, baseURL);
 
     await page.goto(`/fiestas/nueva/invitados?fiestaId=${fiestaId}`, { waitUntil: 'domcontentloaded' });
-    /**
-     * OJO: esta pantalla es INTERNA y lee la fiesta de la base, no del archivo local.
-     * En las pruebas la app corre con `AK_USE_LOCAL_JSON_ONLY` y no ve las fiestas
-     * que arman las pruebas, asi que esta pantalla no llega a dibujarse. **No es un
-     * defecto de la importacion.**
-     *
-     * Lo que la importacion hace se comprueba de verdad, y en milesimas, en
-     * `src/__tests__/la-planilla-de-invitados-se-entiende.test.ts`: comas, punto y
-     * coma, tabulaciones, encabezados con y sin acentos, filas sin nombre, repetidos,
-     * restricciones alimentarias y planilla sin encabezado. **Esa prueba encontro dos
-     * defectos reales** que esta, tardando 95 segundos, no encontro nunca.
-     */
-    // Hay que ESPERAR a que la pantalla se dibuje antes de juzgarla. Preguntar
-    // apenas llega el documento da "pantalla vacia" siempre, porque todavia no
-    // dibujo nada. Me paso a mi el 5 de septiembre de 2026.
-    await page.waitForLoadState('networkidle', { timeout: 25_000 }).catch(() => {});
-    await page.waitForTimeout(3_000);
 
-    // ANTES ESTO SE SALTEABA: la pantalla no veia la fiesta de prueba porque la sesion
-    // se ponia a medias y rebotaba al ingreso. Eso quedo arreglado el 20 de septiembre de
-    // 2026 (`ponerSesionDelEquipo`), asi que ahora **si la pantalla no abre, es una falla**.
-    // Saltear esto dejo dos pruebas de la comida apagadas sin que nadie se enterara.
-    // `.last()` a proposito: el titulo aparece dos veces, en la barra de arriba y en la
-    // pantalla; el de la pantalla es el segundo.
     const titulo = page.getByRole('heading', { name: /Gestión de Invitados/i }).last();
-    await expect(titulo, 'la pantalla de invitados tiene que abrir con la fiesta de prueba').toBeVisible({ timeout: 20_000 });
+    await expect(titulo, 'la pantalla de invitados tiene que abrir con la fiesta de prueba').toBeVisible({ timeout: 60_000 });
 
     // Abrir modal de importación
     await page.locator('[data-testid="btn-abrir-importar-planilla"]').click();

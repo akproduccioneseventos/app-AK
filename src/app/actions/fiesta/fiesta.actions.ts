@@ -164,7 +164,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   const assignmentError = validatePersonalAssignments(fiestaData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
   try {
-    const filePath = path.join(FIESTAS_DIR, `${fiestaData.id}.json`);
+    const filePath = `${FIESTAS_DIR}/${fiestaData.id}.json`;
     await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaData));
     // A quien no es del equipo no se le devuelve la fiesta entera: varias acciones públicas
     // devuelven directo lo que contesta esto (ver recortar-para-afuera).
@@ -189,7 +189,7 @@ export async function updateFiestaPartial(
   const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
   try {
-    const filePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+    const filePath = `${FIESTAS_DIR}/${fiestaId}.json`;
     await updateDataPartial<FiestaEnPlanificacion>(filePath, partialData);
     return { success: true };
   } catch (error: any) {

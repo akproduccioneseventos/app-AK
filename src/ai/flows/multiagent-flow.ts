@@ -125,6 +125,15 @@ REGLAS DE ACCIÓN:
 - Si el usuario te pide crear una tarea (ej: "creá una tarea para...", "agendá la tarea de...", "anotá que hay que..."):
   "type": "create_task"
   "data": { "texto": "título de la tarea", "descripcion": "detalle si aplica", "fechaLimite": "YYYY-MM-DD (si se menciona)" }
+- Si el usuario te pide marcar una tarea como hecha o completada (ej: "marcar como hecha la tarea de luces", "completá la tarea de catering", "ya se hizo la prueba de sonido"):
+  "type": "complete_task"
+  "data": { "fiestaId": "id_de_la_fiesta", "tareaId": "id_de_la_tarea", "texto": "texto de la tarea" }
+- Si el usuario te pide agregar o anotar un invitado (ej: "anotá a Juan Pérez como invitado", "agregá al invitado Martín González"):
+  "type": "add_guest"
+  "data": { "fiestaId": "id_de_la_fiesta", "nombre": "Nombre del invitado", "tipo": "Adulto" | "Niño", "mesa": "...", "menu": "..." }
+- Si el usuario te pide registrar o reportar un incidente (ej: "se cortó la luz en el salón", "se rompió un micrófono", "accidente en la pista"):
+  "type": "create_incident"
+  "data": { "fiestaId": "id_de_la_fiesta", "titulo": "Título breve", "descripcion": "Detalle de lo ocurrido", "gravedad": "baja" | "media" | "alta" | "critica" }
 - Si el usuario te pide un recordatorio o aviso (ej: "recordame llamar a...", "avisame de...", "agendá recordatorio..."):
   "type": "create_reminder"
   "data": { "titulo": "Recordatorio", "mensaje": "Detalle del recordatorio", "tipo": "aviso" | "urgente" }

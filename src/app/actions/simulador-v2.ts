@@ -7,6 +7,7 @@ import type { SimV2DuplicateCheck, SimV2DateCheck, SimV2State } from '@/types/si
 import type { Presupuesto } from '@/types/presupuesto';
 import type { CrmLead } from '@/types/crm';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
@@ -76,15 +77,16 @@ export async function checkDuplicateClient(
 
 export async function checkDateAvailability(fechaISO: string): Promise<SimV2DateCheck> {
   try {
-    const requestedDate = new Date(fechaISO);
-    const requestedDateStr = requestedDate.toISOString().split('T')[0];
+    const requestedDateStr = fechaISO.includes('T')
+      ? hoyEnUruguay(new Date(fechaISO))
+      : fechaISO.slice(0, 10);
 
     const fiestas = await leerFiestasCrudas(false);
     const occupiedDates = new Set(
       fiestas
         .map(f => f.configuracion?.fechaEvento)
         .filter(Boolean)
-        .map(d => new Date(d!).toISOString().split('T')[0])
+        .map(d => (d!.includes('T') ? hoyEnUruguay(new Date(d!)) : d!.slice(0, 10)))
     );
 
     const isOccupied = occupiedDates.has(requestedDateStr);
@@ -94,13 +96,13 @@ export async function checkDateAvailability(fechaISO: string): Promise<SimV2Date
     }
 
     const suggestions: string[] = [];
-    const candidate = new Date(requestedDate);
+    const candidate = parseUruguayDate(requestedDateStr);
     candidate.setDate(candidate.getDate() + 1);
 
     while (suggestions.length < 3) {
       const day = candidate.getDay();
       if (day === 0 || day === 5 || day === 6) {
-        const candidateStr = candidate.toISOString().split('T')[0];
+        const candidateStr = hoyEnUruguay(candidate);
         if (!occupiedDates.has(candidateStr)) {
           suggestions.push(candidateStr);
         }

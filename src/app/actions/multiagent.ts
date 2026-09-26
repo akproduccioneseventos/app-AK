@@ -130,6 +130,99 @@ export async function sendPersistentMultiAgentMessage(input: {
         } else {
           result.response += `\n\n⚠️ **Che, para crear una tarea primero tenés que estar dentro de una fiesta específica.** Pero te puedo crear un recordatorio general si querés, pedímelo. 😉`;
         }
+      } else if (action.type === 'complete_task') {
+        const data = action.data as any;
+        const targetFiestaId = data.fiestaId || input.fiestaId;
+        if (targetFiestaId) {
+          const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
+          const { updateTareas } = await import('@/app/actions/fiesta/tareas.actions');
+          const { LECTURA_COMPLETA } = await import('@/lib/fiesta/lectura-completa');
+          const fiesta = await getFiestaById(targetFiestaId, LECTURA_COMPLETA);
+          if (!fiesta) {
+            result.response += `\n\n❌ **No encontré la fiesta indicada** para marcar la tarea.`;
+          } else {
+            const tareasActuales = fiesta.tareas || [];
+            let encontrada = false;
+            let tareaCompletadaTexto = '';
+            const nuevasTareas = tareasActuales.map((t) => {
+              const coincideId = data.tareaId && t.id === data.tareaId;
+              const coincideTexto = data.texto && t.texto.toLowerCase().includes(data.texto.toLowerCase());
+              if ((coincideId || coincideTexto) && !encontrada) {
+                encontrada = true;
+                tareaCompletadaTexto = t.texto;
+                return { ...t, completada: true };
+              }
+              return t;
+            });
+
+            // Si la IA no dijo cuál tarea, no se adivina: marcar la primera de la lista daría por
+            // hecha una tarea que nadie hizo.
+            if (encontrada) {
+              const updateRes = await updateTareas(targetFiestaId, nuevasTareas);
+              if (updateRes.success) {
+                result.response += `\n\n✅ **¡Tarea completada!** ✔️\n• **Tarea**: ${tareaCompletadaTexto || data.texto || 'Tarea'}\n• **Estado**: Hecha`;
+              } else {
+                result.response += `\n\n❌ **No pude actualizar las tareas**: ${updateRes.error || 'error desconocido'}`;
+              }
+            } else {
+              result.response += `\n\n⚠️ **No encontré la tarea** "${data.texto || data.tareaId || ''}" en la fiesta.`;
+            }
+          }
+        } else {
+          result.response += `\n\n⚠️ **Para marcar una tarea como hecha tenés que estar dentro de una fiesta específica.**`;
+        }
+      } else if (action.type === 'add_guest') {
+        const data = action.data as any;
+        const targetFiestaId = data.fiestaId || input.fiestaId;
+        if (targetFiestaId) {
+          const { addInvitado } = await import('@/app/actions/fiesta/invitados.actions');
+          const guestRes = await addInvitado(targetFiestaId, {
+            nombre: data.nombre || data.name || 'Invitado nuevo',
+            categoria: data.categoria || data.tipo || 'Adulto',
+            rsvp: data.rsvp || 'Confirmado',
+            partySize: typeof data.partySize === 'number' ? data.partySize : 1,
+            tableNumber: data.mesa || data.tableNumber,
+            notes: data.notes || data.notas,
+            dietaryRestriction: data.menu || data.dietaryRestriction || 'Ninguna',
+          } as any);
+          if (guestRes.success) {
+            result.response += `\n\n🎟️ **Invitado anotado con éxito**\n• **Nombre**: ${data.nombre || data.name || 'Invitado nuevo'}`;
+          } else {
+            result.response += `\n\n❌ **No pude agregar el invitado**: ${guestRes.error || 'error desconocido'}`;
+          }
+        } else {
+          result.response += `\n\n⚠️ **Para anotar un invitado tenés que estar dentro de una fiesta específica.**`;
+        }
+      } else if (action.type === 'create_incident') {
+        const data = action.data as any;
+        const targetFiestaId = data.fiestaId || input.fiestaId;
+        if (targetFiestaId) {
+          const { createIncidente } = await import('@/app/actions/incidents');
+          let prioridad = 'Media';
+          if (data.gravedad === 'critica' || data.prioridad === 'Critica') prioridad = 'Critica';
+          else if (data.gravedad === 'alta' || data.prioridad === 'Alta') prioridad = 'Alta';
+          else if (data.gravedad === 'baja' || data.prioridad === 'Baja') prioridad = 'Baja';
+
+          const incRes = await createIncidente({
+            fiestaId: targetFiestaId,
+            titulo: data.titulo || data.title || 'Incidente en fiesta',
+            descripcion: data.descripcion || data.description || '',
+            categoria: data.categoria || 'Otro',
+            prioridad: prioridad as any,
+            estado: data.estado || 'Abierto',
+            responsable: data.responsable || 'Equipo',
+            planAccion: data.planAccion || '',
+            seguimiento: data.seguimiento || '',
+            registradoPor: data.registradoPor || 'Secretario',
+          });
+          if (incRes.success) {
+            result.response += `\n\n⚠️ **Incidente registrado en la fiesta**\n• **Título**: ${data.titulo || data.title || 'Incidente en fiesta'}\n• **Prioridad**: ${prioridad}`;
+          } else {
+            result.response += `\n\n❌ **No pude registrar el incidente**: ${incRes.error || 'error desconocido'}`;
+          }
+        } else {
+          result.response += `\n\n⚠️ **Para registrar un incidente tenés que estar dentro de una fiesta específica.**`;
+        }
       } else if (action.type === 'create_lead') {
         // Antes esto NO LO EJECUTABA NADIE: la inteligencia artificial contestaba como si
         // hubiera anotado al prospecto y el prospecto no existia en ningun lado. Lo mismo

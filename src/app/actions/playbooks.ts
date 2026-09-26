@@ -7,6 +7,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { verifySession } from '@/lib/auth/session-token';
+import { hoyEnUruguay } from '@/lib/utils';
 
 const PLAYBOOKS_FILE = 'playbooks.json';
 const APLICACIONES_FILE = 'playbook-aplicaciones.json';
@@ -141,7 +142,7 @@ export async function applyPlaybookToFiesta(
       if (fechaEvento && tpl.diasAntesEvento !== undefined) {
         const d = new Date(fechaEvento);
         d.setDate(d.getDate() + tpl.diasAntesEvento);
-        fechaLimite = d.toISOString().split('T')[0];
+        fechaLimite = hoyEnUruguay(d);
       }
       return {
         id: `tarea_pb_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,

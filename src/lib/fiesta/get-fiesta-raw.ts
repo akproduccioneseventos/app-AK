@@ -40,7 +40,7 @@ export async function preserveFiestaSecrets(
 }
 
 export async function getFiestaByIdRaw(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
-  const activePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
+  const activePath = `${FIESTAS_DIR}/${fiestaId}.json`;
   try {
     const active = await readData<FiestaEnPlanificacion | null>(activePath, null);
     if (active && active.id === fiestaId) return active;
