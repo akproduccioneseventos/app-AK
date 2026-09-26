@@ -603,7 +603,9 @@ export default function Plataforma360Page() {
     const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    void updateEntertainmentSessionStatus(
+    // Se ESPERA: si el "listo" de abajo llegara antes que este "procesando", la sesión quedaba
+    // trabada en "procesando" (de "listo" se puede volver a "procesando").
+    await updateEntertainmentSessionStatus(
       fiestaId,
       'plataforma360',
       'processing',
