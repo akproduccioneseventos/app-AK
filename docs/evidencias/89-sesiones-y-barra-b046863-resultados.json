@@ -1,0 +1,56 @@
+{
+  "sourceAppSHA": "b046863c1a6f5235c0f48c36298e25971e214b4a",
+  "scope": "Real AST callbacks and session transaction function; I/O and authorization mocked. No E2E, Firestore, compile, production or hardware verification.",
+  "results": [
+    {
+      "case": "operator-start-while-A-processes",
+      "status": "recording",
+      "disabled": true,
+      "passed": false
+    },
+    {
+      "case": "late-A-completion-does-not-overwrite-B",
+      "before": {
+        "captureId": "B",
+        "status": "recording"
+      },
+      "after": {
+        "captureId": "B",
+        "status": "done",
+        "mediaUrl": "/media-A.jpg"
+      },
+      "passed": false
+    },
+    {
+      "case": "queued-consented-job-context-after-reset",
+      "expectedConsentSnapshot": "true",
+      "submittedConsent": "false",
+      "passed": false,
+      "limit": "Callback evaluated with later-render context; not a React browser navigation reproduction."
+    },
+    {
+      "case": "bar-mini-excludes-exhausted-from-suggestions",
+      "available": [
+        "yes",
+        "unknown"
+      ],
+      "order": [
+        "yes",
+        "unknown",
+        "zero",
+        "negative"
+      ],
+      "passed": true
+    },
+    {
+      "case": "bar-category-preserves-exhausted-last",
+      "order": [
+        "yes",
+        "unknown",
+        "zero",
+        "negative"
+      ],
+      "passed": true
+    }
+  ]
+}

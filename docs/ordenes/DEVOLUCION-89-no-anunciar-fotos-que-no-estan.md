@@ -64,7 +64,32 @@ Se descartaron dos alertas de revision inicial: esta ruta NO requiere `mode=gues
 
 ## Cierre y limites
 
-Reproducir primero los tres fallos en la base vigente; si ya se corrigieron en una tanda nueva, vincular evidencia en vez de duplicar. Actualizar orden 89 y YA-RESUELTO con el estado verdadero. Claude ejecuta pruebas focalizadas, luego una compilacion del conjunto congelado; guardar SHA/resultados. No rebajar tests ni permisos para cerrar.
+### Ampliacion 26/9: simultaneidad y modo operador, sin repetir la sonda anterior
+
+Main sigue en b046863 y no hay una tanda nueva publicada al momento del contraste. Evidencia adicional: `docs/evidencias/89-sesiones-y-barra-b046863.cjs` y `89-sesiones-y-barra-b046863-resultados.json`. Ejecuta callbacks reales, expresion disabled extraida del JSX y acciones de sesion reales, con transaccion/almacenamiento y proveedor simulados. NO React completo, Firestore ni ensayo fisico.
+
+**T89-05 / P1: resultado viejo asociado a la captura nueva.**
+La respuesta exitosa de `procesarTrabajoIA` llama a `updateEntertainmentSessionStatus(..., 'done', {mediaUrl: ...})` sin identidad de la captura origen. La accion en `src/app/actions/fiesta/sesion-entretenimiento.ts` valida transiciones y conserva `current.captureId`, pero no compara el trabajo que responde contra la captura vigente. Una transaccion evita escrituras simultaneas incompletas, no evita aplicar un resultado viejo a una sesion nueva.
+
+Reproduccion: A espera al proveedor; el operador usa Reiniciar y luego Iniciar para B, usando `resetEntertainmentSession` y `startEntertainmentSession` reales; B entra en recording; termina A. Observado: `captureId: B`, `status: done`, `mediaUrl: /media-A.jpg`. El resultado A puede guardarse en su galeria, pero NO debe finalizar ni cambiar el medio de B.
+
+Claude: incorporar comparacion atomica de identidad/version de captura en la actualizacion correspondiente y rechazar/ignorar respuestas obsoletas sin perder el recuerdo de A. Gemini: cada trabajo conserva identidad de origen y la envia donde corresponda; actualizar sus consumidores afectados. No basta comparar una variable React en el cliente ni eliminar el aviso al operador. Definir compatibilidad de las otras estaciones que usan la misma accion; buscar referencias antes de cambiar firma. No relajar permisos ni invalidar la nueva sesion para aceptar A.
+
+Aceptacion: A tardia despues de B recording, B processing, reinicio y cambio de estacion; A se conserva donde corresponde y B mantiene su estado/medio. Prueba con limites reales de la transaccion; navegador de operador y display separados. Agregar al test vigente de sesion segura y al E2E de orden 89, no crear otra arquitectura.
+
+**T89-06 / P2: el operador sigue sin poder atender al siguiente.**
+En Touchpix `role=operator`, el boton Iniciar captura se deshabilita salvo estados idle/done. La captura nueva cambia a recording y no libera la disponibilidad del equipo hasta que termina IA/subida. Sonda de la expresion real del boton: A esperando proveedor, status recording, disabled true. El invitado puede capturar desde display, pero el modo operador no cumple el mismo objetivo de fila libre.
+
+Gemini y Claude: separar disponibilidad de captura del estado de trabajos IA pendientes usando el modelo existente. Liberar la estacion cuando la captura se termino de guardar, manteniendo limites de dos procesamientos y sus colas; NO solo habilitar el boton mientras todavia se esta capturando. T89-05 debe quedar resuelto a la vez. Reiniciar manualmente no es el flujo normal para cada participante.
+
+Aceptacion: desde operator iniciar A, display captura, A sigue procesando, operator inicia B sin Reiniciar y B captura; cola respeta el limite; fallo A no bloquea B ni marca B como terminado. No usar exclusivamente clicks en display como prueba de operador.
+
+**T89-03, evidencia adicional de contexto, no un encargo duplicado:**
+La sonda evalua el callback de un trabajo pendiente con el contexto de un render posterior tras limpiar consentimiento: manda `consentAccepted=false` aunque el trabajo se habia originado con consentimiento. Confirma dependencia del estado vivo en vez de instantanea del trabajo. Falta reproducir esa transicion con React en navegador; no se declara aqui una filtracion de datos ni un envio real sin consentimiento. Incorporar el caso a la correccion ya pedida de identidad/contexto inmutable, distinguiendo revocacion expresa de cambio al siguiente participante.
+
+**Dos controles de barra pasan en la sonda de logica:** stock 0/negativo no entra en sugerencias del MiniQuiosco; la lista mantiene agotados al final incluso al filtrar categoria. Esto no es E2E ni aprobacion de toda la barra. No tocar esa logica por los falsos positivos previamente descartados.
+
+Reproducir primero los hallazgos en la base vigente; si ya se corrigieron en una tanda nueva, vincular evidencia en vez de duplicar. Actualizar orden 89 y YA-RESUELTO con el estado verdadero. Claude ejecuta pruebas focalizadas, luego una compilacion del conjunto congelado; guardar SHA/resultados. No rebajar tests ni permisos para cerrar.
 
 Al consultar, App Hosting para b046863 estaba `in_progress`. Checks de GitHub fallidos no demuestran fallo de codigo: el job Lint/Typecheck/Test/Build no tenia pasos y duro un segundo. No pedir tarjeta ni atribuir una causa sin log. Reutilizar compilacion local verificada de Claude y confirmar por separado el despliegue y smoke de rutas criticas cuando finalice.
 
@@ -82,4 +107,7 @@ prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts
 archivo: src/app/evento/barra/[fiestaId]/page.tsx
 usa: handleRandomDrink en src/app/evento/barra/[fiestaId]/page.tsx
 prueba: tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts
+archivo: src/app/actions/fiesta/sesion-entretenimiento.ts
+usa: updateEntertainmentSessionStatus en src/app/evento/touchpix/[fiestaId]/page.tsx
+prueba: src/__tests__/entretenimiento-sesion-segura.test.ts
 ```

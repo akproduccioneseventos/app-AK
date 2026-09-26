@@ -16,6 +16,14 @@ Test actual de IA admite >=1 subida y no demuestra ausencia de duplicados.
 Barra: no modificar por falsas alarmas sobre mode=guest o perdida de orden al filtrar;
 ninguna esta sustentada por la ruta actual. Se conserva implementacion de Agotado.
 
+Continuacion 26/9, sin repetir los anteriores: `89-sesiones-y-barra-b046863.cjs`
+reproduce respuesta tardia de A que deja sesion B con media A y estado done;
+ademas, el boton del operador sigue deshabilitado mientras procesa A. T89-05/06
+agregados a la MISMA devolucion, pendientes de correccion. Son funciones reales
+con fronteras simuladas, no E2E. La dependencia del consentimiento del render
+posterior amplia T89-03; falta confirmarla con React. Dos controles de logica de
+barra pasan: agotados excluidos de sugerencias y al final tambien al filtrar.
+
 ## 23 de septiembre de 2026 (noche) — Orden 81: fotocabina sin internet, colas aisladas, ensayo de equipo y barra
 
 - **De Gemini:**

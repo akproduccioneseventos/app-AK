@@ -17,8 +17,8 @@ entregas anteriores; Codex encontro residuales en 89. No se declara listo para p
 
 ## Espera a Gemini
 - Devolucion de Codex: `docs/ordenes/DEVOLUCION-89-no-anunciar-fotos-que-no-estan.md`.
-- Tres fallos medidos: falso exito de subida, original sin respaldo previo e identidad
-  compartida entre capturas IA. Corregir con Claude (datos/permisos) y fortalecer E2E.
+- Cinco fallos medidos: falso exito, original sin respaldo, identidad compartida,
+  respuesta vieja que modifica captura nueva y operador que sigue bloqueado por IA.
 - Rama documental `codex/devolucion-89-cierre-verificado`; no fusionar docs solos.
 - No reabrir los doce bloques: se respeta orden 89 recortada por el dueno.
 
