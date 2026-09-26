@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { uploadBuzonMessage } from '@/app/actions/buzon';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
@@ -1002,15 +1003,21 @@ export default function GuestBuzonPage() {
     }
 
     setIsSubmitting(true);
+    const snapshotName = trimmedName;
+    const snapshotAccessToken = accessToken;
+    const snapshotIsTimeCapsule = isTimeCapsule;
+    const snapshotUnlockYears = unlockYears;
+    const snapshotRecipientNote = recipientNote.trim();
+
     const formData = new FormData();
     formData.append('fiestaId', fiestaId);
-    formData.append('authorName', trimmedName);
-    if (accessToken) formData.append('accessToken', accessToken);
+    formData.append('authorName', snapshotName);
+    if (snapshotAccessToken) formData.append('accessToken', snapshotAccessToken);
 
-    if (isTimeCapsule) {
+    if (snapshotIsTimeCapsule) {
       formData.append('isTimeCapsule', 'true');
-      formData.append('unlockYears', unlockYears.toString());
-      if (recipientNote.trim()) formData.append('recipientNote', recipientNote.trim());
+      formData.append('unlockYears', snapshotUnlockYears.toString());
+      if (snapshotRecipientNote) formData.append('recipientNote', snapshotRecipientNote);
     }
 
     let pendingBlob: Blob | null = null;
@@ -1074,6 +1081,18 @@ export default function GuestBuzonPage() {
         throw new Error(result.error || 'Ocurrió un error al subir.');
       }
     } catch (err: any) {
+      const errMessage = err?.message || 'Ocurrió un error al subir.';
+      const decision = classifyOfflineUploadError(errMessage);
+
+      if (decision === 'permanent') {
+        toast({
+          title: 'Error al enviar saludo',
+          description: errMessage || 'El mensaje no se pudo publicar.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       // Fallback offline: no perder el saludo si no hay conexión en el evento
       if (pendingBlob) {
         try {
@@ -1083,13 +1102,13 @@ export default function GuestBuzonPage() {
             fileBlob: pendingBlob,
             fileName: pendingFileName,
             mimeType: pendingMimeType,
-            authorName: trimmedName,
+            authorName: snapshotName,
             metadata: {
               mediaType,
-              timeCapsuleYears: isTimeCapsule ? unlockYears : undefined,
-              recipientNote: recipientNote.trim() || undefined,
+              timeCapsuleYears: snapshotIsTimeCapsule ? snapshotUnlockYears : undefined,
+              recipientNote: snapshotRecipientNote || undefined,
             },
-            accessToken,
+            accessToken: snapshotAccessToken,
           });
           setShowCelebration(true);
           resetAudioRecording();
@@ -1103,14 +1122,25 @@ export default function GuestBuzonPage() {
             setShowCelebration(false);
           }, 5000);
           return;
-        } catch (offlineErr) {
+        } catch (offlineErr: any) {
           console.error('[Buzon] Error al guardar offline:', offlineErr);
+          const sinEspacio =
+            offlineErr?.name === 'QuotaExceededError' ||
+            /quota|space|storage/i.test(String(offlineErr?.message || ''));
+          toast({
+            title: 'No se pudo guardar el saludo',
+            description: sinEspacio
+              ? 'Esta computadora se quedó sin lugar para guardar mensajes. Avisale al encargado.'
+              : 'No se pudo guardar el saludo en este equipo. Avisale al encargado.',
+            variant: 'destructive',
+          });
+          return;
         }
       }
 
       toast({
         title: 'Error al enviar saludo',
-        description: err?.message || 'No se pudo conectar con el servidor ni guardar en el equipo.',
+        description: errMessage || 'No se pudo conectar con el servidor ni guardar en el equipo.',
         variant: 'destructive',
       });
     } finally {

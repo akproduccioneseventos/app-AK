@@ -45,6 +45,7 @@ import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { applyEspejoFaceSwap, isEspejoIaDisponible } from '@/app/actions/espejo-magico-ai';
 import {
@@ -135,6 +136,7 @@ export default function EspejoMagicoPage() {
   const [selectedFilter, setSelectedFilter] = useState(FILTERS[0]);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
   const currentPhotoSessionIdRef = useRef<string>(photoSessionId);
+  const sesionCaptureIdRef = useRef<string | undefined>(undefined);
   const autoRetakeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -725,7 +727,11 @@ export default function EspejoMagicoPage() {
 
     setLocalStatus('recording');
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    await updateEntertainmentSessionStatus(fiestaId, moduleId, 'recording', {}, accessToken);
+    void updateEntertainmentSessionStatus(fiestaId, moduleId, 'recording', {}, accessToken).then((res) => {
+      if (res?.captureId) {
+        sesionCaptureIdRef.current = res.captureId;
+      }
+    }).catch(() => undefined);
 
     setFlash(true);
     setTimeout(() => setFlash(false), 300);
@@ -867,10 +873,14 @@ export default function EspejoMagicoPage() {
 
     const sessionForThisUpload = currentPhotoSessionIdRef.current;
     const isLiveSession = () => currentPhotoSessionIdRef.current === sessionForThisUpload;
+    const capturedGuestId = guestId;
+    const capturedGuestAccessToken = guestAccessToken;
+    const capturedAccessToken = accessToken;
+    const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     setIsUploading(true);
     setLocalStatus('processing');
-    void updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken).catch(() => undefined);
+    void updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, capturedAccessToken).catch(() => undefined);
     speak("Subiendo tu foto al muro");
 
     let pendingBlob: Blob | null = null;
@@ -892,9 +902,9 @@ export default function EspejoMagicoPage() {
       formData.append('file', file);
       formData.append('authorName', modeCopy.author);
       formData.append('moduleId', moduleId);
-      if (accessToken) formData.append('accessToken', accessToken);
-      if (guestId) formData.append('guestId', guestId);
-      if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
+      if (capturedAccessToken) formData.append('accessToken', capturedAccessToken);
+      if (capturedGuestId) formData.append('guestId', capturedGuestId);
+      if (capturedGuestAccessToken) formData.append('guestAccessToken', capturedGuestAccessToken);
 
       const res = await conTopeDeEspera(uploadEntretenimientoMedia(formData));
       if (!res.success) throw new Error(res.error || 'Error al subir');
@@ -907,18 +917,34 @@ export default function EspejoMagicoPage() {
         fiestaId,
         moduleId,
         'done',
-        { mediaUrl, lastError: null },
-        accessToken
-      );
+        { mediaUrl, lastError: null, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+        capturedAccessToken
+      ).catch(() => undefined);
       speak('Listo. Foto enviada al muro.');
 
       if (autoRetakeTimerRef.current) clearTimeout(autoRetakeTimerRef.current);
       autoRetakeTimerRef.current = setTimeout(() => {
         if (isLiveSession()) retake();
       }, 12000);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('[EspejoMagico] Error en subida:', err);
       setQrCodeUrl('');
+      const errMessage = err?.message || 'Error al subir';
+      const decision = classifyOfflineUploadError(errMessage);
+
+      if (decision === 'permanent') {
+        setErrorMsg(errMessage);
+        setLocalStatus('done');
+        void updateEntertainmentSessionStatus(
+          fiestaId,
+          moduleId,
+          'done',
+          { lastError: errMessage, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+          capturedAccessToken,
+        ).catch(() => undefined);
+        speak('Tu foto no se pudo publicar. Avisale al equipo.');
+        return;
+      }
 
       if (pendingBlob) {
         try {
@@ -929,9 +955,9 @@ export default function EspejoMagicoPage() {
             fileName,
             mimeType: 'image/jpeg',
             authorName: modeCopy.author,
-            guestId,
-            guestAccessToken,
-            accessToken,
+            guestId: capturedGuestId,
+            guestAccessToken: capturedGuestAccessToken,
+            accessToken: capturedAccessToken,
           });
           setErrorMsg(null);
           setLocalStatus('done');
@@ -939,8 +965,8 @@ export default function EspejoMagicoPage() {
             fiestaId,
             moduleId,
             'done',
-            { mediaUrl: null, reviewPending: true, lastError: null },
-            accessToken,
+            { mediaUrl: null, reviewPending: true, lastError: null, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+            capturedAccessToken,
           ).catch(() => undefined);
           speak('Tu foto quedó guardada y se subirá cuando vuelva la señal.');
           if (autoRetakeTimerRef.current) clearTimeout(autoRetakeTimerRef.current);
@@ -948,19 +974,28 @@ export default function EspejoMagicoPage() {
             if (isLiveSession()) retake();
           }, 5000);
           return;
-        } catch (offlineError) {
+        } catch (offlineError: any) {
           console.error('[EspejoMagico] No se pudo guardar la captura sin conexión:', offlineError);
+          const sinEspacio =
+            offlineError?.name === 'QuotaExceededError' ||
+            /quota|space|storage/i.test(String(offlineError?.message || ''));
+          const mensajeEspacio = sinEspacio
+            ? 'Esta computadora se quedó sin lugar para guardar fotos. Avisale al encargado.'
+            : 'No se pudo guardar la foto en esta computadora. Avisale al encargado antes de seguir.';
+          setErrorMsg(mensajeEspacio);
+          setLocalStatus('idle');
+          return;
         }
       }
 
-      setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
-      setLocalStatus('recording');
+      setErrorMsg(errMessage || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
+      setLocalStatus('done');
       void updateEntertainmentSessionStatus(
         fiestaId,
         moduleId,
         'idle',
-        { lastError: 'No se pudo subir ni guardar la foto del invitado.' },
-        accessToken,
+        { lastError: 'No se pudo subir ni guardar la foto del invitado.', ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+        capturedAccessToken,
       ).catch(() => undefined);
       speak('No se pudo guardar la foto. Podés reintentar o descargarla en este dispositivo.');
     } finally {
@@ -985,6 +1020,7 @@ export default function EspejoMagicoPage() {
     setAiStep('idle');
     setAiProcessing(false);
     setLocalStatus('idle');
+    sesionCaptureIdRef.current = undefined;
     const nextSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     currentPhotoSessionIdRef.current = nextSessionId;
     setPhotoSessionId(nextSessionId);
