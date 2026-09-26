@@ -3,6 +3,7 @@ import type { SocialPost } from '@/types/social-media';
 import type { SocialConnection } from '@/types/settings';
 import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { hoyEnUruguay } from '@/lib/utils';
 
 /**
  * Genera la revisión diaria de presencia digital con análisis inteligente y sugerencia de posteo.
@@ -13,7 +14,7 @@ export async function buildDigitalPresenceDailyReview(params: {
   connections: SocialConnection[];
   forceRegenerate?: boolean;
 }): Promise<DigitalPresenceReview> {
-  const today = new Date().toISOString().split('T')[0];
+  const today = hoyEnUruguay();
   const now = new Date();
 
   // 1. Identificar la publicación con mejor desempeño histórico reciente

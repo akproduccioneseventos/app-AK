@@ -1,7 +1,8 @@
-﻿import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData } from '@/lib/data-service';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
+import { hoyEnUruguay } from '@/lib/utils';
 
 const PARTE_CACHE_FILE = 'parte-manana-cache.json';
 
@@ -38,7 +39,7 @@ export interface ParteDeLaManana {
  * Genera o lee el parte de la mañana del día (cacheado para gastar una sola vez al día).
  */
 export async function getParteDeLaManana(forzar = false): Promise<ParteDeLaManana> {
-  const hoyStr = new Date().toISOString().split('T')[0];
+  const hoyStr = hoyEnUruguay();
 
   if (!forzar) {
     try {
@@ -60,7 +61,7 @@ export async function getParteDeLaManana(forzar = false): Promise<ParteDeLaManan
  */
 export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
   const ahora = new Date();
-  const hoyStr = ahora.toISOString().split('T')[0];
+  const hoyStr = hoyEnUruguay(ahora);
   const items: ItemParteManana[] = [];
 
   const [fiestas, presupuestos] = await Promise.all([

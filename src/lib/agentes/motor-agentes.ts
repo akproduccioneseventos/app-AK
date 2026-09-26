@@ -1,4 +1,5 @@
 import { readData, writeData } from '@/lib/data-service';
+import { hoyEnUruguay } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { ScheduledMessage } from '@/types/whatsapp-automation';
@@ -338,7 +339,7 @@ export async function ejecutarVigilanteNoche(ahora = new Date()): Promise<Regist
   const acciones: string[] = [];
 
   const fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
-  const hoyStr = ahora.toISOString().split('T')[0];
+  const hoyStr = hoyEnUruguay(ahora);
 
   const fiestasHoy = fiestas.filter((f) => (f.configuracion?.fechaEvento || (f.configuracion as any)?.fecha) === hoyStr);
 

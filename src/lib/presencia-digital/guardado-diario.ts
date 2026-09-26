@@ -7,6 +7,7 @@ import type { SocialPost } from '@/types/social-media';
 import type { SocialConnection } from '@/types/settings';
 import type { CrmLead } from '@/types/crm';
 import type { Presupuesto } from '@/types/presupuesto';
+import { hoyEnUruguay } from '@/lib/utils';
 
 const CONNECTIONS_FILE = 'social-connections.json';
 const POSTS_FILE = 'social-posts.json';
@@ -25,7 +26,7 @@ const BUDGETS_FILE = 'presupuestos.json';
  * las tareas, igual que los recordatorios de pago.
  */
 export async function guardarMetricasDelDia(): Promise<{ guardado: boolean; fecha: string }> {
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = hoyEnUruguay();
 
   const [connections, posts, history, leads, budgets] = await Promise.all([
     readData<SocialConnection[]>(CONNECTIONS_FILE, []),

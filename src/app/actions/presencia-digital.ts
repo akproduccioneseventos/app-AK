@@ -23,6 +23,7 @@ import {
   HISTORY_FILE,
 } from '@/lib/presencia-digital/metricas-historicas';
 import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
+import { hoyEnUruguay } from '@/lib/utils';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { buildMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics-core';
 import { publishPostInternal, type PublicarResultado } from '@/lib/presencia-digital/publicador';
@@ -70,7 +71,7 @@ export async function getDigitalPresenceDashboard(): Promise<{
     });
 
     // 3. Obtener o generar la revisión diaria (Bloque 4)
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = hoyEnUruguay();
     let review = storedReview;
     if (!review || review.date !== todayStr) {
       review = await buildDigitalPresenceDailyReview({ posts, connections });

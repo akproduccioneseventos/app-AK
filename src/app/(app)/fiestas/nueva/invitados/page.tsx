@@ -665,8 +665,10 @@ function InvitadosEventoContent() {
 
       {/* Import Spreadsheet Dialog */}
       <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
-        <DialogContent className="max-w-3xl max-h-[90dvh] flex flex-col p-0 gap-0 overflow-hidden">
-          <DialogHeader className="p-4 sm:p-6 pb-3 border-b shrink-0 pr-10">
+        <DialogContent
+          className="fixed inset-x-3 top-6 bottom-6 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-3xl sm:h-[85vh] sm:max-h-[85vh] flex flex-col min-w-0 p-0 gap-0 overflow-hidden bg-background shadow-2xl"
+        >
+          <DialogHeader className="p-4 sm:p-6 pb-3 border-b shrink-0 bg-background relative z-30 pr-10">
             <DialogTitle className="flex items-center gap-2 text-xl font-bold">
               <FileSpreadsheet className="w-5 h-5 text-purple-600 shrink-0" />
               Importar lista de invitados desde una planilla
@@ -676,7 +678,7 @@ function InvitadosEventoContent() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4">
+          <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="input-archivo-planilla">Archivo CSV / Planilla</Label>
               <Input
@@ -742,8 +744,8 @@ function InvitadosEventoContent() {
                   </div>
                 )}
 
-                <div className="rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden max-h-60 overflow-y-auto">
-                  <Table className="text-xs">
+                <div className="rounded-lg border border-slate-200 dark:border-slate-800 overflow-x-auto w-full max-w-full">
+                  <Table className="text-xs min-w-[500px]">
                     <TableHeader>
                       <TableRow>
                         <TableHead className="w-12">#</TableHead>
@@ -792,8 +794,8 @@ function InvitadosEventoContent() {
             )}
           </div>
 
-          <DialogFooter className="p-4 border-t bg-muted/40 shrink-0 sticky bottom-0 z-10 flex flex-col-reverse sm:flex-row gap-2 justify-end">
-            <Button variant="outline" onClick={() => setIsImportModalOpen(false)}>
+          <DialogFooter className="p-3 sm:p-4 border-t bg-background shrink-0 relative z-30 flex flex-row gap-2 justify-end items-center">
+            <Button variant="outline" onClick={() => setIsImportModalOpen(false)} className="min-h-[44px]">
               Cancelar
             </Button>
             <Button
@@ -805,7 +807,7 @@ function InvitadosEventoContent() {
                 previewPlanilla.validos === 0
               }
               onClick={handleConfirmarImportacion}
-              className="bg-purple-600 hover:bg-purple-700 text-white min-h-[44px] touch-manipulation shadow-md"
+              className="bg-purple-600 hover:bg-purple-700 text-white min-h-[44px] touch-manipulation shadow-md flex-1 sm:flex-initial"
             >
               {isImporting ? (
                 <>

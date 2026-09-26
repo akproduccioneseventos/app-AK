@@ -16,6 +16,7 @@
  */
 
 import { z } from 'zod';
+import { hoyEnUruguay } from '@/lib/utils';
 import {
   executeAgendarCita,
   executeCrearPresupuesto,
@@ -309,7 +310,7 @@ async function executeAgregarTareaMarketing(
     const id = `tarea_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     const nuevaTarea = {
       id,
-      dia: input.fechaLimite || new Date().toISOString().slice(0, 10),
+      dia: input.fechaLimite || hoyEnUruguay(),
       tarea: input.titulo + (input.descripcion ? ` — ${input.descripcion}` : ''),
       canal: 'general',
       estado: 'pendiente' as const,

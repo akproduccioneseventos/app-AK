@@ -78,7 +78,7 @@ export interface AkMultiAgentOutput {
   agentType: AkAgentType;
   agentName: string;
   action?: {
-    type: 'none' | 'save_learning' | 'create_task' | 'create_reminder' | 'navigate' | 'create_lead' | 'draft_budget' | 'prepare_whatsapp';
+    type: 'none' | 'save_learning' | 'create_task' | 'complete_task' | 'create_reminder' | 'navigate' | 'create_lead' | 'draft_budget' | 'prepare_whatsapp' | 'add_guest' | 'create_incident';
     data?: any;
   };
   error?: string;
