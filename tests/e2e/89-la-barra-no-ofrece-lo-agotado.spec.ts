@@ -139,7 +139,7 @@ test.describe('Orden 89 — Bloque 2: La barra no ofrece lo agotado', () => {
     // Verificar tarjeta de trago agotado en la barra touch
     const tarjetaAgotada = page.locator('[data-testid="tarjeta-trago"]', { hasText: 'Trago Especial Agotado' });
     await expect(tarjetaAgotada).toBeVisible({ timeout: 30_000 });
-    await expect(tarjetaAgotada.getByText('Agotado')).toBeVisible();
+    await expect(tarjetaAgotada.getByText('Agotado', { exact: true })).toBeVisible();
     await expect(tarjetaAgotada).toBeDisabled();
 
     // Comprobar que en la lista de tarjetas está al final
