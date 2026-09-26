@@ -25,6 +25,7 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { applyFaceSwap, applyTouchpixTheme, uploadTouchpixPhoto } from '@/app/actions/touchpix-ai';
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import {
@@ -81,6 +82,22 @@ const FACE_SWAP_CHARACTERS = [
 
 type TabMode = 'foto' | 'faceswap' | 'ai_themes';
 type ProcessingResult = 'ai' | 'fallback' | null;
+
+interface TrabajoIA {
+  id: string; // capturaId
+  tipo: 'faceswap' | 'ai_themes';
+  rawImage: string;
+  characterId?: string;
+  characterLabel?: string;
+  filter?: string;
+  frameEmojis?: string[];
+  emoji?: string;
+  themeId?: string;
+  themeLabel?: string;
+  estado: 'pendiente' | 'procesando' | 'completado' | 'error';
+  fueIA?: boolean;
+  creadoEn: number;
+}
 
 async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
   const response = await fetch(dataUrl);
@@ -141,6 +158,13 @@ export default function TouchpixPage() {
   const activeUploadSessionIdRef = useRef<string | null>(null);
   const currentPhotoSessionIdRef = useRef<string>(photoSessionId);
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Orden 89: Cola en background para IA que no frena la fila
+  const [trabajosIA, setTrabajosIA] = useState<TrabajoIA[]>([]);
+  const subidosRef = useRef<Set<string>>(new Set());
+  const procesandoRef = useRef<Set<string>>(new Set());
+  const [ultimoAvisoIA, setUltimoAvisoIA] = useState<{ id: string; raw: string; timestamp: number } | null>(null);
+  const [avisoFinalizado, setAvisoFinalizado] = useState<{ id: string; fueIA: boolean } | null>(null);
 
   useEffect(() => {
     currentPhotoSessionIdRef.current = photoSessionId;
@@ -486,9 +510,9 @@ export default function TouchpixPage() {
     ).catch(() => undefined);
     setRawCapturedImage(raw);
     setProcessingResult(null);
-    stopCamera();
 
     if (activeTab === 'foto') {
+      stopCamera();
       const theme = TOUCHPIX_THEMES.find(t => t.id === selectedTheme);
       if (theme && theme.cssFilter !== 'none') {
         applyFilterToCanvas(raw, theme.cssFilter, (result) => {
@@ -502,54 +526,186 @@ export default function TouchpixPage() {
     } else if (activeTab === 'faceswap') {
       const character = FACE_SWAP_CHARACTERS.find(c => c.id === selectedCharacter);
       if (!character) return;
-      setIsProcessing(true);
-      setProcessingText('Generando transformación con IA...');
-      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-      await updateEntertainmentSessionStatus(
-        fiestaId,
-        'espejoMagicoIA',
-        'processing',
-        {},
-        accessToken
-      );
+      const capturaId = crypto.randomUUID();
+      const nuevoTrabajo: TrabajoIA = {
+        id: capturaId,
+        tipo: 'faceswap',
+        rawImage: raw,
+        characterId: character.id,
+        characterLabel: character.label,
+        filter: character.filter,
+        frameEmojis: character.frameEmojis,
+        emoji: character.emoji,
+        estado: 'pendiente',
+        creadoEn: Date.now(),
+      };
+      setTrabajosIA(prev => [...prev, nuevoTrabajo]);
+      setUltimoAvisoIA({ id: capturaId, raw, timestamp: Date.now() });
+      // La pantalla queda libre de inmediato para la próxima captura
+    } else if (activeTab === 'ai_themes') {
+      const theme = TOUCHPIX_THEMES.find(t => t.id === selectedAiTheme);
+      const capturaId = crypto.randomUUID();
+      const nuevoTrabajo: TrabajoIA = {
+        id: capturaId,
+        tipo: 'ai_themes',
+        rawImage: raw,
+        themeId: selectedAiTheme,
+        themeLabel: theme?.label || 'Tema Artístico',
+        estado: 'pendiente',
+        creadoEn: Date.now(),
+      };
+      setTrabajosIA(prev => [...prev, nuevoTrabajo]);
+      setUltimoAvisoIA({ id: capturaId, raw, timestamp: Date.now() });
+      // La pantalla queda libre de inmediato para la próxima captura
+    }
+  }, [
+    captureRawPhoto,
+    stopCamera,
+    activeTab,
+    selectedTheme,
+    selectedCharacter,
+    selectedAiTheme,
+    applyFilterToCanvas,
+    fiestaId,
+    accessToken,
+  ]);
 
+  const procesarTrabajoIA = useCallback(async (trabajo: TrabajoIA) => {
+    let finalImageUrl = trabajo.rawImage;
+    let fueIA = false;
+
+    if (trabajo.tipo === 'faceswap') {
       try {
         const formData = new FormData();
         formData.set('fiestaId', fiestaId);
         if (accessToken) formData.set('accessToken', accessToken);
         formData.set('consentAccepted', String(consentAccepted));
-        formData.set('characterId', character.id);
-        formData.set('sourceFile', await dataUrlToFile(raw, `touchpix-source-${Date.now()}.jpg`));
+        formData.set('characterId', trabajo.characterId || '');
+        formData.set('sourceFile', await dataUrlToFile(trabajo.rawImage, `touchpix-source-${trabajo.id}.jpg`));
         const result = await applyFaceSwap(formData);
 
         if (result.success && result.faceSwapApplied && result.imageBase64) {
-          applyFilterToCanvas(`data:image/png;base64,${result.imageBase64}`, 'none', (watermarked) => {
-            setCapturedImage(watermarked);
-            setProcessingResult('ai');
-            setIsProcessing(false);
+          finalImageUrl = await new Promise<string>((resolve) => {
+            applyFilterToCanvas(`data:image/png;base64,${result.imageBase64}`, 'none', (watermarked) => {
+              resolve(watermarked);
+            });
           });
-          return;
+          fueIA = true;
         }
       } catch {
-        // Fallback
+        // Fallback a efecto local si la IA no está disponible o falla
       }
 
-      setProcessingText('IA no disponible. Aplicando efecto local...');
-      applyFilterToCanvas(
-        raw,
-        character.filter,
-        (result) => {
-          setCapturedImage(result);
-          setProcessingResult('fallback');
-          setIsProcessing(false);
-        },
-        character.frameEmojis,
-        character.emoji
-      );
-    } else if (activeTab === 'ai_themes') {
-      setCapturedImage(raw);
+      if (!fueIA) {
+        finalImageUrl = await new Promise<string>((resolve) => {
+          applyFilterToCanvas(
+            trabajo.rawImage,
+            trabajo.filter || 'none',
+            (res) => resolve(res),
+            trabajo.frameEmojis,
+            trabajo.emoji
+          );
+        });
+      }
+    } else if (trabajo.tipo === 'ai_themes') {
+      try {
+        const formData = new FormData();
+        formData.set('fiestaId', fiestaId);
+        if (accessToken) formData.set('accessToken', accessToken);
+        formData.set('consentAccepted', String(consentAccepted));
+        formData.set('themeId', trabajo.themeId || '');
+        formData.set('photoSessionId', photoSessionId);
+        formData.set('file', await dataUrlToFile(trabajo.rawImage, `touchpix-theme-${trabajo.id}.jpg`));
+        const result = await applyTouchpixTheme(formData);
+
+        if (result.success && result.themeApplied && result.imageBase64) {
+          finalImageUrl = await new Promise<string>((resolve) => {
+            applyFilterToCanvas(`data:image/png;base64,${result.imageBase64}`, 'none', (watermarked) => {
+              resolve(watermarked);
+            });
+          });
+          fueIA = true;
+        }
+      } catch {
+        // Fallback a efecto local si la IA no está disponible o falla
+      }
+
+      if (!fueIA) {
+        const theme = TOUCHPIX_THEMES.find(t => t.id === trabajo.themeId);
+        const filterStr = theme?.cssFilter === 'none' ? 'none' : (theme?.cssFilter || 'none');
+        finalImageUrl = await new Promise<string>((resolve) => {
+          applyFilterToCanvas(trabajo.rawImage, filterStr, (res) => resolve(res));
+        });
+      }
     }
-  }, [captureRawPhoto, stopCamera, activeTab, selectedTheme, selectedCharacter, applyFilterToCanvas, fiestaId, accessToken, consentAccepted]);
+
+    // Una captura, una sola subida: guardá en un Set los capturaId ya subidos y no subas dos veces el mismo
+    if (!subidosRef.current.has(trabajo.id)) {
+      subidosRef.current.add(trabajo.id);
+      try {
+        const pendingFile = await dataUrlToFile(finalImageUrl, `touchpix-${trabajo.id}.jpg`);
+        const uploadFormData = new FormData();
+        uploadFormData.append('fiestaId', fiestaId);
+        if (accessToken) uploadFormData.append('accessToken', accessToken);
+        if (guestId) uploadFormData.append('guestId', guestId);
+        if (guestAccessToken) uploadFormData.append('guestAccessToken', guestAccessToken);
+        uploadFormData.append('file', pendingFile);
+        uploadFormData.append('authorName', 'Cabina Touchpix');
+        if (trabajo.tipo === 'ai_themes') {
+          uploadFormData.append('themeLabel', fueIA ? (trabajo.themeLabel || '') : 'Efecto local');
+        }
+        if (trabajo.tipo === 'faceswap') {
+          uploadFormData.append('characterLabel', fueIA ? (trabajo.characterLabel || '') : 'Efecto local');
+        }
+        const res = await uploadTouchpixPhoto(uploadFormData);
+        if (res.success) {
+          void updateEntertainmentSessionStatus(
+            fiestaId,
+            'espejoMagicoIA',
+            'done',
+            { mediaUrl: res.post?.imageUrl, reviewPending: false },
+            accessToken
+          ).catch(() => undefined);
+        }
+      } catch {
+        // Fallo en la red: la original ya quedó en el equipo; no inventar cola en servidor
+      }
+    }
+
+    procesandoRef.current.delete(trabajo.id);
+    setTrabajosIA(prev =>
+      prev.map(t => (t.id === trabajo.id ? { ...t, estado: 'completado', fueIA } : t))
+    );
+    setAvisoFinalizado({ id: trabajo.id, fueIA });
+  }, [
+    accessToken,
+    applyFilterToCanvas,
+    consentAccepted,
+    fiestaId,
+    guestAccessToken,
+    guestId,
+    photoSessionId,
+  ]);
+
+  // Gestor de cola con concurrencia máxima 2
+  useEffect(() => {
+    const enProceso = trabajosIA.filter(t => t.estado === 'procesando');
+    if (enProceso.length >= 2) return;
+
+    const candidatos = trabajosIA.filter(t => t.estado === 'pendiente' && !procesandoRef.current.has(t.id));
+    const cupos = 2 - enProceso.length;
+    const aEjecutar = candidatos.slice(0, cupos);
+
+    if (aEjecutar.length === 0) return;
+
+    for (const item of aEjecutar) {
+      procesandoRef.current.add(item.id);
+      setTrabajosIA(prev =>
+        prev.map(t => (t.id === item.id ? { ...t, estado: 'procesando' } : t))
+      );
+      void procesarTrabajoIA(item);
+    }
+  }, [trabajosIA, procesarTrabajoIA]);
 
   const takePhoto = useCallback(() => {
     if (countdown !== null) return;
@@ -1510,6 +1666,95 @@ export default function TouchpixPage() {
                   ? 'Se publicará automáticamente cuando vuelva Internet.' /* audit-promesa-verificada: offline-sync-manager */
                   : fiesta?.socialWallEnabled ? 'Ya está en el muro de la fiesta 🎉' : 'Ya está guardada 🎉'}
               </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Aviso Foto IA en Proceso (Orden 89) ── */}
+        <AnimatePresence>
+          {ultimoAvisoIA && (
+            <motion.aside
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              aria-label="Aviso foto con IA en preparación"
+              data-testid="aviso-foto-ia-preparando"
+              className="absolute top-4 right-4 z-40 max-w-sm w-[calc(100vw-2rem)] sm:w-96 rounded-2xl border border-fuchsia-500/40 bg-zinc-950/95 p-4 text-white shadow-2xl backdrop-blur-xl"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">✨</span>
+                  <p className="text-xs font-black uppercase tracking-wider text-fuchsia-400">
+                    Foto en proceso
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUltimoAvisoIA(null)}
+                  aria-label="Cerrar aviso"
+                  className="rounded-full bg-white/10 p-1 text-zinc-400 hover:bg-white/20 hover:text-white"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="mt-3 flex gap-3 items-center">
+                <div className="relative h-24 w-20 flex-none overflow-hidden rounded-lg border border-white/20 bg-black">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={ultimoAvisoIA.raw}
+                    alt="Tu foto original"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex-none rounded-lg bg-white p-1.5 shadow" data-testid="qr-galeria-ia">
+                  <QRCodeSVG
+                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/evento/galeria/${fiestaId}`}
+                    size={76}
+                    level="M"
+                  />
+                </div>
+              </div>
+
+              <p className="mt-3 text-xs leading-relaxed text-zinc-200" data-testid="texto-aviso-ia">
+                Tu foto con inteligencia artificial se está preparando. Va a aparecer en la galería de la fiesta en unos segundos: escaneá el código.
+              </p>
+
+              {trabajosIA.find(t => t.id === ultimoAvisoIA.id)?.estado === 'pendiente' && (
+                <div className="mt-2.5 flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-500/10 px-2.5 py-1.5 text-[11px] font-bold text-amber-300">
+                  <Loader2 className="h-3 w-3 animate-spin text-amber-400" />
+                  <span>Tu captura espera su turno (máximo 2 a la vez)</span>
+                </div>
+              )}
+            </motion.aside>
+          )}
+        </AnimatePresence>
+
+        {/* ── Indicador superior de cola de IA (Orden 89) ── */}
+        {trabajosIA.some(t => t.estado === 'pendiente' || t.estado === 'procesando') && (
+          <div className="absolute top-4 left-4 z-40 flex items-center gap-2 rounded-full border border-fuchsia-500/30 bg-black/80 px-3.5 py-1.5 backdrop-blur-md">
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-fuchsia-400" />
+            <span className="text-[11px] font-bold text-zinc-200">
+              Procesando: {trabajosIA.filter(t => t.estado === 'procesando').length}
+              {trabajosIA.filter(t => t.estado === 'pendiente').length > 0 &&
+                ` (${trabajosIA.filter(t => t.estado === 'pendiente').length} esperando su turno)`}
+            </span>
+          </div>
+        )}
+
+        {/* ── Aviso foto completada con fallback o éxito (Orden 89) ── */}
+        <AnimatePresence>
+          {avisoFinalizado && (
+            <motion.div
+              key={avisoFinalizado.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="absolute bottom-4 left-4 right-4 z-40 mx-auto max-w-sm rounded-xl border border-white/10 bg-zinc-900/90 p-3 text-center text-xs font-medium text-zinc-200 shadow-xl backdrop-blur-md"
+            >
+              {avisoFinalizado.fueIA
+                ? '¡Foto lista en la galería de la fiesta!'
+                : 'Efecto local aplicado: tu foto ya está en la galería.'}
             </motion.div>
           )}
         </AnimatePresence>
