@@ -3,6 +3,7 @@
 import {
   getPendingOfflineMedia,
   removeOfflineMedia,
+  reclamarOfflineMediaParaSubir,
   updateOfflineMediaAttempt,
   type OfflineMediaItem,
 } from './offline-db';
@@ -102,6 +103,9 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
 
     for (const item of queue) {
       if (!navigator.onLine) break;
+      // Una original retenida se reclama antes de subirla (orden 91): si su trabajo de IA la
+      // volvió a retener, o si otra pestaña ya la está subiendo, no le toca a esta vuelta.
+      if (item.retenidaHasta && !(await reclamarOfflineMediaParaSubir(item.id))) continue;
 
       try {
         let success = false;

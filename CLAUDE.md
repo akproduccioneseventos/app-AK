@@ -889,6 +889,18 @@ operador trabado). Lo que no me pregunté: **¿qué pasa en el SERVIDOR cuando l
 hay otro?** Quedó como punto 4 de la pregunta 27. Y un error mío de ese día: apagué la puerta con
 `pkill -f` y maté mi propia orden (error 20 otra vez); **sólo por número de proceso o nombre exacto**.
 
+### 26. Arreglar un defecto metiendo otro, en la misma pantalla y el mismo día
+
+**Pasó el 26 de septiembre de 2026 (orden 91).** Para que el trabajo de la IA supiera de qué captura
+salía, **puse la espera al servidor antes de guardar la foto**, justo lo contrario de lo que había
+arreglado a la mañana. Y dejé la retención en un plazo fijo de tres minutos. Lo encontró Codex.
+
+**Qué era lo cierto:** un arreglo que agrega una espera tiene que preguntarse **qué queda sin hacer
+mientras espera**. Y un plazo fijo no sabe si el trabajo sigue vivo.
+
+**Qué se hace distinto:** punto 5 de la pregunta 27. Antes de agregar un `await`, mirar qué viene
+después de él y si eso puede esperar.
+
 ### 25. Contestarle al dueño en inglés
 
 **Pasó el 26 de septiembre de 2026**, al cerrar la devolución 89: el informe final salió en inglés.
@@ -1361,6 +1373,7 @@ con otra cara.
 | "Hoy" calculado en hora de Greenwich: a la noche ya era mañana | `src/__tests__/hoy-es-el-dia-de-uruguay.test.ts` |
 | La cabina con IA decía "en la galería" aunque la foto no se subiera, y perdía la original al recargar | `src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts` |
 | La respuesta tardía de la IA cerraba la captura del siguiente, y el operador quedaba trabado | `src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts` |
+| La cabina con IA perdía la foto con el servidor lento, y publicaba dos con la IA lenta | `src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts` |
 
 ### Cómo se elige el matafuego
 

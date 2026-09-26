@@ -556,3 +556,23 @@ prueba: src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts
 prueba: src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts
 ```
 
+## 26 de septiembre de 2026 — La captura dependía del servidor y de un reloj (Codex, orden 91)
+
+**Qué era:** en la segunda vuelta de la devolución 89 **yo mismo** puse la espera del aviso al
+servidor antes de guardar la original. Y la retención de la original era un plazo fijo de tres
+minutos: con la IA lenta se publicaban la original y el resultado.
+
+**Qué pregunta lo hubiera agarrado:** el punto 5, nuevo, de la pregunta 27: *lo que protege al
+trabajo, ¿depende de que siga vivo o de un reloj? ¿El guardado local espera a la red?*
+
+**Barrido:** no hace falta orden para Gemini. La retención existe sólo en la cabina con IA, y
+ninguna otra estación espera el aviso de "grabando" antes de guardar (se buscó `retenidaHasta` y
+`await updateEntertainmentSessionStatus(... 'recording'`).
+
+**El control que lo frena:** `src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts`.
+
+```comprobar
+usa: renovarOriginalesVivas en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: reclamarOfflineMediaParaSubir en src/lib/offline/offline-sync-manager.ts
+prueba: src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
+```

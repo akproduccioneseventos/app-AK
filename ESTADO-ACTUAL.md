@@ -4,6 +4,9 @@
 
 ## Lo último que entró
 
+- **Orden 91 (Codex), hecha por Claude:** la cabina con IA guarda la foto sin esperar al servidor,
+  y publica una sola foto por captura aunque la IA tarde (retención renovada + reclamo de la cola).
+
 - **1231, orden 90 (Gemini):** fotocabina, 360, Bogue, espejo mágico, buzón y Video de Vida dicen
   dónde quedó la foto de verdad. Claude arregló al verificar que la 360 podía quedar trabada en
   "procesando".

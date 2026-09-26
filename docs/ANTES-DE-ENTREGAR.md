@@ -61,7 +61,9 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     escribe la lista entera para cambiar un renglón?
 16. **¿Pasaste algo a segundo plano?** Entonces el cartel final tiene que decir dónde quedó de
     verdad en cada salida (bien, sin señal, rechazo, sin lugar), y el trabajo tiene que llevar
-    copia de su invitado y su identidad, no leer la pantalla cuando termina.
+    copia de su invitado y su identidad, no leer la pantalla cuando termina. Lo que se guarda
+    en el equipo va **antes** de cualquier espera a la red, y lo que lo protege se renueva
+    mientras el trabajo vive; un plazo fijo no sabe si el trabajo sigue andando.
 
 ## Y dos reglas que valen para las pruebas
 
