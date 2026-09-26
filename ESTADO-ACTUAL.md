@@ -1,10 +1,14 @@
 # Acá quedé
 
-**26 de septiembre de 2026.** Propuestas 1224 a 1229 fusionadas, con la puerta completa en verde.
+**26 de septiembre de 2026.** Propuestas 1224 a 1231 fusionadas, con la puerta completa en verde.
 
 ## Lo último que entró
 
-- **Devolución 89 (Codex):** la cabina con IA dice dónde quedó la foto de verdad, guarda la
+- **1231, orden 90 (Gemini):** fotocabina, 360, Bogue, espejo mágico, buzón y Video de Vida dicen
+  dónde quedó la foto de verdad. Claude arregló al verificar que la 360 podía quedar trabada en
+  "procesando".
+
+- **1230, devolución 89 (Codex), los seis hallazgos:** la cabina con IA dice dónde quedó la foto de verdad, guarda la
   original al capturar y cada captura tiene su propio tope de intentos. La respuesta tardía de la
   IA ya no cierra la captura del siguiente, y el operador queda libre al guardar la foto.
 
@@ -21,7 +25,7 @@
 
 ## Espera a Gemini
 
-- **Orden 90:** que las demás estaciones digan dónde quedó la foto de verdad (pregunta 27).
+Nada.
 
 ## Pendiente, y es mío
 
@@ -34,7 +38,7 @@ Falta **un ensayo real**: `docs/ENSAYO-EN-EL-SALON.md`.
 
 ## Trampas
 
-- **Con la máquina cargada fallan pruebas al azar** (ingreso, estaciones, barra) y pasan solas
+- **Con la máquina cargada fallan pruebas al azar** (ingreso, estaciones, barra, cápsula del tiempo del buzón) y pasan solas
   con `npm run otravez`. Antes de tocar código por una falla del navegador, repetirla sola.
 - La puerta se espera en primer plano; el contenedor se reinicia si la sesión queda quieta.
 - Apagar servidores con `pgrep -x next-server | xargs -r kill` (error 20).

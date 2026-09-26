@@ -48,6 +48,7 @@ import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import {
   componerTiraDeFotos,
@@ -187,6 +188,7 @@ export default function FotocabinaPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [photoSessionId, setPhotoSessionId] = useState<string>(() => `cab_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
   const currentPhotoSessionIdRef = useRef<string>(photoSessionId);
+  const sesionCaptureIdRef = useRef<string | undefined>(undefined);
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -639,7 +641,11 @@ export default function FotocabinaPage() {
 
     // Con la foto ya sacada, se le avisa a la base. Si la base tarda o falla, la
     // foto ya esta: el invitado no pierde su recuerdo por un problema de red.
-    void updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording', {}, accessToken);
+    void updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording', {}, accessToken).then((res) => {
+      if (res?.captureId) {
+        sesionCaptureIdRef.current = res.captureId;
+      }
+    }).catch(() => undefined);
 
     const tanda = [...fotosDeLaTandaRef.current, dataUrl];
     fotosDeLaTandaRef.current = tanda;
@@ -873,6 +879,10 @@ export default function FotocabinaPage() {
 
     const sessionWhenStarted = currentPhotoSessionIdRef.current;
     const isLiveSession = () => currentPhotoSessionIdRef.current === sessionWhenStarted;
+    const capturedGuestId = guestId;
+    const capturedGuestAccessToken = guestAccessToken;
+    const capturedAccessToken = accessToken;
+    const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     try {
       let blob: Blob | null = null;
@@ -909,9 +919,9 @@ export default function FotocabinaPage() {
             fileName,
             mimeType: 'image/jpeg',
             authorName: 'Fotocabina AK',
-            guestId,
-            guestAccessToken,
-            accessToken,
+            guestId: capturedGuestId,
+            guestAccessToken: capturedGuestAccessToken,
+            accessToken: capturedAccessToken,
           });
         } catch (errorAlGuardar: any) {
           // Si el aparato se queda sin lugar, la foto NO se guardo. Antes el
@@ -953,9 +963,9 @@ export default function FotocabinaPage() {
       formData.append('file', file);
       formData.append('authorName', 'Fotocabina AK');
       formData.append('moduleId', 'fotocabina');
-      if (accessToken) formData.append('accessToken', accessToken);
-      if (guestId) formData.append('guestId', guestId);
-      if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
+      if (capturedAccessToken) formData.append('accessToken', capturedAccessToken);
+      if (capturedGuestId) formData.append('guestId', capturedGuestId);
+      if (capturedGuestAccessToken) formData.append('guestAccessToken', capturedGuestAccessToken);
 
       const res = await conTopeDeEspera(uploadEntretenimientoMedia(formData));
       if (res.success) {
@@ -968,8 +978,8 @@ export default function FotocabinaPage() {
           fiestaId,
           'fotocabina',
           'done',
-          { mediaUrl, reviewPending: false, lastError: null },
-          accessToken
+          { mediaUrl, reviewPending: false, lastError: null, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+          capturedAccessToken
         );
         speak("¡Excelente! Tu foto ya está lista.");
         setShowSuccess(true);
@@ -985,25 +995,59 @@ export default function FotocabinaPage() {
       } else {
         throw new Error(res.error || 'Error al subir');
       }
-    } catch (err) {
-      console.warn('[Fotocabina] Falla en subida directa, encolando en IndexedDB...', err);
+    } catch (err: any) {
+      console.warn('[Fotocabina] Falla en subida directa, comprobando política offline...', err);
+      const errMessage = err?.message || 'Error al subir';
+      const decision = classifyOfflineUploadError(errMessage);
+
+      if (decision === 'permanent') {
+        if (!isLiveSession()) return;
+        setQrCodeUrl('');
+        setErrorMsg(errMessage);
+        setLocalStatus('done');
+        await updateEntertainmentSessionStatus(
+          fiestaId,
+          'fotocabina',
+          'done',
+          { lastError: errMessage, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+          capturedAccessToken
+        ).catch(() => undefined);
+        speak("Tu foto no se pudo publicar. Avisale al equipo.");
+        return;
+      }
+
       // Respaldo en IndexedDB ante cualquier error de red durante la subida
       try {
         const blob = capturedImage
           ? await fetch(capturedImage).then((r) => r.blob()).catch(() => null)
           : await new Promise<Blob | null>((resolve) => canvasRef.current?.toBlob(resolve, 'image/jpeg', 0.9));
         if (blob) {
-          await saveOfflineMedia({
-            fiestaId,
-            moduleId: 'fotocabina',
-            fileBlob: blob,
-            fileName: `fotocabina-${Date.now()}.jpg`,
-            mimeType: 'image/jpeg',
-            authorName: 'Fotocabina AK',
-            guestId,
-            guestAccessToken,
-            accessToken,
-          });
+          try {
+            await saveOfflineMedia({
+              fiestaId,
+              moduleId: 'fotocabina',
+              fileBlob: blob,
+              fileName: `fotocabina-${Date.now()}.jpg`,
+              mimeType: 'image/jpeg',
+              authorName: 'Fotocabina AK',
+              guestId: capturedGuestId,
+              guestAccessToken: capturedGuestAccessToken,
+              accessToken: capturedAccessToken,
+            });
+          } catch (errorAlGuardar: any) {
+            const sinEspacio =
+              errorAlGuardar?.name === 'QuotaExceededError' ||
+              /quota|space|storage/i.test(String(errorAlGuardar?.message || ''));
+            if (!isLiveSession()) return;
+            setErrorMsg(
+              sinEspacio
+                ? 'Esta computadora se quedo sin lugar para guardar fotos. Avisale al encargado: hay que subir las que estan esperando antes de sacar mas.'
+                : 'No se pudo guardar la foto en esta computadora. Avisale al encargado antes de seguir.'
+            );
+            setLocalStatus('idle');
+            return;
+          }
+
           if (!isLiveSession()) return;
           speak("Tu foto quedó guardada y se subirá cuando vuelva la señal.");
           setGuardadaEnEsteEquipo(true);
@@ -1024,16 +1068,16 @@ export default function FotocabinaPage() {
 
       if (!isLiveSession()) return;
       setQrCodeUrl('');
-      setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
+      setErrorMsg(errMessage || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('done');
       // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
       await updateEntertainmentSessionStatus(
         fiestaId,
         'fotocabina',
         'done',
-        { lastError: 'No se pudo subir la foto del invitado al muro.' },
-        accessToken
-      );
+        { lastError: 'No se pudo subir la foto del invitado al muro.', ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+        capturedAccessToken
+      ).catch(() => undefined);
       speak("No se pudo subir al muro, pero puedes guardarla");
     } finally {
       if (isLiveSession()) {
@@ -1081,6 +1125,7 @@ export default function FotocabinaPage() {
     setFotosDeLaTanda([]);
     setFotoEnCurso(0);
     setYaSeImprimio(false);
+    sesionCaptureIdRef.current = undefined;
     const nextSessionId = `cab_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     currentPhotoSessionIdRef.current = nextSessionId;
     setPhotoSessionId(nextSessionId);

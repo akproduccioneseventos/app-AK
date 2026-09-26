@@ -9826,3 +9826,23 @@ prueba: src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts
 prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts
 ```
 
+## 26 de septiembre de 2026 — Orden 90: las estaciones dicen dónde quedó la foto de verdad (Gemini)
+
+**Qué estaba mal:** la fotocabina, la 360, el Bogue, el espejo mágico, el buzón y el Video de Vida
+podían anunciar "guardada en el equipo" aunque no se hubiera podido guardar, mandar a la cola un
+rechazo que nunca iba a subir, y cerrar la captura del siguiente con el aviso tardío del anterior.
+
+**Cómo quedó:** cada subida toma al empezar su invitado, su acceso y la captura de la sesión; un
+rechazo por regla avisa "no se pudo publicar" y no va a la cola; si guardar en el equipo falla, lo
+dice; y el "listo" tardío manda su captura para que el servidor lo ignore si ya hay otro. La 360
+además usaba mal el nombre de la estación en un aviso (`plataforma-360`), que el servidor rechazaba.
+
+**Arreglo de Claude al verificar:** en la 360, el aviso de "procesando" volvió a esperarse antes de
+subir. Sin esperarlo, el "listo" podía llegar primero y la sesión quedaba trabada en "procesando".
+
+```comprobar
+usa: classifyOfflineUploadError en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: classifyOfflineUploadError en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+prueba: tests/e2e/90-lo-que-va-atras-dice-donde-quedo.spec.ts
+```
+

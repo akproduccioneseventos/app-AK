@@ -13,6 +13,7 @@ import NextImage from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
@@ -73,7 +74,16 @@ const PhotoUploadSlot: React.FC<{
         onUploadComplete(slot.number, localPreview);
         toast({ title: "¡Foto Guardada!", description: `La foto ${slot.number} se guardó localmente y se subirá cuando vuelva la señal.` });
       } catch (err: any) {
-        toast({ title: "Error local", description: err.message, variant: "destructive" });
+        const sinEspacio =
+          err?.name === 'QuotaExceededError' ||
+          /quota|space|storage/i.test(String(err?.message || ''));
+        toast({
+          title: "No se pudo guardar la foto",
+          description: sinEspacio
+            ? "Esta computadora se quedó sin lugar para guardar fotos. Avisale al encargado."
+            : (err?.message || "No se pudo guardar la foto en este equipo."),
+          variant: "destructive"
+        });
       } finally {
         setIsUploading(false);
         if (event.target) event.target.value = '';
@@ -95,7 +105,17 @@ const PhotoUploadSlot: React.FC<{
         throw new Error(result.error || "No se pudo guardar la foto.");
       }
     } catch (err: any) {
-      console.warn('[VideoVida] Falla al subir, guardando en IndexedDB...', err);
+      console.warn('[VideoVida] Falla al subir, comprobando política offline...', err);
+      const errMessage = err?.message || 'No se pudo guardar la foto.';
+      const decision = classifyOfflineUploadError(errMessage);
+
+      if (decision === 'permanent') {
+        toast({ title: "Error al guardar foto", description: errMessage, variant: "destructive" });
+        onUploadComplete(slot.number, null);
+        return;
+      }
+
+      // Si es retryable (corte de señal o fallo de red):
       try {
         await saveOfflineMedia({
           fiestaId,
@@ -110,7 +130,16 @@ const PhotoUploadSlot: React.FC<{
         onUploadComplete(slot.number, localPreview);
         toast({ title: "¡Foto Guardada!", description: `La foto ${slot.number} se guardó y se subirá al reconectar.` });
       } catch (offlineErr: any) {
-        toast({ title: "Error al subir", description: err.message, variant: "destructive" });
+        const sinEspacio =
+          offlineErr?.name === 'QuotaExceededError' ||
+          /quota|space|storage/i.test(String(offlineErr?.message || ''));
+        toast({
+          title: "No se pudo guardar la foto",
+          description: sinEspacio
+            ? "Esta computadora se quedó sin lugar para guardar fotos. Avisale al encargado."
+            : "No se pudo conectar con el servidor ni guardar en el equipo.",
+          variant: "destructive"
+        });
         onUploadComplete(slot.number, null);
       }
     } finally {
