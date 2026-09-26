@@ -657,18 +657,44 @@ export default function TouchpixPage() {
         if (trabajo.tipo === 'faceswap') {
           uploadFormData.append('characterLabel', fueIA ? (trabajo.characterLabel || '') : 'Efecto local');
         }
-        const res = await uploadTouchpixPhoto(uploadFormData);
-        if (res.success) {
-          void updateEntertainmentSessionStatus(
+        let errorDeSubida = '';
+        try {
+          const res = await uploadTouchpixPhoto(uploadFormData);
+          if (res.success) {
+            void updateEntertainmentSessionStatus(
+              fiestaId,
+              'espejoMagicoIA',
+              'done',
+              { mediaUrl: res.post?.imageUrl, reviewPending: false },
+              accessToken
+            ).catch(() => undefined);
+          } else {
+            errorDeSubida = res.error || 'Error al subir';
+          }
+        } catch (err: any) {
+          errorDeSubida = err?.message || 'Sin conexión';
+        }
+        // Si no se pudo subir, la foto del invitado NO se pierde en silencio: va a la misma cola
+        // del equipo que usa la captura normal, y se sube sola cuando vuelve la señal.
+        if (errorDeSubida && classifyOfflineUploadError(errorDeSubida) === 'retryable') {
+          await saveOfflineMedia({
             fiestaId,
-            'espejoMagicoIA',
-            'done',
-            { mediaUrl: res.post?.imageUrl, reviewPending: false },
-            accessToken
-          ).catch(() => undefined);
+            moduleId: 'touchpix',
+            fileBlob: pendingFile,
+            fileName: pendingFile.name,
+            mimeType: pendingFile.type || 'image/jpeg',
+            authorName: 'Cabina Touchpix',
+            guestId,
+            guestAccessToken,
+            accessToken,
+            metadata: {
+              selectedTheme: trabajo.tipo === 'ai_themes' ? (fueIA ? trabajo.themeLabel : 'Efecto local') : undefined,
+              character: trabajo.tipo === 'faceswap' ? (fueIA ? trabajo.characterLabel : 'Efecto local') : undefined,
+            },
+          });
         }
       } catch {
-        // Fallo en la red: la original ya quedó en el equipo; no inventar cola en servidor
+        // Ni siquiera se pudo guardar en el equipo: queda sólo en pantalla.
       }
     }
 

@@ -9753,3 +9753,27 @@ prueba: src/__tests__/el-secretario-hace-tres-cosas-mas.test.ts
 prueba: src/__tests__/hoy-es-uruguay-en-todos-lados.test.ts
 usa: no se adivina en src/app/actions/multiagent.ts
 ```
+
+## 26 de septiembre de 2026 — Orden 89 (Gemini): la IA no frena la fila, y la barra muestra lo agotado
+
+**Entró:**
+- **Fotocabina:** al capturar con IA, el invitado ve su original y el código de la galería, y la
+  cabina queda libre. La IA trabaja de a dos capturas a la vez; si falla, se sube el efecto local
+  y se dice que es local. Cada captura se sube una sola vez.
+- **Barra:** un trago con stock 0 sale "Agotado", no se puede elegir y "Sugerirme uno" no lo
+  propone. Vale en el celular del invitado y en la pantalla de la barra.
+
+**Ajuste de Claude al verificar:** si la subida de la foto con IA fallaba por la señal, la foto
+del invitado **se perdía en silencio** y la pantalla la daba por terminada. Ahora va a la misma
+cola del equipo que usa la captura normal (`saveOfflineMedia`) y se sube sola cuando vuelve la
+señal.
+
+**Lo que se descartó de la orden de Codex, y por qué:** lo decidió el dueño, *"lo que no sirva o
+no sume no lo mandes"*. Ver el encabezado de `docs/ordenes/89-experiencia-conectada-sin-duplicar.md`.
+
+```comprobar
+usa: trabajosIA en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: saveOfflineMedia en src/app/evento/touchpix/[fiestaId]/page.tsx
+prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts
+prueba: tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts
+```
