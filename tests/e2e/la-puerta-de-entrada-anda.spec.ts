@@ -27,9 +27,15 @@ test.describe('La puerta de entrada anda', () => {
     await expect(correo).toBeVisible({ timeout: 30_000 });
     await expect(clave).toBeVisible();
 
-    await correo.fill('prueba@akproducciones.uy');
+    // Con la máquina cargada, el campo se ve antes de que la pantalla termine de arrancar, y lo
+    // escrito en ese instante se borra al arrancar. Falló así tres veces el 25 y 26 de
+    // septiembre de 2026 y pasó sola cada vez. Se escribe de nuevo hasta que queda: lo que se
+    // comprueba es que se PUEDE escribir, no que se pueda en el primer milisegundo.
+    await expect(async () => {
+      await correo.fill('prueba@akproducciones.uy');
+      await expect(correo).toHaveValue('prueba@akproducciones.uy', { timeout: 1_000 });
+    }).toPass({ timeout: 20_000 });
     await clave.fill('una-clave-de-prueba');
-    await expect(correo).toHaveValue('prueba@akproducciones.uy');
 
     const entrar = page.getByRole('button', { name: /Ingresar|Entrar|Iniciar/i }).first();
     await expect(entrar).toBeVisible();
