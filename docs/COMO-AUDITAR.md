@@ -690,3 +690,28 @@ Antes de arreglar, **contar cuántos lugares tienen la misma forma**. Si son muc
 mecanismo común (como `marca-de-lectura.ts` para las listas enteras) y se le pone una prueba que lo
 mire directamente, en vez de ir de a uno. Arreglar de a uno lo que era una sola falla hizo que
 Codex la encontrara siete veces.
+
+## Pregunta 27 — la que sumó el 26 de septiembre de 2026 (Codex, devolución 89)
+
+### 27. Lo que pasa a segundo plano, ¿lleva TODO su contexto, y el aviso final sale del resultado real?
+
+Cuando algo deja de hacerse "mientras la persona espera" y pasa a hacerse "atrás", se rompen tres
+cosas a la vez, y las tres se escaparon en la cabina con IA:
+
+1. **El aviso final.** Antes el invitado veía el resultado; ahora lee un cartel. El cartel tiene
+   que salir de **dónde quedó de verdad** (subido, guardado en el equipo, rechazado, perdido), no
+   de que el trabajo terminó.
+2. **El contexto.** El trabajo de atrás tiene que llevar **copia** de su identidad, su invitado y
+   su consentimiento, fijada al empezar. Si lee el estado de la pantalla al terminar, ya es el del
+   siguiente invitado.
+3. **La promesa de "queda guardado".** Si se dice que la original queda a salvo, tiene que quedar
+   **antes** de mandar el trabajo, en un lugar que sobreviva a recargar.
+
+4. **La respuesta tardía.** Cuando el trabajo termina, la estación puede estar con el siguiente. El
+   **servidor** tiene que comparar de qué captura es la respuesta y no aplicársela a otra; una
+   comparación en la pantalla no alcanza. Y cada captura nueva tiene que tener identidad nueva, venga
+   de donde venga (Codex encontró que "lista → cuenta regresiva" heredaba la del anterior).
+
+Al verificar: se sigue el trabajo hasta el cartel final **en cada salida**: bien, sin señal,
+rechazo y sin lugar. Mirar sólo el camino que falla, como hice yo, deja pasar el cartel.
+

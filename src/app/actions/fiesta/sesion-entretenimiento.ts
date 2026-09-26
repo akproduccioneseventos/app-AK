@@ -204,7 +204,7 @@ export async function updateEntertainmentSessionStatus(
   status: EntertainmentSession['status'],
   extraData: any = {},
   accessToken?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; captureId?: string }> {
   try {
     if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
@@ -218,6 +218,12 @@ export async function updateEntertainmentSessionStatus(
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
     const docRef = db.collection(SESIONES_COLLECTION).doc(docId);
+    const capturaEsperada = extraData && typeof extraData === 'object' && typeof extraData.captureId === 'string'
+      ? extraData.captureId.slice(0, 80)
+      : '';
+    // La captura de la que es este cambio: la pantalla que empieza a grabar la guarda para que el
+    // trabajo que termine después diga de cuál salió (T89-05).
+    let capturaVigente: string | undefined;
     const result = await db.runTransaction(async (transaction) => {
       const snap = await transaction.get(docRef);
       const current = snap.exists ? snap.data() as EntertainmentSession : null;
@@ -230,19 +236,28 @@ export async function updateEntertainmentSessionStatus(
       const currentStatus: EntertainmentSession['status'] = expired
         ? 'idle'
         : current?.status || 'idle';
+      // RESPUESTA TARDÍA (T89-05, Codex, 26 de septiembre de 2026). Un trabajo que termina
+      // después (la IA de la cabina) manda la captura de la que salió. Si la estación ya está con
+      // otra —el operador reinició o empezó la siguiente—, esa respuesta es vieja: no cierra ni
+      // cambia el medio de la captura nueva. La foto de A ya quedó en la galería por su lado.
+      if (capturaEsperada && (expired || current?.captureId !== capturaEsperada)) return 'obsolete';
       const isIdempotent = currentStatus === status;
       if (!isIdempotent && !VALID_STATUS_TRANSITIONS[currentStatus].includes(status)) {
         return 'invalid-transition';
       }
 
       const nowIso = now.toISOString();
-      const startsCapture = currentStatus === 'idle' && status === 'countdown';
+      // Toda cuenta regresiva nueva es otra captura, venga de "libre" o de "lista": si no, el
+      // siguiente heredaba la identidad del anterior y la respuesta tardía de A lo cerraba (T89-05).
+      const startsCapture = status === 'countdown' && currentStatus !== 'countdown';
+      const captureId = startsCapture || !current?.captureId ? crypto.randomUUID() : current.captureId;
+      capturaVigente = captureId;
       transaction.set(docRef, {
         fiestaId,
         moduleId,
         status,
         timestamp: current?.timestamp || nowIso,
-        captureId: startsCapture || !current?.captureId ? crypto.randomUUID() : current.captureId,
+        captureId,
         version: (current?.version || 0) + 1,
         expiresAt: new Date(now.getTime() + SESSION_MAX_AGE_MS).toISOString(),
         lastUpdated: nowIso,
@@ -253,10 +268,13 @@ export async function updateEntertainmentSessionStatus(
     if (result === 'invalid-session') {
       return { success: false, error: 'La sesion no corresponde a esta estacion.' };
     }
+    if (result === 'obsolete') {
+      return { success: false, error: 'Esa captura ya terminó: la estación está con la siguiente.' };
+    }
     if (result === 'invalid-transition') {
       return { success: false, error: 'La transicion solicitada no es valida para el estado actual.' };
     }
-    return { success: true };
+    return { success: true, captureId: capturaVigente };
   } catch (e: any) {
     console.error(`[sesion-entretenimiento] Error en updateEntertainmentSessionStatus:`, e);
     return { success: false, error: MENSAJE_DE_FALLA };

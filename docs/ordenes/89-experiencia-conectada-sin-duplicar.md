@@ -82,6 +82,9 @@ barra, `BarraTecnologicaTouchPage` en `src/app/evento/barra/[fiestaId]/page.tsx`
 ```comprobar
 usa: trabajosIA en src/app/evento/touchpix/[fiestaId]/page.tsx
 prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts
+# Devolución 89 (Codex): el cartel final sale del resultado real, y la original se guarda al capturar
+usa: terminarTrabajoIA en src/app/evento/touchpix/[fiestaId]/page.tsx
+prueba: src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts
 usa: Agotado en src/app/invitacion/[fiestaId]/invitado/[guestId]/MiniQuiosco.tsx
 prueba: tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts
 ```

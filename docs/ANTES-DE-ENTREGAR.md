@@ -59,6 +59,9 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 15. **¿Qué pasa cuando la lista se hace larga?** Con veinte anda. La pregunta es con mil: ¿se
     escribe la lista entera para cambiar un renglón?
+16. **¿Pasaste algo a segundo plano?** Entonces el cartel final tiene que decir dónde quedó de
+    verdad en cada salida (bien, sin señal, rechazo, sin lugar), y el trabajo tiene que llevar
+    copia de su invitado y su identidad, no leer la pantalla cuando termina.
 
 ## Y dos reglas que valen para las pruebas
 

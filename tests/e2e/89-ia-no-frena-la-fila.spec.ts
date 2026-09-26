@@ -42,7 +42,10 @@ test.describe('Orden 89 — Bloque 1: La IA no frena la fila en Touchpix', () =>
       responderIaA = resolve;
     });
 
-    let llamadasUpload = 0;
+    // Cada intento de subida, con cuándo empezó, cuándo contestó el servidor y si lo aceptó.
+    // Lo que no puede pasar es mandar la misma captura otra vez después de aceptada, ni dos a la
+    // vez.
+    const intentos: { archivo: string; inicio: number; fin: number; ok: boolean }[] = [];
 
     // Interceptar llamadas de IA para simular demora de 8 segundos en el procesamiento
     await page.route('**/evento/touchpix/**', async (route) => {
@@ -58,7 +61,17 @@ test.describe('Orden 89 — Bloque 1: La IA no frena la fila en Touchpix', () =>
         }
         // Si es la subida con uploadTouchpixPhoto
         if (cuerpo.includes('Cabina Touchpix') || cuerpo.includes('characterLabel') || cuerpo.includes('themeLabel')) {
-          llamadasUpload++;
+          const archivo = cuerpo.match(/filename="(touchpix-[^"]+)"/);
+          const inicio = Date.now();
+          const respuesta = await route.fetch();
+          // En este entorno la base no está y toda subida falla; así, un envío doble se confunde
+          // con el reintento legítimo de la cola. Se hace que el servidor ACEPTE: con eso, un
+          // segundo envío de la misma captura es un duplicado de verdad. (Se probó rompiéndolo:
+          // mandando dos veces la subida, se pone en rojo.)
+          const texto = (await respuesta.text()).replace(/^1:\{"success":false.*$/m, '1:{"success":true}');
+          intentos.push({ archivo: archivo?.[1] || '(sin nombre)', inicio, fin: Date.now(), ok: /"success":true/.test(texto) });
+          await route.fulfill({ response: respuesta, body: texto });
+          return;
         }
       }
       await route.continue();
@@ -122,10 +135,21 @@ test.describe('Orden 89 — Bloque 1: La IA no frena la fila en Touchpix', () =>
       (responderIaA as () => void)();
     }
 
-    // Esperar a que la subida de A se realice
-    await page.waitForTimeout(2000);
-    // Cada captura se sube una sola vez
-    expect(llamadasUpload).toBeGreaterThanOrEqual(1);
+    // Cada captura se sube UNA sola vez: se cuenta por identidad de captura (el nombre del
+    // archivo lleva el identificador), no una suma global que aceptaría duplicados (T89-04).
+    await expect.poll(() => intentos.length, { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
+    await page.waitForTimeout(2_000);
+    const repetidas: string[] = [];
+    intentos.forEach((intento, i) => {
+      const anteriores = intentos.slice(0, i).filter((a) => a.archivo === intento.archivo);
+      if (anteriores.length === 0) return;
+      // Ya se aceptó una vez: cualquier otro envío es un duplicado.
+      if (anteriores.some((a) => a.ok)) repetidas.push(`${intento.archivo}: se mandó de nuevo después de aceptada`);
+      // Salió antes de que la anterior contestara: se mandó dos veces a la vez.
+      else if (anteriores.some((a) => a.fin > intento.inicio)) repetidas.push(`${intento.archivo}: dos envíos a la vez`);
+    });
+    expect(repetidas.join('\n'), 'capturas mandadas dos veces').toBe('');
+    expect(intentos.every((a) => a.archivo.startsWith('touchpix-'))).toBe(true);
   });
 
   test('con la IA fallando, se sube la foto original con efecto local y la pantalla no dice IA', async ({ page }) => {
@@ -179,10 +203,48 @@ test.describe('Orden 89 — Bloque 1: La IA no frena la fila en Touchpix', () =>
     await page.waitForTimeout(3000);
 
     // Con la IA fallando, la pantalla comunica el efecto local y nunca dice "IA"
-    const avisoFallback = page.locator('text=/Efecto local aplicado/i');
+    const avisoFallback = page.locator('text=/efecto local, la IA no respondió/i');
     await expect(avisoFallback).toBeVisible({ timeout: 15_000 });
 
     // La pantalla no debe contener la etiqueta "Generada con IA"
     await expect(page.locator('text=/Generada con IA/i')).toHaveCount(0);
+  });
+
+  test('si la subida falla, la pantalla NO dice que la foto está en la galería (T89-01)', async ({ page }) => {
+    test.setTimeout(90_000);
+    await enchufarCamaraFalsa(page);
+
+    // La IA falla rápido (efecto local) y la SUBIDA se corta: como sin señal.
+    await page.route('**/evento/touchpix/**', async (route) => {
+      const req = route.request();
+      const cuerpo = req.postData() || '';
+      if (req.method() === 'POST' && (cuerpo.includes('characterId') || cuerpo.includes('touchpix-source'))) {
+        await route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ success: false }) });
+        return;
+      }
+      if (req.method() === 'POST' && cuerpo.includes('Cabina Touchpix')) {
+        await route.abort('internetdisconnected');
+        return;
+      }
+      await route.continue();
+    });
+
+    const permiso = crearPermisoDeEstacion(fiesta.id, 'espejoMagicoIA');
+    await page.goto(`/evento/touchpix/${fiesta.id}?access=${permiso}`, { waitUntil: 'domcontentloaded' });
+    const tabFaceswap = page.locator('[data-testid="touchpix-tab-faceswap"]');
+    await expect(tabFaceswap).toBeVisible({ timeout: 30_000 });
+    await tabFaceswap.click();
+    const opcionPersonaje = page.locator('button:has-text("Cambiar Cara (IA)")');
+    if (await opcionPersonaje.isVisible()) await opcionPersonaje.click();
+    const checkboxConsent = page.locator('input[type="checkbox"]').first();
+    if (await checkboxConsent.isVisible() && !(await checkboxConsent.isChecked())) await checkboxConsent.check();
+    const btnAbrirCamara = page.locator('button:has-text("Abrir Cámara")');
+    if (await btnAbrirCamara.isVisible()) await btnAbrirCamara.click();
+    const botonSacar = page.locator('button[aria-label="Sacar foto"]');
+    await expect(botonSacar).toBeVisible({ timeout: 20_000 });
+    await botonSacar.click();
+
+    await expect(page.locator('text=/quedó guardada en este equipo/i')).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('text=/ya se subió a la galería/i')).toHaveCount(0);
   });
 });
