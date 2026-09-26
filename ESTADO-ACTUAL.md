@@ -1,10 +1,10 @@
 # Acá quedé
 
-**26 de septiembre de 2026.** Propuestas 1224 a 1229 fusionadas, con la puerta completa en verde.
+**26 de septiembre de 2026.** Propuestas 1224 a 1230 fusionadas, con la puerta completa en verde.
 
 ## Lo último que entró
 
-- **Devolución 89 (Codex):** la cabina con IA dice dónde quedó la foto de verdad, guarda la
+- **1230, devolución 89 (Codex), los seis hallazgos:** la cabina con IA dice dónde quedó la foto de verdad, guarda la
   original al capturar y cada captura tiene su propio tope de intentos. La respuesta tardía de la
   IA ya no cierra la captura del siguiente, y el operador queda libre al guardar la foto.
 
