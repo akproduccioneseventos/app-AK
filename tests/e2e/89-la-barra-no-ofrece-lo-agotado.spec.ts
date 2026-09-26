@@ -132,6 +132,9 @@ test.describe('Orden 89 — Bloque 2: La barra no ofrece lo agotado', () => {
     await page.waitForLoadState('domcontentloaded');
     // La barra arranca en la pantalla de inicio: la carta está detrás de "Elegí tu Trago".
     await page.getByRole('button', { name: /Elegí tu Trago/i }).click({ timeout: 30_000 });
+    // Antes de la carta pide el nombre con el teclado de la pantalla.
+    for (const letra of ['A', 'N', 'A']) await page.getByRole('button', { name: letra, exact: true }).click();
+    await page.getByRole('button', { name: /Confirmar e Ingresar/i }).click();
 
     // Verificar tarjeta de trago agotado en la barra touch
     const tarjetaAgotada = page.locator('[data-testid="tarjeta-trago"]', { hasText: 'Trago Especial Agotado' });
