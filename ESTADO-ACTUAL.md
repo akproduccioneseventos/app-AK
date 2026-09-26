@@ -1,44 +1,40 @@
-# Acá quedé
+# Aca quedo
 
-**25 de septiembre de 2026.** Propuestas 1224 y 1225 fusionadas, con la puerta completa en verde.
+**25 de septiembre de 2026. Traspaso documental Codex, sin codigo ni compilacion.**
+Base contrastada: main `97638e0efe0795d05219e8630e6550132b37fb53`.
 
-## Lo que entró
+## Lo ya registrado por Claude
+PR 1224 y 1225 fusionadas; Claude registro puerta completa verde para esas entregas.
+Codex no repitio esa compilacion en esta tanda.
+- Orden 81: captura offline, cola aislada, comprobacion de equipo y doble pedido.
+- Facturas: proteccion de cobros simultaneos. Barra: acceso del invitado, carta real,
+  guardado de respaldo y devoluciones sin duplicar. No reimplementar.
+- La app no se recarga sola al volver wifi; orden 83 une reunion comercial y ficha CRM.
+- VID03 / orden 87: Claude la cerro; correccion de ZIP y prueba presentes en main.
+  No volver a encargarla a Gemini. Validar evidencia si falta, no confundir con despliegue.
+- No reintroducir las tres regresiones retiradas por Claude: insumos sin sesion,
+  foto declarada subida sin estarlo y aumento de espera del invitado a 35 segundos.
 
-- **De Gemini (orden 81):** fotocabina sin señal con aviso "guardada en este equipo" y subida
-  única al volver; comprobación del equipo en el Centro de Fiesta con "probar de nuevo"; doble
-  toque en la barra sin pedidos repetidos. Cuatro pruebas de navegador que tocan los botones.
-- **Se le sacaron tres cosas a la entrega:** le quitaba la sesión a una acción de insumos, daba
-  por subida una foto que no se subió, y subía a 35 s la espera del invitado.
-- **Plata (Claude):** una factura ya no se cobra de más con dos servidores a la vez.
-- **Barra (Claude):** el invitado pide sin que le pidan sesión del equipo (antes se descontaban
-  botellas y el pedido se cortaba); ve la carta de la empresa y no la de fábrica; con la base
-  caída el pedido se guarda igual sin pisar la fiesta; las botellas por devolver no se devuelven
-  dos veces.
-- **Toda la app:** la pantalla ya no se recarga sola cuando vuelve el wifi (cortaba fotocabina y
-  barra en plena fiesta).
+## Tanda abierta al consultar
+PR 1227, `feat/orden-88-devolucion-76b`, HEAD `10f4a9d4081a9c0a49f98a012601b725e12e4504`:
+orden 88, secretario, fechas y devolucion 76b de importacion movil.
+Su descripcion declara pruebas aprobadas; Codex solo comparo diff, no aprobo la PR.
+No duplicar estos cambios ni fusionar automaticamente. Actualizar HEAD antes de actuar.
 
-- **Orden 83 (propuesta 1223):** la reunión que agenda un prospecto en la web ya queda en su
-  ficha; una sola copia de cómo se anota. La lista de "qué falta" muestra sólo lo abierto.
+## Nueva orden del dueno
+`docs/ordenes/89-experiencia-conectada-sin-duplicar.md`, rama
+`codex/orden-89-experiencia-conectada`: siete bloques de experiencia y comprobaciones.
+Reutiliza ordenes 14/17/20/28/30/46/48/81 y capacidades presentes. No significa implementado.
+Gemini interfaz/entretenimiento; Claude datos, permisos, comida/dinero y compilacion.
+Una entrega integrada posterior; documentacion no se fusiona sola. El dueno fusiona.
 
-## Espera a Gemini
+## Limites pendientes
 
-- **Orden 87:** la descarga del Video de Vida avisa lo que falta (VID03 de Codex).
-- **Devolución 76b, vuelta 2:** en el celular no se puede tocar el botón de confirmar la planilla
-  de invitados. `min-h-0` no alcanzó. La prueba del celular quedó salteada hasta que ande.
+El registro anterior deja sin ensayo real al asistente invitado con IA verdadera.
+Hardware y red del salon: `docs/ENSAYO-EN-EL-SALON.md`; no se hicieron aqui.
+Reconciliar evidencia por SHA; no certificado de cero errores por inventario o tests textuales.
 
-Las dos van en UNA sola propuesta.
-
-## Pendiente, y es mío
-
-- Nada. La prueba de navegador del asistente del invitado (B1) no se hizo: necesita la
-  inteligencia artificial de verdad.
-
-## Lo que ningún control cubre
-
-Falta **un ensayo real**. La lista para hacerlo en media hora: `docs/ENSAYO-EN-EL-SALON.md`.
-
-## Trampas
-
-- Apagar servidores con `pgrep -x next-server | xargs -r kill`, nunca por texto (error 20).
-- Mirar `EADDRINUSE` en el registro antes de creerle a una prueba contra servidor propio.
-- `npm run limpiar:corrida` después de cada corrida; no tocar código con la puerta andando.
+## Trampas conservadas
+- Apagar servidores con `pgrep -x next-server | xargs -r kill`, nunca por texto.
+- Mirar `EADDRINUSE` antes de creerle a una prueba contra servidor propio.
+- `npm run limpiar:corrida` despues de cada corrida; no tocar codigo con puerta andando.

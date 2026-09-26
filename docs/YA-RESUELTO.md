@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 25 de septiembre de 2026 - Codex: orden 89, sin duplicar entretenimiento
+
+Solo documentacion por pedido del dueno. Contraste main `97638e0` y PR 1227
+`10f4a9d`: identidad por estacion, cola offline, galeria, fallback IA, moderador,
+pedidos y estadisticas de barra YA tienen implementacion. No encargarlos de cero.
+La orden 87/VID03 tiene correccion presente; la importacion movil corresponde a
+orden 88/PR 1227. No reabrirlas por informes viejos.
+
+`docs/ordenes/89-experiencia-conectada-sin-duplicar.md` separa siete mejoras y
+comprobaciones de lo ya existente, con responsabilidades y resultados observables.
+No se modifico codigo ni se ejecutaron E2E/build/hardware. Las mejoras no estan
+implementadas por escribir esta orden. Las pruebas nuevas propuestas siguen pendientes.
+
 ## 23 de septiembre de 2026 (noche) — Orden 81: fotocabina sin internet, colas aisladas, ensayo de equipo y barra
 
 - **De Gemini:**
