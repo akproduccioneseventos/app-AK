@@ -13,6 +13,13 @@ comprobaciones de lo ya existente, con responsabilidades y resultados observable
 No se modifico codigo ni se ejecutaron E2E/build/hardware. Las mejoras no estan
 implementadas por escribir esta orden. Las pruebas nuevas propuestas siguen pendientes.
 
+Ampliacion por "todo y mas": la MISMA orden 89 agrega bloques 8-12 (preview del
+cliente, calidad del archivo/impresion, participacion, operacion/accesibilidad y
+entrega final). Album con audios, sesiones, modos y presets ya existen: se conservan.
+Referencias oficiales Snappic/LumaBooth son patrones, no licencias ni compatibilidad
+certificada. No se programo ni se probaron dispositivos. Tecnologias con inversion
+quedan como evaluacion sujeta a aprobacion, no promesas de venta.
+
 ## 23 de septiembre de 2026 (noche) — Orden 81: fotocabina sin internet, colas aisladas, ensayo de equipo y barra
 
 - **De Gemini:**

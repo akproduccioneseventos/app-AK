@@ -23,8 +23,8 @@ No duplicar estos cambios ni fusionar automaticamente. Actualizar HEAD antes de 
 
 ## Nueva orden del dueno
 `docs/ordenes/89-experiencia-conectada-sin-duplicar.md`, rama
-`codex/orden-89-experiencia-conectada`: siete bloques de experiencia y comprobaciones.
-Reutiliza ordenes 14/17/20/28/30/46/48/81 y capacidades presentes. No significa implementado.
+`codex/orden-89-experiencia-conectada`: doce bloques de experiencia y comprobaciones.
+Reutiliza 14/17/20/28/30/46/48/81; ampliada por "todo y mas". No significa implementado.
 Gemini interfaz/entretenimiento; Claude datos, permisos, comida/dinero y compilacion.
 Una entrega integrada posterior; documentacion no se fusiona sola. El dueno fusiona.
 

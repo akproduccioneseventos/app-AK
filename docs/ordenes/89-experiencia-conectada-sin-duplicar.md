@@ -102,6 +102,8 @@ Aceptacion: conteos coinciden con fixtures tras reintento/duplicado; retrasos me
 
 ## Cierre conjunto: pruebas que siguen siendo necesarias
 
+La ampliacion 8-12 de abajo fue pedida despues por el dueno ("todo y mas"). Integra la misma orden y entrega, no cinco proyectos nuevos. No bloquea correcciones urgentes ni habilita gastos. Se reconfirmaron main y PR 1227 sin cambios respecto de los SHA iniciales. Contraste adicional: album con audios, sesiones de estaciones, 360 con musica/marco y presets de operador ya existen. Se leyeron simbolos/consumidores; NO se probaron visualmente en esta ampliacion.
+
 - Reconciliar evidencia de venta -> presupuesto/PDF -> CRM, planificacion -> cliente/invitado, captura -> entrega, mural -> pantalla y barra -> barman. Reutilizar evidencia al mismo SHA o justificar vigencia por diff/dependencias. No volver a probar toda la contabilidad solo por un cambio de color; tampoco asumir inmunidad si cambia un helper compartido.
 - Revisar roles con cuentas/fiestas de prueba: organizador, operador, cliente, prospecto e invitado; prohibido desactivar permisos para pasar.
 - Inventariar integraciones realmente usadas (Google, WhatsApp, Meta, TikTok, YouTube, pagos, IA). Registrar evidencia de operacion, rechazo, vencimiento, duplicado y recuperacion donde aplique. Reusar orden 81 F; no repetir integraciones ya comprobadas ni anunciar conexiones por tener un enlace.
@@ -110,11 +112,74 @@ Aceptacion: conteos coinciden con fixtures tras reintento/duplicado; retrasos me
 - Claude compila el conjunto sobre SHA congelado; registrar resultado, no transcribir "verde" de otra revision. Codex revisa diferencias y evidencia; propietario fusiona. No certificado de cero errores ni declaracion de lider de mercado.
 - Actualizar `docs/YA-RESUELTO.md` con lo realmente implementado/probado y `ESTADO-ACTUAL.md` con el traspaso. Crear `docs/auditoria/89-evidencia-experiencia-conectada.md` SOLO como matriz real de resultados; actualmente pendiente.
 
+## 8. Antes de la fiesta: vender una experiencia que se puede cumplir
+
+Gemini reutiliza las plantillas, configuracion de estaciones y vistas previas actuales. Completar, si no esta cubierto, una previsualizacion de los servicios realmente contratados con nombre y estilo de la fiesta. Accesible desde el recorrido actual del cliente, no otro portal ni otra pagina de ajustes.
+
+Mostrar como quedaran bienvenida, foto/marco, video 360 y pantalla. Si una capacidad depende del equipo, de internet o de procesamiento IA, indicarlo antes de venderla. Una imagen de demostracion se identifica como tal. No mostrar equipo robotizado o efectos que AK no pueda entregar. No usar fotos privadas de otra fiesta como demostracion sin autorizacion.
+
+Perfiles de presentacion para XV, boda y empresa pueden aprovechar los presets actuales, SIN crear paquetes comerciales ni cambiar precios/servicios. La seleccion de perfil no sobrescribe ajustes manuales. Validar con el dueno un recorrido visual representativo antes de extenderlo.
+
+Aceptacion: cliente ve solo su evento y experiencias contratadas; los nombres/colores de preview coinciden con captura y salida; modificar una plantilla no cambia una fiesta anterior sin confirmacion. La demo no publica contenido, gasta IA ni altera produccion.
+
+## 9. Recuerdos de calidad: lo que se descarga debe ser lo que se mostro
+
+Gemini parte de `src/app/evento/plataforma-360/[fiestaId]/page.tsx`, fotocabina, Bogue y espejo existentes. Ya hay musica, dibujo de marco, distintos modos y configuracion de impresion: NO declararlos ausentes. Comparar vista previa, resultado guardado, QR, archivo descargado e impresion.
+
+Completar perfiles de salida reutilizando capacidades reales: retrato de calidad, tira/collage e historia vertical/video con marca discreta. Comprobar encuadre de grupos, pieles, iluminacion baja, texto largo, proporciones y caras no tapadas por marcos. Preservar original segun consentimiento y retencion, sin imponer suavizado de piel ni deformaciones por defecto.
+
+Para 360: contrastar si los cambios de velocidad, marco y audio se incorporan al archivo o solo al reproductor. Si falta, completar el render real con limites del dispositivo; una previsualizacion CSS no certifica un efecto descargado. Intro/outro o transiciones solo breves y opcionales, sin alargar filas. No imponer MP4 si el dispositivo solo exporta otro formato: comprobar compatibilidad real o informar limite/conversion necesaria. Mantener una salida util si falla el efecto; no afirmar soporte 4K ni todos los codecs sin medir.
+
+Usar musica y materiales con derechos de uso. No contratar render en nube ni aumentar recursos sin aprobacion. La cuenta regresiva de la pantalla NO mueve ni detiene fisicamente una plataforma; mantener procedimiento de seguridad y operador del equipo.
+
+Aceptacion: abrir el archivo final fuera de la app, en telefonos representativos; verificar duracion, orientacion, imagen, audio y efectos. Impresion de prueba con impresora/papel reales, margen y numero de copias. Cancelar/reintentar no imprime ni cobra ni genera IA dos veces. Registrar compatibilidad por equipo, no por nombre comercial del modulo.
+
+## 10. Durante: participacion que acompana a la fiesta
+
+Mural, votaciones, dedicatorias, musica, minijuegos y presets de show ya aparecen en codigo/ordenes. Inventariar y reutilizar: no agregar otro juego, ranking o sistema de puntos por defecto. Con el Centro/playlist actuales, completar una secuencia elegida por el operador: bienvenida, participacion breve, recuerdo y cierre. No programar activaciones sorpresivas ni automatizar el itinerario sin confirmacion.
+
+Una propuesta util es una consigna fotografica breve o una dedicatoria al homenajeado, ofrecida en el portal existente y enviada a moderacion. Mostrar solo lo habilitado y disponible; pausar durante discursos, comida o momentos que el organizador elija. El QR debe seguir util, sin tapar fotos. Participar no requiere publicar en redes, comprar ni entregar datos para publicidad.
+
+Eliminar fricciones, no funciones por gusto: una pantalla de invitado debe permitir entender la siguiente accion sin una explicacion del equipo. Evitar tres menues para llegar a una foto y solicitudes de permisos antes de necesitarlos. Conservar acceso por nombre/QR aprobado; no exigir otra cuenta.
+
+Aceptacion: invitado primerizo completa la experiencia sin ayuda; operador abre/cierra; pantalla e invitado coinciden; contenido tardio no reaparece despues de retirarlo. Personas que no participan pueden seguir accediendo a sus recuerdos. No karaoke, desafios humillantes, rankings de apariencia ni publicacion automatica externa.
+
+## 11. Operacion profesional y acceso para mas personas
+
+Reutilizar `src/components/entretenimiento/TableroControlEstaciones.tsx`, sesiones, Centro y prueba previa de orden 81. Completar una ficha por equipo dentro de lo existente: dispositivo ensayado, camara/microfono/impresora compatibles, responsable y fecha del ultimo ensayo. "Configurado" no significa "probado" ni "conectado ahora".
+
+Vista de operador compacta: capturas pendientes, fallo con accion concreta, disponibilidad de cada estacion y acceso directo a reintentar sin borrar originales. Conservar configuracion al reiniciar; invalidar el estado de ensayo al cambiar equipo. No borrar colas ni recargar todas las pantallas como solucion universal. No intentar control remoto del sistema operativo desde una pagina sin soporte real.
+
+Invitado: botones alcanzables, contraste, opcion de silenciar, instrucciones visibles ademas de voz, tiempos de lectura ajustables donde sea posible y modo sin movimiento. Si se ofrece otro idioma, traducir el recorrido completo incluidas fallas, sin modificar datos del evento. No depender solo de color/audio. Personal debe poder ayudar sin saltarse consentimientos o permisos.
+
+Aceptacion: cambio de turno de operador, reinicio, cuota local agotada, camara ocupada/desconectada, impresora sin papel y red caida. La recuperacion preserva el recuerdo y no expone el anterior al siguiente usuario. Ensayo con personas de distintas edades y necesidades, registrando fricciones observadas sin inventar perfiles ni resultados.
+
+## 12. Despues: una entrega que el cliente quiera conservar
+
+Ya existe `armarAlbumInteligente` en `src/lib/album/armar-album.ts`, usado por `src/app/evento/album/[fiestaId]/page.tsx`, con fotos, dedicatorias y audios; orden 28 ya lo pide. NO otro album, otro seleccionador ni nuevo buzón.
+
+Completar solo huecos de calidad y recorrido: secciones claras por momentos/estacion usando informacion real, deduplicacion sin borrar originales diferentes, audio reproducible, descarga clara y conservacion de privacidad. No inferir que dos personas son la misma ni usar reconocimiento facial nuevo para ordenar. Si la fecha/hora o categoria es incierta, no inventar una cronologia precisa.
+
+Reutilizar video-recuerdo para un resumen opcional si ya existe un generador real. No prometer video terminado por mostrar una maqueta o un slideshow. Presentar estado pendiente/error y recuperar original cuando corresponda. El material oculto o no autorizado no reaparece en album, resumen o exportacion.
+
+La entrega comercial se prepara para revision humana; no enviar mails/mensajes a clientes automaticamente. No bloquear el recuerdo detras de una resena o de seguir Instagram. Enlaces, revocacion y retencion los valida Claude; no publicar URL privada en web/marketing. La capsula del tiempo mantiene las decisiones de orden 17, no se reprograma aqui.
+
+Aceptacion: abrir como cliente e invitado en dispositivos distintos; reproducir audio/video real; descargar y abrir fuera de la app; retirar contenido y verificar proyecciones/exportaciones; evitar mezclar dos fiestas. Cierre al operador muestra lo pendiente de entregar y fallos, no una etiqueta general de "todo listo".
+
+## Puerta de innovacion: mas tecnologia sin promesas falsas
+
+Evaluar proyeccion/mapping, luces sincronizadas, realidad aumentada, captura itinerante o hardware robotizado SOLO como propuestas separadas si el inventario actual y los equipos justifican una ventaja. Para cada una: experiencia que mejora, equivalente existente en AK, compatibilidad/API oficial, hardware, costo recurrente, riesgos, privacidad y prueba pequena. No instalarlas ni ofrecerlas al cliente por esta autorizacion general. El dueno aprueba inversiones y cambios de funcionamiento nuevos.
+
+Para elegir la siguiente mejora, usar los datos del bloque 7 y el ensayo real: participacion voluntaria, tiempo para conseguir el recuerdo, entregas fallidas y tiempo que el operador dedica a rescatar problemas. No un ranking inventado de "numero uno". Terminar esta tanda antes de abrir otro catalogo de funciones.
+
 ## Referencias, no compras
 
 - Touchpix, estacion de entrega: https://intercom.help/touchpix/es/articles/9791632-como-configurar-una-estacion-para-compartir
 - Touchpix, limites de transferencia local: https://designer.touchpix.com/knowledge-base/int-solutions/scanpix-touchpix-internet-free-sharing/
 - Snappic, metricas de servicio: https://help.snappic.com/en/articles/3147727-analytics-with-snappic
+- Snappic, personalizacion de pantalla de entrada: https://help.snappic.com/en/articles/11421280-app-experience-settings
+- Snappic, composicion de video: https://www.snappic.com/use-cases/video-fx
+- LumaBooth, modos y plataformas soportadas: https://www.lumabooth.com/lumabooth-photo-booth-app
 
 Se usan como patrones de producto, no como prueba de compatibilidad con dispositivos AK ni indicacion de suscribirse.
 
@@ -144,4 +209,10 @@ prueba: tests/e2e/89-metricas-sin-falsa-entrega.spec.ts
 archivo: src/app/api/video-vida-photos/[fiestaId]/download/route.ts
 usa: X-Fotos-Fallidas en src/app/(app)/fiestas/nueva/video-vida/page.tsx
 prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
+archivo: src/lib/album/armar-album.ts
+usa: armarAlbumInteligente en src/app/evento/album/[fiestaId]/page.tsx
+prueba: tests/e2e/el-album-del-recuerdo.spec.ts
+archivo: src/app/actions/fiesta/sesion-entretenimiento.ts
+usa: startEntertainmentSession en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+prueba: tests/e2e/89-recuerdo-final-y-equipo.spec.ts
 ```
