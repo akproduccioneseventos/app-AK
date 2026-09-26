@@ -61,7 +61,7 @@ recién ahí le dicen que no hay.
 **Qué se pide:** si `drink.stockDisponible` viene y es `<= 0`, la tarjeta sale en gris con la
 etiqueta **"Agotado"**, el botón para elegirlo desactivado y el trago **al final del carrusel**.
 "Sugerirme uno" (`chooseRandomDrink`) no puede sugerir uno agotado. Lo mismo en la pantalla de la
-barra, `BarraTecnologicaTouchPage`.
+barra, `BarraTecnologicaTouchPage` en `src/app/evento/barra/[fiestaId]/page.tsx`.
 
 **No toques:** `createBarDrinkOrder`, el descuento de botellas ni nada de
 `barra-tecnologica.actions.ts`. Es plata, de Claude.
