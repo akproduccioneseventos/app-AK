@@ -22,16 +22,12 @@
 
 ## Espera a Gemini
 
-- **Orden 87:** la descarga del Video de Vida avisa lo que falta (VID03 de Codex).
-- **Devolución 76b, vuelta 2:** en el celular no se puede tocar el botón de confirmar la planilla
-  de invitados. `min-h-0` no alcanzó. La prueba del celular quedó salteada hasta que ande.
-
-Las dos van en UNA sola propuesta.
+Nada fusionable. La orden 89 de Codex (rama `codex/orden-89-experiencia-conectada`) está esperando
+que el dueño decida si va; no está en la versión principal.
 
 ## Pendiente, y es mío
 
-- Nada. La prueba de navegador del asistente del invitado (B1) no se hizo: necesita la
-  inteligencia artificial de verdad.
+- Nada.
 
 ## Lo que ningún control cubre
 
