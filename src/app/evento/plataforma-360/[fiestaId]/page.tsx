@@ -41,6 +41,7 @@ import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 
 const DURATION_OPTIONS = [
@@ -94,6 +95,7 @@ export default function Plataforma360Page() {
   const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
   const autoResetTimerRef = useRef<NodeJS.Timeout | null>(null);
   const currentSessionIdRef = useRef<string>(`sess_360_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+  const sesionCaptureIdRef = useRef<string | undefined>(undefined);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [isEventLoading, setIsEventLoading] = useState(true);
@@ -112,6 +114,7 @@ export default function Plataforma360Page() {
   const [pendingVideoBlob, setPendingVideoBlob] = useState<Blob | null>(null);
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [guardadoEnEsteEquipo, setGuardadoEnEsteEquipo] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState<string | null>(null);
 
@@ -316,6 +319,7 @@ export default function Plataforma360Page() {
       autoResetTimerRef.current = null;
     }
     currentSessionIdRef.current = `sess_360_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    sesionCaptureIdRef.current = undefined;
     setLocalStatus('idle');
     setCountdown(null);
     setCapturedFrames([]);
@@ -325,6 +329,7 @@ export default function Plataforma360Page() {
     setPendingVideoBlob(null);
     setUploadedPostUrl(null);
     setQrCodeUrl('');
+    setGuardadoEnEsteEquipo(false);
     setUploadError(null);
     setIsUploading(false);
     setProgress(0);
@@ -427,7 +432,11 @@ export default function Plataforma360Page() {
 
     setLocalStatus('recording');
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'recording', {}, accessToken);
+    void updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'recording', {}, accessToken).then((res) => {
+      if (res?.captureId) {
+        sesionCaptureIdRef.current = res.captureId;
+      }
+    }).catch(() => undefined);
     speak("¡A bailar!");
 
     if (customAudioRef.current) {
@@ -586,19 +595,25 @@ export default function Plataforma360Page() {
     if (isUploading) return;
     setUploadError(null);
     setLocalStatus('processing');
+    const sessionForThisUpload = currentSessionIdRef.current;
+    const isLiveSession = () => currentSessionIdRef.current === sessionForThisUpload;
+    const capturedGuestId = guestId;
+    const capturedGuestAccessToken = guestAccessToken;
+    const capturedAccessToken = accessToken;
+    const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
+
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    await updateEntertainmentSessionStatus(
+    void updateEntertainmentSessionStatus(
       fiestaId,
       'plataforma360',
       'processing',
       {},
-      accessToken
-    );
-    const sessionForThisUpload = currentSessionIdRef.current;
-    const isLiveSession = () => currentSessionIdRef.current === sessionForThisUpload;
+      capturedAccessToken
+    ).catch(() => undefined);
 
     setIsUploading(true);
     setProgressMsg('Subiendo tu video 360 al muro...');
+    setGuardadoEnEsteEquipo(false);
 
     try {
       const ext = blob.type.includes('webm') ? '.webm' : '.mp4';
@@ -606,18 +621,33 @@ export default function Plataforma360Page() {
 
       // Si estamos sin conexión, guardar directamente en IndexedDB
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
-        await saveOfflineMedia({
-          fiestaId,
-          moduleId: 'plataforma-360',
-          fileBlob: blob,
-          fileName,
-          mimeType: blob.type || 'video/mp4',
-          authorName: 'Plataforma 360',
-          guestId,
-          guestAccessToken,
-          accessToken,
-        });
+        try {
+          await saveOfflineMedia({
+            fiestaId,
+            moduleId: 'plataforma-360',
+            fileBlob: blob,
+            fileName,
+            mimeType: blob.type || 'video/mp4',
+            authorName: 'Plataforma 360',
+            guestId: capturedGuestId,
+            guestAccessToken: capturedGuestAccessToken,
+            accessToken: capturedAccessToken,
+          });
+        } catch (errorAlGuardar: any) {
+          const sinEspacio =
+            errorAlGuardar?.name === 'QuotaExceededError' ||
+            /quota|space|storage/i.test(String(errorAlGuardar?.message || ''));
+          setProgressMsg(
+            sinEspacio
+              ? 'Esta computadora se quedó sin lugar para guardar videos. Avisale al encargado.'
+              : 'No se pudo guardar el video en esta computadora. Avisale al encargado antes de seguir.'
+          );
+          setLocalStatus('idle');
+          return;
+        }
 
+        setGuardadoEnEsteEquipo(true);
+        setUploadError(null);
         setProgress(100);
         setQrCodeUrl('');
         setLocalStatus('done');
@@ -636,9 +666,9 @@ export default function Plataforma360Page() {
       formData.append('file', file);
       formData.append('authorName', 'Plataforma 360');
       formData.append('moduleId', 'plataforma-360');
-      if (accessToken) formData.append('accessToken', accessToken);
-      if (guestId) formData.append('guestId', guestId);
-      if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
+      if (capturedAccessToken) formData.append('accessToken', capturedAccessToken);
+      if (capturedGuestId) formData.append('guestId', capturedGuestId);
+      if (capturedGuestAccessToken) formData.append('guestAccessToken', capturedGuestAccessToken);
 
       const res = await conTopeDeEspera(uploadEntretenimientoMedia(formData));
 
@@ -647,15 +677,17 @@ export default function Plataforma360Page() {
         setProgress(100);
         setUploadedPostUrl(mediaUrl);
         setQrCodeUrl(mediaUrl);
+        setGuardadoEnEsteEquipo(false);
+        setUploadError(null);
         setLocalStatus('done');
         // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
         await updateEntertainmentSessionStatus(
           fiestaId,
-          'plataforma-360',
+          'plataforma360',
           'done',
-          { mediaUrl, lastError: null },
-          accessToken
-        );
+          { mediaUrl, lastError: null, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+          capturedAccessToken
+        ).catch(() => undefined);
         speak("¡Buenísimo! Tu video ya está subido.");
         loadRecentVideos();
 
@@ -667,8 +699,30 @@ export default function Plataforma360Page() {
       } else {
         throw new Error(res.error || 'Error de subida');
       }
-    } catch (err) {
-      console.warn('[Plataforma360] Error al subir video, guardando en IndexedDB...', err);
+    } catch (err: any) {
+      console.warn('[Plataforma360] Error al subir video, comprobando política offline...', err);
+      const errMessage = err?.message || 'Error de subida';
+      const decision = classifyOfflineUploadError(errMessage);
+
+      if (decision === 'permanent') {
+        const message = errMessage || 'No se pudo subir el video.';
+        setProgressMsg('No se pudo publicar tu video. Avisale al equipo.');
+        setGuardadoEnEsteEquipo(false);
+        setUploadError(message);
+        setQrCodeUrl('');
+        setLocalStatus('done');
+        await updateEntertainmentSessionStatus(
+          fiestaId,
+          'plataforma360',
+          'done',
+          { lastError: message, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+          capturedAccessToken,
+        ).catch(() => undefined);
+        speak("Tu video no se pudo publicar. Avisale al equipo.");
+        return;
+      }
+
+      // Si es retryable (falla de conexión / timeout / corte de red)
       try {
         const ext = blob.type.includes('webm') ? '.webm' : '.mp4';
         await saveOfflineMedia({
@@ -678,10 +732,12 @@ export default function Plataforma360Page() {
           fileName: `360-video-${Date.now()}${ext}`,
           mimeType: blob.type || 'video/mp4',
           authorName: 'Plataforma 360',
-          guestId,
-          guestAccessToken,
-          accessToken,
+          guestId: capturedGuestId,
+          guestAccessToken: capturedGuestAccessToken,
+          accessToken: capturedAccessToken,
         });
+        setGuardadoEnEsteEquipo(true);
+        setUploadError(null);
         setProgress(100);
         setLocalStatus('done');
         speak("Tu video quedó guardado y se subirá cuando vuelva la señal.");
@@ -690,23 +746,21 @@ export default function Plataforma360Page() {
           if (isLiveSession()) completeGuestCycle();
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
         return;
-      } catch (fallbackErr) {
+      } catch (fallbackErr: any) {
         console.error('[Plataforma360] Error al encolar en IndexedDB:', fallbackErr);
+        const sinEspacio =
+          fallbackErr?.name === 'QuotaExceededError' ||
+          /quota|space|storage/i.test(String(fallbackErr?.message || ''));
+        const message = sinEspacio
+          ? 'Esta computadora se quedó sin lugar para guardar videos. Avisale al encargado.'
+          : 'No se pudo guardar el video en esta computadora. Avisale al encargado antes de seguir.';
+        setProgressMsg(message);
+        setGuardadoEnEsteEquipo(false);
+        setUploadError(message);
+        setQrCodeUrl('');
+        setLocalStatus('idle');
+        return;
       }
-
-      const message = (err as Error).message || 'No se pudo subir el video.';
-      setProgressMsg('No se pudo subir el video. Conservamos la vista previa para reintentar.');
-      setUploadError(message);
-      setQrCodeUrl('');
-      setLocalStatus('done');
-      // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-      await updateEntertainmentSessionStatus(
-        fiestaId,
-        'plataforma360',
-        'idle',
-        { lastError: 'No se pudo subir el video al muro social.' },
-        accessToken,
-      );
     } finally {
       if (isLiveSession()) {
         setIsUploading(false);
@@ -1092,9 +1146,18 @@ export default function Plataforma360Page() {
               </div>
 
               {/* QR Container */}
-              <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
-                <QrRecuerdo qrCodeUrl={qrCodeUrl} error={uploadError} />
-              </div>
+              {guardadoEnEsteEquipo ? (
+                <div className="bg-emerald-950/80 border border-emerald-500/30 text-emerald-200 p-6 rounded-3xl shadow-2xl text-center space-y-2 max-w-xs">
+                  <p className="text-sm font-black uppercase tracking-wider text-emerald-400">Video guardado en este equipo</p>
+                  <p className="text-xs text-emerald-300/90 leading-relaxed">
+                    Tu video quedó guardado en este equipo y se subirá cuando vuelva la señal.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
+                  <QrRecuerdo qrCodeUrl={qrCodeUrl} error={uploadError} />
+                </div>
+              )}
 
               <div className="space-y-3 w-full">
                 {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && retakesCount < fiesta.station.maxRetakes && (
@@ -1137,9 +1200,9 @@ export default function Plataforma360Page() {
               {finalVideoUrl && <video src={finalVideoUrl} controls loop playsInline className="h-full w-full object-cover" />}
             </div>
             <div className="max-w-md">
-              <h3 className="text-2xl font-black text-white">El video quedó guardado en esta pantalla</h3>
+              <h3 className="text-2xl font-black text-white">No se pudo publicar el video</h3>
               <p className="mt-2 text-sm text-rose-300">{uploadError}</p>
-              <p className="mt-2 text-sm text-zinc-400">Reintentá la subida. No mostramos un QR hasta tener un enlace válido.</p>
+              <p className="mt-2 text-sm text-zinc-400">Reintentá la subida o avisale al equipo. No mostramos un QR hasta tener un enlace válido.</p>
             </div>
             <div className="flex w-full max-w-sm flex-col gap-3 sm:flex-row">
               <button

@@ -41,6 +41,7 @@ import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { componerTiraDeFotos } from '@/lib/entretenimiento/tira-fotocabina';
@@ -90,6 +91,7 @@ export default function BoguePage() {
   const streamRef = useRef<MediaStream | null>(null);
   const autoResetTimerRef = useRef<NodeJS.Timeout | null>(null);
   const currentSessionIdRef = useRef<string>(`sess_bogue_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+  const sesionCaptureIdRef = useRef<string | undefined>(undefined);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
@@ -366,6 +368,7 @@ export default function BoguePage() {
       autoResetTimerRef.current = null;
     }
     currentSessionIdRef.current = `sess_bogue_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    sesionCaptureIdRef.current = undefined;
     setLocalStatus('idle');
     setCountdown(null);
     setCapturedFrames([]);
@@ -440,7 +443,11 @@ export default function BoguePage() {
   const captureFramesSequence = async (durationSec: number, maxFrames: number) => {
     setLocalStatus('recording');
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
-    await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'recording', {}, accessToken);
+    void updateEntertainmentSessionStatus(fiestaId, 'bogue', 'recording', {}, accessToken).then((res) => {
+      if (res?.captureId) {
+        sesionCaptureIdRef.current = res.captureId;
+      }
+    }).catch(() => undefined);
     speak("¡Muévanse!");
 
     const video = videoRef.current;
@@ -727,6 +734,10 @@ export default function BoguePage() {
   const handleAutoUpload = async (blob: Blob, stripBase64?: string) => {
     const sessionForThisUpload = currentSessionIdRef.current;
     const isLiveSession = () => currentSessionIdRef.current === sessionForThisUpload;
+    const capturedGuestId = guestId;
+    const capturedGuestAccessToken = guestAccessToken;
+    const capturedAccessToken = accessToken;
+    const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     setIsUploading(true);
     setUploadError(null);
@@ -743,7 +754,9 @@ export default function BoguePage() {
           formDataStrip.append('file', fileStrip);
           formDataStrip.append('authorName', 'Bogue Fotos');
           formDataStrip.append('moduleId', 'bogue');
-          if (accessToken) formDataStrip.append('accessToken', accessToken);
+          if (capturedAccessToken) formDataStrip.append('accessToken', capturedAccessToken);
+          if (capturedGuestId) formDataStrip.append('guestId', capturedGuestId);
+          if (capturedGuestAccessToken) formDataStrip.append('guestAccessToken', capturedGuestAccessToken);
           await uploadEntretenimientoMedia(formDataStrip);
         } catch (e) {
           console.error('Error subiendo tira de fotos:', e);
@@ -760,7 +773,9 @@ export default function BoguePage() {
       formData.append('file', file);
       formData.append('authorName', 'Bogue Boomerang');
       formData.append('moduleId', 'bogue');
-      if (accessToken) formData.append('accessToken', accessToken);
+      if (capturedAccessToken) formData.append('accessToken', capturedAccessToken);
+      if (capturedGuestId) formData.append('guestId', capturedGuestId);
+      if (capturedGuestAccessToken) formData.append('guestAccessToken', capturedGuestAccessToken);
 
       const res = await uploadEntretenimientoMedia(formData);
 
@@ -774,9 +789,9 @@ export default function BoguePage() {
           fiestaId,
           'bogue',
           'done',
-          { mediaUrl, lastError: null },
-          accessToken
-        );
+          { mediaUrl, lastError: null, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+          capturedAccessToken
+        ).catch(() => undefined);
         speak("¡Listo! Tu Boomerang ya está subido.");
 
         // Auto reset after 12 seconds
@@ -787,9 +802,28 @@ export default function BoguePage() {
       } else {
         throw new Error(res.error || 'Fallo al subir archivo');
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('[Bogue] Error al subir boomerang:', err);
+      const errMessage = err?.message || 'Fallo al subir archivo';
+      const decision = classifyOfflineUploadError(errMessage);
 
+      if (decision === 'permanent') {
+        setProgressMsg('No se pudo publicar tu Boomerang. Avisale al equipo.');
+        setUploadError(errMessage);
+        setQrCodeUrl('');
+        setLocalStatus('done');
+        await updateEntertainmentSessionStatus(
+          fiestaId,
+          'bogue',
+          'done',
+          { lastError: errMessage, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+          capturedAccessToken,
+        ).catch(() => undefined);
+        speak("Tu Boomerang no se pudo publicar. Avisale al equipo.");
+        return;
+      }
+
+      // Si es retryable (error de red o sin conexión):
       try {
         await saveOfflineMedia({
           fiestaId,
@@ -798,7 +832,9 @@ export default function BoguePage() {
           fileName: `bogue-${Date.now()}.mp4`,
           mimeType: blob.type || 'video/mp4',
           authorName: 'Bogue Boomerang',
-          accessToken,
+          guestId: capturedGuestId,
+          guestAccessToken: capturedGuestAccessToken,
+          accessToken: capturedAccessToken,
         });
         setProgressMsg('Tu Boomerang quedó guardado en el equipo y se subirá cuando vuelva la señal.');
         setLocalStatus('done');
@@ -808,12 +844,23 @@ export default function BoguePage() {
           if (isLiveSession()) completeGuestCycle();
         }, 12000);
         return;
-      } catch (offlineErr) {
+      } catch (offlineErr: any) {
         console.error('[Bogue] Error al guardar offline:', offlineErr);
+        const sinEspacio =
+          offlineErr?.name === 'QuotaExceededError' ||
+          /quota|space|storage/i.test(String(offlineErr?.message || ''));
+        const mensajeEspacio = sinEspacio
+          ? 'Esta computadora se quedó sin lugar para guardar videos. Avisale al encargado.'
+          : 'No se pudo guardar el video en esta computadora. Avisale al encargado antes de seguir.';
+        setProgressMsg(mensajeEspacio);
+        setUploadError(mensajeEspacio);
+        setQrCodeUrl('');
+        setLocalStatus('idle');
+        return;
       }
 
       setProgressMsg('No se pudo subir al muro. Conservamos el video para reintentar.');
-      setUploadError((err as Error).message || 'No se pudo subir el video al muro.');
+      setUploadError(errMessage || 'No se pudo subir el video al muro.');
       setQrCodeUrl('');
       setLocalStatus('done');
       // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
@@ -821,9 +868,9 @@ export default function BoguePage() {
         fiestaId,
         'bogue',
         'done',
-        { lastError: 'No se pudo subir el video del invitado al muro.' },
-        accessToken,
-      );
+        { lastError: 'No se pudo subir el video del invitado al muro.', ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
+        capturedAccessToken,
+      ).catch(() => undefined);
     } finally {
       if (isLiveSession()) {
         setIsUploading(false);
