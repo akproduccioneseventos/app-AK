@@ -526,3 +526,28 @@ usa: bloquesSinComprobacion en scripts/ordenes-cumplidas.mjs
 prueba: src/__tests__/un-bloque-agregado-sin-comprobacion-no-da-hecha.test.ts
 prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
 ```
+
+## 26 de septiembre de 2026 — La cabina con IA anunciaba fotos que no estaban (Codex, devolución 89)
+
+**Qué era:** verifiqué la orden 89 y agregué yo mismo que una subida fallida fuera a la cola del
+equipo. Pero no seguí el trabajo hasta el cartel final:
+- la pantalla decía "¡Foto lista en la galería!" en todos los casos;
+- la original que se prometía guardada no se guardaba antes de la IA;
+- todas las capturas mandaban la misma identidad al tope de intentos.
+
+**Qué pregunta lo hubiera agarrado:** la 27, nueva, en `docs/COMO-AUDITAR.md`: *lo que pasa a
+segundo plano, ¿lleva todo su contexto, y el aviso final sale del resultado real?* También quedó
+como pregunta 16 en `docs/ANTES-DE-ENTREGAR.md`.
+
+**El control que lo frena:** `src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts`
+(cada salida con su cartel, y la original retenida que la cola no sube antes de tiempo) y la prueba
+de navegador `tests/e2e/89-ia-no-frena-la-fila.spec.ts`: una subida por captura, y sin señal no dice
+"galería".
+
+```comprobar
+archivo: src/lib/touchpix/terminar-trabajo-ia.ts
+usa: terminarTrabajoIA en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: retenidaHasta en src/lib/offline/offline-sync-manager.ts
+prueba: src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts
+```
+

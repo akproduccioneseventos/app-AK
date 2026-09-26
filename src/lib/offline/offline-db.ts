@@ -25,6 +25,12 @@ export interface OfflineMediaItem {
   metadata?: Record<string, any>;
   attempts: number;
   lastError?: string | null;
+  /**
+   * Hasta cuándo la cola NO la sube (fecha ISO). La cabina con IA guarda la original al capturar,
+   * retenida mientras trabaja la IA: si la pantalla se recarga en el medio, al vencer sube la
+   * original; si la IA termina bien, la original se borra y no se publican dos fotos.
+   */
+  retenidaHasta?: string;
 }
 
 /**

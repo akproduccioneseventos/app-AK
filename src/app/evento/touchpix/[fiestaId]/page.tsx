@@ -41,7 +41,8 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
-import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { saveOfflineMedia, removeOfflineMedia } from '@/lib/offline/offline-db';
+import { terminarTrabajoIA, avisoDelDestino, type DestinoDeLaFoto } from '@/lib/touchpix/terminar-trabajo-ia';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
@@ -97,7 +98,17 @@ interface TrabajoIA {
   estado: 'pendiente' | 'procesando' | 'completado' | 'error';
   fueIA?: boolean;
   creadoEn: number;
+  /** Contexto de ESTA captura, fijado al capturar: el siguiente invitado no lo cambia. */
+  consentimiento: boolean;
+  guestId?: string;
+  guestAccessToken?: string;
+  /** La original guardada en el equipo, retenida mientras trabaja la IA. */
+  originalEnEquipoId?: string;
+  destino?: DestinoDeLaFoto;
 }
+
+/** Cuánto tiempo la original queda retenida antes de que la cola la suba sola. */
+const RETENCION_DE_LA_ORIGINAL_MS = 3 * 60_000;
 
 async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
   const response = await fetch(dataUrl);
@@ -164,7 +175,8 @@ export default function TouchpixPage() {
   const subidosRef = useRef<Set<string>>(new Set());
   const procesandoRef = useRef<Set<string>>(new Set());
   const [ultimoAvisoIA, setUltimoAvisoIA] = useState<{ id: string; raw: string; timestamp: number } | null>(null);
-  const [avisoFinalizado, setAvisoFinalizado] = useState<{ id: string; fueIA: boolean } | null>(null);
+  const [avisoFinalizado, setAvisoFinalizado] = useState<{ id: string; fueIA: boolean; destino: DestinoDeLaFoto } | null>(null);
+  const [fotoSinGuardar, setFotoSinGuardar] = useState<{ id: string; dataUrl: string } | null>(null);
 
   useEffect(() => {
     currentPhotoSessionIdRef.current = photoSessionId;
@@ -497,6 +509,33 @@ export default function TouchpixPage() {
     return canvas.toDataURL('image/jpeg', 0.95);
   }, [facingMode, fondoVirtual]);
 
+  /**
+   * Guarda la ORIGINAL en el equipo apenas se captura, retenida para que la cola no la suba
+   * mientras trabaja la IA (T89-02). Si la pantalla se recarga en el medio, al vencer la
+   * retención sube la original. Si no hay lugar en el equipo, sigue sin ella: la foto está en
+   * pantalla y el final avisa dónde quedó.
+   */
+  const guardarOriginalRetenida = useCallback(async (trabajo: TrabajoIA): Promise<string | undefined> => {
+    try {
+      const original = await dataUrlToFile(trabajo.rawImage, `touchpix-original-${trabajo.id}.jpg`);
+      return await saveOfflineMedia({
+        fiestaId,
+        moduleId: 'touchpix',
+        fileBlob: original,
+        fileName: original.name,
+        mimeType: original.type || 'image/jpeg',
+        authorName: 'Cabina Touchpix',
+        guestId: trabajo.guestId,
+        guestAccessToken: trabajo.guestAccessToken,
+        accessToken,
+        metadata: { selectedTheme: 'Original' },
+        retenidaHasta: new Date(Date.now() + RETENCION_DE_LA_ORIGINAL_MS).toISOString(),
+      });
+    } catch {
+      return undefined;
+    }
+  }, [fiestaId, accessToken]);
+
   const handleCapture = useCallback(async () => {
     const raw = captureRawPhoto();
     if (!raw) return;
@@ -538,7 +577,11 @@ export default function TouchpixPage() {
         emoji: character.emoji,
         estado: 'pendiente',
         creadoEn: Date.now(),
+        consentimiento: consentAccepted,
+        guestId,
+        guestAccessToken,
       };
+      nuevoTrabajo.originalEnEquipoId = await guardarOriginalRetenida(nuevoTrabajo);
       setTrabajosIA(prev => [...prev, nuevoTrabajo]);
       setUltimoAvisoIA({ id: capturaId, raw, timestamp: Date.now() });
       // La pantalla queda libre de inmediato para la próxima captura
@@ -553,7 +596,11 @@ export default function TouchpixPage() {
         themeLabel: theme?.label || 'Tema Artístico',
         estado: 'pendiente',
         creadoEn: Date.now(),
+        consentimiento: consentAccepted,
+        guestId,
+        guestAccessToken,
       };
+      nuevoTrabajo.originalEnEquipoId = await guardarOriginalRetenida(nuevoTrabajo);
       setTrabajosIA(prev => [...prev, nuevoTrabajo]);
       setUltimoAvisoIA({ id: capturaId, raw, timestamp: Date.now() });
       // La pantalla queda libre de inmediato para la próxima captura
@@ -568,6 +615,10 @@ export default function TouchpixPage() {
     applyFilterToCanvas,
     fiestaId,
     accessToken,
+    consentAccepted,
+    guestId,
+    guestAccessToken,
+    guardarOriginalRetenida,
   ]);
 
   const procesarTrabajoIA = useCallback(async (trabajo: TrabajoIA) => {
@@ -579,7 +630,7 @@ export default function TouchpixPage() {
         const formData = new FormData();
         formData.set('fiestaId', fiestaId);
         if (accessToken) formData.set('accessToken', accessToken);
-        formData.set('consentAccepted', String(consentAccepted));
+        formData.set('consentAccepted', String(trabajo.consentimiento));
         formData.set('characterId', trabajo.characterId || '');
         formData.set('sourceFile', await dataUrlToFile(trabajo.rawImage, `touchpix-source-${trabajo.id}.jpg`));
         const result = await applyFaceSwap(formData);
@@ -612,9 +663,10 @@ export default function TouchpixPage() {
         const formData = new FormData();
         formData.set('fiestaId', fiestaId);
         if (accessToken) formData.set('accessToken', accessToken);
-        formData.set('consentAccepted', String(consentAccepted));
+        formData.set('consentAccepted', String(trabajo.consentimiento));
         formData.set('themeId', trabajo.themeId || '');
-        formData.set('photoSessionId', photoSessionId);
+        // El tope de intentos es POR FOTO: cada captura lleva su propia identidad (T89-03).
+        formData.set('photoSessionId', trabajo.id);
         formData.set('file', await dataUrlToFile(trabajo.rawImage, `touchpix-theme-${trabajo.id}.jpg`));
         const result = await applyTouchpixTheme(formData);
 
@@ -639,26 +691,28 @@ export default function TouchpixPage() {
       }
     }
 
-    // Una captura, una sola subida: guardá en un Set los capturaId ya subidos y no subas dos veces el mismo
+    // Una captura, una sola subida: el Set evita procesar dos veces la MISMA captura; si la subida
+    // falla, el resultado queda en la cola del equipo con los mismos bytes, y el servidor rechaza
+    // la segunda copia por su huella ("ya fue subida").
+    let destino: DestinoDeLaFoto = 'subida';
     if (!subidosRef.current.has(trabajo.id)) {
       subidosRef.current.add(trabajo.id);
-      try {
-        const pendingFile = await dataUrlToFile(finalImageUrl, `touchpix-${trabajo.id}.jpg`);
-        const uploadFormData = new FormData();
-        uploadFormData.append('fiestaId', fiestaId);
-        if (accessToken) uploadFormData.append('accessToken', accessToken);
-        if (guestId) uploadFormData.append('guestId', guestId);
-        if (guestAccessToken) uploadFormData.append('guestAccessToken', guestAccessToken);
-        uploadFormData.append('file', pendingFile);
-        uploadFormData.append('authorName', 'Cabina Touchpix');
-        if (trabajo.tipo === 'ai_themes') {
-          uploadFormData.append('themeLabel', fueIA ? (trabajo.themeLabel || '') : 'Efecto local');
-        }
-        if (trabajo.tipo === 'faceswap') {
-          uploadFormData.append('characterLabel', fueIA ? (trabajo.characterLabel || '') : 'Efecto local');
-        }
-        let errorDeSubida = '';
-        try {
+      const pendingFile = await dataUrlToFile(finalImageUrl, `touchpix-${trabajo.id}.jpg`);
+      const etiquetas = {
+        selectedTheme: trabajo.tipo === 'ai_themes' ? (fueIA ? trabajo.themeLabel : 'Efecto local') : undefined,
+        character: trabajo.tipo === 'faceswap' ? (fueIA ? trabajo.characterLabel : 'Efecto local') : undefined,
+      };
+      const fin = await terminarTrabajoIA({
+        subir: async () => {
+          const uploadFormData = new FormData();
+          uploadFormData.append('fiestaId', fiestaId);
+          if (accessToken) uploadFormData.append('accessToken', accessToken);
+          if (trabajo.guestId) uploadFormData.append('guestId', trabajo.guestId);
+          if (trabajo.guestAccessToken) uploadFormData.append('guestAccessToken', trabajo.guestAccessToken);
+          uploadFormData.append('file', pendingFile);
+          uploadFormData.append('authorName', 'Cabina Touchpix');
+          if (etiquetas.selectedTheme) uploadFormData.append('themeLabel', etiquetas.selectedTheme);
+          if (etiquetas.character) uploadFormData.append('characterLabel', etiquetas.character);
           const res = await uploadTouchpixPhoto(uploadFormData);
           if (res.success) {
             void updateEntertainmentSessionStatus(
@@ -668,41 +722,38 @@ export default function TouchpixPage() {
               { mediaUrl: res.post?.imageUrl, reviewPending: false },
               accessToken
             ).catch(() => undefined);
-          } else {
-            errorDeSubida = res.error || 'Error al subir';
           }
-        } catch (err: any) {
-          errorDeSubida = err?.message || 'Sin conexión';
-        }
-        // Si no se pudo subir, la foto del invitado NO se pierde en silencio: va a la misma cola
-        // del equipo que usa la captura normal, y se sube sola cuando vuelve la señal.
-        if (errorDeSubida && classifyOfflineUploadError(errorDeSubida) === 'retryable') {
-          await saveOfflineMedia({
-            fiestaId,
-            moduleId: 'touchpix',
-            fileBlob: pendingFile,
-            fileName: pendingFile.name,
-            mimeType: pendingFile.type || 'image/jpeg',
-            authorName: 'Cabina Touchpix',
-            guestId,
-            guestAccessToken,
-            accessToken,
-            metadata: {
-              selectedTheme: trabajo.tipo === 'ai_themes' ? (fueIA ? trabajo.themeLabel : 'Efecto local') : undefined,
-              character: trabajo.tipo === 'faceswap' ? (fueIA ? trabajo.characterLabel : 'Efecto local') : undefined,
-            },
-          });
-        }
-      } catch {
-        // Ni siquiera se pudo guardar en el equipo: queda sólo en pantalla.
+          return res;
+        },
+        guardarEnEquipo: () => saveOfflineMedia({
+          fiestaId,
+          moduleId: 'touchpix',
+          fileBlob: pendingFile,
+          fileName: pendingFile.name,
+          mimeType: pendingFile.type || 'image/jpeg',
+          authorName: 'Cabina Touchpix',
+          guestId: trabajo.guestId,
+          guestAccessToken: trabajo.guestAccessToken,
+          accessToken,
+          metadata: etiquetas,
+        }),
+        soltarOriginal: async () => {
+          if (trabajo.originalEnEquipoId) await removeOfflineMedia(trabajo.originalEnEquipoId);
+        },
+      });
+      destino = fin.destino;
+      if (destino === 'rechazada') subidosRef.current.delete(trabajo.id);
+      if (destino === 'no-guardada') {
+        // Sólo lo que no quedó en ningún lado se retiene en memoria, para poder bajarlo.
+        setFotoSinGuardar({ id: trabajo.id, dataUrl: finalImageUrl });
       }
     }
 
     procesandoRef.current.delete(trabajo.id);
     setTrabajosIA(prev =>
-      prev.map(t => (t.id === trabajo.id ? { ...t, estado: 'completado', fueIA } : t))
+      prev.map(t => (t.id === trabajo.id ? { ...t, estado: destino === 'subida' || destino === 'en-el-equipo' ? 'completado' : 'error', fueIA, destino } : t))
     );
-    setAvisoFinalizado({ id: trabajo.id, fueIA });
+    setAvisoFinalizado({ id: trabajo.id, fueIA, destino });
   }, [
     accessToken,
     applyFilterToCanvas,
@@ -1778,9 +1829,17 @@ export default function TouchpixPage() {
               exit={{ opacity: 0, y: 20 }}
               className="absolute bottom-4 left-4 right-4 z-40 mx-auto max-w-sm rounded-xl border border-white/10 bg-zinc-900/90 p-3 text-center text-xs font-medium text-zinc-200 shadow-xl backdrop-blur-md"
             >
-              {avisoFinalizado.fueIA
-                ? '¡Foto lista en la galería de la fiesta!'
-                : 'Efecto local aplicado: tu foto ya está en la galería.'}
+              {avisoDelDestino(avisoFinalizado.destino, avisoFinalizado.fueIA)}
+              {avisoFinalizado.destino === 'no-guardada' && fotoSinGuardar?.id === avisoFinalizado.id && (
+                <a
+                  href={fotoSinGuardar.dataUrl}
+                  download={`foto-${fotoSinGuardar.id}.jpg`}
+                  onClick={() => setTimeout(() => setFotoSinGuardar(null), 1000)}
+                  className="mt-2 block rounded-lg bg-white px-3 py-2 text-xs font-black text-zinc-900"
+                >
+                  Bajar foto
+                </a>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

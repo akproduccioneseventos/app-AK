@@ -78,7 +78,11 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
   errors: number;
 }> {
   const getScopedQueue = async () => {
-    const pending = await getPendingOfflineMedia(scope.fiestaId);
+    const ahora = Date.now();
+    // Lo retenido (la original de una foto que todavía procesa la IA) no se sube hasta que venza.
+    const pending = (await getPendingOfflineMedia(scope.fiestaId)).filter(
+      (item) => !item.retenidaHasta || new Date(item.retenidaHasta).getTime() <= ahora,
+    );
     return scope.moduleId
       ? pending.filter(item => item.moduleId === scope.moduleId)
       : pending;

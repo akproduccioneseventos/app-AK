@@ -9777,3 +9777,35 @@ usa: saveOfflineMedia en src/app/evento/touchpix/[fiestaId]/page.tsx
 prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts
 prueba: tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts
 ```
+
+## 26 de septiembre de 2026 — Devolución 89: la cabina con IA dice dónde quedó la foto de verdad
+
+**Qué estaba mal, lo encontró Codex:**
+- **T89-01:** decía "en la galería" aunque la subida fallara o la rechazaran.
+- **T89-02:** la original no se guardaba antes de la IA; si la pantalla se recargaba, se perdía.
+- **T89-03:** todas las capturas compartían el tope de 3 intentos de la primera.
+- **T89-04:** la prueba aceptaba subidas repetidas.
+
+**Cómo quedó:**
+- **El cartel final sale del resultado real** (`terminarTrabajoIA`, en
+  `src/lib/touchpix/terminar-trabajo-ia.ts`):
+  - subida;
+  - guardada en el equipo, que sube sola al volver la señal;
+  - rechazada;
+  - no guardada, con botón "Bajar foto".
+- **La original se guarda en el equipo al capturar**, retenida 3 minutos (`retenidaHasta`) para
+  que la cola no la suba mientras trabaja la IA. Si la IA termina, se borra; si la pantalla se
+  recargó, al vencer sube la original.
+- **Cada captura fija al empezar** su identidad, su invitado y su consentimiento. El tope de
+  intentos es por captura.
+- **La prueba cuenta las subidas por captura:** con dos subidas de la misma, se pone en rojo.
+- **Duplicados:** si se reintenta la misma foto, el servidor ya la rechaza por su huella ("ya fue
+  subida"). Eso cuenta como subida y no se guarda otra copia.
+
+```comprobar
+usa: avisoDelDestino en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: photoSessionId', trabajo.id en src/app/evento/touchpix/[fiestaId]/page.tsx
+prueba: src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts
+prueba: tests/e2e/89-ia-no-frena-la-fila.spec.ts
+```
+

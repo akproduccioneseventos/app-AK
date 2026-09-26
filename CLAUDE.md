@@ -871,6 +871,19 @@ nombra un archivo que ninguna línea de `comprobar` mira (`bloquesSinComprobacio
 escribir una orden por un hallazgo, **buscar la ruta del archivo en `docs/ordenes/`**: si ya está
 pedido, se completa esa orden, no se abre otra.
 
+### 24. Verificar un trabajo en segundo plano mirando sólo el camino que falla
+
+**Pasó el 26 de septiembre de 2026, en la orden 89.** Revisé la cabina con IA y arreglé que una
+subida fallida no se perdiera, pero **no seguí el trabajo hasta el cartel final**. El cartel decía
+"en la galería" en todos los casos, la original prometida no se guardaba y todas las capturas
+compartían el tope de intentos. Lo encontró Codex.
+
+**Qué era lo cierto:** cuando algo pasa a segundo plano, el invitado ya no ve el resultado: ve un
+cartel. Y el trabajo termina cuando la pantalla ya es de otro.
+
+**Qué se hace distinto:** pregunta 27 del método y 16 de `ANTES-DE-ENTREGAR.md`. Al verificar, se
+recorre **cada salida hasta el cartel**, y se mira que el trabajo lleve copia de su contexto.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1333,6 +1346,7 @@ con otra cara.
 | La descarga del Video de Vida entregaba fotos de menos, o un archivo vacío, sin avisar | `src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts` |
 | Con el número de la fiesta, cualquiera se llevaba sueldos, contrato, pagos y el teléfono y la credencial de cada invitado | `src/__tests__/la-fiesta-no-viaja-entera-a-quien-no-es-del-equipo.test.ts` |
 | "Hoy" calculado en hora de Greenwich: a la noche ya era mañana | `src/__tests__/hoy-es-el-dia-de-uruguay.test.ts` |
+| La cabina con IA decía "en la galería" aunque la foto no se subiera, y perdía la original al recargar | `src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts` |
 
 ### Cómo se elige el matafuego
 

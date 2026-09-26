@@ -4,6 +4,9 @@
 
 ## Lo último que entró
 
+- **Devolución 89 (Codex):** la cabina con IA dice dónde quedó la foto de verdad, guarda la
+  original al capturar y cada captura tiene su propio tope de intentos.
+
 - **1228, orden 89 recortada:**
   - la IA de la fotocabina ya no frena la fila;
   - la barra muestra "Agotado";
@@ -17,7 +20,7 @@
 
 ## Espera a Gemini
 
-Nada.
+- **Orden 90:** que las demás estaciones digan dónde quedó la foto de verdad (pregunta 27).
 
 ## Pendiente, y es mío
 
