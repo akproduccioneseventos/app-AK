@@ -1,6 +1,6 @@
 # Acá quedé
 
-**26 de septiembre de 2026.** Propuestas 1224 a 1228 fusionadas, con la puerta completa en verde.
+**26 de septiembre de 2026.** Propuestas 1224 a 1229 fusionadas, con la puerta completa en verde.
 
 ## Lo último que entró
 
@@ -21,8 +21,8 @@ Nada.
 
 ## Pendiente, y es mío
 
-- En la rama `claude/ponte-al-dia-qtrho3` hay un arreglo sólo de pruebas, sin fusionar: la prueba
-  del ingreso fallaba con la máquina cargada. Va con la próxima tanda.
+- Nada.
+
 
 ## Lo que ningún control cubre
 
