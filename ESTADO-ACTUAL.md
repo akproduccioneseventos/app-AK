@@ -1,9 +1,9 @@
 # Acá quedé
 
-**26 de septiembre de 2026.** Propuestas 1224 a 1228 fusionadas, con la puerta completa en verde.
+**26 de septiembre de 2026.** Main b046863 incluye 1229. Claude registro puerta verde para
+entregas anteriores; Codex encontro residuales en 89. No se declara listo para publicar.
 
 ## Lo último que entró
-
 - **1228, orden 89 recortada:**
   - la IA de la fotocabina ya no frena la fila;
   - la barra muestra "Agotado";
@@ -16,17 +16,20 @@
   falta; `npm run ordenes?` ve los bloques sin comprobar.
 
 ## Espera a Gemini
-
-Nada.
+- Devolucion de Codex: `docs/ordenes/DEVOLUCION-89-no-anunciar-fotos-que-no-estan.md`.
+- Tres fallos medidos: falso exito de subida, original sin respaldo previo e identidad
+  compartida entre capturas IA. Corregir con Claude (datos/permisos) y fortalecer E2E.
+- Rama documental `codex/devolucion-89-cierre-verificado`; no fusionar docs solos.
+- No reabrir los doce bloques: se respeta orden 89 recortada por el dueno.
 
 ## Pendiente, y es mío
-
-- En la rama `claude/ponte-al-dia-qtrho3` hay un arreglo sólo de pruebas, sin fusionar: la prueba
-  del ingreso fallaba con la máquina cargada. Va con la próxima tanda.
+- El arreglo de la prueba de ingreso ya entro con PR 1229; no sigue pendiente.
+- Claude compila la correccion conjunta; propietario fusiona. Codex no programo app.
 
 ## Lo que ningún control cubre
-
 Falta **un ensayo real**: `docs/ENSAYO-EN-EL-SALON.md`.
+Codex ejecuto sonda de callbacks con I/O simulado, no E2E. App Hosting estaba en curso
+al consultar; confirmar despliegue separado de pruebas. No exigir tarjeta por esta revision.
 
 ## Trampas
 

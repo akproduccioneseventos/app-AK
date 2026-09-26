@@ -1,0 +1,87 @@
+{
+  "sourceSHA": "b046863c1a6f5235c0f48c36298e25971e214b4a",
+  "scope": "Real AST callbacks; provider, upload, local storage, React setters and canvas mocked. No E2E, compile, hardware or deployment claim.",
+  "results": [
+    {
+      "case": "upload-success",
+      "expected": "completed",
+      "observed": {
+        "estado": "completado",
+        "announcement": {
+          "id": "capture-1",
+          "fueIA": true
+        },
+        "queued": 0,
+        "originalSavedBeforeAI": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "upload-offline-queued",
+      "expected": "not-announced-in-gallery",
+      "observed": {
+        "estado": "completado",
+        "announcement": {
+          "id": "capture-1",
+          "fueIA": true
+        },
+        "queued": 1,
+        "originalSavedBeforeAI": 0
+      },
+      "passed": false
+    },
+    {
+      "case": "upload-rejected-permanent",
+      "expected": "not-announced-in-gallery",
+      "observed": {
+        "estado": "completado",
+        "announcement": {
+          "id": "capture-1",
+          "fueIA": true
+        },
+        "queued": 0,
+        "originalSavedBeforeAI": 0
+      },
+      "passed": false
+    },
+    {
+      "case": "upload-offline-and-storage-full",
+      "expected": "not-announced-in-gallery",
+      "observed": {
+        "estado": "completado",
+        "announcement": {
+          "id": "capture-1",
+          "fueIA": true
+        },
+        "queued": 0,
+        "originalSavedBeforeAI": 0
+      },
+      "passed": false
+    },
+    {
+      "case": "original-durable-before-provider",
+      "originals": 0,
+      "jobs": 4,
+      "passed": false
+    },
+    {
+      "case": "distinct-capture-identity-for-provider-limit",
+      "submittedSessionIds": [
+        "session-shared",
+        "session-shared",
+        "session-shared",
+        "session-shared"
+      ],
+      "captures": [
+        "capture-1",
+        "capture-2",
+        "capture-3",
+        "capture-4"
+      ],
+      "passed": false
+    }
+  ],
+  "testObservation": {
+    "uploadAssertionAllowsDuplicates": true
+  }
+}

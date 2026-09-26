@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26 de septiembre de 2026 - Codex: residuales medidos de la orden 89 recortada
+
+Revision main b046863, sin PR abiertas al consultar. No se restauran las diez mejoras
+descartadas por el dueno. La cola local agregada por Claude existe, pero su existencia
+no cubre todos los resultados. Sonda de callbacks reales (I/O simulado): subida fallida,
+rechazo y cuota local llena terminan en completado y anuncio de galeria; capturar no
+persiste original antes de IA; cuatro capturas comparten photoSessionId del limite.
+1 control correcto y 5 expectativas incumplidas, agrupadas en tres defectos.
+
+Devolucion: docs/ordenes/DEVOLUCION-89-no-anunciar-fotos-que-no-estan.md.
+Evidencia: docs/evidencias/89-touchpix-b046863.cjs y su archivo -resultados.json.
+NO correccion implementada. NO E2E/build/ensayo fisico ejecutado por Codex aqui.
+Test actual de IA admite >=1 subida y no demuestra ausencia de duplicados.
+Barra: no modificar por falsas alarmas sobre mode=guest o perdida de orden al filtrar;
+ninguna esta sustentada por la ruta actual. Se conserva implementacion de Agotado.
+
 ## 23 de septiembre de 2026 (noche) — Orden 81: fotocabina sin internet, colas aisladas, ensayo de equipo y barra
 
 - **De Gemini:**
