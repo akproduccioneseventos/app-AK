@@ -64,6 +64,8 @@ archivo: src/app/evento/touchpix/[fiestaId]/page.tsx
 usa: guardarOriginalRetenida en src/app/evento/touchpix/[fiestaId]/page.tsx
 archivo: src/lib/offline/offline-sync-manager.ts
 usa: processOfflineMediaQueue en src/components/offline/sync-status-indicator.tsx
-prueba: docs/evidencias/1231-contraste.cjs (ejecutada; 6 pasan y 2 fallan; no E2E)
-prueba: tests/e2e/91-captura-con-servidor-e-ia-lentos.spec.ts (propuesta, pendiente de crear y ejecutar)
+# Ejecutada: 6 pasan y 2 fallan; sonda aislada, no E2E.
+prueba: docs/evidencias/1231-contraste.cjs
+# Propuesta: pendiente de crear y ejecutar.
+prueba: tests/e2e/91-captura-con-servidor-e-ia-lentos.spec.ts
 ```

@@ -35,6 +35,7 @@ Claude registro puerta verde; eso no cubre los dos limites reproducidos abajo.
 
 ## Limites
 
-- No se repitio build ni E2E completo; no se certifica despliegue ni toda la app.
+- Orden 92 y `docs/evidencias/92-matriz-lanzamiento.md`: cobertura y evidencia que falta.
+- No se repitio build ni E2E completo; App Hosting en progreso al consultar; no certificado.
 - Falta ensayo fisico: `docs/ENSAYO-EN-EL-SALON.md`.
 - Antes de emitir otra orden, leer el registro y contrastar su SHA; no rehacer lo ya corregido.

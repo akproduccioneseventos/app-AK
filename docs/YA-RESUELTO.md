@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26 de septiembre de 2026 - Cierre de cobertura de lanzamiento, aun pendiente
+
+Codex agrega `docs/evidencias/92-matriz-lanzamiento.md` y orden 92, sobre codigo `63dace0`.
+No repite las correcciones historicas: separa evidencia de Claude de validacion aqui.
+Portada HTTP 200 y DOM inspeccionado; interacciones de navegador incompletas por timeouts
+del control. App Hosting figuraba en progreso; los trabajos CI fallidos no tenian pasos.
+Ni eso prueba un error de codigo ni el inventario "completo" prueba funcionamiento.
+Pendientes: orden 91, evidencia del candidato, recorridos por rol y ensayo real.
+Un agente economico reviso cobertura documental; Codex contrasto sus limites. No hubo
+build, cambios de app, operaciones con datos reales, fusion ni aprobacion de lanzamiento.
+
 ## 26 de septiembre de 2026 - Codex contrasta PR 1230/1231, no cierre total
 
 Sobre main `63dace0c83f990b8610833a56fb825624837ad6f`, sin PR abiertas al consultar:
