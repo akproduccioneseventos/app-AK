@@ -42,8 +42,10 @@ test.describe('Orden 89 — Bloque 1: La IA no frena la fila en Touchpix', () =>
       responderIaA = resolve;
     });
 
-    let llamadasUpload = 0;
-    const subidasPorCaptura: string[] = [];
+    // Cada intento de subida, con cuándo empezó, cuándo contestó el servidor y si lo aceptó.
+    // Lo que no puede pasar es mandar la misma captura otra vez después de aceptada, ni dos a la
+    // vez.
+    const intentos: { archivo: string; inicio: number; fin: number; ok: boolean }[] = [];
 
     // Interceptar llamadas de IA para simular demora de 8 segundos en el procesamiento
     await page.route('**/evento/touchpix/**', async (route) => {
@@ -59,9 +61,17 @@ test.describe('Orden 89 — Bloque 1: La IA no frena la fila en Touchpix', () =>
         }
         // Si es la subida con uploadTouchpixPhoto
         if (cuerpo.includes('Cabina Touchpix') || cuerpo.includes('characterLabel') || cuerpo.includes('themeLabel')) {
-          llamadasUpload++;
           const archivo = cuerpo.match(/filename="(touchpix-[^"]+)"/);
-          if (archivo) subidasPorCaptura.push(archivo[1]);
+          const inicio = Date.now();
+          const respuesta = await route.fetch();
+          // En este entorno la base no está y toda subida falla; así, un envío doble se confunde
+          // con el reintento legítimo de la cola. Se hace que el servidor ACEPTE: con eso, un
+          // segundo envío de la misma captura es un duplicado de verdad. (Se probó rompiéndolo:
+          // mandando dos veces la subida, se pone en rojo.)
+          const texto = (await respuesta.text()).replace(/^1:\{"success":false.*$/m, '1:{"success":true}');
+          intentos.push({ archivo: archivo?.[1] || '(sin nombre)', inicio, fin: Date.now(), ok: /"success":true/.test(texto) });
+          await route.fulfill({ response: respuesta, body: texto });
+          return;
         }
       }
       await route.continue();
@@ -127,10 +137,19 @@ test.describe('Orden 89 — Bloque 1: La IA no frena la fila en Touchpix', () =>
 
     // Cada captura se sube UNA sola vez: se cuenta por identidad de captura (el nombre del
     // archivo lleva el identificador), no una suma global que aceptaría duplicados (T89-04).
-    await expect.poll(() => subidasPorCaptura.length, { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
+    await expect.poll(() => intentos.length, { timeout: 30_000 }).toBeGreaterThanOrEqual(1);
     await page.waitForTimeout(2_000);
-    expect(new Set(subidasPorCaptura).size).toBe(subidasPorCaptura.length);
-    expect(llamadasUpload).toBe(subidasPorCaptura.length);
+    const repetidas: string[] = [];
+    intentos.forEach((intento, i) => {
+      const anteriores = intentos.slice(0, i).filter((a) => a.archivo === intento.archivo);
+      if (anteriores.length === 0) return;
+      // Ya se aceptó una vez: cualquier otro envío es un duplicado.
+      if (anteriores.some((a) => a.ok)) repetidas.push(`${intento.archivo}: se mandó de nuevo después de aceptada`);
+      // Salió antes de que la anterior contestara: se mandó dos veces a la vez.
+      else if (anteriores.some((a) => a.fin > intento.inicio)) repetidas.push(`${intento.archivo}: dos envíos a la vez`);
+    });
+    expect(repetidas.join('\n'), 'capturas mandadas dos veces').toBe('');
+    expect(intentos.every((a) => a.archivo.startsWith('touchpix-'))).toBe(true);
   });
 
   test('con la IA fallando, se sube la foto original con efecto local y la pantalla no dice IA', async ({ page }) => {

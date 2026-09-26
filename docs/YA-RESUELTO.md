@@ -9799,6 +9799,9 @@ prueba: tests/e2e/89-la-barra-no-ofrece-lo-agotado.spec.ts
 - **Cada captura fija al empezar** su identidad, su invitado y su consentimiento. El tope de
   intentos es por captura.
 - **La prueba cuenta las subidas por captura:** con dos subidas de la misma, se pone en rojo.
+- **La prueba hace que el servidor ACEPTE la subida.** En el entorno de pruebas la base no está y
+  toda subida falla. Así, el reintento legítimo de la cola parecía un duplicado, y un duplicado de
+  verdad pasaba en verde: se midió rompiéndolo.
 - **Duplicados:** si se reintenta la misma foto, el servidor ya la rechaza por su huella ("ya fue
   subida"). Eso cuenta como subida y no se guarda otra copia.
 
