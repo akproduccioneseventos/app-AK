@@ -704,11 +704,12 @@ export default function BarraTecnologicaTouchPage() {
 
   // Botón "Sugerir Trago Al Azar 🎲" animado
   const handleRandomDrink = () => {
-    const drinksList = dashboard?.drinks || [];
+    const allDrinks = dashboard?.drinks || [];
+    const drinksList = allDrinks.filter((d) => d.stockDisponible === undefined || d.stockDisponible > 0);
     if (!drinksList.length) {
       toast({
-        title: 'Sin tragos cargados',
-        description: 'Primero carga la carta de tragos para poder sugerir uno al azar.',
+        title: 'Sin tragos disponibles',
+        description: 'No hay tragos disponibles con stock para sugerir.',
         variant: 'destructive',
       });
       return;
@@ -856,7 +857,14 @@ export default function BarraTecnologicaTouchPage() {
   const settings = dashboard?.settings;
   const quinceaneraPhoto = '/media/catalogo-servicios/barra-tragos-ak-01.jpeg';
   const backgroundPhoto = dashboard?.backgroundImageUrl || quinceaneraPhoto;
-  const drinks = dashboard?.drinks?.length ? dashboard.drinks : [];
+  const rawDrinks = dashboard?.drinks?.length ? dashboard.drinks : [];
+  // Los tragos agotados van al final de la carta
+  const drinks = [...rawDrinks].sort((a, b) => {
+    const aAgotado = a.stockDisponible !== undefined && a.stockDisponible <= 0;
+    const bAgotado = b.stockDisponible !== undefined && b.stockDisponible <= 0;
+    if (aAgotado === bAgotado) return 0;
+    return aAgotado ? 1 : -1;
+  });
   const drinkCategories = ['Todos', ...Array.from(new Set(drinks.flatMap((drink) => getDrinkTags(drink))))];
   const visibleDrinks = activeCategory === 'Todos'
     ? drinks
@@ -1023,7 +1031,9 @@ export default function BarraTecnologicaTouchPage() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedDrink(drink)}
                       disabled={!isAvailable}
-                      className="group relative flex w-[78vw] max-w-[340px] flex-none snap-start flex-col overflow-hidden rounded-lg border border-white/10 bg-zinc-950 text-left shadow-2xl transition-colors hover:border-red-500/70 disabled:cursor-not-allowed disabled:opacity-55 md:w-[320px] motion-reduce:transition-none"
+                      className={`group relative flex w-[78vw] max-w-[340px] flex-none snap-start flex-col overflow-hidden rounded-lg border border-white/10 bg-zinc-950 text-left shadow-2xl transition-colors hover:border-red-500/70 disabled:cursor-not-allowed md:w-[320px] motion-reduce:transition-none ${
+                        !isAvailable ? 'opacity-50 grayscale border-zinc-800 bg-zinc-900/80' : ''
+                      }`}
                     >
                       <div className="relative aspect-[4/5] w-full overflow-hidden bg-zinc-900">
                         {drink.imageUrl ? (

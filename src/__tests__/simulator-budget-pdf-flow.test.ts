@@ -12,6 +12,10 @@ jest.mock('@/lib/auth/session-token', () => {
   };
 });
 
+jest.mock('@/lib/firebase/server', () => ({
+  dbAdmin: null,
+}));
+
 jest.mock('@/lib/notifications/create-notification', () => ({
   createNotification: jest.fn().mockResolvedValue({ success: true }),
 }));
