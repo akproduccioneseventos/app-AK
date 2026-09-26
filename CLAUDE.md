@@ -889,6 +889,14 @@ operador trabado). Lo que no me pregunté: **¿qué pasa en el SERVIDOR cuando l
 hay otro?** Quedó como punto 4 de la pregunta 27. Y un error mío de ese día: apagué la puerta con
 `pkill -f` y maté mi propia orden (error 20 otra vez); **sólo por número de proceso o nombre exacto**.
 
+### 25. Contestarle al dueño en inglés
+
+**Pasó el 26 de septiembre de 2026**, al cerrar la devolución 89: el informe final salió en inglés.
+El dueño: *"en español siempre"*.
+
+**Qué se hace distinto:** **todo** lo que lee el dueño va en castellano rioplatense, incluidos los
+avisos cortos mientras se trabaja. Antes de mandar, se relee el idioma.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
