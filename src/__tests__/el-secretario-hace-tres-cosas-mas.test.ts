@@ -106,6 +106,23 @@ describe('El secretario hace tres cosas más', () => {
     expect(tareasActualizadas.find((t: any) => t.id === 't3')?.completada).toBe(true);
   });
 
+  it('complete_task sin decir cuál tarea no marca ninguna (no adivina la primera)', async () => {
+    (getFiestaById as jest.Mock).mockResolvedValueOnce({
+      id: 'fiesta_123',
+      tareas: [{ id: 't1', texto: 'Instalar luces LED', completada: false }],
+    });
+    (runMultiAgent as jest.Mock).mockResolvedValueOnce({
+      success: true,
+      response: 'Listo.',
+      agentType: 'fiesta',
+      agentName: 'Operativo',
+      action: { type: 'complete_task', data: { fiestaId: 'fiesta_123' } },
+    });
+    const res = await sendPersistentMultiAgentMessage({ message: 'Ya está', fiestaId: 'fiesta_123', agentType: 'fiesta' });
+    expect(updateTareas).not.toHaveBeenCalled();
+    expect(res.response).toMatch(/No encontré la tarea/);
+  });
+
   it('add_guest llama a addInvitado con los datos del invitado', async () => {
     (runMultiAgent as jest.Mock).mockResolvedValueOnce({
       success: true,

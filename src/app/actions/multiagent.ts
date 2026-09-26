@@ -155,12 +155,8 @@ export async function sendPersistentMultiAgentMessage(input: {
               return t;
             });
 
-            if (!encontrada && tareasActuales.length > 0 && !data.tareaId && !data.texto) {
-              encontrada = true;
-              tareaCompletadaTexto = nuevasTareas[0].texto;
-              nuevasTareas[0] = { ...nuevasTareas[0], completada: true };
-            }
-
+            // Si la IA no dijo cuál tarea, no se adivina: marcar la primera de la lista daría por
+            // hecha una tarea que nadie hizo.
             if (encontrada) {
               const updateRes = await updateTareas(targetFiestaId, nuevasTareas);
               if (updateRes.success) {

@@ -9731,3 +9731,25 @@ prueba: src/__tests__/hoy-es-el-dia-de-uruguay.test.ts
 usa: hoyEnUruguay en src/app/actions/assistant.ts
 ```
 
+
+## 26 de septiembre de 2026 — Orden 88 (Gemini): "hoy" en hora de Uruguay, tres acciones del secretario y la planilla en el celular
+
+**Entró:**
+- "hoy" en hora de Uruguay en el parte de la mañana, la presencia digital, el simulador, el portal
+  y los agentes;
+- el secretario ahora marca tareas hechas, anota invitados y registra incidentes;
+- el cuadro de importar invitados ya se puede confirmar desde el celular, y la prueba corre en los
+  dos tamaños.
+
+**Ajuste de Claude al verificar:** si la inteligencia artificial no decía **cuál** tarea marcar,
+el secretario marcaba la primera de la lista, y daba por hecha una tarea que nadie hizo. Ahora no
+adivina: avisa que no la encontró.
+
+**Por qué cambió `path.join` por `/` en tres rutas de la fiesta:** en Windows `path.join` arma la
+ruta con `\` y la clave del dato no coincidía. Con `/` es igual en los dos sistemas.
+
+```comprobar
+prueba: src/__tests__/el-secretario-hace-tres-cosas-mas.test.ts
+prueba: src/__tests__/hoy-es-uruguay-en-todos-lados.test.ts
+usa: no se adivina en src/app/actions/multiagent.ts
+```
