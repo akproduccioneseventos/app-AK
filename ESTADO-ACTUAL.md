@@ -1,6 +1,7 @@
 # Acá quedé
 
-**26 de septiembre de 2026.** Propuestas 1224 a 1231 fusionadas, con la puerta completa en verde.
+**26 de septiembre de 2026.** Codex contrasto main `63dace0` (PR 1230/1231 fusionadas).
+Claude registro puerta verde; eso no cubre los dos limites reproducidos abajo.
 
 ## Lo último que entró
 
@@ -23,23 +24,17 @@
 - **1226:** la fiesta no viaja entera a quien no es del equipo; el Video de Vida avisa lo que
   falta; `npm run ordenes?` ve los bloques sin comprobar.
 
-## Espera a Gemini
+## Pendiente comprobado por Codex
 
-Nada.
+- Orden 91: la original espera al servidor antes del respaldo; con IA activa por mas de
+  tres minutos, la cola puede subir original y luego resultado. Gemini corrige, Claude valida.
+- Evidencia: `docs/evidencias/1231-contraste-resultados.json` (6 pasan, 2 fallan).
+  Sondas aisladas, no navegador. Los cuatro destinos del aviso final SI pasan.
+- Rama de informe: `codex/contraste-1230-1231`. Sin cambios de app ni PR documental separada.
+  GitHub no tenia PR abiertas al consultar; recontrastar cualquier tanda nueva antes de tocar.
 
-## Pendiente, y es mío
+## Limites
 
-- Nada.
-
-
-## Lo que ningún control cubre
-
-Falta **un ensayo real**: `docs/ENSAYO-EN-EL-SALON.md`.
-
-## Trampas
-
-- **Con la máquina cargada fallan pruebas al azar** (ingreso, estaciones, barra, cápsula del tiempo del buzón) y pasan solas
-  con `npm run otravez`. Antes de tocar código por una falla del navegador, repetirla sola.
-- La puerta se espera en primer plano; el contenedor se reinicia si la sesión queda quieta.
-- Apagar servidores con `pgrep -x next-server | xargs -r kill` (error 20).
-- Antes de escribir una orden por un hallazgo, buscar la ruta en `docs/ordenes/` (error 23).
+- No se repitio build ni E2E completo; no se certifica despliegue ni toda la app.
+- Falta ensayo fisico: `docs/ENSAYO-EN-EL-SALON.md`.
+- Antes de emitir otra orden, leer el registro y contrastar su SHA; no rehacer lo ya corregido.
