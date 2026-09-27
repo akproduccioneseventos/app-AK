@@ -59,6 +59,7 @@ import {
   obtenerAnimacionPorMomento,
   type AnimacionConLocucion,
 } from '@/lib/entretenimiento/animaciones-con-locucion';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -107,6 +108,7 @@ const MODE_COPY = {
 } as const;
 
 export default function EspejoMagicoPage() {
+  usePantallaPrendida();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();

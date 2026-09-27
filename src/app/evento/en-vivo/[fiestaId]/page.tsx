@@ -25,8 +25,10 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { addChatMessage, getChatMessages } from '@/app/actions/social-gallery';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { ChatMessage } from '@/types/social-gallery';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 export default function EventoEnVivoPage() {
+  usePantallaPrendida();
   const params = useParams<{ fiestaId: string }>();
   const fiestaId = params.fiestaId;
   const searchParams = useSearchParams();

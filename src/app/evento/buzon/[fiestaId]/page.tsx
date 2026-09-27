@@ -22,8 +22,10 @@ import { Switch } from '@/components/ui/switch';
 import { drawBuzonVideoFrame } from '@/lib/buzon/video-frame-canvas';
 import { renderUploadedVideoWithFrame } from '@/lib/buzon/video-frame-processor';
 import { normalizeFrameTemplateId } from '@/lib/buzon/video-frame-templates';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 export default function GuestBuzonPage() {
+  usePantallaPrendida();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();

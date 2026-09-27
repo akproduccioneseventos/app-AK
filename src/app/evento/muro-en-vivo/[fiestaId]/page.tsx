@@ -22,6 +22,7 @@ import { Facebook, Instagram, MessageCircle, Music2, Maximize, Camera, QrCode } 
 import { ReconnectingIndicator } from '@/components/entretenimiento/ReconnectingIndicator';
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
@@ -88,6 +89,7 @@ const FONDOS_MURO: Record<string, { id: string; nombre: string; estilo: string; 
 };
 
 export default function MuroEnVivoPage() {
+  usePantallaPrendida();
   const params = useParams();
   const fiestaId = params.fiestaId as string;
 

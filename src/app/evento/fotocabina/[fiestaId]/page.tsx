@@ -73,6 +73,7 @@ import {
   cargarSegmentadorSinTela,
   type OpcionFondo,
 } from '@/lib/entretenimiento/segmentacion-fondo';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 const FRAMES = [
   { id: 'none', label: 'Sin Marco', bg: 'transparent' },
@@ -86,6 +87,7 @@ const FRAMES = [
 const STICKERS = ['★', '♡', '✦', '✧', 'AK', '15', 'VIP', 'Love', 'Party', 'Smile', 'Wow', 'Gold'];
 
 export default function FotocabinaPage() {
+  usePantallaPrendida();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -663,7 +665,12 @@ export default function FotocabinaPage() {
       // estado, la pantalla queda en negro entre foto y foto.
       setLocalStatus('countdown');
       setCountdown(null);
-      setTimeout(() => { void correrCuentaRegresiva(siguiente); }, 1800);
+      // Si en esos 1,8 segundos el invitado tocó "volver" o empezó otra tanda, este aviso ya no es
+      // suyo: sin la comparación arrancaba una cuenta regresiva fantasma sobre la tanda nueva.
+      const tandaDeEstaFoto = currentPhotoSessionIdRef.current;
+      setTimeout(() => {
+        if (currentPhotoSessionIdRef.current === tandaDeEstaFoto) void correrCuentaRegresiva(siguiente);
+      }, 1800);
       return;
     }
 
