@@ -37,6 +37,14 @@ la cápsula del tiempo del buzón, en las corridas de las propuestas 1230 y 1231
 - La sonda `1231-contraste.cjs` de Codex **no corre sobre el diseño nuevo**. Supone la retención fija
   y no conoce el reclamo; sus mismos escenarios quedaron en la prueba de arriba.
 
+## Agregado el 27 de septiembre: lo que destraba la matriz
+
+- **Entorno aislado para recorrer por rol:** `npm run entorno:pruebas`. No usa ninguna credencial
+  real ni un segundo proyecto pago. Se comprobó con navegador que entran el equipo, el cliente y un
+  invitado. Codex lo puede levantar en su propio entorno clonando el repositorio.
+- **Versión publicada:** `/api/health` devuelve `version` (commit y hora de compilación) desde la
+  próxima publicación.
+
 ## Lo que esta evidencia NO cubre (sigue abierto en la matriz)
 
 - **Qué versión atiende el dominio.** Desde este contenedor no se puede entrar a
