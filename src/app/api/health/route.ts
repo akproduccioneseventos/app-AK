@@ -31,6 +31,8 @@ export async function GET() {
   return NextResponse.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
+    // Qué código atiende: el commit y cuándo se compiló (orden 92). Queda grabado en la compilación.
+    version: process.env.NEXT_PUBLIC_AK_VERSION || 'desconocida',
     services: {
       firebase: firebaseOk,
       gemini: geminiOk,

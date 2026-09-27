@@ -18,6 +18,7 @@
     "quality:all": "npm run quality:full && npm run quality:security && npm run test:e2e:production",
     "test:e2e": "node scripts/run-playwright-production.mjs",
     "test:e2e:lento": "playwright test",
+    "entorno:pruebas": "node scripts/entorno-de-pruebas.mjs",
     "test:e2e:production": "npm run build && node scripts/run-playwright-production.mjs",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",

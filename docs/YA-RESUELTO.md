@@ -9902,3 +9902,28 @@ usa: retenerOriginal en src/app/evento/touchpix/[fiestaId]/page.tsx
 usa: reclamarOfflineMediaParaSubir en src/lib/offline/offline-sync-manager.ts
 prueba: src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
 ```
+
+## 27 de septiembre de 2026 — Orden 92: entorno de pruebas aislado y versión publicada a la vista
+
+**Qué faltaba (matriz de Codex):** no había dónde recorrer lo interno por rol sin tocar fiestas ni
+cobros reales, y no había forma de saber qué código atiende el dominio.
+
+**Cómo quedó:**
+- **`npm run entorno:pruebas`** compila y levanta la app con la "fiesta de esta noche" de las pruebas
+  (80 invitados, todos los módulos) en archivos locales, y **sin ninguna credencial real**. El
+  servidor arranca con un ambiente armado desde cero (`ambienteAislado`): sólo pasan las variables
+  de la lista de permitidas, así que una credencial que se agregue mañana tampoco se cuela. Imprime
+  cómo entrar con cada rol: el equipo con una clave de prueba, el cliente con la clave del portal,
+  tres invitados con su enlace, y las estaciones con su permiso. Al cerrarse, borra la fiesta
+  sembrada. **No se paga nada por mes:** no es un segundo proyecto de Firebase.
+- **Se comprobó con un navegador el 27/09**: el equipo entra y ve la fiesta, el cliente ve su portal
+  y la invitada ve su página con su nombre.
+- **`/api/health` muestra `version`**: el commit y la hora de compilación, grabados por
+  `scripts/build-next-with-memory.mjs`. Si la compilación no tiene el commit, dice "desconocida".
+
+```comprobar
+usa: ambienteAislado en scripts/entorno-de-pruebas.mjs
+usa: NEXT_PUBLIC_AK_VERSION en src/app/api/health/route.ts
+prueba: src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts
+prueba: src/__tests__/la-salud-dice-que-version-atiende.test.ts
+```

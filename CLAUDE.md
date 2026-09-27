@@ -1374,6 +1374,8 @@ con otra cara.
 | La cabina con IA decía "en la galería" aunque la foto no se subiera, y perdía la original al recargar | `src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts` |
 | La respuesta tardía de la IA cerraba la captura del siguiente, y el operador quedaba trabado | `src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts` |
 | La cabina con IA perdía la foto con el servidor lento, y publicaba dos con la IA lenta | `src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts` |
+| Sin entorno aislado, probar lo interno por rol podía tocar fiestas y cobros reales | `src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts` |
+| Nadie podía saber qué versión atendía el dominio | `src/__tests__/la-salud-dice-que-version-atiende.test.ts` |
 
 ### Cómo se elige el matafuego
 

@@ -12,13 +12,14 @@ de navegador en verde sobre el mismo commit. Evidencia: `docs/evidencias/92-puer
 - **1231, orden 90 (Gemini):** las estaciones dicen dónde quedó la foto de verdad.
 - **1230, devolución 89:** la cabina con IA dice dónde quedó la foto y no pisa al siguiente.
 
+## Listo para Codex
+
+- **`npm run entorno:pruebas`**: la app con datos de prueba y sin credenciales reales, con enlaces
+  para equipo, cliente, invitados y estaciones. Probado con navegador.
+- **`/api/health` → `version`**: qué commit atiende el dominio, desde la próxima publicación.
+
 ## Espera al dueño (no lo puede cerrar una IA)
 
-- **Entorno de pruebas aislado** con cuentas por rol (organizador, cliente, invitado) para que Codex
-  recorra lo interno sin tocar fiestas ni cobros reales. Un segundo proyecto de Firebase puede
-  costar: se pregunta antes.
-- **Qué versión está publicada**: se mira en la consola de Firebase. Desde el contenedor no se llega
-  al dominio.
 - **Integraciones reales** (Instagram, WhatsApp, Gmail, Mercado Pago): una prueba controlada cada una.
 - **Ensayo físico**: `docs/ENSAYO-EN-EL-SALON.md`. El resultado va en
   `docs/evidencias/ensayo-en-el-salon-resultado.md` (la orden 92 queda en FALTA hasta entonces).

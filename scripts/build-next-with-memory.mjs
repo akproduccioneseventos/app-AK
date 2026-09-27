@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { spawn, execSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -32,6 +32,25 @@ if (heapYaPuesto && heapFinal > Number(heapYaPuesto[1])) {
   );
 }
 
+/**
+ * QUÉ VERSIÓN ESTÁ PUBLICADA (orden 92, Codex). Que la portada conteste no dice qué código atiende.
+ * La versión queda grabada adentro de la compilación y la muestra `/api/health` (`version`). Se toma
+ * del ambiente de la compilación si lo trae, y si no, de git. Si no hay ninguna de las dos, dice
+ * "desconocida": no se inventa.
+ */
+function versionDelCodigo() {
+  const delAmbiente = process.env.COMMIT_SHA || process.env.SOURCE_VERSION || process.env.GIT_COMMIT
+    || process.env.GITHUB_SHA || process.env.REVISION_ID;
+  if (delAmbiente) return delAmbiente.trim();
+  try {
+    return execSync('git rev-parse HEAD', { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+  } catch {
+    return 'desconocida';
+  }
+}
+const version = `${versionDelCodigo()} · compilada ${new Date().toISOString()}`;
+console.log(`[build-next-with-memory] Versión grabada en la compilación: ${version}`);
+
 const child = spawn(process.execPath, [nextBin, 'build'], {
   stdio: 'inherit',
   env: {
@@ -39,6 +58,7 @@ const child = spawn(process.execPath, [nextBin, 'build'], {
     NEXT_TELEMETRY_DISABLED: process.env.NEXT_TELEMETRY_DISABLED || '1',
     AK_DISABLE_STANDALONE: process.env.AK_DISABLE_STANDALONE || (process.platform === 'win32' ? 'true' : 'false'),
     NODE_OPTIONS: nodeOptions,
+    NEXT_PUBLIC_AK_VERSION: version,
   },
 });
 
