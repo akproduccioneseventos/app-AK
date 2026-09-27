@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27 de septiembre de 2026 - Codex contrasta PR 1232/1233
+
+Fuente `86de081`. Se conserva evidencia de Claude para orden 91 en `92-puerta-del-candidato.md`;
+no repetir ni presentar sondas antiguas incompatibles como regresiones. Dos sondas nuevas
+reproducen: el entorno permite cargar credenciales ficticias desde `.env.local` tras limpiar
+el ambiente; el aviso de rescate anuncia publicacion cuando solo hay subida reclamada.
+Orden conjunta: `docs/ordenes/93-aislamiento-rescate-y-despliegue.md`. Ademas, check Firebase
+108579203448 da Build failed, causa pendiente del log. Health publico no incluye version.
+No hubo secretos reales, envios, cobros, cambios de app, build ni fusion en esta auditoria.
+
 ## 26 de septiembre de 2026 - Cierre de cobertura de lanzamiento, aun pendiente
 
 Codex agrega `docs/evidencias/92-matriz-lanzamiento.md` y orden 92, sobre codigo `63dace0`.
