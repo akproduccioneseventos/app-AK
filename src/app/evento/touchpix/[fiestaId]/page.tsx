@@ -817,7 +817,7 @@ export default function TouchpixPage() {
 
     procesandoRef.current.delete(trabajo.id);
     setTrabajosIA(prev =>
-      prev.map(t => (t.id === trabajo.id ? { ...t, estado: destino === 'subida' || destino === 'en-el-equipo' || destino === 'publicada-la-original' ? 'completado' : 'error', fueIA, destino } : t))
+      prev.map(t => (t.id === trabajo.id ? { ...t, estado: destino === 'subida' || destino === 'en-el-equipo' || destino.startsWith('original-') ? 'completado' : 'error', fueIA, destino } : t))
     );
     setAvisoFinalizado({ id: trabajo.id, fueIA, destino });
   }, [

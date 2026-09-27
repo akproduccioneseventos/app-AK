@@ -87,11 +87,50 @@ async function decidirYGuardar(
 }
 
 /**
- * El trabajo de la IA sigue vivo: renueva la retención de su original. Devuelve `false` si la
- * original ya no se puede retener (la cola la rescató porque la pantalla dejó de renovarla).
+ * Dónde está la original de un trabajo de IA (orden 93, Codex). Antes era sí/no, y el "no" se
+ * anunciaba como "ya se mandó a la galería" aunque la cola recién hubiera EMPEZADO a subirla.
+ * - `retenida`: la sigue teniendo el trabajo.
+ * - `subiendo`: la cola la reclamó y la está subiendo; todavía no hay respuesta.
+ * - `publicada` / `rechazada`: la cola terminó y anotó el resultado (`anotarRescate`).
+ * - `sin-rastro`: no está y no hay anotación (por ejemplo, se borraron los datos del navegador).
  */
-export function renovarRetencionOfflineMedia(id: string, hastaIso: string): Promise<boolean> {
-  return decidirYGuardar(id, (item) => (sePuedeRetener(item) ? { ...item!, retenidaHasta: hastaIso } : null));
+export type EstadoDeLaOriginal = 'retenida' | 'subiendo' | 'publicada' | 'rechazada' | 'sin-rastro';
+
+const CLAVE_DEL_RESCATE = (id: string) => `ak-rescate:${id}`;
+
+/** La cola anota cómo terminó el rescate ANTES de sacarlo de la lista, así nunca queda un hueco. */
+export function anotarRescate(id: string, resultado: 'publicada' | 'rechazada') {
+  try { window.localStorage.setItem(CLAVE_DEL_RESCATE(id), resultado); } catch {}
+}
+
+export function leerRescate(id: string): 'publicada' | 'rechazada' | null {
+  try {
+    const v = window.localStorage.getItem(CLAVE_DEL_RESCATE(id));
+    return v === 'publicada' || v === 'rechazada' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * El trabajo de la IA sigue vivo: renueva la retención de su original y dice dónde está. Sólo
+ * `retenida` le permite al trabajo subir su resultado.
+ */
+export async function renovarRetencionOfflineMedia(id: string, hastaIso: string): Promise<EstadoDeLaOriginal> {
+  let estado: EstadoDeLaOriginal = 'retenida';
+  await decidirYGuardar(id, (item) => {
+    if (!item) {
+      estado = leerRescate(id) ?? 'sin-rastro';
+      return null;
+    }
+    if (!sePuedeRetener(item)) {
+      estado = 'subiendo';
+      return null;
+    }
+    estado = 'retenida';
+    return { ...item, retenidaHasta: hastaIso };
+  });
+  return estado;
 }
 
 /** La cola reclama un elemento retenido antes de subirlo. `false`: no le toca subirlo ahora. */

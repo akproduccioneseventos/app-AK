@@ -95,9 +95,10 @@ jest.mock('@/lib/offline/offline-db', () => {
     },
     renovarRetencionOfflineMedia: async (id: string, hasta: string) => {
       const x = copia(base.get(id));
-      if (!real.sePuedeRetener(x)) return false;
-      base.set(id, { ...x!, retenidaHasta: hasta });
-      return true;
+      if (!x) return real.leerRescate(id) ?? 'sin-rastro';
+      if (!real.sePuedeRetener(x)) return 'subiendo';
+      base.set(id, { ...x, retenidaHasta: hasta });
+      return 'retenida';
     },
     reclamarOfflineMediaParaSubir: async (id: string) => {
       const x = copia(base.get(id));
@@ -107,8 +108,18 @@ jest.mock('@/lib/offline/offline-db', () => {
     },
   };
 });
+// La respuesta del servidor a la subida de la original se puede RETENER (orden 93): así se prueba
+// qué dice la pantalla mientras la subida está en camino, y después con éxito, falla o rechazo.
+let respuestaDeSubida: () => Promise<{ success: boolean; error?: string }> = async () => ({ success: true });
+const publicados: string[] = [];
 jest.mock('@/app/actions/touchpix-ai', () => ({
-  uploadTouchpixPhoto: async (f: FormData) => { enviados.push((f.get('file') as File).name); return { success: true }; },
+  uploadTouchpixPhoto: async (f: FormData) => {
+    const nombre = (f.get('file') as File).name;
+    enviados.push(nombre);
+    const r = await respuestaDeSubida();
+    if (r.success) publicados.push(nombre);
+    return r;
+  },
 }));
 jest.mock('@/app/actions/fiesta/entretenimiento.actions', () => ({}));
 jest.mock('@/app/actions/buzon', () => ({}));
@@ -130,6 +141,9 @@ describe('P2: una sola foto por captura, aunque la IA tarde', () => {
     ahora = Date.parse('2026-09-26T22:00:00Z');
     jest.spyOn(Date, 'now').mockImplementation(() => ahora);
     enviados.length = 0;
+    publicados.length = 0;
+    respuestaDeSubida = async () => ({ success: true });
+    window.localStorage.clear();
     base = new Map([['orig', {
       id: 'orig', fiestaId: 'f1', moduleId: 'touchpix', fileBlob: new Blob(['o']), fileName: 'original.jpg',
       mimeType: 'image/jpeg', authorName: 'Cabina', createdAt: new Date(ahora).toISOString(), attempts: 0,
@@ -138,12 +152,24 @@ describe('P2: una sola foto por captura, aunque la IA tarde', () => {
   });
   afterEach(() => jest.restoreAllMocks());
 
-  const fin = () => terminar.terminarTrabajoIA({
-    subir: async () => { enviados.push('resultado-ia.jpg'); return { success: true }; },
+  const fin = (dormir: (ms: number) => Promise<void> = async () => {}, esperaMaximaMs = 0) => terminar.terminarTrabajoIA({
+    subir: async () => { enviados.push('resultado-ia.jpg'); publicados.push('resultado-ia.jpg'); return { success: true }; },
     guardarEnEquipo: async () => undefined,
     soltarOriginal: async () => { base.delete('orig'); },
     retenerOriginal: () => db.renovarRetencionOfflineMedia('orig', new Date(ahora + RETENCION).toISOString()),
+    dormir,
+    esperaMaximaMs,
   });
+
+  /** Rescate con la respuesta del servidor retenida: devuelve cómo soltarla y la vuelta de la cola. */
+  const rescateRetenido = () => {
+    let soltar!: (r: { success: boolean; error?: string }) => void;
+    const pendiente = new Promise<{ success: boolean; error?: string }>((r) => { soltar = r; });
+    respuestaDeSubida = () => pendiente;
+    ahora += RETENCION + 1;
+    const vuelta = cola.processOfflineMediaQueue({ fiestaId: 'f1' });
+    return { soltar, vuelta };
+  };
 
   it('la IA tarda diez minutos con la pantalla viva: la cola no sube la original y sale sólo el resultado', async () => {
     for (let minuto = 1; minuto <= 10; minuto++) {
@@ -162,16 +188,44 @@ describe('P2: una sola foto por captura, aunque la IA tarde', () => {
     await cola.processOfflineMediaQueue({ fiestaId: 'f1' });
     expect(enviados).toEqual(['original.jpg']);
     const r = await fin();
-    expect(r.destino).toBe('publicada-la-original');
-    expect(enviados).toEqual(['original.jpg']);
+    expect(r.destino).toBe('original-publicada');
+    expect(publicados).toEqual(['original.jpg']);
   });
 
-  it('la cola la reclamó y está subiendo cuando termina la IA: el trabajo no sube el resultado', async () => {
-    ahora += RETENCION + 1;
-    await db.reclamarOfflineMediaParaSubir('orig');
+  it('orden 93: la original todavía está subiendo cuando termina la IA: NO dice "publicada", dice "se está subiendo"', async () => {
+    const { soltar, vuelta } = rescateRetenido();
+    await new Promise((r) => setTimeout(r, 0));
     const r = await fin();
-    expect(r.destino).toBe('publicada-la-original');
-    expect(enviados).toEqual([]);
+    expect(r.destino).toBe('original-subiendo');
+    expect(terminar.avisoDelDestino(r.destino, true)).not.toMatch(/ya está en la galería|ya se mandó/);
+    expect(publicados).toEqual([]);
+    soltar({ success: true });
+    await vuelta;
+  });
+
+  it('orden 93: la subida de la original tarda y sale bien: recién ahí dice "publicada", y el resultado no se sube', async () => {
+    const { soltar, vuelta } = rescateRetenido();
+    await new Promise((r) => setTimeout(r, 0));
+    const r = await fin(async () => { soltar({ success: true }); await vuelta; }, 10_000);
+    expect(r.destino).toBe('original-publicada');
+    expect(publicados).toEqual(['original.jpg']);
+  });
+
+  it('orden 93: la subida de la original falla por señal: la original vuelve al trabajo y sale sólo el resultado', async () => {
+    const { soltar, vuelta } = rescateRetenido();
+    await new Promise((r) => setTimeout(r, 0));
+    const r = await fin(async () => { soltar({ success: false, error: 'Failed to fetch' }); await vuelta; }, 10_000);
+    expect(r.destino).toBe('subida');
+    expect(publicados).toEqual(['resultado-ia.jpg']);
+    expect(base.has('orig')).toBe(false);
+  });
+
+  it('orden 93: la original fue rechazada: no dice "publicada" ni sube el resultado', async () => {
+    const { soltar, vuelta } = rescateRetenido();
+    await new Promise((r) => setTimeout(r, 0));
+    const r = await fin(async () => { soltar({ success: false, error: 'Contenido inapropiado' }); await vuelta; }, 10_000);
+    expect(r.destino).toBe('rechazada');
+    expect(publicados).toEqual([]);
   });
 
   it('otra pestaña está subiendo la original: esta vuelta de la cola no la manda de nuevo', async () => {
@@ -210,6 +264,8 @@ describe('P2: una sola foto por captura, aunque la IA tarde', () => {
   });
 
   it('el aviso al invitado dice que se publicó la original', () => {
-    expect(terminar.avisoDelDestino('publicada-la-original', true)).toMatch(/original/);
+    expect(terminar.avisoDelDestino('original-publicada', true)).toMatch(/ya está en la galería/);
+    expect(terminar.avisoDelDestino('original-subiendo', true)).toMatch(/se está subiendo/);
+    expect(terminar.avisoDelDestino('original-sin-confirmar', true)).toMatch(/avisale al equipo/);
   });
 });

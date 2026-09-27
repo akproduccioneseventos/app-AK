@@ -4,6 +4,7 @@ import {
   getPendingOfflineMedia,
   removeOfflineMedia,
   reclamarOfflineMediaParaSubir,
+  anotarRescate,
   updateOfflineMediaAttempt,
   type OfflineMediaItem,
 } from './offline-db';
@@ -167,6 +168,8 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
         if (!success) {
           throw new Error('El servidor no confirmo la recepcion');
         }
+        // Una original rescatada deja anotado que llegó, antes de salir de la lista (orden 93).
+        if (item.retenidaHasta) anotarRescate(item.id, 'publicada');
         await removeOfflineMedia(item.id);
         processed++;
       } catch (err: any) {
@@ -175,10 +178,12 @@ async function procesarColaSinTraba(scope: OfflineSyncScope = {}): Promise<{
         const decision = classifyOfflineUploadError(msg);
         if (decision === 'duplicate') {
           console.log(`[OfflineSync] Captura ${item.id} ya existía en el servidor. Quitando de la cola.`);
+          if (item.retenidaHasta) anotarRescate(item.id, 'publicada');
           await removeOfflineMedia(item.id);
           processed++;
         } else if (decision === 'permanent') {
           console.warn(`[OfflineSync] Descartando captura ${item.id} por error definitivo del servidor:`, msg);
+          if (item.retenidaHasta) anotarRescate(item.id, 'rechazada');
           await removeOfflineMedia(item.id);
         } else {
           // NO se borra por cantidad de intentos.
