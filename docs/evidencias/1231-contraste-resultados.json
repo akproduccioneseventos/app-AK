@@ -1,0 +1,60 @@
+{
+  "sourceSha": "63dace0c83f990b8610833a56fb825624837ad6f",
+  "scope": "Isolated source probes; mocked transport, clock and storage. Not browser, hardware, provider or deployment validation.",
+  "results": [
+    {
+      "name": "Destination: accepted",
+      "passed": true,
+      "observed": "subida"
+    },
+    {
+      "name": "Destination: network failure",
+      "passed": true,
+      "observed": "en-el-equipo"
+    },
+    {
+      "name": "Destination: rejected",
+      "passed": true,
+      "observed": "rechazada"
+    },
+    {
+      "name": "Destination: storage full",
+      "passed": true,
+      "observed": "no-guardada"
+    },
+    {
+      "name": "Original saved while session request is pending",
+      "passed": false,
+      "observed": {
+        "writes": 0,
+        "queuedJobs": 0
+      }
+    },
+    {
+      "name": "Original saved after session response",
+      "passed": true,
+      "observed": {
+        "writes": 1,
+        "queuedJobs": 1
+      }
+    },
+    {
+      "name": "Original retained before expiry",
+      "passed": true,
+      "observed": {
+        "sent": []
+      }
+    },
+    {
+      "name": "Only final photo published while AI work remains active past retention",
+      "passed": false,
+      "observed": {
+        "retentionMs": 180000,
+        "sent": [
+          "original.jpg",
+          "ai-result.jpg"
+        ]
+      }
+    }
+  ]
+}

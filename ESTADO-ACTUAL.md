@@ -1,48 +1,36 @@
 # Acá quedé
 
-**26 de septiembre de 2026.** Propuestas 1224 a 1231 fusionadas, con la puerta completa en verde.
+**27 de septiembre de 2026.** Orden 91 hecha por Claude, con la puerta completa y la tanda entera
+de navegador en verde sobre el mismo commit. Evidencia: `docs/evidencias/92-puerta-del-candidato.md`.
 
 ## Lo último que entró
 
 - **Orden 91 (Codex), hecha por Claude:** la cabina con IA guarda la foto sin esperar al servidor,
   y publica una sola foto por captura aunque la IA tarde (retención renovada + reclamo de la cola).
+- **Orden 92 y matriz de lanzamiento de Codex** (`docs/evidencias/92-matriz-lanzamiento.md`):
+  **publicar NO está aprobado todavía**. Sigue abierto lo que se lista abajo.
+- **1231, orden 90 (Gemini):** las estaciones dicen dónde quedó la foto de verdad.
+- **1230, devolución 89:** la cabina con IA dice dónde quedó la foto y no pisa al siguiente.
 
-- **1231, orden 90 (Gemini):** fotocabina, 360, Bogue, espejo mágico, buzón y Video de Vida dicen
-  dónde quedó la foto de verdad. Claude arregló al verificar que la 360 podía quedar trabada en
-  "procesando".
+## Espera al dueño (no lo puede cerrar una IA)
 
-- **1230, devolución 89 (Codex), los seis hallazgos:** la cabina con IA dice dónde quedó la foto de verdad, guarda la
-  original al capturar y cada captura tiene su propio tope de intentos. La respuesta tardía de la
-  IA ya no cierra la captura del siguiente, y el operador queda libre al guardar la foto.
-
-- **1228, orden 89 recortada:**
-  - la IA de la fotocabina ya no frena la fila;
-  - la barra muestra "Agotado";
-  - Claude agregó que la foto con IA que no se pudo subir vaya a la cola del equipo.
-- **1227, orden 88:**
-  - "hoy" en hora de Uruguay;
-  - tres acciones del secretario;
-  - importar invitados desde el celular.
-- **1226:** la fiesta no viaja entera a quien no es del equipo; el Video de Vida avisa lo que
-  falta; `npm run ordenes?` ve los bloques sin comprobar.
+- **Entorno de pruebas aislado** con cuentas por rol (organizador, cliente, invitado) para que Codex
+  recorra lo interno sin tocar fiestas ni cobros reales. Un segundo proyecto de Firebase puede
+  costar: se pregunta antes.
+- **Qué versión está publicada**: se mira en la consola de Firebase. Desde el contenedor no se llega
+  al dominio.
+- **Integraciones reales** (Instagram, WhatsApp, Gmail, Mercado Pago): una prueba controlada cada una.
+- **Ensayo físico**: `docs/ENSAYO-EN-EL-SALON.md`. El resultado va en
+  `docs/evidencias/ensayo-en-el-salon-resultado.md` (la orden 92 queda en FALTA hasta entonces).
 
 ## Espera a Gemini
 
 Nada.
 
-## Pendiente, y es mío
-
-- Nada.
-
-
-## Lo que ningún control cubre
-
-Falta **un ensayo real**: `docs/ENSAYO-EN-EL-SALON.md`.
-
 ## Trampas
 
-- **Con la máquina cargada fallan pruebas al azar** (ingreso, estaciones, barra, cápsula del tiempo del buzón) y pasan solas
-  con `npm run otravez`. Antes de tocar código por una falla del navegador, repetirla sola.
+- **Con la máquina cargada fallan pruebas al azar** (ingreso, estaciones, barra, cápsula del tiempo
+  del buzón) y pasan solas con `npm run otravez`. Antes de tocar código, repetirla sola.
 - La puerta se espera en primer plano; el contenedor se reinicia si la sesión queda quieta.
-- Apagar servidores con `pgrep -x next-server | xargs -r kill` (error 20).
-- Antes de escribir una orden por un hallazgo, buscar la ruta en `docs/ordenes/` (error 23).
+- Apagar procesos por número o nombre exacto, nunca `pkill -f` (error 20, pasó otra vez el 26/09).
+- Antes de agregar una espera (`await`), mirar qué queda sin hacer mientras espera (error 26).
