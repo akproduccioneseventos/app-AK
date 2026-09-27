@@ -3,20 +3,22 @@
 **27 de septiembre de 2026.** Orden 91 hecha por Claude, con la puerta completa y la tanda entera
 de navegador en verde sobre el mismo commit. Evidencia: `docs/evidencias/92-puerta-del-candidato.md`.
 
-## Lo último que entró
+**Contraste Codex sobre main `86de081`: orden 93 abierta. No aprobar publicacion.**
 
-- **Orden 91 (Codex), hecha por Claude:** la cabina con IA guarda la foto sin esperar al servidor,
-  y publica una sola foto por captura aunque la IA tarde (retención renovada + reclamo de la cola).
-- **Orden 92 y matriz de lanzamiento de Codex** (`docs/evidencias/92-matriz-lanzamiento.md`):
-  **publicar NO está aprobado todavía**. Sigue abierto lo que se lista abajo.
-- **1231, orden 90 (Gemini):** las estaciones dicen dónde quedó la foto de verdad.
-- **1230, devolución 89:** la cabina con IA dice dónde quedó la foto y no pisa al siguiente.
+## Lo incorporado
 
-## Listo para Codex
+- Orden 91: captura sin espera y coordinacion entre cola e IA. No rehacer esos arreglos.
+- `npm run entorno:pruebas`: implementado; aislamiento incompleto, ver orden 93.
+- `/api/health` con version: implementado, aun no observado en el dominio.
+- Matriz de lanzamiento: `docs/evidencias/92-matriz-lanzamiento.md`.
 
-- **`npm run entorno:pruebas`**: la app con datos de prueba y sin credenciales reales, con enlaces
-  para equipo, cliente, invitados y estaciones. Probado con navegador.
-- **`/api/health` → `version`**: qué commit atiende el dominio, desde la próxima publicación.
+## Pendiente comprobado por Codex
+
+- Entorno: `.env.local` puede reintroducir credenciales; corregir antes de pruebas por rol.
+- Cabina IA: "publicada la original" puede anunciarse con la subida aun en curso.
+- Firebase check 108579203448: Build failed. Falta log; consola pide sesion.
+- Health publico sin version al consultar. No certificado como candidato desplegado.
+- Evidencia e instrucciones: `docs/ordenes/93-aislamiento-rescate-y-despliegue.md`.
 
 ## Espera al dueño (no lo puede cerrar una IA)
 
@@ -24,9 +26,9 @@ de navegador en verde sobre el mismo commit. Evidencia: `docs/evidencias/92-puer
 - **Ensayo físico**: `docs/ENSAYO-EN-EL-SALON.md`. El resultado va en
   `docs/evidencias/ensayo-en-el-salon-resultado.md` (la orden 92 queda en FALTA hasta entonces).
 
-## Espera a Gemini
+## Reparto
 
-Nada.
+- Claude: aislamiento y causa del build. Gemini: aviso de rescate. Codex: contraste.
 
 ## Trampas
 

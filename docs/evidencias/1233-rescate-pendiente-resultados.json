@@ -1,0 +1,12 @@
+{
+  "sourceSha": "86de081022bf6ec596d86420e89892f73d51ed01",
+  "scope": "Actual sePuedeRetener and terminarTrabajoIA with a synthetic claimed record; upload of original has not completed. Not IndexedDB/browser E2E.",
+  "observed": {
+    "destino": "publicada-la-original",
+    "message": "La IA tardó demasiado: tu foto original ya se mandó a la galería de la fiesta.",
+    "resultUploads": 0,
+    "confirmedOriginalUploads": 0
+  },
+  "passed": false,
+  "expectation": "Claimed/in-flight is not confirmed publication; UI must distinguish them."
+}

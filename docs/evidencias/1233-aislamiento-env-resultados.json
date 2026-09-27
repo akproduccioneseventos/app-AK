@@ -1,0 +1,20 @@
+{
+  "sourceSha": "86de081022bf6ec596d86420e89892f73d51ed01",
+  "nextEnvVersion": "15.5.23",
+  "scope": "Actual environment bootstrap + actual Next env loader; synthetic .env.local. No real secrets, server, build or provider request.",
+  "observed": {
+    "before": {
+      "instagram": false,
+      "smtp": false,
+      "newProvider": false
+    },
+    "after": {
+      "instagram": true,
+      "smtp": true,
+      "newProvider": true
+    },
+    "localJson": "true"
+  },
+  "passed": false,
+  "expectation": "An isolated launch must not load provider credentials from local env files."
+}
