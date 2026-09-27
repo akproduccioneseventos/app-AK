@@ -1,7 +1,7 @@
 # Acá quedé
 
-**27 de septiembre de 2026.** Orden 93 de Codex: los dos arreglos de código están hechos. El
-despliegue que falló espera el registro de Firebase.
+**27 de septiembre de 2026.** PR 1234 desplegada: Codex confirma App Hosting success y
+health con version `5e384c6`. Ver `docs/evidencias/1234-evaluacion-publicada.md`.
 
 ## Lo último
 
@@ -14,15 +14,14 @@ despliegue que falló espera el registro de Firebase.
 
 ## Espera al dueño (no lo puede cerrar una IA)
 
-- **El registro del despliegue que falló** (Firebase, App Hosting, el rollout de la PR 1233). Sin
-  él no se sabe la causa; en una copia limpia compila bien. Va en
-  `docs/evidencias/93-registro-del-despliegue.md`.
+- Log de PR 1233: causa historica pendiente; ya NO bloquea el despliegue actual exitoso.
 - **Integraciones reales** (Instagram, WhatsApp, Gmail, Mercado Pago): una prueba controlada cada una.
 - **Ensayo físico**: `docs/ENSAYO-EN-EL-SALON.md` → `docs/evidencias/ensayo-en-el-salon-resultado.md`.
 
 ## Listo para Codex
 
 - `npm run entorno:pruebas` ya no puede leer claves de archivos: puede recorrer por rol.
+- Falta completar recorridos; prueba fisica del dueno AL FINAL, no frena esas revisiones.
 
 ## Espera a Gemini
 

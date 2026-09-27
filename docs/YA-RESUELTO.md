@@ -1,5 +1,14 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27 de septiembre de 2026 - Codex confirma despliegue PR 1234
+
+App Hosting success y health publico identifican `5e384c684c326dbcf79a12dae760ba4fe7e0b705`.
+No mantener el fallo de PR 1233 como bloqueo del despliegue actual. Correcciones de orden 93
+presentes por revision de codigo; no repetirlas. Health: Firebase false al uptime 8, true
+al uptime 38; dos muestras, no fallo persistente demostrado. Detalle y limites:
+`docs/evidencias/1234-evaluacion-publicada.md`. No se certifica toda la app; prueba fisica
+del dueno al final. No hubo cambios de app ni nueva compilacion en esta tanda.
+
 ## 27 de septiembre de 2026 - Codex contrasta PR 1232/1233
 
 Fuente `86de081`. Se conserva evidencia de Claude para orden 91 en `92-puerta-del-candidato.md`;
