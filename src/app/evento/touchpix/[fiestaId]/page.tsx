@@ -120,8 +120,10 @@ async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
 }
 
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 export default function TouchpixPage() {
+  usePantallaPrendida();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();

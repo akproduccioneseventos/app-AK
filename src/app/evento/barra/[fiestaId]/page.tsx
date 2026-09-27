@@ -42,6 +42,7 @@ import {
 import { getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 import { enqueueOfflineAction, flushOfflineQueue } from '@/lib/offline/offline-action-queue';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 type ScreenState = 'HOME' | 'MENU' | 'PHOTO' | 'VIDEO';
 
@@ -63,6 +64,7 @@ interface FrameTemplate {
 const DURACION_VIDEO_SEGUNDOS = 8;
 
 export default function BarraTecnologicaTouchPage() {
+  usePantallaPrendida();
   const params = useParams();
   const fiestaId = params.fiestaId as string;
   const { toast } = useToast();

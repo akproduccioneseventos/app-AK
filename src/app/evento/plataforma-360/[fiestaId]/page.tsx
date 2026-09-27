@@ -52,6 +52,7 @@ const DURATION_OPTIONS = [
 
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
 import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 /**
  * Aplica cortina de fundido desde negro al inicio y hacia negro al final
@@ -77,6 +78,7 @@ function aplicarCortinaVideo(
 }
 
 export default function Plataforma360Page() {
+  usePantallaPrendida();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();

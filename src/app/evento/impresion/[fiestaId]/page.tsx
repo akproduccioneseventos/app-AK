@@ -24,6 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 const REFRESH_INTERVAL_MS = 3000;
 
@@ -32,6 +33,7 @@ function isVideoPost(post: SocialGalleryPost) {
 }
 
 export default function PrintStationPage() {
+  usePantallaPrendida();
   const params = useParams();
   const router = useRouter();
   const fiestaId = params.fiestaId as string;

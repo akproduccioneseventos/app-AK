@@ -14,6 +14,7 @@ import type { SocialGalleryPost } from '@/types/social-gallery';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { cn } from '@/lib/utils';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 const REFRESH_MS = 2500;
 
@@ -42,6 +43,7 @@ function isVideoUrl(url?: string) {
 }
 
 export default function TotemPublicPage() {
+  usePantallaPrendida();
   const params = useParams();
   const fiestaId = params.fiestaId as string;
   const totemId = params.totemId as string;
@@ -167,6 +169,9 @@ export default function TotemPublicPage() {
    * salon, no repartido por internet.
    */
   const [permisoDeSalon, setPermisoDeSalon] = useState('');
+  // Por qué todavía no hay código (27/09/2026): antes la pantalla giraba en "Conectando estación"
+  // para siempre si la abría alguien sin la sesión del equipo, y nadie sabía qué hacer.
+  const [porQueNoHayCodigo, setPorQueNoHayCodigo] = useState('');
 
   useEffect(() => {
     let vigente = true;
@@ -176,10 +181,16 @@ export default function TotemPublicPage() {
         .then((res) => {
           if (vigente && res.success && res.guestToken) {
             setPermisoDeSalon(res.guestToken);
+            setPorQueNoHayCodigo('');
             if (timer) clearInterval(timer);
+          } else if (vigente && !res.success) {
+            setPorQueNoHayCodigo('Abrí esta pantalla con la cuenta del equipo de AK para mostrar el código.');
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          // Sin señal: se dice y se reintenta solo a los cuatro segundos.
+          if (vigente) setPorQueNoHayCodigo('Sin conexión con el servidor: se reintenta solo.');
+        });
     };
     
     fetchToken();
@@ -303,7 +314,7 @@ export default function TotemPublicPage() {
                           Conectando estación...
                         </p>
                         <p className="text-xs font-semibold text-amber-300/80">
-                          Habilitando código de acceso
+                          {porQueNoHayCodigo || 'Habilitando código de acceso'}
                         </p>
                       </div>
                     </div>

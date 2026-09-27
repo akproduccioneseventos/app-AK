@@ -1,5 +1,14 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 27 de septiembre de 2026 - Codex confirma despliegue PR 1234
+
+App Hosting success y health publico identifican `5e384c684c326dbcf79a12dae760ba4fe7e0b705`.
+No mantener el fallo de PR 1233 como bloqueo del despliegue actual. Correcciones de orden 93
+presentes por revision de codigo; no repetirlas. Health: Firebase false al uptime 8, true
+al uptime 38; dos muestras, no fallo persistente demostrado. Detalle y limites:
+`docs/evidencias/1234-evaluacion-publicada.md`. No se certifica toda la app; prueba fisica
+del dueno al final. No hubo cambios de app ni nueva compilacion en esta tanda.
+
 ## 27 de septiembre de 2026 - Codex contrasta PR 1232/1233
 
 Fuente `86de081`. Se conserva evidencia de Claude para orden 91 en `92-puerta-del-candidato.md`;
@@ -9973,4 +9982,37 @@ usa: anotarRescate en src/lib/offline/offline-sync-manager.ts
 usa: original-subiendo en src/lib/touchpix/terminar-trabajo-ia.ts
 prueba: src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts
 prueba: src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
+```
+
+## 27 de septiembre de 2026 — Revisión de los entretenimientos antes de usarlos en una fiesta (pedido del dueño)
+
+Se recorrieron en un navegador, con cámara simulada, fotocabina, cabina con IA, 360, Bogue, buzón,
+barra, muro, tótem y el portal del invitado: todas abren sin errores y con la cámara andando. Dos
+ayudantes revisaron el código buscando lo que falla en vivo.
+
+**Arreglado:**
+- **La pantalla de la estación ya no se apaga sola.** Ninguna estación pedía mantener la pantalla
+  prendida: en una tablet o notebook se oscurecía entre invitado e invitado, y una grabación larga
+  podía cortarse. Ahora las doce pantallas de estación lo piden (`usePantallaPrendida`) y lo vuelven
+  a pedir al volver a la pestaña.
+- **Fotocabina: sin cuenta regresiva fantasma.** Si durante la pausa de 1,8 s entre foto y foto de
+  la tanda el invitado tocaba "volver", arrancaba una cuenta regresiva sobre la tanda nueva.
+- **Tótem: dice por qué no muestra el código.** Si la pantalla se abre sin la sesión del equipo,
+  antes giraba en "Conectando estación" para siempre. Ahora dice que hay que abrirla con la cuenta
+  del equipo.
+
+**Falsos positivos verificados:**
+- "El botón de imprimir de la fotocabina queda trabado": el `return` está adentro de un `try` con
+  `finally`, y el `finally` siempre libera el botón.
+- "La pantalla de impresión pide confirmar aunque se cancele": es a propósito, porque el navegador
+  no avisa si se canceló y por eso se pide confirmar.
+- "El Bogue deja temporizadores sin fin": el bucle termina solo a las tres vueltas.
+- "Safari no graba video": las estaciones prueban los formatos en orden y caen en `video/mp4`.
+
+```comprobar
+usa: usePantallaPrendida en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: usePantallaPrendida en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+usa: tandaDeEstaFoto en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: porQueNoHayCodigo en src/app/evento/totem/[fiestaId]/[totemId]/page.tsx
+prueba: src/__tests__/las-estaciones-no-apagan-la-pantalla.test.tsx
 ```

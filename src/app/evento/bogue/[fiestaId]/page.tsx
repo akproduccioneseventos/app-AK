@@ -74,8 +74,10 @@ import {
   obtenerModosCapturaHabilitados,
   METADATOS_MODOS_CAPTURA,
 } from '@/lib/entretenimiento/modos-captura';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 export default function BoguePage() {
+  usePantallaPrendida();
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();

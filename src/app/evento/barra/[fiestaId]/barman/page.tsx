@@ -23,6 +23,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import type { Trago } from '@/types/fiesta';
+import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
 
 const STATUS_LABELS: Record<BarDrinkOrderStatus, string> = {
   nuevo: 'Nuevo',
@@ -53,6 +54,7 @@ function minutesAgo(iso: string) {
 }
 
 export default function BarmanScreenPage() {
+  usePantallaPrendida();
   const params = useParams();
   const fiestaId = params.fiestaId as string;
   const { toast } = useToast();
