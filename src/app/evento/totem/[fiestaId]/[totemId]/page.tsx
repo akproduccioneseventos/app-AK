@@ -187,7 +187,10 @@ export default function TotemPublicPage() {
             setPorQueNoHayCodigo('Abrí esta pantalla con la cuenta del equipo de AK para mostrar el código.');
           }
         })
-        .catch(() => {});
+        .catch(() => {
+          // Sin señal: se dice y se reintenta solo a los cuatro segundos.
+          if (vigente) setPorQueNoHayCodigo('Sin conexión con el servidor: se reintenta solo.');
+        });
     };
     
     fetchToken();

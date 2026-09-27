@@ -563,9 +563,11 @@ export default function MuroEnVivoPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => {
+                // no pasa nada si falla: si el navegador no deja la pantalla completa, el muro se sigue viendo igual.
                 if (!document.fullscreenElement) {
                   document.documentElement.requestFullscreen?.().catch(() => {});
                 } else {
+                  // no pasa nada si falla: la pantalla queda como estaba.
                   document.exitFullscreen?.().catch(() => {});
                 }
               }}
