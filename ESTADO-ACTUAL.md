@@ -14,9 +14,10 @@ despliegue que falló espera el registro de Firebase.
 
 ## Espera al dueño (no lo puede cerrar una IA)
 
-- **El registro del despliegue que falló** (Firebase, App Hosting, el rollout de la PR 1233). Sin
-  él no se sabe la causa; en una copia limpia compila bien. Va en
-  `docs/evidencias/93-registro-del-despliegue.md`.
+- **Publicado hoy: la 1234** (con las órdenes 91, 92 y 93). Las compilaciones de Firebase fallan
+  de a ratos (1225, 1226, 1229, 1231, 1233) y la siguiente, con el mismo código y más, publica
+  bien: `docs/evidencias/93-registro-del-despliegue.md`. La causa se ve sólo en el registro interno
+  de una fallida.
 - **Integraciones reales** (Instagram, WhatsApp, Gmail, Mercado Pago): una prueba controlada cada una.
 - **Ensayo físico**: `docs/ENSAYO-EN-EL-SALON.md` → `docs/evidencias/ensayo-en-el-salon-resultado.md`.
 
