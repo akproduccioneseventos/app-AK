@@ -722,3 +722,19 @@ cosas a la vez, y las tres se escaparon en la cabina con IA:
 Al verificar: se sigue el trabajo hasta el cartel final **en cada salida**: bien, sin señal,
 rechazo y sin lugar. Mirar sólo el camino que falla, como hice yo, deja pasar el cartel.
 
+## Pregunta 28 — la que sumó el 27 de septiembre de 2026 (Codex, orden 93)
+
+### 28. Lo que se promete, ¿se comprobó en el ÚLTIMO eslabón o en uno del medio?
+
+Dos defectos del mismo día tenían la misma forma: la comprobación miraba un paso intermedio y lo
+tomaba por el resultado.
+
+- **"Aislado"** se comprobó mirando el ambiente del proceso. Pero el que atiende es Next, y Next
+  lee solo los `.env*` de la carpeta. El último eslabón era **lo que ve Next**, no lo que le pasé.
+- **"Publicada"** se anunciaba cuando la cola **reclamaba** la subida, antes de mandarla. El
+  último eslabón era **la respuesta del servidor**.
+
+Al verificar: para cada palabra que la pantalla o un informe afirma ("guardado", "publicado",
+"aislado", "mandado"), se pregunta **quién es el último que lo hace de verdad** y se mira ahí. Si
+lo que se mira es un paso antes, **se retiene ese último paso en la prueba** (una respuesta que no
+llega, un archivo que el marco lee solo) y se comprueba que la afirmación no salga antes de tiempo.

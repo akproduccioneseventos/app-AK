@@ -12,8 +12,10 @@ import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy'
  *   señal.
  * - `no-guardada`: no se pudo subir **ni guardar**. La pantalla ofrece bajarla.
  * - `rechazada`: el servidor la rechazó por una regla (permiso, contenido). No se reintenta sola.
- * - `publicada-la-original`: la IA tardó tanto que la pantalla dejó de retener la original y la cola
- *   la mandó como rescate. El resultado de la IA NO se sube: una sola foto por captura (orden 91).
+ * - `original-publicada` / `original-subiendo` / `original-sin-confirmar`: la IA tardó tanto que la
+ *   cola mandó la original como rescate. El resultado de la IA NO se sube: una sola foto por
+ *   captura (orden 91). Y se dice "publicada" sólo si la cola CONFIRMÓ la subida (orden 93): si
+ *   todavía está subiendo, se espera un rato; si sigue, se dice que se está subiendo.
  *
  * La **original** de la captura se guardó en el equipo al capturar, retenida para que la cola no
  * la suba mientras trabaja la IA (`retenidaHasta`). Cuando el resultado quedó a salvo, arriba o
@@ -21,7 +23,16 @@ import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy'
  * resultado no quedó en ningún lado, la original **se deja**: cuando venza la retención, sube la
  * original, que es mejor que nada.
  */
-export type DestinoDeLaFoto = 'subida' | 'en-el-equipo' | 'no-guardada' | 'rechazada' | 'publicada-la-original';
+export type DestinoDeLaFoto =
+  | 'subida'
+  | 'en-el-equipo'
+  | 'no-guardada'
+  | 'rechazada'
+  | 'original-publicada'
+  | 'original-subiendo'
+  | 'original-sin-confirmar';
+
+type EstadoDeLaOriginal = 'retenida' | 'subiendo' | 'publicada' | 'rechazada' | 'sin-rastro';
 
 export async function terminarTrabajoIA(pasos: {
   subir: () => Promise<{ success: boolean; error?: string }>;
@@ -32,11 +43,26 @@ export async function terminarTrabajoIA(pasos: {
    * mandó como rescate, y entonces el resultado de la IA NO se sube (una sola foto por captura).
    * Si no hay original en el equipo, no se pasa.
    */
-  retenerOriginal?: () => Promise<boolean>;
+  retenerOriginal?: () => Promise<EstadoDeLaOriginal>;
+  /** Para las pruebas: cómo esperar entre miradas mientras la cola sube la original. */
+  dormir?: (ms: number) => Promise<void>;
+  esperaMaximaMs?: number;
 }): Promise<{ destino: DestinoDeLaFoto; error?: string }> {
   if (pasos.retenerOriginal) {
-    const sigueSiendoNuestra = await pasos.retenerOriginal().catch(() => true);
-    if (!sigueSiendoNuestra) return { destino: 'publicada-la-original' };
+    const dormir = pasos.dormir ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+    const maximo = pasos.esperaMaximaMs ?? 60_000;
+    const intervalo = 2_000;
+    // Si la base del navegador falla, se sigue como antes: el trabajo sube su resultado.
+    let estado: EstadoDeLaOriginal = await pasos.retenerOriginal().catch(() => 'retenida' as const);
+    for (let esperado = 0; estado === 'subiendo' && esperado < maximo; esperado += intervalo) {
+      await dormir(intervalo);
+      estado = await pasos.retenerOriginal().catch(() => 'subiendo' as const);
+    }
+    if (estado === 'publicada') return { destino: 'original-publicada' };
+    if (estado === 'rechazada') return { destino: 'rechazada' };
+    if (estado === 'subiendo') return { destino: 'original-subiendo' };
+    if (estado === 'sin-rastro') return { destino: 'original-sin-confirmar' };
+    // `retenida`: el rescate no salió (o nunca empezó) y la original volvió a este trabajo.
   }
   let error = '';
   try {
@@ -78,8 +104,12 @@ export function avisoDelDestino(destino: DestinoDeLaFoto, fueIA: boolean): strin
       return `${efecto} ya se subió a la galería de la fiesta.`;
     case 'en-el-equipo':
       return `${efecto} quedó guardada en este equipo y se sube sola cuando vuelva la señal.`;
-    case 'publicada-la-original':
-      return 'La IA tardó demasiado: tu foto original ya se mandó a la galería de la fiesta.';
+    case 'original-publicada':
+      return 'La IA tardó demasiado: tu foto original ya está en la galería de la fiesta.';
+    case 'original-subiendo':
+      return 'La IA tardó demasiado: tu foto original se está subiendo a la galería de la fiesta.';
+    case 'original-sin-confirmar':
+      return 'La IA tardó demasiado: se mandó tu foto original. Si no aparece en la galería, avisale al equipo.';
     case 'rechazada':
       return 'Tu foto no se pudo publicar. Avisale al equipo.';
     case 'no-guardada':

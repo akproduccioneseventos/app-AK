@@ -1,4 +1,7 @@
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 /**
  * MATAFUEGO — El entorno de pruebas aislado (`npm run entorno:pruebas`, orden 92) no puede llevar
@@ -43,3 +46,60 @@ describe('El entorno aislado no lleva credenciales reales', () => {
     expect(salida.forzadas.APP_PASSWORD).toBeTruthy();
   });
 });
+
+/**
+ * Orden 93 (Codex): Next lee solo `.env.local`, `.env.production` y compañía desde la carpeta donde
+ * corre, así que limpiar el ambiente del proceso no alcanzaba. Se prueba con un repositorio de
+ * mentira que tiene un `.env.production` commiteado y un `.env.local` sin commitear, los dos con
+ * claves inventadas y una "del futuro", más credenciales heredadas de la máquina.
+ *
+ * Se probó rompiéndolo: sin la copia descartable, `.env.local` y `.env.production` entran.
+ */
+describe('El entorno aislado no lee claves de archivos', () => {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'ak-repo-de-mentira-'));
+  beforeAll(() => {
+    const git = (...args: string[]) => execFileSync('git', ['-C', repo, ...args], { stdio: 'ignore' });
+    git('init', '-q');
+    git('config', 'user.email', 'prueba@ak.local');
+    git('config', 'user.name', 'Prueba');
+    fs.writeFileSync(path.join(repo, 'package.json'), '{"name":"de-mentira"}');
+    fs.writeFileSync(path.join(repo, '.env.production'), 'INSTAGRAM_ACCESS_TOKEN=ficticio\nCLAVE_COMMITEADA_DEL_FUTURO=x\n');
+    git('add', '-A');
+    git('commit', '-qm', 'base');
+    fs.writeFileSync(path.join(repo, '.env.local'), 'SMTP_HOST=ficticio\nMERCADO_PAGO_ACCESS_TOKEN=ficticio\nOTRA_CLAVE_DEL_FUTURO=y\n');
+  });
+  afterAll(() => fs.rmSync(repo, { recursive: true, force: true }));
+
+  const probar = (sinCopia: boolean) => {
+    const r = spawnSync('node', ['scripts/entorno-de-pruebas.mjs'], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        FIREBASE_PRIVATE_KEY: 'heredada',
+        AK_ENTORNO_PROBAR_CARPETA: repo,
+        AK_ENTORNO_PROBAR_SIN_COPIA: String(sinCopia),
+      },
+      encoding: 'utf8',
+      timeout: 60_000,
+    });
+    if (r.status !== 0) throw new Error(r.stderr);
+    return JSON.parse(r.stdout) as { nombres: string[]; sobran: string[] };
+  };
+
+  it('el control ve las claves de los archivos cuando la app corre en la carpeta original', () => {
+    const { sobran } = probar(true);
+    expect(sobran).toEqual(expect.arrayContaining(['SMTP_HOST', 'OTRA_CLAVE_DEL_FUTURO', 'INSTAGRAM_ACCESS_TOKEN']));
+  });
+
+  it('en la copia descartable, lo que ve Next no trae ninguna clave: ni heredada, ni de archivos, ni futura', () => {
+    const { nombres, sobran } = probar(false);
+    expect(sobran).toEqual([]);
+    for (const n of ['FIREBASE_PRIVATE_KEY', 'SMTP_HOST', 'MERCADO_PAGO_ACCESS_TOKEN', 'INSTAGRAM_ACCESS_TOKEN',
+      'OTRA_CLAVE_DEL_FUTURO', 'CLAVE_COMMITEADA_DEL_FUTURO']) {
+      expect(nombres).not.toContain(n);
+    }
+    // Y el `.env.local` del usuario sigue donde estaba: no se toca.
+    expect(fs.existsSync(path.join(repo, '.env.local'))).toBe(true);
+  });
+});
+

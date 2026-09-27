@@ -576,3 +576,25 @@ usa: renovarOriginalesVivas en src/app/evento/touchpix/[fiestaId]/page.tsx
 usa: reclamarOfflineMediaParaSubir en src/lib/offline/offline-sync-manager.ts
 prueba: src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
 ```
+
+## 27 de septiembre de 2026 — "Aislado" y "publicada" comprobados en el paso del medio (Codex, orden 93)
+
+**Qué era:**
+- El entorno de pruebas limpiaba el ambiente del proceso, pero Next lee solo los `.env*` de la
+  carpeta, así que una clave guardada en un archivo entraba igual.
+- La cabina anunciaba "tu foto original ya se mandó a la galería" cuando la cola recién había
+  reclamado la subida.
+
+**Qué pregunta lo hubiera agarrado:** la 28, nueva: *lo que se promete, ¿se comprobó en el
+último eslabón?* También quedó como pregunta 17 de `ANTES-DE-ENTREGAR.md`.
+
+**Barrido:** no hace falta una orden nueva para Gemini. Los carteles de "subida" de las estaciones
+ya los barrió la orden 90, que sale del resultado del servidor. Y el aislamiento es sólo del
+entorno de pruebas.
+
+```comprobar
+usa: ambienteQueVeNext en scripts/entorno-de-pruebas.mjs
+usa: anotarRescate en src/lib/offline/offline-sync-manager.ts
+prueba: src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts
+prueba: src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
+```

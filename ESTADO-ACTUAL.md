@@ -1,28 +1,28 @@
 # Acá quedé
 
-**27 de septiembre de 2026.** Orden 91 hecha por Claude, con la puerta completa y la tanda entera
-de navegador en verde sobre el mismo commit. Evidencia: `docs/evidencias/92-puerta-del-candidato.md`.
+**27 de septiembre de 2026.** Orden 93 de Codex: los dos arreglos de código están hechos. El
+despliegue que falló espera el registro de Firebase.
 
-## Lo último que entró
+## Lo último
 
-- **Orden 91 (Codex), hecha por Claude:** la cabina con IA guarda la foto sin esperar al servidor,
-  y publica una sola foto por captura aunque la IA tarde (retención renovada + reclamo de la cola).
-- **Orden 92 y matriz de lanzamiento de Codex** (`docs/evidencias/92-matriz-lanzamiento.md`):
-  **publicar NO está aprobado todavía**. Sigue abierto lo que se lista abajo.
-- **1231, orden 90 (Gemini):** las estaciones dicen dónde quedó la foto de verdad.
-- **1230, devolución 89:** la cabina con IA dice dónde quedó la foto y no pisa al siguiente.
-
-## Listo para Codex
-
-- **`npm run entorno:pruebas`**: la app con datos de prueba y sin credenciales reales, con enlaces
-  para equipo, cliente, invitados y estaciones. Probado con navegador.
-- **`/api/health` → `version`**: qué commit atiende el dominio, desde la próxima publicación.
+- **Orden 93, P1:** el entorno de pruebas corre en una copia descartable sin `.env*`, y no arranca si
+  Next vería alguna variable que no sea de prueba.
+- **Orden 93, P2:** la cabina con IA dice "publicada" sólo cuando la subida de la original se
+  confirmó; si no, "se está subiendo" o "no se pudo publicar".
+- **Orden 92:** `npm run entorno:pruebas` (entorno por rol) y `/api/health` → `version`.
+- **Orden 91:** la foto se guarda sin esperar al servidor y sale una sola por captura.
 
 ## Espera al dueño (no lo puede cerrar una IA)
 
+- **El registro del despliegue que falló** (Firebase, App Hosting, el rollout de la PR 1233). Sin
+  él no se sabe la causa; en una copia limpia compila bien. Va en
+  `docs/evidencias/93-registro-del-despliegue.md`.
 - **Integraciones reales** (Instagram, WhatsApp, Gmail, Mercado Pago): una prueba controlada cada una.
-- **Ensayo físico**: `docs/ENSAYO-EN-EL-SALON.md`. El resultado va en
-  `docs/evidencias/ensayo-en-el-salon-resultado.md` (la orden 92 queda en FALTA hasta entonces).
+- **Ensayo físico**: `docs/ENSAYO-EN-EL-SALON.md` → `docs/evidencias/ensayo-en-el-salon-resultado.md`.
+
+## Listo para Codex
+
+- `npm run entorno:pruebas` ya no puede leer claves de archivos: puede recorrer por rol.
 
 ## Espera a Gemini
 
@@ -31,7 +31,8 @@ Nada.
 ## Trampas
 
 - **Con la máquina cargada fallan pruebas al azar** (ingreso, estaciones, barra, cápsula del tiempo
-  del buzón) y pasan solas con `npm run otravez`. Antes de tocar código, repetirla sola.
+  del buzón) y pasan solas con `npm run otravez`.
 - La puerta se espera en primer plano; el contenedor se reinicia si la sesión queda quieta.
-- Apagar procesos por número o nombre exacto, nunca `pkill -f` (error 20, pasó otra vez el 26/09).
+- Apagar procesos por número o nombre exacto, nunca `pkill -f` (error 20).
 - Antes de agregar una espera (`await`), mirar qué queda sin hacer mientras espera (error 26).
+- Lo que se afirma se comprueba en el último paso, no en uno del medio (error 27).

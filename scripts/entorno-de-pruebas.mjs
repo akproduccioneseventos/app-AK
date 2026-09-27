@@ -10,19 +10,31 @@
  * Uso: `npm run entorno:pruebas`. Imprime cómo entrar con cada rol y queda andando hasta Ctrl+C.
  * Al cerrarse borra la fiesta de prueba que sembró.
  *
- * Cómo se aísla, y por qué con lista de lo permitido y no de lo prohibido: el servidor arranca con un
- * ambiente armado DESDE CERO (`ambienteAislado`). Si mañana alguien agrega una credencial nueva al
- * ambiente de la máquina, no se cuela: sólo pasa lo que está en `PERMITIDAS`.
+ * Cómo se aísla, en dos capas:
+ * 1. **El ambiente del proceso** se arma DESDE CERO (`ambienteAislado`): sólo pasa lo que está en
+ *    `PERMITIDAS`, así que una credencial que se agregue mañana a la máquina tampoco se cuela.
+ * 2. **Los archivos de la carpeta** (orden 93, Codex): Next lee solo `.env.local`, `.env.production`
+ *    y compañía desde la carpeta donde corre. Por eso la app se compila y se sirve desde una
+ *    **copia descartable** del código commiteado (`prepararCarpetaAislada`): los `.env*` están
+ *    ignorados por git y no viajan, y los datos reales de la carpeta tampoco. Antes de arrancar se
+ *    calcula el ambiente que Next va a ver de verdad (`ambienteQueVeNext`) y, si aparece cualquier
+ *    nombre que no esté en la lista, **no arranca**. No se toca ningún archivo de claves del usuario.
+ *
+ * Corre lo COMMITEADO: lo que esté sin guardar en la carpeta no entra a la copia.
  */
-import { spawn, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+const createRequireDesde = (dir) => createRequire(path.join(dir, 'package.json'));
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUERTO = Number(process.env.AK_ENTORNO_PUERTO || 3300);
 const CLAVE_DEL_EQUIPO = 'entorno-aislado-ak';
-const SALIDA = path.join(RAIZ, 'test-results', 'entorno-aislado.json');
+const SALIDA = path.join(os.tmpdir(), `ak-entorno-aislado-${process.pid}.json`);
 
 /** Lo único que pasa del ambiente de la máquina: nada que abra un servicio real. */
 const PERMITIDAS = ['PATH', 'HOME', 'LANG', 'LC_ALL', 'TMPDIR', 'TEMP', 'TMP', 'SYSTEMROOT', 'NODE_OPTIONS',
@@ -56,7 +68,73 @@ export function ambienteAislado(ambienteDeLaMaquina = process.env) {
   return { ...limpio, ...FORZADAS };
 }
 
+/** Los archivos que Next carga solo desde la carpeta donde corre. */
+const ARCHIVOS_QUE_LEE_NEXT = /^\.env(\.(local|production|development|test)(\.local)?)?$/;
+
+/**
+ * Copia descartable del código commiteado, sin ningún `.env*` que Next pueda leer. Usa un
+ * `git worktree`: sólo trae lo que está en git, y los `.env*` están ignorados.
+ */
+export function prepararCarpetaAislada(raiz, destino) {
+  execFileSync('git', ['-C', raiz, 'worktree', 'add', '--detach', '--force', destino, 'HEAD'], { stdio: 'ignore' });
+  const modulos = path.join(raiz, 'node_modules');
+  if (fs.existsSync(modulos)) fs.symlinkSync(modulos, path.join(destino, 'node_modules'), 'dir');
+  // Si alguno estuviera commiteado, se saca de la COPIA (nunca del original).
+  for (const nombre of fs.readdirSync(destino)) {
+    if (ARCHIVOS_QUE_LEE_NEXT.test(nombre)) fs.rmSync(path.join(destino, nombre), { force: true });
+  }
+  const quedan = fs.readdirSync(destino).filter((n) => ARCHIVOS_QUE_LEE_NEXT.test(n));
+  if (quedan.length) throw new Error(`La copia aislada todavía tiene ${quedan.join(', ')}`);
+  return destino;
+}
+
+export function borrarCarpetaAislada(raiz, destino) {
+  try { execFileSync('git', ['-C', raiz, 'worktree', 'remove', '--force', destino], { stdio: 'ignore' }); } catch {}
+  try { fs.rmSync(destino, { recursive: true, force: true }); } catch {}
+  try { execFileSync('git', ['-C', raiz, 'worktree', 'prune'], { stdio: 'ignore' }); } catch {}
+}
+
+/**
+ * El ambiente que Next va a ver DE VERDAD en esa carpeta: el del proceso más lo que cargue de
+ * archivos. Se calcula con el mismo cargador que usa Next (`@next/env`), en un proceso aparte.
+ */
+export function ambienteQueVeNext(carpeta, ambienteDelProceso) {
+  const cargador = createRequireDesde(RAIZ).resolve('@next/env');
+  const r = spawnSync(process.execPath, ['-e', `
+    const { loadEnvConfig } = require(${JSON.stringify(cargador)});
+    loadEnvConfig(process.argv[1], false, { info() {}, error() {} });
+    process.stdout.write(JSON.stringify(Object.keys(process.env).sort()));
+  `, carpeta], { env: { ...ambienteDelProceso, NODE_ENV: 'production' }, encoding: 'utf8' });
+  if (r.status !== 0) throw new Error(`No se pudo calcular el ambiente: ${r.stderr}`);
+  return JSON.parse(r.stdout);
+}
+
+/** Nombres que no deberían estar: todo lo que no vino de la lista permitida ni de lo forzado. */
+export function nombresQueSobran(nombres) {
+  const esperados = new Set([...PERMITIDAS, ...Object.keys(FORZADAS)]);
+  // Las que agrega el propio Node al arrancar un proceso no son de la máquina ni de archivos.
+  return nombres.filter((n) => !esperados.has(n) && !['_', 'PWD', 'SHLVL', 'OLDPWD', '__NEXT_PROCESSED_ENV'].includes(n));
+}
+
 const ambiente = ambienteAislado();
+
+if (process.env.AK_ENTORNO_PROBAR_CARPETA) {
+  // Para la prueba: prepara la copia de OTRO repositorio (uno de mentira, con `.env*` inventados),
+  // calcula lo que vería Next y devuelve sólo los nombres. Nunca valores.
+  const origen = process.env.AK_ENTORNO_PROBAR_CARPETA;
+  const destino = fs.mkdtempSync(path.join(os.tmpdir(), 'ak-entorno-prueba-'));
+  fs.rmSync(destino, { recursive: true, force: true });
+  try {
+    // Sin copia (sólo para la prueba): muestra que el control SÍ ve lo que dejan los archivos.
+    const sinCopia = process.env.AK_ENTORNO_PROBAR_SIN_COPIA === 'true';
+    if (!sinCopia) prepararCarpetaAislada(origen, destino);
+    const nombres = ambienteQueVeNext(sinCopia ? origen : destino, ambienteAislado(process.env));
+    console.log(JSON.stringify({ nombres, sobran: nombresQueSobran(nombres) }));
+  } finally {
+    borrarCarpetaAislada(origen, destino);
+  }
+  process.exit(0);
+}
 
 if (process.env.AK_ENTORNO_SOLO_MOSTRAR_AMBIENTE === 'true') {
   // Para la prueba: sólo los nombres, nunca los valores de la máquina.
@@ -64,8 +142,20 @@ if (process.env.AK_ENTORNO_SOLO_MOSTRAR_AMBIENTE === 'true') {
   process.exit(0);
 }
 
+// 0. La copia descartable, y el control de lo que Next va a ver en ella.
+const CARPETA = fs.mkdtempSync(path.join(os.tmpdir(), 'ak-entorno-aislado-'));
+fs.rmSync(CARPETA, { recursive: true, force: true });
+console.log(`\n[entorno aislado] Preparando una copia descartable del código en ${CARPETA}...`);
+prepararCarpetaAislada(RAIZ, CARPETA);
+const sobran = nombresQueSobran(ambienteQueVeNext(CARPETA, ambiente));
+if (sobran.length) {
+  borrarCarpetaAislada(RAIZ, CARPETA);
+  console.error(`\nNO SE ARRANCA: el servidor vería estas variables que no son de prueba: ${sobran.join(', ')}`);
+  process.exit(1);
+}
+
 function correr(comando, args, extra = {}) {
-  const r = spawnSync(comando, args, { cwd: RAIZ, stdio: 'inherit', env: ambiente, ...extra });
+  const r = spawnSync(comando, args, { cwd: CARPETA, stdio: 'inherit', env: ambiente, ...extra });
   if (r.status !== 0) {
     console.error(`\nNo se pudo: ${comando} ${args.join(' ')}`);
     process.exit(r.status || 1);
@@ -88,14 +178,17 @@ const sembrado = JSON.parse(fs.readFileSync(SALIDA, 'utf8'));
 // 3. Levantar el servidor.
 const base = `http://127.0.0.1:${PUERTO}`;
 const servidor = spawn(process.execPath, [path.join('node_modules', 'next', 'dist', 'bin', 'next'), 'start', '--hostname', '127.0.0.1', '--port', String(PUERTO)], {
-  cwd: RAIZ, stdio: 'inherit', env: ambiente,
+  cwd: CARPETA, stdio: 'inherit', env: ambiente,
 });
 
+let limpio = false;
 const limpiar = () => {
-  for (const archivo of sembrado.archivos || []) {
-    try { fs.unlinkSync(archivo); } catch {}
-  }
+  if (limpio) return;
+  limpio = true;
   try { servidor.kill('SIGTERM'); } catch {}
+  // La fiesta sembrada vive dentro de la copia: se va con ella.
+  borrarCarpetaAislada(RAIZ, CARPETA);
+  try { fs.unlinkSync(SALIDA); } catch {}
 };
 process.on('SIGINT', () => { limpiar(); process.exit(0); });
 process.on('SIGTERM', () => { limpiar(); process.exit(0); });
