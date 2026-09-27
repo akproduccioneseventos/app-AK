@@ -18,8 +18,8 @@ despliegue que falló espera el registro de Firebase.
   de a ratos (1225, 1226, 1229, 1231, 1233) y la siguiente, con el mismo código y más, publica
   bien: `docs/evidencias/93-registro-del-despliegue.md`. La causa se ve sólo en el registro interno
   de una fallida.
-- **Integraciones reales** (Instagram, WhatsApp, Gmail, Mercado Pago): una prueba controlada cada una.
-- **Ensayo físico**: `docs/ENSAYO-EN-EL-SALON.md` → `docs/evidencias/ensayo-en-el-salon-resultado.md`.
+- Integraciones reales y ensayo físico: **recién cuando Codex no vea más errores**. Orden del
+  dueño: no mencionarlos antes.
 
 ## Listo para Codex
 

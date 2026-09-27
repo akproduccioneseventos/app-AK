@@ -1113,6 +1113,12 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Las pruebas reales van al final, y no se mencionan antes (27 de septiembre de 2026).** Palabras
+  suyas: *"no digas más sobre la prueba, tú debes hacer tu parte; no se prueba hasta que Codex no
+  vea errores"*. El ensayo en el salón y las pruebas reales de Instagram, WhatsApp, Gmail y Mercado
+  Pago **se hacen recién cuando Codex no encuentre más errores**. Hasta entonces **no se listan como
+  pendientes en las respuestas al dueño**: se trabaja en lo que Codex marca.
+
 - **El recontacto de prospectos por WhatsApp sale solo, y se apaga desde Ajustes (25 de
   septiembre de 2026).** Excepción que eligió el dueño a "preparar sí, mandar no". **No hay
   karaoke, todo va en español**, y quedaron afuera el presupuesto en video, las canciones con
