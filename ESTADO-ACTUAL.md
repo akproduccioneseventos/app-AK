@@ -14,16 +14,16 @@ despliegue que falló espera el registro de Firebase.
 
 ## Espera al dueño (no lo puede cerrar una IA)
 
-- **Publicado hoy: la 1234** (con las órdenes 91, 92 y 93). Las compilaciones de Firebase fallan
-  de a ratos (1225, 1226, 1229, 1231, 1233) y la siguiente, con el mismo código y más, publica
-  bien: `docs/evidencias/93-registro-del-despliegue.md`. La causa se ve sólo en el registro interno
-  de una fallida.
+- **Publicada y comprobada por Codex: la 1234** (`docs/evidencias/1234-evaluacion-publicada.md`).
+  El despliegue ya no es un bloqueo. Las compilaciones de Firebase fallan de a ratos y la
+  siguiente publica bien (`docs/evidencias/93-registro-del-despliegue.md`).
 - Integraciones reales y ensayo físico: **recién cuando Codex no vea más errores**. Orden del
   dueño: no mencionarlos antes.
 
-## Listo para Codex
+## Lo que sigue, y es de Codex
 
-- `npm run entorno:pruebas` ya no puede leer claves de archivos: puede recorrer por rol.
+- **Recorridos completos por rol** con `npm run entorno:pruebas`: organizador, cliente, invitado y
+  estaciones. Claude arregla lo que marque.
 
 ## Espera a Gemini
 
