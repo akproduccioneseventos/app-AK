@@ -42,6 +42,7 @@ import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { saveOfflineMedia, removeOfflineMedia } from '@/lib/offline/offline-db';
+import { renovarRetencionOfflineMedia } from '@/lib/offline/offline-db';
 import { terminarTrabajoIA, avisoDelDestino, type DestinoDeLaFoto } from '@/lib/touchpix/terminar-trabajo-ia';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { parseEventDate } from '@/lib/public-experience/event-date';
@@ -174,6 +175,15 @@ export default function TouchpixPage() {
 
   // Orden 89: Cola en background para IA que no frena la fila
   const [trabajosIA, setTrabajosIA] = useState<TrabajoIA[]>([]);
+  const trabajosIARef = useRef<TrabajoIA[]>([]);
+  trabajosIARef.current = trabajosIA;
+  /**
+   * La captura de la sesión de cada trabajo, cuando el servidor la contesta (orden 91). La
+   * captura NO espera esa respuesta para guardarse: si el servidor tarda y se recarga la
+   * pantalla, la original ya está en el equipo. Los avisos de "listo" esperan esta promesa, así
+   * que salen después del "grabando" y con la captura correcta.
+   */
+  const capturasDeSesionRef = useRef(new Map<string, Promise<string | undefined>>());
   const subidosRef = useRef<Set<string>>(new Set());
   const procesandoRef = useRef<Set<string>>(new Set());
   const [ultimoAvisoIA, setUltimoAvisoIA] = useState<{ id: string; raw: string; timestamp: number } | null>(null);
@@ -545,31 +555,39 @@ export default function TouchpixPage() {
    * trabajo pendiente, la sesión pasa a "lista" con la captura de la que salió: si la IA vuelve
    * tarde, el servidor ignora su aviso cuando la estación ya está con otra.
    */
+  const capturaDe = useCallback(
+    (trabajo: TrabajoIA) => capturasDeSesionRef.current.get(trabajo.id) ?? Promise.resolve(trabajo.capturaDeLaSesion),
+    [],
+  );
   const liberarEstacion = useCallback((trabajo: TrabajoIA) => {
     // no-mira-el-resultado: aviso a la pantalla del operador; si falla, el botón Reiniciar sigue.
-    void updateEntertainmentSessionStatus(
-      fiestaId,
-      'espejoMagicoIA',
-      'done',
-      { reviewPending: false, ...(trabajo.capturaDeLaSesion ? { captureId: trabajo.capturaDeLaSesion } : {}) },
-      accessToken
-    ).catch(() => undefined);
-  }, [accessToken, fiestaId]);
+    void capturaDe(trabajo)
+      .then((captura) => updateEntertainmentSessionStatus(
+        fiestaId,
+        'espejoMagicoIA',
+        'done',
+        { reviewPending: false, ...(captura ? { captureId: captura } : {}) },
+        accessToken
+      ))
+      .catch(() => undefined);
+  }, [accessToken, capturaDe, fiestaId]);
 
   const handleCapture = useCallback(async () => {
     const raw = captureRawPhoto();
     if (!raw) return;
-    // Aviso a la pantalla del operador. Se espera (es una sola consulta) porque devuelve la captura
-    // de la sesión, que el trabajo lleva para que su respuesta tardía no pise a la siguiente
-    // (T89-05). Si falla, se usa la última conocida y la foto sigue igual.
-    const grabando = await updateEntertainmentSessionStatus(
+    // Aviso a la pantalla del operador. NO se espera (orden 91): si el servidor tardaba, la foto
+    // no se guardaba en el equipo hasta que contestara, y recargar la perdía. La respuesta trae
+    // la captura de la sesión (T89-05); los avisos de "listo" la esperan antes de salir.
+    const capturaDeLaSesion = session?.captureId;
+    const capturaQueContesta = updateEntertainmentSessionStatus(
       fiestaId,
       'espejoMagicoIA',
       'recording',
       {},
       accessToken
-    ).catch(() => undefined);
-    const capturaDeLaSesion = grabando?.captureId || session?.captureId;
+    )
+      .then((grabando) => grabando?.captureId || capturaDeLaSesion)
+      .catch(() => capturaDeLaSesion);
     setRawCapturedImage(raw);
     setProcessingResult(null);
 
@@ -606,6 +624,7 @@ export default function TouchpixPage() {
         capturaDeLaSesion,
       };
       nuevoTrabajo.originalEnEquipoId = await guardarOriginalRetenida(nuevoTrabajo);
+      capturasDeSesionRef.current.set(capturaId, capturaQueContesta);
       liberarEstacion(nuevoTrabajo);
       setTrabajosIA(prev => [...prev, nuevoTrabajo]);
       setUltimoAvisoIA({ id: capturaId, raw, timestamp: Date.now() });
@@ -627,6 +646,7 @@ export default function TouchpixPage() {
         capturaDeLaSesion,
       };
       nuevoTrabajo.originalEnEquipoId = await guardarOriginalRetenida(nuevoTrabajo);
+      capturasDeSesionRef.current.set(capturaId, capturaQueContesta);
       liberarEstacion(nuevoTrabajo);
       setTrabajosIA(prev => [...prev, nuevoTrabajo]);
       setUltimoAvisoIA({ id: capturaId, raw, timestamp: Date.now() });
@@ -744,6 +764,7 @@ export default function TouchpixPage() {
           if (etiquetas.character) uploadFormData.append('characterLabel', etiquetas.character);
           const res = await uploadTouchpixPhoto(uploadFormData);
           if (res.success) {
+            const capturaFinal = await capturaDe(trabajo);
             void updateEntertainmentSessionStatus(
               fiestaId,
               'espejoMagicoIA',
@@ -752,7 +773,7 @@ export default function TouchpixPage() {
                 mediaUrl: res.post?.imageUrl,
                 reviewPending: false,
                 // Si la estación ya está con otra captura, el servidor no le pisa el medio (T89-05).
-                ...(trabajo.capturaDeLaSesion ? { captureId: trabajo.capturaDeLaSesion } : {}),
+                ...(capturaFinal ? { captureId: capturaFinal } : {}),
               },
               accessToken
             ).catch(() => undefined);
@@ -774,6 +795,17 @@ export default function TouchpixPage() {
         soltarOriginal: async () => {
           if (trabajo.originalEnEquipoId) await removeOfflineMedia(trabajo.originalEnEquipoId);
         },
+        // UNA SOLA FOTO POR CAPTURA (orden 91): si la IA tardó tanto que la cola ya mandó la
+        // original como rescate, el resultado no se sube. Lo decide una transacción: o la original
+        // la sigue teniendo este trabajo, o la tiene la cola; nunca las dos.
+        ...(trabajo.originalEnEquipoId
+          ? {
+              retenerOriginal: () => renovarRetencionOfflineMedia(
+                trabajo.originalEnEquipoId!,
+                new Date(Date.now() + RETENCION_DE_LA_ORIGINAL_MS).toISOString(),
+              ),
+            }
+          : {}),
       });
       destino = fin.destino;
       if (destino === 'rechazada') subidosRef.current.delete(trabajo.id);
@@ -785,7 +817,7 @@ export default function TouchpixPage() {
 
     procesandoRef.current.delete(trabajo.id);
     setTrabajosIA(prev =>
-      prev.map(t => (t.id === trabajo.id ? { ...t, estado: destino === 'subida' || destino === 'en-el-equipo' ? 'completado' : 'error', fueIA, destino } : t))
+      prev.map(t => (t.id === trabajo.id ? { ...t, estado: destino === 'subida' || destino === 'en-el-equipo' || destino === 'publicada-la-original' ? 'completado' : 'error', fueIA, destino } : t))
     );
     setAvisoFinalizado({ id: trabajo.id, fueIA, destino });
   }, [
@@ -796,7 +828,27 @@ export default function TouchpixPage() {
     guestAccessToken,
     guestId,
     photoSessionId,
+    capturaDe,
   ]);
+
+  /**
+   * MIENTRAS EL TRABAJO VIVE, SU ORIGINAL SIGUE RETENIDA (orden 91). Antes la retención era un
+   * plazo fijo de tres minutos: con la IA lenta o con fila, vencía con el trabajo andando y se
+   * publicaban la original y el resultado. Ahora la pantalla la renueva cada minuto; si se cierra
+   * o se recarga, deja de renovarla y a los tres minutos la cola manda la original como rescate.
+   */
+  const renovarOriginalesVivas = useCallback(() => {
+    const hasta = new Date(Date.now() + RETENCION_DE_LA_ORIGINAL_MS).toISOString();
+    for (const trabajo of trabajosIARef.current) {
+      if (!trabajo.originalEnEquipoId) continue;
+      if (trabajo.estado === 'completado' || trabajo.estado === 'error') continue;
+      void renovarRetencionOfflineMedia(trabajo.originalEnEquipoId, hasta).catch(() => undefined);
+    }
+  }, []);
+  useEffect(() => {
+    const intervalo = setInterval(renovarOriginalesVivas, 60_000);
+    return () => clearInterval(intervalo);
+  }, [renovarOriginalesVivas]);
 
   // Gestor de cola con concurrencia máxima 2
   useEffect(() => {

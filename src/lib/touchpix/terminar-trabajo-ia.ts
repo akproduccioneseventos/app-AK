@@ -12,6 +12,8 @@ import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy'
  *   señal.
  * - `no-guardada`: no se pudo subir **ni guardar**. La pantalla ofrece bajarla.
  * - `rechazada`: el servidor la rechazó por una regla (permiso, contenido). No se reintenta sola.
+ * - `publicada-la-original`: la IA tardó tanto que la pantalla dejó de retener la original y la cola
+ *   la mandó como rescate. El resultado de la IA NO se sube: una sola foto por captura (orden 91).
  *
  * La **original** de la captura se guardó en el equipo al capturar, retenida para que la cola no
  * la suba mientras trabaja la IA (`retenidaHasta`). Cuando el resultado quedó a salvo, arriba o
@@ -19,13 +21,23 @@ import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy'
  * resultado no quedó en ningún lado, la original **se deja**: cuando venza la retención, sube la
  * original, que es mejor que nada.
  */
-export type DestinoDeLaFoto = 'subida' | 'en-el-equipo' | 'no-guardada' | 'rechazada';
+export type DestinoDeLaFoto = 'subida' | 'en-el-equipo' | 'no-guardada' | 'rechazada' | 'publicada-la-original';
 
 export async function terminarTrabajoIA(pasos: {
   subir: () => Promise<{ success: boolean; error?: string }>;
   guardarEnEquipo: () => Promise<unknown>;
   soltarOriginal: () => Promise<unknown>;
+  /**
+   * Vuelve a retener la original antes de subir el resultado (orden 91). `false`: la cola ya la
+   * mandó como rescate, y entonces el resultado de la IA NO se sube (una sola foto por captura).
+   * Si no hay original en el equipo, no se pasa.
+   */
+  retenerOriginal?: () => Promise<boolean>;
 }): Promise<{ destino: DestinoDeLaFoto; error?: string }> {
+  if (pasos.retenerOriginal) {
+    const sigueSiendoNuestra = await pasos.retenerOriginal().catch(() => true);
+    if (!sigueSiendoNuestra) return { destino: 'publicada-la-original' };
+  }
   let error = '';
   try {
     const res = await pasos.subir();
@@ -66,6 +78,8 @@ export function avisoDelDestino(destino: DestinoDeLaFoto, fueIA: boolean): strin
       return `${efecto} ya se subió a la galería de la fiesta.`;
     case 'en-el-equipo':
       return `${efecto} quedó guardada en este equipo y se sube sola cuando vuelva la señal.`;
+    case 'publicada-la-original':
+      return 'La IA tardó demasiado: tu foto original ya se mandó a la galería de la fiesta.';
     case 'rechazada':
       return 'Tu foto no se pudo publicar. Avisale al equipo.';
     case 'no-guardada':

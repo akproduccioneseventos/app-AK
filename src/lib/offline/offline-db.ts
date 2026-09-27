@@ -31,6 +31,74 @@ export interface OfflineMediaItem {
    * original; si la IA termina bien, la original se borra y no se publican dos fotos.
    */
   retenidaHasta?: string;
+  /**
+   * Cuándo la cola empezó a subir esta original como rescate (fecha ISO). Mientras está puesto,
+   * el trabajo de la IA ya no la puede volver a retener: la original es la que se publica, y el
+   * resultado de la IA no se sube (orden 91: una sola foto por captura, aunque la IA tarde).
+   */
+  subiendoDesde?: string;
+}
+
+/** Cuánto vale un reclamo de la cola: si la pestaña se cerró subiendo, otra lo retoma después. */
+export const RECLAMO_DE_SUBIDA_MS = 5 * 60_000;
+
+/**
+ * ¿Se puede volver a retener esta original? Sólo si sigue en el equipo y la cola no la reclamó.
+ * Es la mitad de la coordinación entre el trabajo de la IA y la cola (orden 91): las dos pasan por
+ * una transacción de la base del navegador, que no deja que dos pestañas decidan a la vez.
+ */
+export function sePuedeRetener(item: OfflineMediaItem | undefined | null): boolean {
+  return !!item && !item.subiendoDesde;
+}
+
+/**
+ * ¿Puede la cola subir ya este elemento? No si sigue retenido (su trabajo está vivo y lo renueva),
+ * ni si otra pestaña lo está subiendo desde hace poco.
+ */
+export function sePuedeReclamar(item: OfflineMediaItem | undefined | null, ahora: number): boolean {
+  if (!item) return false;
+  if (item.retenidaHasta && new Date(item.retenidaHasta).getTime() > ahora) return false;
+  if (item.subiendoDesde && ahora - new Date(item.subiendoDesde).getTime() < RECLAMO_DE_SUBIDA_MS) return false;
+  return true;
+}
+
+/** Lee, decide y escribe en UNA transacción: dos pestañas no pueden ganar las dos. */
+async function decidirYGuardar(
+  id: string,
+  decidir: (item: OfflineMediaItem | undefined) => OfflineMediaItem | null,
+): Promise<boolean> {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const getReq = store.get(id);
+    getReq.onsuccess = () => {
+      const cambiado = decidir(getReq.result as OfflineMediaItem | undefined);
+      if (!cambiado) {
+        resolve(false);
+        return;
+      }
+      const putReq = store.put(cambiado);
+      putReq.onsuccess = () => resolve(true);
+      putReq.onerror = () => reject(putReq.error);
+    };
+    getReq.onerror = () => reject(getReq.error);
+  });
+}
+
+/**
+ * El trabajo de la IA sigue vivo: renueva la retención de su original. Devuelve `false` si la
+ * original ya no se puede retener (la cola la rescató porque la pantalla dejó de renovarla).
+ */
+export function renovarRetencionOfflineMedia(id: string, hastaIso: string): Promise<boolean> {
+  return decidirYGuardar(id, (item) => (sePuedeRetener(item) ? { ...item!, retenidaHasta: hastaIso } : null));
+}
+
+/** La cola reclama un elemento retenido antes de subirlo. `false`: no le toca subirlo ahora. */
+export function reclamarOfflineMediaParaSubir(id: string, ahora = Date.now()): Promise<boolean> {
+  return decidirYGuardar(id, (item) =>
+    sePuedeReclamar(item, ahora) ? { ...item!, subiendoDesde: new Date(ahora).toISOString() } : null,
+  );
 }
 
 /**
@@ -212,6 +280,8 @@ export async function updateOfflineMediaAttempt(id: string, error: string): Prom
       item.metadata = sanitizeOfflineMetadata(item.metadata);
       item.attempts += 1;
       item.lastError = error;
+      // El rescate no salió: queda para el próximo intento de la cola, no reclamado.
+      delete item.subiendoDesde;
       const putReq = store.put(item);
       putReq.onsuccess = () => {
         if (typeof window !== 'undefined') {

@@ -81,6 +81,7 @@ describe('La cola del equipo respeta la original retenida', () => {
       getPendingOfflineMedia: jest.fn(async () => items),
       removeOfflineMedia: jest.fn(async () => undefined),
       updateOfflineMediaAttempt: jest.fn(async () => undefined),
+      reclamarOfflineMediaParaSubir: jest.fn(async () => true),
     }));
     jest.doMock('@/app/actions/touchpix-ai', () => ({ uploadTouchpixPhoto: subir }));
     Object.defineProperty(global.navigator, 'onLine', { value: true, configurable: true });

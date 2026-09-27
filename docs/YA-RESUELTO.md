@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 26 de septiembre de 2026 - Cierre de cobertura de lanzamiento, aun pendiente
+
+Codex agrega `docs/evidencias/92-matriz-lanzamiento.md` y orden 92, sobre codigo `63dace0`.
+No repite las correcciones historicas: separa evidencia de Claude de validacion aqui.
+Portada HTTP 200 y DOM inspeccionado; interacciones de navegador incompletas por timeouts
+del control. App Hosting figuraba en progreso; los trabajos CI fallidos no tenian pasos.
+Ni eso prueba un error de codigo ni el inventario "completo" prueba funcionamiento.
+Pendientes: orden 91, evidencia del candidato, recorridos por rol y ensayo real.
+Un agente economico reviso cobertura documental; Codex contrasto sus limites. No hubo
+build, cambios de app, operaciones con datos reales, fusion ni aprobacion de lanzamiento.
+
+## 26 de septiembre de 2026 - Codex contrasta PR 1230/1231, no cierre total
+
+Sobre main `63dace0c83f990b8610833a56fb825624837ad6f`, sin PR abiertas al consultar:
+la sonda `docs/evidencias/1231-contraste.cjs` confirma los cuatro destinos del helper
+de Touchpix, el guardado con servidor normal y la retencion antes de vencer (6 pasan).
+Dos limites siguen pendientes, no repetir los arreglos ya presentes: el respaldo espera
+al aviso del servidor; la retencion vence aunque la IA siga activa y permite publicar
+original y resultado. Reproduccion aislada, no navegador ni produccion. Instrucciones:
+`docs/ordenes/91-captura-segura-con-servidor-e-ia-lentos.md`. No se cambio codigo de la app,
+no se compilo ni fusiono. El ensayo fisico y la verificacion desplegada no estan certificados.
+
 ## 23 de septiembre de 2026 (noche) — Orden 81: fotocabina sin internet, colas aisladas, ensayo de equipo y barra
 
 - **De Gemini:**
@@ -9846,3 +9868,37 @@ usa: classifyOfflineUploadError en src/app/evento/plataforma-360/[fiestaId]/page
 prueba: tests/e2e/90-lo-que-va-atras-dice-donde-quedo.spec.ts
 ```
 
+## 26 de septiembre de 2026 — Orden 91 (Codex): la captura sobrevive al servidor lento y a la IA lenta
+
+**Qué estaba mal:**
+- **P1:** la cabina con IA esperaba que el servidor contestara el "grabando" antes de guardar la
+  foto en el equipo. Con el servidor colgado, recargar la perdía.
+- **P2:** la original quedaba retenida tres minutos fijos. Si la IA tardaba más, se publicaban la
+  original y el resultado.
+
+**Cómo quedó:**
+- **La foto se guarda en el equipo sin esperar al servidor.** La respuesta del "grabando" se
+  guarda como promesa por trabajo (`capturasDeSesionRef`), y los avisos de "listo" la esperan, así
+  que siguen saliendo después del "grabando" y con la captura correcta (T89-05 sigue cubierto).
+- **La retención se renueva cada minuto mientras el trabajo vive** (`renovarOriginalesVivas`).
+  Si la pantalla se cierra o se recarga, deja de renovarse y a los tres minutos la cola manda la
+  original como rescate.
+- **Una sola foto por captura, también entre pestañas.** La cola **reclama** la original antes de
+  subirla (`reclamarOfflineMediaParaSubir`), y el trabajo la **vuelve a retener** antes de subir el
+  resultado (`renovarRetencionOfflineMedia`). Las dos cosas pasan en una transacción de la base del
+  navegador: o la tiene el trabajo o la tiene la cola. Si ganó la cola, el resultado de la IA no
+  se sube y el invitado ve *"La IA tardó demasiado: tu foto original ya se mandó a la galería"*.
+- Si el rescate falla por señal, el reclamo se suelta y la cola lo reintenta. Si la pestaña se
+  cierra en medio de la subida, a los cinco minutos otra la retoma.
+
+**Por qué así y no un plazo más largo:** Codex lo pidió explícito y tenía razón. Cualquier plazo
+fijo vence alguna vez con la IA andando. Lo que distingue un trabajo vivo de uno abandonado es que
+alguien lo siga renovando.
+
+```comprobar
+usa: capturasDeSesionRef en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: renovarOriginalesVivas en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: retenerOriginal en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: reclamarOfflineMediaParaSubir en src/lib/offline/offline-sync-manager.ts
+prueba: src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
+```

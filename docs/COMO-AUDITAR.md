@@ -712,6 +712,13 @@ cosas a la vez, y las tres se escaparon en la cabina con IA:
    comparación en la pantalla no alcanza. Y cada captura nueva tiene que tener identidad nueva, venga
    de donde venga (Codex encontró que "lista → cuenta regresiva" heredaba la del anterior).
 
+5. **Lo que protege al trabajo, ¿depende de que siga vivo o de un reloj?** (Codex, orden 91.) Un
+   plazo fijo ("tres minutos") no sabe si el trabajo terminó o se abandonó: con la IA lenta vence
+   igual y se publican dos cosas. Lo que protege se **renueva mientras el trabajo vive** y se
+   **reclama en una sola transacción**, así nunca lo tienen dos a la vez. Y **guardar en el equipo
+   no espera a la red**: si un aviso al servidor va antes del guardado, un servidor colgado deja
+   la foto sin guardar.
+
 Al verificar: se sigue el trabajo hasta el cartel final **en cada salida**: bien, sin señal,
 rechazo y sin lugar. Mirar sólo el camino que falla, como hice yo, deja pasar el cartel.
 
