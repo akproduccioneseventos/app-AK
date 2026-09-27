@@ -84,5 +84,9 @@ prueba: src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
 # Sondas ejecutadas: reproducen los dos defectos, no son E2E de navegador.
 prueba: docs/evidencias/1233-aislamiento-env.cjs
 prueba: docs/evidencias/1233-rescate-pendiente.cjs
-# Extender las pruebas existentes y registrar ejecucion sobre el SHA corregido.
+# Claude, 27/09: hecho P1 y P2. El despliegue espera el registro de Firebase.
+usa: ambienteQueVeNext en scripts/entorno-de-pruebas.mjs
+usa: anotarRescate en src/lib/offline/offline-sync-manager.ts
+# Queda en FALTA hasta tener el registro del build que falló y su causa anotada.
+archivo: docs/evidencias/93-registro-del-despliegue.md
 ```

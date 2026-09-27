@@ -9937,3 +9937,40 @@ usa: NEXT_PUBLIC_AK_VERSION en src/app/api/health/route.ts
 prueba: src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts
 prueba: src/__tests__/la-salud-dice-que-version-atiende.test.ts
 ```
+
+## 27 de septiembre de 2026 — Orden 93 (Codex): entorno sin claves de archivos, y "publicada" sólo confirmada
+
+**Qué estaba mal:**
+- **P1:** el entorno aislado limpiaba el ambiente del proceso, pero Next lee solo `.env.local`,
+  `.env.production` y compañía desde la carpeta donde corre, así que una clave guardada en un
+  archivo entraba igual. Codex lo reprodujo con claves inventadas.
+- **P2:** la cabina con IA decía "tu foto original ya se mandó a la galería" en cuanto la cola
+  **reclamaba** la subida, antes de la respuesta del servidor.
+
+**Cómo quedó:**
+- **P1:** la app del entorno se compila y se sirve desde una **copia descartable** del código
+  commiteado (`prepararCarpetaAislada`, un `git worktree`). Los `.env*` están ignorados y no
+  viajan; si alguno estuviera commiteado, se saca de la copia. Antes de arrancar se calcula con el
+  mismo cargador de Next lo que va a ver el servidor (`ambienteQueVeNext`), y si aparece cualquier
+  nombre fuera de la lista, **no arranca**. No se toca ningún archivo de claves del usuario. Al
+  cerrar, la copia se borra entera, con la fiesta sembrada adentro.
+- **P2:** la original tiene cinco estados (`EstadoDeLaOriginal`): retenida, subiendo, publicada,
+  rechazada y sin rastro. La cola **anota el resultado del rescate antes** de sacarlo de la lista
+  (`anotarRescate`). El trabajo espera hasta un minuto mientras está subiendo. Después dice:
+  - "ya está en la galería", sólo si se confirmó;
+  - "se está subiendo", si todavía no hay respuesta;
+  - "no se pudo publicar", si la rechazaron;
+  - si falló por señal, la original vuelve al trabajo y sale sólo el resultado de la IA.
+
+**El despliegue que falló (1233):** no se sabe la causa. GitHub sólo guarda "Build failed" y el
+registro está en la consola de Firebase. En una copia limpia del mismo código compila bien. **No se
+cambia nada del despliegue sin ver ese registro.**
+
+```comprobar
+usa: prepararCarpetaAislada en scripts/entorno-de-pruebas.mjs
+usa: ambienteQueVeNext en scripts/entorno-de-pruebas.mjs
+usa: anotarRescate en src/lib/offline/offline-sync-manager.ts
+usa: original-subiendo en src/lib/touchpix/terminar-trabajo-ia.ts
+prueba: src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts
+prueba: src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
+```

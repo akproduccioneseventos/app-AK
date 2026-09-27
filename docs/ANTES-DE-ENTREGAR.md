@@ -64,6 +64,9 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     copia de su invitado y su identidad, no leer la pantalla cuando termina. Lo que se guarda
     en el equipo va **antes** de cualquier espera a la red, y lo que lo protege se renueva
     mientras el trabajo vive; un plazo fijo no sabe si el trabajo sigue andando.
+17. **¿Lo que tu pantalla afirma lo comprobaste en el último paso?** "Publicada" es cuando el
+    servidor contestó que sí, no cuando empezó a subir. Retené esa respuesta en la prueba y fijate
+    que el cartel no salga antes.
 
 ## Y dos reglas que valen para las pruebas
 

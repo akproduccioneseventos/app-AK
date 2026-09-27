@@ -901,6 +901,18 @@ mientras espera**. Y un plazo fijo no sabe si el trabajo sigue vivo.
 **Qué se hace distinto:** punto 5 de la pregunta 27. Antes de agregar un `await`, mirar qué viene
 después de él y si eso puede esperar.
 
+### 27. Dar por comprobado algo mirando el paso del medio
+
+**Pasó el 27 de septiembre de 2026 (orden 93).** Dije que el entorno de pruebas estaba aislado
+porque limpié el ambiente del proceso, y Next lee solo los `.env*` de la carpeta. Y la cabina decía
+"publicada" cuando la subida recién arrancaba. Lo encontró Codex, con claves inventadas.
+
+**Qué era lo cierto:** lo que se afirma se comprueba donde pasa de verdad: en lo que ve el
+servidor, y en la respuesta de la subida.
+
+**Qué se hace distinto:** pregunta 28 del método y 17 de `ANTES-DE-ENTREGAR.md`. En la prueba se
+retiene el último paso, sea la respuesta o el archivo, y se mira que la afirmación no salga antes.
+
 ### 25. Contestarle al dueño en inglés
 
 **Pasó el 26 de septiembre de 2026**, al cerrar la devolución 89: el informe final salió en inglés.
@@ -1375,6 +1387,7 @@ con otra cara.
 | La respuesta tardía de la IA cerraba la captura del siguiente, y el operador quedaba trabado | `src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts` |
 | La cabina con IA perdía la foto con el servidor lento, y publicaba dos con la IA lenta | `src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts` |
 | Sin entorno aislado, probar lo interno por rol podía tocar fiestas y cobros reales | `src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts` |
+| El entorno aislado leía claves de `.env*` de la carpeta, y la cabina decía "publicada" antes de la respuesta | `src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts` y `src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts` |
 | Nadie podía saber qué versión atendía el dominio | `src/__tests__/la-salud-dice-que-version-atiende.test.ts` |
 
 ### Cómo se elige el matafuego
