@@ -58,17 +58,17 @@ test.describe('Bloque 4 - Tótem arranca sin internet y se recupera solo', () =>
       await page.goto(`/evento/totem/${fiestaId}/totem-entrada`);
 
       // Debe mostrar el cartel de espera y reintento
-      await expect(
-        page.getByText('Esperando conexión, se reintenta solo')
-      ).toBeVisible({ timeout: 15_000 });
+      const cartelEspera = page.getByText('Esperando conexión, se reintenta solo');
+      await expect(cartelEspera).toBeVisible({ timeout: 15_000 });
+      await expect(cartelEspera).toContainText('Esperando conexión, se reintenta solo');
 
       // Restauramos la conexión a internet
       redCortada = false;
 
       // El tótem se reintenta automáticamente a los 5 segundos y termina mostrando su título
-      await expect(
-        page.getByRole('heading', { name: tituloTotem })
-      ).toBeVisible({ timeout: 15_000 });
+      const headingTotem = page.getByRole('heading', { name: tituloTotem });
+      await expect(headingTotem).toBeVisible({ timeout: 15_000 });
+      await expect(headingTotem).toContainText(tituloTotem);
     } finally {
       borrarFiesta(fiestaId);
     }
