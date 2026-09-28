@@ -70,11 +70,15 @@ async function leerSalones(): Promise<Salon[]> {
   return readData<Salon[]>(SALONES_FILE, []);
 }
 
-/** Los salones como se muestran en las paginas de venta, sin el contacto del gerente. */
+/**
+ * Los salones como se muestran en las paginas de venta, sin el contacto del gerente ni lo que
+ * AK le paga al salon: esta accion la puede llamar cualquiera desde el navegador.
+ */
 export async function getSalonesPublicos(): Promise<Salon[]> {
   const salones = await leerSalones();
-  return salones.map(({ gerente, ...visible }) => {
+  return salones.map(({ gerente, pagos, ...visible }) => {
     void gerente;
+    void pagos;
     return visible as Salon;
   });
 }

@@ -282,6 +282,25 @@ cálculo, ni el reloj de la promoción, ni el texto de ~l.1108.
 **La prueba** va en `tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts` (bloque 3): al abrir
 el paso 1 no aparece "$0" en el pie; al elegir un paquete aparece un monto mayor que cero.
 
+## Bloque 10 — Estacionamiento y accesibilidad del Club Uruguay (pedido del dueño, 28/09/2026)
+
+El dueño quiere que la página del salón diga si hay estacionamiento y cómo es la accesibilidad.
+**Esos datos no se inventan**: los carga el equipo y la página los muestra sólo si están.
+
+- `src/types/salon.ts` ~l.38, `Salon`: sumá `estacionamiento?: string` y `accesibilidad?: string`.
+- `src/app/(app)/empresa/salones/page.tsx`: dos campos de texto en el formulario, al lado de
+  "Capacidad (personas)" (~l.138), con ayuda "Lo que ve el cliente en la página del salón. Si lo
+  dejás vacío, no se muestra.". Se guardan con el `saveSalon` de siempre.
+- `src/app/club-uruguay/page.tsx`, fila de tarjetas (~l.167-193): una tarjeta "Estacionamiento" y
+  otra "Accesibilidad", **sólo si el dato tiene texto**, con el mismo estilo que "Ubicación".
+  Acomodá la grilla para que no quede un hueco (`sm:grid-cols-3` o `sm:grid-cols-4` según cuántas
+  haya).
+- **No toques** `getSalonesPublicos` (`src/app/actions/salones.ts`): ya saca el gerente y los
+  pagos, y los dos campos nuevos pasan solos.
+- **La prueba** (`src/__tests__/el-salon-muestra-lo-que-se-cargo.test.ts`): con un salón con
+  `estacionamiento` cargado, la página muestra ese texto; sin el dato, no aparece la palabra
+  "Estacionamiento".
+
 ## La prueba
 
 `src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts`. Por cada archivo arreglado, comprobá que
@@ -307,6 +326,9 @@ prueba: tests/e2e/la-demo-de-la-barra-respeta-el-trago.spec.ts
 usa: textoVisibleDeLaFoto en src/components/landing/GallerySection.tsx
 prueba: src/__tests__/la-galeria-no-muestra-nombres-de-archivo.test.ts
 usa: Elegí tus servicios para ver el total en src/app/simulador-de-presupuesto/page.tsx
+usa: estacionamiento en src/app/club-uruguay/page.tsx
+usa: accesibilidad en src/app/(app)/empresa/salones/page.tsx
+prueba: src/__tests__/el-salon-muestra-lo-que-se-cargo.test.ts
 usa: sm:flex-wrap en src/components/public/InteractiveTechShowcase.tsx
 prueba: tests/e2e/el-carrusel-de-tecnologia-se-ve-entero.spec.ts
 prueba: src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts

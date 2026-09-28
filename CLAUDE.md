@@ -1460,6 +1460,7 @@ con otra cara.
 | Lo que se servía en la barra sin pasar por un pedido no dejaba rastro | `src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts` |
 | Un corte de señal dejaba la pantalla gigante en blanco, y copiar la configuración de otra fiesta se llevaba la foto del agasajado | `src/__tests__/el-muro-no-se-vacia-si-se-corta-la-senal.test.ts` y `src/__tests__/copiar-configuracion-no-copia-personas.test.ts` |
 | Un pendiente del portal llevaba a una sección oculta y el botón no hacía nada | `src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts` |
+| La lista pública de salones devolvía lo que AK le paga al salón | `src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts` |
 
 ### Cómo se elige el matafuego
 
