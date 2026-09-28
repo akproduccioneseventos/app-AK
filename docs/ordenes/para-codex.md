@@ -65,3 +65,7 @@ alcance en `docs/evidencias/94-recorridos-reales.md`.
   o contra Instagram. El caso “Kebab gourmet” sí muestra brochetas. El clic de puntero
   del navegador automatizado quedó inconcluso; Enter sí carga el lote y no se adjudica
   el comportamiento a la app hasta una repetición física.
+- Hallazgo nuevo de metadatos: 117/144 (81%) usan títulos técnicos `Img ...` y la vista
+  ampliada muestra descripciones genéricas. Código observado en `src/data/catalogo-fotos.json`,
+  consumidor `src/components/landing/GallerySection.tsx`, copia auditada `7724ec9`.
+  No inventar categorías; revisar la asociación foto/categoría con material de AK.

@@ -147,6 +147,14 @@ con el código que sirve producción ni con la tanda pendiente.
 - PENDIENTE NO CLASIFICADO: con las acciones de puntero de este navegador automatizado,
   “Ver más fotos y videos” no avanzó; activarlo con Enter sí cargó 12 tarjetas cada vez.
   No atribuirlo a la web hasta repetir el clic con puntero humano/dispositivo real.
+- P2 REPRODUCIDO, metadatos de galería: 117/144 tarjetas (81%) muestran títulos de
+  inventario como `Img 035 P04 X1123`, no nombres que orienten al cliente. En el lightbox
+  también aparece una descripción genérica (“Foto de decoración del catálogo…”). Ejemplo
+  visual abierto: foto del equipo en el salón etiquetada Decoración; confirmar categoría
+  con AK, no reclasificar por inferencia. En la copia `7724ec9`, los metadatos están en
+  `src/data/catalogo-fotos.json` y los consume `src/components/landing/GallerySection.tsx`.
+  El inventario no detecta repeticiones exactas de URL/título, pero no compara similitud
+  visual ni duplicados con Instagram.
 - NO CONTRASTADO CON LA TANDA: la copia disponible está en `codex/entorno-windows-94`,
   HEAD `f428d35c`; `origin/main` es `621f41c`. El selector de `origin/main` contiene
   `setSelectedStation` y `onClick`, pero esto no valida despliegue ni cambios pendientes.
