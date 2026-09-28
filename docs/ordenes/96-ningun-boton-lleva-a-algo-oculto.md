@@ -125,7 +125,7 @@ cumplir"*. Cambiá **exactamente** esto (líneas aproximadas):
 | `src/app/simulador-de-presupuesto/page.tsx` ~l.1995 y `src/app/simulador/page.tsx` ~l.81 | "…sin estrés, con costo real y garantía absoluta" | "…sin estrés y con costo real" |
 | `src/app/simulador-de-presupuesto/page.tsx` ~l.2025 | "Lo que nos diferencia y te garantiza tranquilidad total" | "Lo que nos diferencia" |
 | `src/app/simulador-de-presupuesto/page.tsx` ~l.2053 | "Calidad y cantidad garantizadas" | "Calidad y cantidad, como se contrató" |
-| `src/components/landing/StatsSection.tsx` ~l.9-12 | "+12" años; tarjetas "100% Clientes satisfechos" y "24/7 Acompañamiento" | "+7" años; **sacá esas dos tarjetas** y acomodá la grilla para dos |
+| `src/components/landing/StatsSection.tsx` ~l.9-12 | "+12" años; "100%" / "Clientes satisfechos"; "24/7" / "Acompañamiento" | "+7" años; la tercera queda **sin porcentaje**: `value: 'Clientes'`, `label: 'Satisfechos'` (el contador ya muestra el texto tal cual cuando no hay número); **sacá la de 24/7** y acomodá la grilla para tres |
 | `src/components/public/HeroSection.tsx` ~l.132 | "✅ +10 años de experiencia" | "✅ +7 años de experiencia" |
 | `src/data/event-catalogs/shared.ts` ~l.118 y ~l.124 | "+10 años de experiencia"; "para garantizar la máxima calidad" | "+7 años de experiencia"; "para cuidar la calidad" |
 | `src/components/landing/AkDifferenceSection.tsx` ~l.15 | "Menos proveedores, cero fallas." | "Menos proveedores, todo coordinado por el mismo equipo." |
@@ -142,8 +142,8 @@ cumplir"*. Cambiá **exactamente** esto (líneas aproximadas):
   `src/components/landing`, `src/data`, los artículos del blog). Lo que aparezca y sea una promesa
   se saca con el mismo criterio. Listalo en la descripción de la propuesta.
 - **La prueba** (`src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts`) recorre esos
-  mismos archivos y falla si aparece `garant`, `24/7`, `24 hs`, `cero fallas`, "+10 años" o "+12
-  años" de la empresa. **Tiene que ponerse en rojo si se vuelve a escribir "garantía absoluta".**
+  mismos archivos y falla si aparece `garant`, `24/7`, `24 hs`, `cero fallas`, "+10 años", "+12
+  años" de la empresa o "100%" junto a "satisfechos". **Tiene que ponerse en rojo si se vuelve a escribir "garantía absoluta".**
 
 ## La prueba
 
