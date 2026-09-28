@@ -940,6 +940,16 @@ plata, cobros, comida y permisos, y el arreglo de una línea al verificar.
 la orden en `docs/ordenes/`, aunque sea para el mismo día. Si la urgencia hace pensar en
 programarla igual, primero se le pregunta al dueño.
 
+### 29. Encadenar "fusionar" con "limpiar la rama" sin mirar si la fusión salió
+
+**Pasó el 28 de septiembre de 2026.** Mandé la fusión y, en paralelo, el comando que deja la rama
+igual a la versión principal. La fusión falló (GitHub todavía no había calculado si se podía) y la
+limpieza igual corrió: la copia local quedó sin los cambios. No se perdió nada porque la rama ya
+estaba subida.
+
+**Qué se hace distinto:** la limpieza de la rama va **después** de ver "merged: true", nunca en la
+misma tanda que la fusión. Si la fusión dice "not mergeable" apenas subido, se espera y se reintenta.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
