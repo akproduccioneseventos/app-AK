@@ -1156,6 +1156,11 @@ lo que hice?* Si es lo segundo, no se manda.
   personal**: se destaca el trabajo en equipo y el organizador. Amplía la regla de agosto de no prometer plazos ni precios. Lo hace la orden 96,
   bloque 5.
 
+- **Personal por invitados (28 de septiembre de 2026).** Un mozo de cocina y un mozo de atención
+  **cada 25 invitados** (`applyAutomaticStaffByGuests`). Las islas pueden ahorrar vajilla, **no
+  mozos**. Y la IA del blog escribe con respaldo: busca páginas del rubro y los datos de AK, y no
+  afirma lo que no está ahí (orden 96, bloque 6).
+
 - **Comparación con el rubro, 28 de septiembre de 2026.** De las 23 mejoras propuestas, el dueño
   **descartó**: recargo por cuota atrasada, seña reembolsable, merma de comida, propina para el
   personal, preguntas propias en el RSVP, transporte para invitados, cartelito de alérgenos y venta
