@@ -82,3 +82,7 @@ alcance en `docs/evidencias/94-recorridos-reales.md`.
   comerciales sin aprobación del dueño; cotejar el alcance real del simulador primero.
   El resultado oficial hallado (Decreto 7.291/2021) trata pirotecnia sonora, no niveles
   de música de locales/eventos; no usarlo como respaldo de esa afirmación.
+- Blog público, guía de bebidas (28/09): cantidades exactas y ajuste por calor sin fuente
+  ni supuestos, más promesa de que AK cubre el stock. **NO CONTRASTADO CON LA TANDA NI
+  CON EL SHA DE PRODUCCIÓN.** Claude debe confirmar valores y alcance contra la operación
+  de catering/barra antes de editar o publicar; no tocar precios/compras.

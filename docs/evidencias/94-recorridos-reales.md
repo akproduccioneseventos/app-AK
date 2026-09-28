@@ -231,6 +231,21 @@ consultas ni usar botones para compartir.
   los límites de decibelios para música de salones que sugiere el artículo:
   https://juntadesalto.gub.uy/2021/07/decreto-no-7-291-2021/.
 
+## Blog público: guía de bebidas
+
+Entorno: web publicada, PC, 28/09/2026. Abierto desde la tarjeta destacada del índice.
+
+- P2 COPY/CONFIANZA: presenta cantidades precisas (1,5 L sin alcohol/persona; 2 L por
+  adolescente; 3–4 tragos por adulto; 1 kg de hielo por invitado) y un ajuste de 20%
+  por calor, sin fuente, supuestos de duración ni perfil de consumo. El artículo afirma
+  además que el stock queda cubierto al contratar la barra AK. No se validaron estos
+  valores contra costos, operación ni catálogo real. Claude debe confirmar los números
+  y el alcance del servicio; hasta entonces, marcarlos como orientación aproximada o
+  retirar precisión/promesa. No completar compras ni cambiar el cálculo contable desde
+  este artículo.
+- PASS parcial: la página muestra secciones, checklist, FAQ, lectura relacionada y CTA;
+  el contenido es accesible en texto. No se contactó a AK ni se probó el formulario/compra.
+
 ## Entrada al simulador desde una categoría de evento
 
 Entorno: web publicada, PC, 28/09/2026. Recorrido sin completar datos personales ni
