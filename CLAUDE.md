@@ -921,6 +921,19 @@ El dueño: *"en español siempre"*.
 **Qué se hace distinto:** **todo** lo que lee el dueño va en castellano rioplatense, incluidos los
 avisos cortos mientras se trabaja. Antes de mandar, se relee el idioma.
 
+### 28. Programar entretenimiento porque "es para hoy"
+
+**Pasó el 28 de septiembre de 2026.** El dueño dijo que sí a tres mejoras de las estaciones (tótem,
+avisos de cámara, fotocabina) y las programé yo. El dueño: *"el que programa es Gemini"*. Ya había
+pasado con la fotocabina entera.
+
+**Qué era lo cierto:** la urgencia no cambia el reparto. Entretenimiento es de Gemini; lo mío es
+plata, cobros, comida y permisos, y el arreglo de una línea al verificar.
+
+**Qué se hace distinto:** cuando el dueño dice que sí a una mejora que no es mía, lo que sale es
+la orden en `docs/ordenes/`, aunque sea para el mismo día. Si la urgencia hace pensar en
+programarla igual, primero se le pregunta al dueño.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1396,6 +1409,7 @@ con otra cara.
 | El entorno aislado leía claves de `.env*` de la carpeta, y la cabina decía "publicada" antes de la respuesta | `src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts` y `src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts` |
 | Nadie podía saber qué versión atendía el dominio | `src/__tests__/la-salud-dice-que-version-atiende.test.ts` |
 | La pantalla de las estaciones se apagaba sola entre invitado e invitado | `src/__tests__/las-estaciones-no-apagan-la-pantalla.test.tsx` |
+| El tótem no mostraba su código sin iniciar sesión, y la cámara decía "revisá los permisos" para cualquier falla | `src/__tests__/las-estaciones-dicen-que-tocar.test.ts` |
 
 ### Cómo se elige el matafuego
 

@@ -74,6 +74,7 @@ import {
   type OpcionFondo,
 } from '@/lib/entretenimiento/segmentacion-fondo';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
 
 const FRAMES = [
   { id: 'none', label: 'Sin Marco', bg: 'transparent' },
@@ -110,6 +111,7 @@ export default function FotocabinaPage() {
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
   const [activeStickers, setActiveStickers] = useState<string[]>([]);
+  const [mostrarOpciones, setMostrarOpciones] = useState(false);
   const toggleSticker = (s: string) => {
     setActiveStickers((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
@@ -276,7 +278,7 @@ export default function FotocabinaPage() {
         videoRef.current.srcObject = mediaStream;
       }
     } catch (err) {
-      const cameraError = 'No se pudo acceder a la cámara. Por favor, revisa los permisos del navegador.';
+      const cameraError = explicarFallaDeCamara(err);
       setErrorMsg(cameraError);
       void updateEntertainmentSessionStatus(
         fiestaId,
@@ -1385,6 +1387,32 @@ export default function FotocabinaPage() {
                   </p>
                 </div>
 
+                <div className="pt-2">
+                  <button
+                    onClick={takePhoto}
+                    data-testid="boton-sacar-foto"
+                    className="w-full h-16 rounded-xl text-white font-black text-base uppercase tracking-wider transition shadow-xl flex items-center justify-center gap-2"
+                    style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
+                  >
+                    <Camera className="w-5 h-5" />
+                    Preparar foto
+                  </button>
+                </div>
+
+                {/* Las opciones van plegadas (27/09/2026): el invitado saca la foto en un toque con lo que
+                    dejó elegido el operador, y la fila avanza. Quien quiere cambiar algo, lo abre. */}
+                <button
+                  type="button"
+                  onClick={() => setMostrarOpciones((v) => !v)}
+                  aria-expanded={mostrarOpciones}
+                  data-testid="boton-personalizar-foto"
+                  className="w-full text-sm font-bold text-zinc-200 underline underline-offset-4 hover:text-amber-400 transition"
+                >
+                  {mostrarOpciones ? 'Listo, ocultar opciones' : 'Personalizar mi foto (fondo, marco y stickers)'}
+                </button>
+
+                {mostrarOpciones && (
+                  <>
                 {/* Selector táctil de fondo virtual */}
                 <div className="flex flex-col gap-2 w-full pt-1">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 text-left">
@@ -1507,6 +1535,9 @@ export default function FotocabinaPage() {
                   </div>
                 </div>
 
+                  </>
+                )}
+
                 {/* Galería de la noche dentro de la estación */}
                 <div className="flex justify-center pt-1">
                   <a
@@ -1519,17 +1550,6 @@ export default function FotocabinaPage() {
                   </a>
                 </div>
 
-                <div className="pt-2">
-                  <button
-                    onClick={takePhoto}
-                    data-testid="boton-sacar-foto"
-                    className="w-full h-16 rounded-xl text-white font-black text-base uppercase tracking-wider transition shadow-xl flex items-center justify-center gap-2"
-                    style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
-                  >
-                    <Camera className="w-5 h-5" />
-                    Preparar foto
-                  </button>
-                </div>
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
@@ -45,6 +45,10 @@ function isVideoUrl(url?: string) {
 export default function TotemPublicPage() {
   usePantallaPrendida();
   const params = useParams();
+  // Permiso que ya trae el enlace armado desde el panel de entretenimiento (27/09/2026). Es el
+  // mismo permiso de invitado que se imprime en el QR, firmado por el servidor y con vencimiento;
+  // así el tótem se prende en cualquier pantalla del salón sin iniciar sesión en ella.
+  const permisoDelEnlace = useSearchParams().get('access') || '';
   const fiestaId = params.fiestaId as string;
   const totemId = params.totemId as string;
 
@@ -168,12 +172,14 @@ export default function TotemPublicPage() {
    * quien la abrio es del equipo de AK. Asi el permiso queda en la pantalla del
    * salon, no repartido por internet.
    */
-  const [permisoDeSalon, setPermisoDeSalon] = useState('');
+  const [permisoDeSalon, setPermisoDeSalon] = useState(permisoDelEnlace);
   // Por qué todavía no hay código (27/09/2026): antes la pantalla giraba en "Conectando estación"
   // para siempre si la abría alguien sin la sesión del equipo, y nadie sabía qué hacer.
   const [porQueNoHayCodigo, setPorQueNoHayCodigo] = useState('');
 
   useEffect(() => {
+    // Con el permiso en el enlace no hace falta pedirlo: se usa ese.
+    if (permisoDelEnlace) return;
     let vigente = true;
     let timer: NodeJS.Timeout;
     const fetchToken = () => {
@@ -184,7 +190,7 @@ export default function TotemPublicPage() {
             setPorQueNoHayCodigo('');
             if (timer) clearInterval(timer);
           } else if (vigente && !res.success) {
-            setPorQueNoHayCodigo('Abrí esta pantalla con la cuenta del equipo de AK para mostrar el código.');
+            setPorQueNoHayCodigo('Abrí esta pantalla desde el panel de entretenimiento, o con la cuenta del equipo de AK, para mostrar el código.');
           }
         })
         .catch(() => {
@@ -200,7 +206,7 @@ export default function TotemPublicPage() {
       vigente = false; 
       clearInterval(timer); 
     };
-  }, [fiestaId]);
+  }, [fiestaId, permisoDelEnlace]);
 
   const qrUrl = useMemo(() => {
     const base = totem?.qrUrl || (origin ? `${origin}/evento/social/${fiestaId}` : '');

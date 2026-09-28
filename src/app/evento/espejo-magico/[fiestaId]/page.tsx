@@ -60,6 +60,7 @@ import {
   type AnimacionConLocucion,
 } from '@/lib/entretenimiento/animaciones-con-locucion';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -304,7 +305,7 @@ export default function EspejoMagicoPage() {
         videoRef.current.srcObject = mediaStream;
       }
     } catch (err) {
-      const cameraError = 'No se pudo acceder a la cámara. Revisa los permisos del navegador y vuelve a intentar.';
+      const cameraError = explicarFallaDeCamara(err);
       setErrorMsg(cameraError);
       void updateEntertainmentSessionStatus(
         fiestaId,
