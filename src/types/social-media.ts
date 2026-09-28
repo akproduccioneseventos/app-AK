@@ -44,6 +44,8 @@ export interface SocialPost {
     lastAttemptAt?: string;
     // Identificador de publicación en plataformas asíncronas (ej. TikTok)
     publishId?: string;
+    // Trazabilidad de reciclado de contenidos de alto rendimiento
+    recicladoDe?: string;
 }
 
 export type NewSocialPostData = Omit<SocialPost, 'id' | 'createdAt' | 'updatedAt' | 'mediaUrl' | 'mediaType'> & {

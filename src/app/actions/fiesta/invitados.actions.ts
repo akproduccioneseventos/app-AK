@@ -553,3 +553,40 @@ export async function trackGuestCtaClick(
   }, { publicRsvp: true });
   return { success: result.success };
 }
+
+/**
+ * Registra que el invitado abrió su enlace personal (sólo la primera vez).
+ * Sigue el patrón seguro de trackGuestCtaClick validando hasPublicGuestAccess.
+ */
+export async function registrarQueAbrioLaInvitacion(
+  fiestaId: string,
+  guestId: string,
+  guestAccessToken: string
+): Promise<{ success: boolean }> {
+  try {
+    const result = await updateFiestaData(fiestaId, data => {
+      const currentGuest = (data.invitados || []).find(inv => inv.id === guestId);
+      if (!hasPublicGuestAccess(currentGuest, guestId, guestAccessToken)) {
+        throw new Error('Acceso de invitado no autorizado.');
+      }
+
+      // Sólo la primera vez: no sobreescribir la fecha original
+      if (currentGuest.invitacionAbiertaAt) {
+        return data;
+      }
+
+      const ahora = new Date().toISOString();
+      const invitados = (data.invitados || []).map(inv => {
+        if (inv.id !== guestId) return inv;
+        return {
+          ...inv,
+          invitacionAbiertaAt: ahora,
+        };
+      });
+      return { ...data, invitados };
+    }, { publicRsvp: true });
+    return { success: result.success };
+  } catch {
+    return { success: false };
+  }
+}

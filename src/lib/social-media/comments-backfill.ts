@@ -9,10 +9,154 @@ import type {
 } from '@/types/comentarios-redes';
 import { readData, writeData } from '@/lib/data-service';
 import { clasificarComentario } from './clasificador-comentarios';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 
 const COMMENTS_FILE = 'social-comments.json';
 const CONNECTIONS_FILE = 'social-connections.json';
 const STATE_FILE = 'social-comments-backfill-state.json';
+const AJUSTES_RESPUESTAS_FILE = 'marketing-respuestas-comentarios.json';
+
+export interface AjustesRespuestasComentarios {
+  activo: boolean;
+  actualizadoAt?: string;
+}
+
+export async function getAjustesRespuestasComentarios(): Promise<AjustesRespuestasComentarios> {
+  const guardados = await readData<AjustesRespuestasComentarios>(AJUSTES_RESPUESTAS_FILE, { activo: false });
+  return { ...guardados, activo: guardados?.activo === true };
+}
+
+export async function setAjustesRespuestasComentarios(activo: boolean): Promise<AjustesRespuestasComentarios> {
+  const ajustes = { activo, actualizadoAt: new Date().toISOString() };
+  await writeData(AJUSTES_RESPUESTAS_FILE, ajustes);
+  return ajustes;
+}
+
+export function limpiarNumerosDePrecio(texto: string): string {
+  return texto.replace(/\$?\s*\d+([.,]\d+)?\s*(usd|dólares|pesos|uyu)?/gi, '').trim();
+}
+
+export async function armarRespuestaAPregunta(
+  comentarioTexto: string,
+  autor: string,
+): Promise<string | null> {
+  const tienePresupuesto = await hayPresupuestoParaIA();
+  if (!tienePresupuesto) return null;
+
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) {
+    return '¡Hola! Para consultar disponibilidad y ver presupuestos a medida, escribinos directamente por WhatsApp y te asesoramos.';
+  }
+
+  try {
+    const prompt = `Un usuario (${autor || 'Cliente'}) dejó este comentario en las redes de AK Producciones:
+"${comentarioTexto}"
+
+Generá una respuesta corta (máximo 2 oraciones), amable y cercana en español rioplatense (uruguayo).
+REGLAS ESTRICTAS:
+1. NO des ningún precio ni menciones números de dinero bajo ningún concepto.
+2. NO confirmes disponibilidad de fechas.
+3. Invitá siempre a escribir por WhatsApp para coordinar y asesorarlo en detalle.`;
+
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2 },
+      }),
+    });
+
+    if (!response.ok) {
+      return '¡Hola! Para consultar disponibilidad y ver presupuestos a medida, escribinos al WhatsApp de AK Producciones y te pasamos toda la info.';
+    }
+
+    const data = await response.json();
+    const textoIA = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!textoIA) {
+      return '¡Hola! Para consultar disponibilidad y ver presupuestos a medida, escribinos al WhatsApp de AK Producciones y te pasamos toda la info.';
+    }
+
+    await registrarConsumoIA('clasificacion-comentarios');
+    return limpiarNumerosDePrecio(textoIA);
+  } catch {
+    return '¡Hola! Para consultar disponibilidad y coordinar, escribinos por WhatsApp.';
+  }
+}
+
+export async function postReplyToMetaComment(
+  commentId: string,
+  network: CommentNetwork,
+  message: string,
+  accessToken: string,
+): Promise<boolean> {
+  try {
+    const endpoint =
+      network === 'Instagram'
+        ? `https://graph.facebook.com/${graphVersion()}/${commentId}/replies`
+        : `https://graph.facebook.com/${graphVersion()}/${commentId}/comments`;
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message,
+        access_token: accessToken,
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function responderPreguntaComentarioSiAplica(
+  comentario: SocialComment,
+  connections?: SocialConnection[],
+): Promise<boolean> {
+  if (comentario.respuestaAutomatica) return false;
+  if (comentario.isInsultOrSpam || comentario.isAutoHidden) return false;
+  if (!comentario.esPregunta) return false;
+
+  const ajustes = await getAjustesRespuestasComentarios();
+  if (!ajustes.activo) return false;
+
+  const presupuestoOk = await hayPresupuestoParaIA();
+  if (!presupuestoOk) return false;
+
+  const conns = connections || (await readData<SocialConnection[]>(CONNECTIONS_FILE, []));
+  let token: string | undefined;
+
+  if (comentario.network === 'Facebook') {
+    const conn = conns.find((c) => c.platform === 'Facebook');
+    token = conn?.pageAccessToken;
+  } else if (comentario.network === 'Instagram') {
+    const conn = conns.find((c) => c.platform === 'Instagram');
+    token = conn?.pageAccessToken;
+  }
+
+  if (!token) return false;
+
+  const respuestaTexto = await armarRespuestaAPregunta(comentario.text, comentario.authorName);
+  if (!respuestaTexto) return false;
+
+  const publicadoOk = await postReplyToMetaComment(
+    comentario.networkCommentId,
+    comentario.network,
+    respuestaTexto,
+    token,
+  );
+
+  if (publicadoOk) {
+    comentario.respuestaAutomatica = {
+      texto: respuestaTexto,
+      at: new Date().toISOString(),
+    };
+    return true;
+  }
+
+  return false;
+}
 
 const DEFAULT_EARLIEST_DATE = '2019-09-01T00:00:00.000Z';
 
@@ -366,7 +510,13 @@ export async function syncCommentsFromNetworks(options?: { full?: boolean }): Pr
     inc.sentimentReason = clasif.sentimentReason;
     inc.isInsultOrSpam = clasif.isInsultOrSpam;
     inc.isLegitimateComplaint = clasif.isLegitimateComplaint;
+    inc.esPregunta = clasif.esPregunta;
     inc.classifiedAt = new Date().toISOString();
+
+    // Si es pregunta y no es insulto ni queja auto-ocultada, responder automáticamente si está activo
+    if (inc.esPregunta && !inc.isInsultOrSpam && !inc.respuestaAutomatica) {
+      await responderPreguntaComentarioSiAplica(inc, connections);
+    }
 
     // Si es insulto o spam flagrante, ocultamiento automático reversible
     if (clasif.autoHideRecommended) {

@@ -283,3 +283,13 @@ export const defaultCompanyInfo: CompanyInfo = {
     googleReviewsLink: "",
     enableGoogleReviewsAutoRequest: false,
 };
+
+export interface AjustesLlegadaPersonal {
+  llegadaConUbicacion: boolean;
+  radioMetros: number;
+}
+
+export const defaultAjustesLlegadaPersonal: AjustesLlegadaPersonal = {
+  llegadaConUbicacion: false,
+  radioMetros: 300,
+};

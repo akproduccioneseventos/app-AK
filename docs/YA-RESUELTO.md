@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 28 de septiembre de 2026 — Orden 95: toda la app a la par del rubro en 12 bloques
+
+- **Bloque 1 — Avisos al cliente listos para mandar:** Se integró `saveScheduledMessage` en bandeja de alertas (`src/app/(app)/alertas/page.tsx`), la tarea automática `avisos-al-cliente` para revisión humana antes del envío, probado en `src/__tests__/los-avisos-al-cliente-quedan-en-la-bandeja.test.ts`.
+- **Bloque 2 — Seguimiento de prospectos en pasos:** Se agregaron `pasos` (2, 7 y 15 días) y registro de `recontactosEnviados` en CRM leads, respetando cancelaciones y el interruptor apagado de fábrica, probado en `src/__tests__/el-seguimiento-va-en-pasos.test.ts`.
+- **Bloque 3 — Mejor horario para publicar:** Función pura `mejorHorario` en `src/lib/presencia-digital/mejor-horario.ts` calculada en hora de Uruguay sobre métricas reales (mínimo 8 publicaciones, o null si no alcanza), probado en `src/__tests__/el-mejor-horario-sale-de-tus-resultados.test.ts`.
+- **Bloque 4 — Volver a publicar lo que mejor anduvo:** Reciclado de publicaciones con `recicladoDe` en `src/lib/presencia-digital/publicador.ts`, programando en el mejor horario y evitando sugerir de nuevo antes de 90 días, probado en `src/__tests__/volver-a-publicar-copia-y-programa.test.ts`.
+- **Bloque 5 — Respuesta automática en comentarios:** Detección de preguntas (`esPregunta`) en `src/lib/social-media/comments-backfill.ts` y clasificador de comentarios para responder únicamente preguntas reales respetando límites, probado en `src/__tests__/la-respuesta-a-comentarios-no-inventa.test.ts`.
+- **Bloque 6 — Cuestionario reunión de organización:** Pantalla en `src/app/(app)/fiestas/nueva/reunion-organizacion/page.tsx` para volcar acuerdos de reunión directamente en la planificación, probado en `tests/e2e/la-reunion-de-organizacion-guarda-donde-corresponde.spec.ts`.
+- **Bloque 7 — Apertura de invitación y recordatorio:** Registro `registrarQueAbrioLaInvitacion` en la invitación pública y cron de recordatorio en `src/lib/invitaciones/recordatorio-no-abiertas.ts`, probado en `src/__tests__/la-invitacion-no-abierta-se-recuerda-sola.test.ts`.
+- **Bloque 8 — Orden de evento en una sola hoja:** Pantalla `src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx` con resumen operativo completo sin signos `$`, probado en `tests/e2e/la-orden-de-evento-junta-todo.spec.ts`.
+- **Bloque 9 — Carga de equipos con QR:** Soporte de escaneo de QR `ak-equipo:<id>` en carga operativa y etiquetas de impresión en activos fijos, probado en `src/__tests__/el-qr-marca-el-equipo-correcto.test.ts`.
+- **Bloque 10 — Mantenimiento de equipos preventivo:** Campo opcional de mantenimiento en `ServicioEmpresa`, diálogo "Anotar un mantenimiento" con registro de gastos en `src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx` y alerta preventiva antes del evento, probado en `src/__tests__/el-mantenimiento-avisa-antes-de-la-fiesta.test.ts`.
+- **Bloque 11 — Llegada del personal con ubicación:** Coordenadas en `Salon`, botón "Llegué" con `navigator.geolocation` en `src/app/acceso-personal/[tokenId]/page.tsx`, cálculo Haversine y radio de 300m configurable (apagado de fábrica), probado en `src/__tests__/la-llegada-con-ubicacion-mide-bien.test.ts`.
+- **Bloque 12 — Plantillas de cronograma por tipo de evento:** Asociación de `tipoEvento` en plantillas, sugerencia automática si el programa está vacío y ordenamiento prioritario en `src/app/(app)/fiestas/nueva/itinerario/page.tsx`, probado en `src/__tests__/la-plantilla-se-sugiere-por-tipo.test.ts`.
+
 ## 27 de septiembre de 2026 - Codex confirma despliegue PR 1234
 
 App Hosting success y health publico identifican `5e384c684c326dbcf79a12dae760ba4fe7e0b705`.

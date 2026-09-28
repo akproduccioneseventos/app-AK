@@ -44,6 +44,7 @@ const CADA_CUANTO = {
   posicionamiento: 24 * 60 * 60 * 1000,
   fiestas_vigilante: 24 * 60 * 60 * 1000,
   prospectos_seguimiento: 24 * 60 * 60 * 1000,
+  avisos_cliente: 24 * 60 * 60 * 1000,
 } as const;
 
 export type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -56,6 +57,7 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   posicionamiento: 'posicionamiento-diario',
   fiestas_vigilante: 'fiesta-proxima-revision',
   prospectos_seguimiento: 'prospectos-seguimiento',
+  avisos_cliente: 'avisos-al-cliente',
 };
 
 interface EstadoDeTareas {
@@ -168,6 +170,13 @@ export async function ponerAlDiaAlEntrar(
         correr: async () => {
           const { ejecutarPerseguidorPresupuestos } = await import('@/lib/agentes/motor-agentes');
           return ejecutarPerseguidorPresupuestos(ahora);
+        },
+      },
+      {
+        nombre: 'avisos_cliente',
+        correr: async () => {
+          const { correrTareaAvisosAlCliente } = await import('@/lib/whatsapp/avisos-al-cliente');
+          return correrTareaAvisosAlCliente();
         },
       },
     ];

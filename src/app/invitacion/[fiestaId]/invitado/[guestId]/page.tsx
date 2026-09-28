@@ -42,7 +42,7 @@ import {
   type PublicGuestEntertainmentLink,
 } from '@/app/actions/public-guest-portal';
 import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
-import { trackGuestCtaClick } from '@/app/actions/fiesta/invitados.actions';
+import { trackGuestCtaClick, registrarQueAbrioLaInvitacion } from '@/app/actions/fiesta/invitados.actions';
 import { Button } from '@/components/ui/button';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import {
@@ -233,6 +233,7 @@ function GuestPortalContent() {
       return;
     }
     try {
+      registrarQueAbrioLaInvitacion(fiestaId, guestId, guestAccessToken).catch(() => {});
       const [data, connections] = await Promise.all([
         getPublicGuestPortalData(fiestaId, guestId, guestAccessToken),
         getSocialConnectionsPublicas().catch(() => [] as SocialConnection[]),
