@@ -86,3 +86,10 @@ alcance en `docs/evidencias/94-recorridos-reales.md`.
   ni supuestos, más promesa de que AK cubre el stock. **NO CONTRASTADO CON LA TANDA NI
   CON EL SHA DE PRODUCCIÓN.** Claude debe confirmar valores y alcance contra la operación
   de catering/barra antes de editar o publicar; no tocar precios/compras.
+- Blog, guías de catering y tecnología (28/09): “la mayoría de los clientes” prefiere
+  la propuesta mixta y “la opción preferida” en Salto no citan evidencia. La indicación de
+  chispas frías “seguras para interiores” no identifica equipo ni condiciones; fuente
+  oficial consultada advierte riesgos generales de pirotecnia, no certifica ese equipo.
+  Claude debe validar catering/claims comerciales y el responsable de operación/proveedor
+  debe validar efectos y requisitos del salón antes de cambiar el copy. **NO CONTRASTADO
+  CON LA TANDA NI CON EL SHA DE PRODUCCIÓN.** Evidencia y fuente en `docs/evidencias/94-recorridos-reales.md`.

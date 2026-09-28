@@ -246,6 +246,27 @@ Entorno: web publicada, PC, 28/09/2026. Abierto desde la tarjeta destacada del �
 - PASS parcial: la página muestra secciones, checklist, FAQ, lectura relacionada y CTA;
   el contenido es accesible en texto. No se contactó a AK ni se probó el formulario/compra.
 
+## Blog público: catering y tecnología
+
+Entorno: web publicada, PC, 28/09/2026. Lectura de las guías desde el índice y enlaces
+relacionados. Sin contactar a clientes ni activar CTA externos.
+
+- P2 COPY/PRUEBA SOCIAL: la guía de catering presenta las islas como “la opción preferida
+  para las quinceañeras en Salto” y dice que “la mayoría de los clientes de AK” elige la
+  propuesta mixta, sin citar encuesta, fechas ni base observada. Validar con datos reales
+  de pedidos/contratos; si no hay evidencia, cambiar a recomendación editorial claramente
+  identificada como tal. No inventar porcentajes ni tratarlo como investigación de mercado.
+- P2 SEGURIDAD: la guía de iluminación aconseja “chispas frías homologadas y seguras para
+  interiores” de forma general, sin especificar equipo, distancia, condiciones del salón
+  ni autorización. La información oficial de Bomberos consultada advierte que la
+  pirotecnia puede causar incendios/lesiones, pero no certifica este producto ni su uso
+  interior. Validar cada efecto con proveedor habilitado, ficha técnica y requisitos del
+  salón/autoridad antes de prometer seguridad. Fuente consultada:
+  https://www.gub.uy/ministerio-interior/comunicacion/noticias/causes-siniestros-fiestas-tradicionales.
+- PASS limitado: las dos páginas cargan estructura, guía, checklist y accesos al simulador
+  y asesoramiento; no se siguieron enlaces externos ni se verificó que el simulador incluya
+  todos los equipos citados.
+
 ## Entrada al simulador desde una categoría de evento
 
 Entorno: web publicada, PC, 28/09/2026. Recorrido sin completar datos personales ni
