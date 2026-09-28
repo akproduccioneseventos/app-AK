@@ -74,3 +74,11 @@ alcance en `docs/evidencias/94-recorridos-reales.md`.
   reproducción visible). **NO CONTRASTADO CON LA TANDA NI CON EL SHA DE PRODUCCIÓN.**
   No ordenar cambios todavía: repetir con navegador/red normal y comparar misma URL,
   luego verificar si las fuentes externas responden antes de asignar causa.
+- Blog público, artículo de seguridad del salón (28/09): interfaz y CTA visibles; copy
+  afirma que una lista orientativa “garantiza” funcionamiento perfecto “sin riesgos ni
+  cortes”, y el CTA promete base “exacta”. Revisar copy para no insinuar garantía/precio
+  contractual, y enlazar fuente oficial antes de consejos regulatorios locales.
+  **NO CONTRASTADO CON LA TANDA NI CON EL SHA DE PRODUCCIÓN.** No cambiar términos
+  comerciales sin aprobación del dueño; cotejar el alcance real del simulador primero.
+  El resultado oficial hallado (Decreto 7.291/2021) trata pirotecnia sonora, no niveles
+  de música de locales/eventos; no usarlo como respaldo de esa afirmación.

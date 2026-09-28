@@ -207,6 +207,30 @@ Entorno: portada pública en PC, 28/09/2026.
   esta sesión; no se atribuye aún a código, porque el embebido externo/red puede influir.
   La observación posterior matiza el PASS anterior; no se probó móvil ni otros videos.
 
+## Blog público: artículo de seguridad del salón
+
+Entorno: web publicada, PC, 28/09/2026. Artículo abierto desde la portada; sin enviar
+consultas ni usar botones para compartir.
+
+- PASS: título, imagen principal, secciones, checklist, FAQs y botones de regreso/blog,
+  WhatsApp y simulador están presentes; el cuerpo es legible y el artículo ofrece
+  asesoramiento o simulador como siguientes pasos. No se comprobó envío externo.
+- PASS: una reseña de la portada abre un diálogo legible con cita y CTA; cerrar vuelve
+  a la página. La pregunta FAQ “¿Qué incluye el servicio integral?” se expande con una
+  respuesta concreta de servicios. No se siguió el enlace a WhatsApp.
+- P2 COPY/CONFIANZA: la idea principal dice que revisar potencia, acústica y seguridad
+  “te garantiza” que todo funcione “perfecto sin riesgos ni cortes”. La propia lista es
+  orientativa y no puede asegurar esos resultados. El CTA de simulación dice “base
+  exacta”; tampoco se verificó que sea un precio contractual. Recomendar redacción que
+  prometa ayuda a evaluar/reducir riesgos y a obtener una estimación, no garantía o
+  exactitud contractual. Mantener pendiente de decisión/aprobación de AK.
+- La información sobre habilitaciones y límites municipales de ruido aparece sin fuente
+  oficial enlazada. No se verificó su exactitud normativa; no reutilizarla como asesoría
+  regulatoria hasta contrastarla con una fuente de la Intendencia de Salto. Búsqueda
+  oficial puntual encontró el Decreto 7.291/2021, que regula pirotecnia sonora; no prueba
+  los límites de decibelios para música de salones que sugiere el artículo:
+  https://juntadesalto.gub.uy/2021/07/decreto-no-7-291-2021/.
+
 ## Entrada al simulador desde una categoría de evento
 
 Entorno: web publicada, PC, 28/09/2026. Recorrido sin completar datos personales ni
