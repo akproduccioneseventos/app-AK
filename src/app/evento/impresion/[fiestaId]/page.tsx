@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Printer, RefreshCw, Loader2, ToggleLeft, ToggleRight, CheckCircle, Check, Slash, AlertCircle } from 'lucide-react';
 import { getSocialPosts } from '@/app/actions/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { puedeImprimir } from '@/lib/social-fiesta/limite-de-impresion';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { Button } from '@/components/ui/button';
@@ -154,24 +155,35 @@ export default function PrintStationPage() {
     toast({ title: 'Cola de impresión reiniciada' });
   };
 
+  // Compute printed posts list
+  const impresos = useMemo(() => {
+    return posts.filter(p => printedIds.has(p.id));
+  }, [posts, printedIds]);
+
+  const maxImpresiones = fiesta?.socialGallerySettings?.maxImpresionesPorPersona ?? 2;
+  const marcoEnImpresion = fiesta?.socialGallerySettings?.marcoEnImpresion !== false;
+  const logoUrl = (fiesta?.socialGallerySettings as any)?.brand?.logoUrl || (fiesta?.socialGallerySettings as any)?.templateSettings?.logoUrl || (fiesta?.socialGallerySettings as any)?.companyInfo?.logoUrl;
+  const eventName = fiesta?.configuracion?.nombreEvento || (fiesta as any)?.nombre || 'Fiesta AK';
+  const eventDate = (fiesta as any)?.fecha || fiesta?.configuracion?.fechaEvento || (fiesta?.configuracion as any)?.fechaInicio || '';
+
   // Auto-Print Trigger effect
   useEffect(() => {
     if (!autoPrint || posts.length === 0 || isPrinting || pendingPrintConfirmation) return;
     
-    // Find first unprinted post (newest approved first)
+    // Find first unprinted post (newest approved first) that respects print limit
     const nextToPrint = [...posts]
       .reverse() // check oldest approved first so we print in order of upload
-      .find(p => !printedIds.has(p.id));
+      .find(p => !printedIds.has(p.id) && puedeImprimir(p, impresos, maxImpresiones));
 
     if (nextToPrint) {
       handlePrint(nextToPrint);
     }
-  }, [posts, autoPrint, printedIds, isPrinting, pendingPrintConfirmation, handlePrint]);
+  }, [posts, autoPrint, printedIds, isPrinting, pendingPrintConfirmation, handlePrint, impresos, maxImpresiones]);
 
   // Compute pending queues count
   const pendingCount = useMemo(() => {
-    return posts.filter(p => !printedIds.has(p.id)).length;
-  }, [posts, printedIds]);
+    return posts.filter(p => !printedIds.has(p.id) && puedeImprimir(p, impresos, maxImpresiones)).length;
+  }, [posts, printedIds, impresos, maxImpresiones]);
 
   if (loading) {
     return (
@@ -188,8 +200,8 @@ export default function PrintStationPage() {
       {/* 🖨️ PRINT TEMPLATE (Hidden from screen, visible only on @media print) */}
       <div id="print-area" className="hidden print:block print:absolute print:inset-0">
         {printPost && (
-          <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-white relative">
-            <div className="relative w-full h-[85%]">
+          <div className="w-full h-full flex flex-col items-center justify-between p-4 bg-white relative">
+            <div className={`relative w-full ${marcoEnImpresion ? 'h-[82%]' : 'h-full'}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={printPost.imageUrl}
@@ -197,12 +209,29 @@ export default function PrintStationPage() {
                 className="w-full h-full object-contain"
               />
             </div>
-            <div className="text-center font-bold tracking-widest uppercase mt-4 text-slate-800 text-sm">
-              {fiesta?.configuracion?.nombreEvento || 'Fiesta AK'}
-            </div>
-            <div className="text-[10px] text-slate-400 mt-1">
-              Foto por {printPost.authorName} · Muro Social AK
-            </div>
+            {marcoEnImpresion && (
+              <div className="w-full border-t border-slate-200 pt-2 flex items-center justify-between px-2 text-slate-800 shrink-0">
+                <div className="flex items-center gap-2">
+                  {logoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={logoUrl} alt="" className="h-8 max-w-[100px] object-contain" />
+                  ) : null}
+                  <div className="text-left">
+                    <div className="font-bold tracking-wider uppercase text-xs">
+                      {eventName}
+                    </div>
+                    {eventDate && (
+                      <div className="text-[10px] text-slate-500">
+                        {typeof eventDate === 'string' ? eventDate : new Date(eventDate).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="text-right text-[10px] text-slate-400">
+                  <span>Foto por {printPost.authorName}</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -300,17 +329,22 @@ export default function PrintStationPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {posts.map(post => {
                 const isPrinted = printedIds.has(post.id);
+                const limitReached = !isPrinted && !puedeImprimir(post, impresos, maxImpresiones);
                 return (
                   <div
                     key={post.id}
                     className={`border rounded-3xl p-4 bg-zinc-900/20 flex flex-col justify-between gap-4 transition-all relative overflow-hidden
-                      ${isPrinted ? 'border-zinc-900/80 opacity-60' : 'border-zinc-800 shadow-md shadow-black/30'}`}
+                      ${isPrinted ? 'border-zinc-900/80 opacity-60' : limitReached ? 'border-rose-900/50 bg-rose-950/10' : 'border-zinc-800 shadow-md shadow-black/30'}`}
                   >
                     {/* Status Badge */}
                     <div className="absolute top-6 right-6 z-10">
                       <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider shadow-md
-                        ${isPrinted ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/50' : 'bg-amber-400 text-zinc-950'}`}>
-                        {isPrinted ? 'Impresa' : 'En Cola'}
+                        ${isPrinted
+                          ? 'bg-zinc-800 text-zinc-500 border border-zinc-700/50'
+                          : limitReached
+                          ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                          : 'bg-amber-400 text-zinc-950'}`}>
+                        {isPrinted ? 'Impresa' : limitReached ? 'Llegó a su límite' : 'En Cola'}
                       </span>
                     </div>
 
@@ -340,9 +374,9 @@ export default function PrintStationPage() {
                       <Button
                         size="sm"
                         className={`rounded-xl text-xs font-bold gap-1.5 flex-1 col-span-${isPrinted ? 2 : 1}
-                          ${isPrinted ? 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700' : 'bg-amber-400 hover:bg-amber-300 text-zinc-950'}`}
+                          ${isPrinted ? 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700' : limitReached ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'bg-amber-400 hover:bg-amber-300 text-zinc-950'}`}
                         onClick={() => handlePrint(post)}
-                        disabled={isPrinting}
+                        disabled={isPrinting || limitReached}
                       >
                         <Printer className="w-3.5 h-3.5" />
                         {isPrinted ? 'Reimprimir' : 'Imprimir'}

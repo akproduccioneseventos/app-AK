@@ -202,6 +202,11 @@ export function getEntertainmentStationConfig(
     cuadrosDelLoop: clampNumber(stored.cuadrosDelLoop, 15, 5, 60),
     recorteSinTela: stored.recorteSinTela === true,
     fondoMuro: typeof stored.fondoMuro === 'string' && stored.fondoMuro ? stored.fondoMuro : 'predeterminado',
+    enableBeautyFilter: stored.enableBeautyFilter === true,
+    enableChromaKey: stored.enableChromaKey === true,
+    orientation: (['vertical', 'horizontal', 'cuadrada'].includes(stored.orientation)
+      ? stored.orientation
+      : 'vertical') as 'vertical' | 'horizontal' | 'cuadrada',
   };
 }
 

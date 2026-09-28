@@ -877,6 +877,18 @@ export interface SocialGallerySettings {
   /** Efecto Ken Burns de movimiento lento en fotos */
   kenBurnsEffect?: boolean;
   forcedScreenItem?: 'mural' | 'juego' | 'chat' | 'canciones' | 'dedicaciones' | 'pauta' | 'video' | 'sorteo' | null;
+  /** Fondo seleccionado para el muro social / pantalla gigante */
+  fondoMuro?: string;
+  /** Imagen de fondo personalizada para el muro social (tapa al fondo con oscurecido) */
+  fondoMuroImagenUrl?: string;
+  /** Tamaño y cantidad de fotos mostradas en el diseño de mosaico */
+  tamanoFotosMosaico?: 'chica' | 'mediana' | 'grande';
+  /** Duración en segundos de cada foto en el modo slideshow (3 a 30 seg, default 6) */
+  segundosPorFoto?: number;
+  /** Límite de impresiones por invitado en la estación de impresión (0 = ilimitado, default 2) */
+  maxImpresionesPorPersona?: number;
+  /** Si se incluye franja inferior con marco, fecha, logo y nombre en la impresión */
+  marcoEnImpresion?: boolean;
 }
 
 export interface SocialGalleryBrand {

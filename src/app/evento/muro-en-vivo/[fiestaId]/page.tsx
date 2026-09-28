@@ -49,44 +49,7 @@ function isPostApprovedForScreen(post: SocialGalleryPost) {
 }
 
 
-const FONDOS_MURO: Record<string, { id: string; nombre: string; estilo: string; cssBackground: string }> = {
-  predeterminado: {
-    id: 'predeterminado',
-    nombre: 'Degradado Dinámico',
-    estilo: 'degradado',
-    cssBackground: 'linear-gradient(135deg, #020617, #0f172a 52%, #020617)',
-  },
-  'estrellas-vip': {
-    id: 'estrellas-vip',
-    nombre: 'Noche Estelar VIP',
-    estilo: 'estrellas',
-    cssBackground: 'radial-gradient(circle at 50% 50%, #1e1b4b 0%, #09090b 100%)',
-  },
-  'dorado-glamour': {
-    id: 'dorado-glamour',
-    nombre: 'Oro Glamour',
-    estilo: 'dorado',
-    cssBackground: 'radial-gradient(ellipse at bottom, #451a03 0%, #0c0a09 100%)',
-  },
-  'ondas-neon': {
-    id: 'ondas-neon',
-    nombre: 'Neón Fiesta',
-    estilo: 'neon',
-    cssBackground: 'linear-gradient(125deg, #2e026d 0%, #030712 60%, #172554 100%)',
-  },
-  'vintage-boda': {
-    id: 'vintage-boda',
-    nombre: 'Romántico Elegante',
-    estilo: 'vintage',
-    cssBackground: 'radial-gradient(circle at 20% 80%, #3f182c 0%, #09090b 80%)',
-  },
-  'dark-techno': {
-    id: 'dark-techno',
-    nombre: 'Black Minimal',
-    estilo: 'minimal',
-    cssBackground: '#02040a',
-  },
-};
+import { FONDOS_MURO } from '@/lib/social-fiesta/fondos-muro';
 
 export default function MuroEnVivoPage() {
   usePantallaPrendida();
@@ -244,6 +207,9 @@ export default function MuroEnVivoPage() {
     if (!fiestaId || pollingRef.current || (!allowHidden && document.visibilityState !== 'visible')) return;
     pollingRef.current = true;
     const requestTask = Promise.all([
+      // Sin tragarse la falla (revisión de la orden 94, 28/09/2026): si se corta la señal,
+      // la pantalla tiene que quedarse con las fotos que ya tenía y mostrar que se reconecta.
+      // Con un `.catch(() => [])` acá la lista llegaba vacía y el muro quedaba en blanco.
       getPublicSocialPosts(fiestaId),
       getPublicSocialEvent(fiestaId),
       getActivePoll(fiestaId),
@@ -527,15 +493,26 @@ export default function MuroEnVivoPage() {
     ((activeGame !== null && activeScreenItem?.type !== 'juego') ||
     (activePoll !== null && settings.showPolls !== false && !activeGame));
 
+  const fondoMuroImagenUrl = settings.fondoMuroImagenUrl;
   const fondoConfig = FONDOS_MURO[fondoMuro] || FONDOS_MURO.predeterminado;
+  const stageBackgroundStyle: React.CSSProperties = fondoMuroImagenUrl
+    ? {
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(${fondoMuroImagenUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }
+    : {
+        background: fondoConfig.cssBackground,
+      };
 
   return (
     <div
       className="ak-live-stage fixed inset-0 flex select-none flex-col overflow-hidden text-white"
       data-fondo-muro={fondoMuro}
-      style={{
-        background: fondoConfig.cssBackground,
-      }}
+      data-fondo-imagen-url={fondoMuroImagenUrl || ''}
+      data-tamano-mosaico={settings?.tamanoFotosMosaico || 'mediana'}
+      style={stageBackgroundStyle}
     >
 
       {/* Efecto destello cámara en pantalla completa al entrar foto nueva */}
@@ -707,7 +684,7 @@ export default function MuroEnVivoPage() {
           {isLoaded && activeScreenItem?.type === 'redes' && (
             posts.length > 0 ? (
               <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
-            ) : <EmptyWallState eventName={eventName} qrUrl={qrUrl} />
+            ) : <EmptyWallState eventName={eventName} qrUrl={qrUrl} coverImageUrl={coverImageUrl} />
           )}
 
           {/* Dedicatorias en la pantalla grande.
@@ -1796,15 +1773,19 @@ function SlideshowLayout({
   useEffect(() => {
     if (posts.length <= 1) return;
 
+    const segundosPorFoto = typeof settings?.segundosPorFoto === 'number' && settings.segundosPorFoto >= 3 && settings.segundosPorFoto <= 30
+      ? settings.segundosPorFoto
+      : 6;
+
     const duration = isRankingSlide
       ? 8000
       : isVideo
         ? 35000
-        : SLIDESHOW_DURATION_MS;
+        : segundosPorFoto * 1000;
 
     const timer = setTimeout(advance, duration);
     return () => clearTimeout(timer);
-  }, [posts.length, currentIndex, isVideo, isRankingSlide, advance]);
+  }, [posts.length, currentIndex, isVideo, isRankingSlide, advance, settings?.segundosPorFoto]);
 
   if (posts.length === 0) return null;
 
@@ -2004,10 +1985,21 @@ function MasonryLayout({
   qrUrl?: string;
   settings?: any;
 }) {
+  const tamano = (settings?.tamanoFotosMosaico || 'mediana') as 'chica' | 'mediana' | 'grande';
+  let gridColsClass = 'grid-cols-2 lg:grid-cols-3';
+  let limit = 6;
+  if (tamano === 'chica') {
+    gridColsClass = 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+    limit = 12;
+  } else if (tamano === 'grande') {
+    gridColsClass = 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2';
+    limit = 4;
+  }
+
   return (
-    <div className="absolute inset-0 overflow-hidden bg-black p-5">
-      <div className="grid h-full grid-cols-2 gap-3 lg:grid-cols-3">
-        {posts.slice(0, 6).map((post, index) => (
+    <div className="absolute inset-0 overflow-hidden bg-black p-5" data-tamano-mosaico={tamano}>
+      <div className={`grid h-full ${gridColsClass} gap-3`}>
+        {posts.slice(0, limit).map((post, index) => (
           <MasonryCard key={post.id} post={post} index={index} />
         ))}
       </div>

@@ -738,3 +738,17 @@ Al verificar: para cada palabra que la pantalla o un informe afirma ("guardado",
 "aislado", "mandado"), se pregunta **quién es el último que lo hace de verdad** y se mira ahí. Si
 lo que se mira es un paso antes, **se retiene ese último paso en la prueba** (una respuesta que no
 llega, un archivo que el marco lee solo) y se comprueba que la afirmación no salga antes de tiempo.
+
+## Pregunta 29 — la que sumó el 28 de septiembre de 2026 (Codex, recorridos de la orden 94)
+
+### 29. Un botón que lleva a otro lado, ¿se muestra con la MISMA condición que su destino?
+
+El portal del cliente mostraba el pendiente **"Confirmar menú"**, que lleva a la sección del menú.
+Pero con el modo simple, o con el menú oculto desde los ajustes del portal, esa sección no se
+dibuja: el cliente tocaba y no pasaba nada. El pendiente preguntaba "¿falta el menú?"; la sección,
+"¿se muestra el menú?". Eran dos condiciones distintas para la misma cosa.
+
+Al verificar: por cada botón, pendiente, tarjeta o aviso con enlace (`href="#…"`, `href: '#…'`,
+`router.push`, `Link`), se busca **qué decide si se muestra el destino** (sección con ese `id`,
+o pantalla que chequea un ajuste o un módulo) y se mira que el botón **también** lo cumpla. Si el
+destino puede estar oculto, el botón se oculta con él, o lleva a otro lado que sí exista.
