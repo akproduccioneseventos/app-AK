@@ -67,6 +67,9 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 17. **¿Lo que tu pantalla afirma lo comprobaste en el último paso?** "Publicada" es cuando el
     servidor contestó que sí, no cuando empezó a subir. Retené esa respuesta en la prueba y fijate
     que el cartel no salga antes.
+18. **¿Tu botón lleva a algo que puede estar oculto?** Si la sección o la pantalla de destino se
+    esconde con un ajuste o un modo, el botón tiene que esconderse con la misma condición. Si no,
+    el cliente toca y no pasa nada.
 
 ## Y dos reglas que valen para las pruebas
 

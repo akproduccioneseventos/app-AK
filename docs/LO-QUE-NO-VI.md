@@ -598,3 +598,19 @@ usa: anotarRescate en src/lib/offline/offline-sync-manager.ts
 prueba: src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts
 prueba: src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts
 ```
+
+## 28 de septiembre de 2026 — Un pendiente del portal que llevaba a una sección oculta (Codex)
+
+**Qué era:** el portal del cliente mostraba "Confirmar menú" aunque la sección del menú estuviera
+oculta (modo simple, o menú apagado en los ajustes del portal). El botón no llevaba a nada.
+
+**Qué pregunta lo hubiera agarrado:** la 29, nueva: *un botón que lleva a otro lado, ¿se muestra
+con la misma condición que su destino?* También quedó como pregunta 18 de `ANTES-DE-ENTREGAR.md`.
+
+**Barrido:** orden 96 para Gemini, sobre todos los enlaces a secciones y pantallas que se pueden
+ocultar.
+
+```comprobar
+usa: showCatering && progress.areas.menu.status en src/app/portal-cliente/[id]/page.tsx
+prueba: src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts
+```

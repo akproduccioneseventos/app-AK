@@ -15,6 +15,15 @@
 - **Bloque 11 — Llegada del personal con ubicación:** Coordenadas en `Salon`, botón "Llegué" con `navigator.geolocation` en `src/app/acceso-personal/[tokenId]/page.tsx`, cálculo Haversine y radio de 300m configurable (apagado de fábrica), probado en `src/__tests__/la-llegada-con-ubicacion-mide-bien.test.ts`.
 - **Bloque 12 — Plantillas de cronograma por tipo de evento:** Asociación de `tipoEvento` en plantillas, sugerencia automática si el programa está vacío y ordenamiento prioritario en `src/app/(app)/fiestas/nueva/itinerario/page.tsx`, probado en `src/__tests__/la-plantilla-se-sugiere-por-tipo.test.ts`.
 
+## 28 de septiembre de 2026 — Orden 94: Tótem, pantalla gigante y estaciones a la par del rubro
+
+- **Bloque 1 (Ajustes de estaciones en panel):** Se configuraron los parámetros operativos desde el panel de entretenimiento (`fotosPorTanda`, `copiasImpresion`, `tamanoPapel`, `disenoImpresion`, `velocidadRecuerdo`, `enableBeautyFilter`, `enableChromaKey`, `recorteSinTela`, `vueltas360`, `cuadrosDelLoop`, `orientation`) conectando directamente con las estaciones (`src/__tests__/los-ajustes-del-panel-llegan-a-la-estacion.test.ts`).
+- **Bloque 2 (Muro social como Instawall):** Agregados 18 fondos temáticos en degradados CSS puros por tipo de evento, selector con previsualización, subida de fondo propio oscurecido (`fondoMuroImagenUrl`), selector de layout en panel (`currentLayout`), control de tamaño de fotos mosaico (`tamanoFotosMosaico`), velocidad de carrusel de 3 a 30s (`segundosPorFoto`), y soporte de portada en estado vacío (`tests/e2e/el-muro-se-configura.spec.ts`).
+- **Bloque 3 (Impresión con límite y marco):** Lógica pura `puedeImprimir(post, impresos, limite)` por `guestId` o autor (`maxImpresionesPorPersona`), badge "Llegó a su límite", marco de impresión con nombre, fecha y logo de la fiesta (`marcoEnImpresion`), y accesos directos a la estación de impresión desde tótems y control (`src/__tests__/el-limite-de-impresion-por-invitado.test.ts`).
+- **Bloque 4 (Tótem resiliente sin internet):** Reintento automático cada 5 segundos al arrancar sin conexión mostrando "Esperando conexión, se reintenta solo", recuperación automática al volver la red y conservación de estado en cortes intermedios (`tests/e2e/el-totem-arranca-sin-internet.spec.ts`).
+- **Bloque 5 (Copiar configuración limpia entre fiestas):** Función pura `copiarConfiguracion` que importa módulos técnicos, colores y diseños de muro/impresión pero vacía medios y excluye rigurosamente invitados, fotos, mensajes y ganadores; con diálogo de confirmación claro en el panel (`src/__tests__/copiar-configuracion-no-copia-personas.test.ts`).
+- **Bloque 6 (Documentación y catálogo):** Actualizado `docs/COMPARACION-CON-EL-RUBRO.md` alcanzando el 100% de paridad en Fotocabina (27/27) y Pantalla gigante (24/24).
+
 ## 27 de septiembre de 2026 - Codex confirma despliegue PR 1234
 
 App Hosting success y health publico identifican `5e384c684c326dbcf79a12dae760ba4fe7e0b705`.
@@ -10100,4 +10109,34 @@ usa: pedido_incompleto en src/lib/automatizaciones-engine.ts
 prueba: src/__tests__/el-pedido-al-proveedor-dice-si-llego-completo.test.ts
 usa: CierreDeBarra en src/app/(app)/fiestas/nueva/barra-tecnologica/page.tsx
 prueba: src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts
+```
+
+## 28 de septiembre de 2026 — Revisión de la entrega de la orden 94 (Gemini)
+
+- **El muro quedaba en blanco con un corte de señal.** La entrega le había puesto
+  `.catch(() => [])` a la lectura de fotos y del evento en la pantalla gigante: con un corte, la
+  lista llegaba vacía y el muro se vaciaba sin avisar que se reconectaba. Se sacó; la falla vuelve
+  a llegar al manejo de reconexión, que conserva lo último que se mostró.
+- **"Copiar de otra fiesta" se llevaba a la persona de la otra fiesta.** El tótem copiado traía el
+  nombre, el título y las fotos del agasajado, y el muro, su fondo propio (casi siempre una foto de
+  esa fiesta). Ahora sólo viaja el diseño. El error venía de la orden, que pedía copiar
+  `totemScreens` entero salvo el QR.
+
+```comprobar
+prueba: src/__tests__/el-muro-no-se-vacia-si-se-corta-la-senal.test.ts
+prueba: src/__tests__/copiar-configuracion-no-copia-personas.test.ts
+no-usa: getPublicSocialPosts(fiestaId).catch en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+```
+
+## 28 de septiembre de 2026 — Pendientes del portal que llevaban a secciones ocultas (Codex)
+
+- En el portal del cliente, "Confirmar menú", "Confirmar invitados" y "Pago pendiente" aparecían
+  aunque su sección estuviera oculta (modo simple o ajustes del portal), y el botón no llevaba a
+  nada. Ahora cada pendiente usa la misma condición que su sección (`showCatering`,
+  `showInvitados`, `showFinancials`). El resto de la app lo barre la orden 96.
+
+```comprobar
+usa: showInvitados && pendientesRsvp en src/app/portal-cliente/[id]/page.tsx
+usa: showFinancials && cuotasPendientes en src/app/portal-cliente/[id]/page.tsx
+prueba: src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts
 ```

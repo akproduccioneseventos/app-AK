@@ -4,7 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
-import { ArrowLeft, ExternalLink, Loader2, MonitorPlay, Plus, QrCode, Save, Sparkles, Trash2, Tv } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Loader2, MonitorPlay, Plus, Printer, QrCode, Save, Sparkles, Trash2, Tv } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -254,6 +254,11 @@ function PantallasTotemContent() {
                   Guardar pantallas
                 </Button>
                 <Button type="button" variant="outline" onClick={addTotem} className="rounded-2xl font-bold"><Plus className="mr-2 h-4 w-4" /> Agregar tótem</Button>
+                <Button asChild variant="outline" className="rounded-2xl font-bold">
+                  <Link href={`/evento/impresion/${fiestaId}`} target="_blank">
+                    <Printer className="mr-2 h-4 w-4" /> Estación de impresión
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>

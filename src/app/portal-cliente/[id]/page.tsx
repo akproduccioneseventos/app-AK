@@ -848,7 +848,9 @@ export default function PortalClientePage() {
           const progress = calcFiestaProgress(fiesta);
           const pendientes: { texto: string; href?: string; emoji: string }[] = [];
 
-          if (progress.areas.menu.status !== 'verde' && fiesta.modulosContratados?.catering) {
+          // Sólo si la sección del menú se muestra (hallazgo de Codex, 28/09/2026): con el modo
+          // simple o el menú oculto, el botón llevaba a una sección que no está.
+          if (showCatering && progress.areas.menu.status !== 'verde' && fiesta.modulosContratados?.catering) {
             pendientes.push({ texto: 'Confirmar menú', emoji: '🍽️', href: '#catering' });
           }
           if (progress.areas.musica.status === 'gris' || progress.areas.musica.status === 'amarillo') {
@@ -858,11 +860,11 @@ export default function PortalClientePage() {
             pendientes.push({ texto: 'Subir fotos para video de vida', emoji: '📷', href: `/portal-cliente/${fiestaId}/fotos-video` });
           }
           const pendientesRsvp = invitados.filter(i => i.rsvp !== 'Confirmado' && i.rsvp !== 'Rechazado');
-          if (pendientesRsvp.length > 0) {
+          if (showInvitados && pendientesRsvp.length > 0) {
             pendientes.push({ texto: `Confirmar ${pendientesRsvp.length} invitado(s) pendientes`, emoji: '👥', href: '#invitados' });
           }
           const cuotasPendientes = (fiesta.planDePagos?.cuotas ?? []).filter(c => c.estado === 'pendiente' || c.estado === 'vencido');
-          if (cuotasPendientes.length > 0) {
+          if (showFinancials && cuotasPendientes.length > 0) {
             pendientes.push({ texto: `Pago pendiente (${cuotasPendientes.length} cuota(s))`, emoji: '💳', href: '#pagos' });
           }
 

@@ -44,7 +44,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Square,
-  Volume2
+  Volume2,
+  Copy,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -66,11 +67,24 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   getEntretenimientoFiesta,
   getEntertainmentLaunchToken,
   saveEntretenimientoFiesta,
   uploadEntretenimientoMedia,
+  aplicarCopiaDeConfiguracion,
 } from '@/app/actions/fiesta/entretenimiento.actions';
+import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { copiarConfiguracion } from '@/lib/entertainment/copiar-configuracion';
 import {
   getEntertainmentGuestPath,
   getEntertainmentOperatorPath,
@@ -170,6 +184,14 @@ interface EntertainmentStation {
   fotosPorTanda?: number;
   copiasImpresion?: number;
   tamanoPapel?: '10x15' | '5x15' | '13x18';
+  disenoImpresion?: 'una' | 'dos' | 'tira';
+  velocidadRecuerdo?: 'normal' | 'lenta' | 'boomerang';
+  enableBeautyFilter?: boolean;
+  enableChromaKey?: boolean;
+  recorteSinTela?: boolean;
+  vueltas360?: number;
+  cuadrosDelLoop?: number;
+  orientation?: 'vertical' | 'horizontal' | 'cuadrada';
 }
 
 interface EntertainmentTemplatePreset {
@@ -741,6 +763,54 @@ function EntretenimientoContent() {
   const [playingMsgId, setPlayingMsgId] = useState<string | null>(null);
   const msgAudioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Estados para copiar configuración de otra fiesta
+  const [isCopiarDialogOpen, setIsCopiarDialogOpen] = useState(false);
+  const [fiestasDisponibles, setFiestasDisponibles] = useState<FiestaEnPlanificacion[]>([]);
+  const [isLoadingFiestas, setIsLoadingFiestas] = useState(false);
+  const [fiestaSeleccionadaParaCopiar, setFiestaSeleccionadaParaCopiar] = useState<FiestaEnPlanificacion | null>(null);
+  const [isConfirmingCopia, setIsConfirmingCopia] = useState(false);
+  const [isApplyingCopia, setIsApplyingCopia] = useState(false);
+
+  const abrirModalCopiar = async () => {
+    setIsCopiarDialogOpen(true);
+    setIsLoadingFiestas(true);
+    try {
+      const lista = await getFiestas(true);
+      const otras = (lista || []).filter(f => f.id !== fiestaId);
+      setFiestasDisponibles(otras);
+    } catch {
+      toast({ title: 'Error al cargar fiestas', description: 'No se pudo obtener el listado de eventos.', variant: 'destructive' });
+    } finally {
+      setIsLoadingFiestas(false);
+    }
+  };
+
+  const seleccionarParaCopiar = (otra: FiestaEnPlanificacion) => {
+    setFiestaSeleccionadaParaCopiar(otra);
+    setIsConfirmingCopia(true);
+  };
+
+  const confirmarYCopia = async () => {
+    if (!fiestaId || !fiestaSeleccionadaParaCopiar) return;
+    setIsApplyingCopia(true);
+    // Aplicar la copia pura para asegurar compatibilidad inmediata
+    const _copia = copiarConfiguracion(fiestaSeleccionadaParaCopiar, fiesta || {});
+    const res = await aplicarCopiaDeConfiguracion(fiestaSeleccionadaParaCopiar.id, fiestaId);
+    setIsApplyingCopia(false);
+    if (!res.success || !res.fiesta) {
+      toast({ title: 'Error al copiar', description: res.error, variant: 'destructive' });
+      return;
+    }
+    setFiesta(res.fiesta);
+    setData(mergeEntertainmentData(res.data, res.fiesta, origin));
+    setIsConfirmingCopia(false);
+    setIsCopiarDialogOpen(false);
+    toast({
+      title: 'Configuración copiada',
+      description: `Se importaron los módulos y diseños de entretenimiento de ${fiestaSeleccionadaParaCopiar.configuracion?.nombreEvento || (fiestaSeleccionadaParaCopiar as any).nombre || 'la fiesta'}. Las fotos e invitados no se tocaron.`,
+    });
+  };
+
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
@@ -1127,6 +1197,15 @@ function EntretenimientoContent() {
             >
               <Printer className="mr-2 h-4 w-4" />
               Carteles QR para Mesas
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={abrirModalCopiar}
+              className="rounded-xl border-cyan-500/40 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20 hover:text-white font-black"
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Copiar de otra fiesta
             </Button>
             <Button onClick={saveNow} disabled={isSaving} className="rounded-xl bg-rose-600 font-black text-white hover:bg-rose-500 transition-all shadow-[0_0_20px_rgba(225,29,72,0.2)]">
               {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
@@ -1655,7 +1734,220 @@ function EntretenimientoContent() {
                             />
                           </label>
                         )}
+                        {(activeStationId === 'fotocabina' ||
+                          activeStationId === 'espejoMagicoFoto' ||
+                          activeStationId === 'espejoMagicoFirma' ||
+                          activeStationId === 'espejoMagicoIA' ||
+                          (activeStationId as string) === 'touchpix') && (
+                          <label className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                            <span className="text-xs font-bold text-zinc-300">Filtro de belleza</span>
+                            <Switch
+                              checked={activeStation.enableBeautyFilter ?? false}
+                              onCheckedChange={(enableBeautyFilter) =>
+                                updateStation(activeStationId, { enableBeautyFilter })
+                              }
+                            />
+                          </label>
+                        )}
+                        {activeStationId === 'fotocabina' && (
+                          <>
+                            <label className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                              <span className="text-xs font-bold text-zinc-300">Pantalla croma verde</span>
+                              <Switch
+                                checked={activeStation.enableChromaKey ?? false}
+                                onCheckedChange={(enableChromaKey) =>
+                                  updateStation(activeStationId, { enableChromaKey })
+                                }
+                              />
+                            </label>
+                            <label className="flex items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                              <span className="text-xs font-bold text-zinc-300">fondo sin tela verde</span>
+                              <Switch
+                                checked={activeStation.recorteSinTela ?? false}
+                                onCheckedChange={(recorteSinTela) =>
+                                  updateStation(activeStationId, { recorteSinTela })
+                                }
+                              />
+                            </label>
+                          </>
+                        )}
                       </div>
+
+                      {/* AJUSTES ESPECÍFICOS POR ESTACIÓN (BLOQUE 1 - ORDEN 94) */}
+                      {activeStationId === 'fotocabina' && (
+                        <div className="grid gap-4 sm:grid-cols-3 pt-2">
+                          <div className="space-y-2">
+                            <Label className="text-xs text-zinc-400 font-bold">Fotos por tanda</Label>
+                            <Input
+                              type="number"
+                              min={1}
+                              max={4}
+                              value={activeStation.fotosPorTanda ?? 3}
+                              onChange={(e) =>
+                                updateStation(activeStationId, {
+                                  fotosPorTanda: Math.max(1, Math.min(4, Number(e.target.value) || 3)),
+                                })
+                              }
+                              className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-zinc-400 font-bold">Copias por impresión</Label>
+                            <Input
+                              type="number"
+                              min={1}
+                              max={10}
+                              value={activeStation.copiasImpresion ?? 1}
+                              onChange={(e) =>
+                                updateStation(activeStationId, {
+                                  copiasImpresion: Math.max(1, Math.min(10, Number(e.target.value) || 1)),
+                                })
+                              }
+                              className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-zinc-400 font-bold">Tamaño de papel</Label>
+                            <Select
+                              value={activeStation.tamanoPapel || '10x15'}
+                              onValueChange={(val) =>
+                                updateStation(activeStationId, {
+                                  tamanoPapel: val as '10x15' | '5x15' | '13x18',
+                                })
+                              }
+                            >
+                              <SelectTrigger className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl">
+                                <SelectValue placeholder="10x15" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                                <SelectItem value="10x15">10x15 cm</SelectItem>
+                                <SelectItem value="5x15">5x15 cm</SelectItem>
+                                <SelectItem value="13x18">13x18 cm</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-zinc-400 font-bold">Diseño de impresión</Label>
+                            <Select
+                              value={activeStation.disenoImpresion || 'tira'}
+                              onValueChange={(val) =>
+                                updateStation(activeStationId, {
+                                  disenoImpresion: val as 'una' | 'dos' | 'tira',
+                                })
+                              }
+                            >
+                              <SelectTrigger className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl">
+                                <SelectValue placeholder="tira" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                                <SelectItem value="una">Una foto</SelectItem>
+                                <SelectItem value="dos">Dos fotos</SelectItem>
+                                <SelectItem value="tira">Tira clásica</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-zinc-400 font-bold">Velocidad del recuerdo</Label>
+                            <Select
+                              value={activeStation.velocidadRecuerdo || 'normal'}
+                              onValueChange={(val) =>
+                                updateStation(activeStationId, {
+                                  velocidadRecuerdo: val as 'normal' | 'lenta' | 'boomerang',
+                                })
+                              }
+                            >
+                              <SelectTrigger className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl">
+                                <SelectValue placeholder="normal" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                                <SelectItem value="normal">Normal</SelectItem>
+                                <SelectItem value="lenta">Cámara lenta</SelectItem>
+                                <SelectItem value="boomerang">Boomerang</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-zinc-400 font-bold">Orientación</Label>
+                            <Select
+                              value={activeStation.orientation || 'vertical'}
+                              onValueChange={(val) =>
+                                updateStation(activeStationId, {
+                                  orientation: val as 'vertical' | 'horizontal' | 'cuadrada',
+                                })
+                              }
+                            >
+                              <SelectTrigger className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl">
+                                <SelectValue placeholder="vertical" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                                <SelectItem value="vertical">Vertical</SelectItem>
+                                <SelectItem value="horizontal">Horizontal</SelectItem>
+                                <SelectItem value="cuadrada">Cuadrada</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      )}
+
+                      {activeStationId === 'plataforma360' && (
+                        <div className="grid gap-4 sm:grid-cols-2 pt-2">
+                          <div className="space-y-2">
+                            <Label className="text-xs text-zinc-400 font-bold">Vueltas 360 del brazo</Label>
+                            <Input
+                              type="number"
+                              min={1}
+                              max={10}
+                              value={activeStation.vueltas360 ?? 2}
+                              onChange={(e) =>
+                                updateStation(activeStationId, {
+                                  vueltas360: Math.max(1, Math.min(10, Number(e.target.value) || 2)),
+                                })
+                              }
+                              className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {activeStationId === 'bogue' && (
+                        <div className="grid gap-4 sm:grid-cols-2 pt-2">
+                          <div className="space-y-2">
+                            <Label className="text-xs text-zinc-400 font-bold">Cuadros del loop</Label>
+                            <Input
+                              type="number"
+                              min={5}
+                              max={60}
+                              value={activeStation.cuadrosDelLoop ?? 15}
+                              onChange={(e) =>
+                                updateStation(activeStationId, {
+                                  cuadrosDelLoop: Math.max(5, Math.min(60, Number(e.target.value) || 15)),
+                                })
+                              }
+                              className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-zinc-400 font-bold">Orientación</Label>
+                            <Select
+                              value={activeStation.orientation || 'vertical'}
+                              onValueChange={(val) =>
+                                updateStation(activeStationId, {
+                                  orientation: val as 'vertical' | 'horizontal' | 'cuadrada',
+                                })
+                              }
+                            >
+                              <SelectTrigger className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl">
+                                <SelectValue placeholder="vertical" />
+                              </SelectTrigger>
+                              <SelectContent className="bg-zinc-900 border-zinc-800 text-white">
+                                <SelectItem value="vertical">Vertical</SelectItem>
+                                <SelectItem value="horizontal">Horizontal</SelectItem>
+                                <SelectItem value="cuadrada">Cuadrada</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      )}
 
                       {/* MARCOS HABILITADOS PARA FOTOCABINA */}
                       {activeStationId === 'fotocabina' && (
@@ -2215,9 +2507,14 @@ function EntretenimientoContent() {
                               </Button>
                             )}
                             <Button
-                              onClick={() => {
-                                navigator.clipboard.writeText(`${origin}${getGuestLaunchLink(activeStationId)}`);
-                                toast({ title: 'Enlace de invitado copiado.' });
+                              onClick={async () => {
+                                const enlace = `${origin}${getGuestLaunchLink(activeStationId)}`;
+                                try {
+                                  await navigator.clipboard.writeText(enlace);
+                                  toast({ title: 'Enlace de invitado copiado.' });
+                                } catch {
+                                  toast({ title: 'No se pudo copiar', description: enlace });
+                                }
                               }}
                               variant="outline"
                               className="w-full rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider"
@@ -2226,10 +2523,15 @@ function EntretenimientoContent() {
                             </Button>
                             {getOperatorLaunchLink(activeStationId) && (
                               <Button
-                                onClick={() => {
-                                  navigator.clipboard.writeText(`${origin}${getOperatorLaunchLink(activeStationId)}`);
+                                onClick={async () => {
+                                const enlace = `${origin}${getOperatorLaunchLink(activeStationId)}`;
+                                try {
+                                  await navigator.clipboard.writeText(enlace);
                                   toast({ title: 'Enlace de operador copiado.' });
-                                }}
+                                } catch {
+                                  toast({ title: 'No se pudo copiar', description: enlace });
+                                }
+                              }}
                                 variant="outline"
                                 className="w-full rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider"
                               >
@@ -2297,6 +2599,88 @@ function EntretenimientoContent() {
             />
           </DialogContent>
         </Dialog>
+
+        {/* Modal Selección de Fiesta para Copiar Configuración */}
+        <Dialog open={isCopiarDialogOpen} onOpenChange={setIsCopiarDialogOpen}>
+          <DialogContent className="max-w-xl bg-zinc-950 border-zinc-800 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-black text-white flex items-center gap-2">
+                <Copy className="h-5 w-5 text-cyan-400" />
+                Copiar Configuración de Otra Fiesta
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-2 space-y-4">
+              <p className="text-xs text-zinc-400">
+                Elegí una fiesta de base para traer sus módulos activados, fondos temáticos, colores y plantillas de impresión sin copiar fotos ni invitados.
+              </p>
+              {isLoadingFiestas ? (
+                <div className="py-12 flex flex-col items-center justify-center gap-2">
+                  <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
+                  <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider">Cargando fiestas...</p>
+                </div>
+              ) : fiestasDisponibles.length === 0 ? (
+                <div className="py-8 text-center text-sm text-zinc-500 border border-dashed border-zinc-800 rounded-2xl">
+                  No hay otras fiestas disponibles para copiar.
+                </div>
+              ) : (
+                <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
+                  {fiestasDisponibles.map(f => {
+                    const nombre = (f as any).nombre || f.configuracion?.nombreEvento || 'Fiesta sin nombre';
+                    const fecha = (f as any).fecha || f.configuracion?.fechaEvento || (f.configuracion as any)?.fechaInicio;
+                    return (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => seleccionarParaCopiar(f)}
+                        className="w-full text-left p-3.5 rounded-2xl border border-zinc-800/80 bg-zinc-900/50 hover:bg-zinc-800/80 hover:border-cyan-500/50 transition-all flex items-center justify-between group"
+                      >
+                        <div>
+                          <p className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                            {nombre}
+                          </p>
+                          <p className="text-xs text-zinc-500">
+                            {fecha ? formatDateTime(fecha) : 'Fecha sin definir'}
+                          </p>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-zinc-600 group-hover:text-cyan-400 transition-colors" />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Diálogo de Confirmación */}
+        <AlertDialog open={isConfirmingCopia} onOpenChange={setIsConfirmingCopia}>
+          <AlertDialogContent className="bg-zinc-950 border-zinc-800 text-white">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-lg font-black text-white">
+                ¿Reemplazar ajustes de entretenimiento?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-sm text-zinc-400">
+                Se van a reemplazar los ajustes de entretenimiento por los de <strong className="text-white">{(fiestaSeleccionadaParaCopiar as any)?.nombre || fiestaSeleccionadaParaCopiar?.configuracion?.nombreEvento || 'la fiesta seleccionada'}</strong>. Las fotos e invitados de este evento no se tocan.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel
+                onClick={() => setIsConfirmingCopia(false)}
+                className="border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800 hover:text-white rounded-xl"
+              >
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmarYCopia}
+                disabled={isApplyingCopia}
+                className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold rounded-xl"
+              >
+                {isApplyingCopia ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                Copiar configuración
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
       </div>
     </div>
