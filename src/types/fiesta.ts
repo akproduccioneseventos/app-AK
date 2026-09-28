@@ -1237,6 +1237,15 @@ export interface ModulosContratados {
   buzon?: boolean;
 }
 
+/** Un renglón tal como salió en el pedido al proveedor (28/09/2026). */
+export interface RenglonPedidoEnviado {
+    /** El id del insumo si lo hay; si no, el nombre. Sirve para anotar lo que llegó. */
+    clave: string;
+    nombre: string;
+    unit: string;
+    cantidad: number;
+}
+
 export interface CompraProveedorEstado {
     proveedor: string;
     proveedorId?: string;
@@ -1244,6 +1253,16 @@ export interface CompraProveedorEstado {
     entregadoParcial?: boolean;
     pagado: boolean;
     montoPagado?: number;
+    /**
+     * Seguimiento del pedido (28/09/2026): qué se pidió, cuándo, y cuánto llegó de
+     * cada renglón. Con eso la app dice sola si llegó completo o qué faltó. No toca
+     * el stock del depósito: la comida que se usa en cada fiesta no se descuenta de
+     * ahí, así que sumarle lo que llega lo inflaría y la fiesta siguiente pediría de
+     * menos.
+     */
+    pedidoEnviadoAt?: string;
+    pedidoRenglones?: RenglonPedidoEnviado[];
+    recibidos?: Record<string, number>;
 }
 
 export type PlanPagoEstadoCuota = 'pendiente' | 'pagado' | 'vencido' | 'parcial';

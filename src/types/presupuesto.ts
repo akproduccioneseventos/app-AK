@@ -31,6 +31,12 @@ export interface PagoCliente {
   montoCobrado?: number; // Gross amount charged by the payment processor
   montoReintegrado?: number;
   recargoFinanciero?: number; // Processor financing surcharge, excluded from service balance
+  /**
+   * Lo que se quedó el procesador de pagos (Mercado Pago) de este cobro, según su
+   * propio informe (`fee_details`). Se guarda para que la ganancia de la fiesta
+   * descuente la comisión real y no la estime (28/09/2026).
+   */
+  comisionProveedor?: number;
   cuotasFinanciacion?: number;
   proveedorPago?: 'mercadopago';
   proveedorPagoId?: string;
