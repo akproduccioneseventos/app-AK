@@ -10112,3 +10112,16 @@ prueba: src/__tests__/el-muro-no-se-vacia-si-se-corta-la-senal.test.ts
 prueba: src/__tests__/copiar-configuracion-no-copia-personas.test.ts
 no-usa: getPublicSocialPosts(fiestaId).catch en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 ```
+
+## 28 de septiembre de 2026 — Pendientes del portal que llevaban a secciones ocultas (Codex)
+
+- En el portal del cliente, "Confirmar menú", "Confirmar invitados" y "Pago pendiente" aparecían
+  aunque su sección estuviera oculta (modo simple o ajustes del portal), y el botón no llevaba a
+  nada. Ahora cada pendiente usa la misma condición que su sección (`showCatering`,
+  `showInvitados`, `showFinancials`). El resto de la app lo barre la orden 96.
+
+```comprobar
+usa: showInvitados && pendientesRsvp en src/app/portal-cliente/[id]/page.tsx
+usa: showFinancials && cuotasPendientes en src/app/portal-cliente/[id]/page.tsx
+prueba: src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts
+```
