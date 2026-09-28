@@ -199,6 +199,13 @@ Entorno: portada pública en PC, 28/09/2026.
   devuelve el foco al botón de reproducción.
 - PASS técnico limitado: sin errores ni advertencias de consola observados durante
   este recorrido. No se verificaron todos los 143 medios ni la reproducción en móvil.
+- Repetición de control en la misma URL pública, más tarde el 28/09: “Testimonios de
+  clientes satisfechos” abrió un marco vacío (`about:blank`); “Clientes cuentan su
+  experiencia AK” mostró el reproductor de YouTube pero permaneció cargando; “XV años
+  Valentino” llegó a mostrar el video y la pantalla final. El filtro “XV Años” redujo
+  la lista accesible a nueve tarjetas. Resultado parcial: reproducción intermitente en
+  esta sesión; no se atribuye aún a código, porque el embebido externo/red puede influir.
+  La observación posterior matiza el PASS anterior; no se probó móvil ni otros videos.
 
 ## Entrada al simulador desde una categoría de evento
 

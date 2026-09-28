@@ -69,3 +69,8 @@ alcance en `docs/evidencias/94-recorridos-reales.md`.
   ampliada muestra descripciones genéricas. Código observado en `src/data/catalogo-fotos.json`,
   consumidor `src/components/landing/GallerySection.tsx`, copia auditada `7724ec9`.
   No inventar categorías; revisar la asociación foto/categoría con material de AK.
+- Videos públicos (control repetido 28/09): el filtro XV muestra nueve tarjetas; la
+  reproducción fue variable entre tres muestras (marco vacío, buffer prolongado, una
+  reproducción visible). **NO CONTRASTADO CON LA TANDA NI CON EL SHA DE PRODUCCIÓN.**
+  No ordenar cambios todavía: repetir con navegador/red normal y comparar misma URL,
+  luego verificar si las fuentes externas responden antes de asignar causa.
