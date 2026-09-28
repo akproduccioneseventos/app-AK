@@ -1151,7 +1151,8 @@ lo que hice?* Si es lo segundo, no se manda.
   Palabras suyas: *"nada de garantía ni 24/7, y son 7 años; no prometo cosas que no puedo
   cumplir"*. En todo lo que ve un cliente o un prospecto: **no se escribe "garantía",
   "garantizado", "24/7" ni "cero fallas"**; "clientes satisfechos" va **sin porcentaje** (lo
-  eligió así); y la experiencia es **"+7 años"**. Amplía la regla de agosto de no prometer plazos ni precios. Lo hace la orden 96,
+  eligió así); la experiencia es **"+7 años"** y los eventos, **"+200"**. **No se nombra ni se destaca a nadie del
+  personal**: se destaca el trabajo en equipo y el organizador. Amplía la regla de agosto de no prometer plazos ni precios. Lo hace la orden 96,
   bloque 5.
 
 - **Comparación con el rubro, 28 de septiembre de 2026.** De las 23 mejoras propuestas, el dueño

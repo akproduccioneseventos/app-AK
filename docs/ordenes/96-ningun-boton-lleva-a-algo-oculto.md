@@ -126,6 +126,12 @@ cumplir"*. Cambiá **exactamente** esto (líneas aproximadas):
 | `src/app/simulador-de-presupuesto/page.tsx` ~l.2025 | "Lo que nos diferencia y te garantiza tranquilidad total" | "Lo que nos diferencia" |
 | `src/app/simulador-de-presupuesto/page.tsx` ~l.2053 | "Calidad y cantidad garantizadas" | "Calidad y cantidad, como se contrató" |
 | `src/components/landing/StatsSection.tsx` ~l.9-12 | "+12" años; "100%" / "Clientes satisfechos"; "24/7" / "Acompañamiento" | "+7" años; la tercera queda **sin porcentaje**: `value: 'Clientes'`, `label: 'Satisfechos'` (el contador ya muestra el texto tal cual cuando no hay número); **sacá la de 24/7** y acomodá la grilla para tres |
+| `src/components/landing/StatsSection.tsx` ~l.9 | "+500" / "Eventos realizados" | "+200" / "Eventos realizados" |
+| `src/types/landing-editor.ts` ~l.155-158 (`defaultLandingSettings.stats`, lo que sale en la portada si nadie guardó otra cosa) | "+500 Eventos Realizados", "+12 Años", "100% Clientes Satisfechos", "24/7 Soporte al Cliente" | los mismos tres de `StatsSection`: "+200" eventos, "+7" años, "Clientes" / "Satisfechos"; **sacá la de 24/7** |
+| `src/app/actions/landing-editor.ts` ~l.22 (`getLandingSettings`) | usa las cifras guardadas en la base si existen | **si lo guardado es exactamente la lista vieja de cuatro** (los cuatro `value` de arriba: "+500", "+12", "100%", "24/7"), devolvé `defaultLandingSettings.stats`. Si el dueño ya las cambió a mano desde el editor, **no se tocan** |
+| `src/app/(app)/empresa/landing-editor/page.tsx` ~l.762 | `placeholder="+500"` | `placeholder="+200"` |
+| `src/app/catalogo/[tipo]/page.tsx` ~l.201-203 | "+10" años; "+500" eventos; "+500" familias felices | "+7" años; "+200" eventos; la tercera "Clientes" / "Satisfechos", sin número |
+| `src/data/presentacion.ts` ~l.106 | "DJ profesional con +10 años de experiencia" | "DJ profesional, coordinado por el organizador junto a todo el equipo" |
 | `src/components/public/HeroSection.tsx` ~l.132 | "✅ +10 años de experiencia" | "✅ +7 años de experiencia" |
 | `src/data/event-catalogs/shared.ts` ~l.118 y ~l.124 | "+10 años de experiencia"; "para garantizar la máxima calidad" | "+7 años de experiencia"; "para cuidar la calidad" |
 | `src/components/landing/AkDifferenceSection.tsx` ~l.15 | "Menos proveedores, cero fallas." | "Menos proveedores, todo coordinado por el mismo equipo." |
@@ -135,15 +141,17 @@ cumplir"*. Cambiá **exactamente** esto (líneas aproximadas):
 | `src/app/public/[eventType]/page.tsx` ~l.123 | "…una propuesta a medida en 24 hs." | "…una propuesta a medida." (plazos, ya prohibido desde agosto) |
 | `src/app/actions/asistente-virtual.ts` ~l.65 | "asesor de ventas virtual 24/7" | "asesor de ventas virtual", y sumá a sus reglas: "No prometas plazos, garantías ni resultados." |
 
-- **No toques** "DJ profesional con +10 años de experiencia" (`src/data/presentacion.ts` ~l.106):
-  habla del DJ, no de la empresa; lo decide el dueño aparte.
+- **No se nombra a nadie del personal ni se destaca a una persona.** Palabras del dueño: *"se destaca
+  el trabajo en equipo y el organizador"*. Si el barrido encuentra un texto que presenta a un
+  integrante por su experiencia o su nombre, se reescribe hablando del equipo y del organizador.
+- **Las cifras son las del dueño:** +200 eventos y +7 años. No inventes otras.
 - **Barrido:** buscá sin distinguir mayúsculas `garant|24/7|24 ?hs|24 horas|cero fallas` en lo que
   ve un cliente o un prospecto (`src/app` sin `(app)`, `src/components/public`,
   `src/components/landing`, `src/data`, los artículos del blog). Lo que aparezca y sea una promesa
   se saca con el mismo criterio. Listalo en la descripción de la propuesta.
 - **La prueba** (`src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts`) recorre esos
   mismos archivos y falla si aparece `garant`, `24/7`, `24 hs`, `cero fallas`, "+10 años", "+12
-  años" de la empresa o "100%" junto a "satisfechos". **Tiene que ponerse en rojo si se vuelve a escribir "garantía absoluta".**
+  años", "+500" o "100%" junto a "satisfechos". **Tiene que ponerse en rojo si se vuelve a escribir "garantía absoluta".**
 
 ## La prueba
 
@@ -157,6 +165,9 @@ prueba: src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts
 prueba: tests/e2e/la-portada-no-dice-cero.spec.ts
 usa: searchParams.get('tipo') en src/app/simulador-de-presupuesto/page.tsx
 prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
+no-usa: +500 en src/types/landing-editor.ts
+no-usa: +500 en src/app/catalogo/[tipo]/page.tsx
+no-usa: +10 años en src/data/presentacion.ts
 usa: sm:flex-wrap en src/components/public/InteractiveTechShowcase.tsx
 prueba: tests/e2e/el-carrusel-de-tecnologia-se-ve-entero.spec.ts
 prueba: src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts
