@@ -48,10 +48,27 @@ export interface BarTechnologySettings {
   closingTime?: string; // Formato HH:mm
 }
 
+/** El cierre de barra guardado (28/09/2026): qué se contó y si se ajustó el depósito. */
+export interface CierreDeBarraGuardado {
+  at: string;
+  por?: string;
+  filas: Array<{
+    insumoId: string;
+    nombre: string;
+    unidad: string;
+    enSistema: number;
+    consumidoPorPedidos: number;
+    contado?: number;
+    diferencia?: number;
+  }>;
+  depositoAjustado: boolean;
+}
+
 export interface BarTechnologyData {
   updatedAt?: string;
   settings: BarTechnologySettings;
   orders?: BarDrinkOrder[];
+  cierre?: CierreDeBarraGuardado;
 }
 
 export interface BarTechnologyDashboard {

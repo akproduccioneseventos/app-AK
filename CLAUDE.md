@@ -152,6 +152,12 @@ juntos; ya pasó con el archivo de facturas.
 
 ## Lo que programa Gemini NO lo programa Claude
 
+**ACTUALIZADO el 28 de septiembre de 2026, y manda sobre el reparto de abajo.** Palabras del
+dueño: *"que haga todo Gemini y tú revisas"*. **Desde ahora Gemini programa TODO, también plata,
+cobros, comida y permisos.** Claude investiga, decide, escribe la orden masticada y **revisa** la
+entrega con lupa, con más cuidado todavía en lo que toca plata y permisos. La única excepción
+sigue siendo el arreglo de una línea que aparece mientras se verifica una entrega.
+
 **Orden del dueño, 9 de agosto de 2026.** Cuando una tarea le toca a Gemini, se
 le deja la orden escrita en `docs/ordenes/` y **no se programa acá**. Escribir el
 código igual gasta el doble: lo paga el dueño dos veces y Gemini se queda sin
@@ -1126,6 +1132,15 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Comparación con el rubro, 28 de septiembre de 2026.** De las 23 mejoras propuestas, el dueño
+  **descartó**: recargo por cuota atrasada, seña reembolsable, merma de comida, propina para el
+  personal, preguntas propias en el RSVP, transporte para invitados, cartelito de alérgenos y venta
+  de fotos impresas. **No se vuelven a proponer.** Eligió que al invitado que no abrió la invitación
+  **se le recuerde solo** (otra excepción a "preparar sí, mandar no", con interruptor en Ajustes),
+  y que la carga con QR, el mantenimiento de equipos y la llegada con ubicación sean **opcionales**.
+  El cuestionario va **en la reunión de organización**, lo completa el equipo con el cliente
+  adelante. Todo está en la orden 95.
+
 - **Las pruebas reales van al final, y no se mencionan antes (27 de septiembre de 2026).** Palabras
   suyas: *"no digas más sobre la prueba, tú debes hacer tu parte; no se prueba hasta que Codex no
   vea errores"*. El ensayo en el salón y las pruebas reales de Instagram, WhatsApp, Gmail y Mercado
@@ -1411,6 +1426,9 @@ con otra cara.
 | La pantalla de las estaciones se apagaba sola entre invitado e invitado | `src/__tests__/las-estaciones-no-apagan-la-pantalla.test.tsx` |
 | El tótem no mostraba su código sin iniciar sesión, y la cámara decía "revisá los permisos" para cualquier falla | `src/__tests__/las-estaciones-dicen-que-tocar.test.ts` |
 | El afiche impreso decía "Subí tus fotos" y su QR sólo dejaba mirar | `src/__tests__/el-afiche-deja-subir-fotos.test.ts` |
+| La ganancia de cada fiesta no descontaba lo que se queda Mercado Pago | `src/__tests__/la-ganancia-descuenta-la-comision-de-mercado-pago.test.ts` |
+| El pedido al proveedor era un mensaje y nadie sabía si había llegado completo | `src/__tests__/el-pedido-al-proveedor-dice-si-llego-completo.test.ts` |
+| Lo que se servía en la barra sin pasar por un pedido no dejaba rastro | `src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts` |
 
 ### Cómo se elige el matafuego
 

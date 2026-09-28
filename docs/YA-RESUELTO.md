@@ -10057,3 +10057,32 @@ archivo: src/lib/entertainment/vigencia-del-afiche.ts
 usa: getPermisoDelAfiche en src/app/evento/muro-en-vivo/[fiestaId]/afiche/page.tsx
 prueba: src/__tests__/el-afiche-deja-subir-fotos.test.ts
 ```
+
+## 28 de septiembre de 2026 — Plata, pedido al proveedor y barra, a la par del rubro
+
+- **La ganancia descuenta la comisión real de Mercado Pago.** Al conciliar un cobro se guarda lo
+  que Mercado Pago informa que se quedó (`fee_details`, sólo lo que paga AK), en
+  `comisionProveedor`. La ganancia resta esa comisión y suma el recargo por cuotas que pagó el
+  cliente. **Por qué del informe y no un porcentaje:** la comisión cambia por plazo y medio de
+  pago, y un número estimado mentiría. Los cobros viejos sin el dato no se descuentan y se avisa
+  cuántos son, sin sumar su recargo, para no mostrar una ganancia más alta que la real.
+- **El pedido al proveedor tiene seguimiento.** Al mandarlo o copiarlo queda anotado qué se pidió
+  y cuándo. Cuando llega se marca cuánto vino ("Llegó todo" en un toque), y la app dice qué faltó.
+  Si llegó incompleto, salta el aviso "Pedido incompleto" en el centro de mando. **Por qué no se
+  suma al depósito lo que llega:** la comida que se usa en cada fiesta no se descuenta del
+  depósito, así que sumarle lo recibido lo inflaría y la fiesta siguiente pediría de menos.
+- **Cierre de barra.** Al cerrar se cuentan las botellas y se comparan con lo que descontaron los
+  pedidos; la diferencia es lo que salió sin registrarse. Opcionalmente deja el depósito en lo
+  contado. **Por qué por diferencia:** así un pedido que entra mientras se cuenta no se pierde.
+- Lo demás que el dueño eligió va en la orden 95 para Gemini.
+
+```comprobar
+usa: comisionDeMercadoPago en src/lib/payments/mercadopago-core.ts
+usa: comisionesMercadoPago en src/app/(app)/fiestas/nueva/gestion-costos-rentabilidad/page.tsx
+prueba: src/__tests__/la-ganancia-descuenta-la-comision-de-mercado-pago.test.ts
+usa: RecepcionDelPedido en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+usa: pedido_incompleto en src/lib/automatizaciones-engine.ts
+prueba: src/__tests__/el-pedido-al-proveedor-dice-si-llego-completo.test.ts
+usa: CierreDeBarra en src/app/(app)/fiestas/nueva/barra-tecnologica/page.tsx
+prueba: src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts
+```

@@ -13,6 +13,8 @@ import { ArrowLeft, Save, Loader2, AlertTriangle, BarChart3, PlusCircle, Trash2,
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateGestionCostosFiestaActual, updatePagosProveedoresFiestaActual } from '@/app/actions/fiesta-actual';
 import { syncAllEventCosts } from '@/app/actions/fiesta/costos.actions';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
+import type { PagoCliente } from '@/types/presupuesto';
 import { defaultGestionCostos } from '@/lib/fiesta-defaults';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -51,6 +53,8 @@ function GestionCostosRentabilidadContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [gestionCostos, setGestionCostos] = useState<GestionCostosData>(defaultGestionCostos);
   const [pagosProveedores, setPagosProveedores] = useState<PagoProveedor[]>([]);
+  // Cobros al cliente: de acá sale la comisión real de Mercado Pago (28/09/2026).
+  const [cobrosCliente, setCobrosCliente] = useState<PagoCliente[]>([]);
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -73,6 +77,12 @@ function GestionCostosRentabilidadContent() {
       setFiesta(fiestaData);
       setGestionCostos(fiestaData.gestionCostos || defaultGestionCostos);
       setPagosProveedores(fiestaData.pagosProveedores || []);
+      if (fiestaData.presupuestoId) {
+        // Si no se puede leer el presupuesto, la ganancia se muestra sin la comisión
+        // y la tarjeta avisa que faltan cobros sin comisión informada.
+        const presupuesto = await getPresupuestoById(fiestaData.presupuestoId).catch(() => null);
+        setCobrosCliente(presupuesto?.pagosCliente ?? []);
+      }
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
@@ -155,7 +165,7 @@ function GestionCostosRentabilidadContent() {
     // Ademas ahora la ganancia se muestra contra lo que se gasto DE VERDAD donde
     // hay pagos cargados. Antes se mostraba siempre contra lo estimado: si el
     // evento se iba de gasto, el numero seguia viendose lindo.
-    const g = calcularGananciaDeEvento(gestionCostos, pagosProveedores);
+    const g = calcularGananciaDeEvento(gestionCostos, pagosProveedores, cobrosCliente);
     return {
       projectedCost: g.costoReal,
       costoEstimado: g.costoEstimado,
@@ -163,8 +173,11 @@ function GestionCostosRentabilidadContent() {
       projectedProfit: g.gananciaReal,
       projectedMargin: g.margenReal,
       hayGastoCargado: g.hayGastoCargado,
+      comisionesMercadoPago: g.comisionesMercadoPago,
+      recargosCobrados: g.recargosCobrados,
+      cobrosSinComisionInformada: g.cobrosSinComisionInformada,
     };
-  }, [gestionCostos, pagosProveedores]);
+  }, [gestionCostos, pagosProveedores, cobrosCliente]);
 
   const costItemsForSelect = useMemo(() => {
       const automatic = [
@@ -230,6 +243,19 @@ function GestionCostosRentabilidadContent() {
                       ? 'Calculada con los pagos que ya cargaste. Lo que todavia no tiene pago va por lo estimado.'
                       : 'Todavia no cargaste ningun pago: este numero usa lo que se estima gastar.'}
                   </p>
+                  {(stats.comisionesMercadoPago > 0 || stats.recargosCobrados > 0) && (
+                    <p className="mt-2 text-[11px] font-medium leading-snug text-white/80" data-testid="ganancia-mercado-pago">
+                      Mercado Pago: se descontaron {formatCurrency(stats.comisionesMercadoPago)} de comisión y se sumaron{' '}
+                      {formatCurrency(stats.recargosCobrados)} de recargo por cuotas que pagó el cliente.
+                    </p>
+                  )}
+                  {stats.cobrosSinComisionInformada > 0 && (
+                    <p className="mt-1 text-[11px] font-bold leading-snug text-amber-100">
+                      {stats.cobrosSinComisionInformada === 1
+                        ? 'Hay 1 cobro de Mercado Pago sin la comisión informada: no está descontada.'
+                        : `Hay ${stats.cobrosSinComisionInformada} cobros de Mercado Pago sin la comisión informada: no están descontadas.`}
+                    </p>
+                  )}
               </CardContent>
           </Card>
       </div>

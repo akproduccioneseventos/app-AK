@@ -1,4 +1,5 @@
 import type { GestionCostosData, PagoProveedor } from '@/types/fiesta';
+import type { PagoCliente } from '@/types/presupuesto';
 
 /**
  * Cuánta plata dejó una fiesta.
@@ -70,6 +71,17 @@ export interface GananciaDeEvento {
   hayGastoCargado: boolean;
   /** Cuánto de lo estimado todavía no tiene ningún pago cargado. */
   sinRendir: number;
+  /**
+   * Mercado Pago (28/09/2026). Lo que se quedó de comisión, según su propio informe,
+   * y el recargo por cuotas que pagó el cliente encima de lo pactado. Los dos entran
+   * en la ganancia real: el recargo suma y la comisión resta. Sólo cuentan los cobros
+   * que traen la comisión informada; los que no, se cuentan en
+   * `cobrosSinComisionInformada` para avisar, y no se suma su recargo, para no
+   * mostrar una ganancia más alta que la real.
+   */
+  comisionesMercadoPago: number;
+  recargosCobrados: number;
+  cobrosSinComisionInformada: number;
 }
 
 function aNumero(valor: unknown): number {
@@ -85,6 +97,7 @@ function porcentaje(ganancia: number, ingreso: number): number {
 export function calcularGananciaDeEvento(
   gestionCostos: GestionCostosData | undefined | null,
   pagosProveedores: PagoProveedor[] | undefined | null,
+  pagosCliente?: PagoCliente[] | undefined | null,
 ): GananciaDeEvento {
   const items = (gestionCostos?.costosItems ?? []).filter((item) => item.id !== MERMA_DUPLICADA);
   const pagos = pagosProveedores ?? [];
@@ -145,11 +158,25 @@ export function calcularGananciaDeEvento(
     if (!idsDeItems.has(clave) && !idsDeBloques.has(clave)) pagosSueltos += monto;
   }
 
-  const costoReal = realDeItems + realDeBloques + pagosSueltos;
+  // Cobros por Mercado Pago confirmados: comisión real y recargo cobrado.
+  let comisionesMercadoPago = 0;
+  let recargosCobrados = 0;
+  let cobrosSinComisionInformada = 0;
+  for (const cobro of pagosCliente ?? []) {
+    if (cobro?.proveedorPago !== 'mercadopago' || cobro?.estadoPago === 'rechazado') continue;
+    if (typeof cobro.comisionProveedor !== 'number' || !Number.isFinite(cobro.comisionProveedor)) {
+      cobrosSinComisionInformada += 1;
+      continue;
+    }
+    comisionesMercadoPago += cobro.comisionProveedor;
+    recargosCobrados += aNumero(cobro.recargoFinanciero);
+  }
+
+  const costoReal = realDeItems + realDeBloques + pagosSueltos + comisionesMercadoPago;
   const ingreso = aNumero(gestionCostos?.ingresosTotalesEstimados);
 
   const gananciaEstimada = ingreso - costoEstimado;
-  const gananciaReal = ingreso - costoReal;
+  const gananciaReal = ingreso + recargosCobrados - costoReal;
 
   return {
     ingreso,
@@ -162,5 +189,8 @@ export function calcularGananciaDeEvento(
     pagadoAProveedores,
     hayGastoCargado: pagadoAProveedores > 0,
     sinRendir,
+    comisionesMercadoPago,
+    recargosCobrados,
+    cobrosSinComisionInformada,
   };
 }

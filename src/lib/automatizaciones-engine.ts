@@ -1,5 +1,6 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { AutomatizacionRule, AlertaAutomatica } from '@/types/automatizaciones';
+import { estadoDelPedido } from '@/lib/catering/seguimiento-del-pedido';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Area mapping per rule ID (explicit to avoid inconsistencies)
@@ -17,6 +18,7 @@ const REGLA_AREA_MAP: Record<string, string> = {
   'decoracion-sin-definir': 'decoracion',
   'cronograma-vacio': 'timeline',
   'contrato-sin-firmar': 'documentos',
+  'pedido-incompleto': 'menu',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -112,6 +114,15 @@ export const REGLAS_AUTOMATICAS: AutomatizacionRule[] = [
     accion: { tipo: 'alerta_interna', destino: 'centro_de_mando' },
     activa: true,
   },
+  {
+    // 28/09/2026: un proveedor que mandó de menos se ve antes de la fiesta, no en la cocina.
+    id: 'pedido-incompleto',
+    nombre: 'Pedido incompleto',
+    descripcion: 'Un proveedor entregó menos de lo pedido para la fiesta',
+    trigger: { tipo: 'dias_antes_evento', dias: 30, condicion: 'pedido_incompleto' },
+    accion: { tipo: 'alerta_interna', destino: 'centro_de_mando' },
+    activa: true,
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -166,6 +177,8 @@ function buildAccionUrl(regla: AutomatizacionRule, fiestaId: string): string | u
       return `${base}/musica${q}`;
     case 'faltan-fotos-video-vida':
       return `${base}/video-vida${q}`;
+    case 'pedido-incompleto':
+      return `${base}/catering/lista-compras${q}`;
     default:
       return undefined;
   }
@@ -212,6 +225,9 @@ function evaluarCondicion(condicion: string, fiesta: FiestaEnPlanificacion): boo
 
     case 'sin_cronograma':
       return (fiesta.programa ?? []).length === 0;
+
+    case 'pedido_incompleto':
+      return (fiesta.estadosCompra ?? []).some((estado) => estadoDelPedido(estado).etapa === 'llego_incompleto');
 
     case 'sin_contrato':
       return Boolean(fiesta.presupuestoId) && !fiesta.contratoFirmaInfo?.signedAt && !fiesta.contratoFirmaInfo?.isSigned && !fiesta.contratoServicioTexto;
