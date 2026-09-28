@@ -14,7 +14,7 @@ export function explicarFallaDeCamara(err: unknown): string {
       return 'El navegador no dio permiso para usar la cámara. Tocá el candado de la barra de direcciones, permití la cámara y recargá.';
     case 'NotFoundError':
     case 'OverconstrainedError':
-      return 'No se encontró ninguna cámara. Revisá que esté conectada y recargá la pantalla.';
+      return 'Esta pantalla no detecta ninguna cámara. Revisá que esté conectada y recargá.';
     case 'NotReadableError':
     case 'AbortError':
       return 'La cámara está ocupada por otro programa u otra pestaña. Cerralo y volvé a intentar.';

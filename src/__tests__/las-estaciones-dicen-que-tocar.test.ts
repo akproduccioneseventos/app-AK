@@ -20,6 +20,9 @@ describe('la cámara dice qué tocar', () => {
     expect(falta).toMatch(/conectada/i);
     expect(ocupada).toMatch(/ocupada/i);
     expect(new Set([permiso, falta, ocupada]).size).toBe(3);
+    // "No se encontr" es la señal de fiesta perdida que mira la prueba de la noche: el aviso de
+    // cámara no puede empezar igual, o la estación parece rota cuando sólo falta la cámara.
+    for (const aviso of [permiso, falta, ocupada]) expect(aviso).not.toMatch(/No se encontr/i);
     expect(explicarFallaDeCamara('cualquier cosa')).toMatch(/cámara/);
   });
 
