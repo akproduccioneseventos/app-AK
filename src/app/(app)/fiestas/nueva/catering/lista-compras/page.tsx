@@ -1,6 +1,13 @@
 'use client';
 
 import { armarPedidoAlProveedor } from '@/lib/catering/pedido-al-proveedor';
+import {
+  anotarQueLlegoTodo,
+  anotarRecibido,
+  estadoDelPedido,
+  registrarPedidoEnviado,
+  renglonesDelPedido,
+} from '@/lib/catering/seguimiento-del-pedido';
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -371,6 +378,43 @@ function ListaDeComprasContent() {
     }
   };
 
+  /**
+   * Guarda el estado de UN proveedor. Si no se pudo guardar, vuelve a leer y lo dice:
+   * nunca queda en pantalla algo que no se guardó (28/09/2026).
+   */
+  const guardarEstadoProveedor = async (nuevo: CompraProveedorEstado, aviso: string) => {
+    if (!fiestaId || !nuevo.proveedorId) return;
+    setIsSavingStatus(nuevo.proveedorId);
+    const siguientes = [
+      ...estadosCompra.filter(e => e.proveedorId !== nuevo.proveedorId && e.proveedor !== nuevo.proveedor),
+      nuevo,
+    ];
+    setEstadosCompra(siguientes);
+    try {
+      const result = await updateShoppingListStatus(fiestaId, siguientes);
+      if (!result.success) throw new Error(result.error);
+      toast({ title: aviso });
+    } catch (e: any) {
+      toast({ title: 'No se pudo guardar', description: e.message, variant: 'destructive' });
+      loadData(false);
+    } finally {
+      setIsSavingStatus(null);
+    }
+  };
+
+  const estadoDe = (providerId: string, providerName: string) =>
+    estadosCompra.find(e => e.proveedorId === providerId || e.proveedor === providerName);
+
+  // Al mandar o copiar el pedido, queda anotado solo qué se pidió y cuándo.
+  const anotarPedidoEnviado = (providerId: string, providerName: string, items: ShoppingListItem[]) => {
+    const renglones = renglonesDelPedido(items);
+    if (renglones.length === 0) return;
+    void guardarEstadoProveedor(
+      registrarPedidoEnviado(estadoDe(providerId, providerName), providerName, providerId, renglones),
+      'Pedido anotado: cuando llegue, marcá lo que vino.',
+    );
+  };
+
   const [copiedProviderId, setCopiedProviderId] = useState<string | null>(null);
 
   const buildProviderOrderMessage = (providerName: string, items: ShoppingListItem[]) =>
@@ -385,6 +429,8 @@ function ListaDeComprasContent() {
     const msg = buildProviderOrderMessage(providerName, items);
     const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
     window.open(waUrl, '_blank', 'noopener,noreferrer');
+    const providerId = items[0]?.proveedorId;
+    if (providerId) anotarPedidoEnviado(providerId, providerName, items);
   };
 
   const handleCopyOrderText = async (providerId: string, providerName: string, items: ShoppingListItem[]) => {
@@ -393,6 +439,7 @@ function ListaDeComprasContent() {
       await navigator.clipboard.writeText(msg);
       setCopiedProviderId(providerId);
       toast({ title: "Pedido copiado al portapapeles", description: `Listo para enviar a ${providerName}.` });
+      anotarPedidoEnviado(providerId, providerName, items);
       setTimeout(() => setCopiedProviderId(null), 2500);
     } catch {
       toast({ title: "No se pudo copiar", description: "Copiá el texto manualmente.", variant: "destructive" });
@@ -580,6 +627,11 @@ function ListaDeComprasContent() {
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
+                            <RecepcionDelPedido
+                              estado={estadoDe(providerId, providerName)}
+                              guardando={isSavingThis}
+                              onGuardar={(nuevo, aviso) => guardarEstadoProveedor(nuevo, aviso)}
+                            />
                             <Table>
                                 <TableHeader className="bg-slate-50/50">
                                     <TableRow className="border-slate-100">
@@ -623,6 +675,89 @@ function ListaDeComprasContent() {
             </div>
         </div>
       </div>
+  );
+}
+
+/**
+ * Lo que llegó del pedido (28/09/2026). Aparece cuando el pedido ya se mandó: se anota
+ * cuánto vino de cada cosa, o "Llegó todo" en un toque, y la app dice qué falta.
+ */
+function RecepcionDelPedido({
+  estado,
+  guardando,
+  onGuardar,
+}: {
+  estado: CompraProveedorEstado | undefined;
+  guardando: boolean;
+  onGuardar: (nuevo: CompraProveedorEstado, aviso: string) => void;
+}) {
+  const renglones = estado?.pedidoRenglones ?? [];
+  if (!estado || !estado.pedido || renglones.length === 0) return null;
+  const { etapa, faltantes } = estadoDelPedido(estado);
+  const enviado = estado.pedidoEnviadoAt
+    ? new Date(estado.pedidoEnviadoAt).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' })
+    : '';
+
+  return (
+    <div className="border-b border-slate-100 bg-slate-50/60 p-5 print:hidden" data-testid="recepcion-del-pedido">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-widest text-slate-500">Lo que llegó del pedido</p>
+          {enviado && <p className="text-[11px] font-medium text-slate-400">Pedido mandado el {enviado}</p>}
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={guardando}
+          onClick={() => onGuardar(anotarQueLlegoTodo(estado), 'Anotado: llegó todo lo pedido.')}
+          className="h-8 rounded-xl text-xs font-bold"
+        >
+          <Check className="mr-1 h-3.5 w-3.5" /> Llegó todo
+        </Button>
+      </div>
+
+      {etapa === 'llego_completo' && (
+        <p className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800" data-testid="pedido-completo">
+          Llegó completo.
+        </p>
+      )}
+      {etapa === 'llego_incompleto' && (
+        <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900" data-testid="pedido-incompleto">
+          <p className="font-bold">Llegó incompleto. Falta:</p>
+          <ul className="mt-1 list-disc pl-5">
+            {faltantes.map((f) => (
+              <li key={f.nombre}>{f.nombre}: {Number(f.faltan.toFixed(2))} {f.unit}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {renglones.map((renglon) => (
+          // La clave lleva lo anotado: si "Llegó todo" cambia el número, la casilla se rearma con él.
+          <label key={`${renglon.clave}-${estado.recibidos?.[renglon.clave] ?? ''}`} className="flex items-center justify-between gap-3 rounded-xl bg-white p-2 px-3 text-sm">
+            <span className="min-w-0 truncate font-semibold text-slate-700">
+              {renglon.nombre} <span className="text-slate-400">(pedido: {renglon.cantidad} {renglon.unit})</span>
+            </span>
+            <Input
+              type="number"
+              min={0}
+              inputMode="decimal"
+              aria-label={`Cuánto llegó de ${renglon.nombre}`}
+              className="h-8 w-24 rounded-lg text-right text-xs font-bold"
+              defaultValue={estado.recibidos?.[renglon.clave] ?? ''}
+              disabled={guardando}
+              onBlur={(e) => {
+                if (e.target.value === '') return;
+                const valor = Number(e.target.value);
+                if (valor === estado.recibidos?.[renglon.clave]) return;
+                onGuardar(anotarRecibido(estado, renglon.clave, valor), 'Anotado lo que llegó.');
+              }}
+            />
+          </label>
+        ))}
+      </div>
+    </div>
   );
 }
 
