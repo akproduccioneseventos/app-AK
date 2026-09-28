@@ -10,6 +10,7 @@ import type {
   BarDrinkOrderStatus,
   BarStockMovement,
   BarTechnologyData,
+  CierreDeBarraGuardado,
   BarTechnologyDashboard,
   BarTechnologySettings,
   CreateBarDrinkOrderInput,
@@ -28,6 +29,13 @@ import { readData, writeData } from '@/lib/data-service';
 import { mutateGenericJsonArray, mutateGenericJsonArrayConTransaccion } from '@/lib/generic-json-store';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import * as logger from '@/lib/logger';
+import {
+  ajustesAlConteo,
+  compararConElConteo,
+  consumoPorPedidos,
+  insumosDeLaBarra,
+  type FilaDelCierre,
+} from '@/lib/barra/cierre-de-barra';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
@@ -1062,4 +1070,144 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
     logger.error('[barra-tecnologica] upload file failed', error);
     return { success: false, error: error.message || 'No se pudo subir el archivo.' };
   }
+}
+
+/**
+ * CIERRE DE BARRA (28/09/2026): las botellas que el sistema cree que quedan, lo que
+ * descontaron los pedidos de esta fiesta, y el último cierre guardado. Ver
+ * `src/lib/barra/cierre-de-barra.ts`.
+ */
+export async function getCierreDeBarra(fiestaId: string): Promise<{
+  success: boolean;
+  filas?: FilaDelCierre[];
+  ultimoCierre?: CierreDeBarraGuardado;
+  error?: string;
+}> {
+  try {
+    await requireAppSession();
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) throw new Error('Fiesta no encontrada.');
+    const [drinks, firestoreOrders] = await Promise.all([
+      getBarDrinks(fiesta),
+      getFirestoreOrders(fiestaId).catch(() => null),
+    ]);
+    const orders = firestoreOrders ?? (getStoredBarData(fiesta).orders || []);
+    const ids = insumosDeLaBarra(drinks);
+    const stock = await leerStockDeInsumos(ids);
+    const consumo = consumoPorPedidos(orders);
+    const filas: FilaDelCierre[] = ids
+      .filter((id) => stock.has(id))
+      .map((id) => {
+        const insumo = stock.get(id)!;
+        return {
+          insumoId: id,
+          nombre: insumo.nombre,
+          unidad: insumo.unidad,
+          enSistema: insumo.cantidad,
+          consumidoPorPedidos: consumo.get(id) || 0,
+        };
+      })
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    return { success: true, filas, ultimoCierre: getStoredBarData(fiesta).cierre };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'No se pudo armar el cierre de barra.' };
+  }
+}
+
+async function leerStockDeInsumos(ids: string[]): Promise<Map<string, { nombre: string; unidad: string; cantidad: number }>> {
+  const resultado = new Map<string, { nombre: string; unidad: string; cantidad: number }>();
+  if (ids.length === 0) return resultado;
+  const db = await getDb();
+  const anotar = (id: string, dato: Partial<ServicioEmpresa> | undefined) => {
+    const cantidad = Number(dato?.cantidadDisponible);
+    // Un insumo sin stock cargado no se puede cerrar: no hay contra qué comparar.
+    if (!dato || !Number.isFinite(cantidad)) return;
+    resultado.set(id, { nombre: String(dato.nombre || id), unidad: String(dato.unidad || ''), cantidad });
+  };
+  if (db) {
+    const snapshots = await db.getAll(...ids.map((id) => db.collection('insumos').doc(id)));
+    snapshots.forEach((snapshot, index) => anotar(ids[index], snapshot.exists ? snapshot.data() as ServicioEmpresa : undefined));
+    return resultado;
+  }
+  const inventario = await readData<ServicioEmpresa[]>(INSUMOS_FILE, []);
+  for (const id of ids) anotar(id, inventario.find((item) => item.id === id));
+  return resultado;
+}
+
+/**
+ * Guarda el conteo del cierre. Con `ajustarDeposito`, deja el depósito en lo contado:
+ * se mueve por la DIFERENCIA con lo que se mostró, no se pisa el número, así un pedido
+ * que entró mientras se contaba no se pierde.
+ */
+export async function guardarCierreDeBarra(
+  fiestaId: string,
+  conteo: Record<string, number | undefined>,
+  ajustarDeposito: boolean,
+): Promise<{ success: boolean; cierre?: CierreDeBarraGuardado; error?: string }> {
+  try {
+    await requireAppSession();
+    const armado = await getCierreDeBarra(fiestaId);
+    if (!armado.success || !armado.filas) throw new Error(armado.error || 'No se pudo armar el cierre.');
+    const filas = compararConElConteo(armado.filas, conteo);
+    if (!filas.some((fila) => fila.contado !== undefined)) {
+      throw new Error('Anotá lo que contaste en al menos una botella.');
+    }
+
+    if (ajustarDeposito) {
+      const ajustes = ajustesAlConteo(filas);
+      if (ajustes.length > 0) await moverStock(ajustes);
+    }
+
+    const cierre: CierreDeBarraGuardado = {
+      at: new Date().toISOString(),
+      filas: filas.map((fila) => ({ ...fila })),
+      depositoAjustado: ajustarDeposito,
+    };
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) throw new Error('Fiesta no encontrada.');
+    const stored = getStoredBarData(fiesta);
+    const result = await saveFiesta({
+      ...fiesta,
+      others: { ...(fiesta.others || {}), barraTecnologica: { ...stored, cierre } },
+    });
+    if (!result.success) {
+      throw new Error(
+        ajustarDeposito
+          ? `El depósito ya quedó ajustado, pero no se pudo guardar el registro del cierre: ${result.error || 'error al guardar'}.`
+          : result.error || 'No se pudo guardar el cierre.',
+      );
+    }
+    return { success: true, cierre };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'No se pudo guardar el cierre de barra.' };
+  }
+}
+
+async function moverStock(ajustes: Array<{ insumoId: string; ajuste: number }>) {
+  const db = await getDb();
+  if (db) {
+    await db.runTransaction(async (transaction) => {
+      const refs = ajustes.map((item) => db.collection('insumos').doc(item.insumoId));
+      const snapshots = await transaction.getAll(...refs);
+      snapshots.forEach((snapshot, index) => {
+        if (!snapshot.exists) return;
+        const available = Number(snapshot.data()?.cantidadDisponible);
+        if (!Number.isFinite(available)) return;
+        transaction.update(snapshot.ref, { cantidadDisponible: Math.max(0, available + ajustes[index].ajuste) });
+      });
+    });
+    limpiarCacheInsumos();
+    return;
+  }
+  await enLaColaDeStock(async () => {
+    const inventory = await readData<ServicioEmpresa[]>(INSUMOS_FILE, []);
+    for (const item of ajustes) {
+      const supply = inventory.find((candidate) => candidate.id === item.insumoId);
+      if (supply && supply.cantidadDisponible !== undefined) {
+        supply.cantidadDisponible = Math.max(0, supply.cantidadDisponible + item.ajuste);
+      }
+    }
+    await writeData(INSUMOS_FILE, inventory);
+    limpiarCacheInsumos();
+  });
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { CierreDeBarra } from '@/components/barra/CierreDeBarra';
 import { Suspense, useCallback, useEffect, useMemo, useState, type ElementType } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -316,6 +317,8 @@ function BarraTecnologicaContent() {
           <QrCard title="Muro social pantalla grande" icon={Tv} url={urls.muro} onCopy={copyLink} />
         </aside>
       </section>
+
+      {fiestaId && <CierreDeBarra fiestaId={fiestaId} />}
     </main>
   );
 }
