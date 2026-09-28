@@ -10037,3 +10037,23 @@ usa: permisoDelEnlace en src/app/evento/totem/[fiestaId]/[totemId]/page.tsx
 usa: boton-personalizar-foto en src/app/evento/fotocabina/[fiestaId]/page.tsx
 prueba: src/__tests__/las-estaciones-dicen-que-tocar.test.ts
 ```
+
+## 28 de septiembre de 2026 — El QR del afiche impreso deja subir fotos
+
+- **Estaba roto:** el afiche del muro dice "Subí tus fotos", pero su QR no llevaba permiso y el
+  invitado que lo escaneaba sólo podía mirar. El QR del tótem sí andaba.
+- **Ahora:** al abrir el afiche, alguien del equipo recibe el permiso de invitado del tótem
+  (`getPermisoDelAfiche`), que vale **hasta que termina el día siguiente a la fiesta**, en hora de
+  Uruguay. Por qué: el papel se imprime días antes y las 18 horas de las estaciones vencían antes de
+  la fiesta. Las fotos siguen pasando por la moderación del muro.
+- Si no hay sesión o la fiesta no tiene fecha, el afiche avisa en pantalla, antes de imprimir, que
+  ese QR sólo deja mirar.
+- La comparación con Instawall y el resto del rubro quedó como orden 94 para Gemini: fondo propio
+  del muro, segundos por foto, tamaño del mosaico, límite y marco de impresión, tótem que arranca sin
+  internet, copiar la configuración de otra fiesta, y los ajustes de estación que no tenían control.
+
+```comprobar
+archivo: src/lib/entertainment/vigencia-del-afiche.ts
+usa: getPermisoDelAfiche en src/app/evento/muro-en-vivo/[fiestaId]/afiche/page.tsx
+prueba: src/__tests__/el-afiche-deja-subir-fotos.test.ts
+```
