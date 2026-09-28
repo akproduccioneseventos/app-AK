@@ -267,6 +267,27 @@ relacionados. Sin contactar a clientes ni activar CTA externos.
   y asesoramiento; no se siguieron enlaces externos ni se verificó que el simulador incluya
   todos los equipos citados.
 
+## Blog público: presupuesto y planificación
+
+Entorno: web publicada, PC, 28/09/2026. Rutas públicas abiertas directamente desde enlaces
+visibles en portada/blog; no se enviaron datos.
+
+- PASS: la guía de presupuesto explica servicios, regalos, seña, saldo, vigencia e ítems
+  para comparar. La guía de organización prioriza fecha, invitados y prioridades; la guía
+  de menú pide separar adultos/menores y considerar precio por persona/costo. Sus checklists
+  son legibles y concretos.
+- P2 COHERENCIA: la guía de presupuesto dice que el ajuste para años futuros “se revisa al
+  confirmar o actualizar la propuesta”, mientras la solicitud aprobada de AK pide que el
+  simulador muestre aparte el precio actual y la proyección anual del año elegido. Contrastar
+  el copy con la versión/entrega activa y el comportamiento actual antes de ajustar texto;
+  esta pasada no probó el cálculo del simulador.
+- P2 COPY/COSTOS (misma línea catering): la guía menú formal/islas asegura que el formato
+  reduce vajilla/mozos y costos operativos; resultado depende de aforo, montaje y servicio.
+  Validar con Claude contra costeo real y no vender ahorro garantizado. También queda
+  pendiente validar las afirmaciones de preferencias de catering ya anotadas arriba.
+- PASS limitado: las dos guías recientes de planificación y menú abren; no se crearon
+  prospectos, no se guardaron cotizaciones y no se completó compra/contratación.
+
 ## Entrada al simulador desde una categoría de evento
 
 Entorno: web publicada, PC, 28/09/2026. Recorrido sin completar datos personales ni

@@ -93,3 +93,8 @@ alcance en `docs/evidencias/94-recorridos-reales.md`.
   Claude debe validar catering/claims comerciales y el responsable de operación/proveedor
   debe validar efectos y requisitos del salón antes de cambiar el copy. **NO CONTRASTADO
   CON LA TANDA NI CON EL SHA DE PRODUCCIÓN.** Evidencia y fuente en `docs/evidencias/94-recorridos-reales.md`.
+- Blog, presupuesto y menú (28/09): los checklists sí cubren detalles exigidos por AK, pero
+  el copy de ajuste futuro puede diferir de la proyección anual solicitada; cotejar con el
+  comportamiento actual antes de editar. La promesa de reducción de vajilla/mozos/costos
+  requiere validación de Claude contra costeo real. **NO CONTRASTADO CON LA TANDA NI CON
+  EL SHA DE PRODUCCIÓN.** No cambiar cálculos ni precios desde esta revisión.
