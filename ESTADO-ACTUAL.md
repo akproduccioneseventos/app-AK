@@ -1,5 +1,13 @@
 # Acá quedé
 
+**28/09/2026, Codex:** main actualizado a 621f41c (1235), sin PR abierta.
+El ensayo por roles no arranco: EPERM del enlace en Windows; al usar junction
+en memoria, control de ambiente rechaza variables automaticas de Windows.
+Orden 94 en docs/ordenes/94-entorno-aislado-en-windows.md, pendiente para Claude.
+Sin cambios de app ni datos reales. No repetir instalacion: dependencias listas.
+Rama documental codex/entorno-windows-94; juntar con proxima tanda, no fusion sola.
+Lo siguiente: corregir arranque aislado y retomar recorridos por rol.
+
 **27 de septiembre de 2026.** Orden 93 de Codex: los dos arreglos de código están hechos. El
 despliegue que falló espera el registro de Firebase.
 

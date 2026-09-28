@@ -10016,3 +10016,13 @@ usa: tandaDeEstaFoto en src/app/evento/fotocabina/[fiestaId]/page.tsx
 usa: porQueNoHayCodigo en src/app/evento/totem/[fiestaId]/[totemId]/page.tsx
 prueba: src/__tests__/las-estaciones-no-apagan-la-pantalla.test.tsx
 ```
+# 28/09/2026 - Codex: bloqueo local pendiente, orden 94
+
+No es un arreglo terminado: el entorno aislado falla en Windows con EPERM al
+crear el enlace de node_modules. Con una adaptacion en memoria a junction,
+rechaza ocho variables que Windows agrega incluso al lanzar Node con env vacio.
+Reproducido en 5e384c6 y script identico en main 621f41c; sin PR abierta.
+Detalle y aceptacion: docs/ordenes/94-entorno-aislado-en-windows.md.
+No se modifico codigo de la app ni datos reales. Recorridos por rol pendientes;
+no confundir estos bloqueos locales con errores publicados.
+
