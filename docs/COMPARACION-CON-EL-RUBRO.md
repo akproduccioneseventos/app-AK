@@ -47,6 +47,7 @@ Firmar o dibujar sobre la foto :: usa: LienzoDibujoCompartido en src/app/evento/
 Boomerang o GIF :: usa: velocidadRecuerdo === 'boomerang' en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Video :: usa: mediaRecorderRef en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Camara lenta :: usa: velocidadRecuerdo === 'lenta' en src/app/evento/fotocabina/[fiestaId]/page.tsx
+Ajustes editables :: usa: station-config en src/app/(app)/fiestas/nueva/entretenimiento/page.tsx
 ```
 
 **Las tres que el dueño marcó y no estaban en ninguna orden** —tamaño de impresión, cantidad de
@@ -162,7 +163,14 @@ Aviso si se corta internet :: usa: isReconnecting en src/app/evento/muro-en-vivo
 Modo cine, una foto sola :: usa: cinemaMode en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Dedicatorias en pantalla :: usa: dedicaciones en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Dice de quien es la fiesta :: usa: eventName en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
-Fondo elegible, los 100 de Instawall :: usa: fondoMuro en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+Fondos para el evento :: usa: fondoMuro en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+Fondo propio del muro :: usa: fondoMuroImagenUrl en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+Mosaico :: usa: tamanoFotosMosaico en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+Tiempo por foto :: usa: segundosPorFoto en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+La pantalla arranca sin internet :: usa: Esperando conexión en src/app/evento/totem/[fiestaId]/[totemId]/page.tsx
+Copiar de otra fiesta :: usa: copiarConfiguracion en src/app/(app)/fiestas/nueva/entretenimiento/page.tsx
+Limite de impresion por invitado :: usa: puedeImprimir en src/app/evento/impresion/[fiestaId]/page.tsx
+Marco de impresion :: usa: marcoEnImpresion en src/app/evento/impresion/[fiestaId]/page.tsx
 Portada mientras no hay fotos :: usa: EmptyWallState en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 Moderacion que ayude sola :: usa: esPostDudoso en src/app/evento/moderacion/[fiestaId]/page.tsx
 Traer publicaciones de Instagram :: NO SE COPIA

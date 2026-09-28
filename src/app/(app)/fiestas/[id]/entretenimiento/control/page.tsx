@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Monitor, Loader2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Monitor, Loader2, Sparkles, Printer } from 'lucide-react';
 import {
   TableroControlEstaciones,
   EstadoEstacionOperador,
@@ -186,6 +186,14 @@ export default function ControlEntretenimientoPage() {
               Monitoreo centralizado de todas las estaciones para {nombreEvento}
             </p>
           </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" className="border-white/10 bg-zinc-900 text-slate-200 hover:text-white rounded-xl">
+            <Link href={`/evento/impresion/${fiestaId}`} target="_blank">
+              <Printer className="mr-2 h-4 w-4 text-amber-400" />
+              Estación de impresión
+            </Link>
+          </Button>
         </div>
       </div>
 

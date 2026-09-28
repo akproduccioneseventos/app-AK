@@ -19,6 +19,8 @@ import {
 } from '@/lib/entertainment/station-config';
 import * as logger from '@/lib/logger';
 import { segundosDelPermisoDelAfiche } from '@/lib/entertainment/vigencia-del-afiche';
+import { copiarConfiguracion } from '@/lib/entertainment/copiar-configuracion';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const MAX_ENTERTAINMENT_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_ENTERTAINMENT_VIDEO_SIZE = 60 * 1024 * 1024;
@@ -312,5 +314,31 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
   } catch (error: any) {
     logger.error('[entretenimiento] upload failed', error);
     return { success: false, error: error.message || 'No se pudo subir el archivo.' };
+  }
+}
+
+export async function aplicarCopiaDeConfiguracion(fiestaOrigenId: string, fiestaDestinoId: string) {
+  try {
+    await requireAppSession();
+    const [fiestaOrigen, fiestaDestino] = await Promise.all([
+      getFiestaById(fiestaOrigenId, LECTURA_COMPLETA),
+      getFiestaById(fiestaDestinoId, LECTURA_COMPLETA),
+    ]);
+
+    if (!fiestaOrigen) return { success: false as const, error: 'No se encontró la fiesta de origen.' };
+    if (!fiestaDestino) return { success: false as const, error: 'No se encontró la fiesta de destino.' };
+
+    const fiestaActualizada = copiarConfiguracion(fiestaOrigen, fiestaDestino) as FiestaEnPlanificacion;
+
+    const result = await saveFiesta(fiestaActualizada);
+    if (!result.success) return { success: false as const, error: result.error || 'No se pudo guardar la configuración copiada.' };
+
+    return {
+      success: true as const,
+      fiesta: fiestaActualizada,
+      data: fiestaActualizada.others?.entretenimiento,
+    };
+  } catch (error: any) {
+    return { success: false as const, error: error.message || 'Error al copiar configuración.' };
   }
 }

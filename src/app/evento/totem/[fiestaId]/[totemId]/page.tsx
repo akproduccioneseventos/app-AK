@@ -113,7 +113,7 @@ export default function TotemPublicPage() {
 
   useEffect(() => {
     loadData();
-    const interval = window.setInterval(loadData, REFRESH_MS);
+    const interval = window.setInterval(loadData, 5000);
     return () => window.clearInterval(interval);
   }, [loadData]);
 
@@ -225,6 +225,9 @@ export default function TotemPublicPage() {
           <p className="text-sm font-black uppercase tracking-[0.25em] text-white/40">Pantalla AK</p>
           <h1 className="mt-3 text-3xl font-black">No pudimos abrir el tótem</h1>
           <p className="mt-3 text-sm leading-6 text-white/65">{loadError}</p>
+          <p className="mt-4 text-xs font-bold text-amber-400 animate-pulse">
+            Esperando conexión, se reintenta solo
+          </p>
           <button
             type="button"
             onClick={() => {

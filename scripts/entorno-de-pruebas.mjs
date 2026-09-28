@@ -38,7 +38,8 @@ const SALIDA = path.join(os.tmpdir(), `ak-entorno-aislado-${process.pid}.json`);
 
 /** Lo único que pasa del ambiente de la máquina: nada que abra un servicio real. */
 const PERMITIDAS = ['PATH', 'HOME', 'LANG', 'LC_ALL', 'TMPDIR', 'TEMP', 'TMP', 'SYSTEMROOT', 'NODE_OPTIONS',
-  'PLAYWRIGHT_BROWSERS_PATH', 'PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH', 'PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD'];
+  'PLAYWRIGHT_BROWSERS_PATH', 'PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH', 'PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD',
+  'HOMEDRIVE', 'HOMEPATH', 'LOGONSERVER', 'SYSTEMDRIVE', 'USERDOMAIN', 'USERNAME', 'USERPROFILE', 'WINDIR'];
 
 /** Lo que se fuerza: datos locales, proyecto de demostración y claves falsas. */
 const FORZADAS = {

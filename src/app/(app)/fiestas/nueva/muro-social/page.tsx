@@ -4,7 +4,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2, Camera, Download, Eye, Gamepad2, GripVertical, Loader2, MinusCircle, MonitorPlay, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, Settings2, ShieldCheck, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Building2, Camera, Download, Eye, Gamepad2, GripVertical, Loader2, MinusCircle, MonitorPlay, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, Settings2, ShieldCheck, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,8 @@ import { PrepararGrillaDeCara } from '@/components/social-gallery/PrepararGrilla
 import type { ActiveGameData, ActiveGameType, FiestaEnPlanificacion, ScreenMediaAsset, ScreenPlaylistItem, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import { QRCodeSVG } from 'qrcode.react';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
+import { FONDOS_MURO } from '@/lib/social-fiesta/fondos-muro';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   getGlobalScreenMediaLibrary,
   uploadScreenMediaAsset,
@@ -280,6 +282,7 @@ function MuroSocialContent() {
   const [sorteoPreviewWinner, setSorteoPreviewWinner] = useState<string | null>(null);
   const [sorteoPremio, setSorteoPremio] = useState('');
   const [uploadingCoverPhoto, setUploadingCoverPhoto] = useState(false);
+  const [uploadingFondoMuro, setUploadingFondoMuro] = useState(false);
   // Custom moments state
   const [newMomentoNombre, setNewMomentoNombre] = useState('');
   const [newMomentoEmoji, setNewMomentoEmoji] = useState('✨');
@@ -415,6 +418,44 @@ function MuroSocialContent() {
       toast({ title: 'Error al subir portada', description: e.message, variant: 'destructive' });
     } finally {
       setUploadingCoverPhoto(false);
+    }
+  };
+
+  const handleUploadFondoMuroImagen = async (file: File | null) => {
+    if (!fiestaId || !file) return;
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Solo se aceptan imágenes', variant: 'destructive' });
+      return;
+    }
+    setUploadingFondoMuro(true);
+    try {
+      const formData = new FormData();
+      formData.append('fiestaId', fiestaId);
+      formData.append('file', file);
+      const res = await uploadScreenMediaAsset(formData);
+      if (!res.success || !res.asset) throw new Error(res.error || 'No se pudo subir la imagen.');
+      const updated = { ...settingsRef.current, fondoMuroImagenUrl: res.asset.url };
+      setSettings(updated);
+      const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updated);
+      if (!result.success) {
+        toast({ title: 'Error al guardar fondo del muro', description: result.error, variant: 'destructive' });
+      } else {
+        toast({ title: 'Fondo del muro actualizado' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error al subir fondo', description: e.message, variant: 'destructive' });
+    } finally {
+      setUploadingFondoMuro(false);
+    }
+  };
+
+  const handleUpdateMuroSetting = async (patch: Partial<SocialGallerySettings>) => {
+    if (!fiestaId) return;
+    const updated = { ...settingsRef.current, ...patch };
+    setSettings(updated);
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updated);
+    if (!result.success) {
+      toast({ title: 'Error al actualizar', description: result.error, variant: 'destructive' });
     }
   };
 
@@ -1216,6 +1257,151 @@ function MuroSocialContent() {
                 >
                   <Save className="w-3.5 h-3.5" />
                 </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* DISEÑO DEL MURO SOCIAL Y PANTALLA GIGANTE (BLOQUE 2 - ORDEN 94) */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <MonitorPlay className="w-4 h-4 text-amber-500" />
+              Diseño de la Pantalla Gigante / Muro en Vivo
+            </CardTitle>
+            <CardDescription>
+              Configuración visual del muro social, fondos temáticos, disposición de fotos y tiempos de rotación.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-5">
+            {/* Fondo del muro con vista previa */}
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold">Fondo del muro (temático)</Label>
+              <p className="text-xs text-muted-foreground">
+                Seleccioná el fondo estilizado para la pantalla gigante (degradados elegantes sin imágenes pesadas).
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pt-1 max-h-60 overflow-y-auto pr-1">
+                {Object.values(FONDOS_MURO).map((f) => {
+                  const isSelected = (settings.fondoMuro || 'predeterminado') === f.id;
+                  return (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => handleUpdateMuroSetting({ fondoMuro: f.id })}
+                      className={`relative h-16 rounded-xl border p-2 text-left flex flex-col justify-end transition overflow-hidden ${
+                        isSelected
+                          ? 'border-amber-400 ring-2 ring-amber-400/50 shadow-md'
+                          : 'border-zinc-800 hover:border-zinc-600'
+                      }`}
+                      style={{ background: f.cssBackground }}
+                    >
+                      <span className="relative z-10 text-[11px] font-bold text-white drop-shadow truncate">
+                        {f.nombre}
+                      </span>
+                      {isSelected && (
+                        <div className="absolute top-1 right-1 bg-amber-400 text-black rounded-full p-0.5">
+                          <Check className="w-3 h-3" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Fondo propio con subida de imagen */}
+            <div className="space-y-2 pt-2 border-t">
+              <Label className="text-xs font-semibold flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5" />
+                Fondo propio para la pantalla gigante
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Si subís una imagen personalizada, tapa al fondo degradado con un oscurecido translúcido para que las fotos resalten.
+              </p>
+              {settings.fondoMuroImagenUrl && (
+                <div className="relative h-24 w-full rounded-lg overflow-hidden mb-2 border bg-slate-950">
+                  <img
+                    src={settings.fondoMuroImagenUrl}
+                    alt="Fondo propio del muro"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex gap-2 items-center">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  disabled={uploadingFondoMuro}
+                  onChange={(e) => handleUploadFondoMuroImagen(e.target.files?.[0] ?? null)}
+                  className="flex-1 text-xs"
+                />
+                {uploadingFondoMuro && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
+              </div>
+              {settings.fondoMuroImagenUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-destructive hover:text-destructive"
+                  onClick={async () => {
+                    await handleUpdateMuroSetting({ fondoMuroImagenUrl: undefined });
+                    toast({ title: 'Fondo propio eliminado' });
+                  }}
+                >
+                  Quitar fondo propio
+                </Button>
+              )}
+            </div>
+
+            {/* Disposición del Muro (Layout) y Tamaño de fotos */}
+            <div className="grid sm:grid-cols-3 gap-4 pt-2 border-t">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Disposición en pantalla</Label>
+                <Select
+                  value={settings.currentLayout || 'slideshow'}
+                  onValueChange={(val) => handleUpdateMuroSetting({ currentLayout: val as 'slideshow' | 'masonry' })}
+                >
+                  <SelectTrigger className="text-xs h-9">
+                    <SelectValue placeholder="Diapositivas (Slideshow)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="slideshow">Diapositiva grande (Slideshow)</SelectItem>
+                    <SelectItem value="masonry">Mosaico de fotos (Masonry)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Tamaño fotos mosaico</Label>
+                <Select
+                  value={settings.tamanoFotosMosaico || 'mediana'}
+                  onValueChange={(val) => handleUpdateMuroSetting({ tamanoFotosMosaico: val as 'chica' | 'mediana' | 'grande' })}
+                >
+                  <SelectTrigger className="text-xs h-9">
+                    <SelectValue placeholder="Mediana" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="chica">Chica (4 col, 12 fotos)</SelectItem>
+                    <SelectItem value="mediana">Mediana (3 col, 6 fotos)</SelectItem>
+                    <SelectItem value="grande">Grande (2 col, 4 fotos)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Segundos por foto</Label>
+                <Input
+                  type="number"
+                  min={3}
+                  max={30}
+                  value={settings.segundosPorFoto ?? 6}
+                  onChange={(e) =>
+                    handleUpdateMuroSetting({
+                      segundosPorFoto: Math.max(3, Math.min(30, Number(e.target.value) || 6)),
+                    })
+                  }
+                  className="h-9 text-xs"
+                />
               </div>
             </div>
           </CardContent>
