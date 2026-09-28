@@ -1396,6 +1396,7 @@ con otra cara.
 | El entorno aislado leía claves de `.env*` de la carpeta, y la cabina decía "publicada" antes de la respuesta | `src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts` y `src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts` |
 | Nadie podía saber qué versión atendía el dominio | `src/__tests__/la-salud-dice-que-version-atiende.test.ts` |
 | La pantalla de las estaciones se apagaba sola entre invitado e invitado | `src/__tests__/las-estaciones-no-apagan-la-pantalla.test.tsx` |
+| El tótem no mostraba su código sin iniciar sesión, y la cámara decía "revisá los permisos" para cualquier falla | `src/__tests__/las-estaciones-dicen-que-tocar.test.ts` |
 
 ### Cómo se elige el matafuego
 

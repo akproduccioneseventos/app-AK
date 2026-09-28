@@ -41,6 +41,8 @@ test.describe('Orden 48: la fotocabina levanta y deja sacar la foto', () => {
     expect(caja?.width ?? 0).toBeGreaterThan(0);
     expect(caja?.height ?? 0).toBeGreaterThan(0);
 
+    // Las opciones arrancan plegadas (27/09/2026): se abren y el marco tiene que estar.
+    await page.getByTestId('boton-personalizar-foto').click({ timeout: 20_000 });
     await expect(page.locator('[data-testid="selector-marcos"]')).toBeVisible({ timeout: 20_000 });
 
     // Y el botón para sacar la foto está presente y listo

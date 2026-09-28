@@ -10016,3 +10016,24 @@ usa: tandaDeEstaFoto en src/app/evento/fotocabina/[fiestaId]/page.tsx
 usa: porQueNoHayCodigo en src/app/evento/totem/[fiestaId]/[totemId]/page.tsx
 prueba: src/__tests__/las-estaciones-no-apagan-la-pantalla.test.tsx
 ```
+
+## 28 de septiembre de 2026 — Tres mejoras de las estaciones, con el "sí" del dueño
+
+- **El tótem se prende sin iniciar sesión.** El panel de entretenimiento ya armaba el enlace del
+  tótem con el permiso de invitado firmado (`access=`), pero la pantalla lo ignoraba y le pedía
+  otro al servidor, que sólo se lo daba con la sesión del equipo. Ahora usa el del enlace y sólo
+  lo pide si no viene. No abre nada nuevo: es el mismo permiso que ya va impreso en el QR, con
+  vencimiento, y lo sigue validando el servidor cuando el invitado sube su foto.
+- **La cámara dice qué tocar.** Fotocabina, 360, cabina con IA y espejo distinguen permiso
+  negado, cámara que no está y cámara tomada por otro programa (`explicarFallaDeCamara`).
+- **La fotocabina saca la foto en un toque.** "Preparar foto" queda arriba y fondo, marco y
+  stickers se abren con "Personalizar mi foto". Por qué: la fila avanza y el que quiere elegir,
+  elige. Lo elegido por el operador sigue aplicándose igual.
+
+```comprobar
+archivo: src/lib/entertainment/falla-de-camara.ts
+usa: explicarFallaDeCamara en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+usa: permisoDelEnlace en src/app/evento/totem/[fiestaId]/[totemId]/page.tsx
+usa: boton-personalizar-foto en src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: src/__tests__/las-estaciones-dicen-que-tocar.test.ts
+```

@@ -54,8 +54,14 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
     await page.goto(`/evento/fotocabina/${fiestaId}`, { waitUntil: 'domcontentloaded' });
     await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
-    // 1. Selector de stickers interactivo
+    // 0. La foto se saca en un toque: las opciones arrancan plegadas y el botón está a la vista.
+    //    Se abren a pedido del invitado (27/09/2026).
     const selectorStickers = page.locator('[data-testid="selector-stickers"]');
+    await expect(page.getByRole('button', { name: /Preparar foto/i })).toBeVisible({ timeout: 15_000 });
+    await expect(selectorStickers).toHaveCount(0);
+    await page.getByTestId('boton-personalizar-foto').click();
+
+    // 1. Selector de stickers interactivo
     await expect(selectorStickers).toBeVisible({ timeout: 15_000 });
     await expect(selectorStickers.getByText('★')).toBeVisible();
     await expect(selectorStickers.getByText('VIP')).toBeVisible();

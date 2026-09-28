@@ -121,6 +121,7 @@ async function dataUrlToFile(dataUrl: string, fileName: string): Promise<File> {
 
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
 
 export default function TouchpixPage() {
   usePantallaPrendida();
@@ -345,8 +346,8 @@ export default function TouchpixPage() {
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
-    } catch {
-      setErrorMsg('No se pudo acceder a la cámara. Revisá los permisos del navegador.');
+    } catch (err) {
+      setErrorMsg(explicarFallaDeCamara(err));
     }
   }, [facingMode, stopCamera]);
 

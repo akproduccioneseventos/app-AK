@@ -53,6 +53,7 @@ const DURATION_OPTIONS = [
 import { GuiaPosicionamiento } from '@/components/entretenimiento/GuiaPosicionamiento';
 import { dibujarMarcoDinamico } from '@/lib/entretenimiento/marcos-dinamicos';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { explicarFallaDeCamara } from '@/lib/entertainment/falla-de-camara';
 
 /**
  * Aplica cortina de fundido desde negro al inicio y hacia negro al final
@@ -216,7 +217,7 @@ export default function Plataforma360Page() {
       }
     } catch (err) {
       console.error('No se pudo acceder a la cámara:', err);
-      const message = 'No se pudo acceder a la cámara. Revisa los permisos del navegador y vuelve a intentar.';
+      const message = explicarFallaDeCamara(err);
       setCameraError(message);
       void updateEntertainmentSessionStatus(
         fiestaId,
