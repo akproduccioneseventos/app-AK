@@ -28,6 +28,22 @@ export interface MercadoPagoPaymentSnapshot {
   date_approved?: string;
   live_mode?: boolean;
   installments?: number;
+  /** Cargos que descuenta Mercado Pago; `fee_payer: 'collector'` es lo que paga AK. */
+  fee_details?: Array<{ type?: string; amount?: number; fee_payer?: string }>;
+}
+
+/**
+ * La comisión que Mercado Pago le descontó a AK en este cobro, según su propio
+ * informe. `undefined` si el informe no la trae: nunca se inventa un porcentaje.
+ * Los cargos que paga el cliente (`fee_payer: 'payer'`) no cuentan.
+ */
+export function comisionDeMercadoPago(payment: MercadoPagoPaymentSnapshot): number | undefined {
+  if (!Array.isArray(payment.fee_details)) return undefined;
+  return roundMoney(
+    payment.fee_details
+      .filter((fee) => fee?.fee_payer !== 'payer')
+      .reduce((suma, fee) => suma + (Number(fee?.amount) || 0), 0),
+  );
 }
 
 export type MercadoPagoBudgetReconciliation = {
@@ -94,6 +110,9 @@ function buildProviderPayment(input: {
         - roundMoney(input.feeBaseAmount ?? input.amount),
     ),
     cuotasFinanciacion: Math.max(1, Math.round(Number(input.payment.installments) || 1)),
+    ...(comisionDeMercadoPago(input.payment) !== undefined
+      ? { comisionProveedor: comisionDeMercadoPago(input.payment) }
+      : {}),
     proveedorPago: 'mercadopago',
     proveedorPagoId: String(input.payment.id),
     sesionPagoId: input.sessionId,
@@ -145,6 +164,19 @@ export function reconcileMercadoPagoBudget(input: {
       feeBaseAmount: input.amount,
       payment: input.payment,
     }));
+    changed = true;
+  } else if (
+    status === 'approved'
+    && existingIndex >= 0
+    && payments[existingIndex].comisionProveedor === undefined
+    && comisionDeMercadoPago(input.payment) !== undefined
+  ) {
+    // Un cobro anotado antes de guardar la comisión: el aviso repetido de Mercado
+    // Pago la completa, sin tocar el monto ni el estado.
+    payments[existingIndex] = {
+      ...payments[existingIndex],
+      comisionProveedor: comisionDeMercadoPago(input.payment),
+    };
     changed = true;
   } else if (status === 'refunded' && existingIndex >= 0) {
     const current = payments[existingIndex];

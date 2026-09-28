@@ -1,6 +1,7 @@
 import { calcularGananciaDeEvento, type GananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { PagoCliente } from '@/types/presupuesto';
 
 /**
  * Comparar la ganancia entre todas las fiestas.
@@ -91,10 +92,18 @@ function agrupar(
  * @param fiestas  Todas las fiestas, incluidas las archivadas: la comparación
  *                 sirve justamente para mirar hacia atrás.
  */
-export function compararGanancias(fiestas: FiestaEnPlanificacion[]): Comparativa {
+export function compararGanancias(
+  fiestas: FiestaEnPlanificacion[],
+  /** Cobros al cliente por presupuesto, para descontar la comisión de Mercado Pago. */
+  cobrosPorPresupuesto?: ReadonlyMap<string, PagoCliente[]>,
+): Comparativa {
   const conGanancia: FiestaConGanancia[] = (fiestas ?? [])
     .map((fiesta) => {
-      const ganancia = calcularGananciaDeEvento(fiesta?.gestionCostos, fiesta?.pagosProveedores);
+      const ganancia = calcularGananciaDeEvento(
+        fiesta?.gestionCostos,
+        fiesta?.pagosProveedores,
+        fiesta?.presupuestoId ? cobrosPorPresupuesto?.get(fiesta.presupuestoId) : undefined,
+      );
       return {
         id: String(fiesta?.id ?? ''),
         nombre: String(fiesta?.configuracion?.nombreEvento || 'Fiesta sin nombre'),

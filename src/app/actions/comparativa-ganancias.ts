@@ -24,5 +24,11 @@ export async function getComparativaDeGanancias(): Promise<{
 
   // Con archivadas incluidas: la comparación sirve justamente para mirar atrás.
   const fiestas = await getFiestas(true);
-  return { ok: true, comparativa: compararGanancias(fiestas) };
+  // Los cobros de cada presupuesto, para restar la comisión real de Mercado Pago.
+  const { getPresupuestos } = await import('@/app/actions/presupuestos');
+  const presupuestos = await getPresupuestos(true);
+  const cobrosPorPresupuesto = new Map(
+    presupuestos.map((presupuesto) => [presupuesto.id, presupuesto.pagosCliente ?? []]),
+  );
+  return { ok: true, comparativa: compararGanancias(fiestas, cobrosPorPresupuesto) };
 }
