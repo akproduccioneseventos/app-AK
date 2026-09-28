@@ -37,3 +37,26 @@ TypeScript y ESLint aprobaron. Las 9 suites focalizadas posteriores a la concili
 `ESTADO-ACTUAL.md`.
 
 La PR queda abierta para que la fusione el dueño; Codex no la fusiona.
+
+## Nota de recorrido público — 28 de septiembre de 2026
+
+**NO CONTRASTADO CON LA TANDA NI CON EL SHA DE PRODUCCIÓN.** No reutilizar estos
+hallazgos como órdenes hasta compararlos con la entrega activa. Evidencia detallada y
+alcance en `docs/evidencias/94-recorridos-reales.md`.
+
+- Reproducido en web publicada: las tarjetas de tipos de evento envían `tipo=...`, pero
+  el simulador aparece con “Cumpleaños”; el control `?eventType=boda` sí preselecciona
+  “Boda”. En la copia auditada, `ServicesSection.tsx` y `simulador-de-presupuesto/page.tsx`
+  confirman la diferencia entre productor y consumidor.
+- Reproducido en PC: las fichas iniciales del carrusel tecnológico quedan recortadas;
+  Plataforma 360 queda fuera del viewport y Espejo Mágico parcialmente fuera. Sus paneles
+  sí cambian al activarlos por teclado. No se probó móvil ni la estación real.
+- PASS parcial: las cinco etapas de la historia tecnológica, las tres pestañas de la demo
+  segura del portal cliente y la pregunta FAQ de reserva cambian/expanden su contenido.
+  Eso no valida sincronización con eventos reales.
+- No se completaron datos del simulador, no se contactó a clientes y no se modificaron
+  datos productivos. La auditoría sigue abierta; estas notas no certifican que la app
+  esté lista ni sustituyen las pruebas restantes.
+- El entorno local de pruebas (`127.0.0.1:3300`) no está levantado: login, portal cliente,
+  invitado y barman son inaccesibles en las pestañas disponibles. No clasificarlo como
+  defecto de producción; falta sesión/entorno de prueba para continuar módulos internos.
