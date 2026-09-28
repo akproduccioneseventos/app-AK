@@ -71,9 +71,9 @@ El SHA exacto que sirve produccion no quedo visible; contrastar contra el deploy
 - PASS: portada abre el simulador. Se completaron los pasos de presentacion y llegada
   al paso 2; no se ingresaron datos ni se envio formulario para evitar crear un lead
   o guardar un borrador en produccion.
-- PASS limitado: galeria publica inicia con 24 de 144 elementos y el boton incrementa
-  a 36 de 144. Solo se probo un incremento; no se abrio cada medio ni se valido la
-  deduplicacion contra Instagram.
+- PASS limitado: galeria publica inicia con 12 tarjetas; el boton anuncia el total que
+  quedara despues de la siguiente carga (24 de 144), no el total actual. Tras cargar un
+  lote, quedan 24 tarjetas y anuncia 36. No se probo la deduplicacion contra Instagram.
 - PASS puntual de categoria: filtro Catering dejo elementos etiquetados como Catering;
   se abrio "Kebab gourmet para eventos" y foto/caption describen brochetas para
   recepcion. Esto refuta el caso puntual de kebab mal puesto en Decoracion, no valida
@@ -136,10 +136,17 @@ con el código que sirve producción ni con la tanda pendiente.
   sus controles no quedaron plenamente visibles para elegirlos con puntero. No se probó
   en móvil. Reproducido en web publicada; SHA del despliegue y contraste con tanda siguen
   pendientes. Revisar alineación/posición inicial del carrusel sin ocultar tecnologías.
-- PASS limitado de galería: entrando a `#landing-gallery` y esperando la carga visible,
-  las 12 imágenes iniciales reportaron carga correcta y 12 URL distintas. Solo es el
-  lote inicial; no demuestra que no haya duplicados entre los 144 medios ni verifica
-  fotos que todavía no se cargaron.
+- PASS de carga/inventario (28/09/2026): cargué en secuencia las 144 tarjetas de la
+  galería pública. Las 144 imágenes completaron carga sin errores; las 144 URL y los
+  144 títulos son únicos en el DOM. Esto descarta duplicados exactos por URL/título en
+  el lote publicado, pero no detecta archivos distintos con contenido visual repetido
+  ni prueba deduplicación futura con Instagram.
+- PASS puntual de imagen: “Kebab gourmet para eventos” carga una fotografía de brochetas
+  de carne, coherente con su rótulo/categoría Catering, aunque el nombre del archivo
+  contenga `boda-decoracion-dorada`. No marcar este caso como foto mal clasificada.
+- PENDIENTE NO CLASIFICADO: con las acciones de puntero de este navegador automatizado,
+  “Ver más fotos y videos” no avanzó; activarlo con Enter sí cargó 12 tarjetas cada vez.
+  No atribuirlo a la web hasta repetir el clic con puntero humano/dispositivo real.
 - NO CONTRASTADO CON LA TANDA: la copia disponible está en `codex/entorno-windows-94`,
   HEAD `f428d35c`; `origin/main` es `621f41c`. El selector de `origin/main` contiene
   `setSelectedStation` y `onClick`, pero esto no valida despliegue ni cambios pendientes.

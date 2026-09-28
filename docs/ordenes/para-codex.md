@@ -60,3 +60,8 @@ alcance en `docs/evidencias/94-recorridos-reales.md`.
 - El entorno local de pruebas (`127.0.0.1:3300`) no está levantado: login, portal cliente,
   invitado y barman son inaccesibles en las pestañas disponibles. No clasificarlo como
   defecto de producción; falta sesión/entorno de prueba para continuar módulos internos.
+- Extensión de galería: se cargaron las 144 imágenes publicadas; las 144 URL y títulos
+  son únicos y todas las imágenes cargan. No demuestra deduplicación por contenido visual
+  o contra Instagram. El caso “Kebab gourmet” sí muestra brochetas. El clic de puntero
+  del navegador automatizado quedó inconcluso; Enter sí carga el lote y no se adjudica
+  el comportamiento a la app hasta una repetición física.
