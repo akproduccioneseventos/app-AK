@@ -2507,9 +2507,14 @@ function EntretenimientoContent() {
                               </Button>
                             )}
                             <Button
-                              onClick={() => {
-                                navigator.clipboard.writeText(`${origin}${getGuestLaunchLink(activeStationId)}`);
-                                toast({ title: 'Enlace de invitado copiado.' });
+                              onClick={async () => {
+                                const enlace = `${origin}${getGuestLaunchLink(activeStationId)}`;
+                                try {
+                                  await navigator.clipboard.writeText(enlace);
+                                  toast({ title: 'Enlace de invitado copiado.' });
+                                } catch {
+                                  toast({ title: 'No se pudo copiar', description: enlace });
+                                }
                               }}
                               variant="outline"
                               className="w-full rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider"
@@ -2518,10 +2523,15 @@ function EntretenimientoContent() {
                             </Button>
                             {getOperatorLaunchLink(activeStationId) && (
                               <Button
-                                onClick={() => {
-                                  navigator.clipboard.writeText(`${origin}${getOperatorLaunchLink(activeStationId)}`);
+                                onClick={async () => {
+                                const enlace = `${origin}${getOperatorLaunchLink(activeStationId)}`;
+                                try {
+                                  await navigator.clipboard.writeText(enlace);
                                   toast({ title: 'Enlace de operador copiado.' });
-                                }}
+                                } catch {
+                                  toast({ title: 'No se pudo copiar', description: enlace });
+                                }
+                              }}
                                 variant="outline"
                                 className="w-full rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider"
                               >

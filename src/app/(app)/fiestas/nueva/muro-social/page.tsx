@@ -1464,6 +1464,7 @@ function MuroSocialContent() {
                   const win = window.open(url, '_blank', 'noopener,noreferrer');
                   if (win) {
                     const requestFs = () => {
+                      // no pasa nada si falla: el navegador puede negar la pantalla completa y el muro igual se ve.
                       win.document.documentElement.requestFullscreen?.().catch(() => {});
                     };
                     if (win.document.readyState === 'complete') {
