@@ -40,8 +40,8 @@ cualquier fiesta, se pierde. Es exactamente el defecto que ya costó caro
   `src/app/actions/fiesta/invitados.actions.ts` ~l.45. Ese mecanismo toma el turno de esa fiesta,
   la **vuelve a leer adentro del turno** y aplica el cambio sobre la copia fresca.
 - `updateFiestaData` hoy es privada. Sacala a un archivo común
-  (`src/lib/fiesta/actualizar-fiesta.ts`), **sin cambiar lo que hace**, y usala desde las dos
-  tareas y desde `invitados.actions.ts`.
+  (`src/lib/fiesta/actualizar-fiesta.ts`) y exportala con el nombre **`actualizarFiesta`**, **sin
+  cambiar lo que hace**. Usala desde las dos tareas y desde `invitados.actions.ts`.
 - **Adentro de la función que se le pasa** se vuelve a mirar si hace falta el cambio. Por ejemplo:
   si el aviso de esa regla ya estaba preparado, no se prepara otro.
 
