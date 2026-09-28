@@ -131,7 +131,7 @@ cumplir"*. Cambiá **exactamente** esto (líneas aproximadas):
 | `src/app/actions/landing-editor.ts` ~l.22 (`getLandingSettings`) | usa las cifras guardadas en la base si existen | **si lo guardado es exactamente la lista vieja de cuatro** (los cuatro `value` de arriba: "+500", "+12", "100%", "24/7"), devolvé `defaultLandingSettings.stats`. Si el dueño ya las cambió a mano desde el editor, **no se tocan** |
 | `src/app/(app)/empresa/landing-editor/page.tsx` ~l.762 | `placeholder="+500"` | `placeholder="+200"` |
 | `src/app/catalogo/[tipo]/page.tsx` ~l.201-203 | "+10" años; "+500" eventos; "+500" familias felices | "+7" años; "+200" eventos; la tercera "Clientes" / "Satisfechos", sin número |
-| `src/data/presentacion.ts` ~l.106 | "DJ profesional con +10 años de experiencia" | "DJ profesional, coordinado por el organizador junto a todo el equipo" |
+| `src/data/presentacion.ts` ~l.106 | "DJ profesional con +10 años de experiencia" | "DJ profesional con +200 fiestas realizadas" |
 | `src/components/public/HeroSection.tsx` ~l.132 | "✅ +10 años de experiencia" | "✅ +7 años de experiencia" |
 | `src/data/event-catalogs/shared.ts` ~l.118 y ~l.124 | "+10 años de experiencia"; "para garantizar la máxima calidad" | "+7 años de experiencia"; "para cuidar la calidad" |
 | `src/components/landing/AkDifferenceSection.tsx` ~l.15 | "Menos proveedores, cero fallas." | "Menos proveedores, todo coordinado por el mismo equipo." |
@@ -153,6 +153,54 @@ cumplir"*. Cambiá **exactamente** esto (líneas aproximadas):
   mismos archivos y falla si aparece `garant`, `24/7`, `24 hs`, `cero fallas`, "+10 años", "+12
   años", "+500" o "100%" junto a "satisfechos". **Tiene que ponerse en rojo si se vuelve a escribir "garantía absoluta".**
 
+## Bloque 6 — El blog tampoco promete (Codex, 28/09/2026)
+
+Los artículos del blog los escribe la IA sola todos los días (`src/lib/blog-ai-generator.ts`), y
+**la instrucción que le damos (~l.125) no le prohíbe prometer ni inventar datos**. Por eso tres
+artículos publicados dicen cosas que el dueño no quiere decir. Hay que arreglar los tres **y** la
+fuente, para que no vuelva.
+
+**1. La instrucción a la IA** (`prompt`, ~l.125-131). Sumale estas reglas, textuales:
+
+- "No prometas plazos, garantías, resultados ni seguridad. No escribas 'garantía', 'garantizado',
+  '24/7', 'cero fallas', 'seguro para interiores' ni 'te aseguramos'."
+- "No inventes estadísticas ni preferencias de clientes: nada de 'la mayoría de los clientes',
+  'la opción preferida' ni porcentajes que no te dimos."
+- "Las cantidades (bebida, hielo, comida) son orientativas: decilo en el mismo párrafo."
+
+**2. Un control después de generar.** Función pura nueva `textoQuePromete(texto): string | null` en
+`src/lib/blog/sin-promesas.ts`, que devuelve la frase encontrada si el texto tiene
+`garant|24/7|cero fallas|segur[oa]s? para interiores|te aseguramos|la mayor[ií]a de (los )?clientes|opci[oó]n preferida`
+(sin distinguir mayúsculas). En `blog-ai-generator.ts`, **antes de guardar**, pasala por el
+artículo entero (`JSON.stringify` del generado): si encuentra algo, **no se guarda**, se registra
+el motivo y se sale como cuando falla la generación. Nada de publicar "casi bien".
+
+**3. Los tres artículos ya publicados.** Viven en la base (`readData('blog-posts.json')`, que en
+producción no es el archivo del repositorio), así que **no alcanza con editar `data/blog-posts.json`**.
+Hacé una función pura `corregirPromesasDelBlog(posts)` en el mismo `sin-promesas.ts` que reemplace
+**exactamente** estas frases, y aplicala en `getBlogPosts` (`src/app/actions/blog.ts` ~l.12) y en
+`getBlogPostBySlug` al leer. Corregí también `data/blog-posts.json` con los mismos textos.
+
+| Artículo (`slug`) | Dice | Tiene que decir |
+|---|---|---|
+| `tecnologias-iluminacion-pantallas-quince` | "Asegurar chispas frías homologadas y seguras para interiores." | "Consultar con el salón si permite chispas frías y usar sólo equipos con ficha técnica del proveedor." |
+| `catering-tradicional-vs-islas-quinceanos` | "Es la opción preferida para las quinceañeras en Salto porque…" | "Es una opción que eligen muchas quinceañeras porque…" (el resto de la frase igual) |
+| `catering-tradicional-vs-islas-quinceanos` | "la mayoría de los clientes de AK Producciones eligen la propuesta mixta" | "una opción que funciona muy bien es la propuesta mixta" |
+| `como-calcular-bebida-evento-salto` | "Si contratás una barra tecnológica de AK Producciones, el cálculo del stock ya está cubierto, pero si…" | "Si contratás la barra de AK Producciones, el cálculo lo hacemos con vos; si…" |
+| `como-calcular-bebida-evento-salto` | `takeaway` "El promedio ideal es 1.5 litros…" | agregale al principio "Como referencia orientativa, " y dejá el resto |
+
+**No toques** las cantidades en sí (litros, hielo, 20%): son orientación útil; lo que cambia es
+que se lean como orientación y no como promesa. **Tampoco** el texto del ajuste para años futuros
+de `src/data/blog-posts.ts` ~l.82: no promete nada y no contradice el ajuste anual.
+
+**La prueba** (`src/__tests__/el-blog-no-promete.test.ts`):
+
+- `corregirPromesasDelBlog` sobre una copia de `data/blog-posts.json` **anterior a tu cambio** (pegala
+  en la prueba como dato) devuelve artículos donde `textoQuePromete` da `null`;
+- `textoQuePromete` encuentra "garantía absoluta" y "la mayoría de los clientes";
+- con el generador simulado devolviendo un artículo con "seguras para interiores", **no se llama a
+  `writeData`**. Tiene que ponerse en rojo si se saca el control del paso 2.
+
 ## La prueba
 
 `src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts`. Por cada archivo arreglado, comprobá que
@@ -168,6 +216,9 @@ prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
 no-usa: +500 en src/types/landing-editor.ts
 no-usa: +500 en src/app/catalogo/[tipo]/page.tsx
 no-usa: +10 años en src/data/presentacion.ts
+usa: textoQuePromete en src/lib/blog-ai-generator.ts
+usa: corregirPromesasDelBlog en src/app/actions/blog.ts
+prueba: src/__tests__/el-blog-no-promete.test.ts
 usa: sm:flex-wrap en src/components/public/InteractiveTechShowcase.tsx
 prueba: tests/e2e/el-carrusel-de-tecnologia-se-ve-entero.spec.ts
 prueba: src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts

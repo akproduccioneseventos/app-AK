@@ -72,6 +72,9 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     el cliente toca y no pasa nada.
 19. **¿Tu enlace pasa un dato en la dirección?** Fijate que la pantalla de destino lea ese mismo
     nombre, y probalo abriendo el destino con el enlace de verdad, no con uno armado a mano.
+20. **¿Tocaste algo que la IA escribe para un cliente o un invitado?** Las reglas de los textos
+    (nada de promesas, garantías ni datos inventados) también van en su instrucción, y lo que genera
+    se controla antes de guardarse.
 
 ## Y dos reglas que valen para las pruebas
 

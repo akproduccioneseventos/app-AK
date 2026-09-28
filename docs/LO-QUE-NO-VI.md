@@ -631,3 +631,21 @@ agarra la regla de `celular-primero`, que ya pedía probar en la computadora.
 usa: searchParams.get('tipo') en src/app/simulador-de-presupuesto/page.tsx
 prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
 ```
+
+## El blog que escribe la IA prometía y citaba preferencias inventadas (Codex, 28/09/2026)
+
+**Qué era:** artículos publicados solos decían "chispas frías seguras para interiores", "la mayoría
+de los clientes de AK eligen…" y "el stock ya está cubierto". Revisé los textos fijos de la web
+buscando promesas y no miré **lo que escribe la IA sola**, que nadie lee antes de publicarse.
+
+**Qué pregunta lo hubiera agarrado:** *cuando una regla vale para lo que ve el cliente, ¿la conoce
+también la IA que escribe para el cliente?* Una regla que sólo se aplica a los textos escritos a
+mano deja abierta la puerta que más publica. Queda como pregunta 20 de `ANTES-DE-ENTREGAR.md`.
+
+**Barrido:** bloque 6 de la orden 96 (la regla en la instrucción, el control antes de guardar y
+los tres artículos corregidos).
+
+```comprobar
+usa: textoQuePromete en src/lib/blog-ai-generator.ts
+prueba: src/__tests__/el-blog-no-promete.test.ts
+```
