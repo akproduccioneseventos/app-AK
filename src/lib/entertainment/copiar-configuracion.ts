@@ -75,7 +75,12 @@ export function copiarConfiguracion(
 
     const cleanTotems = Array.isArray(origSocial.totemScreens)
       ? origSocial.totemScreens.map((t: any) => {
-          const { qrUrl, ...resto } = t;
+          // Lo que es de la otra fiesta no viaja: su QR, y el nombre, el título y las fotos
+          // del agasajado (revisión de la orden 94). Si no, el tótem de una boda nueva
+          // mostraría la foto de la quinceañera anterior.
+          const {
+            qrUrl, honoreeName, heroPhotoUrl, backgroundMediaUrl, title, subtitle, ...resto
+          } = t;
           return {
             ...resto,
           };
@@ -94,7 +99,8 @@ export function copiarConfiguracion(
       primaryColor: origSocial.primaryColor ?? destSocial.primaryColor,
       secondaryColor: origSocial.secondaryColor ?? destSocial.secondaryColor,
       fondoMuro: origSocial.fondoMuro ?? destSocial.fondoMuro,
-      fondoMuroImagenUrl: origSocial.fondoMuroImagenUrl ?? destSocial.fondoMuroImagenUrl,
+      // El fondo propio del muro suele ser una foto de esa fiesta: no se copia.
+      fondoMuroImagenUrl: destSocial.fondoMuroImagenUrl,
       currentLayout: origSocial.currentLayout ?? destSocial.currentLayout,
       tamanoFotosMosaico: origSocial.tamanoFotosMosaico ?? destSocial.tamanoFotosMosaico,
       segundosPorFoto: origSocial.segundosPorFoto ?? destSocial.segundosPorFoto,

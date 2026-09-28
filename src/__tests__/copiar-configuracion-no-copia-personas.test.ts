@@ -119,7 +119,8 @@ describe('Bloque 5 - Copiar configuración sin copiar personas ni recuerdos', ()
 
     // Diseño muro
     expect(copiado.socialGallerySettings?.fondoMuro).toBe('boda-dorada');
-    expect(copiado.socialGallerySettings?.fondoMuroImagenUrl).toBe('https://cdn.akproducciones.uy/fondos/boda.jpg');
+    // El fondo propio suele ser una foto de esa fiesta: no viaja (revisión de la orden 94).
+    expect(copiado.socialGallerySettings?.fondoMuroImagenUrl).toBeUndefined();
     expect(copiado.socialGallerySettings?.currentLayout).toBe('masonry');
     expect(copiado.socialGallerySettings?.tamanoFotosMosaico).toBe('chica');
     expect(copiado.socialGallerySettings?.segundosPorFoto).toBe(4);
@@ -190,5 +191,22 @@ describe('Bloque 5 - Copiar configuración sin copiar personas ni recuerdos', ()
 
     // El nombre del evento de destino sigue siendo el de destino
     expect(copiado.configuracion?.nombreEvento).toBe('Cumple de Mateo');
+  });
+});
+
+describe('el tótem copiado no se lleva a la persona de la otra fiesta', () => {
+  it('copia el diseño del tótem sin nombre, título ni fotos del agasajado', () => {
+    const origen = {
+      socialGallerySettings: {
+        enabled: true,
+        totemScreens: [{
+          id: 'entrada', enabled: true, title: 'Bienvenidos a los 15 de Sofía', subtitle: 'Sofía',
+          honoreeName: 'Sofía', heroPhotoUrl: 'https://cdn/sofia.jpg', backgroundMediaUrl: 'https://cdn/sofia.mp4',
+          qrUrl: 'https://viejo', layout: 'portrait', backgroundMode: 'aurora', accentColor: '#f00',
+        }],
+      },
+    } as any;
+    const [totem] = (copiarConfiguracion(origen, {} as any).socialGallerySettings as any).totemScreens;
+    expect(totem).toEqual({ id: 'entrada', enabled: true, layout: 'portrait', backgroundMode: 'aurora', accentColor: '#f00' });
   });
 });

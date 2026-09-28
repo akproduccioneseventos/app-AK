@@ -10095,3 +10095,20 @@ prueba: src/__tests__/el-pedido-al-proveedor-dice-si-llego-completo.test.ts
 usa: CierreDeBarra en src/app/(app)/fiestas/nueva/barra-tecnologica/page.tsx
 prueba: src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts
 ```
+
+## 28 de septiembre de 2026 — Revisión de la entrega de la orden 94 (Gemini)
+
+- **El muro quedaba en blanco con un corte de señal.** La entrega le había puesto
+  `.catch(() => [])` a la lectura de fotos y del evento en la pantalla gigante: con un corte, la
+  lista llegaba vacía y el muro se vaciaba sin avisar que se reconectaba. Se sacó; la falla vuelve
+  a llegar al manejo de reconexión, que conserva lo último que se mostró.
+- **"Copiar de otra fiesta" se llevaba a la persona de la otra fiesta.** El tótem copiado traía el
+  nombre, el título y las fotos del agasajado, y el muro, su fondo propio (casi siempre una foto de
+  esa fiesta). Ahora sólo viaja el diseño. El error venía de la orden, que pedía copiar
+  `totemScreens` entero salvo el QR.
+
+```comprobar
+prueba: src/__tests__/el-muro-no-se-vacia-si-se-corta-la-senal.test.ts
+prueba: src/__tests__/copiar-configuracion-no-copia-personas.test.ts
+no-usa: getPublicSocialPosts(fiestaId).catch en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+```

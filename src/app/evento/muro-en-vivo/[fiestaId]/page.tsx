@@ -207,10 +207,13 @@ export default function MuroEnVivoPage() {
     if (!fiestaId || pollingRef.current || (!allowHidden && document.visibilityState !== 'visible')) return;
     pollingRef.current = true;
     const requestTask = Promise.all([
-      getPublicSocialPosts(fiestaId).catch(() => []),
-      getPublicSocialEvent(fiestaId).catch(() => null),
-      getActivePoll(fiestaId).catch(() => null),
-      getDedications(fiestaId).catch(() => []),
+      // Sin tragarse la falla (revisión de la orden 94, 28/09/2026): si se corta la señal,
+      // la pantalla tiene que quedarse con las fotos que ya tenía y mostrar que se reconecta.
+      // Con un `.catch(() => [])` acá la lista llegaba vacía y el muro quedaba en blanco.
+      getPublicSocialPosts(fiestaId),
+      getPublicSocialEvent(fiestaId),
+      getActivePoll(fiestaId),
+      getDedications(fiestaId),
       getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
       getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
     ]);
