@@ -1147,6 +1147,13 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Nada de garantías, nada de "24/7", y la empresa tiene 7 años (28 de septiembre de 2026).**
+  Palabras suyas: *"nada de garantía ni 24/7, y son 7 años; no prometo cosas que no puedo
+  cumplir"*. En todo lo que ve un cliente o un prospecto: **no se escribe "garantía",
+  "garantizado", "24/7", "cero fallas" ni "100% clientes satisfechos"**, y la experiencia es
+  **"+7 años"**. Amplía la regla de agosto de no prometer plazos ni precios. Lo hace la orden 96,
+  bloque 5.
+
 - **Comparación con el rubro, 28 de septiembre de 2026.** De las 23 mejoras propuestas, el dueño
   **descartó**: recargo por cuota atrasada, seña reembolsable, merma de comida, propina para el
   personal, preguntas propias en el RSVP, transporte para invitados, cartelito de alérgenos y venta

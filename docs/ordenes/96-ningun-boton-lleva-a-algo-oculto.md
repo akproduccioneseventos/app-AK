@@ -71,7 +71,7 @@ Google**, que lee la página sin animar—, la portada dice **"+0 eventos", "+0 
 - **Arreglo:** que el primer dibujo y lo que sale del servidor muestren **el número final**. La
   animación arranca desde cero recién cuando la tarjeta entra en pantalla, del lado del navegador.
   Guardá una marca de "ya se animó" para que no parpadee.
-- **No cambies los textos ni los números.** Eso lo decide el dueño.
+- **Los textos y los números los cambia el bloque 5**, que ya decidió el dueño.
 - **La prueba** (`tests/e2e/la-portada-no-dice-cero.spec.ts`) abre la portada **sin bajar** y
   comprueba que el HTML que llega del servidor contiene "+500" y no contiene "+0 ". Después baja
   hasta las tarjetas y comprueba que dicen "+500".
@@ -115,6 +115,36 @@ está escondida. Por eso "Plataforma 360" queda afuera y "Espejo Mágico" cortad
   `scrollIntoViewIfNeeded` en el celular y comparalo con el tamaño de la ventana; al hacer clic
   con el puntero, la ficha tiene que cambiar al nombre de esa estación.
 
+## Bloque 5 — Nada de garantías ni de "24/7", y son 7 años (decisión del dueño, 28/09/2026)
+
+Palabras del dueño: *"nada de garantía ni 24/7, y son 7 años; no prometo cosas que no puedo
+cumplir"*. Cambiá **exactamente** esto (líneas aproximadas):
+
+| Dónde | Dice | Tiene que decir |
+|---|---|---|
+| `src/app/simulador-de-presupuesto/page.tsx` ~l.1995 y `src/app/simulador/page.tsx` ~l.81 | "…sin estrés, con costo real y garantía absoluta" | "…sin estrés y con costo real" |
+| `src/app/simulador-de-presupuesto/page.tsx` ~l.2025 | "Lo que nos diferencia y te garantiza tranquilidad total" | "Lo que nos diferencia" |
+| `src/app/simulador-de-presupuesto/page.tsx` ~l.2053 | "Calidad y cantidad garantizadas" | "Calidad y cantidad, como se contrató" |
+| `src/components/landing/StatsSection.tsx` ~l.9-12 | "+12" años; tarjetas "100% Clientes satisfechos" y "24/7 Acompañamiento" | "+7" años; **sacá esas dos tarjetas** y acomodá la grilla para dos |
+| `src/components/public/HeroSection.tsx` ~l.132 | "✅ +10 años de experiencia" | "✅ +7 años de experiencia" |
+| `src/data/event-catalogs/shared.ts` ~l.118 y ~l.124 | "+10 años de experiencia"; "para garantizar la máxima calidad" | "+7 años de experiencia"; "para cuidar la calidad" |
+| `src/components/landing/AkDifferenceSection.tsx` ~l.15 | "Menos proveedores, cero fallas." | "Menos proveedores, todo coordinado por el mismo equipo." |
+| `src/components/public-footer.tsx` ~l.256 | "Coordinación presencial garantizada el día de tu celebración." | "Coordinación presencial el día de tu celebración." |
+| `src/app/presentacion-led/slides/beneficios-slide.tsx` ~l.11 y ~l.86 | "Puntualidad garantizada en cada etapa."; "· Resultado garantizado" | "Puntualidad en cada etapa."; sacá "· Resultado garantizado" |
+| `src/app/actions/social-admin.ts` ~l.39 | "…tu evento. ¡Diversión garantizada!" | "…tu evento." |
+| `src/app/public/[eventType]/page.tsx` ~l.123 | "…una propuesta a medida en 24 hs." | "…una propuesta a medida." (plazos, ya prohibido desde agosto) |
+| `src/app/actions/asistente-virtual.ts` ~l.65 | "asesor de ventas virtual 24/7" | "asesor de ventas virtual", y sumá a sus reglas: "No prometas plazos, garantías ni resultados." |
+
+- **No toques** "DJ profesional con +10 años de experiencia" (`src/data/presentacion.ts` ~l.106):
+  habla del DJ, no de la empresa; lo decide el dueño aparte.
+- **Barrido:** buscá sin distinguir mayúsculas `garant|24/7|24 ?hs|24 horas|cero fallas` en lo que
+  ve un cliente o un prospecto (`src/app` sin `(app)`, `src/components/public`,
+  `src/components/landing`, `src/data`, los artículos del blog). Lo que aparezca y sea una promesa
+  se saca con el mismo criterio. Listalo en la descripción de la propuesta.
+- **La prueba** (`src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts`) recorre esos
+  mismos archivos y falla si aparece `garant`, `24/7`, `24 hs`, `cero fallas`, "+10 años" o "+12
+  años" de la empresa. **Tiene que ponerse en rojo si se vuelve a escribir "garantía absoluta".**
+
 ## La prueba
 
 `src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts`. Por cada archivo arreglado, comprobá que
@@ -129,4 +159,7 @@ usa: searchParams.get('tipo') en src/app/simulador-de-presupuesto/page.tsx
 prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
 usa: sm:flex-wrap en src/components/public/InteractiveTechShowcase.tsx
 prueba: tests/e2e/el-carrusel-de-tecnologia-se-ve-entero.spec.ts
+prueba: src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts
+no-usa: garantía absoluta en src/app/simulador-de-presupuesto/page.tsx
+no-usa: '24/7' en src/components/landing/StatsSection.tsx
 ```
