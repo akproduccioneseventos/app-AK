@@ -189,6 +189,42 @@ Hacé una función pura `corregirPromesasDelBlog(posts)` en el mismo `sin-promes
 | `como-calcular-bebida-evento-salto` | "Si contratás una barra tecnológica de AK Producciones, el cálculo del stock ya está cubierto, pero si…" | "Si contratás la barra de AK Producciones, el cálculo lo hacemos con vos; si…" |
 | `como-calcular-bebida-evento-salto` | `takeaway` "El promedio ideal es 1.5 litros…" | agregale al principio "Como referencia orientativa, " y dejá el resto |
 
+**4. Los artículos de producción que no se ven desde el repositorio.** Codex leyó en la web
+publicada frases que **no están** en `data/blog-posts.json` (por ejemplo "te garantiza que todo
+funcione perfecto sin riesgos ni cortes", "base exacta", y que las islas "reducen vajilla, mozos y
+costos"). Por eso la tabla no alcanza. En `corregirPromesasDelBlog`, **después** de los reemplazos
+exactos, sacá **la oración entera** (cortando por `. `) o **el renglón entero** de `checklist` donde
+`textoQuePromete` todavía encuentre algo. Nada de dejar la frase a medias. Y sumá a la expresión de
+`textoQuePromete`: `sin riesgos|base exacta|precio exacto`.
+
+**5. La IA escribe con respaldo, no de memoria.** Palabras del dueño: *"la IA deberá tener un
+respaldo de páginas similares para no divagar"*. En `blog-ai-generator.ts`, en dos pasos:
+
+- **Paso de investigación:** una llamada a `generateWithGeminiFallback` con
+  `config: { googleSearchRetrieval: {} }` (lo soporta `@genkit-ai/google-genai`, ya instalado), que
+  pida **en texto libre** qué recomiendan páginas de organización de eventos sobre el tema elegido,
+  con la dirección de cada fuente. Se hace **una sola vez por artículo** (el blog sale una vez por día,
+  así que queda adentro de lo gratis de Google: no sube lo que se paga por mes). Guardá las
+  direcciones que devuelva el resultado (`groundingMetadata`) en un campo nuevo `fuentes?: string[]`
+  del artículo (`BlogPost`, `src/types`).
+- **Paso de escritura:** la llamada de hoy, con el esquema JSON, recibiendo esas notas y **los datos
+  de AK** (lista de abajo), con la regla: *"Usá sólo lo que dicen estas notas y estos datos. Si algo
+  no está, no lo afirmes."*
+- **Si la investigación falla o no trae fuentes**, se escribe igual pero **sólo con los datos de AK**,
+  sin cifras de afuera.
+
+**Los datos de AK que la IA recibe siempre** (constante `DATOS_DE_AK_PARA_EL_BLOG` en
+`src/lib/blog/sin-promesas.ts`):
+
+- "El personal se calcula por invitados: un mozo de cocina y un mozo de atención cada 25
+  invitados." Es la misma regla que ya usa el presupuesto (`applyAutomaticStaffByGuests`,
+  `src/lib/commercial/live-budget-editor.ts` ~l.112, `guestsPerStaff = 25`). **Leé el 25 de esa
+  función, no lo copies escrito**, para que no se despeguen.
+- "Las islas y la comida de pie pueden usar menos vajilla que el servicio a la mesa." (el dueño lo
+  confirmó). **Los mozos no bajan con las islas**: siguen la regla de arriba.
+- "AK trabaja en Salto, Uruguay, hace 7 años y lleva más de 200 fiestas." "El precio lleva el
+  ajuste anual."
+
 **No toques** las cantidades en sí (litros, hielo, 20%): son orientación útil; lo que cambia es
 que se lean como orientación y no como promesa. **Tampoco** el texto del ajuste para años futuros
 de `src/data/blog-posts.ts` ~l.82: no promete nada y no contradice el ajuste anual.
@@ -198,8 +234,53 @@ de `src/data/blog-posts.ts` ~l.82: no promete nada y no contradice el ajuste anu
 - `corregirPromesasDelBlog` sobre una copia de `data/blog-posts.json` **anterior a tu cambio** (pegala
   en la prueba como dato) devuelve artículos donde `textoQuePromete` da `null`;
 - `textoQuePromete` encuentra "garantía absoluta" y "la mayoría de los clientes";
+- un artículo con "Revisar la potencia te garantiza que todo funcione sin riesgos ni cortes. Pedí
+  la ficha." queda sólo con "Pedí la ficha.";
+- `DATOS_DE_AK_PARA_EL_BLOG` dice "cada 25 invitados" **leyendo el número de
+  `applyAutomaticStaffByGuests`**: si en la prueba se cambia ese número, el texto cambia;
+- con la investigación simulada fallando, el artículo se escribe igual y `fuentes` queda vacío;
 - con el generador simulado devolviendo un artículo con "seguras para interiores", **no se llama a
   `writeData`**. Tiene que ponerse en rojo si se saca el control del paso 2.
+
+## Bloque 7 — La demostración de la barra siempre pide un Mojito (Codex, 28/09/2026)
+
+En la portada, la demo "Barra y Tótem" (`src/components/landing/LaAppDeTuFiestaSection.tsx`): los dos
+botones (~l.550 y ~l.562) llaman `handleSimularPedidoTrago` (~l.137) **sin decir qué trago**, y el
+resultado dice fijo "Pedido #42: Mojito" (~l.573). El prospecto elige el Citrus Mocktail y le
+confirman un Mojito: la demo muestra justo lo contrario de lo que vende.
+
+- `handleSimularPedidoTrago(nombre: string)` guarda el nombre en un estado nuevo
+  (`pedidoTragoNombre`) y cada botón pasa **el nombre que muestra su tarjeta**.
+- El cartel dice `Pedido #{numero}: {pedidoTragoNombre}`; el número arranca en 42 y **sube uno** en
+  cada pedido.
+- **La prueba** (`tests/e2e/la-demo-de-la-barra-respeta-el-trago.spec.ts`): en la portada, pedir el
+  Citrus Mocktail y ver "Citrus" en el cartel, en preparación y en listo; después pedir el otro y ver
+  su nombre con el número siguiente.
+
+## Bloque 8 — La galería muestra nombres de archivo (Codex, 28/09/2026)
+
+117 de las fotos de `src/data/catalogo-fotos.json` tienen de título el nombre del archivo
+("Img 035 P04 X1123") y todas la misma descripción ("Foto de decoración del catálogo de servicios
+reales de AK Producciones."). Las muestra `src/components/landing/GallerySection.tsx`.
+
+- Función pura `textoVisibleDeLaFoto(foto)` en `src/lib/galeria/texto-de-la-foto.ts`: si `titulo`
+  empieza con `img` seguido de números (`/^img[\s_-]*\d+/i`), el título que se muestra es
+  `categoriaServicio`; si la `descripcion` es la genérica (`/del catálogo de servicios reales/i`),
+  no se muestra descripción. Usala en la tarjeta y en la vista grande.
+- **No cambies los datos ni las categorías**: Codex vio una foto del equipo marcada como
+  Decoración, pero la categoría la confirma el dueño, no se adivina.
+- **La prueba** (`src/__tests__/la-galeria-no-muestra-nombres-de-archivo.test.ts`) recorre el archivo
+  real y comprueba que ningún texto visible empiece con "Img" seguido de números.
+
+## Bloque 9 — El simulador dice "Total vigente: $0" antes de elegir nada (Codex, 28/09/2026)
+
+`src/app/simulador-de-presupuesto/page.tsx` ~l.2918: el pie muestra `formatCurrency(stats.totalFinal)`
+aunque todavía no se eligió nada, y "$0" se lee como un precio. Cuando `stats.totalFinal` es 0,
+mostrá en ese mismo lugar "Elegí tus servicios para ver el total" en vez del monto. **No toques** el
+cálculo, ni el reloj de la promoción, ni el texto de ~l.1108.
+
+**La prueba** va en `tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts` (bloque 3): al abrir
+el paso 1 no aparece "$0" en el pie; al elegir un paquete aparece un monto mayor que cero.
 
 ## La prueba
 
@@ -219,6 +300,13 @@ no-usa: +10 años en src/data/presentacion.ts
 usa: textoQuePromete en src/lib/blog-ai-generator.ts
 usa: corregirPromesasDelBlog en src/app/actions/blog.ts
 prueba: src/__tests__/el-blog-no-promete.test.ts
+usa: googleSearchRetrieval en src/lib/blog-ai-generator.ts
+usa: DATOS_DE_AK_PARA_EL_BLOG en src/lib/blog-ai-generator.ts
+usa: pedidoTragoNombre en src/components/landing/LaAppDeTuFiestaSection.tsx
+prueba: tests/e2e/la-demo-de-la-barra-respeta-el-trago.spec.ts
+usa: textoVisibleDeLaFoto en src/components/landing/GallerySection.tsx
+prueba: src/__tests__/la-galeria-no-muestra-nombres-de-archivo.test.ts
+usa: Elegí tus servicios para ver el total en src/app/simulador-de-presupuesto/page.tsx
 usa: sm:flex-wrap en src/components/public/InteractiveTechShowcase.tsx
 prueba: tests/e2e/el-carrusel-de-tecnologia-se-ve-entero.spec.ts
 prueba: src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts
