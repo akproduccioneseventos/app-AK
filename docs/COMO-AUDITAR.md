@@ -752,3 +752,15 @@ Al verificar: por cada botón, pendiente, tarjeta o aviso con enlace (`href="#�
 `router.push`, `Link`), se busca **qué decide si se muestra el destino** (sección con ese `id`,
 o pantalla que chequea un ajuste o un módulo) y se mira que el botón **también** lo cumpla. Si el
 destino puede estar oculto, el botón se oculta con él, o lleva a otro lado que sí exista.
+
+## Pregunta 30 — la que sumó el 28 de septiembre de 2026 (Codex, web pública)
+
+### 30. Un enlace que lleva un dato, ¿el destino lee ESE nombre?
+
+Las landings de bodas y quinceañeras abrían el simulador con `?tipo=boda`, y el simulador sólo
+leía `eventType`. Cada uno andaba por separado; juntos, el novio que venía de un anuncio de bodas
+arrancaba en "Cumpleaños". Nadie lo vio porque las pruebas del simulador lo abrían con `eventType`.
+
+Al verificar: por cada enlace con datos en la dirección (`?algo=`), se busca en la pantalla de
+destino `searchParams.get('algo')` con **ese** nombre. Y la prueba abre el destino **con el enlace
+que usa la pantalla de origen**, no con uno armado a mano.

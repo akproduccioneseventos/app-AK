@@ -614,3 +614,20 @@ ocultar.
 usa: showCatering && progress.areas.menu.status en src/app/portal-cliente/[id]/page.tsx
 prueba: src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts
 ```
+
+## 28 de septiembre de 2026 — El simulador ignoraba el tipo de fiesta de las landings (Codex)
+
+**Qué era:** la portada y las landings de bodas, quinceañeras y cumpleaños abrían el simulador con
+`?tipo=...`, y el simulador sólo leía `eventType`: todos arrancaban en "Cumpleaños". Además, en la
+computadora, la 360 y el espejo quedaban afuera del carrusel de tecnología.
+
+**Qué pregunta lo hubiera agarrado:** la 30, nueva: *un enlace que lleva un dato, ¿el destino lee
+ese nombre?* Queda también como pregunta 19 de `ANTES-DE-ENTREGAR.md`. Lo del carrusel lo
+agarra la regla de `celular-primero`, que ya pedía probar en la computadora.
+
+**Barrido:** bloques 3 y 4 de la orden 96.
+
+```comprobar
+usa: searchParams.get('tipo') en src/app/simulador-de-presupuesto/page.tsx
+prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
+```

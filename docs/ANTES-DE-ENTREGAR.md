@@ -70,6 +70,8 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 18. **¿Tu botón lleva a algo que puede estar oculto?** Si la sección o la pantalla de destino se
     esconde con un ajuste o un modo, el botón tiene que esconderse con la misma condición. Si no,
     el cliente toca y no pasa nada.
+19. **¿Tu enlace pasa un dato en la dirección?** Fijate que la pantalla de destino lea ese mismo
+    nombre, y probalo abriendo el destino con el enlace de verdad, no con uno armado a mano.
 
 ## Y dos reglas que valen para las pruebas
 

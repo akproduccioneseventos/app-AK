@@ -76,6 +76,45 @@ Google**, que lee la página sin animar—, la portada dice **"+0 eventos", "+0 
   comprueba que el HTML que llega del servidor contiene "+500" y no contiene "+0 ". Después baja
   hasta las tarjetas y comprueba que dicen "+500".
 
+## Bloque 3 — El simulador ignora el tipo de fiesta que le mandan (Codex, 28/09/2026)
+
+**Lo roto, y le cuesta ventas.** Las tarjetas de la portada
+(`src/components/landing/ServicesSection.tsx` ~l.46-67) y las landings de bodas, quinceañeras y
+cumpleaños (`src/app/bodas/page.tsx` ~l.35, `src/app/quinceaneras/page.tsx` ~l.35,
+`src/app/cumpleanos/page.tsx` ~l.28) abren el simulador con `?tipo=...`. Pero el simulador
+(`src/app/simulador-de-presupuesto/page.tsx` ~l.259) **sólo lee `eventType`**. Resultado: el
+novio que llega desde la landing de bodas —justo la de los anuncios— arranca en **"Cumpleaños"**.
+
+- **Arreglo:** en ~l.259, leer `searchParams.get('eventType') ?? searchParams.get('tipo')`.
+  `normalizePrefillEventType` (~l.245) ya entiende "boda", "Boda", "15-anos", "XV años" y
+  "corporativo". Para "social" devuelve Cumpleaños, que está bien.
+- **No cambies los enlaces** de las landings: los anuncios ya publicados usan esas direcciones.
+
+**Y el barrido (pregunta 30 del método):** buscá todos los enlaces que llevan datos en la
+dirección (`?algo=` y `&algo=`) en `src/app` y `src/components`, y fijate que la pantalla de
+destino lea **ese mismo nombre** con `searchParams.get('algo')`. Si no lo lee, es un hallazgo:
+se arregla en el destino, leyendo también ese nombre.
+
+**La prueba** (`tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts`):
+- abre `/simulador-de-presupuesto?tipo=boda` y comprueba que queda elegida **Boda**;
+- abre `?tipo=XV%20a%C3%B1os` y comprueba que queda **15 años**;
+- abre sin nada y comprueba que queda Cumpleaños, como hoy.
+
+## Bloque 4 — En la computadora, la 360 y el espejo quedan afuera del carrusel (Codex, 28/09/2026)
+
+`src/components/public/InteractiveTechShowcase.tsx` ~l.234: la fila de estaciones usa a la vez
+`overflow-x-auto`, `hide-scrollbar` y `sm:justify-center`. Cuando los botones no entran, centrar
+una fila que se desborda **corta los de las puntas y no deja llegar a ellos**, y además la barra
+está escondida. Por eso "Plataforma 360" queda afuera y "Espejo Mágico" cortado.
+
+- **Arreglo:** en el celular sigue el desplazamiento horizontal (`justify-start`). Desde `sm:`, la
+  fila **se parte en renglones** (`sm:flex-wrap sm:justify-center sm:overflow-visible`). No
+  cambies los botones ni las fichas.
+- **La prueba** (`tests/e2e/el-carrusel-de-tecnologia-se-ve-entero.spec.ts`), a 1280 × 800 y a
+  390 × 844: cada botón de estación tiene que quedar **entero adentro de la pantalla**. Hacé
+  `scrollIntoViewIfNeeded` en el celular y comparalo con el tamaño de la ventana; al hacer clic
+  con el puntero, la ficha tiene que cambiar al nombre de esa estación.
+
 ## La prueba
 
 `src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts`. Por cada archivo arreglado, comprobá que
@@ -86,4 +125,8 @@ modifiques). **Tiene que ponerse en rojo si se saca la condición del botón.**
 ```comprobar
 prueba: src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts
 prueba: tests/e2e/la-portada-no-dice-cero.spec.ts
+usa: searchParams.get('tipo') en src/app/simulador-de-presupuesto/page.tsx
+prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
+usa: sm:flex-wrap en src/components/public/InteractiveTechShowcase.tsx
+prueba: tests/e2e/el-carrusel-de-tecnologia-se-ve-entero.spec.ts
 ```
