@@ -24,7 +24,10 @@ export default function AficheMuroPage() {
       setOrigin(window.location.origin);
     }
     if (fiestaId) {
-      getPublicSocialEvent(fiestaId).then(setEvent).catch(() => {});
+      getPublicSocialEvent(fiestaId)
+        .then(setEvent)
+        // no pasa nada si falla: el afiche sale con "Nuestra Fiesta" y el color de fábrica, y el QR igual anda.
+        .catch(() => {});
       getPermisoDelAfiche(fiestaId)
         .then((res) => {
           if (res.success) {
