@@ -950,6 +950,11 @@ estaba subida.
 **Qué se hace distinto:** la limpieza de la rama va **después** de ver "merged: true", nunca en la
 misma tanda que la fusión. Si la fusión dice "not mergeable" apenas subido, se espera y se reintenta.
 
+**Y el mismo día, otra vez por el mismo lado:** al dejar la rama igual a la principal después de
+fusionar la orden 94, me llevé puesto un commit mío que todavía no estaba fusionado; lo recuperé del
+historial. **Antes de dejar la rama igual a la principal, mirar `git log origin/main..HEAD`: si
+muestra algo, eso se lleva, no se pisa.**
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y

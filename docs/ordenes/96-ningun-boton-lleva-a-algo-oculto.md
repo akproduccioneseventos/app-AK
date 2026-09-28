@@ -61,6 +61,21 @@ pagos). Con la pregunta nueva del método (la 29 de `docs/COMO-AUDITAR.md`, y la
   arreglalo igual con la misma regla, pero decilo en la descripción, así Claude lo mira con lupa.
 - No saques secciones ni botones de las landings: se alinean, no se borran.
 
+## Bloque 2 — Los números de la portada arrancan en cero (hallazgo de Codex, 28/09/2026)
+
+`src/components/ui/animated-counter.tsx` arranca en `0` (`useState(0)`) y recién sube cuando la
+tarjeta entra en pantalla. Desde `src/components/landing/StatsSection.tsx` (~l.9-12) se usa para
+"+500 eventos", "+12 años", "100%" y "24/7". Mientras nadie baja hasta ahí —y **siempre para
+Google**, que lee la página sin animar—, la portada dice **"+0 eventos", "+0 años", "0%" y "0/7"**.
+
+- **Arreglo:** que el primer dibujo y lo que sale del servidor muestren **el número final**. La
+  animación arranca desde cero recién cuando la tarjeta entra en pantalla, del lado del navegador.
+  Guardá una marca de "ya se animó" para que no parpadee.
+- **No cambies los textos ni los números.** Eso lo decide el dueño.
+- **La prueba** (`tests/e2e/la-portada-no-dice-cero.spec.ts`) abre la portada **sin bajar** y
+  comprueba que el HTML que llega del servidor contiene "+500" y no contiene "+0 ". Después baja
+  hasta las tarjetas y comprueba que dicen "+500".
+
 ## La prueba
 
 `src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts`. Por cada archivo arreglado, comprobá que
@@ -70,4 +85,5 @@ modifiques). **Tiene que ponerse en rojo si se saca la condición del botón.**
 
 ```comprobar
 prueba: src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts
+prueba: tests/e2e/la-portada-no-dice-cero.spec.ts
 ```
