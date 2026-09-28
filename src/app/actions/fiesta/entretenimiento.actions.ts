@@ -18,6 +18,7 @@ import {
   type EntertainmentModuleId,
 } from '@/lib/entertainment/station-config';
 import * as logger from '@/lib/logger';
+import { segundosDelPermisoDelAfiche } from '@/lib/entertainment/vigencia-del-afiche';
 
 const MAX_ENTERTAINMENT_IMAGE_SIZE = 10 * 1024 * 1024;
 const MAX_ENTERTAINMENT_VIDEO_SIZE = 60 * 1024 * 1024;
@@ -107,6 +108,29 @@ export async function getEntertainmentLaunchToken(
     };
   } catch (error: any) {
     return { success: false, error: error.message || 'Sesion no autorizada.' };
+  }
+}
+
+/**
+ * Permiso para el QR del afiche impreso del muro (28/09/2026). Lo pide sólo el equipo al abrir el
+ * afiche para imprimirlo; es el mismo permiso de invitado del tótem, pero dura hasta el fin del día
+ * siguiente a la fiesta (`segundosDelPermisoDelAfiche`), porque el papel se imprime días antes.
+ */
+export async function getPermisoDelAfiche(fiestaId: string) {
+  try {
+    await requireAppSession();
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false as const, error: 'Evento no encontrado.' };
+    const segundos = segundosDelPermisoDelAfiche(fiesta.configuracion?.fechaEvento);
+    if (segundos <= 0) {
+      return { success: false as const, error: 'La fiesta no tiene fecha cargada o ya pasó.' };
+    }
+    return {
+      success: true as const,
+      permiso: createEntertainmentAccessToken(fiestaId, 'totems', 'guest', segundos),
+    };
+  } catch (error: any) {
+    return { success: false as const, error: error.message || 'Sesion no autorizada.' };
   }
 }
 
