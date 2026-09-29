@@ -109,3 +109,7 @@ Codex sigue por web pública. Observaciones de portada (métricas en cero y clai
 
 ## Club Uruguay — oportunidad de contenido, 28/09/2026
 La página extraída muestra tres escenas y CTAs, pero no extrae capacidad, dirección/mapa, accesibilidad, dimensiones, parking o equipamiento. Agregar solo datos confirmados por AK; fotos/CTAs no probados visualmente. Detalle en docs/evidencias/95-actualizacion-28-09.md.
+
+## Auditoría PR #1240 — avisos automáticos a la bandeja (2026-09-28)
+
+PR #1240, HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: hallazgo P2 de idempotencia visible en el código, no reproducido dinámicamente. Dos llamadas concurrentes o reintento tras fallo de persistencia podrían crear avisos WhatsApp pendientes duplicados. No se envían automáticamente (`manual_click`). La prueba existente sólo cubre llamadas secuenciales; Codex no ejecutó tests. No es un fallo probado en producción. Detalle, paths, consumidor, evidencia y pruebas requeridas en `docs/evidencias/96-idempotencia-avisos-whatsapp.md`. Gemini es el responsable de corregir esta área después de concluir la auditoría; conservar envío manual. Sin build, test, datos reales ni envío de mensajes.
