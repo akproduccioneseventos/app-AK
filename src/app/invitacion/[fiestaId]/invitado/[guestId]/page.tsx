@@ -233,6 +233,7 @@ function GuestPortalContent() {
       return;
     }
     try {
+      // no pasa nada si falla: marcar la apertura no puede frenar la invitación; se reintenta la próxima vez que la abra.
       registrarQueAbrioLaInvitacion(fiestaId, guestId, guestAccessToken).catch(() => {});
       const [data, connections] = await Promise.all([
         getPublicGuestPortalData(fiestaId, guestId, guestAccessToken),

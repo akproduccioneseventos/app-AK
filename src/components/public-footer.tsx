@@ -87,6 +87,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
           setSocialLinks(merged);
         }
       })
+      // no pasa nada si falla: quedan los enlaces a redes de siempre.
       .catch(() => {});
   }, []);
 
