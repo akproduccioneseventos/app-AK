@@ -143,3 +143,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la función nueva no aparece co
 ## Auditoría PR #1240 — check-in de personal y QR de carga (2026-09-28)
 
 HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la nueva acción de check-in puede asignar la llegada de un acceso de proveedor sin empleado al primer miembro del personal, y no valida permiso/vigencia dentro de la acción; la prueba no cubre esos casos. En carga operativa, el QR anuncia éxito antes de confirmar persistencia porque descarta la promesa; la persistencia captura internamente el error. Riesgos P1 (atribución/acceso) y P2 (feedback engañoso), revisión estática; Codex no ejecutó pruebas ni confirmó producción. Detalle y pruebas recomendadas: `docs/evidencias/102-checkin-proveedor-y-qr-persistencia.md`.
+
+
+## Auditoría PR #1240 — mantenimiento y gasto contable no atómicos (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el editor ignora `{success:false}` de `saveGastoGeneral` y anuncia el gasto como registrado; el costo/historial del activo se guarda después en otra acción, por lo que puede quedar una sola mitad o duplicarse al reintentar. P1 de consistencia contable, análisis estático; no se ejecutaron pruebas ni se generaron gastos. Claude debe resolver idempotencia/consistencia y probar rechazo, fallo parcial y reintento. Detalle: `docs/evidencias/103-gasto-mantenimiento-y-activo-no-atomicos.md`.
