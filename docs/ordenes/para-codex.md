@@ -148,3 +148,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la nueva acción de check-in pu
 ## Auditoría PR #1240 — mantenimiento y gasto contable no atómicos (2026-09-28)
 
 HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el editor ignora `{success:false}` de `saveGastoGeneral` y anuncia el gasto como registrado; el costo/historial del activo se guarda después en otra acción, por lo que puede quedar una sola mitad o duplicarse al reintentar. P1 de consistencia contable, análisis estático; no se ejecutaron pruebas ni se generaron gastos. Claude debe resolver idempotencia/consistencia y probar rechazo, fallo parcial y reintento. Detalle: `docs/evidencias/103-gasto-mantenimiento-y-activo-no-atomicos.md`.
+
+
+## Auditoría PR #1240 — reunión de organización (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la nueva pantalla ignora `{success:false}` de `saveFiesta` tanto al guardar como al cerrar, y anuncia éxito; el textarea de notas del cronograma no se copia al objeto guardado y se pierde al salir. P1 en confirmación/persistencia y P2 en dato operativo, inspección estática; no se ejecutaron E2E. Detalle y casos: `docs/evidencias/104-reunion-confirmacion-y-cronograma.md`.
