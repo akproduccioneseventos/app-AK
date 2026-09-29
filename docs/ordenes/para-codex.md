@@ -153,3 +153,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el editor ignora `{success:fals
 ## Auditoría PR #1240 — reunión de organización (2026-09-28)
 
 HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la nueva pantalla ignora `{success:false}` de `saveFiesta` tanto al guardar como al cerrar, y anuncia éxito; el textarea de notas del cronograma no se copia al objeto guardado y se pierde al salir. P1 en confirmación/persistencia y P2 en dato operativo, inspección estática; no se ejecutaron E2E. Detalle y casos: `docs/evidencias/104-reunion-confirmacion-y-cronograma.md`.
+
+
+## Auditoría PR #1240 — orden imprimible y carga operativa (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la nueva Orden de Evento imprime solo los primeros seis artículos por categoría mediante `.slice(0, 6)`, sin advertir que la carga continúa; puede usarse una lista incompleta para preparar/devolver equipos. P2, confirmado por código; PDF/impresión y E2E no ejecutados. Evidencia: `docs/evidencias/105-orden-evento-carga-recortada.md`.
