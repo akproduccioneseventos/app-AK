@@ -231,7 +231,7 @@ export function InteractiveTechShowcase({ className }: { className?: string }) {
         </div>
 
         {/* Station Selector Tabs con micro-interacciones suaves */}
-        <div className="flex gap-2.5 overflow-x-auto pb-4 mb-8 hide-scrollbar justify-start sm:justify-center">
+        <div className="flex gap-2.5 overflow-x-auto pb-4 mb-8 hide-scrollbar justify-start sm:flex-wrap sm:justify-center sm:overflow-visible">
           {STATIONS.map((station) => {
             const Icon = station.icon;
             const isSelected = selectedStation.id === station.id;

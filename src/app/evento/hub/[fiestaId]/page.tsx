@@ -41,6 +41,7 @@ import type { EntertainmentModuleId } from '@/lib/entertainment/station-config';
 import { canUseNextImage } from '@/lib/next-image-url';
 import { ConciergeWidget } from '@/components/concierge/ConciergeWidget';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
+import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 
 const STATION_ICONS: Record<EntertainmentModuleId, typeof Camera> = {
   fotocabina: Camera,
@@ -173,7 +174,7 @@ export default function EventoHubPage() {
     || `Hola ${guest.nombre}. Elegí qué querés hacer durante la fiesta.`;
 
   return (
-    <main className="ak-public-page min-h-screen bg-slate-50 pb-24 text-slate-950 sm:pb-0" style={pageStyle}>
+    <main id="hub-inicio" className="ak-public-page min-h-screen bg-slate-50 pb-24 text-slate-950 sm:pb-0" style={pageStyle}>
       <section className="ak-public-hero relative flex min-h-[58svh] items-end overflow-hidden bg-slate-950 text-white">
         {canUseNextImage(coverImage) ? (
           <Image src={coverImage} alt={eventName} fill priority sizes="100vw" className="object-cover" />
@@ -188,13 +189,16 @@ export default function EventoHubPage() {
               <CompanyLogo size="sm" />
               <span className="hidden sm:inline">AK Producciones</span>
             </Link>
-            <Link
-              href={invitationHref}
-              className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/25 bg-black/20 px-4 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-black/40"
-            >
-              <TicketCheck className="h-4 w-4" />
-              Mi invitación
-            </Link>
+            <div className="flex items-center gap-2">
+              <VideoDeAyuda lugar="hub-de-la-fiesta" />
+              <Link
+                href={invitationHref}
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/25 bg-black/20 px-4 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-black/40"
+              >
+                <TicketCheck className="h-4 w-4" />
+                Mi invitación
+              </Link>
+            </div>
           </div>
 
           <div className="max-w-4xl pb-2">
@@ -350,7 +354,7 @@ export default function EventoHubPage() {
 
       <nav aria-label="Navegación rápida del evento" className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_28px_rgba(15,23,42,0.08)] backdrop-blur sm:hidden">
         <div className="mx-auto grid max-w-md grid-cols-5">
-          <Link href="#event-tools-title" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[10px] font-black text-[var(--event-accent)]">
+          <Link href="#hub-inicio" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[10px] font-black text-[var(--event-accent)]">
             <Home className="h-5 w-5" />
             Inicio
           </Link>

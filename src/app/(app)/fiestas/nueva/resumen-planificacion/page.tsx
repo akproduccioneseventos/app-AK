@@ -274,6 +274,16 @@ function ResumenPlanificacionContent() {
           <h1 className="text-3xl font-bold tracking-tighter font-headline text-primary uppercase">Consolidado del Evento</h1>
         </div>
         <div className="flex gap-2">
+          <Button asChild variant="outline" className="rounded-xl border-primary/30 text-primary">
+            <Link href={`/fiestas/nueva/reunion-organizacion?fiestaId=${fiestaId}`}>
+              <ClipboardCheck className="w-4 h-4 mr-2" />Reunión de Organización
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="rounded-xl border-indigo-500/30 text-indigo-600">
+            <Link href={`/fiestas/nueva/orden-de-evento?fiestaId=${fiestaId}`}>
+              <FileText className="w-4 h-4 mr-2" />Orden de Evento
+            </Link>
+          </Button>
           <Button onClick={handlePrint} variant="secondary" className="rounded-xl font-bold"><Printer className="w-4 h-4 mr-2"/>Imprimir / PDF</Button>
           <Button asChild variant="outline" className="rounded-xl"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
         </div>

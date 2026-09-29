@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw, RefreshCw, Layers } from 'lucide-react';
+import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw, RefreshCw, Layers, QrCode } from 'lucide-react';
+import { procesarEscaneoQREquipo, PREFIJO_QR_EQUIPO } from '@/lib/logistica/qr-carga';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -172,6 +173,38 @@ function ListaDeCargaOperativaContent() {
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
   const [categoryForCatalogSelect, setCategoryForCatalogSelect] = useState<CargaOperativaCategoria | null>(null);
+
+  const [isScanModalOpen, setIsScanModalOpen] = useState(false);
+  const [scanInputText, setScanInputText] = useState('');
+
+  const handleScanCode = (codigo: string) => {
+    // Procesa el prefijo oficial ak-equipo:<id>
+    const res = procesarEscaneoQREquipo(codigo.trim(), listaDeCarga.categorias);
+    if (res.encontrado && res.itemModificado) {
+      setListaDeCarga((prev) => ({ ...prev, categorias: res.categoriasActualizadas }));
+      const cat = res.categoriasActualizadas.find((c) =>
+        c.items.some((i) => i.id === res.itemModificado!.id),
+      );
+      if (cat) {
+        void persistItemPatch(cat.id, res.itemModificado.id, {
+          cargado: res.itemModificado.cargado,
+          retornado: res.itemModificado.retornado,
+        });
+      }
+      toast({
+        title: res.accion === 'retornado' ? '📦 Equipo Retornado' : '✅ Equipo Cargado',
+        description: `${res.itemModificado.nombre} marcado como ${res.accion}.`,
+      });
+      setScanInputText('');
+      setIsScanModalOpen(false);
+    } else {
+      toast({
+        title: 'Equipo no encontrado',
+        description: res.error || 'El equipo no pertenece a la carga de este evento.',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -738,14 +771,62 @@ function ListaDeCargaOperativaContent() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
-           <Button asChild variant="outline" className="w-full rounded-xl border-slate-200 shadow-sm" disabled={isSaving}><Link href={`/fiestas/nueva/carga-operativa/pdf?fiestaId=${fiestaId}`} className="flex-1 md:flex-none">
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-xl border-slate-200 shadow-sm"
+              onClick={() => setIsScanModalOpen(true)}
+            >
+              <QrCode className="w-4 h-4 mr-2" /> Escanear QR
+            </Button>
+            <Button asChild variant="outline" className="rounded-xl border-slate-200 shadow-sm" disabled={isSaving}><Link href={`/fiestas/nueva/carga-operativa/pdf?fiestaId=${fiestaId}`} className="flex-1 md:flex-none">
                 <FileText className="w-4 h-4 mr-2"/>Generar Hoja de Carga
               </Link></Button>
-            <Button asChild variant="outline" className="w-full rounded-xl border-slate-200 shadow-sm" disabled={isSaving}><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} className="flex-1 md:flex-none">
+            <Button asChild variant="outline" className="rounded-xl border-slate-200 shadow-sm" disabled={isSaving}><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`} className="flex-1 md:flex-none">
                 <ArrowLeft className="w-4 h-4 mr-2" /> Volver
               </Link></Button>
         </div>
       </div>
+
+      <Dialog open={isScanModalOpen} onOpenChange={setIsScanModalOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5 text-primary" />
+              Escanear Equipo por QR
+            </DialogTitle>
+            <DialogDescription>
+              Escaneá el código QR del equipo (etiqueta con <code>ak-equipo:&lt;id&gt;</code>) para marcarlo como cargado o retornado automáticamente.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-3">
+            <div className="space-y-2">
+              <Label htmlFor="input-scan-qr">Código QR escaneado</Label>
+              <Input
+                id="input-scan-qr"
+                placeholder="ak-equipo:..."
+                value={scanInputText}
+                onChange={(e) => setScanInputText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleScanCode(scanInputText);
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsScanModalOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={() => handleScanCode(scanInputText)}>
+              Procesar Escaneo
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between">
         <div className="w-full sm:max-w-xs space-y-1.5">

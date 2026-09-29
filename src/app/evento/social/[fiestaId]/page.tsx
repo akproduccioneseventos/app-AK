@@ -79,6 +79,7 @@ import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
 import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { optimizeImageForUpload } from '@/lib/media/image-optimizer';
+import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game' | 'missions' | 'schedule' | 'ranking';
 
@@ -934,8 +935,13 @@ export default function SocialEventPage() {
       <Dialog open={uploadOpen} onOpenChange={(open) => { setUploadOpen(open); if (!open) clearUpload(); }}>
         <DialogContent className="max-w-lg rounded-md border-0 bg-white p-0">
           <DialogHeader className="border-b px-5 py-4">
-            <DialogTitle>Crear publicación</DialogTitle>
-            <DialogDescription>Compartí una foto o un video del evento.</DialogDescription>
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <DialogTitle>Crear publicación</DialogTitle>
+                <DialogDescription>Compartí una foto o un video del evento.</DialogDescription>
+              </div>
+              <VideoDeAyuda lugar="muro-subir-foto" />
+            </div>
           </DialogHeader>
           <form onSubmit={submitUpload} className="space-y-4 p-5">
             <div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><p className="font-bold">{authorName}</p></div>
@@ -963,6 +969,7 @@ export default function SocialEventPage() {
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
           {section !== 'feed' && <button type="button" onClick={() => chooseSection('feed')} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Volver"><ArrowLeft className="h-5 w-5" /></button>}
           <div className="min-w-0 flex-1"><h1 className="truncate text-base font-black sm:text-lg">{eventName}</h1><p className="text-xs text-slate-500">Hola, {authorName || 'invitado'}</p></div>
+          <VideoDeAyuda lugar="muro-subir-foto" />
           <a
             href={`/evento/mi-mesa/${fiestaId}${guestId ? `?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}` : ''}`}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 text-amber-800 transition text-xs font-bold shrink-0"

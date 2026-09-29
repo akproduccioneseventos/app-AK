@@ -36,7 +36,7 @@ export function AkTeamStorySection() {
       <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-rose-500/5 blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header Grid */}
         <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-end mb-16">
           <div className="text-left space-y-4">
@@ -48,10 +48,10 @@ export function AkTeamStorySection() {
               Detrás de una buena fiesta hay equipo y criterio
             </h2>
             <p className="text-lg leading-relaxed text-zinc-400 font-medium max-w-xl">
-              Planificamos y ejecutamos cada detalle de tu evento con un método probado que garantiza tranquilidad, orden y un resultado espectacular.
+              Planificamos y ejecutamos cada detalle de tu evento con un método probado para darte tranquilidad, orden y un resultado espectacular.
             </p>
           </div>
-          
+
           <div className="grid gap-3.5 sm:grid-cols-3 text-left">
             {[
               { icon: HeartHandshake, label: 'Acompañamiento real' },
@@ -104,7 +104,7 @@ export function AkTeamStorySection() {
         {/* Resources Banner Box */}
         <div className="mt-12 grid gap-6 rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-slate-900/40 to-slate-950 border border-white/10 p-7 text-left shadow-2xl lg:grid-cols-[1fr_1.3fr] lg:p-10 relative overflow-hidden">
           <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-red-600/5 blur-3xl pointer-events-none" />
-          
+
           <div className="space-y-4">
             <div className="inline-flex rounded-2xl bg-red-950/40 border border-red-500/25 p-3.5 text-red-400">
               <BookOpen className="h-6 w-6" />

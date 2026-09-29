@@ -115,14 +115,14 @@ export const sharedWhyUs: WhyUsItem[] = [
   {
     id: 'experiencia',
     icon: '🏆',
-    title: '+10 años de experiencia',
+    title: '+7 años de experiencia',
     description: 'Hemos organizado cientos de eventos, desde íntimas celebraciones familiares hasta grandes fiestas de 500 personas.',
   },
   {
     id: 'equipo',
     icon: '🤝',
     title: 'Equipo propio y de confianza',
-    description: 'Trabajamos con nuestro propio equipo de ambientadores, DJs, fotógrafos y catering para garantizar la máxima calidad.',
+    description: 'Trabajamos con nuestro propio equipo de ambientadores, DJs, fotógrafos y catering para cuidar la calidad.',
   },
   {
     id: 'personalizado',

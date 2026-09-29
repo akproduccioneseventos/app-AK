@@ -5,6 +5,7 @@ import { generateWithGeminiFallback, geminiProModel } from '@/ai/genkit';
 import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { fotoDeLaNota } from '@/lib/blog/foto-de-la-nota';
+import { DATOS_DE_AK_PARA_EL_BLOG, textoQuePromete } from '@/lib/blog/sin-promesas';
 import type { BlogPost } from '@/types/blog';
 import type { SocialPost } from '@/types/social-media';
 
@@ -122,13 +123,46 @@ export async function generateBlogPostAndSocialDraft() {
   const selectedTopic = selectUnusedTopic(existingPosts, daySeed);
   const selectedTopicKey = normalizeTopic(selectedTopic);
 
+  let notasInvestigacion = '';
+  let fuentesInvestigacion: string[] = [];
+  try {
+    const researchResult = await generateWithGeminiFallback({
+      model: geminiProModel,
+      prompt: `Investigá qué recomiendan páginas de organización de eventos sobre: "${selectedTopic}". Mencioná recomendaciones prácticas y las fuentes consultadas.`,
+      config: {
+        googleSearchRetrieval: {},
+      },
+    });
+
+    notasInvestigacion = researchResult.text || '';
+    const groundingMetadata = (researchResult as any).custom?.candidates?.[0]?.groundingMetadata || (researchResult as any).raw?.candidates?.[0]?.groundingMetadata;
+    const webSearchSources = groundingMetadata?.groundingChunks?.map((c: any) => c.web?.uri).filter(Boolean) || [];
+    if (webSearchSources.length > 0) {
+      fuentesInvestigacion = Array.from(new Set(webSearchSources)) as string[];
+    }
+  } catch (error) {
+    console.warn('[blog-ai-generator] Falló la investigación previa con búsqueda web. Se continuará sólo con datos oficiales de AK.', error);
+    notasInvestigacion = '';
+    fuentesInvestigacion = [];
+  }
+
   const prompt = `Genera un articulo de blog educativo y muy util para clientes de eventos sobre: "${selectedTopic}".
 El articulo debe ayudar al cliente a tomar decisiones inteligentes y evitar errores costosos en su fiesta en Uruguay, especialmente en Salto.
 Redactalo en espanol rioplatense, cercano y natural, usando palabras como "tenes", "salon", "quinceanera", "bodas" y "barra".
 Inclui palabras clave de busqueda SEO para posicionamiento en Salto, Uruguay.
 Al final, inclui una llamada clara a usar el Simulador de Presupuestos de AK Producciones para disenar su fiesta gratis.
 No repitas temas ni enfoques de articulos ya publicados. La portada debe ilustrar el tema, sin texto sobre la imagen.
-Es obligatorio que el resultado respete el esquema JSON especificado.`;
+Es obligatorio que el resultado respete el esquema JSON especificado.
+
+REGLAS DE SEGURIDAD Y RESPALDO (OBLIGATORIAS):
+- No prometas plazos, garantías, resultados ni seguridad. No escribas 'garantía', 'garantizado', '24/7', 'cero fallas', 'seguro para interiores' ni 'te aseguramos'.
+- No inventes estadísticas ni preferencias de clientes: nada de 'la mayoría de los clientes', 'la opción preferida' ni porcentajes que no te dimos.
+- Las cantidades (bebida, hielo, comida) son orientativas: decilo en el mismo párrafo.
+${notasInvestigacion ? `\nNotas de investigación de eventos:\n${notasInvestigacion}\n` : ''}
+Datos oficiales de AK Producciones:
+${DATOS_DE_AK_PARA_EL_BLOG}
+
+Regla: Usá sólo lo que dicen estas notas y estos datos. Si algo no está, no lo afirmes.`;
 
   const result = await generateWithGeminiFallback({
     model: geminiProModel,
@@ -141,6 +175,13 @@ Es obligatorio que el resultado respete el esquema JSON especificado.`;
   const generated = result.output;
   if (!generated) {
     throw new Error('La generacion de IA no devolvio contenido estructurado.');
+  }
+
+  const serialized = JSON.stringify(generated);
+  const promesaDetectada = textoQuePromete(serialized);
+  if (promesaDetectada) {
+    console.error('[blog-ai-generator] El artículo generado contiene promesas no permitidas:', promesaDetectada);
+    throw new Error(`El artículo contiene promesas no permitidas: ${promesaDetectada}`);
   }
 
   const slug = safeSlug(generated.slug || generated.title);
@@ -172,6 +213,7 @@ Es obligatorio que el resultado respete el esquema JSON especificado.`;
       message: generated.ctaMessage.trim().slice(0, 240),
     },
     topicKey: selectedTopicKey,
+    fuentes: fuentesInvestigacion.length > 0 ? fuentesInvestigacion : undefined,
   };
 
   await saveGeneratedBlogPost(post, existingPosts);
@@ -211,6 +253,7 @@ Es obligatorio que el resultado respete el esquema JSON especificado.`;
       title: post.title,
       category: post.category,
     },
+    post,
     socialPost: {
       id: newSocialPost.id,
       platform: newSocialPost.platform,
