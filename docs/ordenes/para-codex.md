@@ -138,3 +138,8 @@ Confirmado por inspección de `5e384c6` (SHA publicado registrado en Ya-resuelto
 ## Auditoría PR #1240 — recordatorio automático a invitaciones (2026-09-28)
 
 HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la función nueva no aparece conectada al runner/puerta/route exigidos; Gmail se llama con una firma distinta a la implementación real y el test mockea una respuesta incompatible; los fallos Gmail no incrementan `fallados`; los reintentos pueden duplicar borradores/envíos por falta de idempotencia. P2 en la candidata, revisión estática y sin llamadas reales; recordatorio 21/10 días y default-on son decisiones autorizadas por la orden 95. Detalle: `docs/evidencias/101-recordatorio-invitacion-no-conectado.md`.
+
+
+## Auditoría PR #1240 — check-in de personal y QR de carga (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la nueva acción de check-in puede asignar la llegada de un acceso de proveedor sin empleado al primer miembro del personal, y no valida permiso/vigencia dentro de la acción; la prueba no cubre esos casos. En carga operativa, el QR anuncia éxito antes de confirmar persistencia porque descarta la promesa; la persistencia captura internamente el error. Riesgos P1 (atribución/acceso) y P2 (feedback engañoso), revisión estática; Codex no ejecutó pruebas ni confirmó producción. Detalle y pruebas recomendadas: `docs/evidencias/102-checkin-proveedor-y-qr-persistencia.md`.
