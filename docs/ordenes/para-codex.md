@@ -113,3 +113,8 @@ La página extraída muestra tres escenas y CTAs, pero no extrae capacidad, dire
 ## Auditoría PR #1240 — avisos automáticos a la bandeja (2026-09-28)
 
 PR #1240, HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: hallazgo P2 de idempotencia visible en el código, no reproducido dinámicamente. Dos llamadas concurrentes o reintento tras fallo de persistencia podrían crear avisos WhatsApp pendientes duplicados. No se envían automáticamente (`manual_click`). La prueba existente sólo cubre llamadas secuenciales; Codex no ejecutó tests. No es un fallo probado en producción. Detalle, paths, consumidor, evidencia y pruebas requeridas en `docs/evidencias/96-idempotencia-avisos-whatsapp.md`. Gemini es el responsable de corregir esta área después de concluir la auditoría; conservar envío manual. Sin build, test, datos reales ni envío de mensajes.
+
+
+## Auditoría PR #1240 — secuencia de recontacto (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la tarjeta de Ajustes no ofrece los pasos/plantillas prometidos (igual que base); `plantilla`/`paso` se pierden antes de `buildRemarketingMessage`; y un lead antiguo podría recibir los pasos pendientes en corridas separadas por seis horas. Revisión estática, no dinámica; no probado en producción. El envío automático a prospectos sí está aprobado como excepción en la orden 95: preservar el consentimiento explícito, switch apagado inicial y demás filtros. Prueba existente mockea el envío y no valida el texto. Evidencia y corrección pendiente tras acabar auditoría: `docs/evidencias/97-secuencia-recontacto-prospectos.md`.
