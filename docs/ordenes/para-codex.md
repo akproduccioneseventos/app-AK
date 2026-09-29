@@ -197,3 +197,8 @@ En main SHA `975118a8d2f22868f9cdffc1fa6d8c245ba75fd0`, `appendMultiAgentChatTur
 ## Aclaración del dueño sobre checks de GitHub (2026-09-29)
 
 No usar el rojo de workflows como señal de defecto de app ni gastar más auditoría en sus logs: el dueño informa que se debe a facturación bloqueada. La compilación/verificación pre-fusión completa la hace Claude. El registro histórico `docs/evidencias/110-ci-fallido-head-1240.md` fue actualizado con esta aclaración; esos checks no son un hallazgo funcional.
+
+
+## Multiagente — completar una tarea ambigua (2026-09-29)
+
+En main SHA `975118a8d2f22868f9cdffc1fa6d8c245ba75fd0`, `complete_task` acepta `t.texto.includes(data.texto)` y toma la primera coincidencia. Una respuesta parcial que coincida con varias tareas puede completar la incorrecta. P2 por análisis estático; test existente solo cubre una coincidencia única y ausencia total de selector. Gemini: usar ID o requerir coincidencia única y probar ambigüedad. Evidencia: `docs/evidencias/112-multiagente-tarea-coincidencia-ambigua.md`.
