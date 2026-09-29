@@ -111,6 +111,38 @@ clave, su nombre para el dueño y la pantalla donde aparece):
 - dos guardados a la vez de lugares distintos quedan los dos (la base de mentira devuelve una
   copia en cada lectura).
 
+## Bloque 3 — El asistente del equipo (Multiagente) con tope por persona (Codex, hallazgo 113)
+
+**Qué pasa hoy.** `src/app/api/multiagent/message/route.ts` pide sesión del equipo (~l.19), pero:
+
+- **no tiene tope de consultas**: una sesión (o una cookie robada) puede mandar consultas sin fin, y
+  cada una es una llamada paga a la IA. El tope mensual (`hayPresupuestoParaIA`, en
+  `src/lib/ai/consumo-servidor.ts` ~l.90) sólo baja al modelo rápido (`src/ai/genkit.ts` ~l.71):
+  no frena;
+- **no anota lo que gasta**: a diferencia del vendedor virtual (`src/app/actions/asistente-virtual.ts`
+  ~l.93), nunca llama `registrarConsumoIA`, así que el contador de gasto de IA no lo ve;
+- **lee el pedido entero antes de mirar el tamaño** (`request.json()` ~l.24, y recién en ~l.47 mira
+  si la imagen pasa los 6 MB).
+
+**Qué hacer, en ese orden, en la ruta:**
+
+1. Después de la sesión y **antes** de `request.json()`: si el encabezado `content-length` pasa
+   7.000.000, contestar 413 con "La imagen es demasiado grande. Probá con una foto más chica.".
+2. `enforcePublicRateLimit` (`src/lib/commercial/public-rate-limit.ts` ~l.69) con
+   `scope: 'multiagente'`, `identity: session.user?.userId`, `limit: 60`, `windowMs: 3_600_000`,
+   `ignoreClientAddress: true`. Si tira el error, contestar 429 con "Hiciste muchas consultas
+   seguidas. Esperá unos minutos y probá de nuevo.". Mirá cómo lo usa
+   `src/app/api/payments/mercadopago/checkout/route.ts` ~l.38 y copiá el manejo del error.
+3. Después de que la IA conteste bien: `await registrarConsumoIA('multiagente')`.
+
+**No toques** el resto del Multiagente ni el tope mensual.
+
+**La prueba** (`src/__tests__/el-multiagente-tiene-tope.test.ts`): con la sesión simulada,
+
+- la consulta 61 de la misma persona dentro de la hora devuelve 429 y **no llama** a la IA;
+- un pedido con `content-length` de 8 MB devuelve 413 **sin llamar a `request.json`**;
+- una consulta que sale bien llama `registrarConsumoIA('multiagente')` una vez.
+
 ```comprobar
 usa: promo en src/components/landing/CTASection.tsx
 no-usa: durante esta semana en src/components/landing/CTASection.tsx
@@ -126,4 +158,7 @@ usa: VideoDeAyuda en src/app/simulador-de-presupuesto/page.tsx
 usa: VideoDeAyuda en src/app/evento/social/[fiestaId]/page.tsx
 usa: mutateGenericJsonArray en src/app/actions/videos-de-ayuda.ts
 prueba: src/__tests__/los-videos-de-ayuda-se-ven-donde-se-cargaron.test.ts
+usa: enforcePublicRateLimit en src/app/api/multiagent/message/route.ts
+usa: registrarConsumoIA en src/app/api/multiagent/message/route.ts
+prueba: src/__tests__/el-multiagente-tiene-tope.test.ts
 ```

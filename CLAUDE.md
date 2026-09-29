@@ -955,6 +955,22 @@ fusionar la orden 94, me llevé puesto un commit mío que todavía no estaba fus
 historial. **Antes de dejar la rama igual a la principal, mirar `git log origin/main..HEAD`: si
 muestra algo, eso se lleva, no se pisa.**
 
+### 30. Fusionar una propuesta por número adivinado, y meter sin revisar la entrega de Gemini
+
+**Pasó el 29 de septiembre de 2026.** Para ahorrar un paso mandé en paralelo "abrir mi propuesta"
+y "fusionar la número 1243", **suponiendo** que la mía iba a ser la 1243. La mía salió 1244: la
+1243 era la entrega de Gemini de las órdenes 95 a 98, sin revisar ni pasar la puerta, y quedó
+fusionada. La volví atrás a los pocos minutos (#1245), dejando la principal idéntica a la verificada.
+
+**Qué era lo cierto:** el número de una propuesta lo da GitHub al crearla; no se adivina. Y fusionar
+sin decir qué versión exacta se fusiona deja pasar cualquier cosa que tenga ese número.
+
+**Qué se hace distinto, y ya está enganchado:** **nunca** se fusiona en la misma tanda en que se
+abre la propuesta. Y hay un candado: `npm run "publicar?"` anota en `.ak-puerta-verde.json` qué
+commit pasó, y `scripts/antes-de-fusionar.mjs` (enganchado en `.claude/settings.json` a la
+fusión) **rechaza** toda fusión que no traiga `expectedHeadSha` o cuyo commit no sea ese. Con el
+número equivocado, GitHub ve otro commit y no fusiona.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1460,6 +1476,7 @@ con otra cara.
 | Lo que se servía en la barra sin pasar por un pedido no dejaba rastro | `src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts` |
 | Un corte de señal dejaba la pantalla gigante en blanco, y copiar la configuración de otra fiesta se llevaba la foto del agasajado | `src/__tests__/el-muro-no-se-vacia-si-se-corta-la-senal.test.ts` y `src/__tests__/copiar-configuracion-no-copia-personas.test.ts` |
 | Un pendiente del portal llevaba a una sección oculta y el botón no hacía nada | `src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts` |
+| Se fusionó una entrega sin revisar por usar un número de propuesta adivinado | `scripts/antes-de-fusionar.mjs` con `src/__tests__/no-se-fusiona-lo-que-no-paso-la-puerta.test.ts` |
 | La lista pública de salones devolvía lo que AK le paga al salón | `src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts` |
 
 ### Cómo se elige el matafuego
