@@ -207,3 +207,16 @@ En main SHA `975118a8d2f22868f9cdffc1fa6d8c245ba75fd0`, `complete_task` acepta `
 ## Recuento Astra/Luna — 29/09/2026
 
 El historial local identifica Astra desde 7/9, Luna desde 28/9 16:38 hasta 29/9 07:52 (Uruguay), y Astra nuevamente desde esa hora. Fueron 21 registros de contexto pero 12 turnos distintos de Luna. Se separan sus conclusiones de la aprobacion Astra, sin borrar evidencia. Informe completo por areas y pendientes: [RECUENTO-ASTRA-LUNA-2026-09-29.md](../evidencias/RECUENTO-ASTRA-LUNA-2026-09-29.md), publicado en esta rama, commit 6b9e6159f5f67509ea14a4dfc9c3991459b210a9. El main identificado es 62dcb2cb4df718a81c3654028199e49628367d8c; no se pudo conciliar su registro por fallos de conexion. No afirmar que los defectos historicos siguen abiertos ni que estan corregidos hoy. El 110 se retira como fallo de app (facturacion GitHub); 113 queda como oportunidad de proteccion pendiente de revisar limites globales, no defecto P2 demostrado ni bloqueo obligatorio. Faltan evidencia actual por roles, recorrido completo de venta/PDF/CRM, conciliacion de los 19 historicos, integraciones reales, estetica/rendimiento y ensayo final de equipos. No se programo, compilo ni fusiono.
+
+
+## 2026-09-29 - Revalidacion Astra sobre main actual
+
+Main: 62dcb2cb4df718a81c3654028199e49628367d8c. PR detectada: 1246, HEAD 70b016ece91b8e82e7b2054061a8c8f2af072e19, base claude/revision-entrega-96-98. No confundir con main.
+
+- Orden 100 entregada en esta rama, commit 6aa62e2545680e7720aba856798637bc48e8cf12; contenido remoto releido y comparado. Sonda aislada confirma token ficticio en argumento gtag; mismo codigo en PR1246. No se observo trafico real ni se certifica despliegue. Responsable Claude.
+- Medicion: 7 pruebas existentes aprobadas (1 suite); son estructurales, no detectan el token.
+- Portal cliente: agente economico gpt-6-luna reviso solo pendientes ocultos; showCatering/showInvitados/showFinancials presentes en page.tsx lineas 853, 863, 867. Prueba el-pendiente-no-lleva-a-una-seccion-oculta.test.ts: 3 aprobadas. Es comprobacion de fuente, no recorrido visual. Se cierra el antiguo hallazgo de pendientes visibles; no reimplementar.
+- Snapshot descargado del archivo GitHub del SHA anterior, dependencias existentes reutilizadas. Sembrado aislado: 1 aprobado. Servidor dev inicio. No compilacion final; corresponde a Claude.
+- Recorrido visual NO realizado: CUA rechazo seleccion de pestana por politica de URL/protocolo. No se eludio ni se uso otra superficie para sortear el bloqueo. No atribuirlo a defecto de la app.
+- Agentes previos solo inventariaron cobertura: siguen sin verificacion actual del recorrido completo IA/presupuesto, varios presupuestos del mismo telefono en CRM y PDF renderizado comparado con pantalla. Los inventarios no cuentan como pruebas ejecutadas.
+- Ninguna app perfecta/certificacion total. No merge ni codigo de producto cambiado. Recuento Astra/Luna anterior sigue en docs/evidencias/RECUENTO-ASTRA-LUNA-2026-09-29.md; no descartar una evidencia solo por el modelo.
