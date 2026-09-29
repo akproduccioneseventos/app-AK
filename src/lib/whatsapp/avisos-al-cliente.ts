@@ -137,7 +137,7 @@ export async function correrTareaAvisosAlCliente(): Promise<{
       const { resultados, fiestaModificada } = await procesarAvisosAlClienteParaFiesta(fiestaFresca);
       mensajesGenerados += resultados.filter((r) => r.enviado).length;
       return fiestaModificada ? fiestaFresca : fiestaFresca;
-    });
+    }, { publicRsvp: true });
     if (!res.success) {
       console.warn(`[avisos-al-cliente] No se pudo actualizar fiesta ${fiesta.id}:`, res.error);
     }

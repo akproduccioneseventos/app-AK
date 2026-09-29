@@ -84,7 +84,7 @@ describe('Orden 97: actualizarFiesta no reescribe la lista entera ni pisa otra f
           recordatoriosApertura: ['2026-10-01'],
         })),
       };
-    });
+    }, { publicRsvp: true });
 
     // Operación 2: en el medio, alguien registra un cobro de $25.000 en la Fiesta B
     const pB = (async () => {
@@ -102,7 +102,7 @@ describe('Orden 97: actualizarFiesta no reescribe la lista entera ni pisa otra f
             } as any,
           ],
         };
-      });
+      }, { publicRsvp: true });
     })();
 
     const [resA, resB] = await Promise.all([pA, pB]);

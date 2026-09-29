@@ -330,7 +330,7 @@ export async function correrTareaRecordarInvitacionNoAbierta(
       }
 
       return fiestaCambio ? fiestaFresca : fiestaFresca;
-    });
+    }, { publicRsvp: true });
   }
 
   return {

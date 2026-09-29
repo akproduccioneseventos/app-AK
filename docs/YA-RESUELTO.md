@@ -10232,3 +10232,16 @@ usa: anotarPuertaVerde en scripts/se-puede-publicar.mjs
 usa: antes-de-fusionar en .claude/settings.json
 prueba: src/__tests__/no-se-fusiona-lo-que-no-paso-la-puerta.test.ts
 ```
+
+## 29 de septiembre de 2026 — La llegada del personal y los avisos automáticos guardan sin sesión del equipo
+
+- La orden 99 pedía que `actualizarFiesta` volviera a guardar por `saveFiesta` por omisión, y eso
+  pide sesión del equipo. La llegada del personal (desde su enlace) y las dos tareas automáticas
+  no la tienen: se habrían quedado sin guardar. Las cuatro llamadas pasan `{ publicRsvp: true }`,
+  que guarda sólo esa fiesta dentro de su turno y sin pedir sesión. El error era de la orden.
+
+```comprobar
+usa: publicRsvp: true en src/app/actions/accesos-personal-view.ts
+usa: publicRsvp: true en src/lib/invitaciones/recordatorio-no-abiertas.ts
+usa: publicRsvp: true en src/lib/whatsapp/avisos-al-cliente.ts
+```

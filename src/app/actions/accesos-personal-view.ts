@@ -117,7 +117,7 @@ export async function responderAsistenciaPersonal(
     }
 
     return { ...fiestaFresca, personalAsignado: nextPersonal };
-  });
+  }, { publicRsvp: true });
 
   if (!res.success) {
     return { success: false, error: res.error || 'No se pudo actualizar la asistencia.' };
@@ -216,7 +216,7 @@ export async function registrarLlegadaPersonal(
     }
 
     return { ...fiestaFresca, personalAsignado: nextPersonal };
-  });
+  }, { publicRsvp: true });
 
   if (!res.success) {
     return { success: false, error: res.error || 'No se pudo registrar la llegada.' };
