@@ -178,3 +178,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el switch `llegadaConUbicacion`
 ## Auditoría PR #1240 — alcance del QR frente a Orden 95 (2026-09-28)
 
 El bloque 9 aprobado pedía imprimir etiquetas en Activos Fijos y abrir un lector de QR. La PR solo procesa texto tipeado/pegado (o teclado tipo pistola); no cambia la pantalla de Activos Fijos ni inicia cámara. P2: la lógica pura existe, pero el recorrido completo QR no. La devolución #97 ya anotó aparte el posible falso éxito al fallar persistencia; no duplicar ese punto. Evidencia: `docs/evidencias/109-qr-sin-etiquetas-ni-lector.md`.
+
+
+## Conciliación con main y devolución de Claude — 2026-09-28
+
+Main avanzó 17 commits respecto de la base registrada de PR #1240; la cabeza auditada sigue siendo `79dae2cd75f1ffc572f28f6ee890174c3912fff8`. Leí `docs/ordenes/97-devolucion-de-la-orden-95.md`: no volver a reportar allí lo ya encontrado (sobrescrituras globales, firma/respuesta y variables de envío, tarea sin cron/registro, llegada atribuida al primero y publicación que reescribe la lista). Los findings de Codex 102/106 se actualizaron para etiquetar sus partes solapadas y distinguir el cálculo infantil, que ya estaba publicado y que la página nueva copia, de una regresión exclusiva de la PR. `docs/ESTADO-ACTUAL.md` de main mantiene recorridos de roles pendientes; los 129/15/14 tests reportados por el dueño siguen sin SHA/output para poder atribuirlos a esta cabeza.
