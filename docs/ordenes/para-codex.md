@@ -133,3 +133,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el cálculo de mejor horario y 
 ## Seguridad P1 — token de acceso de invitado en Analytics (2026-09-28)
 
 Confirmado por inspección de `5e384c6` (SHA publicado registrado en Ya-resuelto) y PR #1240 `79dae2c`: la URL del portal/QR contiene `token`; el token da acceso a datos del invitado; el layout global carga Analytics y el componente pasa `pathname + window.location.search` a gtag; GA usa ID real por defecto. Código, no captura de red; riesgo de que el bearer token llegue a GA. Corregir con prioridad sin añadir banner; proteger páginas con credenciales. No cambié el comportamiento: pedir aprobación antes de excluir páginas del tracking/ajustar flujo. Evidencia, pruebas y límites: `docs/evidencias/100-token-invitado-en-analytics.md`.
+
+
+## Auditoría PR #1240 — recordatorio automático a invitaciones (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la función nueva no aparece conectada al runner/puerta/route exigidos; Gmail se llama con una firma distinta a la implementación real y el test mockea una respuesta incompatible; los fallos Gmail no incrementan `fallados`; los reintentos pueden duplicar borradores/envíos por falta de idempotencia. P2 en la candidata, revisión estática y sin llamadas reales; recordatorio 21/10 días y default-on son decisiones autorizadas por la orden 95. Detalle: `docs/evidencias/101-recordatorio-invitacion-no-conectado.md`.
