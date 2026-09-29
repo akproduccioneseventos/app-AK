@@ -173,7 +173,7 @@ export default function EventoHubPage() {
     || `Hola ${guest.nombre}. Elegí qué querés hacer durante la fiesta.`;
 
   return (
-    <main className="ak-public-page min-h-screen bg-slate-50 pb-24 text-slate-950 sm:pb-0" style={pageStyle}>
+    <main id="hub-inicio" className="ak-public-page min-h-screen bg-slate-50 pb-24 text-slate-950 sm:pb-0" style={pageStyle}>
       <section className="ak-public-hero relative flex min-h-[58svh] items-end overflow-hidden bg-slate-950 text-white">
         {canUseNextImage(coverImage) ? (
           <Image src={coverImage} alt={eventName} fill priority sizes="100vw" className="object-cover" />
@@ -350,7 +350,7 @@ export default function EventoHubPage() {
 
       <nav aria-label="Navegación rápida del evento" className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_28px_rgba(15,23,42,0.08)] backdrop-blur sm:hidden">
         <div className="mx-auto grid max-w-md grid-cols-5">
-          <Link href="#event-tools-title" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[10px] font-black text-[var(--event-accent)]">
+          <Link href="#hub-inicio" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[10px] font-black text-[var(--event-accent)]">
             <Home className="h-5 w-5" />
             Inicio
           </Link>

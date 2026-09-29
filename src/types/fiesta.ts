@@ -1233,6 +1233,8 @@ export interface ModulosContratados {
   barraTecnologica?: boolean;
   pantallasTotem?: boolean;
   zonaDigital?: boolean;
+  discoteca?: boolean;
+  filmacion?: boolean;
   carteleria?: boolean;
   buzon?: boolean;
 }

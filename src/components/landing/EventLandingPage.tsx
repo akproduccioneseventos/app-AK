@@ -163,7 +163,7 @@ export function EventLandingPage({
 
         {/* Servicios */}
         <motion.section
-          id="servicios"
+          id="landing-services"
           initial={reduceMotion ? false : { opacity: 1, y: 24 }}
           animate={reduceMotion ? false : { opacity: 1, y: 0 }}
           whileInView={reduceMotion ? undefined : "visible"}

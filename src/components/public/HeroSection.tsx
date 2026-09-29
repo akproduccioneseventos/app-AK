@@ -10,12 +10,14 @@ interface HeroSectionProps {
   hero: HeroData;
   whatsappNumber?: string;
   whatsappMessage?: string;
+  showServices?: boolean;
 }
 
 export function HeroSection({
   hero,
   whatsappNumber = AK_WHATSAPP_NUMBER,
   whatsappMessage,
+  showServices,
 }: HeroSectionProps) {
   const reduceMotion = useReducedMotion();
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
@@ -108,19 +110,21 @@ export function HeroSection({
             {hero.ctaLabel}
           </motion.a>
 
-          <motion.a
-            href="#servicios"
-            whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
-            whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-            className={cn(
-              'w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl',
-              'bg-white hover:bg-slate-50 border border-slate-200',
-              'text-slate-700 font-black text-base uppercase tracking-widest',
-              'shadow-sm transition-colors'
-            )}
-          >
-            Ver paquetes
-          </motion.a>
+          {showServices !== false && (
+            <motion.a
+              href="#servicios"
+              whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
+              whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+              className={cn(
+                'w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl',
+                'bg-white hover:bg-slate-50 border border-slate-200',
+                'text-slate-700 font-black text-base uppercase tracking-widest',
+                'shadow-sm transition-colors'
+              )}
+            >
+              Ver paquetes
+            </motion.a>
+          )}
         </motion.div>
 
         {/* Trust badge row */}

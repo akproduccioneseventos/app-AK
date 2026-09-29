@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 28 de septiembre de 2026 — Orden 96: Ningún botón lleva a algo que está oculto
+
+- **Portal del Cliente (`src/app/portal-cliente/[id]/page.tsx`):**
+  - "Cargar lista de canciones" condicionado a `showMusica && (fiesta.modulosContratados?.discoteca ?? true)`.
+  - "Subir fotos para video de vida" condicionado a `showVideoVida && (fiesta.modulosContratados?.videoVida ?? true)`.
+  - Feature Navigation Cards filtradas con `navCards.filter(Boolean)` respetando visibilidad de cada módulo y servicios contratados.
+- **Portal del Invitado (`src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx`):**
+  - `#mi-pase` sincronizado con `showMiPase` en la sección y en el acceso de la barra móvil inferior.
+  - `#datos-evento` sincronizado con `showDatosEvento` en la sección y en el botón de la barra móvil inferior.
+- **Hub de la Fiesta (`src/app/evento/hub/[fiestaId]/page.tsx`):**
+  - Botón "Inicio" en la barra de navegación rápida móvil apunta a `#hub-inicio` y el `<main>` superior porta `id="hub-inicio"`.
+- **HeroSection y Catálogo Público (`src/components/public/HeroSection.tsx`, `src/app/public/[eventType]/page.tsx`):**
+  - El botón "Ver paquetes" (`#servicios`) está condicionado a `showServices !== false`.
+  - La página pública pasa `showServices={Boolean(catalog.services && catalog.services.length > 0)}` y condiciona `<ServiceMenu />`.
+- **Landings de Eventos (`src/components/landing/EventLandingPage.tsx`):**
+  - Asignado `id="landing-services"` a la sección de servicios para alinearse con los enlaces de la navegación `LandingNav`.
+- **Footer Público (`src/components/public-footer.tsx`):**
+  - Enlaces a Club Uruguay y Blog actualizados con rutas canónicas directas (`/club-uruguay`, `/public/blog`) eliminando anclas huérfanas.
+- **Prueba Unitaria Obligatoria:**
+  - `src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts` pasando 10/10 en verde.
+
 ## 28 de septiembre de 2026 — Orden 94: Tótem, pantalla gigante y estaciones a la par del rubro
 
 - **Bloque 1 (Ajustes de estaciones en panel):** Se configuraron los parámetros operativos desde el panel de entretenimiento (`fotosPorTanda`, `copiasImpresion`, `tamanoPapel`, `disenoImpresion`, `velocidadRecuerdo`, `enableBeautyFilter`, `enableChromaKey`, `recorteSinTela`, `vueltas360`, `cuadrosDelLoop`, `orientation`) conectando directamente con las estaciones (`src/__tests__/los-ajustes-del-panel-llegan-a-la-estacion.test.ts`).

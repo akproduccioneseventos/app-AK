@@ -539,7 +539,12 @@ export default function PortalClientePage() {
   const showCatering   = simplicityMode ? false : (portalSettings?.menu?.visible ?? true);
   const showTimeline   = simplicityMode ? false : (portalSettings?.itinerario?.visible ?? true);
   const showDecoration = simplicityMode ? false : hasDecorationPreview;
-  const showVideoVida  = true; // always show: prompts to upload if needed
+  const showVideoVida  = simplicityMode ? false : (portalSettings?.videoVida?.visible ?? true);
+  const showMusica     = simplicityMode ? false : (portalSettings?.musica?.visible ?? true);
+  const showMuroSocial = simplicityMode ? false : (fiesta.socialGallerySettings?.enabled !== false && (portalSettings?.paginaPublica?.visible ?? true));
+  const showFotosVideo = simplicityMode ? false : ((portalSettings?.fotografiaYFilmacion?.visible ?? true) && (fiesta.modulosContratados?.fotografia !== false || fiesta.modulosContratados?.filmacion !== false));
+  const showFaq        = simplicityMode ? false : (portalSettings?.faq?.visible ?? true);
+  const showMensajes   = simplicityMode ? false : (portalSettings?.notasCliente?.visible ?? true);
 
   // ── Financials ───────────────────────────────────────────────
   const cuotas      = plan?.cuotas ?? [];
@@ -671,34 +676,40 @@ export default function PortalClientePage() {
         </motion.div>
 
         {/* ── Feature Navigation Cards (hidden in simplicityMode) ─── */}
-        {!simplicityMode && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-20px' }}
-          transition={{ duration: DURACION.entrar, ease: SUAVE }}
-        >
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
-          {[
-            { label: 'Mensajes', emoji: '💬', href: `/portal-cliente/${fiestaId}/mensajes`, desc: 'Escribile al equipo' },
-            { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
-            { label: 'Música', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica`, desc: 'Tu lista de canciones' },
-            { label: 'Muro Social', emoji: '📱', href: `/portal-cliente/${fiestaId}/muro-social`, desc: 'Red social del evento' },
-            { label: 'Fotos & Video', emoji: '📸', href: `/portal-cliente/${fiestaId}/fotos-video`, desc: 'Archivos y entregables' },
-            { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Confirmaciones' },
-            { label: 'Preguntas Frecuentes', emoji: '❓', href: `/portal-cliente/${fiestaId}/faq`, desc: 'Dudas & Consultas' },
-          ].map((item, i) => (
-            <Link key={i} href={item.href} className="block group">
-              <div className="space-y-1.5 rounded-xl border border-border bg-card p-4 text-center transition-all duration-300 group-hover:border-primary/40 group-hover:shadow-lg group-hover:-translate-y-1">
-                <span className="text-3xl block transition-transform duration-300 group-hover:scale-110">{item.emoji}</span>
-                <p className="font-black text-sm text-foreground group-hover:text-primary transition-colors">{item.label}</p>
-                <p className="text-[11px] text-muted-foreground font-medium">{item.desc}</p>
+        {!simplicityMode && (() => {
+          const navCards = [
+            showMensajes && { label: 'Mensajes', emoji: '💬', href: `/portal-cliente/${fiestaId}/mensajes`, desc: 'Escribile al equipo' },
+            showCatering && fiesta.modulosContratados?.catering && { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
+            showMusica && (fiesta.modulosContratados?.discoteca ?? true) && { label: 'Música', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica`, desc: 'Tu lista de canciones' },
+            showMuroSocial && { label: 'Muro Social', emoji: '📱', href: `/portal-cliente/${fiestaId}/muro-social`, desc: 'Red social del evento' },
+            showFotosVideo && { label: 'Fotos & Video', emoji: '📸', href: `/portal-cliente/${fiestaId}/fotos-video`, desc: 'Archivos y entregables' },
+            showInvitados && { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Confirmaciones' },
+            showFaq && { label: 'Preguntas Frecuentes', emoji: '❓', href: `/portal-cliente/${fiestaId}/faq`, desc: 'Dudas & Consultas' },
+          ].filter(Boolean) as { label: string; emoji: string; href: string; desc: string }[];
+
+          if (navCards.length === 0) return null;
+
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-20px' }}
+              transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+                {navCards.map((item, i) => (
+                  <Link key={i} href={item.href} className="block group">
+                    <div className="space-y-1.5 rounded-xl border border-border bg-card p-4 text-center transition-all duration-300 group-hover:border-primary/40 group-hover:shadow-lg group-hover:-translate-y-1">
+                      <span className="text-3xl block transition-transform duration-300 group-hover:scale-110">{item.emoji}</span>
+                      <p className="font-black text-sm text-foreground group-hover:text-primary transition-colors">{item.label}</p>
+                      <p className="text-[11px] text-muted-foreground font-medium">{item.desc}</p>
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </Link>
-          ))}
-          </div>
-        </motion.div>
-        )}
+            </motion.div>
+          );
+        })()}
 
         {/* ── Catálogo Digital contextual ─────────────── */}
         {(() => {
@@ -853,10 +864,10 @@ export default function PortalClientePage() {
           if (showCatering && progress.areas.menu.status !== 'verde' && fiesta.modulosContratados?.catering) {
             pendientes.push({ texto: 'Confirmar menú', emoji: '🍽️', href: '#catering' });
           }
-          if (progress.areas.musica.status === 'gris' || progress.areas.musica.status === 'amarillo') {
+          if (showMusica && (fiesta.modulosContratados?.discoteca ?? true) && (progress.areas.musica.status === 'gris' || progress.areas.musica.status === 'amarillo')) {
             pendientes.push({ texto: 'Cargar lista de canciones', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica` });
           }
-          if (!fiesta.videoVida?.photosUploaded) {
+          if (showVideoVida && (fiesta.modulosContratados?.videoVida ?? true) && !fiesta.videoVida?.photosUploaded) {
             pendientes.push({ texto: 'Subir fotos para video de vida', emoji: '📷', href: `/portal-cliente/${fiestaId}/fotos-video` });
           }
           const pendientesRsvp = invitados.filter(i => i.rsvp !== 'Confirmado' && i.rsvp !== 'Rechazado');

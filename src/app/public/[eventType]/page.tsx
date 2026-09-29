@@ -99,14 +99,17 @@ export default async function EventTypePage({ params }: Props) {
         hero={catalog.hero}
         whatsappNumber={catalog.whatsappNumber}
         whatsappMessage={catalog.whatsappMessage}
+        showServices={Boolean(catalog.services && catalog.services.length > 0)}
       />
 
       {/* Services / Packages */}
-      <ServiceMenu
-        services={catalog.services}
-        whatsappNumber={catalog.whatsappNumber}
-        whatsappMessage={catalog.whatsappMessage}
-      />
+      {Boolean(catalog.services && catalog.services.length > 0) && (
+        <ServiceMenu
+          services={catalog.services}
+          whatsappNumber={catalog.whatsappNumber}
+          whatsappMessage={catalog.whatsappMessage}
+        />
+      )}
 
       {/* Interactive Tech Showcase */}
       <InteractiveTechShowcase />
