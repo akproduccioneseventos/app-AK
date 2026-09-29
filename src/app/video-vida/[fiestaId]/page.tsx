@@ -15,7 +15,6 @@ import { CompanyLogo } from '@/components/company-logo';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PublicFooter } from '@/components/public-footer';
-import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 
 interface PhotoSlot {
   number: number;
@@ -119,9 +118,9 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
 
       setFiesta(fiestaData);
       const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
-
+      
       const slotCount = fiestaData.videoVida?.photoCount || 50;
-
+      
       const slots: PhotoSlot[] = Array.from({ length: slotCount }).map((_, index) => {
         const photoNumber = index + 1;
         const matchingPhoto = photoUrls.find(url => {
@@ -142,7 +141,7 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
   useEffect(() => {
     loadData();
   }, [loadData]);
-
+  
   const handleUploadComplete = useCallback((slotNumber: number, url: string | null) => {
     setPhotoSlots(prev => prev.map(s => {
         if (s.number === slotNumber && url) {
@@ -156,7 +155,7 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
   }
-
+  
   if (error || !fiesta) {
     return <div className="flex flex-col items-center justify-center h-screen text-center p-4">
         <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
@@ -164,7 +163,7 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
         <p className="text-muted-foreground mt-2">{error || "No se encontró la información del evento."}</p>
     </div>;
   }
-
+  
   const photoCount = fiesta.videoVida?.photoCount || 50;
   const photosUploadedCount = photoSlots.filter(s => s.imageUrl).length;
 
@@ -179,9 +178,6 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
                 <PartyPopper className="w-12 h-12 mx-auto text-primary mb-3"/>
                 <h1 className="text-4xl font-bold tracking-tight font-headline">{fiesta.configuracion.nombreEvento}</h1>
                 <p className="text-lg text-muted-foreground mt-1">Carga de Fotos para el Video de Vida</p>
-                <div className="mt-3 flex justify-center">
-                  <VideoDeAyuda lugar="video-de-vida" />
-                </div>
                 {fiesta.videoVida?.customText && <p className="mt-4 text-accent-foreground bg-accent/20 p-3 rounded-md max-w-2xl mx-auto">{fiesta.videoVida.customText}</p>}
                 {fiesta.videoVida?.songSuggestion && <p className="mt-2 text-sm text-muted-foreground">Canción elegida: <strong>{fiesta.videoVida.songSuggestion}</strong></p>}
             </header>

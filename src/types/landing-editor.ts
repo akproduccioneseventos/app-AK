@@ -152,13 +152,14 @@ export const defaultLandingSettings: LandingSettings = {
     { id: 'svc_6', icon: '📱', title: 'Tecnología Interactiva', description: 'Portal del cliente, invitación QR y muro social en pantalla gigante en vivo.' },
   ],
   stats: [
-    { value: '+200', label: 'Eventos Realizados', icon: '🎉' },
-    { value: '+7', label: 'Años de Experiencia', icon: '⭐' },
-    { value: 'Clientes', label: 'Satisfechos', icon: '❤️' },
+    { value: '+500', label: 'Eventos Realizados', icon: '🎉' },
+    { value: '+12', label: 'Años de Experiencia', icon: '⭐' },
+    { value: '100%', label: 'Clientes Satisfechos', icon: '❤️' },
+    { value: '24/7', label: 'Soporte al Cliente', icon: '📞' },
   ],
   cta: {
     headline: '¿Listo para crear algo increíble?',
-    subheadline: 'Cotizá tu evento sin compromiso. Respondemos a la brevedad.',
+    subheadline: 'Cotizá tu evento sin compromiso. Respondemos en menos de 24 horas.',
     ctaLabel: 'Hablar con un asesor',
     whatsappNumber: '59898355530',
   },

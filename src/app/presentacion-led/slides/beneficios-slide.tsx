@@ -8,7 +8,7 @@ import { ImagePlaceholder } from '../components/image-placeholder';
 
 const BENEFICIOS = [
   { emoji: '🛡️', texto: 'Un solo proveedor para coordinar todo el evento.' },
-  { emoji: '⏱️', texto: 'Puntualidad en cada etapa.' },
+  { emoji: '⏱️', texto: 'Puntualidad garantizada en cada etapa.' },
   { emoji: '🎧', texto: 'Atención personalizada antes, durante y después.' },
   { emoji: '⭐', texto: 'Calidad premium en servicios y ejecución.' },
   { emoji: '⚡', texto: 'Resolución inmediata ante cualquier imprevisto.' },
@@ -83,7 +83,7 @@ export function BeneficiosSlide({
         >
           <div className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-500/20 to-indigo-500/20 border border-white/10">
             <Check className="h-5 w-5 text-emerald-400" />
-            <span className="text-white/80 font-semibold">Servicio integral · Sin estrés</span>
+            <span className="text-white/80 font-semibold">Servicio integral · Sin estrés · Resultado garantizado</span>
           </div>
         </motion.div>
       </div>

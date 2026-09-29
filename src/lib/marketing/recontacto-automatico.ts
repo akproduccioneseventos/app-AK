@@ -2,14 +2,20 @@ import 'server-only';
 
 import { readData, writeData } from '@/lib/data-service';
 import { DEFAULT_CRM_STAGES } from '@/lib/crm/default-stages';
-import {
-  elegirCandidatosDeRecontacto,
-  type PasoRecontactoConfig,
-} from '@/lib/marketing/candidatos-recontacto';
+import { elegirCandidatosDeRecontacto } from '@/lib/marketing/candidatos-recontacto';
 import { processUnbookedLeadsRemarketing } from '@/lib/marketing/whatsapp-remarketing';
 import type { CrmLead, CrmStage } from '@/types/crm';
 
-export type { PasoRecontactoConfig };
+/**
+ * El mensaje automático al que pidió presupuesto y no señó.
+ *
+ * Arranca **apagado** y sólo se prende desde Ajustes. Es a propósito: son mensajes
+ * de WhatsApp a clientes reales y no se pueden deshacer, así que nadie los dispara
+ * por sorpresa al desplegar una versión nueva.
+ *
+ * A quién se le escribe lo decide `elegirCandidatosDeRecontacto`, que está probado
+ * aparte. Acá sólo se ordena el trabajo: leer, elegir, mandar y anotar.
+ */
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -18,7 +24,6 @@ const AJUSTES_FILE = 'marketing-recontacto.json';
 export interface AjustesDeRecontacto {
   /** Apagado de fábrica. Sólo lo prende el dueño desde Ajustes. */
   activo: boolean;
-  pasos?: PasoRecontactoConfig[];
   actualizadoAt?: string;
 }
 
@@ -31,15 +36,8 @@ export async function getAjustesDeRecontacto(): Promise<AjustesDeRecontacto> {
   return { ...guardados, activo: guardados?.activo === true };
 }
 
-export async function setAjustesDeRecontacto(
-  activo: boolean,
-  pasos?: PasoRecontactoConfig[],
-): Promise<AjustesDeRecontacto> {
-  const ajustes: AjustesDeRecontacto = {
-    activo,
-    ...(pasos ? { pasos } : {}),
-    actualizadoAt: new Date().toISOString(),
-  };
+export async function setAjustesDeRecontacto(activo: boolean): Promise<AjustesDeRecontacto> {
+  const ajustes: AjustesDeRecontacto = { activo, actualizadoAt: new Date().toISOString() };
   await writeData(AJUSTES_FILE, ajustes);
   return ajustes;
 }
@@ -75,13 +73,7 @@ export async function correrRecontactoAutomatico(
   ]);
   const stages = stagesGuardadas.length > 0 ? stagesGuardadas : DEFAULT_CRM_STAGES;
 
-  const { candidatos, descartados } = elegirCandidatosDeRecontacto(
-    leads,
-    stages,
-    ahora,
-    undefined,
-    ajustes.pasos,
-  );
+  const { candidatos, descartados } = elegirCandidatosDeRecontacto(leads, stages, ahora);
   if (candidatos.length === 0) {
     return { ...vacio, corrio: true, descartados: descartados.length, motivo: 'no hay a quien escribirle' };
   }
@@ -96,28 +88,17 @@ export async function correrRecontactoAutomatico(
 
   if (enviadosOk.size > 0) {
     const marcaDeTiempo = ahora.toISOString();
-    const candidatosPorId = new Map(candidatos.map((c: any) => [c.id, c]));
-    const actualizados = leads.map((lead) => {
-      if (!enviadosOk.has(lead.id)) return lead;
-
-      const cand = candidatosPorId.get(lead.id);
-      const pasoEnviado = cand?.paso ?? 1;
-      const recontactosEnviados = [...(lead.recontactosEnviados || [])];
-      if (lead.recontactoAutomaticoAt && !recontactosEnviados.some((r) => r.paso === 1)) {
-        recontactosEnviados.push({ paso: 1, at: lead.recontactoAutomaticoAt });
-      }
-      recontactosEnviados.push({ paso: pasoEnviado, at: marcaDeTiempo });
-
-      return {
-        ...lead,
-        recontactosEnviados,
-        recontactoAutomaticoAt:
-          pasoEnviado === 1 ? marcaDeTiempo : (lead.recontactoAutomaticoAt ?? marcaDeTiempo),
-        lastContactedAt: marcaDeTiempo,
-        lastContactMethod: 'whatsapp' as const,
-        updatedAt: marcaDeTiempo,
-      };
-    });
+    const actualizados = leads.map((lead) =>
+      enviadosOk.has(lead.id)
+        ? {
+            ...lead,
+            recontactoAutomaticoAt: marcaDeTiempo,
+            lastContactedAt: marcaDeTiempo,
+            lastContactMethod: 'whatsapp' as const,
+            updatedAt: marcaDeTiempo,
+          }
+        : lead,
+    );
     await writeData(LEADS_FILE, actualizados);
   }
 

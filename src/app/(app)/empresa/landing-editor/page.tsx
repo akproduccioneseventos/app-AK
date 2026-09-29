@@ -759,7 +759,7 @@ export default function LandingEditorPage() {
                       <Input
                         value={stat.value}
                         onChange={e => updateStat(index, 'value', e.target.value)}
-                        placeholder="+200"
+                        placeholder="+500"
                         className="rounded-xl font-black"
                       />
                     </div>

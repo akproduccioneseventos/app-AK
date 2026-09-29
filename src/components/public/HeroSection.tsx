@@ -10,14 +10,12 @@ interface HeroSectionProps {
   hero: HeroData;
   whatsappNumber?: string;
   whatsappMessage?: string;
-  showServices?: boolean;
 }
 
 export function HeroSection({
   hero,
   whatsappNumber = AK_WHATSAPP_NUMBER,
   whatsappMessage,
-  showServices,
 }: HeroSectionProps) {
   const reduceMotion = useReducedMotion();
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
@@ -110,21 +108,19 @@ export function HeroSection({
             {hero.ctaLabel}
           </motion.a>
 
-          {showServices !== false && (
-            <motion.a
-              href="#servicios"
-              whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
-              whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-              className={cn(
-                'w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl',
-                'bg-white hover:bg-slate-50 border border-slate-200',
-                'text-slate-700 font-black text-base uppercase tracking-widest',
-                'shadow-sm transition-colors'
-              )}
-            >
-              Ver paquetes
-            </motion.a>
-          )}
+          <motion.a
+            href="#servicios"
+            whileHover={reduceMotion ? undefined : { scale: 1.03, y: -2 }}
+            whileTap={reduceMotion ? undefined : { scale: 0.98 }}
+            className={cn(
+              'w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-2xl',
+              'bg-white hover:bg-slate-50 border border-slate-200',
+              'text-slate-700 font-black text-base uppercase tracking-widest',
+              'shadow-sm transition-colors'
+            )}
+          >
+            Ver paquetes
+          </motion.a>
         </motion.div>
 
         {/* Trust badge row */}
@@ -133,7 +129,7 @@ export function HeroSection({
           transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.32 }}
           className="flex flex-wrap items-center justify-center gap-3 mt-4"
         >
-          {['✅ +7 años de experiencia', '⭐ 100% Personalizado', '📞 Te contestamos por WhatsApp'].map((badge) => (
+          {['✅ +10 años de experiencia', '⭐ 100% Personalizado', '📞 Te contestamos por WhatsApp'].map((badge) => (
             <span
               key={badge}
               className="text-xs font-bold text-slate-600 bg-white/90 px-3.5 py-1.5 rounded-full shadow-sm border border-slate-200/80 backdrop-blur-sm"

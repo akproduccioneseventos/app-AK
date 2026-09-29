@@ -55,8 +55,8 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
   valuePropositions: [
     "Equipamiento profesional de alta gama",
     "Personal capacitado y con amplia experiencia",
-    "Flexibilidad en la planificación",
-    "Compromiso de puntualidad y dedicación"
+    "Flexibilidad absoluta en la planificación",
+    "Garantía de satisfacción y puntualidad"
   ],
   simulatorWelcomeTitle: "Ingresá tus datos de contacto",
   simulatorWelcomeSubtitle: "Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación."
@@ -282,14 +282,4 @@ export const defaultCompanyInfo: CompanyInfo = {
     cuentasBancariasPortal: [],
     googleReviewsLink: "",
     enableGoogleReviewsAutoRequest: false,
-};
-
-export interface AjustesLlegadaPersonal {
-  llegadaConUbicacion: boolean;
-  radioMetros: number;
-}
-
-export const defaultAjustesLlegadaPersonal: AjustesLlegadaPersonal = {
-  llegadaConUbicacion: false,
-  radioMetros: 300,
 };

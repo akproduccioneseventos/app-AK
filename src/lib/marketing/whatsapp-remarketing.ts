@@ -7,8 +7,6 @@ export interface UnbookedLeadRemarketingCandidate {
   eventType?: string;
   createdAt: string;
   budgetTotal?: number;
-  paso?: number;
-  plantilla?: string;
 }
 
 export interface RemarketingResult {

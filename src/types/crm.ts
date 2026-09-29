@@ -94,11 +94,6 @@ export interface CrmLead {
    * veces se va a la competencia.
    */
   recontactoAutomaticoAt?: string;
-  /**
-   * Seguimiento en varios pasos (Orden 95).
-   * Registra cada paso de la secuencia que ya recibió el prospecto.
-   */
-  recontactosEnviados?: Array<{ paso: number; at: string }>;
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;

@@ -769,7 +769,6 @@ export default async function HomePage() {
             subheadline={landingSettings.cta.subheadline}
             ctaLabel={landingSettings.cta.ctaLabel}
             instagramUrl={DEFAULT_INSTAGRAM_URL}
-            promo={promo}
           />
         }
         footer={<PublicFooter variant="dark" />}

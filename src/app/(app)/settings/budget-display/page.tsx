@@ -511,7 +511,7 @@ export default function BudgetDisplaySettingsPage() {
                                 valuePropositions: e.target.value.split('\n').filter(line => line.trim())
                             } : null)}
                             className="rounded-xl bg-slate-50 border-none shadow-inner min-h-[120px] text-sm"
-                            placeholder={"Equipamiento profesional de alta gama\nPersonal capacitado\nCompromiso de dedicación"}
+                            placeholder={"Equipamiento profesional de alta gama\nPersonal capacitado\nGarantía de satisfacción"}
                         />
                         <p className="text-[10px] text-slate-500">Escribe una característica por línea. Estas viñetas se mostrarán al final de los presupuestos manuales y del simulador.</p>
                     </div>

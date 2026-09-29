@@ -12,11 +12,7 @@ export async function getItineraryTemplates(): Promise<ItineraryTemplate[]> {
   return readData<ItineraryTemplate[]>(TEMPLATES_FILE, []);
 }
 
-export async function saveItineraryTemplate(
-  name: string,
-  items: ProgramaEventoItem[],
-  tipoEvento?: import('@/types/presupuesto').TipoEvento
-): Promise<{ success: boolean; template?: ItineraryTemplate; error?: string }> {
+export async function saveItineraryTemplate(name: string, items: ProgramaEventoItem[]): Promise<{ success: boolean; template?: ItineraryTemplate; error?: string }> {
   await requireAppSession();
   if (!name.trim()) {
     return { success: false, error: "El nombre de la plantilla es obligatorio." };
@@ -25,8 +21,7 @@ export async function saveItineraryTemplate(
   const newTemplate: ItineraryTemplate = {
     id: `template_${Date.now()}`,
     name: name.trim(),
-    items: items.map(item => ({...item, id: `item_${Date.now()}_${Math.random()}`})),
-    tipoEvento,
+    items: items.map(item => ({...item, id: `item_${Date.now()}_${Math.random()}`}))
   };
   templates.push(newTemplate);
   await writeData(TEMPLATES_FILE, templates, (a, b) => a.name.localeCompare(b.name));
