@@ -123,3 +123,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la tarjeta de Ajustes no ofrece
 ## Auditoría PR #1240 — respuestas automáticas en comentarios (2026-09-28)
 
 En HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: queja legítima interrogativa no está excluida; la respuesta no usa el catálogo solicitado; falta el control de Ajustes prometido; el backfill puede responder a preguntas antiguas; y el POST a Meta no está protegido contra doble sincronización/fallo de persistencia. P2, revisión estática; no probado en producción ni ejecutado por Codex. Auto-respuesta comercial está autorizada por Orden 95, default apagado: conservar límites y no habilitarla por defecto. Tests existentes solo cubren respuesta simple, repetición secuencial, apagado e insulto. Evidencia: `docs/evidencias/98-respuestas-automaticas-comentarios.md`.
+
+
+## Auditoría PR #1240 — horario óptimo y reciclado (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el cálculo de mejor horario y el reciclado existen como helpers, pero no están conectados a pantalla ni Server Action; en la pantalla de presencia digital y acción inspeccionadas no se usan. Los tests son unitarios del helper, no del flujo del dueño. P2, pendiente de E2E; Codex no ejecutó pruebas ni cron/publicación. Evidencia: `docs/evidencias/99-horario-y-reciclado-sin-pantalla.md`.
