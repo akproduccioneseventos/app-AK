@@ -168,3 +168,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el consumidor usa `invitadosAdu
 ## Auditoría PR #1240 — alerta de mantenimiento no conectada (2026-09-28)
 
 HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el motor necesita la lista de activos para generar la alerta de mantenimiento, pero `getAlertasGlobales` y `getAlertasPorFiesta` no la cargan ni pasan; el test llama al motor directamente y no cubre el consumidor real. P1 funcional: la alerta prometida no aparece en la bandeja. Claude: conectar equipo/fiestas con una prueba a nivel de acción. Inspección estática, no ejecutada en producción. Evidencia: `docs/evidencias/107-alerta-mantenimiento-no-conectada.md`.
+
+
+## Auditoría PR #1240 — geocerca sin ajuste accesible (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el switch `llegadaConUbicacion` tiene default `false`; existe setter autenticado, pero la PR no conecta ninguna pantalla a él. Sin configuración sembrada externamente, el check-in no valida distancia. P2 de función inaccesible/no transparente; no probado en runtime. Evidencia: `docs/evidencias/108-geocerca-sin-control-en-ajustes.md`.
