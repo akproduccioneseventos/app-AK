@@ -42,3 +42,59 @@ no-usa: 24/7 en src/types/landing-editor.ts
 `la-orden-de-evento-junta-todo.spec.ts` deja escrito un empleado en `src/data/empleados.json` (y
 crea `data/empleados.json`), y `npm run limpiar:corrida` no los conoce. Que la prueba borre lo que
 creó al terminar, **y** sumá esos dos archivos a la lista de `limpiar:corrida`.
+
+## Bloque nuevo, en la misma propuesta — La medición no recibe llaves (Codex, hallazgo 100-medición)
+
+**Qué pasa hoy.** `src/components/google-analytics.tsx` y `src/components/meta-pixel.tsx` se
+montan en **todas** las pantallas (`src/app/layout.tsx` ~l.141-142), también las privadas, y
+mandan la dirección completa:
+
+- Google: `gtag('config', gaId, { page_path: pathname + window.location.search })` (~l.24). Con
+  `/invitacion/<fiesta>/invitado/<invitado>?token=…` el `token` del invitado le llega a Google.
+  Además `gtag` manda solo `page_location` con la dirección entera, así que limpiar `page_path`
+  no alcanza.
+- Meta: el píxel manda la dirección completa en cada `PageView`, y por omisión **escucha los
+  cambios de pantalla** y manda otro `PageView` en cada uno.
+- Hay pantallas con la llave **en la ruta**, no en la consulta: `/portal/c/[accessKey]`,
+  `/proveedor/acceso/[token]`, `/acceso-personal/[tokenId]`.
+
+**Qué hacer:**
+
+1. Función pura `src/lib/medicion-segura.ts`:
+   - `sePuedeMedir(pathname): boolean` → `true` **sólo** para las páginas de venta: `/`,
+     `/blog…`, `/bodas…`, `/quinceaneras…`, `/cumpleanos…`, `/catalogo…`, `/club-uruguay`,
+     `/experiencia-ak`, `/landing/…`, `/public/…`, `/simulador…` (incluye `/simulador-ak` y
+     `/simulador-de-presupuesto`), `/privacidad`. **Todo lo demás, `false`** (lista de permitidas,
+     no de prohibidas: una pantalla privada nueva queda afuera sola).
+   - `direccionParaMedir(pathname, search): string` → el `pathname` más **sólo** estos parámetros:
+     `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `gclid`, `fbclid`,
+     `tipo`, `eventType`, `salon`. Todo otro parámetro (`token`, `guestId`, `access`, …) se saca.
+2. `GoogleAnalytics`: si `!sePuedeMedir(pathname)`, no manda nada. Si se puede, manda
+   `page_path`, **`page_location`** (`window.location.origin + direccionParaMedir(...)`) y
+   **`page_referrer`** limpio de la misma forma si el referente es de `akproducciones.uy`.
+3. `MetaPixel`: pasa a ser componente de cliente con `usePathname`. **No carga el script** si la
+   primera pantalla no se puede medir. Antes de `fbq('init', …)` poné
+   `window.fbq.disablePushState = true` y `fbq('set', 'autoConfig', false, id)`, y mandá el
+   `PageView` a mano en cada cambio de pantalla **sólo** si `sePuedeMedir`. El `<noscript>` va
+   sólo en las páginas de venta.
+4. **No toques** los eventos de venta que ya existen (formulario del simulador, contacto): siguen
+   saliendo, pero con la dirección limpia.
+
+**La prueba** (`tests/e2e/medicion-no-envia-llaves.spec.ts`), con `gtag` y `fbq` simulados en la
+página (`page.addInitScript`) que anotan todo lo que reciben:
+
+- abrir `/invitacion/x/invitado/y?token=LLAVE-FICTICIA` y `/portal/c/LLAVE-FICTICIA`: **ninguna**
+  llamada contiene `LLAVE-FICTICIA` (ni codificada) y no hay `PageView`;
+- abrir `/?utm_source=ig&token=LLAVE-FICTICIA`: hay medición, con `utm_source=ig` y **sin** la llave;
+- ir de la portada a una pantalla privada sin recargar: no sale un segundo `PageView`.
+
+Y una prueba de Jest para `sePuedeMedir` y `direccionParaMedir` con esos mismos casos.
+
+```comprobar
+archivo: src/lib/medicion-segura.ts
+usa: sePuedeMedir en src/components/google-analytics.tsx
+usa: sePuedeMedir en src/components/meta-pixel.tsx
+usa: page_location en src/components/google-analytics.tsx
+usa: disablePushState en src/components/meta-pixel.tsx
+prueba: tests/e2e/medicion-no-envia-llaves.spec.ts
+```

@@ -75,6 +75,8 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 20. **¿Tocaste algo que la IA escribe para un cliente o un invitado?** Las reglas de los textos
     (nada de promesas, garantías ni datos inventados) también van en su instrucción, y lo que genera
     se controla antes de guardarse.
+21. **¿Tu pantalla tiene una llave en la dirección, o carga algo de afuera?** Ningún servicio externo
+    (medición, píxel, chat) puede recibir la dirección de una pantalla privada.
 
 ## Y dos reglas que valen para las pruebas
 
