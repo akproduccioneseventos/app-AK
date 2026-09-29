@@ -65,6 +65,8 @@ const emptySalon: Omit<Salon, 'id'> = {
   lat: undefined,
   lng: undefined,
   capacidad: 0,
+  estacionamiento: '',
+  accesibilidad: '',
   descripcion: '',
   fotos: [],
   esClubUruguay: false,
@@ -151,6 +153,30 @@ function SalonForm({
                 min="0"
                 disabled={isSaving}
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="salon-estacionamiento">Estacionamiento</Label>
+              <Input
+                id="salon-estacionamiento"
+                value={form.estacionamiento || ''}
+                onChange={(e) => onChange('estacionamiento', e.target.value)}
+                placeholder="Ej: Estacionamiento vigilado propio"
+                disabled={isSaving}
+              />
+              <p className="text-[11px] text-muted-foreground">Lo que ve el cliente en la página del salón. Si lo dejás vacío, no se muestra.</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="salon-accesibilidad">Accesibilidad</Label>
+              <Input
+                id="salon-accesibilidad"
+                value={form.accesibilidad || ''}
+                onChange={(e) => onChange('accesibilidad', e.target.value)}
+                placeholder="Ej: Acceso universal por rampa y ascensor"
+                disabled={isSaving}
+              />
+              <p className="text-[11px] text-muted-foreground">Lo que ve el cliente en la página del salón. Si lo dejás vacío, no se muestra.</p>
             </div>
           </div>
           <div className="space-y-2">
@@ -589,6 +615,8 @@ export default function SalonesPage() {
       direccion: salon.direccion,
       googleMapsUrl: salon.googleMapsUrl,
       capacidad: salon.capacidad,
+      estacionamiento: salon.estacionamiento || '',
+      accesibilidad: salon.accesibilidad || '',
       descripcion: salon.descripcion || '',
       fotos: salon.fotos || [],
       salonLayout: salon.salonLayout,

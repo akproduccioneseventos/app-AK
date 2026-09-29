@@ -72,6 +72,8 @@ export interface Invitado {
   guestExperienceStats?: GuestExperienceStats;
   /** Momento en que el invitado abrió su invitación personal por primera vez */
   invitacionAbiertaAt?: string;
+  abrioInvitacion?: boolean;
+  fechaPrimeraApertura?: string;
   /** Registro de fechas en que se enviaron recordatorios de invitación no abierta */
   recordatoriosApertura?: string[];
 }

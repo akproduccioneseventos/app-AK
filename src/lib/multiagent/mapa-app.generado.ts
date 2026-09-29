@@ -483,6 +483,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/settings/templates/invitaciones",
     "/settings/templates/layouts",
     "/settings/templates/reuniones",
+    "/settings/videos-de-ayuda",
     "/settings/whatsapp",
     "/settings/whatsapp-business",
     "/settings/whatsapp-business/conversations",

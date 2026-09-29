@@ -2,7 +2,8 @@ import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import { evaluarReglasParaFiesta } from '@/lib/automatizaciones-engine';
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
@@ -130,18 +131,16 @@ export async function correrTareaAvisosAlCliente(): Promise<{
 }> {
   const fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
   let mensajesGenerados = 0;
-  let huboModificaciones = false;
 
   for (const fiesta of fiestas) {
-    const { resultados, fiestaModificada } = await procesarAvisosAlClienteParaFiesta(fiesta);
-    if (fiestaModificada) {
-      huboModificaciones = true;
+    const res = await actualizarFiesta(fiesta.id, async (fiestaFresca) => {
+      const { resultados, fiestaModificada } = await procesarAvisosAlClienteParaFiesta(fiestaFresca);
+      mensajesGenerados += resultados.filter((r) => r.enviado).length;
+      return fiestaModificada ? fiestaFresca : fiestaFresca;
+    });
+    if (!res.success) {
+      console.warn(`[avisos-al-cliente] No se pudo actualizar fiesta ${fiesta.id}:`, res.error);
     }
-    mensajesGenerados += resultados.filter((r) => r.enviado).length;
-  }
-
-  if (huboModificaciones) {
-    await writeData('fiestas.json', fiestas);
   }
 
   await marcarCorrida('avisos-al-cliente');

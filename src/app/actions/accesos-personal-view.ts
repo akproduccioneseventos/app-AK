@@ -6,6 +6,7 @@ import { getAccesoById, type AccesoPersonal } from '@/app/actions/accesos-person
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { getRolesPublicos } from '@/app/actions/roles';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import type { ProgramaEventoItem, FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Salon } from '@/types/salon';
 import { getAjustesLlegadaPersonal } from '@/app/actions/settings';
@@ -90,39 +91,37 @@ export async function responderAsistenciaPersonal(
   if (!acceso || !acceso.fiestaId) {
     return { success: false, error: 'Acceso no válido o sin evento asociado.' };
   }
-
-  const fiesta = await getFiestaById(acceso.fiestaId, LECTURA_COMPLETA);
-  if (!fiesta) {
-    return { success: false, error: 'Evento no encontrado.' };
+  if (!acceso.empleadoId) {
+    return { success: false, error: 'Este acceso no corresponde a una persona asignada a la fiesta.' };
   }
 
-  const personal = fiesta.personalAsignado || [];
-  let updated = false;
+  const res = await actualizarFiesta(acceso.fiestaId, (fiestaFresca) => {
+    const personal = fiestaFresca.personalAsignado || [];
+    let updated = false;
 
-  const nextPersonal = personal.map((p) => {
-    if (acceso.empleadoId && p.empleadoId === acceso.empleadoId) {
-      updated = true;
-      return {
-        ...p,
-        asistenciaConfirmada: confirma,
-        fechaConfirmacionAsistencia: new Date().toISOString(),
-        motivoRechazoAsistencia: confirma ? undefined : (motivo?.trim() || 'No especificado'),
-      };
+    const nextPersonal = personal.map((p) => {
+      if (p.empleadoId === acceso.empleadoId) {
+        updated = true;
+        return {
+          ...p,
+          asistenciaConfirmada: confirma,
+          fechaConfirmacionAsistencia: new Date().toISOString(),
+          motivoRechazoAsistencia: confirma ? undefined : (motivo?.trim() || 'No especificado'),
+        };
+      }
+      return p;
+    });
+
+    if (!updated) {
+      throw new Error('Este acceso no corresponde a una persona asignada a la fiesta.');
     }
-    return p;
+
+    return { ...fiestaFresca, personalAsignado: nextPersonal };
   });
 
-  if (!updated && personal.length > 0) {
-    nextPersonal[0] = {
-      ...nextPersonal[0],
-      asistenciaConfirmada: confirma,
-      fechaConfirmacionAsistencia: new Date().toISOString(),
-      motivoRechazoAsistencia: confirma ? undefined : (motivo?.trim() || 'No especificado'),
-    };
+  if (!res.success) {
+    return { success: false, error: res.error || 'No se pudo actualizar la asistencia.' };
   }
-
-  const filePath = path.join('fiestas', `${fiesta.id}.json`);
-  await writeData(filePath, { ...fiesta, personalAsignado: nextPersonal });
 
   return { success: true };
 }
@@ -134,6 +133,9 @@ export async function registrarLlegadaPersonal(
   const acceso = await getAccesoById(tokenId);
   if (!acceso || !acceso.fiestaId) {
     return { success: false, error: 'Acceso no válido o sin evento asociado.' };
+  }
+  if (!acceso.empleadoId) {
+    return { success: false, error: 'Este acceso no corresponde a una persona asignada a la fiesta' };
   }
 
   const fiesta = await getFiestaById(acceso.fiestaId, LECTURA_COMPLETA);
@@ -185,45 +187,40 @@ export async function registrarLlegadaPersonal(
     }
   }
 
-  // Guardar llegada
-  const personal = fiesta.personalAsignado || [];
-  let updated = false;
+  // Guardar llegada de forma concurrente y segura sobre copia fresca
   const nowIso = new Date().toISOString();
+  const res = await actualizarFiesta(acceso.fiestaId, (fiestaFresca) => {
+    const personal = fiestaFresca.personalAsignado || [];
+    let updated = false;
 
-  const nextPersonal = personal.map((p) => {
-    if (acceso.empleadoId && p.empleadoId === acceso.empleadoId) {
-      updated = true;
-      return {
-        ...p,
-        checkInTimestamp: p.checkInTimestamp || nowIso,
-        checkInUbicacion: ubicacion
-          ? {
-              lat: ubicacion.lat,
-              lng: ubicacion.lng,
-              distanciaMetros: distanciaCalculada ?? 0,
-            }
-          : p.checkInUbicacion,
-      };
+    const nextPersonal = personal.map((p) => {
+      if (p.empleadoId === acceso.empleadoId) {
+        updated = true;
+        return {
+          ...p,
+          checkInTimestamp: p.checkInTimestamp || nowIso,
+          checkInUbicacion: ubicacion
+            ? {
+                lat: ubicacion.lat,
+                lng: ubicacion.lng,
+                distanciaMetros: distanciaCalculada ?? 0,
+              }
+            : p.checkInUbicacion,
+        };
+      }
+      return p;
+    });
+
+    if (!updated) {
+      throw new Error('Este acceso no corresponde a una persona asignada a la fiesta');
     }
-    return p;
+
+    return { ...fiestaFresca, personalAsignado: nextPersonal };
   });
 
-  if (!updated && personal.length > 0) {
-    nextPersonal[0] = {
-      ...nextPersonal[0],
-      checkInTimestamp: nextPersonal[0].checkInTimestamp || nowIso,
-      checkInUbicacion: ubicacion
-        ? {
-            lat: ubicacion.lat,
-            lng: ubicacion.lng,
-            distanciaMetros: distanciaCalculada ?? 0,
-          }
-        : nextPersonal[0].checkInUbicacion,
-    };
+  if (!res.success) {
+    return { success: false, error: res.error || 'No se pudo registrar la llegada.' };
   }
-
-  const filePath = path.join('fiestas', `${fiesta.id}.json`);
-  await writeData(filePath, { ...fiesta, personalAsignado: nextPersonal });
 
   return { success: true, distanciaMetros: distanciaCalculada };
 }

@@ -43,6 +43,8 @@ export interface Salon {
   lat?: number;
   lng?: number;
   capacidad: number;
+  estacionamiento?: string;
+  accesibilidad?: string;
   descripcion?: string;
   fotos?: string[];
   salonLayout?: DecoracionData;

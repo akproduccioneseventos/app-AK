@@ -20,6 +20,10 @@ jest.mock('@/lib/data-service', () => ({
   writeData: jest.fn(async (archivo: string, datos: unknown) => {
     archivos[archivo] = datos;
   }),
+  createDataItem: jest.fn(async (archivo: string, _col: string, _id: string, item: any) => {
+    if (!archivos[archivo]) archivos[archivo] = [];
+    (archivos[archivo] as any[]).push(item);
+  }),
 }));
 
 const AHORA = new Date('2026-08-20T15:00:00.000Z');

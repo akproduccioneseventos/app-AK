@@ -41,6 +41,7 @@ import type { EntertainmentModuleId } from '@/lib/entertainment/station-config';
 import { canUseNextImage } from '@/lib/next-image-url';
 import { ConciergeWidget } from '@/components/concierge/ConciergeWidget';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
+import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 
 const STATION_ICONS: Record<EntertainmentModuleId, typeof Camera> = {
   fotocabina: Camera,
@@ -188,13 +189,16 @@ export default function EventoHubPage() {
               <CompanyLogo size="sm" />
               <span className="hidden sm:inline">AK Producciones</span>
             </Link>
-            <Link
-              href={invitationHref}
-              className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/25 bg-black/20 px-4 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-black/40"
-            >
-              <TicketCheck className="h-4 w-4" />
-              Mi invitación
-            </Link>
+            <div className="flex items-center gap-2">
+              <VideoDeAyuda lugar="hub-de-la-fiesta" />
+              <Link
+                href={invitationHref}
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/25 bg-black/20 px-4 text-sm font-bold text-white backdrop-blur-sm transition hover:bg-black/40"
+              >
+                <TicketCheck className="h-4 w-4" />
+                Mi invitación
+              </Link>
+            </div>
           </div>
 
           <div className="max-w-4xl pb-2">

@@ -45,6 +45,7 @@ const CADA_CUANTO = {
   fiestas_vigilante: 24 * 60 * 60 * 1000,
   prospectos_seguimiento: 24 * 60 * 60 * 1000,
   avisos_cliente: 24 * 60 * 60 * 1000,
+  recordar_invitacion: 24 * 60 * 60 * 1000,
 } as const;
 
 export type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -58,6 +59,7 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
   fiestas_vigilante: 'fiesta-proxima-revision',
   prospectos_seguimiento: 'prospectos-seguimiento',
   avisos_cliente: 'avisos-al-cliente',
+  recordar_invitacion: 'recordar-invitacion-no-abierta',
 };
 
 interface EstadoDeTareas {
@@ -177,6 +179,13 @@ export async function ponerAlDiaAlEntrar(
         correr: async () => {
           const { correrTareaAvisosAlCliente } = await import('@/lib/whatsapp/avisos-al-cliente');
           return correrTareaAvisosAlCliente();
+        },
+      },
+      {
+        nombre: 'recordar_invitacion',
+        correr: async () => {
+          const { correrTareaRecordarInvitacionNoAbierta } = await import('@/lib/invitaciones/recordatorio-no-abiertas');
+          return correrTareaRecordarInvitacionNoAbierta(ahora);
         },
       },
     ];

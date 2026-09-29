@@ -4,6 +4,24 @@ import { MessageSquare, Phone, Instagram, Facebook, Music, Sparkles } from 'luci
 import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { AK_WHATSAPP_NUMBER, AK_SOCIAL_LINKS } from '@/lib/public-contact';
+import type { PromoActiva } from '@/types/promo';
+
+function formatearFechaFin(fechaStr?: string): string {
+  if (!fechaStr) return '';
+  const meses = [
+    'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+    'julio', 'agosto', 'setiembre', 'octubre', 'noviembre', 'diciembre'
+  ];
+  const partes = fechaStr.slice(0, 10).split('-');
+  if (partes.length === 3) {
+    const dia = parseInt(partes[2], 10);
+    const mesIdx = parseInt(partes[1], 10) - 1;
+    if (mesIdx >= 0 && mesIdx < 12) {
+      return `${dia} de ${meses[mesIdx]}`;
+    }
+  }
+  return fechaStr;
+}
 
 interface CTASectionProps {
   whatsappNumber?: string;
@@ -12,6 +30,7 @@ interface CTASectionProps {
   ctaLabel?: string;
   whatsappMessage?: string;
   instagramUrl?: string;
+  promo?: PromoActiva | null;
 }
 
 export function CTASection({
@@ -21,6 +40,7 @@ export function CTASection({
   ctaLabel = '¡Cotizá tu evento!',
   whatsappMessage = 'Hola AK Producciones, me gustaría cotizar mi evento.',
   instagramUrl = AK_SOCIAL_LINKS.instagram,
+  promo,
 }: CTASectionProps) {
   const reduceMotion = useReducedMotion();
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
@@ -76,7 +96,7 @@ export function CTASection({
       )}
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-10">
-        
+
         {/* Status Badge con pulso de luz */}
         <motion.div {...reveal} className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-950/20 px-4 py-2 text-xs font-black uppercase tracking-widest text-emerald-400 backdrop-blur-sm shadow-[0_0_15px_rgba(16,185,129,0.15)]">
           <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -107,21 +127,30 @@ export function CTASection({
         </motion.p>
 
         {/* Reciprocity Gift Box (Neuroventas: regalo incentivo con efecto hover) */}
-        <motion.div
-          {...reveal}
-          whileHover={reduceMotion ? undefined : { scale: 1.02 }}
-          className="max-w-2xl mx-auto p-5 rounded-3xl border border-dashed border-red-500/30 bg-red-950/15 backdrop-blur-sm flex flex-col sm:flex-row items-center gap-4 text-left transition-all hover:border-red-500/50 hover:bg-red-950/25 shadow-lg shadow-red-950/20"
-        >
-          <div className="h-11 w-11 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 shrink-0">
-            <Sparkles className="w-5 h-5" />
-          </div>
-          <div>
-            <h4 className="text-sm font-black text-white">🎁 Regalo de Reserva Inmediata</h4>
-            <p className="text-xs font-semibold text-zinc-300 mt-1 leading-relaxed">
-              Confirmando tu propuesta durante esta semana, te obsequiamos la <strong className="text-white">Plataforma de Video 360°</strong> de regalo para sorprender a todos tus invitados.
-            </p>
-          </div>
-        </motion.div>
+        {promo && (
+          <motion.div
+            {...reveal}
+            whileHover={reduceMotion ? undefined : { scale: 1.02 }}
+            className="max-w-2xl mx-auto p-5 rounded-3xl border border-dashed border-red-500/30 bg-red-950/15 backdrop-blur-sm flex flex-col sm:flex-row items-center gap-4 text-left transition-all hover:border-red-500/50 hover:bg-red-950/25 shadow-lg shadow-red-950/20"
+          >
+            <div className="h-11 w-11 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-sm font-black text-white">{promo.titulo}</h4>
+              <p className="text-xs font-semibold text-zinc-300 mt-1 leading-relaxed">
+                {promo.descripcion ? (
+                  promo.descripcion
+                ) : (
+                  <>
+                    Confirmando antes del {formatearFechaFin(promo.fechaFin)} te regalamos{' '}
+                    <strong className="text-white">{promo.regalo}</strong>.
+                  </>
+                )}
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Pain of Payment Reduction Banner */}
         <motion.div {...reveal} className="max-w-xl mx-auto text-xs font-bold text-zinc-400 uppercase tracking-widest leading-relaxed">

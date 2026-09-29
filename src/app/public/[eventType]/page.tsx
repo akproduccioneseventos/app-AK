@@ -123,7 +123,7 @@ export default async function EventTypePage({ params }: Props) {
       {/* CTA Banner (mid-page) */}
       <CallToActionBanner
         headline={`¿Te imaginás tu ${catalog.name.toLowerCase()} perfecta?`}
-        subheadline="Hablemos sin compromiso. Te preparamos una propuesta a medida en 24 hs."
+        subheadline="Hablemos sin compromiso. Te preparamos una propuesta a medida."
         ctaLabel={catalog.hero.ctaLabel}
         whatsappNumber={catalog.whatsappNumber}
         whatsappMessage={catalog.whatsappMessage}

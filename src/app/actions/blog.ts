@@ -4,12 +4,14 @@ import { readData, writeData } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
 import type { BlogPost } from '@/types/blog';
 import { blogPosts as defaultBlogPosts } from '@/data/blog-posts';
+import { corregirPromesasDelBlog } from '@/lib/blog/sin-promesas';
 
 const BLOG_FILE = 'blog-posts.json';
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    return await readData<BlogPost[]>(BLOG_FILE, []);
+    const raw = await readData<BlogPost[]>(BLOG_FILE, []);
+    return corregirPromesasDelBlog(raw);
   } catch (error) {
     console.error('[blog-actions] Error reading blog posts:', error);
     return [];
@@ -73,7 +75,9 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
   const deLaBase = posts.find(p => p.slug === slug);
   if (deLaBase) return deLaBase;
 
-  return defaultBlogPosts.find(p => p.slug === slug) || null;
+  const deMemoria = defaultBlogPosts.find(p => p.slug === slug);
+  if (!deMemoria) return null;
+  return corregirPromesasDelBlog([deMemoria])[0] || null;
 }
 
 export async function getRelatedPosts(post: BlogPost): Promise<BlogPost[]> {

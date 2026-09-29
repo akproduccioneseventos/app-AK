@@ -53,10 +53,14 @@ jest.mock('@/lib/whatsapp/meta-sender', () => ({
 }));
 
 jest.mock('@/lib/google-workspace', () => ({
-  sendGoogleGmailMessage: jest.fn(async (opts: unknown) => {
-    gmailsEnviados.push(opts);
+  sendGoogleGmailMessage: jest.fn(async (...args: unknown[]) => {
+    gmailsEnviados.push(args);
     return { enviado: true };
   }),
+  hasServiceAccountKey: jest.fn(() => false),
+  getServiceAccountAccessToken: jest.fn(async () => 'fake_sa_token'),
+  ensureFreshGoogleAccount: jest.fn(async (acc: unknown) => acc),
+  GOOGLE_WORKSPACE_SCOPES: [],
 }));
 
 jest.mock('@/app/actions/scheduled-messages', () => ({
@@ -72,6 +76,17 @@ describe('la invitación no abierta se recuerda sola y registra aperturas', () =
     whatsAppEnviados.length = 0;
     gmailsEnviados.length = 0;
     archivos = {};
+    process.env.META_WHATSAPP_TOKEN = 'test_token_wa';
+    process.env.META_WHATSAPP_PHONE_ID = 'test_phone_id_wa';
+    archivos['_google-workspace-accounts.json'] = [
+      {
+        id: 'company',
+        kind: 'company',
+        email: 'contacto@akproducciones.uy',
+        status: 'connected',
+        accessToken: 'test_token_valido',
+      },
+    ];
     jest.clearAllMocks();
   });
 
@@ -188,6 +203,14 @@ describe('la invitación no abierta se recuerda sola y registra aperturas', () =
       expect(resultado.enviados).toBe(2); // Lucía (WhatsApp) y Mariana (Gmail)
       expect(whatsAppEnviados).toHaveLength(1);
       expect(gmailsEnviados).toHaveLength(1);
+
+      // Verificación de argumentos según orden 97:
+      expect((whatsAppEnviados[0] as any).phoneNumberId).toBe('test_phone_id_wa');
+      expect((whatsAppEnviados[0] as any).to).toBe('099333444');
+
+      const [cuentaGmail, destinoGmail] = gmailsEnviados[0] as [any, string];
+      expect(cuentaGmail.kind).toBe('company');
+      expect(destinoGmail).toBe('mariana@ejemplo.com');
     });
 
     it('no le escribe dos veces el mismo día', async () => {

@@ -13,25 +13,7 @@ import { getGuestAdultsCount, getGuestKidsCount, getGuestPartySize } from '@/lib
 
 // ─── Core helper ────────────────────────────────────────────────────────────
 
-const fiestaUpdateQueues = new Map<string, Promise<void>>();
-
-async function acquireFiestaUpdateLock(fiestaId: string): Promise<() => void> {
-  const previous = fiestaUpdateQueues.get(fiestaId);
-  let releaseCurrent!: () => void;
-  const current = new Promise<void>((resolve) => {
-    releaseCurrent = resolve;
-  });
-
-  fiestaUpdateQueues.set(fiestaId, current);
-  if (previous) await previous;
-
-  return () => {
-    releaseCurrent();
-    if (fiestaUpdateQueues.get(fiestaId) === current) {
-      fiestaUpdateQueues.delete(fiestaId);
-    }
-  };
-}
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 
 function normalizeGuestName(value: string): string {
   return value
@@ -42,41 +24,7 @@ function normalizeGuestName(value: string): string {
     .replace(/\s+/g, ' ');
 }
 
-async function updateFiestaData(
-  fiestaId: string,
-  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion,
-  options: { publicRsvp?: boolean } = {},
-): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
-  const releaseLock = await acquireFiestaUpdateLock(fiestaId);
-  try {
-    const currentData = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!currentData) {
-      throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
-    }
-    const updatedData = updateFn(currentData);
-    const result: {
-      success: boolean;
-      fiesta?: FiestaEnPlanificacion;
-      error?: string;
-    } = options.publicRsvp
-      ? await writeData(
-          `fiestas/${fiestaId}.json`,
-          await preserveFiestaSecrets(fiestaId, updatedData),
-        ).then(() => ({
-          success: true,
-          fiesta: updatedData,
-        }))
-      : await saveFiesta(updatedData);
-    if (!result.success || !result.fiesta) {
-      throw new Error(result.error || 'No se pudo guardar la fiesta después de actualizar los invitados.');
-    }
-    return { success: true, updatedFiesta: result.fiesta };
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  } finally {
-    releaseLock();
-  }
-}
+const updateFiestaData = actualizarFiesta;
 
 /**
  * Lo unico que sale para afuera despues de tocar un invitado: si salio bien, el error, y

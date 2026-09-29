@@ -61,6 +61,7 @@ import { parseEventDate } from '@/lib/public-experience/event-date';
 import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
+import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -583,9 +584,12 @@ export default function PortalClientePage() {
             <p className="text-sm font-black text-foreground truncate">{config.nombreEvento}</p>
             <p className="text-xs text-muted-foreground">{config.tipoCelebracion} · {formatDate(config.fechaEvento)}</p>
           </div>
-          <Badge variant="outline" className="shrink-0 border-primary/20 bg-primary/10 text-primary">
-            Portal VIP
-          </Badge>
+          <div className="flex items-center gap-2 shrink-0">
+            <VideoDeAyuda lugar="portal-cliente" />
+            <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
+              Portal VIP
+            </Badge>
+          </div>
         </div>
       </header>
 

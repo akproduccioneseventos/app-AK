@@ -162,4 +162,82 @@ describe('Llegada del personal con ubicación y distancia al salón', () => {
     const fiestaGuardada = archivos[`fiestas/${fiestaId}.json`] as any;
     expect(fiestaGuardada.personalAsignado[0].checkInTimestamp).toBeDefined();
   });
+
+  describe('validaciones y concurrencia de orden 97', () => {
+    it('con un acceso sin empleadoId, no se marca a nadie', async () => {
+      const fiestaId = 'fiesta-sin-empleado';
+      archivos['accesos-personal.json'] = [
+        {
+          id: 'token-sin-emp',
+          fiestaId,
+          // sin empleadoId
+          nombreAcceso: 'Invitado Especial',
+        },
+      ];
+      archivos[`fiestas/${fiestaId}.json`] = {
+        id: fiestaId,
+        personalAsignado: [
+          { empleadoId: 'emp-1', rolId: 'dj' },
+        ],
+      };
+
+      const resultado = await registrarLlegadaPersonal('token-sin-emp');
+      expect(resultado.success).toBe(false);
+      expect(resultado.error).toContain('no corresponde a una persona asignada');
+
+      const fiestaGuardada = archivos[`fiestas/${fiestaId}.json`] as any;
+      expect(fiestaGuardada.personalAsignado[0].checkInTimestamp).toBeUndefined();
+    });
+
+    it('con el de la persona 2, se marca la persona 2 y la persona 1 queda igual', async () => {
+      const fiestaId = 'fiesta-dos-personas';
+      archivos['ajustes-llegada.json'] = { llegadaConUbicacion: false };
+      archivos['accesos-personal.json'] = [
+        { id: 'tok-p1', fiestaId, empleadoId: 'emp-1' },
+        { id: 'tok-p2', fiestaId, empleadoId: 'emp-2' },
+      ];
+      archivos[`fiestas/${fiestaId}.json`] = {
+        id: fiestaId,
+        personalAsignado: [
+          { empleadoId: 'emp-1', rolId: 'dj' },
+          { empleadoId: 'emp-2', rolId: 'foto' },
+        ],
+      };
+
+      const resultado = await registrarLlegadaPersonal('tok-p2');
+      expect(resultado.success).toBe(true);
+
+      const fiestaGuardada = archivos[`fiestas/${fiestaId}.json`] as any;
+      expect(fiestaGuardada.personalAsignado[0].checkInTimestamp).toBeUndefined();
+      expect(fiestaGuardada.personalAsignado[1].checkInTimestamp).toBeDefined();
+    });
+
+    it('dos llegadas a la vez de dos personas distintas quedan las dos', async () => {
+      const fiestaId = 'fiesta-concurrente';
+      archivos['ajustes-llegada.json'] = { llegadaConUbicacion: false };
+      archivos['accesos-personal.json'] = [
+        { id: 'tok-c1', fiestaId, empleadoId: 'emp-1' },
+        { id: 'tok-c2', fiestaId, empleadoId: 'emp-2' },
+      ];
+      archivos[`fiestas/${fiestaId}.json`] = {
+        id: fiestaId,
+        personalAsignado: [
+          { empleadoId: 'emp-1', rolId: 'dj' },
+          { empleadoId: 'emp-2', rolId: 'foto' },
+        ],
+      };
+
+      const [res1, res2] = await Promise.all([
+        registrarLlegadaPersonal('tok-c1'),
+        registrarLlegadaPersonal('tok-c2'),
+      ]);
+
+      expect(res1.success).toBe(true);
+      expect(res2.success).toBe(true);
+
+      const fiestaGuardada = archivos[`fiestas/${fiestaId}.json`] as any;
+      expect(fiestaGuardada.personalAsignado[0].checkInTimestamp).toBeDefined();
+      expect(fiestaGuardada.personalAsignado[1].checkInTimestamp).toBeDefined();
+    });
+  });
 });

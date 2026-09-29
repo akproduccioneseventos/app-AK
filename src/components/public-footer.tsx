@@ -253,7 +253,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
                 <a href={`tel:+59898355530`} className="hover:text-white transition-colors font-bold">+598 98 355 530</a>
               </p>
               <p className="text-[11px] text-zinc-400 pt-1 border-t border-white/5 leading-relaxed">
-                Coordinación presencial garantizada el día de tu celebración.
+                Coordinación presencial el día de tu celebración.
               </p>
             </div>
           </div>

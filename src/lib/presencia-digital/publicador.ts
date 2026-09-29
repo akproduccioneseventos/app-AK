@@ -12,7 +12,7 @@
 import type { PlatformName } from '@/types/presencia-digital';
 import type { SocialPost } from '@/types/social-media';
 import type { SocialConnection } from '@/types/settings';
-import { readData, writeData } from '@/lib/data-service';
+import { readData, writeData, createDataItem } from '@/lib/data-service';
 import {
   publishToFacebookPage,
   publishToInstagramBusiness,
@@ -609,6 +609,21 @@ export async function reciclarPublicacion(
     createdAt: ahoraIso,
     updatedAt: ahoraIso,
   };
+
+  const sinBase = process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+  if (!sinBase) {
+    try {
+      await createDataItem<SocialPost>(POSTS_FILE, 'social_posts', nueva.id, nueva);
+      return nueva;
+    } catch (err: any) {
+      if (
+        !err?.message?.includes('modo local de pruebas') &&
+        !err?.message?.includes('Firestore no esta disponible')
+      ) {
+        throw err;
+      }
+    }
+  }
 
   posts.push(nueva);
   await writeData(POSTS_FILE, posts);
