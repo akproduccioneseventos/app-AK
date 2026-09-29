@@ -188,3 +188,12 @@ Main avanzó 17 commits respecto de la base registrada de PR #1240; la cabeza au
 ## CI de PR #1240 en la cabeza auditada — 2026-09-29
 
 Para HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`, GitHub registra fallidos CI (smoke de navegador, reglas Firestore, lint/typecheck/test/build) y CodeQL. Los logs ya no están disponibles (404 BlobNotFound) y GitHub no devolvió pasos; causa no determinada, no adjudicar automáticamente a código ni ambiente. Este SHA no queda validado para publicar. Ver `docs/evidencias/110-ci-fallido-head-1240.md`. Al aparecer nueva cabeza, consultar sus checks propios; no trasladar estado de SHA viejo.
+
+
+## Continuación — Multiagente y concurrencia (2026-09-29)
+
+En main SHA `975118a8d2f22868f9cdffc1fa6d8c245ba75fd0`, `appendMultiAgentChatTurn` y `saveAgentLearning` leen y reescriben estados JSON completos sin transacción/mutación atómica. Dos solicitudes simultáneas pueden pisarse; la memoria alimenta después `runMultiAgent`. Riesgo P2 por análisis estático, no reproducido en producción. Gemini: evaluar persistencia por elemento/transacción y prueba concurrente con ambas lecturas sincronizadas. Detalle: `docs/evidencias/111-multiagente-pierde-concurrencia.md`.
+
+## Aclaración del dueño sobre checks de GitHub (2026-09-29)
+
+No usar el rojo de workflows como señal de defecto de app ni gastar más auditoría en sus logs: el dueño informa que se debe a facturación bloqueada. La compilación/verificación pre-fusión completa la hace Claude. El registro histórico `docs/evidencias/110-ci-fallido-head-1240.md` fue actualizado con esta aclaración; esos checks no son un hallazgo funcional.
