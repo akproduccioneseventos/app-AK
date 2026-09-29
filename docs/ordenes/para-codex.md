@@ -105,3 +105,7 @@ alcance en `docs/evidencias/94-recorridos-reales.md`.
 El dueño/equipo informa 129 pruebas aprobadas de prospectos/clientes/agenda/planificación, 15 de alertas de salón/equipo y 14 del mural, además de dos recorridos de navegador. Tres skips del mural fueron intencionales (cámara desactivada y pruebas desktop no aplicables a móvil). Sin SHA/runner adjunto: no repetir si coincide el SHA, no atribuir a producción sin contraste. No crear alerta/bloqueo para proveedores: el dueño confirma que pueden atender más de una fiesta por día.
 
 Codex sigue por web pública. Observaciones de portada (métricas en cero y claims absolutos), Club Uruguay, simulador y privacidad, junto con límites de navegador/Jest/push, están consolidadas en [docs/evidencias/95-actualizacion-28-09.md](../evidencias/95-actualizacion-28-09.md). Revisar el registro y contrastar el SHA antes de ordenar cambios; el resultado de un test no equivale a despliegue validado.
+
+
+## Club Uruguay — oportunidad de contenido, 28/09/2026
+La página extraída muestra tres escenas y CTAs, pero no extrae capacidad, dirección/mapa, accesibilidad, dimensiones, parking o equipamiento. Agregar solo datos confirmados por AK; fotos/CTAs no probados visualmente. Detalle en docs/evidencias/95-actualizacion-28-09.md.
