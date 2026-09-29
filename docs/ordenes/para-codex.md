@@ -128,3 +128,8 @@ En HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: queja legítima interrogativ
 ## Auditoría PR #1240 — horario óptimo y reciclado (2026-09-28)
 
 HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el cálculo de mejor horario y el reciclado existen como helpers, pero no están conectados a pantalla ni Server Action; en la pantalla de presencia digital y acción inspeccionadas no se usan. Los tests son unitarios del helper, no del flujo del dueño. P2, pendiente de E2E; Codex no ejecutó pruebas ni cron/publicación. Evidencia: `docs/evidencias/99-horario-y-reciclado-sin-pantalla.md`.
+
+
+## Seguridad P1 — token de acceso de invitado en Analytics (2026-09-28)
+
+Confirmado por inspección de `5e384c6` (SHA publicado registrado en Ya-resuelto) y PR #1240 `79dae2c`: la URL del portal/QR contiene `token`; el token da acceso a datos del invitado; el layout global carga Analytics y el componente pasa `pathname + window.location.search` a gtag; GA usa ID real por defecto. Código, no captura de red; riesgo de que el bearer token llegue a GA. Corregir con prioridad sin añadir banner; proteger páginas con credenciales. No cambié el comportamiento: pedir aprobación antes de excluir páginas del tracking/ajustar flujo. Evidencia, pruebas y límites: `docs/evidencias/100-token-invitado-en-analytics.md`.
