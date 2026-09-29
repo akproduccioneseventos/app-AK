@@ -163,3 +163,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la nueva Orden de Evento imprim
 ## Auditoría PR #1240 — porciones de la hoja de cocina (2026-09-28)
 
 HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el consumidor usa `invitadosAdultos || invitadosEstimados`; un 0 explícito se reemplaza por el total. Ejemplo: 0 adultos + 40 niños + estimado 40 produce 40 adultos + 40 niños = 80 porciones. P1 numérico/catering, confirmado por el flujo del cálculo, sin ejecutar tests ni crear hoja real. Claude: preservar cero y probar campo cero frente a ausente. Detalle: `docs/evidencias/106-porciones-duplicadas-evento-infantil.md`.
+
+
+## Auditoría PR #1240 — alerta de mantenimiento no conectada (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el motor necesita la lista de activos para generar la alerta de mantenimiento, pero `getAlertasGlobales` y `getAlertasPorFiesta` no la cargan ni pasan; el test llama al motor directamente y no cubre el consumidor real. P1 funcional: la alerta prometida no aparece en la bandeja. Claude: conectar equipo/fiestas con una prueba a nivel de acción. Inspección estática, no ejecutada en producción. Evidencia: `docs/evidencias/107-alerta-mantenimiento-no-conectada.md`.
