@@ -173,3 +173,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el motor necesita la lista de a
 ## Auditoría PR #1240 — geocerca sin ajuste accesible (2026-09-28)
 
 HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el switch `llegadaConUbicacion` tiene default `false`; existe setter autenticado, pero la PR no conecta ninguna pantalla a él. Sin configuración sembrada externamente, el check-in no valida distancia. P2 de función inaccesible/no transparente; no probado en runtime. Evidencia: `docs/evidencias/108-geocerca-sin-control-en-ajustes.md`.
+
+
+## Auditoría PR #1240 — alcance del QR frente a Orden 95 (2026-09-28)
+
+El bloque 9 aprobado pedía imprimir etiquetas en Activos Fijos y abrir un lector de QR. La PR solo procesa texto tipeado/pegado (o teclado tipo pistola); no cambia la pantalla de Activos Fijos ni inicia cámara. P2: la lógica pura existe, pero el recorrido completo QR no. La devolución #97 ya anotó aparte el posible falso éxito al fallar persistencia; no duplicar ese punto. Evidencia: `docs/evidencias/109-qr-sin-etiquetas-ni-lector.md`.
