@@ -183,3 +183,8 @@ El bloque 9 aprobado pedía imprimir etiquetas en Activos Fijos y abrir un lecto
 ## Conciliación con main y devolución de Claude — 2026-09-28
 
 Main avanzó 17 commits respecto de la base registrada de PR #1240; la cabeza auditada sigue siendo `79dae2cd75f1ffc572f28f6ee890174c3912fff8`. Leí `docs/ordenes/97-devolucion-de-la-orden-95.md`: no volver a reportar allí lo ya encontrado (sobrescrituras globales, firma/respuesta y variables de envío, tarea sin cron/registro, llegada atribuida al primero y publicación que reescribe la lista). Los findings de Codex 102/106 se actualizaron para etiquetar sus partes solapadas y distinguir el cálculo infantil, que ya estaba publicado y que la página nueva copia, de una regresión exclusiva de la PR. `docs/ESTADO-ACTUAL.md` de main mantiene recorridos de roles pendientes; los 129/15/14 tests reportados por el dueño siguen sin SHA/output para poder atribuirlos a esta cabeza.
+
+
+## CI de PR #1240 en la cabeza auditada — 2026-09-29
+
+Para HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`, GitHub registra fallidos CI (smoke de navegador, reglas Firestore, lint/typecheck/test/build) y CodeQL. Los logs ya no están disponibles (404 BlobNotFound) y GitHub no devolvió pasos; causa no determinada, no adjudicar automáticamente a código ni ambiente. Este SHA no queda validado para publicar. Ver `docs/evidencias/110-ci-fallido-head-1240.md`. Al aparecer nueva cabeza, consultar sus checks propios; no trasladar estado de SHA viejo.
