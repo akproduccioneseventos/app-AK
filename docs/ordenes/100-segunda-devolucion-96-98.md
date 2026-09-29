@@ -36,3 +36,9 @@ prueba: tests/e2e/la-portada-no-dice-cero.spec.ts
 no-usa: 24/7 en src/components/landing/StatsSection.tsx
 no-usa: 24/7 en src/types/landing-editor.ts
 ```
+
+## Y una más: la prueba de la orden de evento ensucia los datos
+
+`la-orden-de-evento-junta-todo.spec.ts` deja escrito un empleado en `src/data/empleados.json` (y
+crea `data/empleados.json`), y `npm run limpiar:corrida` no los conoce. Que la prueba borre lo que
+creó al terminar, **y** sumá esos dos archivos a la lista de `limpiar:corrida`.
