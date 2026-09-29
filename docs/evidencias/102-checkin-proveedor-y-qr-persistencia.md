@@ -36,3 +36,8 @@ Recomendación: esperar el resultado de persistencia en el flujo QR; mostrar con
 ## Instrucción para Gemini después de concluir auditoría
 
 Corregir ambos hallazgos sin cambiar reglas comerciales. Asociar el check-in exclusivamente al titular permitido del enlace y validar permiso/vigencia en el servidor. Para QR, confirmar persistencia antes del toast/cierre. Agregar pruebas de error y de éxito persistido. Claude compila y registra SHA, entorno y salidas. Mantener compatibilidad con lectores QR tipo teclado; no asumir cámara.
+
+
+## Comparación con la devolución de Claude
+
+El caso de acceso sin `empleadoId` que termina actualizando `personal[0]` ya está descrito en `docs/ordenes/97-devolucion-de-la-orden-95.md` en `main`; no contarlo como hallazgo nuevo ni volver a pedir esa misma corrección. El punto independiente nuevo de este documento es que el QR muestra éxito antes de que la persistencia confirme. El alcance incompleto de lector/etiquetas se documenta por separado en `docs/evidencias/109-qr-sin-etiquetas-ni-lector.md`.
