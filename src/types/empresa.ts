@@ -118,4 +118,15 @@ export interface ServicioEmpresa {
   contactoPrincipal?: string;
   imageUrl?: string; // URL de imagen representativa del servicio (para galería)
   isFeatured?: boolean; // Orden comercial preferente en simuladores
+
+  // Gestión de mantenimiento preventivo y correctivo (opcional)
+  mantenimiento?: {
+    cadaDias?: number;
+    ultimoAt?: string;
+    historial?: Array<{
+      fecha: string;
+      nota: string;
+      costo?: number;
+    }>;
+  };
 }

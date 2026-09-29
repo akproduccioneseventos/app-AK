@@ -70,6 +70,10 @@ export interface Invitado {
   guestAccessToken?: string;
   /** Tracking stats for guest experience CTAs */
   guestExperienceStats?: GuestExperienceStats;
+  /** Momento en que el invitado abrió su invitación personal por primera vez */
+  invitacionAbiertaAt?: string;
+  /** Registro de fechas en que se enviaron recordatorios de invitación no abierta */
+  recordatoriosApertura?: string[];
 }
 
 // --- MENU MESA ---
@@ -177,6 +181,7 @@ export interface PersonalAsignadoDetalleStorage {
   rolId: string;
   eventSalary: number;
   checkInTimestamp?: string;
+  checkInUbicacion?: { lat: number; lng: number; distanciaMetros: number };
   asistenciaConfirmada?: boolean;
   fechaConfirmacionAsistencia?: string;
   motivoRechazoAsistencia?: string;
@@ -192,6 +197,7 @@ export interface Reunion {
   id: string;
   titulo: string;
   fecha?: string;
+  hora?: string;
   notas: string;
   acuerdos?: string;
   checklist?: ReunionChecklistItem[];
@@ -1615,6 +1621,16 @@ export interface FiestaEnPlanificacion {
   buzonConfig?: BuzonConfig;
   momentoPaparazziActivo?: boolean;
   momentoPaparazziTimestamp?: string;
+  avisosPreparados?: Record<string, string>;
+  reunionOrganizacion?: {
+    respuestasExtra?: Record<string, string>;
+    cerradaAt?: string;
+  };
+  catering?: {
+    detallesMenu?: string;
+    alergiasOIntolerancias?: string;
+    [key: string]: any;
+  };
 }
 
 export interface BuzonConfig {
@@ -1775,6 +1791,7 @@ export interface ItineraryTemplate {
   id: string;
   name: string;
   items: ProgramaEventoItem[];
+  tipoEvento?: import('@/types/presupuesto').TipoEvento;
 }
 
 // --- DOCUMENT TYPES ---
