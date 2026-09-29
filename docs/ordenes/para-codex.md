@@ -98,3 +98,10 @@ alcance en `docs/evidencias/94-recorridos-reales.md`.
   comportamiento actual antes de editar. La promesa de reducción de vajilla/mozos/costos
   requiere validación de Claude contra costeo real. **NO CONTRASTADO CON LA TANDA NI CON
   EL SHA DE PRODUCCIÓN.** No cambiar cálculos ni precios desde esta revisión.
+
+
+## Continuidad de auditoría — 28/09/2026
+
+El dueño/equipo informa 129 pruebas aprobadas de prospectos/clientes/agenda/planificación, 15 de alertas de salón/equipo y 14 del mural, además de dos recorridos de navegador. Tres skips del mural fueron intencionales (cámara desactivada y pruebas desktop no aplicables a móvil). Sin SHA/runner adjunto: no repetir si coincide el SHA, no atribuir a producción sin contraste. No crear alerta/bloqueo para proveedores: el dueño confirma que pueden atender más de una fiesta por día.
+
+Codex sigue por web pública. Observaciones de portada (métricas en cero y claims absolutos), Club Uruguay, simulador y privacidad, junto con límites de navegador/Jest/push, están consolidadas en [docs/evidencias/95-actualizacion-28-09.md](../evidencias/95-actualizacion-28-09.md). Revisar el registro y contrastar el SHA antes de ordenar cambios; el resultado de un test no equivale a despliegue validado.
