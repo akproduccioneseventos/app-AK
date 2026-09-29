@@ -10161,3 +10161,16 @@ usa: showInvitados && pendientesRsvp en src/app/portal-cliente/[id]/page.tsx
 usa: showFinancials && cuotasPendientes en src/app/portal-cliente/[id]/page.tsx
 prueba: src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts
 ```
+
+## 28 de septiembre de 2026 — Los pagos al salón se podían leer desde afuera
+
+- La lista pública de salones (la que usan la portada y la página del Club Uruguay) sacaba sólo el
+  contacto del gerente y devolvía **lo que AK le paga al salón**: montos, comprobantes y notas.
+  Esa lista la puede pedir cualquiera desde el navegador. Ahora sale sin pagos.
+- Falso positivo verificado el mismo día: el título de la portada en el celular **se lee bien**.
+  Medido sobre las tres fotos de portada con el oscurecido real: contraste de 4,5 a 14,8 contra
+  el texto blanco (para un título alcanza con 3).
+
+```comprobar
+prueba: src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts
+```

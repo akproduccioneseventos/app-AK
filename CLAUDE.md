@@ -940,6 +940,21 @@ plata, cobros, comida y permisos, y el arreglo de una línea al verificar.
 la orden en `docs/ordenes/`, aunque sea para el mismo día. Si la urgencia hace pensar en
 programarla igual, primero se le pregunta al dueño.
 
+### 29. Encadenar "fusionar" con "limpiar la rama" sin mirar si la fusión salió
+
+**Pasó el 28 de septiembre de 2026.** Mandé la fusión y, en paralelo, el comando que deja la rama
+igual a la versión principal. La fusión falló (GitHub todavía no había calculado si se podía) y la
+limpieza igual corrió: la copia local quedó sin los cambios. No se perdió nada porque la rama ya
+estaba subida.
+
+**Qué se hace distinto:** la limpieza de la rama va **después** de ver "merged: true", nunca en la
+misma tanda que la fusión. Si la fusión dice "not mergeable" apenas subido, se espera y se reintenta.
+
+**Y el mismo día, otra vez por el mismo lado:** al dejar la rama igual a la principal después de
+fusionar la orden 94, me llevé puesto un commit mío que todavía no estaba fusionado; lo recuperé del
+historial. **Antes de dejar la rama igual a la principal, mirar `git log origin/main..HEAD`: si
+muestra algo, eso se lleva, no se pisa.**
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1131,6 +1146,20 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **Nada de garantías, nada de "24/7", y la empresa tiene 7 años (28 de septiembre de 2026).**
+  Palabras suyas: *"nada de garantía ni 24/7, y son 7 años; no prometo cosas que no puedo
+  cumplir"*. En todo lo que ve un cliente o un prospecto: **no se escribe "garantía",
+  "garantizado", "24/7" ni "cero fallas"**; "clientes satisfechos" va **sin porcentaje** (lo
+  eligió así); la experiencia es **"+7 años"** y los eventos, **"+200"**; el DJ es **"DJ profesional con +200
+  fiestas realizadas"**. Vale también para lo que escribe la IA (el blog). **No se nombra ni se destaca a nadie del
+  personal**: se destaca el trabajo en equipo y el organizador. Amplía la regla de agosto de no prometer plazos ni precios. Lo hace la orden 96,
+  bloque 5.
+
+- **Personal por invitados (28 de septiembre de 2026).** Un mozo de cocina y un mozo de atención
+  **cada 25 invitados** (`applyAutomaticStaffByGuests`). Las islas pueden ahorrar vajilla, **no
+  mozos**. Y la IA del blog escribe con respaldo: busca páginas del rubro y los datos de AK, y no
+  afirma lo que no está ahí (orden 96, bloque 6).
 
 - **Comparación con el rubro, 28 de septiembre de 2026.** De las 23 mejoras propuestas, el dueño
   **descartó**: recargo por cuota atrasada, seña reembolsable, merma de comida, propina para el
@@ -1431,6 +1460,7 @@ con otra cara.
 | Lo que se servía en la barra sin pasar por un pedido no dejaba rastro | `src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts` |
 | Un corte de señal dejaba la pantalla gigante en blanco, y copiar la configuración de otra fiesta se llevaba la foto del agasajado | `src/__tests__/el-muro-no-se-vacia-si-se-corta-la-senal.test.ts` y `src/__tests__/copiar-configuracion-no-copia-personas.test.ts` |
 | Un pendiente del portal llevaba a una sección oculta y el botón no hacía nada | `src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts` |
+| La lista pública de salones devolvía lo que AK le paga al salón | `src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts` |
 
 ### Cómo se elige el matafuego
 
