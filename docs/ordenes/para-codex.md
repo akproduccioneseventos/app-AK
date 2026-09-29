@@ -158,3 +158,8 @@ HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la nueva pantalla ignora `{succ
 ## Auditoría PR #1240 — orden imprimible y carga operativa (2026-09-28)
 
 HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: la nueva Orden de Evento imprime solo los primeros seis artículos por categoría mediante `.slice(0, 6)`, sin advertir que la carga continúa; puede usarse una lista incompleta para preparar/devolver equipos. P2, confirmado por código; PDF/impresión y E2E no ejecutados. Evidencia: `docs/evidencias/105-orden-evento-carga-recortada.md`.
+
+
+## Auditoría PR #1240 — porciones de la hoja de cocina (2026-09-28)
+
+HEAD `79dae2cd75f1ffc572f28f6ee890174c3912fff8`: el consumidor usa `invitadosAdultos || invitadosEstimados`; un 0 explícito se reemplaza por el total. Ejemplo: 0 adultos + 40 niños + estimado 40 produce 40 adultos + 40 niños = 80 porciones. P1 numérico/catering, confirmado por el flujo del cálculo, sin ejecutar tests ni crear hoja real. Claude: preservar cero y probar campo cero frente a ausente. Detalle: `docs/evidencias/106-porciones-duplicadas-evento-infantil.md`.
