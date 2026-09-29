@@ -20,3 +20,8 @@ Recomendación para Claude: usar presencia explícita del valor (nullish/validac
 ## Verificación
 
 Código consumidor inspeccionado y función `src/lib/catering/hoja-de-cocina.ts:armarHojaDeCocina` confirma que suma grupos y distribuye porciones. El E2E de Orden de Evento no crea presupuesto/cantidades ni comprueba la hoja de cocina; los tests de catering no se ejecutaron en este entorno.
+
+
+## Estado de origen contrastado
+
+El mismo fallback `invitadosAdultos || invitadosEstimados` ya existe en la pantalla publicada de hoja de cocina, comprobado en el SHA de despliegue registrado `5e384c684c326dbcf79a12dae760ba4fe7e0b705` y en la base de la PR `b52b1f013d21bd2831b918fb04649636ce24033a`. Por lo tanto, esto **no se atribuye como regresión creada por la PR #1240**: es un defecto numérico previo que la nueva Orden de Evento copia. Debe corregirse en conjunto en ambas salidas y probar el mismo caso infantil, sin cambios de precios ni reglas comerciales.
