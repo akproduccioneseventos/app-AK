@@ -78,7 +78,7 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
             Simulador Oficial AK Producciones · Salto, Uruguay
           </div>
           <h1 className="max-w-4xl font-headline text-3xl font-black leading-tight text-white sm:text-6xl tracking-tight">
-            Diseñá tu fiesta inolvidable en Salto sin estrés y con costo real
+            Diseñá tu fiesta inolvidable en Salto sin estrés, con costo real y garantía absoluta
           </h1>
           <p className="mt-4 max-w-3xl text-base font-semibold leading-relaxed text-slate-200 sm:text-xl">
             Olvidate de contratar 10 proveedores distintos y sufrir sorpresas a último momento. Con AK Producciones tenés gastronomía propia, discoteca VIP, luces robotizadas, salón emblemático y tecnología interactiva coordinados por un único equipo responsable.

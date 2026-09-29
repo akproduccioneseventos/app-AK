@@ -17,11 +17,8 @@ import {
   ExternalLink,
   BellOff,
   Trash2,
-  MessageSquare,
 } from 'lucide-react';
-import { getAlertasGlobalesConLeidas, marcarAlertaLeida, marcarTodasLeidas, descartarAlerta, getDatosFiestasParaAlertas } from '@/app/actions/alertas.actions';
-import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
-import { armarTextoAviso } from '@/lib/whatsapp/avisos-al-cliente';
+import { getAlertasGlobalesConLeidas, marcarAlertaLeida, marcarTodasLeidas, descartarAlerta } from '@/app/actions/alertas.actions';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -66,8 +63,6 @@ function formatFecha(iso: string) {
 
 export default function AlertasPage() {
   const [alertas, setAlertas] = useState<AlertaAutomatica[]>([]);
-  const [datosFiestas, setDatosFiestas] = useState<Record<string, { telefono?: string; nombreCliente?: string }>>({});
-  const [preparandoWhatsAppId, setPreparandoWhatsAppId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isMarkingAll, setIsMarkingAll] = useState(false);
   const [filtroTipo, setFiltroTipo] = useState<string>('todas');
@@ -79,73 +74,14 @@ export default function AlertasPage() {
   const fetchAlertas = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [data, fiestasInfo] = await Promise.all([
-        getAlertasGlobalesConLeidas(),
-        getDatosFiestasParaAlertas(),
-      ]);
+      const data = await getAlertasGlobalesConLeidas();
       setAlertas(data);
-      setDatosFiestas(fiestasInfo);
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar las alertas.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
   }, [toast]);
-
-  const handlePrepararWhatsApp = useCallback(async (alerta: AlertaAutomatica) => {
-    const info = datosFiestas[alerta.fiestaId];
-    const telefono = info?.telefono?.trim();
-    if (!telefono) {
-      toast({
-        title: 'Sin teléfono',
-        description: 'Esta fiesta no tiene teléfono del cliente',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setPreparandoWhatsAppId(alerta.id);
-    try {
-      const reglaId = alerta.id.replace(`_${alerta.fiestaId}`, '');
-      const nombreCliente = info?.nombreCliente || alerta.fiestaName || 'Cliente';
-      const texto = armarTextoAviso(reglaId, nombreCliente);
-
-      const res = await saveScheduledMessage({
-        targetType: 'cliente',
-        targetId: alerta.fiestaId,
-        targetName: nombreCliente,
-        targetPhone: telefono,
-        templateType: 'personalizado',
-        messageText: texto,
-        scheduledAt: new Date().toISOString(),
-        status: 'pendiente',
-        sendingMode: 'manual_click',
-        fiestaId: alerta.fiestaId,
-        automationRuleId: reglaId,
-      });
-
-      if (res.success) {
-        toast({
-          title: 'WhatsApp preparado',
-          description: 'El mensaje quedó en la bandeja de salida (CRM Outbox) listo para enviar.',
-        });
-      } else {
-        toast({
-          title: 'Error al preparar',
-          description: res.error || 'No se pudo guardar el mensaje.',
-          variant: 'destructive',
-        });
-      }
-    } catch (err: any) {
-      toast({
-        title: 'Error',
-        description: err?.message || 'Ocurrió un error al preparar el WhatsApp.',
-        variant: 'destructive',
-      });
-    } finally {
-      setPreparandoWhatsAppId(null);
-    }
-  }, [datosFiestas, toast]);
 
   useEffect(() => { fetchAlertas(); }, [fetchAlertas]);
 
@@ -486,34 +422,6 @@ export default function AlertasPage() {
                           </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
-                          {alerta.tipo === 'recordatorio' && (
-                            datosFiestas[alerta.fiestaId]?.telefono?.trim() ? (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 px-2 text-xs rounded-lg border-blue-200 text-blue-700 hover:bg-blue-50 font-semibold"
-                                disabled={preparandoWhatsAppId === alerta.id}
-                                onClick={() => handlePrepararWhatsApp(alerta)}
-                              >
-                                {preparandoWhatsAppId === alerta.id ? (
-                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                ) : (
-                                  <MessageSquare className="w-3 h-3 mr-1 text-emerald-600" />
-                                )}
-                                Preparar WhatsApp al cliente
-                              </Button>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                disabled
-                                className="h-7 px-2 text-xs rounded-lg border-slate-200 text-muted-foreground opacity-60"
-                                title="Esta fiesta no tiene teléfono del cliente"
-                              >
-                                Esta fiesta no tiene teléfono del cliente
-                              </Button>
-                            )
-                          )}
                           {alerta.accionUrl && (
                             <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs rounded-lg border-border">
                               <Link href={alerta.accionUrl}>

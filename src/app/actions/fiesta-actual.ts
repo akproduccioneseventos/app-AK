@@ -91,9 +91,6 @@ export async function updateInvitadoFiestaActual(fiestaId: string, invitadoActua
 export async function handleRsvpSubmissionFiestaActual(fiestaId: string, submission: any) { return await InvitadosModule.handleRsvpSubmission(fiestaId, submission); }
 export async function checkInGuestFiestaActual(fiestaId: string, guestId: string) { return await InvitadosModule.checkInGuest(fiestaId, guestId); }
 export async function deleteInvitadoFiestaActual(fiestaId: string, invitadoId: string) { return await InvitadosModule.deleteInvitado(fiestaId, invitadoId); }
-export async function registrarQueAbrioLaInvitacion(fiestaId: string, guestId: string, guestAccessToken: string) {
-  return await InvitadosModule.registrarQueAbrioLaInvitacion(fiestaId, guestId, guestAccessToken);
-}
 
 // --- DECORACIÓN Y DISEÑO ---
 export async function updateDecoracionFiestaActual(fiestaId: string, decoracion: any) { return await DecoracionModule.updateDecoracion(fiestaId, decoracion); }

@@ -1,4 +1,4 @@
-export const DEFAULT_CATALOGO_PRESENTACION_TEXT = [
+﻿export const DEFAULT_CATALOGO_PRESENTACION_TEXT = [
   'En AK Producciones somos especialistas en transformar momentos especiales en recuerdos eternos.',
   'Nos encargamos de todo: decoración, catering, sonido, fotografía y coordinación general.',
 ].join(' ');
@@ -59,7 +59,7 @@ export const DEFAULT_PRESENTACION_LED_SETTINGS: PresentacionLedSettings = {
   porQueElegirnos: {
     beneficios: [
       { emoji: '🛡️', texto: 'Un solo proveedor para coordinar todo el evento.' },
-      { emoji: '⏱️', texto: 'Puntualidad en cada etapa.' },
+      { emoji: '⏱️', texto: 'Puntualidad garantizada en cada etapa.' },
       { emoji: '🎧', texto: 'Atención personalizada antes, durante y después.' },
       { emoji: '⭐', texto: 'Calidad premium en servicios y ejecución.' },
       { emoji: '⚡', texto: 'Resolución inmediata ante cualquier imprevisto.' },

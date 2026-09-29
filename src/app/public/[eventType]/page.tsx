@@ -99,17 +99,14 @@ export default async function EventTypePage({ params }: Props) {
         hero={catalog.hero}
         whatsappNumber={catalog.whatsappNumber}
         whatsappMessage={catalog.whatsappMessage}
-        showServices={Boolean(catalog.services && catalog.services.length > 0)}
       />
 
       {/* Services / Packages */}
-      {Boolean(catalog.services && catalog.services.length > 0) && (
-        <ServiceMenu
-          services={catalog.services}
-          whatsappNumber={catalog.whatsappNumber}
-          whatsappMessage={catalog.whatsappMessage}
-        />
-      )}
+      <ServiceMenu
+        services={catalog.services}
+        whatsappNumber={catalog.whatsappNumber}
+        whatsappMessage={catalog.whatsappMessage}
+      />
 
       {/* Interactive Tech Showcase */}
       <InteractiveTechShowcase />
@@ -123,7 +120,7 @@ export default async function EventTypePage({ params }: Props) {
       {/* CTA Banner (mid-page) */}
       <CallToActionBanner
         headline={`¿Te imaginás tu ${catalog.name.toLowerCase()} perfecta?`}
-        subheadline="Hablemos sin compromiso. Te preparamos una propuesta a medida."
+        subheadline="Hablemos sin compromiso. Te preparamos una propuesta a medida en 24 hs."
         ctaLabel={catalog.hero.ctaLabel}
         whatsappNumber={catalog.whatsappNumber}
         whatsappMessage={catalog.whatsappMessage}

@@ -2,9 +2,9 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings, ContractTemplateItem, ContractType, AjustesLlegadaPersonal } from '@/types/settings';
+import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings, ContractTemplateItem, ContractType } from '@/types/settings';
 import type { CuentaBancaria } from '@/types/fiesta';
-import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates, defaultContractSettings, defaultAjustesLlegadaPersonal } from '@/types/settings';
+import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates, defaultContractSettings } from '@/types/settings';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { verifySession } from '@/lib/auth/session-token';
@@ -759,27 +759,4 @@ export async function saveCompanyInfo(...datos: Parameters<typeof saveCompanyInf
 
 export async function saveInvoiceTemplateSettings(...datos: Parameters<typeof saveInvoiceTemplateSettingsInterno>): ReturnType<typeof saveInvoiceTemplateSettingsInterno> {
   return turnoDeAjustes.runExclusive(() => saveInvoiceTemplateSettingsInterno(...datos));
-}
-
-const AJUSTES_LLEGADA_FILE = 'ajustes-llegada.json';
-
-export async function getAjustesLlegadaPersonal(): Promise<AjustesLlegadaPersonal> {
-  const data = await readData<AjustesLlegadaPersonal>(AJUSTES_LLEGADA_FILE, defaultAjustesLlegadaPersonal);
-  return {
-    ...defaultAjustesLlegadaPersonal,
-    ...data,
-  };
-}
-
-export async function saveAjustesLlegadaPersonal(
-  settings: Partial<AjustesLlegadaPersonal>
-): Promise<AjustesLlegadaPersonal> {
-  await requireAppSession();
-  const current = await getAjustesLlegadaPersonal();
-  const updated: AjustesLlegadaPersonal = {
-    ...current,
-    ...settings,
-  };
-  await writeData(AJUSTES_LLEGADA_FILE, updated);
-  return updated;
 }

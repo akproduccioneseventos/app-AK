@@ -48,7 +48,6 @@ import { useToast } from '@/hooks/use-toast';
 import type { Salon } from '@/types/salon';
 import { getSalones, saveSalon, deleteSalon, uploadSalonFoto, deleteSalonFoto } from '@/app/actions/salones';
 import { isClubUruguay } from '@/lib/club-uruguay';
-import { extraerCoordenadasDeUrl } from '@/lib/geo/distancia';
 import NextImage from 'next/image';
 
 /** Returns a wa.me deep-link for the given phone number (strips non-digit chars except leading +) */
@@ -62,11 +61,7 @@ const emptySalon: Omit<Salon, 'id'> = {
   nombre: '',
   direccion: '',
   googleMapsUrl: '',
-  lat: undefined,
-  lng: undefined,
   capacidad: 0,
-  estacionamiento: '',
-  accesibilidad: '',
   descripcion: '',
   fotos: [],
   esClubUruguay: false,
@@ -109,7 +104,6 @@ function SalonForm({
   onUploadFoto,
   onDeleteFoto,
 }: SalonFormProps) {
-  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,30 +149,6 @@ function SalonForm({
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="salon-estacionamiento">Estacionamiento</Label>
-              <Input
-                id="salon-estacionamiento"
-                value={form.estacionamiento || ''}
-                onChange={(e) => onChange('estacionamiento', e.target.value)}
-                placeholder="Ej: Estacionamiento vigilado propio"
-                disabled={isSaving}
-              />
-              <p className="text-[11px] text-muted-foreground">Lo que ve el cliente en la página del salón. Si lo dejás vacío, no se muestra.</p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="salon-accesibilidad">Accesibilidad</Label>
-              <Input
-                id="salon-accesibilidad"
-                value={form.accesibilidad || ''}
-                onChange={(e) => onChange('accesibilidad', e.target.value)}
-                placeholder="Ej: Acceso universal por rampa y ascensor"
-                disabled={isSaving}
-              />
-              <p className="text-[11px] text-muted-foreground">Lo que ve el cliente en la página del salón. Si lo dejás vacío, no se muestra.</p>
-            </div>
-          </div>
           <div className="space-y-2">
             <Label htmlFor="salon-direccion">Dirección</Label>
             <Input
@@ -200,53 +170,6 @@ function SalonForm({
               disabled={isSaving}
             />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="salon-lat" className="text-xs">Latitud (GPS)</Label>
-              <Input
-                id="salon-lat"
-                type="number"
-                step="any"
-                value={form.lat ?? ''}
-                onChange={(e) => onChange('lat', e.target.value === '' ? undefined : parseFloat(e.target.value))}
-                placeholder="-34.9056"
-                disabled={isSaving}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="salon-lng" className="text-xs">Longitud (GPS)</Label>
-              <Input
-                id="salon-lng"
-                type="number"
-                step="any"
-                value={form.lng ?? ''}
-                onChange={(e) => onChange('lng', e.target.value === '' ? undefined : parseFloat(e.target.value))}
-                placeholder="-56.1861"
-                disabled={isSaving}
-              />
-            </div>
-          </div>
-          {form.googleMapsUrl && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const coords = extraerCoordenadasDeUrl(form.googleMapsUrl);
-                if (coords) {
-                  onChange('lat', coords.lat);
-                  onChange('lng', coords.lng);
-                  toast({ title: 'Coordenadas extraídas', description: `Lat: ${coords.lat}, Lng: ${coords.lng}` });
-                } else {
-                  toast({ title: 'No se encontraron coordenadas', description: 'El enlace no trae coordenadas directas (@lat,lng o ?q=lat,lng). Podés escribirlas a mano.', variant: 'destructive' });
-                }
-              }}
-              className="text-xs w-full sm:w-auto"
-            >
-              <Compass className="w-3.5 h-3.5 mr-1.5" />
-              Extraer coordenadas del link de Maps
-            </Button>
-          )}
           <div className="space-y-2">
             <Label htmlFor="salon-descripcion">Descripción</Label>
             <Textarea
@@ -615,14 +538,10 @@ export default function SalonesPage() {
       direccion: salon.direccion,
       googleMapsUrl: salon.googleMapsUrl,
       capacidad: salon.capacidad,
-      estacionamiento: salon.estacionamiento || '',
-      accesibilidad: salon.accesibilidad || '',
       descripcion: salon.descripcion || '',
       fotos: salon.fotos || [],
       salonLayout: salon.salonLayout,
       esClubUruguay: salon.esClubUruguay || false,
-      lat: salon.lat,
-      lng: salon.lng,
     });
     setShowForm(true);
   };

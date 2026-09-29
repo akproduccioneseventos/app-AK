@@ -149,7 +149,7 @@ export function EventLandingPage({
           showEventTypes={false}
         />
 
-        {/* Compromiso y Transparencia */}
+        {/* Garantía y Transparencia */}
         <div className="border-b border-zinc-200 bg-zinc-900 py-3 text-white">
           <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-6 px-4 text-xs font-semibold sm:gap-12">
             <span className="flex items-center gap-1.5 text-emerald-400">
@@ -163,7 +163,7 @@ export function EventLandingPage({
 
         {/* Servicios */}
         <motion.section
-          id="landing-services"
+          id="servicios"
           initial={reduceMotion ? false : { opacity: 1, y: 24 }}
           animate={reduceMotion ? false : { opacity: 1, y: 0 }}
           whileInView={reduceMotion ? undefined : "visible"}

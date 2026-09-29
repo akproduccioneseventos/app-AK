@@ -198,9 +198,9 @@ function PortadaSlide({
 function PresentacionSlide({ catalog, textoPresentacion }: { catalog: EventCatalogData; textoPresentacion: string }) {
   const accent = getAccent(catalog.hero.accentColor);
   const stats = [
-    { icon: Award, label: 'Años de experiencia', value: '+7' },
-    { icon: Heart, label: 'Eventos realizados', value: '+200' },
-    { icon: Users, label: 'Satisfechos', value: 'Clientes' },
+    { icon: Award, label: 'Años de experiencia', value: '+10' },
+    { icon: Heart, label: 'Eventos realizados', value: '+500' },
+    { icon: Users, label: 'Familias felices', value: '+500' },
   ];
   return (
     <div className="max-w-4xl mx-auto py-6">

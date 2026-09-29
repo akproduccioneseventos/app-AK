@@ -12,7 +12,7 @@
 import type { PlatformName } from '@/types/presencia-digital';
 import type { SocialPost } from '@/types/social-media';
 import type { SocialConnection } from '@/types/settings';
-import { readData, writeData, createDataItem } from '@/lib/data-service';
+import { readData, writeData } from '@/lib/data-service';
 import {
   publishToFacebookPage,
   publishToInstagramBusiness,
@@ -24,8 +24,6 @@ import { publishToPinterest } from '@/lib/social-media/pinterest-publisher';
 import { publishToThreads } from '@/lib/social-media/threads-publisher';
 import { publishToX } from '@/lib/social-media/x-publisher';
 import { publishToUnifiedGateway } from '@/lib/social-media/unified-gateway-publisher';
-import { mejorHorario, type ResultadoMejorHorario } from '@/lib/presencia-digital/mejor-horario';
-import { getUruguayParts } from '@/lib/utils';
 
 const POSTS_FILE = 'social-posts.json';
 const CONNECTIONS_FILE = 'social-connections.json';
@@ -482,7 +480,7 @@ export async function procesarPosteosProgramados(
     }
   }
 
-    return {
+  return {
     ok: true,
     totalPendientes: programadosVencidos.length,
     procesados: aProcesar.length,
@@ -491,142 +489,4 @@ export async function procesarPosteosProgramados(
     fallados,
     omitidosPorTope,
   };
-}
-
-/**
- * Devuelve las publicaciones que mejor anduvieron (top 5 con más de 60 días)
- * y que no hayan sido recicladas en los últimos 90 días.
- */
-export function obtenerSugerenciasReciclado(
-  posts: SocialPost[],
-  ahora: Date = new Date(),
-): SocialPost[] {
-  if (!posts || !Array.isArray(posts)) return [];
-
-  const ahoraTime = ahora.getTime();
-  const sesentaDiasMs = 60 * 24 * 60 * 60 * 1000;
-  const noventaDiasMs = 90 * 24 * 60 * 60 * 1000;
-
-  // Registrar publicaciones recicladas en los últimos 90 días
-  const recicladasRecientes = new Set<string>();
-  for (const p of posts) {
-    if (p.recicladoDe) {
-      const fechaReciclado = new Date(p.createdAt || p.publishDate).getTime();
-      if (!Number.isNaN(fechaReciclado) && ahoraTime - fechaReciclado < noventaDiasMs) {
-        recicladasRecientes.add(p.recicladoDe);
-      }
-    }
-  }
-
-  // Filtrar publicaciones elegibles
-  const candidatas = posts.filter((p) => {
-    // Si ya fue reciclada recientemente, no se sugiere
-    if (recicladasRecientes.has(p.id)) return false;
-
-    // Solo publicaciones con fecha válida y de más de 60 días de antigüedad
-    const fechaPub = new Date(p.publishDate).getTime();
-    if (Number.isNaN(fechaPub) || ahoraTime - fechaPub < sesentaDiasMs) return false;
-
-    // Con interacción positiva
-    const interacciones = p.performance?.interactions ?? p.performance?.likes ?? 0;
-    return interacciones > 0;
-  });
-
-  // Ordenar de mayor a menor interacción
-  candidatas.sort((a, b) => {
-    const valA = a.performance?.interactions ?? a.performance?.likes ?? 0;
-    const valB = b.performance?.interactions ?? b.performance?.likes ?? 0;
-    return valB - valA;
-  });
-
-  return candidatas.slice(0, 5);
-}
-
-/**
- * Calcula la próxima fecha para publicar según el mejor horario o mañana a las 20hs.
- */
-export function calcularProximaFechaMejorHorario(
-  resultado: ResultadoMejorHorario | null,
-  ahora: Date = new Date(),
-): string {
-  if (!resultado || typeof resultado.diaNumero !== 'number') {
-    // Mañana a las 20hs de Uruguay (UTC-3 => 23hs UTC)
-    const manana = new Date(ahora.getTime() + 24 * 60 * 60 * 1000);
-    const { year, month, day } = getUruguayParts(manana);
-    return new Date(Date.UTC(year, month - 1, day, 23, 0, 0)).toISOString();
-  }
-
-  const { year, month, day, hour } = getUruguayParts(ahora);
-  const diaHoy = new Date(year, month - 1, day).getDay();
-  let diasDiferencia = (resultado.diaNumero - diaHoy + 7) % 7;
-
-  if (diasDiferencia === 0 && hour >= resultado.hora) {
-    diasDiferencia = 7;
-  } else if (diasDiferencia === 0 && hour < resultado.hora) {
-    // Es hoy mismo más tarde
-    diasDiferencia = 0;
-  }
-
-  const objetivo = new Date(ahora.getTime() + diasDiferencia * 24 * 60 * 60 * 1000);
-  const pObj = getUruguayParts(objetivo);
-  const utcHora = (resultado.hora + 3) % 24;
-  return new Date(Date.UTC(pObj.year, pObj.month - 1, pObj.day, utcHora, 0, 0)).toISOString();
-}
-
-/**
- * Recicla una publicación anterior exitosa:
- * Crea un post nuevo copiando text, mediaUrl, mediaType, platform con status 'Programado',
- * recicladoDe: originalId, y publishDate en el próximo mejor horario (o mañana a las 20hs).
- */
-export async function reciclarPublicacion(
-  postId: string,
-  ahora: Date = new Date(),
-): Promise<SocialPost> {
-  const posts = await readData<SocialPost[]>(POSTS_FILE, []);
-  const original = posts.find((p) => p.id === postId);
-
-  if (!original) {
-    throw new Error(`Publicación original ${postId} no encontrada.`);
-  }
-
-  const mejorH = mejorHorario(posts, original.platform);
-  const proximaFecha = calcularProximaFechaMejorHorario(mejorH, ahora);
-  const ahoraIso = ahora.toISOString();
-
-  const nueva: SocialPost = {
-    id: `post-reciclado-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-    platform: original.platform,
-    isGeneralCampaign: original.isGeneralCampaign,
-    eventId: original.eventId,
-    eventName: original.eventName,
-    publishDate: proximaFecha,
-    text: original.text,
-    link: original.link,
-    mediaUrl: original.mediaUrl,
-    mediaType: original.mediaType,
-    status: 'Programado',
-    recicladoDe: original.id,
-    createdAt: ahoraIso,
-    updatedAt: ahoraIso,
-  };
-
-  const sinBase = process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
-  if (!sinBase) {
-    try {
-      await createDataItem<SocialPost>(POSTS_FILE, 'social_posts', nueva.id, nueva);
-      return nueva;
-    } catch (err: any) {
-      if (
-        !err?.message?.includes('modo local de pruebas') &&
-        !err?.message?.includes('Firestore no esta disponible')
-      ) {
-        throw err;
-      }
-    }
-  }
-
-  posts.push(nueva);
-  await writeData(POSTS_FILE, posts);
-
-  return nueva;
 }

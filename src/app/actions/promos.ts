@@ -4,8 +4,6 @@ import { readData, writeData } from '@/lib/data-service';
 import type { PromoActiva } from '@/types/promo';
 import { requireAppSession } from '@/lib/auth/require-session';
 
-import { hoyEnUruguay } from '@/lib/utils';
-
 const PROMOS_FILE = 'promos.json';
 
 export async function getPromos(): Promise<PromoActiva[]> {
@@ -18,19 +16,10 @@ async function leerPromos(): Promise<PromoActiva[]> {
   return readData<PromoActiva[]>(PROMOS_FILE, []);
 }
 
-export async function getPromoActiva(ahora: Date = new Date()): Promise<PromoActiva | null> {
+export async function getPromoActiva(): Promise<PromoActiva | null> {
   try {
     const promos = await leerPromos();
-    const hoy = hoyEnUruguay(ahora);
-    return (
-      promos.find((p) => {
-        if (!p.activa || !p.mostrarEnLanding) return false;
-        if (!p.fechaInicio || !p.fechaFin) return false;
-        const inicio = p.fechaInicio.slice(0, 10);
-        const fin = p.fechaFin.slice(0, 10);
-        return inicio <= hoy && hoy <= fin;
-      }) ?? null
-    );
+    return promos.find((p) => p.activa && p.mostrarEnLanding) ?? null;
   } catch {
     return null;
   }

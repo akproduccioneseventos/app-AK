@@ -13,7 +13,25 @@ import { getGuestAdultsCount, getGuestKidsCount, getGuestPartySize } from '@/lib
 
 // ─── Core helper ────────────────────────────────────────────────────────────
 
-import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
+const fiestaUpdateQueues = new Map<string, Promise<void>>();
+
+async function acquireFiestaUpdateLock(fiestaId: string): Promise<() => void> {
+  const previous = fiestaUpdateQueues.get(fiestaId);
+  let releaseCurrent!: () => void;
+  const current = new Promise<void>((resolve) => {
+    releaseCurrent = resolve;
+  });
+
+  fiestaUpdateQueues.set(fiestaId, current);
+  if (previous) await previous;
+
+  return () => {
+    releaseCurrent();
+    if (fiestaUpdateQueues.get(fiestaId) === current) {
+      fiestaUpdateQueues.delete(fiestaId);
+    }
+  };
+}
 
 function normalizeGuestName(value: string): string {
   return value
@@ -24,7 +42,41 @@ function normalizeGuestName(value: string): string {
     .replace(/\s+/g, ' ');
 }
 
-const updateFiestaData = actualizarFiesta;
+async function updateFiestaData(
+  fiestaId: string,
+  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion,
+  options: { publicRsvp?: boolean } = {},
+): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
+  const releaseLock = await acquireFiestaUpdateLock(fiestaId);
+  try {
+    const currentData = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!currentData) {
+      throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
+    }
+    const updatedData = updateFn(currentData);
+    const result: {
+      success: boolean;
+      fiesta?: FiestaEnPlanificacion;
+      error?: string;
+    } = options.publicRsvp
+      ? await writeData(
+          `fiestas/${fiestaId}.json`,
+          await preserveFiestaSecrets(fiestaId, updatedData),
+        ).then(() => ({
+          success: true,
+          fiesta: updatedData,
+        }))
+      : await saveFiesta(updatedData);
+    if (!result.success || !result.fiesta) {
+      throw new Error(result.error || 'No se pudo guardar la fiesta después de actualizar los invitados.');
+    }
+    return { success: true, updatedFiesta: result.fiesta };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  } finally {
+    releaseLock();
+  }
+}
 
 /**
  * Lo unico que sale para afuera despues de tocar un invitado: si salio bien, el error, y
@@ -500,41 +552,4 @@ export async function trackGuestCtaClick(
     return { ...data, invitados };
   }, { publicRsvp: true });
   return { success: result.success };
-}
-
-/**
- * Registra que el invitado abrió su enlace personal (sólo la primera vez).
- * Sigue el patrón seguro de trackGuestCtaClick validando hasPublicGuestAccess.
- */
-export async function registrarQueAbrioLaInvitacion(
-  fiestaId: string,
-  guestId: string,
-  guestAccessToken: string
-): Promise<{ success: boolean }> {
-  try {
-    const result = await updateFiestaData(fiestaId, data => {
-      const currentGuest = (data.invitados || []).find(inv => inv.id === guestId);
-      if (!hasPublicGuestAccess(currentGuest, guestId, guestAccessToken)) {
-        throw new Error('Acceso de invitado no autorizado.');
-      }
-
-      // Sólo la primera vez: no sobreescribir la fecha original
-      if (currentGuest.invitacionAbiertaAt) {
-        return data;
-      }
-
-      const ahora = new Date().toISOString();
-      const invitados = (data.invitados || []).map(inv => {
-        if (inv.id !== guestId) return inv;
-        return {
-          ...inv,
-          invitacionAbiertaAt: ahora,
-        };
-      });
-      return { ...data, invitados };
-    }, { publicRsvp: true });
-    return { success: result.success };
-  } catch {
-    return { success: false };
-  }
 }

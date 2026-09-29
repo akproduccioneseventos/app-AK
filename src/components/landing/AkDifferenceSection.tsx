@@ -12,7 +12,7 @@ const benefits = [
   },
   {
     title: 'Cero sorpresas ni intermediarios',
-    text: 'Desde la gastronomía gourmet hasta la discoteca y pantallas LED, todo funciona bajo una misma visión integral. Menos proveedores, todo coordinado por el mismo equipo.',
+    text: 'Desde la gastronomía gourmet hasta la discoteca y pantallas LED, todo funciona bajo una misma visión integral. Menos proveedores, cero fallas.',
     icon: Sparkles,
   },
   {
@@ -53,7 +53,7 @@ export function AkDifferenceSection() {
               El verdadero lujo es llegar al día de tu evento sin estrés. Olvidate de perseguir proveedores o comparar presupuestos incompletos.
             </p>
           </div>
-
+          
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -94,17 +94,17 @@ export function AkDifferenceSection() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-900/30 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-8">
-              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-red-400 drop-shadow-md">Trabajo en equipo</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-red-400 drop-shadow-md">Seguridad Absoluta</span>
               <p className="mt-2 text-2xl sm:text-3xl font-black text-white leading-tight drop-shadow-lg">Personas reales cuidando cada detalle</p>
             </div>
           </div>
-
+          
           <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/5 text-zinc-300 backdrop-blur-sm">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-500/10 text-red-400">
               <CalendarCheck className="h-5 w-5 shrink-0" />
             </div>
             <p className="text-sm font-semibold leading-relaxed">
-              Reserva de fecha confirmada, plan de pagos claro y un equipo entero a tu disposición.
+              Reserva de fecha garantizada, plan de pagos claro y un equipo entero a tu disposición.
             </p>
           </div>
         </div>
