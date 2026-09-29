@@ -135,6 +135,7 @@ cumplir"*. Cambiá **exactamente** esto (líneas aproximadas):
 | `src/components/public/HeroSection.tsx` ~l.132 | "✅ +10 años de experiencia" | "✅ +7 años de experiencia" |
 | `src/data/event-catalogs/shared.ts` ~l.118 y ~l.124 | "+10 años de experiencia"; "para garantizar la máxima calidad" | "+7 años de experiencia"; "para cuidar la calidad" |
 | `src/components/landing/AkDifferenceSection.tsx` ~l.15 | "Menos proveedores, cero fallas." | "Menos proveedores, todo coordinado por el mismo equipo." |
+| `src/components/landing/AkDifferenceSection.tsx` ~l.97 | "Seguridad Absoluta" | "Trabajo en equipo" |
 | `src/components/public-footer.tsx` ~l.256 | "Coordinación presencial garantizada el día de tu celebración." | "Coordinación presencial el día de tu celebración." |
 | `src/app/presentacion-led/slides/beneficios-slide.tsx` ~l.11 y ~l.86 | "Puntualidad garantizada en cada etapa."; "· Resultado garantizado" | "Puntualidad en cada etapa."; sacá "· Resultado garantizado" |
 | `src/app/actions/social-admin.ts` ~l.39 | "…tu evento. ¡Diversión garantizada!" | "…tu evento." |
@@ -145,7 +146,7 @@ cumplir"*. Cambiá **exactamente** esto (líneas aproximadas):
   el trabajo en equipo y el organizador"*. Si el barrido encuentra un texto que presenta a un
   integrante por su experiencia o su nombre, se reescribe hablando del equipo y del organizador.
 - **Las cifras son las del dueño:** +200 eventos y +7 años. No inventes otras.
-- **Barrido:** buscá sin distinguir mayúsculas `garant|24/7|24 ?hs|24 horas|cero fallas` en lo que
+- **Barrido:** buscá sin distinguir mayúsculas `garant|24/7|24 ?hs|24 horas|cero fallas|absolut` en lo que
   ve un cliente o un prospecto (`src/app` sin `(app)`, `src/components/public`,
   `src/components/landing`, `src/data`, los artículos del blog). Lo que aparezca y sea una promesa
   se saca con el mismo criterio. Listalo en la descripción de la propuesta.
