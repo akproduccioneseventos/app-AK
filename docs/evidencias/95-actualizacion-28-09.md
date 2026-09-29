@@ -30,3 +30,6 @@ Referencias públicas:
 - El Jest focalizado de Codex sobre mural se interrumpió después de más de dos minutos sin resultado; inconcluso, no fallido. El dueño/equipo informó luego que las suites pasaron.
 - `git push` local no respondió con salida y se interrumpió; no afirmar subida hasta comprobar la rama remota.
 - Reanudar pruebas visuales sólo en entorno habilitado. Contrastar siempre con SHA de tanda/producción y no repetir evidencia vigente.
+
+## Club Uruguay: información comercial útil aún no explícita
+La extracción de https://akproducciones.uy/club-uruguay presenta Salto, tres escenas descritas y CTA para cotizar/visitar/simular. No extrae capacidad, dirección/mapa, dimensiones, accesibilidad, parking, límites/horarios o equipamiento incluido. P2 oportunidad: publicar solo datos confirmados por AK. No se comprobó si aparecen en imágenes/controles ni si los CTAs funcionan; no es defecto de navegación confirmado.
