@@ -481,6 +481,10 @@ const yaEstabanBien = leerAvance();
  * gastar el tiempo, y al final dice si el resultado sigue valiendo.
  */
 const huellaAlEmpezar = huellas.codigo;
+// Se mira AL EMPEZAR si habia cambios sin guardar: la corrida misma escribe datos (avisos, gasto
+// de IA) y mirarlo al final nunca daria limpio. Que el codigo no cambie en el medio ya lo cuida
+// `huellaAlEmpezar`.
+const sucioAlEmpezar = spawnSync('git status --porcelain --untracked-files=no', { shell: true, encoding: 'utf8' }).stdout.trim();
 const hayTrabajoSinCommitear = (spawnSync(
   `git status --porcelain -- . ${[...NO_ES_CODIGO_PARA_LA_HUELLA, ...SOLO_DOCUMENTOS].map((p) => `'${p}'`).join(' ')}`,
   { shell: true, encoding: 'utf8' },
@@ -572,12 +576,12 @@ async function mostrarMetricasAuditadas() {
  * Lo lee `scripts/antes-de-fusionar.mjs` antes de cada fusion: si el commit que se quiere
  * fusionar no es este, la fusion no sale. Paso el 29/09/2026: se fusiono una propuesta de
  * Gemini sin revisar por usar un numero adivinado (error 30 de CLAUDE.md).
- * Si hay cambios sin guardar, lo que paso no es ese commit: no se anota nada.
+ * Si habia cambios sin guardar al empezar, o se toco el codigo en el medio, lo que paso no es
+ * ese commit: no se anota nada.
  */
 function anotarPuertaVerde() {
   const sha = spawnSync('git rev-parse HEAD', { shell: true, encoding: 'utf8' }).stdout.trim();
-  const sucio = spawnSync('git status --porcelain --untracked-files=no', { shell: true, encoding: 'utf8' }).stdout.trim();
-  if (!/^[0-9a-f]{40}$/.test(sha) || sucio) return;
+  if (!/^[0-9a-f]{40}$/.test(sha) || sucioAlEmpezar || huellaDelCodigo() !== huellaAlEmpezar) return;
   writeFileSync('.ak-puerta-verde.json', JSON.stringify({ sha, cuando: new Date().toISOString() }, null, 2));
 }
 
