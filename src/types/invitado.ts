@@ -39,6 +39,12 @@ export interface Invitado {
   requiereAccesibilidad?: boolean; // Requiere acceso adaptado para movilidad reducida
   /** 0-100 readiness score reflecting how complete the guest's event preparation data is */
   readinessScore?: number;
+  /** Momento en que el invitado abrió su invitación personal por primera vez */
+  invitacionAbiertaAt?: string;
+  abrioInvitacion?: boolean;
+  fechaPrimeraApertura?: string;
+  /** Registro de fechas en que se enviaron recordatorios de invitación no abierta */
+  recordatoriosApertura?: string[];
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID

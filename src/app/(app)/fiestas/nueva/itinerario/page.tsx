@@ -15,6 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
+import type { TipoEvento } from '@/types/presupuesto';
+import { sugerirPlantillaPorTipo, ordenarPlantillasPorTipo } from '@/lib/itinerario/sugerir-plantilla';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
 import { generateTimelineAction } from '@/app/actions/timeline-ia.actions';
@@ -146,6 +148,8 @@ function ItinerarioContent() {
 
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
   const [templateName, setTemplateName] = useState('');
+  const [templateTipoEvento, setTemplateTipoEvento] = useState('');
+  const [suggestedTemplate, setSuggestedTemplate] = useState<ItineraryTemplate | null>(null);
   const [isLoadTemplateModalOpen, setIsLoadTemplateModalOpen] = useState(false);
   const [templates, setTemplates] = useState<ItineraryTemplate[]>([]);
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
@@ -186,19 +190,29 @@ function ItinerarioContent() {
         if (modulos.entretenimiento) activeServices.push('Entretenimiento');
       }
 
+      const tipoCelebracionActual = fiestaData.configuracion?.tipoCelebracion || 'Evento General';
       setFiestaInfo({
-        tipo: fiestaData.configuracion?.tipoCelebracion || 'Evento General',
+        tipo: tipoCelebracionActual,
         inicio: fiestaData.configuracion?.horaInicio || '21:00',
         servicios: activeServices.length > 0 ? activeServices : ['Catering', 'Música', 'Bebidas'],
       });
 
-      const itinerario = fiestaData.programa;
-      if (Array.isArray(itinerario)) {
+      let itinerario: ProgramaEventoItem[] = [];
+      if (Array.isArray(fiestaData.programa)) {
         // Respetar lo que decidió el usuario (incluso si está vacío)
+        itinerario = fiestaData.programa;
         setPrograma(itinerario);
       } else {
         setPrograma([]);
       }
+
+      // Si el programa está vacío, sugerir plantilla según tipoEvento
+      try {
+        const fetched = await getItineraryTemplates();
+        setTemplates(ordenarPlantillasPorTipo(fetched, tipoCelebracionActual));
+        const sugerida = sugerirPlantillaPorTipo(itinerario, fetched, tipoCelebracionActual);
+        setSuggestedTemplate(sugerida);
+      } catch {}
     } catch (err: any) {
       setError("No se pudo cargar el cronograma.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
@@ -216,7 +230,7 @@ function ItinerarioContent() {
     setIsLoadTemplateModalOpen(true);
     try {
         const fetchedTemplates = await getItineraryTemplates();
-        setTemplates(fetchedTemplates);
+        setTemplates(ordenarPlantillasPorTipo(fetchedTemplates, fiestaInfo.tipo));
     } catch(e) {
         toast({title: "Error", description: "No se pudieron cargar las plantillas", variant: "destructive"});
     } finally {
@@ -226,6 +240,7 @@ function ItinerarioContent() {
 
   const handleOpenSaveTemplateModal = () => {
     setTemplateName('');
+    setTemplateTipoEvento(fiestaInfo.tipo || '');
     setIsSaveTemplateModalOpen(true);
   };
 
@@ -236,10 +251,13 @@ function ItinerarioContent() {
     }
     setIsSavingTemplate(true);
     try {
-        const result = await saveItineraryTemplate(templateName, programa);
+        const tipoEventoVal = (templateTipoEvento.trim() || undefined) as TipoEvento | undefined;
+        const result = await saveItineraryTemplate(templateName, programa, tipoEventoVal);
         if (result.success) {
           toast({title: "Plantilla Guardada"});
           setIsSaveTemplateModalOpen(false);
+          const fetched = await getItineraryTemplates();
+          setTemplates(ordenarPlantillasPorTipo(fetched, fiestaInfo.tipo));
         } else {
           throw new Error(result.error);
         }
@@ -253,7 +271,8 @@ function ItinerarioContent() {
   const handleLoadTemplate = async (template: ItineraryTemplate) => {
     const updatedItems = template.items.map(item => ({...item, id: `prog_${Date.now()}_${Math.random()}`}));
     setPrograma(updatedItems);
-    toast({title: "Plantilla cargada"});
+    setSuggestedTemplate(null);
+    toast({title: "Plantilla cargada", description: `Se aplicó la plantilla de ${template.tipoEvento || template.name}.`});
     setIsLoadTemplateModalOpen(false);
   };
 
@@ -390,7 +409,17 @@ function ItinerarioContent() {
                 <div className="space-y-2 pr-4">
                     {templates.map(t => (
                     <div key={t.id} className="flex items-center justify-between p-2 border rounded-md">
-                        <span className="font-medium text-sm">{t.name} ({t.items.length} momentos)</span>
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">{t.name}</span>
+                            {t.tipoEvento && (
+                              <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
+                                {t.tipoEvento}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{t.items.length} momentos</p>
+                        </div>
                         <div className="flex gap-1">
                         <Button size="sm" onClick={() => handleLoadTemplate(t)}>Cargar</Button>
                         <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteTemplate(t.id)} disabled={deletingTemplateId===t.id}>
@@ -409,9 +438,21 @@ function ItinerarioContent() {
       <Dialog open={isSaveTemplateModalOpen} onOpenChange={setIsSaveTemplateModalOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle className="font-headline">Guardar como Plantilla</DialogTitle><DialogDescription>Crea una plantilla a partir de este cronograma para usarla en otros eventos.</DialogDescription></DialogHeader>
-          <div className="py-2 space-y-2">
-              <Label htmlFor="template-name">Nombre de la Plantilla</Label>
-              <Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Itinerario Boda Estándar"/>
+          <div className="py-2 space-y-3">
+              <div className="space-y-1">
+                <Label htmlFor="template-name">Nombre de la Plantilla</Label>
+                <Input id="template-name" value={templateName} onChange={e => setTemplateName(e.target.value)} placeholder="Ej: Itinerario Boda Estándar"/>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="template-tipo-evento">Tipo de Evento</Label>
+                <Input
+                  id="template-tipo-evento"
+                  value={templateTipoEvento}
+                  onChange={e => setTemplateTipoEvento(e.target.value)}
+                  placeholder="Ej: Boda, 15 Años..."
+                />
+                <p className="text-xs text-muted-foreground">Propuesto según el tipo de esta fiesta ({fiestaInfo.tipo}).</p>
+              </div>
           </div>
           <DialogFooter>
               <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
@@ -501,6 +542,32 @@ function ItinerarioContent() {
             <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
         </div>
       </div>
+
+      {/* ── Sugerencia de plantilla por tipo de evento ─── */}
+      {suggestedTemplate && programa.length === 0 && (
+        <div className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg text-primary shrink-0">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-bold text-sm text-primary">
+                Usar la plantilla de {suggestedTemplate.tipoEvento || suggestedTemplate.name}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                El cronograma está vacío. Podés aplicar los {suggestedTemplate.items.length} momentos de esta plantilla en un toque.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => handleLoadTemplate(suggestedTemplate)}
+            className="font-bold text-xs shrink-0"
+          >
+            Usar la plantilla de {suggestedTemplate.tipoEvento || suggestedTemplate.name}
+          </Button>
+        </div>
+      )}
 
       {/* ── Vista Cliente: cronograma simplificado ─── */}
       {clientViewMode && (

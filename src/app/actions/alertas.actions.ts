@@ -148,3 +148,20 @@ export async function getPrioridadesDescartadas(): Promise<Set<string>> {
   const ids = await readData<string[]>(PRIORIDADES_DESCARTADAS_FILE, []);
   return new Set(ids);
 }
+
+export async function getDatosFiestasParaAlertas(): Promise<Record<string, { telefono?: string; nombreCliente?: string }>> {
+  await requireAppSession();
+  try {
+    const fiestas = await getAllFiestas();
+    const mapa: Record<string, { telefono?: string; nombreCliente?: string }> = {};
+    for (const f of fiestas) {
+      mapa[f.id] = {
+        telefono: f.configuracion?.telefonoAsistencia,
+        nombreCliente: f.configuracion?.clienteNombre || f.configuracion?.nombreAgasajado || f.configuracion?.nombreEvento || 'Cliente',
+      };
+    }
+    return mapa;
+  } catch {
+    return {};
+  }
+}

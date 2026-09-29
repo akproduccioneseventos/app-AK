@@ -9,11 +9,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2, PlusCircle, Upload } from 'lucide-react';
+import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2, PlusCircle, Upload, Wrench } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getActivoFijoById, saveActivoFijo, deleteActivoFijo } from '@/app/actions/activos-fijos';
+import { saveGastoGeneral } from '@/app/actions/gastos';
 import type { ServicioEmpresa, AnyCategoria, UnidadServicio, TramoDePrecio } from '@/types/empresa';
 import { ALL_CATEGORIAS_ACTIVO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +52,10 @@ export default function EditarActivoFijoPage() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [notFound, setNotFound] = useState(false);
+  const [dialogMantenimientoAbierto, setDialogMantenimientoAbierto] = useState(false);
+  const [mantenimientoFecha, setMantenimientoFecha] = useState(() => new Date().toISOString().split('T')[0]);
+  const [mantenimientoNota, setMantenimientoNota] = useState('');
+  const [mantenimientoCosto, setMantenimientoCosto] = useState<number | ''>('');
 
   const itemIdFromParams = params.id;
 
@@ -123,6 +137,45 @@ export default function EditarActivoFijoPage() {
     }
   };
 
+  const handleAnotarMantenimiento = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mantenimientoNota.trim()) {
+      toast({ title: 'Nota requerida', description: 'Por favor ingresá el detalle del mantenimiento.', variant: 'destructive' });
+      return;
+    }
+    const costoNum = typeof mantenimientoCosto === 'number' && mantenimientoCosto > 0 ? mantenimientoCosto : undefined;
+    if (costoNum) {
+      try {
+        await saveGastoGeneral({
+          concepto: `Mantenimiento: ${formData.nombre || item?.nombre || 'Equipo'} - ${mantenimientoNota.trim()}`,
+          fecha: mantenimientoFecha,
+          categoria: 'Reparaciones y Mantenimiento',
+          monto: costoNum,
+          notas: `Registrado automáticamente desde Activos Fijos (${item?.id || ''})`,
+        });
+        toast({ title: 'Gasto registrado', description: 'Se añadió el gasto en Reparaciones y Mantenimiento.' });
+      } catch (err: any) {
+        console.error('Error al registrar gasto de mantenimiento:', err);
+      }
+    }
+    const nuevoRegistro = {
+      fecha: mantenimientoFecha,
+      nota: mantenimientoNota.trim(),
+      ...(costoNum ? { costo: costoNum } : {}),
+    };
+    setFormData(prev => ({
+      ...prev,
+      mantenimiento: {
+        ...prev.mantenimiento,
+        ultimoAt: mantenimientoFecha,
+        historial: [nuevoRegistro, ...(prev.mantenimiento?.historial || [])],
+      },
+    }));
+    setMantenimientoNota('');
+    setMantenimientoCosto('');
+    setDialogMantenimientoAbierto(false);
+    toast({ title: 'Mantenimiento registrado', description: 'El mantenimiento se anotó correctamente en la ficha del equipo.' });
+  };
 
   const backUrl = '/empresa/activos-fijos';
 
@@ -285,6 +338,137 @@ export default function EditarActivoFijoPage() {
                     <Button type="button" variant="outline" size="sm" onClick={addTramo}>Añadir Tramo</Button>
                 </div>
             )}
+
+            <Separator />
+
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Wrench className="w-5 h-5 text-primary" />
+                  <div>
+                    <h3 className="text-base font-medium">Mantenimiento Preventivo (Opcional)</h3>
+                    <p className="text-xs text-muted-foreground">Configurá revisiones y services para recibir avisos antes de las fiestas.</p>
+                  </div>
+                </div>
+                <Dialog open={dialogMantenimientoAbierto} onOpenChange={setDialogMantenimientoAbierto}>
+                  <DialogTrigger asChild>
+                    <Button type="button" variant="outline" size="sm">
+                      <Wrench className="w-4 h-4 mr-2" />
+                      Anotar un mantenimiento
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Anotar un mantenimiento</DialogTitle>
+                      <DialogDescription>
+                        Registrá una revisión, arreglo o service. Si indicás costo, se anota automáticamente como gasto en contabilidad.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="maint-fecha">Fecha del mantenimiento</Label>
+                        <Input
+                          id="maint-fecha"
+                          type="date"
+                          value={mantenimientoFecha}
+                          onChange={(e) => setMantenimientoFecha(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="maint-nota">Detalle / Trabajo realizado *</Label>
+                        <Input
+                          id="maint-nota"
+                          placeholder="Ej. Cambio de lámpara, lubricación, ajuste..."
+                          value={mantenimientoNota}
+                          onChange={(e) => setMantenimientoNota(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="maint-costo">Costo en UYU (Opcional)</Label>
+                        <Input
+                          id="maint-costo"
+                          type="number"
+                          min="0"
+                          placeholder="0"
+                          value={mantenimientoCosto}
+                          onChange={(e) => setMantenimientoCosto(e.target.value === '' ? '' : Number(e.target.value))}
+                        />
+                        <p className="text-xs text-muted-foreground">Si tiene costo, se guarda en "Reparaciones y Mantenimiento".</p>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" variant="outline" onClick={() => setDialogMantenimientoAbierto(false)}>
+                        Cancelar
+                      </Button>
+                      <Button type="button" onClick={handleAnotarMantenimiento}>
+                        Anotar mantenimiento
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="item-mantenimiento-cadadias">Frecuencia recomendada (en días)</Label>
+                  <Input
+                    id="item-mantenimiento-cadadias"
+                    type="number"
+                    min="1"
+                    placeholder="Ej. 90 (cada 3 meses)"
+                    value={formData.mantenimiento?.cadaDias ?? ''}
+                    onChange={(e) => {
+                      const val = e.target.value === '' ? undefined : Number(e.target.value);
+                      setFormData(prev => ({
+                        ...prev,
+                        mantenimiento: {
+                          ...prev.mantenimiento,
+                          cadaDias: val,
+                        },
+                      }));
+                    }}
+                    disabled={isSaving}
+                  />
+                  <p className="text-xs text-muted-foreground">Si vence y el equipo está asignado en una fiesta dentro de 7 días, salta un aviso.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="item-mantenimiento-ultimo">Último mantenimiento realizado</Label>
+                  <Input
+                    id="item-mantenimiento-ultimo"
+                    type="date"
+                    value={formData.mantenimiento?.ultimoAt || ''}
+                    onChange={(e) => {
+                      const val = e.target.value || undefined;
+                      setFormData(prev => ({
+                        ...prev,
+                        mantenimiento: {
+                          ...prev.mantenimiento,
+                          ultimoAt: val,
+                        },
+                      }));
+                    }}
+                    disabled={isSaving}
+                  />
+                </div>
+              </div>
+
+              {formData.mantenimiento?.historial && formData.mantenimiento.historial.length > 0 && (
+                <div className="space-y-2 mt-2">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Historial de mantenimientos</Label>
+                  <div className="max-h-36 overflow-y-auto space-y-2 border rounded-md p-2 bg-muted/20">
+                    {formData.mantenimiento.historial.map((reg, idx) => (
+                      <div key={idx} className="text-sm flex justify-between items-center border-b pb-1 last:border-b-0">
+                        <div>
+                          <span className="font-medium text-xs text-muted-foreground mr-2">{reg.fecha}</span>
+                          <span>{reg.nota}</span>
+                        </div>
+                        {reg.costo ? <span className="text-xs font-medium text-destructive">${reg.costo}</span> : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             
           </CardContent>
           <CardFooter className="border-t pt-6 flex justify-between items-center">

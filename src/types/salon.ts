@@ -40,7 +40,11 @@ export interface Salon {
   nombre: string;
   direccion: string;
   googleMapsUrl: string;
+  lat?: number;
+  lng?: number;
   capacidad: number;
+  estacionamiento?: string;
+  accesibilidad?: string;
   descripcion?: string;
   fotos?: string[];
   salonLayout?: DecoracionData;

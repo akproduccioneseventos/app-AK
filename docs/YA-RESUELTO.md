@@ -1,5 +1,86 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 29 de septiembre de 2026 — Orden 98: Promoción configurable y videos de ayuda
+
+- **Bloque 1 — El regalo de la portada sale de la promoción que carga el dueño:**
+  - `src/app/actions/promos.ts` con función pura `hoyEnUruguay()` para comparar fechas en zona horaria America/Montevideo.
+  - `CTASection` en portada recibe prop `promo?: PromoActiva | null` y renderiza dinámicamente el badge "Regalo de Reserva", descripción del beneficio y cuenta regresiva; si no hay promoción activa no muestra textos fijos engañosos.
+  - Probado en `src/__tests__/la-promocion-de-la-portada-sale-de-lo-cargado.test.ts` (6/6 en verde).
+- **Bloque 2 — Videos de ayuda donde se necesitan:**
+  - `src/lib/videos-de-ayuda.ts` con constantes `LUGARES_CON_VIDEO` e `idDeYoutube(url)`.
+  - Panel en `src/app/(app)/settings/videos-de-ayuda/page.tsx` para cargar videos de YouTube por pantalla con ayuda clara.
+  - Componente accesible `VideoDeAyuda` (`src/components/ayuda/VideoDeAyuda.tsx`) con modal emergente no intrusivo.
+  - Integrado en las 6 pantallas críticas: `portal-invitado`, `hub-de-la-fiesta`, `portal-cliente`, `video-de-vida`, `simulador-de-presupuesto`, `muro-subir-foto`.
+  - Probado en `src/__tests__/los-videos-de-ayuda-se-ven-donde-se-cargaron.test.ts` (8/8 en verde).
+
+## 29 de septiembre de 2026 — Orden 97: Devolución de la orden 95
+
+- **Aislamiento de fiestas (`src/lib/fiesta/actualizar-fiesta.ts`):** `actualizarFiesta(fiestaId, cambiador)` relee la fiesta dentro de transacción, muta sólo los campos afectados y la guarda sin pisar otras fiestas ni borrar datos de personal, invitados o proveedores concurrentes (`src/__tests__/orden-97-actualizar-fiesta-no-pisa-otras-fiestas.test.ts`).
+- **Avisos al cliente:** Los mensajes programados automáticos respetan la revisión humana en alertas y no envían nada sin confirmación manual.
+- **Invitaciones no abiertas:** El cron `api/cron/recordar-invitacion-no-abierta` ejecuta los recordatorios respetando fechas y estado real de lectura de cada invitado.
+- **Llegada geolocalizada:** El personal valida su ubicación contra las coordenadas del salón con radio de tolerancia de 300 metros sólo cuando el ajuste está explícitamente activado.
+- **Publicaciones en redes:** El reciclado de publicaciones respeta el umbral de 90 días y programa en el mejor horario calculado en hora de Uruguay.
+
+## 28 de septiembre de 2026 — Orden 96: Ningún botón lleva a algo que está oculto
+
+- **Bloque 1 (Enlaces a secciones y pantallas ocultas):**
+  - Portal del Cliente (`src/app/portal-cliente/[id]/page.tsx`):
+    - "Cargar lista de canciones" condicionado a `showMusica && (fiesta.modulosContratados?.discoteca ?? true)`.
+    - "Subir fotos para video de vida" condicionado a `showVideoVida && (fiesta.modulosContratados?.videoVida ?? true)`.
+    - Feature Navigation Cards filtradas con `navCards.filter(Boolean)` respetando visibilidad de cada módulo y servicios contratados.
+  - Portal del Invitado (`src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx`):
+    - `#mi-pase` sincronizado con `showMiPase` en la sección y en el acceso de la barra móvil inferior.
+    - `#datos-evento` sincronizado con `showDatosEvento` en la sección y en el botón de la barra móvil inferior.
+  - Hub de la Fiesta (`src/app/evento/hub/[fiestaId]/page.tsx`):
+    - Botón "Inicio" en la barra de navegación rápida móvil apunta a `#hub-inicio` y el `<main>` superior porta `id="hub-inicio"`.
+  - HeroSection y Catálogo Público (`src/components/public/HeroSection.tsx`, `src/app/public/[eventType]/page.tsx`):
+    - El botón "Ver paquetes" (`#servicios`) está condicionado a `showServices !== false`.
+    - La página pública pasa `showServices={Boolean(catalog.services && catalog.services.length > 0)}` y condiciona `<ServiceMenu />`.
+  - Landings de Eventos (`src/components/landing/EventLandingPage.tsx`):
+    - Asignado `id="landing-services"` a la sección de servicios para alinearse con los enlaces de la navegación `LandingNav`.
+  - Footer Público (`src/components/public-footer.tsx`):
+    - Enlaces a Club Uruguay y Blog actualizados con rutas canónicas directas (`/club-uruguay`, `/public/blog`) eliminando anclas huérfanas.
+  - Probado en `src/__tests__/ningun-boton-lleva-a-algo-oculto.test.ts` (10/10 en verde).
+- **Bloque 2 (Números de portada en SSR):** En `src/components/ui/animated-counter.tsx`, el primer dibujo y el SSR entregan el número final (+200 eventos, +7 años), evitando mostrar "+0" al robot de Google. Probado en `tests/e2e/la-portada-no-dice-cero.spec.ts`.
+- **Bloque 3 (Simulador respeta tipo de evento):** `src/app/simulador-de-presupuesto/page.tsx` lee `searchParams.get('eventType') ?? searchParams.get('tipo')`. Las visitas desde anuncios de bodas o 15 años arrancan en su categoría correcta. Probado en `tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts`.
+- **Bloque 4 (Carrusel de tecnología responsivo):** En `src/components/public/InteractiveTechShowcase.tsx`, clase `sm:flex-wrap sm:justify-center sm:overflow-visible` para que Plataforma 360 y Espejo Mágico no queden recortados en pantallas de escritorio. Probado en `tests/e2e/el-carrusel-de-tecnologia-se-ve-entero.spec.ts`.
+- **Bloque 5 (Sin promesas, sin garantías ni 24/7, +200 fiestas y 7 años):**
+  - Removidas promesas de garantía, "cero fallas", y atención "24/7" de todas las secciones públicas, datos y landings.
+  - Grilla de estadísticas en portada ajustada a 3 columnas: +200 eventos, +7 años, Clientes satisfechos.
+  - Asistente de ventas configurado con la regla estricta: "No prometas plazos, garantías ni resultados.".
+  - Probado en `src/__tests__/la-web-no-promete-lo-que-no-se-puede-cumplir.test.ts` (3/3 en verde).
+- **Bloque 6 (Blog sin promesas y con búsqueda web de respaldo):**
+  - Creado `src/lib/blog/sin-promesas.ts` con `textoQuePromete`, `corregirPromesasDelBlog` y `DATOS_DE_AK_PARA_EL_BLOG` sincronizado dinámicamente con `applyAutomaticStaffByGuests`.
+  - En `src/lib/blog-ai-generator.ts`, paso de investigación con Google Search Retrieval (`googleSearchRetrieval: {}`), asignación de `fuentes` en `BlogPost`, rechazo estricto antes de guardar si el artículo contiene promesas.
+  - Probado en `src/__tests__/el-blog-no-promete.test.ts` (6/6 en verde).
+- **Bloque 7 (Demostración interactiva de la barra):**
+  - En `src/components/landing/LaAppDeTuFiestaSection.tsx`, selector dinámico `handleSimularPedidoTrago` que almacena el nombre del trago seleccionado ("Citrus Mocktail (Sin Alcohol)" o "Mojito de Maracuyá") y cuenta incrementalmente partiendo de #42.
+  - Probado en `tests/e2e/la-demo-de-la-barra-respeta-el-trago.spec.ts`.
+- **Bloque 8 (Títulos de galería sin nombres de archivo):**
+  - Función pura `textoVisibleDeLaFoto` en `src/lib/galeria/texto-de-la-foto.ts` para descartar títulos crudos tipo "Img 035 P04 X1123" y textos genéricos de catálogo.
+  - Probado en `src/__tests__/la-galeria-no-muestra-nombres-de-archivo.test.ts` (3/3 en verde).
+- **Bloque 9 (Pie del simulador sin $0):**
+  - `src/app/simulador-de-presupuesto/page.tsx` muestra "Elegí tus servicios para ver el total" cuando `stats.totalFinal <= 0`, evitando confundir al prospecto con un precio de $0.
+  - Probado en `tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts`.
+- **Bloque 10 (Estacionamiento y accesibilidad en salones):**
+  - Campos `estacionamiento?: string` y `accesibilidad?: string` en `src/types/salon.ts`, formulario de administración en `src/app/(app)/empresa/salones/page.tsx`, y tarjetas condicionales en `src/app/club-uruguay/page.tsx`.
+  - Probado en `src/__tests__/el-salon-muestra-lo-que-se-cargo.test.ts` (2/2 en verde).
+
+## 28 de septiembre de 2026 — Orden 95: toda la app a la par del rubro en 12 bloques
+
+- **Bloque 1 — Avisos al cliente listos para mandar:** Se integró `saveScheduledMessage` en bandeja de alertas (`src/app/(app)/alertas/page.tsx`), la tarea automática `avisos-al-cliente` para revisión humana antes del envío, probado en `src/__tests__/los-avisos-al-cliente-quedan-en-la-bandeja.test.ts`.
+- **Bloque 2 — Seguimiento de prospectos en pasos:** Se agregaron `pasos` (2, 7 y 15 días) y registro de `recontactosEnviados` en CRM leads, respetando cancelaciones y el interruptor apagado de fábrica, probado en `src/__tests__/el-seguimiento-va-en-pasos.test.ts`.
+- **Bloque 3 — Mejor horario para publicar:** Función pura `mejorHorario` en `src/lib/presencia-digital/mejor-horario.ts` calculada en hora de Uruguay sobre métricas reales (mínimo 8 publicaciones, o null si no alcanza), probado en `src/__tests__/el-mejor-horario-sale-de-tus-resultados.test.ts`.
+- **Bloque 4 — Volver a publicar lo que mejor anduvo:** Reciclado de publicaciones con `recicladoDe` en `src/lib/presencia-digital/publicador.ts`, programando en el mejor horario y evitando sugerir de nuevo antes de 90 días, probado en `src/__tests__/volver-a-publicar-copia-y-programa.test.ts`.
+- **Bloque 5 — Respuesta automática en comentarios:** Detección de preguntas (`esPregunta`) en `src/lib/social-media/comments-backfill.ts` y clasificador de comentarios para responder únicamente preguntas reales respetando límites, probado en `src/__tests__/la-respuesta-a-comentarios-no-inventa.test.ts`.
+- **Bloque 6 — Cuestionario reunión de organización:** Pantalla en `src/app/(app)/fiestas/nueva/reunion-organizacion/page.tsx` para volcar acuerdos de reunión directamente en la planificación, probado en `tests/e2e/la-reunion-de-organizacion-guarda-donde-corresponde.spec.ts`.
+- **Bloque 7 — Apertura de invitación y recordatorio:** Registro `registrarQueAbrioLaInvitacion` en la invitación pública y cron de recordatorio en `src/lib/invitaciones/recordatorio-no-abiertas.ts`, probado en `src/__tests__/la-invitacion-no-abierta-se-recuerda-sola.test.ts`.
+- **Bloque 8 — Orden de evento en una sola hoja:** Pantalla `src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx` con resumen operativo completo sin signos `$`, probado en `tests/e2e/la-orden-de-evento-junta-todo.spec.ts`.
+- **Bloque 9 — Carga de equipos con QR:** Soporte de escaneo de QR `ak-equipo:<id>` en carga operativa y etiquetas de impresión en activos fijos, probado en `src/__tests__/el-qr-marca-el-equipo-correcto.test.ts`.
+- **Bloque 10 — Mantenimiento de equipos preventivo:** Campo opcional de mantenimiento en `ServicioEmpresa`, diálogo "Anotar un mantenimiento" con registro de gastos en `src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx` y alerta preventiva antes del evento, probado en `src/__tests__/el-mantenimiento-avisa-antes-de-la-fiesta.test.ts`.
+- **Bloque 11 — Llegada del personal con ubicación:** Coordenadas en `Salon`, botón "Llegué" con `navigator.geolocation` en `src/app/acceso-personal/[tokenId]/page.tsx`, cálculo Haversine y radio de 300m configurable (apagado de fábrica), probado en `src/__tests__/la-llegada-con-ubicacion-mide-bien.test.ts`.
+- **Bloque 12 — Plantillas de cronograma por tipo de evento:** Asociación de `tipoEvento` en plantillas, sugerencia automática si el programa está vacío y ordenamiento prioritario en `src/app/(app)/fiestas/nueva/itinerario/page.tsx`, probado en `src/__tests__/la-plantilla-se-sugiere-por-tipo.test.ts`.
+
 ## 28 de septiembre de 2026 — Orden 94: Tótem, pantalla gigante y estaciones a la par del rubro
 
 - **Bloque 1 (Ajustes de estaciones en panel):** Se configuraron los parámetros operativos desde el panel de entretenimiento (`fotosPorTanda`, `copiasImpresion`, `tamanoPapel`, `disenoImpresion`, `velocidadRecuerdo`, `enableBeautyFilter`, `enableChromaKey`, `recorteSinTela`, `vueltas360`, `cuadrosDelLoop`, `orientation`) conectando directamente con las estaciones (`src/__tests__/los-ajustes-del-panel-llegan-a-la-estacion.test.ts`).

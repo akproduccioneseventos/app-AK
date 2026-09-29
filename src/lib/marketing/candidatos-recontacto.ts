@@ -39,26 +39,97 @@ export interface SeleccionDeRecontacto {
   descartados: MotivoDescartado[];
 }
 
-function motivoParaDescartar(
+export interface PasoRecontactoConfig {
+  dias: number;
+  plantilla?: string;
+}
+
+export const PASOS_RECONTACTO_DEFAULT: PasoRecontactoConfig[] = [
+  {
+    dias: 2,
+    plantilla: 'Hola {{NOMBRE}}, ¿pudiste ver la propuesta que te armamos para {{EVENTO}}? Contanos cualquier duda.',
+  },
+  {
+    dias: 7,
+    plantilla: 'Hola {{NOMBRE}}, ¿cómo estás? Te consultamos si querés que te guardemos la fecha de tu evento para que no se reserve con otro cliente.',
+  },
+  {
+    dias: 15,
+    plantilla: 'Hola {{NOMBRE}}, queríamos saber si seguís con la idea de festejar tu evento con nosotros o si preferís que liberemos la fecha. ¡A las órdenes!',
+  },
+];
+
+function evaluarPasoParaLead(
   lead: CrmLead,
   etapasTerminadas: Set<string>,
   ahoraMs: number,
-  esperaMs: number,
-): string | null {
-  if (!lead.phone?.trim()) return 'sin telefono';
-  if (lead.marketingConsent !== true) return 'no dio permiso de marketing';
-  if (lead.recontactoAutomaticoAt) return 'ya se le escribio antes';
-  if (lead.presupuestoEstado && YA_ES_CLIENTE.has(lead.presupuestoEstado)) return 'ya contrato';
-  if (lead.invoiceId) return 'ya contrato';
+  pasos: PasoRecontactoConfig[],
+): { paso?: number; plantilla?: string; motivo?: string } {
+  if (!lead.phone?.trim()) return { motivo: 'sin telefono' };
+  if (lead.marketingConsent !== true) return { motivo: 'no dio permiso de marketing' };
+  if (lead.presupuestoEstado && YA_ES_CLIENTE.has(lead.presupuestoEstado)) return { motivo: 'ya contrato' };
+  if (lead.invoiceId) return { motivo: 'ya contrato' };
   if (lead.currentStageId && etapasTerminadas.has(lead.currentStageId)) {
-    return 'esta en una etapa terminada del embudo';
+    return { motivo: 'esta en una etapa terminada del embudo' };
   }
 
   const creado = new Date(lead.createdAt).getTime();
-  if (!Number.isFinite(creado)) return 'sin fecha de alta valida';
-  if (ahoraMs - creado < esperaMs) return 'todavia no pasaron las 48 horas';
+  if (!Number.isFinite(creado)) return { motivo: 'sin fecha de alta valida' };
 
-  return null;
+  // Si contestó en el medio, la secuencia se corta inmediatamente
+  if (lead.lastInboundAt) {
+    const respondio = new Date(lead.lastInboundAt).getTime();
+    if (Number.isFinite(respondio) && respondio >= creado) {
+      return { motivo: 'el prospecto ya respondio' };
+    }
+  }
+
+  const diasTranscurridos = (ahoraMs - creado) / (24 * 60 * 60 * 1000);
+
+  // Registro de qué pasos ya se enviaron
+  const pasosEnviados = new Set<number>();
+  if (lead.recontactoAutomaticoAt) {
+    pasosEnviados.add(1);
+  }
+  if (lead.recontactosEnviados && Array.isArray(lead.recontactosEnviados)) {
+    for (const r of lead.recontactosEnviados) {
+      pasosEnviados.add(r.paso);
+    }
+  }
+
+  // Ordenamos los pasos por días ascendentes
+  const pasosOrdenados = [...pasos].sort((a, b) => a.dias - b.dias);
+
+  // Primer paso mínimo requerido
+  const primerPaso = pasosOrdenados[0];
+  if (primerPaso && diasTranscurridos < primerPaso.dias) {
+    return { motivo: `todavia no pasaron los ${primerPaso.dias} dias` };
+  }
+
+  // Encontrar el paso más avanzado que ya corresponde por días
+  let pasoCandidato: { numero: number; config: PasoRecontactoConfig } | null = null;
+  for (let i = 0; i < pasosOrdenados.length; i++) {
+    const p = pasosOrdenados[i];
+    const numeroPaso = i + 1;
+    if (diasTranscurridos >= p.dias) {
+      if (!pasosEnviados.has(numeroPaso)) {
+        pasoCandidato = { numero: numeroPaso, config: p };
+        break; // Toca este paso
+      }
+    }
+  }
+
+  if (!pasoCandidato) {
+    if (pasosEnviados.size > 0) {
+      return { motivo: 'ya se le escribio antes' };
+    }
+    return { motivo: 'no cumple criterio de pasos' };
+  }
+
+  return {
+    paso: pasoCandidato.numero,
+    plantilla: pasoCandidato.config.plantilla,
+  };
 }
 
 export function elegirCandidatosDeRecontacto(
@@ -66,17 +137,19 @@ export function elegirCandidatosDeRecontacto(
   stages: CrmStage[],
   ahora: Date = new Date(),
   esperaMs: number = ESPERA_RECONTACTO_MS,
+  pasosConfigurados?: PasoRecontactoConfig[],
 ): SeleccionDeRecontacto {
   const etapasTerminadas = idsDeEtapasTerminadas(stages);
   const ahoraMs = ahora.getTime();
+  const pasos = pasosConfigurados && pasosConfigurados.length > 0 ? pasosConfigurados : PASOS_RECONTACTO_DEFAULT;
 
   const candidatos: UnbookedLeadRemarketingCandidate[] = [];
   const descartados: MotivoDescartado[] = [];
 
   for (const lead of leads ?? []) {
-    const motivo = motivoParaDescartar(lead, etapasTerminadas, ahoraMs, esperaMs);
-    if (motivo) {
-      descartados.push({ leadId: lead.id, motivo });
+    const evaluacion = evaluarPasoParaLead(lead, etapasTerminadas, ahoraMs, pasos);
+    if (evaluacion.motivo) {
+      descartados.push({ leadId: lead.id, motivo: evaluacion.motivo });
       continue;
     }
 
@@ -86,6 +159,8 @@ export function elegirCandidatosDeRecontacto(
       phone: lead.phone!.trim(),
       eventType: lead.partyType,
       createdAt: lead.createdAt,
+      paso: evaluacion.paso,
+      plantilla: evaluacion.plantilla,
     });
   }
 

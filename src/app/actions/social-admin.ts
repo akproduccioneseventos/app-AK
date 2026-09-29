@@ -36,7 +36,7 @@ const defaultGlobalAds: GlobalAdItem[] = [
   {
     id: 'ad-robot-led',
     title: 'Robot LED Show',
-    description: 'Megatron y show de luces LED robotizado para hacer explotar la tanda de baile de tu evento. ¡Diversión garantizada!',
+    description: 'Megatron y show de luces LED robotizado para hacer explotar la tanda de baile de tu evento.',
     imageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80',
     ctaText: 'Ver Servicios en Simulador',
     ctaUrl: '/simulador-ak',

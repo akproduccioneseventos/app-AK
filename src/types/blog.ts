@@ -34,4 +34,6 @@ export interface BlogPost {
   cta?: BlogPostCta;
   /** Stable seed used to avoid generating the same topic again. */
   topicKey?: string;
+  /** Fuentes externas consultadas en la investigación previa. */
+  fuentes?: string[];
 }

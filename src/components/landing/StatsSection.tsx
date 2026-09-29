@@ -6,10 +6,9 @@ import { cn } from '@/lib/utils';
 import type { LandingStatItem } from '@/types/landing-editor';
 
 const DEFAULT_STATS: LandingStatItem[] = [
-  { value: '+500', label: 'Eventos realizados', icon: 'events' },
-  { value: '+12', label: 'Años de experiencia', icon: 'years' },
-  { value: '100%', label: 'Clientes satisfechos', icon: 'clients' },
-  { value: '24/7', label: 'Acompañamiento', icon: 'support' },
+  { value: '+200', label: 'Eventos realizados', icon: 'events' },
+  { value: '+7', label: 'Años de experiencia', icon: 'years' },
+  { value: 'Clientes', label: 'Satisfechos', icon: 'clients' },
 ];
 
 const STAT_ICONS: Record<string, LucideIcon> = {
@@ -74,7 +73,7 @@ export function StatsSection({ stats }: StatsSectionProps) {
             Experiencia real, atención cercana y producción integral para que la fiesta no dependa de improvisar.
           </p>
         </div>
-        <div className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-4')}>
+        <div className={cn('grid gap-4 sm:grid-cols-2', displayStats.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4')}>
           {displayStats.map((stat, index) => (
             <StatCard key={`stat-${stat.label}-${index}`} {...stat} index={index} />
           ))}
