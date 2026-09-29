@@ -202,3 +202,8 @@ No usar el rojo de workflows como señal de defecto de app ni gastar más audito
 ## Multiagente — completar una tarea ambigua (2026-09-29)
 
 En main SHA `975118a8d2f22868f9cdffc1fa6d8c245ba75fd0`, `complete_task` acepta `t.texto.includes(data.texto)` y toma la primera coincidencia. Una respuesta parcial que coincida con varias tareas puede completar la incorrecta. P2 por análisis estático; test existente solo cubre una coincidencia única y ausencia total de selector. Gemini: usar ID o requerir coincidencia única y probar ambigüedad. Evidencia: `docs/evidencias/112-multiagente-tarea-coincidencia-ambigua.md`.
+
+
+## Recuento Astra/Luna — 29/09/2026
+
+El historial local identifica Astra desde 7/9, Luna desde 28/9 16:38 hasta 29/9 07:52 (Uruguay), y Astra nuevamente desde esa hora. Fueron 21 registros de contexto pero 12 turnos distintos de Luna. Se separan sus conclusiones de la aprobacion Astra, sin borrar evidencia. Informe completo por areas y pendientes: [RECUENTO-ASTRA-LUNA-2026-09-29.md](../evidencias/RECUENTO-ASTRA-LUNA-2026-09-29.md), publicado en esta rama, commit 6b9e6159f5f67509ea14a4dfc9c3991459b210a9. El main identificado es 62dcb2cb4df718a81c3654028199e49628367d8c; no se pudo conciliar su registro por fallos de conexion. No afirmar que los defectos historicos siguen abiertos ni que estan corregidos hoy. El 110 se retira como fallo de app (facturacion GitHub); 113 queda como oportunidad de proteccion pendiente de revisar limites globales, no defecto P2 demostrado ni bloqueo obligatorio. Faltan evidencia actual por roles, recorrido completo de venta/PDF/CRM, conciliacion de los 19 historicos, integraciones reales, estetica/rendimiento y ensayo final de equipos. No se programo, compilo ni fusiono.
