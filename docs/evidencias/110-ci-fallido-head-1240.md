@@ -19,6 +19,6 @@ La API de GitHub ya no devolvió pasos ni logs de esos jobs (logs endpoint respo
 
 ## Clasificación y siguiente validación
 
-Bloquea declarar validada/publicable la cabeza indicada. No equivale por sí solo a cuatro defectos funcionales confirmados. Al producir una nueva cabeza, volver a consultar sus propios checks; Claude debe compilar y revisar los fallos reproducibles, y conservar URL de logs o salida completa. No repetir sobre una cabeza distinta los resultados de este SHA.
+El dueño aclara (2026-09-29) que estos controles rojos se deben a la facturación bloqueada de GitHub y no deben usarse como señal de defecto de la app ni como criterio de publicación. No investigar sus logs ni gastar auditoría en ellos. La verificación completa de la versión antes de fusionar corresponde a Claude. Este registro conserva el estado histórico de GitHub, pero no constituye hallazgo funcional ni bloquea la aceptación por sí solo.
 
 Codex no reejecutó CI ni compiló; consultó estados y jobs de GitHub. Ninguna prueba local fue ejecutada.
