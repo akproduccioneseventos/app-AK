@@ -27,7 +27,7 @@ export async function acquireFiestaUpdateLock(fiestaId: string): Promise<() => v
 export async function actualizarFiesta(
   fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>,
-  options: { publicRsvp?: boolean } = { publicRsvp: true },
+  options: { publicRsvp?: boolean } = {},
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   const releaseLock = await acquireFiestaUpdateLock(fiestaId);
   try {

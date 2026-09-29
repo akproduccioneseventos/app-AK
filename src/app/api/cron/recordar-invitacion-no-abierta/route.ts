@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { correrTareaRecordarInvitacionNoAbierta } from '@/lib/invitaciones/recordatorio-no-abiertas';
 
 export async function GET(request: Request) {
@@ -18,6 +19,7 @@ async function correrTarea(request: Request) {
     }
 
     const resultado = await correrTareaRecordarInvitacionNoAbierta();
+    await marcarCorrida('recordar-invitacion-no-abierta');
 
     return NextResponse.json({
       ok: true,

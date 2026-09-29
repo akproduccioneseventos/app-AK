@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { verifySession } from '@/lib/auth/session-token';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import type { AkAgentType, AkMultiAgentMessage } from '@/types/multiagent';
 
 export const runtime = 'nodejs';
@@ -19,6 +21,29 @@ export async function POST(request: NextRequest) {
   const session = await verifySession();
   if (!session.success) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
+  const contentLength = Number(request.headers.get('content-length') || 0);
+  if (contentLength > 7_000_000) {
+    return NextResponse.json(
+      { error: 'La imagen es demasiado grande. Probá con una foto más chica.' },
+      { status: 413 },
+    );
+  }
+
+  try {
+    await enforcePublicRateLimit({
+      scope: 'multiagente',
+      identity: session.user?.userId,
+      limit: 60,
+      windowMs: 3_600_000,
+      ignoreClientAddress: true,
+    });
+  } catch (error) {
+    const message = error instanceof Error && error.message.startsWith('Demasiados intentos')
+      ? 'Hiciste muchas consultas seguidas. Esperá unos minutos y probá de nuevo.'
+      : (error instanceof Error ? error.message : 'Hiciste muchas consultas seguidas. Esperá unos minutos y probá de nuevo.');
+    return NextResponse.json({ error: message }, { status: 429 });
   }
 
   const body = await request.json().catch(() => null) as {
@@ -62,6 +87,10 @@ export async function POST(request: NextRequest) {
     imageDataUri,
     sessionId: typeof body?.sessionId === 'string' ? body.sessionId : undefined,
   });
+
+  if (result.success) {
+    await registrarConsumoIA('multiagente');
+  }
 
   return NextResponse.json(result);
 }

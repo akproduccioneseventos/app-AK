@@ -124,10 +124,15 @@ export async function correrTareaRecordarInvitacionNoAbierta(
     const fechaEvento = fiesta.configuracion?.fechaEvento;
     if (!fechaEvento) continue;
 
-    const fechaEventoMs = new Date(fechaEvento).getTime();
-    if (isNaN(fechaEventoMs) || fechaEventoMs <= ahoraMs) continue;
+    const fechaEventoStr = fechaEvento.slice(0, 10);
+    const [yH, mH, dH] = hoyFechaStr.split('-').map(Number);
+    const [yE, mE, dE] = fechaEventoStr.split('-').map(Number);
+    if (!yE || !mE || !dE) continue;
 
-    const diasHastaEvento = Math.round((fechaEventoMs - ahoraMs) / (1000 * 60 * 60 * 24));
+    const fechaHoyUru = Date.UTC(yH, mH - 1, dH);
+    const fechaEvUru = Date.UTC(yE, mE - 1, dE);
+    const diasHastaEvento = Math.round((fechaEvUru - fechaHoyUru) / (1000 * 60 * 60 * 24));
+
     // Sólo actúa si faltan exactamente 21 o 10 días
     if (diasHastaEvento !== 21 && diasHastaEvento !== 10) continue;
 
@@ -220,7 +225,7 @@ export async function correrTareaRecordarInvitacionNoAbierta(
           }
 
           if (!envioExitoso) {
-            await saveScheduledMessage(
+            const resAgendar = await saveScheduledMessage(
               {
                 targetType: 'cliente',
                 targetId: fiestaFresca.id,
@@ -235,6 +240,9 @@ export async function correrTareaRecordarInvitacionNoAbierta(
               },
               WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
             );
+            if (!resAgendar?.success) {
+              console.warn(`[recordatorio] No se pudo agendar contingencia: ${resAgendar?.error}`);
+            }
             fallados++;
           }
         } else {
@@ -250,7 +258,7 @@ export async function correrTareaRecordarInvitacionNoAbierta(
               if (resWa?.success) {
                 envioExitoso = true;
               } else {
-                await saveScheduledMessage(
+                const resAgendarWa = await saveScheduledMessage(
                   {
                     targetType: 'cliente',
                     targetId: fiestaFresca.id,
@@ -265,10 +273,13 @@ export async function correrTareaRecordarInvitacionNoAbierta(
                   },
                   WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
                 );
+                if (!resAgendarWa?.success) {
+                  console.warn(`[recordatorio] No se pudo agendar contingencia WhatsApp: ${resAgendarWa?.error}`);
+                }
                 fallados++;
               }
             } catch {
-              await saveScheduledMessage(
+              const resAgendarCatch = await saveScheduledMessage(
                 {
                   targetType: 'cliente',
                   targetId: fiestaFresca.id,
@@ -283,10 +294,13 @@ export async function correrTareaRecordarInvitacionNoAbierta(
                 },
                 WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
               );
+              if (!resAgendarCatch?.success) {
+                console.warn(`[recordatorio] No se pudo agendar contingencia catch: ${resAgendarCatch?.error}`);
+              }
               fallados++;
             }
           } else {
-            await saveScheduledMessage(
+            const resAgendarSinApi = await saveScheduledMessage(
               {
                 targetType: 'cliente',
                 targetId: fiestaFresca.id,
@@ -301,6 +315,9 @@ export async function correrTareaRecordarInvitacionNoAbierta(
               },
               WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
             );
+            if (!resAgendarSinApi?.success) {
+              console.warn(`[recordatorio] No se pudo agendar contingencia sin API: ${resAgendarSinApi?.error}`);
+            }
             fallados++;
           }
         }

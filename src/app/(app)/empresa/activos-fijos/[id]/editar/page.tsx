@@ -92,7 +92,7 @@ export default function EditarActivoFijoPage() {
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: any) => {
     const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado', 'invitadosPorUnidad'].includes(field as string);
-    
+
     if (isNumericField && typeof value === 'string') {
       const numValue = value === '' ? undefined : Number(value);
       setFormData(prev => ({ ...prev, [field]: numValue }));
@@ -146,14 +146,18 @@ export default function EditarActivoFijoPage() {
     const costoNum = typeof mantenimientoCosto === 'number' && mantenimientoCosto > 0 ? mantenimientoCosto : undefined;
     if (costoNum) {
       try {
-        await saveGastoGeneral({
+        const resGasto = await saveGastoGeneral({
           concepto: `Mantenimiento: ${formData.nombre || item?.nombre || 'Equipo'} - ${mantenimientoNota.trim()}`,
           fecha: mantenimientoFecha,
           categoria: 'Reparaciones y Mantenimiento',
           monto: costoNum,
           notas: `Registrado automáticamente desde Activos Fijos (${item?.id || ''})`,
         });
-        toast({ title: 'Gasto registrado', description: 'Se añadió el gasto en Reparaciones y Mantenimiento.' });
+        if (resGasto?.success) {
+          toast({ title: 'Gasto registrado', description: 'Se añadió el gasto en Reparaciones y Mantenimiento.' });
+        } else {
+          toast({ title: 'Aviso de gasto', description: resGasto?.error || 'No se pudo guardar el gasto general.', variant: 'destructive' });
+        }
       } catch (err: any) {
         console.error('Error al registrar gasto de mantenimiento:', err);
       }
@@ -192,14 +196,14 @@ export default function EditarActivoFijoPage() {
         toast({ title: "Campo Requerido", description: "La unidad es obligatoria para Activos Fijos.", variant: "destructive" });
         return;
     }
-    
+
     setIsSaving(true);
     const itemDataToSave: ServicioEmpresa = {
-        ...(item as ServicioEmpresa), 
+        ...(item as ServicioEmpresa),
         ...formData,
         nombre: formData.nombre.trim(),
     };
-    
+
     try {
       const result = await saveActivoFijo(itemDataToSave);
       if (result.success && result.servicio) {
@@ -248,7 +252,7 @@ export default function EditarActivoFijoPage() {
         </div>
         <Button asChild variant="outline" disabled={isSaving}><Link href={backUrl}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Actualizar Activo Fijo</CardTitle>
@@ -291,14 +295,14 @@ export default function EditarActivoFijoPage() {
               </div>
                <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required><SelectTrigger id="item-unidad"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}</SelectContent></Select></div>
             </div>
-             
+
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2"><Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/></div>
                 <div className="space-y-2"><Label htmlFor="item-costo">Costo Interno (UYU)</Label><Input id="item-costo" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/></div>
              </div>
 
              <Separator/>
-             
+
              <div className="space-y-3">
                  <Label className="text-base font-medium">Método de Cálculo de Cantidad (para Lista de Carga)</Label>
                  <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} disabled={isSaving}>
@@ -311,7 +315,7 @@ export default function EditarActivoFijoPage() {
                     </SelectContent>
                  </Select>
              </div>
-             
+
             {formData.calculationMethod === 'fijo' && (
                 <div className="space-y-2"><Label htmlFor="cantidad-fija">Cantidad a Cargar</Label><Input id="cantidad-fija" type="number" value={formData.precioVenta ?? 1} onChange={(e) => handleFormChange('precioVenta', e.target.value)} disabled={isSaving} min="1"/><p className="text-xs text-muted-foreground">Cantidad fija a cargar siempre.</p></div>
             )}
@@ -469,7 +473,7 @@ export default function EditarActivoFijoPage() {
                 </div>
               )}
             </div>
-            
+
           </CardContent>
           <CardFooter className="border-t pt-6 flex justify-between items-center">
             <Button type="submit" className="w-auto" disabled={isSaving}>

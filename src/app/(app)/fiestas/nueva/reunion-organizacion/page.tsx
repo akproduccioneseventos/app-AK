@@ -147,7 +147,15 @@ function ReunionOrganizacionContent() {
         },
       };
 
-      await saveFiesta(fiestaActualizada);
+      const resSave = await saveFiesta(fiestaActualizada);
+      if (!resSave?.success) {
+        toast({
+          title: 'Error al guardar',
+          description: resSave?.error || 'No se pudieron guardar los cambios.',
+          variant: 'destructive',
+        });
+        return null;
+      }
       setFiesta(fiestaActualizada);
       toast({
         title: 'Cambios guardados',
@@ -206,7 +214,15 @@ function ReunionOrganizacionContent() {
         },
       };
 
-      await saveFiesta(conReunion);
+      const resCerrar = await saveFiesta(conReunion);
+      if (!resCerrar?.success) {
+        toast({
+          title: 'Error al cerrar reunión',
+          description: resCerrar?.error || 'No se pudo cerrar la reunión.',
+          variant: 'destructive',
+        });
+        return;
+      }
       setFiesta(conReunion);
 
       toast({

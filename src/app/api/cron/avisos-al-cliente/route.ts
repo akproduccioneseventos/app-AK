@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
+import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { correrTareaAvisosAlCliente } from '@/lib/whatsapp/avisos-al-cliente';
 
 export async function GET(request: Request) {
@@ -18,6 +19,7 @@ async function correrTarea(request: Request) {
     }
 
     const resultado = await correrTareaAvisosAlCliente();
+    await marcarCorrida('avisos-al-cliente');
 
     return NextResponse.json({
       ok: true,

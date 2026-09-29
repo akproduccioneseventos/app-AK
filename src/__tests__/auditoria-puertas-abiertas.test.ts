@@ -1,4 +1,4 @@
-﻿/**
+/**
  * CONTROL AUTOMÁTICO 3 — Ninguna puerta abierta a internet sin querer.
  *
  * En un archivo que empieza con 'use server', **cada función exportada es una
@@ -47,6 +47,7 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'galeria.ts': 'galería de fotos de eventos anteriores visible en la web',
   'promos.ts': 'promociones activas visibles en la portada y simulador',
   'public-simulator-bootstrap.ts': 'datos iniciales del simulador público de presupuestos',
+  'videos-de-ayuda.ts': 'la ven invitados sin sesión; sólo devuelve id de YouTube y título',
 };
 
 /**
@@ -57,6 +58,8 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
  * nadie logueado**. Marcar todo el archivo taparía las otras.
  */
 const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
+  'settings.ts:getAjustesLlegadaPersonal':
+    'la consulta el personal desde su enlace de acceso para saber si la llegada requiere ubicación y a qué distancia.',
   'auth.ts:initializeAdminIfNeeded':
     'crea la primera cuenta de administrador y la llama el propio ingreso, antes de ' +
     'que exista sesión. No hace nada si ya hay usuarios, y necesita la contraseña ' +

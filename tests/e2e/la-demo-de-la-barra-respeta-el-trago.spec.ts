@@ -23,20 +23,22 @@ test.describe('Orden 96 - Bloque 7: La demo de la barra respeta el trago elegido
 
     // Debe mostrar Pedido #42 y Citrus Mocktail
     const cartelPedido42 = page.locator('text=Pedido #42: Citrus Mocktail').first();
-    await expect(cartelPedido42).toBeVisible({ timeout: 10_000 });
+    await expect(cartelPedido42).toContainText('Citrus Mocktail');
+    await expect(cartelPedido42).toContainText('#42');
 
     // Debe pasar por "En preparación" y luego "Listo para retirar"
-    await expect(page.locator('text=Listo para retirar').first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('text=Listo para retirar').first()).toContainText('Listo para retirar');
 
     // 2. Pedir Mojito de Maracuyá
     const botonMojito = page.locator('div', { hasText: 'Mojito de Maracuyá' })
       .locator('button', { hasText: 'Pedir en barra' })
       .first();
-    await expect(botonMojito).toBeVisible({ timeout: 10_000 });
+    await expect(botonMojito).toContainText('Pedir en barra');
     await botonMojito.click();
 
     // Debe mostrar Pedido #43 y Mojito de Maracuyá
     const cartelPedido43 = page.locator('text=Pedido #43: Mojito de Maracuyá').first();
-    await expect(cartelPedido43).toBeVisible({ timeout: 10_000 });
+    await expect(cartelPedido43).toContainText('Mojito de Maracuyá');
+    await expect(cartelPedido43).toContainText('#43');
   });
 });

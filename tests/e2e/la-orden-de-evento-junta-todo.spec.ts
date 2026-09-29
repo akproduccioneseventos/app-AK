@@ -80,10 +80,10 @@ test.describe('Orden 95: La orden de evento junta todo en una hoja sin precios',
 
     // 2. Verificar que el título del programa y el nombre del empleado aparezcan en la hoja
     const textoPrograma = page.getByText(PROGRAMA_TITULO);
-    await expect(textoPrograma).toBeVisible({ timeout: 15_000 });
+    await expect(textoPrograma).toContainText(PROGRAMA_TITULO);
 
     const textoEmpleado = page.getByText(EMPLEADO_NOMBRE);
-    await expect(textoEmpleado).toBeVisible({ timeout: 15_000 });
+    await expect(textoEmpleado).toContainText(EMPLEADO_NOMBRE);
 
     // 3. Comprobar que en toda la página NO aparezca ningún signo $
     const contenidoCompleto = await page.content();

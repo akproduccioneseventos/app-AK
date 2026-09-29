@@ -197,10 +197,9 @@ function ItinerarioContent() {
         servicios: activeServices.length > 0 ? activeServices : ['Catering', 'Música', 'Bebidas'],
       });
 
-      let itinerario: ProgramaEventoItem[] = [];
-      if (Array.isArray(fiestaData.programa)) {
+      const itinerario = fiestaData.programa;
+      if (Array.isArray(itinerario)) {
         // Respetar lo que decidió el usuario (incluso si está vacío)
-        itinerario = fiestaData.programa;
         setPrograma(itinerario);
       } else {
         setPrograma([]);

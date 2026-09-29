@@ -103,7 +103,7 @@ function evaluarPasoParaLead(
   // Primer paso mínimo requerido
   const primerPaso = pasosOrdenados[0];
   if (primerPaso && diasTranscurridos < primerPaso.dias) {
-    return { motivo: `todavia no pasaron los ${primerPaso.dias} dias` };
+    return { motivo: primerPaso.dias === 2 ? 'todavia no pasaron las 48 horas' : `todavia no pasaron los ${primerPaso.dias} dias` };
   }
 
   // Encontrar el paso más avanzado que ya corresponde por días
