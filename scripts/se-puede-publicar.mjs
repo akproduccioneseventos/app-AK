@@ -567,6 +567,20 @@ async function mostrarMetricasAuditadas() {
   } catch {}
 }
 
+/**
+ * Deja escrito QUE commit paso la puerta, para que nadie fusione otra cosa en su lugar.
+ * Lo lee `scripts/antes-de-fusionar.mjs` antes de cada fusion: si el commit que se quiere
+ * fusionar no es este, la fusion no sale. Paso el 29/09/2026: se fusiono una propuesta de
+ * Gemini sin revisar por usar un numero adivinado (error 30 de CLAUDE.md).
+ * Si hay cambios sin guardar, lo que paso no es ese commit: no se anota nada.
+ */
+function anotarPuertaVerde() {
+  const sha = spawnSync('git rev-parse HEAD', { shell: true, encoding: 'utf8' }).stdout.trim();
+  const sucio = spawnSync('git status --porcelain --untracked-files=no', { shell: true, encoding: 'utf8' }).stdout.trim();
+  if (!/^[0-9a-f]{40}$/.test(sha) || sucio) return;
+  writeFileSync('.ak-puerta-verde.json', JSON.stringify({ sha, cuando: new Date().toISOString() }, null, 2));
+}
+
 if (fallas.length === 0) {
   if (modoFiltro) {
     console.log('\n  El filtro pasó. La subida sigue.\n');
@@ -582,6 +596,7 @@ if (fallas.length === 0) {
     process.exit(0);
   }
   if (salteadosPorqueLaAppNoCambio.length > 0) {
+    anotarPuertaVerde();
     console.log('\n  SE PUEDE PUBLICAR.\n');
     console.log('  Este cambio NO toca la app: son documentos, notas o comentarios.');
     console.log(`  Por eso no corrio: ${salteadosPorqueLaAppNoCambio.join(', ')}.`);
@@ -597,6 +612,7 @@ if (fallas.length === 0) {
     console.log('  de nuevo, entera, con el trabajo terminado.\n');
     process.exit(1);
   }
+  anotarPuertaVerde();
   console.log('\n  SE PUEDE PUBLICAR.\n');
   console.log('  Todo marcha: acentos, tipos, pruebas, compila, la base protegida');
   console.log('  y la app probada usándose de verdad.\n');

@@ -965,9 +965,11 @@ fusionada. La volví atrás a los pocos minutos (#1245), dejando la principal id
 **Qué era lo cierto:** el número de una propuesta lo da GitHub al crearla; no se adivina. Y fusionar
 sin decir qué versión exacta se fusiona deja pasar cualquier cosa que tenga ese número.
 
-**Qué se hace distinto:** **nunca** se fusiona en la misma tanda en que se abre la propuesta. Se
-fusiona con el número que devolvió la creación **y** con `expectedHeadSha` igual al commit que se
-verificó. Si GitHub fusiona otra cosa, falla solo.
+**Qué se hace distinto, y ya está enganchado:** **nunca** se fusiona en la misma tanda en que se
+abre la propuesta. Y hay un candado: `npm run "publicar?"` anota en `.ak-puerta-verde.json` qué
+commit pasó, y `scripts/antes-de-fusionar.mjs` (enganchado en `.claude/settings.json` a la
+fusión) **rechaza** toda fusión que no traiga `expectedHeadSha` o cuyo commit no sea ese. Con el
+número equivocado, GitHub ve otro commit y no fusiona.
 
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
@@ -1474,6 +1476,7 @@ con otra cara.
 | Lo que se servía en la barra sin pasar por un pedido no dejaba rastro | `src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts` |
 | Un corte de señal dejaba la pantalla gigante en blanco, y copiar la configuración de otra fiesta se llevaba la foto del agasajado | `src/__tests__/el-muro-no-se-vacia-si-se-corta-la-senal.test.ts` y `src/__tests__/copiar-configuracion-no-copia-personas.test.ts` |
 | Un pendiente del portal llevaba a una sección oculta y el botón no hacía nada | `src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts` |
+| Se fusionó una entrega sin revisar por usar un número de propuesta adivinado | `scripts/antes-de-fusionar.mjs` con `src/__tests__/no-se-fusiona-lo-que-no-paso-la-puerta.test.ts` |
 | La lista pública de salones devolvía lo que AK le paga al salón | `src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts` |
 
 ### Cómo se elige el matafuego

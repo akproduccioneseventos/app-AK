@@ -10138,3 +10138,16 @@ prueba: src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts
 ```comprobar
 prueba: src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts
 ```
+
+## 29 de septiembre de 2026 — Nadie fusiona lo que no pasó la puerta
+
+- Se fusionó por error la entrega de Gemini de las órdenes 95 a 98 sin revisar (número de
+  propuesta adivinado). Se volvió atrás en minutos (#1245). Desde ahora la puerta anota qué commit
+  pasó, y la fusión se rechaza sola si el commit no es ese o si no se dice cuál es.
+
+```comprobar
+archivo: scripts/antes-de-fusionar.mjs
+usa: anotarPuertaVerde en scripts/se-puede-publicar.mjs
+usa: antes-de-fusionar en .claude/settings.json
+prueba: src/__tests__/no-se-fusiona-lo-que-no-paso-la-puerta.test.ts
+```
