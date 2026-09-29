@@ -614,3 +614,38 @@ ocultar.
 usa: showCatering && progress.areas.menu.status en src/app/portal-cliente/[id]/page.tsx
 prueba: src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts
 ```
+
+## 28 de septiembre de 2026 — El simulador ignoraba el tipo de fiesta de las landings (Codex)
+
+**Qué era:** la portada y las landings de bodas, quinceañeras y cumpleaños abrían el simulador con
+`?tipo=...`, y el simulador sólo leía `eventType`: todos arrancaban en "Cumpleaños". Además, en la
+computadora, la 360 y el espejo quedaban afuera del carrusel de tecnología.
+
+**Qué pregunta lo hubiera agarrado:** la 30, nueva: *un enlace que lleva un dato, ¿el destino lee
+ese nombre?* Queda también como pregunta 19 de `ANTES-DE-ENTREGAR.md`. Lo del carrusel lo
+agarra la regla de `celular-primero`, que ya pedía probar en la computadora.
+
+**Barrido:** bloques 3 y 4 de la orden 96.
+
+```comprobar
+usa: searchParams.get('tipo') en src/app/simulador-de-presupuesto/page.tsx
+prueba: tests/e2e/el-simulador-respeta-el-tipo-de-fiesta.spec.ts
+```
+
+## El blog que escribe la IA prometía y citaba preferencias inventadas (Codex, 28/09/2026)
+
+**Qué era:** artículos publicados solos decían "chispas frías seguras para interiores", "la mayoría
+de los clientes de AK eligen…" y "el stock ya está cubierto". Revisé los textos fijos de la web
+buscando promesas y no miré **lo que escribe la IA sola**, que nadie lee antes de publicarse.
+
+**Qué pregunta lo hubiera agarrado:** *cuando una regla vale para lo que ve el cliente, ¿la conoce
+también la IA que escribe para el cliente?* Una regla que sólo se aplica a los textos escritos a
+mano deja abierta la puerta que más publica. Queda como pregunta 20 de `ANTES-DE-ENTREGAR.md`.
+
+**Barrido:** bloque 6 de la orden 96 (la regla en la instrucción, el control antes de guardar y
+los tres artículos corregidos).
+
+```comprobar
+usa: textoQuePromete en src/lib/blog-ai-generator.ts
+prueba: src/__tests__/el-blog-no-promete.test.ts
+```
