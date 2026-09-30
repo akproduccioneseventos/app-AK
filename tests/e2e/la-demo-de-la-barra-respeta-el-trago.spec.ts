@@ -6,8 +6,12 @@ test.describe('Orden 96 - Bloque 7: La demo de la barra respeta el trago elegido
 
     await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    // Navegar hasta la sección de "La App de tu Fiesta"
-    const seccionApp = page.locator('text=Barra & Cócteles').first();
+    // Navegar hasta el botón de la pestaña "Barra & Cócteles"
+    // El texto está dentro de un <p> que vive adentro del <button> con data-testid="momento-de-la-app".
+    // Hay que hacer click en el botón, no en el texto hijo, para que el evento llegue al handler correcto.
+    const seccionApp = page
+      .locator('[data-testid="momento-de-la-app"]', { hasText: 'Barra & Cócteles' })
+      .first();
     await seccionApp.scrollIntoViewIfNeeded();
     await expect(seccionApp).toBeVisible({ timeout: 15_000 });
 

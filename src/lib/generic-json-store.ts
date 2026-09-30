@@ -109,6 +109,68 @@ export async function mutateGenericJsonArrayConTransaccion<T>(
   return resultado;
 }
 
+/**
+ * CAMBIAR UN DOCUMENTO ENTERO (NO UN ARRAY) SIN PISAR A OTRO.
+ *
+ * Para documentos que guardan un objeto (por ejemplo, chats o memoria del
+ * asistente): lee, transforma y guarda adentro de una transacción. Si dos
+ * servidores intentan guardar al mismo tiempo, la base repite `cambiar` con
+ * el dato más nuevo. Si `cambiar` devuelve `null`, no guarda nada.
+ *
+ * **path**: dos segmentos separados por `/`, el segundo termina en `.json`.
+ * Ejemplo: `"multiagent/chats.json"`. Usa validación propia y NO llama a
+ * `isSafeTopLevelJsonFile` porque esa rechaza cualquier path con `/`.
+ */
+export async function mutarDocumentoConTransaccion<T>(
+  filePath: string,
+  cambiar: (actual: T | null) => Promise<T | null> | T | null,
+): Promise<T | null> {
+  const normalizedPath = filePath.replace(/\\/g, '/');
+  const partes = normalizedPath.split('/');
+  if (partes.length !== 2 || !partes[1].endsWith('.json')) {
+    throw new Error(
+      `[mutarDocumentoConTransaccion] Path inválido: "${normalizedPath}". Debe ser "coleccion/archivo.json".`,
+    );
+  }
+
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    const { AsyncMutex } = await import('./mutex');
+    const { readData, writeData } = await import('./data-service');
+    const mutex = new AsyncMutex();
+    return mutex.runExclusive(async () => {
+      const actual = await readData<T | null>(normalizedPath, null as unknown as T);
+      const nuevo = await cambiar(actual);
+      if (nuevo === null) return null;
+      await writeData(normalizedPath, nuevo);
+      return nuevo;
+    });
+  }
+
+  const collection = partes[0];
+  const docId = encodeURIComponent(partes[1].replace(/\.json$/, ''));
+  const db = await getDbAdmin();
+  const ref = db.collection(collection).doc(docId);
+  let resultado: T | null = null;
+
+  await db.runTransaction(async (transaction) => {
+    resultado = null;
+    const snapshot = await transaction.get(ref);
+    const actual: T | null = snapshot.exists
+      ? (unwrapGenericDocument(snapshot.data()) as T)
+      : null;
+    const nuevo = await cambiar(actual);
+    if (nuevo === null) return;
+    transaction.set(ref, {
+      _filePath: normalizedPath,
+      _data: nuevo,
+      _syncedAt: new Date().toISOString(),
+    });
+    resultado = nuevo;
+  });
+
+  return resultado;
+}
+
 export async function readGenericJsonFile(filePath: string): Promise<any | null> {
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeTopLevelJsonFile(normalizedPath)) return null;

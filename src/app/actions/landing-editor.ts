@@ -25,7 +25,10 @@ export async function getLandingSettings(): Promise<LandingSettings> {
         const esListaVieja =
           data.stats.length === 4 &&
           data.stats.every((s, i) => s.value === valoresViejos[i]);
-        if (esListaVieja) {
+        const tieneStatCero = data.stats.some(
+          (s) => !s.value || s.value === '0' || /^0\//.test(s.value)
+        );
+        if (esListaVieja || tieneStatCero) {
           return defaultLandingSettings.stats;
         }
         return data.stats;

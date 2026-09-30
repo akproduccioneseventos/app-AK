@@ -1,5 +1,6 @@
 import type { AkAgentLearning, AkAgentMemoryProfile, AkAgentMemoryScope, AkAgentType } from '@/types/multiagent';
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { AK_MANUAL_VERSION, getManualLearningSeed } from '@/lib/multiagent/manual-ak';
 
 const MEMORY_FILE = 'multiagent/memory.json';
@@ -69,9 +70,6 @@ async function readMemoryState(): Promise<MemoryState> {
   };
 }
 
-async function writeMemoryState(state: MemoryState) {
-  await writeData(MEMORY_FILE, state);
-}
 
 export async function getAgentMemoryProfile(input: {
   agentType: AkAgentType;
@@ -97,73 +95,90 @@ export async function saveAgentLearning(input: {
   confidence?: AkAgentLearning['confidence'];
 }): Promise<AkAgentMemoryProfile> {
   const scope = input.scope ?? (input.fiestaId ? 'fiesta' : input.module ? 'modulo' : 'global');
-  const state = await readMemoryState();
   const id = buildProfileId(input.agentType, scope, input.fiestaId, input.module);
-  const index = state.profiles.findIndex(profile => profile.id === id);
-  const profile = index >= 0
-    ? state.profiles[index]
-    : getDefaultProfile(input.agentType, scope, input.fiestaId, input.module);
 
-  const timestamp = nowIso();
-  const learning: AkAgentLearning = {
-    id: `learning_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    agentType: input.agentType,
-    scope,
-    fiestaId: input.fiestaId,
-    module: input.module,
-    title: input.title.trim() || 'Aprendizaje sin título',
-    content: input.content.trim(),
-    source: input.source ?? 'manual',
-    tags: input.tags ?? [],
-    confidence: input.confidence ?? 'medium',
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  };
+  let updatedProfile: AkAgentMemoryProfile | undefined;
 
-  // Deduplicar por título idéntico reciente (últimos 10) para evitar ruido
-  const titleKey = learning.title.toLowerCase().trim();
-  const isDuplicate = profile.learnings.slice(0, 10).some(
-    l => l.title.toLowerCase().trim() === titleKey
+  const resultado = await mutarDocumentoConTransaccion<MemoryState>(
+    MEMORY_FILE,
+    (actualRaw) => {
+      const state: MemoryState = {
+        profiles: Array.isArray(actualRaw?.profiles) ? actualRaw!.profiles : [],
+      };
+      const index = state.profiles.findIndex((p) => p.id === id);
+      const profile = index >= 0
+        ? state.profiles[index]
+        : getDefaultProfile(input.agentType, scope, input.fiestaId, input.module);
+
+      const timestamp = nowIso();
+      const learning: AkAgentLearning = {
+        id: `learning_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        agentType: input.agentType,
+        scope,
+        fiestaId: input.fiestaId,
+        module: input.module,
+        title: input.title.trim() || 'Aprendizaje sin título',
+        content: input.content.trim(),
+        source: input.source ?? 'manual',
+        tags: input.tags ?? [],
+        confidence: input.confidence ?? 'medium',
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      };
+
+      // Deduplicar por título idéntico reciente (últimos 10) para evitar ruido
+      const titleKey = learning.title.toLowerCase().trim();
+      const isDuplicate = profile.learnings.slice(0, 10).some(
+        (l) => l.title.toLowerCase().trim() === titleKey
+      );
+
+      // Ordenar por confianza: high > medium > low, luego por fecha
+      const CONF_ORDER: Record<string, number> = { high: 3, medium: 2, low: 1 };
+      const merged = isDuplicate
+        ? profile.learnings
+        : [learning, ...profile.learnings];
+      const sorted = merged
+        .sort((a, b) => {
+          const cDiff = (CONF_ORDER[b.confidence] ?? 1) - (CONF_ORDER[a.confidence] ?? 1);
+          if (cDiff !== 0) return cDiff;
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        })
+        .slice(0, MAX_LEARNINGS);
+
+      // Resumen inteligente: priorizar high confidence, luego recientes
+      const summaryItems = sorted
+        .filter((l) => l.confidence === 'high' || l.source === 'event_closeout' || l.source === 'system')
+        .slice(0, 5);
+      const recentItems = sorted
+        .filter((l) => !summaryItems.includes(l))
+        .slice(0, 5);
+      const summaryText = [...summaryItems, ...recentItems]
+        .slice(0, 8)
+        .map((l) => `• [${l.confidence}] ${l.title}: ${l.content.slice(0, 200)}`)
+        .join('\n') || profile.summary;
+
+      const updated: AkAgentMemoryProfile = {
+        ...profile,
+        learnings: sorted,
+        summary: summaryText,
+        updatedAt: timestamp,
+      };
+
+      if (index >= 0) state.profiles[index] = updated;
+      else state.profiles.push(updated);
+
+      updatedProfile = updated;
+      return state;
+    },
   );
 
-  // Ordenar por confianza: high > medium > low, luego por fecha
-  const CONF_ORDER: Record<string, number> = { high: 3, medium: 2, low: 1 };
-  const merged = isDuplicate
-    ? profile.learnings
-    : [learning, ...profile.learnings];
-  const sorted = merged
-    .sort((a, b) => {
-      const cDiff = (CONF_ORDER[b.confidence] ?? 1) - (CONF_ORDER[a.confidence] ?? 1);
-      if (cDiff !== 0) return cDiff;
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    })
-    .slice(0, MAX_LEARNINGS);
+  if (!resultado || !updatedProfile) {
+    throw new Error('[memory-store] No se pudo guardar el aprendizaje.');
+  }
 
-  // Resumen inteligente: priorizar high confidence, luego recientes
-  const summaryItems = sorted
-    .filter(l => l.confidence === 'high' || l.source === 'event_closeout' || l.source === 'system')
-    .slice(0, 5);
-  const recentItems = sorted
-    .filter(l => !summaryItems.includes(l))
-    .slice(0, 5);
-  const summaryText = [...summaryItems, ...recentItems]
-    .slice(0, 8)
-    .map(l => `• [${l.confidence}] ${l.title}: ${l.content.slice(0, 200)}`)
-    .join('\n') || profile.summary;
-
-  const updated: AkAgentMemoryProfile = {
-    ...profile,
-    learnings: sorted,
-    summary: summaryText,
-    updatedAt: timestamp,
-  };
-
-  if (index >= 0) state.profiles[index] = updated;
-  else state.profiles.push(updated);
-
-  await writeMemoryState(state);
-  return updated;
+  return resultado.profiles.find((p) => p.id === updatedProfile!.id) ?? updatedProfile;
 }
+
 
 export async function listAgentMemoryProfiles(): Promise<AkAgentMemoryProfile[]> {
   const state = await readMemoryState();

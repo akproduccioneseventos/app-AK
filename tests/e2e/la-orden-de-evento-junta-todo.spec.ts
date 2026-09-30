@@ -41,7 +41,7 @@ test.describe('Orden 95: La orden de evento junta todo en una hoja sin precios',
       if (!empleados.some((e) => e.id === 'emp_gonzalo_dj')) {
         empleados.push({
           id: 'emp_gonzalo_dj',
-          name: EMPLEADO_NOMBRE,
+          nombre: EMPLEADO_NOMBRE,
           role: 'DJ',
         });
         await writeData('empleados.json', empleados);
@@ -51,6 +51,14 @@ test.describe('Orden 95: La orden de evento junta todo en una hoja sin precios',
 
   test.afterAll(async () => {
     borrarFiesta(FIESTA_ID);
+    // Limpiar el empleado de prueba para no dejar datos sucios
+    try {
+      const empleados = await readData<any[]>('empleados.json', []);
+      const sin = empleados.filter((e) => e.id !== 'emp_gonzalo_dj');
+      if (sin.length !== empleados.length) {
+        await writeData('empleados.json', sin);
+      }
+    } catch {}
   });
 
   test('la hoja muestra el programa y el empleado sin ningún signo $', async ({

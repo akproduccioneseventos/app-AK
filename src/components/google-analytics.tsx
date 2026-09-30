@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 import { GA_MEASUREMENT_ID } from '@/lib/analytics-ga';
+import { sePuedeMedir, direccionParaMedir } from '@/lib/medicion-segura';
 
 /**
  * Google Analytics GA4 component with SPA pageview tracking.
@@ -14,6 +15,10 @@ import { GA_MEASUREMENT_ID } from '@/lib/analytics-ga';
  * a client-side rendering bailout which breaks static generation
  * of /_not-found (404 page) during the Next.js build.
  * We read query params from window.location.search inside useEffect instead.
+ *
+ * SEGURIDAD: sólo mandamos pageviews de pantallas públicas (allowlist).
+ * La URL se limpia con `direccionParaMedir` para descartar tokens,
+ * llaves de acceso y cualquier parámetro que no sea de marketing.
  */
 export function GoogleAnalytics() {
   const gaId = GA_MEASUREMENT_ID;
@@ -21,7 +26,8 @@ export function GoogleAnalytics() {
 
   useEffect(() => {
     if (!gaId || typeof window === 'undefined' || !window.gtag) return;
-    const url = pathname + window.location.search;
+    if (!sePuedeMedir(pathname)) return;
+    const url = direccionParaMedir(pathname, window.location.search);
     window.gtag('config', gaId, { page_path: url });
   }, [gaId, pathname]);
 

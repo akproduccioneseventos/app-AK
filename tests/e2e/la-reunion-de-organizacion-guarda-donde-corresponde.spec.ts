@@ -59,7 +59,9 @@ test.describe('Orden 95: La reunión de organización guarda donde corresponde',
     await inputEntrada.fill('Viva La Vida - Coldplay');
 
     // 3. Cerrar la reunión
-    const btnCerrar = page.getByRole('button', { name: /Cerrar la reunión/i });
+    // Hay dos botones "Cerrar la reunión" (header y pie, ambos intencionales por UX).
+    // Se usa data-testid para apuntar al del pie, que es el accionable principal.
+    const btnCerrar = page.getByTestId('btn-cerrar-reunion');
     await expect(btnCerrar).toBeVisible();
     await btnCerrar.click();
 

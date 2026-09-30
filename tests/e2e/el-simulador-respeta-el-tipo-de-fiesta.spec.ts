@@ -27,6 +27,10 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
 
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
+    // Sin ?tipo= se muestra la pantalla de bienvenida: hay que hacer click en Comenzar.
+    // El simulador no salta esa pantalla si no viene el tipo pre-seleccionado en la URL.
+    await page.getByTestId('simulator-cover-start').click();
+
     const selectorTipo = page.locator('button[role="combobox"]').first();
     await expect(selectorTipo).toBeVisible({ timeout: 15_000 });
     await expect(selectorTipo).toContainText('Cumpleaños');
@@ -36,6 +40,9 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
     test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
+
+    // Sin ?tipo= se muestra la pantalla de bienvenida: hay que hacer click en Comenzar.
+    await page.getByTestId('simulator-cover-start').click();
 
     // Bloque 9: El pie no debe mostrar "$0" ni "Total vigente: $0" antes de elegir nada
     const textoPie = page.locator('text=Elegí tus servicios para ver el total').first();

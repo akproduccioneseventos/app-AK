@@ -265,6 +265,13 @@ function SimuladorContent() {
         simulatorMode: 'visual' as const,
     }), [searchParams]);
     const [hasStarted, setHasStarted] = useState(false);
+    // Si la URL trae el tipo de fiesta pre-seleccionado, saltamos la pantalla de bienvenida
+    // para que el combobox quede visible de entrada y las pruebas e2e puedan encontrarlo.
+    useEffect(() => {
+      if (searchParams.get('tipo') || searchParams.get('eventType')) {
+        setHasStarted(true);
+      }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
     const [step, setStep] = useState(1);
     const currentYear = new Date().getFullYear();
 

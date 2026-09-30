@@ -478,10 +478,12 @@ function ReunionOrganizacionContent() {
           {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
           Guardar cambios
         </Button>
+        {/* data-testid en el pie porque hay otro botón igual en el header (UX intencional) */}
         <Button
           onClick={handleCerrarReunion}
           disabled={isSaving || isClosing}
           className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          data-testid="btn-cerrar-reunion"
         >
           {isClosing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CalendarCheck className="h-4 w-4 mr-2" />}
           Cerrar la reunión
