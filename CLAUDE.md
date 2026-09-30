@@ -1163,6 +1163,9 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **La fotocabina no tiene cámara lenta (30 de septiembre de 2026).** *"La fotocabina no usa cámara lenta
+  si es foto"*. La cámara lenta es de la Plataforma 360. Lo saca la orden 100.
+
 - **El contrato no lleva cláusula de consentimiento de datos de los invitados (30 de septiembre de
   2026).** Palabras suyas: *"lo de los invitados no"*. Lo máximo que va es **una línea en letra chica, sin casilla**, donde la gente deja sus datos
   (orden 101, bloque 6). No se vuelve a proponer nada más ni se lista como pendiente.

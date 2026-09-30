@@ -217,30 +217,35 @@ usa: toContain(totalEnPantalla en tests/e2e/simulator-budget-journey.spec.ts
 no-usa: mockPresupuestoGenerado en src/__tests__/simulator-budget-pdf-flow.test.ts
 ```
 
-## Bloque nuevo, en la misma propuesta — La prueba de cámara lenta aprueba sin video (Codex, 30/09)
+## Bloque nuevo, en la misma propuesta — La fotocabina no tiene cámara lenta (decisión del dueño, 30/09)
 
-**Qué pasa.** En `tests/e2e/la-fotocabina-tiene-todo.spec.ts` ~l.123-133:
+**Decisión del dueño:** *"la fotocabina no usa cámara lenta, si es foto"*. La cámara lenta es de la
+Plataforma 360, no de la fotocabina. Codex encontró además que la prueba de esa opción aprobaba sin
+video, y que la pantalla inventa una duración de 4 segundos cuando no hay video
+(`data-duracion-video={duracionVideo || (velocidadRecuerdo === 'lenta' ? 4 : 2)}`).
 
-- `await expect(avisoDuracion).toBeVisible(...).catch(() => {})` **se traga la falla**, y después
-  `if (await avisoDuracion.isVisible())` hace que, si el aviso no aparece, **no se compruebe nada**;
-- `Number(duracionTomaStr || '2')` y `Number(duracionVideoStr || '4')`: si faltan los datos, usa
-  2 y 4 inventados y la comparación pasa sin medir ningún video;
-- acepta `video-recuerdo-placeholder`, que no es un video.
+**Qué hacer en `src/app/evento/fotocabina/[fiestaId]/page.tsx`:**
 
-Codex lo reprodujo: la prueba da verde sin aviso y sin datos.
+1. Sacar la opción **"Cámara Lenta"** del selector del operador (~l.1242-1260: queda `normal` y
+   `boomerang`) y todo lo que depende de `'lenta'`: ~l.445, ~l.708, ~l.1659-1695 (el aviso
+   `duracion-recuerdo-lenta` y el texto "Recuerdo en cámara lenta").
+2. Si una fiesta tiene guardado `'lenta'`, la pantalla la trata como `'normal'` (no se rompe). El
+   tipo del ajuste en la estación pasa a `'normal' | 'boomerang'`, y en los ajustes del operador
+   ya no se ofrece lenta.
+3. Sacar el número inventado: el placeholder no lleva `data-duracion-video` con un valor de
+   relleno.
+4. **No toques** la cámara lenta de la Plataforma 360 ni el boomerang.
 
-**Qué hacer (sólo la prueba, no la fotocabina):**
+**Las pruebas:**
 
-1. Sacar el `.catch(() => {})` y el `if`: el aviso **tiene que** aparecer.
-2. Sin valores por omisión: si falta `data-duracion-toma` o `data-duracion-video`, la prueba falla.
-   Los dos tienen que ser números finitos mayores que cero, y el del video mayor que el de la toma.
-3. Exigir `[data-testid="video-recuerdo"]` con su `src` cargado y `readyState >= 1`, y que su
-   `duration` real (leída del elemento en la página) coincida con `data-duracion-video` (±0,5 s).
-   Si con la cámara falsa la app sólo puede mostrar el placeholder, **decilo en la entrega** en vez
-   de aceptarlo en la prueba.
-4. Comprobá que se pone en rojo borrando a propósito el aviso de la pantalla, y volvelo atrás.
+- En `tests/e2e/la-fotocabina-tiene-todo.spec.ts` ~l.100-133, reemplazar la prueba de cámara lenta
+  por una que compruebe que **no existe** `button[data-velocidad="lenta"]` y que una fiesta con
+  `'lenta'` guardada abre la cabina en modo normal, sin el aviso de duración.
+- Ajustar `src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts`: `'lenta'` en la fotocabina
+  llega como `'normal'`.
 
 ```comprobar
+no-usa: data-velocidad="lenta" en src/app/evento/fotocabina/[fiestaId]/page.tsx
+no-usa: Cámara Lenta en src/app/evento/fotocabina/[fiestaId]/page.tsx
 no-usa: duracionTomaStr || '2' en tests/e2e/la-fotocabina-tiene-todo.spec.ts
-no-usa: video-recuerdo-placeholder"]'); en tests/e2e/la-fotocabina-tiene-todo.spec.ts
 ```
