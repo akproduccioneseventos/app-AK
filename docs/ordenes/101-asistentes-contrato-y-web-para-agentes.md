@@ -6,7 +6,7 @@
 ## Cómo se entrega
 
 - **Después de terminar la orden 100.** Rama nueva desde la versión principal de ese momento y
-  **una sola propuesta** con los seis bloques. Si uno se traba, entregá el resto y avisá cuál.
+  **una sola propuesta** con los siete bloques. Si uno se traba, entregá el resto y avisá cuál.
 - `npm run "publicar?"` completo y la última pantalla pegada en la propuesta.
 - Pasá por `docs/ANTES-DE-ENTREGAR.md`. Nada de esto manda mensajes, cobra ni acepta nada solo.
 
@@ -194,6 +194,47 @@ campos (la búsqueda de arriba): falla si alguna no usa `AvisoDeDatos` y no est�
 de `invitacion/`, `evento/` o `video-vida/` no le pasa `para="invitado"`. Tiene
 que ponerse en rojo si se agrega una pantalla nueva con un campo y sin el aviso.
 
+## Bloque 7 — Pie de página y página de Privacidad según la Ley 18.331
+
+**Pedido del dueño (30/09/2026):** *"poner abajo de la página, como otras web, que está sujeta a la
+ley, y una página de privacidad"*. La página ya existe (`src/app/privacidad/page.tsx`) y el pie ya
+tiene el enlace "Privacidad" (`src/components/public-footer.tsx` ~l.300). Se completa, no se rehace.
+
+**1. Pie de página** (`public-footer.tsx`, fila de abajo ~l.297, al lado del ©): una línea sutil,
+igual de chica y gris que el ©: *"Tus datos se tratan según la Ley 18.331 de Protección de Datos
+Personales."* En el celular va debajo del ©, no al costado.
+
+**2. Página `/privacidad`.** Lo que hoy dice queda igual; se agregan estas secciones, en criollo y
+con el mismo estilo (tomado de lo que publican AGESIC, IMPO y el Correo Uruguayo):
+
+- **"Quién es responsable de tus datos"** (después de "Quiénes somos"): AK Producciones Eventos,
+  RUT 22037268001, Salto, Uruguay, y el WhatsApp y el mail de contacto **leídos de
+  `getCompanyInfoPublica()`** (`src/app/actions/settings.ts` ~l.213), no escritos a mano.
+- **"Si sos invitado de una fiesta"**: tu nombre, si vas o no, lo que elegís de menú y las fotos o
+  mensajes que subís se usan **sólo para esa fiesta**; lo ve el equipo y quien la contrató; no se
+  vende ni se usa para publicidad.
+- **"Si trabajás con nosotros"** (personal y proveedores): los datos se usan para coordinar el
+  trabajo y pagar.
+- **"Las visitas a la web"**: sumar que también se usa **el píxel de Meta** (Facebook e Instagram)
+  para medir los anuncios. Hoy la página dice sólo Google Analytics y la app usa las dos
+  (`src/components/meta-pixel.tsx`): **eso hay que corregirlo, es una afirmación falsa.**
+- **"Tus derechos"** (reemplaza el texto de "Si querés que borremos lo tuyo", manteniendo su tono):
+  podés pedir **acceso, rectificación, actualización, inclusión o supresión** de tus datos,
+  escribiéndonos; contestamos **dentro de los 5 días hábiles**; y si no te conforma, podés
+  reclamar ante la **Unidad Reguladora y de Control de Datos Personales (URCDP)**, con enlace a
+  `https://www.gub.uy/unidad-reguladora-control-datos-personales`.
+- **Al final:** *"Esta política se rige por la Ley 18.331 de Protección de Datos Personales y
+  su Decreto reglamentario 414/009."*
+- `ACTUALIZADA` pasa a la fecha de la entrega.
+
+**No escribas** que la base está inscripta en la URCDP ni sellos de "cumplimiento": eso no lo
+confirmó el dueño. Nada de "garantizamos".
+
+**La prueba** (`src/__tests__/la-privacidad-dice-la-ley-y-la-verdad.test.ts`): renderizando la
+página aparecen "18.331", "URCDP", "5 días hábiles", "Meta" y el teléfono que devuelve
+`getCompanyInfoPublica` simulado (cambiándolo, cambia en la página); no aparece "garantiza" ni
+"inscripta"; y el pie de página muestra "Ley 18.331" con el enlace a `/privacidad`.
+
 ```comprobar
 usa: AsistenteDelCliente en src/app/portal-cliente/[id]/page.tsx
 prueba: src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts
@@ -215,4 +256,8 @@ usa: AvisoDeDatos en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
 usa: AvisoDeDatos en src/components/landing/LeadCaptureForm.tsx
 usa: AvisoDeDatos en src/app/simulador-de-presupuesto/page.tsx
 prueba: src/__tests__/el-aviso-de-datos-esta-donde-se-dejan-datos.test.ts
+usa: 18.331 en src/components/public-footer.tsx
+usa: URCDP en src/app/privacidad/page.tsx
+usa: getCompanyInfoPublica en src/app/privacidad/page.tsx
+prueba: src/__tests__/la-privacidad-dice-la-ley-y-la-verdad.test.ts
 ```
