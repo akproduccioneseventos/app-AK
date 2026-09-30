@@ -160,19 +160,26 @@ a nadie (ya está decidido no sumarle pasos al invitado que confirma).
    contactarte por él, según la Ley 18.331 de protección de datos personales. [Privacidad]"*, con
    el enlace a `/privacidad` (ya existe). Prop opcional `accion` para cambiar "Al confirmar" por
    "Al enviar". Legible en el celular (mínimo 12 px).
-2. Ponelo debajo del botón que manda los datos en:
-   - `src/app/invitacion/[fiestaId]/rsvp/page.tsx` ~l.661 ("Confirmar asistencia");
-   - `src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx` ~l.517 ("Confirmar");
-   - `src/components/landing/LeadCaptureForm.tsx` ~l.281, con `accion="Al enviar"`;
-   - `src/app/simulador-de-presupuesto/page.tsx`, en el paso 2 (donde se piden nombre y WhatsApp,
-     ~l.839), debajo del botón de avanzar ~l.2910.
+2. **En el 100% de los lugares donde alguien de afuera deja datos** (el dueño lo pidió así): toda
+   pantalla fuera de `src/app/(app)/` que tenga un campo para escribir o subir algo y un botón que
+   lo manda. Hoy son unas 45; la lista sale sola con
+   `grep -rlE "<(Input|input|Textarea|textarea)\b" src/app --include=*.tsx | grep -v "src/app/(app)/"`.
+   Incluye invitación y RSVP, portal del cliente y todas sus secciones, portal del invitado, muro,
+   buzón, Video de Vida, estaciones de la fiesta, encuesta, simulador (paso 2, donde se piden nombre
+   y WhatsApp), formulario de contacto (`accion="Al enviar"`), acceso del personal y del proveedor.
+   Va **una vez por pantalla**, debajo del botón que manda los datos.
+   **Quedan afuera, y sólo estas:** `login`, `buscar`, `admin/*`, `control-tower/*`, `marketing`,
+   `secretaria-ak` (son del equipo o no piden datos personales). Si encontrás otra que no pide
+   datos personales, sumala a la lista de excluidas con el motivo en una línea.
 3. Si `/privacidad` no nombra la Ley 18.331, sumale una línea que la nombre. No cambies el resto.
 
 **No toques** el texto de los botones ni los formularios: sólo se agrega la línea abajo.
 
 **La prueba** (`src/__tests__/el-aviso-de-datos-esta-donde-se-dejan-datos.test.ts`): el componente
 muestra "18.331" y un enlace a `/privacidad`; con `accion="Al enviar"` dice eso; y no tiene casilla
-para tildar (ningún `checkbox`).
+para tildar (ningún `checkbox`); **y recorre todas las pantallas de afuera con campos** (la misma
+búsqueda de arriba) y falla si alguna no usa `AvisoDeDatos` y no está en la lista de excluidas. Tiene
+que ponerse en rojo si se agrega una pantalla nueva con un campo y sin el aviso.
 
 ```comprobar
 usa: AsistenteDelCliente en src/app/portal-cliente/[id]/page.tsx
