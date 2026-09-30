@@ -235,3 +235,9 @@ No build, app modificada, PR creada ni merge. Navegador bloqueado por politica: 
 496 suites restantes /2923 pruebas aprobadas; sin repetir las33 suites aprobadas antes. Cuatro controles fallaron inicialmente por ausencia de Git en ZIP; reintento final con indice exacto paso. Manifest: docs/evidencias/unitarias-restantes-2026-09-30.json (ea4b2d19008fd975be556ee1b1f4b284badd18c7). No E2E/build/servicios reales.
 PDF real revisado visualmente:45 servicios en3paginas; nuevo P2 nombre encima de Invitados. Orden102 verificada, commit9b9021095aa4bcd26452e6ffad77775f6762dd8f. Gemini maquetacion; Claude conserva importes/compila. Juntar con100/101, no otra PR solo documental.
 Diagnostico actualizado: d071119ef0c4df1717c0f67fdb2e24a69a83995a. Quedan cuatro defectos confirmados, sin correccion por Codex. La auditoria de uso integral sigue sin aprobar: CUA bloqueado, datos19historicos ausentes del ZIP, servicios reales no probados. No convertir las2923 pruebas en certificado de toda la app.
+
+
+## 2026-09-30 - PR1246 no hereda aprobacion de main
+
+Confirmacion focalizada del HEAD70b016ece91b8e82e7b2054061a8c8f2af072e19:6 suites/22 pruebas;18 pasan y4 fallan (3 llegada de personal,1 actualizarFiesta). Es el P1 ya comentado en PR, no otra orden. Fuente y consumidores sin sesion constatados. No enviar cron real ni quitar permisos para arreglarlo.
+Evidencia:docs/evidencias/PR1246-CONTRASTE-2026-09-30.md, commit af58e2ed1a70c5d2bd530e32369a594a1f53bde4, contenido remoto verificado. No aprobar/fusionar este HEAD. No repetir2923 pruebas main para justificarlo. Las otras observaciones de revision quedan sin cierre automatico por estos tests.
