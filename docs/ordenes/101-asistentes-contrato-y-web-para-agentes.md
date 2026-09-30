@@ -38,29 +38,31 @@ la instrucción que recibe la IA incluye una pregunta del contrato.
 ## Bloque 2 — Las preguntas frecuentes salen del contrato
 
 `src/data/preguntas-frecuentes-contrato.ts` exporta `PREGUNTAS_FRECUENTES_DEL_CONTRATO` con **este
-texto, tal cual** (lo sacó Claude del contrato vigente; si el contrato cambia, se cambia acá y lo
+texto, tal cual** (lo sacó Claude del contrato revisado del 30/09/2026; si el contrato cambia, se cambia acá y lo
 leen todos):
 
 | Pregunta | Respuesta |
 |---|---|
-| ¿Cómo reservo la fecha? | Firmando el contrato y abonando la seña acordada, que se descuenta del total. |
+| ¿Cómo reservo la fecha? | Firmando el contrato y abonando la seña acordada: confirma la reserva y se descuenta del total. |
 | ¿Qué incluye el servicio? | Sólo lo que figura en el presupuesto firmado y lo que se agregue después por escrito (presupuesto, factura o adenda). El salón no está incluido salvo que figure en el presupuesto. |
-| ¿Cuántas horas dura la fiesta? | Hasta 7 horas desde el inicio. Cada hora extra o fracción tiene un costo adicional que figura en el contrato. |
+| ¿Cuántas horas dura la fiesta? | Hasta 7 horas desde el inicio. Cada hora extra o fracción cuesta $5.000, un precio fijo que no lleva el ajuste anual. |
 | ¿El precio cambia si la fiesta es el año que viene? | Sí. Cada 1º de enero se aplica un ajuste del 15% sobre lo que falte, acumulado año a año, si el evento es en un año posterior al de la firma. |
-| ¿Cómo pago? | En cuotas libres: como mínimo $10.000 cada tres meses; al primer tercio del plazo tiene que estar pago el 30%, a la mitad el 50%, y el total 30 días antes de la fiesta. Podés adelantar cuando quieras. |
-| ¿Qué pasa si me atraso con un pago? | Te avisamos y tenés 5 días para ponerte al día. Si no, el contrato se puede dar por terminado y se aplica la cláusula penal. |
-| ¿Puedo cambiar la fecha? | Sí, pidiéndolo con 30 días de anticipación y según disponibilidad. Cada cambio tiene un costo del 10% del presupuesto. |
-| ¿Y si cancelo? | La cancelación tiene una penalidad del 30% del presupuesto vigente. Lo que ya pagaste se descuenta de eso, y si pagaste de más se te devuelve la diferencia. |
-| ¿Puedo cambiar la cantidad de invitados? | Hasta 15 días antes: podés bajar hasta un 10% o subir hasta un 20% (según disponibilidad, y el aumento se paga antes). Después de ese día, la cantidad queda fija. |
+| ¿Cómo pago? | En cuotas libres: como mínimo $10.000 en cada período de tres meses contado desde la firma; al primer tercio del plazo tiene que estar pago el 30%, a la mitad el 50%, y el total 30 días antes de la fiesta. Podés adelantar cuando quieras. |
+| ¿Qué pasa si me atraso con un pago? | No hay recargo automático. Antes de cualquier medida te avisamos y tenés 5 días para ponerte al día; si no, el contrato se puede dar por terminado y se aplica la cláusula penal. |
+| ¿Puedo cambiar la fecha? | Sí, pidiéndolo con 30 días de anticipación y según disponibilidad. Cada cambio tiene un costo del 10% del presupuesto, salvo que sea por un caso de fuerza mayor. |
+| ¿Y si cancelo? | La cancelación tiene una penalidad del 30% del presupuesto vigente. Lo que ya pagaste se descuenta de eso, y si pagaste de más se te devuelve la diferencia dentro de los 30 días. |
+| ¿Puedo cambiar la cantidad de invitados? | Hasta 15 días antes: podés bajar hasta un 10% o subir hasta un 20% (según disponibilidad, y el aumento se paga antes). Si querés bajar más del 10%, lo que pase de ese 10% se toma como cancelación parcial (30% sobre esa parte). Después de ese día, la cantidad queda fija. |
 | ¿Cuándo entrego la lista de invitados? | Como máximo 7 días antes, con todos los que van (incluidos niños y adolescentes) y el menú de cada uno. |
 | ¿Hacen menú sin gluten o para alergias? | Sí, avisando en la reunión de organización o hasta 15 días antes; se presupuesta aparte. La cocina no tiene un sector exclusivo, así que no se puede asegurar que no haya trazas. |
 | ¿Quién decide los detalles de la fiesta? | Vos, en las reuniones de organización. Lo que se define ahí queda por escrito. Sólo la persona que firmó puede pedir cambios, salvo que autorice a otra por escrito. |
 | ¿Puedo llevar fotógrafo, show o maquilladora por mi cuenta? | Sí, avisando antes. Su comida y bebida no están incluidas salvo que se agreguen al presupuesto. |
 | ¿Me puedo llevar lo que sobra? | Sí, la comida, tortas, postres y bebidas que aportaste o que se facturaron aparte. No lo de la barra libre ni los materiales de trabajo. |
 | ¿Quién cuida a los niños? | Sus padres o los adultos responsables; el equipo no cumple funciones de cuidado. |
-| ¿Usan las fotos de mi fiesta? | Sólo si lo autorizás en el contrato. Si no, no cambia nada del precio ni del servicio. |
+| ¿Usan las fotos de mi fiesta? | Sólo si lo autorizás en el contrato; si no, no cambia nada del precio ni del servicio. Para mostrar a otros menores se pide permiso a sus padres. |
 | ¿Y AGADU? | Corre por cuenta del cliente, salvo que esté incluido en el presupuesto. |
-| ¿Qué pasa si hay un imprevisto grave? | Si es un caso de fuerza mayor (desastre, orden de la autoridad, fallecimiento o enfermedad grave documentada), se acuerda una fecha nueva manteniendo el contrato (con el ajuste anual si pasa de año); si no se puede, se liquida lo hecho y los gastos ya comprometidos, y se devuelve el saldo que corresponda. |
+| ¿Los precios incluyen impuestos? | Sí: todo está en pesos uruguayos e incluye los impuestos que correspondan, salvo que el presupuesto diga otra cosa. |
+| ¿Y si AK no puede cumplir con algo? | Si por causa de AK no se presta un servicio contratado y pagado, y no se acuerda un reemplazo o una fecha nueva, se devuelve lo pagado por ese servicio dentro de los 30 días. |
+| ¿Qué pasa si hay un imprevisto grave? | Si es un caso de fuerza mayor (desastre, orden de la autoridad, fallecimiento o enfermedad grave documentada), se acuerda una fecha nueva sin el costo del 10%, manteniendo el contrato (con el ajuste anual si pasa de año); si no se puede, se liquida lo hecho y los gastos ya comprometidos, y se devuelve el saldo dentro de los 30 días. |
 
 **Dónde se usa:**
 
