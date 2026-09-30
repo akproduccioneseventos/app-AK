@@ -228,3 +228,10 @@ Diagnostico: docs/evidencias/DIAGNOSTICO-CONSOLIDADO-2026-09-30.md, commit b4769
 31 suites / 148 pruebas aprobadas de esta tanda con rutas; no incluyen las 35 reportadas sin lista completa de entretenimiento. Codigo del snapshot cotejado contra GitHub: 2060 archivos, cero diferencias. Main 62dcb2cb4df718a81c3654028199e49628367d8c; PR1246 HEAD 70b016ece91b8e82e7b2054061a8c8f2af072e19.
 Dos sondas confirman perdida concurrente de chats/aprendizajes y seleccion de tarea distinta del ID solicitado. Codigo identico en main y tanda. Orden101 (ac95d9d05995a5d15a80b4a3b56df64450d712fa) y sonda portable (1cf95b2e6279fd237b738d602d38e7a1bfbc2be7) subidas y verificadas; sumar a orden100 para Claude, no reabrir hallazgos corregidos.
 No build, app modificada, PR creada ni merge. Navegador bloqueado por politica: no se elude ni se certifican recorridos. Matriz pendiente de 9 frentes en diagnostico, no nueve errores. No decir lista/perfecta por estos tests.
+
+
+## 2026-09-30 - Cierre del barrido unitario restante
+
+496 suites restantes /2923 pruebas aprobadas; sin repetir las33 suites aprobadas antes. Cuatro controles fallaron inicialmente por ausencia de Git en ZIP; reintento final con indice exacto paso. Manifest: docs/evidencias/unitarias-restantes-2026-09-30.json (ea4b2d19008fd975be556ee1b1f4b284badd18c7). No E2E/build/servicios reales.
+PDF real revisado visualmente:45 servicios en3paginas; nuevo P2 nombre encima de Invitados. Orden102 verificada, commit9b9021095aa4bcd26452e6ffad77775f6762dd8f. Gemini maquetacion; Claude conserva importes/compila. Juntar con100/101, no otra PR solo documental.
+Diagnostico actualizado: d071119ef0c4df1717c0f67fdb2e24a69a83995a. Quedan cuatro defectos confirmados, sin correccion por Codex. La auditoria de uso integral sigue sin aprobar: CUA bloqueado, datos19historicos ausentes del ZIP, servicios reales no probados. No convertir las2923 pruebas en certificado de toda la app.
