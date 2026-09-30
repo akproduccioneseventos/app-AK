@@ -98,3 +98,67 @@ usa: page_location en src/components/google-analytics.tsx
 usa: disablePushState en src/components/meta-pixel.tsx
 prueba: tests/e2e/medicion-no-envia-llaves.spec.ts
 ```
+
+## Bloque nuevo, en la misma propuesta — El asistente no pierde conversaciones ni completa otra tarea (Codex, 30/09)
+
+### A. Dos guardados a la vez pierden una conversación o un aprendizaje
+
+**Qué pasa hoy.** `appendMultiAgentChatTurn` (`src/lib/multiagent/chat-store.ts` ~l.51) lee
+**todo** `multiagent/chats.json`, le agrega el turno y vuelve a escribir todo (`writeChatState`
+~l.43). `saveAgentLearning` (`src/lib/multiagent/memory-store.ts` ~l.88) hace lo mismo con
+`multiagent/memory.json`. Si dos personas del equipo le escriben al asistente a la vez, las dos
+reciben respuesta y **en la base queda sólo una**. En la base, esos archivos son el documento
+`multiagent/chats` y `multiagent/memory` (`src/lib/firebase-sync.ts` ~l.384-400: carpeta =
+colección, archivo = documento).
+
+**Qué hacer:**
+
+1. Función nueva `mutarDocumentoConTransaccion<T>(ruta, vacio: T, cambiar: (actual: T) => T | null)`
+   en `src/lib/generic-json-store.ts`, junto a `mutateGenericJsonArray` (~l.58) y con la misma
+   forma: `db.runTransaction`, leer `db.collection(carpeta).doc(archivoSinJson)` **adentro**,
+   aplicar `cambiar` y `transaction.set(ref, { ...resultado, _syncedAt })`. Si `cambiar` devuelve
+   `null`, no se guarda. **Con `AK_USE_LOCAL_JSON_ONLY=true`**, lo mismo con un `AsyncMutex`
+   (`src/lib/mutex.ts`) y `readData`/`writeData`.
+2. En los dos archivos, sacá la parte que arma el estado nuevo a una función pura
+   (`agregarTurno(state, input)` y `agregarAprendizaje(state, input)`), **sin cambiar lo que
+   hace** (límites de 160 sesiones y 120 aprendizajes, alcance por fiesta), y guardá con
+   `mutarDocumentoConTransaccion`. Si el guardado falla, la función **tira el error**: no devuelve
+   la sesión como si se hubiera guardado.
+
+### B. El asistente marca como hecha una tarea distinta de la pedida
+
+**Qué pasa hoy.** `src/app/actions/multiagent.ts` ~l.148-150 marca la **primera** tarea que
+coincide por id **o** por texto. Con las tareas "Confirmar proveedor del salón" (id `salon`) y
+"Confirmar proveedor de comida" (id `comida`), pedir `tareaId: 'comida'` con texto "Confirmar
+proveedor" completa **la del salón** y dice que salió bien.
+
+**Qué hacer:**
+
+- **Si viene `tareaId`:** se busca **sólo** por id. Si no existe, contesta "No encontré esa
+  tarea" y **no escribe nada**; no se cae al texto.
+- **Si viene sólo texto:** se juntan todas las que lo contienen. Cero → "No encontré esa tarea".
+  **Más de una → no escribe** y contesta cuáles son, para que la persona elija. Una sola → se
+  marca como hoy.
+- **No toques** el caso ya resuelto de "sin id ni texto no se adivina" (el comentario de ~l.158).
+
+### La prueba
+
+`src/__tests__/el-asistente-no-pierde-ni-elige-mal.test.ts`, con la base de mentira que **devuelve
+una copia** en cada lectura (error 11 de `CLAUDE.md`):
+
+- dos `appendMultiAgentChatTurn` a la vez, de dos fiestas distintas: al releer están **las dos**
+  sesiones; y dos turnos a la vez de **la misma** sesión: están los dos mensajes;
+- dos `saveAgentLearning` a la vez: están los dos aprendizajes;
+- si el guardado falla, la función tira el error;
+- con las dos tareas de arriba: `tareaId: 'comida'` + texto "Confirmar proveedor" marca **sólo**
+  la de comida; `tareaId: 'no-existe'` no marca nada; sólo texto "Confirmar proveedor" no marca
+  nada y la respuesta nombra las dos.
+
+**Se tiene que poner en rojo** si se vuelve a guardar con `writeData` de la lista entera.
+
+```comprobar
+usa: mutarDocumentoConTransaccion en src/lib/multiagent/chat-store.ts
+usa: mutarDocumentoConTransaccion en src/lib/multiagent/memory-store.ts
+no-usa: coincideId || coincideTexto en src/app/actions/multiagent.ts
+prueba: src/__tests__/el-asistente-no-pierde-ni-elige-mal.test.ts
+```
