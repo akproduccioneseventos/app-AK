@@ -1163,6 +1163,9 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **El contrato no lleva cláusula de consentimiento de datos de los invitados (30 de septiembre de
+  2026).** Palabras suyas: *"lo de los invitados no"*. No se vuelve a proponer ni se lista como pendiente.
+
 - **Nada de garantías, nada de "24/7", y la empresa tiene 7 años (28 de septiembre de 2026).**
   Palabras suyas: *"nada de garantía ni 24/7, y son 7 años; no prometo cosas que no puedo
   cumplir"*. En todo lo que ve un cliente o un prospecto: **no se escribe "garantía",
