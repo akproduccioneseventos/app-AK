@@ -162,3 +162,32 @@ usa: mutarDocumentoConTransaccion en src/lib/multiagent/memory-store.ts
 no-usa: coincideId || coincideTexto en src/app/actions/multiagent.ts
 prueba: src/__tests__/el-asistente-no-pierde-ni-elige-mal.test.ts
 ```
+
+## Bloque nuevo, en la misma propuesta — En el PDF del presupuesto, un nombre largo tapa "Invitados" (Codex, 30/09)
+
+**Qué pasa.** En `src/lib/budget/simulator-budget-pdf.ts` ~l.228-246, el recuadro de datos del
+cliente escribe el nombre con `pdf.text(input.clientName, marginX + 27, y + 6)` **sin ancho máximo**.
+Con "Maria Fernanda Rodriguez y Juan Sebastian Fernandez" el nombre termina en x≈125 mm y la
+etiqueta "INVITADOS" empieza en x=112: se pisan 13 mm (Codex lo vio renderizado). El paquete
+(`input.packageName`, x=130) tampoco tiene tope y puede salirse del recuadro. Lo usa el simulador:
+`downloadSimulatorBudgetPdf` en `src/app/simulador-de-presupuesto/page.tsx` ~l.1123.
+
+**Qué hacer:**
+
+1. Nombre, fecha y paquete con ancho máximo por columna: `pdf.splitTextToSize(texto, ancho)`,
+   izquierda hasta x=108 y derecha hasta el borde del recuadro menos 4 mm.
+2. **El nombre no se corta ni se abrevia**: baja a una segunda línea (y tercera si hace falta), y
+   el alto del recuadro (`roundedRect(..., 23, ...)`) y el `y += 29` crecen según las líneas que
+   usó la columna más alta. Las filas de abajo ("FECHA DEL EVENTO", "PAQUETE") se corren en consecuencia.
+3. **No toques** precios, proyecciones, regalos, condiciones ni la tabla.
+
+**La prueba**: ampliá `src/lib/budget/simulator-budget-pdf.render.test.ts` (hoy sólo mira páginas,
+A4 y peso). Con el nombre largo de arriba y un paquete de 80 letras, interceptá `pdf.text` y
+comprobá que **ningún texto de la columna izquierda termina después de x=108** (usá
+`pdf.getTextWidth`) y que el nombre completo aparece entero sumando las líneas. Tiene que ponerse
+en rojo con el código de hoy.
+
+```comprobar
+usa: splitTextToSize en src/lib/budget/simulator-budget-pdf.ts
+usa: getTextWidth en src/lib/budget/simulator-budget-pdf.render.test.ts
+```
