@@ -26,3 +26,8 @@
 - Integraciones reales, estetica completa y despliegue no certificados por unitarias.
 - Claude corrige/compila candidato; dueno fusiona. Codex contrasta correcciones con evidencia.
 - GitHub facturacion, QR por nombre y proveedores en varias fiestas no se reabren.
+
+## Ultimo contraste PR1246
+- Mismo HEAD70b016e:22 pruebas focalizadas;18 pasan,4 fallan (personal/actualizarFiesta).
+- No fusionar; confirma P1 existente. Ver PR1246-CONTRASTE-2026-09-30.md.
+- La aprobacion unitaria de main no es aprobacion del candidato. Sin codigo cambiado.
