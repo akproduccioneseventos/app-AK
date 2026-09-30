@@ -220,3 +220,11 @@ Main: 62dcb2cb4df718a81c3654028199e49628367d8c. PR detectada: 1246, HEAD 70b016e
 - Recorrido visual NO realizado: CUA rechazo seleccion de pestana por politica de URL/protocolo. No se eludio ni se uso otra superficie para sortear el bloqueo. No atribuirlo a defecto de la app.
 - Agentes previos solo inventariaron cobertura: siguen sin verificacion actual del recorrido completo IA/presupuesto, varios presupuestos del mismo telefono en CRM y PDF renderizado comparado con pantalla. Los inventarios no cuentan como pruebas ejecutadas.
 - Ninguna app perfecta/certificacion total. No merge ni codigo de producto cambiado. Recuento Astra/Luna anterior sigue en docs/evidencias/RECUENTO-ASTRA-LUNA-2026-09-29.md; no descartar una evidencia solo por el modelo.
+
+
+## 2026-09-30 - Tanda consolidada, no certificacion global
+
+Diagnostico: docs/evidencias/DIAGNOSTICO-CONSOLIDADO-2026-09-30.md, commit b47698587babae32178d39e761fb32b78e7b510f, contenido remoto verificado.
+31 suites / 148 pruebas aprobadas de esta tanda con rutas; no incluyen las 35 reportadas sin lista completa de entretenimiento. Codigo del snapshot cotejado contra GitHub: 2060 archivos, cero diferencias. Main 62dcb2cb4df718a81c3654028199e49628367d8c; PR1246 HEAD 70b016ece91b8e82e7b2054061a8c8f2af072e19.
+Dos sondas confirman perdida concurrente de chats/aprendizajes y seleccion de tarea distinta del ID solicitado. Codigo identico en main y tanda. Orden101 (ac95d9d05995a5d15a80b4a3b56df64450d712fa) y sonda portable (1cf95b2e6279fd237b738d602d38e7a1bfbc2be7) subidas y verificadas; sumar a orden100 para Claude, no reabrir hallazgos corregidos.
+No build, app modificada, PR creada ni merge. Navegador bloqueado por politica: no se elude ni se certifican recorridos. Matriz pendiente de 9 frentes en diagnostico, no nueve errores. No decir lista/perfecta por estos tests.
