@@ -7,7 +7,7 @@ y por WhatsApp, los dos con interruptor**.
 
 ## Cómo se entrega
 
-- **Después de las órdenes 100 y 101**, en una propuesta nueva y **una sola** con los cinco bloques.
+- **Después de las órdenes 100 y 101**, en una propuesta nueva y **una sola** con todos los bloques.
 - `npm run "publicar?"` completo, con la última pantalla pegada en la propuesta.
 - Pasá por `docs/ANTES-DE-ENTREGAR.md`.
 - **Las reglas de siempre no cambian:** mira, detecta, prepara y avisa **solo**; **no** manda
@@ -87,6 +87,70 @@ presupuestos"). En el parte de la mañana el asistente mide cómo va (fiestas co
 presupuestos cerrados, leyendo los datos, **sin inventar**) y propone **una** cosa concreta del día,
 como propuesta con su botón.
 
+## Bloque 5 — Un asistente por área, con nombre (pedido del dueño: "como los Dots")
+
+Tres asistentes, cada uno con su nombre, su color y su bandeja filtrada. **Es la misma bandeja del
+bloque 1**, con un campo `area` en cada propuesta, no tres sistemas:
+
+| Asistente | `area` | Qué propuestas le tocan |
+|---|---|---|
+| **Ventas** | `ventas` | perseguidor de presupuestos, prospectos, metas del mes |
+| **Cobros** | `cobros` | cobrador, cuotas vencidas, hitos del 30% y 50%, saldo 30 días antes |
+| **Fiestas** | `fiestas` | vigilante de fiestas y de la noche, errores humanos, clima, listas |
+
+En Ajustes se le asigna a cada asistente una persona del equipo (`responsableId`); sus avisos al
+celular le llegan a esa persona además del dueño. Los nombres se pueden cambiar en Ajustes.
+
+## Bloque 6 — "Mientras no estabas"
+
+La corrida de madrugada arma un resumen que se ve arriba de todo en la pantalla del asistente
+hasta que se toca "Visto": qué revisó (cuántas fiestas, presupuestos y cobros), qué encontró y qué
+dejó preparado esperando el "Sí". **Sólo cuenta lo que pasó de verdad** (lo que quedó registrado
+en la corrida); si una parte falló, lo dice.
+
+## Bloque 7 — Investiga solo, mirando sin tocar
+
+1. **El clima de cada fiesta de los próximos 7 días**, con Open-Meteo
+   (`https://api.open-meteo.com/v1/forecast`, gratis y sin clave). Coordenadas: las del salón
+   (`lat`/`lng` de `Salon`, `src/types/salon.ts` ~l.43) y, si no tiene, las de Salto
+   (-31.3833, -57.9667). Si hay más de 60% de lluvia o viento fuerte, propuesta en **Fiestas**:
+   "Pronóstico de lluvia para la fiesta de X: ¿prever carpa o cambiar el armado?".
+2. **Fechas que vienen** (Día de la Madre, egresos de fin de año, Navidad, fin de cursos): con 4
+   semanas de anticipación, propuesta en **Ventas** de una publicación o promoción. La lista de
+   fechas va fija en `src/lib/asistente/fechas-comerciales.ts` (la carga Gemini con fechas de
+   Uruguay; las móviles, calculadas).
+3. **Precios de insumos:** si el costo de un ingrediente o insumo cargado subió más de 10% desde la
+   última compra registrada, propuesta en **Fiestas** para revisar los presupuestos que lo usan.
+   **Sin buscar en internet**: con los datos que ya tiene la app.
+
+## Bloque 8 — Lee el mail y deja la respuesta escrita
+
+- Sumá el permiso `https://www.googleapis.com/auth/gmail.readonly` a la lista de
+  `src/lib/google-workspace.ts` ~l.19. **El dueño tiene que volver a conectar su cuenta de Google
+  una vez**: en Ajustes, si falta ese permiso, un cartel "Para que tu asistente lea el correo,
+  volvé a conectar Google" con el botón de conectar.
+- En cada corrida, los mails **no leídos de las últimas 24 horas** cuyo remitente sea un cliente,
+  prospecto o proveedor cargado en la app (se compara la dirección). Nunca otros.
+- Por cada uno, propuesta en el área que corresponde, con la **respuesta sugerida** (IA, con las
+  preguntas frecuentes del contrato de la orden 101). "Sí, hacelo" la deja en la bandeja de salida
+  con `manual_click`: **la manda una persona**.
+- Del mail se guarda sólo remitente, asunto y un resumen; no el cuerpo entero.
+
+## Bloque 9 — Hablarle en vez de escribir
+
+**Ya existe**: el asistente interno escucha por micrófono (`startListening`,
+`src/components/multiagent/multiagent-widget.tsx` ~l.353). **No lo rehagas**: usá ese mismo `MultiAgentWidget` (~l.242), con su micrófono,
+componente en la pantalla del asistente, para que se le pueda dictar "agendame reunión con
+Yessica el jueves a las 7" y salga como propuesta con su "¿Confirmo?".
+
+## Bloque 10 — El equipo lo ve y lo toma
+
+- Cada propuesta muestra quién la tomó: botón **"Lo tomo yo"**, que pone el nombre y la saca de la
+  bandeja de los demás; y quién tocó "Sí, hacelo", con fecha y hora.
+- Cada quien ve las propuestas de su área más las que no tienen responsable; el dueño ve todas.
+- **Permisos:** sólo quien tiene sesión del equipo; el rol de personal (acceso por enlace) no ve
+  la bandeja.
+
 ## La prueba
 
 `src/__tests__/el-asistente-se-anticipa.test.ts`, con la base de mentira que devuelve copias:
@@ -98,6 +162,12 @@ como propuesta con su botón.
 - "Sí, hacelo" sobre un recordatorio al cliente deja el mensaje con `sendingMode: 'manual_click'`
   y **no** llama a ningún envío;
 - la tarea `asistente-proactivo` deja constancia (`marcarCorrida`).
+- con una fiesta en 3 días y Open-Meteo simulado con 80% de lluvia, sale **una** propuesta en
+  Fiestas; con 10%, ninguna;
+- un mail simulado de un remitente que no está cargado no genera propuesta; uno de un cliente
+  genera la propuesta con respuesta sugerida y "Sí" la deja con `manual_click`;
+- "Lo tomo yo" de una persona la saca de la bandeja de otra;
+- el resumen "mientras no estabas" cuenta exactamente lo registrado en la corrida.
 
 ```comprobar
 archivo: src/app/api/cron/asistente-proactivo/route.ts
@@ -108,4 +178,8 @@ archivo: src/app/(app)/settings/asistente/page.tsx
 usa: sendPushNotificationToAll en src/lib/asistente/avisar-al-duenio.ts
 usa: sendMetaWhatsAppMessage en src/lib/asistente/avisar-al-duenio.ts
 prueba: src/__tests__/el-asistente-se-anticipa.test.ts
+usa: api.open-meteo.com en src/lib/asistente/clima-de-las-fiestas.ts
+archivo: src/lib/asistente/fechas-comerciales.ts
+usa: gmail.readonly en src/lib/google-workspace.ts
+usa: MultiAgentWidget en src/app/(app)/asistente/page.tsx
 ```
