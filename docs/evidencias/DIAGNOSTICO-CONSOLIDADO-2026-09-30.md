@@ -1,6 +1,24 @@
 # Diagnostico consolidado de auditoria - 2026-09-30
 
-## Veredicto
+## Actualizacion posterior: barrido restante y PDF real
+
+Esta seccion actualiza el alcance del informe que sigue. La auditoria integral de uso NO queda aprobada.
+
+- Completadas las 496 suites unitarias restantes: 2923 pruebas aprobadas, 0 fallidas, 0 omitidas. Se excluyeron expresamente las 33 suites previamente aprobadas, sin sumarlas otra vez.
+- Primera corrida:492 suites aprobadas/4 fallidas por falta de metadatos Git en el ZIP. Se repitieron solo esas4 con indice externo del SHA exacto:4 suites/8 pruebas aprobadas. No eran defectos de la app.
+- Hubo un intento de reintento mas amplio que se interrumpio al incluir una prueba que crea su propio repositorio; NO se usa como evidencia. El reintento final incluyo solamente los4 controles de lectura Git. HEAD del checkout auxiliar permanecio c383f0181f6a20d2573ca58e3bb4225a4f61cbcb. No cambio de rama ni merge.
+- Red real bloqueada a nivel sockets, sin credenciales de proveedor heredadas. Avisos de metadatos bloqueados no se trataron como defecto; es validacion aislada con mocks, no integraciones reales.
+- Fuente verificada nuevamente despues de correr:2060 archivos de src/tests/scripts coinciden con arbol GitHub. No codigo de producto modificado.
+- Manifest por archivo: docs/evidencias/unitarias-restantes-2026-09-30.json, commit ea4b2d19008fd975be556ee1b1f4b284badd18c7; subido y releido. Incluye 496 rutas y resultados para no repetirlas.
+- PDF generado con funcion REAL createSimulatorBudgetPdf:45 servicios/3paginas, numeracion y tablas revisadas visualmente mediante Poppler, precio/proyeccion separados. No es comparacion pantalla-descarga ni carga del logo.
+- NUEVO P2 confirmado: nombre completo del cliente invade INVITADOS13.1215mm. Orden102 (9b9021095aa4bcd26452e6ffad77775f6762dd8f), misma fuente main/PR1246. Sonda generadora adjunta (1d92f0a1035e7b4560cb0f1ef2c3bd286b8692ed). Ya son CUATRO defectos confirmados contando100/101, no tres.
+- El test PDF existente paso porque solo verifica paginas/tamano/peso. La inspeccion visual detecto lo que esa prueba no mide.
+- Los 19 historicos NO se conciliaron: el archivo original descargado contiene data/presupuestos.json y src/data/presupuestos.json vacios (3bytes), mas una fixture e2e. No hay conector Firestore disponible. No usar fixtures sembradas para afirmar que los19 reales estan bien.
+
+Quedan fuera de este barrido: interaccion real de todos los roles, estetica completa, correspondencia foto/menu del catalogo real, CRM/cita/descarga desde pantalla, datos historicos reales, proveedores conectados y despliegue candidato. La restriccion CUA sigue vigente; no se eludio con otro navegador o Playwright.
+Las ordenes100/101/102 se corrigen en la tanda existente; no hay que volver a inventariar ni ejecutar estas496 suites por una nota documental.
+
+## Veredicto anterior (conservar contexto)
 
 NO aprobado todavia para publicacion por Codex. No es certificado de cero errores.
 Este cierre agrupa la revision de codigo/pruebas ejecutable en este entorno.
