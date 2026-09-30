@@ -191,3 +191,28 @@ en rojo con el código de hoy.
 usa: splitTextToSize en src/lib/budget/simulator-budget-pdf.ts
 usa: getTextWidth en src/lib/budget/simulator-budget-pdf.render.test.ts
 ```
+
+## Bloque nuevo, en la misma propuesta — El PDF dice la misma plata que la pantalla (Codex, 30/09)
+
+**Qué pasa.** No hay un defecto visto, pero **ninguna prueba compara la plata del PDF con la de la
+pantalla y lo guardado**:
+
+- `tests/e2e/simulator-budget-journey.spec.ts` ~l.98-105 descarga el PDF y sólo mira el nombre y
+  que pese más de 5.000 bytes;
+- `src/__tests__/simulator-budget-pdf-flow.test.ts` arma a mano el presupuesto que después
+  comprueba, en vez de leer el que se generó.
+
+**Qué hacer (sólo pruebas, no se toca la app):**
+
+1. En la prueba de navegador, antes de descargar, leer de la pantalla el **total** y el **total
+   ajustado del año siguiente**; después extraer el texto del PDF descargado (`pdfjs-dist`, que ya
+   está en el proyecto, o `pdf-parse` si está) y comprobar que **esos dos montos y la cantidad de
+   servicios** aparecen iguales en el PDF.
+2. En la de Jest, que compruebe el presupuesto **que devolvió la función**, no uno armado a mano.
+3. Las dos tienen que ponerse en rojo si el PDF usa otro total (probalo cambiando a propósito el
+   total que recibe el generador, y volvelo atrás).
+
+```comprobar
+usa: toContain(totalEnPantalla en tests/e2e/simulator-budget-journey.spec.ts
+no-usa: mockPresupuestoGenerado en src/__tests__/simulator-budget-pdf-flow.test.ts
+```
