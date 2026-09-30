@@ -245,7 +245,7 @@ video, y que la pantalla inventa una duración de 4 segundos cuando no hay video
   llega como `'normal'`.
 
 ```comprobar
-no-usa: data-velocidad="lenta" en src/app/evento/fotocabina/[fiestaId]/page.tsx
+no-usa: duracion-recuerdo-lenta en src/app/evento/fotocabina/[fiestaId]/page.tsx
 no-usa: Cámara Lenta en src/app/evento/fotocabina/[fiestaId]/page.tsx
 no-usa: duracionTomaStr || '2' en tests/e2e/la-fotocabina-tiene-todo.spec.ts
 ```
