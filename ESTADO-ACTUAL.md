@@ -1,47 +1,28 @@
-# Acá quedé
+# Aca quedo Codex
 
-**28/09/2026, Codex:** main actualizado a 621f41c (1235), sin PR abierta.
-El ensayo por roles no arranco: EPERM del enlace en Windows; al usar junction
-en memoria, control de ambiente rechaza variables automaticas de Windows.
-Orden 94 en docs/ordenes/94-entorno-aislado-en-windows.md, pendiente para Claude.
-Sin cambios de app ni datos reales. No repetir instalacion: dependencias listas.
-Rama documental codex/entorno-windows-94; juntar con proxima tanda, no fusion sola.
-Lo siguiente: corregir arranque aislado y retomar recorridos por rol.
+**30/09/2026.** Rama documental codex/entorno-windows-94. No fusionar sola.
 
-**27 de septiembre de 2026.** Orden 93 de Codex: los dos arreglos de código están hechos. El
-despliegue que falló espera el registro de Firebase.
+## Versiones
+- Main inspeccionado: 62dcb2cb4df718a81c3654028199e49628367d8c.
+- PR1246: 70b016ece91b8e82e7b2054061a8c8f2af072e19; base claude/revision-entrega-96-98.
+- Snapshot contrastado por hashes: 2060 archivos src/tests/scripts, cero diferencias.
 
-## Lo último
+## Resultado
+- Diagnostico: docs/evidencias/DIAGNOSTICO-CONSOLIDADO-2026-09-30.md.
+- 31 suites / 148 pruebas aprobadas con rutas. No acreditan recorrido integral.
+- Tres defectos reproducidos: token en argumento Analytics, perdida concurrente de chats/memoria, tarea equivocada por coincidencia de texto aunque exista ID.
+- Ordenes 100 y 101 para Claude: subidas y releidas. Sonda portable adjunta.
+- No codigo de app cambiado, build, PR adicional ni merge. No certificado final.
 
-- **Orden 93, P1:** el entorno de pruebas corre en una copia descartable sin `.env*`, y no arranca si
-  Next vería alguna variable que no sea de prueba.
-- **Orden 93, P2:** la cabina con IA dice "publicada" sólo cuando la subida de la original se
-  confirmó; si no, "se está subiendo" o "no se pudo publicar".
-- **Orden 92:** `npm run entorno:pruebas` (entorno por rol) y `/api/health` → `version`.
-- **Orden 91:** la foto se guarda sin esperar al servidor y sale una sola por captura.
+## Bloqueo y pendientes
+- Entorno aislado sembrado (1 aprobado), servidor dev arranco y luego se detuvo.
+- CUA prohibio seleccionar pestana por politica de URL/protocolo; no eludir por otra superficie.
+- Recorridos por rol, PDF visual, historicos y evidencia del candidato siguen sin cierre; matriz en diagnostico.
+- Claude corrige integridad/permisos y compila; Gemini termina tanda existente; dueno fusiona.
+- Registrar SHA de correccion y pruebas antes de revalidar. No repetir todo por un cambio documental.
 
-## Espera al dueño (no lo puede cerrar una IA)
-
-- **Publicada y comprobada por Codex: la 1234** (`docs/evidencias/1234-evaluacion-publicada.md`).
-  El despliegue ya no es un bloqueo. Las compilaciones de Firebase fallan de a ratos y la
-  siguiente publica bien (`docs/evidencias/93-registro-del-despliegue.md`).
-- Integraciones reales y ensayo físico: **recién cuando Codex no vea más errores**. Orden del
-  dueño: no mencionarlos antes.
-
-## Lo que sigue, y es de Codex
-
-- **Recorridos completos por rol** con `npm run entorno:pruebas`: organizador, cliente, invitado y
-  estaciones. Claude arregla lo que marque.
-
-## Espera a Gemini
-
-Nada.
-
-## Trampas
-
-- **Con la máquina cargada fallan pruebas al azar** (ingreso, estaciones, barra, cápsula del tiempo
-  del buzón) y pasan solas con `npm run otravez`.
-- La puerta se espera en primer plano; el contenedor se reinicia si la sesión queda quieta.
-- Apagar procesos por número o nombre exacto, nunca `pkill -f` (error 20).
-- Antes de agregar una espera (`await`), mirar qué queda sin hacer mientras espera (error 26).
-- Lo que se afirma se comprueba en el último paso, no en uno del medio (error 27).
+## No reabrir
+- Pendientes del portal ya respetan secciones ocultas.
+- Checks GitHub de facturacion no son defectos.
+- QR por nombre y proveedores en varias fiestas son decisiones aprobadas.
+- Recuento Astra/Luna anterior conserva evidencia; modelo no sustituye prueba.
