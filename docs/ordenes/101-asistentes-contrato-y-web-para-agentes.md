@@ -6,7 +6,7 @@
 ## Cómo se entrega
 
 - **Después de terminar la orden 100.** Rama nueva desde la versión principal de ese momento y
-  **una sola propuesta** con los cinco bloques. Si uno se traba, entregá el resto y avisá cuál.
+  **una sola propuesta** con los seis bloques. Si uno se traba, entregá el resto y avisá cuál.
 - `npm run "publicar?"` completo y la última pantalla pegada en la propuesta.
 - Pasá por `docs/ANTES-DE-ENTREGAR.md`. Nada de esto manda mensajes, cobra ni acepta nada solo.
 
@@ -149,6 +149,31 @@ ni "30%" de aumento de invitados, no deja ningún `{{` sin llenar, y con firma 0
 da `HITO_50` en julio y saldo total el 1 de diciembre; con cláusulas editadas por el dueño, leer
 los ajustes **no** las reemplaza.
 
+## Bloque 6 — Letra chica de datos personales donde la gente deja sus datos
+
+**Pedido del dueño (30/09/2026):** *"máximo poner en la app, cuando dan datos, que están de acuerdo
+según la ley, en letra chica cuando confirman"*. **Sin casilla para tildar**: no se le agrega un paso
+a nadie (ya está decidido no sumarle pasos al invitado que confirma).
+
+1. Componente `src/components/legal/AvisoDeDatos.tsx`, texto chico y gris debajo del botón:
+   *"Al confirmar, aceptás que AK Producciones use estos datos sólo para organizar tu evento y
+   contactarte por él, según la Ley 18.331 de protección de datos personales. [Privacidad]"*, con
+   el enlace a `/privacidad` (ya existe). Prop opcional `accion` para cambiar "Al confirmar" por
+   "Al enviar". Legible en el celular (mínimo 12 px).
+2. Ponelo debajo del botón que manda los datos en:
+   - `src/app/invitacion/[fiestaId]/rsvp/page.tsx` ~l.661 ("Confirmar asistencia");
+   - `src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx` ~l.517 ("Confirmar");
+   - `src/components/landing/LeadCaptureForm.tsx` ~l.281, con `accion="Al enviar"`;
+   - `src/app/simulador-de-presupuesto/page.tsx`, en el paso 2 (donde se piden nombre y WhatsApp,
+     ~l.839), debajo del botón de avanzar ~l.2910.
+3. Si `/privacidad` no nombra la Ley 18.331, sumale una línea que la nombre. No cambies el resto.
+
+**No toques** el texto de los botones ni los formularios: sólo se agrega la línea abajo.
+
+**La prueba** (`src/__tests__/el-aviso-de-datos-esta-donde-se-dejan-datos.test.ts`): el componente
+muestra "18.331" y un enlace a `/privacidad`; con `accion="Al enviar"` dice eso; y no tiene casilla
+para tildar (ningún `checkbox`).
+
 ```comprobar
 usa: AsistenteDelCliente en src/app/portal-cliente/[id]/page.tsx
 prueba: src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts
@@ -164,4 +189,10 @@ archivo: docs/contratos/contrato-base-2026-09-30.txt
 usa: HITO_50 en src/lib/contract-template.ts
 usa: EL/LA CLIENTE en src/types/settings.ts
 prueba: src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts
+archivo: src/components/legal/AvisoDeDatos.tsx
+usa: AvisoDeDatos en src/app/invitacion/[fiestaId]/rsvp/page.tsx
+usa: AvisoDeDatos en src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx
+usa: AvisoDeDatos en src/components/landing/LeadCaptureForm.tsx
+usa: AvisoDeDatos en src/app/simulador-de-presupuesto/page.tsx
+prueba: src/__tests__/el-aviso-de-datos-esta-donde-se-dejan-datos.test.ts
 ```
