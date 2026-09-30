@@ -6,7 +6,7 @@
 ## Cómo se entrega
 
 - **Después de terminar la orden 100.** Rama nueva desde la versión principal de ese momento y
-  **una sola propuesta** con los cuatro bloques. Si uno se traba, entregá el resto y avisá cuál.
+  **una sola propuesta** con los cinco bloques. Si uno se traba, entregá el resto y avisá cuál.
 - `npm run "publicar?"` completo y la última pantalla pegada en la propuesta.
 - Pasá por `docs/ANTES-DE-ENTREGAR.md`. Nada de esto manda mensajes, cobra ni acepta nada solo.
 
@@ -116,6 +116,39 @@ y recordatorios). Sumale estas, **todas con confirmación del equipo antes de ha
 "sí", no escribe; con el "sí", escribe lo esperado (evento en agenda simulada, mensaje en bandeja
 con `manual_click`); `cuanto_me_deben` no escribe nunca.
 
+## Bloque 5 — El contrato de la app pasa a ser el revisado del 30/09/2026
+
+**Qué pasa hoy.** El contrato que arma la app sigue siendo el viejo (mínimo $5.000 cada 3 meses,
++30% de invitados, "LA CLIENTE"). Vive en tres lugares:
+
+- `defaultContractTemplate` y `DEFAULT_CONTRACT_TEMPLATES` en `src/app/actions/settings.ts` ~l.24-145;
+- `defaultContractSettings.clauses` en `src/types/settings.ts` ~l.190 (lo usa `getContractSettings` ~l.491);
+- `CONTRACT_TEMPLATE` en `src/lib/contract-template.ts`, que llena `buildContractFromSettings`
+  (lo usa `src/app/(app)/presupuestos/[id]/recibo-contrato/page.tsx`).
+
+**El texto nuevo, tal cual:** `docs/contratos/contrato-base-2026-09-30.txt` (17 cláusulas, dice
+"EL/LA CLIENTE"). No se reescribe ni se "mejora": se copia.
+
+**Qué hacer:**
+
+1. Reemplazá las cláusulas por omisión y la plantilla por omisión con ese texto, una cláusula por
+   cada "CLÁUSULA N". Mantené los nombres de campo que ya usa `fillContractTemplate`; sumá los nuevos.
+2. Las fechas se calculan solas en `fillContractTemplate`, en días de Uruguay (`hoyEnUruguay`):
+   `{{HITO_30}}` = firma + un tercio del plazo hasta el evento; `{{HITO_50}}` = la mitad;
+   `{{FECHA_SALDO_TOTAL}}` = evento − 30 días; `{{MONTO_SENA}}` sale de la seña del presupuesto.
+   Formato "d de mes de aaaa".
+3. **No se pisa lo que editó el dueño.** Si lo guardado en `contract-template.json` /
+   `contract-settings.json` es igual al viejo por omisión, pasa solo al nuevo. Si lo cambió, en
+   Ajustes → Contratos → Cláusulas aparece arriba "Hay un contrato revisado (30/09/2026). Usarlo" y
+   se cambia **sólo con ese toque**, guardando con la función de guardado que ya existe.
+4. Los contratos ya firmados no se tocan: sólo cambia lo que se arma de acá en adelante.
+
+**La prueba** (`src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts`): el contrato armado
+para un presupuesto de prueba contiene "$10.000" y "EL/LA CLIENTE", **no** contiene "$5.000 cada"
+ni "30%" de aumento de invitados, no deja ningún `{{` sin llenar, y con firma 01/01 y evento 31/12
+da `HITO_50` en julio y saldo total el 1 de diciembre; con cláusulas editadas por el dueño, leer
+los ajustes **no** las reemplaza.
+
 ```comprobar
 usa: AsistenteDelCliente en src/app/portal-cliente/[id]/page.tsx
 prueba: src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts
@@ -127,4 +160,8 @@ prueba: tests/e2e/la-web-se-deja-usar-por-asistentes.spec.ts
 usa: agendar_reunion en src/app/actions/multiagent.ts
 usa: cuanto_me_deben en src/app/actions/multiagent.ts
 prueba: src/__tests__/el-secretario-hace-lo-del-dia.test.ts
+archivo: docs/contratos/contrato-base-2026-09-30.txt
+usa: HITO_50 en src/lib/contract-template.ts
+usa: EL/LA CLIENTE en src/types/settings.ts
+prueba: src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts
 ```
