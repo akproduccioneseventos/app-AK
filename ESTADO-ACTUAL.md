@@ -3,26 +3,26 @@
 **30/09/2026.** Rama documental codex/entorno-windows-94. No fusionar sola.
 
 ## Versiones
-- Main inspeccionado: 62dcb2cb4df718a81c3654028199e49628367d8c.
-- PR1246: 70b016ece91b8e82e7b2054061a8c8f2af072e19; base claude/revision-entrega-96-98.
-- Snapshot contrastado por hashes: 2060 archivos src/tests/scripts, cero diferencias.
+- Main auditado:62dcb2cb4df718a81c3654028199e49628367d8c.
+- PR1246:70b016ece91b8e82e7b2054061a8c8f2af072e19.
+- Codigo cotejado antes/despues:2060 archivos coinciden con GitHub.
 
-## Resultado
-- Diagnostico: docs/evidencias/DIAGNOSTICO-CONSOLIDADO-2026-09-30.md.
-- 31 suites / 148 pruebas aprobadas con rutas. No acreditan recorrido integral.
-- Tres defectos reproducidos: token en argumento Analytics, perdida concurrente de chats/memoria, tarea equivocada por coincidencia de texto aunque exista ID.
-- Ordenes 100 y 101 para Claude: subidas y releidas. Sonda portable adjunta.
-- No codigo de app cambiado, build, PR adicional ni merge. No certificado final.
+## Hecho, no repetir
+- 496 suites restantes /2923 pruebas aprobadas; 33 suites anteriores excluidas.
+- Manifest exacto:docs/evidencias/unitarias-restantes-2026-09-30.json.
+- Los4 fallos iniciales eran falta de Git; reintento final aprobado.
+- PDF real:45servicios/3paginas renderizadas; nombre largo tapa Invitados.
+- Diagnostico completo:docs/evidencias/DIAGNOSTICO-CONSOLIDADO-2026-09-30.md.
 
-## Bloqueo y pendientes
-- Entorno aislado sembrado (1 aprobado), servidor dev arranco y luego se detuvo.
-- CUA prohibio seleccionar pestana por politica de URL/protocolo; no eludir por otra superficie.
-- Recorridos por rol, PDF visual, historicos y evidencia del candidato siguen sin cierre; matriz en diagnostico.
-- Claude corrige integridad/permisos y compila; Gemini termina tanda existente; dueno fusiona.
-- Registrar SHA de correccion y pruebas antes de revalidar. No repetir todo por un cambio documental.
+## Correcciones entregadas
+- Orden100:token privado en argumento Analytics (Claude).
+- Orden101:historial/memoria concurrente perdidos y tarea equivocada por texto (Claude).
+- Orden102:superposicion de nombre en PDF (Gemini visual, Claude importes/build).
+- Ordenes y sondas subidas y contenido remoto verificado. No codigo app cambiado ni merge.
 
-## No reabrir
-- Pendientes del portal ya respetan secciones ocultas.
-- Checks GitHub de facturacion no son defectos.
-- QR por nombre y proveedores en varias fiestas son decisiones aprobadas.
-- Recuento Astra/Luna anterior conserva evidencia; modelo no sustituye prueba.
+## Limites pendientes
+- CUA bloqueo navegar; no se elude ni se aprueban recorridos por pantalla.
+- Los19historicos reales no estan en el ZIP; no reconciliados.
+- Integraciones reales, estetica completa y despliegue no certificados por unitarias.
+- Claude corrige/compila candidato; dueno fusiona. Codex contrasta correcciones con evidencia.
+- GitHub facturacion, QR por nombre y proveedores en varias fiestas no se reabren.
