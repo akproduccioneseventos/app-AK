@@ -1,0 +1,3529 @@
+{
+  "sha": "62dcb2cb4df718a81c3654028199e49628367d8c",
+  "date": "2026-09-30",
+  "kind": "remaining unit tests; not E2E or deployment certification",
+  "network": "real socket connections disabled; external provider calls mocked",
+  "summary": {
+    "suites": 496,
+    "passedSuites": 496,
+    "passed": 2923,
+    "failed": 0,
+    "pending": 0
+  },
+  "initialFailures": "4 suites needed Git metadata; separately retried with an external exact-SHA index, all passed",
+  "retried": [
+    "src/__tests__/las-llaves-no-viajan-en-el-repositorio.test.ts",
+    "src/__tests__/acentos-en-docs.test.ts",
+    "src/__tests__/el-permiso-de-publicar-no-viaja.test.ts",
+    "src/__tests__/sin-conflictos-sin-resolver.test.ts"
+  ],
+  "excludedPreviouslyApproved": [
+    "el-secretario-hace-tres-cosas-mas",
+    "multiagent-chat-scope",
+    "la-contabilidad-no-miente",
+    "dos-cobros-a-la-vez-no-se-pisan",
+    "un-cobro-no-se-cuenta-dos-veces",
+    "payment-summary",
+    "saldo-con-ajuste",
+    "la-lista-de-compras-no-suma-gramos-con-kilos",
+    "backup",
+    "backup-upload",
+    "backup-status-states",
+    "el-respaldo-no-miente",
+    "la-fiesta-no-viaja-entera-a-quien-no-es-del-equipo",
+    "el-calendario-no-mueve-la-fiesta-equivocada",
+    "la-decoracion-llega-al-cliente-como-es",
+    "las-reuniones-no-pisan-lo-del-equipo",
+    "la-planificacion-no-pierde-lo-que-guarda",
+    "google-workspace-email",
+    "youtube-sube-el-video",
+    "tiktok-no-canta-victoria-antes",
+    "whatsapp-webhook-security",
+    "instagram-production-integrity",
+    "public-simulator-package-flow",
+    "public-simulator-identity-boundary",
+    "public-simulator-funnel",
+    "public-simulator-bootstrap-fallback",
+    "la-web-no-muestra-ni-pierde-lo-que-no-debe",
+    "la-fiesta-vende-la-proxima",
+    "simulator-sales-presentation",
+    "simulator-conversion-engine",
+    "crm-concurrency-boundary",
+    "el-pixel-y-la-medicion-existen",
+    "el-pendiente-no-lleva-a-una-seccion-oculta"
+  ],
+  "suites": [
+    {
+      "file": "src/__tests__/fase2-vip.test.ts",
+      "status": "passed",
+      "passed": 102,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/e2e-flows.test.ts",
+      "status": "passed",
+      "passed": 69,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/fase2-completion.test.ts",
+      "status": "passed",
+      "passed": 18,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/assistant-actions.test.ts",
+      "status": "passed",
+      "passed": 37,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/fase2-integration.test.ts",
+      "status": "passed",
+      "passed": 28,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/__tests__/fiesta-progress.test.ts",
+      "status": "passed",
+      "passed": 39,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/dispatcher-integration.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/release-security-boundaries.test.ts",
+      "status": "passed",
+      "passed": 82,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/commercial-flow.test.ts",
+      "status": "passed",
+      "passed": 26,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-prospectos-no-se-pierden-entre-servidores.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/planner-dashboard-modules.test.ts",
+      "status": "passed",
+      "passed": 48,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/auditoria-puertas-abiertas.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/fase1-fixes.test.ts",
+      "status": "passed",
+      "passed": 36,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/panel-presencia-digital-cuatro-bloques.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/calculations.test.ts",
+      "status": "passed",
+      "passed": 42,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/planPagos.test.ts",
+      "status": "passed",
+      "passed": 25,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/resenas-y-plan-equipo.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/salon-3d-y-piezas-layout.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/galeria-historial-instagram-completo.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entretenimiento-sesion-segura.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/financial-guardrails.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/un-trago-que-no-se-guardo-no-descuenta-botellas.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/puesta-al-dia.test.ts",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/copiar-configuracion-no-copia-personas.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/resenas-y-panel-automatico.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/centro-de-presencia-digital.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ninguna-pantalla-miente.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/auditoria-pantallas-sin-puerta.test.ts",
+      "status": "passed",
+      "passed": 19,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/comentarios-redes-sincronizacion.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-22-la-pantalla-gigante.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/errores-humanos.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/components/landing/landing-media-contract.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-encuesta-no-se-traga-cualquier-cosa.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-plata-no-se-pierde-entre-servidores.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-agente-no-se-pasa-del-tope.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/carga-respuestas-viejas-sin-marca.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ganancia-evento.test.ts",
+      "status": "passed",
+      "passed": 15,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-83-lo-del-invitado-no-llama-acciones-del-equipo.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/lo-automatico-que-se-ve-y-panel-dj.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/49-acciones-fiesta-verifican-guardado.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/auth-session-multitenant-resilience.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/itinerario-portal-cliente.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/claude-audit-critical-regressions.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/simulator-budget-pdf-flow.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/personal-agenda-server.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-guias-de-armado-no-duplican-tareas.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/rsvp-deduplication.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/assistant-intent.test.ts",
+      "status": "passed",
+      "passed": 26,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/decoracion-no-gasta-de-mas.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/invitacion-config.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/external-integrations-consolidated.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/auth-user-session.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/resumen-contador.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/led-technology-sales-readiness.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/sin-senal-no-se-pierde-nada.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/payments/mercadopago-core.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/profit-loss-report.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/una-lista-vieja-no-borra-plata.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-3d-dibuja-lo-que-dice-el-plano.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/dueno-de-la-foto-y-prospecto-sin-telefono.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-puerta-no-miente.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/performance-release-gate.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-botones-de-plata-no-se-cuelgan.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-noche-no-se-maneja-de-costado.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/mejoras-bloques-f-al-k.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-equipo-elige-que-ve-el-cliente.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/public-admin-entertainment-boundary.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/mejoras-comerciales-y-ventas.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-pedido-del-invitado-se-guarda-sin-base.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/simulador-copilot.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/creador-anuncios.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entertainment-runtime-boundary.test.ts",
+      "status": "passed",
+      "passed": 18,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/motor-de-costos-la-cuenta-real.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/agentes-autonomos.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-avisos-respetan-lo-que-se-apago.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/__tests__/confirmed-events-restore.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/proponer-equipo-sin-solapamiento.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/certificacion-cuatro-hallazgos.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/encontrarme-en-google.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/data-service.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-video-de-vida-no-miente.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entretenimiento-bloque-a.test.tsx",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/impreso-10x15-reparto-y-personalizacion.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-tope-de-publicidad-no-inventa-plata.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-15-resultados-reales.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/concurrencia-tareas-automaticas.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-reporte-y-las-invitaciones-no-mienten.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-cabina-ia-no-anuncia-fotos-que-no-estan.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-fotos-y-los-salones-no-se-pierden.test.ts",
+      "status": "passed",
+      "passed": 19,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/encontrar-fotos-por-cara.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/fotocabina-fondo-y-configuracion.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/presentacion-catalogo.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-decoracion-no-pierde-lo-ultimo-que-se-escribio.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/session-token.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/whatsapp-automation.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/dos-modulos-de-la-fiesta-no-se-pisan.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/cerebro-publicidad-meta.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/incidentes-dos-servidores-no-pierden-comentarios.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/google-identity-auth.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-firma-digital-no-da-nada-por-aceptado.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/una-factura-no-se-cobra-de-mas-entre-servidores.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/crm-outbox-whatsapp.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/redes-sociales-transparencia-y-modelos.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/publicidad-autonoma-meta.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-cartel-de-respaldo-no-miente.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/decoracion-autoguardado-concurrente.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/nada-termina-a-medias-y-dice-que-salio.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/rutas-y-acciones-cubiertas-orden-49.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/logistics/carga-operativa.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-pruebas-viven-donde-corresponde.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/catering/menu-images.test.ts",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/totem-barra-y-buzon-saludos.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/comparativa-ganancias.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/blog-dynamic.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entertainment-session-permissions.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/pwa-security-readiness.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/fiesta-sync-compat.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-86-acciones.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/public-entertainment-guest-flow.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/resenas-google-borrador-y-publicar.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ninguna-prueba-esta-apagada.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/google-workspace-redirect.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-16-pantallas-y-acciones.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/api-route-boundary.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entregas-2-y-3.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/recontacto-candidatos.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-salon-se-arma-solo-con-lo-contratado.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/47-publicidad-datos-verificados.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/interactive-control-boundary.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/posicionamiento-seo-auditoria.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/lista-de-compras-y-menu.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/estaciones-dueno-y-pagina-web-historia.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/verificacion-agenda-empleado.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/pedido-cambio-invitados-cliente.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-cliente-no-ve-lo-interno-del-itinerario.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-promesas-tienen-respaldo.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/nada-inventado-en-pantalla.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-documentos-no-se-dan-por-guardados.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/plan-de-pagos-cuentas-que-cierran.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/outbox-enviar-por-mail.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/guest-portal-public-data.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entrar-a-la-app-de-verdad.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ajuste-anual-siempre.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/simulator/pricing.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/financial-integrity-report.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/organizacion-bloque-a.test.tsx",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/marketing-automation-integrity.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/recordatorios-de-pago.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/musica-accion-resuelve.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/__tests__/barra-tecnologica.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/release-workflow-integrity.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/portada-del-portal-del-cliente.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-autoguardado-no-miente.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/carga-stock-total-por-origen.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/galeria-borrado-seguro.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-14-musica-conectada.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/__tests__/zona-digital-adolescentes.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/ai/gemini-image.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/auditoria-defectos-tapados.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-fotocabina-imprime-lo-que-se-pide.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-19-ajustes-estaciones.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-ajustes-del-panel-llegan-a-la-estacion.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-ajuste-de-costos-no-miente.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-recuerdo-de-cada-invitado.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/despliegue-incluye-despertador.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-14-entretenimiento-unificado.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/control-puertas-publicas-no-cerradas.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/invoice-deletion-integrity.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-planilla-de-invitados-se-entiende.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/hoja-de-cocina.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/history-import.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/settings-import-boundary.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/perfiles.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/recontacto-apagado-de-fabrica.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/analytics-firm-sales.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/use-server-export-boundary.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ultimate-event-system.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ninguna-pantalla-se-queda-cargando.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/google-paginas-publicas.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-18-web-completa.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/mapa-de-la-app-al-dia.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/social-fiesta-private-feed.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/un-cupon-de-un-uso-sirve-una-vez.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/games-raffles-ranking.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-limite-de-impresion-por-invitado.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/candados-avisos-y-sorteo.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-estaciones-dicen-que-tocar.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-tareas-corren-sin-contrasena.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-invitado-no-ve-lo-interno-en-pantallas-publicas.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/cambio-de-invitados.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-guardados-de-lista-tienen-turno.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-llaves-no-viajan-en-el-repositorio.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-caras-distinguen-personas.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/multi-social-publisher.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/50-la-app-de-tu-fiesta-recorrido.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-buzon-no-confunde-una-falla-con-vacio.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/bajar-ruido-alertas.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/panel-redes-sin-numeros-inventados.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/pantallas-de-la-noche.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/invoice-payment-integrity.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/blog-ai-generator.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/simulator/package-customization.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/provider-portal-actions.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/firebase-enhancements.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ningun-as-any-lee-un-campo-que-no-existe.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-pedido-al-proveedor-dice-si-llego-completo.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/acceso-proveedor-token.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/social-cross-audit-regressions.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/rsvp-pro-control.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/wfolio-album-delivery.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/live-wall-premium.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-ingreso-con-google-dice-que-paso.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/nada-de-animaciones-de-mentira.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ninguna-biblioteca-esta-vaciada.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/firebase/messaging.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/numeros-de-menu.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/clave-portal.test.ts",
+      "status": "passed",
+      "passed": 13,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/data-item-service.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/un-regalo-no-se-reserva-dos-veces.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/aviso-margen-historico.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/resena-del-invitado.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/pantallas-internas-con-guardia.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/quality-closure.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-cuentas-que-le-decimos-a-google.test.ts",
+      "status": "passed",
+      "passed": 17,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-claves-de-agrupacion-no-mienten.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-fotos-del-invitado-no-se-pierden.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/se-prueba-lo-nuevo-no-toda-la-app.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/operator-moderation-panel.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/experience-report.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/asistente-crm-prospecto-confirmacion.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/public-bar-totem-foundation.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-estaciones-no-apagan-la-pantalla.test.tsx",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-mesas-se-cuentan-una-sola-vez.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/estetica-portal-contract.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-despertador-contesta-sin-trabajar.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/una-lectura-colgada-no-tumba-la-pantalla.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/__tests__/ak-demo-fiesta-lista.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-cartel-del-ingreso-no-se-contradice.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/asistente-presupuesto-catalogo.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/metricas-de-redes-todos-los-dias.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/asistente-aislamiento-fiestas-y-seguridad.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-ganancia-descuenta-la-comision-de-mercado-pago.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/privacidad-llega-al-visitante.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-pantalla-publica-no-devuelve-la-lista-de-invitados.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/testimonios-solo-aprobados.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/__tests__/world-class-app-plan.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/armar-album.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-cliente-puede-bajar-sus-fotos.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/offline-action-queue.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-ingreso-nunca-se-cuelga.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/cliente-ideal-calculado.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/financial-flow-consistency.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/guest-portal/public-event-navigation.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/social-feature-guardrails.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/invitacion-editor-y-vista-previa.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/invitacion-no-sale-con-el-ejemplo.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/puesta-al-dia-action.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/no-se-borra-un-equipo-asignado.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-importacion-de-invitados-no-miente.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/video-recuerdo-solo-aprobado.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/permisos-de-colaborador.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/promos-fechas.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-menu-impreso-no-pierde-lo-escrito.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/una-reunion-borrada-no-dice-que-se-guardo.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/firebase-que-ahorra.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/pr771-public-release-contract.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/__tests__/portal-menu-simulator.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-frenos-contra-robots.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/comentarios-redes.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/internal-operations-integrity.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-21-recorrido-y-lista-automatica.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/gasto-ia.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/budget/formal-budget.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/conteo-confirmados-personas.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/velocidad-recuerdo-fotocabina.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/dos-personas-no-se-pisan-en-proveedores.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/encargado-vueltas.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/staff-agenda-lock.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/lo-automatico-no-sale-dos-veces.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/historial-publico-tiktok-threads-x.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/sin-jerga-cuando-falta-un-dato.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/impresos-con-los-datos-reales.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/whatsapp/meta-sender.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/backup-registry.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/marcadores-contrato.test.ts",
+      "status": "passed",
+      "passed": 7,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/cola-aislamiento-y-reintento.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/solo-contesta-a-los-de-la-publicidad.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ak-css-cascade-guard.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/acentos-en-docs.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/presentacion-led-total-unico.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-total-cobrado-del-personal-no-miente.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/app/actions/public-simulator-bootstrap.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/lo-automatico-tiene-que-haber-pasado.test.ts",
+      "status": "passed",
+      "passed": 11,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-tareas-se-ponen-al-dia-solas.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/aprobaciones-se-deciden-una-vez.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/commercial-gallery.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/no-dead-action-links.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/sin-conflictos-sin-resolver.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/paginas-de-venta-abiertas.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/unidades-de-receta.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/budget/simulator-budget-pdf.render.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-clave-de-uno-no-le-cambia-la-clave-a-otro.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/organizacion-bloque-b.test.tsx",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/acentos-rotos.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/robots-que-no-entran.test.ts",
+      "status": "passed",
+      "passed": 56,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/historial-publico-meta-completo.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/un-cobro-cortado-a-medias-se-detecta.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entertainment-station-config.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/cupon-fechas-cruzadas.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-ia-que-se-paga-siempre-se-cuenta.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/asistente-donde-aparece.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/client-portal-summary.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/historial-publico-youtube-identidad-social.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/app/actions/creador-anuncios.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/youtube/ak-channel.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/crm-agenda-performance.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/las-paginas-que-venden-dicen-salto.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-recorte-sin-tela-mira-la-imagen.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/social-wall-guest-boundary.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/public-social-display-contract.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/commercial-follow-up.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/asistente-mapa-y-navegacion.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/agenda-no-duplica-ni-inventa-fechas.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/un-codigo-que-no-se-mando-no-queda-vivo.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/cada-pantalla-vacia-lo-suyo.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-concierge-lee-la-fiesta-y-pide-la-credencial.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/otravez-repite-solo-lo-que-fallo.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/staff-agenda-data.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/pantallas-que-no-quedan-en-blanco.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-descuento-por-pago-contado.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/crm-etapas-finales.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/fotos-por-tipo.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/server-action-write-boundary.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-vista-3d-pone-cada-mueble-en-su-lugar.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/un-bloque-agregado-sin-comprobacion-no-da-hecha.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/budget/verified-budget-date-migration.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/hoy-es-uruguay-en-todos-lados.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/editable-budget-summary.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-suscripcion-guarda-el-correo.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/public-event-data-boundary.test.ts",
+      "status": "passed",
+      "passed": 9,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/sitio-listo-para-ia.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/despertador-golpea-una-puerta-real.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/monto-de-senia.test.ts",
+      "status": "passed",
+      "passed": 8,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/agentes-preparar-no-mandar.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entretenimiento-bloque-b.test.tsx",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/no-se-fusiona-lo-que-no-paso-la-puerta.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/espejo-magico-sesion-segura.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-dos-controles-dicen-lo-mismo.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/script-auditoria-mecanica.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/portal-led-budget-connector.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/llegada-del-equipo.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-recorrido-mira-lo-que-cambia.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/operative-budget-import.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/events/event-ordering.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/budget/simulator-budget-pdf.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/crm/lead-presentation.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/payments/deposit-payment.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/invitation-pro-templates.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-recibo-y-el-contrato-no-corren-la-fecha.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/guest-portal/guest-entertainment.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/simulator/payment-plan.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-itinerario-no-borra-lo-que-hiciste.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-resumen-del-contador-cuadra.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/social-fiesta-invitation-entry.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-flujo-de-caja-no-muestra-ceros-falsos.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/budget/budget-ordering.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/client-portal-auth-boundary.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/organizacion-bloque-c.test.tsx",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/asistente-modelos-y-fallback.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/plantilla-mensaje.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/portal-session-revocation.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/estaciones-abren-su-sesion.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/google-no-ve-precios-inventados.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/portal-led-calculos.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-restauracion-parcial-no-dice-completa.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/recap-engine.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-chat-no-inventa-datos-de-la-fiesta.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/guest-portal/public-menu.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/security-risk.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/provider-portal-workflow.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/budget/recibo-contrato-ajuste.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ak-automation-calendar.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entertainment-token.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ak-guest-portal-premium.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-foto-nitida-gana.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/payment-notification-transitions.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/app/invitacion/[fiestaId]/invitado/[guestId]/page.contract.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/mesas-no-es-publica.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/google-puede-leer-el-mapa.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/public-social-event.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-salud-dice-que-version-atiende.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-ingreso-tiene-tope-de-intentos.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ak-premium-design-system.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/public-marketing-resilience.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/fictitious-discount.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-ficha-de-google-no-inventa-nada.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/portal-led-pro-visual-model.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/touchpix-real-ai-wiring.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ak-public-experience-presets.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/budget-share-access.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-cartel-de-whatsapp-no-miente.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-resena-se-le-pide-a-todos.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/public-contact-integrity.test.ts",
+      "status": "passed",
+      "passed": 14,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/simulator/catalog.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/testimonios-reales.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/dedicatorias-en-la-pantalla-grande.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-lista-de-alergias-llega-a-la-cocina.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/social-fiesta-content-review.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/ai/intelligence-guardrails.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ak-operator-experience-presets.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/album-profesional-no-manda-al-disco-de-todos.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/buzon/media-upload.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-comparativa-descuenta-la-comision.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/crm/lead-stage.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-pedido-al-proveedor-pide-lo-que-falta.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/fecha-evento.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/social-wall-content-safety.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/organizacion-bloque-d.test.tsx",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/commercial/acquisition.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/social-interaction-rate-limit.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/cola-de-impresion.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/shared-ui-accessibility.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/landing-navigation-release.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/mojibake-cleanup.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/buzon/video-frame-canvas.test.ts",
+      "status": "passed",
+      "passed": 10,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ajustes-remotos-no-rompen-nada.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/public-experience/wait-for-initial-public-load.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-titulo-de-la-portada-vende.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-permiso-de-publicar-no-viaja.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/pantallas-totem-enlace-impresion.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-importacion-avisa-lo-que-quedo-a-medias.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/orden-23-invitaciones-y-red-social.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/sena-pregunta-como-entro.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/cuenta-regresiva-del-portal.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/text-encoding-integrity.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/ai/genkit.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/touchpix-caricatura.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/menu-enlaza-las-tres-pantallas.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/__tests__/whatsapp-template-markers.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/buzon-guarda-offline.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-direccion-de-la-web-en-los-documentos.test.ts",
+      "status": "passed",
+      "passed": 4,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/pinterest-nos-reconoce-el-sitio.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/client-portal-health.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/backup-readiness.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-album-se-abre-con-el-enlace.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/crm-firestore-read-path.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/ak-final-premium-readiness.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/espejo-magico-style-selector.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/lead-priority.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/event-next-actions.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/crm-board-release.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-pantalla-no-se-recarga-al-volver-la-senal.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/crm/public-lead-stage.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/client-portal/public-guest-stats.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/assistant-action-safety.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/guest-counts.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/presupuesto-planificador-sync-path.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/invitation-readiness.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/__tests__/carta-tragos-master.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/components/landing/TestimonialsSection.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/dynamic-route-params.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/hoy-es-el-dia-de-uruguay.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/security-headers-config.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/commercial/contact.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/snapshot-codec.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/seo/event-landing.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/invoice-money.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/next-image-url.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/public-experience/event-date.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/company-atomic-writes.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/vidriera-sin-karaoke.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/app/actions/fiesta/invitados.actions.contract.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/deployment-recovery.test.ts",
+      "status": "passed",
+      "passed": 3,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/global-premium-scope.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/camera-readiness.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/seo-schema-google.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/commercial/birthday.test.ts",
+      "status": "passed",
+      "passed": 2,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/lib/blog-display.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/la-captura-sobrevive-al-servidor-y-a-la-ia-lenta.test.ts",
+      "status": "passed",
+      "passed": 12,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-muro-no-se-vacia-si-se-corta-la-senal.test.ts",
+      "status": "passed",
+      "passed": 1,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-cierre-de-barra-muestra-lo-que-salio-sin-registrar.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/entretenimiento-resiliencia-offline.test.ts",
+      "status": "passed",
+      "passed": 6,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/una-respuesta-tardia-no-pisa-la-captura-siguiente.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    },
+    {
+      "file": "src/__tests__/el-afiche-deja-subir-fotos.test.ts",
+      "status": "passed",
+      "passed": 5,
+      "failed": 0,
+      "pending": 0
+    }
+  ]
+}
