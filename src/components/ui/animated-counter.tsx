@@ -28,14 +28,14 @@ export function AnimatedCounter({
   const targetNumber = match ? parseInt(match[1], 10) : null;
   // El primer dibujo y lo que sale del servidor muestran el número final (Google y SSR)
   const [currentNumber, setCurrentNumber] = useState<number | null>(null);
-  const [hasAnimated, setHasAnimated] = useState(false);
+  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
-    if (reduceMotion || !isInView || targetNumber === null || hasAnimated) {
+    if (reduceMotion || !isInView || targetNumber === null || hasAnimatedRef.current) {
       return;
     }
 
-    setHasAnimated(true);
+    hasAnimatedRef.current = true;
     setCurrentNumber(0);
 
     let startTime: number | null = null;
@@ -60,7 +60,7 @@ export function AnimatedCounter({
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [isInView, reduceMotion, targetNumber, duration, hasAnimated]);
+  }, [isInView, reduceMotion, targetNumber, duration]);
 
   if (reduceMotion || targetNumber === null) {
     return <span ref={ref} className={className}>{stringVal}</span>;

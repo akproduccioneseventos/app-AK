@@ -1,9 +1,9 @@
-﻿# Cuanto tarda cada prueba de navegador
+# Cuanto tarda cada prueba de navegador
 
 Lo escribe solo la ultima corrida. **No se edita a mano.**
 
-Medido el 2026-10-01 — total 19s.
+Medido el 2026-10-01 — total 13s.
 
 | Prueba | Tarda | Del total |
 | --- | --- | --- |
-| la-reunion-de-organizacion-guarda-donde-corresponde.spec.ts | 19s | 100% |
+| la-portada-no-dice-cero.spec.ts | 13s | 100% |
