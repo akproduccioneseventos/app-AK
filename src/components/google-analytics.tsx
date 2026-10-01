@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
@@ -27,8 +27,20 @@ export function GoogleAnalytics() {
   useEffect(() => {
     if (!gaId || typeof window === 'undefined' || !window.gtag) return;
     if (!sePuedeMedir(pathname)) return;
-    const url = direccionParaMedir(pathname, window.location.search);
-    window.gtag('config', gaId, { page_path: url });
+    const limpia = direccionParaMedir(pathname, window.location.search);
+    const location = window.location.origin + limpia;
+    let referrer: string | undefined = typeof document !== 'undefined' ? document.referrer : undefined;
+    if (referrer && referrer.includes('akproducciones.uy')) {
+      try {
+        const refUrl = new URL(referrer);
+        referrer = refUrl.origin + direccionParaMedir(refUrl.pathname, refUrl.search);
+      } catch {}
+    }
+    window.gtag('config', gaId, {
+      page_path: limpia,
+      page_location: location,
+      page_referrer: referrer || undefined,
+    });
   }, [gaId, pathname]);
 
   if (!gaId) return null;
@@ -44,7 +56,10 @@ export function GoogleAnalytics() {
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', '${gaId}', { send_page_view: false });
+          gtag('config', '${gaId}', {
+            send_page_view: false,
+            page_location: window.location.origin
+          });
         `}
       </Script>
     </>

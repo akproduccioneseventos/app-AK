@@ -219,8 +219,9 @@ export default function FotocabinaPage() {
   const tamanoPapel: TamanoPapelImpresion = (fiesta?.station.tamanoPapel as TamanoPapelImpresion) || '10x15';
   // Diseño de la hoja de impresión ('una' | 'dos' | 'tira', default 'tira').
   const disenoImpresion: DisenoImpresion = fiesta?.station.disenoImpresion || 'tira';
-  // Efecto / velocidad del recuerdo ('normal' | 'lenta' | 'boomerang').
-  const velocidadRecuerdo = fiesta?.station.velocidadRecuerdo || 'normal';
+  // Efecto / velocidad del recuerdo ('normal' | 'boomerang'). Si viene 'lenta' guardada, se trata como 'normal'.
+  const velocidadRecuerdoRaw = fiesta?.station.velocidadRecuerdo || 'normal';
+  const velocidadRecuerdo: 'normal' | 'boomerang' = velocidadRecuerdoRaw === 'boomerang' ? 'boomerang' : 'normal';
   const lienzoDibujoRef = useRef<LienzoDibujoHandles | null>(null);
   const [mostrarLienzoDibujo, setMostrarLienzoDibujo] = useState(false);
   const [videoRecuerdoUrl, setVideoRecuerdoUrl] = useState<string | null>(null);
@@ -373,7 +374,7 @@ export default function FotocabinaPage() {
 
   /**
    * Captura una ráfaga de cuadros desde la cámara para generar efectos de video
-   * (cámara lenta y boomerang) en la fotocabina.
+   * (boomerang) en la fotocabina.
    */
   const capturarCuadrosDeCamara = useCallback(async (duracionSec = 2, totalCuadros = 12): Promise<HTMLCanvasElement[]> => {
     const video = videoRef.current;
@@ -432,7 +433,6 @@ export default function FotocabinaPage() {
 
   /**
    * Procesa la ráfaga de cuadros para generar el video del recuerdo:
-   * - Con 'lenta', el video dura más que la toma (reproducción a menor tasa de cuadros, como en Plataforma 360).
    * - Con 'boomerang', los cuadros van de ida y vuelta en bucle (rebote, como en Bogue).
    * - Con 'normal', se preserva el flujo habitual.
    */
@@ -442,10 +442,7 @@ export default function FotocabinaPage() {
     let framesAProcesar = [...frames];
     let targetDurationSec = duracionTomaSec;
 
-    if (velocidadRecuerdo === 'lenta') {
-      // Con velocidad lenta, el video entregado tiene que durar más que la toma (el doble, camino de plataforma 360)
-      targetDurationSec = duracionTomaSec * 2;
-    } else if (velocidadRecuerdo === 'boomerang') {
+    if (velocidadRecuerdo === 'boomerang') {
       // Con boomerang, los cuadros van hacia adelante y después al revés (rebote como en Bogue)
       const loop: HTMLCanvasElement[] = [...frames];
       for (let i = frames.length - 2; i > 0; i--) {
@@ -703,9 +700,9 @@ export default function FotocabinaPage() {
       setErrorMsg('No se pudo armar la tira con las fotos. Queda la última.');
     }
 
-    // Si la estación tiene configurada velocidad de recuerdo (lenta o boomerang),
+    // Si la estación tiene configurada velocidad de recuerdo (boomerang),
     // procesamos los cuadros para generar el video resultante.
-    if (velocidadRecuerdo === 'lenta' || velocidadRecuerdo === 'boomerang') {
+    if (velocidadRecuerdo === 'boomerang') {
       const duracionTomaSec = 2;
       const canvasFotos: HTMLCanvasElement[] = [];
       for (const fUrl of tanda) {
@@ -1238,8 +1235,8 @@ export default function FotocabinaPage() {
             {/* Velocidad / Formato de Recuerdo */}
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Velocidad del Recuerdo</p>
-              <div className="grid grid-cols-3 gap-2">
-                {(['normal', 'lenta', 'boomerang'] as const).map((vel) => (
+              <div className="grid grid-cols-2 gap-2">
+                {(['normal', 'boomerang'] as const).map((vel) => (
                   <button
                     key={vel}
                     type="button"
@@ -1257,7 +1254,7 @@ export default function FotocabinaPage() {
                         : 'border-white/5 bg-black/20 text-slate-400 hover:border-white/10'
                     }`}
                   >
-                    {vel === 'normal' ? 'Normal' : vel === 'lenta' ? 'Cámara Lenta' : 'Boomerang'}
+                    {vel === 'normal' ? 'Normal' : 'Boomerang'}
                   </button>
                 ))}
               </div>
@@ -1655,13 +1652,13 @@ export default function FotocabinaPage() {
               </div>
             )}
 
-            {/* Video Recuerdo animado (Cámara lenta o Boomerang) */}
-            {(videoRecuerdoUrl || velocidadRecuerdo === 'lenta' || velocidadRecuerdo === 'boomerang') && (
+            {/* Video Recuerdo animado (Boomerang) */}
+            {(videoRecuerdoUrl || velocidadRecuerdo === 'boomerang') && (
               <div className="flex flex-col items-center gap-2 rounded-xl border border-amber-500/30 bg-black/60 p-3 shadow-xl max-w-xs">
                 <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-300">
                   <Film className="w-4 h-4 text-amber-400" />
                   <span>
-                    {velocidadRecuerdo === 'lenta' ? 'Recuerdo en cámara lenta' : 'Recuerdo en boomerang'}
+                    Recuerdo en boomerang
                   </span>
                 </div>
                 {videoRecuerdoUrl ? (
@@ -1682,16 +1679,10 @@ export default function FotocabinaPage() {
                     data-testid="video-recuerdo-placeholder"
                     data-efecto={velocidadRecuerdo}
                     data-duracion-toma={duracionToma || 2}
-                    data-duracion-video={duracionVideo || (velocidadRecuerdo === 'lenta' ? 4 : 2)}
                     className="h-44 w-32 rounded-lg border border-white/10 bg-zinc-900 flex flex-col items-center justify-center text-center p-2 text-[10px] text-zinc-400"
                   >
-                    Generando clip {velocidadRecuerdo === 'lenta' ? 'en cámara lenta' : 'boomerang'}...
+                    Generando clip boomerang...
                   </div>
-                )}
-                {velocidadRecuerdo === 'lenta' && (
-                  <p data-testid="duracion-recuerdo-lenta" className="text-center text-[10px] font-bold text-emerald-400">
-                    Video de {duracionVideo || 4}s (toma de {duracionToma || 2}s: duración aumentada)
-                  </p>
                 )}
                 {velocidadRecuerdo === 'boomerang' && (
                   <p data-testid="efecto-recuerdo-boomerang" className="text-center text-[10px] font-bold text-amber-300">
@@ -1871,6 +1862,3 @@ export default function FotocabinaPage() {
     </div>
   );
 }
-
-
-

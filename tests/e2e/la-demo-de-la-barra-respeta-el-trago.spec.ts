@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 
 test.describe('Orden 96 - Bloque 7: La demo de la barra respeta el trago elegido', () => {
   test('en la portada, pedir el Citrus Mocktail y luego el Mojito muestra los nombres y números correctos', async ({ page }, testInfo) => {
@@ -19,14 +19,18 @@ test.describe('Orden 96 - Bloque 7: La demo de la barra respeta el trago elegido
     await seccionApp.click();
 
     // 1. Pedir Citrus Mocktail (Sin Alcohol)
-    const botonCitrus = page.locator('div', { hasText: 'Citrus Mocktail (Sin Alcohol)' })
+    // Filtramos excluyendo 'Mojito' para aislar la tarjeta específica y evitar contenedores ancestros
+    const botonCitrus = page
+      .locator('div')
+      .filter({ hasText: 'Citrus Mocktail' })
+      .filter({ hasNotText: 'Mojito' })
       .locator('button', { hasText: 'Pedir en barra' })
       .first();
     await expect(botonCitrus).toBeVisible({ timeout: 10_000 });
     await botonCitrus.click();
 
     // Debe mostrar Pedido #42 y Citrus Mocktail
-    const cartelPedido42 = page.locator('text=Pedido #42: Citrus Mocktail').first();
+    const cartelPedido42 = page.getByText(/Pedido #42.*Citrus Mocktail/i).first();
     await expect(cartelPedido42).toContainText('Citrus Mocktail');
     await expect(cartelPedido42).toContainText('#42');
 
@@ -34,14 +38,18 @@ test.describe('Orden 96 - Bloque 7: La demo de la barra respeta el trago elegido
     await expect(page.locator('text=Listo para retirar').first()).toContainText('Listo para retirar');
 
     // 2. Pedir Mojito de Maracuyá
-    const botonMojito = page.locator('div', { hasText: 'Mojito de Maracuyá' })
+    // Filtramos excluyendo 'Citrus' para aislar la tarjeta específica del Mojito
+    const botonMojito = page
+      .locator('div')
+      .filter({ hasText: 'Mojito de Maracuyá' })
+      .filter({ hasNotText: 'Citrus' })
       .locator('button', { hasText: 'Pedir en barra' })
       .first();
     await expect(botonMojito).toContainText('Pedir en barra');
     await botonMojito.click();
 
     // Debe mostrar Pedido #43 y Mojito de Maracuyá
-    const cartelPedido43 = page.locator('text=Pedido #43: Mojito de Maracuyá').first();
+    const cartelPedido43 = page.getByText(/Pedido #43.*Mojito de Maracuyá/i).first();
     await expect(cartelPedido43).toContainText('Mojito de Maracuyá');
     await expect(cartelPedido43).toContainText('#43');
   });

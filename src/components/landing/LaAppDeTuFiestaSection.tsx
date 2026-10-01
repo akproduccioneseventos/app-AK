@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
@@ -246,7 +246,7 @@ export function LaAppDeTuFiestaSection({
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600" />
                   <div>

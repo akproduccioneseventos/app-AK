@@ -1,4 +1,4 @@
-/**
+﻿/**
  * el-asistente-no-pierde-ni-elige-mal.test.ts
  *
  * Garantías del bloque asistente (Orden 100):
@@ -17,24 +17,30 @@ import type { AkAgentChatSession } from '@/types/multiagent';
 
 const store: Record<string, unknown> = {};
 
-jest.mock('@/lib/generic-json-store', () => ({
-  mutarDocumentoConTransaccion: jest.fn(
-    async <T>(
-      filePath: string,
-      cambiar: (actual: T | null) => Promise<T | null> | T | null,
-    ): Promise<T | null> => {
-      const actual = filePath in store
-        ? (JSON.parse(JSON.stringify(store[filePath])) as T)
-        : null;
-      const nuevo = await cambiar(actual);
-      if (nuevo !== null) store[filePath] = nuevo;
-      return nuevo;
-    },
-  ),
-  // mutarGenericJsonArray no se usa en este test pero se exporta para evitar errores
-  mutarGenericJsonArray: jest.fn(),
-  mutarGenericJsonArrayConTransaccion: jest.fn(),
-}));
+jest.mock('@/lib/generic-json-store', () => {
+  const { AsyncMutex } = jest.requireActual('@/lib/mutex');
+  const mutex = new AsyncMutex();
+  return {
+    mutarDocumentoConTransaccion: jest.fn(
+      async <T>(
+        filePath: string,
+        vacio: T,
+        cambiar: (actual: T) => Promise<T | null> | T | null,
+      ): Promise<T | null> => {
+        return mutex.runExclusive(async () => {
+          const actual = filePath in store
+            ? (JSON.parse(JSON.stringify(store[filePath])) as T)
+            : vacio;
+          const nuevo = await cambiar(actual ?? vacio);
+          if (nuevo !== null) store[filePath] = JSON.parse(JSON.stringify(nuevo));
+          return nuevo;
+        });
+      },
+    ),
+    mutarGenericJsonArray: jest.fn(),
+    mutarGenericJsonArrayConTransaccion: jest.fn(),
+  };
+});
 
 // ─── Mock de data-service (readData lo usa listMultiAgentChatSessions) ────────
 jest.mock('@/lib/data-service', () => ({
@@ -43,7 +49,9 @@ jest.mock('@/lib/data-service', () => ({
       ? (JSON.parse(JSON.stringify(store[filePath])) as T)
       : defaultValue;
   }),
-  writeData: jest.fn(),
+  writeData: jest.fn(async <T>(filePath: string, data: T) => {
+    store[filePath] = JSON.parse(JSON.stringify(data));
+  }),
 }));
 
 // ─── Mock de manual-ak (lo importa memory-store) ─────────────────────────────
@@ -53,7 +61,8 @@ jest.mock('@/lib/multiagent/manual-ak', () => ({
 }));
 
 // ─── Imports reales (después de los mocks) ────────────────────────────────────
-import { appendMultiAgentChatTurn } from '@/lib/multiagent/chat-store';
+import { appendMultiAgentChatTurn, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
+import { saveAgentLearning, getAgentMemoryProfile } from '@/lib/multiagent/memory-store';
 
 // ─── Helpers para complete_task ───────────────────────────────────────────────
 // Testeamos la lógica de matching directamente, sin invocar el server action
@@ -153,6 +162,59 @@ describe('appendMultiAgentChatTurn — sin race condition', () => {
       contenidos.includes('Primer mensaje concurrente') ||
       contenidos.includes('Segundo mensaje concurrente');
     expect(tieneAlMenosUnConcurrente).toBe(true);
+
+    // CRÍTICO: listMultiAgentChatSessions debe poder leer las sesiones guardadas (no devolver vacío)
+    const sesionesEnPantalla = await listMultiAgentChatSessions();
+    expect(sesionesEnPantalla.length).toBeGreaterThan(0);
+    expect(sesionesEnPantalla.find((s) => s.id === sesion1.id)).toBeDefined();
+  });
+
+  it('dos turnos de fiestas distintas no se pisan y listMultiAgentChatSessions muestra ambas', async () => {
+    await Promise.all([
+      appendMultiAgentChatTurn({
+        agentType: 'fiesta',
+        agentName: 'Asistente de Fiesta',
+        fiestaId: 'fiesta_A',
+        userMessage: 'Mensaje para fiesta A',
+        assistantMessage: 'Respuesta para fiesta A',
+      }),
+      appendMultiAgentChatTurn({
+        agentType: 'fiesta',
+        agentName: 'Asistente de Fiesta',
+        fiestaId: 'fiesta_B',
+        userMessage: 'Mensaje para fiesta B',
+        assistantMessage: 'Respuesta para fiesta B',
+      }),
+    ]);
+
+    const todas = await listMultiAgentChatSessions();
+    expect(todas.some((s) => s.fiestaId === 'fiesta_A')).toBe(true);
+    expect(todas.some((s) => s.fiestaId === 'fiesta_B')).toBe(true);
+  });
+});
+
+describe('saveAgentLearning — concurrente y legible', () => {
+  it('dos saveAgentLearning concurrentes no se pisan y getAgentMemoryProfile los lee', async () => {
+    await Promise.all([
+      saveAgentLearning({
+        agentType: 'secretaria',
+        title: 'Preferencia de reunión',
+        content: 'Alexander prefiere reuniones de tarde.',
+        confidence: 'high',
+      }),
+      saveAgentLearning({
+        agentType: 'secretaria',
+        title: 'Preferencia de salón',
+        content: 'El cliente prefiere Salón Club Uruguay.',
+        confidence: 'high',
+      }),
+    ]);
+
+    const perfil = await getAgentMemoryProfile({ agentType: 'secretaria' });
+    expect(perfil.learnings.length).toBe(2);
+    const titulos = perfil.learnings.map((l) => l.title);
+    expect(titulos).toContain('Preferencia de reunión');
+    expect(titulos).toContain('Preferencia de salón');
   });
 });
 

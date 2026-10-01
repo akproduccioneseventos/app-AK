@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
@@ -37,6 +37,16 @@ const PREGUNTAS_DEFECTO: PreguntaExtra[] = [
   { id: 'apertura_pista', pregunta: '¿Quién abre la pista y qué ritmo prefieren para arrancar?' },
   { id: 'protocolo_fotos', pregunta: '¿Protocolo de fotos familiares (mesa por mesa o al ingreso)?' },
 ];
+
+function parsePaletaTexto(paleta: any): string {
+  if (!paleta) return '';
+  if (typeof paleta === 'string') return paleta;
+  if (Array.isArray(paleta)) return paleta.join(', ');
+  if (typeof paleta === 'object') {
+    return [paleta.primary, paleta.secondary, paleta.accent].filter(Boolean).join(', ');
+  }
+  return '';
+}
 
 function ReunionOrganizacionContent() {
   const { toast } = useToast();
@@ -77,11 +87,7 @@ function ReunionOrganizacionContent() {
       setCancionVals(data.musica?.cancionVals || '');
       setMusicaProhibida(data.musica?.listaNoReproducir || '');
       setEstiloTema(data.decoracion?.tema || '');
-      setPaletaColores(
-        Array.isArray(data.decoracion?.paletaColores)
-          ? data.decoracion.paletaColores.join(', ')
-          : (data.decoracion?.paletaColores as unknown as string) || ''
-      );
+      setPaletaColores(parsePaletaTexto(data.decoracion?.paletaColores));
       setCateringNotas(data.catering?.detallesMenu || '');
       setAlergias(data.catering?.alergiasOIntolerancias || '');
       setCantidadInvitados(data.configuracion?.invitadosEstimados ?? '');
@@ -108,7 +114,7 @@ function ReunionOrganizacionContent() {
     if (!fiesta || !fiestaId) return null;
     setIsSaving(true);
     try {
-      const coloresArray = paletaColores
+      const coloresArray = typeof paletaColores === 'string'
         ? paletaColores.split(',').map((c) => c.trim()).filter(Boolean)
         : [];
 

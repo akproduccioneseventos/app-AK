@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 import {
   borrarFiesta,
   ponerSesionDelEquipo,
@@ -59,14 +59,12 @@ test.describe('Orden 95: La reunión de organización guarda donde corresponde',
     await inputEntrada.fill('Viva La Vida - Coldplay');
 
     // 3. Cerrar la reunión
-    // Hay dos botones "Cerrar la reunión" (header y pie, ambos intencionales por UX).
-    // Se usa data-testid para apuntar al del pie, que es el accionable principal.
     const btnCerrar = page.getByTestId('btn-cerrar-reunion');
     await expect(btnCerrar).toBeVisible();
     await btnCerrar.click();
 
     // Esperar mensaje toast de éxito o actualización
-    await page.waitForTimeout(2000);
+    await expect(page.locator('text=¡Reunión cerrada con éxito!').first()).toBeVisible({ timeout: 15_000 });
 
     // 4. Verificar en el archivo de la fiesta que se guardó la canción de entrada y la reunión
     const fiestaEnDisco = leerFiesta(FIESTA_ID);

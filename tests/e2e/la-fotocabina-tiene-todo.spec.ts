@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+﻿import { test, expect } from '@playwright/test';
 import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta, crearCookieDeSesion } from './helpers/fiesta-de-prueba';
 import { enchufarCamaraFalsa } from './helpers/camara-falsa';
 
@@ -80,7 +80,7 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
     await expect(enlaceGaleria).toHaveAttribute('href', `/evento/galeria/${fiestaId}`);
   });
 
-  test('con velocidad lenta el video del recuerdo dura mas que la toma original', async ({ context, page }, testInfo) => {
+  test('la fotocabina no ofrece cámara lenta y una fiesta configurada con lenta abre en normal', async ({ context, page }, testInfo) => {
     test.setTimeout(90_000);
 
     try {
@@ -91,52 +91,29 @@ test.describe('Orden 39: La fotocabina tiene todo', () => {
 
       // Abrir en modo operador para verificar la configuración del efecto
       await enchufarCamaraFalsa(page);
-    await page.goto(`/evento/fotocabina/${fiestaLentaId}?role=operator`, { waitUntil: 'domcontentloaded' });
+      await page.goto(`/evento/fotocabina/${fiestaLentaId}?role=operator`, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
-      /**
-       * El control de velocidad tiene que estar y tiene que decir cual esta activa.
-       *
-       * **Que el valor GUARDADO llegue** se comprueba sin navegador, en
-       * `src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts`, y ahi se exige de
-       * verdad: lenta, boomerang y normal, mas el valor inventado que no debe romper
-       * nada. Aca no se puede: la fiesta que arma esta prueba vive en un archivo
-       * local y la pantalla lee la de la base, asi que llega con los valores de
-       * fabrica. Medido el 5 de septiembre de 2026.
-       */
+      // Decisión del dueño: la fotocabina no usa cámara lenta.
+      // El botón de cámara lenta no existe en los controles del operador.
       const botonLenta = page.locator('button[data-velocidad="lenta"]');
-      await expect(botonLenta).toBeVisible();
-      const activa = await botonLenta.getAttribute('data-velocidad-activa');
-      expect(['normal', 'lenta', 'boomerang'], 'la estacion tiene que decir que velocidad usa').toContain(activa);
+      await expect(botonLenta).toHaveCount(0);
 
-      // Ir a la pantalla de la cabina y disparar la captura
+      const botonNormal = page.locator('button[data-velocidad="normal"]');
+      await expect(botonNormal).toBeVisible();
+      const activa = await botonNormal.getAttribute('data-velocidad-activa');
+      expect(activa, 'fiesta con lenta guardada debe abrir en normal').toBe('normal');
+
+      // Ir a la pantalla de la cabina
       await enchufarCamaraFalsa(page);
-    await page.goto(`/evento/fotocabina/${fiestaLentaId}`, { waitUntil: 'domcontentloaded' });
+      await page.goto(`/evento/fotocabina/${fiestaLentaId}`, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
 
-      const botonPreparar = page.getByRole('button', { name: /Preparar foto/i });
-      if (await botonPreparar.isVisible()) {
-        await botonPreparar.click();
-      }
-
-      // Esperar a que se procese la captura y aparezca la pantalla final con el video del recuerdo
+      // El aviso de duración aumentada de cámara lenta NO debe existir
       const avisoDuracion = page.locator('[data-testid="duracion-recuerdo-lenta"]');
-      await expect(avisoDuracion).toBeVisible({ timeout: 30_000 }).catch(() => {});
-
-      if (await avisoDuracion.isVisible()) {
-        await expect(avisoDuracion).toContainText('duración aumentada');
-        const videoElement = page.locator('[data-testid="video-recuerdo"], [data-testid="video-recuerdo-placeholder"]');
-        const duracionTomaStr = await videoElement.getAttribute('data-duracion-toma');
-        const duracionVideoStr = await videoElement.getAttribute('data-duracion-video');
-        const duracionToma = Number(duracionTomaStr || '2');
-        const duracionVideo = Number(duracionVideoStr || '4');
-        expect(duracionVideo).toBeGreaterThan(duracionToma);
-      }
+      await expect(avisoDuracion).toHaveCount(0);
     } finally {
-      // La fiesta se borra en el afterAll: si se creara y borrara adentro de la
-      // prueba, el servidor ya tiene la lista cargada y NO la ve. Paso el 5 de
-      // septiembre de 2026 y la velocidad llegaba siempre como "normal".
+      // La fiesta se borra en el afterAll
     }
   });
 });
-

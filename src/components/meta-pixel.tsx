@@ -1,6 +1,6 @@
-'use client';
+﻿'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 import { idDelPixelMeta } from '@/lib/medicion/identificadores';
@@ -31,17 +31,26 @@ export const META_PIXEL_ID = idDelPixelMeta();
 
 export function MetaPixel() {
   const pathname = usePathname();
+  const puedeMedir = sePuedeMedir(pathname);
+  const [scriptCargado, setScriptCargado] = useState(() => puedeMedir);
+
+  useEffect(() => {
+    if (puedeMedir && !scriptCargado) {
+      setScriptCargado(true);
+    }
+  }, [puedeMedir, scriptCargado]);
 
   useEffect(() => {
     if (!META_PIXEL_ID || typeof window === 'undefined') return;
+    if (!puedeMedir) return;
     const fbq = (window as any).fbq;
     if (typeof fbq !== 'function') return;
-    if (!sePuedeMedir(pathname)) return;
     const url = direccionParaMedir(pathname, window.location.search);
-    fbq('track', 'PageView', { page_location: url });
-  }, [pathname]);
+    fbq('track', 'PageView', { page_location: window.location.origin + url });
+  }, [pathname, puedeMedir]);
 
   if (!META_PIXEL_ID) return null;
+  if (!scriptCargado) return null;
 
   return (
     <>
@@ -49,23 +58,27 @@ export function MetaPixel() {
         {`
 !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-n.push=n;n.loaded=!0;n.version='2.0';n.disablePushState=true;n.queue=[];
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];
 t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
 document,'script','https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '${META_PIXEL_ID}', {}, { autoConfig: false });
+window.fbq.disablePushState = true;
+fbq('set', 'autoConfig', false, '${META_PIXEL_ID}');
+fbq('init', '${META_PIXEL_ID}');
         `}
       </Script>
-      <noscript>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          height="1"
-          width="1"
-          style={{ display: 'none' }}
-          alt=""
-          src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
-        />
-      </noscript>
+      {puedeMedir && (
+        <noscript>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            height="1"
+            width="1"
+            style={{ display: 'none' }}
+            alt=""
+            src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+          />
+        </noscript>
+      )}
     </>
   );
 }

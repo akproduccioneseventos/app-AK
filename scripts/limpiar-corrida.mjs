@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 /**
  * Borra lo que escriben solas las pruebas y que NUNCA va al repositorio.
  *
@@ -44,6 +44,8 @@ const ESCRITOS_POR_LA_CORRIDA = [
   // Aparecieron sin estar en la lista el 30 de septiembre de 2026.
   'src/data/empleados.json',
   'data/empleados.json',
+  'data/notification-preferences.json',
+  'src/data/notification-preferences.json',
 ];
 
 const statusLines = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' })

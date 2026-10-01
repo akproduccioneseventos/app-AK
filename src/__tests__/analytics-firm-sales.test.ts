@@ -1,4 +1,4 @@
-const mockGetPresupuestos = jest.fn();
+﻿const mockGetPresupuestos = jest.fn();
 const mockGetInvoices = jest.fn();
 const mockGetAllFiestas = jest.fn();
 
@@ -25,7 +25,7 @@ import { getAnalyticsData } from '@/app/actions/analytics';
 describe('firm sales analytics', () => {
   it('excludes sent budgets and draft invoices from every revenue aggregate', async () => {
     const now = new Date();
-    const eventDate = now.toISOString().slice(0, 10);
+    const eventDate = now.toLocaleDateString('en-CA');
     const timestamp = now.toISOString();
     const item = (name: string, amount: number) => ({
       nombreServicio: name,

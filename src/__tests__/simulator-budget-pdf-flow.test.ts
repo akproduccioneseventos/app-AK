@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @jest-environment node
  */
 
@@ -133,50 +133,22 @@ describe('Recorrido completo: Acceso, Panel, Simulador y Presupuesto Formal (P3)
     expect(resultado.success).toBe(true);
     expect(resultado.presupuestoId).toBeDefined();
     expect(resultado.token).toBeDefined();
+    expect(resultado.presupuesto).toBeDefined();
 
-    // Verificacion de la estructura formal del presupuesto para impresion / PDF
-    const mockPresupuestoGenerado: Presupuesto = {
-      id: resultado.presupuestoId || 'pres-test-1',
-      numero: 'AK-2026-001',
-      clienteNombre: simuladorData.clienteNombre,
-      clienteTelefono: simuladorData.clienteContacto,
-      clienteEmail: 'cliente@prueba.uy',
-      eventoTipo: simuladorData.eventoTipo,
-      eventoFecha: simuladorData.eventoFecha,
-      invitados: simuladorData.invitados,
-      invitadosAdultos: simuladorData.adultos,
-      invitadosCantidad: simuladorData.invitados,
-      salonFiestas: 'Club Uruguay',
-      duracionHoras: simuladorData.duracionHoras,
-      totalEstimado: 150000,
-      totalManual: 150000,
-      totalFinal: 150000,
-      senia: 5000,
-      estado: 'Enviado',
-      fechaCreacion: new Date().toISOString(),
-      items: simuladorData.items.map((it, idx) => ({
-        ...it,
-        id: 'item-' + idx,
-        costoTotalItem: it.precioTotal * 0.5,
-      })),
-      itemsPresupuestados: simuladorData.items.map((it, idx) => ({
-        ...it,
-        id: 'item-' + idx,
-        costoTotalItem: it.precioTotal * 0.5,
-      })),
-      pagos: [],
-    };
+    // Verificacion de la estructura formal del presupuesto devuelto para impresion / PDF
+    const presupuestoGenerado = resultado.presupuesto!;
 
     // 1. Calculo formal y saldo cobrable
-    const totalCobrable = getBudgetCollectibleTotal(mockPresupuestoGenerado);
-    expect(totalCobrable).toBe(150000);
+    const totalCobrable = getBudgetCollectibleTotal(presupuestoGenerado);
+    expect(totalCobrable).toBe(presupuestoGenerado.totalConDescuento);
+    expect(totalCobrable).toBeGreaterThan(0);
 
-    const summary = getBudgetPaymentSummary(mockPresupuestoGenerado);
-    expect(summary.total).toBe(150000);
-    expect(summary.balance).toBe(150000);
+    const summary = getBudgetPaymentSummary(presupuestoGenerado);
+    expect(summary.total).toBe(presupuestoGenerado.totalConDescuento);
+    expect(summary.balance).toBe(presupuestoGenerado.totalConDescuento);
 
     // 2. Narrativa formal generada para el documento PDF
-    const narrative = buildPresupuestoNarrative(mockPresupuestoGenerado);
+    const narrative = buildPresupuestoNarrative(presupuestoGenerado);
     expect(typeof narrative).toBe('string');
     expect(narrative.length).toBeGreaterThan(20);
     expect(narrative.toLowerCase()).toContain('boda');

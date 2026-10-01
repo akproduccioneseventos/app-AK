@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -111,7 +111,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
       )}
     >
       {/* Top glowing ambient gradient line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
 
       <div className="max-w-7xl mx-auto relative z-10 space-y-16">
 
@@ -306,4 +306,3 @@ export function PublicFooter({ className }: PublicFooterProps) {
     </footer>
   );
 }
-

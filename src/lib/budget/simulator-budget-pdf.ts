@@ -1,4 +1,4 @@
-import type { jsPDF } from "jspdf";
+﻿import type { jsPDF } from "jspdf";
 import type {
   SimulatorDetailedService,
   SimulatorPriceStats,
@@ -224,26 +224,70 @@ export async function createSimulatorBudgetPdf(
   writeRightAligned(pdf, `Válido hasta: ${dateFormatter.format(model.validUntil)}`, 195, y + 7);
   y += 14;
 
+  const maxLeftX = 108;
+  const maxRightX = marginX + contentWidth - 4;
+
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(9);
+
+  const clientNameX = marginX + 27;
+  const clientNameMaxW = maxLeftX - clientNameX;
+  const clientNameLines = (pdf.splitTextToSize(input.clientName, clientNameMaxW) as string[]) || [""];
+
+  const eventDateText = input.eventDate ? dateFormatter.format(input.eventDate) : "A confirmar";
+  const eventDateX = marginX + 32;
+  const eventDateMaxW = maxLeftX - eventDateX;
+  const eventDateLines = (pdf.splitTextToSize(eventDateText, eventDateMaxW) as string[]) || [""];
+
+  const packageText = input.packageName || "Propuesta personalizada";
+  const packageX = 130;
+  const packageMaxW = maxRightX - packageX;
+  const packageLines = (pdf.splitTextToSize(packageText, packageMaxW) as string[]) || [""];
+
+  const guestCountText = `${model.guestCount} personas`;
+
+  const row1LineCount = clientNameLines.length;
+  const row1Extra = Math.max(0, row1LineCount - 1) * 4;
+
+  const row2LineCount = Math.max(eventDateLines.length, packageLines.length);
+  const row2Extra = Math.max(0, row2LineCount - 1) * 4;
+
+  const totalExtra = row1Extra + row2Extra;
+  const boxHeight = 23 + totalExtra;
+
   pdf.setDrawColor(203, 213, 225);
-  pdf.roundedRect(marginX, y, contentWidth, 23, 1.5, 1.5);
+  pdf.roundedRect(marginX, y, contentWidth, boxHeight, 1.5, 1.5);
+
   pdf.setFont("helvetica", "bold");
   pdf.setFontSize(7);
   pdf.setTextColor(100, 116, 139);
   pdf.text("CLIENTE", marginX + 4, y + 6);
-  pdf.text("FECHA DEL EVENTO", marginX + 4, y + 15);
   pdf.text("INVITADOS", 112, y + 6);
-  pdf.text("PAQUETE", 112, y + 15);
+
   pdf.setFontSize(9);
   pdf.setTextColor(15, 23, 42);
-  pdf.text(input.clientName, marginX + 27, y + 6);
-  pdf.text(
-    input.eventDate ? dateFormatter.format(input.eventDate) : "A confirmar",
-    marginX + 32,
-    y + 15,
-  );
-  pdf.text(`${model.guestCount} personas`, 135, y + 6);
-  pdf.text(input.packageName || "Propuesta personalizada", 130, y + 15);
-  y += 29;
+  clientNameLines.forEach((line, i) => {
+    pdf.text(line, clientNameX, y + 6 + i * 4);
+  });
+  pdf.text(guestCountText, 135, y + 6);
+
+  const row2Y = y + 15 + row1Extra;
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(7);
+  pdf.setTextColor(100, 116, 139);
+  pdf.text("FECHA DEL EVENTO", marginX + 4, row2Y);
+  pdf.text("PAQUETE", 112, row2Y);
+
+  pdf.setFontSize(9);
+  pdf.setTextColor(15, 23, 42);
+  eventDateLines.forEach((line, i) => {
+    pdf.text(line, eventDateX, row2Y + i * 4);
+  });
+  packageLines.forEach((line, i) => {
+    pdf.text(line, packageX, row2Y + i * 4);
+  });
+
+  y += 29 + totalExtra;
 
   renderTableHeader();
   model.categories.forEach((category) => {

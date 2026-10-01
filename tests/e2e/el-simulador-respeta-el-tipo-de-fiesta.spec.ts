@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+﻿import { expect, test } from '@playwright/test';
 
 test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta y no muestra $0 al arrancar', () => {
   test('abre con ?tipo=boda y queda seleccionada Boda', async ({ page }, testInfo) => {
@@ -6,7 +6,13 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
 
     await page.goto('/simulador-de-presupuesto?tipo=boda', { waitUntil: 'domcontentloaded' });
 
-    // El selector de tipo de evento debe mostrar "Boda"
+    const coverStart = page.getByTestId('simulator-cover-start');
+    if (await coverStart.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await coverStart.click();
+    }
+    await page.getByRole('button', { name: /Continuar/i }).click();
+
+    // El selector de tipo de evento en el paso 2 debe mostrar "Boda"
     const selectorTipo = page.locator('button[role="combobox"]').first();
     await expect(selectorTipo).toBeVisible({ timeout: 15_000 });
     await expect(selectorTipo).toContainText('Boda');
@@ -16,6 +22,12 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
     test.skip(testInfo.project.name !== 'chromium-desktop', 'Alcanza con un navegador.');
 
     await page.goto('/simulador-de-presupuesto?tipo=XV%20a%C3%B1os', { waitUntil: 'domcontentloaded' });
+
+    const coverStart = page.getByTestId('simulator-cover-start');
+    if (await coverStart.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await coverStart.click();
+    }
+    await page.getByRole('button', { name: /Continuar/i }).click();
 
     const selectorTipo = page.locator('button[role="combobox"]').first();
     await expect(selectorTipo).toBeVisible({ timeout: 15_000 });
@@ -27,9 +39,9 @@ test.describe('Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta 
 
     await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
 
-    // Sin ?tipo= se muestra la pantalla de bienvenida: hay que hacer click en Comenzar.
-    // El simulador no salta esa pantalla si no viene el tipo pre-seleccionado en la URL.
+    // Sin ?tipo= se muestra la pantalla de bienvenida: click en Comenzar para ir al paso 1, y Continuar para ir al paso 2
     await page.getByTestId('simulator-cover-start').click();
+    await page.getByRole('button', { name: /Continuar/i }).click();
 
     const selectorTipo = page.locator('button[role="combobox"]').first();
     await expect(selectorTipo).toBeVisible({ timeout: 15_000 });
