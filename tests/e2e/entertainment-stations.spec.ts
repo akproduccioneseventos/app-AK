@@ -163,6 +163,7 @@ test('time capsule exposes every media mode and records the configured frame', a
   await page.getByRole('button', { name: /Comenzar a Grabar/i }).click();
   const stopButton = page.getByRole('button', { name: /Detener Grabación/i });
   await expect(stopButton).toBeVisible();
+  await page.waitForTimeout(1_000);
   await stopButton.click();
   // La etiqueta se llama "Video Grabado", no "Video Analogico". Se verifico en
   // `src/app/evento/buzon/[fiestaId]/page.tsx`: el paso de revision existe y
@@ -307,3 +308,4 @@ test('AI mirror keeps one coherent touch selector on desktop and mobile', async 
     ),
   ).toBe(true);
 });
+
