@@ -267,6 +267,30 @@ las medidas reales de cada salón. **Falta que se vea mágico y que se arme habl
 la escena tiene la cantidad de mesas que da `contarMesas` para 120, las mesas usan el lila, y el salón
 tiene las medidas guardadas del Club Uruguay; el paseo de cámara termina y vuelve al inicio.
 
+## Bloque 12 — "La tecnología de AK": una sola página con TODO, por paneles
+
+**Pedido del dueño:** una sección de la web, para vender, con **toda** la tecnología dividida en
+paneles; *"ni yo sé cuánta tecnología tiene"*. Hoy hay una vidriera en la portada
+(`InteractiveTechShowcase`, orden 27) con una parte.
+
+1. **Una sola lista que manda**: `src/data/tecnologia-ak.ts`, con cada tecnología que ve un cliente o
+   un invitado: nombre, una frase de qué hace, a qué grupo pertenece (los cinco del bloque 3: Para tus
+   invitados · Para vos · En la fiesta · Entretenimiento · Los recuerdos, más **La organización**:
+   simulador, presupuesto, contrato y firma, cuotas, asistente del cliente), una foto o captura, el
+   video de YouTube si hay, y **el paso del recorrido de demo** donde se prueba. Armala recorriendo
+   `docs/QUE-HAY-EN-LA-APP.md` y las pantallas de `src/app/evento/`, `src/app/portal*`,
+   `src/app/invitacion/`; **sólo lo que existe y anda**.
+2. **Página pública `/tecnologia`**: un panel por grupo, con tarjetas grandes; cada tarjeta abre su
+   detalle (fotos, video) y **"Probalo"** lleva a ese paso de `/experiencia` (bloque 9). Arriba, el
+   número total ("Más de N tecnologías en tu fiesta", N contado de la lista, no escrito a mano).
+3. **La misma lista** alimenta la vidriera de la portada, el recorrido de la reunión (bloque 3) y la
+   web `/experiencia`: **una sola fuente**, para que no se despeguen.
+4. Reglas de venta de `CLAUDE.md` (sin garantías, sin plazos, sin nombrar personal). Celular primero.
+
+**El control** (`src/__tests__/la-tecnologia-ak-no-se-despega.test.ts`): cada tarjeta de la lista
+apunta a una pantalla que existe (`docs/MANUAL-DE-LA-APP.md` o el mapa de rutas), el total de la página
+es el largo de la lista, y la vidriera de la portada lee la misma lista.
+
 ```comprobar
 usa: idDeYoutube en src/app/(app)/empresa/configurador-reunion/page.tsx
 usa: createDemoFiesta en src/app/(app)/empresa/configurador-reunion/page.tsx
@@ -275,4 +299,6 @@ usa: calcularNitidez en src/app/evento/social/[fiestaId]/page.tsx
 no-usa: Archivo bloqueado por riesgo de contenido adulto en src/app/actions/social-gallery.ts
 usa: '/experiencia' en src/lib/medicion-segura.ts
 prueba: src/__tests__/la-barra-cierra-la-cuenta.test.ts
+archivo: src/data/tecnologia-ak.ts
+prueba: src/__tests__/la-tecnologia-ak-no-se-despega.test.ts
 ```
