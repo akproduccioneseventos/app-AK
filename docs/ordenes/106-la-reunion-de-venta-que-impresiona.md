@@ -70,6 +70,12 @@ Desde el configurador, botón **"Mostrar la experiencia"**: crea (o reusa) la fi
 `createDemoFiesta` y abre un **recorrido a pantalla completa**, con pasos grandes para la pantalla
 LED:
 
+Ordenado por **"La tecnología de tu fiesta"**, no todo como entretenimiento (pedido del dueño):
+**Para tus invitados** (invitación, confirmar asistencia, su portal con QR y mesa) → **Para vos**
+(portal del cliente, cuotas, menú, decoración 3D) → **En la fiesta** (pantalla gigante, tótem, barra
+tecnológica) → **Entretenimiento** (fotocabina, 360, espejo, Bogue, cabina con IA, buzón, juegos) →
+**Los recuerdos** (álbum, galería, Video de Vida). Los pasos:
+
 1. La invitación digital y confirmar asistencia.
 2. El portal del invitado (su QR, su mesa, sus fotos).
 3. El portal del cliente (cuotas, invitados, menú, decoración en 3D).
@@ -237,6 +243,142 @@ vodka (1000 ml), 10 destornilladores pedidos descuentan 500 ml; un trago cargado
 descuenta igual; al cerrar con 400 ml contados, el informe dice 10 tragos y 100 ml sin registrar; y el
 destornillador se apaga cuando quedan menos de 50 ml.
 
+## Bloque 11 — El salón mágico: se arma con una frase y se recorre (pedido del dueño)
+
+El dueño vio un video donde una IA arma un salón entero, decorado, con los colores de la fiesta y las
+mesas, con muy pocas instrucciones. **Las piezas ya existen**: el armado automático por lo contratado
+(`generarEscenaAutomatica`, `src/lib/decoracion/generar-layout-automatico.ts`, con su prueba
+`src/__tests__/el-salon-se-arma-solo-con-lo-contratado.test.ts`), la escena 3D
+(`src/components/salon-3d/SalonScene.tsx`, mesas con `primaryColor` en `elements/Mesa3D.tsx` ~l.60) y
+las medidas reales de cada salón. **Falta que se vea mágico y que se arme hablando.**
+
+1. **Con una frase** (escrita o dicha al asistente del bloque 2): *"quince de Morena, lila y dorado,
+   120 invitados, en el Club Uruguay"*. La IA devuelve **sólo datos** (tipo, colores, invitados, salón,
+   estilo) y la app arma la escena con `generarEscenaAutomatica` y las medidas de ese salón.
+2. **Más vida en el 3D**, con los colores elegidos: manteles y caminos de mesa, centros de mesa según
+   el estilo (flores, velas, globos), luces de color sobre la pista y guirnaldas de luz, la mesa
+   principal destacada. Todo con piezas simples dibujadas en 3D, **sin modelos pesados**: tiene que
+   andar fluido en la pantalla LED y en un celular común.
+3. **Paseo de cámara**: botón "Recorrer" que hace una vuelta lenta por el salón (entrada, mesas, pista,
+   mesa principal) a pantalla completa.
+4. Junto al 3D, las **dos imágenes realistas** del bloque 7.
+
+**La prueba**: con la IA simulada devolviendo `{colores: lila y dorado, invitados: 120, salon: club-uruguay}`,
+la escena tiene la cantidad de mesas que da `contarMesas` para 120, las mesas usan el lila, y el salón
+tiene las medidas guardadas del Club Uruguay; el paseo de cámara termina y vuelve al inicio.
+
+## Bloque 12 — "La tecnología de AK": una sola página con TODO, por paneles
+
+**Pedido del dueño:** una sección de la web, para vender, con **toda** la tecnología dividida en
+paneles; *"ni yo sé cuánta tecnología tiene"*. Hoy hay una vidriera en la portada
+(`InteractiveTechShowcase`, orden 27) con una parte.
+
+1. **Una sola lista que manda**: `src/data/tecnologia-ak.ts`, con cada tecnología que ve un cliente o
+   un invitado: nombre, una frase de qué hace, a qué grupo pertenece (los cinco del bloque 3: Para tus
+   invitados · Para vos · En la fiesta · Entretenimiento · Los recuerdos, más **La organización**:
+   simulador, presupuesto, contrato y firma, cuotas, asistente del cliente), una foto o captura, el
+   video de YouTube si hay, y **el paso del recorrido de demo** donde se prueba. Armala recorriendo
+   `docs/QUE-HAY-EN-LA-APP.md` y las pantallas de `src/app/evento/`, `src/app/portal*`,
+   `src/app/invitacion/`; **sólo lo que existe y anda**.
+2. **Página pública `/tecnologia`**: un panel por grupo, con tarjetas grandes; cada tarjeta abre su
+   detalle (fotos, video) y **"Probalo"** lleva a ese paso de `/experiencia` (bloque 9). Arriba, el
+   número total ("Más de N tecnologías en tu fiesta", N contado de la lista, no escrito a mano).
+3. **La misma lista** alimenta la vidriera de la portada, el recorrido de la reunión (bloque 3) y la
+   web `/experiencia`: **una sola fuente**, para que no se despeguen.
+4. Reglas de venta de `CLAUDE.md` (sin garantías, sin plazos, sin nombrar personal). Celular primero.
+5. **Las fotos y videos de las tarjetas los hace la app sola** (no hay material grabado): un script
+   `npm run tecnologia:capturas` abre la fiesta de demo con el navegador de las pruebas, recorre cada
+   pantalla de la lista y guarda **una captura** y **un video corto de 6-8 segundos, sin sonido**,
+   de cada una (Playwright graba video), en `public/tecnologia/`, livianos (captura en WebP, video de
+   menos de 1,5 MB). Así cada tarjeta muestra la pantalla real funcionando. Se vuelve a correr cuando
+   cambia una pantalla.
+
+**El control** (`src/__tests__/la-tecnologia-ak-no-se-despega.test.ts`): cada tarjeta de la lista
+apunta a una pantalla que existe (`docs/MANUAL-DE-LA-APP.md` o el mapa de rutas), el total de la página
+es el largo de la lista, y la vidriera de la portada lee la misma lista.
+
+## Bloque 13 — Mis fiestas en orden: suspendidas, pasadas y quién es el cliente
+
+**Pedido del dueño:** cargó fiestas hace tiempo; algunas se suspendieron (la de Gamboa, la de Lorena),
+otras ya pasaron, y no sabe en qué quedaron. Además, a veces el nombre de **la mamá que contrata**
+quedó como si fuera **la quinceañera**.
+
+**Lo que hay hoy:** la fiesta tiene `clienteNombre`, `protagonista1Nombre`/`protagonista2Nombre` y
+`nombreAgasajado` (`src/types/fiesta.ts` ~l.155-170); **no existe** el estado "suspendida", y archivar
+es sólo a mano (`src/app/actions/fiesta/fiesta.actions.ts` ~l.800).
+
+1. **Estado "Suspendida"** para una fiesta, con fecha y motivo, que se marca **a mano** desde la ficha.
+   Una fiesta suspendida: sale del calendario y de los listados de próximas, **apaga** sus
+   recordatorios de cuotas, avisos al cliente, invitaciones y tareas automáticas, y **no toca la
+   plata**: lo cobrado queda como está, y la ficha muestra lo que dice el contrato (penalidad del 30%
+   sobre el presupuesto vigente, lo pagado se descuenta) para que el dueño decida. Se puede
+   "Reactivar".
+2. **Pantalla "Revisar mis fiestas"** en el panel, con una fila por fiesta y lo que tiene raro, para
+   resolver con un toque cada uno:
+   - ya pasó y no está cerrada ni archivada → "Archivar" (con el resumen de lo cobrado);
+   - no tiene presupuesto, o el presupuesto no tiene servicios → "Abrir presupuesto";
+   - le faltan datos clave (fecha, salón, invitados);
+   - **el nombre del cliente es igual al del agasajado** → "¿Quién contrata?" con dos campos claros;
+   - tiene cuotas vencidas sin cobrar.
+3. **Que no se vuelva a confundir:** en todos los formularios donde se carga una fiesta, los campos
+   dicen **"Quién contrata (cliente)"** y **"Agasajada / agasajado"**, separados, y el portal del
+   cliente saluda al cliente, no a la quinceañera.
+
+**La prueba** (`src/__tests__/mis-fiestas-en-orden.test.ts`): una fiesta suspendida no aparece en
+próximas, no genera recordatorios de cuotas ni avisos, y su plata cobrada queda igual; una fiesta
+pasada sin archivar y otra con cliente igual al agasajado aparecen en "Revisar mis fiestas".
+
+## Bloque 14 — El video resumen de la fiesta, sin gastar en IA de video
+
+**Decisión del dueño (01/10/2026):** sí, si no gasta mucho y si de verdad sale bien. Por eso **no se
+genera video con IA** (caro y flojo): se **arma un montaje** con lo que ya hay.
+
+- Al día siguiente de la fiesta, una tarea elige las mejores fotos y videos cortos del muro y las
+  estaciones con `evaluarFoto`/`calcularNitidez` (`src/lib/album/elegir-las-mejores.ts`, ya usado por
+  el álbum, **gratis**: no llama a ninguna IA), unas 30 fotos y hasta 6 clips de 3 segundos, sin
+  repetir caras de más.
+- El video se arma **en el navegador** del equipo o del cliente al abrirlo (lienzo + `MediaRecorder`,
+  o `ffmpeg.wasm` si hace falta), con la música de la fiesta que ya usa el álbum, transiciones
+  simples, título con el nombre y la fecha, y el logo de AK al final. 60 a 90 segundos, vertical para
+  compartir. **No se procesa en el servidor** (no suma gasto por mes).
+- **Tiene que quedar profesional, no "una presentación de fotos"** (el dueño: *"probá que quede
+  bien"*). Lo mínimo:
+  - cortes **al ritmo de la música** (detectá los golpes del tema con el análisis de audio del
+    navegador y cambiá de foto en esos golpes);
+  - movimiento suave en cada foto (acercamiento lento tipo Ken Burns, hacia la cara si
+    `agrupar-caras` la encontró), nunca la foto quieta;
+  - **pocas transiciones y elegantes**: fundido cruzado corto (0,3-0,5 s) y corte directo; **nada**
+    de giros, cubos, estrellas ni efectos de PowerPoint;
+  - las fotos verticales y horizontales encuadradas sin bandas negras (fondo desenfocado de la misma
+    foto);
+  - arranque con título y fecha, cierre con el logo de AK, y la música que baja al final.
+- Aparece en el álbum y en el portal del cliente como "Tu video de la fiesta", con "Descargar" y
+  "Compartir".
+
+**La prueba**: con 50 fotos de prueba (10 borrosas), la selección no incluye ninguna borrosa, elige
+como máximo 30 y respeta el orden de la noche. **Y una prueba de navegador que arma el video de verdad**
+con la fiesta de demo y lo guarda en `test-results/video-resumen-muestra.webm`: dura entre 60 y 90
+segundos, no tiene cuadros negros, y los cambios de foto caen cerca de los golpes de la música.
+**Adjuntá ese video en la entrega**: Claude lo mira cuadro por cuadro antes de fusionar y, si parece
+una presentación de diapositivas, se devuelve.
+
+## Bloque 15 — Los asistentes con cara y nombre: "Asistente AK"
+
+**Pedido del dueño:** que los asistentes no sean "un círculo con una máquina", que sean divertidos y
+tengan nombre, con **K** por AK.
+
+- El asistente se llama **Asistente AK** (decisión del dueño) en todos lados: invitado (`src/components/invitacion/AsistenteDelInvitado.tsx`,
+  hoy con el ícono `Bot` ~l.144), cliente (`AsistenteDelCliente`, orden 101), web
+  (`src/components/concierge/ConciergeWidget.tsx`) y equipo (`MultiAgentWidget`). El nombre se puede
+  cambiar en Ajustes.
+- **Una mascota animada en vez del robot**: un personaje simple y simpático hecho en SVG (ojos que
+  parpadean, sonríe al contestar, salta un poquito cuando llega un mensaje), con los colores de AK y,
+  en la fiesta, con el color de la fiesta. Con `prefers-reduced-motion`, quieto.
+- Saluda con su nombre: *"¡Hola! Soy el Asistente AK. ¿En qué te ayudo?"*. Sigue las reglas
+  de siempre: sin promesas, plata y fechas las confirma el organizador.
+
+**La prueba**: los cuatro asistentes muestran "Asistente AK" y la mascota, ninguno usa el ícono `Bot`.
+
 ```comprobar
 usa: idDeYoutube en src/app/(app)/empresa/configurador-reunion/page.tsx
 usa: createDemoFiesta en src/app/(app)/empresa/configurador-reunion/page.tsx
@@ -245,4 +387,8 @@ usa: calcularNitidez en src/app/evento/social/[fiestaId]/page.tsx
 no-usa: Archivo bloqueado por riesgo de contenido adulto en src/app/actions/social-gallery.ts
 usa: '/experiencia' en src/lib/medicion-segura.ts
 prueba: src/__tests__/la-barra-cierra-la-cuenta.test.ts
+archivo: src/data/tecnologia-ak.ts
+prueba: src/__tests__/la-tecnologia-ak-no-se-despega.test.ts
+prueba: src/__tests__/mis-fiestas-en-orden.test.ts
+no-usa: <Bot  en src/components/invitacion/AsistenteDelInvitado.tsx
 ```
