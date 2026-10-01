@@ -40,7 +40,7 @@ export default async function PlaylistPantallaPage({ searchParams }: PageProps) 
       </div>
 
       <ScreenPlaylistAdmin fiestaId={fiestaId} />
-      
+
       <SocialScreenConfigPanel fiestaId={fiestaId} />
     </div>
   );

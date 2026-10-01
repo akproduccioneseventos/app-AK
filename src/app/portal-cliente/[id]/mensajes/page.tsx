@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -240,7 +241,8 @@ export default function PortalClienteMensajesPage() {
                   )}
                 </Button>
               </div>
-            </form>
+              <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</form>
           </CardContent>
         </Card>
       </div>

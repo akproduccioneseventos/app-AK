@@ -9,9 +9,9 @@ export interface Customer {
   companyName?: string;
   address?: string; // Nuevo campo para domicilio fiscal/personal
   ci?: string; // Cédula de identidad
-  taxId?: string; 
+  taxId?: string;
   estadoCliente?: CustomerStatus; // 'Actual' o 'Antiguo'
-  
+
   // Party-related fields, now potentially mandatory at customer creation/edit
   partyDate?: string; // ISO string
   partyTime?: string; // e.g., "19:00 - 02:00"
@@ -19,8 +19,8 @@ export interface Customer {
   partyForWhom?: string; // Nuevo campo: Para quién es la fiesta
   guestCount?: number;
   venueName?: string; // Nombre del salón o lugar
-  
-  contractFileName?: string; 
+
+  contractFileName?: string;
   budgetFileName?: string;
   salonContractFileName?: string;
   presupuestoId?: string;

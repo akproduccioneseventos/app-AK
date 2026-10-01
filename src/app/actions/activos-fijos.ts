@@ -72,7 +72,7 @@ export async function saveActivoFijo(
     itemId = dataWithParsedNumbers.id;
     const index = inventario.findIndex(s => s.id === itemId);
     if (index === -1) return { success: false, error: `Activo con ID ${itemId} no encontrado.` };
-    
+
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
@@ -82,7 +82,7 @@ export async function saveActivoFijo(
     finalItemData = { ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>), id: itemId };
     inventario.push(finalItemData as ServicioEmpresa);
   }
-  
+
   if ('id' in itemData && itemData.id) {
     const updated = await updateDataItem(
       ACTIVOS_FIJOS_FILE,

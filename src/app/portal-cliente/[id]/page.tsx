@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
@@ -431,7 +432,8 @@ export default function PortalClientePage() {
                 </a>
               </div>
             </CardFooter>
-          </form>
+            <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</form>
         </Card>
       </div>
     );

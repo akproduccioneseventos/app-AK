@@ -7,10 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { 
-    Zap, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette, 
-    ListChecks, DollarSign, Camera, Gift, Archive, 
-    Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, ShoppingCart, 
+import {
+    Zap, Loader2, AlertTriangle, PartyPopper, Calendar, Users, Palette,
+    ListChecks, DollarSign, Camera, Gift, Archive,
+    Video, Globe, MessageSquare, LayoutDashboard, Star, Calculator, ShoppingCart,
     ClipboardList, QrCode, Printer, Settings2, KeyRound, ClipboardCheck, ArrowRight, MapPin,
     ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Bell,
     Activity, ShieldCheck, Users2, Search, Music, Package, Truck, UserCheck,
@@ -332,7 +332,7 @@ function PlannerDashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fiestaId = searchParams.get('fiestaId');
-  
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [modulosContratados, setModulosContratados] = useState<ModulosContratados>(defaultModulosContratados);
   const [isLoading, setIsLoading] = useState(true);

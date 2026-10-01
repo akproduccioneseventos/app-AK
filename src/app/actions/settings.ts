@@ -17,6 +17,7 @@ const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
 const COMPANY_INFO_FILE = 'company-info.json';
 const CONTRACT_TEMPLATE_FILE = 'contract-template.json';
 const CONTRACT_TEMPLATES_FILE = 'contract-templates.json';
+const CONTRACT_SETTINGS_FILE = 'contract-settings.json';
 const WHATSAPP_SETTINGS_FILE = 'whatsapp-settings.json';
 const WHATSAPP_TEMPLATES_FILE = 'whatsapp-templates.json';
 import { CONTRACT_TEMPLATE } from '@/lib/contract-template';
@@ -355,14 +356,14 @@ export async function saveBudgetDisplaySettings(
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     const settingsToSave: BudgetDisplaySettings = {
-        ...defaultBudgetDisplaySettings, 
-        ...settings, 
+        ...defaultBudgetDisplaySettings,
+        ...settings,
         annualAdjustmentPercentage: Number(settings.annualAdjustmentPercentage) || 0,
-        promotionalDiscounts: Array.isArray(settings.promotionalDiscounts) 
+        promotionalDiscounts: Array.isArray(settings.promotionalDiscounts)
           ? settings.promotionalDiscounts.map(d => ({
               ...d,
               value: Number(d.value) || 0,
-            })) 
+            }))
           : [],
     };
     await writeData(BUDGET_SETTINGS_FILE, settingsToSave);

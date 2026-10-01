@@ -73,7 +73,7 @@ export default function EditarInsumoPage() {
 
   const handleFormChange = (field: keyof ServicioEmpresa, value: string | number | undefined) => {
     const isNumericField = ['cantidadDisponible', 'valorUnitarioEstimado'].includes(field as string);
-    
+
     if (isNumericField && typeof value === 'string') {
       const numValue = value === '' ? undefined : Number(value);
       setFormData(prev => ({ ...prev, [field]: numValue }));
@@ -101,14 +101,14 @@ export default function EditarInsumoPage() {
         toast({ title: "Campo Requerido", description: "La unidad es obligatoria para Insumos.", variant: "destructive" });
         return;
     }
-    
+
     setIsSaving(true);
     const itemDataToSave: ServicioEmpresa = {
-        ...(item as ServicioEmpresa), 
+        ...(item as ServicioEmpresa),
         ...formData,
         nombre: formData.nombre.trim(),
     };
-    
+
     try {
       const result = await saveInsumo(itemDataToSave);
       if (result.success && result.servicio) {
@@ -156,7 +156,7 @@ export default function EditarInsumoPage() {
         </div>
         <Button asChild variant="outline" disabled={isSaving}><Link href={backUrl}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Actualizar Insumo/Ingrediente</CardTitle>
@@ -180,14 +180,14 @@ export default function EditarInsumoPage() {
                 </Select>
               </div>
             </div>
-             
+
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2"><Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} disabled={isSaving}/></div>
                     <div className="space-y-2"><Label htmlFor="item-costo">Costo (UYU)</Label><Input id="item-costo" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} disabled={isSaving}/></div>
                      <div className="space-y-2"><Label htmlFor="item-unidad" className="text-base">Unidad *</Label><Select value={formData.unidad || ''} onValueChange={(value) => handleFormChange('unidad', value as UnidadServicio)} disabled={isSaving} required><SelectTrigger id="item-unidad"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => (<SelectItem key={u} value={u}>{u}</SelectItem>))}</SelectContent></Select></div>
                      <div className="space-y-2"><Label htmlFor="item-proveedor">Proveedor</Label><Input id="item-proveedor" value={formData.proveedor || ''} onChange={(e) => handleFormChange('proveedor', e.target.value)} disabled={isSaving}/></div>
                 </div>
-            
+
           </CardContent>
           <CardFooter className="border-t pt-6 flex justify-between items-center">
             <Button type="submit" className="w-auto" disabled={isSaving}>

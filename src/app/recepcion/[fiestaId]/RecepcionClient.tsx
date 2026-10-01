@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { Invitado } from '@/types/invitado';
@@ -215,7 +216,8 @@ export default function RecepcionClient({
           </div>
         )}
       </div>
-    </div>
+      <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</div>
   );
 }
 

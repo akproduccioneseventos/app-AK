@@ -97,11 +97,19 @@ export async function POST(request: NextRequest) {
         const entry = body.entry?.[0];
         const change = entry?.changes?.[0];
         const value = change?.value;
-        const messageData = value?.messages?.[0];
+        const isEcho = Boolean(value?.message_echoes);
+        const messageData = value?.messages?.[0] || value?.message_echoes?.[0];
 
         if (messageData) {
           phone = messageData.from;
-          messageText = messageData.text?.body ?? messageData.type ?? '';
+          const msgType = messageData.type;
+          if (msgType === 'audio') {
+            messageText = messageData.audio?.id ? `[AUDIO:${messageData.audio.id}]` : '[AUDIO]';
+          } else if (msgType === 'image') {
+            messageText = messageData.image?.caption || (messageData.image?.id ? `[IMAGE:${messageData.image.id}]` : '[IMAGE]');
+          } else {
+            messageText = messageData.text?.body ?? messageData.type ?? '';
+          }
           const contact = value?.contacts?.[0];
           clientName = contact?.profile?.name;
           // Meta avisa aca cuando la persona llego tocando un anuncio. Viene solo
@@ -148,6 +156,21 @@ export async function POST(request: NextRequest) {
     if (!phone || !messageText) {
       // Not an incoming message event — acknowledge silently
       return NextResponse.json({ status: 'ok' }, { status: 200 });
+    }
+
+    // 1. Si es del equipo o del dueño, lo atiende el asistente
+    const { atenderAlEquipo } = await import('@/lib/asistente/por-whatsapp');
+    const atencionEquipo = await atenderAlEquipo({
+      from: phone,
+      text: messageText,
+    });
+    if (atencionEquipo.atendido) {
+      return NextResponse.json({
+        status: 'ok',
+        atendidoEquipo: true,
+        accion: atencionEquipo.accionIdentificada,
+        nivel: atencionEquipo.nivel,
+      });
     }
 
     /**

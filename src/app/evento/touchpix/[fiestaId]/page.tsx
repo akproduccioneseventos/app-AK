@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -2152,7 +2153,8 @@ export default function TouchpixPage() {
         guestId={guestId}
         guestAccessToken={guestAccessToken}
       />
-    </div>
+      <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</div>
   );
 }
 

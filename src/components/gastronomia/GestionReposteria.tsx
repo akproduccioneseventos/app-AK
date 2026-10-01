@@ -39,7 +39,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
   const [reposteria, setReposteria] = useState<ReposteriaData>(initialData || defaultReposteriaData);
   const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
   const [allProviders, setAllProviders] = useState<Proveedor[]>([]);
-  
+
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ReposteriaCategoria | null>(null);
@@ -81,13 +81,13 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
     };
     triggerChange(updated);
   };
-  
+
   const openItemModal = (category: ReposteriaCategoria, item?: ReposteriaItem) => {
     setEditingCategory(category);
     setCurrentItem(item || { nombre: '', cantidad: 1, unidad: 'unidad', costoEstimado: 0, proveedor: '' });
     setIsItemModalOpen(true);
   };
-  
+
   const openCatalogModal = (category: ReposteriaCategoria) => {
     setEditingCategory(category);
     setCatalogSearchTerm('');
@@ -127,12 +127,12 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
         }
       })
     };
-    
+
     triggerChange(updated);
     setIsItemModalOpen(false);
     toast({title: "Ítem guardado"});
   };
-  
+
   const handleAddFromCatalog = (insumo: ServicioEmpresa) => {
       if (!editingCategory) return;
       const newItem: ReposteriaItem = {
@@ -146,7 +146,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
       };
       const updated = {
         ...reposteria,
-        categorias: reposteria.categorias.map(cat => 
+        categorias: reposteria.categorias.map(cat =>
           cat.id === editingCategory.id ? {...cat, items: [...cat.items, newItem]} : cat
         )
       };
@@ -157,14 +157,14 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
   const handleDeleteItem = (categoryId: string, itemId: string) => {
      const updated = {
       ...reposteria,
-      categorias: reposteria.categorias.map(cat => 
+      categorias: reposteria.categorias.map(cat =>
         cat.id === categoryId ? { ...cat, items: cat.items.filter(i => i.id !== itemId) } : cat
       )
     };
     triggerChange(updated);
     toast({title: "Ítem eliminado", variant: "destructive"});
   };
-  
+
   const totalCostoReposteria = useMemo(() => {
     let total = 0;
     reposteria.categorias.forEach(cat => {
@@ -180,7 +180,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
   const filteredInsumos = useMemo(() => {
     if (!catalogSearchTerm) return catalogoInsumos;
     const lowerSearch = catalogSearchTerm.toLowerCase();
-    return catalogoInsumos.filter(i => 
+    return catalogoInsumos.filter(i =>
       i.nombre.toLowerCase().includes(lowerSearch) ||
       i.categoria?.toLowerCase().includes(lowerSearch)
     );
@@ -193,7 +193,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
           <DialogHeader><DialogTitle>Editar Ítem para {editingCategory?.nombreDisplay}</DialogTitle></DialogHeader>
           <div className="space-y-3 py-2">
             <div className="space-y-1"><Label htmlFor="item-nombre-manual">Nombre Ítem</Label><Input id="item-nombre-manual" value={currentItem.nombre || ''} onChange={e => handleItemChange('nombre', e.target.value)} /></div>
-            
+
             <div className="space-y-1">
                 <Label htmlFor="item-proveedor-manual" className="flex items-center gap-2"><Truck className="w-4 h-4 text-primary"/>Proveedor Asignado</Label>
                 <Select value={currentItem.proveedor || ''} onValueChange={(v) => handleItemChange('proveedor', v)}>
@@ -219,7 +219,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
           <DialogFooter><Button variant="outline" onClick={() => setIsItemModalOpen(false)}>Cancelar</Button><Button onClick={handleSaveItem}>Guardar Ítem</Button></DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
         <DialogContent className="sm:max-w-md">
             <DialogHeader><DialogTitle>Seleccionar del Catálogo de Insumos</DialogTitle><DialogDescription>Añadiendo a: {editingCategory?.nombreDisplay}</DialogDescription></DialogHeader>
@@ -232,7 +232,7 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
              <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       <Card className="shadow-lg">
         <CardHeader className="flex-row items-center gap-4 space-y-0">
           <div className="p-3 bg-primary/10 rounded-lg"><Cake className="w-8 h-8 text-primary" /></div>

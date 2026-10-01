@@ -164,7 +164,7 @@ function SocialMediaPageContent() {
             toast({ title: 'No se pudo copiar', description: 'Abrí la landing y copiá el enlace desde el navegador.', variant: 'destructive' });
         }
     };
-    
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -244,10 +244,10 @@ function SocialMediaPageContent() {
                 </div>
             </div>
             {postToDuplicate && (
-                <NewPostDialog 
+                <NewPostDialog
                     isOpen={isDuplicateDialogOpen}
                     onOpenChange={setIsDuplicateDialogOpen}
-                    onPostCreated={fetchData} 
+                    onPostCreated={fetchData}
                     postToDuplicate={postToDuplicate}
                 />
             )}
@@ -299,7 +299,7 @@ function SocialMediaPageContent() {
                     </div>
                 </CardContent>
             </Card>
-            
+
             <Card className="shadow-lg">
                 <CardHeader>
                     <CardTitle className="font-headline text-xl">Gestor de Contenido</CardTitle>

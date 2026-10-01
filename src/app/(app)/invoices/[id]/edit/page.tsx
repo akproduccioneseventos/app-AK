@@ -87,7 +87,7 @@ export default function EditInvoicePage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!invoice) return;
-    
+
     const customerForInvoice = allCustomers.find(c => c.id === selectedCustomerId);
     if (!customerForInvoice) {
         toast({ title: "Error de Cliente", description: "El cliente seleccionado no es válido.", variant: "destructive" });
@@ -123,7 +123,7 @@ export default function EditInvoicePage() {
       currency: currency.trim() || 'UYU',
       taxRate: currentTaxRate,
       // These are recalculated based on existing items, as item editing is not part of this form
-      items: recalculatedItems, 
+      items: recalculatedItems,
       subtotal,
       taxAmount,
       totalAmount,
@@ -133,7 +133,7 @@ export default function EditInvoicePage() {
       const result = await updateInvoiceAction(updatedData); // saveInvoice also handles updates
       if (result.success && result.invoice) {
         toast({ title: "¡Factura Actualizada!", description: `La factura "${result.invoice.invoiceNumber}" ha sido actualizada.` });
-        setInvoice(result.invoice); 
+        setInvoice(result.invoice);
         // Optionally re-fetch or update state more granularly
         loadInvoiceAndCustomers(); // Re-fetch to ensure all data is fresh
       } else {
@@ -159,7 +159,7 @@ export default function EditInvoicePage() {
         <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Factura #{invoice?.invoiceNumber}</h1></div>
         <Button asChild variant="outline" disabled={isSaving}><Link href={`/invoices/${invoiceId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver a Factura</Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Actualizar Información Principal</CardTitle>
@@ -194,7 +194,7 @@ export default function EditInvoicePage() {
                 <DatePickerDemo selectedDate={dueDate} onDateChange={setDueDate} className={isSaving ? "disabled:opacity-70" : ""} />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                     <Label htmlFor="status-select" className="text-base">Estado</Label>

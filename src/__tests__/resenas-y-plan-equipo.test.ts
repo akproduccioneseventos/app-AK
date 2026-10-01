@@ -269,7 +269,7 @@ describe('Plan de la Noche del Equipo (Portal de Acceso Personal)', () => {
     ]);
 
     const result = await getAccesoPersonalPortalView('token_1');
-    
+
     expect(result).not.toBeNull();
     expect(result!.fiesta).toBeDefined();
     expect(result!.fiesta!.nombreEvento).toBe('Boda de Ana y Juan');

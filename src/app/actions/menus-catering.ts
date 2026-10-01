@@ -38,7 +38,7 @@ const parseSafeNumber = (val: any): number => {
     if (typeof val === 'number') return val;
     let str = String(val).trim();
     if (!str) return 0;
-    
+
     if (str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
     } else {
@@ -58,9 +58,9 @@ function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: Servici
     const quantity = parseSafeNumber(ing.quantityPerPerson);
     const unitCost = parseSafeNumber(ing.costoUnitario);
     const recipeUnit = (ing.unit || '').toLowerCase().trim();
-    
+
     if (quantity === 0 || unitCost === 0) return 0;
-    
+
     const catalogItem = ing.origenId ? catalogItems.find(item => item.id === ing.origenId) : null;
     const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
 
@@ -87,7 +87,7 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
                     const dName = d.name.toUpperCase();
                     return (dName === 'MESA BUFET' || dName === 'MESA BUFFET') && d.id !== item.id;
                 });
-                
+
                 if (mesaBuffetBase && mesaBuffetBase.ingredients) {
                     mesaBuffetBase.ingredients.forEach(buffetIng => {
                         if (!finalIngredients.some(existing => existing.name.toLowerCase() === buffetIng.name.toLowerCase())) {
@@ -104,7 +104,7 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
 
             const totalDishCost = ingredientsWithCost.reduce((sum, ing) => sum + ing.costoTotalReceta, 0);
             const profitMargin = item.profitMargin === undefined ? 100 : Number(item.profitMargin);
-            
+
             let suggestedSellingPrice: number;
             if (item.suggestedSellingPrice !== undefined && Number(item.suggestedSellingPrice) > 0) {
                 suggestedSellingPrice = Math.round(Number(item.suggestedSellingPrice));
@@ -134,16 +134,16 @@ export async function getMenus(): Promise<FullMenu[]> {
 async function armarMenus(): Promise<FullMenu[]> {
   if (cachedMenus) return cachedMenus;
   const [menus, catalog] = await Promise.all([readMenusFile(), leerInsumosCrudos()]);
-  
+
   const mainMenu = menus.find(m => m.id === 'menu_principales_maestro');
   if (mainMenu) {
       const targetDishes = [
-          'ASADO COMPLETO C/ GUARNICIÓN', 
-          'POLLO ARROLLADO C/ GUARNICIÓN', 
-          'CORDERO ASADO C/ GUARNICIÓN', 
+          'ASADO COMPLETO C/ GUARNICIÓN',
+          'POLLO ARROLLADO C/ GUARNICIÓN',
+          'CORDERO ASADO C/ GUARNICIÓN',
           'CERDO ARROLLADO C/ GUARNICIÓN'
       ];
-      
+
       const virtualItems: MenuItem[] = [];
       targetDishes.forEach(name => {
           const base = mainMenu.items.find(i => i.name === name);

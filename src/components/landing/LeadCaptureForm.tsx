@@ -7,6 +7,7 @@ import { saveLead, type LandingLeadData } from '@/app/actions/crm';
 import { cn } from '@/lib/utils';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 interface LeadCaptureFormProps {
   fuente: LandingLeadData['fuente'];
@@ -300,8 +301,8 @@ export function LeadCaptureForm({
           )}
         </button>
 
-        <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
-          <span>Tus datos se usan para responder esta consulta. La medición publicitaria es opcional.</span>
+        <div className="pt-1 text-center">
+          <AvisoDeDatos para="cliente" />
         </div>
 
         <p className="text-center text-xs text-slate-400">

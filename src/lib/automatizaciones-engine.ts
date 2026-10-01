@@ -302,6 +302,11 @@ export function evaluarReglasParaFiesta(
   activos?: ServicioEmpresa[],
   fechaReferencia: Date = new Date(),
 ): AlertaAutomatica[] {
+  const estado = (fiesta.estado || '').toLowerCase().trim();
+  if (estado === 'suspendida' || estado === 'archivada' || estado === 'archivado' || estado === 'cerrada') {
+    return [];
+  }
+
   const alertas: AlertaAutomatica[] = [];
   const hoy = fechaReferencia;
   const diasRestantes = getDiasRestantes(fiesta, hoy);

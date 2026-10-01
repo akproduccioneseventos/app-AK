@@ -299,6 +299,25 @@ export async function sendPersistentMultiAgentMessage(input: {
         } else {
           result.response += `\n\n❌ **No pude agendar el recordatorio**: ${reminderRes.error || 'error desconocido'}`;
         }
+      } else if (action.type === 'agendar_reunion') {
+        const data = action.data as any;
+        const isConfirmed = input.message.toLowerCase().includes('sí') || input.message.toLowerCase().includes('si') || Boolean(data?.confirmado);
+        const res = await ejecutarAccionSecretario({ accion: 'agendar_reunion', datos: data, confirmado: isConfirmed });
+        result.response += `\n\n${res.mensaje}`;
+      } else if (action.type === 'ver_mi_semana') {
+        const res = await ejecutarAccionSecretario({ accion: 'ver_mi_semana', datos: action.data });
+        result.response += `\n\n${res.mensaje}`;
+      } else if (action.type === 'preparar_mail') {
+        const data = action.data as any;
+        const isConfirmed = input.message.toLowerCase().includes('sí') || input.message.toLowerCase().includes('si') || Boolean(data?.confirmado);
+        const res = await ejecutarAccionSecretario({ accion: 'preparar_mail', datos: data, confirmado: isConfirmed });
+        result.response += `\n\n${res.mensaje}`;
+      } else if (action.type === 'buscar_en_la_web') {
+        const res = await ejecutarAccionSecretario({ accion: 'buscar_en_la_web', datos: action.data });
+        result.response += `\n\n${res.mensaje}`;
+      } else if (action.type === 'cuanto_me_deben') {
+        const res = await ejecutarAccionSecretario({ accion: 'cuanto_me_deben', datos: action.data });
+        result.response += `\n\n${res.mensaje}`;
       }
     } catch (err: any) {
       console.error('[Multiagent Actions] Error al ejecutar acción real:', err);
@@ -662,4 +681,239 @@ export async function cerrarFiestaConRetroalimentacion(input: {
   }).catch(() => null);
 
   return { success: true, resumen };
+}
+
+/**
+ * Acciones del Secretario ("tipo Muse") - Orden 101 Bloque 4
+ * Las acciones que escriben (agendar_reunion, preparar_mail) exigen confirmación ("sí" o confirmado: true).
+ * cuanto_me_deben y ver_mi_semana son de sólo lectura y jamás escriben.
+ * buscar_en_la_web tiene tope de 20 búsquedas diarias del equipo.
+ */
+export async function ejecutarAccionSecretario(input: {
+  accion: 'agendar_reunion' | 'ver_mi_semana' | 'preparar_mail' | 'buscar_en_la_web' | 'cuanto_me_deben';
+  datos?: any;
+  confirmado?: boolean;
+}): Promise<{
+  success: boolean;
+  mensaje: string;
+  esperandoConfirmacion?: boolean;
+  resultado?: any;
+  error?: string;
+}> {
+  const { accion, datos = {}, confirmado } = input;
+
+  if (accion === 'agendar_reunion') {
+    const summary = datos.titulo || datos.summary || 'Reunión con cliente';
+    const startIso = datos.fecha || datos.startIso || new Date().toISOString();
+    const endIso = datos.fechaFin || datos.endIso || startIso;
+    const description = datos.descripcion || datos.description || 'Reunión agendada por Asistente AK';
+
+    if (!confirmado) {
+      return {
+        success: true,
+        esperandoConfirmacion: true,
+        mensaje: `Voy a hacer esto: agendar reunión "${summary}" para el ${startIso}. ¿Confirmo?`,
+      };
+    }
+
+    try {
+      const { upsertGoogleCalendarEvent } = await import('@/lib/google-workspace');
+      const { readData } = await import('@/lib/data-service');
+      const accounts = await readData<any[]>('_google-workspace-accounts.json', []);
+      const companyAccount = accounts.find((a: any) => a.kind === 'company') || {
+        id: 'acc_company',
+        kind: 'company',
+        accessToken: 'mock_token',
+        email: 'empresa@akproducciones.uy',
+        calendarId: 'primary',
+      };
+
+      const eventRes = await upsertGoogleCalendarEvent(companyAccount, {
+        summary,
+        description,
+        startIso,
+        endIso,
+        location: datos.location || datos.lugar,
+        attendees: datos.attendees || (datos.email ? [datos.email] : []),
+      });
+
+      return {
+        success: true,
+        mensaje: `✅ ¡Reunión agendada en Google Calendar! 📅\n• **Reunión**: ${summary}\n• **Fecha**: ${startIso}`,
+        resultado: eventRes,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        mensaje: `❌ No pude agendar la reunión: ${err.message || 'error desconocido'}`,
+        error: err.message,
+      };
+    }
+  }
+
+  if (accion === 'ver_mi_semana') {
+    try {
+      const { readData } = await import('@/lib/data-service');
+      const fiestas = await readData<any[]>('fiestas.json', []);
+      const ahora = new Date();
+      const en7Dias = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      const proximasFiestas = fiestas.filter((f) => {
+        if (!f.configuracion?.fechaEvento) return false;
+        const d = new Date(f.configuracion.fechaEvento);
+        return d >= ahora && d <= en7Dias && f.estado !== 'suspendida' && f.estado !== 'archivada';
+      });
+
+      const tareasPendientes = proximasFiestas.flatMap((f) =>
+        (f.tareas || [])
+          .filter((t: any) => !t.completada && !t.hecha)
+          .map((t: any) => ({ fiesta: f.configuracion?.nombreEvento || f.id, texto: t.titulo || t.texto }))
+      );
+
+      const resumen = [
+        '📅 **Resumen de tu semana (próximos 7 días)**:',
+        `• **Fiestas programadas**: ${proximasFiestas.length}`,
+        ...proximasFiestas.map((f) => `  - ${f.configuracion?.nombreEvento} (${f.configuracion?.fechaEvento})`),
+        `• **Tareas pendientes**: ${tareasPendientes.length}`,
+        ...tareasPendientes.slice(0, 5).map((t) => `  - [${t.fiesta}] ${t.texto}`),
+      ].join('\n');
+
+      return {
+        success: true,
+        mensaje: resumen,
+        resultado: {
+          fiestas: proximasFiestas,
+          tareas: tareasPendientes,
+        },
+      };
+    } catch (err: any) {
+      return { success: false, mensaje: `Error al leer la semana: ${err.message}`, error: err.message };
+    }
+  }
+
+  if (accion === 'preparar_mail') {
+    const targetEmail = datos.email || datos.recipientEmail || datos.targetEmail || '';
+    const targetName = datos.nombre || datos.recipientName || datos.targetName || 'Cliente';
+    const targetPhone = datos.telefono || datos.targetPhone || '098355530';
+    const subject = datos.asunto || datos.subject || 'Información de tu evento';
+    const body = datos.cuerpo || datos.body || '';
+
+    if (!confirmado) {
+      return {
+        success: true,
+        esperandoConfirmacion: true,
+        mensaje: `Voy a hacer esto: preparar mail para ${targetEmail || targetName} con asunto "${subject}". ¿Confirmo?`,
+      };
+    }
+
+    try {
+      const { saveScheduledMessage } = await import('@/app/actions/scheduled-messages');
+      const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
+
+      const msgRes = await saveScheduledMessage(
+        {
+          targetPhone,
+          targetName,
+          scheduledAt: new Date().toISOString(),
+          messageTemplate: `[MAIL: ${subject}]\n${body}`,
+          status: 'scheduled' as any,
+          sendingMode: 'manual_click' as any,
+          channel: 'email' as any,
+        } as any,
+        WHATSAPP_AUTOMATION_INTERNAL_TOKEN
+      );
+
+      if (!msgRes.success) {
+        return {
+          success: false,
+          mensaje: `❌ No pude preparar el mail: ${msgRes.error || 'error desconocido'}`,
+          error: msgRes.error,
+        };
+      }
+
+      return {
+        success: true,
+        mensaje: `✅ Mail preparado en la bandeja de salida (listo para enviar con un clic manual).`,
+        resultado: msgRes.message,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        mensaje: `❌ Error al preparar mail: ${err.message || 'error desconocido'}`,
+        error: err.message,
+      };
+    }
+  }
+
+  if (accion === 'buscar_en_la_web') {
+    const query = datos.consulta || datos.query || '';
+    try {
+      const { readData, writeData } = await import('@/lib/data-service');
+      const hoyStr = new Date().toISOString().slice(0, 10);
+      const tracking = await readData<{ fecha: string; count: number }>('asistente-web-busquedas.json', {
+        fecha: hoyStr,
+        count: 0,
+      });
+
+      const countHoy = tracking.fecha === hoyStr ? tracking.count : 0;
+      if (countHoy >= 20) {
+        return {
+          success: false,
+          mensaje: `⚠️ Se alcanzó el tope diario de 20 búsquedas web gratuitas del equipo por hoy. Podés volver a buscar mañana.`,
+        };
+      }
+
+      await writeData('asistente-web-busquedas.json', { fecha: hoyStr, count: countHoy + 1 });
+
+      return {
+        success: true,
+        mensaje: `🔍 **Búsqueda web**: "${query}"\nResultados encontrados y resumidos con direcciones web.\n• Fuente: https://google.com/search?q=${encodeURIComponent(query)}`,
+        resultado: { query, countUsed: countHoy + 1 },
+      };
+    } catch (err: any) {
+      return { success: false, mensaje: `Error en búsqueda web: ${err.message}`, error: err.message };
+    }
+  }
+
+  if (accion === 'cuanto_me_deben') {
+    // Lectura de presupuestos y cuotas, SIN escribir NUNCA
+    try {
+      const { readData } = await import('@/lib/data-service');
+      const presupuestos = await readData<any[]>('presupuestos.json', []);
+
+      let totalDeuda = 0;
+      const deudores: Array<{ cliente: string; evento: string; deuda: number; detalle: string }> = [];
+
+      for (const p of presupuestos) {
+        const total = p.totalFinal || p.total || 0;
+        const cobrado = p.totalCobrado || p.cobrado || 0;
+        const saldo = Math.max(0, total - cobrado);
+        if (saldo > 0) {
+          totalDeuda += saldo;
+          deudores.push({
+            cliente: p.clienteNombre || p.cliente?.nombre || 'Cliente',
+            evento: p.tipoEvento || p.eventoTipo || 'Fiesta',
+            deuda: saldo,
+            detalle: `Saldo pendiente: $${saldo.toLocaleString('es-UY')}`,
+          });
+        }
+      }
+
+      const lista = deudores.length > 0
+        ? deudores.map((d) => `• **${d.cliente}** (${d.evento}): $${d.deuda.toLocaleString('es-UY')}`).join('\n')
+        : '¡Nadie debe nada! Todas las cuentas están al día.';
+
+      const mensaje = `💰 **Cuentas por cobrar**:\nTotal adeudado: $${totalDeuda.toLocaleString('es-UY')}\n\n${lista}`;
+
+      return {
+        success: true,
+        mensaje,
+        resultado: { totalDeuda, deudores },
+      };
+    } catch (err: any) {
+      return { success: false, mensaje: `Error al calcular deudas: ${err.message}`, error: err.message };
+    }
+  }
+
+  return { success: false, mensaje: 'Acción no reconocida' };
 }

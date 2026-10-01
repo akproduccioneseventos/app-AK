@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2, Sparkles, Bot } from 'lucide-react';
+import { MessageCircle, X, Send, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { MascotaAsistenteAK } from '@/components/asistente/MascotaAsistenteAK';
 import { chatConAsistenteInvitado } from '@/app/actions/asistente-virtual';
 import type { MessageData } from 'genkit';
 
@@ -29,7 +30,7 @@ export function AsistenteDelInvitado({
     {
       id: 'bienvenida',
       role: 'assistant',
-      text: `¡Hola${invitadoNombre ? ` ${invitadoNombre}` : ''}! 🎉 Soy tu asistente de la fiesta. ¿En qué te puedo ayudar? Podés preguntarme sobre los horarios, cómo llegar, tu mesa o lo que necesites.`,
+      text: '¡Hola! Soy el Asistente AK. ¿En qué te ayudo?',
     },
   ]);
   const [input, setInput] = useState('');
@@ -140,11 +141,11 @@ export function AsistenteDelInvitado({
             {/* Cabezal */}
             <div className="flex items-center justify-between p-4 bg-gradient-to-r from-red-600 to-rose-600 text-white">
               <div className="flex items-center gap-2.5">
-                <div className="p-1.5 bg-white/20 rounded-lg">
-                  <Bot className="w-5 h-5 text-white" />
+                <div className="p-1 bg-white/20 rounded-lg flex items-center justify-center">
+                  <MascotaAsistenteAK size={24} colorPrimario="#ffffff" colorSecundario="#fee2e2" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold leading-none">Asistente del Invitado</h3>
+                  <h3 className="text-sm font-bold leading-none">Asistente AK</h3>
                   <p className="text-[11px] text-white/80 mt-1">Preguntas y respuestas del evento</p>
                 </div>
               </div>

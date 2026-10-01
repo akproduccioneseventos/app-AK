@@ -86,7 +86,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
-  
+
   const budgetSource = useMemo(() => {
     return getCrmLeadSourceBadge(lead);
   }, [lead]);
@@ -140,7 +140,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
       : lead.acquisition?.source === 'guest_portal'
         ? `Hola ${firstName}, que bueno que compartiste ${lead.referrerEventName ? `la experiencia de ${lead.referrerEventName}` : 'una fiesta AK'}. Como nos autorizaste a contactarte, queremos ayudarte a imaginar tu proximo evento. Podes empezar aca: https://akproducciones.uy/simulador?source=guest_portal`
         : `Hola ${firstName}, te escribo desde AK Producciones para continuar con tu evento. Como podemos ayudarte?`;
-    
+
     const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank', 'noopener,noreferrer');
 
@@ -174,9 +174,9 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none">
       <Card className={cn("shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto overflow-hidden", isDeleting && "opacity-60 pointer-events-none")}>
-        <CardHeader 
-          {...attributes} 
-          {...listeners} 
+        <CardHeader
+          {...attributes}
+          {...listeners}
           className="p-2 flex flex-row items-center gap-2 border-b cursor-grab flex-shrink-0 bg-muted/20"
         >
            {!isMobile && <GripVertical className="w-4 h-4 text-muted-foreground/50" />}

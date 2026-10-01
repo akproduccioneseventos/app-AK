@@ -100,7 +100,7 @@ export default function NuevoEmpleadoPage() {
       setIsSaving(false);
     }
   };
-  
+
   const roleOptions = rolesDisponibles.map(r => ({ value: r.id, label: r.nombre }));
 
   return (
@@ -117,7 +117,7 @@ export default function NuevoEmpleadoPage() {
             Volver a Empleados
           </Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Información del Empleado</CardTitle>
@@ -154,11 +154,11 @@ export default function NuevoEmpleadoPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="empleado-nombre" className="text-base">Nombre Completo *</Label>
-              <Input 
-                id="empleado-nombre" 
+              <Input
+                id="empleado-nombre"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                placeholder="Ej: Carlos Rodríguez" 
+                placeholder="Ej: Carlos Rodríguez"
                 className="text-base p-3"
                 disabled={isSaving}
                 required
@@ -179,22 +179,22 @@ export default function NuevoEmpleadoPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="empleado-cedula" className="text-base">Cédula de Identidad</Label>
-              <Input 
-                id="empleado-cedula" 
+              <Input
+                id="empleado-cedula"
                 value={cedula}
                 onChange={(e) => setCedula(e.target.value)}
-                placeholder="Ej: 1.234.567-8 (sin puntos ni guion)" 
+                placeholder="Ej: 1.234.567-8 (sin puntos ni guion)"
                 className="text-base p-3"
                 disabled={isSaving}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="empleado-telefono" className="text-base">Teléfono / WhatsApp</Label>
-              <Input 
-                id="empleado-telefono" 
+              <Input
+                id="empleado-telefono"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
-                placeholder="Ej: 59899123456 (con código de país)" 
+                placeholder="Ej: 59899123456 (con código de país)"
                 className="text-base p-3"
                 disabled={isSaving}
                 type="tel"
@@ -214,7 +214,7 @@ export default function NuevoEmpleadoPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="empleado-fecha-nacimiento" className="text-base">Fecha de Nacimiento</Label>
-              <DatePickerDemo 
+              <DatePickerDemo
                 selectedDate={fechaNacimiento}
                 onDateChange={setFechaNacimiento}
                 className={isSaving ? "disabled:opacity-70" : ""}

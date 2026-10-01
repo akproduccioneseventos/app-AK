@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useRef, useState, type ElementType, type ReactNode } from 'react';
 import {
@@ -1666,7 +1667,8 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </main>
+        <div className="pt-4 text-center"><AvisoDeDatos para="cliente" /></div>
+</main>
 
       {coverModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">

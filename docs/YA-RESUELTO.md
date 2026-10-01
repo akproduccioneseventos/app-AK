@@ -1,5 +1,35 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 1 de octubre de 2026 — Órdenes 104, 101, 102, 105 y 106: El Super Asistente Unificado y la Fiesta sin Errores
+
+- **Orden 104 (Hallazgos de Codex en PR 1240):** Aislamiento de tokens, correcciones de consistencia en firmas y verificación de permisos.
+- **Orden 101 (Asistentes, contrato y web para agentes):**
+  - Asistente del cliente con validación estricta de sesión (`src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts`).
+  - Preguntas frecuentes del contrato integradas en toda la plataforma (`src/__tests__/las-preguntas-del-contrato-llegan.test.ts`).
+  - Contrato revisado al 30/09/2026 con cláusulas claras (`src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts`).
+  - Aviso de datos personales según Ley 18.331 en todos los formularios públicos (`src/__tests__/el-aviso-de-datos-esta-donde-se-dejan-datos.test.ts`).
+  - Acciones del secretario ejecutivo sin escrituras automáticas en BD (`src/__tests__/el-secretario-hace-lo-del-dia.test.ts`).
+  - Notificaciones al dueño ante señales clave del cliente (`src/__tests__/el-duenio-se-entera-de-lo-que-pregunta-el-cliente.test.ts`).
+- **Orden 102 (El asistente que se anticipa 24/7):**
+  - Tarea programada `asistente-proactivo` (`src/app/api/cron/asistente-proactivo/route.ts`).
+  - Bandeja centralizada `/asistente` y panel de ajustes `/settings/asistente`.
+  - Envío respetuoso al dueño con horario no molestar (23 a 8 hs) y tope de 3 WhatsApp/día (`src/lib/asistente/avisar-al-duenio.ts`).
+  - Efemérides comerciales y clima de fiestas con Open-Meteo (`src/lib/asistente/fechas-comerciales.ts`, `src/lib/asistente/clima-de-las-fiestas.ts`).
+  - Probado en `src/__tests__/el-asistente-se-anticipa.test.ts` (7/7 en verde).
+- **Orden 105 (Hablarle a la app por WhatsApp y con voz):**
+  - Regla estricta de las tres puertas: solo / pregunta / nunca (`src/lib/asistente/que-puede-hacer-solo.ts`).
+  - Atención al equipo por WhatsApp con bloqueo de confirmación de dinero (`src/lib/asistente/por-whatsapp.ts`).
+  - Audio del parte matutino generado en servidor sin `speechSynthesis` (`ParteDeLaMananaPlayer.tsx`).
+  - Probado en `src/__tests__/el-asistente-cuida-la-plata.test.ts` (6/6) y `src/__tests__/whatsapp-del-equipo.test.ts` (4/4).
+- **Orden 106 (La reunión de venta que impresiona y la fiesta que no pierde invitados):**
+  - Galería con fotos y videos de YouTube en configurador de reunión (`idDeYoutube` y `createDemoFiesta`).
+  - Concurrencia real con transacciones en base para evitar pérdida de invitados entre servidores (`src/__tests__/dos-servidores-no-pierden-invitados.test.ts`).
+  - Moderación de fotos de invitados por nitidez y brillo sin mensajes alarmistas (`calcularNitidez`).
+  - Barra de tragos con stock inicial, alertas de botella baja y cierre con arqueo real (`src/__tests__/la-barra-cierra-la-cuenta.test.ts`).
+  - Fuente única de la tecnología de AK en `src/data/tecnologia-ak.ts` con `/experiencia` y `/tecnologia` (`src/__tests__/la-tecnologia-ak-no-se-despega.test.ts`).
+  - Gestión de fiestas suspendidas y pantalla "Revisar mis fiestas" (`src/__tests__/mis-fiestas-en-orden.test.ts`).
+  - Mascota animada SVG "Asistente AK" en todos los asistentes eliminando el ícono `Bot`.
+
 ## 29 de septiembre de 2026 — Orden 98: Promoción configurable y videos de ayuda
 
 - **Bloque 1 — El regalo de la portada sale de la promoción que carga el dueño:**

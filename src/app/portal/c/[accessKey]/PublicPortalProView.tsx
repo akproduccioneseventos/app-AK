@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useMemo, useRef, useState } from 'react';
 import {
@@ -424,7 +425,8 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
             </div>
           </section>
         </div>
-      </main>
+        <div className="pt-4 text-center"><AvisoDeDatos para="cliente" /></div>
+</main>
 
       {showPagoModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">

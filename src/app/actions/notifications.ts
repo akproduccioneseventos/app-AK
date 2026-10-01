@@ -269,13 +269,13 @@ export async function checkAndCreateTaskReminders(): Promise<{ success: boolean;
 
         const today = startOfToday();
         let createdCount = 0;
-        
+
         for (const fiesta of fiestasActivas) {
-            if (!fiesta.tareas) continue;
+            if (!fiesta.tareas || fiesta.estado === 'suspendida') continue;
 
             for (const tarea of fiesta.tareas) {
                 if (tarea.completada || !tarea.fechaLimite) continue;
-                
+
                 const dueDate = new Date(tarea.fechaLimite);
                 const daysUntilDue = differenceInDays(dueDate, today);
 
@@ -287,7 +287,7 @@ export async function checkAndCreateTaskReminders(): Promise<{ success: boolean;
                     } else {
                         mensaje = `📅 Recordatorio: La tarea "${tarea.texto}" de ${fiesta.configuracion.nombreEvento} vence en ${daysUntilDue + 1} día(s).`;
                     }
-                    
+
                     const result = await createNotification({
                         mensaje,
                         href: `/fiestas/nueva/tareas?fiestaId=${fiesta.id}`,
@@ -323,7 +323,7 @@ export async function checkAndCreateReunionReminders(
     let createdCount = 0;
 
     for (const fiesta of fiestasActivas) {
-      if (!fiesta.reuniones) continue;
+      if (!fiesta.reuniones || fiesta.estado === 'suspendida') continue;
 
       for (const reunion of fiesta.reuniones) {
         if (!reunion.fecha) continue;
@@ -391,7 +391,7 @@ export async function checkAndCreateEventAlerts(): Promise<{ success: boolean; c
         let createdCount = 0;
 
         for (const fiesta of fiestasActivas) {
-            if (!fiesta.configuracion.fechaEvento) continue;
+            if (!fiesta.configuracion.fechaEvento || fiesta.estado === 'suspendida') continue;
 
             const eventDate = parseISO(fiesta.configuracion.fechaEvento);
             if (!isFuture(eventDate) && !isToday(eventDate)) continue;

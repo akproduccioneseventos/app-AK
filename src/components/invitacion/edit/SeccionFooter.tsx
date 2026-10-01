@@ -14,11 +14,11 @@ interface Props {
 }
 
 export const SeccionFooterEditor: React.FC<Props> = ({ data, update }) => {
-  
+
   const handleFieldChange = <K extends keyof typeof data>(field: K, value: any) => {
     update({ ...data, [field]: value });
   };
-  
+
   const handleTextStyleChange = (field: 'titulo' | 'nombreEmpresa', style: Partial<TextStyle>) => {
     const textData = data[field] || { text: '' };
     handleFieldChange(field, { ...textData, style: { ...(textData.style || {}), ...style } });
@@ -47,7 +47,7 @@ export const SeccionFooterEditor: React.FC<Props> = ({ data, update }) => {
                 value={data.titulo.text || ''}
                 onChange={(e) => handleTextChange('titulo', e.target.value)}
                 />
-                <TextStyleEditor 
+                <TextStyleEditor
                 style={data.titulo.style || {}}
                 onStyleChange={(newStyle) => handleTextStyleChange('titulo', newStyle)}
                 />
@@ -58,7 +58,7 @@ export const SeccionFooterEditor: React.FC<Props> = ({ data, update }) => {
                 value={data.nombreEmpresa.text || ''}
                 onChange={(e) => handleTextChange('nombreEmpresa', e.target.value)}
                 />
-                <TextStyleEditor 
+                <TextStyleEditor
                 style={data.nombreEmpresa.style || {}}
                 onStyleChange={(newStyle) => handleTextStyleChange('nombreEmpresa', newStyle)}
                 />

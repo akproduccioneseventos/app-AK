@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect, type FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link'; 
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,7 +54,7 @@ function NewInvoicePageContent() {
   const [status, setStatus] = useState<InvoiceStatus>('Draft');
   const [currency, setCurrency] = useState<string>(DEFAULT_CURRENCY);
   const [taxRate, setTaxRate] = useState<number>(DEFAULT_TAX_RATE);
-  
+
   const [sourcePresupuestoId, setSourcePresupuestoId] = useState<string | null>(null);
 
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
@@ -84,16 +84,16 @@ function NewInvoicePageContent() {
               else toast({ title: "Cliente no encontrado", description: `El cliente "${presupuesto.clienteNombre}" del presupuesto no fue encontrado. Por favor, selecciónalo o créalo.`, variant: "default", duration: 7000 });
             }
             setInvoiceNumber(`FACT-PRE${displayId}`);
-            
+
             // Simplified item pre-fill: one item for the total budget amount
             // More detailed itemization from budget is a future enhancement
-            setItems([{ 
-              tempId: `item_pres_${Date.now()}`, 
-              description: `Servicios según Presupuesto #${displayId} (${presupuesto.eventoTipo} para ${presupuesto.clienteNombre})`, 
-              quantity: 1, 
-              unitPrice: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado 
+            setItems([{
+              tempId: `item_pres_${Date.now()}`,
+              description: `Servicios según Presupuesto #${displayId} (${presupuesto.eventoTipo} para ${presupuesto.clienteNombre})`,
+              quantity: 1,
+              unitPrice: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado
             }]);
-            
+
             setNotes(presupuesto.notas || `Factura generada a partir del presupuesto #${displayId}.`);
             if (presupuesto.eventoFecha) setIssueDate(new Date(presupuesto.eventoFecha));
             setStatus('Draft'); // Default status when creating from budget
@@ -334,4 +334,4 @@ export default function NewInvoicePage() {
   );
 }
 
-    
+

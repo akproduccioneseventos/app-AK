@@ -39,6 +39,13 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
 import type { DecoracionData, LayoutElement } from '@/types/fiesta';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
+import { createDemoFiesta } from '@/app/actions/fiesta-actual';
+
+function idDeYoutube(url?: string | null): string | null {
+  if (!url) return null;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  return match ? match[1] : null;
+}
 
 // Carga diferida del componente Three.js 3D para evitar errores de renderizado en el servidor
 const SalonScene = dynamic(
@@ -670,6 +677,23 @@ export default function ConfiguradorReunionPage() {
                       <span>Guardar como Presupuesto Formal</span>
                     </>
                   )}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      await createDemoFiesta('xv');
+                      router.push('/marketing/demo-tecnologia');
+                    } catch {
+                      router.push('/marketing/demo-tecnologia');
+                    }
+                  }}
+                  className="w-full mt-2 h-11 rounded-xl border-amber-300 bg-amber-50/60 hover:bg-amber-100 text-amber-900 font-bold text-xs gap-2"
+                >
+                  <Sparkles className="h-4 w-4 text-amber-600" />
+                  <span>Mostrar la experiencia (Demo en vivo)</span>
                 </Button>
               </div>
             </CardContent>

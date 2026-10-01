@@ -20,7 +20,7 @@ export interface MenuItem { // Representa un Plato
   type: 'Entrada' | 'Plato Principal' | 'Postre' | 'Bebida' | 'Menú Infantil' | 'Menú Infantil/Adolescente' | ''; // Categoría del plato
   ingredients: Ingredient[];
   // totalDishCost es el costo de este plato PARA UNA PERSONA, calculado de la suma de costoTotalReceta de sus ingredientes
-  totalDishCost: number; 
+  totalDishCost: number;
   allergens?: string;
   allergenTags?: string[]; // ['gluten', 'lacteos', 'frutos_secos', 'huevo', 'pescado', 'soja', 'mariscos']
   imageUrl?: string; // URL de la foto del plato (puede ser de Canva, upload, etc.)

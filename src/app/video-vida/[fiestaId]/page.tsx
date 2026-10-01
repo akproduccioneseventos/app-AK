@@ -1,3 +1,4 @@
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 'use client';
 
@@ -222,5 +223,6 @@ export default function VideoVidaPage() {
   }, []);
 
   // Renderiza el contenido solo cuando isClient es true
-  return isClient ? <VideoVidaClientPageContent params={params} /> : <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
+  return isClient ? <VideoVidaClientPageContent params={params} /> : <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/>  <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</div>;
 }

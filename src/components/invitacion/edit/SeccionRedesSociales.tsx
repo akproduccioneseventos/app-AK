@@ -21,22 +21,22 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
   const handleFieldChange = (field: keyof typeof data, value: unknown) => {
     update({ ...data, [field]: value });
   };
-  
+
   const handleTextStyleChange = (style: Partial<TextStyle>) => {
     const textData = data.texto || { text: '', style: {} };
     handleFieldChange('texto', { ...textData, style: { ...(textData.style || {}), ...style } });
   }
-  
+
   const handleTextChange = (text: string) => {
     const textData = data.texto || { style: {} };
     handleFieldChange('texto', { ...textData, text });
   }
-  
+
   const getFullLink = (path: string) => {
     if (typeof window === 'undefined' || !fiestaId) return '';
     return `${window.location.origin}${path.replace('[fiestaId]', fiestaId)}`;
   }
-  
+
   const socialWallUrl = getFullLink('/evento/social/[fiestaId]');
 
   const downloadQR = () => {
@@ -79,7 +79,7 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
                 value={data.texto?.text || ''}
                 onChange={(e) => handleTextChange(e.target.value)}
                 />
-                <TextStyleEditor 
+                <TextStyleEditor
                 style={data.texto?.style || {}}
                 onStyleChange={handleTextStyleChange}
                 />

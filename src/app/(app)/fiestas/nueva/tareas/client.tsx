@@ -73,7 +73,7 @@ function TareasEventoContent() {
   const [newTaskDueTime, setNewTaskDueTime] = useState<string>(''); // HH:mm
   const [newTaskReminder, setNewTaskReminder] = useState('');
   const [newTaskAssignedTo, setNewTaskAssignedTo] = useState('');
-  const [newIsDefaultTask, setNewIsDefaultTask] = useState(false); 
+  const [newIsDefaultTask, setNewIsDefaultTask] = useState(false);
 
   // Template States
   const [isSaveTemplateModalOpen, setIsSaveTemplateModalOpen] = useState(false);
@@ -96,10 +96,10 @@ function TareasEventoContent() {
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setTareas(fiestaData.tareas || []);
       setFiestaEventDate(fiestaData.configuracion.fechaEvento);
-      
+
       // Trigger background reminder check
       checkAndCreateTaskReminders().catch(e => console.warn("Reminder check failed", e));
-      
+
     } catch (err: any) {
       console.error("Error loading tasks:", err);
       setError("No se pudieron cargar las tareas.");
@@ -133,10 +133,10 @@ function TareasEventoContent() {
   };
 
   const handleOpenSaveTemplateModal = () => {
-    setTemplateName(''); 
+    setTemplateName('');
     setIsSaveTemplateModalOpen(true);
   };
-  
+
   const handleSaveTemplate = async () => {
     if (!templateName.trim()) {
       toast({title: "Nombre requerido", variant: "destructive"});
@@ -166,7 +166,7 @@ function TareasEventoContent() {
     toast({title: "Plantilla de Tareas Cargada", description: `Se añadieron ${newTasksFromTemplate.length} tareas.`});
     setIsLoadTemplateModalOpen(false);
   };
-  
+
   const handleDeleteTemplate = async (id: string) => {
     setDeletingTemplateId(id);
     const result = await deleteTaskTemplate(id);
@@ -205,7 +205,7 @@ function TareasEventoContent() {
 
     setIsSyncing(true);
     const eventDate = new Date(fiestaEventDate);
-    
+
     let mondayForCatering = startOfWeek(eventDate, { weekStartsOn: 1 });
     if (eventDate.getDay() === 1 || eventDate.getDay() === 2) {
         mondayForCatering = subDays(mondayForCatering, 7);
@@ -282,7 +282,7 @@ function TareasEventoContent() {
     } else {
         toast({ title: "Al día", description: "Las tareas automáticas ya están en tu lista." });
     }
-    
+
     setIsSyncing(false);
   };
 
@@ -303,7 +303,7 @@ function TareasEventoContent() {
       asignadaA: newTaskAssignedTo.trim() as any || undefined,
       esPredeterminada: newIsDefaultTask,
     };
-    
+
     setIsSaving(true);
     const result = await addTareaToFiestaActual(fiestaId, newTaskData);
 
@@ -492,7 +492,7 @@ function TareasEventoContent() {
           </CardFooter>
         </form>
       </Card>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <div className="flex justify-between items-center mb-2">

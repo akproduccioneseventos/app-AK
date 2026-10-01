@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
@@ -1396,7 +1397,8 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             para escribirle a Sofia: tapaba el boton de enviar y el clic se lo
             llevaba WhatsApp. Se sube para dejar libre la barra de escritura. */}
         <FloatingWhatsApp className="bottom-28" />
-      </div>
+        <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</div>
     );
   }
 }

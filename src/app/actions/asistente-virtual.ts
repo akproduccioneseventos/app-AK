@@ -161,6 +161,32 @@ ${newMessage}`,
   }
 }
 
+export function detectarSenalCliente(texto: string): { esImportante: boolean; tipoSenal?: string; motivo?: string } {
+  const t = texto.toLowerCase();
+  if (t.includes('cancel') || t.includes('anular') || t.includes('dar de baja') || t.includes('rescindir')) {
+    return { esImportante: true, tipoSenal: 'cancelacion', motivo: 'El cliente preguntó por cancelar el evento.' };
+  }
+  if (t.includes('cambiar la fecha') || t.includes('cambiar fecha') || t.includes('postergar') || t.includes('reprogramar')) {
+    return { esImportante: true, tipoSenal: 'cambio_fecha', motivo: 'El cliente preguntó por cambio de fecha.' };
+  }
+  if (t.includes('caro') || t.includes('queja') || t.includes('disconforme') || t.includes('reclamo') || t.includes('pésimo') || t.includes('mal servicio')) {
+    return { esImportante: true, tipoSenal: 'queja', motivo: 'El cliente expresó una queja o inconformidad.' };
+  }
+  if (t.includes('sumar invitados') || t.includes('agregar invitados') || t.includes('más invitados') || t.includes('agregar servicio') || t.includes('sumar servicio') || t.includes('contratar')) {
+    return { esImportante: true, tipoSenal: 'sumar_servicios', motivo: 'El cliente quiere sumar invitados o servicios.' };
+  }
+  return { esImportante: false };
+}
+
+export async function getConversacionesAsistenteCliente(fiestaId?: string) {
+  const { readData } = await import('@/lib/data-service');
+  const todas = await readData<any[]>('asistente-cliente-conversaciones.json', []);
+  if (fiestaId) {
+    return todas.filter((c: any) => c.fiestaId === fiestaId);
+  }
+  return todas;
+}
+
 /**
  * Asistente para el Portal del Cliente (Organizador).
  * Contexto filtrado en el servidor para SU fiesta únicamente.
@@ -244,9 +270,67 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
 
     await registrarConsumoIA('chat-de-la-fiesta');
 
+    const respuestaTexto = response.text?.trim() || '¡A las órdenes para ayudarte con tu fiesta!';
+
+    // Detección de señales importantes para alertar al dueño (Orden 101 Bloque 1)
+    const senal = detectarSenalCliente(newMessage);
+
+    try {
+      const { createDataItem, readData, writeData } = await import('@/lib/data-service');
+      const regId = `conv_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      const registro = {
+        id: regId,
+        fiestaId,
+        fecha: new Date().toISOString(),
+        clientePregunta: newMessage,
+        asistenteRespuesta: respuestaTexto,
+        esImportante: senal.esImportante,
+        tipoSenal: senal.tipoSenal,
+        motivo: senal.motivo,
+      };
+
+      const SIN_BASE = process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+      if (!SIN_BASE) {
+        await createDataItem('asistente-cliente-conversaciones.json', 'asistente-cliente-conversaciones', regId, registro).catch(() => null);
+      } else {
+        const list = await readData<any[]>('asistente-cliente-conversaciones.json', []);
+        list.push(registro);
+        await writeData('asistente-cliente-conversaciones.json', list);
+      }
+
+      if (senal.esImportante) {
+        const { createNotification } = await import('@/app/actions/notifications');
+        await createNotification({
+          titulo: `Atención: señal del cliente en "${nombreEvento}"`,
+          mensaje: `${senal.motivo} Preguntó: "${newMessage.slice(0, 100)}"`,
+          tipo: 'alerta',
+          href: `/fiestas/${fiestaId}`,
+          icono: 'AlertTriangle',
+          entidadRelacionadaId: fiestaId,
+          rolDestino: 'admin',
+        }).catch(() => null);
+
+        try {
+          const { avisarAlDuenio } = await import('@/lib/asistente/avisar-al-duenio');
+          await avisarAlDuenio([{
+            clave: regId,
+            area: 'ventas',
+            titulo: `Señal importante de cliente en ${nombreEvento}`,
+            quePasa: `${senal.motivo} Preguntó: "${newMessage}"`,
+            porQueImporta: 'El cliente realizó una consulta clave que requiere atención.',
+            esImportante: true,
+          }]);
+        } catch {
+          // avisarAlDuenio puede estar en desarrollo o mockeado
+        }
+      }
+    } catch (saveErr) {
+      console.warn('[chatConAsistenteCliente] No se pudo guardar conversación:', saveErr);
+    }
+
     return {
       success: true,
-      text: response.text?.trim() || '¡A las órdenes para ayudarte con tu fiesta!',
+      text: respuestaTexto,
     };
   } catch (error: any) {
     console.error('[chatConAsistenteCliente] Error:', error);

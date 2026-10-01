@@ -5,7 +5,7 @@ import type { SocialGalleryPost } from './social-gallery';
 import type { ContractType } from './settings';
 
 // --- NOTIFICACIONES ---
-export type NotificacionTipo = 'info' | 'aviso' | 'urgente' | 'exito';
+export type NotificacionTipo = 'info' | 'aviso' | 'urgente' | 'exito' | 'alerta';
 
 export interface Notificacion {
   id: string;
@@ -1543,6 +1543,8 @@ export interface FiestaEnPlanificacion {
   invitacionSlug?: string;
   configuracion: ConfigEventoDataStorage;
   estado?: string;
+  motivoSuspension?: string;
+  fechaSuspension?: string;
   modulosContratados?: ModulosContratados;
   personalAsignado: PersonalAsignadoDetalleStorage[];
   menuAsignadoId?: string;

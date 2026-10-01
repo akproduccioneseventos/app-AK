@@ -76,7 +76,7 @@ export async function joinTriviaGame(
     const triviaGame: TriviaGame = fiesta.triviaGame || defaultTrivia;
     const participants = triviaGame.participants || [];
     const existingIndex = participants.findIndex(p => p.guestId === guestId);
-    
+
     if (existingIndex >= 0) {
       participants[existingIndex] = {
         ...participants[existingIndex],
@@ -129,7 +129,7 @@ export async function submitTriviaScore(
         ...participants[existingIndex],
         score: (participants[existingIndex].score || 0) + scoreToAdd,
       };
-      
+
       const saveRes = await saveFiesta({
         ...fiesta,
         triviaGame: { ...triviaGame, participants }
@@ -138,7 +138,7 @@ export async function submitTriviaScore(
         return { success: false, error: saveRes.error || 'No se pudo guardar el puntaje.' };
       }
     }
-    
+
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message || 'Error al procesar el puntaje' };

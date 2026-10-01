@@ -260,7 +260,7 @@ export default function ReporteEmpleadosPage() {
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
-  
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">

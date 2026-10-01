@@ -85,6 +85,7 @@ import {
   getTierMissingServices,
 } from '@/lib/simulator/package-customization';
 import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 const COMMERCIAL_TIMER_SECONDS = 15 * 60;
 const COMMERCIAL_TIMER_STORAGE_KEY = 'ak-simulator-commercial-timer';
@@ -2146,6 +2147,9 @@ function SimuladorContent() {
                                     ) : (
                                         <p className="text-[10px] text-slate-500 font-semibold">Acepta número uruguayo con espacios, guiones o prefijo +598.</p>
                                     )}
+                                </div>
+                                <div className="col-span-full pt-1 text-center">
+                                    <AvisoDeDatos para="cliente" />
                                 </div>
                             </div>
 

@@ -93,14 +93,14 @@ export default function InventarioActivosPage() {
     );
     setFilteredItems(filteredData);
   }, [searchTerm, allItems]);
-  
+
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
     try {
       const result = await deleteActivoFijo(id);
       if (result.success) {
         toast({ title: "Activo Eliminado", description: `El activo "${nombreItem || id}" ha sido eliminado.` });
-        fetchItems(); 
+        fetchItems();
       } else {
         throw new Error(result.error || "Error desconocido al eliminar.");
       }
@@ -114,7 +114,7 @@ export default function InventarioActivosPage() {
   const handlePrint = () => {
     window.print();
   };
-  
+
 
   const itemsAgrupadosPorCategoria = useMemo(() => {
     return filteredItems.reduce((acc, item) => {
@@ -191,7 +191,7 @@ export default function InventarioActivosPage() {
           </div>
         </CardFooter>
       </Card>
-      
+
       <Separator className="my-6 print:hidden" />
 
        <Card className="shadow-sm print:hidden">

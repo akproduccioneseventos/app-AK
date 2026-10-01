@@ -88,9 +88,9 @@ export default function MeetingTemplatePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
-              <Input 
-                value={newItemText} 
-                onChange={e => setNewItemText(e.target.value)} 
+              <Input
+                value={newItemText}
+                onChange={e => setNewItemText(e.target.value)}
                 placeholder="Añadir nuevo punto clave..."
                 onKeyDown={e => e.key === 'Enter' && handleAddItem()}
               />
@@ -100,8 +100,8 @@ export default function MeetingTemplatePage() {
             <div className="space-y-2">
               {template?.checklist.map((item) => (
                 <div key={item.id} className="flex gap-2 items-center">
-                  <Input 
-                    value={item.text} 
+                  <Input
+                    value={item.text}
                     onChange={e => handleUpdateItem(item.id, e.target.value)}
                     className="flex-grow bg-muted/30"
                   />
@@ -118,8 +118,8 @@ export default function MeetingTemplatePage() {
             <CardDescription>Escribe aquí los consejos o recordatorios que quieres ver durante la reunión.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Textarea 
-              value={template?.guideNotes || ''} 
+            <Textarea
+              value={template?.guideNotes || ''}
               onChange={e => setTemplate(p => p ? {...p, guideNotes: e.target.value} : null)}
               rows={6}
               placeholder="Escribe los puntos de consultoría..."

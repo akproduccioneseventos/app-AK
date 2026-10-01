@@ -331,7 +331,7 @@ export function generarAnuncioCompleto(opciones: OpcionesGeneracion): AnuncioGen
     if (matchWithLeads && matchWithLeads.cpl > 0) {
       const matchCpl = Math.round(matchWithLeads.cpl);
       const otherCpl = otherWithLeads && otherWithLeads.cpl > 0 ? Math.round(otherWithLeads.cpl) : Math.round(matchCpl * 1.8);
-      
+
       datosRendimiento = {
         tieneDatosReales: true,
         cplPromedio: matchCpl,

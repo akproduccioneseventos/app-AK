@@ -148,7 +148,7 @@ export default function AccesosPersonalPage() {
     }
     setIsProcessing(false);
   };
-  
+
   const handleDeleteAcceso = async (accesoId: string) => {
       setIsProcessing(true);
       const result = await deleteAccesoPersonal(accesoId);
@@ -160,13 +160,13 @@ export default function AccesosPersonalPage() {
       }
       setIsProcessing(false);
   }
-  
+
   const copyLink = (tokenId: string) => {
     const url = `${window.location.origin}/acceso-personal/${tokenId}`;
     navigator.clipboard.writeText(url);
     toast({ title: "Enlace Copiado" });
   };
-  
+
   const shareLink = (tokenId: string) => {
      const url = `${window.location.origin}/acceso-personal/${tokenId}`;
      const message = `¡Hola! Aquí tienes tu acceso para los detalles del evento: ${url}`;
@@ -240,11 +240,11 @@ export default function AccesosPersonalPage() {
           <Button onClick={() => setIsModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Enlace de Acceso</Button>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader><CardTitle>Enlaces de Acceso Activos</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-           {isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto"/></div> : 
+           {isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto"/></div> :
              accesos.length > 0 ? (
                  accesos.map(acceso => (
                     <Card key={acceso.id} className="p-3 bg-muted/40">

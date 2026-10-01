@@ -1,3 +1,4 @@
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 'use client';
 
@@ -2887,6 +2888,7 @@ export default function PublicPortalView({
       )}
 
       <PublicFooter variant="light" />
-    </div>
+      <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</div>
   );
 }

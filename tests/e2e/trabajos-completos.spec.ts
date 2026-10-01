@@ -24,7 +24,7 @@ test.describe('Orden 15: Pruebas de Trabajo Completo con Comprobación de Result
     // 3. El pie de página DEBE verse con información real de contacto
     const footer = page.locator('footer');
     await expect(footer).toBeVisible();
-    
+
     // 4. Comprobar que no hay textos rotos ni vacíos
     const footerText = await footer.innerText();
     expect(footerText.length).toBeGreaterThan(50);

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { TriviaQuestion, DEFAULT_TRIVIA_QUESTIONS } from '@/lib/games/game-engine';
@@ -33,7 +33,7 @@ export default function TriviaGameScreen({ fiestaId, guestName, guestId, guestAc
 
     const question = questions[currentIndex];
     const isCorrect = answerId === question.correctOptionId;
-    
+
     if (isCorrect) {
       setScore(prev => prev + 100);
       if (guestId && guestAccessToken) {
@@ -83,9 +83,9 @@ export default function TriviaGameScreen({ fiestaId, guestName, guestId, guestAc
         <div className="text-lg font-bold">Pregunta {currentIndex + 1}/{questions.length}</div>
         <div className="text-lg font-bold">Puntos: {score}</div>
       </div>
-      
+
       <div className="w-full bg-slate-700 h-2 rounded-full mb-8 overflow-hidden">
-        <div 
+        <div
           className={`h-full transition-all duration-1000 linear ${isLowTime ? 'bg-red-500' : 'bg-green-500'}`}
           style={{ width: `${progressPercent}%` }}
         />
@@ -101,7 +101,7 @@ export default function TriviaGameScreen({ fiestaId, guestName, guestId, guestAc
             const isSelected = selectedAnswer === option.id;
             const isCorrect = option.id === currentQuestion.correctOptionId;
             let bgColor = 'bg-slate-800 hover:bg-slate-700';
-            
+
             if (selectedAnswer !== null) {
               if (isCorrect) bgColor = 'bg-emerald-500';
               else if (isSelected && !isCorrect) bgColor = 'bg-rose-500';

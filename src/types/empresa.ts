@@ -91,21 +91,21 @@ export interface TramoDePrecio {
   precio: number;
 }
 
-export interface ServicioEmpresa { 
+export interface ServicioEmpresa {
   id: string;
   nombre: string;
-  tipoItem?: TipoItemEmpresa; 
+  tipoItem?: TipoItemEmpresa;
   categoria?: AnyCategoria;
-  subcategoria?: string; 
-  
+  subcategoria?: string;
+
   // Inventory/Cost fields
-  cantidadDisponible?: number; 
+  cantidadDisponible?: number;
   valorUnitarioEstimado?: number; // Representa el COSTO base
   tipoCosto?: TipoCosto; // Naturaleza del costo para sincronización financiera
   proveedor?: string; // Nombre del proveedor o responsable del costo
-  unidad?: UnidadServicio | string; 
+  unidad?: UnidadServicio | string;
   notas?: string;
-  
+
   // Pricing fields (primarily for 'Servicio' type)
   calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
   precioVenta?: number; // Used for 'fijo' and as a fallback

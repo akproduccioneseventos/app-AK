@@ -22,7 +22,7 @@ export async function updateShoppingListStatus(fiestaId: string, estados: Compra
     try {
         let fiesta: FiestaEnPlanificacion = await getFiestaById(fiestaId) as FiestaEnPlanificacion;
         if (!fiesta) throw new Error("Fiesta no encontrada");
-        
+
         /**
          * LA TAREA DE PAGO SE ARMA ACA Y SE GUARDA UNA SOLA VEZ.
          *
@@ -67,7 +67,7 @@ export async function updateShoppingListStatus(fiestaId: string, estados: Compra
         const updatedFiesta = { ...fiesta, tareas, estadosCompra: estados };
         const result = await saveFiesta(updatedFiesta);
         if (!result.success) throw new Error(result.error);
-        
+
         return { success: true };
     } catch(e: any) {
         console.error("Error updating shopping list status:", e);

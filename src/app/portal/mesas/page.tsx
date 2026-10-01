@@ -1,3 +1,4 @@
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 'use client';
 
@@ -374,7 +375,8 @@ function AsignacionMesasContent() {
                                 {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <UserPlus2 className="w-4 h-4 mr-2"/>}
                                 Añadir
                             </Button>
-                        </form>
+                          <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</form>
                     </CardContent>
                 </Card>
 

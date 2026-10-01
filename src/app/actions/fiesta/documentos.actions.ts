@@ -138,7 +138,7 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
 
         const bytes = await file.arrayBuffer();
         const fileUrl = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'application/octet-stream', false);
-        
+
         const newDoc: OtroDocumento = {
             id: docId,
             nombre: customName.trim() || file.name,
@@ -146,7 +146,7 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
             fileName: fileUrl,
             timestamp: new Date().toISOString(),
         };
-        
+
         const updatedFiesta = {
             ...fiesta,
             othersDocumentos: [...(fiesta.othersDocumentos || []), newDoc]
@@ -183,7 +183,7 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
         if (!docToDelete) {
             return { success: false, error: 'Documento no encontrado.' };
         }
-        
+
         // Delete from Firebase Storage (fileName is now a URL or storage path)
         if (docToDelete.fileName) {
             await deleteFromStorage(docToDelete.fileName).catch(e => {

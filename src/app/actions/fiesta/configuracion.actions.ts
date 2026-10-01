@@ -17,7 +17,7 @@ const FIESTAS_DIR = 'fiestas';
 
 
 async function updateFiestaData(
-  fiestaId: string, 
+  fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; updatedData?: FiestaEnPlanificacion; error?: string }> {
   try {
@@ -38,7 +38,7 @@ async function updateFiestaData(
         return { success: false, error: syncRes.error || 'No se pudo sincronizar los datos del cliente.' };
       }
     }
-    
+
     return { success: true, updatedData };
   } catch (e: any) {
     return { success: false, error: e.message };

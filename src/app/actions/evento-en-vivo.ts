@@ -178,7 +178,7 @@ export async function addFotoEnVivo(
     });
     const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    
+
     let resolvedAuthor = foto.autor;
     if (guestId && guestAccessToken) {
       try {
@@ -188,7 +188,7 @@ export async function addFotoEnVivo(
         console.warn('Failed to resolve guest name', err);
       }
     }
-    
+
     const data = getOrInitData(fiesta);
     data.fotos.push({ ...foto, autor: resolvedAuthor, id: randomId(), timestamp: new Date().toISOString() });
     return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };

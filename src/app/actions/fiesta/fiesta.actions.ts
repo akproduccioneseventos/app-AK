@@ -42,7 +42,7 @@ import { leerFiestasCrudas, leerHistorialCrudo } from '@/lib/fiesta/leer-fiestas
 import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
-import { getPresupuestoById } from '../presupuestos';
+import { getPresupuestoById, getPresupuestos } from '../presupuestos';
 import { getRoles } from '../roles';
 import { syncLaundryCosts } from './costos.actions';
 import { getActivosFijos } from '../activos-fijos';
@@ -1223,3 +1223,62 @@ export async function updateGuestExperienceStats(
   );
   return await saveFiesta({ ...f, invitados });
 }
+
+export async function suspenderFiestaAction(fiestaId: string, motivo: string, fecha?: string) {
+  await requireAppSession();
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false, error: 'Evento no encontrado.' };
+
+  const { suspenderFiesta, calcularLiquidacionSuspension } = await import('@/lib/fiesta/revisar-fiestas');
+  const suspendida = suspenderFiesta(f, motivo, fecha);
+  const liquidacion = calcularLiquidacionSuspension(suspendida);
+  const guardado = await saveFiesta(suspendida);
+
+  return { success: guardado.success, fiesta: suspendida, liquidacion };
+}
+
+export async function reactivarFiestaAction(fiestaId: string) {
+  await requireAppSession();
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false, error: 'Evento no encontrado.' };
+
+  const { reactivarFiesta } = await import('@/lib/fiesta/revisar-fiestas');
+  const reactivada = reactivarFiesta(f);
+  const guardado = await saveFiesta(reactivada);
+
+  return { success: guardado.success, fiesta: reactivada };
+}
+
+export async function obtenerFiestasParaRevisarAction() {
+  await requireAppSession();
+  const [fiestas, presupuestos] = await Promise.all([
+    leerFiestasCrudas(true),
+    getPresupuestos().catch(() => []),
+  ]);
+
+  const { obtenerFiestasParaRevisar } = await import('@/lib/fiesta/revisar-fiestas');
+  return obtenerFiestasParaRevisar(fiestas, { presupuestos });
+}
+
+export async function actualizarClienteYAgasajadoAction(
+  fiestaId: string,
+  clienteNombre: string,
+  nombreAgasajado: string
+) {
+  await requireAppSession();
+  const f = await getFiestaById(fiestaId);
+  if (!f) return { success: false, error: 'Evento no encontrado.' };
+
+  const actualizada: FiestaEnPlanificacion = {
+    ...f,
+    configuracion: {
+      ...f.configuracion,
+      clienteNombre: clienteNombre.trim(),
+      nombreAgasajado: nombreAgasajado.trim(),
+      protagonista1Nombre: nombreAgasajado.trim(),
+    },
+  };
+
+  return await saveFiesta(actualizada);
+}
+

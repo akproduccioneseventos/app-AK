@@ -223,7 +223,7 @@ export default function EditarPresupuestoPage() {
         <div className="flex items-center gap-3"><Edit3 className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Editar Presupuesto #{presupuesto?.numero || presupuesto?.id.split('_').pop()?.substring(0,5)}</h1></div>
         <Button asChild variant="outline" disabled={isSaving}><Link href={`/presupuestos/${presupuestoId}/ver`}><ArrowLeft />Volver al Resumen</Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader><CardTitle className="font-headline">Información Principal</CardTitle><CardDescription>Modifica los detalles generales del presupuesto.</CardDescription></CardHeader>
         <form onSubmit={handleSubmit}>
@@ -240,7 +240,7 @@ export default function EditarPresupuestoPage() {
             {finalEventType === 'Boda' && (<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="protagonista1">Novio/a 1</Label><Input id="protagonista1" value={protagonista1Nombre} onChange={e => setProtagonista1Nombre(e.target.value)} disabled={isSaving}/></div><div className="space-y-2"><Label htmlFor="protagonista2">Novio/a 2</Label><Input id="protagonista2" value={protagonista2Nombre} onChange={e => setProtagonista2Nombre(e.target.value)} disabled={isSaving}/></div></div>)}
             {finalEventType === 'Evento corporativo' && (<div className="space-y-2"><Label htmlFor="nombreEmpresa">Empresa</Label><Input id="nombreEmpresa" value={nombreEmpresa} onChange={e => setNombreEmpresa(e.target.value)} disabled={isSaving}/></div>)}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="eventoFecha">Fecha Evento*</Label><DatePickerDemo selectedDate={eventoFecha} onDateChange={setEventoFecha} className={isSaving ? "opacity-70":""}/></div><div className="space-y-2"><Label htmlFor="invitadosAdultos">Nº Adultos*</Label><Input id="invitadosAdultos" type="number" value={invitadosAdultos} onChange={(e) => setInvitadosAdultos(parseInt(e.target.value) || 0)} min="1" disabled={isSaving} required/></div></div>
-            
+
             <div className="pt-4 border-t mt-4 space-y-4">
               <h3 className="text-md font-medium flex items-center gap-2"><Tag className="w-5 h-5 text-primary"/>Promoción / Descuento (Opcional)</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -267,7 +267,7 @@ export default function EditarPresupuestoPage() {
 
             <div className="space-y-2"><Label htmlFor="estado-presupuesto">Estado</Label><Select value={estado} onValueChange={(value) => setEstado(value as Presupuesto['estado'])} disabled={isSaving}><SelectTrigger id="estado-presupuesto"><SelectValue /></SelectTrigger><SelectContent>{(['Borrador', 'Enviado', 'Aceptado', 'Rechazado', 'Facturado'] as Presupuesto['estado'][]).map(s => (<SelectItem key={s} value={s}>{s}</SelectItem>))}</SelectContent></Select></div>
             <div className="space-y-2"><Label htmlFor="notas">Notas Adicionales</Label><Textarea id="notas" value={notas} onChange={(e) => setNotas(e.target.value)} rows={4} disabled={isSaving}/></div>
-            
+
             <div className="pt-6 border-t space-y-4">
               <h3 className="text-lg font-medium font-headline text-primary">Acciones de Catálogo</h3>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -294,16 +294,16 @@ export default function EditarPresupuestoPage() {
                 </AlertDialog>
               </div>
             </div>
-            
+
             {/* AGENTE COMERCIAL IA */}
             <div className="pt-6 border-t space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium font-headline text-emerald-700 flex items-center gap-2">
                   <Sparkles className="w-5 h-5" /> Agente Comercial IA
                 </h3>
-                <Button 
-                  type="button" 
-                  onClick={handleGeneratePitch} 
+                <Button
+                  type="button"
+                  onClick={handleGeneratePitch}
                   disabled={isGeneratingPitch || !presupuesto}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white"
                   size="sm"
@@ -315,15 +315,15 @@ export default function EditarPresupuestoPage() {
               {pitchText && (
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3">
                   <Label className="text-emerald-800 font-bold">Mensaje Propuesto:</Label>
-                  <Textarea 
-                    value={pitchText} 
-                    onChange={(e) => setPitchText(e.target.value)} 
-                    rows={6} 
+                  <Textarea
+                    value={pitchText}
+                    onChange={(e) => setPitchText(e.target.value)}
+                    rows={6}
                     className="bg-white border-emerald-300 focus-visible:ring-emerald-500"
                   />
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => {
                       navigator.clipboard.writeText(pitchText);
                       toast({ title: 'Copiado', description: 'Mensaje copiado al portapapeles.' });

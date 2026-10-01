@@ -54,7 +54,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       const result = await validarCupon(cuponInput.trim(), bruto, formData.eventoTipo);
       if (result.valid && result.coupon) {
         setCuponResult({ valid: true, nombre: result.coupon.nombre, descuento: result.descuentoCalculado });
-        
+
         const nuevosServicios = new Map(formData.serviciosSeleccionados);
         if (Array.isArray(result.coupon.serviciosRegalados) && result.coupon.serviciosRegalados.length > 0) {
           result.coupon.serviciosRegalados.forEach((regalo, idx) => {
@@ -272,7 +272,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         </div>
 
         <Separator className="opacity-50" />
-        
+
          <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 space-y-8">
             <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-primary/10 rounded-xl text-primary"><Tag className="w-5 h-5"/></div>
@@ -374,18 +374,18 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
               </div>
             </div>
         </div>
-        
+
         <div className="p-10 border-none shadow-3xl rounded-[3rem] bg-slate-900 text-white space-y-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10"><TrendingUp className="w-32 h-32 text-primary"/></div>
-            
+
             <div className="space-y-3 relative z-10">
                 <div className="flex justify-between items-center text-[10px] font-black uppercase opacity-40 tracking-[0.3em]"><span>Valor Real de Servicios:</span><span>{formatCurrency(subtotalBruto)}</span></div>
                 {ahorroRegalos > 0 && <div className="flex justify-between items-center text-[10px] font-black text-green-400 uppercase tracking-[0.3em]"><span>Ahorro por Regalos:</span><span>-{formatCurrency(ahorroRegalos)}</span></div>}
                 {bonificacionPromo > 0 && <div className="flex justify-between items-center text-[10px] font-black text-rose-400 uppercase tracking-[0.3em]"><span>{formData.nombrePromocion || 'Bonificación'}:</span><span>-{formatCurrency(bonificacionPromo)}</span></div>}
             </div>
-            
+
             <Separator className="bg-white/10" />
-            
+
             <div className="flex justify-between items-center relative z-10 pt-2">
                 <span className="text-xl font-black uppercase tracking-tighter">Total Final Pactado:</span>
                 <span className="text-5xl font-black text-primary drop-shadow-[0_0_15px_rgba(225,29,72,0.3)]">{formatCurrency(totalFinal)}</span>
@@ -426,7 +426,7 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
               </>
             )}
         </div>
-        
+
         <div className="space-y-3">
             <Label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 ml-4 flex items-center gap-2"><Info className="w-3.5 h-3.5"/> Notas y Condiciones para el Cliente</Label>
             <Textarea value={formData.notas} onChange={(e) => setFormData({...formData, notas: e.target.value})} rows={4} className="rounded-[2rem] p-6 bg-slate-50 border-none shadow-inner font-medium text-slate-600 leading-relaxed" placeholder="Ej: Forma de pago, plazos de reserva, etc." />
