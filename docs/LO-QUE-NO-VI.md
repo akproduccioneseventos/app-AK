@@ -68,6 +68,10 @@ di el tema por cerrado entero. **Una decisión del dueño cierra lo que él deci
 
 **El control que lo frena:** `src/__tests__/la-pantalla-publica-no-devuelve-la-lista-de-invitados.test.ts`.
 
+```comprobar
+prueba: src/__tests__/la-pantalla-publica-no-devuelve-la-lista-de-invitados.test.ts
+```
+
 ## 22 de septiembre de 2026 — Cuatro defectos del calendario (Codex)
 
 **Qué eran:**
@@ -99,6 +103,10 @@ siguió contando los días en hora de Greenwich dos semanas más.
 
 **El control que lo frena:** `src/__tests__/el-calendario-no-mueve-la-fiesta-equivocada.test.ts`,
 con las cuatro comprobaciones, cada una probada rompiéndola.
+
+```comprobar
+prueba: src/__tests__/el-calendario-no-mueve-la-fiesta-equivocada.test.ts
+```
 
 ## 8 de septiembre de 2026 — Cinco defectos contables (Codex)
 
@@ -408,6 +416,10 @@ pantalla lo dice, o se queda cargando?"*
 
 **El control que lo frena:** `src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts`.
 
+```comprobar
+prueba: src/__tests__/al-volver-del-ingreso-no-se-pierde-la-fiesta.test.ts
+```
+
 ## 20 de septiembre de 2026 — Un campo que no existe, escondido en un `as any`
 
 **Que era:** el indicador de preparacion leia `fiesta.planPago`, que no existe (es
@@ -421,6 +433,10 @@ lee es una cuenta que puede estar dando cero desde siempre sin que nadie se ente
 **El control que lo frena:** `src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts`,
 y el barrido de todos los `as any` que leen campos queda como orden para Gemini.
 
+```comprobar
+prueba: src/__tests__/el-indicador-de-preparacion-ve-las-cuotas.test.ts
+```
+
 ## 20 de septiembre de 2026 — Juntar renglones sin mirar la unidad
 
 **Que era:** la lista de compras sumaba 200 g con 2 kg como si fueran lo mismo.
@@ -430,6 +446,10 @@ agrupa. **Pregunta nueva:** *"cuando se juntan cosas para sumarlas, ¿la clave i
 que las hace distintas (unidad, moneda, impuesto, fecha)? Si falta una, el total miente."*
 
 **El control que lo frena:** `src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts`.
+
+```comprobar
+prueba: src/__tests__/la-lista-de-compras-no-suma-gramos-con-kilos.test.ts
+```
 
 ## 20 de septiembre de 2026 — Acciones ofrecidas a la inteligencia artificial que nadie ejecuta
 
@@ -443,6 +463,10 @@ Las tres listas —el tipo, las instrucciones y el ejecutor— tienen que decir 
 
 **El control que lo frena:** `src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts`.
 
+```comprobar
+prueba: src/__tests__/el-secretario-hace-lo-que-dice-que-hace.test.ts
+```
+
 ## 20 de septiembre de 2026 — Controles dormidos, que es de donde sale casi todo lo que encuentra Codex
 
 **Que era:** dos pruebas de comida apagadas hacia semanas, y una prueba de la vista 3D que
@@ -453,6 +477,10 @@ nueva:** *"¿este control esta mirando de verdad, o se saltea solo cuando no enc
 Un control que se apaga solo es peor que no tenerlo, porque da verde.
 
 **El control que lo frena:** `src/__tests__/ninguna-prueba-esta-apagada.test.ts`.
+
+```comprobar
+prueba: src/__tests__/ninguna-prueba-esta-apagada.test.ts
+```
 
 ## 25 de septiembre de 2026 — Una acción pública que llama a una acción del equipo
 
@@ -468,6 +496,10 @@ invitado, ¿llama a alguna acción que pida sesión del equipo?"*
 **El control que lo frena:** `src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts`, y el
 barrido del resto de la app en la orden 83.
 
+```comprobar
+prueba: src/__tests__/el-invitado-pide-un-trago-sin-sesion.test.ts
+```
+
 ## 25 de septiembre de 2026 — Dos escrituras que tienen que ir juntas, separadas (BAR01, Codex)
 
 **Qué era:** la barra vaciaba la lista de botellas por devolver y después las devolvía, en dos
@@ -480,6 +512,10 @@ a medias sin rastro?"*
 
 **El control que lo frena:** `src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts`.
 
+```comprobar
+prueba: src/__tests__/las-botellas-pendientes-no-se-pierden-si-se-corta.test.ts
+```
+
 ## 25 de septiembre de 2026 — Una comprobación que no sabía pedir que algo se saque (Codex)
 
 **Qué era:** la orden 76 pedía sacar una exclusión de una prueba y figuraba cumplida sin
@@ -489,6 +525,10 @@ hacerlo, porque `comprobar` sólo podía pedir que algo estuviera.
 verde sin que se haya hecho?"*— aplicada también a lo que la orden pide **sacar**.
 
 **El control que lo frena:** el tipo `no-usa:` y la devolución 76b.
+
+```comprobar
+usa: no-usa en scripts/ordenes-cumplidas.mjs
+```
 
 ## 25 de septiembre de 2026 — Arreglar de a uno lo que era una sola falla
 
@@ -502,6 +542,10 @@ todos?"* Si vive en el mecanismo, se arregla en el mecanismo.
 
 **El control que lo frena:** `src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts`, contra
 la forma de guardar que usan todos.
+
+```comprobar
+prueba: src/__tests__/guardar-la-lista-no-pisa-lo-de-otro.test.ts
+```
 
 ## 25 de septiembre de 2026 — El mismo hallazgo dos veces: un bloque agregado sin su comprobación (Codex)
 
@@ -683,4 +727,25 @@ orden de evento) quedan para cuando Gemini termine esa orden.
 
 ```comprobar
 usa: splitTextToSize en src/lib/budget/simulator-budget-pdf.ts
+```
+
+## 01/10/2026 — Los hallazgos de Codex sobre la propuesta 1240 nunca entraron a esta lista
+
+**Qué era:** Codex marcó 16 hallazgos sobre la entrega de las órdenes 95-97 (28/09). Se los pasé a
+Gemini en devoluciones, pero **no los anoté acá**, así que nadie controlaba si seguían arreglados. El
+1/10, a pedido del dueño, se revisaron: cuatro estaban arreglados y nueve seguían rotos (porciones de
+cocina con 0 adultos, notas de la reunión que no se guardan, gasto de mantenimiento, orden de evento
+cortada en 6, alerta de mantenimiento, ubicación del personal sin interruptor, escaneo de carga que
+avisa antes de guardar, QR de equipos, horario de redes sin usar).
+
+**Qué pregunta lo hubiera agarrado:** *¿cada hallazgo de otra revisión quedó anotado acá, con su
+control?* Una devolución a Gemini no es un control: si no está en esta lista con su `comprobar`, se
+olvida.
+
+**Barrido:** orden 104.
+
+```comprobar
+no-usa: .slice(0, 6) en src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx
+usa: cronogramaNotas en src/types/fiesta.ts
+no-usa: void persistItemPatch en src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
 ```

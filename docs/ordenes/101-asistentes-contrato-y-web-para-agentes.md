@@ -5,10 +5,12 @@
 
 ## Cómo se entrega
 
-- **Después de terminar la orden 100.** Rama nueva desde la versión principal de ese momento y
-  **una sola propuesta** con los siete bloques. Si uno se traba, entregá el resto y avisá cuál.
+- **UNA SOLA PROPUESTA con las órdenes 104, 101, 102, 105 y 106**, en ese orden (primero los
+  arreglos de la 104). Arrancá de la rama **`claude/ponte-al-dia-qtrho3`** (tiene estas órdenes y la
+  versión principal de hoy). Si un bloque se traba, entregá el resto y avisá cuál.
 - `npm run "publicar?"` completo y la última pantalla pegada en la propuesta.
-- Pasá por `docs/ANTES-DE-ENTREGAR.md`. Nada de esto manda mensajes, cobra ni acepta nada solo.
+- Pasá por `docs/ANTES-DE-ENTREGAR.md`. Anotá cada bloque en `docs/YA-RESUELTO.md` con su línea en
+  `comprobar`.
 
 ---
 

@@ -7,12 +7,12 @@ y por WhatsApp, los dos con interruptor**.
 
 ## Cómo se entrega
 
-- **Después de las órdenes 100 y 101**, en una propuesta nueva y **una sola** con todos los bloques.
-- `npm run "publicar?"` completo, con la última pantalla pegada en la propuesta.
-- Pasá por `docs/ANTES-DE-ENTREGAR.md`.
-- **Las reglas de siempre no cambian:** mira, detecta, prepara y avisa **solo**; **no** manda
-  mensajes a clientes ni a prospectos, no cobra, no marca pagos, no acepta presupuestos ni toca
-  permisos sin que el dueño toque "Sí".
+- **UNA SOLA PROPUESTA con las órdenes 104, 101, 102, 105 y 106**, en ese orden (primero los
+  arreglos de la 104). Arrancá de la rama **`claude/ponte-al-dia-qtrho3`** (tiene estas órdenes y la
+  versión principal de hoy). Si un bloque se traba, entregá el resto y avisá cuál.
+- `npm run "publicar?"` completo y la última pantalla pegada en la propuesta.
+- Pasá por `docs/ANTES-DE-ENTREGAR.md`. Anotá cada bloque en `docs/YA-RESUELTO.md` con su línea en
+  `comprobar`.
 
 ---
 
