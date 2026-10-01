@@ -70,6 +70,12 @@ Desde el configurador, botón **"Mostrar la experiencia"**: crea (o reusa) la fi
 `createDemoFiesta` y abre un **recorrido a pantalla completa**, con pasos grandes para la pantalla
 LED:
 
+Ordenado por **"La tecnología de tu fiesta"**, no todo como entretenimiento (pedido del dueño):
+**Para tus invitados** (invitación, confirmar asistencia, su portal con QR y mesa) → **Para vos**
+(portal del cliente, cuotas, menú, decoración 3D) → **En la fiesta** (pantalla gigante, tótem, barra
+tecnológica) → **Entretenimiento** (fotocabina, 360, espejo, Bogue, cabina con IA, buzón, juegos) →
+**Los recuerdos** (álbum, galería, Video de Vida). Los pasos:
+
 1. La invitación digital y confirmar asistencia.
 2. El portal del invitado (su QR, su mesa, sus fotos).
 3. El portal del cliente (cuotas, invitados, menú, decoración en 3D).
@@ -236,6 +242,30 @@ registrar (la diferencia del conteo). Se ve en la fiesta y suma al informe que y
 vodka (1000 ml), 10 destornilladores pedidos descuentan 500 ml; un trago cargado por el barman
 descuenta igual; al cerrar con 400 ml contados, el informe dice 10 tragos y 100 ml sin registrar; y el
 destornillador se apaga cuando quedan menos de 50 ml.
+
+## Bloque 11 — El salón mágico: se arma con una frase y se recorre (pedido del dueño)
+
+El dueño vio un video donde una IA arma un salón entero, decorado, con los colores de la fiesta y las
+mesas, con muy pocas instrucciones. **Las piezas ya existen**: el armado automático por lo contratado
+(`generarEscenaAutomatica`, `src/lib/decoracion/generar-layout-automatico.ts`, con su prueba
+`src/__tests__/el-salon-se-arma-solo-con-lo-contratado.test.ts`), la escena 3D
+(`src/components/salon-3d/SalonScene.tsx`, mesas con `primaryColor` en `elements/Mesa3D.tsx` ~l.60) y
+las medidas reales de cada salón. **Falta que se vea mágico y que se arme hablando.**
+
+1. **Con una frase** (escrita o dicha al asistente del bloque 2): *"quince de Morena, lila y dorado,
+   120 invitados, en el Club Uruguay"*. La IA devuelve **sólo datos** (tipo, colores, invitados, salón,
+   estilo) y la app arma la escena con `generarEscenaAutomatica` y las medidas de ese salón.
+2. **Más vida en el 3D**, con los colores elegidos: manteles y caminos de mesa, centros de mesa según
+   el estilo (flores, velas, globos), luces de color sobre la pista y guirnaldas de luz, la mesa
+   principal destacada. Todo con piezas simples dibujadas en 3D, **sin modelos pesados**: tiene que
+   andar fluido en la pantalla LED y en un celular común.
+3. **Paseo de cámara**: botón "Recorrer" que hace una vuelta lenta por el salón (entrada, mesas, pista,
+   mesa principal) a pantalla completa.
+4. Junto al 3D, las **dos imágenes realistas** del bloque 7.
+
+**La prueba**: con la IA simulada devolviendo `{colores: lila y dorado, invitados: 120, salon: club-uruguay}`,
+la escena tiene la cantidad de mesas que da `contarMesas` para 120, las mesas usan el lila, y el salón
+tiene las medidas guardadas del Club Uruguay; el paseo de cámara termina y vuelve al inicio.
 
 ```comprobar
 usa: idDeYoutube en src/app/(app)/empresa/configurador-reunion/page.tsx
