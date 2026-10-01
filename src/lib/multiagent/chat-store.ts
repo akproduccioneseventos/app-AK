@@ -1,5 +1,6 @@
 import type { AkAgentChatMessage, AkAgentChatSession, AkAgentType } from '@/types/multiagent';
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 
 const CHAT_FILE = 'multiagent/chats.json';
 const MAX_SESSIONS = 160;
@@ -40,37 +41,33 @@ async function readChatState(): Promise<ChatState> {
   };
 }
 
-async function writeChatState(state: ChatState) {
-  const sessions = [...state.sessions]
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-    .slice(0, MAX_SESSIONS);
+export function agregarTurno(
+  state: ChatState,
+  input: {
+    sessionId?: string;
+    agentType: AkAgentType;
+    agentName: string;
+    pathname?: string;
+    fiestaId?: string;
+    userMessage: string;
+    assistantMessage: string;
+  },
+  timestamp = nowIso(),
+): { state: ChatState; session: AkAgentChatSession } {
+  const sessions = Array.isArray(state?.sessions) ? [...state.sessions] : [];
 
-  await writeData(CHAT_FILE, { sessions });
-}
-
-export async function appendMultiAgentChatTurn(input: {
-  sessionId?: string;
-  agentType: AkAgentType;
-  agentName: string;
-  pathname?: string;
-  fiestaId?: string;
-  userMessage: string;
-  assistantMessage: string;
-}): Promise<AkAgentChatSession> {
-  const state = await readChatState();
-  const timestamp = nowIso();
   const requestedIndex = input.sessionId
-    ? state.sessions.findIndex(session => session.id === input.sessionId)
+    ? sessions.findIndex((s) => s.id === input.sessionId)
     : -1;
   const index = requestedIndex >= 0 && isMultiAgentSessionScopeCompatible(
-    state.sessions[requestedIndex],
+    sessions[requestedIndex],
     { agentType: input.agentType, fiestaId: input.fiestaId },
   )
     ? requestedIndex
     : -1;
 
   const baseSession: AkAgentChatSession = index >= 0
-    ? state.sessions[index]
+    ? sessions[index]
     : {
         id: createId('chat'),
         agentType: input.agentType,
@@ -83,7 +80,7 @@ export async function appendMultiAgentChatTurn(input: {
         updatedAt: timestamp,
       };
 
-  const userMessage: AkAgentChatMessage = {
+  const userMsg: AkAgentChatMessage = {
     id: createId('user'),
     role: 'user',
     content: input.userMessage,
@@ -91,7 +88,7 @@ export async function appendMultiAgentChatTurn(input: {
     createdAt: timestamp,
   };
 
-  const assistantMessage: AkAgentChatMessage = {
+  const assistantMsg: AkAgentChatMessage = {
     id: createId('assistant'),
     role: 'assistant',
     content: input.assistantMessage,
@@ -102,8 +99,8 @@ export async function appendMultiAgentChatTurn(input: {
 
   const messages: AkAgentChatMessage[] = [
     ...baseSession.messages,
-    userMessage,
-    assistantMessage,
+    userMsg,
+    assistantMsg,
   ].slice(-MAX_MESSAGES_PER_SESSION);
 
   const updated: AkAgentChatSession = {
@@ -116,11 +113,46 @@ export async function appendMultiAgentChatTurn(input: {
     updatedAt: timestamp,
   };
 
-  if (index >= 0) state.sessions[index] = updated;
-  else state.sessions.push(updated);
+  if (index >= 0) sessions[index] = updated;
+  else sessions.push(updated);
 
-  await writeChatState(state);
-  return updated;
+  const sessionsSorted = sessions
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, MAX_SESSIONS);
+
+  return {
+    state: { sessions: sessionsSorted },
+    session: updated,
+  };
+}
+
+export async function appendMultiAgentChatTurn(input: {
+  sessionId?: string;
+  agentType: AkAgentType;
+  agentName: string;
+  pathname?: string;
+  fiestaId?: string;
+  userMessage: string;
+  assistantMessage: string;
+}): Promise<AkAgentChatSession> {
+  let sessionResult: AkAgentChatSession | undefined;
+
+  const resultado = await mutarDocumentoConTransaccion<ChatState>(
+    CHAT_FILE,
+    emptyState,
+    (actual) => {
+      const { state: nuevoState, session } = agregarTurno(actual ?? emptyState, input);
+      sessionResult = session;
+      return nuevoState;
+    },
+  );
+
+  if (!resultado || !sessionResult) {
+    throw new Error('[chat-store] No se pudo guardar el turno del chat.');
+  }
+
+  // Devolver la sesión actualizada desde el estado final persistido
+  return resultado.sessions.find((s) => s.id === sessionResult!.id) ?? sessionResult;
 }
 
 export async function listMultiAgentChatSessions(input?: {

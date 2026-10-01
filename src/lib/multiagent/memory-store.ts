@@ -1,5 +1,6 @@
 import type { AkAgentLearning, AkAgentMemoryProfile, AkAgentMemoryScope, AkAgentType } from '@/types/multiagent';
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { AK_MANUAL_VERSION, getManualLearningSeed } from '@/lib/multiagent/manual-ak';
 
 const MEMORY_FILE = 'multiagent/memory.json';
@@ -69,9 +70,6 @@ async function readMemoryState(): Promise<MemoryState> {
   };
 }
 
-async function writeMemoryState(state: MemoryState) {
-  await writeData(MEMORY_FILE, state);
-}
 
 export async function getAgentMemoryProfile(input: {
   agentType: AkAgentType;
@@ -85,26 +83,29 @@ export async function getAgentMemoryProfile(input: {
   return state.profiles.find(profile => profile.id === id) ?? getDefaultProfile(input.agentType, scope, input.fiestaId, input.module);
 }
 
-export async function saveAgentLearning(input: {
-  agentType: AkAgentType;
-  scope?: AkAgentMemoryScope;
-  fiestaId?: string;
-  module?: string;
-  title: string;
-  content: string;
-  tags?: string[];
-  source?: AkAgentLearning['source'];
-  confidence?: AkAgentLearning['confidence'];
-}): Promise<AkAgentMemoryProfile> {
+export function agregarAprendizaje(
+  state: MemoryState,
+  input: {
+    agentType: AkAgentType;
+    scope?: AkAgentMemoryScope;
+    fiestaId?: string;
+    module?: string;
+    title: string;
+    content: string;
+    tags?: string[];
+    source?: AkAgentLearning['source'];
+    confidence?: AkAgentLearning['confidence'];
+  },
+  timestamp = nowIso(),
+): { state: MemoryState; profile: AkAgentMemoryProfile } {
+  const profiles = Array.isArray(state?.profiles) ? [...state.profiles] : [];
   const scope = input.scope ?? (input.fiestaId ? 'fiesta' : input.module ? 'modulo' : 'global');
-  const state = await readMemoryState();
   const id = buildProfileId(input.agentType, scope, input.fiestaId, input.module);
-  const index = state.profiles.findIndex(profile => profile.id === id);
+  const index = profiles.findIndex((p) => p.id === id);
   const profile = index >= 0
-    ? state.profiles[index]
+    ? profiles[index]
     : getDefaultProfile(input.agentType, scope, input.fiestaId, input.module);
 
-  const timestamp = nowIso();
   const learning: AkAgentLearning = {
     id: `learning_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     agentType: input.agentType,
@@ -123,7 +124,7 @@ export async function saveAgentLearning(input: {
   // Deduplicar por título idéntico reciente (últimos 10) para evitar ruido
   const titleKey = learning.title.toLowerCase().trim();
   const isDuplicate = profile.learnings.slice(0, 10).some(
-    l => l.title.toLowerCase().trim() === titleKey
+    (l) => l.title.toLowerCase().trim() === titleKey,
   );
 
   // Ordenar por confianza: high > medium > low, luego por fecha
@@ -141,14 +142,14 @@ export async function saveAgentLearning(input: {
 
   // Resumen inteligente: priorizar high confidence, luego recientes
   const summaryItems = sorted
-    .filter(l => l.confidence === 'high' || l.source === 'event_closeout' || l.source === 'system')
+    .filter((l) => l.confidence === 'high' || l.source === 'event_closeout' || l.source === 'system')
     .slice(0, 5);
   const recentItems = sorted
-    .filter(l => !summaryItems.includes(l))
+    .filter((l) => !summaryItems.includes(l))
     .slice(0, 5);
   const summaryText = [...summaryItems, ...recentItems]
     .slice(0, 8)
-    .map(l => `• [${l.confidence}] ${l.title}: ${l.content.slice(0, 200)}`)
+    .map((l) => `• [${l.confidence}] ${l.title}: ${l.content.slice(0, 200)}`)
     .join('\n') || profile.summary;
 
   const updated: AkAgentMemoryProfile = {
@@ -158,12 +159,45 @@ export async function saveAgentLearning(input: {
     updatedAt: timestamp,
   };
 
-  if (index >= 0) state.profiles[index] = updated;
-  else state.profiles.push(updated);
+  if (index >= 0) profiles[index] = updated;
+  else profiles.push(updated);
 
-  await writeMemoryState(state);
-  return updated;
+  return {
+    state: { profiles },
+    profile: updated,
+  };
 }
+
+export async function saveAgentLearning(input: {
+  agentType: AkAgentType;
+  scope?: AkAgentMemoryScope;
+  fiestaId?: string;
+  module?: string;
+  title: string;
+  content: string;
+  tags?: string[];
+  source?: AkAgentLearning['source'];
+  confidence?: AkAgentLearning['confidence'];
+}): Promise<AkAgentMemoryProfile> {
+  let updatedProfile: AkAgentMemoryProfile | undefined;
+
+  const resultado = await mutarDocumentoConTransaccion<MemoryState>(
+    MEMORY_FILE,
+    emptyState,
+    (actual) => {
+      const { state: nuevoState, profile } = agregarAprendizaje(actual ?? emptyState, input);
+      updatedProfile = profile;
+      return nuevoState;
+    },
+  );
+
+  if (!resultado || !updatedProfile) {
+    throw new Error('[memory-store] No se pudo guardar el aprendizaje.');
+  }
+
+  return resultado.profiles.find((p) => p.id === updatedProfile!.id) ?? updatedProfile;
+}
+
 
 export async function listAgentMemoryProfiles(): Promise<AkAgentMemoryProfile[]> {
   const state = await readMemoryState();

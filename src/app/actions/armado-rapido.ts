@@ -3,7 +3,7 @@
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
 import { readData, writeData } from '@/lib/data-service';
-import type { ItemPresupuestado, PresupuestoSource } from '@/types/presupuesto';
+import type { ItemPresupuestado, Presupuesto, PresupuestoSource } from '@/types/presupuesto';
 import type { CommercialAttribution } from '@/lib/commercial/acquisition';
 import { persistPublicSimulatorBudget } from '@/lib/budget/public-simulator-persistence';
 import { createNotification } from '@/lib/notifications/create-notification';
@@ -105,7 +105,7 @@ export async function generateBudgetAndLeadFromSimulator(
     salonFiestas?: string;
     acquisition?: CommercialAttribution;
   }
-): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; token?: string; error?: string }> {
+): Promise<{ success: boolean; leadId?: string; presupuestoId?: string; token?: string; presupuesto?: Presupuesto; error?: string }> {
   try {
     const shield = checkBotShield(data.clienteContacto || data.clienteNombre || 'simulator-user', { maxRequests: 20, windowSeconds: 60 });
     if (!shield.allowed) {
@@ -135,11 +135,12 @@ export async function generateBudgetAndLeadFromSimulator(
       tipo: 'aviso',
       entidadRelacionadaId: result.presupuesto.id,
       rolDestino: 'admin',
-    }).catch(() => {});
+    }).catch(() => {}); // no pasa nada si falla: el presupuesto ya quedó guardado; el aviso al equipo es un extra
 
     return {
       success: true,
       presupuestoId: result.presupuesto.id,
+      presupuesto: result.presupuesto,
       leadId: result.leadId,
       token,
     };
@@ -271,4 +272,3 @@ export async function getPublicBudgetsByPhone(rawPhone: string): Promise<{
     return { success: false, error: error.message || 'Error al obtener presupuestos.' };
   }
 }
-

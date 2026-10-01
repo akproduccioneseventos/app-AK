@@ -1,6 +1,15 @@
-/**
- * Portal del Invitado — ruta oficial.
- * Re-exporta el mismo portal que /invitacion/[fiestaId]/invitado/[guestId].
- * La ruta anterior sigue funcionando por compatibilidad con enlaces existentes.
- */
-export { default } from '@/app/invitacion/[fiestaId]/invitado/[guestId]/page';
+'use client';
+
+import InvitadoPage from '@/app/invitacion/[fiestaId]/invitado/[guestId]/page';
+import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
+
+export default function PortalInvitadoPage() {
+  return (
+    <>
+      <div className="fixed top-3 right-3 z-40">
+        <VideoDeAyuda lugar="portal-invitado" />
+      </div>
+      <InvitadoPage />
+    </>
+  );
+}

@@ -649,3 +649,38 @@ los tres artículos corregidos).
 usa: textoQuePromete en src/lib/blog-ai-generator.ts
 prueba: src/__tests__/el-blog-no-promete.test.ts
 ```
+
+## La medición de Google y Meta recibía las llaves privadas (Codex, 29/09/2026)
+
+**Qué era:** el código de medición va en todas las pantallas y manda la dirección completa, con el
+`token` del invitado o la llave del portal adentro. Revisé quién puede **abrir** cada pantalla
+privada, nunca **a quién le mandamos** su dirección.
+
+**Qué pregunta lo hubiera agarrado:** *¿a qué servicio de afuera le llega la dirección, o algún
+dato, de una pantalla privada?* Medición, errores, chat, fuentes: cualquier script de terceros que
+se cargue ahí. Queda como pregunta 21 de `ANTES-DE-ENTREGAR.md`.
+
+**Barrido:** bloque nuevo de la orden 100.
+
+```comprobar
+archivo: src/lib/medicion-segura.ts
+prueba: tests/e2e/medicion-no-envia-llaves.spec.ts
+```
+
+## 30/09/2026 — En el PDF del presupuesto, un nombre largo tapa "Invitados" (Codex)
+
+**Qué era:** el nombre del cliente se escribía sin ancho máximo y, con dos nombres completos,
+pisaba la columna de al lado. La prueba del PDF pasaba porque sólo miraba cantidad de páginas,
+tamaño y peso.
+
+**Qué pregunta lo hubiera agarrado:** *¿qué pasa con el texto más largo que puede escribir una
+persona?* En un documento que se imprime o se manda, todo texto que viene del usuario tiene que
+tener ancho máximo o salto de línea. Y una prueba de un PDF tiene que mirar **dónde** queda el
+texto, no sólo que el archivo exista.
+
+**Barrido:** bloque nuevo de la orden 100 para el presupuesto; los demás PDF (recibo, contrato,
+orden de evento) quedan para cuando Gemini termine esa orden.
+
+```comprobar
+usa: splitTextToSize en src/lib/budget/simulator-budget-pdf.ts
+```

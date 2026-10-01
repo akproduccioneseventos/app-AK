@@ -1,4 +1,4 @@
-import { sendScheduledMessageByEmail } from '@/app/actions/scheduled-messages';
+import { sendScheduledMessageByEmail, checkGoogleMailStatus } from '@/app/actions/scheduled-messages';
 import * as requireSessionModule from '@/lib/auth/require-session';
 import * as googleWorkspaceModule from '@/lib/google-workspace';
 import * as dataServiceModule from '@/lib/data-service';
@@ -96,4 +96,31 @@ describe('Orden 86 Bloque 3: Enviar mensajes de outbox por mail', () => {
       expect.stringContaining('Hola María, te esperamos este viernes')
     );
   });
+
+  describe('checkGoogleMailStatus', () => {
+    it('sin cuenta de empresa en _google-workspace-accounts devuelve connected: false', async () => {
+      (requireSessionModule.requireAppSession as jest.Mock).mockResolvedValueOnce(undefined);
+      (dataServiceModule.readData as jest.Mock).mockResolvedValueOnce([]);
+
+      const status = await checkGoogleMailStatus();
+      expect(status).toEqual({ connected: false });
+    });
+
+    it('con cuenta de empresa conectada y token devuelve connected: true', async () => {
+      (requireSessionModule.requireAppSession as jest.Mock).mockResolvedValueOnce(undefined);
+      (dataServiceModule.readData as jest.Mock).mockResolvedValueOnce([
+        {
+          id: 'company',
+          kind: 'company',
+          email: 'contacto@akproducciones.uy',
+          accessToken: 'valid-oauth-token',
+          status: 'connected',
+        },
+      ]);
+
+      const status = await checkGoogleMailStatus();
+      expect(status).toEqual({ connected: true, email: 'contacto@akproducciones.uy' });
+    });
+  });
 });
+

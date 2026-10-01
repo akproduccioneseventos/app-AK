@@ -144,16 +144,38 @@ export async function sendPersistentMultiAgentMessage(input: {
             const tareasActuales = fiesta.tareas || [];
             let encontrada = false;
             let tareaCompletadaTexto = '';
-            const nuevasTareas = tareasActuales.map((t) => {
-              const coincideId = data.tareaId && t.id === data.tareaId;
-              const coincideTexto = data.texto && t.texto.toLowerCase().includes(data.texto.toLowerCase());
-              if ((coincideId || coincideTexto) && !encontrada) {
+            let nuevasTareas = tareasActuales;
+
+            if (data.tareaId) {
+              // Búsqueda exacta por id: si no existe, error claro
+              const tarea = tareasActuales.find((t) => t.id === data.tareaId);
+              if (!tarea) {
+                result.response += `\n\n❌ **No encontré la tarea con id** \`${data.tareaId}\` en la fiesta.`;
+              } else {
                 encontrada = true;
-                tareaCompletadaTexto = t.texto;
-                return { ...t, completada: true };
+                tareaCompletadaTexto = tarea.texto;
+                nuevasTareas = tareasActuales.map((t) =>
+                  t.id === data.tareaId ? { ...t, completada: true } : t
+                );
               }
-              return t;
-            });
+            } else if (data.texto) {
+              // Búsqueda por texto: todas las que contienen el fragmento
+              const candidatas = tareasActuales.filter((t) =>
+                t.texto.toLowerCase().includes((data.texto as string).toLowerCase())
+              );
+              if (candidatas.length === 0) {
+                result.response += `\n\n⚠️ **No encontré ninguna tarea** que contenga "${data.texto}" en la fiesta.`;
+              } else if (candidatas.length > 1) {
+                const lista = candidatas.map((t) => `• ${t.texto}`).join('\n');
+                result.response += `\n\n⚠️ **Encontré ${candidatas.length} tareas** que coinciden con "${data.texto}". Decime cuál querés marcar:\n${lista}`;
+              } else {
+                encontrada = true;
+                tareaCompletadaTexto = candidatas[0].texto;
+                nuevasTareas = tareasActuales.map((t) =>
+                  t.id === candidatas[0].id ? { ...t, completada: true } : t
+                );
+              }
+            }
 
             // Si la IA no dijo cuál tarea, no se adivina: marcar la primera de la lista daría por
             // hecha una tarea que nadie hizo.
@@ -164,9 +186,10 @@ export async function sendPersistentMultiAgentMessage(input: {
               } else {
                 result.response += `\n\n❌ **No pude actualizar las tareas**: ${updateRes.error || 'error desconocido'}`;
               }
-            } else {
-              result.response += `\n\n⚠️ **No encontré la tarea** "${data.texto || data.tareaId || ''}" en la fiesta.`;
+            } else if (!data.tareaId && !data.texto) {
+              result.response += `\n\n⚠️ **No encontré la tarea**: necesito que me digas cuál es (por id o por texto).`;
             }
+
           }
         } else {
           result.response += `\n\n⚠️ **Para marcar una tarea como hecha tenés que estar dentro de una fiesta específica.**`;

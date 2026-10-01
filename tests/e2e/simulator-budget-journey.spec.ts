@@ -1,6 +1,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { expect, test } from '@playwright/test';
+
+function extractTextFromPdf(buffer: Buffer): string {
+  const binary = buffer.toString('binary');
+  const matches = [...binary.matchAll(/stream\r?\n([\s\S]*?)\r?\nendstream/g)];
+  let extracted = '';
+  for (const m of matches) {
+    try {
+      extracted += ' ' + zlib.inflateSync(Buffer.from(m[1], 'binary')).toString('latin1');
+    } catch {
+      extracted += ' ' + m[1];
+    }
+  }
+  return extracted;
+}
 
 const MUTABLE_FILES = [
   'data/presupuestos.json',
@@ -95,6 +110,11 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   // WhatsApp.
   await expect(page.getByText(/congelar la tarifa|WhatsApp/i).first()).toBeVisible();
 
+  // Antes de descargar, leer de la pantalla el total, el total ajustado del año siguiente y los servicios
+  const totalEnPantalla = (await page.locator('text=Precio vigente:').locator('..').locator('span').nth(1).innerText()).trim();
+  const totalAjustadoEnPantalla = (await page.locator(`text=Total estimado ${targetYear}`).locator('..').locator('span').nth(1).innerText()).trim();
+  const serviciosEnPantalla = await page.locator('table tbody tr:not([data-pdf-exclude="true"])').filter({ has: page.locator('p.font-bold') }).locator('p.font-bold').allInnerTexts();
+
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: /Guardar PDF/i }).click();
   const download = await downloadPromise;
@@ -103,5 +123,14 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
 
   expect(download.suggestedFilename()).toMatch(/presupuesto.*\.pdf$/i);
   expect(fs.statSync(outputPath).size).toBeGreaterThan(5_000);
+
+  const pdfBuffer = fs.readFileSync(outputPath);
+  const textoPdf = extractTextFromPdf(pdfBuffer);
+  expect(textoPdf).toContain(totalEnPantalla);
+  expect(textoPdf).toContain(totalAjustadoEnPantalla);
+  expect(serviciosEnPantalla.length).toBeGreaterThan(0);
+  for (const servicio of serviciosEnPantalla) {
+    expect(textoPdf).toContain(servicio);
+  }
   await page.waitForTimeout(1_000);
 });

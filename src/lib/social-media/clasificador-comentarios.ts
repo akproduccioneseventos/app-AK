@@ -23,6 +23,7 @@ export interface ClasificacionComentarioResult {
   sentimentReason?: string;
   isInsultOrSpam?: boolean;
   isLegitimateComplaint?: boolean;
+  esPregunta?: boolean;
   autoHideRecommended?: boolean;
   error?: string;
 }
@@ -71,6 +72,7 @@ Reglas estrictas de moderación y modismos uruguayos:
 2. Neutro: preguntas generales ("a qué hora arranca?", "cuánto sale?"), comentarios descriptivos o expresiones ambiguas ("y bueno...").
 3. Queja Legítima: disconformidad genuina de un cliente sobre atención, comida, sonido, fotos o puntualidad.
 4. Insulto / Spam / Datos: agresiones directas, groserías ofensivas, spam comercial ajeno, publicación de números de teléfono personales o exposición indebida de menores.
+5. Pregunta Comercial: consultas sobre precios, fechas, disponibilidad de fechas o cómo contratar.
 
 CRITERIO DE SEGURIDAD:
 - Si dudás entre insulto y queja legítima, marcalo SIEMPRE como queja legítima (NO ocultar automáticamente).
@@ -82,6 +84,7 @@ Respondé ÚNICAMENTE en formato JSON plano con esta estructura exacta:
   "sentimentReason": "Explicación corta en criollo (máximo 12 palabras)",
   "isInsultOrSpam": boolean,
   "isLegitimateComplaint": boolean,
+  "esPregunta": boolean,
   "autoHide": boolean
 }`;
 
@@ -125,6 +128,12 @@ Respondé ÚNICAMENTE en formato JSON plano con esta estructura exacta:
 
     const isInsultOrSpam = Boolean(parsed.isInsultOrSpam);
     const isLegitimateComplaint = Boolean(parsed.isLegitimateComplaint);
+    const esPregunta = Boolean(
+      parsed.esPregunta ??
+        /(\?|cu[aá]nto|precio|cotiz|fecha|disponib|c[oó]mo contratar|info|costo|sale|disponible|alquilan)/i.test(
+          textoLimpio,
+        ),
+    );
 
     // Si es queja legítima, autoHide nunca debe ser true
     const autoHideRecommended = isLegitimateComplaint ? false : Boolean(parsed.autoHide || isInsultOrSpam);
@@ -135,6 +144,7 @@ Respondé ÚNICAMENTE en formato JSON plano con esta estructura exacta:
       sentimentReason: parsed.sentimentReason || 'Analizado con IA',
       isInsultOrSpam,
       isLegitimateComplaint,
+      esPregunta,
       autoHideRecommended,
     };
   } catch (error: any) {

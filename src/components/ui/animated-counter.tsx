@@ -26,12 +26,17 @@ export function AnimatedCounter({
   const stringVal = String(value);
   const match = stringVal.match(/(\d+)/);
   const targetNumber = match ? parseInt(match[1], 10) : null;
-  const [currentNumber, setCurrentNumber] = useState(0);
+  // El primer dibujo y lo que sale del servidor muestran el número final (Google y SSR)
+  const [currentNumber, setCurrentNumber] = useState<number | null>(null);
+  const hasAnimatedRef = useRef(false);
 
   useEffect(() => {
-    if (reduceMotion || !isInView || targetNumber === null) {
+    if (reduceMotion || !isInView || targetNumber === null || hasAnimatedRef.current) {
       return;
     }
+
+    hasAnimatedRef.current = true;
+    setCurrentNumber(0);
 
     let startTime: number | null = null;
     let animationFrameId: number;
@@ -61,9 +66,9 @@ export function AnimatedCounter({
     return <span ref={ref} className={className}>{stringVal}</span>;
   }
 
-  // Si no hay reducción de movimiento, muestra currentNumber (que inicia en 0)
-  // y va trepando suavemente hasta targetNumber al entrar en vista.
-  const renderedText = stringVal.replace(String(targetNumber), String(currentNumber));
+  // Si aún no se animó en el cliente o está en el servidor, muestra el número final.
+  const displayNum = currentNumber !== null ? currentNumber : targetNumber;
+  const renderedText = stringVal.replace(String(targetNumber), String(displayNum));
 
   return (
     <span ref={ref} className={className}>

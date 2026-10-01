@@ -192,9 +192,14 @@ export function getEntertainmentStationConfig(
     marcosHabilitados: Array.isArray(stored.marcosHabilitados) && stored.marcosHabilitados.length > 0
       ? stored.marcosHabilitados
       : ['none', 'golden', 'neon', 'flowers', 'ak_brand'],
-    velocidadRecuerdo: (['normal', 'lenta', 'boomerang'].includes(stored.velocidadRecuerdo)
-      ? stored.velocidadRecuerdo
-      : 'normal') as 'normal' | 'lenta' | 'boomerang',
+    velocidadRecuerdo: (() => {
+      if (moduleId === 'fotocabina' && stored.velocidadRecuerdo === 'lenta') {
+        return 'normal';
+      }
+      return (['normal', 'lenta', 'boomerang'].includes(stored.velocidadRecuerdo)
+        ? stored.velocidadRecuerdo
+        : 'normal') as 'normal' | 'lenta' | 'boomerang';
+    })(),
     disenoImpresion: (['una', 'dos', 'tira'].includes(stored.disenoImpresion)
       ? stored.disenoImpresion
       : 'tira') as 'una' | 'dos' | 'tira',
@@ -350,4 +355,3 @@ export function getEntertainmentOperatorPath(
       return null;
   }
 }
-

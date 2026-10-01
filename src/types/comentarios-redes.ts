@@ -21,7 +21,14 @@ export interface SocialComment {
   sentimentReason?: string;
   isInsultOrSpam?: boolean;
   isLegitimateComplaint?: boolean;
+  esPregunta?: boolean;
   classifiedAt?: string;
+
+  // Respuesta automática a preguntas
+  respuestaAutomatica?: {
+    texto: string;
+    at: string;
+  };
 
   // Moderación y Estado
   isAutoHidden?: boolean;

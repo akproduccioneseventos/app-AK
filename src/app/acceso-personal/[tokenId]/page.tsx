@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare, Cake, Camera, FileText, Users, Receipt, UserCog, Truck, Building, Calculator, CalendarCheck, MapPin, Phone, User, Calendar, CheckCircle2, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
-import { getAccesoPersonalPortalView, responderAsistenciaPersonal } from '@/app/actions/accesos-personal-view';
+import { getAccesoPersonalPortalView, responderAsistenciaPersonal, registrarLlegadaPersonal } from '@/app/actions/accesos-personal-view';
 import { andaPorEnlace } from '@/lib/auth/permisos-por-enlace';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
@@ -44,6 +44,46 @@ export default function PortalPersonalPage() {
   const [isSubmittingAttendance, setIsSubmittingAttendance] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
+  const [isSubmittingLlegada, setIsSubmittingLlegada] = useState(false);
+
+  const handleMarcarLlegada = async () => {
+    if (!params.tokenId) return;
+    setIsSubmittingLlegada(true);
+
+    const ejecutarRegistro = async (coords?: { lat: number; lng: number }) => {
+      try {
+        const res = await registrarLlegadaPersonal(params.tokenId, coords);
+        if (res.success) {
+          toast({ title: '¡Llegada confirmada!', description: 'Se registró tu llegada al evento.' });
+          setFiesta((prev) => (prev ? { ...prev, checkInTimestamp: new Date().toISOString() } : null));
+        } else {
+          toast({
+            title: 'No pudimos registrar tu llegada',
+            description: res.error || 'Verificá tu ubicación e intentá nuevamente.',
+            variant: 'destructive',
+          });
+        }
+      } catch {
+        toast({ title: 'Error', description: 'Ocurrió un error al registrar la llegada.', variant: 'destructive' });
+      } finally {
+        setIsSubmittingLlegada(false);
+      }
+    };
+
+    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          ejecutarRegistro({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        },
+        () => {
+          ejecutarRegistro();
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    } else {
+      ejecutarRegistro();
+    }
+  };
 
   const loadData = useCallback(async (tokenId: string) => {
     setIsLoading(true);
@@ -213,6 +253,51 @@ export default function PortalPersonalPage() {
                       <XCircle className="w-4 h-4 mr-2 text-red-500" />
                       No puedo ir
                     </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Arrival (Llegada con Ubicación) Card */}
+            {fiesta && (
+              <Card className="shadow-md border border-slate-200">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base font-bold flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-primary" />
+                      Llegada al Evento
+                    </CardTitle>
+                    {fiesta.checkInTimestamp && (
+                      <span className="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5" />
+                        Llegada registrada: {new Date(fiesta.checkInTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                  </div>
+                  <CardDescription className="text-xs">
+                    {fiesta.checkInTimestamp
+                      ? 'Tu llegada al evento ya fue confirmada. ¡Que sea una gran fiesta!'
+                      : 'Al llegar al salón o lugar del evento, presioná el botón para avisarle al encargado.'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-2">
+                  {!fiesta.checkInTimestamp ? (
+                    <Button
+                      onClick={handleMarcarLlegada}
+                      disabled={isSubmittingLlegada}
+                      className="bg-primary hover:bg-primary/90 text-white font-bold text-xs uppercase tracking-wider"
+                    >
+                      {isSubmittingLlegada ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <MapPin className="w-4 h-4 mr-2" />
+                      )}
+                      Llegué
+                    </Button>
+                  ) : (
+                    <p className="text-xs text-muted-foreground italic">
+                      Llegada confirmada correctamente.
+                    </p>
                   )}
                 </CardContent>
               </Card>

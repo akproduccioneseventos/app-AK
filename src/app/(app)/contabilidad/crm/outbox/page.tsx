@@ -224,7 +224,7 @@ export default function OutboxPage() {
             Enviar por WhatsApp
           </Button>
           {msg.targetEmail && (
-            googleConnected === false ? (
+            !googleConnected ? (
               <Button
                 size="sm"
                 variant="outline"
@@ -409,3 +409,4 @@ export default function OutboxPage() {
     </div>
   );
 }
+

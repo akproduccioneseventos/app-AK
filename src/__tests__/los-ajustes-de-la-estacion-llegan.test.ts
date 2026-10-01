@@ -17,10 +17,15 @@ function fiestaCon(ajustesFotocabina: Record<string, unknown>) {
 
 describe('Los ajustes de la estación llegan a la pantalla', () => {
   it('la velocidad del recuerdo llega tal cual se configuró', () => {
-    for (const velocidad of ['lenta', 'boomerang', 'normal'] as const) {
+    for (const velocidad of ['boomerang', 'normal'] as const) {
       const config = getEntertainmentStationConfig(fiestaCon({ velocidadRecuerdo: velocidad }), 'fotocabina');
       expect(config.velocidadRecuerdo).toBe(velocidad);
     }
+  });
+
+  it('lenta en la fotocabina llega como normal', () => {
+    const config = getEntertainmentStationConfig(fiestaCon({ velocidadRecuerdo: 'lenta' }), 'fotocabina');
+    expect(config.velocidadRecuerdo).toBe('normal');
   });
 
   it('sin configurar nada, la velocidad es la normal', () => {

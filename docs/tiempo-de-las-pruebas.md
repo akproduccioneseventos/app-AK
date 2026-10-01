@@ -2,8 +2,8 @@
 
 Lo escribe solo la ultima corrida. **No se edita a mano.**
 
-Medido el 2026-09-28 — total 259s.
+Medido el 2026-10-01 — total 13s.
 
 | Prueba | Tarda | Del total |
 | --- | --- | --- |
-| noche-de-fiesta.spec.ts | 259s | 100% |
+| la-portada-no-dice-cero.spec.ts | 13s | 100% |

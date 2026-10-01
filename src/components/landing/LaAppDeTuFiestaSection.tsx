@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
@@ -107,6 +107,9 @@ export function LaAppDeTuFiestaSection({
     { id: "msg-1", texto: "¡Qué fiestón! Te queremos mucho Cami 🎉", autor: "Santi y Martina", estado: "aprobado" },
   ]);
   const [pedidoTragoEstado, setPedidoTragoEstado] = useState<"ninguno" | "en_cola" | "listo">("ninguno");
+  const [pedidoTragoNombre, setPedidoTragoNombre] = useState<string>("");
+  const [pedidoTragoNumero, setPedidoTragoNumero] = useState<number>(42);
+  const pedidosCountRef = useRef(0);
 
   const configActual = MOMENTOS.find((m) => m.id === momentoActivo) || MOMENTOS[0];
 
@@ -134,7 +137,12 @@ export function LaAppDeTuFiestaSection({
     }, 1800);
   };
 
-  const handleSimularPedidoTrago = () => {
+  const handleSimularPedidoTrago = (nombre: string) => {
+    setPedidoTragoNombre(nombre);
+    if (pedidosCountRef.current > 0) {
+      setPedidoTragoNumero((prev) => prev + 1);
+    }
+    pedidosCountRef.current += 1;
     setPedidoTragoEstado("en_cola");
     setTimeout(() => {
       setPedidoTragoEstado("listo");
@@ -238,7 +246,7 @@ export function LaAppDeTuFiestaSection({
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600" />
                   <div>
@@ -547,7 +555,7 @@ export function LaAppDeTuFiestaSection({
                             <p className="text-[11px] text-slate-400">Ron blanco, maracuyá natural, menta fresca y lima.</p>
                             <button
                               type="button"
-                              onClick={handleSimularPedidoTrago}
+                              onClick={() => handleSimularPedidoTrago("Mojito de Maracuyá")}
                               className="mt-2 w-full rounded bg-amber-600/30 px-2 py-1 text-[11px] font-semibold text-amber-300 hover:bg-amber-600/50"
                             >
                               Pedir en barra
@@ -559,7 +567,7 @@ export function LaAppDeTuFiestaSection({
                             <p className="text-[11px] text-slate-400">Pomelo rosado, tónica, romero fresco y almíbar de frutos.</p>
                             <button
                               type="button"
-                              onClick={handleSimularPedidoTrago}
+                              onClick={() => handleSimularPedidoTrago("Citrus Mocktail (Sin Alcohol)")}
                               className="mt-2 w-full rounded bg-slate-800 px-2 py-1 text-[11px] font-semibold text-slate-300 hover:bg-slate-700"
                             >
                               Pedir en barra
@@ -570,7 +578,7 @@ export function LaAppDeTuFiestaSection({
                         {pedidoTragoEstado !== "ninguno" && (
                           <div className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-950/30 p-2.5 text-xs">
                             <div className="flex items-center justify-between font-semibold text-emerald-300">
-                              <span>Pedido #42: Mojito</span>
+                              <span>Pedido #{pedidoTragoNumero}: {pedidoTragoNombre}</span>
                               <span>{pedidoTragoEstado === "en_cola" ? "⏳ En preparación" : "✅ Listo para retirar"}</span>
                             </div>
                             <p className="mt-1 text-[11px] text-emerald-400">

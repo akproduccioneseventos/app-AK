@@ -103,7 +103,7 @@ export const SERVICES: Service[] = [
     description:
       'DJ profesional con equipo de sonido de alta calidad e iluminación show para mantener la pista encendida toda la noche.',
     specs: [
-      'DJ profesional con +10 años de experiencia',
+      'DJ profesional con +200 fiestas realizadas',
       'Equipo de sonido profesional',
       'Luces show: cabezas móviles, strobo, laser',
       'Pantalla LED y visuales (a confirmar)',

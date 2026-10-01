@@ -87,6 +87,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
           setSocialLinks(merged);
         }
       })
+      // no pasa nada si falla: quedan los enlaces a redes de siempre.
       .catch(() => {});
   }, []);
 
@@ -110,7 +111,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
       )}
     >
       {/* Top glowing ambient gradient line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
 
       <div className="max-w-7xl mx-auto relative z-10 space-y-16">
 
@@ -170,10 +171,10 @@ export function PublicFooter({ className }: PublicFooterProps) {
             </h4>
             <ul className="space-y-3 text-xs font-semibold text-zinc-300">
               <li>
-                <a href="#landing-salon" onClick={(e) => handleAnchorClick(e, '#landing-salon')} className="hover:text-white transition-colors flex items-center gap-2 group">
+                <Link href="/club-uruguay" className="hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-red-500 group-hover:w-3 transition-all duration-300" />
                   Salón Club Uruguay (Exclusivo)
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#landing-services" onClick={(e) => handleAnchorClick(e, '#landing-services')} className="hover:text-white transition-colors flex items-center gap-2 group">
@@ -217,10 +218,10 @@ export function PublicFooter({ className }: PublicFooterProps) {
                 </a>
               </li>
               <li>
-                <a href="#landing-blog-video" onClick={(e) => handleAnchorClick(e, '#landing-blog-video')} className="hover:text-white transition-colors flex items-center gap-1.5 group">
+                <Link href="/public/blog" className="hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="text-zinc-500 group-hover:text-white transition-colors">→</span>
                   Blog & Guías de Organización
-                </a>
+                </Link>
               </li>
               <li>
                 <a href="#landing-testimonials-faq" onClick={(e) => handleAnchorClick(e, '#landing-testimonials-faq')} className="hover:text-white transition-colors flex items-center gap-1.5 group">
@@ -253,7 +254,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
                 <a href={`tel:+59898355530`} className="hover:text-white transition-colors font-bold">+598 98 355 530</a>
               </p>
               <p className="text-[11px] text-zinc-400 pt-1 border-t border-white/5 leading-relaxed">
-                Coordinación presencial garantizada el día de tu celebración.
+                Coordinación presencial el día de tu celebración.
               </p>
             </div>
           </div>
@@ -294,7 +295,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-zinc-400">
           <p>© {new Date().getFullYear()} AK Producciones Eventos. Todos los derechos reservados.</p>
           <div className="flex items-center gap-6">
-            <a href="#landing-salon" onClick={(e) => handleAnchorClick(e, '#landing-salon')} className="hover:text-white transition">Club Uruguay</a>
+            <Link href="/club-uruguay" className="hover:text-white transition">Club Uruguay</Link>
             <Link href="/simulador-de-presupuesto" className="hover:text-white transition">Simulador</Link>
             <Link href="/privacidad" className="hover:text-white transition">Privacidad</Link>
             <Link href="/login" className="hover:text-white transition text-zinc-500">Acceso Staff</Link>
@@ -305,4 +306,3 @@ export function PublicFooter({ className }: PublicFooterProps) {
     </footer>
   );
 }
-

@@ -15,6 +15,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { canUseNextImage } from "@/lib/next-image-url";
 import type { GaleriaFoto } from "@/types/galeria";
+import { textoVisibleDeLaFoto } from "@/lib/galeria/texto-de-la-foto";
 import {
   classifyGalleryCategories,
   galleryIdentityKeys,
@@ -92,6 +93,7 @@ export interface LandingGalleryItem {
   hint: string;
   titulo?: string;
   descripcion?: string;
+  categoriaServicio?: string;
   destacada?: boolean;
   source?: GaleriaFoto["source"];
   sourceId?: string;
@@ -148,6 +150,7 @@ function toLandingGalleryItem(
     hint: isGaleriaFoto ? item.categoria : item.hint,
     titulo,
     descripcion,
+    categoriaServicio: (item as any).categoriaServicio,
     destacada: item.destacada,
     source: item.source,
     sourceId: item.sourceId,
@@ -313,47 +316,50 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
           viewport={{ once: true, margin: "-40px" }}
           className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
         >
-          {displayedImages.map((image, index) => (
-            <motion.button
-              key={`${image.id}-${image.src}`}
-              type="button"
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-              animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-              transition={
-                shouldReduceMotion
-                  ? undefined
-                  : {
-                      duration: 0.32,
-                      delay: (index % 12) * 0.035,
-                      ease: [0.22, 1, 0.36, 1] as const,
-                    }
-              }
-              onClick={() => setLightboxIndex(index)}
-              className="group relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-neutral-200 text-left shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-700"
-              aria-label={`Abrir foto: ${image.alt}`}
-            >
-              <GalleryMedia
-                src={image.src}
-                alt={image.alt}
-                className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.03] motion-reduce:transition-none"
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              />
-              <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/35" />
-              <span className="absolute left-3 top-3 bg-white/95 px-2 py-1 text-[10px] font-bold text-slate-800">
-                {image.categorias[0] || "Eventos"}
-              </span>
-              <span className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
-                {image.titulo ? (
-                  <span className="line-clamp-2 bg-black/70 px-2 py-1 text-xs font-semibold text-white">
-                    {image.titulo}
-                  </span>
-                ) : (
-                  <span />
-                )}
-                <ZoomIn className="h-5 w-5 shrink-0 text-white opacity-0 transition-opacity group-hover:opacity-100" />
-              </span>
-            </motion.button>
-          ))}
+          {displayedImages.map((image, index) => {
+            const visible = textoVisibleDeLaFoto(image);
+            return (
+              <motion.button
+                key={`${image.id}-${image.src}`}
+                type="button"
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                transition={
+                  shouldReduceMotion
+                    ? undefined
+                    : {
+                        duration: 0.32,
+                        delay: (index % 12) * 0.035,
+                        ease: [0.22, 1, 0.36, 1] as const,
+                      }
+                }
+                onClick={() => setLightboxIndex(index)}
+                className="group relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-neutral-200 text-left shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-700"
+                aria-label={`Abrir foto: ${visible.titulo || image.alt}`}
+              >
+                <GalleryMedia
+                  src={image.src}
+                  alt={image.alt}
+                  className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.03] motion-reduce:transition-none"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                />
+                <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/35" />
+                <span className="absolute left-3 top-3 bg-white/95 px-2 py-1 text-[10px] font-bold text-slate-800">
+                  {image.categorias[0] || "Eventos"}
+                </span>
+                <span className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+                  {visible.titulo ? (
+                    <span className="line-clamp-2 bg-black/70 px-2 py-1 text-xs font-semibold text-white">
+                      {visible.titulo}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
+                  <ZoomIn className="h-5 w-5 shrink-0 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                </span>
+              </motion.button>
+            );
+          })}
         </motion.div>
 
         {displayedImages.length === 0 && (
@@ -420,28 +426,34 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                   priority
                 />
               </div>
-              <div className="mt-3 flex items-center justify-between gap-3 bg-zinc-900 px-4 py-3 text-white">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">
-                    {displayedImages[lightboxIndex].titulo || displayedImages[lightboxIndex].alt}
-                  </p>
-                  <p className="mt-1 text-xs text-zinc-400">
-                    {displayedImages[lightboxIndex].categorias[0] || "Evento"} · {lightboxIndex + 1} / {displayedImages.length}
-                  </p>
-                  {displayedImages[lightboxIndex].descripcion && (
-                    <p className="mt-1 line-clamp-2 text-xs text-zinc-400">{displayedImages[lightboxIndex].descripcion}</p>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleShareWhatsApp(displayedImages[lightboxIndex])}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
-                  aria-label="Compartir foto por WhatsApp"
-                  title="Compartir por WhatsApp"
-                >
-                  <Share2 className="h-4 w-4" />
-                </button>
-              </div>
+              {(() => {
+                const currentImg = displayedImages[lightboxIndex];
+                const visible = textoVisibleDeLaFoto(currentImg);
+                return (
+                  <div className="mt-3 flex items-center justify-between gap-3 bg-zinc-900 px-4 py-3 text-white">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold">
+                        {visible.titulo || currentImg.alt}
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-400">
+                        {currentImg.categorias[0] || "Evento"} · {lightboxIndex + 1} / {displayedImages.length}
+                      </p>
+                      {visible.descripcion && (
+                        <p className="mt-1 line-clamp-2 text-xs text-zinc-400">{visible.descripcion}</p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleShareWhatsApp(currentImg)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
+                      aria-label="Compartir foto por WhatsApp"
+                      title="Compartir por WhatsApp"
+                    >
+                      <Share2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
             <button
               type="button"

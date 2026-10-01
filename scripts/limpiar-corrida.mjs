@@ -10,6 +10,7 @@
  * Esto los descarta de una. Se corre despues de cada tanda de pruebas.
  */
 import { execFileSync } from 'node:child_process';
+import { unlinkSync, existsSync } from 'node:fs';
 
 const ESCRITOS_POR_LA_CORRIDA = [
   'data/notifications.json',
@@ -39,20 +40,46 @@ const ESCRITOS_POR_LA_CORRIDA = [
   'data/feedback.json',
   'src/data/feedback.json',
   'src/data/social-gallery/metadata.json',
+  // Los escribe la prueba de la orden de evento al cargar el empleado de prueba.
+  // Aparecieron sin estar en la lista el 30 de septiembre de 2026.
+  'src/data/empleados.json',
+  'data/empleados.json',
+  'data/notification-preferences.json',
+  'src/data/notification-preferences.json',
 ];
 
-const sucios = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' })
+const statusLines = execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' })
   .split('\n')
-  .map((l) => l.slice(3).trim())
   .filter(Boolean);
 
-const aLimpiar = ESCRITOS_POR_LA_CORRIDA.filter((f) => sucios.includes(f));
+// Archivos ya en git modificados por la corrida (XY != '??')
+const modificados = statusLines
+  .filter((l) => !l.startsWith('??'))
+  .map((l) => l.slice(3).trim());
 
-if (aLimpiar.length === 0) {
+// Archivos no trackeados creados por la corrida ('??' = untracked)
+const noTrackeados = statusLines
+  .filter((l) => l.startsWith('??'))
+  .map((l) => l.slice(3).trim());
+
+const aRestaurar = ESCRITOS_POR_LA_CORRIDA.filter((f) => modificados.includes(f));
+const aBorrar = ESCRITOS_POR_LA_CORRIDA.filter((f) => noTrackeados.includes(f));
+
+if (aRestaurar.length === 0 && aBorrar.length === 0) {
   console.log('Nada que limpiar: no quedaron datos de la corrida.');
   process.exit(0);
 }
 
-execFileSync('git', ['checkout', '--', ...aLimpiar], { stdio: 'inherit' });
-console.log(`Descartados ${aLimpiar.length} archivo(s) que escribio la corrida:`);
-for (const f of aLimpiar) console.log(`  ${f}`);
+if (aRestaurar.length > 0) {
+  execFileSync('git', ['checkout', '--', ...aRestaurar], { stdio: 'inherit' });
+  console.log(`Restaurados ${aRestaurar.length} archivo(s) que escribio la corrida:`);
+  for (const f of aRestaurar) console.log(`  ${f}`);
+}
+
+if (aBorrar.length > 0) {
+  for (const f of aBorrar) {
+    if (existsSync(f)) unlinkSync(f);
+  }
+  console.log(`Eliminados ${aBorrar.length} archivo(s) no trackeados que escribio la corrida:`);
+  for (const f of aBorrar) console.log(`  ${f}`);
+}

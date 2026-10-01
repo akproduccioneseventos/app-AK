@@ -2,6 +2,7 @@
 
 import * as logger from './logger';
 import { isSafeTopLevelJsonFile } from './backup/backup-registry';
+import { AsyncMutex } from './mutex';
 import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 const GENERIC_JSON_COLLECTION = 'json_documents';
@@ -106,6 +107,97 @@ export async function mutateGenericJsonArrayConTransaccion<T>(
     transaction.set(ref, { _filePath: normalizedPath, _arrayData: nueva, _syncedAt: new Date().toISOString() });
     resultado = nueva;
   });
+  return resultado;
+}
+
+/**
+ * CAMBIAR UN DOCUMENTO ENTERO (NO UN ARRAY) SIN PISAR A OTRO.
+ *
+ * Para documentos que guardan un objeto (por ejemplo, chats o memoria del
+ * asistente): lee, transforma y guarda adentro de una transacción. Si dos
+ * servidores intentan guardar al mismo tiempo, la base repite `cambiar` con
+ * el dato más nuevo. Si `cambiar` devuelve `null`, no guarda nada.
+ *
+ * **path**: dos segmentos separados por `/`, el segundo termina en `.json`.
+ * Ejemplo: `"multiagent/chats.json"`. Usa validación propia y NO llama a
+ * `isSafeTopLevelJsonFile` porque esa rechaza cualquier path con `/`.
+ */
+class FileAsyncMutex extends AsyncMutex {}
+const fileMutexes = new Map<string, FileAsyncMutex>();
+function getFileMutex(path: string): FileAsyncMutex {
+  let m = fileMutexes.get(path);
+  if (!m) {
+    m = new FileAsyncMutex();
+    fileMutexes.set(path, m);
+  }
+  return m;
+}
+
+export async function mutarDocumentoConTransaccion<T>(
+  filePath: string,
+  vacio: T,
+  cambiar: (actual: T) => Promise<T | null> | T | null,
+): Promise<T | null> {
+  const normalizedPath = filePath.replace(/\\/g, '/');
+  const partes = normalizedPath.split('/');
+  if (partes.length !== 2 || !partes[1].endsWith('.json')) {
+    throw new Error(
+      `[mutarDocumentoConTransaccion] Path inválido: "${normalizedPath}". Debe ser "coleccion/archivo.json".`,
+    );
+  }
+
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    const { readData, writeData } = await import('./data-service');
+    const mutex = getFileMutex(normalizedPath);
+    return mutex.runExclusive(async () => {
+      const actual = await readData<T>(normalizedPath, vacio);
+      const nuevo = await cambiar(actual ?? vacio);
+      if (nuevo === null) return null;
+      await writeData(normalizedPath, nuevo);
+      return nuevo;
+    });
+  }
+
+  const collection = partes[0];
+  const docId = partes[1].replace(/\.json$/, '');
+  const db = await getDbAdmin();
+  const ref = db.collection(collection).doc(docId);
+  let resultado: T | null = null;
+
+  await db.runTransaction(async (transaction) => {
+    resultado = null;
+    const snapshot = await transaction.get(ref);
+    let actual: T = vacio;
+    if (snapshot.exists) {
+      const data = snapshot.data();
+      if (data) {
+        const copy = { ...data };
+        delete copy._syncedAt;
+        actual = (copy._data !== undefined ? copy._data : copy) as T;
+      }
+    }
+    const nuevo = await cambiar(actual ?? vacio);
+    if (nuevo === null) return;
+    const cleanData = typeof nuevo === 'object' && nuevo !== null ? nuevo : { value: nuevo };
+    transaction.set(ref, {
+      ...cleanData,
+      _syncedAt: new Date().toISOString(),
+    });
+    resultado = nuevo;
+  });
+
+  if (resultado !== null) {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      for (const base of ['data', 'src/data']) {
+        const full = path.join(process.cwd(), base, normalizedPath);
+        await fs.mkdir(path.dirname(full), { recursive: true });
+        await fs.writeFile(full, JSON.stringify(resultado, null, 2), 'utf-8');
+      }
+    } catch {}
+  }
+
   return resultado;
 }
 

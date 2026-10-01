@@ -50,6 +50,7 @@ import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { SimulatorMeetingScheduler } from '@/components/simulator/SimulatorMeetingScheduler';
+import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
 import { isPackageApplicableToEventType } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
@@ -256,7 +257,7 @@ function SimuladorContent() {
     const searchParams = useSearchParams();
     const prefillName = searchParams.get('name')?.slice(0, 120) || '';
     const prefillGuests = Math.max(1, Math.min(1000, Math.round(Number(searchParams.get('guests')) || 50)));
-    const prefillEventType = normalizePrefillEventType(searchParams.get('eventType'));
+    const prefillEventType = normalizePrefillEventType(searchParams.get('eventType') ?? searchParams.get('tipo'));
     const prefillSalonChoice: 'club' | '' = searchParams.get('salon')?.toLowerCase() === 'club' ? 'club' : '';
     const acquisition = useMemo(() => ({
         ...commercialAttributionFromSearchParams(searchParams, 'landing'),
@@ -264,6 +265,13 @@ function SimuladorContent() {
         simulatorMode: 'visual' as const,
     }), [searchParams]);
     const [hasStarted, setHasStarted] = useState(false);
+    // Si la URL trae el tipo de fiesta pre-seleccionado, saltamos la pantalla de bienvenida
+    // para que el combobox quede visible de entrada y las pruebas e2e puedan encontrarlo.
+    useEffect(() => {
+      if (searchParams.get('tipo') || searchParams.get('eventType')) {
+        setHasStarted(true);
+      }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
     const [step, setStep] = useState(1);
     const currentYear = new Date().getFullYear();
 
@@ -557,7 +565,7 @@ function SimuladorContent() {
         if (salonChoice !== 'club') return null;
         const precioReal = 36000;
         const precioBasePromo = 16900;
-        
+
         const eventYear = eventoFecha ? new Date(eventoFecha).getFullYear() : 2026;
         const diffYears = Math.max(0, eventYear - 2026);
         const adjustmentPct = DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE || 15;
@@ -1507,18 +1515,21 @@ function SimuladorContent() {
                             <p className="mt-5 max-w-2xl text-base leading-7 text-white/85 sm:text-xl">
                                 Armá una propuesta con gastronomía, salón, tecnología y servicios reales de AK Producciones. Vas a ver el precio vigente, el valor por persona y la proyección para la fecha elegida.
                             </p>
-                            <Button
-                                onClick={() => setHasStarted(true)}
-                                data-testid="simulator-cover-start"
-                                className="mt-8 h-14 rounded-md bg-red-600 px-8 text-base font-black text-white hover:bg-red-700"
-                                disabled={isLoading}
-                            >
-                                {isLoading ? (
-                                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Preparando catálogo...</>
-                                ) : (
-                                    <>Comenzar mi presupuesto <ArrowRight className="ml-2 h-5 w-5" /></>
-                                )}
-                            </Button>
+                            <div className="mt-8 flex flex-wrap items-center gap-4">
+                              <Button
+                                  onClick={() => setHasStarted(true)}
+                                  data-testid="simulator-cover-start"
+                                  className="h-14 rounded-md bg-red-600 px-8 text-base font-black text-white hover:bg-red-700"
+                                  disabled={isLoading}
+                              >
+                                  {isLoading ? (
+                                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Preparando catálogo...</>
+                                  ) : (
+                                      <>Comenzar mi presupuesto <ArrowRight className="ml-2 h-5 w-5" /></>
+                                  )}
+                              </Button>
+                              <VideoDeAyuda lugar="simulador" />
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -1959,8 +1970,10 @@ function SimuladorContent() {
         <div className="ak-public-page flex min-h-screen flex-col items-center justify-center gap-4 p-2 sm:p-6 lg:p-8">
             <Card className="w-full max-w-4xl overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
                 <CardHeader className="text-center bg-slate-50 p-6 sm:p-10 border-b border-slate-200">
-                    <div className="flex justify-center mb-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="w-8 hidden sm:block" />
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-50" />
+                      <VideoDeAyuda lugar="simulador" />
                     </div>
                     <CardTitle className="text-2xl font-black text-slate-900 sm:text-3xl">Armá tu presupuesto</CardTitle>
                     <CardDescription className="mt-2 text-sm font-bold text-slate-500">
@@ -1984,17 +1997,17 @@ function SimuladorContent() {
                                         className="absolute inset-0 h-full w-full object-cover object-center opacity-50 scale-105 transition-transform duration-1000"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/20" />
-                                    
+
                                     <div className="relative z-10 space-y-4">
                                         <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
                                             <Sparkles className="h-4 w-4 text-amber-400" />
                                             Presupuesto Transparente · AK Producciones Salto
                                         </div>
-                                        
+
                                         <h1 className="font-headline text-2xl sm:text-4xl font-black leading-tight text-white tracking-tight">
-                                            Diseñá tu fiesta inolvidable en Salto sin estrés, con costo real y garantía absoluta
+                                            Diseñá tu fiesta inolvidable en Salto sin estrés y con costo real
                                         </h1>
-                                        
+
                                         <p className="text-xs sm:text-base font-semibold text-slate-200 leading-relaxed max-w-2xl">
                                             Olvidate de contratar 10 proveedores distintos y sufrir sorpresas a último momento. Con AK Producciones tenés gastronomía propia, discoteca VIP, luces robotizadas, salón emblemático y tecnología interactiva coordinados por un único equipo responsable.
                                         </p>
@@ -2022,9 +2035,9 @@ function SimuladorContent() {
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                                     <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
-                                        <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> Lo que nos diferencia y te garantiza tranquilidad total
+                                        <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> Lo que nos diferencia
                                     </h3>
-                                    <span className="text-xs font-bold text-slate-500 hidden sm:inline-block">Garantía In-House AK</span>
+                                    <span className="text-xs font-bold text-slate-500 hidden sm:inline-block">Producción In-House AK</span>
                                 </div>
 
                                 <div className="grid gap-4 sm:grid-cols-2">
@@ -2050,7 +2063,7 @@ function SimuladorContent() {
                                             </div>
                                             <div>
                                                 <h4 className="font-black text-slate-900 text-sm">Gastronomía Exquisita & Abundante</h4>
-                                                <p className="text-[11px] font-bold text-amber-700">Calidad y cantidad garantizadas</p>
+                                                <p className="text-[11px] font-bold text-amber-700">Calidad y cantidad, como se contrató</p>
                                             </div>
                                         </div>
                                         <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
@@ -2883,7 +2896,7 @@ function SimuladorContent() {
                                     ? <> — El presupuesto lleva un ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
                                     : <> — El total mostrado corresponde al precio vigente.</>}
                             </div>
-                            
+
                             <div className="pt-2 flex justify-center">
                                 <Button
                                     type="button"
@@ -2915,9 +2928,15 @@ function SimuladorContent() {
                             {step < 5 && <ArrowRight className="ml-3 w-5 h-5"/>}
                         </Button>
                         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-md border">
-                            <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Total vigente:</p>
-                            <p className="text-sm font-black text-primary">{formatCurrency(stats.totalFinal)}</p>
-                            {stats.precioPorPersona > 0 && <p className="text-xs font-bold text-slate-500">{formatCurrency(stats.precioPorPersona)} p/p</p>}
+                            {stats.totalFinal <= 0 ? (
+                                <p className="text-xs font-bold text-slate-600">Elegí tus servicios para ver el total</p>
+                            ) : (
+                                <>
+                                    <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Total vigente:</p>
+                                    <p className="text-sm font-black text-primary">{formatCurrency(stats.totalFinal)}</p>
+                                    {stats.precioPorPersona > 0 && <p className="text-xs font-bold text-slate-500">{formatCurrency(stats.precioPorPersona)} p/p</p>}
+                                </>
+                            )}
                         </div>
                     </div>
                 </CardFooter>

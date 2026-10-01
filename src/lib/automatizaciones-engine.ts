@@ -1,5 +1,6 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { AutomatizacionRule, AlertaAutomatica } from '@/types/automatizaciones';
+import type { ServicioEmpresa } from '@/types/empresa';
 import { estadoDelPedido } from '@/lib/catering/seguimiento-del-pedido';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,6 +20,7 @@ const REGLA_AREA_MAP: Record<string, string> = {
   'cronograma-vacio': 'timeline',
   'contrato-sin-firmar': 'documentos',
   'pedido-incompleto': 'menu',
+  'mantenimiento-equipo-vencido': 'equipamiento',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -123,16 +125,59 @@ export const REGLAS_AUTOMATICAS: AutomatizacionRule[] = [
     accion: { tipo: 'alerta_interna', destino: 'centro_de_mando' },
     activa: true,
   },
+  {
+    id: 'mantenimiento-equipo-vencido',
+    nombre: 'Equipo con mantenimiento vencido',
+    descripcion: 'Equipo con mantenimiento vencido asignado a una fiesta próxima',
+    trigger: { tipo: 'dias_antes_evento', dias: 7, condicion: 'mantenimiento_vencido' },
+    accion: { tipo: 'alerta_interna', destino: 'centro_de_mando' },
+    activa: true,
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-function getDiasRestantes(fiesta: FiestaEnPlanificacion): number | null {
+export function equipoTieneMantenimientoVencido(
+  equipo: { mantenimiento?: { cadaDias?: number; ultimoAt?: string } },
+  ahora: Date = new Date(),
+): boolean {
+  if (!equipo.mantenimiento?.cadaDias || equipo.mantenimiento.cadaDias <= 0) {
+    return false;
+  }
+  const ultimoMs = equipo.mantenimiento.ultimoAt
+    ? new Date(equipo.mantenimiento.ultimoAt).getTime()
+    : 0;
+  const intervaloMs = equipo.mantenimiento.cadaDias * 24 * 60 * 60 * 1000;
+  return ahora.getTime() >= ultimoMs + intervaloMs;
+}
+
+export function verificarEquiposConMantenimientoVencidoEnFiesta(
+  fiesta: FiestaEnPlanificacion,
+  equipos: ServicioEmpresa[],
+  ahora: Date = new Date(),
+): ServicioEmpresa[] {
+  const dias = getDiasRestantes(fiesta, ahora);
+  if (dias === null || dias < 0 || dias > 7) {
+    return [];
+  }
+
+  const idsEnCarga = new Set(
+    (fiesta.listaDeCargaOperativa?.categorias || []).flatMap((cat) =>
+      (cat.items || []).map((it) => it.origenId || it.id),
+    ),
+  );
+
+  return equipos.filter(
+    (eq) => idsEnCarga.has(eq.id) && equipoTieneMantenimientoVencido(eq, ahora),
+  );
+}
+
+function getDiasRestantes(fiesta: FiestaEnPlanificacion, fechaReferencia: Date = new Date()): number | null {
   const fechaStr = fiesta.configuracion?.fechaEvento;
   if (!fechaStr) return null;
-  const hoy = new Date();
+  const hoy = new Date(fechaReferencia);
   hoy.setHours(0, 0, 0, 0);
   const fecha = new Date(fechaStr);
   fecha.setHours(0, 0, 0, 0);
@@ -188,7 +233,12 @@ function buildAccionUrl(regla: AutomatizacionRule, fiestaId: string): string | u
 // Condition evaluators
 // ─────────────────────────────────────────────────────────────────────────────
 
-function evaluarCondicion(condicion: string, fiesta: FiestaEnPlanificacion): boolean {
+function evaluarCondicion(
+  condicion: string,
+  fiesta: FiestaEnPlanificacion,
+  activos?: ServicioEmpresa[],
+  hoy: Date = new Date(),
+): boolean {
   const cuotas = fiesta.planDePagos?.cuotas ?? [];
   const invitados = fiesta.invitados ?? [];
   const estimados = fiesta.configuracion?.invitadosEstimados ?? 0;
@@ -232,6 +282,11 @@ function evaluarCondicion(condicion: string, fiesta: FiestaEnPlanificacion): boo
     case 'sin_contrato':
       return Boolean(fiesta.presupuestoId) && !fiesta.contratoFirmaInfo?.signedAt && !fiesta.contratoFirmaInfo?.isSigned && !fiesta.contratoServicioTexto;
 
+    case 'mantenimiento_vencido':
+      return (activos && activos.length > 0)
+        ? verificarEquiposConMantenimientoVencidoEnFiesta(fiesta, activos, hoy).length > 0
+        : false;
+
     default:
       return false;
   }
@@ -244,10 +299,12 @@ function evaluarCondicion(condicion: string, fiesta: FiestaEnPlanificacion): boo
 export function evaluarReglasParaFiesta(
   fiesta: FiestaEnPlanificacion,
   reglas: AutomatizacionRule[] = REGLAS_AUTOMATICAS,
+  activos?: ServicioEmpresa[],
+  fechaReferencia: Date = new Date(),
 ): AlertaAutomatica[] {
   const alertas: AlertaAutomatica[] = [];
-  const hoy = new Date();
-  const diasRestantes = getDiasRestantes(fiesta);
+  const hoy = fechaReferencia;
+  const diasRestantes = getDiasRestantes(fiesta, hoy);
   const fiestaId = fiesta.id ?? 'unknown';
   const fiestaName = fiesta.configuracion?.nombreEvento || 'Sin nombre';
 
@@ -260,7 +317,7 @@ export function evaluarReglasParaFiesta(
       case 'dias_antes_evento': {
         if (diasRestantes === null) break;
         if (diasRestantes >= 0 && diasRestantes <= regla.trigger.dias) {
-          shouldFire = evaluarCondicion(regla.trigger.condicion, fiesta);
+          shouldFire = evaluarCondicion(regla.trigger.condicion, fiesta, activos, hoy);
         }
         break;
       }

@@ -19,7 +19,20 @@ export async function getLandingSettings(): Promise<LandingSettings> {
       colors: { ...defaultLandingSettings.colors, ...data.colors },
       seo: { ...defaultLandingSettings.seo, ...data.seo },
       services: data.services ?? defaultLandingSettings.services,
-      stats: data.stats?.length ? data.stats : defaultLandingSettings.stats,
+      stats: (() => {
+        if (!data.stats?.length) return defaultLandingSettings.stats;
+        const valoresViejos = ['+500', '+12', '100%', '24/7'];
+        const esListaVieja =
+          data.stats.length === 4 &&
+          data.stats.every((s, i) => s.value === valoresViejos[i]);
+        const tieneStatCero = data.stats.some(
+          (s) => !s.value || s.value === '0' || /^0\//.test(s.value)
+        );
+        if (esListaVieja || tieneStatCero) {
+          return defaultLandingSettings.stats;
+        }
+        return data.stats;
+      })(),
       gallery: data.gallery ?? defaultLandingSettings.gallery,
       faqs: data.faqs ?? defaultLandingSettings.faqs,
     };

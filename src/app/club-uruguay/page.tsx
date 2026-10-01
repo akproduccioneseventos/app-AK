@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image, { type ImageLoaderProps } from 'next/image';
 import Link from 'next/link';
-import { Building2, CalendarDays, Check, MapPin, MessageCircle, Users } from 'lucide-react';
+import { Accessibility, Building2, CalendarDays, Car, Check, MapPin, MessageCircle, Users } from 'lucide-react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { PublicFooter } from '@/components/public-footer';
 import { getSalonesPublicos } from '@/app/actions/salones';
@@ -82,6 +82,8 @@ export default async function ClubUruguayPage() {
   const salonAddress = salon?.direccion?.trim();
   const salonDescription = salon?.descripcion?.trim();
   const salonCapacity = salon?.capacidad && salon.capacidad > 0 ? salon.capacidad : undefined;
+  const salonEstacionamiento = salon?.estacionamiento?.trim();
+  const salonAccesibilidad = salon?.accesibilidad?.trim();
   const whatsappHref = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
     'Hola AK Producciones. Quiero conocer y cotizar una fiesta en Club Uruguay.',
   )}`;
@@ -165,7 +167,11 @@ export default async function ClubUruguayPage() {
         </section>
 
         <section className="border-b border-white/10 bg-white text-zinc-950">
-          <div className="mx-auto grid max-w-7xl gap-px bg-zinc-200 sm:grid-cols-3">
+          <div className={`mx-auto grid max-w-7xl gap-px bg-zinc-200 ${
+            salonEstacionamiento || salonAccesibilidad
+              ? 'sm:grid-cols-2 lg:grid-cols-4'
+              : 'sm:grid-cols-3'
+          }`}>
             <div className="bg-white px-6 py-7">
               <Building2 className="mb-3 h-6 w-6 text-red-600" />
               <h2 className="font-headline text-xl font-black">Club Uruguay</h2>
@@ -187,6 +193,20 @@ export default async function ClubUruguayPage() {
                 <Check className="mb-3 h-6 w-6 text-red-600" />
                 <h2 className="font-headline text-xl font-black">Información clara</h2>
                 <p className="mt-2 text-sm leading-relaxed text-zinc-600">Consultá una propuesta acorde a tu celebración.</p>
+              </div>
+            )}
+            {salonEstacionamiento && (
+              <div className="bg-white px-6 py-7">
+                <Car className="mb-3 h-6 w-6 text-red-600" />
+                <h2 className="font-headline text-xl font-black">Estacionamiento</h2>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{salonEstacionamiento}</p>
+              </div>
+            )}
+            {salonAccesibilidad && (
+              <div className="bg-white px-6 py-7">
+                <Accessibility className="mb-3 h-6 w-6 text-red-600" />
+                <h2 className="font-headline text-xl font-black">Accesibilidad</h2>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{salonAccesibilidad}</p>
               </div>
             )}
           </div>

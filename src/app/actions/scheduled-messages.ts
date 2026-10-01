@@ -11,9 +11,6 @@ import { requireAppSession } from '@/lib/auth/require-session';
 import {
   sendGoogleGmailMessage,
   ensureFreshGoogleAccount,
-  hasServiceAccountKey,
-  getServiceAccountAccessToken,
-  GOOGLE_WORKSPACE_SCOPES,
 } from '@/lib/google-workspace';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
@@ -260,10 +257,6 @@ export async function checkGoogleMailStatus(): Promise<{ connected: boolean; ema
     if (company?.status === 'connected' && company.accessToken) {
       return { connected: true, email: company.email };
     }
-    if (hasServiceAccountKey()) {
-      const saToken = await getServiceAccountAccessToken();
-      if (saToken) return { connected: true, email: 'akproduccionessalto@gmail.com' };
-    }
     return { connected: false };
   } catch {
     return { connected: false };
@@ -286,26 +279,7 @@ export async function sendScheduledMessageByEmail(
   }
 
   const accounts = await readData<GoogleWorkspaceAccount[]>('_google-workspace-accounts.json', []);
-  let companyAccount = accounts.find((a) => a.kind === 'company');
-  if (!companyAccount && hasServiceAccountKey()) {
-    const saToken = await getServiceAccountAccessToken();
-    if (saToken) {
-      companyAccount = {
-        id: 'company',
-        kind: 'company',
-        email: 'akproduccionessalto@gmail.com',
-        calendarId: process.env.GOOGLE_WORKSPACE_CALENDAR_ID || 'primary',
-        accessToken: saToken,
-        scope: GOOGLE_WORKSPACE_SCOPES.join(' '),
-        tokenType: 'Bearer',
-        expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
-        connectedAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: 'connected',
-      };
-    }
-  }
-
+  const companyAccount = accounts.find((a) => a.kind === 'company');
   const freshCompany = companyAccount ? await ensureFreshGoogleAccount(companyAccount).catch(() => null) : null;
   if (!freshCompany || freshCompany.status !== 'connected' || !freshCompany.accessToken) {
     return {
@@ -337,3 +311,4 @@ export async function sendScheduledMessageByEmail(
   }
   return { success: true };
 }
+

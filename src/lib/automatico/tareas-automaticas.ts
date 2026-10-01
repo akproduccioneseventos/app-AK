@@ -83,6 +83,18 @@ export const TAREAS_AUTOMATICAS: TareaAutomatica[] = [
     siNoCorre: 'Los invitados confirmados no reciben la dirección, hora ni enlace a su invitación dos días antes ni el día de la fiesta.',
     cadaHoras: 24,
   },
+  {
+    id: 'avisos-al-cliente',
+    nombre: 'Preparar avisos de recordatorio al cliente',
+    siNoCorre: 'Los clientes no reciben recordatorios de música, video o menú antes del evento.',
+    cadaHoras: 24,
+  },
+  {
+    id: 'recordar-invitacion-no-abierta',
+    nombre: 'Recordar invitación a invitados que no la abrieron',
+    siNoCorre: 'Los invitados que no abrieron la invitación a los 21 y 10 días antes del evento no reciben recordatorio.',
+    cadaHoras: 24,
+  },
 ];
 
 import type { OrigenDisparo } from '@/lib/automatico/control-concurrencia';
