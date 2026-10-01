@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { tituloQueSirve } from '@/lib/seo/titulo-de-la-portada';
 import { cache, Suspense } from "react";
 import { LandingNav } from "@/components/landing/LandingNav";

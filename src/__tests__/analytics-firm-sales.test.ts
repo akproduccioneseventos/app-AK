@@ -1,4 +1,4 @@
-﻿const mockGetPresupuestos = jest.fn();
+const mockGetPresupuestos = jest.fn();
 const mockGetInvoices = jest.fn();
 const mockGetAllFiestas = jest.fn();
 

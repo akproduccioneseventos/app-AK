@@ -1,4 +1,4 @@
-﻿/**
+/**
  * MATAFUEGO — Los ajustes que carga el operador tienen que LLEGAR a la estación.
  *
  * Un ajuste que se guarda y no llega es peor que no tenerlo: el operador cree que

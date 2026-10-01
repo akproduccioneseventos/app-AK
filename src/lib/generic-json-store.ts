@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import * as logger from './logger';
 import { isSafeTopLevelJsonFile } from './backup/backup-registry';

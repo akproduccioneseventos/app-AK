@@ -1,4 +1,4 @@
-﻿import type { BuzonConfig, FiestaEnPlanificacion } from '@/types/fiesta';
+import type { BuzonConfig, FiestaEnPlanificacion } from '@/types/fiesta';
 
 export type EntertainmentModuleId =
   | 'fotocabina'

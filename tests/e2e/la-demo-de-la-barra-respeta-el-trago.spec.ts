@@ -1,4 +1,4 @@
-﻿import { expect, test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Orden 96 - Bloque 7: La demo de la barra respeta el trago elegido', () => {
   test('en la portada, pedir el Citrus Mocktail y luego el Mojito muestra los nombres y números correctos', async ({ page }, testInfo) => {

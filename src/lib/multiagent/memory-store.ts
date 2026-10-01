@@ -1,4 +1,4 @@
-﻿import type { AkAgentLearning, AkAgentMemoryProfile, AkAgentMemoryScope, AkAgentType } from '@/types/multiagent';
+import type { AkAgentLearning, AkAgentMemoryProfile, AkAgentMemoryScope, AkAgentType } from '@/types/multiagent';
 import { readData } from '@/lib/data-service';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { AK_MANUAL_VERSION, getManualLearningSeed } from '@/lib/multiagent/manual-ak';

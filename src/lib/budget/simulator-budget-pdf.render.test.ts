@@ -1,4 +1,4 @@
-﻿import { writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { TextDecoder, TextEncoder } from "node:util";
 import { createSimulatorBudgetPdf } from "./simulator-budget-pdf";
 

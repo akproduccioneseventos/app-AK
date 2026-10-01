@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
@@ -46,6 +46,8 @@ export function MetaPixel() {
     const fbq = (window as any).fbq;
     if (typeof fbq !== 'function') return;
     const url = direccionParaMedir(pathname, window.location.search);
+    // El píxel manda solo location.href entero: si la dirección trae algo que no es seguro, no se mide.
+    if (url !== pathname + window.location.search) return;
     fbq('track', 'PageView', { page_location: window.location.origin + url });
   }, [pathname, puedeMedir]);
 

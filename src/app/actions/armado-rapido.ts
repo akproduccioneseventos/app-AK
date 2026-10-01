@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
@@ -135,7 +135,7 @@ export async function generateBudgetAndLeadFromSimulator(
       tipo: 'aviso',
       entidadRelacionadaId: result.presupuesto.id,
       rolDestino: 'admin',
-    }).catch(() => {});
+    }).catch(() => {}); // no pasa nada si falla: el presupuesto ya quedó guardado; el aviso al equipo es un extra
 
     return {
       success: true,

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * el-asistente-no-pierde-ni-elige-mal.test.ts
  *
  * Garantías del bloque asistente (Orden 100):

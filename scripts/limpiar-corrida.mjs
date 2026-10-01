@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * Borra lo que escriben solas las pruebas y que NUNCA va al repositorio.
  *

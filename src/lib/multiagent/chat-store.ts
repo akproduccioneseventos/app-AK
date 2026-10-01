@@ -1,4 +1,4 @@
-﻿import type { AkAgentChatMessage, AkAgentChatSession, AkAgentType } from '@/types/multiagent';
+import type { AkAgentChatMessage, AkAgentChatSession, AkAgentType } from '@/types/multiagent';
 import { readData } from '@/lib/data-service';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 
