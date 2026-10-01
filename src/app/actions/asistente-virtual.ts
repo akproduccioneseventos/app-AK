@@ -5,6 +5,7 @@ import { getArmadoRapidoConfig, captureSimulatorLeadProgress } from '@/app/actio
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { generateWithGeminiFallback, geminiCommercialModel } from '@/ai/genkit';
 import type { MessageData } from 'genkit';
+import { PREGUNTAS_FRECUENTES_DEL_CONTRATO } from '@/data/preguntas-frecuentes-contrato';
 
 export interface AssistantResponse {
   success: boolean;
@@ -61,6 +62,10 @@ export async function chatWithVirtualAssistant(
     const paquetesContext = config.paquetes.map(p => `- Paquete ${p.nombre}: ${p.descripcion}`).join('\n');
     const menusContext = config.menus.map(m => `- Menú ${m.nombre}: ${m.descripcion}`).join('\n');
 
+    const faqContext = PREGUNTAS_FRECUENTES_DEL_CONTRATO.map(
+      (f) => `P: ${f.pregunta}\nR: ${f.respuesta}`
+    ).join('\n\n');
+
     // 4. Prompt del sistema
     const systemPrompt = `Sos el asesor de ventas virtual de AK Producciones, una empresa uruguaya de eventos.
 Tu objetivo es responder dudas usando SOLO el catálogo oficial, y guiar al usuario para armar un presupuesto.
@@ -69,8 +74,12 @@ ${paquetesContext}
 Catálogo de menús:
 ${menusContext}
 
+PREGUNTAS FRECUENTES DEL CONTRATO:
+${faqContext}
+
 REGLAS ESTRICTAS:
 - No prometas plazos, garantías ni resultados.
+- Si la respuesta depende de su caso (montos, fechas, excepciones), decile que lo confirma el organizador por WhatsApp. No prometas nada que no esté acá.
 - No inventes precios. Si preguntan precio, decí que necesitás algunos datos para armar el presupuesto a medida.
 - No inventes fechas libres. Si preguntan por una fecha, decí "Te confirmo la disponibilidad exacta en un rato, pero dejame armarte el presupuesto para esa fecha".
 - Escribí en español rioplatense (uruguayo), amigable y corto.
@@ -180,10 +189,10 @@ export async function chatConAsistenteCliente(
       };
     }
 
-    const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
-    const fiesta = await getFiestaById(fiestaId);
+    const { getFiestaForPortalSession } = await import('@/app/actions/fiesta/portal.actions');
+    const fiesta = await getFiestaForPortalSession(fiestaId);
     if (!fiesta) {
-      return { success: false, error: 'No se encontró la fiesta solicitada.' };
+      return { success: false, error: 'Tu sesión del portal venció. Volvé a entrar.' };
     }
 
     const nombreEvento = fiesta.configuracion?.nombreEvento || fiesta.id || 'Tu Fiesta';
@@ -198,6 +207,10 @@ export async function chatConAsistenteCliente(
       .map((t: any) => `• ${t.titulo || t.texto}`)
       .join('\n') || 'Ninguna pendiente.';
 
+    const faqContext = PREGUNTAS_FRECUENTES_DEL_CONTRATO.map(
+      (f) => `P: ${f.pregunta}\nR: ${f.respuesta}`
+    ).join('\n\n');
+
     const systemPrompt = `Sos la Asistente Virtual del Portal del Cliente de AK Producciones para la fiesta "${nombreEvento}".
 Tu misión es contestar dudas al cliente organizador sobre SU fiesta con simpatía en español rioplatense (uruguayo).
 
@@ -210,11 +223,15 @@ DATOS REALES DE SU FIESTA (ÚNICO CONTEXTO AUTORIZADO):
 - Tareas pendientes destacadas:
 ${tareasPendientes}
 
+PREGUNTAS FRECUENTES DEL CONTRATO:
+${faqContext}
+
 REGLAS DE SEGURIDAD Y PRIVACIDAD:
 1. SOLO hablás de esta fiesta (${nombreEvento}). Si preguntan por otros clientes, eventos o personas, decí amablemente que solo tenés acceso a esta celebración.
-2. NUNCA inventes datos que no figuren acá. Si algo no está definido, decí: "Ese detalle todavía no está cargado en el portal, podés consultarlo directamente con el equipo de AK."
-3. NO podés modificar datos ni agendar pagos.
-4. Respuestas amables, claras y cortas con emojis.`;
+2. Si la respuesta depende de su caso (montos, fechas, excepciones), decile que lo confirma el organizador por WhatsApp. No prometas nada que no esté acá.
+3. NUNCA inventes datos que no figuren acá. Si algo no está definido, decí: "Ese detalle todavía no está cargado en el portal, podés consultarlo directamente con el equipo de AK."
+4. NO podés modificar datos ni agendar pagos.
+5. Respuestas amables, claras y cortas con emojis.`;
 
     const response = await generateWithGeminiFallback({
       model: geminiCommercialModel,
