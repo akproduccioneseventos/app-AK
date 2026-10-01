@@ -328,6 +328,42 @@ es sólo a mano (`src/app/actions/fiesta/fiesta.actions.ts` ~l.800).
 próximas, no genera recordatorios de cuotas ni avisos, y su plata cobrada queda igual; una fiesta
 pasada sin archivar y otra con cliente igual al agasajado aparecen en "Revisar mis fiestas".
 
+## Bloque 14 — El video resumen de la fiesta, sin gastar en IA de video
+
+**Decisión del dueño (01/10/2026):** sí, si no gasta mucho y si de verdad sale bien. Por eso **no se
+genera video con IA** (caro y flojo): se **arma un montaje** con lo que ya hay.
+
+- Al día siguiente de la fiesta, una tarea elige las mejores fotos y videos cortos del muro y las
+  estaciones con `evaluarFoto`/`calcularNitidez` (`src/lib/album/elegir-las-mejores.ts`, ya usado por
+  el álbum, **gratis**: no llama a ninguna IA), unas 30 fotos y hasta 6 clips de 3 segundos, sin
+  repetir caras de más.
+- El video se arma **en el navegador** del equipo o del cliente al abrirlo (lienzo + `MediaRecorder`,
+  o `ffmpeg.wasm` si hace falta), con la música de la fiesta que ya usa el álbum, transiciones
+  simples, título con el nombre y la fecha, y el logo de AK al final. 60 a 90 segundos, vertical para
+  compartir. **No se procesa en el servidor** (no suma gasto por mes).
+- Aparece en el álbum y en el portal del cliente como "Tu video de la fiesta", con "Descargar" y
+  "Compartir".
+
+**La prueba**: con 50 fotos de prueba (10 borrosas), la selección no incluye ninguna borrosa, elige
+como máximo 30 y respeta el orden de la noche.
+
+## Bloque 15 — Los asistentes con cara y nombre: "Aki"
+
+**Pedido del dueño:** que los asistentes no sean "un círculo con una máquina", que sean divertidos y
+tengan nombre, con **K** por AK.
+
+- El asistente se llama **Aki** (A-K-i) en todos lados: invitado (`src/components/invitacion/AsistenteDelInvitado.tsx`,
+  hoy con el ícono `Bot` ~l.144), cliente (`AsistenteDelCliente`, orden 101), web
+  (`src/components/concierge/ConciergeWidget.tsx`) y equipo (`MultiAgentWidget`). El nombre se puede
+  cambiar en Ajustes.
+- **Una mascota animada en vez del robot**: un personaje simple y simpático hecho en SVG (ojos que
+  parpadean, sonríe al contestar, salta un poquito cuando llega un mensaje), con los colores de AK y,
+  en la fiesta, con el color de la fiesta. Con `prefers-reduced-motion`, quieto.
+- Saluda con su nombre: *"¡Hola! Soy Aki, el asistente de AK. ¿En qué te ayudo?"*. Sigue las reglas
+  de siempre: sin promesas, plata y fechas las confirma el organizador.
+
+**La prueba**: los cuatro asistentes muestran "Aki" y la mascota, ninguno usa el ícono `Bot`.
+
 ```comprobar
 usa: idDeYoutube en src/app/(app)/empresa/configurador-reunion/page.tsx
 usa: createDemoFiesta en src/app/(app)/empresa/configurador-reunion/page.tsx
@@ -339,4 +375,5 @@ prueba: src/__tests__/la-barra-cierra-la-cuenta.test.ts
 archivo: src/data/tecnologia-ak.ts
 prueba: src/__tests__/la-tecnologia-ak-no-se-despega.test.ts
 prueba: src/__tests__/mis-fiestas-en-orden.test.ts
+no-usa: <Bot  en src/components/invitacion/AsistenteDelInvitado.tsx
 ```
