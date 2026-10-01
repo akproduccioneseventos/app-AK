@@ -286,10 +286,47 @@ paneles; *"ni yo sé cuánta tecnología tiene"*. Hoy hay una vidriera en la por
 3. **La misma lista** alimenta la vidriera de la portada, el recorrido de la reunión (bloque 3) y la
    web `/experiencia`: **una sola fuente**, para que no se despeguen.
 4. Reglas de venta de `CLAUDE.md` (sin garantías, sin plazos, sin nombrar personal). Celular primero.
+5. **Las fotos y videos de las tarjetas los hace la app sola** (no hay material grabado): un script
+   `npm run tecnologia:capturas` abre la fiesta de demo con el navegador de las pruebas, recorre cada
+   pantalla de la lista y guarda **una captura** y **un video corto de 6-8 segundos, sin sonido**,
+   de cada una (Playwright graba video), en `public/tecnologia/`, livianos (captura en WebP, video de
+   menos de 1,5 MB). Así cada tarjeta muestra la pantalla real funcionando. Se vuelve a correr cuando
+   cambia una pantalla.
 
 **El control** (`src/__tests__/la-tecnologia-ak-no-se-despega.test.ts`): cada tarjeta de la lista
 apunta a una pantalla que existe (`docs/MANUAL-DE-LA-APP.md` o el mapa de rutas), el total de la página
 es el largo de la lista, y la vidriera de la portada lee la misma lista.
+
+## Bloque 13 — Mis fiestas en orden: suspendidas, pasadas y quién es el cliente
+
+**Pedido del dueño:** cargó fiestas hace tiempo; algunas se suspendieron (la de Gamboa, la de Lorena),
+otras ya pasaron, y no sabe en qué quedaron. Además, a veces el nombre de **la mamá que contrata**
+quedó como si fuera **la quinceañera**.
+
+**Lo que hay hoy:** la fiesta tiene `clienteNombre`, `protagonista1Nombre`/`protagonista2Nombre` y
+`nombreAgasajado` (`src/types/fiesta.ts` ~l.155-170); **no existe** el estado "suspendida", y archivar
+es sólo a mano (`src/app/actions/fiesta/fiesta.actions.ts` ~l.800).
+
+1. **Estado "Suspendida"** para una fiesta, con fecha y motivo, que se marca **a mano** desde la ficha.
+   Una fiesta suspendida: sale del calendario y de los listados de próximas, **apaga** sus
+   recordatorios de cuotas, avisos al cliente, invitaciones y tareas automáticas, y **no toca la
+   plata**: lo cobrado queda como está, y la ficha muestra lo que dice el contrato (penalidad del 30%
+   sobre el presupuesto vigente, lo pagado se descuenta) para que el dueño decida. Se puede
+   "Reactivar".
+2. **Pantalla "Revisar mis fiestas"** en el panel, con una fila por fiesta y lo que tiene raro, para
+   resolver con un toque cada uno:
+   - ya pasó y no está cerrada ni archivada → "Archivar" (con el resumen de lo cobrado);
+   - no tiene presupuesto, o el presupuesto no tiene servicios → "Abrir presupuesto";
+   - le faltan datos clave (fecha, salón, invitados);
+   - **el nombre del cliente es igual al del agasajado** → "¿Quién contrata?" con dos campos claros;
+   - tiene cuotas vencidas sin cobrar.
+3. **Que no se vuelva a confundir:** en todos los formularios donde se carga una fiesta, los campos
+   dicen **"Quién contrata (cliente)"** y **"Agasajada / agasajado"**, separados, y el portal del
+   cliente saluda al cliente, no a la quinceañera.
+
+**La prueba** (`src/__tests__/mis-fiestas-en-orden.test.ts`): una fiesta suspendida no aparece en
+próximas, no genera recordatorios de cuotas ni avisos, y su plata cobrada queda igual; una fiesta
+pasada sin archivar y otra con cliente igual al agasajado aparecen en "Revisar mis fiestas".
 
 ```comprobar
 usa: idDeYoutube en src/app/(app)/empresa/configurador-reunion/page.tsx
@@ -301,4 +338,5 @@ usa: '/experiencia' en src/lib/medicion-segura.ts
 prueba: src/__tests__/la-barra-cierra-la-cuenta.test.ts
 archivo: src/data/tecnologia-ak.ts
 prueba: src/__tests__/la-tecnologia-ak-no-se-despega.test.ts
+prueba: src/__tests__/mis-fiestas-en-orden.test.ts
 ```
