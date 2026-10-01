@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote, Printer, Share2 } from 'lucide-react';
+import { ArrowLeft, Package, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Tag, BarChart3, StickyNote, Printer, Share2, QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getActivosFijos, deleteActivoFijo } from '@/app/actions/activos-fijos';
@@ -22,6 +23,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
 
 const formatCurrency = (amount?: number) => {
@@ -55,6 +64,7 @@ export default function InventarioActivosPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [imprimiendoEtiquetas, setImprimiendoEtiquetas] = useState(false);
 
   const fetchItems = useCallback(async () => {
     setIsLoading(true);
@@ -139,6 +149,13 @@ export default function InventarioActivosPage() {
           </h1>
         </div>
          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              onClick={() => setImprimiendoEtiquetas(true)}
+            >
+              <QrCode className="w-4 h-4 mr-2" />
+              Imprimir etiquetas
+            </Button>
             <Button asChild variant="secondary"><Link href="/empresa/activos-fijos/reporte">
                     <Printer className="w-4 h-4 mr-2"/>Ver Reporte de Stock
                 </Link></Button>
@@ -238,6 +255,52 @@ export default function InventarioActivosPage() {
           ))}
         </Accordion>
       )}
+
+      <Dialog open={imprimiendoEtiquetas} onOpenChange={setImprimiendoEtiquetas}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="print:hidden">
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="w-5 h-5 text-primary" />
+              Etiquetas QR de Equipos para Hoja A4
+            </DialogTitle>
+            <DialogDescription>
+              Imprimí estas etiquetas con formato <code>ak-equipo:&lt;id&gt;</code> para rotular tus equipos y escanearlos en la carga operativa.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 print:grid-cols-3 print:gap-3">
+              {filteredItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="border-2 border-dashed border-slate-300 rounded-lg p-3 text-center flex flex-col items-center justify-between bg-white print:border-black print:p-2"
+                >
+                  <p className="text-xs font-bold text-slate-800 line-clamp-1 mb-1">{item.nombre}</p>
+                  <p className="text-[10px] text-muted-foreground mb-2">{item.categoria}</p>
+                  <div className="p-1 bg-white border rounded">
+                    <QRCodeSVG
+                      value={`ak-equipo:${item.id}`}
+                      size={96}
+                      level="M"
+                    />
+                  </div>
+                  <span className="font-mono text-[9px] text-slate-500 mt-1 break-all">
+                    ak-equipo:{item.id}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <DialogFooter className="print:hidden">
+            <Button variant="outline" onClick={() => setImprimiendoEtiquetas(false)}>
+              Cerrar
+            </Button>
+            <Button onClick={() => window.print()}>
+              <Printer className="w-4 h-4 mr-2" />
+              Imprimir en A4
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

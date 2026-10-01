@@ -124,9 +124,11 @@ export interface ServicioEmpresa {
     cadaDias?: number;
     ultimoAt?: string;
     historial?: Array<{
+      id?: string;
       fecha: string;
       nota: string;
       costo?: number;
+      gastoPendiente?: boolean;
     }>;
   };
 }

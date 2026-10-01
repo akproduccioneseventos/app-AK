@@ -1,6 +1,7 @@
 'use server';
 
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getActivosFijos } from '@/app/actions/activos-fijos';
 import { evaluarReglasParaFiesta, evaluarReglasParaTodasLasFiestas } from '@/lib/automatizaciones-engine';
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 import { readData, writeData } from '@/lib/data-service';
@@ -14,10 +15,13 @@ const PRIORIDADES_DESCARTADAS_FILE = 'prioridades-descartadas.json';
 export async function getAlertasGlobales(): Promise<AlertaAutomatica[]> {
   await requireAppSession();
   try {
-    const fiestas = await getAllFiestas();
-    // Only active (non-archived) fiestas
+    const [fiestas, activos] = await Promise.all([
+      getAllFiestas(),
+      getActivosFijos().catch(() => []),
+    ]);
+    // Only active (non-archived) fiestas. Evalúa mantenimiento-equipo-vencido con activos fijos
     const activas = fiestas.filter(f => !f.generadoDesdeHistorico);
-    return evaluarReglasParaTodasLasFiestas(activas);
+    return evaluarReglasParaTodasLasFiestas(activas, undefined, activos);
   } catch {
     return [];
   }
@@ -26,10 +30,14 @@ export async function getAlertasGlobales(): Promise<AlertaAutomatica[]> {
 export async function getAlertasPorFiesta(fiestaId: string): Promise<AlertaAutomatica[]> {
   await requireAppSession();
   try {
-    const fiestas = await getAllFiestas();
+    const [fiestas, activos] = await Promise.all([
+      getAllFiestas(),
+      getActivosFijos().catch(() => []),
+    ]);
     const fiesta = fiestas.find(f => f.id === fiestaId);
     if (!fiesta) return [];
-    return evaluarReglasParaFiesta(fiesta);
+    // Evalúa reglas por fiesta incluyendo mantenimiento-equipo-vencido
+    return evaluarReglasParaFiesta(fiesta, undefined, activos);
   } catch {
     return [];
   }

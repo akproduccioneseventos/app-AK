@@ -1627,6 +1627,7 @@ export interface FiestaEnPlanificacion {
   reunionOrganizacion?: {
     respuestasExtra?: Record<string, string>;
     cerradaAt?: string;
+    cronogramaNotas?: string;
   };
   catering?: {
     detallesMenu?: string;

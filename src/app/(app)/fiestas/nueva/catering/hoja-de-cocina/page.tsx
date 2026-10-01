@@ -53,7 +53,7 @@ function HojaDeCocinaContenido() {
 
       const presupuesto = fiesta.presupuestoId ? await getPresupuestoById(fiesta.presupuestoId) : null;
 
-      const adultos = presupuesto?.invitadosAdultos || Number(fiesta.configuracion?.invitadosEstimados) || 0;
+      const adultos = presupuesto?.invitadosAdultos ?? (Number(fiesta.configuracion?.invitadosEstimados) || 0);
       const chicos = (presupuesto?.invitadosNinos || 0) + (presupuesto?.invitadosAdolescentes || 0);
 
       const platos = (presupuesto?.itemsPresupuestados || [])

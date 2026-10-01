@@ -271,6 +271,12 @@ function OrdenDeEventoContenido() {
               ))}
             </div>
           )}
+          {fiesta.reunionOrganizacion?.cronogramaNotas && (
+            <div className="mt-3 p-2.5 rounded bg-slate-50 border border-slate-200 text-sm whitespace-pre-line text-slate-800">
+              <span className="font-semibold block text-xs uppercase tracking-wide text-slate-500 mb-1">Notas del cronograma (Reunión de Organización):</span>
+              {fiesta.reunionOrganizacion.cronogramaNotas}
+            </div>
+          )}
         </div>
 
         {/* 2. Cocina y Menú */}
@@ -414,7 +420,7 @@ function OrdenDeEventoContenido() {
                     {cat.nombre}
                   </span>
                   <ul className="list-disc list-inside text-xs space-y-0.5">
-                    {(cat.items || []).slice(0, 6).map((it, iIdx) => (
+                    {(cat.items || []).map((it, iIdx) => (
                       <li key={iIdx}>
                         {it.nombre} {it.cantidad ? `(x${it.cantidad})` : ''}
                       </li>
