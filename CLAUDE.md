@@ -1175,7 +1175,7 @@ lo que hice?* Si es lo segundo, no se manda.
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
 - **Lo que se suma a la tecnología, y lo que no (1 de octubre de 2026).** Se suma el **video resumen**
-  armado con las fotos (sin IA de video) y los asistentes pasan a llamarse **Aki**, con mascota. La
+  armado con las fotos (sin IA de video) y los asistentes pasan a llamarse **Asistente AK**, con mascota. La
   **invitación con realidad aumentada queda descartada**. Con eso **no hay más funciones para sumar**:
   lo que sigue es terminar y que no tenga errores. No proponer más funciones nuevas sin que las pida.
 

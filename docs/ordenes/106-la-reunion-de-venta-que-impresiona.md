@@ -341,28 +341,43 @@ genera video con IA** (caro y flojo): se **arma un montaje** con lo que ya hay.
   o `ffmpeg.wasm` si hace falta), con la música de la fiesta que ya usa el álbum, transiciones
   simples, título con el nombre y la fecha, y el logo de AK al final. 60 a 90 segundos, vertical para
   compartir. **No se procesa en el servidor** (no suma gasto por mes).
+- **Tiene que quedar profesional, no "una presentación de fotos"** (el dueño: *"probá que quede
+  bien"*). Lo mínimo:
+  - cortes **al ritmo de la música** (detectá los golpes del tema con el análisis de audio del
+    navegador y cambiá de foto en esos golpes);
+  - movimiento suave en cada foto (acercamiento lento tipo Ken Burns, hacia la cara si
+    `agrupar-caras` la encontró), nunca la foto quieta;
+  - **pocas transiciones y elegantes**: fundido cruzado corto (0,3-0,5 s) y corte directo; **nada**
+    de giros, cubos, estrellas ni efectos de PowerPoint;
+  - las fotos verticales y horizontales encuadradas sin bandas negras (fondo desenfocado de la misma
+    foto);
+  - arranque con título y fecha, cierre con el logo de AK, y la música que baja al final.
 - Aparece en el álbum y en el portal del cliente como "Tu video de la fiesta", con "Descargar" y
   "Compartir".
 
 **La prueba**: con 50 fotos de prueba (10 borrosas), la selección no incluye ninguna borrosa, elige
-como máximo 30 y respeta el orden de la noche.
+como máximo 30 y respeta el orden de la noche. **Y una prueba de navegador que arma el video de verdad**
+con la fiesta de demo y lo guarda en `test-results/video-resumen-muestra.webm`: dura entre 60 y 90
+segundos, no tiene cuadros negros, y los cambios de foto caen cerca de los golpes de la música.
+**Adjuntá ese video en la entrega**: Claude lo mira cuadro por cuadro antes de fusionar y, si parece
+una presentación de diapositivas, se devuelve.
 
-## Bloque 15 — Los asistentes con cara y nombre: "Aki"
+## Bloque 15 — Los asistentes con cara y nombre: "Asistente AK"
 
 **Pedido del dueño:** que los asistentes no sean "un círculo con una máquina", que sean divertidos y
 tengan nombre, con **K** por AK.
 
-- El asistente se llama **Aki** (A-K-i) en todos lados: invitado (`src/components/invitacion/AsistenteDelInvitado.tsx`,
+- El asistente se llama **Asistente AK** (decisión del dueño) en todos lados: invitado (`src/components/invitacion/AsistenteDelInvitado.tsx`,
   hoy con el ícono `Bot` ~l.144), cliente (`AsistenteDelCliente`, orden 101), web
   (`src/components/concierge/ConciergeWidget.tsx`) y equipo (`MultiAgentWidget`). El nombre se puede
   cambiar en Ajustes.
 - **Una mascota animada en vez del robot**: un personaje simple y simpático hecho en SVG (ojos que
   parpadean, sonríe al contestar, salta un poquito cuando llega un mensaje), con los colores de AK y,
   en la fiesta, con el color de la fiesta. Con `prefers-reduced-motion`, quieto.
-- Saluda con su nombre: *"¡Hola! Soy Aki, el asistente de AK. ¿En qué te ayudo?"*. Sigue las reglas
+- Saluda con su nombre: *"¡Hola! Soy el Asistente AK. ¿En qué te ayudo?"*. Sigue las reglas
   de siempre: sin promesas, plata y fechas las confirma el organizador.
 
-**La prueba**: los cuatro asistentes muestran "Aki" y la mascota, ninguno usa el ícono `Bot`.
+**La prueba**: los cuatro asistentes muestran "Asistente AK" y la mascota, ninguno usa el ícono `Bot`.
 
 ```comprobar
 usa: idDeYoutube en src/app/(app)/empresa/configurador-reunion/page.tsx
