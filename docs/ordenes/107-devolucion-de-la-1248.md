@@ -71,7 +71,42 @@ Revisados en tu rama, sin encontrarlos:
 - **106, bloque 14** — el video resumen: falta el **video de muestra** en
   `test-results/video-resumen-muestra.webm` adjunto a la entrega.
 
+## 4. El contrato cambió de nuevo (versión del dueño del 1/10/2026)
+
+El texto que va es **`docs/contratos/contrato-base-2026-10-01.txt`** (17 cláusulas, reordenadas y con
+cambios de fondo). **Reemplaza** al del 30/09 en `CONTRACT_TEMPLATE` (`src/lib/contract-template.ts`)
+y en las cláusulas por omisión (`defaultContractSettings` en `src/types/settings.ts`), con la misma
+regla: si el dueño editó las suyas, se ofrece "Usar el contrato revisado" y no se pisa.
+
+Lo que cambió y hay que llevar a la app:
+- **Ya no se nombra el monto de la seña** en el contrato: sacá `{{MONTO_SENA}}`.
+- Las fechas de los hitos siguen igual (30% al tercio, 50% a la mitad, total 30 días antes): con firma
+  1/10/2026 y fiesta 20/11/2027 dan **16/02/2027, 26/04/2027 y 21/10/2027** (así figuran en el
+  contrato firmado). Sumá ese caso a la prueba.
+- Donde dice "EL/LA CLIENTE", que la app ponga **"LA CLIENTE"** o **"EL CLIENTE"** según el
+  tratamiento del cliente (campo nuevo "Sr./Sra." en la ficha del cliente; si no está cargado, "EL/LA
+  CLIENTE").
+
+**Las preguntas frecuentes** (`src/data/preguntas-frecuentes-contrato.ts`) se actualizan con estas
+respuestas, **tal cual**:
+
+| Pregunta | Respuesta nueva |
+|---|---|
+| ¿Qué pasa si me atraso con un pago? | No hay recargo automático. Te avisamos y tenés **15 días corridos** para ponerte al día; si no, el contrato se puede dar por terminado y se aplica la penalidad que corresponda. |
+| ¿Y si cancelo? | Cancelar todo el evento tiene una penalidad del 30% del presupuesto vigente. Si sacás sólo una parte de los servicios, el 30% se calcula sobre lo que sacás. Lo pagado se descuenta y, si pagaste de más, se devuelve la diferencia dentro de los 30 días. |
+| ¿Puedo cambiar la cantidad de invitados? | Hasta 15 días antes: podés bajar hasta un 10% (sólo baja lo que se cobra por persona, no los costos fijos) o subir hasta un 20% según disponibilidad, pagando antes la diferencia al precio que contrataste. Si bajás más del 10%, lo que pase de ese 10% se toma como cancelación parcial. Después de ese día, la cantidad queda como mínima. |
+| ¿Puedo cambiar el tipo de menú de algunos invitados? | Sí, hasta 15 días antes. Cada menú (adulto, adolescente, infantil) tiene su precio: si pasás a uno más caro se paga la diferencia y, si pasás a uno más económico, se descuenta. |
+| ¿Si agrego un servicio nuevo, a qué precio? | Al precio vigente cuando lo agregás. Si aumentás algo que ya tenías contratado, se mantiene tu precio original (con su promoción) más el ajuste anual. |
+| ¿Y si AK no puede cumplir con algo? | Primero se busca una solución, un reemplazo equivalente o una nueva fecha. Si no se llega a un acuerdo, se devuelve lo pagado por ese servicio dentro de los 30 días. |
+| ¿Puedo pagar desde otra cuenta o que pague otra persona? | Sí, pero el contrato sigue a tu nombre y los recibos salen a tu nombre. |
+
+El resto de las respuestas sigue igual. La prueba de las preguntas comprueba que "¿Qué pasa si me
+atraso con un pago?" dice **15 días** y que ninguna dice "5 días".
+
 ```comprobar
+archivo: docs/contratos/contrato-base-2026-10-01.txt
+no-usa: MONTO_SENA en src/lib/contract-template.ts
+no-usa: tenés 5 días en src/data/preguntas-frecuentes-contrato.ts
 prueba: src/__tests__/actualizar-fiesta-pide-permiso.test.ts
 usa: requireFiestaWriteAccess en src/lib/fiesta/actualizar-fiesta.ts
 no-usa: speechSynthesis en src/components/mi-dia/ParteDeLaMananaPlayer.tsx
