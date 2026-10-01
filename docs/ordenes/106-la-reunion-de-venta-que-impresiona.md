@@ -179,6 +179,64 @@ pensado para el prospecto desde su casa:
 **La prueba de navegador**: el recorrido abre los seis pasos; nada de lo que se toca crea datos en la
 base; y ningún texto de la página contiene "garant", "24/7" ni "cero fallas".
 
+## Bloque 10 — La barra de tragos completa (pedido del dueño, 01/10/2026)
+
+**Lo que ya existe (NO rehacer):** el invitado pide con su nombre en la pantalla de la barra
+(`src/app/evento/barra/[fiestaId]/page.tsx`), con foto con marco y video de 8 segundos; cada pedido
+descuenta botellas por la receta (`recetaIngredientes`, tipo `TragoRecetaIngrediente` en
+`src/types/fiesta.ts` ~l.1031: `insumoId`, `cantidad`, `unidad`); el barman ve los pedidos y cambia
+el estado (`updateBarDrinkOrderStatus`, estados `nuevo`→`preparando`→`listo`→`entregado`) y carga
+tragos pedidos de palabra (`createBarmanManualOrder`); al final está el cierre con el conteo
+(`CierreDeBarra`, `getCierreDeBarra`/`guardarCierreDeBarra` en
+`src/app/actions/fiesta/barra-tecnologica.actions.ts` ~l.1080-1142). La carta de la empresa se edita
+en `/empresa/menus/tragos`.
+
+**1. Las recetas reales** — cargalas en la carta de la empresa, unidas a los insumos de
+`insumos.json` (creá los que falten, en ml o g). Quedan editables en `/empresa/menus/tragos`.
+Medidas para vaso de 300 ml con hielo:
+
+| Trago | Receta |
+|---|---|
+| Daiquiri de durazno | 50 ml ron blanco, 80 g durazno, 20 ml jugo de limón, 15 ml almíbar |
+| Caipirinha | 60 ml cachaça, 1/2 lima, 10 g azúcar |
+| Arizona | 50 ml vodka, 180 ml té helado, 15 ml jugo de limón |
+| Daiquiri de ananá | 50 ml ron blanco, 80 g ananá, 20 ml jugo de limón, 15 ml almíbar |
+| Daiquiri de frutilla | 50 ml ron blanco, 80 g frutilla, 20 ml jugo de limón, 15 ml almíbar |
+| Atomic green | 40 ml **licor de durazno**, 30 ml vodka, 150 ml Sprite (decisión del dueño: durazno en vez de melón) |
+| Daiquiri primavera | 50 ml ron blanco, 80 g mix de frutas, 20 ml jugo de limón, 15 ml almíbar |
+| Fernet con coca | 70 ml fernet, 230 ml Coca-Cola |
+| Atardecer | 50 ml tequila, 150 ml jugo de naranja, 15 ml granadina |
+| Destornillador | 50 ml vodka, 150 ml jugo de naranja |
+| Ron cola | 50 ml ron, 200 ml Coca-Cola |
+| Gin con pomelo | 50 ml gin, 200 ml gaseosa de pomelo |
+
+**2. La carta como carrusel en el tótem.** En la pantalla de la barra, la carta pasa a ser un
+carrusel grande, que se pasa con el dedo: foto del trago, nombre, ingredientes, y **"Pedir este"**.
+Un trago al que no le alcanza la bebida se ve apagado con "Se terminó". Funciona en la pantalla
+vertical del tótem.
+
+**3. Foto con el trago en la misma pantalla.** Después de pedir: "¿Te sacás una foto con tu trago?"
+(la foto con marco que ya existe), y el cartel "Tu pedido es el número N: andá a la barra".
+
+**4. Apertura de la barra.** Antes de la fiesta, el barman abre una pantalla "Recibí la barra" con la
+lista de botellas que se mandaron (desde la carga operativa de la fiesta) y marca, por cada una, que
+llegó y cuántas. Eso es el stock inicial de la noche.
+
+**5. Aviso de botella por terminarse.** Con los pedidos, la app calcula lo que queda y avisa al
+barman cuando una bebida baja del 20%.
+
+**6. Pantalla "Tu trago está listo"**, opcional en la barra: muestra los nombres de los pedidos en
+estado `listo`.
+
+**7. El informe de la noche** (al guardar el cierre): cuántos tragos salieron, los 5 más pedidos,
+cuánto se gastó en bebida (con el costo de cada insumo), costo promedio por trago y lo que salió sin
+registrar (la diferencia del conteo). Se ve en la fiesta y suma al informe que ya existe.
+
+**La prueba** (`src/__tests__/la-barra-cierra-la-cuenta.test.ts`): con stock inicial de 1 botella de
+vodka (1000 ml), 10 destornilladores pedidos descuentan 500 ml; un trago cargado por el barman
+descuenta igual; al cerrar con 400 ml contados, el informe dice 10 tragos y 100 ml sin registrar; y el
+destornillador se apaga cuando quedan menos de 50 ml.
+
 ```comprobar
 usa: idDeYoutube en src/app/(app)/empresa/configurador-reunion/page.tsx
 usa: createDemoFiesta en src/app/(app)/empresa/configurador-reunion/page.tsx
@@ -186,4 +244,5 @@ prueba: src/__tests__/dos-servidores-no-pierden-invitados.test.ts
 usa: calcularNitidez en src/app/evento/social/[fiestaId]/page.tsx
 no-usa: Archivo bloqueado por riesgo de contenido adulto en src/app/actions/social-gallery.ts
 usa: '/experiencia' en src/lib/medicion-segura.ts
+prueba: src/__tests__/la-barra-cierra-la-cuenta.test.ts
 ```
