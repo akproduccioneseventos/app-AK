@@ -1508,6 +1508,7 @@ con otra cara.
 | Las recetas de la barra apuntaban a insumos que no existían y no descontaban nada | `src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts` |
 | Imágenes que eran texto y un tono presentado como voz | `src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts` |
 | Tocar un texto en un archivo que importan todas las pantallas corría las 80 pruebas | `exportsQueUsan` en `scripts/pantallas-tocadas.mjs`, con `src/__tests__/se-prueba-solo-lo-que-cambio-de-un-archivo.test.ts` |
+| Enlaces del pie de página a secciones que no existen | `src/__tests__/los-enlaces-del-pie-llegan-a-su-seccion.test.ts` |
 
 ### Cómo se elige el matafuego
 

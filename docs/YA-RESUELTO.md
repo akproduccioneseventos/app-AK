@@ -1,5 +1,17 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 2 de octubre de 2026 — Los enlaces del pie de página llegan a su sección
+
+- "Galería de Eventos Reales", "Plataforma 360° & Fotocabina QR" y "Testimonios & Preguntas
+  Frecuentes" apuntaban a secciones con nombres que no existen (`#landing-gallery`…): desde el
+  blog volvían a la portada y quedaban en cualquier lado. Ahora apuntan a `#galeria`,
+  `#tecnologia` y `#landing-testimonials`. Lo encontró Codex.
+
+```comprobar
+prueba: src/__tests__/los-enlaces-del-pie-llegan-a-su-seccion.test.ts
+usa: #galeria en src/components/public-footer.tsx
+```
+
 ## 2 de octubre de 2026 — La puerta prueba lo que cambió de cada archivo, no el archivo entero
 
 - La 1249 corrió las 80 pruebas de navegador (22 minutos) porque tocó textos del contrato en
@@ -31,7 +43,7 @@ prueba: src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts
 prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
 no-usa: ins-licor-durazno en src/lib/fiesta-defaults.ts
 usa: speechSynthesis en src/app/(app)/empresa/configurador-reunion/page.tsx
-no-usa: publicRsvp: true en src/app/actions/fiesta/invitados.actions.ts
+prueba: src/__tests__/actualizar-fiesta-pide-permiso.test.ts
 ```
 
 ## 2 de octubre de 2026 — Revisión de la 1248 hecha por Claude (órdenes 107 y 108 y contraste de Codex)
