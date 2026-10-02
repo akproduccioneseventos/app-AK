@@ -48,3 +48,9 @@
 - Seleccion exacta/ambigua de tarea y limpieza basica de medicion pasan sondas nuevas. Chat transaccional/PDF ajustado presentes, falta validar esos caminos nuevos.
 - No reabrir camara lenta en fotocabina: candidato indica cambio por decision del dueno; verificar aprobacion si necesario.
 - No aprobar merge con los tres fallos. Revision focalizada, no los337archivos completos. No build ni app editada.
+
+## Retest focalizado PDF/chat del mismo HEADddbd312
+- Ver docs/evidencias/PR1248-PDF-CHAT-2026-10-01.md y sus dos sondas.
+- PDF: 4 paginas renderizadas/vistas; nombre largo ya no tapa invitados. Logo/descarga/CRM no probados.
+- Chat/memoria: dos VM y transacciones simuladas con conflictos conservan6mensajes/2aprendizajes; fallo de commit rechaza. No Firestore real.
+- No confundir con propuestas: siguen los3fallos de PR1248-CONTRASTE. No autoriza merge.
