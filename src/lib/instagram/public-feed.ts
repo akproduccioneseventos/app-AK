@@ -17,6 +17,22 @@ export interface PublicInstagramFeedPost {
 }
 
 /**
+ * El número que Instagram le da a la publicación, sin los prefijos que les pone la app
+ * (`ig_`, `ig_history_`, `ig_sync_`). Lo encontró Codex el 2/10/2026: la sincronización leía sus
+ * propias copias del planificador como publicaciones nuevas, les ponía otro prefijo, y en cada
+ * vuelta la misma foto entraba de nuevo a la galería con otro número.
+ */
+export function idOriginalDeInstagram(post: { sourceId?: string; id?: string }): string {
+  let id = String(post.sourceId || post.id || '').trim();
+  let antes = '';
+  while (id !== antes) {
+    antes = id;
+    id = id.replace(/^ig_(sync_|history_)?/, '');
+  }
+  return id;
+}
+
+/**
  * Obtiene las publicaciones de Instagram para la galería de la web pública.
  *
  * Prioridad:
@@ -70,13 +86,13 @@ export async function getPublicInstagramFeed(
       const result: PublicInstagramFeedPost[] = [];
 
       for (const post of sorted) {
-        const sourceId = String(post.sourceId || post.id).trim();
+        const sourceId = idOriginalDeInstagram(post);
         const mediaUrl = String(post.mediaUrl || '').trim();
         if (!sourceId || !mediaUrl) continue;
 
-        const dedupeKey = `${sourceId}_${mediaUrl}`;
-        if (seen.has(dedupeKey)) continue;
-        seen.add(dedupeKey);
+        // Una publicación es una sola aunque esté guardada dos veces (historial y planificador).
+        if (seen.has(sourceId)) continue;
+        seen.add(sourceId);
 
         const rawType = String(post.mediaType || '').toLowerCase();
         const mediaType: 'image' | 'video' =

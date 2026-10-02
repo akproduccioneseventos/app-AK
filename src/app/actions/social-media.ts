@@ -8,7 +8,7 @@ import path from 'path';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { MARKETING_AUTOMATION_INTERNAL_TOKEN } from '@/lib/marketing/internal-token';
-import { getPublicInstagramFeed } from '@/lib/instagram/public-feed';
+import { getPublicInstagramFeed, idOriginalDeInstagram } from '@/lib/instagram/public-feed';
 import { classifyGalleryCategories } from '@/components/landing/gallery-media-utils';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
@@ -63,6 +63,8 @@ export async function publicarPosteoAhoraAction(
 
 type InstagramFeedPost = {
   id: string;
+  sourceId?: string;
+  publishedAt?: string;
   mediaType: 'image' | 'video';
   mediaUrl: string;
   videoUrl?: string;
@@ -244,7 +246,9 @@ export async function syncInstagramPosts(
     const publicFeed = await getPublicInstagramFeed(instagramConn?.profileUrl);
     const graphFeed: InstagramFeedPost[] | null = publicFeed.length
       ? publicFeed.map((post) => ({
-          id: post.id,
+          id: `ig_${post.sourceId}`,
+          sourceId: post.sourceId,
+          publishedAt: post.publishedAt,
           mediaType: post.mediaType,
           mediaUrl: post.mediaUrl,
           videoUrl: post.permalink,
@@ -288,16 +292,28 @@ export async function syncInstagramPosts(
       };
     }
 
+    // Las copias que dejaron vueltas anteriores (`ig_ig_sync_…`) se sacan: eran la misma foto.
+    const esCopiaVieja = (item: any) =>
+      item?.source === 'instagram' && /^ig_(ig_|sync_)|^ig_sync_/.test(String(item?.sourceId || item?.id || ''));
+    galeriaData.videos = galeriaData.videos.filter((v) => !esCopiaVieja(v));
+    const catalogoSinCopias = catalogoFotos.filter((f) => !esCopiaVieja(f));
+    catalogoFotos.length = 0;
+    catalogoFotos.push(...catalogoSinCopias);
+    for (let i = socialPosts.length - 1; i >= 0; i--) {
+      if (/^ig_sync_ig_(ig_|sync_)/.test(String(socialPosts[i].id))) socialPosts.splice(i, 1);
+    }
+
     for (const post of instagramFeed) {
       const category = guessCategoryFromText(post.text);
       const now = new Date().toISOString();
+      const original = post.sourceId || idOriginalDeInstagram(post);
 
       if (post.mediaType === 'video') {
         // Los IDs de Instagram son estables; la URL CDN puede cambiar y debe actualizarse.
         const existingVideoIndex = galeriaData.videos.findIndex(v =>
           v.id === post.id
           || v.youtubeId === post.id
-          || (v.source === 'instagram' && v.sourceId === post.id)
+          || (v.source === 'instagram' && (v.sourceId === post.id || v.sourceId === original))
         );
         const syncedVideo = {
           id: post.id,
@@ -313,7 +329,7 @@ export async function syncInstagramPosts(
           orden: existingVideoIndex >= 0 ? galeriaData.videos[existingVideoIndex].orden : galeriaData.videos.length,
           createdAt: existingVideoIndex >= 0 ? galeriaData.videos[existingVideoIndex].createdAt : now,
           source: 'instagram',
-          sourceId: post.id,
+          sourceId: original,
           sourceUrl: post.videoUrl,
         };
         if (existingVideoIndex >= 0) {
@@ -330,7 +346,7 @@ export async function syncInstagramPosts(
       } else {
         const existingPhotoIndex = catalogoFotos.findIndex(f =>
           f.id === post.id
-          || (f.source === 'instagram' && f.sourceId === post.id)
+          || (f.source === 'instagram' && (f.sourceId === post.id || f.sourceId === original))
         );
         const syncedPhoto = {
           id: post.id,
@@ -341,7 +357,7 @@ export async function syncInstagramPosts(
           destacada: true,
           orden: existingPhotoIndex >= 0 ? catalogoFotos[existingPhotoIndex].orden : catalogoFotos.length,
           source: 'instagram',
-          sourceId: post.id,
+          sourceId: original,
           sourceUrl: post.videoUrl || instagramConn?.profileUrl,
           createdAt: existingPhotoIndex >= 0 ? catalogoFotos[existingPhotoIndex].createdAt : now,
         };
@@ -365,7 +381,9 @@ export async function syncInstagramPosts(
         id: plannerId,
         platform: 'Instagram',
         isGeneralCampaign: true,
-        publishDate: now,
+        // La fecha es la de Instagram: con "ahora" cada vuelta la ponía primera en la web.
+        publishDate: post.publishedAt || (plannerIndex >= 0 ? socialPosts[plannerIndex].publishDate : now),
+        sourceId: original,
         text: post.text,
         link: post.videoUrl || instagramConn?.profileUrl,
         mediaUrl: post.mediaUrl,

@@ -1,5 +1,23 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 2 de octubre de 2026 — Instagram no duplica fotos, y la revisión de Codex tiene un final
+
+- **Instagram:** la sincronización leía sus propias copias del planificador como publicaciones
+  nuevas, les ponía otro prefijo (`ig_ig_sync_…`) y en cada vuelta la misma foto entraba de nuevo
+  a la galería; además guardaba el número de Instagram con prefijo y ponía la fecha de "ahora".
+  Ahora usa el número original (`idOriginalDeInstagram`), la fecha de Instagram, y limpia las
+  copias que dejaron vueltas anteriores. Lo encontró Codex.
+- **El contador de Codex** (`npm run "codex?"`, también al abrir cada sesión): la app partida en
+  14 áreas en `docs/codex/areas.json`. Una área queda limpia cuando Codex la revisa sobre la
+  principal sin hallazgos; si su código cambia, vuelve sola a revisarse. Cuando las 14 están
+  limpias dice **"CODEX NO ENCUENTRA ERRORES"**. Cómo revisa Codex: `docs/codex/COMO-REVISA-CODEX.md`.
+  Las mejoras y las decisiones del dueño no cuentan como hallazgo.
+
+```comprobar
+prueba: src/__tests__/instagram-no-duplica-al-sincronizar.test.ts
+usa: idOriginalDeInstagram en src/app/actions/social-media.ts
+prueba: src/__tests__/codex-tiene-un-final.test.ts
+usa: codex-limpio.mjs en .claude/hooks/session-start.sh
 ## 2 de octubre de 2026 — La galería baja al llegar desde el blog, y clasifica bien la bienvenida
 
 - "Galería de Eventos Reales" desde el blog volvía a la portada y quedaba arriba. Los enlaces del
