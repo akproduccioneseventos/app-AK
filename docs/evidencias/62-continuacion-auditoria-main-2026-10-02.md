@@ -64,3 +64,13 @@ La lista de invitados y la autorización de acciones requieren la sonda priorita
 - **Fricción visual confirmada:** el encabezado principal se monta sobre una fotografía oscurecida de fondo. En la captura móvil, el título y la bajada ocupan la imagen; no es el formato solicitado de publicación con imagen separada del texto. No comprobé superposición que impida leer: el texto sí resulta legible en la captura.
 - Los botones de compartir y el enlace de simulador están presentes; comprobé que el acceso del footer al simulador abre la ruta pública correcta. No envié mensajes ni datos.
 - **Clasificación:** mejora de presentación pendiente, no defecto funcional bloqueante. No se verificó atribución de visitas/conversión ni analítica.
+
+
+## Navegación rota desde artículo hacia la galería
+
+- **Rol/recorrido:** prospecto; artículo público → pie de página → “Galería de Eventos Reales”.
+- En `/public/blog/como-calcular-bebida-evento-salto`, activé ese enlace. La app volvió a la portada y la URL quedó `/#landing-gallery`, pero la captura quedó posicionada en “Guías útiles y consejos”; la galería no quedó visible ni enfocada. En el árbol accesible, la galería aparece como sección `galeria`, no `landing-gallery`.
+- **Clasificación:** DEFECTO P2 de navegación confirmado en producción: CTA con destino que no corresponde al ancla real; obliga a buscar/desplazarse para alcanzar la galería.
+- Pasos: abrir artículo sin sesión → usar “→ Galería de Eventos Reales” del footer → observar URL y sección visible. Sin envío de información ni cambios de datos.
+- Evidencia: navegador real, URL final `https://akproducciones.uy/#landing-gallery`; captura muestra “Guías útiles y consejos”; sección de galería identificada posteriormente como `galeria`.
+- Retest tras corrección: el enlace debe aterrizar con la galería en viewport y su título visible, tanto desde otra ruta como desde la portada.
