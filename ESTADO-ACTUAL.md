@@ -40,3 +40,11 @@
 - Se cierra la incertidumbre de identidad de esa instancia publicada, NO la auditoria funcional ni las conexiones reales.
 - 19 presupuestos: sigue pendiente conciliacion de solo lectura ya pedida en orden49. No importar otra vez ni inferir pago por fecha pasada.
 - Los seis frentes estan documentados, no aprobados integralmente. No app modificada ni compilacion ni merge.
+
+## Tanda nueva PR1248 - contraste 01/10/2026
+- Main avanzo a 6732168; unica PR abierta consultada1248 HEADddbd312, 337archivos. Resultados antiguos no la certifican.
+- Ver docs/evidencias/PR1248-CONTRASTE-2026-10-01.md y probe-pr1248-contrast.cjs.
+- Reproducidos tres comentarios existentes: empleado=dueno, 2 propuestas exitosas/1 persistida, contrato pierde21:00.
+- Seleccion exacta/ambigua de tarea y limpieza basica de medicion pasan sondas nuevas. Chat transaccional/PDF ajustado presentes, falta validar esos caminos nuevos.
+- No reabrir camara lenta en fotocabina: candidato indica cambio por decision del dueno; verificar aprobacion si necesario.
+- No aprobar merge con los tres fallos. Revision focalizada, no los337archivos completos. No build ni app editada.
