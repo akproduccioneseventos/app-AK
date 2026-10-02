@@ -50,3 +50,9 @@ La lista de invitados y la autorización de acciones requieren la sonda priorita
 - En la captura del primer viewport, el botón blanco de **Calcular Presupuesto Online** no muestra texto legible aunque el árbol accesible conserva ese nombre; comprobación visual directa, reproducible en viewport móvil. Revisar contraste/fondo del botón antes de dar la conversión por usable.
 - En los dos viewports capturados, el tratamiento es predominantemente oscuro y las tarjetas de servicios usan íconos, no fotografía o video real. Es una fricción de marca/venta observada, no un error funcional del enlace. Las animaciones visibles se limitan a transiciones de tarjetas; no validé movimiento a lo largo de toda la página.
 - Código relacionado: `src/app/experiencia-ak/page.tsx`. La sección termina en servicios + CTA; su footer ofrece acceso a galería/blog, pero no se comprobó la carga de esos destinos.
+
+## Sonda segura del simulador publicado
+
+- `/simulador-de-presupuesto` abrió sin sesión. Pude avanzar desde la presentación al paso 2 sin cargar información personal.
+- Al intentar continuar vacío, bloqueó el avance y enumeró nombre, WhatsApp uruguayo, opción de salón y fecha faltantes. No envié ni guardé datos de prospecto.
+- La forma visible en la captura móvil es legible y ordenada en fondo claro. **No probé** cálculo final, proyección anual, selección de menú, paquetes, servicios dinámicos, PDF ni persistencia: esos recorridos requieren completar datos y no se ejecutaron en producción para evitar crear un lead real.
