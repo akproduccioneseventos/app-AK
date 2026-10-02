@@ -269,10 +269,10 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Ron blanco', 'Durazno', 'Jugo de limón', 'Almíbar'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-ron-blanco', nombre: 'Ron blanco', cantidad: 50, unidad: 'ml' },
-        { insumoId: 'ins-durazno', nombre: 'Durazno', cantidad: 80, unidad: 'g' },
-        { insumoId: 'ins-limon', nombre: 'Jugo de limón', cantidad: 20, unidad: 'ml' },
-        { insumoId: 'ins-almibar', nombre: 'Almíbar', cantidad: 15, unidad: 'ml' },
+        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.0667, unidad: 'Botella' },
+        { insumoId: 'ing-durazno', nombre: 'Durazno', cantidad: 0.08, unidad: 'Kg' },
+        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.02, unidad: 'Litro' },
+        { insumoId: 'ing-almibar', nombre: 'Almíbar', cantidad: 0.015, unidad: 'Litro' },
       ],
     },
     {
@@ -284,9 +284,9 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Cachaça', 'Lima', 'Azúcar'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-cachaca', nombre: 'Cachaça', cantidad: 60, unidad: 'ml' },
-        { insumoId: 'ins-lima', nombre: 'Lima', cantidad: 1, unidad: 'unidad' },
-        { insumoId: 'ins-azucar', nombre: 'Azúcar', cantidad: 10, unidad: 'g' },
+        { insumoId: 'ing-cachaca', nombre: 'Cachaça', cantidad: 0.08, unidad: 'Botella' },
+        { insumoId: 'ing-lima', nombre: 'Lima', cantidad: 1, unidad: 'Unidad' },
+        { insumoId: 'ing-azucar', nombre: 'Azúcar', cantidad: 0.01, unidad: 'Kg' },
       ],
     },
     {
@@ -298,9 +298,9 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Vodka', 'Té helado', 'Jugo de limón'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-vodka', nombre: 'Vodka', cantidad: 50, unidad: 'ml' },
-        { insumoId: 'ins-te-helado', nombre: 'Té helado', cantidad: 180, unidad: 'ml' },
-        { insumoId: 'ins-limon', nombre: 'Jugo de limón', cantidad: 15, unidad: 'ml' },
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.0667, unidad: 'Botella' },
+        { insumoId: 'ing-te-helado', nombre: 'Té helado', cantidad: 0.18, unidad: 'Litro' },
+        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.015, unidad: 'Litro' },
       ],
     },
     {
@@ -312,10 +312,10 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Ron blanco', 'Ananá', 'Jugo de limón', 'Almíbar'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-ron-blanco', nombre: 'Ron blanco', cantidad: 50, unidad: 'ml' },
-        { insumoId: 'ins-anana', nombre: 'Ananá', cantidad: 80, unidad: 'g' },
-        { insumoId: 'ins-limon', nombre: 'Jugo de limón', cantidad: 20, unidad: 'ml' },
-        { insumoId: 'ins-almibar', nombre: 'Almíbar', cantidad: 15, unidad: 'ml' },
+        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.0667, unidad: 'Botella' },
+        { insumoId: 'ing-anana', nombre: 'Ananá', cantidad: 0.08, unidad: 'Kg' },
+        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.02, unidad: 'Litro' },
+        { insumoId: 'ing-almibar', nombre: 'Almíbar', cantidad: 0.015, unidad: 'Litro' },
       ],
     },
     {
@@ -327,10 +327,10 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Ron blanco', 'Frutilla', 'Jugo de limón', 'Almíbar'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-ron-blanco', nombre: 'Ron blanco', cantidad: 50, unidad: 'ml' },
-        { insumoId: 'ins-frutilla', nombre: 'Frutilla', cantidad: 80, unidad: 'g' },
-        { insumoId: 'ins-limon', nombre: 'Jugo de limón', cantidad: 20, unidad: 'ml' },
-        { insumoId: 'ins-almibar', nombre: 'Almíbar', cantidad: 15, unidad: 'ml' },
+        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.0667, unidad: 'Botella' },
+        { insumoId: 'ing-frutilla', nombre: 'Frutilla', cantidad: 0.08, unidad: 'Kg' },
+        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.02, unidad: 'Litro' },
+        { insumoId: 'ing-almibar', nombre: 'Almíbar', cantidad: 0.015, unidad: 'Litro' },
       ],
     },
     {
@@ -342,9 +342,9 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Licor de durazno', 'Vodka', 'Sprite'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-licor-durazno', nombre: 'Licor de durazno', cantidad: 40, unidad: 'ml' },
-        { insumoId: 'ins-vodka', nombre: 'Vodka', cantidad: 30, unidad: 'ml' },
-        { insumoId: 'ins-sprite', nombre: 'Sprite', cantidad: 150, unidad: 'ml' },
+        { insumoId: 'ing-licor-durazno', nombre: 'Licor de durazno', cantidad: 0.0533, unidad: 'Botella' },
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.04, unidad: 'Botella' },
+        { insumoId: 'ing-sprite', nombre: 'Sprite', cantidad: 0.15, unidad: 'Litro' },
       ],
     },
     {
@@ -356,10 +356,10 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Ron blanco', 'Mix de frutas', 'Jugo de limón', 'Almíbar'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-ron-blanco', nombre: 'Ron blanco', cantidad: 50, unidad: 'ml' },
-        { insumoId: 'ins-mix-frutas', nombre: 'Mix de frutas', cantidad: 80, unidad: 'g' },
-        { insumoId: 'ins-limon', nombre: 'Jugo de limón', cantidad: 20, unidad: 'ml' },
-        { insumoId: 'ins-almibar', nombre: 'Almíbar', cantidad: 15, unidad: 'ml' },
+        { insumoId: 'ing-ron', nombre: 'Ron blanco', cantidad: 0.0667, unidad: 'Botella' },
+        { insumoId: 'ing-mix-frutas', nombre: 'Mix de frutas', cantidad: 0.08, unidad: 'Kg' },
+        { insumoId: 'ing-jugo-limon', nombre: 'Jugo de limón', cantidad: 0.02, unidad: 'Litro' },
+        { insumoId: 'ing-almibar', nombre: 'Almíbar', cantidad: 0.015, unidad: 'Litro' },
       ],
     },
     {
@@ -371,8 +371,8 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Fernet', 'Coca-Cola'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-fernet', nombre: 'Fernet', cantidad: 70, unidad: 'ml' },
-        { insumoId: 'ins-coca', nombre: 'Coca-Cola', cantidad: 230, unidad: 'ml' },
+        { insumoId: 'ing-fernet', nombre: 'Fernet', cantidad: 0.0933, unidad: 'Botella' },
+        { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.23, unidad: 'Litro' },
       ],
     },
     {
@@ -384,9 +384,9 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Tequila', 'Jugo de naranja', 'Granadina'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-tequila', nombre: 'Tequila', cantidad: 50, unidad: 'ml' },
-        { insumoId: 'ins-naranja', nombre: 'Jugo de naranja', cantidad: 150, unidad: 'ml' },
-        { insumoId: 'ins-granadina', nombre: 'Granadina', cantidad: 15, unidad: 'ml' },
+        { insumoId: 'ing-tequila', nombre: 'Tequila', cantidad: 0.0667, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de naranja', cantidad: 0.15, unidad: 'Litro' },
+        { insumoId: 'ing-granadina', nombre: 'Granadina', cantidad: 0.02, unidad: 'Botella' },
       ],
     },
     {
@@ -398,8 +398,8 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Vodka', 'Jugo de naranja'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-vodka', nombre: 'Vodka', cantidad: 50, unidad: 'ml' },
-        { insumoId: 'ins-naranja', nombre: 'Jugo de naranja', cantidad: 150, unidad: 'ml' },
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.0667, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de naranja', cantidad: 0.15, unidad: 'Litro' },
       ],
     },
     {
@@ -411,8 +411,8 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Ron', 'Coca-Cola'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-ron', nombre: 'Ron', cantidad: 50, unidad: 'ml' },
-        { insumoId: 'ins-coca', nombre: 'Coca-Cola', cantidad: 200, unidad: 'ml' },
+        { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.0667, unidad: 'Botella' },
+        { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.2, unidad: 'Litro' },
       ],
     },
     {
@@ -424,8 +424,8 @@ export const defaultCartaTragosData: CartaTragosData = {
       ingredientes: ['Gin', 'Gaseosa de pomelo'],
       stockDisponible: 120,
       recetaIngredientes: [
-        { insumoId: 'ins-gin', nombre: 'Gin', cantidad: 50, unidad: 'ml' },
-        { insumoId: 'ins-pomelo', nombre: 'Gaseosa de pomelo', cantidad: 200, unidad: 'ml' },
+        { insumoId: 'ing-gin', nombre: 'Gin', cantidad: 0.0667, unidad: 'Botella' },
+        { insumoId: 'ing-pomelo', nombre: 'Gaseosa de pomelo', cantidad: 0.2, unidad: 'Litro' },
       ],
     },
   ],

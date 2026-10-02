@@ -79,7 +79,19 @@ function resolverImport(desde, especificador) {
   return null;
 }
 
-/** Mapa: archivo -> quienes lo importan. */
+/**
+ * Qué nombres trae un import: `['a','b']`, o `'*'` si trae todo (por defecto, `* as`, dinámico).
+ */
+export function nombresImportados(sentencia) {
+  if (/^import\s*\(/.test(sentencia)) return '*';
+  const llaves = sentencia.match(/\{([^}]*)\}/);
+  const sinLlaves = sentencia.replace(/\{[^}]*\}/, '');
+  if (/\*\s+as\s/.test(sinLlaves) || /^import\s+[A-Za-z_$][\w$]*\s*(,|from)/.test(sinLlaves)) return '*';
+  if (!llaves) return '*';
+  return llaves[1].split(',').map((n) => n.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0].trim()).filter(Boolean);
+}
+
+/** Mapa: archivo -> (quien lo importa -> qué nombres le trae). */
 function armarQuienUsaAQuien(archivos) {
   const usadoPor = new Map();
   const regex = /(?:from\s+|import\s*\(\s*)['"]([^'"]+)['"]/g;
@@ -88,13 +100,107 @@ function armarQuienUsaAQuien(archivos) {
     try { texto = fs.readFileSync(archivo, 'utf8'); } catch { continue; }
     let m;
     while ((m = regex.exec(texto))) {
+      // `import type` no lleva nada a la pantalla: cambiar ese archivo no cambia lo que se ve.
+      if (esSoloTipo(texto, m.index)) continue;
       const destino = resolverImport(archivo, m[1]);
       if (!destino) continue;
-      if (!usadoPor.has(destino)) usadoPor.set(destino, new Set());
-      usadoPor.get(destino).add(archivo);
+      const antes = texto.slice(0, m.index);
+      const inicio = Math.max(antes.lastIndexOf('import '), antes.lastIndexOf('export '), antes.lastIndexOf('import('));
+      const nombres = m[0].startsWith('import') ? '*' : nombresImportados(texto.slice(inicio, m.index + m[0].length));
+      if (!usadoPor.has(destino)) usadoPor.set(destino, new Map());
+      const previos = usadoPor.get(destino).get(archivo);
+      usadoPor.get(destino).set(archivo, previos === '*' || nombres === '*' ? '*' : [...(previos || []), ...nombres]);
     }
   }
   return usadoPor;
+}
+
+const DECLARACION = /^(?:export\s+)?(?:default\s+)?(?:async\s+)?(?:const|let|var|function\*?|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/;
+
+/**
+ * Qué nombres exportados cambiaron en un archivo, mirando en qué declaración cae cada renglón
+ * tocado. Si un cambio cae fuera de un `export …` (un ayudante interno, los imports), devuelve
+ * `'*'`: no se puede saber a quién afecta. Pedido del dueño el 2/10/2026: probar sólo lo tocado.
+ */
+export function nombresCambiadosDesde(lineasNuevas, renglonesTocados) {
+  const nombres = new Set();
+  for (const n of renglonesTocados) {
+    // Un comentario o un renglón en blanco no cambia nada de lo que corre.
+    const propio = (lineasNuevas[n - 1] ?? '').trim();
+    if (propio === '' || /^(\/\/|\/\*|\*)/.test(propio)) continue;
+    let encontrado = null;
+    for (let i = Math.min(n, lineasNuevas.length) - 1; i >= 0; i--) {
+      const linea = lineasNuevas[i];
+      // Sólo cuenta un renglón que empieza código; el texto de un string largo no.
+      if (/^(export|const|let|var|function|async|class|interface|type|enum|import|declare)\b/.test(linea)) {
+        const d = linea.match(DECLARACION);
+        encontrado = d ? d[1] : '*';
+        break;
+      }
+    }
+    if (!encontrado || encontrado === '*') return '*';
+    nombres.add(encontrado);
+  }
+  return [...nombres];
+}
+
+/**
+ * Dentro de un archivo que usa `nombres`, qué exporta que dependa de ellos. Parte el archivo en
+ * declaraciones de primer nivel y sigue el uso hasta que no crece. Un uso suelto (fuera de una
+ * declaración con nombre) devuelve `'*'`.
+ */
+export function exportsQueUsan(texto, nombres) {
+  if (nombres === '*') return '*';
+  const lineas = texto.split('\n');
+  const bloques = [];
+  let actual = null;
+  for (const linea of lineas) {
+    if (/^\S/.test(linea) && !/^[}\])]/.test(linea) && !/^\/[/*]|^\*/.test(linea)) {
+      const d = linea.match(/^(export\s+)?(?:default\s+)?(?:async\s+)?(?:const|let|var|function\*?|class|interface|type|enum)\s+([A-Za-z_$][\w$]*)/);
+      actual = { nombre: d ? d[2] : null, exportado: !!(d && d[1]), suelto: !d && !/^(import|export\s*\{|export\s+\*|'use |"use )/.test(linea), texto: '' };
+      bloques.push(actual);
+    }
+    if (actual) actual.texto += linea + '\n';
+  }
+  const usados = new Set(nombres);
+  const toca = (t) => [...usados].some((n) => new RegExp(`(^|[^\\w$.])${n.replace(/[$]/g, '\\$')}(?![\\w$])`).test(t));
+  let creció = true;
+  while (creció) {
+    creció = false;
+    for (const b of bloques) {
+      if (!b.nombre || usados.has(b.nombre)) continue;
+      if (toca(b.texto)) { usados.add(b.nombre); creció = true; }
+    }
+  }
+  if (bloques.some((b) => b.suelto && toca(b.texto))) return '*';
+  return bloques.filter((b) => b.exportado && usados.has(b.nombre)).map((b) => b.nombre);
+}
+
+function nombresCambiadosEnGit(rel) {
+  const base = spawnSync('git merge-base origin/main HEAD', { shell: true, encoding: 'utf8' });
+  const ref = base.status === 0 ? base.stdout.trim() : '';
+  if (!ref) return '*';
+  const diff = spawnSync(`git diff -U0 ${ref} -- "${rel}"`, { shell: true, encoding: 'utf8' });
+  if (diff.status !== 0) return '*';
+  const renglones = [];
+  for (const m of (diff.stdout || '').matchAll(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/gm)) {
+    const desde = Number(m[1]);
+    const cuantos = m[2] === undefined ? 1 : Number(m[2]);
+    if (cuantos === 0) renglones.push(Math.max(1, desde));
+    for (let i = 0; i < cuantos; i++) renglones.push(desde + i);
+  }
+  if (renglones.length === 0) return '*';
+  let lineas;
+  try { lineas = fs.readFileSync(path.join(RAIZ, rel), 'utf8').split('\n'); } catch { return '*'; }
+  return nombresCambiadosDesde(lineas, renglones);
+}
+
+/** Si el `from` en esa posición cierra un `import type …` o `export type …`. */
+export function esSoloTipo(texto, posicion) {
+  const antes = texto.slice(0, posicion);
+  const inicio = Math.max(antes.lastIndexOf('import '), antes.lastIndexOf('export '));
+  if (inicio === -1) return false;
+  return /^(import|export)\s+type\s/.test(antes.slice(inicio));
 }
 
 function rutaDePagina(archivo) {
@@ -126,7 +232,7 @@ export const SOLO_CON_LA_BASE_REAL = [
   'src/lib/marca-de-lectura.ts',
 ];
 
-export function pantallasTocadasDesde(cambiadosTodos) {
+export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiadosEnGit) {
   if (!cambiadosTodos) return 'TODO';
   const cambiados = cambiadosTodos.filter((f) => !SOLO_CON_LA_BASE_REAL.includes(f));
   if (cambiados.length === 0) return [];
@@ -141,15 +247,30 @@ export function pantallasTocadasDesde(cambiadosTodos) {
     .filter((f) => fs.existsSync(f));
   if (semillas.length === 0) return [];
 
+  // Se sigue de archivo en archivo llevando QUÉ nombres cambiaron: a quien importa uno de esos
+  // nombres le cambian sólo las partes que lo usan, y eso es lo que sigue subiendo.
   const alcanzados = new Set(semillas);
-  const cola = [...semillas];
+  const llevados = new Map();
+  const cola = [];
+  for (const semilla of semillas) {
+    const propios = nombresDe(path.relative(RAIZ, semilla).replace(/\\/g, '/'));
+    llevados.set(semilla, propios === '*' ? '*' : exportsQueUsan(fs.readFileSync(semilla, 'utf8'), propios));
+    cola.push(semilla);
+  }
+  const textoDe = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return ''; } };
   while (cola.length) {
     const actual = cola.pop();
-    for (const quien of usadoPor.get(actual) || []) {
-      if (!alcanzados.has(quien)) {
-        alcanzados.add(quien);
-        cola.push(quien);
-      }
+    const cambiaron = llevados.get(actual);
+    for (const [quien, trae] of usadoPor.get(actual) || []) {
+      const usa = cambiaron === '*' || trae === '*' ? '*' : trae.filter((n) => cambiaron.includes(n));
+      if (usa !== '*' && usa.length === 0) continue;
+      const nuevos = usa === '*' ? '*' : exportsQueUsan(textoDe(quien), usa);
+      const previos = llevados.get(quien);
+      const juntos = previos === '*' || nuevos === '*' ? '*' : [...new Set([...(previos || []), ...nuevos])];
+      const crecio = !alcanzados.has(quien) || (previos !== '*' && (juntos === '*' || juntos.length > previos.length));
+      alcanzados.add(quien);
+      llevados.set(quien, juntos);
+      if (crecio) cola.push(quien);
     }
   }
 

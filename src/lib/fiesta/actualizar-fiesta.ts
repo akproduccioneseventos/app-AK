@@ -40,7 +40,10 @@ export async function actualizarFiesta(
       path,
       null as any,
       async (actual) => {
-        const base: FiestaEnPlanificacion | null = actual;
+        let base: FiestaEnPlanificacion | null = actual;
+        if (!base) {
+          base = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+        }
         if (!base) {
           throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
         }

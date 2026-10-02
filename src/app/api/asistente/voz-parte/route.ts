@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hasAppSession } from '@/lib/auth/require-session';
-import { getParteDeLaManana } from '@/lib/automatico/parte-manana';
-import { generarAudioWavSintetico, sintetizarVozReal } from '@/lib/asistente/voz-parte';
-import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
+import { sintetizarVozGemini } from '@/lib/asistente/voz-parte';
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,22 +9,14 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams;
-    const textoParam = searchParams.get('texto');
-    const vozParam = searchParams.get('voz');
+    const texto = searchParams.get('texto');
+    const voz = searchParams.get('voz') || 'es-ES-Journey-F';
 
-    const settings = await getAsistenteSettings();
-    const vozSeleccionada = vozParam || settings.vozSeleccionada || 'es-ES-Journey-F';
-
-    let textoHablado = textoParam;
-    if (!textoHablado) {
-      const parte = await getParteDeLaManana();
-      textoHablado = parte.textoHablado;
+    if (!texto) {
+      return NextResponse.json({ error: 'Falta el texto a sintetizar' }, { status: 400 });
     }
 
-    // Sintetizar con la voz neuronal más realista disponible
-    const audioBuffer = await sintetizarVozReal(textoHablado, {
-      voz: vozSeleccionada,
-    });
+    const audioBuffer = await sintetizarVozGemini(texto, { voz });
 
     return new NextResponse(new Uint8Array(audioBuffer), {
       status: 200,
@@ -37,14 +27,13 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error: any) {
-    const fallbackBuffer = generarAudioWavSintetico(2);
-    return new NextResponse(new Uint8Array(fallbackBuffer), {
-      status: 200,
-      headers: {
-        'Content-Type': 'audio/wav',
-        'Content-Length': fallbackBuffer.length.toString(),
-      },
-    });
+    // Si no hay clave de Gemini o falla la llamada, devolvemos error 503 explícito
+    // para que el reproductor caiga limpiamente a speechSynthesis del navegador.
+    // NUNCA devolvemos un pitido ni tonos haciéndose pasar por voz (Orden 110).
+    return NextResponse.json(
+      { error: error?.message || 'Voz de Gemini TTS no disponible en este momento.' },
+      { status: 503 }
+    );
   }
 }
 
@@ -55,14 +44,14 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const textoHablado = body.texto || 'Hola Alexander, asistente listo.';
-    const settings = await getAsistenteSettings();
-    const vozSeleccionada = body.voz || settings.vozSeleccionada || 'es-ES-Journey-F';
+    const texto = body.texto;
+    const voz = body.voz || 'es-ES-Journey-F';
 
-    const audioBuffer = await sintetizarVozReal(textoHablado, {
-      voz: vozSeleccionada,
-      apiKey: body.apiKey,
-    });
+    if (!texto) {
+      return NextResponse.json({ error: 'Falta el texto a sintetizar' }, { status: 400 });
+    }
+
+    const audioBuffer = await sintetizarVozGemini(texto, { voz, apiKey: body.apiKey });
 
     return new NextResponse(new Uint8Array(audioBuffer), {
       status: 200,
@@ -73,8 +62,8 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     return NextResponse.json(
-      { error: error.message || 'Error sintetizando voz.' },
-      { status: 500 }
+      { error: error?.message || 'Voz de Gemini TTS no disponible.' },
+      { status: 503 }
     );
   }
 }

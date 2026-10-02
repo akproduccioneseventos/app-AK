@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Volume2, Sparkles, ArrowRight, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,30 +9,76 @@ import Link from 'next/link';
 
 export function ParteDeLaMananaPlayer({ parte }: { parte: ParteDeLaManana }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  const toggleHablar = () => {
-    if (typeof window === 'undefined') return;
+  React.useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
-    if (isPlaying && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+  const hablarConNavegador = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      setIsPlaying(false);
+      return;
+    }
+    const frase = new SpeechSynthesisUtterance(parte.textoHablado);
+    frase.lang = 'es-UY';
+    frase.onend = () => setIsPlaying(false);
+    frase.onerror = () => setIsPlaying(false);
+    window.speechSynthesis.cancel();
+    setIsPlaying(true);
+    window.speechSynthesis.speak(frase);
+  };
+
+  const toggleHablar = async () => {
+    if (isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
       setIsPlaying(false);
       return;
     }
 
-    // Audio generado en el servidor con la voz de Gemini y guardado para no duplicar gasto
-    const audioUrl = `/api/asistente/voz-parte?fecha=${encodeURIComponent(parte.fecha)}`;
-    if (!audioRef.current) {
-      audioRef.current = new Audio(audioUrl);
-      audioRef.current.onended = () => setIsPlaying(false);
-      audioRef.current.onerror = () => setIsPlaying(false);
+    setIsPlaying(true);
+
+    try {
+      const res = await fetch(`/api/asistente/voz-parte?texto=${encodeURIComponent(parte.textoHablado)}`);
+      if (res.ok) {
+        const blob = await res.blob();
+        if (blob.size > 100) {
+          const url = URL.createObjectURL(blob);
+          const audio = new Audio(url);
+          audioRef.current = audio;
+          audio.onended = () => {
+            setIsPlaying(false);
+            URL.revokeObjectURL(url);
+            audioRef.current = null;
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(url);
+            audioRef.current = null;
+            hablarConNavegador();
+          };
+          await audio.play();
+          return;
+        }
+      }
+    } catch {
+      // Continuar al fallback de navegador
     }
 
-    setIsPlaying(true);
-    audioRef.current.play().catch(() => {
-      setIsPlaying(false);
-    });
+    hablarConNavegador();
   };
 
   return (
