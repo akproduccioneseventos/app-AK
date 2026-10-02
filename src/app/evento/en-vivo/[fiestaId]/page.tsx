@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -255,7 +256,8 @@ export default function EventoEnVivoPage() {
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
             </div>
-          </form>
+            <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</form>
         </div>
       </main>
     </div>

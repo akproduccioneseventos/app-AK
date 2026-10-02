@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
@@ -466,7 +467,8 @@ export default function OrganizadorPage() {
                     {creandoVotacion ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
                     Crear votación
                   </Button>
-                </form>
+                  <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</form>
               </CardContent>
             </Card>
           </div>

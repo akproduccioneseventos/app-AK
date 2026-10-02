@@ -15,10 +15,13 @@ import {
     ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Bell,
     Activity, ShieldCheck, Users2, Search, Music, Package, Truck, UserCheck,
     Monitor, Tv, Gamepad2, Sparkles, UtensilsCrossed, Wine, CreditCard,
-    BookOpen, Image, Hash, Lock, X, CheckCircle2, Mic, Smartphone, ListVideo
+    BookOpen, Image, Hash, Lock, X, CheckCircle2, Mic, Smartphone, ListVideo,
+    PauseCircle, PlayCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
+import { suspenderFiestaAction, reactivarFiestaAction } from '@/app/actions/fiesta/fiesta.actions';
+import { esFiestaSuspendida, calcularLiquidacionSuspension } from '@/lib/fiesta/revisar-fiestas';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import type { FiestaEnPlanificacion, ModulosContratados } from '@/types/fiesta';
 import { KpiCard } from '@/components/dashboard/kpi-card';
@@ -356,6 +359,48 @@ function PlannerDashboardContent() {
     loadFiesta();
   }, [fiestaId, router]);
 
+  const [mostrarModalSuspension, setMostrarModalSuspension] = useState(false);
+  const [motivoSuspension, setMotivoSuspension] = useState('');
+  const [isProcessingSuspension, setIsProcessingSuspension] = useState(false);
+
+  const estaSuspendida = useMemo(() => esFiestaSuspendida(fiesta), [fiesta]);
+  const liquidacion = useMemo(() => fiesta ? calcularLiquidacionSuspension(fiesta) : null, [fiesta]);
+
+  const handleSuspender = async () => {
+    if (!fiestaId || !motivoSuspension.trim()) {
+      toast({ title: "Atención", description: "Ingresá el motivo de la suspensión.", variant: "destructive" });
+      return;
+    }
+    setIsProcessingSuspension(true);
+    try {
+      const res = await suspenderFiestaAction(fiestaId, motivoSuspension.trim());
+      if (!res.success) throw new Error(res.error || 'No se pudo suspender la fiesta.');
+      setFiesta(res.fiesta as FiestaEnPlanificacion);
+      setMostrarModalSuspension(false);
+      setMotivoSuspension('');
+      toast({ title: "Fiesta suspendida", description: "El evento quedó suspendido y se preservaron los pagos." });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsProcessingSuspension(false);
+    }
+  };
+
+  const handleReactivar = async () => {
+    if (!fiestaId) return;
+    setIsProcessingSuspension(true);
+    try {
+      const res = await reactivarFiestaAction(fiestaId);
+      if (!res.success) throw new Error(res.error || 'No se pudo reactivar la fiesta.');
+      setFiesta(res.fiesta as FiestaEnPlanificacion);
+      toast({ title: "Fiesta reactivada", description: "El evento volvió a planificación activa." });
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setIsProcessingSuspension(false);
+    }
+  };
+
   const handleModuleToggle = async (moduleId: keyof ModulosContratados, checked: boolean) => {
     const previousModules = modulosContratados;
     const updatedModules = { ...modulosContratados, [moduleId]: checked };
@@ -423,15 +468,141 @@ function PlannerDashboardContent() {
             </div>
           </div>
         </motion.div>
-        <div className="flex gap-2 w-full sm:w-auto">
-            <Button asChild className="rounded-2xl px-6 sm:px-8 h-12 bg-primary shadow-xl font-black tracking-widest w-full text-xs sm:text-sm"><Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} className="flex-1 sm:flex-none">
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            {estaSuspendida ? (
+              <Button
+                onClick={handleReactivar}
+                disabled={isProcessingSuspension}
+                className="rounded-2xl px-5 h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-black tracking-wider text-xs sm:text-sm"
+              >
+                <PlayCircle className="w-4 h-4 mr-2" /> REACTIVAR
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                onClick={() => setMostrarModalSuspension(true)}
+                disabled={isProcessingSuspension}
+                className="rounded-2xl px-4 h-12 border-rose-300 text-rose-600 hover:bg-rose-50 font-bold text-xs sm:text-sm"
+              >
+                <PauseCircle className="w-4 h-4 mr-1.5" /> Suspender
+              </Button>
+            )}
+            <Button asChild className="rounded-2xl px-6 sm:px-8 h-12 bg-primary shadow-xl font-black tracking-widest text-xs sm:text-sm"><Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} className="flex-1 sm:flex-none">
                     <Zap className="w-4 h-4 mr-2 sm:mr-3"/> EN VIVO
                 </Link></Button>
-            <Button asChild variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-border font-bold hover:bg-muted/40 transition-all w-full text-xs sm:text-sm"><Link href="/eventos" className="flex-1 sm:flex-none">
+            <Button asChild variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-border font-bold hover:bg-muted/40 transition-all text-xs sm:text-sm"><Link href="/eventos" className="flex-1 sm:flex-none">
                     <ArrowLeft className="w-4 h-4 mr-2 sm:mr-3"/>Volver
                 </Link></Button>
         </div>
       </div>
+
+      {/* Modal/Panel para Suspender Fiesta */}
+      {mostrarModalSuspension && (
+        <div className="rounded-2xl border-2 border-rose-500 bg-rose-50/90 dark:bg-rose-950/40 p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-base text-rose-700 dark:text-rose-400 flex items-center gap-2">
+              <PauseCircle className="w-5 h-5" /> Suspender este evento
+            </h3>
+            <Button variant="ghost" size="sm" onClick={() => setMostrarModalSuspension(false)}>✕</Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Al suspender la fiesta, se apagan los recordatorios automáticos de cuotas y avisos al cliente.
+            Lo cobrado queda intacto y se calcula la penalidad contractual del 30% sobre el presupuesto.
+          </p>
+          <div className="space-y-2">
+            <Label htmlFor="motivo-susp" className="text-xs font-semibold">Motivo de la suspensión:</Label>
+            <Input
+              id="motivo-susp"
+              placeholder="Ej: Decisión familiar / Reprogramación a coordinar"
+              value={motivoSuspension}
+              onChange={(e) => setMotivoSuspension(e.target.value)}
+              className="text-sm"
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-1">
+            <Button variant="outline" size="sm" onClick={() => setMostrarModalSuspension(false)}>Cancelar</Button>
+            <Button
+              size="sm"
+              onClick={handleSuspender}
+              disabled={isProcessingSuspension || !motivoSuspension.trim()}
+              className="bg-rose-600 hover:bg-rose-700 text-white font-bold"
+            >
+              {isProcessingSuspension ? 'Suspendiendo...' : 'Confirmar suspensión'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Banner de Fiesta Suspendida */}
+      {estaSuspendida && (
+        <div className="rounded-2xl border-2 border-rose-500/50 bg-rose-50/60 dark:bg-rose-950/30 p-5 sm:p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-3">
+              <PauseCircle className="w-8 h-8 text-rose-600 shrink-0 mt-0.5 sm:mt-0" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-black text-rose-700 dark:text-rose-400">Fiesta Suspendida</h2>
+                  <Badge variant="outline" className="border-rose-500 text-rose-600 dark:text-rose-300 text-xs">Suspendida</Badge>
+                </div>
+                <p className="text-sm text-foreground mt-1">
+                  <strong>Motivo:</strong> {fiesta.motivoSuspension || 'No especificado'}
+                  {fiesta.fechaSuspension && ` · Fecha: ${formatDate(fiesta.fechaSuspension)}`}
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={handleReactivar}
+              disabled={isProcessingSuspension}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm self-start sm:self-auto shrink-0"
+            >
+              <PlayCircle className="w-4 h-4 mr-1.5" />
+              Reactivar fiesta
+            </Button>
+          </div>
+
+          {/* Liquidación según contrato (30%) */}
+          {liquidacion && (
+            <div className="bg-card rounded-xl p-4 border border-rose-200 dark:border-rose-900/40 text-xs space-y-3">
+              <p className="font-bold text-foreground">
+                Resumen de penalidad contractual del 30% sobre presupuesto vigente:
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-2.5 bg-muted/40 rounded border border-border">
+                  <div className="text-muted-foreground">Presupuesto Vigente</div>
+                  <div className="text-base font-bold text-foreground mt-0.5">
+                    {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(liquidacion.totalPresupuesto)}
+                  </div>
+                </div>
+                <div className="p-2.5 bg-muted/40 rounded border border-border">
+                  <div className="text-muted-foreground">Penalidad 30%</div>
+                  <div className="text-base font-bold text-rose-600 dark:text-rose-400 mt-0.5">
+                    {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(liquidacion.penalidad30)}
+                  </div>
+                </div>
+                <div className="p-2.5 bg-muted/40 rounded border border-border">
+                  <div className="text-muted-foreground">Total Cobrado</div>
+                  <div className="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                    {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(liquidacion.totalCobrado)}
+                  </div>
+                </div>
+                <div className="p-2.5 bg-muted/40 rounded border border-border">
+                  <div className="text-muted-foreground">
+                    {liquidacion.diferenciaACobrar > 0 ? 'Diferencia a Cobrar' : 'Saldo a Favor'}
+                  </div>
+                  <div className="text-base font-bold text-amber-600 dark:text-amber-400 mt-0.5">
+                    {new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(
+                      liquidacion.diferenciaACobrar > 0 ? liquidacion.diferenciaACobrar : liquidacion.saldoAFavor
+                    )}
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground italic">
+                * Lo cobrado permanece intacto. El evento no figura en listas próximas y los recordatorios automáticos están suspendidos.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* KPIs */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">

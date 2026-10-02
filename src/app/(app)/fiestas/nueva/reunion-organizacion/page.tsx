@@ -92,7 +92,9 @@ function ReunionOrganizacionContent() {
       setAlergias(data.catering?.alergiasOIntolerancias || '');
       setCantidadInvitados(data.configuracion?.invitadosEstimados ?? '');
       setRespuestasExtra(data.reunionOrganizacion?.respuestasExtra || {});
-      if (Array.isArray(data.programa) && data.programa.length > 0) {
+      if (data.reunionOrganizacion?.cronogramaNotas) {
+        setCronogramaNotas(data.reunionOrganizacion.cronogramaNotas);
+      } else if (Array.isArray(data.programa) && data.programa.length > 0) {
         setCronogramaNotas(data.programa.map((p: any) => `${p.hora || ''} - ${p.titulo || p.actividad || ''}`).join('\n'));
       }
     } catch (err: any) {
@@ -150,6 +152,7 @@ function ReunionOrganizacionContent() {
         reunionOrganizacion: {
           ...fiesta.reunionOrganizacion,
           respuestasExtra,
+          cronogramaNotas,
         },
       };
 
@@ -217,6 +220,7 @@ function ReunionOrganizacionContent() {
           ...fiestaGuardada.reunionOrganizacion,
           cerradaAt: fechaHoy,
           respuestasExtra,
+          cronogramaNotas,
         },
       };
 

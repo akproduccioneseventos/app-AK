@@ -1,5 +1,7 @@
-
 'use client';
+
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+
 
 import React, { useEffect, useRef, useState } from 'react';
 import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, RsvpStatus } from '@/types/fiesta';
@@ -2887,6 +2889,7 @@ export default function PublicPortalView({
       )}
 
       <PublicFooter variant="light" />
-    </div>
+      <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</div>
   );
 }

@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -852,7 +853,8 @@ export default function BarraTecnologicaTouchPage() {
             Reintentar
           </Button>
         </div>
-      </main>
+        <div className="pt-4 text-center"><AvisoDeDatos para="invitado" /></div>
+</main>
     );
   }
 

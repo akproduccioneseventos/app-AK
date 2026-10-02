@@ -971,6 +971,17 @@ commit pasó, y `scripts/antes-de-fusionar.mjs` (enganchado en `.claude/settings
 fusión) **rechaza** toda fusión que no traiga `expectedHeadSha` o cuyo commit no sea ese. Con el
 número equivocado, GitHub ve otro commit y no fusiona.
 
+### 31. Subir datos de la corrida con un "commit -a", y cambiar de rama con la puerta corriendo
+
+**Pasó el 1 de octubre de 2026.** Para arreglar una línea en la entrega de Gemini usé `git commit -am`
+después de una corrida: entraron cuatro archivos de datos que escribió la prueba (error 13 otra vez).
+Los saqué con otro commit. Y ese mismo día **cambié de rama mientras la puerta corría**, para mirar
+código: por suerte la compilación ya había terminado.
+
+**Qué se hace distinto:** después de una corrida, `git add` **con los archivos nombrados**, nunca `-a`
+ni `-A`. Y con la puerta corriendo, el código se mira con `git show <rama>:<archivo>` o `git grep`,
+**nunca** cambiando de rama.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1162,6 +1173,11 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **Lo que se suma a la tecnología, y lo que no (1 de octubre de 2026).** Se suma el **video resumen**
+  armado con las fotos (sin IA de video) y los asistentes pasan a llamarse **Asistente AK**, con mascota. La
+  **invitación con realidad aumentada queda descartada**. Con eso **no hay más funciones para sumar**:
+  lo que sigue es terminar y que no tenga errores. No proponer más funciones nuevas sin que las pida.
 
 - **La fotocabina no tiene cámara lenta (30 de septiembre de 2026).** *"La fotocabina no usa cámara lenta
   si es foto"*. La cámara lenta es de la Plataforma 360. Lo saca la orden 100.

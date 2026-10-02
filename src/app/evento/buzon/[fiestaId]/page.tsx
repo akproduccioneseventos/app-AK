@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -1890,7 +1891,8 @@ export default function GuestBuzonPage() {
 
           </div>
         )}
-      </main>
+        <div className="pt-4 text-center"><AvisoDeDatos para="invitado" /></div>
+</main>
 
       <footer className="py-6 border-t border-border bg-card text-center">
         <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Experiencia por AK Producciones</p>

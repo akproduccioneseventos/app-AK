@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import NextImage from 'next/image';
@@ -258,6 +259,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
           <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => { setSelectedDrink(null); setDrinkToChange(null); }} className="min-h-11 rounded-lg">Cancelar</Button><Button onClick={() => selectedDrink && submitOrder(selectedDrink.id)} disabled={!selectedDrink || isOrdering} data-testid="boton-confirmar-pedido" className="min-h-11 rounded-lg text-white" style={{ backgroundColor: accentColor }}>{isOrdering ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Confirmar'}</Button></div>
         </DialogContent>
       </Dialog>
-    </div>
+      <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</div>
   );
 }

@@ -64,11 +64,18 @@ export interface CierreDeBarraGuardado {
   depositoAjustado: boolean;
 }
 
+export interface AperturaDeBarraGuardada {
+  at: string;
+  por?: string;
+  botellasRecibidas: Record<string, number>;
+}
+
 export interface BarTechnologyData {
   updatedAt?: string;
   settings: BarTechnologySettings;
   orders?: BarDrinkOrder[];
   cierre?: CierreDeBarraGuardado;
+  apertura?: AperturaDeBarraGuardada;
 }
 
 export interface BarTechnologyDashboard {
@@ -77,6 +84,8 @@ export interface BarTechnologyDashboard {
   drinks: Trago[];
   settings: BarTechnologySettings;
   orders: BarDrinkOrder[];
+  apertura?: AperturaDeBarraGuardada;
+  cierre?: CierreDeBarraGuardado;
   backgroundImageUrl?: string;
   protagonistaFotoUrl?: string;
 }

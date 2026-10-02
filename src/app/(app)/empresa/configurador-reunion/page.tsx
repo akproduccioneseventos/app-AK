@@ -24,21 +24,42 @@ import {
   ChevronRight,
   Info,
   AlertTriangle,
+  Mic,
+  Volume2,
+  Wand2,
+  Compass,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { savePresupuesto } from '@/app/actions/presupuestos';
+import { generarVisualizacionSalonReunion } from '@/app/actions/fiesta/decoracion.actions';
 import { calculateSimulatorPricing, type SimulatorPriceStats } from '@/lib/simulator/pricing';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
 import type { DecoracionData, LayoutElement } from '@/types/fiesta';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
+import { createDemoFiesta } from '@/app/actions/fiesta-actual';
+
+function idDeYoutube(url?: string | null): string | null {
+  if (!url) return null;
+  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  return match ? match[1] : null;
+}
 
 // Carga diferida del componente Three.js 3D para evitar errores de renderizado en el servidor
 const SalonScene = dynamic(
@@ -89,6 +110,121 @@ export default function ConfiguradorReunionPage() {
   const [selectedServiceIds, setSelectedServiceIds] = useState<Set<string>>(new Set());
   const [savingBudget, setSavingBudget] = useState(false);
   const [savedResult, setSavedResult] = useState<{ id: string; numero?: number } | null>(null);
+
+  // Armado con una frase
+  const [fraseArmado, setFraseArmado] = useState('');
+
+  // Ver salón decorado (IA)
+  const [mostrarFotosSalon, setMostrarFotosSalon] = useState(false);
+  const [fotosSalonIa, setFotosSalonIa] = useState<string[]>([]);
+  const [cargandoFotosSalon, setCargandoFotosSalon] = useState(false);
+
+  // Recorrido de cámara 3D
+  const [enRecorridoCamara, setEnRecorridoCamara] = useState(false);
+
+  // Asistente con voz
+  const [hablandoAsistente, setHablandoAsistente] = useState(false);
+
+  const aplicarFraseArmado = (frase: string) => {
+    if (!frase.trim()) return;
+    const lower = frase.toLowerCase();
+
+    // 1. Invitados
+    const matchInvitados = lower.match(/(\d{1,4})\s*(?:invitados?|personas?|lugares?)/i) || lower.match(/(?:para|con)\s*(\d{1,4})/i);
+    if (matchInvitados) {
+      const tot = parseInt(matchInvitados[1], 10);
+      if (tot > 0) {
+        const ad = Math.round(tot * 0.85);
+        const me = tot - ad;
+        setAdultos(ad);
+        setMenores(me);
+      }
+    }
+
+    // 2. Colores
+    if (lower.includes('lila') || lower.includes('violeta') || lower.includes('morado')) {
+      setSalonColor('#7c3aed');
+    } else if (lower.includes('dorado') || lower.includes('oro') || lower.includes('champagne')) {
+      setSalonColor('#d97706');
+    } else if (lower.includes('fucsia') || lower.includes('rosa') || lower.includes('rosado')) {
+      setSalonColor('#db2777');
+    } else if (lower.includes('azul') || lower.includes('celeste') || lower.includes('marino')) {
+      setSalonColor('#2563eb');
+    } else if (lower.includes('esmeralda') || lower.includes('verde')) {
+      setSalonColor('#059669');
+    }
+
+    // 3. Tipo evento y nombre
+    if (lower.includes('quince') || lower.includes('15') || lower.includes('quinceañera')) {
+      setTipoEvento('15 Años');
+      const matchNombre = lower.match(/(?:quince|15)\s*(?:de)?\s*([a-záéíóúñ]+)/i);
+      if (matchNombre && matchNombre[1]) {
+        const nom = matchNombre[1].charAt(0).toUpperCase() + matchNombre[1].slice(1);
+        setClienteNombre(nom);
+      }
+    } else if (lower.includes('boda') || lower.includes('casamiento')) {
+      setTipoEvento('Boda');
+    } else if (lower.includes('cumple') || lower.includes('aniversario')) {
+      setTipoEvento('Cumpleaños');
+    }
+
+    toast({
+      title: '¡Salón configurado con tu frase!',
+      description: 'Se actualizaron invitados, colores y armado según lo indicado.',
+    });
+  };
+
+  const handleVerSalonDecorado = async () => {
+    setCargandoFotosSalon(true);
+    setMostrarFotosSalon(true);
+    try {
+      const res = await generarVisualizacionSalonReunion({
+        tipoEvento,
+        colorHex: salonColor,
+        salonNombre: 'Club Uruguay',
+      });
+      if (res.success && res.imagenes) {
+        setFotosSalonIa(res.imagenes);
+      } else {
+        toast({ title: 'Aviso', description: res.error || 'No se pudieron generar las imágenes.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: 'Error al generar imágenes.', variant: 'destructive' });
+    } finally {
+      setCargandoFotosSalon(false);
+    }
+  };
+
+  const handleVozAsistente = () => {
+    if (hablandoAsistente) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      setHablandoAsistente(false);
+      return;
+    }
+
+    const texto = `Hola, estamos configurando los ${tipoEvento} para ${Number(adultos) + Number(menores)} personas con ambientación en luces color ${salonColor}. Te recomiendo incluir la discoteca profesional y la pantalla gigante para tus invitados.`;
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(texto);
+      utterance.lang = 'es-UY';
+      utterance.onend = () => setHablandoAsistente(false);
+      utterance.onerror = () => setHablandoAsistente(false);
+      setHablandoAsistente(true);
+      window.speechSynthesis.speak(utterance);
+    } else {
+      toast({ title: 'Asistente de voz', description: texto });
+    }
+  };
+
+  const handleRecorrerCamara = () => {
+    setEnRecorridoCamara((prev) => !prev);
+    toast({
+      title: !enRecorridoCamara ? 'Paseo panorámico iniciado' : 'Paseo pausado',
+      description: !enRecorridoCamara ? 'Recorriendo el salón 3D a pantalla completa.' : 'Control manual restaurado.',
+    });
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -383,8 +519,30 @@ export default function ConfiguradorReunionPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Columna Izquierda: Vista 3D del Salón */}
         <div className="lg:col-span-7 space-y-4">
+          {/* Barra rápida: Armar con una frase */}
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shadow-md">
+            <div className="flex items-center gap-2 text-amber-400 shrink-0">
+              <Wand2 className="w-4 h-4" />
+              <span className="text-xs font-bold uppercase tracking-wider">Armar con una frase:</span>
+            </div>
+            <Input
+              placeholder="Ej: quince de Morena, lila y dorado, 120 invitados..."
+              value={fraseArmado}
+              onChange={(e) => setFraseArmado(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && aplicarFraseArmado(fraseArmado)}
+              className="h-9 text-xs bg-slate-950 border-slate-700 text-white flex-1"
+            />
+            <Button
+              size="sm"
+              onClick={() => aplicarFraseArmado(fraseArmado)}
+              className="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs h-9 shrink-0"
+            >
+              Armar
+            </Button>
+          </div>
+
           <Card className="border-slate-200 shadow-lg overflow-hidden">
-            <CardHeader className="bg-slate-950 text-white p-4 flex flex-row items-center justify-between">
+            <CardHeader className="bg-slate-950 text-white p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle className="text-base font-black flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-amber-400" />
@@ -395,9 +553,41 @@ export default function ConfiguradorReunionPage() {
                 </CardDescription>
               </div>
 
+              {/* Botones de acción 3D y decorado */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleVerSalonDecorado}
+                  className="h-8 border-amber-500/40 bg-amber-950/20 text-amber-300 font-bold text-xs hover:bg-amber-900/30"
+                >
+                  <ImageIcon className="w-3.5 h-3.5 mr-1" /> Ver salón decorado
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleRecorrerCamara}
+                  className="h-8 border-slate-700 bg-slate-900 text-slate-200 font-bold text-xs hover:bg-slate-800"
+                >
+                  <Compass className={`w-3.5 h-3.5 mr-1 ${enRecorridoCamara ? 'animate-spin text-amber-400' : ''}`} /> Recorrer
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleVozAsistente}
+                  className={`h-8 border-slate-700 font-bold text-xs ${
+                    hablandoAsistente ? 'bg-amber-500 text-black' : 'bg-slate-900 text-slate-200 hover:bg-slate-800'
+                  }`}
+                >
+                  <Volume2 className="w-3.5 h-3.5 mr-1" /> {hablandoAsistente ? 'Pausar voz' : 'Asistente'}
+                </Button>
+              </div>
+
               {/* Selector de color LED */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-300 font-semibold">Luces LED:</span>
+              <div className="flex items-center gap-2 pt-1 sm:pt-0">
+                <span className="text-xs text-slate-400 font-semibold">LED:</span>
                 {[
                   { name: 'Dorado', hex: '#d97706' },
                   { name: 'Fucsia', hex: '#db2777' },
@@ -409,7 +599,7 @@ export default function ConfiguradorReunionPage() {
                     key={col.hex}
                     type="button"
                     onClick={() => setSalonColor(col.hex)}
-                    className={`h-6 w-6 rounded-full border-2 transition-transform ${
+                    className={`h-5 w-5 rounded-full border-2 transition-transform ${
                       salonColor === col.hex ? 'scale-125 border-white shadow-md' : 'border-transparent opacity-70'
                     }`}
                     style={{ backgroundColor: col.hex }}
@@ -671,11 +861,88 @@ export default function ConfiguradorReunionPage() {
                     </>
                   )}
                 </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={async () => {
+                    try {
+                      const resDemo = await createDemoFiesta('xv');
+                      if (!resDemo.success) {
+                        console.warn('No se pudo inicializar demo:', resDemo.error);
+                      }
+                      router.push('/marketing/demo-tecnologia');
+                    } catch {
+                      router.push('/marketing/demo-tecnologia');
+                    }
+                  }}
+                  className="w-full mt-2 h-11 rounded-xl border-amber-300 bg-amber-50/60 hover:bg-amber-100 text-amber-900 font-bold text-xs gap-2"
+                >
+                  <Sparkles className="h-4 w-4 text-amber-600" />
+                  <span>Mostrar la experiencia (Demo en vivo)</span>
+                </Button>
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Diálogo: Salón Decorado con IA */}
+      <Dialog open={mostrarFotosSalon} onOpenChange={(o) => !o && setMostrarFotosSalon(false)}>
+        <DialogContent className="sm:max-w-4xl bg-slate-950 text-white border-slate-800 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold text-amber-400">
+              <Sparkles className="w-5 h-5" /> Vista del Salón Decorado (Referencia)
+            </DialogTitle>
+            <DialogDescription className="text-slate-400 text-xs">
+              Visualización con mesas, pista iluminada y ambientación en tonos del evento.
+            </DialogDescription>
+          </DialogHeader>
+
+          {cargandoFotosSalon ? (
+            <div className="py-20 flex flex-col items-center justify-center gap-3">
+              <Loader2 className="w-10 h-10 animate-spin text-amber-400" />
+              <p className="text-sm font-semibold text-slate-300">Generando ambientación de referencia con IA...</p>
+            </div>
+          ) : (
+            <div className="space-y-4 py-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {fotosSalonIa.map((foto, idx) => (
+                  <div key={idx} className="space-y-1.5">
+                    <div className="aspect-video rounded-xl overflow-hidden border border-slate-800 bg-slate-900 shadow-xl relative">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={foto}
+                        alt={`Vista decorada ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="text-[11px] text-slate-400 font-medium">
+                      Vista {idx === 0 ? 'panorámica de mesas y pista' : 'hacia el escenario y mesa principal'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 text-center">
+                <p className="text-xs text-amber-300 font-semibold italic">
+                  * Imagen de referencia generada con IA para proyectar la estética general del evento.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setMostrarFotosSalon(false)}
+              className="border-slate-700 bg-transparent text-white hover:bg-slate-800 text-xs"
+            >
+              Cerrar vista
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

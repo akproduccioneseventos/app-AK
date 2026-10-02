@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Edit3, Save, Loader2, AlertTriangle, Trash2, PlusCircle, Upload, Wrench } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getActivoFijoById, saveActivoFijo, deleteActivoFijo } from '@/app/actions/activos-fijos';
+import { getActivoFijoById, saveActivoFijo, deleteActivoFijo, registrarMantenimientoDeEquipo } from '@/app/actions/activos-fijos';
 import { saveGastoGeneral } from '@/app/actions/gastos';
 import type { ServicioEmpresa, AnyCategoria, UnidadServicio, TramoDePrecio } from '@/types/empresa';
 import { ALL_CATEGORIAS_ACTIVO, ALL_UNIDADES_SERVICIO } from '@/types/empresa';
@@ -137,48 +137,68 @@ export default function EditarActivoFijoPage() {
     }
   };
 
-  const handleAnotarMantenimiento = async (e: React.FormEvent) => {
+  const handleAnotarMantenimiento = async (e: React.FormEvent, registroIdReintento?: string) => {
     e.preventDefault();
-    if (!mantenimientoNota.trim()) {
-      toast({ title: 'Nota requerida', description: 'Por favor ingresá el detalle del mantenimiento.', variant: 'destructive' });
-      return;
-    }
-    const costoNum = typeof mantenimientoCosto === 'number' && mantenimientoCosto > 0 ? mantenimientoCosto : undefined;
-    if (costoNum) {
-      try {
-        const resGasto = await saveGastoGeneral({
-          concepto: `Mantenimiento: ${formData.nombre || item?.nombre || 'Equipo'} - ${mantenimientoNota.trim()}`,
-          fecha: mantenimientoFecha,
-          categoria: 'Reparaciones y Mantenimiento',
-          monto: costoNum,
-          notas: `Registrado automáticamente desde Activos Fijos (${item?.id || ''})`,
-        });
-        if (resGasto?.success) {
-          toast({ title: 'Gasto registrado', description: 'Se añadió el gasto en Reparaciones y Mantenimiento.' });
-        } else {
-          toast({ title: 'Aviso de gasto', description: resGasto?.error || 'No se pudo guardar el gasto general.', variant: 'destructive' });
-        }
-      } catch (err: any) {
-        console.error('Error al registrar gasto de mantenimiento:', err);
+    if (!item?.id) return;
+
+    let nota = mantenimientoNota.trim();
+    let fecha = mantenimientoFecha;
+    let costoNum = typeof mantenimientoCosto === 'number' && mantenimientoCosto > 0 ? mantenimientoCosto : undefined;
+
+    if (registroIdReintento) {
+      const reg = formData.mantenimiento?.historial?.find(h => h.id === registroIdReintento);
+      if (reg) {
+        nota = reg.nota;
+        fecha = reg.fecha;
+        costoNum = reg.costo;
+      }
+    } else {
+      if (!nota) {
+        toast({ title: 'Nota requerida', description: 'Por favor ingresá el detalle del mantenimiento.', variant: 'destructive' });
+        return;
       }
     }
-    const nuevoRegistro = {
-      fecha: mantenimientoFecha,
-      nota: mantenimientoNota.trim(),
-      ...(costoNum ? { costo: costoNum } : {}),
-    };
-    setFormData(prev => ({
-      ...prev,
-      mantenimiento: {
-        ...prev.mantenimiento,
-        ultimoAt: mantenimientoFecha,
-        historial: [nuevoRegistro, ...(prev.mantenimiento?.historial || [])],
-      },
-    }));
-    setMantenimientoNota('');
-    setMantenimientoCosto('');
-    setDialogMantenimientoAbierto(false);
-    toast({ title: 'Mantenimiento registrado', description: 'El mantenimiento se anotó correctamente en la ficha del equipo.' });
+
+    try {
+      const res = await registrarMantenimientoDeEquipo(item.id, {
+        fecha,
+        nota,
+        costo: costoNum,
+        registroId: registroIdReintento,
+      });
+
+      if (res.servicio) {
+        setItem(res.servicio);
+        setFormData(res.servicio);
+      }
+
+      if (res.success) {
+        if (!registroIdReintento) {
+          setMantenimientoNota('');
+          setMantenimientoCosto('');
+          setDialogMantenimientoAbierto(false);
+        }
+        toast({ title: 'Mantenimiento registrado', description: 'El mantenimiento se anotó correctamente en la ficha del equipo.' });
+      } else if (res.gastoPendiente) {
+        toast({
+          title: 'Gasto pendiente',
+          description: 'Se anotó el mantenimiento pero no el gasto: tocá Reintentar',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: res.error || 'No se pudo registrar el mantenimiento.',
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Error al registrar mantenimiento',
+        description: err.message || 'Ocurrió un error inesperado.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const backUrl = '/empresa/activos-fijos';
@@ -462,11 +482,29 @@ export default function EditarActivoFijoPage() {
                   <div className="max-h-36 overflow-y-auto space-y-2 border rounded-md p-2 bg-muted/20">
                     {formData.mantenimiento.historial.map((reg, idx) => (
                       <div key={idx} className="text-sm flex justify-between items-center border-b pb-1 last:border-b-0">
-                        <div>
-                          <span className="font-medium text-xs text-muted-foreground mr-2">{reg.fecha}</span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-medium text-xs text-muted-foreground mr-1">{reg.fecha}</span>
                           <span>{reg.nota}</span>
+                          {reg.gastoPendiente && (
+                            <span className="text-[11px] font-semibold text-amber-700 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded">
+                              Gasto pendiente
+                            </span>
+                          )}
                         </div>
-                        {reg.costo ? <span className="text-xs font-medium text-destructive">${reg.costo}</span> : null}
+                        <div className="flex items-center gap-2">
+                          {reg.costo ? <span className="text-xs font-medium text-destructive">${reg.costo}</span> : null}
+                          {reg.gastoPendiente && (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="h-6 text-xs px-2 text-amber-800 border-amber-300 hover:bg-amber-50"
+                              onClick={(e) => handleAnotarMantenimiento(e, reg.id)}
+                            >
+                              Reintentar
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

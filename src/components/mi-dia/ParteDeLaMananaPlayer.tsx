@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
-import React, { useState } from 'react';
-import { Volume2, VolumeX, Sparkles, ArrowRight, Play, Square } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Volume2, Sparkles, ArrowRight, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { ParteDeLaManana } from '@/lib/automatico/parte-manana';
@@ -9,38 +9,30 @@ import Link from 'next/link';
 
 export function ParteDeLaMananaPlayer({ parte }: { parte: ParteDeLaManana }) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const toggleHablar = () => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    if (typeof window === 'undefined') return;
 
-    if (isPlaying) {
-      window.speechSynthesis.cancel();
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
       setIsPlaying(false);
       return;
     }
 
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(parte.textoHablado);
-    utterance.lang = 'es-UY';
-
-    // Buscar la mejor voz en español
-    const voices = window.speechSynthesis.getVoices();
-    const bestVoice =
-      voices.find((v) => v.lang === 'es-UY' || v.lang.startsWith('es_UY')) ||
-      voices.find((v) => v.lang === 'es-AR' || v.lang.startsWith('es_AR')) ||
-      voices.find((v) => v.lang.startsWith('es'));
-
-    if (bestVoice) {
-      utterance.voice = bestVoice;
-      utterance.lang = bestVoice.lang;
+    // Audio generado en el servidor con la voz de Gemini y guardado para no duplicar gasto
+    const audioUrl = `/api/asistente/voz-parte?fecha=${encodeURIComponent(parte.fecha)}`;
+    if (!audioRef.current) {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.onended = () => setIsPlaying(false);
+      audioRef.current.onerror = () => setIsPlaying(false);
     }
-    utterance.rate = 1.02;
-
-    utterance.onend = () => setIsPlaying(false);
-    utterance.onerror = () => setIsPlaying(false);
 
     setIsPlaying(true);
-    window.speechSynthesis.speak(utterance);
+    audioRef.current.play().catch(() => {
+      setIsPlaying(false);
+    });
   };
 
   return (

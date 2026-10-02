@@ -6,6 +6,11 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
 
+if (typeof global.setImmediate === 'undefined') {
+  global.setImmediate = (fn, ...args) => setTimeout(fn, 0, ...args);
+  global.clearImmediate = (id) => clearTimeout(id);
+}
+
 // Enable write actions in tests by default so executor tests pass.
 // Safe-mode tests explicitly override this in their own beforeEach/afterEach.
 process.env.ASSISTANT_WRITE_ACTIONS_ENABLED = 'true';

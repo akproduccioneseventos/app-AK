@@ -302,6 +302,11 @@ export function evaluarReglasParaFiesta(
   activos?: ServicioEmpresa[],
   fechaReferencia: Date = new Date(),
 ): AlertaAutomatica[] {
+  const estado = (fiesta.estado || '').toLowerCase().trim();
+  if (estado === 'suspendida' || estado === 'archivada' || estado === 'archivado' || estado === 'cerrada') {
+    return [];
+  }
+
   const alertas: AlertaAutomatica[] = [];
   const hoy = fechaReferencia;
   const diasRestantes = getDiasRestantes(fiesta, hoy);
@@ -375,8 +380,9 @@ export function evaluarReglasParaFiesta(
 export function evaluarReglasParaTodasLasFiestas(
   fiestas: FiestaEnPlanificacion[],
   reglas: AutomatizacionRule[] = REGLAS_AUTOMATICAS,
+  activos?: ServicioEmpresa[],
 ): AlertaAutomatica[] {
-  const todas = fiestas.flatMap(f => evaluarReglasParaFiesta(f, reglas));
+  const todas = fiestas.flatMap(f => evaluarReglasParaFiesta(f, reglas, activos));
   // Sort: urgente first, then recordatorio/info
   const orden: Record<AlertaAutomatica['tipo'], number> = { urgente: 0, atencion: 1, recordatorio: 2, info: 3 };
   return todas.sort((a, b) => orden[a.tipo] - orden[b.tipo]);

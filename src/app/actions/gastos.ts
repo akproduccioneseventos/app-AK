@@ -30,6 +30,14 @@ export async function saveGastoGeneral(
     return { success: false, error: 'Faltan datos obligatorios (Concepto, Fecha, Categoría y Monto mayor a cero).' };
   }
 
+  if (data.idempotencyKey) {
+    const existentes = await getGastosGenerales();
+    const yaExiste = existentes.find(g => g.idempotencyKey === data.idempotencyKey);
+    if (yaExiste) {
+      return { success: true, gasto: yaExiste };
+    }
+  }
+
   const newGasto: GastoGeneral = {
     ...data,
     id: `gasto_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -40,6 +48,10 @@ export async function saveGastoGeneral(
   }
   return gastosMutex.runExclusive(async () => {
     const gastos = await getGastosGenerales();
+    if (data.idempotencyKey) {
+      const yaExiste = gastos.find(g => g.idempotencyKey === data.idempotencyKey);
+      if (yaExiste) return { success: true, gasto: yaExiste };
+    }
     gastos.push(newGasto);
     await writeData(GASTOS_FILE, gastos);
     return { success: true, gasto: newGasto };

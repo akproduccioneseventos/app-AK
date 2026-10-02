@@ -33,6 +33,7 @@ import { PublicFooter } from '@/components/public-footer';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 interface PublicPortalProViewProps {
   fiesta: any;
@@ -443,6 +444,9 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
                   <input ref={fileInputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={e => handleFile(e.target.files?.[0])} />
                   <Button variant="outline" className="w-full rounded-2xl" onClick={() => fileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {pagoFile ? pagoFile.name : 'Subir comprobante'}</Button>
                   <Button className="w-full rounded-2xl" style={{ backgroundColor: eventColor }} onClick={submitPago} disabled={pagoLoading}>{pagoLoading ? 'Enviando...' : <><Send className="w-4 h-4 mr-2" /> Informar pago</>}</Button>
+                  <div className="pt-2 text-center text-xs text-slate-500">
+                    <AvisoDeDatos para="cliente" />
+                  </div>
                 </>
               )}
             </CardContent>

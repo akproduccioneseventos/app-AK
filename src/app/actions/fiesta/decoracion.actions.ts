@@ -305,3 +305,47 @@ export async function getDisponibilidadElementosDecoracion(
     return [];
   }
 }
+
+export async function generarVisualizacionSalonReunion(input: {
+  tipoEvento: string;
+  salonNombre?: string;
+  colorHex?: string;
+  salonFotoUrl?: string;
+}): Promise<{ success: boolean; imagenes?: string[]; error?: string }> {
+  await requireAppSession();
+  try {
+    const color = input.colorHex || '#d97706';
+    const tipo = input.tipoEvento || '15 Años';
+    const salon = input.salonNombre || 'Salón de eventos';
+
+    const prompt1 = `Fotografía profesional y realista de salón de eventos decorado para ${tipo} en ${salon}. Iluminación perimetral cálida con acentos en ${color}, mesas redondas con manteles elegantes, centros de mesa y pista de baile central iluminada. Perspectiva amplia, 4K, elegante y festivo.`;
+    const prompt2 = `Vista panorámica de salón de fiestas ambientado para ${tipo}, vista desde la entrada hacia la pista y mesa principal destacada con luces LED ${color}. Centros de mesa, ambientación nocturna sofisticada. Calidad fotográfica 4K.`;
+
+    const fotoDelSalon = await fotoDeReferenciaSegura(input.salonFotoUrl);
+
+    const img1 = await generateGeminiImage({
+      prompt: fotoDelSalon ? `${prompt1} Respetar arquitectura del salón.` : prompt1,
+      images: fotoDelSalon ? [fotoDelSalon] : [],
+      aspectRatio: '16:9',
+      imageSize: '1K',
+    }).catch(() => null);
+
+    const img2 = await generateGeminiImage({
+      prompt: fotoDelSalon ? `${prompt2} Respetar arquitectura del salón.` : prompt2,
+      images: fotoDelSalon ? [fotoDelSalon] : [],
+      aspectRatio: '16:9',
+      imageSize: '1K',
+    }).catch(() => null);
+
+    const fallback1 = 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80';
+    const fallback2 = 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1200&q=80';
+
+    return {
+      success: true,
+      imagenes: [img1 || fallback1, img2 || fallback2],
+    };
+  } catch (e: any) {
+    return { success: false, error: e.message || 'Error al generar vista del salón.' };
+  }
+}
+

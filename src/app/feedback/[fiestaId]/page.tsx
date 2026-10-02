@@ -1,5 +1,7 @@
-
 'use client';
+
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+
 
 import React, { useState, useEffect, type FormEvent, Suspense } from 'react';
 import { useParams } from 'next/navigation';
@@ -304,7 +306,8 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
                 {isSubmitting ? 'Enviando...' : 'Enviar Mis Comentarios'}
             </Button>
           </CardFooter>
-        </form>
+          <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</form>
       </Card>
       </div>
       <PublicFooter />

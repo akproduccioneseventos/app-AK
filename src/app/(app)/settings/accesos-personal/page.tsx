@@ -24,6 +24,8 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { getAjustesLlegadaPersonal, saveAjustesLlegadaPersonal } from '@/app/actions/settings';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 /**
@@ -65,17 +67,25 @@ export default function AccesosPersonalPage() {
   const [empleadoId, setEmpleadoId] = useState<string>('');
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
 
+  // Ajustes de llegada al salón
+  const [llegadaConUbicacion, setLlegadaConUbicacion] = useState(false);
+  const [radioMetros, setRadioMetros] = useState(300);
+  const [isSavingAjustes, setIsSavingAjustes] = useState(false);
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fiesta, fetchedAccesos, fetchedEmpleados] = await Promise.all([
+      const [fiesta, fetchedAccesos, fetchedEmpleados, ajustesLlegada] = await Promise.all([
         getFiestaActual(),
         getAccesosGenerales(),
-        getEmpleados()
+        getEmpleados(),
+        getAjustesLlegadaPersonal(),
       ]);
       setFiestaActual(fiesta);
       setAccesos(fetchedAccesos);
       setEmpleados(fetchedEmpleados);
+      setLlegadaConUbicacion(ajustesLlegada.llegadaConUbicacion);
+      setRadioMetros(ajustesLlegada.radioMetros || 300);
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
     } finally {
@@ -86,6 +96,32 @@ export default function AccesosPersonalPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  const handleToggleLlegadaUbicacion = async (checked: boolean) => {
+    setLlegadaConUbicacion(checked);
+    setIsSavingAjustes(true);
+    try {
+      await saveAjustesLlegadaPersonal({ llegadaConUbicacion: checked });
+      toast({ title: checked ? 'Control por ubicación activado' : 'Control por ubicación desactivado' });
+    } catch {
+      setLlegadaConUbicacion(!checked);
+      toast({ title: 'Error al guardar ajuste', variant: 'destructive' });
+    } finally {
+      setIsSavingAjustes(false);
+    }
+  };
+
+  const handleGuardarRadio = async () => {
+    setIsSavingAjustes(true);
+    try {
+      await saveAjustesLlegadaPersonal({ radioMetros });
+      toast({ title: 'Distancia actualizada', description: `Se configuró en ${radioMetros} metros.` });
+    } catch {
+      toast({ title: 'Error al guardar distancia', variant: 'destructive' });
+    } finally {
+      setIsSavingAjustes(false);
+    }
+  };
 
   const handleCreateAcceso = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +148,7 @@ export default function AccesosPersonalPage() {
     }
     setIsProcessing(false);
   };
-  
+
   const handleDeleteAcceso = async (accesoId: string) => {
       setIsProcessing(true);
       const result = await deleteAccesoPersonal(accesoId);
@@ -124,13 +160,13 @@ export default function AccesosPersonalPage() {
       }
       setIsProcessing(false);
   }
-  
+
   const copyLink = (tokenId: string) => {
     const url = `${window.location.origin}/acceso-personal/${tokenId}`;
     navigator.clipboard.writeText(url);
     toast({ title: "Enlace Copiado" });
   };
-  
+
   const shareLink = (tokenId: string) => {
      const url = `${window.location.origin}/acceso-personal/${tokenId}`;
      const message = `¡Hola! Aquí tienes tu acceso para los detalles del evento: ${url}`;
@@ -204,11 +240,11 @@ export default function AccesosPersonalPage() {
           <Button onClick={() => setIsModalOpen(true)}><PlusCircle className="w-4 h-4 mr-2"/>Crear Nuevo Enlace de Acceso</Button>
         </CardContent>
       </Card>
-      
+
       <Card>
         <CardHeader><CardTitle>Enlaces de Acceso Activos</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-           {isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto"/></div> : 
+           {isLoading ? <div className="p-4 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto"/></div> :
              accesos.length > 0 ? (
                  accesos.map(acceso => (
                     <Card key={acceso.id} className="p-3 bg-muted/40">
@@ -228,6 +264,61 @@ export default function AccesosPersonalPage() {
                  ))
              ) : <p className="text-center text-muted-foreground py-4">No hay enlaces de acceso creados.</p>
            }
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Control de Llegada al Salón</CardTitle>
+          <CardDescription>
+            Controla que los colaboradores marquen su llegada únicamente cuando estén físicamente en el lugar del evento.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-0.5">
+              <Label htmlFor="controlar-llegada-switch" className="text-base font-medium">
+                Controlar que el personal esté en el salón al marcar la llegada
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Si está activado, la app pedirá la ubicación del celular para confirmar la presencia en el radio establecido.
+              </p>
+            </div>
+            <Switch
+              id="controlar-llegada-switch"
+              checked={llegadaConUbicacion}
+              onCheckedChange={handleToggleLlegadaUbicacion}
+              disabled={isSavingAjustes}
+            />
+          </div>
+          {llegadaConUbicacion && (
+            <div className="space-y-2 pt-2 border-t">
+              <Label htmlFor="distancia-maxima">Distancia máxima permitida (metros)</Label>
+              <div className="flex items-center gap-3">
+                <Input
+                  id="distancia-maxima"
+                  type="number"
+                  min={50}
+                  max={2000}
+                  step={50}
+                  value={radioMetros}
+                  onChange={(e) => setRadioMetros(Number(e.target.value))}
+                  className="w-32"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleGuardarRadio}
+                  disabled={isSavingAjustes}
+                >
+                  Guardar distancia
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Por defecto 300 metros alrededor del salón asignado al evento.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -445,7 +445,7 @@ export async function uploadSocialPost(
       if (!safetyResult.safe) {
         return {
           success: false,
-          error: 'Archivo bloqueado por riesgo de contenido adulto o inapropiado.'
+          error: 'Esta foto no está permitida. No cumple las reglas de la fiesta.'
         };
       }
     }

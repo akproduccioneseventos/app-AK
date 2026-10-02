@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -1253,7 +1254,8 @@ export default function Plataforma360Page() {
         guestId={guestId}
         guestAccessToken={guestAccessToken}
       />
-    </div>
+      <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</div>
   );
 }
 

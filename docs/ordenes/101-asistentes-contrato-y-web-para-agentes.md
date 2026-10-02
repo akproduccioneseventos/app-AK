@@ -5,10 +5,12 @@
 
 ## Cómo se entrega
 
-- **Después de terminar la orden 100.** Rama nueva desde la versión principal de ese momento y
-  **una sola propuesta** con los siete bloques. Si uno se traba, entregá el resto y avisá cuál.
+- **UNA SOLA PROPUESTA con las órdenes 104, 101, 102, 105 y 106**, en ese orden (primero los
+  arreglos de la 104). Arrancá de la rama **`claude/ponte-al-dia-qtrho3`** (tiene estas órdenes y la
+  versión principal de hoy). Si un bloque se traba, entregá el resto y avisá cuál.
 - `npm run "publicar?"` completo y la última pantalla pegada en la propuesta.
-- Pasá por `docs/ANTES-DE-ENTREGAR.md`. Nada de esto manda mensajes, cobra ni acepta nada solo.
+- Pasá por `docs/ANTES-DE-ENTREGAR.md`. Anotá cada bloque en `docs/YA-RESUELTO.md` con su línea en
+  `comprobar`.
 
 ---
 
@@ -31,9 +33,30 @@ número puede sacarle nombre, fecha, salón y tareas.
    respuesta depende de su caso (montos, fechas, excepciones), decile que lo confirma el
    organizador por WhatsApp. No prometas nada que no esté acá."
 
+4. **Hablarle, no sólo escribirle** (pedido del dueño): en el portal, botón de **mandar audio**
+   (graba en el navegador, Gemini lo entiende) y botón **"Hablar"** para una conversación en vivo con
+   voz, como una llamada, con la misma voz y la misma conversación en vivo de la orden 105 (bloques 2
+   y 3). Contesta con voz y deja el texto escrito.
+5. **El dueño se entera de todo lo que el cliente le pregunta.** Cada conversación se guarda
+   (`asistente-cliente-conversaciones`, colección, de a un registro, con la fiesta y la fecha) y:
+   - **un resumen por día** en "Tu asistente" (orden 102): qué preguntó cada cliente, dudas,
+     quejas y **señales** (quiere sumar invitados o servicios, pregunta por cancelar o cambiar la fecha,
+     se queja del precio, compara con otra empresa);
+   - **aviso en el momento** (por el canal elegido en la orden 102, bloque 2) cuando la señal es
+     importante: cancelar, cambiar la fecha, una queja, o quiere contratar algo más;
+   - en la ficha de cada fiesta, la pestaña **"Lo que habló con el asistente"**.
+   La IA del cliente **no promete nada** que no esté en las preguntas frecuentes y, si el tema es
+   plata, fechas o excepciones, contesta *"Eso lo confirma el organizador"* y avisa al dueño.
+6. **Aviso al cliente, sutil (Ley 18.331):** debajo del chat, en letra chica: *"Esta conversación queda
+   guardada para que el equipo de AK te atienda mejor."* No se puede ocultar que se guarda; sí puede
+   ser discreto. Sumalo también a `/privacidad` (bloque 7).
+
 **La prueba** (`src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts`): sin sesión o con
 la de otra fiesta, **no se lee la fiesta** y no se llama a la IA; con la sesión correcta, contesta y
-la instrucción que recibe la IA incluye una pregunta del contrato.
+la instrucción que recibe la IA incluye una pregunta del contrato. Y otra prueba
+(`src/__tests__/el-duenio-se-entera-de-lo-que-pregunta-el-cliente.test.ts`): una conversación donde el
+cliente pregunta "¿cuánto me sale cancelar?" queda guardada, aparece en el resumen del día y dispara el
+aviso de señal importante; una pregunta común no dispara aviso.
 
 ## Bloque 2 — Las preguntas frecuentes salen del contrato
 
@@ -238,6 +261,7 @@ página aparecen "18.331", "URCDP", "5 días hábiles", "Meta" y el teléfono qu
 ```comprobar
 usa: AsistenteDelCliente en src/app/portal-cliente/[id]/page.tsx
 prueba: src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts
+prueba: src/__tests__/el-duenio-se-entera-de-lo-que-pregunta-el-cliente.test.ts
 archivo: src/data/preguntas-frecuentes-contrato.ts
 usa: PREGUNTAS_FRECUENTES_DEL_CONTRATO en src/app/actions/asistente-virtual.ts
 prueba: src/__tests__/las-preguntas-del-contrato-llegan.test.ts

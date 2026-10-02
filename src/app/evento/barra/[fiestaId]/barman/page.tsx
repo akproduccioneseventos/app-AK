@@ -1,16 +1,34 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { BellRing, CheckCircle2, Clock3, Loader2, Martini, RefreshCw, Sparkles, XCircle } from 'lucide-react';
+import {
+  BellRing,
+  CheckCircle2,
+  Clock3,
+  Loader2,
+  Martini,
+  RefreshCw,
+  Sparkles,
+  XCircle,
+  AlertTriangle,
+  ClipboardCheck,
+  ExternalLink,
+  FileSpreadsheet,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import type { BarDrinkOrder, BarDrinkOrderStatus, BarTechnologyDashboard } from '@/types/barra-tecnologica';
 import {
   getBarraTecnologicaDashboard,
   updateBarDrinkOrderStatus,
   createBarmanManualOrder,
+  guardarAperturaDeBarraAction,
+  getCierreDeBarra,
+  guardarCierreDeBarra,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -24,6 +42,7 @@ import {
 } from "@/components/ui/dialog";
 import type { Trago } from '@/types/fiesta';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 const STATUS_LABELS: Record<BarDrinkOrderStatus, string> = {
   nuevo: 'Nuevo',
@@ -130,6 +149,89 @@ export default function BarmanScreenPage() {
     setUpdatingId(null);
   };
 
+  // Estados para apertura y cierre
+  const [mostrarApertura, setMostrarApertura] = useState(false);
+  const [botellasApertura, setBotellasApertura] = useState<Record<string, number>>({});
+  const [guardandoApertura, setGuardandoApertura] = useState(false);
+
+  const [mostrarCierre, setMostrarCierre] = useState(false);
+  const [cierreFilas, setCierreFilas] = useState<any[]>([]);
+  const [conteoCierre, setConteoCierre] = useState<Record<string, number>>({});
+  const [guardandoCierre, setGuardandoCierre] = useState(false);
+  const [cierreGuardado, setCierreGuardado] = useState<any>(null);
+
+  // Alerta de stock < 20%
+  const avisosStockBajo = useMemo(() => {
+    const avisos: string[] = [];
+    if (!dashboard?.drinks) return avisos;
+    for (const d of dashboard.drinks) {
+      if (typeof d.stockDisponible === 'number' && d.stockDisponible <= 2) {
+        avisos.push(`${d.nombre}: stock crítico (${d.stockDisponible} tragos restantes).`);
+      }
+    }
+    return avisos;
+  }, [dashboard?.drinks]);
+
+  const abrirApertura = () => {
+    const inicial: Record<string, number> = {};
+    if (dashboard?.drinks) {
+      for (const d of dashboard.drinks) {
+        inicial[d.id] = (dashboard.apertura?.botellasRecibidas?.[d.id]) ?? 5;
+      }
+    }
+    setBotellasApertura(inicial);
+    setMostrarApertura(true);
+  };
+
+  const guardarApertura = async () => {
+    setGuardandoApertura(true);
+    try {
+      const res = await guardarAperturaDeBarraAction(fiestaId, botellasApertura);
+      if (!res.success) throw new Error(res.error || 'No se pudo guardar la apertura.');
+      toast({ title: 'Barra abierta', description: 'Stock inicial registrado con éxito.' });
+      setMostrarApertura(false);
+      await loadData(false);
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setGuardandoApertura(false);
+    }
+  };
+
+  const abrirCierre = async () => {
+    try {
+      const res = await getCierreDeBarra(fiestaId);
+      if (res.success && res.filas) {
+        setCierreFilas(res.filas);
+        setCierreGuardado(res.ultimoCierre || null);
+        const inicialConteo: Record<string, number> = {};
+        for (const f of res.filas) {
+          inicialConteo[f.insumoId] = f.enSistema;
+        }
+        setConteoCierre(inicialConteo);
+        setMostrarCierre(true);
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo cargar el cierre.', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: 'Error al cargar informe de cierre.', variant: 'destructive' });
+    }
+  };
+
+  const confirmarCierre = async (ajustar: boolean) => {
+    setGuardandoCierre(true);
+    try {
+      const res = await guardarCierreDeBarra(fiestaId, conteoCierre, ajustar);
+      if (!res.success) throw new Error(res.error || 'No se pudo guardar el cierre.');
+      toast({ title: 'Cierre registrado', description: 'Informe de la noche guardado.' });
+      setCierreGuardado(res.cierre);
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setGuardandoCierre(false);
+    }
+  };
+
   const grouped = useMemo(() => {
     const orders = dashboard?.orders || [];
     return {
@@ -164,10 +266,51 @@ export default function BarmanScreenPage() {
             <p className="text-white/60">{dashboard?.eventName}</p>
           </div>
         </div>
-        <Button variant="outline" className="h-12 rounded-lg border-white/20 bg-white/10 font-black text-white hover:bg-white/20" onClick={() => loadData(false)}>
-          <RefreshCw className="mr-2 h-4 w-4" /> Actualizar
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            className="h-12 rounded-lg border-emerald-500/40 bg-emerald-950/30 text-emerald-300 font-bold hover:bg-emerald-900/40"
+            onClick={abrirApertura}
+          >
+            <ClipboardCheck className="mr-2 h-4 w-4 text-emerald-400" /> Recibí la barra
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-12 rounded-lg border-amber-500/40 bg-amber-950/30 text-amber-300 font-bold hover:bg-amber-900/40"
+            onClick={abrirCierre}
+          >
+            <FileSpreadsheet className="mr-2 h-4 w-4 text-amber-400" /> Cierre e Informe
+          </Button>
+
+          <Button
+            asChild
+            variant="outline"
+            className="h-12 rounded-lg border-white/20 bg-white/10 font-bold text-white hover:bg-white/20"
+          >
+            <Link href={`/evento/barra/${fiestaId}/listo`} target="_blank">
+              <ExternalLink className="mr-2 h-4 w-4 text-emerald-400" /> Pantalla "Listos"
+            </Link>
+          </Button>
+
+          <Button variant="outline" className="h-12 rounded-lg border-white/20 bg-white/10 font-black text-white hover:bg-white/20" onClick={() => loadData(false)}>
+            <RefreshCw className="mr-2 h-4 w-4" /> Actualizar
+          </Button>
+        </div>
       </header>
+
+      {/* Alerta de Stock Crítico (< 20%) */}
+      {avisosStockBajo.length > 0 && (
+        <div className="mb-4 rounded-xl border border-rose-500/50 bg-rose-950/40 p-4 text-rose-200 shadow-lg flex items-center gap-3">
+          <AlertTriangle className="h-6 w-6 text-rose-500 shrink-0 animate-bounce" />
+          <div className="flex-1 text-sm font-semibold">
+            <span className="font-black text-white uppercase tracking-wider block sm:inline mr-2">
+              ⚠️ Alerta de reposición:
+            </span>
+            {avisosStockBajo.join(' · ')}
+          </div>
+        </div>
+      )}
 
       {/* Panel de Consumo Rápido */}
       {dashboard?.drinks && dashboard.drinks.length > 0 && (
@@ -277,6 +420,152 @@ export default function BarmanScreenPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo: Recibí la barra (Apertura) */}
+      <Dialog open={mostrarApertura} onOpenChange={(o) => !o && setMostrarApertura(false)}>
+        <DialogContent className="sm:max-w-lg bg-slate-900 text-white border-white/10 max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-emerald-400">
+              <ClipboardCheck className="w-5 h-5" /> Apertura: Recibí la barra
+            </DialogTitle>
+            <DialogDescription className="text-white/60">
+              Anotá cuántas botellas o insumos recibiste para iniciar la fiesta. Esto fija el stock inicial.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-3">
+            {dashboard?.drinks && dashboard.drinks.map((drink) => (
+              <div key={drink.id} className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-white/5 border border-white/10">
+                <span className="font-semibold text-sm">{drink.nombre}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-white/50">Botellas:</span>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={botellasApertura[drink.id] ?? 0}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10) || 0;
+                      setBotellasApertura((prev) => ({ ...prev, [drink.id]: val }));
+                    }}
+                    className="w-20 text-center bg-slate-800 border-white/20 text-white font-bold h-9"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <DialogFooter className="gap-2 sm:justify-end">
+            <Button variant="outline" onClick={() => setMostrarApertura(false)} className="border-white/20 bg-transparent text-white hover:bg-white/10">
+              Cancelar
+            </Button>
+            <Button
+              disabled={guardandoApertura}
+              onClick={guardarApertura}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+            >
+              {guardandoApertura ? 'Guardando...' : 'Confirmar recepción de barra'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Diálogo: Cierre de Barra e Informe de la Noche */}
+      <Dialog open={mostrarCierre} onOpenChange={(o) => !o && setMostrarCierre(false)}>
+        <DialogContent className="sm:max-w-2xl bg-slate-900 text-white border-white/10 max-h-[88vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-400">
+              <FileSpreadsheet className="w-5 h-5" /> Cierre de Barra e Informe de la Noche
+            </DialogTitle>
+            <DialogDescription className="text-white/60">
+              Compará el stock teórico con el conteo físico de botellas sobrantes para registrar diferencias.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Resumen de la noche */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 my-2">
+            <div className="p-3 bg-white/5 rounded-lg border border-white/10 text-center">
+              <div className="text-[11px] text-white/50 uppercase font-mono">Tragos Servidos</div>
+              <div className="text-2xl font-black text-amber-400 mt-1">
+                {(dashboard?.orders || []).filter((o) => o.status === 'entregado' || o.status === 'listo').length}
+              </div>
+            </div>
+            <div className="p-3 bg-white/5 rounded-lg border border-white/10 text-center">
+              <div className="text-[11px] text-white/50 uppercase font-mono">Pedidos Totales</div>
+              <div className="text-2xl font-black text-white mt-1">
+                {(dashboard?.orders || []).length}
+              </div>
+            </div>
+            <div className="p-3 bg-white/5 rounded-lg border border-white/10 text-center">
+              <div className="text-[11px] text-white/50 uppercase font-mono">Estado Cierre</div>
+              <div className="text-sm font-bold text-emerald-400 mt-2">
+                {cierreGuardado ? 'Guardado' : 'Pendiente'}
+              </div>
+            </div>
+            <div className="p-3 bg-white/5 rounded-lg border border-white/10 text-center">
+              <div className="text-[11px] text-white/50 uppercase font-mono">Bebidas en Carta</div>
+              <div className="text-2xl font-black text-white mt-1">
+                {(dashboard?.drinks || []).length}
+              </div>
+            </div>
+          </div>
+
+          {/* Tabla de botellas / insumos */}
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+            {cierreFilas.map((fila) => {
+              const contado = conteoCierre[fila.insumoId] ?? fila.enSistema;
+              const diferencia = Math.max(0, fila.enSistema - contado);
+              return (
+                <div key={fila.insumoId} className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-white/5 border border-white/10 text-xs">
+                  <div>
+                    <div className="font-bold text-sm text-white">{fila.nombre}</div>
+                    <div className="text-white/50">
+                      En sistema: {fila.enSistema} {fila.unidad} · Consumido: {fila.consumidoPorPedidos} {fila.unidad}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-right">
+                    <div>
+                      <div className="text-[10px] text-white/40">Físico contado:</div>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={conteoCierre[fila.insumoId] ?? ''}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setConteoCierre((prev) => ({ ...prev, [fila.insumoId]: isNaN(val) ? 0 : val }));
+                        }}
+                        className="w-20 text-center bg-slate-800 border-white/20 text-white font-bold h-8 text-xs"
+                      />
+                    </div>
+                    {diferencia > 0 && (
+                      <div className="text-rose-400 font-semibold text-[11px]">
+                        -{diferencia} {fila.unidad} sin registrar
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <DialogFooter className="gap-2 sm:justify-end mt-4">
+            <Button variant="outline" onClick={() => setMostrarCierre(false)} className="border-white/20 bg-transparent text-white hover:bg-white/10 text-xs">
+              Cerrar
+            </Button>
+            <Button
+              disabled={guardandoCierre}
+              onClick={() => confirmarCierre(true)}
+              className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs"
+            >
+              {guardandoCierre ? 'Guardando...' : 'Guardar y ajustar depósito'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <div className="mt-8 text-center text-xs text-white/40">
+        <AvisoDeDatos para="invitado" />
+      </div>
     </main>
   );
 }

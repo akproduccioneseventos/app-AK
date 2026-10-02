@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -109,7 +110,8 @@ export default function ClientContractPage() {
   }
 
   if (loadError) {
-    return <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4"><Card className="max-w-md text-center"><CardHeader><AlertTriangle className="mx-auto h-12 w-12 text-amber-500" /><CardTitle>No pudimos cargar tu contrato</CardTitle><CardDescription>Intentá nuevamente. Si el problema continúa, contactá a tu organizador.</CardDescription></CardHeader><CardFooter className="justify-center"><Button onClick={loadData}>Reintentar</Button></CardFooter></Card></div>;
+    return <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4"><Card className="max-w-md text-center"><CardHeader><AlertTriangle className="mx-auto h-12 w-12 text-amber-500" /><CardTitle>No pudimos cargar tu contrato</CardTitle><CardDescription>Intentá nuevamente. Si el problema continúa, contactá a tu organizador.</CardDescription></CardHeader><CardFooter className="justify-center"><Button onClick={loadData}>Reintentar</Button>  <div className="w-full pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</CardFooter></Card></div>;
   }
 
   if (!fiesta || !fiesta.contratoServicioTexto) {
@@ -261,7 +263,7 @@ export default function ClientContractPage() {
                         </div>
                     </div>
                 </CardContent>
-                
+
                 {!firma?.isSigned && (
                     <CardFooter className="bg-slate-50 p-8 flex flex-col gap-6 border-t border-slate-100">
 

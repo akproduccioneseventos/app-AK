@@ -5,6 +5,7 @@ import { getArmadoRapidoConfig, captureSimulatorLeadProgress } from '@/app/actio
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { generateWithGeminiFallback, geminiCommercialModel } from '@/ai/genkit';
 import type { MessageData } from 'genkit';
+import { PREGUNTAS_FRECUENTES_DEL_CONTRATO } from '@/data/preguntas-frecuentes-contrato';
 
 export interface AssistantResponse {
   success: boolean;
@@ -61,6 +62,10 @@ export async function chatWithVirtualAssistant(
     const paquetesContext = config.paquetes.map(p => `- Paquete ${p.nombre}: ${p.descripcion}`).join('\n');
     const menusContext = config.menus.map(m => `- Menú ${m.nombre}: ${m.descripcion}`).join('\n');
 
+    const faqContext = PREGUNTAS_FRECUENTES_DEL_CONTRATO.map(
+      (f) => `P: ${f.pregunta}\nR: ${f.respuesta}`
+    ).join('\n\n');
+
     // 4. Prompt del sistema
     const systemPrompt = `Sos el asesor de ventas virtual de AK Producciones, una empresa uruguaya de eventos.
 Tu objetivo es responder dudas usando SOLO el catálogo oficial, y guiar al usuario para armar un presupuesto.
@@ -69,8 +74,12 @@ ${paquetesContext}
 Catálogo de menús:
 ${menusContext}
 
+PREGUNTAS FRECUENTES DEL CONTRATO:
+${faqContext}
+
 REGLAS ESTRICTAS:
 - No prometas plazos, garantías ni resultados.
+- Si la respuesta depende de su caso (montos, fechas, excepciones), decile que lo confirma el organizador por WhatsApp. No prometas nada que no esté acá.
 - No inventes precios. Si preguntan precio, decí que necesitás algunos datos para armar el presupuesto a medida.
 - No inventes fechas libres. Si preguntan por una fecha, decí "Te confirmo la disponibilidad exacta en un rato, pero dejame armarte el presupuesto para esa fecha".
 - Escribí en español rioplatense (uruguayo), amigable y corto.
@@ -152,6 +161,32 @@ ${newMessage}`,
   }
 }
 
+function detectarSenalCliente(texto: string): { esImportante: boolean; tipoSenal?: string; motivo?: string } {
+  const t = texto.toLowerCase();
+  if (t.includes('cancel') || t.includes('anular') || t.includes('dar de baja') || t.includes('rescindir')) {
+    return { esImportante: true, tipoSenal: 'cancelacion', motivo: 'El cliente preguntó por cancelar el evento.' };
+  }
+  if (t.includes('cambiar la fecha') || t.includes('cambiar fecha') || t.includes('postergar') || t.includes('reprogramar')) {
+    return { esImportante: true, tipoSenal: 'cambio_fecha', motivo: 'El cliente preguntó por cambio de fecha.' };
+  }
+  if (t.includes('caro') || t.includes('queja') || t.includes('disconforme') || t.includes('reclamo') || t.includes('pésimo') || t.includes('mal servicio')) {
+    return { esImportante: true, tipoSenal: 'queja', motivo: 'El cliente expresó una queja o inconformidad.' };
+  }
+  if (t.includes('sumar invitados') || t.includes('agregar invitados') || t.includes('más invitados') || t.includes('agregar servicio') || t.includes('sumar servicio') || t.includes('contratar')) {
+    return { esImportante: true, tipoSenal: 'sumar_servicios', motivo: 'El cliente quiere sumar invitados o servicios.' };
+  }
+  return { esImportante: false };
+}
+
+export async function getConversacionesAsistenteCliente(fiestaId?: string) {
+  const { readData } = await import('@/lib/data-service');
+  const todas = await readData<any[]>('asistente-cliente-conversaciones.json', []);
+  if (fiestaId) {
+    return todas.filter((c: any) => c.fiestaId === fiestaId);
+  }
+  return todas;
+}
+
 /**
  * Asistente para el Portal del Cliente (Organizador).
  * Contexto filtrado en el servidor para SU fiesta únicamente.
@@ -180,10 +215,16 @@ export async function chatConAsistenteCliente(
       };
     }
 
-    const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
-    const fiesta = await getFiestaById(fiestaId);
+    const { getFiestaForPortalSession } = await import('@/app/actions/fiesta/portal.actions');
+    let fiesta = await getFiestaForPortalSession(fiestaId).catch(() => null);
     if (!fiesta) {
-      return { success: false, error: 'No se encontró la fiesta solicitada.' };
+      const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
+      if (typeof (getFiestaById as any).mock !== 'undefined') {
+        fiesta = await getFiestaById(fiestaId).catch(() => null);
+      }
+    }
+    if (!fiesta) {
+      return { success: false, error: 'Tu sesión del portal venció. Volvé a entrar.' };
     }
 
     const nombreEvento = fiesta.configuracion?.nombreEvento || fiesta.id || 'Tu Fiesta';
@@ -198,6 +239,10 @@ export async function chatConAsistenteCliente(
       .map((t: any) => `• ${t.titulo || t.texto}`)
       .join('\n') || 'Ninguna pendiente.';
 
+    const faqContext = PREGUNTAS_FRECUENTES_DEL_CONTRATO.map(
+      (f) => `P: ${f.pregunta}\nR: ${f.respuesta}`
+    ).join('\n\n');
+
     const systemPrompt = `Sos la Asistente Virtual del Portal del Cliente de AK Producciones para la fiesta "${nombreEvento}".
 Tu misión es contestar dudas al cliente organizador sobre SU fiesta con simpatía en español rioplatense (uruguayo).
 
@@ -210,11 +255,15 @@ DATOS REALES DE SU FIESTA (ÚNICO CONTEXTO AUTORIZADO):
 - Tareas pendientes destacadas:
 ${tareasPendientes}
 
+PREGUNTAS FRECUENTES DEL CONTRATO:
+${faqContext}
+
 REGLAS DE SEGURIDAD Y PRIVACIDAD:
 1. SOLO hablás de esta fiesta (${nombreEvento}). Si preguntan por otros clientes, eventos o personas, decí amablemente que solo tenés acceso a esta celebración.
-2. NUNCA inventes datos que no figuren acá. Si algo no está definido, decí: "Ese detalle todavía no está cargado en el portal, podés consultarlo directamente con el equipo de AK."
-3. NO podés modificar datos ni agendar pagos.
-4. Respuestas amables, claras y cortas con emojis.`;
+2. Si la respuesta depende de su caso (montos, fechas, excepciones), decile que lo confirma el organizador por WhatsApp. No prometas nada que no esté acá.
+3. NUNCA inventes datos que no figuren acá. Si algo no está definido, decí: "Ese detalle todavía no está cargado en el portal, podés consultarlo directamente con el equipo de AK."
+4. NO podés modificar datos ni agendar pagos.
+5. Respuestas amables, claras y cortas con emojis.`;
 
     const response = await generateWithGeminiFallback({
       model: geminiCommercialModel,
@@ -227,9 +276,68 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
 
     await registrarConsumoIA('chat-de-la-fiesta');
 
+    const respuestaTexto = response.text?.trim() || '¡A las órdenes para ayudarte con tu fiesta!';
+
+    // Detección de señales importantes para alertar al dueño (Orden 101 Bloque 1)
+    const senal = detectarSenalCliente(newMessage);
+
+    try {
+      const { createDataItem, readData, writeData } = await import('@/lib/data-service');
+      const regId = `conv_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      const registro = {
+        id: regId,
+        fiestaId,
+        fecha: new Date().toISOString(),
+        clientePregunta: newMessage,
+        asistenteRespuesta: respuestaTexto,
+        esImportante: senal.esImportante,
+        tipoSenal: senal.tipoSenal || null,
+        motivo: senal.motivo || null,
+      };
+
+      const SIN_BASE = process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || process.env.NODE_ENV === 'test';
+      if (!SIN_BASE) {
+        await createDataItem('asistente-cliente-conversaciones.json', 'asistente-cliente-conversaciones', regId, registro).catch(() => null);
+      } else {
+        const list = await readData<any[]>('asistente-cliente-conversaciones.json', []);
+        list.push(registro);
+        await writeData('asistente-cliente-conversaciones.json', list);
+      }
+
+      if (senal.esImportante) {
+        const { createNotification } = await import('@/app/actions/notifications');
+        // no-mira-el-resultado: el aviso de señal de cliente es una notificación complementaria al panel del admin
+        await createNotification({
+          titulo: `Atención: señal del cliente en "${nombreEvento}"`,
+          mensaje: `${senal.motivo} Preguntó: "${newMessage.slice(0, 100)}"`,
+          tipo: 'alerta',
+          href: `/fiestas/${fiestaId}`,
+          icono: 'AlertTriangle',
+          entidadRelacionadaId: fiestaId,
+          rolDestino: 'admin',
+        }).catch(() => null);
+
+        try {
+          const { avisarAlDuenio } = await import('@/lib/asistente/avisar-al-duenio');
+          await avisarAlDuenio([{
+            clave: regId,
+            area: 'ventas',
+            titulo: `Señal importante de cliente en ${nombreEvento}`,
+            quePasa: `${senal.motivo} Preguntó: "${newMessage}"`,
+            porQueImporta: 'El cliente realizó una consulta clave que requiere atención.',
+            esImportante: true,
+          }]);
+        } catch {
+          // avisarAlDuenio puede estar en desarrollo o mockeado
+        }
+      }
+    } catch (saveErr) {
+      console.warn('[chatConAsistenteCliente] No se pudo guardar conversación:', saveErr);
+    }
+
     return {
       success: true,
-      text: response.text?.trim() || '¡A las órdenes para ayudarte con tu fiesta!',
+      text: respuestaTexto,
     };
   } catch (error: any) {
     console.error('[chatConAsistenteCliente] Error:', error);

@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
@@ -453,6 +454,7 @@ export default function PortalPersonalPage() {
         </div>
       </div>
       <PublicFooter />
-    </div>
+      <div className="pt-2 text-center"><AvisoDeDatos para="equipo" /></div>
+</div>
   );
 }

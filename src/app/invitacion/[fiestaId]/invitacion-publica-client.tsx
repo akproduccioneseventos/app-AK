@@ -16,6 +16,7 @@ import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { formatEventDate, parseEventDate } from '@/lib/public-experience/event-date';
 import { XVThemeEffects } from '@/components/invitacion/xv-theme-effects';
 import { canUseNextImage } from '@/lib/next-image-url';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 interface Props {
   config: InvitacionDigitalConfig;
@@ -522,6 +523,10 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
               {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Confirmar'}
             </Button>
           )}
+        </div>
+
+        <div className="pt-2 text-center">
+          <AvisoDeDatos para="invitado" />
         </div>
       </form>
     </div>
@@ -1477,7 +1482,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             transition={{ duration: 1, delay: 0.3 }}
           >
             <p className="text-sm sm:text-base tracking-[0.3em] uppercase mb-4 opacity-80">{tipoLabel}</p>
-            <h1 
+            <h1
               className={cn(getHeroTitleClass(config.typography), config.typography?.lineHeight || 'leading-tight', 'mb-6 break-words max-w-full px-4', styles.fontHeading)}
               style={{ overflowWrap: 'anywhere' }}
             >

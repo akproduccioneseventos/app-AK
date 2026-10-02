@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -428,7 +429,8 @@ export default function ClientDecoracionPage() {
             )}
           </div>
         </section>
-      </main>
+        <div className="pt-4 text-center"><AvisoDeDatos para="cliente" /></div>
+</main>
     </div>
   );
 }

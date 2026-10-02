@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent, type FormEvent } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
@@ -332,7 +333,8 @@ export default function InvitadosPage() {
                     {uploadingFoto ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Upload className="w-4 h-4 mr-2" />}
                     Enviar foto
                   </Button>
-                </form>
+                  <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</form>
               </CardContent>
             </Card>
 

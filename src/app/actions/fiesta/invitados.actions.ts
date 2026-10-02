@@ -3,7 +3,7 @@
 import { randomUUID } from 'crypto';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, DietaryRestriction } from '@/types/fiesta';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, saveFiesta, requireFiestaWriteAccess } from './fiesta.actions';
 import { writeData } from '@/lib/data-service';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
@@ -322,6 +322,11 @@ export async function checkInGuest(
   fiestaId: string,
   guestId: string
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
+  try {
+    await requireFiestaWriteAccess(fiestaId);
+  } catch (e: any) {
+    return { success: false, error: e.message || 'No autorizado para modificar este evento.' };
+  }
   let invitadoActualizado: Invitado | undefined;
   let found = false;
   const result = await updateFiestaData(fiestaId, data => {

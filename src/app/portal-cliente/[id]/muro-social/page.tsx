@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -300,7 +301,7 @@ export default function ClientMuroSocialPage() {
     }
 
     let winner = customWinnerName.trim();
-    
+
     if (!winner) {
       // Pick random from posts author names (distinct and valid)
       const participants = Array.from(new Set(posts.map(p => p.authorName).filter(Boolean)));
@@ -339,7 +340,7 @@ export default function ClientMuroSocialPage() {
       const winnerTimestamp = new Date().toISOString();
       setSorteoWinner(winner);
       setIsSpinning(false);
-      
+
       await sendRemoteCommand({
         activeSorteoWinner: winner,
         activeSorteoTimestamp: winnerTimestamp,
@@ -427,7 +428,7 @@ export default function ClientMuroSocialPage() {
       {/* CONTENEDOR PRINCIPAL */}
       <main className="max-w-4xl mx-auto px-4 mt-6">
         <Tabs defaultValue="control" className="space-y-6" onValueChange={setActiveTab}>
-          
+
           {/* TABS SELECTOR - MÓVIL OPTIMIZADO */}
           <TabsList className="grid h-auto min-h-14 w-full shrink-0 grid-cols-2 gap-1 rounded-xl border border-border bg-card p-1 sm:grid-cols-4">
             <TabsTrigger value="control" aria-label="Control Vivo" className="flex items-center justify-center gap-1 rounded-lg py-2.5 text-xs font-bold transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
@@ -459,7 +460,7 @@ export default function ClientMuroSocialPage() {
           {/* TAB 1: CONTROL REMOTO EN VIVO */}
           {/* ──────────────────────────────────────────────────────── */}
           <TabsContent value="control" className="space-y-6 outline-none">
-            
+
             {/* ESTADO DE PANTALLA GIGANTE EN TIEMPO REAL */}
             <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
               <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -474,7 +475,7 @@ export default function ClientMuroSocialPage() {
                     </p>
                   </div>
                 </div>
-                
+
                 {/* BOTÓN PLAY/PAUSE REMOTO */}
                 <Button
                   onClick={() => {
@@ -693,7 +694,7 @@ export default function ClientMuroSocialPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-5">
-                
+
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label className="text-xs font-bold text-foreground">Premio / Regalo</Label>
@@ -758,7 +759,7 @@ export default function ClientMuroSocialPage() {
           {/* TAB 2: MODERACIÓN EXPRESS EN TIEMPO REAL */}
           {/* ──────────────────────────────────────────────────────── */}
           <TabsContent value="moderacion" className="space-y-6 outline-none">
-            
+
             {/* SUB-TABS INTERNAS DE ESTADO */}
             <div className="flex gap-2 p-1.5 bg-muted/30 border border-border rounded-xl w-full max-w-md">
               {(['pending', 'approved', 'hidden'] as const).map((mode) => {
@@ -785,7 +786,7 @@ export default function ClientMuroSocialPage() {
 
             {/* LISTADO DE FOTOS A MODERAR */}
             <div className="grid gap-4 sm:grid-cols-2">
-              
+
               {/* COLA VACÍA */}
               {moderationMode === 'pending' && pendingPosts.length === 0 && (
                 <div className="col-span-full py-16 text-center space-y-3 bg-muted/20 border border-dashed border-border rounded-xl">
@@ -816,14 +817,14 @@ export default function ClientMuroSocialPage() {
                 const isVideo = post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
                 return (
                   <Card key={post.id} className="border border-border bg-card rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">
-                    
+
                     <div className="relative aspect-square w-full overflow-hidden bg-muted/30">
                       {isVideo ? (
                         <video src={post.imageUrl} className="h-full w-full object-cover" muted controls playsInline />
                       ) : (
                         <NextImage src={post.imageUrl} alt={post.authorName} fill className="object-cover" unoptimized />
                       )}
-                      
+
                       {/* Author Tag Overlay */}
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3">
                         <span className="text-xs font-bold text-primary-foreground">@ {post.authorName}</span>
@@ -875,7 +876,8 @@ export default function ClientMuroSocialPage() {
                           <Check className="w-4 h-4" /> Aprobar / Mostrar
                         </Button>
                       )}
-                    </CardFooter>
+                      <div className="w-full pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</CardFooter>
 
                   </Card>
                 );
@@ -889,7 +891,7 @@ export default function ClientMuroSocialPage() {
           {/* TAB 3: DISEÑO Y APARIENCIA */}
           {/* ──────────────────────────────────────────────────────── */}
           <TabsContent value="diseno" className="space-y-6 outline-none">
-            
+
             <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
               <CardHeader className="p-6 pb-2">
                 <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
@@ -997,7 +999,7 @@ export default function ClientMuroSocialPage() {
           {/* TAB 4: MÓDULOS DE INVITADOS Y PERMISOS */}
           {/* ──────────────────────────────────────────────────────── */}
           <TabsContent value="modulos" className="space-y-6 outline-none">
-            
+
             <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
               <CardHeader className="p-6 pb-2">
                 <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
