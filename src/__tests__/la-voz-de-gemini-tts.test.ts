@@ -52,4 +52,12 @@ describe('Orden 110 Bloque 3 — Voz de verdad con Gemini TTS', () => {
     expect(content).toContain('speechSynthesis');
     expect(content).toContain('/api/asistente/voz-parte');
   });
+
+  test('ConfiguradorReunion intenta /api/asistente/voz-parte y tiene fallback a speechSynthesis', () => {
+    const reunionPath = path.join(process.cwd(), 'src/app/(app)/empresa/configurador-reunion/page.tsx');
+    expect(fs.existsSync(reunionPath)).toBe(true);
+    const content = fs.readFileSync(reunionPath, 'utf8');
+    expect(content).toContain('/api/asistente/voz-parte');
+    expect(content).toContain('speechSynthesis');
+  });
 });

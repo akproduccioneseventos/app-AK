@@ -100,14 +100,27 @@ function dibujarRecortada(
   ctx.restore();
 }
 
-function formatearFecha(fecha?: string): string {
+export function formatearFechaTiraFotocabina(fecha?: string): string {
   if (!fecha) return '';
-  const partes = fecha.split('-');
-  if (partes.length === 3) {
-    const [anio, mes, dia] = partes;
-    return `${dia}/${mes}/${anio}`;
+  const texto = fecha.trim();
+  const conBarras = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (conBarras) {
+    return texto;
   }
-  return fecha;
+  const iso = texto.match(/^(\d{4})-(\d{2})-(\d{2})(?:T[\d:.]+(?:Z|[+-]\d{2}:?\d{2})?)?/);
+  if (iso) {
+    const anio = iso[1];
+    const mes = iso[2];
+    const dia = iso[3];
+    const fechaFormateada = `${dia}/${mes}/${anio}`;
+    const resto = texto.slice(iso[0].length).trim();
+    return resto ? `${fechaFormateada} ${resto}` : fechaFormateada;
+  }
+  return texto;
+}
+
+function formatearFecha(fecha?: string): string {
+  return formatearFechaTiraFotocabina(fecha);
 }
 
 /**

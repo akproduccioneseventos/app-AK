@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { SalonSceneAislada } from '@/components/salon-3d/SalonSceneAislada';
 import { useRouter } from 'next/navigation';
@@ -124,6 +124,7 @@ export default function ConfiguradorReunionPage() {
 
   // Asistente con voz
   const [hablandoAsistente, setHablandoAsistente] = useState(false);
+  const audioReunionRef = useRef<HTMLAudioElement | null>(null);
 
   const aplicarFraseArmado = (frase: string) => {
     if (!frase.trim()) return;
@@ -195,10 +196,14 @@ export default function ConfiguradorReunionPage() {
     }
   };
 
-  const handleVozAsistente = () => {
+  const handleVozAsistente = async () => {
     if (hablandoAsistente) {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
+      }
+      if (audioReunionRef.current) {
+        audioReunionRef.current.pause();
+        audioReunionRef.current = null;
       }
       setHablandoAsistente(false);
       return;
@@ -206,16 +211,49 @@ export default function ConfiguradorReunionPage() {
 
     const texto = `Hola, estamos configurando los ${tipoEvento} para ${Number(adultos) + Number(menores)} personas con ambientación en luces color ${salonColor}. Te recomiendo incluir la discoteca profesional y la pantalla gigante para tus invitados.`;
 
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(texto);
-      utterance.lang = 'es-UY';
-      utterance.onend = () => setHablandoAsistente(false);
-      utterance.onerror = () => setHablandoAsistente(false);
-      setHablandoAsistente(true);
-      window.speechSynthesis.speak(utterance);
-    } else {
-      toast({ title: 'Asistente de voz', description: texto });
+    const hablarConNavegador = () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'es-UY';
+        utterance.onend = () => setHablandoAsistente(false);
+        utterance.onerror = () => setHablandoAsistente(false);
+        setHablandoAsistente(true);
+        window.speechSynthesis.speak(utterance);
+      } else {
+        setHablandoAsistente(false);
+        toast({ title: 'Asistente de voz', description: texto });
+      }
+    };
+
+    setHablandoAsistente(true);
+
+    try {
+      const res = await fetch(`/api/asistente/voz-parte?texto=${encodeURIComponent(texto)}`);
+      if (res.ok) {
+        const blob = await res.blob();
+        if (blob.size > 100) {
+          const url = URL.createObjectURL(blob);
+          const audio = new Audio(url);
+          audioReunionRef.current = audio;
+          audio.onended = () => {
+            setHablandoAsistente(false);
+            URL.revokeObjectURL(url);
+            audioReunionRef.current = null;
+          };
+          audio.onerror = () => {
+            URL.revokeObjectURL(url);
+            audioReunionRef.current = null;
+            hablarConNavegador();
+          };
+          await audio.play();
+          return;
+        }
+      }
+    } catch {
+      // Si falla la red o el servicio, continúa al fallback del navegador
     }
+
+    hablarConNavegador();
   };
 
   const handleRecorrerCamara = () => {
