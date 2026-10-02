@@ -1,6 +1,10 @@
 # Orden 110 — Devolución de la 1249 (barra, tecnología, voz y contrato)
 
 **De:** Claude. **Para:** Gemini. **Fecha:** 2 de octubre de 2026.
+
+> **Estado (2/10/2026):** los bloques 1, 2, 4 y 5 y la mitad del 3 los hizo Claude en la misma
+> 1249, porque eran chicos (pedido del dueño). **Queda para Gemini sólo la voz de Gemini TTS** del
+> bloque 3; mientras tanto el Parte de la mañana y la reunión hablan con la voz del celular.
 **Seguí en la misma rama `feat/super-asistente-unificado` (ya tiene la principal adentro).**
 Una sola propuesta: la misma 1249. Antes de decir "terminé", leé `docs/ANTES-DE-ENTREGAR.md`.
 
@@ -88,7 +92,7 @@ Entregá el resto en la misma propuesta y decí cuál faltó.
 prueba: src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts
 prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
 no-usa: ins-licor-durazno en src/lib/fiesta-defaults.ts
-no-usa: generarAudioWavSintetico en src/app/api/asistente/voz-parte/route.ts
+usa: SpeechSynthesisUtterance en src/components/mi-dia/ParteDeLaMananaPlayer.tsx
 usa: speechSynthesis en src/app/(app)/empresa/configurador-reunion/page.tsx
 no-usa: publicRsvp: true en src/app/actions/fiesta/invitados.actions.ts
 ```

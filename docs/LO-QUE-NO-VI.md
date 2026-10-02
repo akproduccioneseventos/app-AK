@@ -781,5 +781,5 @@ En la 1249 venían 11 imágenes que eran texto. **Barrido:** orden 110.
 
 ```comprobar
 prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
-no-usa: generarAudioWavSintetico en src/app/api/asistente/voz-parte/route.ts
+usa: SpeechSynthesisUtterance en src/components/mi-dia/ParteDeLaMananaPlayer.tsx
 ```

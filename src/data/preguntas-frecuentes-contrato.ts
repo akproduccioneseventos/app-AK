@@ -26,7 +26,7 @@ export const PREGUNTAS_FRECUENTES_DEL_CONTRATO: PreguntaFrecuenteContrato[] = [
   },
   {
     pregunta: "¿Qué pasa si me atraso con un pago?",
-    respuesta: "No hay recargo automático. Antes de cualquier medida te avisamos y tenés 15 días para ponerte al día; si no, el contrato se puede dar por terminado y se aplica la cláusula penal.",
+    respuesta: "No hay recargo automático. Te avisamos y tenés 15 días corridos para ponerte al día; si no, el contrato se puede dar por terminado y se aplica la penalidad que corresponda.",
   },
   {
     pregunta: "¿Puedo cambiar la fecha?",
@@ -34,7 +34,7 @@ export const PREGUNTAS_FRECUENTES_DEL_CONTRATO: PreguntaFrecuenteContrato[] = [
   },
   {
     pregunta: "¿Y si cancelo?",
-    respuesta: "La cancelación tiene una penalidad del 30% del presupuesto vigente. Lo que ya pagaste se descuenta de eso, y si pagaste de más se te devuelve la diferencia dentro de los 30 días.",
+    respuesta: "Cancelar todo el evento tiene una penalidad del 30% del presupuesto vigente. Si sacás sólo una parte de los servicios, el 30% se calcula sobre lo que sacás. Lo pagado se descuenta y, si pagaste de más, se devuelve la diferencia dentro de los 30 días.",
   },
   {
     pregunta: "¿Y si cancelo sólo una parte?",
@@ -42,15 +42,15 @@ export const PREGUNTAS_FRECUENTES_DEL_CONTRATO: PreguntaFrecuenteContrato[] = [
   },
   {
     pregunta: "¿Puedo cambiar la cantidad de invitados?",
-    respuesta: "Hasta 15 días antes: podés bajar hasta un 10% o subir hasta un 20% (según disponibilidad, y el aumento se paga antes). Si querés bajar más del 10%, lo que pase de ese 10% se toma como cancelación parcial (30% sobre esa parte). Después de ese día, la cantidad queda fija.",
+    respuesta: "Hasta 15 días antes: podés bajar hasta un 10% (sólo baja lo que se cobra por persona, no los costos fijos) o subir hasta un 20% según disponibilidad, pagando antes la diferencia al precio que contrataste. Si bajás más del 10%, lo que pase de ese 10% se toma como cancelación parcial. Después de ese día, la cantidad queda como mínima.",
   },
   {
-    pregunta: "¿Qué pasa si sube la cantidad de invitados o sumo un servicio nuevo?",
-    respuesta: "Si sube la cantidad de invitados, se respeta el precio original por persona fijado en el contrato. Un servicio nuevo se cobra al precio de ese momento.",
+    pregunta: "¿Puedo cambiar el tipo de menú de algunos invitados?",
+    respuesta: "Sí, hasta 15 días antes. Cada menú (adulto, adolescente, infantil) tiene su precio: si pasás a uno más caro se paga la diferencia y, si pasás a uno más económico, se descuenta.",
   },
   {
-    pregunta: "¿Puedo cambiar el menú de algunos invitados (adulto, adolescente, infantil)?",
-    respuesta: "Sí, podés adaptar el menú para adultos, adolescentes o niños según la edad y preferencia de cada invitado; cada menú tiene su precio.",
+    pregunta: "¿Si agrego un servicio nuevo, a qué precio?",
+    respuesta: "Al precio vigente cuando lo agregás. Si aumentás algo que ya tenías contratado, se mantiene tu precio original (con su promoción) más el ajuste anual.",
   },
   {
     pregunta: "¿Cuándo entrego la lista de invitados?",
@@ -65,8 +65,8 @@ export const PREGUNTAS_FRECUENTES_DEL_CONTRATO: PreguntaFrecuenteContrato[] = [
     respuesta: "Vos, en las reuniones de organización. Lo que se define ahí queda por escrito. Sólo la persona que firmó puede pedir cambios, salvo que autorice a otra por escrito.",
   },
   {
-    pregunta: "¿Qué pasa si paga otra persona?",
-    respuesta: "No hay problema con que otra persona transfiera o pague, pero el contrato y los recibos siguen siempre a nombre de la clienta.",
+    pregunta: "¿Puedo pagar desde otra cuenta o que pague otra persona?",
+    respuesta: "Sí, pero el contrato sigue a tu nombre y los recibos salen a tu nombre.",
   },
   {
     pregunta: "¿Puedo llevar fotógrafo, show o maquilladora por mi cuenta?",
@@ -94,7 +94,7 @@ export const PREGUNTAS_FRECUENTES_DEL_CONTRATO: PreguntaFrecuenteContrato[] = [
   },
   {
     pregunta: "¿Y si AK no puede cumplir con algo?",
-    respuesta: "Si AK no puede cumplir algo, primero se busca una solución y, si no hay acuerdo, se devuelve lo pagado.",
+    respuesta: "Primero se busca una solución, un reemplazo equivalente o una nueva fecha. Si no se llega a un acuerdo, se devuelve lo pagado por ese servicio dentro de los 30 días.",
   },
   {
     pregunta: "¿Qué pasa si hay un imprevisto grave?",

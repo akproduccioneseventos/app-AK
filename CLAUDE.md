@@ -1505,6 +1505,9 @@ con otra cara.
 | Marcar la llegada de un invitado no pedía permiso, y lo secreto de la fiesta se perdía al guardar | `src/__tests__/actualizar-fiesta-pide-permiso.test.ts` |
 | Un empleado aceptaba propuestas de plata como dueño, y dos toques cargaban el gasto dos veces | `src/__tests__/aceptar-una-propuesta-respeta-la-regla-de-oro.test.ts` |
 | El contrato borraba la hora acordada del evento | `src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts` |
+| Las recetas de la barra apuntaban a insumos que no existían y no descontaban nada | `src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts` |
+| Imágenes que eran texto y un tono presentado como voz | `src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts` |
+| Tocar un texto en un archivo que importan todas las pantallas corría las 80 pruebas | `exportsQueUsan` en `scripts/pantallas-tocadas.mjs`, con `src/__tests__/se-prueba-solo-lo-que-cambio-de-un-archivo.test.ts` |
 
 ### Cómo se elige el matafuego
 
