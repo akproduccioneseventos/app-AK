@@ -31,3 +31,12 @@
 - Mismo HEAD70b016e:22 pruebas focalizadas;18 pasan,4 fallan (personal/actualizarFiesta).
 - No fusionar; confirma P1 existente. Ver PR1246-CONTRASTE-2026-09-30.md.
 - La aprobacion unitaria de main no es aprobacion del candidato. Sin codigo cambiado.
+
+## Avance por pares - 01/10/2026
+- Roles/venta: docs/evidencias/PARES-01-02-2026-09-30.md. 7 controles de sesion y 5 de historial; no E2E completo.
+- Entretenimiento/visual: docs/evidencias/PARES-03-04-2026-09-30.md. Falsa aprobacion de camara lenta reproducida en main y PR1246; no defecto funcional de app demostrado por esa sonda.
+- Historicos/integraciones: docs/evidencias/PARES-05-06-2026-10-01.md.
+- Health publico identifica main 62dcb2c, compilado 29/09. Respuesta con timestamp del servidor 2026-10-02T00:56:37.558Z: Firebase true; Instagram/MercadoPago false segun variables; otros true no prueban operaciones.
+- Se cierra la incertidumbre de identidad de esa instancia publicada, NO la auditoria funcional ni las conexiones reales.
+- 19 presupuestos: sigue pendiente conciliacion de solo lectura ya pedida en orden49. No importar otra vez ni inferir pago por fecha pasada.
+- Los seis frentes estan documentados, no aprobados integralmente. No app modificada ni compilacion ni merge.
