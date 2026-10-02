@@ -119,3 +119,54 @@ La lista de invitados y la autorización de acciones requieren la sonda priorita
 ### Límites de esta pasada
 
 No se probaron impresora, cámara, equipo 360, transformación IA, pedidos reales, sincronización de Instagram, deduplicación visual de todo el catálogo ni sesiones privadas. No se corrió compilación ni se tocó código de la aplicación. Las comprobaciones de demo no certifican los módulos operativos.
+
+
+## Continuacion: sincronizacion Instagram y YouTube - sonda aislada
+
+### Base, contraste y alcance
+
+- Main revisado: `c92ee4224da3b440ad91d72f06d03c6672f44e33`; tanda contrastada: PR 1251, HEAD `ee7ada01c7fb52ac000f4da68f5114d4e4a612c7`.
+- Identicos entre ambos: `public-feed.ts` blob 5b6eb258255c28b380203af46d41e18cf3a036e9, `social-media.ts` a3a5f00e10d39a8dd6959348fc0817556260a5a7, `marketing-automation.ts` ec2625112895575a7bf9d0ec3b035825a0aec07b, `meta-history-backfill.ts` cce3965ae788d2814c38e5973636c4f27f7892ef, `youtube-history-backfill.ts` 8a517f613ed593a20fec0fd5062fb7c6c3296c8d.
+- No se recompilo, no se uso una cuenta real de Meta, no se escribieron datos de produccion y no se identifico el SHA publicado.
+- Se reutilizaron decisiones de YA-RESUELTO: filtro contra borradores, prohibicion de datos demo en produccion, lector publico rapido desde historial, importacion historica y refresco de YouTube. No se piden de nuevo.
+- Esta pasada NO valida la nueva entrega de voz de PR 1251 ni la auditoria completa de la app.
+
+### P2 reproducido: importador automatico retroalimenta IDs locales
+
+- Consumidor real: `src/lib/marketing-automation.ts:159` llama `syncInstagramPosts(MARKETING_AUTOMATION_INTERNAL_TOKEN)` cuando vence su intervalo.
+- `src/app/actions/social-media.ts:244-253` obtiene la entrada de `getPublicInstagramFeed` y conserva `post.id`, pero descarta `post.sourceId` y `post.publishedAt`.
+- El lector `src/lib/instagram/public-feed.ts` devuelve IDs `ig_${sourceId}`; si una fila carece de sourceId, usa su ID local. El importador crea `ig_sync_${post.id}`, busca solo ese ID y no guarda sourceId ni sourceUrl en las filas nuevas (social-media.ts:361-380). Cada vuelta puede tratar la copia anterior como otra publicacion.
+- Sonda ejecutada con Node v24.19.0: `node docs/evidencias/sondas/62-instagram-source-probe.cjs`, equivalente al archivo local audit-probes/instagram-source-probe.cjs. Exit 0.
+- Caso legado: fila sin sourceId `ig_sync_ig_123456` produce `ig_sync_ig_ig_sync_ig_123456`; el lector devuelve dos registros para la misma mediaUrl.
+- Caso con historial correcto: fila `ig_history_123456`, sourceId `123456`. Tras dos ciclos de mapeo/guardado quedan TRES registros para una sola mediaUrl: `ig_123456`, `ig_ig_sync_ig_123456`, `ig_ig_sync_ig_ig_sync_ig_123456`.
+- La sonda ejecuta el cuerpo del lector y el objeto de guardado obtenidos del SHA indicado, retirando anotaciones TypeScript; simula readData/fetch y los ciclos de upsert. NO ejecuta la accion entera, Firebase, locks ni el importador historico completo.
+- **Clasificacion:** defecto de identidad reproducido en fragmentos reales de main; codigo identico en tanda abierta. No afirmar duplicados visibles en produccion: la galeria tiene deduplicacion adicional por URL. El defecto agrega identidades/registros internos, aunque una vista pueda ocultar las copias.
+- Dato adicional de codigo: `publishDate: now` reemplaza la fecha original al copiar; la sonda no certifica el orden de la galeria real.
+
+### P2 acotado: esta automatizacion no garantiza consultar publicaciones nuevas
+
+- Con publicaciones guardadas elegibles, `getPublicInstagramFeed` retorna el historial antes de consultar Meta. Esto es correcto para una lectura publica rapida, pero no sirve como unica fuente de una importacion que debe buscar novedades.
+- La sonda configura credenciales ficticias y una respuesta Meta con una foto nueva: el contador fetch queda en **0**, incluso despues de los ciclos. No se ejecuta ninguna peticion real.
+- **Importante: no concluir que toda la sincronizacion Instagram esta rota.** Hay otro proceso real: `src/app/api/cron/metricas-de-redes/route.ts` llama `syncMetaPublicHistory`; `meta-history-backfill.ts:286-287,397-413` consulta Graph con paginacion. Guarda sourceId/sourceUrl, fecha de origen y busca coincidencias por identidad/enlace (187-258).
+- La pantalla de sincronizaciones tambien tiene importacion historica manual con forceFull. Por tanto el fallo es del recorrido de marketing automatico auditado, no prueba ausencia total de conexion ni que nunca lleguen novedades.
+- Falta comprobar en produccion el token autorizado, account ID, ultima ejecucion y resultado del trabajo historico. No se inspeccionaron secretos ni se certifica la configuracion de la cuenta.
+
+### Correccion concreta propuesta para Gemini; validacion de Claude
+
+1. Separar lectura publica del historial y adquisicion de novedades; reutilizar el importador historico existente cuando corresponda. No quitar la cache de la portada ni implementar una segunda integracion de Meta sin necesidad.
+2. Conservar identidad original, enlace y fecha de publicacion durante todo el mapeo. Repetir el mismo contenido no debe crear otra fila ni anidar prefijos.
+3. Revisar registros ya duplicados antes de cualquier migracion: no borrar publicaciones manuales, borradores o historias legitimas. Si se requiere depuracion de datos, Claude valida el procedimiento.
+4. Pruebas propuestas **pendientes de implementar y correr contra la accion completa**: mismo historial sincronizado tres veces mantiene cantidad; publicacion nueva externa entra una sola vez con cache no vacia; importador historico y de marketing no duplican entre si; error/revocacion de Meta no se rotula como lectura externa exitosa; fecha original se conserva; borradores continúan excluidos.
+5. Probar el consumidor runMarketingAutomation, no solo un helper desconectado. Compilacion y resultado final corresponden a Claude; no se ejecutaron aqui.
+
+### YouTube: mecanismos encontrados y limites, sin nuevo defecto confirmado
+
+- `src/lib/youtube/ak-channel.ts` ofrece RSS publico con revalidate 21600 y fallback curado; ese intervalo de seis horas ya estaba registrado. No tratarlo como hallazgo nuevo ni prometer sincronizacion instantanea.
+- Existe ademas `syncYouTubePublicHistory`: usa YouTube Data API para historial cuando hay API key y RSS como respaldo. Cuando usa RSS, deja `complete:false`; cuando completa Data API, registra ese modo (youtube-history-backfill.ts:240-281).
+- La tarea metricas-de-redes consume ese importador; la portada consume videos publicos y galeria. El reproductor publicado del testimonio ya se probo en la pasada anterior: no se repitio.
+- NO se verificaron todas las subidas historicas, credencial efectiva, tarea en produccion, cuotas o incorporacion de un video recien publicado. Eso permanece **sin probar**, no aprobado ni denunciado como roto.
+
+### Entrega reproducible
+
+- Sonda: `docs/evidencias/sondas/62-instagram-source-probe.cjs`, subida en commit `cffc3d3e7ebd0bdb39dee5666ebc593e0ec86503` a `codex/entorno-windows-94`.
+- Esta es documentacion/evidencia de revision; no un arreglo de la app. Ninguna PR fue fusionada ni se afirma que otra IA recibio o comenzo la correccion.
