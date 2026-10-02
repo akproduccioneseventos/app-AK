@@ -20,6 +20,11 @@ export interface Payment {
   method?: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'MercadoPago' | 'Otro';
   notes?: string;
   transactionProofUrl?: string; // URL to the uploaded image
+  /**
+   * La misma operación de cobro, aunque se reintente (Codex, 2/10/2026, COB-01). La pantalla la
+   * arma una vez por cobro; si el servidor ya tiene un pago con ella, no se crea otro.
+   */
+  operacionId?: string;
   baseAmount?: number;
   surchargeAmount?: number;
   installments?: number;

@@ -97,3 +97,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     algo más (una hora, un "de 21 a 04 hs") y mirá que siga en la salida. Y si creaste una lista
     nueva que se guarda entera, leé y guardá en el mismo turno de la base.
 
+23. **¿Después de guardar llamás a otro paso de plata?** Cubrí que devuelva error **y** que tire
+    una excepción, y que reintentar la misma operación no cree otro registro. Y ningún tope suma
+    tolerancia a un saldo recortado a cero.
+

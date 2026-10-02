@@ -1520,6 +1520,8 @@ con otra cara.
 | Al llegar a la portada con una sección en la dirección, la página no bajaba | `tests/e2e/el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts` |
 | Cada sincronización de Instagram volvía a meter las mismas fotos en la galería | `src/__tests__/instagram-no-duplica-al-sincronizar.test.ts` |
 | La revisión de Codex no tenía final: cada vuelta abría un frente nuevo | `npm run "codex?"` con `docs/codex/areas.json` y `src/__tests__/codex-tiene-un-final.test.ts` |
+| Un cobro de factura que tiraba error al pasar al presupuesto se duplicaba al reintentar; la tolerancia se regalaba en cada pago | `src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts` |
+| Dos cuotas marcadas a la vez: las dos "cobradas", una sola guardada | `src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts` |
 
 ### Cómo se elige el matafuego
 
