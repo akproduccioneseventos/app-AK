@@ -1,0 +1,30 @@
+# Continuación de auditoría contra main — 2026-10-02
+
+## Base de revisión
+
+- Repositorio: `akproduccioneseventos/app-AK`
+- SHA exacto de main revisado: `c92ee4224da3b440ad91d72f06d03c6672f44e33`
+- PR abiertas al consultar GitHub: ninguna.
+- Producción: no verificada en esta pasada; el endpoint de salud tuvo timeout en la comprobación anterior. No asumir que el SHA está desplegado.
+- No se modificó código de la aplicación ni se ejecutó compilación.
+
+## Orden 110: contraste, sin rehacer lo ya incorporado
+
+- **Recetas de barra:** corregido en main respecto del defecto descrito: al comparar las 36 referencias `insumoId` con los 40 insumos del catálogo, no faltan IDs. Esto sólo acredita que las referencias existen; no verifica por sí solo unidades, cálculo real ni escritura en Firebase.
+- **Voz:** el reproductor del Parte de la mañana usa `SpeechSynthesisUtterance` del navegador. No encontré `src/lib/asistente/voz-parte.ts` en main y la consulta de ruta devolvió 404. Gemini TTS no queda demostrado ni implementado por esta evidencia; seguir como pendiente de funcionalidad, no corregir otra vez el tono sintético ya retirado.
+- **Catálogo público de tecnología:** `src/app/tecnologia/page.tsx` recorre `TECNOLOGIAS_AK`, pero las tarjetas renderizan nombre, descripción, ruta en texto y botón; no renderizan `item.foto` ni un ícono de respaldo. La propiedad `foto` del catálogo no tiene consumidor en esta página. La vista no está mostrando las imágenes de producto/capturas que el catálogo promete. No afirmar que los archivos son imágenes rotas en pantalla: las rutas listadas no se renderizan.
+- **Prueba de imágenes:** `src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts` retorna temprano si no existe `public/tecnologia`; por tanto la prueba puede pasar sin verificar una sola imagen. Además, esa prueba sólo inspecciona archivos locales, no que la página los muestre. Falta prueba que falle con carpeta ausente y compruebe el uso del activo en la página.
+- **Video de muestra:** no se concluye en este registro si el archivo fue quitado o si existe video de fiesta real; queda sin contrastar.
+
+## Hallazgo de seguridad para contraste específico
+
+- `src/app/actions/fiesta/invitados.actions.ts:getInvitados` lee `getFiestaById(fiestaId, LECTURA_COMPLETA)` y devuelve el arreglo completo de invitados, sin llamar `requireAppSession` ni validar un token de invitado.
+- La acción se importa desde un componente cliente del muro social. El helper `getFiestaById` sólo recorta los datos cuando no hay sesión válida **y** no se pidió `LECTURA_COMPLETA`; este consumidor pide explícitamente lectura completa.
+- Las pantallas de recepción están detrás de AuthGuard, pero eso no demuestra que la acción remota esté protegida: el propio test `pantallas-internas-con-guardia.test.ts` explica que middleware sólo comprueba presencia de cookie y que la validación efectiva es cliente. No localicé prueba focalizada que invoque `getInvitados` sin sesión.
+- **Clasificación:** riesgo de autorización/privacidad confirmado en el código; explotación remota no reproducida. Puede exponer nombres, contactos, alergias, canciones u otros campos de invitados si se puede invocar la acción sin sesión. No marcar como fuga explotada hasta hacer la sonda con la acción real.
+- **Contraste pendiente para Claude (permisos/datos):** probar la acción directa sin cookie, con cookie inventada y con sesión AK; exigir denegación en los dos primeros casos y acceso al equipo autorizado en el último. Comprobar que la respuesta pública del portal siga limitada al invitado con token. Añadir una prueba ejecutable de regresión sobre la acción, no sólo sobre el layout.
+- Rutas verificadas: `src/app/actions/fiesta/invitados.actions.ts`, `src/app/(app)/fiestas/nueva/muro-social/page.tsx`, `src/lib/fiesta/fiesta.actions.ts`, `src/app/recepcion/layout.tsx`, `src/__tests__/pantallas-internas-con-guardia.test.ts`.
+
+## Resultado
+
+La lista de invitados y la autorización de acciones requieren la sonda prioritaria antes de llamar al módulo seguro. La parte visual de tecnología y Gemini TTS siguen incompletas según el código observado. No se declara la app completa ni desplegada: faltan pruebas de acción remota y verificación de producción sobre el SHA actual.
