@@ -1,3 +1,16 @@
+## 2 de octubre de 2026 - Codex: area cobros, cuotas, facturas y recibos
+
+- Commit auditado: `676a1a8d3fe3c04be453e7cfec829217e42380cd`.
+- Diagnostico: `docs/evidencias/63-cobros-cuotas-facturas-recibos-2026-10-02.md`.
+- Sonda: `docs/evidencias/sondas/63-cobros-source-probe.cjs`; 12 casos sobre fragmentos reales, I/O simulado; exit 0 reproduce cinco defectos, NO aprueba la app.
+- Hallazgos pendientes para Claude: excepcion del espejo factura-presupuesto + reintento; cuotas concurrentes se pisan; error devuelto no visible en factura; tolerancia acumulable en factura independiente; moneda no UYU ofrecida pero cobro redondeado y recibo dice UYU.
+- La opcion de otras monedas requiere decision del dueno. No se modifica el comportamiento comercial.
+- Reutilizados controles anteriores; pruebas aisladas de recibo cerrado, estado de pago y limite concurrente de factura dieron resultado esperado.
+- Rama de documentacion: `codex/auditoria-cobros-2026-10-02`. No se fusiono ni modifico codigo de app; no se compilo.
+- Area NO limpia. Faltan regresiones corregidas, entorno autenticado/Firestore, PDF y cobro/integracion real o sandbox. No se cambia contador.
+- La guia nueva COMO-REVISA-CODEX aun devuelve 404 remoto. Trabajo local de Claude no enviado: NO CONTRASTADO; contrastar antes de programar.
+
+
 # Estado de la auditoría — qué está hecho y qué falta
 
 Documento vivo. Sirve para no repetir trabajo entre sesiones.
