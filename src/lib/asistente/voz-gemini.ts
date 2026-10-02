@@ -12,14 +12,15 @@ export interface OpcionesVozGemini {
   apiKey?: string;
 }
 
-export const VOCES_GEMINI = [
-  { id: 'es-ES-Journey-F', nombre: 'Laura (Journey Cálida)', genero: 'femenina', lang: 'es-ES' },
-  { id: 'es-ES-Journey-D', nombre: 'Martín (Journey Cercana)', genero: 'masculina', lang: 'es-ES' },
-  { id: 'es-US-Journey-F', nombre: 'Camila (Latinoamericana Natural)', genero: 'femenina', lang: 'es-US' },
-  { id: 'es-US-Journey-D', nombre: 'Nicolás (Rioplatense Natural)', genero: 'masculina', lang: 'es-US' },
-  { id: 'es-ES-Neural2-A', nombre: 'Valeria (Neural2 Estudio)', genero: 'femenina', lang: 'es-ES' },
-  { id: 'es-ES-Neural2-B', nombre: 'Javier (Neural2 Estudio)', genero: 'masculina', lang: 'es-ES' },
+export const VOCES_IA_DISPONIBLES = [
+  { id: 'es-ES-Journey-F', nombre: 'Laura (Journey Cálida)', genero: 'femenina', lang: 'es-ES', descripcion: 'Voz ultra-realista con entonación humana natural, ritmo pausado y calidez.' },
+  { id: 'es-ES-Journey-D', nombre: 'Martín (Journey Cercana)', genero: 'masculina', lang: 'es-ES', descripcion: 'Voz masculina fluida, segura y empática.' },
+  { id: 'es-US-Journey-F', nombre: 'Camila (Latinoamericana Natural)', genero: 'femenina', lang: 'es-US', descripcion: 'Voz suave y expresiva ideal para la atención de fiestas.' },
+  { id: 'es-US-Journey-D', nombre: 'Nicolás (Rioplatense Natural)', genero: 'masculina', lang: 'es-US', descripcion: 'Voz masculina juvenil, moderna y dinámica.' },
+  { id: 'es-ES-Neural2-A', nombre: 'Valeria (Neural2 Estudio)', genero: 'femenina', lang: 'es-ES', descripcion: 'Locución cristalina de estudio para partes diarios.' },
+  { id: 'es-ES-Neural2-B', nombre: 'Javier (Neural2 Estudio)', genero: 'masculina', lang: 'es-ES', descripcion: 'Tono formal corporativo con dicción perfecta.' },
 ];
+export const VOCES_GEMINI = VOCES_IA_DISPONIBLES;
 
 /**
  * Sintetiza voz con Gemini / Google Cloud Text-to-Speech API.
@@ -40,21 +41,29 @@ export async function sintetizarVozGemini(
     throw new Error('El texto para sintetizar está vacío.');
   }
 
-  const apiKey =
-    opciones?.apiKey ||
-    process.env.GOOGLE_TTS_API_KEY ||
-    process.env.GEMINI_API_KEY ||
-    process.env.GOOGLE_API_KEY;
+  const rawKey =
+    opciones?.apiKey !== undefined
+      ? opciones.apiKey
+      : (process.env.GOOGLE_TTS_API_KEY ||
+         process.env.GEMINI_API_KEY ||
+         process.env.GOOGLE_API_KEY);
 
-  if (!apiKey || apiKey === 'dummy' || apiKey.length < 10) {
+  const apiKey = rawKey && rawKey !== 'dummy' ? rawKey.trim() : '';
+
+  if (!apiKey || apiKey.length < 10) {
     throw new Error('No hay clave de API configurada para Gemini TTS.');
   }
 
   const vozId = opciones?.voz || 'es-ES-Journey-F';
   const vozConfig = VOCES_GEMINI.find((v) => v.id === vozId) || VOCES_GEMINI[0];
 
+  const fetchFn = typeof fetch !== 'undefined' ? fetch : globalThis.fetch;
+  if (!fetchFn) {
+    throw new Error('Fallo en servicio Gemini TTS: fetch no está disponible.');
+  }
+
   const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
-  const response = await fetch(url, {
+  const response = await fetchFn(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

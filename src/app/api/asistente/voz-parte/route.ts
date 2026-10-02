@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { hasAppSession } from '@/lib/auth/require-session';
-import { sintetizarVozGemini } from '@/lib/asistente/voz-parte';
+import { sintetizarVozGemini } from '@/lib/asistente/voz-gemini';
 
 export async function GET(request: NextRequest) {
   try {

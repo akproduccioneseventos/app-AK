@@ -6,7 +6,7 @@
  * 3. El reproductor del parte de la mañana contiene fallback garantizado con SpeechSynthesisUtterance.
  */
 
-import { sintetizarVozGemini } from '@/lib/asistente/voz-parte';
+import { sintetizarVozGemini } from '@/lib/asistente/voz-gemini';
 import fs from 'node:fs';
 import path from 'node:path';
 
