@@ -321,9 +321,9 @@ export default function BarmanScreenPage() {
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {dashboard.drinks.map((drink) => (
-              <Button 
-                key={drink.id} 
-                variant="secondary" 
+              <Button
+                key={drink.id}
+                variant="secondary"
                 className="whitespace-nowrap rounded-lg h-12 font-bold bg-white/10 hover:bg-white/20 text-white border border-white/5"
                 onClick={() => setQuickDrink(drink)}
               >
@@ -410,8 +410,8 @@ export default function BarmanScreenPage() {
           </DialogHeader>
           <DialogFooter className="sm:justify-end gap-2 mt-4">
             <Button variant="outline" onClick={() => setQuickDrink(null)} className="border-white/20 bg-transparent text-white hover:bg-white/10">No, cancelar</Button>
-            <Button 
-               disabled={updatingId === quickDrink?.id} 
+            <Button
+               disabled={updatingId === quickDrink?.id}
                onClick={() => quickDrink && handleQuickOrder(quickDrink.id)}
                className="bg-emerald-600 hover:bg-emerald-700 text-white"
             >

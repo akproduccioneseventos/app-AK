@@ -212,11 +212,11 @@ export default function PantallaPage() {
       ]);
       setIsReconnecting(false);
       setLoadError(null);
-      
+
       if (fiestaData) {
         setFiesta(fiestaData);
         setFiestaName(fiestaData.configuracion?.nombreEvento || fiestaData.configuracion?.nombreAgasajado || 'Evento');
-        
+
         // Check for playlist
         const playlist = fiestaData.screenPlaylist;
         if (playlist && playlist.isPlaying && playlist.items.length > 0) {

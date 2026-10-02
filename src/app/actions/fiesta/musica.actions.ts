@@ -39,10 +39,10 @@ export async function saveSugerenciaMusical(fiestaId: string, sugerencia: string
 
         const musicaData = fiesta.musica || {};
         const sugerenciasAnteriores = musicaData.sugerenciasInvitados || '';
-        const nuevasSugerencias = sugerenciasAnteriores 
+        const nuevasSugerencias = sugerenciasAnteriores
             ? `${sugerenciasAnteriores}\n- ${sugerencia}`
             : `- ${sugerencia}`;
-        
+
         const updatedFiesta = {
             ...fiesta,
             musica: {

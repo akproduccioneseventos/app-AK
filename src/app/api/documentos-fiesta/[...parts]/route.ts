@@ -44,7 +44,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
       }
 
       const zip = new JSZip();
-      
+
       // Add all documents from 'otrosDocumentos'
       if (fiesta.othersDocumentos && fiesta.othersDocumentos.length > 0) {
         const docsDir = path.join(DOCS_DIR, fiestaId);

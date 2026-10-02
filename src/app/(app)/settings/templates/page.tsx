@@ -65,7 +65,7 @@ export default function TemplatesPage() {
             Volver a Configuración
           </Link></Button>
       </div>
-      
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {settingsCards.map((item) => (
           <Card key={item.title} className="flex flex-col shadow-md hover:shadow-lg transition-shadow">

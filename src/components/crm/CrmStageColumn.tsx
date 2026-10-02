@@ -32,7 +32,7 @@ export const CrmStageColumn = memo(function CrmStageColumn({
     id: stage.id,
     data: { stageId: stage.id },
   });
-  
+
   const leadIds = leads.map(l => l.id);
 
   const inactiveCount = leads.filter(l => {

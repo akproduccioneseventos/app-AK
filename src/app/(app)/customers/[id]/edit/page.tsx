@@ -68,14 +68,14 @@ export default function EditCustomerPage() {
     setIsLoading(true);
     setNotFound(false);
     try {
-      const loadedCustomer = await getCustomerById(customerIdFromParams); 
+      const loadedCustomer = await getCustomerById(customerIdFromParams);
       if (loadedCustomer) {
         setCustomer(loadedCustomer);
         setName(loadedCustomer.name || '');
         setCompanyName(loadedCustomer.companyName || '');
         setAddress(loadedCustomer.address || '');
         setPhone(loadedCustomer.phone || '');
-        setTaxId(loadedCustomer.taxId || ''); 
+        setTaxId(loadedCustomer.taxId || '');
         setEstadoClienteForm(loadedCustomer.estadoCliente || 'Actual');
 
         setPartyDate(loadedCustomer.partyDate ? new Date(loadedCustomer.partyDate) : undefined);
@@ -96,7 +96,7 @@ export default function EditCustomerPage() {
   }, [customerIdFromParams]);
 
   useEffect(() => {
-    if (customerIdFromParams) { 
+    if (customerIdFromParams) {
       loadCustomer();
     }
   }, [customerIdFromParams, loadCustomer]);
@@ -107,23 +107,23 @@ export default function EditCustomerPage() {
 
     setIsSaving(true);
     const formData = new FormData();
-    formData.append('id', customer.id); 
-    
+    formData.append('id', customer.id);
+
     if (name.trim()) formData.append('name', name.trim());
-    else if (companyName.trim()) formData.append('name', companyName.trim()); 
+    else if (companyName.trim()) formData.append('name', companyName.trim());
 
     if (companyName.trim()) formData.append('companyName', companyName.trim());
     if (address.trim()) formData.append('address', address.trim());
     if (phone.trim()) formData.append('phone', phone.trim());
     if (taxId.trim()) formData.append('taxId', taxId.trim());
     formData.append('estadoCliente', estadoClienteForm);
-    
+
     if (partyDate) formData.append('partyDate', partyDate.toISOString());
     if (partyTime.trim()) formData.append('partyTime', partyTime.trim());
-    
+
     const finalPartyType = partyType === "Otro" ? customPartyType.trim() : partyType.trim();
     if (finalPartyType) formData.append('partyType', finalPartyType);
-    
+
     if (guestCount.trim()) formData.append('guestCount', guestCount.trim());
     if (partyForWhom.trim()) formData.append('partyForWhom', partyForWhom.trim());
     if (venueName.trim()) formData.append('venueName', venueName.trim());
@@ -168,11 +168,11 @@ export default function EditCustomerPage() {
 
   const handlePartyTypeChange = (value: string) => {
     if (value === "Otro") {
-      setPartyType("Otro"); 
-      setCustomPartyType(''); 
+      setPartyType("Otro");
+      setCustomPartyType('');
     } else {
       setPartyType(value as TipoEvento);
-      setCustomPartyType(''); 
+      setCustomPartyType('');
     }
   };
 
@@ -197,7 +197,7 @@ export default function EditCustomerPage() {
         </div>
         <Button asChild variant="outline" disabled={isSaving || isDeleting}><Link href="/customers"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <form onSubmit={handleSubmit}>
           <CardHeader>
@@ -252,7 +252,7 @@ export default function EditCustomerPage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="party-type-select">Tipo de Fiesta</Label>
-                   <Select 
+                   <Select
                     value={eventoTipoEnSelect}
                     onValueChange={handlePartyTypeChange}
                   >
@@ -266,9 +266,9 @@ export default function EditCustomerPage() {
                     </SelectContent>
                   </Select>
                   {showCustomPartyTypeInput && (
-                     <Input 
-                        id="party-type-otro" 
-                        placeholder="Especificá el tipo de fiesta" 
+                     <Input
+                        id="party-type-otro"
+                        placeholder="Especificá el tipo de fiesta"
                         value={partyType !== "Otro" ? partyType : customPartyType}
                         onChange={(e) => setCustomPartyType(e.target.value)}
                         className="text-base p-3 mt-2"
@@ -282,10 +282,10 @@ export default function EditCustomerPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="party-for-whom">Para quién es la Fiesta</Label>
-              <Input 
-                id="party-for-whom" 
-                value={partyForWhom} 
-                onChange={(e) => setPartyForWhom(e.target.value)} 
+              <Input
+                id="party-for-whom"
+                value={partyForWhom}
+                onChange={(e) => setPartyForWhom(e.target.value)}
                 placeholder="Ej: “Lucía – 15 años”, “Bautismo de Thiago”, “Aniversario de Juan y Laura”"
                 disabled={isSaving || isDeleting}
               />

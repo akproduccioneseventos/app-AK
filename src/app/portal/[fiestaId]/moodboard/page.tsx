@@ -19,7 +19,7 @@ export default function ClientMoodboardPage() {
   const resolvedParams = useParams<{ fiestaId: string }>();
   const fiestaId = resolvedParams.fiestaId;
   const { toast } = useToast();
-  
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -44,13 +44,13 @@ export default function ClientMoodboardPage() {
 
   const handleToggleLike = async (itemId: string) => {
     if (!fiesta || !fiesta.decoracion) return;
-    
-    const items = (fiesta.decoracion.moodboardItems || []).map(i => 
+
+    const items = (fiesta.decoracion.moodboardItems || []).map(i =>
         i.id === itemId ? { ...i, likedByClient: !i.likedByClient } : i
     );
-    
+
     const updatedDecoracion = { ...fiesta.decoracion, moodboardItems: items };
-    
+
     // Optimistic UI
     setFiesta({ ...fiesta, decoracion: updatedDecoracion });
 
@@ -72,7 +72,7 @@ export default function ClientMoodboardPage() {
 
   const handleUploadFromClient = async (url: string) => {
     if (!fiesta || !fiesta.decoracion) return;
-    
+
     const newItem: MoodboardItem = {
         id: `mood_client_${Date.now()}`,
         url,
@@ -81,9 +81,9 @@ export default function ClientMoodboardPage() {
         timestamp: new Date().toISOString()
     };
 
-    const updatedDecoracion = { 
-        ...fiesta.decoracion, 
-        moodboardItems: [...(fiesta.decoracion.moodboardItems || []), newItem] 
+    const updatedDecoracion = {
+        ...fiesta.decoracion,
+        moodboardItems: [...(fiesta.decoracion.moodboardItems || []), newItem]
     };
 
     setIsProcessing(true);
@@ -143,7 +143,7 @@ export default function ClientMoodboardPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <AnimatePresence>
                             {moodItems.map((item) => (
-                                <motion.div 
+                                <motion.div
                                     key={item.id}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -152,7 +152,7 @@ export default function ClientMoodboardPage() {
                                 >
                                     <NextImage src={item.url} alt="inspiración" layout="fill" objectFit="cover" className="transition-transform duration-1000 group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                                    <button 
+                                    <button
                                         onClick={() => handleToggleLike(item.id)}
                                         className={cn(
                                             "absolute bottom-4 right-4 p-3 rounded-2xl shadow-2xl transition-all duration-300 transform active:scale-90",

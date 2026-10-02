@@ -30,7 +30,7 @@ export function ScheduleNewMeetingDialog({ isOpen, onOpenChange, onMeetingSchedu
   const [filteredLeads, setFilteredLeads] = useState<CrmLeadOption[]>([]);
   const [selectedLeadId, setSelectedLeadId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   const [meetingDate, setMeetingDate] = useState<Date | undefined>(new Date());
   const [meetingTime, setMeetingTime] = useState<string>('10:00');
   const [meetingTitle, setMeetingTitle] = useState('Reunión de seguimiento');
@@ -80,9 +80,9 @@ export function ScheduleNewMeetingDialog({ isOpen, onOpenChange, onMeetingSchedu
       toast({ title: "Datos incompletos", description: "Selecciona un prospecto, fecha, hora y título.", variant: "destructive" });
       return;
     }
-    
+
     setIsSaving(true);
-    
+
     const finalDateTime = new Date(meetingDate);
     const [hours, minutes] = meetingTime.split(':').map(Number);
     finalDateTime.setHours(hours, minutes, 0, 0);

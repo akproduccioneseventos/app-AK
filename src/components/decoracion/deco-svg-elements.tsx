@@ -269,7 +269,7 @@ export function TrioCilindrosSvg({ color = '#F5F0E8', color2 = '#C9A96E', color3
       {/* Cilindro Alto - Centro */}
       <rect x="44" y="16" width="32" height="58" rx="3" fill={color} stroke={color2} strokeWidth="1.5" />
       <ellipse cx="60" cy="16" rx="16" ry="4" fill={color2} />
-      
+
       {/* Cilindro Izquierdo - Medio */}
       <rect x="12" y="28" width="28" height="46" rx="3" fill={color2} stroke="#B89758" strokeWidth="1.5" />
       <ellipse cx="26" cy="28" rx="14" ry="3.5" fill="#E8D5B0" />
@@ -376,7 +376,7 @@ export function DecoElementSvg({ tipo, colores, size = 60 }: { tipo: string; col
     case 'estrella': return <EstrellaSvg color={c0} size={size} />;
     case 'mariposa': return <MaripozaSvg color={c0} color2={c1} size={size} />;
     case 'corona': return <CoronaSvg color={c0} size={size} />;
-    
+
     // Trend & Backdrop categories
     case 'panelCircular': return <PanelCircularSvg color={c0} color2={c1} size={size} />;
     case 'arcoRomano': return <ArcoRomanoSvg color={c0} color2={c1} size={size} />;

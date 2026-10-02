@@ -25,7 +25,7 @@ export async function saveTaskTemplate(name: string, tasks: Omit<Tarea, 'id' | '
   }
   const templates = await getTaskTemplates();
   const existingTemplateIndex = templates.findIndex(t => t.name === name.trim());
-  
+
   let savedTemplate: TaskTemplate;
 
   if (existingTemplateIndex > -1) {

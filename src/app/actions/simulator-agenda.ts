@@ -59,7 +59,7 @@ export async function bookAppointmentFromSimulator(data: {
     if (!nombre || nombre.length < 3 || nombre.length > 100) {
       return { success: false, error: 'Por favor ingresá un nombre válido (entre 3 y 100 caracteres).' };
     }
-    
+
     const contacto = data.clienteContacto?.trim();
     if (!contacto || contacto.length < 6 || contacto.length > 100) {
       return { success: false, error: 'Por favor ingresá un contacto válido (teléfono o email, mínimo 6 caracteres).' };

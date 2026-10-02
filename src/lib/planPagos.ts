@@ -112,7 +112,7 @@ export function generarPlanPagos(
     totalContratoSeguro - accumulatedTarget,
     Math.max(0, montoObjetivo30 - accumulatedTarget),
   );
-  
+
   cuotas.push({
     id: `cuota_clave`,
     descripcion: `Cuota clave ${porcentajeMinimoSeguro}% — ${formatDateISO(claveDate)}`,

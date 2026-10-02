@@ -26,7 +26,7 @@ export default function LayoutTemplatesPage() {
   const [templates, setTemplates] = useState<SalonLayoutTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  
+
   const fetchTemplates = useCallback(async () => {
     setIsLoading(true);
     try {

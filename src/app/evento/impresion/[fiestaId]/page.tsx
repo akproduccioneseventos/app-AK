@@ -70,7 +70,7 @@ export default function PrintStationPage() {
         getSocialPosts(fiestaId),
       ]);
       setFiesta(fiestaData);
-      
+
       // Keep only approved image posts (we cannot print videos directly)
       const approvedImages = socialPosts.filter(
         p => esAprobadoParaMostrar(p) && !isVideoPost(p)
@@ -169,7 +169,7 @@ export default function PrintStationPage() {
   // Auto-Print Trigger effect
   useEffect(() => {
     if (!autoPrint || posts.length === 0 || isPrinting || pendingPrintConfirmation) return;
-    
+
     // Find first unprinted post (newest approved first) that respects print limit
     const nextToPrint = [...posts]
       .reverse() // check oldest approved first so we print in order of upload
@@ -196,7 +196,7 @@ export default function PrintStationPage() {
 
   return (
     <div className="fixed inset-0 bg-zinc-950 text-white flex flex-col overflow-hidden select-none print:bg-white print:text-black">
-      
+
       {/* 🖨️ PRINT TEMPLATE (Hidden from screen, visible only on @media print) */}
       <div id="print-area" className="hidden print:block print:absolute print:inset-0">
         {printPost && (
@@ -238,7 +238,7 @@ export default function PrintStationPage() {
 
       {/* SCREEN UI */}
       <div className="flex-1 flex flex-col overflow-hidden print:hidden">
-        
+
         {/* HEADER */}
         <header className="p-4 flex items-center justify-between border-b border-zinc-900 bg-zinc-900/40 backdrop-blur-md shrink-0 pt-safe">
           <button onClick={() => router.back()} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
@@ -278,7 +278,7 @@ export default function PrintStationPage() {
 
         {/* STATUS & CONTROLS DASHBOARD */}
         <div className="p-6 bg-zinc-900/30 border-b border-zinc-900 grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0 items-center">
-          
+
           {/* Status Counter */}
           <div className="flex items-center gap-4 bg-zinc-900/60 border border-zinc-800 p-4 rounded-3xl">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-black shadow-inner

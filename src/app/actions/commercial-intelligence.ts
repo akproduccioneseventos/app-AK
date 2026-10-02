@@ -321,7 +321,7 @@ export async function registerQuinceaneraPartyLead(data: {
       success: true,
       leadId: result.lead?.id,
     };
-  
+
   } catch (error: any) {
     console.error('Error registrando lead de quinceañera:', error);
     return { success: false, error: error?.message || 'No se pudo registrar la consulta' };

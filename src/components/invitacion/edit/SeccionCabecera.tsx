@@ -16,11 +16,11 @@ interface Props {
 }
 
 export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
-  
+
   const handleFieldChange = (field: keyof typeof data, value: any) => {
     update({ [field]: value });
   };
-  
+
   const handleColorChange = (colorType: keyof ColorPalette, value: string) => {
     update({
       paletaColores: {
@@ -67,9 +67,9 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
                 fiestaId={fiestaId}
             />
         </div>
-        
+
         <Separator />
-        
+
         <div className="space-y-3">
           <div className="space-y-1">
               <Label htmlFor="protagonista1">Protagonista 1</Label>
@@ -89,7 +89,7 @@ export const SeccionCabeceraEditor: React.FC<Props> = ({ data, update, fiestaId 
                 value={data.subtitulo?.text || ''}
                 onChange={(e) => handleSubtituloTextChange(e.target.value)}
             />
-            <TextStyleEditor 
+            <TextStyleEditor
                 style={data.subtitulo?.style || {}}
                 onStyleChange={handleTextStyleChange}
             />

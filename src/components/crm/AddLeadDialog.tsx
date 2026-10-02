@@ -84,7 +84,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
         followUpDate: formData.followUpDate ? new Date(formData.followUpDate).toISOString() : undefined
       } as NewCrmLeadData;
 
-      const result = await addCrmLead({ 
+      const result = await addCrmLead({
         ...dataToSave,
         currentStageId: defaultStageId || firstStageId,
       });
@@ -164,7 +164,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
               />
             </div>
           </div>
-           
+
           <div className="space-y-1">
             <Label htmlFor="lead-email">Email (Opcional)</Label>
             <Input id="lead-email" type="email" value={formData.email || ''} onChange={(e) => handleInputChange('email', e.target.value)} placeholder="ejemplo@correo.com" disabled={isSaving}/>

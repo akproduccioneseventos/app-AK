@@ -53,7 +53,7 @@ export function getGuestCountForItem(item: { nombreServicio: string, categoriaSe
  */
 export function calculateSuggestedQuantity(item: { calculationMethod?: string, invitadosPorUnidad?: number, cantidad?: number, nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, ninos: number): number {
     const totalGuests = getGuestCountForItem(item, adultos, 0, ninos);
-  
+
     switch (item.calculationMethod) {
         case 'porPersona':
             return totalGuests;

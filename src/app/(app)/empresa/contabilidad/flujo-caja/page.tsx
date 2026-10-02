@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { queMostrarElFlujoDeCaja } from '@/lib/contabilidad/que-mostrar-flujo-caja';
 
-const formatCurrency = (amount: number) => 
+const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
 
 export default function FlujoCajaProyectadoPage() {
@@ -51,7 +51,7 @@ export default function FlujoCajaProyectadoPage() {
       const totalExpenses = data.reduce((s, m) => s + m.expenses, 0);
       const netBalance = totalIncome - totalExpenses;
       const coverageRatio = totalExpenses > 0 ? (totalIncome / totalExpenses) : 0;
-      
+
       return { totalIncome, totalExpenses, netBalance, coverageRatio };
   }, [data]);
 

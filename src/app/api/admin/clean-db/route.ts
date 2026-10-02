@@ -71,7 +71,7 @@ async function handleCleanDb(request: Request) {
       report[colName] = { scanned: 0, modified: [] };
       const colRef = dbAdmin.collection(colName);
       const snapshot = await colRef.get();
-      
+
       report[colName].scanned = snapshot.size;
       totalScanned += snapshot.size;
 

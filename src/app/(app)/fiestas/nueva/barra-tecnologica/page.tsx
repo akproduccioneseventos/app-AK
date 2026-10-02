@@ -56,7 +56,7 @@ function BarraTecnologicaContent() {
       getBarraTecnologicaDashboard(fiestaId),
       getFiestaById(fiestaId),
     ]);
-    
+
     if (fiestaResult) setFiesta(fiestaResult);
 
     if (result.success && result.data) {

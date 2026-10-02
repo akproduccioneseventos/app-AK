@@ -69,7 +69,7 @@ function GestionDocumentalContent() {
       }
     }
   };
-  
+
   const handleUpload = async () => {
     if (!fileToUpload || !fiestaId) {
       toast({ title: "No hay archivo", description: "Selecciona un archivo para subir.", variant: "destructive" });
@@ -86,7 +86,7 @@ function GestionDocumentalContent() {
     formData.append('docType', docType);
     formData.append('customName', customName);
     formData.append('fiestaId', fiestaId);
-    
+
     try {
       const result = await uploadDocumentoFiesta(formData);
       if (result.success) {
@@ -119,7 +119,7 @@ function GestionDocumentalContent() {
       toast({ title: "Error al Eliminar", description: err.message, variant: "destructive" });
     }
   };
-  
+
   const handleDownloadAll = async () => {
     if (!fiesta) return;
     setIsDownloading(true);
@@ -160,7 +160,7 @@ function GestionDocumentalContent() {
         </div>
         <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Link></Button>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Subir Nuevo Documento</CardTitle>
@@ -196,7 +196,7 @@ function GestionDocumentalContent() {
           </Button>
         </CardFooter>
       </Card>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Documentos de la Fiesta</CardTitle>

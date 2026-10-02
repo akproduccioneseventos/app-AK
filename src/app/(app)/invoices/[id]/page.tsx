@@ -34,13 +34,13 @@ function numberToSpanishWords(n: number): string {
   };
 
   if (n in words) return words[n];
-  
+
   if (n < 100) {
     const tens = Math.floor(n / 10) * 10;
     const units = n % 10;
     return `${words[tens]}${units > 0 ? ' Y ' + words[units] : ''}`;
   }
-  
+
   if (n < 1000) {
     const hundreds = Math.floor(n / 100) * 100;
     const rest = n % 100;
@@ -94,7 +94,7 @@ export default function ViewInvoicePage() {
         getInvoiceTemplateSettings(),
         getPresupuestos()
       ]);
-      
+
       if (fetchedInvoice) {
         setInvoice(fetchedInvoice);
         const linkedBudget = allBudgets.find(b =>
@@ -123,7 +123,7 @@ export default function ViewInvoicePage() {
   const handleAddPaymentSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!invoice || !newPayment.amount || newPayment.amount <= 0) return;
-    
+
     setIsAddingPayment(true);
     const formData = new FormData();
     formData.append('paymentDate', newPayment.paymentDate);
@@ -145,7 +145,7 @@ export default function ViewInvoicePage() {
       setIsAddingPayment(false);
     }
   };
-  
+
   const totalPaid = useMemo(() => invoice?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0, [invoice]);
   const amountDue = invoice ? invoice.totalAmount - totalPaid : 0;
   const lastPayment = useMemo(() => invoice?.payments && invoice.payments.length > 0 ? invoice.payments[invoice.payments.length - 1] : null, [invoice]);

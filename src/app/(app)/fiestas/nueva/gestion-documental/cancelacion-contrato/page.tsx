@@ -104,7 +104,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
         getInvoiceTemplateSettings(),
         getContractTemplates(),
       ]);
-      
+
       if (!fiestaData) throw new Error("Evento no encontrado.");
       if (!fiestaData.configuracion.clienteId || !fiestaData.presupuestoId) {
         setError("El evento debe tener un cliente y un presupuesto asignados para generar la cancelación.");
@@ -119,7 +119,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
         getCustomerById(fiestaData.configuracion.clienteId),
         getPresupuestoById(fiestaData.presupuestoId)
       ]);
-      
+
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
       const presupuestoTotalDraft = presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado ?? 0;
@@ -204,7 +204,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handlePrint = () => window.print();
 
   const handleSaveToHistory = async () => {
@@ -235,7 +235,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
       url: window.location.href,
     };
      try {
-      if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); } 
+      if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); }
       else { throw new Error('Share API not supported'); }
     } catch (err) {
       navigator.clipboard.writeText(shareData.url);
@@ -249,7 +249,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
   if (isLoading) {
     return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
-  
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">
@@ -260,7 +260,7 @@ function CancelacionContratoContent({ fiestaId }: { fiestaId: string | null }) {
       </div>
     );
   }
-  
+
   if (!fiesta || !cliente || !presupuesto || !companyInfo) {
     return <div className="flex items-center justify-center h-screen"><p>Faltan datos para continuar.</p></div>;
   }

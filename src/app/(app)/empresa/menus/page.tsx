@@ -39,14 +39,14 @@ const formatCurrency = (amount?: number) => {
 
 export default function GestionMenusPage() {
   const { toast } = useToast();
-  
+
   // Menus State
   const [menus, setMenus] = useState<FullMenu[]>([]);
-  
+
   // New Services State
   const [reposteriaMaster, setReposteriaMaster] = useState<ReposteriaData | null>(null);
   const [insumos, setInsumos] = useState<ServicioEmpresa[]>([]);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -95,7 +95,7 @@ export default function GestionMenusPage() {
       setProcessingId(null);
     }
   };
-  
+
   const handleDuplicateMenu = async (id: string, name: string) => {
     setProcessingId(id);
     try {

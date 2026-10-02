@@ -1,7 +1,7 @@
 # Auditoría verificable del historial de redes — AK Producciones Eventos
 
-**Corte:** 17 de agosto de 2026  
-**Alcance:** AK Producciones Eventos, fiestas y eventos. Se excluyen AK Producciones Estudio, música, festivales y producción musical.  
+**Corte:** 17 de agosto de 2026
+**Alcance:** AK Producciones Eventos, fiestas y eventos. Se excluyen AK Producciones Estudio, música, festivales y producción musical.
 **Objetivo:** transformar el historial recuperado en una base útil para marketing, SEO, reutilización de contenidos y futuros cruces con métricas reales.
 
 ## 1. Qué se pudo cerrar con evidencia
@@ -71,22 +71,22 @@ No debe usarse esta proporción como estadística del total de publicaciones por
 
 ### Patrones confirmados
 
-**1. Los casos reales son el activo con más valor permanente.**  
+**1. Los casos reales son el activo con más valor permanente.**
 Sofía, Jessica, Lucía, Natasha, Alfonsina, Samira y Kimberly permiten construir prueba social, portafolio y páginas de casos.
 
-**2. Club Uruguay aparece como referencia comercial fuerte.**  
+**2. Club Uruguay aparece como referencia comercial fuerte.**
 La muestra incluye el paquete de XV de 2024 y el XV de Lucía. Conviene aprovechar la autoridad del salón sin presentar a AK como dependiente de un único lugar.
 
-**3. Hay repetición de campañas.**  
+**3. Hay repetición de campañas.**
 La promoción “salón desde $8.500” aparece en Instagram y Facebook con un día de diferencia. Esto es distribución multired válida, pero debe tratarse como una misma campaña para no contarla como dos ideas creativas distintas.
 
-**4. Natasha muestra una serie fragmentada.**  
+**4. Natasha muestra una serie fragmentada.**
 “Parte 1” y “parte 3” aparecen el mismo día. Para archivo, SEO y reutilización conviene agrupar las partes bajo un mismo evento/campaña.
 
-**5. El contenido educativo ya existe y merece más peso.**  
+**5. El contenido educativo ya existe y merece más peso.**
 Hay evidencia de piezas sobre el valor de un organizador profesional y distribución de invitados. Son buenos temas de búsqueda y autoridad, no solo publicaciones de ocasión.
 
-**6. El contenido empresarial tiene potencial de autoridad.**  
+**6. El contenido empresarial tiene potencial de autoridad.**
 Instituto Nacional de Colonización y Antel/Motorola ayudan a demostrar que AK no trabaja únicamente fiestas familiares.
 
 ## 4. Qué reutilizar primero

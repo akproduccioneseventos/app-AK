@@ -48,7 +48,7 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
             setLogoUrl(settings.logoUrl || null);
         }).catch(err => console.error("Failed to fetch logo for drink menu", err));
     }, []);
-    
+
     const paleta = carta.paletaColores || { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' };
     const fontFamily = carta.fontFamily || 'Playfair Display';
     const titleSizeMap: Record<NonNullable<CartaTragosData['titleSize']>, { protagonista: string; subtitulo: string; titulo: string }> = {
@@ -58,13 +58,13 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
         xlarge: { protagonista: '2.1rem', subtitulo: '1.3rem', titulo: '1.6rem' },
     };
     const titleSizes = titleSizeMap[carta.titleSize || 'medium'];
-    
+
     const handleUpdate = (field: keyof CartaTragosData, value: string) => {
         if (onUpdate && isPreview) {
             onUpdate({ [field]: value });
         }
     };
-    
+
     const handleEmpresaUpdate = (field: keyof CartaTragosData['empresa'], value: string) => {
         if (onUpdate && isPreview) {
             onUpdate({ empresa: { ...(carta.empresa), [field]: value } });
@@ -80,7 +80,7 @@ export const CartaTragosMenu: React.FC<CartaTragosMenuProps> = ({ fiesta, carta,
              <Ornament position="top-right" color={paleta.primary} />
              <Ornament position="bottom-left" color={paleta.primary} />
              <Ornament position="bottom-right" color={paleta.primary} />
-            
+
             {/* Background Image */}
             {carta.backgroundImageUrl && (
                 <NextImage src={carta.backgroundImageUrl} layout="fill" objectFit="cover" className="absolute inset-0 opacity-25 -z-10" alt="" data-ai-hint="floral background texture" />

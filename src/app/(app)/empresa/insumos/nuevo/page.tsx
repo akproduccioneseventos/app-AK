@@ -20,7 +20,7 @@ function NuevoInsumoContent() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
-  
+
   const categoriaParam = searchParams.get('categoria');
   const subcategoriaParam = searchParams.get('subcategoria');
 
@@ -54,21 +54,21 @@ function NuevoInsumoContent() {
       setFormData(prev => ({ ...prev, [field]: value }));
     }
   };
-  
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.nombre?.trim() || !formData.categoria) {
       toast({ title: "Campos Requeridos", description: "Nombre y Categoría son obligatorios.", variant: "destructive" });
       return;
     }
-    
+
     if (!formData.unidad) {
         toast({ title: "Campo Requerido", description: "La unidad es obligatoria.", variant: "destructive" });
         return;
     }
 
     setIsSaving(true);
-    
+
     const dataToSave: Omit<ServicioEmpresa, 'id'> = {
       ...formData,
       nombre: formData.nombre.trim(),
@@ -95,7 +95,7 @@ function NuevoInsumoContent() {
       setIsSaving(false);
     }
   };
-  
+
   const backUrl = searchParams.get('from') === 'gastronomia' ? '/empresa/menus' : '/empresa/insumos';
 
   return (
@@ -112,7 +112,7 @@ function NuevoInsumoContent() {
             Volver
           </Link></Button>
       </div>
-      
+
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Detalles del Insumo</CardTitle>
@@ -137,7 +137,7 @@ function NuevoInsumoContent() {
                     <Input id="item-subcategoria" value={formData.subcategoria || ''} onChange={(e) => handleFormChange('subcategoria', e.target.value)} placeholder="Ej: Mesa de Postres, Candy Bar" className="text-base p-3" disabled={isSaving}/>
               </div>
             </div>
-             
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2"><Label htmlFor="item-cantidad">Cantidad Disponible (Stock)</Label><Input id="item-cantidad" type="number" value={formData.cantidadDisponible ?? ''} onChange={(e) => handleFormChange('cantidadDisponible', e.target.value)} placeholder="Ej: 150" min="0" className="text-base p-3" disabled={isSaving}/></div>
                 <div className="space-y-2"><Label htmlFor="item-valor-unitario">Valor Unitario (Costo UYU)</Label><Input id="item-valor-unitario" type="number" value={formData.valorUnitarioEstimado ?? ''} onChange={(e) => handleFormChange('valorUnitarioEstimado', e.target.value)} placeholder="0.00" min="0" step="any" className="text-base p-3" disabled={isSaving}/></div>

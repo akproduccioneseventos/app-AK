@@ -283,7 +283,7 @@ function SwipeCard({ post, allPosts, onApprove, onReject, disabled }: SwipeCardP
   // Card dynamics based on drag
   const rotate = useTransform(x, [-200, 200], [-15, 15]);
   const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0.5, 1, 1, 1, 0.5]);
-  
+
   // Color overlays indicating action
   const approveOpacity = useTransform(x, [0, 120], [0, 0.75]);
   const rejectOpacity = useTransform(x, [-120, 0], [0.75, 0]);
@@ -315,17 +315,17 @@ function SwipeCard({ post, allPosts, onApprove, onReject, disabled }: SwipeCardP
       transition={{ duration: 0.35 }}
     >
       {/* Visual action indicators overlay */}
-      <motion.div 
-        style={{ opacity: approveOpacity }} 
+      <motion.div
+        style={{ opacity: approveOpacity }}
         className="absolute inset-0 bg-emerald-600/35 border-4 border-emerald-500 pointer-events-none z-10 flex items-center justify-center rounded-[2.2rem]"
       >
         <div className="bg-emerald-500 text-white rounded-full p-4 shadow-lg scale-125">
           <Check className="w-10 h-10" strokeWidth={3} />
         </div>
       </motion.div>
-      
-      <motion.div 
-        style={{ opacity: rejectOpacity }} 
+
+      <motion.div
+        style={{ opacity: rejectOpacity }}
         className="absolute inset-0 bg-rose-600/35 border-4 border-rose-500 pointer-events-none z-10 flex items-center justify-center rounded-[2.2rem]"
       >
         <div className="bg-rose-500 text-white rounded-full p-4 shadow-lg scale-125">
@@ -340,7 +340,7 @@ function SwipeCard({ post, allPosts, onApprove, onReject, disabled }: SwipeCardP
         ) : (
           <NextImage src={post.imageUrl} alt="" fill className="object-cover" unoptimized priority />
         )}
-        
+
         {/* Media type badge */}
         <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-sm p-2 rounded-full border border-white/10 text-white/70">
           {isVideo ? <VideoIcon className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}

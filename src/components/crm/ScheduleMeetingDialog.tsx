@@ -38,9 +38,9 @@ export function ScheduleMeetingDialog({ isOpen, onOpenChange, leadName, meetingT
       toast({ title: "Datos incompletos", description: "Por favor, selecciona fecha y hora.", variant: "destructive" });
       return;
     }
-    
+
     setIsSaving(true);
-    
+
     const finalDateTime = new Date(meetingDate);
     const [hours, minutes] = meetingTime.split(':').map(Number);
     finalDateTime.setHours(hours, minutes, 0, 0);

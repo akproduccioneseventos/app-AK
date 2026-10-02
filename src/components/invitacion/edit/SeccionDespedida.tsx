@@ -16,11 +16,11 @@ export const SeccionDespedidaEditor: React.FC<Props> = ({ data, update }) => {
   const handleFieldChange = <K extends keyof typeof data>(field: K, value: any) => {
     update({ ...data, [field]: value });
   };
-  
+
   const handleTextStyleChange = (style: Partial<TextWithStyle['style']>) => {
     handleFieldChange('texto', { ...data.texto, style: { ...(data.texto?.style || {}), ...style } });
   };
-  
+
   const handleTextChange = (text: string) => {
     handleFieldChange('texto', { ...data.texto, text });
   };
@@ -42,7 +42,7 @@ export const SeccionDespedidaEditor: React.FC<Props> = ({ data, update }) => {
                   value={data.texto?.text || ''}
                   onChange={(e) => handleTextChange(e.target.value)}
                 />
-                <TextStyleEditor 
+                <TextStyleEditor
                   style={data.texto?.style || {}}
                   onStyleChange={handleTextStyleChange}
                 />

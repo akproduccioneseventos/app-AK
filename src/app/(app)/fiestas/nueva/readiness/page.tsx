@@ -77,27 +77,27 @@ function ReadinessContent() {
     canvas.height = 1800; // 2:3 ratio (10x15cm)
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+
     // Fondo
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, 1200, 1800);
-    
+
     // Margenes
     ctx.strokeStyle = '#ef4444'; // red-500
     ctx.lineWidth = 10;
     ctx.strokeRect(40, 40, 1120, 1720);
-    
+
     // Textos
     ctx.fillStyle = '#18181b';
     ctx.font = 'bold 80px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('HOJA DE PRUEBA', 600, 400);
-    
+
     ctx.font = '40px sans-serif';
     ctx.fillText('Si podés leer esto y el marco rojo', 600, 500);
     ctx.fillText('no está cortado por la impresora,', 600, 560);
     ctx.fillText('la estación está bien configurada.', 600, 620);
-    
+
     // Datos
     ctx.fillStyle = '#71717a';
     ctx.font = '30px monospace';
@@ -111,11 +111,11 @@ function ReadinessContent() {
     grad.addColorStop(1, '#8b5cf6');
     ctx.fillStyle = grad;
     ctx.fillRect(40, 1400, 1120, 360);
-    
+
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 60px sans-serif';
     ctx.fillText('AK PRODUCCIONES', 600, 1580);
-    
+
     const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
     const res = imprimirRecuerdo(dataUrl);
     if (!res.ok) {

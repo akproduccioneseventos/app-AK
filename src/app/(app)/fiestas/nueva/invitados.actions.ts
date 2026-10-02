@@ -11,7 +11,7 @@ import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 const FIESTAS_DIR = 'fiestas';
 
 async function updateFiestaData(
-  fiestaId: string, 
+  fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   try {
@@ -47,7 +47,7 @@ export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invi
 
 export async function updateInvitado(fiestaId: string, invitadoActualizado: Invitado) {
     const result = await updateFiestaData(fiestaId, data => {
-        const invitados = (data.invitados || []).map(inv => 
+        const invitados = (data.invitados || []).map(inv =>
             inv.id === invitadoActualizado.id ? invitadoActualizado : inv
         );
         return { ...data, invitados };
@@ -68,7 +68,7 @@ export async function handleRsvpSubmission(fiestaId: string, submission: {nombre
      const invitadoExistenteIndex = (data.invitados || []).findIndex(
         inv => inv.nombre.trim().toLowerCase() === submission.nombreCompleto.toLowerCase()
       );
-      
+
       if (invitadoExistenteIndex > -1) {
          updatedInvitado = {
            ...(data.invitados![invitadoExistenteIndex]),
@@ -101,7 +101,7 @@ export async function checkInGuest(fiestaId: string, guestId: string): Promise<{
         const invitados = (data.invitados || []).map(inv => {
             if (inv.id === guestId) {
                 found = true;
-                if(inv.checkedIn) { 
+                if(inv.checkedIn) {
                    invitadoActualizado = inv;
                    return inv;
                 }
@@ -112,7 +112,7 @@ export async function checkInGuest(fiestaId: string, guestId: string): Promise<{
         });
         if (!found) {
             // This won't throw error to the caller directly, but we can check the returned object
-            return data; 
+            return data;
         }
         return { ...data, invitados };
     });

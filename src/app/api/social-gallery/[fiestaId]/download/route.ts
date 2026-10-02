@@ -34,7 +34,7 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
 
   try {
     const { photos: photoPaths, stats } = await getPhotoFilePathsForZip(fiestaId);
-    
+
     if (photoPaths.length === 0) {
       return NextResponse.json({ error: 'No se encontraron fotos para este evento.' }, { status: 404 });
     }
@@ -44,7 +44,7 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     let limitExceeded = false;
     const omittedFiles: string[] = [];
     let includedCount = 0;
-    
+
     for (const photo of photoPaths) {
       let fileContent: Buffer;
       try {
@@ -116,9 +116,9 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     }
 
     zip.file('ESTADO_DE_FOTOS.txt', manifestLines.join('\n'));
-    
+
     const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
-    
+
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filename = `galeria-social-${fiestaId}-${timestamp}.zip`;
 

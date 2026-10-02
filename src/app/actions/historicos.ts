@@ -86,7 +86,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             clienteNombre: clienteNombre,
             eventoTipo: 'Histórico',
             eventoFecha: eventoFecha,
-            invitadosCantidad: 1, 
+            invitadosCantidad: 1,
             salonFiestas: 'N/A (Histórico)',
             itemsPresupuestados: items,
             costoTotalEstimado: montoTotal,
@@ -104,7 +104,7 @@ export async function processHistoricRecord(formData: FormData): Promise<{ succe
             timestamp: new Date().toISOString(),
             notas: `Registro histórico cargado el ${new Date().toLocaleDateString()}. Contrato adjunto.`
         };
-        
+
         const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
         presupuestos.push(newPresupuesto);
         await writeData(PRESUPUESTOS_FILE, presupuestos);

@@ -67,11 +67,11 @@ const sanitizeImageUrl = (url?: string): string | undefined => {
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
-  return new Intl.NumberFormat('es-UY', { 
-    style: 'currency', 
-    currency: 'UYU', 
-    minimumFractionDigits: 0, 
-    maximumFractionDigits: 2 
+  return new Intl.NumberFormat('es-UY', {
+    style: 'currency',
+    currency: 'UYU',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
   }).format(amount);
 };
 
@@ -80,7 +80,7 @@ const parseSafeNumber = (val: any): number => {
     if (typeof val === 'number') return val;
     let str = String(val).trim();
     if (!str) return 0;
-    
+
     if (str.includes(',')) {
         str = str.replace(/\./g, '').replace(',', '.');
     } else {
@@ -127,9 +127,9 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       const quantity = parseSafeNumber(ing.quantityPerPerson);
       const unitCost = parseSafeNumber(ing.costoUnitario);
       const recipeUnit = (ing.unit || '').toLowerCase().trim();
-      
+
       if (quantity === 0 || unitCost === 0) return 0;
-      
+
       const catalogItem = ing.origenId ? catalogoInsumos.find(item => item.id === ing.origenId) : null;
       const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
 
@@ -140,10 +140,10 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       if (isSmallRecipeUnit && !isSmallCatalogUnit) {
           factor = 1000;
       }
-      
+
       return (quantity / factor) * unitCost;
   }, [catalogoInsumos]);
-  
+
   const calculateTotalDishCost = useCallback((ingredients: Ingredient[]): number => {
     return ingredients.reduce((sum, ing) => sum + calculateIngredientCost(ing), 0);
   }, [calculateIngredientCost]);
@@ -152,7 +152,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     // FUSIÓN VISUAL: Si el plato es "con Mesa Buffet", sumamos virtualmente los ingredientes para el costo
     let finalIngredients = [...(item.ingredients || [])];
     if (item.name.toUpperCase().includes('MESA BUFET') || item.name.toUpperCase().includes('MESA BUFFET')) {
-        const buffetBase = allDishesForMerge.find(d => 
+        const buffetBase = allDishesForMerge.find(d =>
             (d.name === 'MESA BUFET' || d.name === 'Mesa Buffet') && d.id !== item.id
         );
         if (buffetBase && buffetBase.ingredients) {
@@ -174,7 +174,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     } else {
         finalSuggestedSellingPrice = Math.round(totalDishCost * (1 + finalProfitMargin / 100));
     }
-    
+
     return { ...item, totalDishCost, suggestedSellingPrice: finalSuggestedSellingPrice, profitMargin: finalProfitMargin };
   }, [calculateTotalDishCost, allDishesForMerge]);
 
@@ -208,7 +208,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       setMenu(menuWithCalculatedPrices);
     }
   }, [existingMenu, catalogoInsumos, calculatePrices, calculateIngredientCost]);
-  
+
   const sortedAndFilteredItems = useMemo(() => {
     const items = menu.items || [];
     const sorted = [...items].sort((a, b) => a.name.localeCompare(b.name));
@@ -243,7 +243,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       }),
     }));
   };
-  
+
   const handleIngredientChange = (itemId: string, ingId: string, field: keyof Ingredient, value: any) => {
     setMenu(prev => {
       if (!prev) return {} as Partial<FullMenu>;
@@ -264,7 +264,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       return { ...prev, items: newItems };
     });
   };
-  
+
   const handleIngredientBlur = async (itemId: string, ing: Ingredient, field: 'costoUnitario') => {
     if (!ing.origenId) return;
     const catalogItem = catalogoInsumos.find(i => i.id === ing.origenId);
@@ -295,7 +295,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     });
     setMenu(prev => ({ ...prev, items: [...(prev.items || []), newItem] }));
   };
-  
+
   const duplicateItem = (itemId: string) => {
     setMenu(prev => {
       if (!prev || !prev.items) return prev;
@@ -344,7 +344,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       ),
     }));
   };
-  
+
   const openCatalogModal = (itemId: string) => {
     setCurrentItemIdForCatalog(itemId);
     setIsCatalogModalOpen(true);
@@ -358,7 +358,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
     });
     setMenu(prev => ({ ...prev, items: (prev.items || []).filter(item => item.id !== itemId) }));
   };
-  
+
   const deleteIngredient = (itemId: string, ingId: string) => {
     setMenu(prev => ({
         ...prev,
@@ -394,7 +394,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
       setIsSaving(false);
     }
   };
-  
+
   const filteredInsumos = useMemo(() => {
     if (!catalogSearchTerm) return catalogoInsumos;
     return catalogoInsumos.filter(i => i.nombre.toLowerCase().includes(catalogSearchTerm.toLowerCase()));

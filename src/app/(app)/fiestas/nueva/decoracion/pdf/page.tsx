@@ -51,9 +51,9 @@ function DecorationPdfPageContent() {
   }, [toast]);
 
   useEffect(() => { loadData(); }, [loadData]);
-  
+
   const handlePrint = () => window.print();
-  
+
   const handleShare = async () => {
     if (!fiesta) return;
     const shareData = {
@@ -62,7 +62,7 @@ function DecorationPdfPageContent() {
       url: window.location.href,
     };
     try {
-      if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); } 
+      if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); }
       else { throw new Error('Share API not supported'); }
     } catch (err) {
       navigator.clipboard.writeText(shareData.url);
@@ -77,19 +77,19 @@ function DecorationPdfPageContent() {
     };
     return iconMap[zonaId] || Palette;
   };
-  
-  const itemsDecoracionAgrupados = React.useMemo(() => 
+
+  const itemsDecoracionAgrupados = React.useMemo(() =>
     (fiesta?.decoracion?.items || []).reduce((acc, item) => {
         const categoria = item.category || 'Otros';
         if (!acc[categoria]) acc[categoria] = [];
         acc[categoria].push(item);
         return acc;
-    }, {} as Record<string, DecorationItem[]>), 
+    }, {} as Record<string, DecorationItem[]>),
   [fiesta?.decoracion?.items]);
 
   if (isLoading) { return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>; }
   if (!fiesta) { return <div className="p-8 max-w-3xl mx-auto text-center"><AlertTriangle className="w-12 h-12 mx-auto text-destructive mb-3" /><p className="font-semibold text-lg text-destructive">Error al Cargar</p></div>; }
-  
+
   const { configuracion, decoracion, invitados } = fiesta;
 
   return (
@@ -108,7 +108,7 @@ function DecorationPdfPageContent() {
           <p className="text-md text-gray-700 print:text-sm mt-1 font-semibold">{configuracion.nombreEvento}</p>
           <p className="text-xs text-gray-500 print:text-[8pt]">{formatDate(configuracion.fechaEvento)} | {cliente?.name || cliente?.companyName}</p>
         </header>
-        
+
         {showLayout ? (
            <section className="mb-4 print:mb-2 print:break-inside-avoid">
              <div className="relative w-full h-[800px] border rounded-lg bg-muted/10 overflow-hidden canvas-grid-background">
