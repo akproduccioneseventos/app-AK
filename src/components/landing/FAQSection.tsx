@@ -82,7 +82,7 @@ export function FAQSection({ faqs }: FAQSectionProps) {
         }}
       />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-
+        
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -136,7 +136,7 @@ export function FAQSection({ faqs }: FAQSectionProps) {
                   : <ChevronDown className="w-5 h-5 text-slate-500 shrink-0" />
                 }
               </button>
-
+              
               <AnimatePresence initial={false}>
                 {open === faq.id && (
                   <motion.div

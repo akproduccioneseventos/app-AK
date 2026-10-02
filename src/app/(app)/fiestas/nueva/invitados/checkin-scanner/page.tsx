@@ -35,7 +35,7 @@ function CheckinScannerContent() {
 
   const [allGuests, setAllGuests] = useState<Invitado[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-
+  
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessingCheckin, setIsProcessingCheckin] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
@@ -55,14 +55,14 @@ function CheckinScannerContent() {
       if(showLoading) setIsLoading(false);
     }
   }, [toast, fiestaId]);
-
+  
   useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
 
   const processCheckIn = useCallback(async (guestId: string) => {
     if (isProcessingCheckin || !fiestaId) return;
-
+    
     setIsProcessingCheckin(guestId);
 
     const guestToCheck = allGuests.find(g => g.id === guestId);
@@ -71,7 +71,7 @@ function CheckinScannerContent() {
         setIsProcessingCheckin(null);
         return;
     }
-
+    
     if (guestToCheck.checkedIn) {
          toast({
             title: "Ya Registrado",
@@ -147,7 +147,7 @@ function CheckinScannerContent() {
         }, 3000);
     }
   }, [fiestaId, processCheckIn, toast]);
-
+  
   const onScanFailure = (error: any) => {};
 
   const startScanner = useCallback(() => {
@@ -186,7 +186,7 @@ function CheckinScannerContent() {
       scannerRef.current = null;
     }
   };
-
+  
   const handleTabChange = (value: string) => {
     if (value === 'scanner') {
         startScanner();
@@ -194,7 +194,7 @@ function CheckinScannerContent() {
         stopScanner();
     }
   };
-
+  
   useEffect(() => {
     return () => {
       stopScanner();
@@ -236,7 +236,7 @@ function CheckinScannerContent() {
             </Badge>
         </CardHeader>
       </Card>
-
+      
       <Tabs defaultValue="list" className="w-full" onValueChange={handleTabChange}>
         <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="list">Lista de Invitados</TabsTrigger>

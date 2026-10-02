@@ -35,7 +35,7 @@ export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlCha
     const [fileToUpload, setFileToUpload] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
-
+    
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -69,7 +69,7 @@ export const UploadButton: React.FC<UploadButtonProps> = ({ currentUrl, onUrlCha
             setIsUploading(false);
         }
     }
-
+    
     return (
         <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
             <div className="flex items-center gap-2">

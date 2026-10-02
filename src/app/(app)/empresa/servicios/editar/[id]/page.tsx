@@ -101,7 +101,7 @@ export default function EditarServicioPage() {
       toast({ title: "Campos Requeridos", variant: "destructive" });
       return;
     }
-
+    
     setIsSaving(true);
     try {
       const result = await saveServicioEmpresa(formData as ServicioEmpresa);
@@ -152,9 +152,9 @@ export default function EditarServicioPage() {
              <div className="space-y-2"><Label htmlFor="item-nombre">Nombre del Servicio *</Label><Input id="item-nombre" value={formData.nombre || ''} onChange={(e) => handleFormChange('nombre', e.target.value)} required /></div>
              <div className="space-y-2"><Label htmlFor="item-categoria">Categoría *</Label><Select value={formData.categoria || ''} onValueChange={(value) => handleFormChange('categoria', value as CategoriaServicio)} required><SelectTrigger id="item-categoria"><SelectValue /></SelectTrigger><SelectContent>{ALL_CATEGORIAS_SERVICIO.map(cat => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent></Select></div>
              <div className="space-y-2"><Label htmlFor="item-subcategoria">Subcategoría</Label><Input id="item-subcategoria" value={formData.subcategoria || ''} onChange={(e) => handleFormChange('subcategoria', e.target.value)} /></div>
-
+             
              <Separator/>
-
+            
             <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10 space-y-4">
                 <h3 className="text-sm font-black uppercase tracking-widest text-primary flex items-center gap-2">
                     <Save className="w-4 h-4"/> Configuración Financiera (Costos)
@@ -191,12 +191,12 @@ export default function EditarServicioPage() {
             </div>
 
              <Separator/>
-
+             
              <div className="space-y-3">
                  <Label className="font-medium">Cálculo de Precio de Venta *</Label>
                  <Select value={formData.calculationMethod} onValueChange={(v) => handleFormChange('calculationMethod', v)} required><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="fijo">Precio Fijo</SelectItem><SelectItem value="porPersona">Por Persona</SelectItem><SelectItem value="ratio">Por Ratio de Invitados</SelectItem><SelectItem value="tramos">Por Tramos de Invitados</SelectItem></SelectContent></Select>
              </div>
-
+             
             {formData.calculationMethod === 'fijo' && (<div className="space-y-2"><Label htmlFor="precio-venta">Precio de Venta (Fijo)</Label><Input id="precio-venta" type="number" value={formData.precioVenta ?? ''} onChange={(e) => handleFormChange('precioVenta', e.target.value === '' ? undefined : parseFloat(e.target.value))} min="0" step="any" className="h-12 rounded-xl text-lg font-bold"/></div>)}
             {formData.calculationMethod === 'porPersona' && (<div className="space-y-2"><Label htmlFor="precio-persona">Precio Por Persona</Label><Input id="precio-persona" type="number" value={formData.precioPorPersona ?? ''} onChange={(e) => handleFormChange('precioPorPersona', e.target.value === '' ? undefined : parseFloat(e.target.value))} min="0" step="any" className="h-12 rounded-xl text-lg font-bold"/></div>)}
             {formData.calculationMethod === 'ratio' && (<div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label htmlFor="ratio-base">Precio Base (por unidad)</Label><Input id="ratio-base" type="number" value={formData.precioBase ?? ''} onChange={(e) => handleFormChange('precioBase', e.target.value === '' ? undefined : parseFloat(e.target.value))} min="0" step="any" className="h-12 rounded-xl text-lg font-bold"/></div><div className="space-y-2"><Label htmlFor="ratio-invitados">Invitados por Unidad</Label><Input id="ratio-invitados" type="number" value={formData.invitadosPorUnidad ?? ''} onChange={(e) => handleFormChange('invitadosPorUnidad', e.target.value === '' ? undefined : parseInt(e.target.value, 10))} min="1" className="h-12 rounded-xl"/></div></div>)}

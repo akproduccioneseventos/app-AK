@@ -22,10 +22,10 @@ export default function CompanySettingsPage() {
   const { toast } = useToast();
   // Company Info State
   const [companyInfo, setCompanyInfo] = useState<Partial<CompanyInfo>>({});
-
+  
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-
+  
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -49,7 +49,7 @@ export default function CompanySettingsPage() {
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
-
+  
   const handleInfoChange = (field: keyof CompanyInfo, value: any) => {
     setCompanyInfo(prev => ({...prev, [field]: value}));
   };
@@ -83,7 +83,7 @@ export default function CompanySettingsPage() {
       cuentasBancariasPortal: (prev.cuentasBancariasPortal ?? []).filter(c => c.id !== id),
     }));
   };
-
+  
   const handleLogoFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -111,7 +111,7 @@ export default function CompanySettingsPage() {
       reader.readAsDataURL(file);
     }
   };
-
+  
   const handleLogoUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
     const url = event.target.value;
     setLogoPreview(url || null);
@@ -121,7 +121,7 @@ export default function CompanySettingsPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-
+    
     const settingsToSave: Partial<InvoiceTemplateSettings> = { logoUrl: logoUrl };
 
     try {
@@ -155,7 +155,7 @@ export default function CompanySettingsPage() {
             Volver
           </Link></Button>
       </div>
-
+      
       <Card className="shadow-lg">
         <form onSubmit={handleSubmit}>
           <CardHeader>
@@ -205,7 +205,7 @@ export default function CompanySettingsPage() {
                 </div>
 
                 <Separator />
-
+            
                 <div className="space-y-2"><Label htmlFor="company-name">Nombre de la Empresa</Label><Input id="company-name" value={companyInfo.companyName || ''} onChange={(e) => handleInfoChange('companyName', e.target.value)} placeholder="Tu Nombre Comercial" disabled={isSaving}/></div>
                 <div className="space-y-2"><Label htmlFor="company-taxid">RUT / NIF / Identificación Fiscal</Label><Input id="company-taxid" value={companyInfo.companyTaxId || ''} onChange={(e) => handleInfoChange('companyTaxId', e.target.value)} placeholder="Número de Identificación Fiscal" disabled={isSaving}/></div>
                 <div className="space-y-2"><Label htmlFor="company-address">Dirección Fiscal</Label><Textarea id="company-address" value={companyInfo.companyAddress || ''} onChange={(e) => handleInfoChange('companyAddress', e.target.value)} placeholder="Calle, Número, Ciudad, País" rows={2} disabled={isSaving}/></div>
@@ -214,7 +214,7 @@ export default function CompanySettingsPage() {
                 <Separator />
                 <div className="space-y-2"><Label htmlFor="invoice-custom-footer" className="text-base font-medium">Pie de Página Personalizado para Facturas</Label><Textarea id="invoice-custom-footer" value={companyInfo.invoiceCustomFooter || ''} onChange={(e) => handleInfoChange('invoiceCustomFooter', e.target.value)} placeholder="Ej: Datos bancarios para transferencias, agradecimiento especial, condiciones de pago específicas para facturas." rows={3} disabled={isSaving} className="text-sm"/></div>
                 <Separator />
-
+                
                 {/* Google Reviews */}
                 <div className="space-y-4 bg-slate-50 p-4 rounded-lg border border-slate-200">
                   <Label className="text-base font-medium flex items-center gap-2 text-slate-800">

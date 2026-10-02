@@ -26,7 +26,7 @@ const LIBRARY_ELEMENTS: LibraryElement[] = [
   { id: 'arcoRomano', tipo: 'arcoRomano', label: 'Arco Romano Escénico', categoria: 'Paneles y Fondos', emoji: '🏛️', maxColores: 2 },
   { id: 'paredFollaje', tipo: 'paredFollaje', label: 'Pared de Follaje Verde', categoria: 'Paneles y Fondos', emoji: '🌿', maxColores: 2 },
   { id: 'shimmerWall', tipo: 'shimmerWall', label: 'Pared Shimmer Lentejuelas', categoria: 'Paneles y Fondos', emoji: '✨', maxColores: 2 },
-
+  
   // Cilindros y Pedestales
   { id: 'trioCilindros', tipo: 'trioCilindros', label: 'Trío de Cilindros Torta', categoria: 'Cilindros y Mesas', emoji: '🛢️', maxColores: 3 },
   { id: 'mesaCandyBar', tipo: 'mesaCandyBar', label: 'Mesa Candy Bar / Buffet', categoria: 'Cilindros y Mesas', emoji: '🍬', maxColores: 2 },

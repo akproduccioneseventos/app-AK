@@ -395,7 +395,7 @@ export default function BudgetPrintTemplate({
                             key={`${catIdx}-${itemIdx}`}
                             style={{ backgroundColor: '#ffffff' }}
                           >
-                            <td
+                            <td 
                               className="border border-gray-300 px-2 py-1.5 align-top font-semibold"
                               style={{ color: item.esRegalo ? '#dc2626' : '#334155' }}
                             >

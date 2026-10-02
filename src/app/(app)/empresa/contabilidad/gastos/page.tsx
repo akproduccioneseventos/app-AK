@@ -85,7 +85,7 @@ export default function GastosGeneralesPage() {
     }
     setIsSaving(false);
   };
-
+  
   const handleDelete = async (id: string) => {
     setDeletingId(id);
     const result = await deleteGastoGeneral(id);
@@ -163,14 +163,14 @@ export default function GastosGeneralesPage() {
           </CardFooter>
         </form>
       </Card>
-
+      
        <Card>
         <CardHeader>
           <CardTitle>Historial de Gastos</CardTitle>
           <CardDescription>Total de Gastos Generales: <span className="font-bold text-primary">{formatCurrency(totalGastos)}</span></CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-            {isLoading ? <div className="text-center p-4"><Loader2 className="w-6 h-6 animate-spin"/></div> :
+            {isLoading ? <div className="text-center p-4"><Loader2 className="w-6 h-6 animate-spin"/></div> : 
              gastos.length > 0 ? (
                 gastos.map(gasto => (
                     <div key={gasto.id} className="p-3 border rounded-md flex justify-between items-center bg-muted/40">

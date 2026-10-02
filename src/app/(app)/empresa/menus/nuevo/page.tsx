@@ -24,7 +24,7 @@ export default function NuevoMenuPage() {
       </div>
 
       <MenuForm />
-
+      
     </div>
   );
 }

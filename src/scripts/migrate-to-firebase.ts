@@ -1,18 +1,18 @@
 /**
  * Script de Migración: JSON Local → Firebase Firestore
  * =====================================================
- *
+ * 
  * Este script migra todos los datos de archivos JSON locales (src/data/)
  * a las colecciones correspondientes de Firebase Firestore.
- *
+ * 
  * USO:
  *   npx tsx src/scripts/migrate-to-firebase.ts
- *
+ * 
  * PRERREQUISITOS:
  *   - Variables de entorno de Firebase configuradas en .env.local
  *   - Firebase Admin SDK configurado (src/lib/firebase/server.ts)
  *   - Acceso a Firestore habilitado
- *
+ * 
  * COLECCIONES MIGRADAS:
  *   - clientes (customers.json)
  *   - servicios (servicios-empresa.json)
@@ -77,10 +77,10 @@ function readJsonFile<T>(fileName: string, defaultValue: T): T {
 function readFiestasFromDirectory(): any[] {
   const fiestasDir = path.join(DATA_DIR, 'fiestas');
   if (!fs.existsSync(fiestasDir)) return [];
-
+  
   const files = fs.readdirSync(fiestasDir).filter(f => f.endsWith('.json'));
   const fiestas: any[] = [];
-
+  
   for (const file of files) {
     try {
       const content = fs.readFileSync(path.join(fiestasDir, file), 'utf-8');
@@ -258,7 +258,7 @@ async function migrate() {
   let admin: any;
   try {
     admin = await import('firebase-admin');
-
+    
     // Initialize if needed
     if (admin.default.apps.length === 0) {
       const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
@@ -299,7 +299,7 @@ async function migrate() {
     }
 
     console.log(`📦 Migrando ${task.collectionName} (${task.data.length} docs) desde ${task.sourceFile}...`);
-
+    
     let successCount = 0;
     let errorCount = 0;
 
@@ -319,7 +319,7 @@ async function migrate() {
 
       for (const { item, docId } of chunkWithIds) {
         const docRef = db.collection(task.collectionName).doc(String(docId));
-
+        
         // Add migration metadata
         const docData = {
           ...item,
@@ -388,7 +388,7 @@ async function migrate() {
   // Migrate config documents
   if (configDocs.length > 0) {
     console.log(`\n📦 Migrando documentos de configuración (${configDocs.length} docs)...`);
-
+    
     const batch = db.batch();
     for (const config of configDocs) {
       const docRef = db.collection('configuracion').doc(config.docId);
@@ -506,18 +506,18 @@ async function verify() {
       const firestoreCount = snapshot.data().count;
       const jsonCount = task.data.length;
       const status = firestoreCount >= jsonCount ? '✅ OK' : '⚠️ DIFF';
-
+      
       console.log(
-        '| ' + task.collectionName.padEnd(28) +
-        ' | ' + String(jsonCount).padEnd(10) +
-        ' | ' + String(firestoreCount).padEnd(10) +
+        '| ' + task.collectionName.padEnd(28) + 
+        ' | ' + String(jsonCount).padEnd(10) + 
+        ' | ' + String(firestoreCount).padEnd(10) + 
         ' | ' + status.padEnd(8) + ' |'
       );
     } catch (error) {
       console.log(
-        '| ' + task.collectionName.padEnd(28) +
-        ' | ' + String(task.data.length).padEnd(10) +
-        ' | ' + 'ERROR'.padEnd(10) +
+        '| ' + task.collectionName.padEnd(28) + 
+        ' | ' + String(task.data.length).padEnd(10) + 
+        ' | ' + 'ERROR'.padEnd(10) + 
         ' | ' + '❌'.padEnd(8) + ' |'
       );
     }

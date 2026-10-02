@@ -73,7 +73,7 @@ export default function DecoColorPicker({ value, onChange, paletteColors = [], l
   return (
     <div className="space-y-3">
       {label && <Label className="text-xs font-bold uppercase tracking-widest text-slate-500">{label}</Label>}
-
+      
       {/* Event palette colors */}
       {paletteColors.length > 0 && (
         <div>

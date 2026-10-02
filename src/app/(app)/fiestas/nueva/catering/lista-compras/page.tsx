@@ -110,9 +110,9 @@ function ListaDeComprasContent() {
         getMenus(),
         getInsumos()
       ]);
-
+      
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
-
+      
       setFiesta(fiestaData);
       setEstadosCompra(fiestaData.estadosCompra || []);
 
@@ -137,9 +137,9 @@ function ListaDeComprasContent() {
 
       // 1. PROCESAR PLATOS DEL PRESUPUESTO
       if (presupuestoData) {
-          const budgetDishes = presupuestoData.itemsPresupuestados.filter(item =>
-              item.idServicioCatalogo.startsWith('dish_') ||
-              item.idServicioCatalogo.startsWith('new_item_') ||
+          const budgetDishes = presupuestoData.itemsPresupuestados.filter(item => 
+              item.idServicioCatalogo.startsWith('dish_') || 
+              item.idServicioCatalogo.startsWith('new_item_') || 
               item.idServicioCatalogo.startsWith('menu_')
           );
 
@@ -217,7 +217,7 @@ function ListaDeComprasContent() {
                   });
               });
           } else {
-              const hasBarra = presupuestoData.itemsPresupuestados.some(item =>
+              const hasBarra = presupuestoData.itemsPresupuestados.some(item => 
                   item.nombreServicio.toLowerCase().includes('barra') || item.nombreServicio.toLowerCase().includes('licuado')
               );
               if (hasBarra) {
@@ -293,12 +293,12 @@ function ListaDeComprasContent() {
 
       const finalList = Object.values(consolidated).map(item => {
           const faltante = item.isOrder ? item.cantidadNecesaria : Math.max(0, item.cantidadNecesaria - item.stockDisponible);
-
+          
           // ALINEACIÓN CON REGLA DE AUDITORÍA:
           const recipeUnit = (item.unit || '').toLowerCase().trim();
           const catalogItem = catalogoInsumos.find(ci => ci.id === item.origenId);
           const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
-
+          
           const isSmallRecipeUnit = ['g', 'gramos', 'ml', 'cc', 'cc.', 'no definido'].includes(recipeUnit);
           const isSmallCatalogUnit = ['g', 'gramos', 'ml', 'cc', 'cc.'].includes(catalogUnit);
 
@@ -335,7 +335,7 @@ function ListaDeComprasContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
+  
   const groupedByProvider = useMemo(() => {
     return shoppingList.reduce((acc, item) => {
       const pId = item.proveedorId;
@@ -345,7 +345,7 @@ function ListaDeComprasContent() {
       return acc;
     }, {} as Record<string, { providerName: string, items: ShoppingListItem[], total: number }>);
   }, [shoppingList]);
-
+  
   const handleStatusChange = async (proveedorId: string, proveedorName: string, field: 'pedido' | 'pagado' | 'entregadoParcial' | 'montoPagado', value: any) => {
     if (!fiestaId) return;
     setIsSavingStatus(proveedorId);
@@ -356,10 +356,10 @@ function ListaDeComprasContent() {
         (estadoProveedor as any)[field] = value;
     }
     else {
-        updatedEstados.push({
-            proveedor: proveedorName,
-            proveedorId,
-            pedido: field === 'pedido' ? value : false,
+        updatedEstados.push({ 
+            proveedor: proveedorName, 
+            proveedorId, 
+            pedido: field === 'pedido' ? value : false, 
             pagado: field === 'pagado' ? value : false,
             entregadoParcial: field === 'entregadoParcial' ? value : false,
             montoPagado: field === 'montoPagado' ? value : 0
@@ -456,7 +456,7 @@ function ListaDeComprasContent() {
             <Skeleton className="h-10 w-24" />
           </div>
         </div>
-
+        
         {/* Stats Skeletons */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Skeleton className="h-28 w-full rounded-xl" />
@@ -498,7 +498,7 @@ function ListaDeComprasContent() {
             <Button asChild><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Link></Button>
           </div>
         </div>
-
+        
         {platosSinIngredientes.length > 0 && (
           <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
             <p className="font-bold text-amber-900">
@@ -547,7 +547,7 @@ function ListaDeComprasContent() {
                 const { providerName, items, total } = groupedByProvider[providerId];
                 const estadoActual = estadosCompra.find(e => e.proveedorId === providerId || e.proveedor === providerName) || { pedido: false, pagado: false, entregadoParcial: false, montoPagado: 0 };
                 const isSavingThis = isSavingStatus === providerId;
-
+                
                 return (
                     <Card key={providerId} className="shadow-lg border-none rounded-[2rem] overflow-hidden bg-white print:shadow-none print:border">
                         <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 flex flex-col xl:flex-row justify-between xl:items-center gap-4">
@@ -579,7 +579,7 @@ function ListaDeComprasContent() {
                                         <Label htmlFor={`monto-${providerId}`} className="font-bold text-[10px] uppercase text-slate-400">A Cuenta:</Label>
                                         <div className="relative">
                                             <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">$</span>
-                                            <Input
+                                            <Input 
                                                 id={`monto-${providerId}`}
                                                 type="number"
                                                 className="w-24 h-8 text-xs font-bold pl-6 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-primary"

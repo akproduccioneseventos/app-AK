@@ -34,10 +34,10 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
   const { toast } = useToast();
   const [bebidas, setBebidas] = useState<BebidasData>(initialData || defaultBebidasData);
   const [catalogoInsumos, setCatalogoInsumos] = useState<ServicioEmpresa[]>([]);
-
+  
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<BebidaCategoria | null>(null);
-
+  
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
   const [catalogSearchTerm, setCatalogSearchTerm] = useState('');
 
@@ -69,7 +69,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
     };
     triggerChange(updated);
   };
-
+  
   const openEditModal = (category: BebidaCategoria) => {
     const currentCategoryData = bebidas.categorias.find(c => c.id === category.id);
     setEditingCategory(JSON.parse(JSON.stringify(currentCategoryData || category)));
@@ -100,7 +100,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
     };
     setEditingCategory(prev => prev ? {...prev, items: [...prev.items, newItem]} : null);
   };
-
+  
   const addFromCatalog = (insumo: ServicioEmpresa) => {
       if (!editingCategory) return;
       const newItem: BebidaItem = {
@@ -147,11 +147,11 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
     });
     return total;
   }, [bebidas, invitados, isTemplateMode]);
-
+  
   const filteredInsumos = useMemo(() => {
     if (!catalogSearchTerm) return catalogoInsumos;
     const lowerSearch = catalogSearchTerm.toLowerCase();
-    return catalogoInsumos.filter(i =>
+    return catalogoInsumos.filter(i => 
       i.nombre.toLowerCase().includes(lowerSearch) ||
       i.categoria?.toLowerCase().includes(lowerSearch)
     );
@@ -182,7 +182,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
           <DialogFooter><DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose><Button onClick={handleSaveEdits}>Guardar Cambios</Button></DialogFooter>
         </DialogContent>
       </Dialog>
-
+      
       <Dialog open={isCatalogModalOpen} onOpenChange={setIsCatalogModalOpen}>
         <DialogContent className="sm:max-w-md">
             <DialogHeader><DialogTitle>Seleccionar del Catálogo de Insumos</DialogTitle><DialogDescription>Añadiendo a: {editingCategory?.nombreDisplay}</DialogDescription></DialogHeader>
@@ -193,7 +193,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
              <DialogFooter><DialogClose asChild><Button variant="outline">Cerrar</Button></DialogClose></DialogFooter>
         </DialogContent>
       </Dialog>
-
+      
       <Card className="shadow-lg">
         <CardHeader className="flex-row items-center gap-4 space-y-0">
           <div className="p-3 bg-primary/10 rounded-lg"><GlassWater className="w-8 h-8 text-primary" /></div>
@@ -227,7 +227,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
                 <AccordionContent className="px-4 pb-4 border-t">
                   <div className="space-y-4 pt-3">
                     <p className="text-sm text-muted-foreground">{cat.descripcion}</p>
-
+                    
                     {cat.items.length > 0 && (
                       <div className="space-y-2">
                           <h4 className="text-sm font-medium">Ítems de Compra Directa:</h4>
@@ -236,7 +236,7 @@ export const GestionBebidas: React.FC<GestionBebidasProps> = ({ initialData, onD
                           </ul>
                       </div>
                     )}
-
+                    
                     <div className="flex justify-end pt-2">
                       <Button variant="outline" size="sm" onClick={() => openEditModal(cat)}>
                           <Edit className="w-3 h-3 mr-2" /> Editar Ítems de Compra

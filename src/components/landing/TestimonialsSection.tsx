@@ -97,9 +97,9 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
     <section id="landing-testimonials" className="relative overflow-hidden border-t border-slate-200 bg-white py-24 text-slate-950">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent pointer-events-none" />
-
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
+        
         {/* Header de Venta */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
@@ -142,13 +142,13 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
                     {story.eventType}
                   </span>
                 </div>
-
+                
                 <div className="flex gap-0.5">
                   {Array.from({ length: Math.max(1, Math.min(story.rating ?? 5, 5)) }).map((_, i) => (
                     <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                   ))}
                 </div>
-
+                
                 <h3 className="font-headline text-lg font-black text-slate-950 transition-colors group-hover:text-red-700">
                   {story.title}
                 </h3>
@@ -184,7 +184,7 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
               onClick={() => setSelectedStory(null)}
               className="absolute inset-0 bg-black/85 backdrop-blur-sm"
             />
-
+            
             {/* Contenido Modal */}
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}

@@ -113,12 +113,12 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
         presupuesto.itemsPresupuestados.forEach(item => {
             if (item.esRegalo) return;
             const catalogItem = catalogServices.find(c => c.id === item.idServicioCatalogo);
-
+            
             // Proveedores y Gastos Fijos
             if (catalogItem?.tipoCosto === 'Proveedor' || catalogItem?.tipoCosto === 'Gasto Fijo' || catalogItem?.categoria?.includes('Salón')) {
                 const costoUnitario = catalogItem.valorUnitarioEstimado || 0;
                 const targetGuests = getGuestCountForItem({ nombreServicio: item.nombreServicio, categoriaServicio: item.categoriaServicio, subcategoria: item.subcategoria }, adultos, adolescentes, ninos);
-
+                
                 let qty = item.cantidad || 1;
                 if (catalogItem.calculationMethod === 'porPersona') qty = targetGuests;
                 else if (catalogItem.calculationMethod === 'ratio' && catalogItem.invitadosPorUnidad) qty = Math.ceil(targetGuests / catalogItem.invitadosPorUnidad);
@@ -134,7 +134,7 @@ export async function syncAllEventCosts(fiestaId: string): Promise<{ success: bo
                     });
                 }
             }
-
+            
             // Amortización (Tecnología y Discoteca) - Asumimos 2% del valor de activo estimado
             if (catalogItem?.categoria?.includes('Discoteca') || catalogItem?.categoria?.includes('Iluminación') || catalogItem?.categoria?.includes('Infraestructura')) {
                 // El valor estimado del equipo es ~10x el alquiler. Aplicamos 2% de desgaste sobre ese valor.

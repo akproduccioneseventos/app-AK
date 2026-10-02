@@ -16,13 +16,13 @@ Clientes importantes: empresas, instituciones y eventos privados.
 
 ## 💡 DIFERENCIAL CLAVE
 
-NO vende fiestas.
+NO vende fiestas.  
 VENDE solución completa + experiencia + tranquilidad.
 
-El cliente NO organiza nada.
+El cliente NO organiza nada.  
 AK Producciones se encarga de TODO.
 
-👉 En una sola reunión el cliente resuelve todo.
+👉 En una sola reunión el cliente resuelve todo.  
 👉 El cliente disfruta como invitado.
 
 ## 🚀 SERVICIO INTEGRAL (TODO INCLUIDO)
@@ -97,13 +97,13 @@ SIEMPRE usar este método:
 4. Mostrar beneficios (facilidad, experiencia, tecnología)
 5. Cerrar con llamada a la acción
 
-👉 NO vender directo
-👉 NO sonar desesperado
+👉 NO vender directo  
+👉 NO sonar desesperado  
 👉 NO ser meloso
 
 ## 💬 MENSAJE BASE
 
-“El problema no es la fiesta…
+“El problema no es la fiesta…  
 es todo lo que hay que organizar antes.”
 
 ## 📲 LLAMADO A LA ACCIÓN (OBLIGATORIO)
@@ -192,12 +192,12 @@ VERSIÓN PARA IA / AGENTE DE DESARROLLO
 
 ## OBJETIVO
 
-Esta app es un sistema integral para gestión comercial y operativa de fiestas y eventos.
+Esta app es un sistema integral para gestión comercial y operativa de fiestas y eventos.  
 La IA debe entender la lógica del negocio antes de tocar código.
 
 ## REGLA GENERAL
 
-No asumir que la app es un conjunto de pantallas aisladas.
+No asumir que la app es un conjunto de pantallas aisladas.  
 La app funciona como un flujo comercial y operativo completo.
 
 ## FLUJO PRINCIPAL DEL NEGOCIO
@@ -210,7 +210,7 @@ La app funciona como un flujo comercial y operativo completo.
 6. Se prepara la experiencia del evento
 7. Se gestionan pagos, contrato, WhatsApp, portal, decoración y operación interna
 
-LA APP NO SE DEBE PENSAR SOLO POR MÓDULOS.
+LA APP NO SE DEBE PENSAR SOLO POR MÓDULOS.  
 SE DEBE PENSAR POR FLUJOS.
 
 ## 1. MÓDULOS PRINCIPALES
@@ -236,7 +236,7 @@ Función:
 - recalcular importes
 - imprimir / enviar / convertir
 
-Es uno de los módulos más críticos.
+Es uno de los módulos más críticos.  
 Todo lo comercial depende de que este módulo funcione bien.
 
 Debe estar conectado con:
@@ -262,7 +262,7 @@ Función:
 - hacer seguimiento
 - convertirlos a cliente o presupuesto
 
-Debe ser un tablero de seguimiento comercial, no una base de basura.
+Debe ser un tablero de seguimiento comercial, no una base de basura.  
 No debe aceptar leads mínimos o inválidos sin control.
 
 ### 5. FIESTAS / EVENTOS
@@ -283,8 +283,8 @@ Función:
 - permitir elegir servicios
 - alimentar el presupuesto manual en paralelo
 
-IMPORTANTE:
-No debe existir lógica duplicada innecesaria.
+IMPORTANTE:  
+No debe existir lógica duplicada innecesaria.  
 La presentación y el catálogo deben compartir la misma lógica comercial y la misma estructura de datos.
 
 ### 7. PÁGINA DEL EVENTO / INVITACIÓN / PORTALES
@@ -330,7 +330,7 @@ Función:
 - proveedores
 - configuraciones del simulador
 
-Esto es base del negocio.
+Esto es base del negocio.  
 No se debe perder ni vaciar silenciosamente.
 
 ### 11. PAGOS / CONTABILIDAD / FACTURAS
@@ -351,8 +351,8 @@ Función:
 
 ## 2. LÓGICA COMERCIAL DE VENTA VISUAL
 
-La app tiene una parte de venta interactiva visual.
-No es solo una landing.
+La app tiene una parte de venta interactiva visual.  
+No es solo una landing.  
 Debe construir presupuesto real.
 
 La lógica correcta es:

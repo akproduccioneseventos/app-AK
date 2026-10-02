@@ -33,6 +33,7 @@ const AVAILABLE_VARIABLES = [
   { key: '{{CLIENTE_TELEFONO}}', desc: 'Teléfono' },
   { key: '{{FECHA_EVENTO}}', desc: 'Fecha del evento' },
   { key: '{{SALON}}', desc: 'Salón' },
+  { key: '{{MONTO_SENA}}', desc: 'Monto de seña' },
 ];
 
 export default function ClausulasContractPage() {

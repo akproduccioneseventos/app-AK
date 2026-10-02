@@ -1,9 +1,9 @@
 /**
  * Script para importación masiva de fotos al catálogo de AK Producciones.
- *
+ * 
  * Uso:
  *   node scripts/importar-fotos.js [--categoria "Nombre Categoria"] [--fiesta "Tipo Fiesta"]
- *
+ * 
  * Instrucciones:
  *   1. Colocá tus fotos de eventos reales en la carpeta `data/importar-fotos/`.
  *   2. Ejecutá este script.
@@ -116,7 +116,7 @@ async function main() {
 
   for (const filename of files) {
     const srcPath = path.join(IMPORT_DIR, filename);
-
+    
     // Crear un nombre de archivo seguro y limpio
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 7);
@@ -139,7 +139,7 @@ async function main() {
       // Estructurar metadatos del catálogo
       const categoria = overrideCategory || guessCategory(filename);
       const id = `cat_imp_${timestamp}_${random}`;
-
+      
       // La URL apunta a la ruta pública del servidor
       const urlPath = `/media/catalogo-servicios/${destFilename}`;
 
@@ -157,7 +157,7 @@ async function main() {
       };
 
       catalogo.push(fotoData);
-
+      
       // Mover el archivo original a procesadas
       const archivePath = path.join(PROCESSED_DIR, filename);
       // Evitar colisión de nombres en procesadas

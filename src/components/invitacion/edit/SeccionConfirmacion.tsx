@@ -27,7 +27,7 @@ export const SeccionConfirmacionEditor: React.FC<Props> = ({ data, update }) => 
           onCheckedChange={(checked) => handleFieldChange('visible', checked)}
         />
       </div>
-
+      
       {data.visible && (
         <Card className="bg-muted/40">
           <CardHeader>

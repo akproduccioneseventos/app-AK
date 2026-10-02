@@ -30,7 +30,7 @@ export async function saveSalonLayoutTemplate(
   }
 
   const templates = await getSalonLayoutTemplates();
-
+  
   const templateDataToSave: SalonLayoutTemplate['layoutData'] = {
     salonWidth: layoutData.salonWidth,
     salonHeight: layoutData.salonHeight,

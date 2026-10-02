@@ -53,13 +53,13 @@ const ALL_PLATFORMS: Array<{ id: SocialPlatform; label: string; badge: string }>
   { id: 'WhatsApp', label: 'WhatsApp', badge: '1 Toque' },
 ];
 
-export function NewPostDialog({
-    onPostCreated,
+export function NewPostDialog({ 
+    onPostCreated, 
     postToEdit,
     postToDuplicate,
     isOpen: controlledIsOpen,
     onOpenChange: setControlledIsOpen,
-    children
+    children 
 }: NewPostDialogProps) {
     const [internalIsOpen, setInternalIsOpen] = useState(false);
     const isOpen = controlledIsOpen ?? internalIsOpen;
@@ -67,7 +67,7 @@ export function NewPostDialog({
 
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
-
+    
     // Form state
     const [platform, setPlatform] = useState<SocialPlatform | 'WhatsApp'>('Instagram');
     const [selectedPlatforms, setSelectedPlatforms] = useState<SocialPlatform[]>(['Instagram', 'Facebook']);
@@ -81,12 +81,12 @@ export function NewPostDialog({
     const [status, setStatus] = useState<PostStatus>('Programado');
     const [promotionCost, setPromotionCost] = useState('');
     const [performanceLikes, setPerformanceLikes] = useState('');
-
+    
     const [sendToWhatsApp, setSendToWhatsApp] = useState(false);
 
     // Data for selectors
     const [allEvents, setAllEvents] = useState<FiestaEnPlanificacion[]>([]);
-
+    
     const activePost = postToEdit || postToDuplicate;
     const isWhatsAppSelected = platform === 'WhatsApp';
 
@@ -128,7 +128,7 @@ export function NewPostDialog({
     };
 
     const togglePlatform = (p: SocialPlatform) => {
-        setSelectedPlatforms(prev =>
+        setSelectedPlatforms(prev => 
             prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]
         );
     };
@@ -145,8 +145,8 @@ export function NewPostDialog({
         e.preventDefault();
         setIsSaving(true);
 
-        const platformsToSave: SocialPlatform[] = postToEdit
-            ? [platform as SocialPlatform]
+        const platformsToSave: SocialPlatform[] = postToEdit 
+            ? [platform as SocialPlatform] 
             : (selectedPlatforms.length > 0 ? selectedPlatforms : ['Instagram']);
 
         const crossPlatformGroupId = platformsToSave.length > 1 ? `grp_${Date.now()}` : undefined;
@@ -155,7 +155,7 @@ export function NewPostDialog({
             for (const plat of platformsToSave) {
                 const formData = new FormData();
                 if (postToEdit) formData.append('id', postToEdit.id);
-
+                
                 formData.append('platform', plat);
                 formData.append('isGeneralCampaign', String(isGeneralCampaign));
                 if (!isGeneralCampaign && eventId) {
@@ -171,13 +171,13 @@ export function NewPostDialog({
                      formData.append('existingMediaUrl', activePost.mediaUrl);
                      if(activePost.mediaType) formData.append('existingMediaType', activePost.mediaType);
                 }
-
+                
                 formData.append('status', status);
                 if (crossPlatformGroupId) formData.append('crossPlatformGroupId', crossPlatformGroupId);
-
+                
                 if (promotionCost) formData.append('promotionCost', promotionCost);
                 if (performanceLikes) formData.append('performance.likes', performanceLikes);
-
+                
                 const result = await saveSocialPost(formData);
                 if (!result.success) {
                     throw new Error(result.error || `No se pudo guardar la publicación para ${plat}.`);
@@ -185,8 +185,8 @@ export function NewPostDialog({
             }
 
             toast({
-                title: postToEdit
-                    ? "Publicación Actualizada"
+                title: postToEdit 
+                    ? "Publicación Actualizada" 
                     : `¡Creadas publicaciones para ${platformsToSave.length} redes!`,
                 description: platformsToSave.join(', '),
             });
@@ -197,7 +197,7 @@ export function NewPostDialog({
                 window.open(whatsAppUrl, '_blank');
                 toast({ title: "Abriendo WhatsApp..." });
             }
-
+            
             setIsOpen(false);
             onPostCreated();
         } catch (error: any) {
@@ -219,8 +219,8 @@ export function NewPostDialog({
                 <DialogHeader>
                     <DialogTitle className="font-headline text-xl">{dialogTitle}</DialogTitle>
                     <DialogDescription>
-                        {postToEdit
-                            ? 'Editá los detalles del posteo.'
+                        {postToEdit 
+                            ? 'Editá los detalles del posteo.' 
                             : 'Escribí tu posteo una sola vez y seleccionalo para publicar en todas las redes que quieras.'}
                     </DialogDescription>
                 </DialogHeader>
@@ -252,8 +252,8 @@ export function NewPostDialog({
                                             type="button"
                                             onClick={() => togglePlatform(plat.id)}
                                             className={`flex items-center justify-between p-2 rounded-lg border text-left text-xs font-bold transition ${
-                                                isSelected
-                                                    ? 'bg-purple-600 text-white border-purple-700 shadow-sm'
+                                                isSelected 
+                                                    ? 'bg-purple-600 text-white border-purple-700 shadow-sm' 
                                                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                                             }`}
                                         >
@@ -294,7 +294,7 @@ export function NewPostDialog({
                          <div className="space-y-1"><Label htmlFor="eventId">Vincular a Fiesta</Label><Select value={eventId} onValueChange={setEventId}><SelectTrigger><SelectValue placeholder="Seleccionar evento..."/></SelectTrigger><SelectContent>{allEvents.map(event => (<SelectItem key={event.id} value={event.id}>{event.configuracion.nombreEvento}</SelectItem>))}</SelectContent></Select></div>
                     )}
                     <div className="space-y-1"><Label htmlFor="text">Texto de la Publicación</Label><Textarea id="text" value={text} onChange={e => setText(e.target.value)} rows={6} placeholder="Escribe tu post aquí..." required /></div>
-
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-1"><Label htmlFor="link">Enlace (Opcional)</Label><Input id="link" value={link} onChange={e => setLink(e.target.value)} placeholder="https://ejemplo.com" /></div>
                         <div className="space-y-1"><Label htmlFor="promotionCost">Inversión Publicitaria ($)</Label><Input id="promotionCost" type="number" value={promotionCost} onChange={e => setPromotionCost(e.target.value)} placeholder="0" /></div>

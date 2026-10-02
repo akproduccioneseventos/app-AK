@@ -198,13 +198,13 @@ export default function TotemPublicPage() {
           if (vigente) setPorQueNoHayCodigo('Sin conexión con el servidor: se reintenta solo.');
         });
     };
-
+    
     fetchToken();
     timer = setInterval(fetchToken, 4000);
-
-    return () => {
-      vigente = false;
-      clearInterval(timer);
+    
+    return () => { 
+      vigente = false; 
+      clearInterval(timer); 
     };
   }, [fiestaId, permisoDelEnlace]);
 

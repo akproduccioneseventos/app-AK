@@ -51,7 +51,7 @@ describe('Bloque A: Identidad del Invitado', () => {
 
       // Submit score
       mockFiesta.triviaGame.participants = [{ guestId: 'g1', tableNumber: 'Mesa 4', guestName: 'Juan', score: 0 }] as any;
-
+      
       const scoreResult = await submitTriviaScore('f1', 'g1', 'token123', 100);
       expect(scoreResult.success).toBe(true);
       expect(saveFiesta).toHaveBeenCalledWith(expect.objectContaining({
@@ -127,7 +127,7 @@ describe('Bloque A: Identidad del Invitado', () => {
       expect(result.success).toBe(true);
 
       expect(getPublicGuestPortalData).not.toHaveBeenCalled();
-
+      
       expect(saveFiesta).toHaveBeenCalledWith(expect.objectContaining({
         eventoEnVivo: expect.objectContaining({
           fotos: expect.arrayContaining([

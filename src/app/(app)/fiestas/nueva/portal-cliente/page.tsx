@@ -13,7 +13,7 @@ import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plu
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual, updateClientePortalExperienceFiestaActual } from '@/app/actions/fiesta-actual';
-import {
+import { 
   updateFaqPortal,
   approveClientMenuChangeRequest,
   rejectClientMenuChangeRequest,
@@ -834,7 +834,7 @@ function ClientPortalConfigContent() {
                 <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                   <KeyRound className="w-4 h-4 text-primary" /> Credenciales y Seguridad
                 </h3>
-
+                
                 <div className="space-y-2">
                   <Label htmlFor="portal-access-key">Clave del Enlace de Acceso (Access Key)</Label>
                   <div className="flex items-center gap-2">

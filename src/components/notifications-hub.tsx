@@ -61,7 +61,7 @@ export function NotificationsHub() {
       .finally(() => {
         fetchNotifications().finally(() => setIsLoading(false));
       });
-
+    
     // Solo actualizamos mientras el panel esta abierto para evitar trabajo de red en cada pantalla.
     const interval = setInterval(fetchNotifications, 120000);
     return () => clearInterval(interval);
@@ -78,17 +78,17 @@ export function NotificationsHub() {
     const result = await markAllNotificationsAsRead();
     if (!result.success) {
       toast({ title: "Error", description: "No se pudieron marcar como leídas.", variant: "destructive" });
-      setNotifications(originalNotifications);
+      setNotifications(originalNotifications); 
     }
   };
-
+  
   const handleDeleteNotification = async (id: string) => {
     const originalNotifications = [...safeNotifications];
     setNotifications(prev => (prev || []).filter(n => n.id !== id));
     const result = await deleteNotification(id);
     if (!result.success) {
       toast({ title: "Error", description: "No se pudo eliminar la notificación.", variant: "destructive" });
-      setNotifications(originalNotifications);
+      setNotifications(originalNotifications); 
     }
   }
 

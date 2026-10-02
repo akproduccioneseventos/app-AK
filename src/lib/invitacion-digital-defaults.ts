@@ -45,10 +45,10 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       }
     },
     { id: 'cuentaRegresiva', tipo: 'cuentaRegresiva', data: { visible: true } },
-    {
-      id: 'detallesEvento',
-      tipo: 'detallesEvento',
-      data: {
+    { 
+      id: 'detallesEvento', 
+      tipo: 'detallesEvento', 
+      data: { 
         visible: true,
         ceremoniaReligiosa: { ...defaultDetalleEvento, visible: true, titulo: 'Ceremonia', fecha: '2025-11-15T20:00:00.000Z', hora: '20:00', nombreLugar: 'Catedral de San Juan', direccionLugar: 'Calle Falsa 123, Ciudad', mapaUrl: '', imagenUrl: 'https://picsum.photos/seed/ceremony/600/400' },
         ceremoniaCivil: { ...defaultDetalleEvento, visible: false },
@@ -56,54 +56,54 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
       }
     },
     { id: 'itinerario', tipo: 'itinerario', data: { visible: true, imagenFondoUrl: "https://picsum.photos/seed/itinerarybg/1200/800" } },
-    {
-      id: 'historia',
-      tipo: 'historia',
-      data: {
-        visible: true,
+    { 
+      id: 'historia', 
+      tipo: 'historia', 
+      data: { 
+        visible: true, 
         titulo: { text: 'Nuestra Historia', style: defaultAccentTitleStyle },
         texto: { text: 'Desde el día que nos conocimos, supimos que nuestro camino era para recorrerlo juntos. Cada paso nos ha traído hasta aquí, y estamos emocionados por empezar este nuevo capítulo con ustedes como testigos.', style: defaultTextStyle },
         imagenFondoUrl: "https://picsum.photos/seed/storybg/1200/800"
-      }
+      } 
     },
-    {
-      id: 'galeria',
-      tipo: 'galeria',
-      data: {
-        visible: true,
+    { 
+      id: 'galeria', 
+      tipo: 'galeria', 
+      data: { 
+        visible: true, 
         fotos: [
             "https://picsum.photos/seed/gallery1/800/600",
             "https://picsum.photos/seed/gallery2/800/600",
             "https://picsum.photos/seed/gallery3/800/600",
             "https://picsum.photos/seed/gallery4/800/600"
-        ]
-      }
+        ] 
+      } 
     },
     { id: 'dressCode', tipo: 'dressCode', data: { visible: true, tipo: 'Formal' } },
-    {
-      id: 'regalos',
-      tipo: 'regalos',
-      data: {
+    { 
+      id: 'regalos', 
+      tipo: 'regalos', 
+      data: { 
         visible: true,
         titulo: { text: 'Lista de Regalos', style: defaultTitleStyle },
         texto: { text: 'Tu presencia es nuestro mejor regalo. Si aún así deseas obsequiarnos algo, puedes ayudarnos con nuestra luna de miel o elegir una de estas opciones.', style: defaultTextStyle },
         datosBancarios: '',
-        items: []
-      }
+        items: [] 
+      } 
     },
     { id: 'confirmacion', tipo: 'confirmacion', data: { visible: true } },
     { id: 'musica', tipo: 'musica', data: { visible: true, placeholder: 'Ej: Bohemian Rhapsody - Queen' } },
-    {
-      id: 'redesSociales',
-      tipo: 'redesSociales',
-      data: {
-        visible: true,
+    { 
+      id: 'redesSociales', 
+      tipo: 'redesSociales', 
+      data: { 
+        visible: true, 
         hashtag: '#BodaJuanYMaria',
         texto: { text: '¡Comparte tus momentos!', style: { ...defaultTitleStyle, fontSize: '2rem' } },
-      }
+      } 
     },
     { id: 'despedida', tipo: 'despedida', data: { visible: true, texto: { text: '¡Te esperamos!', style: { fontFamily: 'Dancing_Script', fontSize: '3rem', color: '#A2D2B0'} } } },
-    { id: 'footer', tipo: 'footer', data: {
+    { id: 'footer', tipo: 'footer', data: { 
         visible: true,
         titulo: { text: 'Con cariño, María y Juan', style: defaultTextStyle },
         nombreEmpresa: { text: 'AK Producciones', style: { fontFamily: 'Belleza', fontSize: '1.25rem', color: '#A2D2B0' } }

@@ -22,7 +22,7 @@ const AppLogo = () => {
     };
     fetchLogo();
   }, []);
-
+  
   if (logoUrl === undefined) {
     // Loading state to prevent layout shift
     return <Skeleton className="h-8 w-24 rounded-md" />;
@@ -38,8 +38,8 @@ const AppLogo = () => {
 
   if (logoUrl) {
     return (
-        <NextImage
-            src={logoUrl}
+        <NextImage 
+            src={logoUrl} 
             alt="Logo de la Empresa"
             width={120}
             height={40}

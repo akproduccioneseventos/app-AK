@@ -59,7 +59,7 @@ export const SeccionHistoriaEditor: React.FC<Props> = ({ data, update, fiestaId 
                 value={data.titulo?.text || ''}
                 onChange={(e) => handleTextChange('titulo', e.target.value)}
                 />
-                <TextStyleEditor
+                <TextStyleEditor 
                     style={data.titulo?.style || {}}
                     onStyleChange={(newStyle) => handleTextStyleChange('titulo', newStyle)}
                 />
@@ -71,7 +71,7 @@ export const SeccionHistoriaEditor: React.FC<Props> = ({ data, update, fiestaId 
                 onChange={(e) => handleTextChange('texto', e.target.value)}
                 rows={5}
                 />
-                <TextStyleEditor
+                <TextStyleEditor 
                     style={data.texto?.style || {}}
                     onStyleChange={(newStyle) => handleTextStyleChange('texto', newStyle)}
                 />

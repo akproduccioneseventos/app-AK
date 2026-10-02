@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye, Search, CalendarDays, MessageCircle } from 'lucide-react';
+import { UserPlus, Edit, Trash2, Loader2, Users as UsersIcon, Filter, Tag, Printer, Eye, Search, CalendarDays, MessageCircle } from 'lucide-react'; 
 import { useToast } from '@/hooks/use-toast';
 import type { Customer, CustomerStatus } from '@/types/customer';
 import { ALL_CUSTOMER_STATES } from '@/types/customer';
@@ -24,7 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/input'; 
 import { Separator } from '@/components/ui/separator';
 
 const formatDate = (dateString?: string) => {
@@ -131,17 +131,17 @@ export default function CustomersPage() {
         getCustomers(),
         getAllFiestas()
       ]);
-
+      
       const now = new Date();
-      now.setHours(0, 0, 0, 0);
-
+      now.setHours(0, 0, 0, 0); 
+      
       const safeCustomersData = Array.isArray(customersData) ? customersData : [];
       const safefiestasData = Array.isArray(fiestasData) ? fiestasData : [];
-
+      
       const customersWithData = safeCustomersData.map(customer => {
           const customerFiestas = safefiestasData.filter(f => f.configuracion.clienteId === customer.id && f.configuracion.fechaEvento);
-
-          let calculatedStatus: CustomerStatus = 'Actual';
+          
+          let calculatedStatus: CustomerStatus = 'Actual'; 
           let displayDate = customer.partyDate;
 
           if (customerFiestas.length > 0) {
@@ -170,18 +170,18 @@ export default function CustomersPage() {
                   displayDate = pastEvents[0]?.configuracion.fechaEvento;
               }
           }
-
-          return {
-            ...customer,
+          
+          return { 
+            ...customer, 
             estadoCliente: calculatedStatus,
             partyDate: displayDate
           };
       });
-
+      
       const sortedData = customersWithData.sort((a, b) => {
           const dateA = a.partyDate ? new Date(a.partyDate).getTime() : -Infinity;
           const dateB = b.partyDate ? new Date(b.partyDate).getTime() : -Infinity;
-
+          
           if(a.estadoCliente === 'Actual' && b.estadoCliente !== 'Actual') return -1;
           if(a.estadoCliente !== 'Actual' && b.estadoCliente === 'Actual') return 1;
 
@@ -249,7 +249,7 @@ export default function CustomersPage() {
             </Link></Button>
         </div>
       </div>
-
+      
       <Card>
         <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>

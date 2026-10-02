@@ -49,8 +49,8 @@ export default function GestionRolesPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentRol, setCurrentRol] = useState<Partial<Rol> | null>(null);
-
+  const [currentRol, setCurrentRol] = useState<Partial<Rol> | null>(null); 
+  
   const fetchRoles = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -71,8 +71,8 @@ export default function GestionRolesPage() {
     if (rol) {
       setCurrentRol({ ...rol });
     } else {
-      setCurrentRol({
-        nombre: '',
+      setCurrentRol({ 
+        nombre: '', 
         categoriaServicio: undefined,
         sueldoPorEvento: 2100, // Example default
         porcentajeSalarioVacacional: 8.33,
@@ -82,7 +82,7 @@ export default function GestionRolesPage() {
     }
     setIsModalOpen(true);
   };
-
+  
   const handleModalFieldChange = (field: keyof Omit<Rol, 'id' | 'costoAportesCalculado'>, value: string) => {
     setCurrentRol(prev => {
       if (!prev) return null;
@@ -91,7 +91,7 @@ export default function GestionRolesPage() {
       return { ...prev, [field]: numValue === '' ? '' : (isNaN(numValue as number) ? value : numValue) };
     });
   };
-
+  
   const costoAportesCalculado = useMemo(() => {
     if (!currentRol || !currentRol.sueldoPorEvento || !currentRol.porcentajeAportesPatronales) {
       return 0;
@@ -115,7 +115,7 @@ export default function GestionRolesPage() {
       toast({ title: "Categoría de Servicio Requerida", variant: "destructive" });
       return;
     }
-
+    
     const rolToSave = {
       ...currentRol,
       sueldoPorEvento: Number(currentRol.sueldoPorEvento) || 0,
@@ -123,10 +123,10 @@ export default function GestionRolesPage() {
       porcentajeAguinaldo: Number(currentRol.porcentajeAguinaldo) || 0,
       porcentajeAportesPatronales: Number(currentRol.porcentajeAportesPatronales) || 0,
     } as Rol | NuevoRolFormData;
-
+    
     setIsSaving(true);
     try {
-      const result = await saveRol(rolToSave);
+      const result = await saveRol(rolToSave); 
       if (result.success && result.rol) {
         toast({ title: currentRol.id ? "Rol Actualizado" : "Rol Creado", description: `El rol "${result.rol.nombre}" ha sido guardado.` });
         setIsModalOpen(false);
@@ -141,7 +141,7 @@ export default function GestionRolesPage() {
       setIsSaving(false);
     }
   };
-
+  
   const handleDeleteRol = async (rolId: string) => {
     setDeletingId(rolId);
     try {
@@ -221,7 +221,7 @@ export default function GestionRolesPage() {
 
               <Separator/>
               <p className="text-sm font-medium text-muted-foreground">Porcentajes de Cálculo:</p>
-
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                     <Label htmlFor="rol-vacacional" className="flex items-center gap-1"><Percent className="w-3 h-3"/>Salario Vacacional</Label>
@@ -244,7 +244,7 @@ export default function GestionRolesPage() {
                   <span className="font-bold text-lg">{formatCurrency(costoAportesCalculado)}</span>
                 </div>
               </div>
-
+              
               <DialogFooter className="pt-3">
                 <DialogClose asChild><Button type="button" variant="outline" disabled={isSaving}>Cancelar</Button></DialogClose>
                 <Button type="submit" disabled={isSaving}>

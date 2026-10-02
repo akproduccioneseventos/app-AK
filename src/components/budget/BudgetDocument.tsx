@@ -470,7 +470,7 @@ export default function BudgetDocument({
                             key={`${catIdx}-${itemIdx}`}
                             className="bg-white border-b border-slate-200"
                           >
-                            <td
+                            <td 
                               className="border border-slate-200 px-3 py-2 align-top"
                               style={{ color: item.esRegalo ? '#dc2626' : '#334155' }}
                             >
@@ -574,7 +574,7 @@ export default function BudgetDocument({
             <span>💳 Opciones de Pago & Transparencia Financiera</span>
             <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full font-bold">Mercado Pago / Transferencia</span>
           </div>
-
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-slate-700">
             <div className="bg-white p-2.5 rounded-xl border border-emerald-200 shadow-sm">
               <p className="font-extrabold text-slate-900 flex items-center justify-between">

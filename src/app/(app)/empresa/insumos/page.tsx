@@ -61,10 +61,10 @@ function InventarioInsumosContent() {
     try {
       const data = await getInsumos();
       setAllItems(data);
-
+      
       const initialFilters: Record<string, boolean> = {};
       const allCats = Array.from(new Set(data.map(i => i.categoria as string)));
-
+      
       if (categoriaParam) {
           allCats.forEach(cat => {
               initialFilters[cat] = cat === categoriaParam;
@@ -87,7 +87,7 @@ function InventarioInsumosContent() {
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
-
+  
   useEffect(() => {
     let tempItems = allItems;
     const lowercasedTerm = searchTerm.toLowerCase();
@@ -140,7 +140,7 @@ function InventarioInsumosContent() {
       const result = await deleteInsumo(id);
       if (result.success) {
         toast({ title: "Insumo Eliminado", description: `El insumo "${nombreItem || id}" ha sido eliminado.` });
-        fetchItems();
+        fetchItems(); 
       } else {
         throw new Error(result.error || "Error desconocido al eliminar.");
       }
@@ -198,7 +198,7 @@ function InventarioInsumosContent() {
         </div>
       </div>
       <CardDescription>Gestiona tu inventario de consumibles (ingredientes, bebidas, etc.) que se usarán en los menús.</CardDescription>
-
+      
        <Card>
         <CardHeader>
           <CardTitle className="font-headline text-lg">Ajuste de Costos Global</CardTitle>
@@ -228,7 +228,7 @@ function InventarioInsumosContent() {
               <AlertDialogHeader>
                 <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Esta acción modificará los COSTOS de TODOS los insumos en un
+                  Esta acción modificará los COSTOS de TODOS los insumos en un 
                   <span className="font-bold"> {costAdjustmentPercentage}%</span>. El cambio es irreversible.
                   ¿Deseas continuar?
                 </AlertDialogDescription>
@@ -265,7 +265,7 @@ function InventarioInsumosContent() {
           </div>
         </CardFooter>
       </Card>
-
+      
       <Separator className="my-6 print:hidden" />
 
        <Card className="shadow-lg print:hidden">

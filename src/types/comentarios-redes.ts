@@ -15,7 +15,7 @@ export interface SocialComment {
   text: string;
   createdAt: string; // ISO String
   permalink?: string;
-
+  
   // Clasificación por IA
   sentiment?: CommentSentiment;
   sentimentReason?: string;

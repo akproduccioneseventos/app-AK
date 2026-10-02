@@ -21,7 +21,7 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update, fiestaId
   const handleFieldChange = (field: keyof typeof data, value: any) => {
     update({ ...data, [field]: value });
   };
-
+  
   const handleTextChange = (text: string) => {
     const textData: TextWithStyle = {
       ...(data.texto || { style: {} }),
@@ -54,11 +54,11 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update, fiestaId
     const currentColors = data[type] || [];
     update({ [type]: currentColors.filter((_, i) => i !== index) });
   };
-
+  
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleTextChange(event.target.value);
   };
-
+  
   const isPredefined = data.texto?.text === 'Formal' || data.texto?.text === 'Informal';
 
   return (
@@ -116,7 +116,7 @@ export const SeccionDressCodeEditor: React.FC<Props> = ({ data, update, fiestaId
         </div>
         <Button variant="outline" size="sm" onClick={() => addColor('sugeridos')}>Añadir Color Sugerido</Button>
       </div>
-
+      
        <div className="p-3 border rounded-md space-y-2">
         <Label>Colores a Evitar (Opcional)</Label>
         <div className="grid grid-cols-4 gap-2">

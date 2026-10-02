@@ -47,7 +47,7 @@ export function buildDailySnapshots(params: {
   for (const platform of platforms) {
     const conn = params.connections.find((c) => c.platform === platform);
     const postStats = postsByPlatform.get(platform) || { count: 0, interactions: 0 };
-
+    
     // Seguidores y alcance: NO se inventan.
     //
     // Antes esto ponia 1420 seguidores en Instagram, 2850 en Facebook, y el

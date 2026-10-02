@@ -184,8 +184,8 @@ function GuestModuleContent() {
 
   const nombreEvento = fiesta.configuracion.nombreEvento || 'El Evento';
   // Validate hex color to prevent CSS injection
-  const accentColor = /^#[0-9A-Fa-f]{3,8}$/.test(settings.customAccentColor || '')
-    ? settings.customAccentColor!
+  const accentColor = /^#[0-9A-Fa-f]{3,8}$/.test(settings.customAccentColor || '') 
+    ? settings.customAccentColor! 
     : '#9333ea';
 
   return (

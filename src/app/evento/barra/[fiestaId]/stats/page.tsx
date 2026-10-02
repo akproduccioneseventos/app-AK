@@ -32,7 +32,7 @@ export default function BarraStatsPage() {
   const orders = dashboard?.orders || [];
   const delivered = orders.filter(o => o.status === 'entregado');
   const canceled = orders.filter(o => o.status === 'cancelado');
-
+  
   // Tragos consumidos
   const drinksCount = delivered.reduce((acc, o) => {
     acc[o.drinkName] = (acc[o.drinkName] || 0) + 1;
@@ -45,7 +45,7 @@ export default function BarraStatsPage() {
   return (
     <main className="min-h-screen bg-zinc-950 text-slate-100 p-6 md:p-12">
       <div className="max-w-5xl mx-auto space-y-8">
-
+        
         <header className="flex items-center gap-4 border-b border-white/10 pb-6">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
             <BarChart3 className="w-8 h-8 text-white" />
@@ -68,7 +68,7 @@ export default function BarraStatsPage() {
               <p className="text-sm text-zinc-500 mt-1">Tragos entregados a los invitados</p>
             </CardContent>
           </Card>
-
+          
           <Card className="bg-white/5 border-white/10">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
@@ -77,8 +77,8 @@ export default function BarraStatsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-5xl font-black text-white">
-                {delivered.length > 0 && orders.length > 0
-                  ? Math.round((delivered.length / orders.length) * 100)
+                {delivered.length > 0 && orders.length > 0 
+                  ? Math.round((delivered.length / orders.length) * 100) 
                   : 0}%
               </p>
               <p className="text-sm text-zinc-500 mt-1">Tasa de finalización de pedidos</p>
@@ -142,7 +142,7 @@ export default function BarraStatsPage() {
             </CardContent>
           </Card>
         </div>
-
+        
       </div>
     </main>
   );

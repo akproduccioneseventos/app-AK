@@ -52,7 +52,7 @@ export default function CatalogoServiciosPage() {
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
   const [adjustmentPercentage, setAdjustmentPercentage] = useState(10);
   const [isAdjusting, setIsAdjusting] = useState(false);
-
+  
   const [costAdjustmentPercentage, setCostAdjustmentPercentage] = useState(10);
   const [isAdjustingCost, setIsAdjustingCost] = useState(false);
 
@@ -84,14 +84,14 @@ export default function CatalogoServiciosPage() {
     );
     setFilteredItems(filteredData);
   }, [searchTerm, allItems]);
-
+  
   const handleDelete = async (id: string, nombreItem?: string) => {
     setDeletingId(id);
     try {
       const result = await deleteServicioEmpresa(id);
       if (result.success) {
         toast({ title: "Servicio Eliminado", description: `El servicio "${nombreItem || id}" ha sido eliminado.` });
-        fetchItems();
+        fetchItems(); 
       } else {
         throw new Error(result.error);
       }
@@ -101,7 +101,7 @@ export default function CatalogoServiciosPage() {
       setDeletingId(null);
     }
   };
-
+  
   const handleAdjustPrices = async () => {
     setIsAdjusting(true);
     try {
@@ -142,7 +142,7 @@ export default function CatalogoServiciosPage() {
       const result = await duplicateServicioEmpresa(id);
       if (result.success) {
         toast({ title: "Servicio Duplicado", description: `Se creó una copia de "${nombreItem}".` });
-        fetchItems();
+        fetchItems(); 
       } else {
         throw new Error(result.error || "Error desconocido al duplicar.");
       }
@@ -152,7 +152,7 @@ export default function CatalogoServiciosPage() {
       setDuplicatingId(null);
     }
   };
-
+  
   const getDisplayPrice = (item: ServicioEmpresa): string => {
     switch (item.calculationMethod) {
       case 'porPersona':
@@ -166,7 +166,7 @@ export default function CatalogoServiciosPage() {
         return formatCurrency(item.precioVenta);
     }
   };
-
+  
   const itemsAgrupadosPorCategoria = useMemo(() => {
     return filteredItems.reduce((acc, item) => {
       const categoria = item.categoria || 'Otros';
@@ -202,7 +202,7 @@ export default function CatalogoServiciosPage() {
         </div>
       </div>
       <CardDescription className="text-lg">Define los servicios que vendes y sus costos base para la sincronización financiera.</CardDescription>
-
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="shadow-lg border-none rounded-[1.5rem]">
           <CardHeader>
@@ -237,7 +237,7 @@ export default function CatalogoServiciosPage() {
             </AlertDialog>
           </CardContent>
         </Card>
-
+        
         <Card className="shadow-lg border-none rounded-[1.5rem] bg-slate-900 text-white">
           <CardHeader>
             <CardTitle className="font-headline text-lg flex items-center gap-2"><Save className="w-5 h-5 text-primary"/>Ajuste de Costos Global</CardTitle>
@@ -294,7 +294,7 @@ export default function CatalogoServiciosPage() {
                   <AccordionTrigger className="px-6 py-4 hover:no-underline text-base font-black uppercase tracking-[0.2em] text-slate-800 hover:bg-slate-50 transition-all">
                     <div className="flex items-center gap-3">
                         <div className="w-2 h-6 bg-primary rounded-full"></div>
-                        {categoria}
+                        {categoria} 
                         <Badge variant="secondary" className="rounded-full bg-slate-100 text-slate-500 border-none px-3 font-bold text-[10px]">{itemsAgrupadosPorCategoria[categoria]?.length || 0}</Badge>
                     </div>
                   </AccordionTrigger>

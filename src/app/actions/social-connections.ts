@@ -59,7 +59,7 @@ export async function saveWhatsAppNumber(
   if (!phoneNumber || !/^\d+$/.test(phoneNumber.replace(/\s/g, ''))) {
     return { success: false, error: "Por favor, ingresa un número de teléfono válido (solo dígitos)." };
   }
-
+  
   const connections = await leerConexiones();
   const cleanPhoneNumber = phoneNumber.replace(/\s/g, '');
 
@@ -113,7 +113,7 @@ export async function saveSocialLink(
   } else {
     connections.push(newConnection);
   }
-
+  
   await writeData(CONNECTIONS_FILE, connections);
   return { success: true, connection: newConnection };
 }
@@ -123,11 +123,11 @@ export async function disconnectSocialPlatform(platform: SocialPlatformName): Pr
   let connections = await leerConexiones();
   const initialLength = connections.length;
   connections = connections.filter(c => c.platform !== platform);
-
+  
   if (connections.length === initialLength) {
     return { success: false, error: `No se encontró una conexión para ${platform}.`};
   }
-
+  
   await writeData(CONNECTIONS_FILE, connections);
   return { success: true };
 }

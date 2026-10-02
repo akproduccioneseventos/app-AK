@@ -33,8 +33,8 @@ function InvitadosLayoutContent({ children }: { children: React.ReactNode }) {
         <nav className="flex space-x-2 lg:space-x-4 overflow-x-auto pb-2">
           {navItems.map(item => (
             <Link key={item.label} href={item.href}>
-              <Button
-                variant={getIsActive(item.href) ? 'default' : 'ghost'}
+              <Button 
+                variant={getIsActive(item.href) ? 'default' : 'ghost'} 
                 className="h-auto py-2 px-3 flex-shrink-0"
               >
                 <item.icon className="w-4 h-4 mr-2" />

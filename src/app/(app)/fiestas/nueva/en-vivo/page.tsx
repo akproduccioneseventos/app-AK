@@ -6,17 +6,17 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-    Zap, Loader2, CircleCheckBig, Truck, Users,
-    PartyPopper, Bell, RefreshCw,
-    ArrowLeft, ClipboardList, Info, Check, X, ShieldAlert,
+import { 
+    Zap, Loader2, CircleCheckBig, Truck, Users, 
+    PartyPopper, Bell, RefreshCw, 
+    ArrowLeft, ClipboardList, Info, Check, X, ShieldAlert, 
     PackageSearch, RotateCcw, Share2, Wallet, PlusCircle, Clock, TriangleAlert
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
-import {
-    toggleArrival, setStaffCheckIn, confirmProtagonistArrival,
-    resetArrivalRadar, addIncidente, resolveIncidente, toggleReturnItem
+import { 
+    toggleArrival, setStaffCheckIn, confirmProtagonistArrival, 
+    resetArrivalRadar, addIncidente, resolveIncidente, toggleReturnItem 
 } from '@/app/actions/fiesta/live.actions';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
@@ -84,7 +84,7 @@ function LiveEventDashboardContent() {
 
     useEffect(() => {
         loadData();
-        const interval = setInterval(() => loadData(false), 10000);
+        const interval = setInterval(() => loadData(false), 10000); 
         return () => clearInterval(interval);
     }, [loadData]);
 

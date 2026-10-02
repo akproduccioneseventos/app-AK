@@ -3,14 +3,14 @@
 import { useCallback, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Lock,
-  Settings,
-  Wine,
-  Tv,
-  Video,
-  Smartphone,
-  AlertCircle,
+import { 
+  Lock, 
+  Settings, 
+  Wine, 
+  Tv, 
+  Video, 
+  Smartphone, 
+  AlertCircle, 
   Loader2,
   Check,
   Camera,
@@ -29,10 +29,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { getFiestaActivaDeHoy, getFiestas } from '@/app/actions/fiesta-actual';
 
-export type KioskRole =
-  | 'barra'
-  | 'muro-en-vivo'
-  | 'plataforma-360'
+export type KioskRole = 
+  | 'barra' 
+  | 'muro-en-vivo' 
+  | 'plataforma-360' 
   | 'totem'
   | 'fotocabina'
   | 'espejo-magico'
@@ -63,7 +63,7 @@ const ETIQUETAS_DE_ESTACION: Record<string, string> = {
 
 export function KioskSetup({ defaultRole }: KioskSetupProps) {
   const router = useRouter();
-
+  
   // Loading and State
   const [status, setStatus] = useState<'checking' | 'setup' | 'redirecting'>('checking');
   const [fiestas, setFiestas] = useState<any[]>([]);
@@ -78,7 +78,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
    * justamente lo que hace que no se use**.
    */
   const [errorMessage, setErrorMessage] = useState('');
-
+  
   // Totem custom identifier
   const [totemId, setTotemId] = useState('');
   const [enlaceCopiado, setEnlaceCopiado] = useState(false);
@@ -135,7 +135,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
         loadFiestaOptions();
       }
     }
-
+    
     checkTodayEvent();
   }, [defaultRole, loadFiestaOptions, navigateToRole]);
 
@@ -200,7 +200,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
       setErrorMessage('Por favor selecciona un evento.');
       return;
     }
-
+    
     if (selectedRole === 'totem' && !totemId.trim()) {
       setErrorMessage('Indica el identificador real del tótem antes de lanzarlo.');
       return;
@@ -277,7 +277,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
               Vincula esta tablet o pantalla a un rol específico del salón y bloquéala de forma segura.
             </CardDescription>
           </CardHeader>
-
+          
           <CardContent className="space-y-6">
             {errorMessage && (
               <motion.div
@@ -338,8 +338,8 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                         setErrorMessage('');
                       }}
                       className={`flex flex-col items-center gap-2 p-3 rounded-lg border text-center transition-all motion-reduce:transition-none ${
-                        isSelected
-                          ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/5 text-purple-300'
+                        isSelected 
+                          ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/5 text-purple-300' 
                           : 'border-slate-800 bg-slate-950 text-slate-400 ' + role.color
                       }`}
                     >

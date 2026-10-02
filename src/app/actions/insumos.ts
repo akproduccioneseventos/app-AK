@@ -141,7 +141,7 @@ async function saveInsumoInterno(
     itemId = dataWithParsedNumbers.id;
     const index = inventario.findIndex(s => s.id === itemId);
     if (index === -1) return { success: false, error: `Insumo con ID ${itemId} no encontrado.` };
-
+    
     const originalItem = inventario[index];
     if (originalItem.nombre.trim().toLowerCase() !== dataWithParsedNumbers.nombre!.trim().toLowerCase()) {
         const isDuplicate = inventario.some(s => s.id !== itemId && s.nombre.trim().toLowerCase() === dataWithParsedNumbers.nombre!.trim().toLowerCase());
@@ -157,7 +157,7 @@ async function saveInsumoInterno(
     finalItemData = { ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>), id: itemId };
     inventario.push(finalItemData as ServicioEmpresa);
   }
-
+  
   if (SIN_BASE()) {
     await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
   } else if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
@@ -172,7 +172,7 @@ async function saveInsumoInterno(
     await createDataItem(INSUMOS_FILE, INSUMOS_COLLECTION, itemId, finalItemData as ServicioEmpresa);
   }
   limpiarCacheInsumos();
-
+  
   // Si esto falla, el insumo queda con el precio nuevo y **los menus con el viejo**:
   // la lista de compras y el costo de la comida salen mal sin que nadie lo note.
   const propagado = await propagateInsumoChangesToMenus(finalItemData as ServicioEmpresa);
@@ -252,7 +252,7 @@ async function adjustAllInsumoCostsInterno(
       if (newInsumo.valorUnitarioEstimado !== undefined) {
         newInsumo.valorUnitarioEstimado = Math.round((newInsumo.valorUnitarioEstimado * multiplier));
       }
-
+      
       return newInsumo;
     });
 

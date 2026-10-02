@@ -42,7 +42,7 @@ export function PaparazziOverlay({ fiestaId, isOpen, onUpload, onClose }: Papara
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-6 text-center animate-in fade-in zoom-in duration-300">
       <div className="absolute inset-0 bg-gradient-to-b from-red-900/40 to-yellow-600/20 mix-blend-overlay" />
-
+      
       {onClose && (
         <button
           onClick={onClose}
@@ -67,8 +67,8 @@ export function PaparazziOverlay({ fiestaId, isOpen, onUpload, onClose }: Papara
           </span>
         </div>
 
-        <Button
-          onClick={onUpload}
+        <Button 
+          onClick={onUpload} 
           size="lg"
           className="h-16 w-full animate-bounce rounded-full bg-gradient-to-r from-red-600 to-yellow-600 text-lg font-bold text-white shadow-lg shadow-red-600/30 transition hover:from-red-500 hover:to-yellow-500"
         >

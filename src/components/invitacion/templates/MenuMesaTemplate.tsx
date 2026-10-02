@@ -49,18 +49,18 @@ const SectionSeparator: React.FC<{ color: string }> = ({ color }) => (
 
 
 export const MenuMesaTemplate: React.FC<MenuMesaTemplateProps> = ({ fiesta, data, logoUrl, onUpdate, isPreview }) => {
-
+    
     const paleta = data.paletaColores;
     const fontFamily = data.fontFamily || 'Playfair Display';
     const menuTitle = data.titulo || 'MENÚ';
     const protagonistaNombre = data.protagonistaNombre || fiesta.configuracion.protagonista1Nombre || 'Luciana';
-
+    
     const handleUpdate = (field: keyof MenuMesaData, value: string) => {
         if (onUpdate && isPreview) {
             onUpdate({ [field]: value });
         }
     };
-
+    
     const renderTextWithLineBreaks = (text: string) => {
         return text.split('\n').map((line, index) => (
             <React.Fragment key={index}>
@@ -79,7 +79,7 @@ export const MenuMesaTemplate: React.FC<MenuMesaTemplateProps> = ({ fiesta, data
              <Ornament position="top-right" color={paleta.primary} />
              <Ornament position="bottom-left" color={paleta.primary} />
              <Ornament position="bottom-right" color={paleta.primary} />
-
+            
             <header className="w-full text-center relative pt-4">
                 <div className="absolute top-4 left-4 w-28 h-28">
                     <div className="relative w-full h-full rounded-full overflow-hidden border-4" style={{borderColor: paleta.primary}}>
@@ -127,7 +127,7 @@ export const MenuMesaTemplate: React.FC<MenuMesaTemplateProps> = ({ fiesta, data
                     <div className="font-playfair text-sm whitespace-pre-line" style={{ color: paleta.secondary, fontFamily }}>{isPreview ? <EditableText initialValue={data.bebidas} onSave={val => handleUpdate('bebidas', val)} textarea/> : renderTextWithLineBreaks(data.bebidas)}</div>
                 </div>
             </main>
-
+            
             <footer className="relative w-full mt-auto pb-2 pt-10">
                 <svg viewBox="0 0 300 60" className="absolute bottom-0 left-0 w-full h-auto" preserveAspectRatio="none">
                     <path d="M0,60 C50,0 250,0 300,60 L300,60 L0,60 Z" style={{fill: paleta.primary}} />

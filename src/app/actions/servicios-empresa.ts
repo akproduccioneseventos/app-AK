@@ -69,7 +69,7 @@ export async function saveServicioEmpresa(
   let inventario = await leerServiciosEmpresa();
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
-
+  
   const dataWithParsedNumbers: Partial<ServicioEmpresa> = {
     ...itemData,
     tipoItem: itemData.tipoItem || 'Servicio',
@@ -84,7 +84,7 @@ export async function saveServicioEmpresa(
     tipoCosto: itemData.tipoCosto || (itemData.categoria === 'Personal' ? 'Personal' : 'Proveedor'),
     proveedor: itemData.proveedor?.trim() || undefined,
   };
-
+  
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") return { success: false, error: "El nombre del servicio es obligatorio." };
   if (!dataWithParsedNumbers.categoria) return { success: false, error: "La categoría es obligatoria." };
 
@@ -106,12 +106,12 @@ export async function saveServicioEmpresa(
   if (tramoEnNegativo) {
     return { success: false, error: 'Ningún tramo de precio puede quedar en negativo.' };
   }
-
+  
   if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
     itemId = dataWithParsedNumbers.id;
     const index = inventario.findIndex(s => s.id === itemId);
     if (index === -1) return { success: false, error: `Servicio con ID ${itemId} no encontrado.` };
-
+    
     inventario[index] = { ...inventario[index], ...dataWithParsedNumbers } as ServicioEmpresa;
     finalItemData = inventario[index];
   } else {
@@ -121,7 +121,7 @@ export async function saveServicioEmpresa(
     finalItemData = { ...(dataWithParsedNumbers as Omit<ServicioEmpresa, 'id'>), id: itemId };
     inventario.push(finalItemData as ServicioEmpresa);
   }
-
+  
   await writeData(SERVICIOS_EMPRESA_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
   cacheInvalidate('servicios-empresa-raw');
   return { success: true, id: itemId, servicio: finalItemData as ServicioEmpresa };
@@ -182,7 +182,7 @@ export async function adjustAllServicePrices(
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }
-
+  
   try {
     const inventario = await leerServiciosEmpresa();
     if (inventario.length === 0) {
@@ -209,7 +209,7 @@ export async function adjustAllServicePrices(
           precio: Math.round((tramo.precio * multiplier)),
         }));
       }
-
+      
       return newServicio;
     });
 
@@ -229,7 +229,7 @@ export async function adjustAllServiceCosts(
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }
-
+  
   try {
     const inventario = await leerServiciosEmpresa();
     if (inventario.length === 0) {
@@ -244,7 +244,7 @@ export async function adjustAllServiceCosts(
       if (newServicio.valorUnitarioEstimado !== undefined) {
         newServicio.valorUnitarioEstimado = Math.round((newServicio.valorUnitarioEstimado * multiplier));
       }
-
+      
       return newServicio;
     });
 

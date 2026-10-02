@@ -105,7 +105,7 @@ export default function EditProveedorPage() {
         </div>
         <Button asChild variant="outline" disabled={isSaving}><Link href="/proveedores"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
-
+      
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Actualizar Información</CardTitle>

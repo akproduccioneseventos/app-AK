@@ -222,7 +222,7 @@ export async function getDashboardKpiData() {
       const monthName = getMonthKey(date);
       const monthKey = format(date, 'yyyy-MM');
       const ledgerMonth = ledgerMonthsMap.get(monthKey);
-
+      
       monthlyData.push({
         month: monthName,
         ventas: ledgerMonth ? ledgerMonth.ventas : 0,

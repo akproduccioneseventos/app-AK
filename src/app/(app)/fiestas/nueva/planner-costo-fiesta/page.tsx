@@ -94,9 +94,9 @@ const Seat: React.FC<{
     const seatSpacing = perimeter / total;
     let currentPosition = index * seatSpacing;
     let x = 0, y = 0;
-    if (currentPosition <= width) { x = currentPosition; y = -15; }
-    else if (currentPosition <= width + height) { x = width + 15; y = currentPosition - width; }
-    else if (currentPosition <= 2 * width + height) { x = width - (currentPosition - (width + height)); y = height + 15; }
+    if (currentPosition <= width) { x = currentPosition; y = -15; } 
+    else if (currentPosition <= width + height) { x = width + 15; y = currentPosition - width; } 
+    else if (currentPosition <= 2 * width + height) { x = width - (currentPosition - (width + height)); y = height + 15; } 
     else { x = -15; y = height - (currentPosition - (2 * width + height)); }
     style = { left: `${x}px`, top: `${y}px`, transform: 'translate(-50%, -50%)' };
   }
@@ -158,7 +158,7 @@ const DraggableElement: React.FC<{
                     {Array.from({ length: el.seats || 0 }).map((_, i) => (
                         <Seat key={i} index={i} total={el.seats || 0} isOccupied={i < assignedSeatsCount} isRound={isRound} width={el.width ?? 0} height={el.height ?? 0} />
                     ))}
-                    <div
+                    <div 
                         className={cn('w-full h-full border flex flex-col p-1 overflow-hidden', isRound && 'rounded-full')}
                         style={{ backgroundColor: el.backgroundColor || (isArea ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.7)') }}
                     >
@@ -177,7 +177,7 @@ const DraggableElement: React.FC<{
                         </div>
                     </div>
                 </div>
-
+                
                 {/* Floating Toolbar */}
                 {isSelected && (
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-white border shadow-xl p-1 rounded-full z-50 animate-in fade-in zoom-in-95" style={{ transform: `translateX(-50%) rotate(-${el.rotation}deg)` }}>
@@ -201,7 +201,7 @@ function SalonLayoutContent() {
   const [decoracion, setDecoracion] = useState<DecoracionData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingElement, setEditingElement] = useState<LayoutElement | null>(null);
   const [selectedElementId, setSelectedElementId] = useState<string | null>(null);
@@ -247,7 +247,7 @@ function SalonLayoutContent() {
     debounceMs: 2000,
     enabled: !!fiestaId && !isLoading && !!decoracion,
   });
-
+  
   const handleDragStop = (e: any, data: DraggableData, elementId: string) => {
     if (!decoracion) return;
     const newElements = (decoracion.salonElements || []).map(el =>
@@ -255,7 +255,7 @@ function SalonLayoutContent() {
     );
     setDecoracion({ ...decoracion, salonElements: newElements });
   };
-
+  
  const addElement = (category: string, customProps?: Partial<LayoutElement>, type: LayoutElementType = 'element') => {
     if (!decoracion) return;
     let defaultProps: Partial<LayoutElement> = { width: 100, height: 100, seats: 8, shape: 'circle' };
@@ -266,25 +266,25 @@ function SalonLayoutContent() {
     else if (category === 'Área de Fotos') { defaultProps = { width: 160, height: 100, seats: undefined, backgroundColor: 'rgba(236, 72, 153, 0.2)', shape: 'rectangle' }; }
 
     const newElement: LayoutElement = {
-      id: `el_${Date.now()}`,
+      id: `el_${Date.now()}`, 
       name: customProps?.name || `${category} ${ (decoracion.salonElements?.filter(e => e.category === category).length || 0) + 1}`,
-      x: 20, y: 20, rotation: 0,
+      x: 20, y: 20, rotation: 0, 
       zIndex: type === 'area' ? 0 : (decoracion.salonElements?.length || 0) + 1,
-      ...defaultProps,
-      ...customProps,
-      category,
+      ...defaultProps, 
+      ...customProps, 
+      category, 
       type: type,
     };
     setDecoracion(prev => prev ? ({ ...prev, salonElements: [...(prev.salonElements || []), newElement] }) : null);
   };
-
+  
   const handleUpdateElement = () => {
     if (!editingElement || !decoracion) return;
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).map(el => el.id === editingElement.id ? editingElement : el ) });
     setIsEditModalOpen(false);
     setEditingElement(null);
   };
-
+  
   const handleElementRotation = (elementId: string) => {
     if (!decoracion) return;
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).map(el => el.id === elementId ? { ...el, rotation: (el.rotation || 0) + 45 % 360 } : el ) });
@@ -294,11 +294,11 @@ function SalonLayoutContent() {
     if (!decoracion) return;
     setDecoracion({ ...decoracion, salonElements: (decoracion.salonElements || []).filter(el => el.id !== elementId) });
   };
-
+  
   const handleSaveAll = () => {
     saveNow();
   };
-
+  
   const handleAssignGuestToTable = async (guestId: string, tableName: string | null) => {
     const guestToUpdate = fiesta?.invitados?.find(inv => inv.id === guestId);
     if (!guestToUpdate || !fiestaId) return;
@@ -324,7 +324,7 @@ function SalonLayoutContent() {
 
   if (isLoading || !fiestaId) return <div className="flex items-center justify-center p-8"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>
   if (error || !decoracion || !fiesta) return <div className="text-destructive text-center p-4">{error}</div>
-
+  
   const pixelsPerMeter = decoracion.pixelsPerMeter || PIXELS_PER_METER_DEFAULT;
 
   return (
@@ -346,7 +346,7 @@ function SalonLayoutContent() {
           <DialogFooter><Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancelar</Button><Button onClick={handleUpdateElement}>Guardar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
-
+       
        <div className="flex justify-between items-center">
          <h1 className="text-2xl font-bold tracking-tight font-headline flex items-center gap-2"><LayoutDashboard className="w-6 h-6 text-primary"/>Diseño del Salón</h1>
         <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Link></Button>
@@ -387,9 +387,9 @@ function SalonLayoutContent() {
                                 const assignedGuests = (fiesta?.invitados || []).filter(inv => inv.tableNumber === el.name);
                                 const assignedSeatsCount = assignedGuests.reduce((sum, g) => sum + (g.partySize || 1), 0);
                                 return (
-                                    <DraggableElement
-                                        key={el.id}
-                                        el={el}
+                                    <DraggableElement 
+                                        key={el.id} 
+                                        el={el} 
                                         isSelected={selectedElementId === el.id}
                                         onSelect={() => setSelectedElementId(el.id)}
                                         onStop={(e, data) => handleDragStop(e, data, el.id)}

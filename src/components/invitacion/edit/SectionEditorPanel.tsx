@@ -85,7 +85,7 @@ function GenericSectionEditor({
 }
 
 export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, removeSection, selectedSectionId, fiestaId, onClose }) => {
-
+    
     const selectedSection = data.secciones.find(s => s.id === selectedSectionId);
 
     const handleSectionDataChange = (newData: any) => {
@@ -93,7 +93,7 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, 
         const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
         update({ [sectionKey]: { ...(data[sectionKey] as any), ...newData } });
     };
-
+    
     const handleVisibilityChange = (checked: boolean) => {
         if (!selectedSection) return;
         const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
@@ -104,14 +104,14 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, 
 
     const renderEditor = () => {
         if (!selectedSection) return null;
-
+        
         const sectionKey = selectedSection.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>;
         const sectionData = data[sectionKey];
 
-        const props = {
-            data: sectionData,
-            update: handleSectionDataChange,
-            fiestaId: fiestaId || undefined
+        const props = { 
+            data: sectionData, 
+            update: handleSectionDataChange, 
+            fiestaId: fiestaId || undefined 
         };
 
         switch (selectedSection.tipo) {
@@ -132,9 +132,9 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, 
             default: return <GenericSectionEditor type={selectedSection.tipo} data={sectionData} update={handleSectionDataChange} />;
         }
     }
-
-    const currentDataForVisibility = selectedSection?.tipo === 'cabecera'
-        ? data.cabecera
+    
+    const currentDataForVisibility = selectedSection?.tipo === 'cabecera' 
+        ? data.cabecera 
         : data[selectedSection?.tipo as keyof Omit<InvitacionDigitalData, 'secciones' | 'plantilla' | 'name' | 'category' | 'musicaFondoUrl'>];
 
 
@@ -153,9 +153,9 @@ export const SectionEditorPanel: React.FC<Props> = ({ data, update, addSection, 
                             {selectedSection && (
                                  <div className="flex items-center justify-between space-x-2 border p-3 rounded-md mb-4">
                                     <Label htmlFor={`visible-${selectedSectionId}`} className="font-normal">Mostrar esta sección</Label>
-                                    <Switch
+                                    <Switch 
                                         id={`visible-${selectedSectionId}`}
-                                        checked={currentDataForVisibility?.visible}
+                                        checked={currentDataForVisibility?.visible} 
                                         onCheckedChange={handleVisibilityChange}
                                     />
                                 </div>

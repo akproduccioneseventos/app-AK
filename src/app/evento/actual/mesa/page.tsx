@@ -38,9 +38,9 @@ function MesaLookupContent() {
         const fiestaData = await getFiestaById(fiestaIdFromUrl); // Usar getFiestaById
         if(!fiestaData) throw new Error("Evento no encontrado.");
         setFiesta(fiestaData);
-
+        
         const foundInvitado = fiestaData.invitados?.find(inv => inv.id === guestId);
-
+        
         if (foundInvitado) {
           setInvitado(foundInvitado);
         } else {
@@ -92,7 +92,7 @@ function MesaLookupContent() {
       </Card>
     );
   }
-
+  
   const pagePrimaryColor = fiesta.decoracion?.paletaColores?.primary || 'hsl(var(--primary))';
 
 
@@ -109,7 +109,7 @@ function MesaLookupContent() {
         {invitado.tableNumber ? (
           <>
             <p className="text-lg text-muted-foreground">Tu mesa asignada es la número:</p>
-            <div
+            <div 
                 className="inline-flex items-center justify-center w-24 h-24 md:w-32 md:h-32 rounded-full border-4 text-4xl md:text-5xl font-bold shadow-inner"
                 style={{ borderColor: pagePrimaryColor, color: pagePrimaryColor, backgroundColor: `${pagePrimaryColor}1A` }}
             >

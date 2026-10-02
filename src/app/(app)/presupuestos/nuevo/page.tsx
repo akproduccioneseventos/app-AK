@@ -133,8 +133,8 @@ function PresupuestoDashboardContent() {
 
     const filteredPresupuestos = useMemo(() => {
         const lower = searchTerm.toLowerCase();
-        return presupuestos.filter(p =>
-            p.clienteNombre.toLowerCase().includes(lower) ||
+        return presupuestos.filter(p => 
+            p.clienteNombre.toLowerCase().includes(lower) || 
             (p.numero?.toString().includes(lower)) ||
             p.id.includes(lower)
         );
@@ -197,7 +197,7 @@ function PresupuestoDashboardContent() {
                   <Button asChild variant="outline"><Link href="/empresa/contabilidad">Volver</Link></Button>
                 </div>
             </div>
-
+            
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                 <KpiCard title="Pendientes (Enviados)" value={kpis.pendientes} icon={FileClock} isLoading={isLoading}/>
                 <KpiCard title="Borradores" value={kpis.borradores} icon={FileText} isLoading={isLoading}/>
@@ -205,7 +205,7 @@ function PresupuestoDashboardContent() {
                 <KpiCard title="Facturados" value={kpis.facturados} icon={FileText} isLoading={isLoading}/>
                 <KpiCard title="Rechazados" value={kpis.rechazados} icon={XCircle} isLoading={isLoading}/>
             </div>
-
+            
             <Card>
               <CardHeader className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>

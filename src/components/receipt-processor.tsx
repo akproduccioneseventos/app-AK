@@ -87,7 +87,7 @@ export function ReceiptProcessor({ onDataExtracted }: ReceiptProcessorProps = {}
       setIsLoading(false);
     }
   };
-
+  
   return (
     <Card className="w-full max-w-lg">
       <CardHeader>
