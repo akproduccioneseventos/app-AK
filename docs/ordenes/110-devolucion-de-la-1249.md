@@ -94,5 +94,5 @@ prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
 no-usa: ins-licor-durazno en src/lib/fiesta-defaults.ts
 usa: SpeechSynthesisUtterance en src/components/mi-dia/ParteDeLaMananaPlayer.tsx
 usa: speechSynthesis en src/app/(app)/empresa/configurador-reunion/page.tsx
-no-usa: publicRsvp: true en src/app/actions/fiesta/invitados.actions.ts
+prueba: src/__tests__/actualizar-fiesta-pide-permiso.test.ts
 ```

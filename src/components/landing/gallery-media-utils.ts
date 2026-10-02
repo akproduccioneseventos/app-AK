@@ -34,7 +34,8 @@ const CATEGORY_RULES: Array<[GalleryCategory, RegExp]> = [
   ["Reposter\u00eda", /(torta|dulce|candy|postre|reposteria|chocolat|volcan|helado)/],
   ["Barra de Tragos", /(trago|bebida|\bbar\b|barra|coctel|whisky|gin|cerveza)/],
   ["Fotocabina", /(cabina|espejo|plataforma|touchpix|fotocabina|fotobina|totem| 360)/],
-  ["Catering", /(comida|catering|menu|finger|gastro|plato|bocado|recepcion|kebab|kebat|shawarma|asado|parrilla|picada|brochete|sandwich|tabla|perro|pancho|hamburguesa|pizza|pizzeta|empanada|lunch|carne|snack|buffet)/],
+  // "recepcion" no va: también es la bienvenida con flores y se iba a Catering (Codex, 2/10/2026).
+  ["Catering", /(comida|catering|menu|finger|gastro|plato|bocado|kebab|kebat|shawarma|asado|parrilla|picada|brochete|sandwich|tabla|perro|pancho|hamburguesa|pizza|pizzeta|empanada|lunch|carne|snack|buffet)/],
   ["Sal\u00f3n", /(salon|club|uruguay)/],
   ["Decoraci\u00f3n", /(decor|ambient|mesa principal|velas|flores|estilo|cortinas)/],
   ["Discoteca", /(disco|luz|luces|pantalla|led|\bdj\b|sonido|pista|baile|valz|vals|robot)/],

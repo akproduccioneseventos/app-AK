@@ -679,6 +679,11 @@ diferencia era una mayúscula.
 
 **Buscar sin distinguir mayúsculas antes de afirmar que algo no está.**
 
+**Y otra vez el 2 de octubre de 2026:** di por inexistentes tres secciones de la portada
+(`#landing-gallery`…) porque busqué `id="landing-gallery"` como texto fijo, y el nombre se arma
+(`landing-${key}`). Casi cambio tres enlaces que andaban. **Un nombre que no aparece puede estar
+armado: buscar también la parte fija (`landing-`).**
+
 ### 5. Confiar en el revisor de tipos como si fuera el build
 
 `npx tsc --noEmit` pasaba y `npm run build` fallaba. La aplicación estuvo seis
@@ -1508,6 +1513,7 @@ con otra cara.
 | Las recetas de la barra apuntaban a insumos que no existían y no descontaban nada | `src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts` |
 | Imágenes que eran texto y un tono presentado como voz | `src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts` |
 | Tocar un texto en un archivo que importan todas las pantallas corría las 80 pruebas | `exportsQueUsan` en `scripts/pantallas-tocadas.mjs`, con `src/__tests__/se-prueba-solo-lo-que-cambio-de-un-archivo.test.ts` |
+| Al llegar a la portada con una sección en la dirección, la página no bajaba | `tests/e2e/el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts` |
 
 ### Cómo se elige el matafuego
 
