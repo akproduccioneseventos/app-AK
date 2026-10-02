@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Volume2, Sparkles, ArrowRight, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,30 +9,24 @@ import Link from 'next/link';
 
 export function ParteDeLaMananaPlayer({ parte }: { parte: ParteDeLaManana }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
+  // Se lee con la voz del celular. Antes pedía un audio al servidor que era un tono, no una voz
+  // (2/10/2026). La voz de Gemini queda pedida en la orden 105.
   const toggleHablar = () => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
 
-    if (isPlaying && audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
       setIsPlaying(false);
       return;
     }
 
-    // Audio generado en el servidor con la voz de Gemini y guardado para no duplicar gasto
-    const audioUrl = `/api/asistente/voz-parte?fecha=${encodeURIComponent(parte.fecha)}`;
-    if (!audioRef.current) {
-      audioRef.current = new Audio(audioUrl);
-      audioRef.current.onended = () => setIsPlaying(false);
-      audioRef.current.onerror = () => setIsPlaying(false);
-    }
-
+    const frase = new SpeechSynthesisUtterance(parte.textoHablado);
+    frase.lang = 'es-UY';
+    frase.onend = () => setIsPlaying(false);
+    frase.onerror = () => setIsPlaying(false);
+    window.speechSynthesis.cancel();
     setIsPlaying(true);
-    audioRef.current.play().catch(() => {
-      setIsPlaying(false);
-    });
+    window.speechSynthesis.speak(frase);
   };
 
   return (
