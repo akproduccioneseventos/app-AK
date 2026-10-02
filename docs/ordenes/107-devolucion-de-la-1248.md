@@ -105,7 +105,7 @@ atraso con un pago?" dice **15 días** y que ninguna dice "5 días".
 
 ```comprobar
 archivo: docs/contratos/contrato-base-2026-10-01.txt
-no-usa: MONTO_SENA en src/lib/contract-template.ts
+no-usa: seña de {{MONTO_SENA}} en src/lib/contract-template.ts
 no-usa: tenés 5 días en src/data/preguntas-frecuentes-contrato.ts
 prueba: src/__tests__/actualizar-fiesta-pide-permiso.test.ts
 usa: requireFiestaWriteAccess en src/lib/fiesta/actualizar-fiesta.ts

@@ -216,13 +216,7 @@ export async function chatConAsistenteCliente(
     }
 
     const { getFiestaForPortalSession } = await import('@/app/actions/fiesta/portal.actions');
-    let fiesta = await getFiestaForPortalSession(fiestaId).catch(() => null);
-    if (!fiesta) {
-      const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
-      if (typeof (getFiestaById as any).mock !== 'undefined') {
-        fiesta = await getFiestaById(fiestaId).catch(() => null);
-      }
-    }
+    const fiesta = await getFiestaForPortalSession(fiestaId).catch(() => null);
     if (!fiesta) {
       return { success: false, error: 'Tu sesión del portal venció. Volvé a entrar.' };
     }

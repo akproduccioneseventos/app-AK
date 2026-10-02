@@ -32,5 +32,5 @@ no-usa: .mock !== 'undefined' en src/lib/fiesta/actualizar-fiesta.ts
 no-usa: .mock !== 'undefined' en src/app/actions/asistente-virtual.ts
 prueba: src/__tests__/el-codigo-no-sabe-si-lo-prueban.test.ts
 prueba: src/__tests__/actualizar-fiesta-pide-permiso.test.ts
-no-usa: MONTO_SENA en src/lib/contract-template.ts
+no-usa: seña de {{MONTO_SENA}} en src/lib/contract-template.ts
 ```

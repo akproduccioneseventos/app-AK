@@ -1,7 +1,6 @@
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { getFiestaById, saveFiesta, requireFiestaWriteAccess } from '@/app/actions/fiesta/fiesta.actions';
-import { writeData } from '@/lib/data-service';
+import { getFiestaById, requireFiestaWriteAccess } from '@/app/actions/fiesta/fiesta.actions';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 
@@ -32,26 +31,8 @@ export async function actualizarFiesta(
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   const releaseLock = await acquireFiestaUpdateLock(fiestaId);
   try {
-    if (!options.publicRsvp && typeof requireFiestaWriteAccess === 'function') {
+    if (!options.publicRsvp) {
       await requireFiestaWriteAccess(fiestaId);
-    }
-
-    if (typeof (saveFiesta as any)?.mock !== 'undefined' || typeof (writeData as any)?.mock !== 'undefined') {
-      const base = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-      if (!base) {
-        throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
-      }
-      const updated = await updateFn(base);
-      const res: { success: boolean; fiesta?: FiestaEnPlanificacion; error?: string } = options.publicRsvp
-        ? await writeData(
-            `fiestas/${fiestaId}.json`,
-            await preserveFiestaSecrets(fiestaId, updated),
-          ).then(() => ({ success: true, fiesta: updated }))
-        : await saveFiesta(updated);
-      if (!res.success) {
-        throw new Error(res.error || 'No se pudo guardar la fiesta después de actualizar.');
-      }
-      return { success: true, updatedFiesta: res.fiesta || updated };
     }
 
     const path = `fiestas/${fiestaId}.json`;

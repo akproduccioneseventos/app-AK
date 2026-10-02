@@ -10,7 +10,7 @@
  *   {{CLIENTE_TELEFONO}}   - e.g. "092908638"
  *   {{FECHA_EVENTO}}       - e.g. "05/09/2026"
  *   {{SALON}}              - e.g. "salón Adeom"
- *   {{MONTO_SENA}}         - e.g. "$ 20.000 (pesos uruguayos veinte mil)"
+ *   {{MONTO_SENA}}         - sólo para plantillas viejas que el dueño editó; el contrato del 1/10/2026 no lo usa
  *   {{HITO_30}}            - e.g. "1 de mayo de 2026"
  *   {{HITO_50}}            - e.g. "1 de julio de 2026"
  *   {{FECHA_SALDO_TOTAL}}  - e.g. "1 de diciembre de 2026"
