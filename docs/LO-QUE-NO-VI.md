@@ -768,3 +768,18 @@ usa: mutarPropuestas en src/lib/asistente/propuestas-service.ts
 usa: fechaEventoEnTexto en src/lib/contract-template.ts
 prueba: src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts
 ```
+
+## 02/10/2026 — La "voz" del Parte de la mañana era un pitido, y entró en la 1248
+
+**Qué era:** `/api/asistente/voz-parte` devuelve un tono armónico (`generarAudioWavSintetico`) y el
+reproductor lo presenta como el parte hablado. Revisé la 1248 y no lo vi: miré permisos y plata,
+no qué sale por el parlante.
+
+**Pregunta que lo hubiera agarrado:** la 3 del método (*¿si falta algo, simula como si fuera real?*)
+aplicada a **audio e imágenes**: abrir o escuchar el archivo que se entrega, no sólo ver que exista.
+En la 1249 venían 11 imágenes que eran texto. **Barrido:** orden 110.
+
+```comprobar
+prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
+no-usa: generarAudioWavSintetico en src/app/api/asistente/voz-parte/route.ts
+```
