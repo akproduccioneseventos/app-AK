@@ -1,14 +1,13 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-## 2 de octubre de 2026 — Los enlaces del pie llegan a su sección, y la galería clasifica bien
+## 2 de octubre de 2026 — La galería baja al llegar desde el blog, y clasifica bien la bienvenida
 
-- "Galería de Eventos Reales", "Plataforma 360° & Fotocabina QR" y "Testimonios & Preguntas
-  Frecuentes" apuntaban a secciones con nombres que no existen (`#landing-gallery`…): desde el
-  blog volvían a la portada y quedaban en cualquier lado. Ahora apuntan a `#galeria`,
-  `#tecnologia` y `#landing-testimonials`. Lo encontró Codex.
-- Aun con el nombre bueno, al llegar desde otra página la portada carga la galería después de
-  abrir y el navegador no bajaba: `LandingNav` espera hasta 8 segundos a que aparezca la sección
-  de la dirección y baja hasta ella.
+- "Galería de Eventos Reales" desde el blog volvía a la portada y quedaba arriba. Los enlaces del
+  pie estaban bien (`#landing-gallery` existe: lo arma `LandingSpaContainer` como
+  `landing-${key}`); lo que fallaba es que la portada carga la galería después de abrir y el
+  navegador no bajaba. `LandingNav` espera hasta 8 segundos a que aparezca la sección de la
+  dirección y baja hasta ella. **Falsa falta:** buscar `id="landing-gallery"` como texto fijo no
+  la encuentra; casi se cambian tres enlaces que andaban.
 - Una foto de bienvenida con flores salía en Catering porque el título decía "recepción". Esa
   palabra salió de la regla de Catering: un plato se reconoce por "finger", "bocado", "plato"…
 - **Decidido, no se toca:** el artículo del blog con el título sobre la foto oscurecida. Se lee
@@ -17,9 +16,9 @@
 
 ```comprobar
 prueba: src/__tests__/los-enlaces-del-pie-llegan-a-su-seccion.test.ts
-usa: #galeria en src/components/public-footer.tsx
 prueba: tests/e2e/el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts
 prueba: src/__tests__/la-galeria-clasifica-bien-la-bienvenida.test.ts
+usa: getElementById(decodeURIComponent(hash.slice(1))) en src/components/landing/LandingNav.tsx
 ```
 
 ## 2 de octubre de 2026 — La puerta prueba lo que cambió de cada archivo, no el archivo entero

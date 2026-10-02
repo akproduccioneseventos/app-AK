@@ -189,7 +189,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
                 </a>
               </li>
               <li>
-                <a href="#tecnologia" onClick={(e) => handleAnchorClick(e, '#tecnologia')} className="hover:text-white transition-colors flex items-center gap-2 group">
+                <a href="#landing-technology" onClick={(e) => handleAnchorClick(e, '#landing-technology')} className="hover:text-white transition-colors flex items-center gap-2 group">
                   <span className="h-1.5 w-1.5 rounded-full bg-zinc-500 group-hover:w-3 transition-all duration-300" />
                   Plataforma 360° & Fotocabina QR
                 </a>
@@ -212,7 +212,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
                 </Link>
               </li>
               <li>
-                <a href="#galeria" onClick={(e) => handleAnchorClick(e, '#galeria')} className="hover:text-white transition-colors flex items-center gap-1.5 group">
+                <a href="#landing-gallery" onClick={(e) => handleAnchorClick(e, '#landing-gallery')} className="hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="text-zinc-500 group-hover:text-white transition-colors">→</span>
                   Galería de Eventos Reales
                 </a>
@@ -224,7 +224,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
                 </Link>
               </li>
               <li>
-                <a href="#landing-testimonials" onClick={(e) => handleAnchorClick(e, '#landing-testimonials')} className="hover:text-white transition-colors flex items-center gap-1.5 group">
+                <a href="#landing-testimonials-faq" onClick={(e) => handleAnchorClick(e, '#landing-testimonials-faq')} className="hover:text-white transition-colors flex items-center gap-1.5 group">
                   <span className="text-zinc-500 group-hover:text-white transition-colors">→</span>
                   Testimonios & Preguntas Frecuentes
                 </a>
