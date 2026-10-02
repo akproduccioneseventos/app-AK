@@ -536,8 +536,13 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
 // ---------- COPY ALIAS BUTTON ----------
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      window.prompt('Copiá este texto:', text);
+      return;
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -695,7 +700,7 @@ function BackgroundMusicPlayer({ src, splashDone }: { src?: string; splashDone: 
             window.removeEventListener('click', unlockAudio);
             window.removeEventListener('touchstart', unlockAudio);
           })
-          .catch(() => {});
+          .catch(() => {}); // no pasa nada si falla: el navegador no deja sonar hasta que el invitado toque, y se reintenta al tocar
       }
     };
     if (splashDone && !playing) {

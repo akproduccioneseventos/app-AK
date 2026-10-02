@@ -258,31 +258,50 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
     // Si es anotar tarea
     if (accion === 'anotar_tarea') {
       try {
-        const tareasExistentes = await readData<any[]>('tareas.json', []);
-        tareasExistentes.push({
-          id: `tarea-${Date.now()}`,
-          titulo: interpretacion.detalle.replace(/^(anota|anotá|recordame|recordá)\s*/i, ''),
-          responsable: persona.nombre,
-          completada: false,
-          creadaEn: new Date().toISOString(),
-          origen: 'whatsapp_asistente',
-        });
-        await writeData('tareas.json', tareasExistentes);
-        respuestaTexto = `✅ Listo, anoté tu tarea. Tenés 24 horas para deshacerla desde la app si te equivocaste.`;
-      } catch (err: any) {
-        respuestaTexto = `✅ Tomé nota. Tenés 24 horas para deshacerla desde la app.`;
+        // Antes se guardaba en "tareas.json", que no lee ninguna pantalla: decía "anoté" y la tarea
+        // no aparecía en ningún lado. Ahora queda en la bandeja "Tu asistente".
+        const titulo = interpretacion.detalle.replace(/^(anota|anotá|recordame|recordá)\s*/i, '').trim() || 'Tarea por WhatsApp';
+        const ahora = new Date().toISOString();
+        const { agregadas } = await agregarPropuestasDeduplicadas([
+          {
+            clave: `tarea-whatsapp:${persona.nombre}:${ahora}`,
+            area: 'fiestas',
+            titulo,
+            quePasa: `${persona.nombre} la anotó por WhatsApp.`,
+            porQueImporta: 'Es algo que pidieron no olvidar.',
+            quePropone: titulo,
+            tipoPropuesta: 'tarea-whatsapp',
+            responsableNombre: persona.nombre,
+          },
+        ]);
+        respuestaTexto = agregadas.length > 0
+          ? '✅ Listo, la anoté en la bandeja "Tu asistente" de la app.'
+          : '⚠️ No pude anotarla. Probá de nuevo o anotala desde la app.';
+      } catch {
+        respuestaTexto = '⚠️ No pude anotarla. Probá de nuevo o anotala desde la app.';
       }
     } else if (accion === 'cuanto_me_deben') {
-      const presupuestos = await readData<any[]>('presupuestos.json', []);
-      let total = 0;
-      for (const p of presupuestos) {
-        const t = p.totalFinal || p.total || 0;
-        const c = p.totalCobrado || p.cobrado || 0;
-        if (t > c) total += t - c;
+      // Lo que se debe es plata de la empresa: sólo se le contesta al dueño. Y se calcula con la
+      // misma cuenta del panel (cobros por factura), no con campos del presupuesto que no existen:
+      // antes sumaba el total de TODOS los presupuestos como si nada estuviera cobrado.
+      if (!/due[ñn]o/i.test(String(persona.rol || ''))) {
+        respuestaTexto = '🔒 Eso lo ve sólo el dueño. Mirálo con él o en la app.';
+      } else {
+        try {
+          const { calculateFinancialLedger } = await import('@/lib/commercial-flow/ledger-service');
+          const [presupuestos, facturas] = await Promise.all([
+            readData<any[]>('presupuestos.json', []),
+            readData<any[]>('invoices.json', []),
+          ]);
+          const { saldoPendiente } = calculateFinancialLedger(presupuestos, facturas);
+          respuestaTexto = `💰 Quedan $${Math.round(saldoPendiente).toLocaleString('es-UY')} por cobrar (la misma cuenta del panel).`;
+        } catch {
+          respuestaTexto = '⚠️ No pude leer los cobros ahora. Miralo en el panel de la app.';
+        }
       }
-      respuestaTexto = `💰 En total hay $${total.toLocaleString('es-UY')} de saldos pendientes por cobrar en el sistema.`;
     } else {
-      respuestaTexto = `✅ Entendido. Dejé la consulta y el borrador listo. Tenés 24 horas para deshacerlo si hace falta.`;
+      // Ninguna otra acción se hace por WhatsApp todavía: no se dice que se hizo.
+      respuestaTexto = '📝 Te leí, pero eso todavía no lo hago por WhatsApp. Hacelo desde la app.';
     }
 
     await registrarAccionAsistente({

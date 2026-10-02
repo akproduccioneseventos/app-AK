@@ -237,8 +237,7 @@ const isModuleVisible = (
 ): boolean => {
   if (!settings) return false;
   const mod = settings[key];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return !!(mod && typeof mod === 'object' && (mod as any).visible === true);
+  return !!(mod && typeof mod === 'object' && 'visible' in mod && (mod as { visible?: unknown }).visible === true);
 };
 
 export default function PublicPortalView({

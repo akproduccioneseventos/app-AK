@@ -99,6 +99,21 @@ function parseDateUruguay(dStr?: string): Date | null {
   return isNaN(parsed.getTime()) ? null : parsed;
 }
 
+/**
+ * La fecha del evento en letras, SIN perder lo que venga al lado (la hora, "de 21 a 04 hs").
+ * Lo encontró Codex el 1/10/2026: "15/12/2026 a las 21:00" salía "15 de diciembre de 2026" y la
+ * hora acordada desaparecía del contrato.
+ */
+function fechaEventoEnTexto(original: string, d: Date): string {
+  const texto = original.trim();
+  const conBarras = texto.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (conBarras) return texto.replace(conBarras[0], formatDateTexto(d));
+  // En formato de máquina, la parte "T03:00:00Z" es la hora de guardado, no la del evento.
+  const iso = texto.match(/^\d{4}-\d{2}-\d{2}(T[\d:.]+(Z|[+-]\d{2}:?\d{2})?)?/);
+  if (iso) return `${formatDateTexto(d)}${texto.slice(iso[0].length)}`;
+  return formatDateTexto(d);
+}
+
 export interface ContractVarsInput {
   ciudadFecha?: string;
   fechaFirma?: string;
@@ -168,7 +183,7 @@ export function replaceContractPlaceholders(text: string, vars: ContractVarsInpu
   const ciCliente = vars.clienteCi ?? '___________________';
   const telCliente = vars.clienteTelefono ?? '___________________';
   const salonFinal = vars.salon ?? 'salón a convenir';
-  const fechaEventoFinal = vars.fechaEvento ? (eventoDate ? formatDateTexto(eventoDate) : vars.fechaEvento) : 'fecha a coordinar';
+  const fechaEventoFinal = vars.fechaEvento ? (eventoDate ? fechaEventoEnTexto(vars.fechaEvento, eventoDate) : vars.fechaEvento) : 'fecha a coordinar';
 
   const tratamiento = vars.clienteTratamiento;
   let rolCliente = 'EL/LA CLIENTE';

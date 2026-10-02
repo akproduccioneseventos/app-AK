@@ -1501,6 +1501,10 @@ con otra cara.
 | Un pendiente del portal llevaba a una sección oculta y el botón no hacía nada | `src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts` |
 | Se fusionó una entrega sin revisar por usar un número de propuesta adivinado | `scripts/antes-de-fusionar.mjs` con `src/__tests__/no-se-fusiona-lo-que-no-paso-la-puerta.test.ts` |
 | La lista pública de salones devolvía lo que AK le paga al salón | `src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts` |
+| Una función de la app tomaba otro camino si la estaban probando, y nadie probaba el de verdad | `src/__tests__/el-codigo-no-sabe-si-lo-prueban.test.ts` |
+| Marcar la llegada de un invitado no pedía permiso, y lo secreto de la fiesta se perdía al guardar | `src/__tests__/actualizar-fiesta-pide-permiso.test.ts` |
+| Un empleado aceptaba propuestas de plata como dueño, y dos toques cargaban el gasto dos veces | `src/__tests__/aceptar-una-propuesta-respeta-la-regla-de-oro.test.ts` |
+| El contrato borraba la hora acordada del evento | `src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts` |
 
 ### Cómo se elige el matafuego
 

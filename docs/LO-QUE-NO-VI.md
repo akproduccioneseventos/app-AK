@@ -749,3 +749,22 @@ no-usa: .slice(0, 6) en src/app/(app)/fiestas/nueva/orden-de-evento/page.tsx
 usa: cronogramaNotas en src/types/fiesta.ts
 no-usa: void persistItemPatch en src/app/(app)/fiestas/nueva/carga-operativa/page.tsx
 ```
+
+## 02/10/2026 — Tres cosas de la 1248 que vio Codex y yo no
+
+**Qué era:** un empleado tratado como dueño en la bandeja del asistente (`|| true`), dos tandas de
+propuestas a la vez que dejaban una sola (un almacén nuevo, `asistente-propuestas.json`, guardado
+con lectura afuera del turno), y el contrato que borraba la hora del evento al pasar la fecha a
+letras.
+
+**Por qué se me pasó:** revisé lo que la orden pedía y no le pasé las preguntas 22 y 23 a un
+almacén que la entrega creó de cero. Y no me pregunté si un formateo **tira parte del dato**.
+
+**Pregunta nueva:** *¿al pasar un dato escrito por una persona a otro formato, se pierde algo de lo
+que escribió?* Se agregó a `docs/COMO-AUDITAR.md`. **Barrido:** orden 109.
+
+```comprobar
+usa: mutarPropuestas en src/lib/asistente/propuestas-service.ts
+usa: fechaEventoEnTexto en src/lib/contract-template.ts
+prueba: src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts
+```

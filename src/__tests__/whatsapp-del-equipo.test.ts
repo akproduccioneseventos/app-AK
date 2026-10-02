@@ -17,6 +17,14 @@ jest.mock('@/lib/data-service', () => ({
   }),
 }));
 
+jest.mock('@/lib/generic-json-store', () => ({
+  mutateGenericJsonArray: jest.fn(async (file: string, cambiar: (l: any[]) => any[] | null) => {
+    const nueva = cambiar(JSON.parse(JSON.stringify(memoriaStore[file] ?? [])));
+    if (nueva) memoriaStore[file] = JSON.parse(JSON.stringify(nueva));
+    return nueva;
+  }),
+}));
+
 const mockSendMetaWhatsAppMessage = jest.fn(async () => ({ success: true, messageId: 'wa-123' }));
 jest.mock('@/lib/whatsapp/meta-sender', () => ({
   sendMetaWhatsAppMessage: (...args: any[]) => mockSendMetaWhatsAppMessage(...args),
@@ -56,14 +64,15 @@ describe('105 — WhatsApp del equipo', () => {
 
     expect(res.atendido).toBe(true);
     expect(res.nivel).toBe('solo');
-    expect(res.respuestaEnviada).toContain('anoté tu tarea');
-    expect(res.respuestaEnviada).toContain('24 horas para deshacerla');
+    expect(res.respuestaEnviada).toContain('la anoté en la bandeja');
 
-    // Verificar que la tarea quedó guardada en tareas.json
-    const tareas = memoriaStore['tareas.json'] || [];
-    expect(tareas.length).toBe(1);
-    expect(tareas[0].titulo).toContain('llamar al salón mañana');
-    expect(tareas[0].responsable).toBe('Alexander Knuth');
+    // La tarea queda donde la lee una pantalla: la bandeja "Tu asistente". Antes iba a
+    // "tareas.json", que no lee nadie.
+    const bandeja = memoriaStore['asistente-propuestas.json'] || [];
+    expect(bandeja.length).toBe(1);
+    expect(bandeja[0].titulo).toContain('llamar al salón mañana');
+    expect(bandeja[0].responsableNombre).toBe('Alexander Knuth');
+    expect(memoriaStore['tareas.json']).toBeUndefined();
   });
 
   test('el mismo texto desde un número NO habilitado no crea nada y sigue el camino de hoy', async () => {
@@ -119,5 +128,14 @@ describe('105 — WhatsApp del equipo', () => {
 
     expect(resConfirmacion.atendido).toBe(true);
     expect(resConfirmacion.respuestaEnviada).toContain('responder "sí" por WhatsApp no confirma la acción');
+  });
+
+  test('"cuánto me deben" sólo se lo contesta al dueño, con la cuenta del panel', async () => {
+    memoriaStore['presupuestos.json'] = [];
+    memoriaStore['invoices.json'] = [];
+    const empleado = await atenderAlEquipo({ from: '59899123456', type: 'text', text: 'cuánto me deben' });
+    expect(empleado.respuestaEnviada).toContain('sólo el dueño');
+    const duenio = await atenderAlEquipo({ from: '59898355530', type: 'text', text: 'cuánto me deben' });
+    expect(duenio.respuestaEnviada).toContain('por cobrar');
   });
 });
