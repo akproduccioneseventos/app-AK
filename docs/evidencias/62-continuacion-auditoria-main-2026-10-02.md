@@ -56,3 +56,11 @@ La lista de invitados y la autorización de acciones requieren la sonda priorita
 - `/simulador-de-presupuesto` abrió sin sesión. Pude avanzar desde la presentación al paso 2 sin cargar información personal.
 - Al intentar continuar vacío, bloqueó el avance y enumeró nombre, WhatsApp uruguayo, opción de salón y fecha faltantes. No envié ni guardé datos de prospecto.
 - La forma visible en la captura móvil es legible y ordenada en fondo claro. **No probé** cálculo final, proyección anual, selección de menú, paquetes, servicios dinámicos, PDF ni persistencia: esos recorridos requieren completar datos y no se ejecutaron en producción para evitar crear un lead real.
+
+
+## Inspección de artículo del blog publicado
+
+- Abrí `/public/blog/como-calcular-bebida-evento-salto` sin iniciar sesión. Carga título, bajada, artículo, checklist, FAQ, artículo relacionado y CTA de WhatsApp/simulador.
+- **Fricción visual confirmada:** el encabezado principal se monta sobre una fotografía oscurecida de fondo. En la captura móvil, el título y la bajada ocupan la imagen; no es el formato solicitado de publicación con imagen separada del texto. No comprobé superposición que impida leer: el texto sí resulta legible en la captura.
+- Los botones de compartir y el enlace de simulador están presentes; comprobé que el acceso del footer al simulador abre la ruta pública correcta. No envié mensajes ni datos.
+- **Clasificación:** mejora de presentación pendiente, no defecto funcional bloqueante. No se verificó atribución de visitas/conversión ni analítica.
