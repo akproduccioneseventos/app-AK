@@ -20,9 +20,9 @@
 - Se sacó el "video resumen de muestra": era una página armada a mano grabada con el navegador, no
   un video hecho con las fotos de una fiesta, y su prueba sólo pasaba en la máquina que lo había
   grabado. El video resumen de verdad sigue pedido en la orden 106 (bloque 13).
-- La limpieza de espacios de la 1248 se había llevado el aviso de datos del portal del cliente
-  (`PublicPortalProView`) y el `llms.txt` de Gemini borraba datos que ya estaban: se repuso el
-  aviso (sin el import repetido) y quedó el `llms.txt` de la principal.
+- `PublicPortalProView` no lo usaba ninguna pantalla (el portal del cliente es `PublicPortalView`):
+  se borró en vez de agregarle el aviso de datos. El `llms.txt` de Gemini borraba datos que ya
+  estaban: quedó el de la principal.
 
 ```comprobar
 no-usa: 'tareas.json' en src/lib/asistente/por-whatsapp.ts
