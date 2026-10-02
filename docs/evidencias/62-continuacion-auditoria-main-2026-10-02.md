@@ -36,3 +36,10 @@ La lista de invitados y la autorización de acciones requieren la sonda priorita
 - En el SHA revisado, `src/lib/auth/public-paths.ts` contiene `/experiencia-ak`, pero no `/tecnologia`; por eso el middleware trata el catálogo como ruta privada.
 - **Clasificación:** fallo confirmado en la web publicada al momento de la prueba; impide que un prospecto sin cuenta vea el catálogo público. No confundido con el fallo de imágenes ni con Gemini TTS.
 - Reproducción visual independiente del código: la versión desplegada y su SHA no fueron identificados, así que no atribuir este comportamiento a `c92ee42` publicado hasta verificar `/api/health`.
+
+## Segundo destino comercial bloqueado
+
+- Desde `src/app/tecnologia/page.tsx`, cada CTA **Probalo** enlaza a `/experiencia?paso=...`; la ruta existe en `src/app/experiencia/page.tsx`.
+- Abrí `https://akproducciones.uy/experiencia` sin sesión: redirige a `/login?redirect=%2Fexperiencia`.
+- `src/lib/auth/public-paths.ts` tampoco declara `/experiencia` pública (sólo declara `/experiencia-ak`).
+- **Clasificación:** reproducción confirmada en la web publicada y enlazada por el propio catálogo. El cliente no puede abrir la demostración desde esos botones. SHA de producción aún no identificado.
