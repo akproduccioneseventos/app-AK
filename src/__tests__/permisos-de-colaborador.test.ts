@@ -68,4 +68,17 @@ describe('Permisos que se pueden dar por enlace', () => {
     expect(portal).toContain('andaPorEnlace');
     expect(portal).toContain('acceso.permisos.filter(andaPorEnlace)');
   });
+
+  it('la pantalla /settings/accesos-personal tiene la configuracion de control de llegada al salon', () => {
+    const pantalla = readFileSync(
+      join(RAIZ, 'src/app/(app)/settings/accesos-personal/page.tsx'),
+      'utf-8',
+    );
+
+    expect(pantalla).toContain('Control de Llegada al Salón');
+    expect(pantalla).toContain('Controlar que el personal esté en el salón al marcar la llegada');
+    expect(pantalla).toContain('Distancia máxima permitida (metros)');
+    expect(pantalla).toContain('handleToggleLlegadaUbicacion');
+  });
 });
+

@@ -32,7 +32,13 @@ export async function preserveFiestaSecrets(
   const repuesta = reponerLoRecortado(data, stored);
 
   const settings = repuesta.clientPortalSettings;
-  if (!settings || settings.accessKey !== undefined) return repuesta;
+  if (!settings) {
+    if (stored.clientPortalSettings) {
+      return { ...repuesta, clientPortalSettings: stored.clientPortalSettings };
+    }
+    return repuesta;
+  }
+  if (settings.accessKey !== undefined) return repuesta;
   const claveGuardada = stored.clientPortalSettings?.accessKey;
   if (!claveGuardada) return repuesta;
 

@@ -258,7 +258,7 @@ export async function handleRsvpSubmission(
       data.invitados = [...currentInvitados, updatedInvitado];
     }
     return data;
-  });
+  }, { publicRsvp: true });
 
   return soloLoDelInvitado(result, updatedInvitado);
 }

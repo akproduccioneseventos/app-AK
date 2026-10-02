@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { SalonSceneAislada } from '@/components/salon-3d/SalonSceneAislada';
 import { useRouter } from 'next/navigation';
@@ -195,10 +195,13 @@ export default function ConfiguradorReunionPage() {
     }
   };
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const handleVozAsistente = () => {
     if (hablandoAsistente) {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
       }
       setHablandoAsistente(false);
       return;
@@ -206,13 +209,20 @@ export default function ConfiguradorReunionPage() {
 
     const texto = `Hola, estamos configurando los ${tipoEvento} para ${Number(adultos) + Number(menores)} personas con ambientación en luces color ${salonColor}. Te recomiendo incluir la discoteca profesional y la pantalla gigante para tus invitados.`;
 
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(texto);
-      utterance.lang = 'es-UY';
-      utterance.onend = () => setHablandoAsistente(false);
-      utterance.onerror = () => setHablandoAsistente(false);
+    if (typeof window !== 'undefined') {
+      const audioUrl = `/api/asistente/voz-parte?texto=${encodeURIComponent(texto)}`;
+      if (!audioRef.current) {
+        audioRef.current = new Audio(audioUrl);
+        audioRef.current.onended = () => setHablandoAsistente(false);
+        audioRef.current.onerror = () => setHablandoAsistente(false);
+      } else {
+        audioRef.current.src = audioUrl;
+      }
       setHablandoAsistente(true);
-      window.speechSynthesis.speak(utterance);
+      audioRef.current.play().catch(() => {
+        setHablandoAsistente(false);
+        toast({ title: 'Asistente de voz', description: texto });
+      });
     } else {
       toast({ title: 'Asistente de voz', description: texto });
     }
