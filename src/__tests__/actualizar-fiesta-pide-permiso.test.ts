@@ -39,7 +39,7 @@ jest.mock('@/lib/generic-json-store', () => ({
 }));
 
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
-import { checkInGuest, updateGuestExperience } from '@/app/actions/fiesta/invitados.actions';
+import { checkInGuest, updateGuestExperience, handleRsvpSubmission } from '@/app/actions/fiesta/invitados.actions';
 
 const fiestaBase = () => ({
   id: 'f1',
@@ -84,5 +84,13 @@ describe('Guardar una fiesta pide permiso', () => {
     permitido = true;
     await actualizarFiesta('f1', (f) => ({ ...f, portalSecret: undefined } as any));
     expect(documento!.portalSecret).toBe('SECRETO');
+  });
+
+  it('sin permiso, la carga de confirmaciones del equipo no escribe nada (orden 110)', async () => {
+    const res = await handleRsvpSubmission('f1', {
+      nombreCompleto: 'Luis Pérez', confirmacion: 'Confirmado', adultsCount: 1, kidsCount: 0, mensaje: '', companionNames: [],
+    });
+    expect(res.success).toBe(false);
+    expect(escrituras).toHaveLength(0);
   });
 });
