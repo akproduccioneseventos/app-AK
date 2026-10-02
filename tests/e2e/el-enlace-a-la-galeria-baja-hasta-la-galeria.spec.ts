@@ -10,4 +10,7 @@ test('llegar a la portada con #galeria baja hasta la galería', async ({ page })
   const galeria = page.locator('section#galeria');
   await expect(galeria).toBeAttached({ timeout: 30_000 });
   await expect(galeria).toBeInViewport({ timeout: 15_000 });
+  // La página bajó de verdad: arriba de todo está la portada, no la galería.
+  const bajo = await page.evaluate(() => window.scrollY);
+  expect(bajo).toBeGreaterThan(300);
 });
