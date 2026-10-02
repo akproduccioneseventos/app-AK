@@ -28,3 +28,11 @@
 ## Resultado
 
 La lista de invitados y la autorización de acciones requieren la sonda prioritaria antes de llamar al módulo seguro. La parte visual de tecnología y Gemini TTS siguen incompletas según el código observado. No se declara la app completa ni desplegada: faltan pruebas de acción remota y verificación de producción sobre el SHA actual.
+
+## Reproducción visual añadida — catálogo público inaccesible
+
+- Abrí en el navegador real `https://akproducciones.uy/tecnologia` sin iniciar sesión.
+- Resultado observable: redirigió a `/login?redirect=%2Ftecnologia` y mostró Acceso Protegido.
+- En el SHA revisado, `src/lib/auth/public-paths.ts` contiene `/experiencia-ak`, pero no `/tecnologia`; por eso el middleware trata el catálogo como ruta privada.
+- **Clasificación:** fallo confirmado en la web publicada al momento de la prueba; impide que un prospecto sin cuenta vea el catálogo público. No confundido con el fallo de imágenes ni con Gemini TTS.
+- Reproducción visual independiente del código: la versión desplegada y su SHA no fueron identificados, así que no atribuir este comportamiento a `c92ee42` publicado hasta verificar `/api/health`.
