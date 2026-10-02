@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 2 de octubre de 2026 — La puerta prueba lo que cambió de cada archivo, no el archivo entero
+
+- La 1249 corrió las 80 pruebas de navegador (22 minutos) porque tocó textos del contrato en
+  archivos que importan casi todas las pantallas por otros nombres. Ahora `pantallas-tocadas.mjs`
+  mira **qué declaración** cambió, sigue sólo a quien importa ese nombre, y dentro de cada archivo
+  sólo a lo exportado que lo usa. Los `import type` y los comentarios no cuentan. Medido sobre la
+  1249: el contrato pasó de "todas" a 5 pantallas y los ajustes a 4. Lo que de verdad usan todas
+  (cómo se guarda una fiesta) sigue corriendo todo, a propósito.
+
+```comprobar
+usa: exportsQueUsan en scripts/pantallas-tocadas.mjs
+prueba: src/__tests__/se-prueba-solo-lo-que-cambio-de-un-archivo.test.ts
+```
+
 ## 2 de octubre de 2026 — La 1249 de Gemini, arreglada por Claude (orden 110)
 
 - **Barra:** los 12 tragos apuntaban a insumos que no existían y en mililitros; ahora usan los
