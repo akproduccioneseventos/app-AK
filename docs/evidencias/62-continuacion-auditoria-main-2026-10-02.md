@@ -66,11 +66,56 @@ La lista de invitados y la autorización de acciones requieren la sonda priorita
 - **Clasificación:** mejora de presentación pendiente, no defecto funcional bloqueante. No se verificó atribución de visitas/conversión ni analítica.
 
 
-## Navegación rota desde artículo hacia la galería
+## Navegación desde artículo hacia la galería: evidencia corregida
 
-- **Rol/recorrido:** prospecto; artículo público → pie de página → “Galería de Eventos Reales”.
-- En `/public/blog/como-calcular-bebida-evento-salto`, activé ese enlace. La app volvió a la portada y la URL quedó `/#landing-gallery`, pero la captura quedó posicionada en “Guías útiles y consejos”; la galería no quedó visible ni enfocada. En el árbol accesible, la galería aparece como sección `galeria`, no `landing-gallery`.
-- **Clasificación:** DEFECTO P2 de navegación confirmado en producción: CTA con destino que no corresponde al ancla real; obliga a buscar/desplazarse para alcanzar la galería.
-- Pasos: abrir artículo sin sesión → usar “→ Galería de Eventos Reales” del footer → observar URL y sección visible. Sin envío de información ni cambios de datos.
-- Evidencia: navegador real, URL final `https://akproducciones.uy/#landing-gallery`; captura muestra “Guías útiles y consejos”; sección de galería identificada posteriormente como `galeria`.
-- Retest tras corrección: el enlace debe aterrizar con la galería en viewport y su título visible, tanto desde otra ruta como desde la portada.
+- **Rol/recorrido:** prospecto; artículo público → pie → “Galería de Eventos Reales”.
+- El primer registro atribuyó el problema a un ancla inexistente. **Esa explicación era incorrecta y queda retirada.** El DOM real contiene tanto `landing-gallery` (envoltorio) como `galeria` (sección interna); `LandingSpaContainer` crea el primero.
+- **Reproducción adicional, viewport 390×844:** abrir `/public/blog/como-calcular-bebida-evento-salto`, activar el enlace del pie. URL final `https://akproducciones.uy/#landing-gallery`; después de cargar la portada y volver a observarla, la pantalla sigue en el hero. El ancla existe, pero está a 15743 px por debajo del viewport; título a 15856 px. El defecto de desplazamiento sí se reproduce.
+- **Clasificación:** DEFECTO P2 publicado, causa exacta pendiente de comprobar. No ordenar renombrar el ancla ni agregar una segunda: ya existe.
+- Código: `src/components/public-footer.tsx:94`, `handleAnchorClick` usa `scrollIntoView` cuando el destino existe y `window.location.assign('/'+href)` cuando viene de otra página. `src/components/landing/LandingSpaContainer.tsx` crea `landing-gallery` en `dashboardSection('gallery', gallery)`.
+- Contraste: el menú Servicios de la portada sí llegó a su sección (top observado ~160 px). El problema comprobado es el recorrido entre páginas hacia galería, no todos los enlaces internos.
+- Retest: artículo → galería y navegación directa al enlace con hash, celular/escritorio y carga inicial; debe quedar visible el título de galería. Revisar si el destino termina de montarse después del desplazamiento inicial. Esta causa es una hipótesis, no una prueba.
+
+## Continuación: galería, video y tecnología
+
+### Base actual y alcance
+
+- Main sigue en `c92ee4224da3b440ad91d72f06d03c6672f44e33`.
+- Ahora hay PR abierta **1251**, rama `feat/super-asistente-unificado`, HEAD `ee7ada01c7fb52ac000f4da68f5114d4e4a612c7`, base c92ee42. Sus ocho archivos cambiados son de voz/asistente. Esto actualiza la consulta inicial sin PR; no se afirma que la entrega de voz esté validada.
+- Los blobs de `GallerySection.tsx` y `gallery-media-utils.ts` son idénticos en main y en ese HEAD. El nuevo fallo de clasificación sigue presente en la tanda.
+- Pruebas en navegador publicado, anónimo. Vista estrecha habitual y tamaños explícitos 390×844 y 1440×900; el tamaño fue restaurado al terminar. El SHA desplegado continúa sin verificar.
+- Graphify: la copia local no estuvo disponible en esta sesión; consultar `graphify-out/GRAPH_REPORT.md` en c92ee42 devolvió 404. Se usaron búsquedas puntuales y rangos de los consumidores reales.
+
+### P2: una categoría editorial correcta se pisa por una palabra ambigua
+
+- Galería → Catering → abrir **Recepcion y display personalizado**. La imagen muestra un cartel de quinceañera, flores y decoración de bienvenida; la etiqueta visible es **Catering**.
+- Registro identificado: `ak-serv-recepcion-display-01`, URL `/media/catalogo-servicios/recepcion-display-evento-01.jpeg`, en `src/data/galeria-publica.json`. Su categoría de origen YA ES `Decoracion`; descripción: “Display de bienvenida y ambientacion personalizada para evento.”
+- Causa rastreada: `src/components/landing/gallery-media-utils.ts`, `CATEGORY_RULES` incluye `recepcion` dentro de Catering. `classifyGalleryCategories` prioriza esa coincidencia de título antes de consultar la categoría editorial. `toLandingGalleryItem` en `src/components/landing/GallerySection.tsx:131` consume ese resultado para etiqueta y filtro.
+- **Estado:** reproducido en producción; lógica y dato presentes en main y clasificador idéntico en PR 1251. Programación a cargo de Gemini.
+- Corrección propuesta: resolver la ambigüedad entre recepción gastronómica y decoración de bienvenida sin perder el arreglo del kebab. No alcanza editar el JSON: ya está bien categorizado.
+- Pruebas propuestas, pendientes: esta foto debe quedar en Decoración; kebab en Catering incluso con descripción de ambientación; recepción de bocados en Catering; entrada con cartel/flores no debe convertirse en comida. Revisar los filtros y etiquetas usando la foto real.
+
+### P3: texto ambiguo en carga incremental
+
+- Con Catering había 12 fotos renderizadas y el botón decía “Ver más fotos y videos (24 de 28)”. Tras pulsarlo, había 24 fotos y decía “(28 de 28)”. Tras otro clic aparecieron las 28 y desapareció el botón.
+- **No faltan esas cuatro fotos:** la paginación se completó. El contador expresa la cantidad del siguiente lote, no la que está visible; el texto puede interpretarse como progreso actual.
+- Causa verificada en `GallerySection.tsx:378`: muestra `Math.min(visibleCount + BATCH_STEP, filtered.length)`. Sugerencia opcional: “Mostrar 12 más” y “12 de 28 visibles”, o texto equivalente sin ambigüedad.
+
+### Comprobaciones de comportamiento aprobadas en este recorrido
+
+- Filtro Catering: cambia el conjunto; ampliación del kebab muestra la imagen correcta con categoría Catering. Su antiguo error de clasificación NO se vuelve a reportar.
+- Foto ampliada: siguiente cambia al siguiente elemento y Escape cierra la vista.
+- Carga incremental: 12 → 24 → 28 fotos del filtro, sin bloqueo.
+- Videos → Testimonios reales → Testimonios de clientes satisfechos: abrió reproductor YouTube `f0o5FIRS_wo`, mostró “Pausar video” y tiempo de reproducción; Cerrar video retiró el reproductor. No se validó todo el catálogo de videos.
+- Demostración pública Barra y Tótem (expresamente rotulada muestra con datos de prueba): pedido Mojito #42 pasó de preparación a listo para retirar; segundo pedido Citrus Mocktail #43 inició preparación. Sólo acredita la demo local, no una comanda real a un barman ni sincronización de una fiesta.
+- Selector comercial: 360 y Espejo cambian título, prestaciones y destino contextual del enlace WhatsApp. No se enviaron mensajes. Las fichas son consultables en celular y escritorio.
+
+### Presentación de tecnología: oportunidad concreta
+
+- En 1440×900 la ficha del Espejo presenta un ícono genérico y una lista de prestaciones donde el prospecto necesita ver el equipo y el resultado de la foto. Lo mismo ocurre en la ficha 360 examinada.
+- Propuesta para Gemini: usar fotografía del equipo real y un ejemplo corto del resultado, conservando visibles los selectores de Fotocabina, 360 y Espejo. Aprovechar activos propios ya aprobados; no añadir otra sección repetida.
+- Éxito observable: se reconoce qué se contrata y qué recibe el invitado sin tener que interpretar una lista de texto. Esto es una mejora comercial propuesta, no un fallo de captura/impresión.
+
+### Límites de esta pasada
+
+No se probaron impresora, cámara, equipo 360, transformación IA, pedidos reales, sincronización de Instagram, deduplicación visual de todo el catálogo ni sesiones privadas. No se corrió compilación ni se tocó código de la aplicación. Las comprobaciones de demo no certifican los módulos operativos.
