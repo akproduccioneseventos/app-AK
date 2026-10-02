@@ -293,7 +293,17 @@ export function PublicFooter({ className }: PublicFooterProps) {
 
         {/* Bottom Copyright Row */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-medium text-zinc-400">
-          <p>© {new Date().getFullYear()} AK Producciones Eventos. Todos los derechos reservados.</p>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <p>© {new Date().getFullYear()} AK Producciones Eventos. Todos los derechos reservados.</p>
+            <span className="hidden sm:inline text-zinc-600">·</span>
+            <p className="text-zinc-500">
+              Tus datos se tratan según la{' '}
+              <Link href="/privacidad" className="hover:text-zinc-300 underline underline-offset-2 transition">
+                Ley 18.331
+              </Link>{' '}
+              de Protección de Datos Personales.
+            </p>
+          </div>
           <div className="flex items-center gap-6">
             <Link href="/club-uruguay" className="hover:text-white transition">Club Uruguay</Link>
             <Link href="/simulador-de-presupuesto" className="hover:text-white transition">Simulador</Link>

@@ -11,6 +11,25 @@ import { writeData } from '@/lib/data-service';
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(),
   saveFiesta: jest.fn(),
+  requireFiestaWriteAccess: jest.fn(async () => undefined),
+}));
+jest.mock('@/lib/fiesta/get-fiesta-raw', () => ({
+  preserveFiestaSecrets: jest.fn(async (_id: string, f: any) => f),
+}));
+// El guardado de verdad va por una transacción (orden 108: el código ya no pregunta si lo están
+// probando). Acá la transacción lee con getFiestaById y guarda con saveFiesta, que son los dobles
+// que esta prueba ya controla.
+jest.mock('@/lib/generic-json-store', () => ({
+  mutarDocumentoConTransaccion: jest.fn(async (path: string, _vacio: any, cambiar: (a: any) => any) => {
+    const { getFiestaById: leer, saveFiesta: guardar } = jest.requireMock('@/app/actions/fiesta/fiesta.actions');
+    const id = path.replace(/^fiestas\//, '').replace(/\.json$/, '');
+    const actual = await leer(id);
+    const nuevo = await cambiar(actual ?? null);
+    if (nuevo === null) return null;
+    const res = await guardar(nuevo);
+    if (res && res.success === false) throw new Error(res.error || 'No se pudo guardar.');
+    return nuevo;
+  }),
 }));
 jest.mock('@/lib/data-service', () => ({ writeData: jest.fn() }));
 jest.mock('@/lib/commercial/public-rate-limit', () => ({
@@ -118,7 +137,7 @@ describe('RSVP deduplication', () => {
     });
 
     expect(result.success).toBe(true);
-    const saved = mockedWriteData.mock.calls[0][1] as any;
+    const saved = mockedSaveFiesta.mock.calls[0][0] as any;
     expect(saved.invitados).toHaveLength(1);
     expect(saved.invitados?.[0].guestAccessToken).toBe('token-original');
     expect(saved.invitados?.[0].rsvp).toBe('Confirmado');
@@ -166,7 +185,7 @@ describe('RSVP deduplication', () => {
     });
 
     expect(result.success).toBe(true);
-    const saved = mockedWriteData.mock.calls[0][1] as any;
+    const saved = mockedSaveFiesta.mock.calls[0][0] as any;
     expect(saved.invitados[0]).toMatchObject({ partySize: 2, kidsCount: 2 });
   });
 

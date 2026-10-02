@@ -1,5 +1,73 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 2 de octubre de 2026 — Revisión de la 1248 hecha por Claude (órdenes 107 y 108 y contraste de Codex)
+
+- `actualizarFiesta` vuelve a pedir permiso de escritura (salvo la confirmación pública) y guarda
+  lo secreto de la fiesta adentro del turno. Se sacaron los atajos que preguntaban si el código
+  estaba en una prueba.
+- La bandeja del asistente trataba a todos como dueño (`|| true`): ahora usa `perfilDe`. Aceptar
+  una propuesta respeta la regla de oro: lo de "nunca" no se hace, lo que toca plata lo acepta el
+  dueño, se reserva antes de ejecutar (dos toques no cargan un gasto dos veces) y si falla queda
+  pendiente.
+- Dos tandas de propuestas a la vez quedaban en una sola: ahora leer, deduplicar y agregar van en
+  el mismo turno de la base (`mutarPropuestas`), igual que posponer, descartar y tomar.
+- El contrato perdía la hora del evento ("15/12/2026 a las 21:00"): ahora queda la fecha en letras
+  y lo que venga al lado; la hora de guardado de la máquina no se confunde con la del evento.
+- El asistente por WhatsApp decía "anoté tu tarea" y la guardaba en `tareas.json`, que no lee
+  nadie: ahora queda en la bandeja "Tu asistente". "Cuánto me deben" sumaba el total de todos los
+  presupuestos (leía campos que no existen) y se lo contestaba a cualquiera del equipo: ahora usa
+  la cuenta del panel y sólo le contesta al dueño. Lo demás ya no dice "dejé el borrador listo".
+- Se sacó el "video resumen de muestra": era una página armada a mano grabada con el navegador, no
+  un video hecho con las fotos de una fiesta, y su prueba sólo pasaba en la máquina que lo había
+  grabado. El video resumen de verdad sigue pedido en la orden 106 (bloque 13).
+- `PublicPortalProView` no lo usaba ninguna pantalla (el portal del cliente es `PublicPortalView`):
+  se borró en vez de agregarle el aviso de datos. El `llms.txt` de Gemini borraba datos que ya
+  estaban: quedó el de la principal.
+
+```comprobar
+no-usa: 'tareas.json' en src/lib/asistente/por-whatsapp.ts
+usa: calculateFinancialLedger en src/lib/asistente/por-whatsapp.ts
+usa: requireFiestaWriteAccess en src/lib/fiesta/actualizar-fiesta.ts
+usa: perfilDe(session.user) en src/app/actions/asistente-proactivo.actions.ts
+usa: mutarPropuestas en src/lib/asistente/propuestas-service.ts
+usa: aceptandoDesde en src/lib/asistente/propuestas-service.ts
+usa: fechaEventoEnTexto en src/lib/contract-template.ts
+prueba: src/__tests__/actualizar-fiesta-pide-permiso.test.ts
+prueba: src/__tests__/el-codigo-no-sabe-si-lo-prueban.test.ts
+prueba: src/__tests__/aceptar-una-propuesta-respeta-la-regla-de-oro.test.ts
+prueba: src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts
+```
+
+## 1 de octubre de 2026 — Órdenes 104, 101, 102, 105 y 106: El Super Asistente Unificado y la Fiesta sin Errores
+
+- **Orden 104 (Hallazgos de Codex en PR 1240):** Aislamiento de tokens, correcciones de consistencia en firmas y verificación de permisos.
+- **Orden 101 (Asistentes, contrato y web para agentes):**
+  - Asistente del cliente con validación estricta de sesión (`src/__tests__/el-asistente-del-cliente-pide-su-sesion.test.ts`).
+  - Preguntas frecuentes del contrato integradas en toda la plataforma (`src/__tests__/las-preguntas-del-contrato-llegan.test.ts`).
+  - Contrato revisado al 30/09/2026 con cláusulas claras (`src/__tests__/el-contrato-de-la-app-es-el-revisado.test.ts`).
+  - Aviso de datos personales según Ley 18.331 en todos los formularios públicos (`src/__tests__/el-aviso-de-datos-esta-donde-se-dejan-datos.test.ts`).
+  - Acciones del secretario ejecutivo sin escrituras automáticas en BD (`src/__tests__/el-secretario-hace-lo-del-dia.test.ts`).
+  - Notificaciones al dueño ante señales clave del cliente (`src/__tests__/el-duenio-se-entera-de-lo-que-pregunta-el-cliente.test.ts`).
+- **Orden 102 (El asistente que se anticipa 24/7):**
+  - Tarea programada `asistente-proactivo` (`src/app/api/cron/asistente-proactivo/route.ts`).
+  - Bandeja centralizada `/asistente` y panel de ajustes `/settings/asistente`.
+  - Envío respetuoso al dueño con horario no molestar (23 a 8 hs) y tope de 3 WhatsApp/día (`src/lib/asistente/avisar-al-duenio.ts`).
+  - Efemérides comerciales y clima de fiestas con Open-Meteo (`src/lib/asistente/fechas-comerciales.ts`, `src/lib/asistente/clima-de-las-fiestas.ts`).
+  - Probado en `src/__tests__/el-asistente-se-anticipa.test.ts` (7/7 en verde).
+- **Orden 105 (Hablarle a la app por WhatsApp y con voz):**
+  - Regla estricta de las tres puertas: solo / pregunta / nunca (`src/lib/asistente/que-puede-hacer-solo.ts`).
+  - Atención al equipo por WhatsApp con bloqueo de confirmación de dinero (`src/lib/asistente/por-whatsapp.ts`).
+  - Audio del parte matutino generado en servidor sin `speechSynthesis` (`ParteDeLaMananaPlayer.tsx`).
+  - Probado en `src/__tests__/el-asistente-cuida-la-plata.test.ts` (6/6) y `src/__tests__/whatsapp-del-equipo.test.ts` (4/4).
+- **Orden 106 (La reunión de venta que impresiona y la fiesta que no pierde invitados):**
+  - Galería con fotos y videos de YouTube en configurador de reunión (`idDeYoutube` y `createDemoFiesta`).
+  - Concurrencia real con transacciones en base para evitar pérdida de invitados entre servidores (`src/__tests__/dos-servidores-no-pierden-invitados.test.ts`).
+  - Moderación de fotos de invitados por nitidez y brillo sin mensajes alarmistas (`calcularNitidez`).
+  - Barra de tragos con stock inicial, alertas de botella baja y cierre con arqueo real (`src/__tests__/la-barra-cierra-la-cuenta.test.ts`).
+  - Fuente única de la tecnología de AK en `src/data/tecnologia-ak.ts` con `/experiencia` y `/tecnologia` (`src/__tests__/la-tecnologia-ak-no-se-despega.test.ts`).
+  - Gestión de fiestas suspendidas y pantalla "Revisar mis fiestas" (`src/__tests__/mis-fiestas-en-orden.test.ts`).
+  - Mascota animada SVG "Asistente AK" en todos los asistentes eliminando el ícono `Bot`.
+
 ## 29 de septiembre de 2026 — Orden 98: Promoción configurable y videos de ayuda
 
 - **Bloque 1 — El regalo de la portada sale de la promoción que carga el dueño:**

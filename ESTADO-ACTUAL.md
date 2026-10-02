@@ -1,33 +1,34 @@
 # Acá quedé
 
-**30 de septiembre de 2026.** Todo lo pendiente está en la **orden 100**, esperando a Gemini.
+**1 de octubre de 2026.** La 1247 (órdenes 100 y 103) se fusionó con la puerta en verde.
 
-## Espera a Gemini (una sola propuesta)
+## Espera a Gemini — UNA sola propuesta
 
-- **Orden 100** (`docs/ordenes/100-segunda-devolucion-96-98.md`), arrancando de la rama
-  **`claude/verificar-1246`** (tiene su entrega 96-99 más dos arreglos de Claude):
-  - 7 pruebas de navegador de su entrega que no pasan (simulador, portada, demo de barra, orden
-    de evento, reunión) y una prueba que ensucia `empleados.json`;
-  - **la medición de Google y Meta recibe las llaves de invitados y portales** (Codex): sólo se mide
-    en páginas de venta, con dirección limpia;
-  - el asistente interno pierde conversaciones con dos guardados a la vez, y puede completar una
-    tarea distinta de la pedida (Codex).
-- Tiene que correr `npm run "publicar?"` completo antes de avisar.
+Desde la rama **`claude/ponte-al-dia-qtrho3`**, en este orden: **104** (hallazgos de Codex en la
+1240 que seguían rotos: cocina con 0 adultos, notas de reunión, gasto de mantenimiento, orden de
+evento cortada, alerta de mantenimiento, ubicación del personal, escaneo de carga, QR, horario de
+redes), **101** (asistente del cliente, contrato revisado, letra chica Ley 18.331, privacidad),
+**102** (asistente que se anticipa), **105** (WhatsApp con audios y voz real, regla de oro de la
+plata) y **106** (galería con videos en la reunión, IA por voz, recorrido de demo, invitados sin
+pérdida con dos servidores, fotos borrosas e inadecuadas, vista mágica del salón, "Viví la
+experiencia" en la web).
+
+## Espera al dueño
+
+- **Barra de tragos:** confirmar las recetas de los 12 tragos y dónde va el licor de durazno. Con eso
+  se suma a la orden 106 un bloque de barra (carrusel en el tótem, foto con el trago, apertura y
+  cierre, descuento por receta, informe).
+- **Hoja de las estaciones** (https://claude.ai/artifact/HJmMRuPNQSKbzmG4tM8FwP): lo que marque
+  "No" se saca y "Cambiar" va a una orden. Se lee con `ArtifactData` colección `marcas`.
+- **Número de la IA en WhatsApp:** primero se prueba su propio chat; si no llega, un chip aparte.
 
 ## Cómo se fusiona (error 30)
 
 - La puerta anota el commit aprobado en `.ak-puerta-verde.json`; la fusión sin `expectedHeadSha`
-  igual a ese commit la frena `scripts/antes-de-fusionar.mjs`. Nunca fusionar en la misma tanda
-  en que se abre la propuesta.
-- La entrega de Gemini #1243 se fusionó por error y se volvió atrás (#1245): por eso su trabajo
-  vive en `claude/verificar-1246`, no en su rama vieja.
-
-## Espera al dueño
-
-- Integraciones reales y ensayo físico: recién cuando Codex no vea más errores (no mencionarlos).
+  igual a ese commit la frena `scripts/antes-de-fusionar.mjs`.
+- Con la puerta corriendo: no cambiar de rama ni `commit -a` (error 31).
 
 ## Trampas
 
-- Codex no puede abrir la app en su máquina: lo que necesite correr, se corre acá.
-- Con la máquina cargada fallan pruebas al azar; pasan solas con `npm run otravez`.
+- Medidas de maquetación que trae una entrega desde otra máquina: volver a las de la principal.
 - Apagar procesos por número o nombre exacto, nunca `pkill -f` (error 20).

@@ -27,4 +27,5 @@ export interface GastoGeneral {
   categoria: CategoriaGasto;
   monto: number;
   notas?: string;
+  idempotencyKey?: string;
 }

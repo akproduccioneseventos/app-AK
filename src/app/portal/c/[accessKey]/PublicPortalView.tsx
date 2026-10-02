@@ -1,5 +1,7 @@
-
 'use client';
+
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+
 
 import React, { useEffect, useRef, useState } from 'react';
 import type { FiestaEnPlanificacion, ClientTarea, MoodboardItem, ProgramaEventoItem, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, RsvpStatus } from '@/types/fiesta';
@@ -235,8 +237,7 @@ const isModuleVisible = (
 ): boolean => {
   if (!settings) return false;
   const mod = settings[key];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return !!(mod && typeof mod === 'object' && (mod as any).visible === true);
+  return !!(mod && typeof mod === 'object' && 'visible' in mod && (mod as { visible?: unknown }).visible === true);
 };
 
 export default function PublicPortalView({
@@ -2887,6 +2888,7 @@ export default function PublicPortalView({
       )}
 
       <PublicFooter variant="light" />
-    </div>
+      <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</div>
   );
 }

@@ -16,6 +16,7 @@ import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { formatEventDate, parseEventDate } from '@/lib/public-experience/event-date';
 import { XVThemeEffects } from '@/components/invitacion/xv-theme-effects';
 import { canUseNextImage } from '@/lib/next-image-url';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 interface Props {
   config: InvitacionDigitalConfig;
@@ -523,6 +524,10 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
             </Button>
           )}
         </div>
+
+        <div className="pt-2 text-center">
+          <AvisoDeDatos para="invitado" />
+        </div>
       </form>
     </div>
   );
@@ -531,8 +536,13 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
 // ---------- COPY ALIAS BUTTON ----------
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      window.prompt('Copiá este texto:', text);
+      return;
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -690,7 +700,7 @@ function BackgroundMusicPlayer({ src, splashDone }: { src?: string; splashDone: 
             window.removeEventListener('click', unlockAudio);
             window.removeEventListener('touchstart', unlockAudio);
           })
-          .catch(() => {});
+          .catch(() => {}); // no pasa nada si falla: el navegador no deja sonar hasta que el invitado toque, y se reintenta al tocar
       }
     };
     if (splashDone && !playing) {
@@ -1477,7 +1487,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             transition={{ duration: 1, delay: 0.3 }}
           >
             <p className="text-sm sm:text-base tracking-[0.3em] uppercase mb-4 opacity-80">{tipoLabel}</p>
-            <h1 
+            <h1
               className={cn(getHeroTitleClass(config.typography), config.typography?.lineHeight || 'leading-tight', 'mb-6 break-words max-w-full px-4', styles.fontHeading)}
               style={{ overflowWrap: 'anywhere' }}
             >

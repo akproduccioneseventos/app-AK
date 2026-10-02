@@ -36,6 +36,12 @@ export interface TareaAutomatica {
 
 export const TAREAS_AUTOMATICAS: TareaAutomatica[] = [
   {
+    id: 'asistente-proactivo',
+    nombre: 'Asistente proactivo 24/7',
+    siNoCorre: 'El asistente no monitorea las fiestas, presupuestos, cobros ni clima para anticipar errores y oportunidades.',
+    cadaHoras: 1,
+  },
+  {
     id: 'generate-blog-post',
     nombre: 'Escribir las notas del blog',
     siNoCorre: 'No se publica ninguna nota nueva, y la web deja de sumar paginas por las que la gente la encuentra.',

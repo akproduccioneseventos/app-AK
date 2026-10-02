@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
@@ -230,7 +231,8 @@ export default function MiMesaPage() {
               {isSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
               Buscar mi mesa
             </Button>
-          </form>
+            <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</form>
         </div>
 
         <p className="text-center text-xs text-white/30">AK Producciones Eventos · Salto, Uruguay</p>

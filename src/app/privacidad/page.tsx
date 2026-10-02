@@ -1,21 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Home, MessageCircle } from 'lucide-react';
+import { getCompanyInfoPublica } from '@/app/actions/settings';
 
 /**
  * LA PAGINA DE PRIVACIDAD
  *
- * El dueño la pidió el 28 de agosto de 2026, con una condición: **que no moleste**.
- * Por eso es una página común, tranquila, a la que se llega desde el pie —no un
- * cartel que salta encima del visitante ni una ventana que hay que cerrar.
- *
- * Está escrita en criollo a propósito. Una política copiada de un modelo legal
- * inglés no la entiende nadie y no protege a nadie; esta dice, en el idioma en que
- * habla el dueño, exactamente qué pasa con los datos.
- *
- * **La línea que marcó él y que la página respeta:** la web pública muestra fotos
- * del servicio, como las redes. Lo que pasa con las fotos de los invitados en una
- * fiesta va por el contrato con quien la contrata, no por acá.
+ * Regulada bajo la Ley 18.331 de Protección de Datos Personales de Uruguay.
  */
 
 export const metadata: Metadata = {
@@ -25,13 +16,17 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://akproducciones.uy/privacidad' },
 };
 
-const ACTUALIZADA = '28 de agosto de 2026';
+const ACTUALIZADA = '1 de octubre de 2026';
 
-export default function PrivacidadPage() {
+export default async function PrivacidadPage() {
+  const companyInfo = await getCompanyInfoPublica().catch(() => null);
+  const telefono = (companyInfo as any)?.telefono || companyInfo?.companyContact || '098 355 530';
+  const email = (companyInfo as any)?.email || 'contacto@akproducciones.uy';
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="font-headline text-4xl font-black tracking-tight text-slate-900">
-        Privacidad
+        Privacidad y Protección de Datos
       </h1>
       <p className="mt-2 text-sm text-slate-500">Última actualización: {ACTUALIZADA}</p>
 
@@ -41,6 +36,20 @@ export default function PrivacidadPage() {
           <p className="mt-2">
             AK Producciones organiza fiestas y eventos en Salto, Uruguay. Esta página explica
             qué pasa con tus datos cuando entrás a nuestra web o nos pedís un presupuesto.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-headline text-xl font-bold text-slate-900">
+            Quién es responsable de tus datos
+          </h2>
+          <p className="mt-2">
+            El responsable del tratamiento de los datos personales es <strong>AK Producciones Eventos</strong>,
+            RUT <strong>22037268001</strong>, con domicilio en Salto, Uruguay.
+          </p>
+          <p className="mt-2">
+            Podés contactarnos directamente por WhatsApp al <strong>{telefono}</strong> o
+            por correo electrónico a <strong>{email}</strong>.
           </p>
         </section>
 
@@ -72,7 +81,8 @@ export default function PrivacidadPage() {
           <h2 className="font-headline text-xl font-bold text-slate-900">Para qué los usamos</h2>
           <p className="mt-2">
             Para contestarte, para armarte el presupuesto y para acordar el trabajo si nos
-            contratás. Nada más.
+            contratás. Las conversaciones mantenidas a través del asistente del cliente en el
+            portal quedan guardadas para que el equipo de AK te atienda mejor.
           </p>
           <p className="mt-3">
             <strong>No vendemos ni prestamos tus datos a nadie.</strong> No los usamos para
@@ -82,16 +92,38 @@ export default function PrivacidadPage() {
 
         <section>
           <h2 className="font-headline text-xl font-bold text-slate-900">
+            Si sos invitado de una fiesta
+          </h2>
+          <p className="mt-2">
+            Tu nombre, si vas o no (RSVP), lo que elegís de menú y las fotos o mensajes que subís
+            al muro o buzón se usan <strong>sólo para esa fiesta</strong>. Lo ve el equipo y quien
+            la contrató. No se vende ni se usa para publicidad.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-headline text-xl font-bold text-slate-900">
+            Si trabajás con nosotros
+          </h2>
+          <p className="mt-2">
+            Si sos parte de nuestro personal o un proveedor contratado, tus datos de contacto y
+            asistencia se usan exclusivamente para coordinar el trabajo en los eventos y realizar
+            los pagos correspondientes.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-headline text-xl font-bold text-slate-900">
             Las visitas a la web
           </h2>
           <p className="mt-2">
-            Usamos Google Analytics para saber cuánta gente entra y qué páginas mira. Eso
-            usa cookies: archivitos que quedan en tu navegador. Sirven para contar visitas,
-            no para saber quién sos.
+            Usamos Google Analytics y el píxel de Meta (Facebook e Instagram) para conocer cuánta gente
+            nos visita, qué páginas resultan de interés y medir el rendimiento de los anuncios publicitarios.
+            Esto emplea cookies: pequeños archivos que quedan en tu navegador para estadísticas anónimas.
           </p>
           <p className="mt-3">
-            Si no las querés, se apagan desde la configuración de tu navegador, y la web
-            sigue funcionando igual.
+            Si preferís no utilizarlas, podés desactivarlas en la configuración de tu navegador y el sitio
+            seguirá funcionando con total normalidad.
           </p>
         </section>
 
@@ -115,17 +147,34 @@ export default function PrivacidadPage() {
           <h2 className="font-headline text-xl font-bold text-slate-900">Cuánto los guardamos</h2>
           <p className="mt-2">
             Los presupuestos y los contactos quedan guardados mientras haya una relación
-            comercial con vos, y después por el tiempo que nos exige la contabilidad.
+            comercial con vos, y después por el tiempo que nos exige la contabilidad y las normativas vigentes.
+            Borramos los datos que no hacen falta una vez cumplidos los plazos legales.
           </p>
         </section>
 
         <section>
           <h2 className="font-headline text-xl font-bold text-slate-900">
-            Si querés que borremos lo tuyo
+            Tus derechos
           </h2>
           <p className="mt-2">
-            Escribinos y lo borramos. También podés pedirnos que te digamos qué tenemos
-            tuyo, o que lo corrijamos si está mal. No hace falta que expliques por qué.
+            Conforme a la ley, podés ejercer en cualquier momento tus derechos de <strong>acceso, rectificación, actualización, inclusión o supresión</strong> de tus datos personales escribiéndonos a nuestros medios de contacto. Contestamos <strong>dentro de los 5 días hábiles</strong>.
+          </p>
+          <p className="mt-3">
+            Si considerás que tus derechos no fueron debidamente atendidos, podés presentar una denuncia ante la <strong>Unidad Reguladora y de Control de Datos Personales (URCDP)</strong> a través de su sitio oficial:{' '}
+            <a
+              href="https://www.gub.uy/unidad-reguladora-control-datos-personales"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary underline hover:text-primary/80"
+            >
+              https://www.gub.uy/unidad-reguladora-control-datos-personales
+            </a>.
+          </p>
+        </section>
+
+        <section className="pt-4 border-t border-slate-200">
+          <p className="text-xs text-slate-500">
+            Esta política se rige por la Ley 18.331 de Protección de Datos Personales y su Decreto reglamentario 414/009.
           </p>
         </section>
       </div>

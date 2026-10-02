@@ -80,7 +80,9 @@ export async function leerHistorialCrudo(): Promise<FiestaEnPlanificacion[]> {
 export async function leerFiestasCrudas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {
   const activas = await leerColeccion(FIESTAS_DIR);
   const archivadas = includeArchived ? await leerHistorialCrudo() : [];
-  const activasFiltradas = activas.filter((f) => f.estado !== 'Archivado');
+  const activasFiltradas = activas.filter(
+    (f) => f.estado !== 'Archivado' && (includeArchived || (f.estado !== 'suspendida' && f.estado !== 'Suspendida'))
+  );
   const todas = [...activasFiltradas, ...archivadas];
   return Array.from(new Map(todas.map((item) => [item.id, item])).values());
 }

@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -116,7 +117,8 @@ export default function ProveedorAccessPage() {
           <AlertTitle>Acceso no disponible</AlertTitle>
           <AlertDescription>{error || 'Solicitá un enlace nuevo a AK Producciones.'}</AlertDescription>
         </Alert>
-      </main>
+        <div className="pt-4 text-center"><AvisoDeDatos para="equipo" /></div>
+</main>
     );
   }
 

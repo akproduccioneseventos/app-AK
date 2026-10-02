@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -388,7 +389,8 @@ export default function ConfirmarInvitadosPortalPage() {
           </Card>
         )}
 
-      </main>
+        <div className="pt-4 text-center"><AvisoDeDatos para="cliente" /></div>
+</main>
     </div>
   );
 }

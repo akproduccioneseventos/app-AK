@@ -5,7 +5,7 @@ import type { SocialGalleryPost } from './social-gallery';
 import type { ContractType } from './settings';
 
 // --- NOTIFICACIONES ---
-export type NotificacionTipo = 'info' | 'aviso' | 'urgente' | 'exito';
+export type NotificacionTipo = 'info' | 'aviso' | 'urgente' | 'exito' | 'alerta';
 
 export interface Notificacion {
   id: string;
@@ -167,6 +167,7 @@ export interface ConfigEventoDataStorage {
   // Legacy / extended optional fields
   nombreAgasajado?: string;
   clienteNombre?: string;
+  clienteTratamiento?: 'Sr.' | 'Sra.';
   primaryColor?: string;
   carteleriaQrTexto?: string;
   // Phase 3.10: Logistics & Accessibility
@@ -1543,6 +1544,8 @@ export interface FiestaEnPlanificacion {
   invitacionSlug?: string;
   configuracion: ConfigEventoDataStorage;
   estado?: string;
+  motivoSuspension?: string;
+  fechaSuspension?: string;
   modulosContratados?: ModulosContratados;
   personalAsignado: PersonalAsignadoDetalleStorage[];
   menuAsignadoId?: string;
@@ -1627,6 +1630,7 @@ export interface FiestaEnPlanificacion {
   reunionOrganizacion?: {
     respuestasExtra?: Record<string, string>;
     cerradaAt?: string;
+    cronogramaNotas?: string;
   };
   catering?: {
     detallesMenu?: string;

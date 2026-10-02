@@ -146,7 +146,7 @@ export async function mutarDocumentoConTransaccion<T>(
     );
   }
 
-  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
     const { readData, writeData } = await import('./data-service');
     const mutex = getFileMutex(normalizedPath);
     return mutex.runExclusive(async () => {

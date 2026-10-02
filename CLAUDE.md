@@ -971,6 +971,17 @@ commit pasó, y `scripts/antes-de-fusionar.mjs` (enganchado en `.claude/settings
 fusión) **rechaza** toda fusión que no traiga `expectedHeadSha` o cuyo commit no sea ese. Con el
 número equivocado, GitHub ve otro commit y no fusiona.
 
+### 31. Subir datos de la corrida con un "commit -a", y cambiar de rama con la puerta corriendo
+
+**Pasó el 1 de octubre de 2026.** Para arreglar una línea en la entrega de Gemini usé `git commit -am`
+después de una corrida: entraron cuatro archivos de datos que escribió la prueba (error 13 otra vez).
+Los saqué con otro commit. Y ese mismo día **cambié de rama mientras la puerta corría**, para mirar
+código: por suerte la compilación ya había terminado.
+
+**Qué se hace distinto:** después de una corrida, `git add` **con los archivos nombrados**, nunca `-a`
+ni `-A`. Y con la puerta corriendo, el código se mira con `git show <rama>:<archivo>` o `git grep`,
+**nunca** cambiando de rama.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1162,6 +1173,11 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **Lo que se suma a la tecnología, y lo que no (1 de octubre de 2026).** Se suma el **video resumen**
+  armado con las fotos (sin IA de video) y los asistentes pasan a llamarse **Asistente AK**, con mascota. La
+  **invitación con realidad aumentada queda descartada**. Con eso **no hay más funciones para sumar**:
+  lo que sigue es terminar y que no tenga errores. No proponer más funciones nuevas sin que las pida.
 
 - **La fotocabina no tiene cámara lenta (30 de septiembre de 2026).** *"La fotocabina no usa cámara lenta
   si es foto"*. La cámara lenta es de la Plataforma 360. Lo saca la orden 100.
@@ -1485,6 +1501,10 @@ con otra cara.
 | Un pendiente del portal llevaba a una sección oculta y el botón no hacía nada | `src/__tests__/el-pendiente-no-lleva-a-una-seccion-oculta.test.ts` |
 | Se fusionó una entrega sin revisar por usar un número de propuesta adivinado | `scripts/antes-de-fusionar.mjs` con `src/__tests__/no-se-fusiona-lo-que-no-paso-la-puerta.test.ts` |
 | La lista pública de salones devolvía lo que AK le paga al salón | `src/__tests__/los-pagos-al-salon-no-son-publicos.test.ts` |
+| Una función de la app tomaba otro camino si la estaban probando, y nadie probaba el de verdad | `src/__tests__/el-codigo-no-sabe-si-lo-prueban.test.ts` |
+| Marcar la llegada de un invitado no pedía permiso, y lo secreto de la fiesta se perdía al guardar | `src/__tests__/actualizar-fiesta-pide-permiso.test.ts` |
+| Un empleado aceptaba propuestas de plata como dueño, y dos toques cargaban el gasto dos veces | `src/__tests__/aceptar-una-propuesta-respeta-la-regla-de-oro.test.ts` |
+| El contrato borraba la hora acordada del evento | `src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts` |
 
 ### Cómo se elige el matafuego
 

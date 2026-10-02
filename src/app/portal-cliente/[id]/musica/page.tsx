@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -160,7 +161,8 @@ export default function MusicaPortalPage() {
             Última actualización: {new Date(lista.fechaActualizacion).toLocaleDateString('es-UY')}
           </p>
         )}
-      </main>
+        <div className="pt-4 text-center"><AvisoDeDatos para="cliente" /></div>
+</main>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import type {
   BarStockMovement,
   BarTechnologyData,
   CierreDeBarraGuardado,
+  AperturaDeBarraGuardada,
   BarTechnologyDashboard,
   BarTechnologySettings,
   CreateBarDrinkOrderInput,
@@ -473,6 +474,8 @@ export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ 
         settings: stored.settings,
         drinks,
         orders,
+        apertura: stored.apertura,
+        cierre: stored.cierre,
         backgroundImageUrl: fiesta.cartaTragos?.backgroundImageUrl || '',
         protagonistaFotoUrl: fiesta.cartaTragos?.protagonistaFotoUrl || '',
       },
@@ -1211,3 +1214,51 @@ async function moverStock(ajustes: Array<{ insumoId: string; ajuste: number }>) 
     limpiarCacheInsumos();
   });
 }
+
+export async function getBarPedidosListos(fiestaId: string): Promise<{
+  success: boolean;
+  eventName?: string;
+  orders?: BarDrinkOrder[];
+  error?: string;
+}> {
+  try {
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) throw new Error('Fiesta no encontrada.');
+    const stored = getStoredBarData(fiesta);
+    const firestoreOrders = await getFirestoreOrders(fiestaId).catch(() => null);
+    const orders = firestoreOrders ?? (stored.orders || []);
+    const listos = orders.filter((o) => o.status === 'listo');
+    return {
+      success: true,
+      eventName: fiesta.configuracion?.nombreEvento || 'Evento AK',
+      orders: listos,
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'No se pudieron cargar los pedidos listos.' };
+  }
+}
+
+export async function guardarAperturaDeBarraAction(
+  fiestaId: string,
+  botellasRecibidas: Record<string, number>,
+): Promise<{ success: boolean; apertura?: AperturaDeBarraGuardada; error?: string }> {
+  try {
+    await requireAppSession();
+    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
+    if (!fiesta) throw new Error('Fiesta no encontrada.');
+    const stored = getStoredBarData(fiesta);
+    const apertura: AperturaDeBarraGuardada = {
+      at: new Date().toISOString(),
+      botellasRecibidas,
+    };
+    const result = await saveFiesta({
+      ...fiesta,
+      others: { ...(fiesta.others || {}), barraTecnologica: { ...stored, apertura } },
+    });
+    if (!result.success) throw new Error(result.error || 'No se pudo guardar la apertura.');
+    return { success: true, apertura };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al guardar la apertura.' };
+  }
+}
+

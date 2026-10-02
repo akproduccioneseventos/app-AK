@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
@@ -62,6 +63,8 @@ import { Salon3DClienteView } from '@/components/salon-3d/Salon3DClienteView';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
+import { AsistenteDelCliente } from '@/components/portal/AsistenteDelCliente';
+import { PREGUNTAS_FRECUENTES_DEL_CONTRATO } from '@/data/preguntas-frecuentes-contrato';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -429,7 +432,8 @@ export default function PortalClientePage() {
                 </a>
               </div>
             </CardFooter>
-          </form>
+            <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</form>
         </Card>
       </div>
     );
@@ -1368,12 +1372,44 @@ export default function PortalClientePage() {
         </Tabs>
         </motion.div>
 
+        {/* ── Preguntas Frecuentes del Contrato ── */}
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-20px' }}
+          transition={{ duration: DURACION.entrar, ease: SUAVE }}
+          className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-sm"
+          data-testid="seccion-faq-contrato"
+        >
+          <div className="mb-4">
+            <h2 className="text-lg font-black text-foreground">Preguntas Frecuentes del Servicio</h2>
+            <p className="text-xs text-muted-foreground">Términos claros y transparentes de nuestro contrato y organización.</p>
+          </div>
+          <Accordion type="single" collapsible className="w-full">
+            {PREGUNTAS_FRECUENTES_DEL_CONTRATO.map((faq, idx) => (
+              <AccordionItem key={idx} value={`faq-${idx}`}>
+                <AccordionTrigger className="text-left text-sm font-semibold text-foreground hover:no-underline">
+                  {faq.pregunta}
+                </AccordionTrigger>
+                <AccordionContent className="text-sm text-muted-foreground leading-relaxed">
+                  {faq.respuesta}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </motion.section>
+
       </main>
 
       {/* Footer */}
       <footer className="mt-12 py-6 text-center text-xs text-muted-foreground border-t border-border">
         <p>AK Producciones Eventos · Salto, Uruguay · 098 355 530</p>
       </footer>
+
+      {/* ── Asistente Virtual del Cliente ── */}
+      {isAuthenticated && fiesta && (
+        <AsistenteDelCliente fiestaId={fiestaId} nombreEvento={config.nombreEvento} />
+      )}
 
       {/* ── Floating "Necesito ayuda" button ───────────── */}
       {(() => {

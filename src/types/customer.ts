@@ -9,7 +9,8 @@ export interface Customer {
   companyName?: string;
   address?: string; // Nuevo campo para domicilio fiscal/personal
   ci?: string; // Cédula de identidad
-  taxId?: string; 
+  taxId?: string;
+  tratamiento?: 'Sr.' | 'Sra.'; // Trato del cliente: 'Sr.' o 'Sra.'
   estadoCliente?: CustomerStatus; // 'Actual' o 'Antiguo'
   
   // Party-related fields, now potentially mandatory at customer creation/edit

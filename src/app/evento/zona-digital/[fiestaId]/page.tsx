@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -173,7 +174,8 @@ export default function ZonaDigitalPublicPage() {
             </div>
           </CardContent>
         </Card>
-      </main>
+        <div className="pt-4 text-center"><AvisoDeDatos para="invitado" /></div>
+</main>
     );
   }
 

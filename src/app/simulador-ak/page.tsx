@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import Link from 'next/link';
@@ -182,7 +183,7 @@ function SimuladorAKContent() {
       .then((armadoConfig) => {
         if (active && armadoConfig) setConfig(armadoConfig);
       })
-      .catch(() => {});
+      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
 
     getBudgetDisplaySettings()
       .then((budgetSettings) => {
@@ -190,7 +191,7 @@ function SimuladorAKContent() {
           setAnnualAdjustmentPercentage(budgetSettings.annualAdjustmentPercentage);
         }
       })
-      .catch(() => {});
+      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
 
     const servicesRequest = getServiciosEmpresaPublicos()
       .then((servicios) => {
@@ -198,13 +199,13 @@ function SimuladorAKContent() {
           setServiciosCatalogo(servicios.filter((service) => service.tipoItem === 'Servicio'));
         }
       })
-      .catch(() => {});
+      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
 
     const menusRequest = getMenusPublicos()
       .then((menus) => {
         if (active && Array.isArray(menus)) setAvailableMenus(menus);
       })
-      .catch(() => {});
+      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
 
     Promise.allSettled([configRequest, servicesRequest, menusRequest]).then(() => {
       if (active) setIsReferenceDataLoading(false);
@@ -214,7 +215,7 @@ function SimuladorAKContent() {
       .then((phoneNumber) => {
         if (active && phoneNumber) setEmpresaPhone(phoneNumber);
       })
-      .catch(() => {});
+      .catch(() => {}); // no pasa nada si falla: es un ajuste opcional y la pantalla sigue con el valor de fábrica
 
     return () => {
       active = false;
@@ -1396,7 +1397,8 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             para escribirle a Sofia: tapaba el boton de enviar y el clic se lo
             llevaba WhatsApp. Se sube para dejar libre la barra de escritura. */}
         <FloatingWhatsApp className="bottom-28" />
-      </div>
+        <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</div>
     );
   }
 }

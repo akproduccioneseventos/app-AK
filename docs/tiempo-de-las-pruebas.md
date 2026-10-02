@@ -2,8 +2,8 @@
 
 Lo escribe solo la ultima corrida. **No se edita a mano.**
 
-Medido el 2026-10-01 — total 13s.
+Medido el 2026-10-02 — total 21s.
 
 | Prueba | Tarda | Del total |
 | --- | --- | --- |
-| la-portada-no-dice-cero.spec.ts | 13s | 100% |
+| el-cliente-gira-su-salon-en-3d.spec.ts | 21s | 100% |

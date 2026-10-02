@@ -1,5 +1,7 @@
-
 'use client';
+
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+
 
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -374,7 +376,8 @@ function AsignacionMesasContent() {
                                 {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin"/> : <UserPlus2 className="w-4 h-4 mr-2"/>}
                                 Añadir
                             </Button>
-                        </form>
+                          <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</form>
                     </CardContent>
                 </Card>
 

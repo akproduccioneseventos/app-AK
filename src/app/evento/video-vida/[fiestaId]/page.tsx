@@ -1,5 +1,7 @@
-
 'use client';
+
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+
 
 import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
 import { useParams } from 'next/navigation';
@@ -206,9 +208,9 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
 
       setFiesta(fiestaData);
       const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
-      
+
       const slotCount = fiestaData.videoVida?.photoCount || 50;
-      
+
       const slots: PhotoSlot[] = Array.from({ length: slotCount }).map((_, index) => {
         const photoNumber = index + 1;
         const matchingPhoto = photoUrls.find(url => {
@@ -229,7 +231,7 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handleUploadComplete = useCallback((slotNumber: number, url: string | null) => {
     setPhotoSlots(prev => prev.map(s => {
         if (s.number === slotNumber && url) {
@@ -242,7 +244,7 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
   }
-  
+
   if (error || !fiesta) {
     return <div className="flex flex-col items-center justify-center h-screen text-center p-4">
         <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
@@ -250,7 +252,7 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
         <p className="text-muted-foreground mt-2">{error || "No se encontró la información del evento."}</p>
     </div>;
   }
-  
+
   const photoCount = fiesta.videoVida?.photoCount || 50;
   const photosUploadedCount = photoSlots.filter(s => s.imageUrl).length;
 
@@ -286,7 +288,8 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
         </div>
         <KioskUnlockButton />
         <SyncStatusIndicator fiestaId={fiesta.id} moduleId="video-vida" />
-    </div>
+      <div className="pt-2 text-center"><AvisoDeDatos para="invitado" /></div>
+</div>
   );
 }
 

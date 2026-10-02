@@ -19,6 +19,7 @@ import QRCodeStylized from 'qrcode.react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 const DIETARY_OPTIONS: { value: DietaryRestriction; label: string; emoji: string }[] = [
   { value: 'Ninguna', label: 'Sin restricciones', emoji: '🍽️' },
@@ -656,7 +657,7 @@ function RsvpFormContent() {
               )}
             </CardContent>
 
-            <CardFooter className="px-6 pb-8 pt-4">
+            <CardFooter className="px-6 pb-8 pt-4 flex flex-col gap-3">
               <Button
                 type="submit"
                 disabled={isSubmitting}
@@ -670,6 +671,7 @@ function RsvpFormContent() {
                   'Confirmar asistencia'
                 )}
               </Button>
+              <AvisoDeDatos para="invitado" />
             </CardFooter>
           </form>
         </Card>

@@ -1,4 +1,5 @@
 'use client';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -540,7 +541,8 @@ function ClientPortalContent() {
               <Button type="submit" className="w-full font-bold">
                 <LogIn className="w-4 h-4 mr-2" /> Ingresar al Portal
               </Button>
-            </form>
+              <div className="pt-2 text-center"><AvisoDeDatos para="cliente" /></div>
+</form>
           </div>
           <p className="text-center text-xs mt-4 text-white/70">Powered by AK Producciones</p>
         </motion.div>

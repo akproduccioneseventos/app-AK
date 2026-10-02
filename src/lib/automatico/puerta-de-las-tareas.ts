@@ -43,6 +43,7 @@ import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
  */
 
 export type NombreDeTareaProgramada =
+  | 'asistente-proactivo'
   | 'metricas-de-redes'
   | 'publicar-programados'
   | 'generate-blog-post'
@@ -59,6 +60,7 @@ export type NombreDeTareaProgramada =
  * **Se agrega una tarea aca solo si repetirla no le hace nada a nadie.**
  */
 const TAREAS_QUE_NO_HACEN_DANO: ReadonlySet<NombreDeTareaProgramada> = new Set([
+  'asistente-proactivo',
   'metricas-de-redes',
   'publicar-programados',
   'generate-blog-post',

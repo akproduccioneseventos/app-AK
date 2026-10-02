@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw, RefreshCw, Layers, QrCode } from 'lucide-react';
+import { ArrowLeft, PackageSearch, PlusCircle, Trash2, Loader2, AlertTriangle, Save, FileText, Info, Search, BookOpen, GripVertical, RotateCw, RefreshCw, Layers, QrCode, Camera, CameraOff } from 'lucide-react';
 import { procesarEscaneoQREquipo, PREFIJO_QR_EQUIPO } from '@/lib/logistica/qr-carga';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -176,35 +176,8 @@ function ListaDeCargaOperativaContent() {
 
   const [isScanModalOpen, setIsScanModalOpen] = useState(false);
   const [scanInputText, setScanInputText] = useState('');
-
-  const handleScanCode = (codigo: string) => {
-    // Procesa el prefijo oficial ak-equipo:<id>
-    const res = procesarEscaneoQREquipo(codigo.trim(), listaDeCarga.categorias);
-    if (res.encontrado && res.itemModificado) {
-      setListaDeCarga((prev) => ({ ...prev, categorias: res.categoriasActualizadas }));
-      const cat = res.categoriasActualizadas.find((c) =>
-        c.items.some((i) => i.id === res.itemModificado!.id),
-      );
-      if (cat) {
-        void persistItemPatch(cat.id, res.itemModificado.id, {
-          cargado: res.itemModificado.cargado,
-          retornado: res.itemModificado.retornado,
-        });
-      }
-      toast({
-        title: res.accion === 'retornado' ? '📦 Equipo Retornado' : '✅ Equipo Cargado',
-        description: `${res.itemModificado.nombre} marcado como ${res.accion}.`,
-      });
-      setScanInputText('');
-      setIsScanModalOpen(false);
-    } else {
-      toast({
-        title: 'Equipo no encontrado',
-        description: res.error || 'El equipo no pertenece a la carga de este evento.',
-        variant: 'destructive',
-      });
-    }
-  };
+  const [cameraScanning, setCameraScanning] = useState(false);
+  const scannerRef = useRef<any>(null);
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
@@ -311,8 +284,8 @@ function ListaDeCargaOperativaContent() {
     categoryId: string,
     itemId: string,
     patch: CargaOperativaItemPatch,
-  ) => {
-    if (!fiestaId) return;
+  ): Promise<{ success: boolean; error?: string }> => {
+    if (!fiestaId) return { success: false, error: 'Falta ID de fiesta' };
     setPendingItemUpdates((count) => count + 1);
     setSaveError(null);
     try {
@@ -339,13 +312,86 @@ function ListaDeCargaOperativaContent() {
         return next;
       });
       setLastSaved(new Date());
+      return { success: true };
     } catch (patchError) {
-      setSaveError(patchError instanceof Error ? patchError.message : 'No se pudo guardar.');
+      const msg = patchError instanceof Error ? patchError.message : 'No se pudo guardar.';
+      setSaveError(msg);
       await loadData(false);
+      return { success: false, error: msg };
     } finally {
       setPendingItemUpdates((count) => Math.max(0, count - 1));
     }
   }, [fiestaId, loadData, operatorName]);
+
+  const stopCameraScan = useCallback(() => {
+    if (scannerRef.current) {
+      try {
+        scannerRef.current.clear();
+      } catch {}
+      scannerRef.current = null;
+    }
+    setCameraScanning(false);
+  }, []);
+
+  const handleScanCode = useCallback(async (codigo: string) => {
+    // Procesa el prefijo oficial ak-equipo:<id>
+    const res = procesarEscaneoQREquipo(codigo.trim(), listaDeCarga.categorias);
+    if (res.encontrado && res.itemModificado) {
+      const prevCategorias = listaDeCarga.categorias;
+      setListaDeCarga((prev) => ({ ...prev, categorias: res.categoriasActualizadas }));
+      const cat = res.categoriasActualizadas.find((c) =>
+        c.items.some((i) => i.id === res.itemModificado!.id),
+      );
+      if (cat) {
+        const patchResult = await persistItemPatch(cat.id, res.itemModificado.id, {
+          cargado: res.itemModificado.cargado,
+          retornado: res.itemModificado.retornado,
+        });
+        if (patchResult && !patchResult.success) {
+          setListaDeCarga((prev) => ({ ...prev, categorias: prevCategorias }));
+          toast({
+            title: 'Error al guardar',
+            description: patchResult.error || 'No se pudo guardar el estado de carga.',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+      toast({
+        title: res.accion === 'retornado' ? '📦 Equipo Retornado' : '✅ Equipo Cargado',
+        description: `${res.itemModificado.nombre} marcado como ${res.accion}.`,
+      });
+      setScanInputText('');
+      setIsScanModalOpen(false);
+      stopCameraScan();
+    } else {
+      toast({
+        title: 'Equipo no encontrado',
+        description: res.error || 'El equipo no pertenece a la carga de este evento.',
+        variant: 'destructive',
+      });
+    }
+  }, [listaDeCarga.categorias, persistItemPatch, stopCameraScan, toast]);
+
+  const startCameraScan = useCallback(async () => {
+    setCameraScanning(true);
+    try {
+      const { Html5QrcodeScanner } = await import('html5-qrcode');
+      setTimeout(() => {
+        if (scannerRef.current) return;
+        const scanner = new Html5QrcodeScanner('carga-camera-scanner', { fps: 10, qrbox: { width: 220, height: 220 } }, false);
+        scanner.render((decodedText: string) => {
+          void handleScanCode(decodedText);
+          stopCameraScan();
+        }, () => {});
+        scannerRef.current = scanner;
+      }, 100);
+    } catch (err) {
+      console.error('Error starting camera scanner', err);
+      toast({ title: 'Error de cámara', description: 'No se pudo acceder a la cámara.', variant: 'destructive' });
+      setCameraScanning(false);
+    }
+  }, [handleScanCode, stopCameraScan, toast]);
 
   const handleSyncWithBudget = async () => {
     if (!fiestaId) return;
@@ -597,7 +643,7 @@ function ListaDeCargaOperativaContent() {
     setIsCatalogModalOpen(true);
   };
 
-  const toggleItemCargado = (categoryId: string, itemId: string) => {
+  const toggleItemCargado = async (categoryId: string, itemId: string) => {
     const currentItem = listaDeCarga.categorias
       .find((category) => category.id === categoryId)
       ?.items.find((item) => item.id === itemId);
@@ -611,10 +657,10 @@ function ListaDeCargaOperativaContent() {
           : cat
       ),
     }));
-    void persistItemPatch(categoryId, itemId, { cargado });
+    await persistItemPatch(categoryId, itemId, { cargado });
   };
 
-  const toggleItemRetornado = (categoryId: string, itemId: string) => {
+  const toggleItemRetornado = async (categoryId: string, itemId: string) => {
     const currentItem = listaDeCarga.categorias
       .find((category) => category.id === categoryId)
       ?.items.find((item) => item.id === itemId);
@@ -628,7 +674,7 @@ function ListaDeCargaOperativaContent() {
           : cat
       ),
     }));
-    void persistItemPatch(categoryId, itemId, { retornado });
+    await persistItemPatch(categoryId, itemId, { retornado });
   };
 
   const handleItemQuantityChange = (categoryId: string, itemId: string, newQuantity: string) => {
@@ -643,7 +689,7 @@ function ListaDeCargaOperativaContent() {
   };
 
   const handleItemQuantityCommit = async (categoryId: string, itemId: string, quantity: string) => {
-    void persistItemPatch(categoryId, itemId, { cantidad: quantity });
+    await persistItemPatch(categoryId, itemId, { cantidad: quantity });
     if (!fiestaId || !fiesta?.configuracion?.fechaEvento) return;
     const cat = (listaDeCarga.categorias || []).find((c) => c.id === categoryId);
     const item = (cat?.items || []).find((i) => i.id === itemId);
@@ -788,7 +834,10 @@ function ListaDeCargaOperativaContent() {
         </div>
       </div>
 
-      <Dialog open={isScanModalOpen} onOpenChange={setIsScanModalOpen}>
+      <Dialog open={isScanModalOpen} onOpenChange={(open) => {
+        setIsScanModalOpen(open);
+        if (!open) stopCameraScan();
+      }}>
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -800,30 +849,56 @@ function ListaDeCargaOperativaContent() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-3">
-            <div className="space-y-2">
-              <Label htmlFor="input-scan-qr">Código QR escaneado</Label>
-              <Input
-                id="input-scan-qr"
-                placeholder="ak-equipo:..."
-                value={scanInputText}
-                onChange={(e) => setScanInputText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleScanCode(scanInputText);
-                  }
-                }}
-                autoFocus
-              />
-            </div>
+            {cameraScanning ? (
+              <div className="space-y-3">
+                <div id="carga-camera-scanner" className="w-full min-h-[240px] rounded-xl overflow-hidden border border-slate-200" />
+                <Button variant="outline" size="sm" onClick={stopCameraScan} className="w-full">
+                  <CameraOff className="w-4 h-4 mr-2" /> Detener cámara
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="w-full flex items-center justify-center gap-2 py-3"
+                  onClick={startCameraScan}
+                >
+                  <Camera className="w-4 h-4" /> Escanear con la cámara
+                </Button>
+                <div className="relative flex py-1 items-center">
+                  <div className="flex-grow border-t border-slate-200" />
+                  <span className="flex-shrink mx-2 text-xs text-muted-foreground">o ingresar manualmente</span>
+                  <div className="flex-grow border-t border-slate-200" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="input-scan-qr">Código QR escaneado</Label>
+                  <Input
+                    id="input-scan-qr"
+                    placeholder="ak-equipo:..."
+                    value={scanInputText}
+                    onChange={(e) => setScanInputText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleScanCode(scanInputText);
+                      }
+                    }}
+                    autoFocus
+                  />
+                </div>
+              </div>
+            )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsScanModalOpen(false)}>
+            <Button variant="outline" onClick={() => { setIsScanModalOpen(false); stopCameraScan(); }}>
               Cancelar
             </Button>
-            <Button onClick={() => handleScanCode(scanInputText)}>
-              Procesar Escaneo
-            </Button>
+            {!cameraScanning && (
+              <Button onClick={() => handleScanCode(scanInputText)}>
+                Procesar Escaneo
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
