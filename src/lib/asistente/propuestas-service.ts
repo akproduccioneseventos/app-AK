@@ -5,6 +5,9 @@
  */
 
 import { readData, writeData } from '@/lib/data-service';
+import { mutateGenericJsonArray } from '@/lib/generic-json-store';
+import { AsyncMutex } from '@/lib/mutex';
+import { nivelDeRiesgo } from '@/lib/asistente/que-puede-hacer-solo';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 import { ejecutarAccionSecretario } from '@/app/actions/multiagent';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
@@ -81,8 +84,47 @@ export async function getPropuestas(): Promise<AsistentePropuesta[]> {
   }
 }
 
-export async function writePropuestas(propuestas: AsistentePropuesta[]): Promise<void> {
-  await writeData(PROPUESTAS_FILE, propuestas);
+
+const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+const propuestasMutex = new AsyncMutex();
+
+/**
+ * Cambia la lista de propuestas leyendo y guardando en el MISMO turno de la base.
+ * Lo encontró Codex el 1/10/2026: dos tandas de propuestas a la vez leían la misma lista, las dos
+ * decían "agregada" y quedaba una sola. Con dos servidores, el candado en memoria no alcanza.
+ * `cambiar` devuelve null para no escribir nada.
+ */
+async function mutarPropuestas(
+  cambiar: (lista: AsistentePropuesta[]) => AsistentePropuesta[] | null,
+): Promise<AsistentePropuesta[] | null> {
+  if (!SIN_BASE()) {
+    return mutateGenericJsonArray<AsistentePropuesta>(PROPUESTAS_FILE, (lista) =>
+      cambiar(JSON.parse(JSON.stringify(lista))),
+    );
+  }
+  return propuestasMutex.runExclusive(async () => {
+    const lista = await readData<AsistentePropuesta[]>(PROPUESTAS_FILE, []);
+    const nueva = cambiar(Array.isArray(lista) ? lista : []);
+    if (!nueva) return null;
+    await writeData(PROPUESTAS_FILE, nueva);
+    return nueva;
+  });
+}
+
+/** Cambia UNA propuesta por id adentro del turno. Devuelve la propuesta cambiada, o null. */
+async function cambiarPropuesta(
+  propuestaId: string,
+  cambiar: (p: AsistentePropuesta) => boolean,
+): Promise<AsistentePropuesta | null> {
+  let cambiada: AsistentePropuesta | null = null;
+  await mutarPropuestas((lista) => {
+    cambiada = null;
+    const p = lista.find((x) => x.id === propuestaId);
+    if (!p || !cambiar(p)) return null;
+    cambiada = { ...p };
+    return lista;
+  });
+  return cambiada;
 }
 
 export async function getReglasAprendidas(): Promise<ReglaAprendida[]> {
@@ -109,17 +151,21 @@ export async function desestimarReglaAprendida(reglaId: string): Promise<void> {
 export async function agregarPropuestasDeduplicadas(
   nuevas: Omit<AsistentePropuesta, 'id' | 'estado' | 'createdAt' | 'updatedAt'>[]
 ): Promise<{ agregadas: AsistentePropuesta[]; ignoradas: number }> {
-  const existentes = await getPropuestas();
   const reglas = await getReglasAprendidas();
+  let agregadas: AsistentePropuesta[] = [];
+  let ignoradas = 0;
 
+  // Leer, deduplicar y agregar van adentro del mismo turno: si no, dos tandas a la vez leen la
+  // misma lista y una pisa a la otra.
+  await mutarPropuestas((existentes) => {
+  agregadas = [];
+  ignoradas = 0;
   const existentesMap = new Map<string, AsistentePropuesta>();
   for (const p of existentes) {
     existentesMap.set(p.clave, p);
   }
 
   const hoy = new Date();
-  const agregadas: AsistentePropuesta[] = [];
-  let ignoradas = 0;
 
   for (const n of nuevas) {
     // 1. Chequear si hay regla de no avisar más
@@ -174,9 +220,8 @@ export async function agregarPropuestasDeduplicadas(
     agregadas.push(nuevaPropuesta);
   }
 
-  if (agregadas.length > 0) {
-    await writePropuestas(existentes);
-  }
+  return agregadas.length > 0 ? existentes : null;
+  });
 
   return { agregadas, ignoradas };
 }
@@ -187,20 +232,48 @@ export async function agregarPropuestasDeduplicadas(
  */
 export async function aceptarPropuesta(
   propuestaId: string,
-  usuarioNombre: string = 'Usuario'
+  usuarioNombre: string = 'Usuario',
+  opciones: { esDuenio?: boolean } = {},
 ): Promise<{ success: boolean; mensaje: string; preguntaAutomatizacion?: string }> {
-  const propuestas = await getPropuestas();
-  const propuesta = propuestas.find((p) => p.id === propuestaId);
+  const propuesta = (await getPropuestas()).find((p) => p.id === propuestaId);
 
   if (!propuesta) {
     return { success: false, mensaje: 'Propuesta no encontrada.' };
   }
+  if (propuesta.estado === 'aceptada' || propuesta.estado === 'descartada') {
+    return { success: false, mensaje: 'Esa propuesta ya se resolvió.' };
+  }
 
   let mensajeResultado = 'Propuesta aceptada con éxito.';
+  let fallo = false;
 
   // Si tiene acción vinculada, la preparamos / ejecutamos
   if (propuesta.accion) {
     const { type, data } = propuesta.accion;
+
+    // La regla de oro también vale al aceptar: lo de "nunca" no se hace desde acá, y lo que toca
+    // plata o fechas ("pregunta") lo acepta sólo el dueño.
+    const riesgo = nivelDeRiesgo(String(type));
+    if (riesgo === 'nunca') {
+      return { success: false, mensaje: 'Eso lo tenés que hacer vos desde su pantalla: el asistente no lo hace.' };
+    }
+    const esMensajePreparado = type === 'prepare_whatsapp' || type === 'enviar_mensaje' || type === 'preparar_mail';
+    if (riesgo === 'pregunta' && !esMensajePreparado && !opciones.esDuenio) {
+      return { success: false, mensaje: 'Esta propuesta toca plata o fechas: la confirma el dueño.' };
+    }
+
+    // Se reserva antes de hacer nada: dos toques a la vez (o dos personas) no hacen la acción dos
+    // veces. La reserva vence a los 2 minutos por si el servidor se corta en el medio.
+    const reservada = await cambiarPropuesta(propuestaId, (p) => {
+      if (p.estado === 'aceptada' || p.estado === 'descartada') return false;
+      const desde = (p as any).aceptandoDesde ? Date.parse((p as any).aceptandoDesde) : 0;
+      if (desde && Date.now() - desde < 2 * 60 * 1000) return false;
+      (p as any).aceptandoDesde = new Date().toISOString();
+      return true;
+    });
+    if (!reservada) {
+      return { success: false, mensaje: 'Esa propuesta ya la está resolviendo alguien.' };
+    }
 
     // Si la acción es mandar un mensaje a un cliente, NUNCA lo manda directo:
     // lo deja en la bandeja de salida con manual_click
@@ -222,9 +295,11 @@ export async function aceptarPropuesta(
           mensajeResultado = 'Mensaje preparado en la bandeja de salida (listo para enviar con un clic manual).';
         } else {
           mensajeResultado = `Error al preparar mensaje en bandeja: ${resMsg.error || 'falló guardado'}`;
+          fallo = true;
         }
       } catch (err: any) {
         mensajeResultado = `Error al preparar mensaje en bandeja: ${err.message}`;
+        fallo = true;
       }
     } else {
       // Otras acciones del secretario
@@ -233,20 +308,37 @@ export async function aceptarPropuesta(
         if (ejecucion.success) {
           mensajeResultado = ejecucion.mensaje || 'Acción completada.';
         } else {
-          mensajeResultado = `Advertencia al ejecutar: ${ejecucion.mensaje || ejecucion.error}`;
+          mensajeResultado = `No se pudo hacer: ${ejecucion.mensaje || ejecucion.error}`;
+          fallo = true;
         }
       } catch (err: any) {
         mensajeResultado = `Error al ejecutar acción: ${err.message}`;
+        fallo = true;
       }
     }
   }
 
-  propuesta.estado = 'aceptada';
-  propuesta.aceptadaPor = usuarioNombre;
-  propuesta.aceptadaEn = new Date().toISOString();
-  propuesta.updatedAt = new Date().toISOString();
+  // Si no se pudo hacer, la propuesta queda pendiente: no se marca aceptada.
+  if (fallo) {
+    await cambiarPropuesta(propuestaId, (p) => {
+      delete (p as any).aceptandoDesde;
+      return true;
+    });
+    return { success: false, mensaje: mensajeResultado };
+  }
 
-  await writePropuestas(propuestas);
+  const ahora = new Date().toISOString();
+  const aceptada = await cambiarPropuesta(propuestaId, (p) => {
+    delete (p as any).aceptandoDesde;
+    p.estado = 'aceptada';
+    p.aceptadaPor = usuarioNombre;
+    p.aceptadaEn = ahora;
+    p.updatedAt = ahora;
+    return true;
+  });
+  if (!aceptada) {
+    return { success: false, mensaje: `${mensajeResultado} Pero no se pudo anotar la propuesta como resuelta.` };
+  }
 
   // Aprendizaje: si se aceptó 3 veces seguidas igual, sugerir automatización
   let preguntaAutomatizacion: string | undefined;
@@ -280,33 +372,27 @@ export async function aceptarPropuesta(
  * Pospone una propuesta: "Ahora no" (se esconde 3 días).
  */
 export async function posponerPropuesta(propuestaId: string): Promise<void> {
-  const propuestas = await getPropuestas();
-  const propuesta = propuestas.find((p) => p.id === propuestaId);
-  if (!propuesta) return;
-
   const hoy = new Date();
   const en3Dias = new Date(hoy.getTime() + 3 * 24 * 60 * 60 * 1000);
-
-  propuesta.estado = 'pospuesta';
-  propuesta.pospuestaHasta = en3Dias.toISOString();
-  propuesta.updatedAt = hoy.toISOString();
-
-  await writePropuestas(propuestas);
+  await cambiarPropuesta(propuestaId, (p) => {
+    p.estado = 'pospuesta';
+    p.pospuestaHasta = en3Dias.toISOString();
+    p.updatedAt = hoy.toISOString();
+    return true;
+  });
 }
 
 /**
  * "No me avises más de esto": guarda la regla aprendida y descarta la propuesta.
  */
 export async function descartarNoAvisarMas(propuestaId: string): Promise<void> {
-  const propuestas = await getPropuestas();
-  const propuesta = propuestas.find((p) => p.id === propuestaId);
+  const propuesta = await cambiarPropuesta(propuestaId, (p) => {
+    p.estado = 'descartada';
+    p.noAvisarMas = true;
+    p.updatedAt = new Date().toISOString();
+    return true;
+  });
   if (!propuesta) return;
-
-  propuesta.estado = 'descartada';
-  propuesta.noAvisarMas = true;
-  propuesta.updatedAt = new Date().toISOString();
-
-  await writePropuestas(propuestas);
 
   // Guardar regla aprendida
   const tipo = propuesta.tipoPropuesta || propuesta.clave.split(':')[0];
@@ -344,15 +430,12 @@ export async function descartarNoAvisarMas(propuestaId: string): Promise<void> {
  * "Lo tomo yo": asigna la propuesta al usuario actual y la oculta de los demás.
  */
 export async function tomarPropuesta(propuestaId: string, usuarioNombre: string): Promise<void> {
-  const propuestas = await getPropuestas();
-  const propuesta = propuestas.find((p) => p.id === propuestaId);
-  if (!propuesta) return;
-
-  propuesta.tomadaPor = usuarioNombre;
-  propuesta.tomadaEn = new Date().toISOString();
-  propuesta.updatedAt = new Date().toISOString();
-
-  await writePropuestas(propuestas);
+  await cambiarPropuesta(propuestaId, (p) => {
+    p.tomadaPor = usuarioNombre;
+    p.tomadaEn = new Date().toISOString();
+    p.updatedAt = new Date().toISOString();
+    return true;
+  });
 }
 
 /**

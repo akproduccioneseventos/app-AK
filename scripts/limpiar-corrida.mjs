@@ -44,6 +44,10 @@ const ESCRITOS_POR_LA_CORRIDA = [
   // Aparecieron sin estar en la lista el 30 de septiembre de 2026.
   'src/data/empleados.json',
   'data/empleados.json',
+  'data/ajustes-llegada.json',
+  'src/data/ajustes-llegada.json',
+  'data/company-info.json',
+  'data/invoice-template-settings.json',
   'data/notification-preferences.json',
   'src/data/notification-preferences.json',
 ];

@@ -216,13 +216,7 @@ export async function chatConAsistenteCliente(
     }
 
     const { getFiestaForPortalSession } = await import('@/app/actions/fiesta/portal.actions');
-    let fiesta = await getFiestaForPortalSession(fiestaId).catch(() => null);
-    if (!fiesta) {
-      const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
-      if (typeof (getFiestaById as any).mock !== 'undefined') {
-        fiesta = await getFiestaById(fiestaId).catch(() => null);
-      }
-    }
+    const fiesta = await getFiestaForPortalSession(fiestaId).catch(() => null);
     if (!fiesta) {
       return { success: false, error: 'Tu sesión del portal venció. Volvé a entrar.' };
     }
@@ -295,7 +289,7 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
         motivo: senal.motivo || null,
       };
 
-      const SIN_BASE = process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || process.env.NODE_ENV === 'test';
+      const SIN_BASE = process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
       if (!SIN_BASE) {
         await createDataItem('asistente-cliente-conversaciones.json', 'asistente-cliente-conversaciones', regId, registro).catch(() => null);
       } else {

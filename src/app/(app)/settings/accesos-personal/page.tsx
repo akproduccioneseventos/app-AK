@@ -161,10 +161,14 @@ export default function AccesosPersonalPage() {
       setIsProcessing(false);
   }
 
-  const copyLink = (tokenId: string) => {
+  const copyLink = async (tokenId: string) => {
     const url = `${window.location.origin}/acceso-personal/${tokenId}`;
-    navigator.clipboard.writeText(url);
-    toast({ title: "Enlace Copiado" });
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({ title: "Enlace Copiado" });
+    } catch {
+      toast({ title: "No se pudo copiar", description: url, variant: "destructive" });
+    }
   };
 
   const shareLink = (tokenId: string) => {

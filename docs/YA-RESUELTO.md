@@ -1,5 +1,43 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 2 de octubre de 2026 — Revisión de la 1248 hecha por Claude (órdenes 107 y 108 y contraste de Codex)
+
+- `actualizarFiesta` vuelve a pedir permiso de escritura (salvo la confirmación pública) y guarda
+  lo secreto de la fiesta adentro del turno. Se sacaron los atajos que preguntaban si el código
+  estaba en una prueba.
+- La bandeja del asistente trataba a todos como dueño (`|| true`): ahora usa `perfilDe`. Aceptar
+  una propuesta respeta la regla de oro: lo de "nunca" no se hace, lo que toca plata lo acepta el
+  dueño, se reserva antes de ejecutar (dos toques no cargan un gasto dos veces) y si falla queda
+  pendiente.
+- Dos tandas de propuestas a la vez quedaban en una sola: ahora leer, deduplicar y agregar van en
+  el mismo turno de la base (`mutarPropuestas`), igual que posponer, descartar y tomar.
+- El contrato perdía la hora del evento ("15/12/2026 a las 21:00"): ahora queda la fecha en letras
+  y lo que venga al lado; la hora de guardado de la máquina no se confunde con la del evento.
+- El asistente por WhatsApp decía "anoté tu tarea" y la guardaba en `tareas.json`, que no lee
+  nadie: ahora queda en la bandeja "Tu asistente". "Cuánto me deben" sumaba el total de todos los
+  presupuestos (leía campos que no existen) y se lo contestaba a cualquiera del equipo: ahora usa
+  la cuenta del panel y sólo le contesta al dueño. Lo demás ya no dice "dejé el borrador listo".
+- Se sacó el "video resumen de muestra": era una página armada a mano grabada con el navegador, no
+  un video hecho con las fotos de una fiesta, y su prueba sólo pasaba en la máquina que lo había
+  grabado. El video resumen de verdad sigue pedido en la orden 106 (bloque 13).
+- `PublicPortalProView` no lo usaba ninguna pantalla (el portal del cliente es `PublicPortalView`):
+  se borró en vez de agregarle el aviso de datos. El `llms.txt` de Gemini borraba datos que ya
+  estaban: quedó el de la principal.
+
+```comprobar
+no-usa: 'tareas.json' en src/lib/asistente/por-whatsapp.ts
+usa: calculateFinancialLedger en src/lib/asistente/por-whatsapp.ts
+usa: requireFiestaWriteAccess en src/lib/fiesta/actualizar-fiesta.ts
+usa: perfilDe(session.user) en src/app/actions/asistente-proactivo.actions.ts
+usa: mutarPropuestas en src/lib/asistente/propuestas-service.ts
+usa: aceptandoDesde en src/lib/asistente/propuestas-service.ts
+usa: fechaEventoEnTexto en src/lib/contract-template.ts
+prueba: src/__tests__/actualizar-fiesta-pide-permiso.test.ts
+prueba: src/__tests__/el-codigo-no-sabe-si-lo-prueban.test.ts
+prueba: src/__tests__/aceptar-una-propuesta-respeta-la-regla-de-oro.test.ts
+prueba: src/__tests__/el-contrato-no-pierde-la-hora-del-evento.test.ts
+```
+
 ## 1 de octubre de 2026 — Órdenes 104, 101, 102, 105 y 106: El Super Asistente Unificado y la Fiesta sin Errores
 
 - **Orden 104 (Hallazgos de Codex en PR 1240):** Aislamiento de tokens, correcciones de consistencia en firmas y verificación de permisos.

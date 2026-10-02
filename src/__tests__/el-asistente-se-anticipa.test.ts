@@ -18,6 +18,20 @@ jest.mock('@/lib/data-service', () => ({
   }),
 }));
 
+// La base de verdad: leer y guardar en el mismo turno, de a una operación por vez.
+let turnoBase: Promise<unknown> = Promise.resolve();
+jest.mock('@/lib/generic-json-store', () => ({
+  mutateGenericJsonArray: jest.fn((file: string, cambiar: (l: any[]) => any[] | null) => {
+    const r = turnoBase.then(() => {
+      const nueva = cambiar(JSON.parse(JSON.stringify(memoriaStore[file] ?? [])));
+      if (nueva) memoriaStore[file] = JSON.parse(JSON.stringify(nueva));
+      return nueva;
+    });
+    turnoBase = r.catch(() => undefined);
+    return r;
+  }),
+}));
+
 const mockSendPushNotificationToAll = jest.fn(async () => ({ success: true, sentCount: 1, failureCount: 0 }));
 jest.mock('@/lib/firebase/server-messaging', () => ({
   sendPushNotificationToAll: (...args: any[]) => mockSendPushNotificationToAll(...args),

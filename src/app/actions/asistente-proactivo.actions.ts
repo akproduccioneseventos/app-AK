@@ -1,5 +1,6 @@
 'use server';
 
+import { perfilDe } from '@/lib/auth/perfiles';
 import { verifySession } from '@/lib/auth/session-token';
 import {
   getPropuestasParaUsuario,
@@ -26,8 +27,10 @@ export async function getBandejaAsistenteAction(area?: AsistenteArea) {
     return { success: false, error: 'No autorizado' };
   }
 
-  const usuarioNombre = (session as any).nombre || (session as any).name || (session as any).email || 'Equipo AK';
-  const esDuenio = (session as any).role === 'admin' || (session as any).role === 'duenio' || true;
+  const usuarioNombre = session.user?.email || 'Equipo AK';
+  // Sólo el dueño ve todas las propuestas (plata, lo que pregunta cada cliente). Antes decía
+  // "|| true" y cualquiera del equipo las veía todas.
+  const esDuenio = perfilDe(session.user) === 'dueno';
 
   try {
     const propuestas = await getPropuestasParaUsuario(usuarioNombre, esDuenio, area);
@@ -52,10 +55,10 @@ export async function aceptarPropuestaAction(propuestaId: string) {
   if (!session.success) {
     return { success: false, error: 'No autorizado' };
   }
-  const usuarioNombre = (session as any).nombre || (session as any).name || (session as any).email || 'Equipo AK';
+  const usuarioNombre = session.user?.email || 'Equipo AK';
 
   try {
-    const res = await aceptarPropuesta(propuestaId, usuarioNombre);
+    const res = await aceptarPropuesta(propuestaId, usuarioNombre, { esDuenio: perfilDe(session.user) === 'dueno' });
     return res;
   } catch (err: any) {
     return { success: false, mensaje: err.message };
@@ -93,7 +96,7 @@ export async function tomarPropuestaAction(propuestaId: string) {
   if (!session.success) {
     return { success: false, error: 'No autorizado' };
   }
-  const usuarioNombre = (session as any).nombre || (session as any).name || (session as any).email || 'Equipo AK';
+  const usuarioNombre = session.user?.email || 'Equipo AK';
   try {
     await tomarPropuesta(propuestaId, usuarioNombre);
     return { success: true };

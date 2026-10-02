@@ -1,138 +1,88 @@
 /**
- * @fileOverview Prueba de seguridad de permisos al actualizar fiesta (Orden 107, Punto 1).
- * Comprueba que:
- * 1. Sin sesión, checkInGuest y updateGuestExperience no escriben y devuelven error.
- * 2. Con publicRsvp: true (ej. submitPublicRsvp) sí se puede escribir sin sesión.
- * 3. Los secretos de la fiesta (claves del portal) se preservan después de guardar.
+ * Guardar una fiesta pide permiso, salvo la confirmación pública del invitado (orden 107).
+ *
+ * Pasó el 1 de octubre de 2026: `actualizarFiesta` dejó de pasar por `saveFiesta` para usar una
+ * transacción, y con eso se perdió `requireFiestaWriteAccess`. `checkInGuest` y
+ * `updateGuestExperience` no tienen guardia propia: cualquiera con el número de la fiesta marcaba
+ * invitados como llegados. Esta prueba recorre el camino REAL (la transacción), simulando sólo la
+ * base y el permiso, que están afuera.
  */
 
-import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
-import { checkInGuest, updateGuestExperience, submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
+let permitido = false;
+let documento: Record<string, any> | null = null;
+const escrituras: any[] = [];
+
+jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
+  requireFiestaWriteAccess: jest.fn(async () => {
+    if (!permitido) throw new Error('No autorizado.');
+  }),
+  getFiestaById: jest.fn(async () => null),
+  saveFiesta: jest.fn(async () => {
+    throw new Error('saveFiesta no tiene que usarse: el guardado va por la transacción.');
+  }),
+}));
+
+jest.mock('@/lib/fiesta/get-fiesta-raw', () => ({
+  // Lo que hace la de verdad: vuelve a poner lo secreto que la lectura saca.
+  preserveFiestaSecrets: jest.fn(async (_id: string, f: any) => ({ ...f, portalSecret: 'SECRETO' })),
+}));
+
+jest.mock('@/lib/generic-json-store', () => ({
+  mutarDocumentoConTransaccion: jest.fn(async (_path: string, _vacio: any, cambiar: (a: any) => any) => {
+    const actual = documento ? JSON.parse(JSON.stringify(documento)) : null;
+    const nuevo = await cambiar(actual);
+    if (nuevo === null) return null;
+    documento = JSON.parse(JSON.stringify(nuevo));
+    escrituras.push(documento);
+    return nuevo;
+  }),
+}));
+
 import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
+import { checkInGuest, updateGuestExperience } from '@/app/actions/fiesta/invitados.actions';
 
-let fiestaEnMemoria: FiestaEnPlanificacion;
+const fiestaBase = () => ({
+  id: 'f1',
+  portalSecret: 'SECRETO',
+  invitados: [{ id: 'g1', nombre: 'Ana', checkedIn: false }],
+});
 
-function clonar<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj));
-}
+beforeEach(() => {
+  permitido = false;
+  documento = fiestaBase();
+  escrituras.length = 0;
+});
 
-let sesionActiva = false;
-
-jest.mock('@/lib/auth/require-session', () => ({
-  hasAppSession: jest.fn(async () => sesionActiva),
-  requireAppSession: jest.fn(async () => {
-    if (!sesionActiva) throw new Error('No autorizado para modificar este evento.');
-  }),
-}));
-
-jest.mock('next/headers', () => ({
-  cookies: jest.fn(() => ({
-    get: jest.fn(() => undefined),
-  })),
-}));
-
-jest.mock('@/lib/security/portal-session', () => ({
-  verifyPortalSession: jest.fn(async () => false),
-}));
-
-jest.mock('@/lib/commercial/public-rate-limit', () => ({
-  enforcePublicRateLimit: jest.fn(async () => {}),
-}));
-
-jest.mock('@/lib/firebase/server-messaging', () => ({
-  sendPushNotificationToAll: jest.fn(async () => ({ success: true, sentCount: 1, failureCount: 0 })),
-}));
-
-jest.mock('@/lib/notifications/create-notification', () => ({
-  createNotification: jest.fn(async () => ({ success: true })),
-}));
-
-jest.mock('@/lib/data-service', () => ({
-  readData: jest.fn(async (file: string, fallback: any) => {
-    if (file.includes('fiesta-permisos-test')) {
-      return clonar(fiestaEnMemoria);
-    }
-    return clonar(fallback);
-  }),
-  writeData: jest.fn(async (file: string, data: any) => {
-    if (file.includes('fiesta-permisos-test')) {
-      fiestaEnMemoria = clonar(data);
-    }
-    return true;
-  }),
-}));
-
-describe('actualizarFiesta y permisos de modificación', () => {
-  const FIESTA_ID = 'fiesta-permisos-test';
-  const CLAVE_PORTAL_SECRETA = 'clave-secreta-portal-12345';
-
-  beforeEach(() => {
-    sesionActiva = false;
-    fiestaEnMemoria = {
-      id: FIESTA_ID,
-      nombre: 'Fiesta de 15 de Morena',
-      estado: 'planificacion',
-      fechaEvento: '2026-12-15',
-      clientPortalSettings: {
-        enabled: true,
-        accessKey: CLAVE_PORTAL_SECRETA,
-      },
-      invitados: [
-        {
-          id: 'inv-1',
-          nombre: 'Juan Perez',
-          partySize: 1,
-          rsvp: 'Confirmado',
-          checkedIn: false,
-        } as Invitado,
-      ],
-    } as unknown as FiestaEnPlanificacion;
-  });
-
-  it('sin sesión, checkInGuest falla y NO escribe', async () => {
-    sesionActiva = false;
-    const res = await checkInGuest(FIESTA_ID, 'inv-1');
-
+describe('Guardar una fiesta pide permiso', () => {
+  it('sin permiso, marcar la llegada de un invitado no escribe nada', async () => {
+    const res = await checkInGuest('f1', 'g1');
     expect(res.success).toBe(false);
-    expect(res.error).toMatch(/No autorizado/i);
-    expect(fiestaEnMemoria.invitados![0].checkedIn).toBe(false);
+    expect(escrituras).toHaveLength(0);
+    expect(documento!.invitados[0].checkedIn).toBe(false);
   });
 
-  it('sin sesión, updateGuestExperience falla y NO escribe', async () => {
-    sesionActiva = false;
-    const res = await updateGuestExperience(FIESTA_ID, 'inv-1', {
-      mensaje: 'Mensaje no autorizado',
-    });
-
-    expect(res.success).toBe(false);
-    expect(res.error).toMatch(/No autorizado/i);
-    expect(fiestaEnMemoria.invitados![0].mensaje).toBeUndefined();
+  it('sin permiso, cambiar la experiencia del invitado no escribe nada', async () => {
+    const res = await updateGuestExperience('f1', 'g1', { mensaje: 'hola' });
+    expect(res?.success).toBe(false);
+    expect(escrituras).toHaveLength(0);
   });
 
-  it('con publicRsvp: true, la confirmación pública sí escribe sin sesión', async () => {
-    sesionActiva = false;
-    const res = await submitPublicRsvp(FIESTA_ID, {
-      nombre: 'Juan Perez',
-      asistencia: 'Confirmado',
-      dietaryRestriction: 'Ninguna',
-      cancionesDJ: [],
-      mensaje: '¡Ahí estaré!',
-    });
-
+  it('con permiso, la llegada queda guardada', async () => {
+    permitido = true;
+    const res = await checkInGuest('f1', 'g1');
     expect(res.success).toBe(true);
-    expect(fiestaEnMemoria.invitados![0].mensaje).toBe('¡Ahí estaré!');
+    expect(documento!.invitados[0].checkedIn).toBe(true);
   });
 
-  it('al guardar con actualizarFiesta, los secretos de la fiesta siguen existiendo', async () => {
-    sesionActiva = true;
-    const res = await actualizarFiesta(FIESTA_ID, (fiesta) => {
-      // Intentamos o dejamos los datos como vengan
-      const copia = { ...fiesta };
-      delete (copia as any).clientPortalSettings; // simulamos que se omitieron secretos
-      return copia;
-    });
-
+  it('la confirmación pública del invitado guarda sin pedir sesión del equipo', async () => {
+    const res = await actualizarFiesta('f1', (f) => ({ ...f, invitados: [...(f.invitados || []), { id: 'g2', nombre: 'Luis' } as any] }), { publicRsvp: true });
     expect(res.success).toBe(true);
-    expect(fiestaEnMemoria.clientPortalSettings?.accessKey).toBe(CLAVE_PORTAL_SECRETA);
+    expect(documento!.invitados).toHaveLength(2);
+  });
+
+  it('lo secreto de la fiesta sigue después de guardar', async () => {
+    permitido = true;
+    await actualizarFiesta('f1', (f) => ({ ...f, portalSecret: undefined } as any));
+    expect(documento!.portalSecret).toBe('SECRETO');
   });
 });

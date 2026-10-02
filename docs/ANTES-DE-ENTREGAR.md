@@ -92,3 +92,8 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 - Los controles automáticos que ya están puestos y qué error apagó cada uno: la tabla de
   matafuegos en `CLAUDE.md`.
 - Lo que ya se arregló —para no volver a reportarlo—: `docs/YA-RESUELTO.md`.
+
+22. **¿Pasaste algo que escribió una persona a otro formato?** Probalo con un ejemplo que traiga
+    algo más (una hora, un "de 21 a 04 hs") y mirá que siga en la salida. Y si creaste una lista
+    nueva que se guarda entera, leé y guardá en el mismo turno de la base.
+

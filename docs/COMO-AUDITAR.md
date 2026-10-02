@@ -764,3 +764,18 @@ arrancaba en "Cumpleaños". Nadie lo vio porque las pruebas del simulador lo abr
 Al verificar: por cada enlace con datos en la dirección (`?algo=`), se busca en la pantalla de
 destino `searchParams.get('algo')` con **ese** nombre. Y la prueba abre el destino **con el enlace
 que usa la pantalla de origen**, no con uno armado a mano.
+
+## Pregunta 31 — la que sumó el 2 de octubre de 2026 (Codex, propuesta 1248)
+
+### 31. Al pasar un dato escrito por una persona a otro formato, ¿se pierde algo de lo que escribió?
+
+El contrato pasaba "15/12/2026 a las 21:00" a "15 de diciembre de 2026": la hora acordada
+desaparecía. Cada formateo andaba bien con el ejemplo de su comentario, que no tenía hora.
+
+Al verificar: por cada función que toma un texto que cargó una persona (fecha, horario, nombre,
+dirección, monto) y lo devuelve en otro formato, se prueba con un ejemplo que traiga **algo más**
+que el caso de libro, y se mira que eso siga en la salida.
+
+Y la de siempre, que en la 1248 no se pasó: **todo almacén nuevo que trae una entrega pasa por las
+preguntas 22 y 23**, aunque la orden no lo nombre.
+
