@@ -38,9 +38,11 @@ describe('financial flow consistency', () => {
     expect(invoices).toContain('const inputPayments');
     expect(invoices).toContain('sourcePresupuestoId: invoiceDataInput.sourcePresupuestoId || sourcePresupuestoId');
     // La referencia del espejo vive en un solo lugar desde el 25 de septiembre de 2026.
-    expect(invoices).toContain('referenciaDelCobro(invoiceId, paymentId)');
+    expect(invoices).toContain('referenciaDelCobro(invoiceId, pago.id)');
     expect(read('src/lib/commercial-flow/cobros-sin-pasar-al-presupuesto.ts')).toContain('AK_SYNC:invoice:');
-    expect(invoices).toContain('invoices[invoiceIndex] = invoice;');
+    // Si el presupuesto dice que no, se saca SOLO ese pago de su factura (desde el 2/10/2026 en
+    // `pasarCobroAlPresupuesto`, que también cubre el error tirado: COB-01).
+    expect(invoices).toContain('payments: (actual.payments || []).filter((p) => p.id !== pago.id)');
     expect(historical).toContain('pagosCliente: [{');
     expect(historical).toContain("estadoPago: 'confirmado'");
     expect(historical).toContain('AK_SYNC:historico:');
