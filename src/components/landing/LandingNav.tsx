@@ -22,6 +22,25 @@ export function LandingNav(_props: LandingNavProps = {}) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Al llegar con una sección en la dirección (/#galeria desde el blog), la sección todavía no
+  // está: la portada la carga después. Se espera a que aparezca y se baja hasta ella.
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash || hash.length < 2) return;
+    let intentos = 0;
+    const id = window.setInterval(() => {
+      intentos += 1;
+      const el = document.getElementById(decodeURIComponent(hash.slice(1)));
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+        window.clearInterval(id);
+      } else if (intentos > 40) {
+        window.clearInterval(id);
+      }
+    }, 200);
+    return () => window.clearInterval(id);
+  }, []);
+
   const handleAnchorClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     if (href === '#faq' && typeof window !== 'undefined' && window.location.pathname.includes('simulador')) {

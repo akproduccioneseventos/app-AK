@@ -1,15 +1,25 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-## 2 de octubre de 2026 — Los enlaces del pie de página llegan a su sección
+## 2 de octubre de 2026 — Los enlaces del pie llegan a su sección, y la galería clasifica bien
 
 - "Galería de Eventos Reales", "Plataforma 360° & Fotocabina QR" y "Testimonios & Preguntas
   Frecuentes" apuntaban a secciones con nombres que no existen (`#landing-gallery`…): desde el
   blog volvían a la portada y quedaban en cualquier lado. Ahora apuntan a `#galeria`,
   `#tecnologia` y `#landing-testimonials`. Lo encontró Codex.
+- Aun con el nombre bueno, al llegar desde otra página la portada carga la galería después de
+  abrir y el navegador no bajaba: `LandingNav` espera hasta 8 segundos a que aparezca la sección
+  de la dirección y baja hasta ella.
+- Una foto de bienvenida con flores salía en Catering porque el título decía "recepción". Esa
+  palabra salió de la regla de Catering: un plato se reconoce por "finger", "bocado", "plato"…
+- **Decidido, no se toca:** el artículo del blog con el título sobre la foto oscurecida. Se lee
+  bien y es el formato del rubro; el dueño dijo "lo que quede mejor" (2/10/2026). No hay ningún
+  pedido anotado de foto separada del texto.
 
 ```comprobar
 prueba: src/__tests__/los-enlaces-del-pie-llegan-a-su-seccion.test.ts
 usa: #galeria en src/components/public-footer.tsx
+prueba: tests/e2e/el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts
+prueba: src/__tests__/la-galeria-clasifica-bien-la-bienvenida.test.ts
 ```
 
 ## 2 de octubre de 2026 — La puerta prueba lo que cambió de cada archivo, no el archivo entero
