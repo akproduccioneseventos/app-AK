@@ -79,4 +79,15 @@ describe('Orden 101 - Las preguntas frecuentes del contrato llegan a todos lados
     expect(callArgs.system).toContain('¿Y si cancelo?');
     expect(callArgs.system).toContain('30%');
   });
+
+  it('¿Qué pasa si me atraso con un pago? dice 15 días y ninguna respuesta dice 5 días', () => {
+    const atrasoFaq = PREGUNTAS_FRECUENTES_DEL_CONTRATO.find(f => f.pregunta.includes('atraso'));
+    expect(atrasoFaq).toBeDefined();
+    expect(atrasoFaq?.respuesta).toContain('15 días corridos');
+
+    for (const faq of PREGUNTAS_FRECUENTES_DEL_CONTRATO) {
+      expect(faq.respuesta).not.toMatch(/\b5 días\b/);
+      expect(faq.respuesta).not.toMatch(/\bcinco días\b/);
+    }
+  });
 });

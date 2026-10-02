@@ -259,5 +259,125 @@
         "categoria":  "Bebidas",
         "nombre":  "Jugo de Naranja",
         "unidad":  "Litro"
+    },
+    {
+        "id": "ing-almibar",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Almíbar",
+        "unidad": "Litro"
+    },
+    {
+        "id": "ing-anana",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Ananá",
+        "unidad": "Kg"
+    },
+    {
+        "id": "ing-azucar",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Azúcar",
+        "unidad": "Kg"
+    },
+    {
+        "id": "ing-durazno",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Durazno",
+        "unidad": "Kg"
+    },
+    {
+        "id": "ing-fernet",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Fernet",
+        "unidad": "Botella"
+    },
+    {
+        "id": "ing-frutilla",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Frutilla",
+        "unidad": "Kg"
+    },
+    {
+        "id": "ing-granadina",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Granadina",
+        "unidad": "Botella"
+    },
+    {
+        "id": "ing-licor-durazno",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Licor de durazno",
+        "unidad": "Botella"
+    },
+    {
+        "id": "ing-lima",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Lima",
+        "unidad": "Unidad"
+    },
+    {
+        "id": "ing-mix-frutas",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Mix de frutas",
+        "unidad": "Kg"
+    },
+    {
+        "id": "ing-te-helado",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Té helado",
+        "unidad": "Litro"
+    },
+    {
+        "id": "ing-tequila",
+        "valorUnitarioEstimado": 0,
+        "tipoItem": "Insumo/Ingrediente",
+        "cantidadDisponible": 0,
+        "proveedor": "MAYORISTA",
+        "categoria": "Bebidas",
+        "nombre": "Tequila",
+        "unidad": "Botella"
     }
 ]

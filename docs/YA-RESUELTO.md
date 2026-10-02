@@ -1,5 +1,25 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 2 de octubre de 2026 — La 1249 de Gemini, arreglada por Claude (orden 110)
+
+- **Barra:** los 12 tragos apuntaban a insumos que no existían y en mililitros; ahora usan los
+  insumos del inventario en su unidad (50 ml de vodka = 0.067 botella). Se sumaron los insumos que
+  faltaban (licor de durazno, fernet, tequila, granadina, frutas…) con stock 0.
+- **Imágenes y video de mentira:** se sacaron las 11 "fotos" de tecnología, que eran texto, y el
+  video de muestra que no salía de fotos de una fiesta. Ninguna pantalla las mostraba.
+- **Voz:** el Parte de la mañana sonaba un tono presentado como voz; ahora lo lee la voz del
+  celular. La reunión vuelve a hablar como antes. La voz de Gemini sigue pedida.
+- **Permisos:** `handleRsvpSubmission` vuelve a pedir permiso y `actualizarFiesta` vuelve a leer la
+  fiesta completa si el documento no está. Los datos de la corrida que traía, afuera.
+
+```comprobar
+prueba: src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts
+prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
+no-usa: ins-licor-durazno en src/lib/fiesta-defaults.ts
+usa: speechSynthesis en src/app/(app)/empresa/configurador-reunion/page.tsx
+no-usa: publicRsvp: true en src/app/actions/fiesta/invitados.actions.ts
+```
+
 ## 2 de octubre de 2026 — Revisión de la 1248 hecha por Claude (órdenes 107 y 108 y contraste de Codex)
 
 - `actualizarFiesta` vuelve a pedir permiso de escritura (salvo la confirmación pública) y guarda

@@ -104,8 +104,18 @@ describe('Orden 101 - Bloque 5: El contrato de la app pasa a ser el revisado del
       fechaEvento: '2027-11-20',
     });
 
-    expect(contrato).toContain('la seña acordada');
+    expect(contrato).toContain('La seña se toma a cuenta del precio total');
     expect(contrato).toContain('quince (15) días corridos');
     expect(contrato).not.toContain('cinco (5) días corridos');
+  });
+
+  it('la fecha del evento conserva la hora y detalles ingresados por el usuario sin cortarla', () => {
+    const contrato = fillContractTemplate({
+      clienteNombre: 'Yessica',
+      fechaFirma: '2026-10-01',
+      fechaEvento: '20/11/2027 a las 21:00 hs',
+    });
+
+    expect(contrato).toContain('20 de noviembre de 2027 a las 21:00 hs');
   });
 });

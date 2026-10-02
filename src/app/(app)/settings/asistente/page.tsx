@@ -427,6 +427,20 @@ export default function AsistenteSettingsPage() {
             </div>
           </div>
 
+          {/* Voz especializada preparada y apagada */}
+          <div className="p-3 bg-amber-50/60 border border-amber-200 rounded-lg flex items-center justify-between">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-900">
+                <Sparkles className="h-3.5 w-3.5" />
+                Voz especializada de alta fidelidad (ElevenLabs)
+              </div>
+              <p className="text-[11px] text-amber-700">
+                Servicio pago: consultalo antes de activarlo.
+              </p>
+            </div>
+            <Switch disabled checked={false} />
+          </div>
+
           {/* Llamadas telefónicas preparadas y apagadas */}
           <div className="p-3 bg-amber-50/60 border border-amber-200 rounded-lg flex items-center justify-between">
             <div className="space-y-0.5">
