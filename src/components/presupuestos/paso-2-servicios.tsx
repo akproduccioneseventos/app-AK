@@ -22,7 +22,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Checkbox } from '@/components/ui/checkbox';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getCateringDishImage } from '@/lib/catering/menu-images';
-import { MultiSelect } from '@/components/ui/multi-select';
+import { MultiSelect } from '@/components/ui/multi-select'; 
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandList, CommandItem } from '@/components/ui/command';
@@ -84,7 +84,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
   const [searchTerm, setSearchTerm] = useState('');
   const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
   const { toast } = useToast();
-
+  
   const [openPrincipal, setOpenPrincipal] = useState(false);
   const [openInfantil, setOpenInfantil] = useState(false);
 
@@ -92,11 +92,11 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     if (!config?.serviceDependencies || !config.serviceDependencies.length) {
       return;
     }
-
+  
     const currentSelectedIds = new Set(formData.serviciosSeleccionados.keys());
     const newSelected = new Map(formData.serviciosSeleccionados);
     let wasModified = false;
-
+  
     const adultos = formData.invitadosAdultos || 0;
     const ninos = (formData.invitadosNinos || 0) + (formData.invitadosAdolescentes || 0);
 
@@ -128,7 +128,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         }
       }
     });
-
+  
     if (wasModified) {
       setFormData(prev => ({ ...prev, serviciosSeleccionados: newSelected }));
     }
@@ -164,7 +164,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       return { ...prev, serviciosSeleccionados: newSelected };
     });
   };
-
+  
   const handleRemoveServicio = (servicioId: string) => {
     setFormData(prev => {
       const newSelected = new Map(prev.serviciosSeleccionados);
@@ -178,7 +178,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     setFormData(prev => {
       const newSelected = new Map(prev.serviciosSeleccionados);
       paquetesBase.flatMap(p => p.serviciosIncluidos).forEach(s => newSelected.delete(s.id));
-
+      
       const adultos = prev.invitadosAdultos || 0;
       const ninos = (prev.invitadosNinos || 0) + (prev.invitadosAdolescentes || 0);
 
@@ -214,12 +214,12 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     if (!config || !allMenus.length) {
         return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
     }
-
+    
     const isPlatoVisible = (platoId: string) => {
         const setting = config.platosVisibles?.find(p => p.id === platoId);
         return setting !== undefined ? setting.visible : true;
     };
-
+    
     const sortByPrice = (a: ServicioEmpresa, b: ServicioEmpresa) => (a.precioVenta || 0) - (b.precioVenta || 0);
 
     const allDishes = Array.from(
@@ -232,21 +232,21 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
       }, new Map<string, MenuItem>())
       .values()
     );
-
+    
     const visibleDishes = allDishes.filter(d => isPlatoVisible(d.id));
-
+    
     const enhancedDishes = visibleDishes.map(item => ({
         ...item,
         precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
     }));
 
-    return {
-        entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice),
-        principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice),
+    return { 
+        entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortByPrice), 
+        principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortByPrice), 
         menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente').map(menuItemToServicioEmpresa).sort(sortByPrice)
     };
   }, [config, allMenus]);
-
+  
   const handleGastronomicSelectionChange = (type: 'entradas' | 'principal' | 'infantil', selectedIds: string | string[]) => {
       setFormData(prev => {
         const newSelected = new Map(prev.serviciosSeleccionados);
@@ -263,7 +263,7 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
         } else if (type === 'infantil') {
             menusNinoDisponibles.forEach(item => newSelected.delete(item.id));
         }
-
+        
         const idsToAdd = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
@@ -271,14 +271,14 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
                 newSelected.set(dishToAdd.id, menuItemToServicioSeleccionado(dishToAdd, adultos, ninos));
             }
         });
-
+        
         return { ...prev, serviciosSeleccionados: newSelected };
       });
   };
 
   const serviciosAgrupados = useMemo(() => {
-    return serviciosCatalogo.filter(s =>
-      s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    return serviciosCatalogo.filter(s => 
+      s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) || 
       s.categoria?.toLowerCase().includes(searchTerm.toLowerCase())
     ).reduce((acc, servicio) => {
         const categoria = servicio.categoria || 'Otros';
@@ -292,10 +292,10 @@ export default function Paso2Servicios({ formData, setFormData, serviciosCatalog
     () => paquetesBase.filter((p) => isPackageApplicableToEventType(p, formData.eventoTipo)),
     [paquetesBase, formData.eventoTipo],
   );
-
+  
   const selectedPrincipalId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (principalesDisponibles || []).some(p => p.id === id)) || '', [formData.serviciosSeleccionados, principalesDisponibles]);
   const selectedInfantilId = useMemo(() => Array.from(formData.serviciosSeleccionados.keys()).find(id => (menusNinoDisponibles || []).some(m => m.id === id)) || '', [formData.serviciosSeleccionados, menusNinoDisponibles]);
-
+  
   const gastronomiaFiltrada = useMemo(() => {
       const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
       if (!lowerCaseSearch) return { entradas: entradasDisponibles, principales: principalesDisponibles, infantiles: menusNinoDisponibles };

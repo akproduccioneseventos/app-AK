@@ -47,7 +47,7 @@ export async function toggleArrival(fiestaId: string, deliveryId: string): Promi
   await requireAppSession();
     return updateLiveState(fiestaId, state => ({
         ...state,
-        entregas: state.entregas.map(e =>
+        entregas: state.entregas.map(e => 
             e.id === deliveryId ? { ...e, llego: !e.llego, timestampLlegada: !e.llego ? new Date().toISOString() : undefined } : e
         )
     }));
@@ -131,7 +131,7 @@ export async function toggleReturnItem(fiestaId: string, categoryId: string, ite
             if (cat.id === categoryId) {
                 return {
                     ...cat,
-                    items: cat.items.map(item =>
+                    items: cat.items.map(item => 
                         item.id === itemId ? { ...item, retornado: !item.retornado } : item
                     )
                 };

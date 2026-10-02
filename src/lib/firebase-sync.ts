@@ -361,7 +361,7 @@ export async function syncToFirestore(
       for (let i = 0; i < aEscribirEnLotes.length; i += batchSize) {
         const batch = db.batch();
         const chunk = aEscribirEnLotes.slice(i, i + batchSize);
-
+        
         for (const item of chunk) {
           const docId = getItemDocId(item);
           if (!docId) continue;
@@ -370,7 +370,7 @@ export async function syncToFirestore(
           if (!opciones.esRestauracion) cleanData = protegerLaPlata(collectionName, cleanData, enLaBaseFueraDeTransaccion.get(docId));
           batch.set(ref, { ...cleanData, _syncedAt: new Date().toISOString() }, { merge: true });
         }
-
+        
         await withRetry(() => batch.commit(), `collection: ${collectionName} (batch ${Math.floor(i/batchSize)+1})`);
       }
       return;

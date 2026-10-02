@@ -63,7 +63,7 @@ function GestionReunionesContent() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [reuniones, setReuniones] = useState<Reunion[]>([]);
   const [masterTemplate, setMasterTemplate] = useState<any>(null);
-
+  
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,7 +75,7 @@ function GestionReunionesContent() {
   const [formNotas, setFormNotas] = useState('');
   const [formAcuerdos, setFormAcuerdos] = useState('');
   const [formChecklist, setFormChecklist] = useState<ReunionChecklistItem[]>([]);
-
+  
   const [isSaving, setIsSaving] = useState(false);
   const [deletingReunionId, setDeletingReunionId] = useState<string | null>(null);
 
@@ -116,7 +116,7 @@ function GestionReunionesContent() {
       return;
     }
     setIsSaving(true);
-
+    
     let finalDate: Date | undefined = undefined;
     if(formFecha) {
         finalDate = new Date(formFecha);
@@ -185,9 +185,9 @@ function GestionReunionesContent() {
     }
     setIsFormModalOpen(true);
   };
-
+  
   const toggleChecklistItem = (id: string) => {
-      setFormChecklist(prev => prev.map(item =>
+      setFormChecklist(prev => prev.map(item => 
           item.id === id ? { ...item, completed: !item.completed } : item
       ));
   };
@@ -222,32 +222,32 @@ function GestionReunionesContent() {
                 {currentReunion ? 'Editar Reunion' : 'Agendar Nueva Reunion'}
             </DialogTitle>
           </DialogHeader>
-
+          
           <Tabs defaultValue="detalles" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="detalles">Datos y Acuerdos</TabsTrigger>
                 <TabsTrigger value="guia"><ListChecks className="w-4 h-4 mr-2"/>Guia y Checklist</TabsTrigger>
             </TabsList>
-
+            
             <TabsContent value="detalles" className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
                 <div className="space-y-1"><Label htmlFor="reunion-titulo">Titulo de la Reunion*</Label><Input id="reunion-titulo" value={formTitulo} onChange={e => setFormTitulo(e.target.value)} placeholder="Ej: Definir decoracion, Degustacion menu" required /></div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1"><Label htmlFor="reunion-fecha">Fecha</Label><DatePickerDemo selectedDate={formFecha} onDateChange={setFormFecha} /></div>
                     <div className="space-y-1"><Label htmlFor="reunion-hora">Hora</Label><Input id="reunion-hora" type="time" value={formHora} onChange={(e) => setFormHora(e.target.value)} disabled={!formFecha}/></div>
                 </div>
-
+                
                 <div className="space-y-1"><Label htmlFor="reunion-notas">Notas / Temas a tratar</Label><Textarea id="reunion-notas" value={formNotas} onChange={(e) => setFormNotas(e.target.value)} rows={3} placeholder="Puntos a discutir en la reunion..."/></div>
-
+                
                 <div className="space-y-2 p-4 bg-primary/5 rounded-lg border border-primary/10">
                     <Label htmlFor="reunion-acuerdos" className="text-primary font-bold flex items-center gap-2">
                         <ClipboardCheck className="w-4 h-4"/> Acuerdos Alcanzados
                     </Label>
                     <CardDescription>Documenta aqui las decisiones finales tomadas.</CardDescription>
-                    <Textarea
-                        id="reunion-acuerdos"
-                        value={formAcuerdos}
-                        onChange={(e) => setFormAcuerdos(e.target.value)}
-                        rows={6}
+                    <Textarea 
+                        id="reunion-acuerdos" 
+                        value={formAcuerdos} 
+                        onChange={(e) => setFormAcuerdos(e.target.value)} 
+                        rows={6} 
                         placeholder="Ej: Se acordo cambiar el plato principal a Pollo Relleno..."
                         className="bg-white"
                     />
@@ -270,17 +270,17 @@ function GestionReunionesContent() {
                         <ListChecks className="w-5 h-5 text-primary"/> Checklist de Revision
                     </Label>
                     <p className="text-xs text-muted-foreground mb-4">Usa esta lista para no olvidar ningun punto clave durante la charla.</p>
-
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {formChecklist.map(item => (
                             <div key={item.id} className="flex items-center space-x-3 p-2 border rounded-md bg-muted/30 hover:bg-muted/50 transition-colors">
-                                <Checkbox
-                                    id={`check-${item.id}`}
-                                    checked={item.completed}
+                                <Checkbox 
+                                    id={`check-${item.id}`} 
+                                    checked={item.completed} 
                                     onCheckedChange={() => toggleChecklistItem(item.id)}
                                 />
-                                <Label
-                                    htmlFor={`check-${item.id}`}
+                                <Label 
+                                    htmlFor={`check-${item.id}`} 
                                     className={cn("text-sm cursor-pointer", item.completed && "line-through text-muted-foreground")}
                                 >
                                     {item.text}
@@ -330,7 +330,7 @@ function GestionReunionesContent() {
             </Link></Button>
         </CardContent>
       </Card>
-
+      
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle>Historial de Reuniones</CardTitle>
@@ -347,12 +347,12 @@ function GestionReunionesContent() {
                       <div>
                         <p className="font-bold text-lg text-primary">{reunion.titulo}</p>
                         <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                            <CalendarIcon className="w-4 h-4" />
-                            {formatDate(reunion.fecha)}
+                            <CalendarIcon className="w-4 h-4" /> 
+                            {formatDate(reunion.fecha)} 
                             {reunion.fecha && <span className="font-medium">{new Date(reunion.fecha).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'})} hs.</span>}
                         </p>
                       </div>
-
+                      
                       {reunion.checklist && reunion.checklist.some(i => i.completed) && (
                           <div className="flex flex-wrap gap-1.5">
                               <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-[10px]">
@@ -378,7 +378,7 @@ function GestionReunionesContent() {
                         />
                       )}
                     </div>
-
+                    
                     <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
                       <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openFormModal(reunion)} title="Editar"><Edit3 className="w-4 h-4"/></Button>
                       <AlertDialog>

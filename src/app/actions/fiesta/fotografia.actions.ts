@@ -5,7 +5,7 @@ import type { FiestaEnPlanificacion, FotografiaYFilmacionData } from '@/types/fi
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 async function updateFiestaData(
-  fiestaId: string,
+  fiestaId: string, 
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; updatedData?: FotografiaYFilmacionData; error?: string }> {
   try {

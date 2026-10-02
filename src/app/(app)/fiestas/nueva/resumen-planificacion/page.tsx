@@ -7,10 +7,10 @@ import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-    ArrowLeft, Loader2, AlertTriangle, ClipboardCheck, Printer, ChefHat,
-    Music2, Palette, Clock, GlassWater, CakeSlice, Users, MapPin,
-    CalendarDays, Edit3, Camera, UserCheck, FileText, CheckCircle2,
+import { 
+    ArrowLeft, Loader2, AlertTriangle, ClipboardCheck, Printer, ChefHat, 
+    Music2, Palette, Clock, GlassWater, CakeSlice, Users, MapPin, 
+    CalendarDays, Edit3, Camera, UserCheck, FileText, CheckCircle2, 
     Info, Package, Sparkles, Archive, Wallet, Gift, Download, ShoppingCart, Truck,
     Layers, PackageSearch, AlertCircle
 } from 'lucide-react';
@@ -89,7 +89,7 @@ function ResumenPlanificacionContent() {
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
   const [roles, setRoles] = useState<Rol[]>([]);
   const [shoppingList, setShoppingList] = useState<ShoppingListItem[]>([]);
-
+  
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -107,7 +107,7 @@ function ResumenPlanificacionContent() {
         getMenus(),
         getInsumos()
       ]);
-
+      
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
       setFiesta(fiestaData);
       setEmpleados(Array.isArray(emps) ? emps : []);
@@ -140,9 +140,9 @@ function ResumenPlanificacionContent() {
       };
 
       if (presupuestoData) {
-          const budgetDishes = presupuestoData.itemsPresupuestados.filter(item =>
-              item.idServicioCatalogo.startsWith('dish_') ||
-              item.idServicioCatalogo.startsWith('new_item_') ||
+          const budgetDishes = presupuestoData.itemsPresupuestados.filter(item => 
+              item.idServicioCatalogo.startsWith('dish_') || 
+              item.idServicioCatalogo.startsWith('new_item_') || 
               item.idServicioCatalogo.startsWith('menu_')
           );
           const allDishesInCatalog = allMenus.flatMap(m => m.items);
@@ -243,7 +243,7 @@ function ResumenPlanificacionContent() {
     if (menu) return null;
     if (!presupuesto) return null;
 
-    const items = presupuesto.itemsPresupuestados.filter(i =>
+    const items = presupuesto.itemsPresupuestados.filter(i => 
         ['Entrada', 'Plato Principal', 'Postre', 'Menú Infantil/Adolescente'].includes(i.categoriaServicio || '') ||
         i.nombreServicio.toLowerCase().includes('entrada') ||
         i.nombreServicio.toLowerCase().includes('principal') ||
@@ -330,7 +330,7 @@ function ResumenPlanificacionContent() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-8">
-
+            
             {/* LOGÍSTICA DE CARGA (VISUALIZACIÓN DIRECTA) */}
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
                 <CardHeader className="bg-slate-900 text-white p-6">

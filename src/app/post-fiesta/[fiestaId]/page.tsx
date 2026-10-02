@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import {
-  ArrowRight,
-  Camera,
-  Heart,
-  MessageCircle,
-  PartyPopper,
-  Share2,
-  Sparkles,
+import { 
+  ArrowRight, 
+  Camera, 
+  Heart, 
+  MessageCircle, 
+  PartyPopper, 
+  Share2, 
+  Sparkles, 
   Star,
   Download,
   Video,
@@ -121,7 +121,7 @@ export default async function PostFiestaPage(props: PageProps) {
           </CardHeader>
           <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
-
+              
               {/* Fotos del Muro */}
               {downloads.invitadoPhotos && (
                 <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl hover:border-indigo-100 transition-colors">

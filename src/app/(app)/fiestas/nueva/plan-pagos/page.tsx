@@ -488,11 +488,11 @@ function PlanPagosContent() {
             </div>
             {previewNotif.comprobanteUrl || previewNotif.comprobanteBase64 ? (
               (() => {
-                const url = previewNotif.comprobanteUrl
+                const url = previewNotif.comprobanteUrl 
                   ? `/api/storage/signed-url?path=${encodeURIComponent(previewNotif.comprobanteUrl)}`
                   : previewNotif.comprobanteBase64;
                 const isPdf = previewNotif.comprobanteNombre?.toLowerCase().endsWith('.pdf') || previewNotif.comprobanteUrl?.toLowerCase().endsWith('.pdf');
-
+                
                 if (isPdf) {
                   return (
                     <div className="w-full h-80 border rounded-xl overflow-hidden flex flex-col">
@@ -503,7 +503,7 @@ function PlanPagosContent() {
                     </div>
                   );
                 }
-
+                
                 return (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img src={url} alt="Comprobante" className="w-full rounded-xl max-h-80 object-contain" />

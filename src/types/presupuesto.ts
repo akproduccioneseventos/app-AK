@@ -67,7 +67,7 @@ export interface ItemPresupuestado {
   categoriaServicio?: string;
   subcategoria?: string;
   esRegalo?: boolean;
-
+  
   // Fields to support complex calculations, copied from catalog or overridden
   calculationMethod?: 'fijo' | 'porPersona' | 'ratio' | 'tramos';
   precioBase?: number;
@@ -155,7 +155,7 @@ export interface PresupuestoFormData {
     invitadosPorUnidad?: number;
     tramosDePrecio?: { id: string; desde: number; hasta: number; precio: number }[];
   }>;
-
+  
   // Gastronomic selections
   selectedMenuId?: string;
 

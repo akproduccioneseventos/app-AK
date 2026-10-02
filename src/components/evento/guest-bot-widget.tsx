@@ -57,7 +57,7 @@ export function GuestBotWidget({ fiesta }: GuestBotWidgetProps) {
               <ChevronDown className="w-5 h-5" />
             </Button>
           </div>
-
+          
           <ScrollArea className="flex-1 p-4 bg-slate-50">
             <div className="space-y-4">
               {messages.map((msg, i) => (
@@ -74,11 +74,11 @@ export function GuestBotWidget({ fiesta }: GuestBotWidgetProps) {
           </ScrollArea>
 
           <div className="p-3 bg-white border-t border-slate-100 flex gap-2">
-            <Input
+            <Input 
               value={inputValue}
               onChange={e => setInputValue(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSend()}
-              placeholder="Pregúntame algo..."
+              placeholder="Pregúntame algo..." 
               className="rounded-full bg-slate-50 border-none h-10"
               disabled={isTyping}
             />
@@ -88,7 +88,7 @@ export function GuestBotWidget({ fiesta }: GuestBotWidgetProps) {
           </div>
         </div>
       ) : (
-        <Button
+        <Button 
           onClick={() => setIsOpen(true)}
           className="rounded-full w-14 h-14 bg-indigo-600 hover:bg-indigo-700 shadow-xl flex items-center justify-center animate-bounce shadow-indigo-600/30"
         >

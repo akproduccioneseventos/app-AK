@@ -35,7 +35,7 @@ const DetalleEditor: React.FC<{
   const handleFieldChange = <K extends keyof DetalleEventoEspecifico>(field: K, value: DetalleEventoEspecifico[K]) => {
     onUpdate({ ...detalle, [field]: value });
   };
-
+  
   const handleDateChange = (date?: Date) => {
     // Se guarda el día suelto, igual que la fecha del evento. Guardarlo con hora
     // universal hacía que el invitado viera el día anterior al de la ceremonia.
@@ -85,7 +85,7 @@ const DetalleEditor: React.FC<{
 
 
 export const SeccionDetallesEventoEditor: React.FC<Props> = ({ data, update, fiestaId }) => {
-
+  
   const handleDetalleUpdate = (key: DetalleKey, newData: DetalleEventoEspecifico) => {
     update({ [key]: newData });
   };

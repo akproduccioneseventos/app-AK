@@ -109,7 +109,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     if (!presupuesto) {
       return { itemsAgrupados: {}, costoTotalRegalos: 0, subtotalBruto: 0, descuentoPromocional: 0, totalFinal: 0 };
     }
-
+    
     const itemsRegulares = presupuesto.itemsPresupuestados.filter(item => !item.esRegalo);
     const itemsRegalo = presupuesto.itemsPresupuestados.filter(item => item.esRegalo);
 
@@ -119,7 +119,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
         acc[categoria].push(item);
         return acc;
     }, {} as Record<string, ItemPresupuestado[]>);
-
+    
     const sortedKeys = Object.keys(agrupados).sort((a,b) => a.localeCompare(b));
     const sortedAgrupados: Record<string, ItemPresupuestado[]> = {};
     sortedKeys.forEach(key => sortedAgrupados[key] = agrupados[key]);
@@ -127,12 +127,12 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     if (itemsRegalo.length > 0) {
       sortedAgrupados['Regalos Incluidos'] = itemsRegalo;
     }
-
+    
     const costoRegalos = itemsRegalo.reduce((sum, item) => sum + (item.precioUnitario * item.cantidad), 0);
     const financials = calculateBudgetFinancials(presupuesto, { preserveStoredTotal: true });
     const bruto = presupuesto.costoTotalEstimado;
     const descPromo = bruto - financials.total;
-
+    
     return {
       itemsAgrupados: sortedAgrupados,
       costoTotalRegalos: costoRegalos,
@@ -142,7 +142,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     };
 
   }, [presupuesto]);
-
+  
  const generarTextoWhatsApp = () => {
     if (!presupuesto) return '';
     const pageUrl = `${window.location.origin}/presupuestos/${presupuesto.id}/ver`;
@@ -174,17 +174,17 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
     texto += `\n\n¡Esperamos tu consulta!\n*El equipo de ${COMPANY_NAME_BRAND}*`;
     return texto;
   };
-
+  
   const handleCopyToClipboard = () => {
     navigator.clipboard.writeText(generarTextoWhatsApp())
       .then(() => toast({ title: "¡Texto Copiado!", description: "Resumen copiado para WhatsApp." }))
       .catch(() => toast({ title: "Error al Copiar", variant: "destructive" }));
   };
-
+  
   const handleShareWhatsApp = () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(generarTextoWhatsApp())}`, '_blank');
   };
-
+  
   const handlePrint = () => {
     window.print();
   };
@@ -201,18 +201,18 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
       </div>
     );
   }
-
+  
   const fechaValidoHasta = new Date(presupuesto.timestamp);
   fechaValidoHasta.setDate(fechaValidoHasta.getDate() + BUDGET_VALIDITY_DAYS_PDF);
-
+  
   const eventYear = presupuesto.eventoFecha ? new Date(presupuesto.eventoFecha).getFullYear() : 0;
   const currentYear = new Date().getFullYear();
   const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? 15;
   const isContracted = presupuesto?.estado === 'Aceptado' || presupuesto?.estado === 'Facturado';
-  const showAnnualAdjustmentLegend =
+  const showAnnualAdjustmentLegend = 
     isContracted &&
-    adjustmentPct > 0 &&
-    eventYear > currentYear &&
+    adjustmentPct > 0 && 
+    eventYear > currentYear && 
     presupuesto?.ajusteAnualActivo === true;
 
   const projectionRows = showAnnualAdjustmentLegend
@@ -222,7 +222,7 @@ export default function Paso4Resumen({ presupuesto }: Paso4ResumenProps) {
   const annualAdjustmentAmount = Math.max(0, adjustedTotal - totalFinal);
   const nextYear = currentYear + 1;
   const nextYearProjectedTotal = Math.round(totalFinal * (1 + adjustmentPct / 100));
-
+    
   const budgetNumber = presupuesto.numero || (presupuesto.id.split('_').pop() || presupuesto.id).substring(0,6).toUpperCase();
   const shouldShowBudgetSignatures =
     presupuesto.estado === 'Aceptado' ||

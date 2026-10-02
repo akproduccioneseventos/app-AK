@@ -39,7 +39,7 @@ interface ControlPanelProps {
 }
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSection, removeSection, onSectionClick }) => {
-
+    
     const { toast } = useToast();
     const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
     const [templates, setTemplates] = useState<InvitacionDigitalTemplate[]>([]);
@@ -86,7 +86,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
         if (!fiestaId) return '';
         return `${window.location.origin}${path.replace('[fiestaId]', fiestaId)}${hash ? `#${hash}` : ''}`;
     }
-
+    
     const downloadQR = (id: string, name: string) => {
         const canvas = document.getElementById(id) as HTMLCanvasElement;
         if (canvas) {

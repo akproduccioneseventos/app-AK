@@ -85,7 +85,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
         getCompanyInfo(),
         getInvoiceTemplateSettings()
       ]);
-
+      
       if (!fiestaData) throw new Error("Evento no encontrado.");
       if (!fiestaData.configuracion.clienteId || !fiestaData.presupuestoId) {
         setError("El evento debe tener un cliente y un presupuesto asignados para generar este documento.");
@@ -100,7 +100,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
         getCustomerById(fiestaData.configuracion.clienteId),
         getPresupuestoById(fiestaData.presupuestoId)
       ]);
-
+      
       setCliente(clienteData);
       setPresupuesto(presupuestoData);
       const generatedText = buildCambioFechaText({
@@ -131,7 +131,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
+  
   const handlePrint = () => window.print();
 
   const handleSaveToHistory = async () => {
@@ -162,7 +162,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
       url: window.location.href,
     };
      try {
-      if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); }
+      if (navigator.share && navigator.canShare(shareData)) { await navigator.share(shareData); } 
       else { throw new Error('Share API not supported'); }
     } catch (err) {
       // Se espera la copia: antes decia "copiado" con el portapapeles bloqueado.
@@ -178,7 +178,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
   if (isLoading) {
     return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
-
+  
   if (error || !fiesta || !cliente || !presupuesto || !companyInfo) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">
@@ -216,7 +216,7 @@ function CambioFechaContent({ fiestaId }: { fiestaId: string | null }) {
             )}
             <h1 className="text-xl font-bold text-center">CONSTANCIA DE CAMBIO DE FECHA DE CONTRATO DE SERVICIOS</h1>
         </header>
-
+        
         <div className="prose prose-sm print:prose-xs max-w-none text-justify">
           {isEditing ? (
             <Textarea

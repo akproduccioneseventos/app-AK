@@ -7,15 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  History,
-  PlusCircle,
-  Search,
-  Loader2,
-  AlertTriangle,
-  Copy,
-  Trash2,
-  CalendarDays,
+import { 
+  History, 
+  PlusCircle, 
+  Search, 
+  Loader2, 
+  AlertTriangle, 
+  Copy, 
+  Trash2, 
+  CalendarDays, 
   Users,
   TrendingUp,
   RotateCw,
@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from '@/components/ui/separator';
 
-const formatCurrency = (amount: number) =>
+const formatCurrency = (amount: number) => 
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(amount);
 
 export default function FiestasHistoricasPage() {
@@ -112,7 +112,7 @@ export default function FiestasHistoricasPage() {
     }
   };
 
-  const filtered = historicos.filter(h =>
+  const filtered = historicos.filter(h => 
     h.nombreEvento.toLowerCase().includes(searchTerm.toLowerCase()) ||
     h.clienteNombre.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -140,8 +140,8 @@ export default function FiestasHistoricasPage() {
         <CardHeader>
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por evento o cliente..."
+            <Input 
+              placeholder="Buscar por evento o cliente..." 
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -174,9 +174,9 @@ export default function FiestasHistoricasPage() {
                     </div>
                   </CardContent>
                   <CardFooter className="border-t pt-4 flex justify-between gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
+                    <Button 
+                      variant="secondary" 
+                      size="sm" 
                       className="flex-grow"
                       onClick={() => {
                         setSelectedSource(item);
@@ -187,9 +187,9 @@ export default function FiestasHistoricasPage() {
                       <Copy className="w-4 h-4 mr-2" />
                       Duplicar con Ajuste 15%
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
                       className="text-destructive h-9 w-9"
                       onClick={() => handleDelete(item.id)}
                       disabled={isProcessing === item.id}
@@ -227,10 +227,10 @@ export default function FiestasHistoricasPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="new-year">Año del Nuevo Evento</Label>
-                <Input
-                  id="new-year"
-                  type="number"
-                  value={newYear}
+                <Input 
+                  id="new-year" 
+                  type="number" 
+                  value={newYear} 
                   onChange={e => setNewYear(parseInt(e.target.value))}
                   min={selectedSource.anioOriginal}
                 />

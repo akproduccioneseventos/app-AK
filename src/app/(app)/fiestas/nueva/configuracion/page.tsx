@@ -18,7 +18,7 @@ import type { Customer } from '@/types/customer';
 import type { Salon } from '@/types/salon';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestaById, updateConfiguracionFiestaActual, syncFiestaFromBudget, updateFiestaPresupuestoId } from '@/app/actions/fiesta-actual';
-import { initialFiestaActualData } from '@/lib/fiesta-defaults';
+import { initialFiestaActualData } from '@/lib/fiesta-defaults'; 
 import { getCustomers, getCustomerById, syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import { getSalones } from '@/app/actions/salones';
 import { Separator } from '@/components/ui/separator';
@@ -71,7 +71,7 @@ function ConfiguracionEventoContent() {
       ]);
 
       if (!fiesta) throw new Error("Evento no encontrado.");
-
+      
       setAllCustomers(fetchedCustomers);
       setAllSalones(fetchedSalones);
       setAllPresupuestos(fetchedPresupuestos);
@@ -117,7 +117,7 @@ function ConfiguracionEventoContent() {
       setIsLoadingCustomers(false);
     }
   }, [toast, router, fiestaId]);
-
+  
   useEffect(() => {
     loadInitialData();
   }, [loadInitialData]);
@@ -168,10 +168,10 @@ function ConfiguracionEventoContent() {
     }
     handleChange('fechaEvento', date);
   };
-
+  
   const handleClienteChange = async (newClienteIdValue: string) => {
     const newClienteId = newClienteIdValue === "ninguno" || newClienteIdValue === "" ? undefined : newClienteIdValue;
-
+    
     setConfig(prevConfig => {
       if (!prevConfig) return null;
       let updatedConfig = { ...prevConfig, clienteId: newClienteId };
@@ -259,11 +259,11 @@ function ConfiguracionEventoContent() {
 
     saveNow();
   };
-
+  
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando configuración...</p></div>;
   }
-
+  
   if (!config) {
     return <div className="flex flex-col items-center justify-center min-h-[400px] text-center"><AlertTriangle className="w-12 h-12 text-destructive mb-4" /><h2 className="text-xl font-semibold mb-2">Error al Cargar Configuración</h2><Button onClick={() => window.location.reload()} className="mt-4">Recargar Página</Button></div>;
   }
@@ -274,7 +274,7 @@ function ConfiguracionEventoContent() {
       handleChange('tipoCelebracion', newTipoEvento);
     }
   };
-
+  
   const eventoTipoEnSelect =
     config.tipoCelebracion && tiposEventoDisponibles.includes(config.tipoCelebracion as TipoEvento)
       ? config.tipoCelebracion
@@ -410,7 +410,7 @@ function ConfiguracionEventoContent() {
             </div>
             <div className="space-y-2">
                 <Label htmlFor="tipo-celebracion" className="text-base">Tipo de Celebración</Label>
-                 <Select
+                 <Select 
                     value={eventoTipoEnSelect}
                     onValueChange={handleSelectTipoEventoChange}
                     disabled={isSaving}
@@ -419,9 +419,9 @@ function ConfiguracionEventoContent() {
                     <SelectContent>{tiposEventoDisponibles.map(tipo => (<SelectItem key={tipo} value={tipo} className="text-base">{tipo}</SelectItem>))}</SelectContent>
                   </Select>
                   {eventoTipoEnSelect === "Otro" && (
-                     <Input
-                        id="eventoTipoOtroInput"
-                        placeholder="Especificá el tipo de evento"
+                     <Input 
+                        id="eventoTipoOtroInput" 
+                        placeholder="Especificá el tipo de evento" 
                         value={config.tipoCelebracion}
                         onChange={(e) => handleChange('tipoCelebracion', e.target.value)}
                         className="text-base p-3 mt-2"

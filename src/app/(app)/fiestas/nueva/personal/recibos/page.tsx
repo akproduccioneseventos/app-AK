@@ -187,7 +187,7 @@ function RecibosDePagoContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-
+  
   const handlePrint = () => {
     window.print();
   };
@@ -342,7 +342,7 @@ function RecibosDePagoContent() {
       printWindow.close();
     }, 200);
   };
-
+  
   const handleAutoSaveSalary = async (updatedStaff: typeof assignedStaffDetails) => {
     if (!fiestaId) return;
     setIsSaving(true);
@@ -375,7 +375,7 @@ function RecibosDePagoContent() {
     setAssignedStaffDetails(updated);
     handleAutoSaveSalary(updated);
   };
-
+  
   const handleSaveChanges = async () => {
     setIsSaving(true);
     if (!fiestaId) {
@@ -407,11 +407,11 @@ function RecibosDePagoContent() {
     const ids = new Set(allFiestas.flatMap(f => (f.personalAsignado || []).map(p => p.empleadoId)));
     return allEmpleados.filter(e => ids.has(e.id));
   }, [allFiestas, allEmpleados]);
-
+  
   if (isLoading) {
     return <div className="p-8 max-w-4xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
-
+  
   if (error || !fiesta) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">
@@ -485,7 +485,7 @@ function RecibosDePagoContent() {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-
+        
         <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
             {recibosConfig.showLogo && (
               <div className="w-full h-24 print:h-20 mb-4 relative">
@@ -582,7 +582,7 @@ function RecibosDePagoContent() {
                     <p>Monto: {formatCurrency(detail.employerContribution)} ({detail.rol?.porcentajeAportesPatronales || 0}%)</p>
                   </div>
                  )}
-
+                  
                  {recibosConfig.showFirmas && (
                   <div className="mt-8 print:mt-10 flex justify-between items-end">
                     <div className="w-2/5 border-t text-center pt-1"><p className="text-xs print:text-[8pt]">Firma del Empleado</p></div>

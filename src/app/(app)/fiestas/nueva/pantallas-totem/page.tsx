@@ -349,7 +349,7 @@ function PantallasTotemContent() {
                           )}
                         </Button>
                       </div>
-
+                      
                       {totem.heroPhotoUrl && (
                         <div className="flex flex-wrap gap-2 p-3 rounded-2xl border bg-slate-50 mt-1 max-h-40 overflow-y-auto">
                           {totem.heroPhotoUrl.split(/[\n,]+/).map((url) => url.trim()).filter(Boolean).map((url, i) => (

@@ -22,7 +22,7 @@ export type TimelineItemOutput = z.infer<typeof TimelineItemSchema>;
 
 export async function generateTimelineFlow(input: GenerateTimelineInput): Promise<TimelineItemOutput[]> {
   try {
-    const prompt = `Actúa como un experto Wedding & Event Planner.
+    const prompt = `Actúa como un experto Wedding & Event Planner. 
 Necesito un cronograma minuto a minuto para una fiesta.
 Tipo de evento: ${input.eventoTipo}
 Hora de inicio: ${input.horaInicio}

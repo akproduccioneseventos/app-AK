@@ -48,12 +48,12 @@ export async function saveRol(
   if (isNaN(sueldoNum) || sueldoNum < 0) {
     return { success: false, error: "El sueldo por evento debe ser un número positivo." };
   }
-
+  
   const roles = await leerRoles();
   let savedRol: Rol;
 
   const costoAportes = (sueldoNum * (Number(rolData.porcentajeAportesPatronales) || 0)) / 100;
-
+  
   const rolToProcess: Omit<Rol, 'id'> = {
     nombre: rolData.nombre.trim(),
     categoriaServicio: rolData.categoriaServicio,
@@ -78,7 +78,7 @@ export async function saveRol(
     savedRol = { ...rolToProcess, id: newRolId };
     roles.push(savedRol);
   }
-
+  
   await writeData(ROLES_FILE, roles, (a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
   return { success: true, id: savedRol.id, rol: savedRol };
 }
@@ -92,7 +92,7 @@ export async function deleteRol(id: string): Promise<{ success: boolean; error?:
   if (roles.length === initialLength) {
     return { success: false, error: `Rol ID ${id} no encontrado para eliminar.` };
   }
-
+  
   await writeData(ROLES_FILE, roles);
   return { success: true };
 }
