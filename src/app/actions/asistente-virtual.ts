@@ -289,7 +289,7 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
         motivo: senal.motivo || null,
       };
 
-      const SIN_BASE = process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || process.env.NODE_ENV === 'test';
+      const SIN_BASE = process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
       if (!SIN_BASE) {
         await createDataItem('asistente-cliente-conversaciones.json', 'asistente-cliente-conversaciones', regId, registro).catch(() => null);
       } else {

@@ -17,6 +17,12 @@
   nadie: ahora queda en la bandeja "Tu asistente". "Cuánto me deben" sumaba el total de todos los
   presupuestos (leía campos que no existen) y se lo contestaba a cualquiera del equipo: ahora usa
   la cuenta del panel y sólo le contesta al dueño. Lo demás ya no dice "dejé el borrador listo".
+- Se sacó el "video resumen de muestra": era una página armada a mano grabada con el navegador, no
+  un video hecho con las fotos de una fiesta, y su prueba sólo pasaba en la máquina que lo había
+  grabado. El video resumen de verdad sigue pedido en la orden 106 (bloque 13).
+- La limpieza de espacios de la 1248 se había llevado el aviso de datos del portal del cliente
+  (`PublicPortalProView`) y el `llms.txt` de Gemini borraba datos que ya estaban: se repuso el
+  aviso (sin el import repetido) y quedó el `llms.txt` de la principal.
 
 ```comprobar
 no-usa: 'tareas.json' en src/lib/asistente/por-whatsapp.ts
