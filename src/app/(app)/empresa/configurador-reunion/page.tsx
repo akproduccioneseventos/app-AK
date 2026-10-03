@@ -54,6 +54,7 @@ import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
 import type { DecoracionData, LayoutElement } from '@/types/fiesta';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
 import { createDemoFiesta } from '@/app/actions/fiesta-actual';
+import { reproducirVozReal, detenerVozReal } from '@/lib/asistente/reproductor-voz';
 
 function idDeYoutube(url?: string | null): string | null {
   if (!url) return null;
@@ -197,25 +198,19 @@ export default function ConfiguradorReunionPage() {
 
   const handleVozAsistente = () => {
     if (hablandoAsistente) {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      detenerVozReal();
       setHablandoAsistente(false);
       return;
     }
 
     const texto = `Hola, estamos configurando los ${tipoEvento} para ${Number(adultos) + Number(menores)} personas con ambientación en luces color ${salonColor}. Te recomiendo incluir la discoteca profesional y la pantalla gigante para tus invitados.`;
 
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(texto);
-      utterance.lang = 'es-UY';
-      utterance.onend = () => setHablandoAsistente(false);
-      utterance.onerror = () => setHablandoAsistente(false);
-      setHablandoAsistente(true);
-      window.speechSynthesis.speak(utterance);
-    } else {
-      toast({ title: 'Asistente de voz', description: texto });
-    }
+    // Gemini primero, el teléfono si no hay; cada una se apaga en Ajustes (reproductor-voz.ts).
+    setHablandoAsistente(true);
+    void reproducirVozReal(texto, {
+      onEnd: () => setHablandoAsistente(false),
+      onError: () => setHablandoAsistente(false),
+    });
   };
 
   const handleRecorrerCamara = () => {

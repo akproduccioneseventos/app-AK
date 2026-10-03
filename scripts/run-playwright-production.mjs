@@ -765,7 +765,11 @@ async function main() {
   }
 
   if (process.env.AK_REGISTRO_POR_PRUEBA) {
-    writeFileSync(process.env.AK_REGISTRO_POR_PRUEBA, JSON.stringify(registroPorPrueba, null, 1));
+    // Se SUMA a lo que ya hay: la puerta llama a este corredor dos veces (pruebas y recorrido) y la
+    // segunda pisaba a la primera (3/10/2026: quedaba sólo el recorrido).
+    let anteriores = [];
+    try { anteriores = JSON.parse(readFileSync(process.env.AK_REGISTRO_POR_PRUEBA, "utf8")); } catch { anteriores = []; }
+    writeFileSync(process.env.AK_REGISTRO_POR_PRUEBA, JSON.stringify([...anteriores, ...registroPorPrueba], null, 1));
   }
 
   // Resumen Final

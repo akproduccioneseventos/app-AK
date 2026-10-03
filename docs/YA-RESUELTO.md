@@ -1,5 +1,28 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 3 de octubre de 2026 — La 1251 de Gemini, terminada por Claude (orden 115)
+
+- **El video resumen duraba lo que tardaba el teléfono:** los cuadros se dibujaban lo más rápido
+  posible y la grabación es en tiempo real (la muestra dio 141 s). Ahora se dibujan al ritmo del
+  reloj; la muestra nueva mide 66 s y la prueba de navegador mide el archivo, no la cuenta.
+- **La voz es la de Gemini, no la de Google Cloud:** dos interruptores en Ajustes (Gemini y
+  teléfono), tope de la app de 100 por día, y si las dos están apagadas el asistente no habla.
+  El parte de la mañana y la reunión hablan por el mismo reproductor.
+- **Los ajustes del asistente los cambia administración:** antes cualquiera con sesión podía
+  cambiar el número al que le llegan los avisos del dueño.
+
+- **La prueba del control de llegada fallaba de a ratos:** el ajuste es uno solo para la empresa y
+  la corrían a la vez el escritorio y el celular, cada uno dándolo vuelta en medio del otro. Ahora
+  corre sólo en escritorio. No era un defecto de la app.
+
+```comprobar
+prueba: tests/e2e/el-video-resumen-dura-lo-que-promete.spec.ts
+prueba: src/__tests__/la-voz-de-gemini-tts.test.ts
+usa: performance.now() en src/lib/video-resumen/generar-video-resumen.ts
+usa: vozTelefonoActiva en src/lib/asistente/reproductor-voz.ts
+usa: requirePermiso(PERMISOS.ADMINISTRACION) en src/app/actions/asistente-proactivo.actions.ts
+```
+
 ## 3 de octubre de 2026 — Codex, segunda vuelta de cobros (COB06 a COB09)
 
 - **COB07:** con dos servidores y la misma operación, el segundo decía "listo" mirando la factura
@@ -167,7 +190,7 @@ prueba: src/__tests__/se-prueba-solo-lo-que-cambio-de-un-archivo.test.ts
 prueba: src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts
 prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
 no-usa: ins-licor-durazno en src/lib/fiesta-defaults.ts
-usa: speechSynthesis en src/app/(app)/empresa/configurador-reunion/page.tsx
+usa: reproducirVozReal en src/app/(app)/empresa/configurador-reunion/page.tsx
 prueba: src/__tests__/actualizar-fiesta-pide-permiso.test.ts
 ```
 

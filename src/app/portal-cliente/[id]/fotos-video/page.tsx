@@ -24,8 +24,11 @@ import {
   Sparkles,
   FolderDown,
   Video,
-  PartyPopper
+  PartyPopper,
+  Film,
 } from 'lucide-react';
+import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
+import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -52,6 +55,17 @@ export default function FotosVideoPortalPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [videoModalAbierto, setVideoModalAbierto] = useState(false);
+
+  const fotosParaVideo = posts
+    .filter((p) => p.imageUrl && !isVideoPost(p))
+    .slice(0, 30)
+    .map((p) => ({
+      id: p.id,
+      imageUrl: p.imageUrl,
+      authorName: p.authorName,
+      timestamp: p.timestamp,
+    }));
 
   useEffect(() => {
     const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
@@ -155,6 +169,38 @@ export default function FotosVideoPortalPage() {
                   Compartir con Invitados
                 </Button>
               </a>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* --- TU VIDEO DE LA FIESTA --- */}
+        <Card className="border-amber-200 bg-gradient-to-br from-amber-50/50 via-white to-orange-50/30 rounded-3xl overflow-hidden shadow-sm">
+          <CardContent className="p-5 space-y-4">
+            <div className="flex gap-3 items-start">
+              <Film className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-black text-sm text-slate-900">Tu video de la fiesta</h3>
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Montaje vertical cinematográfico de 60 a 90 segundos con las mejores fotos, música de fondo y efecto Ken Burns.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button
+                onClick={() => setVideoModalAbierto(true)}
+                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl font-bold h-11 shadow-md"
+              >
+                <Film className="w-4 h-4 mr-2" />
+                Ver y Compartir
+              </Button>
+              <Button
+                onClick={() => setVideoModalAbierto(true)}
+                variant="outline"
+                className="w-full border-amber-200 text-amber-800 hover:bg-amber-100/60 rounded-xl font-bold h-11"
+              >
+                <Download className="w-4 h-4 mr-2 text-amber-600" />
+                Descargar Video
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -337,6 +383,15 @@ export default function FotosVideoPortalPage() {
             </CardContent>
           </Card>
         )}
+
+        <TuVideoDeLaFiestaModal
+          isOpen={videoModalAbierto}
+          onClose={() => setVideoModalAbierto(false)}
+          titulo={fiesta.configuracion?.nombreEvento || 'Nuestra Fiesta'}
+          fecha={fiesta.configuracion?.fechaEvento || ''}
+          fotos={fotosParaVideo}
+          fiestaId={fiestaId}
+        />
       </main>
     </div>
   );

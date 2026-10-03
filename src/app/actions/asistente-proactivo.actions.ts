@@ -1,6 +1,7 @@
 'use server';
 
-import { perfilDe } from '@/lib/auth/perfiles';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { perfilDe, PERMISOS } from '@/lib/auth/perfiles';
 import { verifySession } from '@/lib/auth/session-token';
 import {
   getPropuestasParaUsuario,
@@ -146,9 +147,11 @@ export async function getSettingsAsistenteAction() {
 }
 
 export async function saveSettingsAsistenteAction(settings: Partial<AsistenteSettings>) {
-  const session = await verifySession();
-  if (!session.success) {
-    return { success: false, error: 'No autorizado' };
+  // Estos ajustes deciden a qué número le llegan los avisos del dueño y quién le puede hablar a la
+  // app por WhatsApp: los cambia administración, no cualquiera con sesión (3/10/2026).
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) {
+    return { success: false, error: permiso.error };
   }
   try {
     const updated = await saveAsistenteSettings(settings);

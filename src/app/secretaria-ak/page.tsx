@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { sendMultiAgentMessage } from '@/app/actions/multiagent';
 import type { AkMultiAgentMessage } from '@/types/multiagent';
+import { reproducirVozReal, detenerVozReal } from '@/lib/asistente/reproductor-voz';
 
 type ChatMessage = AkMultiAgentMessage & { id: string; agentName?: string };
 
@@ -99,9 +100,7 @@ export default function SecretariaAkPage() {
   // Limpieza al desmontar
   useEffect(() => {
     return () => {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      detenerVozReal();
       try {
         recognitionRef.current?.stop?.();
       } catch {}
@@ -116,39 +115,23 @@ export default function SecretariaAkPage() {
   }, []);
 
   const speakText = useCallback((text: string, onFinish?: () => void) => {
-    if (isVoiceMutedRef.current || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    if (isVoiceMutedRef.current || typeof window === 'undefined') {
       onFinish?.();
       return;
     }
 
-    try {
-      window.speechSynthesis.cancel();
-      const bestVoice = selectBestSpanishVoice();
-      const speechText = truncateForSpeech(text);
-      const utterance = new SpeechSynthesisUtterance(speechText);
-      if (bestVoice) {
-        utterance.voice = bestVoice;
-        utterance.lang = bestVoice.lang;
-      } else {
-        utterance.lang = 'es-UY';
-      }
-      utterance.rate = 1.02;
-
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => {
+    setIsSpeaking(true);
+    void reproducirVozReal(text, {
+      onStart: () => setIsSpeaking(true),
+      onEnd: () => {
         setIsSpeaking(false);
         onFinish?.();
-      };
-      utterance.onerror = () => {
+      },
+      onError: () => {
         setIsSpeaking(false);
         onFinish?.();
-      };
-
-      window.speechSynthesis.speak(utterance);
-    } catch {
-      setIsSpeaking(false);
-      onFinish?.();
-    }
+      },
+    });
   }, []);
 
   const askSecretaria = useCallback(async (text: string) => {

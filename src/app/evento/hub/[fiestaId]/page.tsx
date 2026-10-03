@@ -32,6 +32,7 @@ import { getPublicSocialPostCount } from '@/app/actions/social-gallery';
 import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import { CompanyLogo } from '@/components/company-logo';
 import type { PublicGuestPortalData } from '@/lib/guest-portal-public-data';
+import { formatEventDateHub } from '@/lib/fechas/formato-fecha-evento';
 import {
   buildPublicEventTools,
   normalizePublicEventAccent,
@@ -64,16 +65,7 @@ const TOOL_ICONS: Record<PublicEventToolId, typeof Camera> = {
   mesa: MapPin,
 };
 
-function formatEventDate(value?: string): string | null {
-  if (!value) return null;
-  const date = new Date(`${value.slice(0, 10)}T12:00:00`);
-  if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat('es-UY', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(date);
-}
+const formatEventDate = formatEventDateHub;
 
 export default function EventoHubPage() {
   const params = useParams<{ fiestaId: string }>();

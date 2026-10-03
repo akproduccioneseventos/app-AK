@@ -118,7 +118,7 @@ muestre**. Esa distinción es la que más veces falló.
 |---|---|---|
 | Trivia con podio por mesa | Sí | Pantalla grande del salón |
 | Misiones secretas para invitados | Sí | Muro social, en el celular |
-| Secretario que habla (micrófono y voz) | Sí | Botón flotante, en toda la app interna |
+| Secretario que habla (micrófono y voz) | Sí | Botón flotante, en toda la app interna. Voz de Gemini (gratis, tope 100 por día) y del teléfono, cada una con su interruptor en Ajustes |
 | Quién llegó del equipo | Sí | Centro de la fiesta |
 | Pantallas de la noche en oscuro | Sí | Recepción y logística |
 | La reunión se agenda sola | Sí | Al terminar el simulador público |

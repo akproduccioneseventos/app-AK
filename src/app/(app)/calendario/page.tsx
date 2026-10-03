@@ -239,7 +239,19 @@ function EventDetailSheet({
   if (!event) return null;
   const cfg = STATUS_CONFIG[event.status];
   const formattedDate = event.dateTime
-    ? format(parseISO(event.dateTime), "EEEE d 'de' MMMM, yyyy", { locale: es })
+    ? (() => {
+        try {
+          const parsed = parseISO(event.dateTime);
+          const base = format(parsed, "EEEE d 'de' MMMM, yyyy", { locale: es });
+          const hasSpecificTime = event.dateTime.includes('T') && !event.dateTime.includes('T00:00:00');
+          if (hasSpecificTime) {
+            return `${base} a las ${format(parsed, 'HH:mm')} hs`;
+          }
+          return base;
+        } catch {
+          return event.dateTime;
+        }
+      })()
     : 'Sin fecha';
   const formattedAmount = event.presupuestoEstimado
     ? new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(event.presupuestoEstimado)

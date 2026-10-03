@@ -781,7 +781,8 @@ En la 1249 venían 11 imágenes que eran texto. **Barrido:** orden 110.
 
 ```comprobar
 prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
-usa: SpeechSynthesisUtterance en src/components/mi-dia/ParteDeLaMananaPlayer.tsx
+usa: reproducirVozReal en src/components/mi-dia/ParteDeLaMananaPlayer.tsx
+usa: SpeechSynthesisUtterance en src/lib/asistente/reproductor-voz.ts
 ```
 
 ## 02/10/2026 — Cinco hallazgos de Codex en cobros, área que yo daba por auditada

@@ -30,6 +30,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { VOCES_IA_DISPONIBLES } from '@/lib/asistente/voz-gemini';
+import { reproducirVozReal, detenerVozReal } from '@/lib/asistente/reproductor-voz';
 
 export default function AsistenteSettingsPage() {
   const { toast } = useToast();
@@ -47,7 +49,9 @@ export default function AsistenteSettingsPage() {
 
   // Orden 105
   const [responderConVoz, setResponderConVoz] = useState(false);
-  const [vozSeleccionada, setVozSeleccionada] = useState('es-ES-Neural2-A');
+  const [vozSeleccionada, setVozSeleccionada] = useState('Kore');
+  const [vozGeminiActiva, setVozGeminiActiva] = useState(true);
+  const [vozTelefonoActiva, setVozTelefonoActiva] = useState(true);
   const [numerosEquipo, setNumerosEquipo] = useState<Array<{ telefono: string; nombre: string; rol: string }>>([
     { telefono: '59898355530', nombre: 'Alexander Knuth', rol: 'Dueño' },
   ]);
@@ -71,7 +75,11 @@ export default function AsistenteSettingsPage() {
       setHoraInicioNoMolestar(res.settings.horarioNoMolestarInicio ?? 23);
       setHoraFinNoMolestar(res.settings.horarioNoMolestarFin ?? 8);
       setResponderConVoz(res.settings.responderConVoz ?? false);
-      setVozSeleccionada(res.settings.vozSeleccionada || 'es-ES-Neural2-A');
+      setVozSeleccionada(
+        VOCES_IA_DISPONIBLES.some((v) => v.id === res.settings.vozSeleccionada) ? res.settings.vozSeleccionada! : 'Kore',
+      );
+      setVozGeminiActiva(res.settings.vozGeminiActiva !== false);
+      setVozTelefonoActiva(res.settings.vozTelefonoActiva !== false);
       if (res.settings.numerosEquipo && res.settings.numerosEquipo.length > 0) {
         setNumerosEquipo(res.settings.numerosEquipo);
       }
@@ -97,6 +105,8 @@ export default function AsistenteSettingsPage() {
       horarioNoMolestarFin: Number(horaFinNoMolestar),
       responderConVoz,
       vozSeleccionada,
+      vozGeminiActiva,
+      vozTelefonoActiva,
       numerosEquipo,
       asistentesAreas: areas,
     });
@@ -159,17 +169,22 @@ export default function AsistenteSettingsPage() {
     setNumerosEquipo((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleProbarVoz = () => {
-    if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance('Hola Alexander, así suena la voz seleccionada de tu asistente.');
-      u.lang = 'es-ES';
-      window.speechSynthesis.speak(u);
-    } else {
-      toast({
-        title: 'Prueba de voz',
-        description: 'Probando voz de Gemini en el servidor.',
-      });
-    }
+  const [probandoVoz, setProbandoVoz] = useState(false);
+
+  const handleProbarVoz = async () => {
+    setProbandoVoz(true);
+    const meta = VOCES_IA_DISPONIBLES.find((v) => v.id === vozSeleccionada);
+    const nombreVoz = meta ? meta.nombre.split('—')[0].trim() : 'seleccionada';
+    const frase = `Hola Alexander, soy tu asistente de eventos con la voz de ${nombreVoz}. Todo listo para tus eventos.`;
+    toast({
+      title: 'Probando voz',
+      description: `Reproduciendo audio con ${meta?.nombre || vozSeleccionada}...`,
+    });
+    await reproducirVozReal(frase, {
+      voz: vozSeleccionada,
+      onEnd: () => setProbandoVoz(false),
+      onError: () => setProbandoVoz(false),
+    });
   };
 
   if (loading) {
@@ -370,22 +385,54 @@ export default function AsistenteSettingsPage() {
             <Switch checked={responderConVoz} onCheckedChange={setResponderConVoz} />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium text-slate-800">Voz de Gemini (la que suena natural)</Label>
+              <p className="text-xs text-slate-500">
+                Usa la parte gratis de Gemini, con un tope de 100 por día. Pasado el tope, sigue la del teléfono.
+              </p>
+            </div>
+            <Switch checked={vozGeminiActiva} onCheckedChange={setVozGeminiActiva} />
+          </div>
+
+          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium text-slate-800">Voz del teléfono</Label>
+              <p className="text-xs text-slate-500">
+                Gratis siempre. Si apagás las dos, el asistente no habla y muestra sólo el texto.
+              </p>
+            </div>
+            <Switch checked={vozTelefonoActiva} onCheckedChange={setVozTelefonoActiva} />
+          </div>
+
+          <div className="flex items-start gap-3">
             <div className="flex-1 space-y-1">
-              <Label className="text-xs text-slate-600">Voz en español</Label>
+              <Label className="text-xs text-slate-600">Voz de Gemini</Label>
               <select
                 value={vozSeleccionada}
                 onChange={(e) => setVozSeleccionada(e.target.value)}
                 className="w-full text-sm border border-slate-300 rounded-md p-2 bg-white"
               >
-                <option value="es-ES-Neural2-A">Español Cálido Natural (Neural2-A)</option>
-                <option value="es-ES-Neural2-B">Español Claro Profesional (Neural2-B)</option>
-                <option value="gemini-tts-calida">Gemini TTS Cálida Rioplatense</option>
+                {VOCES_IA_DISPONIBLES.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.nombre} ({v.genero})
+                  </option>
+                ))}
               </select>
+              <p className="text-[11px] text-slate-500 mt-1">
+                {VOCES_IA_DISPONIBLES.find((v) => v.id === vozSeleccionada)?.descripcion ||
+                  'Voz de Gemini para el asistente y el parte de la mañana.'}
+              </p>
             </div>
-            <Button variant="outline" size="sm" onClick={handleProbarVoz} className="mt-5 text-xs">
-              <Volume2 className="h-3.5 w-3.5 mr-1" />
-              Escuchar
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleProbarVoz}
+              disabled={probandoVoz}
+              className="mt-6 text-xs shrink-0"
+            >
+              <Volume2 className={`h-3.5 w-3.5 mr-1 ${probandoVoz ? 'animate-pulse text-indigo-600' : ''}`} />
+              {probandoVoz ? 'Reproduciendo...' : 'Escuchar'}
             </Button>
           </div>
 

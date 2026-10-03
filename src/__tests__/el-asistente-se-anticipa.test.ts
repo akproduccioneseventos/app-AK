@@ -69,7 +69,7 @@ jest.mock('@/app/actions/multiagent', () => ({
 }));
 
 jest.mock('@/lib/auth/session-token', () => ({
-  verifySession: jest.fn(async () => ({ success: true, email: 'admin@ak.com', role: 'admin', nombre: 'Admin' })),
+  verifySession: jest.fn(async () => ({ success: true, email: 'admin@ak.com', role: 'admin', nombre: 'Admin', user: { email: 'admin@ak.com', role: 'admin' } })),
 }));
 
 import {

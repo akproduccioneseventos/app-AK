@@ -26,6 +26,7 @@ import {
   Star,
   MessageCircle,
   Music,
+  Film,
 } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
 import { getDedications } from '@/app/actions/social-interactive';
@@ -37,6 +38,8 @@ import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 import { armarAlbumInteligente, type AlbumDigitalCompleto, type RecuerdoAlbum } from '@/lib/album/armar-album';
 import { agruparEnPersonas } from '@/lib/caras/agrupar-caras';
+import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
+import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
 
 type ViewMode = 'libro' | 'cuadricula';
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'bogue' | 'buzon' | 'invitados' | 'mensajes';
@@ -95,10 +98,24 @@ export default function PublicAlbumPage() {
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [copied, setCopied] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [videoModalAbierto, setVideoModalAbierto] = useState(false);
+
+  const fotosParaVideo = useMemo(() => {
+    const soloFotos = posts.filter((p) => p.imageUrl && !isVideo(p.imageUrl));
+    const seleccion = seleccionarFotosParaVideoResumen(soloFotos, { maxFotos: 30 });
+    return seleccion.map((p) => ({
+      id: p.id,
+      imageUrl: p.imageUrl,
+      authorName: p.authorName,
+      timestamp: p.timestamp,
+    }));
+  }, [posts]);
 
   useEffect(() => {
-    getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {});
-    getEnlaceDeResenaPublico().then(setEnlaceResena).catch(() => {});
+    // no pasa nada si falla: son el título de la fiesta y el botón de reseña; sin ellos el álbum
+    // se ve igual y el botón no aparece (decisión del dueño: sin enlace, no se muestra).
+    getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {}); // no pasa nada si falla: título
+    getEnlaceDeResenaPublico().then(setEnlaceResena).catch(() => {}); // no pasa nada si falla: botón de reseña
   }, [fiestaId]);
 
   const loadPosts = useCallback(async () => {
@@ -353,6 +370,17 @@ export default function PublicAlbumPage() {
                   <span>Descargar todo</span>
                 </>
               )}
+            </button>
+
+            {/* Tu video de la fiesta */}
+            <button
+              onClick={() => setVideoModalAbierto(true)}
+              aria-label="Tu video de la fiesta"
+              data-testid="boton-video-resumen"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 text-zinc-950 font-black text-xs hover:brightness-110 transition-all shadow-md active:scale-95"
+            >
+              <Film className="w-3.5 h-3.5 fill-current" />
+              <span>Tu video de la fiesta</span>
             </button>
 
             {/* Música de fondo del álbum: solo aparece si la fiesta tiene canción cargada */}
@@ -765,6 +793,15 @@ export default function PublicAlbumPage() {
           data-testid="audio-fondo-album"
         />
       )}
+
+      <TuVideoDeLaFiestaModal
+        isOpen={videoModalAbierto}
+        onClose={() => setVideoModalAbierto(false)}
+        titulo={nombreFiesta}
+        fecha={fechaFiesta || 'Nuestra Fiesta'}
+        fotos={fotosParaVideo}
+        fiestaId={fiestaId}
+      />
     </div>
   );
 }

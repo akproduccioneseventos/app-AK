@@ -6,27 +6,24 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { ParteDeLaManana } from '@/lib/automatico/parte-manana';
 import Link from 'next/link';
+import { reproducirVozReal, detenerVozReal } from '@/lib/asistente/reproductor-voz';
 
 export function ParteDeLaMananaPlayer({ parte }: { parte: ParteDeLaManana }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  // Se lee con la voz del celular. Antes pedía un audio al servidor que era un tono, no una voz
-  // (2/10/2026). La voz de Gemini queda pedida en la orden 105.
-  const toggleHablar = () => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+  React.useEffect(() => () => detenerVozReal(), []);
 
+  // Gemini primero, el teléfono si no hay; cada una se apaga en Ajustes (reproductor-voz.ts).
+  const toggleHablar = () => {
     if (isPlaying) {
-      window.speechSynthesis.cancel();
+      detenerVozReal();
       setIsPlaying(false);
       return;
     }
-
-    const frase = new SpeechSynthesisUtterance(parte.textoHablado);
-    frase.lang = 'es-UY';
-    frase.onend = () => setIsPlaying(false);
-    frase.onerror = () => setIsPlaying(false);
-    window.speechSynthesis.cancel();
     setIsPlaying(true);
-    window.speechSynthesis.speak(frase);
+    void reproducirVozReal(parte.textoHablado, {
+      onEnd: () => setIsPlaying(false),
+      onError: () => setIsPlaying(false),
+    });
   };
 
   return (
