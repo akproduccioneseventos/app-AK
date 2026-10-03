@@ -96,6 +96,16 @@ export function dibujarFotogramaKenBurns(
 }
 
 /**
+ * Calcula la duración recomendada del video resumen en base a la cantidad de fotos.
+ * Siempre entre 60 y 90 segundos (Órdenes 106 y 111).
+ */
+export function calcularDuracionVideoResumen(cantidadFotos: number): number {
+  if (cantidadFotos <= 0) return 60;
+  const duracion = 6 + cantidadFotos * 2.75;
+  return Math.min(90, Math.max(60, Math.round(duracion)));
+}
+
+/**
  * Renderiza el montaje de video completo en un elemento Canvas y exporta un Blob WebM.
  */
 export async function generarVideoResumenWebM(
@@ -109,7 +119,7 @@ export async function generarVideoResumenWebM(
     titulo,
     fecha,
     fotos,
-    duracionSegundos = 60,
+    duracionSegundos = calcularDuracionVideoResumen(opciones.fotos?.length || 0),
     onProgress,
   } = opciones;
 

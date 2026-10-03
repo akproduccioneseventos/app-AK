@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': 'audio/wav',
         'Content-Length': audioBuffer.length.toString(),
-        'Cache-Control': 'public, max-age=86400, stale-while-revalidate=43200',
+        'Cache-Control': 'private, max-age=86400',
       },
     });
   } catch (error: any) {
@@ -51,13 +51,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Falta el texto a sintetizar' }, { status: 400 });
     }
 
-    const audioBuffer = await sintetizarVozGemini(texto, { voz, apiKey: body.apiKey });
+    const audioBuffer = await sintetizarVozGemini(texto, { voz });
 
     return new NextResponse(new Uint8Array(audioBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'audio/wav',
         'Content-Length': audioBuffer.length.toString(),
+        'Cache-Control': 'private, no-cache',
       },
     });
   } catch (error: any) {
