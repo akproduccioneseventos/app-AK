@@ -77,6 +77,7 @@ function dibujarRecortada(
 
   ctx.save();
   ctx.beginPath();
+  // no pasa nada si falla: roundRect no existe en navegadores viejos, se pregunta si está y si no, rectángulo.
   if (typeof (ctx as any).roundRect === 'function') {
     (ctx as any).roundRect(x, y, ancho, alto, radioBorde);
   } else {
@@ -90,6 +91,7 @@ function dibujarRecortada(
   ctx.save();
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.12)';
   ctx.lineWidth = 2;
+  // no pasa nada si falla: roundRect no existe en navegadores viejos, se pregunta si está y si no, rectángulo.
   if (typeof (ctx as any).roundRect === 'function') {
     ctx.beginPath();
     (ctx as any).roundRect(x, y, ancho, alto, radioBorde);
@@ -130,6 +132,7 @@ function dibujarLogoAk(ctx: CanvasRenderingContext2D, x: number, y: number, colo
   ctx.save();
   // Caja de isotipo AK
   ctx.fillStyle = colorAcento || '#d4a574';
+  // no pasa nada si falla: roundRect no existe en navegadores viejos, se pregunta si está y si no, rectángulo.
   if (typeof (ctx as any).roundRect === 'function') {
     ctx.beginPath();
     (ctx as any).roundRect(x, y - 32, 44, 38, 6);

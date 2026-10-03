@@ -112,8 +112,10 @@ export default function PublicAlbumPage() {
   }, [posts]);
 
   useEffect(() => {
-    getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {});
-    getEnlaceDeResenaPublico().then(setEnlaceResena).catch(() => {});
+    // no pasa nada si falla: son el título de la fiesta y el botón de reseña; sin ellos el álbum
+    // se ve igual y el botón no aparece (decisión del dueño: sin enlace, no se muestra).
+    getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {}); // no pasa nada si falla: título
+    getEnlaceDeResenaPublico().then(setEnlaceResena).catch(() => {}); // no pasa nada si falla: botón de reseña
   }, [fiestaId]);
 
   const loadPosts = useCallback(async () => {
