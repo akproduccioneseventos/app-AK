@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 2 de octubre de 2026 - Descartes de la auditoria 64, no arreglos de producto
+
+- **9 suites/14 tests inicialmente rojos:** el ejecutor aislado forzaba JSON local
+  en pruebas que mockean Firebase, usaba una clave dummy donde esperaban test-key
+  y la copia sparse no incluia las carpetas de instrucciones. Con el montaje correcto,
+  las 9 suites y 35 tests pasan. No programar nueve correcciones de app por esos rojos.
+- **El movimiento de la portada existe:** la prueba 46 mide antes de hidratar en
+  Next dev bajo carga. Una sonda de 10 muestras observa transform, opacidad y ancho
+  cambiantes con animacion running; no reescribir el hero por ese resultado inicial.
+- **Recorridos que pasan al repetir:** prospecto, cambio de paso del simulador,
+  CRM Ads, origen UTM, captura A/B, apertura interna y portal con guardado del mural.
+  La evidencia no es una aprobacion de sus areas enteras.
+- **No confundir cierre con presencia:** `codex?` conserva dos defectos AUD01/AUD02
+  de cobertura/Windows; el apartado historico siguiente no los da por corregidos.
+
+Detalle, mismo SHA y limites: `docs/evidencias/64-auditoria-integral-2026-10-02.md`.
+Las sondas no escriben en produccion. Salida 0 de una sonda que reproduce un defecto
+NO significa que ese defecto se arreglo. Cobros y PER01 no figuran como resueltos.
+
 ## 2 de octubre de 2026 — Instagram no duplica fotos, y la revisión de Codex tiene un final
 
 - **Instagram:** la sincronización leía sus propias copias del planificador como publicaciones
@@ -18,6 +37,8 @@ prueba: src/__tests__/instagram-no-duplica-al-sincronizar.test.ts
 usa: idOriginalDeInstagram en src/app/actions/social-media.ts
 prueba: src/__tests__/codex-tiene-un-final.test.ts
 usa: codex-limpio.mjs en .claude/hooks/session-start.sh
+```
+
 ## 2 de octubre de 2026 — La galería baja al llegar desde el blog, y clasifica bien la bienvenida
 
 - "Galería de Eventos Reales" desde el blog volvía a la portada y quedaba arriba. Los enlaces del

@@ -1,7 +1,37 @@
 # Estado de la auditoría — qué está hecho y qué falta
 
 Documento vivo. Sirve para no repetir trabajo entre sesiones.
-Última actualización: 9 de agosto de 2026.
+Última actualización: 2 de octubre de 2026.
+
+## TANDA DEL 2 DE OCTUBRE - DIAGNOSTICO INTEGRAL CODEX
+
+Fuente main `c13073f692691fc48e6d9f71f287e5c0451019f8`, contrastada con PR 1251
+`ea2cb46d732b815492ee5c176cd9ea6e61e867de`. Publicado responde con `0864e136`:
+no llamar desplegado al main actual solo por estar fusionado.
+
+- Registro detallado y limites: `docs/evidencias/64-auditoria-integral-2026-10-02.md`.
+- Orden UNICA para Claude/Gemini: `docs/ordenes/111-cobros-y-cierre-de-auditoria-con-evidencia.md`.
+- 3.334 tests unitarios cubiertos en dos configuraciones; los 14 fallos iniciales
+  pasan en la repeticion de 9 suites/35 tests con sus mocks. No hay 3.369 casos nuevos.
+- Web/simulador: 9 recorridos de escritorio pasan y se inspeccionan ambas paginas
+  A4 del PDF. Esto no demuestra el envio real de recuperacion ni el PDF publicado.
+- La corrida amplia ejecuta 29 de 480 seleccionados; los otros 451 quedan sin
+  ejecutar. De los 8 rojos, 5 pasan al repetir; otra sonda comprueba el movimiento
+  de la portada. No reprogramar ese hero por una medicion previa a la hidratacion.
+- Incluyendo recorridos adicionales y sin duplicar reintentos: 46 de 480 casos
+  de escritorio ejecutados, 434 pendientes. Cliente guarda mensaje/configuracion;
+  invitado confirma/actualiza y el equipo lo ve; barra agotada y apertura interna
+  pasan. Reconexion/rechazo de fotocabina y aviso de stock quedan sin confirmacion.
+- Cinco casos contables de la evidencia 63 siguen reproducibles con blobs identicos
+  en main/publicado/tanda; NO presentarlos como otros cinco hallazgos nuevos.
+- AUD01/AUD02: el contador omite 232 rutas y no imprime al ejecutarlo en Windows.
+  PER01 es observacion de lectura completa, no filtracion remota demostrada.
+- Nada de esta tanda modifica produccion, fusiona propuestas ni certifica las
+  14 areas limpias. No hubo compilacion final ni ensayo de hardware/integraciones.
+
+Los registros historicos de abajo se conservan como historial, no como certificados
+vigentes de este SHA. Aprobar requiere comportamiento observado y persistencia,
+no solo nombres de funciones, numero de pruebas ni presencia de archivos.
 
 ---
 
