@@ -11,6 +11,10 @@
 - **Los ajustes del asistente los cambia administración:** antes cualquiera con sesión podía
   cambiar el número al que le llegan los avisos del dueño.
 
+- **La prueba del control de llegada fallaba de a ratos:** el ajuste es uno solo para la empresa y
+  la corrían a la vez el escritorio y el celular, cada uno dándolo vuelta en medio del otro. Ahora
+  corre sólo en escritorio. No era un defecto de la app.
+
 ```comprobar
 prueba: tests/e2e/el-video-resumen-dura-lo-que-promete.spec.ts
 prueba: src/__tests__/la-voz-de-gemini-tts.test.ts

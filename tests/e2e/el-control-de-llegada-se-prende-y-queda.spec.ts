@@ -7,6 +7,9 @@ import { ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
  * Antes el ajuste existía y no había ninguna pantalla para prenderlo.
  */
 test('el control de llegada con ubicación se prende y queda guardado', async ({ page, context }, testInfo) => {
+  // El ajuste es UNO para toda la empresa. Corriendo en escritorio y celular a la vez, cada uno lo
+  // daba vuelta en medio del otro y la prueba fallaba de a ratos (3/10/2026). Se corre en uno solo.
+  test.skip(testInfo.project.name !== 'chromium-desktop', 'ajuste compartido: se prueba en una sola pantalla');
   await ponerSesionDelEquipo(context, testInfo.project.use.baseURL as string);
   await page.goto('/settings/accesos-personal', { waitUntil: 'domcontentloaded' });
 
