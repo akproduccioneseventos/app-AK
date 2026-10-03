@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 3 de octubre de 2026 — Codex, auditoría 64: PER01 y el contador
+
+- **PER01 (confirmado):** `getInvitados` se podía llamar desde internet (la importa el muro
+  social, pantalla del navegador) y devolvía teléfono y credencial de cada invitado sin sesión.
+  Ahora pide sesión del equipo; la tarea de recordatorios lee la fiesta cruda. Hay un control
+  general: ninguna acción del servidor devuelve la lista de invitados sin pedir permiso.
+- **AUD02:** `npm run "codex?"` no imprimía nada en Windows; ahora compara la ruta con
+  `fileURLToPath`, y la prueba corre el comando de verdad.
+- **Falsos positivos del barrido de la pregunta 33** (verificados uno por uno): el portal del
+  personal (`getAccesoPersonalPortalView`) se abre con el enlace del propio empleado y le
+  devuelve su fiesta; `getConfirmedRsvpCount` devuelve un número; `getCarasDeFiesta` sirve la
+  búsqueda por cara de la galería pública, que el dueño eligió abierta con el enlace;
+  `getPublicSocialEvent` sin clave devuelve sólo lo público; el tablero público de la barra es la
+  pantalla del invitado; y completar una tarea del asistente pide sesión del equipo, que ve
+  todas las fiestas.
+
+```comprobar
+prueba: src/__tests__/la-lista-de-invitados-pide-sesion.test.ts
+usa: requireAppSession(); en src/app/actions/fiesta/invitados.actions.ts
+usa: fileURLToPath(import.meta.url) en scripts/codex-limpio.mjs
+```
+
 ## 2 de octubre de 2026 — Codex, área cobros: los cinco hallazgos arreglados
 
 - **COB-01:** si pasar un cobro de factura al presupuesto **tiraba** un error (no si contestaba

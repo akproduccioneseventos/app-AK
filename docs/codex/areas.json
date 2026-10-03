@@ -21,7 +21,7 @@
         "hallazgos": 5,
         "reporte": "codex/auditoria-cobros-2026-10-02:docs/evidencias/63-cobros-cuotas-facturas-recibos-2026-10-02.md"
       },
-      "nota": "Los 5 arreglados por Claude el 2/10/2026: falta que Codex vuelva a mirar el área."
+      "nota": "Los 5 (COB01-COB05) arreglados en la fusión 39da52a (PR 1254). Codex la vuelve a mirar sobre la principal."
     },
     {
       "id": "contrato",
@@ -56,7 +56,8 @@
         "src/app/login",
         "src/app/(app)/settings/accesos-personal"
       ],
-      "estado": "sin-revisar"
+      "estado": "sin-revisar",
+      "nota": "PER01 (auditoría 64) confirmado y arreglado: getInvitados pide sesión. Falta la revisión entera del área."
     },
     {
       "id": "fiesta",

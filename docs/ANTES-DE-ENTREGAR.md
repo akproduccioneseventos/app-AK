@@ -101,3 +101,6 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     una excepción, y que reintentar la misma operación no cree otro registro. Y ningún tope suma
     tolerancia a un saldo recortado a cero.
 
+
+24. **¿Tu función está en un archivo `'use server'`?** Entonces la puede llamar cualquiera desde
+    internet, no sólo tu pantalla. Si devuelve datos de otras personas, pide sesión adentro.

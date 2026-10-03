@@ -1522,6 +1522,7 @@ con otra cara.
 | La revisión de Codex no tenía final: cada vuelta abría un frente nuevo | `npm run "codex?"` con `docs/codex/areas.json` y `src/__tests__/codex-tiene-un-final.test.ts` |
 | Un cobro de factura que tiraba error al pasar al presupuesto se duplicaba al reintentar; la tolerancia se regalaba en cada pago | `src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts` |
 | Dos cuotas marcadas a la vez: las dos "cobradas", una sola guardada | `src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts` |
+| La lista de invitados (teléfono y credencial) se podía pedir desde internet sin sesión | `src/__tests__/la-lista-de-invitados-pide-sesion.test.ts` |
 
 ### Cómo se elige el matafuego
 

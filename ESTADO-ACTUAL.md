@@ -17,8 +17,8 @@ propuestas en turno, hora del contrato, WhatsApp que no dice "anoté" sin anotar
 
 - Auditoria 64 sobre main `c13073f`, contrastada con PR 1251 `ea2cb46` y publicado
   `0864e136`. Registro completo en `docs/evidencias/64-auditoria-integral-2026-10-02.md`.
-- Orden consolidada 111: Claude, cinco casos contables existentes y confirmar PER01;
-  Gemini, cobertura y CLI Windows del contador. No reprogramar descartes del informe.
+- Orden 112 (era 111 de Codex): cobros HECHO (39da52a), PER01 y AUD02 HECHOS;
+  Gemini: AUD01 (cobertura del contador), masticado en la orden. No reprogramar descartes.
 - 3.334 tests cubiertos en dos configuraciones; 9 recorridos web/PDF pasan. El barrido
   de navegador no termino: no hay certificado de 14 areas limpias ni hardware probado.
 - Claude compila el conjunto; Codex verifica recorridos faltantes sobre ese SHA estable.

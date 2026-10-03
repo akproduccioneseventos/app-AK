@@ -800,3 +800,16 @@ prueba: src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-toleranci
 prueba: src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts
 ```
 
+
+## 03/10/2026 — La lista de invitados se podía pedir desde internet (Codex, PER01)
+
+**Qué era:** `getInvitados`, acción del servidor que importa una pantalla del navegador, devolvía
+teléfono y credencial de todos los invitados sin pedir sesión.
+
+**Por qué se me pasó:** miraba si la pantalla estaba protegida, no si la función lo estaba. Una
+función de un archivo `'use server'` que usa una pantalla del navegador la puede llamar cualquiera.
+**Pregunta nueva: la 33.** El barrido es mío (es quién ve qué): seis candidatas, ninguna más real.
+
+```comprobar
+prueba: src/__tests__/la-lista-de-invitados-pide-sesion.test.ts
+```

@@ -794,3 +794,17 @@ Al verificar: todo `await` a otro paso de plata **después** de guardar va con `
 salida clara; un reintento de la misma operación no crea otro registro; y un tope nunca suma
 tolerancia a un `Math.max(0, …)`.
 
+
+## Pregunta 33 — la que sumó el 3 de octubre de 2026 (Codex, auditoría 64, PER01)
+
+### 33. Una función que importa una pantalla del navegador, ¿quién más la puede llamar?
+
+`getInvitados` vivía en un archivo `'use server'`, leía la fiesta con `LECTURA_COMPLETA` y la
+importaba el muro social, que es una pantalla del navegador. Eso la deja llamable desde internet
+con sólo el número de la fiesta, y devolvía el teléfono y la credencial de cada invitado. Yo
+miraba si la **pantalla** pedía sesión; nadie preguntaba si la **función** la pedía.
+
+Al verificar: toda función exportada de un archivo `'use server'` que lee con `LECTURA_COMPLETA`
+pide sesión o permiso **adentro**, o devuelve sólo lo que es de quien llama (el invitado con su
+credencial, un número, la configuración pública). Una tarea automática o una pantalla del
+servidor que necesita la lista entera la lee cruda, sin pasar por la acción.
