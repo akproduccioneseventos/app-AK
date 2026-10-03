@@ -779,3 +779,18 @@ que el caso de libro, y se mira que eso siga en la salida.
 Y la de siempre, que en la 1248 no se pasó: **todo almacén nuevo que trae una entrega pasa por las
 preguntas 22 y 23**, aunque la orden no lo nombre.
 
+## Pregunta 32 — la que sumó el 2 de octubre de 2026 (Codex, área cobros)
+
+### 32. Después de guardar, ¿qué pasa si el paso siguiente TIRA en vez de devolver un error? ¿Y el tope usa un número recortado?
+
+La factura miraba `resultado.success` del paso al presupuesto y compensaba si era `false`, pero si
+la llamada tiraba una excepción el pago quedaba guardado sin compensar, y el reintento creaba otro.
+La pregunta 8 miraba el error **devuelto**; ésta mira el error **tirado**, y el reintento.
+
+Y el tope de un pago sumaba la tolerancia a un saldo **recortado a cero**: con la factura ya
+pagada, cada pago nuevo volvía a tener margen.
+
+Al verificar: todo `await` a otro paso de plata **después** de guardar va con `try/catch` y una
+salida clara; un reintento de la misma operación no crea otro registro; y un tope nunca suma
+tolerancia a un `Math.max(0, …)`.
+

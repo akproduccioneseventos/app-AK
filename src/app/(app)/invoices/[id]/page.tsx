@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, type FormEvent, useCallback, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -120,6 +120,10 @@ export default function ViewInvoicePage() {
     fetchData();
   }, [fetchData]);
 
+  // Una operación por cobro: si se reintenta (error, señal cortada), el servidor reconoce la misma
+  // y no crea otro registro (Codex, 2/10/2026, COB-01). Se renueva recién cuando el cobro salió.
+  const operacionDelCobro = useRef<string>(`op_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
+
   const handleAddPaymentSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!invoice || !newPayment.amount || newPayment.amount <= 0) return;
@@ -131,13 +135,20 @@ export default function ViewInvoicePage() {
     formData.append('method', newPayment.method || 'Transferencia');
     if (newPayment.notes) formData.append('notes', newPayment.notes);
     if (paymentProofFile) formData.append('transactionProof', paymentProofFile);
+    formData.append('operacionId', operacionDelCobro.current);
 
     try {
       const result = await conTopeDeEspera(addPaymentToInvoice(invoice.id, formData));
       if (result.success) {
         toast({ title: "Pago Registrado" });
+        operacionDelCobro.current = `op_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
         await fetchData();
         setPaymentProofFile(null);
+      } else {
+        // Antes un rechazo (saldo, permiso, comprobante) no mostraba nada (COB-03).
+        toast({ title: "El pago no se registró como completo", description: result.error || 'No se pudo registrar el pago.', variant: "destructive" });
+        // Puede haber quedado guardado y pendiente de conciliar: se muestra lo que hay de verdad.
+        if (result.invoice) await fetchData();
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -286,7 +297,7 @@ export default function ViewInvoicePage() {
                     <div className="flex items-end gap-2">
                         <span className="not-italic font-bold whitespace-nowrap">LA SUMA DE:</span>
                         <span className="flex-grow border-b border-black border-dotted pb-1 font-bold not-italic">
-                            {numberToSpanishWords(lastPayment.amount)} PESOS URUGUAYOS
+                            {numberToSpanishWords(lastPayment.amount)} {nombreDeLaMoneda(invoice.currency)}
                         </span>
                     </div>
                     <div className="flex items-end gap-2">
@@ -335,4 +346,12 @@ export default function ViewInvoicePage() {
       `}</style>
     </div>
   );
+}
+
+/** El recibo dice la moneda de la factura, no siempre pesos (COB-05). */
+function nombreDeLaMoneda(currency?: string): string {
+  const c = String(currency || 'UYU').toUpperCase();
+  if (c === 'UYU') return 'PESOS URUGUAYOS';
+  if (c === 'USD') return 'DÓLARES ESTADOUNIDENSES';
+  return c;
 }

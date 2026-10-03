@@ -783,3 +783,20 @@ En la 1249 venían 11 imágenes que eran texto. **Barrido:** orden 110.
 prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
 usa: SpeechSynthesisUtterance en src/components/mi-dia/ParteDeLaMananaPlayer.tsx
 ```
+
+## 02/10/2026 — Cinco hallazgos de Codex en cobros, área que yo daba por auditada
+
+**Qué era:** el paso al presupuesto que tira en vez de devolver error (pago duplicado al
+reintentar), dos cuotas a la vez que se pisaban, un rechazo que la pantalla no mostraba, la
+tolerancia regalada en cada pago, y los centavos perdidos fuera de pesos.
+
+**Por qué se me pasó:** la pregunta 8 mira el error **devuelto**; nadie preguntaba por el error
+**tirado** ni por el reintento. Y las cuotas no tenían la pregunta 22 (dos servidores) puesta
+porque no pasaban por `cambiarCobrosDelPresupuesto`. **Pregunta nueva: la 32.** El barrido de esa
+pregunta es mío (sólo aplica a plata).
+
+```comprobar
+prueba: src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts
+prueba: src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts
+```
+

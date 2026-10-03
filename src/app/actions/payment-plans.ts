@@ -2,6 +2,7 @@
 
 import type { PlanDePagos, CuotaPlanPago, FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { notifyClientPaymentApproved } from './google-workspace-extended';
 import { roundMoney } from '@/lib/budget/financial-guardrails';
 
@@ -87,41 +88,37 @@ export async function updateCuotaEstado(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta || !fiesta.planDePagos) return { success: false, error: 'Plan de pagos no encontrado' };
-
-    const cuotaOriginal = fiesta.planDePagos.cuotas.find((c) => c.id === cuotaId);
-    if (!cuotaOriginal) return { success: false, error: 'La cuota no existe en este plan.' };
-
-    const updatedCuotas = fiesta.planDePagos.cuotas.map(c =>
-      normalizeCuotaPlanPago(c.id === cuotaId ? { ...c, ...updates } : c)
-    );
-    const updatedPlan: PlanDePagos = {
-      ...fiesta.planDePagos,
-      cuotas: updatedCuotas,
-      updatedAt: new Date().toISOString(),
-    };
-
     /**
      * PRIMERO SE GUARDA, DESPUES SE AVISA. Y SI NO SE GUARDO, NO SE AVISA.
      *
-     * Hasta el 8 de septiembre de 2026 esto no miraba el resultado de guardar:
-     * la pantalla decia "cuota cobrada", **le mandaba el mail de pago aprobado al
-     * cliente**, y al recargar la cuota seguia impaga. Un cobro anunciado que no
-     * quedo registrado es lo peor que puede pasar en la contabilidad.
+     * Hasta el 8 de septiembre de 2026 esto no miraba el resultado de guardar y le mandaba al
+     * cliente el mail de pago aprobado con la cuota impaga. Y el aviso sale **una sola vez**:
+     * sólo cuando la cuota pasa de no-pagada a pagada.
      *
-     * Y el aviso sale **una sola vez**: solo cuando la cuota pasa de no-pagada a
-     * pagada. Volver a guardar una cuota que ya estaba cobrada no le manda al
-     * cliente el mismo aviso de nuevo.
+     * **Y la cuota se cambia adentro del turno de la fiesta (Codex, 2/10/2026, COB-02).** Antes
+     * se leía la fiesta, se armaba la lista entera de cuotas y se guardaba: dos cuotas marcadas a
+     * la vez daban "cobrada" las dos, con dos mails, y quedaba pagada una sola. Ahora cada una se
+     * relee en el momento de guardar, y "recién pagada" se mide contra lo que había ahí.
      */
-    const guardado = await saveFiesta({ ...fiesta, planDePagos: updatedPlan });
+    let cuotaOriginal: CuotaPlanPago | undefined;
+    let updatedCuota: CuotaPlanPago | undefined;
+    const guardado = await actualizarFiesta(fiestaId, (fiesta) => {
+      const plan = fiesta.planDePagos;
+      if (!plan) throw new Error('Plan de pagos no encontrado');
+      cuotaOriginal = plan.cuotas.find((c) => c.id === cuotaId);
+      if (!cuotaOriginal) throw new Error('La cuota no existe en este plan.');
+      const updatedCuotas = plan.cuotas.map((c) =>
+        c.id === cuotaId ? normalizeCuotaPlanPago({ ...c, ...updates }) : c,
+      );
+      updatedCuota = updatedCuotas.find((c) => c.id === cuotaId);
+      return { ...fiesta, planDePagos: { ...plan, cuotas: updatedCuotas, updatedAt: new Date().toISOString() } };
+    });
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudo guardar la cuota.' };
     }
 
-    const updatedCuota = updatedCuotas.find((cuota) => cuota.id === cuotaId);
     const paidAmount = updatedCuota?.montoPagado ?? updatedCuota?.monto ?? 0;
-    const recienPagada = updates.estado === 'pagado' && cuotaOriginal.estado !== 'pagado';
+    const recienPagada = updatedCuota?.estado === 'pagado' && cuotaOriginal?.estado !== 'pagado';
     if (recienPagada && paidAmount > 0) {
       notifyClientPaymentApproved(fiestaId, {
         id: `cuota_${cuotaId}`,

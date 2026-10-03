@@ -1,5 +1,30 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 2 de octubre de 2026 — Codex, área cobros: los cinco hallazgos arreglados
+
+- **COB-01:** si pasar un cobro de factura al presupuesto **tiraba** un error (no si contestaba
+  que no), el pago quedaba en la factura y el reintento creaba otro. Ahora el paso vive en
+  `pasarCobroAlPresupuesto`, con las dos salidas cubiertas; la pantalla manda un `operacionId`
+  por cobro y el servidor no registra dos veces la misma operación (también adentro del turno).
+  El aviso dice "quedó registrado, se concilia solo, no lo ingreses de nuevo".
+- **COB-02:** marcar dos cuotas a la vez decía "cobrada" las dos y quedaba una: `updateCuotaEstado`
+  cambia la cuota adentro del turno de la fiesta (`actualizarFiesta`) y el mail sale sólo si esa
+  cuota pasó de verdad a pagada.
+- **COB-03:** la pantalla de la factura no mostraba los rechazos; ahora los muestra.
+- **COB-04:** la tolerancia de redondeo se volvía a regalar en cada pago (1000 terminaba en
+  1003); el tope se mide con el saldo sin recortar (`saldoReal`).
+- **COB-05:** fuera de pesos, los centavos se perdían y el recibo decía "pesos uruguayos". Se
+  respeta la moneda de la factura. **No se agregó ninguna moneda**: sigue la decisión de
+  trabajar en pesos; esto sólo evita que una factura vieja en otra moneda se cobre mal.
+
+```comprobar
+prueba: src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts
+prueba: src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts
+usa: pasarCobroAlPresupuesto en src/app/actions/invoices.ts
+usa: actualizarFiesta(fiestaId en src/app/actions/payment-plans.ts
+usa: operacionId en src/app/(app)/invoices/[id]/page.tsx
+```
+
 ## 2 de octubre de 2026 — Instagram no duplica fotos, y la revisión de Codex tiene un final
 
 - **Instagram:** la sincronización leía sus propias copias del planificador como publicaciones
