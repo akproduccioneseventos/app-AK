@@ -52,6 +52,7 @@
     "ordenes?": "node scripts/ordenes-cumplidas.mjs",
     "recorrido:todo": "node scripts/recorrido-de-pantallas.mjs --todo",
     "falta?": "node scripts/que-falta.mjs",
+    "codex?": "node scripts/codex-limpio.mjs",
     "otravez": "node scripts/run-playwright-production.mjs --last-failed",
     "panel": "node scripts/panel.mjs",
     "dice-que-si?": "node scripts/nadie-dice-que-si-sin-mirar.mjs",

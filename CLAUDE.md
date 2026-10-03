@@ -960,6 +960,10 @@ fusionar la orden 94, me llevé puesto un commit mío que todavía no estaba fus
 historial. **Antes de dejar la rama igual a la principal, mirar `git log origin/main..HEAD`: si
 muestra algo, eso se lleva, no se pisa.**
 
+**Y el 2 de octubre de 2026, al revés:** dejé la rama igual a `origin/main` **sin traer antes la
+principal** (`git fetch`), y mi copia estaba atrasada una fusión. Me di cuenta porque faltaba algo
+que acababa de fusionar. **Antes de `checkout -B … origin/main`, siempre `git fetch origin main`.**
+
 ### 30. Fusionar una propuesta por número adivinado, y meter sin revisar la entrega de Gemini
 
 **Pasó el 29 de septiembre de 2026.** Para ahorrar un paso mandé en paralelo "abrir mi propuesta"
@@ -1514,6 +1518,10 @@ con otra cara.
 | Imágenes que eran texto y un tono presentado como voz | `src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts` |
 | Tocar un texto en un archivo que importan todas las pantallas corría las 80 pruebas | `exportsQueUsan` en `scripts/pantallas-tocadas.mjs`, con `src/__tests__/se-prueba-solo-lo-que-cambio-de-un-archivo.test.ts` |
 | Al llegar a la portada con una sección en la dirección, la página no bajaba | `tests/e2e/el-enlace-a-la-galeria-baja-hasta-la-galeria.spec.ts` |
+| Cada sincronización de Instagram volvía a meter las mismas fotos en la galería | `src/__tests__/instagram-no-duplica-al-sincronizar.test.ts` |
+| La revisión de Codex no tenía final: cada vuelta abría un frente nuevo | `npm run "codex?"` con `docs/codex/areas.json` y `src/__tests__/codex-tiene-un-final.test.ts` |
+| Un cobro de factura que tiraba error al pasar al presupuesto se duplicaba al reintentar; la tolerancia se regalaba en cada pago | `src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts` |
+| Dos cuotas marcadas a la vez: las dos "cobradas", una sola guardada | `src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts` |
 
 ### Cómo se elige el matafuego
 
@@ -1771,6 +1779,15 @@ abre un chat. Para eso hay dos archivos, y se usan distinto:
 Al terminar una tanda, reescribir `ESTADO-ACTUAL.md` con el comando `/aca-quede`.
 Una sesión que cierra sin dejar el traspaso hace que la siguiente arranque a
 ciegas y gaste el doble.
+
+## El contador de Codex: `npm run "codex?"` (2 de octubre de 2026)
+
+Pedido del dueño: *"un mecanismo que un día llegue a decirme Codex no encontró errores"*. La app
+está partida en 14 áreas (`docs/codex/areas.json`); Codex revisa **una área por vez** con el
+formato de `docs/codex/COMO-REVISA-CODEX.md`. Con cero hallazgos, Claude la marca `limpia` con el
+commit; con hallazgos, se arreglan y Codex vuelve a mirar **sólo esa área**. Si el código de una
+área limpia cambia, vuelve sola a revisarse. **Cuando llega un reporte de Codex, se actualiza ese
+archivo en la misma tanda.** Las mejoras y decisiones del dueño no son hallazgos.
 
 ## Se programa entre tres: Codex, Gemini y Claude
 

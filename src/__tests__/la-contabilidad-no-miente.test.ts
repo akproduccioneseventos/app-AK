@@ -98,7 +98,9 @@ describe('La contabilidad no dice que si sin haberlo hecho', () => {
 
     it('mira el resultado de guardar antes de contestar', () => {
       const accion = fuente.slice(fuente.indexOf('export async function updateCuotaEstado('));
-      const guardado = accion.indexOf('const guardado = await saveFiesta(');
+      // Desde el 2/10/2026 la cuota se guarda adentro del turno de la fiesta (COB-02); lo prueba
+      // andando src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts.
+      const guardado = accion.indexOf('const guardado = await actualizarFiesta(');
       const aviso = accion.indexOf('notifyClientPaymentApproved');
       expect(guardado).toBeGreaterThan(-1);
       expect(accion).toContain('if (!guardado.success)');
@@ -111,7 +113,7 @@ describe('La contabilidad no dice que si sin haberlo hecho', () => {
     });
 
     it('no le manda dos veces el mismo aviso al cliente', () => {
-      expect(fuente).toContain("cuotaOriginal.estado !== 'pagado'");
+      expect(fuente).toContain("cuotaOriginal?.estado !== 'pagado'");
     });
 
     it('guardar el plan tambien mira si se guardo', () => {

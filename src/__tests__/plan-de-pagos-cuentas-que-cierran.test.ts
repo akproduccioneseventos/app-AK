@@ -16,10 +16,21 @@ const fiestaEnLaBase: { actual: any } = { actual: null };
 const avisosAlCliente: any[] = [];
 
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
+  requireFiestaWriteAccess: jest.fn(async () => undefined),
   getFiestaById: jest.fn(async () => fiestaEnLaBase.actual),
   saveFiesta: jest.fn(async (f: any) => {
     fiestaGuardada.ultima = f;
     return { success: true };
+  }),
+}));
+
+// Desde el 2/10/2026 la cuota se guarda adentro del turno de la fiesta (COB-02).
+jest.mock('@/lib/fiesta/get-fiesta-raw', () => ({ preserveFiestaSecrets: jest.fn(async (_id: string, f: any) => f) }));
+jest.mock('@/lib/generic-json-store', () => ({
+  mutarDocumentoConTransaccion: jest.fn(async (_p: string, _v: any, cambiar: (a: any) => any) => {
+    const nuevo = await cambiar(JSON.parse(JSON.stringify(fiestaEnLaBase.actual)));
+    if (nuevo !== null) fiestaGuardada.ultima = nuevo;
+    return nuevo;
   }),
 }));
 

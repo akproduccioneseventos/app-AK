@@ -51,7 +51,27 @@ function getInvoicePaidAmount(invoice: Pick<Invoice, 'payments' | 'currency'>): 
 }
 
 function getInvoiceBalance(invoice: Pick<Invoice, 'totalAmount' | 'payments' | 'currency'>): number {
-  return Math.max(0, roundInvoiceMoney(invoice.totalAmount, invoice.currency) - getInvoicePaidAmount(invoice));
+  return Math.max(0, saldoReal(invoice));
+}
+
+/**
+ * El saldo sin recortar a cero: negativo si ya se cobró de más dentro de la tolerancia. El tope
+ * de un pago nuevo se mide con éste. Con el recortado, la tolerancia se volvía a regalar en cada
+ * pago y una factura de 1000 terminaba cobrada 1003 (Codex, 2/10/2026, COB-04).
+ */
+function saldoReal(invoice: Pick<Invoice, 'totalAmount' | 'payments' | 'currency'>): number {
+  return roundInvoiceMoney(invoice.totalAmount, invoice.currency) - getInvoicePaidAmount(invoice);
+}
+
+/**
+ * El monto escrito en el formulario, en la moneda de la factura. Fuera de pesos uruguayos lleva
+ * centavos: `parseCleanMoney` redondea a entero y USD 12,50 se guardaba como 13 (COB-05).
+ */
+function montoDelFormulario(texto: string, currency: string): number {
+  if (String(currency || 'UYU').toUpperCase() === 'UYU') return roundInvoiceMoney(parseCleanMoney(texto), currency);
+  const limpio = String(texto ?? '').replace(/[^0-9,.-]/g, '');
+  const normal = limpio.includes(',') ? limpio.replace(/\./g, '').replace(',', '.') : limpio;
+  return roundInvoiceMoney(Number(normal), currency);
 }
 
 function hasSameInvoiceItems(
@@ -609,6 +629,75 @@ function estadoTrasElPago(invoice: Invoice, pagos: Payment[]): Invoice['status']
   return invoice.status;
 }
 
+/**
+ * Pasa al presupuesto un cobro ya guardado en la factura.
+ *
+ * Si el presupuesto contesta que NO, se saca el pago de la factura (como antes). Si la llamada
+ * TIRA un error (Codex, 2/10/2026, COB-01), no se sabe si llegó a guardarse del otro lado: el pago
+ * queda en la factura marcado sin pasar, el parte de la mañana lo concilia solo (se reconoce por
+ * la referencia) y la pantalla dice "no lo ingreses de nuevo". Antes quedaba guardado, la pantalla
+ * mostraba un error y el reintento creaba otro registro.
+ */
+async function pasarCobroAlPresupuesto(
+  invoiceId: string,
+  invoiceAntes: Invoice,
+  pago: Payment,
+  guardada: Invoice,
+  opciones: { yaGuardadoAntes: boolean },
+): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
+  const pendiente = 'El pago quedó registrado en la factura pero falta pasarlo al presupuesto. Se concilia solo: no lo ingreses de nuevo.';
+  let resultado: { success: boolean; error?: string };
+  try {
+    resultado = await addPagoToPresupuesto(invoiceAntes.sourcePresupuestoId!, {
+      fecha: pago.paymentDate,
+      monto: pago.amount,
+      metodoPago: mapDepositMethodToBudgetMethod(pago.method || 'Transferencia'),
+      referencia: referenciaDelCobro(invoiceId, pago.id),
+      estadoPago: 'confirmado',
+    });
+  } catch (error) {
+    logger.error('[Facturas] Falló el paso del cobro al presupuesto:', error);
+    return { success: false, invoice: guardada, error: pendiente };
+  }
+
+  if (resultado.success) {
+    await marcarCobroPasadoAlPresupuesto(invoiceId, pago.id).catch((error) => {
+      // Si esto falla, el cobro sigue marcado como no pasado y el parte de la mañana lo
+      // avisa; pasarlo de nuevo no lo duplica (se reconoce por la referencia).
+      logger.warn('[Facturas] No se pudo marcar el cobro como pasado al presupuesto:', error);
+    });
+    return { success: true, invoice: guardada };
+  }
+
+  // Un reintento de un pago que ya estaba guardado no se saca: puede haber llegado al
+  // presupuesto en la vuelta anterior. Lo concilia el parte de la mañana.
+  if (opciones.yaGuardadoAntes) return { success: false, invoice: guardada, error: pendiente };
+
+  try {
+    // Se saca SOLO este pago de SU factura, releyendola en el momento. Guardar la
+    // lista entera no alcanza: los pagos de la base se conservan (una lista vieja no
+    // pisa cobros), asi que el pago quedaba puesto aunque aca se dijera que no.
+    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+      const facturas = await leerFacturasSinGuardia();
+      const i = facturas.findIndex((f) => f.id === invoiceId);
+      if (i >= 0) {
+        facturas[i] = { ...facturas[i], payments: (facturas[i].payments || []).filter((p) => p.id !== pago.id), status: invoiceAntes.status };
+        await writeData(INVOICES_FILE, facturas);
+      }
+    } else {
+      await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => ({
+        ...actual,
+        payments: (actual.payments || []).filter((p) => p.id !== pago.id),
+        status: invoiceAntes.status,
+      }));
+    }
+  } catch (rollbackError) {
+    logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
+    return { success: false, invoice: guardada, error: 'El pago quedó pendiente de conciliación. No lo ingreses nuevamente y revisa el presupuesto vinculado.' };
+  }
+  return { success: false, error: resultado.error || 'No se pudo sincronizar el pago con el presupuesto vinculado.' };
+}
+
 async function addPaymentToInvoiceInner(
   invoiceId: string,
   formData: FormData
@@ -629,11 +718,22 @@ async function addPaymentToInvoiceInner(
   if (invoiceIndex === -1) return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
 
   const invoice = invoices[invoiceIndex];
-  const amount = roundInvoiceMoney(parseCleanMoney(amountStr), invoice.currency);
+  const amount = montoDelFormulario(amountStr, invoice.currency);
   const balance = getInvoiceBalance(invoice);
+  const operacionId = String(formData.get('operacionId') || '').trim() || undefined;
+
+  // Reintento de la misma operación: el pago ya existe. No se crea otro; si quedó sin pasar al
+  // presupuesto, se intenta pasarlo de nuevo (se reconoce por la referencia, no se duplica).
+  const yaRegistrado = operacionId ? (invoice.payments || []).find((p) => p.operacionId === operacionId) : undefined;
+  if (yaRegistrado) {
+    if (invoice.sourcePresupuestoId && yaRegistrado.pasadoAlPresupuesto === false) {
+      return pasarCobroAlPresupuesto(invoiceId, invoice, yaRegistrado, invoices[invoiceIndex], { yaGuardadoAntes: true });
+    }
+    return { success: true, invoice };
+  }
 
   if (amount <= 0) return { success: false, error: 'El monto del pago debe ser mayor a cero.' };
-  if (amount > balance + invoiceMoneyTolerance(invoice.currency)) return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${balance.toLocaleString('es-UY')} ${invoice.currency}.` };
+  if (amount > saldoReal(invoice) + invoiceMoneyTolerance(invoice.currency)) return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${balance.toLocaleString('es-UY')} ${invoice.currency}.` };
   if (!paymentDate || Number.isNaN(new Date(paymentDate).getTime())) return { success: false, error: 'La fecha del pago no es válida.' };
 
   const payments = invoice.payments || [];
@@ -660,6 +760,7 @@ async function addPaymentToInvoiceInner(
     method,
     notes: notes?.trim() || undefined,
     transactionProofUrl,
+    ...(operacionId ? { operacionId } : {}),
     ...(invoice.sourcePresupuestoId ? { pasadoAlPresupuesto: false } : {}),
   };
 
@@ -674,16 +775,20 @@ async function addPaymentToInvoiceInner(
     // momento. El turno cuida un solo servidor: dos cobros en dos servidores pasaban el
     // control con el mismo saldo viejo y la factura quedaba cobrada de mas.
     let saldoAlGuardar: number | null = null;
+    let yaEstaba: Payment | undefined;
     const guardada = await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => {
-      const saldo = getInvoiceBalance(actual);
-      if (amount > saldo + invoiceMoneyTolerance(actual.currency)) {
-        saldoAlGuardar = saldo;
+      // Dos reintentos a la vez de la misma operación: el segundo encuentra el pago adentro del turno.
+      yaEstaba = operacionId ? (actual.payments || []).find((p) => p.operacionId === operacionId) : undefined;
+      if (yaEstaba) return null;
+      if (amount > saldoReal(actual) + invoiceMoneyTolerance(actual.currency)) {
+        saldoAlGuardar = getInvoiceBalance(actual);
         return null;
       }
       saldoAlGuardar = null;
       return { ...actual, payments: [...(actual.payments || []), newPayment], status: estadoTrasElPago(actual, [...(actual.payments || []), newPayment]) };
     });
     if (!guardada) {
+      if (yaEstaba) return { success: true, invoice };
       if (saldoAlGuardar !== null) {
         return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${(saldoAlGuardar as number).toLocaleString('es-UY')} ${invoice.currency}.` };
       }
@@ -693,41 +798,7 @@ async function addPaymentToInvoiceInner(
   }
 
   if (invoice.sourcePresupuestoId) {
-    const budgetPaymentResult = await addPagoToPresupuesto(invoice.sourcePresupuestoId, {
-      fecha: paymentDate,
-      monto: amount,
-      metodoPago: mapDepositMethodToBudgetMethod(method),
-      referencia: referenciaDelCobro(invoiceId, paymentId),
-      estadoPago: 'confirmado',
-    });
-    if (budgetPaymentResult.success) {
-      await marcarCobroPasadoAlPresupuesto(invoiceId, paymentId).catch((error) => {
-        // Si esto falla, el cobro sigue marcado como no pasado y el parte de la mañana lo
-        // avisa; pasarlo de nuevo no lo duplica (se reconoce por la referencia).
-        logger.warn('[Facturas] No se pudo marcar el cobro como pasado al presupuesto:', error);
-      });
-    }
-    if (!budgetPaymentResult.success) {
-      invoices[invoiceIndex] = invoice;
-      try {
-        // Se saca SOLO este pago de SU factura, releyendola en el momento. Guardar la
-        // lista entera no alcanza: los pagos de la base se conservan (una lista vieja no
-        // pisa cobros), asi que el pago quedaba puesto aunque aca se dijera que no.
-        if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
-          await writeData(INVOICES_FILE, invoices);
-        } else {
-          await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => ({
-            ...actual,
-            payments: (actual.payments || []).filter((p) => p.id !== paymentId),
-            status: invoice.status,
-          }));
-        }
-      } catch (rollbackError) {
-        logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
-        return { success: false, error: 'El pago quedó pendiente de conciliación. No lo ingreses nuevamente y revisa el presupuesto vinculado.' };
-      }
-      return { success: false, error: budgetPaymentResult.error || 'No se pudo sincronizar el pago con el presupuesto vinculado.' };
-    }
+    return pasarCobroAlPresupuesto(invoiceId, invoice, newPayment, invoices[invoiceIndex], { yaGuardadoAntes: false });
   }
 
   return { success: true, invoice: invoices[invoiceIndex] };

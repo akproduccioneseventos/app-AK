@@ -72,3 +72,8 @@ if [ -f scripts/que-falta.mjs ]; then
   echo ""
   node scripts/que-falta.mjs 2>/dev/null || true
 fi
+
+# Cuánto falta para que Codex no encuentre errores (pedido del dueño, 2/10/2026).
+if [ -f scripts/codex-limpio.mjs ]; then
+  node scripts/codex-limpio.mjs 2>/dev/null || true
+fi

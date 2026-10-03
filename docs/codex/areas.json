@@ -1,0 +1,164 @@
+{
+  "explicacion": "Cada área de la app y cómo la dejó la última revisión de Codex. Una área está LIMPIA cuando Codex la revisó sobre la versión principal y no encontró nada, y su código no cambió desde ese commit. Si cambia, vuelve sola a 'volver a mirar'. El día que todas estén limpias, npm run \"codex?\" dice: Codex no encuentra errores.",
+  "areas": [
+    {
+      "id": "plata",
+      "nombre": "Cobros, cuotas, facturas y recibos",
+      "carpetas": [
+        "src/lib/commercial-flow",
+        "src/lib/budget",
+        "src/app/actions/invoices.ts",
+        "src/app/actions/presupuestos.ts",
+        "src/app/(app)/invoices",
+        "src/app/(app)/presupuestos",
+        "src/app/actions/payment-plans.ts",
+        "src/types/invoice.ts"
+      ],
+      "estado": "con-hallazgos",
+      "ultimaRevision": {
+        "fecha": "2026-10-02",
+        "commit": "676a1a8",
+        "hallazgos": 5,
+        "reporte": "codex/auditoria-cobros-2026-10-02:docs/evidencias/63-cobros-cuotas-facturas-recibos-2026-10-02.md"
+      },
+      "nota": "Los 5 arreglados por Claude el 2/10/2026: falta que Codex vuelva a mirar el área."
+    },
+    {
+      "id": "contrato",
+      "nombre": "Contrato, seña y firma",
+      "carpetas": [
+        "src/lib/contract-template.ts",
+        "src/types/settings.ts",
+        "src/data/preguntas-frecuentes-contrato.ts",
+        "src/app/(app)/settings/contratos"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "comida",
+      "nombre": "Menús, compras e insumos",
+      "carpetas": [
+        "src/lib/compras",
+        "src/lib/insumos",
+        "src/app/actions/insumos.ts",
+        "src/app/actions/menus-catering.ts",
+        "src/app/(app)/empresa/menus",
+        "src/data/insumos.json"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "permisos",
+      "nombre": "Ingreso, sesiones y quién ve qué",
+      "carpetas": [
+        "src/lib/auth",
+        "src/middleware.ts",
+        "src/app/login",
+        "src/app/(app)/settings/accesos-personal"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "fiesta",
+      "nombre": "Fiesta, invitados y confirmaciones",
+      "carpetas": [
+        "src/lib/fiesta",
+        "src/app/actions/fiesta",
+        "src/app/(app)/fiestas"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "portal",
+      "nombre": "Portal del cliente",
+      "carpetas": [
+        "src/app/portal"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "invitado",
+      "nombre": "Invitación y pantallas del invitado",
+      "carpetas": [
+        "src/app/invitacion",
+        "src/app/i",
+        "src/components/invitacion"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "web",
+      "nombre": "Web pública, blog y simulador",
+      "carpetas": [
+        "src/app/page.tsx",
+        "src/components/landing",
+        "src/app/public",
+        "src/app/simulador-de-presupuesto",
+        "src/app/simulador-ak",
+        "src/components/public-footer.tsx"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "redes",
+      "nombre": "Instagram, YouTube y galería",
+      "carpetas": [
+        "src/lib/instagram",
+        "src/lib/social-media",
+        "src/app/actions/social-media.ts",
+        "src/app/actions/social-gallery.ts"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "estaciones",
+      "nombre": "Entretenimiento: fotocabina, 360, espejo, muro, tótem",
+      "carpetas": [
+        "src/app/evento",
+        "src/components/entretenimiento"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "barra",
+      "nombre": "Barra de tragos",
+      "carpetas": [
+        "src/lib/barra",
+        "src/lib/barra-tecnologica.ts",
+        "src/app/actions/fiesta/barra-tecnologica.actions.ts",
+        "src/lib/fiesta-defaults.ts"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "asistente",
+      "nombre": "Asistente AK y WhatsApp",
+      "carpetas": [
+        "src/lib/asistente",
+        "src/app/actions/asistente-proactivo.actions.ts",
+        "src/app/actions/asistente-virtual.ts",
+        "src/app/actions/multiagent.ts"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "personal",
+      "nombre": "Personal, llegada y recibos de sueldo",
+      "carpetas": [
+        "src/app/actions/empleados.ts",
+        "src/app/actions/recibos-personal.ts",
+        "src/app/actions/accesos-personal-view.ts"
+      ],
+      "estado": "sin-revisar"
+    },
+    {
+      "id": "automaticos",
+      "nombre": "Tareas automáticas y avisos",
+      "carpetas": [
+        "src/app/api/cron",
+        "src/lib/automatico"
+      ],
+      "estado": "sin-revisar"
+    }
+  ]
+}
