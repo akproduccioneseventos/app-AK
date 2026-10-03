@@ -190,7 +190,6 @@ export async function generarVideoResumenWebM(
   const outroSegundos = 3;
   const tiempoFotos = Math.max(10, duracionSegundos - introSegundos - outroSegundos);
   const tiempoPorFoto = tiempoFotos / imagenesCargadas.length;
-  const totalFrames = Math.round(duracionSegundos * fps);
   let frameActual = 0;
 
   // Función auxiliar de renderizado de cuadro
@@ -304,18 +303,25 @@ export async function generarVideoResumenWebM(
     }
   };
 
-  // Renderizar fotogramas
-  for (let f = 0; f < totalFrames; f++) {
-    const t = f / fps;
-    renderFrame(t);
-    frameActual++;
-
-    if (f % 15 === 0) {
-      onProgress?.(30 + Math.round((f / totalFrames) * 65));
-      // Permitir que el loop de eventos del navegador respire y procese frames
-      await new Promise((r) => setTimeout(r, 4));
-    }
-  }
+  // Renderizar fotogramas AL RITMO DEL RELOJ. MediaRecorder graba el lienzo en tiempo real:
+  // si los cuadros se dibujan lo más rápido posible, el video dura lo que tardó el teléfono
+  // (la muestra dio 141 s en vez de 60-90, orden 115). Se usa setTimeout y no
+  // requestAnimationFrame, que se frena con la pantalla apagada.
+  const inicio = performance.now();
+  await new Promise<void>((terminar) => {
+    const paso = () => {
+      const t = (performance.now() - inicio) / 1000;
+      if (t >= duracionSegundos) {
+        terminar();
+        return;
+      }
+      renderFrame(t);
+      frameActual++;
+      onProgress?.(30 + Math.round((t / duracionSegundos) * 65));
+      setTimeout(paso, 1000 / fps);
+    };
+    paso();
+  });
 
   mediaRecorder.stop();
   const videoBlob = await recordingPromise;

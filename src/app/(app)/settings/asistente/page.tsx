@@ -49,7 +49,9 @@ export default function AsistenteSettingsPage() {
 
   // Orden 105
   const [responderConVoz, setResponderConVoz] = useState(false);
-  const [vozSeleccionada, setVozSeleccionada] = useState('es-ES-Neural2-A');
+  const [vozSeleccionada, setVozSeleccionada] = useState('Kore');
+  const [vozGeminiActiva, setVozGeminiActiva] = useState(true);
+  const [vozTelefonoActiva, setVozTelefonoActiva] = useState(true);
   const [numerosEquipo, setNumerosEquipo] = useState<Array<{ telefono: string; nombre: string; rol: string }>>([
     { telefono: '59898355530', nombre: 'Alexander Knuth', rol: 'Dueño' },
   ]);
@@ -73,7 +75,11 @@ export default function AsistenteSettingsPage() {
       setHoraInicioNoMolestar(res.settings.horarioNoMolestarInicio ?? 23);
       setHoraFinNoMolestar(res.settings.horarioNoMolestarFin ?? 8);
       setResponderConVoz(res.settings.responderConVoz ?? false);
-      setVozSeleccionada(res.settings.vozSeleccionada || 'es-ES-Neural2-A');
+      setVozSeleccionada(
+        VOCES_IA_DISPONIBLES.some((v) => v.id === res.settings.vozSeleccionada) ? res.settings.vozSeleccionada! : 'Kore',
+      );
+      setVozGeminiActiva(res.settings.vozGeminiActiva !== false);
+      setVozTelefonoActiva(res.settings.vozTelefonoActiva !== false);
       if (res.settings.numerosEquipo && res.settings.numerosEquipo.length > 0) {
         setNumerosEquipo(res.settings.numerosEquipo);
       }
@@ -99,6 +105,8 @@ export default function AsistenteSettingsPage() {
       horarioNoMolestarFin: Number(horaFinNoMolestar),
       responderConVoz,
       vozSeleccionada,
+      vozGeminiActiva,
+      vozTelefonoActiva,
       numerosEquipo,
       asistentesAreas: areas,
     });
@@ -377,9 +385,29 @@ export default function AsistenteSettingsPage() {
             <Switch checked={responderConVoz} onCheckedChange={setResponderConVoz} />
           </div>
 
+          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium text-slate-800">Voz de Gemini (la que suena natural)</Label>
+              <p className="text-xs text-slate-500">
+                Usa la parte gratis de Gemini, con un tope de 100 por día. Pasado el tope, sigue la del teléfono.
+              </p>
+            </div>
+            <Switch checked={vozGeminiActiva} onCheckedChange={setVozGeminiActiva} />
+          </div>
+
+          <div className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium text-slate-800">Voz del teléfono</Label>
+              <p className="text-xs text-slate-500">
+                Gratis siempre. Si apagás las dos, el asistente no habla y muestra sólo el texto.
+              </p>
+            </div>
+            <Switch checked={vozTelefonoActiva} onCheckedChange={setVozTelefonoActiva} />
+          </div>
+
           <div className="flex items-start gap-3">
             <div className="flex-1 space-y-1">
-              <Label className="text-xs text-slate-600">Voz más real para la IA</Label>
+              <Label className="text-xs text-slate-600">Voz de Gemini</Label>
               <select
                 value={vozSeleccionada}
                 onChange={(e) => setVozSeleccionada(e.target.value)}
@@ -393,7 +421,7 @@ export default function AsistenteSettingsPage() {
               </select>
               <p className="text-[11px] text-slate-500 mt-1">
                 {VOCES_IA_DISPONIBLES.find((v) => v.id === vozSeleccionada)?.descripcion ||
-                  'Voz neuronal de alta fidelidad humana para el asistente y reportes.'}
+                  'Voz de Gemini para el asistente y el parte de la mañana.'}
               </p>
             </div>
             <Button

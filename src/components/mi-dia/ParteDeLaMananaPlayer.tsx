@@ -6,79 +6,24 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import type { ParteDeLaManana } from '@/lib/automatico/parte-manana';
 import Link from 'next/link';
+import { reproducirVozReal, detenerVozReal } from '@/lib/asistente/reproductor-voz';
 
 export function ParteDeLaMananaPlayer({ parte }: { parte: ParteDeLaManana }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  React.useEffect(() => () => detenerVozReal(), []);
 
-  React.useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
-    };
-  }, []);
-
-  const hablarConNavegador = () => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
-      setIsPlaying(false);
-      return;
-    }
-    const frase = new SpeechSynthesisUtterance(parte.textoHablado);
-    frase.lang = 'es-UY';
-    frase.onend = () => setIsPlaying(false);
-    frase.onerror = () => setIsPlaying(false);
-    window.speechSynthesis.cancel();
-    setIsPlaying(true);
-    window.speechSynthesis.speak(frase);
-  };
-
-  const toggleHablar = async () => {
+  // Gemini primero, el teléfono si no hay; cada una se apaga en Ajustes (reproductor-voz.ts).
+  const toggleHablar = () => {
     if (isPlaying) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      detenerVozReal();
       setIsPlaying(false);
       return;
     }
-
     setIsPlaying(true);
-
-    try {
-      const res = await fetch(`/api/asistente/voz-parte?texto=${encodeURIComponent(parte.textoHablado)}`);
-      if (res.ok) {
-        const blob = await res.blob();
-        if (blob.size > 100) {
-          const url = URL.createObjectURL(blob);
-          const audio = new Audio(url);
-          audioRef.current = audio;
-          audio.onended = () => {
-            setIsPlaying(false);
-            URL.revokeObjectURL(url);
-            audioRef.current = null;
-          };
-          audio.onerror = () => {
-            URL.revokeObjectURL(url);
-            audioRef.current = null;
-            hablarConNavegador();
-          };
-          await audio.play();
-          return;
-        }
-      }
-    } catch {
-      // Continuar al fallback de navegador
-    }
-
-    hablarConNavegador();
+    void reproducirVozReal(parte.textoHablado, {
+      onEnd: () => setIsPlaying(false),
+      onError: () => setIsPlaying(false),
+    });
   };
 
   return (

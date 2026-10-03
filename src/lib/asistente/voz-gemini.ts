@@ -1,95 +1,112 @@
 /**
- * @fileOverview Generador de voz real con Gemini TTS para el Asistente AK.
- * Genera voz de verdad con Gemini / Google Cloud TTS.
- * Si no hay clave disponible o falla la llamada, produce un error explícito
- * para que el reproductor use la voz del navegador (speechSynthesis).
- * NUNCA devuelve un tono ni pitidos haciéndose pasar por voz (Orden 110).
+ * @fileOverview La voz real del Asistente AK, con la voz de Gemini (3 de octubre de 2026).
+ *
+ * Decisión del dueño: la voz de Gemini, que tiene una parte gratis por día, y la voz del teléfono,
+ * cada una con su interruptor en Ajustes. Antes se usaba la voz de Google Cloud, que es otro
+ * servicio y cobra pasado un tope mensual.
+ *
+ * Si no hay clave, la voz está apagada, se pasó el tope del día o Gemini no contesta, tira un
+ * error explícito y el reproductor usa la voz del teléfono (si está prendida). NUNCA devuelve un
+ * tono haciéndose pasar por voz (orden 110).
  */
 
 export interface OpcionesVozGemini {
   voz?: string;
-  velocidad?: number;
   apiKey?: string;
+  fetchFn?: typeof fetch;
 }
 
+/** Voces de Gemini que hablan bien en español. El id es el nombre que pide Gemini. */
 export const VOCES_IA_DISPONIBLES = [
-  { id: 'es-ES-Journey-F', nombre: 'Laura (Journey Cálida)', genero: 'femenina', lang: 'es-ES', descripcion: 'Voz ultra-realista con entonación humana natural, ritmo pausado y calidez.' },
-  { id: 'es-ES-Journey-D', nombre: 'Martín (Journey Cercana)', genero: 'masculina', lang: 'es-ES', descripcion: 'Voz masculina fluida, segura y empática.' },
-  { id: 'es-US-Journey-F', nombre: 'Camila (Latinoamericana Natural)', genero: 'femenina', lang: 'es-US', descripcion: 'Voz suave y expresiva ideal para la atención de fiestas.' },
-  { id: 'es-US-Journey-D', nombre: 'Nicolás (Rioplatense Natural)', genero: 'masculina', lang: 'es-US', descripcion: 'Voz masculina juvenil, moderna y dinámica.' },
-  { id: 'es-ES-Neural2-A', nombre: 'Valeria (Neural2 Estudio)', genero: 'femenina', lang: 'es-ES', descripcion: 'Locución cristalina de estudio para partes diarios.' },
-  { id: 'es-ES-Neural2-B', nombre: 'Javier (Neural2 Estudio)', genero: 'masculina', lang: 'es-ES', descripcion: 'Tono formal corporativo con dicción perfecta.' },
+  { id: 'Kore', nombre: 'Kore', genero: 'femenina', descripcion: 'Firme y clara, buena para el parte de la mañana.' },
+  { id: 'Aoede', nombre: 'Aoede', genero: 'femenina', descripcion: 'Liviana y cercana.' },
+  { id: 'Leda', nombre: 'Leda', genero: 'femenina', descripcion: 'Joven y amable.' },
+  { id: 'Puck', nombre: 'Puck', genero: 'masculina', descripcion: 'Animada, con energía.' },
+  { id: 'Charon', nombre: 'Charon', genero: 'masculina', descripcion: 'Informativa y tranquila.' },
+  { id: 'Orus', nombre: 'Orus', genero: 'masculina', descripcion: 'Firme y segura.' },
 ];
-export const VOCES_GEMINI = VOCES_IA_DISPONIBLES;
+export const VOZ_POR_OMISION = 'Kore';
 
-/**
- * Sintetiza voz con Gemini / Google Cloud Text-to-Speech API.
- * Lanza un error si no hay clave o si el servicio externo no está disponible.
- */
-export async function sintetizarVozGemini(
-  texto: string,
-  opciones?: OpcionesVozGemini
-): Promise<Buffer> {
-  const textoLimpio = (texto || '')
+/** El modelo se puede cambiar sin tocar código si Google lo renombra. */
+export const MODELOS_DE_VOZ = (process.env.GEMINI_TTS_MODEL || 'gemini-3.8-flash-tts,gemini-2.5-flash-preview-tts')
+  .split(',')
+  .map((m) => m.trim())
+  .filter(Boolean);
+
+/** Gemini devuelve audio crudo (PCM de 16 bits, 24 kHz, un canal): se le pone el encabezado WAV. */
+export function pcmAWav(pcm: Buffer, frecuencia = 24000): Buffer {
+  const encabezado = Buffer.alloc(44);
+  encabezado.write('RIFF', 0);
+  encabezado.writeUInt32LE(36 + pcm.length, 4);
+  encabezado.write('WAVE', 8);
+  encabezado.write('fmt ', 12);
+  encabezado.writeUInt32LE(16, 16);
+  encabezado.writeUInt16LE(1, 20);
+  encabezado.writeUInt16LE(1, 22);
+  encabezado.writeUInt32LE(frecuencia, 24);
+  encabezado.writeUInt32LE(frecuencia * 2, 28);
+  encabezado.writeUInt16LE(2, 32);
+  encabezado.writeUInt16LE(16, 34);
+  encabezado.write('data', 36);
+  encabezado.writeUInt32LE(pcm.length, 40);
+  return Buffer.concat([encabezado, pcm]);
+}
+
+export function limpiarTextoParaVoz(texto: string): string {
+  return (texto || '')
     .replace(/[*#_`~>]/g, '')
     .replace(/https?:\/\/\S+/g, '')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 1000);
+}
 
-  if (!textoLimpio) {
-    throw new Error('El texto para sintetizar está vacío.');
-  }
+/**
+ * Pide la voz a Gemini y devuelve un WAV listo para reproducir.
+ * Tira un error si no hay clave o Gemini no contesta (por ejemplo, tope gratis del día: 429).
+ */
+export async function sintetizarVozGemini(texto: string, opciones?: OpcionesVozGemini): Promise<Buffer> {
+  const textoLimpio = limpiarTextoParaVoz(texto);
+  if (!textoLimpio) throw new Error('El texto para la voz está vacío.');
 
-  const rawKey =
-    opciones?.apiKey !== undefined
-      ? opciones.apiKey
-      : (process.env.GOOGLE_TTS_API_KEY ||
-         process.env.GEMINI_API_KEY ||
-         process.env.GOOGLE_API_KEY);
-
+  const rawKey = opciones?.apiKey !== undefined
+    ? opciones.apiKey
+    : (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY);
   const apiKey = rawKey && rawKey !== 'dummy' ? rawKey.trim() : '';
+  if (!apiKey || apiKey.length < 10) throw new Error('No hay clave de Gemini para la voz.');
 
-  if (!apiKey || apiKey.length < 10) {
-    throw new Error('No hay clave de API configurada para Gemini TTS.');
-  }
+  const voz = VOCES_IA_DISPONIBLES.some((v) => v.id === opciones?.voz) ? opciones!.voz! : VOZ_POR_OMISION;
+  const fetchFn = opciones?.fetchFn || globalThis.fetch;
+  if (!fetchFn) throw new Error('No se puede llamar a Gemini: falta fetch.');
 
-  const vozId = opciones?.voz || 'es-ES-Journey-F';
-  const vozConfig = VOCES_GEMINI.find((v) => v.id === vozId) || VOCES_GEMINI[0];
-
-  const fetchFn = typeof fetch !== 'undefined' ? fetch : globalThis.fetch;
-  if (!fetchFn) {
-    throw new Error('Fallo en servicio Gemini TTS: fetch no está disponible.');
-  }
-
-  const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKey}`;
-  const response = await fetchFn(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      input: { text: textoLimpio },
-      voice: {
-        languageCode: vozConfig.lang,
-        name: vozConfig.id,
+  let ultimoError = 'Gemini no devolvió audio.';
+  for (const modelo of MODELOS_DE_VOZ) {
+    const response = await fetchFn(
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `Decilo en español rioplatense, con tono cálido y natural: ${textoLimpio}` }] }],
+          generationConfig: {
+            responseModalities: ['AUDIO'],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voz } } },
+          },
+        }),
       },
-      audioConfig: {
-        audioEncoding: 'LINEAR16',
-        speakingRate: opciones?.velocidad || 1.0,
-        sampleRateHertz: 24000,
-      },
-    }),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const mensaje = errorData?.error?.message || response.statusText;
-    throw new Error(`Fallo en servicio Gemini TTS (${response.status}): ${mensaje}`);
+    );
+    if (response.status === 404) {
+      ultimoError = `El modelo de voz ${modelo} no existe.`;
+      continue;
+    }
+    if (!response.ok) {
+      const datos = await response.json().catch(() => ({} as any));
+      throw new Error(`Gemini no dio la voz (${response.status}): ${datos?.error?.message || response.statusText}`);
+    }
+    const datos = await response.json();
+    const audio = datos?.candidates?.[0]?.content?.parts?.find((p: any) => p?.inlineData?.data)?.inlineData?.data;
+    if (!audio) throw new Error('La respuesta de Gemini no trae audio.');
+    return pcmAWav(Buffer.from(audio, 'base64'));
   }
-
-  const data = await response.json();
-  if (!data?.audioContent) {
-    throw new Error('La respuesta de Gemini TTS no contiene audio.');
-  }
-
-  return Buffer.from(data.audioContent, 'base64');
+  throw new Error(ultimoError);
 }

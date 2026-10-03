@@ -1,7 +1,7 @@
 /**
  * @fileOverview Reproductor universal de voz para la IA en el cliente.
- * Prioriza audio real generado por la IA en el servidor (/api/asistente/voz-parte?texto=...)
- * y cuenta con fallback transparente a la mejor voz disponible del navegador.
+ * Prioriza la voz de Gemini (/api/asistente/voz-parte?texto=...) y, si no está (apagada, tope del
+ * día, sin señal), usa la voz del teléfono, salvo que también esté apagada en Ajustes.
  */
 
 let audioActual: HTMLAudioElement | null = null;
@@ -73,7 +73,15 @@ export async function reproducirVozReal(
     }
 
     const response = await fetch(`/api/asistente/voz-parte?${params.toString()}`);
-    if (response.ok) {
+    if (!response.ok) {
+      // La ruta dice si la voz del teléfono está prendida en Ajustes. Apagada: no se habla.
+      const motivo = await response.json().catch(() => ({} as { vozTelefonoActiva?: boolean }));
+      if (motivo?.vozTelefonoActiva === false) {
+        reproduciendo = false;
+        opciones?.onEnd?.();
+        return;
+      }
+    } else {
       const blob = await response.blob();
       if (blob.size > 100) {
         const audioUrl = URL.createObjectURL(blob);

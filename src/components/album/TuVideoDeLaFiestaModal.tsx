@@ -150,7 +150,7 @@ export function TuVideoDeLaFiestaModal({
               <Loader2 className="w-10 h-10 animate-spin text-amber-400 mx-auto" />
               <div>
                 <p className="text-sm font-bold text-white">Armando tu video resumen...</p>
-                <p className="text-xs text-zinc-400 mt-1">Efecto Ken Burns, fundidos y música ({progreso}%)</p>
+                <p className="text-xs text-zinc-400 mt-1">Tarda alrededor de un minuto y medio. Dejá esta pantalla abierta. ({progreso}%)</p>
               </div>
               <div className="w-48 h-2 bg-zinc-800 rounded-full mx-auto overflow-hidden">
                 <div

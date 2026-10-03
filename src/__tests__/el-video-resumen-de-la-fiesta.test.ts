@@ -89,4 +89,13 @@ describe('Órdenes 106 y 111 — El video resumen de la fiesta', () => {
     const isWebM = buf[0] === 0x1A && buf[1] === 0x45 && buf[2] === 0xDF && buf[3] === 0xA3;
     expect(isWebM).toBe(true);
   });
+
+  // Orden 115: MediaRecorder graba en tiempo real. Si los cuadros se dibujan lo más rápido posible,
+  // el video dura lo que tarda el teléfono (la muestra dio 141 s). El tiempo sale del reloj.
+  test('el video se dibuja al ritmo del reloj, no lo más rápido posible', () => {
+    const fuente = fs.readFileSync(path.join(process.cwd(), 'src/lib/video-resumen/generar-video-resumen.ts'), 'utf8');
+    expect(fuente).toMatch(/\(performance\.now\(\) - inicio\) \/ 1000/);
+    expect(fuente).toMatch(/if \(t >= duracionSegundos\)/);
+    expect(fuente).not.toMatch(/for \(let f = 0; f < totalFrames/);
+  });
 });

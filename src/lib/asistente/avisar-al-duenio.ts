@@ -21,6 +21,10 @@ export interface AsistenteSettings {
   metasMes?: string;
   responderConVoz?: boolean;
   vozSeleccionada?: string;
+  /** La voz de Gemini (parte gratis por día). Decisión del dueño, 3/10/2026: con interruptor. */
+  vozGeminiActiva?: boolean;
+  /** La voz del teléfono, gratis siempre. Si las dos están apagadas, el asistente no habla. */
+  vozTelefonoActiva?: boolean;
   numerosEquipo?: Array<{ telefono: string; nombre: string; rol: string }>;
   atenderLlamadasIaHabilitado?: boolean;
 }
@@ -38,7 +42,9 @@ export const ASISTENTE_SETTINGS_DEFAULT: AsistenteSettings = {
   },
   metasMes: '',
   responderConVoz: false,
-  vozSeleccionada: 'es-ES-Neural2-A',
+  vozSeleccionada: 'Kore',
+  vozGeminiActiva: true,
+  vozTelefonoActiva: true,
   numerosEquipo: [
     { telefono: '59898355530', nombre: 'Alexander Knuth', rol: 'Dueño' },
   ],
