@@ -12,6 +12,11 @@ anterior; PER01 NO es filtracion HTTP demostrada. Informe/evidencia: 65.
 La 1251 sigue a cargo de Gemini, HEAD `ea2cb46`, con devolucion 111 de Claude.
 Estas notas NO fusionan ni dan por programadas las ordenes.
 
+Decision del dueno 2/10: primero terminar la revision VIRTUAL, sin fallos abiertos
+y con pruebas previstas completadas; solo despues hacer el ensayo FISICO. No usar
+hardware ausente para frenar la auditoria virtual ni contar pruebas no ejecutadas
+como aprobadas. Claude sigue corrigiendo: no duplicar su trabajo. Orden 113 actualizada.
+
 **2 de octubre de 2026.** La 1248 (órdenes 101, 102, 104, 105 y 106, con las devoluciones 107 y
 108) se fusionó con la puerta en verde. La revisión la terminó Claude: permisos del asistente,
 propuestas en turno, hora del contrato, WhatsApp que no dice "anoté" sin anotar, pruebas sin atajos.

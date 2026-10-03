@@ -13,6 +13,20 @@ PR 1251 consultada: HEAD `ea2cb46d732b815492ee5c176cd9ea6e61e867de`.
 No confundir la version publicada 39da52a con una entrega pendiente no fusionada.
 Actualizar los SHA antes de preparar el entorno si cambia la tanda.
 
+## Orden de cierre confirmado por el dueno (2/10/2026)
+
+Claude esta trabajando en las correcciones. No duplicarlas ni auditar una entrega
+incompleta como si estuviera terminada. Codex completa y contrasta la revision virtual.
+El ensayo FISICO se realiza DESPUES de ese cierre virtual, no se pide como condicion
+para poder terminarlo. Hardware ausente no debe bloquear otras comprobaciones virtuales.
+
+El cierre virtual requiere matriz prevista ejecutada, evidencia vigente sobre el mismo
+commit y ningun fallo virtual abierto. Saltados, bloqueados y no ejecutados no cuentan
+como aprobados. Las integraciones de software y sus permisos siguen en el alcance
+virtual; no confundirlas con conectar camara, impresora, plataforma 360 o barra fisica.
+El resultado es "sin fallos encontrados en el alcance virtual comprobado", no una
+garantia absoluta sobre condiciones futuras o equipos todavia no ensayados.
+
 ## Bloqueo comprobado, no supuesto
 
 En el host de Codex no existe `C:/Users/Usuario/Desktop/app/app-AK`.
