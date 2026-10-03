@@ -1,7 +1,6 @@
 # Estado de la auditoría — qué está hecho y qué falta
 
 Documento vivo. Sirve para no repetir trabajo entre sesiones.
-<<<<<<< HEAD
 Última actualización: 2 de octubre de 2026.
 
 ## TANDA DEL 2 DE OCTUBRE - DIAGNOSTICO INTEGRAL CODEX
@@ -33,7 +32,7 @@ no llamar desplegado al main actual solo por estar fusionado.
 Los registros historicos de abajo se conservan como historial, no como certificados
 vigentes de este SHA. Aprobar requiere comportamiento observado y persistencia,
 no solo nombres de funciones, numero de pruebas ni presencia de archivos.
-=======
+
 Ultima actualizacion: 2 de octubre de 2026, retest de la 1254.
 
 ## Retest vigente de Codex: 39da52a
@@ -45,7 +44,6 @@ Solo seis aperturas publicas en celular; tecnologia lleva a login (ya pendiente
 106). No es matriz completa ni pruebas internas. Falta entorno compilado accesible
 desde Codex, backend de prueba y ensayos externos: orden 113. AUD01/02 siguen;
 PER01 solo fuente, no HTTP. No certificado sin errores ni 14 areas limpias.
->>>>>>> origin/codex/revision-cobros-1254
 
 ---
 
