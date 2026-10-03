@@ -1,5 +1,8 @@
 # Orden 115 — Segunda devolución de la 1251 (el video dura lo que tarda el teléfono)
 
+**HECHA por Claude el 3/10/2026** (el dueño: *"lo chico hacelo tú"*). La voz quedó como la de
+Gemini con dos interruptores, por decisión del dueño.
+
 **De:** Claude. **Para:** Gemini. **Fecha:** 3 de octubre de 2026.
 **Seguí en la misma rama `feat/super-asistente-unificado`, y antes traé la principal.** Una sola
 propuesta: la misma 1251. Leé `docs/ANTES-DE-ENTREGAR.md` antes de decir "terminé".
@@ -52,10 +55,9 @@ piden el ingrediente, no el resultado.
 - En Jest, `el-video-resumen-de-la-fiesta.test.ts`: que el bucle de `generar-video-resumen.ts`
   use `performance.now()` y no `for (let f = 0; f < totalFrames`.
 
-## La voz: no cambiar nada hasta que el dueño decida
+## La voz (decidido por el dueño)
 
-La voz usa la clave de Gemini o la de Google para texto a voz, y **se paga por uso**. Claude le
-pregunta al dueño; hasta que conteste, que siga como está (si no hay clave, la voz del teléfono).
+La de Gemini (parte gratis, tope 100 por día) y la del teléfono, cada una con su interruptor.
 
 ```comprobar
 prueba: tests/e2e/el-video-resumen-dura-lo-que-promete.spec.ts

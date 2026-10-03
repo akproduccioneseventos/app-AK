@@ -45,7 +45,10 @@ async function main() {
   });
 
   // 3. Iniciar Chromium con Playwright
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
+  });
   const page = await browser.newPage({
     viewport: { width: 720, height: 1280 },
   });
@@ -107,6 +110,20 @@ async function main() {
     duracionSegundos: duracionDeseada,
   });
 
+  // Se MIDE el archivo, no se repite el número pedido (orden 115): la muestra anterior decía 66 y
+  // duraba 141. MediaRecorder no escribe la duración: se va al final para que el navegador la calcule.
+  const medida = await page.evaluate(async (b64) => {
+    const v = document.createElement('video');
+    v.muted = true;
+    v.src = `data:video/webm;base64,${b64}`;
+    await new Promise((listo) => { v.onloadedmetadata = listo; });
+    if (!Number.isFinite(v.duration)) {
+      v.currentTime = 1e9;
+      await new Promise((listo) => { v.ontimeupdate = listo; });
+    }
+    return v.duration;
+  }, videoBase64);
+
   await browser.close();
 
   // 6. Guardar el video WebM en docs/evidencias/video-resumen-muestra.webm
@@ -121,7 +138,11 @@ async function main() {
 
   console.log(`Video de muestra generado con éxito en: ${outputPath}`);
   console.log(`Tamaño final: ${buffer.length} bytes`);
-  console.log(`Duración: ${duracionDeseada} segundos.`);
+  console.log(`Duración pedida: ${duracionDeseada} s. Duración medida del archivo: ${medida.toFixed(1)} s.`);
+  if (medida < 60 || medida > 90) {
+    console.error('La muestra no dura entre 60 y 90 segundos.');
+    process.exitCode = 1;
+  }
 }
 
 main().catch((err) => {

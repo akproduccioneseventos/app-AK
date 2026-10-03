@@ -1192,6 +1192,14 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Lo chico lo hace Claude, sin preguntar (3 de octubre de 2026).** Palabras del dueño: *"siempre lo
+  chico hacelo tú sin preguntar"*. Si un arreglo de una entrega de Gemini es chico, Claude lo hace en
+  la misma rama y sigue; a Gemini va sólo lo grande. Manda sobre el reparto de más arriba.
+
+- **La voz del asistente: la de Gemini y la del teléfono, cada una con su interruptor (3 de octubre
+  de 2026).** La de Gemini usa su parte gratis, con un tope de la app de 100 por día; pasado el tope
+  habla la del teléfono. No se usa la voz de Google Cloud, que cobra por mes.
+
 - **Lo que se suma a la tecnología, y lo que no (1 de octubre de 2026).** Se suma el **video resumen**
   armado con las fotos (sin IA de video) y los asistentes pasan a llamarse **Asistente AK**, con mascota. La
   **invitación con realidad aumentada queda descartada**. Con eso **no hay más funciones para sumar**:
@@ -1533,6 +1541,8 @@ con otra cara.
 | Dos cuotas marcadas a la vez: las dos "cobradas", una sola guardada | `src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts` |
 | La lista de invitados (teléfono y credencial) se podía pedir desde internet sin sesión | `src/__tests__/la-lista-de-invitados-pide-sesion.test.ts` |
 | Reintentos de un cobro que decían "registrado" con el importe viejo o sin llegar al presupuesto, y el recibo con "undefined" | `src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts` |
+| El video resumen duraba lo que tardaba el teléfono (141 s en vez de 60 a 90) | `tests/e2e/el-video-resumen-dura-lo-que-promete.spec.ts` |
+| Cualquiera con sesión cambiaba el número al que le llegan los avisos al dueño | `src/__tests__/la-voz-de-gemini-tts.test.ts` |
 
 ### Cómo se elige el matafuego
 
