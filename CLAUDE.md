@@ -1523,6 +1523,7 @@ con otra cara.
 | Un cobro de factura que tiraba error al pasar al presupuesto se duplicaba al reintentar; la tolerancia se regalaba en cada pago | `src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts` |
 | Dos cuotas marcadas a la vez: las dos "cobradas", una sola guardada | `src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts` |
 | La lista de invitados (teléfono y credencial) se podía pedir desde internet sin sesión | `src/__tests__/la-lista-de-invitados-pide-sesion.test.ts` |
+| Reintentos de un cobro que decían "registrado" con el importe viejo o sin llegar al presupuesto, y el recibo con "undefined" | `src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts` |
 
 ### Cómo se elige el matafuego
 

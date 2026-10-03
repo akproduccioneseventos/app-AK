@@ -1,5 +1,10 @@
 # 113 - Claude: casos restantes de cobros tras la 1254
 
+## Estado al 3/10/2026 (Claude): HECHO
+
+COB06 a COB09 arreglados, con `src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts`
+(COB07, COB08 y COB09 rojos sobre `39da52a`; COB06 cambió de función: `montoEnLetras`).
+
 ## Destino y contraste
 
 Codex revisa; Claude programa dinero y compila. No fusionar esta documentacion
@@ -89,7 +94,7 @@ archivo: src/app/actions/invoices.ts
 usa: addPaymentToInvoice en src/app/(app)/invoices/[id]/page.tsx
 prueba: src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts
 archivo: src/app/(app)/invoices/[id]/page.tsx
-usa: numberToSpanishWords(lastPayment.amount) en src/app/(app)/invoices/[id]/page.tsx
+usa: montoEnLetras(lastPayment.amount) en src/app/(app)/invoices/[id]/page.tsx
 prueba: src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts
 archivo: src/app/actions/invoices.ts
 usa: pasarCobrosPendientesAlPresupuesto en src/app/(app)/invoices/page.tsx

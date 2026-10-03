@@ -1,5 +1,22 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 3 de octubre de 2026 — Codex, segunda vuelta de cobros (COB06 a COB09)
+
+- **COB07:** con dos servidores y la misma operación, el segundo decía "listo" mirando la factura
+  vieja aunque el cobro no hubiera llegado al presupuesto. Ahora contesta con la factura de la
+  base y el estado real del paso (`contestarOperacionYaGuardada`).
+- **COB08:** un reintento con el importe cambiado decía "Pago Registrado" con el importe viejo.
+  Ahora avisa cuánto quedó registrado y la pantalla abre un cobro nuevo recién después.
+- **COB06:** el recibo de 12,50 decía "DIEZ Y undefined": el importe en letras vive en
+  `src/lib/money/monto-en-letras.ts` y los centavos salen "CON 50/100". Los pesos, igual que antes.
+- **COB09:** el aviso decía "se concilia solo" y lo pasa una persona: ahora dice «Pasar ahora».
+
+```comprobar
+prueba: src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts
+usa: contestarOperacionYaGuardada en src/app/actions/invoices.ts
+usa: montoEnLetras(lastPayment.amount) en src/app/(app)/invoices/[id]/page.tsx
+```
+
 ## 3 de octubre de 2026 — Codex, auditoría 64: PER01 y el contador
 
 - **PER01 (confirmado):** `getInvitados` se podía llamar desde internet (la importa el muro
