@@ -991,6 +991,15 @@ código: por suerte la compilación ya había terminado.
 ni `-A`. Y con la puerta corriendo, el código se mira con `git show <rama>:<archivo>` o `git grep`,
 **nunca** cambiando de rama.
 
+### 32. Commitear una fusión con un conflicto que no había visto
+
+**Pasó el 3 de octubre de 2026.** Al juntar el informe de Codex resolví el conflicto de
+`YA-RESUELTO.md` y agregué la carpeta entera con `git add`: `ESTADO-AUDITORIA.md` también tenía
+conflicto y entró con las marcas. Lo frenó la puerta, pero costó una corrida.
+
+**Qué se hace distinto:** después de una fusión con conflicto, `git diff --name-only --diff-filter=U`
+antes de agregar, y se agregan sólo los archivos ya resueltos, por nombre.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
