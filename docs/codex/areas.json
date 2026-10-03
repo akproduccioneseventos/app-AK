@@ -12,16 +12,17 @@
         "src/app/(app)/invoices",
         "src/app/(app)/presupuestos",
         "src/app/actions/payment-plans.ts",
-        "src/types/invoice.ts"
+        "src/types/invoice.ts",
+        "src/lib/money"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-02",
-        "commit": "676a1a8",
-        "hallazgos": 5,
-        "reporte": "codex/auditoria-cobros-2026-10-02:docs/evidencias/63-cobros-cuotas-facturas-recibos-2026-10-02.md"
+        "fecha": "2026-10-03",
+        "commit": "39da52a",
+        "hallazgos": 4,
+        "reporte": "codex/revision-cobros-1254:docs/evidencias/65-retest-1254-y-pendientes.md"
       },
-      "nota": "Los 5 arreglados por Claude el 2/10/2026: falta que Codex vuelva a mirar el área."
+      "nota": "COB01-05 confirmados por Codex en 39da52a. COB06-09 arreglados por Claude el 3/10: falta que Codex la vuelva a mirar."
     },
     {
       "id": "contrato",
@@ -56,7 +57,8 @@
         "src/app/login",
         "src/app/(app)/settings/accesos-personal"
       ],
-      "estado": "sin-revisar"
+      "estado": "sin-revisar",
+      "nota": "PER01 (auditoría 64) confirmado y arreglado: getInvitados pide sesión. Falta la revisión entera del área."
     },
     {
       "id": "fiesta",

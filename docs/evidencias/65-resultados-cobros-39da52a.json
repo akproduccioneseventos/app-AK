@@ -1,0 +1,85 @@
+{
+  "commit": "39da52a33fcdda83f7575d6751a9bc101b3484cf",
+  "recordedAt": "2026-10-03T01:14:01.095Z",
+  "environment": "synthetic-function-probes",
+  "cases": [
+    {
+      "id": "COB01-retry-same-operation",
+      "status": "passed",
+      "savedPayments": 1,
+      "savedAmount": 100
+    },
+    {
+      "id": "COB01-retry-reconciles",
+      "status": "passed",
+      "savedPayments": 1,
+      "mirrored": true
+    },
+    {
+      "id": "COB04-cumulative-tolerance",
+      "status": "passed",
+      "results": [
+        true,
+        false,
+        false
+      ],
+      "savedTotal": 1001
+    },
+    {
+      "id": "COB05-storage-decimals",
+      "status": "passed",
+      "savedAmount": 12.5,
+      "invalidRejected": true
+    },
+    {
+      "id": "COB03-ui-returned-failure",
+      "status": "passed",
+      "errorDisplayed": true,
+      "operationPreserved": true,
+      "environment": "original-handler-vm-not-browser"
+    },
+    {
+      "id": "COB06-receipt-decimals-in-words",
+      "status": "defect-reproduced",
+      "amount": 12.5,
+      "currency": "USD",
+      "output": "DIEZ Y undefined DÓLARES ESTADOUNIDENSES"
+    },
+    {
+      "id": "COB07-concurrent-retry-premature-success",
+      "status": "defect-reproduced",
+      "retrySuccess": true,
+      "firstSuccess": false,
+      "savedPayments": 1,
+      "passedToBudget": false,
+      "environment": "two-invocations-shared-transaction-stub-not-firestore"
+    },
+    {
+      "id": "COB08-edited-pending-operation",
+      "status": "defect-reproduced",
+      "requestedAmount": 200,
+      "acceptedSuccess": true,
+      "storedAmount": 100,
+      "environment": "source-action-plus-preserved-ui-operation-not-browser"
+    },
+    {
+      "id": "COB09-false-automatic-reconciliation-message",
+      "status": "defect-reproduced",
+      "automaticMessage": true,
+      "morningOnlyAlerts": true,
+      "reconciliationConsumers": [
+        "src/app/(app)/invoices/page.tsx:13:import { getInvoices, deleteInvoice as deleteInvoiceAction, pasarCobrosPendientesAlPresupuesto } from '@/app/actions/invoices';\r",
+        "src/app/(app)/invoices/page.tsx:126:            const res = await pasarCobrosPendientesAlPresupuesto();\r",
+        "src/app/actions/invoices.ts:895:export async function pasarCobrosPendientesAlPresupuesto(): Promise<{ success: boolean; pasados: number; error?: string }> {\r",
+        "src/lib/commercial-flow/cobros-sin-pasar-al-presupuesto.ts:13: * (`pasarCobrosPendientesAlPresupuesto`), porque es plata."
+      ]
+    }
+  ],
+  "hashes": {
+    "src/lib/invoice-money.ts": "dae10a979ddbf184967f747a3a3dfd0a5b72b774c7fb41db9304a80454f5191f",
+    "src/lib/budget/financial-guardrails.ts": "30994683cc4c802e1ed6eda8e5cbec07ccf42050b3d815f42f2f6beb7f2594ca",
+    "src/app/actions/invoices.ts": "23163dca628c514236c0c2280425eacddef45460219ca88204a480cd34cae5cb",
+    "src/app/(app)/invoices/[id]/page.tsx": "186a0b14fad138ef80ea8b8876b636b460f0ee3ee67c3421ed060fa7f0a43de1",
+    "src/lib/automatico/parte-manana.ts": "d386499e73ec2aaa77194ab09e295a4d26016401264899d1f119168334d864db"
+  }
+}

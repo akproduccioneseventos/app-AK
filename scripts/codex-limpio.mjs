@@ -16,6 +16,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const RAIZ = process.cwd();
 
@@ -45,7 +46,7 @@ const ETIQUETA = {
   'volver-a-mirar': 'estaba limpia, pero su código cambió: Codex la vuelve a mirar',
 };
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
   const datos = JSON.parse(fs.readFileSync(path.join(RAIZ, 'docs/codex/areas.json'), 'utf8'));
   const r = resumen(datos.areas);
   if (r.terminado) {
