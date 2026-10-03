@@ -29,7 +29,11 @@ describe('Las imágenes y la voz son lo que dicen ser', () => {
 
   it('el Parte de la mañana habla con una voz, no con un tono', () => {
     const player = fs.readFileSync(path.join(process.cwd(), 'src/components/mi-dia/ParteDeLaMananaPlayer.tsx'), 'utf8');
-    expect(player).toContain('SpeechSynthesisUtterance(parte.textoHablado)');
+    // Desde el 3/10/2026 habla por el reproductor común: la voz de Gemini o la del teléfono.
+    expect(player).toContain('reproducirVozReal(parte.textoHablado');
+    const reproductor = fs.readFileSync(path.join(process.cwd(), 'src/lib/asistente/reproductor-voz.ts'), 'utf8');
+    expect(reproductor).toContain('new SpeechSynthesisUtterance(texto)');
+    expect(reproductor).not.toMatch(/OscillatorNode|createOscillator/);
     expect(fs.existsSync(path.join(process.cwd(), 'src/lib/asistente/voz-parte.ts'))).toBe(false);
   });
 });

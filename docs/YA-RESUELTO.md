@@ -186,7 +186,7 @@ prueba: src/__tests__/se-prueba-solo-lo-que-cambio-de-un-archivo.test.ts
 prueba: src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts
 prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
 no-usa: ins-licor-durazno en src/lib/fiesta-defaults.ts
-usa: speechSynthesis en src/app/(app)/empresa/configurador-reunion/page.tsx
+usa: reproducirVozReal en src/app/(app)/empresa/configurador-reunion/page.tsx
 prueba: src/__tests__/actualizar-fiesta-pide-permiso.test.ts
 ```
 
