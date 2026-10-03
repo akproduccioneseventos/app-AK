@@ -808,3 +808,15 @@ Al verificar: toda función exportada de un archivo `'use server'` que lee con `
 pide sesión o permiso **adentro**, o devuelve sólo lo que es de quien llama (el invitado con su
 credencial, un número, la configuración pública). Una tarea automática o una pantalla del
 servidor que necesita la lista entera la lee cruda, sin pasar por la acción.
+
+## Pregunta 34 — la que sumó el 3 de octubre de 2026 (Codex, segunda vuelta de cobros)
+
+### 34. Cuando una operación "ya estaba", ¿qué se contesta?
+
+Al arreglar el reintento de un cobro puse "si ya estaba, listo". Codex encontró tres formas en que
+ese "listo" mentía: otro servidor lo había guardado pero todavía no lo había pasado al
+presupuesto, el reintento traía otro importe, y el aviso prometía una conciliación que hace una
+persona.
+
+Al verificar: un "ya estaba" compara **lo pedido con lo guardado** y contesta **el estado real del
+paso siguiente**, leído de la base, nunca de la copia que se leyó antes de empezar.

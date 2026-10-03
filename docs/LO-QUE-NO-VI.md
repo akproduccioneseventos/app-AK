@@ -813,3 +813,17 @@ función de un archivo `'use server'` que usa una pantalla del navegador la pued
 ```comprobar
 prueba: src/__tests__/la-lista-de-invitados-pide-sesion.test.ts
 ```
+
+## 03/10/2026 — El "ya estaba, listo" de mi arreglo de cobros mentía (Codex, COB06 a COB09)
+
+**Qué era:** mi arreglo del reintento contestaba "listo" con la factura vieja aunque el cobro no
+hubiera llegado al presupuesto, aceptaba un reintento con otro importe, el recibo con centavos
+decía "undefined" y el aviso prometía "se concilia solo".
+
+**Por qué se me pasó:** miré que no se duplicara, no **qué se contesta** cuando ya estaba. **Pregunta
+nueva: la 34.** El barrido es mío (sólo aplica a plata): las otras operaciones con identidad de
+reintento son las de esta misma función.
+
+```comprobar
+prueba: src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts
+```
