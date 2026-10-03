@@ -991,6 +991,15 @@ código: por suerte la compilación ya había terminado.
 ni `-A`. Y con la puerta corriendo, el código se mira con `git show <rama>:<archivo>` o `git grep`,
 **nunca** cambiando de rama.
 
+### 32. Commitear una fusión con un conflicto que no había visto
+
+**Pasó el 3 de octubre de 2026.** Al juntar el informe de Codex resolví el conflicto de
+`YA-RESUELTO.md` y agregué la carpeta entera con `git add`: `ESTADO-AUDITORIA.md` también tenía
+conflicto y entró con las marcas. Lo frenó la puerta, pero costó una corrida.
+
+**Qué se hace distinto:** después de una fusión con conflicto, `git diff --name-only --diff-filter=U`
+antes de agregar, y se agregan sólo los archivos ya resueltos, por nombre.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1522,6 +1531,8 @@ con otra cara.
 | La revisión de Codex no tenía final: cada vuelta abría un frente nuevo | `npm run "codex?"` con `docs/codex/areas.json` y `src/__tests__/codex-tiene-un-final.test.ts` |
 | Un cobro de factura que tiraba error al pasar al presupuesto se duplicaba al reintentar; la tolerancia se regalaba en cada pago | `src/__tests__/los-cobros-de-factura-no-se-duplican-ni-pasan-la-tolerancia.test.ts` |
 | Dos cuotas marcadas a la vez: las dos "cobradas", una sola guardada | `src/__tests__/dos-cuotas-a-la-vez-no-se-pisan.test.ts` |
+| La lista de invitados (teléfono y credencial) se podía pedir desde internet sin sesión | `src/__tests__/la-lista-de-invitados-pide-sesion.test.ts` |
+| Reintentos de un cobro que decían "registrado" con el importe viejo o sin llegar al presupuesto, y el recibo con "undefined" | `src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts` |
 
 ### Cómo se elige el matafuego
 

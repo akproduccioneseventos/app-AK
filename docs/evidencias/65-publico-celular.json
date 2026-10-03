@@ -1,0 +1,235 @@
+{
+  "recordedAt": "2026-10-03T01:14:33.477Z",
+  "environment": "published-anonymous-mobile-read-only",
+  "version": "39da52a33fcdda83f7575d6751a9bc101b3484cf · compilada 2026-10-03T00:32:58.521Z",
+  "services": {
+    "firebase": false,
+    "gemini": true,
+    "googleWorkspace": true,
+    "mail": true,
+    "instagram": false,
+    "mercadoPago": false
+  },
+  "results": [
+    {
+      "route": "/",
+      "viewport": "390x844",
+      "mutations": 0,
+      "http": 200,
+      "finalUrl": "https://akproducciones.uy/",
+      "textLength": 13003,
+      "textPreview": "AK PRODUCCIONES EVENTOS · SALTO, URUGUAY\n\nOrganizá tu fiesta completa en Salto con AK Producciones\n\nSalón, comida, discoteca, decoración, fotografía, filmación, barra y coordinación en un solo lugar.\n\nComida gourmet y barra\nAmbientación y mobiliario\nDiscoteca, pantallas y luces\nProyectar mi fiesta\nH",
+      "width": 390,
+      "documentWidth": 390,
+      "brokenImages": [],
+      "images": 49,
+      "headings": [
+        "Organizá tu fiesta completa\nen Salto con AK Producciones",
+        "No vendemos luces ni sonido: diseñamos tu tranquilidad",
+        "Números que respaldan cada evento",
+        "Una sola conversación. Todos los servicios que tu fiesta necesita.",
+        "La app de tu fiesta",
+        "Experiencias que hacen tu fiesta inolvidable",
+        "Menos coordinación. Más experiencia.",
+        "Club Uruguay",
+        "Detrás de una buena fiesta hay equipo y criterio",
+        "Galería de eventos",
+        "Historias en movimiento",
+        "Contenido para planificar tu evento sin estrés"
+      ],
+      "links": [
+        {
+          "label": "Inicio",
+          "href": "/#landing-hero"
+        },
+        {
+          "label": "Servicios",
+          "href": "/#landing-services"
+        },
+        {
+          "label": "Galería HD",
+          "href": "https://galeria.akproducciones.uy"
+        },
+        {
+          "label": "Simulador",
+          "href": "/simulador-de-presupuesto"
+        },
+        {
+          "label": "Blog",
+          "href": "/public/blog"
+        },
+        {
+          "label": "Preguntas Frecuentes",
+          "href": "/#faq"
+        },
+        {
+          "label": "Club Uruguay",
+          "href": "/club-uruguay"
+        }
+      ],
+      "overflow": false,
+      "pageErrors": [],
+      "failedResponses": [],
+      "result": "basic-render-pass",
+      "limit": "No forms submitted; no saved state, financial data, synchronization or integration validated."
+    },
+    {
+      "route": "/blog",
+      "viewport": "390x844",
+      "mutations": 0,
+      "http": 200,
+      "finalUrl": "https://akproducciones.uy/public/blog",
+      "textLength": 2921,
+      "textPreview": "AK\nWHATSAPP\nBLOG AK PRODUCCIONES\nConsejos claros para decidir mejor tu evento.\n\nGuías para elegir salón, menú, presupuesto, tiempos y servicios antes de contratar.\n\nSIMULAR PRESUPUESTO\nPEDIR ASESORAMIENTO\n\nARTÍCULO DESTACADO\n\nCómo calcular la bebida para tu fiesta en Salto sin que falte ni sobre\n\nEl",
+      "width": 390,
+      "documentWidth": 390,
+      "brokenImages": [],
+      "images": 8,
+      "headings": [
+        "Consejos claros para decidir mejor tu evento.",
+        "Cómo calcular la bebida para tu fiesta en Salto sin que falte ni sobre",
+        "Contenido para decidir mejor",
+        "¿Tenés una duda puntual sobre tu evento?"
+      ],
+      "links": [
+        {
+          "label": "Inicio",
+          "href": "/"
+        },
+        {
+          "label": "Blog",
+          "href": "/public/blog"
+        },
+        {
+          "label": "Simulador",
+          "href": "/simulador-de-presupuesto"
+        }
+      ],
+      "overflow": false,
+      "pageErrors": [],
+      "failedResponses": [],
+      "result": "basic-render-pass",
+      "limit": "No forms submitted; no saved state, financial data, synchronization or integration validated."
+    },
+    {
+      "route": "/club-uruguay",
+      "viewport": "390x844",
+      "mutations": 0,
+      "http": 200,
+      "finalUrl": "https://akproducciones.uy/club-uruguay",
+      "textLength": 1909,
+      "textPreview": "CLUB URUGUAY, SALTO\n\nTu fiesta en Club Uruguay\n\nConoce el espacio en montajes reales y arma una propuesta para tu celebración.\n\nCotizar mi fiesta\nCoordinar una visita\nClub Uruguay\n\nEl salón que estás buscando para tu evento en Salto.\n\nUbicación\n\nSalto, Uruguay\n\nInformación clara\n\nConsultá una propue",
+      "width": 390,
+      "documentWidth": 390,
+      "brokenImages": [],
+      "images": 6,
+      "headings": [
+        "Tu fiesta en Club Uruguay",
+        "Club Uruguay",
+        "Ubicación",
+        "Información clara",
+        "Mira el salon en uso",
+        "Calcula una fiesta completa, sin precios viejos"
+      ],
+      "links": [
+        {
+          "label": "Inicio",
+          "href": "/#landing-hero"
+        },
+        {
+          "label": "Servicios",
+          "href": "/#landing-services"
+        },
+        {
+          "label": "Galería HD",
+          "href": "https://galeria.akproducciones.uy"
+        },
+        {
+          "label": "Simulador",
+          "href": "/simulador-de-presupuesto"
+        },
+        {
+          "label": "Blog",
+          "href": "/public/blog"
+        },
+        {
+          "label": "Preguntas Frecuentes",
+          "href": "/#faq"
+        },
+        {
+          "label": "Club Uruguay",
+          "href": "/club-uruguay"
+        }
+      ],
+      "overflow": false,
+      "pageErrors": [],
+      "failedResponses": [],
+      "result": "basic-render-pass",
+      "limit": "No forms submitted; no saved state, financial data, synchronization or integration validated."
+    },
+    {
+      "route": "/tecnologia",
+      "viewport": "390x844",
+      "mutations": 0,
+      "http": 200,
+      "finalUrl": "https://akproducciones.uy/login?redirect=%2Ftecnologia",
+      "textLength": 134,
+      "textPreview": "Acceso Protegido\nIngresa con tu correo y contraseña.\nCorreo electrónico\nContraseña\nIngresar\nO\nIngresar con Google\nOlvide mi contraseña",
+      "width": 390,
+      "documentWidth": 390,
+      "brokenImages": [],
+      "images": 1,
+      "headings": [],
+      "links": [],
+      "overflow": false,
+      "pageErrors": [],
+      "failedResponses": [],
+      "result": "basic-render-pass",
+      "limit": "No forms submitted; no saved state, financial data, synchronization or integration validated."
+    },
+    {
+      "route": "/simulador-de-presupuesto",
+      "viewport": "390x844",
+      "mutations": 0,
+      "http": 200,
+      "finalUrl": "https://akproducciones.uy/simulador-de-presupuesto",
+      "textLength": 480,
+      "textPreview": "Presupuesto para tu evento\n\nArmá una propuesta con gastronomía, salón, tecnología y servicios reales de AK Producciones. Vas a ver el precio vigente, el valor por persona y la proyección para la fecha elegida.\n\nComenzar mi presupuesto\n\nOrganización integral\n\nUn solo equipo para coordinar todo.\n\nGast",
+      "width": 390,
+      "documentWidth": 390,
+      "brokenImages": [],
+      "images": 1,
+      "headings": [
+        "Presupuesto para tu evento"
+      ],
+      "links": [],
+      "overflow": false,
+      "pageErrors": [],
+      "failedResponses": [],
+      "result": "basic-render-pass",
+      "limit": "No forms submitted; no saved state, financial data, synchronization or integration validated."
+    },
+    {
+      "route": "/portal-cliente",
+      "viewport": "390x844",
+      "mutations": 0,
+      "http": 200,
+      "finalUrl": "https://akproducciones.uy/portal",
+      "textLength": 550,
+      "textPreview": "Portal de Planificación del Cliente\n\nEste espacio es exclusivo para los anfitriones de eventos organizados por AK Producciones. Desde acá podés seguir cada detalle de tu evento: confirmar tu menú, organizar la música, chequear el cronograma del día, ver la lista de tareas y revisar el estado de pago",
+      "width": 390,
+      "documentWidth": 390,
+      "brokenImages": [],
+      "images": 0,
+      "headings": [
+        "Portal de Planificación del Cliente"
+      ],
+      "links": [],
+      "overflow": false,
+      "pageErrors": [],
+      "failedResponses": [],
+      "result": "basic-render-pass",
+      "limit": "No forms submitted; no saved state, financial data, synchronization or integration validated."
+    }
+  ]
+}

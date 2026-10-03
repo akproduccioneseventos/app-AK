@@ -21,40 +21,7 @@ import Image from 'next/image';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import type { InvoiceTemplateSettings } from '@/types/settings';
 import { conTopeDeEspera } from '@/lib/ui/tope-de-espera';
-
-// Helper to convert numbers to Spanish words
-function numberToSpanishWords(n: number): string {
-  const words: Record<number, string> = {
-    0: 'CERO', 1: 'UN', 2: 'DOS', 3: 'TRES', 4: 'CUATRO', 5: 'CINCO', 6: 'SEIS', 7: 'SIETE', 8: 'OCHO', 9: 'NUEVE',
-    10: 'DIEZ', 11: 'ONCE', 12: 'DOCE', 13: 'TRECE', 14: 'CATORCE', 15: 'QUINCE', 20: 'VEINTE', 30: 'TREINTA',
-    40: 'CUARENTA', 50: 'CINCUENTA', 60: 'SESENTA', 70: 'SETENTA', 80: 'OCHENTA', 90: 'NOVENTA',
-    100: 'CIEN', 200: 'DOSCIENTOS', 300: 'TRESCIENTOS', 400: 'CUATROCIENTOS', 500: 'QUINIENTOS',
-    600: 'SEISCIENTOS', 700: 'SETECIENTOS', 800: 'OCHOCIENTOS', 900: 'NOVECIENTOS',
-    1000: 'MIL', 1000000: 'UN MILLÓN'
-  };
-
-  if (n in words) return words[n];
-  
-  if (n < 100) {
-    const tens = Math.floor(n / 10) * 10;
-    const units = n % 10;
-    return `${words[tens]}${units > 0 ? ' Y ' + words[units] : ''}`;
-  }
-  
-  if (n < 1000) {
-    const hundreds = Math.floor(n / 100) * 100;
-    const rest = n % 100;
-    return `${n === 100 ? 'CIEN' : words[hundreds]}${rest > 0 ? ' ' + numberToSpanishWords(rest) : ''}`;
-  }
-
-  if (n < 1000000) {
-    const thousands = Math.floor(n / 1000);
-    const rest = n % 1000;
-    return `${thousands === 1 ? 'MIL' : numberToSpanishWords(thousands) + ' MIL'}${rest > 0 ? ' ' + numberToSpanishWords(rest) : ''}`;
-  }
-
-  return n.toString();
-}
+import { montoEnLetras } from '@/lib/money/monto-en-letras';
 
 const formatCurrency = (amount: number, currency: string = 'UYU') => {
   const fractionDigits = currency.toUpperCase() === 'UYU' ? 0 : 2;
@@ -149,6 +116,11 @@ export default function ViewInvoicePage() {
         toast({ title: "El pago no se registró como completo", description: result.error || 'No se pudo registrar el pago.', variant: "destructive" });
         // Puede haber quedado guardado y pendiente de conciliar: se muestra lo que hay de verdad.
         if (result.invoice) await fetchData();
+        // La operación ya estaba guardada con otro importe (COB08): el servidor lo confirmó y la
+        // pantalla ya lo muestra, así que recién ahora el próximo envío es un cobro nuevo.
+        if (result.operacionYaRegistrada) {
+          operacionDelCobro.current = `op_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+        }
       }
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -297,7 +269,7 @@ export default function ViewInvoicePage() {
                     <div className="flex items-end gap-2">
                         <span className="not-italic font-bold whitespace-nowrap">LA SUMA DE:</span>
                         <span className="flex-grow border-b border-black border-dotted pb-1 font-bold not-italic">
-                            {numberToSpanishWords(lastPayment.amount)} {nombreDeLaMoneda(invoice.currency)}
+                            {montoEnLetras(lastPayment.amount)} {nombreDeLaMoneda(invoice.currency)}
                         </span>
                     </div>
                     <div className="flex items-end gap-2">

@@ -35,4 +35,15 @@ describe('El contador de Codex tiene un final', () => {
     const faltan = datos.areas.flatMap((a: any) => a.carpetas.filter((c: string) => !fs.existsSync(path.join(process.cwd(), c))));
     expect(faltan).toEqual([]);
   });
+
+  // AUD02 (Codex, auditoria 64): en Windows `new URL(import.meta.url).pathname` da `/C:/...` y el
+  // comando terminaba sin imprimir nada. Se corre el comando DE VERDAD, no sus funciones sueltas.
+  it('el comando de verdad imprime el estado, y compara la ruta como en Windows', () => {
+    const { execFileSync } = require('child_process');
+    const salida = execFileSync(process.execPath, ['scripts/codex-limpio.mjs'], { cwd: process.cwd(), encoding: 'utf8' });
+    expect(salida).toMatch(/Codex: \d+ de \d+ áreas limpias|CODEX NO ENCUENTRA ERRORES/);
+    const fuente = fs.readFileSync(path.join(process.cwd(), 'scripts/codex-limpio.mjs'), 'utf8');
+    expect(fuente).toMatch(/fileURLToPath\(import\.meta\.url\)/);
+    expect(fuente).not.toMatch(/new URL\(import\.meta\.url\)\.pathname/);
+  });
 });

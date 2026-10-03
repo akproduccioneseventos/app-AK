@@ -634,10 +634,46 @@ function estadoTrasElPago(invoice: Invoice, pagos: Payment[]): Invoice['status']
  *
  * Si el presupuesto contesta que NO, se saca el pago de la factura (como antes). Si la llamada
  * TIRA un error (Codex, 2/10/2026, COB-01), no se sabe si llegó a guardarse del otro lado: el pago
- * queda en la factura marcado sin pasar, el parte de la mañana lo concilia solo (se reconoce por
- * la referencia) y la pantalla dice "no lo ingreses de nuevo". Antes quedaba guardado, la pantalla
+ * queda en la factura marcado sin pasar, el parte de la mañana lo avisa, una persona lo pasa con
+ * «Pasar ahora» (se reconoce por la referencia, no se duplica) y la pantalla dice "no lo ingreses de nuevo". Antes quedaba guardado, la pantalla
  * mostraba un error y el reintento creaba otro registro.
  */
+/**
+ * Lo que se le dice al equipo cuando el cobro quedó en la factura y no en el presupuesto.
+ * No se concilia solo (Codex, COB09, 3/10/2026): lo pasa una persona desde Facturas, con el botón
+ * que también ofrece el parte de la mañana.
+ */
+const PENDIENTE_DE_PASAR =
+  'El pago quedó registrado en la factura pero todavía no figura en el presupuesto. No lo ingreses de nuevo: en Facturas tocá «Pasar ahora» (el parte de la mañana también lo avisa).';
+
+/**
+ * Una operación que ya está guardada (reintento, o dos servidores a la vez).
+ *
+ * - Si el importe pedido no es el que quedó guardado, NO se da por hecho (COB08): se dice cuál
+ *   quedó y la pantalla abre una operación nueva recién después de mostrarlo.
+ * - Si quedó sin pasar al presupuesto, se intenta pasar (se reconoce por la referencia, no se
+ *   duplica) y se contesta lo que pasó de verdad, nunca un "listo" a ciegas (COB07).
+ */
+async function contestarOperacionYaGuardada(
+  invoiceId: string,
+  factura: Invoice,
+  pago: Payment,
+  montoPedido: number,
+): Promise<{ success: boolean; invoice?: Invoice; error?: string; operacionYaRegistrada?: boolean }> {
+  if (Math.abs(pago.amount - montoPedido) > invoiceMoneyTolerance(factura.currency)) {
+    return {
+      success: false,
+      invoice: factura,
+      operacionYaRegistrada: true,
+      error: `Este cobro ya había quedado registrado por ${pago.amount.toLocaleString('es-UY')} ${factura.currency}, no por ${montoPedido.toLocaleString('es-UY')}. Revisá los pagos de la factura: si falta cobrar algo, cargalo como un pago nuevo.`,
+    };
+  }
+  if (factura.sourcePresupuestoId && pago.pasadoAlPresupuesto === false) {
+    return pasarCobroAlPresupuesto(invoiceId, factura, pago, factura, { yaGuardadoAntes: true });
+  }
+  return { success: true, invoice: factura };
+}
+
 async function pasarCobroAlPresupuesto(
   invoiceId: string,
   invoiceAntes: Invoice,
@@ -645,7 +681,7 @@ async function pasarCobroAlPresupuesto(
   guardada: Invoice,
   opciones: { yaGuardadoAntes: boolean },
 ): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
-  const pendiente = 'El pago quedó registrado en la factura pero falta pasarlo al presupuesto. Se concilia solo: no lo ingreses de nuevo.';
+  const pendiente = PENDIENTE_DE_PASAR;
   let resultado: { success: boolean; error?: string };
   try {
     resultado = await addPagoToPresupuesto(invoiceAntes.sourcePresupuestoId!, {
@@ -670,7 +706,7 @@ async function pasarCobroAlPresupuesto(
   }
 
   // Un reintento de un pago que ya estaba guardado no se saca: puede haber llegado al
-  // presupuesto en la vuelta anterior. Lo concilia el parte de la mañana.
+  // presupuesto en la vuelta anterior. Lo pasa una persona con «Pasar ahora».
   if (opciones.yaGuardadoAntes) return { success: false, invoice: guardada, error: pendiente };
 
   try {
@@ -701,7 +737,7 @@ async function pasarCobroAlPresupuesto(
 async function addPaymentToInvoiceInner(
   invoiceId: string,
   formData: FormData
-): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
+): Promise<{ success: boolean; invoice?: Invoice; error?: string; operacionYaRegistrada?: boolean }> {
   const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
   if (!permiso.ok) return { success: false, error: permiso.error };
   const auth = await verifySession();
@@ -725,12 +761,7 @@ async function addPaymentToInvoiceInner(
   // Reintento de la misma operación: el pago ya existe. No se crea otro; si quedó sin pasar al
   // presupuesto, se intenta pasarlo de nuevo (se reconoce por la referencia, no se duplica).
   const yaRegistrado = operacionId ? (invoice.payments || []).find((p) => p.operacionId === operacionId) : undefined;
-  if (yaRegistrado) {
-    if (invoice.sourcePresupuestoId && yaRegistrado.pasadoAlPresupuesto === false) {
-      return pasarCobroAlPresupuesto(invoiceId, invoice, yaRegistrado, invoices[invoiceIndex], { yaGuardadoAntes: true });
-    }
-    return { success: true, invoice };
-  }
+  if (yaRegistrado) return contestarOperacionYaGuardada(invoiceId, invoice, yaRegistrado, amount);
 
   if (amount <= 0) return { success: false, error: 'El monto del pago debe ser mayor a cero.' };
   if (amount > saldoReal(invoice) + invoiceMoneyTolerance(invoice.currency)) return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${balance.toLocaleString('es-UY')} ${invoice.currency}.` };
@@ -776,9 +807,11 @@ async function addPaymentToInvoiceInner(
     // control con el mismo saldo viejo y la factura quedaba cobrada de mas.
     let saldoAlGuardar: number | null = null;
     let yaEstaba: Payment | undefined;
+    let facturaAlGuardar: Invoice | undefined;
     const guardada = await mutateDataItem<Invoice>(INVOICES_FILE, 'facturas', invoiceId, (actual) => {
       // Dos reintentos a la vez de la misma operación: el segundo encuentra el pago adentro del turno.
       yaEstaba = operacionId ? (actual.payments || []).find((p) => p.operacionId === operacionId) : undefined;
+      facturaAlGuardar = actual;
       if (yaEstaba) return null;
       if (amount > saldoReal(actual) + invoiceMoneyTolerance(actual.currency)) {
         saldoAlGuardar = getInvoiceBalance(actual);
@@ -788,7 +821,11 @@ async function addPaymentToInvoiceInner(
       return { ...actual, payments: [...(actual.payments || []), newPayment], status: estadoTrasElPago(actual, [...(actual.payments || []), newPayment]) };
     });
     if (!guardada) {
-      if (yaEstaba) return { success: true, invoice };
+      // Lo guardó otro servidor con la misma operación (COB07): se contesta con la factura de la
+      // base y el estado real del paso al presupuesto, no con un "listo" de la factura vieja.
+      const ya = yaEstaba as Payment | undefined;
+      const enLaBase = facturaAlGuardar as Invoice | undefined;
+      if (ya && enLaBase) return contestarOperacionYaGuardada(invoiceId, enLaBase, ya, amount);
       if (saldoAlGuardar !== null) {
         return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${(saldoAlGuardar as number).toLocaleString('es-UY')} ${invoice.currency}.` };
       }

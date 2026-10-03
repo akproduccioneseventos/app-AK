@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
-import { getInvitados } from '@/app/actions/fiesta/invitados.actions';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 
 export async function GET(request: Request) {
@@ -38,7 +37,9 @@ async function correrTarea(request: Request) {
 
       // Recordarle al invitado: dos días antes y el mismo día
       if (diffDias === 2 || diffDias === 0) {
-        const invitados = await getInvitados(fiesta.id);
+        // La fiesta cruda ya trae los invitados: no se pasa por la accion `getInvitados`,
+        // que pide sesion del equipo y esta tarea no la tiene.
+        const invitados = fiesta.invitados || [];
         const confirmados = invitados.filter(inv => inv.rsvp === 'Confirmado');
 
         for (const inv of confirmados) {

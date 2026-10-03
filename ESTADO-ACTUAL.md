@@ -1,30 +1,31 @@
 # Acá quedé
 
-**2 de octubre de 2026.** La 1248 (órdenes 101, 102, 104, 105 y 106, con las devoluciones 107 y
-108) se fusionó con la puerta en verde. La revisión la terminó Claude: permisos del asistente,
-propuestas en turno, hora del contrato, WhatsApp que no dice "anoté" sin anotar, pruebas sin atajos.
+**3 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3`, sin fusionar todavía: cobros COB06 a
+COB09 (segunda vuelta de Codex), la lista de invitados que pide sesión (PER01), el contador de
+Codex en Windows (AUD02), y los informes 64 y 65 de Codex juntados. La puerta corre con **todas**
+las pruebas de navegador y deja el resultado prueba por prueba (`AK_REGISTRO_POR_PRUEBA`), que es
+lo que pidió Codex en la orden 114.
 
-## Espera a Gemini — UNA sola propuesta, desde la principal
+## Espera a Gemini — UNA sola propuesta, la misma 1251
 
-- **106, lo que faltó:** `/experiencia`, `/tecnologia`, fiesta suspendida, barra (apertura, cierre,
-  informe y las 12 recetas con licor de durazno en el Atomic green), salón decorado y salón mágico,
-  voz en la reunión, opciones de voz en Ajustes, y el **video resumen de verdad** (con las fotos de
-  la fiesta; el "de muestra" era una página grabada y se sacó). Claude mira un video antes de fusionar.
-- **105:** voz real en el Parte de la mañana.
-- **109:** barrido de formatos que pierden lo que escribió una persona (pregunta 31).
+- **115:** el video resumen dura lo que tarda el teléfono (la muestra dio 141 s): el bucle tiene
+  que ir con el reloj, y la prueba medir el archivo.
+- **112, B.1 (AUD01):** el contador de Codex tiene que cubrir las 416 rutas y enterarse de los
+  cambios en lo compartido. Está masticado en la orden.
+- **109:** barrido de formatos que pierden lo escrito.
 
-## Pendiente de Codex
+## Espera al dueño
 
-- Volver a contrastar la 1248 ya fusionada: los tres errores que marcó están arreglados en
-  `0864e136` (no los vio porque miró la versión anterior).
+- La voz real del asistente se paga por uso (clave de Gemini o de Google). Falta su sí.
+
+## Codex
+
+- Cobros: COB01-05 confirmados; COB06-09 arreglados, falta que la vuelva a mirar.
+- Orden 114: pide un servidor compilado que alcance desde su máquina. Desde la nube no se puede
+  abrir uno; se le deja el resultado de la corrida completa en `docs/evidencias/`.
 
 ## Cómo se fusiona (error 30)
 
 - La puerta anota el commit aprobado en `.ak-puerta-verde.json`; sin `expectedHeadSha` igual, no.
 - Con la puerta corriendo: no cambiar de rama ni `commit -a` (error 31).
-- Una prueba que falla con la máquina cargada se repite sola con `npm run otravez` antes de tocar código.
-
-## Trampas
-
-- Medidas de maquetación de otra máquina: volver a las de la principal.
-- Apagar procesos por número o nombre exacto, nunca `pkill -f` (error 20).
+- Una prueba que falla con la máquina cargada se repite sola con `npm run otravez`.

@@ -1,5 +1,56 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 3 de octubre de 2026 — Codex, segunda vuelta de cobros (COB06 a COB09)
+
+- **COB07:** con dos servidores y la misma operación, el segundo decía "listo" mirando la factura
+  vieja aunque el cobro no hubiera llegado al presupuesto. Ahora contesta con la factura de la
+  base y el estado real del paso (`contestarOperacionYaGuardada`).
+- **COB08:** un reintento con el importe cambiado decía "Pago Registrado" con el importe viejo.
+  Ahora avisa cuánto quedó registrado y la pantalla abre un cobro nuevo recién después.
+- **COB06:** el recibo de 12,50 decía "DIEZ Y undefined": el importe en letras vive en
+  `src/lib/money/monto-en-letras.ts` y los centavos salen "CON 50/100". Los pesos, igual que antes.
+- **COB09:** el aviso decía "se concilia solo" y lo pasa una persona: ahora dice «Pasar ahora».
+
+```comprobar
+prueba: src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts
+usa: contestarOperacionYaGuardada en src/app/actions/invoices.ts
+usa: montoEnLetras(lastPayment.amount) en src/app/(app)/invoices/[id]/page.tsx
+```
+
+## 3 de octubre de 2026 — Codex, auditoría 64: PER01 y el contador
+
+- **PER01 (confirmado):** `getInvitados` se podía llamar desde internet (la importa el muro
+  social, pantalla del navegador) y devolvía teléfono y credencial de cada invitado sin sesión.
+  Ahora pide sesión del equipo; la tarea de recordatorios lee la fiesta cruda. Hay un control
+  general: ninguna acción del servidor devuelve la lista de invitados sin pedir permiso.
+- **AUD02:** `npm run "codex?"` no imprimía nada en Windows; ahora compara la ruta con
+  `fileURLToPath`, y la prueba corre el comando de verdad.
+- **Falsos positivos del barrido de la pregunta 33** (verificados uno por uno): el portal del
+  personal (`getAccesoPersonalPortalView`) se abre con el enlace del propio empleado y le
+  devuelve su fiesta; `getConfirmedRsvpCount` devuelve un número; `getCarasDeFiesta` sirve la
+  búsqueda por cara de la galería pública, que el dueño eligió abierta con el enlace;
+  `getPublicSocialEvent` sin clave devuelve sólo lo público; el tablero público de la barra es la
+  pantalla del invitado; y completar una tarea del asistente pide sesión del equipo, que ve
+  todas las fiestas.
+
+```comprobar
+prueba: src/__tests__/la-lista-de-invitados-pide-sesion.test.ts
+usa: requireAppSession(); en src/app/actions/fiesta/invitados.actions.ts
+usa: fileURLToPath(import.meta.url) en scripts/codex-limpio.mjs
+```
+
+## 2/10/2026 - Codex volvio a probar la 1254 en 39da52a
+
+Las 42 pruebas focalizadas pasan y la sonda confirma reintento sin duplicar,
+conciliacion del mismo pago al recuperarse, rechazo visible, tolerancia acumulada
+acotada y almacenamiento de centavos. No volver a implementar esos arreglos.
+COB06-09 son otros bordes reproducidos, no los cinco anteriores repetidos:
+recibo decimal en letras, exito prematuro de reintento entre instancias, payload
+editado aceptado con importe viejo y mensaje automatico incompatible con la
+conciliacion MANUAL existente. Orden 113 (era 112 de Codex); informe/evidencia 65. No modificar la
+politica UYU ni automatizar dinero por esta observacion. Mantener pendiente el
+cierre del area completa y la verificacion de entorno de la orden 114.
+
 ## 2 de octubre de 2026 — Codex, área cobros: los cinco hallazgos arreglados
 
 - **COB-01:** si pasar un cobro de factura al presupuesto **tiraba** un error (no si contestaba
@@ -25,6 +76,26 @@ usa: actualizarFiesta(fiestaId en src/app/actions/payment-plans.ts
 usa: operacionId en src/app/(app)/invoices/[id]/page.tsx
 ```
 
+## 2 de octubre de 2026 - Descartes de la auditoria 64, no arreglos de producto
+
+- **9 suites/14 tests inicialmente rojos:** el ejecutor aislado forzaba JSON local
+  en pruebas que mockean Firebase, usaba una clave dummy donde esperaban test-key
+  y la copia sparse no incluia las carpetas de instrucciones. Con el montaje correcto,
+  las 9 suites y 35 tests pasan. No programar nueve correcciones de app por esos rojos.
+- **El movimiento de la portada existe:** la prueba 46 mide antes de hidratar en
+  Next dev bajo carga. Una sonda de 10 muestras observa transform, opacidad y ancho
+  cambiantes con animacion running; no reescribir el hero por ese resultado inicial.
+- **Recorridos que pasan al repetir:** prospecto, cambio de paso del simulador,
+  CRM Ads, origen UTM, captura A/B, apertura interna y portal con guardado del mural.
+  La evidencia no es una aprobacion de sus areas enteras.
+- **No confundir cierre con presencia:** `codex?` conserva dos defectos AUD01/AUD02
+  de cobertura/Windows; el apartado historico siguiente no los da por corregidos.
+
+Detalle, mismo SHA y limites: `docs/evidencias/64-auditoria-integral-2026-10-02.md`.
+Las sondas no escriben en produccion. Salida 0 de una sonda que reproduce un defecto
+NO significa que ese defecto se arreglo. La auditoria 64 miro `c13073f`, antes del arreglo
+de cobros: COB-01 a COB-05 quedaron arreglados en la fusion `39da52a` (bloque de arriba).
+
 ## 2 de octubre de 2026 — Instagram no duplica fotos, y la revisión de Codex tiene un final
 
 - **Instagram:** la sincronización leía sus propias copias del planificador como publicaciones
@@ -43,6 +114,8 @@ prueba: src/__tests__/instagram-no-duplica-al-sincronizar.test.ts
 usa: idOriginalDeInstagram en src/app/actions/social-media.ts
 prueba: src/__tests__/codex-tiene-un-final.test.ts
 usa: codex-limpio.mjs en .claude/hooks/session-start.sh
+```
+
 ## 2 de octubre de 2026 — La galería baja al llegar desde el blog, y clasifica bien la bienvenida
 
 - "Galería de Eventos Reales" desde el blog volvía a la portada y quedaba arriba. Los enlaces del
