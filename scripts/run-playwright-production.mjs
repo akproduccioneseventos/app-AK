@@ -640,6 +640,9 @@ async function main() {
   const fallasReales = [];
   const descartadasPorEntorno = [];
   let totalEjecutadas = 0;
+  // Registro prueba por prueba (Codex, auditoria 64: "no solamente un total verde"). Se escribe
+  // sólo si se pide con AK_REGISTRO_POR_PRUEBA=<archivo>; el repetido queda como intento 2.
+  const registroPorPrueba = [];
   /**
    * Las salteadas se CUENTAN Y SE DICEN.
    *
@@ -698,6 +701,7 @@ async function main() {
       }
 
       totalEjecutadas += tests.length;
+      registroPorPrueba.push(...tests.map((t) => ({ ...t, intento: 1 })));
       const candidateFalseAlarms = [];
 
       for (const t of tests) {
@@ -727,6 +731,7 @@ async function main() {
           const retryFiles = [...new Set(candidateFalseAlarms.map((t) => t.file))];
           const retryResult = await runPlaywright(retryFiles, flags);
           const retryTests = extractTestsFromSuites(retryResult.json?.suites);
+          registroPorPrueba.push(...retryTests.map((t) => ({ ...t, intento: 2 })));
 
           for (const c of candidateFalseAlarms) {
             const retest = retryTests.find((r) => r.file === c.file && r.title === c.title && r.projectName === c.projectName);
@@ -757,6 +762,10 @@ async function main() {
     const segundos = Math.round((Date.now() - arrancoLaTanda) / 1000);
     relojPorTanda.push({ segundos, archivos: batch.map((b) => path.basename(b)) });
     console.log(`  ✓ Tanda ${idx + 1} finalizada en ${segundos}s.\n`);
+  }
+
+  if (process.env.AK_REGISTRO_POR_PRUEBA) {
+    writeFileSync(process.env.AK_REGISTRO_POR_PRUEBA, JSON.stringify(registroPorPrueba, null, 1));
   }
 
   // Resumen Final
