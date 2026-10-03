@@ -177,6 +177,15 @@ invitado, barra y estaciones tienen recorridos parciales, no aceptacion completa
 Plata conserva los hallazgos de arriba. Las propuestas esteticas nuevas no bloquean
 el cierre ni reemplazan decisiones aprobadas del dueno.
 
+**Bloqueo comprobado de continuacion del barrido:** las dos copias de auditoria
+locales no tienen `.next/BUILD_ID`; tampoco lo tiene el directorio base de la sesion.
+El camino historico `C:/Users/Usuario/Desktop/app/app-AK` no existe en este host.
+La consulta `http://127.0.0.1:3300/api/health` falla con conexion rechazada.
+El servidor 3311 creado para esta auditoria era Next dev, con reinicios repetidos.
+Se detuvo SOLO ese arbol de procesos al terminar los recorridos para liberar memoria.
+Esto no demuestra que la version publicada este caida ni que el entorno de Claude
+sea defectuoso. No se inspeccionaron otros equipos ni se invento acceso a ellos.
+
 Claude debe compilar el conjunto congelado, registrar SHA y ejecutar los casos de
 navegador que faltan en entorno aislado estable. Luego Codex repite solo recorridos
 afectados y completa la matriz faltante. El ensayo fisico de camara, impresora, 360

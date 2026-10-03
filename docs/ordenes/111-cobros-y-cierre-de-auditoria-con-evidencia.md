@@ -108,6 +108,11 @@ anotar el descarte con evidencia; no ejecutar una correccion por una suposicion.
 - Completar el resto del navegador en el entorno aislado COMPILADO. La corrida
   dev Windows y sus reinicios no certifican produccion. Adjuntar resultado JSON
   por test, no solamente un total verde ni pruebas de otra version.
+- Entregar el entorno estable o sus artefactos con SHA comprobable: quedan 434
+  de 480 casos de escritorio sin ejecutar. No hay BUILD_ID en las copias locales
+  auditadas, y el servidor historico 127.0.0.1:3300 rechaza conexion. No afirmar
+  que Codex tiene disponible una compilacion preparada solamente porque existe
+  en otra maquina. Codex conserva la revision, Claude la compilacion.
 - Repetir primero los casos de navegador dudosos del informe 64. No programar
   animacion, catalogo o captura por un timeout local sin reproducirlo en el
   entorno estable y contrastar la tanda.
