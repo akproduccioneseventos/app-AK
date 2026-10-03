@@ -15,8 +15,13 @@ propuestas en turno, hora del contrato, WhatsApp que no dice "anoté" sin anotar
 
 ## Pendiente de Codex
 
-- Volver a contrastar la 1248 ya fusionada: los tres errores que marcó están arreglados en
-  `0864e136` (no los vio porque miró la versión anterior).
+- Auditoria 64 sobre main `c13073f`, contrastada con PR 1251 `ea2cb46` y publicado
+  `0864e136`. Registro completo en `docs/evidencias/64-auditoria-integral-2026-10-02.md`.
+- Orden consolidada 111: Claude, cinco casos contables existentes y confirmar PER01;
+  Gemini, cobertura y CLI Windows del contador. No reprogramar descartes del informe.
+- 3.334 tests cubiertos en dos configuraciones; 9 recorridos web/PDF pasan. El barrido
+  de navegador no termino: no hay certificado de 14 areas limpias ni hardware probado.
+- Claude compila el conjunto; Codex verifica recorridos faltantes sobre ese SHA estable.
 
 ## Cómo se fusiona (error 30)
 
