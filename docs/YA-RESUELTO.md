@@ -22,6 +22,18 @@ usa: requireAppSession(); en src/app/actions/fiesta/invitados.actions.ts
 usa: fileURLToPath(import.meta.url) en scripts/codex-limpio.mjs
 ```
 
+## 2/10/2026 - Codex volvio a probar la 1254 en 39da52a
+
+Las 42 pruebas focalizadas pasan y la sonda confirma reintento sin duplicar,
+conciliacion del mismo pago al recuperarse, rechazo visible, tolerancia acumulada
+acotada y almacenamiento de centavos. No volver a implementar esos arreglos.
+COB06-09 son otros bordes reproducidos, no los cinco anteriores repetidos:
+recibo decimal en letras, exito prematuro de reintento entre instancias, payload
+editado aceptado con importe viejo y mensaje automatico incompatible con la
+conciliacion MANUAL existente. Orden 113 (era 112 de Codex); informe/evidencia 65. No modificar la
+politica UYU ni automatizar dinero por esta observacion. Mantener pendiente el
+cierre del area completa y la verificacion de entorno de la orden 114.
+
 ## 2 de octubre de 2026 — Codex, área cobros: los cinco hallazgos arreglados
 
 - **COB-01:** si pasar un cobro de factura al presupuesto **tiraba** un error (no si contestaba

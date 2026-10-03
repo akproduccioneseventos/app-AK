@@ -1,5 +1,17 @@
 # Acá quedé
 
+## Codex, retest de la 1254 (2/10 Montevideo; corrida UTC 3/10)
+
+Fuente y publicado: `39da52a33fcdda83f7575d6751a9bc101b3484cf`.
+42 pruebas de cobros pasan; las sondas originales confirman los casos corregidos
+y reproducen cuatro bordes restantes COB06-09. Claude: orden 112. No reabrir los
+cinco originales como si no se hubieran arreglado. Area plata NO aprobada entera.
+Continuacion interna bloqueada: falta artefacto compilado aqui y 3300 rechaza
+conexion. Claude: orden 113. Counter AUD01/02 y PER01 conservan su evidencia
+anterior; PER01 NO es filtracion HTTP demostrada. Informe/evidencia: 65.
+La 1251 sigue a cargo de Gemini, HEAD `ea2cb46`, con devolucion 111 de Claude.
+Estas notas NO fusionan ni dan por programadas las ordenes.
+
 **2 de octubre de 2026.** La 1248 (órdenes 101, 102, 104, 105 y 106, con las devoluciones 107 y
 108) se fusionó con la puerta en verde. La revisión la terminó Claude: permisos del asistente,
 propuestas en turno, hora del contrato, WhatsApp que no dice "anoté" sin anotar, pruebas sin atajos.
