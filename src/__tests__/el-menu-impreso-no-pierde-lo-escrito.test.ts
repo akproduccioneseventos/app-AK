@@ -14,6 +14,7 @@ import { saveMenu } from '@/app/actions/menus-catering';
 // Mock de sesión para permitir ejecutar la acción
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue({ user: { id: 'admin', role: 'admin' } }),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined),
 }));
 
 // Mock de persistencia de datos

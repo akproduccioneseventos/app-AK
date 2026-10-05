@@ -43,6 +43,16 @@ jest.mock('@/lib/data-service', () => ({
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => ({ email: 'admin@ak', role: 'admin' })),
 }));
+// La lista de compras se guarda sobre la fiesta leída en el mismo turno (`actualizarFiesta`).
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(async (_id: string, cambiar: (f: any) => any) => {
+    guardado.fiesta = await cambiar(JSON.parse(JSON.stringify(guardado.fiesta || datos.fiesta)));
+    return { success: true };
+  }),
+}));
+jest.mock('@/lib/auth/event-access', () => ({
+  requireEventPermission: jest.fn(async () => ({})),
+}));
 
 describe('Lista de compras y menú', () => {
   beforeEach(() => {

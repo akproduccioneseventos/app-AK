@@ -11,7 +11,7 @@
 const base: Record<string, any> = {};
 let insumos: any[] = [];
 let perfil = 'secretaria';
-const saveMenu = jest.fn(async () => ({ success: true }));
+const aplicarInsumoEnMenus = jest.fn(async () => ({ success: true }));
 
 jest.mock('@/lib/auth/session-token', () => ({
   verifySession: jest.fn(async () => ({ success: true, user: { userId: 'u1', perfil } })),
@@ -26,10 +26,7 @@ jest.mock('@/lib/insumos/leer-insumos', () => ({
   limpiarCacheInsumos: jest.fn(),
 }));
 jest.mock('@/app/actions/menus-catering', () => ({
-  getMenus: jest.fn(async () => [
-    { id: 'm1', name: 'Menú', items: [{ id: 'p1', ingredients: [{ origenId: 'ins_1', name: 'Lomo', costoUnitario: 100 }] }] },
-  ]),
-  saveMenu: (...a: unknown[]) => (saveMenu as any)(...a),
+  aplicarInsumoEnMenus: (...a: unknown[]) => (aplicarInsumoEnMenus as any)(...a),
   invalidateMenusCache: jest.fn(),
 }));
 
@@ -39,12 +36,12 @@ beforeEach(() => {
   for (const k of Object.keys(base)) delete base[k];
   insumos = [{ id: 'ins_1', nombre: 'Lomo', unidad: 'kg', valorUnitarioEstimado: 100, categoria: 'Carnes' }];
   perfil = 'secretaria';
-  saveMenu.mockReset().mockResolvedValue({ success: true });
+  aplicarInsumoEnMenus.mockReset().mockResolvedValue({ success: true });
 });
 
 describe('El ajuste masivo no se aplica dos veces', () => {
   it('falla a medias, se reintenta con el mismo %: queda 110, no 121', async () => {
-    saveMenu.mockResolvedValueOnce({ success: false, error: 'la base no contesta' } as any);
+    aplicarInsumoEnMenus.mockResolvedValueOnce({ success: false, error: 'la base no contesta' } as any);
     const primero = await adjustAllInsumoCosts(10);
     expect(primero.success).toBe(false);
     expect(insumos[0].valorUnitarioEstimado).toBe(110);
@@ -55,7 +52,7 @@ describe('El ajuste masivo no se aplica dos veces', () => {
   });
 
   it('con otro porcentaje no deja sumar encima del ajuste a medias', async () => {
-    saveMenu.mockResolvedValueOnce({ success: false, error: 'la base no contesta' } as any);
+    aplicarInsumoEnMenus.mockResolvedValueOnce({ success: false, error: 'la base no contesta' } as any);
     await adjustAllInsumoCosts(10);
     const otro = await adjustAllInsumoCosts(5);
     expect(otro.success).toBe(false);

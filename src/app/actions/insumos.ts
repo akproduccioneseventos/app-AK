@@ -2,7 +2,7 @@
 
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
-import { getMenus, saveMenu } from './menus-catering';
+import { aplicarInsumoEnMenus } from './menus-catering';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
 
@@ -73,48 +73,9 @@ export async function getInsumoById(id: string): Promise<ServicioEmpresa | null>
 async function propagateInsumoChangesToMenus(
     updatedInsumo: ServicioEmpresa,
 ): Promise<{ success: boolean; error?: string }> {
-    const menus = await getMenus();
-    const menusQueCambiaron: typeof menus = [];
-
-    for (const menu of menus) {
-        let menuChanged = false;
-        const updatedItems = menu.items.map(item => {
-            let itemChanged = false;
-            const updatedIngredients = item.ingredients.map(ing => {
-                if (ing.origenId === updatedInsumo.id) {
-                    itemChanged = true;
-                    menuChanged = true;
-                    return {
-                        ...ing,
-                        name: updatedInsumo.nombre,
-                        unit: updatedInsumo.unidad || ing.unit,
-                        // Si el insumo quedo sin precio cargado, se respeta el que
-                        // ya tenia el menu. Antes se lo pisaba con cero: el plato
-                        // pasaba a costar de menos y el presupuesto salia barato
-                        // sin que nadie se diera cuenta.
-                        costoUnitario: Number(updatedInsumo.valorUnitarioEstimado) > 0
-                          ? Number(updatedInsumo.valorUnitarioEstimado)
-                          : (ing.costoUnitario ?? 0),
-                        proveedor: updatedInsumo.proveedor || undefined,
-                    };
-                }
-                return ing;
-            });
-
-            return itemChanged ? { ...item, ingredients: updatedIngredients } : item;
-        });
-
-        // Solo el que cambio de verdad. Guardar los demas los pisa sin necesidad.
-        if (menuChanged) menusQueCambiaron.push({ ...menu, items: updatedItems });
-    }
-
-    for (const m of menusQueCambiaron) {
-        const guardado = await saveMenu(m);
-        if (guardado && guardado.success === false) {
-            return { success: false, error: guardado.error || `No se pudo actualizar el menu "${m.name || m.id}".` };
-        }
-    }
-    return { success: true };
+    // Cada menú se cambia sobre su versión guardada en ese momento (pregunta 22): ver
+    // `aplicarInsumoEnMenus` en menus-catering.ts.
+    return aplicarInsumoEnMenus(updatedInsumo);
 }
 
 

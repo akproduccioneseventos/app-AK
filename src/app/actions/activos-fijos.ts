@@ -3,14 +3,15 @@
 
 import type { ServicioEmpresa } from '@/types/empresa';
 import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const ACTIVOS_FIJOS_FILE = 'activos-fijos.json';
 const ACTIVOS_FIJOS_COLLECTION = 'activos_fijos';
 
 export async function getActivosFijos(): Promise<ServicioEmpresa[]> {
     // Cada activo trae lo que costo y cuanto hay. Es del equipo.
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
     const items = await readData<any[]>(ACTIVOS_FIJOS_FILE, []);
     return (Array.isArray(items) ? items : []).map(item => ({
       ...item,
@@ -24,7 +25,7 @@ export async function getActivosFijos(): Promise<ServicioEmpresa[]> {
 }
 
 export async function getActivoFijoById(id: string): Promise<ServicioEmpresa | null> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
   const activos = await getActivosFijos();
   return activos.find(s => s.id === id) || null;
 }
@@ -32,7 +33,7 @@ export async function getActivoFijoById(id: string): Promise<ServicioEmpresa | n
 export async function saveActivoFijo(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   let inventario = await getActivosFijos();
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
@@ -98,7 +99,7 @@ export async function saveActivoFijo(
 }
 
 export async function deleteActivoFijo(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   const activo = await getActivoFijoById(id);
   const { getFiestas } = await import('./fiesta/fiesta.actions');
   const fiestas = await getFiestas(false);
@@ -134,7 +135,7 @@ export async function registrarMantenimientoDeEquipo(
   equipoId: string,
   datos: { fecha: string; nota: string; costo?: number; registroId?: string }
 ): Promise<{ success: boolean; error?: string; gastoPendiente?: boolean; registroId?: string; servicio?: ServicioEmpresa }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
   const activo = await getActivoFijoById(equipoId);
   if (!activo) return { success: false, error: `Activo con ID ${equipoId} no encontrado.` };
 

@@ -844,3 +844,19 @@ se pasó por insumos, presupuestos, barra, invitados y estaciones.
 prueba: src/__tests__/auditoria-66-quien-ve-que.test.ts
 prueba: src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts
 ```
+
+## 05/10/2026 — El CRM, el contrato en papel y la ficha del personal, abiertos a cualquier sesión
+
+**Qué era:** al pasar las 35 preguntas por toda la app aparecieron ocho áreas más que pedían sólo
+sesión, entre ellas el CRM con los teléfonos de los prospectos y la seña, y el contrato en papel
+que da la fiesta por contratada.
+
+**Por qué se me pasó:** el barrido de la pregunta 35 lo hice sobre las áreas que había marcado
+Codex, no sobre toda la app. Y la pregunta 32 (qué pasa si el segundo paso tira) la pasé por los
+cobros de facturas y no por la seña. **Lo que cambia:** el control nuevo recorre cada acción de
+esas áreas y falla si alguna se conforma con la sesión; cuando una pregunta nueva toca permisos,
+se barre toda la carpeta de acciones, no la lista del informe.
+
+```comprobar
+prueba: src/__tests__/auditoria-35-quien-ve-que.test.ts
+```

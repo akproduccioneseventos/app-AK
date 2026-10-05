@@ -48,3 +48,14 @@ export async function requirePermiso(
 
   return { ok: true, user: session.user ?? {} };
 }
+
+/**
+ * Pide alguno de esos permisos y, si no, TIRA (auditoría con las 35 preguntas, 5/10/2026). Para
+ * acciones que antes pedían sólo sesión: el personal y el operador también tienen sesión.
+ */
+export async function requirePermisoAlguno(...permisos: Permiso[]): Promise<void> {
+  for (const permiso of permisos) {
+    if ((await requirePermiso(permiso)).ok) return;
+  }
+  throw new Error('Tu perfil no tiene acceso a esta parte.');
+}

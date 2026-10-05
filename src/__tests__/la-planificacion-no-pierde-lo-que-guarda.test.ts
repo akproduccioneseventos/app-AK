@@ -29,6 +29,17 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   }),
 }));
 
+// Desde la auditoría con las 35 preguntas la lista de compras pide permiso sobre la fiesta y se
+// guarda en una sola operación sobre la fiesta de ese momento (`actualizarFiesta`).
+jest.mock('@/lib/auth/event-access', () => ({ requireEventPermission: jest.fn(async () => ({})) }));
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: jest.fn(async (_id: string, cambiar: (f: any) => any) => {
+    fiestaGuardada = JSON.parse(JSON.stringify(await cambiar(JSON.parse(JSON.stringify(fiestaGuardada)))));
+    guardadas.push(JSON.parse(JSON.stringify(fiestaGuardada)));
+    return { success: true };
+  }),
+}));
+
 const sincronizaciones: any[] = [];
 jest.mock('@/app/actions/fiesta/costos.actions', () => ({
   updateGestionCostos: jest.fn(async (_id: string, costos: any) => {

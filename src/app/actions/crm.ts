@@ -16,7 +16,8 @@ import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta
 import * as logger from '@/lib/logger';
 import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget, parseCleanMoney } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
 import type { CommercialAttribution, CommercialSource } from '@/lib/commercial/acquisition';
 import { canalDelProspecto, sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
@@ -124,15 +125,26 @@ function toTitleCase(name: string): string {
   ).join(' ');
 }
 
+/**
+ * Quién entra al CRM (auditoría con las 35 preguntas, 5/10/2026). Antes alcanzaba cualquier
+ * sesión: el personal y el operador también tienen una, y podían leer el teléfono de cada
+ * prospecto, moverlo de etapa o cargar una seña. Prospectos piden CRM; la seña y la reserva,
+ * contabilidad. Devuelve la misma forma que `verifySession` para no cambiar cada llamada.
+ */
+async function sesionConPermiso(permiso: Permiso): Promise<{ success: boolean; error?: string; user?: { userId?: string; email?: string; role?: string; perfil?: string } }> {
+  const r = await requirePermiso(permiso);
+  return r.ok ? { success: true, user: r.user } : { success: false, error: r.error };
+}
+
 export async function getCrmStages(): Promise<CrmStage[]> {
-  const auth = await verifySession();
+  const auth = await sesionConPermiso(PERMISOS.CRM);
   if (!auth.success) throw new Error('No autorizado');
   const stages = await readData<CrmStage[]>(STAGES_FILE, DEFAULT_CRM_STAGES);
   return stages.length > 0 ? stages : DEFAULT_CRM_STAGES;
 }
 
 export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]> {
-  const auth = await verifySession();
+  const auth = await sesionConPermiso(PERMISOS.CRM);
   if (!auth.success) throw new Error('No autorizado');
   const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
   const decoratedLeads = await (async () => {
@@ -167,7 +179,7 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
 }
 
 export async function getCrmLeadsForDashboard(): Promise<CrmLead[]> {
-  const auth = await verifySession();
+  const auth = await sesionConPermiso(PERMISOS.CRM);
   if (!auth.success) throw new Error('No autorizado');
   return readData<CrmLead[]>(LEADS_FILE, []);
 }
@@ -176,7 +188,7 @@ export type CrmAgendaEntry = Pick<CrmLead, 'id' | 'name' | 'phone' | 'followUpDa
 export type CrmLeadOption = Pick<CrmLead, 'id' | 'name'>;
 
 export async function getCrmAgendaEntries(): Promise<CrmAgendaEntry[]> {
-  const auth = await verifySession();
+  const auth = await sesionConPermiso(PERMISOS.CRM);
   if (!auth.success) throw new Error('No autorizado');
   const leads = await readData<CrmLead[]>(LEADS_FILE, []);
   return leads
@@ -186,7 +198,7 @@ export async function getCrmAgendaEntries(): Promise<CrmAgendaEntry[]> {
 }
 
 export async function getCrmLeadOptions(): Promise<CrmLeadOption[]> {
-  const auth = await verifySession();
+  const auth = await sesionConPermiso(PERMISOS.CRM);
   if (!auth.success) throw new Error('No autorizado');
   const leads = await readData<CrmLead[]>(LEADS_FILE, []);
   return leads
@@ -195,7 +207,7 @@ export async function getCrmLeadOptions(): Promise<CrmLeadOption[]> {
 }
 
 export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
-  const auth = await verifySession();
+  const auth = await sesionConPermiso(PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   const nameCleaned = (leadData.name || '').trim().replace(/\s+/g, ' ');
   const nameOnlyLetters = nameCleaned.replace(/\p{Emoji}/gu, '').replace(/\d/g, '').trim();
@@ -287,7 +299,7 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
 }
 
 export async function moveCrmLead(leadId: string, newStageId: string, meetingDate?: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
-  const auth = await verifySession();
+  const auth = await sesionConPermiso(PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   const lead = await mutateCrmLeadDocument(leadId, (current) => ({
     ...current,
@@ -299,7 +311,7 @@ export async function moveCrmLead(leadId: string, newStageId: string, meetingDat
 }
 
 export async function scheduleCrmMeeting(leadId: string, date: string, title?: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
-    const auth = await verifySession();
+    const auth = await sesionConPermiso(PERMISOS.CRM);
     if (!auth.success) return { success: false, error: auth.error };
     // Una sola copia de como se anota la reunion: la usan el equipo (aca, con sesion) y el
     // simulador de la web (sin sesion). Dos copias se despegan en un mes.
@@ -379,7 +391,7 @@ export async function resetCrm(): Promise<{ success: boolean; deletedCount?: num
 }
 
 export async function recordWhatsAppOpened(leadId: string, message: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
-    const auth = await verifySession();
+    const auth = await sesionConPermiso(PERMISOS.CRM);
     if (!auth.success) return { success: false, error: auth.error };
     const now = new Date().toISOString();
     const noteEntry = `[WhatsApp abierto ${new Date(now).toLocaleString('es-ES', { timeZone: 'America/Montevideo' })}]: ${message.slice(0, 120)}${message.length > 120 ? '…' : ''}`;
@@ -402,7 +414,7 @@ export async function updateCrmLeadField(
     leadId: string,
     fields: Partial<Pick<CrmLead, 'assignedTo' | 'notes' | 'followUpDate'>>
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
-    const auth = await verifySession();
+    const auth = await sesionConPermiso(PERMISOS.CRM);
     if (!auth.success) return { success: false, error: auth.error };
     const lead = await mutateCrmLeadDocument(leadId, (current) => ({
       ...current,
@@ -413,7 +425,7 @@ export async function updateCrmLeadField(
 }
 
 export async function checkDuplicatePhone(phone: string): Promise<{ duplicate: CrmLead | null }> {
-    const auth = await verifySession();
+    const auth = await sesionConPermiso(PERMISOS.CRM);
     if (!auth.success) throw new Error('No autorizado');
     if (!phone) return { duplicate: null };
     const leads = await getCrmLeads();
@@ -436,7 +448,7 @@ export async function registerContractDeposit(params: {
    */
   metodoPago: MetodoPago;
 }): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string }> {
-  const auth = await verifySession();
+  const auth = await sesionConPermiso(PERMISOS.CONTABILIDAD);
   if (!auth.success) throw new Error('No autorizado');
 
   const { presupuesto, monto, referencia, metodoPago } = params;
@@ -506,7 +518,7 @@ export async function registerContractDeposit(params: {
 
 export async function confirmBookingWithContract(formData: FormData): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
   try {
-    const auth = await verifySession();
+    const auth = await sesionConPermiso(PERMISOS.CONTABILIDAD);
     if (!auth.success) return { success: false, error: auth.error };
     const leadId = formData.get('leadId') as string;
     const presupuestoId = formData.get('presupuestoId') as string;
@@ -725,7 +737,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
 
 export async function confirmBooking(leadId: string, presupuestoId: string, archiveLead = false): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
   try {
-    const auth = await verifySession();
+    const auth = await sesionConPermiso(PERMISOS.CONTABILIDAD);
     if (!auth.success) return { success: false, error: auth.error };
     const [leads, presupuesto, stages, customersList, fiestas] = await Promise.all([
       getCrmLeads(),
@@ -823,7 +835,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
 }
 
 export async function getCrmKpiData() {
-    const auth = await verifySession();
+    const auth = await sesionConPermiso(PERMISOS.CRM);
     if (!auth.success) return { success: false, error: auth.error };
     const [leads, presupuestos, stages] = await Promise.all([
         getCrmLeads(),
@@ -864,7 +876,7 @@ export async function getCrmBoardData(): Promise<{
     data?: { stages: CrmStage[]; leads: CrmLead[]; kpis: any };
     error?: string;
 }> {
-    const auth = await verifySession();
+    const auth = await sesionConPermiso(PERMISOS.CRM);
     if (!auth.success) return { success: false, error: auth.error };
     try {
         const [stages, leads, presupuestos] = await Promise.all([
@@ -899,7 +911,7 @@ export async function getCrmBoardData(): Promise<{
 }
 
 export async function findLeadByBudgetOrCreate(presupuesto: any) {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CRM);
     const leads = await getCrmLeads();
     const stages = await getCrmStages();
     const budgetSource = presupuesto.source || 'manual';
@@ -1132,7 +1144,7 @@ export async function getAtraccionFiestasReport(
   filterYear?: number
 ): Promise<FiestaAtraccionReportResponse> {
   try {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CRM);
 
     const [allLeads, allFiestas, stages] = await Promise.all([
       readData<CrmLead[]>(LEADS_FILE, []),

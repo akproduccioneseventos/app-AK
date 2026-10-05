@@ -15,6 +15,7 @@ jest.mock('@/lib/auth/require-session', () => ({
     throw new Error('Sesión no autorizada: usuario sin sesión.');
   }),
   hasAppSession: jest.fn(async () => false),
+  requirePermiso: jest.fn(async () => ({ ok: false, error: 'Sesión no autorizada.' })),
 }));
 
 jest.mock('@/lib/auth/session-token', () => ({
