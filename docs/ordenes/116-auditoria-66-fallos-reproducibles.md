@@ -14,6 +14,8 @@ Cualquier modificacion de dinero, comida o permisos conserva a Claude como respo
 ## Evidencia
 
 Informe: `docs/evidencias/66-auditoria-sobre-212ba37-voz-video-comida.md`.
+El cierre `docs/evidencias/67-cierre-de-tanda-no-aprobada.md` consolida pendientes y cobertura.
+No significa que se haya completado el recorrido de toda la app ni aprobado la publicacion.
 Las tres sondas ejecutan funciones TypeScript reales con persistencia/servicios simulados:
 
 - `node docs/evidencias/66-sonda-social-colision.cjs`
