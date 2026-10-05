@@ -6,6 +6,10 @@
 **Hallazgos:** cinco reproducidos con sondas aisladas y trece observaciones de codigo pendientes.
 **Veredicto:** NO APROBADA. Se cierra este informe, no se certifica terminada la aplicacion.
 
+Revision posterior: [informe 68](68-revision-de-auditoria-sol.md). Se reprodujeron los cinco
+fallos y se corrigieron dos descripciones del informe 66 (menus y GET). Las trece observaciones
+no equivalen a trece defectos reproducidos: la politica del costo publico requiere contraste.
+
 GitHub main se consulto nuevamente al cerrar y seguia en ese SHA; no habia PR abierta.
 La documentacion esta en `codex/auditoria-66-20261005`, no en main. **NO CONTRASTADO CON LA
 TANDA LOCAL/NO SUBIDA** de otras IA. Antes de corregir, contrastar su HEAD y las decisiones
@@ -39,7 +43,7 @@ reales. Revisar politica de permisos con el dueno: no bloquear operacion legitim
 | AUTO02 | Servicios fallidos se registran como tareas correctas | Sonda | Gemini; Claude conserva logica contable |
 | PERS01 | Un enlace vencido devuelve datos y cambia asistencia/llegada | Sonda | Claude |
 | PERS02 | NaN/Infinity permiten registrar llegada con ubicacion invalida | Sonda | Claude |
-| 66 / menus publicos | El DTO publico incluye costo interno del plato | Codigo | Claude |
+| 66 / menus publicos | Costo publico intencional y usado por el simulador; evaluar privacidad sin romper calculo | Codigo; justificacion rectificada en 68 | Claude |
 | 66 / permiso insumos | Acciones de stock/costo solo comprueban sesion | Codigo | Claude |
 | 66 / presupuestos | Lecturas completas, share-token y reparacion masiva sin limite por perfil | Codigo | Claude |
 | 66 / ajuste de costos | Un fallo parcial y reintento pueden aplicar el porcentaje dos veces | Codigo | Claude |

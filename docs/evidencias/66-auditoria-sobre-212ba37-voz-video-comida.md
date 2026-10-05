@@ -16,9 +16,11 @@
 
 ## Hallazgos confirmados
 
-### COMIDA — costo interno incluido en respuesta pública
+### COMIDA — costo interno público: exposición comprobada, interpretación corregida
 
-`getMenusPublicos` es una acción sin sesión utilizada por el inicio del simulador y la presentación (`src/app/actions/public-simulator-bootstrap.ts`, consumidor en `src/app/simulador-ak/page.tsx`). En `src/app/actions/menus-catering.ts:180-186` elimina `ingredients` y `profitMargin`, pero conserva `totalDishCost` y otros campos del plato gracias al spread `...visible`; el costo se calcula en las líneas 105-120. Un prospecto puede invocar el bootstrap público y recibir el costo interno por plato. Esto contradice el contrato de privacidad documentado en `src/__tests__/auditoria-puertas-abiertas.test.ts` (“sin el costo, el margen ni el proveedor”). **No se comprobó una extracción externa en producción; el flujo público y el campo serializado se confirman en el código de main.**
+`getMenusPublicos` es una acción sin sesión utilizada por el inicio del simulador y la presentación (`src/app/actions/public-simulator-bootstrap.ts`, consumidor en `src/app/simulador-ak/page.tsx`). En `src/app/actions/menus-catering.ts:180-186` elimina `ingredients` y `profitMargin`, pero conserva `totalDishCost`; el costo se calcula en las líneas 105-120. **No se comprobó una extracción externa en producción; el flujo público y el campo serializado se confirman en el código de main.**
+
+**Rectificación de la revisión 68:** la frase del test “sin el costo, el margen ni el proveedor” pertenece a `getServiciosEmpresaPublicos`, no a `getMenusPublicos`. Para menús el test dice “sin la receta ni el margen”. Además, el comentario de `menus-catering.ts:176-178` explica que conservar el costo es intencional, y `menuItemToServicioEmpresa` en `src/app/simulador-ak/page.tsx:92` lo usa como `valorUnitarioEstimado`. Por tanto, no corresponde afirmar que ese test prohíbe el campo ni retirarlo sin adaptar el consumidor. La exposición sigue siendo un riesgo de privacidad para evaluar con Claude; el comentario técnico no demuestra aprobación del dueño. Si se decide ocultarlo, preservar presupuesto y rentabilidad calculando lo interno en servidor y probar ambos resultados. Esta observación no es una orden para quitar el campo aisladamente.
 
 ### COMIDA / PERMISOS — acciones de insumos no comprueban el permiso del perfil
 
@@ -46,7 +48,7 @@ La acción tiene muchos consumidores del planificador que pueden necesitar los s
 
 ### ASISTENTE — límite de llamadas concurrentes
 
-`src/app/api/asistente/voz-parte/route.ts:20-25` implementa el tope diario con lectura y escritura separadas. Solicitudes simultáneas pueden leer el mismo contador y todas sintetizar antes de que se refleje el incremento; el tope de 100 no es atómico. La ruta también envía el texto por GET (`:59-61`), colocándolo en URL, historial y registros de proxy. El reproductor usa GET en `src/lib/asistente/reproductor-voz.ts:74-75`. Estas dos condiciones no están cubiertas por las pruebas secuenciales actuales.
+`src/app/api/asistente/voz-parte/route.ts:20-25` implementa el tope diario con lectura y escritura separadas. Solicitudes simultáneas pueden leer el mismo contador y todas sintetizar antes de que se refleje el incremento; el tope de 100 no es atómico. El reproductor manda el texto en la URL de un `fetch` GET (`src/lib/asistente/reproductor-voz.ts:74-75`), que puede quedar en registros de solicitudes según su configuración. **Rectificación de la revisión 68:** ese `fetch` no agrega por sí mismo una entrada al historial de navegación, y no se inspeccionaron registros reales de proxies. La ruta ya tiene POST: una eventual corrección debe aprovecharlo y validar su consumidor. Estas condiciones no están cubiertas por las pruebas secuenciales actuales.
 
 ## Lo que salió bien en este bloque
 

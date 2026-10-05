@@ -8,13 +8,13 @@ otras IA no contrastada. Documentación en `codex/auditoria-66-20261005`; no es 
 ## Evidencia vigente
 - Informe `docs/evidencias/66-auditoria-sobre-212ba37-voz-video-comida.md`.
 - Cierre y matriz de 14 áreas: `docs/evidencias/67-cierre-de-tanda-no-aprobada.md`.
-- 589 suites / 3.383 pruebas Jest aprobaron sobre el código base en entorno aislado.
-  No sumar subconjuntos; no prueban proveedores reales ni todas las pantallas.
+- Revisión de Sol: `docs/evidencias/68-revision-de-auditoria-sol.md`; 5 fallos reproducidos.
+- Resultado previo: 589 suites / 3.383 pruebas; falta adjuntar salida general. No se repitió.
 - Recorrido publicado parcial: portada, galería, Club Uruguay, blog, inicio del simulador.
   SHA publicado no confirmado durante ese recorrido; no atribuirlo al SHA local.
 - E2E invitado inconcluso: no sirve como evidencia de cierre.
-- Graphify local: 11.763 nodos / 39.183 relaciones / 654 comunidades. Dos documentos
-  omitidos, 25 archivos con advertencias del parser. Ignorado por Git; cada copia lo genera.
+- Graphify local/ignorado: 11.763 nodos / 39.183 relaciones / 654 comunidades.
+- Informe 66 rectificado: regla de privacidad atribuida a otro catálogo; GET no crea historial.
 
 ## Hallazgos nuevos reproducidos
 - SOCIAL01: dos canciones/dedicatorias se pisan, incluso entre fiestas distintas.
@@ -35,6 +35,6 @@ otras IA no contrastada. Documentación en `codex/auditoria-66-20261005`; no es 
 - Falta recorrido interno real aislado de producción y retest de cada arreglo en su SHA.
   Faltan embudo/PDF/CRM completo, integraciones reales y cotejo de los 19 importados.
   Ninguna de las 14 áreas se certifica por conteo global de pruebas; sigue 0/14.
-- Voz real paga sigue pendiente del dueño. La prueba física queda al final.
+- Ensayos externos/físicos quedan al final según la decisión del dueño.
 - La puerta exige el mismo `expectedHeadSha` aprobado; no cambiar rama ni `commit -a`
   durante una verificación. El dueño conserva cambios de funcionamiento y fusión.

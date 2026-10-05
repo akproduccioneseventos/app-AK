@@ -10538,3 +10538,17 @@ usa: publicRsvp: true en src/lib/whatsapp/avisos-al-cliente.ts
   con veredicto NO APROBADA, no se afirma auditoria completa ni certificado de cero errores.
 - Continuar con correcciones y cobertura pendiente en una sola tanda; Claude compila,
   Codex contrasta el SHA entregado. No rehacer los COB01-09 ni los falsos positivos anotados.
+
+## 5 de octubre de 2026 - Revision de la auditoria de Sol, informe 68
+
+- Las tres sondas volvieron a reproducir SOCIAL01, AUTO01-02 y PERS01-02 sobre `212ba37`.
+  Siguen siendo defectos pendientes; este registro no dice que se hayan arreglado.
+- Rectificacion: la frase del test que excluye costo/margen/proveedor es del catalogo de
+  servicios, no de menus. `getMenusPublicos` conserva costo intencionalmente y el simulador
+  lo usa como `valorUnitarioEstimado`. Evaluar privacidad con Claude y preservar calculos;
+  no quitar el campo aislado ni afirmar una prohibicion que el test no contiene.
+- Rectificacion: el GET de voz usa fetch, no agrega una entrada al historial de navegacion.
+  El texto sigue en URL y podria registrarse; POST ya existe. No reimplementarlo.
+- Auditoria util pero parcial: falta cobertura virtual completa y adjuntar la salida general
+  de Jest. No se repitieron 3.383 pruebas ni se verificaron las trece observaciones completas.
+  El informe 68 delimita lo contrastado; no se marco ninguna area limpia ni se programo la app.
