@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 5 de octubre de 2026 - Evidencia Codex 69; pendientes, NO arreglos
+
+Main `feb90f4`: 597 suites / 3.432 pruebas aprobadas, ocho suites repetidas con
+mocks correctos, sin duplicar conteos. Originales/hashes/limites en informe 69
+y `docs/evidencias/69-resultados/manifest.json`. No repetir auditoria 66 sin cambios.
+**BASE01/02 (P1) pendientes:** frontera general de fiestas por perfil y retorno
+publico de secretos; sonda reproducible, orden 118 a Claude.
+**PORTAL01/02 (P2) pendientes:** fiesta de hoy marcada concluida y WhatsApp sobre
+el asistente; navegador + sonda/medicion, orden 119 a Gemini. No estan resueltos.
+E2E amplia interrumpida: no usarla para declarar limpia la app. Primera fixture
+manual borrada por E2E: intento descartado y otra fixture aislada. Firestore,
+proveedores reales, hardware y 19 importaciones no comprobados. No duplicar
+ordenes 117 ni 112 B.1. Codex no programo ni fusiono la app.
+
 ## 5 de octubre de 2026 — La puerta prueba lo que cambió, también cuando cambia el servidor
 
 El dueño: *"no es toda la app, es sólo esas cosas; 40 minutos debería ser 5"*. Medido: un permiso
