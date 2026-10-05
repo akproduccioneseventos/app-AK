@@ -2,7 +2,8 @@
 
 import { readData, writeData, mutateDataItem, createDataItem } from '@/lib/data-service';
 import type { Coupon, CouponUsage, CouponValidationResult } from '@/types/coupon';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { AsyncMutex } from '@/lib/mutex';
 
 const cuponMutex = new AsyncMutex();
@@ -12,12 +13,12 @@ const CUPONES_USAGE_FILE = 'cupones-usage.json';
 // ===== CRUD =====
 
 export async function getCupones(): Promise<Coupon[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   return readData<Coupon[]>(CUPONES_FILE, []);
 }
 
 export async function getCuponById(id: string): Promise<Coupon | null> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   try {
     const cupones = await getCupones();
     return cupones.find(c => c.id === id) || null;
@@ -30,7 +31,7 @@ export async function getCuponById(id: string): Promise<Coupon | null> {
 export async function saveCupon(
   data: Omit<Coupon, 'id' | 'usosActuales' | 'creadoEn'> & { id?: string }
 ): Promise<{ success: boolean; error?: string; cupon?: Coupon }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   try {
     return await cuponMutex.runExclusive(async () => {
       let cupones = await getCupones();
@@ -114,7 +115,7 @@ export async function saveCupon(
 }
 
 export async function toggleCuponActivo(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   try {
     return await cuponMutex.runExclusive(async () => {
       const cupones = await getCupones();
@@ -132,7 +133,7 @@ export async function toggleCuponActivo(id: string): Promise<{ success: boolean;
 }
 
 export async function deleteCupon(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   try {
     return await cuponMutex.runExclusive(async () => {
       // Un cupon ya usado es el respaldo de un descuento que se le hizo a un
@@ -158,7 +159,7 @@ export async function deleteCupon(id: string): Promise<{ success: boolean; error
 }
 
 export async function getCuponesRegaloActivos(): Promise<Coupon[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
     const cupones = await getCupones();
     const ahora = new Date();
@@ -181,7 +182,7 @@ export async function validarCupon(
   montoPresupuesto: number,
   tipoEvento?: string
 ): Promise<CouponValidationResult> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   try {
     if (!codigo || codigo.trim() === '') {
       return { valid: false, error: 'Ingresa un código de cupón.' };
@@ -335,7 +336,7 @@ export async function registrarUsoCupon(
   montoDescuento: number,
   montoPresupuesto: number
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
     return registrarUsoCuponEnLaBase(couponId, presupuestoId, clienteNombre, montoDescuento, montoPresupuesto);
   }
@@ -408,7 +409,7 @@ export async function getCuponStats(couponId: string): Promise<{
   totalDescuento: number;
   usos: CouponUsage[];
 }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   const usages = await readData<CouponUsage[]>(CUPONES_USAGE_FILE, []);
   const cuponUsages = usages.filter(u => u.couponId === couponId);
 
@@ -420,6 +421,6 @@ export async function getCuponStats(couponId: string): Promise<{
 }
 
 export async function getAllCuponUsages(): Promise<CouponUsage[]> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD);
   return readData<CouponUsage[]>(CUPONES_USAGE_FILE, []);
 }

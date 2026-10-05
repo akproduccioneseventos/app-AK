@@ -89,6 +89,7 @@ nuevos del bloque 1) y corré `npm run limpiar:corrida` antes de subir.
 Entregá el resto en la misma propuesta y decí cuál faltó.
 
 ```comprobar
+usa: LECTURA_COMPLETA en src/lib/fiesta/actualizar-fiesta.ts
 prueba: src/__tests__/las-recetas-de-la-barra-descuentan-de-verdad.test.ts
 prueba: src/__tests__/las-imagenes-de-tecnologia-son-imagenes.test.ts
 no-usa: ins-licor-durazno en src/lib/fiesta-defaults.ts

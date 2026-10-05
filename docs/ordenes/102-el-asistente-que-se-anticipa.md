@@ -170,6 +170,7 @@ Yessica el jueves a las 7" y salga como propuesta con su "¿Confirmo?".
 - el resumen "mientras no estabas" cuenta exactamente lo registrado en la corrida.
 
 ```comprobar
+usa: SpeechRecognition en src/components/multiagent/multiagent-widget.tsx
 archivo: src/app/api/cron/asistente-proactivo/route.ts
 usa: asistente-proactivo en src/lib/automatico/puerta-de-las-tareas.ts
 usa: ejecutarAgentesAutonomos en src/app/api/cron/asistente-proactivo/route.ts

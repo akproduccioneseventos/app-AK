@@ -170,6 +170,8 @@ mes**. No se activa. Dejá:
   servicio pago. Consultalo antes de activarlo".
 
 ```comprobar
+# Bloque 4 — la foto de la boleta queda como propuesta de gasto
+usa: gasto_boleta en src/lib/asistente/por-whatsapp.ts
 archivo: src/lib/asistente/que-puede-hacer-solo.ts
 prueba: src/__tests__/el-asistente-cuida-la-plata.test.ts
 archivo: src/lib/asistente/por-whatsapp.ts

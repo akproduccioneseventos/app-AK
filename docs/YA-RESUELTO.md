@@ -9375,7 +9375,7 @@ presupuesto.
 
 ```comprobar
 archivo: src/app/actions/insumos.ts
-usa: noSePudieronActualizar en src/app/actions/insumos.ts
+usa: terminarMenusPendientes en src/app/actions/insumos.ts
 prueba: src/__tests__/el-ajuste-de-costos-no-miente.test.ts
 ```
 
@@ -10594,3 +10594,36 @@ usa: publicRsvp: true en src/lib/whatsapp/avisos-al-cliente.ts
   con veredicto NO APROBADA, no se afirma auditoria completa ni certificado de cero errores.
 - Continuar con correcciones y cobertura pendiente en una sola tanda; Claude compila,
   Codex contrasta el SHA entregado. No rehacer los COB01-09 ni los falsos positivos anotados.
+
+## 5 de octubre de 2026 — Auditoría de toda la app con las 35 preguntas: permisos y plata
+
+Pedido del dueño: pasar por toda la app las preguntas que fueron saliendo de cada falla. Lo que
+estaba roto de verdad, y cómo quedó:
+
+- **Acciones que pedían sólo tener sesión** (el personal y el operador también tienen): cupones
+  (contabilidad; validar y usar, contabilidad o CRM), activos fijos (leer y mantenimiento, insumos u
+  organización; cambiar, insumos), la ficha del personal (sueldos ve todo; organización y la noche
+  ven nombre y teléfono **sin cédula ni fecha de nacimiento**; el resto, nada), los enlaces del
+  personal (organización), los menús (leer, insumos u organización; cambiar, insumos), el menú de
+  la fiesta (organización o insumos, por fiesta), **el CRM entero** (prospectos con CRM; la seña y
+  la reserva, contabilidad) y **el contrato en papel** (contabilidad: da la fiesta por contratada
+  y anota la seña).
+- **Costo de un insumo pasado a los menús con una lista vieja** (pregunta 22): ahora cada menú se
+  cambia sobre su versión de ese momento (`aplicarInsumoEnMenus`).
+- **La lista de compras guardaba la fiesta entera leída antes** y cualquiera la tocaba: ahora pide
+  permiso (marcar que se le pagó al proveedor es insumos o contabilidad) y guarda con
+  `actualizarFiesta`.
+- **La seña, si el paso al presupuesto tiraba un error**, salía sin explicación: ahora dice que el
+  recibo quedó y que se puede volver a tocar sin duplicar (el reintento ya era seguro).
+
+Falsos positivos descartados: el botón de respuesta tardía de las estaciones (lo cubre el turno
+nuevo), el descuento de stock con nulo, la lista de presupuestos, el "ya estaba" de cupones y el
+intercambio en el recálculo de presupuestos.
+
+```comprobar
+prueba: src/__tests__/auditoria-35-quien-ve-que.test.ts
+usa: aplicarInsumoEnMenus en src/app/actions/insumos.ts
+usa: actualizarFiesta en src/app/actions/fiesta/catering.actions.ts
+usa: sesionConPermiso(PERMISOS.CONTABILIDAD) en src/app/actions/crm.ts
+usa: sinDatosPersonales en src/app/actions/empleados.ts
+```

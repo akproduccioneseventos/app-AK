@@ -6,7 +6,8 @@ import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/
 import { randomUUID } from 'crypto';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
-import { PERMISOS } from '@/lib/auth/perfiles';
+import { PERMISOS, puede } from '@/lib/auth/perfiles';
+import { verifySession } from '@/lib/auth/session-token';
 import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
 import { evaluarAgendaEmpleado, getFiestaTimeRange } from '@/lib/staff-agenda-conflicts';
 import type {
@@ -20,14 +21,30 @@ const EMPLEADOS_COLLECTION = 'empleados';
 
 export async function getEmpleados(): Promise<Empleado[]> {
   // La ficha de cada empleado trae cedula, telefono, correo y fecha de nacimiento.
-  // Es dato personal del equipo: no puede salir sin cuenta.
-  await requireAppSession();
+  // Es dato personal del equipo. No alcanza con tener sesion (auditoria con las 35 preguntas,
+  // 5/10/2026): el personal y el operador tambien la tienen.
+  // - Sueldos (el dueño): la ficha entera.
+  // - Organizacion o noche (secretaria, operador): para armar el equipo de la fiesta y avisar,
+  //   nombre, roles, telefono y correo; sin cedula, fecha de nacimiento ni contrato.
+  // - El resto: nada.
+  const session = await verifySession();
+  if (!session.success) throw new Error('Sesion no autorizada.');
+  const completo = puede(session.user, PERMISOS.SUELDOS);
+  if (!completo && !puede(session.user, PERMISOS.ORGANIZACION) && !puede(session.user, PERMISOS.NOCHE)) {
+    throw new Error('Tu perfil no tiene acceso a los datos del personal.');
+  }
   const empleados = await readData<Empleado[]>(EMPLEADOS_FILE, []);
-  return [...empleados].sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+  const ordenados = [...empleados].sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+  return completo ? ordenados : ordenados.map(sinDatosPersonales);
+}
+
+function sinDatosPersonales(e: Empleado): Empleado {
+  return { ...e, cedula: '', fechaNacimiento: '', contractFileName: undefined };
 }
 
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {
   await requireAppSession();
+  // getEmpleados ya pide permiso y recorta segun el perfil.
   const empleados = await getEmpleados();
   return empleados.find(e => e.id === id) || null;
 }
@@ -35,7 +52,9 @@ export async function getEmpleadoById(id: string): Promise<Empleado | null> {
 export async function saveEmpleado(
   empleadoData: NuevoEmpleadoFormData | Empleado | FormData
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
-  await requireAppSession();
+  // Cambiar la ficha de alguien (cedula, contrato) es del dueño, como borrarla.
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) return { success: false, error: permiso.error };
 
   let empleados = await getEmpleados();
   let empleadoId: string;

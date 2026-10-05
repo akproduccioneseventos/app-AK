@@ -7,7 +7,7 @@
  * servidor, que la prueba simula mandando cada llamada por su lado), las dos primeras
  * comprobaciones se ponen en rojo.
  */
-jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn().mockResolvedValue(undefined) }));
+jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn().mockResolvedValue(undefined), requirePermisoAlguno: jest.fn().mockResolvedValue(undefined) }));
 
 const coleccion: Record<string, Record<string, any>> = { cupones: {}, cupones_usage: {} };
 const copia = <T,>(x: T): T => JSON.parse(JSON.stringify(x));

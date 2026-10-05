@@ -61,6 +61,8 @@ jest.mock('@/lib/auth/session-token', () => ({
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue({ success: true }),
+  requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: {} }),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('@/lib/data-service', () => ({

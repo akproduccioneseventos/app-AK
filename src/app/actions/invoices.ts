@@ -371,8 +371,9 @@ export async function registerBookingDeposit(data: {
   skipFiestaSave?: boolean;
 }): Promise<{ success: boolean; invoiceId?: string; error?: string; avisoAMedias?: string }> {
   try {
-    const auth = await verifySession();
-    if (!auth.success) return { success: false, error: auth.error };
+    // La seña es plata: contabilidad, no cualquier sesión (auditoría con las 35 preguntas).
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, error: permiso.error };
     const baseAmount = parseCleanMoney(data.amount);
     if (baseAmount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
     if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seña no es válida.' };
@@ -503,7 +504,12 @@ export async function registerBookingDeposit(data: {
     if (!invoiceResult.success || !invoiceResult.id) throw new Error(invoiceResult.error || 'Error al crear recibo de seña.');
 
     if (fiesta.presupuestoId && !data.skipBudgetPayment) {
-      const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
+      // Si el paso al presupuesto TIRA (pregunta 32), el recibo ya quedó: no se sabe si el pago
+      // llegó. Se dice la verdad y se deja reintentar: el reintento reconoce el recibo
+      // (`findExistingDepositReceipt`) y el pago (`findMatchingClientPayment`), no duplica.
+      let paymentResult: { success: boolean; error?: string };
+      try {
+        paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
         fecha: data.date,
         monto: baseAmount,
         metodoPago: paymentBreakdown.budgetMethod,
@@ -513,6 +519,14 @@ export async function registerBookingDeposit(data: {
         recargoFinanciero: paymentBreakdown.surchargeAmount,
         cuotasFinanciacion: paymentBreakdown.installments,
       });
+      } catch (error) {
+        logger.error('[Seña] Falló el paso de la seña al presupuesto:', error);
+        return {
+          success: false,
+          invoiceId: invoiceResult.id,
+          error: 'El recibo de la seña quedó creado, pero no se pudo confirmar que el pago llegó al presupuesto. Volvé a tocar "Registrar": no se duplica.',
+        };
+      }
       if (!paymentResult.success) {
         // Deshacer el recibo recien creado tambien es leer-modificar-escribir:
         // va con turno, o pisa lo que otro guardo entremedio.
