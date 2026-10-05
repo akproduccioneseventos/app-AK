@@ -266,7 +266,9 @@ export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiad
   const semillas = cambiados
     .filter((f) => f.startsWith('src/'))
     .map((f) => path.join(RAIZ, f))
-    .filter((f) => fs.existsSync(f));
+    // Sólo archivos: una carpeta nueva sin seguimiento (datos de la corrida) llegaba como "cambio"
+    // y leerla rompía el recorrido (5/10/2026).
+    .filter((f) => fs.existsSync(f) && fs.statSync(f).isFile());
   if (semillas.length === 0) return [];
 
   // Se sigue de archivo en archivo llevando QUÉ nombres cambiaron: a quien importa uno de esos

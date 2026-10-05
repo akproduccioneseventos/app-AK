@@ -170,3 +170,11 @@ data/activos-fijos.json
 /data/insumos.json
 /data/social-gallery/
 .ak-puerta-verde.json
+# Los escribe la corrida (5/10/2026): el candado de las tareas, el tope diario de la voz y el
+# ajuste de costos a medias. Aparecieron como "trabajo sin guardar" la primera vez que corrió.
+data/automatico/
+src/data/automatico/
+data/asistente/
+src/data/asistente/
+data/insumos-ajuste-pendiente.json
+src/data/insumos-ajuste-pendiente.json
