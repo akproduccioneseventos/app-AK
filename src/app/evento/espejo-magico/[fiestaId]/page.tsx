@@ -45,7 +45,7 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
-import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { saveOfflineMedia, nuevoIdDeCaptura } from '@/lib/offline/offline-db';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import { applyEspejoFaceSwap, isEspejoIaDisponible } from '@/app/actions/espejo-magico-ai';
@@ -880,6 +880,9 @@ export default function EspejoMagicoPage() {
     const capturedGuestId = guestId;
     const capturedGuestAccessToken = guestAccessToken;
     const capturedAccessToken = accessToken;
+    // Una identidad por captura, la misma en la primera subida y en cualquier reintento sin
+    // conexión: si la primera termina después del tope de espera, el reintento no la duplica.
+    const idDeLaCaptura = nuevoIdDeCaptura();
     const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     setIsUploading(true);
@@ -906,6 +909,7 @@ export default function EspejoMagicoPage() {
       formData.append('file', file);
       formData.append('authorName', modeCopy.author);
       formData.append('moduleId', moduleId);
+      formData.append('clientMediaId', idDeLaCaptura);
       if (capturedAccessToken) formData.append('accessToken', capturedAccessToken);
       if (capturedGuestId) formData.append('guestId', capturedGuestId);
       if (capturedGuestAccessToken) formData.append('guestAccessToken', capturedGuestAccessToken);
@@ -953,6 +957,7 @@ export default function EspejoMagicoPage() {
       if (pendingBlob) {
         try {
           await saveOfflineMedia({
+            id: idDeLaCaptura,
             fiestaId,
             moduleId,
             fileBlob: pendingBlob,

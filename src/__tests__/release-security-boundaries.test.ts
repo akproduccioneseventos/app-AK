@@ -144,7 +144,7 @@ describe('release security boundaries', () => {
       const nextExport = source.indexOf('export async function ', start + 1);
       const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
       expect(start).toBeGreaterThanOrEqual(0);
-      expect(functionSource).toMatch(/await require(?:AppSession|Permiso)\(/);
+      expect(functionSource).toMatch(/await require(?:AppSession|Permiso\w*)\(/);
     }
   });
 

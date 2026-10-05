@@ -1,87 +1,95 @@
 import 'server-only';
-import { readData, writeData } from '@/lib/data-service';
+import { randomUUID } from 'crypto';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 
-const LOCK_FILE = 'tareas-lock.json';
-const TIMEOUT_LOCK_MS = 5 * 60 * 1000; // 5 minutos máximo de bloqueo por seguridad
+/**
+ * El candado de las tareas automáticas, entre servidores (Codex, auditoría 66, AUTO01, 5/10/2026).
+ *
+ * Antes se leía y se escribía por separado: dos servidores leían "libre" a la vez y corrían los
+ * dos. Y al vencer, el dueño viejo podía liberar el candado del nuevo. Ahora:
+ * - Se toma en UNA operación de la base, con la identidad del que lo toma.
+ * - Sólo lo libera quien lo tomó.
+ * - Un trabajo largo lo renueva (`renovarLock`) para que no venza mientras corre.
+ * - Si la base no contesta, NO se afirma que se tiene: sin candado no se corre.
+ */
+const LOCK_FILE = 'automatico/tareas-lock.json';
+const TIMEOUT_LOCK_MS = 5 * 60 * 1000;
 
 export type OrigenDisparo = 'despertador' | 'visita' | 'app' | 'manual';
 
 export interface EstadoLock {
   enCurso: boolean;
+  dueno?: string;
   iniciadoEn?: string;
   origen?: OrigenDisparo;
 }
 
-// Candado en memoria para peticiones simultáneas dentro del mismo proceso
-let memoryLock = false;
+// En el mismo proceso, el segundo pedido ni siquiera va a la base.
+let memoryLock: string | null = null;
 let memoryLockTimestamp = 0;
 
-/**
- * Intenta adquirir el candado atómico de ejecución de tareas automáticas.
- * Si ya hay otra tarea corriendo y no ha expirado su tiempo de gracia (5 min),
- * devuelve false para evitar carreras y dobles corridas simultáneas.
- *
- * REGLA ESTRICTA: La marca de "ya estoy corriendo" se toma ANTES de trabajar,
- * no después. El que llega y ve que otro está corriendo, se va sin hacer nada.
- */
-export async function intentarAdquirirLock(origen: OrigenDisparo): Promise<boolean> {
-  const ahora = Date.now();
-
-  // 1. Candado sincrónico en memoria: atómico e inmediato en el event loop de Node.js
-  if (memoryLock && ahora - memoryLockTimestamp < TIMEOUT_LOCK_MS) {
-    return false;
-  }
-
-  // Se adquiere inmediatamente en memoria ANTES de cualquier tick asíncrono
-  memoryLock = true;
-  memoryLockTimestamp = ahora;
-
-  // 2. Verificación y persistencia en archivo de datos para procesos / instancias múltiples
-  try {
-    const estado = await readData<EstadoLock>(LOCK_FILE, { enCurso: false });
-    if (estado.enCurso && estado.iniciadoEn) {
-      const inicio = new Date(estado.iniciadoEn).getTime();
-      // Si otra instancia ya tenía un lock activo hace menos de 5 minutos
-      if (Number.isFinite(inicio) && ahora - inicio < TIMEOUT_LOCK_MS) {
-        memoryLock = false;
-        return false;
-      }
-    }
-
-    await writeData(
-      LOCK_FILE,
-      {
-        enCurso: true,
-        iniciadoEn: new Date(ahora).toISOString(),
-        origen,
-      },
-      undefined,
-      { skipAutoBackup: true },
-    );
-
-    return true;
-  } catch {
-    // Si falla el archivo, conservamos el candado de memoria activo
-    return true;
-  }
+function vigente(estado: EstadoLock, ahora: number): boolean {
+  if (!estado.enCurso || !estado.iniciadoEn) return false;
+  const inicio = new Date(estado.iniciadoEn).getTime();
+  return Number.isFinite(inicio) && ahora - inicio < TIMEOUT_LOCK_MS;
 }
 
 /**
- * Libera el candado de ejecución al terminar el trabajo (en bloque finally).
+ * Intenta tomar el candado. Devuelve la identidad del dueño si lo tomó, o `null` si otro lo tiene
+ * (o si no se pudo consultar la base). La identidad se pasa a `liberarLock` y `renovarLock`.
  */
-export async function liberarLock(): Promise<void> {
-  memoryLock = false;
-  memoryLockTimestamp = 0;
+export async function intentarAdquirirLock(origen: OrigenDisparo): Promise<string | null> {
+  const ahora = Date.now();
+  if (memoryLock && ahora - memoryLockTimestamp < TIMEOUT_LOCK_MS) return null;
+  const dueno = randomUUID();
+  memoryLock = dueno;
+  memoryLockTimestamp = ahora;
 
   try {
-    await writeData(
-      LOCK_FILE,
-      { enCurso: false },
-      undefined,
-      { skipAutoBackup: true },
+    let tomado = false;
+    await mutarDocumentoConTransaccion<EstadoLock>(LOCK_FILE, { enCurso: false }, (estado) => {
+      tomado = false;
+      if (vigente(estado, ahora)) return null;
+      tomado = true;
+      return { enCurso: true, dueno, iniciadoEn: new Date(ahora).toISOString(), origen };
+    });
+    if (tomado) return dueno;
+  } catch {
+    // Sin la base no se sabe si otro servidor está corriendo: no se corre.
+  }
+  if (memoryLock === dueno) memoryLock = null;
+  return null;
+}
+
+/** Extiende el candado mientras el trabajo sigue vivo. Sólo si sigue siendo de este dueño. */
+export async function renovarLock(dueno: string): Promise<boolean> {
+  try {
+    let renovado = false;
+    await mutarDocumentoConTransaccion<EstadoLock>(LOCK_FILE, { enCurso: false }, (estado) => {
+      renovado = false;
+      if (!estado.enCurso || estado.dueno !== dueno) return null;
+      renovado = true;
+      return { ...estado, iniciadoEn: new Date().toISOString() };
+    });
+    if (renovado && memoryLock === dueno) memoryLockTimestamp = Date.now();
+    return renovado;
+  } catch {
+    return false;
+  }
+}
+
+/** Libera el candado, sólo si lo sigue teniendo este dueño. Un dueño vencido no libera al nuevo. */
+export async function liberarLock(dueno: string): Promise<void> {
+  if (memoryLock === dueno) {
+    memoryLock = null;
+    memoryLockTimestamp = 0;
+  }
+  try {
+    await mutarDocumentoConTransaccion<EstadoLock>(LOCK_FILE, { enCurso: false }, (estado) =>
+      estado.dueno === dueno ? { enCurso: false } : null,
     );
   } catch {
-    // No dejamos que un fallo de escritura de liberación rompa el flujo
+    // Si no se pudo escribir, vence solo a los cinco minutos.
   }
 }
 
@@ -89,6 +97,6 @@ export async function liberarLock(): Promise<void> {
  * Para pruebas unitarias: permite forzar el reseteo del candado en memoria.
  */
 export function resetearLockEnMemoria(): void {
-  memoryLock = false;
+  memoryLock = null;
   memoryLockTimestamp = 0;
 }

@@ -526,6 +526,8 @@ interface CreateSocialMediaPostFromUrlInput {
   momentTag?: string;
   source?: string;
   sourceModule?: string;
+  /** Identidad fija del posteo: el reintento de la misma captura escribe el mismo, no otro. */
+  postId?: string;
   drinkId?: string;
   drinkName?: string;
   /** La estacion lo marca cuando lo subido no se pudo revisar automaticamente. */
@@ -548,7 +550,7 @@ async function persistSocialMediaPostFromUrl(
       imageAiSafe: input.revisionManual === false || process.env.AK_USE_LOCAL_JSON_ONLY === 'true',
     });
     if (review.status === 'blocked') return { success: false, error: review.message };
-    const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const postId = input.postId || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     // `revisionManual` lo manda la estacion cuando lo que se subio no se pudo
     // revisar solo: los videos, y las fotos cuando el analisis automatico no
     // estuvo disponible. En ese caso queda esperando el visto bueno en vez de
@@ -588,14 +590,29 @@ async function persistSocialMediaPostFromUrl(
       ...(input.drinkName ? { drinkName: input.drinkName } : {}),
     };
 
+    // Con identidad fija (el reintento de una captura), si el posteo ya existe se devuelve ese y NO
+    // se pisa: así un reintento no duplica, y nadie puede sobreescribir el posteo de otro
+    // mandando su identidad.
     if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
       const existing = await readData<SocialGalleryPost[]>('social-gallery/metadata.json', []);
+      const yaEstaba = input.postId ? existing.find((p) => p.id === postId) : undefined;
+      if (yaEstaba) return { success: true, post: yaEstaba };
       const sinDuplicados = existing.filter((p) => p.id !== postId);
       await writeData('social-gallery/metadata.json', [newPost, ...sinDuplicados]);
       return { success: true, post: newPost };
     }
 
     const db = await getDb();
+    if (input.postId) {
+      const ref = db.collection(GALLERY_COLLECTION).doc(postId);
+      const guardado = await db.runTransaction(async (transaction: Transaction) => {
+        const actual = await transaction.get(ref);
+        if (actual.exists) return actual.data() as SocialGalleryPost;
+        transaction.create(ref, newPost);
+        return newPost;
+      });
+      return { success: true, post: guardado };
+    }
     await db.collection(GALLERY_COLLECTION).doc(postId).set(newPost);
     return { success: true, post: newPost };
   } catch (error: any) {
@@ -959,7 +976,10 @@ export async function createSocialMediaPostFromUrl(
   input: CreateSocialMediaPostFromUrlInput,
 ): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   await requireEventPermission(input.fiestaId, PERMISOS.NOCHE);
-  return persistSocialMediaPostFromUrl(input);
+  // La identidad fija es sólo para las estaciones: acá no se acepta la que mande el que llama.
+  const { postId: _sinIdentidad, ...sinIdentidad } = input;
+  void _sinIdentidad;
+  return persistSocialMediaPostFromUrl(sinIdentidad);
 }
 
 export async function createSocialMediaPostFromUrlForStation(
@@ -972,8 +992,10 @@ export async function createSocialMediaPostFromUrlForStation(
   ) {
     return { success: false, error: 'Acceso de estación no autorizado.' };
   }
+  const postId = input.postId && /^post_ent_[A-Za-z0-9_-]{1,80}$/.test(input.postId) ? input.postId : undefined;
   return persistSocialMediaPostFromUrl({
     ...input,
+    postId,
     source: 'entertainment',
   });
 }

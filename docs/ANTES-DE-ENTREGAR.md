@@ -107,3 +107,6 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 25. **¿Tu código contesta "ya estaba, listo"?** Comparalo con lo que se pidió ahora y mirá si el
     paso siguiente terminó de verdad. Y no prometas en un cartel algo que hace una persona.
+
+26. **¿Tu acción pide sólo sesión?** El personal y el operador también la tienen. Pedí el permiso
+    del perfil que la usa (`requirePermiso` o `requireEventPermission`), no `requireAppSession`.

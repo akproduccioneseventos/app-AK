@@ -11,6 +11,27 @@ import type { ProgramaEventoItem, FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Salon } from '@/types/salon';
 import { getAjustesLlegadaPersonal } from '@/app/actions/settings';
 import { calcularDistanciaMetros, extraerCoordenadasDeUrl } from '@/lib/geo/distancia';
+import { accesoVencido } from '@/lib/auth/vigencia-acceso';
+
+/**
+ * El acceso del enlace, sólo si sigue vigente (Codex, auditoría 66, PERS01, 5/10/2026).
+ * El portal, la asistencia y la llegada leían el acceso sin mirar el vencimiento que sí mira
+ * `verifyAccesoPersonalToken`: un enlace vencido seguía mostrando la fiesta y marcando llegada.
+ */
+async function accesoVigente(tokenId: string): Promise<AccesoPersonal | null> {
+  const acceso = await getAccesoById(tokenId);
+  if (!acceso || accesoVencido(acceso)) return null;
+  return acceso;
+}
+
+/** Una coordenada de verdad: número finito y dentro del planeta (PERS02). */
+function ubicacionValida(u?: { lat: number; lng: number }): u is { lat: number; lng: number } {
+  return Boolean(
+    u
+    && Number.isFinite(u.lat) && Number.isFinite(u.lng)
+    && Math.abs(u.lat) <= 90 && Math.abs(u.lng) <= 180,
+  );
+}
 
 export type AccesoPersonalPortalView = {
   acceso: AccesoPersonal;
@@ -33,7 +54,7 @@ export type AccesoPersonalPortalView = {
 export async function getAccesoPersonalPortalView(
   tokenId: string,
 ): Promise<AccesoPersonalPortalView | null> {
-  const acceso = await getAccesoById(tokenId);
+  const acceso = await accesoVigente(tokenId);
   if (!acceso) return null;
   if (!acceso.fiestaId) return { acceso };
 
@@ -87,7 +108,7 @@ export async function responderAsistenciaPersonal(
   confirma: boolean,
   motivo?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const acceso = await getAccesoById(tokenId);
+  const acceso = await accesoVigente(tokenId);
   if (!acceso || !acceso.fiestaId) {
     return { success: false, error: 'Acceso no válido o sin evento asociado.' };
   }
@@ -130,7 +151,7 @@ export async function registrarLlegadaPersonal(
   tokenId: string,
   ubicacion?: { lat: number; lng: number }
 ): Promise<{ success: boolean; error?: string; distanciaMetros?: number }> {
-  const acceso = await getAccesoById(tokenId);
+  const acceso = await accesoVigente(tokenId);
   if (!acceso || !acceso.fiestaId) {
     return { success: false, error: 'Acceso no válido o sin evento asociado.' };
   }
@@ -170,14 +191,19 @@ export async function registrarLlegadaPersonal(
 
     // Si el salón tiene coordenadas, validamos distancia
     if (salonCoords) {
-      if (!ubicacion || typeof ubicacion.lat !== 'number' || typeof ubicacion.lng !== 'number') {
+      // NaN o Infinity daban distancia NaN, la comparación con el radio daba falso y se
+      // registraba la llegada (PERS02). Se exige una ubicación de verdad y una distancia medible.
+      if (!ubicacionValida(ubicacion)) {
         return { success: false, error: 'Para registrar la llegada se requiere tu ubicación actual.' };
       }
 
       distanciaCalculada = calcularDistanciaMetros(ubicacion, salonCoords);
       const radioMaximo = ajustes.radioMetros || 300;
 
-      if (distanciaCalculada > radioMaximo) {
+      if (!Number.isFinite(distanciaCalculada) || distanciaCalculada > radioMaximo) {
+        if (!Number.isFinite(distanciaCalculada)) {
+          return { success: false, error: 'No se pudo medir la distancia al salón. Volvé a intentar con la ubicación activada.' };
+        }
         return {
           success: false,
           error: `Estás a ${distanciaCalculada}m del salón (el máximo permitido es ${radioMaximo}m).`,

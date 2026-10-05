@@ -47,7 +47,7 @@ import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
-import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { saveOfflineMedia, nuevoIdDeCaptura } from '@/lib/offline/offline-db';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 import {
@@ -888,6 +888,9 @@ export default function FotocabinaPage() {
     const capturedGuestId = guestId;
     const capturedGuestAccessToken = guestAccessToken;
     const capturedAccessToken = accessToken;
+    // Una identidad por captura, la misma en la primera subida y en cualquier reintento sin
+    // conexión: si la primera termina después del tope de espera, el reintento no la duplica.
+    const idDeLaCaptura = nuevoIdDeCaptura();
     const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     try {
@@ -919,6 +922,7 @@ export default function FotocabinaPage() {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         try {
           await saveOfflineMedia({
+            id: idDeLaCaptura,
             fiestaId,
             moduleId: 'fotocabina',
             fileBlob: blob,
@@ -969,6 +973,7 @@ export default function FotocabinaPage() {
       formData.append('file', file);
       formData.append('authorName', 'Fotocabina AK');
       formData.append('moduleId', 'fotocabina');
+      formData.append('clientMediaId', idDeLaCaptura);
       if (capturedAccessToken) formData.append('accessToken', capturedAccessToken);
       if (capturedGuestId) formData.append('guestId', capturedGuestId);
       if (capturedGuestAccessToken) formData.append('guestAccessToken', capturedGuestAccessToken);
@@ -1030,6 +1035,7 @@ export default function FotocabinaPage() {
         if (blob) {
           try {
             await saveOfflineMedia({
+              id: idDeLaCaptura,
               fiestaId,
               moduleId: 'fotocabina',
               fileBlob: blob,

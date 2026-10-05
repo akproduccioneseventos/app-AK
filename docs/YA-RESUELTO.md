@@ -1,5 +1,46 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 5 de octubre de 2026 — Codex, auditoría 66: los cinco fallos y los trece pendientes de plata y permisos
+
+- **PERS01/PERS02:** el enlace vencido del personal ya no abre el portal ni marca asistencia o
+  llegada; NaN, Infinity o coordenadas fuera del planeta no registran llegada.
+- **SOCIAL01:** canciones, dedicatorias y encuestas llevan identidad única: dos en el mismo
+  milisegundo quedan las dos.
+- **AUTO01:** el candado de las tareas se toma en una operación de la base, con dueño; sólo lo
+  libera quien lo tomó y un trabajo largo lo renueva. Sin base, no se corre.
+- **AUTO02:** métricas y recordatorios dicen cuál parte falló; un fallo no cuenta como corrida y
+  se reintenta a la hora.
+- **Permisos por perfil, no por sesión:** lista de invitados (organización y, el operador, sólo
+  en su fiesta); insumos (cambiar: insumos; leer: insumos u organización); presupuestos (el
+  personal nada; el operador sin cobros; enlaces, pendientes, corregir fechas y recalcular
+  precios: contabilidad); barra (noche o insumos); permiso de operador de las estaciones (noche u
+  organización). **Decisión tomada:** el operador sigue viendo los servicios de los presupuestos
+  para planificar, sin los cobros.
+- **Plata y stock:** los menús públicos ya no llevan el costo del plato (va el precio calculado);
+  el ajuste masivo de costos no se aplica dos veces al reintentar; el trago del invitado no se
+  confirma si un ingrediente controlado no alcanza; el pedido manual que no se guardó devuelve
+  las botellas; el tope de la voz se toma en una operación y el texto va por POST.
+- **Video:** ya no promete música que no tiene, y "Compartir" manda el archivo del video.
+- **Estaciones:** la captura lleva la misma identidad en la subida y en el reintento sin
+  conexión, y el posteo con identidad fija nunca pisa uno existente.
+- **El aviso de espera** ya no dice "no se guardó nada": puede haberse guardado.
+- **Contador de Codex:** lo tocado sin commitear también manda el área a volver a mirar.
+- **Falso positivo verificado:** `recalculatePresupuestoFromCatalog` no tiene costo y precio al
+  revés (`precioUnitario` es el costo y `precioUnitarioPresupuesto` el precio de venta).
+
+```comprobar
+prueba: src/__tests__/personal-vigencia-y-coordenadas-invalidas.test.ts
+prueba: src/__tests__/social-interactive-creaciones-simultaneas.test.ts
+prueba: src/__tests__/tareas-candado-entre-instancias.test.ts
+prueba: src/__tests__/tareas-no-marcan-exito-al-fallar.test.ts
+prueba: src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts
+prueba: src/__tests__/auditoria-66-quien-ve-que.test.ts
+usa: accesoVencido en src/app/actions/accesos-personal-view.ts
+usa: PERMISO_DE_LA_BARRA en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: nivelDePresupuestos en src/app/actions/presupuestos.ts
+usa: requireEventPermission(fiestaId, PERMISOS.ORGANIZACION) en src/app/actions/fiesta/invitados.actions.ts
+```
+
 ## 3 de octubre de 2026 — La 1251 de Gemini, terminada por Claude (orden 115)
 
 - **El video resumen duraba lo que tardaba el teléfono:** los cuadros se dibujaban lo más rápido

@@ -21,6 +21,7 @@ import type { SocialPoll, SongRequest, Dedication, SorteoParticipant, FiestaMome
 import type { SocialGallerySettings } from '@/types/fiesta';
 import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 import admin from 'firebase-admin';
+import { randomUUID } from 'crypto';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
@@ -121,7 +122,7 @@ export async function createPoll(
     await deactivateBatch.commit();
 
     const newPoll: SocialPoll = {
-      id: `poll_${Date.now()}`,
+      id: `poll_${Date.now()}_${randomUUID()}`,
       fiestaId,
       question: questionReview.sanitizedText || sanitizeSocialText(question),
       options: reviewedOptions.map((review, i) => ({ id: `opt_${i}`, text: review.sanitizedText || sanitizeSocialText(options[i]), votes: 0 })),
@@ -218,7 +219,8 @@ export async function addSongRequest(
     if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
     const newReq: SongRequest = {
-      id: `song_${Date.now()}`,
+      // Con sólo la hora, dos canciones en el mismo milisegundo se pisaban (Codex, SOCIAL01).
+      id: `song_${Date.now()}_${randomUUID()}`,
       fiestaId,
       song: review.sanitizedText || sanitizeSocialText(song),
       requestedBy: sanitizeSocialText(requestedBy) || 'Anónimo',
@@ -350,7 +352,7 @@ export async function addDedication(
     if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
     const newDed: Dedication = {
-      id: `ded_${Date.now()}`,
+      id: `ded_${Date.now()}_${randomUUID()}`,
       fiestaId,
       message: review.sanitizedText || sanitizeSocialText(message),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',

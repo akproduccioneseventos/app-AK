@@ -1,5 +1,8 @@
 # Orden 116 - Cinco fallos reproducidos de red social, automaticos y personal
 
+**HECHA por Claude el 5/10/2026** (el dueño: *"lo chico hacelo tú"*): los cinco, más los trece
+pendientes del informe 66 de plata, comida y permisos. Ver `docs/YA-RESUELTO.md`.
+
 **NO CONTRASTADO CON LA TANDA LOCAL/NO SUBIDA.** El 5/10/2026 GitHub mostraba main
 `212ba37da9c7540fd044b9de6e0edfe448ddfbe5` y ninguna PR abierta. Comparar cualquier trabajo
 local/no subido antes de programar. Registrar HEAD exacto y no rehacer lo ya corregido.

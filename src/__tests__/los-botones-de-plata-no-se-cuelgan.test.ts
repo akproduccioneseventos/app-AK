@@ -44,7 +44,7 @@ describe('Los botones de mutación y plata no se cuelgan', () => {
   it('el aviso dice que no se guardo nada, para que nadie apriete dos veces', () => {
     const fuente = leer('src/lib/ui/tope-de-espera.ts');
 
-    expect(fuente).toMatch(/No se guardo nada/i);
+    expect(fuente).toMatch(/Puede que haya quedado guardado/i);
     // El tope es largo a proposito: el servidor se duerme y la primera operacion del dia
     // tarda. Cortar antes seria peor que no tener tope.
     expect(fuente).toContain('25_000');

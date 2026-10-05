@@ -32,7 +32,7 @@ describe('budget share access', () => {
   });
 
   it('creates a signed token only for an existing budget', async () => {
-    (verifySession as jest.Mock).mockResolvedValue({ success: true });
+    (verifySession as jest.Mock).mockResolvedValue({ success: true, user: { perfil: 'secretaria' } });
     (readData as jest.Mock).mockResolvedValue([{ id: 'pres_1', clienteNombre: 'Sofia' }]);
     (generateBudgetToken as jest.Mock).mockResolvedValue('token-seguro');
 

@@ -828,3 +828,19 @@ reintento son las de esta misma función.
 ```comprobar
 prueba: src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts
 ```
+
+## 05/10/2026 — Diez acciones de plata y personas que sólo pedían sesión (Codex, auditoría 66)
+
+**Qué era:** presupuestos con cobros, insumos, barra, lista de invitados y permiso de operador
+abiertos a cualquiera con sesión, incluido el personal. Y cinco fallos más: enlace vencido del
+personal, coordenadas inválidas, dos canciones que se pisaban, candado de tareas entre servidores
+y tareas fallidas anotadas como corridas.
+
+**Por qué se me pasó:** mi pregunta era "¿pide sesión?" y la respuesta era sí. La pregunta tenía que
+ser "¿pide el permiso del perfil?". **Pregunta nueva: la 35.** El barrido es mío (son permisos):
+se pasó por insumos, presupuestos, barra, invitados y estaciones.
+
+```comprobar
+prueba: src/__tests__/auditoria-66-quien-ve-que.test.ts
+prueba: src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts
+```

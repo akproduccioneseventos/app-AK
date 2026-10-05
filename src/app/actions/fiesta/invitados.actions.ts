@@ -9,6 +9,8 @@ import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { getGuestAdultsCount, getGuestKidsCount, getGuestPartySize } from '@/lib/fiesta/guest-counts';
 
 // ─── Core helper ────────────────────────────────────────────────────────────
@@ -56,14 +58,16 @@ function soloLoDelInvitado(
 /**
  * La lista entera de invitados, con telefono y credencial: es cosa del equipo.
  *
- * Por que pide sesion (Codex, auditoria 64, PER01, 2 de octubre de 2026): lee con
+ * Por que pide permiso sobre la fiesta (Codex, auditorias 64 y 66, PER01, octubre de 2026): lee con
  * `LECTURA_COMPLETA` y es una accion del servidor que importa una pantalla del navegador
  * (el muro social), asi que se puede llamar desde internet. Sin la sesion, cualquiera con el
  * numero de la fiesta se llevaba el telefono y la credencial de cada invitado. Los que la
  * usan —recepcion y el muro— son del equipo; la tarea de recordatorios lee la fiesta cruda.
  */
 export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
-  await requireAppSession();
+  // No alcanza con tener sesión (Codex, auditoría 66): el personal y el operador de otra fiesta
+  // también la tienen. Pide organización y, si es operador, estar asignado a ESTA fiesta.
+  await requireEventPermission(fiestaId, PERMISOS.ORGANIZACION);
   const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   return fiesta?.invitados || [];
 }

@@ -1543,6 +1543,11 @@ con otra cara.
 | Reintentos de un cobro que decían "registrado" con el importe viejo o sin llegar al presupuesto, y el recibo con "undefined" | `src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts` |
 | El video resumen duraba lo que tardaba el teléfono (141 s en vez de 60 a 90) | `tests/e2e/el-video-resumen-dura-lo-que-promete.spec.ts` |
 | Cualquiera con sesión cambiaba el número al que le llegan los avisos al dueño | `src/__tests__/la-voz-de-gemini-tts.test.ts` |
+| Acciones de plata, stock y personas que sólo pedían sesión: el personal y el operador entraban | `src/__tests__/auditoria-66-quien-ve-que.test.ts` |
+| Reintentar un ajuste masivo de costos lo aplicaba dos veces | `src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts` |
+| Dos servidores corrían las mismas tareas automáticas, y una tarea fallida figuraba corrida | `src/__tests__/tareas-candado-entre-instancias.test.ts` y `src/__tests__/tareas-no-marcan-exito-al-fallar.test.ts` |
+| Un enlace vencido del personal marcaba llegada, y una ubicación inválida también | `src/__tests__/personal-vigencia-y-coordenadas-invalidas.test.ts` |
+| Dos canciones o dedicatorias en el mismo milisegundo quedaban una | `src/__tests__/social-interactive-creaciones-simultaneas.test.ts` |
 
 ### Cómo se elige el matafuego
 

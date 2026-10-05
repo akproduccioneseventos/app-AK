@@ -3,12 +3,14 @@ export const TOPE_DE_ESPERA_MS = 25_000;
 /**
  * El aviso que ve el operador cuando el servidor no contesta a tiempo.
  *
- * Dice que **no se guardo nada** a proposito: lo peor que le puede pasar a alguien que
- * aprieta "cobrar" es quedarse sin saber si el pago entro o no.
+ * Antes decia "no se guardo nada", y no era cierto (Codex, auditoria 66): el tope deja de
+ * esperar pero NO corta el pedido, que puede terminar de guardarse despues. Ahora dice la
+ * verdad: puede haber quedado guardado, hay que mirar antes de repetir. Los cobros y las
+ * capturas de las estaciones mandan la misma identidad al reintentar, asi que repetir no duplica.
  */
 export class TopeDeEsperaError extends Error {
   constructor() {
-    super('El servidor esta tardando en contestar. No se guardo nada: probá de nuevo en un momento.');
+    super('El servidor esta tardando en contestar. Puede que haya quedado guardado: fijate antes de repetirlo.');
     this.name = 'TopeDeEsperaError';
   }
 }

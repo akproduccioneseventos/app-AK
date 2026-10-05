@@ -54,10 +54,10 @@ describe('el cierre de barra', () => {
     expect(ajustesAlConteo(filas)).toEqual([{ insumoId: 'ron', ajuste: -2 }]);
   });
 
-  it('el servidor exige sesión y mueve el depósito por diferencia', () => {
+  it('el servidor exige permiso de barra y mueve el depósito por diferencia', () => {
     const acciones = fs.readFileSync(path.join(process.cwd(), 'src/app/actions/fiesta/barra-tecnologica.actions.ts'), 'utf8');
     const guardar = acciones.slice(acciones.indexOf('export async function guardarCierreDeBarra'));
-    expect(guardar.slice(0, guardar.indexOf('\n}\n'))).toMatch(/await requireAppSession\(\);/);
+    expect(guardar.slice(0, guardar.indexOf('\n}\n'))).toMatch(/await requireEventPermission\(fiestaId, PERMISO_DE_LA_BARRA\);/);
     expect(acciones).toMatch(/cantidadDisponible: Math\.max\(0, available \+ ajustes\[index\]\.ajuste\)/);
     const panel = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/barra-tecnologica/page.tsx'), 'utf8');
     expect(panel).toMatch(/<CierreDeBarra fiestaId=\{fiestaId\} \/>/);

@@ -46,4 +46,12 @@ describe('El contador de Codex tiene un final', () => {
     expect(fuente).toMatch(/fileURLToPath\(import\.meta\.url\)/);
     expect(fuente).not.toMatch(/new URL\(import\.meta\.url\)\.pathname/);
   });
+
+  // Auditoría 66: un cambio sin commitear dejaba el área "limpia".
+  it('lo tocado sin commitear también la manda a volver a mirar', () => {
+    const git = (args: string[]) => (args[0] === 'status' ? ' M src/app/actions/invoices.ts\n' : '');
+    expect(estadoReal(area('limpia', { commit: 'abc' }), git)).toBe('volver-a-mirar');
+    const nada = () => '';
+    expect(estadoReal(area('limpia', { commit: 'abc' }), nada)).toBe('limpia');
+  });
 });

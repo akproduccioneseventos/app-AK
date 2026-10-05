@@ -27,6 +27,7 @@ import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import * as logger from '@/lib/logger';
 import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
 import { verifySession } from '@/lib/auth/session-token';
+import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
 import { AsyncMutex } from '@/lib/mutex';
 
@@ -68,17 +69,39 @@ function buildFiestaNameFromBudget(input: {
   return `${tipo} de ${getFiestaSubjectName(input)}`;
 }
 
+
+/**
+ * Qué parte de los presupuestos ve cada perfil (Codex, auditoría 66, 5/10/2026). Antes alcanzaba
+ * cualquier sesión: el personal leía todos los presupuestos con los cobros y el saldo del cliente.
+ * - Contabilidad (dueño, secretaria): completo.
+ * - Organización sin contabilidad (el operador, "nada de plata"): los servicios para planificar,
+ *   sin los cobros. Guardar igual conserva los cobros de la base (`los-cobros-no-se-pisan.ts`).
+ * - El resto: nada.
+ */
+function nivelDePresupuestos(user: Parameters<typeof puede>[0]): 'completo' | 'operativo' | null {
+  if (puede(user, PERMISOS.CONTABILIDAD)) return 'completo';
+  if (puede(user, PERMISOS.ORGANIZACION)) return 'operativo';
+  return null;
+}
+function sinCobros(p: Presupuesto): Presupuesto {
+  return { ...p, pagosCliente: [] };
+}
+
 /** Returns all presupuestos. Pass includeArchived=true to include soft-deleted ones. */
 export async function getPresupuestos(includeArchived = false): Promise<Presupuesto[]> {
   const auth = await verifySession();
   if (!auth.success) throw new Error('No autorizado');
+  const nivel = nivelDePresupuestos(auth.user);
+  if (!nivel) throw new Error('Tu perfil no tiene acceso a los presupuestos.');
   const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-  return includeArchived ? all : all.filter(p => !p.archived);
+  const visibles = includeArchived ? all : all.filter(p => !p.archived);
+  return nivel === 'completo' ? visibles : visibles.map(sinCobros);
 }
 
 export async function repairVerifiedBudgetDates(): Promise<{ success: boolean; changedCount: number; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, changedCount: 0, error: auth.error };
+  if (!puede(auth.user, PERMISOS.CONTABILIDAD)) return { success: false, changedCount: 0, error: 'Tu perfil no puede corregir presupuestos.' };
 
   try {
     // Adentro del turno: esta funcion reescribe la lista ENTERA de presupuestos. Sin turno, un
@@ -110,7 +133,12 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
   const { verifySession } = await import('@/lib/auth/session-token');
   const sessionAuth = await verifySession();
 
-  if (!sessionAuth.success) {
+  let soloOperativo = false;
+  if (sessionAuth.success) {
+    const nivel = nivelDePresupuestos(sessionAuth.user);
+    if (!nivel) return null;
+    soloOperativo = nivel === 'operativo';
+  } else {
     if (!token) {
       return null;
     }
@@ -128,7 +156,7 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
       if (doc.exists) {
         const data = doc.data();
         if (data) delete data._syncedAt;
-        return data as Presupuesto;
+        return soloOperativo ? sinCobros(data as Presupuesto) : data as Presupuesto;
       }
     }
   } catch {
@@ -136,7 +164,8 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
   }
 
   const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-  return presupuestos.find(p => p.id === id) || null;
+  const encontrado = presupuestos.find(p => p.id === id) || null;
+  return encontrado && soloOperativo ? sinCobros(encontrado) : encontrado;
 }
 
 export async function getPresupuestoShareToken(
@@ -144,6 +173,8 @@ export async function getPresupuestoShareToken(
 ): Promise<{ success: boolean; token?: string; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: 'No autorizado' };
+  // El enlace abre el presupuesto con precios y cobros a quien lo tenga: lo genera contabilidad.
+  if (!puede(auth.user, PERMISOS.CONTABILIDAD)) return { success: false, error: 'Tu perfil no puede compartir presupuestos.' };
 
   const presupuesto = await getPresupuestoById(id);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
@@ -630,6 +661,8 @@ export async function markPresupuestoAsFacturado(
 export async function recalculatePresupuestoFromCatalog(presupuestoId: string): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
+  // Cambia los precios del presupuesto: es de contabilidad (auditoría 66).
+  if (!puede(auth.user, PERMISOS.CONTABILIDAD)) return { success: false, error: 'Tu perfil no puede cambiar precios de presupuestos.' };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'No encontrado' };
 
@@ -1183,6 +1216,7 @@ export async function rejectPagoCliente(
 export async function getPresupuestosWithPendingPayments(): Promise<Presupuesto[]> {
   const auth = await verifySession();
   if (!auth.success) throw new Error('No autorizado');
+  if (!puede(auth.user, PERMISOS.CONTABILIDAD)) throw new Error('Tu perfil no tiene acceso a los cobros.');
   const presupuestos = await getPresupuestos();
   return presupuestos.filter(p =>
     (p.pagosCliente || []).some(pago => pago.estadoPago === 'pendiente_confirmacion')

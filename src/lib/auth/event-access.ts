@@ -5,9 +5,12 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { perfilDe, puede, type Permiso } from '@/lib/auth/perfiles';
 import { verifySession } from '@/lib/auth/session-token';
 
-export async function requireEventPermission(fiestaId: string, permiso: Permiso) {
+export async function requireEventPermission(fiestaId: string, permiso: Permiso | readonly Permiso[]) {
+  // Con una lista alcanza con uno: las estaciones las abre la noche (operador) o la organización
+  // (dueño, secretaria).
+  const permisos = Array.isArray(permiso) ? permiso : [permiso as Permiso];
   const session = await verifySession();
-  if (!session.success || !session.user || !puede(session.user, permiso)) {
+  if (!session.success || !session.user || !permisos.some((p) => puede(session.user, p))) {
     throw new Error('Tu usuario no tiene permiso para controlar este evento.');
   }
 

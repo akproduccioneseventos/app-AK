@@ -1,5 +1,6 @@
 'use server';
 
+import { getMenuItemSellingPrice } from '@/lib/simulator/catalog';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData, createDataItem, updateDataItem, deleteDataItem } from '@/lib/data-service';
@@ -173,17 +174,21 @@ async function armarMenus(): Promise<FullMenu[]> {
  * lo que sale cada uno, y el porcentaje de ganancia de cada plato, son justo lo que
  * la competencia querria ver.
  *
- * Se deja el costo total del plato porque el simulador lo usa para armar el
- * presupuesto del prospecto; sacarlo dejaria ese presupuesto con el costo en cero y
- * despues las cuentas de ganancia darian mal.
+ * Tampoco va el costo del plato (Codex, auditoría 66, 5/10/2026). Se dejaba porque el simulador
+ * calculaba el precio con costo × margen cuando el plato no tenía precio sugerido; ahora el precio
+ * de venta se calcula ACÁ, con el margen de verdad, y viaja ya hecho. El presupuesto que se guarda
+ * lo vuelve a calcular el servidor desde los menús guardados (`public-simulator-persistence.ts`),
+ * así que el costo nunca hizo falta afuera.
  */
 export async function getMenusPublicos(): Promise<FullMenu[]> {
   const menus = await armarMenus();
   return menus.map((menu) => ({
     ...menu,
-    items: menu.items.map(({ ingredients, profitMargin, ...visible }) => {
-      void ingredients; void profitMargin;
-      return { ...visible, ingredients: [] } as typeof menu.items[number];
+    items: menu.items.map((item) => {
+      const precio = getMenuItemSellingPrice(item);
+      const { ingredients, profitMargin, totalDishCost, ...visible } = item;
+      void ingredients; void profitMargin; void totalDishCost;
+      return { ...visible, ingredients: [], totalDishCost: 0, suggestedSellingPrice: precio } as typeof menu.items[number];
     }),
   }));
 }
