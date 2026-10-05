@@ -1,31 +1,38 @@
-# Acá quedé
+# Acá quedó la auditoría
 
-**3 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3`, sin fusionar todavía: cobros COB06 a
-COB09 (segunda vuelta de Codex), la lista de invitados que pide sesión (PER01), el contador de
-Codex en Windows (AUD02), y los informes 64 y 65 de Codex juntados. La puerta corre con **todas**
-las pruebas de navegador y deja el resultado prueba por prueba (`AK_REGISTRO_POR_PRUEBA`), que es
-lo que pidió Codex en la orden 114.
+**5 de octubre de 2026.** Codex revisó main `212ba37da9c7540fd044b9de6e0edfe448ddfbe5`,
+confirmado por GitHub. No había PR abierta al consultar. Una tanda local/no subida de otras
+IA no está contrastada. Documentación en `codex/auditoria-66-20261005`; no es main.
 
-## Espera a Gemini — UNA sola propuesta, la misma 1251
+## Evidencia vigente
 
-- **115:** el video resumen dura lo que tarda el teléfono (la muestra dio 141 s): el bucle tiene
-  que ir con el reloj, y la prueba medir el archivo.
-- **112, B.1 (AUD01):** el contador de Codex tiene que cubrir las 416 rutas y enterarse de los
-  cambios en lo compartido. Está masticado en la orden.
-- **109:** barrido de formatos que pierden lo escrito.
+- Informe `docs/evidencias/66-auditoria-sobre-212ba37-voz-video-comida.md`.
+- 589 suites / 3.383 pruebas Jest aprobaron sobre el código base en entorno aislado.
+  No sumar subconjuntos; no prueban proveedores reales ni todas las pantallas.
+- Recorrido publicado parcial: portada, galería, Club Uruguay, blog, inicio del simulador.
+  SHA publicado no confirmado durante ese recorrido; no atribuirlo al SHA local.
+- E2E invitado inconcluso: no sirve como evidencia de cierre.
+- Graphify local: 11.763 nodos / 39.183 relaciones / 654 comunidades. Dos documentos
+  omitidos, 25 archivos con advertencias del parser. Ignorado por Git; cada copia lo genera.
 
-## Espera al dueño
+## Hallazgos nuevos reproducidos
 
-- La voz real del asistente se paga por uso (clave de Gemini o de Google). Falta su sí.
+- SOCIAL01: dos canciones/dedicatorias se pisan, incluso entre fiestas distintas.
+- AUTO01: dos instancias toman el candado; el dueño viejo puede liberar al nuevo.
+- AUTO02: métricas/recordatorios fallidos registrados como corridas correctas.
+- PERS01: enlace vencido devuelve portal y cambia asistencia/llegada.
+- PERS02: NaN/Infinity superan el control de ubicación y registran llegada.
+- Tres sondas `docs/evidencias/66-sonda-*.cjs`: fuente real con servicios simulados.
+  Su salida reproduce defectos; no son aceptación de arreglos.
 
-## Codex
+## Qué sigue
 
-- Cobros: COB01-05 confirmados; COB06-09 arreglados, falta que la vuelva a mirar.
-- Orden 114: pide un servidor compilado que alcance desde su máquina. Desde la nube no se puede
-  abrir uno; se le deja el resultado de la corrida completa en `docs/evidencias/`.
-
-## Cómo se fusiona (error 30)
-
-- La puerta anota el commit aprobado en `.ak-puerta-verde.json`; sin `expectedHeadSha` igual, no.
-- Con la puerta corriendo: no cambiar de rama ni `commit -a` (error 31).
-- Una prueba que falla con la máquina cargada se repite sola con `npm run otravez`.
+- Orden 116: Gemini red social/automáticos; Claude personal/permisos y compilación.
+- Informe 66: otros pendientes de comida, barra, permisos, video, voz y contador.
+  Contrastar con la tanda antes de programar; una orden escrita no significa arreglado.
+- Recibos por empleado sí exigen SUELDOS a través del getter interno: caso descartado.
+- Falta recorrido interno real aislado de producción y retest de cada arreglo en su SHA.
+  Ninguna de las 14 áreas se certifica por conteo global de pruebas.
+- Voz real paga sigue pendiente del dueño. La prueba física queda al final.
+- La puerta exige el mismo `expectedHeadSha` aprobado; no cambiar rama ni `commit -a`
+  durante una verificación. El dueño conserva cambios de funcionamiento y fusión.

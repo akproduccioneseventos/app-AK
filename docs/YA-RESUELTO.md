@@ -10507,3 +10507,20 @@ usa: publicRsvp: true en src/app/actions/accesos-personal-view.ts
 usa: publicRsvp: true en src/lib/invitaciones/recordatorio-no-abiertas.ts
 usa: publicRsvp: true en src/lib/whatsapp/avisos-al-cliente.ts
 ```
+
+## 5 de octubre de 2026 - Herramientas y evidencia de Codex, en rama de auditoria
+
+- Graphify reconstruido localmente sobre `212ba37`: 2.198 archivos de codigo, 11.763 nodos,
+  39.183 relaciones y 654 comunidades. Omitio 2 documentos por falta de clave de IA;
+  25 archivos tienen advertencias del parser. Es local/ignorado por Git, no sustituye
+  compilacion. uv instalado como herramienta del equipo; no cambio la app.
+- Informe 66 y tres sondas aisladas: **evidencia de cinco fallos pendientes, no arreglos**,
+  SOCIAL01, AUTO01-02, PERS01-02. Orden 116 reparte Gemini/Claude y exige contraste antes
+  de programar. El informe conserva los otros pendientes anteriores, aun no corregidos.
+- Falso positivo descartado: `getRecibosFirmadosByEmpleado` llama a `getRecibosFirmados`,
+  que exige SUELDOS. No reportar filtracion solo por ver `requireAppSession` en la primera
+  funcion; la cadena real se verifico en `212ba37`.
+- Las sondas salen con codigo 0 al confirmar el defecto base. No usarlas como aprobacion;
+  las nuevas pruebas de regresion de la orden estan pendientes.
+- Documentacion en `codex/auditoria-66-20261005` para juntarse con la correccion. No se
+  fusiona sola ni certifica las 14 areas.
