@@ -1000,6 +1000,15 @@ conflicto y entró con las marcas. Lo frenó la puerta, pero costó una corrida.
 **Qué se hace distinto:** después de una fusión con conflicto, `git diff --name-only --diff-filter=U`
 antes de agregar, y se agregan sólo los archivos ya resueltos, por nombre.
 
+### 33. Agregar por carpetas y dejar afuera un archivo tocado
+
+**Pasó el 5 de octubre de 2026.** Agregué los cambios nombrando carpetas (`src/app src/lib`) y el
+arreglo del video, que vive en `src/components`, quedó sin commitear. Lancé la verificación igual
+y hubo que pararla.
+
+**Qué se hace distinto:** antes de lanzar la puerta, `git status --short` tiene que mostrar sólo
+datos de la corrida; si aparece código, se agrega por nombre y recién ahí se lanza.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
