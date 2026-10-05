@@ -12,7 +12,8 @@ import { createNotification } from '@/lib/notifications/create-notification';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getPresupuestoById } from '../presupuestos';
 import { verifyPortalSession } from '@/lib/security/portal-session';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 /** Default deposit amount used only when no presupuesto or plan de pagos seña is available. */
 const DEFAULT_DEPOSIT_AMOUNT = 20000;
@@ -274,7 +275,11 @@ export async function signContractDigitally(fiestaId: string, signerName: string
  * firmado un contrato que nadie firmo.
  */
 export async function uploadPhysicalContract(formData: FormData): Promise<{ success: boolean; error?: string }> {
-    await requireAppSession();
+    // El contrato en papel da la fiesta por contratada y anota la seña: es plata (auditoría con
+    // las 35 preguntas, 5/10/2026). Antes alcanzaba cualquier sesión, y sin contabilidad la seña
+    // no se cargaba y nadie se enteraba.
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, error: permiso.error };
 
     const file = formData.get('file') as File | null;
     const fiestaId = formData.get('fiestaId') as string;

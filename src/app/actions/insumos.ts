@@ -2,8 +2,23 @@
 
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData, createDataItem, mutateDataItem, deleteDataItem } from '@/lib/data-service';
-import { getMenus, saveMenu } from './menus-catering';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { aplicarInsumoEnMenus } from './menus-catering';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS, type Permiso } from '@/lib/auth/perfiles';
+
+/**
+ * Quién toca los insumos (Codex, auditoría 66, 5/10/2026). Antes alcanzaba cualquier sesión, y el
+ * personal o el operador podían cambiar costos y stock llamando la acción directo.
+ * - Cambiar (guardar, borrar, ajustar costos): INSUMOS (dueño, secretaria).
+ * - Leer: INSUMOS u ORGANIZACION, porque la lista de compras y el resumen de la fiesta los usan.
+ */
+async function requirePermisoAlguno(...permisos: Permiso[]): Promise<void> {
+  for (const permiso of permisos) {
+    if ((await requirePermiso(permiso)).ok) return;
+  }
+  throw new Error('Tu perfil no tiene acceso a los insumos.');
+}
+const PARA_LEER = [PERMISOS.INSUMOS, PERMISOS.ORGANIZACION] as const;
 import { leerInsumosCrudos, limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
 import { AsyncMutex } from '@/lib/mutex';
 
@@ -18,18 +33,18 @@ const INSUMOS_COLLECTION = 'insumos';
 const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 export async function invalidateInsumosCache() {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   limpiarCacheInsumos();
 }
 
 export async function getInsumos(): Promise<ServicioEmpresa[]> {
     // Cada insumo trae lo que cuesta y cuanto queda en deposito. Es del equipo.
-    await requireAppSession();
+    await requirePermisoAlguno(...PARA_LEER);
     return leerInsumosCrudos();
 }
 
 export async function getInsumoById(id: string): Promise<ServicioEmpresa | null> {
-  await requireAppSession();
+  await requirePermisoAlguno(...PARA_LEER);
   const insumos = await leerInsumosCrudos();
   return insumos.find(s => s.id === id) || null;
 }
@@ -58,48 +73,9 @@ export async function getInsumoById(id: string): Promise<ServicioEmpresa | null>
 async function propagateInsumoChangesToMenus(
     updatedInsumo: ServicioEmpresa,
 ): Promise<{ success: boolean; error?: string }> {
-    const menus = await getMenus();
-    const menusQueCambiaron: typeof menus = [];
-
-    for (const menu of menus) {
-        let menuChanged = false;
-        const updatedItems = menu.items.map(item => {
-            let itemChanged = false;
-            const updatedIngredients = item.ingredients.map(ing => {
-                if (ing.origenId === updatedInsumo.id) {
-                    itemChanged = true;
-                    menuChanged = true;
-                    return {
-                        ...ing,
-                        name: updatedInsumo.nombre,
-                        unit: updatedInsumo.unidad || ing.unit,
-                        // Si el insumo quedo sin precio cargado, se respeta el que
-                        // ya tenia el menu. Antes se lo pisaba con cero: el plato
-                        // pasaba a costar de menos y el presupuesto salia barato
-                        // sin que nadie se diera cuenta.
-                        costoUnitario: Number(updatedInsumo.valorUnitarioEstimado) > 0
-                          ? Number(updatedInsumo.valorUnitarioEstimado)
-                          : (ing.costoUnitario ?? 0),
-                        proveedor: updatedInsumo.proveedor || undefined,
-                    };
-                }
-                return ing;
-            });
-
-            return itemChanged ? { ...item, ingredients: updatedIngredients } : item;
-        });
-
-        // Solo el que cambio de verdad. Guardar los demas los pisa sin necesidad.
-        if (menuChanged) menusQueCambiaron.push({ ...menu, items: updatedItems });
-    }
-
-    for (const m of menusQueCambiaron) {
-        const guardado = await saveMenu(m);
-        if (guardado && guardado.success === false) {
-            return { success: false, error: guardado.error || `No se pudo actualizar el menu "${m.name || m.id}".` };
-        }
-    }
-    return { success: true };
+    // Cada menú se cambia sobre su versión guardada en ese momento (pregunta 22): ver
+    // `aplicarInsumoEnMenus` en menus-catering.ts.
+    return aplicarInsumoEnMenus(updatedInsumo);
 }
 
 
@@ -107,7 +83,7 @@ async function propagateInsumoChangesToMenus(
 async function saveInsumoInterno(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   limpiarCacheInsumos();
   let inventario = await leerInsumosCrudos();
   let finalItemData: Partial<ServicioEmpresa>;
@@ -189,7 +165,7 @@ async function saveInsumoInterno(
 }
 
 async function deleteInsumoInterno(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   const { getMenus } = await import('./menus-catering');
   const menus = await getMenus();
   const menusEnUso = menus.filter(m =>
@@ -219,10 +195,45 @@ async function deleteInsumoInterno(id: string): Promise<{ success: boolean; erro
   return { success: true };
 }
 
+
+type AjustePendiente = { porcentaje: number; fecha: string; pendientes: string[] };
+const AJUSTE_PENDIENTE_FILE = 'insumos-ajuste-pendiente.json';
+
+/**
+ * Pasa el costo nuevo de cada insumo pendiente a los menús. Lo que falla queda anotado como
+ * pendiente, para que el reintento termine eso sin volver a aplicar el porcentaje.
+ */
+async function terminarMenusPendientes(
+  inventario: ServicioEmpresa[],
+  ajuste: AjustePendiente,
+): Promise<{ success: boolean; error?: string }> {
+  const fallaron: ServicioEmpresa[] = [];
+  for (const id of ajuste.pendientes) {
+    const insumo = inventario.find((i) => i.id === id);
+    if (!insumo) continue;
+    const propRes = await propagateInsumoChangesToMenus(insumo);
+    if (!propRes.success) {
+      console.warn(`[insumos] no se pudieron propagar cambios a los menús para ${insumo.nombre}:`, propRes.error);
+      fallaron.push(insumo);
+    }
+  }
+  await writeData(AJUSTE_PENDIENTE_FILE, { ...ajuste, pendientes: fallaron.map((i) => i.id) });
+  if (fallaron.length > 0) {
+    const nombres = fallaron.map((i) => i.nombre);
+    const cuales = nombres.slice(0, 5).join(', ');
+    const resto = nombres.length > 5 ? ` y ${nombres.length - 5} mas` : '';
+    return {
+      success: false,
+      error: `Los costos de los insumos quedaron ajustados, pero NO se pudo actualizar el costo en los menus de: ${cuales}${resto}. Volvé a aplicar el mismo ${ajuste.porcentaje}%: no se vuelve a subir, sólo termina esos menús.`,
+    };
+  }
+  return { success: true };
+}
+
 async function adjustAllInsumoCostsInterno(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }
@@ -244,6 +255,20 @@ async function adjustAllInsumoCostsInterno(
       return { success: false, error: "No hay insumos en el catálogo para ajustar." };
     }
 
+    // Un ajuste anterior quedó a medias (Codex, auditoría 66): los insumos ya tienen el porcentaje
+    // y faltan menús. Reintentar con el mismo porcentaje NO lo vuelve a aplicar: sólo termina los
+    // menús que faltaban. Con otro porcentaje no se deja, porque se sumaría encima del anterior.
+    const pendiente = await readData<AjustePendiente | null>(AJUSTE_PENDIENTE_FILE, null);
+    if (pendiente?.pendientes?.length) {
+      if (pendiente.porcentaje !== percentage) {
+        return {
+          success: false,
+          error: `Hay un ajuste del ${pendiente.porcentaje}% que quedó a medias. Volvé a aplicar ese mismo ${pendiente.porcentaje}% para terminar los menús (no se vuelve a subir) y después hacé el nuevo.`,
+        };
+      }
+      return terminarMenusPendientes(inventario, pendiente);
+    }
+
     const multiplier = 1 + percentage / 100;
 
     const updatedInventario = inventario.map(insumo => {
@@ -261,25 +286,11 @@ async function adjustAllInsumoCostsInterno(
 
     // Antes esto se anotaba en un registro que no mira nadie y la pantalla decia "listo" igual:
     // los platos seguian costando lo viejo y el presupuesto siguiente salia con precios de antes.
-    const noSePudieronActualizar: string[] = [];
-    for (const insumo of updatedInventario) {
-        const propRes = await propagateInsumoChangesToMenus(insumo);
-        if (!propRes.success) {
-            console.warn(`[insumos] no se pudieron propagar cambios a los menús para ${insumo.nombre}:`, propRes.error);
-            noSePudieronActualizar.push(insumo.nombre);
-        }
-    }
-
-    if (noSePudieronActualizar.length > 0) {
-        const cuales = noSePudieronActualizar.slice(0, 5).join(', ');
-        const resto = noSePudieronActualizar.length > 5 ? ` y ${noSePudieronActualizar.length - 5} mas` : '';
-        return {
-            success: false,
-            error: `Los costos de los insumos quedaron ajustados, pero NO se pudo actualizar el costo en los menus de: ${cuales}${resto}. Esos platos siguen con el precio viejo: revisalos antes de armar un presupuesto.`,
-        };
-    }
-
-    return { success: true };
+    return terminarMenusPendientes(updatedInventario, {
+      porcentaje: percentage,
+      fecha: new Date().toISOString(),
+      pendientes: updatedInventario.map((i) => i.id),
+    });
   } catch (error: any) {
     console.error("Error adjusting insumo costs:", error);
     return { success: false, error: "Ocurrió un error al intentar ajustar los costos de los insumos." };
@@ -299,20 +310,20 @@ const turnoDeInsumos = new AsyncMutex();
 export async function saveInsumo(...datos: Parameters<typeof saveInsumoInterno>): ReturnType<typeof saveInsumoInterno> {
   // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
   // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   return turnoDeInsumos.runExclusive(() => saveInsumoInterno(...datos));
 }
 
 export async function deleteInsumo(...datos: Parameters<typeof deleteInsumoInterno>): ReturnType<typeof deleteInsumoInterno> {
   // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
   // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   return turnoDeInsumos.runExclusive(() => deleteInsumoInterno(...datos));
 }
 
 export async function adjustAllInsumoCosts(...datos: Parameters<typeof adjustAllInsumoCostsInterno>): ReturnType<typeof adjustAllInsumoCostsInterno> {
   // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
   // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   return turnoDeInsumos.runExclusive(() => adjustAllInsumoCostsInterno(...datos));
 }

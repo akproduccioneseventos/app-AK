@@ -3,6 +3,8 @@ import 'server-only';
 import crypto from 'crypto';
 
 import { hasAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import type { EntertainmentModuleId } from '@/lib/entertainment/station-config';
 
 const TOKEN_VERSION = 'ent-v2';
@@ -95,7 +97,17 @@ export async function hasEntertainmentControlAccess(
   moduleId: string,
   token?: string | null
 ) {
-  if (await hasAppSession()) return true;
+  // Tener sesión no alcanza (Codex, auditoría 66): el personal y el operador de otra fiesta también
+  // la tienen. Desde la sesión, hace falta la noche o la organización y, si es operador, estar
+  // asignado a esta fiesta. Sin sesión, sigue valiendo el permiso de operador de la estación.
+  if (await hasAppSession()) {
+    try {
+      await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
+      return true;
+    } catch {
+      // cae al permiso de la estación
+    }
+  }
   return verifyEntertainmentAccessToken(token, fiestaId, moduleId, 'operator');
 }
 

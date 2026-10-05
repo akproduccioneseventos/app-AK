@@ -5,6 +5,7 @@ import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import {
   intentarAdquirirLock,
   liberarLock,
+  renovarLock,
   type OrigenDisparo,
 } from '@/lib/automatico/control-concurrencia';
 
@@ -65,8 +66,14 @@ const MAPA_CRON_IDS: Record<NombreDeTarea, string> = {
 };
 
 interface EstadoDeTareas {
+  /** Última vez que la tarea SALIÓ BIEN. */
   ultimaCorrida?: Partial<Record<NombreDeTarea, string>>;
+  /** Último intento que falló, con qué. Frena el reintento una hora sin tocar `ultimaCorrida`. */
+  ultimoFallo?: Partial<Record<NombreDeTarea, { fecha: string; error: string }>>;
 }
+
+/** Después de un fallo se reintenta a la hora, no al día siguiente (auditoría 66, AUTO02). */
+const ESPERA_TRAS_FALLO_MS = 60 * 60 * 1000;
 
 export interface ResultadoAlEntrar {
   corrio: NombreDeTarea[];
@@ -80,6 +87,27 @@ function leTocaCorrer(ultima: string | undefined, cadaCuantoMs: number, ahoraMs:
   const anterior = new Date(ultima).getTime();
   if (!Number.isFinite(anterior)) return true;
   return ahoraMs - anterior >= cadaCuantoMs;
+}
+
+/**
+ * Corre las partes de una tarea juntas y dice la verdad sobre cómo salieron (Codex, auditoría 66,
+ * AUTO02). Antes cada parte tragaba su error (`.catch(() => null)`) y la tarea quedaba anotada como
+ * corrida con las cuatro partes caídas; el reintento se postergaba 24 horas. Ahora corren todas,
+ * y si alguna tiró o contestó `success: false`, la tarea entera se anota como fallida con cuáles.
+ */
+async function todasSalieron(partes: Record<string, () => Promise<unknown>>): Promise<unknown[]> {
+  const nombres = Object.keys(partes);
+  const resultados = await Promise.allSettled(nombres.map((n) => partes[n]()));
+  const fallaron = nombres.filter((_, i) => {
+    const r = resultados[i];
+    if (r.status === 'rejected') return true;
+    const valor = r.value as { success?: boolean } | null | undefined;
+    return Boolean(valor && typeof valor === 'object' && valor.success === false);
+  });
+  if (fallaron.length > 0) {
+    throw new Error(`No salió: ${fallaron.join(', ')}.`);
+  }
+  return resultados.map((r) => (r as PromiseFulfilledResult<unknown>).value);
 }
 
 /**
@@ -105,10 +133,13 @@ export async function ponerAlDiaAlEntrar(
     };
   }
 
+  // Un trabajo largo renueva el candado cada minuto, para que no venza mientras sigue corriendo.
+  const renovacion = setInterval(() => { void renovarLock(lockAdquirido); }, 60_000);
   try {
     const ahoraMs = ahora.getTime();
     const estado = await readData<EstadoDeTareas>(ESTADO_FILE, {});
     const ultimaCorrida = { ...(estado.ultimaCorrida || {}) };
+    const ultimoFallo = { ...(estado.ultimoFallo || {}) };
 
     const resultado: ResultadoAlEntrar = { corrio: [], omitidas: [], fallaron: [] };
 
@@ -121,10 +152,10 @@ export async function ponerAlDiaAlEntrar(
         correr: async () => {
           const { guardarMetricasDelDia } = await import('@/lib/presencia-digital/guardado-diario');
           const { syncCommentsFromNetworks } = await import('@/lib/social-media/comments-backfill');
-          return Promise.all([
-            guardarMetricasDelDia().catch(() => null),
-            syncCommentsFromNetworks().catch(() => null),
-          ]);
+          return todasSalieron({
+            'métricas del día': () => guardarMetricasDelDia(),
+            'comentarios de las redes': () => syncCommentsFromNetworks(),
+          });
         },
       },
       {
@@ -149,10 +180,10 @@ export async function ponerAlDiaAlEntrar(
           // 2. Revisa agenda de reuniones para avisar al equipo (1 hora antes / hoy)
           const { checkAndCreateReunionReminders } = await import('@/app/actions/notifications');
           const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
-          return Promise.all([
-            ejecutarEscaneoDeRecordatorios().catch(() => null),
-            checkAndCreateReunionReminders(WHATSAPP_AUTOMATION_INTERNAL_TOKEN).catch(() => null),
-          ]);
+          return todasSalieron({
+            'recordatorios de cuotas': () => ejecutarEscaneoDeRecordatorios(),
+            'avisos de reuniones': () => checkAndCreateReunionReminders(WHATSAPP_AUTOMATION_INTERNAL_TOKEN),
+          });
         },
       },
       {
@@ -200,7 +231,9 @@ export async function ponerAlDiaAlEntrar(
     ];
 
     for (const tarea of tareas) {
-      if (!leTocaCorrer(ultimaCorrida[tarea.nombre], CADA_CUANTO[tarea.nombre], ahoraMs)) {
+      const fallo = ultimoFallo[tarea.nombre];
+      const falloReciente = fallo && ahoraMs - new Date(fallo.fecha).getTime() < ESPERA_TRAS_FALLO_MS;
+      if (falloReciente || !leTocaCorrer(ultimaCorrida[tarea.nombre], CADA_CUANTO[tarea.nombre], ahoraMs)) {
         resultado.omitidas.push(tarea.nombre);
         continue;
       }
@@ -208,23 +241,22 @@ export async function ponerAlDiaAlEntrar(
       try {
         await tarea.correr();
         ultimaCorrida[tarea.nombre] = ahora.toISOString();
+        delete ultimoFallo[tarea.nombre];
         resultado.corrio.push(tarea.nombre);
         await marcarCorrida(MAPA_CRON_IDS[tarea.nombre], ahora, origen);
       } catch (error: any) {
-        // Se anota el intento igual: si algo esta roto, que no lo reintente en cada
-        // peticion continua.
-        ultimaCorrida[tarea.nombre] = ahora.toISOString();
-        resultado.fallaron.push({
-          tarea: tarea.nombre,
-          error: error?.message || 'No se pudo completar la tarea.',
-        });
+        // El fallo se anota aparte: no cuenta como corrida buena ni posterga un día el
+        // reintento. Se frena una hora para no reintentar en cada petición.
+        const mensaje = error?.message || 'No se pudo completar la tarea.';
+        ultimoFallo[tarea.nombre] = { fecha: ahora.toISOString(), error: mensaje };
+        resultado.fallaron.push({ tarea: tarea.nombre, error: mensaje });
       }
     }
 
     if (resultado.corrio.length > 0 || resultado.fallaron.length > 0) {
       await writeData(
         ESTADO_FILE,
-        { ultimaCorrida },
+        { ultimaCorrida, ultimoFallo },
         undefined,
         { skipAutoBackup: true },
       );
@@ -232,7 +264,8 @@ export async function ponerAlDiaAlEntrar(
 
     return resultado;
   } finally {
-    await liberarLock();
+    clearInterval(renovacion);
+    await liberarLock(lockAdquirido);
   }
 }
 

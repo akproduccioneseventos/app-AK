@@ -14,16 +14,27 @@
 const readData = jest.fn();
 const writeData = jest.fn(async () => undefined);
 const leerInsumosCrudos = jest.fn();
-const getMenus = jest.fn();
-const saveMenu = jest.fn(async () => ({ success: true }));
+// Cada menú se guarda sobre su versión de ese momento (`mutateDataItem`, auditoría con las 35
+// preguntas): la prueba usa los menús de verdad y mira lo que llega a cada uno.
+let fallaLaBase = false;
+const guardados = new Map<string, any>();
+const mutateDataItem = jest.fn(async (_f: string, _c: string, id: string, cambiar: (a: any) => any) => {
+  if (fallaLaBase) return null;
+  const actual = menus().find((m) => m.id === id);
+  const nuevo = cambiar(JSON.parse(JSON.stringify(actual)));
+  guardados.set(id, nuevo);
+  return nuevo;
+});
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),
   requirePermiso: jest.fn(async () => ({ ok: true, user: {} })),
+  requirePermisoAlguno: jest.fn(async () => ({ ok: true, user: {} })),
 }));
 
 jest.mock('@/lib/data-service', () => ({
   readData: (...a: unknown[]) => readData(...(a as [])),
+  mutateDataItem: (...a: unknown[]) => (mutateDataItem as any)(...a),
   writeData: (...a: unknown[]) => writeData(...(a as [])),
   deleteDataItem: jest.fn(async () => true),
 }));
@@ -33,11 +44,6 @@ jest.mock('@/lib/insumos/leer-insumos', () => ({
   limpiarCacheInsumos: jest.fn(),
 }));
 
-jest.mock('@/app/actions/menus-catering', () => ({
-  getMenus: (...a: unknown[]) => getMenus(...(a as [])),
-  saveMenu: (...a: unknown[]) => saveMenu(...(a as [])),
-  invalidateMenusCache: jest.fn(),
-}));
 
 const INSUMOS = [
   { id: 'ins_1', nombre: 'Lomo', unidad: 'kg', valorUnitarioEstimado: 100, categoria: 'Carnes' },
@@ -49,12 +55,12 @@ function menus() {
     {
       id: 'menu_con_lomo',
       name: 'Menu con lomo',
-      items: [{ id: 'plato_1', ingredients: [{ origenId: 'ins_1', name: 'Lomo', costoUnitario: 100 }] }],
+      items: [{ id: 'plato_1', name: 'Lomo al horno', ingredients: [{ origenId: 'ins_1', name: 'Lomo', costoUnitario: 100 }] }],
     },
     {
       id: 'menu_sin_lomo',
       name: 'Menu de pastas',
-      items: [{ id: 'plato_2', ingredients: [{ origenId: 'ins_9', name: 'Fideos', costoUnitario: 20 }] }],
+      items: [{ id: 'plato_2', name: 'Tallarines', ingredients: [{ origenId: 'ins_9', name: 'Fideos', costoUnitario: 20 }] }],
     },
   ];
 }
@@ -63,13 +69,13 @@ describe('El ajuste de costos de insumos no miente', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     leerInsumosCrudos.mockResolvedValue(INSUMOS);
-    readData.mockResolvedValue(INSUMOS);
-    getMenus.mockImplementation(async () => menus());
-    saveMenu.mockImplementation(async () => ({ success: true }));
+    readData.mockImplementation(async (f: string) => (f === 'menus-catering.json' ? menus() : INSUMOS));
+    fallaLaBase = false;
+    guardados.clear();
   });
 
   it('si un menu no se pudo actualizar, avisa y NO dice que salio bien', async () => {
-    saveMenu.mockImplementation(async () => ({ success: false, error: 'la base no contesta' }));
+    fallaLaBase = true;
     const { adjustAllInsumoCosts } = await import('@/app/actions/insumos');
 
     const resultado = await adjustAllInsumoCosts(10);
@@ -84,9 +90,7 @@ describe('El ajuste de costos de insumos no miente', () => {
     const resultado = await adjustAllInsumoCosts(10);
 
     expect(resultado.success).toBe(true);
-    const guardados = saveMenu.mock.calls.map((llamada: any[]) => llamada[0].id);
-    expect(guardados).toContain('menu_con_lomo');
-    expect(guardados).not.toContain('menu_sin_lomo');
+    expect([...guardados.keys()]).toEqual(['menu_con_lomo']);
   });
 
   it('el costo nuevo llega al plato', async () => {
@@ -94,7 +98,7 @@ describe('El ajuste de costos de insumos no miente', () => {
 
     await adjustAllInsumoCosts(10);
 
-    const guardado: any = saveMenu.mock.calls.find((llamada: any[]) => llamada[0].id === 'menu_con_lomo')?.[0];
+    const guardado: any = guardados.get('menu_con_lomo');
     expect(guardado.items[0].ingredients[0].costoUnitario).toBe(110);
   });
 });

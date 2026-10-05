@@ -7,6 +7,8 @@ import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gal
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import {
   createEntertainmentAccessToken,
   hasEntertainmentGuestAccess,
@@ -97,7 +99,9 @@ export async function getEntertainmentLaunchToken(
   moduleId: EntertainmentModuleId
 ) {
   try {
-    await requireAppSession();
+    // El permiso de operador de la estación abre el control de la noche: no se le da a cualquiera
+    // con sesión (Codex, auditoría 66). Noche u organización, y el operador sólo en su fiesta.
+    await requireEventPermission(fiestaId, [PERMISOS.NOCHE, PERMISOS.ORGANIZACION]);
     if (!isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
@@ -264,6 +268,8 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       source: 'entertainment',
       sourceModule: moduleId,
       momentTag: MODULE_MOMENT_TAGS[moduleId] || 'Entretenimiento',
+      // Con identidad de la captura, el posteo también es fijo: un reintento no lo duplica.
+      ...(clientMediaId ? { postId: `post_${mediaId}` } : {}),
     }, accessToken);
 
     const mediaItem = {
@@ -292,7 +298,10 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
     const current = getStoredEntertainment(fiesta) || {};
     const modules = { ...(current.modules || {}) };
     const entertainmentModule = { ...(modules[moduleId] || {}) };
-    entertainmentModule.media = [mediaItem, ...(entertainmentModule.media || [])];
+    entertainmentModule.media = [
+      mediaItem,
+      ...(entertainmentModule.media || []).filter((item: { id?: string }) => item.id !== mediaItem.id),
+    ];
     modules[moduleId] = entertainmentModule;
 
     const nextEntertainment = normalizeEntertainmentData({

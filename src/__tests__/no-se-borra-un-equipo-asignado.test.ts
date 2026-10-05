@@ -17,6 +17,7 @@ const getFiestas = jest.fn();
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),
   requirePermiso: jest.fn(async () => ({ ok: true, user: {} })),
+  requirePermisoAlguno: jest.fn(async () => undefined),
 }));
 
 jest.mock('@/lib/data-service', () => ({

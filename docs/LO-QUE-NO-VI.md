@@ -828,3 +828,35 @@ reintento son las de esta misma función.
 ```comprobar
 prueba: src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts
 ```
+
+## 05/10/2026 — Diez acciones de plata y personas que sólo pedían sesión (Codex, auditoría 66)
+
+**Qué era:** presupuestos con cobros, insumos, barra, lista de invitados y permiso de operador
+abiertos a cualquiera con sesión, incluido el personal. Y cinco fallos más: enlace vencido del
+personal, coordenadas inválidas, dos canciones que se pisaban, candado de tareas entre servidores
+y tareas fallidas anotadas como corridas.
+
+**Por qué se me pasó:** mi pregunta era "¿pide sesión?" y la respuesta era sí. La pregunta tenía que
+ser "¿pide el permiso del perfil?". **Pregunta nueva: la 35.** El barrido es mío (son permisos):
+se pasó por insumos, presupuestos, barra, invitados y estaciones.
+
+```comprobar
+prueba: src/__tests__/auditoria-66-quien-ve-que.test.ts
+prueba: src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts
+```
+
+## 05/10/2026 — El CRM, el contrato en papel y la ficha del personal, abiertos a cualquier sesión
+
+**Qué era:** al pasar las 35 preguntas por toda la app aparecieron ocho áreas más que pedían sólo
+sesión, entre ellas el CRM con los teléfonos de los prospectos y la seña, y el contrato en papel
+que da la fiesta por contratada.
+
+**Por qué se me pasó:** el barrido de la pregunta 35 lo hice sobre las áreas que había marcado
+Codex, no sobre toda la app. Y la pregunta 32 (qué pasa si el segundo paso tira) la pasé por los
+cobros de facturas y no por la seña. **Lo que cambia:** el control nuevo recorre cada acción de
+esas áreas y falla si alguna se conforma con la sesión; cuando una pregunta nueva toca permisos,
+se barre toda la carpeta de acciones, no la lista del informe.
+
+```comprobar
+prueba: src/__tests__/auditoria-35-quien-ve-que.test.ts
+```

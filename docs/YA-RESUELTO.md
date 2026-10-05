@@ -1,5 +1,61 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 5 de octubre de 2026 — La puerta prueba lo que cambió, también cuando cambia el servidor
+
+El dueño: *"no es toda la app, es sólo esas cosas; 40 minutos debería ser 5"*. Medido: un permiso
+nuevo adentro de `presupuestos.ts` o `insumos.ts` "alcanzaba" las 370 pantallas (126 la importan, y
+de ahí se subía por otras acciones y por los armazones), y el botón de voz del asistente flotante
+expandía el armazón a todas. Ahora: un cambio del servidor sigue un solo paso por otras acciones y
+llega hasta la primera pantalla que lo usa; para elegir pruebas de navegador, ni ese paso; y un
+armazón se expande sólo si cambió él mismo (las pruebas de humo ya lo abren). Jest sigue corriendo
+entero siempre. La compilación (unos 7 minutos) no se acorta con esto.
+
+```comprobar
+prueba: src/__tests__/un-cambio-del-servidor-no-corre-toda-la-app.test.ts
+usa: esSoloDelServidor en scripts/pantallas-tocadas.mjs
+```
+
+## 5 de octubre de 2026 — Codex, auditoría 66: los cinco fallos y los trece pendientes de plata y permisos
+
+- **PERS01/PERS02:** el enlace vencido del personal ya no abre el portal ni marca asistencia o
+  llegada; NaN, Infinity o coordenadas fuera del planeta no registran llegada.
+- **SOCIAL01:** canciones, dedicatorias y encuestas llevan identidad única: dos en el mismo
+  milisegundo quedan las dos.
+- **AUTO01:** el candado de las tareas se toma en una operación de la base, con dueño; sólo lo
+  libera quien lo tomó y un trabajo largo lo renueva. Sin base, no se corre.
+- **AUTO02:** métricas y recordatorios dicen cuál parte falló; un fallo no cuenta como corrida y
+  se reintenta a la hora.
+- **Permisos por perfil, no por sesión:** lista de invitados (organización y, el operador, sólo
+  en su fiesta); insumos (cambiar: insumos; leer: insumos u organización); presupuestos (el
+  personal nada; el operador sin cobros; enlaces, pendientes, corregir fechas y recalcular
+  precios: contabilidad); barra (noche o insumos); permiso de operador de las estaciones (noche u
+  organización). **Decisión tomada:** el operador sigue viendo los servicios de los presupuestos
+  para planificar, sin los cobros.
+- **Plata y stock:** los menús públicos ya no llevan el costo del plato (va el precio calculado);
+  el ajuste masivo de costos no se aplica dos veces al reintentar; el trago del invitado no se
+  confirma si un ingrediente controlado no alcanza; el pedido manual que no se guardó devuelve
+  las botellas; el tope de la voz se toma en una operación y el texto va por POST.
+- **Video:** ya no promete música que no tiene, y "Compartir" manda el archivo del video.
+- **Estaciones:** la captura lleva la misma identidad en la subida y en el reintento sin
+  conexión, y el posteo con identidad fija nunca pisa uno existente.
+- **El aviso de espera** ya no dice "no se guardó nada": puede haberse guardado.
+- **Contador de Codex:** lo tocado sin commitear también manda el área a volver a mirar.
+- **Falso positivo verificado:** `recalculatePresupuestoFromCatalog` no tiene costo y precio al
+  revés (`precioUnitario` es el costo y `precioUnitarioPresupuesto` el precio de venta).
+
+```comprobar
+prueba: src/__tests__/personal-vigencia-y-coordenadas-invalidas.test.ts
+prueba: src/__tests__/social-interactive-creaciones-simultaneas.test.ts
+prueba: src/__tests__/tareas-candado-entre-instancias.test.ts
+prueba: src/__tests__/tareas-no-marcan-exito-al-fallar.test.ts
+prueba: src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts
+prueba: src/__tests__/auditoria-66-quien-ve-que.test.ts
+usa: accesoVencido en src/app/actions/accesos-personal-view.ts
+usa: PERMISO_DE_LA_BARRA en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: nivelDePresupuestos en src/app/actions/presupuestos.ts
+usa: requireEventPermission(fiestaId, PERMISOS.ORGANIZACION) en src/app/actions/fiesta/invitados.actions.ts
+```
+
 ## 3 de octubre de 2026 — La 1251 de Gemini, terminada por Claude (orden 115)
 
 - **El video resumen duraba lo que tardaba el teléfono:** los cuadros se dibujaban lo más rápido
@@ -9319,7 +9375,7 @@ presupuesto.
 
 ```comprobar
 archivo: src/app/actions/insumos.ts
-usa: noSePudieronActualizar en src/app/actions/insumos.ts
+usa: terminarMenusPendientes en src/app/actions/insumos.ts
 prueba: src/__tests__/el-ajuste-de-costos-no-miente.test.ts
 ```
 
@@ -10506,4 +10562,68 @@ prueba: src/__tests__/no-se-fusiona-lo-que-no-paso-la-puerta.test.ts
 usa: publicRsvp: true en src/app/actions/accesos-personal-view.ts
 usa: publicRsvp: true en src/lib/invitaciones/recordatorio-no-abiertas.ts
 usa: publicRsvp: true en src/lib/whatsapp/avisos-al-cliente.ts
+```
+
+## 5 de octubre de 2026 - Herramientas y evidencia de Codex, en rama de auditoria
+
+- Graphify reconstruido localmente sobre `212ba37`: 2.198 archivos de codigo, 11.763 nodos,
+  39.183 relaciones y 654 comunidades. Omitio 2 documentos por falta de clave de IA;
+  25 archivos tienen advertencias del parser. Es local/ignorado por Git, no sustituye
+  compilacion. uv instalado como herramienta del equipo; no cambio la app.
+- Informe 66 y tres sondas aisladas: **evidencia de cinco fallos pendientes, no arreglos**,
+  SOCIAL01, AUTO01-02, PERS01-02. Orden 116 reparte Gemini/Claude y exige contraste antes
+  de programar. El informe conserva los otros pendientes anteriores, aun no corregidos.
+- Falso positivo descartado: `getRecibosFirmadosByEmpleado` llama a `getRecibosFirmados`,
+  que exige SUELDOS. No reportar filtracion solo por ver `requireAppSession` en la primera
+  funcion; la cadena real se verifico en `212ba37`.
+- Las sondas salen con codigo 0 al confirmar el defecto base. No usarlas como aprobacion;
+  las nuevas pruebas de regresion de la orden estan pendientes.
+- Documentacion en `codex/auditoria-66-20261005` para juntarse con la correccion. No se
+  fusiona sola ni certifica las 14 areas.
+
+## 5 de octubre de 2026 - Cierre de la tanda, NO aprobacion de la app
+
+- Informe 67 consolida el alcance y los pendientes del informe 66: cinco defectos
+  reproducidos con sondas y trece observaciones de codigo sin reproduccion productiva.
+  **No son arreglos:** no borrarlos por figurar en este registro de trabajo compartido.
+- main seguia en `212ba37` y no habia PR abierta al cerrar. El trabajo local/no subido de
+  otras IA no esta contrastado. No hubo cambios de app, compilacion ni fusion de Codex.
+- Se reutilizan las 589 suites / 3.383 pruebas aprobadas del mismo codigo; no se repiten
+  ni se suman los subconjuntos. El E2E inconcluso no se convierte en prueba aprobada.
+- La matriz explica por area lo probado y lo pendiente. Se cierra esta tanda documental
+  con veredicto NO APROBADA, no se afirma auditoria completa ni certificado de cero errores.
+- Continuar con correcciones y cobertura pendiente en una sola tanda; Claude compila,
+  Codex contrasta el SHA entregado. No rehacer los COB01-09 ni los falsos positivos anotados.
+
+## 5 de octubre de 2026 — Auditoría de toda la app con las 35 preguntas: permisos y plata
+
+Pedido del dueño: pasar por toda la app las preguntas que fueron saliendo de cada falla. Lo que
+estaba roto de verdad, y cómo quedó:
+
+- **Acciones que pedían sólo tener sesión** (el personal y el operador también tienen): cupones
+  (contabilidad; validar y usar, contabilidad o CRM), activos fijos (leer y mantenimiento, insumos u
+  organización; cambiar, insumos), la ficha del personal (sueldos ve todo; organización y la noche
+  ven nombre y teléfono **sin cédula ni fecha de nacimiento**; el resto, nada), los enlaces del
+  personal (organización), los menús (leer, insumos u organización; cambiar, insumos), el menú de
+  la fiesta (organización o insumos, por fiesta), **el CRM entero** (prospectos con CRM; la seña y
+  la reserva, contabilidad) y **el contrato en papel** (contabilidad: da la fiesta por contratada
+  y anota la seña).
+- **Costo de un insumo pasado a los menús con una lista vieja** (pregunta 22): ahora cada menú se
+  cambia sobre su versión de ese momento (`aplicarInsumoEnMenus`).
+- **La lista de compras guardaba la fiesta entera leída antes** y cualquiera la tocaba: ahora pide
+  permiso (marcar que se le pagó al proveedor es insumos o contabilidad) y guarda con
+  `actualizarFiesta`.
+- **La seña, si el paso al presupuesto tiraba un error**, salía sin explicación: ahora dice que el
+  recibo quedó y que se puede volver a tocar sin duplicar (el reintento ya era seguro).
+
+Falsos positivos descartados: el botón de respuesta tardía de las estaciones (lo cubre el turno
+nuevo), el descuento de stock con nulo, la lista de presupuestos, el "ya estaba" de cupones y el
+intercambio en el recálculo de presupuestos.
+
+```comprobar
+prueba: src/__tests__/auditoria-35-quien-ve-que.test.ts
+usa: aplicarInsumoEnMenus en src/app/actions/insumos.ts
+usa: actualizarFiesta en src/app/actions/fiesta/catering.actions.ts
+usa: sesionConPermiso(PERMISOS.CONTABILIDAD) en src/app/actions/crm.ts
+usa: sinDatosPersonales en src/app/actions/empleados.ts
 ```

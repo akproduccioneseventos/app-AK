@@ -10,6 +10,7 @@ jest.mock('@/lib/data-service', () => ({
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => undefined),
+  requirePermisoAlguno: jest.fn(async () => undefined),
 }));
 
 import { saveCupon } from '@/app/actions/cupones';

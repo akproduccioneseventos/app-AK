@@ -380,6 +380,12 @@ tengan nombre, con **K** por AK.
 **La prueba**: los cuatro asistentes muestran "Asistente AK" y la mascota, ninguno usa el ícono `Bot`.
 
 ```comprobar
+# Bloque 7 — vista mágica del salón
+usa: handleVerSalonDecorado en src/app/(app)/empresa/configurador-reunion/page.tsx
+# Bloque 11 — el salón se arma con una frase
+usa: aplicarFraseArmado en src/app/(app)/empresa/configurador-reunion/page.tsx
+# Bloque 14 — el video resumen sin IA de video
+usa: generarVideoResumenWebM en src/components/album/TuVideoDeLaFiestaModal.tsx
 usa: idDeYoutube en src/app/(app)/empresa/configurador-reunion/page.tsx
 usa: createDemoFiesta en src/app/(app)/empresa/configurador-reunion/page.tsx
 prueba: src/__tests__/dos-servidores-no-pierden-invitados.test.ts

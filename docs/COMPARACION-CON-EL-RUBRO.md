@@ -46,7 +46,6 @@ Accesorios sobre la foto :: usa: STICKERS en src/app/evento/fotocabina/[fiestaId
 Firmar o dibujar sobre la foto :: usa: LienzoDibujoCompartido en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Boomerang o GIF :: usa: velocidadRecuerdo === 'boomerang' en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Video :: usa: mediaRecorderRef en src/app/evento/fotocabina/[fiestaId]/page.tsx
-Camara lenta :: usa: velocidadRecuerdo === 'lenta' en src/app/evento/fotocabina/[fiestaId]/page.tsx
 Ajustes editables :: usa: station-config en src/app/(app)/fiestas/nueva/entretenimiento/page.tsx
 ```
 

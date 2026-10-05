@@ -1,6 +1,6 @@
 /**
  * @fileOverview Reproductor universal de voz para la IA en el cliente.
- * Prioriza la voz de Gemini (/api/asistente/voz-parte?texto=...) y, si no está (apagada, tope del
+ * Prioriza la voz de Gemini (POST /api/asistente/voz-parte) y, si no está (apagada, tope del
  * día, sin señal), usa la voz del teléfono, salvo que también esté apagada en Ajustes.
  */
 
@@ -67,12 +67,12 @@ export async function reproducirVozReal(
 
   // 1. Intentar audio neuronal del servidor
   try {
-    const params = new URLSearchParams({ texto: textoLimpio });
-    if (opciones?.voz) {
-      params.set('voz', opciones.voz);
-    }
-
-    const response = await fetch(`/api/asistente/voz-parte?${params.toString()}`);
+    // Por POST: el texto no queda en la dirección, ni en el historial ni en los registros (auditoría 66).
+    const response = await fetch('/api/asistente/voz-parte', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ texto: textoLimpio, ...(opciones?.voz ? { voz: opciones.voz } : {}) }),
+    });
     if (!response.ok) {
       // La ruta dice si la voz del teléfono está prendida en Ajustes. Apagada: no se habla.
       const motivo = await response.json().catch(() => ({} as { vozTelefonoActiva?: boolean }));

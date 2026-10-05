@@ -22,7 +22,10 @@ const RAIZ = process.cwd();
 
 export function cambioDesde(commit, carpetas, git = (args) => execFileSync('git', args, { cwd: RAIZ, encoding: 'utf8' })) {
   try {
-    return git(['diff', '--name-only', `${commit}..HEAD`, '--', ...carpetas]).trim().length > 0;
+    if (git(['diff', '--name-only', `${commit}..HEAD`, '--', ...carpetas]).trim().length > 0) return true;
+    // Lo que está tocado y sin commitear —o nuevo, sin seguimiento— también cuenta (auditoría 66):
+    // si no, un área se seguía llamando limpia con cambios en la copia local.
+    return git(['status', '--porcelain', '--', ...carpetas]).trim().length > 0;
   } catch {
     return true; // sin poder comparar, no se da por limpia
   }

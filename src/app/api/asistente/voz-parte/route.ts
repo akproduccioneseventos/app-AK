@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { hasAppSession } from '@/lib/auth/require-session';
 import { sintetizarVozGemini } from '@/lib/asistente/voz-gemini';
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
-import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { hoyEnUruguay } from '@/lib/utils';
 
 /**
@@ -15,15 +15,21 @@ import { hoyEnUruguay } from '@/lib/utils';
  * pasa de TOPE_DIARIO pedidos y después sigue el teléfono.
  */
 const TOPE_DIARIO = 100;
-const USO_FILE = 'asistente-voz-uso.json';
+const USO_FILE = 'asistente/voz-uso.json';
 
+/**
+ * Toma un lugar del tope del día en UNA operación de la base (auditoría 66): con lectura y escritura
+ * separadas, varios pedidos a la vez leían el mismo número y pasaban todos.
+ */
 async function hayCupoHoy(): Promise<boolean> {
   const hoy = hoyEnUruguay();
-  const uso = await readData<{ fecha?: string; cantidad?: number }>(USO_FILE, {});
-  const cantidad = uso.fecha === hoy ? uso.cantidad || 0 : 0;
-  if (cantidad >= TOPE_DIARIO) return false;
-  await writeData(USO_FILE, { fecha: hoy, cantidad: cantidad + 1 });
-  return true;
+  let tomado = false;
+  await mutarDocumentoConTransaccion<{ fecha?: string; cantidad?: number }>(USO_FILE, {}, (uso) => {
+    const cantidad = uso.fecha === hoy ? uso.cantidad || 0 : 0;
+    tomado = cantidad < TOPE_DIARIO;
+    return tomado ? { fecha: hoy, cantidad: cantidad + 1 } : null;
+  });
+  return tomado;
 }
 
 async function darVoz(texto: string | null | undefined, voz: string | undefined, cache: string) {
@@ -56,12 +62,8 @@ async function darVoz(texto: string | null | undefined, voz: string | undefined,
   }
 }
 
-export async function GET(request: NextRequest) {
-  const p = request.nextUrl.searchParams;
-  return darVoz(p.get('texto'), p.get('voz') || undefined, 'private, max-age=86400');
-}
-
 export async function POST(request: NextRequest) {
+  // Sólo POST: por GET el texto quedaba en la dirección y en los registros (auditoría 66).
   const body = await request.json().catch(() => ({}));
   return darVoz(body?.texto, body?.voz, 'private, no-cache');
 }

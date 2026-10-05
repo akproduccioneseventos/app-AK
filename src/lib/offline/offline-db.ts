@@ -197,11 +197,18 @@ function openDatabase(): Promise<IDBDatabase> {
 /**
  * Guarda una captura en la cola local de IndexedDB.
  */
+/** Identificador de una captura, el mismo desde la primera subida hasta cualquier reintento. */
+export function nuevoIdDeCaptura(): string {
+  return `offline_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
 export async function saveOfflineMedia(
-  entry: Omit<OfflineMediaItem, 'id' | 'createdAt' | 'attempts'>
+  entry: Omit<OfflineMediaItem, 'id' | 'createdAt' | 'attempts'> & { id?: string }
 ): Promise<string> {
   const db = await openDatabase();
-  const id = `offline_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  // Si la captura ya intentó subirse, trae su identificador: el reintento usa el MISMO y el
+  // servidor reconoce la captura aunque la primera subida haya terminado tarde (auditoría 66).
+  const id = entry.id || nuevoIdDeCaptura();
   const item: OfflineMediaItem = {
     ...entry,
     metadata: sanitizeOfflineMetadata(entry.metadata),

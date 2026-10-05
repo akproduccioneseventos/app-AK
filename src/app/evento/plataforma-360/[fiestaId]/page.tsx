@@ -41,7 +41,7 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
-import { saveOfflineMedia } from '@/lib/offline/offline-db';
+import { saveOfflineMedia, nuevoIdDeCaptura } from '@/lib/offline/offline-db';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
 import { SyncStatusIndicator } from '@/components/offline/sync-status-indicator';
 
@@ -604,6 +604,9 @@ export default function Plataforma360Page() {
     const capturedGuestId = guestId;
     const capturedGuestAccessToken = guestAccessToken;
     const capturedAccessToken = accessToken;
+    // Una identidad por captura, la misma en la primera subida y en cualquier reintento sin
+    // conexión: si la primera termina después del tope de espera, el reintento no la duplica.
+    const idDeLaCaptura = nuevoIdDeCaptura();
     const capturaDeLaSesion = sesionCaptureIdRef.current || session?.captureId;
 
     // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
@@ -629,6 +632,7 @@ export default function Plataforma360Page() {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
         try {
           await saveOfflineMedia({
+            id: idDeLaCaptura,
             fiestaId,
             moduleId: 'plataforma-360',
             fileBlob: blob,
@@ -672,6 +676,7 @@ export default function Plataforma360Page() {
       formData.append('file', file);
       formData.append('authorName', 'Plataforma 360');
       formData.append('moduleId', 'plataforma-360');
+      formData.append('clientMediaId', idDeLaCaptura);
       if (capturedAccessToken) formData.append('accessToken', capturedAccessToken);
       if (capturedGuestId) formData.append('guestId', capturedGuestId);
       if (capturedGuestAccessToken) formData.append('guestAccessToken', capturedGuestAccessToken);
@@ -732,6 +737,7 @@ export default function Plataforma360Page() {
       try {
         const ext = blob.type.includes('webm') ? '.webm' : '.mp4';
         await saveOfflineMedia({
+          id: idDeLaCaptura,
           fiestaId,
           moduleId: 'plataforma-360',
           fileBlob: blob,

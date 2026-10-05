@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Film, Download, Share2, Play, Check, X, Loader2, Sparkles } from 'lucide-react';
+import { Film, Download, Share2, Play, X, Loader2, Sparkles } from 'lucide-react';
 import {
   generarVideoResumenWebM,
   type ItemFotoResumen,
@@ -31,7 +31,6 @@ export function TuVideoDeLaFiestaModal({
   const [generando, setGenerando] = useState(false);
   const [progreso, setProgreso] = useState(0);
   const [resultado, setResultado] = useState<ResultadoVideoResumen | null>(null);
-  const [copiado, setCopiado] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const resultadoRef = useRef<ResultadoVideoResumen | null>(null);
   resultadoRef.current = resultado;
@@ -86,29 +85,26 @@ export function TuVideoDeLaFiestaModal({
     document.body.removeChild(a);
   };
 
+  // Se comparte EL VIDEO, no la dirección de esta pantalla (auditoría 66): quien lo recibía abría
+  // la página y no el archivo recién armado. Si el teléfono no deja mandar archivos, se baja.
   const handleCompartir = async () => {
-    const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+    if (!resultado) return;
+    const archivo = new File([resultado.blob], `video-${titulo.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.webm`, {
+      type: resultado.blob.type || 'video/webm',
+    });
     const shareText = `¡Mirá el video resumen de la fiesta "${titulo}"! 🎥✨`;
 
-    if (navigator.share) {
+    if (navigator.canShare?.({ files: [archivo] })) {
       try {
-        await navigator.share({
-          title: `Tu video de la fiesta — ${titulo}`,
-          text: shareText,
-          url: shareUrl,
-        });
+        await navigator.share({ title: `Tu video de la fiesta — ${titulo}`, text: shareText, files: [archivo] });
         return;
       } catch {
-        // Fallback a portapapeles
+        // Si la persona cancela o falla, se le deja bajar el archivo.
       }
     }
 
-    if (navigator.clipboard) {
-      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 2500);
-      toast({ title: 'Enlace copiado al portapapeles' });
-    }
+    handleDescargar();
+    toast({ title: 'Video descargado', description: 'Tu teléfono no deja compartirlo directo: mandalo desde la galería.' });
   };
 
   if (!isOpen) return null;
@@ -130,7 +126,7 @@ export function TuVideoDeLaFiestaModal({
           </div>
           <div>
             <h2 className="text-lg font-black text-white">Tu video de la fiesta</h2>
-            <p className="text-xs text-zinc-400">Montaje vertical con fotos reales y música</p>
+            <p className="text-xs text-zinc-400">Montaje vertical con las fotos de la fiesta</p>
           </div>
         </div>
 
@@ -184,7 +180,7 @@ export function TuVideoDeLaFiestaModal({
                 onClick={handleCompartir}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 border border-white/10 text-xs font-bold text-white hover:bg-zinc-800 transition"
               >
-                {copiado ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
+                <Share2 className="w-3.5 h-3.5" />
                 Compartir
               </button>
               <button

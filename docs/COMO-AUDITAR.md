@@ -820,3 +820,17 @@ persona.
 
 Al verificar: un "ya estaba" compara **lo pedido con lo guardado** y contesta **el estado real del
 paso siguiente**, leído de la base, nunca de la copia que se leyó antes de empezar.
+
+## Pregunta 35 — la que sumó el 5 de octubre de 2026 (Codex, auditoría 66)
+
+### 35. ¿Pide sesión, o pide el permiso del perfil que corresponde?
+
+Diez acciones de plata, stock y personas pedían "que haya sesión" y se daban por protegidas. Pero
+el personal y el operador también tienen sesión: el operador ("nada de plata") leía los cobros de
+los presupuestos, el personal podía cambiar costos de insumos y operar la barra. Yo miraba si
+había un control, no **cuál**.
+
+Al verificar: para cada acción de plata, stock o datos de personas, se pregunta **qué perfil** la
+usa de verdad (`PERMISOS_POR_PERFIL` en `src/lib/auth/perfiles.ts`) y se pide ese permiso; si es de
+una fiesta, `requireEventPermission`, que además mira que el operador esté asignado. Si un perfil
+necesita una parte, se le da esa parte (el operador ve los servicios, no los cobros).

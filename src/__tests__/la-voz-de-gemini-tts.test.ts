@@ -24,9 +24,9 @@ jest.mock('@/lib/auth/require-session', () => ({
 }));
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (archivo: string, porDefecto: any) =>
-    archivo === 'asistente-settings.json' ? ajustes : archivo === 'asistente-voz-uso.json' ? usoGuardado : porDefecto),
+    archivo === 'asistente-settings.json' ? ajustes : archivo === 'asistente/voz-uso.json' ? usoGuardado : porDefecto),
   writeData: jest.fn(async (archivo: string, datos: any) => {
-    if (archivo === 'asistente-voz-uso.json') usoGuardado = datos;
+    if (archivo === 'asistente/voz-uso.json') usoGuardado = datos;
     if (archivo === 'asistente-settings.json') ajustes = datos;
   }),
 }));
@@ -81,8 +81,8 @@ describe('La voz de Gemini', () => {
 
 describe('Los dos interruptores', () => {
   const pedir = async () => {
-    const { GET } = require('@/app/api/asistente/voz-parte/route');
-    return GET({ nextUrl: new URL('http://x/api/asistente/voz-parte?texto=Hola') } as any);
+    const { POST } = require('@/app/api/asistente/voz-parte/route');
+    return POST({ json: async () => ({ texto: 'Hola' }) } as any);
   };
   // Con clave puesta: si el interruptor o el tope no frenaran, se llamaría a Gemini de verdad.
   beforeEach(() => { sesion = true; usoGuardado = {}; process.env.GEMINI_API_KEY = 'clave-de-prueba-12345'; });
@@ -135,5 +135,30 @@ describe('Quién cambia los ajustes del asistente', () => {
     const r = await saveSettingsAsistenteAction({ numeroDuenio: '59899999999' });
     expect(r.success).toBe(false);
     expect(ajustes.numeroDuenio).toBe('59898355530');
+  });
+});
+
+describe('El tope y el texto (auditoría 66)', () => {
+  it('diez pedidos a la vez con un lugar libre: pasa uno solo', async () => {
+    jest.resetModules();
+    ajustes = { vozGeminiActiva: true };
+    const { hoyEnUruguay } = require('@/lib/utils');
+    usoGuardado = { fecha: hoyEnUruguay(), cantidad: 99 };
+    process.env.GEMINI_API_KEY = 'clave-de-prueba-12345';
+    (globalThis as any).fetch = jest.fn(async () => respuestaConAudio(Buffer.from([1, 2])));
+    sesion = true;
+    const { POST } = require('@/app/api/asistente/voz-parte/route');
+    const respuestas = await Promise.all(Array.from({ length: 10 }, () => POST({ json: async () => ({ texto: 'Hola' }) } as any)));
+    expect(respuestas.filter((r: any) => r.status === 200)).toHaveLength(1);
+    expect(usoGuardado.cantidad).toBe(100);
+    delete process.env.GEMINI_API_KEY;
+  });
+
+  it('el texto viaja en el cuerpo, no en la dirección', () => {
+    const reproductor = fs.readFileSync(path.join(process.cwd(), 'src/lib/asistente/reproductor-voz.ts'), 'utf8');
+    expect(reproductor).not.toMatch(/voz-parte\?/);
+    expect(reproductor).toMatch(/method: 'POST'/);
+    const ruta = fs.readFileSync(path.join(process.cwd(), 'src/app/api/asistente/voz-parte/route.ts'), 'utf8');
+    expect(ruta).not.toMatch(/export async function GET/);
   });
 });

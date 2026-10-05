@@ -1,10 +1,12 @@
 'use server';
 
+import { getMenuItemSellingPrice } from '@/lib/simulator/catalog';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
-import { readData, writeData, createDataItem, updateDataItem, deleteDataItem } from '@/lib/data-service';
+import { readData, writeData, createDataItem, updateDataItem, deleteDataItem, mutateDataItem } from '@/lib/data-service';
 import { getInsumos } from './insumos';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { numerosDeMenuInvalidos } from '@/lib/catering/numeros-de-menu';
 
 import { leerInsumosCrudos } from '@/lib/insumos/leer-insumos';
@@ -25,7 +27,7 @@ const sinBuffetVirtual = (menu: FullMenu): FullMenu => ({
 let cachedMenus: FullMenu[] | null = null;
 
 export async function invalidateMenusCache() {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
   cachedMenus = null;
 }
 
@@ -126,7 +128,7 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
 export async function getMenus(): Promise<FullMenu[]> {
   // Trae la receta de cada plato con lo que sale cada ingrediente y el margen de
   // ganancia. Eso es del equipo.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
   return armarMenus();
 }
 
@@ -173,23 +175,27 @@ async function armarMenus(): Promise<FullMenu[]> {
  * lo que sale cada uno, y el porcentaje de ganancia de cada plato, son justo lo que
  * la competencia querria ver.
  *
- * Se deja el costo total del plato porque el simulador lo usa para armar el
- * presupuesto del prospecto; sacarlo dejaria ese presupuesto con el costo en cero y
- * despues las cuentas de ganancia darian mal.
+ * Tampoco va el costo del plato (Codex, auditoría 66, 5/10/2026). Se dejaba porque el simulador
+ * calculaba el precio con costo × margen cuando el plato no tenía precio sugerido; ahora el precio
+ * de venta se calcula ACÁ, con el margen de verdad, y viaja ya hecho. El presupuesto que se guarda
+ * lo vuelve a calcular el servidor desde los menús guardados (`public-simulator-persistence.ts`),
+ * así que el costo nunca hizo falta afuera.
  */
 export async function getMenusPublicos(): Promise<FullMenu[]> {
   const menus = await armarMenus();
   return menus.map((menu) => ({
     ...menu,
-    items: menu.items.map(({ ingredients, profitMargin, ...visible }) => {
-      void ingredients; void profitMargin;
-      return { ...visible, ingredients: [] } as typeof menu.items[number];
+    items: menu.items.map((item) => {
+      const precio = getMenuItemSellingPrice(item);
+      const { ingredients, profitMargin, totalDishCost, ...visible } = item;
+      void ingredients; void profitMargin; void totalDishCost;
+      return { ...visible, ingredients: [], totalDishCost: 0, suggestedSellingPrice: precio } as typeof menu.items[number];
     }),
   }));
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS, PERMISOS.ORGANIZACION);
   const allMenus = await armarMenus();
   const menu = allMenus.find(m => m.id === id);
   return menu || null;
@@ -211,7 +217,7 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
 async function saveMenuInterno(
   menuDataInput: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
 ): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   invalidateMenusCache();
   const [menus, catalog] = await Promise.all([readMenusFile(), leerInsumosCrudos()]);
   let menuId: string;
@@ -269,7 +275,7 @@ async function saveMenuInterno(
 }
 
 async function deleteMenuInterno(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
 
   const targetMenu = await getMenuById(id);
   const menuItemIds = new Set(targetMenu?.items.map(item => item.id) || []);
@@ -307,7 +313,7 @@ async function deleteMenuInterno(id: string): Promise<{ success: boolean; error?
 }
 
 export async function duplicateMenu(id: string): Promise<{ success: boolean; error?: string; menu?: FullMenu }> {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.INSUMOS);
     invalidateMenusCache();
     const menuToDuplicate = await getMenuById(id);
     if (!menuToDuplicate) return { success: false, error: 'Menú a duplicar no encontrado.' };
@@ -319,7 +325,7 @@ export async function duplicateMenu(id: string): Promise<{ success: boolean; err
 }
 
 async function adjustAllDishMarginsInterno(percentage: number): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   try {
     invalidateMenusCache();
     const menus = await armarMenus();
@@ -351,23 +357,76 @@ async function adjustAllDishMarginsInterno(percentage: number): Promise<{ succes
  */
 const turnoDeMenus = new AsyncMutex();
 
+/** El ingrediente que viene de ese insumo, con su nombre, unidad, costo y proveedor de ahora. */
+function conElInsumoNuevo(item: MenuItem, insumo: ServicioEmpresa): MenuItem {
+  let cambio = false;
+  const ingredients = (item.ingredients || []).map((ing) => {
+    if (ing.origenId !== insumo.id) return ing;
+    cambio = true;
+    return {
+      ...ing,
+      name: insumo.nombre,
+      unit: insumo.unidad || ing.unit,
+      // Si el insumo quedó sin precio cargado, se respeta el que ya tenía el menú (antes se lo
+      // pisaba con cero y el plato salía barato sin que nadie se diera cuenta).
+      costoUnitario: Number(insumo.valorUnitarioEstimado) > 0 ? Number(insumo.valorUnitarioEstimado) : (ing.costoUnitario ?? 0),
+      proveedor: insumo.proveedor || undefined,
+    };
+  });
+  return cambio ? { ...item, ingredients } : item;
+}
+
+/**
+ * Pasa el costo nuevo de un insumo a los menús que lo usan, cada menú en UNA operación sobre la
+ * versión guardada en ese momento (auditoría con las 35 preguntas, pregunta 22, 5/10/2026). Antes
+ * se leían todos los menús, se cambiaban y se guardaba cada uno entero: si alguien estaba editando
+ * la receta de ese menú al mismo tiempo, uno de los dos cambios se perdía.
+ */
+export async function aplicarInsumoEnMenus(insumo: ServicioEmpresa): Promise<{ success: boolean; error?: string }> {
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
+  return turnoDeMenus.runExclusive(async () => {
+    invalidateMenusCache();
+    const [menus, catalog] = await Promise.all([readMenusFile(), leerInsumosCrudos()]);
+    const allDishes = menus.flatMap((m) => m.items);
+    const usan = menus.filter((m) => m.items.some((i) => (i.ingredients || []).some((g) => g.origenId === insumo.id)));
+    const cambiar = (actual: FullMenu): FullMenu => ({
+      ...recalculateMenu({ ...actual, items: actual.items.map((i) => conElInsumoNuevo(i, insumo)) }, catalog, allDishes),
+      updatedAt: new Date().toISOString(),
+    } as FullMenu);
+    for (const menu of usan) {
+      if (SIN_BASE()) {
+        const frescos = await readMenusFile();
+        const i = frescos.findIndex((m) => m.id === menu.id);
+        if (i === -1) continue;
+        frescos[i] = cambiar(frescos[i]);
+        await writeMenusFile(frescos);
+        continue;
+      }
+      const guardado = await mutateDataItem<FullMenu>(MENUS_CATERING_COLLECTION_JSON, MENUS_CATERING_COLLECTION, menu.id, (actual) => sinBuffetVirtual(cambiar(actual)) as FullMenu);
+      if (!guardado) return { success: false, error: `No se pudo actualizar el menu "${menu.name || menu.id}".` };
+    }
+    invalidateMenusCache();
+    return { success: true };
+  });
+}
+
 export async function saveMenu(...datos: Parameters<typeof saveMenuInterno>): ReturnType<typeof saveMenuInterno> {
   // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
   // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   return turnoDeMenus.runExclusive(() => saveMenuInterno(...datos));
 }
 
 export async function deleteMenu(...datos: Parameters<typeof deleteMenuInterno>): ReturnType<typeof deleteMenuInterno> {
   // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
   // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   return turnoDeMenus.runExclusive(() => deleteMenuInterno(...datos));
 }
 
 export async function adjustAllDishMargins(...datos: Parameters<typeof adjustAllDishMarginsInterno>): ReturnType<typeof adjustAllDishMarginsInterno> {
   // La sesion se pide aca, en la puerta de entrada, y no solo adentro: asi el control de
   // seguridad ve el candado en la accion que de verdad se llama desde la pantalla.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.INSUMOS);
   return turnoDeMenus.runExclusive(() => adjustAllDishMarginsInterno(...datos));
 }

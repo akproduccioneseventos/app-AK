@@ -1000,6 +1000,15 @@ conflicto y entró con las marcas. Lo frenó la puerta, pero costó una corrida.
 **Qué se hace distinto:** después de una fusión con conflicto, `git diff --name-only --diff-filter=U`
 antes de agregar, y se agregan sólo los archivos ya resueltos, por nombre.
 
+### 33. Agregar por carpetas y dejar afuera un archivo tocado
+
+**Pasó el 5 de octubre de 2026.** Agregué los cambios nombrando carpetas (`src/app src/lib`) y el
+arreglo del video, que vive en `src/components`, quedó sin commitear. Lancé la verificación igual
+y hubo que pararla.
+
+**Qué se hace distinto:** antes de lanzar la puerta, `git status --short` tiene que mostrar sólo
+datos de la corrida; si aparece código, se agrega por nombre y recién ahí se lanza.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1543,6 +1552,14 @@ con otra cara.
 | Reintentos de un cobro que decían "registrado" con el importe viejo o sin llegar al presupuesto, y el recibo con "undefined" | `src/__tests__/cobros-1254-no-dan-exitos-falsos.test.ts` |
 | El video resumen duraba lo que tardaba el teléfono (141 s en vez de 60 a 90) | `tests/e2e/el-video-resumen-dura-lo-que-promete.spec.ts` |
 | Cualquiera con sesión cambiaba el número al que le llegan los avisos al dueño | `src/__tests__/la-voz-de-gemini-tts.test.ts` |
+| Acciones de plata, stock y personas que sólo pedían sesión: el personal y el operador entraban | `src/__tests__/auditoria-66-quien-ve-que.test.ts` |
+| Reintentar un ajuste masivo de costos lo aplicaba dos veces | `src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts` |
+| Dos servidores corrían las mismas tareas automáticas, y una tarea fallida figuraba corrida | `src/__tests__/tareas-candado-entre-instancias.test.ts` y `src/__tests__/tareas-no-marcan-exito-al-fallar.test.ts` |
+| Un enlace vencido del personal marcaba llegada, y una ubicación inválida también | `src/__tests__/personal-vigencia-y-coordenadas-invalidas.test.ts` |
+| Un permiso cambiado adentro del servidor hacía correr las 380 pruebas de navegador | `src/__tests__/un-cambio-del-servidor-no-corre-toda-la-app.test.ts` |
+| Dos canciones o dedicatorias en el mismo milisegundo quedaban una | `src/__tests__/social-interactive-creaciones-simultaneas.test.ts` |
+| El CRM, el contrato en papel, la ficha del personal, cupones, menús y activos pedían sólo sesión | `src/__tests__/auditoria-35-quien-ve-que.test.ts` |
+| El costo de un insumo pasaba a los menús con una lista vieja y pisaba lo que otro editaba | `src/__tests__/el-ajuste-de-costos-no-miente.test.ts` |
 
 ### Cómo se elige el matafuego
 

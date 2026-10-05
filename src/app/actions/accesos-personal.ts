@@ -1,5 +1,8 @@
 'use server';
 
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+
 import { readData, writeData } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
 import { verifySession } from '@/lib/auth/session-token';
@@ -13,7 +16,9 @@ const ACCESOS_FILE = 'accesos-personal.json';
 export async function createAccesoPersonal(
   data: Omit<AccesoPersonal, 'id' | 'fechaCreacion'>
 ): Promise<{ success: boolean; acceso?: AccesoPersonal; error?: string }> {
-  if (!(await verifySession()).success) {
+  // Los enlaces para proveedores los maneja organización (auditoría con las 35 preguntas): antes
+  // alcanzaba cualquier sesión, también la del personal.
+  if (!(await requirePermiso(PERMISOS.ORGANIZACION)).ok) {
     return { success: false, error: 'Acceso no autorizado.' };
   }
   if (!data.nombreAcceso.trim() || data.permisos.length === 0) {
@@ -37,7 +42,7 @@ export async function createAccesoPersonal(
 }
 
 export async function getAccesosGenerales(): Promise<AccesoPersonal[]> {
-  if (!(await verifySession()).success) return [];
+  if (!(await requirePermiso(PERMISOS.ORGANIZACION)).ok) return [];
   const accesos = await readData<AccesoPersonal[]>(ACCESOS_FILE, []);
   return accesos;
 }
@@ -49,7 +54,7 @@ export async function getAccesoById(tokenId: string): Promise<AccesoPersonal | n
 }
 
 export async function deleteAccesoPersonal(tokenId: string): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifySession()).success) {
+  if (!(await requirePermiso(PERMISOS.ORGANIZACION)).ok) {
     return { success: false, error: 'Acceso no autorizado.' };
   }
   try {

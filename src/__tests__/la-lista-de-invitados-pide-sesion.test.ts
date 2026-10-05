@@ -13,9 +13,16 @@ import fs from 'fs';
 import path from 'path';
 
 let conSesion = false;
+let perfil = 'secretaria';
 
 jest.mock('@/lib/auth/session-token', () => ({
-  verifySession: jest.fn(async () => ({ success: conSesion })),
+  verifySession: jest.fn(async () => (conSesion
+    ? { success: true, user: { userId: 'u1', email: 'u1@ak.test', perfil } }
+    : { success: false })),
+}));
+// El operador sólo ve las fiestas a las que está asignado (auditoría 66).
+jest.mock('@/app/actions/empleados', () => ({
+  getEmpleados: jest.fn(async () => [{ id: 'emp-otro', email: 'u1@ak.test' }]),
 }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(async () => ({
@@ -39,8 +46,21 @@ describe('La lista de invitados no sale sin sesion del equipo', () => {
     await expect(getInvitados('f1')).rejects.toThrow();
   });
 
+  it('con sesión pero sin permiso de organización (personal), tampoco', async () => {
+    conSesion = true;
+    perfil = 'personal';
+    await expect(getInvitados('f1')).rejects.toThrow();
+  });
+
+  it('un operador que no está asignado a esa fiesta, tampoco', async () => {
+    conSesion = true;
+    perfil = 'operador';
+    await expect(getInvitados('f1')).rejects.toThrow();
+  });
+
   it('con sesion del equipo la recepcion y el muro la siguen viendo', async () => {
     conSesion = true;
+    perfil = 'secretaria';
     const lista = await getInvitados('f1');
     expect(lista).toHaveLength(1);
     expect(lista[0].contacto).toBe('099111222');
@@ -74,7 +94,7 @@ describe('La lista de invitados no sale sin sesion del equipo', () => {
         const fin = cuerpo.search(/\n}\n/);
         const funcion = fin === -1 ? cuerpo : cuerpo.slice(0, fin);
         if (!/return\s+\w+\??\.invitados\s*(\|\||\?\?|;)/.test(funcion)) continue;
-        if (!/require(AppSession|FiestaWriteAccess|FiestaReadAccess)\(/.test(funcion)) {
+        if (!/require(AppSession|FiestaWriteAccess|FiestaReadAccess|EventPermission)\(/.test(funcion)) {
           sinPermiso.push(`${path.relative(process.cwd(), f)}: ${funcion.split('(')[0]}`);
         }
       }

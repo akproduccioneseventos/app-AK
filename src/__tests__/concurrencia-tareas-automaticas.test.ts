@@ -55,8 +55,8 @@ describe('BLOQUE 0: Control de concurrencia y tareas automáticas desatendidas',
       origenes.map((origen) => intentarAdquirirLock(origen)),
     );
 
-    const adquiridos = resultados.filter((r) => r === true);
-    const rechazados = resultados.filter((r) => r === false);
+    const adquiridos = resultados.filter((r) => typeof r === 'string');
+    const rechazados = resultados.filter((r) => r === null);
 
     expect(adquiridos).toHaveLength(1);
     expect(rechazados).toHaveLength(9);
@@ -64,15 +64,15 @@ describe('BLOQUE 0: Control de concurrencia y tareas automáticas desatendidas',
 
   it('liberar el lock permite que una nueva llamada posterior pueda ejecutar', async () => {
     const primero = await intentarAdquirirLock('despertador');
-    expect(primero).toBe(true);
+    expect(typeof primero).toBe('string');
 
     const segundoInmediato = await intentarAdquirirLock('visita');
-    expect(segundoInmediato).toBe(false);
+    expect(segundoInmediato).toBeNull();
 
-    await liberarLock();
+    await liberarLock(primero!);
 
     const terceroTrasLiberar = await intentarAdquirirLock('visita');
-    expect(terceroTrasLiberar).toBe(true);
+    expect(typeof terceroTrasLiberar).toBe('string');
   });
 
   it('múltiples llamadas concurrentes a ponerAlDiaAlEntrar solo ejecutan las tareas una vez', async () => {
@@ -120,15 +120,10 @@ describe('BLOQUE 0: Control de concurrencia y tareas automáticas desatendidas',
     expect(metricas?.horasDesdeLaUltima).toBeGreaterThanOrEqual(70);
   });
   it('libera el lock sin enviar campos undefined a Firestore', async () => {
-    await intentarAdquirirLock('visita');
-    await liberarLock();
+    const dueno = await intentarAdquirirLock('visita');
+    await liberarLock(dueno!);
 
-    expect(writeData).toHaveBeenLastCalledWith(
-      'tareas-lock.json',
-      { enCurso: false },
-      undefined,
-      { skipAutoBackup: true },
-    );
+    expect(writeData).toHaveBeenLastCalledWith('automatico/tareas-lock.json', { enCurso: false });
   });
 
 });

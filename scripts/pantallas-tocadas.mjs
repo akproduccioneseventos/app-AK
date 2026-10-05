@@ -232,7 +232,29 @@ export const SOLO_CON_LA_BASE_REAL = [
   'src/lib/marca-de-lectura.ts',
 ];
 
-export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiadosEnGit) {
+
+/**
+ * CODIGO QUE CORRE SOLO EN EL SERVIDOR (5 de octubre de 2026, el dueño: *"no es toda la app, es solo
+ * esas cosas; 40 minutos deberia ser 5"*).
+ *
+ * Medido ese dia: cambiar un permiso adentro de `presupuestos.ts` hacia correr las 380 pruebas de
+ * navegador, porque esa accion la importan 126 pantallas y, subiendo de importacion en importacion
+ * (componentes, armazones), terminaba "alcanzando" las 370. Pero un cambio adentro de una accion del
+ * servidor no cambia como se DIBUJA una pantalla: cambia lo que contesta cuando se la llama. Eso lo
+ * cuidan sus pruebas de Jest (corren todas, siempre) y las pruebas de navegador que la nombran.
+ *
+ * Por eso, desde un archivo del servidor se sigue por el servidor (una accion que usa el permiso) y
+ * se llega SOLO a la primera pantalla o componente que lo usa, sin seguir subiendo ni expandir armazones: el recorrido abre esas pantallas para ver que
+ * no se rompan, y las pruebas de navegador se eligen por nombre (`pruebas-que-tocan.mjs`).
+ */
+export function esSoloDelServidor(relativo, texto) {
+  const rel = relativo.replace(/\\/g, '/');
+  if (rel.startsWith('src/app/api/')) return true;
+  const contenido = texto ?? (() => { try { return fs.readFileSync(path.join(RAIZ, rel), 'utf8'); } catch { return ''; } })();
+  return /^\s*(['"])use server\1/.test(contenido) || /import\s+['"]server-only['"]/.test(contenido);
+}
+
+export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiadosEnGit, opciones = {}) {
   if (!cambiadosTodos) return 'TODO';
   const cambiados = cambiadosTodos.filter((f) => !SOLO_CON_LA_BASE_REAL.includes(f));
   if (cambiados.length === 0) return [];
@@ -244,7 +266,9 @@ export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiad
   const semillas = cambiados
     .filter((f) => f.startsWith('src/'))
     .map((f) => path.join(RAIZ, f))
-    .filter((f) => fs.existsSync(f));
+    // Sólo archivos: una carpeta nueva sin seguimiento (datos de la corrida) llegaba como "cambio"
+    // y leerla rompía el recorrido (5/10/2026).
+    .filter((f) => fs.existsSync(f) && fs.statSync(f).isFile());
   if (semillas.length === 0) return [];
 
   // Se sigue de archivo en archivo llevando QUÉ nombres cambiaron: a quien importa uno de esos
@@ -252,9 +276,16 @@ export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiad
   const alcanzados = new Set(semillas);
   const llevados = new Map();
   const cola = [];
+  // Lo que sale de un archivo del servidor llega sólo a quien lo importa directo (ver arriba).
+  const soloUnSalto = new Set();
+  const directos = new Set();
+  const pasosDeServidor = new Map();
   for (const semilla of semillas) {
-    const propios = nombresDe(path.relative(RAIZ, semilla).replace(/\\/g, '/'));
-    llevados.set(semilla, propios === '*' ? '*' : exportsQueUsan(fs.readFileSync(semilla, 'utf8'), propios));
+    const rel = path.relative(RAIZ, semilla).replace(/\\/g, '/');
+    const propios = nombresDe(rel);
+    const texto = fs.readFileSync(semilla, 'utf8');
+    llevados.set(semilla, propios === '*' ? '*' : exportsQueUsan(texto, propios));
+    if (esSoloDelServidor(rel, texto)) soloUnSalto.add(semilla);
     cola.push(semilla);
   }
   const textoDe = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return ''; } };
@@ -268,6 +299,24 @@ export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiad
       const previos = llevados.get(quien);
       const juntos = previos === '*' || nuevos === '*' ? '*' : [...new Set([...(previos || []), ...nuevos])];
       const crecio = !alcanzados.has(quien) || (previos !== '*' && (juntos === '*' || juntos.length > previos.length));
+      if (soloUnSalto.has(actual)) {
+        const relQuien = path.relative(RAIZ, quien).replace(/\\/g, '/');
+        if (esSoloDelServidor(relQuien, textoDe(quien))) {
+          // Servidor que usa servidor (una acción que usa el permiso): se sigue UN paso más por el
+          // servidor, no indefinidamente. Medido: siguiendo la cadena entera, `presupuestos.ts`
+          // llegaba a `fiesta.actions.ts` y de ahí a todas las pantallas.
+          if ((pasosDeServidor.get(actual) ?? 0) >= (opciones.pasosDeServidor ?? 1)) continue;
+          pasosDeServidor.set(quien, (pasosDeServidor.get(actual) ?? 0) + 1);
+          soloUnSalto.add(quien);
+        } else {
+          // La primera pantalla o componente que lo usa: se anota y no se sigue subiendo.
+          if (!alcanzados.has(quien)) directos.add(quien);
+          alcanzados.add(quien);
+          llevados.set(quien, juntos);
+          continue;
+        }
+      }
+      if (directos.has(quien)) directos.delete(quien);
       alcanzados.add(quien);
       llevados.set(quien, juntos);
       if (crecio) cola.push(quien);
@@ -280,7 +329,10 @@ export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiad
     if (!archivo.startsWith(APP)) continue;
     if (nombre === 'page.tsx' || nombre === 'page.ts') {
       rutas.add(rutaDePagina(archivo));
-    } else if (nombre === 'layout.tsx' || nombre === 'template.tsx') {
+    } else if ((nombre === 'layout.tsx' || nombre === 'template.tsx') && semillas.includes(archivo)) {
+      // Sólo si el armazón MISMO cambió (5/10/2026). Si cambió algo que el armazón usa —el
+      // asistente flotante, por ejemplo—, las pruebas de humo ya abren el armazón; expandirlo a
+      // todas sus pantallas hacía correr las 380 pruebas por un cambio en el botón de voz.
       // Un armazon manda sobre todas las pantallas que cuelgan de el.
       const carpeta = path.dirname(archivo);
       for (const otro of archivos) {

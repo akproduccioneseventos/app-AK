@@ -46,7 +46,8 @@
         "src/app/(app)/empresa/menus",
         "src/data/insumos.json"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
     },
     {
       "id": "permisos",
@@ -57,8 +58,8 @@
         "src/app/login",
         "src/app/(app)/settings/accesos-personal"
       ],
-      "estado": "sin-revisar",
-      "nota": "PER01 (auditoría 64) confirmado y arreglado: getInvitados pide sesión. Falta la revisión entera del área."
+      "estado": "con-hallazgos",
+      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
     },
     {
       "id": "fiesta",
@@ -130,7 +131,8 @@
         "src/app/actions/fiesta/barra-tecnologica.actions.ts",
         "src/lib/fiesta-defaults.ts"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
     },
     {
       "id": "asistente",
@@ -151,7 +153,8 @@
         "src/app/actions/recibos-personal.ts",
         "src/app/actions/accesos-personal-view.ts"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
     },
     {
       "id": "automaticos",
@@ -160,7 +163,8 @@
         "src/app/api/cron",
         "src/lib/automatico"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
     }
   ]
 }
