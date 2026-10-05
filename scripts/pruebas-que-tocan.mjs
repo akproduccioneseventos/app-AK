@@ -90,7 +90,9 @@ export function pruebasQueTocanDesde(cambiados, pruebas, leer = (f) => fs.readFi
   const elegidas = new Set(HUMO.filter((f) => pruebas.includes(f)));
   for (const f of cambiados) if (pruebas.includes(f)) elegidas.add(f);
 
-  const pantallas = pantallasTocadasDesde(cambiados.filter((f) => !f.startsWith('tests/')));
+  // Para elegir pruebas de navegador, un cambio del servidor cuenta sólo hasta la primera pantalla
+  // que lo usa directo (sin seguir por otras acciones): lo que hace por dentro lo cuida Jest.
+  const pantallas = pantallasTocadasDesde(cambiados.filter((f) => !f.startsWith('tests/')), undefined, { pasosDeServidor: 0 });
   if (pantallas === 'TODO') return 'TODAS';
 
   if (pantallas.length > 0) {

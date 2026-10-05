@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 5 de octubre de 2026 — La puerta prueba lo que cambió, también cuando cambia el servidor
+
+El dueño: *"no es toda la app, es sólo esas cosas; 40 minutos debería ser 5"*. Medido: un permiso
+nuevo adentro de `presupuestos.ts` o `insumos.ts` "alcanzaba" las 370 pantallas (126 la importan, y
+de ahí se subía por otras acciones y por los armazones), y el botón de voz del asistente flotante
+expandía el armazón a todas. Ahora: un cambio del servidor sigue un solo paso por otras acciones y
+llega hasta la primera pantalla que lo usa; para elegir pruebas de navegador, ni ese paso; y un
+armazón se expande sólo si cambió él mismo (las pruebas de humo ya lo abren). Jest sigue corriendo
+entero siempre. La compilación (unos 7 minutos) no se acorta con esto.
+
+```comprobar
+prueba: src/__tests__/un-cambio-del-servidor-no-corre-toda-la-app.test.ts
+usa: esSoloDelServidor en scripts/pantallas-tocadas.mjs
+```
+
 ## 5 de octubre de 2026 — Codex, auditoría 66: los cinco fallos y los trece pendientes de plata y permisos
 
 - **PERS01/PERS02:** el enlace vencido del personal ya no abre el portal ni marca asistencia o

@@ -1556,6 +1556,7 @@ con otra cara.
 | Reintentar un ajuste masivo de costos lo aplicaba dos veces | `src/__tests__/auditoria-66-insumos-no-se-ajustan-dos-veces.test.ts` |
 | Dos servidores corrían las mismas tareas automáticas, y una tarea fallida figuraba corrida | `src/__tests__/tareas-candado-entre-instancias.test.ts` y `src/__tests__/tareas-no-marcan-exito-al-fallar.test.ts` |
 | Un enlace vencido del personal marcaba llegada, y una ubicación inválida también | `src/__tests__/personal-vigencia-y-coordenadas-invalidas.test.ts` |
+| Un permiso cambiado adentro del servidor hacía correr las 380 pruebas de navegador | `src/__tests__/un-cambio-del-servidor-no-corre-toda-la-app.test.ts` |
 | Dos canciones o dedicatorias en el mismo milisegundo quedaban una | `src/__tests__/social-interactive-creaciones-simultaneas.test.ts` |
 
 ### Cómo se elige el matafuego
