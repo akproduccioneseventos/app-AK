@@ -10524,3 +10524,17 @@ usa: publicRsvp: true en src/lib/whatsapp/avisos-al-cliente.ts
   las nuevas pruebas de regresion de la orden estan pendientes.
 - Documentacion en `codex/auditoria-66-20261005` para juntarse con la correccion. No se
   fusiona sola ni certifica las 14 areas.
+
+## 5 de octubre de 2026 - Cierre de la tanda, NO aprobacion de la app
+
+- Informe 67 consolida el alcance y los pendientes del informe 66: cinco defectos
+  reproducidos con sondas y trece observaciones de codigo sin reproduccion productiva.
+  **No son arreglos:** no borrarlos por figurar en este registro de trabajo compartido.
+- main seguia en `212ba37` y no habia PR abierta al cerrar. El trabajo local/no subido de
+  otras IA no esta contrastado. No hubo cambios de app, compilacion ni fusion de Codex.
+- Se reutilizan las 589 suites / 3.383 pruebas aprobadas del mismo codigo; no se repiten
+  ni se suman los subconjuntos. El E2E inconcluso no se convierte en prueba aprobada.
+- La matriz explica por area lo probado y lo pendiente. Se cierra esta tanda documental
+  con veredicto NO APROBADA, no se afirma auditoria completa ni certificado de cero errores.
+- Continuar con correcciones y cobertura pendiente en una sola tanda; Claude compila,
+  Codex contrasta el SHA entregado. No rehacer los COB01-09 ni los falsos positivos anotados.
