@@ -16,6 +16,10 @@ más la rama documental de Codex `codex/auditoria-simulador-contable-20261006` (
 - Orden 117 (Gemini) con el tótem de bienvenida interactivo: escanea el QR, "¡Hola, {nombre}!",
   mesa y video. El tótem no marca la llegada (preguntado al dueño, sin respuesta todavía).
 - Prueba: `src/__tests__/auditoria-70-contabilidad.test.ts` (15 en rojo con el código viejo).
+- **Revisión de toda la plata y el simulador (pedido del dueño):** presupuestos, catálogo y
+  ajustes de precio, pagos a proveedores, ganancias, flujo de caja, avisos de pago y deudores
+  piden el perfil; saldos con ajuste antes de firmar y en el asistente. Preguntas 36 y 37 nuevas.
+  Prueba `revision-de-plata-quien-toca-que` (21 en rojo con el código viejo).
 
 ## Sigue
 

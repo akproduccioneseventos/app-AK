@@ -92,7 +92,7 @@ function sinCobros(p: Presupuesto): Presupuesto {
  * personal podía armar, aceptar, facturar o archivar presupuestos. Cada acción pide el perfil
  * que la usa de verdad; devuelve la misma forma que `verifySession`.
  */
-async function sesionConAlguno(...permisos: Array<(typeof PERMISOS)[keyof typeof PERMISOS]>) {
+async function verifySessionConPermiso(...permisos: Array<(typeof PERMISOS)[keyof typeof PERMISOS]>) {
   const sesion = await verifySession();
   if (!sesion.success) return sesion;
   if (!permisos.some((p) => puede(sesion.user, p))) {
@@ -288,7 +288,7 @@ export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
   options?: { source?: PresupuestoSource, leadId?: string, preserveTotal?: boolean }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string, avisoCrm?: string }> {
-  const auth = await sesionConAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!auth.success) return { success: false, error: auth.error };
 
   return await presupuestosMutex.runExclusive(async () => {
@@ -524,7 +524,7 @@ async function guardarPresupuestoSinTurno(
 
 /** Soft-delete: marks the presupuesto as archived so it disappears from active lists. */
 export async function archivePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
-  const auth = await sesionConAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   // Archivar es reversible y es tarea de rutina del equipo: no se restringe a
   // admin. La proteccion real de esta accion es el contrato firmado, mas abajo.
@@ -623,7 +623,7 @@ export async function markPresupuestoAsFacturado(
   invoiceId: string
 ): Promise<{ success: boolean; error?: string; suggestContractFlow?: boolean }> {
   return await presupuestosMutex.runExclusive(async () => {
-    const auth = await sesionConAlguno(PERMISOS.CONTABILIDAD);
+    const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD);
     if (!auth.success) return { success: false, error: auth.error };
     let presupuestos = await getPresupuestos(true);
     const index = presupuestos.findIndex(p => p.id === presupuestoId);
@@ -884,7 +884,7 @@ export async function importarPresupuestoDesdeTexto(
   warnings?: string[];
   error?: string;
 }> {
-  const auth = await sesionConAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   if (!texto || texto.trim().length < 20) {
     return { success: false, error: 'El texto pegado está vacío o es demasiado corto.' };
@@ -998,7 +998,7 @@ export async function importarPresupuestoDesdeTexto(
 export async function createFiestaFromPresupuesto(
   presupuestoId: string
 ): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
-  const auth = await sesionConAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ORGANIZACION);
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.ORGANIZACION);
   if (!auth.success) return { success: false, error: auth.error };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado.' };
@@ -1068,7 +1068,7 @@ export async function approvePresupuesto(
 ): Promise<{ success: boolean; error?: string }> {
   return await presupuestosMutex.runExclusive(async () => {
     try {
-      const auth = await sesionConAlguno(PERMISOS.CONTABILIDAD);
+      const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD);
       if (!auth.success) return { success: false, error: auth.error };
       const presupuestos = await getPresupuestos();
       const index = presupuestos.findIndex(p => p.id === presupuestoId);

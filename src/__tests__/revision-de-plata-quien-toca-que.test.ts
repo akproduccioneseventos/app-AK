@@ -25,12 +25,12 @@ function cuerpo(archivo: string, nombre: string): string {
 }
 
 const CASOS: Array<[string, string, RegExp]> = [
-  ['src/app/actions/presupuestos.ts', 'savePresupuesto', /sesionConAlguno\(PERMISOS\.CONTABILIDAD, PERMISOS\.CRM, PERMISOS\.ORGANIZACION\)/],
-  ['src/app/actions/presupuestos.ts', 'importarPresupuestoDesdeTexto', /sesionConAlguno\(PERMISOS\.CONTABILIDAD, PERMISOS\.CRM\)/],
-  ['src/app/actions/presupuestos.ts', 'approvePresupuesto', /sesionConAlguno\(PERMISOS\.CONTABILIDAD\)/],
-  ['src/app/actions/presupuestos.ts', 'markPresupuestoAsFacturado', /sesionConAlguno\(PERMISOS\.CONTABILIDAD\)/],
-  ['src/app/actions/presupuestos.ts', 'createFiestaFromPresupuesto', /sesionConAlguno\(PERMISOS\.CONTABILIDAD, PERMISOS\.ORGANIZACION\)/],
-  ['src/app/actions/presupuestos.ts', 'archivePresupuesto', /sesionConAlguno\(PERMISOS\.CONTABILIDAD, PERMISOS\.CRM\)/],
+  ['src/app/actions/presupuestos.ts', 'savePresupuesto', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD, PERMISOS\.CRM, PERMISOS\.ORGANIZACION\)/],
+  ['src/app/actions/presupuestos.ts', 'importarPresupuestoDesdeTexto', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD, PERMISOS\.CRM\)/],
+  ['src/app/actions/presupuestos.ts', 'approvePresupuesto', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD\)/],
+  ['src/app/actions/presupuestos.ts', 'markPresupuestoAsFacturado', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD\)/],
+  ['src/app/actions/presupuestos.ts', 'createFiestaFromPresupuesto', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD, PERMISOS\.ORGANIZACION\)/],
+  ['src/app/actions/presupuestos.ts', 'archivePresupuesto', /verifySessionConPermiso\(PERMISOS\.CONTABILIDAD, PERMISOS\.CRM\)/],
   ['src/app/actions/servicios-empresa.ts', 'saveServicioEmpresa', /requirePermisoAlguno\(PERMISOS\.CONTABILIDAD, PERMISOS\.INSUMOS\)/],
   ['src/app/actions/servicios-empresa.ts', 'deleteServicioEmpresa', /requirePermisoAlguno\(PERMISOS\.CONTABILIDAD, PERMISOS\.INSUMOS\)/],
   ['src/app/actions/servicios-empresa.ts', 'adjustAllServicePrices', /requirePermisoAlguno\(PERMISOS\.CONTABILIDAD\)/],

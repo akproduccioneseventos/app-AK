@@ -1563,6 +1563,7 @@ con otra cara.
 | El personal leía y guardaba la fiesta entera, y la invitación devolvía la clave del portal | `src/__tests__/frontera-general-de-fiestas.test.ts` |
 | El portal decía "Evento Concluido" el día de la fiesta, y el asistente quedaba bajo WhatsApp | `tests/e2e/portal-fecha-y-botones.spec.ts` |
 | El personal anotaba cobros y gastos, un reintento duplicaba un gasto, un plan viejo deshacía una cuota y el panel no veía el ajuste anual | `src/__tests__/auditoria-70-contabilidad.test.ts` |
+| Presupuestos, catálogo, ajustes de precio, pagos a proveedores, ganancias y avisos de pago con sólo sesión; saldos sin ajuste antes de firmar y en el asistente | `src/__tests__/revision-de-plata-quien-toca-que.test.ts` |
 
 ### Cómo se elige el matafuego
 

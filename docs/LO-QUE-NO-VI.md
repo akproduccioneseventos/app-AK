@@ -889,3 +889,17 @@ cálculos del mismo número: **es la 36, nueva**, y su barrido es mío (es plata
 ```comprobar
 prueba: src/__tests__/auditoria-70-contabilidad.test.ts
 ```
+
+## 06/10/2026 — Una prueba con datos inventados tapaba un saldo en cero
+
+**Qué era:** la prueba de "cuánto me deben" armaba presupuestos con campos que no existen
+(`totalFinal`, `totalCobrado`), los mismos que leía el código roto: daba verde y el asistente, con
+datos reales, decía que nadie debía nada.
+
+**Por qué se me pasó:** miraba que la prueba diera verde, no que sus datos tuvieran la forma real.
+**Pregunta nueva, la 37:** los datos de una prueba se arman con la forma del tipo real; si un campo
+no está en el tipo, la prueba está mal.
+
+```comprobar
+prueba: src/__tests__/revision-de-plata-quien-toca-que.test.ts
+```

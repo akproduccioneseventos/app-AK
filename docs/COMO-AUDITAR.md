@@ -853,3 +853,10 @@ los dos lados la usan.
 
 Y la pregunta 22 vale también para lo que vive **adentro de la fiesta** (el plan de cuotas): una
 pantalla que guarda la lista entera que leyó antes deshace lo que otro cobró entretanto.
+
+### 37. ¿Los datos de la prueba tienen la forma real?
+
+Una prueba armaba presupuestos con campos inventados —los mismos que leía el código roto— y daba
+verde con el saldo en cero (revisión de plata, 6/10/2026). Al revisar una prueba: cada campo de sus
+datos tiene que existir en el tipo (`src/types/`). Si no existe, la prueba copia el error en vez de
+encontrarlo.

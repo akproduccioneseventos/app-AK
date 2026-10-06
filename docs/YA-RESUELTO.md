@@ -10702,3 +10702,36 @@ usa: getBudgetCollectibleTotal en src/lib/commercial-flow/ledger-service.ts
 usa: versionLeida en src/app/(app)/fiestas/nueva/plan-pagos/page.tsx
 usa: idDeLaLlave en src/app/actions/gastos.ts
 ```
+
+## 6 de octubre de 2026 — Revisión de toda la plata y el simulador, pedida por el dueño
+
+Cada acción que mueve plata, pasada con las preguntas 35 (¿pide el perfil o sólo sesión?) y 36
+(¿el mismo número da igual en todos lados?). Lo que estaba roto:
+
+- **Presupuestos:** armar e importar (contabilidad, CRM u organización), aceptar y marcar
+  facturado (contabilidad), crear la fiesta (contabilidad u organización), archivar (contabilidad
+  o CRM). Antes alcanzaba la sesión.
+- **Catálogo de precios:** cambiar, borrar o duplicar un servicio (contabilidad o insumos), el
+  ajuste masivo de precios de venta (contabilidad) y de costos (contabilidad o insumos); leer el
+  catálogo completo, cualquier perfil del equipo menos el personal. El ajuste de precios con
+  historial, contabilidad.
+- **Pagos a proveedores:** contabilidad, con importes válidos y sin guardar la fiesta entera.
+- **Ganancias** (reporte y resumen al contador): sólo el dueño. **Flujo de caja**, contabilidad.
+- **Avisos de pago al cliente** por mail, enganchar facturas o presupuesto a una fiesta, el tope
+  de publicidad, el aviso de margen, la configuración del armado rápido y el presupuesto que arma
+  el asistente: contabilidad (y CRM donde corresponde).
+- **Saldos sin ajuste anual:** la pantalla del cliente antes de firmar el contrato y "cuánto me
+  deben" del asistente (que además leía campos que no existen y daba cero). Ahora usan la misma
+  cuenta que la ficha y el panel.
+
+Revisado sin hallazgo: el simulador público recalcula todo desde el catálogo (un prospecto no
+puede poner su precio), valida invitados, fechas e importes y tiene freno de pedidos; cobros,
+cuotas, seña, contrato y Mercado Pago (firma, monto, moneda y duplicados) ya estaban cubiertos por
+las auditorías 64 a 70. Descartado: el guardado de facturas en modo local de pruebas (no corre en
+la app publicada).
+
+```comprobar
+prueba: src/__tests__/revision-de-plata-quien-toca-que.test.ts
+usa: verifySessionConPermiso en src/app/actions/presupuestos.ts
+usa: getBudgetCollectibleTotal en src/app/actions/fiesta/documentos.actions.ts
+```
