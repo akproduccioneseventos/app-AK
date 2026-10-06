@@ -177,6 +177,7 @@ export async function registrarMantenimientoDeEquipo(
   if (tieneCosto) {
     const { saveGastoGeneral } = await import('./gastos');
     let gastoExitoso = false;
+    let motivoDelGasto: string | undefined;
     try {
       const resGasto = await saveGastoGeneral({
         concepto: `Mantenimiento: ${activo.nombre || 'Equipo'} - ${datos.nota.trim()}`,
@@ -187,6 +188,7 @@ export async function registrarMantenimientoDeEquipo(
         idempotencyKey: `mantenimiento:${equipoId}:${registroId}`,
       });
       gastoExitoso = Boolean(resGasto?.success);
+      motivoDelGasto = resGasto?.error;
     } catch {
       gastoExitoso = false;
     }
@@ -196,7 +198,9 @@ export async function registrarMantenimientoDeEquipo(
         success: false,
         gastoPendiente: true,
         registroId,
-        error: 'Se anotó el mantenimiento pero no el gasto: tocá Reintentar',
+        error: motivoDelGasto
+          ? `Se anotó el mantenimiento pero no el gasto: ${motivoDelGasto}`
+          : 'Se anotó el mantenimiento pero no el gasto: tocá Reintentar',
       };
     }
 

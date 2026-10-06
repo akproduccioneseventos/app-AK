@@ -145,7 +145,8 @@ function PlanPagosContent() {
     }
     setIsSaving(true);
     try {
-      const result = await savePlanDePagos(fiestaId, { cuotas, notas });
+      // La versión que se leyó: si alguien marcó una cuota entretanto, se pide recargar (auditoría 70).
+      const result = await savePlanDePagos(fiestaId, { cuotas, notas, versionLeida: plan?.updatedAt });
       if (result.success && result.plan) {
         setPlan(result.plan);
         toast({ title: 'Plan guardado', description: 'El plan de pagos fue guardado exitosamente.' });

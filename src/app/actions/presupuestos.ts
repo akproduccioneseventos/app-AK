@@ -31,7 +31,7 @@ import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
 import { AsyncMutex } from '@/lib/mutex';
 
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 const presupuestosMutex = new AsyncMutex();
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -705,8 +705,10 @@ export async function addPagoToPresupuesto(
   // El id se puede pasar cuando el cobro ya esta enganchado a otra cosa (la factura).
   pago: Omit<PagoCliente, 'id'> & { id?: string }
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
+  const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!auth.ok) return { success: false, error: auth.error };
 
   const referencia = pago.referencia?.trim() || undefined;
   let clienteNombre = '';
@@ -799,8 +801,10 @@ export async function deletePagoFromPresupuesto(
   presupuestoId: string,
   pagoId: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
+  const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!auth.ok) return { success: false, error: auth.error };
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (presupuesto) => {
     const pagos = presupuesto.pagosCliente || [];
     if (!pagos.some(p => p.id === pagoId)) return { sinCambios: true };
@@ -1098,7 +1102,9 @@ export async function addPagoClienteFromPortal(
   pago: Omit<PagoCliente, 'id' | 'estadoPago'>,
   token?: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  await requireAppSession();
+  // Lo carga el equipo en nombre del cliente: es un cobro, va con contabilidad (auditoría 70).
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const presupuesto = await getPresupuestoById(presupuestoId, token);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
@@ -1137,8 +1143,10 @@ export async function confirmPagoCliente(
   presupuestoId: string,
   pagoId: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
+  const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!auth.ok) return { success: false, error: auth.error };
   let monto = 0;
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (presupuesto) => {
     const pagos = presupuesto.pagosCliente || [];
@@ -1179,8 +1187,10 @@ export async function rejectPagoCliente(
   pagoId: string,
   motivo: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
+  const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!auth.ok) return { success: false, error: auth.error };
   const safeMotivo = motivo.trim() || 'Pago rechazado por administracion';
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (actual) => {
     const pagos = actual.pagosCliente || [];

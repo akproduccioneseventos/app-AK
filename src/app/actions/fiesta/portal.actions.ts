@@ -17,7 +17,8 @@ import {
 import { verifyPortalSession, setPortalSessionCookie } from '@/lib/security/portal-session';
 import { sanitizeActionError, hoyEnUruguay, parseUruguayDate } from '@/lib/utils';
 import { uploadToStorage } from '@/lib/firebase/storage';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
 import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
 import { motivoClaveInvalida, taparCorreo } from '@/lib/client-portal/clave-portal';
@@ -481,7 +482,9 @@ export async function approveClientPayment(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    // Aprobar o rechazar el pago que informó el cliente es plata: contabilidad (auditoría 70).
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, error: permiso.error };
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
@@ -534,7 +537,9 @@ export async function rejectClientPayment(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    // Aprobar o rechazar el pago que informó el cliente es plata: contabilidad (auditoría 70).
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, error: permiso.error };
     let updatedNotif: ClientPaymentNotification | null = null;
     let changed = false;
     const result = await updateFiestaData(fiestaId, currentFiesta => {
