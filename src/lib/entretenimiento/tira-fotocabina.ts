@@ -45,6 +45,8 @@ export interface DatosDeLaTira {
   printLayout?: 'strip_3' | 'single_photo' | 'strip_4';
   /** Logo personalizado del cliente */
   logoUrl?: string;
+  /** Nombre del marco/overlay configurado para la estación */
+  overlayName?: string;
 }
 
 function cargarImagen(src: string): Promise<HTMLImageElement> {
@@ -252,8 +254,8 @@ export async function componerTiraDeFotos(datos: DatosDeLaTira): Promise<string>
   ctx.stroke();
   ctx.restore();
 
-  // Nombre del homenajeado en letra manuscrita grande
-  const nombreParaMostrar = nombreHomenajeado?.trim() || (nombreDelEvento && !nombreDelEvento.toLowerCase().includes('evento') ? nombreDelEvento.trim() : '');
+  // Nombre del homenajeado en letra manuscrita grande (o nombre de marco overlay configurado si no hay homenajeado)
+  const nombreParaMostrar = nombreHomenajeado?.trim() || datos.overlayName?.trim() || (nombreDelEvento && !nombreDelEvento.toLowerCase().includes('evento') ? nombreDelEvento.trim() : '');
 
   if (nombreParaMostrar) {
     ctx.save();

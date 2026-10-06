@@ -780,6 +780,7 @@ export interface ClientPortalSettings {
   faq: PortalViewOnlyModuleSettings;
   informarPago: PortalModuleSettings;
   cuentasBancarias?: CuentaBancaria[];
+  videosParaInvitadosActivo?: boolean;
 }
 
 export type ActiveGameType =
@@ -1586,6 +1587,13 @@ export interface FiestaEnPlanificacion {
   listaDeCargaOperativa?: ListaDeCargaOperativa;
   gestionCostos?: GestionCostosData;
   videoVida?: VideoVidaData;
+  videosParaInvitados?: {
+    id: string;
+    invitadoIds: string[];
+    storagePath: string;
+    duracionSegundos: number;
+    creadoAt: string;
+  }[];
   programa?: ProgramaEventoItem[];
   fotografiaYFilmacion?: FotografiaYFilmacionData;
   cartaTragos?: CartaTragosData;

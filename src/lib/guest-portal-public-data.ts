@@ -85,6 +85,7 @@ export type PublicGuest = Pick<
 export interface PublicGuestPortalData {
   fiesta: PublicGuestEvent;
   guest: PublicGuest;
+  videoPersonal?: { url: string };
 }
 
 export function hasPublicGuestAccess(

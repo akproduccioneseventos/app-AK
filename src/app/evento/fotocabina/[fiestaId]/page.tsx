@@ -691,6 +691,7 @@ export default function FotocabinaPage() {
         colorFondo: fiesta?.colorFondo,
         imagenFondoUrl: fiesta?.imagenFondoUrl,
         textoDeMarca: watermarkEnabled ? (fiesta?.station.brandText || 'AK Producciones') : undefined,
+        overlayName: fiesta?.station.overlayName,
       });
       setCapturedImage(recuerdo);
     } catch (err) {
@@ -1737,7 +1738,7 @@ export default function FotocabinaPage() {
                 )}
               </div>
 
-              {qrCodeUrl && (
+              {qrCodeUrl && (fiesta?.station.deliveryChannels?.includes('qr') ?? true) && (
                 <div className="bg-white p-4 rounded-xl shadow-2xl relative">
                   <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
                 </div>
@@ -1779,16 +1780,30 @@ export default function FotocabinaPage() {
                     >
                       <Download className="w-4 h-4" /> Guardar en el celular
                     </button>
-                    <a
-                      href={`https://wa.me/?text=${encodeURIComponent(
-                        `¡Hola! Guardá este enlace para ver tus fotos y el video recuerdo de la fiesta mañana: ${qrCodeUrl}`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition flex items-center justify-center gap-2"
-                    >
-                      <Share2 className="w-4 h-4" /> Mandarme el enlace por WhatsApp
-                    </a>
+                    {(fiesta?.station.deliveryChannels?.includes('whatsapp') ?? true) && (
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent(
+                          `¡Hola! Guardá este enlace para ver tus fotos y el video recuerdo de la fiesta mañana: ${qrCodeUrl}`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition flex items-center justify-center gap-2"
+                      >
+                        <Share2 className="w-4 h-4" /> Mandarme el enlace por WhatsApp
+                      </a>
+                    )}
+                    {fiesta?.station.deliveryChannels?.includes('email') && (
+                      <a
+                        href={`mailto:?subject=${encodeURIComponent(
+                          `Recuerdo de la fiesta - ${fiesta?.eventName || 'AK Producciones'}`
+                        )}&body=${encodeURIComponent(
+                          `¡Hola! Acá tenés el enlace a tus fotos de la fiesta: ${qrCodeUrl}`
+                        )}`}
+                        className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition flex items-center justify-center gap-2"
+                      >
+                        <Send className="w-4 h-4" /> Enviar por Mail
+                      </a>
+                    )}
                   </>
                 ) : hayMuro ? (
                   <button

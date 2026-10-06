@@ -11,6 +11,7 @@ import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { readData, writeData } from '@/lib/data-service';
+import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 
 export interface AtenderEquipoParams {
   from: string;
@@ -132,6 +133,9 @@ export function interpretarComandoTexto(texto: string): { accion: string; detall
   }
   if (tSinTildes.includes('borrador') || tSinTildes.includes('preparar mail') || tSinTildes.includes('prepara mail')) {
     return { accion: 'preparar_mail', detalle: texto };
+  }
+  if (tSinTildes.includes('presupuesto prospecto') || tSinTildes.includes('presupuestar prospecto') || tSinTildes.includes('armar presupuesto al cliente')) {
+    return { accion: 'presupuestar_prospecto', detalle: texto };
   }
 
   // Por defecto, comando no clasificado -> puerta pregunta
@@ -298,6 +302,28 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
         } catch {
           respuestaTexto = '⚠️ No pude leer los cobros ahora. Miralo en el panel de la app.';
         }
+      }
+    } else if (accion === 'presupuestar_prospecto') {
+      try {
+        const res = await generateBudgetAndLeadFromSimulator({
+          clienteNombre: persona.nombre || 'Prospecto WhatsApp',
+          clienteContacto: fromLimpio,
+          adultos: 100,
+          ninos: 0,
+          subtotal: 0,
+          costoEstimado: 0,
+          serviciosIncluidos: [],
+        }, {
+          source: 'simulator_assistant',
+          eventoTipo: '15 Años',
+        });
+        if (res.success && res.presupuestoId) {
+          respuestaTexto = `✨ Presupuesto inicial generado: https://akproducciones.uy/presupuestos/${res.presupuestoId}/ver?token=${res.token || ''}\n(Avisé al equipo; no queda nada por cerrado).`;
+        } else {
+          respuestaTexto = '⚠️ No pude armar el presupuesto automático. Te contactará un asesor en breve.';
+        }
+      } catch {
+        respuestaTexto = '⚠️ No pude armar el presupuesto automático en este momento.';
       }
     } else {
       // Ninguna otra acción se hace por WhatsApp todavía: no se dice que se hizo.

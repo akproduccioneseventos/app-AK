@@ -550,6 +550,7 @@ export default function PortalClientePage() {
   const showFotosVideo = simplicityMode ? false : ((portalSettings?.fotografiaYFilmacion?.visible ?? true) && (fiesta.modulosContratados?.fotografia !== false || fiesta.modulosContratados?.filmacion !== false));
   const showFaq        = simplicityMode ? false : (portalSettings?.faq?.visible ?? true);
   const showMensajes   = simplicityMode ? false : (portalSettings?.notasCliente?.visible ?? true);
+  const showVideosInvitados = portalSettings?.videosParaInvitadosActivo === true;
 
   // ── Financials ───────────────────────────────────────────────
   const cuotas      = plan?.cuotas ?? [];
@@ -691,6 +692,7 @@ export default function PortalClientePage() {
             showMusica && (fiesta.modulosContratados?.discoteca ?? true) && { label: 'Música', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica`, desc: 'Tu lista de canciones' },
             showMuroSocial && { label: 'Muro Social', emoji: '📱', href: `/portal-cliente/${fiestaId}/muro-social`, desc: 'Red social del evento' },
             showFotosVideo && { label: 'Fotos & Video', emoji: '📸', href: `/portal-cliente/${fiestaId}/fotos-video`, desc: 'Archivos y entregables' },
+            showVideosInvitados && { label: 'Videos Invitados', emoji: '🎬', href: `/portal-cliente/${fiestaId}/videos-invitados`, desc: 'Dedicatorias personales' },
             showInvitados && { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Confirmaciones' },
             showFaq && { label: 'Preguntas Frecuentes', emoji: '❓', href: `/portal-cliente/${fiestaId}/faq`, desc: 'Dudas & Consultas' },
           ].filter(Boolean) as { label: string; emoji: string; href: string; desc: string }[];
