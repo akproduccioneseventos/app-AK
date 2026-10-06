@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 6 de octubre de 2026 - Auditoria 71: retest y pendientes concretos
+
+Main `e52c078` (1258): 603 suites / 3490 unitarias verdes; las 56 focalizadas
+estan incluidas. Las seis regresiones de orden 120 pasan. PR1259 `f836c128`:
+4 suites / 27 unitarias verdes, no build ni navegador. Manifest con originales
+y hashes en `docs/evidencias/71-resultados`; matriz de 14 areas y limites en 71.
+
+**Pendientes, NO corregidos:** CAMPO01/02: por el guardado general un operador
+asignado marca cuotas pagadas, y el cliente de portal marca contrato fisico y
+cuotas; COMPRA01: snapshot viejo revierte un pago concurrente del proveedor;
+RED03: dos importaciones distintas pierden un video del objeto de galeria.
+Sondas ejecutan acciones reales con storage/autenticacion ficticios. Orden unica
+122: Claude permisos/plata/comida; Gemini videos de Instagram; Claude compila.
+No reabrir los seis casos de 70 ni confundir estas sondas con aceptacion final.
+
+**Falsos positivos descartados por Codex al revisar a sus ayudantes:** timer del
+totem no corta videos: 12000 ms esta en ELSE sin video. No generalizar la carrera
+de galeria a colecciones con marcas/transacciones. No declarar que posteos no
+reintenta: el indicador de corrida es observacion separada. Costos admite
+ORGANIZACION en su accion especifica; no cambiar esa politica por esta auditoria.
+
+Navegador no ejecutado: Computer Use detuvo el control porque no pudo determinar
+la URL actual de Windows con suficiente certeza. No es defecto de AK ni falta
+de autorizacion; no se eludio. Siguen pendientes entorno 114, recorridos reales,
+proveedores, originales de 19 importados, catalogo y hardware. No se marco area
+limpia, no se programo app, no se compilo ni fusiono.
+
 ## 6 de octubre de 2026 - Auditoria 70: pendientes, NO corregidos
 
 Main `6a2143ff`: 599 suites/3445 pruebas verdes, pero seis sondas reproducen

@@ -1,0 +1,134 @@
+{
+  "sourceCommit": "e52c07839563115236652229d73ac5ebf2e4e551",
+  "recordedAt": "2026-10-06T15:57:32.628Z",
+  "environment": "isolated fake authentication and storage; no production credentials",
+  "runs": [
+    {
+      "name": "principal",
+      "started": "2026-10-06T15:44:25.776Z",
+      "artifact": "principal.json.gz",
+      "sha256Uncompressed": "a0dd54e6895e70df2c9abb51c89cc66f927dfdd1b558e32c882b763f9f2fbfab",
+      "suites": 603,
+      "passedSuites": 603,
+      "tests": 3490,
+      "passed": 3490,
+      "failed": 0,
+      "pending": 0,
+      "command": "node docs/evidencias/sondas/64-isolated-audit-runner.mjs . jest-mocked --silent"
+    },
+    {
+      "name": "focalizada-plata",
+      "started": "2026-10-06T15:41:37.383Z",
+      "artifact": "focalizada-plata.json.gz",
+      "sha256Uncompressed": "96cd1924b999896558e76f991d7acb3e5d0a0e7faf1cee09212a0f8a725cedb6",
+      "suites": 5,
+      "passedSuites": 5,
+      "tests": 56,
+      "passed": 56,
+      "failed": 0,
+      "pending": 0,
+      "command": "node docs/evidencias/sondas/64-isolated-audit-runner.mjs . jest-mocked --silent --maxWorkers=1 --runTestsByPath (cinco suites consignadas en el informe)"
+    }
+  ],
+  "countsNote": "Las 56 pruebas focalizadas estan incluidas en las 3490 de la corrida principal; no se suman.",
+  "probes": [
+    {
+      "command": "node docs/evidencias/71-sonda-campos-y-compras.cjs",
+      "observations": [
+        {
+          "id": "CAMPO01",
+          "perfil": "operador asignado",
+          "contabilidad": false,
+          "ganancias": false,
+          "accepted": true,
+          "markedInstallmentPaid": 1000,
+          "note": "Costo tambien acepta cambios, pero no se reporta como defecto: la accion especifica admite ORGANIZACION. La cuota exige CONTABILIDAD en payment-plans."
+        },
+        {
+          "id": "CAMPO02",
+          "perfil": "cliente con sesion de su portal, sin sesion del equipo",
+          "accepted": true,
+          "markedPhysicalContractSigned": true,
+          "markedInstallmentPaid": 1000
+        },
+        {
+          "id": "COMPRA01",
+          "perfil": "operador asignado",
+          "contabilidad": false,
+          "insumos": false,
+          "concurrentPaymentBeforeMutation": true,
+          "paymentAfterStaleSave": false,
+          "accepted": true
+        }
+      ]
+    },
+    {
+      "command": "node docs/evidencias/71-auto-probe.cjs",
+      "observations": [
+        {
+          "id": "AUTO03-observacion",
+          "actualPublisherFailures": 1,
+          "publisherOk": true,
+          "dispatcherErrors": 0,
+          "markedRun": true,
+          "note": "Procesar la cola no equivale a publicar todos los items; revisar significado de salud global, no afirmar ausencia de reintentos."
+        },
+        {
+          "id": "RED03",
+          "twoRealSyncActions": true,
+          "bothReportedSuccess": true,
+          "expectedUnionVideoIds": [
+            "ig_A",
+            "ig_B"
+          ],
+          "actualVideoIds": [
+            "ig_B"
+          ],
+          "storage": "real generic object adapter, Firestore .set/.get simulated; NOT a real Firestore integration race"
+        }
+      ]
+    }
+  ],
+  "sourceBlobs": {
+    "src/app/actions/fiesta/fiesta.actions.ts": "e8b8bbe9e5d8644f797ca320876bc96b285909b1",
+    "src/app/actions/fiesta/catering.actions.ts": "773c56f554a1437fcd5e214250381539f821fbc5",
+    "src/lib/auth/perfiles.ts": "7614bf0ca1f265250fbc971bd0beab823b68bffd",
+    "src/lib/fiesta/recortar-para-afuera.ts": "d04e197c78ee9938f725530d058ccccb1b7d1259",
+    "src/app/actions/social-media.ts": "04d715accddaf929664325a9dbbeab46ba4b0dfd",
+    "src/lib/generic-json-store.ts": "4c765ab89e141fe910edbc87c78cc02411a7e7b2",
+    "src/lib/automatico/al-entrar-a-la-app.ts": "d9f1baa65f3627767c9963b8c84c2c587ba32ba6",
+    "src/lib/presencia-digital/publicador.ts": "f7eeb77f20bd7880c9f153c9dce45800f7b35985"
+  },
+  "browser": {
+    "state": "not-executed",
+    "reason": "Computer Use stopped: could not determine current browser URL on Windows with enough confidence to enforce policy.",
+    "target": "not navigated",
+    "applicationDefect": false
+  },
+  "notVerified": [
+    "latest build and deployment SHA",
+    "complete role-based browser journeys",
+    "real Firestore race",
+    "external providers",
+    "19 imported budgets",
+    "physical devices"
+  ],
+  "pendingRun": {
+    "sourceCommit": "f836c128cfad861a55a2352782f18c805b55e13a",
+    "started": "2026-10-06T15:58:20.816Z",
+    "artifact": "pr1259-focalizada.json.gz",
+    "sha256Uncompressed": "919730310fa97ce03a19837b26e663925788e2d3ced9a873b623cb831ecda58f",
+    "suites": 4,
+    "passedSuites": 4,
+    "tests": 27,
+    "passed": 27,
+    "failed": 0,
+    "suiteFiles": [
+      "src/__tests__/portada-del-portal-del-cliente.test.ts",
+      "src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts",
+      "src/__tests__/conversacion-en-vivo-con-voz.test.ts",
+      "src/__tests__/el-video-para-cada-invitado.test.ts"
+    ],
+    "note": "Cuatro suites unitarias de la rama pendiente; no es build, E2E ni validacion de microfono, camara o proveedor. Primer intento sin junction de dependencias fallo en entorno; se corrigio solo el enlace local y se repitio."
+  }
+}
