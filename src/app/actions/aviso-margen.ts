@@ -3,7 +3,6 @@ import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
-import { requireAppSession } from '@/lib/auth/require-session';
 import {
   calcularAvisoMargenHistorico,
   type AvisoMargenHistorico,
