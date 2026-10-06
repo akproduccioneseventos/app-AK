@@ -556,14 +556,22 @@ function ClientPortalConfigContent() {
       ? `${window.location.origin}/portal/c/${portalSettings.accessKey}`
       : '';
 
-  const handleCopyPassword = () => {
-    navigator.clipboard.writeText(portalSettings.accessKey || '');
-    toast({ title: "Contraseña del portal copiada al portapapeles" });
+  const handleCopyPassword = async () => {
+    try {
+      await navigator.clipboard.writeText(portalSettings.accessKey || '');
+      toast({ title: "Contraseña del portal copiada al portapapeles" });
+    } catch {
+      toast({ variant: 'destructive', title: 'No se pudo copiar', description: 'Seleccioná la contraseña y copiala a mano.' });
+    }
   };
 
-  const handleCopyPublicLink = () => {
-    navigator.clipboard.writeText(publicPortalLink);
-    toast({ title: "Enlace copiado al portapapeles" });
+  const handleCopyPublicLink = async () => {
+    try {
+      await navigator.clipboard.writeText(publicPortalLink);
+      toast({ title: "Enlace copiado al portapapeles" });
+    } catch {
+      toast({ variant: 'destructive', title: 'No se pudo copiar', description: publicPortalLink });
+    }
   };
 
   const handleShareWhatsApp = () => {

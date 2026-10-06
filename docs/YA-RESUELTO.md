@@ -10788,3 +10788,6 @@ usa: veLaPlata en src/app/actions/dashboard.ts
   app: su `commit` "base" (que borraba todo) caía ahí y lo marcaba sin carpeta de trabajo. Ahora
   llama a git sin las variables `GIT_*`, y `una-prueba-no-escribe-en-el-repositorio` frena a la
   próxima que lo haga.
+- **El tótem no se traba si la tablet no deja arrancar el video con sonido:** prueba sin sonido y,
+  si tampoco arranca, vuelve solo a la espera a los 12 segundos. Copiar la contraseña o el enlace
+  del portal avisa si no se pudo copiar. Un video que llega vacío se rechaza en vez de guardarse.

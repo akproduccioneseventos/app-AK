@@ -64,13 +64,9 @@ export async function guardarVideoParaInvitados(
   // 5. Subir a Storage privado
   let buffer: Buffer;
   try {
-    if (typeof (file as any).arrayBuffer === 'function') {
-      buffer = Buffer.from(await file.arrayBuffer());
-    } else if (typeof (file as any).bytes === 'function') {
-      buffer = Buffer.from(await (file as any).bytes());
-    } else {
-      const text = await (file as any).text?.();
-      buffer = Buffer.from(text || '');
+    buffer = Buffer.from(await file.arrayBuffer());
+    if (buffer.length === 0) {
+      return { success: false, error: 'El video llegó vacío. Probá subirlo de nuevo.' };
     }
     await uploadToStorage(buffer, storagePath, mime, false);
   } catch (err: any) {

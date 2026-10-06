@@ -76,7 +76,8 @@ export default function TotemBienvenidaPage() {
       .then((data) => {
         if (data) setFiesta(data);
       })
-      .catch(() => {});
+      // Sin la fiesta el tótem igual anda: sólo pierde el fondo y el nombre del agasajado.
+      .catch((e) => console.warn('Tótem: no se pudo leer la fiesta para el fondo', e));
   }, [fiestaId]);
 
   const volverAEspera = useCallback(() => {
@@ -215,7 +216,7 @@ export default function TotemBienvenidaPage() {
     return () => {
       if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(() => {});
+        scannerRef.current.clear().catch((e) => console.warn('Tótem: no se pudo apagar la cámara', e));
         scannerRef.current = null;
       }
     };
@@ -223,9 +224,19 @@ export default function TotemBienvenidaPage() {
 
   useEffect(() => {
     if (modo === 'video' && videoRef.current) {
-      videoRef.current.play().catch(() => {});
+      const video = videoRef.current;
+      // Muchas tablets no dejan arrancar un video con sonido sin un toque. Se prueba sin sonido;
+      // y si tampoco arranca, el tótem no se queda trabado: vuelve solo a la espera.
+      video.play().catch(() => {
+        video.muted = true;
+        return video.play();
+      }).catch((e) => {
+        console.warn('Tótem: el video no arrancó', e);
+        if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = setTimeout(volverAEspera, 12000);
+      });
     }
-  }, [modo]);
+  }, [modo, volverAEspera]);
 
   const handleVideoEnded = () => {
     volverAEspera();

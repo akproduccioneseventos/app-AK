@@ -37,7 +37,16 @@ jest.mock('@/lib/firebase/storage', () => ({
 
 if (typeof Blob !== 'undefined') {
   Blob.prototype.arrayBuffer = async function () {
-    const text = typeof this.text === 'function' ? await this.text() : '';
+    // jsdom no trae Blob.text: se lee el contenido con FileReader, que sí trae. Un video vacío
+    // ahora se rechaza, así que la prueba tiene que mandar los bytes de verdad.
+    const text: string = typeof this.text === 'function'
+      ? await this.text()
+      : await new Promise((ok, mal) => {
+        const lector = new FileReader();
+        lector.onload = () => ok(String(lector.result));
+        lector.onerror = () => mal(lector.error);
+        lector.readAsText(this);
+      });
     const buf = Buffer.from(text);
     return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
   };
