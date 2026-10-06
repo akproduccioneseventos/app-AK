@@ -1,4 +1,6 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import type {
     FiestaEnPlanificacion,
@@ -1120,7 +1122,7 @@ export async function createDemoFiesta(
 }
 
 export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId: string | null): Promise<{ success: boolean; error?: string }> {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (enganchar facturas y presupuesto)
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Evento no encontrado.");
@@ -1154,7 +1156,7 @@ export async function duplicateFiesta(fiestaId: string): Promise<{ success: bool
 }
 
 export async function addInvoiceId(fiestaId: string, invoiceId: string) {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (enganchar facturas y presupuesto)
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   if ((f.invoiceIds || []).includes(invoiceId)) return { success: true };
@@ -1162,7 +1164,7 @@ export async function addInvoiceId(fiestaId: string, invoiceId: string) {
 }
 
 export async function removeInvoiceId(fiestaId: string, invoiceId: string) {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (enganchar facturas y presupuesto)
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   return await saveFiesta({ ...f, invoiceIds: (f.invoiceIds || []).filter(id => id !== invoiceId) });

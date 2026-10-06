@@ -3,7 +3,8 @@
 
 import type { ServicioEmpresa, TipoCosto } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { cachedFetch, cacheInvalidate } from '@/lib/server-cache';
 
 const SERVICIOS_EMPRESA_FILE = 'servicios-empresa.json';
@@ -12,7 +13,7 @@ export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
     // Cada servicio guarda lo que le CUESTA a la empresa y quien es el proveedor.
     // Sin esto, cualquiera pedia la lista y sacaba el margen de ganancia de cada
     // cosa que vende AK.
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
     return leerServiciosEmpresa();
 }
 
@@ -57,7 +58,7 @@ export async function getServiciosEmpresaPublicos(): Promise<ServicioEmpresa[]> 
 }
 
 export async function getServicioEmpresaById(id: string): Promise<ServicioEmpresa | null> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
   const servicios = await leerServiciosEmpresa();
   return servicios.find(s => s.id === id) || null;
 }
@@ -65,7 +66,7 @@ export async function getServicioEmpresaById(id: string): Promise<ServicioEmpres
 export async function saveServicioEmpresa(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
   let inventario = await leerServiciosEmpresa();
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
@@ -128,7 +129,7 @@ export async function saveServicioEmpresa(
 }
 
 export async function deleteServicioEmpresa(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
   let inventario = await leerServiciosEmpresa();
   const targetServicio = inventario.find(s => s.id === id);
 
@@ -157,7 +158,7 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
 export async function duplicateServicioEmpresa(
   servicioId: string
 ): Promise<{ success: boolean; servicio?: ServicioEmpresa; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
   const inventario = await leerServiciosEmpresa();
   const servicioToDuplicate = inventario.find(s => s.id === servicioId);
 
@@ -178,7 +179,7 @@ export async function duplicateServicioEmpresa(
 export async function adjustAllServicePrices(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }
@@ -225,7 +226,7 @@ export async function adjustAllServicePrices(
 export async function adjustAllServiceCosts(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS); // Precios del catálogo: no cualquier sesión (revisión de plata, 6/10/2026).
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }

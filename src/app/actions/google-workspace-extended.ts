@@ -1,4 +1,6 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { getFiestaById, getFiestas } from './fiesta/fiesta.actions';
 import { getPresupuestoById } from './presupuestos';
@@ -530,7 +532,7 @@ export async function notifyClientPaymentApproved(fiestaId: string, payment: Cli
   // cualquiera que supiera el id de una fiesta podia hacer que la aplicacion le
   // mandara al cliente un aviso de pago con el monto que se le antojara. Quien la
   // llama de verdad ya pide sesion del equipo; se repite aca porque la puerta es esta.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (avisos de pago al cliente)
 
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
@@ -548,7 +550,7 @@ export async function notifyClientPaymentRejected(fiestaId: string, payment: Cli
   // cualquiera que supiera el id de una fiesta podia hacer que la aplicacion le
   // mandara al cliente un aviso de pago con el monto que se le antojara. Quien la
   // llama de verdad ya pide sesion del equipo; se repite aca porque la puerta es esta.
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (avisos de pago al cliente)
 
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
@@ -585,7 +587,7 @@ export async function notifyContractSignedToClient(
 }
 
 export async function notifyPresupuestoPaymentRegistered(presupuestoId: string, pago: PagoCliente) {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión (avisos de pago al cliente)
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado.' };
 

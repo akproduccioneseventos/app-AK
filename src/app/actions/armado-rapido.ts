@@ -1,4 +1,6 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
@@ -45,7 +47,7 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
 export async function saveArmadoRapidoConfig(
   newConfigData: ArmadoRapidoConfig
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM); // revisión de plata, 6/10/2026: no cualquier sesión
   try {
     const sanitizedConfig: ArmadoRapidoConfig = {
       ...newConfigData,

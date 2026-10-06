@@ -2,7 +2,11 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import { adjustAllServicePrices, adjustAllServiceCosts, getServiciosEmpresa } from './servicios-empresa';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+
+// Ajustar los precios de venta es plata: contabilidad, no cualquier sesión (revisión de plata, 6/10/2026).
+const requireAppSession = () => requirePermisoAlguno(PERMISOS.CONTABILIDAD);
 import { AsyncMutex } from '@/lib/mutex';
 
 export interface PriceAdjustmentRecord {

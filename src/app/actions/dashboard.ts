@@ -1,4 +1,6 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
@@ -277,7 +279,7 @@ export async function getDashboardKpiData() {
 }
 
 export async function getCashFlowProjection() {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión
   try {
     await requireAppSession();
     /**

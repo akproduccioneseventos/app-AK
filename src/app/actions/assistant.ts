@@ -1,4 +1,6 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { chatWithAssistant } from '@/ai/flows/assistant-flow';
 import { hoyEnUruguay } from '@/lib/utils';
@@ -1611,7 +1613,7 @@ export async function confirmarProspectoAsistente(leadData: any) {
  */
 export async function confirmarPresupuestoAsistente(presupuestoData: any) {
   const { requireAppSession } = await import('@/lib/auth/require-session');
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM); // revisión de plata, 6/10/2026: no cualquier sesión
   const { confirmAndSaveAssistantBudget } = await import('@/lib/multiagent/assistant-crm-actions');
   return confirmAndSaveAssistantBudget(presupuestoData);
 }
