@@ -8,6 +8,14 @@
 
 ## Matriz
 
+**Ampliacion 72, 6/10/2026:** PR1259 avanzo a `7c96e114` y seis suites / 32
+unitarias pasan alli. Helper de token/proyeccion invitado: siete casos verdes
+por SHA en main/tanda; no es flujo completo. BARRA72-1/2/3 y SALON72-1 son nuevos
+casos reproducidos, orden 123. CUA publico vuelve a funcionar y se recorrieron
+inicio, menu movil, galeria/FAQ, Club, demo, blog y simulador hasta datos vacios;
+no SHA publicado confirmado ni backend privado estable. Ver informe 72 para
+no mantener el bloqueo antiguo de navegador publico ni declarar areas limpias.
+
 | Área | Evidencia reutilizable y estado en destino | Pendiente concreto de aceptación (ruta / flujo) |
 |---|---|---|
 | plata | Principal: 603 suites / 3490 pruebas aprobadas sobre `e52c078`; focalizada: 5 suites / 56, incluidas en ese total. Regresiones de 70 pasan. CAMPO01/02 reproducen otro acceso por guardado general; no marcar limpia. | Rechazar modificacion financiera desde campos genericos, comprobar despues los recorridos y conciliar 19 importados con originales. |

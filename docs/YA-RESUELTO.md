@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 6 de octubre de 2026 - Auditoria 72: pendientes NUEVOS, no arreglos
+
+Main e52c078; PR1259 avanzo a 7c96e114. Se contrasto ese HEAD antes de ordenar.
+Cuatro casos reproducidos en ambas bases: BARRA72-1 cambiar trago omite token;
+BARRA72-2 botones en preparando rechazados por servidor (decision del dueno
+consultada, PENDIENTE); BARRA72-3 replay por ID conocido devuelve pedido privado
+sin validar token; SALON72-1 plantilla omite escala, mesa de 2 m se interpreta
+como 4 m. Sondas usan acciones/helpers reales y datos sinteticos, NO Firebase/HTTP.
+Orden unica 123: Claude barra/permisos, Gemini UI y salon; una tanda con 122.
+No estan corregidos por figurar en esta lista. No programar una PR por cada uno.
+
+Ultima tanda: seis suites / 32 unitarias verdes en 7c96e114; no sumarlas a las
+27 antiguas. Main: reutilizar las 3490 de 71. Helper de portal invitado: siete
+casos por SHA verdes, sin HTTP/RSVP/medios integral. Manifest/limites en 72.
+El principal descarto el probe inicial del ayudante que copiaba una formula;
+no era app ni caso Jest. Se reemplazo por helper real, sin contar ese intento.
+
+CUA publico AHORA carga. Se probo menu movil, filtro/foto/siguiente/cerrar,
+FAQ, ficha Club Uruguay, cambio de demo y simulador hasta validar datos vacios.
+Navegacion footer desde Club vuelve bien al inicio: no reportar hash roto por
+inspeccion sola. FAQ/transiciones requieren observar el resultado final.
+Blog/listado separa foto/texto; articulo aun usa foto de fondo (observacion de
+66, no hallazgo nuevo ni orden duplicada). SHA publicado no identificado aqui.
+No afirmar estetica completa, presupuesto/PDF ni integraciones aprobadas.
+No se guardaron leads, pedidos ni datos reales. No app/build/fusion; siguen
+pendientes correcciones 122/123 y entorno compilado 114 para recorridos privados.
+
 ## 6 de octubre de 2026 - Auditoria 71: retest y pendientes concretos
 
 Main `e52c078` (1258): 603 suites / 3490 unitarias verdes; las 56 focalizadas
