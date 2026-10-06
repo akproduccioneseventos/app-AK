@@ -60,7 +60,9 @@ export function LandingNav(_props: LandingNavProps = {}) {
   const navLinks = [
     { label: 'Inicio', href: '#landing-hero', isExternal: false },
     { label: 'Servicios', href: '#landing-services', isExternal: false },
-    { label: 'Galería HD', href: 'https://galeria.akproducciones.uy', isExternal: true, openInNewTab: true },
+    // Auditoría 73 (GAL73): la galería externa abría una tarjeta de contacto, sin fotos. El dueño
+    // eligió (6/10/2026) que lleve a la galería de fotos de la portada.
+    { label: 'Galería HD', href: '#landing-gallery', isExternal: false, openInNewTab: false },
     { label: 'Simulador', href: '/simulador-de-presupuesto', isExternal: true },
     { label: 'Blog', href: '/public/blog', isExternal: true },
     { label: 'Preguntas Frecuentes', href: '#faq', isExternal: false },

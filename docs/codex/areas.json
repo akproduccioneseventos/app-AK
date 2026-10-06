@@ -18,11 +18,11 @@
       "estado": "con-hallazgos",
       "ultimaRevision": {
         "fecha": "2026-10-06",
-        "commit": "e52c078",
-        "hallazgos": 2,
-        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+        "commit": "368988b",
+        "hallazgos": 1,
+        "reporte": "codex/auditoria-73-20261006:docs/evidencias/74-matriz-de-cierre.md"
       },
-      "nota": "Auditoría 71: CAMPO01/02 (cuotas y contrato por el guardado general) arreglados por Claude el 6/10. Falta que Codex la vuelva a mirar."
+      "nota": "Auditorías 73: CAMPO73-RACE (cuota borrada por pantalla vieja) arreglado el 6/10; falta que Codex la vuelva a mirar."
     },
     {
       "id": "contrato",
@@ -81,7 +81,14 @@
         "src/app/actions/fiesta",
         "src/app/(app)/fiestas"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "ultimaRevision": {
+        "fecha": "2026-10-06",
+        "commit": "368988b",
+        "hallazgos": 1,
+        "reporte": "codex/auditoria-73-20261006:docs/evidencias/74-matriz-de-cierre.md"
+      },
+      "nota": "Auditoría 72: la plantilla del salón guarda su escala. Arreglado el 6/10; falta que Codex la vuelva a mirar."
     },
     {
       "id": "portal",
@@ -112,7 +119,14 @@
         "src/app/simulador-ak",
         "src/components/public-footer.tsx"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "ultimaRevision": {
+        "fecha": "2026-10-06",
+        "commit": "368988b",
+        "hallazgos": 4,
+        "reporte": "codex/auditoria-73-20261006:docs/evidencias/74-matriz-de-cierre.md"
+      },
+      "nota": "Auditorías 73-74: Galería HD a la portada, glitter en Eventos, foto del toro retirada, WhatsApp de Privacidad. Arreglado el 6/10; falta la foto real del glitter bar."
     },
     {
       "id": "redes",
@@ -151,7 +165,13 @@
         "src/lib/fiesta-defaults.ts"
       ],
       "estado": "con-hallazgos",
-      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 72: cambio de trago con enlace, dueño del reintento y botones sólo en 'nuevo' (decisión del dueño). Arreglado el 6/10; falta que Codex la vuelva a mirar.",
+      "ultimaRevision": {
+        "fecha": "2026-10-06",
+        "commit": "368988b",
+        "hallazgos": 3,
+        "reporte": "codex/auditoria-73-20261006:docs/evidencias/74-matriz-de-cierre.md"
+      }
     },
     {
       "id": "asistente",

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Home, MessageCircle } from 'lucide-react';
 import { getCompanyInfoPublica } from '@/app/actions/settings';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 /**
  * LA PAGINA DE PRIVACIDAD
@@ -20,8 +21,16 @@ const ACTUALIZADA = '1 de octubre de 2026';
 
 export default async function PrivacidadPage() {
   const companyInfo = await getCompanyInfoPublica().catch(() => null);
-  const telefono = (companyInfo as any)?.telefono || companyInfo?.companyContact || '098 355 530';
-  const email = (companyInfo as any)?.email || 'contacto@akproducciones.uy';
+  // Auditoría 74 (CONTACT74): `companyContact` a veces guarda un correo. Antes se mostraba como
+  // número de WhatsApp. Sólo cuenta como teléfono lo que tiene cifras de teléfono; si no hay, va
+  // el WhatsApp público de AK (`AK_WHATSAPP_NUMBER`).
+  const pareceTelefono = (v: unknown): v is string =>
+    typeof v === 'string' && !v.includes('@') && /^\+?[\d\s().-]+$/.test(v.trim()) && v.replace(/\D/g, '').length >= 8;
+  const contacto = companyInfo?.companyContact;
+  const telefono = [(companyInfo as any)?.telefono, contacto].find(pareceTelefono)
+    || AK_WHATSAPP_NUMBER.replace(/^598(\d{2})(\d{3})(\d{3})$/, '0$1 $2 $3');
+  const email = (companyInfo as any)?.email
+    || (typeof contacto === 'string' && contacto.includes('@') ? contacto : 'contacto@akproducciones.uy');
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">

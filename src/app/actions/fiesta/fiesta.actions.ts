@@ -167,6 +167,16 @@ function reponerLaPlata(nueva: FiestaEnPlanificacion, guardada: FiestaEnPlanific
   return copia as unknown as FiestaEnPlanificacion;
 }
 
+/** El parcial sin lo de plata: eso queda como está en la fiesta de ese momento. */
+function sinLaPlata(parcial: Partial<FiestaEnPlanificacion>, actual: FiestaEnPlanificacion): Partial<FiestaEnPlanificacion> {
+  const copia: Record<string, unknown> = { ...parcial };
+  for (const campo of CAMPOS_DE_PLATA_Y_CONTRATO) delete copia[campo];
+  if (Array.isArray(copia.estadosCompra)) {
+    copia.estadosCompra = reponerLaPlata({ estadosCompra: copia.estadosCompra } as FiestaEnPlanificacion, actual).estadosCompra;
+  }
+  return copia as Partial<FiestaEnPlanificacion>;
+}
+
 /** Para el guardado PARCIAL: si pide cambiar algo de plata sin contabilidad, se rechaza entero. */
 function pideCambiarLaPlata(parcial: Partial<FiestaEnPlanificacion>, guardada: FiestaEnPlanificacion | null): boolean {
   const g = (guardada ?? {}) as Record<string, unknown>;
@@ -276,12 +286,24 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     for (const campo of CAMPOS_DEL_EQUIPO) delete copia[campo];
     fiestaData = copia as unknown as FiestaEnPlanificacion;
   }
-  if (!(await tocaLaPlata())) {
-    const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
-    fiestaData = reponerLaPlata(fiestaData, await getFiestaByIdRaw(fiestaData.id));
-  }
   const assignmentError = validatePersonalAssignments(fiestaData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
+  if (!(await tocaLaPlata())) {
+    // Auditoría 73 (CAMPO73-RACE): lo de plata se repone desde la fiesta de ESE momento, adentro
+    // de la misma operación. Reponerlo desde una lectura anterior dejaba que una pantalla vieja
+    // borrara una cuota cobrada entre la lectura y el guardado.
+    const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+    if (await getFiestaByIdRaw(fiestaData.id)) {
+      const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+      const datos = fiestaData;
+      const r = await actualizarFiesta(datos.id, (actual) => reponerLaPlata(datos, actual));
+      if (!r.success) return { success: false, error: 'No se pudo guardar el evento.' };
+      const { verifySession } = await import('@/lib/auth/session-token');
+      if (!(await verifySession()).success) return { success: true };
+      return { success: true, fiesta: r.updatedFiesta ?? datos };
+    }
+    fiestaData = reponerLaPlata(fiestaData, null);
+  }
   try {
     const filePath = `${FIESTAS_DIR}/${fiestaData.id}.json`;
     await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaData));
@@ -311,14 +333,19 @@ export async function updateFiestaPartial(
     await requireAppSession();
     if (!(await esEquipoParaFiesta(fiestaId))) throw new Error('No autorizado para modificar este evento.');
   }
+  const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
+  if (assignmentError) return { success: false, error: assignmentError };
   if (!(await tocaLaPlata())) {
     const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
     if (pideCambiarLaPlata(partialData, await getFiestaByIdRaw(fiestaId))) {
       return { success: false, error: 'Cobros, contrato y estado de la fiesta los cambia contabilidad, desde su pantalla.' };
     }
+    // Lo de plata que vino igual a lo leído no se escribe: se queda lo de ESE momento, adentro de
+    // la operación (auditoría 73). Si no, un cobro anotado en el medio volvía a cero.
+    const { actualizarFiesta } = await import('@/lib/fiesta/actualizar-fiesta');
+    const r = await actualizarFiesta(fiestaId, (actual) => ({ ...actual, ...sinLaPlata(partialData, actual) }));
+    return r.success ? { success: true } : { success: false, error: r.error || 'No se pudo actualizar parcialmente el evento.' };
   }
-  const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
-  if (assignmentError) return { success: false, error: assignmentError };
   try {
     const filePath = `${FIESTAS_DIR}/${fiestaId}.json`;
     await updateDataPartial<FiestaEnPlanificacion>(filePath, partialData);

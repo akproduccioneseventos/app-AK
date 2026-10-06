@@ -534,6 +534,16 @@ function orderBelongsToGuest(order: BarDrinkOrder, guest: { id: string; nombre: 
   return order.guestName.trim().toLocaleLowerCase('es') === guest.nombre.trim().toLocaleLowerCase('es');
 }
 
+/**
+ * ¿El que reintenta es el mismo que pidió? Un pedido a nombre de un invitado sólo vuelve a ese
+ * invitado, con su enlace ya comprobado; un pedido del tótem por nombre (sin invitado) sólo
+ * vuelve a otro pedido del tótem.
+ */
+function esElMismoQuePidio(order: BarDrinkOrder, invitado: { id: string } | null) {
+  if (order.guestId) return Boolean(invitado && invitado.id === order.guestId);
+  return !invitado;
+}
+
 async function findBarOrder(fiesta: FiestaEnPlanificacion, orderId: string) {
   const db = await getDb();
   if (db) {
@@ -631,13 +641,23 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     // stock que se mira para este pedido ya esta corregido.
     await reintentarDevolucionesPendientes();
 
+    // Pedir a nombre de un invitado exige SU enlace. El totem de la barra pide por
+    // nombre, sin invitado, y eso sigue igual.
+    let invitado: ReturnType<typeof findAuthorizedGuest> = null;
+    if (input.guestId) {
+      invitado = findAuthorizedGuest(fiesta, input.guestId, input.guestAccessToken || '');
+      if (!invitado) return { success: false, error: 'Tu enlace de invitado no corresponde a esta fiesta.' };
+    }
+
     const pedidoId = input.clientRequestId
       ? `bar_${String(input.clientRequestId).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64)}`
       : '';
     if (pedidoId) {
       const yaEsta = await findBarOrder(fiesta, pedidoId);
       if (yaEsta) {
-        if (yaEsta.fiestaId !== input.fiestaId) return { success: false, error: 'Pedido invalido.' };
+        // Auditoría 72 (BARRA72-3): el reintento devuelve el pedido sólo a quien lo hizo. Antes
+        // volvía antes de mirar el enlace, y con el número de un pedido ajeno se leía el suyo.
+        if (yaEsta.fiestaId !== input.fiestaId || !esElMismoQuePidio(yaEsta, invitado)) return { success: false, error: 'Pedido invalido.' };
         return { success: true, order: yaEsta };
       }
     }
@@ -647,13 +667,6 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     if (!drink) return { success: false, error: 'Ese trago no esta disponible.' };
     if ((drink.stockDisponible ?? 1) <= 0) return { success: false, error: 'Ese trago figura sin stock disponible.' };
 
-    // Pedir a nombre de un invitado exige SU enlace. El totem de la barra pide por
-    // nombre, sin invitado, y eso sigue igual.
-    let invitado: ReturnType<typeof findAuthorizedGuest> = null;
-    if (input.guestId) {
-      invitado = findAuthorizedGuest(fiesta, input.guestId, input.guestAccessToken || '');
-      if (!invitado) return { success: false, error: 'Tu enlace de invitado no corresponde a esta fiesta.' };
-    }
 
     const guestName = invitado ? sanitizeText(invitado.nombre, 'Invitado') : sanitizeText(input.guestName, 'Invitado');
     if (stored.settings.requireGuestName && guestName === 'Invitado') {
@@ -682,7 +695,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
       try {
         const r = await descontarYGuardarEnUnaOperacion(dbDelPedido, drink, order);
         if (r.yaEstaba) {
-          if (r.yaEstaba.fiestaId !== input.fiestaId) return { success: false, error: 'Pedido invalido.' };
+          if (r.yaEstaba.fiestaId !== input.fiestaId || !esElMismoQuePidio(r.yaEstaba, invitado)) return { success: false, error: 'Pedido invalido.' };
           return { success: true, order: r.yaEstaba };
         }
         if (r.sinStock) return { success: false, error: 'Se terminó un ingrediente de ese trago. Probá con otro o avisale al barman.' };
@@ -906,11 +919,14 @@ export async function changeBarDrinkOrder(
     // sus botellas al stock. Asi el invitado se queda con el trago que ya tenia y se le dice
     // que el cambio no salio. Nunca con dos, que le costaria dos tragos a la barra, ni con
     // cero.
+    // El pedido nuevo va con el enlace del invitado, ya comprobado arriba (auditoría 72,
+    // BARRA72-1): sin él, la validación de abajo lo rechazaba y el cambio nunca salía.
     const nuevo = await createBarDrinkOrder({
       fiestaId,
       drinkId: newDrinkId,
       guestName: existing.guestName,
-      guestId: existing.guestId,
+      guestId: guest.id,
+      guestAccessToken,
       tableNumber: existing.tableNumber,
       note: existing.note,
     });

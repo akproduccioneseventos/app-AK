@@ -1,5 +1,19 @@
 # Matriz integral de aceptación (14 áreas)
 
+**Actualización 74:** estado vigente en `74-matriz-de-cierre.md` y
+`74-cierre-de-evidencia-y-medios.md`. Main `368988bb`: 608 suites / 3522 unitarias
+aprobadas; 491 E2E sólo descubiertas, NO ejecutadas. Tres pendientes nuevos de
+medios/contacto en orden 125. No transferir la tabla histórica inferior al SHA
+actual ni declarar 14 áreas aceptadas por los tests generales.
+
+**Actualización 73, 6/10:** consultar primero `73-retest-de-1260-y-continuacion.md`.
+Main actual `368988bb`: 21 focales pasan; CAMPO01/02 directos y COMPRA01 corregidos
+con ese alcance. CAMPO73-RACE y GAL73 son hallazgos nuevos. Orden 123 y RED03 siguen
+pendientes. La tabla inferior es histórica de `e52c078`: sus estados y conteos
+no se transfieren al SHA nuevo ni sustituyen aceptación de recorridos completos.
+72 aportó siete controles del helper de invitado por SHA y UX pública acotada;
+no HTTP/RSVP completo. Ninguna área se marca limpia por esas pruebas parciales.
+
 **Destino:** `e52c07839563115236652229d73ac5ebf2e4e551` (`codex/auditoria-integral-20261006`, HEAD local exacto; limpio al iniciar). Matriz preparada por un ayudante y completada por la revision principal con resultados de `71-resultados/manifest.json`: 3490 pruebas unitarias main y 27 de la tanda. No es aprobacion integral: no se ejecuto build, recorrido completo de navegador ni proveedores reales. Cuatro fallos reproducidos en acciones con storage simulado se detallan en informe 71.
 
 **Contraste de tanda actualizado por la revision principal:** el destino es el merge #1258. Los objetos Git de #1259 / `f836c128cfad861a55a2352782f18c805b55e13a` se obtuvieron y verificaron; la revision de entretenimiento esta en `71-pr1259-entretenimiento.md`. Esa rama no modifica las acciones generales de fiesta, compras ni sincronizacion de Instagram donde se reproducen los cuatro hallazgos de 71. Graphify de `.audit-current-20261005` se uso solo para navegacion; su grafo no es evidencia.
@@ -7,6 +21,14 @@
 **Regla de lectura:** “sin evidencia” significa que falta prueba del flujo indicado, no que falle. Un defecto conocido sólo se conserva si la evidencia dice reproducido; el código, una prueba ausente, timeout de entorno o ruta sin cobertura no demuestran por sí solos un fallo. Pruebas de 66/69 preceden al destino y no se transfieren sin identidad de fuente/consumidor.
 
 ## Matriz
+
+**Ampliacion 72, 6/10/2026:** PR1259 avanzo a `7c96e114` y seis suites / 32
+unitarias pasan alli. Helper de token/proyeccion invitado: siete casos verdes
+por SHA en main/tanda; no es flujo completo. BARRA72-1/2/3 y SALON72-1 son nuevos
+casos reproducidos, orden 123. CUA publico vuelve a funcionar y se recorrieron
+inicio, menu movil, galeria/FAQ, Club, demo, blog y simulador hasta datos vacios;
+no SHA publicado confirmado ni backend privado estable. Ver informe 72 para
+no mantener el bloqueo antiguo de navegador publico ni declarar areas limpias.
 
 | Área | Evidencia reutilizable y estado en destino | Pendiente concreto de aceptación (ruta / flujo) |
 |---|---|---|

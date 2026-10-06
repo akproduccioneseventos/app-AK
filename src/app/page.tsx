@@ -428,12 +428,16 @@ async function AsyncGallerySection() {
       sourceId: post.sourceId,
       sourceUrl: post.permalink,
     }));
+  // Auditoría 74 (GAL74-MEDIA): `glitter-bar-01.jpeg` es un toro mecánico vendido como glitter
+  // bar. Se sacó del archivo de la galería; esto la deja afuera aunque haya una copia vieja en la
+  // base. Si aparece la foto real del glitter bar, entra con otro nombre de archivo.
+  const FOTOS_RETIRADAS = new Set(['/media/catalogo-servicios/glitter-bar-01.jpeg']);
   const fotosCombinadas = dedupeGalleryPhotos([
     ...instagramFotos,
     ...(galeriaData.fotos || []),
     ...fotos,
     ...catalogoComoGaleria,
-  ]);
+  ].filter((foto) => !FOTOS_RETIRADAS.has(foto.url)));
 
   return <GallerySection galeriaFotos={fotosCombinadas} />;
 }

@@ -1,5 +1,91 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 6 de octubre de 2026 - Auditoria 72: pendientes NUEVOS, no arreglos
+
+Main e52c078; PR1259 avanzo a 7c96e114. Se contrasto ese HEAD antes de ordenar.
+Cuatro casos reproducidos en ambas bases: BARRA72-1 cambiar trago omite token;
+BARRA72-2 botones en preparando rechazados por servidor (decision del dueno
+consultada, PENDIENTE); BARRA72-3 replay por ID conocido devuelve pedido privado
+sin validar token; SALON72-1 plantilla omite escala, mesa de 2 m se interpreta
+como 4 m. Sondas usan acciones/helpers reales y datos sinteticos, NO Firebase/HTTP.
+Orden unica 123: Claude barra/permisos, Gemini UI y salon; una tanda con 122.
+No estan corregidos por figurar en esta lista. No programar una PR por cada uno.
+
+Ultima tanda: seis suites / 32 unitarias verdes en 7c96e114; no sumarlas a las
+27 antiguas. Main: reutilizar las 3490 de 71. Helper de portal invitado: siete
+casos por SHA verdes, sin HTTP/RSVP/medios integral. Manifest/limites en 72.
+El principal descarto el probe inicial del ayudante que copiaba una formula;
+no era app ni caso Jest. Se reemplazo por helper real, sin contar ese intento.
+
+CUA publico AHORA carga. Se probo menu movil, filtro/foto/siguiente/cerrar,
+FAQ, ficha Club Uruguay, cambio de demo y simulador hasta validar datos vacios.
+Navegacion footer desde Club vuelve bien al inicio: no reportar hash roto por
+inspeccion sola. FAQ/transiciones requieren observar el resultado final.
+Blog/listado separa foto/texto; articulo aun usa foto de fondo (observacion de
+66, no hallazgo nuevo ni orden duplicada). SHA publicado no identificado aqui.
+No afirmar estetica completa, presupuesto/PDF ni integraciones aprobadas.
+No se guardaron leads, pedidos ni datos reales. No app/build/fusion; siguen
+pendientes correcciones 122/123 y entorno compilado 114 para recorridos privados.
+## 6 de octubre de 2026 - Auditoría 74: evidencia actual y tres pendientes nuevos
+
+Main `368988bb` sin nuevas propuestas abiertas: **608 suites / 3522 unitarias
+aprobadas**, cero fallidas/pendientes; los 21 casos de 73 están incluidos, no se
+suman. Originales/hashes en `74-resultados/manifest.json`. Descubrimiento
+Playwright: 491 desktop en 104 archivos, **NO ejecutados**, no aprobación E2E.
+
+**Pendientes nuevos, NO resueltos (orden 125, Gemini):** GAL74-MEDIA, foto de
+Glitter bar es un toro mecánico, también en el JPEG del Git actual y fallback
+LED; GAL74-CATEGORY, clasificador la manda a tragos por «bar» aunque su ficha
+diga Entretenimiento; CONTACT74, `/privacidad` muestra correo como WhatsApp
+por usar `companyContact` heredado como teléfono. Capturas + sonda de fuente
+exacta; sonda verde significa defecto reproducido. No cambiar sólo el alt,
+inventar una foto «real» ni modificar decisiones de privacidad del dueño.
+
+Pasó el recorrido público acotado: una reseña, un video YouTube reproduciendo,
+carga más/modal de galería y carga de privacidad. No aceptar por eso toda web.
+El botón de galería anuncia el próximo total (24/36), no el actual (12/24):
+no reportar falso desfase. El intento `/api/health` fue bloqueado por el cliente
+del navegador (`ERR_BLOCKED_BY_CLIENT`), no prueba de fallo de app.
+
+Matriz vigente `74-matriz-de-cierre.md`: evidencia y ensayo faltante por las
+14 áreas. No marcar limpia una fila sin recorrerla ni tocar el contador para
+aparentar cierre. Fuente de la puerta reportada por Claude `7dfba1da3` idéntica
+a main; logs originales no revisados, Codex no compiló. SHA publicado sin
+identificar. Pendientes 122/123/124 y 114 siguen; no duplicar su programación.
+No app modificada ni fusión, no certificado «cero errores». Registro anterior
+73 mantiene sus causas y decisiones pendientes. Una tanda con código y docs.
+
+## 6 de octubre de 2026 - Auditoría 73, actualización que prevalece sobre 71/72
+
+Main `368988bb` (#1260): CAMPO01/02 directos y COMPRA01 tienen corrección y
+**21 pruebas focales aprobadas**; también presupuesto nuevo sin cobros. No
+confundir la entrada histórica 71 "pendiente" con su estado actual ni reabrir
+esas causas. No se comprobó aquí el flujo HTTP/despliegue del arreglo.
+
+**Nuevo pendiente, NO resuelto: CAMPO73-RACE (P1).** Operador/cliente guardan
+el plan idéntico al leído; se intercala un cobro antes del set y vuelve a cero.
+Cuatro variantes entero/parcial. Acciones/helpers/sync reales, base/sesión
+sintéticas. Omitir plan en parcial conserva el cobro. No es el cambio explícito
+ya arreglado en 122. Orden 124 A a Claude; prueba de regresión propuesta pendiente.
+
+**Nuevo pendiente, NO resuelto: GAL73 (P2).** Galería HD del menú abre tarjeta
+de contacto externa, sin fotos; click/destino/captura comprobados, SHA publicado
+sin identificar. Fuente `LandingNav.tsx` coincide. Decisión de conservar galería
+externa o usar la de la web consultada, pendiente; orden 124 B a Gemini.
+No pedir integración automática Wfolio: su entrega manual sigue decidida.
+
+**Orden 123 pendiente:** trago cambiado pierde token, UI ofrece operaciones
+rechazadas en preparando, reintento conocido devuelve pedido sin validar dueño,
+plantilla pierde escala. Acciones/plantillas no cambiaron en #1260; MiniQuiosco
+sólo muestra el error real. También pendiente RED03 / 122 para Gemini.
+Documentos/evidencia 72 recuperados desde `b6ab4992` sin rehacer auditoría.
+
+Evidencia y límites en `73-retest-de-1260-y-continuacion.md` y manifest 73.
+Ayudante revisó nuevo video/tótem sólo en fuente sin otro defecto demostrado;
+no prueba runtime ni aprobación integral. Nada compilado/fusionado por Codex.
+Las 3490 anteriores son de `e52c078`, no resultado de este SHA. Pruebas privadas,
+114, proveedores, 19 originales, catálogo/hardware siguen pendientes.
+
 ## 6 de octubre de 2026 - Auditoria 71: retest y pendientes concretos
 
 Main `e52c078` (1258): 603 suites / 3490 unitarias verdes; las 56 focalizadas
@@ -10852,3 +10938,38 @@ usa: actualizarFiesta en src/app/actions/fiesta/portal.actions.ts
   si tampoco arranca, vuelve solo a la espera a los 12 segundos. Copiar la contraseña o el enlace
   del portal avisa si no se pudo copiar. Un video que llega vacío se rechaza en vez de guardarse.
 - **El tótem pedía usuario y contraseña:** su dirección no estaba entre las pantallas públicas y el invitado veía el ingreso del equipo. Se agregó; la pantalla sólo muestra lo que devuelve el código del invitado.
+
+## 6 de octubre de 2026 — Órdenes 123, 124 y 125 de Codex (auditorías 72 a 74), corregidas
+
+- **CAMPO73-RACE (orden 124 A):** el operador o el cliente que guardaba con el plan de pagos igual
+  al leído borraba una cuota cobrada en el medio. Ahora, sin contabilidad, `saveFiesta` y
+  `updateFiestaPartial` guardan con `actualizarFiesta`: lo de plata se toma de la fiesta de ESE
+  momento, adentro de la misma operación. Contabilidad sigue guardando igual.
+- **BARRA72-1:** cambiar el trago propio con el enlace bueno ahora sale: el pedido nuevo lleva el
+  enlace del invitado ya comprobado. **BARRA72-3:** un reintento con el número de un pedido devuelve
+  el pedido sólo a quien lo hizo (`esElMismoQuePidio`); el tótem por nombre sigue igual.
+- **BARRA72-2, decisión del dueño (6/10):** el invitado cancela o cambia su trago sólo hasta que
+  el barman lo empieza. La pantalla ya no ofrece esos botones en "preparando" y explica por qué.
+- **SALON72-1:** la plantilla del salón guarda su escala; las plantillas viejas abren como siempre.
+- **GAL73, decisión del dueño (6/10):** "Galería HD" lleva a la galería de fotos de la portada.
+- **GAL74-CATEGORY:** glitter, maquillaje, toro e inflables van a Eventos, no a Barra de Tragos.
+- **GAL74-MEDIA:** `glitter-bar-01.jpeg` es un toro mecánico y no hay foto real del glitter bar
+  (se miraron las doce del catálogo: son sesiones de fotos). Se sacó de la galería, la portada la
+  deja afuera aunque haya una copia en la base, y la presentación LED queda sin foto para glitter.
+  **Falta la foto real del glitter bar**: cuando el dueño la tenga, entra con otro nombre.
+- **CONTACT74:** Privacidad ya no muestra un correo como WhatsApp: sólo usa un teléfono de verdad
+  y si no hay, el número público de AK.
+
+```comprobar
+prueba: src/__tests__/auditoria-73-guardado-concurrente.test.ts
+prueba: src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts
+prueba: src/__tests__/salon-72-plantilla-conserva-escala.test.ts
+prueba: src/__tests__/auditoria-74-categorias-y-contacto.test.ts
+usa: sinLaPlata en src/app/actions/fiesta/fiesta.actions.ts
+usa: esElMismoQuePidio en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: pixelsPerMeter en src/app/actions/salon-layout-templates.ts
+usa: #landing-gallery en src/components/landing/LandingNav.tsx
+prueba: tests/e2e/galeria-hd-destino-publico.spec.ts
+prueba: tests/e2e/galeria-servicio-y-contacto-publico.spec.ts
+prueba: tests/e2e/barra-72-pedido-propio-y-estado.spec.ts
+```

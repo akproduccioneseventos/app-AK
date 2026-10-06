@@ -917,3 +917,16 @@ tocan archivos de plata; la fiesta no lo es. Nunca pregunté **quién más escri
 ```comprobar
 prueba: src/__tests__/auditoria-71-campos-y-compras.test.ts
 ```
+
+## 06/10/2026 — Arreglé el guardado general mirando el pedido, no el momento (Codex, auditoría 73)
+
+**Qué era:** cerré que el operador o el cliente cambiaran la plata por el guardado general, pero
+lo comparaba con una lectura y guardaba aparte: un cobro anotado entre las dos se borraba.
+
+**Por qué se me pasó:** la pregunta 39 ya decía "sobre lo de ese momento", y la apliqué a compras
+y no al guardado general que arreglé el mismo día. **No hay pregunta nueva:** la 39 se pasa a todo
+guardado que toque plata, aunque lo haya escrito yo hace una hora.
+
+```comprobar
+prueba: src/__tests__/auditoria-73-guardado-concurrente.test.ts
+```

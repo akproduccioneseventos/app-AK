@@ -30,11 +30,13 @@ function getFallbackServicePhoto(servicio: { id?: string; nombre?: string | null
   const fullText = `${nombre} ${categoria}`.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   if (fullText.includes('barra') || fullText.includes('trago') || fullText.includes('bebida') || fullText.includes('coctel') || fullText.includes('barman')) {
-    if (fullText.includes('glitter')) return '/media/catalogo-servicios/glitter-bar-01.jpeg';
+    // Auditoría 74 (GAL74-MEDIA): `glitter-bar-01.jpeg` es un toro mecánico, no un glitter bar, y
+    // no hay foto real del glitter bar. Sin foto aprobada, va sin foto: no se muestra otra cosa.
+    if (fullText.includes('glitter')) return null;
     return '/media/catalogo-servicios/barra-tragos-ak-01.jpeg';
   }
   if (fullText.includes('glitter') || fullText.includes('maquillaje') || fullText.includes('make up') || fullText.includes('makeup')) {
-    return '/media/catalogo-servicios/glitter-bar-01.jpeg';
+    return null;
   }
   if (fullText.includes('candy') || fullText.includes('candybar') || fullText.includes('mesa dulce') || fullText.includes('mesadulce') || fullText.includes('golosina')) {
     if (fullText.includes('xv') || fullText.includes('15')) {
