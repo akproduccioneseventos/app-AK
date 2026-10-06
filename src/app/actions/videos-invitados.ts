@@ -163,7 +163,7 @@ export async function obtenerVideoBienvenidaTotem(
   fiestaId: string,
   guestId: string,
   guestAccessToken: string
-): Promise<{ success: boolean; guestName?: string; videoUrl?: string; error?: string }> {
+): Promise<{ success: boolean; guestName?: string; tableNumber?: string; videoUrl?: string; error?: string }> {
   const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
   if (!fiesta) {
     return { success: false, error: 'Fiesta no encontrada.' };
@@ -175,6 +175,7 @@ export async function obtenerVideoBienvenidaTotem(
   }
 
   const guestName = guest.nombre;
+  const tableNumber = guest.tableNumber;
 
   if (fiesta.clientPortalSettings?.videosParaInvitadosActivo) {
     const video = (fiesta.videosParaInvitados || []).find((v) =>
@@ -182,9 +183,9 @@ export async function obtenerVideoBienvenidaTotem(
     );
     if (video?.storagePath) {
       const url = await getSignedUrl(video.storagePath, 6 * 60 * 60 * 1000);
-      return { success: true, guestName, videoUrl: url || undefined };
+      return { success: true, guestName, tableNumber, videoUrl: url || undefined };
     }
   }
 
-  return { success: true, guestName };
+  return { success: true, guestName, tableNumber };
 }

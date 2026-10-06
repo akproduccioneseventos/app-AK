@@ -830,6 +830,21 @@ function ClientPortalConfigContent() {
                 })} />
               </div>
 
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
+                <div>
+                  <Label htmlFor="portal-videos-invitados" className="text-base font-medium">Video para cada invitado</Label>
+                  <p className="text-sm text-muted-foreground">El cliente sube videos y cada invitado ve el suyo en su invitación y en el tótem de bienvenida</p>
+                </div>
+                <Switch
+                  id="portal-videos-invitados"
+                  checked={Boolean(portalSettings.videosParaInvitadosActivo)}
+                  onCheckedChange={(val) => setPortalSettings(p => {
+                    const current = p || defaultClientPortalSettings;
+                    return { ...current, videosParaInvitadosActivo: val };
+                  })}
+                />
+              </div>
+
               <div className="space-y-4 border p-4 rounded-xl bg-slate-50/50">
                 <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                   <KeyRound className="w-4 h-4 text-primary" /> Credenciales y Seguridad
