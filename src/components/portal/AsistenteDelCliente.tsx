@@ -109,7 +109,7 @@ export function AsistenteDelCliente({
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            className="fixed bottom-6 right-20 z-50"
+            className="fixed bottom-24 right-4 z-50"
           >
             <Button
               onClick={() => setIsOpen(true)}
@@ -131,7 +131,7 @@ export function AsistenteDelCliente({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-96 max-h-[85vh] h-[520px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-6 right-4 sm:right-6 z-[60] w-[calc(100vw-2rem)] sm:w-96 max-h-[85vh] h-[520px] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Cabezal */}
             <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between shadow-md">

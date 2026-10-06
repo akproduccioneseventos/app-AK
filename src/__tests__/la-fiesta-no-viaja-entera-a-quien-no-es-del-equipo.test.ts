@@ -18,7 +18,7 @@ jest.mock('@/lib/data-service', () => ({
   writeData: jest.fn(async (archivo: string, datos: any) => { almacen[archivo] = copia(datos); }),
   updateDataPartial: jest.fn(),
 }));
-jest.mock('@/lib/auth/session-token', () => ({ verifySession: jest.fn(async () => ({ success: equipo })) }));
+jest.mock('@/lib/auth/session-token', () => ({ verifySession: jest.fn(async () => (equipo ? { success: true, user: { userId: 'u1', perfil: 'secretaria' } } : { success: false })) }));
 jest.mock('@/lib/auth/require-session', () => ({
   hasAppSession: jest.fn(async () => equipo),
   requireAppSession: jest.fn(async () => { if (!equipo) throw new Error('Sesion no autorizada.'); }),

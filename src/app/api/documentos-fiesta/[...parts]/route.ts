@@ -5,7 +5,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import JSZip from 'jszip';
 import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
-import { hasAppSession } from '@/lib/auth/require-session';
+import { esDelEquipoDeLaFiesta } from '@/lib/auth/equipo-de-la-fiesta';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 
@@ -26,7 +26,8 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
   const params = await props.params;
   const [fiestaId, filename] = params.parts;
 
-  const hasAdminAccess = await hasAppSession();
+  // Del equipo de ESA fiesta, no cualquier sesión: el personal también tiene una (auditoría 69).
+  const hasAdminAccess = fiestaId ? await esDelEquipoDeLaFiesta(await getFiestaByIdRaw(fiestaId)) : false;
   const hasClientAccess = fiestaId ? await verifyPortalSession(fiestaId) : false;
   if (!hasAdminAccess && !hasClientAccess) {
     return new NextResponse('Unauthorized', { status: 401 });

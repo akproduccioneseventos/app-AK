@@ -49,10 +49,12 @@ import { getActivosFijos } from '../activos-fijos';
 import * as logger from '@/lib/logger';
 import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion-slug';
 import { buildAkDemoFiesta, type AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
-import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession } from '@/lib/auth/require-session';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { verifyPortalSession } from '@/lib/security/portal-session';
+import { quienEsElEquipo, usuarioDelEquipo } from '@/lib/auth/equipo-de-la-fiesta';
+import { CAMPOS_DEL_EQUIPO, recortarFiestaParaAfuera } from '@/lib/fiesta/recortar-para-afuera';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
@@ -83,8 +85,36 @@ async function readLocalFiestaDirectory(directory: string): Promise<FiestaEnPlan
   return fiestas.filter((fiesta): fiesta is FiestaEnPlanificacion => fiesta !== null);
 }
 
+/**
+ * La frontera de las fiestas (Codex, auditoría 69, orden 118, 6/10/2026). Antes alcanzaba con
+ * tener sesión: el perfil `personal`, que no tiene ningún permiso, leía la fiesta entera —la clave
+ * del portal, la credencial de cada invitado, los costos— y la podía guardar. Es del equipo quien
+ * tiene algún permiso; el operador, sólo en las fiestas a las que está asignado. Ver
+ * `src/lib/auth/equipo-de-la-fiesta.ts`.
+ */
+async function esEquipoParaFiesta(fiestaId: string): Promise<boolean> {
+    const decide = await quienEsElEquipo();
+    if (decide(null)) return true;
+    const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+    return decide(await getFiestaByIdRaw(fiestaId));
+}
+
+/** Lo que viaja a quien no es su equipo: sin lo interno, lo del cliente ni la clave del portal. */
+function paraAfuera(fiesta: FiestaEnPlanificacion, esCliente = false): FiestaEnPlanificacion {
+    const sinClave = fiesta.clientPortalSettings
+        ? { ...fiesta, clientPortalSettings: { ...fiesta.clientPortalSettings, accessKey: undefined as any } }
+        : fiesta;
+    return recortarFiestaParaAfuera(sinClave, { esCliente });
+}
+
+async function requireEquipo(): Promise<(f: FiestaEnPlanificacion) => FiestaEnPlanificacion> {
+    if (!(await usuarioDelEquipo())) throw new Error('Tu usuario no tiene acceso a las fiestas.');
+    const decide = await quienEsElEquipo();
+    return (f) => (decide(f) ? f : paraAfuera(f));
+}
+
 export async function requireFiestaWriteAccess(fiestaId: string) {
-    if (await hasAppSession()) return;
+    if (fiestaId && (await esEquipoParaFiesta(fiestaId))) return;
     if (fiestaId && (await verifyPortalSession(fiestaId))) return;
     throw new Error('No autorizado para modificar este evento.');
 }
@@ -93,8 +123,8 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   // Devuelve TODAS las fiestas archivadas, con el cliente, lo que pago y sus
   // invitados. Es una direccion de internet: sin esto, cualquiera pedia la lista
   // entera de clientes del negocio sin tener cuenta.
-  await requireAppSession();
-  return leerHistorialCrudo();
+  const mostrar = await requireEquipo();
+  return (await leerHistorialCrudo()).map(mostrar);
 }
 
 export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {
@@ -102,8 +132,8 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
   // Las pantallas que abre un desconocido y que igual necesitan mirar las fiestas
   // (el simulador para ver si una fecha esta libre, el portal del cliente con su
   // clave) usan `leerFiestasCrudas`, que no es una direccion de internet.
-  await requireAppSession();
-  return leerFiestasCrudas(includeArchived);
+  const mostrar = await requireEquipo();
+  return (await leerFiestasCrudas(includeArchived)).map(mostrar);
 }
 
 export async function getAllFiestas() {
@@ -111,6 +141,13 @@ export async function getAllFiestas() {
 }
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
+    // Pública a propósito (la pantalla de mesas), pero a quien no es su equipo le llega sin la
+    // clave del portal ni las credenciales de los invitados (Codex, auditoría 69).
+    const elegida = await elegirFiestaActual();
+    return (await quienEsElEquipo())(elegida) ? elegida : paraAfuera(elegida);
+}
+
+async function elegirFiestaActual(): Promise<FiestaEnPlanificacion> {
     // Publica a proposito: la usa la pantalla de mesas de la fiesta en curso, que
     // se abre sin cuenta. Por eso lee por dentro y no por la puerta con sesion.
     const all = await leerFiestasCrudas(false);
@@ -161,6 +198,13 @@ function validatePersonalAssignments(personalAsignado: FiestaEnPlanificacion['pe
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
   await requireFiestaWriteAccess(fiestaData.id);
+  if (!(await esEquipoParaFiesta(fiestaData.id))) {
+    // Entró por el portal del cliente: lo interno del equipo (costos, personal, pagos a
+    // proveedores) no lo cambia él. Se saca lo que mandó y se repone lo guardado.
+    const copia: Record<string, unknown> = { ...fiestaData };
+    for (const campo of CAMPOS_DEL_EQUIPO) delete copia[campo];
+    fiestaData = copia as unknown as FiestaEnPlanificacion;
+  }
   const assignmentError = validatePersonalAssignments(fiestaData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
   try {
@@ -183,8 +227,13 @@ export async function updateFiestaPartial(
 ): Promise<{ success: boolean; error?: string }> {
   if (options?.allowPortal) {
     await requireFiestaWriteAccess(fiestaId);
-  } else {
-    await requireAppSession();
+    if (!(await esEquipoParaFiesta(fiestaId))) {
+      // El cliente no toca lo interno del equipo (auditoría 69).
+      const tocaLoDelEquipo = CAMPOS_DEL_EQUIPO.some((campo) => campo in (partialData as Record<string, unknown>));
+      if (tocaLoDelEquipo) return { success: false, error: 'Esa parte de la fiesta la maneja el equipo de AK.' };
+    }
+  } else if (!(await esEquipoParaFiesta(fiestaId))) {
+    throw new Error('No autorizado para modificar este evento.');
   }
   const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
@@ -234,9 +283,7 @@ export async function getFiestaById(fiestaId: string, lectura?: symbol): Promise
                 ...fiesta.modulosContratados,
             };
         }
-        const { verifySession } = await import('@/lib/auth/session-token');
-        const sessionAuth = await verifySession();
-        if (!sessionAuth.success && lectura !== LECTURA_COMPLETA) {
+        if (lectura !== LECTURA_COMPLETA && !(await quienEsElEquipo())(fiesta)) {
             if (fiesta.clientPortalSettings) {
                 fiesta.clientPortalSettings = {
                     ...fiesta.clientPortalSettings,
@@ -258,7 +305,10 @@ export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificaci
   if (!normalized) return null;
   // Publica a proposito: es el enlace corto de la invitacion, que abre el invitado.
   const fiestas = await leerFiestasCrudas(true);
-  return fiestas.find(f => f.invitacionSlug === normalized) || null;
+  const fiesta = fiestas.find(f => f.invitacionSlug === normalized) || null;
+  // Al invitado le llega la invitación, no la clave del portal ni las credenciales (auditoría 69).
+  if (!fiesta) return null;
+  return (await quienEsElEquipo())(fiesta) ? fiesta : paraAfuera(fiesta);
 }
 
 export async function updateInvitacionSlug(fiestaId: string, slug: string): Promise<{ success: boolean; slug?: string; error?: string }> {
