@@ -1590,6 +1590,10 @@ con otra cara.
 | Presupuestos, catálogo, ajustes de precio, pagos a proveedores, ganancias y avisos de pago con sólo sesión; saldos sin ajuste antes de firmar y en el asistente | `src/__tests__/revision-de-plata-quien-toca-que.test.ts` |
 | El guardado general de la fiesta dejaba cobrar cuotas y firmar el papel sin contabilidad; una pantalla vieja de compras deshacía un pago | `src/__tests__/auditoria-71-campos-y-compras.test.ts` |
 | Una prueba que arma un repositorio de mentira escribía en el de verdad cuando corría adentro de la subida | `src/__tests__/una-prueba-no-escribe-en-el-repositorio.test.ts` |
+| Una pantalla vieja del operador o del cliente borraba una cuota cobrada en el medio | `src/__tests__/auditoria-73-guardado-concurrente.test.ts` |
+| Cambiar el trago propio se rechazaba, y un reintento con el número de otro devolvía su pedido | `src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts` |
+| La plantilla del salón perdía la escala y una mesa de 2 m pasaba a medir 4 | `src/__tests__/salon-72-plantilla-conserva-escala.test.ts` |
+| Un toro mecánico vendido como glitter bar, en Tragos; un correo como WhatsApp; Galería HD sin fotos | `src/__tests__/auditoria-74-categorias-y-contacto.test.ts` |
 
 ### Cómo se elige el matafuego
 

@@ -183,19 +183,6 @@
                       "createdAt":  "2026-06-01T00:00:00.000Z"
                   },
                   {
-                      "id":  "ak-serv-glitter-bar-01",
-                      "tipo":  "foto",
-                      "url":  "/media/catalogo-servicios/glitter-bar-01.jpeg",
-                      "titulo":  "Glitter bar",
-                      "descripcion":  "Mesa de glitter bar preparada para una experiencia interactiva en evento.",
-                      "categoria":  "Entretenimiento",
-                      "tipoFiesta":  "15 Años",
-                      "servicio":  "Entretenimiento",
-                      "destacada":  false,
-                      "orden":  14,
-                      "createdAt":  "2026-06-01T00:00:00.000Z"
-                  },
-                  {
                       "id":  "ak-serv-photobooth-vogue-01",
                       "tipo":  "foto",
                       "url":  "/media/catalogo-servicios/photobooth-vogue-01.jpeg",

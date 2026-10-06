@@ -28,9 +28,13 @@ const TRUSTED_CATEGORY_ALIASES: Array<[GalleryCategory, RegExp]> = [
   ["Decoraci\u00f3n", /^(decoracion|ambientacion)$/],
   ["Sal\u00f3n", /^(salon|club uruguay)$/],
   ["Fotograf\u00eda", /^(fotografia|filmacion)$/],
+  ["Eventos", /^(entretenimiento|shows?|animacion)$/],
 ];
 
 const CATEGORY_RULES: Array<[GalleryCategory, RegExp]> = [
+  // Auditoría 74 (GAL74-CATEGORY): "Glitter bar" no es una barra de bebidas. El "bar" del nombre
+  // lo mandaba a Tragos; el entretenimiento va a Eventos, antes de que mire la palabra "bar".
+  ["Eventos", /(glitter|maquillaje|toro mecanico|inflable)/],
   ["Reposter\u00eda", /(torta|dulce|candy|postre|reposteria|chocolat|volcan|helado)/],
   ["Barra de Tragos", /(trago|bebida|\bbar\b|barra|coctel|whisky|gin|cerveza)/],
   ["Fotocabina", /(cabina|espejo|plataforma|touchpix|fotocabina|fotobina|totem| 360)/],

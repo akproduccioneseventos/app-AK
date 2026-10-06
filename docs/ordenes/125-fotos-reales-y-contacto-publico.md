@@ -113,6 +113,6 @@ archivo: src/app/presentacion-led/slides/categoria-servicios-slide.tsx
 usa: getFallbackServicePhoto en src/app/presentacion-led/slides/categoria-servicios-slide.tsx
 archivo: src/app/privacidad/page.tsx
 usa: PrivacidadPage en src/app/privacidad/page.tsx
-prueba: src/__tests__/auditoria-74-categorias-y-contacto.test.ts (PENDIENTE)
-prueba: tests/e2e/galeria-servicio-y-contacto-publico.spec.ts (PENDIENTE)
+prueba: src/__tests__/auditoria-74-categorias-y-contacto.test.ts
+prueba: tests/e2e/galeria-servicio-y-contacto-publico.spec.ts
 ```

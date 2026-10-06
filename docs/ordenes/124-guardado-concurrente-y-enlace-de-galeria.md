@@ -96,6 +96,6 @@ usa: saveFiesta en src/app/actions/fiesta/configuracion.actions.ts
 usa: updateConfiguracionFiestaActual en src/app/(app)/fiestas/nueva/configuracion/page.tsx
 archivo: src/components/landing/LandingNav.tsx
 usa: LandingNav en src/app/page.tsx
-prueba: src/__tests__/auditoria-73-guardado-concurrente.test.ts (PENDIENTE)
-prueba: tests/e2e/galeria-hd-destino-publico.spec.ts (PENDIENTE, requiere decisión del dueño)
+prueba: src/__tests__/auditoria-73-guardado-concurrente.test.ts
+prueba: tests/e2e/galeria-hd-destino-publico.spec.ts
 ```

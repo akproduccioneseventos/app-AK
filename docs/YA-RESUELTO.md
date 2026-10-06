@@ -10938,3 +10938,38 @@ usa: actualizarFiesta en src/app/actions/fiesta/portal.actions.ts
   si tampoco arranca, vuelve solo a la espera a los 12 segundos. Copiar la contraseña o el enlace
   del portal avisa si no se pudo copiar. Un video que llega vacío se rechaza en vez de guardarse.
 - **El tótem pedía usuario y contraseña:** su dirección no estaba entre las pantallas públicas y el invitado veía el ingreso del equipo. Se agregó; la pantalla sólo muestra lo que devuelve el código del invitado.
+
+## 6 de octubre de 2026 — Órdenes 123, 124 y 125 de Codex (auditorías 72 a 74), corregidas
+
+- **CAMPO73-RACE (orden 124 A):** el operador o el cliente que guardaba con el plan de pagos igual
+  al leído borraba una cuota cobrada en el medio. Ahora, sin contabilidad, `saveFiesta` y
+  `updateFiestaPartial` guardan con `actualizarFiesta`: lo de plata se toma de la fiesta de ESE
+  momento, adentro de la misma operación. Contabilidad sigue guardando igual.
+- **BARRA72-1:** cambiar el trago propio con el enlace bueno ahora sale: el pedido nuevo lleva el
+  enlace del invitado ya comprobado. **BARRA72-3:** un reintento con el número de un pedido devuelve
+  el pedido sólo a quien lo hizo (`esElMismoQuePidio`); el tótem por nombre sigue igual.
+- **BARRA72-2, decisión del dueño (6/10):** el invitado cancela o cambia su trago sólo hasta que
+  el barman lo empieza. La pantalla ya no ofrece esos botones en "preparando" y explica por qué.
+- **SALON72-1:** la plantilla del salón guarda su escala; las plantillas viejas abren como siempre.
+- **GAL73, decisión del dueño (6/10):** "Galería HD" lleva a la galería de fotos de la portada.
+- **GAL74-CATEGORY:** glitter, maquillaje, toro e inflables van a Eventos, no a Barra de Tragos.
+- **GAL74-MEDIA:** `glitter-bar-01.jpeg` es un toro mecánico y no hay foto real del glitter bar
+  (se miraron las doce del catálogo: son sesiones de fotos). Se sacó de la galería, la portada la
+  deja afuera aunque haya una copia en la base, y la presentación LED queda sin foto para glitter.
+  **Falta la foto real del glitter bar**: cuando el dueño la tenga, entra con otro nombre.
+- **CONTACT74:** Privacidad ya no muestra un correo como WhatsApp: sólo usa un teléfono de verdad
+  y si no hay, el número público de AK.
+
+```comprobar
+prueba: src/__tests__/auditoria-73-guardado-concurrente.test.ts
+prueba: src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts
+prueba: src/__tests__/salon-72-plantilla-conserva-escala.test.ts
+prueba: src/__tests__/auditoria-74-categorias-y-contacto.test.ts
+usa: sinLaPlata en src/app/actions/fiesta/fiesta.actions.ts
+usa: esElMismoQuePidio en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: pixelsPerMeter en src/app/actions/salon-layout-templates.ts
+usa: #landing-gallery en src/components/landing/LandingNav.tsx
+prueba: tests/e2e/galeria-hd-destino-publico.spec.ts
+prueba: tests/e2e/galeria-servicio-y-contacto-publico.spec.ts
+prueba: tests/e2e/barra-72-pedido-propio-y-estado.spec.ts
+```

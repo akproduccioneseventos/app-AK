@@ -118,7 +118,7 @@ usa: cancelBarDrinkOrder en src/app/invitacion/[fiestaId]/invitado/[guestId]/Min
 archivo: src/app/actions/salon-layout-templates.ts
 usa: saveSalonLayoutTemplate en src/app/(app)/fiestas/nueva/invitados/layout/page.tsx
 usa: pixelsPerMeter en src/components/salon-3d/SalonScene.tsx
-prueba: src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts (PROPUESTA PENDIENTE: crear y ejecutar)
-prueba: src/__tests__/salon-72-plantilla-conserva-escala.test.ts (PROPUESTA PENDIENTE: crear y ejecutar)
-prueba: tests/e2e/barra-72-pedido-propio-y-estado.spec.ts (PROPUESTA PENDIENTE; depende de decision del dueno)
+prueba: src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts
+prueba: src/__tests__/salon-72-plantilla-conserva-escala.test.ts
+prueba: tests/e2e/barra-72-pedido-propio-y-estado.spec.ts
 ```
