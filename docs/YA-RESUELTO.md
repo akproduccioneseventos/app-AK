@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 6 de octubre de 2026 - Auditoria 70: pendientes, NO corregidos
+
+Main `6a2143ff`: 599 suites/3445 pruebas verdes, pero seis sondas reproducen
+COB10 (personal cambia cobros), GAS01 (gastos sin perfil), GAS02 (duplicacion),
+GAS03 (importe no finito), PLAN01 (plan viejo deshace cuota pagada), LEDGER01
+(saldo omite ajuste). Orden unica 120 para Claude; evidencia/limites en informe 70.
+No marcarlos arreglados por estar en esta lista. PDF sintetico de cuatro paginas
+revisado sin recortes visibles. Pendientes navegador integrado, catalogo real,
+19 importados y MP sandbox. No se programo app ni compilo/fusiono. Usar rutas
+explicitas para Jest: `money` coincidio con directorio y corrio toda la bateria.
+
 ## 5 de octubre de 2026 - Evidencia Codex 69; pendientes, NO arreglos
 
 Main `feb90f4`: 597 suites / 3.432 pruebas aprobadas, ocho suites repetidas con

@@ -1,0 +1,14 @@
+{
+  "sourceCommit": "6a2143ffe6c257ca94e9761dd7cfacfafafe8e35",
+  "recordedAt": "2026-10-06T10:48:30.213Z",
+  "command": "node docs/evidencias/sondas/64-isolated-audit-runner.mjs . jest-mocked --silent --testPathPatterns=\"financ|contab|cuota|cobr|pago|presup|simula|invoice|ledger|gasto|payment|recibo|money|mercado|budget|annual|descuento|regalo|cost\"",
+  "scopeNote": "The pattern money matched the absolute worktree path, so all suites ran; no extra rerun.",
+  "suites": 599,
+  "tests": 3445,
+  "passed": 3445,
+  "failed": 0,
+  "pending": 0,
+  "rawSha256": "e15eeadf4762f51173a8319ea25fbd111937ec38dd144044890153aa22b8bf3a",
+  "pdfPages": 4,
+  "pdfLimit": "Synthetic input through actual generator. No browser download, real logo, live menu catalog or Firebase persistence verified."
+}
