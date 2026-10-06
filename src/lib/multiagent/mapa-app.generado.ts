@@ -539,6 +539,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/evento/social/:fiestaId",
     "/evento/staff/:fiestaId/cronograma",
     "/evento/totem",
+    "/evento/totem/:fiestaId",
     "/evento/totem/:fiestaId/:totemId",
     "/evento/touchpix",
     "/evento/touchpix/:fiestaId",
@@ -568,7 +569,8 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/portal-cliente/:id/mensajes",
     "/portal-cliente/:id/menu",
     "/portal-cliente/:id/muro-social",
-    "/portal-cliente/:id/musica"
+    "/portal-cliente/:id/musica",
+    "/portal-cliente/:id/videos-invitados"
   ]
 };
 

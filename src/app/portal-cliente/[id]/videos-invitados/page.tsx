@@ -22,6 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
 import { guardarVideoParaInvitados, borrarVideoParaInvitados } from '@/app/actions/videos-invitados';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
+import { AvisoDeDatos } from '@/components/legales/AvisoDeDatos';
 
 export default function VideosInvitadosPage() {
   const params = useParams();
@@ -265,6 +266,7 @@ export default function VideosInvitadosPage() {
           <p className="text-xs text-slate-400">Dedicatorias personales que verán al llegar</p>
         </div>
       </header>
+      <AvisoDeDatos para="invitado" />
 
       <div className="max-w-xl mx-auto p-4 space-y-6">
         {/* Grabador / Vista previa */}
