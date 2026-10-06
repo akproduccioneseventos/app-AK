@@ -6,6 +6,10 @@ import {
 } from './helpers/fiesta-de-prueba';
 import { enchufarCamaraFalsa } from './helpers/camara-falsa';
 
+// El mismo formato que imprime la invitación (src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx).
+const qrDeInvitacion = (fiestaId: string, guestId: string, token: string) =>
+  `https://akproducciones.uy/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&token=${encodeURIComponent(token)}&guestId=${encodeURIComponent(guestId)}`;
+
 test.describe('El tótem de bienvenida interactivo', () => {
   let fiesta: ReturnType<typeof crearFiestaDeEstaNoche>;
 
@@ -30,7 +34,7 @@ test.describe('El tótem de bienvenida interactivo', () => {
     await expect(page.locator('text=¡Bienvenidos! Acercá el QR de tu invitación')).toBeVisible();
 
     const invitado = fiesta.invitados![0];
-    const qrBueno = `https://akproducciones.uy/invitacion/${fiesta.id}?guestId=${invitado.id}&token=${invitado.guestAccessToken}`;
+    const qrBueno = qrDeInvitacion(fiesta.id, invitado.id, invitado.guestAccessToken!);
 
     await page.fill('#respaldo-qr-input', qrBueno);
     await page.click('button:has-text("Leer")');
@@ -44,7 +48,7 @@ test.describe('El tótem de bienvenida interactivo', () => {
     await expect(page.locator('text=¡Bienvenidos! Acercá el QR de tu invitación')).toBeVisible();
 
     // QR de otra fiesta
-    const qrOtraFiesta = `https://akproducciones.uy/invitacion/otra_fiesta_999?guestId=inv_1&token=tok_1`;
+    const qrOtraFiesta = qrDeInvitacion('otra_fiesta_999', 'inv_1', 'tok_1');
     await page.fill('#respaldo-qr-input', qrOtraFiesta);
     await page.click('button:has-text("Leer")');
 
@@ -52,7 +56,7 @@ test.describe('El tótem de bienvenida interactivo', () => {
     await expect(page.locator('text=¡Hola,')).not.toBeVisible();
 
     // QR con token inválido
-    const qrTokenMalo = `https://akproducciones.uy/invitacion/${fiesta.id}?guestId=${fiesta.invitados![0].id}&token=token_invalido_xxx`;
+    const qrTokenMalo = qrDeInvitacion(fiesta.id, fiesta.invitados![0].id, 'token_invalido_xxx');
     await page.fill('#respaldo-qr-input', qrTokenMalo);
     await page.click('button:has-text("Leer")');
 
@@ -65,7 +69,7 @@ test.describe('El tótem de bienvenida interactivo', () => {
     await page.goto(`/evento/bienvenida/${fiesta.id}`);
     await expect(page.locator('text=¡Bienvenidos! Acercá el QR de tu invitación')).toBeVisible();
 
-    const qrMalo = `https://akproducciones.uy/invitacion/otra_fiesta_999?guestId=inv_1&token=tok_1`;
+    const qrMalo = qrDeInvitacion('otra_fiesta_999', 'inv_1', 'tok_1');
     await page.fill('#respaldo-qr-input', qrMalo);
     await page.click('button:has-text("Leer")');
 

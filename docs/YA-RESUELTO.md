@@ -10778,3 +10778,13 @@ usa: veLaPlata en src/app/actions/dashboard.ts
   eso no compilaba. Se corrigió la ruta.
 - Lo que falta, que es el tótem con cámara, la mesa, el botón del panel y el interruptor, vuelve a
   Gemini en la orden 121.
+- **Orden 121 entregada (Gemini):** el tótem de bienvenida está en `/evento/bienvenida/{fiesta}`,
+  lee el QR con la cámara, saluda con el nombre del invitado, muestra su mesa y su video, y vuelve
+  solo a la pantalla de espera. Tiene su botón en el panel de entretenimiento. Además, el video para
+  cada invitado ya se puede prender desde la configuración del portal. Sus pruebas usaban un QR con
+  un formato que la invitación no imprime: se pasaron al formato real.
+- **Una prueba escribía en el repositorio de verdad.** `el-entorno-aislado-no-lleva-credenciales-reales`
+  arma un repositorio de mentira, pero adentro de la subida git deja `GIT_DIR` apuntando al de la
+  app: su `commit` "base" (que borraba todo) caía ahí y lo marcaba sin carpeta de trabajo. Ahora
+  llama a git sin las variables `GIT_*`, y `una-prueba-no-escribe-en-el-repositorio` frena a la
+  próxima que lo haga.

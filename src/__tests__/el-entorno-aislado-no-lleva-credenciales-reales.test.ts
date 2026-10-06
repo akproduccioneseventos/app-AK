@@ -55,10 +55,16 @@ describe('El entorno aislado no lleva credenciales reales', () => {
  *
  * Se probó rompiéndolo: sin la copia descartable, `.env.local` y `.env.production` entran.
  */
+// Cuando la prueba corre adentro de la subida (el control previo de git), git deja puestas
+// GIT_DIR y compañía apuntando al repositorio VERDADERO. Con eso, el `git init` y el `commit` de
+// abajo se hacían sobre el repositorio de la app: lo marcaban "sin carpeta de trabajo" y le
+// dejaban un commit "base" que borraba todo (pasó el 6/10/2026). Se sacan antes de llamar a git.
+const SIN_GIT = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('GIT_')));
+
 describe('El entorno aislado no lee claves de archivos', () => {
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'ak-repo-de-mentira-'));
   beforeAll(() => {
-    const git = (...args: string[]) => execFileSync('git', ['-C', repo, ...args], { stdio: 'ignore' });
+    const git = (...args: string[]) => execFileSync('git', ['-C', repo, ...args], { stdio: 'ignore', env: SIN_GIT });
     git('init', '-q');
     git('config', 'user.email', 'prueba@ak.local');
     git('config', 'user.name', 'Prueba');
@@ -74,7 +80,7 @@ describe('El entorno aislado no lee claves de archivos', () => {
     const r = spawnSync('node', ['scripts/entorno-de-pruebas.mjs'], {
       cwd: process.cwd(),
       env: {
-        ...process.env,
+        ...SIN_GIT,
         FIREBASE_PRIVATE_KEY: 'heredada',
         AK_ENTORNO_PROBAR_CARPETA: repo,
         AK_ENTORNO_PROBAR_SIN_COPIA: String(sinCopia),

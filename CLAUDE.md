@@ -1009,6 +1009,15 @@ y hubo que pararla.
 **Qué se hace distinto:** antes de lanzar la puerta, `git status --short` tiene que mostrar sólo
 datos de la corrida; si aparece código, se agrega por nombre y recién ahí se lanza.
 
+### 34. Una prueba que escribía en el repositorio de verdad
+
+**Pasó el 6 de octubre de 2026.** Una prueba arma un repositorio de mentira con `git init` y
+`commit`. Corriendo adentro de la subida, git deja puesta la ubicación del repositorio verdadero, y
+el commit "base" cayó en la copia de trabajo y la dejó marcada sin carpeta. No llegó a subirse.
+
+**Qué se hace distinto:** toda prueba que escribe con git lo llama sin las variables `GIT_*`, y el
+control `una-prueba-no-escribe-en-el-repositorio` lo exige.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y
@@ -1579,6 +1588,7 @@ con otra cara.
 | Acciones de plata con sólo sesión, en cualquier archivo, hoy o mañana | **`src/__tests__/el-candado-de-la-plata.test.ts`** |
 | El personal anotaba cobros y gastos, un reintento duplicaba un gasto, un plan viejo deshacía una cuota y el panel no veía el ajuste anual | `src/__tests__/auditoria-70-contabilidad.test.ts` |
 | Presupuestos, catálogo, ajustes de precio, pagos a proveedores, ganancias y avisos de pago con sólo sesión; saldos sin ajuste antes de firmar y en el asistente | `src/__tests__/revision-de-plata-quien-toca-que.test.ts` |
+| Una prueba que arma un repositorio de mentira escribía en el de verdad cuando corría adentro de la subida | `src/__tests__/una-prueba-no-escribe-en-el-repositorio.test.ts` |
 
 ### Cómo se elige el matafuego
 
