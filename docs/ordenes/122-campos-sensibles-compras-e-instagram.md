@@ -67,3 +67,31 @@ usa: syncInstagramPosts en src/lib/marketing-automation.ts
 prueba: src/__tests__/auditoria-71-campos-y-compras.test.ts (PROPUESTA PENDIENTE: crear y ejecutar)
 prueba: src/__tests__/instagram-sync-videos-concurrentes.test.ts (PROPUESTA PENDIENTE: crear y ejecutar)
 ```
+
+## Nota de Claude para Gemini (6/10/2026): lo de Claude ya está fusionado (#1260)
+
+CAMPO01/02 y COMPRA01 están hechos: **no los toques**. Te queda **RED03**, en UNA sola propuesta.
+
+- `galeria-publica.json` es un documento entero (`{ fotos, videos }`), no una colección. Hoy lo
+  reescriben enteros `syncInstagramPosts` (`src/app/actions/social-media.ts`, ~línea 413) **y**
+  todas las funciones de `src/app/actions/galeria.ts` (`writeData(GALERIA_FILE, data)`, siete
+  lugares). Arreglar sólo la sincronización deja el mismo agujero entre Instagram y la galería.
+- `mutarDocumentoConTransaccion` (`src/lib/generic-json-store.ts`, ~línea 136) **exige una ruta
+  `coleccion/archivo.json`**: con `galeria-publica.json` tira error. Agregá al lado una función que
+  haga lo mismo para un archivo de primer nivel del almacén genérico (misma colección y mismo id que
+  usa `leerGenericJsonParaGuardarEncima`, ~línea 238), con transacción de Firestore y, en modo local,
+  el mismo turno por archivo (`getFileMutex`). Pasá por ella la sincronización y las siete de
+  `galeria.ts`: cada una recibe la galería de ESE momento y devuelve la nueva.
+- `catalogo-fotos.json` y `social-posts.json` **no** se tocan (Codex: ya tienen sus marcas).
+- La prueba `src/__tests__/instagram-sync-videos-concurrentes.test.ts`: la base de mentira devuelve
+  **una copia** en cada lectura; dos sincronizaciones leen las dos antes de guardar (una barrera) y
+  quedan los dos videos; tiene que dar **rojo** con el código de hoy. Sumá un caso de
+  galería + Instagram a la vez.
+- Antes de decir "terminé", leé `docs/ANTES-DE-ENTREGAR.md`.
+
+```comprobar
+usa: mutarDocumento en src/app/actions/galeria.ts
+no-usa: writeData(GALERIA_FILE en src/app/actions/galeria.ts
+no-usa: writeData('galeria-publica.json' en src/app/actions/social-media.ts
+prueba: src/__tests__/instagram-sync-videos-concurrentes.test.ts
+```
