@@ -10781,12 +10781,16 @@ usa: veLaPlata en src/app/actions/dashboard.ts
   lo de ese momento (`updateShoppingListStatus` recibe lo que la pantalla había leído). El permiso
   sale de las casillas pedidas: pagado y monto pagado son de insumos o contabilidad. Si otro cambió
   la misma casilla, pide recargar. La pantalla ya no modifica en el lugar lo que tenía leído.
+- **Barrido con la pregunta 38:** el presupuesto nuevo (`savePresupuesto`) se arma con organización
+  o comercial, pero podía nacer con cobros confirmados o ya Facturado. Sin contabilidad, ahora nace
+  sin cobros, sin fecha de firma y como propuesta. El resto de las puertas generales ya pedía lo mismo.
 - **RED03 (Instagram)** va a Gemini con la orden 122 de Codex: no es un arreglo chico (la galería se
   guarda entera en varios lugares).
 - Falsos positivos que Codex retiró: el tiempo de 12 segundos del tótem (es la rama sin video) y AUTO03.
 
 ```comprobar
 prueba: src/__tests__/auditoria-71-campos-y-compras.test.ts
+prueba: src/__tests__/auditoria-71-presupuesto-nuevo-sin-plata.test.ts
 usa: reponerLaPlata en src/app/actions/fiesta/fiesta.actions.ts
 usa: pideCambiarLaPlata en src/app/actions/fiesta/fiesta.actions.ts
 usa: cambiosPedidos en src/app/actions/fiesta/catering.actions.ts

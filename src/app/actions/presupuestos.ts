@@ -290,6 +290,17 @@ export async function savePresupuesto(
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string, avisoCrm?: string }> {
   const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!auth.success) return { success: false, error: auth.error };
+  // Pregunta 38 (auditoría 71): armar un presupuesto es de organización o comercial, pero nacer
+  // con cobros adentro o ya Aceptado/Facturado es plata. Sin contabilidad, nace sin cobros y como
+  // propuesta; los cobros y la aceptación tienen su camino, que pide contabilidad.
+  if (!puede(auth.user, PERMISOS.CONTABILIDAD)) {
+    const ESTADOS_DE_PROPUESTA: Presupuesto['estado'][] = ['Borrador', 'Pendiente Verificación', 'Enviado'];
+    const { pagosCliente: _pagos, fechaFirmaContrato: _firma, ...sinPlata } = presupuestoData as Omit<Presupuesto, 'id'> & { fechaFirmaContrato?: string };
+    presupuestoData = {
+      ...sinPlata,
+      estado: ESTADOS_DE_PROPUESTA.includes(presupuestoData.estado) ? presupuestoData.estado : 'Enviado',
+    } as Omit<Presupuesto, 'id'>;
+  }
 
   return await presupuestosMutex.runExclusive(async () => {
     let presupuestos = await getPresupuestos(true);
