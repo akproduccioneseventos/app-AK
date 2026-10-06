@@ -117,3 +117,6 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 28. **¿Los datos de tu prueba tienen la forma real?** Cada campo tiene que existir en el tipo de
     `src/types/`. Si inventás un campo, la prueba copia el error en vez de encontrarlo.
+
+29. **¿Tu acción toca plata?** El candado (`el-candado-de-la-plata.test.ts`) frena si pide sólo
+    sesión. Pedí el permiso del perfil; si de verdad es pública, anotala con el motivo.

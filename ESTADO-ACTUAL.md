@@ -20,6 +20,10 @@ más la rama documental de Codex `codex/auditoria-simulador-contable-20261006` (
   ajustes de precio, pagos a proveedores, ganancias, flujo de caja, avisos de pago y deudores
   piden el perfil; saldos con ajuste antes de firmar y en el asistente. Preguntas 36 y 37 nuevas.
   Prueba `revision-de-plata-quien-toca-que` (21 en rojo con el código viejo).
+- **El candado de la plata:** `el-candado-de-la-plata.test.ts` frena la publicación si cualquier
+  acción toca plata con sólo sesión. Encontró y se cerró: buscar presupuestos ajenos por celular en
+  el simulador, el panel con ventas para el operador, `updatePresupuesto`, estadísticas, históricos,
+  costos de la fiesta y avisos de saldo. Jest 3.490 en verde.
 
 ## Sigue
 

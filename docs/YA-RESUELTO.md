@@ -10735,3 +10735,35 @@ prueba: src/__tests__/revision-de-plata-quien-toca-que.test.ts
 usa: verifySessionConPermiso en src/app/actions/presupuestos.ts
 usa: getBudgetCollectibleTotal en src/app/actions/fiesta/documentos.actions.ts
 ```
+
+## 6 de octubre de 2026 — El candado de la plata (pedido del dueño: "que esto no pase más")
+
+**Qué es:** `src/__tests__/el-candado-de-la-plata.test.ts` recorre TODAS las acciones del servidor
+y frena la publicación si una toca plata (presupuestos, facturas, cobros, cuotas, gastos, precios,
+costos, pagos a proveedores, sueldos) y pide sólo sesión. Sigue las constantes de archivo y las
+funciones de ayuda. Las públicas a propósito van en una lista con su motivo. Probado rompiéndolo:
+sacando el permiso de los pagos a proveedores, el ajuste de precios o el reporte de ganancias,
+frena y nombra la acción.
+
+**Por qué así:** durante meses los permisos flojos se encontraron de a uno. Un control que mira
+todo, cada vez que se publica, no depende de que alguien se acuerde, y vale para lo que programe
+cualquiera de las tres IA.
+
+Lo que el candado encontró al ponerlo, y quedó arreglado: cambiar un presupuesto
+(`updatePresupuesto`), las estadísticas de ventas, la carga de históricos con monto, los costos de
+la fiesta y su sincronización, los avisos de saldo, el control de clientes repetidos del
+simulador, y el panel, que le mostraba ventas y cobros al operador. Y lo más serio: **"recuperá tus
+presupuestos con tu celular" del simulador** dejaba, escribiendo el celular de otro, ver sus
+presupuestos con un enlace para abrirlos y sin límite por conexión. Ahora tiene freno por conexión,
+muestra sólo presupuestos de prospecto (los contratados se ven en el portal, con clave) y sólo el
+nombre de pila.
+
+Límite conocido: si una acción delega en otra del mismo archivo, el candado cree que el permiso de
+la otra alcanza. Para las acciones más sensibles (aceptar, facturar), la prueba
+`revision-de-plata-quien-toca-que` exige el permiso exacto.
+
+```comprobar
+prueba: src/__tests__/el-candado-de-la-plata.test.ts
+usa: public-budget-history-por-conexion en src/app/actions/armado-rapido.ts
+usa: veLaPlata en src/app/actions/dashboard.ts
+```
