@@ -1,5 +1,13 @@
 # Matriz integral de aceptación (14 áreas)
 
+**Actualización 73, 6/10:** consultar primero `73-retest-de-1260-y-continuacion.md`.
+Main actual `368988bb`: 21 focales pasan; CAMPO01/02 directos y COMPRA01 corregidos
+con ese alcance. CAMPO73-RACE y GAL73 son hallazgos nuevos. Orden 123 y RED03 siguen
+pendientes. La tabla inferior es histórica de `e52c078`: sus estados y conteos
+no se transfieren al SHA nuevo ni sustituyen aceptación de recorridos completos.
+72 aportó siete controles del helper de invitado por SHA y UX pública acotada;
+no HTTP/RSVP completo. Ninguna área se marca limpia por esas pruebas parciales.
+
 **Destino:** `e52c07839563115236652229d73ac5ebf2e4e551` (`codex/auditoria-integral-20261006`, HEAD local exacto; limpio al iniciar). Matriz preparada por un ayudante y completada por la revision principal con resultados de `71-resultados/manifest.json`: 3490 pruebas unitarias main y 27 de la tanda. No es aprobacion integral: no se ejecuto build, recorrido completo de navegador ni proveedores reales. Cuatro fallos reproducidos en acciones con storage simulado se detallan en informe 71.
 
 **Contraste de tanda actualizado por la revision principal:** el destino es el merge #1258. Los objetos Git de #1259 / `f836c128cfad861a55a2352782f18c805b55e13a` se obtuvieron y verificaron; la revision de entretenimiento esta en `71-pr1259-entretenimiento.md`. Esa rama no modifica las acciones generales de fiesta, compras ni sincronizacion de Instagram donde se reproducen los cuatro hallazgos de 71. Graphify de `.audit-current-20261005` se uso solo para navegacion; su grafo no es evidencia.
