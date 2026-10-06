@@ -1,35 +1,32 @@
-# En curso: auditoria 71 y orden 122
+# En curso: una propuesta con orden 121 (tótem), orden 122 (Codex 71) y la barra
 
-6 de octubre de 2026. Main auditado: `e52c07839563115236652229d73ac5ebf2e4e551`
-(merge 1258). Rama documental: `codex/auditoria-integral-20261006`.
-No fusionar documentos solos: incorporar a la siguiente tanda de codigo.
+**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3` sobre main `e52c078` (PR 1258), con
+la rama de Gemini `feat/orden-117-video-invitados` (PR 1259) adentro: al fusionar esta, la 1259
+queda fusionada también.
 
-## Comprobado por Codex
+## Qué trae
 
-- Main: 603 suites / 3490 unitarias aprobadas; 56 focalizadas incluidas, no sumadas.
-- Las seis regresiones de orden 120 pasan sobre este SHA; no reabrirlas.
-- PR1259 sigue abierta: `feat/orden-117-video-invitados`, `f836c128cfad861a55a2352782f18c805b55e13a`.
-- Tanda: 4 suites / 27 unitarias aprobadas. No equivale a build/E2E/voz/camara reales.
-- Sondas reproducen cuatro casos en main y en archivos sin cambios de la tanda:
-  CAMPO01/02: guardado general permite cuotas/contrato a operador o cliente;
-  COMPRA01: compras viejas revierten pago concurrente;
-  RED03: importaciones concurrentes pierden un video del objeto de galeria.
-- Evidencia/limites: `docs/evidencias/71-auditoria-integral-y-retest.md`,
-  `71-resultados/manifest.json`, `71-matriz-integral.md` (14 areas).
-- Alerta del ayudante sobre timer de totem descartada: solo rige sin video.
-- No generalizar RED03 a colecciones; no cambiar permisos actuales de costos.
+- **Orden 117/121 (Gemini, revisada):** tótem de bienvenida `/evento/bienvenida/{fiesta}` con
+  cámara, saludo, mesa y video; botón en entretenimiento; interruptor del video por invitado en el
+  portal. Claude: pantalla pública, aviso de datos, el video no traba el tótem, QR real en pruebas,
+  sin presupuesto basura por WhatsApp, sin atajo de permiso en `actualizarFiesta`.
+- **Orden 122 (Codex, auditoría 71):** el guardado general de la fiesta no cambia plata ni contrato
+  sin contabilidad (CAMPO01/02); compras guarda sólo lo pedido (COMPRA01); el aviso de pago del
+  cliente va por `actualizarFiesta`; un presupuesto nuevo no nace cobrado sin contabilidad
+  (barrido de la pregunta 38). Preguntas 38 y 39 nuevas.
+- **Barra:** la prueba del doble toque fallaba en main por stock cero en los datos de prueba (no
+  era la app); el invitado ve el motivo real.
+- Una prueba escribía en el repositorio verdadero dentro de la subida: arreglado y con control.
 
 ## Sigue
 
-- Orden 122: Claude dinero/permisos/comida; Gemini RED03; Claude compila.
-- Codex retesta SOLO lo corregido en el nuevo SHA, reutilizando pruebas vigentes.
-- Ordenes 117/121 y AUD01 siguen con sus responsables, sin duplicarlas.
-- Orden 114: falta entorno compilado estable con backend de prueba para recorridos.
-- Computer Use detuvo el navegador por no poder identificar URL con certeza;
-  recorrido no ejecutado, no es defecto de AK ni falta de permiso del dueno.
-- Pendientes de aceptacion: recorridos completos, proveedores externos, 19 originales,
-  catalogo real, despliegue del SHA y hardware al final. No hay certificado integral.
+- Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
+- **Gemini: RED03 de la orden 122** (dos sincronizaciones de Instagram pierden un video; la galería
+  se guarda entera también en `galeria.ts`). Y 112 B.1 (AUD01).
+- Codex vuelve a mirar plata, permisos y comida sobre el SHA fusionado.
+- Pregunta pendiente al dueño: ¿escanear en el tótem cuenta como llegada? Hoy no.
 
-No se programo app, compilo ni fusiono. No investigar facturacion de GitHub.
-No tocar/revertir JSON de notificaciones escritos por pruebas. Fusion del dueno;
-compilacion y puerta de Claude, con `expectedHeadSha` del resultado verde.
+## Cómo se fusiona (error 30)
+
+- Sin `expectedHeadSha` igual al de `.ak-puerta-verde.json`, no se fusiona.
+- No cambiar de rama ni `commit -a` mientras corre la puerta.
