@@ -96,8 +96,7 @@ export async function guardarVideoParaInvitados(
           ...fiestaFresca,
           videosParaInvitados: [...listaExistente, nuevoVideo],
         };
-      },
-      { portalClient: true }
+      }
     );
 
     if (!resActualizar || !resActualizar.success) {
@@ -143,8 +142,7 @@ export async function borrarVideoParaInvitados(
           ...fiestaFresca,
           videosParaInvitados: listaExistente.filter((v) => v.id !== videoId),
         };
-      },
-      { portalClient: true }
+      }
     );
 
     if (!resActualizar.success) {

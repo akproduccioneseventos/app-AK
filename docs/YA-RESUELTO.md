@@ -10767,3 +10767,14 @@ prueba: src/__tests__/el-candado-de-la-plata.test.ts
 usa: public-budget-history-por-conexion en src/app/actions/armado-rapido.ts
 usa: veLaPlata en src/app/actions/dashboard.ts
 ```
+
+### Revisión de la propuesta 1259 (orden 117, Gemini), 6/10/2026
+
+- `actualizarFiesta` traía la opción `portalClient`, que se saltaba el permiso para guardar. Se sacó
+  porque no hacía falta: `requireFiestaWriteAccess` ya deja pasar la sesión del portal.
+- El asistente por WhatsApp tenía `presupuestar_prospecto`, que armaba un presupuesto basura
+  (100 adultos, "15 Años", sin servicios) a nombre del celular del equipo. Se sacó.
+- La página de videos del portal importaba `AvisoDeDatos` desde una carpeta que no existe, y por
+  eso no compilaba. Se corrigió la ruta.
+- Lo que falta, que es el tótem con cámara, la mesa, el botón del panel y el interruptor, vuelve a
+  Gemini en la orden 121.

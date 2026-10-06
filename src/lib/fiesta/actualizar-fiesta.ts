@@ -27,11 +27,11 @@ export async function acquireFiestaUpdateLock(fiestaId: string): Promise<() => v
 export async function actualizarFiesta(
   fiestaId: string,
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion | Promise<FiestaEnPlanificacion>,
-  options: { publicRsvp?: boolean; portalClient?: boolean } = {},
+  options: { publicRsvp?: boolean } = {},
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   const releaseLock = await acquireFiestaUpdateLock(fiestaId);
   try {
-    if (!options.publicRsvp && !options.portalClient) {
+    if (!options.publicRsvp) {
       await requireFiestaWriteAccess(fiestaId);
     }
 

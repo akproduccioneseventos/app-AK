@@ -22,7 +22,7 @@ import { Badge } from '@/components/ui/badge';
 import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
 import { guardarVideoParaInvitados, borrarVideoParaInvitados } from '@/app/actions/videos-invitados';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
-import { AvisoDeDatos } from '@/components/legales/AvisoDeDatos';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 export default function VideosInvitadosPage() {
   const params = useParams();
