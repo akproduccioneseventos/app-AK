@@ -10791,3 +10791,4 @@ usa: veLaPlata en src/app/actions/dashboard.ts
 - **El tótem no se traba si la tablet no deja arrancar el video con sonido:** prueba sin sonido y,
   si tampoco arranca, vuelve solo a la espera a los 12 segundos. Copiar la contraseña o el enlace
   del portal avisa si no se pudo copiar. Un video que llega vacío se rechaza en vez de guardarse.
+- **El tótem pedía usuario y contraseña:** su dirección no estaba entre las pantallas públicas y el invitado veía el ingreso del equipo. Se agregó; la pantalla sólo muestra lo que devuelve el código del invitado.
