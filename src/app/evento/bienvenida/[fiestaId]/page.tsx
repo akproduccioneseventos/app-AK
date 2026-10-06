@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { obtenerVideoBienvenidaTotem } from '@/app/actions/videos-invitados';
 import { usePantallaPrendida } from '@/hooks/use-pantalla-prendida';
+import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import type { Html5QrcodeScanner, QrcodeSuccessCallback } from 'html5-qrcode';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
@@ -329,6 +330,7 @@ export default function TotemBienvenidaPage() {
               Leer
             </Button>
           </form>
+          <AvisoDeDatos para="invitado" className="mt-1 text-[10px] text-white/50" />
         </div>
       )}
 
