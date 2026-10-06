@@ -1,5 +1,36 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 6 de octubre de 2026 - Auditoría 73, actualización que prevalece sobre 71/72
+
+Main `368988bb` (#1260): CAMPO01/02 directos y COMPRA01 tienen corrección y
+**21 pruebas focales aprobadas**; también presupuesto nuevo sin cobros. No
+confundir la entrada histórica 71 "pendiente" con su estado actual ni reabrir
+esas causas. No se comprobó aquí el flujo HTTP/despliegue del arreglo.
+
+**Nuevo pendiente, NO resuelto: CAMPO73-RACE (P1).** Operador/cliente guardan
+el plan idéntico al leído; se intercala un cobro antes del set y vuelve a cero.
+Cuatro variantes entero/parcial. Acciones/helpers/sync reales, base/sesión
+sintéticas. Omitir plan en parcial conserva el cobro. No es el cambio explícito
+ya arreglado en 122. Orden 124 A a Claude; prueba de regresión propuesta pendiente.
+
+**Nuevo pendiente, NO resuelto: GAL73 (P2).** Galería HD del menú abre tarjeta
+de contacto externa, sin fotos; click/destino/captura comprobados, SHA publicado
+sin identificar. Fuente `LandingNav.tsx` coincide. Decisión de conservar galería
+externa o usar la de la web consultada, pendiente; orden 124 B a Gemini.
+No pedir integración automática Wfolio: su entrega manual sigue decidida.
+
+**Orden 123 pendiente:** trago cambiado pierde token, UI ofrece operaciones
+rechazadas en preparando, reintento conocido devuelve pedido sin validar dueño,
+plantilla pierde escala. Acciones/plantillas no cambiaron en #1260; MiniQuiosco
+sólo muestra el error real. También pendiente RED03 / 122 para Gemini.
+Documentos/evidencia 72 recuperados desde `b6ab4992` sin rehacer auditoría.
+
+Evidencia y límites en `73-retest-de-1260-y-continuacion.md` y manifest 73.
+Ayudante revisó nuevo video/tótem sólo en fuente sin otro defecto demostrado;
+no prueba runtime ni aprobación integral. Nada compilado/fusionado por Codex.
+Las 3490 anteriores son de `e52c078`, no resultado de este SHA. Pruebas privadas,
+114, proveedores, 19 originales, catálogo/hardware siguen pendientes.
+
 ## 6 de octubre de 2026 - Auditoria 71: retest y pendientes concretos
 
 Main `e52c078` (1258): 603 suites / 3490 unitarias verdes; las 56 focalizadas

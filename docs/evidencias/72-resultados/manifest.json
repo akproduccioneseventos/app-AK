@@ -1,0 +1,50 @@
+{
+  "mainSourceCommit": "e52c07839563115236652229d73ac5ebf2e4e551",
+  "pendingSourceCommit": "7c96e11427c673d72638ac593bcd783915955aa8",
+  "reusedMainEvidence": "../71-resultados/manifest.json",
+  "run": {
+    "file": "pr1259-focalizada.json.gz",
+    "uncompressedSha256": "f87b761cf3ed191087e5b32556cb50d676f7f0ff8b488d7c27e4dded6a1be474",
+    "sourceCommit": "7c96e11427c673d72638ac593bcd783915955aa8",
+    "startTime": "2026-10-06T16:54:13.079Z",
+    "suitesPassed": 6,
+    "testsPassed": 32,
+    "testsFailed": 0,
+    "testsPending": 0,
+    "scope": "six changed unit suites, NOT full build/E2E/providers",
+    "command": "node docs/evidencias/sondas/64-isolated-audit-runner.mjs . jest-mocked --maxWorkers=1 --runTestsByPath src/__tests__/una-prueba-no-escribe-en-el-repositorio.test.ts src/__tests__/el-video-para-cada-invitado.test.ts src/__tests__/portada-del-portal-del-cliente.test.ts src/__tests__/conversacion-en-vivo-con-voz.test.ts src/__tests__/los-ajustes-de-la-estacion-llegan.test.ts src/__tests__/el-entorno-aislado-no-lleva-credenciales-reales.test.ts"
+  },
+  "probes": [
+    {
+      "file": "../72-barra-probe.cjs",
+      "sourceSha256": "d3ee69179e6fb285ffbab506c3eca824ece99c7a9d42ee6eef9639e0e752e4bb",
+      "command": "node docs/evidencias/72-barra-probe.cjs [SHA]",
+      "executedSourceCommits": [
+        "e52c07839563115236652229d73ac5ebf2e4e551",
+        "7c96e11427c673d72638ac593bcd783915955aa8"
+      ],
+      "meaning": "assertions reproduce defects, NOT acceptance of a correction"
+    },
+    {
+      "file": "../72-salon-probe.cjs",
+      "sourceSha256": "f797e15cd3044b69bbaa044731e3030ae676af11ff9229b50ff125d6e65d36ae",
+      "command": "node docs/evidencias/72-salon-probe.cjs [SHA]",
+      "executedSourceCommits": [
+        "e52c07839563115236652229d73ac5ebf2e4e551",
+        "7c96e11427c673d72638ac593bcd783915955aa8"
+      ],
+      "meaning": "assertions reproduce defects, NOT acceptance of a correction"
+    },
+    {
+      "file": "../72-invitado-probe.cjs",
+      "sourceSha256": "6e2f224ec80c3f129625c6380f0007fceda5194196945789f8e7115b56aff961",
+      "command": "node docs/evidencias/72-invitado-probe.cjs [SHA]",
+      "executedSourceCommits": [
+        "e52c07839563115236652229d73ac5ebf2e4e551",
+        "7c96e11427c673d72638ac593bcd783915955aa8"
+      ],
+      "meaning": "seven real-helper acceptance cases per SHA, not HTTP"
+    }
+  ],
+  "scopeLimit": "No app edits, build, merge, real orders, production data changes or zero-error certification."
+}
