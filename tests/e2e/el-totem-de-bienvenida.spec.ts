@@ -39,8 +39,9 @@ test.describe('El tótem de bienvenida interactivo', () => {
     await page.fill('#respaldo-qr-input', qrBueno);
     await page.click('button:has-text("Leer")');
 
-    await expect(page.locator(`text=¡Hola, ${invitado.nombre}!`)).toBeVisible();
-    await expect(page.locator(`text=Mesa ${invitado.tableNumber}`)).toBeVisible();
+    // El saludo lleva el nombre de ESTE invitado y su mesa, no un texto fijo.
+    await expect(page.locator('body')).toContainText(`¡Hola, ${invitado.nombre}!`);
+    await expect(page.locator('body')).toContainText(`Mesa ${invitado.tableNumber}`);
   });
 
   test('Con un QR de otra fiesta o token malo muestra cartel de error y no saluda', async ({ page }) => {
@@ -52,16 +53,16 @@ test.describe('El tótem de bienvenida interactivo', () => {
     await page.fill('#respaldo-qr-input', qrOtraFiesta);
     await page.click('button:has-text("Leer")');
 
-    await expect(page.locator('text=Este QR es de otra fiesta')).toBeVisible();
-    await expect(page.locator('text=¡Hola,')).not.toBeVisible();
+    await expect(page.locator('body')).toContainText('Este QR es de otra fiesta');
+    await expect(page.locator('text=¡Hola,')).toHaveCount(0);
 
     // QR con token inválido
     const qrTokenMalo = qrDeInvitacion(fiesta.id, fiesta.invitados![0].id, 'token_invalido_xxx');
     await page.fill('#respaldo-qr-input', qrTokenMalo);
     await page.click('button:has-text("Leer")');
 
-    await expect(page.locator('text=No reconocimos este QR, probá de nuevo')).toBeVisible();
-    await expect(page.locator('text=¡Hola,')).not.toBeVisible();
+    await expect(page.locator('body')).toContainText('No reconocimos este QR, probá de nuevo');
+    await expect(page.locator('text=¡Hola,')).toHaveCount(0);
   });
 
   test('Vuelve sola a la pantalla de espera', async ({ page }) => {
