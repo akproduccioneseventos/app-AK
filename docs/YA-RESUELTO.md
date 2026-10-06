@@ -1,5 +1,34 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 6 de octubre de 2026 - Auditoría 74: evidencia actual y tres pendientes nuevos
+
+Main `368988bb` sin nuevas propuestas abiertas: **608 suites / 3522 unitarias
+aprobadas**, cero fallidas/pendientes; los 21 casos de 73 están incluidos, no se
+suman. Originales/hashes en `74-resultados/manifest.json`. Descubrimiento
+Playwright: 491 desktop en 104 archivos, **NO ejecutados**, no aprobación E2E.
+
+**Pendientes nuevos, NO resueltos (orden 125, Gemini):** GAL74-MEDIA, foto de
+Glitter bar es un toro mecánico, también en el JPEG del Git actual y fallback
+LED; GAL74-CATEGORY, clasificador la manda a tragos por «bar» aunque su ficha
+diga Entretenimiento; CONTACT74, `/privacidad` muestra correo como WhatsApp
+por usar `companyContact` heredado como teléfono. Capturas + sonda de fuente
+exacta; sonda verde significa defecto reproducido. No cambiar sólo el alt,
+inventar una foto «real» ni modificar decisiones de privacidad del dueño.
+
+Pasó el recorrido público acotado: una reseña, un video YouTube reproduciendo,
+carga más/modal de galería y carga de privacidad. No aceptar por eso toda web.
+El botón de galería anuncia el próximo total (24/36), no el actual (12/24):
+no reportar falso desfase. El intento `/api/health` fue bloqueado por el cliente
+del navegador (`ERR_BLOCKED_BY_CLIENT`), no prueba de fallo de app.
+
+Matriz vigente `74-matriz-de-cierre.md`: evidencia y ensayo faltante por las
+14 áreas. No marcar limpia una fila sin recorrerla ni tocar el contador para
+aparentar cierre. Fuente de la puerta reportada por Claude `7dfba1da3` idéntica
+a main; logs originales no revisados, Codex no compiló. SHA publicado sin
+identificar. Pendientes 122/123/124 y 114 siguen; no duplicar su programación.
+No app modificada ni fusión, no certificado «cero errores». Registro anterior
+73 mantiene sus causas y decisiones pendientes. Una tanda con código y docs.
+
 ## 6 de octubre de 2026 - Auditoría 73, actualización que prevalece sobre 71/72
 
 Main `368988bb` (#1260): CAMPO01/02 directos y COMPRA01 tienen corrección y

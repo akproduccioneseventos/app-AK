@@ -1,0 +1,76 @@
+{
+  "sourceCommit": "368988bb64e823d31c9d5c4b2fb9adc114b207ef",
+  "documentationBranch": "codex/auditoria-73-20261006",
+  "openPullRequestsObserved": [],
+  "unit": {
+    "file": "unitarias.json.gz",
+    "uncompressedSha256": "3d83ef110be4bf11a70c8d2531936f2a43399caaeb6f620d88f5f87ac5d8276f",
+    "started": "2026-10-06T18:18:45.789Z",
+    "finishedWrapperUtc": "2026-10-06T18:23:04.633Z",
+    "suitesPassed": 608,
+    "testsPassed": 3522,
+    "testsFailed": 0,
+    "testsPending": 0,
+    "command": "node docs/evidencias/sondas/64-isolated-audit-runner.mjs . jest-mocked --silent --maxWorkers=2",
+    "scope": "Unit/action tests with synthetic dependencies; no acceptance browser, build, live providers or hardware.",
+    "previousFocused21AreIncluded": true
+  },
+  "browserDiscovery": {
+    "file": "e2e-inventario.json.gz",
+    "uncompressedSha256": "4f66b6977107ecb6fb46d876342f218a4c2156103e9099f09f82dceff6422bf7",
+    "declaredDesktopCases": 491,
+    "declaredFiles": 104,
+    "executed": 0,
+    "command": "node docs/evidencias/sondas/64-isolated-audit-runner.mjs . e2e-list --project=chromium-desktop --reporter=json",
+    "meaning": "Playwright --list only. The reporter skipped count does not mean these flows ran."
+  },
+  "defectProbe": {
+    "file": "sonda.jsonl",
+    "sha256": "447ab6c65101c343c40be5b0ef6c22bce8326c606d34305f7263a6177810873b",
+    "sourceFile": "../74-media-y-contacto-probe.cjs",
+    "sourceSha256": "1a9ba6616ea00ad970a0c5e8d560ab9fa89d3e110314fb1dd88989a4be92b409",
+    "meaning": "Passing assertions reproduce incorrect category and email-as-phone. NOT acceptance.",
+    "simulated": "Company data and Next Link only; actual classifier, async privacy page and React server renderer."
+  },
+  "inspectedAsset": {
+    "path": "public/media/catalogo-servicios/glitter-bar-01.jpeg",
+    "sourceSha256": "8e549b747138ad4ce5f99e841b0ea418335b26b1dabd02f97ea9e3f6ac6d66eb",
+    "localSha256": "8e549b747138ad4ce5f99e841b0ea418335b26b1dabd02f97ea9e3f6ac6d66eb",
+    "visualObservation": "Mechanical bull inside inflatable enclosure; not a glitter station."
+  },
+  "screenshots": [
+    {
+      "file": "../74-foto-glitter-toro.png",
+      "sha256": "eb350014a0c922c2a9690dd4e39720ef397c3e3991805b32adcaab4f6ac072ee"
+    },
+    {
+      "file": "../74-video-testimonio.png",
+      "sha256": "4baa4dd2a40dea06420e054c58093ad1b63ad858f6636b76816e18699f08e37b"
+    },
+    {
+      "file": "../74-privacidad-contacto.png",
+      "sha256": "b0b946f663436382e1c94290c38e21b7318d9f0f042cfbd7465399bc1e689b04"
+    }
+  ],
+  "publicBrowser": {
+    "urls": [
+      "https://akproducciones.uy/",
+      "https://akproducciones.uy/privacidad"
+    ],
+    "deploymentCommit": "not verified",
+    "writesToProduction": false,
+    "scope": "One testimonial, one actual playing YouTube video, gallery load-more and one wrong-image modal, privacy contact."
+  },
+  "build": {
+    "executor": "Claude, reported for PR1260; not independently executed by Codex",
+    "reportedCommit": "7dfba1da3",
+    "sourceDiffToTarget": "empty git diff --name-only 7dfba1da3..368988bb",
+    "originalGateLogsReviewed": false
+  },
+  "limits": [
+    "No full private-role HTTP acceptance",
+    "No external authorization or physical-device test",
+    "No reconciliation of all 19 imported budgets against originals",
+    "No zero-error certification"
+  ]
+}
