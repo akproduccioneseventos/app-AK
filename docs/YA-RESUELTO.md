@@ -10767,3 +10767,28 @@ prueba: src/__tests__/el-candado-de-la-plata.test.ts
 usa: public-budget-history-por-conexion en src/app/actions/armado-rapido.ts
 usa: veLaPlata en src/app/actions/dashboard.ts
 ```
+
+## 6 de octubre de 2026 — Auditoría 71 de Codex (orden 122): campos de plata, compras e Instagram
+
+- **CAMPO01/02:** el guardado general de la fiesta (`saveFiesta` y `updateFiestaPartial`, también por
+  `fiesta-actual.ts`) ya no cambia estado, presupuesto, facturas, contrato firmado, plan de pagos,
+  pagos a proveedores, avisos de pago ni el "pagado" de las compras sin contabilidad. Entero: quedan
+  como estaban guardados y el resto se guarda. De a partes: se rechaza entero. Cada uno tiene su
+  camino propio con su permiso. Lo del operador y del cliente que no es plata sigue pasando.
+- **El aviso de pago del cliente** se guarda con `actualizarFiesta`, sobre la fiesta de ese momento:
+  ya no pasa por el guardado general.
+- **COMPRA01:** la lista de compras guarda sólo lo que la persona cambió, casilla por casilla, sobre
+  lo de ese momento (`updateShoppingListStatus` recibe lo que la pantalla había leído). El permiso
+  sale de las casillas pedidas: pagado y monto pagado son de insumos o contabilidad. Si otro cambió
+  la misma casilla, pide recargar. La pantalla ya no modifica en el lugar lo que tenía leído.
+- **RED03 (Instagram)** va a Gemini con la orden 122 de Codex: no es un arreglo chico (la galería se
+  guarda entera en varios lugares).
+- Falsos positivos que Codex retiró: el tiempo de 12 segundos del tótem (es la rama sin video) y AUTO03.
+
+```comprobar
+prueba: src/__tests__/auditoria-71-campos-y-compras.test.ts
+usa: reponerLaPlata en src/app/actions/fiesta/fiesta.actions.ts
+usa: pideCambiarLaPlata en src/app/actions/fiesta/fiesta.actions.ts
+usa: cambiosPedidos en src/app/actions/fiesta/catering.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/portal.actions.ts
+```

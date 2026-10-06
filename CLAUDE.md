@@ -1579,6 +1579,7 @@ con otra cara.
 | Acciones de plata con sólo sesión, en cualquier archivo, hoy o mañana | **`src/__tests__/el-candado-de-la-plata.test.ts`** |
 | El personal anotaba cobros y gastos, un reintento duplicaba un gasto, un plan viejo deshacía una cuota y el panel no veía el ajuste anual | `src/__tests__/auditoria-70-contabilidad.test.ts` |
 | Presupuestos, catálogo, ajustes de precio, pagos a proveedores, ganancias y avisos de pago con sólo sesión; saldos sin ajuste antes de firmar y en el asistente | `src/__tests__/revision-de-plata-quien-toca-que.test.ts` |
+| El guardado general de la fiesta dejaba cobrar cuotas y firmar el papel sin contabilidad; una pantalla vieja de compras deshacía un pago | `src/__tests__/auditoria-71-campos-y-compras.test.ts` |
 
 ### Cómo se elige el matafuego
 

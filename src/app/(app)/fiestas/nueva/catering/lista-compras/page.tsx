@@ -349,7 +349,9 @@ function ListaDeComprasContent() {
   const handleStatusChange = async (proveedorId: string, proveedorName: string, field: 'pedido' | 'pagado' | 'entregadoParcial' | 'montoPagado', value: any) => {
     if (!fiestaId) return;
     setIsSavingStatus(proveedorId);
-    const updatedEstados = [...estadosCompra];
+    // Se copia cada renglón: antes se cambiaba el que estaba en pantalla y lo leído se perdía.
+    const leidos = estadosCompra;
+    const updatedEstados = estadosCompra.map((e) => ({ ...e }));
     let estadoProveedor = updatedEstados.find(e => (e.proveedorId === proveedorId) || (e.proveedor === proveedorName));
     if (estadoProveedor) {
         estadoProveedor.proveedorId = proveedorId; // migración
@@ -367,7 +369,7 @@ function ListaDeComprasContent() {
     }
     setEstadosCompra(updatedEstados);
     try {
-        const result = await updateShoppingListStatus(fiestaId, updatedEstados);
+        const result = await updateShoppingListStatus(fiestaId, updatedEstados, leidos);
         if (!result.success) throw new Error(result.error);
         toast({ title: "Estado Actualizado" });
     } catch(e: any) {
@@ -391,7 +393,7 @@ function ListaDeComprasContent() {
     ];
     setEstadosCompra(siguientes);
     try {
-      const result = await updateShoppingListStatus(fiestaId, siguientes);
+      const result = await updateShoppingListStatus(fiestaId, siguientes, estadosCompra);
       if (!result.success) throw new Error(result.error);
       toast({ title: aviso });
     } catch (e: any) {

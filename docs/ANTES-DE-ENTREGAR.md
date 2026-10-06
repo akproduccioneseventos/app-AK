@@ -120,3 +120,11 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 29. **¿Tu acción toca plata?** El candado (`el-candado-de-la-plata.test.ts`) frena si pide sólo
     sesión. Pedí el permiso del perfil; si de verdad es pública, anotala con el motivo.
+
+
+30. **¿Hay otra puerta que guarde el mismo campo?** Si cuidaste un campo de plata o de contrato con
+    un permiso, buscá el guardado general (entero o parcial) que también lo escribe: tiene que pedir
+    lo mismo o dejarlo como estaba.
+
+31. **¿Guardás la lista que mandó la pantalla?** Guardá sólo lo que la persona cambió, sobre lo de
+    ese momento. Una pantalla vieja no puede deshacer lo que otro hizo recién.

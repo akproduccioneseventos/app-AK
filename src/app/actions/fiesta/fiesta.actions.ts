@@ -1,6 +1,6 @@
 'use server';
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
-import { PERMISOS } from '@/lib/auth/perfiles';
+import { PERMISOS, puede } from '@/lib/auth/perfiles';
 
 import type {
     FiestaEnPlanificacion,
@@ -115,6 +115,73 @@ async function requireEquipo(): Promise<(f: FiestaEnPlanificacion) => FiestaEnPl
     return (f) => (decide(f) ? f : paraAfuera(f));
 }
 
+/**
+ * LO QUE EL GUARDADO GENERAL NO CAMBIA SIN CONTABILIDAD (Codex, auditoría 71, CAMPO01/02).
+ *
+ * `saveFiesta` y `updateFiestaPartial` sólo cuidaban lo interno del equipo. Un operador asignado
+ * marcaba cuotas cobradas por acá, y el cliente desde su portal marcaba el contrato en papel
+ * firmado y la fiesta Contratada. Cada uno de estos campos tiene su camino propio, que pide su
+ * permiso: cobros y plan (`payment-plans`), contrato en papel (`documentos.actions`), pagos a
+ * proveedores (`pagos.actions`), presupuesto y facturas (`presupuestos`). Por el guardado general
+ * sólo los cambia quien tiene contabilidad; para los demás quedan como estaban guardados.
+ */
+const CAMPOS_DE_PLATA_Y_CONTRATO = [
+  'estado',
+  'presupuestoId',
+  'invoiceIds',
+  'contratoFirmaInfo',
+  'planDePagos',
+  'pagosProveedores',
+  'clientPaymentNotifications',
+] as const;
+
+/** Lo de pagar en cada compra al proveedor: plata, aunque la compra sea de organización. */
+const PAGO_DE_LA_COMPRA = ['pagado', 'montoPagado'] as const;
+
+async function tocaLaPlata(): Promise<boolean> {
+  const { verifySession } = await import('@/lib/auth/session-token');
+  const sesion = await verifySession();
+  return Boolean(sesion.success && sesion.user && puede(sesion.user, PERMISOS.CONTABILIDAD));
+}
+
+const mismoValor = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+
+/** Deja lo de plata como está guardado. Para el guardado ENTERO de quien no tiene contabilidad. */
+function reponerLaPlata(nueva: FiestaEnPlanificacion, guardada: FiestaEnPlanificacion | null): FiestaEnPlanificacion {
+  const copia: Record<string, unknown> = { ...nueva };
+  for (const campo of CAMPOS_DE_PLATA_Y_CONTRATO) {
+    if (guardada && campo in guardada) copia[campo] = (guardada as unknown as Record<string, unknown>)[campo];
+    else delete copia[campo];
+  }
+  if (Array.isArray(copia.estadosCompra)) {
+    const antes = guardada?.estadosCompra || [];
+    copia.estadosCompra = (copia.estadosCompra as Record<string, unknown>[]).map((e) => {
+      const previo = antes.find((o) => (o.proveedorId && o.proveedorId === e.proveedorId) || o.proveedor === e.proveedor) as Record<string, unknown> | undefined;
+      const r = { ...e };
+      for (const k of PAGO_DE_LA_COMPRA) {
+        if (previo && k in previo) r[k] = previo[k]; else delete r[k];
+      }
+      return r;
+    });
+  }
+  return copia as unknown as FiestaEnPlanificacion;
+}
+
+/** Para el guardado PARCIAL: si pide cambiar algo de plata sin contabilidad, se rechaza entero. */
+function pideCambiarLaPlata(parcial: Partial<FiestaEnPlanificacion>, guardada: FiestaEnPlanificacion | null): boolean {
+  const g = (guardada ?? {}) as Record<string, unknown>;
+  const p = parcial as Record<string, unknown>;
+  if (CAMPOS_DE_PLATA_Y_CONTRATO.some((campo) => campo in p && !mismoValor(p[campo], g[campo]))) return true;
+  if (Array.isArray(p.estadosCompra)) {
+    const antes = (guardada?.estadosCompra || []) as unknown as Record<string, unknown>[];
+    return (p.estadosCompra as Record<string, unknown>[]).some((e) => {
+      const previo = antes.find((o) => (o.proveedorId && o.proveedorId === e.proveedorId) || o.proveedor === e.proveedor);
+      return PAGO_DE_LA_COMPRA.some((k) => !mismoValor(e[k], previo?.[k]));
+    });
+  }
+  return false;
+}
+
 export async function requireFiestaWriteAccess(fiestaId: string) {
     if (fiestaId && (await esEquipoParaFiesta(fiestaId))) return;
     if (fiestaId && (await verifyPortalSession(fiestaId))) return;
@@ -209,6 +276,10 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
     for (const campo of CAMPOS_DEL_EQUIPO) delete copia[campo];
     fiestaData = copia as unknown as FiestaEnPlanificacion;
   }
+  if (!(await tocaLaPlata())) {
+    const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+    fiestaData = reponerLaPlata(fiestaData, await getFiestaByIdRaw(fiestaData.id));
+  }
   const assignmentError = validatePersonalAssignments(fiestaData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };
   try {
@@ -239,6 +310,12 @@ export async function updateFiestaPartial(
   } else {
     await requireAppSession();
     if (!(await esEquipoParaFiesta(fiestaId))) throw new Error('No autorizado para modificar este evento.');
+  }
+  if (!(await tocaLaPlata())) {
+    const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+    if (pideCambiarLaPlata(partialData, await getFiestaByIdRaw(fiestaId))) {
+      return { success: false, error: 'Cobros, contrato y estado de la fiesta los cambia contabilidad, desde su pantalla.' };
+    }
   }
   const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };

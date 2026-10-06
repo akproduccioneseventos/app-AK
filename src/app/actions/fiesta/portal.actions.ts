@@ -64,6 +64,7 @@ function createRequestId(prefix: string) {
 }
 
 import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 
 export async function initializePortalSession(fiestaId: string, accessKey: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -334,15 +335,12 @@ export async function submitClientPayment(
       timestamp: new Date().toISOString(),
     };
 
-    const updated: FiestaEnPlanificacion = {
-      ...fiesta,
-      clientPaymentNotifications: [
-        ...(fiesta.clientPaymentNotifications ?? []),
-        notification,
-      ],
-    };
-
-    const guardado = await saveFiesta(updated);
+    // Se agrega el aviso sobre la fiesta de ESE momento (auditoría 71): el guardado general ya no
+    // deja que el cliente cambie los avisos de pago, y además pisaba lo que otro guardó recién.
+    const guardado = await actualizarFiesta(fiestaId, (actual) => ({
+      ...actual,
+      clientPaymentNotifications: [...(actual.clientPaymentNotifications ?? []), notification],
+    }));
     if (!guardado.success) {
       return { success: false, error: guardado.error || 'No se pudo registrar el pago informado.' };
     }
