@@ -35,6 +35,15 @@ fiesta.others = {
     orders: [],
   },
 };
+// Los datos de prueba tienen durazno y almíbar en cero, y la barra hace bien en no aceptar un
+// trago sin ingredientes ("se terminó un ingrediente"). Esta prueba mira el doble toque, no el
+// stock: cada trago se arma sólo con ron, que en los datos de prueba sí hay (medido el 6/10/2026).
+if (fiesta.cartaTragos?.items) {
+  fiesta.cartaTragos.items = fiesta.cartaTragos.items.map((trago) => ({
+    ...trago,
+    recetaIngredientes: [{ insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.0667, unidad: 'Botella' }],
+  }));
+}
 const invitado = fiesta.invitados?.[0] || {
   id: 'inv_test_81',
   nombre: 'Lucía Fernández',

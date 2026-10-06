@@ -10823,3 +10823,8 @@ usa: pideCambiarLaPlata en src/app/actions/fiesta/fiesta.actions.ts
 usa: cambiosPedidos en src/app/actions/fiesta/catering.actions.ts
 usa: actualizarFiesta en src/app/actions/fiesta/portal.actions.ts
 ```
+- **La prueba de la barra (orden 81) fallaba en la versión principal, y no era la app.** Medido el
+  6/10: el servidor contestaba "se terminó un ingrediente", porque en los datos de prueba el durazno
+  y el almíbar están en cero; la barra hace bien en no aceptar el trago. La prueba ahora arma los
+  tragos con un ingrediente que hay. Y el invitado ve el motivo real en el aviso, no un "intentá
+  nuevamente" que no le dice qué pasó.

@@ -106,7 +106,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
         setDrinkToChange(null);
         await loadData();
       } else {
-        toast({ title: 'No se pudo registrar', description: 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
+        toast({ title: 'No se pudo registrar', description: result.error || 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
       }
     } finally {
       isSubmittingOrderRef.current = false;
