@@ -159,8 +159,9 @@ export default function TotemBienvenidaPage() {
       setNombreInvitado(res.guestName || 'Invitado');
       setNumeroMesa(res.tableNumber || null);
 
-      if (res.videoUrl) {
-        setVideoUrl(res.videoUrl);
+      const videoDeBienvenida = res.videoUrl;
+      if (videoDeBienvenida) {
+        setVideoUrl(videoDeBienvenida);
         setModo('video');
       } else {
         setModo('saludo');
