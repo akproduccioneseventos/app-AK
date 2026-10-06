@@ -8,7 +8,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 export interface SalonLayoutTemplate {
   id: string;
   name: string;
-  layoutData: Pick<DecoracionData, 'salonWidth' | 'salonHeight' | 'salonPlanBackgroundImageUrl' | 'salonElements' | 'layoutTemplateName'>;
+  layoutData: Pick<DecoracionData, 'salonWidth' | 'salonHeight' | 'salonPlanBackgroundImageUrl' | 'salonElements' | 'layoutTemplateName' | 'pixelsPerMeter'>;
   createdAt: string;
 }
 
@@ -37,6 +37,12 @@ export async function saveSalonLayoutTemplate(
     salonPlanBackgroundImageUrl: layoutData.salonPlanBackgroundImageUrl,
     salonElements: layoutData.salonElements,
     layoutTemplateName: name.trim(),
+    // La escala viaja con el plano (auditoría 72, SALON72-1): sin ella, al cargar la plantilla se
+    // usaba la de fábrica (40) y una mesa de 2 m dibujada a 80 px/m pasaba a medir 4 m. Las
+    // plantillas viejas, que no la tienen, siguen abriendo como siempre: no se adivina.
+    ...(typeof layoutData.pixelsPerMeter === 'number' && layoutData.pixelsPerMeter > 0
+      ? { pixelsPerMeter: layoutData.pixelsPerMeter }
+      : {}),
   };
 
   const newTemplate: SalonLayoutTemplate = {
