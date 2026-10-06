@@ -1,39 +1,35 @@
-# En curso: orden 120 (auditoría 70 de Codex, plata)
+# En curso: auditoria 71 y orden 122
 
-**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3` sobre main `6a2143f` (PR 1257),
-más la rama documental de Codex `codex/auditoria-simulador-contable-20261006` (informe 70).
+6 de octubre de 2026. Main auditado: `e52c07839563115236652229d73ac5ebf2e4e551`
+(merge 1258). Rama documental: `codex/auditoria-integral-20261006`.
+No fusionar documentos solos: incorporar a la siguiente tanda de codigo.
 
-## Qué trae
+## Comprobado por Codex
 
-- **COB10:** anotar/borrar/confirmar/rechazar cobros y aprobar/rechazar el pago informado por el
-  cliente piden contabilidad.
-- **GAS01-03:** gastos con contabilidad (cargar: contabilidad o insumos; sueldos admin sólo con
-  sueldos); gasto con llave = número fijo creado una vez; importes y fechas inválidos rechazados.
-- **PLAN01:** el plan se guarda sobre el de ese momento, pide recargar si cambió
-  (`versionLeida`), no baja lo cobrado ni borra cuotas con cobro.
-- **LEDGER01 y pregunta 36 nueva:** libro, revisión de la ficha, saldo guardado tras cambios del
-  cliente y contexto del asistente usan el total cobrable con ajuste anual.
-- Orden 117 (Gemini) con el tótem de bienvenida interactivo: escanea el QR, "¡Hola, {nombre}!",
-  mesa y video. El tótem no marca la llegada (preguntado al dueño, sin respuesta todavía).
-- Prueba: `src/__tests__/auditoria-70-contabilidad.test.ts` (15 en rojo con el código viejo).
-- **Revisión de toda la plata y el simulador (pedido del dueño):** presupuestos, catálogo y
-  ajustes de precio, pagos a proveedores, ganancias, flujo de caja, avisos de pago y deudores
-  piden el perfil; saldos con ajuste antes de firmar y en el asistente. Preguntas 36 y 37 nuevas.
-  Prueba `revision-de-plata-quien-toca-que` (21 en rojo con el código viejo).
-- **El candado de la plata:** `el-candado-de-la-plata.test.ts` frena la publicación si cualquier
-  acción toca plata con sólo sesión. Encontró y se cerró: buscar presupuestos ajenos por celular en
-  el simulador, el panel con ventas para el operador, `updatePresupuesto`, estadísticas, históricos,
-  costos de la fiesta y avisos de saldo. Jest 3.490 en verde.
+- Main: 603 suites / 3490 unitarias aprobadas; 56 focalizadas incluidas, no sumadas.
+- Las seis regresiones de orden 120 pasan sobre este SHA; no reabrirlas.
+- PR1259 sigue abierta: `feat/orden-117-video-invitados`, `f836c128cfad861a55a2352782f18c805b55e13a`.
+- Tanda: 4 suites / 27 unitarias aprobadas. No equivale a build/E2E/voz/camara reales.
+- Sondas reproducen cuatro casos en main y en archivos sin cambios de la tanda:
+  CAMPO01/02: guardado general permite cuotas/contrato a operador o cliente;
+  COMPRA01: compras viejas revierten pago concurrente;
+  RED03: importaciones concurrentes pierden un video del objeto de galeria.
+- Evidencia/limites: `docs/evidencias/71-auditoria-integral-y-retest.md`,
+  `71-resultados/manifest.json`, `71-matriz-integral.md` (14 areas).
+- Alerta del ayudante sobre timer de totem descartada: solo rige sin video.
+- No generalizar RED03 a colecciones; no cambiar permisos actuales de costos.
 
 ## Sigue
 
-- Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
-- Codex vuelve a mirar SÓLO la orden 120 sobre el SHA fusionado.
-- Gemini: orden 117 y 112 B.1 (AUD01). Programa Gemini, decisión del dueño (6/10).
-- Límites de Codex que no son defectos: orden 114 (entorno estable), 19 importados, Mercado
-  Pago de prueba, catálogo real.
+- Orden 122: Claude dinero/permisos/comida; Gemini RED03; Claude compila.
+- Codex retesta SOLO lo corregido en el nuevo SHA, reutilizando pruebas vigentes.
+- Ordenes 117/121 y AUD01 siguen con sus responsables, sin duplicarlas.
+- Orden 114: falta entorno compilado estable con backend de prueba para recorridos.
+- Computer Use detuvo el navegador por no poder identificar URL con certeza;
+  recorrido no ejecutado, no es defecto de AK ni falta de permiso del dueno.
+- Pendientes de aceptacion: recorridos completos, proveedores externos, 19 originales,
+  catalogo real, despliegue del SHA y hardware al final. No hay certificado integral.
 
-## Cómo se fusiona (error 30)
-
-- Sin `expectedHeadSha` igual al de `.ak-puerta-verde.json`, no se fusiona.
-- No cambiar de rama ni `commit -a` mientras corre la puerta.
+No se programo app, compilo ni fusiono. No investigar facturacion de GitHub.
+No tocar/revertir JSON de notificaciones escritos por pruebas. Fusion del dueno;
+compilacion y puerta de Claude, con `expectedHeadSha` del resultado verde.
