@@ -1,5 +1,11 @@
 # Matriz integral de aceptación (14 áreas)
 
+**Actualización 74:** estado vigente en `74-matriz-de-cierre.md` y
+`74-cierre-de-evidencia-y-medios.md`. Main `368988bb`: 608 suites / 3522 unitarias
+aprobadas; 491 E2E sólo descubiertas, NO ejecutadas. Tres pendientes nuevos de
+medios/contacto en orden 125. No transferir la tabla histórica inferior al SHA
+actual ni declarar 14 áreas aceptadas por los tests generales.
+
 **Actualización 73, 6/10:** consultar primero `73-retest-de-1260-y-continuacion.md`.
 Main actual `368988bb`: 21 focales pasan; CAMPO01/02 directos y COMPRA01 corregidos
 con ese alcance. CAMPO73-RACE y GAL73 son hallazgos nuevos. Orden 123 y RED03 siguen

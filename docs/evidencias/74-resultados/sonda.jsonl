@@ -1,0 +1,2 @@
+{"id":"GAL74-CATEGORY","sha":"368988bb64e823d31c9d5c4b2fb9adc114b207ef","configured":"Entretenimiento","classified":"Barra de Tragos","asset":"/media/catalogo-servicios/glitter-bar-01.jpeg","note":"Image content was inspected separately: mechanical bull, not glitter."}
+{"id":"CONTACT74","sha":"368988bb64e823d31c9d5c4b2fb9adc114b207ef","phoneLabelRendersEmail":true,"source":"actual async page + React server renderer","simulated":"company info contains legacy email-valued companyContact; no external data read"}
