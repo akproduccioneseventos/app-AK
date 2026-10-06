@@ -217,6 +217,7 @@ function GuestPortalContent() {
   const [guest, setGuest] = useState<PublicGuest | null>(null);
   const [entertainmentLinks, setEntertainmentLinks] = useState<PublicGuestEntertainmentLink[]>([]);
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
+  const [videoPersonal, setVideoPersonal] = useState<{ url: string } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
@@ -242,6 +243,7 @@ function GuestPortalContent() {
       if (!data) throw new Error('Evento o invitado no encontrado.');
       setFiesta(data.fiesta);
       setGuest(data.guest);
+      setVideoPersonal(data.videoPersonal || null);
       setEntertainmentLinks(data.entertainmentLinks);
       setSocialConnections(connections);
     } catch {
@@ -488,6 +490,32 @@ function GuestPortalContent() {
       )}
 
       <div className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-8 sm:py-12">
+        {/* Tarjeta Un mensaje para vos (Orden 117) */}
+        {videoPersonal?.url && (
+          <motion.section
+            id="video-personal"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: DURACION.entrar, ease: SUAVE }}
+            className="relative overflow-hidden rounded-2xl border-2 border-rose-300 bg-gradient-to-br from-rose-50 via-white to-pink-50 p-6 shadow-md sm:p-8"
+          >
+            <div className="flex items-center gap-2 text-rose-700">
+              <Sparkles className="h-5 w-5 animate-pulse" />
+              <span className="text-xs font-black uppercase tracking-wider">Especial para vos</span>
+            </div>
+            <h2 className="mt-1 text-2xl font-black text-slate-950">Un mensaje para vos</h2>
+            <p className="mt-1 text-sm text-slate-600">¡Tenemos una dedicatoria grabada especialmente para este momento!</p>
+            <div className="mt-4 overflow-hidden rounded-xl bg-black shadow-inner">
+              <video
+                src={videoPersonal.url}
+                controls
+                playsInline
+                className="mx-auto max-h-[480px] w-full object-contain"
+              />
+            </div>
+          </motion.section>
+        )}
+
         {/* Mi Asistencia / Pase VIP */}
         {showMiPase && (
           <motion.section

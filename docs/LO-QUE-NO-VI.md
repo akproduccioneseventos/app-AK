@@ -903,3 +903,17 @@ no está en el tipo, la prueba está mal.
 ```comprobar
 prueba: src/__tests__/revision-de-plata-quien-toca-que.test.ts
 ```
+
+## 06/10/2026 — El guardado general dejaba cobrar y firmar el papel sin permiso (Codex, auditoría 71)
+
+**Qué era:** un operador marcaba cuotas cobradas y el cliente, desde su portal, el contrato en papel
+firmado y la fiesta Contratada, entrando por el guardado general de la fiesta. Y una pantalla vieja
+de compras deshacía un pago recién anotado.
+
+**Por qué se me pasó:** cuidé cada acción de plata por separado, y el candado mira acciones que
+tocan archivos de plata; la fiesta no lo es. Nunca pregunté **quién más escribe el mismo campo**.
+**Preguntas nuevas, la 38 y la 39.** El barrido lo hago yo (sólo aplica a plata y permisos).
+
+```comprobar
+prueba: src/__tests__/auditoria-71-campos-y-compras.test.ts
+```

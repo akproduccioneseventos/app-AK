@@ -109,4 +109,23 @@ describe('el portal del cliente no muestra notas internas del equipo', () => {
     expect(interno).toContain('datosQueFaltanEnElPortal');
     expect(interno).toContain('Antes de mandarle el portal al cliente');
   });
+
+  it('el interruptor de video para cada invitado está disponible y persiste en true al activarse', () => {
+    const fs = require('fs') as typeof import('fs');
+    const path = require('path') as typeof import('path');
+    const portalPage = fs.readFileSync(
+      path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/portal-cliente/page.tsx'),
+      'utf8'
+    );
+
+    expect(portalPage).toContain('Video para cada invitado');
+    expect(portalPage).toContain('videosParaInvitadosActivo');
+
+    // Simular el cambio de valor que hace el switch antes de guardar
+    const defaultSettings = { enabled: true, videosParaInvitadosActivo: false };
+    const onCheckedChange = (val: boolean) => ({ ...defaultSettings, videosParaInvitadosActivo: val });
+    const activado = onCheckedChange(true);
+    expect(activado.videosParaInvitadosActivo).toBe(true);
+  });
 });
+

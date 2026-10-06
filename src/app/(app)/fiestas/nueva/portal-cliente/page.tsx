@@ -556,14 +556,22 @@ function ClientPortalConfigContent() {
       ? `${window.location.origin}/portal/c/${portalSettings.accessKey}`
       : '';
 
-  const handleCopyPassword = () => {
-    navigator.clipboard.writeText(portalSettings.accessKey || '');
-    toast({ title: "Contraseña del portal copiada al portapapeles" });
+  const handleCopyPassword = async () => {
+    try {
+      await navigator.clipboard.writeText(portalSettings.accessKey || '');
+      toast({ title: "Contraseña del portal copiada al portapapeles" });
+    } catch {
+      toast({ variant: 'destructive', title: 'No se pudo copiar', description: 'Seleccioná la contraseña y copiala a mano.' });
+    }
   };
 
-  const handleCopyPublicLink = () => {
-    navigator.clipboard.writeText(publicPortalLink);
-    toast({ title: "Enlace copiado al portapapeles" });
+  const handleCopyPublicLink = async () => {
+    try {
+      await navigator.clipboard.writeText(publicPortalLink);
+      toast({ title: "Enlace copiado al portapapeles" });
+    } catch {
+      toast({ variant: 'destructive', title: 'No se pudo copiar', description: publicPortalLink });
+    }
   };
 
   const handleShareWhatsApp = () => {
@@ -828,6 +836,21 @@ function ClientPortalConfigContent() {
                     : current.accessKey;
                   return { ...current, enabled: val, accessKey };
                 })} />
+              </div>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/30">
+                <div>
+                  <Label htmlFor="portal-videos-invitados" className="text-base font-medium">Video para cada invitado</Label>
+                  <p className="text-sm text-muted-foreground">El cliente sube videos y cada invitado ve el suyo en su invitación y en el tótem de bienvenida</p>
+                </div>
+                <Switch
+                  id="portal-videos-invitados"
+                  checked={Boolean(portalSettings.videosParaInvitadosActivo)}
+                  onCheckedChange={(val) => setPortalSettings(p => {
+                    const current = p || defaultClientPortalSettings;
+                    return { ...current, videosParaInvitadosActivo: val };
+                  })}
+                />
               </div>
 
               <div className="space-y-4 border p-4 rounded-xl bg-slate-50/50">

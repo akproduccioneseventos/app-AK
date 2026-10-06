@@ -860,3 +860,21 @@ Una prueba armaba presupuestos con campos inventados —los mismos que leía el 
 verde con el saldo en cero (revisión de plata, 6/10/2026). Al revisar una prueba: cada campo de sus
 datos tiene que existir en el tipo (`src/types/`). Si no existe, la prueba copia el error en vez de
 encontrarlo.
+
+## Preguntas 38 y 39 — las que sumó el 6 de octubre de 2026 (Codex, auditoría 71)
+
+### 38. ¿Hay una puerta general que guarde lo que otra acción cuida con más permiso?
+
+El cobro de una cuota pedía contabilidad, pero el guardado general de la fiesta (entero o de a
+partes) aceptaba el plan de pagos con sólo organización, y el portal del cliente marcaba el
+contrato en papel firmado. **El permiso va en el CAMPO, no en la pantalla ni en la acción
+específica**: para cada campo de plata o de contrato, buscar todas las funciones que lo pueden
+escribir —sobre todo las que guardan el objeto entero o un parcial que manda el navegador— y
+comprobar que todas piden lo mismo.
+
+### 39. ¿El permiso y la comparación salen de lo que se PIDE, o de una lectura que otro puede cambiar?
+
+La lista de compras decidía si "cambiaba un pago" comparando con una lectura hecha antes de la
+operación, y después guardaba la lista que mandaba la pantalla: un pago anotado en el medio se
+deshacía. **Lo que se guarda es lo pedido, casilla por casilla, sobre lo de ese momento**; el
+permiso sale de qué casillas se piden cambiar; si otro cambió la misma casilla, se pide recargar.

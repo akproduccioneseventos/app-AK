@@ -51,4 +51,26 @@ describe('Los ajustes de la estación llegan a la pantalla', () => {
     expect(getEntertainmentStationConfig(fiestaCon({}), 'fotocabina').recorteSinTela).toBe(false);
     expect(getEntertainmentStationConfig(fiestaCon({ recorteSinTela: true }), 'fotocabina').recorteSinTela).toBe(true);
   });
+
+  it('overlayName llega configurado o con fallback del nombre del evento', () => {
+    const configConOverlay = getEntertainmentStationConfig(
+      fiestaCon({ overlayName: 'Mis 15 Sofi - Marco Oro' }),
+      'fotocabina'
+    );
+    expect(configConOverlay.overlayName).toBe('Mis 15 Sofi - Marco Oro');
+
+    const configPorDefecto = getEntertainmentStationConfig(fiestaCon({}), 'fotocabina');
+    expect(configPorDefecto.overlayName).toBe('Fiesta de Prueba - AK');
+  });
+
+  it('deliveryChannels llega con los canales configurados o con los predeterminados', () => {
+    const configPersonalizada = getEntertainmentStationConfig(
+      fiestaCon({ deliveryChannels: ['qr', 'whatsapp', 'email', 'galeria'] }),
+      'fotocabina'
+    );
+    expect(configPersonalizada.deliveryChannels).toEqual(['qr', 'whatsapp', 'email', 'galeria']);
+
+    const configPorDefecto = getEntertainmentStationConfig(fiestaCon({}), 'fotocabina');
+    expect(configPorDefecto.deliveryChannels).toEqual(['qr', 'galeria']);
+  });
 });

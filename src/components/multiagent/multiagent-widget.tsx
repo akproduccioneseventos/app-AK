@@ -260,6 +260,9 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
     () => readStorage<ChatMessage[]>(HISTORY_STORAGE_KEY, [])
   );
   const [isHandsFree, setIsHandsFree] = useState(false);
+  // Alias explícito de la Orden 117 / Orden 105: "Llamarla" / modoConversación continua
+  const modoConversacion = isHandsFree;
+  const setModoConversacion = setIsHandsFree;
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [isVoiceMuted, setIsVoiceMuted] = useState(false);

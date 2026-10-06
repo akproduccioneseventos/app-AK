@@ -1,37 +1,30 @@
-# En curso: orden 120 (auditoría 70 de Codex, plata)
+# En curso: una propuesta con orden 121 (tótem), orden 122 (Codex 71) y la barra
 
-**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3` sobre main `6a2143f` (PR 1257),
-más la rama documental de Codex `codex/auditoria-simulador-contable-20261006` (informe 70).
+**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3` sobre main `e52c078` (PR 1258), con
+la rama de Gemini `feat/orden-117-video-invitados` (PR 1259) adentro: al fusionar esta, la 1259
+queda fusionada también.
 
 ## Qué trae
 
-- **COB10:** anotar/borrar/confirmar/rechazar cobros y aprobar/rechazar el pago informado por el
-  cliente piden contabilidad.
-- **GAS01-03:** gastos con contabilidad (cargar: contabilidad o insumos; sueldos admin sólo con
-  sueldos); gasto con llave = número fijo creado una vez; importes y fechas inválidos rechazados.
-- **PLAN01:** el plan se guarda sobre el de ese momento, pide recargar si cambió
-  (`versionLeida`), no baja lo cobrado ni borra cuotas con cobro.
-- **LEDGER01 y pregunta 36 nueva:** libro, revisión de la ficha, saldo guardado tras cambios del
-  cliente y contexto del asistente usan el total cobrable con ajuste anual.
-- Orden 117 (Gemini) con el tótem de bienvenida interactivo: escanea el QR, "¡Hola, {nombre}!",
-  mesa y video. El tótem no marca la llegada (preguntado al dueño, sin respuesta todavía).
-- Prueba: `src/__tests__/auditoria-70-contabilidad.test.ts` (15 en rojo con el código viejo).
-- **Revisión de toda la plata y el simulador (pedido del dueño):** presupuestos, catálogo y
-  ajustes de precio, pagos a proveedores, ganancias, flujo de caja, avisos de pago y deudores
-  piden el perfil; saldos con ajuste antes de firmar y en el asistente. Preguntas 36 y 37 nuevas.
-  Prueba `revision-de-plata-quien-toca-que` (21 en rojo con el código viejo).
-- **El candado de la plata:** `el-candado-de-la-plata.test.ts` frena la publicación si cualquier
-  acción toca plata con sólo sesión. Encontró y se cerró: buscar presupuestos ajenos por celular en
-  el simulador, el panel con ventas para el operador, `updatePresupuesto`, estadísticas, históricos,
-  costos de la fiesta y avisos de saldo. Jest 3.490 en verde.
+- **Orden 117/121 (Gemini, revisada):** tótem de bienvenida `/evento/bienvenida/{fiesta}` con
+  cámara, saludo, mesa y video; botón en entretenimiento; interruptor del video por invitado en el
+  portal. Claude: pantalla pública, aviso de datos, el video no traba el tótem, QR real en pruebas,
+  sin presupuesto basura por WhatsApp, sin atajo de permiso en `actualizarFiesta`.
+- **Orden 122 (Codex, auditoría 71):** el guardado general de la fiesta no cambia plata ni contrato
+  sin contabilidad (CAMPO01/02); compras guarda sólo lo pedido (COMPRA01); el aviso de pago del
+  cliente va por `actualizarFiesta`; un presupuesto nuevo no nace cobrado sin contabilidad
+  (barrido de la pregunta 38). Preguntas 38 y 39 nuevas.
+- **Barra:** la prueba del doble toque fallaba en main por stock cero en los datos de prueba (no
+  era la app); el invitado ve el motivo real.
+- Una prueba escribía en el repositorio verdadero dentro de la subida: arreglado y con control.
 
 ## Sigue
 
 - Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
-- Codex vuelve a mirar SÓLO la orden 120 sobre el SHA fusionado.
-- Gemini: orden 117 y 112 B.1 (AUD01). Programa Gemini, decisión del dueño (6/10).
-- Límites de Codex que no son defectos: orden 114 (entorno estable), 19 importados, Mercado
-  Pago de prueba, catálogo real.
+- **Gemini: RED03 de la orden 122** (dos sincronizaciones de Instagram pierden un video; la galería
+  se guarda entera también en `galeria.ts`). Y 112 B.1 (AUD01).
+- Codex vuelve a mirar plata, permisos y comida sobre el SHA fusionado.
+- Pregunta pendiente al dueño: ¿escanear en el tótem cuenta como llegada? Hoy no.
 
 ## Cómo se fusiona (error 30)
 

@@ -17,12 +17,12 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-03",
-        "commit": "39da52a",
-        "hallazgos": 4,
-        "reporte": "codex/revision-cobros-1254:docs/evidencias/65-retest-1254-y-pendientes.md"
+        "fecha": "2026-10-06",
+        "commit": "e52c078",
+        "hallazgos": 2,
+        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
       },
-      "nota": "COB01-05 confirmados por Codex en 39da52a. COB06-09 arreglados por Claude el 3/10: falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 71: CAMPO01/02 (cuotas y contrato por el guardado general) arreglados por Claude el 6/10. Falta que Codex la vuelva a mirar."
     },
     {
       "id": "contrato",
@@ -47,7 +47,13 @@
         "src/data/insumos.json"
       ],
       "estado": "con-hallazgos",
-      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 71: COMPRA01, una pantalla vieja de compras deshacía un pago. Arreglado el 6/10; falta que Codex la vuelva a mirar.",
+      "ultimaRevision": {
+        "fecha": "2026-10-06",
+        "commit": "e52c078",
+        "hallazgos": 1,
+        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+      }
     },
     {
       "id": "permisos",
@@ -59,7 +65,13 @@
         "src/app/(app)/settings/accesos-personal"
       ],
       "estado": "con-hallazgos",
-      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 71: el guardado general cambiaba campos de plata sin contabilidad (operador y portal). Arreglado el 6/10; falta que Codex la vuelva a mirar.",
+      "ultimaRevision": {
+        "fecha": "2026-10-06",
+        "commit": "e52c078",
+        "hallazgos": 2,
+        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+      }
     },
     {
       "id": "fiesta",
@@ -111,7 +123,14 @@
         "src/app/actions/social-media.ts",
         "src/app/actions/social-gallery.ts"
       ],
-      "estado": "sin-revisar"
+      "estado": "con-hallazgos",
+      "ultimaRevision": {
+        "fecha": "2026-10-06",
+        "commit": "e52c078",
+        "hallazgos": 1,
+        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+      },
+      "nota": "Auditoría 71: RED03, dos sincronizaciones de Instagram a la vez pierden un video. Pasado a Gemini (orden 122)."
     },
     {
       "id": "estaciones",

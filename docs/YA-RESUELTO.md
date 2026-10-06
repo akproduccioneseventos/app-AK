@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 6 de octubre de 2026 - Auditoria 71: retest y pendientes concretos
+
+Main `e52c078` (1258): 603 suites / 3490 unitarias verdes; las 56 focalizadas
+estan incluidas. Las seis regresiones de orden 120 pasan. PR1259 `f836c128`:
+4 suites / 27 unitarias verdes, no build ni navegador. Manifest con originales
+y hashes en `docs/evidencias/71-resultados`; matriz de 14 areas y limites en 71.
+
+**Pendientes, NO corregidos:** CAMPO01/02: por el guardado general un operador
+asignado marca cuotas pagadas, y el cliente de portal marca contrato fisico y
+cuotas; COMPRA01: snapshot viejo revierte un pago concurrente del proveedor;
+RED03: dos importaciones distintas pierden un video del objeto de galeria.
+Sondas ejecutan acciones reales con storage/autenticacion ficticios. Orden unica
+122: Claude permisos/plata/comida; Gemini videos de Instagram; Claude compila.
+No reabrir los seis casos de 70 ni confundir estas sondas con aceptacion final.
+
+**Falsos positivos descartados por Codex al revisar a sus ayudantes:** timer del
+totem no corta videos: 12000 ms esta en ELSE sin video. No generalizar la carrera
+de galeria a colecciones con marcas/transacciones. No declarar que posteos no
+reintenta: el indicador de corrida es observacion separada. Costos admite
+ORGANIZACION en su accion especifica; no cambiar esa politica por esta auditoria.
+
+Navegador no ejecutado: Computer Use detuvo el control porque no pudo determinar
+la URL actual de Windows con suficiente certeza. No es defecto de AK ni falta
+de autorizacion; no se eludio. Siguen pendientes entorno 114, recorridos reales,
+proveedores, originales de 19 importados, catalogo y hardware. No se marco area
+limpia, no se programo app, no se compilo ni fusiono.
+
 ## 6 de octubre de 2026 - Auditoria 70: pendientes, NO corregidos
 
 Main `6a2143ff`: 599 suites/3445 pruebas verdes, pero seis sondas reproducen
@@ -10767,3 +10794,61 @@ prueba: src/__tests__/el-candado-de-la-plata.test.ts
 usa: public-budget-history-por-conexion en src/app/actions/armado-rapido.ts
 usa: veLaPlata en src/app/actions/dashboard.ts
 ```
+
+## 6 de octubre de 2026 — Auditoría 71 de Codex (orden 122): campos de plata, compras e Instagram
+
+- **CAMPO01/02:** el guardado general de la fiesta (`saveFiesta` y `updateFiestaPartial`, también por
+  `fiesta-actual.ts`) ya no cambia estado, presupuesto, facturas, contrato firmado, plan de pagos,
+  pagos a proveedores, avisos de pago ni el "pagado" de las compras sin contabilidad. Entero: quedan
+  como estaban guardados y el resto se guarda. De a partes: se rechaza entero. Cada uno tiene su
+  camino propio con su permiso. Lo del operador y del cliente que no es plata sigue pasando.
+- **El aviso de pago del cliente** se guarda con `actualizarFiesta`, sobre la fiesta de ese momento:
+  ya no pasa por el guardado general.
+- **COMPRA01:** la lista de compras guarda sólo lo que la persona cambió, casilla por casilla, sobre
+  lo de ese momento (`updateShoppingListStatus` recibe lo que la pantalla había leído). El permiso
+  sale de las casillas pedidas: pagado y monto pagado son de insumos o contabilidad. Si otro cambió
+  la misma casilla, pide recargar. La pantalla ya no modifica en el lugar lo que tenía leído.
+- **Barrido con la pregunta 38:** el presupuesto nuevo (`savePresupuesto`) se arma con organización
+  o comercial, pero podía nacer con cobros confirmados o ya Facturado. Sin contabilidad, ahora nace
+  sin cobros, sin fecha de firma y como propuesta. El resto de las puertas generales ya pedía lo mismo.
+- **RED03 (Instagram)** va a Gemini con la orden 122 de Codex: no es un arreglo chico (la galería se
+  guarda entera en varios lugares).
+- Falsos positivos que Codex retiró: el tiempo de 12 segundos del tótem (es la rama sin video) y AUTO03.
+
+```comprobar
+prueba: src/__tests__/auditoria-71-campos-y-compras.test.ts
+prueba: src/__tests__/auditoria-71-presupuesto-nuevo-sin-plata.test.ts
+usa: reponerLaPlata en src/app/actions/fiesta/fiesta.actions.ts
+usa: pideCambiarLaPlata en src/app/actions/fiesta/fiesta.actions.ts
+usa: cambiosPedidos en src/app/actions/fiesta/catering.actions.ts
+usa: actualizarFiesta en src/app/actions/fiesta/portal.actions.ts
+```
+- **La prueba de la barra (orden 81) fallaba en la versión principal, y no era la app.** Medido el
+  6/10: el servidor contestaba "se terminó un ingrediente", porque en los datos de prueba el durazno
+  y el almíbar están en cero; la barra hace bien en no aceptar el trago. La prueba ahora arma los
+  tragos con un ingrediente que hay. Y el invitado ve el motivo real en el aviso, no un "intentá
+  nuevamente" que no le dice qué pasó.
+### Revisión de la propuesta 1259 (orden 117, Gemini), 6/10/2026
+
+- `actualizarFiesta` traía la opción `portalClient`, que se saltaba el permiso para guardar. Se sacó
+  porque no hacía falta: `requireFiestaWriteAccess` ya deja pasar la sesión del portal.
+- El asistente por WhatsApp tenía `presupuestar_prospecto`, que armaba un presupuesto basura
+  (100 adultos, "15 Años", sin servicios) a nombre del celular del equipo. Se sacó.
+- La página de videos del portal importaba `AvisoDeDatos` desde una carpeta que no existe, y por
+  eso no compilaba. Se corrigió la ruta.
+- Lo que falta, que es el tótem con cámara, la mesa, el botón del panel y el interruptor, vuelve a
+  Gemini en la orden 121.
+- **Orden 121 entregada (Gemini):** el tótem de bienvenida está en `/evento/bienvenida/{fiesta}`,
+  lee el QR con la cámara, saluda con el nombre del invitado, muestra su mesa y su video, y vuelve
+  solo a la pantalla de espera. Tiene su botón en el panel de entretenimiento. Además, el video para
+  cada invitado ya se puede prender desde la configuración del portal. Sus pruebas usaban un QR con
+  un formato que la invitación no imprime: se pasaron al formato real.
+- **Una prueba escribía en el repositorio de verdad.** `el-entorno-aislado-no-lleva-credenciales-reales`
+  arma un repositorio de mentira, pero adentro de la subida git deja `GIT_DIR` apuntando al de la
+  app: su `commit` "base" (que borraba todo) caía ahí y lo marcaba sin carpeta de trabajo. Ahora
+  llama a git sin las variables `GIT_*`, y `una-prueba-no-escribe-en-el-repositorio` frena a la
+  próxima que lo haga.
+- **El tótem no se traba si la tablet no deja arrancar el video con sonido:** prueba sin sonido y,
+  si tampoco arranca, vuelve solo a la espera a los 12 segundos. Copiar la contraseña o el enlace
+  del portal avisa si no se pudo copiar. Un video que llega vacío se rechaza en vez de guardarse.
+- **El tótem pedía usuario y contraseña:** su dirección no estaba entre las pantallas públicas y el invitado veía el ingreso del equipo. Se agregó; la pantalla sólo muestra lo que devuelve el código del invitado.

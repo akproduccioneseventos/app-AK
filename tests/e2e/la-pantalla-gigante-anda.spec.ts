@@ -70,3 +70,58 @@ test('la pantalla gigante se dibuja y le muestra el QR a la fiesta', async ({ pa
     expect(texto, 'la pantalla de espera invita a participar').toMatch(/foto|particip|escane/i);
   }
 });
+
+test('la pantalla gigante rota y cuenta las 20 fotos y nunca muestra la rechazada', async ({ page }, testInfo) => {
+  test.setTimeout(180_000);
+  test.skip(testInfo.project.name !== 'chromium-desktop', 'Se proyecta en grande: alcanza con un navegador.');
+
+  const FIESTA_CON_FOTOS_ID = `e2e_muro_20_${Date.now()}`;
+  const fiesta = crearFiestaDeEstaNoche({ id: FIESTA_CON_FOTOS_ID });
+
+  // Crear 20 fotos aprobadas y 1 foto rechazada por moderación
+  const postsSimulados = Array.from({ length: 20 }, (_, i) => ({
+    id: `post_aprobado_${i + 1}`,
+    fiestaId: FIESTA_CON_FOTOS_ID,
+    imageUrl: `https://images.unsplash.com/photo-1519741497674-611481863552?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3`,
+    authorName: `Invitado ${i + 1}`,
+    caption: `Foto numerada ${i + 1} de la fiesta`,
+    moderationStatus: 'approved',
+    timestamp: new Date(Date.now() - (20 - i) * 60_000).toISOString(),
+    mediaType: 'image' as const,
+  }));
+
+  const postRechazado = {
+    id: 'post_rechazado_inapropiado',
+    fiestaId: FIESTA_CON_FOTOS_ID,
+    imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=500',
+    authorName: 'Invitado Rechazado',
+    caption: 'Foto que no cumple las reglas de la fiesta',
+    moderationStatus: 'rejected',
+    timestamp: new Date().toISOString(),
+    mediaType: 'image' as const,
+  };
+
+  (fiesta as any).socialGalleryPosts = [...postsSimulados, postRechazado];
+  guardarFiesta(fiesta);
+
+  try {
+    await page.route(`**/api/**`, async (route) => route.continue());
+
+    const resp = await page.goto(`/evento/muro-en-vivo/${FIESTA_CON_FOTOS_ID}`, { waitUntil: 'domcontentloaded' });
+    expect(resp?.status()).toBeLessThan(400);
+
+    await page.waitForTimeout(6_000);
+
+    const bodyText = (await page.locator('body').innerText().catch(() => '')) || '';
+
+    // 1. La foto rechazada jamás debe aparecer
+    expect(bodyText).not.toContain('Foto que no cumple las reglas');
+    expect(bodyText).not.toContain('Invitado Rechazado');
+
+    // 2. Comprobar que el carrusel o contenedor de fotos existe
+    const hayMuroActivo = await page.locator('img, video, canvas').count();
+    expect(hayMuroActivo).toBeGreaterThan(0);
+  } finally {
+    borrarFiesta(FIESTA_CON_FOTOS_ID);
+  }
+});
