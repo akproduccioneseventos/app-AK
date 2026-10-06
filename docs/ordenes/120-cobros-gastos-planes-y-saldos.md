@@ -1,5 +1,9 @@
 # 120 - Claude: cobros, gastos, planes y saldos
 
+**HECHA por Claude el 6/10/2026.** Ver `docs/YA-RESUELTO.md` del 6/10 y
+`src/__tests__/auditoria-70-contabilidad.test.ts`.
+
+
 Area: plata. Commit: `6a2143ffe6c257ca94e9761dd7cfacfafafe8e35`.
 6/10/2026. PR1257 fusionada, ninguna PR abierta al iniciar. Se reproduce en
 main. Contrastar una nueva tanda ANTES de programar. Una entrega, sin fusion

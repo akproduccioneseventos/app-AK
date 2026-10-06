@@ -839,3 +839,17 @@ necesita una parte, se le da esa parte (el operador ve los servicios, no los cob
 nombre de permiso (`requireFiestaWriteAccess`) no está protegida hasta ver qué pide esa función por
 dentro: ésa terminaba en "tiene sesión" y dejaba al personal leer y guardar la fiesta entera. Se
 sigue cada puerta hasta el control real.
+
+### 36. ¿El mismo número de plata se calcula en dos lugares? ¿Dan lo mismo?
+
+El panel calculaba el saldo con el precio sin ajuste anual y la ficha del presupuesto con el
+ajuste: con $15.000 por cobrar, el panel decía cero (Codex, auditoría 70, LEDGER01). Cada uno
+estaba bien escrito; lo que nadie preguntó fue si coincidían.
+
+Al verificar: por cada número de plata que muestra la app (saldo, cobrado, total), se busca
+**dónde más se calcula** y se arma una prueba con los dos lados sobre el mismo presupuesto, con
+y sin ajuste, en años distintos. Si hay una función que ya lo sabe (`getBudgetCollectibleTotal`),
+los dos lados la usan.
+
+Y la pregunta 22 vale también para lo que vive **adentro de la fiesta** (el plan de cuotas): una
+pantalla que guarda la lista entera que leyó antes deshace lo que otro cobró entretanto.

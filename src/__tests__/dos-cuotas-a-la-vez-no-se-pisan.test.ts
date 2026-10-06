@@ -6,7 +6,7 @@
  * cada cambio relee la fiesta adentro del turno, y el mail sale sólo si esa cuota pasó de verdad
  * de no-pagada a pagada. La base de mentira devuelve COPIAS y tarda (error 11).
  */
-jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn(async () => undefined) }));
+jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn(async () => undefined), requirePermiso: jest.fn(async () => ({ ok: true, user: {} })) }));
 const avisos = jest.fn(async () => undefined);
 jest.mock('@/app/actions/google-workspace-extended', () => ({ notifyClientPaymentApproved: (...a: any[]) => (avisos as any)(...a) }));
 jest.mock('@/lib/fiesta/get-fiesta-raw', () => ({ preserveFiestaSecrets: jest.fn(async (_id: string, f: any) => f) }));

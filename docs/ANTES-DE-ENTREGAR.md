@@ -110,3 +110,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 26. **¿Tu acción pide sólo sesión?** El personal y el operador también la tienen. Pedí el permiso
     del perfil que la usa (`requirePermiso` o `requireEventPermission`), no `requireAppSession`.
+
+27. **¿Mostrás un número de plata?** Buscá dónde más se calcula ese mismo número y probá que den
+    igual (con y sin ajuste anual). Si guardás una lista que leíste antes, mirá que no deshaga un
+    cobro que entró entretanto.

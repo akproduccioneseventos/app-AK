@@ -19,6 +19,7 @@ import { sanitizeActionError, hoyEnUruguay, parseUruguayDate } from '@/lib/utils
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
 import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
 import { motivoClaveInvalida, taparCorreo } from '@/lib/client-portal/clave-portal';
@@ -1288,7 +1289,8 @@ Firma AK Producciones: _________________   Fecha: __/__/____
         : presupuesto.descuentoValor;
     }
     presupuesto.totalConDescuento = Math.max(0, presupuesto.costoTotalEstimado - discount);
-    presupuesto.saldo = Math.max(0, presupuesto.totalConDescuento - totalPagado);
+    // Con el ajuste anual, igual que la ficha y el panel (pregunta 36, auditoría 70).
+    presupuesto.saldo = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true }).balance;
 
     budgets[budgetIndex] = presupuesto;
     await writeData('presupuestos.json', budgets);
@@ -1462,7 +1464,8 @@ Firma AK Producciones: _________________   Fecha: __/__/____
         : presupuesto.descuentoValor;
     }
     presupuesto.totalConDescuento = Math.max(0, presupuesto.costoTotalEstimado - discount);
-    presupuesto.saldo = Math.max(0, presupuesto.totalConDescuento - totalPagado);
+    // Con el ajuste anual, igual que la ficha y el panel (pregunta 36, auditoría 70).
+    presupuesto.saldo = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true }).balance;
 
     budgets[budgetIndex] = presupuesto;
     await writeData('presupuestos.json', budgets);

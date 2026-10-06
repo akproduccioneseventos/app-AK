@@ -10676,3 +10676,29 @@ prueba: tests/e2e/portal-fecha-y-botones.spec.ts
 usa: quienEsElEquipo en src/app/actions/fiesta/fiesta.actions.ts
 usa: diaDelEvento en src/app/portal-cliente/[id]/page.tsx
 ```
+
+## 6 de octubre de 2026 — Seis fallos de plata de la auditoría 70 (Codex), orden 120
+
+- **Cobros (COB10):** anotar, borrar, confirmar y rechazar cobros —y aprobar o rechazar el pago
+  que informa el cliente— piden contabilidad. Antes el personal anotaba un cobro confirmado y lo
+  borraba.
+- **Gastos (GAS01):** leer y borrar, contabilidad; cargar, contabilidad o insumos (el
+  mantenimiento de un equipo deja su gasto). Los sueldos administrativos sólo los ve y carga
+  quien ve sueldos. Si el gasto del mantenimiento no se puede cargar, el cartel dice por qué.
+- **Gasto repetido (GAS02):** con la misma llave, el gasto tiene un número fijo y la base lo crea
+  una sola vez; dos reintentos a la vez dan uno. La misma llave con otros datos se avisa en vez
+  de tomarse por el mismo. Dos gastos distintos del mismo monto siguen siendo dos.
+- **Importes (GAS03):** NaN, Infinity, cero o negativo, fecha inválida o categoría que no existe
+  se rechazan antes de guardar.
+- **Plan de cuotas (PLAN01):** se guarda sobre el plan de ese momento; si cambió desde que se
+  abrió, pide recargar; lo cobrado no baja por guardar el plan y una cuota con cobro no se borra.
+  Ver y cambiar el plan pide contabilidad.
+- **Saldo del panel (LEDGER01):** el libro usa el total cobrable con ajuste anual
+  (`getBudgetCollectibleTotal`), igual que la ficha. Las facturas no se ajustan de nuevo.
+
+```comprobar
+prueba: src/__tests__/auditoria-70-contabilidad.test.ts
+usa: getBudgetCollectibleTotal en src/lib/commercial-flow/ledger-service.ts
+usa: versionLeida en src/app/(app)/fiestas/nueva/plan-pagos/page.tsx
+usa: idDeLaLlave en src/app/actions/gastos.ts
+```

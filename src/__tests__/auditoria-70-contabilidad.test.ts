@@ -53,6 +53,7 @@ import { getGastosGenerales, saveGastoGeneral, deleteGastoGeneral } from '@/app/
 import { savePlanDePagos } from '@/app/actions/payment-plans';
 import { calculateFinancialLedger } from '@/lib/commercial-flow/ledger-service';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
 import { mutateDataItem } from '@/lib/data-service';
 
 beforeEach(() => {
@@ -171,6 +172,8 @@ describe('LEDGER01: el libro y el resumen dicen el mismo saldo', () => {
     const resumen = getBudgetPaymentSummary(p, { includeAnnualAdjustment: true });
     const libro = calculateFinancialLedger([p], []);
     expect(libro.saldoPendiente).toBe(resumen.balance);
+    // La revisión de la ficha (pregunta 36: el mismo número en otro lugar) dice lo mismo.
+    expect(auditPresupuestoTotals({ ...p, itemsPresupuestados: [] }).saldoPendiente).toBe(resumen.balance);
   });
 
   it('con ajuste, el libro muestra los $15.000 por cobrar', () => {

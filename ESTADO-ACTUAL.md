@@ -1,27 +1,31 @@
-# Auditoria 70: simuladores y contabilidad, cierre NO aprobado
+# En curso: orden 120 (auditoría 70 de Codex, plata)
 
-6/10/2026. Base main `6a2143ffe6c257ca94e9761dd7cfacfafafe8e35`, PR1257 fusionada.
-Rama documental `codex/auditoria-simulador-contable-20261006`. Sin PR abiertas
-al iniciar. No se programo app, compilo ni fusiono.
+**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3` sobre main `6a2143f` (PR 1257),
+más la rama documental de Codex `codex/auditoria-simulador-contable-20261006` (informe 70).
 
-## Comprobado
+## Qué trae
 
-- 599 suites / 3445 pruebas verdes; seis sondas nuevas reproducen defectos.
-- PDF sintetico largo: cuatro paginas renderizadas y vistas sin recortes visibles.
-- Informe `docs/evidencias/70-simuladores-y-contabilidad.md`, originales y hashes
-  en `docs/evidencias/70-resultados/`. No equivale a auditoria integral aprobada.
+- **COB10:** anotar/borrar/confirmar/rechazar cobros y aprobar/rechazar el pago informado por el
+  cliente piden contabilidad.
+- **GAS01-03:** gastos con contabilidad (cargar: contabilidad o insumos; sueldos admin sólo con
+  sueldos); gasto con llave = número fijo creado una vez; importes y fechas inválidos rechazados.
+- **PLAN01:** el plan se guarda sobre el de ese momento, pide recargar si cambió
+  (`versionLeida`), no baja lo cobrado ni borra cuotas con cobro.
+- **LEDGER01 y pregunta 36 nueva:** libro, revisión de la ficha, saldo guardado tras cambios del
+  cliente y contexto del asistente usan el total cobrable con ajuste anual.
+- Orden 117 (Gemini) con el tótem de bienvenida interactivo: escanea el QR, "¡Hola, {nombre}!",
+  mesa y video. El tótem no marca la llegada (preguntado al dueño, sin respuesta todavía).
+- Prueba: `src/__tests__/auditoria-70-contabilidad.test.ts` (15 en rojo con el código viejo).
 
-## Una orden para Claude
+## Sigue
 
-- 120: COB10 (personal cambia cobros), GAS01 (permisos gastos), GAS02 (duplicacion),
-  GAS03 (NaN/Infinity), PLAN01 (plan viejo deshace pago), LEDGER01 (saldo sin ajuste).
-- Persistencia sintetica, sin datos reales. Claude corrige/compila; Codex contrasta
-  comportamiento sobre SHA de entrega. No declarar corregido por existir codigo.
-- Siguen limites de orden 114: navegador integrado, permisos HTTP, descarga/CRM;
-  catalogo real, 19 importados y Mercado Pago sandbox pendientes de comprobar.
-- No tocar ni duplicar tandas Gemini 117 y 112 B.1.
+- Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
+- Codex vuelve a mirar SÓLO la orden 120 sobre el SHA fusionado.
+- Gemini: orden 117 y 112 B.1 (AUD01). Programa Gemini, decisión del dueño (6/10).
+- Límites de Codex que no son defectos: orden 114 (entorno estable), 19 importados, Mercado
+  Pago de prueba, catálogo real.
 
-## Entrega
+## Cómo se fusiona (error 30)
 
-- Sin fusion automatica. Documentos viajan con proxima tanda de correccion.
-- No subir archivos runtime de notificaciones escritos por las pruebas.
+- Sin `expectedHeadSha` igual al de `.ak-puerta-verde.json`, no se fusiona.
+- No cambiar de rama ni `commit -a` mientras corre la puerta.
