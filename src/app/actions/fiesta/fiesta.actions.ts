@@ -123,6 +123,7 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   // Devuelve TODAS las fiestas archivadas, con el cliente, lo que pago y sus
   // invitados. Es una direccion de internet: sin esto, cualquiera pedia la lista
   // entera de clientes del negocio sin tener cuenta.
+  await requireAppSession();
   const mostrar = await requireEquipo();
   return (await leerHistorialCrudo()).map(mostrar);
 }
@@ -132,6 +133,7 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
   // Las pantallas que abre un desconocido y que igual necesitan mirar las fiestas
   // (el simulador para ver si una fecha esta libre, el portal del cliente con su
   // clave) usan `leerFiestasCrudas`, que no es una direccion de internet.
+  await requireAppSession();
   const mostrar = await requireEquipo();
   return (await leerFiestasCrudas(includeArchived)).map(mostrar);
 }
@@ -232,8 +234,9 @@ export async function updateFiestaPartial(
       const tocaLoDelEquipo = CAMPOS_DEL_EQUIPO.some((campo) => campo in (partialData as Record<string, unknown>));
       if (tocaLoDelEquipo) return { success: false, error: 'Esa parte de la fiesta la maneja el equipo de AK.' };
     }
-  } else if (!(await esEquipoParaFiesta(fiestaId))) {
-    throw new Error('No autorizado para modificar este evento.');
+  } else {
+    await requireAppSession();
+    if (!(await esEquipoParaFiesta(fiestaId))) throw new Error('No autorizado para modificar este evento.');
   }
   const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
   if (assignmentError) return { success: false, error: assignmentError };

@@ -1,5 +1,8 @@
 # 118 - Cerrar la frontera general de fiestas
 
+**HECHA por Claude el 6/10/2026.** Ver `docs/YA-RESUELTO.md` del 6/10.
+
+
 ## Destino y contraste
 
 Responsable: Claude (permisos y datos sensibles). Codex solo aporta evidencia;

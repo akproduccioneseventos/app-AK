@@ -1560,6 +1560,8 @@ con otra cara.
 | Dos canciones o dedicatorias en el mismo milisegundo quedaban una | `src/__tests__/social-interactive-creaciones-simultaneas.test.ts` |
 | El CRM, el contrato en papel, la ficha del personal, cupones, menús y activos pedían sólo sesión | `src/__tests__/auditoria-35-quien-ve-que.test.ts` |
 | El costo de un insumo pasaba a los menús con una lista vieja y pisaba lo que otro editaba | `src/__tests__/el-ajuste-de-costos-no-miente.test.ts` |
+| El personal leía y guardaba la fiesta entera, y la invitación devolvía la clave del portal | `src/__tests__/frontera-general-de-fiestas.test.ts` |
+| El portal decía "Evento Concluido" el día de la fiesta, y el asistente quedaba bajo WhatsApp | `tests/e2e/portal-fecha-y-botones.spec.ts` |
 
 ### Cómo se elige el matafuego
 

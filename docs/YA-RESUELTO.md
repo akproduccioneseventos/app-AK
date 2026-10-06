@@ -10641,3 +10641,27 @@ usa: actualizarFiesta en src/app/actions/fiesta/catering.actions.ts
 usa: sesionConPermiso(PERMISOS.CONTABILIDAD) en src/app/actions/crm.ts
 usa: sinDatosPersonales en src/app/actions/empleados.ts
 ```
+
+## 6 de octubre de 2026 — La frontera de las fiestas y el portal el día del evento (Codex, auditoría 69)
+
+- **El personal, con su sesión, leía y guardaba la fiesta entera** (clave del portal, credencial
+  de cada invitado, costos). Ahora "el equipo" es quien tiene algún permiso, y el operador sólo
+  en las fiestas a las que está asignado (`src/lib/auth/equipo-de-la-fiesta.ts`). Vale para leer
+  una fiesta, la lista, el historial, guardar entera o de a partes, y bajar los documentos.
+- **La fiesta del día y el enlace corto de la invitación devolvían esas claves a cualquiera.**
+  Ahora llegan recortadas: la invitación y las mesas siguen andando sin pedir nada.
+- **El cliente, desde su portal, no cambia costos, personal ni pagos a proveedores** aunque los
+  mande: se reponen los guardados. Era la prueba pendiente que pedía Codex.
+- **El portal decía "Evento Concluido" el día de la fiesta**, porque leía la fecha en hora de
+  Greenwich. Ahora se cuenta en Uruguay y la fiesta sigue siendo "hoy" hasta las 6 de la mañana
+  siguiente (`diaDelEvento`).
+- **El botón del asistente quedaba debajo del de WhatsApp.** Ahora va encima, y la ventana del
+  asistente abierta tapa al de WhatsApp en vez de quedar tapada.
+
+```comprobar
+prueba: src/__tests__/frontera-general-de-fiestas.test.ts
+prueba: src/__tests__/el-portal-cuenta-el-dia-en-uruguay.test.ts
+prueba: tests/e2e/portal-fecha-y-botones.spec.ts
+usa: quienEsElEquipo en src/app/actions/fiesta/fiesta.actions.ts
+usa: diaDelEvento en src/app/portal-cliente/[id]/page.tsx
+```

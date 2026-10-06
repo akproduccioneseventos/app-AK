@@ -1,36 +1,29 @@
-# Revision Codex 69: cierre NO aprobado
+# En curso: devolución de la revisión 69 de Codex (órdenes 118 y 119)
 
-5/10/2026. PR 1256 de Claude YA fusionada, main `feb90f4d40906029d6d31ba2e2abbed64461a2ad`.
-No habia otra PR abierta al contrastar. Ordenes/evidencia nuevas en
-`codex/auditoria-final-feb90f4`; no confundir esta rama documental con main.
+**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3`, sobre main `feb90f4` (PR 1256 ya
+fusionada) más la rama documental de Codex `codex/auditoria-final-feb90f4` (informe 69).
 
-## Comprobado
+## Qué trae
 
-- 597 suites / 3.432 pruebas aprobadas; ocho suites repetidas con mocks correctos.
-- Originales/hashes: `docs/evidencias/69-resultados/manifest.json`.
-- Cliente ficticio: ingreso y pestanas; saldo consistente. Invitado: enlace, mesa,
-  QR visible, accesos, carta y red social. No todos los recorridos completos.
-- Informe: `docs/evidencias/69-revision-final-de-la-entrega.md`.
+- **118 (Claude):** "el equipo" de una fiesta es quien tiene algún permiso, y el operador sólo si
+  está asignado (`src/lib/auth/equipo-de-la-fiesta.ts`). Aplica a leer, listar, historial, guardar
+  entero/parcial y bajar documentos. La fiesta del día y el enlace de la invitación salen sin
+  clave del portal ni credenciales. El portal no cambia costos/personal/pagos a proveedores.
+- **119 (hecha por Claude, era chica):** el día de la fiesta se cuenta en Uruguay
+  (`diaDelEvento`, hasta las 6 del día siguiente sigue siendo hoy); el asistente va arriba de
+  WhatsApp y su ventana lo tapa al abrirse.
+- Pruebas: `frontera-general-de-fiestas`, `el-portal-cuenta-el-dia-en-uruguay`,
+  `tests/e2e/portal-fecha-y-botones.spec.ts`. Las dos de Jest se probaron rompiéndolas.
 
-## Una tanda de correcciones
+## Sigue
 
-- Claude, orden 118: BASE01/02, permisos de funciones generales de fiesta y
-  proyecciones publicas sin secretos. Sonda con persistencia sintetica.
-- Gemini, orden 119: PORTAL01/02, fiesta de hoy concluida en Uruguay y
-  WhatsApp sobre el asistente. Navegador y sonda/medicion reproducibles.
-- No duplicar orden 117 (video/voz/multipaso/reunion/pantalla/estaciones) ni
-  orden 112 B.1/AUD01 (mapa de areas). Codex no programo ni fusiono la app.
+- Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
+- Después: Codex vuelve a mirar SÓLO la frontera de fiestas y el portal (órdenes 118 y 119).
+- Gemini: orden 117 (video para cada invitado y lo que falta de 105/106) y 112 B.1 (AUD01).
+- Límites que señaló Codex y no son defectos: recorrido amplio en entorno estable (orden 114),
+  proveedores reales y ensayo en el salón (al final, decisión del dueño).
 
-## Limites para cierre
+## Cómo se fusiona (error 30)
 
-- E2E amplia interrumpida: timeouts de 90 s; sin reporte completo, NO aprobada.
-  Un timeout exacto registrado, no trazas; orden 114 mantiene entorno compilado verificable.
-- Dev local reinicio tres veces por umbral de memoria (heap 3072 MB); no extrapolar a produccion.
-- Firestore desactivado en JSON local: dedicatoria no confirmada; no es evidencia
-  de defecto productivo. Proveedores reales y 19 importaciones no comprobados.
-- Ensayo fisico de orden 92 va al final, como decidio el propietario.
-- No marcar areas limpias por existencia de codigo o por pruebas omitidas.
-
-Claude compila, registra SHA/entorno/resultados; Codex retoma SOLO cambios y limites.
-Sin `expectedHeadSha` igual al de `.ak-puerta-verde.json`, no fusionar.
-No cambiar de rama ni usar `commit -a` mientras corre la puerta.
+- Sin `expectedHeadSha` igual al de `.ak-puerta-verde.json`, no se fusiona.
+- No cambiar de rama ni `commit -a` mientras corre la puerta.

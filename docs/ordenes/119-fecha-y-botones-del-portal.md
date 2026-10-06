@@ -1,5 +1,8 @@
 # 119 - Fecha y botones del portal del cliente
 
+**HECHA por Claude el 6/10/2026** (lo chico lo hace Claude). Ver `docs/YA-RESUELTO.md` del 6/10.
+
+
 Responsable: Gemini (interfaz del portal); Claude compila y registra resultados.
 Base: `main` / `feb90f4d40906029d6d31ba2e2abbed64461a2ad`, PR 1256 fusionada.
 No habia PR abierta al contrastar. **NO CONTRASTADO CON LA TANDA** si hay cambios
