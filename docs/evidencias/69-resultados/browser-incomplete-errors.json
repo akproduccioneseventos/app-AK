@@ -1,0 +1,10 @@
+[
+  {
+    "provenance": "Exact error-context text read through the terminal during the interrupted run; not a complete Playwright report.",
+    "folder": "48-fotocabina-recuerdo-seg-d3a00-do-y-el-boton-de-sacar-foto-chromium-desktop",
+    "test": "Orden 48: la fotocabina levanta y deja sacar la foto / ENT-01: la estacion abre con la camara andando y el boton de sacar foto",
+    "location": "tests/e2e/48-fotocabina-recuerdo-seguro.spec.ts:22:7",
+    "error": "Test timeout of 90000ms exceeded.",
+    "limit": "The following seed run reused test-results and erased the earlier trace directories. Only this error text had been captured; no trace or final browser result is claimed preserved."
+  }
+]

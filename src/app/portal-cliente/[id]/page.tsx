@@ -5,6 +5,7 @@ import React, { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
 import { CompanyLogo } from '@/components/company-logo';
 import { cn } from '@/lib/utils';
+import { diaDelEvento } from '@/lib/fiesta/dia-del-evento';
 import {
   Loader2,
   AlertTriangle,
@@ -187,9 +188,7 @@ export default function PortalClientePage() {
 
   useEffect(() => {
     if (!fiestaId || !isAuthenticated) return;
-    const today = new Date();
-    const eventDate = fechaEvento ? new Date(fechaEvento) : null;
-    const isToday = !!eventDate && eventDate.toDateString() === today.toDateString();
+    const isToday = diaDelEvento(fechaEvento).esHoy;
     const intervalMs = isToday ? 12000 : 20000;
     const pollInterval = setInterval(async () => {
       try {
@@ -564,12 +563,8 @@ export default function PortalClientePage() {
   const pending   = invitados.filter(i => i.rsvp !== 'Confirmado' && i.rsvp !== 'Rechazado');
 
   // ── Check-in stats ───────────────────────────────────────────
-  const today = new Date();
-  const eventDate = config.fechaEvento ? new Date(config.fechaEvento) : null;
-  const isEventToday = eventDate
-    ? eventDate.toDateString() === today.toDateString()
-    : false;
-  const isEventPast = eventDate ? eventDate < today && !isEventToday : false;
+  // El día de la fiesta se cuenta en Uruguay (auditoría 69, PORTAL01).
+  const { esHoy: isEventToday, yaPaso: isEventPast } = diaDelEvento(config.fechaEvento);
   const checkedIn   = invitados.filter(i => i.checkedIn);
   const recentArrivals = checkedIn
     .filter(i => i.checkInTimestamp)

@@ -834,3 +834,8 @@ Al verificar: para cada acción de plata, stock o datos de personas, se pregunta
 usa de verdad (`PERMISOS_POR_PERFIL` en `src/lib/auth/perfiles.ts`) y se pide ese permiso; si es de
 una fiesta, `requireEventPermission`, que además mira que el operador esté asignado. Si un perfil
 necesita una parte, se le da esa parte (el operador ve los servicios, no los cobros).
+
+**Y se abre la puerta de paso (auditoría 69, 6/10/2026).** Una acción que llama a una función con
+nombre de permiso (`requireFiestaWriteAccess`) no está protegida hasta ver qué pide esa función por
+dentro: ésa terminaba en "tiene sesión" y dejaba al personal leer y guardar la fiesta entera. Se
+sigue cada puerta hasta el control real.

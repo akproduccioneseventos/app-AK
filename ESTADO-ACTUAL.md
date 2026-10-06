@@ -1,33 +1,27 @@
-# En curso: tanda de la auditoría 66 + auditoría de toda la app (35 preguntas)
+# En curso: devolución de la revisión 69 de Codex (órdenes 118 y 119)
 
-**5 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3`, todo commiteado, **sin fusionar**:
-se corre la puerta (`npm run "publicar?"`) y, en verde, se abre la propuesta y se fusiona en otro
-paso con `expectedHeadSha` igual a `.ak-puerta-verde.json`.
+**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3`, sobre main `feb90f4` (PR 1256 ya
+fusionada) más la rama documental de Codex `codex/auditoria-final-feb90f4` (informe 69).
 
 ## Qué trae
 
-- Auditoría 66 de Codex (orden 116): enlace vencido del personal, coordenadas inválidas,
-  canciones que se pisaban, candado de tareas entre servidores, tareas fallidas anotadas como
-  corridas, y los trece pendientes de plata, comida y permisos.
-- Auditoría de toda la app con las 35 preguntas: CRM, contrato en papel, ficha del personal,
-  cupones, menús, activos fijos, enlaces del personal y lista de compras pedían sólo sesión;
-  costo de insumos a los menús sin lista vieja; mensaje honesto de la seña.
-- Puerta más rápida: un cambio adentro del servidor corre sólo las pruebas de su pantalla.
-- Jest 597 suites / 3.432 pruebas en verde, tipos en cero, acentos bien (antes de la puerta).
+- **118 (Claude):** "el equipo" de una fiesta es quien tiene algún permiso, y el operador sólo si
+  está asignado (`src/lib/auth/equipo-de-la-fiesta.ts`). Aplica a leer, listar, historial, guardar
+  entero/parcial y bajar documentos. La fiesta del día y el enlace de la invitación salen sin
+  clave del portal ni credenciales. El portal no cambia costos/personal/pagos a proveedores.
+- **119 (hecha por Claude, era chica):** el día de la fiesta se cuenta en Uruguay
+  (`diaDelEvento`, hasta las 6 del día siguiente sigue siendo hoy); el asistente va arriba de
+  WhatsApp y su ventana lo tapa al abrirse.
+- Pruebas: `frontera-general-de-fiestas`, `el-portal-cuenta-el-dia-en-uruguay`,
+  `tests/e2e/portal-fecha-y-botones.spec.ts`. Las dos de Jest se probaron rompiéndolas.
 
-## Para Gemini — UNA propuesta
+## Sigue
 
-- **Orden 117**: video de la quinceañera para cada invitado (aprobado por el dueño), "llamarla"
-  y objetivos de varios pasos (105 b3 y b7), micrófono en la reunión y pantalla gigante con todas
-  las fotos (106 b2 y b5), y los dos ajustes de estaciones que nadie lee.
-- **Orden 112 B.1 (AUD01)**: el contador de Codex cubre todas las rutas.
-
-## Después de fusionar
-
-- Pedirle a Codex que vuelva a mirar: cobros, menús/insumos, quién ve qué, barra, personal y
-  tareas automáticas (`npm run "codex?"`).
-- Orden 114 sigue sin las dos pruebas de entorno compilado (no se puede abrir servidor desde la
-  nube); orden 92 espera el ensayo en el salón (va al final, no se lista como pendiente).
+- Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
+- Después: Codex vuelve a mirar SÓLO la frontera de fiestas y el portal (órdenes 118 y 119).
+- Gemini: orden 117 (video para cada invitado y lo que falta de 105/106) y 112 B.1 (AUD01).
+- Límites que señaló Codex y no son defectos: recorrido amplio en entorno estable (orden 114),
+  proveedores reales y ensayo en el salón (al final, decisión del dueño).
 
 ## Cómo se fusiona (error 30)
 

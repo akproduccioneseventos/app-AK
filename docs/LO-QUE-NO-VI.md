@@ -860,3 +860,17 @@ se barre toda la carpeta de acciones, no la lista del informe.
 ```comprobar
 prueba: src/__tests__/auditoria-35-quien-ve-que.test.ts
 ```
+
+## 06/10/2026 — La puerta general de las fiestas aceptaba cualquier sesión (Codex, auditoría 69)
+
+**Qué era:** `requireFiestaWriteAccess`, `getFiestaById`, la lista y el historial de fiestas
+trataban como equipo a cualquiera con sesión, incluido el personal, que no tiene permisos.
+
+**Por qué se me pasó:** en el barrido de la pregunta 35 conté como "pide permiso" a toda acción que
+llamaba a una puerta con nombre de permiso (`requireFiestaWriteAccess`), sin abrir la puerta para
+ver qué pedía por dentro. **Lo que cambia:** al aplicar la pregunta 35, se abre cada puerta de
+paso hasta el control real; una puerta que termina en "tiene sesión" es un hallazgo.
+
+```comprobar
+prueba: src/__tests__/frontera-general-de-fiestas.test.ts
+```
