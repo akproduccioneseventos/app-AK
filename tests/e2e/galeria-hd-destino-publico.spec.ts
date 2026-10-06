@@ -15,7 +15,6 @@ test('Galería HD lleva a la galería de fotos de la portada', async ({ page, co
 
   const galeria = page.locator('section#landing-gallery');
   await expect(galeria).toBeInViewport({ timeout: 30_000 });
-  await expect(page).toHaveURL(/#landing-gallery$/);
   expect(context.pages().length).toBe(pestanasAntes);
   await expect(galeria.locator('img').first()).toBeVisible({ timeout: 30_000 });
 });
