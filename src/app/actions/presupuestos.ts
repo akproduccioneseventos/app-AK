@@ -31,7 +31,7 @@ import { PERMISOS, puede } from '@/lib/auth/perfiles';
 import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
 import { AsyncMutex } from '@/lib/mutex';
 
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 const presupuestosMutex = new AsyncMutex();
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -85,6 +85,20 @@ function nivelDePresupuestos(user: Parameters<typeof puede>[0]): 'completo' | 'o
 }
 function sinCobros(p: Presupuesto): Presupuesto {
   return { ...p, pagosCliente: [] };
+}
+
+/**
+ * Quién cambia un presupuesto (revisión de plata, 6/10/2026). Antes alcanzaba la sesión: el
+ * personal podía armar, aceptar, facturar o archivar presupuestos. Cada acción pide el perfil
+ * que la usa de verdad; devuelve la misma forma que `verifySession`.
+ */
+async function verifySessionConPermiso(...permisos: Array<(typeof PERMISOS)[keyof typeof PERMISOS]>) {
+  const sesion = await verifySession();
+  if (!sesion.success) return sesion;
+  if (!permisos.some((p) => puede(sesion.user, p))) {
+    return { ...sesion, success: false as const, error: 'Tu perfil no tiene acceso a esta parte de los presupuestos.' };
+  }
+  return sesion;
 }
 
 /** Returns all presupuestos. Pass includeArchived=true to include soft-deleted ones. */
@@ -274,7 +288,7 @@ export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
   options?: { source?: PresupuestoSource, leadId?: string, preserveTotal?: boolean }
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string, avisoCrm?: string }> {
-  const auth = await verifySession();
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
   if (!auth.success) return { success: false, error: auth.error };
 
   return await presupuestosMutex.runExclusive(async () => {
@@ -426,6 +440,9 @@ export async function updatePresupuesto(
   presupuestoData: Presupuesto,
   options: { preserveStoredTotal?: boolean } = {},
 ): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string; avisoCrm?: string }> {
+  // Cambiar un presupuesto (precios, servicios) pide el perfil, igual que armarlo (candado de plata).
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM, PERMISOS.ORGANIZACION);
+  if (!auth.success) return { success: false, error: auth.error };
   return await presupuestosMutex.runExclusive(() => guardarPresupuestoSinTurno(presupuestoData, options));
 }
 
@@ -510,7 +527,7 @@ async function guardarPresupuestoSinTurno(
 
 /** Soft-delete: marks the presupuesto as archived so it disappears from active lists. */
 export async function archivePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
-  const auth = await verifySession();
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   // Archivar es reversible y es tarea de rutina del equipo: no se restringe a
   // admin. La proteccion real de esta accion es el contrato firmado, mas abajo.
@@ -609,7 +626,7 @@ export async function markPresupuestoAsFacturado(
   invoiceId: string
 ): Promise<{ success: boolean; error?: string; suggestContractFlow?: boolean }> {
   return await presupuestosMutex.runExclusive(async () => {
-    const auth = await verifySession();
+    const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD);
     if (!auth.success) return { success: false, error: auth.error };
     let presupuestos = await getPresupuestos(true);
     const index = presupuestos.findIndex(p => p.id === presupuestoId);
@@ -705,8 +722,10 @@ export async function addPagoToPresupuesto(
   // El id se puede pasar cuando el cobro ya esta enganchado a otra cosa (la factura).
   pago: Omit<PagoCliente, 'id'> & { id?: string }
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
+  const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!auth.ok) return { success: false, error: auth.error };
 
   const referencia = pago.referencia?.trim() || undefined;
   let clienteNombre = '';
@@ -799,8 +818,10 @@ export async function deletePagoFromPresupuesto(
   presupuestoId: string,
   pagoId: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
+  const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!auth.ok) return { success: false, error: auth.error };
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (presupuesto) => {
     const pagos = presupuesto.pagosCliente || [];
     if (!pagos.some(p => p.id === pagoId)) return { sinCambios: true };
@@ -866,7 +887,7 @@ export async function importarPresupuestoDesdeTexto(
   warnings?: string[];
   error?: string;
 }> {
-  const auth = await verifySession();
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.CRM);
   if (!auth.success) return { success: false, error: auth.error };
   if (!texto || texto.trim().length < 20) {
     return { success: false, error: 'El texto pegado está vacío o es demasiado corto.' };
@@ -980,7 +1001,7 @@ export async function importarPresupuestoDesdeTexto(
 export async function createFiestaFromPresupuesto(
   presupuestoId: string
 ): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
-  const auth = await verifySession();
+  const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD, PERMISOS.ORGANIZACION);
   if (!auth.success) return { success: false, error: auth.error };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado.' };
@@ -1050,7 +1071,7 @@ export async function approvePresupuesto(
 ): Promise<{ success: boolean; error?: string }> {
   return await presupuestosMutex.runExclusive(async () => {
     try {
-      const auth = await verifySession();
+      const auth = await verifySessionConPermiso(PERMISOS.CONTABILIDAD);
       if (!auth.success) return { success: false, error: auth.error };
       const presupuestos = await getPresupuestos();
       const index = presupuestos.findIndex(p => p.id === presupuestoId);
@@ -1098,7 +1119,9 @@ export async function addPagoClienteFromPortal(
   pago: Omit<PagoCliente, 'id' | 'estadoPago'>,
   token?: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  await requireAppSession();
+  // Lo carga el equipo en nombre del cliente: es un cobro, va con contabilidad (auditoría 70).
+  const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const presupuesto = await getPresupuestoById(presupuestoId, token);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
@@ -1137,8 +1160,10 @@ export async function confirmPagoCliente(
   presupuestoId: string,
   pagoId: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
+  const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!auth.ok) return { success: false, error: auth.error };
   let monto = 0;
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (presupuesto) => {
     const pagos = presupuesto.pagosCliente || [];
@@ -1179,8 +1204,10 @@ export async function rejectPagoCliente(
   pagoId: string,
   motivo: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
+  // Cobros: sólo contabilidad (Codex, auditoría 70, COB10). Antes alcanzaba la sesión y el
+  // personal podía anotar un cobro confirmado y borrarlo.
+  const auth = await requirePermiso(PERMISOS.CONTABILIDAD);
+  if (!auth.ok) return { success: false, error: auth.error };
   const safeMotivo = motivo.trim() || 'Pago rechazado por administracion';
   const cambio = await cambiarCobrosDelPresupuesto(presupuestoId, (actual) => {
     const pagos = actual.pagosCliente || [];

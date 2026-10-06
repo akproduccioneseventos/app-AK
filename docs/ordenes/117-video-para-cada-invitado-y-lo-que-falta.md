@@ -63,12 +63,43 @@ l.128). Si no llegó todavía, **no viaja ni la ruta**. En
 `src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx` una tarjeta "Un mensaje para vos"
 con el video, arriba de todo, sólo si viene.
 
-**Tótem de bienvenida (opcional).** En `src/app/evento/totem/[fiestaId]/page.tsx`, un modo
-"Video de bienvenida" que lee el QR del invitado (el mismo de su invitación, con
-`guestAccessToken`) y reproduce su video a pantalla completa; si no tiene, muestra "¡Bienvenido,
-{nombre}!" y vuelve solo a esperar a los 8 segundos. **El tótem no marca la llegada**: eso sigue
-siendo de recepción. El video se pide con una acción que valida `hasPublicGuestAccess`
-(`src/lib/guest-portal-public-data.ts` l.90).
+**Tótem de bienvenida interactivo (pedido del dueño, 6/10/2026).** Palabras suyas: *"un tótem
+donde el invitado escanee su QR y le salte el video, con una pantalla de inicio que diga escaneá
+tu QR; algo interactivo con el invitado cuando llegue"*. Además del video en su pantalla de
+invitado.
+
+Pantalla nueva `src/app/evento/bienvenida/[fiestaId]/page.tsx` (no se mezcla con el tótem de
+fotos que ya existe en `src/app/evento/totem/[fiestaId]/[totemId]/page.tsx`, que **no se toca**).
+Se prende igual que ese tótem: con el enlace armado desde el panel de entretenimiento
+(`getEntertainmentLaunchToken`, parámetro `access`), sin iniciar sesión en la pantalla. Se agrega
+como un tótem más en `src/app/(app)/fiestas/nueva/entretenimiento/page.tsx`, con su botón "Abrir
+pantalla de bienvenida". Pantalla prendida con `usePantallaPrendida()`, como el otro tótem.
+
+Los cuatro momentos, a pantalla completa, vertical y horizontal:
+
+1. **Espera (pantalla de inicio).** Fondo animado con el nombre del agasajado
+   (`configuracion.nombreEvento`) y la foto de portada de la invitación si hay
+   (`invitacionDigital?.cabecera?.imagenFondoUrl`). Un cartel grande que late suave: **"¡Bienvenido!
+   Acercá el QR de tu invitación"**, con una flecha animada hacia la cámara. Abajo, chico: "¿No
+   tenés el QR? Pedíselo a la recepción". Movimiento según la skill `animaciones-pro`.
+2. **Leyendo.** La cámara (`html5-qrcode`, como en `src/app/evento/accesos/[fiestaId]/page.tsx`
+   l.~149) queda siempre encendida en un recuadro con marco animado. El QR del invitado ya trae
+   `token` (ver cómo lo lee esa misma pantalla, l.~89): se usa ese `guestAccessToken`.
+3. **¡Te encontramos!** Con una acción nueva `videoDeBienvenida(fiestaId, token)` en
+   `src/app/actions/videos-invitados.ts` (valida con `hasPublicGuestAccess`,
+   `src/lib/guest-portal-public-data.ts` l.90, y devuelve **sólo** `{ nombre, mesa, videoUrl? }`):
+   - Confeti y **"¡Hola, {nombre}!"** grande, con **"Tu mesa es la {mesa}"** si tiene.
+   - Si hay video para ese invitado: **"{nombreEvento} te dejó un mensaje"** y el video a
+     pantalla completa con sonido. Botón grande "Saltar".
+   - Si no hay video: el saludo y la mesa quedan 8 segundos.
+4. **Vuelta a la espera** sola al terminar el video o a los 8 segundos, limpiando todo lo del
+   invitado anterior (error 10 de `CLAUDE.md`: el turno nuevo limpia lo heredado). Un QR que no es
+   de la fiesta muestra "Este QR no es de esta fiesta, pedí ayuda en la recepción" y vuelve solo.
+
+**El tótem NO marca la llegada**: eso lo sigue haciendo la recepción (`checkInGuest`,
+`src/app/actions/fiesta/invitados.actions.ts` l.~335). Si el dueño decide otra cosa, se le
+pregunta antes. **Lo que nunca viaja al tótem:** el contacto, la credencial ni datos de otros
+invitados.
 
 **La prueba que mira el resultado** (`src/__tests__/el-video-para-cada-invitado.test.ts`):
 - sin sesión del portal, `guardarVideoParaInvitados` no guarda nada;
@@ -77,7 +108,14 @@ siendo de recepción. El video se pide con una acción que valida `hasPublicGues
   invitado del mismo grupo también, y a uno que no está en el grupo no;
 - con el interruptor apagado no viaja aunque haya video;
 - si `actualizarFiesta` falla, se llama a `deleteFromStorage` y devuelve `success: false`.
+- `videoDeBienvenida` con un token de otra fiesta no devuelve nada; con el bueno devuelve sólo
+  nombre, mesa y video (ni contacto ni credencial).
 Probala rompiéndola: sacando la condición de `checkedIn`, la tercera tiene que dar rojo.
+
+Y una prueba de navegador, `tests/e2e/el-totem-de-bienvenida.spec.ts`: con la cámara falsa
+(`tests/e2e/helpers/camara-falsa.ts`) o llamando al mismo manejador que dispara el lector, un
+token bueno muestra "¡Hola, {nombre}!" y el video, y a los segundos vuelve a "Acercá el QR"; un
+token de otra fiesta muestra el aviso y vuelve.
 
 ## Bloque 2 — "Llamarla": conversación en vivo con voz (orden 105, bloque 3)
 
@@ -125,6 +163,10 @@ usa: videoPersonal en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
 usa: guardarVideoParaInvitados en src/app/portal-cliente/[id]/videos-invitados/page.tsx
 usa: videosParaInvitadosActivo en src/types/fiesta.ts
 prueba: src/__tests__/el-video-para-cada-invitado.test.ts
+usa: videoDeBienvenida en src/app/evento/bienvenida/[fiestaId]/page.tsx
+usa: Acercá el QR en src/app/evento/bienvenida/[fiestaId]/page.tsx
+usa: /evento/bienvenida/ en src/app/(app)/fiestas/nueva/entretenimiento/page.tsx
+prueba: tests/e2e/el-totem-de-bienvenida.spec.ts
 # Bloque 2
 usa: modoConversacion en src/components/multiagent/multiagent-widget.tsx
 # Bloque 3

@@ -10,6 +10,7 @@ jest.mock('@/lib/google-workspace', () => ({
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue(undefined),
   hasAppSession: jest.fn().mockResolvedValue(true),
+  requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: {} }),
 }));
 
 jest.mock('@/app/actions/scheduled-messages', () => ({
@@ -21,8 +22,11 @@ jest.mock('@/app/actions/scheduled-messages', () => ({
 
 const mockStore: Record<string, any> = {
   'presupuestos.json': [
-    { id: 'p1', clienteNombre: 'Martín Pérez', totalFinal: 100000, totalCobrado: 40000, eventoTipo: 'Boda' },
-    { id: 'p2', clienteNombre: 'Sofía Rodríguez', totalFinal: 50000, totalCobrado: 50000, eventoTipo: 'Cumpleaños' },
+    // Con la forma real de un presupuesto (revisión de plata, 6/10/2026). Antes la prueba usaba
+    // campos que no existen (totalFinal, totalCobrado) y daba verde con la cuenta rota.
+    { id: 'p1', clienteNombre: 'Martín Pérez', estado: 'Aceptado', totalConDescuento: 100000, timestamp: '2026-01-01', fechaFirmaContrato: '2026-01-01', eventoFecha: '2026-12-01', eventoTipo: 'Boda', pagosCliente: [{ id: 'a', monto: 40000, fecha: '2026-02-01', estadoPago: 'confirmado' }] },
+    { id: 'p2', clienteNombre: 'Sofía Rodríguez', estado: 'Aceptado', totalConDescuento: 50000, timestamp: '2026-01-01', fechaFirmaContrato: '2026-01-01', eventoFecha: '2026-12-01', eventoTipo: 'Cumpleaños', pagosCliente: [{ id: 'b', monto: 50000, fecha: '2026-02-01', estadoPago: 'confirmado' }] },
+    { id: 'p3', clienteNombre: 'Sólo consultó', estado: 'Enviado', totalConDescuento: 80000, timestamp: '2026-01-01', eventoFecha: '2026-12-01', pagosCliente: [] },
   ],
   'fiestas.json': [
     {

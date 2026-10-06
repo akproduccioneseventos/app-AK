@@ -39,6 +39,8 @@ jest.mock('@/app/actions/insumos', () => ({
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => ({ email: 'admin@ak', role: 'admin' })),
 }));
+// Desde el candado de la plata (6/10/2026) los costos de la fiesta piden permiso sobre la fiesta.
+jest.mock('@/lib/auth/event-access', () => ({ requireEventPermission: jest.fn(async () => ({})) }));
 
 function presupuestoCon(items: any[] = [], invitados = { adultos: 100, adolescentes: 0, ninos: 0 }) {
   return {

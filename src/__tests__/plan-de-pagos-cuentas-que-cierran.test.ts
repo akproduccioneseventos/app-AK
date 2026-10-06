@@ -42,6 +42,7 @@ jest.mock('@/app/actions/google-workspace-extended', () => ({
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(async () => ({ email: 'admin@ak', role: 'admin' })),
+  requirePermiso: jest.fn(async () => ({ ok: true, user: {} })),
 }));
 
 function cuota(parcial: Partial<CuotaPlanPago>): CuotaPlanPago {

@@ -1,4 +1,6 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { revalidatePath } from 'next/cache';
 import {
@@ -30,7 +32,7 @@ export async function obtenerEstadoTopePublicidad(
 export async function actualizarTopePublicidad(
   topeMensualUYU: number
 ): Promise<{ success: boolean; mensaje: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión
   try {
     await guardarTopeDeGasto(topeMensualUYU);
     revalidatePath('/contabilidad/crm/marketing-ads');

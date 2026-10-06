@@ -28,6 +28,9 @@ export async function checkDuplicateClient(
   telefono: string
 ): Promise<SimV2DuplicateCheck> {
   await requireAppSession();
+  const { requirePermisoAlguno } = await import('@/lib/auth/require-session');
+  const { PERMISOS } = await import('@/lib/auth/perfiles');
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.CONTABILIDAD); // datos de prospectos (candado de plata)
   try {
     const fullName = normalizeName(`${nombre} ${apellido}`);
     const normalizedPhone = normalizePhone(telefono);

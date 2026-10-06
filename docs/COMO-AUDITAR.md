@@ -834,3 +834,29 @@ Al verificar: para cada acción de plata, stock o datos de personas, se pregunta
 usa de verdad (`PERMISOS_POR_PERFIL` en `src/lib/auth/perfiles.ts`) y se pide ese permiso; si es de
 una fiesta, `requireEventPermission`, que además mira que el operador esté asignado. Si un perfil
 necesita una parte, se le da esa parte (el operador ve los servicios, no los cobros).
+
+**Y se abre la puerta de paso (auditoría 69, 6/10/2026).** Una acción que llama a una función con
+nombre de permiso (`requireFiestaWriteAccess`) no está protegida hasta ver qué pide esa función por
+dentro: ésa terminaba en "tiene sesión" y dejaba al personal leer y guardar la fiesta entera. Se
+sigue cada puerta hasta el control real.
+
+### 36. ¿El mismo número de plata se calcula en dos lugares? ¿Dan lo mismo?
+
+El panel calculaba el saldo con el precio sin ajuste anual y la ficha del presupuesto con el
+ajuste: con $15.000 por cobrar, el panel decía cero (Codex, auditoría 70, LEDGER01). Cada uno
+estaba bien escrito; lo que nadie preguntó fue si coincidían.
+
+Al verificar: por cada número de plata que muestra la app (saldo, cobrado, total), se busca
+**dónde más se calcula** y se arma una prueba con los dos lados sobre el mismo presupuesto, con
+y sin ajuste, en años distintos. Si hay una función que ya lo sabe (`getBudgetCollectibleTotal`),
+los dos lados la usan.
+
+Y la pregunta 22 vale también para lo que vive **adentro de la fiesta** (el plan de cuotas): una
+pantalla que guarda la lista entera que leyó antes deshace lo que otro cobró entretanto.
+
+### 37. ¿Los datos de la prueba tienen la forma real?
+
+Una prueba armaba presupuestos con campos inventados —los mismos que leía el código roto— y daba
+verde con el saldo en cero (revisión de plata, 6/10/2026). Al revisar una prueba: cada campo de sus
+datos tiene que existir en el tipo (`src/types/`). Si no existe, la prueba copia el error en vez de
+encontrarlo.

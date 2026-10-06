@@ -1,0 +1,278 @@
+{
+  "sourceCommit": "feb90f4d40906029d6d31ba2e2abbed64461a2ad",
+  "environment": "isolated-local-json-no-production-credentials",
+  "generated": "2026-10-05T23:41:49.247Z",
+  "runs": [
+    {
+      "name": "jest",
+      "command": [
+        "node",
+        "docs/evidencias/sondas/64-isolated-audit-runner.mjs",
+        ".",
+        "jest",
+        "--silent"
+      ],
+      "started": "2026-10-05T22:44:05.273Z",
+      "artifact": "jest.json.gz",
+      "sha256Uncompressed": "038d2e18f040184a0afcee806d7dbd3c28ff3bb650bd7acd2df4633b5c829001",
+      "reported": {
+        "suites": 597,
+        "passedSuites": 589,
+        "tests": 3432,
+        "passed": 3417,
+        "failed": 15
+      },
+      "failures": [
+        {
+          "file": "src/__tests__/el-respaldo-no-miente.test.ts",
+          "failedTests": [
+            {
+              "name": "El respaldo no miente Una copia a la que le falta algo no se guarda cuando la base se cae, la lectura avisa que fallo en vez de devolver vacio y callarse",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "file": "src/__tests__/data-service.test.ts",
+          "failedTests": [
+            {
+              "name": "data-service — writeData validation throws when Firestore write fails in production",
+              "status": "failed"
+            },
+            {
+              "name": "data-service — writeData validation registers automatic backup as post-response work after a successful write",
+              "status": "failed"
+            },
+            {
+              "name": "data-service — writeData validation can skip automatic backup during a restore",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "file": "src/__tests__/entertainment-session-permissions.test.ts",
+          "failedTests": [
+            {
+              "name": "entertainment session permissions does not let a guest interrupt an active recording",
+              "status": "failed"
+            },
+            {
+              "name": "entertainment session permissions allows the display to return an already completed cycle to idle",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "file": "src/__tests__/el-ajuste-de-costos-no-miente.test.ts",
+          "failedTests": [
+            {
+              "name": "El ajuste de costos de insumos no miente si un menu no se pudo actualizar, avisa y NO dice que salio bien",
+              "status": "failed"
+            },
+            {
+              "name": "El ajuste de costos de insumos no miente solo guarda los menus que usan el insumo que cambio",
+              "status": "failed"
+            },
+            {
+              "name": "El ajuste de costos de insumos no miente el costo nuevo llega al plato",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "file": "src/lib/ai/gemini-image.test.ts",
+          "failedTests": [
+            {
+              "name": "Gemini image editor posts the reference image and returns Gemini inline image data",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "file": "src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts",
+          "failedTests": [
+            {
+              "name": "guardar un cambio no borra el resto si se pudo leer, se guarda lo viejo junto con lo nuevo",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "file": "src/lib/data-item-service.test.ts",
+          "failedTests": [
+            {
+              "name": "data item service creates one document without replacing its collection",
+              "status": "failed"
+            },
+            {
+              "name": "data item service updates and deletes existing documents inside transactions",
+              "status": "failed"
+            },
+            {
+              "name": "data item service does not recreate a document that disappeared during an update",
+              "status": "failed"
+            }
+          ]
+        },
+        {
+          "file": "src/__tests__/una-lectura-colgada-no-tumba-la-pantalla.test.ts",
+          "failedTests": [
+            {
+              "name": "Una lectura colgada no tumba la pantalla contesta con el valor por defecto en vez de quedarse colgada para siempre",
+              "status": "failed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "jest-mocked",
+      "command": [
+        "node",
+        "docs/evidencias/sondas/64-isolated-audit-runner.mjs",
+        ".",
+        "jest-mocked",
+        "--silent",
+        "--maxWorkers=1",
+        "--runTestsByPath",
+        "src/__tests__/el-respaldo-no-miente.test.ts",
+        "src/__tests__/el-ajuste-de-costos-no-miente.test.ts",
+        "src/lib/data-item-service.test.ts",
+        "src/__tests__/data-service.test.ts",
+        "src/__tests__/una-lectura-colgada-no-tumba-la-pantalla.test.ts",
+        "src/__tests__/entertainment-session-permissions.test.ts",
+        "src/lib/ai/gemini-image.test.ts",
+        "src/__tests__/guardar-un-cambio-no-borra-el-resto.test.ts"
+      ],
+      "started": "2026-10-05T22:51:39.594Z",
+      "artifact": "jest-mocked.json.gz",
+      "sha256Uncompressed": "e9eae37c74262c2536a356e13225b2b93d317d36d8bfdaea323be2d74ae47114",
+      "reported": {
+        "suites": 8,
+        "passedSuites": 8,
+        "tests": 32,
+        "passed": 32,
+        "failed": 0
+      },
+      "failures": []
+    }
+  ],
+  "developmentDiagnostics": {
+    "mode": "Next development, NOT production",
+    "heapLimitMB": 3072,
+    "restarts": [
+      {
+        "line": 135,
+        "message": "⚠ Server is approaching the used memory threshold, restarting..."
+      },
+      {
+        "line": 237,
+        "message": "⚠ Server is approaching the used memory threshold, restarting..."
+      },
+      {
+        "line": 385,
+        "message": "⚠ Server is approaching the used memory threshold, restarting..."
+      }
+    ],
+    "meaning": "Development server instability invalidates broad browser acceptance; no production memory conclusion."
+  },
+  "combined": {
+    "suites": 597,
+    "passedSuites": 597,
+    "tests": 3432,
+    "passed": 3432,
+    "failed": 0
+  },
+  "securityProbe": {
+    "command": "node docs/evidencias/69-sonda-puertas-generales-fiesta.cjs",
+    "meaning": "reproduces faults, NOT acceptance",
+    "observations": [
+      {
+        "case": "personal sin permiso ni asignacion",
+        "listReturned": 1,
+        "archivedReturned": 1,
+        "privatePortalKeyReturned": true,
+        "privateGuestCredentialReturned": true
+      },
+      {
+        "case": "personal modifica fiesta ajena",
+        "fullSaveAccepted": true,
+        "partialSaveAccepted": true,
+        "writes": 2
+      },
+      {
+        "case": "fiesta actual publica",
+        "signedIn": false,
+        "privatePortalKeyReturned": true,
+        "privateGuestCredentialReturned": true
+      },
+      {
+        "case": "invitacion por slug publica",
+        "signedIn": false,
+        "privatePortalKeyReturned": true,
+        "privateGuestCredentialReturned": true
+      }
+    ]
+  },
+  "portalDateProbe": {
+    "command": "node docs/evidencias/69-sonda-fecha-portal.cjs",
+    "meaning": "reproduces fault, NOT acceptance",
+    "observation": {
+      "eventInput": "2026-10-05",
+      "interpretedDate": "Sun Oct 04 2026",
+      "today": "Mon Oct 05 2026",
+      "isEventToday": false,
+      "isEventPast": true
+    }
+  },
+  "manualBrowser": {
+    "transport": "CUA in-app browser",
+    "target": "http://127.0.0.1:3311",
+    "fixture": "ak_audit69_portal",
+    "passed": [
+      "client valid login",
+      "client tabs Progreso/Invitados/Pagos",
+      "synthetic balance 335000 - 0 = 335000",
+      "guest personalized link and table/QR visible",
+      "guest date displays today",
+      "drink menu and ingredients opens",
+      "guest social wall opens",
+      "photo/video and dedication forms accessible"
+    ],
+    "notConfirmed": [
+      "QR download",
+      "upload",
+      "dedication persistence: local JSON mode disables Firestore",
+      "bar order/queue/delivery",
+      "check-in",
+      "real external integrations",
+      "physical devices"
+    ],
+    "floatingOverlap": {
+      "assistant": {
+        "x": 374,
+        "y": 500,
+        "width": 206,
+        "height": 56
+      },
+      "help": {
+        "x": 468,
+        "y": 512,
+        "width": 176,
+        "height": 44
+      },
+      "intersection": {
+        "width": 112,
+        "height": 44
+      }
+    }
+  },
+  "browser": {
+    "state": "interrupted",
+    "started": "2026-10-05T22:46:10Z",
+    "stopped": "2026-10-05T23:15:36Z",
+    "command": "node docs/evidencias/sondas/64-isolated-audit-runner.mjs . e2e --reporter=json",
+    "artifact": "browser-incomplete-errors.json",
+    "reason": "Repeated 90-second timeouts and cold route compilation; no complete browser JSON report. NOT passing, not yet attributed to product bugs."
+  }
+}

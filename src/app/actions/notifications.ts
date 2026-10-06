@@ -446,6 +446,10 @@ export async function checkAndCreateEventAlerts(): Promise<{ success: boolean; c
 
 export async function checkAndCreatePendingBalanceAlerts(): Promise<{ success: boolean; created: number }> {
   await requireAppSession();
+  // Los avisos de saldo hablan de plata: sólo se arman para quien tiene contabilidad (candado de plata).
+  const { requirePermiso } = await import('@/lib/auth/require-session');
+  const { PERMISOS } = await import('@/lib/auth/perfiles');
+  if (!(await requirePermiso(PERMISOS.CONTABILIDAD)).ok) return { success: true, created: 0 };
     try {
         const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
         if (!presupuestos || presupuestos.length === 0) {

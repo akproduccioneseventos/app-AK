@@ -14,6 +14,10 @@ function clonar<T>(obj: T): T {
 
 let sesionAutorizada = true;
 
+// Desde la auditoría 69 "el equipo" es quien tiene algún permiso: la sesión lleva perfil.
+jest.mock('@/lib/auth/session-token', () => ({
+  verifySession: jest.fn(async () => (sesionAutorizada ? { success: true, user: { userId: 'u1', perfil: 'secretaria' } } : { success: false })),
+}));
 jest.mock('@/lib/auth/require-session', () => ({
   hasAppSession: jest.fn(async () => sesionAutorizada),
   requireAppSession: jest.fn(async () => {

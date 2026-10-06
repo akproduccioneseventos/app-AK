@@ -1,7 +1,8 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
-import { requireAppSession } from '@/lib/auth/require-session';
 import {
   calcularAvisoMargenHistorico,
   type AvisoMargenHistorico,
@@ -19,7 +20,7 @@ export async function getAvisoMargenParaPresupuesto(params: {
   salon?: string;
   invitados?: number;
 }): Promise<AvisoMargenHistorico | null> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM); // revisión de plata, 6/10/2026: no cualquier sesión
 
   // Con archivadas incluidas: las fiestas viejas son justamente las que sirven
   // para comparar.

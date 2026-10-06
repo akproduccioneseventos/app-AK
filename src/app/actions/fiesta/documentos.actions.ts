@@ -14,6 +14,7 @@ import { getPresupuestoById } from '../presupuestos';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { getBudgetCollectibleTotal } from '@/lib/budget/financial-guardrails';
 
 /** Default deposit amount used only when no presupuesto or plan de pagos seña is available. */
 const DEFAULT_DEPOSIT_AMOUNT = 20000;
@@ -46,7 +47,9 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
     if (fiesta.presupuestoId) {
       const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
       if (presupuesto) {
-        totalEstimado = presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+        // Lo que se le va a cobrar de verdad, con el ajuste anual si corresponde (pregunta 36): antes
+        // el cliente veía antes de firmar un saldo $15.000 menor que el real.
+        totalEstimado = getBudgetCollectibleTotal(presupuesto);
         if (presupuesto.senia && presupuesto.senia > 0) {
           senia = presupuesto.senia;
         } else if (totalEstimado > 0) {

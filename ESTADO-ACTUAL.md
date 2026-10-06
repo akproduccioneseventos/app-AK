@@ -1,33 +1,37 @@
-# En curso: tanda de la auditoría 66 + auditoría de toda la app (35 preguntas)
+# En curso: orden 120 (auditoría 70 de Codex, plata)
 
-**5 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3`, todo commiteado, **sin fusionar**:
-se corre la puerta (`npm run "publicar?"`) y, en verde, se abre la propuesta y se fusiona en otro
-paso con `expectedHeadSha` igual a `.ak-puerta-verde.json`.
+**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3` sobre main `6a2143f` (PR 1257),
+más la rama documental de Codex `codex/auditoria-simulador-contable-20261006` (informe 70).
 
 ## Qué trae
 
-- Auditoría 66 de Codex (orden 116): enlace vencido del personal, coordenadas inválidas,
-  canciones que se pisaban, candado de tareas entre servidores, tareas fallidas anotadas como
-  corridas, y los trece pendientes de plata, comida y permisos.
-- Auditoría de toda la app con las 35 preguntas: CRM, contrato en papel, ficha del personal,
-  cupones, menús, activos fijos, enlaces del personal y lista de compras pedían sólo sesión;
-  costo de insumos a los menús sin lista vieja; mensaje honesto de la seña.
-- Puerta más rápida: un cambio adentro del servidor corre sólo las pruebas de su pantalla.
-- Jest 597 suites / 3.432 pruebas en verde, tipos en cero, acentos bien (antes de la puerta).
+- **COB10:** anotar/borrar/confirmar/rechazar cobros y aprobar/rechazar el pago informado por el
+  cliente piden contabilidad.
+- **GAS01-03:** gastos con contabilidad (cargar: contabilidad o insumos; sueldos admin sólo con
+  sueldos); gasto con llave = número fijo creado una vez; importes y fechas inválidos rechazados.
+- **PLAN01:** el plan se guarda sobre el de ese momento, pide recargar si cambió
+  (`versionLeida`), no baja lo cobrado ni borra cuotas con cobro.
+- **LEDGER01 y pregunta 36 nueva:** libro, revisión de la ficha, saldo guardado tras cambios del
+  cliente y contexto del asistente usan el total cobrable con ajuste anual.
+- Orden 117 (Gemini) con el tótem de bienvenida interactivo: escanea el QR, "¡Hola, {nombre}!",
+  mesa y video. El tótem no marca la llegada (preguntado al dueño, sin respuesta todavía).
+- Prueba: `src/__tests__/auditoria-70-contabilidad.test.ts` (15 en rojo con el código viejo).
+- **Revisión de toda la plata y el simulador (pedido del dueño):** presupuestos, catálogo y
+  ajustes de precio, pagos a proveedores, ganancias, flujo de caja, avisos de pago y deudores
+  piden el perfil; saldos con ajuste antes de firmar y en el asistente. Preguntas 36 y 37 nuevas.
+  Prueba `revision-de-plata-quien-toca-que` (21 en rojo con el código viejo).
+- **El candado de la plata:** `el-candado-de-la-plata.test.ts` frena la publicación si cualquier
+  acción toca plata con sólo sesión. Encontró y se cerró: buscar presupuestos ajenos por celular en
+  el simulador, el panel con ventas para el operador, `updatePresupuesto`, estadísticas, históricos,
+  costos de la fiesta y avisos de saldo. Jest 3.490 en verde.
 
-## Para Gemini — UNA propuesta
+## Sigue
 
-- **Orden 117**: video de la quinceañera para cada invitado (aprobado por el dueño), "llamarla"
-  y objetivos de varios pasos (105 b3 y b7), micrófono en la reunión y pantalla gigante con todas
-  las fotos (106 b2 y b5), y los dos ajustes de estaciones que nadie lee.
-- **Orden 112 B.1 (AUD01)**: el contador de Codex cubre todas las rutas.
-
-## Después de fusionar
-
-- Pedirle a Codex que vuelva a mirar: cobros, menús/insumos, quién ve qué, barra, personal y
-  tareas automáticas (`npm run "codex?"`).
-- Orden 114 sigue sin las dos pruebas de entorno compilado (no se puede abrir servidor desde la
-  nube); orden 92 espera el ensayo en el salón (va al final, no se lista como pendiente).
+- Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
+- Codex vuelve a mirar SÓLO la orden 120 sobre el SHA fusionado.
+- Gemini: orden 117 y 112 B.1 (AUD01). Programa Gemini, decisión del dueño (6/10).
+- Límites de Codex que no son defectos: orden 114 (entorno estable), 19 importados, Mercado
+  Pago de prueba, catálogo real.
 
 ## Cómo se fusiona (error 30)
 
