@@ -11,6 +11,7 @@ import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { agregarPropuestasDeduplicadas } from '@/lib/asistente/propuestas-service';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 import { readData, writeData } from '@/lib/data-service';
+import { generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
 
 export interface AtenderEquipoParams {
   from: string;

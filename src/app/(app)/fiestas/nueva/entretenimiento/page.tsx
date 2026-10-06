@@ -1189,6 +1189,12 @@ function EntretenimientoContent() {
                 Muro Social
               </Link>
             </Button>
+            <Button asChild variant="outline" className="rounded-xl border-rose-500/40 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20 hover:text-white font-black">
+              <a href={`/evento/bienvenida/${fiestaId}`} target="_blank" rel="noopener noreferrer">
+                <Sparkles className="mr-2 h-4 w-4 text-rose-400" />
+                Abrir tótem de bienvenida
+              </a>
+            </Button>
             <Button
               type="button"
               variant="outline"

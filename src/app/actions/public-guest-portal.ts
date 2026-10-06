@@ -17,6 +17,7 @@ import {
 import { isGuestEntertainmentAvailable } from '@/lib/guest-portal/guest-entertainment';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getSignedUrl } from '@/lib/firebase/storage';
 
 export interface PublicGuestEntertainmentLink {
   id: EntertainmentModuleId;
@@ -84,9 +85,31 @@ export async function getPublicGuestPortalData(
   if (!fiesta) return null;
 
   const portalData = buildPublicGuestPortalData(fiesta, guestId, guestAccessToken);
-  return portalData
-    ? { ...portalData, entertainmentLinks: buildGuestEntertainmentLinks(fiesta, guestId, guestAccessToken) }
-    : null;
+  if (!portalData) return null;
+
+  let videoPersonal: { url: string } | undefined = undefined;
+  const guest = (fiesta.invitados || []).find((g) => g.id === guestId);
+
+  if (
+    fiesta.clientPortalSettings?.videosParaInvitadosActivo &&
+    guest?.checkedIn === true
+  ) {
+    const videoAsignado = (fiesta.videosParaInvitados || []).find((v) =>
+      v.invitadoIds.includes(guestId)
+    );
+    if (videoAsignado?.storagePath) {
+      const urlFirmada = await getSignedUrl(videoAsignado.storagePath, 6 * 60 * 60 * 1000);
+      if (urlFirmada) {
+        videoPersonal = { url: urlFirmada };
+      }
+    }
+  }
+
+  return {
+    ...portalData,
+    ...(videoPersonal ? { videoPersonal } : {}),
+    entertainmentLinks: buildGuestEntertainmentLinks(fiesta, guestId, guestAccessToken),
+  };
 }
 
 export async function getPublicLiveDisplayEvent(

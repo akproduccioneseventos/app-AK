@@ -175,6 +175,72 @@ export default function ConfiguradorReunionPage() {
     });
   };
 
+  const [escuchandoMic, setEscuchandoMic] = useState(false);
+
+  const toggleMicDictado = () => {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast({
+        title: 'Micrófono no compatible',
+        description: 'Tu navegador no soporta SpeechRecognition para dictado por voz.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (escuchandoMic) {
+      setEscuchandoMic(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-UY';
+      recognition.interimResults = false;
+      recognition.continuous = false;
+
+      recognition.onstart = () => {
+        setEscuchandoMic(true);
+        toast({ title: 'Escuchando...', description: 'Decí por ejemplo: "15 de Morena, lila y dorado, 150 invitados, agregar fuente de chocolate".' });
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0]?.[0]?.transcript || '';
+        if (transcript) {
+          setFraseArmado(transcript);
+          aplicarFraseArmado(transcript);
+
+          // Buscar si menciona servicios existentes para agregarlos al borrador en vivo
+          const transcriptLower = transcript.toLowerCase();
+          let agregados = 0;
+          services.forEach((s) => {
+            const nomLower = s.nombre.toLowerCase();
+            if (transcriptLower.includes(nomLower) && !selectedServiceIds.has(s.id)) {
+              setSelectedServiceIds((prev) => new Set([...prev, s.id]));
+              agregados++;
+            }
+          });
+
+          const msg = `Entendido: "${transcript}". Se ajustó el borrador en vivo.`;
+          void reproducirVozReal(msg);
+        }
+      };
+
+      recognition.onerror = () => {
+        setEscuchandoMic(false);
+      };
+
+      recognition.onend = () => {
+        setEscuchandoMic(false);
+      };
+
+      recognition.start();
+    } catch {
+      setEscuchandoMic(false);
+    }
+  };
+
   const handleVerSalonDecorado = async () => {
     setCargandoFotosSalon(true);
     setMostrarFotosSalon(true);
@@ -527,6 +593,19 @@ export default function ConfiguradorReunionPage() {
               onKeyDown={(e) => e.key === 'Enter' && aplicarFraseArmado(fraseArmado)}
               className="h-9 text-xs bg-slate-950 border-slate-700 text-white flex-1"
             />
+            <Button
+              size="sm"
+              type="button"
+              onClick={toggleMicDictado}
+              className={`h-9 px-3 font-bold text-xs shrink-0 transition-all ${
+                escuchandoMic ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+              }`}
+              title={escuchandoMic ? 'Escuchando... Tocá para detener' : 'Hablarle a la IA (dictar frase o servicios)'}
+              aria-label="Hablarle a la IA"
+            >
+              <Mic className={`w-4 h-4 mr-1 ${escuchandoMic ? 'text-white animate-bounce' : 'text-amber-400'}`} />
+              {escuchandoMic ? 'Escuchando' : 'Hablar'}
+            </Button>
             <Button
               size="sm"
               onClick={() => aplicarFraseArmado(fraseArmado)}

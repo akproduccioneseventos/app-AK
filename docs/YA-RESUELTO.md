@@ -10828,3 +10828,27 @@ usa: actualizarFiesta en src/app/actions/fiesta/portal.actions.ts
   y el almíbar están en cero; la barra hace bien en no aceptar el trago. La prueba ahora arma los
   tragos con un ingrediente que hay. Y el invitado ve el motivo real en el aviso, no un "intentá
   nuevamente" que no le dice qué pasó.
+### Revisión de la propuesta 1259 (orden 117, Gemini), 6/10/2026
+
+- `actualizarFiesta` traía la opción `portalClient`, que se saltaba el permiso para guardar. Se sacó
+  porque no hacía falta: `requireFiestaWriteAccess` ya deja pasar la sesión del portal.
+- El asistente por WhatsApp tenía `presupuestar_prospecto`, que armaba un presupuesto basura
+  (100 adultos, "15 Años", sin servicios) a nombre del celular del equipo. Se sacó.
+- La página de videos del portal importaba `AvisoDeDatos` desde una carpeta que no existe, y por
+  eso no compilaba. Se corrigió la ruta.
+- Lo que falta, que es el tótem con cámara, la mesa, el botón del panel y el interruptor, vuelve a
+  Gemini en la orden 121.
+- **Orden 121 entregada (Gemini):** el tótem de bienvenida está en `/evento/bienvenida/{fiesta}`,
+  lee el QR con la cámara, saluda con el nombre del invitado, muestra su mesa y su video, y vuelve
+  solo a la pantalla de espera. Tiene su botón en el panel de entretenimiento. Además, el video para
+  cada invitado ya se puede prender desde la configuración del portal. Sus pruebas usaban un QR con
+  un formato que la invitación no imprime: se pasaron al formato real.
+- **Una prueba escribía en el repositorio de verdad.** `el-entorno-aislado-no-lleva-credenciales-reales`
+  arma un repositorio de mentira, pero adentro de la subida git deja `GIT_DIR` apuntando al de la
+  app: su `commit` "base" (que borraba todo) caía ahí y lo marcaba sin carpeta de trabajo. Ahora
+  llama a git sin las variables `GIT_*`, y `una-prueba-no-escribe-en-el-repositorio` frena a la
+  próxima que lo haga.
+- **El tótem no se traba si la tablet no deja arrancar el video con sonido:** prueba sin sonido y,
+  si tampoco arranca, vuelve solo a la espera a los 12 segundos. Copiar la contraseña o el enlace
+  del portal avisa si no se pudo copiar. Un video que llega vacío se rechaza en vez de guardarse.
+- **El tótem pedía usuario y contraseña:** su dirección no estaba entre las pantallas públicas y el invitado veía el ingreso del equipo. Se agregó; la pantalla sólo muestra lo que devuelve el código del invitado.

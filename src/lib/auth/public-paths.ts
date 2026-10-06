@@ -5,6 +5,9 @@ export const PUBLIC_PATH_PREFIXES = [
   '/evento/social',
   '/evento/barra',
   '/evento/totem',
+  // Tótem de bienvenida (orden 121): lo usa el invitado con su QR, sin sesión. Sólo muestra
+  // lo que devuelve obtenerVideoBienvenidaTotem con el token del invitado.
+  '/evento/bienvenida',
   '/evento/muro-en-vivo',
   '/evento/logistica',
   '/evento/video-vida',
