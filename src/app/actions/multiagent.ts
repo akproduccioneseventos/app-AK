@@ -877,6 +877,11 @@ export async function ejecutarAccionSecretario(input: {
   }
 
   if (accion === 'cuanto_me_deben') {
+    // Quién debe cuánto es plata: contabilidad (revisión de plata, 6/10/2026).
+    const { requirePermiso } = await import('@/lib/auth/require-session');
+    const { PERMISOS } = await import('@/lib/auth/perfiles');
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, error: permiso.error } as any;
     // Lectura de presupuestos y cuotas, SIN escribir NUNCA
     try {
       const { readData } = await import('@/lib/data-service');
@@ -885,10 +890,13 @@ export async function ejecutarAccionSecretario(input: {
       let totalDeuda = 0;
       const deudores: Array<{ cliente: string; evento: string; deuda: number; detalle: string }> = [];
 
+      // Saldo con la misma cuenta que la ficha y el panel, con ajuste anual (pregunta 36). Antes
+      // leía campos que los presupuestos no tienen (totalFinal, totalCobrado) y contaba también los
+      // no aceptados: podía decir que nadie debía nada.
+      const { getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
       for (const p of presupuestos) {
-        const total = p.totalFinal || p.total || 0;
-        const cobrado = p.totalCobrado || p.cobrado || 0;
-        const saldo = Math.max(0, total - cobrado);
+        if (p.archived || (p.estado !== 'Aceptado' && p.estado !== 'Facturado')) continue;
+        const saldo = getBudgetPaymentSummary(p, { includeAnnualAdjustment: true }).balance;
         if (saldo > 0) {
           totalDeuda += saldo;
           deudores.push({

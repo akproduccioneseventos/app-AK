@@ -1,4 +1,6 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { getInvoices } from './invoices';
 import { inRange } from '@/lib/reportes/rango-de-dias';
@@ -66,6 +68,7 @@ export async function getProfitAndLossData(
   scope: ProfitAndLossScope = {},
 ): Promise<{ success: boolean; data?: ProfitAndLossData; error?: string }> {
   try {
+    await requirePermisoAlguno(PERMISOS.GANANCIAS); // revisión de plata, 6/10/2026: no cualquier sesión (ganancias, sólo el dueño)
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error || 'No autorizado.' };
 

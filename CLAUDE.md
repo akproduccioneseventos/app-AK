@@ -1096,6 +1096,20 @@ otra andando y se va sin tocar nada (`.ak-corrida-en-curso` en
 `scripts/run-playwright-production.mjs`). Y para probar una prueba suelta mientras la puerta
 corre, la respuesta es **esperar**: no hay atajo.
 
+## EL CANDADO DE LA PLATA (orden del dueño, 6 de octubre de 2026)
+
+Palabras suyas: *"hacé lo que me asegure que esto no pase más"*. Después de meses de encontrar de
+a uno permisos flojos en la plata, quedó un control que mira **todas** las acciones del servidor
+cada vez que se publica: `src/__tests__/el-candado-de-la-plata.test.ts`. Si una acción toca plata
+y pide sólo sesión, **no se publica**. Vale para Claude, Gemini y Codex.
+
+- **No se agrega una acción a la lista de excepciones para que el control se calle.** Sólo las
+  públicas a propósito, con el motivo escrito.
+- **Toda orden que toque plata lo nombra**, y la prueba de una acción de plata incluye el caso
+  "alguien sin permiso" (el personal) con datos de la forma real (pregunta 37).
+- **Lo que el candado no ve** (permisos condicionales, una acción que delega en otra) lo cubren
+  las pruebas de comportamiento por acción. Codex sigue siendo la última revisión.
+
 ## LO QUE ENCUENTRA OTRO Y YO NO: se corrige el MÉTODO, no sólo el defecto
 
 **Orden del dueño, 9 de septiembre de 2026:** *"cada cosa que Codex vea y vos no, sin que te diga
@@ -1562,6 +1576,9 @@ con otra cara.
 | El costo de un insumo pasaba a los menús con una lista vieja y pisaba lo que otro editaba | `src/__tests__/el-ajuste-de-costos-no-miente.test.ts` |
 | El personal leía y guardaba la fiesta entera, y la invitación devolvía la clave del portal | `src/__tests__/frontera-general-de-fiestas.test.ts` |
 | El portal decía "Evento Concluido" el día de la fiesta, y el asistente quedaba bajo WhatsApp | `tests/e2e/portal-fecha-y-botones.spec.ts` |
+| Acciones de plata con sólo sesión, en cualquier archivo, hoy o mañana | **`src/__tests__/el-candado-de-la-plata.test.ts`** |
+| El personal anotaba cobros y gastos, un reintento duplicaba un gasto, un plan viejo deshacía una cuota y el panel no veía el ajuste anual | `src/__tests__/auditoria-70-contabilidad.test.ts` |
+| Presupuestos, catálogo, ajustes de precio, pagos a proveedores, ganancias y avisos de pago con sólo sesión; saldos sin ajuste antes de firmar y en el asistente | `src/__tests__/revision-de-plata-quien-toca-que.test.ts` |
 
 ### Cómo se elige el matafuego
 

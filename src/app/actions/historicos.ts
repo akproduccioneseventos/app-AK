@@ -15,6 +15,8 @@ import { createNotification } from '@/lib/notifications/create-notification';
 import { saveInvoice } from './invoices';
 import type { Invoice, Payment } from '@/types/invoice';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { saveFiestaHistorica } from './fiestas-historicas';
 
 const CUSTOMERS_FILE = 'customers.json';
@@ -26,7 +28,7 @@ async function ensureDirectoryExists(dirPath: string) {
 }
 
 export async function processHistoricRecord(formData: FormData): Promise<{ success: boolean; error?: string }> {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // Plata: no cualquier sesión (candado de plata, 6/10/2026).
     const clienteNombre = formData.get('clienteNombre') as string;
     const eventoFecha = formData.get('eventoFecha') as string;
     const montoTotalStr = formData.get('montoTotal') as string;

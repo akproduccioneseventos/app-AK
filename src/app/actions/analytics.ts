@@ -10,6 +10,8 @@ import { es } from 'date-fns/locale';
 import { isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
 import { isSimulatorBudget } from '@/lib/budget/formal-budget';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
 
 function isAcceptedBudget(status?: string) {
   return status === 'Aceptado' || status === 'Facturado';
@@ -92,7 +94,7 @@ export interface AnalyticsData {
 }
 
 export async function getAnalyticsData(): Promise<{ success: boolean; data?: AnalyticsData; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM); // Plata: no cualquier sesión (candado de plata, 6/10/2026).
   try {
     await requireAppSession();
     const [presupuestosData, invoicesData, fiestasData, rolesData, empleadosData] = await Promise.all([

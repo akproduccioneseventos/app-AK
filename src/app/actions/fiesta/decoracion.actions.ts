@@ -7,6 +7,8 @@ import { updateGestionCostos } from './costos.actions';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { fotoDeReferenciaSegura } from '@/lib/ai/foto-de-referencia';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { requireEventPermission } from '@/lib/auth/event-access';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { AsyncMutex } from '@/lib/mutex';
 
@@ -137,6 +139,7 @@ export async function syncDecoGastosToModule(
   itemsDecoracion: DecoItem[]
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  await requireEventPermission(fiestaId, [PERMISOS.CONTABILIDAD, PERMISOS.INSUMOS, PERMISOS.ORGANIZACION]); // Plata: no cualquier sesión (candado de plata, 6/10/2026).
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");

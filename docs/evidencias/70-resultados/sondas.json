@@ -1,0 +1,47 @@
+[
+  {
+    "id": "GAS01",
+    "profile": "personal",
+    "accountingAllowed": false,
+    "saveAccepted": true,
+    "readCount": 1,
+    "deleteAccepted": true
+  },
+  {
+    "id": "GAS02",
+    "sameKey": true,
+    "productionBranch": true,
+    "storedRecords": 2,
+    "total": 200
+  },
+  {
+    "id": "GAS03",
+    "acceptedNonFinite": [
+      "NaN",
+      "Infinity"
+    ],
+    "persistence": "synthetic, actual Firestore not exercised"
+  },
+  {
+    "id": "PLAN01",
+    "paidBefore": 1000,
+    "paidAfterStaleSave": 0,
+    "persistence": "synthetic action contract"
+  },
+  {
+    "id": "LEDGER01",
+    "summaryBalance": 15000,
+    "ledgerBalance": 0,
+    "ledgerSales": 100000,
+    "collectible": 115000
+  },
+  {
+    "id": "COB10",
+    "profile": "personal",
+    "accountingAllowed": false,
+    "productionBranch": true,
+    "insertedConfirmedPayment": true,
+    "deletedPayment": true,
+    "persistence": "synthetic transaction, real action and real profile policy"
+  }
+]

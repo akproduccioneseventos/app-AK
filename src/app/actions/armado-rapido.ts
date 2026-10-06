@@ -1,4 +1,6 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
 import type { ArmadoRapidoConfig, LeadFromQuickBudget, ServiceDependency } from '@/types/armado-rapido';
@@ -45,7 +47,7 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
 export async function saveArmadoRapidoConfig(
   newConfigData: ArmadoRapidoConfig
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.CRM); // revisión de plata, 6/10/2026: no cualquier sesión
   try {
     const sanitizedConfig: ArmadoRapidoConfig = {
       ...newConfigData,
@@ -212,6 +214,14 @@ export async function getPublicBudgetsByPhone(rawPhone: string): Promise<{
       limit: 12,
       windowMs: 60 * 60 * 1000,
     });
+    // Freno por conexión, no sólo por celular (revisión de plata, 6/10/2026): antes, probando
+    // celulares distintos desde la misma conexión no había límite y se podían recorrer los
+    // presupuestos de otros.
+    await enforcePublicRateLimit({
+      scope: 'public-budget-history-por-conexion',
+      limit: 15,
+      windowMs: 60 * 60 * 1000,
+    });
 
     let matchingBudgets: any[] = [];
 
@@ -246,6 +256,11 @@ export async function getPublicBudgetsByPhone(rawPhone: string): Promise<{
         .slice(0, 20);
     }
 
+    // Sólo los presupuestos que todavía son de un prospecto. Un presupuesto aceptado o facturado es
+    // de un cliente con contrato y pagos: eso se ve en su portal, con su clave, no escribiendo un
+    // celular (revisión de plata, 6/10/2026).
+    matchingBudgets = matchingBudgets.filter((b) => !b.archived && b.estado !== 'Aceptado' && b.estado !== 'Facturado');
+
     // 3. Map budgets and generate access tokens
     const { generateBudgetToken } = await import('@/lib/auth/session-token');
     const budgetsWithTokens = await Promise.all(
@@ -254,7 +269,8 @@ export async function getPublicBudgetsByPhone(rawPhone: string): Promise<{
         return {
           id: b.id,
           numero: b.numero || 0,
-          clienteNombre: b.clienteNombre,
+          // Sólo el nombre de pila: alcanza para que el prospecto reconozca lo suyo.
+          clienteNombre: String(b.clienteNombre || '').trim().split(/\s+/)[0] || '',
           eventoTipo: b.eventoTipo || 'Evento',
           eventoFecha: b.eventoFecha,
           totalConDescuento: b.totalConDescuento || b.costoTotalEstimado || 0,

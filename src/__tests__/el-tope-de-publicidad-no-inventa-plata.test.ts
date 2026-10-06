@@ -22,7 +22,11 @@ jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async () => ({ topeMensualUYU: 30000 })),
   writeData: jest.fn(async () => undefined),
 }));
-jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn(async () => undefined) }));
+// Cambiar el tope pide contabilidad (revisión de plata, 6/10/2026): sin sesión falla igual que antes.
+jest.mock('@/lib/auth/require-session', () => {
+  const requireAppSession = jest.fn(async () => undefined);
+  return { requireAppSession, requirePermisoAlguno: jest.fn((...a: unknown[]) => (requireAppSession as any)(...a)) };
+});
 jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }));
 jest.mock('@/lib/marketing/meta-ads-acciones', () => ({
   getAccionesPublicidadEjecutadas: jest.fn(async () => [

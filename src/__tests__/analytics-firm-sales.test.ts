@@ -5,6 +5,7 @@ const mockGetAllFiestas = jest.fn();
 jest.mock('@/lib/auth/require-session', () => ({
   ...jest.requireActual('@/lib/auth/require-session'),
   requireAppSession: jest.fn(async () => undefined),
+  requirePermisoAlguno: jest.fn(async () => undefined),
 }));
 
 jest.mock('@/app/actions/presupuestos', () => ({ getPresupuestos: () => mockGetPresupuestos() }));
@@ -18,6 +19,7 @@ jest.mock('@/lib/auth/require-session', () => ({
     authenticated: true,
     user: { id: 'u-1', email: 'test@ak.com', role: 'admin', permissions: [] },
   })),
+  requirePermisoAlguno: jest.fn(async () => undefined),
 }));
 
 import { getAnalyticsData } from '@/app/actions/analytics';

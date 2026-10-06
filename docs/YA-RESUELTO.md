@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 6 de octubre de 2026 - Auditoria 70: pendientes, NO corregidos
+
+Main `6a2143ff`: 599 suites/3445 pruebas verdes, pero seis sondas reproducen
+COB10 (personal cambia cobros), GAS01 (gastos sin perfil), GAS02 (duplicacion),
+GAS03 (importe no finito), PLAN01 (plan viejo deshace cuota pagada), LEDGER01
+(saldo omite ajuste). Orden unica 120 para Claude; evidencia/limites en informe 70.
+No marcarlos arreglados por estar en esta lista. PDF sintetico de cuatro paginas
+revisado sin recortes visibles. Pendientes navegador integrado, catalogo real,
+19 importados y MP sandbox. No se programo app ni compilo/fusiono. Usar rutas
+explicitas para Jest: `money` coincidio con directorio y corrio toda la bateria.
+
 ## 5 de octubre de 2026 - Evidencia Codex 69; pendientes, NO arreglos
 
 Main `feb90f4`: 597 suites / 3.432 pruebas aprobadas, ocho suites repetidas con
@@ -10664,4 +10675,95 @@ prueba: src/__tests__/el-portal-cuenta-el-dia-en-uruguay.test.ts
 prueba: tests/e2e/portal-fecha-y-botones.spec.ts
 usa: quienEsElEquipo en src/app/actions/fiesta/fiesta.actions.ts
 usa: diaDelEvento en src/app/portal-cliente/[id]/page.tsx
+```
+
+## 6 de octubre de 2026 — Seis fallos de plata de la auditoría 70 (Codex), orden 120
+
+- **Cobros (COB10):** anotar, borrar, confirmar y rechazar cobros —y aprobar o rechazar el pago
+  que informa el cliente— piden contabilidad. Antes el personal anotaba un cobro confirmado y lo
+  borraba.
+- **Gastos (GAS01):** leer y borrar, contabilidad; cargar, contabilidad o insumos (el
+  mantenimiento de un equipo deja su gasto). Los sueldos administrativos sólo los ve y carga
+  quien ve sueldos. Si el gasto del mantenimiento no se puede cargar, el cartel dice por qué.
+- **Gasto repetido (GAS02):** con la misma llave, el gasto tiene un número fijo y la base lo crea
+  una sola vez; dos reintentos a la vez dan uno. La misma llave con otros datos se avisa en vez
+  de tomarse por el mismo. Dos gastos distintos del mismo monto siguen siendo dos.
+- **Importes (GAS03):** NaN, Infinity, cero o negativo, fecha inválida o categoría que no existe
+  se rechazan antes de guardar.
+- **Plan de cuotas (PLAN01):** se guarda sobre el plan de ese momento; si cambió desde que se
+  abrió, pide recargar; lo cobrado no baja por guardar el plan y una cuota con cobro no se borra.
+  Ver y cambiar el plan pide contabilidad.
+- **Saldo del panel (LEDGER01):** el libro usa el total cobrable con ajuste anual
+  (`getBudgetCollectibleTotal`), igual que la ficha. Las facturas no se ajustan de nuevo.
+
+```comprobar
+prueba: src/__tests__/auditoria-70-contabilidad.test.ts
+usa: getBudgetCollectibleTotal en src/lib/commercial-flow/ledger-service.ts
+usa: versionLeida en src/app/(app)/fiestas/nueva/plan-pagos/page.tsx
+usa: idDeLaLlave en src/app/actions/gastos.ts
+```
+
+## 6 de octubre de 2026 — Revisión de toda la plata y el simulador, pedida por el dueño
+
+Cada acción que mueve plata, pasada con las preguntas 35 (¿pide el perfil o sólo sesión?) y 36
+(¿el mismo número da igual en todos lados?). Lo que estaba roto:
+
+- **Presupuestos:** armar e importar (contabilidad, CRM u organización), aceptar y marcar
+  facturado (contabilidad), crear la fiesta (contabilidad u organización), archivar (contabilidad
+  o CRM). Antes alcanzaba la sesión.
+- **Catálogo de precios:** cambiar, borrar o duplicar un servicio (contabilidad o insumos), el
+  ajuste masivo de precios de venta (contabilidad) y de costos (contabilidad o insumos); leer el
+  catálogo completo, cualquier perfil del equipo menos el personal. El ajuste de precios con
+  historial, contabilidad.
+- **Pagos a proveedores:** contabilidad, con importes válidos y sin guardar la fiesta entera.
+- **Ganancias** (reporte y resumen al contador): sólo el dueño. **Flujo de caja**, contabilidad.
+- **Avisos de pago al cliente** por mail, enganchar facturas o presupuesto a una fiesta, el tope
+  de publicidad, el aviso de margen, la configuración del armado rápido y el presupuesto que arma
+  el asistente: contabilidad (y CRM donde corresponde).
+- **Saldos sin ajuste anual:** la pantalla del cliente antes de firmar el contrato y "cuánto me
+  deben" del asistente (que además leía campos que no existen y daba cero). Ahora usan la misma
+  cuenta que la ficha y el panel.
+
+Revisado sin hallazgo: el simulador público recalcula todo desde el catálogo (un prospecto no
+puede poner su precio), valida invitados, fechas e importes y tiene freno de pedidos; cobros,
+cuotas, seña, contrato y Mercado Pago (firma, monto, moneda y duplicados) ya estaban cubiertos por
+las auditorías 64 a 70. Descartado: el guardado de facturas en modo local de pruebas (no corre en
+la app publicada).
+
+```comprobar
+prueba: src/__tests__/revision-de-plata-quien-toca-que.test.ts
+usa: verifySessionConPermiso en src/app/actions/presupuestos.ts
+usa: getBudgetCollectibleTotal en src/app/actions/fiesta/documentos.actions.ts
+```
+
+## 6 de octubre de 2026 — El candado de la plata (pedido del dueño: "que esto no pase más")
+
+**Qué es:** `src/__tests__/el-candado-de-la-plata.test.ts` recorre TODAS las acciones del servidor
+y frena la publicación si una toca plata (presupuestos, facturas, cobros, cuotas, gastos, precios,
+costos, pagos a proveedores, sueldos) y pide sólo sesión. Sigue las constantes de archivo y las
+funciones de ayuda. Las públicas a propósito van en una lista con su motivo. Probado rompiéndolo:
+sacando el permiso de los pagos a proveedores, el ajuste de precios o el reporte de ganancias,
+frena y nombra la acción.
+
+**Por qué así:** durante meses los permisos flojos se encontraron de a uno. Un control que mira
+todo, cada vez que se publica, no depende de que alguien se acuerde, y vale para lo que programe
+cualquiera de las tres IA.
+
+Lo que el candado encontró al ponerlo, y quedó arreglado: cambiar un presupuesto
+(`updatePresupuesto`), las estadísticas de ventas, la carga de históricos con monto, los costos de
+la fiesta y su sincronización, los avisos de saldo, el control de clientes repetidos del
+simulador, y el panel, que le mostraba ventas y cobros al operador. Y lo más serio: **"recuperá tus
+presupuestos con tu celular" del simulador** dejaba, escribiendo el celular de otro, ver sus
+presupuestos con un enlace para abrirlos y sin límite por conexión. Ahora tiene freno por conexión,
+muestra sólo presupuestos de prospecto (los contratados se ven en el portal, con clave) y sólo el
+nombre de pila.
+
+Límite conocido: si una acción delega en otra del mismo archivo, el candado cree que el permiso de
+la otra alcanza. Para las acciones más sensibles (aceptar, facturar), la prueba
+`revision-de-plata-quien-toca-que` exige el permiso exacto.
+
+```comprobar
+prueba: src/__tests__/el-candado-de-la-plata.test.ts
+usa: public-budget-history-por-conexion en src/app/actions/armado-rapido.ts
+usa: veLaPlata en src/app/actions/dashboard.ts
 ```

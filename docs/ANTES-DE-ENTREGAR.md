@@ -110,3 +110,13 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 26. **¿Tu acción pide sólo sesión?** El personal y el operador también la tienen. Pedí el permiso
     del perfil que la usa (`requirePermiso` o `requireEventPermission`), no `requireAppSession`.
+
+27. **¿Mostrás un número de plata?** Buscá dónde más se calcula ese mismo número y probá que den
+    igual (con y sin ajuste anual). Si guardás una lista que leíste antes, mirá que no deshaga un
+    cobro que entró entretanto.
+
+28. **¿Los datos de tu prueba tienen la forma real?** Cada campo tiene que existir en el tipo de
+    `src/types/`. Si inventás un campo, la prueba copia el error en vez de encontrarlo.
+
+29. **¿Tu acción toca plata?** El candado (`el-candado-de-la-plata.test.ts`) frena si pide sólo
+    sesión. Pedí el permiso del perfil; si de verdad es pública, anotala con el motivo.

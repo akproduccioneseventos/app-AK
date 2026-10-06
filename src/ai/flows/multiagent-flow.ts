@@ -1,5 +1,6 @@
 'use server';
 
+import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import type { AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
@@ -361,7 +362,7 @@ ${fiestaBlock}
 ${cartBlock}
 
 PRESUPUESTOS (últimos 12):
-${(presupuestos as any[]).slice(-12).map((p: any) => `• ${p.clienteNombre || 'Sin nombre'} | ${p.eventoTipo || 'sin tipo'} | ${p.estado} | Total: $${p.totalConDescuento ?? p.costoTotalEstimado ?? 0} | Seña: $${p.sena ?? 0} | Saldo: $${Math.max(0, (p.totalConDescuento ?? 0) - (p.sena ?? 0))}`).join('\n') || 'Sin presupuestos.'}
+${(presupuestos as any[]).slice(-12).map((p: any) => `• ${p.clienteNombre || 'Sin nombre'} | ${p.eventoTipo || 'sin tipo'} | ${p.estado} | Total: $${p.totalConDescuento ?? p.costoTotalEstimado ?? 0} | Seña: $${p.sena ?? 0} | Saldo: $${getBudgetPaymentSummary(p, { includeAnnualAdjustment: true }).balance}`).join('\n') || 'Sin presupuestos.'}
 
 LEADS CRM (últimos 12):
 ${(leads as any[]).slice(-12).map((l: any) => `• ${l.name} | Etapa: ${(l as any).stageId || (l as any).currentStageId || 'sin etapa'} | Próx. acción: ${l.followUpDate || 'sin fecha'} | ${l.phone || ''}`).join('\n') || 'Sin leads.'}

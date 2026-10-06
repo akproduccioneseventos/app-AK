@@ -10,7 +10,7 @@
  */
 
 import type { Presupuesto } from '@/types/presupuesto';
-import { calculateBudgetFinancials, sumConfirmedClientPayments, sumPendingClientPayments } from '@/lib/budget/financial-guardrails';
+import { calculateBudgetFinancials, getBudgetCollectibleTotal, sumConfirmedClientPayments, sumPendingClientPayments } from '@/lib/budget/financial-guardrails';
 
 export type AuditSeverity = 'info' | 'advertencia' | 'error';
 
@@ -126,7 +126,8 @@ export function auditPresupuestoTotals(presupuesto: Presupuesto): AuditResult {
   const totalPagosConfirmados = sumConfirmedClientPayments(presupuesto.pagosCliente ?? []);
   const totalPagosPendientesRevision = sumPendingClientPayments(presupuesto.pagosCliente ?? []);
   const totalPagosRegistrados = totalPagosConfirmados + totalPagosPendientesRevision;
-  const saldoPendiente = Math.max(0, totalConDescuentoGuardado - totalPagosConfirmados);
+  // Lo que falta cobrar incluye el ajuste anual, igual que la ficha y el panel (pregunta 36).
+  const saldoPendiente = Math.max(0, getBudgetCollectibleTotal(presupuesto) - totalPagosConfirmados);
 
   if (Math.abs(totalConDescuentoGuardado - central.total) > tolerancia) {
     observaciones.push({

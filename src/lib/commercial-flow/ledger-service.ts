@@ -7,7 +7,7 @@
 
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
-import { roundMoney, sumConfirmedClientPayments } from '@/lib/budget/financial-guardrails';
+import { getBudgetCollectibleTotal, roundMoney, sumConfirmedClientPayments } from '@/lib/budget/financial-guardrails';
 
 export interface LedgerMonth {
   mes: string; // 'YYYY-MM'
@@ -221,7 +221,10 @@ export function calculateFinancialLedger(
   let ventasPresupuestadas = 0;
   let totalCobradoPresupuestos = 0;
   for (const p of presupuestosAceptadosSinFactura) {
-    const total = roundMoney(p.totalConDescuento ?? p.costoTotalEstimado);
+    // Lo que se le va a cobrar de verdad, con el ajuste anual si corresponde (Codex, auditoría 70,
+    // LEDGER01): antes el libro usaba el precio sin ajuste y el panel daba saldo cero con $15.000
+    // por cobrar. La factura no se toca: su importe ya es el que se cobra.
+    const total = roundMoney(getBudgetCollectibleTotal(p));
     ventasPresupuestadas += total;
     const mes = getMes(p.eventoFecha || p.timestamp);
     const m = getOrCreateMonth(mes);

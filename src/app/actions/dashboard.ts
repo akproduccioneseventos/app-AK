@@ -1,4 +1,6 @@
 'use server';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { getPresupuestos } from './presupuestos';
 import { getInvoices } from './invoices';
@@ -85,6 +87,8 @@ export async function getDashboardKpiData() {
     if (!auth.success) {
       return { success: false, error: 'SESSION_EXPIRED' };
     }
+    const { puede } = await import('@/lib/auth/perfiles');
+    const veLaPlata = puede(auth.user, PERMISOS.CONTABILIDAD);
 
     checkAndCreateTaskReminders().catch(err => console.warn('Background task reminder check failed:', err));
     checkAndCreateReunionReminders().catch(err => console.warn('Background meeting reminder check failed:', err));
@@ -237,10 +241,12 @@ export async function getDashboardKpiData() {
         fiestasFuturas,
         clientesActivos,
         prospectosActivos,
-        ventasTotales,
-        montoPagado,
-        totalPendiente,
-        monthlyChartData: monthlyData,
+        // Las cifras de plata, sólo a quien tiene contabilidad: el operador ("nada de plata") ve el
+        // panel sin ventas ni cobros (revisión de plata, 6/10/2026).
+        ventasTotales: veLaPlata ? ventasTotales : 0,
+        montoPagado: veLaPlata ? montoPagado : 0,
+        totalPendiente: veLaPlata ? totalPendiente : 0,
+        monthlyChartData: veLaPlata ? monthlyData : [],
         alerts: alerts.filter(a => !prioridadesDescartadas.has(a.id)).sort((a, b) => a.severity === 'high' ? -1 : 1).slice(0, 6),
         notificacionesNoLeidas: notificationsData.filter(n => !n.leida).length,
         proximoEvento: (() => {
@@ -277,7 +283,7 @@ export async function getDashboardKpiData() {
 }
 
 export async function getCashFlowProjection() {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD); // revisión de plata, 6/10/2026: no cualquier sesión
   try {
     await requireAppSession();
     /**

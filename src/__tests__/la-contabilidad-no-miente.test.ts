@@ -118,8 +118,9 @@ describe('La contabilidad no dice que si sin haberlo hecho', () => {
 
     it('guardar el plan tambien mira si se guardo', () => {
       const accion = fuente.slice(0, fuente.indexOf('export async function updateCuotaEstado('));
-      expect(accion).toContain('const guardado = await saveFiesta(');
-      expect(accion).toContain('if (!guardado.success)');
+      // Desde la auditoría 70 el plan se guarda con `actualizarFiesta` (sobre el plan de ese momento).
+      expect(accion).toContain('const guardado = await actualizarFiesta(');
+      expect(accion).toMatch(/if \(!guardado\.success/);
     });
   });
 

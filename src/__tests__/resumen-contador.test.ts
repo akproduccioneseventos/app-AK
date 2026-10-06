@@ -8,6 +8,7 @@ import * as settingsModule from '@/app/actions/settings';
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue(undefined),
   requirePermiso: jest.fn().mockResolvedValue({ ok: true, user: { email: 'admin@ak.com' } }),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('@/app/actions/settings', () => ({
@@ -119,7 +120,7 @@ describe('Orden 86 Bloque 8: Resumen del mes para el contador', () => {
       jest.doMock('@/app/actions/fiesta/fiesta.actions', () => ({ getAllFiestas: jest.fn(async () => []) }));
       jest.doMock('@/app/actions/roles', () => ({ getRoles: jest.fn(async () => []) }));
       jest.doMock('@/app/actions/gastos', () => ({ getGastosGenerales: jest.fn(async () => []) }));
-      jest.doMock('@/lib/auth/session-token', () => ({ verifySession: jest.fn(async () => ({ success: true })) }));
+      jest.doMock('@/lib/auth/session-token', () => ({ verifySession: jest.fn(async () => ({ success: true, user: { userId: 'd', perfil: 'dueno' } })) }));
       accion = require('@/app/actions/reportes');
     });
     // Alguien arma números en el navegador y se los pasa a la acción: no llegan al contador.
