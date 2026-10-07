@@ -26,6 +26,7 @@ orden de programación. SHA público desconocido; una navegación lenta que
 después carga no demuestra caída de la app.
 
 Matriz 74 actualizada: 122 RED03, 112 B.1 AUD01 y 126 siguen para Gemini;
+AUD01 es cobertura/invalidación del contador, NO un fallo del asistente.
 114, roles/backend, originales19, proveedores/catálogo y hardware pendientes.
 Ayudante de originales cerrado: sin manifiesto por original identificado en
 Git, NO prueba de registros faltantes en Firebase. Rama nueva 75 desde main;

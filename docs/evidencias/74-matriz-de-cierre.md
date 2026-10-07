@@ -19,13 +19,15 @@ No se modifican `areas.json` ni su contador para aparentar una aprobación.
 | redes | Regresiones unitarias generales verdes; RED03 /122 concurrente sigue. GAL74 muestra además clasificación errónea, no pérdida de Instagram. | Gemini: dos guardados concurrentes mantienen ambos videos; sincronizar tres veces sin duplicados ni fechas inventadas; permisos/proveedor autorizados y error real visible. No publicar en cuentas reales como prueba. |
 | estaciones | Fuente/pruebas unitarias no prueban cámara, captura/subida ni entrega real. Tótem/video revisado acotadamente en 73 sin otro defecto demostrado. | Gemini: fotocabina/360/espejo/touchpix/bienvenida → captura o QR → entrega; corte de red y reintento una vez, sin falso éxito. Firebase de prueba primero; cámaras, impresora/360 y pantalla física al final. No esconder servicios comerciales. |
 | barra | Tres casos de 123 corregidos; nueve regresiones pasan, botones sólo en nuevo según decisión documentada. No cola integrada. | Nombre/token, cola, simultáneos, stock, cancelación/reintento, bartender y retiro persisten y se sincronizan en aislado. Pantalla física después. No reabrir decisión ni reprogramar 123. |
-| asistente | Pruebas con proveedor simulado verdes; AUD01 /112 B.1 queda pendiente previo, no hallazgo nuevo. | Gemini: consulta contextual y acción autorizada con resultado persistido, historial y fallo/límite de proveedor visible; voz/micrófono requieren permiso y prueba controlada. Confirmar costos antes de activar uso pagado. |
+| asistente | Pruebas con proveedor simulado verdes; no prueban una consulta ni acción integrada en este SHA. AUD01 corresponde al contador de auditoría, NO a este asistente. | Gemini: consulta contextual y acción autorizada con resultado persistido, historial y fallo/límite de proveedor visible; voz/micrófono requieren permiso y prueba controlada. Confirmar costos antes de activar uso pagado. |
 | personal | Unitarias `personal-vigencia-y-coordenadas-invalidas` verdes con sesiones/lecturas de prueba. No llegada ni recibo HTTP aceptados. | En aislado: personal asignado, enlace vencido y otra fiesta, ubicación inválida, marcar llegada/rechazo y conservar resultado. Nómina/recibo Claude, UI Gemini. No exigir que proveedor con varios equipos sea exclusivo por defecto. |
 | automaticos | Locks/fallos en `tareas-candado-entre-instancias` y `tareas-no-marcan-exito-al-fallar` pasan simulados. | Backend de prueba: dos instancias, lock vencido/liberación tardía y proveedor controlado que falla; reintento no duplica ni marca éxito inexistente. Corroborar persistencia/resultado antes de activar cron real. |
 
 ## Fin definido, sin otra ronda infinita
 
-1. Pendientes: 122 RED03, 112 B.1 AUD01 y 126 en UNA tanda. 123/124/125 ya
+1. Pendientes: 122 RED03 (guardados concurrentes de videos), 112 B.1 AUD01
+   (cobertura e invalidación del contador de auditoría) y 126 (contacto del
+   simulador) en UNA tanda. 123/124/125 ya
    entraron en 1261; no repetir causas ni investigar GitHub billing.
 2. Claude aporta entorno 114 estable y su puerta del SHA de esa tanda; usar
    los mismos datos ficticios en los tres roles. No solicitar contraseñas por chat.
