@@ -1605,6 +1605,7 @@ con otra cara.
 | Cambiar el trago propio se rechazaba, y un reintento con el número de otro devolvía su pedido | `src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts` |
 | La plantilla del salón perdía la escala y una mesa de 2 m pasaba a medir 4 | `src/__tests__/salon-72-plantilla-conserva-escala.test.ts` |
 | Un toro mecánico vendido como glitter bar, en Tragos; un correo como WhatsApp; Galería HD sin fotos | `src/__tests__/auditoria-74-categorias-y-contacto.test.ts` |
+| Una transacción repetida por la base dejaba anotado el intento descartado: reels contados dos veces y "guardado" sin guardar | `src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts` y `src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts` |
 
 ### Cómo se elige el matafuego
 

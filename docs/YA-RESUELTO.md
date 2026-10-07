@@ -5,12 +5,14 @@
 Con dos servidores, la base **repite** el cambio de `mutarDocumento` si otro guardó en el medio.
 Lo que el cambio anotaba afuera quedaba del intento descartado: la sincronización de Instagram
 informaba dos reels nuevos con uno guardado, borrar una foto de la galería que otro ya había
-borrado igual borraba sus archivos, y editarla decía "guardado". Ahora el contador y las marcas
+borrado igual borraba sus archivos, editarla decía "guardado", y `updateDataItem` /
+`deleteDataItem` (cobros, cuotas, presupuestos) devolvían "hecho" sin haber guardado. Ahora el contador y las marcas
 arrancan de cero en cada intento y queda lo del intento que se guardó. La prueba usa el
 `mutarDocumento` real con una base que corre el cambio dos veces, y dio rojo con el código viejo.
 
 ```comprobar
 prueba: src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts
+prueba: src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts
 usa: videosNuevosEnEsteIntento en src/app/actions/social-media.ts
 ```
 

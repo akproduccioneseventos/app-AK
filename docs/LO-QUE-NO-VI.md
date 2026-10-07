@@ -956,3 +956,29 @@ prueba: src/__tests__/la-foto-es-del-plato.test.ts
 usa: fotoDelPlatoParaMostrar en src/app/simulador-de-presupuesto/page.tsx
 usa: fotoDelPlatoParaMostrar en src/app/simulador-ak/page.tsx
 ```
+
+---
+
+## Una transacción que la base repite dejaba anotado el intento descartado (7 de octubre de 2026)
+
+**Lo encontró Codex en la entrega de Gemini de la orden 122 (PR 1263)**, y yo la había revisado.
+El contador de reels nuevos sumaba adentro de una transacción que la base puede repetir: con un
+reel guardado informaba dos. Barriendo la app con la misma forma aparecieron tres más: borrar o
+editar una foto de la galería que otro ya había borrado, y `updateDataItem` / `deleteDataItem`
+(que usan cobros, cuotas y presupuestos), que devolvían "hecho" sin haber guardado nada.
+
+**Qué pregunta no me hice:** *¿qué pasa si la base corre este cambio dos veces?* Las pruebas usaban
+una base de mentira que corre el cambio una sola vez, así que nunca podían verlo.
+
+**Qué se agregó:** pregunta 40 de `COMO-AUDITAR.md` y 33 de `ANTES-DE-ENTREGAR.md`. El barrido
+miró los 29 lugares que usan transacciones: los otros reasignan el valor completo en cada intento
+o lo marcan después, y están bien.
+
+**El control:** dos pruebas con las funciones reales y una base que corre la transacción dos
+veces, con el registro borrado entre intentos. Las dos dieron rojo con el código viejo.
+
+```comprobar
+prueba: src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts
+prueba: src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts
+usa: videosNuevosEnEsteIntento en src/app/actions/social-media.ts
+```
