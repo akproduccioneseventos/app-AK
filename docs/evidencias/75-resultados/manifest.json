@@ -1,0 +1,122 @@
+{
+  "sourceCommit": "9bb955ac6af65a314f3ac62975020b37c9edaaf3",
+  "previousSourceCommit": "368988bb64e823d31c9d5c4b2fb9adc114b207ef",
+  "mergedPullRequest": 1261,
+  "openPullRequestsObserved": [],
+  "run": {
+    "file": "retest-1261.json.gz",
+    "uncompressedSha256": "dcb275d315de75bc9e722907411ca88c2da9809d34069df9750f61f8577b676f",
+    "started": "2026-10-07T10:37:06.677Z",
+    "finishedWrapperUtc": "2026-10-07T10:37:42.773Z",
+    "passedSuites": 6,
+    "passedTests": 50,
+    "failedTests": 0,
+    "pendingTests": 0,
+    "command": "node docs/evidencias/sondas/64-isolated-audit-runner.mjs . jest-mocked --runTestsByPath src/__tests__/auditoria-73-guardado-concurrente.test.ts src/__tests__/barra-72-cambio-y-reintento-autorizado.test.ts src/__tests__/salon-72-plantilla-conserva-escala.test.ts src/__tests__/auditoria-74-categorias-y-contacto.test.ts src/__tests__/auditoria-71-campos-y-compras.test.ts src/__tests__/auditoria-71-presupuesto-nuevo-sin-plata.test.ts --silent --maxWorkers=1",
+    "scope": "Application actions with synthetic sessions/storage; financial atomic helper mocked. No real transaction/backend acceptance."
+  },
+  "probe": {
+    "file": "contacto-sonda.jsonl",
+    "sha256": "068ea8bd8ef4fb5d0a8faf79c30d8135d5599ded84a3d5c20c3e20f66b342c60",
+    "sourceFile": "../75-simulador-contacto-probe.cjs",
+    "sourceSha256": "5c81f2253aa34b9143bf45ce53fe001238a419c69c9af73a716c50da8b063233",
+    "actualModules": [
+      "public-simulator-bootstrap.ts",
+      "commercial/contact.ts",
+      "public-contact.ts",
+      "two simulator page callbacks extracted by TypeScript AST"
+    ],
+    "simulated": "Read-only setting getters and window.open capture. No HTTP, production write, saved budget or outgoing message.",
+    "meaning": "Three fallback scenarios reproduce wrong recipient; official configured-number control passes. NOT fix acceptance."
+  },
+  "menuReference": {
+    "url": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering",
+    "reviewedAssets": [
+      {
+        "id": "dish_main_2",
+        "name": "POLLO ARROLLADO C/ GUARNICIÓN",
+        "localFile": "public/catering/menus/xv/dish_main_2.jpeg",
+        "sha256": "76a44222fae660f4d1825812f233df2a6d7b00fb5b418ea7dd7417d6e703eb05",
+        "originalCatalogUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8d5475b4eb9db364e519628bd870de93.jpg",
+        "scope": "Visual comparison against visible Canva recommended-main-dishes panel. Not production menu-selection acceptance."
+      },
+      {
+        "id": "dish_main_5",
+        "name": "RAVIOLES A LA CREMA",
+        "localFile": "public/catering/menus/xv/dish_main_5.jpeg",
+        "sha256": "f38bb19b5aaee86f0c6c83f644610fcb33787542ccfbbd7906832691c1e12586",
+        "originalCatalogUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/caa614df1ec5f43530abc2922de7f9e0.jpg",
+        "scope": "Visual comparison against visible Canva recommended-main-dishes panel. Not production menu-selection acceptance."
+      },
+      {
+        "id": "dish_main_7",
+        "name": "CERDO ARROLLADO C/ GUARNICIÓN",
+        "localFile": "public/catering/menus/xv/dish_main_7.jpeg",
+        "sha256": "c90089bdb40b449aac42d69519576d5ce9e634e3cb285f3bf36cc8c38dccd2e8",
+        "originalCatalogUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/f8d5ba53b620fa79c9318a0fba5f17a4.jpg",
+        "scope": "Visual comparison against visible Canva recommended-main-dishes panel. Not production menu-selection acceptance."
+      },
+      {
+        "id": "dish_main_8",
+        "name": "POLLO A LA CREMA C/ GUARNICIÓN",
+        "localFile": "public/catering/menus/xv/dish_main_8.jpeg",
+        "sha256": "b27875556571580122a4fa8bd322b7483b8ce17f2ae07577c51d97f3aba77b22",
+        "originalCatalogUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/5008cd701d1296ea375592540e27a7e3.jpg",
+        "scope": "Visual comparison against visible Canva recommended-main-dishes panel. Not production menu-selection acceptance."
+      },
+      {
+        "id": "dish_main_11",
+        "name": "NAPOLITANA C/ FRITAS",
+        "localFile": "public/catering/menus/xv/dish_main_11.jpeg",
+        "sha256": "58cf369d1c58c10cfc83663eb5cd1ec03a0f7b28698d04cd084ddcf1ab237954",
+        "originalCatalogUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/986d0e33bbba90b39e78b327e99357a2.jpg",
+        "scope": "Visual comparison against visible Canva recommended-main-dishes panel. Not production menu-selection acceptance."
+      },
+      {
+        "id": "dish_main_17",
+        "name": "CORDERO ASADO C/ GUARNICIÓN",
+        "localFile": "public/catering/menus/xv/dish_main_17.jpeg",
+        "sha256": "5562db3b5044c8662e4f8ad045a25f959c303e8ece34ef7e185ce9d083b1a0da",
+        "originalCatalogUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/015589054e085c1770b7056b77c17459.jpg",
+        "scope": "Visual comparison against visible Canva recommended-main-dishes panel. Not production menu-selection acceptance."
+      },
+      {
+        "id": "dish_main_18",
+        "name": "ASADO COMPLETO C/ GUARNICIÓN",
+        "localFile": "public/catering/menus/xv/dish_main_18.jpeg",
+        "sha256": "b2194399bdab2ae3464e715a5628c5077c8ea24472eff3841ea99ca573bcd646",
+        "originalCatalogUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/9ca8d23607e60f67e0e712458b9550a1.jpg",
+        "scope": "Visual comparison against visible Canva recommended-main-dishes panel. Not production menu-selection acceptance."
+      }
+    ],
+    "catalogFullyAccepted": false
+  },
+  "screenshots": [
+    {
+      "file": "../75-canva-principales.png",
+      "sha256": "390c35bc1bd55b70ce370100b649d03f17ba4d7bb775d677ec7d9ec54c9c7f6b"
+    },
+    {
+      "file": "../75-privacidad-publicada.png",
+      "sha256": "b0b946f663436382e1c94290c38e21b7318d9f0f042cfbd7465399bc1e689b04"
+    },
+    {
+      "file": "../75-simulador-campos-movil.png",
+      "sha256": "4dc0b57a9b07de02d58d1f1d8d04031c3a75b08db50755f511c2d10c211ab2fe"
+    }
+  ],
+  "publicBrowser": {
+    "deploymentCommit": "not identified",
+    "simulator": "Desktop empty-field rejection; mobile 390x844 readable entered text and invalid-phone rejection; fields cleared. Did not pass valid-data save boundary.",
+    "privacyAfter1261": "Email still visible as WhatsApp after new navigation; correction present in Git source, deployment not verified.",
+    "productionWrites": false
+  },
+  "build": {
+    "executor": "Claude reported publicar? green on f1e6f22ab in PR1261",
+    "sourceDiffToTarget": "empty git diff --name-only f1e6f22a..9bb955ac",
+    "independentBuildByCodex": false,
+    "originalGateLogsReviewed": false
+  },
+  "original19Budgets": "No per-original manifest identified in this Git tree. Not reconciled against authenticated production records.",
+  "limit": "50 focused cases only; previous 3522 remain tied to their prior SHA. No all-app or deployment certification."
+}

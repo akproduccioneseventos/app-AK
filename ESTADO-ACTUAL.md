@@ -1,28 +1,38 @@
-# En curso: órdenes 123, 124 y 125 de Codex, en una tanda
+# En curso: auditoría 75, retest 1261 y simulador
 
-**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3` sobre main `368988b` (PR 1260).
-Trae las ramas documentales de Codex `codex/auditoria-integral-20261006` y
-`codex/auditoria-73-20261006` (órdenes 122 a 125, evidencias 71 a 74).
+7/10/2026. Main: 9bb955ac6af65a314f3ac62975020b37c9edaaf3, #1261 fusionada.
+No PR abierta en nuevo contraste. Rama: codex/auditoria-75-20261007.
+NO subir a 73: sus documentos ya viajaron con código en 1261.
 
-## Qué trae (todo con prueba que da rojo con el código viejo)
+## Comprobado
 
-- **124 A, CAMPO73-RACE:** sin contabilidad, el guardado general de la fiesta toma la plata de la
-  fiesta de ese momento, dentro de `actualizarFiesta`.
-- **123:** cambiar trago con el enlace del invitado; el reintento devuelve el pedido sólo a su
-  dueño; botones de cancelar/cambiar sólo en "nuevo" (decisión del dueño); plantilla del salón
-  con escala.
-- **124 B y 125:** Galería HD a la galería de la portada (decisión del dueño); glitter en Eventos;
-  foto del toro retirada (no hay foto real del glitter bar: falta que la dé el dueño); WhatsApp
-  de Privacidad es un teléfono.
+- Retest actual: 6 suites / 50 focales pasan, 0 fallidas/pendientes.
+  6 guardado, 9 barra, 3 escala, 11 galería/contacto, 21 controles anteriores.
+- 123/124/125: correcciones en fuente y regresiones aprobadas. No reprogramar.
+- Decisiones documentadas: cambiar/cancelar sólo nuevo; Galería HD interna.
+- Glitter sin foto real; toro retirado. Original pendiente del dueño.
+- Siete fotos locales de principales cotejadas visualmente contra Canva.
+  No todo el catálogo ni selección productiva aceptados.
+- Simulador: campos legibles a 390 px, teléfono incompleto rechazado.
+  No pasar Datos válidos en producción: ese paso registra un prospecto.
 
-## Sigue
+## Pendiente
 
-- Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
-- **Gemini: RED03 (orden 122, nota de Claude al final)**, y 112 B.1 (AUD01).
-- Codex vuelve a mirar plata, barra, web y fiesta sobre el SHA fusionado.
-- Pendiente del dueño: foto real del glitter bar. ¿El QR del tótem marca llegada? Hoy no.
+- NUEVO CONTACT75 P1: bootstrap sin WhatsApp/error/timeout entrega número de
+  ejemplo; dos callbacks reales lo usan. Sonda aislada, sin mensaje/CRM.
+  Orden 126 a Gemini; no es Privacidad ya arreglada en 125.
+- RED03 /122 y AUD01 /112 B.1 siguen. Una tanda código+docs, no docs solos.
+- Privacidad pública aún muestra correo; arreglo Git presente, despliegue
+  NO verificado. SHA público desconocido: no duplicar código por eso.
+- 114: no servidor en 3000/3300/3311/8080 aquí; falta artifact/roles/backend.
+- 19 originales contra Firebase, catálogo completo, proveedores y hardware.
 
-## Cómo se fusiona (error 30)
+## Evidencia y límites
 
-- Sin `expectedHeadSha` igual al de `.ak-puerta-verde.json`, no se fusiona.
-- No cambiar de rama ni `commit -a` mientras corre la puerta.
+- Informe y manifest 75 con originales/hashes; matriz 74 actualizada.
+- 3522 generales son de 368988bb, NO ejecución del nuevo main.
+- Claude informó publicar? verde en f1e6f22ab, fuente idéntica al merge;
+  logs no revisados ni build independiente de Codex.
+- No app programada, compilada ni fusionada por Codex. Dueño fusiona.
+- No tocar JSON runtime ni repetir evidencia vigente. Ayudante cerrado.
+- No certificado de 14 áreas ni garantía integral de cero errores.

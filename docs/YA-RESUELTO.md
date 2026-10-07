@@ -1,5 +1,36 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 7 de octubre de 2026 - Auditoría 75: retest 1261 y contacto del simulador
+
+**Prevalece sobre los pendientes históricos 72/73/74 que figuran abajo.**
+Main `9bb955ac` fusionó 1261: 123/124/125 tienen corrección presente. Codex:
+**6 suites / 50 focales pasan**, incluidos 21 anteriores; originales/hashes
+en `75-resultados/manifest.json`. No trasladar las 3522 de `368988bb` ni
+afirmar HTTP/backend probado. CAMPO73-RACE, barra (token/dueño/estados), escala,
+Galería HD y galería/contacto de 125: **no reprogramarlos**. Glitter sin foto
+real queda sin foto; original pendiente del dueño. Decisiones documentadas:
+cancelar/cambiar sólo en nuevo, Galería HD interna. No reabrirlas.
+
+**Nuevo CONTACT75 P1, NO resuelto:** bootstrap del simulador usa número de
+ejemplo 59899123456 sin conexión WhatsApp, fallo o timeout de lectura. Dos
+callbacks reales lo usan; conexión oficial válida conserva 59898355530.
+Sonda Git/AST real con lectores y `window.open` sintéticos, sin mensaje/CRM.
+Orden 126 a Gemini. Es otro consumidor del contacto, no la misma 125 repetida.
+
+Siete fotos locales recomendadas coinciden visualmente con Canva original;
+IDs/hashes/captura en 75. No todo el catálogo ni selector productivo aprobado.
+Campos legibles a 390 px; teléfono incompleto rechazado. No pasar Datos válidos
+porque registra prospecto real. Privacidad pública aún mostró correo tras
+nueva navegación: arreglo Git presente, **despliegue no verificado**, no otra
+orden de programación. SHA público desconocido; una navegación lenta que
+después carga no demuestra caída de la app.
+
+Matriz 74 actualizada: 122 RED03, 112 B.1 AUD01 y 126 siguen para Gemini;
+114, roles/backend, originales19, proveedores/catálogo y hardware pendientes.
+Ayudante de originales cerrado: sin manifiesto por original identificado en
+Git, NO prueba de registros faltantes en Firebase. Rama nueva 75 desde main;
+no subir a 73 fusionada. Sin app/build/fusión de Codex; una tanda código+docs.
+
 ## 6 de octubre de 2026 - Auditoria 72: pendientes NUEVOS, no arreglos
 
 Main e52c078; PR1259 avanzo a 7c96e114. Se contrasto ese HEAD antes de ordenar.
