@@ -1,0 +1,519 @@
+{
+  "sourceCommit": "9bb955ac6af65a314f3ac62975020b37c9edaaf3",
+  "observedAtUtc": "2026-10-07T11:23:13.067Z",
+  "sources": [
+    {
+      "file": "src/data/menus-catering.json",
+      "sha256": "bfb44d749c7db20de064a74510aa9b93163cd68b7831c2ee7e1284ac871ff495"
+    },
+    {
+      "file": "src/lib/catering/menu-images.ts",
+      "sha256": "6b000d42b9a0ec5497e4e320dd7c943fcd27fc09a2bc777c1b56e3ac836f37f5"
+    }
+  ],
+  "meaning": "Vista de assets exactos de Git y helper real; NO catalogo Firebase ni aceptacion visual automatica. Originales no modificados.",
+  "items": [
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_2",
+      "name": "ARROLLADITOS PRIMAVERA",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/bb05990f36f2bed48ad92af7d739d8f1.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_2.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_2.jpeg",
+      "assetSha256": "37b593d05a145f113dc7248dae04fcbf8ab380c41f2205ef97d1ebbd7e239f78"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_3",
+      "name": "TAPAS SABORIZADAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/a8a03621d15f95a669a3945d20903390.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_3.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_3.jpeg",
+      "assetSha256": "bfb63927a6b0064484eefdd8d8343e61b4f17b58e7860cd540d0abf53bc6d2b0"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_4",
+      "name": "PLANCHAS CALIENTES",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/763afa7e08236db6707e69d5a32e95a8.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_4.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_4.jpeg",
+      "assetSha256": "68faad46e420bf96620aa54d9c87080df527fde7afaa0e0b24cc40bcf56a866e"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_5",
+      "name": "PICADA SNACK",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/35e5fc2632a2bd6fc5ed9835ed4da7c6.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_5.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_5.jpeg",
+      "assetSha256": "2e51b74ab3857947dafe83262e9eb1310f631e9e5b86264ef42224facf6c0721"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_6",
+      "name": "PAPAS FRITAS CON CHEDDAR",
+      "originalUrl": "/catering/menus/xv/dish_entrada_6.jpeg",
+      "resolved": "/catering/menus/xv/dish_entrada_6.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_6.jpeg",
+      "assetSha256": "7ff694b9e959a7db9954e90adc6661d628d59f6d09ac48e63a31cc4cf77126a3"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_7",
+      "name": "MINI BROCHETAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8407a860b0f4f953abe17e94d36630df.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_7.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_7.jpeg",
+      "assetSha256": "9cbb9e363409566c0fc79d0fb39415b6f292effdae66cc7186c659804cc81824"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_8",
+      "name": "PICADA DE FIAMBRES",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/1b56526e1f32a9eaf8b93dd3dbf91a04.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_8.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_8.jpeg",
+      "assetSha256": "944dea18dc28c6a65767f0d36b25ade5d80855d79d4260b91c42160dcaba2b23"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_9",
+      "name": "KEBABS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/bd861ee979a9d96acf5bf6caf2850aad.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_9.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_9.jpeg",
+      "assetSha256": "5a406bdeea126df8cc82da26d392017cdd246fa1aca85156bb8803168dff58f3"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_10",
+      "name": "SALPICON DE POLLO",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/0b29c5f0f0915b7dd3a879fc4afd673e.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_10.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_10.jpeg",
+      "assetSha256": "8c16a13fce923b210de9d23d96e6ee8ae64267cd85ef415790736c0065f73d53"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_11",
+      "name": "EMPANADAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/355672672221b79e73f67792beb31e70.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_11.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_11.jpeg",
+      "assetSha256": "afeabab3b707c913750ac84a6d449cddc19c2150f3d06e91d1f7512a88bd19a0"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_12",
+      "name": "MINI CHIVITOS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/15fa77d1df475c633c716409700caebf.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_12.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_12.jpeg",
+      "assetSha256": "8f17404d03f90126536fb596652f2f82bb817d8a1614278ebb60b9dac1883009"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_14",
+      "name": "SHOW DE PIZZAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/21788fef65eeea6656bf17c86706868b.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_14.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_14.jpeg",
+      "assetSha256": "84e6c8e92d1fbcfb53f129520ed719166015794d85042d110073ea0990ce3106"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_16",
+      "name": "CALZONNE",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8a4c0cc604885f5a2c6cb5b50052a97f.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_16.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_16.jpeg",
+      "assetSha256": "26c471f25b3f401d22ca2b0be20f62ff4dac96ac766f3ff2250662bb770a77c2"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_17",
+      "name": "TACOS MEXICANOS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/3c9c8d8d48fbe044efb72e2dbce0eb49.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_17.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_17.jpeg",
+      "assetSha256": "aa392dbb79529945f18a4210c9b2f604b06fdbfc7ab623a4b6a374996082ff04"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_18",
+      "name": "EMPANADITAS Y PIZZETITAS",
+      "originalUrl": null,
+      "resolved": null,
+      "previousVisualCheck": false
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_19",
+      "name": "PICADA PREMIUM",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/e8a817e1b5c8b8030db71517f29e334d.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_19.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_19.jpeg",
+      "assetSha256": "02e0b57904bc38345e0bd8e57653bf48b3c1c09d6df6e9804c4f13b33bd8677b"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_20",
+      "name": "PICADA CALIENTE",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/7f551858d4c122c3e2553cabb4710eca.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_20.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_20.jpeg",
+      "assetSha256": "6cf9e6ed481a8e52f67b5464aa94fefb779eb77dd3e26ac8f8af363f22872795"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_21",
+      "name": "PICADA CRIOLLA",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/36a980719a3f41081369e6b8b7f9cd2e.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_22.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_22.jpeg",
+      "assetSha256": "4dd5297fc5caa65e0834f01b2c14589ff2a2a439dec7bd59abddc9d5c6d4f453"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_22",
+      "name": "PICADA DE MAR",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8c21f793b9149c3b121c693b97e8bbb3.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_21.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_21.jpeg",
+      "assetSha256": "2ae7f392a9c743886c927f9d87c3002c219960e82c36496e38ab13a3a88ea24f"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_23",
+      "name": "SANDWICHES Y SALADITOS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/d15dccc1d439a383e3c904c46d40bcdb.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_23.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_23.jpeg",
+      "assetSha256": "54975a068d2b9ce33b5d2f66bcee4bc0cd106d3e2a20f54c9369f6400ad02bed"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_24",
+      "name": "SUSHI",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/15e129b2d2545aa3c373e8fa7f9c0264.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_24.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_24.jpeg",
+      "assetSha256": "b416ce3c7a47d3694212bab1ab176f5220254086bc3aa418d9a643ae7189ebd3"
+    },
+    {
+      "category": "Catálogo Maestro de Entradas",
+      "id": "dish_entrada_25",
+      "name": "TABLA DE FIAMBRE GROUMET",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/56cca6a7dbfa919c866ba951e52ccdf0.jpg",
+      "resolved": "/catering/menus/xv/dish_entrada_25.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_entrada_25.jpeg",
+      "assetSha256": "ad85ec77de6dcf80934cc009387e2083769529fb0f289d1038ba340fbbc15543"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_2",
+      "name": "POLLO ARROLLADO C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8d5475b4eb9db364e519628bd870de93.jpg",
+      "resolved": "/catering/menus/xv/dish_main_2.jpeg",
+      "previousVisualCheck": true,
+      "gitAsset": "public/catering/menus/xv/dish_main_2.jpeg",
+      "assetSha256": "76a44222fae660f4d1825812f233df2a6d7b00fb5b418ea7dd7417d6e703eb05"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_3",
+      "name": "CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8fb9002cf7d9689ef57328e25bbba819.jpg",
+      "resolved": "/catering/menus/xv/dish_main_3.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_3.jpeg",
+      "assetSha256": "c199ed861fcb056a063bc8a0a2f0908a6cd3398ffc715aaceee5ddf73ce8f8be"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_4",
+      "name": "CERDO BRASEADO A LA BARBACOA C/ GUARNICIÓN",
+      "originalUrl": "/catering/menus/xv/dish_main_4.jpeg",
+      "resolved": "/catering/menus/xv/dish_main_4.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_4.jpeg",
+      "assetSha256": "4273703e592a5d2712e3b152d6766921d5646146a56d3b83646f74586dd960a7"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_5",
+      "name": "RAVIOLES A LA CREMA",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/caa614df1ec5f43530abc2922de7f9e0.jpg",
+      "resolved": "/catering/menus/xv/dish_main_5.jpeg",
+      "previousVisualCheck": true,
+      "gitAsset": "public/catering/menus/xv/dish_main_5.jpeg",
+      "assetSha256": "f38bb19b5aaee86f0c6c83f644610fcb33787542ccfbbd7906832691c1e12586"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_6",
+      "name": "ÑOQUIS AL QUESO",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/dea21504f075327f4c275fc55c3592b5.jpg",
+      "resolved": "/catering/menus/xv/dish_main_6.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_6.jpeg",
+      "assetSha256": "5efd3ad58b8766f3a1ca18ad297ac0946a8cf00c1dcf03d6fc383a220ab13fe5"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_7",
+      "name": "CERDO ARROLLADO C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/f8d5ba53b620fa79c9318a0fba5f17a4.jpg",
+      "resolved": "/catering/menus/xv/dish_main_7.jpeg",
+      "previousVisualCheck": true,
+      "gitAsset": "public/catering/menus/xv/dish_main_7.jpeg",
+      "assetSha256": "c90089bdb40b449aac42d69519576d5ce9e634e3cb285f3bf36cc8c38dccd2e8"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_8",
+      "name": "POLLO A LA CREMA C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/5008cd701d1296ea375592540e27a7e3.jpg",
+      "resolved": "/catering/menus/xv/dish_main_8.jpeg",
+      "previousVisualCheck": true,
+      "gitAsset": "public/catering/menus/xv/dish_main_8.jpeg",
+      "assetSha256": "b27875556571580122a4fa8bd322b7483b8ce17f2ae07577c51d97f3aba77b22"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_9",
+      "name": "SORRENTINOS C/ SALSA ROSA",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/ba7bf2e79345a3c6b95cb8e4dafc3a77.jpg",
+      "resolved": "/catering/menus/xv/dish_main_9.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_9.jpeg",
+      "assetSha256": "80f49dca04d761726f23f72e18b4a4a746570d216f783221bb8d0d94560996b8"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_10",
+      "name": "BROCHETAS C/ FRITAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/fa917ea28c0456f63a061b26bceeaab9.jpg",
+      "resolved": "/catering/menus/xv/dish_main_10.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_10.jpeg",
+      "assetSha256": "0a9168eacde0fc3a0033e5f3eaa54399746673c0b79bbbd9530a5ba8e73a319b"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_11",
+      "name": "NAPOLITANA C/ FRITAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/986d0e33bbba90b39e78b327e99357a2.jpg",
+      "resolved": "/catering/menus/xv/dish_main_11.jpeg",
+      "previousVisualCheck": true,
+      "gitAsset": "public/catering/menus/xv/dish_main_11.jpeg",
+      "assetSha256": "58cf369d1c58c10cfc83663eb5cd1ec03a0f7b28698d04cd084ddcf1ab237954"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_12",
+      "name": "BAURU C/ FRITAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/34f54f57f9113df32abff833555c7378.jpg",
+      "resolved": "/catering/menus/xv/dish_main_12.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_12.jpeg",
+      "assetSha256": "1f264c7f3e0315e4f2f88d754ec747e94ad524d60886ffe0bdcf41062289e9aa"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_13",
+      "name": "STROGONOFT DE POLLO C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/682c2090b459d0add6f6c69cf7205ddb.jpg",
+      "resolved": "/catering/menus/xv/dish_main_13.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_13.jpeg",
+      "assetSha256": "f5dec711931c9d6b8bc56dc52936608fe4de1081130c44ddaaa7a37607015850"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_14",
+      "name": "MERLUZA A LA CREMA C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/aeb98c7a317b5574466fac391ad07408.jpg",
+      "resolved": "/catering/menus/xv/dish_main_14.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_14.jpeg",
+      "assetSha256": "f311876971a03ca6b9549e7f39ab77fb825a21e9422d4713ea5e6d59fba8d012"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_15",
+      "name": "SUSHI C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8d0bfc2c2a91b7ce8b0ccb4b35ef24a9.jpg",
+      "resolved": "/catering/menus/xv/dish_main_15.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_15.jpeg",
+      "assetSha256": "d41784f078ac9fc883a35eee8747122516da3693421d1bf514b0fb63263e6d9f"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_16",
+      "name": "BIFE AL CHAMPIÑON C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/bf1351da006a63605be67b44a56e07af.jpg",
+      "resolved": "/catering/menus/xv/dish_main_16.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_16.jpeg",
+      "assetSha256": "ca8672b76be8ac7f5618039a7eca7e53e3c4e17165e96acfb783964dd2dafc47"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_17",
+      "name": "CORDERO ASADO C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/015589054e085c1770b7056b77c17459.jpg",
+      "resolved": "/catering/menus/xv/dish_main_17.jpeg",
+      "previousVisualCheck": true,
+      "gitAsset": "public/catering/menus/xv/dish_main_17.jpeg",
+      "assetSha256": "5562db3b5044c8662e4f8ad045a25f959c303e8ece34ef7e185ce9d083b1a0da"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_18",
+      "name": "ASADO COMPLETO C/ GUARNICIÓN",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/9ca8d23607e60f67e0e712458b9550a1.jpg",
+      "resolved": "/catering/menus/xv/dish_main_18.jpeg",
+      "previousVisualCheck": true,
+      "gitAsset": "public/catering/menus/xv/dish_main_18.jpeg",
+      "assetSha256": "b2194399bdab2ae3464e715a5628c5077c8ea24472eff3841ea99ca573bcd646"
+    },
+    {
+      "category": "Catálogo Maestro de Platos Principales",
+      "id": "dish_main_19",
+      "name": "MESA BUFET",
+      "originalUrl": "/catering/menus/xv/dish_main_19.jpeg",
+      "resolved": "/catering/menus/xv/dish_main_19.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_main_19.jpeg",
+      "assetSha256": "c07370bb00db9290f3cbf01e5cb98b07a86857c302c4d47b2a5c42a005bbd64e"
+    },
+    {
+      "category": "Catálogo Maestro Infantil",
+      "id": "dish_child_1",
+      "name": "PANCHOS MEDIO METRO C/ FRITAS",
+      "originalUrl": "/catering/menus/xv/dish_child_1.png",
+      "resolved": "/catering/menus/xv/dish_child_1.png",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_child_1.png",
+      "assetSha256": "b870b431f65fba58842aff53232365d4a83e18110c7bdd0317959fe4c049c999"
+    },
+    {
+      "category": "Catálogo Maestro Infantil",
+      "id": "dish_child_2",
+      "name": "PANCHOS C/ FRITAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/2f543cc99bb66cf58ee20f3a66a5025f.jpg",
+      "resolved": "/catering/menus/xv/dish_child_2.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_child_2.jpeg",
+      "assetSha256": "640d9c95502a33f458956878adf89ec66222b3e96ba603fb136690f9cdd96088"
+    },
+    {
+      "category": "Catálogo Maestro Infantil",
+      "id": "dish_child_3",
+      "name": "HAMBURGUESA C/ FRITAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/bf11e7a1d5ad72114a72ca5e7e78972d.jpg",
+      "resolved": "/catering/menus/xv/dish_child_3.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_child_3.jpeg",
+      "assetSha256": "6f7e742eb4ed764a09f9f7d9c423b58ec1ca89b7dd6db123a1368c05503ea716"
+    },
+    {
+      "category": "Catálogo Maestro Infantil",
+      "id": "dish_child_4",
+      "name": "CHIVITO C/ FRITAS",
+      "originalUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/c6cd55bfec5c2d4dd88edf6808a65e0f.jpg",
+      "resolved": "/catering/menus/xv/dish_child_4.jpeg",
+      "previousVisualCheck": false,
+      "gitAsset": "public/catering/menus/xv/dish_child_4.jpeg",
+      "assetSha256": "308a2289dfd3ea9bb1d5e6a613f1b5435d08df7d0945d0d92f5c8199a4d7440c"
+    }
+  ],
+  "sheets": [
+    {
+      "file": "contacto-1.png",
+      "items": [
+        "dish_entrada_2",
+        "dish_entrada_3",
+        "dish_entrada_4",
+        "dish_entrada_5",
+        "dish_entrada_6",
+        "dish_entrada_7",
+        "dish_entrada_8",
+        "dish_entrada_9"
+      ]
+    },
+    {
+      "file": "contacto-2.png",
+      "items": [
+        "dish_entrada_10",
+        "dish_entrada_11",
+        "dish_entrada_12",
+        "dish_entrada_14",
+        "dish_entrada_16",
+        "dish_entrada_17",
+        "dish_entrada_18",
+        "dish_entrada_19"
+      ]
+    },
+    {
+      "file": "contacto-3.png",
+      "items": [
+        "dish_entrada_20",
+        "dish_entrada_21",
+        "dish_entrada_22",
+        "dish_entrada_23",
+        "dish_entrada_24",
+        "dish_entrada_25",
+        "dish_main_3",
+        "dish_main_4"
+      ]
+    },
+    {
+      "file": "contacto-4.png",
+      "items": [
+        "dish_main_6",
+        "dish_main_9",
+        "dish_main_10",
+        "dish_main_12",
+        "dish_main_13",
+        "dish_main_14",
+        "dish_main_15",
+        "dish_main_16"
+      ]
+    },
+    {
+      "file": "contacto-5.png",
+      "items": [
+        "dish_main_19",
+        "dish_child_1",
+        "dish_child_2",
+        "dish_child_3",
+        "dish_child_4"
+      ]
+    }
+  ]
+}

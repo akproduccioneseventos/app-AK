@@ -1,5 +1,39 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 7 de octubre de 2026 - Auditoría 77: catálogo restante y contratos de conexión
+
+El dueño informa programación en paralelo. Codex no repitió 112/122/126 ni
+programó la app. Main sigue `9bb955ac`; apareció PR1262, HEAD `f6f91e9d`,
+con CONTACT75 corregido PRESENTE, todavía no retestado por Codex ni publicado
+como parte de esta evidencia. No reimplementarlo. La comida no cambia en esa
+PR; HEAD de la otra tanda no publicada desconocido: 127 exige contraste primero.
+
+**Nuevos, NO resueltos:** MENU77-BUFFET P2, Mesa bufet apunta a pizarra sin comida;
+MENU77-PICADAS P2, dos fotos/nombres invertidos contra Canva. Base/helper/assets
+reales y consumidores verificados, no dato productivo autenticado. La referencia
+puede tener los nombres invertidos: confirmar relación canónica, no recetas
+inventadas. Orden única 127 a Claude, comida; Gemini sólo si requiere UI.
+
+44 platos base: 38 fotos corresponden (7 de 75 reutilizadas + 31 nuevas),
+3 discrepancias y 3 extras no encontrados en Canva. Siete opciones de Canva no
+están en base ESTÁTICA; no prueba ausencia en Firebase ni permiso para borrar,
+duplicar o poner precio cero. Pancho largo tiene foto real; Picada snack coincide,
+su recorte no se reprodujo como fallo. Informe/capturas/hashes en 77.
+
+6 suites / **39 focalizadas pasan**, cero fallidas/pendientes en main9bb:
+YouTube 4, TikTok 7, Instagram 3, voz 12, Mercado Pago core 10, integridad 3.
+Incluyen 6 controles estáticos de fuente y 33 ejecuciones puras/simuladas,
+no 39 recorridos reales de cuentas externas.
+Mocks/datos sintéticos; no proveedores vivos, E2E, build ni pruebas de PR1262.
+Resultados originales comprimidos/hashes guardados. No sumarlos a 3522 antiguas.
+Gmail/WhatsApp sólo inventariados en este alcance, no recepción real comprobada.
+
+Existe getFinancialIntegrityReport conectado a auditoría, no crearlo otra vez.
+Los 19 originales: 0 documentos examinados y 0 registros Firebase conciliados
+en esta tanda. Ya faltaba ese contraste; no afirmar que los registros no existen.
+Tabla privada original/IDs/importes/pagos/fecha pendiente, no datos privados a Git.
+Sin writes productivos, fusión ni estados del contador cambiados. Ayudante cerrado.
+
 ## 7 de octubre de 2026 - Auditoría 76: puntos 1/2/3 solicitados, todavía no cerrados
 
 Mismo main `9bb955ac`, sin PR nueva. CONTACT75/126 y RED03/122 mantienen

@@ -1,0 +1,201 @@
+{
+  "sourceCommit": "9bb955ac6af65a314f3ac62975020b37c9edaaf3",
+  "documentationBranch": "codex/auditoria-75-20261007",
+  "observedOpenPullRequest": {
+    "number": 1262,
+    "branch": "claude/numeros-de-contacto-reales",
+    "head": "f6f91e9d24eeb6bb9dfd5d06430019e81835cc95",
+    "sameCatalogSourcesAndAssets": true,
+    "contactCorrectionPresent": true,
+    "correctionAcceptanceExecuted": false,
+    "otherUnpublishedProgrammingHead": "unknown; owner says work is in progress"
+  },
+  "unit": {
+    "file": "focalizadas.json.gz",
+    "uncompressedSha256": "6d8274f6d7b0025dc04f541469a28db0da32da6e80f05dbd0f09cab186108cdc",
+    "started": "2026-10-07T11:38:11.220Z",
+    "finishedWrapperUtc": "2026-10-07T11:38:39.833Z",
+    "suitesPassed": 6,
+    "testsPassed": 39,
+    "failed": 0,
+    "pending": 0,
+    "suites": [
+      {
+        "file": "src/__tests__/youtube-sube-el-video.test.ts",
+        "passed": 4
+      },
+      {
+        "file": "src/__tests__/tiktok-no-canta-victoria-antes.test.ts",
+        "passed": 7
+      },
+      {
+        "file": "src/__tests__/instagram-no-duplica-al-sincronizar.test.ts",
+        "passed": 3
+      },
+      {
+        "file": "src/__tests__/la-voz-de-gemini-tts.test.ts",
+        "passed": 12
+      },
+      {
+        "file": "src/lib/payments/mercadopago-core.test.ts",
+        "passed": 10
+      },
+      {
+        "file": "src/__tests__/financial-integrity-report.test.ts",
+        "passed": 3
+      }
+    ],
+    "sourceOnlyAssertions": 6,
+    "pureOrMockedExecutionCases": 33,
+    "command": "node docs/evidencias/sondas/64-isolated-audit-runner.mjs . jest-mocked --runTestsByPath src/__tests__/youtube-sube-el-video.test.ts src/__tests__/tiktok-no-canta-victoria-antes.test.ts src/__tests__/instagram-no-duplica-al-sincronizar.test.ts src/__tests__/la-voz-de-gemini-tts.test.ts src/lib/payments/mercadopago-core.test.ts src/__tests__/financial-integrity-report.test.ts --maxWorkers=1",
+    "scope": "Pure/synthetic provider, storage and session responses; no real API authorization, messages, publications, payments or microphone.",
+    "notResultsOfPR1262": true
+  },
+  "catalog": {
+    "source": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering",
+    "baseItems": 44,
+    "resolvedImages": 43,
+    "visualAssessmentByAuditor": {
+      "matchedIds": [
+        "dish_entrada_2",
+        "dish_entrada_3",
+        "dish_entrada_4",
+        "dish_entrada_5",
+        "dish_entrada_7",
+        "dish_entrada_8",
+        "dish_entrada_9",
+        "dish_entrada_10",
+        "dish_entrada_11",
+        "dish_entrada_12",
+        "dish_entrada_14",
+        "dish_entrada_16",
+        "dish_entrada_17",
+        "dish_entrada_19",
+        "dish_entrada_20",
+        "dish_entrada_23",
+        "dish_entrada_24",
+        "dish_entrada_25",
+        "dish_main_2",
+        "dish_main_3",
+        "dish_main_4",
+        "dish_main_5",
+        "dish_main_6",
+        "dish_main_7",
+        "dish_main_8",
+        "dish_main_9",
+        "dish_main_10",
+        "dish_main_11",
+        "dish_main_12",
+        "dish_main_13",
+        "dish_main_14",
+        "dish_main_15",
+        "dish_main_16",
+        "dish_main_17",
+        "dish_main_18",
+        "dish_child_2",
+        "dish_child_3",
+        "dish_child_4"
+      ],
+      "reusedSevenFromAudit75": [
+        "dish_main_2",
+        "dish_main_5",
+        "dish_main_7",
+        "dish_main_8",
+        "dish_main_11",
+        "dish_main_17",
+        "dish_main_18"
+      ],
+      "newMatchedCount": 31,
+      "discrepancies": [
+        "dish_main_19",
+        "dish_entrada_21",
+        "dish_entrada_22"
+      ],
+      "notFoundInCanva": [
+        "dish_entrada_6",
+        "dish_entrada_18",
+        "dish_child_1"
+      ],
+      "meaning": "Human image/caption comparison, not an automated image classifier or a Firebase catalog audit."
+    },
+    "referenceOnlyNotInStaticBase": [
+      "Arepas venezolanas",
+      "Show de tartas",
+      "Faina casero",
+      "Bunuelitos de algas",
+      "Chivito con fritas",
+      "Paella de mariscos",
+      "Hamburguesa con fritas (principal adulto)"
+    ],
+    "limits": "Static Git base/helper and visible Canva only; no authenticated current master, menu selector, recipe, price or all-channel synchronization accepted."
+  },
+  "artifacts": [
+    {
+      "file": "../77-catalogo-local.mjs",
+      "sha256": "8539867db3741eb9769f4b6a21bce39fa35187bfdac0028293ca9f8e4f831d35"
+    },
+    {
+      "file": "../77-resultados/catalogo.json",
+      "sha256": "f3a479f11bc5ce652dd04a8012c270994213f558fb4d30c04df028428e785e2f"
+    },
+    {
+      "file": "../77-resultados/contacto-1.png",
+      "sha256": "f4bd7cccc451f813dd66f1c13d25b06c40af723ad4b07191a66051ff173bf281"
+    },
+    {
+      "file": "../77-resultados/contacto-2.png",
+      "sha256": "d5db33fc2e0dc21158b8218f8ecc084209f4217e9f5cc6cb3238f1fa043378d0"
+    },
+    {
+      "file": "../77-resultados/contacto-3.png",
+      "sha256": "45b516f64dc34be26b34981a836ecd6e498862b62ee9ad7321ae9944553146e9"
+    },
+    {
+      "file": "../77-resultados/contacto-4.png",
+      "sha256": "192b85d9429eedbad72e2bdd44e0e2a599f7e13b0965f2974c8c17d192baf917"
+    },
+    {
+      "file": "../77-resultados/contacto-5.png",
+      "sha256": "bf28e7b7a01120529c2a7a5c9039b131c2d582fbc319d40fd65e6057b29f7c5b"
+    },
+    {
+      "file": "../77-canva-entradas-1.png",
+      "sha256": "6ef7e4d5c08588a7b2a4b447074a8ae279cde94eef21bb54dcad931a73ec994d"
+    },
+    {
+      "file": "../77-canva-entradas-2.png",
+      "sha256": "57ad6ff66f81e943ce23f8a45e0abc590f5204f87946873690a4a608d07a9ef2"
+    },
+    {
+      "file": "../77-canva-entradas-3.png",
+      "sha256": "84db27bf9ba89be3c5d9a61af6a9d674dc1891e949702f9051b23bd9aea064d4"
+    },
+    {
+      "file": "../77-canva-principales-2.png",
+      "sha256": "abcc18b3d0e1ebdb6a9d7717b0ff59c99451006be712064f1afdca6bdaedfa8d"
+    },
+    {
+      "file": "../77-canva-principales-3-infantil.png",
+      "sha256": "4e9d3e45ba7de49172c0a9cc595d1223a0a61816ff4817486011f0c28f6cb1b7"
+    },
+    {
+      "file": "../77-canva-guarniciones.png",
+      "sha256": "9961e14abb38744512e3b394a271685fe1d171f036e00a6d17c18501eee27c89"
+    }
+  ],
+  "financialOriginals": {
+    "originalDocumentsInspected": 0,
+    "firebaseRecordsReconciled": 0,
+    "existingAction": "getFinancialIntegrityReport",
+    "consumer": "src/app/(app)/auditoria/page.tsx",
+    "meaning": "Three synthetic integrity tests passed; not a reconciliation or approval of 19 original budgets."
+  },
+  "limits": [
+    "No private-role HTTP acceptance",
+    "No build by Codex",
+    "No live provider activation",
+    "No production writes",
+    "No physical devices",
+    "No zero-error certification"
+  ]
+}
