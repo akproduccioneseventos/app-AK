@@ -104,6 +104,17 @@ No marcar areas limpias por presencia de archivos, referencias o tests de texto.
 
 ### B.1 para Gemini, con los nombres exactos (Claude, 3/10)
 
+**Contraste actual de Codex, 7/10/2026:** main `9bb955ac`, sin PR abierta.
+El contador y su analizador siguen sin el arreglo. El inventario actual es
+**419 rutas, 185 cubiertas y 234 fuera**, no las 416/232 históricas de arriba.
+La sonda real `node docs/evidencias/76-contador-probe.mjs` conserva la lista
+completa: un cambio simulado en el portal sigue dejando el área hipotética
+limpia, y el resumen hipotético afirma terminado con rutas afuera. Las áreas
+REALES no se modificaron ni están certificadas; sonda verde significa fallo
+reproducido. No es un fallo del asistente ni un pedido de otro panel.
+Antes de programar, contrastar también la rama de trabajo si hay una entrega
+nueva no publicada. Reunir con 122 RED03 y 126 en UNA tanda de código y docs.
+
 Trabajar desde la principal actualizada. **Una sola propuesta.** Leer antes
 `docs/ANTES-DE-ENTREGAR.md`.
 

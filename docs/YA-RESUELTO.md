@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 7 de octubre de 2026 - Auditoría 76: puntos 1/2/3 solicitados, todavía no cerrados
+
+Mismo main `9bb955ac`, sin PR nueva. CONTACT75/126 y RED03/122 mantienen
+fuente/reproducción; no reauditar la misma causa. AUD01/112 B.1 retestado:
+419 rutas, 234 fuera y aprobación hipotética no invalidada por cambio en portal.
+Es el contador, NO el asistente; no se modificó ningún estado real. Lista y
+sonda conservadas en 76. 50 focales de 75 reutilizadas, no ejecutadas otra vez.
+
+Login/recuperación cargan sin el antiguo error; panel anónimo redirige bien.
+No se probaron credenciales/códigos ni los tres recorridos completos. Privacidad
+pública aún muestra correo como teléfono tras recargar; Git arreglado, SHA
+servido no identificado. No duplicar 125 ni usar Actions billing como señal.
+
+Orden 114 actualizada: falta URL alcanzable/artifact con SHA, roles sintéticos
+y persistencia/Storage de prueba. Script de entorno siempre compila, no se
+ejecutó como si fuera arranque precompilado. Ningún CLI de Claude/Gemini ni
+Firebase/gcloud aquí; documentos no prueban que otra IA empezó. No listener
+en 3000/3300/3311/8080; no afirmar app caída por eso. Ayudante cerrado.
+No app/build/fusión ni datos productivos; una tanda de código y documentos.
+No se cerró 1/2/3 ni se certificó la app: informe 76/matriz 74 conservan límites.
+
 ## 7 de octubre de 2026 - Auditoría 75: retest 1261 y contacto del simulador
 
 **Prevalece sobre los pendientes históricos 72/73/74 que figuran abajo.**

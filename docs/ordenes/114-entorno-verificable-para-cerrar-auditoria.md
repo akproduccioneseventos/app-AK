@@ -1,5 +1,49 @@
 # 114 - Claude: desbloquear el cierre de la auditoria, sin repetir lo hecho
 
+## Traspaso vigente: 7/10/2026, pedido de cerrar puntos 1, 2 y 3
+
+Este bloque PREVALECE sobre los SHA, PR, contadores y pendientes históricos de
+abajo. Objetivo actual `9bb955ac6af65a314f3ac62975020b37c9edaaf3`, PR1261
+fusionada, sin otra PR abierta en el contraste. Tras la tanda Gemini
+112 B.1/122 RED03/126, usar SU SHA final, no el viejo 39da52a ni el de un
+commit sólo documental. Las órdenes 123/124/125 ya están corregidas en fuente;
+50 regresiones actuales pasan. No reprogramarlas. A.2/PER01 de 112 y AUD02
+también figuran arreglados por Claude: sólo falta su evidencia integrada.
+
+El ayudante de Codex verificó los checkouts `.audit-current-20261005`,
+`.audit-integral-20261006`, `-73-20261006` y `-75-20261007`: no encontró
+artifact utilizable con BUILD_ID/SHA. El primero tiene una `.next` parcial,
+no BUILD_ID ni standalone/server.js; los otros no tienen `.next`. No prueba
+que falte en otra máquina. No hubo listener 3000/3300/3311/8080 aquí. El
+script `npm run entorno:pruebas` compila siempre: no se ejecutó ni se le
+atribuye un arranque sin build. No hay CLI Claude/Gemini disponible aquí
+para afirmar que Codex les inició trabajo. El archivo de órdenes no lo hace.
+
+**Entrega concreta que permite ejecutar lo pendiente:** URL alcanzable desde
+este navegador o artifact con SHA y comando documentado sin recompilar,
+roles sintéticos organizador/cliente/invitado, modo de persistencia y
+Storage de PRUEBA (sin claves ficticias ni escrituras productivas), fixtures
+y resultados de la puerta de Claude del MISMO SHA. Nunca enviar contraseñas,
+cookies, claves ni datos originales del negocio en el chat/documento.
+Reutilizar una compilación ya aprobada si existe; no repetirla por rutina.
+
+En la web pública, el login y la pantalla de recuperación ahora cargan;
+`/empresa/dashboard` anónimo redirige a login. No se probaron credenciales,
+envío de código ni cambio de contraseña. Tras recarga, privacidad sigue
+mostrando correo como teléfono aunque 125 esté en Git. GitHub no devuelve
+deployments y aquí no hay CLI Firebase/gcloud: NO se adjudica SHA al público
+ni se inventa causa del desfase. Registrar rollout/versión servida y volver
+a comprobar el resultado, no volver a programar privacidad por ese síntoma.
+
+Ensayos integrados exigidos por el dueño: `docs/evidencias/74-matriz-de-cierre.md`,
+actualizada por 75; datos ficticios, dos presupuestos del mismo teléfono,
+paquetes/extras/PDF/CRM, cobros/saldos/recibos, roles y revocación,
+planificación, mural/captura/entrega y cola de barra. Cada caso debe comprobar
+persistencia tras recarga, sincronización y salida ante fallo/reintento cuando
+corresponda. Abrir una pantalla no es completar su trabajo. Ensayo físico y
+originales del negocio quedan separados de este pedido 1/2/3. Informe 76
+detalla lo que Codex pudo ejecutar y lo que sigue NO EJECUTADO.
+
 ## Alcance
 
 Esta orden no pide reprogramar modulos ni compilar lo mismo otra vez si ya existe

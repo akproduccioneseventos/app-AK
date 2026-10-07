@@ -1,4 +1,4 @@
-# En curso: auditoría 75, retest 1261 y simulador
+# En curso: auditoría 76, cierre de puntos 1/2/3
 
 7/10/2026. Main: 9bb955ac6af65a314f3ac62975020b37c9edaaf3, #1261 fusionada.
 No PR abierta en nuevo contraste. Rama: codex/auditoria-75-20261007.
@@ -29,10 +29,12 @@ NO subir a 73: sus documentos ya viajaron con código en 1261.
 
 ## Evidencia y límites
 
-- Informe y manifest 75 con originales/hashes; matriz 74 actualizada.
+- Informe 76 y sonda actual: contador tiene 234 de 419 rutas fuera.
+- Login/recuperación abren; panel anónimo redirige. No login con credenciales.
+- Orden 114 vigente: falta URL/artifact compilado con SHA y tres roles.
+- Sin CLI Gemini/Claude: órdenes subidas NO inician otra IA.
 - 3522 generales son de 368988bb, NO ejecución del nuevo main.
 - Claude informó publicar? verde en f1e6f22ab, fuente idéntica al merge;
   logs no revisados ni build independiente de Codex.
 - No app programada, compilada ni fusionada por Codex. Dueño fusiona.
 - No tocar JSON runtime ni repetir evidencia vigente. Ayudante cerrado.
-- No certificado de 14 áreas ni garantía integral de cero errores.
