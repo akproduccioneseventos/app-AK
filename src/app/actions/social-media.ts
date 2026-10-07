@@ -3,6 +3,7 @@
 
 import type { SocialPost } from '@/types/social-media';
 import { readData, writeData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 import fs from 'fs/promises';
 import path from 'path';
 import { requirePermiso } from '@/lib/auth/require-session';
@@ -236,7 +237,6 @@ export async function syncInstagramPosts(
 
     // 3. Cargar bases de datos actuales
     const catalogoFotos = await readData<any[]>('catalogo-fotos.json', []);
-    const galeriaData = await readData<{ fotos: any[]; videos: any[] }>('galeria-publica.json', { fotos: [], videos: [] });
     const socialPosts = await readData<SocialPost[]>(POSTS_FILE, []);
 
     let addedPhotosCount = 0;
@@ -295,7 +295,6 @@ export async function syncInstagramPosts(
     // Las copias que dejaron vueltas anteriores (`ig_ig_sync_…`) se sacan: eran la misma foto.
     const esCopiaVieja = (item: any) =>
       item?.source === 'instagram' && /^ig_(ig_|sync_)|^ig_sync_/.test(String(item?.sourceId || item?.id || ''));
-    galeriaData.videos = galeriaData.videos.filter((v) => !esCopiaVieja(v));
     const catalogoSinCopias = catalogoFotos.filter((f) => !esCopiaVieja(f));
     catalogoFotos.length = 0;
     catalogoFotos.push(...catalogoSinCopias);
@@ -308,42 +307,7 @@ export async function syncInstagramPosts(
       const now = new Date().toISOString();
       const original = post.sourceId || idOriginalDeInstagram(post);
 
-      if (post.mediaType === 'video') {
-        // Los IDs de Instagram son estables; la URL CDN puede cambiar y debe actualizarse.
-        const existingVideoIndex = galeriaData.videos.findIndex(v =>
-          v.id === post.id
-          || v.youtubeId === post.id
-          || (v.source === 'instagram' && (v.sourceId === post.id || v.sourceId === original))
-        );
-        const syncedVideo = {
-          id: post.id,
-          tipo: 'video',
-          youtubeUrl: post.videoUrl,
-          youtubeId: post.id,
-          plataforma: 'archivo',
-          thumbnailUrl: post.mediaUrl,
-          titulo: `Reel de Instagram: ${category}`,
-          descripcion: post.text,
-          categoria: category,
-          destacada: true,
-          orden: existingVideoIndex >= 0 ? galeriaData.videos[existingVideoIndex].orden : galeriaData.videos.length,
-          createdAt: existingVideoIndex >= 0 ? galeriaData.videos[existingVideoIndex].createdAt : now,
-          source: 'instagram',
-          sourceId: original,
-          sourceUrl: post.videoUrl,
-        };
-        if (existingVideoIndex >= 0) {
-          galeriaData.videos[existingVideoIndex] = {
-            ...galeriaData.videos[existingVideoIndex],
-            ...syncedVideo,
-          };
-        } else {
-          galeriaData.videos.push({
-            ...syncedVideo,
-          });
-          addedVideosCount++;
-        }
-      } else {
+      if (post.mediaType !== 'video') {
         const existingPhotoIndex = catalogoFotos.findIndex(f =>
           f.id === post.id
           || (f.source === 'instagram' && (f.sourceId === post.id || f.sourceId === original))
@@ -406,11 +370,65 @@ export async function syncInstagramPosts(
       }
     }
 
-    // 4. Guardar datos actualizados
-    // También persiste cambios de URL/miniatura de elementos ya sincronizados.
+    // 4. Guardar videos en galeria-publica.json de forma atómica para no pisar videos concurrentes ni cambios de la galería
+    await mutarDocumento<{ fotos: any[]; videos: any[] }>(
+      'galeria-publica.json',
+      { fotos: [], videos: [] },
+      (galeriaActual) => {
+        const fotos = galeriaActual?.fotos || [];
+        const videos = [...(galeriaActual?.videos || [])].filter((v) => !esCopiaVieja(v));
+
+        for (const post of instagramFeed) {
+          if (post.mediaType !== 'video') continue;
+          const category = guessCategoryFromText(post.text);
+          const now = new Date().toISOString();
+          const original = post.sourceId || idOriginalDeInstagram(post);
+
+          const existingVideoIndex = videos.findIndex(v =>
+            v.id === post.id
+            || v.youtubeId === post.id
+            || (v.source === 'instagram' && (v.sourceId === post.id || v.sourceId === original))
+          );
+          const syncedVideo = {
+            id: post.id,
+            tipo: 'video',
+            youtubeUrl: post.videoUrl,
+            youtubeId: post.id,
+            plataforma: 'archivo',
+            thumbnailUrl: post.mediaUrl,
+            titulo: `Reel de Instagram: ${category}`,
+            descripcion: post.text,
+            categoria: category,
+            destacada: true,
+            orden: existingVideoIndex >= 0 ? videos[existingVideoIndex].orden : videos.length,
+            createdAt: existingVideoIndex >= 0 ? videos[existingVideoIndex].createdAt : now,
+            source: 'instagram',
+            sourceId: original,
+            sourceUrl: post.videoUrl,
+          };
+          if (existingVideoIndex >= 0) {
+            videos[existingVideoIndex] = {
+              ...videos[existingVideoIndex],
+              ...syncedVideo,
+            };
+          } else {
+            videos.push({
+              ...syncedVideo,
+            });
+            addedVideosCount++;
+          }
+        }
+
+        return {
+          fotos,
+          videos,
+        };
+      }
+    );
+
+    // 5. Guardar datos actualizados de catálogo y posts
     await Promise.all([
       writeData('catalogo-fotos.json', catalogoFotos),
-      writeData('galeria-publica.json', galeriaData),
       writeData(POSTS_FILE, socialPosts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()),
     ]);
 

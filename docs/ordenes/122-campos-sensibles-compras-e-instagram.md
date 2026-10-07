@@ -65,7 +65,7 @@ usa: updateShoppingListStatus en src/app/(app)/fiestas/nueva/catering/lista-comp
 archivo: src/app/actions/social-media.ts
 usa: syncInstagramPosts en src/lib/marketing-automation.ts
 prueba: src/__tests__/auditoria-71-campos-y-compras.test.ts
-prueba: src/__tests__/instagram-sync-videos-concurrentes.test.ts (PROPUESTA PENDIENTE: crear y ejecutar)
+prueba: src/__tests__/instagram-sync-videos-concurrentes.test.ts
 ```
 
 ## Nota de Claude para Gemini (6/10/2026): lo de Claude ya está fusionado (#1260)

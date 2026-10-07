@@ -201,6 +201,83 @@ export async function mutarDocumentoConTransaccion<T>(
   return resultado;
 }
 
+/**
+ * CAMBIAR UN DOCUMENTO GENÉRICO DE PRIMER NIVEL (COMO galeria-publica.json) SIN PISAR A OTRO.
+ *
+ * `mutarDocumentoConTransaccion` exige `coleccion/archivo.json`. Esta función hace lo
+ * mismo para archivos de primer nivel del almacén genérico (`json_documents`), usando
+ * transacción en Firestore y `getFileMutex` en modo local o pruebas, para que dos
+ * procesos simultáneos (como Instagram y la galería) no se pisen.
+ */
+export async function mutarDocumento<T>(
+  filePath: string,
+  vacio: T,
+  cambiar: (actual: T) => Promise<T | null> | T | null,
+): Promise<T | null> {
+  const normalizedPath = filePath.replace(/\\/g, '/');
+  if (normalizedPath.includes('/')) {
+    return mutarDocumentoConTransaccion<T>(normalizedPath, vacio, cambiar);
+  }
+
+  if (!isSafeTopLevelJsonFile(normalizedPath)) {
+    throw new Error(
+      `[mutarDocumento] Archivo no permitido: "${normalizedPath}". Debe ser un archivo de primer nivel permitido.`,
+    );
+  }
+
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true' || (process.env.NODE_ENV === 'test' && !process.env.FIRESTORE_EMULATOR_HOST)) {
+    const { readData, writeData } = await import('./data-service');
+    const mutex = getFileMutex(normalizedPath);
+    return mutex.runExclusive(async () => {
+      const actual = await readData<T>(normalizedPath, vacio);
+      const nuevo = await cambiar(actual ?? vacio);
+      if (nuevo === null) return null;
+      await writeData(normalizedPath, nuevo);
+      return nuevo;
+    });
+  }
+
+  const db = await getDbAdmin();
+  const docId = getGenericDocId(normalizedPath);
+  const ref = db.collection(GENERIC_JSON_COLLECTION).doc(docId);
+  let resultado: T | null = null;
+
+  await db.runTransaction(async (transaction) => {
+    resultado = null;
+    const snapshot = await transaction.get(ref);
+    let actual: T = vacio;
+    if (snapshot.exists) {
+      const unwrapped = unwrapGenericDocument(snapshot.data());
+      if (unwrapped !== null && unwrapped !== undefined) {
+        actual = unwrapped as T;
+      }
+    }
+    const nuevo = await cambiar(actual ?? vacio);
+    if (nuevo === null) return;
+
+    const cleanData = typeof nuevo === 'object' && nuevo !== null ? nuevo : { value: nuevo };
+    transaction.set(ref, {
+      ...cleanData,
+      _syncedAt: new Date().toISOString(),
+    });
+    resultado = nuevo;
+  });
+
+  if (resultado !== null) {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      for (const base of ['data', 'src/data']) {
+        const full = path.join(process.cwd(), base, normalizedPath);
+        await fs.mkdir(path.dirname(full), { recursive: true });
+        await fs.writeFile(full, JSON.stringify(resultado, null, 2), 'utf-8');
+      }
+    } catch {}
+  }
+
+  return resultado;
+}
+
 export async function readGenericJsonFile(filePath: string): Promise<any | null> {
   const normalizedPath = filePath.replace(/\\/g, '/');
   if (!isSafeTopLevelJsonFile(normalizedPath)) return null;
