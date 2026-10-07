@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 7 de octubre de 2026 — Sin foto propia va una de ejemplo (decisión del dueño)
+
+- **Mesa bufet:** en vez de quedar sin foto, muestra la mesa de catering de AK
+  (`catering-mesa-ak-01.jpeg`). Empanaditas y pizzetitas, su foto de pizzetitas. Si el dueño sube
+  una foto real, se muestra esa.
+- **Glitter bar:** en el simulador, la portada y la presentación salía la foto de los tragos (el
+  nombre tiene "bar") o nada. Ahora lleva una imagen de brillos de ejemplo. No se pudo bajar una
+  foto de internet desde el contenedor; la imagen se hizo acá y **no entra en la galería de fotos
+  reales** a propósito.
+- **Las doce fotos `glitter_bar_img_*` eran sesiones de quince**, importadas del PDF con la
+  categoría de la página. La galería pública las mostraba como "Glitter Bar". Se corrigió el
+  archivo y también al leer (la base tiene la copia vieja): ahora son "Fotografía y Cabina".
+
+```comprobar
+prueba: src/__tests__/si-no-hay-foto-va-una-de-ejemplo.test.ts
+usa: GLITTER_BAR_FOTO_DE_EJEMPLO en src/app/simulador-de-presupuesto/page.tsx
+usa: corregirCategoriaImportada en src/app/actions/catalogo-fotos.ts
+```
+
 ## 7 de octubre de 2026 — Codex, auditoría 78 (orden 128): cuatro fallos de recorridos reales
 
 - **A, el simulador ofrecía y después rechazaba los platos CON MESA BUFET.** Las cuatro variantes

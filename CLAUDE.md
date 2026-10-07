@@ -1235,6 +1235,15 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Si no hay foto, va una de ejemplo (7 de octubre de 2026).** Palabras suyas: *"ya te dije antes
+  si no hay foto pones una de internet de ejemplo no vuelvas a preguntar"*. **Nunca se le pide una
+  foto ni se lista "falta la foto real" como pendiente.** Se busca primero una foto propia de AK que
+  sirva (así quedó la Mesa bufet, con la mesa de catering de AK); si no hay, una de ejemplo del tema
+  correcto (`fotoDeEjemploPorPlato` y `GLITTER_BAR_FOTO_DE_EJEMPLO` en
+  `src/lib/catering/menu-images.ts`). Desde este contenedor no se pueden bajar fotos de internet:
+  la del glitter bar es una imagen de brillos hecha acá, y por eso no entra en la galería de
+  fotos reales. Cuando él suba la real, se muestra en lugar del ejemplo.
+
 - **Lo chico lo hace Claude, sin preguntar (3 de octubre de 2026).** Palabras del dueño: *"siempre lo
   chico hacelo tú sin preguntar"*. Si un arreglo de una entrega de Gemini es chico, Claude lo hace en
   la misma rama y sigue; a Gemini va sólo lo grande. Manda sobre el reparto de más arriba.
