@@ -89,6 +89,7 @@ No certifica conexion Meta, permisos, cron ni datos reales. No repetir RED03.
 | Cliente: cambio de mesa | Lucia de Mesa 1 a Mesa 3; persiste tras recargar; invitado ve Mesa 3. |
 | Cliente/invitado frente a centro del equipo | Despues del logout del equipo, centro pide login, incluso con portal cliente abierto. Solo esta ruta comprobada; no todos los endpoints. |
 | Invitado: enlace personal | Carga credencial, fecha, mesa y accesos; no muestra controles del equipo. |
+| Invitado: hub tecnologico | Entra con su enlace; muestra una experiencia activa (buzon) en este fixture. No demuestra activacion/operacion de fotocabina, espejo o 360. |
 | Invitado: barra | Carta de 12 tragos; Daiquiri durazno abre seleccion con nombre. Pedido rechazado por ingrediente sin stock, mensaje visible. No se completo la cola del barman. |
 | Invitado: red social | Abre compositor, selecciona archivo, previsualiza, permite publicar. Subida rechaza por Firestore no disponible y conserva texto/foto. Publicacion/moderacion NO aceptadas. |
 | Prospecto: cambios de paquete | Intermedio a premium y vuelta; conserva datos/menus y cambia oferta. Upsell aparece. No se cubrieron todas las combinaciones. |
@@ -165,3 +166,16 @@ funcional ni bloquea el cierre por gustos esteticos.
 
 No se programo la app, no se fusionaron PRs, no se envio nada a Gemini/Claude como
 si existiera una conexion automatica. Las ordenes se publican para que puedan leerlas.
+
+## Cierre de la sesion de prueba
+
+Segundo ayudante economico reviso consumidores publicos directos de
+`getCompanyInfo`: no aporto otro fallo comprobado fuera del presupuesto ya
+reportado. Es una busqueda acotada de referencias, no aceptacion de otras rutas.
+Ambos ayudantes se cerraron. Se restauraron las dimensiones del navegador y
+cerraron las cinco pestanas temporales de esta prueba.
+El servidor aislado se detuvo voluntariamente al acabar los recorridos; su salida
+por interrupcion no es fallo de compilacion. La copia compilada f790a002 se
+conserva para reproducir ESTE SHA; una correccion posterior requiere otro build.
+La primera copia temporal fallida (2KCGGI), limpia y del propio agente, se retiro
+con `git worktree remove` tras verificar ruta exacta dentro de TEMP y estado limpio.

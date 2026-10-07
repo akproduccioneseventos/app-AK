@@ -11180,3 +11180,8 @@ reviso antecedentes/historial y fue cerrado; Codex valido hallazgos.
 otras IA hayan leido/iniciado la orden. Evidencias 75-77 siguen en
 `codex/auditoria-75-20261007` (`f70da8c3`); no se repitieron ni sumaron pruebas
 de otro SHA. Ninguna de las 14 areas se limpio automaticamente.
+
+Segundo ayudante: busqueda acotada de otros consumidores publicos directos del
+lector privado de empresa, sin otro fallo demostrado. Ambos ayudantes cerrados.
+Servidor de prueba detenido al acabar; copia compilada conservada SOLO para
+reproducir f790a002, no para aceptar una correccion posterior sin reconstruirla.
