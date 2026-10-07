@@ -1,3 +1,4 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import type { FiestaEnPlanificacion, Invitado, Tarea } from '@/types/fiesta';
 import {
   defaultBebidasData,
@@ -253,7 +254,7 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
       brand: {
         companyName: 'AK Producciones',
         instagramHandle: '@akproduccionesfiestasyeventos',
-        whatsappNumber: '59898355530',
+        whatsappNumber: AK_WHATSAPP_NUMBER,
         landingUrl: 'https://akproducciones.uy/',
         ctaText: 'Tecnologia para fiestas memorables',
       },

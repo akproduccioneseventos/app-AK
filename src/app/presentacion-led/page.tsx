@@ -1,3 +1,4 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 ﻿'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
@@ -624,7 +625,7 @@ export default function PresentacionLedPage() {
     const action = presentacionSettings?.cierre?.ctaAccion || 'generar-presupuesto';
     if (action === 'whatsapp') {
       const text = encodeURIComponent('Hola, quiero avanzar con la contratación de mi evento.');
-      window.open(`https://wa.me/59898355530?text=${text}`, '_blank');
+      window.open(`https://wa.me/${AK_WHATSAPP_NUMBER}?text=${text}`, '_blank');
       return;
     }
     if (action === 'contacto') {

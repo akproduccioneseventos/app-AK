@@ -7,6 +7,12 @@
 
 export const AK_WHATSAPP_NUMBER = '59898355530';
 
+/**
+ * El mismo numero, como lo lee una persona: "+598 98 355 530".
+ * Se arma desde AK_WHATSAPP_NUMBER para que, si el numero cambia, cambie solo.
+ */
+export const AK_WHATSAPP_PARA_MOSTRAR = `+${AK_WHATSAPP_NUMBER.slice(0, 3)} ${AK_WHATSAPP_NUMBER.slice(3, 5)} ${AK_WHATSAPP_NUMBER.slice(5, 8)} ${AK_WHATSAPP_NUMBER.slice(8)}`;
+
 export function buildAkWhatsAppUrl(message: string, number = AK_WHATSAPP_NUMBER) {
   return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }

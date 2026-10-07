@@ -1,4 +1,5 @@
 'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -16,7 +17,7 @@ import {
 import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
 
 // Contact phone for WhatsApp fallback (WhatsApp format: country code + number)
-const CONTACT_WHATSAPP = '59898355530';
+const CONTACT_WHATSAPP = AK_WHATSAPP_NUMBER;
 
 export default function MiMesaPage() {
   const { fiestaId } = useParams<{ fiestaId: string }>();

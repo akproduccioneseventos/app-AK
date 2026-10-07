@@ -1,4 +1,5 @@
 'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { motion } from 'framer-motion';
 import { Check, ShoppingCart, MessageCircle, Mail, Phone, HelpCircle, Printer, CalendarDays, FileText, Share2 } from 'lucide-react';
@@ -11,7 +12,7 @@ import type { CompanyInfo } from '@/types/settings';
 import type { ServicioEmpresa } from '@/types/empresa';
 import type { ResourceSummary } from '../lib/tipos';
 
-const WHATSAPP_NUMBER = '59898355530';
+const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
 
 function isSafeEmail(email: string | null | undefined): email is string {
   if (!email) return false;

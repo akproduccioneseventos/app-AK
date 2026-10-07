@@ -100,6 +100,35 @@ describe('Ningún número de contacto inventado', () => {
     expect(aviso).toBe('');
   });
 
+  it('ningún enlace de WhatsApp o de llamada lleva el número escrito a mano, ni siquiera el verdadero', () => {
+    // El 7 de octubre de 2026 el número verdadero de AK estaba escrito a mano en
+    // unos 30 lugares: las estaciones, el portal del cliente, el pie, la
+    // presentación. Todos correctos ese día. Pero **el día que el dueño cambie de
+    // número, esos 30 quedan viejos y mandan a la gente a ningún lado** —el mismo
+    // error que un número inventado, esperando a pasar—. Se pasaron todos a leer de
+    // `public-contact.ts`, y esta comprobación no deja que vuelva uno solo.
+    const ESCRITO_A_MANO = /(wa\.me\/\d{8,15}|tel:\+?\d{8,15})/g;
+    const a_mano: string[] = [];
+    for (const archivo of archivos) {
+      const texto = fs.readFileSync(path.join(RAIZ, archivo), 'utf8');
+      texto.split('\n').forEach((linea, i) => {
+        for (const hallado of linea.match(ESCRITO_A_MANO) || []) {
+          a_mano.push(`${archivo}:${i + 1} tiene ${hallado} escrito a mano`);
+        }
+      });
+    }
+    const aviso =
+      a_mano.length === 0
+        ? ''
+        : [
+            'Hay enlaces con el numero escrito a mano. Si el dueno cambia de numero, quedan viejos:',
+            ...a_mano,
+            '',
+            'Usa AK_WHATSAPP_NUMBER o buildAkWhatsAppUrl de src/lib/public-contact.ts.',
+          ].join('\n');
+    expect(aviso).toBe('');
+  });
+
   it('el simulador público no puede quedarse sin número que dar', async () => {
     const texto = fs.readFileSync(
       path.join(RAIZ, 'src/app/actions/public-simulator-bootstrap.ts'),

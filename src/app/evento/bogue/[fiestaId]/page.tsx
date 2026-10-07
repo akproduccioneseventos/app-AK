@@ -1,4 +1,5 @@
 'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { generarGifDesdeImagenes } from '@/lib/entretenimiento/gif-generator';
@@ -1402,7 +1403,7 @@ export default function BoguePage() {
                       <span>{fiesta?.station?.footerText || 'Esto lo hizo AK Producciones'}</span>
                     </div>
                     <a
-                      href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                      href={`https://wa.me/${AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(
                         fiesta?.station?.shareMessage ||
                         `¡Hola AK Producciones! Me saqué un Boomerang en la fiesta de ${fiesta?.eventName || 'un evento'} y me encantó.`
                       )}`}

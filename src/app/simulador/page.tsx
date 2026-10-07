@@ -1,3 +1,4 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -57,7 +58,7 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
     'Hola AK Producciones, quiero cotizar y planificar mi evento con ustedes.',
     `Llegue desde: ${sourceLabel}.`,
   ].join('\n');
-  const whatsappHref = `https://wa.me/59898355530?text=${encodeURIComponent(whatsappText)}`;
+  const whatsappHref = `https://wa.me/${AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappText)}`;
 
   return (
     <main className="min-h-screen bg-slate-950 text-white selection:bg-indigo-700 selection:text-white">
