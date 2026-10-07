@@ -48,6 +48,8 @@ export async function deleteGaleriaItem(id: string): Promise<void> {
   let dataFinal: GaleriaData = DEFAULT_DATA;
 
   await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+    // La base puede repetir este cambio: lo que vale es el intento que se guarda.
+    itemEliminado = undefined;
     const item = actual?.fotos?.find((f) => f.id === id) ?? actual?.videos?.find((v) => v.id === id);
     if (!item) return actual;
     itemEliminado = item;
@@ -174,6 +176,7 @@ export async function updateGaleriaFoto(
   try {
     let encontrada = false;
     await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+      encontrada = false; // la base puede repetir este cambio
       const fotoIdx = (actual?.fotos || []).findIndex((f) => f.id === id);
       if (fotoIdx === -1) return actual;
       encontrada = true;

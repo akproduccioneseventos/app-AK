@@ -375,6 +375,9 @@ export async function syncInstagramPosts(
       'galeria-publica.json',
       { fotos: [], videos: [] },
       (galeriaActual) => {
+        // La base puede repetir este cambio si otro servidor guardo en el medio: se cuenta
+        // por intento y queda el del intento que se guardo (Codex, PR 1263).
+        let videosNuevosEnEsteIntento = 0;
         const fotos = galeriaActual?.fotos || [];
         const videos = [...(galeriaActual?.videos || [])].filter((v) => !esCopiaVieja(v));
 
@@ -415,10 +418,11 @@ export async function syncInstagramPosts(
             videos.push({
               ...syncedVideo,
             });
-            addedVideosCount++;
+            videosNuevosEnEsteIntento++;
           }
         }
 
+        addedVideosCount = videosNuevosEnEsteIntento;
         return {
           fotos,
           videos,

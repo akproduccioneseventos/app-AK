@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 7 de octubre de 2026 — Codex, PR 1263: lo que pasa adentro de una transacción que la base repite
+
+Con dos servidores, la base **repite** el cambio de `mutarDocumento` si otro guardó en el medio.
+Lo que el cambio anotaba afuera quedaba del intento descartado: la sincronización de Instagram
+informaba dos reels nuevos con uno guardado, borrar una foto de la galería que otro ya había
+borrado igual borraba sus archivos, y editarla decía "guardado". Ahora el contador y las marcas
+arrancan de cero en cada intento y queda lo del intento que se guardó. La prueba usa el
+`mutarDocumento` real con una base que corre el cambio dos veces, y dio rojo con el código viejo.
+
+```comprobar
+prueba: src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts
+usa: videosNuevosEnEsteIntento en src/app/actions/social-media.ts
+```
+
 ## 6 de octubre de 2026 - Auditoria 72: pendientes NUEVOS, no arreglos
 
 Main e52c078; PR1259 avanzo a 7c96e114. Se contrasto ese HEAD antes de ordenar.
