@@ -1,26 +1,25 @@
-# En curso: órdenes 123, 124 y 125 de Codex, en una tanda
+# Al día: fusionadas la foto de la Mesa bufet (1265) y la entrega de Instagram (1263)
 
-**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3` sobre main `368988b` (PR 1260).
-Trae las ramas documentales de Codex `codex/auditoria-integral-20261006` y
-`codex/auditoria-73-20261006` (órdenes 122 a 125, evidencias 71 a 74).
+**7 de octubre de 2026.** Main `09051f8` (PR 1263). Rama de traspaso `claude/app-debug-stabilize-m70e6z`.
 
-## Qué trae (todo con prueba que da rojo con el código viejo)
+## Qué entró hoy
 
-- **124 A, CAMPO73-RACE:** sin contabilidad, el guardado general de la fiesta toma la plata de la
-  fiesta de ese momento, dentro de `actualizarFiesta`.
-- **123:** cambiar trago con el enlace del invitado; el reintento devuelve el pedido sólo a su
-  dueño; botones de cancelar/cambiar sólo en "nuevo" (decisión del dueño); plantilla del salón
-  con escala.
-- **124 B y 125:** Galería HD a la galería de la portada (decisión del dueño); glitter en Eventos;
-  foto del toro retirada (no hay foto real del glitter bar: falta que la dé el dueño); WhatsApp
-  de Privacidad es un teléfono.
+- **1262:** WhatsApp con un solo número oficial (`src/lib/public-contact.ts`); control
+  `ningun-numero-inventado` frena cualquier número escrito a mano.
+- **1264 y 1265:** la Mesa bufet sin foto ajena en ningún simulador (`fotoDelPlatoParaMostrar`);
+  control `la-foto-es-del-plato` recorre toda la app. Error 35 en `CLAUDE.md`.
+- **1263 (Gemini, orden 122) con arreglos de Claude:** galería e Instagram guardan sin pisarse
+  (`mutarDocumento`). Lo que encontró Codex: lo anotado adentro de una transacción que la base
+  repite quedaba del intento descartado (reels contados dos veces; galería, `updateDataItem` y
+  `deleteDataItem` decían "hecho" sin guardar). Pregunta 40 del método, 33 de antes de entregar.
 
 ## Sigue
 
-- Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
-- **Gemini: RED03 (orden 122, nota de Claude al final)**, y 112 B.1 (AUD01).
-- Codex vuelve a mirar plata, barra, web y fiesta sobre el SHA fusionado.
-- Pendiente del dueño: foto real del glitter bar. ¿El QR del tótem marca llegada? Hoy no.
+- Codex vuelve a mirar Instagram/galería y web/simulador sobre `09051f8`.
+- Codex usa el entorno aislado (`npm run entorno:pruebas`, en su máquina) con los tres roles.
+- Pendiente del dueño: foto real de la Mesa bufet y del glitter bar; los nombres de las picadas
+  en Canva están cruzados.
+- Gemini: 112 B.1 (AUD01).
 
 ## Cómo se fusiona (error 30)
 
