@@ -4,6 +4,7 @@ import type { CrmAppointment } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
 import { calcularHorariosDisponibles, type DayAvailableSlots } from '@/lib/agenda/horarios-disponibles';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 
 const APPOINTMENTS_FILE = 'crm-appointments.json';
 
@@ -136,7 +137,10 @@ export async function bookAppointmentFromSimulator(data: {
     const fechaLegible = requestedDate.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
     const horaLegible = requestedDate.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' });
     const whatsappMsg = `¡Hola AK Producciones! Agendé mi reunión para el ${fechaLegible} a las ${horaLegible} hs para conversar sobre mi fiesta. Mi nombre es ${nombre}.`;
-    const whatsappUrl = `https://wa.me/59899000000?text=${encodeURIComponent(whatsappMsg)}`;
+    // Este numero estaba escrito fijo y era inventado: **todos** los que agendaban
+    // una reunion recibian un numero muerto, no solo cuando fallaba una lectura.
+    // Sale del unico lugar donde vive el numero de AK.
+    const whatsappUrl = buildAkWhatsAppUrl(whatsappMsg);
 
     return {
       success: true,
