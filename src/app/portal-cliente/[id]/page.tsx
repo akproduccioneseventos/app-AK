@@ -1,5 +1,6 @@
 'use client';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+import { contarPersonasDelPortal } from '@/lib/fiesta/guest-counts';
 
 import React, { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
@@ -567,6 +568,8 @@ export default function PortalClientePage() {
   // El día de la fiesta se cuenta en Uruguay (auditoría 69, PORTAL01).
   const { esHoy: isEventToday, yaPaso: isEventPast } = diaDelEvento(config.fechaEvento);
   const checkedIn   = invitados.filter(i => i.checkedIn);
+  // Los numeros que se muestran son PERSONAS: cada invitacion puede traer acompañantes.
+  const personas = contarPersonasDelPortal(invitados);
   const recentArrivals = checkedIn
     .filter(i => i.checkInTimestamp)
     .sort((a, b) => b.checkInTimestamp!.localeCompare(a.checkInTimestamp!))
@@ -775,20 +778,20 @@ export default function PortalClientePage() {
             <CardContent className="space-y-4">
               {/* Big counter */}
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-black text-foreground">{checkedIn.length}</span>
-                <span className="text-lg text-muted-foreground font-semibold mb-1">/ {confirmed.length} invitados llegaron</span>
+                <span className="text-4xl font-black text-foreground">{personas.llegaron}</span>
+                <span className="text-lg text-muted-foreground font-semibold mb-1">/ {personas.confirmados} personas llegaron</span>
               </div>
               {/* Progress bar */}
-              {confirmed.length > 0 && (
+              {personas.confirmados > 0 && (
                 <div>
                   <div className="flex justify-between text-xs text-muted-foreground mb-1">
                     <span>Presencia</span>
-                    <span>{Math.round((checkedIn.length / confirmed.length) * 100)}% presentes</span>
+                    <span>{Math.round((personas.llegaron / personas.confirmados) * 100)}% presentes</span>
                   </div>
                   <div className="h-3 rounded-full bg-muted overflow-hidden">
                     <div
                       className="h-full rounded-full bg-emerald-500 transition-all"
-                      style={{ width: `${Math.min(100, (checkedIn.length / confirmed.length) * 100)}%` }}
+                      style={{ width: `${Math.min(100, (personas.llegaron / personas.confirmados) * 100)}%` }}
                     />
                   </div>
                 </div>
@@ -796,19 +799,19 @@ export default function PortalClientePage() {
               {/* Stats row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                 <div className="text-center p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                  <p className="text-2xl font-black text-blue-700 dark:text-blue-400">{confirmed.length}</p>
+                  <p className="text-2xl font-black text-blue-700 dark:text-blue-400">{personas.confirmados}</p>
                   <p className="text-xs text-muted-foreground font-semibold mt-0.5">Confirmados</p>
                 </div>
                 <div className="text-center p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                  <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{checkedIn.length}</p>
+                  <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{personas.llegaron}</p>
                   <p className="text-xs text-muted-foreground font-semibold mt-0.5">Presentes</p>
                 </div>
                 <div className="text-center p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
-                  <p className="text-2xl font-black text-amber-700 dark:text-amber-400">{confirmed.length - checkedIn.length}</p>
-                  <p className="text-xs text-muted-foreground font-semibold mt-0.5">Pendientes</p>
+                  <p className="text-2xl font-black text-amber-700 dark:text-amber-400">{personas.faltanLlegar}</p>
+                  <p className="text-xs text-muted-foreground font-semibold mt-0.5">Por llegar</p>
                 </div>
                 <div className="text-center p-3 bg-destructive/10 rounded-xl border border-destructive/20">
-                  <p className="text-2xl font-black text-destructive">{declined.length}</p>
+                  <p className="text-2xl font-black text-destructive">{personas.noVienen}</p>
                   <p className="text-xs text-muted-foreground font-semibold mt-0.5">No vienen</p>
                 </div>
               </div>
@@ -1232,7 +1235,7 @@ export default function PortalClientePage() {
                 <span className="flex items-center gap-2 text-base font-black text-foreground">
                   <Users className="w-5 h-5 text-primary" /> Invitados
                   <span className="ml-1 text-xs font-normal text-muted-foreground">
-                    {confirmed.length} confirmados · {pending.length} pendientes
+                    {personas.confirmados} personas confirmadas · {personas.sinResponder} sin responder
                   </span>
                 </span>
               </div>
@@ -1240,7 +1243,7 @@ export default function PortalClientePage() {
                 {/* RSVP Tracker */}
                 <div>
                   <p className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-2">
-                    Estado RSVP — Confirmados: {confirmed.length} · No asisten: {declined.length} · Pendientes: {pending.length}
+                    Personas — Confirmadas: {personas.confirmados} · No asisten: {personas.noVienen} · Sin responder: {personas.sinResponder}
                   </p>
                   {invitados.length === 0 ? (
                     <p className="text-sm text-muted-foreground text-center py-4">Todavía no hay invitados cargados.</p>

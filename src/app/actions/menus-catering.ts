@@ -1,6 +1,6 @@
 'use server';
 
-import { getMenuItemSellingPrice } from '@/lib/simulator/catalog';
+import { agregarVariantesBufet, getMenuItemSellingPrice } from '@/lib/simulator/catalog';
 import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData, createDataItem, updateDataItem, deleteDataItem, mutateDataItem } from '@/lib/data-service';
@@ -135,33 +135,9 @@ export async function getMenus(): Promise<FullMenu[]> {
 /** Sin comprobar sesion: uso interno de este archivo. */
 async function armarMenus(): Promise<FullMenu[]> {
   if (cachedMenus) return cachedMenus;
-  const [menus, catalog] = await Promise.all([readMenusFile(), leerInsumosCrudos()]);
-  
-  const mainMenu = menus.find(m => m.id === 'menu_principales_maestro');
-  if (mainMenu) {
-      const targetDishes = [
-          'ASADO COMPLETO C/ GUARNICIÓN', 
-          'POLLO ARROLLADO C/ GUARNICIÓN', 
-          'CORDERO ASADO C/ GUARNICIÓN', 
-          'CERDO ARROLLADO C/ GUARNICIÓN'
-      ];
-      
-      const virtualItems: MenuItem[] = [];
-      targetDishes.forEach(name => {
-          const base = mainMenu.items.find(i => i.name === name);
-          if (base) {
-              const buffetName = name.replace('C/ GUARNICIÓN', 'CON MESA BUFET');
-              if (!mainMenu.items.some(i => i.name === buffetName)) {
-                  virtualItems.push({
-                      ...base,
-                      id: `${base.id}_virtual_buffet`,
-                      name: buffetName
-                  });
-              }
-          }
-      });
-      mainMenu.items = [...mainMenu.items, ...virtualItems];
-  }
+  const [menusGuardados, catalog] = await Promise.all([readMenusFile(), leerInsumosCrudos()]);
+  // Las variantes con mesa bufet salen de la misma funcion que usa el servidor al guardar.
+  const menus = agregarVariantesBufet(menusGuardados);
 
   const allDishes = menus.flatMap(m => m.items);
   const result = menus.map(m => recalculateMenu(m, catalog, allDishes));

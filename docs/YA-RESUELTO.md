@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 7 de octubre de 2026 — Codex, auditoría 78 (orden 128): cuatro fallos de recorridos reales
+
+- **A, el simulador ofrecía y después rechazaba los platos CON MESA BUFET.** Las cuatro variantes
+  se armaban sólo al mostrar los menús; el servidor, al guardar, no las conocía. Ahora salen de una
+  sola función (`agregarVariantesBufet`, en `src/lib/simulator/catalog.ts`) que usan las dos
+  puntas, con el mismo precio que su plato con guarnición. Un id inventado se sigue rechazando.
+- **B, el enlace del PDF no abría para el cliente.** La pantalla pedía la ficha privada de la
+  empresa junto con el presupuesto y, sin sesión, se caía todo. Ahora pide la pública (sólo se
+  usaban las notas del documento), un dato accesorio que falla no tapa el presupuesto, y la
+  pantalla distingue "no se pudo cargar" (con reintentar) de "este enlace no abre". Al cliente no
+  se le dice si el presupuesto existe. `getCompanyInfo` sigue pidiendo sesión.
+- **C, el portal del cliente contaba invitaciones y el equipo personas** (61 contra 121). Ahora
+  los dos cuentan personas con la misma regla (`getGuestPartySize`); "Pendientes" pasó a "Por
+  llegar", que es lo que contaba.
+- **D, la fecha de la fiesta aparecía como cita en el CRM y en la agenda.** Ahora va en
+  `eventDate` y `followUpDate` queda sólo para citas reales, también en el alta manual. **No se
+  migraron los registros viejos**: no se puede saber cuáles eran citas de verdad.
+
+```comprobar
+prueba: src/__tests__/simulador-variantes-buffet-autorizadas.test.ts
+prueba: src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts
+prueba: tests/e2e/presupuesto-publico-sin-sesion.spec.ts
+prueba: src/__tests__/portal-cliente-contadores-personas.test.ts
+prueba: src/__tests__/crm-fecha-evento-no-es-cita.test.ts
+usa: agregarVariantesBufet en src/app/actions/menus-catering.ts
+```
+
 ## 7 de octubre de 2026 — Codex, PR 1263: lo que pasa adentro de una transacción que la base repite
 
 Con dos servidores, la base **repite** el cambio de `mutarDocumento` si otro guardó en el medio.
@@ -11137,3 +11164,51 @@ demás platos todo sigue igual, con el respaldo de siempre.
 **No es error:** las diapositivas de la presentación (`entradas-slide`, `menu-adolescente-slide`)
 caen en "sin foto" cuando no hay, y una foto que el operador elige a mano para la pantalla gigante
 tiene prioridad a propósito.
+
+---
+
+## Auditoria 78: cuatro fallos pendientes (7 de octubre de 2026)
+
+**No es un certificado de app lista.** Codex compilo y uso el entorno aislado con
+autorizacion expresa del dueno, sobre main `f790a002`. No programo la app ni toco
+datos reales. Reporte: `docs/evidencias/78-recorridos-reales-y-retest.md`.
+Orden: `docs/ordenes/128-recorridos-reales-simulador-y-portales.md`.
+
+**Pendientes**, reproducidos en UI y contrastados contra main `09051f80` y PR
+1266 documental, sin correcciones causales:
+
+- **SIM78-VIRTUAL, P1:** ofrece cuatro variantes con mesa bufet que el catalogo
+  de guardado rechaza. Con el plato base, el mismo recorrido guarda PDF y CRM.
+- **PDF78-PUBLICO, P1:** enlace completo del PDF sin sesion del equipo no carga.
+  No falta el presupuesto ni falla el token ficticio: llama `getCompanyInfo`,
+  privado, dentro de Promise.all. Conservar permisos; no abrir el lector privado.
+- **PORTAL78-PERSONAS, P2:** 61 invitaciones confirmadas son 121 personas; raiz
+  cliente cuenta filas. 19 pendientes son 37 personas. No rehacer el submodulo.
+- **CRM78-CITA, P2:** fecha de fiesta guardada en `followUpDate` crea una cita
+  a medianoche que el prospecto no reservo.
+
+**No repetir:** PR 1265 (foto buffet) y PR 1263 (contador Instagram). Las sondas
+con conversion/useMemo y mutador reales ya pasan en `09051f80`: conservan foto
+personalizada y foto concurrente. **19 pruebas / 4 suites pasaron**, raw/log
+conservados; son helpers/mocks/barrido, no Meta real ni UI publicada nueva.
+Picadas correctas: no invertir por Canva. Falta foto REAL del buffet del dueno.
+
+**UI comprobada:** login equipo local y cliente independiente; Mesa 1 -> Mesa 3
+persistida y visible al invitado; centro equipo bloqueado tras logout incluso
+con portal cliente abierto; PDF control de dos paginas numeradas sin cortes.
+No se aceptan todos los numeros ni todos los permisos por estos ejemplos.
+
+**Sin aceptar:** subir al mural sin Firestore (avisa, conserva texto/foto), cola
+barra sin insumos, integraciones externas y hardware. Limite del entorno no
+equivale a fallo publicado. No hubo cobro ni mensaje real. Ayudante economico
+reviso antecedentes/historial y fue cerrado; Codex valido hallazgos.
+
+**Entrega documental:** `codex/auditoria-78-20261007`, NO main; no se afirma que
+otras IA hayan leido/iniciado la orden. Evidencias 75-77 siguen en
+`codex/auditoria-75-20261007` (`f70da8c3`); no se repitieron ni sumaron pruebas
+de otro SHA. Ninguna de las 14 areas se limpio automaticamente.
+
+Segundo ayudante: busqueda acotada de otros consumidores publicos directos del
+lector privado de empresa, sin otro fallo demostrado. Ambos ayudantes cerrados.
+Servidor de prueba detenido al acabar; copia compilada conservada SOLO para
+reproducir f790a002, no para aceptar una correccion posterior sin reconstruirla.

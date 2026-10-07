@@ -23,7 +23,7 @@ import { getCustomerById } from '@/app/actions/customers';
 import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import type { Customer } from '@/types/customer';
 import type { BudgetDisplaySettings, CompanyInfo } from '@/types/settings';
-import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfo } from '@/app/actions/settings';
+import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfoPublica } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import html2canvas from 'html2canvas';
@@ -160,17 +160,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) return;
     setIsLoading(true);
+    setError(null);
     try {
+      // El cliente abre esta pantalla con el enlace del PDF, sin cuenta del equipo (Codex,
+      // auditoria 78). Todo lo que se pide acá tiene que poder leerse con el enlace: la ficha
+      // de la empresa va en su version publica (sin cuentas bancarias; acá sólo se usan las
+      // notas del documento), y un dato accesorio que falle no tapa el presupuesto.
       const [fetchedPresupuesto, fetchedSettings, templateSettings, socialConnections, fetchedCompanyInfo] = await Promise.all([
         getPresupuestoById(presupuestoId, publicToken),
         getBudgetDisplaySettings(),
-        getInvoiceTemplateSettings(),
-        getSocialConnectionsPublicas(),
-        getCompanyInfo()
+        getInvoiceTemplateSettings().catch(() => null),
+        getSocialConnectionsPublicas().catch(() => []),
+        getCompanyInfoPublica().catch(() => null),
       ]);
       setDisplaySettings(fetchedSettings);
       setCompanyInfo(fetchedCompanyInfo);
-      setLogoUrl(templateSettings.logoUrl || null);
+      setLogoUrl(templateSettings?.logoUrl || null);
       
       const whatsappConnection = socialConnections.find(c => c.platform === 'WhatsApp' && c.isConnected);
       if (whatsappConnection?.phoneNumber) {
@@ -179,19 +184,21 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
       if (fetchedPresupuesto) {
         setPresupuesto(fetchedPresupuesto);
-        if ((fetchedPresupuesto as any).clienteId) {
-            const clienteData = await getCustomerById((fetchedPresupuesto as any).clienteId);
-            setCliente(clienteData);
+        // La ficha del cliente y la fiesta enlazada son del equipo: con el enlace no se piden.
+        if (!publicToken) {
+          try {
+            if ((fetchedPresupuesto as any).clienteId) {
+              const clienteData = await getCustomerById((fetchedPresupuesto as any).clienteId);
+              setCliente(clienteData);
+            }
+            const fiestas = await getFiestas(false);
+            const linked = fiestas.find(f => f.presupuestoId === fetchedPresupuesto.id);
+            if (linked) setLinkedFiestaId(linked.id);
+          } catch (_) { /* no hace falta para ver el presupuesto */ }
         }
-        // Check if a fiesta already exists for this budget
-        try {
-          const fiestas = await getFiestas(false);
-          const linked = fiestas.find(f => f.presupuestoId === fetchedPresupuesto.id);
-          if (linked) setLinkedFiestaId(linked.id);
-        } catch (_) { /* non-critical */ }
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(err?.message || 'No se pudo cargar el presupuesto.');
     } finally {
       setIsLoading(false);
     }
@@ -619,6 +626,26 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   };
 
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+  // Tres casos distintos: no se pudo cargar (se reintenta), el enlace del cliente no sirve, o
+  // el presupuesto no existe para el equipo. Al cliente no se le dice cuál de los dos últimos
+  // es: eso diría si el presupuesto existe.
+  if (!presupuesto && error) return (
+    <div className="flex flex-col items-center justify-center h-screen gap-4 text-center px-4">
+      <p className="text-4xl">📶</p>
+      <h2 className="text-2xl font-bold">No pudimos abrir el presupuesto</h2>
+      <p className="text-muted-foreground max-w-sm">Puede ser la conexión. Probá de nuevo en unos segundos.</p>
+      <Button variant="outline" className="rounded-xl" onClick={() => fetchPresupuestoAndSettings()}>Reintentar</Button>
+    </div>
+  );
+  if (!presupuesto && publicToken) return (
+    <div className="flex flex-col items-center justify-center h-screen gap-4 text-center px-4">
+      <p className="text-4xl">🔗</p>
+      <h2 className="text-2xl font-bold">Este enlace no abre el presupuesto</h2>
+      <p className="text-muted-foreground max-w-sm">
+        Puede estar incompleto o ya no estar vigente. Escribinos y te mandamos uno nuevo.
+      </p>
+    </div>
+  );
   if (!presupuesto) return (
     <div className="flex flex-col items-center justify-center h-screen gap-4 text-center px-4">
       <p className="text-4xl">🗂️</p>

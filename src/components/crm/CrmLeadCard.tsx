@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell, Edit3, Save, X, Gift, MapPin } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, CalendarDays, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell, Edit3, Save, X, Gift, MapPin } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -249,6 +249,12 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
              <div className={cn("flex items-center gap-2 font-bold p-1 rounded", isMeetingToday ? "text-red-700 bg-red-50" : isMeetingTomorrow ? "text-blue-700 bg-blue-50" : "text-amber-700 bg-amber-50")}>
                 <Clock className="w-3.5 h-3.5"/>
                 <span className="truncate">Cita: {new Date(lead.followUpDate).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}hs</span>
+            </div>
+          )}
+          {lead.eventDate && !Number.isNaN(new Date(lead.eventDate).getTime()) && (
+            <div className="flex items-center gap-2">
+              <CalendarDays className="w-3.5 h-3.5 text-primary/60" />
+              <span className="truncate">Fiesta: {new Date(lead.eventDate).toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' })}</span>
             </div>
           )}
           {lead.lastBudgetAt && (

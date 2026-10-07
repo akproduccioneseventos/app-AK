@@ -891,3 +891,20 @@ Instagram informaba dos reels con uno guardado, y actualizar un registro que otr
 borrar decía "guardado". **Al principio del cambio, todo lo de afuera vuelve a su valor inicial**;
 y adentro no va nada que no se pueda repetir (mandar un mensaje, borrar un archivo, escribir otro
 documento): eso va después de la transacción, con lo del intento que quedó.
+
+## Preguntas 41 y 42 — las que sumó el 7 de octubre de 2026 (Codex, auditoría 78)
+
+### 41. ¿Lo que la pantalla ofrece, el servidor lo acepta? ¿Y lo que se abre sin cuenta, pide algo que exige cuenta?
+
+El simulador mostraba platos que se armaban sólo al mostrar y el servidor no conocía: los ofrecía
+y al guardar los rechazaba. Y la pantalla del presupuesto, que el cliente abre con un enlace,
+pedía la ficha privada de la empresa: sin sesión se caía todo. **Para cada lista que se ofrece,
+buscar dónde se valida al guardar y comprobar que salen de la misma función. Para cada pantalla
+que se abre con enlace, recorrer TODO lo que pide al cargar**, no sólo el dato principal.
+
+### 42. ¿El mismo número se cuenta con la misma unidad en todas las pantallas? ¿El campo significa lo mismo para todos los que lo leen?
+
+El portal contaba invitaciones y el equipo personas. La fecha de la fiesta se guardaba en el
+campo de las citas y la agenda la mostraba como entrevista. **Cuando dos pantallas muestran "el
+mismo" número, que salga de la misma función; cuando un campo se escribe, mirar quién más lo lee
+y qué cree que significa.**
