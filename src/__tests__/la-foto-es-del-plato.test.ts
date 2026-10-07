@@ -61,3 +61,44 @@ describe('La foto es del plato que el cliente elige', () => {
     expect(getCateringDishImage(panchos)).toBe('/catering/menus/xv/dish_child_1.png');
   });
 });
+
+describe('El simulador no le inventa otra foto a la Mesa bufet (orden 127, segunda vuelta)', () => {
+  // Codex lo reprodujo: la funcion decia "sin foto" y el simulador le ponia otra por su cuenta.
+  // Se prueba la funcion que usan los TRES lugares del simulador, con el respaldo que cada uno
+  // le pasaba: la direccion cruda, y la foto del menu.
+  const { fotoDelPlatoParaMostrar } = require('@/lib/catering/menu-images');
+  const mesaBufet = {
+    id: 'dish_main_19',
+    name: 'MESA BUFET',
+    imageUrl: '/catering/menus/xv/dish_main_19.jpeg',
+  };
+
+  it('con la direccion cruda de respaldo, no vuelve la pizarra', () => {
+    expect(fotoDelPlatoParaMostrar(mesaBufet, mesaBufet.imageUrl)).toBeUndefined();
+  });
+
+  it('con la foto del menu de respaldo, no se le pone la comida de otro plato', () => {
+    expect(fotoDelPlatoParaMostrar(mesaBufet, '/catering/menus/xv/dish_main_2.jpeg')).toBeUndefined();
+  });
+
+  it('un plato comun sin foto propia SÍ recibe el respaldo, como antes', () => {
+    const comun = { id: 'plato_nuevo_sin_foto', name: 'PLATO NUEVO' };
+    expect(fotoDelPlatoParaMostrar(comun, '/catering/menus/xv/dish_main_2.jpeg')).toBe(
+      '/catering/menus/xv/dish_main_2.jpeg'
+    );
+  });
+
+  it('la foto real que suba el dueno para el buffet se muestra igual', () => {
+    const conFoto = { ...mesaBufet, imageUrl: 'https://firebasestorage.googleapis.com/v0/b/ak/o/buffet.jpg' };
+    expect(fotoDelPlatoParaMostrar(conFoto, '/catering/menus/xv/dish_main_2.jpeg')).toBe(
+      'https://firebasestorage.googleapis.com/v0/b/ak/o/buffet.jpg'
+    );
+  });
+
+  it('los TRES lugares del simulador usan esa funcion y no arman su propio respaldo', () => {
+    const fs = require('fs');
+    const texto = fs.readFileSync('src/app/simulador-de-presupuesto/page.tsx', 'utf8');
+    expect(texto).not.toMatch(/getCateringDishImage\([^)]*\)\s*\|\|/);
+    expect((texto.match(/fotoDelPlatoParaMostrar\(/g) || []).length).toBeGreaterThanOrEqual(3);
+  });
+});
