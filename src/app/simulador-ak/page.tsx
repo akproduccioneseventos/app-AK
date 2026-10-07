@@ -37,7 +37,7 @@ import {
   type ArmadoRapidoConfig,
 } from '@/types/armado-rapido';
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
-import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
+import { getCateringDishImage, getCateringMenuImage, fotoDelPlatoParaMostrar } from '@/lib/catering/menu-images';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { buildAnnualAdjustmentProjection, DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE } from '@/lib/budget/formal-budget';
@@ -240,7 +240,7 @@ function SimuladorAKContent() {
           if (!allDishes.some(d => d.id === item.id)) {
             allDishes.push({
               ...item,
-              imageUrl: getCateringDishImage(item) || getCateringMenuImage(menu),
+              imageUrl: fotoDelPlatoParaMostrar(item, getCateringMenuImage(menu)),
               isFeatured: Boolean(item.isFeatured || menu.featured)
             });
           }

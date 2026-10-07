@@ -95,10 +95,21 @@ describe('El simulador no le inventa otra foto a la Mesa bufet (orden 127, segun
     );
   });
 
-  it('los TRES lugares del simulador usan esa funcion y no arman su propio respaldo', () => {
+  it('NINGUNA pantalla de la app le pone un respaldo propio a la foto de un plato', () => {
+    // La primera version de este candado miraba un solo archivo, y el segundo simulador
+    // (simulador-ak) tenia el mismo agujero. Por eso mira TODA la app: el que quiera un
+    // respaldo se lo pasa a fotoDelPlatoParaMostrar, que sabe cuando no corresponde.
     const fs = require('fs');
-    const texto = fs.readFileSync('src/app/simulador-de-presupuesto/page.tsx', 'utf8');
-    expect(texto).not.toMatch(/getCateringDishImage\([^)]*\)\s*\|\|/);
-    expect((texto.match(/fotoDelPlatoParaMostrar\(/g) || []).length).toBeGreaterThanOrEqual(3);
+    const path = require('path');
+    const recorrer = (dir: string): string[] =>
+      fs.readdirSync(dir, { withFileTypes: true }).flatMap((e: any) => {
+        const r = path.join(dir, e.name);
+        if (e.isDirectory()) return e.name === '__tests__' ? [] : recorrer(r);
+        return /\.tsx?$/.test(e.name) ? [r] : [];
+      });
+    const conRespaldoPropio = recorrer('src').filter((f) =>
+      /getCateringDishImage\([^)]*\)\s*\|\|(?!\s*null\b)/.test(fs.readFileSync(f, 'utf8'))
+    );
+    expect(conRespaldoPropio).toEqual([]);
   });
 });
