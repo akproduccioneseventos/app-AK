@@ -132,3 +132,8 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     llaman y fijate qué le agregan encima (`funcion(x) || otraCosa`). Si la función dice "no hay",
     un `||` en la pantalla lo deshace sin que nadie se entere. La prueba mira la pantalla, no sólo
     la función.
+
+33. **¿Tu cambio corre adentro de una transacción (`mutarDocumento`, `mutate...`, `runTransaction`)?**
+    La base lo puede correr dos veces. Lo que anotás afuera (contador, "encontrado", "guardado") se
+    pone en cero al empezar el cambio, y lo que no se puede repetir (mensajes, borrar archivos) va
+    después, no adentro.

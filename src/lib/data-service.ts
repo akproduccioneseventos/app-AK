@@ -360,6 +360,8 @@ export async function updateDataItem<T extends object>(
   const ref = dbAdmin.collection(collectionName).doc(documentId);
   let updated = false;
   await dbAdmin.runTransaction(async (transaction) => {
+    // La base repite esto si otro guardo en el medio: vale el intento que se guarda.
+    updated = false;
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) return;
     transaction.set(ref, {
@@ -389,6 +391,7 @@ export async function deleteDataItem(
   const ref = dbAdmin.collection(collectionName).doc(documentId);
   let deleted = false;
   await dbAdmin.runTransaction(async (transaction) => {
+    deleted = false; // la base puede repetir esto
     const snapshot = await transaction.get(ref);
     if (!snapshot.exists) return;
     transaction.delete(ref);

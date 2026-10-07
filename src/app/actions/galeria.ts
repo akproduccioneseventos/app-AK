@@ -1,6 +1,7 @@
 'use server';
 
-import { readData, writeData } from '@/lib/data-service';
+import { readData } from '@/lib/data-service';
+import { mutarDocumento } from '@/lib/generic-json-store';
 import type { GaleriaData, GaleriaFoto, GaleriaVideo } from '@/types/galeria';
 import { requireAppSession } from '@/lib/auth/require-session';
 
@@ -14,16 +15,22 @@ export async function getGaleriaItems(): Promise<GaleriaData> {
 
 export async function addGaleriaFoto(foto: GaleriaFoto): Promise<void> {
   await requireAppSession();
-  const data = await getGaleriaItems();
-  data.fotos.push(foto);
-  await writeData(GALERIA_FILE, data);
+  await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+    return {
+      fotos: [...(actual?.fotos || []), foto],
+      videos: actual?.videos || [],
+    };
+  });
 }
 
 export async function addGaleriaVideo(video: GaleriaVideo): Promise<void> {
   await requireAppSession();
-  const data = await getGaleriaItems();
-  data.videos.push(video);
-  await writeData(GALERIA_FILE, data);
+  await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+    return {
+      fotos: actual?.fotos || [],
+      videos: [...(actual?.videos || []), video],
+    };
+  });
 }
 
 /**
@@ -37,14 +44,23 @@ export async function addGaleriaVideo(video: GaleriaVideo): Promise<void> {
  */
 export async function deleteGaleriaItem(id: string): Promise<void> {
   await requireAppSession();
-  const data = await getGaleriaItems();
-  const item: GaleriaFoto | GaleriaVideo | undefined =
-    data.fotos.find((f) => f.id === id) ?? data.videos.find((v) => v.id === id);
-  if (!item) return;
+  let itemEliminado: GaleriaFoto | GaleriaVideo | undefined;
+  let dataFinal: GaleriaData = DEFAULT_DATA;
 
-  data.fotos = data.fotos.filter((f) => f.id !== id);
-  data.videos = data.videos.filter((v) => v.id !== id);
-  await writeData(GALERIA_FILE, data);
+  await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+    // La base puede repetir este cambio: lo que vale es el intento que se guarda.
+    itemEliminado = undefined;
+    const item = actual?.fotos?.find((f) => f.id === id) ?? actual?.videos?.find((v) => v.id === id);
+    if (!item) return actual;
+    itemEliminado = item;
+    dataFinal = {
+      fotos: (actual?.fotos || []).filter((f) => f.id !== id),
+      videos: (actual?.videos || []).filter((v) => v.id !== id),
+    };
+    return dataFinal;
+  });
+
+  if (!itemEliminado) return;
 
   const { deleteCatalogoFoto, getCatalogoFotos } = await import('./catalogo-fotos');
   const { archivosHuerfanos } = await import('@/lib/galeria/borrado-seguro');
@@ -57,7 +73,7 @@ export async function deleteGaleriaItem(id: string): Promise<void> {
   // no se le devuelve un error al equipo por un archivo que quedó de más.
   try {
     const catalogo = await getCatalogoFotos();
-    for (const url of archivosHuerfanos(item, data, catalogo)) {
+    for (const url of archivosHuerfanos(itemEliminado, dataFinal, catalogo)) {
       await deleteFromStorage(url).catch(() => undefined);
     }
   } catch {
@@ -70,17 +86,21 @@ export async function updateGaleriaItem(
   updates: Partial<GaleriaFoto | GaleriaVideo>
 ): Promise<void> {
   await requireAppSession();
-  const data = await getGaleriaItems();
-  const fotoIdx = data.fotos.findIndex((f) => f.id === id);
-  if (fotoIdx !== -1) {
-    data.fotos[fotoIdx] = { ...data.fotos[fotoIdx], ...updates } as GaleriaFoto;
-  } else {
-    const videoIdx = data.videos.findIndex((v) => v.id === id);
-    if (videoIdx !== -1) {
-      data.videos[videoIdx] = { ...data.videos[videoIdx], ...updates } as GaleriaVideo;
+  await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+    const fotoIdx = (actual?.fotos || []).findIndex((f) => f.id === id);
+    if (fotoIdx !== -1) {
+      const fotos = [...actual.fotos];
+      fotos[fotoIdx] = { ...fotos[fotoIdx], ...updates } as GaleriaFoto;
+      return { ...actual, fotos };
     }
-  }
-  await writeData(GALERIA_FILE, data);
+    const videoIdx = (actual?.videos || []).findIndex((v) => v.id === id);
+    if (videoIdx !== -1) {
+      const videos = [...actual.videos];
+      videos[videoIdx] = { ...videos[videoIdx], ...updates } as GaleriaVideo;
+      return { ...actual, videos };
+    }
+    return actual;
+  });
 }
 
 export async function reorderGaleriaItems(
@@ -88,34 +108,42 @@ export async function reorderGaleriaItems(
   ids: string[]
 ): Promise<void> {
   await requireAppSession();
-  const data = await getGaleriaItems();
-  if (tipo === 'foto') {
-    ids.forEach((id, index) => {
-      const item = data.fotos.find((f) => f.id === id);
-      if (item) item.orden = index;
-    });
-    data.fotos.sort((a, b) => a.orden - b.orden);
-  } else {
-    ids.forEach((id, index) => {
-      const item = data.videos.find((v) => v.id === id);
-      if (item) item.orden = index;
-    });
-    data.videos.sort((a, b) => a.orden - b.orden);
-  }
-  await writeData(GALERIA_FILE, data);
+  await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+    if (tipo === 'foto') {
+      const fotos = [...(actual?.fotos || [])];
+      ids.forEach((id, index) => {
+        const item = fotos.find((f) => f.id === id);
+        if (item) item.orden = index;
+      });
+      fotos.sort((a, b) => a.orden - b.orden);
+      return { ...actual, fotos };
+    } else {
+      const videos = [...(actual?.videos || [])];
+      ids.forEach((id, index) => {
+        const item = videos.find((v) => v.id === id);
+        if (item) item.orden = index;
+      });
+      videos.sort((a, b) => a.orden - b.orden);
+      return { ...actual, videos };
+    }
+  });
 }
 
 export async function toggleDestacada(id: string): Promise<void> {
   await requireAppSession();
-  const data = await getGaleriaItems();
-  const foto = data.fotos.find((f) => f.id === id);
-  if (foto) {
-    foto.destacada = !foto.destacada;
-  } else {
-    const video = data.videos.find((v) => v.id === id);
-    if (video) video.destacada = !video.destacada;
-  }
-  await writeData(GALERIA_FILE, data);
+  await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+    const foto = (actual?.fotos || []).find((f) => f.id === id);
+    if (foto) {
+      const fotos = actual.fotos.map((f) => (f.id === id ? { ...f, destacada: !f.destacada } : f));
+      return { ...actual, fotos };
+    }
+    const video = (actual?.videos || []).find((v) => v.id === id);
+    if (video) {
+      const videos = actual.videos.map((v) => (v.id === id ? { ...v, destacada: !v.destacada } : v));
+      return { ...actual, videos };
+    }
+    return actual;
+  });
 }
 
 export async function getGaleriaFotosByTipoFiesta(tipoFiesta: string): Promise<GaleriaFoto[]> {
@@ -146,14 +174,19 @@ export async function updateGaleriaFoto(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const data = await getGaleriaItems();
-    const fotoIdx = data.fotos.findIndex((f) => f.id === id);
-    if (fotoIdx === -1) {
+    let encontrada = false;
+    await mutarDocumento<GaleriaData>(GALERIA_FILE, DEFAULT_DATA, (actual) => {
+      encontrada = false; // la base puede repetir este cambio
+      const fotoIdx = (actual?.fotos || []).findIndex((f) => f.id === id);
+      if (fotoIdx === -1) return actual;
+      encontrada = true;
+      const fotos = [...actual.fotos];
+      fotos[fotoIdx] = { ...fotos[fotoIdx], ...updates };
+      return { ...actual, fotos };
+    });
+    if (!encontrada) {
       return { success: false, error: 'Foto no encontrada.' };
     }
-
-    data.fotos[fotoIdx] = { ...data.fotos[fotoIdx], ...updates };
-    await writeData(GALERIA_FILE, data);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error?.message || 'No se pudo actualizar la foto.' };

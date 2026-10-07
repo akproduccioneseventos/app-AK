@@ -878,3 +878,16 @@ La lista de compras decidía si "cambiaba un pago" comparando con una lectura he
 operación, y después guardaba la lista que mandaba la pantalla: un pago anotado en el medio se
 deshacía. **Lo que se guarda es lo pedido, casilla por casilla, sobre lo de ese momento**; el
 permiso sale de qué casillas se piden cambiar; si otro cambió la misma casilla, se pide recargar.
+
+## Pregunta 40 — la que sumó el 7 de octubre de 2026 (Codex, PR 1263)
+
+### 40. ¿Lo que pasa adentro de una transacción sobrevive a un intento descartado?
+
+Con dos servidores, la base **repite** la transacción si otro guardó en el medio, y descarta el
+primer intento. Todo lo que el cambio anota **afuera** —un contador, una marca de "encontrado",
+"actualizado" o "borrado", un renglón agregado a una lista de afuera— queda del intento
+descartado si no se vuelve a poner en cero al empezar cada intento. Así la sincronización de
+Instagram informaba dos reels con uno guardado, y actualizar un registro que otro acababa de
+borrar decía "guardado". **Al principio del cambio, todo lo de afuera vuelve a su valor inicial**;
+y adentro no va nada que no se pueda repetir (mandar un mensaje, borrar un archivo, escribir otro
+documento): eso va después de la transacción, con lo del intento que quedó.
