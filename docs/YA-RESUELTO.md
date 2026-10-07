@@ -10973,3 +10973,56 @@ prueba: tests/e2e/galeria-hd-destino-publico.spec.ts
 prueba: tests/e2e/galeria-servicio-y-contacto-publico.spec.ts
 prueba: tests/e2e/barra-72-pedido-propio-y-estado.spec.ts
 ```
+
+---
+
+## Dos números de WhatsApp inventados en el camino del prospecto (7 de octubre de 2026)
+
+**Lo encontró Codex (CONTACT75) y al verificarlo apareció el doble.**
+
+| Dónde | Qué le pasaba al prospecto |
+|---|---|
+| `src/app/actions/public-simulator-bootstrap.ts` | Si no se podía leer la conexión de WhatsApp, el simulador entregaba **un número de ejemplo**. El prospecto armaba su presupuesto, tocaba "consultar" o "compartir" y **caía en la nada**. |
+| `src/app/actions/simulator-agenda.ts` | Tenía otro número inventado **escrito fijo, sin alternativa**. No fallaba sólo cuando algo se caía: **fallaba siempre**. Todos los que agendaban una reunión recibían un número muerto. Codex no lo había visto. |
+
+Los dos salen ahora del único lugar donde vive el número de AK (`AK_WHATSAPP_NUMBER` y
+`buildAkWhatsAppUrl`, en `src/lib/public-contact.ts`).
+
+**Es la tercera vez en el proyecto que aparece un dato de contacto escrito a mano**, y las
+tres en pantallas que ve un cliente. La regla ya estaba escrita arriba de
+`public-contact.ts` —*"ningún archivo debe escribir una URL a mano"*— y no alcanzó, porque
+**nada la hacía cumplir**.
+
+### El candado: `src/__tests__/ningun-numero-inventado.test.ts`
+
+Mira **sólo los números a los que la app manda a alguien**: un enlace de WhatsApp, o un
+valor de respaldo de un contacto. **Probado frenando**, no pasando: con un número falso
+puesto a propósito se pone en rojo y lo nombra con archivo y línea.
+
+**Por qué mira tan poco, a propósito:** la primera versión marcó nueve archivos más. Se
+revisaron uno por uno y **seis eran ejemplos de formato dentro de un `placeholder`**, del
+tipo *"Ej: 59899123456 (con código de país)"*. Eso está **bien**: le muestra al operador
+cómo se escribe un teléfono. Un candado que marca lo que está bien se desactiva a la
+semana.
+
+### Dos errores propios en el camino, anotados para no repetirlos
+
+1. **La prueba estaba escrita con la forma de comprobación de otra herramienta**
+   (`expect(valor, mensaje)` es de Playwright; el de Jest toma un solo argumento). Fallaba
+   **por error de uso, no por encontrar algo**. Si no se hubiera mirado el detalle del
+   rojo, se habría salido a buscar un problema que no existía.
+2. **Al revertir la prueba de que el candado frena, un `git checkout --` pisó el arreglo**
+   y lo dejó como estaba. Es el error ya anotado en `CLAUDE.md` y se cometió igual. **Se
+   comprueba después de revertir, y se commitea antes de probar algo destructivo.**
+
+### Lo que NO era un error
+
+Codex avisó que la página de privacidad mostraba el correo como número de WhatsApp, **y
+tuvo razón en no darlo por verificado**: lo que vio es la versión publicada vieja. **En el
+código ya estaba corregido** por la orden 125. No es un hallazgo nuevo.
+
+### El entorno de prueba compartido que pidió Codex no existe
+
+Nunca se preparó. El detalle y la alternativa que no cuesta nada están en
+`docs/evidencias/75-respuesta-al-entorno-de-prueba.md`. **Levantar uno es un sitio alojado
+más y se paga por mes: queda como propuesta, no como tarea.**
