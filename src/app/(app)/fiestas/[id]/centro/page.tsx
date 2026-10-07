@@ -16,6 +16,7 @@ import {
   Clapperboard,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { getGuestPartySize } from '@/lib/fiesta/guest-counts';
 import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import { buildAk100Readiness } from '@/lib/ak-100/ak-100-readiness';
@@ -91,7 +92,7 @@ type ConteoInvitado = { rsvp?: string; partySize?: number; checkedIn?: boolean }
 function contarPersonas(invitados: ConteoInvitado[], filtro: (i: ConteoInvitado) => boolean) {
   return invitados
     .filter(filtro)
-    .reduce((total, i) => total + Math.max(1, Math.floor(Number(i.partySize) || 1)), 0);
+    .reduce((total, i) => total + getGuestPartySize(i), 0);
 }
 
 export default async function CentroDeFiestaPage(props: PageProps) {
