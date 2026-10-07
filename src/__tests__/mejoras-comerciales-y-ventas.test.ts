@@ -40,13 +40,13 @@ describe('Mejoras comerciales y de ventas antes de publicar', () => {
     const plataforma360Content = readFileSync(plataforma360Path, 'utf8');
 
     expect(fotocabinaContent).toContain('Esto lo hizo AK Producciones');
-    expect(fotocabinaContent).toContain('wa.me/59898355530');
+    expect(fotocabinaContent).toContain('wa.me/${AK_WHATSAPP_NUMBER}');
 
     expect(espejoContent).toContain('Esto lo hizo AK Producciones');
-    expect(espejoContent).toContain('wa.me/59898355530');
+    expect(espejoContent).toContain('wa.me/${AK_WHATSAPP_NUMBER}');
 
     expect(plataforma360Content).toContain('Esto lo hizo AK Producciones');
-    expect(plataforma360Content).toContain('wa.me/59898355530');
+    expect(plataforma360Content).toContain('wa.me/${AK_WHATSAPP_NUMBER}');
   });
 
   it('la presentacion LED tiene acceso directo a Salón Club Uruguay y boton de compartir propuesta', () => {
