@@ -1,3 +1,4 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import type {
   FiestaEnPlanificacion,
@@ -46,8 +47,8 @@ export const defaultGuestExperienceSettings: GuestExperienceSettings = {
   allowPhotoUpload: false,
   allowGuestPortal: true,
   landingUrl: 'https://akproducciones.uy',
-  whatsappNumber: '59898355530',
-  whatsappUrl: 'https://wa.me/59898355530',
+  whatsappNumber: AK_WHATSAPP_NUMBER,
+  whatsappUrl: `https://wa.me/${AK_WHATSAPP_NUMBER}`,
   instagramUrl: 'https://www.instagram.com/akproduccionesfiestasyeventos/',
   facebookUrl: 'https://www.facebook.com/akproduccionessalto/',
   tiktokUrl: 'https://www.tiktok.com/@akproduccioneseve',

@@ -1,4 +1,5 @@
-﻿'use client';
+'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Image from 'next/image';
@@ -614,6 +615,9 @@ export default function PresentacionLedPage() {
     ].filter(Boolean).join('\n');
 
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      // no pasa nada si falla: el mismo texto viaja dentro del enlace de WhatsApp
+      // que se abre en la linea siguiente, asi que si el portapapeles esta
+      // bloqueado no se pierde nada y no hay nada que avisar.
       navigator.clipboard.writeText(texto).catch(() => {});
     }
     const waUrl = `https://wa.me/?text=${encodeURIComponent(texto)}`;
@@ -624,7 +628,7 @@ export default function PresentacionLedPage() {
     const action = presentacionSettings?.cierre?.ctaAccion || 'generar-presupuesto';
     if (action === 'whatsapp') {
       const text = encodeURIComponent('Hola, quiero avanzar con la contratación de mi evento.');
-      window.open(`https://wa.me/59898355530?text=${text}`, '_blank');
+      window.open(`https://wa.me/${AK_WHATSAPP_NUMBER}?text=${text}`, '_blank');
       return;
     }
     if (action === 'contacto') {
@@ -636,8 +640,13 @@ export default function PresentacionLedPage() {
 
   const toggleFullscreen = useCallback(() => {
     if (!document.fullscreenElement) {
+      // no pasa nada si falla: el navegador puede negar la pantalla completa (por
+      // permisos o porque la pagina esta embebida). La presentacion sigue andando
+      // en la ventana y el operador no tiene nada que hacer distinto.
       containerRef.current?.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
     } else {
+      // no pasa nada si falla: si el navegador ya salio de pantalla completa por su
+      // cuenta (por ejemplo con Escape), no queda nada que cerrar.
       document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
     }
   }, []);

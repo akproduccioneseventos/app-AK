@@ -1,3 +1,4 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 /**
  * @fileOverview Envío de notificaciones proactivas al dueño: Celular (Push FCM) y WhatsApp Meta.
  * Respeta rigurosamente interruptores, horario "no molestar", tope de 3 WhatsApp/día y números autorizados.
@@ -32,7 +33,7 @@ export interface AsistenteSettings {
 export const ASISTENTE_SETTINGS_DEFAULT: AsistenteSettings = {
   avisoCelularHabilitado: true,
   whatsappDuenioHabilitado: false,
-  numeroDuenio: '59898355530',
+  numeroDuenio: AK_WHATSAPP_NUMBER,
   horarioNoMolestarInicio: 23,
   horarioNoMolestarFin: 8,
   asistentesAreas: {
@@ -46,7 +47,7 @@ export const ASISTENTE_SETTINGS_DEFAULT: AsistenteSettings = {
   vozGeminiActiva: true,
   vozTelefonoActiva: true,
   numerosEquipo: [
-    { telefono: '59898355530', nombre: 'Alexander Knuth', rol: 'Dueño' },
+    { telefono: AK_WHATSAPP_NUMBER, nombre: 'Alexander Knuth', rol: 'Dueño' },
   ],
   atenderLlamadasIaHabilitado: false,
 };

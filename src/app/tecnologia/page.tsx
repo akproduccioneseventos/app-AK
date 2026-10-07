@@ -1,3 +1,4 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -16,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { PublicFooter } from '@/components/public-footer';
 import { TECNOLOGIAS_AK, GRUPOS_TECNOLOGIA, type GrupoTecnologia } from '@/data/tecnologia-ak';
 
-const WHATSAPP_URL = 'https://wa.me/59898355530?text=Hola%20AK%2C%20estuve%20viendo%20el%20cat%C3%A1logo%20de%20tecnolog%C3%ADas%20y%20quiero%20hacerles%20una%20consulta';
+const WHATSAPP_URL = `https://wa.me/${AK_WHATSAPP_NUMBER}?text=Hola%20AK%2C%20estuve%20viendo%20el%20cat%C3%A1logo%20de%20tecnolog%C3%ADas%20y%20quiero%20hacerles%20una%20consulta`;
 
 export const metadata = {
   title: 'La tecnología de AK Producciones | Soluciones interactivas para tu fiesta',

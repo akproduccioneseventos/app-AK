@@ -1,4 +1,5 @@
 'use server';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
 import type { ScheduledMessage, ScheduledMessageStatus } from '@/types/whatsapp-automation';
@@ -230,7 +231,7 @@ export async function generateWhatsAppClickUrl(
   await requireAppSession();
   const { toWhatsAppNumber } = await import('@/lib/commercial/contact');
   const cleanPhone = toWhatsAppNumber(targetPhone);
-  return `https://wa.me/${cleanPhone || '59898355530'}?text=${encodeURIComponent(messageText)}`;
+  return `https://wa.me/${cleanPhone || AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(messageText)}`;
 }
 
 export async function getPendingMessagesForToday(): Promise<ScheduledMessage[]> {

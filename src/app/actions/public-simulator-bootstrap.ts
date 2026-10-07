@@ -8,6 +8,7 @@ import {
   getInvoiceTemplateSettings,
 } from "@/app/actions/settings";
 import { getSocialConnectionsPublicas } from "@/app/actions/social-connections";
+import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
 import type { ArmadoRapidoConfig } from "@/types/armado-rapido";
 import { defaultClubUruguayConfig } from "@/types/armado-rapido";
 import type { FullMenu } from "@/types/catering";
@@ -92,7 +93,11 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
     budgetSettings: budgetSettings || defaultBudgetDisplaySettings,
     services: finalServices,
     menus: resolvedMenus,
-    whatsappNumber: whatsappConnection?.phoneNumber || "59899123456",
+    // Si la conexion de WhatsApp Business no esta o no se pudo leer, va el numero
+    // OFICIAL de AK, no un ejemplo. Antes aca habia un numero de ejemplo escrito a mano: un numero que no
+    // existe. El prospecto terminaba su presupuesto, tocaba "consultar" y **caia en
+    // la nada**. Nunca un dato de contacto escrito a mano.
+    whatsappNumber: whatsappConnection?.phoneNumber || AK_WHATSAPP_NUMBER,
     logoUrl: templateSettings?.logoUrl || null,
   };
 }

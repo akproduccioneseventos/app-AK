@@ -1,3 +1,4 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 /**
  * @fileOverview Atención del equipo y del dueño por WhatsApp con texto, audios e imágenes.
  * Respeta la Regla de Oro (nivelDeRiesgo):
@@ -160,7 +161,7 @@ export async function atenderAlEquipo(params: AtenderEquipoParams): Promise<Resu
   const settings = await getAsistenteSettings();
   const numerosAutorizados = (settings.numerosEquipo || []).map((n) => normalizarNumero(n.telefono));
   if (numerosAutorizados.length === 0) {
-    numerosAutorizados.push('59898355530'); // Número del dueño por omisión
+    numerosAutorizados.push(AK_WHATSAPP_NUMBER); // Número del dueño por omisión
   }
 
   const autorizado = numerosAutorizados.includes(fromLimpio);

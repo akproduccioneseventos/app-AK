@@ -1,4 +1,5 @@
 'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { useEffect, useState } from 'react';
 import {
@@ -43,7 +44,7 @@ export default function AsistenteSettingsPage() {
   // Estados locales editables
   const [avisoCelular, setAvisoCelular] = useState(true);
   const [whatsappDuenio, setWhatsappDuenio] = useState(false);
-  const [numeroDuenio, setNumeroDuenio] = useState('59898355530');
+  const [numeroDuenio, setNumeroDuenio] = useState(AK_WHATSAPP_NUMBER);
   const [horaInicioNoMolestar, setHoraInicioNoMolestar] = useState(23);
   const [horaFinNoMolestar, setHoraFinNoMolestar] = useState(8);
 
@@ -53,7 +54,7 @@ export default function AsistenteSettingsPage() {
   const [vozGeminiActiva, setVozGeminiActiva] = useState(true);
   const [vozTelefonoActiva, setVozTelefonoActiva] = useState(true);
   const [numerosEquipo, setNumerosEquipo] = useState<Array<{ telefono: string; nombre: string; rol: string }>>([
-    { telefono: '59898355530', nombre: 'Alexander Knuth', rol: 'Dueño' },
+    { telefono: AK_WHATSAPP_NUMBER, nombre: 'Alexander Knuth', rol: 'Dueño' },
   ]);
   const [nuevoNumero, setNuevoNumero] = useState({ telefono: '', nombre: '', rol: 'Equipo' });
 
@@ -71,7 +72,7 @@ export default function AsistenteSettingsPage() {
       setSettings(res.settings);
       setAvisoCelular(res.settings.avisoCelularHabilitado ?? true);
       setWhatsappDuenio(res.settings.whatsappDuenioHabilitado ?? false);
-      setNumeroDuenio(res.settings.numeroDuenio || '59898355530');
+      setNumeroDuenio(res.settings.numeroDuenio || AK_WHATSAPP_NUMBER);
       setHoraInicioNoMolestar(res.settings.horarioNoMolestarInicio ?? 23);
       setHoraFinNoMolestar(res.settings.horarioNoMolestarFin ?? 8);
       setResponderConVoz(res.settings.responderConVoz ?? false);
