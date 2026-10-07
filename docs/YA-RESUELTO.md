@@ -11104,3 +11104,20 @@ una copia de la tabla. **Si una auditoría vuelve a marcarlo, es este falso posi
 
 **La lección, y vale para toda comparación contra una referencia:** que dos cosas no
 coincidan no dice cuál de las dos está mal. Hay que mirar la comida.
+
+---
+
+## La Mesa bufet, segunda vuelta: el simulador ya no le inventa otra foto (7 de octubre de 2026)
+
+El arreglo de la mañana (#1264) hacía que la función dijera "sin foto" para la Mesa bufet, pero el
+simulador le ponía otra por su cuenta: la misma pizarra, la comida de otro plato del menú, o una
+foto genérica de boda. Lo encontró Codex reproduciéndolo con las pantallas de verdad. Pasaba en
+tres lugares del simulador y en uno del segundo simulador.
+
+**Ahora todos piden la foto a `fotoDelPlatoParaMostrar`**, que para un plato marcado "sin foto
+confirmada" no busca reemplazo: o la foto real que suba el dueño, o la tarjeta sin foto. Para los
+demás platos todo sigue igual, con el respaldo de siempre.
+
+**No es error:** las diapositivas de la presentación (`entradas-slide`, `menu-adolescente-slide`)
+caen en "sin foto" cuando no hay, y una foto que el operador elige a mano para la pantalla gigante
+tiene prioridad a propósito.
