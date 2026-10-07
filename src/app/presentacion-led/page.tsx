@@ -1,5 +1,5 @@
+'use client';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
-﻿'use client';
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Image from 'next/image';
