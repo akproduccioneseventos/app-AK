@@ -18,7 +18,9 @@ describe('La foto es del plato que el cliente elige', () => {
         name: 'MESA BUFET',
         imageUrl: '/catering/menus/xv/dish_main_19.jpeg',
       };
-      expect(getCateringDishImage(mesaBufet)).toBeUndefined();
+      // Decision del dueno (7/10/2026): sin foto propia va una de EJEMPLO, la mesa de catering
+      // de AK. Nunca la pizarra.
+      expect(getCateringDishImage(mesaBufet)).toBe('/media/catalogo-servicios/catering-mesa-ak-01.jpeg');
     });
 
     it('si el dueño sube una foto real del buffet, esa SÍ se muestra: no se pisa nada suyo', () => {
@@ -74,11 +76,11 @@ describe('El simulador no le inventa otra foto a la Mesa bufet (orden 127, segun
   };
 
   it('con la direccion cruda de respaldo, no vuelve la pizarra', () => {
-    expect(fotoDelPlatoParaMostrar(mesaBufet, mesaBufet.imageUrl)).toBeUndefined();
+    expect(fotoDelPlatoParaMostrar(mesaBufet, mesaBufet.imageUrl)).toBe('/media/catalogo-servicios/catering-mesa-ak-01.jpeg');
   });
 
   it('con la foto del menu de respaldo, no se le pone la comida de otro plato', () => {
-    expect(fotoDelPlatoParaMostrar(mesaBufet, '/catering/menus/xv/dish_main_2.jpeg')).toBeUndefined();
+    expect(fotoDelPlatoParaMostrar(mesaBufet, '/catering/menus/xv/dish_main_2.jpeg')).toBe('/media/catalogo-servicios/catering-mesa-ak-01.jpeg');
   });
 
   it('un plato comun sin foto propia SÍ recibe el respaldo, como antes', () => {

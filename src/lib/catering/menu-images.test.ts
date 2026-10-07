@@ -3,6 +3,7 @@ import path from "node:path";
 import {
   cateringDishIdsWithoutConfirmedImage,
   defaultCateringDishImages,
+  fotoDeEjemploPorPlato,
   getCateringDishImage,
 } from "./menu-images";
 
@@ -53,7 +54,7 @@ describe("catering menu images", () => {
     ).toBe("/catering/menus/xv/dish_entrada_9.jpeg");
   });
 
-  it("does not show a fallback image for dishes not confirmed on Canva", () => {
+  it("dishes not confirmed on Canva show only their example photo, never the generic fallback", () => {
     for (const id of cateringDishIdsWithoutConfirmedImage) {
       expect(
         getCateringDishImage({
@@ -61,7 +62,7 @@ describe("catering menu images", () => {
           imageUrl:
             "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/old.jpg",
         }),
-      ).toBeUndefined();
+      ).toBe(fotoDeEjemploPorPlato[id]);
     }
   });
 
