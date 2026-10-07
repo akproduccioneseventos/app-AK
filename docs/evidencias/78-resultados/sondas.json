@@ -1,0 +1,120 @@
+{
+  "meaning": "Historical assertions reproduce defects; corrected results are focused source retests, not live Firebase/UI evidence.",
+  "catering": [
+    {
+      "sourceCommit": "f790a002426aecb6598efa239fa948db57571752",
+      "helperResult": null,
+      "directConversion": "/catering/menus/xv/dish_main_19.jpeg",
+      "cardDataImage": "/catering/menus/xv/dish_main_2.jpeg",
+      "customImagePreserved": "/media/mi-buffet-real.jpg",
+      "sourceHashes": {
+        "helper": "bc8ea573db57494d0e90338644f89b28ef4b29577a32afffe5382d44482afb2f",
+        "consumer": "27b2e2b20f1ff02f168df0e8cc569b2c8e9414458c760e6ed3b3076686ff3d3b"
+      }
+    },
+    {
+      "sourceCommit": "4cd3ba776b2e21d3fe528c4b487c9cecf849e256",
+      "helperResult": "/catering/menus/xv/dish_main_19.jpeg",
+      "directConversion": "/catering/menus/xv/dish_main_19.jpeg",
+      "cardDataImage": "/catering/menus/xv/dish_main_19.jpeg",
+      "customImagePreserved": "/media/mi-buffet-real.jpg",
+      "sourceHashes": {
+        "helper": "6b000d42b9a0ec5497e4e320dd7c943fcd27fc09a2bc777c1b56e3ac836f37f5",
+        "consumer": "27b2e2b20f1ff02f168df0e8cc569b2c8e9414458c760e6ed3b3076686ff3d3b"
+      }
+    },
+    {
+      "sourceCommit": "09051f80ee7722537a06c50c8eb7524b21ac11e8",
+      "helperResult": null,
+      "directConversion": null,
+      "cardDataImage": null,
+      "customImagePreserved": "/media/mi-buffet-real.jpg",
+      "sourceHashes": {
+        "helper": "0c05edc72d0dd04a4850b737293cebefc7feb929270754aeee7599f94d987b06",
+        "consumer": "d745878f4cdb21a3b9f92f2895b041ed21897617be0f196a05f4b4cac890ba9b"
+      }
+    }
+  ],
+  "virtualMenuIds": {
+    "sourceCommit": "f790a002426aecb6598efa239fa948db57571752",
+    "rejectedOfferedIds": [
+      {
+        "id": "dish_main_18_virtual_buffet",
+        "name": "ASADO COMPLETO CON MESA BUFET"
+      },
+      {
+        "id": "dish_main_2_virtual_buffet",
+        "name": "POLLO ARROLLADO CON MESA BUFET"
+      },
+      {
+        "id": "dish_main_17_virtual_buffet",
+        "name": "CORDERO ASADO CON MESA BUFET"
+      },
+      {
+        "id": "dish_main_7_virtual_buffet",
+        "name": "CERDO ARROLLADO CON MESA BUFET"
+      }
+    ],
+    "baseIdsAccepted": true,
+    "actualFunctions": [
+      "armarMenus",
+      "buildAuthoritativeSimulatorServices"
+    ],
+    "simulated": [
+      "raw menu reader",
+      "ingredient reader",
+      "recipe recalculation (identity, IDs only)"
+    ],
+    "doesNotValidatePricingOrDatabase": true,
+    "sourceHashes": {
+      "publicMenus": "4adfbbd43cb475c7819317accde912352d1f31243d0bf81687ecd621244043eb",
+      "authoritativeCatalog": "84a73dfc5d3f4b34169da7ef48f153b8bf5219234b8c7bbcd7e9804a79a178f2"
+    }
+  },
+  "transactionRetry": [
+    {
+      "sourceCommit": "4cd3ba776b2e21d3fe528c4b487c9cecf849e256",
+      "realMutator": "mutarDocumento",
+      "transactionAttempts": 2,
+      "returnedVideosCount": 2,
+      "committedVideos": 1,
+      "committedPhotos": 1,
+      "localMirrorsSimulated": 2,
+      "sourceHashes": {
+        "sync": "cbde5ffb3b7a599d23b87adab02752d18ed5c6c4677d8148a949575e366d331d",
+        "mutator": "59954056cc9aebc4286902b475b886d35627987c2dd8f597a28d6e6ee1fffd9b"
+      },
+      "simulated": [
+        "Firestore retry and snapshots",
+        "API feed",
+        "session",
+        "data-service",
+        "classification",
+        "filesystem mirrors"
+      ],
+      "noRealNetworkOrDatabase": true
+    },
+    {
+      "sourceCommit": "09051f80ee7722537a06c50c8eb7524b21ac11e8",
+      "realMutator": "mutarDocumento",
+      "transactionAttempts": 2,
+      "returnedVideosCount": 1,
+      "committedVideos": 1,
+      "committedPhotos": 1,
+      "localMirrorsSimulated": 2,
+      "sourceHashes": {
+        "sync": "28d84c3ef25111481f9fa5736f4fa4ddc1fcca9a34349ea2e37e532282223554",
+        "mutator": "59954056cc9aebc4286902b475b886d35627987c2dd8f597a28d6e6ee1fffd9b"
+      },
+      "simulated": [
+        "Firestore retry and snapshots",
+        "API feed",
+        "session",
+        "data-service",
+        "classification",
+        "filesystem mirrors"
+      ],
+      "noRealNetworkOrDatabase": true
+    }
+  ]
+}

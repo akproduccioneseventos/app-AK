@@ -1,27 +1,35 @@
-# Al día: fusionadas la foto de la Mesa bufet (1265) y la entrega de Instagram (1263)
+# Auditoria 78: cuatro fallos pendientes, no app lista
 
-**7 de octubre de 2026.** Main `09051f8` (PR 1263). Rama de traspaso `claude/app-debug-stabilize-m70e6z`.
+7/10/2026. Codex audita; Claude/Gemini corrigen; Claude compila. No fusionar sin el dueno.
 
-## Qué entró hoy
+## Versiones
 
-- **1262:** WhatsApp con un solo número oficial (`src/lib/public-contact.ts`); control
-  `ningun-numero-inventado` frena cualquier número escrito a mano.
-- **1264 y 1265:** la Mesa bufet sin foto ajena en ningún simulador (`fotoDelPlatoParaMostrar`);
-  control `la-foto-es-del-plato` recorre toda la app. Error 35 en `CLAUDE.md`.
-- **1263 (Gemini, orden 122) con arreglos de Claude:** galería e Instagram guardan sin pisarse
-  (`mutarDocumento`). Lo que encontró Codex: lo anotado adentro de una transacción que la base
-  repite quedaba del intento descartado (reels contados dos veces; galería, `updateDataItem` y
-  `deleteDataItem` decían "hecho" sin guardar). Pregunta 40 del método, 33 de antes de entregar.
+- UI aislada: `f790a002`, BUILD_ID `iZL-zBn4z4fNZ_IXFyUCN`.
+- Main de contraste y pruebas puntuales: `09051f80`.
+- PR 1266 (`8f4f6895`): solo traspaso documental; no trae estas correcciones.
+- Evidencia nueva: rama `codex/auditoria-78-20261007`, NO main.
 
-## Sigue
+## Siguiente tanda: orden 128
 
-- Codex vuelve a mirar Instagram/galería y web/simulador sobre `09051f8`.
-- Codex usa el entorno aislado (`npm run entorno:pruebas`, en su máquina) con los tres roles.
-- Pendiente del dueño: foto real de la Mesa bufet y del glitter bar; los nombres de las picadas
-  en Canva están cruzados.
-- Gemini: 112 B.1 (AUD01).
+- P1 SIM78-VIRTUAL: menus con buffet ofrecidos y rechazados al guardar.
+- P1 PDF78-PUBLICO: enlace del PDF sin sesion llama lector privado y no carga.
+- P2 PORTAL78-PERSONAS: raiz cliente cuenta filas, no acompanantes.
+- P2 CRM78-CITA: fecha de fiesta se convierte en cita no reservada.
+- Claude: comida/catalogo/precios y permisos; Gemini: consumidores/UI/portal/CRM.
 
-## Cómo se fusiona (error 30)
+## No repetir
 
-- Sin `expectedHeadSha` igual al de `.ak-puerta-verde.json`, no se fusiona.
-- No cambiar de rama ni `commit -a` mientras corre la puerta.
+- PR 1265: imagen buffet corregida y retesteada en consumidor; falta foto REAL.
+- PR 1263: contador Instagram retesteado con mutador real e intento repetido.
+- 19 pruebas / 4 suites pasan en `09051f80`; no son integracion real.
+- PDF control: dos paginas A4 numeradas sin cortes; su enlace publico falla.
+- Mesa sincronizada cliente/invitado; centro equipo rechaza sesion cliente.
+
+## Limites y registro
+
+- Mural sin proveedor y barra sin insumos no completaron sus recorridos.
+- Integraciones/hardware y matriz global sin aceptacion final; no cero errores.
+- Reporte: `docs/evidencias/78-recorridos-reales-y-retest.md`; orden 128; YA-RESUELTO.
+- Evidencias 75-77 en `codex/auditoria-75-20261007` (`f70da8c3`).
+- Compilar aislado fue excepcion autorizada; no se programo/publico la app.
+- Contrastar nueva tanda/SHA y volver a probar solo lo cambiado.

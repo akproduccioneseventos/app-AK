@@ -1,0 +1,25 @@
+{
+  "meaning": "Passing assertions reproduce a public consumer calling a private function; not acceptance.",
+  "sourceCommit": "09051f80ee7722537a06c50c8eb7524b21ac11e8",
+  "observed": {
+    "budgetAssigned": false,
+    "privateGateCalls": 1,
+    "companyReadCalls": 0,
+    "error": "Sesion no autorizada."
+  },
+  "tokenCorrectForIsolatedSecret": true,
+  "sourceHashes": {
+    "src/app/(app)/presupuestos/[id]/ver/page.tsx": "b9993e4debad0cb47b6699100bf52e1c581f38a9613d6d62799caf4975700877",
+    "src/app/actions/settings.ts": "a19b5451992f71ca4d0c6c7645493fedcf39a0f9befdf9a69ab52ef4ea145c14"
+  },
+  "simulated": [
+    "session absence",
+    "budget/settings readers",
+    "React state setters"
+  ],
+  "actual": [
+    "getCompanyInfo function",
+    "fetchPresupuestoAndSettings callback"
+  ],
+  "limitation": "No Firebase or production token validation. UI separately reproduced on compiled f790a002."
+}
