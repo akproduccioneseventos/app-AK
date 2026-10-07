@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 7 de octubre de 2026 — Codex, auditoría 78 (orden 128): cuatro fallos de recorridos reales
+
+- **A, el simulador ofrecía y después rechazaba los platos CON MESA BUFET.** Las cuatro variantes
+  se armaban sólo al mostrar los menús; el servidor, al guardar, no las conocía. Ahora salen de una
+  sola función (`agregarVariantesBufet`, en `src/lib/simulator/catalog.ts`) que usan las dos
+  puntas, con el mismo precio que su plato con guarnición. Un id inventado se sigue rechazando.
+- **B, el enlace del PDF no abría para el cliente.** La pantalla pedía la ficha privada de la
+  empresa junto con el presupuesto y, sin sesión, se caía todo. Ahora pide la pública (sólo se
+  usaban las notas del documento), un dato accesorio que falla no tapa el presupuesto, y la
+  pantalla distingue "no se pudo cargar" (con reintentar) de "este enlace no abre". Al cliente no
+  se le dice si el presupuesto existe. `getCompanyInfo` sigue pidiendo sesión.
+- **C, el portal del cliente contaba invitaciones y el equipo personas** (61 contra 121). Ahora
+  los dos cuentan personas con la misma regla (`getGuestPartySize`); "Pendientes" pasó a "Por
+  llegar", que es lo que contaba.
+- **D, la fecha de la fiesta aparecía como cita en el CRM y en la agenda.** Ahora va en
+  `eventDate` y `followUpDate` queda sólo para citas reales, también en el alta manual. **No se
+  migraron los registros viejos**: no se puede saber cuáles eran citas de verdad.
+
+```comprobar
+prueba: src/__tests__/simulador-variantes-buffet-autorizadas.test.ts
+prueba: src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts
+prueba: tests/e2e/presupuesto-publico-sin-sesion.spec.ts
+prueba: src/__tests__/portal-cliente-contadores-personas.test.ts
+prueba: src/__tests__/crm-fecha-evento-no-es-cita.test.ts
+usa: agregarVariantesBufet en src/app/actions/menus-catering.ts
+```
+
 ## 7 de octubre de 2026 — Codex, PR 1263: lo que pasa adentro de una transacción que la base repite
 
 Con dos servidores, la base **repite** el cambio de `mutarDocumento` si otro guardó en el medio.

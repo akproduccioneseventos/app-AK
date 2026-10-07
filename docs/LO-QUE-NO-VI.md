@@ -982,3 +982,29 @@ prueba: src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts
 prueba: src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts
 usa: videosNuevosEnEsteIntento en src/app/actions/social-media.ts
 ```
+
+---
+
+## Cuatro fallos de recorridos reales que mis pruebas no recorrían (7 de octubre de 2026)
+
+**Lo encontró Codex probando como organizador, cliente, invitado y prospecto (auditoría 78).**
+El simulador ofrecía platos con mesa bufet que el servidor rechazaba; el enlace del PDF no abría
+sin sesión; el portal contaba invitaciones y el equipo personas; la fecha de la fiesta salía como
+cita en el CRM.
+
+**Qué pregunta no me hice:** *¿lo que una punta ofrece o escribe, la otra punta lo entiende
+igual?* Mis pruebas miraban cada función sola: la que muestra los menús, la que guarda, la que
+cuenta. Ninguna recorría el camino entero de una persona sin sesión.
+
+**Qué se agregó:** preguntas 41 y 42 de `COMO-AUDITAR.md`, 34 y 35 de `ANTES-DE-ENTREGAR.md`.
+
+**El control:** las pruebas usan las funciones reales de las dos puntas (ofrecer y guardar), la
+prueba de navegador abre el enlace sin sesión, y `el-enlace-del-cliente-no-pide-datos-privados`
+recorre toda la app. Las cinco dieron rojo con el código viejo.
+
+```comprobar
+prueba: src/__tests__/simulador-variantes-buffet-autorizadas.test.ts
+prueba: src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts
+prueba: src/__tests__/portal-cliente-contadores-personas.test.ts
+prueba: src/__tests__/crm-fecha-evento-no-es-cita.test.ts
+```

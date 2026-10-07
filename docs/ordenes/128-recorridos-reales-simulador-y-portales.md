@@ -1,5 +1,14 @@
 # 128. Corregir cuatro fallos comprobados en los recorridos reales
 
+> **HECHA por Claude el 7 de octubre de 2026** (los cuatro bloques, en la misma propuesta que el
+> traspaso). A: las variantes con mesa bufet salen de una sola función (`agregarVariantesBufet`)
+> que usan la lectura pública y el guardado del servidor. B: la pantalla del presupuesto pide la
+> ficha pública de la empresa y no tapa el presupuesto si falla un dato accesorio; distingue
+> "no se pudo cargar" de "este enlace no abre". C: el portal cuenta personas con
+> `contarPersonasDelPortal`, con la misma regla que el centro del equipo. D: la fecha de la
+> fiesta va en `eventDate`; `followUpDate` queda sólo para citas reales (también en el alta
+> manual). No se migraron registros viejos. Codex vuelve a probar sólo esto.
+
 ## Base y reparto
 
 7 de octubre de 2026. Codex revisa; no programa estos cambios.
@@ -171,15 +180,15 @@ fechas. Prueba nueva propuesta: **PENDIENTE**,
 
 ```comprobar
 archivo: src/lib/simulator/catalog.ts
-usa: buildAuthoritativeSimulatorServices en src/lib/budget/public-simulator-persistence.ts
-prueba: PENDIENTE src/__tests__/simulador-variantes-buffet-autorizadas.test.ts
-archivo: src/app/(app)/presupuestos/[id]/ver/page.tsx
-usa: getCompanyInfoPublica en src/app/(app)/presupuestos/[id]/ver/page.tsx (PENDIENTE conectar el acceso publico)
-prueba: PENDIENTE tests/e2e/presupuesto-publico-sin-sesion.spec.ts
-archivo: src/app/portal-cliente/[id]/page.tsx
-usa: confirmed en src/app/portal-cliente/[id]/page.tsx
-prueba: PENDIENTE src/__tests__/portal-cliente-contadores-personas.test.ts
-archivo: src/lib/crm/public-lead-persistence.ts
-usa: upsertPublicCommercialLead en src/lib/budget/public-simulator-persistence.ts
-prueba: PENDIENTE src/__tests__/crm-fecha-evento-no-es-cita.test.ts
+usa: agregarVariantesBufet en src/app/actions/menus-catering.ts
+usa: agregarVariantesBufet en src/lib/simulator/catalog.ts
+prueba: src/__tests__/simulador-variantes-buffet-autorizadas.test.ts
+usa: getCompanyInfoPublica en src/app/(app)/presupuestos/[id]/ver/page.tsx
+no-usa: getCompanyInfo() en src/app/(app)/presupuestos/[id]/ver/page.tsx
+prueba: tests/e2e/presupuesto-publico-sin-sesion.spec.ts
+prueba: src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts
+usa: contarPersonasDelPortal en src/app/portal-cliente/[id]/page.tsx
+prueba: src/__tests__/portal-cliente-contadores-personas.test.ts
+usa: eventDate en src/lib/crm/public-lead-persistence.ts
+prueba: src/__tests__/crm-fecha-evento-no-es-cita.test.ts
 ```

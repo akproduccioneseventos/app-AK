@@ -137,3 +137,11 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     La base lo puede correr dos veces. Lo que anotás afuera (contador, "encontrado", "guardado") se
     pone en cero al empezar el cambio, y lo que no se puede repetir (mensajes, borrar archivos) va
     después, no adentro.
+
+34. **¿Tu pantalla ofrece algo o se abre con un enlace?** Lo que ofrece tiene que salir de la misma
+    función con que el servidor lo valida al guardar. Y si se abre sin cuenta, nada de lo que pide
+    al cargar puede exigir cuenta (abrila sin sesión en la prueba).
+
+35. **¿Escribís un número o un campo que otros ya muestran?** Mismo número, misma función y misma
+    unidad (personas o invitaciones). Y un campo no se usa para otra cosa: una fecha de fiesta no
+    va en el campo de las citas.
