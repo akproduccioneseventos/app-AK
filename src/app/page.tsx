@@ -17,6 +17,7 @@ import { FAQSection } from "@/components/landing/FAQSection";
 import { PublicFooter } from "@/components/public-footer";
 import defaultTestimonials from "@/data/testimonials.json";
 import defaultGaleriaPublica from "@/data/galeria-publica.json";
+import { GLITTER_BAR_FOTO_DE_EJEMPLO } from "@/lib/catering/menu-images";
 import defaultCatalogoFotos from "@/data/catalogo-fotos.json";
 import { BlogSection } from "@/components/landing/BlogSection";
 import { FloatingActions } from "@/components/public/FloatingActions";
@@ -168,6 +169,8 @@ function getDefaultServiceImage(title: string): string {
   ) {
     return "/media/catalogo-servicios/blog_iluminacion.png";
   }
+  // El glitter bar no es una barra de tragos: va su imagen de ejemplo (decision del dueno).
+  if (lower.includes("glitter")) return GLITTER_BAR_FOTO_DE_EJEMPLO;
   if (
     lower.includes("bar") ||
     lower.includes("trago") ||

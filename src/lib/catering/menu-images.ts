@@ -58,6 +58,21 @@ export const cateringDishIdsWithoutConfirmedImage = new Set<string>([
 
 const FALLBACK_MENU_DISH_IMAGE = `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_12.jpeg`;
 
+/**
+ * Foto de EJEMPLO para los platos sin foto propia. Decision del dueno (7 de octubre de 2026):
+ * *"si no hay foto pones una de ejemplo"*. Un plato no queda en blanco: si el dueno sube la
+ * foto real, esa tiene otra direccion y se muestra en lugar de esta.
+ *
+ * - Mesa bufet: su archivo propio es una pizarra negra sin comida. Va la mesa de catering de AK.
+ * - Empanaditas y pizzetitas: va su foto de pizzetitas.
+ * - Panchos: su foto propia.
+ */
+export const fotoDeEjemploPorPlato: Record<string, string> = {
+  dish_main_19: "/media/catalogo-servicios/catering-mesa-ak-01.jpeg",
+  dish_entrada_18: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_18.jpeg`,
+  dish_child_1: `${DEFAULT_MENU_IMAGE_BASE}/dish_child_1.png`,
+};
+
 export function getCateringDishImage(
   item: (Pick<MenuItem, "id" | "imageUrl"> & { name?: string; nombre?: string }) | null | undefined,
 ): string | undefined {
@@ -85,7 +100,7 @@ export function getCateringDishImage(
     // Solo se ignora el archivo POR DEFECTO de ese mismo plato. Si el dueno sube una
     // foto real, tiene otra direccion y se muestra igual: no se pisa nada suyo.
     const esSuArchivoDeRelleno = item.imageUrl === `${DEFAULT_MENU_IMAGE_BASE}/${item.id}.jpeg`;
-    if (cateringDishIdsWithoutConfirmedImage.has(item.id) && esSuArchivoDeRelleno) return undefined;
+    if (cateringDishIdsWithoutConfirmedImage.has(item.id) && esSuArchivoDeRelleno) return fotoDeEjemploPorPlato[item.id];
     return item.imageUrl;
   }
 
@@ -95,7 +110,7 @@ export function getCateringDishImage(
   if (itemName.includes("cheddar")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_6.jpeg`;
   if (itemName.includes("cerdo") && itemName.includes("braseado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_4.jpeg`;
 
-  if (cateringDishIdsWithoutConfirmedImage.has(item.id)) return undefined;
+  if (cateringDishIdsWithoutConfirmedImage.has(item.id)) return fotoDeEjemploPorPlato[item.id];
   return isLegacyCanvaImage ? FALLBACK_MENU_DISH_IMAGE : undefined;
 }
 
@@ -132,3 +147,11 @@ export function getCateringMenuImage(
   const isLegacyCanvaImage = menu.imageUrl?.includes(LEGACY_CANVA_IMAGE_HOST);
   return menu.imageUrl && !isLegacyCanvaImage ? menu.imageUrl : undefined;
 }
+
+/**
+ * El glitter bar no tiene foto real (la que habia era un toro mecanico, Codex auditoria 74).
+ * Decision del dueno, 7 de octubre de 2026: *"si no hay foto pones una de ejemplo"*. Es una
+ * imagen de brillos, no una foto de una fiesta: por eso no entra en la galeria de fotos reales.
+ * Cuando haya foto real, se cambia acá y en ningun otro lado.
+ */
+export const GLITTER_BAR_FOTO_DE_EJEMPLO = "/media/catalogo-servicios/glitter-bar-ejemplo.jpeg";

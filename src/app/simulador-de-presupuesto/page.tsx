@@ -68,7 +68,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
-import { cateringDishIdsWithoutConfirmedImage, fotoDelPlatoParaMostrar, getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
+import { cateringDishIdsWithoutConfirmedImage, fotoDelPlatoParaMostrar, getCateringDishImage, getCateringMenuImage, GLITTER_BAR_FOTO_DE_EJEMPLO } from '@/lib/catering/menu-images';
 import {
   calculateSimulatorPricing,
   getSimulatorServiceCalculatedData,
@@ -115,8 +115,8 @@ const safeImageUrl = (url?: string): string | undefined => {
 
 const getServiceOrDishImage = (s?: { id?: string; nombre?: string; title?: string; imageUrl?: string }): string => {
     if (!s) return '/media/catalogo-servicios/blog_presupuesto.png';
-    // Un plato que la app decidio que no tiene foto confirmada (la Mesa bufet) no recibe una
-    // de evento generica: la tarjeta queda sin foto, que es honesto. Ver fotoDelPlatoParaMostrar.
+    // Un plato sin foto confirmada (la Mesa bufet) no recibe una de evento generica: lleva su
+    // foto de EJEMPLO, la que decide fotoDelPlatoParaMostrar (decision del dueno, 7/10/2026).
     if (s.id && cateringDishIdsWithoutConfirmedImage.has(s.id)) {
       return fotoDelPlatoParaMostrar({ id: s.id, imageUrl: s.imageUrl }) || '';
     }
@@ -126,6 +126,9 @@ const getServiceOrDishImage = (s?: { id?: string; nombre?: string; title?: strin
     if (dishImg) return dishImg;
 
     const text = (s.nombre || s.title || '').toLowerCase();
+    // Antes que "bar": el glitter bar no es una barra de tragos (Codex, auditoria 74). Sin foto
+    // real, va su imagen de ejemplo (decision del dueno, 7/10/2026).
+    if (/glitter/.test(text)) return GLITTER_BAR_FOTO_DE_EJEMPLO;
     if (/(boda|casamiento)/.test(text)) return '/media/catalogo-servicios/boda_persuasiva.png';
     if (/(15|quince)/.test(text)) return '/media/catalogo-servicios/quinceanera_persuasiva.png';
     if (/(corporat|empres)/.test(text)) return '/media/catalogo-servicios/corporativo_persuasivo.png';

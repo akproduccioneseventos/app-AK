@@ -17,10 +17,10 @@
 
 ## Sigue
 
+- Fotos: decisión del dueño, si no hay foto va una de ejemplo. No se le vuelven a pedir.
+
 - Puerta completa → fusión en otro paso con `expectedHeadSha`.
 - Codex vuelve a probar SÓLO lo de la orden 128 sobre el SHA fusionado.
-- Pendiente del dueño: foto real de la Mesa bufet y del glitter bar; nombres de las picadas en
-  Canva cruzados.
 - Gemini: 112 B.1 (AUD01).
 
 ## Cómo se fusiona (error 30)

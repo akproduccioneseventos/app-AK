@@ -31,7 +31,23 @@ const CATALOGO_COLLECTION = 'catalogo_fotos';
 const SIN_BASE = () => process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
 
 export async function getCatalogoFotos(): Promise<CatalogoFoto[]> {
-  return readData<CatalogoFoto[]>(CATALOGO_FILE, []);
+  const fotos = await readData<CatalogoFoto[]>(CATALOGO_FILE, []);
+  return fotos.map(corregirCategoriaImportada);
+}
+
+/**
+ * Las doce fotos `glitter_bar_img_*` se importaron del catalogo en PDF con la categoria de la
+ * pagina, "Glitter Bar", y son sesiones de fotos de quince en exteriores (revisadas una por una
+ * el 7 de octubre de 2026). En la galeria publica, "Glitter Bar" mostraba chicas en el campo.
+ * Se corrige al leer porque la copia de la base tiene la categoria vieja.
+ */
+function corregirCategoriaImportada(foto: CatalogoFoto): CatalogoFoto {
+  if (!foto?.url?.includes('/glitter_bar_img_') || foto.categoriaServicio !== 'Glitter Bar') return foto;
+  return {
+    ...foto,
+    categoriaServicio: 'Fotografía y Cabina',
+    descripcion: 'Sesión de fotos de quince en exteriores, de AK Producciones.',
+  };
 }
 
 export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
