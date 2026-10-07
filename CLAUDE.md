@@ -1224,6 +1224,13 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Foto que falta, foto de internet, sin preguntar (7 de octubre de 2026).** Palabras del dueño: *"las
+  fotos que falten pones una de internet"* y *"siempre hacé eso sin preguntar"*. Si un servicio no
+  tiene foto real, se pone una de **Unsplash o Pexels** (licencia libre para uso comercial), se anota
+  su origen en `public/media/catalogo-servicios/CREDITOS.md` y se describe como ilustrativa. Nunca de
+  Google Imágenes ni de otra empresa. Desde el entorno web de Claude no se puede bajar (los bancos de
+  imágenes están bloqueados): se le pide a Gemini, que trabaja desde la máquina del dueño.
+
 - **Lo chico lo hace Claude, sin preguntar (3 de octubre de 2026).** Palabras del dueño: *"siempre lo
   chico hacelo tú sin preguntar"*. Si un arreglo de una entrega de Gemini es chico, Claude lo hace en
   la misma rama y sigue; a Gemini va sólo lo grande. Manda sobre el reparto de más arriba.

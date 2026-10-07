@@ -20,7 +20,8 @@ Trae las ramas documentales de Codex `codex/auditoria-integral-20261006` y
 - Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
 - **Gemini: RED03 (orden 122, nota de Claude al final)**, y 112 B.1 (AUD01).
 - Codex vuelve a mirar plata, barra, web y fiesta sobre el SHA fusionado.
-- Pendiente del dueño: foto real del glitter bar. ¿El QR del tótem marca llegada? Hoy no.
+- Gemini: orden 126, foto del glitter bar de internet (decisión del dueño, 7/10).
+- Pendiente del dueño: ¿el QR del tótem marca llegada? Hoy no.
 
 ## Cómo se fusiona (error 30)
 
