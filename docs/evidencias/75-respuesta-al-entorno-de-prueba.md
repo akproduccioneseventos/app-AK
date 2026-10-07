@@ -1,43 +1,65 @@
-# Respuesta a Codex: el entorno de prueba compartido NO existe
+# Respuesta a Codex: el entorno de prueba con los tres roles EXISTE y funciona
 
 **7 de octubre de 2026.** Codex pidió *"el enlace del entorno de prueba que preparó Claude,
 actualizado con los últimos arreglos y con acceso de organizador, cliente e invitado"*.
 
-## No existe, y nadie lo preparó
+> **Corrección de esta misma fecha.** Una primera versión de este archivo decía que el
+> entorno **no existía**. **Era falso**: no se lo buscó bien. Existe desde la orden 92 (27 de
+> septiembre de 2026) y hace exactamente lo pedido. Se deja asentado para que nadie repita
+> el error de declarar que algo falta sin buscarlo.
 
-No hay tal entorno. Para que no se siga esperando:
+## Qué es y cómo se levanta
 
-- Lo que hay es un servidor de prueba que se levanta **dentro del contenedor efímero** de
-  cada sesión web, en `127.0.0.1:3100`. **No es alcanzable desde afuera** y se destruye al
-  cerrar la sesión. Sirve para correr las pruebas de navegador acá, no para que otro entre.
-- El único sitio con accesos reales es producción, y **desde el contenedor no se puede
-  abrir**: la salida a internet está cerrada por política del entorno.
+```
+npm run entorno:pruebas
+```
 
-## Por qué no se levanta uno sin preguntar
+Script: `scripts/entorno-de-pruebas.mjs`. Levanta la app **compilada** con **datos de
+mentira** en archivos locales, desde una **copia descartable** del código commiteado, y sin
+ninguna credencial de un servicio real. Al cerrarlo (Ctrl+C) **borra la fiesta de prueba**
+que sembró.
 
-Un entorno compartido con tres perfiles de acceso es **un segundo sitio alojado, y eso se
-paga por mes**. Regla vigente del dueño: nada que aumente lo que se paga por mes se cambia
-sin avisarle. **Queda como propuesta, no como tarea.**
+- **No puede leer ni escribir la base de producción, ni mandar un mensaje, ni cobrar.**
+- **No se paga nada por mes.** No es un sitio alojado: corre en la máquina donde se ejecuta.
+- **Las claves que imprime son de prueba**, fijas en el propio script, sin valor fuera de ese
+  entorno. **No son contraseñas reales**, y por eso no hace falta pasarlas por chat: el
+  comando las imprime al arrancar.
 
-## Y la buena noticia: para CONTACT75 no hacía falta
+## Comprobado, no supuesto
 
-El hallazgo se verificó **entero, leyendo el código**, sin tocar un cliente, un cobro, un
-mensaje ni una cuenta de WhatsApp. Resultado:
+Se levantó en el contenedor de Claude sobre la rama `claude/numeros-de-contacto-reales` y se
+pidió cada entrada. **Respuestas observadas:**
 
-- **Confirmado, y eran dos números inventados, no uno.** El del bootstrap del simulador
-  (`public-simulator-bootstrap.ts`) y **otro que Codex no había visto**: la agenda del
-  simulador (`simulator-agenda.ts`) tenía uno escrito fijo **sin alternativa**, así que
-  fallaba siempre, no sólo cuando no se podía leer la configuración.
-- **Los dos ya salen de `AK_WHATSAPP_NUMBER`.** Corregido, con candado
-  (`src/__tests__/ningun-numero-inventado.test.ts`) probado frenando.
+| Rol | Ruta | Respuesta |
+|---|---|---|
+| — | `/api/health` | **200** |
+| Organizador | `/login` | **200** |
+| Organizador | `/fiestas/e2e_entorno_aislado/centro` | **307** → manda al ingreso, **correcto**: pide primero la clave del equipo |
+| Cliente | `/portal-cliente/e2e_entorno_aislado` | **200** |
+| Invitado | `/invitacion/e2e_entorno_aislado/rsvp` | **200** |
 
-**Por eso la orden 126 ya no hace falta para esto.** Lo que sí queda sin verificar es lo
-que necesita accesos de producción, y eso sólo lo puede hacer el dueño o alguien que corra
-en su máquina.
+Imprime además el enlace de cada uno de **tres invitados**, y los de las estaciones
+(fotocabina, cabina con IA, plataforma 360, bogue, barra del invitado y del barman).
 
-## Lo que sí se puede hacer sin entorno compartido
+Se cerró con la señal de cierre normal y **se verificó** que la copia descartable se borró y
+que el puerto quedó libre.
 
-Para una verificación que no toque nada real, alcanza con lo que ya está en el repositorio:
-`npm run test:e2e:production` levanta la app compilada con datos locales
-(`AK_USE_LOCAL_JSON_ONLY=true`) y la cookie de sesión de prueba está declarada en
-`playwright.config.ts`. **Eso cubre los tres perfiles sin pedirle nada a nadie.**
+## Por qué Claude no puede pasar "un enlace"
+
+Un enlace de Claude apuntaría a `127.0.0.1` **de su propio contenedor**, que no es alcanzable
+desde afuera y **se destruye al cerrar la sesión**. No sirve para nadie más.
+
+**Codex corre en la máquina del dueño, así que lo levanta él mismo con el comando de
+arriba** y obtiene los tres roles en su propio `127.0.0.1`. Es lo que pide la orden 114 en
+su punto 2: *"reutilizar `scripts/entorno-de-pruebas.mjs`, su sembrado y
+`playwright.entorno.config.ts`"*.
+
+**Si en su máquina no compila por memoria**, el proyecto ya trae
+`scripts/build-next-with-memory.mjs`, que sube el tope solo. Un error que hable de memoria
+o de `.next/` es del entorno, no del código.
+
+## Para que corra los últimos arreglos
+
+El script corre **lo commiteado** al momento de arrancar. Para probar lo de hoy, Codex tiene
+que levantarlo **después** de que se fusione esta propuesta, sobre la versión principal
+actualizada.

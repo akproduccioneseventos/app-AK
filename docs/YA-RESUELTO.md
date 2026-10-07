@@ -11021,8 +11021,44 @@ Codex avisó que la página de privacidad mostraba el correo como número de Wha
 tuvo razón en no darlo por verificado**: lo que vio es la versión publicada vieja. **En el
 código ya estaba corregido** por la orden 125. No es un hallazgo nuevo.
 
-### El entorno de prueba compartido que pidió Codex no existe
+### El entorno de prueba con los tres roles SÍ existe (corrección)
 
-Nunca se preparó. El detalle y la alternativa que no cuesta nada están en
-`docs/evidencias/75-respuesta-al-entorno-de-prueba.md`. **Levantar uno es un sitio alojado
-más y se paga por mes: queda como propuesta, no como tarea.**
+**Se escribió primero que no existía, y era falso: no se lo buscó bien.** Existe desde la
+orden 92: `npm run entorno:pruebas` levanta la app compilada con datos de mentira y los tres
+roles —organizador, cliente e invitado—, sin credenciales reales y **sin costo por mes**.
+
+**Se levantó y se comprobó**: salud, ingreso, portal del cliente y confirmación del invitado
+responden; la fiesta del organizador manda al ingreso, que es lo correcto. Detalle en
+`docs/evidencias/75-respuesta-al-entorno-de-prueba.md`.
+
+**Codex lo levanta en la máquina del dueño**, no hace falta un enlace: uno de Claude
+apuntaría a un contenedor que nadie alcanza y que se borra al cerrar.
+
+**Es la cuarta vez que en este proyecto se declara que algo falta por no buscarlo bien.**
+Antes de decir "no existe", buscar sin distinguir mayúsculas y mirar `package.json`.
+
+
+---
+
+## El número de WhatsApp se lee de un solo lugar en toda la app (7 de octubre de 2026)
+
+El dueño pidió *"que no tenga errores"* el WhatsApp. Arreglar los dos números inventados no
+alcanzaba: **el número verdadero estaba escrito a mano en unos 30 lugares** —las estaciones
+de la fiesta, el portal del cliente, el pie de página, la presentación, el simulador, el
+asistente—. Todos correctos ese día, pero **el día que el dueño cambie de número, esos 30
+quedan viejos y mandan a la gente a ningún lado**: el mismo error, esperando a pasar.
+
+**Ahora todos leen de `src/lib/public-contact.ts`.** También el número para mostrar
+(`AK_WHATSAPP_PARA_MOSTRAR`, "+598 98 355 530"), que se arma solo desde el mismo dato.
+**No cambia nada de lo que se ve hoy**: se verificó que el formato coincide exacto.
+
+**Quedan escritos a mano, y está bien:** cuatro ejemplos de formato dentro de un
+`placeholder` y dos comentarios.
+
+**El candado se endureció:** `ningun-numero-inventado.test.ts` ya no deja que un enlace de
+WhatsApp o de llamada lleve el número escrito a mano, **ni siquiera el verdadero**. Probado
+frenando: con el número puesto a mano en una diapositiva, se pone en rojo y nombra archivo y
+línea.
+
+**Esta vez se commiteó ANTES de la prueba destructiva**, que fue la lección de la tanda
+anterior: revertir la prueba no se llevó el arreglo.
