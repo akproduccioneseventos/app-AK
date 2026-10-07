@@ -128,3 +128,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 31. **¿Guardás la lista que mandó la pantalla?** Guardá sólo lo que la persona cambió, sobre lo de
     ese momento. Una pantalla vieja no puede deshacer lo que otro hizo recién.
+32. **¿Cambiaste lo que devuelve una función que usan varias pantallas?** Buscá todos los que la
+    llaman y fijate qué le agregan encima (`funcion(x) || otraCosa`). Si la función dice "no hay",
+    un `||` en la pantalla lo deshace sin que nadie se entere. La prueba mira la pantalla, no sólo
+    la función.

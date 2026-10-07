@@ -99,6 +99,29 @@ export function getCateringDishImage(
   return isLegacyCanvaImage ? FALLBACK_MENU_DISH_IMAGE : undefined;
 }
 
+/**
+ * La foto que se le MUESTRA al cliente para un plato, con un respaldo opcional.
+ *
+ * Orden 127, segunda vuelta (Codex, 7 de octubre de 2026): `getCateringDishImage` ya devolvia
+ * "sin foto" para la Mesa bufet, pero el simulador le ponia OTRA por su cuenta, en tres lugares:
+ * la direccion cruda (la misma pizarra vacia), la foto del menu (la comida de otro plato) o una
+ * foto generica de boda o de quince. La decision de "este plato no tiene foto confirmada" se
+ * tomaba en un lado y se deshacia en el de al lado.
+ *
+ * **Por eso los consumidores no inventan respaldo: le piden la foto a esta funcion.** Para un
+ * plato de `cateringDishIdsWithoutConfirmedImage` se devuelve exactamente lo que decide
+ * `getCateringDishImage`, sin respaldo: o la foto real que subio el dueno, o nada. Para el resto,
+ * la foto propia y, si no hay, el respaldo que pase quien llama.
+ */
+export function fotoDelPlatoParaMostrar(
+  item: (Pick<MenuItem, "id" | "imageUrl"> & { name?: string; nombre?: string }) | null | undefined,
+  respaldo?: string,
+): string | undefined {
+  const propia = getCateringDishImage(item);
+  if (item && cateringDishIdsWithoutConfirmedImage.has(item.id)) return propia;
+  return propia || respaldo;
+}
+
 export function getCateringMenuImage(
   menu: Pick<FullMenu, "imageUrl" | "items"> | null | undefined,
 ): string | undefined {
