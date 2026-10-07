@@ -930,3 +930,29 @@ guardado que toque plata, aunque lo haya escrito yo hace una hora.
 ```comprobar
 prueba: src/__tests__/auditoria-73-guardado-concurrente.test.ts
 ```
+
+---
+
+## La Mesa bufet seguía mostrando otra foto en el simulador (7 de octubre de 2026)
+
+**Lo encontró Codex, sobre un arreglo mío de esa misma mañana.** Arreglé
+`getCateringDishImage` para que la Mesa bufet devolviera "sin foto" en vez de una pizarra vacía,
+lo probé, y lo di por hecho. **El simulador lo deshacía en tres lugares** —la dirección cruda, la
+foto del menú, una foto genérica de boda o de quince— y **el segundo simulador**
+(`simulador-ak`) en uno más.
+
+**Qué pregunta no me hice:** *¿quién llama a esta función, y qué le agrega encima?* Probé la
+función, no la pantalla. Es el error 7 ("pedir el ingrediente y no el resultado") con otra cara.
+
+**Qué se agregó:** pregunta 32 de `ANTES-DE-ENTREGAR.md`. Y la función `fotoDelPlatoParaMostrar`,
+que es la única que decide si corresponde un respaldo: los consumidores ya no lo arman solos.
+
+**El control:** `la-foto-es-del-plato.test.ts` recorre **toda la app** buscando un respaldo propio
+después de `getCateringDishImage`. Probado frenando con el agujero de `simulador-ak` puesto de
+vuelta. La primera versión miraba un solo archivo y por eso no lo veía.
+
+```comprobar
+prueba: src/__tests__/la-foto-es-del-plato.test.ts
+usa: fotoDelPlatoParaMostrar en src/app/simulador-de-presupuesto/page.tsx
+usa: fotoDelPlatoParaMostrar en src/app/simulador-ak/page.tsx
+```

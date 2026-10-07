@@ -1,3 +1,4 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 /**
  * Asistente para invitados en la fiesta.
  *
@@ -40,7 +41,7 @@ export function responderDudaInvitado(
 ): RespuestaAsistente {
   const p = pregunta.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  const telLimpio = datos.telefonoOrganizador ? datos.telefonoOrganizador.replace(/[^0-9]/g, '') : '59898355530';
+  const telLimpio = datos.telefonoOrganizador ? datos.telefonoOrganizador.replace(/[^0-9]/g, '') : AK_WHATSAPP_NUMBER;
   const whatsappOrganizador = `https://wa.me/${telLimpio}`;
 
   /**

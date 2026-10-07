@@ -1,4 +1,5 @@
 'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -36,7 +37,7 @@ import {
   type ArmadoRapidoConfig,
 } from '@/types/armado-rapido';
 import { defaultClubUruguayConfig } from '@/types/armado-rapido';
-import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
+import { getCateringDishImage, getCateringMenuImage, fotoDelPlatoParaMostrar } from '@/lib/catering/menu-images';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { buildAnnualAdjustmentProjection, DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE } from '@/lib/budget/formal-budget';
@@ -44,7 +45,7 @@ import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisit
 import { isValidUruguayMobile, normalizeUruguayPhone } from '@/lib/commercial/contact';
 import type { Presupuesto } from '@/types/presupuesto';
 
-const WHATSAPP_NUMBER = '59898355530';
+const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
 const DEFAULT_DISCOUNT = 15;
 const SIMULATOR_FALLBACK_CONFIG: ArmadoRapidoConfig = {
   descuentoGeneral: DEFAULT_DISCOUNT,
@@ -239,7 +240,7 @@ function SimuladorAKContent() {
           if (!allDishes.some(d => d.id === item.id)) {
             allDishes.push({
               ...item,
-              imageUrl: getCateringDishImage(item) || getCateringMenuImage(menu),
+              imageUrl: fotoDelPlatoParaMostrar(item, getCateringMenuImage(menu)),
               isFeatured: Boolean(item.isFeatured || menu.featured)
             });
           }

@@ -1,4 +1,5 @@
 'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -1838,7 +1839,7 @@ export default function FotocabinaPage() {
                         <span>Esto lo hizo AK Producciones</span>
                       </div>
                       <a
-                        href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                        href={`https://wa.me/${AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(
                           `¡Hola AK Producciones! Me saqué una foto en la fotocabina de la fiesta de ${fiesta?.eventName || 'un evento'} y me encantó. Quería consultarles para mi fiesta.`
                         )}`}
                         target="_blank"

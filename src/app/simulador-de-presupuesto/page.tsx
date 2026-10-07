@@ -68,7 +68,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
-import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
+import { cateringDishIdsWithoutConfirmedImage, fotoDelPlatoParaMostrar, getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
 import {
   calculateSimulatorPricing,
   getSimulatorServiceCalculatedData,
@@ -115,6 +115,11 @@ const safeImageUrl = (url?: string): string | undefined => {
 
 const getServiceOrDishImage = (s?: { id?: string; nombre?: string; title?: string; imageUrl?: string }): string => {
     if (!s) return '/media/catalogo-servicios/blog_presupuesto.png';
+    // Un plato que la app decidio que no tiene foto confirmada (la Mesa bufet) no recibe una
+    // de evento generica: la tarjeta queda sin foto, que es honesto. Ver fotoDelPlatoParaMostrar.
+    if (s.id && cateringDishIdsWithoutConfirmedImage.has(s.id)) {
+      return fotoDelPlatoParaMostrar({ id: s.id, imageUrl: s.imageUrl }) || '';
+    }
     const safe = safeImageUrl(s.imageUrl);
     if (safe) return safe;
     const dishImg = getCateringDishImage({ id: s.id || '', imageUrl: s.imageUrl });
@@ -191,7 +196,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number; image
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
-        imageUrl: getCateringDishImage(item) || item.imageUrl,
+        imageUrl: fotoDelPlatoParaMostrar(item, item.imageUrl),
         isFeatured: item.isFeatured,
     };
 };
@@ -412,7 +417,7 @@ function SimuladorContent() {
         const allDishes = Array.from(
             allMenus.flatMap(menu => (menu.items || []).map(dish => ({
                 ...dish,
-                imageUrl: getCateringDishImage(dish) || getCateringMenuImage(menu),
+                imageUrl: fotoDelPlatoParaMostrar(dish, getCateringMenuImage(menu)),
                 isFeatured: Boolean(dish.isFeatured || menu.featured),
             })))
             .reduce((map, dish) => {

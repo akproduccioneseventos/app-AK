@@ -1018,6 +1018,17 @@ el commit "base" cayó en la copia de trabajo y la dejó marcada sin carpeta. No
 **Qué se hace distinto:** toda prueba que escribe con git lo llama sin las variables `GIT_*`, y el
 control `una-prueba-no-escribe-en-el-repositorio` lo exige.
 
+### 35. Arreglar la función y no seguirla hasta la pantalla
+
+**Pasó el 7 de octubre de 2026, con el dueño diciendo *"me estoy cansando de tantos errores"*.**
+Arreglé la foto de la Mesa bufet en la función que la elige y la di por terminada. Cuatro
+pantallas le agregaban otra foto encima (`funcion(x) || otraCosa`) y lo deshacían. Lo encontró
+Codex.
+
+**Qué se hace distinto:** cuando cambia lo que devuelve una función compartida, antes de decir
+"listo" se buscan todos los que la llaman (`grep` del nombre en `src/`) y se mira qué le agregan.
+La prueba va contra lo que ve el cliente, y el candado recorre toda la app, no un archivo.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y

@@ -1,4 +1,5 @@
 'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
@@ -1648,7 +1649,7 @@ export default function EspejoMagicoPage() {
                       <span>Esto lo hizo AK Producciones</span>
                     </div>
                     <a
-                      href={`https://wa.me/59898355530?text=${encodeURIComponent(
+                      href={`https://wa.me/${AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(
                         `¡Hola AK Producciones! Me saqué una foto en el Espejo Mágico de la fiesta de ${fiesta?.eventName || 'un evento'} y me encantó. Quería consultarles para mi propio evento.`
                       )}`}
                       target="_blank"

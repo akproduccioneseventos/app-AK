@@ -1410,7 +1410,7 @@ export default function PortalClientePage() {
 
       {/* ── Floating "Necesito ayuda" button ───────────── */}
       {(() => {
-        const waNumber = '59898355530';
+        const waNumber = AK_WHATSAPP_NUMBER;
         const waText = encodeURIComponent(`Hola, necesito ayuda con mi evento "${config.nombreEvento}".`);
         return (
           <a

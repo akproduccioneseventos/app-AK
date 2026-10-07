@@ -73,7 +73,7 @@ describe('Orden 18: Lo que le falta a la web para estar completa', () => {
       const fuente = fs.readFileSync(path.join(process.cwd(), 'src/app/mantenimiento/page.tsx'), 'utf8');
 
       expect(fuente).toContain('Estamos haciendo mejoras');
-      expect(fuente).toContain('https://wa.me/59898355530');
+      expect(fuente).toContain('https://wa.me/${AK_WHATSAPP_NUMBER}');
       expect(fuente).toContain('Escribinos directo por WhatsApp');
     });
   });

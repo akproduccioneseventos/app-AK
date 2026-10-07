@@ -1,4 +1,5 @@
 'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -8,7 +9,7 @@ import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
 import { cn } from '@/lib/utils';
 import type { CompanyInfo } from '@/types/settings';
 
-const WHATSAPP_NUMBER = '59898355530';
+const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
 
 interface PlanPagosSlideProps {
   companyInfo: CompanyInfo;

@@ -10973,3 +10973,151 @@ prueba: tests/e2e/galeria-hd-destino-publico.spec.ts
 prueba: tests/e2e/galeria-servicio-y-contacto-publico.spec.ts
 prueba: tests/e2e/barra-72-pedido-propio-y-estado.spec.ts
 ```
+
+---
+
+## Dos números de WhatsApp inventados en el camino del prospecto (7 de octubre de 2026)
+
+**Lo encontró Codex (CONTACT75) y al verificarlo apareció el doble.**
+
+| Dónde | Qué le pasaba al prospecto |
+|---|---|
+| `src/app/actions/public-simulator-bootstrap.ts` | Si no se podía leer la conexión de WhatsApp, el simulador entregaba **un número de ejemplo**. El prospecto armaba su presupuesto, tocaba "consultar" o "compartir" y **caía en la nada**. |
+| `src/app/actions/simulator-agenda.ts` | Tenía otro número inventado **escrito fijo, sin alternativa**. No fallaba sólo cuando algo se caía: **fallaba siempre**. Todos los que agendaban una reunión recibían un número muerto. Codex no lo había visto. |
+
+Los dos salen ahora del único lugar donde vive el número de AK (`AK_WHATSAPP_NUMBER` y
+`buildAkWhatsAppUrl`, en `src/lib/public-contact.ts`).
+
+**Es la tercera vez en el proyecto que aparece un dato de contacto escrito a mano**, y las
+tres en pantallas que ve un cliente. La regla ya estaba escrita arriba de
+`public-contact.ts` —*"ningún archivo debe escribir una URL a mano"*— y no alcanzó, porque
+**nada la hacía cumplir**.
+
+### El candado: `src/__tests__/ningun-numero-inventado.test.ts`
+
+Mira **sólo los números a los que la app manda a alguien**: un enlace de WhatsApp, o un
+valor de respaldo de un contacto. **Probado frenando**, no pasando: con un número falso
+puesto a propósito se pone en rojo y lo nombra con archivo y línea.
+
+**Por qué mira tan poco, a propósito:** la primera versión marcó nueve archivos más. Se
+revisaron uno por uno y **seis eran ejemplos de formato dentro de un `placeholder`**, del
+tipo *"Ej: 59899123456 (con código de país)"*. Eso está **bien**: le muestra al operador
+cómo se escribe un teléfono. Un candado que marca lo que está bien se desactiva a la
+semana.
+
+### Dos errores propios en el camino, anotados para no repetirlos
+
+1. **La prueba estaba escrita con la forma de comprobación de otra herramienta**
+   (`expect(valor, mensaje)` es de Playwright; el de Jest toma un solo argumento). Fallaba
+   **por error de uso, no por encontrar algo**. Si no se hubiera mirado el detalle del
+   rojo, se habría salido a buscar un problema que no existía.
+2. **Al revertir la prueba de que el candado frena, un `git checkout --` pisó el arreglo**
+   y lo dejó como estaba. Es el error ya anotado en `CLAUDE.md` y se cometió igual. **Se
+   comprueba después de revertir, y se commitea antes de probar algo destructivo.**
+
+### Lo que NO era un error
+
+Codex avisó que la página de privacidad mostraba el correo como número de WhatsApp, **y
+tuvo razón en no darlo por verificado**: lo que vio es la versión publicada vieja. **En el
+código ya estaba corregido** por la orden 125. No es un hallazgo nuevo.
+
+### El entorno de prueba con los tres roles SÍ existe (corrección)
+
+**Se escribió primero que no existía, y era falso: no se lo buscó bien.** Existe desde la
+orden 92: `npm run entorno:pruebas` levanta la app compilada con datos de mentira y los tres
+roles —organizador, cliente e invitado—, sin credenciales reales y **sin costo por mes**.
+
+**Se levantó y se comprobó**: salud, ingreso, portal del cliente y confirmación del invitado
+responden; la fiesta del organizador manda al ingreso, que es lo correcto. Detalle en
+`docs/evidencias/75-respuesta-al-entorno-de-prueba.md`.
+
+**Codex lo levanta en la máquina del dueño**, no hace falta un enlace: uno de Claude
+apuntaría a un contenedor que nadie alcanza y que se borra al cerrar.
+
+**Es la cuarta vez que en este proyecto se declara que algo falta por no buscarlo bien.**
+Antes de decir "no existe", buscar sin distinguir mayúsculas y mirar `package.json`.
+
+
+---
+
+## El número de WhatsApp se lee de un solo lugar en toda la app (7 de octubre de 2026)
+
+El dueño pidió *"que no tenga errores"* el WhatsApp. Arreglar los dos números inventados no
+alcanzaba: **el número verdadero estaba escrito a mano en unos 30 lugares** —las estaciones
+de la fiesta, el portal del cliente, el pie de página, la presentación, el simulador, el
+asistente—. Todos correctos ese día, pero **el día que el dueño cambie de número, esos 30
+quedan viejos y mandan a la gente a ningún lado**: el mismo error, esperando a pasar.
+
+**Ahora todos leen de `src/lib/public-contact.ts`.** También el número para mostrar
+(`AK_WHATSAPP_PARA_MOSTRAR`, "+598 98 355 530"), que se arma solo desde el mismo dato.
+**No cambia nada de lo que se ve hoy**: se verificó que el formato coincide exacto.
+
+**Quedan escritos a mano, y está bien:** cuatro ejemplos de formato dentro de un
+`placeholder` y dos comentarios.
+
+**El candado se endureció:** `ningun-numero-inventado.test.ts` ya no deja que un enlace de
+WhatsApp o de llamada lleve el número escrito a mano, **ni siquiera el verdadero**. Probado
+frenando: con el número puesto a mano en una diapositiva, se pone en rojo y nombra archivo y
+línea.
+
+**Esta vez se commiteó ANTES de la prueba destructiva**, que fue la lección de la tanda
+anterior: revertir la prueba no se llevó el arreglo.
+
+---
+
+## La Mesa bufet mostraba una pizarra vacía (7 de octubre de 2026, orden 127)
+
+**El cliente elegía la Mesa bufet y veía un pizarrón negro sin una sola comida.**
+`dish_main_19.jpeg` es eso: una pizarra.
+
+**Lo raro, y por qué se anota:** la decisión correcta ya existía. La Mesa bufet estaba en
+`cateringDishIdsWithoutConfirmedImage` —"este plato no tiene foto confirmada"— y hasta había
+un comentario que la nombraba entre los arreglos pedidos por el dueño. Pero
+`getCateringDishImage` devolvía el `imageUrl` explícito **antes** de consultar esa lista, así
+que **la decisión nunca se aplicaba**. Es la misma forma de siempre: escrito, compilando, y
+sin efecto.
+
+**Arreglo:** un plato de esa lista no muestra **su propio archivo de relleno**. Sólo ese. Si
+el dueño sube una foto real, tiene otra dirección y se muestra igual: **no se pisa ninguna
+foto personalizada**, no se toca la base de producción, no se cambia receta ni precio. Y como
+el catálogo y el simulador usan la misma función, **cubre también lo que haya en el maestro
+de Firebase sin tocarlo**.
+
+**Falta la foto real del buffet**, y es del dueño: hoy queda sin foto, que es honesto pero
+no vende.
+
+### Falso positivo verificado: las dos picadas están BIEN. No tocarlas.
+
+La orden 127 decía que Picada criolla y Picada de mar tenían las fotos invertidas **frente a
+Canva**. Se miraron las fotos:
+
+- `dish_entrada_22.jpeg` = tabla con chorizo, morcilla, queso y pan → **criolla**.
+- `dish_entrada_21.jpeg` = rabas, pescado frito y langostinos → **de mar**.
+
+**La app muestra cada una bajo su nombre correcto.** Los archivos están nombrados al revés y
+`defaultCateringDishImages` los cruza **a propósito**. **El error está en Canva**, que tiene
+los nombres intercambiados. "Arreglar" la app para copiar a Canva pondría los mariscos bajo
+"criolla".
+
+Quedó congelado en `src/__tests__/la-foto-es-del-plato.test.ts`, que usa la función real y no
+una copia de la tabla. **Si una auditoría vuelve a marcarlo, es este falso positivo.**
+
+**La lección, y vale para toda comparación contra una referencia:** que dos cosas no
+coincidan no dice cuál de las dos está mal. Hay que mirar la comida.
+
+---
+
+## La Mesa bufet, segunda vuelta: el simulador ya no le inventa otra foto (7 de octubre de 2026)
+
+El arreglo de la mañana (#1264) hacía que la función dijera "sin foto" para la Mesa bufet, pero el
+simulador le ponía otra por su cuenta: la misma pizarra, la comida de otro plato del menú, o una
+foto genérica de boda. Lo encontró Codex reproduciéndolo con las pantallas de verdad. Pasaba en
+tres lugares del simulador y en uno del segundo simulador.
+
+**Ahora todos piden la foto a `fotoDelPlatoParaMostrar`**, que para un plato marcado "sin foto
+confirmada" no busca reemplazo: o la foto real que suba el dueño, o la tarjeta sin foto. Para los
+demás platos todo sigue igual, con el respaldo de siempre.
+
+**No es error:** las diapositivas de la presentación (`entradas-slide`, `menu-adolescente-slide`)
+caen en "sin foto" cuando no hay, y una foto que el operador elige a mano para la pantalla gigante
+tiene prioridad a propósito.

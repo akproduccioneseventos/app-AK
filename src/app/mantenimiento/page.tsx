@@ -1,3 +1,4 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 ﻿import React from 'react';
 import Link from 'next/link';
 import { MessageCircle, Clock, ShieldCheck } from 'lucide-react';
@@ -25,7 +26,7 @@ export default function MantenimientoPage() {
           </p>
 
           <a
-            href="https://wa.me/59898355530?text=Hola%20AK%20Producciones,%20les%20escribo%20desde%20la%20p%C3%A1gina%20de%20mantenimiento."
+            href={`https://wa.me/${AK_WHATSAPP_NUMBER}?text=Hola%20AK%20Producciones,%20les%20escribo%20desde%20la%20p%C3%A1gina%20de%20mantenimiento.`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]"

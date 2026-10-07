@@ -1,4 +1,5 @@
 'use client';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
@@ -24,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { PublicFooter } from '@/components/public-footer';
 
-const WHATSAPP_URL = 'https://wa.me/59898355530?text=Hola%20AK%2C%20estuve%20viendo%20la%20experiencia%20interactiva%20y%20quiero%20hacerles%20una%20consulta';
+const WHATSAPP_URL = `https://wa.me/${AK_WHATSAPP_NUMBER}?text=Hola%20AK%2C%20estuve%20viendo%20la%20experiencia%20interactiva%20y%20quiero%20hacerles%20una%20consulta`;
 
 interface PasoInfo {
   numero: number;

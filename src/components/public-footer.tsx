@@ -6,7 +6,7 @@ import { Facebook, Instagram, Music, MessageSquare, Building2, MapPin, Sparkles,
 import { CompanyLogo } from '@/components/company-logo';
 import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { cn } from '@/lib/utils';
-import { AK_WHATSAPP_NUMBER, AK_SOCIAL_LINKS } from '@/lib/public-contact';
+import { AK_WHATSAPP_NUMBER, AK_SOCIAL_LINKS, AK_WHATSAPP_PARA_MOSTRAR } from '@/lib/public-contact';
 
 function PinterestIcon({ className }: { className?: string }) {
   return (
@@ -251,7 +251,7 @@ export function PublicFooter({ className }: PublicFooterProps) {
               </p>
               <p className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" aria-hidden="true" />
-                <a href={`tel:+59898355530`} className="hover:text-white transition-colors font-bold">+598 98 355 530</a>
+                <a href={`tel:+${AK_WHATSAPP_NUMBER}`} className="hover:text-white transition-colors font-bold">{AK_WHATSAPP_PARA_MOSTRAR}</a>
               </p>
               <p className="text-[11px] text-zinc-400 pt-1 border-t border-white/5 leading-relaxed">
                 Coordinación presencial el día de tu celebración.
