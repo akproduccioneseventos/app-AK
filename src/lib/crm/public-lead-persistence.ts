@@ -161,7 +161,10 @@ function buildLead(
     phone: existing?.phone || phone,
     email: existing?.email || input.email,
     partyType: canUpdateOpportunity ? (input.partyType || existing?.partyType) : existing?.partyType,
-    followUpDate: existing?.followUpDate || input.eventDate,
+    // La fecha de la fiesta NO es una cita: va en su campo. La cita la agenda una persona
+    // (Codex, auditoria 78: la agenda mostraba "Cita 23/1 00:00" que nadie habia reservado).
+    followUpDate: existing?.followUpDate,
+    eventDate: canUpdateOpportunity ? (input.eventDate || existing?.eventDate) : existing?.eventDate,
     guestCount: canUpdateOpportunity ? (input.guestCount ?? existing?.guestCount) : existing?.guestCount,
     venueName: canUpdateOpportunity ? (input.venueName || existing?.venueName) : existing?.venueName,
     presupuestoId: canUpdateOpportunity ? (input.presupuestoId || existing?.presupuestoId) : existing?.presupuestoId,

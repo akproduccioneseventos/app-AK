@@ -37,7 +37,7 @@ interface AddLeadDialogProps {
 
 export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUserName }: AddLeadDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', phone: '', email: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined, assignedTo: currentUserName || '' });
+  const [formData, setFormData] = useState<Partial<NewCrmLeadData>>({ name: '', phone: '', email: '', notes: '', partyType: '', venueName: '', guestCount: undefined, eventDate: undefined, assignedTo: currentUserName || '' });
   const [isSaving, setIsSaving] = useState(false);
   const [duplicateLead, setDuplicateLead] = useState<CrmLead | null>(null);
   const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
@@ -47,7 +47,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
   const firstStageId = stages.length > 0 ? stages[0].id : '';
 
   const resetForm = () => {
-    setFormData({ name: '', phone: '', email: '', notes: '', partyType: '', venueName: '', guestCount: undefined, followUpDate: undefined, assignedTo: currentUserName || '' });
+    setFormData({ name: '', phone: '', email: '', notes: '', partyType: '', venueName: '', guestCount: undefined, eventDate: undefined, assignedTo: currentUserName || '' });
     setDuplicateLead(null);
   };
 
@@ -81,7 +81,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
     try {
       const dataToSave: NewCrmLeadData = {
         ...formData,
-        followUpDate: formData.followUpDate ? new Date(formData.followUpDate).toISOString() : undefined
+        eventDate: formData.eventDate ? new Date(formData.eventDate).toISOString() : undefined
       } as NewCrmLeadData;
 
       const result = await addCrmLead({ 
@@ -182,7 +182,7 @@ export function AddLeadDialog({ stages, onLeadAdded, defaultStageId, currentUser
             </div>
             <div className="space-y-1">
               <Label htmlFor="lead-follow-up">FECHA DEL EVENTO (opcional)</Label>
-              <DatePickerDemo selectedDate={formData.followUpDate ? new Date(formData.followUpDate) : undefined} onDateChange={(date) => handleInputChange('followUpDate', date)} />
+              <DatePickerDemo selectedDate={formData.eventDate ? new Date(formData.eventDate) : undefined} onDateChange={(date) => handleInputChange('eventDate', date)} />
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

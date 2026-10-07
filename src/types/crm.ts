@@ -62,7 +62,10 @@ export interface CrmLead {
   partyType?: string;
   venueName?: string;
   guestCount?: number;
-  followUpDate?: string; // ISO Date string for follow-up or event estimate
+  /** Una cita o seguimiento AGENDADO de verdad. La fecha de la fiesta no va acá (Codex, auditoria 78). */
+  followUpDate?: string;
+  /** La fecha en que el prospecto quiere hacer la fiesta. No es una cita. */
+  eventDate?: string;
   presupuestoId?: string; // ID of the linked budget
   presupuestoEstado?: 'Borrador' | 'Pendiente Verificación' | 'Enviado' | 'Aceptado' | 'Rechazado' | 'Facturado'; // Denormalized status
   invoiceId?: string; // If the budget was invoiced
