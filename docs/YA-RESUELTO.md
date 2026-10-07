@@ -11062,3 +11062,45 @@ línea.
 
 **Esta vez se commiteó ANTES de la prueba destructiva**, que fue la lección de la tanda
 anterior: revertir la prueba no se llevó el arreglo.
+
+---
+
+## La Mesa bufet mostraba una pizarra vacía (7 de octubre de 2026, orden 127)
+
+**El cliente elegía la Mesa bufet y veía un pizarrón negro sin una sola comida.**
+`dish_main_19.jpeg` es eso: una pizarra.
+
+**Lo raro, y por qué se anota:** la decisión correcta ya existía. La Mesa bufet estaba en
+`cateringDishIdsWithoutConfirmedImage` —"este plato no tiene foto confirmada"— y hasta había
+un comentario que la nombraba entre los arreglos pedidos por el dueño. Pero
+`getCateringDishImage` devolvía el `imageUrl` explícito **antes** de consultar esa lista, así
+que **la decisión nunca se aplicaba**. Es la misma forma de siempre: escrito, compilando, y
+sin efecto.
+
+**Arreglo:** un plato de esa lista no muestra **su propio archivo de relleno**. Sólo ese. Si
+el dueño sube una foto real, tiene otra dirección y se muestra igual: **no se pisa ninguna
+foto personalizada**, no se toca la base de producción, no se cambia receta ni precio. Y como
+el catálogo y el simulador usan la misma función, **cubre también lo que haya en el maestro
+de Firebase sin tocarlo**.
+
+**Falta la foto real del buffet**, y es del dueño: hoy queda sin foto, que es honesto pero
+no vende.
+
+### Falso positivo verificado: las dos picadas están BIEN. No tocarlas.
+
+La orden 127 decía que Picada criolla y Picada de mar tenían las fotos invertidas **frente a
+Canva**. Se miraron las fotos:
+
+- `dish_entrada_22.jpeg` = tabla con chorizo, morcilla, queso y pan → **criolla**.
+- `dish_entrada_21.jpeg` = rabas, pescado frito y langostinos → **de mar**.
+
+**La app muestra cada una bajo su nombre correcto.** Los archivos están nombrados al revés y
+`defaultCateringDishImages` los cruza **a propósito**. **El error está en Canva**, que tiene
+los nombres intercambiados. "Arreglar" la app para copiar a Canva pondría los mariscos bajo
+"criolla".
+
+Quedó congelado en `src/__tests__/la-foto-es-del-plato.test.ts`, que usa la función real y no
+una copia de la tabla. **Si una auditoría vuelve a marcarlo, es este falso positivo.**
+
+**La lección, y vale para toda comparación contra una referencia:** que dos cosas no
+coincidan no dice cuál de las dos está mal. Hay que mirar la comida.

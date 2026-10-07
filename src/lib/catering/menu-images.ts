@@ -73,7 +73,21 @@ export function getCateringDishImage(
   const isLegacyCanvaImage = item.imageUrl
     ? item.imageUrl.toLowerCase().includes(LEGACY_CANVA_IMAGE_HOST)
     : false;
-  if (item.imageUrl && !isLegacyCanvaImage) return item.imageUrl;
+  if (item.imageUrl && !isLegacyCanvaImage) {
+    // Un plato marcado "sin foto confirmada" NO muestra su archivo de relleno.
+    //
+    // La Mesa bufet (`dish_main_19`) estaba en `cateringDishIdsWithoutConfirmedImage`
+    // —alguien ya habia decidido que no tiene foto—, pero su `imageUrl` apuntaba a
+    // su propio archivo por defecto, y esta linea lo devolvia ANTES de consultar esa
+    // lista. Ese archivo es una pizarra negra sin comida: el cliente elegia la mesa
+    // bufet y veia un pizarron vacio. La decision existia y nunca se aplicaba.
+    //
+    // Solo se ignora el archivo POR DEFECTO de ese mismo plato. Si el dueno sube una
+    // foto real, tiene otra direccion y se muestra igual: no se pisa nada suyo.
+    const esSuArchivoDeRelleno = item.imageUrl === `${DEFAULT_MENU_IMAGE_BASE}/${item.id}.jpeg`;
+    if (cateringDishIdsWithoutConfirmedImage.has(item.id) && esSuArchivoDeRelleno) return undefined;
+    return item.imageUrl;
+  }
 
   const local = defaultCateringDishImages[item.id];
   if (local) return local;
