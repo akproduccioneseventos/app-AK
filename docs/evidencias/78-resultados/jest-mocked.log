@@ -1,0 +1,80 @@
+PASS src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts (5.91 s)
+  ● Console
+
+    console.warn
+      [Genkit] Advertencia: No se encontró GOOGLE_API_KEY ni GEMINI_API_KEY. El Asistente AK no funcionará hasta que se configure la API key.
+
+    [0m [90m 88 |[39m
+     [90m 89 |[39m [36mif[39m ([33m![39mapiKey) {
+    [31m[1m>[22m[39m[90m 90 |[39m   console[33m.[39mwarn([32m'[Genkit] Advertencia: No se encontró GOOGLE_API_KEY ni GEMINI_API_KEY. El Asistente AK no funcionará hasta que se configure la API key.'[39m)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 91 |[39m }
+     [90m 92 |[39m
+     [90m 93 |[39m [36mexport[39m [36mconst[39m ai [33m=[39m genkit({[0m
+
+      at Object.warn (src/ai/genkit.ts:90:11)
+      at Object.<anonymous> (src/ai/flows/marketing-agent-flow.ts:12:17)
+      at Object.<anonymous> (src/app/actions/social-media.ts:42:29)
+      at Object.<anonymous> (src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts:63:22)
+
+    console.log
+      [Instagram Sync] Proceso de sincronización completado. Fotos: +0, Reels/Videos: +1, Planner: +1
+
+      at log (src/app/actions/social-media.ts:439:13)
+
+PASS src/__tests__/instagram-sync-videos-concurrentes.test.ts (5.961 s)
+  ● Console
+
+    console.warn
+      [Genkit] Advertencia: No se encontró GOOGLE_API_KEY ni GEMINI_API_KEY. El Asistente AK no funcionará hasta que se configure la API key.
+
+    [0m [90m 88 |[39m
+     [90m 89 |[39m [36mif[39m ([33m![39mapiKey) {
+    [31m[1m>[22m[39m[90m 90 |[39m   console[33m.[39mwarn([32m'[Genkit] Advertencia: No se encontró GOOGLE_API_KEY ni GEMINI_API_KEY. El Asistente AK no funcionará hasta que se configure la API key.'[39m)[33m;[39m
+     [90m    |[39m           [31m[1m^[22m[39m
+     [90m 91 |[39m }
+     [90m 92 |[39m
+     [90m 93 |[39m [36mexport[39m [36mconst[39m ai [33m=[39m genkit({[0m
+
+      at Object.warn (src/ai/genkit.ts:90:11)
+      at Object.<anonymous> (src/ai/flows/marketing-agent-flow.ts:12:17)
+      at Object.<anonymous> (src/app/actions/social-media.ts:42:29)
+      at Object.<anonymous> (src/__tests__/instagram-sync-videos-concurrentes.test.ts:69:22)
+
+    console.log
+      [Instagram Sync] Proceso de sincronización completado. Fotos: +0, Reels/Videos: +1, Planner: +1
+
+      at log (src/app/actions/social-media.ts:439:13)
+          at async Promise.all (index 0)
+
+    console.log
+      [Instagram Sync] Proceso de sincronización completado. Fotos: +0, Reels/Videos: +1, Planner: +1
+
+      at log (src/app/actions/social-media.ts:439:13)
+          at async Promise.all (index 1)
+
+    console.log
+      [Instagram Sync] Proceso de sincronización completado. Fotos: +0, Reels/Videos: +1, Planner: +1
+
+      at log (src/app/actions/social-media.ts:439:13)
+
+    console.log
+      [Instagram Sync] Proceso de sincronización completado. Fotos: +0, Reels/Videos: +0, Planner: +0
+
+      at log (src/app/actions/social-media.ts:439:13)
+
+    console.log
+      [Instagram Sync] Proceso de sincronización completado. Fotos: +0, Reels/Videos: +1, Planner: +1
+
+      at log (src/app/actions/social-media.ts:439:13)
+          at async Promise.all (index 0)
+
+PASS src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts
+PASS src/__tests__/la-foto-es-del-plato.test.ts
+
+Test Suites: 4 passed, 4 total
+Tests:       19 passed, 19 total
+Snapshots:   0 total
+Time:        11.697 s
+Ran all test suites within paths "src/__tests__/la-foto-es-del-plato.test.ts", "src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts", "src/__tests__/instagram-sync-videos-concurrentes.test.ts", "src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts".
+Test results written to: ..\audit-runtime-results-20261002\jest-mocked.json

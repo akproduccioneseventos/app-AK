@@ -1,28 +1,35 @@
-# En curso: órdenes 123, 124 y 125 de Codex, en una tanda
+# Auditoria 78: cuatro fallos pendientes, no app lista
 
-**6 de octubre de 2026.** Rama `claude/ponte-al-dia-qtrho3` sobre main `368988b` (PR 1260).
-Trae las ramas documentales de Codex `codex/auditoria-integral-20261006` y
-`codex/auditoria-73-20261006` (órdenes 122 a 125, evidencias 71 a 74).
+7/10/2026. Codex audita; Claude/Gemini corrigen; Claude compila. No fusionar sin el dueno.
 
-## Qué trae (todo con prueba que da rojo con el código viejo)
+## Versiones
 
-- **124 A, CAMPO73-RACE:** sin contabilidad, el guardado general de la fiesta toma la plata de la
-  fiesta de ese momento, dentro de `actualizarFiesta`.
-- **123:** cambiar trago con el enlace del invitado; el reintento devuelve el pedido sólo a su
-  dueño; botones de cancelar/cambiar sólo en "nuevo" (decisión del dueño); plantilla del salón
-  con escala.
-- **124 B y 125:** Galería HD a la galería de la portada (decisión del dueño); glitter en Eventos;
-  foto del toro retirada (no hay foto real del glitter bar: falta que la dé el dueño); WhatsApp
-  de Privacidad es un teléfono.
+- UI aislada: `f790a002`, BUILD_ID `iZL-zBn4z4fNZ_IXFyUCN`.
+- Main de contraste y pruebas puntuales: `09051f80`.
+- PR 1266 (`8f4f6895`): solo traspaso documental; no trae estas correcciones.
+- Evidencia nueva: rama `codex/auditoria-78-20261007`, NO main.
 
-## Sigue
+## Siguiente tanda: orden 128
 
-- Puerta completa → propuesta → fusión en otro paso con `expectedHeadSha`.
-- **Gemini: RED03 (orden 122, nota de Claude al final)**, y 112 B.1 (AUD01).
-- Codex vuelve a mirar plata, barra, web y fiesta sobre el SHA fusionado.
-- Pendiente del dueño: foto real del glitter bar. ¿El QR del tótem marca llegada? Hoy no.
+- P1 SIM78-VIRTUAL: menus con buffet ofrecidos y rechazados al guardar.
+- P1 PDF78-PUBLICO: enlace del PDF sin sesion llama lector privado y no carga.
+- P2 PORTAL78-PERSONAS: raiz cliente cuenta filas, no acompanantes.
+- P2 CRM78-CITA: fecha de fiesta se convierte en cita no reservada.
+- Claude: comida/catalogo/precios y permisos; Gemini: consumidores/UI/portal/CRM.
 
-## Cómo se fusiona (error 30)
+## No repetir
 
-- Sin `expectedHeadSha` igual al de `.ak-puerta-verde.json`, no se fusiona.
-- No cambiar de rama ni `commit -a` mientras corre la puerta.
+- PR 1265: imagen buffet corregida y retesteada en consumidor; falta foto REAL.
+- PR 1263: contador Instagram retesteado con mutador real e intento repetido.
+- 19 pruebas / 4 suites pasan en `09051f80`; no son integracion real.
+- PDF control: dos paginas A4 numeradas sin cortes; su enlace publico falla.
+- Mesa sincronizada cliente/invitado; centro equipo rechaza sesion cliente.
+
+## Limites y registro
+
+- Mural sin proveedor y barra sin insumos no completaron sus recorridos.
+- Integraciones/hardware y matriz global sin aceptacion final; no cero errores.
+- Reporte: `docs/evidencias/78-recorridos-reales-y-retest.md`; orden 128; YA-RESUELTO.
+- Evidencias 75-77 en `codex/auditoria-75-20261007` (`f70da8c3`).
+- Compilar aislado fue excepcion autorizada; no se programo/publico la app.
+- Contrastar nueva tanda/SHA y volver a probar solo lo cambiado.

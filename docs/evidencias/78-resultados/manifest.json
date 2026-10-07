@@ -1,0 +1,139 @@
+{
+  "schema": 1,
+  "recordedAt": "2026-10-07T18:38:38.488Z",
+  "browserSourceCommit": "f790a002426aecb6598efa239fa948db57571752",
+  "browserBuildId": "iZL-zBn4z4fNZ_IXFyUCN",
+  "correctedSourceCommit": "09051f80ee7722537a06c50c8eb7524b21ac11e8",
+  "pendingDocumentationPr": {
+    "number": 1266,
+    "head": "8f4f6895a2150628271c4beef7c9b64f9a0d718f"
+  },
+  "jest": {
+    "passed": 19,
+    "failed": 0,
+    "success": true,
+    "suites": [
+      {
+        "file": "instagram-videos-cuenta-el-intento-confirmado.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "file": "instagram-sync-videos-concurrentes.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "file": "una-transaccion-repetida-no-dice-que-guardo.test.ts",
+        "status": "passed",
+        "tests": 3
+      },
+      {
+        "file": "la-foto-es-del-plato.test.ts",
+        "status": "passed",
+        "tests": 10
+      }
+    ]
+  },
+  "pdf": {
+    "pages": 2,
+    "inspectedBothRenderedPages": true,
+    "generatedByActualBrowserDownload": true,
+    "publicLink": "complete annotation exists, but consumer fails without team session",
+    "fixtureOnly": true
+  },
+  "ui": {
+    "inspectedWidths": [
+      384,
+      1274
+    ],
+    "noHorizontalOverflowObservedOnClientPortal": true,
+    "roles": [
+      "organizer",
+      "client",
+      "guest",
+      "prospect"
+    ],
+    "storage": "isolated JSON only"
+  },
+  "limitations": [
+    "not all app routes/buttons",
+    "not live Firestore/Meta/Google/WhatsApp/Mercado Pago",
+    "mural upload rejected without provider",
+    "bar order rejected without ingredients",
+    "not physical hardware",
+    "four unresolved findings; no release approval; UI build differs from source retest commit"
+  ],
+  "files": [
+    {
+      "file": "contadores.json",
+      "bytes": 934,
+      "sha256": "c2cf26d1e6b624588ee229f64cedce74fa08f4b7d91c2f135583cbfbdecb10b6"
+    },
+    {
+      "file": "enlace-publico-rechazado.jpg",
+      "bytes": 26014,
+      "sha256": "35109a26cc8025bd03a9aa7c7c752552e190e9bff32e7dd3981c76e6ee9de9f8"
+    },
+    {
+      "file": "enlace-publico.json",
+      "bytes": 906,
+      "sha256": "e660c4430e0c22457718ff125efc684727f4ac993ed7b495875ca21097a7183e"
+    },
+    {
+      "file": "invitado-mesa-sin-equipo.jpg",
+      "bytes": 77566,
+      "sha256": "a19f8f9a5dc5419816aaa19b582d66b9d191bd4ff83c5b36fe12b1a0caac5516"
+    },
+    {
+      "file": "jest-mocked.json",
+      "bytes": 11384,
+      "sha256": "3e9f1b8be7fa71c92a68e7f4b6d0e5446dfa71a526f498edfcea8ed1ed8796c6"
+    },
+    {
+      "file": "jest-mocked.log",
+      "bytes": 3810,
+      "sha256": "df7ac6f17628aaf04cca2cbf7c048fa2c2060469281cf20df3b78302db7f18c0"
+    },
+    {
+      "file": "mural-limite-entorno.jpg",
+      "bytes": 46959,
+      "sha256": "6ce09f6ba2fc1bc3623012a1f4670d74beeae85ec31030055c2e32b3f5f0486b"
+    },
+    {
+      "file": "pdf-pagina-1.png",
+      "bytes": 105031,
+      "sha256": "8a964a62dc004626ccda71259b1444aaf3d17a505f1597974338a6a4b8ba570c"
+    },
+    {
+      "file": "pdf-pagina-2.png",
+      "bytes": 110970,
+      "sha256": "7dabd02f9bc357bc8b17134b0f0fac66290fe9e0712e545cbe209a6dadd032ac"
+    },
+    {
+      "file": "portal-cliente-mobile-completo.jpg",
+      "bytes": 192878,
+      "sha256": "8cb542ec32b472d2a803bdc49c93e0a16d8c36fb20912c8bcfcac8099a2c70a3"
+    },
+    {
+      "file": "portal-cliente-mobile.jpg",
+      "bytes": 45722,
+      "sha256": "c1b5eed6352bd17b86356a1f16ad0203aed6fa7019af0dbede6a4431f8dcb4e7"
+    },
+    {
+      "file": "portal-cliente-pc.jpg",
+      "bytes": 90425,
+      "sha256": "e9f1e13043305f6791df16e47ccf024bae04ee57d49c0c64dbd4e548deabfab5"
+    },
+    {
+      "file": "presupuesto-control.pdf",
+      "bytes": 9415,
+      "sha256": "5bac16c7d0dcc7bfd18252b3d0aec732d3efcdeaa66b8134366ba11d16f18d08"
+    },
+    {
+      "file": "sondas.json",
+      "bytes": 4131,
+      "sha256": "3c16ff25b00d36131d90144ea5217ad2e0315d522e397aa561839f3b898ce0c6"
+    }
+  ]
+}

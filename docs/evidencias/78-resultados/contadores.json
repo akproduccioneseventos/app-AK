@@ -1,0 +1,28 @@
+{
+  "meaning": "Passing assertions reproduce count/date mismatches, not acceptance.",
+  "sourceCommit": "f790a002426aecb6598efa239fa948db57571752",
+  "portal": {
+    "confirmedRows": 61,
+    "confirmedPeople": 121,
+    "pendingRows": 19,
+    "pendingPeople": 37
+  },
+  "crm": {
+    "eventDate": "2027-01-23T03:00:00.000Z",
+    "followUpDateWithoutBooking": "2027-01-23T03:00:00.000Z"
+  },
+  "sourceHashes": {
+    "portal": "aa087ba11fbf4eec72087029211b063c4b54c667a8e21dfcd3c5b3e06f1bfbd4",
+    "centro": "3e087ffb4c07422d6d18d20ba36a477125a69114de24e1eaba4e5af7cde65c2e",
+    "leadPersistence": "0f8f6bc926e53d8d87cd77c23a492fe2c3d378ecc7fa41a725f89f4710e19795"
+  },
+  "inputs": [
+    "isolated fixture only; no real data",
+    "actual extracted filters/count/date expression"
+  ],
+  "limitations": [
+    "not the complete React rendering",
+    "not the complete lead persistence function",
+    "no Firebase/provider evidence"
+  ]
+}
