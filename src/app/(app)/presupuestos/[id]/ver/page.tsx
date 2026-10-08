@@ -637,7 +637,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       <Button variant="outline" className="rounded-xl" onClick={() => fetchPresupuestoAndSettings()}>Reintentar</Button>
     </div>
   );
-  if (!presupuesto && publicToken) return (
+  // Cualquier acceso de cliente (con enlace, o con cliente=1 sin enlace) ve el cartel del
+  // cliente, nunca el "Volver a Presupuestos" del equipo (Codex, auditoria 79).
+  const esAccesoDelCliente = Boolean(publicToken)
+    || ['cliente', 'public', 'guest'].some((clave) => searchParams.get(clave) === '1');
+  if (!presupuesto && esAccesoDelCliente) return (
     <div className="flex flex-col items-center justify-center h-screen gap-4 text-center px-4">
       <p className="text-4xl">🔗</p>
       <h2 className="text-2xl font-bold">Este enlace no abre el presupuesto</h2>

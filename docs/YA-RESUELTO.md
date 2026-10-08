@@ -1,5 +1,33 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 8 de octubre de 2026 — Codex, auditoría 79: el pendiente del portal mezclaba invitaciones y personas
+
+Arriba decía "Confirmar 19 invitado(s) pendientes" y abajo "37 sin responder". Eran 19
+invitaciones con 37 personas. Ahora el pendiente dice las dos cosas: "19 invitaciones sin
+responder (37 personas)".
+
+```comprobar
+prueba: src/__tests__/portal-cliente-contadores-personas.test.ts
+```
+
+**Mismo día, mismo informe:**
+
+- **La prueba de la fotocabina "de punta a punta" pasaba con la captura rota** (orden 129). Hacía
+  clic en cualquier botón que dijera "foto" (también "Personalizar foto"), esperaba 45 segundos y
+  sólo miraba que no hubiera errores. Ahora toca el botón de sacar la foto por su nombre fijo y
+  exige la tira armada en pantalla: imagen sacada en el navegador, con contenido, las tres
+  miniaturas de la tanda y sin el cartel "No se pudo armar la tira".
+- **Con `cliente=1` y sin enlace, la pantalla podía mostrar "Volver a Presupuestos"**, un botón
+  del equipo. En la práctica la puerta de ingreso ya lo mandaba al login antes (falsa alarma del
+  ayudante, verificada en el navegador); igual la pantalla quedó con el cartel del cliente. Los demás botones del equipo ya estaban
+  ocultos al cliente (revisado enlace por enlace: el portal no tiene ninguno a pantallas internas).
+
+```comprobar
+prueba: tests/e2e/fotocabina-de-punta-a-punta.spec.ts
+usa: boton-sacar-foto en tests/e2e/fotocabina-de-punta-a-punta.spec.ts
+usa: esAccesoDelCliente en src/app/(app)/presupuestos/[id]/ver/page.tsx
+```
+
 ## 7 de octubre de 2026 — Sin foto propia va una de ejemplo (decisión del dueño)
 
 - **Mesa bufet:** en vez de quedar sin foto, muestra la mesa de catering de AK

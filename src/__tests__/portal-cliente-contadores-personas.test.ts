@@ -42,6 +42,9 @@ describe('el portal cuenta personas, no invitaciones', () => {
     // Ningun numero visible sale de contar filas.
     expect(pagina).not.toMatch(/\{\s*(confirmed|checkedIn|declined|pending)\.length\s*\}/);
     expect(pagina).not.toMatch(/\{\s*confirmed\.length\s*-\s*checkedIn\.length\s*\}/);
+    // El pendiente dice invitaciones Y personas, no "19 invitados" al lado de "37 sin responder".
+    expect(pagina).not.toMatch(/invitado\(s\) pendientes/);
+    expect(pagina).toContain('personas.sinResponder}');
     const centro = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/[id]/centro/page.tsx'), 'utf-8');
     expect(centro).toContain('getGuestPartySize(i)');
   });
