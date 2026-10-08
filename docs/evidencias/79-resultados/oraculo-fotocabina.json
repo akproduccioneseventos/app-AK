@@ -1,0 +1,31 @@
+{
+  "sourceCommit": "09c8d814fdecdca00da71de7bc22c1d64ef0e662",
+  "sourceBlob": "317875688da572ca3dd05279877ee932c7dd36cd",
+  "file": "tests/e2e/fotocabina-de-punta-a-punta.spec.ts",
+  "hash": "57ba5d21547be57f46cc33b8c333699ec857df370afc8b14216b7902638744e8",
+  "scope": "Callback y assertions reales; navegador, camara, espera, cookies y filesystem simulados. NO es E2E ni defecto demostrado de la app.",
+  "noResult": {
+    "accepted": true,
+    "events": [
+      "espera sustituida: 3000",
+      "captura de pantalla simulada",
+      "clic sin captura ni resultado",
+      "espera sustituida: 45000",
+      "captura de pantalla simulada"
+    ],
+    "photosCaptured": 0,
+    "stripGenerated": false,
+    "uploadOrDelivery": false
+  },
+  "visibleError": {
+    "accepted": false,
+    "error": "no muestra texto tecnico despues de la tanda\n\nexpect(received).not.toMatch(expected)\n\nExpected pattern: not /undefined|firestore|is not a valid|Algo sali[oó] mal/i\nReceived string:      \"Algo salió mal\"",
+    "events": [
+      "espera sustituida: 3000",
+      "captura de pantalla simulada",
+      "clic sin captura ni resultado",
+      "espera sustituida: 45000",
+      "captura de pantalla simulada"
+    ]
+  }
+}

@@ -11231,3 +11231,60 @@ Segundo ayudante: busqueda acotada de otros consumidores publicos directos del
 lector privado de empresa, sin otro fallo demostrado. Ambos ayudantes cerrados.
 Servidor de prueba detenido al acabar; copia compilada conservada SOLO para
 reproducir f790a002, no para aceptar una correccion posterior sin reconstruirla.
+
+## Auditoria 79 y retest posterior de 128 (8 de octubre de 2026)
+
+Codex no programo la app ni fusiono. Reporte:
+`docs/evidencias/79-barra-real-y-limites-estaciones.md`.
+Los pendientes historicos de 78 NO describen el estado nuevo: PR 1266/1267
+se fusionaron durante esta revision. Fuente exacta actual
+`09c8d814fdecdca00da71de7bc22c1d64ef0e662`, sin PR abierta al contraste.
+La decision posterior del dueno de usar ejemplos correctos elimina el antiguo
+pedido de fotos reales. No volver a pedirlas ni invertir picadas por Canva.
+
+**128 en navegador, build NUEVO `y3pk-oG28Gx7I91pIPgS2`:** A guarda el
+presupuesto con pollo CON MESA BUFET; B descarga dos A4 numeradas, legibles,
+sin firmas, y el enlace completo del PDF abre sin equipo. Token falso rechaza;
+URL sin token exige login. D registra Fiesta 23/1/2027, sin cita/`followUpDate`.
+C muestra 121 personas confirmadas y 37 pendientes, igual al JSON del grupo.
+Nueve pruebas/4 suites actuales pasan; no son nueve E2E. PDF, DOM, renders,
+capturas y persistencia en `docs/evidencias/79-resultados/`.
+
+**Remate 128 C pendiente, no otra orden:** acceso de pendientes aun dice
+"19 invitado(s)" aunque son 19 invitaciones/37 personas. Consumidor exacto:
+`src/app/portal-cliente/[id]/page.tsx:883`, `pendientesRsvp.length`. Gemini
+debe aclarar unidad usando helper existente y probar etiqueta; no tocar RSVP,
+check-in ni rehacer los cuatro arreglos. Addendum en la misma orden 128.
+
+**Barra real, fuente UI anterior f790a002; consumidores identicos en 09c8d814:**
+se prepararon cuatro insumos SOLO en copia temporal. Invitado pide Daiquiri;
+barman ve ese pedido, prepara, deja listo, entrega. Otro pedido se cancela
+antes de preparar. Invitado, barman y pantalla Listos coinciden; stock resta
+exactamente un consumo neto y devuelve el cancelado. Persistencia se conserva
+con `79-conservar-barra.cjs`. No Firestore, multiserver, ultimo insumo o hardware.
+Tras logout barman pide login; token de otro invitado rechaza sin mostrar datos.
+
+**TEST79-FOTO (P2 de prueba, NO defecto de app demostrado):** callback real
+de `fotocabina-de-punta-a-punta.spec.ts` acepta clic sin foto/tira/entrega,
+con page/camara/esperas simulados; control de error si rechaza. Orden **129**
+Gemini fortalece resultado positivo/negativo; Claude verifica. No otra orden
+para backend: sesion Firestore/Storage del mural y estaciones sigue **114.3**.
+El rechazo de sesion se ve; 360 aclara brazo externo. No se acepta captura,
+moderacion, publicacion ni entrega completa por solo abrir la pantalla.
+Otros casos existentes si comprueban video local del buzon, marca y fallo de
+subida en fotocabina/360: se leyeron, no se ejecutaron aqui ni deben duplicarse.
+`entretenimientos-a-fondo.spec.ts:338-352` excluye base ausente de errores;
+su verde de apertura no equivale a captura/entrega positiva. Conservar ese limite.
+
+**Propuestas, no bloqueos:** pantalla Listos necesita mesa legible a distancia;
+presupuesto publico ofrece enlaces internos innecesarios. El enlace de ajustes
+probo login tras logout; no se demostro acceso indebido. No quitar asistente
+aprobado ni abrir permisos. No publicar ni cambiar negocio sin validar lo acordado.
+
+Limites: un presupuesto nuevo, un prospecto sin entrevista y fixture de grupos.
+No varias propuestas/citas previas por UI, otros descuentos/monedas/cobros,
+los 19 originales, todas las integraciones o las 14 areas completas. Reutilizar
+matriz 74 y evidencias75-78 sin contar unitarias como uso real. Servidores y
+pestanas propios cerrados; ayudante economico de busqueda fue cerrado.
+Entrega documental en `codex/auditoria-79-20261007`, NO main; verificar remoto.
+No se afirma que escribir estas ordenes haga que Gemini/Claude las ejecuten.

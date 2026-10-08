@@ -1,0 +1,30 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const cp = require('node:child_process');
+
+const root = fs.realpathSync(process.argv[2] || '');
+const expectedRoot = path.join(process.env.LOCALAPPDATA, 'Temp', 'ak-entorno-aislado-fWfDb3');
+if (root !== fs.realpathSync(expectedRoot)) throw new Error('Solo la copia aislada autorizada.');
+const sha = cp.execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
+if (sha !== 'f790a002426aecb6598efa239fa948db57571752') throw new Error('SHA distinto.');
+const build = fs.readFileSync(path.join(root, '.next', 'BUILD_ID'), 'utf8').trim();
+if (build !== 'iZL-zBn4z4fNZ_IXFyUCN') throw new Error('Build distinto.');
+const fixture = JSON.parse(fs.readFileSync(path.join(root, 'data', 'fiestas', 'e2e_entorno_aislado.json'), 'utf8'));
+if (fixture.id !== 'e2e_entorno_aislado') throw new Error('Fiesta no ficticia.');
+const drink = fixture.cartaTragos.items.find(item => item.id === 'daiquiri-durazno');
+if (!drink?.recetaIngredientes?.length) throw new Error('Receta inexistente.');
+const target = path.join(root, 'data', 'insumos.json');
+if (fs.existsSync(target)) throw new Error('No sobrescribir un inventario de prueba existente.');
+const source = path.join(root, 'src', 'data', 'insumos.json');
+const original = fs.readFileSync(source);
+const inventory = JSON.parse(original);
+const changes = drink.recetaIngredientes.map(recipe => {
+  const supply = inventory.find(item => item.id === recipe.insumoId);
+  if (!supply) throw new Error(`Insumo inexistente: ${recipe.insumoId}`);
+  const before = supply.cantidadDisponible;
+  supply.cantidadDisponible = 10;
+  return { id: supply.id, before, after: 10, requested: recipe.cantidad };
+});
+fs.writeFileSync(target, JSON.stringify(inventory, null, 2));
+console.log(JSON.stringify({ sha, build, fixture: fixture.id, sourceHash: crypto.createHash('sha256').update(original).digest('hex'), target, changes }, null, 2));

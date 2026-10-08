@@ -178,6 +178,35 @@ fechas. Prueba nueva propuesta: **PENDIENTE**,
 - Programador: entregar corrección, pruebas rojo/verde y registro compartido con
   el mismo SHA. Claude compila; Codex vuelve a probar SÓLO lo cambiado.
 
+## Retest posterior a la fusión, 8/10/2026
+
+Destino contrastado: main `09c8d814fdecdca00da71de7bc22c1d64ef0e662`, sin
+PR abierta en ese contraste. Los cuatro arreglos existen; NO volver a
+programarlos. Build aislado autorizado `y3pk-oG28Gx7I91pIPgS2`.
+Reporte y archivos: `docs/evidencias/79-barra-real-y-limites-estaciones.md`.
+
+- A: el menú bufet guarda un presupuesto REAL desde el navegador.
+- B: enlace del PDF abre sin sesión del equipo; token falso rechaza y sin
+  token pide login. PDF directo real: dos A4 numeradas y revisadas visualmente.
+- D: prospecto real de prueba muestra Fiesta, no Cita; JSON no inventa
+  `followUpDate`. Cita previa probada sólo por regresión unitaria, no UI.
+- C: raíz y pestaña ahora muestran 121 personas confirmadas y 37 sin
+  responder. **Queda un remate parcial**, no otro fallo nuevo: en
+  `src/app/portal-cliente/[id]/page.tsx:883`, `pendientesRsvp.length` aún
+  rotula 19 registros como "invitado(s)". Gemini debe explicitar
+  "19 invitaciones (37 personas)" o usar 37 personas del helper existente.
+  Mantener permisos y reglas RSVP/check-in. Prueba PENDIENTE de esa etiqueta.
+
+Propuesta no bloqueante: limpiar enlaces internos visibles en el presupuesto
+público. "Personalizar asistentes" lleva a login, no se comprobó acceso
+indebido. No sacar el asistente aprobado ni abrir permisos para arreglarlo.
+
+Nueve pruebas puntuales/4 suites pasan, NO nueve E2E. Estos casos no cierran
+toda el área ni concilian los 19 presupuestos originales. No se prueba
+despliegue por tener un build local. La decisión posterior del dueño de usar
+fotos de ejemplo válidas sustituye aquí el antiguo pendiente de foto real;
+no volver a pedirlas ni deshacer las picadas correctas.
+
 ```comprobar
 archivo: src/lib/simulator/catalog.ts
 usa: agregarVariantesBufet en src/app/actions/menus-catering.ts

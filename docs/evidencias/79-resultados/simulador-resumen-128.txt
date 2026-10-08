@@ -1,0 +1,300 @@
+- img "AK Producciones"
+- heading "¡Tu presupuesto está listo!" [level=2]
+- paragraph: Ahora podés coordinar una reunión con el organizador para revisar todos los detalles, despejar dudas y asegurar tu fecha.
+- heading "✅ Presupuesto registrado con éxito" [level=4]
+- paragraph: Guardá tu copia oficial en PDF o hablá directo con AK por WhatsApp.
+- button "Guardar PDF":
+  - generic: Guardar PDF
+- button "WhatsApp AK":
+  - generic: WhatsApp AK
+- heading "Tu promoción, mientras corre el reloj" [level=3]:
+  - text: Tu promoción, mientras corre el reloj
+- generic: 14:48
+- paragraph: Escribinos ahora y accedés al descuento y los regalos de la promoción vigente, con tu presupuesto ya en la mano.
+- text: Agenda tu visita
+- heading "¿Cuándo querés venir a verlo?" [level=3]
+- paragraph: Elegí el día y la hora para tu entrevista sin costo en nuestra oficina.
+- generic: 1. Seleccioná el día
+- button "Jueves 08/10":
+  - paragraph: Jueves
+  - paragraph: 08/10
+- button "Viernes 09/10":
+  - paragraph: Viernes
+  - paragraph: 09/10
+- button "Sábado 10/10":
+  - paragraph: Sábado
+  - paragraph: 10/10
+- button "Martes 13/10":
+  - paragraph: Martes
+  - paragraph: 13/10
+- button "Miércoles 14/10":
+  - paragraph: Miércoles
+  - paragraph: 14/10
+- button "Jueves 15/10":
+  - paragraph: Jueves
+  - paragraph: 15/10
+- generic: 2. Seleccioná el horario (Jueves 8 de octubre)
+- button "16:00 hs":
+  - text: 16:00 hs
+- button "17:00 hs":
+  - text: 17:00 hs
+- button "18:00 hs":
+  - text: 18:00 hs
+- button "Confirmar reunión para el Jueves 16:00 hs":
+  - generic: Confirmar reunión para el Jueves 16:00 hs
+- button "O si preferís, coordiná directamente por WhatsApp"
+- heading "Condiciones del presupuesto" [level=3]:
+  - text: Condiciones del presupuesto
+- generic: Validez 30 días
+- paragraph: El presupuesto mantiene el precio promocional y los regalos incluidos durante 30 días. La fecha se confirma cuando AK valida la disponibilidad, recibe la seña de $ 5.000 y se firma el contrato.
+- button "Modificar mi presupuesto":
+  - generic: Modificar mi presupuesto
+- button "Compartir WhatsApp":
+  - generic: Compartir WhatsApp
+- button "Coordinar Reunión":
+  - generic: Coordinar Reunión
+- button "Descargar PDF":
+  - generic: Descargar PDF
+- button "Preguntas":
+  - generic: Preguntas
+- img "AK Producciones"
+- generic: Presupuesto estimado
+- paragraph: AK Producciones Eventos — Salto, Uruguay
+- paragraph: Cliente
+- paragraph: Prueba aislada Codex79
+- paragraph: Evento
+- paragraph: Cumpleaños
+- paragraph: Fecha prevista
+- paragraph: 23/1/2027
+- paragraph: Invitados
+- paragraph: 100 personas
+- paragraph: Referencia
+- paragraph: pres_public_f0d50cf641b0b7f1fc359fe1
+- table:
+  - rowgroup:
+    - row "Servicio / Categoría Cant. Subtotal":
+      - columnheader "Servicio / Categoría"
+      - columnheader "Cant."
+      - columnheader "Subtotal"
+  - rowgroup:
+    - row "Personal":
+      - cell "Personal"
+    - row "Mozo $ 2.990 c/u 4 $ 11.960":
+      - cell "Mozo $ 2.990 c/u":
+        - paragraph: Mozo
+        - paragraph: $ 2.990 c/u
+        - button:
+      - cell "4"
+      - cell "$ 11.960"
+    - row "Mozo de cocina $ 2.990 c/u 4 $ 11.960":
+      - cell "Mozo de cocina $ 2.990 c/u":
+        - paragraph: Mozo de cocina
+        - paragraph: $ 2.990 c/u
+        - button:
+      - cell "4"
+      - cell "$ 11.960"
+    - row "Servicio de bebidas":
+      - cell "Servicio de bebidas"
+    - row "Barra de tragos $ 399 / PP 100 $ 39.900":
+      - cell "Barra de tragos $ 399 / PP":
+        - paragraph: Barra de tragos
+        - paragraph: $ 399 / PP
+        - button:
+      - cell "100"
+      - cell "$ 39.900"
+    - row "Servicio de catering":
+      - cell "Servicio de catering"
+    - row "Mantelería completa $ 79 / PP 100 $ 7.900":
+      - cell "Mantelería completa $ 79 / PP":
+        - paragraph: Mantelería completa
+        - paragraph: $ 79 / PP
+        - button:
+      - cell "100"
+      - cell "$ 7.900"
+    - row "Mobiliario completo $ 75 / PP 100 $ 7.500":
+      - cell "Mobiliario completo $ 75 / PP":
+        - paragraph: Mobiliario completo
+        - paragraph: $ 75 / PP
+        - button:
+      - cell "100"
+      - cell "$ 7.500"
+    - row "POLLO ARROLLADO CON MESA BUFET $ 449 / PP 100 $ 44.900":
+      - cell "POLLO ARROLLADO CON MESA BUFET $ 449 / PP":
+        - paragraph: POLLO ARROLLADO CON MESA BUFET
+        - paragraph: $ 449 / PP
+        - button:
+      - cell "100"
+      - cell "$ 44.900"
+    - row "SANDWICHES Y SALADITOS $ 229 / PP 100 $ 22.900":
+      - cell "SANDWICHES Y SALADITOS $ 229 / PP":
+        - paragraph: SANDWICHES Y SALADITOS
+        - paragraph: $ 229 / PP
+        - button:
+      - cell "100"
+      - cell "$ 22.900"
+    - row "SHOW DE PIZZAS $ 199 / PP 100 $ 19.900":
+      - cell "SHOW DE PIZZAS $ 199 / PP":
+        - paragraph: SHOW DE PIZZAS
+        - paragraph: $ 199 / PP
+        - button:
+      - cell "100"
+      - cell "$ 19.900"
+    - row "Vajilla Completa $ 79 / PP 100 $ 7.900":
+      - cell "Vajilla Completa $ 79 / PP":
+        - paragraph: Vajilla Completa
+        - paragraph: $ 79 / PP
+        - button:
+      - cell "100"
+      - cell "$ 7.900"
+    - row "Servicio de decoración":
+      - cell "Servicio de decoración"
+    - row "Cuadro de firmas $ 2.990 c/u 1 $ 2.990":
+      - cell "Cuadro de firmas $ 2.990 c/u":
+        - paragraph: Cuadro de firmas
+        - paragraph: $ 2.990 c/u
+        - button:
+      - cell "1"
+      - cell "$ 2.990"
+    - row "Servicio de Decoración $ 14.990 c/u 1 $ 14.990":
+      - cell "Servicio de Decoración $ 14.990 c/u":
+        - paragraph: Servicio de Decoración
+        - paragraph: $ 14.990 c/u
+        - button:
+      - cell "1"
+      - cell "$ 14.990"
+    - row "Servicio de discoteca":
+      - cell "Servicio de discoteca"
+    - row "Servicio de Discoteca $ 14.900 c/u 1 $ 14.900":
+      - cell "Servicio de Discoteca $ 14.900 c/u":
+        - paragraph: Servicio de Discoteca
+        - paragraph: $ 14.900 c/u
+        - button:
+      - cell "1"
+      - cell "$ 14.900"
+    - row "Servicio de entretenimiento":
+      - cell "Servicio de entretenimiento"
+    - row "Fotocabina $ 2.990 c/u 1 $ 2.990":
+      - cell "Fotocabina $ 2.990 c/u":
+        - paragraph: Fotocabina
+        - paragraph: $ 2.990 c/u
+        - button:
+      - cell "1"
+      - cell "$ 2.990"
+    - row "Servicio de fotografía":
+      - cell "Servicio de fotografía"
+    - row "Fotografía de exteriores $ 3.990 c/u 1 $ 3.990":
+      - cell "Fotografía de exteriores $ 3.990 c/u":
+        - paragraph: Fotografía de exteriores
+        - paragraph: $ 3.990 c/u
+        - button:
+      - cell "1"
+      - cell "$ 3.990"
+    - row "Fotografía de la fiesta $ 9.990 c/u 1 $ 9.990":
+      - cell "Fotografía de la fiesta $ 9.990 c/u":
+        - paragraph: Fotografía de la fiesta
+        - paragraph: $ 9.990 c/u
+        - button:
+      - cell "1"
+      - cell "$ 9.990"
+    - row "Servicio de repostería":
+      - cell "Servicio de repostería"
+    - row "Mesa dulce con fuente de chocolate $ 119 / PP 100 $ 11.900":
+      - cell "Mesa dulce con fuente de chocolate $ 119 / PP":
+        - paragraph: Mesa dulce con fuente de chocolate
+        - paragraph: $ 119 / PP
+        - button:
+      - cell "100"
+      - cell "$ 11.900"
+    - row "Torta Principal $ 109 / PP 100 $ 10.900":
+      - cell "Torta Principal $ 109 / PP":
+        - paragraph: Torta Principal
+        - paragraph: $ 109 / PP
+        - button:
+      - cell "100"
+      - cell "$ 10.900"
+    - row "Regalos Incluidos":
+      - cell "Regalos Incluidos"
+    - row "Invitaciones digitales $ 2.500 c/u 1 $ 2.500 Sin Costo":
+      - cell "Invitaciones digitales $ 2.500 c/u":
+        - paragraph: Invitaciones digitales
+        - paragraph: $ 2.500 c/u
+      - cell "1"
+      - cell "$ 2.500 Sin Costo":
+        - generic: $ 2.500
+        - generic: Sin Costo
+    - row "Organizamos de la fiesta $ 11.000 c/u 1 $ 11.000 Sin Costo":
+      - cell "Organizamos de la fiesta $ 11.000 c/u":
+        - paragraph: Organizamos de la fiesta
+        - paragraph: $ 11.000 c/u
+      - cell "1"
+      - cell "$ 11.000 Sin Costo":
+        - generic: $ 11.000
+        - generic: Sin Costo
+    - row "Mesa de café $ 1.900 c/u 1 $ 1.900 Sin Costo":
+      - cell "Mesa de café $ 1.900 c/u":
+        - paragraph: Mesa de café
+        - paragraph: $ 1.900 c/u
+      - cell "1"
+      - cell "$ 1.900 Sin Costo":
+        - generic: $ 1.900
+        - generic: Sin Costo
+    - row "Album digital $ 2.500 c/u 1 $ 2.500 Sin Costo":
+      - cell "Album digital $ 2.500 c/u":
+        - paragraph: Album digital
+        - paragraph: $ 2.500 c/u
+      - cell "1"
+      - cell "$ 2.500 Sin Costo":
+        - generic: $ 2.500
+        - generic: Sin Costo
+    - row "Video de vida $ 2.500 c/u 1 $ 2.500 Sin Costo":
+      - cell "Video de vida $ 2.500 c/u":
+        - paragraph: Video de vida
+        - paragraph: $ 2.500 c/u
+      - cell "1"
+      - cell "$ 2.500 Sin Costo":
+        - generic: $ 2.500
+        - generic: Sin Costo
+    - row "Pantalla gigante y proyector $ 2.500 c/u 1 $ 2.500 Sin Costo":
+      - cell "Pantalla gigante y proyector $ 2.500 c/u":
+        - paragraph: Pantalla gigante y proyector
+        - paragraph: $ 2.500 c/u
+      - cell "1"
+      - cell "$ 2.500 Sin Costo":
+        - generic: $ 2.500
+        - generic: Sin Costo
+- generic: "Subtotal Servicios:"
+- generic: $ 270.370
+- generic: "Ahorro Regalos Incluidos:"
+- generic: "-$ 22.900"
+- generic: "Bonificación Especial (15%):"
+- generic: "-$ 37.121"
+- generic: "Ahorro total:"
+- generic: $ 60.021
+- generic: "Precio vigente:"
+- generic: $ 210.349
+- generic: "Valor aprox. por persona:"
+- generic: $ 2.103
+- generic: Plan de pagos estimado
+- generic: A confirmar
+- generic: "1. Seña para reservar la fecha:"
+- generic: $ 5.000
+- generic: "2. Saldo en 3 cuotas estimadas:"
+- generic: $ 78.967 / mes
+- paragraph: "* Es una referencia calculada hasta 30 días antes del evento. AK confirma el calendario y las condiciones en el contrato."
+- paragraph: Proyeccion de ajuste anual (15%)
+- generic: Total estimado 2027
+- generic: $ 241.901
+- paragraph: El presupuesto principal muestra el precio vigente 2026. El ajuste futuro es informativo y se aplica por contrato si la fecha pasa a otro anio.
+- heading "Reservá tu fecha y asegurá la promoción" [level=4]:
+  - text: Reservá tu fecha y asegurá la promoción
+- paragraph: Confirmá tu evento con una seña de $ 5.000 y la firma del contrato. La fecha se reserva para la primera persona que complete ambos pasos.
+- paragraph: El presupuesto tiene una validez de 30 días, manteniendo durante ese período el precio promocional y todos los regalos incluidos.
+- paragraph: Los valores corresponden a eventos realizados en 2026. Para fechas desde 2027 se aplicará un ajuste acumulativo del 15% por cada año adicional.
+- paragraph: "No dejes pasar tu fecha: firmá el contrato, aboná la seña y empezá a preparar tu fiesta con AK Producciones."
+- paragraph: Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.
+- button "Iniciar nueva simulación"
+- button "Preguntas Frecuentes":
+  - text: Preguntas Frecuentes
+- region "Notifications (F8)":
+  - list
+- alert

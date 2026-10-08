@@ -1,0 +1,86 @@
+{
+  "sha": "f790a002426aecb6598efa239fa948db57571752",
+  "build": "iZL-zBn4z4fNZ_IXFyUCN",
+  "fixture": "e2e_entorno_aislado",
+  "fixtureHash": "9c837af92d83823be30d9460bbad4f25fb4bd425c52f64363488fdb40ac8076f",
+  "scope": "Lectura y assertions de datos ficticios despues del recorrido REAL de navegador; no invoca ni simula las acciones de barra. No demuestra Firestore, concurrencia entre servidores o hardware.",
+  "orders": [
+    {
+      "id": "bar_55306433-b944-42aa-ae27-1109ee57868c",
+      "guestId": "inv_prueba_0",
+      "drinkId": "daiquiri-durazno",
+      "status": "cancelado",
+      "stockMovements": [
+        {
+          "insumoId": "ing-ron",
+          "cantidad": 0.0667
+        },
+        {
+          "insumoId": "ing-durazno",
+          "cantidad": 0.08
+        },
+        {
+          "insumoId": "ing-jugo-limon",
+          "cantidad": 0.02
+        },
+        {
+          "insumoId": "ing-almibar",
+          "cantidad": 0.015
+        }
+      ],
+      "stockRestoredAt": "2026-10-07T19:14:32.266Z",
+      "tableNumber": "3"
+    },
+    {
+      "id": "bar_22c6f642-8ab9-42a7-ac3e-66fe6f240701",
+      "guestId": "inv_prueba_0",
+      "drinkId": "daiquiri-durazno",
+      "status": "entregado",
+      "stockMovements": [
+        {
+          "insumoId": "ing-ron",
+          "cantidad": 0.0667
+        },
+        {
+          "insumoId": "ing-durazno",
+          "cantidad": 0.08
+        },
+        {
+          "insumoId": "ing-jugo-limon",
+          "cantidad": 0.02
+        },
+        {
+          "insumoId": "ing-almibar",
+          "cantidad": 0.015
+        }
+      ],
+      "tableNumber": "3"
+    }
+  ],
+  "stock": [
+    {
+      "id": "ing-ron",
+      "initial": 10,
+      "actual": 9.9333,
+      "expected": 9.9333
+    },
+    {
+      "id": "ing-durazno",
+      "initial": 10,
+      "actual": 9.92,
+      "expected": 9.92
+    },
+    {
+      "id": "ing-jugo-limon",
+      "initial": 10,
+      "actual": 9.98,
+      "expected": 9.98
+    },
+    {
+      "id": "ing-almibar",
+      "initial": 10,
+      "actual": 9.985,
+      "expected": 9.985
+    }
+  ]
+}

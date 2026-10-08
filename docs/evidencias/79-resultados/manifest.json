@@ -1,0 +1,179 @@
+{
+  "schema": 1,
+  "at": "2026-10-08T20:18:21.260Z",
+  "currentSource": "09c8d814fdecdca00da71de7bc22c1d64ef0e662",
+  "currentBuild": "y3pk-oG28Gx7I91pIPgS2",
+  "olderBarBrowser": {
+    "source": "f790a002426aecb6598efa239fa948db57571752",
+    "build": "iZL-zBn4z4fNZ_IXFyUCN",
+    "reusedBecauseRelevantSourceUnchanged": true
+  },
+  "jest": {
+    "suites": 4,
+    "passed": 9,
+    "failed": 0,
+    "kind": "Focused helpers/persistence with mocked DB and static consumer scans, not nine E2E"
+  },
+  "browser": {
+    "isolated": true,
+    "productionWrites": false,
+    "source128": "09c8d814fdecdca00da71de7bc22c1d64ef0e662",
+    "verifiedCases": [
+      "buffet budget saved",
+      "actual PDF download",
+      "valid public token without team session",
+      "invalid public token rejected",
+      "no token requires login",
+      "CRM event date without appointment",
+      "grouped portal counts",
+      "bar order preparation/ready/delivery",
+      "bar cancellation and stock restored"
+    ],
+    "pdf": {
+      "pages": 2,
+      "bothRendersVisuallyInspected": true,
+      "artifact": "presupuesto-128.pdf"
+    },
+    "residual128C": "Pending shortcut still labels 19 invitations as invitados, while 37 persons shown elsewhere"
+  },
+  "barResultFile": "barra-persistencia.json",
+  "barRecordedAt": null,
+  "oracleFile": "oraculo-fotocabina.json",
+  "oracleKind": "Actual test callback/assertions, simulated browser; not proof of an app defect",
+  "oracleRecordedAt": null,
+  "limits": [
+    "local build, not published deployment",
+    "not all 14 areas or buttons",
+    "station sessions/mural media need connected test Firestore/Storage (existing 114.3)",
+    "original 19 budgets not reconciled",
+    "not real Google/Meta/WhatsApp/Mercado Pago",
+    "not hardware or multi-server concurrency"
+  ],
+  "files": [
+    {
+      "file": "360-operador.jpg",
+      "bytes": 34749,
+      "sha256": "b0f2d645519e495325c5aa4852324ec093219686ce8fa304ed47dd6ec7448919"
+    },
+    {
+      "file": "ajustes-desde-presupuesto-sin-permiso.jpg",
+      "bytes": 32600,
+      "sha256": "2be740c49f0759f99c2d100a3c27d6fbd2f4dc9322210243bc5e31adfd6c72c8"
+    },
+    {
+      "file": "barman-sin-sesion.jpg",
+      "bytes": 32600,
+      "sha256": "2be740c49f0759f99c2d100a3c27d6fbd2f4dc9322210243bc5e31adfd6c72c8"
+    },
+    {
+      "file": "barra-entregado-y-cancelado.jpg",
+      "bytes": 61759,
+      "sha256": "6d55fe42d0fcedae9133d5adc7f9d59820606baba5a9e5733eab6f2742c6c9d6"
+    },
+    {
+      "file": "barra-listo.jpg",
+      "bytes": 44453,
+      "sha256": "12892dd0ae4c29148bf97e19f2bd081cb7a1fa9ee85fcc301d7d0205cf663229"
+    },
+    {
+      "file": "barra-persistencia.json",
+      "bytes": 2071,
+      "sha256": "4dfd203288c3627a82e855549f9c48d491fc4dcc1b8433c4d2262ab252e0d9cb"
+    },
+    {
+      "file": "crm-evento-no-cita-128.jpg",
+      "bytes": 88275,
+      "sha256": "b75b667397bd3c5688fa4a32ff4aedb5f2116cee79f1297a5a4b8d26963fe3e4"
+    },
+    {
+      "file": "crm-evento-no-cita-128.txt",
+      "bytes": 841,
+      "sha256": "a69e42bf8d4195c2ee98274716c5549c9e5fa7ff54bbf358ea17dc9c1cc51f7e"
+    },
+    {
+      "file": "espejo-operador.jpg",
+      "bytes": 36687,
+      "sha256": "256fd9989fa3d44e5e900ad2e0931a4f592ea3e5b1090df072faaadc50bd8bde"
+    },
+    {
+      "file": "fotocabina-sesion-sin-base.jpg",
+      "bytes": 39580,
+      "sha256": "3705ec7a3edced6577fc828a4623180816b815be9c93050cfcea2e2735d73d12"
+    },
+    {
+      "file": "invitado-token-ajeno-rechazado.jpg",
+      "bytes": 17429,
+      "sha256": "34e1ff3c39ae3472caa02ac14190942f0887f30c643964cd4ce07c005c50a861"
+    },
+    {
+      "file": "oraculo-fotocabina.json",
+      "bytes": 1217,
+      "sha256": "f9df0f6c4b45defed6f415c8df39ad356ebf1fabc531521acea77d9757fa7dee"
+    },
+    {
+      "file": "orden-128-jest.json",
+      "bytes": 5778,
+      "sha256": "fb47db7050b4af5744a46b9d18e275adc09f6753072b877c0ea7e3ae17a8d08b"
+    },
+    {
+      "file": "orden-128-jest.log",
+      "bytes": 716,
+      "sha256": "d22f99d7fe260f8d873c1cfb21bb6ebfa5e349f28ce8abd82317e580cb24f307"
+    },
+    {
+      "file": "portal-personas-128.jpg",
+      "bytes": 48743,
+      "sha256": "783bd421d510f1e5614af2d442030087b45da2aa8d428aacec526d88964decc7"
+    },
+    {
+      "file": "portal-personas-128.txt",
+      "bytes": 19961,
+      "sha256": "2e3c74e60dad177344513efdafb314d6ed2def3f2b752ad3ad15cd71bd90b4ce"
+    },
+    {
+      "file": "presupuesto-128-1.png",
+      "bytes": 123442,
+      "sha256": "b0d5f8d94a4568f2b78e9eb552f0172b9326c9ce55c0325976c5fe1cc7bb4776"
+    },
+    {
+      "file": "presupuesto-128-2.png",
+      "bytes": 131912,
+      "sha256": "519275e8a3982f7e99717176ae3cd2f6cf19d03c3b261916d0dbfae1c5663a40"
+    },
+    {
+      "file": "presupuesto-128.pdf",
+      "bytes": 9422,
+      "sha256": "dccabf092e4a1dd504923e913ad84e29da8ee753e51b6192e54d12c688e164b8"
+    },
+    {
+      "file": "presupuesto-enlace-publico-128.jpg",
+      "bytes": 50976,
+      "sha256": "563f2d92aa9906b946100e28cb955ab1039ee973b71b9fc0e1d1d1f001813404"
+    },
+    {
+      "file": "presupuesto-publico-128.txt",
+      "bytes": 10968,
+      "sha256": "9667050e16b28102b3a026b5d9c537c4bf114fb8634674dbd86bfdd6b0d1e487"
+    },
+    {
+      "file": "presupuesto-token-invalido-128.jpg",
+      "bytes": 21663,
+      "sha256": "65d5836d5ee48d5cdc1a20c545efd36a4c9b3e345710d429f27ea3e8855fee34"
+    },
+    {
+      "file": "retest-128-persistencia.json",
+      "bytes": 12170,
+      "sha256": "98e40da93c9f0318c634a20a7e3009e70530c0bef7962bc607209e1598080f07"
+    },
+    {
+      "file": "simulador-bufet-128-correcto.jpg",
+      "bytes": 49304,
+      "sha256": "72d048887b7ae8293a858ad72a5f5d6660d1cb12fa6b4eb02041cc6cb522517e"
+    },
+    {
+      "file": "simulador-resumen-128.txt",
+      "bytes": 11229,
+      "sha256": "352e013a059a75533e91753f17e8fa6f576466220c27adce386948ecf55f626d"
+    }
+  ]
+}

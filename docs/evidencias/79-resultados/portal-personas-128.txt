@@ -1,0 +1,495 @@
+- banner:
+  - img "AK Producciones"
+  - paragraph: Fiesta de esta noche
+  - paragraph: XV · 08 de octubre de 2026
+  - generic: Portal VIP
+- img "Protagonista"
+- paragraph: Tu evento está siendo organizado por
+- paragraph: ✨ AK Producciones
+- heading "Fiesta de esta noche" [level=1]
+- generic: 📅 08 de octubre de 2026
+- generic: 📍 Club Uruguay
+- generic: 👥 160 invitados
+- main:
+  - paragraph: Bienvenido al portal demo de AK Producciones. Todo esta organizado en un solo lugar.
+  - generic: 💬
+  - paragraph: Mensaje de tu Organizador
+  - paragraph: "AK acompana cada etapa: antes, durante y despues de la fiesta."
+  - paragraph: 📊 Progreso de tu evento
+  - generic: 40%
+  - paragraph: 📋 Buen comienzo. Hay algunos pasos importantes por completar.
+  - paragraph: Pendiente
+  - generic: ⬜
+  - text: Seña pagada
+  - generic: ⬜
+  - text: Menú definido
+  - generic: ⬜
+  - text: Decoración aprobada
+  - generic: ⬜
+  - text: Cronograma cargado
+  - generic: ⬜
+  - text: Pagos completados 100%
+  - link "👑 Ver Catálogo Completo de XV Años Conocé todos los servicios disponibles":
+    - /url: /catalogo/xv-anos
+    - generic: 👑
+    - paragraph: Ver Catálogo Completo de XV Años
+    - paragraph: Conocé todos los servicios disponibles
+  - text: Llegadas en Vivo
+  - generic: EN VIVO
+  - generic: "0"
+  - generic: / 121 personas llegaron
+  - generic: Presencia
+  - generic: 0% presentes
+  - paragraph: "121"
+  - paragraph: Confirmados
+  - paragraph: "0"
+  - paragraph: Presentes
+  - paragraph: "121"
+  - paragraph: Por llegar
+  - paragraph: "0"
+  - paragraph: No vienen
+  - text: Cosas pendientes
+  - generic: Completá estos pasos para que tu evento esté 100% listo.
+  - button "👥 Confirmar 19 invitado(s) pendientes":
+    - generic: 👥
+    - generic: Confirmar 19 invitado(s) pendientes
+  - button "💳 Pago pendiente (1 cuota(s))":
+    - generic: 💳
+    - generic: Pago pendiente (1 cuota(s))
+  - tablist:
+    - tab "Progreso"
+    - tab "Invitados" [active] [selected]
+    - tab "Pagos"
+  - tabpanel "Invitados":
+    - text: Invitados
+    - generic: 121 personas confirmadas · 37 sin responder
+    - paragraph: "Personas — Confirmadas: 121 · No asisten: 0 · Sin responder: 37"
+    - generic: Lucía Fernández
+    - generic: Adulto
+    - generic: Martín Rodríguez
+    - generic: Adulto
+    - generic: Sofía Pereyra
+    - generic: Adulto
+    - generic: Diego Silva
+    - generic: Adulto
+    - generic: Invitado de prueba número 6 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 7 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 8 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 10 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 11 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 12 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 14 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 15 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 16 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 18 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 19 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 20 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 22 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 23 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 24 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 26 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 27 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 28 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 30 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 31 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 32 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 34 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 35 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 36 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 38 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 39 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 40 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 42 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 43 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 44 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 46 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 47 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 48 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 50 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 51 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 52 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 54 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 55 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 56 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 58 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 59 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 60 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 62 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 63 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 64 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 66 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 67 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 68 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 70 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 71 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 72 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 74 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 75 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 76 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 78 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 79 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 80 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 5 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 9 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 13 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 17 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 21 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 25 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 29 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 33 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 37 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 41 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 45 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 49 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 53 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 57 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 61 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 65 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 69 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 73 con apellido largo
+    - generic: Adulto
+    - generic: Invitado de prueba número 77 con apellido largo
+    - generic: Adulto
+    - paragraph:
+      - text: Plan de Mesas
+    - generic: Lucía Fernández
+    - button "Mesa 1":
+      - text: Mesa 1
+    - generic: Martín Rodríguez
+    - button "Mesa 1":
+      - text: Mesa 1
+    - generic: Sofía Pereyra
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Diego Silva
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Invitado de prueba número 6 con apellido largo
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Invitado de prueba número 7 con apellido largo
+    - button "Mesa 3":
+      - text: Mesa 3
+    - generic: Invitado de prueba número 8 con apellido largo
+    - button "Mesa 4":
+      - text: Mesa 4
+    - generic: Invitado de prueba número 10 con apellido largo
+    - button "Mesa 6":
+      - text: Mesa 6
+    - generic: Invitado de prueba número 11 con apellido largo
+    - button "Mesa 7":
+      - text: Mesa 7
+    - generic: Invitado de prueba número 12 con apellido largo
+    - button "Mesa 8":
+      - text: Mesa 8
+    - generic: Invitado de prueba número 14 con apellido largo
+    - button "Mesa 10":
+      - text: Mesa 10
+    - generic: Invitado de prueba número 15 con apellido largo
+    - button "Mesa 1":
+      - text: Mesa 1
+    - generic: Invitado de prueba número 16 con apellido largo
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Invitado de prueba número 18 con apellido largo
+    - button "Mesa 4":
+      - text: Mesa 4
+    - generic: Invitado de prueba número 19 con apellido largo
+    - button "Mesa 5":
+      - text: Mesa 5
+    - generic: Invitado de prueba número 20 con apellido largo
+    - button "Mesa 6":
+      - text: Mesa 6
+    - generic: Invitado de prueba número 22 con apellido largo
+    - button "Mesa 8":
+      - text: Mesa 8
+    - generic: Invitado de prueba número 23 con apellido largo
+    - button "Mesa 9":
+      - text: Mesa 9
+    - generic: Invitado de prueba número 24 con apellido largo
+    - button "Mesa 10":
+      - text: Mesa 10
+    - generic: Invitado de prueba número 26 con apellido largo
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Invitado de prueba número 27 con apellido largo
+    - button "Mesa 3":
+      - text: Mesa 3
+    - generic: Invitado de prueba número 28 con apellido largo
+    - button "Mesa 4":
+      - text: Mesa 4
+    - generic: Invitado de prueba número 30 con apellido largo
+    - button "Mesa 6":
+      - text: Mesa 6
+    - generic: Invitado de prueba número 31 con apellido largo
+    - button "Mesa 7":
+      - text: Mesa 7
+    - generic: Invitado de prueba número 32 con apellido largo
+    - button "Mesa 8":
+      - text: Mesa 8
+    - generic: Invitado de prueba número 34 con apellido largo
+    - button "Mesa 10":
+      - text: Mesa 10
+    - generic: Invitado de prueba número 35 con apellido largo
+    - button "Mesa 1":
+      - text: Mesa 1
+    - generic: Invitado de prueba número 36 con apellido largo
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Invitado de prueba número 38 con apellido largo
+    - button "Mesa 4":
+      - text: Mesa 4
+    - generic: Invitado de prueba número 39 con apellido largo
+    - button "Mesa 5":
+      - text: Mesa 5
+    - generic: Invitado de prueba número 40 con apellido largo
+    - button "Mesa 6":
+      - text: Mesa 6
+    - generic: Invitado de prueba número 42 con apellido largo
+    - button "Mesa 8":
+      - text: Mesa 8
+    - generic: Invitado de prueba número 43 con apellido largo
+    - button "Mesa 9":
+      - text: Mesa 9
+    - generic: Invitado de prueba número 44 con apellido largo
+    - button "Mesa 10":
+      - text: Mesa 10
+    - generic: Invitado de prueba número 46 con apellido largo
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Invitado de prueba número 47 con apellido largo
+    - button "Mesa 3":
+      - text: Mesa 3
+    - generic: Invitado de prueba número 48 con apellido largo
+    - button "Mesa 4":
+      - text: Mesa 4
+    - generic: Invitado de prueba número 50 con apellido largo
+    - button "Mesa 6":
+      - text: Mesa 6
+    - generic: Invitado de prueba número 51 con apellido largo
+    - button "Mesa 7":
+      - text: Mesa 7
+    - generic: Invitado de prueba número 52 con apellido largo
+    - button "Mesa 8":
+      - text: Mesa 8
+    - generic: Invitado de prueba número 54 con apellido largo
+    - button "Mesa 10":
+      - text: Mesa 10
+    - generic: Invitado de prueba número 55 con apellido largo
+    - button "Mesa 1":
+      - text: Mesa 1
+    - generic: Invitado de prueba número 56 con apellido largo
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Invitado de prueba número 58 con apellido largo
+    - button "Mesa 4":
+      - text: Mesa 4
+    - generic: Invitado de prueba número 59 con apellido largo
+    - button "Mesa 5":
+      - text: Mesa 5
+    - generic: Invitado de prueba número 60 con apellido largo
+    - button "Mesa 6":
+      - text: Mesa 6
+    - generic: Invitado de prueba número 62 con apellido largo
+    - button "Mesa 8":
+      - text: Mesa 8
+    - generic: Invitado de prueba número 63 con apellido largo
+    - button "Mesa 9":
+      - text: Mesa 9
+    - generic: Invitado de prueba número 64 con apellido largo
+    - button "Mesa 10":
+      - text: Mesa 10
+    - generic: Invitado de prueba número 66 con apellido largo
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Invitado de prueba número 67 con apellido largo
+    - button "Mesa 3":
+      - text: Mesa 3
+    - generic: Invitado de prueba número 68 con apellido largo
+    - button "Mesa 4":
+      - text: Mesa 4
+    - generic: Invitado de prueba número 70 con apellido largo
+    - button "Mesa 6":
+      - text: Mesa 6
+    - generic: Invitado de prueba número 71 con apellido largo
+    - button "Mesa 7":
+      - text: Mesa 7
+    - generic: Invitado de prueba número 72 con apellido largo
+    - button "Mesa 8":
+      - text: Mesa 8
+    - generic: Invitado de prueba número 74 con apellido largo
+    - button "Mesa 10":
+      - text: Mesa 10
+    - generic: Invitado de prueba número 75 con apellido largo
+    - button "Mesa 1":
+      - text: Mesa 1
+    - generic: Invitado de prueba número 76 con apellido largo
+    - button "Mesa 2":
+      - text: Mesa 2
+    - generic: Invitado de prueba número 78 con apellido largo
+    - button "Mesa 4":
+      - text: Mesa 4
+    - generic: Invitado de prueba número 79 con apellido largo
+    - button "Mesa 5":
+      - text: Mesa 5
+    - generic: Invitado de prueba número 80 con apellido largo
+    - button "Mesa 6":
+      - text: Mesa 6
+  - heading "Preguntas Frecuentes del Servicio" [level=2]
+  - paragraph: Términos claros y transparentes de nuestro contrato y organización.
+  - heading "¿Cómo reservo la fecha?" [level=3]:
+    - button "¿Cómo reservo la fecha?":
+      - text: ¿Cómo reservo la fecha?
+  - heading "¿Qué incluye el servicio?" [level=3]:
+    - button "¿Qué incluye el servicio?":
+      - text: ¿Qué incluye el servicio?
+  - heading "¿Cuántas horas dura la fiesta?" [level=3]:
+    - button "¿Cuántas horas dura la fiesta?":
+      - text: ¿Cuántas horas dura la fiesta?
+  - heading "¿El precio cambia si la fiesta es el año que viene?" [level=3]:
+    - button "¿El precio cambia si la fiesta es el año que viene?":
+      - text: ¿El precio cambia si la fiesta es el año que viene?
+  - heading "¿Cómo pago?" [level=3]:
+    - button "¿Cómo pago?":
+      - text: ¿Cómo pago?
+  - heading "¿Qué pasa si me atraso con un pago?" [level=3]:
+    - button "¿Qué pasa si me atraso con un pago?":
+      - text: ¿Qué pasa si me atraso con un pago?
+  - heading "¿Puedo cambiar la fecha?" [level=3]:
+    - button "¿Puedo cambiar la fecha?":
+      - text: ¿Puedo cambiar la fecha?
+  - heading "¿Y si cancelo?" [level=3]:
+    - button "¿Y si cancelo?":
+      - text: ¿Y si cancelo?
+  - heading "¿Y si cancelo sólo una parte?" [level=3]:
+    - button "¿Y si cancelo sólo una parte?":
+      - text: ¿Y si cancelo sólo una parte?
+  - heading "¿Puedo cambiar la cantidad de invitados?" [level=3]:
+    - button "¿Puedo cambiar la cantidad de invitados?":
+      - text: ¿Puedo cambiar la cantidad de invitados?
+  - heading "¿Puedo cambiar el tipo de menú de algunos invitados?" [level=3]:
+    - button "¿Puedo cambiar el tipo de menú de algunos invitados?":
+      - text: ¿Puedo cambiar el tipo de menú de algunos invitados?
+  - heading "¿Si agrego un servicio nuevo, a qué precio?" [level=3]:
+    - button "¿Si agrego un servicio nuevo, a qué precio?":
+      - text: ¿Si agrego un servicio nuevo, a qué precio?
+  - heading "¿Cuándo entrego la lista de invitados?" [level=3]:
+    - button "¿Cuándo entrego la lista de invitados?":
+      - text: ¿Cuándo entrego la lista de invitados?
+  - heading "¿Hacen menú sin gluten o para alergias?" [level=3]:
+    - button "¿Hacen menú sin gluten o para alergias?":
+      - text: ¿Hacen menú sin gluten o para alergias?
+  - heading "¿Quién decide los detalles de la fiesta?" [level=3]:
+    - button "¿Quién decide los detalles de la fiesta?":
+      - text: ¿Quién decide los detalles de la fiesta?
+  - heading "¿Puedo pagar desde otra cuenta o que pague otra persona?" [level=3]:
+    - button "¿Puedo pagar desde otra cuenta o que pague otra persona?":
+      - text: ¿Puedo pagar desde otra cuenta o que pague otra persona?
+  - heading "¿Puedo llevar fotógrafo, show o maquilladora por mi cuenta?" [level=3]:
+    - button "¿Puedo llevar fotógrafo, show o maquilladora por mi cuenta?":
+      - text: ¿Puedo llevar fotógrafo, show o maquilladora por mi cuenta?
+  - heading "¿Me puedo llevar lo que sobra?" [level=3]:
+    - button "¿Me puedo llevar lo que sobra?":
+      - text: ¿Me puedo llevar lo que sobra?
+  - heading "¿Quién cuida a los niños?" [level=3]:
+    - button "¿Quién cuida a los niños?":
+      - text: ¿Quién cuida a los niños?
+  - heading "¿Usan las fotos de mi fiesta?" [level=3]:
+    - button "¿Usan las fotos de mi fiesta?":
+      - text: ¿Usan las fotos de mi fiesta?
+  - heading "¿Y AGADU?" [level=3]:
+    - button "¿Y AGADU?":
+      - text: ¿Y AGADU?
+  - heading "¿Los precios incluyen impuestos?" [level=3]:
+    - button "¿Los precios incluyen impuestos?":
+      - text: ¿Los precios incluyen impuestos?
+  - heading "¿Y si AK no puede cumplir con algo?" [level=3]:
+    - button "¿Y si AK no puede cumplir con algo?":
+      - text: ¿Y si AK no puede cumplir con algo?
+  - heading "¿Qué pasa si hay un imprevisto grave?" [level=3]:
+    - button "¿Qué pasa si hay un imprevisto grave?":
+      - text: ¿Qué pasa si hay un imprevisto grave?
+- contentinfo:
+  - paragraph: AK Producciones Eventos · Salto, Uruguay · 098 355 530
+- button "Abrir asistente de la fiesta":
+  - generic: Asistente Virtual
+- link "Contactar al organizador por WhatsApp":
+  - /url: https://wa.me/59898355530?text=Hola%2C%20necesito%20ayuda%20con%20mi%20evento%20%22Fiesta%20de%20esta%20noche%22.
+  - text: Necesito ayuda
+- region "Notifications (F8)":
+  - list
+- alert

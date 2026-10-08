@@ -1,0 +1,11 @@
+PASS src/__tests__/crm-fecha-evento-no-es-cita.test.ts
+PASS src/__tests__/portal-cliente-contadores-personas.test.ts
+PASS src/__tests__/simulador-variantes-buffet-autorizadas.test.ts
+PASS src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts
+
+Test Suites: 4 passed, 4 total
+Tests:       9 passed, 9 total
+Snapshots:   0 total
+Time:        8.435 s
+Ran all test suites within paths "src/__tests__/simulador-variantes-buffet-autorizadas.test.ts", "src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts", "src/__tests__/portal-cliente-contadores-personas.test.ts", "src/__tests__/crm-fecha-evento-no-es-cita.test.ts".
+Test results written to: ..\audit-runtime-results-20261002\jest-mocked.json
