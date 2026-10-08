@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Search, CheckCircle2, UserPlus, AlertCircle, XCircle, Moon, Sun, WifiOff } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { enqueueOfflineAction, flushOfflineQueue } from '@/lib/offline/offline-action-queue';
+import { contarPersonasDelPortal } from '@/lib/fiesta/guest-counts';
 
 export default function RecepcionClient({
   fiestaId,
@@ -108,8 +109,9 @@ export default function RecepcionClient({
     }
   };
 
-  const presentes = invitados.filter(i => i.checkedIn).length;
-  const totales = invitados.filter(i => i.rsvp === 'Confirmado').length;
+  // Cuenta PERSONAS y no filas (mismo criterio que el portal del cliente): una invitacion para
+  // cuatro son cuatro personas, y un invitado que llega cuenta con todo su grupo.
+  const { llegaron: presentes, confirmados: totales } = contarPersonasDelPortal(invitados);
 
   return (
     <div className={`flex flex-col h-full min-h-screen pb-24 transition-colors ${nightMode ? 'bg-zinc-950 text-white' : 'bg-slate-50 text-slate-900'}`}>

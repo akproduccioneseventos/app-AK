@@ -1,5 +1,52 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 8 de octubre de 2026 — Barrido por forma: conteos en personas y fecha de fiesta no es cita
+
+- **La recepción y el portal público contaban invitaciones y no personas.** Un invitado para cuatro
+  contaba como uno: el "3 / 4" de la recepción y los "invitados confirmados" del portal salían bajos.
+  Ahora cuentan personas con la misma regla del portal del cliente (`contarPersonasDelPortal` y
+  `getGuestPartySize`). Se dejó la línea de "N invitaciones" cuando difiere de las personas.
+- **La fecha de la fiesta se guardaba como cita del CRM al anotar un prospecto.** Pasaba en el
+  multiagente y en el asistente (router y camino de Gemini): la fecha iba a `followUpDate`, que es
+  la reunión agendada, y aparecía en la agenda. Ahora va como `eventDate`; `followUpDate` queda solo
+  para una reunión que se agenda de verdad.
+
+```comprobar
+prueba: src/__tests__/recepcion-y-portal-publico-cuentan-personas.test.ts
+prueba: src/__tests__/el-asistente-no-guarda-la-fiesta-como-cita.test.ts
+## 8 de octubre de 2026 — Barrido por forma: botones que fallaban, regalo, cupón
+
+- **El cliente no podía subir una idea al moodboard desde su portal.** La subida de archivos pedía
+  sesión del equipo, y el cliente entra con la sesión de su portal: siempre le salía "Sesión no
+  autorizada". Ahora pasa el equipo o el cliente CON LA SESIÓN DE ESA FIESTA, y sólo a la carpeta de
+  su propia fiesta (la sesión de una fiesta no sirve para la carpeta de otra), únicamente imágenes y
+  hasta 10 MB. Para el equipo no cambió nada.
+- **El invitado no podía reservar un regalo desde la invitación.** Reservar guardaba la fiesta entera
+  por el camino que pide sesión del equipo o del portal, y el invitado no tiene ninguna. Ahora es una
+  escritura angosta (la misma vía que usa confirmar asistencia): marca ese único regalo con el nombre
+  limpio (máximo 80 letras), no pisa uno ya reservado, rechaza uno que no existe, tiene tope de
+  intentos por fiesta y no toca nada más. Es un regalo, no plata: no se tocaron pagos ni cuotas.
+- **Un cupón que todavía no empezaba se registraba al guardar el presupuesto.** El registro tenía
+  una copia a medias de las reglas y no miraba la fecha de inicio. Ahora el probador de cupones y el
+  registro usan UNA sola regla (`motivoParaNoUsarCupon`): desactivado, fechas, vencido, sin usos. Si
+  ya no sirve, no se suma el uso y devuelve el motivo. Pendiente a propósito: el monto mínimo y el
+  tipo de evento no se revalidan al guardar, porque la pantalla de crear le pasa al registro el
+  descuento manual (no el total) y no le pasa el tipo; revalidarlos hoy rechazaría cupones buenos.
+  Además esa pantalla, si el registro falla, avisa "el descuento se aplicó al presupuesto": es
+  verdad (ya se guardó), pero conviene que el equipo lo corrija a mano.
+- **La demo de tecnología mostraba tres botones que a un prospecto siempre le fallaban.** La pantalla
+  es pública a propósito, pero crear una demo arma una fiesta y pide sesión del equipo. Ahora los
+  botones salen sólo si quien mira es del equipo; el prospecto ve una línea que explica que la demo
+  la arma AK en la reunión. Crear demos NO se hizo público.
+
+```comprobar
+archivo: src/lib/cupones/motivo-para-no-usar.ts
+prueba: src/__tests__/el-cliente-sube-al-moodboard.test.ts
+prueba: src/__tests__/el-invitado-reserva-un-regalo.test.ts
+prueba: src/__tests__/un-cupon-vencido-no-se-registra.test.ts
+prueba: src/__tests__/la-demo-no-ofrece-lo-que-no-puede.test.ts
+```
+
 ## 8 de octubre de 2026 — Codex, auditoría 80: la reunión del simulador y el "Informar pago" del cliente
 
 - **La reunión que el prospecto agendaba en el simulador no aparecía en la agenda del CRM.** El

@@ -1237,6 +1237,14 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Los errores que aparecen son viejos: se buscan los iguales, y cada pregunta nueva barre la app
+  (8 de octubre de 2026).** Palabras suyas: *"siempre los errores son viejos, habría que buscar ese
+  tipo de errores, y si agregaste cosas a la lista lo mismo"* y *"y si hay nuevas cosas en la
+  lista"*. Cada vez que aparece un error (de Codex, del dueño o propio) **y** cada vez que se suma
+  una pregunta a `COMO-AUDITAR.md` o `ANTES-DE-ENTREGAR.md`, en el mismo momento se lanzan
+  ayudantes baratos a buscar **esa misma forma en toda la app**. Lo que encuentran se verifica,
+  se arregla con ayudantes y entra en la misma tanda. No se espera a que Codex lo encuentre de a uno.
+
 - **A Gemini, sólo lo grande; lo demás lo resuelven los ayudantes baratos (8 de octubre de 2026).**
   Palabras suyas: *"resuelve todo con agentes baratos siempre"* y *"solo que sea cosas grandes
   gemini"*. Los arreglos chicos y medianos los programa un ayudante (en una copia aparte del
