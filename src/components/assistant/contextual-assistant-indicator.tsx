@@ -13,6 +13,7 @@ import {
   getAssistantPersonaByPath,
   type AssistantPersonaOverrideMap,
 } from '@/lib/assistant/contextual-assistants';
+import { useEsVistaDelCliente } from '@/hooks/use-es-vista-del-cliente';
 
 function readOverrides(): AssistantPersonaOverrideMap {
   if (typeof window === 'undefined') return {};
@@ -31,6 +32,7 @@ function openAssistantWidget() {
 export function ContextualAssistantIndicator() {
   const pathname = usePathname();
   const [overrides, setOverrides] = useState<AssistantPersonaOverrideMap>({});
+  const esVistaDelCliente = useEsVistaDelCliente(pathname || '/');
 
   useEffect(() => {
     setOverrides(readOverrides());
@@ -68,6 +70,8 @@ export function ContextualAssistantIndicator() {
             <span className="block truncate text-[11px] font-medium text-slate-500">{persona.role}</span>
           </span>
         </button>
+        {/* Ajustes del equipo: el cliente que abre su enlace no los ve (Codex, auditoria 79). */}
+        {!esVistaDelCliente && (<>
         <Button asChild size="icon" variant="ghost" className="h-8 w-8 text-slate-500" title="Personalizar asistentes">
           <Link href="/settings/asistentes-contextuales">
             <Camera className="h-4 w-4" />
@@ -78,6 +82,7 @@ export function ContextualAssistantIndicator() {
             <Settings2 className="h-4 w-4" />
           </Link>
         </Button>
+        </>)}
       </div>
     </div>
   );

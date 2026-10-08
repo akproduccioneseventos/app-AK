@@ -21,6 +21,7 @@
  */
 
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
+import { sinBaseDisponible } from '@/lib/firebase/modo-local';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
@@ -175,7 +176,7 @@ async function getClientSocialFiesta(
 export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
   try {
     const canModerate = await canModerateSocialEvent(fiestaId);
-    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    if (sinBaseDisponible()) {
       const posts = await getLocalSocialPosts(fiestaId);
       return canModerate
         ? posts
@@ -222,7 +223,7 @@ export async function getPublicSocialPostCount(
     const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta || !buildPublicGuestPortalData(fiesta, guestId, guestAccessToken)) return 0;
 
-    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    if (sinBaseDisponible()) {
       const posts = await getLocalSocialPosts(fiestaId);
       return soloAprobados(posts).length;
     }
@@ -262,7 +263,7 @@ export async function getSocialPostsByClient(
     const fiesta = await getClientSocialFiesta(fiestaId, accessKey);
     if (!fiesta) return { success: false, error: 'Sesión del portal no autorizada.' };
 
-    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    if (sinBaseDisponible()) {
       return { success: true, posts: await getLocalSocialPosts(fiestaId) };
     }
 
@@ -593,7 +594,7 @@ async function persistSocialMediaPostFromUrl(
     // Con identidad fija (el reintento de una captura), si el posteo ya existe se devuelve ese y NO
     // se pisa: así un reintento no duplica, y nadie puede sobreescribir el posteo de otro
     // mandando su identidad.
-    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    if (sinBaseDisponible()) {
       const existing = await readData<SocialGalleryPost[]>('social-gallery/metadata.json', []);
       const yaEstaba = input.postId ? existing.find((p) => p.id === postId) : undefined;
       if (yaEstaba) return { success: true, post: yaEstaba };

@@ -22,7 +22,7 @@
     "test:e2e:production": "npm run build && node scripts/run-playwright-production.mjs",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
-    "test:rules": "node ./node_modules/firebase-tools/lib/bin/firebase.js emulators:exec --only firestore --project demo-ak-producciones \"node ./node_modules/jest/bin/jest.js --runInBand --config jest.rules.config.js\"",
+    "test:rules": "node ./node_modules/firebase-tools/lib/bin/firebase.js emulators:exec --config firebase.pruebas.json --only firestore,storage --project demo-ak-producciones \"node ./node_modules/jest/bin/jest.js --runInBand --config jest.rules.config.js\"",
     "check:acentos": "node scripts/check-acentos.mjs",
     "auditoria": "node scripts/auditoria.mjs",
     "mapa:generar": "node scripts/generar-mapa-app.mjs",

@@ -65,6 +65,10 @@ test('el cliente abre su presupuesto con el enlace del PDF, sin cuenta del equip
   await expect(page.getByRole('button', { name: /crear fiesta/i })).toHaveCount(0);
   await expect(page.getByRole('button', { name: /aprobar/i })).toHaveCount(0);
   await expect(page.getByRole('link', { name: /editar/i })).toHaveCount(0);
+  // Ni las puertas del equipo del armazon (Codex, auditoria 79).
+  await expect(page.getByTitle('Ir al panel principal')).toHaveCount(0);
+  await expect(page.getByTitle('Personalizar asistentes')).toHaveCount(0);
+  await expect(page.getByTitle('Ver sincronizaciones')).toHaveCount(0);
 });
 
 test('con el enlace alterado no se ve el presupuesto', async ({ page, context }) => {
