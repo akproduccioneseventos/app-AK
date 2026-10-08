@@ -1,5 +1,21 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 8 de octubre de 2026 — Barrido por forma: conteos en personas y fecha de fiesta no es cita
+
+- **La recepción y el portal público contaban invitaciones y no personas.** Un invitado para cuatro
+  contaba como uno: el "3 / 4" de la recepción y los "invitados confirmados" del portal salían bajos.
+  Ahora cuentan personas con la misma regla del portal del cliente (`contarPersonasDelPortal` y
+  `getGuestPartySize`). Se dejó la línea de "N invitaciones" cuando difiere de las personas.
+- **La fecha de la fiesta se guardaba como cita del CRM al anotar un prospecto.** Pasaba en el
+  multiagente y en el asistente (router y camino de Gemini): la fecha iba a `followUpDate`, que es
+  la reunión agendada, y aparecía en la agenda. Ahora va como `eventDate`; `followUpDate` queda solo
+  para una reunión que se agenda de verdad.
+
+```comprobar
+prueba: src/__tests__/recepcion-y-portal-publico-cuentan-personas.test.ts
+prueba: src/__tests__/el-asistente-no-guarda-la-fiesta-como-cita.test.ts
+```
+
 ## 8 de octubre de 2026 — Codex, auditoría 80: la reunión del simulador y el "Informar pago" del cliente
 
 - **La reunión que el prospecto agendaba en el simulador no aparecía en la agenda del CRM.** El

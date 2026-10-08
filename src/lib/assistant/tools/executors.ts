@@ -81,6 +81,8 @@ export interface CrearProspectoInput {
   phone?: string;
   email?: string;
   partyType?: string;
+  /** Fecha de la fiesta: NO es una cita del CRM. */
+  eventDate?: string;
   followUpDate?: string;
   notes?: string;
   guestCount?: number;
@@ -335,6 +337,7 @@ export async function executeCrearProspecto(input: CrearProspectoInput): Promise
     name: input.name,
     phone: input.phone,
     partyType: input.partyType,
+    eventDate: input.eventDate,
     followUpDate: input.followUpDate,
     notes: input.notes,
     guestCount: input.guestCount,

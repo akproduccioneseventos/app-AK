@@ -75,6 +75,7 @@ import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { calculateMenuSimulationTotals, resolveMenuUnitPrices, simulateGuestCostImpact } from '@/lib/portal-menu-simulator';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
+import { getGuestPartySize } from '@/lib/fiesta/guest-counts';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -654,7 +655,8 @@ export default function PublicPortalView({
   const guestConfirmados = invitados.filter(inv => inv.rsvp === 'Confirmado');
   const guestPendientes = invitados.filter(inv => inv.rsvp === 'Pendiente' || inv.rsvp === 'Tal vez');
   const guestCancelados = invitados.filter(inv => inv.rsvp === 'Rechazado');
-  const totalInvitadosConfirmados = guestConfirmados.reduce((sum, inv) => sum + (inv.partySize ?? 1), 0);
+  // Personas confirmadas (no filas): una invitacion para cuatro son cuatro personas.
+  const totalInvitadosConfirmados = guestConfirmados.reduce((sum, inv) => sum + getGuestPartySize(inv), 0);
 
 
   return (
@@ -990,7 +992,7 @@ export default function PublicPortalView({
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Días para el evento</p>
                 </div>
                 <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
-                  <p className="text-2xl font-black text-teal-600">{guestConfirmados.length}</p>
+                  <p className="text-2xl font-black text-teal-600">{totalInvitadosConfirmados}</p>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Invitados confirmados</p>
                 </div>
               </div>
@@ -1017,12 +1019,12 @@ export default function PublicPortalView({
                     <span className="font-semibold">Pago {isPaid ? 'completado ✓' : `pendiente (${Math.round(porcentajePagado)}% pagado)`}</span>
                   </div>
                   {isModuleVisible(settings, 'invitados') && (
-                    <div className={`flex items-center gap-3 text-sm ${guestConfirmados.length > 0 ? 'text-emerald-700' : 'text-slate-500'}`}>
-                      <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${guestConfirmados.length > 0 ? 'bg-emerald-100' : 'bg-slate-100'}`}>
-                        {guestConfirmados.length > 0 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
+                    <div className={`flex items-center gap-3 text-sm ${totalInvitadosConfirmados > 0 ? 'text-emerald-700' : 'text-slate-500'}`}>
+                      <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${totalInvitadosConfirmados > 0 ? 'bg-emerald-100' : 'bg-slate-100'}`}>
+                        {totalInvitadosConfirmados > 0 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
                       </div>
                       <span className="font-semibold">
-                        {guestConfirmados.length > 0 ? `${guestConfirmados.length} invitados confirmados ✓` : 'Sin confirmaciones aún'}
+                        {totalInvitadosConfirmados > 0 ? `${totalInvitadosConfirmados} invitados confirmados ✓` : 'Sin confirmaciones aún'}
                       </span>
                     </div>
                   )}
@@ -1383,10 +1385,10 @@ export default function PublicPortalView({
                   {/* Summary stats */}
                   <div className="grid grid-cols-3 gap-2">
                     <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3 text-center">
-                      <p className="text-2xl font-black text-emerald-700">{guestConfirmados.length}</p>
+                      <p className="text-2xl font-black text-emerald-700">{totalInvitadosConfirmados}</p>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 mt-0.5">Confirmados</p>
                       {totalInvitadosConfirmados > guestConfirmados.length && (
-                        <p className="text-[10px] text-emerald-500 mt-0.5">{totalInvitadosConfirmados} personas</p>
+                        <p className="text-[10px] text-emerald-500 mt-0.5">{guestConfirmados.length} {guestConfirmados.length === 1 ? 'invitación' : 'invitaciones'}</p>
                       )}
                     </div>
                     <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-center">

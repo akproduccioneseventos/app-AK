@@ -261,7 +261,8 @@ export async function sendPersistentMultiAgentMessage(input: {
           email: data.email,
           partyType: data.partyType,
           guestCount: typeof data.guestCount === 'number' ? data.guestCount : undefined,
-          followUpDate: data.eventDate,
+          // La fecha de la fiesta NO es una cita: va como eventDate. followUpDate es solo una reunion agendada.
+          eventDate: data.eventDate,
           notes: notas || undefined,
         } as any);
         if (leadRes.success) {

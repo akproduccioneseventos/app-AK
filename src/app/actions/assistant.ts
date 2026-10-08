@@ -507,7 +507,8 @@ export async function sendAssistantMessage(
           const toolInput = {
             name: intent.data.name,
             partyType: intent.data.eventoTipo,
-            followUpDate: intent.data.followUpDate,
+            // La fecha que trae un mensaje sobre una fiesta es la FECHA DE LA FIESTA, no una cita.
+            eventDate: intent.data.followUpDate,
           };
           try {
             const toolResult = await tool.execute(toolInput);
@@ -1172,6 +1173,8 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
         ...(result.action.data || {}),
         name: result.action?.data?.name || fallbackLead.name,
         followUpDate: result.action?.data?.followUpDate || fallbackLead.followUpDate,
+        // En un prospecto la fecha que llega es la de la fiesta: se guarda como eventDate.
+        eventDate: result.action?.data?.eventDate || result.action?.data?.followUpDate || fallbackLead.followUpDate,
         notes: result.action?.data?.notes || fallbackLead.notes,
       };
       // When Gemini provides a name, route through TOOL_REGISTRY (crearProspecto).
@@ -1185,7 +1188,8 @@ ${Array.isArray(aiSettings.knowledgeDocuments) && aiSettings.knowledgeDocuments.
               phone: d.phone,
               email: d.email,
               partyType: d.partyType,
-              followUpDate: d.followUpDate,
+              // Fecha de la fiesta, no cita: ver executeCrearProspecto.
+              eventDate: d.eventDate,
               notes: d.notes,
               guestCount: d.guestCount != null ? (Number(d.guestCount) || undefined) : undefined,
             };

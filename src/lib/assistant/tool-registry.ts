@@ -76,6 +76,8 @@ const crearProspectoSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email().optional(),
   partyType: z.string().optional(),
+  // Fecha de la fiesta. followUpDate queda solo para una reunion agendada.
+  eventDate: z.string().optional(),
   followUpDate: z.string().optional(),
   notes: z.string().optional(),
   guestCount: z.number().int().nonnegative().optional(),
