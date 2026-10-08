@@ -4,6 +4,8 @@
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, GiftItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 async function updateFiestaData(
@@ -73,36 +75,58 @@ export async function addGiftToRegistry(fiestaId: string, newGiftData: Omit<Gift
 }
 
 
+/**
+ * El invitado reserva un regalo desde la invitación pública, SIN sesión.
+ *
+ * Antes pasaba por `saveFiesta`, que pide sesión del equipo o del portal: para un invitado
+ * siempre fallaba con "No autorizado". Ahora es una escritura angosta: usa `actualizarFiesta`
+ * con `publicRsvp: true` (lee y guarda adentro de la misma transacción, como la confirmación de
+ * asistencia) y la función sólo toca UN regalo: lo marca reservado con el nombre limpio. Si el
+ * regalo no existe o ya lo eligió otro, no escribe nada. Nada más de la fiesta cambia.
+ * Es un regalo, no plata: no toca pagos ni cuotas.
+ */
 export async function claimGift(fiestaId: string, giftId: string, guestName: string): Promise<{ success: boolean; error?: string }> {
-    return updateFiestaData(fiestaId, data => {
-        const invitacionDigital = data.invitacionDigital || initialFiestaActualData.invitacionDigital!;
-        const regalos = invitacionDigital.regalos || { visible: true, titulo: { text: '' }, texto: { text: '' }, datosBancarios: '', items: [] };
+    const nombre = String(guestName ?? '').replace(/\s+/g, ' ').trim().slice(0, 80);
+    if (!fiestaId || !giftId || !nombre) {
+        return { success: false, error: 'Falta tu nombre para reservar el regalo.' };
+    }
 
-        const currentItems = regalos.items || [];
+    try {
+        await enforcePublicRateLimit({
+            scope: 'public-claim-gift',
+            identity: fiestaId,
+            limit: 20,
+            windowMs: 60 * 60 * 1000,
+        });
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+
+    const res = await actualizarFiesta(fiestaId, (data) => {
+        const invitacionDigital = data.invitacionDigital;
+        const regalos = invitacionDigital?.regalos;
+        const currentItems = regalos?.items || [];
         const targetGift = currentItems.find(gift => gift.id === giftId);
-        if (!targetGift) {
+        if (!invitacionDigital || !regalos || !targetGift) {
             throw new Error('Regalo no encontrado.');
         }
         if (targetGift.isClaimed) {
             throw new Error('Justo lo eligió otro invitado; elegí otro de la lista.');
         }
 
-        const updatedItems = currentItems.map(gift => {
-            if (gift.id === giftId) {
-                return { ...gift, isClaimed: true, claimedBy: guestName };
-            }
-            return gift;
-        });
-
-        const updatedRegalos = { ...regalos, items: updatedItems };
-
         return {
             ...data,
             invitacionDigital: {
                 ...invitacionDigital,
-                regalos: updatedRegalos
-            }
+                regalos: {
+                    ...regalos,
+                    items: currentItems.map(gift =>
+                        gift.id === giftId ? { ...gift, isClaimed: true, claimedBy: nombre } : gift
+                    ),
+                },
+            },
         };
-    });
-}
+    }, { publicRsvp: true });
 
+    return res.success ? { success: true } : { success: false, error: res.error || 'No se pudo reservar el regalo.' };
+}

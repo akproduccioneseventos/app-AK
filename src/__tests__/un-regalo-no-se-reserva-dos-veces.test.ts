@@ -19,6 +19,21 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: (...args: any[]) => getFiestaById(...args),
   saveFiesta: (...args: any[]) => saveFiesta(...args),
 }));
+jest.mock('@/lib/commercial/public-rate-limit', () => ({ enforcePublicRateLimit: jest.fn() }));
+// claimGift ya no pasa por saveFiesta (pide sesión): usa actualizarFiesta. Acá se simula con la
+// fiesta que devuelve getFiestaById y se anota lo que se guardaría.
+jest.mock('@/lib/fiesta/actualizar-fiesta', () => ({
+  actualizarFiesta: async (id: string, fn: (d: any) => any) => {
+    try {
+      const base = await getFiestaById(id);
+      const updated = await fn(base);
+      const r = await saveFiesta(updated);
+      return r.success ? { success: true, updatedFiesta: updated } : { success: false, error: r.error };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  },
+}));
 
 import { claimGift } from '@/app/actions/fiesta/regalos.actions';
 

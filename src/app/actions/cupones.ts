@@ -5,6 +5,7 @@ import type { Coupon, CouponUsage, CouponValidationResult } from '@/types/coupon
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { AsyncMutex } from '@/lib/mutex';
+import { motivoParaNoUsarCupon } from '@/lib/cupones/motivo-para-no-usar';
 
 const cuponMutex = new AsyncMutex();
 const CUPONES_FILE = 'cupones.json';
@@ -200,29 +201,9 @@ export async function validarCupon(
       return { valid: false, error: 'Código de cupón no válido.' };
     }
 
-    if (!cupon.activo) {
-      return { valid: false, error: 'Este cupón está desactivado.' };
-    }
-
-    const ahora = new Date();
-    const inicio = new Date(cupon.fechaInicio);
-    const fin = new Date(cupon.fechaFin);
-
-    if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) {
-      return { valid: false, error: 'Las fechas del cupón no son válidas.' };
-    }
-
-    fin.setHours(23, 59, 59, 999); // Include the full last day
-
-    if (ahora < inicio) {
-      return { valid: false, error: 'Este cupón aún no está vigente.' };
-    }
-    if (ahora > fin) {
-      return { valid: false, error: 'Este cupón ha expirado.' };
-    }
-
-    if (cupon.usosMaximos > 0 && cupon.usosActuales >= cupon.usosMaximos) {
-      return { valid: false, error: 'Este cupón ya alcanzó el límite de usos.' };
+    const motivo = motivoParaNoUsarCupon(cupon);
+    if (motivo) {
+      return { valid: false, error: motivo };
     }
 
     if (cupon.tipoEvento && tipoEvento && cupon.tipoEvento !== tipoEvento) {
@@ -254,19 +235,8 @@ export async function validarCupon(
 
 // ===== REGISTRAR USO =====
 
-/** Lo que impide usar el cupon ahora, o null si se puede. */
-function motivoParaNoUsar(cupon: Coupon): string | null {
-  if (!cupon.activo) return 'Este cupón está desactivado.';
-  const fin = new Date(cupon.fechaFin);
-  if (!isNaN(fin.getTime())) {
-    fin.setHours(23, 59, 59, 999);
-    if (new Date() > fin) return 'Este cupón ha expirado.';
-  }
-  if (cupon.usosMaximos > 0 && cupon.usosActuales >= cupon.usosMaximos) {
-    return 'Este cupón ya alcanzó el límite de usos.';
-  }
-  return null;
-}
+/** Lo que impide usar el cupon ahora, o null si se puede (la misma regla que `validarCupon`). */
+const motivoParaNoUsar = (cupon: Coupon) => motivoParaNoUsarCupon(cupon);
 
 /**
  * El uso de un cupon, con la base: el contador se sube adentro de una transaccion y el
@@ -352,19 +322,8 @@ export async function registrarUsoCupon(
       // a su tope por otro uso simultaneo. Se revalida aca adentro, que es
       // donde el chequeo y el incremento son un solo paso.
       const cupon = cupones[idx];
-      if (!cupon.activo) {
-        return { success: false, error: 'Este cupón está desactivado.' };
-      }
-      const fin = new Date(cupon.fechaFin);
-      if (!isNaN(fin.getTime())) {
-        fin.setHours(23, 59, 59, 999);
-        if (new Date() > fin) {
-          return { success: false, error: 'Este cupón ha expirado.' };
-        }
-      }
-      if (cupon.usosMaximos > 0 && cupon.usosActuales >= cupon.usosMaximos) {
-        return { success: false, error: 'Este cupón ya alcanzó el límite de usos.' };
-      }
+      const motivo = motivoParaNoUsar(cupon);
+      if (motivo) return { success: false, error: motivo };
 
       cupones[idx].usosActuales += 1;
       cupones[idx].actualizadoEn = new Date().toISOString();

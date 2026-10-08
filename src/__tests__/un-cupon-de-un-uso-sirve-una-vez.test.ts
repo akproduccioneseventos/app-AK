@@ -42,7 +42,7 @@ import { registrarUsoCupon } from '@/app/actions/cupones';
 describe('Un cupon de un solo uso sirve una vez', () => {
   beforeEach(() => {
     delete process.env.AK_USE_LOCAL_JSON_ONLY;
-    coleccion.cupones = { 'cup-1': { id: 'cup-1', codigo: 'REGALO', activo: true, fechaFin: '2099-12-31', usosMaximos: 1, usosActuales: 0 } };
+    coleccion.cupones = { 'cup-1': { id: 'cup-1', codigo: 'REGALO', activo: true, fechaInicio: '2020-01-01', fechaFin: '2099-12-31', usosMaximos: 1, usosActuales: 0 } };
     coleccion.cupones_usage = {};
   });
 
