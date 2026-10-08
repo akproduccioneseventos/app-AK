@@ -1237,6 +1237,12 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **A Gemini, sólo lo grande; lo demás lo resuelven los ayudantes baratos (8 de octubre de 2026).**
+  Palabras suyas: *"resuelve todo con agentes baratos siempre"* y *"solo que sea cosas grandes
+  gemini"*. Los arreglos chicos y medianos los programa un ayudante (en una copia aparte del
+  código, sin tocar la carpeta donde corre la verificación); Claude revisa la entrega, verifica y
+  fusiona. Orden escrita para Gemini sólo cuando el trabajo es grande.
+
 - **Si no hay foto, va una de ejemplo (7 de octubre de 2026).** Palabras suyas: *"ya te dije antes
   si no hay foto pones una de internet de ejemplo no vuelvas a preguntar"*. **Nunca se le pide una
   foto ni se lista "falta la foto real" como pendiente.** Se busca primero una foto propia de AK que
