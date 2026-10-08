@@ -26,4 +26,14 @@ describe('el cliente no ve puertas del equipo', () => {
     expect(bloque).toContain('/settings/asistentes-contextuales');
     expect(bloque).toContain('/settings/sincronizaciones');
   });
+
+  it('la tarjeta "Informar pago" solo se arma para el equipo (auditoria 80)', () => {
+    const pagina = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/presupuestos/[id]/ver/page.tsx'), 'utf-8');
+    const donde = pagina.indexOf('Informar Pago</h3>');
+    expect(donde).toBeGreaterThan(0);
+    // El bloque que la contiene empieza en su comentario y debe abrir con la condicion del equipo.
+    const marca = pagina.lastIndexOf('INFORMAR PAGO', donde);
+    const apertura = pagina.indexOf('{', pagina.indexOf('*/', marca));
+    expect(pagina.slice(apertura, apertura + 40)).toMatch(/^\{isOperatorBudgetAccess && \(/);
+  });
 });

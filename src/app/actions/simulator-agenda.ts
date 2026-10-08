@@ -38,7 +38,6 @@ export async function bookAppointmentFromSimulator(data: {
   fechaHora: string; // ISO 8601 string
   tipoReunion?: 'Presencial en Oficina' | 'Videollamada Google Meet';
   presupuestoId?: string;
-  leadId?: string;
 }): Promise<{
   success: boolean;
   appointment?: CrmAppointment;
@@ -97,6 +96,19 @@ export async function bookAppointmentFromSimulator(data: {
       };
     }
 
+    // El prospecto sale del PRESUPUESTO guardado en el servidor, nunca de lo que mande el
+    // navegador: esta accion es publica y un leadId ajeno movia la fecha de seguimiento de
+    // cualquier prospecto. Sin presupuesto o sin prospecto, la cita se guarda igual.
+    let leadId: string | undefined;
+    if (data.presupuestoId) {
+      try {
+        const presupuestos = await readData<Array<{ id: string; leadId?: string }>>('presupuestos.json', []);
+        leadId = presupuestos.find((p) => p.id === data.presupuestoId)?.leadId || undefined;
+      } catch (e) {
+        console.warn('No se pudo leer el presupuesto para enlazar la cita con el prospecto:', e);
+      }
+    }
+
     const newAppointment: CrmAppointment = {
       id: `cita_sim_${Date.now()}_${Math.random().toString(36).substring(7)}`,
       clienteNombre: nombre,
@@ -106,7 +118,7 @@ export async function bookAppointmentFromSimulator(data: {
       estado: 'Agendada',
       lugar: data.tipoReunion === 'Videollamada Google Meet' ? 'Videollamada Google Meet' : 'Oficina AK Producciones',
       notas: `Agendado automáticamente desde el Simulador de Presupuesto.${data.presupuestoId ? ` Presupuesto ID: ${data.presupuestoId}` : ''}`,
-      leadId: data.leadId,
+      leadId,
       presupuestoId: data.presupuestoId,
       creadoEn: new Date().toISOString(),
     };
@@ -121,8 +133,9 @@ export async function bookAppointmentFromSimulator(data: {
         // no-mira-el-resultado: la cita en la agenda ya se guardo; el registro en CRM es opcional y no bloquea al cliente
         await scheduleCrmMeetingInternal(newAppointment.leadId, newAppointment.fechaHora, `Reunión en Oficina AK (${newAppointment.lugar})`);
       }
-    } catch {
-      // Ignorar errores de CRM no bloqueantes
+    } catch (e) {
+      // El enlace con el prospecto es opcional: la cita ya quedo guardada.
+      console.warn('No se pudo anotar la reunion en la ficha del prospecto:', e);
     }
 
     // Generar enlaces útiles (Google Calendar + WhatsApp)

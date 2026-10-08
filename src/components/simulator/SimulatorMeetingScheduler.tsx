@@ -71,7 +71,7 @@ export function SimulatorMeetingScheduler({
     setErrorMessage(null);
     try {
       const res = await bookAppointmentFromSimulator({
-        leadId,
+        // El prospecto lo saca el servidor del presupuesto; el navegador no lo manda.
         presupuestoId,
         clienteNombre: clienteNombre || 'Cliente Simulador',
         clienteContacto: clienteContacto || '',

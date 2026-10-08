@@ -1,5 +1,22 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 8 de octubre de 2026 — Codex, auditoría 80: la reunión del simulador y el "Informar pago" del cliente
+
+- **La reunión que el prospecto agendaba en el simulador no aparecía en la agenda del CRM.** El
+  navegador nunca mandaba el prospecto, así que la fecha de seguimiento no se anotaba. Ahora el
+  servidor lo saca del presupuesto guardado y se ignora cualquier prospecto que mande el navegador
+  (la acción es pública: aceptarlo dejaba mover el seguimiento de cualquier ficha).
+- **El cliente veía la tarjeta "Informar Pago / Subir Comprobante" y el servidor siempre se la
+  rechazaba**, porque cargar un pago pide permiso de contabilidad a propósito (auditoría 70: lo
+  carga el equipo por el cliente). Ahora la tarjeta solo se arma para el equipo; el permiso no se tocó.
+
+```comprobar
+prueba: src/__tests__/la-cita-del-simulador-llega-a-la-agenda.test.ts
+prueba: src/__tests__/el-cliente-no-ve-puertas-del-equipo.test.ts
+usa: leadId en src/app/actions/simulator-agenda.ts
+```
+
+
 ## 8 de octubre de 2026 — Orden 114 punto 3: base y depósito de PRUEBA en el entorno aislado
 
 - **Con archivos locales, las sesiones de las estaciones, el mural y las fotos estaban apagados**,
