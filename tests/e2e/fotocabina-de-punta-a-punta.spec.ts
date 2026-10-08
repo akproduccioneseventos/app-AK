@@ -97,17 +97,27 @@ test('la fotocabina saca la tanda y arma la tira de recuerdo', async ({ context,
   }
   expect(hayCamara, 'la camara entra en la pantalla').toBe(true);
 
-  // Disparar la tanda.
-  const disparar = page
-    .getByRole('button', { name: /sacar|empezar|comenzar|iniciar|foto/i })
-    .and(page.locator('button:not([disabled])'))
-    .first();
-  expect(await disparar.count(), 'hay un boton para sacar la foto').toBeGreaterThan(0);
+  // Disparar la tanda: el boton de sacar la foto, por su nombre fijo. Antes se buscaba "cualquier
+  // boton que diga foto", y "Personalizar foto" tambien entraba (Codex, auditoria 79).
+  const disparar = page.getByTestId('boton-sacar-foto');
+  await expect(disparar, 'hay un boton para sacar la foto').toBeEnabled({ timeout: 15_000 });
   await disparar.click();
 
-  // La tanda son tres fotos con cuenta regresiva: se le da tiempo de sobra.
-  await page.waitForTimeout(45_000);
+  // Lo que se espera es EL RESULTADO: la tira armada en pantalla. Antes se esperaban 45 segundos
+  // fijos y se miraba solo que no hubiera errores: la prueba pasaba con la captura rota
+  // (Codex, auditoria 79, orden 129). La tanda son tres fotos con cuenta regresiva.
+  const tira = page.locator('img[alt="Captura Final"]');
+  await expect(tira, 'la tira de recuerdo aparece en pantalla').toBeVisible({ timeout: 90_000 });
   await page.screenshot({ path: 'test-results/fotocabina/2-despues-de-la-tanda.png', fullPage: true });
+
+  const fuente = (await tira.getAttribute('src')) || '';
+  expect(fuente, 'la tira es una imagen sacada en este navegador').toMatch(/^data:image\/(jpeg|png)/);
+  const medidas = await tira.evaluate((img: HTMLImageElement) => ({ ancho: img.naturalWidth, alto: img.naturalHeight }));
+  expect(medidas.ancho, 'la tira tiene contenido').toBeGreaterThan(100);
+  expect(medidas.alto, 'la tira tiene contenido').toBeGreaterThan(100);
+  // Es una TIRA de la tanda, no una sola foto: estan las miniaturas de cada foto.
+  await expect(page.locator('img[alt^="Foto "][alt$=" de la tanda"]'), 'las fotos de la tanda').toHaveCount(3);
+  await expect(page.getByText('No se pudo armar la tira'), 'la tira se armo, no quedo la ultima foto sola').toHaveCount(0);
 
   const textoFinal = (await page.locator('body').innerText().catch(() => '')) || '';
   fs.writeFileSync(
@@ -118,6 +128,6 @@ test('la fotocabina saca la tanda y arma la tira de recuerdo', async ({ context,
   // Lo que NO puede pasar: que se rompa por dentro o muestre basura tecnica.
   expect(erroresJs.join('\n'), 'la pantalla no se rompe por dentro').toBe('');
   expect(textoFinal, 'no muestra texto tecnico despues de la tanda').not.toMatch(
-    /undefined|firestore|is not a valid|Algo sali[oó] mal/i,
+    /undefined|firestore|is not a valid|Algo sali[oó] mal|todavia se esta preparando/i,
   );
 });
