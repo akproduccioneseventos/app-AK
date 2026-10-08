@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createDemoFiesta } from '@/app/actions/fiesta-actual';
+import { getSessionStatus } from '@/app/actions/session';
 
 const salesScript = [
   'Primero mostramos que AK organiza la fiesta completa: salon, servicios, equipo y control.',
@@ -34,12 +35,16 @@ const proofCards = [
 export default function MarketingDemoTecnologiaPage() {
   const [demoFiestaId, setDemoFiestaId] = useState<string | null>(null);
   const [loadingKind, setLoadingKind] = useState<string | null>(null);
+  // Crear una demo arma una fiesta y pide sesión del equipo. Esta pantalla es pública (la ve el
+  // prospecto), así que los botones de crear sólo aparecen si quien mira es del equipo.
+  const [hayEquipo, setHayEquipo] = useState<boolean | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('ak_demo_fiesta_id');
     if (stored) {
       setDemoFiestaId(stored);
     }
+    getSessionStatus().then(setHayEquipo).catch(() => setHayEquipo(false));
   }, []);
 
   const handleCreateDemo = async (kind: 'xv' | 'boda' | 'tecnologia-total') => {
@@ -149,8 +154,12 @@ export default function MarketingDemoTecnologiaPage() {
             )}
           </div>
 
-          {!demoFiestaId ? (
-            <div className="grid gap-3 sm:grid-cols-3">
+          {!demoFiestaId && hayEquipo === false ? (
+            <p className="rounded-2xl bg-slate-800/60 px-5 py-4 text-sm text-slate-300">
+              La demo la arma el equipo de AK durante la reunión, con los datos de tu fiesta. Pedila cuando nos veamos.
+            </p>
+          ) : !demoFiestaId ? (
+            hayEquipo === true && <div className="grid gap-3 sm:grid-cols-3">
               <button
                 onClick={() => handleCreateDemo('xv')}
                 disabled={loadingKind !== null}
