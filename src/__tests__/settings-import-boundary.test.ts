@@ -84,7 +84,11 @@ describe('settings import boundary', () => {
 
     for (const segments of files) {
       const source = fs.readFileSync(path.join(process.cwd(), ...segments), 'utf8');
-      expect(source).toContain('AK_USE_LOCAL_JSON_ONLY');
+      // `sinBaseDisponible()` (src/lib/firebase/modo-local.ts) es la misma regla: archivos locales
+      // y sin emulador local de la base (orden 114.3).
+      expect(/AK_USE_LOCAL_JSON_ONLY|sinBaseDisponible\(\)/.test(source)).toBe(true);
     }
+    const modoLocal = fs.readFileSync(path.join(process.cwd(), 'src', 'lib', 'firebase', 'modo-local.ts'), 'utf8');
+    expect(modoLocal).toContain("AK_USE_LOCAL_JSON_ONLY === 'true' && !hayEmuladorDeBase()");
   });
 });

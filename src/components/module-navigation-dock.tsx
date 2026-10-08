@@ -6,10 +6,12 @@ import { ArrowLeft, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BUDGET_VIEW_REGEX, isPublicPathPrefix, PUBLIC_EXACT_PATHS } from '@/lib/auth/public-paths';
 import { cn } from '@/lib/utils';
+import { useEsVistaDelCliente } from '@/hooks/use-es-vista-del-cliente';
 
 export function ModuleNavigationDock() {
   const pathname = usePathname() || '/';
   const router = useRouter();
+  const esVistaDelCliente = useEsVistaDelCliente(pathname);
 
   const isIsolatedRoute =
     pathname.startsWith('/evento/') ||
@@ -20,7 +22,8 @@ export function ModuleNavigationDock() {
   if (pathname === '/' || pathname === '/login' || isIsolatedRoute) return null;
 
   const isPublicPath = PUBLIC_EXACT_PATHS.has(pathname) || isPublicPathPrefix(pathname);
-  const showDashboardButton = !isPublicPath || BUDGET_VIEW_REGEX.test(pathname);
+  // El presupuesto abierto con el enlace del cliente no le ofrece el panel del equipo.
+  const showDashboardButton = (!isPublicPath || BUDGET_VIEW_REGEX.test(pathname)) && !esVistaDelCliente;
 
   const handleBack = () => {
     if (typeof window !== 'undefined' && window.history.length > 1) {

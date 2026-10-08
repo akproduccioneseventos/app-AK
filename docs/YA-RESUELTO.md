@@ -1,5 +1,43 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 8 de octubre de 2026 — Codex, auditoría 80: la reunión del simulador y el "Informar pago" del cliente
+
+- **La reunión que el prospecto agendaba en el simulador no aparecía en la agenda del CRM.** El
+  navegador nunca mandaba el prospecto, así que la fecha de seguimiento no se anotaba. Ahora el
+  servidor lo busca en la ficha del CRM por el presupuesto (sin leer la plata del presupuesto) y se ignora cualquier prospecto que mande el navegador
+  (la acción es pública: aceptarlo dejaba mover el seguimiento de cualquier ficha).
+- **El cliente veía la tarjeta "Informar Pago / Subir Comprobante" y el servidor siempre se la
+  rechazaba**, porque cargar un pago pide permiso de contabilidad a propósito (auditoría 70: lo
+  carga el equipo por el cliente). Ahora la tarjeta solo se arma para el equipo; el permiso no se tocó.
+
+```comprobar
+prueba: src/__tests__/la-cita-del-simulador-llega-a-la-agenda.test.ts
+prueba: src/__tests__/el-cliente-no-ve-puertas-del-equipo.test.ts
+usa: leadId en src/app/actions/simulator-agenda.ts
+```
+
+
+## 8 de octubre de 2026 — Orden 114 punto 3: base y depósito de PRUEBA en el entorno aislado
+
+- **Con archivos locales, las sesiones de las estaciones, el mural y las fotos estaban apagados**,
+  y Codex no podía probar captura ni entrega. Ahora `npm run entorno:pruebas` prende los emuladores
+  de la base y del depósito (puertos 8085 y 9195, proyecto de demostración) y el servidor los usa.
+  La regla vive en `src/lib/firebase/modo-local.ts` y **sólo acepta un emulador en esta misma
+  máquina**: una dirección de afuera cuenta como "sin base", así que nunca se escribe en la de
+  verdad. Comprobado con el navegador: el operador de la Plataforma 360 inició la captura y la
+  sesión quedó guardada en el emulador.
+- `npm run test:rules` ahora prende también el depósito (`firebase.pruebas.json`, con
+  `storage.pruebas.rules`, que **no se despliega**: `firebase.json` no lo nombra).
+- **El enlace del presupuesto le mostraba al cliente "Ir al panel principal", "Personalizar
+  asistentes" y "Ver sincronizaciones".** Pedían ingreso, pero son del equipo: ya no aparecen.
+
+```comprobar
+prueba: tests/firebase/estaciones-y-mural-con-emulador.test.ts
+usa: sinBaseDisponible en src/app/actions/fiesta/sesion-entretenimiento.ts
+usa: FIRESTORE_EMULATOR_HOST en scripts/entorno-de-pruebas.mjs
+prueba: src/__tests__/el-cliente-no-ve-puertas-del-equipo.test.ts
+```
+
 ## 8 de octubre de 2026 — Codex, auditoría 79: el pendiente del portal mezclaba invitaciones y personas
 
 Arriba decía "Confirmar 19 invitado(s) pendientes" y abajo "37 sin responder". Eran 19

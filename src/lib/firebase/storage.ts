@@ -3,6 +3,7 @@
 
 import admin from 'firebase-admin';
 import path from 'path';
+import { hayEmuladorDeArchivos, sinDepositoDisponible } from './modo-local';
 
 const STORAGE_BUCKET =
   process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
@@ -46,7 +47,7 @@ export async function uploadToStorage(
   contentType: string,
   isPublic: boolean = false
 ): Promise<string> {
-  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+  if (sinDepositoDisponible()) {
     const base64 = buffer.toString('base64');
     return `data:${contentType};base64,${base64}`;
   }
@@ -61,6 +62,12 @@ export async function uploadToStorage(
       metadata: { contentType },
       resumable: false,
     });
+
+    // Con el emulador del entorno de pruebas, la direccion es la del emulador: la de Google no
+    // existe para un archivo que nunca salio de esta maquina.
+    if (hayEmuladorDeArchivos()) {
+      return `http://${process.env.FIREBASE_STORAGE_EMULATOR_HOST}/v0/b/${STORAGE_BUCKET}/o/${encodeURIComponent(storagePath)}?alt=media`;
+    }
 
     if (isPublic) {
       await file.makePublic();
@@ -86,7 +93,7 @@ export async function uploadToStorage(
  * @param urlOrPath Full public/signed URL or the raw storage path (e.g. "contracts/cust_123/file.pdf").
  */
 export async function deleteFromStorage(urlOrPath: string): Promise<void> {
-  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') return;
+  if (sinDepositoDisponible()) return;
   const bucket = getBucket();
   if (!bucket) return; // If Storage is not available, skip silently
 

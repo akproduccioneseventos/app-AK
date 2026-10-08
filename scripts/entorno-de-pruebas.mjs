@@ -176,10 +176,39 @@ correr(process.execPath, [path.join('node_modules', '@playwright', 'test', 'cli.
 });
 const sembrado = JSON.parse(fs.readFileSync(SALIDA, 'utf8'));
 
-// 3. Levantar el servidor.
+// 3. Levantar los emuladores de la base y del depósito de fotos (orden 114, punto 3). Sin ellos,
+//    las sesiones de las estaciones, el mural y las fotos quedaban apagados y no se podían probar
+//    captura ni entrega. Corren en esta máquina, con el proyecto de demostración: no hay forma de
+//    que escriban en la base de verdad (la app sólo acepta un emulador local, ver
+//    `src/lib/firebase/modo-local.ts`). Puertos propios, para no chocar con `npm run test:rules`.
+const EMULADOR_BASE = '127.0.0.1:8085';
+const EMULADOR_ARCHIVOS = '127.0.0.1:9195';
+const configEmuladores = JSON.parse(fs.readFileSync(path.join(CARPETA, 'firebase.pruebas.json'), 'utf8'));
+configEmuladores.emulators.firestore.port = 8085;
+configEmuladores.emulators.storage.port = 9195;
+fs.writeFileSync(path.join(CARPETA, 'firebase.entorno.json'), JSON.stringify(configEmuladores, null, 2));
+console.log('\n[entorno aislado] Prendiendo la base y el depósito de prueba (emuladores locales)...');
+const emuladores = spawn(process.execPath, [
+  path.join('node_modules', 'firebase-tools', 'lib', 'bin', 'firebase.js'), 'emulators:start',
+  '--config', 'firebase.entorno.json', '--only', 'firestore,storage', '--project', 'demo-ak-producciones',
+], { cwd: CARPETA, stdio: ['ignore', 'pipe', 'inherit'], env: ambiente });
+await new Promise((listo, fallo) => {
+  const corte = setTimeout(() => fallo(new Error('Los emuladores no arrancaron en 120 segundos.')), 120_000);
+  emuladores.stdout.on('data', (trozo) => {
+    if (/All emulators ready/i.test(String(trozo))) { clearTimeout(corte); listo(); }
+  });
+  emuladores.on('exit', (codigo) => { clearTimeout(corte); fallo(new Error(`Los emuladores se cerraron (${codigo}).`)); });
+}).catch((error) => {
+  console.error(`\n[entorno aislado] ${error.message}`);
+  borrarCarpetaAislada(RAIZ, CARPETA);
+  process.exit(1);
+});
+
+// 4. Levantar el servidor, apuntando a los emuladores.
 const base = `http://127.0.0.1:${PUERTO}`;
 const servidor = spawn(process.execPath, [path.join('node_modules', 'next', 'dist', 'bin', 'next'), 'start', '--hostname', '127.0.0.1', '--port', String(PUERTO)], {
-  cwd: CARPETA, stdio: 'inherit', env: ambiente,
+  cwd: CARPETA, stdio: 'inherit',
+  env: { ...ambiente, FIRESTORE_EMULATOR_HOST: EMULADOR_BASE, FIREBASE_STORAGE_EMULATOR_HOST: EMULADOR_ARCHIVOS },
 });
 
 let limpio = false;
@@ -187,6 +216,7 @@ const limpiar = () => {
   if (limpio) return;
   limpio = true;
   try { servidor.kill('SIGTERM'); } catch {}
+  try { emuladores.kill('SIGTERM'); } catch {}
   // La fiesta sembrada vive dentro de la copia: se va con ella.
   borrarCarpetaAislada(RAIZ, CARPETA);
   try { fs.unlinkSync(SALIDA); } catch {}
@@ -216,7 +246,8 @@ ${sembrado.invitados.map((i) => `    ${i.nombre}: ${l(i.ruta)}`).join('\n')}
 ${sembrado.estaciones.map((e) => `    ${e.nombre}: ${l(e.ruta)}`).join('\n')}
 
   Sin credenciales reales: no se manda ningún mensaje, no se cobra, y la IA
-  contesta con el efecto local. Ctrl+C para cerrar (borra la fiesta de prueba).
+  contesta con el efecto local. Persistencia: datos locales + base y depósito de
+  PRUEBA en esta máquina (emuladores ${EMULADOR_BASE} y ${EMULADOR_ARCHIVOS}). Ctrl+C para cerrar (borra la fiesta de prueba).
 ============================================================
 `);
 }, 8000);

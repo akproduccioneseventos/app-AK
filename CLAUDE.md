@@ -857,6 +857,8 @@ orientarse, no para afirmar. Y cuando se encuentra una línea vieja, se corrige 
 
 ### 20. Apagar procesos buscando por un pedazo de texto y matar la propia orden
 
+**Y otra vez el 8 de octubre de 2026** (`pgrep -f "firebase.entorno.json"`, código 144). No se perdió nada, pero es la cuarta vez: **`pkill -f`/`pgrep -f` no se usan nunca**, ni para emuladores.
+
 **Pasó tres veces el 24 y 25 de septiembre de 2026.** Para apagar un servidor de prueba usé
 `pkill -f` / `pgrep -f` con un pedazo del comando (`"next start -H"`, `"until ! pgrep"`). Ese
 texto **también estaba en mi propia orden**, así que la orden se mató a sí misma (código 144) y
@@ -1234,6 +1236,12 @@ sirve para decidir nada.**
 lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+- **A Gemini, sólo lo grande; lo demás lo resuelven los ayudantes baratos (8 de octubre de 2026).**
+  Palabras suyas: *"resuelve todo con agentes baratos siempre"* y *"solo que sea cosas grandes
+  gemini"*. Los arreglos chicos y medianos los programa un ayudante (en una copia aparte del
+  código, sin tocar la carpeta donde corre la verificación); Claude revisa la entrega, verifica y
+  fusiona. Orden escrita para Gemini sólo cuando el trabajo es grande.
 
 - **Si no hay foto, va una de ejemplo (7 de octubre de 2026).** Palabras suyas: *"ya te dije antes
   si no hay foto pones una de internet de ejemplo no vuelvas a preguntar"*. **Nunca se le pide una
@@ -1616,6 +1624,7 @@ con otra cara.
 | Un toro mecánico vendido como glitter bar, en Tragos; un correo como WhatsApp; Galería HD sin fotos | `src/__tests__/auditoria-74-categorias-y-contacto.test.ts` |
 | Una transacción repetida por la base dejaba anotado el intento descartado: reels contados dos veces y "guardado" sin guardar | `src/__tests__/una-transaccion-repetida-no-dice-que-guardo.test.ts` y `src/__tests__/instagram-videos-cuenta-el-intento-confirmado.test.ts` |
 | El simulador ofrecía platos que el servidor rechazaba; el enlace del PDF no abría sin sesión; el portal contaba invitaciones y no personas; la fecha de la fiesta salía como cita | `src/__tests__/simulador-variantes-buffet-autorizadas.test.ts`, `src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts`, `src/__tests__/portal-cliente-contadores-personas.test.ts` y `src/__tests__/crm-fecha-evento-no-es-cita.test.ts` |
+| El entorno de pruebas no podía probar estaciones, mural ni fotos porque la base estaba apagada | `tests/firebase/estaciones-y-mural-con-emulador.test.ts` (corre en `npm run test:rules`) |
 
 ### Cómo se elige el matafuego
 

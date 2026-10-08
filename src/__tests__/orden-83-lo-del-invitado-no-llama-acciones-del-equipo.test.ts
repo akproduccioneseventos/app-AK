@@ -62,6 +62,7 @@ describe('Orden 83 — Lo que atiende al invitado no llama a acciones del equipo
         id: 'lead_test_orden83',
         name: 'Cliente Simulador',
         phone: '099123456',
+        presupuestoId: 'pres_orden83',
         timeline: [],
       };
       almacen['crm-leads.json'] = [leadInicial];
@@ -90,7 +91,8 @@ describe('Orden 83 — Lo que atiende al invitado no llama a acciones del equipo
         clienteEmail: 'cliente@test.com',
         fechaHora: fechaIso,
         tipoReunion: 'Presencial en Oficina',
-        leadId: 'lead_test_orden83',
+        // El prospecto sale del presupuesto, no de un leadId que mande el navegador (auditoria 80).
+        presupuestoId: 'pres_orden83',
       });
 
       expect(resultado.success).toBe(true);

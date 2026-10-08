@@ -11,6 +11,7 @@ import {
   isEntertainmentModuleId,
 } from '@/lib/entertainment/station-config';
 import { getFiestaById } from './fiesta.actions';
+import { sinBaseDisponible } from '@/lib/firebase/modo-local';
 
 const SESIONES_COLLECTION = 'entretenimiento_sesiones';
 const SESSION_MAX_AGE_MS = 12 * 60 * 1000;
@@ -149,7 +150,7 @@ export async function getEntertainmentSession(
     if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) return null;
     if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) return null;
     if (!(await isStationEnabled(fiestaId, moduleId))) return null;
-    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') return null;
+    if (sinBaseDisponible()) return null;
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
     const snap = await db.collection(SESIONES_COLLECTION).doc(docId).get();
@@ -328,7 +329,7 @@ export async function completeEntertainmentSessionCycle(
       return { success: false, error: 'Esta estacion esta desactivada.' };
     }
 
-    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    if (sinBaseDisponible()) {
       return { success: true };
     }
 

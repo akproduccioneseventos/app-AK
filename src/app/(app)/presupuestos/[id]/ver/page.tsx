@@ -1147,7 +1147,10 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
               </motion.div>
             )}
 
-            {/* ── INFORMAR PAGO — Client-facing payment notification ── */}
+            {/* ── INFORMAR PAGO — lo carga el equipo en nombre del cliente ──
+                La accion pide permiso de contabilidad (auditoria 70): al cliente le mostraba
+                un formulario que el servidor siempre rechazaba. */}
+            {isOperatorBudgetAccess && (
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="print:hidden">
                 <Card className="border-none shadow-xl rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
                     <CardContent className="p-6 sm:p-10">
@@ -1261,6 +1264,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                     </CardContent>
                 </Card>
             </motion.div>
+            )}
 
             <div id="budget-print-area-wrapper" ref={budgetDocumentRef}>
               <BudgetDocument
