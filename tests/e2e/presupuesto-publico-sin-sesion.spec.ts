@@ -75,3 +75,11 @@ test('con el enlace alterado no se ve el presupuesto', async ({ page, context })
   await expect(page.getByText('Este enlace no abre el presupuesto')).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText('Servicio de prueba para el cliente')).toHaveCount(0);
 });
+
+test('con cliente=1 y sin enlace, el cliente no ve los botones del equipo', async ({ page, context }) => {
+  await context.clearCookies();
+  await page.goto(`/presupuestos/${ID}/ver?cliente=1`);
+
+  await expect(page.getByText('Este enlace no abre el presupuesto')).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('link', { name: /volver a presupuestos/i })).toHaveCount(0);
+});

@@ -10,6 +10,23 @@ responder (37 personas)".
 prueba: src/__tests__/portal-cliente-contadores-personas.test.ts
 ```
 
+**Mismo día, mismo informe:**
+
+- **La prueba de la fotocabina "de punta a punta" pasaba con la captura rota** (orden 129). Hacía
+  clic en cualquier botón que dijera "foto" (también "Personalizar foto"), esperaba 45 segundos y
+  sólo miraba que no hubiera errores. Ahora toca el botón de sacar la foto por su nombre fijo y
+  exige la tira armada en pantalla: imagen sacada en el navegador, con contenido, las tres
+  miniaturas de la tanda y sin el cartel "No se pudo armar la tira".
+- **Con `cliente=1` y sin enlace, la pantalla del presupuesto mostraba "Volver a Presupuestos"**,
+  un botón del equipo. Ahora el cliente ve su cartel. Los demás botones del equipo ya estaban
+  ocultos al cliente (revisado enlace por enlace: el portal no tiene ninguno a pantallas internas).
+
+```comprobar
+prueba: tests/e2e/fotocabina-de-punta-a-punta.spec.ts
+usa: boton-sacar-foto en tests/e2e/fotocabina-de-punta-a-punta.spec.ts
+usa: esAccesoDelCliente en src/app/(app)/presupuestos/[id]/ver/page.tsx
+```
+
 ## 7 de octubre de 2026 — Sin foto propia va una de ejemplo (decisión del dueño)
 
 - **Mesa bufet:** en vez de quedar sin foto, muestra la mesa de catering de AK
