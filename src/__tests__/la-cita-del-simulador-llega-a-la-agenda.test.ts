@@ -18,9 +18,9 @@ describe('la cita del simulador llega a la agenda del CRM', () => {
   beforeEach(() => {
     process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
     for (const k of Object.keys(archivos)) delete archivos[k];
-    archivos['presupuestos.json'] = [{ id: 'pres_x', leadId: 'lead_x' }, { id: 'pres_sin' }];
+
     archivos['crm-leads.json'] = [
-      { id: 'lead_x', name: 'Ana', timeline: [] },
+      { id: 'lead_x', name: 'Ana', presupuestoId: 'pres_x', timeline: [] },
       { id: 'lead_OTRO', name: 'Otro', timeline: [] },
     ];
   });

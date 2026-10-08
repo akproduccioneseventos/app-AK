@@ -96,16 +96,17 @@ export async function bookAppointmentFromSimulator(data: {
       };
     }
 
-    // El prospecto sale del PRESUPUESTO guardado en el servidor, nunca de lo que mande el
-    // navegador: esta accion es publica y un leadId ajeno movia la fecha de seguimiento de
-    // cualquier prospecto. Sin presupuesto o sin prospecto, la cita se guarda igual.
+    // El prospecto se busca por el presupuesto en la ficha del CRM (el guardado del simulador le
+    // anota `presupuestoId`), nunca por lo que mande el navegador: esta accion es publica y un
+    // leadId ajeno movia la cita de cualquier prospecto. No se lee el presupuesto: tiene plata.
+    // Sin presupuesto o sin prospecto, la cita se guarda igual.
     let leadId: string | undefined;
     if (data.presupuestoId) {
       try {
-        const presupuestos = await readData<Array<{ id: string; leadId?: string }>>('presupuestos.json', []);
-        leadId = presupuestos.find((p) => p.id === data.presupuestoId)?.leadId || undefined;
+        const leads = await readData<Array<{ id: string; presupuestoId?: string }>>('crm-leads.json', []);
+        leadId = leads.find((lead) => lead.presupuestoId === data.presupuestoId)?.id || undefined;
       } catch (e) {
-        console.warn('No se pudo leer el presupuesto para enlazar la cita con el prospecto:', e);
+        console.warn('No se pudo leer la ficha del prospecto para enlazar la cita:', e);
       }
     }
 

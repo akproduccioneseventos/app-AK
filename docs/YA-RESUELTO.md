@@ -4,7 +4,7 @@
 
 - **La reunión que el prospecto agendaba en el simulador no aparecía en la agenda del CRM.** El
   navegador nunca mandaba el prospecto, así que la fecha de seguimiento no se anotaba. Ahora el
-  servidor lo saca del presupuesto guardado y se ignora cualquier prospecto que mande el navegador
+  servidor lo busca en la ficha del CRM por el presupuesto (sin leer la plata del presupuesto) y se ignora cualquier prospecto que mande el navegador
   (la acción es pública: aceptarlo dejaba mover el seguimiento de cualquier ficha).
 - **El cliente veía la tarjeta "Informar Pago / Subir Comprobante" y el servidor siempre se la
   rechazaba**, porque cargar un pago pide permiso de contabilidad a propósito (auditoría 70: lo
