@@ -80,6 +80,10 @@ test('con cliente=1 y sin enlace, el cliente no ve los botones del equipo', asyn
   await context.clearCookies();
   await page.goto(`/presupuestos/${ID}/ver?cliente=1`);
 
-  await expect(page.getByText('Este enlace no abre el presupuesto')).toBeVisible({ timeout: 30_000 });
+  // Sin enlace no hay acceso de cliente: la puerta lo manda al ingreso. Lo que importa es que
+  // en ningun momento quede a la vista el boton del equipo.
+  await expect
+    .poll(async () => /\/login/.test(page.url()) || (await page.getByText('Este enlace no abre el presupuesto').count()) > 0, { timeout: 30_000 })
+    .toBe(true);
   await expect(page.getByRole('link', { name: /volver a presupuestos/i })).toHaveCount(0);
 });

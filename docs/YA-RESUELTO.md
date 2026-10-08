@@ -17,8 +17,9 @@ prueba: src/__tests__/portal-cliente-contadores-personas.test.ts
   sólo miraba que no hubiera errores. Ahora toca el botón de sacar la foto por su nombre fijo y
   exige la tira armada en pantalla: imagen sacada en el navegador, con contenido, las tres
   miniaturas de la tanda y sin el cartel "No se pudo armar la tira".
-- **Con `cliente=1` y sin enlace, la pantalla del presupuesto mostraba "Volver a Presupuestos"**,
-  un botón del equipo. Ahora el cliente ve su cartel. Los demás botones del equipo ya estaban
+- **Con `cliente=1` y sin enlace, la pantalla podía mostrar "Volver a Presupuestos"**, un botón
+  del equipo. En la práctica la puerta de ingreso ya lo mandaba al login antes (falsa alarma del
+  ayudante, verificada en el navegador); igual la pantalla quedó con el cartel del cliente. Los demás botones del equipo ya estaban
   ocultos al cliente (revisado enlace por enlace: el portal no tiene ninguno a pantallas internas).
 
 ```comprobar
