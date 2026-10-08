@@ -880,7 +880,8 @@ export default function PortalClientePage() {
           }
           const pendientesRsvp = invitados.filter(i => i.rsvp !== 'Confirmado' && i.rsvp !== 'Rechazado');
           if (showInvitados && pendientesRsvp.length > 0) {
-            pendientes.push({ texto: `Confirmar ${pendientesRsvp.length} invitado(s) pendientes`, emoji: '👥', href: '#invitados' });
+            // Invitaciones Y personas: 19 invitaciones pueden ser 37 personas (Codex, auditoria 79).
+            pendientes.push({ texto: `Confirmar ${pendientesRsvp.length} ${pendientesRsvp.length === 1 ? 'invitación' : 'invitaciones'} sin responder (${personas.sinResponder} ${personas.sinResponder === 1 ? 'persona' : 'personas'})`, emoji: '👥', href: '#invitados' });
           }
           const cuotasPendientes = (fiesta.planDePagos?.cuotas ?? []).filter(c => c.estado === 'pendiente' || c.estado === 'vencido');
           if (showFinancials && cuotasPendientes.length > 0) {

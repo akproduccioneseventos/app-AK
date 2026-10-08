@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 8 de octubre de 2026 — Codex, auditoría 79: el pendiente del portal mezclaba invitaciones y personas
+
+Arriba decía "Confirmar 19 invitado(s) pendientes" y abajo "37 sin responder". Eran 19
+invitaciones con 37 personas. Ahora el pendiente dice las dos cosas: "19 invitaciones sin
+responder (37 personas)".
+
+```comprobar
+prueba: src/__tests__/portal-cliente-contadores-personas.test.ts
+```
+
 ## 7 de octubre de 2026 — Sin foto propia va una de ejemplo (decisión del dueño)
 
 - **Mesa bufet:** en vez de quedar sin foto, muestra la mesa de catering de AK
