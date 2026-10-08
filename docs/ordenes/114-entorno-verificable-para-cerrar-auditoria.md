@@ -89,6 +89,8 @@ esta PENDIENTE de ejecutar completo. La sonda fuente que reproduce PER01 no es
 una prueba de aceptacion del permiso ni sustituye estas pruebas de transporte.
 
 ```comprobar
+usa: FIREBASE_STORAGE_EMULATOR_HOST en scripts/entorno-de-pruebas.mjs
+prueba: tests/firebase/estaciones-y-mural-con-emulador.test.ts
 archivo: scripts/entorno-de-pruebas.mjs
 usa: entorno-de-pruebas.mjs en package.json
 prueba: tests/e2e/entorno-compilado-verificable.spec.ts
