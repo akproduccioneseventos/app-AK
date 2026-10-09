@@ -784,8 +784,9 @@ export default function BarraTecnologicaTouchPage() {
       }
     } catch (e: any) {
       toast({ title: 'Error', description: 'No se pudo subir el archivo.', variant: 'destructive' });
+    } finally {
+      setIsUploadingMedia(false);
     }
-    setIsUploadingMedia(false);
   };
 
   const saveNameAndProceed = () => {

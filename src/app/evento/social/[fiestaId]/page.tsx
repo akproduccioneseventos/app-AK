@@ -153,6 +153,7 @@ function FeedPost({
 }) {
   const [comment, setComment] = useState('');
   const [sending, setSending] = useState(false);
+  const { toast } = useToast();
   const caption = post.caption || post.dedication || post.momentTag;
 
   const submitComment = async (event: FormEvent) => {
@@ -160,9 +161,14 @@ function FeedPost({
     const value = comment.trim();
     if (!value || sending) return;
     setSending(true);
-    await onComment(value);
-    setComment('');
-    setSending(false);
+    try {
+      await onComment(value);
+      setComment('');
+    } catch {
+      toast({ title: 'No se pudo enviar', description: 'Se cortó la conexión. Tu comentario sigue escrito: probá de nuevo.', variant: 'destructive' });
+    } finally {
+      setSending(false);
+    }
   };
 
   const isMission = post.momentTag?.toLowerCase().includes('misión') || post.momentTag?.toLowerCase().includes('mision') || caption?.toLowerCase().includes('misión') || caption?.toLowerCase().includes('mision');
