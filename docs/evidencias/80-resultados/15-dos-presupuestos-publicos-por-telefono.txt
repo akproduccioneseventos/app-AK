@@ -1,0 +1,68 @@
+- img "AK Producciones"
+- generic: Armá tu presupuesto
+- generic: Paso 2 de 5 · Datos
+- progressbar
+- heading "Ingresá tus datos y los del evento" [level=2]
+- paragraph: Guardamos tu avance de forma segura y calculamos los precios según la locación y cantidad de invitados.
+- text: Nombre completo
+- textbox "Nombre completo":
+  - /placeholder: "Ej: Ana García"
+  - text: Prueba aislada Codex79
+- text: WhatsApp
+- textbox "WhatsApp" [active]:
+  - /placeholder: 099 123 456 o +598 99 123 456
+  - text: <redacted>
+- paragraph: Acepta número uruguayo con espacios, guiones o prefijo +598.
+- paragraph:
+  - text: Usamos tus datos sólo para contestarte y para tu evento (Ley 18.331).
+  - link "Privacidad":
+    - /url: /privacidad
+- paragraph: ¡Encontramos presupuestos anteriores asociados a tu celular!
+- paragraph: "Detectamos que ya habías simulado. Podés continuar con la simulación actual o hacer click en cualquier presupuesto para reabrirlo:"
+- generic: "Presupuesto #2"
+- paragraph: Cumpleaños · 21/11/2026
+- paragraph: $ 104.125
+- link "Ver Presupuesto":
+  - /url: /presupuestos/pres_public_a91305cac0dbcd24650e35fd/ver?cliente=1&token=0dd00f8aa31b7d23d2a1556af00f0b29d3f1832eb928db7ba3a5b9d5108e449e
+  - button "Ver Presupuesto"
+- generic: "Presupuesto #1"
+- paragraph: Cumpleaños · 23/1/2027
+- paragraph: $ 210.349
+- link "Ver Presupuesto":
+  - /url: /presupuestos/pres_public_f0d50cf641b0b7f1fc359fe1/ver?cliente=1&token=5e5eaf3e358fd4eeb4dcaabf86e97847b67a71bef3a5ad3e734e7fb589da47fa
+  - button "Ver Presupuesto"
+- text: Tipo de evento
+- combobox:
+  - generic: Cumpleaños
+- text: Adultos
+- spinbutton: "80"
+- text: Niños y adolescentes
+- spinbutton: "0"
+- text: Duración del evento
+- button "Menos de 4 horas 1 entrada habilitada":
+  - text: Menos de 4 horas
+  - generic: 1 entrada habilitada
+- button "Mas de 4 horas 2 entradas habilitadas":
+  - generic: Mas de 4 horas
+  - generic: 2 entradas habilitadas
+- text: Salón de fiestas
+- button "Tengo salón o locación propia No se adiciona costo por locación.":
+  - paragraph: Tengo salón o locación propia
+  - paragraph: No se adiciona costo por locación.
+- button "50% OFF Quiero Club Uruguay $ 40.000$ 20.000agregados.":
+  - generic: 50% OFF
+  - paragraph: Quiero Club Uruguay
+  - paragraph: $ 40.000$ 20.000agregados.
+- text: Fecha del evento
+- button "21 de noviembre de 2026":
+  - text: 21 de noviembre de 2026
+- button "Anterior"
+- generic: 🎁 ¡Ahorrás $ 17.900 en regalos incluidos!
+- button "Continuar":
+  - text: Continuar
+- paragraph: "Total vigente:"
+- paragraph: $ 104.125
+- paragraph: $ 1.302 p/p
+- region "Notifications (F8)":
+  - list
+- alert: Simulador de Presupuesto en Salto | AK Producciones Eventos | AK Producciones

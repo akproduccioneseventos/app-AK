@@ -1,0 +1,6 @@
+{
+  "at": "2026-10-08T20:53:43.972Z",
+  "url": "http://localhost:3300/presupuestos/pres_public_f0d50cf641b0b7f1fc359fe1/ver",
+  "tokenPresent": false,
+  "expected": "cliente=1 y token seguro, sin necesitar sesion del equipo"
+}

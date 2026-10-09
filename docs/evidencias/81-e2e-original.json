@@ -1,0 +1,838 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/81-captura-reconexion-entrega.spec.ts",
+      "tests/e2e/el-muro-se-configura.spec.ts",
+      "tests/e2e/muro-subir-foto.spec.ts",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "81-captura-reconexion-entrega.spec.ts",
+      "file": "81-captura-reconexion-entrega.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 81 — Fotocabina sin internet, aviso y entrega única",
+          "file": "81-captura-reconexion-entrega.spec.ts",
+          "line": 51,
+          "column": 6,
+          "specs": [
+            {
+              "title": "saca foto con botón real sin internet, muestra aviso guardada en este equipo, reconecta y entrega una sola vez",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 17870,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_NETWORK_IO_SUSPENDED at http://127.0.0.1:3300/evento/social/e2e_fotocabina_offline_81_1791563337660\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:3300/evento/social/e2e_fotocabina_offline_81_1791563337660\", waiting until \"domcontentloaded\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_NETWORK_IO_SUSPENDED at http://127.0.0.1:3300/evento/social/e2e_fotocabina_offline_81_1791563337660\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:3300/evento/social/e2e_fotocabina_offline_81_1791563337660\", waiting until \"domcontentloaded\"\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\81-captura-reconexion-entrega.spec.ts:116:16",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\81-captura-reconexion-entrega.spec.ts",
+                          "column": 16,
+                          "line": 116
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 114 |\u001b[39m\n \u001b[90m 115 |\u001b[39m     \u001b[90m// 9. Comprobar que en el muro de la fiesta (/evento/social/<id>) aparece UNA sola publicación\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 116 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`/evento/social/${fiesta.id}`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 117 |\u001b[39m     \u001b[36mconst\u001b[39m publicaciones \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'article'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 118 |\u001b[39m     \u001b[36mawait\u001b[39m expect(publicaciones)\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m1\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m 119 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\81-captura-reconexion-entrega.spec.ts",
+                            "column": 16,
+                            "line": 116
+                          },
+                          "message": "Error: page.goto: net::ERR_NETWORK_IO_SUSPENDED at http://127.0.0.1:3300/evento/social/e2e_fotocabina_offline_81_1791563337660\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:3300/evento/social/e2e_fotocabina_offline_81_1791563337660\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n  114 |\n  115 |     // 9. Comprobar que en el muro de la fiesta (/evento/social/<id>) aparece UNA sola publicación\n> 116 |     await page.goto(`/evento/social/${fiesta.id}`, { waitUntil: 'domcontentloaded' });\n      |                ^\n  117 |     const publicaciones = page.locator('article');\n  118 |     await expect(publicaciones).toHaveCount(1, { timeout: 30_000 });\n  119 |   });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\81-captura-reconexion-entrega.spec.ts:116:16"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T16:28:57.825Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\81-captura-reconexion-entr-40489-ecta-y-entrega-una-sola-vez-chromium-desktop\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\81-captura-reconexion-entr-40489-ecta-y-entrega-una-sola-vez-chromium-desktop\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\81-captura-reconexion-entr-40489-ecta-y-entrega-una-sola-vez-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\81-captura-reconexion-entr-40489-ecta-y-entrega-una-sola-vez-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\81-captura-reconexion-entr-40489-ecta-y-entrega-una-sola-vez-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\81-captura-reconexion-entrega.spec.ts",
+                        "column": 16,
+                        "line": 116
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "263efd78fe4ea7e98337-43c8c34ed5e59f747d8e",
+              "file": "81-captura-reconexion-entrega.spec.ts",
+              "line": 52,
+              "column": 7
+            },
+            {
+              "title": "saca foto con botón real sin internet, muestra aviso guardada en este equipo, reconecta y entrega una sola vez",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9579,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T17:01:38.387Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "263efd78fe4ea7e98337-b6170e2619506fe76214",
+              "file": "81-captura-reconexion-entrega.spec.ts",
+              "line": 52,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "el-muro-se-configura.spec.ts",
+      "file": "el-muro-se-configura.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Bloque 2 - El muro se configura como en Instawall",
+          "file": "el-muro-se-configura.spec.ts",
+          "line": 62,
+          "column": 6,
+          "specs": [
+            {
+              "title": "con fondoMuroImagenUrl cargado, el fondo de la pantalla es esa imagen en estilo calculado",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 77446,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T16:56:31.343Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c75df84cbe12da4d4d5c-2d22242e4aa98bf8cb2a",
+              "file": "el-muro-se-configura.spec.ts",
+              "line": 63,
+              "column": 7
+            },
+            {
+              "title": "con segundosPorFoto: 3, la foto cambia antes de los 6 segundos",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 107537,
+                      "error": {
+                        "message": "\u001b[31mTearing down \"context\" exceeded the test timeout of 90000ms.\u001b[39m",
+                        "stack": "\u001b[31mTearing down \"context\" exceeded the test timeout of 90000ms.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTearing down \"context\" exceeded the test timeout of 90000ms.\u001b[39m"
+                        },
+                        {
+                          "message": "Error: browserContext.close: Test ended.\nBrowser logs:\n\n<launching> C:\\Users\\Usuario\\AppData\\Local\\ms-playwright\\chromium_headless_shell-1228\\chrome-headless-shell-win64\\chrome-headless-shell.exe --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=C:\\Users\\Usuario\\AppData\\Local\\Temp\\playwright_chromiumdev_profile-Gn8wLr --remote-debugging-pipe --no-startup-window\n<launched> pid=17036\n[pid=17036][err] [1009/135633.544:ERROR:gpu\\ipc\\client\\command_buffer_proxy_impl.cc:285] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.\n[pid=17036] <gracefully close start>"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T16:57:50.072Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\el-muro-se-configura-Bloqu-c6429-bia-antes-de-los-6-segundos-chromium-desktop\\test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\el-muro-se-configura-Bloqu-c6429-bia-antes-de-los-6-segundos-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\el-muro-se-configura-Bloqu-c6429-bia-antes-de-los-6-segundos-chromium-desktop\\trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c75df84cbe12da4d4d5c-f4958a0605298ac9a44b",
+              "file": "el-muro-se-configura.spec.ts",
+              "line": 92,
+              "column": 7
+            },
+            {
+              "title": "con tamanoFotosMosaico: chica se ven más fotos que con grande",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 29308,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ak-live-stage article')\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ak-live-stage article')\u001b[22m\n\u001b[2m    33 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ak-live-stage article')\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ak-live-stage article')\u001b[22m\n\u001b[2m    33 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts:166:60",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts",
+                          "column": 60,
+                          "line": 166
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 164 |\u001b[39m       \u001b[36mawait\u001b[39m expect(stage)\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m15\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m 165 |\u001b[39m       \u001b[36mawait\u001b[39m expect(stage)\u001b[33m.\u001b[39mtoHaveAttribute(\u001b[32m'data-tamano-mosaico'\u001b[39m\u001b[33m,\u001b[39m \u001b[32m'grande'\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m20\u001b[39m_000 })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 166 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'.ak-live-stage article'\u001b[39m))\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m4\u001b[39m\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 167 |\u001b[39m       \u001b[36mconst\u001b[39m conteoGrande \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'.ak-live-stage article'\u001b[39m)\u001b[33m.\u001b[39mcount()\u001b[33m;\u001b[39m\n \u001b[90m 168 |\u001b[39m\n \u001b[90m 169 |\u001b[39m       \u001b[90m// 2. Abrimos con tamaño 'chica'\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts",
+                            "column": 60,
+                            "line": 166
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('.ak-live-stage article')\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  15000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 15000ms\u001b[22m\n\u001b[2m  - waiting for locator('.ak-live-stage article')\u001b[22m\n\u001b[2m    33 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  164 |       await expect(stage).toBeVisible({ timeout: 15_000 });\n  165 |       await expect(stage).toHaveAttribute('data-tamano-mosaico', 'grande', { timeout: 20_000 });\n> 166 |       await expect(page.locator('.ak-live-stage article')).toHaveCount(4, { timeout: 15_000 });\n      |                                                            ^\n  167 |       const conteoGrande = await page.locator('.ak-live-stage article').count();\n  168 |\n  169 |       // 2. Abrimos con tamaño 'chica'\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts:166:60"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T16:59:48.930Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\el-muro-se-configura-Bloqu-f1fc1-en-más-fotos-que-con-grande-chromium-desktop\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\el-muro-se-configura-Bloqu-f1fc1-en-más-fotos-que-con-grande-chromium-desktop\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\el-muro-se-configura-Bloqu-f1fc1-en-más-fotos-que-con-grande-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\el-muro-se-configura-Bloqu-f1fc1-en-más-fotos-que-con-grande-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts",
+                        "column": 60,
+                        "line": 166
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c75df84cbe12da4d4d5c-29d9d63723b1887e0741",
+              "file": "el-muro-se-configura.spec.ts",
+              "line": 133,
+              "column": 7
+            },
+            {
+              "title": "con fondoMuroImagenUrl cargado, el fondo de la pantalla es esa imagen en estilo calculado",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Comprobación visual de pantalla gigante",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts",
+                        "line": 64,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 596,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T17:01:48.213Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Comprobación visual de pantalla gigante",
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts",
+                            "line": 64,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c75df84cbe12da4d4d5c-8e4a585ad500a8bdb29f",
+              "file": "el-muro-se-configura.spec.ts",
+              "line": 63,
+              "column": 7
+            },
+            {
+              "title": "con segundosPorFoto: 3, la foto cambia antes de los 6 segundos",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Comprobación de rotación de diapositivas",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts",
+                        "line": 93,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 585,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T17:01:48.826Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Comprobación de rotación de diapositivas",
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts",
+                            "line": 93,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c75df84cbe12da4d4d5c-d99b1f2da4953dd66f04",
+              "file": "el-muro-se-configura.spec.ts",
+              "line": 92,
+              "column": 7
+            },
+            {
+              "title": "con tamanoFotosMosaico: chica se ven más fotos que con grande",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Comprobación de mosaico de fotos",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts",
+                        "line": 134,
+                        "column": 10
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 419,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T17:01:49.428Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "description": "Comprobación de mosaico de fotos",
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\el-muro-se-configura.spec.ts",
+                            "line": 134,
+                            "column": 10
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "c75df84cbe12da4d4d5c-bd145c4962e605f1de3b",
+              "file": "el-muro-se-configura.spec.ts",
+              "line": 133,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "muro-subir-foto.spec.ts",
+      "file": "muro-subir-foto.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "el invitado sube una foto al muro",
+          "file": "muro-subir-foto.spec.ts",
+          "line": 38,
+          "column": 6,
+          "specs": [
+            {
+              "title": "encuentra cómo compartir y, si falla, se entera",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 61809,
+                      "error": {
+                        "message": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n",
+                        "stack": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts:84:7",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts",
+                          "column": 7,
+                          "line": 84
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 82 |\u001b[39m       respuesta\u001b[33m,\u001b[39m\n \u001b[90m 83 |\u001b[39m       \u001b[32m'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no'\u001b[39m\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 84 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m45\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 85 |\u001b[39m\n \u001b[90m 86 |\u001b[39m     expect(erroresJs\u001b[33m,\u001b[39m \u001b[32m`El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`\u001b[39m)\u001b[33m.\u001b[39mtoEqual([])\u001b[33m;\u001b[39m\n \u001b[90m 87 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts",
+                            "column": 7,
+                            "line": 84
+                          },
+                          "message": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n\n\n  82 |       respuesta,\n  83 |       'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no',\n> 84 |     ).toBeVisible({ timeout: 45_000 });\n     |       ^\n  85 |\n  86 |     expect(erroresJs, `El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`).toEqual([]);\n  87 |   });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts:84:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T17:00:21.620Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-desktop\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-desktop\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-desktop\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-desktop\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts",
+                        "column": 7,
+                        "line": 84
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d9e25b7ffbd335ad35d1-942c85ccc465b5030c43",
+              "file": "muro-subir-foto.spec.ts",
+              "line": 39,
+              "column": 7
+            },
+            {
+              "title": "el muro no se cuelga después de un intento fallido",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3862,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T17:01:29.656Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d9e25b7ffbd335ad35d1-48541c08d7e59a50c255",
+              "file": "muro-subir-foto.spec.ts",
+              "line": 89,
+              "column": 7
+            },
+            {
+              "title": "encuentra cómo compartir y, si falla, se entera",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 57824,
+                      "error": {
+                        "message": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n",
+                        "stack": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts:84:7",
+                        "location": {
+                          "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts",
+                          "column": 7,
+                          "line": 84
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 82 |\u001b[39m       respuesta\u001b[33m,\u001b[39m\n \u001b[90m 83 |\u001b[39m       \u001b[32m'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no'\u001b[39m\u001b[33m,\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 84 |\u001b[39m     )\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m45\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 85 |\u001b[39m\n \u001b[90m 86 |\u001b[39m     expect(erroresJs\u001b[33m,\u001b[39m \u001b[32m`El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`\u001b[39m)\u001b[33m.\u001b[39mtoEqual([])\u001b[33m;\u001b[39m\n \u001b[90m 87 |\u001b[39m   })\u001b[33m;\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts",
+                            "column": 7,
+                            "line": 84
+                          },
+                          "message": "Error: El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no\n\n\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/No se pudo publicar|publicada|Se subió|subida/i).first()\u001b[22m\n\n\n  82 |       respuesta,\n  83 |       'El invitado tocó publicar y no recibió ninguna respuesta: no sabe si su foto salió o no',\n> 84 |     ).toBeVisible({ timeout: 45_000 });\n     |       ^\n  85 |\n  86 |     expect(erroresJs, `El muro tuvo fallas de JavaScript:\\n${erroresJs.join('\\n')}`).toEqual([]);\n  87 |   });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts:84:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T17:01:49.881Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-mobile\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-mobile\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-mobile\\error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\muro-subir-foto-el-invitad-03302-partir-y-si-falla-se-entera-chromium-mobile\\trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\muro-subir-foto.spec.ts",
+                        "column": 7,
+                        "line": 84
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "d9e25b7ffbd335ad35d1-00380942b95302855055",
+              "file": "muro-subir-foto.spec.ts",
+              "line": 39,
+              "column": 7
+            },
+            {
+              "title": "el muro no se cuelga después de un intento fallido",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2016,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T17:02:54.793Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d9e25b7ffbd335ad35d1-c3911dc7542c54026f8d",
+              "file": "muro-subir-foto.spec.ts",
+              "line": 89,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-09T16:28:53.835Z",
+    "duration": 2044523.944,
+    "expected": 4,
+    "skipped": 3,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

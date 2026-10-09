@@ -1,0 +1,344 @@
+- main:
+  - navigation "Navegacion del modulo":
+    - button "Volver":
+    - button "Ir al panel principal":
+  - link "Volver":
+    - /url: /presupuestos/nuevo
+    - text: Volver
+  - generic: Enviado
+  - link "Editar":
+    - /url: /presupuestos/pres_public_f0d50cf641b0b7f1fc359fe1/edit
+    - text: Editar
+  - link "Registrar Pago":
+    - /url: /pagos-rapidos
+    - text: Registrar Pago
+  - button "Ver Contrato":
+    - text: Ver Contrato
+  - button "Descargar PDF":
+    - text: Descargar PDF
+  - button "Auditar":
+    - text: Auditar
+  - link "Estado de Cuenta":
+    - /url: /presupuestos/pres_public_f0d50cf641b0b7f1fc359fe1/estado-de-cuenta
+    - text: Estado de Cuenta
+  - button "Crear Fiesta":
+    - text: Crear Fiesta
+  - paragraph: Total presupuesto
+  - paragraph: $ 210.349
+  - paragraph: Monto pagado
+  - paragraph: $ 0
+  - paragraph: Saldo pendiente
+  - paragraph: $ 210.349
+  - heading "¿Ya realizaste un pago?" [level=3]
+  - paragraph: Informalo para que quede registrado y te enviemos el recibo.
+  - button "Informar Pago / Subir Comprobante":
+    - text: Informar Pago / Subir Comprobante
+  - heading "Presupuesto para fiestas o eventos — AK PRODUCCIONES" [level=1]
+  - paragraph: SR. Alexander Knuth
+  - paragraph: Salto
+  - paragraph: 50000 Salto
+  - paragraph: akproduccionessalto@gmail.com
+  - paragraph: www.akproducciones.uy
+  - img "AK PRODUCCIONES Logo"
+  - paragraph: Detalle del Presupuesto
+  - table:
+    - rowgroup:
+      - row "Número de cliente Número de Documento Formato Fecha Válido hasta":
+        - columnheader "Número de cliente"
+        - columnheader "Número de Documento"
+        - columnheader "Formato"
+        - columnheader "Fecha"
+        - columnheader "Válido hasta"
+    - rowgroup:
+      - 'row "PRU-PRES #1 A4 08/10/2026 07/11/2026"':
+        - cell "PRU-PRES"
+        - cell "#1"
+        - cell "A4"
+        - cell "08/10/2026"
+        - cell "07/11/2026"
+  - paragraph: Cliente
+  - paragraph: Prueba aislada Codex79
+  - paragraph: Fecha del evento
+  - paragraph: 23 de enero de 2027
+  - paragraph: Tipo de evento
+  - paragraph: Cumpleaños
+  - paragraph: Invitados
+  - paragraph: "100"
+  - paragraph: Salón
+  - paragraph: Locación propia
+  - paragraph: Contacto
+  - paragraph: "099000079"
+  - paragraph: Resumen de tu propuesta
+  - paragraph: Para tu fiesta de cumpleaños de 100 invitados en Locación propia, esta propuesta incluye servicio gastronómico completo con atención, servicio de bebidas y barra, discoteca profesional, iluminación y ambientación acústica, fotocabina interactiva y cobertura audiovisual y decoración y ambientación de salón, coordinado de punta a punta para que disfrutes de la noche sin preocupaciones.
+  - table:
+    - rowgroup:
+      - row "Artículo Cantidad Unidad Precio Desc.% Importe total":
+        - columnheader "Artículo"
+        - columnheader "Cantidad"
+        - columnheader "Unidad"
+        - columnheader "Precio"
+        - columnheader "Desc.%"
+        - columnheader "Importe total"
+    - rowgroup:
+      - row "Personal":
+        - cell "Personal"
+      - row "Mozo 4 Unidad $ 2.990 — $ 11.960":
+        - cell "Mozo"
+        - cell "4"
+        - cell "Unidad"
+        - cell "$ 2.990"
+        - cell "—"
+        - cell "$ 11.960"
+      - row "Mozo de cocina 4 Unidad $ 2.990 — $ 11.960":
+        - cell "Mozo de cocina"
+        - cell "4"
+        - cell "Unidad"
+        - cell "$ 2.990"
+        - cell "—"
+        - cell "$ 11.960"
+      - row "Servicio de bebidas":
+        - cell "Servicio de bebidas"
+      - row "Barra de tragos 100 Unidad $ 399 — $ 39.900":
+        - cell "Barra de tragos"
+        - cell "100"
+        - cell "Unidad"
+        - cell "$ 399"
+        - cell "—"
+        - cell "$ 39.900"
+      - row "Servicio de catering":
+        - cell "Servicio de catering"
+      - row "Mantelería completa 100 Unidad $ 79 — $ 7.900":
+        - cell "Mantelería completa"
+        - cell "100"
+        - cell "Unidad"
+        - cell "$ 79"
+        - cell "—"
+        - cell "$ 7.900"
+      - row "Mobiliario completo 100 Unidad $ 75 — $ 7.500":
+        - cell "Mobiliario completo"
+        - cell "100"
+        - cell "Unidad"
+        - cell "$ 75"
+        - cell "—"
+        - cell "$ 7.500"
+      - row "Vajilla Completa 100 Unidad $ 79 — $ 7.900":
+        - cell "Vajilla Completa"
+        - cell "100"
+        - cell "Unidad"
+        - cell "$ 79"
+        - cell "—"
+        - cell "$ 7.900"
+      - 'row "entradas: SANDWICHES Y SALADITOS 100 persona $ 229 — $ 22.900"':
+        - 'cell "entradas: SANDWICHES Y SALADITOS"'
+        - cell "100"
+        - cell "persona"
+        - cell "$ 229"
+        - cell "—"
+        - cell "$ 22.900"
+      - 'row "entradas: SHOW DE PIZZAS 100 persona $ 199 — $ 19.900"':
+        - 'cell "entradas: SHOW DE PIZZAS"'
+        - cell "100"
+        - cell "persona"
+        - cell "$ 199"
+        - cell "—"
+        - cell "$ 19.900"
+      - 'row "plato principal: POLLO ARROLLADO CON MESA BUFET 100 persona $ 449 — $ 44.900"':
+        - 'cell "plato principal: POLLO ARROLLADO CON MESA BUFET"'
+        - cell "100"
+        - cell "persona"
+        - cell "$ 449"
+        - cell "—"
+        - cell "$ 44.900"
+      - row "Servicio de decoración":
+        - cell "Servicio de decoración"
+      - row "Cuadro de firmas 1 Unidad $ 2.990 — $ 2.990":
+        - cell "Cuadro de firmas"
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 2.990"
+        - cell "—"
+        - cell "$ 2.990"
+      - row "Servicio de Decoración 1 Unidad $ 14.990 — $ 14.990":
+        - cell "Servicio de Decoración"
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 14.990"
+        - cell "—"
+        - cell "$ 14.990"
+      - row "Servicio de discoteca":
+        - cell "Servicio de discoteca"
+      - row "Servicio de Discoteca 1 Unidad $ 14.900 — $ 14.900":
+        - cell "Servicio de Discoteca"
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 14.900"
+        - cell "—"
+        - cell "$ 14.900"
+      - row "Servicio de entretenimiento":
+        - cell "Servicio de entretenimiento"
+      - row "Fotocabina 1 Unidad $ 2.990 — $ 2.990":
+        - cell "Fotocabina"
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 2.990"
+        - cell "—"
+        - cell "$ 2.990"
+      - row "Servicio de fotografía":
+        - cell "Servicio de fotografía"
+      - row "Fotografía de exteriores 1 Unidad $ 3.990 — $ 3.990":
+        - cell "Fotografía de exteriores"
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 3.990"
+        - cell "—"
+        - cell "$ 3.990"
+      - row "Fotografía de la fiesta 1 Unidad $ 9.990 — $ 9.990":
+        - cell "Fotografía de la fiesta"
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 9.990"
+        - cell "—"
+        - cell "$ 9.990"
+      - row "Servicio de repostería":
+        - cell "Servicio de repostería"
+      - row "Mesa dulce con fuente de chocolate 100 Unidad $ 119 — $ 11.900":
+        - cell "Mesa dulce con fuente de chocolate"
+        - cell "100"
+        - cell "Unidad"
+        - cell "$ 119"
+        - cell "—"
+        - cell "$ 11.900"
+      - row "Torta Principal 100 Unidad $ 109 — $ 10.900":
+        - cell "Torta Principal"
+        - cell "100"
+        - cell "Unidad"
+        - cell "$ 109"
+        - cell "—"
+        - cell "$ 10.900"
+      - row "Regalos Incluidos":
+        - cell "Regalos Incluidos"
+      - row "Invitaciones digitales Regalo incluido 1 Unidad $ 2.500 100% $ 0,00":
+        - cell "Invitaciones digitales Regalo incluido":
+          - text: Invitaciones digitales
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 2.500"
+        - cell "100%"
+        - cell "$ 0,00"
+      - row "Organizamos de la fiesta Regalo incluido 1 Unidad $ 11.000 100% $ 0,00":
+        - cell "Organizamos de la fiesta Regalo incluido":
+          - text: Organizamos de la fiesta
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 11.000"
+        - cell "100%"
+        - cell "$ 0,00"
+      - row "Mesa de café Regalo incluido 1 Unidad $ 1.900 100% $ 0,00":
+        - cell "Mesa de café Regalo incluido":
+          - text: Mesa de café
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 1.900"
+        - cell "100%"
+        - cell "$ 0,00"
+      - row "Album digital Regalo incluido 1 Unidad $ 2.500 100% $ 0,00":
+        - cell "Album digital Regalo incluido":
+          - text: Album digital
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 2.500"
+        - cell "100%"
+        - cell "$ 0,00"
+      - row "Video de vida Regalo incluido 1 Unidad $ 2.500 100% $ 0,00":
+        - cell "Video de vida Regalo incluido":
+          - text: Video de vida
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 2.500"
+        - cell "100%"
+        - cell "$ 0,00"
+      - row "Pantalla gigante y proyector Regalo incluido 1 Unidad $ 2.500 100% $ 0,00":
+        - cell "Pantalla gigante y proyector Regalo incluido":
+          - text: Pantalla gigante y proyector
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 2.500"
+        - cell "100%"
+        - cell "$ 0,00"
+      - 'row "Descuento promocional: −$ 37.121"':
+        - cell "Descuento promocional:"
+        - cell "−$ 37.121"
+      - row "Importe total $ 210.349":
+        - cell "Importe total"
+        - cell "$ 210.349"
+      - row "Valor aproximado por persona $ 2.103":
+        - cell "Valor aproximado por persona"
+        - cell "$ 2.103"
+  - generic: 💳 Opciones de Pago & Transparencia Financiera
+  - generic: Mercado Pago / Transferencia
+  - paragraph:
+    - generic: 1. Contado / Transferencia Bancaria
+    - generic: 9% de descuento
+  - paragraph: $ 210.349$ 231.384
+  - paragraph: Te ahorrás $ 21.035 pagando al contado o por transferencia.
+  - paragraph:
+    - generic: 2. Mercado Pago / Tarjetas (Hasta 12 Cuotas)
+    - generic: Precio de lista
+  - paragraph: $ 231.384
+  - paragraph: 12 cuotas de $ 19.282.
+  - paragraph:
+    - text: ℹ️
+    - strong: Formas de pago
+    - text: ": el precio de lista es $ 231.384 y se puede abonar hasta en 12 cuotas con tarjeta. Pagando al contado o por transferencia bancaria se aplica un descuento de $ 21.035."
+  - paragraph: El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ 5.000. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.
+  - paragraph: Documento de presupuesto. La reserva, confirmación final y firmas corresponden al contrato confirmado.
+  - text: Documento de presupuesto. La reserva, confirmacion final y firmas corresponden al contrato confirmado.
+  - generic: Historial de Pagos
+  - link "Ver Estado de Cuenta":
+    - /url: /presupuestos/pres_public_f0d50cf641b0b7f1fc359fe1/estado-de-cuenta
+    - text: Ver Estado de Cuenta
+  - generic: "Total: $ 210.349"
+  - text: "Pagado: $ 0"
+  - text: "Pendiente: $ 210.349"
+  - paragraph: Nuevo Pago
+  - text: Monto *
+  - spinbutton: "220349"
+  - text: Fecha *
+  - textbox: 2026-10-08
+  - text: Método *
+  - combobox:
+    - generic: Efectivo
+  - text: Referencia
+  - 'textbox "Ej: Nº transf. 12345"'
+  - button "Cancelar"
+  - button "Guardar Pago":
+    - text: Guardar Pago
+  - link "Consultar por WhatsApp":
+    - /url: https://wa.me/59898355530?text=Hola%20AK%20Producciones!%20Quisiera%20hacer%20una%20consulta%20sobre%20un%20evento.
+    - generic: Consultar por WhatsApp
+- button "WhatsApp":
+  - text: WhatsApp
+- button "PDF":
+  - text: PDF
+- button "Compartir":
+  - text: Compartir
+- link "Editar":
+  - /url: /presupuestos/pres_public_f0d50cf641b0b7f1fc359fe1/edit
+  - text: Editar
+- button "Copiar enlace del presupuesto":
+- button "Martin Contabilidad, pagos y contratos":
+  - generic: Martin
+  - generic: Contabilidad, pagos y contratos
+- link "Personalizar asistentes":
+  - /url: /settings/asistentes-contextuales
+- link "Ver sincronizaciones":
+  - /url: /settings/sincronizaciones
+- region "Notifications (F8)":
+  - list
+- alert

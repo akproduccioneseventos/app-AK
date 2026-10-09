@@ -1,5 +1,42 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9/10/2026 - Codex: retest verificable de 81 y entrega recuperada de 80
+
+- Retest main `1b57abbec5162402cc30269cc276398707b28d55`, sin PR abierta al contrastar:
+  7 suites / 22 pruebas de Claude aprobadas. Token interno de cuotas/invitados, parte de
+  manana con pagos confirmados y sin cachear fallo, envio fuera de callback reintentable,
+  revision web que pide paginas: NO reimplementar los arreglos originales.
+- Sonda propia TikTok PASA: segunda corrida no vuelve a inicializar publishId. No equivale
+  a verificar el proveedor real ni el cierre posterior de un PROCESSING.
+- Todavia reproducidos en ese SHA: `publishPostInternal` manual no adquiere el reclamo
+  que si adquiere cron (dos envios); recordatorio de invitados dos corridas del dia (dos
+  filas). Sondas y JSON en `docs/evidencias/81-*`; orden 131 actualizada SOLO para pendientes.
+- Compartir privado, Nueva Factura tapada y enlace WhatsApp local: recorrido 80 recuperado
+  con pantallas y archivos exactos, orden 130. CITA80 y CLIENTEPAGO80 ya corregidos, no repetir.
+- Mural/captura/entrega en build aislado `497ee725`: captura offline completa aprobo en
+  movil y desktop; seis pruebas reforzadas en ambos tamaños aprobaron mosaico grande/chico,
+  cambio real de autor, confirmacion de subida, fila y bytes del archivo en emulador.
+  Los consumidores no cambiaron al main actual. Informe `81-mural-captura-y-entrega.md`.
+- Se conserva JSON original (4 pasan, 5 fallan, 3 omitidas), incluido error de navegador
+  `ERR_NETWORK_IO_SUSPENDED`, semilla vieja JSON incompatible con emulador y aserciones
+  viejas insuficientes. No convertir esos fallos en defectos de app sin contraste.
+- Recuperacion de herramientas/Windows SOLO de auditoria con junction acotada. Nada de
+  datos reales, mensajes externos, cobros, dependencias de produccion o fusion automatica.
+- No marcar areas enteras limpias: mapa del contador sigue sin dependencias compartidas;
+  integraciones reales, 19 presupuestos y ensayo fisico sin comprobacion de esta tanda.
+
+```comprobar
+archivo: docs/evidencias/81-publicacion-sondas.test.ts
+usa: publishPostInternal en src/app/actions/social-media.ts
+prueba: docs/evidencias/81-publicacion-retest.json (manual falla, TikTok pasa)
+archivo: docs/evidencias/81-invitados-reintento.test.ts
+usa: saveScheduledMessage en src/app/api/cron/recordatorio-a-los-invitados/route.ts
+prueba: docs/evidencias/81-invitados-retest.json (dos mensajes, falla)
+archivo: docs/evidencias/81-mural-emulador.spec.ts
+usa: getPublicSocialPosts en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
+prueba: docs/evidencias/81-e2e-mural-validado.json (seis pruebas pasan)
+```
+
 ## 9 de octubre de 2026 — Codex, auditoría 81: tareas sin sesión, parte de la mañana y cobros a confirmar
 
 - **Los recordatorios de cuota no se armaban desde el despertador.** La tarea pasaba su guardia con

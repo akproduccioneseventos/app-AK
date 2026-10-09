@@ -1,0 +1,325 @@
+- link:
+  - /url: /admin
+- list:
+  - link:
+    - /url: /
+    - generic: Centro de Control
+- generic: Mi Día
+- generic: ☀️
+- list:
+  - link:
+    - /url: /mi-dia
+    - generic: Mi Día
+- generic: Fiestas
+- generic: 🎉
+- list:
+  - link:
+    - /url: /eventos
+    - generic: Eventos Activos
+  - link:
+    - /url: /calendario
+    - generic: Calendario
+  - link:
+    - /url: /empresa/red-social-eventos
+    - generic: Muro Social
+  - link:
+    - /url: /incidentes
+    - generic: Incidentes
+  - link:
+    - /url: /playbooks
+    - generic: Guias de Armado
+  - link:
+    - /url: /fiestas/nueva/alergias
+    - generic: Alergias y Dietas
+  - link:
+    - /url: /fiestas/nueva/proveedores-portal
+    - generic: Portal de Proveedores
+  - link:
+    - /url: /recursos-multi-evento
+    - generic: Personal en dos fiestas
+- generic: La Empresa
+- generic: 🏢
+- list:
+  - link:
+    - /url: /empresa
+    - generic: Gestión de Empresa
+  - generic: Vender
+  - link:
+    - /url: /contabilidad/crm
+    - generic: Prospectos
+  - link:
+    - /url: /presupuestos/nuevo
+    - generic: Presupuestos
+  - link:
+    - /url: /customers
+    - generic: Clientes
+  - link:
+    - /url: /simulador-ak
+    - generic: Simulador IA
+  - generic: Plata
+  - link:
+    - /url: /pagos-rapidos
+    - generic: Pagos Rápidos
+  - link:
+    - /url: /empresa/contabilidad
+    - generic: Panel Contable
+  - link:
+    - /url: /invoices
+    - generic: Facturas
+  - link:
+    - /url: /aprobaciones
+    - generic: Cambios a Aprobar
+  - link:
+    - /url: /empresa/dashboard
+    - generic: Métricas del Negocio
+  - generic: Recursos
+  - link:
+    - /url: /empresa/menus
+    - generic: Comida / Menús
+  - link:
+    - /url: /compras
+    - generic: Lista de Compras
+  - link:
+    - /url: /empresa/salones
+    - generic: Salones
+  - link:
+    - /url: /empresa/servicios
+    - generic: Catálogo de Servicios
+  - link:
+    - /url: /proveedores
+    - generic: Proveedores
+  - link:
+    - /url: /empleados
+    - generic: Empleados
+  - generic: Marketing
+  - link:
+    - /url: /empresa/marketing
+    - generic: Marketing y Difusión
+  - link:
+    - /url: /empresa/redes-sociales
+    - generic: Redes Sociales
+  - link:
+    - /url: /contabilidad/crm/outbox
+    - generic: WhatsApp del Día
+  - link:
+    - /url: /contabilidad/crm/marketing-ads
+    - generic: Rendimiento Anuncios
+  - link:
+    - /url: /empresa/presentacion-led/configuracion
+    - generic: Presentación LED
+- generic: Configuración
+- generic: ⚙️
+- list:
+  - link:
+    - /url: /settings
+    - generic: Ajustes Generales
+  - link:
+    - /url: /settings/tareas-automaticas
+    - generic: Tareas Automáticas
+  - link:
+    - /url: /settings/sincronizaciones
+    - generic: Conexiones
+  - link:
+    - /url: /settings/whatsapp
+    - generic: WhatsApp
+  - link:
+    - /url: /settings/contratos/clausulas
+    - generic: Cláusulas de Contrato
+  - link:
+    - /url: /settings/account
+    - generic: Seguridad
+  - link:
+    - /url: /settings/promos
+    - generic: Promociones
+  - link:
+    - /url: /settings/ai-assistant
+    - generic: Asistente IA
+  - link:
+    - /url: /settings/mapa-tecnologico-ak
+    - generic: Mapa Tecnológico
+  - link:
+    - /url: /settings/feature-flags
+    - generic: Laboratorio Experimental
+- list:
+  - link:
+    - /url: /alertas
+    - generic: Alertas
+    - generic: "1"
+- main:
+  - heading [level=1]: Gestión de Prospectos (CRM)
+  - link:
+    - /url: /pagos-rapidos
+    - button:
+      - generic: Ingreso/Egreso Rápido
+  - button:
+    - generic: Abrir notificaciones
+  - button:
+  - main:
+    - link:
+      - /url: /contabilidad/crm/ciclo-comercial
+      - text: Ciclo comercial
+    - paragraph: Contabilidad › CRM de Prospectos
+    - heading [level=1]: CRM de Prospectos
+    - link:
+      - /url: /contabilidad/crm/atraccion-fiestas
+      - text: Atracción por Fiesta
+    - link:
+      - /url: /contabilidad/crm/agenda
+      - text: Agenda
+    - button:
+      - text: Añadir Prospecto
+    - button:
+      - text: Reiniciar CRM
+    - link:
+      - /url: /empresa/contabilidad
+      - text: Volver
+    - generic: Propuestas Activas
+    - generic: $ 104.125
+    - generic: Prospectos
+    - generic: "1"
+    - generic: Tasa Conversión
+    - generic: 0.0%
+    - generic: Ganados/Perdidos
+    - generic: 0/0
+    - generic: Reuniones Hoy
+    - generic: "0"
+    - textbox:
+      - /placeholder: Buscar por nombre, teléfono, salón...
+    - button: Todos
+    - button:
+      - text: Presupuestos (Simulador)
+    - button:
+      - text: WhatsApp y manuales
+    - button:
+      - text: Citas Hoy
+    - button:
+      - text: Sin actividad (0)
+    - button:
+      - text: Más filtros
+    - button:
+      - text: Consultó
+      - generic: "0"
+    - button:
+      - text: Agendó entrevista
+      - generic: "0"
+    - button:
+      - text: Con presupuesto
+      - generic: "1"
+    - button:
+      - text: Firmó contrato
+      - generic: "0"
+    - button:
+      - text: No contrató
+      - generic: "0"
+    - generic: Consultó
+    - generic: "0"
+    - paragraph: No hay prospectos en esta etapa.
+    - generic: Agendó entrevista
+    - generic: "0"
+    - paragraph: No hay prospectos en esta etapa.
+    - generic: Con presupuesto
+    - generic: "1"
+    - button:
+      - generic: 🔥 Alta
+      - generic: Simulador
+      - generic: Landing principal
+      - generic: Contacto autorizado
+    - generic: "099000079"
+    - generic: "Fiesta: 21/11/2026"
+    - generic: "Presupuesto: 8/10, 17:58hs"
+    - generic: Cumpleaños en Locación propia
+    - generic: ~80 invitados
+    - link:
+      - /url: /presupuestos/pres_public_a91305cac0dbcd24650e35fd/ver
+      - text: VER PRESUPUESTO
+    - button:
+    - button:
+    - button:
+    - button [active]:
+    - button:
+    - generic: Firmó contrato
+    - generic: "0"
+    - paragraph: No hay prospectos en esta etapa.
+    - generic: No contrató
+    - generic: "0"
+    - paragraph: No hay prospectos en esta etapa.
+    - status
+- navigation:
+  - button:
+  - button:
+- generic: 🤝
+- generic: Agente Vendedor AK
+- paragraph: Leads, presupuestos, simulaciones internas y cierre comercial
+- button:
+- button:
+- button:
+- button:
+- button:
+- generic: Ventas
+- generic: Especialista de pantalla
+- button:
+  - generic: 🤝
+  - text: Ventas
+- button:
+  - generic: 👩‍💼
+  - text: Agenda
+- button:
+  - generic: 💰
+  - text: Caja
+- button:
+  - generic: 📢
+  - text: Marketing
+- button:
+  - generic: 🤵
+  - text: General
+- generic: Agente Vendedor AK listo.
+- paragraph: Usando manual AK, memoria del agente y datos del módulo actual.
+- button: Leads pendientes
+- button: Presupuestos sin respuesta
+- button: Mensaje para cerrar
+- textbox:
+  - /placeholder: Hablar con Ventas...
+- button:
+- button [disabled]:
+- button:
+  - generic: 🤝
+- button:
+  - generic: Sofia
+  - generic: Secretaria, agenda y recordatorios
+- link:
+  - /url: /settings/asistentes-contextuales
+- link:
+  - /url: /settings/sincronizaciones
+- list
+- alert
+- 'dialog "Historial: Prueba aislada Codex79"':
+  - 'heading "Historial: Prueba aislada Codex79" [level=2]':
+    - text: "Historial: Prueba aislada Codex79"
+  - paragraph: Actividad registrada en este prospecto.
+  - list:
+    - paragraph: Presupuesto pres_public_a91305cac0dbcd24650e35fd generado desde Landing principal.
+    - time: 08/10/2026, 17:57
+    - paragraph: "Presupuesto #1 registrado desde Simulador común"
+    - time: 08/10/2026, 15:58
+    - paragraph: "Presupuesto #1 registrado desde Simulador común"
+    - time: 08/10/2026, 15:58
+    - paragraph: "Presupuesto #1 registrado desde Simulador común"
+    - time: 08/10/2026, 15:58
+    - paragraph: "Presupuesto #1 registrado desde Simulador común"
+    - time: 08/10/2026, 15:58
+    - paragraph: "Presupuesto #1 registrado desde Simulador común"
+    - time: 08/10/2026, 15:58
+    - paragraph: "Presupuesto #1 registrado desde Simulador común"
+    - time: 08/10/2026, 15:58
+    - paragraph: "Presupuesto #1 registrado desde Simulador común"
+    - time: 08/10/2026, 15:58
+    - paragraph: Presupuesto pres_public_f0d50cf641b0b7f1fc359fe1 generado desde Landing principal.
+    - time: 08/10/2026, 15:58
+    - paragraph: Consulta recibida desde Landing principal.
+    - time: 08/10/2026, 15:57
+  - paragraph: Notas
+  - button "Editar notas":
+    - text: Editar notas
+  - paragraph: "Origen: Landing principal Modo simulador: visual El prospecto comenzo el simulador visual y todavia no genero el presupuesto final. Origen: Landing principal Modo simulador: visual Origen comercial: simulador_comun | Tipo de fiesta: Cumpleaños | Fecha tentativa: 2027-01-23T03:00:00.000Z | Invitados: 100 | Faltan aprox. 107 dias | Referencia: UYU 210.349 Origen: Landing principal Modo simulador: visual Origen comercial: simulador_comun | Tipo de fiesta: Cumpleaños | Fecha tentativa: 2027-01-23T03:00:00.000Z | Invitados: 100 | Faltan aprox. 107 dias | Referencia: UYU 210.349 Origen: Landing principal Modo simulador: visual El prospecto comenzo el simulador visual y todavia no genero el presupuesto final. Origen: Landing principal Modo simulador: visual Origen comercial: simulador_comun | Tipo de fiesta: Cumpleaños | Fecha tentativa: 2026-11-21T03:00:00.000Z | Invitados: 80 | Faltan aprox. 44 dias | Referencia: UYU 160.488 Origen: Landing principal Modo simulador: visual Origen comercial: simulador_comun | Tipo de fiesta: Cumpleaños | Fecha tentativa: 2026-11-21T03:00:00.000Z | Invitados: 80 | Faltan aprox. 44 dias | Referencia: UYU 160.488 Origen: Landing principal Modo simulador: visual Origen comercial: simulador_comun | Tipo de fiesta: Cumpleaños | Fecha tentativa: 2026-11-21T03:00:00.000Z | Invitados: 80 | Faltan aprox. 44 dias | Referencia: UYU 104.125 Origen: Landing principal Modo simulador: visual Origen comercial: simulador_comun | Tipo de fiesta: Cumpleaños | Fecha tentativa: 2026-11-21T03:00:00.000Z | Invitados: 80 | Faltan aprox. 44 dias | Referencia: UYU 104.125 Origen: Landing principal Modo simulador: visual Origen comercial: simulador_comun | Tipo de fiesta: Cumpleaños | Fecha tentativa: 2026-11-21T03:00:00.000Z | Invitados: 80 | Faltan aprox. 44 dias | Referencia: UYU 104.125"
+  - button "Close":
+    - generic: Close

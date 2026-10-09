@@ -1,0 +1,11 @@
+{
+  "covered": true,
+  "hit": "<button type=\"button\" class=\"flex min-w-0 flex-1 items-center gap-2 rounded-xl px-1.5 py-1 text-left transition hover:bg-slate-50\" title=\"Abrir asistente activo\"><span class=\"relative flex shrink-0 overflow-hidden rounded-full h-10 w-10 border-2\" style=\"border-color: rgb(5, 150, 105);\"><span class=\"flex h-full w-full items-center justify-center rounded-full bg-muted text-white\" style=\"background-color: rgb(5, 150, 105);\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0",
+  "rect": {
+    "h": 44,
+    "w": 163,
+    "x": 1085,
+    "y": 96
+  },
+  "target": "Nueva Factura"
+}

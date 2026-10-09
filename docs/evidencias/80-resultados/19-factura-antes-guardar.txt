@@ -1,0 +1,68 @@
+- main:
+  - navigation "Navegacion del modulo":
+    - button "Volver":
+    - button "Ir al panel principal":
+  - heading "Crear Nueva Factura" [level=1]
+  - link "Volver":
+    - /url: /invoices
+    - text: Volver
+  - generic: Detalles de la Factura
+  - generic: Completa la información para generar una nueva factura.
+  - text: Cliente *
+  - combobox "Cliente *":
+    - generic: Cliente aislado Codex
+  - combobox
+  - text: Número de Factura *
+  - textbox "Número de Factura *":
+    - /placeholder: "Ej: FACT2024-001"
+    - text: AUD80-FACTURA-FICTICIA
+  - text: Fecha de Emisión *
+  - button "8 de octubre de 2026":
+    - text: 8 de octubre de 2026
+  - text: Fecha de Vencimiento
+  - button "7 de noviembre de 2026":
+    - text: 7 de noviembre de 2026
+  - text: Estado
+  - combobox "Estado":
+    - generic: Borrador
+  - combobox
+  - text: Moneda
+  - textbox "Moneda":
+    - /placeholder: "Ej: UYU, USD"
+    - text: UYU
+  - text: Tasa de IVA (%)
+  - spinbutton "Tasa de IVA (%)": "0"
+  - heading "Conceptos de la Factura" [level=3]
+  - text: Descripción *
+  - textbox "Descripción *":
+    - /placeholder: Descripción del servicio o producto
+    - text: Ensayo aislado sin servicio ni cobro real
+  - text: Cant. *
+  - spinbutton "Cant. *": "1"
+  - generic: Precio Unit. (UYU) *
+  - spinbutton "Precio Unit. (UYU) *" [active]: "1000"
+  - button:
+  - paragraph: "Total Ítem: $ 1.000,00"
+  - button "Añadir Concepto":
+    - text: Añadir Concepto
+  - generic: "Subtotal:"
+  - generic: $ 1.000,00
+  - generic: "IVA (0%):"
+  - generic: $ 0,00
+  - generic: "Total General:"
+  - generic: $ 1.000,00
+  - text: Notas Adicionales
+  - textbox "Notas Adicionales":
+    - /placeholder: Añade cualquier nota, término de pago o detalle adicional aquí.
+  - button "Crear Factura":
+    - text: Crear Factura
+- button "Martin Contabilidad, pagos y contratos":
+  - generic: Martin
+  - generic: Contabilidad, pagos y contratos
+- link "Personalizar asistentes":
+  - /url: /settings/asistentes-contextuales
+- link "Ver sincronizaciones":
+  - /url: /settings/sincronizaciones
+- region "Notifications (F8)":
+  - list
+- alert

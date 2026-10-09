@@ -1,0 +1,193 @@
+- generic: Armá tu presupuesto
+- generic: Paso 5 de 5 · Edición
+- progressbar
+- heading [level=2]: Personalización de tu presupuesto
+- paragraph: ¡Llegamos a la etapa final! Ajustá la fecha y los invitados, quitá opcionales de tu paquete o agregá extras a tu gusto. El total se recalcula al instante.
+- heading [level=3]:
+  - text: Información General del Evento
+- text: Fecha del evento
+- button:
+  - text: 21 de noviembre de 2026
+- text: Invitados Adultos
+- spinbutton: "80"
+- text: Niños y Adolescentes
+- spinbutton
+- heading [level=3]:
+  - text: Servicios contratados en tu propuesta
+- generic: Personal
+- generic: 2 activos
+- generic: Mozo
+- generic: Personal
+- generic: •
+- generic: $ 11.960
+- button:
+- generic: Mozo de cocina
+- generic: Personal
+- generic: •
+- generic: $ 11.960
+- button:
+- generic: Servicio de bebidas
+- generic: 1 activos
+- generic: Barra de tragos
+- generic: Servicio de bebidas
+- generic: •
+- generic: $ 31.920
+- button:
+- generic: Servicio de comida
+- generic: 5 activos
+- generic: CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN
+- generic: Plato Principal
+- generic: •
+- generic: $ 31.920
+- button:
+- generic: KEBABS
+- generic: Entrada
+- generic: •
+- generic: $ 14.320
+- button:
+- generic: Mantelería completa
+- generic: Servicio de comida
+- generic: •
+- generic: $ 6.320
+- button:
+- generic: Mobiliario completo
+- generic: Servicio de comida
+- generic: •
+- generic: $ 6.000
+- button:
+- generic: Vajilla Completa
+- generic: Servicio de comida
+- generic: •
+- generic: $ 6.320
+- button:
+- generic: Servicio de decoración
+- generic: 2 activos
+- generic: Cuadro de firmas
+- generic: Servicio de decoración
+- generic: •
+- generic: $ 2.990
+- button:
+- generic: Servicio de Decoración
+- generic: Servicio de decoración
+- generic: •
+- generic: $ 14.990
+- button:
+- generic: Servicio de discoteca
+- generic: 1 activos
+- generic: Servicio de Discoteca
+- generic: Servicio de discoteca
+- generic: •
+- generic: $ 14.900
+- button:
+- generic: Servicio de entretenimiento
+- generic: 1 activos
+- generic: Fotocabina
+- generic: Servicio de entretenimiento
+- generic: •
+- generic: $ 2.990
+- button:
+- generic: Servicio de fotografía
+- generic: 2 activos
+- generic: Fotografía de exteriores
+- generic: Servicio de fotografía
+- generic: •
+- generic: $ 3.990
+- button:
+- generic: Fotografía de la fiesta
+- generic: Servicio de fotografía
+- generic: •
+- generic: $ 9.990
+- button:
+- generic: Servicio de repostería
+- generic: 2 activos
+- generic: Mesa dulce con fuente de chocolate
+- generic: Servicio de repostería
+- generic: •
+- generic: $ 9.520
+- button:
+- generic: Torta Principal
+- generic: Servicio de repostería
+- generic: •
+- generic: $ 8.720
+- button:
+- generic: Regalos Incluidos
+- generic: 6 activos
+- generic: Invitaciones digitales
+- generic: Regalo incluido
+- generic: Organizamos de la fiesta
+- generic: Regalo incluido
+- generic: Mesa de café
+- generic: Regalo incluido
+- generic: Album digital
+- generic: Regalo incluido
+- generic: Video de vida
+- generic: Regalo incluido
+- generic: Pantalla gigante y proyector
+- generic: Regalo incluido
+- heading [level=4]:
+  - text: Personalizá tu fiesta con más servicios
+- heading [level=4]: 🔥 ¡Subí tu evento al Plan Paquete premium!
+- paragraph: "Llevá tu fiesta al siguiente nivel. Agregá estos servicios clave incluidos en el paquete Paquete premium y asegurá una experiencia inolvidable para todos tus invitados:"
+- button: ⚡ Pasarme al Plan Paquete premium
+- generic: Refrescos
+- generic: +$ 11.600
+- button: Sumar +
+- generic: Banner Gigantografía
+- generic: +$ 2.990
+- button: Sumar +
+- generic: Candy Bar Temático
+- generic: +$ 8.800
+- button: Sumar +
+- generic: Lluvia de burbujas
+- generic: +$ 1.500
+- button: Sumar +
+- generic: Fuegos fríos (2 disparos)
+- generic: +$ 3.000
+- button: Sumar +
+- generic: Filmación de la fiesta
+- generic: +$ 9.990
+- button: Sumar +
+- textbox:
+  - /placeholder: "Buscá servicios adicionales por nombre (ej: cabina, plataforma, barra, cascada)..."
+- heading [level=4]: ¿Querés comparar con otros paquetes?
+- text: Alternativa
+- heading [level=5]: Paquete basico
+- paragraph: $ 104.125
+- paragraph: "- $ 705 por persona"
+- button [disabled]: Cambiar a Paquete basico
+- text: Alternativa
+- heading [level=5]: Paquete premium
+- paragraph: $ 188.861
+- paragraph: + $ 355 por persona
+- button [disabled]: Cambiar a Paquete premium
+- strong: Precios 2026
+- text: — El total mostrado corresponde al precio vigente.
+- button:
+  - text: Ver Preguntas Frecuentes (FAQ)
+- button [disabled]: Anterior
+- generic: 🎁 ¡Ahorrás $ 22.900 en regalos incluidos!
+- button [disabled]:
+  - text: Ver Resumen y Propuesta
+- paragraph: "Total vigente:"
+- paragraph: $ 160.488
+- paragraph: $ 2.006 p/p
+- list:
+  - generic: Actualizado a Plan Paquete intermedio
+  - generic: Se incluyeron todos los servicios adicionales del paquete superior.
+  - button:
+- alert: Simulador de Presupuesto en Salto | AK Producciones Eventos | AK Producciones
+- dialog "¿Querés sumar los extras del Plan Paquete premium?":
+  - text: ⚡ UPGRADE PARA TU Paquete intermedio
+  - heading "¿Querés sumar los extras del Plan Paquete premium?" [level=2]
+  - paragraph: El Plan Paquete premium incluye servicios clave para potenciar la ambientación y diversión de tus invitados.
+  - generic: Refrescos
+  - generic: +$ 11.600
+  - generic: Incluido en Paquete premium
+  - generic: Banner Gigantografía
+  - generic: +$ 2.990
+  - generic: Incluido en Paquete premium
+  - button "⚡ Pasarme al Plan Paquete premium con 1-Click" [active]
+  - button "Mantener mi selección actual"
+  - button "Close":
+    - generic: Close
+- status: Notification Actualizado a Plan Paquete intermedio Se incluyeron todos los servicios adicionales del paquete superior.
