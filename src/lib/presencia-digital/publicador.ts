@@ -50,9 +50,12 @@ async function mutarPosteo(
   postId: string,
   cambiar: (p: SocialPost) => SocialPost | null,
 ): Promise<SocialPost | null> {
-  try {
-    return await mutateDataItem<SocialPost>(POSTS_FILE, POSTS_COLLECTION, postId, cambiar);
-  } catch {
+  // Con base, SOLO la transacción: si falla, no se reescribe la lista entera (pisaría lo que otro
+  // guardó). El modo de archivos locales no tiene transacción y se cuida con el turno.
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    return mutateDataItem<SocialPost>(POSTS_FILE, POSTS_COLLECTION, postId, cambiar);
+  }
+  {
     const posts = await readData<SocialPost[]>(POSTS_FILE, []);
     const idx = posts.findIndex((p) => p.id === postId);
     if (idx === -1) return null;
@@ -66,13 +69,14 @@ async function mutarPosteo(
 
 /** Reclama el posteo antes de publicar. Sólo quien lo gana lo publica. */
 async function reclamarPosteo(postId: string, ahora: Date): Promise<boolean> {
+  // Si no se puede reclamar (la base no contesta), no se publica: mejor tarde que dos veces.
   return turnoDeReclamos.runExclusive(async () => {
     const ganado = await mutarPosteo(postId, (p) => {
       if (p.status !== 'Programado' || p.publishId || reclamoVigente(p, ahora.getTime())) return null;
       return { ...p, publicandoDesde: ahora.toISOString() };
     });
     return Boolean(ganado);
-  });
+  }).catch(() => false);
 }
 
 async function soltarReclamo(postId: string): Promise<void> {

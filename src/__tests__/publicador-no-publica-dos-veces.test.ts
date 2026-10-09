@@ -3,6 +3,7 @@
  * Un posteo no sale dos veces: ni por dos corridas a la vez, ni por quedar "en proceso" en TikTok.
  */
 let store: any[] = [];
+let cola: Promise<unknown> = Promise.resolve();
 const publishToTikTok = jest.fn();
 
 jest.mock('@/lib/data-service', () => ({
@@ -18,9 +19,18 @@ jest.mock('@/lib/data-service', () => ({
     if (file === 'social-posts.json') store = JSON.parse(JSON.stringify(data));
   }),
   createDataItem: jest.fn(),
-  // sin base: obliga al camino de respaldo (turno + lectura/escritura)
-  mutateDataItem: jest.fn(async () => {
-    throw new Error('sin base');
+  // con base: transacción atómica sobre el posteo (un cambio por vez, sobre lo último guardado)
+  mutateDataItem: jest.fn((_f: string, _c: string, id: string, cambiar: (p: any) => any) => {
+    const turno = cola.then(async () => {
+      const i = store.findIndex((p) => p.id === id);
+      if (i === -1) return null;
+      const nuevo = cambiar(JSON.parse(JSON.stringify(store[i])));
+      if (!nuevo) return null;
+      store[i] = JSON.parse(JSON.stringify(nuevo));
+      return nuevo;
+    });
+    cola = turno.catch(() => null);
+    return turno;
   }),
 }));
 jest.mock('@/lib/social-media/tiktok-publisher', () => ({
@@ -49,6 +59,7 @@ const posteo = (extra: any = {}) => ({
 describe('publicador de redes', () => {
   beforeEach(() => {
     publishToTikTok.mockReset();
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
   });
 
   it('un posteo de TikTok ya en proceso (con publishId) no se vuelve a mandar', async () => {
@@ -70,5 +81,28 @@ describe('publicador de redes', () => {
     expect(publishToTikTok).toHaveBeenCalledTimes(1);
     expect(store[0].publicandoDesde).toBeUndefined();
     expect(store[0].status).toBe('Publicado');
+  });
+
+  it('con base: dos corridas a la vez publican UNA vez, por el reclamo en la transacción', async () => {
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'false';
+    store = [posteo()];
+    publishToTikTok.mockImplementation(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+      return { success: true, status: 'PUBLISH_COMPLETE', publishId: 'abc' };
+    });
+    const ahora = new Date('2026-10-09T12:00:00Z');
+    await Promise.all([procesarPosteosProgramados(3, ahora), procesarPosteosProgramados(3, ahora)]);
+    expect(publishToTikTok).toHaveBeenCalledTimes(1);
+  });
+
+  it('con base: si no se puede reclamar, no publica ni reescribe la lista', async () => {
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'false';
+    store = [posteo()];
+    const ds = jest.requireMock('@/lib/data-service');
+    ds.mutateDataItem.mockImplementationOnce(async () => { throw new Error('base caída'); });
+    ds.writeData.mockClear();
+    await procesarPosteosProgramados(3, new Date('2026-10-09T12:00:00Z'));
+    expect(publishToTikTok).not.toHaveBeenCalled();
+    expect(ds.writeData).not.toHaveBeenCalled();
   });
 });
