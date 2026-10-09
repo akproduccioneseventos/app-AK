@@ -17,6 +17,9 @@
   la ruta) y el módulo se llama `plataforma360`. El servidor traduce los nombres de ruta conocidos
   (también las capturas que ya estaban en cola); un módulo inventado sigue rechazado. Y "no es
   válido" ahora cuenta como rechazo definitivo, no como falta de señal.
+- **La pantalla de la 360 se caía entera al mostrar el QR** cuando el enlace del video era enorme
+  (sin depósito de archivos el video vuelve adentro del enlace): "Data too long". Ahora el QR de
+  recuerdo (360 y fotocabina) avisa "Tu recuerdo quedó guardado" en vez de caerse.
 - **El contrato no mostraba el nombre del firmante** con la constancia digital (CT83-NOMBRE): ahora
   se ve; la IP no se muestra.
 - **Después de la constancia desaparecía "Imprimir"** (CT83-PAPEL), aunque el aviso pedía el papel.
@@ -30,6 +33,8 @@
 prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
 prueba: src/__tests__/entretenimiento-bloque-a.test.tsx
 usa: agregarAlEnVivo en src/app/actions/evento-en-vivo.ts
+prueba: src/__tests__/el-qr-no-tumba-la-pantalla.test.tsx
+usa: QrRecuerdo en src/app/evento/fotocabina/[fiestaId]/page.tsx
 prueba: tests/e2e/contrato-constancia-mantiene-papel.spec.ts
 usa: ALIAS_DE_MODULO en src/app/actions/fiesta/entretenimiento.actions.ts
 usa: signedBy: constancia.signedBy en src/app/portal/[fiestaId]/contrato/page.tsx

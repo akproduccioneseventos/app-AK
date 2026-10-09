@@ -18,6 +18,9 @@ import { QRCodeSVG } from 'qrcode.react';
  *  - hubo error  -> se dice que no se pudo y que use los botones de abajo;
  *  - ninguno     -> sigue subiendo, y ahi si la rueda tiene sentido.
  */
+/** Lo que entra con holgura en un QR de nivel Q. */
+const MAX_LARGO_QR = 1500;
+
 export function QrRecuerdo({
   qrCodeUrl,
   error,
@@ -28,6 +31,21 @@ export function QrRecuerdo({
   error?: string | null;
   size?: number;
 }) {
+  // Un QR no entra con un enlace enorme (p. ej. el archivo guardado adentro del enlace, como pasa
+  // sin depósito de archivos): la biblioteca tira "Data too long" y se caía la pantalla entera
+  // con el recuerdo ya guardado. En ese caso se avisa que quedó guardado, sin QR.
+  if (qrCodeUrl && (qrCodeUrl.startsWith('data:') || qrCodeUrl.length > MAX_LARGO_QR)) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center gap-2 px-3 text-center"
+        style={{ width: size, height: size }}
+      >
+        <p className="text-sm font-black leading-tight text-zinc-900">Tu recuerdo quedó guardado</p>
+        <p className="text-xs leading-tight text-zinc-600">Lo vas a encontrar en la galería de la fiesta.</p>
+      </div>
+    );
+  }
+
   if (qrCodeUrl) {
     return <QRCodeSVG value={qrCodeUrl} size={size} level="Q" includeMargin={false} />;
   }
