@@ -178,3 +178,6 @@ data/asistente/
 src/data/asistente/
 data/insumos-ajuste-pendiente.json
 src/data/insumos-ajuste-pendiente.json
+# Candados con nombre de las tareas (los escribe la corrida en modo local).
+data/automatico/candado-*.json
+src/data/automatico/candado-*.json

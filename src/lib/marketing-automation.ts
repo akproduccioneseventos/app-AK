@@ -1,4 +1,5 @@
 import 'server-only';
+import { tomarCandado, soltarCandado } from '@/lib/automatico/candado-con-nombre';
 
 import { generateBlogPostAndSocialDraft } from '@/lib/blog-ai-generator';
 import { readData, writeData } from '@/lib/data-service';
@@ -78,7 +79,40 @@ function hasUsableAiKey(): boolean {
   return Boolean(key && key.trim() && key !== 'dummy');
 }
 
+/**
+ * El candado va ADENTRO (Codex, auditoría 81, barrido de la pregunta 45): el despertador, el botón
+ * del admin y la puesta al día al entrar llaman a esta misma función, y dos a la vez mandaban dos
+ * veces el recontacto por WhatsApp y pagaban dos notas con IA.
+ */
 export async function runMarketingAutomation(options?: {
+  force?: boolean;
+  source?: 'admin' | 'cron';
+  includeSeo?: boolean;
+  includeInstagram?: boolean;
+  includeRecontacto?: boolean;
+}): Promise<MarketingAutomationResult> {
+  const dueno = await tomarCandado('marketing-automatico');
+  if (!dueno) {
+    const now = new Date().toISOString();
+    return {
+      success: true,
+      skipped: true,
+      source: options?.source ?? 'admin',
+      ranSeo: false,
+      ranInstagram: false,
+      nextSeoAt: now,
+      nextInstagramAt: now,
+      message: 'El marketing automático ya se está corriendo en este momento. No se repite.',
+    };
+  }
+  try {
+    return await correrMarketingAutomation(options);
+  } finally {
+    await soltarCandado('marketing-automatico', dueno);
+  }
+}
+
+async function correrMarketingAutomation(options?: {
   force?: boolean;
   source?: 'admin' | 'cron';
   includeSeo?: boolean;

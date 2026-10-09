@@ -18,6 +18,10 @@
   programada; ahora `publishPostInternal` reclama siempre (la vuelta le avisa que ya lo tiene).
 - **El recordatorio al invitado se repetía con dos corridas el mismo día.** Cada uno tiene un id
   estable (fiesta, invitado, momento, día) y la base no lo crea dos veces, ni desde dos servidores.
+- **Barrido de la pregunta 45:** el despertador del blog y el botón del admin llamaban al
+  marketing automático sin candado: dos a la vez mandaban dos veces el recontacto por WhatsApp a
+  los prospectos y pagaban dos notas con IA. Ahora el candado está adentro de la función
+  (`tomarCandado('marketing-automatico')`), entre servidores; el segundo disparo se saltea.
 - **El contador de Codex no veía todo:** ahora un área vuelve a revisarse si cambia algo que sus
   pantallas usan (no sólo su carpeta), y `npm run "codex?"` no da por terminado mientras haya
   pantallas sin área (había 234; se repartieron entre las 14 áreas).
@@ -37,6 +41,8 @@ prueba: src/__tests__/130-clientes-enlace-whatsapp.test.ts
 prueba: src/__tests__/la-publicacion-manual-no-sale-dos-veces.test.ts
 prueba: src/__tests__/el-recordatorio-al-invitado-no-se-repite.test.ts
 prueba: src/__tests__/codex-alcance-total.test.ts
+prueba: src/__tests__/marketing-automation-integrity.test.ts
+usa: tomarCandado en src/lib/marketing-automation.ts
 ```
 
 ## 9/10/2026 - Codex: retest verificable de 81 y entrega recuperada de 80
