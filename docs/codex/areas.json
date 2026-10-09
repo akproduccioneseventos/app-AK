@@ -17,12 +17,12 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-06",
-        "commit": "368988b",
-        "hallazgos": 1,
-        "reporte": "codex/auditoria-73-20261006:docs/evidencias/74-matriz-de-cierre.md"
+        "fecha": "2026-10-09",
+        "commit": "497ee725",
+        "hallazgos": 2,
+        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
       },
-      "nota": "Auditorías 73: CAMPO73-RACE (cuota borrada por pantalla vieja) arreglado el 6/10; falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 81: cuotas sin sesión, parte de la mañana y cobros a confirmar, arreglados el 9/10. Falta que Codex la vuelva a mirar."
     },
     {
       "id": "contrato",
@@ -121,12 +121,12 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-06",
-        "commit": "368988b",
-        "hallazgos": 4,
-        "reporte": "codex/auditoria-73-20261006:docs/evidencias/74-matriz-de-cierre.md"
+        "fecha": "2026-10-09",
+        "commit": "497ee725",
+        "hallazgos": 1,
+        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
       },
-      "nota": "Auditorías 73-74: Galería HD a la portada, glitter en Eventos, foto del toro retirada, WhatsApp de Privacidad. Arreglado el 6/10; falta la foto real del glitter bar."
+      "nota": "Auditoría 81: la revisión web decía óptimo sin abrir páginas; arreglado el 9/10. Falta que Codex la vuelva a mirar."
     },
     {
       "id": "redes",
@@ -139,12 +139,12 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-06",
-        "commit": "e52c078",
-        "hallazgos": 1,
-        "reporte": "codex/auditoria-integral-20261006:docs/evidencias/71-auditoria-integral-y-retest.md"
+        "fecha": "2026-10-09",
+        "commit": "497ee725",
+        "hallazgos": 2,
+        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
       },
-      "nota": "Auditoría 71: RED03, dos sincronizaciones de Instagram a la vez pierden un video. Pasado a Gemini (orden 122)."
+      "nota": "Auditoría 81: TikTok en proceso y publicaciones simultáneas, arreglados el 9/10. Falta que Codex la vuelva a mirar."
     },
     {
       "id": "estaciones",
@@ -203,7 +203,13 @@
         "src/lib/automatico"
       ],
       "estado": "con-hallazgos",
-      "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 81: tareas sin sesión (cuotas, invitados, reuniones), invitaciones y avisos repetidos por reintento; arreglados el 9/10. Falta que Codex la vuelva a mirar.",
+      "ultimaRevision": {
+        "fecha": "2026-10-09",
+        "commit": "497ee725",
+        "hallazgos": 3,
+        "reporte": "Auditoría 81 de Codex (relato al dueño; el registro no se pudo subir)"
+      }
     }
   ]
 }

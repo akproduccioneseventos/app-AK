@@ -12,6 +12,7 @@ import {
 import type { Notificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestas } from './fiesta/fiesta.actions';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'date-fns';
 import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
 import { NOTIFICATION_INTERNAL_TOKEN } from '@/lib/notifications/internal-token';
@@ -313,7 +314,9 @@ export async function checkAndCreateReunionReminders(
     await requireAppSession();
   }
   try {
-    const fiestasActivas = await getFiestas(false);
+    // La guardia ya se pasó arriba (sesión o llave). `getFiestas` volvía a pedir sesión y desde la
+    // tarea automática fallaba siempre: el aviso de "reunión en 1 hora" no salía (Codex 81, barrido).
+    const fiestasActivas = await leerFiestasCrudas(false);
     if (!fiestasActivas || fiestasActivas.length === 0) {
       return { success: true, created: 0 };
     }

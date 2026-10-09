@@ -17,6 +17,24 @@
 - **Barrido por forma, cobros a confirmar:** las alertas de "seña no cobrada", "saldo de fiesta
   realizada" y "cobrada sin factura" y el cobrador automático contaban un pago informado y sin
   confirmar como cobrado. Ahora usan `isConfirmedClientPayment`.
+- **El recordatorio de invitación no abierta podía mandar el correo o el WhatsApp dos veces.** El
+  envío estaba adentro de la transacción de la fiesta, que la base repite. Ahora adentro sólo se
+  reserva el día, y se manda afuera, una vez.
+- **Barrido de lo mismo:** los avisos al cliente (música, video, menú) se guardaban en la bandeja
+  adentro de la transacción y podían quedar repetidos. Ahora se guardan afuera; lo que no se pudo
+  guardar se libera para la próxima corrida, y la tarea no se anota corrida.
+- **TikTok:** un video "en proceso" volvía a mandarse en la corrida siguiente. Ahora un posteo que
+  ya tiene número de TikTok no se vuelve a elegir.
+- **Publicaciones:** dos corridas a la vez (el despertador y alguien entrando a la app) podían
+  publicar lo mismo. Ahora cada posteo se reclama en la base antes de publicar (vence a los 15
+  minutos, por si se corta), y la ruta del despertador usa el candado de las tareas. Si no se puede
+  reclamar, no se publica: mejor tarde que dos veces.
+- **La revisión web decía "óptimo" sin abrir ninguna página.** Ahora pide cada página y marca
+  "revisar" si no abre, no contesta o le falta el título. Sin red, no se anota corrida.
+- **Barrido de tareas sin sesión:** el aviso de "reunión en 1 hora" no salía nunca desde la tarea
+  automática (pedía sesión al leer las fiestas), y el primer mensaje de un prospecto por WhatsApp
+  se perdía si el bot estaba prendido (anotarlo en el CRM pedía sesión). Ahora leen por dentro, y
+  una falla del CRM no tumba el mensaje.
 
 ```comprobar
 prueba: src/__tests__/las-tareas-de-recordatorio-preparan-sin-sesion.test.ts
@@ -25,6 +43,12 @@ prueba: src/__tests__/un-pago-a-confirmar-no-cuenta-como-cobrado.test.ts
 usa: parteParaQuienMira en src/app/(app)/mi-dia/page.tsx
 usa: isConfirmedClientPayment en src/lib/alertas/errores-humanos.ts
 usa: WHATSAPP_AUTOMATION_INTERNAL_TOKEN en src/app/api/cron/recordatorio-a-los-invitados/route.ts
+prueba: src/__tests__/recordatorio-no-abiertas-no-manda-doble.test.ts
+prueba: src/__tests__/los-avisos-al-cliente-no-se-repiten-al-reintentar.test.ts
+prueba: src/__tests__/publicador-no-publica-dos-veces.test.ts
+prueba: src/__tests__/revision-web-pide-las-paginas.test.ts
+prueba: src/__tests__/lo-que-corre-sin-sesion-llega-hasta-el-fondo.test.ts
+usa: publicandoDesde en src/lib/presencia-digital/publicador.ts
 ```
 
 ## 8 de octubre de 2026 — Barrido por forma: conteos en personas y fecha de fiesta no es cita

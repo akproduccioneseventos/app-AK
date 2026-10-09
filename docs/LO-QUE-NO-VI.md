@@ -1030,4 +1030,6 @@ el barrido de las tres formas en toda la app.
 prueba: src/__tests__/las-tareas-de-recordatorio-preparan-sin-sesion.test.ts
 prueba: src/__tests__/el-parte-de-la-manana-no-miente.test.ts
 prueba: src/__tests__/un-pago-a-confirmar-no-cuenta-como-cobrado.test.ts
+prueba: src/__tests__/lo-que-corre-sin-sesion-llega-hasta-el-fondo.test.ts
+prueba: src/__tests__/los-avisos-al-cliente-no-se-repiten-al-reintentar.test.ts
 ```
