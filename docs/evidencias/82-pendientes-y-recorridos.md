@@ -56,6 +56,11 @@ son evidencia de sus SHAs, no aceptacion completa del main nuevo. Conservar las
 correcciones de Claude en 1274; no reprogramar los cinco errores de 130/131.
 El mapa viejo/su sonda son historicos. Esto prevalece sobre el estado intermedio
 de las secciones siguientes. No atribuir el registro antiguo al codigo corregido.
+Retest focalizado en eef90: 208 prefijos existentes, 0 pantallas/API sin area;
+la sonda auth SI invalida permisos (volver-a-mirar). `82-mapa-retest.json`.
+826 archivos no-test aun no caen directamente en los prefijos, pero la nueva
+invalidacion incluye dependencias transitivas: ese conteo NO demuestra falla
+ni orden pendiente. No se necesita otro arreglo por el hallazgo historico.
 
 Fetch de main al finalizar sin cambio: `1b57abbec5162402cc30269cc276398707b28d55`.
 La PR abierta al consultar es solo 1273 documental. Los cambios locales en curso

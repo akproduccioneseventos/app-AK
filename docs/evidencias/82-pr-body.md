@@ -1,16 +1,17 @@
 ## Descripcion del Cambio
-Entrega documental de Codex, no correccion de la app. Ordenes 130, 131 y 132,
+Entrega documental de Codex, no correccion de la app. Solo orden 132 y auditoria 82;
+NO vuelve a entregar 80/81, ya fusionadas en PR 1273. Registros compartidos,
 registros compartidos, sondas reproducibles, resultados JSON y capturas ficticias.
 No fusionar como si resolviera los defectos: responsables aplican SOLO pendientes,
 conservando sus arreglos ya validados y contrastando primero la tanda en curso.
 
-Main contrastado `1b57abbec5162402cc30269cc276398707b28d55`; build aislado 497ee725
+Base final `eef90bd3874f80df5ec3564dc96fff5e4cb6df0d`. Pruebas ejecutadas sobre
+fuente 1b57 y build aislado 497ee725, con sus limites expresos. Este build fue
 reutilizado solo para consumidores sin cambios. Ningun archivo productivo modificado.
-Al ultimo contraste solo PR 1273 documental abierta; HEAD local de otras IA no conocido.
+Al entregar, PR 1273/1274 ya fusionadas por otra sesion. Codex NO fusiono.
 
-Pendientes 80/81: publicacion manual concurrente duplica envio; dos cron de invitados
-crean dos recordatorios; presupuesto copia enlace privado; asistente tapa Nueva
-Factura; WhatsApp local sin pais. El dueno indica que se estan programando.
+Las correcciones de 80/81 quedaron en PR 1274. Conservar registro de Claude;
+no reprogramarlas ni afirmar que Codex acaba de ejecutar su retest completo.
 NUEVO 82: cortar solo la cancelacion de un trago deja el boton bloqueado.
 
 ## Tipo de Cambio
@@ -39,8 +40,8 @@ NUEVO 82: cortar solo la cancelacion de un trago deja el boton bloqueado.
   el pedido sigue NUEVO y las lecturas posteriores funcionan. Orden 132.
 - El test titulado cuenta regresiva del buzon NO mide tiempo; la prueba de marca
   NO certifica bytes/descarga del video. No convertir esos verdes en promesas de entrega.
-- Inventario completo del mapa: 55 prefijos existentes, 1111 archivos no-test fuera
-  de clasificacion. No son 1111 fallos. Simulacion auth no invalida area limpia.
+- Contador corregido por 1274: retest focalizado aprobado, 208 prefijos existentes,
+  0 pantallas/API sin area; auth SI invalida. Inventario antiguo se conserva como historia.
 - Dos lecturas reales directas de presupuestos rechazadas con gRPC 7: permisos
   insuficientes. Cero registros obtenidos, cero escrituras, cero credenciales publicadas.
 

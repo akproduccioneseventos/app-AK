@@ -8,6 +8,8 @@ Se conservan abajo el registro de Claude y las pruebas de la revision anterior.
 MiniQuiosco y acciones de barra NO cambiaron: BAR82-CANCEL sigue contrastado.
 El mapa/invalidacion del contador SI cambio; inventario 1111 y sonda antigua
 son historicos de 1b57, no una orden para repetir lo arreglado por 1274.
+Retest actual: 208 prefijos existentes, 0 pantallas/API sin area; `estadoReal`
+SI devuelve volver-a-mirar para cambio en auth. Evidencia `82-mapa-retest.json`.
 No transferir sin contraste la aceptacion del portal/RSVP a sus consumidores
 modificados. Esta nueva entrega contiene solo auditoria 82, sin los cambios 80/81.
 
@@ -60,7 +62,7 @@ usa: tomarCandado en src/lib/marketing-automation.ts
 
 - Main contrastado `1b57abbec5162402cc30269cc276398707b28d55`; copia aislada
   compilada 497ee725 reutilizada SOLO para consumidores sin cambios. 63 tests
-  adicionales aprobados: 41 unitarios actuales, 22 E2E focalizados. No limpiar
+  adicionales aprobados: 41 unitarios en 1b57, 22 E2E focalizados. No limpiar
   automaticamente areas completas ni certificar cero errores por este numero.
 - Portal cliente: mensaje persistido al recargar, fecha de HOY correcta, botones
   separados en 360/660/1280 px. Invitado: feedback/RSVP recuperan control y campos
