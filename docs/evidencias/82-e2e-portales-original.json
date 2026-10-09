@@ -1,0 +1,1124 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/portal-fecha-y-botones.spec.ts",
+      "tests/e2e/el-cliente-le-escribe-al-equipo.spec.ts",
+      "tests/e2e/las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "tests/e2e/espejo-pide-permiso.spec.ts",
+      "tests/e2e/barra-72-pedido-propio-y-estado.spec.ts",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "barra-72-pedido-propio-y-estado.spec.ts",
+      "file": "barra-72-pedido-propio-y-estado.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "pedido en \"nuevo\": el invitado ve lo que de verdad puede hacer",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 50344,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts:38:56",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                      "column": 56,
+                      "line": 38
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 36 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/carta de tragos/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 37 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Estamos preparando el quiosco de tragos/i\u001b[39m))\u001b[33m.\u001b[39mtoBeHidden({ timeout\u001b[33m:\u001b[39m \u001b[35m60\u001b[39m_000 })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 38 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Mi pedido actual'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m30\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m       \u001b[36mconst\u001b[39m cancelar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Cancelar'\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 41 |\u001b[39m       \u001b[36mconst\u001b[39m cambiar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Cambiar trago'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                        "column": 56,
+                        "line": 38
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n\n\n  36 |       await page.getByRole('button', { name: /carta de tragos/i }).first().click();\n  37 |       await expect(page.getByText(/Estamos preparando el quiosco de tragos/i)).toBeHidden({ timeout: 60_000 });\n> 38 |       await expect(page.getByText('Mi pedido actual')).toBeVisible({ timeout: 30_000 });\n     |                                                        ^\n  39 |\n  40 |       const cancelar = page.getByRole('button', { name: 'Cancelar', exact: true });\n  41 |       const cambiar = page.getByRole('button', { name: 'Cambiar trago' });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts:38:56"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T18:29:25.525Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-dd395-o-que-de-verdad-puede-hacer-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-dd395-o-que-de-verdad-puede-hacer-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-dd395-o-que-de-verdad-puede-hacer-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-dd395-o-que-de-verdad-puede-hacer-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                    "column": 56,
+                    "line": 38
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "96a509a76274c8a53e04-647f783ba70bbb882b97",
+          "file": "barra-72-pedido-propio-y-estado.spec.ts",
+          "line": 29,
+          "column": 7
+        },
+        {
+          "title": "pedido en \"preparando\": el invitado ve lo que de verdad puede hacer",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 82588,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts:38:56",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                      "column": 56,
+                      "line": 38
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 36 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/carta de tragos/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 37 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Estamos preparando el quiosco de tragos/i\u001b[39m))\u001b[33m.\u001b[39mtoBeHidden({ timeout\u001b[33m:\u001b[39m \u001b[35m60\u001b[39m_000 })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 38 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Mi pedido actual'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m30\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m       \u001b[36mconst\u001b[39m cancelar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Cancelar'\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 41 |\u001b[39m       \u001b[36mconst\u001b[39m cambiar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Cambiar trago'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                        "column": 56,
+                        "line": 38
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n\n\n  36 |       await page.getByRole('button', { name: /carta de tragos/i }).first().click();\n  37 |       await expect(page.getByText(/Estamos preparando el quiosco de tragos/i)).toBeHidden({ timeout: 60_000 });\n> 38 |       await expect(page.getByText('Mi pedido actual')).toBeVisible({ timeout: 30_000 });\n     |                                                        ^\n  39 |\n  40 |       const cancelar = page.getByRole('button', { name: 'Cancelar', exact: true });\n  41 |       const cambiar = page.getByRole('button', { name: 'Cambiar trago' });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts:38:56"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T18:30:22.751Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-9a666-o-que-de-verdad-puede-hacer-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-9a666-o-que-de-verdad-puede-hacer-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-9a666-o-que-de-verdad-puede-hacer-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-9a666-o-que-de-verdad-puede-hacer-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                    "column": 56,
+                    "line": 38
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "96a509a76274c8a53e04-23adff734c1b23923b33",
+          "file": "barra-72-pedido-propio-y-estado.spec.ts",
+          "line": 29,
+          "column": 7
+        },
+        {
+          "title": "pedido en \"nuevo\": el invitado ve lo que de verdad puede hacer",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 90210,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts:38:56",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                      "column": 56,
+                      "line": 38
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 36 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/carta de tragos/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 37 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Estamos preparando el quiosco de tragos/i\u001b[39m))\u001b[33m.\u001b[39mtoBeHidden({ timeout\u001b[33m:\u001b[39m \u001b[35m60\u001b[39m_000 })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 38 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Mi pedido actual'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m30\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m       \u001b[36mconst\u001b[39m cancelar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Cancelar'\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 41 |\u001b[39m       \u001b[36mconst\u001b[39m cambiar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Cambiar trago'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                        "column": 56,
+                        "line": 38
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n\n\n  36 |       await page.getByRole('button', { name: /carta de tragos/i }).first().click();\n  37 |       await expect(page.getByText(/Estamos preparando el quiosco de tragos/i)).toBeHidden({ timeout: 60_000 });\n> 38 |       await expect(page.getByText('Mi pedido actual')).toBeVisible({ timeout: 30_000 });\n     |                                                        ^\n  39 |\n  40 |       const cancelar = page.getByRole('button', { name: 'Cancelar', exact: true });\n  41 |       const cambiar = page.getByRole('button', { name: 'Cambiar trago' });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts:38:56"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T18:36:28.520Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-dd395-o-que-de-verdad-puede-hacer-chromium-mobile\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-dd395-o-que-de-verdad-puede-hacer-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-dd395-o-que-de-verdad-puede-hacer-chromium-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                    "column": 56,
+                    "line": 38
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "96a509a76274c8a53e04-522b51b2aacc7183a85f",
+          "file": "barra-72-pedido-propio-y-estado.spec.ts",
+          "line": 29,
+          "column": 7
+        },
+        {
+          "title": "pedido en \"preparando\": el invitado ve lo que de verdad puede hacer",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 78963,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts:38:56",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                      "column": 56,
+                      "line": 38
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 36 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/carta de tragos/i\u001b[39m })\u001b[33m.\u001b[39mfirst()\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 37 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Estamos preparando el quiosco de tragos/i\u001b[39m))\u001b[33m.\u001b[39mtoBeHidden({ timeout\u001b[33m:\u001b[39m \u001b[35m60\u001b[39m_000 })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 38 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Mi pedido actual'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m30\u001b[39m_000 })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                        \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 39 |\u001b[39m\n \u001b[90m 40 |\u001b[39m       \u001b[36mconst\u001b[39m cancelar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Cancelar'\u001b[39m\u001b[33m,\u001b[39m exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 41 |\u001b[39m       \u001b[36mconst\u001b[39m cambiar \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[32m'Cambiar trago'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                        "column": 56,
+                        "line": 38
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Mi pedido actual')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Mi pedido actual')\u001b[22m\n\n\n  36 |       await page.getByRole('button', { name: /carta de tragos/i }).first().click();\n  37 |       await expect(page.getByText(/Estamos preparando el quiosco de tragos/i)).toBeHidden({ timeout: 60_000 });\n> 38 |       await expect(page.getByText('Mi pedido actual')).toBeVisible({ timeout: 30_000 });\n     |                                                        ^\n  39 |\n  40 |       const cancelar = page.getByRole('button', { name: 'Cancelar', exact: true });\n  41 |       const cambiar = page.getByRole('button', { name: 'Cambiar trago' });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts:38:56"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T18:38:03.930Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-9a666-o-que-de-verdad-puede-hacer-chromium-mobile\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-9a666-o-que-de-verdad-puede-hacer-chromium-mobile\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\barra-72-pedido-propio-y-e-9a666-o-que-de-verdad-puede-hacer-chromium-mobile\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\barra-72-pedido-propio-y-estado.spec.ts",
+                    "column": 56,
+                    "line": 38
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "96a509a76274c8a53e04-c2a436adf51e77a758b2",
+          "file": "barra-72-pedido-propio-y-estado.spec.ts",
+          "line": 29,
+          "column": 7
+        }
+      ]
+    },
+    {
+      "title": "el-cliente-le-escribe-al-equipo.spec.ts",
+      "file": "el-cliente-le-escribe-al-equipo.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 43: El cliente le escribe al equipo",
+          "file": "el-cliente-le-escribe-al-equipo.spec.ts",
+          "line": 14,
+          "column": 6,
+          "specs": [
+            {
+              "title": "el cliente escribe un mensaje y lo ve en el hilo al recargar la pantalla",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14836,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:31:52.907Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "08e585d722bd43f55081-767d19c27775508394c0",
+              "file": "el-cliente-le-escribe-al-equipo.spec.ts",
+              "line": 25,
+              "column": 7
+            },
+            {
+              "title": "el cliente escribe un mensaje y lo ve en el hilo al recargar la pantalla",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7684,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:39:29.023Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "08e585d722bd43f55081-f04b67dd3db2eaa41c19",
+              "file": "el-cliente-le-escribe-al-equipo.spec.ts",
+              "line": 25,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "espejo-pide-permiso.spec.ts",
+      "file": "espejo-pide-permiso.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "con el permiso pedido, no se puede sacar la foto hasta aceptar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18720,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T18:32:08.381Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8d089362d0a850819a90-5e4a4e2214f83be3e0b1",
+          "file": "espejo-pide-permiso.spec.ts",
+          "line": 69,
+          "column": 5
+        },
+        {
+          "title": "sin el permiso pedido, la foto sale sin preguntar nada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 49852,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T18:32:27.138Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8d089362d0a850819a90-c42dea32609676710db7",
+          "file": "espejo-pide-permiso.spec.ts",
+          "line": 94,
+          "column": 5
+        },
+        {
+          "title": "con el permiso pedido, no se puede sacar la foto hasta aceptar",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Alcanza con un navegador.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\espejo-pide-permiso.spec.ts",
+                    "line": 71,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 912,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T18:39:37.360Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Alcanza con un navegador.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\espejo-pide-permiso.spec.ts",
+                        "line": 71,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8d089362d0a850819a90-60e147a364173f82e388",
+          "file": "espejo-pide-permiso.spec.ts",
+          "line": 69,
+          "column": 5
+        },
+        {
+          "title": "sin el permiso pedido, la foto sale sin preguntar nada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "Alcanza con un navegador.",
+                  "location": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\espejo-pide-permiso.spec.ts",
+                    "line": 96,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 656,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T18:39:38.315Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "Alcanza con un navegador.",
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\espejo-pide-permiso.spec.ts",
+                        "line": 96,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "8d089362d0a850819a90-855deea003deb60e346a",
+          "file": "espejo-pide-permiso.spec.ts",
+          "line": 94,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Las pantallas del invitado no quedan colgadas",
+          "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+          "line": 15,
+          "column": 6,
+          "specs": [
+            {
+              "title": "/feedback/<id> no queda colgada si la respuesta del servidor se corta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 66276,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:33:17.999Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac78273eafdb5a608b37-92e8ea0bf05bfc377093",
+              "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+              "line": 26,
+              "column": 7
+            },
+            {
+              "title": "/invitacion/<id>/rsvp no queda colgada si la respuesta del servidor se corta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10654,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:34:24.397Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac78273eafdb5a608b37-b035b2108f8e2e2b04b1",
+              "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+              "line": 72,
+              "column": 7
+            },
+            {
+              "title": "/feedback/<id> no queda colgada si la respuesta del servidor se corta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9378,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:39:39.051Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac78273eafdb5a608b37-bb32da946c7bf85b6586",
+              "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+              "line": 26,
+              "column": 7
+            },
+            {
+              "title": "/invitacion/<id>/rsvp no queda colgada si la respuesta del servidor se corta",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5915,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:39:48.517Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ac78273eafdb5a608b37-7479530417f12b66017c",
+              "file": "las-pantallas-del-invitado-no-quedan-colgadas.spec.ts",
+              "line": 72,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "portal-fecha-y-botones.spec.ts",
+      "file": "portal-fecha-y-botones.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 119: el portal el día de la fiesta",
+          "file": "portal-fecha-y-botones.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "la fiesta de hoy no aparece como concluida",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 91253,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:34:35.420Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aaef4e06014eb00207e6-4dcfe1d3b3e272f4517d",
+              "file": "portal-fecha-y-botones.spec.ts",
+              "line": 39,
+              "column": 7
+            },
+            {
+              "title": "a 360px el asistente y WhatsApp no se tapan",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7094,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:36:06.751Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aaef4e06014eb00207e6-79fd1e5b6aacdef0e7d6",
+              "file": "portal-fecha-y-botones.spec.ts",
+              "line": 47,
+              "column": 9
+            },
+            {
+              "title": "a 660px el asistente y WhatsApp no se tapan",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6339,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:36:13.893Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aaef4e06014eb00207e6-ebd6548032b12199f136",
+              "file": "portal-fecha-y-botones.spec.ts",
+              "line": 47,
+              "column": 9
+            },
+            {
+              "title": "a 1280px el asistente y WhatsApp no se tapan",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5905,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:36:20.269Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aaef4e06014eb00207e6-bdbfd84b5da14fd03679",
+              "file": "portal-fecha-y-botones.spec.ts",
+              "line": 47,
+              "column": 9
+            },
+            {
+              "title": "la fiesta de hoy no aparece como concluida",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 26715,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:39:54.542Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aaef4e06014eb00207e6-a8ed6a877e08b6f45f9c",
+              "file": "portal-fecha-y-botones.spec.ts",
+              "line": 39,
+              "column": 7
+            },
+            {
+              "title": "a 360px el asistente y WhatsApp no se tapan",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14294,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:40:21.361Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aaef4e06014eb00207e6-7dedf32aba706f552b85",
+              "file": "portal-fecha-y-botones.spec.ts",
+              "line": 47,
+              "column": 9
+            },
+            {
+              "title": "a 660px el asistente y WhatsApp no se tapan",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7530,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:40:35.717Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aaef4e06014eb00207e6-870a77ff3d9c509d0b97",
+              "file": "portal-fecha-y-botones.spec.ts",
+              "line": 47,
+              "column": 9
+            },
+            {
+              "title": "a 1280px el asistente y WhatsApp no se tapan",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-mobile",
+                  "projectName": "chromium-mobile",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6718,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-09T18:40:43.296Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "aaef4e06014eb00207e6-a3943a0e3ebd6ab52843",
+              "file": "portal-fecha-y-botones.spec.ts",
+              "line": 47,
+              "column": 9
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-09T18:29:24.306Z",
+    "duration": 686500.072,
+    "expected": 16,
+    "skipped": 2,
+    "unexpected": 4,
+    "flaky": 0
+  }
+}
