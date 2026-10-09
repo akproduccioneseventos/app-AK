@@ -132,17 +132,49 @@ export async function correrTareaAvisosAlCliente(): Promise<{
   const fiestas = await readData<FiestaEnPlanificacion[]>('fiestas.json', []);
   let mensajesGenerados = 0;
 
+  let fallas = 0;
+
   for (const fiesta of fiestas) {
+    // DOS PASOS (Codex, auditoría 81). La transacción de la fiesta la base la puede repetir, y
+    // guardar en la bandeja adentro dejaba el aviso repetido. Adentro sólo se RESERVA (se anota
+    // la regla como preparada); el mensaje se guarda después, una vez, afuera.
+    type Pendiente = Parameters<typeof saveScheduledMessage>[0];
+    let reservados: Array<{ reglaId: string; mensaje: Pendiente }> = [];
     const res = await actualizarFiesta(fiesta.id, async (fiestaFresca) => {
-      const { resultados, fiestaModificada } = await procesarAvisosAlClienteParaFiesta(fiestaFresca);
-      mensajesGenerados += resultados.filter((r) => r.enviado).length;
-      return fiestaModificada ? fiestaFresca : fiestaFresca;
+      reservados = [];
+      await procesarAvisosAlClienteParaFiesta(fiestaFresca, (async (mensaje: Pendiente) => {
+        reservados.push({ reglaId: String(mensaje.automationRuleId), mensaje });
+        return { success: true, message: { id: 'reservado' } };
+      }) as unknown as typeof saveScheduledMessage);
+      return fiestaFresca;
     }, { publicRsvp: true });
     if (!res.success) {
       console.warn(`[avisos-al-cliente] No se pudo actualizar fiesta ${fiesta.id}:`, res.error);
+      fallas++;
+      continue;
+    }
+
+    const noGuardados: string[] = [];
+    for (const { reglaId, mensaje } of reservados) {
+      const guardado = await saveScheduledMessage(mensaje, WHATSAPP_AUTOMATION_INTERNAL_TOKEN);
+      if (guardado.success) mensajesGenerados++;
+      else noGuardados.push(reglaId);
+    }
+    // Lo que no se pudo guardar se libera, para que la próxima corrida lo vuelva a preparar.
+    if (noGuardados.length > 0) {
+      fallas++;
+      await actualizarFiesta(fiesta.id, async (fiestaFresca) => {
+        const avisos = { ...(fiestaFresca.avisosPreparados || {}) };
+        for (const reglaId of noGuardados) delete avisos[reglaId];
+        fiestaFresca.avisosPreparados = avisos;
+        return fiestaFresca;
+      }, { publicRsvp: true });
     }
   }
 
+  if (fallas > 0) {
+    throw new Error(`No se pudieron preparar los avisos de ${fallas} fiesta(s). Se reintenta en la próxima corrida.`);
+  }
   await marcarCorrida('avisos-al-cliente');
 
   return {
