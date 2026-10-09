@@ -1,5 +1,33 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9/10/2026 - Codex 83: contrato y entrega de estaciones, CUATRO pendientes nuevos
+
+Main final contrastado `859fd23b1175646edc0209cab114241327d302ba`; pruebas en
+build aislado `497ee725cb4d8cce6d1c97422fd674cbbe86c051`, consumidores/dependencias
+directas sin cambios. No certificar todo main nuevo ni publicado autenticado.
+
+- Contrato: 4 E2E PC, 2 pasan/2 fallan. Constancia persiste nombre/huella sin
+  contratar ni marcar papel; corte de solicitud permite reintentar sin perder
+  datos ni falso exito. NUEVOS CT83-NOMBRE y CT83-PAPEL: nombre guardado invisible
+  y boton de imprimir oculto despues de constancia. Orden 133 para vista Gemini;
+  Claude conserva reglas contractuales, dinero/permisos y compila.
+- Estaciones: original 3 fallos. ENT83-360 rechaza plataforma-360 en vez de
+  plataforma360 y queda en cola; ENT83-GUEST Bogue rechaza guardar con QR de
+  invitado por llamar guardado general de fiesta. Orden 134, no aflojar permisos;
+  escritura estrecha de Claude, identidad/ciclo de Gemini. Son pendientes, no
+  arreglos entregados. Mensajes exactos/cadenas/capturas en informe 83.
+- Buzon: tercer fallo original fue selector de MI sonda, no error de guardado.
+  Retest solo Buzon PASA: una fila/ACK, Storage, URL200, MIME y bytes SDK=GET.
+  Archivo 47.008 bytes WebM, reproducido Chromium 640x480/cuadro visible.
+  No implica que 360/Bogue descargan ni que hardware real esta aceptado.
+- PR 1275/1276 fusionadas por otra sesion mientras se auditaba; BAR82-CANCEL ya
+  tiene correccion presente en main. NO repetir orden 132 ni declarar retest
+  propio de ese arreglo. Nueva rama 83 desde main, no empujar a rama cerrada.
+- Guardados informe, ordenes 133/134, JSON originales/retest, sondas/capturas y
+  limites docs/evidencias/83-*. Agente economico cerrado. Sin cambios productivos,
+  datos reales ni compilacion nueva; entorno propio detenido. Los 19 originales
+  y conexiones reales conservan limite previo, no se reintentaron sin acceso nuevo.
+
 ## 9 de octubre de 2026 — Codex, auditoría 82: cancelar un trago con la señal cortada (PR 1275)
 
 - **El botón "Cancelar" del trago quedaba girando para siempre** si se cortaba la respuesta

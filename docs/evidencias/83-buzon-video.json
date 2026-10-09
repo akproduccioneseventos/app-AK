@@ -1,0 +1,24 @@
+{
+  "sourceBuild": "497ee725cb4d8cce6d1c97422fd674cbbe86c051",
+  "bytes": 47008,
+  "sha256": "7b2ba28c29fb39d8effbf2c92b27d9ff814f6a69a5da9d0879f4281415ffe15e",
+  "mime": "video/webm",
+  "decoded": {
+    "width": 640,
+    "height": 480,
+    "readyState": 4,
+    "firstPixel": [
+      216,
+      215,
+      208,
+      254
+    ],
+    "centerPixel": [
+      210,
+      209,
+      202,
+      254
+    ]
+  },
+  "scope": "Archivo ficticio descargado de emulador; NO hardware ni movimiento real."
+}
