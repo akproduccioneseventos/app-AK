@@ -31,6 +31,10 @@ jest.mock('@/lib/data-service', () => {
 });
 
 describe('Encontrarme en Google — Posicionamiento, Pinterest, Analytics y Cuentas Oficiales (Orden Agosto 2026)', () => {
+  // Sin base: "publicar ahora" reclama el posteo sobre estos archivos de mentira.
+  const modoAntes = process.env.AK_USE_LOCAL_JSON_ONLY;
+  beforeAll(() => { process.env.AK_USE_LOCAL_JSON_ONLY = 'true'; });
+  afterAll(() => { process.env.AK_USE_LOCAL_JSON_ONLY = modoAntes; });
   const { __setMockData } = require('@/lib/data-service');
 
   describe('Bloque 1 — La web, adentro del panel (Google Analytics 4)', () => {
