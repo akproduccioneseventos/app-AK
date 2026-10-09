@@ -22,6 +22,9 @@ function enDias(n: number): string {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T21:00:00`;
 }
 
+// El parte guardado del día se aparta y se devuelve igual al terminar (uno de estos archivos
+// está en el repositorio: borrarlo dejaba un cambio de la corrida).
+const cachesAntes = new Map<string, Buffer | null>();
 const borrarCaches = () => CACHES.forEach((f) => fs.rmSync(f, { force: true }));
 
 test.beforeAll(() => {
@@ -45,6 +48,7 @@ test.beforeAll(() => {
     fs.mkdirSync(path.dirname(archivo), { recursive: true });
     fs.writeFileSync(archivo, `${JSON.stringify(lista, null, 2)}\n`);
   }
+  for (const f of CACHES) cachesAntes.set(f, fs.existsSync(f) ? fs.readFileSync(f) : null);
   guardarFiesta({
     id: FIESTA,
     presupuestoId: PRESUPUESTO,
@@ -63,6 +67,7 @@ test.afterAll(() => {
   }
   borrarFiesta(FIESTA);
   borrarCaches();
+  for (const [f, antes] of cachesAntes) if (antes !== null) fs.writeFileSync(f, antes);
 });
 
 test('Mi día muestra el saldo sin restar el pago a confirmar', async ({ page, context, baseURL }) => {
