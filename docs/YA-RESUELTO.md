@@ -1,5 +1,44 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de octubre de 2026 — Codex, retest de 80 y 81: lo que quedaba pendiente (PR 1273)
+
+- **La barra flotante del presupuesto copiaba la dirección interna** (SHARE80). El cliente que la
+  abría sin cuenta caía en el ingreso. Ahora copiar, WhatsApp y compartir arman el enlace del
+  cliente con token, en un solo lugar (`enlacePublicoDelPresupuesto`), el mismo que usa el botón de
+  la pantalla. Si no se puede emitir el token, avisa que falló: nunca "enlace copiado". Y si el
+  portapapeles falla, muestra el enlace del cliente para copiar a mano (la barra del navegador
+  tiene la dirección interna).
+- **El asistente tapaba "Nueva Factura"** (HIT80): el botón flotante pasó de arriba a la derecha a
+  abajo a la derecha, encima del botón del multiagente. Sigue accesible.
+- **WhatsApp sin prefijo** (WA80): un teléfono local `099...` armaba `wa.me/099...`. Ahora clientes,
+  ficha del cliente, portal, recordatorio de RSVP y las pantallas del invitado usan
+  `toWhatsAppDigits`: lleva el 598, no lo duplica y no toca números extranjeros. El teléfono
+  guardado no cambia.
+- **"Publicar ahora" con dos toques salía dos veces** en la red. El reclamo protegía sólo la vuelta
+  programada; ahora `publishPostInternal` reclama siempre (la vuelta le avisa que ya lo tiene).
+- **El recordatorio al invitado se repetía con dos corridas el mismo día.** Cada uno tiene un id
+  estable (fiesta, invitado, momento, día) y la base no lo crea dos veces, ni desde dos servidores.
+- **El contador de Codex no veía todo:** ahora un área vuelve a revisarse si cambia algo que sus
+  pantallas usan (no sólo su carpeta), y `npm run "codex?"` no da por terminado mientras haya
+  pantallas sin área (había 234; se repartieron entre las 14 áreas).
+- Evidencias de Codex en `docs/evidencias/`: la de mural lleva `@ts-nocheck` porque está pensada
+  para copiarse a `tests/e2e` y no es código de la app.
+
+```comprobar
+usa: enlacePublicoDelPresupuesto en src/components/presupuestos/budget-share-dock.tsx
+usa: enlacePublicoDelPresupuesto en src/app/(app)/presupuestos/[id]/ver/page.tsx
+usa: idEstable en src/app/api/cron/recordatorio-a-los-invitados/route.ts
+usa: yaReclamado en src/lib/presencia-digital/publicador.ts
+usa: rutasSinArea en scripts/codex-limpio.mjs
+prueba: src/__tests__/130-la-barra-comparte-el-enlace-del-cliente.test.ts
+prueba: tests/e2e/130-compartir-presupuesto-publico.spec.ts
+prueba: tests/e2e/130-factura-sin-superposicion.spec.ts
+prueba: src/__tests__/130-clientes-enlace-whatsapp.test.ts
+prueba: src/__tests__/la-publicacion-manual-no-sale-dos-veces.test.ts
+prueba: src/__tests__/el-recordatorio-al-invitado-no-se-repite.test.ts
+prueba: src/__tests__/codex-alcance-total.test.ts
+```
+
 ## 9/10/2026 - Codex: retest verificable de 81 y entrega recuperada de 80
 
 - Retest main `1b57abbec5162402cc30269cc276398707b28d55`, sin PR abierta al contrastar:

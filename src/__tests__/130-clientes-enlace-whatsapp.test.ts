@@ -27,3 +27,20 @@ describe('130 WA80: enlace de WhatsApp de clientes', () => {
     },
   );
 });
+
+describe('barrido WA80: los otros enlaces de WhatsApp con teléfonos locales', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const leer = (f: string) => fs.readFileSync(path.join(process.cwd(), f), 'utf8');
+
+  it.each([
+    'src/app/actions/rsvp-reminders.actions.ts',
+    'src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx',
+    'src/app/invitacion/[fiestaId]/rsvp/page.tsx',
+    'src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx',
+  ])('%s arma el enlace con toWhatsAppDigits y no con los dígitos sueltos', (archivo) => {
+    const texto = leer(archivo);
+    expect(texto).toMatch(/toWhatsAppDigits\(/);
+    expect(texto).not.toMatch(/wa\.me\/\$\{[^}]*replace\(\/\\D\/g, ''\)/);
+  });
+});

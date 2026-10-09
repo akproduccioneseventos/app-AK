@@ -17,6 +17,7 @@ import { formatEventDate, parseEventDate } from '@/lib/public-experience/event-d
 import { XVThemeEffects } from '@/components/invitacion/xv-theme-effects';
 import { canUseNextImage } from '@/lib/next-image-url';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
+import { toWhatsAppDigits } from '@/lib/commercial/contact';
 
 interface Props {
   config: InvitacionDigitalConfig;
@@ -1577,7 +1578,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
               )}
               {config.ctaAkWhatsapp && (
                 <a
-                  href={`https://wa.me/${config.ctaAkWhatsapp.replace(/\D/g, '')}`}
+                  href={`https://wa.me/${toWhatsAppDigits(config.ctaAkWhatsapp)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green-500 text-white font-bold text-sm hover:bg-green-400 transition-colors shadow-lg"
@@ -1628,7 +1629,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       {/* ============= WHATSAPP FLOATING BUTTON ============= */}
       {hasWhatsApp && (
         <a
-          href={`https://wa.me/${config.whatsappNumero?.replace(/\D/g, '')}${config.whatsappMensaje ? `?text=${encodeURIComponent(config.whatsappMensaje)}` : ''}`}
+          href={`https://wa.me/${toWhatsAppDigits(config.whatsappNumero)}${config.whatsappMensaje ? `?text=${encodeURIComponent(config.whatsappMensaje)}` : ''}`}
           target="_blank"
           rel="noopener noreferrer"
           className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-green-500 text-white flex items-center justify-center shadow-2xl transition-transform hover:scale-110"

@@ -4,6 +4,7 @@ import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { buildRsvpReminders, getPendingRsvpGuests } from '@/lib/rsvp/rsvp-reminder-engine';
 import { requireAppSession } from '@/lib/auth/require-session';
 import type { PublicGuest } from '@/lib/guest-portal-public-data';
+import { toWhatsAppDigits } from '@/lib/commercial/contact';
 
 export async function getRsvpReminderPreview(fiestaId: string) {
   await requireAppSession();
@@ -36,6 +37,7 @@ export async function getRsvpReminderPreview(fiestaId: string) {
 export async function generateWhatsAppRsvpLink(guestName: string, phone: string, message: string): Promise<string> {
   await requireAppSession();
   const encodedMessage = encodeURIComponent(message);
-  const cleanPhone = phone.replace(/\D/g, '');
+  // Un celular local (099...) lleva el 598; uno extranjero queda igual (WA80).
+  const cleanPhone = toWhatsAppDigits(phone);
   return `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
 }

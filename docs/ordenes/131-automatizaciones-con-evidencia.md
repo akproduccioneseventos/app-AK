@@ -1,5 +1,7 @@
 # 131. Automatizaciones: permisos internos, reintentos y resultados reales
 
+**HECHA el 9/10/2026:** publicación manual con reclamo (`yaReclamado`), recordatorio al invitado con id estable, y contador de Codex con alcance completo (`rutasSinArea`). Ver YA-RESUELTO.
+
 ## ACTUALIZACION PRIORITARIA - No reprogramar los siete bloques originales
 
 Claude fusiono los arreglos durante esta auditoria. Destino contrastado actualizado:

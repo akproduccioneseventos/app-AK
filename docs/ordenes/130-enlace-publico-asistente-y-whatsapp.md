@@ -1,5 +1,7 @@
 # 130. Compartir un presupuesto que el cliente pueda abrir
 
+**HECHA el 9/10/2026 (Claude y ayudante): los tres bloques, con sus pruebas. Ver YA-RESUELTO.**
+
 9/10/2026. Codex revisa; Gemini programa pantallas, Claude conserva permisos y compila.
 No modificar datos reales, reglas comerciales ni fusionar sin el propietario.
 
@@ -68,11 +70,11 @@ No usar el resultado incompleto del archivo 23 como prueba de persistencia del u
 ```comprobar
 archivo: src/components/presupuestos/budget-share-dock.tsx
 usa: BudgetShareDock en src/app/(app)/layout.tsx
-prueba: PENDIENTE tests/e2e/130-compartir-presupuesto-publico.spec.ts
+prueba: tests/e2e/130-compartir-presupuesto-publico.spec.ts
 archivo: src/components/assistant/contextual-assistant-indicator.tsx
 usa: ContextualAssistantIndicator en src/app/(app)/layout.tsx
-prueba: PENDIENTE tests/e2e/130-factura-sin-superposicion.spec.ts
+prueba: tests/e2e/130-factura-sin-superposicion.spec.ts
 archivo: src/app/(app)/customers/page.tsx
 usa: CustomerTable en src/app/(app)/customers/page.tsx
-prueba: PENDIENTE src/__tests__/130-clientes-enlace-whatsapp.test.ts
+prueba: src/__tests__/130-clientes-enlace-whatsapp.test.ts
 ```

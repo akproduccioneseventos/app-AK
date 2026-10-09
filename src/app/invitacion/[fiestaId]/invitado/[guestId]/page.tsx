@@ -65,6 +65,7 @@ import { MiniQuiosco } from './MiniQuiosco';
 import { AsistenteDelInvitado } from '@/components/invitacion/AsistenteDelInvitado';
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
+import { toWhatsAppDigits } from '@/lib/commercial/contact';
 
 const DIETARY_LABELS: Record<string, string> = {
   Ninguna: '',
@@ -346,9 +347,9 @@ function GuestPortalContent() {
   const tiktokUrl = guestExp?.tiktokUrl || getSocialUrl(socialConnections, 'TikTok');
   const whatsappConnection = socialConnections.find((connection) => connection.platform === 'WhatsApp' && connection.isConnected);
   const whatsappUrl = guestExp?.whatsappUrl
-    || (guestExp?.whatsappNumber ? `https://wa.me/${guestExp.whatsappNumber.replace(/\D/g, '')}` : undefined)
+    || (guestExp?.whatsappNumber ? `https://wa.me/${toWhatsAppDigits(guestExp.whatsappNumber)}` : undefined)
     || whatsappConnection?.profileUrl
-    || (whatsappConnection?.phoneNumber ? `https://wa.me/${whatsappConnection.phoneNumber}` : undefined);
+    || (whatsappConnection?.phoneNumber ? `https://wa.me/${toWhatsAppDigits(whatsappConnection.phoneNumber)}` : undefined);
   const attribution = { source: 'guest_portal' as const, campaign: 'guest-experience', refFiestaId: fiestaId, refGuestId: guest.id, entryPath: `/invitacion/${fiestaId}/invitado/${guest.id}` };
   const landingUrl = guestExp?.landingUrl ? appendCommercialAttribution(guestExp.landingUrl, attribution) : undefined;
   const simulatorUrl = guestExp?.simulatorUrl ? appendCommercialAttribution(guestExp.simulatorUrl, attribution) : undefined;
