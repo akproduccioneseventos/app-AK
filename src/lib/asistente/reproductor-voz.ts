@@ -78,7 +78,8 @@ export async function reproducirVozReal(
       const motivo = await response.json().catch(() => ({} as { vozTelefonoActiva?: boolean }));
       if (motivo?.vozTelefonoActiva === false) {
         reproduciendo = false;
-        opciones?.onEnd?.();
+        // Se avisa: callarse sin decir por qué parecía que la voz no andaba (dueño, 9/10/2026).
+        opciones?.onError?.(new Error('La voz está apagada en Ajustes → Asistente.'));
         return;
       }
     } else {
@@ -127,7 +128,7 @@ function reproducirConNavegador(
 ) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     reproduciendo = false;
-    opciones?.onEnd?.();
+    opciones?.onError?.(new Error('Este equipo no tiene voz para leer la respuesta.'));
     return;
   }
 
@@ -152,15 +153,18 @@ function reproducirConNavegador(
       opciones?.onEnd?.();
     };
 
-    utterance.onerror = () => {
+    utterance.onerror = (ev) => {
       reproduciendo = false;
-      opciones?.onEnd?.();
+      // `interrupted`/`canceled` es que se cortó a propósito (otra respuesta, el botón de parar).
+      const motivo = (ev as SpeechSynthesisErrorEvent)?.error;
+      if (motivo === 'interrupted' || motivo === 'canceled') opciones?.onEnd?.();
+      else opciones?.onError?.(new Error('El navegador no dejó reproducir la voz. Tocá el parlante para escucharla.'));
     };
 
     window.speechSynthesis.speak(utterance);
   } catch {
     reproduciendo = false;
-    opciones?.onEnd?.();
+    opciones?.onError?.(new Error('No se pudo reproducir la voz.'));
   }
 }
 

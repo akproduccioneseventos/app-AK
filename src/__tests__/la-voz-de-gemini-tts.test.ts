@@ -115,7 +115,10 @@ describe('Los dos interruptores', () => {
 
   it('el reproductor se calla si la ruta dice que la voz del teléfono está apagada', () => {
     const fuente = fs.readFileSync(path.join(process.cwd(), 'src/lib/asistente/reproductor-voz.ts'), 'utf8');
-    expect(fuente).toMatch(/vozTelefonoActiva === false\)\s*\{\s*reproduciendo = false;\s*opciones\?\.onEnd\?\.\(\);\s*return;/);
+    // Se calla (no usa la voz del teléfono) pero avisa por qué (9/10/2026): antes no decía nada.
+    const tramo = fuente.slice(fuente.indexOf('vozTelefonoActiva === false'), fuente.indexOf('vozTelefonoActiva === false') + 300);
+    expect(tramo).toMatch(/reproduciendo = false;[\s\S]*onError\?\.\(new Error\('La voz está apagada[\s\S]*return;/);
+    expect(tramo).not.toContain('reproducirConNavegador');
   });
 
   it('el parte de la mañana y la reunión hablan por el reproductor, no por su cuenta', () => {

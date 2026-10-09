@@ -1,5 +1,29 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de octubre de 2026 — La IA cortaba las respuestas; pantalla "Poner al día"; un cobro sin id no contaba
+
+- **El Encargado General contestaba sólo la primera línea** ("lo más urgente es esto: 🚨 • **XV").
+  El pedido a la IA iba con un tope de 500/600 de salida, y los modelos "flash" nuevos gastan parte
+  de ese tope pensando: no quedaba lugar para la respuesta. Ahora ningún pedido sale con menos de
+  4096 (`conLugarParaPensar` en `src/ai/genkit.ts`); el largo lo marca la consigna, no el tope.
+  No se pudo medir contra la IA real desde el entorno de pruebas: queda para confirmar en la app.
+- **Cuando la voz no puede hablar, lo dice.** Antes se quedaba callada sin explicar (voz apagada en
+  Ajustes, navegador que no deja reproducir, equipo sin voz).
+- **Pantalla "Poner al día"** (`/empresa/contabilidad/poner-al-dia`, sólo contabilidad): arma la
+  lista de lo atrasado —fiestas pasadas sin cobrar, cancelaciones, fiestas cargadas dos veces y
+  presupuestos de prueba— con casillas, y aplica sólo al tocar "Aplicar" (cobrar o cancelar lo
+  decide una persona). El cobro lleva una referencia fija, así un segundo toque no lo duplica. Las
+  copias con OTRA fecha que la fiesta buena no se ofrecen archivar: hay que ver cuál es la fecha.
+- **Un cobro guardado sin número interno no contaba como pagado** (`sumConfirmedClientPayments`
+  comparaba `undefined !== undefined`). Ahora cuenta.
+
+```comprobar
+prueba: src/__tests__/la-ia-no-corta-la-respuesta.test.ts
+prueba: src/__tests__/poner-al-dia-arma-la-lista.test.ts
+usa: conLugarParaPensar en src/ai/genkit.ts
+usa: aplicarPonerAlDia en src/app/(app)/empresa/contabilidad/poner-al-dia/page.tsx
+```
+
 ## 9 de octubre de 2026 — Botones que no llevaban a donde decían (pedido del dueño)
 
 Se revisaron unos 1.500 enlaces de toda la app (equipo, web, portal, invitado y estaciones).
