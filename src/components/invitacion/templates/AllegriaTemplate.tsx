@@ -174,12 +174,17 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         e.preventDefault();
         if (!newChatMsg.trim() || isPreview) return;
         setIsSendingChat(true);
-        const res = await addChatMessage(fiesta.id, newChatMsg, rsvpName || "Invitado");
-        if (res.success) {
-            setNewChatMsg('');
-            getChatMessages(fiesta.id).then(setChatMessages);
+        try {
+            const res = await addChatMessage(fiesta.id, newChatMsg, rsvpName || "Invitado");
+            if (res.success) {
+                setNewChatMsg('');
+                getChatMessages(fiesta.id).then(setChatMessages);
+            }
+        } catch {
+            toast({ title: "No se pudo enviar", description: "Se cortó la conexión. Tu mensaje sigue escrito: probá de nuevo.", variant: "destructive" });
+        } finally {
+            setIsSendingChat(false);
         }
-        setIsSendingChat(false);
     };
 
     const handleClaimGift = async (gift: GiftItem) => {

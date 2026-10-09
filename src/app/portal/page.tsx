@@ -355,13 +355,18 @@ function ClientPortalContent() {
   const handleArrivalNotify = async () => {
     if (!fiestaId) return;
     setIsNotifying(true);
-    const res = await notifyClientArrival(fiestaId);
-    if (res.success) {
-      toast({ title: '¡Aviso enviado!', description: 'El organizador fue notificado de tu llegada.' });
-    } else {
-      toast({ title: 'Error', description: 'No se pudo enviar el aviso.', variant: 'destructive' });
+    try {
+      const res = await notifyClientArrival(fiestaId);
+      if (res.success) {
+        toast({ title: '¡Aviso enviado!', description: 'El organizador fue notificado de tu llegada.' });
+      } else {
+        toast({ title: 'Error', description: 'No se pudo enviar el aviso.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo enviar el aviso. Se cortó la conexión: probá de nuevo.', variant: 'destructive' });
+    } finally {
+      setIsNotifying(false);
     }
-    setIsNotifying(false);
   };
 
   const handleToggleTask = async (task: ClientTarea, checked: boolean) => {
@@ -386,14 +391,19 @@ function ClientPortalContent() {
   const handleSaveNotes = async () => {
     if (!fiesta) return;
     setIsSavingNotes(true);
-    const result = await updateClientNotes(fiesta.id, notes);
-    if (result.success) {
-      setFiesta({ ...fiesta, clientNotes: notes });
-      toast({ title: 'Notas guardadas' });
-    } else {
-      toast({ title: 'Error', description: result.error ?? 'No se pudieron guardar las notas.', variant: 'destructive' });
+    try {
+      const result = await updateClientNotes(fiesta.id, notes);
+      if (result.success) {
+        setFiesta({ ...fiesta, clientNotes: notes });
+        toast({ title: 'Notas guardadas' });
+      } else {
+        toast({ title: 'Error', description: result.error ?? 'No se pudieron guardar las notas.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'No se pudieron guardar las notas. Se cortó la conexión: probá de nuevo.', variant: 'destructive' });
+    } finally {
+      setIsSavingNotes(false);
     }
-    setIsSavingNotes(false);
   };
 
   const handleAddSong = async () => {
@@ -401,25 +411,30 @@ function ClientPortalContent() {
     if (!fiesta || !value) return;
 
     setIsSavingMusic(true);
-    const result = await addClientMusicSuggestion(fiesta.id, 'siEsPosible', value);
-    if (result.success) {
-      setFiesta((prev) => {
-        if (!prev) return prev;
-        const current = prev.listaMusicaPortal?.siEsPosible ?? [];
-        return {
-          ...prev,
-          listaMusicaPortal: {
-            ...prev.listaMusicaPortal,
-            siEsPosible: [...current, value],
-          },
-        };
-      });
-      setMusicSuggestion('');
-      toast({ title: 'Sugerencia agregada' });
-    } else {
-      toast({ title: 'Error', description: result.error ?? 'No se pudo guardar la sugerencia.', variant: 'destructive' });
+    try {
+      const result = await addClientMusicSuggestion(fiesta.id, 'siEsPosible', value);
+      if (result.success) {
+        setFiesta((prev) => {
+          if (!prev) return prev;
+          const current = prev.listaMusicaPortal?.siEsPosible ?? [];
+          return {
+            ...prev,
+            listaMusicaPortal: {
+              ...prev.listaMusicaPortal,
+              siEsPosible: [...current, value],
+            },
+          };
+        });
+        setMusicSuggestion('');
+        toast({ title: 'Sugerencia agregada' });
+      } else {
+        toast({ title: 'Error', description: result.error ?? 'No se pudo guardar la sugerencia.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'No se pudo guardar la sugerencia. Se cortó la conexión: probá de nuevo.', variant: 'destructive' });
+    } finally {
+      setIsSavingMusic(false);
     }
-    setIsSavingMusic(false);
   };
 
   const eventImage =
