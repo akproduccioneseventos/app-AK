@@ -74,5 +74,6 @@ test('Mi día muestra el saldo sin restar el pago a confirmar', async ({ page, c
   const detalle = page.getByText(/Saldo de \$[\d.]+ para la fiesta/).first();
   await expect(detalle).toContainText('70.000');
   await expect(detalle).not.toContainText('20.000');
-  await expect(page.getByText('Por hoy está todo al día')).toHaveCount(0);
+  // El parte hablado nombra la cobranza (con el parte armado sin datos decía "todo al día").
+  await expect(page.getByText(/Buen día\. Hoy tenemos \d+ puntos? para avanzar: .*cobranza de prospecto e2e mi dia/i)).toHaveCount(1);
 });
