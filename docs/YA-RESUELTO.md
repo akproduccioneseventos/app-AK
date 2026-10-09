@@ -7,6 +7,12 @@
   el permiso de ESA estación ya comprobado, se agrega sólo ese recuerdo adentro de la transacción
   de la fiesta (sobre lo último guardado, sin pisar otras capturas ni tocar nada más). Al invitado
   no se le da permiso para editar la fiesta. Un reintento de la misma captura no la duplica.
+- **Barrido de lo mismo:** la trivia del invitado (unirse y sumar puntos) y lo que manda en la
+  pantalla en vivo (foto, canción, mensaje) tampoco se guardaban nunca: usaban el guardado que pide
+  sesión. Ahora escriben sólo su parte, adentro de la transacción. La trivia exige la credencial
+  del invitado; foto, canción y mensaje siguen con las reglas de antes (tope por persona). La
+  prueba vieja de la trivia reemplazaba el guardado por uno que siempre decía que sí y por eso no
+  lo veía: ahora usa uno que rechaza como el de verdad.
 - **La 360 nunca entregaba el video** (ENT83-360): la pantalla manda `plataforma-360` (el nombre de
   la ruta) y el módulo se llama `plataforma360`. El servidor traduce los nombres de ruta conocidos
   (también las capturas que ya estaban en cola); un módulo inventado sigue rechazado. Y "no es
@@ -22,6 +28,8 @@
 
 ```comprobar
 prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
+prueba: src/__tests__/entretenimiento-bloque-a.test.tsx
+usa: agregarAlEnVivo en src/app/actions/evento-en-vivo.ts
 prueba: tests/e2e/contrato-constancia-mantiene-papel.spec.ts
 usa: ALIAS_DE_MODULO en src/app/actions/fiesta/entretenimiento.actions.ts
 usa: signedBy: constancia.signedBy en src/app/portal/[fiestaId]/contrato/page.tsx

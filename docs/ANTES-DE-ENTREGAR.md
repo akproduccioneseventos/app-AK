@@ -156,3 +156,8 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 38. **¿Pusiste un candado o un reclamo?** Buscá todos los que llaman a la función que protege: el
     candado va adentro de ella. Y si la tarea puede correr dos veces el mismo día, lo que guarda
     lleva un id estable (qué + quién + día), no uno al azar.
+
+39. **¿Tu acción la usa un invitado, una estación o el cliente?** Seguila hasta el guardado: si
+    guarda con `saveFiesta` (que pide sesión del equipo o del portal), al invitado se le rechaza.
+    Va una escritura angosta (`actualizarFiesta` con `publicRsvp`, sólo su parte). Y en la prueba,
+    el guardado de mentira rechaza sin permiso, como el de verdad.
