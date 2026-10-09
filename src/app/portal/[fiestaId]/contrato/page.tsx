@@ -136,7 +136,9 @@ export default function ClientContractPage() {
   const constancia = fiesta.firmaDigitalConstancia;
   const firma = fiesta.contratoFirmaInfo?.isSigned || !constancia
     ? fiesta.contratoFirmaInfo
-    : { isSigned: true, method: 'digital' as const, signedAt: constancia.signedAt, ip: constancia.ip };
+    // `signedBy` va: sin él la constancia decía "Firmado Digitalmente" sin el nombre del titular
+    // (Codex, auditoría 83, CT83-NOMBRE). La IP no se muestra.
+    : { isSigned: true, method: 'digital' as const, signedAt: constancia.signedAt, signedBy: constancia.signedBy, ip: constancia.ip };
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
@@ -418,6 +420,23 @@ export default function ClientContractPage() {
                             <div>
                                 <h3 className="font-black text-amber-800 uppercase text-xs tracking-wider">Firma Física Requerida</h3>
                                 <p className="text-sm text-amber-700 mt-1">Este contrato debe ser firmado físicamente. Por favor descárguelo o imprímalo, fírmelo y entréguelo al organizador. Una vez escaneado y registrado por el administrador, su validez aparecerá reflejada en este portal.</p>
+                            </div>
+                            <Button onClick={() => window.print()} size="lg" className="w-full h-14 rounded-2xl text-base font-black shadow-xl">
+                                IMPRIMIR / DESCARGAR CONTRATO (PDF)
+                            </Button>
+                        </div>
+                    </CardFooter>
+                )}
+                {/* Firmó la constancia digital pero falta el papel: el botón de imprimir sigue a la
+                    mano (CT83-PAPEL). Antes se escondía junto con el formulario de firma. No confirma
+                    la reserva: eso sale sólo del contrato en papel. */}
+                {firma?.isSigned && !fiesta.contratoFirmaInfo?.isSigned && (
+                    <CardFooter className="bg-slate-50 p-8 border-t border-slate-100 print:hidden">
+                        <div className="flex flex-col items-center gap-4 p-6 bg-amber-50 border border-amber-200 rounded-3xl w-full text-center">
+                            <AlertTriangle className="w-8 h-8 text-amber-600"/>
+                            <div>
+                                <h3 className="font-black text-amber-800 uppercase text-xs tracking-wider">Falta el contrato en papel</h3>
+                                <p className="text-sm text-amber-700 mt-1">Imprimí el contrato, firmalo y entregáselo al organizador.</p>
                             </div>
                             <Button onClick={() => window.print()} size="lg" className="w-full h-14 rounded-2xl text-base font-black shadow-xl">
                                 IMPRIMIR / DESCARGAR CONTRATO (PDF)

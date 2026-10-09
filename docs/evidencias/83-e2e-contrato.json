@@ -1,0 +1,330 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/83-contrato-recorrido.spec.ts",
+      "--project=chromium-desktop",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-SkNAHJ/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "83-contrato-recorrido.spec.ts",
+      "file": "83-contrato-recorrido.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "constancia guarda nombre y huella, persiste y NO contrata ni registra papel",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 36037,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T19:55:26.104Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "515e8c3e7f7c1c50def5-21bef85475f3a6165d3f",
+          "file": "83-contrato-recorrido.spec.ts",
+          "line": 40,
+          "column": 5
+        },
+        {
+          "title": "despues de constancia el nombre del titular se ve en su contrato",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 70460,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Titular Ficticio Prueba Ochenta Tres', { exact: true })\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Titular Ficticio Prueba Ochenta Tres', { exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Titular Ficticio Prueba Ochenta Tres', { exact: true })\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Titular Ficticio Prueba Ochenta Tres', { exact: true })\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts:63:57",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts",
+                      "column": 57,
+                      "line": 63
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 61 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Constancia de Firma'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 62 |\u001b[39m   \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({ path\u001b[33m:\u001b[39m info\u001b[33m.\u001b[39moutputPath(\u001b[32m'83-contrato-constancia.png'\u001b[39m)\u001b[33m,\u001b[39m fullPage\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 63 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(nombre\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 64 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 65 |\u001b[39m\n \u001b[90m 66 |\u001b[39m test(\u001b[32m'despues de constancia sigue disponible imprimir el papel obligatorio'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m context\u001b[33m,\u001b[39m baseURL }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts",
+                        "column": 57,
+                        "line": 63
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Titular Ficticio Prueba Ochenta Tres', { exact: true })\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Titular Ficticio Prueba Ochenta Tres', { exact: true })\u001b[22m\n\n\n  61 |   await expect(page.getByText('Constancia de Firma', { exact: true })).toBeVisible();\n  62 |   await page.screenshot({ path: info.outputPath('83-contrato-constancia.png'), fullPage: true });\n> 63 |   await expect(page.getByText(nombre, { exact: true })).toBeVisible();\n     |                                                         ^\n  64 | });\n  65 |\n  66 | test('despues de constancia sigue disponible imprimir el papel obligatorio', async ({ page, context, baseURL }) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts:63:57"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T19:56:03.128Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\83-contrato-recorrido-desp-13547-itular-se-ve-en-su-contrato-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\83-contrato-recorrido-desp-13547-itular-se-ve-en-su-contrato-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\83-contrato-recorrido-desp-13547-itular-se-ve-en-su-contrato-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\83-contrato-recorrido-desp-13547-itular-se-ve-en-su-contrato-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts",
+                    "column": 57,
+                    "line": 63
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "515e8c3e7f7c1c50def5-6cb39396042beb7b783d",
+          "file": "83-contrato-recorrido.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "despues de constancia sigue disponible imprimir el papel obligatorio",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 95386,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /IMPRIMIR.*DESCARGAR CONTRATO/ })\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /IMPRIMIR.*DESCARGAR CONTRATO/ })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /IMPRIMIR.*DESCARGAR CONTRATO/ })\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /IMPRIMIR.*DESCARGAR CONTRATO/ })\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts:69:84",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts",
+                      "column": 84,
+                      "line": 69
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 67 |\u001b[39m   \u001b[36mawait\u001b[39m preparar(page\u001b[33m,\u001b[39m context\u001b[33m,\u001b[39m baseURL\u001b[33m!\u001b[39m\u001b[33m,\u001b[39m \u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 68 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Para confirmar tu reserva falta firmar el contrato en papel/\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 69 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/IMPRIMIR.*DESCARGAR CONTRATO/\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 70 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 71 |\u001b[39m\n \u001b[90m 72 |\u001b[39m test(\u001b[32m'si se corta la firma no inventa constancia y permite reintentar sin perder nombre'\u001b[39m\u001b[33m,\u001b[39m \u001b[36masync\u001b[39m ({ page\u001b[33m,\u001b[39m context\u001b[33m,\u001b[39m baseURL }) \u001b[33m=>\u001b[39m {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts",
+                        "column": 84,
+                        "line": 69
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /IMPRIMIR.*DESCARGAR CONTRATO/ })\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /IMPRIMIR.*DESCARGAR CONTRATO/ })\u001b[22m\n\n\n  67 |   await preparar(page, context, baseURL!, true);\n  68 |   await expect(page.getByText(/Para confirmar tu reserva falta firmar el contrato en papel/)).toBeVisible();\n> 69 |   await expect(page.getByRole('button', { name: /IMPRIMIR.*DESCARGAR CONTRATO/ })).toBeVisible();\n     |                                                                                    ^\n  70 | });\n  71 |\n  72 | test('si se corta la firma no inventa constancia y permite reintentar sin perder nombre', async ({ page, context, baseURL }) => {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts:69:84"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T19:57:37.753Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\83-contrato-recorrido-desp-0226e-primir-el-papel-obligatorio-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\83-contrato-recorrido-desp-0226e-primir-el-papel-obligatorio-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\83-contrato-recorrido-desp-0226e-primir-el-papel-obligatorio-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\test-results\\83-contrato-recorrido-desp-0226e-primir-el-papel-obligatorio-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-SkNAHJ\\tests\\e2e\\83-contrato-recorrido.spec.ts",
+                    "column": 84,
+                    "line": 69
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "515e8c3e7f7c1c50def5-cd67e84e8d01e3677af2",
+          "file": "83-contrato-recorrido.spec.ts",
+          "line": 66,
+          "column": 5
+        },
+        {
+          "title": "si se corta la firma no inventa constancia y permite reintentar sin perder nombre",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8959,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-09T19:59:34.926Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "515e8c3e7f7c1c50def5-44da420ed5311089f3e6",
+          "file": "83-contrato-recorrido.spec.ts",
+          "line": 72,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-09T19:55:23.599Z",
+    "duration": 261449.86,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

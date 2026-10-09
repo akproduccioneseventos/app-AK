@@ -1,31 +1,31 @@
-# Auditoria 82: pendientes comprobados y evidencias reutilizables
+# Auditoria 84: recuento y solo huecos pendientes
 
-**9/10/2026.** Main final `eef90bd3874f80df5ec3564dc96fff5e4cb6df0d`.
-Rama documental `codex/auditoria-82-pendientes-20261009`; no fusionar automaticamente.
-PR 1273/1274 fueron fusionadas por otra sesion; esta entrega contiene solo el delta 82.
-Codex audita; Gemini/Claude programan segun reparto. Sin cambios de codigo productivo.
+**9/10/2026.** Main contrastado `859fd23b1175646edc0209cab114241327d302ba`.
+Rama `codex/auditoria-83-contrato-estaciones-20261009`; PR 1277 documental.
+Codex revisa/registra; responsables programan; Claude compila. NO fusionar.
 
-- 63 tests adicionales aprobados: 41 unitarios (9 suites) en fuente 1b57, 22 E2E
-  focalizados de portal, invitado, espejo, barra y estaciones en build aislado 497ee725.
-  Consumidores sin cambios contrastados; no certificar funciones modificadas de otro SHA.
-- NUEVO BAR82-CANCEL: cortar solo la cancelacion deja el boton bloqueado. Sonda estricta
-  reproducida; orden 132 para Gemini, contraste obligatorio con su trabajo local en curso.
-- Barra normal PC/movil PASA: cancelacion persistida; PREPARANDO sin cancelar/cambiar.
-  Cuatro fallos originales eran semilla JSON incompatible con emulador, no fallo de app.
-- Ordenes 130/131: Claude entrego arreglos en PR 1274 mientras corria esta tanda.
-  Conservar su registro; no reprogramarlos ni declarar retest nuevo que no se hizo.
-  Retest previo de Claude: 7 suites/22 tests y sonda TikTok aprobados; conservarlos.
-- Contador: inventario 1111 y sonda auth son HISTORICOS de 1b57. PR 1274 amplio mapa
-  y dependencias. No reportarlos como defectos actuales ni repetir esa implementacion.
-  Retest en eef90: 208 rutas/prefijos, 0 pantallas/API sin area; auth SI invalida.
-- Portal/RSVP fueron tocados despues de los E2E: sus resultados siguen asociados
-  a 497ee725/1b57, no al nuevo main entero. MiniQuiosco/barra no cambiaron.
-- Los 19 reales NO conciliados: lectura rechazada, gRPC 7, permisos insuficientes.
-  No es prueba de deuda, base caida ni ausencia de datos. Claude necesita lectura privada
-  autorizada y originales; no publicarlos en Git ni aflojar permisos de la app.
-- Mural/captura offline: reutilizar evidencia 81, no repetir por esta tanda.
-- No hay cierre integral ni certificado de cero errores. Integraciones reales, contrato
-  completo, resto de flujos y equipos fisicos conservan limites expresos en el informe.
+- Recuento consolidado de las 14 areas: docs/evidencias/84-recuento-y-pendientes.md.
+  Une historico y 80-83; distingue pruebas propias, reportes de otras IA,
+  arreglos presentes, pendientes encargados y huecos de cobertura.
+- LO-AUDITADO enlaza recuento actual; 6/354 era fotografia de agosto.
+  No iniciar otra auditoria global porque ese contador historico esta viejo.
+- SOLO nuevo hueco personal: 8 casos aprobados (4 PC y 4 viewport movil).
+  Confirma/llega y persiste, conserva companero; rechazo guarda motivo;
+  vencido niega acceso; revocado con pantalla abierta rechaza ambas acciones,
+  libera controles y no guarda. Sin cookie de equipo, datos ficticios propios.
+- Dos fallos iniciales eran selectores ambiguos de MI sonda, no app.
+  Raw original y retests guardados; no inventar orden nueva de arreglo.
+- Build 497ee725 reutilizado; consumidores/dependencias de personal sin cambio
+  hasta main. No Firestore real, GPS exigido, recibos ni area entera aprobada.
+- CUATRO pendientes 83 siguen encargados en 133/134: contrato nombre/imprimir,
+  360 identidad y Bogue guardado con permiso de invitado. NO repetirlos ahora.
+- Buzon y mural ya tienen entrega local comprobada; no repetir sin cambio.
+- Arreglos 1274/1276 presentes: retest solo delta, no reprogramar historial.
+- 19 originales sin conciliar (gRPC7 documentado). No nuevo intento ni permisos
+  debilitados. Integraciones reales/hardware separados, GitHub billing excluido.
+- Las otras filas del recuento especifican lo que aun necesita resultado final;
+  no confundir pendiente con fallo ni marcar 14 areas limpias por casos parciales.
+- Sin app edits, build nuevo, dependencias, datos reales, cobros/mensajes ni merge.
+  Agentes y servidor/emuladores propios cerrados. No certificado de cero errores.
 
-Detalle: `docs/evidencias/82-pendientes-y-recorridos.md` y JSON/sondas 82.
-Registro anterior preservado completo: `docs/evidencias/82-estado-previo.md`.
+Estado anterior: docs/evidencias/84-estado-previo.md. Evidencias: 84-*.json/spec.ts/png.

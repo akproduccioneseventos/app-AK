@@ -1,5 +1,100 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de octubre de 2026 — Codex, auditoría 83: contrato y estaciones (PR 1277)
+
+- **Bogue no guardaba lo que grababa el invitado** (ENT83-GUEST). La captura se subía y después
+  se guardaba la fiesta entera por el camino que pide sesión del equipo o del portal. Ahora, con
+  el permiso de ESA estación ya comprobado, se agrega sólo ese recuerdo adentro de la transacción
+  de la fiesta (sobre lo último guardado, sin pisar otras capturas ni tocar nada más). Al invitado
+  no se le da permiso para editar la fiesta. Un reintento de la misma captura no la duplica.
+- **Barrido de lo mismo:** la trivia del invitado (unirse y sumar puntos) y lo que manda en la
+  pantalla en vivo (foto, canción, mensaje) tampoco se guardaban nunca: usaban el guardado que pide
+  sesión. Ahora escriben sólo su parte, adentro de la transacción. La trivia exige la credencial
+  del invitado; foto, canción y mensaje siguen con las reglas de antes (tope por persona). La
+  prueba vieja de la trivia reemplazaba el guardado por uno que siempre decía que sí y por eso no
+  lo veía: ahora usa uno que rechaza como el de verdad.
+- **La 360 nunca entregaba el video** (ENT83-360): la pantalla manda `plataforma-360` (el nombre de
+  la ruta) y el módulo se llama `plataforma360`. El servidor traduce los nombres de ruta conocidos
+  (también las capturas que ya estaban en cola); un módulo inventado sigue rechazado. Y "no es
+  válido" ahora cuenta como rechazo definitivo, no como falta de señal.
+- **La pantalla de la 360 se caía entera al mostrar el QR** cuando el enlace del video era enorme
+  (sin depósito de archivos el video vuelve adentro del enlace): "Data too long". Ahora el QR de
+  recuerdo (360 y fotocabina) avisa "Tu recuerdo quedó guardado" en vez de caerse.
+- **El contrato no mostraba el nombre del firmante** con la constancia digital (CT83-NOMBRE): ahora
+  se ve; la IP no se muestra.
+- **Después de la constancia desaparecía "Imprimir"** (CT83-PAPEL), aunque el aviso pedía el papel.
+  Ahora queda el botón con "Falta el contrato en papel". No confirma la reserva: eso sigue saliendo
+  sólo del contrato en papel.
+- Las evidencias de Codex (`docs/evidencias/*.ts`) ya no las compila el revisor de tipos
+  (`tsconfig.json`, `exclude`): son sondas pensadas para copiarse a `tests/e2e`, y cada tanda nueva
+  frenaba la puerta por una importación relativa.
+
+```comprobar
+prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
+prueba: src/__tests__/entretenimiento-bloque-a.test.tsx
+usa: agregarAlEnVivo en src/app/actions/evento-en-vivo.ts
+prueba: src/__tests__/el-qr-no-tumba-la-pantalla.test.tsx
+usa: QrRecuerdo en src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: tests/e2e/contrato-constancia-mantiene-papel.spec.ts
+usa: ALIAS_DE_MODULO en src/app/actions/fiesta/entretenimiento.actions.ts
+usa: signedBy: constancia.signedBy en src/app/portal/[fiestaId]/contrato/page.tsx
+usa: docs/evidencias en tsconfig.json
+```
+
+## 9/10/2026 - Codex 84: recuento de las 14 areas y SOLO huecos de personal
+
+Main contrastado `859fd23b1175646edc0209cab114241327d302ba`. Recuento consolidado
+`docs/evidencias/84-recuento-y-pendientes.md`: alcances anteriores, evidencia,
+limites, arreglos en curso y huecos por las 14 areas. LO-AUDITADO ahora enlaza
+ese recuento: sus 6/354 pantallas son historicas de agosto, NO estado actual.
+No contar repeticion de pruebas como funciones nuevas ni mezclar mocks con
+conexion real. No reabrir los cuatro pendientes 133/134 mientras se programan.
+
+Nuevo hueco probado, personal: 8 casos aprobados (4 PC/4 movil). Confirmacion
+y llegada guardadas/recargadas sin alterar companero; rechazo con motivo;
+enlace vencido no muestra acciones; revocado con pantalla abierta rechaza
+confirmar/llegar, libera botones y no guarda. Sin cookie del equipo.
+Dos fallos iniciales fueron selectores ambiguos de MI prueba, no de la app:
+conservar raw original; repetir solo los dos frenados, ambos aprobados.
+Area personal, fuente `497ee725`, consumidores/dependencias contrastados sin
+cambio hasta main; NO area entera limpia ni Firestore/ubicacion real/recibo.
+Datos ficticios propios, ajuste ubicacion desactivado por defecto sin modificar.
+
+No hay fallo nuevo ni orden nueva de programacion. Conservar estos recorridos
+como cubiertos y revisar solo si cambia su consumidor/dependencias. Faltantes
+restantes estan separados por area en el recuento; 19 originales siguen sin
+conciliar por el limite de acceso documentado, no reintentar sin acceso nuevo.
+Sondas/raw/captura 84 guardados. Ayudantes y entorno propios cerrados. Sin
+codigo productivo, build, cobros/mensajes reales ni fusion. PR 1277 documental.
+
+## 9/10/2026 - Codex 83: contrato y entrega de estaciones, CUATRO pendientes nuevos
+
+Main final contrastado `859fd23b1175646edc0209cab114241327d302ba`; pruebas en
+build aislado `497ee725cb4d8cce6d1c97422fd674cbbe86c051`, consumidores/dependencias
+directas sin cambios. No certificar todo main nuevo ni publicado autenticado.
+
+- Contrato: 4 E2E PC, 2 pasan/2 fallan. Constancia persiste nombre/huella sin
+  contratar ni marcar papel; corte de solicitud permite reintentar sin perder
+  datos ni falso exito. NUEVOS CT83-NOMBRE y CT83-PAPEL: nombre guardado invisible
+  y boton de imprimir oculto despues de constancia. Orden 133 para vista Gemini;
+  Claude conserva reglas contractuales, dinero/permisos y compila.
+- Estaciones: original 3 fallos. ENT83-360 rechaza plataforma-360 en vez de
+  plataforma360 y queda en cola; ENT83-GUEST Bogue rechaza guardar con QR de
+  invitado por llamar guardado general de fiesta. Orden 134, no aflojar permisos;
+  escritura estrecha de Claude, identidad/ciclo de Gemini. Son pendientes, no
+  arreglos entregados. Mensajes exactos/cadenas/capturas en informe 83.
+- Buzon: tercer fallo original fue selector de MI sonda, no error de guardado.
+  Retest solo Buzon PASA: una fila/ACK, Storage, URL200, MIME y bytes SDK=GET.
+  Archivo 47.008 bytes WebM, reproducido Chromium 640x480/cuadro visible.
+  No implica que 360/Bogue descargan ni que hardware real esta aceptado.
+- PR 1275/1276 fusionadas por otra sesion mientras se auditaba; BAR82-CANCEL ya
+  tiene correccion presente en main. NO repetir orden 132 ni declarar retest
+  propio de ese arreglo. Nueva rama 83 desde main, no empujar a rama cerrada.
+- Guardados informe, ordenes 133/134, JSON originales/retest, sondas/capturas y
+  limites docs/evidencias/83-*. Agente economico cerrado. Sin cambios productivos,
+  datos reales ni compilacion nueva; entorno propio detenido. Los 19 originales
+  y conexiones reales conservan limite previo, no se reintentaron sin acceso nuevo.
+
 ## 9 de octubre de 2026 — Codex, auditoría 82: cancelar un trago con la señal cortada (PR 1275)
 
 - **El botón "Cancelar" del trago quedaba girando para siempre** si se cortaba la respuesta

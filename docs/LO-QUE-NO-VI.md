@@ -1051,3 +1051,19 @@ de la forma en toda la app.
 prueba: src/__tests__/la-publicacion-manual-no-sale-dos-veces.test.ts
 prueba: src/__tests__/el-recordatorio-al-invitado-no-se-repite.test.ts
 ```
+
+## El invitado con permiso para hacer pero no para guardar (9 de octubre de 2026)
+
+**Lo encontró Codex probando la entrega de Bogue (auditoría 83).** El invitado grababa, y el
+guardado pedía sesión del equipo. El barrido encontró lo mismo en la trivia y en la pantalla en
+vivo. La prueba de la trivia estaba en verde porque fingía el guardado.
+
+**Qué pregunta no me hice:** *¿con qué permiso se GUARDA lo que hace el invitado?* Miraba el
+permiso de entrada, no el del guardado. Y no miré qué fingía la prueba.
+
+**Qué se agregó:** pregunta 46 de `COMO-AUDITAR.md` y 39 de `ANTES-DE-ENTREGAR.md`.
+
+```comprobar
+prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
+prueba: src/__tests__/entretenimiento-bloque-a.test.tsx
+```
