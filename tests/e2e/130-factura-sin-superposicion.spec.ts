@@ -51,5 +51,9 @@ for (const t of tamanos) {
       expect(caja2!.y + caja2!.height).toBeLessThanOrEqual(t.height);
       expect(caja2!.x + caja2!.width).toBeLessThanOrEqual(t.width);
     }
+
+    // El resultado de verdad: un clic real en el centro abre la factura nueva, no el chat.
+    await page.mouse.click(x, y);
+    await expect(page).toHaveURL(/\/invoices\/new/, { timeout: 30_000 });
   });
 }

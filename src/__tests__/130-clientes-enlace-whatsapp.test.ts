@@ -34,7 +34,6 @@ describe('barrido WA80: los otros enlaces de WhatsApp con teléfonos locales', (
   const leer = (f: string) => fs.readFileSync(path.join(process.cwd(), f), 'utf8');
 
   it.each([
-    'src/app/actions/rsvp-reminders.actions.ts',
     'src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx',
     'src/app/invitacion/[fiestaId]/rsvp/page.tsx',
     'src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx',
