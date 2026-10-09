@@ -320,7 +320,7 @@ export default function AtraccionPorFiestaPage() {
                                     Prospectos originados en este evento ({item.prospectos.length})
                                   </h4>
                                   <Button asChild size="sm" variant="ghost" className="h-7 text-xs">
-                                    <Link href={`/fiestas/${item.fiestaId}`}>
+                                    <Link href={`/fiestas/${item.fiestaId}/centro`}>
                                       Ver ficha de la fiesta &rarr;
                                     </Link>
                                   </Button>

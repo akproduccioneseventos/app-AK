@@ -1,4 +1,5 @@
 'use client';
+import { volverAlPortal } from '@/lib/portal/volver-al-portal';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -124,7 +125,7 @@ export default function ClientContractPage() {
                       <CardDescription>El contrato aún no ha sido redactado por el organizador.</CardDescription>
                   </CardHeader>
                   <CardFooter className="justify-center">
-                      <Button asChild variant="outline"><Link href={`/portal?fiestaId=${fiestaId}`}>Volver al Portal</Link></Button>
+                      <Button asChild variant="outline"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}>Volver al Portal</Link></Button>
                   </CardFooter>
               </Card>
           </div>
@@ -153,7 +154,7 @@ export default function ClientContractPage() {
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Revisión y Firma Digital</p>
                     </div>
                 </div>
-                <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={`/portal?fiestaId=${fiestaId}`}><ArrowLeft className="w-5 h-5"/></Link></Button>
+                <Button asChild variant="ghost" size="icon" className="rounded-full"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-5 h-5"/></Link></Button>
             </header>
 
             {firma?.isSigned && (

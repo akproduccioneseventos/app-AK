@@ -175,10 +175,6 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/settings/feature-flags"
   },
   {
-    "etiqueta": "Centro de Control",
-    "ruta": "/"
-  },
-  {
     "etiqueta": "Nuevo Lead",
     "ruta": "/admin"
   },

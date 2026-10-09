@@ -1,5 +1,34 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de octubre de 2026 — Botones que no llevaban a donde decían (pedido del dueño)
+
+Se revisaron unos 1.500 enlaces de toda la app (equipo, web, portal, invitado y estaciones).
+- **"Centro de Control" del menú y "Ir al panel principal"** llevaban a la web pública: ahora van
+  al panel del equipo (`/admin`). En el panel, el botón que iba a Configuración se llama
+  "Configuración" (antes también decía "Centro de Control").
+- **Llevaban a una pantalla que no existe:** en Marketing, "Moderación y Comentarios" (ahora abre
+  la solapa de comentarios de Presencia digital), "Editor Web y Portada" (`/empresa/landing-editor`)
+  y "Galería y Catálogo" (`/empresa/galeria`); "Previsualizar" de Regalos (la invitación);
+  "Ir a la tienda" de un módulo no contratado (servicios contratados); los dos botones de la lista
+  de compras (catering y carta de tragos); "Abrir presupuesto" en Revisar fiestas; el aviso de
+  señal del cliente y el de Atracción de fiestas (el centro de la fiesta).
+- **Portal del cliente:** "Regalos" lo mandaba al ingreso del equipo (ahora a la invitación);
+  los pendientes "Confirmar invitaciones" y "Pago pendiente" no hacían nada porque esa solapa
+  estaba cerrada (ahora la abren); "Volver al Portal" del contrato y del moodboard vuelve a donde
+  estaba el cliente, no al portal viejo con contraseña.
+- **La tarjeta del asistente** (abajo a la derecha) ahora se minimiza y se arrastra, y queda donde
+  la dejó cada uno.
+- El candado: `ningun-boton-lleva-a-una-pantalla-que-no-existe` recorre todos los enlaces fijos y
+  se pone en rojo si uno apunta a una pantalla inexistente. Se probó rompiéndolo.
+
+```comprobar
+prueba: src/__tests__/ningun-boton-lleva-a-una-pantalla-que-no-existe.test.ts
+usa: href="/admin" en src/components/main-nav.tsx
+usa: volverAlPortal en src/app/portal/[fiestaId]/contrato/page.tsx
+usa: setSolapa en src/app/portal-cliente/[id]/page.tsx
+usa: CLAVE_POSICION en src/components/assistant/contextual-assistant-indicator.tsx
+```
+
 ## 9 de octubre de 2026 — Pruebas que faltaban (órdenes 114, 126, 127, 131 y 134) y un defecto que encontraron
 
 - **Una captura de estación sin invitado identificado no quedaba en la fiesta** con la base real:

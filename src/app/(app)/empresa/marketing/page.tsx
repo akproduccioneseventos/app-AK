@@ -50,7 +50,7 @@ const marketingTools: MarketingSection[] = [
     description: 'Bandeja unificada de mensajes e interacción social.',
     icon: MessageSquare,
     color: 'text-pink-600 bg-pink-100',
-    href: '/empresa/social-moderation',
+    href: '/empresa/presencia-digital?tab=comentarios',
     badge: 'Comunidad',
   },
   {
@@ -82,7 +82,7 @@ const marketingTools: MarketingSection[] = [
     description: 'Configuración visual de la portada pública y bloques de promoción.',
     icon: Layers,
     color: 'text-teal-600 bg-teal-100',
-    href: '/empresa/landing-builder',
+    href: '/empresa/landing-editor',
     badge: 'Diseño',
   },
   {
@@ -106,7 +106,7 @@ const marketingTools: MarketingSection[] = [
     description: 'Muestrario fotográfico y servicios disponibles para clientes e invitados.',
     icon: Camera,
     color: 'text-rose-600 bg-rose-100',
-    href: '/galeria',
+    href: '/empresa/galeria',
     badge: 'Portafolio',
   },
   {

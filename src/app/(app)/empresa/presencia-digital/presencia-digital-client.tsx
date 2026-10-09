@@ -83,6 +83,11 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
   const [activeTab, setActiveTab] = useState<'revision' | 'posicionamiento' | 'comentarios' | 'web' | 'directorios' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
+  // La tarjeta "Moderación y Comentarios" de Marketing llega con ?tab=comentarios y abre esa solapa.
+  useEffect(() => {
+    const pedida = new URLSearchParams(window.location.search).get('tab');
+    if (pedida === 'comentarios' || pedida === 'publicaciones' || pedida === 'posicionamiento') setActiveTab(pedida);
+  }, []);
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishFeedback, setPublishFeedback] = useState<{
     success: boolean;

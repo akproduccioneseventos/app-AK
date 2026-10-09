@@ -208,14 +208,15 @@ export function MainNav() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={isExactly("/")}
+              isActive={isExactly("/admin")}
               tooltip="Centro de Control"
               className={cn(
                 "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em]",
-                isExactly("/") ? "bg-slate-900 text-white shadow-lg shadow-slate-900/10" : "text-slate-600 hover:bg-slate-100/80"
+                isExactly("/admin") ? "bg-slate-900 text-white shadow-lg shadow-slate-900/10" : "text-slate-600 hover:bg-slate-100/80"
               )}
             >
-              <Link href="/">
+              {/* El panel del equipo, no la web pública (pedido del dueño, 9/10/2026). */}
+              <Link href="/admin">
                 <LayoutDashboard className="w-4 h-4 text-indigo-500" />
                 <span className="ml-2">Centro de Control</span>
               </Link>

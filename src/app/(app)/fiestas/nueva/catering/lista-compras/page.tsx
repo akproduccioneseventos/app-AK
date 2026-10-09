@@ -529,14 +529,14 @@ function ListaDeComprasContent() {
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
-                href={`/fiestas/nueva/catering/menu${fiestaId ? `?id=${fiestaId}` : ''}`}
+                href={`/fiestas/nueva/catering${fiestaId ? `?fiestaId=${fiestaId}` : ''}`}
                 className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-sm hover:bg-primary/90 transition-colors"
               >
                 <UtensilsCrossed className="h-4 w-4" />
                 Cargar Menú y Platos
               </Link>
               <Link
-                href={`/fiestas/nueva/catering/bebidas${fiestaId ? `?id=${fiestaId}` : ''}`}
+                href={`/fiestas/nueva/carta-tragos${fiestaId ? `?fiestaId=${fiestaId}` : ''}`}
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-black uppercase tracking-wider text-slate-700 shadow-sm hover:bg-slate-50 transition-colors"
               >
                 Configurar Bebidas y Barra

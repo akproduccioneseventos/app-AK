@@ -142,6 +142,9 @@ export default function PortalClientePage() {
   const [enviandoRecuperacion, setEnviandoRecuperacion] = useState(false);
   const [avisoRecuperacion, setAvisoRecuperacion]       = useState<string | null>(null);
   const [openSections, setOpenSections] = useState<string[]>(['resumen']);
+  // La solapa abierta. Un pendiente que apunta a Invitados o Pagos abre esa solapa antes de
+  // bajar: con la solapa cerrada la sección no existe y el botón no hacía nada.
+  const [solapa, setSolapa] = useState('progreso');
 
   // debeLlevar state
   const [debeLlevarItems, setDebeLlevarItems] = useState<ClienteDebeLlevarItem[]>([]);
@@ -895,6 +898,7 @@ export default function PortalClientePage() {
               window.location.href = href;
             } else if (href.startsWith('#')) {
               const sectionId = href.slice(1);
+              if (sectionId === 'invitados' || sectionId === 'pagos') setSolapa(sectionId);
               setOpenSections(prev => prev.includes(sectionId) ? prev : [...prev, sectionId]);
               setTimeout(() => {
                 document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
@@ -946,7 +950,7 @@ export default function PortalClientePage() {
           viewport={{ once: true, margin: '-20px' }}
           transition={{ duration: DURACION.entrar, ease: SUAVE }}
         >
-          <Tabs defaultValue="progreso" className="w-full">
+          <Tabs value={solapa} onValueChange={setSolapa} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-4 h-auto p-1">
               <TabsTrigger value="progreso" className="py-2.5 text-sm font-bold">Progreso</TabsTrigger>
               <TabsTrigger value="invitados" className="py-2.5 text-sm font-bold">Invitados</TabsTrigger>

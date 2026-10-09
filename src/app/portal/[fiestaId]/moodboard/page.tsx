@@ -1,4 +1,5 @@
 'use client';
+import { volverAlPortal } from '@/lib/portal/volver-al-portal';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -124,7 +125,7 @@ export default function ClientMoodboardPage() {
                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tablero de Inspiración del Evento</p>
                     </div>
                 </div>
-                <Button asChild variant="outline" className="rounded-xl border-slate-200"><Link href={`/portal?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Link></Button>
+                <Button asChild variant="outline" className="rounded-xl border-slate-200"><Link href={`/portal?fiestaId=${fiestaId}`} onClick={volverAlPortal}><ArrowLeft className="w-4 h-4 mr-2"/>Volver al Portal</Link></Button>
             </header>
 
             <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md">
