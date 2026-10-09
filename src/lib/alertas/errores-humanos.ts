@@ -1,4 +1,5 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import type { Presupuesto } from '@/types/presupuesto';
 
 export type CategoriaErrorHumano =
@@ -109,7 +110,7 @@ export function detectarErroresHumanos(
     // B) Seña no cobrada faltando <= 15 días
     if (presupuesto && dias >= 0 && dias <= 15) {
       const pagosConfirmados = (presupuesto.pagosCliente || [])
-        .filter((p) => p.estadoPago !== 'rechazado')
+        .filter(isConfirmedClientPayment)
         .reduce((sum, p) => sum + (Number(p.monto) || 0), 0);
       // La seña que se mira es la ACORDADA. Antes, si no habia seña cargada se
       // asumia el 10% del total: eso avisaba "falta cobrar la seña" en fiestas
@@ -156,7 +157,7 @@ export function detectarErroresHumanos(
     // C) Saldo sin cobrar con fiesta ya pasada
     if (presupuesto && dias < 0) {
       const pagos = (presupuesto.pagosCliente || [])
-        .filter((p) => p.estadoPago !== 'rechazado')
+        .filter(isConfirmedClientPayment)
         .reduce((sum, p) => sum + (Number(p.monto) || 0), 0);
       const total = Number(presupuesto.totalConDescuento || presupuesto.costoTotalEstimado || 0);
       const saldo = total - pagos;
@@ -180,7 +181,7 @@ export function detectarErroresHumanos(
     // D) Fiesta cobrada sin factura emitida
     if (presupuesto) {
       const pagos = (presupuesto.pagosCliente || [])
-        .filter((p) => p.estadoPago !== 'rechazado')
+        .filter(isConfirmedClientPayment)
         .reduce((sum, p) => sum + (Number(p.monto) || 0), 0);
       const total = Number(presupuesto.totalConDescuento || presupuesto.costoTotalEstimado || 0);
       const estaPagado = total > 0 && pagos >= (total - 100);

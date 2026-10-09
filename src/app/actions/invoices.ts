@@ -880,8 +880,11 @@ export async function ejecutarEscaneoDeRecordatorios(
     const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
     if (!permiso.ok) return { success: false, triggeredCount: 0, errors: [permiso.error] };
   }
+  // La guardia ya se paso arriba (permiso de contabilidad, o la llave interna de la tarea
+  // programada). `getInvoices()` volvia a pedir sesion: desde el despertador no hay ninguna,
+  // tiraba y la tarea no preparaba ningun recordatorio (Codex, auditoria 81).
   const [invoices, scheduledMessages] = await Promise.all([
-    getInvoices(),
+    leerFacturasSinGuardia(),
     getScheduledMessages(internalToken).catch(() => [])
   ]);
 

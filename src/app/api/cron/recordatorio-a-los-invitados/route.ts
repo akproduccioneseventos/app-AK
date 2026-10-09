@@ -3,6 +3,7 @@ import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
+import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
 export async function GET(request: Request) {
   return correrTarea(request);
@@ -24,6 +25,7 @@ async function correrTarea(request: Request) {
     hoy.setHours(0, 0, 0, 0);
 
     let mensajesPreparados = 0;
+    const errores: string[] = [];
 
     for (const fiesta of fiestas) {
       const fechaStr = fiesta.configuracion?.fechaEvento;
@@ -44,7 +46,8 @@ async function correrTarea(request: Request) {
 
         for (const inv of confirmados) {
           const tel = inv.contacto;
-          if (!tel) continue;
+          // Sin un número de verdad no hay a quién recordarle: se saltea, no es una falla.
+          if (!String(tel ?? '').replace(/\D/g, '')) continue;
 
           const nombreFiesta = fiesta.configuracion?.nombreEvento || 'la fiesta';
           const momento = diffDias === 0 ? '¡Hoy es el gran día!' : 'Faltan solo 2 días para';
@@ -66,22 +69,28 @@ async function correrTarea(request: Request) {
             status: 'pendiente',
             sendingMode: 'manual_click',
             fiestaId: fiesta.id,
-          });
+          }, WHATSAPP_AUTOMATION_INTERNAL_TOKEN);
 
+          // Sin la llave interna, guardar pedia sesion del equipo y fallaba siempre; la tarea
+          // igual contestaba "ok" y se anotaba corrida (Codex, auditoria 81).
           if (saveRes.success) {
             mensajesPreparados++;
+          } else {
+            errores.push(`${inv.nombre}: ${saveRes.error || 'no se pudo guardar el recordatorio'}`);
           }
         }
       }
     }
 
-    // Deja constancia de que corrió de verdad
-    await marcarCorrida('recordatorio-a-los-invitados');
+    // Deja constancia de que corrió de verdad, sólo si no falló ningún recordatorio.
+    const ok = errores.length === 0;
+    if (ok) await marcarCorrida('recordatorio-a-los-invitados');
 
     return NextResponse.json({
-      ok: true,
+      ok,
       mensajesPreparados,
-    });
+      errores,
+    }, { status: ok ? 200 : 500 });
   } catch (error: any) {
     console.error('[cron-recordatorio-invitados] Error:', error);
     return NextResponse.json(

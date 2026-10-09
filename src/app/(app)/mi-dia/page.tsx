@@ -16,7 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getParteDeLaManana } from '@/lib/automatico/parte-manana';
+import { getParteDeLaManana, parteParaQuienMira } from '@/lib/automatico/parte-manana';
 import { ParteDeLaMananaPlayer } from '@/components/mi-dia/ParteDeLaMananaPlayer';
 
 export const metadata: Metadata = {
@@ -155,7 +155,8 @@ export default async function MiDiaPage() {
     }
   }
 
-  const parte = await getParteDeLaManana();
+  // Los saldos y la conciliación son plata: sólo los ve quien tiene contabilidad.
+  const parte = parteParaQuienMira(await getParteDeLaManana(), verContabilidad);
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-20">

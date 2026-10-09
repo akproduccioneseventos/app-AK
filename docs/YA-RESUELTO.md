@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de octubre de 2026 — Codex, auditoría 81: tareas sin sesión, parte de la mañana y cobros a confirmar
+
+- **Los recordatorios de cuota no se armaban desde el despertador.** La tarea pasaba su guardia con
+  la llave interna y después leía las facturas por la puerta que pide contabilidad: sin sesión
+  tiraba. Ahora lee por dentro (la guardia ya se pasó arriba). Al entrar a la app también va con
+  la llave. Y la ruta ya no se anota "corrida" si falló: contesta error y se reintenta.
+- **El recordatorio a los invitados decía "ok" sin guardar nada.** Guardaba cada mensaje sin la
+  llave interna y el guardado pedía sesión. Ahora va con la llave; si alguno no se guarda, la tarea
+  contesta error y no se anota corrida. Un contacto sin número de verdad se saltea.
+- **El parte de la mañana (Mi día y el asistente) decía "todo al día" con la base sin leer**, y lo
+  guardaba para todo el día. Ahora lee por dentro; si una lectura falla lo dice y **no se guarda**.
+  El saldo de la cobranza resta **sólo lo confirmado**. Y como ahora el parte lo arma el servidor,
+  a quien no tiene contabilidad "Mi día" le saca los saldos, el resumen del contador y la
+  conciliación (`parteParaQuienMira`).
+- **Barrido por forma, cobros a confirmar:** las alertas de "seña no cobrada", "saldo de fiesta
+  realizada" y "cobrada sin factura" y el cobrador automático contaban un pago informado y sin
+  confirmar como cobrado. Ahora usan `isConfirmedClientPayment`.
+
+```comprobar
+prueba: src/__tests__/las-tareas-de-recordatorio-preparan-sin-sesion.test.ts
+prueba: src/__tests__/el-parte-de-la-manana-no-miente.test.ts
+prueba: src/__tests__/un-pago-a-confirmar-no-cuenta-como-cobrado.test.ts
+usa: parteParaQuienMira en src/app/(app)/mi-dia/page.tsx
+usa: isConfirmedClientPayment en src/lib/alertas/errores-humanos.ts
+usa: WHATSAPP_AUTOMATION_INTERNAL_TOKEN en src/app/api/cron/recordatorio-a-los-invitados/route.ts
+```
+
 ## 8 de octubre de 2026 — Barrido por forma: conteos en personas y fecha de fiesta no es cita
 
 - **La recepción y el portal público contaban invitaciones y no personas.** Un invitado para cuatro

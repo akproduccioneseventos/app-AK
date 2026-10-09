@@ -1,4 +1,5 @@
 import { readData, writeData } from '@/lib/data-service';
+import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { hoyEnUruguay } from '@/lib/utils';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -220,7 +221,7 @@ export async function ejecutarCobrador(ahora = new Date()): Promise<RegistroEjec
     if (!fechaStr) continue;
 
     const diffDias = Math.ceil((new Date(fechaStr).getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
-    const pagos = (p.pagosCliente || []).filter((pg) => pg.estadoPago !== 'rechazado').reduce((s, pg) => s + (Number(pg.monto) || 0), 0);
+    const pagos = (p.pagosCliente || []).filter(isConfirmedClientPayment).reduce((s, pg) => s + (Number(pg.monto) || 0), 0);
     const total = Number(p.totalConDescuento || p.costoTotalEstimado || 0);
     const saldo = total - pagos;
 
