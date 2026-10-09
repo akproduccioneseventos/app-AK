@@ -138,20 +138,20 @@ version conserva evidencia. No marcar limpias las areas con pruebas pendientes d
 ```comprobar
 archivo: src/app/actions/invoices.ts
 usa: ejecutarEscaneoDeRecordatorios en src/app/api/cron/recordatorios-de-pago/route.ts
-prueba: PENDIENTE prueba de cron sin cookie y con autorizacion valida
+prueba: src/__tests__/las-tareas-de-recordatorio-preparan-sin-sesion.test.ts
 archivo: src/lib/invitaciones/recordatorio-no-abiertas.ts
 usa: correrTareaRecordarInvitacionNoAbierta en src/app/api/cron/recordar-invitacion-no-abierta/route.ts
-prueba: PENDIENTE transaccion reintentada con entrega unica
+prueba: src/__tests__/recordatorio-no-abiertas-no-manda-doble.test.ts
 archivo: src/lib/presencia-digital/publicador.ts
 usa: publishPostInternal en src/app/actions/social-media.ts
-prueba: docs/evidencias/81-publicacion-sondas.test.ts (retest: manual falla, TikTok pasa)
+prueba: src/__tests__/la-publicacion-manual-no-sale-dos-veces.test.ts
 archivo: src/app/api/cron/recordatorio-a-los-invitados/route.ts
 usa: saveScheduledMessage en src/app/api/cron/recordatorio-a-los-invitados/route.ts
-prueba: docs/evidencias/81-invitados-reintento.test.ts (retest: dos mensajes, falla)
+prueba: src/__tests__/el-recordatorio-al-invitado-no-se-repite.test.ts
 archivo: src/lib/automatico/parte-manana.ts
 usa: getParteDeLaManana en src/app/api/cron/asistente-proactivo/route.ts
-prueba: PENDIENTE cache y saldos con autorizacion interna
+prueba: src/__tests__/el-parte-de-la-manana-no-miente.test.ts
 archivo: src/lib/automatico/posicionamiento-diario.ts
 usa: ejecutarRevisionPosicionamiento en src/app/api/cron/posicionamiento-diario/route.ts
-prueba: PENDIENTE paginas no comprobadas no dan optimo
+prueba: src/__tests__/revision-web-pide-las-paginas.test.ts
 ```
