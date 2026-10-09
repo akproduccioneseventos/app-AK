@@ -108,6 +108,11 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
       } else {
         toast({ title: 'No se pudo registrar', description: result.error || 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
       }
+    } catch {
+      // Corte de señal: el mismo `clientRequestId` se reusa al reintentar, así el servidor no
+      // lo anota dos veces si el primero había llegado.
+      toast({ title: 'No se pudo confirmar el pedido', description: 'Se cortó la conexión. Fijate en "Mi pedido actual" antes de volver a pedir.', variant: 'destructive' });
+      await loadData().catch(() => undefined);
     } finally {
       isSubmittingOrderRef.current = false;
       setIsOrdering(false);
@@ -116,14 +121,22 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
 
   const handleCancel = async (orderId: string) => {
     setIsCanceling(orderId);
-    const result = await cancelBarDrinkOrder(fiestaId, orderId, guest.id, guestAccessToken);
-    if (result.success) {
-      toast({ title: 'Pedido cancelado', description: 'Tu pedido fue cancelado.' });
-      await loadData();
-    } else {
-      toast({ title: 'No se pudo cancelar', description: 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
+    try {
+      const result = await cancelBarDrinkOrder(fiestaId, orderId, guest.id, guestAccessToken);
+      if (result.success) {
+        toast({ title: 'Pedido cancelado', description: 'Tu pedido fue cancelado.' });
+      } else {
+        toast({ title: 'No se pudo cancelar', description: 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
+      }
+    } catch {
+      // Se cortó la señal: no se sabe si llegó. No se dice "cancelado"; se vuelve a mirar
+      // el pedido para mostrar cómo quedó de verdad (Codex, auditoría 82, BAR82-CANCEL).
+      toast({ title: 'No se pudo cancelar', description: 'Se cortó la conexión. Fijate cómo quedó tu pedido y, si sigue, probá de nuevo.', variant: 'destructive' });
+    } finally {
+      // El botón se libera SIEMPRE, aunque falle la recarga.
+      setIsCanceling(null);
+      await loadData().catch(() => undefined);
     }
-    setIsCanceling(null);
   };
 
   const handleMediaUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
