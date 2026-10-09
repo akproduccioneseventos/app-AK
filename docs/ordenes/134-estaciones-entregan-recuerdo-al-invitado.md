@@ -1,5 +1,7 @@
 # Orden 134: terminar la entrega de 360 y Bogue
 
+**HECHA el 9/10/2026 por Claude. Ver YA-RESUELTO (auditoría 83).**
+
 ## Version y reparto
 
 9/10/2026. Area estaciones. Main `859fd23b1175646edc0209cab114241327d302ba`;
@@ -88,7 +90,8 @@ corregido. Usar la sonda revisada 83 como base, no aflojar sus assertions.
 ```comprobar
 archivo: src/app/actions/fiesta/entretenimiento.actions.ts
 usa: uploadEntretenimientoMedia en src/app/evento/plataforma-360/[fiestaId]/page.tsx
-usa: uploadEntretenimientoMedia en handleAutoUpload de src/app/evento/bogue/[fiestaId]/page.tsx
-prueba: tests/e2e/estaciones-invitado-entrega-real.spec.ts (PENDIENTE)
-prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts (PENDIENTE)
+usa: uploadEntretenimientoMedia en src/app/evento/bogue/[fiestaId]/page.tsx
+prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
+prueba: tests/e2e/estaciones-invitado-entrega-real.spec.ts (PENDIENTE, entorno aislado con emulador)
+prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
 ```

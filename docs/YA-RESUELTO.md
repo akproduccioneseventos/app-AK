@@ -1,5 +1,33 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de octubre de 2026 — Codex, auditoría 83: contrato y estaciones (PR 1277)
+
+- **Bogue no guardaba lo que grababa el invitado** (ENT83-GUEST). La captura se subía y después
+  se guardaba la fiesta entera por el camino que pide sesión del equipo o del portal. Ahora, con
+  el permiso de ESA estación ya comprobado, se agrega sólo ese recuerdo adentro de la transacción
+  de la fiesta (sobre lo último guardado, sin pisar otras capturas ni tocar nada más). Al invitado
+  no se le da permiso para editar la fiesta. Un reintento de la misma captura no la duplica.
+- **La 360 nunca entregaba el video** (ENT83-360): la pantalla manda `plataforma-360` (el nombre de
+  la ruta) y el módulo se llama `plataforma360`. El servidor traduce los nombres de ruta conocidos
+  (también las capturas que ya estaban en cola); un módulo inventado sigue rechazado. Y "no es
+  válido" ahora cuenta como rechazo definitivo, no como falta de señal.
+- **El contrato no mostraba el nombre del firmante** con la constancia digital (CT83-NOMBRE): ahora
+  se ve; la IP no se muestra.
+- **Después de la constancia desaparecía "Imprimir"** (CT83-PAPEL), aunque el aviso pedía el papel.
+  Ahora queda el botón con "Falta el contrato en papel". No confirma la reserva: eso sigue saliendo
+  sólo del contrato en papel.
+- Las evidencias de Codex (`docs/evidencias/*.ts`) ya no las compila el revisor de tipos
+  (`tsconfig.json`, `exclude`): son sondas pensadas para copiarse a `tests/e2e`, y cada tanda nueva
+  frenaba la puerta por una importación relativa.
+
+```comprobar
+prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
+prueba: tests/e2e/contrato-constancia-mantiene-papel.spec.ts
+usa: ALIAS_DE_MODULO en src/app/actions/fiesta/entretenimiento.actions.ts
+usa: signedBy: constancia.signedBy en src/app/portal/[fiestaId]/contrato/page.tsx
+usa: docs/evidencias en tsconfig.json
+```
+
 ## 9/10/2026 - Codex 83: contrato y entrega de estaciones, CUATRO pendientes nuevos
 
 Main final contrastado `859fd23b1175646edc0209cab114241327d302ba`; pruebas en

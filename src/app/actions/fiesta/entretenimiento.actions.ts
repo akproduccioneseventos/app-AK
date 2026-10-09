@@ -3,6 +3,7 @@
 import path from 'path';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
@@ -39,6 +40,11 @@ const MODULE_MOMENT_TAGS: Record<string, string> = {
   capsulaTiempo: 'Cápsula del Tiempo',
 };
 const VALID_ENTERTAINMENT_MODULE_IDS = new Set(Object.keys(MODULE_MOMENT_TAGS));
+/** Nombre de la ruta de la pantalla -> nombre del módulo. */
+const ALIAS_DE_MODULO: Record<string, string> = {
+  'plataforma-360': 'plataforma360',
+  'espejo-magico': 'espejoMagico',
+};
 
 function normalizeEntertainmentData(data: any) {
   return {
@@ -166,7 +172,12 @@ export async function saveEntretenimientoFiesta(fiestaId: string, entretenimient
 
 export async function uploadEntretenimientoMedia(formData: FormData) {
   const fiestaId = String(formData.get('fiestaId') || '');
-  const moduleId = String(formData.get('moduleId') || '');
+  // La pantalla de la 360 (y las capturas que ya quedaron en cola sin señal) mandan el nombre de
+  // la ruta, `plataforma-360`; el módulo se llama `plataforma360`. Se rechazaba y quedaba "1
+  // esperando subida" para siempre (Codex, auditoría 83, ENT83-360). Sólo se traducen los
+  // nombres de ruta conocidos: un módulo cualquiera sigue rechazado.
+  const moduleIdRecibido = String(formData.get('moduleId') || '');
+  const moduleId = ALIAS_DE_MODULO[moduleIdRecibido] ?? moduleIdRecibido;
   const caption = String(formData.get('caption') || '');
   const authorName = String(formData.get('authorName') || 'AK Producciones');
   const accessToken = String(formData.get('accessToken') || '');
@@ -295,27 +306,29 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       syncStatus: socialPostResult.success ? 'publicado' : 'pendiente',
     };
 
-    const current = getStoredEntertainment(fiesta) || {};
-    const modules = { ...(current.modules || {}) };
-    const entertainmentModule = { ...(modules[moduleId] || {}) };
-    entertainmentModule.media = [
-      mediaItem,
-      ...(entertainmentModule.media || []).filter((item: { id?: string }) => item.id !== mediaItem.id),
-    ];
-    modules[moduleId] = entertainmentModule;
-
-    const nextEntertainment = normalizeEntertainmentData({
-      ...current,
-      modules,
-    });
-
-    const result = await saveFiesta({
-      ...fiesta,
-      others: {
-        ...(fiesta.others || {}),
-        entretenimiento: nextEntertainment,
-      },
-    });
+    // ESCRITURA ANGOSTA (Codex, auditoría 83, ENT83-GUEST). Antes se guardaba la fiesta entera
+    // con `saveFiesta`, que pide sesión del equipo o del portal: el invitado con el permiso de
+    // ESTA estación sacaba la foto y el guardado se la rechazaba ("No autorizado para modificar
+    // este evento"). El permiso de la estación ya se comprobó arriba; acá se agrega SOLO este
+    // recuerdo, adentro de la transacción de la fiesta (sobre lo último guardado, sin pisar
+    // capturas que llegan a la vez), y no se toca nada más. No le da al invitado permiso para
+    // editar la fiesta.
+    let nextEntertainment: any = null;
+    const result = await actualizarFiesta(fiestaId, (fresca) => {
+      const current = getStoredEntertainment(fresca) || {};
+      const modules = { ...(current.modules || {}) };
+      const entertainmentModule = { ...(modules[moduleId] || {}) };
+      entertainmentModule.media = [
+        mediaItem,
+        ...(entertainmentModule.media || []).filter((item: { id?: string }) => item.id !== mediaItem.id),
+      ];
+      modules[moduleId] = entertainmentModule;
+      nextEntertainment = normalizeEntertainmentData({ ...current, modules });
+      return {
+        ...fresca,
+        others: { ...(fresca.others || {}), entretenimiento: nextEntertainment },
+      };
+    }, { publicRsvp: true });
 
     if (!result.success) throw new Error(result.error || 'No se pudo guardar la captura.');
 

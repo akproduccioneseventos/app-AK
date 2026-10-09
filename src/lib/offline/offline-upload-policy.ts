@@ -1,7 +1,7 @@
 export type OfflineUploadDecision = 'duplicate' | 'permanent' | 'retryable';
 
 const DUPLICATE_UPLOAD_ERROR = /ya fue subida|duplicad|already exists/i;
-const PERMANENT_UPLOAD_ERROR = /no existe|invalido|inválido|bloqueado|no habilitado|límite alcanzado|limite alcanzado|inapropiado|moderaci/i;
+const PERMANENT_UPLOAD_ERROR = /no existe|invalido|inválido|no es valido|no es válido|bloqueado|no habilitado|límite alcanzado|limite alcanzado|inapropiado|moderaci/i;
 
 /**
  * Decide si una captura debe reintentarse. Una autorización vencida es recuperable:
