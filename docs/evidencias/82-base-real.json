@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-09",
+  "sourceBase": "1b57abbec5162402cc30269cc276398707b28d55",
+  "projectMatchedRepositoryConfig": true,
+  "mode": "read-only",
+  "requestedCollection": "presupuestos",
+  "attempts": 2,
+  "result": "not-authorized",
+  "grpcCode": 7,
+  "reason": "PERMISSION_DENIED",
+  "detail": "Missing or insufficient permissions.",
+  "recordsRead": 0,
+  "writes": 0,
+  "credentialStoredInEvidence": false,
+  "interpretation": "La credencial local no permite este ensayo; no demuestra fallo de la app publicada, deuda, ausencia de presupuestos ni desincronizacion. Los 19 originales siguen sin conciliar."
+}

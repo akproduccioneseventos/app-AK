@@ -1,5 +1,37 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9/10/2026 - Codex 82: recorridos pendientes, sin esperar los arreglos 130/131
+
+- Main contrastado `1b57abbec5162402cc30269cc276398707b28d55`; copia aislada
+  compilada 497ee725 reutilizada SOLO para consumidores sin cambios. 63 tests
+  adicionales aprobados: 41 unitarios actuales, 22 E2E focalizados. No limpiar
+  automaticamente areas completas ni certificar cero errores por este numero.
+- Portal cliente: mensaje persistido al recargar, fecha de HOY correcta, botones
+  separados en 360/660/1280 px. Invitado: feedback/RSVP recuperan control y campos
+  tras corte. Espejo: consentimiento requerido/desactivado. Barra normal: cancelar
+  NUEVO persiste y PREPARANDO no permite cambio/cancelacion, PC/movil.
+- No volver a reportar los cuatro rojos de barra-72 como defecto publicado: el test
+  sembraba JSON mientras el runtime leia el emulador. La semilla correcta PASA.
+- NUEVO pendiente BAR82-CANCEL: cortar la solicitud de cancelacion deja boton
+  disabled. Sonda estricta corta una sola solicitud; base sigue NUEVO y consultas
+  posteriores abiertas. Orden 132, sin programar la app. Contrastar con tanda local
+  de Gemini antes de corregir: solo PR documental 1273 visible al consultar.
+- Estaciones: marca al compartir 360/Bogue y apertura de buzon pasan; este ultimo
+  test NO mide cuenta regresiva aunque lo prometa el titulo. No certificar entrega
+  de video, hardware, proveedor IA ni impresion por esos tests.
+- Cobertura contador: 55 rutas existentes, pero 1111 archivos no-test no clasificados.
+  No son 1111 fallos. Sonda simulada de auth permanece limpia al cambiar accion
+  omitida. Lista completa 82 complementa orden 131, no nueva implementacion duplicada.
+  Son CINCO areas sin-revisar en registro; ese estado no niega pruebas historicas.
+- Lectura real de presupuestos: dos intentos SDK SIN escribir, gRPC 7 permisos
+  insuficientes. Ninguna credencial/dato real publicado. No demuestra deuda, ausencia
+  de presupuestos ni fallo publicado. Claude necesita lectura privada autorizada y
+  originales para conciliar los 19; fixture vacio/migracion 29 no prueba inventario real.
+- Informe/JSON/sondas/screenshots: `docs/evidencias/82-*`. Se preserva estado anterior
+  completo en `82-estado-previo.md` y se compacta ESTADO-ACTUAL a menos de 40 lineas.
+- No se repitieron los cinco arreglos previos en programacion, no se fusiono, no hubo
+  cambios productivos, cobros, mensajes, publicacion externa ni escrituras reales.
+
 ## 9/10/2026 - Codex: retest verificable de 81 y entrega recuperada de 80
 
 - Retest main `1b57abbec5162402cc30269cc276398707b28d55`, sin PR abierta al contrastar:
