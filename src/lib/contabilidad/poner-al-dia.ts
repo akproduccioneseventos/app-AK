@@ -49,9 +49,9 @@ const dia = (v?: string) => (v || '').slice(0, 10);
 const sinAcentos = (t: string) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 const ACTIVA = (estado?: string) => !/suspend|cancel|archiv|demo/i.test(estado || '');
 
-/** Un texto guardado con los acentos rotos ("aÃ±os"), como en las copias viejas. */
+/** Un texto guardado con los acentos rotos (la ñ guardada como dos letras raras), como en las copias viejas. */
 export function tieneAcentosRotos(t: string): boolean {
-  return /Ã[\u0080-¿]|Â[\u0080-¿]/.test(t);
+  return /\u00c3[\u0080-\u00bf]|\u00c2[\u0080-\u00bf]/.test(t);
 }
 
 export function armarPonerAlDia(

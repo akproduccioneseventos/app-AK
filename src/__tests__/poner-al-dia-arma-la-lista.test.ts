@@ -24,7 +24,7 @@ const F = [
   fiesta('f1', 'p1', 'Evento social de Claudia Flores', '2026-08-08'),
   fiesta('f2', 'p2', 'Evento social de Mauro Franchi', '2026-10-03'),
   fiesta('f3', 'p3', 'XV años de Lorena Leal', '2026-12-19'),
-  fiesta('fiesta_doc_lorena', 'presupuesto_viejo', 'XV aÃ±os de Lorena Leal', '2026-12-19', 'En PlanificaciÃ³n'),
+  fiesta('fiesta_doc_lorena', 'presupuesto_viejo', 'XV a\u00c3\u00b1os de Lorena Leal', '2026-12-19', 'En Planificaci\u00c3\u00b3n'),
 ];
 
 it('las fiestas pasadas con saldo vienen para cobrar; la que ya está paga, no', () => {
@@ -36,7 +36,7 @@ it('las fiestas pasadas con saldo vienen para cobrar; la que ya está paga, no',
 it('la copia vieja con acentos rotos se reconoce y apunta a la buena', () => {
   const r = armarPonerAlDia(P, F, HOY);
   expect(r.copias.map((c) => c.fiestaId)).toEqual(['fiesta_doc_lorena']);
-  expect(tieneAcentosRotos('XV aÃ±os')).toBe(true);
+  expect(tieneAcentosRotos('XV a\u00c3\u00b1os')).toBe(true);
   expect(tieneAcentosRotos('XV años')).toBe(false);
 });
 
