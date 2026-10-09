@@ -20,10 +20,11 @@ describe('Lo automático no sale dos veces', () => {
     // La puerta de entrada corta el reenvío cuando el posteo ya salió.
     expect(publicador).toMatch(/targetPost\.status === 'Publicado'/);
 
-    // Y la vuelta programada relee el estado justo antes de mandar, porque entre
-    // que armó la lista y le toca el turno a este posteo, otra pestaña pudo haberlo
-    // publicado.
-    expect(publicador).toMatch(/alDia\.status !== 'Programado'/);
+    // Y la vuelta programada RECLAMA el posteo en la base antes de mandar: sólo publica
+    // quien gana el reclamo (Codex 81: releer no alcanzaba con dos corridas a la vez). El
+    // comportamiento lo prueba `publicador-no-publica-dos-veces`.
+    expect(publicador).toMatch(/const ganado = await reclamarPosteo\(/);
+    expect(publicador).toMatch(/p\.status !== 'Programado' \|\| p\.publishId \|\| reclamoVigente/);
   });
 
   it('la nota del blog se pide por un solo camino, no por dos', () => {
