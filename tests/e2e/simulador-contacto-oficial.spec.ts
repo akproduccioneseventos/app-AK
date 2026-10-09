@@ -49,10 +49,10 @@ test('los botones de WhatsApp del simulador abren el numero oficial de AK', asyn
   await consultar.click();
 
   const abiertas: string[] = await page.evaluate(() => (window as any).__abiertas);
-  expect(abiertas.length).toBeGreaterThanOrEqual(1);
+  expect(abiertas.length).toBeGreaterThan(0);
   const esperado = `https://wa.me/${AK_WHATSAPP_NUMBER}?text=`;
   for (const url of abiertas) {
-    expect(url.startsWith(esperado), `abre el numero oficial: ${url}`).toBe(true);
+    expect(url.slice(0, esperado.length), `abre el numero oficial: ${url}`).toEqual(esperado);
     expect(url).not.toContain('59899123456');
   }
 });
