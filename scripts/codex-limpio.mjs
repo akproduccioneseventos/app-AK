@@ -17,18 +17,55 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { archivosAlcanzadosDesde, AFECTAN_TODO } from './pantallas-tocadas.mjs';
 
 const RAIZ = process.cwd();
 
+const enCarpetas = (archivo, carpetas) =>
+  carpetas.some((c) => archivo === c || archivo.startsWith(c.endsWith('/') ? c : c + '/'));
+
+const lineas = (texto) => texto.split('\n').map((l) => l.trim()).filter(Boolean);
+
+/**
+ * ¿Cambió algo que le toca a esta área desde que Codex la dio por limpia? (orden 112, AUD01)
+ * Cuenta lo que cae DENTRO de sus carpetas, lo que ALCANZA a sus carpetas (un archivo de
+ * `src/lib` que usa una pantalla del área) y los archivos que afectan a toda la app.
+ */
 export function cambioDesde(commit, carpetas, git = (args) => execFileSync('git', args, { cwd: RAIZ, encoding: 'utf8' })) {
   try {
-    if (git(['diff', '--name-only', `${commit}..HEAD`, '--', ...carpetas]).trim().length > 0) return true;
+    const cambiados = lineas(git(['diff', '--name-only', `${commit}..HEAD`]));
+    if (cambiados.some((f) => enCarpetas(f, carpetas))) return true;
     // Lo que está tocado y sin commitear —o nuevo, sin seguimiento— también cuenta (auditoría 66):
     // si no, un área se seguía llamando limpia con cambios en la copia local.
-    return git(['status', '--porcelain', '--', ...carpetas]).trim().length > 0;
+    if (git(['status', '--porcelain', '--', ...carpetas]).trim().length > 0) return true;
+    const sueltos = lineas(git(['status', '--porcelain'])).map((l) => l.slice(3).replace(/^"|"$/g, ''));
+    const todos = [...new Set([...cambiados, ...sueltos])];
+    if (todos.some((f) => AFECTAN_TODO.some((p) => p.test(f)))) return true;
+    if (todos.length === 0) return false;
+    for (const alcanzado of archivosAlcanzadosDesde(todos, () => '*')) {
+      if (enCarpetas(alcanzado, carpetas)) return true;
+    }
+    return false;
   } catch {
     return true; // sin poder comparar, no se da por limpia
   }
+}
+
+function archivosDeRutas(dir, salida = []) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    const abs = path.join(dir, e.name);
+    if (e.isDirectory()) archivosDeRutas(abs, salida);
+    else if (/^(page\.tsx?|route\.ts)$/.test(e.name)) salida.push(path.relative(RAIZ, abs).replace(/\\/g, '/'));
+  }
+  return salida;
+}
+
+/** Pantallas y rutas de `src/app` que no caen en ninguna carpeta de ninguna área: Codex no las mira. */
+export function rutasSinArea(areas) {
+  const carpetas = areas.flatMap((a) => a.carpetas);
+  const raiz = path.join(RAIZ, 'src/app');
+  if (!fs.existsSync(raiz)) return [];
+  return archivosDeRutas(raiz).filter((f) => !enCarpetas(f, carpetas)).sort();
 }
 
 export function estadoReal(area, git) {
@@ -40,7 +77,14 @@ export function estadoReal(area, git) {
 export function resumen(areas, git) {
   const filas = areas.map((a) => ({ ...a, real: estadoReal(a, git) }));
   const limpias = filas.filter((f) => f.real === 'limpia');
-  return { filas, limpias: limpias.length, total: filas.length, terminado: limpias.length === filas.length };
+  const sinArea = rutasSinArea(areas);
+  return {
+    filas,
+    limpias: limpias.length,
+    total: filas.length,
+    sinArea,
+    terminado: limpias.length === filas.length && sinArea.length === 0,
+  };
 }
 
 const ETIQUETA = {
@@ -52,6 +96,9 @@ const ETIQUETA = {
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
   const datos = JSON.parse(fs.readFileSync(path.join(RAIZ, 'docs/codex/areas.json'), 'utf8'));
   const r = resumen(datos.areas);
+  if (r.sinArea.length > 0) {
+    console.log(`\n  ${r.sinArea.length} pantallas sin area: Codex no las mira`);
+  }
   if (r.terminado) {
     console.log('\n  CODEX NO ENCUENTRA ERRORES: las ' + r.total + ' áreas de la app están limpias.\n');
   } else {
