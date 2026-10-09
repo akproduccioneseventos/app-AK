@@ -1,4 +1,5 @@
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { toWhatsAppDigits } from '@/lib/commercial/contact';
 
 export type PortalGuest = {
   rsvp?: string | null;
@@ -234,7 +235,7 @@ export function buildWhatsAppHref(contact: string | undefined, eventName: string
   const text = encodeURIComponent(`Hola AK, soy cliente del evento "${eventName}" y quiero hacer una consulta.`);
 
   if (digits.length >= 7) {
-    return `https://wa.me/${digits}?text=${text}`;
+    return `https://wa.me/${toWhatsAppDigits(contact) || digits}?text=${text}`;
   }
 
   // Sin numero, el enlace abre WhatsApp pero no le escribe a nadie: la consulta

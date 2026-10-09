@@ -13,7 +13,30 @@
         "src/app/(app)/presupuestos",
         "src/app/actions/payment-plans.ts",
         "src/types/invoice.ts",
-        "src/lib/money"
+        "src/lib/money",
+        "src/app/(app)/contabilidad",
+        "src/app/(app)/empresa/contabilidad",
+        "src/app/(app)/pagos-rapidos",
+        "src/app/(app)/comparativa-ganancias",
+        "src/app/api/payments",
+        "src/app/api/payment-proofs",
+        "src/app/api/budgets",
+        "src/app/pago",
+        "src/app/(app)/settings/ajuste-precios",
+        "src/app/(app)/settings/cupones",
+        "src/app/(app)/settings/budget-display",
+        "src/app/(app)/empresa/servicios",
+        "src/app/(app)/empresa/todos-los-servicios",
+        "src/app/(app)/settings/catalogo-servicios",
+        "src/app/(app)/proveedores",
+        "src/app/proveedor",
+        "src/app/(app)/empresa/dashboard",
+        "src/app/(app)/aprobaciones",
+        "src/app/admin/finanzas",
+        "src/app/admin/ventas",
+        "src/app/api/analytics",
+        "src/components/presupuestos/budget-share-dock.tsx",
+        "src/app/(app)/empresa/activos-fijos"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
@@ -31,7 +54,12 @@
         "src/lib/contract-template.ts",
         "src/types/settings.ts",
         "src/data/preguntas-frecuentes-contrato.ts",
-        "src/app/(app)/settings/contratos"
+        "src/app/(app)/settings/contratos",
+        "src/app/(app)/settings/templates",
+        "src/app/api/contracts",
+        "src/app/api/employee-contracts",
+        "src/app/api/salon-contracts",
+        "src/app/api/documentos-fiesta"
       ],
       "estado": "sin-revisar"
     },
@@ -44,7 +72,9 @@
         "src/app/actions/insumos.ts",
         "src/app/actions/menus-catering.ts",
         "src/app/(app)/empresa/menus",
-        "src/data/insumos.json"
+        "src/data/insumos.json",
+        "src/app/(app)/empresa/insumos",
+        "src/app/compras"
       ],
       "estado": "con-hallazgos",
       "nota": "Auditoría 71: COMPRA01, una pantalla vieja de compras deshacía un pago. Arreglado el 6/10; falta que Codex la vuelva a mirar.",
@@ -62,7 +92,19 @@
         "src/lib/auth",
         "src/middleware.ts",
         "src/app/login",
-        "src/app/(app)/settings/accesos-personal"
+        "src/app/(app)/settings/accesos-personal",
+        "src/app/(app)/admin",
+        "src/app/(app)/perfil",
+        "src/app/(app)/settings/account",
+        "src/app/(app)/settings/feature-flags",
+        "src/app/(app)/auditoria",
+        "src/app/signup",
+        "src/app/(app)/empleados/roles",
+        "src/app/api/admin",
+        "src/app/(app)/settings/company",
+        "src/app/(app)/settings/google-workspace",
+        "src/app/api/google",
+        "src/lib/data-service.ts"
       ],
       "estado": "con-hallazgos",
       "nota": "Auditoría 71: el guardado general cambiaba campos de plata sin contabilidad (operador y portal). Arreglado el 6/10; falta que Codex la vuelva a mirar.",
@@ -79,7 +121,21 @@
       "carpetas": [
         "src/lib/fiesta",
         "src/app/actions/fiesta",
-        "src/app/(app)/fiestas"
+        "src/app/(app)/fiestas",
+        "src/app/(app)/customers",
+        "src/app/(app)/calendario",
+        "src/app/(app)/eventos",
+        "src/app/(app)/incidentes",
+        "src/app/(app)/mi-dia",
+        "src/app/(app)/empresa/salones",
+        "src/app/(app)/empresa/configurador-reunion",
+        "src/app/api/fiestas",
+        "src/app/post-fiesta",
+        "src/app/feedback",
+        "src/app/recepcion",
+        "src/app/q",
+        "src/app/(app)/settings/feedback",
+        "src/app/(app)/contabilidad/fiestas-historicas"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
@@ -94,7 +150,11 @@
       "id": "portal",
       "nombre": "Portal del cliente",
       "carpetas": [
-        "src/app/portal"
+        "src/app/portal",
+        "src/app/portal-cliente",
+        "src/app/album",
+        "src/app/video-vida",
+        "src/app/api/video-vida-photos"
       ],
       "estado": "sin-revisar"
     },
@@ -104,7 +164,9 @@
       "carpetas": [
         "src/app/invitacion",
         "src/app/i",
-        "src/components/invitacion"
+        "src/components/invitacion",
+        "src/app/invitado",
+        "src/app/portal-invitado"
       ],
       "estado": "sin-revisar"
     },
@@ -117,7 +179,38 @@
         "src/app/public",
         "src/app/simulador-de-presupuesto",
         "src/app/simulador-ak",
-        "src/components/public-footer.tsx"
+        "src/components/public-footer.tsx",
+        "src/app/blog",
+        "src/app/bodas",
+        "src/app/cumpleanos",
+        "src/app/quinceaneras",
+        "src/app/landing",
+        "src/app/catalogo",
+        "src/app/club-uruguay",
+        "src/app/experiencia",
+        "src/app/experiencia-ak",
+        "src/app/galeria-led",
+        "src/app/presentacion",
+        "src/app/presentacion-led",
+        "src/app/privacidad",
+        "src/app/simulador",
+        "src/app/tecnologia",
+        "src/app/mantenimiento",
+        "src/app/buscar",
+        "src/app/analytics",
+        "src/app/(app)/empresa/landing-editor",
+        "src/app/(app)/settings/contenido-publico",
+        "src/app/(app)/settings/promos",
+        "src/app/(app)/empresa/presentacion-led",
+        "src/app/api/public-page-assets",
+        "src/app/recursos-multi-evento",
+        "src/app/(app)/empresa/marketing",
+        "src/app/marketing",
+        "src/app/(app)/empresa/creador-anuncios",
+        "src/app/api/marketing",
+        "src/app/api/v1",
+        "src/app/(app)/empresa/resenas-google",
+        "src/app/(app)/empresa/page.tsx"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
@@ -135,7 +228,16 @@
         "src/lib/instagram",
         "src/lib/social-media",
         "src/app/actions/social-media.ts",
-        "src/app/actions/social-gallery.ts"
+        "src/app/actions/social-gallery.ts",
+        "src/app/(app)/empresa/redes-sociales",
+        "src/app/(app)/empresa/red-social-eventos",
+        "src/app/(app)/empresa/presencia-digital",
+        "src/app/(app)/settings/social-connections",
+        "src/app/api/social-gallery",
+        "src/app/api/social-media-assets",
+        "src/app/(app)/empresa/galeria",
+        "src/app/(app)/settings/biblioteca-visual-ak",
+        "src/lib/presencia-digital/publicador.ts"
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
@@ -151,7 +253,10 @@
       "nombre": "Entretenimiento: fotocabina, 360, espejo, muro, tótem",
       "carpetas": [
         "src/app/evento",
-        "src/components/entretenimiento"
+        "src/components/entretenimiento",
+        "src/app/api/manifest-estacion",
+        "src/app/api/integrations",
+        "src/app/api/buzon"
       ],
       "estado": "sin-revisar"
     },
@@ -180,7 +285,24 @@
         "src/lib/asistente",
         "src/app/actions/asistente-proactivo.actions.ts",
         "src/app/actions/asistente-virtual.ts",
-        "src/app/actions/multiagent.ts"
+        "src/app/actions/multiagent.ts",
+        "src/app/(app)/asistente",
+        "src/app/(app)/multiagente",
+        "src/app/(app)/settings/asistente",
+        "src/app/(app)/settings/ai-assistant",
+        "src/app/(app)/settings/agentes-autonomos",
+        "src/app/(app)/settings/asistentes-contextuales",
+        "src/app/api/asistente",
+        "src/app/api/multiagent",
+        "src/app/api/whatsapp",
+        "src/app/(app)/settings/whatsapp",
+        "src/app/(app)/settings/whatsapp-business",
+        "src/app/(app)/settings/whatsapp-templates",
+        "src/app/secretaria-ak",
+        "src/app/admin/asistente-ak",
+        "src/app/prospectos",
+        "src/app/(app)/contabilidad/crm",
+        "src/app/(app)/empresa/crm"
       ],
       "estado": "sin-revisar"
     },
@@ -190,7 +312,12 @@
       "carpetas": [
         "src/app/actions/empleados.ts",
         "src/app/actions/recibos-personal.ts",
-        "src/app/actions/accesos-personal-view.ts"
+        "src/app/actions/accesos-personal-view.ts",
+        "src/app/(app)/empleados",
+        "src/app/(app)/empresa/empleados",
+        "src/app/(app)/empresa/personal",
+        "src/app/personal",
+        "src/app/acceso-personal"
       ],
       "estado": "con-hallazgos",
       "nota": "Auditoría 66 (5/10/2026): hallazgos arreglados por Claude; falta que Codex la vuelva a mirar."
@@ -200,7 +327,33 @@
       "nombre": "Tareas automáticas y avisos",
       "carpetas": [
         "src/app/api/cron",
-        "src/lib/automatico"
+        "src/lib/automatico",
+        "src/app/api/cron-despachador",
+        "src/app/api/despertar",
+        "src/app/api/health",
+        "src/app/api/backup",
+        "src/app/(app)/settings/backup",
+        "src/app/(app)/settings/backup-final",
+        "src/app/configuracion",
+        "src/app/(app)/settings/tareas-automaticas",
+        "src/app/(app)/settings/task-templates",
+        "src/app/(app)/settings/sincronizaciones",
+        "src/app/(app)/settings/datos",
+        "src/app/(app)/settings/notifications",
+        "src/app/(app)/settings/instalar-app",
+        "src/app/(app)/settings/videos-de-ayuda",
+        "src/app/(app)/alertas",
+        "src/app/(app)/playbooks",
+        "src/app/(app)/repaso-diario",
+        "src/app/control-tower",
+        "src/app/api/storage",
+        "src/app/api/imports",
+        "src/app/admin/carga-historicos",
+        "src/app/(app)/settings/cierre-global-producto",
+        "src/app/(app)/settings/cierre-operativo-final",
+        "src/app/(app)/settings/lanzamiento-cto",
+        "src/app/(app)/settings/mapa-tecnologico-ak",
+        "src/app/(app)/settings/page.tsx"
       ],
       "estado": "con-hallazgos",
       "nota": "Auditoría 81: tareas sin sesión (cuotas, invitados, reuniones), invitaciones y avisos repetidos por reintento; arreglados el 9/10. Falta que Codex la vuelva a mirar.",

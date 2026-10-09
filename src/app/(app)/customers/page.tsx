@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { buildWhatsAppLink } from '@/lib/commercial/contact';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -68,7 +69,7 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
                         <div className="flex items-center justify-end gap-2">
                           {customer.phone && (
                             <a
-                              href={`https://wa.me/${customer.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${customer.name || customer.companyName || ''}!`)}`}
+                              href={buildWhatsAppLink(customer.phone, `Hola ${customer.name || customer.companyName || ''}!`)}
                               target="_blank"
                               rel="noopener noreferrer"
                             >
