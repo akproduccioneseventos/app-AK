@@ -167,6 +167,7 @@ export function MainNav() {
         setTotalUnreadCount(unread.length);
         setUrgentAlertCount(unread.filter((a) => a.tipo === "urgente").length);
       })
+      // no pasa nada si falla: es sólo el numerito de avisos del menú; queda en cero.
       .catch(() => {});
   }, []);
 
