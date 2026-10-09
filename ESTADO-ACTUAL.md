@@ -1,23 +1,29 @@
-# Auditorías 78 y 79 de Codex atendidas; base de prueba para estaciones (orden 114.3)
+# Auditorías 78, 79 y 80 de Codex atendidas, y barridos por forma hechos
 
-**8 de octubre de 2026.** Rama `claude/app-debug-stabilize-m70e6z`, sobre main `7be1c05` (PR 1268).
+**9 de octubre de 2026.** Rama `claude/app-debug-stabilize-m70e6z`, sobre main `74d94e5` (PR 1270).
 
 ## Fusionado
 
-- 1266 (orden 128), 1267 (fotos de ejemplo), 1268 (pendiente del portal en invitaciones y
-  personas; prueba de la fotocabina que mira la tira).
+- 1266 a 1270: orden 128, fotos de ejemplo, portal en personas, fotocabina que mira la tira,
+  base de prueba para estaciones (114.3), enlace del presupuesto sin botones del equipo, cita del
+  simulador en la agenda, barridos (conteos en personas, fecha de fiesta no es cita, moodboard del
+  cliente, regalo del invitado, cupón que no empezó, demo de tecnología).
 
-## En esta rama (sin fusionar todavía)
+## En esta rama
 
-- **114.3:** `npm run entorno:pruebas` prende la base y el depósito de PRUEBA (emuladores 8085 y
-  9195). Estaciones, mural y fotos andan ahí. `modo-local.ts` sólo acepta un emulador local.
-  Probado en navegador: la Plataforma 360 inicia la captura y queda en el emulador.
-- El enlace del presupuesto ya no le muestra al cliente botones del equipo.
+- El aviso cuando el cupón no queda anotado ya no suena a "salió todo bien" (pedido del dueño).
+
+## Reglas vigentes de esta etapa
+
+- Cada error y cada pregunta nueva de las listas disparan un barrido de la misma forma en toda la
+  app, con ayudantes baratos. Lo chico y mediano lo programan ayudantes; Gemini sólo lo grande.
+- Si no hay foto, va una de ejemplo. No se le piden fotos al dueño.
 
 ## Sigue
 
-- Puerta completa → fusión con `expectedHeadSha`.
-- Codex: con el entorno nuevo, probar mural, captura y entrega (lo que quedó sin evidencia en 79).
-- Integraciones reales y ensayo en el salón: al final, cuando Codex no encuentre más (decisión del
-  dueño).
-- Fotos: si no hay, va una de ejemplo. No se le piden al dueño.
+- Codex: con `npm run entorno:pruebas`, probar mural, captura y entrega (quedó sin evidencia en 79).
+- Auditoría 80 sin reproducir: "copiar enlace" (preguntarle a Codex qué pantalla) y el asistente
+  flotante tapando "Nueva Factura".
+- Dudosos sin actuar: precio 0 con `??`, portada de menú con foto de otro plato en la LED, sorteo
+  público sin identidad, KioskSetup pidiendo sesión, `enviarOpinionDecoracion` sin control.
+- Integraciones reales y ensayo en el salón: al final, cuando Codex no encuentre más.

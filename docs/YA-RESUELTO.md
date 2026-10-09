@@ -14,6 +14,8 @@
 ```comprobar
 prueba: src/__tests__/recepcion-y-portal-publico-cuentan-personas.test.ts
 prueba: src/__tests__/el-asistente-no-guarda-la-fiesta-como-cita.test.ts
+```
+
 ## 8 de octubre de 2026 — Barrido por forma: botones que fallaban, regalo, cupón
 
 - **El cliente no podía subir una idea al moodboard desde su portal.** La subida de archivos pedía
@@ -32,8 +34,10 @@ prueba: src/__tests__/el-asistente-no-guarda-la-fiesta-como-cita.test.ts
   ya no sirve, no se suma el uso y devuelve el motivo. Pendiente a propósito: el monto mínimo y el
   tipo de evento no se revalidan al guardar, porque la pantalla de crear le pasa al registro el
   descuento manual (no el total) y no le pasa el tipo; revalidarlos hoy rechazaría cupones buenos.
-  Además esa pantalla, si el registro falla, avisa "el descuento se aplicó al presupuesto": es
-  verdad (ya se guardó), pero conviene que el equipo lo corrija a mano.
+  Si el registro falla, el aviso de la pantalla de crear ya no dice sólo "el descuento se aplicó"
+  (sonaba a que salió todo bien): dice que el presupuesto se guardó con el descuento pero el cupón
+  NO quedó anotado como usado, que puede seguir figurando disponible, el motivo si lo hay, y que se
+  revise en Promociones (decisión del dueño, 9 de octubre de 2026).
 - **La demo de tecnología mostraba tres botones que a un prospecto siempre le fallaban.** La pantalla
   es pública a propósito, pero crear una demo arma una fiesta y pide sesión del equipo. Ahora los
   botones salen sólo si quien mira es del equipo; el prospecto ve una línea que explica que la demo
@@ -44,6 +48,7 @@ archivo: src/lib/cupones/motivo-para-no-usar.ts
 prueba: src/__tests__/el-cliente-sube-al-moodboard.test.ts
 prueba: src/__tests__/el-invitado-reserva-un-regalo.test.ts
 prueba: src/__tests__/un-cupon-vencido-no-se-registra.test.ts
+usa: NO quedó anotado como usado en src/app/(app)/presupuestos/nuevo/crear/page.tsx
 prueba: src/__tests__/la-demo-no-ofrece-lo-que-no-puede.test.ts
 ```
 
