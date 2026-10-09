@@ -69,6 +69,14 @@ try {
     dbInstance = null;
   } else if (admin.apps.length > 0) {
     dbInstance = admin.firestore();
+    // Un campo `undefined` hacía rechazar la escritura entera ("Cannot use undefined as a
+    // Firestore value"): una captura sin invitado perdía el recuerdo (orden 134). Se ignoran en
+    // TODAS las escrituras, no sólo en la que se encontró.
+    try {
+      dbInstance.settings({ ignoreUndefinedProperties: true });
+    } catch {
+      // no pasa nada si falla: ya estaba configurada (recarga en desarrollo).
+    }
     authInstance = admin.auth();
     console.log('Firestore and Auth instances obtained successfully.');
 

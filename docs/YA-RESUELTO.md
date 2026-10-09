@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de octubre de 2026 — Pruebas que faltaban (órdenes 114, 126, 127, 131 y 134) y un defecto que encontraron
+
+- **Una captura de estación sin invitado identificado no quedaba en la fiesta** con la base real:
+  el recuerdo llevaba un campo vacío (`guestId: undefined`) y la base rechazaba la escritura
+  entera, con el archivo ya subido. Lo encontró la prueba nueva con el emulador. Se arregló de
+  raíz: la base ignora los campos vacíos en TODAS las escrituras (`ignoreUndefinedProperties`) y el
+  guardado de la fiesta los saca (`sinIndefinidos`). La trivia tenía el mismo riesgo (mesa vacía).
+- Pruebas nuevas que confirman arreglos ya hechos: WhatsApp oficial del simulador con la
+  configuración caída (126), cada plato con su foto (127), la lista de invitados por rol y el
+  entorno de pruebas verificable (114), y la entrega de 360 y Bogue contra el emulador (134). La
+  orden 131 apunta ahora a las pruebas que ya la cumplían.
+
+```comprobar
+prueba: tests/firebase/estaciones-invitado-entrega-real.test.ts
+usa: ignoreUndefinedProperties en src/lib/firebase/server.ts
+usa: sinIndefinidos en src/lib/generic-json-store.ts
+prueba: src/__tests__/simulador-contacto-con-configuracion-caida.test.ts
+prueba: src/__tests__/catering-fotos-corresponden-al-plato.test.ts
+prueba: tests/e2e/lectura-invitados-aislada.spec.ts
+prueba: tests/e2e/entorno-compilado-verificable.spec.ts
+```
+
 ## 9 de octubre de 2026 — Codex, auditoría 83: contrato y estaciones (PR 1277)
 
 - **Bogue no guardaba lo que grababa el invitado** (ENT83-GUEST). La captura se subía y después

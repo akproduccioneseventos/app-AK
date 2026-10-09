@@ -148,14 +148,11 @@ describe('estaciones del invitado: la entrega llega a la fiesta y al deposito (e
   });
 
   /**
-   * DEFECTO REAL ENCONTRADO (no arreglado): sin `guestId` valido, el recuerdo se arma con
-   * `guestId: undefined` y Firestore (que no tiene `ignoreUndefinedProperties`) rechaza el guardado
-   * ("Cannot use undefined as a Firestore value ... media.0.guestId"). El archivo ya se subio y el
-   * muro ya publico, pero la estacion contesta error y el recuerdo no queda en la fiesta.
-   * `it.failing` pasa mientras el defecto exista y se pone en rojo el dia que se arregle: ahi hay
-   * que convertirlo en un `it` normal.
+   * Defecto encontrado por esta prueba y arreglado: sin `guestId` válido el recuerdo llevaba
+   * `guestId: undefined` y Firestore rechazaba el guardado entero. Ahora el guardado de la fiesta
+   * saca las claves `undefined` (`sinIndefinidos` en src/lib/generic-json-store.ts).
    */
-  it.failing('DEFECTO CONOCIDO: una captura sin invitado identificado tambien deberia guardarse', async () => {
+  it('una captura sin invitado identificado tambien se guarda', async () => {
     const token = createEntertainmentAccessToken(FIESTA_ID, 'bogue', 'guest');
     const r: any = await uploadEntretenimientoMedia(formulario({
       moduleId: 'bogue', token, clientMediaId: 'anonima134', bytes: Buffer.from('anonima'),
