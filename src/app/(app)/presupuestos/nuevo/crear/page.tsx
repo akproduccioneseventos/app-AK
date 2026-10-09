@@ -449,7 +449,7 @@ function CrearPresupuestoContent() {
                 if (!usoRes?.success) {
                   toast({
                     title: 'El cupón no quedó registrado',
-                    description: usoRes?.error || 'El descuento se aplicó al presupuesto, pero el uso del cupón no se pudo anotar. Revisalo a mano.',
+                    description: `El presupuesto se guardó con el descuento, pero el cupón NO quedó anotado como usado y puede seguir figurando disponible.${usoRes?.error ? ` Motivo: ${usoRes.error}` : ''} Revisalo en Promociones.`,
                     variant: 'destructive',
                   });
                 }
@@ -457,7 +457,7 @@ function CrearPresupuestoContent() {
                 console.warn('Error registrando uso de cupón:', e);
                 toast({
                   title: 'El cupón no quedó registrado',
-                  description: 'El descuento se aplicó al presupuesto, pero el uso del cupón no se pudo anotar. Revisalo a mano.',
+                  description: 'El presupuesto se guardó con el descuento, pero el cupón NO quedó anotado como usado y puede seguir figurando disponible. Revisalo en Promociones.',
                   variant: 'destructive',
                 });
               }
