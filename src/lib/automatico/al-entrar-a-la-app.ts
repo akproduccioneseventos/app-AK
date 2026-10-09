@@ -181,7 +181,7 @@ export async function ponerAlDiaAlEntrar(
           const { checkAndCreateReunionReminders } = await import('@/app/actions/notifications');
           const { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } = await import('@/lib/whatsapp/internal-token');
           return todasSalieron({
-            'recordatorios de cuotas': () => ejecutarEscaneoDeRecordatorios(),
+            'recordatorios de cuotas': () => ejecutarEscaneoDeRecordatorios(WHATSAPP_AUTOMATION_INTERNAL_TOKEN),
             'avisos de reuniones': () => checkAndCreateReunionReminders(WHATSAPP_AUTOMATION_INTERNAL_TOKEN),
           });
         },

@@ -1008,3 +1008,28 @@ prueba: src/__tests__/el-enlace-del-cliente-no-pide-datos-privados.test.ts
 prueba: src/__tests__/portal-cliente-contadores-personas.test.ts
 prueba: src/__tests__/crm-fecha-evento-no-es-cita.test.ts
 ```
+
+## Tareas sin sesión que fallaban calladas, y cobros "a confirmar" contados como cobrados (9 de octubre de 2026)
+
+**Lo encontró Codex (auditoría 81).** Los recordatorios de cuota no se armaban desde el
+despertador; los de los invitados decían "ok" sin guardar; el parte de la mañana decía "todo al
+día" con la base sin leer y restaba pagos a confirmar del saldo. Además el recordatorio de
+invitación no abierta mandaba el correo adentro de una transacción que la base repite.
+
+**Qué pregunta no me hice:** *¿la llave llega hasta la última lectura?* Miraba la guardia de la
+puerta de cada tarea, no las funciones que llamaba adentro. Y *¿cobrado es confirmado?*: el
+filtro de rechazados parecía suficiente. Lo de la transacción **sí** lo cubría la pregunta 40,
+pero al sumarla no se barrió la app con ella: es la regla del 8 de octubre que no se cumplió.
+
+**Qué se agregó:** preguntas 43 y 44 de `COMO-AUDITAR.md`, 36 y 37 de `ANTES-DE-ENTREGAR.md`, y
+el barrido de las tres formas en toda la app.
+
+**El control:** las pruebas de abajo dieron rojo con el código viejo.
+
+```comprobar
+prueba: src/__tests__/las-tareas-de-recordatorio-preparan-sin-sesion.test.ts
+prueba: src/__tests__/el-parte-de-la-manana-no-miente.test.ts
+prueba: src/__tests__/un-pago-a-confirmar-no-cuenta-como-cobrado.test.ts
+prueba: src/__tests__/lo-que-corre-sin-sesion-llega-hasta-el-fondo.test.ts
+prueba: src/__tests__/los-avisos-al-cliente-no-se-repiten-al-reintentar.test.ts
+```

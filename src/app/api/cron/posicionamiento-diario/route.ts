@@ -25,7 +25,7 @@ async function handleCron(request: Request) {
     return NextResponse.json({ ok: true, resultado });
   } catch (error: any) {
     return NextResponse.json(
-      { error: error?.message || 'Error al ejecutar tarea de posicionamiento.' },
+      { ok: false, error: error?.message || 'Error al ejecutar tarea de posicionamiento.' },
       { status: 500 }
     );
   }

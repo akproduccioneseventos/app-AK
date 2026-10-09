@@ -1,6 +1,8 @@
-import { readData, writeData } from '@/lib/data-service';
-import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
-import { getPresupuestos } from '@/app/actions/presupuestos';
+import { readData, readDataConDetalle, writeData } from '@/lib/data-service';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
+import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
+import type { Presupuesto } from '@/types/presupuesto';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import { hoyEnUruguay } from '@/lib/utils';
 
@@ -32,7 +34,51 @@ export interface ParteDeLaManana {
   textoHablado: string;
   textoResumen: string;
   itemsPrincipales: ItemParteManana[];
+  /** Todos los pendientes, para poder filtrar lo de plata según quién mira. */
+  items?: ItemParteManana[];
   totalPendientes: number;
+  /** Si alguna lectura falló: el parte puede estar incompleto y no se guarda para el día. */
+  incompleto?: boolean;
+}
+
+/** Lo que es plata: sólo lo ve quien tiene permiso de contabilidad. */
+const TIPOS_DE_PLATA: ReadonlySet<ItemParteManana['tipo']> = new Set(['cobranza', 'contador', 'conciliacion']);
+
+interface TextosDelParte {
+  itemsPrincipales: ItemParteManana[];
+  totalPendientes: number;
+  textoHablado: string;
+  textoResumen: string;
+}
+
+function textosDelParte(lista: ItemParteManana[], incompleto: boolean): TextosDelParte {
+  const itemsPrincipales = lista.slice(0, 3);
+  const totalPendientes = lista.length;
+  const aviso = incompleto ? ' No pude leer todos los datos: puede faltar algo, revisalo más tarde.' : '';
+  if (totalPendientes === 0) {
+    return incompleto
+      ? { itemsPrincipales, totalPendientes, textoHablado: `Buen día.${aviso}`, textoResumen: 'No pude leer todos los datos de hoy: el parte puede estar incompleto.' }
+      : { itemsPrincipales, totalPendientes, textoHablado: 'Buen día. Por hoy está todo al día.', textoResumen: 'Por hoy está todo al día.' };
+  }
+  const nombresAcciones = itemsPrincipales.map((it) => it.titulo.toLowerCase()).join(', ');
+  const extra = totalPendientes > 3 ? ` Además hay ${totalPendientes - 3} cosas más para ver.` : '';
+  return {
+    itemsPrincipales,
+    totalPendientes,
+    textoHablado: `Buen día. Hoy tenemos ${itemsPrincipales.length} puntos para avanzar: ${nombresAcciones}.${extra}${aviso} ¿Por cuál empezamos?`,
+    textoResumen: `Hoy hay ${totalPendientes} cosas para hacer.${incompleto ? ' Puede faltar algo: no se pudo leer todo.' : ''}`,
+  };
+}
+
+/**
+ * El parte que ve cada uno: a quien no tiene contabilidad se le sacan los saldos, el resumen
+ * del contador y la conciliación de cobros (antes "Mi día" se los mostraba a todo el equipo).
+ */
+export function parteParaQuienMira(parte: ParteDeLaManana, verContabilidad: boolean): ParteDeLaManana {
+  if (verContabilidad) return parte;
+  const visibles = (parte.items ?? parte.itemsPrincipales).filter((it) => !TIPOS_DE_PLATA.has(it.tipo));
+  const { items: _todos, ...resto } = parte;
+  return { ...resto, ...textosDelParte(visibles, Boolean(parte.incompleto)) };
 }
 
 /**
@@ -51,7 +97,9 @@ export async function getParteDeLaManana(forzar = false): Promise<ParteDeLaManan
   }
 
   const parte = await calcularParteDeLaManana();
-  await writeData(PARTE_CACHE_FILE, parte).catch(() => null);
+  // Un parte armado con datos a medias NO se guarda para el día: si no, la próxima vez se
+  // devuelve el mismo "todo al día" aunque la base ya conteste (Codex, auditoría 81).
+  if (!parte.incompleto) await writeData(PARTE_CACHE_FILE, parte).catch(() => null);
   return parte;
 }
 
@@ -64,9 +112,25 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
   const hoyStr = hoyEnUruguay(ahora);
   const items: ItemParteManana[] = [];
 
+  // Se lee por dentro, sin pedir sesión: el parte lo arma también el despertador, que no
+  // tiene sesión de nadie. Antes `getFiestas`/`getPresupuestos` tiraban "no autorizado", el
+  // `.catch(() => [])` lo tapaba y el parte decía "todo al día" (Codex, auditoría 81). Quién ve
+  // la plata se decide al mostrarlo (`parteParaQuienMira`).
+  let incompleto = false;
   const [fiestas, presupuestos] = await Promise.all([
-    getFiestas(false).catch(() => []),
-    getPresupuestos().catch(() => []),
+    leerFiestasCrudas(false).catch((): FiestaEnPlanificacion[] => {
+      incompleto = true;
+      return [];
+    }),
+    readDataConDetalle<Presupuesto[]>('presupuestos.json', [])
+      .then(({ valor, huboFalla }) => {
+        if (huboFalla) incompleto = true;
+        return (valor || []).filter((p) => !p.archived);
+      })
+      .catch((): Presupuesto[] => {
+        incompleto = true;
+        return [];
+      }),
   ]);
 
   // 1. Cobranzas por atender en los próximos 7 días
@@ -81,7 +145,8 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
 
     const diasParaFiesta = Math.ceil((new Date(fechaFiesta).getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24));
     const pagos = (p.pagosCliente || [])
-      .filter((pg) => pg.estadoPago !== 'rechazado')
+      // Sólo lo cobrado de verdad: un pago a confirmar no baja el saldo (Codex, auditoría 81).
+      .filter(isConfirmedClientPayment)
       .reduce((acc, pg) => acc + (Number(pg.monto) || 0), 0);
     const total = Number(p.totalConDescuento || p.costoTotalEstimado || 0);
     const saldo = total - pagos;
@@ -182,27 +247,12 @@ export async function calcularParteDeLaManana(): Promise<ParteDeLaManana> {
     // El parte no se cae por esto.
   }
 
-  const itemsPrincipales = items.slice(0, 3);
-  const totalPendientes = items.length;
-
-  let textoHablado = '';
-  let textoResumen = '';
-
-  if (totalPendientes === 0) {
-    textoHablado = 'Buen día. Por hoy está todo al día.';
-    textoResumen = 'Por hoy está todo al día.';
-  } else {
-    const nombresAcciones = itemsPrincipales.map((it) => it.titulo.toLowerCase()).join(', ');
-    const extra = totalPendientes > 3 ? ` Además hay ${totalPendientes - 3} cosas más para ver.` : '';
-    textoHablado = `Buen día. Hoy tenemos ${itemsPrincipales.length} puntos para avanzar: ${nombresAcciones}.${extra} ¿Por cuál empezamos?`;
-    textoResumen = `Hoy hay ${totalPendientes} cosas para hacer.`;
-  }
+  const textos = textosDelParte(items, incompleto);
 
   return {
     fecha: hoyStr,
-    textoHablado,
-    textoResumen,
-    itemsPrincipales,
-    totalPendientes,
+    ...textos,
+    items,
+    ...(incompleto ? { incompleto: true } : {}),
   };
 }

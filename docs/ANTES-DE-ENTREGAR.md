@@ -145,3 +145,10 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 35. **¿Escribís un número o un campo que otros ya muestran?** Mismo número, misma función y misma
     unidad (personas o invitaciones). Y un campo no se usa para otra cosa: una fecha de fiesta no
     va en el campo de las citas.
+
+36. **¿Tu código corre sin sesión (despertador, tarea, webhook)?** Seguí cada función que llama
+    hasta la última lectura: si alguna pide sesión, falla siempre. Pasale la llave interna o leé por
+    dentro, y una lectura que falla no se vuelve "lista vacía, todo bien".
+
+37. **¿Sumás pagos del cliente?** Sólo los confirmados (`isConfirmedClientPayment`). Un pago "a
+    confirmar" no es plata cobrada.

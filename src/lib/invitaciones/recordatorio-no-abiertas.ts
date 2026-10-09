@@ -172,9 +172,16 @@ export async function correrTareaRecordarInvitacionNoAbierta(
 
     if (!hayParaEnviar) continue;
 
-    await actualizarFiesta(fiesta.id, async (fiestaFresca) => {
+    // Fase 1 (adentro de la transaccion, que la base puede repetir): sólo se ELIGE a quién
+    // y se RESERVA el día. Nada sale hacia afuera acá: un reintento de la transacción
+    // mandaría el mismo correo o WhatsApp otra vez. La lista se reinicia en cada pasada.
+    let elegidos: Array<{ inv: Invitado; nombreEventoFresco: string }> = [];
+    const fiestaId = fiesta.id;
+
+    const reserva = await actualizarFiesta(fiesta.id, async (fiestaFresca) => {
+      elegidos = [];
       const invitadosFrescos = fiestaFresca.invitados || [];
-      let fiestaCambio = false;
+      const nombreEventoFresco = fiestaFresca.configuracion.nombreEvento || 'la fiesta';
 
       for (const inv of invitadosFrescos) {
         // 1. Ya abrió la invitación -> no molestar
@@ -198,139 +205,147 @@ export async function correrTareaRecordarInvitacionNoAbierta(
           continue;
         }
 
-        // Preparar enlace y mensaje
-        const enlace = `https://akproducciones.uy/invitacion/${fiestaFresca.id}/invitado/${inv.id}?token=${inv.guestAccessToken || ''}`;
-        const nombreEvento = fiestaFresca.configuracion.nombreEvento || 'la fiesta';
-        const mensajeTexto = `¡Hola ${inv.nombre}! Te recordamos acceder a tu invitación digital para ${nombreEvento}. Podés ver los detalles del evento y confirmar tu asistencia acá: ${enlace}`;
-
-        const contactoLimpio = inv.contacto.trim();
-        let envioExitoso = false;
-
-        if (contactoLimpio.includes('@')) {
-          // Enviar por Gmail
-          if (companyGmailAccount) {
-            try {
-              const resGmail = await sendGoogleGmailMessage(
-                companyGmailAccount,
-                contactoLimpio,
-                `Invitación para ${nombreEvento} - AK Producciones`,
-                `<p>${mensajeTexto}</p><p><a href="${enlace}">Abrir Invitación</a></p>`,
-              );
-              envioExitoso = Boolean(resGmail?.id || (resGmail as any)?.enviado);
-            } catch {
-              envioExitoso = false;
-            }
-          } else {
-            envioExitoso = false;
-          }
-
-          if (!envioExitoso) {
-            const resAgendar = await saveScheduledMessage(
-              {
-                targetType: 'cliente',
-                targetId: fiestaFresca.id,
-                targetName: inv.nombre,
-                targetPhone: contactoLimpio,
-                templateType: 'personalizado',
-                messageText: mensajeTexto,
-                scheduledAt: ahora.toISOString(),
-                status: 'pendiente',
-                sendingMode: 'manual_click',
-                fiestaId: fiestaFresca.id,
-              },
-              WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
-            );
-            if (!resAgendar?.success) {
-              console.warn(`[recordatorio] No se pudo agendar contingencia: ${resAgendar?.error}`);
-            }
-            fallados++;
-          }
-        } else {
-          // Enviar por WhatsApp
-          if (apiToken && phoneNumberId) {
-            try {
-              const resWa = await sendMetaWhatsAppMessage({
-                to: contactoLimpio,
-                text: mensajeTexto,
-                apiToken,
-                phoneNumberId,
-              });
-              if (resWa?.success) {
-                envioExitoso = true;
-              } else {
-                const resAgendarWa = await saveScheduledMessage(
-                  {
-                    targetType: 'cliente',
-                    targetId: fiestaFresca.id,
-                    targetName: inv.nombre,
-                    targetPhone: contactoLimpio,
-                    templateType: 'personalizado',
-                    messageText: mensajeTexto,
-                    scheduledAt: ahora.toISOString(),
-                    status: 'pendiente',
-                    sendingMode: 'manual_click',
-                    fiestaId: fiestaFresca.id,
-                  },
-                  WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
-                );
-                if (!resAgendarWa?.success) {
-                  console.warn(`[recordatorio] No se pudo agendar contingencia WhatsApp: ${resAgendarWa?.error}`);
-                }
-                fallados++;
-              }
-            } catch {
-              const resAgendarCatch = await saveScheduledMessage(
-                {
-                  targetType: 'cliente',
-                  targetId: fiestaFresca.id,
-                  targetName: inv.nombre,
-                  targetPhone: contactoLimpio,
-                  templateType: 'personalizado',
-                  messageText: mensajeTexto,
-                  scheduledAt: ahora.toISOString(),
-                  status: 'pendiente',
-                  sendingMode: 'manual_click',
-                  fiestaId: fiestaFresca.id,
-                },
-                WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
-              );
-              if (!resAgendarCatch?.success) {
-                console.warn(`[recordatorio] No se pudo agendar contingencia catch: ${resAgendarCatch?.error}`);
-              }
-              fallados++;
-            }
-          } else {
-            const resAgendarSinApi = await saveScheduledMessage(
-              {
-                targetType: 'cliente',
-                targetId: fiestaFresca.id,
-                targetName: inv.nombre,
-                targetPhone: contactoLimpio,
-                templateType: 'personalizado',
-                messageText: mensajeTexto,
-                scheduledAt: ahora.toISOString(),
-                status: 'pendiente',
-                sendingMode: 'manual_click',
-                fiestaId: fiestaFresca.id,
-              },
-              WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
-            );
-            if (!resAgendarSinApi?.success) {
-              console.warn(`[recordatorio] No se pudo agendar contingencia sin API: ${resAgendarSinApi?.error}`);
-            }
-            fallados++;
-          }
-        }
-
-        if (envioExitoso) {
-          inv.recordatoriosApertura = [...recordatorios, hoyFechaStr];
-          enviados++;
-          fiestaCambio = true;
-        }
+        // Reserva: queda anotado hoy, así nadie más lo elige.
+        inv.recordatoriosApertura = [...recordatorios, hoyFechaStr];
+        elegidos.push({ inv: { ...inv }, nombreEventoFresco });
       }
 
-      return fiestaCambio ? fiestaFresca : fiestaFresca;
+      return fiestaFresca;
     }, { publicRsvp: true });
+
+    // Si la reserva no se guardó, no se manda nada: no hay constancia de que quedó anotado.
+    if (reserva && reserva.success === false) continue;
+
+    // Fase 2 (afuera de la transaccion): el envío real.
+    for (const { inv, nombreEventoFresco } of elegidos) {
+    // Preparar enlace y mensaje
+    const enlace = `https://akproducciones.uy/invitacion/${fiestaId}/invitado/${inv.id}?token=${inv.guestAccessToken || ''}`;
+    const nombreEvento = nombreEventoFresco;
+    const mensajeTexto = `¡Hola ${inv.nombre}! Te recordamos acceder a tu invitación digital para ${nombreEvento}. Podés ver los detalles del evento y confirmar tu asistencia acá: ${enlace}`;
+
+    const contactoLimpio = (inv.contacto || '').trim();
+    let envioExitoso = false;
+
+    if (contactoLimpio.includes('@')) {
+      // Enviar por Gmail
+      if (companyGmailAccount) {
+        try {
+          const resGmail = await sendGoogleGmailMessage(
+            companyGmailAccount,
+            contactoLimpio,
+            `Invitación para ${nombreEvento} - AK Producciones`,
+            `<p>${mensajeTexto}</p><p><a href="${enlace}">Abrir Invitación</a></p>`,
+          );
+          envioExitoso = Boolean(resGmail?.id || (resGmail as any)?.enviado);
+        } catch {
+          envioExitoso = false;
+        }
+      } else {
+        envioExitoso = false;
+      }
+
+      if (!envioExitoso) {
+        const resAgendar = await saveScheduledMessage(
+          {
+            targetType: 'cliente',
+            targetId: fiestaId,
+            targetName: inv.nombre,
+            targetPhone: contactoLimpio,
+            templateType: 'personalizado',
+            messageText: mensajeTexto,
+            scheduledAt: ahora.toISOString(),
+            status: 'pendiente',
+            sendingMode: 'manual_click',
+            fiestaId: fiestaId,
+          },
+          WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
+        );
+        if (!resAgendar?.success) {
+          console.warn(`[recordatorio] No se pudo agendar contingencia: ${resAgendar?.error}`);
+        }
+        fallados++;
+      }
+    } else {
+      // Enviar por WhatsApp
+      if (apiToken && phoneNumberId) {
+        try {
+          const resWa = await sendMetaWhatsAppMessage({
+            to: contactoLimpio,
+            text: mensajeTexto,
+            apiToken,
+            phoneNumberId,
+          });
+          if (resWa?.success) {
+            envioExitoso = true;
+          } else {
+            const resAgendarWa = await saveScheduledMessage(
+              {
+                targetType: 'cliente',
+                targetId: fiestaId,
+                targetName: inv.nombre,
+                targetPhone: contactoLimpio,
+                templateType: 'personalizado',
+                messageText: mensajeTexto,
+                scheduledAt: ahora.toISOString(),
+                status: 'pendiente',
+                sendingMode: 'manual_click',
+                fiestaId: fiestaId,
+              },
+              WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
+            );
+            if (!resAgendarWa?.success) {
+              console.warn(`[recordatorio] No se pudo agendar contingencia WhatsApp: ${resAgendarWa?.error}`);
+            }
+            fallados++;
+          }
+        } catch {
+          const resAgendarCatch = await saveScheduledMessage(
+            {
+              targetType: 'cliente',
+              targetId: fiestaId,
+              targetName: inv.nombre,
+              targetPhone: contactoLimpio,
+              templateType: 'personalizado',
+              messageText: mensajeTexto,
+              scheduledAt: ahora.toISOString(),
+              status: 'pendiente',
+              sendingMode: 'manual_click',
+              fiestaId: fiestaId,
+            },
+            WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
+          );
+          if (!resAgendarCatch?.success) {
+            console.warn(`[recordatorio] No se pudo agendar contingencia catch: ${resAgendarCatch?.error}`);
+          }
+          fallados++;
+        }
+      } else {
+        const resAgendarSinApi = await saveScheduledMessage(
+          {
+            targetType: 'cliente',
+            targetId: fiestaId,
+            targetName: inv.nombre,
+            targetPhone: contactoLimpio,
+            templateType: 'personalizado',
+            messageText: mensajeTexto,
+            scheduledAt: ahora.toISOString(),
+            status: 'pendiente',
+            sendingMode: 'manual_click',
+            fiestaId: fiestaId,
+          },
+          WHATSAPP_AUTOMATION_INTERNAL_TOKEN,
+        );
+        if (!resAgendarSinApi?.success) {
+          console.warn(`[recordatorio] No se pudo agendar contingencia sin API: ${resAgendarSinApi?.error}`);
+        }
+        fallados++;
+      }
+    }
+
+      if (envioExitoso) {
+        enviados++;
+      }
+    }
   }
 
   return {

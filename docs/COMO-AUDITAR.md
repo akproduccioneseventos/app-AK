@@ -908,3 +908,21 @@ El portal contaba invitaciones y el equipo personas. La fecha de la fiesta se gu
 campo de las citas y la agenda la mostraba como entrevista. **Cuando dos pantallas muestran "el
 mismo" número, que salga de la misma función; cuando un campo se escribe, mirar quién más lo lee
 y qué cree que significa.**
+
+## Preguntas 43 y 44 — las que sumó el 9 de octubre de 2026 (Codex, auditoría 81)
+
+### 43. Lo que corre sin sesión, ¿lleva la llave hasta el fondo?
+
+Una tarea del despertador pasa su guardia con la llave interna y después llama a otra función que
+**vuelve a pedir sesión** (o la llama sin la llave). Desde el despertador eso falla **siempre**, y
+si el error se traga con `.catch(() => [])` el resultado dice "todo al día" o "ok". Así los
+recordatorios de cuota no se armaban, los de los invitados contestaban "ok" sin guardar nada, y
+el parte de la mañana decía "todo al día" y lo dejaba guardado para el resto del día. **Se sigue
+cada llamada de una tarea sin sesión hasta la lectura final**, y una falla de lectura no se
+convierte en lista vacía: se avisa y no se guarda como resultado del día.
+
+### 44. ¿"Cobrado" quiere decir confirmado?
+
+Sumar los pagos del cliente sacando sólo los rechazados cuenta como cobrado lo que el cliente
+**informó y nadie confirmó**. El saldo baja, la alerta de seña no sale y el recordatorio dice de
+menos. **Toda suma de cobros usa `isConfirmedClientPayment`.**

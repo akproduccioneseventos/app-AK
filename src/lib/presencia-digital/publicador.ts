@@ -12,7 +12,8 @@
 import type { PlatformName } from '@/types/presencia-digital';
 import type { SocialPost } from '@/types/social-media';
 import type { SocialConnection } from '@/types/settings';
-import { readData, writeData, createDataItem } from '@/lib/data-service';
+import { readData, writeData, createDataItem, mutateDataItem } from '@/lib/data-service';
+import { AsyncMutex } from '@/lib/mutex';
 import {
   publishToFacebookPage,
   publishToInstagramBusiness,
@@ -30,6 +31,65 @@ import { getUruguayParts } from '@/lib/utils';
 const POSTS_FILE = 'social-posts.json';
 const CONNECTIONS_FILE = 'social-connections.json';
 const MAX_POR_CORRIDA_DEFAULT = 3;
+const POSTS_COLLECTION = 'social_posts';
+/** Un reclamo de publicación vence solo, para que un corte del servidor no deje el posteo trabado. */
+const VENCIMIENTO_RECLAMO_MS = 15 * 60 * 1000;
+const turnoDeReclamos = new AsyncMutex();
+
+function reclamoVigente(p: SocialPost, ahoraMs: number): boolean {
+  if (!p.publicandoDesde) return false;
+  const desde = new Date(p.publicandoDesde).getTime();
+  return !Number.isNaN(desde) && ahoraMs - desde < VENCIMIENTO_RECLAMO_MS;
+}
+
+/**
+ * Cambia un posteo de forma atómica (en la transacción de la base si existe; si no,
+ * leyendo y escribiendo dentro del turno). `cambiar` devuelve null para no tocar nada.
+ */
+async function mutarPosteo(
+  postId: string,
+  cambiar: (p: SocialPost) => SocialPost | null,
+): Promise<SocialPost | null> {
+  // Con base, SOLO la transacción: si falla, no se reescribe la lista entera (pisaría lo que otro
+  // guardó). El modo de archivos locales no tiene transacción y se cuida con el turno.
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    return mutateDataItem<SocialPost>(POSTS_FILE, POSTS_COLLECTION, postId, cambiar);
+  }
+  {
+    const posts = await readData<SocialPost[]>(POSTS_FILE, []);
+    const idx = posts.findIndex((p) => p.id === postId);
+    if (idx === -1) return null;
+    const nuevo = cambiar(posts[idx]);
+    if (!nuevo) return null;
+    posts[idx] = nuevo;
+    await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+    return nuevo;
+  }
+}
+
+/** Reclama el posteo antes de publicar. Sólo quien lo gana lo publica. */
+async function reclamarPosteo(postId: string, ahora: Date): Promise<boolean> {
+  // Si no se puede reclamar (la base no contesta), no se publica: mejor tarde que dos veces.
+  return turnoDeReclamos.runExclusive(async () => {
+    const ganado = await mutarPosteo(postId, (p) => {
+      if (p.status !== 'Programado' || p.publishId || reclamoVigente(p, ahora.getTime())) return null;
+      return { ...p, publicandoDesde: ahora.toISOString() };
+    });
+    return Boolean(ganado);
+  }).catch(() => false);
+}
+
+async function soltarReclamo(postId: string): Promise<void> {
+  await turnoDeReclamos.runExclusive(async () => {
+    await mutarPosteo(postId, (p) => {
+      if (!p.publicandoDesde) return null;
+      const { publicandoDesde: _quitar, ...resto } = p;
+      void _quitar;
+      return resto as SocialPost;
+    });
+  // no pasa nada si falla: el reclamo vence solo a los 15 minutos.
+  }).catch(() => {});
+}
 
 export interface PublicarResultado {
   success: boolean;
@@ -440,6 +500,8 @@ export async function procesarPosteosProgramados(
   // Filtrar posteos programados cuya fecha ya venció
   const programadosVencidos = posts.filter((p) => {
     if (p.status !== 'Programado') return false;
+    // Con publishId ya está en TikTok procesándose: volver a mandarlo lo duplicaría.
+    if (p.publishId) return false;
     if (!p.publishDate) return false;
     const pubTime = new Date(p.publishDate).getTime();
     return !Number.isNaN(pubTime) && pubTime <= ahoraTime;
@@ -458,15 +520,17 @@ export async function procesarPosteosProgramados(
   const fallados: Array<{ id: string; error: string }> = [];
 
   for (const post of aProcesar) {
-    // Se vuelve a leer justo antes de publicar. La lista de arriba se armo al
-    // empezar la vuelta, y para cuando llega el turno de este posteo otra pestana
-    // del equipo pudo haberlo publicado ya. Sin esto, el mismo posteo sale dos
-    // veces en las redes de la empresa.
-    const frescos = await readData<SocialPost[]>(POSTS_FILE, []);
-    const alDia = frescos.find((p) => p.id === post.id);
-    if (!alDia || alDia.status !== 'Programado') continue;
+    // Se RECLAMA el posteo antes de publicar (escritura atómica). Dos corridas a la vez
+    // (despertador y visita) leían "Programado" las dos y publicaban lo mismo dos veces.
+    const ganado = await reclamarPosteo(post.id, ahora);
+    if (!ganado) continue;
 
-    const res = await publishPostInternal(post.id);
+    let res: PublicarResultado;
+    try {
+      res = await publishPostInternal(post.id);
+    } finally {
+      await soltarReclamo(post.id);
+    }
 
     if (res.success) {
       if (res.readyForManualCopy) {

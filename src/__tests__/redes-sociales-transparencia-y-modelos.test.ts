@@ -11,6 +11,11 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getHistorialFiestas: jest.fn(async () => []),
 }));
 
+// Los avisos de reunión leen las fiestas por dentro (corren sin sesión desde la tarea).
+jest.mock('@/lib/fiesta/leer-fiestas', () => ({
+  leerFiestasCrudas: jest.fn(async () => mockFiestasData),
+}));
+
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (file: string, fallback: any) => {
     if (file === 'notifications.json') return mockNotificationsData;

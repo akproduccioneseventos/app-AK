@@ -32,15 +32,15 @@ async function correrTarea(request: Request) {
 
     const resultado = await ejecutarEscaneoDeRecordatorios(WHATSAPP_AUTOMATION_INTERNAL_TOKEN);
 
-    // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
-    // una tarea automatica esta funcionando o solo esta escrita.
-    await marcarCorrida('recordatorios-de-pago');
+    // Deja constancia de que corrio de verdad, SOLO si salio. Una corrida que fallo no se
+    // anota: si no, figura al dia y nadie reintenta hasta mañana.
+    if (resultado.success) await marcarCorrida('recordatorios-de-pago');
 
     return NextResponse.json({
       ok: resultado.success,
       recordatoriosProgramados: resultado.triggeredCount,
       errores: resultado.errors,
-    });
+    }, { status: resultado.success ? 200 : 500 });
   } catch (error: any) {
     console.error('[cron-recordatorios] Error al escanear recordatorios de pago:', error);
     return NextResponse.json(

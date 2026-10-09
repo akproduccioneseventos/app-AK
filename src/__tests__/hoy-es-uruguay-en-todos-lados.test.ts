@@ -12,7 +12,12 @@ import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revisio
 
 jest.mock('@/lib/data-service', () => ({
   readData: jest.fn().mockResolvedValue([]),
+  readDataConDetalle: jest.fn().mockResolvedValue({ valor: [], huboFalla: false }),
   writeData: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('@/lib/fiesta/leer-fiestas', () => ({
+  leerFiestasCrudas: jest.fn().mockResolvedValue([]),
 }));
 
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({

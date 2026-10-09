@@ -45,9 +45,17 @@ jest.mock('@/lib/social-media/meta-publisher', () => ({
 describe('BLOQUE 1: Publicación programada con cron y límites', () => {
   const readDataMock = dataService.readData as jest.Mock;
   const writeDataMock = dataService.writeData as jest.Mock;
+  const modoAntes = process.env.AK_USE_LOCAL_JSON_ONLY;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Sin base: el reclamo del posteo se hace leyendo y escribiendo dentro del turno (los
+    // archivos de mentira de esta prueba). Con base lo prueba `publicador-no-publica-dos-veces`.
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
+  });
+
+  afterAll(() => {
+    process.env.AK_USE_LOCAL_JSON_ONLY = modoAntes;
   });
 
   it('un posteo programado con fecha pasada se publica, uno con fecha futura NO', async () => {

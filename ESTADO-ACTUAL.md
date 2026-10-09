@@ -1,6 +1,6 @@
-# Auditorías 78, 79 y 80 de Codex atendidas, y barridos por forma hechos
+# Auditoría 81 de Codex atendida (tareas sin sesión, parte de la mañana, redes, revisión web)
 
-**9 de octubre de 2026.** Rama `claude/app-debug-stabilize-m70e6z`, sobre main `74d94e5` (PR 1270).
+**9 de octubre de 2026.** Rama `claude/app-debug-stabilize-m70e6z`, sobre main `497ee72` (PR 1271).
 
 ## Fusionado
 
@@ -11,7 +11,11 @@
 
 ## En esta rama
 
-- El aviso cuando el cupón no queda anotado ya no suena a "salió todo bien" (pedido del dueño).
+- Codex 81, los 7 puntos: recordatorios de cuota e invitados sin sesión, parte de la mañana (no
+  guarda incompleto, sólo cobros confirmados, saldos sólo para contabilidad), invitación no abierta
+  sin envío doble, TikTok en proceso, publicaciones con reclamo, revisión web que abre las páginas.
+- Barridos: alertas de seña/saldo, avisos al cliente repetidos, avisos de reunión y primer mensaje
+  de WhatsApp sin sesión. Preguntas 43-44 (COMO-AUDITAR) y 36-37 (ANTES-DE-ENTREGAR).
 
 ## Reglas vigentes de esta etapa
 

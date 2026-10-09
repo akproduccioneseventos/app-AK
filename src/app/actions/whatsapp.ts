@@ -2,7 +2,8 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { WhatsAppConfig, WhatsAppConversation, WhatsAppMessage, WhatsAppStats } from '@/types/whatsapp';
-import { addCrmLead, getCrmLeads } from '@/app/actions/crm';
+import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
+import type { CrmLead } from '@/types/crm';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
@@ -218,23 +219,26 @@ export async function processIncomingMessage(
     // CRM integration: create lead if new conversation and integration enabled
     let leadId = conv.leadId;
     if (config.integrations.createCrmLead && !leadId) {
-      const existingLeads = await getCrmLeads();
-      const normalizedPhone = phone.replace(/\D/g, '').slice(-9);
-      const existingLead = existingLeads.find(l => l.phone && l.phone.replace(/\D/g, '').slice(-9) === normalizedPhone);
+      // El webhook no tiene sesión: `getCrmLeads`/`addCrmLead` piden permiso de CRM, tiraban, y se
+      // perdía el mensaje entrante sin guardar la conversación (Codex, auditoría 81, barrido). Se lee
+      // por dentro (la llave del webhook ya se comprobó arriba) y una falla del CRM no tumba el mensaje.
+      try {
+        const existingLeads = await readData<CrmLead[]>('crm-leads.json', []);
+        const normalizedPhone = phone.replace(/\D/g, '').slice(-9);
+        const existingLead = existingLeads.find(l => l.phone && l.phone.replace(/\D/g, '').slice(-9) === normalizedPhone);
 
-      if (existingLead) {
-        leadId = existingLead.id;
-      } else {
-        const res = await addCrmLead({
-          name: clientName || `WhatsApp +${phone}`,
-          phone,
-          notes: `Mensaje inicial: ${message}\nFuente: WhatsApp Bot`,
-          budgetSource: 'manual',
-          currentStageId: '',
-        } as any);
-        if (res.success && res.lead) {
-          leadId = res.lead.id;
+        if (existingLead) {
+          leadId = existingLead.id;
+        } else {
+          const { lead } = await upsertPublicCommercialLead({
+            name: clientName || `WhatsApp ${phone.slice(-4)}`,
+            phone,
+            notes: `Mensaje inicial: ${message}\nFuente: WhatsApp Bot`,
+          });
+          leadId = lead.id;
         }
+      } catch (error) {
+        console.warn('[whatsapp] No se pudo anotar el prospecto en el CRM:', error);
       }
       conversations[convIdx].leadId = leadId;
     }
