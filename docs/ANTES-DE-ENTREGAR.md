@@ -152,3 +152,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
 
 37. **¿Sumás pagos del cliente?** Sólo los confirmados (`isConfirmedClientPayment`). Un pago "a
     confirmar" no es plata cobrada.
+
+38. **¿Pusiste un candado o un reclamo?** Buscá todos los que llaman a la función que protege: el
+    candado va adentro de ella. Y si la tarea puede correr dos veces el mismo día, lo que guarda
+    lleva un id estable (qué + quién + día), no uno al azar.

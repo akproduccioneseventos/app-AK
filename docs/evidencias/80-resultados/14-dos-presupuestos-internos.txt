@@ -1,0 +1,265 @@
+- link "Logo de la Empresa":
+  - /url: /admin
+  - img "Logo de la Empresa"
+- list:
+  - link "Centro de Control":
+    - /url: /
+    - generic: Centro de Control
+- generic: Mi Día
+- generic: ☀️
+- list:
+  - link "Mi Día":
+    - /url: /mi-dia
+    - generic: Mi Día
+- generic: Fiestas
+- generic: 🎉
+- list:
+  - link "Eventos Activos":
+    - /url: /eventos
+    - generic: Eventos Activos
+  - link "Calendario":
+    - /url: /calendario
+    - generic: Calendario
+  - link "Muro Social":
+    - /url: /empresa/red-social-eventos
+    - generic: Muro Social
+  - link "Incidentes":
+    - /url: /incidentes
+    - generic: Incidentes
+  - link "Guias de Armado":
+    - /url: /playbooks
+    - generic: Guias de Armado
+  - link "Alergias y Dietas":
+    - /url: /fiestas/nueva/alergias
+    - generic: Alergias y Dietas
+  - link "Portal de Proveedores":
+    - /url: /fiestas/nueva/proveedores-portal
+    - generic: Portal de Proveedores
+  - link "Personal en dos fiestas":
+    - /url: /recursos-multi-evento
+    - generic: Personal en dos fiestas
+- generic: La Empresa
+- generic: 🏢
+- list:
+  - link "Gestión de Empresa":
+    - /url: /empresa
+    - generic: Gestión de Empresa
+  - generic: Vender
+  - link "Prospectos":
+    - /url: /contabilidad/crm
+    - generic: Prospectos
+  - link "Presupuestos":
+    - /url: /presupuestos/nuevo
+    - generic: Presupuestos
+  - link "Clientes":
+    - /url: /customers
+    - generic: Clientes
+  - link "Simulador IA":
+    - /url: /simulador-ak
+    - generic: Simulador IA
+  - generic: Plata
+  - link "Pagos Rápidos":
+    - /url: /pagos-rapidos
+    - generic: Pagos Rápidos
+  - link "Panel Contable":
+    - /url: /empresa/contabilidad
+    - generic: Panel Contable
+  - link "Facturas":
+    - /url: /invoices
+    - generic: Facturas
+  - link "Cambios a Aprobar":
+    - /url: /aprobaciones
+    - generic: Cambios a Aprobar
+  - link "Métricas del Negocio":
+    - /url: /empresa/dashboard
+    - generic: Métricas del Negocio
+  - generic: Recursos
+  - link "Comida / Menús":
+    - /url: /empresa/menus
+    - generic: Comida / Menús
+  - link "Lista de Compras":
+    - /url: /compras
+    - generic: Lista de Compras
+  - link "Salones":
+    - /url: /empresa/salones
+    - generic: Salones
+  - link "Catálogo de Servicios":
+    - /url: /empresa/servicios
+    - generic: Catálogo de Servicios
+  - link "Proveedores":
+    - /url: /proveedores
+    - generic: Proveedores
+  - link "Empleados":
+    - /url: /empleados
+    - generic: Empleados
+  - generic: Marketing
+  - link "Marketing y Difusión":
+    - /url: /empresa/marketing
+    - generic: Marketing y Difusión
+  - link "Redes Sociales":
+    - /url: /empresa/redes-sociales
+    - generic: Redes Sociales
+  - link "WhatsApp del Día":
+    - /url: /contabilidad/crm/outbox
+    - generic: WhatsApp del Día
+  - link "Rendimiento Anuncios":
+    - /url: /contabilidad/crm/marketing-ads
+    - generic: Rendimiento Anuncios
+  - link "Presentación LED":
+    - /url: /empresa/presentacion-led/configuracion
+    - generic: Presentación LED
+- generic: Configuración
+- generic: ⚙️
+- list:
+  - link "Ajustes Generales":
+    - /url: /settings
+    - generic: Ajustes Generales
+  - link "Tareas Automáticas":
+    - /url: /settings/tareas-automaticas
+    - generic: Tareas Automáticas
+  - link "Conexiones":
+    - /url: /settings/sincronizaciones
+    - generic: Conexiones
+  - link "WhatsApp":
+    - /url: /settings/whatsapp
+    - generic: WhatsApp
+  - link "Cláusulas de Contrato":
+    - /url: /settings/contratos/clausulas
+    - generic: Cláusulas de Contrato
+  - link "Seguridad":
+    - /url: /settings/account
+    - generic: Seguridad
+  - link "Promociones":
+    - /url: /settings/promos
+    - generic: Promociones
+  - link "Asistente IA":
+    - /url: /settings/ai-assistant
+    - generic: Asistente IA
+  - link "Mapa Tecnológico":
+    - /url: /settings/mapa-tecnologico-ak
+    - generic: Mapa Tecnológico
+  - link "Laboratorio Experimental":
+    - /url: /settings/feature-flags
+    - generic: Laboratorio Experimental
+- list:
+  - link "Alertas 1":
+    - /url: /alertas
+    - generic: Alertas
+    - generic: "1"
+- main:
+  - heading "Central de Presupuestos" [level=1]
+  - link "Ingreso/Egreso Rápido":
+    - /url: /pagos-rapidos
+    - button "Ingreso/Egreso Rápido":
+      - generic: Ingreso/Egreso Rápido
+  - button "Abrir notificaciones":
+    - generic: Abrir notificaciones
+  - button "Logo de la Empresa":
+    - img "Logo de la Empresa"
+  - main:
+    - heading "Central de Presupuestos" [level=1]:
+      - text: Central de Presupuestos
+    - link "Configurador para la reunión":
+      - /url: /empresa/configurador-reunion
+    - link "Reporte":
+      - /url: /presupuestos/reporte
+    - link "Importar desde Texto":
+      - /url: /presupuestos/importar
+      - text: Importar desde Texto
+    - link "Nuevo Presupuesto":
+      - /url: /presupuestos/nuevo/crear
+      - text: Nuevo Presupuesto
+    - button "🗑️ Borrar todos":
+      - text: 🗑️ Borrar todos
+    - link "Volver":
+      - /url: /empresa/contabilidad
+    - generic: Pendientes (Enviados)
+    - generic: "1"
+    - generic: Borradores
+    - generic: "0"
+    - generic: Aceptados
+    - generic: "0"
+    - generic: Facturados
+    - generic: "0"
+    - generic: Rechazados
+    - generic: "0"
+    - generic: Presupuestos ordenados
+    - generic: Separa eventos contratados de prospectos y muestra ambas fechas importantes.
+    - combobox "Ordenar presupuestos":
+      - generic: Orden recomendado
+    - button "Incluir archivados"
+    - textbox "Buscar cliente o Nº..."
+    - tablist:
+      - tab "Todos (2)" [selected]
+      - tab "Borrador"
+      - tab "Enviado"
+      - tab "Aceptado"
+      - tab "Facturado"
+    - tabpanel "Todos (2)":
+      - region "Eventos contratados":
+        - heading "Eventos contratados" [level=3]:
+          - text: Eventos contratados
+        - paragraph: Ordenados por la fecha de la fiesta más próxima.
+        - generic: "0"
+        - generic: No hay eventos contratados.
+      - region "Prospectos y cotizaciones":
+        - heading "Prospectos y cotizaciones" [level=3]:
+          - text: Prospectos y cotizaciones
+        - paragraph: Ordenados por la fecha en que se hizo el presupuesto.
+        - generic: "2"
+        - heading "Prueba aislada Codex79" [level=4]
+        - generic: "#2"
+        - generic: ⏳ Pendiente Verificación
+        - generic: Sim. común
+        - paragraph: Cumpleaños
+        - paragraph: Fecha del presupuesto
+        - paragraph: 08 oct. 2026
+        - paragraph: Fecha de la fiesta
+        - paragraph: 21 nov. 2026
+        - paragraph: $ 104.125
+        - paragraph:
+          - text: 80 invitados
+        - paragraph:
+          - text: Descuento aplicado
+        - link "Ver":
+          - /url: /presupuestos/pres_public_a91305cac0dbcd24650e35fd/ver
+          - text: Ver
+        - link "Editar":
+          - /url: /presupuestos/pres_public_a91305cac0dbcd24650e35fd/editar
+          - text: Editar
+        - button "Más acciones del presupuesto":
+        - heading "Prueba aislada Codex79" [level=4]
+        - generic: "#1"
+        - generic: Enviado
+        - generic: Sim. común
+        - paragraph: Cumpleaños
+        - paragraph: Fecha del presupuesto
+        - paragraph: 08 oct. 2026
+        - paragraph: Fecha de la fiesta
+        - paragraph: 23 ene. 2027
+        - paragraph: $ 210.349
+        - paragraph:
+          - text: 100 invitados
+        - paragraph:
+          - text: Descuento aplicado
+        - link "Ver":
+          - /url: /presupuestos/pres_public_f0d50cf641b0b7f1fc359fe1/ver
+          - text: Ver
+        - link "Editar":
+          - /url: /presupuestos/pres_public_f0d50cf641b0b7f1fc359fe1/editar
+          - text: Editar
+        - button "Más acciones del presupuesto":
+- navigation "Navegacion del modulo":
+  - button "Volver":
+  - button "Ir al panel principal":
+- button "Abrir Asistente IA AK":
+- button "Martin Contabilidad, pagos y contratos":
+  - generic: Martin
+  - generic: Contabilidad, pagos y contratos
+- link "Personalizar asistentes":
+  - /url: /settings/asistentes-contextuales
+- link "Ver sincronizaciones":
+  - /url: /settings/sincronizaciones
+- region "Notifications (F8)":
+  - list
+- alert

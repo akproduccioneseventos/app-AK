@@ -1,0 +1,195 @@
+- link "Logo de la Empresa":
+  - /url: /admin
+  - img "Logo de la Empresa"
+- list:
+  - link "Centro de Control":
+    - /url: /
+    - generic: Centro de Control
+- generic: Mi Día
+- generic: ☀️
+- list:
+  - link "Mi Día":
+    - /url: /mi-dia
+    - generic: Mi Día
+- generic: Fiestas
+- generic: 🎉
+- list:
+  - link "Eventos Activos":
+    - /url: /eventos
+    - generic: Eventos Activos
+  - link "Calendario":
+    - /url: /calendario
+    - generic: Calendario
+  - link "Muro Social":
+    - /url: /empresa/red-social-eventos
+    - generic: Muro Social
+  - link "Incidentes":
+    - /url: /incidentes
+    - generic: Incidentes
+  - link "Guias de Armado":
+    - /url: /playbooks
+    - generic: Guias de Armado
+  - link "Alergias y Dietas":
+    - /url: /fiestas/nueva/alergias
+    - generic: Alergias y Dietas
+  - link "Portal de Proveedores":
+    - /url: /fiestas/nueva/proveedores-portal
+    - generic: Portal de Proveedores
+  - link "Personal en dos fiestas":
+    - /url: /recursos-multi-evento
+    - generic: Personal en dos fiestas
+- generic: La Empresa
+- generic: 🏢
+- list:
+  - link "Gestión de Empresa":
+    - /url: /empresa
+    - generic: Gestión de Empresa
+  - generic: Vender
+  - link "Prospectos":
+    - /url: /contabilidad/crm
+    - generic: Prospectos
+  - link "Presupuestos":
+    - /url: /presupuestos/nuevo
+    - generic: Presupuestos
+  - link "Clientes":
+    - /url: /customers
+    - generic: Clientes
+  - link "Simulador IA":
+    - /url: /simulador-ak
+    - generic: Simulador IA
+  - generic: Plata
+  - link "Pagos Rápidos":
+    - /url: /pagos-rapidos
+    - generic: Pagos Rápidos
+  - link "Panel Contable":
+    - /url: /empresa/contabilidad
+    - generic: Panel Contable
+  - link "Facturas":
+    - /url: /invoices
+    - generic: Facturas
+  - link "Cambios a Aprobar":
+    - /url: /aprobaciones
+    - generic: Cambios a Aprobar
+  - link "Métricas del Negocio":
+    - /url: /empresa/dashboard
+    - generic: Métricas del Negocio
+  - generic: Recursos
+  - link "Comida / Menús":
+    - /url: /empresa/menus
+    - generic: Comida / Menús
+  - link "Lista de Compras":
+    - /url: /compras
+    - generic: Lista de Compras
+  - link "Salones":
+    - /url: /empresa/salones
+    - generic: Salones
+  - link "Catálogo de Servicios":
+    - /url: /empresa/servicios
+    - generic: Catálogo de Servicios
+  - link "Proveedores":
+    - /url: /proveedores
+    - generic: Proveedores
+  - link "Empleados":
+    - /url: /empleados
+    - generic: Empleados
+  - generic: Marketing
+  - link "Marketing y Difusión":
+    - /url: /empresa/marketing
+    - generic: Marketing y Difusión
+  - link "Redes Sociales":
+    - /url: /empresa/redes-sociales
+    - generic: Redes Sociales
+  - link "WhatsApp del Día":
+    - /url: /contabilidad/crm/outbox
+    - generic: WhatsApp del Día
+  - link "Rendimiento Anuncios":
+    - /url: /contabilidad/crm/marketing-ads
+    - generic: Rendimiento Anuncios
+  - link "Presentación LED":
+    - /url: /empresa/presentacion-led/configuracion
+    - generic: Presentación LED
+- generic: Configuración
+- generic: ⚙️
+- list:
+  - link "Ajustes Generales":
+    - /url: /settings
+    - generic: Ajustes Generales
+  - link "Tareas Automáticas":
+    - /url: /settings/tareas-automaticas
+    - generic: Tareas Automáticas
+  - link "Conexiones":
+    - /url: /settings/sincronizaciones
+    - generic: Conexiones
+  - link "WhatsApp":
+    - /url: /settings/whatsapp
+    - generic: WhatsApp
+  - link "Cláusulas de Contrato":
+    - /url: /settings/contratos/clausulas
+    - generic: Cláusulas de Contrato
+  - link "Seguridad":
+    - /url: /settings/account
+    - generic: Seguridad
+  - link "Promociones":
+    - /url: /settings/promos
+    - generic: Promociones
+  - link "Asistente IA":
+    - /url: /settings/ai-assistant
+    - generic: Asistente IA
+  - link "Mapa Tecnológico":
+    - /url: /settings/mapa-tecnologico-ak
+    - generic: Mapa Tecnológico
+  - link "Laboratorio Experimental":
+    - /url: /settings/feature-flags
+    - generic: Laboratorio Experimental
+- list:
+  - link "Alertas 1":
+    - /url: /alertas
+    - generic: Alertas
+    - generic: "1"
+- main:
+  - heading "Pagos Rápidos" [level=1]
+  - link "Ingreso/Egreso Rápido":
+    - /url: /pagos-rapidos
+    - button "Ingreso/Egreso Rápido":
+      - generic: Ingreso/Egreso Rápido
+  - button "Abrir notificaciones":
+    - generic: Abrir notificaciones
+  - button "Logo de la Empresa":
+    - img "Logo de la Empresa"
+  - main:
+    - link:
+      - /url: /
+    - heading "Pagos Rápidos" [level=1]
+    - paragraph: Registrar y confirmar pagos desde el celular
+    - button "Registrar":
+      - text: Registrar
+    - button "Pendientes 1" [active]:
+      - text: Pendientes
+      - generic: "1"
+    - generic: Prueba aislada Codex79
+    - generic: "Cumpleaños · Presupuesto #1"
+    - generic: 1 pendiente
+    - paragraph: $ 1.501
+    - generic: Transferencia Bancaria
+    - generic: ·
+    - generic: 08 oct. 2026
+    - text: Pendiente
+    - paragraph: 📝 AUD80-PENDIENTE-FICTICIO
+    - button "Confirmar":
+      - text: Confirmar
+    - button "Rechazar":
+      - text: Rechazar
+- navigation "Navegacion del modulo":
+  - button "Volver":
+  - button "Ir al panel principal":
+- button "Abrir Asistente IA AK":
+- button "Martin Contabilidad, pagos y contratos":
+  - generic: Martin
+  - generic: Contabilidad, pagos y contratos
+- link "Personalizar asistentes":
+  - /url: /settings/asistentes-contextuales
+- link "Ver sincronizaciones":
+  - /url: /settings/sincronizaciones
+- region "Notifications (F8)":
+  - list
+- alert

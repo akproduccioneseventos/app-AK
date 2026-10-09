@@ -105,6 +105,24 @@ describe('automatizacion de marketing', () => {
     const result = await runMarketingAutomation({ force: true, source: 'admin' });
 
     expect(result.success).toBe(false);
-    expect(mockWriteData).not.toHaveBeenCalled();
+    // El candado del trabajo se anota y se suelta; el estado del marketing NO se guarda.
+    expect(mockWriteData.mock.calls.filter(([f]) => f === 'marketing-automation-state.json')).toHaveLength(0);
+  });
+
+  it('dos disparos a la vez (despertador y botón) hacen el trabajo UNA vez (Codex 81, pregunta 45)', async () => {
+    mockSyncInstagram.mockResolvedValue({ success: true, photosCount: 0, videosCount: 0, plannerCount: 0 });
+    mockGenerateBlog.mockImplementation(async () => {
+      await new Promise((r) => setTimeout(r, 20));
+      return {
+        blogPost: { slug: 'consejo-eventos', title: 'Consejo para tu evento', category: 'Consejos' },
+        socialPost: { id: 'social_1', platform: 'Instagram' },
+      } as Awaited<ReturnType<typeof generateBlogPostAndSocialDraft>>;
+    });
+    const [a, b] = await Promise.all([
+      runMarketingAutomation({ force: true, source: 'cron', includeRecontacto: false }),
+      runMarketingAutomation({ force: true, source: 'admin', includeRecontacto: false }),
+    ]);
+    expect(mockGenerateBlog).toHaveBeenCalledTimes(1);
+    expect([a.skipped, b.skipped].filter(Boolean)).toHaveLength(1);
   });
 });

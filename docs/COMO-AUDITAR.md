@@ -926,3 +926,14 @@ convierte en lista vacía: se avisa y no se guarda como resultado del día.
 Sumar los pagos del cliente sacando sólo los rechazados cuenta como cobrado lo que el cliente
 **informó y nadie confirmó**. El saldo baja, la alerta de seña no sale y el recordatorio dice de
 menos. **Toda suma de cobros usa `isConfirmedClientPayment`.**
+
+## Pregunta 45 — la que sumó el 9 de octubre de 2026 (Codex, retest de la 81)
+
+### 45. El candado que se puso, ¿lo pasan TODAS las puertas que llegan a la acción?
+
+Se puso un reclamo para que la vuelta programada no publicara dos veces, y "publicar ahora"
+llamaba a la misma función por al lado, sin reclamo: dos toques mandaban el posteo dos veces.
+Y un recordatorio con id al azar se guardaba dos veces si la tarea corría dos veces el mismo día.
+**Al poner un candado, se buscan todos los que llaman a la función protegida**, y el candado va
+adentro de la función, no en uno de los que la llaman. Lo que se prepara por día lleva un id
+estable, no uno al azar.

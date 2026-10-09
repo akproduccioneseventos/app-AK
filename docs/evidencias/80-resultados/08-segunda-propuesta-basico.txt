@@ -1,0 +1,162 @@
+- generic: Armá tu presupuesto
+- generic: Paso 5 de 5 · Edición
+- progressbar
+- heading [level=2]: Personalización de tu presupuesto
+- paragraph: ¡Llegamos a la etapa final! Ajustá la fecha y los invitados, quitá opcionales de tu paquete o agregá extras a tu gusto. El total se recalcula al instante.
+- heading [level=3]:
+  - text: Información General del Evento
+- text: Fecha del evento
+- button:
+  - text: 21 de noviembre de 2026
+- text: Invitados Adultos
+- spinbutton: "80"
+- text: Niños y Adolescentes
+- spinbutton
+- heading [level=3]:
+  - text: Servicios contratados en tu propuesta
+- generic: Personal
+- generic: 2 activos
+- generic: Mozo
+- generic: Personal
+- generic: •
+- generic: $ 11.960
+- button:
+- generic: Mozo de cocina
+- generic: Personal
+- generic: •
+- generic: $ 11.960
+- button:
+- generic: Servicio de comida
+- generic: 4 activos
+- generic: CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN
+- generic: Plato Principal
+- generic: •
+- generic: $ 31.920
+- button:
+- generic: KEBABS
+- generic: Entrada
+- generic: •
+- generic: $ 14.320
+- button:
+- generic: Manteleria básica (sin cubre sillas)
+- generic: Servicio de comida
+- generic: •
+- generic: $ 3.920
+- button:
+- generic: Vajilla Completa
+- generic: Servicio de comida
+- generic: •
+- generic: $ 6.320
+- button:
+- generic: Servicio de decoración
+- generic: 1 activos
+- generic: Decoración Básica (atrás de la torta)
+- generic: Servicio de decoración
+- generic: •
+- generic: $ 8.490
+- button:
+- generic: Servicio de discoteca
+- generic: 1 activos
+- generic: Servicio de Discoteca
+- generic: Servicio de discoteca
+- generic: •
+- generic: $ 14.900
+- button:
+- generic: Servicio de fotografía
+- generic: 1 activos
+- generic: Fotografía de la fiesta
+- generic: Servicio de fotografía
+- generic: •
+- generic: $ 9.990
+- button:
+- generic: Servicio de repostería
+- generic: 1 activos
+- generic: Torta Principal
+- generic: Servicio de repostería
+- generic: •
+- generic: $ 8.720
+- button:
+- generic: Regalos Incluidos
+- generic: 4 activos
+- generic: Invitaciones digitales
+- generic: Regalo incluido
+- generic: Organizamos de la fiesta
+- generic: Regalo incluido
+- generic: Mesa de café
+- generic: Regalo incluido
+- generic: Album digital
+- generic: Regalo incluido
+- heading [level=4]:
+  - text: Personalizá tu fiesta con más servicios
+- heading [level=4]: 🔥 ¡Subí tu evento al Plan Paquete intermedio !
+- paragraph: "Llevá tu fiesta al siguiente nivel. Agregá estos servicios clave incluidos en el paquete Paquete intermedio y asegurá una experiencia inolvidable para todos tus invitados:"
+- button: ⚡ Pasarme al Plan Paquete intermedio
+- generic: Fotocabina
+- generic: +$ 2.990
+- button: Sumar +
+- generic: Cuadro de firmas
+- generic: +$ 2.990
+- button: Sumar +
+- generic: Servicio de Decoración
+- generic: +$ 14.990
+- button: Sumar +
+- generic: Mesa dulce con fuente de chocolate
+- generic: +$ 9.520
+- button: Sumar +
+- generic: Video de vida
+- generic: +$ 2.500
+- button: Sumar +
+- generic: Pantalla gigante y proyector
+- generic: +$ 2.500
+- button: Sumar +
+- generic: Barra de tragos
+- generic: +$ 31.920
+- button: Sumar +
+- generic: Fotografía de exteriores
+- generic: +$ 3.990
+- button: Sumar +
+- generic: Mantelería completa
+- generic: +$ 6.320
+- button: Sumar +
+- generic: Mobiliario completo
+- generic: +$ 6.000
+- button: Sumar +
+- textbox:
+  - /placeholder: "Buscá servicios adicionales por nombre (ej: cabina, plataforma, barra, cascada)..."
+- heading [level=4]: ¿Querés comparar con otros paquetes?
+- text: Alternativa
+- heading [level=5]: Paquete intermedio
+- paragraph: $ 160.488
+- paragraph: + $ 705 por persona
+- button: Cambiar a Paquete intermedio
+- text: Alternativa
+- heading [level=5]: Paquete premium
+- paragraph: $ 188.861
+- paragraph: + $ 1.059 por persona
+- button: Cambiar a Paquete premium
+- strong: Precios 2026
+- text: — El total mostrado corresponde al precio vigente.
+- button:
+  - text: Ver Preguntas Frecuentes (FAQ)
+- button: Anterior
+- generic: 🎁 ¡Ahorrás $ 17.900 en regalos incluidos!
+- button [active]: Ver Resumen y Propuesta
+- paragraph: "Total vigente:"
+- paragraph: $ 104.125
+- paragraph: $ 1.302 p/p
+- list
+- alert: Simulador de Presupuesto en Salto | AK Producciones Eventos | AK Producciones
+- dialog "¿Querés sumar los extras del Plan Paquete intermedio ?":
+  - text: ⚡ UPGRADE PARA TU Paquete basico
+  - heading "¿Querés sumar los extras del Plan Paquete intermedio ?" [level=2]
+  - paragraph: El Plan Paquete intermedio incluye servicios clave para potenciar la ambientación y diversión de tus invitados.
+  - generic: Fotocabina
+  - generic: +$ 2.990
+  - generic: Incluido en Paquete intermedio
+  - generic: Cuadro de firmas
+  - generic: +$ 2.990
+  - generic: Incluido en Paquete intermedio
+  - button "⚡ Pasarme al Plan Paquete intermedio con 1-Click"
+  - button "Mantener mi selección actual"
+  - button "Close":
+    - generic: Close

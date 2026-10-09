@@ -1,0 +1,215 @@
+- main:
+  - navigation "Navegacion del modulo":
+    - button "Volver":
+    - button "Ir al panel principal":
+  - button "Compartir por WhatsApp":
+    - generic: Compartir por WhatsApp
+  - button "Coordinar una Reunión":
+    - generic: Coordinar una Reunión
+  - button "Descargar PDF":
+    - generic: Descargar PDF
+  - heading "¿Ya realizaste un pago?" [level=3]
+  - paragraph: Informalo para que quede registrado y te enviemos el recibo.
+  - button "Informar Pago / Subir Comprobante":
+    - text: Informar Pago / Subir Comprobante
+  - heading "Presupuesto para fiestas o eventos — AK PRODUCCIONES" [level=1]
+  - paragraph: SR. Alexander Knuth
+  - paragraph: Salto
+  - paragraph: 50000 Salto
+  - paragraph: akproduccionessalto@gmail.com
+  - paragraph: www.akproducciones.uy
+  - img "AK PRODUCCIONES Logo"
+  - paragraph: Detalle del Presupuesto
+  - table:
+    - rowgroup:
+      - row "Número de cliente Número de Documento Formato Fecha Válido hasta":
+        - columnheader "Número de cliente"
+        - columnheader "Número de Documento"
+        - columnheader "Formato"
+        - columnheader "Fecha"
+        - columnheader "Válido hasta"
+    - rowgroup:
+      - 'row "PRU-PRES #2 A4 08/10/2026 07/11/2026"':
+        - cell "PRU-PRES"
+        - cell "#2"
+        - cell "A4"
+        - cell "08/10/2026"
+        - cell "07/11/2026"
+  - paragraph: Cliente
+  - paragraph: Prueba aislada Codex79
+  - paragraph: Fecha del evento
+  - paragraph: 21 de noviembre de 2026
+  - paragraph: Tipo de evento
+  - paragraph: Cumpleaños
+  - paragraph: Invitados
+  - paragraph: "80"
+  - paragraph: Salón
+  - paragraph: Locación propia
+  - paragraph: Contacto
+  - paragraph: "099000079"
+  - paragraph: Resumen de tu propuesta
+  - paragraph: Para tu fiesta de cumpleaños de 80 invitados en Locación propia, esta propuesta incluye servicio gastronómico completo con atención, discoteca profesional, iluminación y ambientación acústica, cobertura audiovisual y decoración y ambientación de salón, coordinado de punta a punta para que disfrutes de la noche sin preocupaciones.
+  - table:
+    - rowgroup:
+      - row "Artículo Cantidad Unidad Precio Desc.% Importe total":
+        - columnheader "Artículo"
+        - columnheader "Cantidad"
+        - columnheader "Unidad"
+        - columnheader "Precio"
+        - columnheader "Desc.%"
+        - columnheader "Importe total"
+    - rowgroup:
+      - row "Personal":
+        - cell "Personal"
+      - row "Mozo 4 Unidad $ 2.990 — $ 11.960":
+        - cell "Mozo"
+        - cell "4"
+        - cell "Unidad"
+        - cell "$ 2.990"
+        - cell "—"
+        - cell "$ 11.960"
+      - row "Mozo de cocina 4 Unidad $ 2.990 — $ 11.960":
+        - cell "Mozo de cocina"
+        - cell "4"
+        - cell "Unidad"
+        - cell "$ 2.990"
+        - cell "—"
+        - cell "$ 11.960"
+      - row "Servicio de catering":
+        - cell "Servicio de catering"
+      - row "Manteleria básica (sin cubre sillas) 80 Unidad $ 49 — $ 3.920":
+        - cell "Manteleria básica (sin cubre sillas)"
+        - cell "80"
+        - cell "Unidad"
+        - cell "$ 49"
+        - cell "—"
+        - cell "$ 3.920"
+      - row "Vajilla Completa 80 Unidad $ 79 — $ 6.320":
+        - cell "Vajilla Completa"
+        - cell "80"
+        - cell "Unidad"
+        - cell "$ 79"
+        - cell "—"
+        - cell "$ 6.320"
+      - 'row "entradas: KEBABS 80 persona $ 179 — $ 14.320"':
+        - 'cell "entradas: KEBABS"'
+        - cell "80"
+        - cell "persona"
+        - cell "$ 179"
+        - cell "—"
+        - cell "$ 14.320"
+      - 'row "plato principal: CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN 80 persona $ 399 — $ 31.920"':
+        - 'cell "plato principal: CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN"'
+        - cell "80"
+        - cell "persona"
+        - cell "$ 399"
+        - cell "—"
+        - cell "$ 31.920"
+      - row "Servicio de decoración":
+        - cell "Servicio de decoración"
+      - row "Decoración Básica (atrás de la torta) 1 Unidad $ 8.490 — $ 8.490":
+        - cell "Decoración Básica (atrás de la torta)"
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 8.490"
+        - cell "—"
+        - cell "$ 8.490"
+      - row "Servicio de discoteca":
+        - cell "Servicio de discoteca"
+      - row "Servicio de Discoteca 1 Unidad $ 14.900 — $ 14.900":
+        - cell "Servicio de Discoteca"
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 14.900"
+        - cell "—"
+        - cell "$ 14.900"
+      - row "Servicio de fotografía":
+        - cell "Servicio de fotografía"
+      - row "Fotografía de la fiesta 1 Unidad $ 9.990 — $ 9.990":
+        - cell "Fotografía de la fiesta"
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 9.990"
+        - cell "—"
+        - cell "$ 9.990"
+      - row "Servicio de repostería":
+        - cell "Servicio de repostería"
+      - row "Torta Principal 80 Unidad $ 109 — $ 8.720":
+        - cell "Torta Principal"
+        - cell "80"
+        - cell "Unidad"
+        - cell "$ 109"
+        - cell "—"
+        - cell "$ 8.720"
+      - row "Regalos Incluidos":
+        - cell "Regalos Incluidos"
+      - row "Invitaciones digitales Regalo incluido 1 Unidad $ 2.500 100% $ 0,00":
+        - cell "Invitaciones digitales Regalo incluido":
+          - text: Invitaciones digitales
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 2.500"
+        - cell "100%"
+        - cell "$ 0,00"
+      - row "Organizamos de la fiesta Regalo incluido 1 Unidad $ 11.000 100% $ 0,00":
+        - cell "Organizamos de la fiesta Regalo incluido":
+          - text: Organizamos de la fiesta
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 11.000"
+        - cell "100%"
+        - cell "$ 0,00"
+      - row "Mesa de café Regalo incluido 1 Unidad $ 1.900 100% $ 0,00":
+        - cell "Mesa de café Regalo incluido":
+          - text: Mesa de café
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 1.900"
+        - cell "100%"
+        - cell "$ 0,00"
+      - row "Album digital Regalo incluido 1 Unidad $ 2.500 100% $ 0,00":
+        - cell "Album digital Regalo incluido":
+          - text: Album digital
+          - generic: Regalo incluido
+        - cell "1"
+        - cell "Unidad"
+        - cell "$ 2.500"
+        - cell "100%"
+        - cell "$ 0,00"
+      - 'row "Descuento promocional: −$ 18.375"':
+        - cell "Descuento promocional:"
+        - cell "−$ 18.375"
+      - row "Importe total $ 104.125":
+        - cell "Importe total"
+        - cell "$ 104.125"
+      - row "Valor aproximado por persona $ 1.302":
+        - cell "Valor aproximado por persona"
+        - cell "$ 1.302"
+  - generic: 💳 Opciones de Pago & Transparencia Financiera
+  - generic: Mercado Pago / Transferencia
+  - paragraph:
+    - generic: 1. Contado / Transferencia Bancaria
+    - generic: 9% de descuento
+  - paragraph: $ 104.125$ 114.538
+  - paragraph: Te ahorrás $ 10.413 pagando al contado o por transferencia.
+  - paragraph:
+    - generic: 2. Mercado Pago / Tarjetas (Hasta 12 Cuotas)
+    - generic: Precio de lista
+  - paragraph: $ 114.538
+  - paragraph: 10 cuotas de $ 9.545 y 2 de $ 9.544.
+  - paragraph:
+    - text: ℹ️
+    - strong: Formas de pago
+    - text: ": el precio de lista es $ 114.538 y se puede abonar hasta en 12 cuotas con tarjeta. Pagando al contado o por transferencia bancaria se aplica un descuento de $ 10.413."
+  - paragraph: El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ 5.000. El total mostrado corresponde al precio vigente del año 2026.
+  - paragraph: Documento de presupuesto. La reserva, confirmación final y firmas corresponden al contrato confirmado.
+  - text: Documento de presupuesto. La reserva, confirmacion final y firmas corresponden al contrato confirmado.
+  - link "Consultar por WhatsApp":
+    - /url: https://wa.me/59898355530?text=Hola%20AK%20Producciones!%20Quisiera%20hacer%20una%20consulta%20sobre%20un%20evento.
+    - generic: Consultar por WhatsApp
+- region "Notifications (F8)":
+  - list
+- alert

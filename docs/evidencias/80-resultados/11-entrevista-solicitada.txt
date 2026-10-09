@@ -1,0 +1,207 @@
+- img "AK Producciones"
+- heading "¡Tu presupuesto está listo!" [level=2]
+- paragraph: Ahora podés coordinar una reunión con el organizador para revisar todos los detalles, despejar dudas y asegurar tu fecha.
+- heading "✅ Presupuesto registrado con éxito" [level=4]
+- paragraph: Guardá tu copia oficial en PDF o hablá directo con AK por WhatsApp.
+- button "Guardar PDF":
+  - generic: Guardar PDF
+- button "WhatsApp AK":
+  - generic: WhatsApp AK
+- heading "Tu promoción, mientras corre el reloj" [level=3]:
+  - text: Tu promoción, mientras corre el reloj
+- generic: 14:26
+- paragraph: Escribinos ahora y accedés al descuento y los regalos de la promoción vigente, con tu presupuesto ya en la mano.
+- text: Reunión confirmada
+- heading "¡Te esperamos en AK Producciones!" [level=3]
+- generic: viernes, 9 de octubre de 2026
+- generic: 04:00 p. m. hs
+- generic: Oficina AK Producciones · Salto, Uruguay
+- paragraph: Guardamos tu lugar y congelamos las promociones de tu presupuesto para la entrevista. Podés sincronizar la fecha con tu calendario o escribirnos si necesitás ajustar el horario.
+- link "Sincronizar Google Calendar":
+  - /url: https://calendar.google.com/calendar/render?action=TEMPLATE&text=Reuni%C3%B3n%20con%20AK%20Producciones%20-%20Prueba%20aislada%20Codex79&dates=20261009T190000Z/20261009T194500Z&details=Entrevista%20para%20coordinar%20tu%20fiesta%20y%20revisar%20el%20presupuesto%20con%20el%20equipo%20de%20AK%20Producciones.&location=Oficina%20AK%20Producciones%2C%20Salto%2C%20Uruguay
+  - text: Sincronizar Google Calendar
+- link "Hablar por WhatsApp":
+  - /url: https://wa.me/59898355530?text=%C2%A1Hola%20AK%20Producciones!%20Agend%C3%A9%20mi%20reuni%C3%B3n%20para%20el%20viernes%2C%209%20de%20octubre%20a%20las%2004%3A00%20p.%20m.%20hs%20para%20conversar%20sobre%20mi%20fiesta.%20Mi%20nombre%20es%20Prueba%20aislada%20Codex79.
+  - text: Hablar por WhatsApp
+- heading "Condiciones del presupuesto" [level=3]:
+  - text: Condiciones del presupuesto
+- generic: Validez 30 días
+- paragraph: El presupuesto mantiene el precio promocional y los regalos incluidos durante 30 días. La fecha se confirma cuando AK valida la disponibilidad, recibe la seña de $ 5.000 y se firma el contrato.
+- button "Modificar mi presupuesto":
+  - generic: Modificar mi presupuesto
+- button "Compartir WhatsApp":
+  - generic: Compartir WhatsApp
+- button "Coordinar Reunión":
+  - generic: Coordinar Reunión
+- button "Descargar PDF":
+  - generic: Descargar PDF
+- button "Preguntas":
+  - generic: Preguntas
+- img "AK Producciones"
+- generic: Presupuesto estimado
+- paragraph: AK Producciones Eventos — Salto, Uruguay
+- paragraph: Cliente
+- paragraph: Prueba aislada Codex79
+- paragraph: Evento
+- paragraph: Cumpleaños
+- paragraph: Fecha prevista
+- paragraph: 21/11/2026
+- paragraph: Invitados
+- paragraph: 80 personas
+- paragraph: Referencia
+- paragraph: pres_public_a91305cac0dbcd24650e35fd
+- table:
+  - rowgroup:
+    - row "Servicio / Categoría Cant. Subtotal":
+      - columnheader "Servicio / Categoría"
+      - columnheader "Cant."
+      - columnheader "Subtotal"
+  - rowgroup:
+    - row "Personal":
+      - cell "Personal"
+    - row "Mozo $ 2.990 c/u 4 $ 11.960":
+      - cell "Mozo $ 2.990 c/u":
+        - paragraph: Mozo
+        - paragraph: $ 2.990 c/u
+        - button:
+      - cell "4"
+      - cell "$ 11.960"
+    - row "Mozo de cocina $ 2.990 c/u 4 $ 11.960":
+      - cell "Mozo de cocina $ 2.990 c/u":
+        - paragraph: Mozo de cocina
+        - paragraph: $ 2.990 c/u
+        - button:
+      - cell "4"
+      - cell "$ 11.960"
+    - row "Servicio de catering":
+      - cell "Servicio de catering"
+    - row "CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN $ 399 / PP 80 $ 31.920":
+      - cell "CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN $ 399 / PP":
+        - paragraph: CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN
+        - paragraph: $ 399 / PP
+        - button:
+      - cell "80"
+      - cell "$ 31.920"
+    - row "KEBABS $ 179 / PP 80 $ 14.320":
+      - cell "KEBABS $ 179 / PP":
+        - paragraph: KEBABS
+        - paragraph: $ 179 / PP
+        - button:
+      - cell "80"
+      - cell "$ 14.320"
+    - row "Manteleria básica (sin cubre sillas) $ 49 / PP 80 $ 3.920":
+      - cell "Manteleria básica (sin cubre sillas) $ 49 / PP":
+        - paragraph: Manteleria básica (sin cubre sillas)
+        - paragraph: $ 49 / PP
+        - button:
+      - cell "80"
+      - cell "$ 3.920"
+    - row "Vajilla Completa $ 79 / PP 80 $ 6.320":
+      - cell "Vajilla Completa $ 79 / PP":
+        - paragraph: Vajilla Completa
+        - paragraph: $ 79 / PP
+        - button:
+      - cell "80"
+      - cell "$ 6.320"
+    - row "Servicio de decoración":
+      - cell "Servicio de decoración"
+    - row "Decoración Básica (atrás de la torta) $ 8.490 c/u 1 $ 8.490":
+      - cell "Decoración Básica (atrás de la torta) $ 8.490 c/u":
+        - paragraph: Decoración Básica (atrás de la torta)
+        - paragraph: $ 8.490 c/u
+        - button:
+      - cell "1"
+      - cell "$ 8.490"
+    - row "Servicio de discoteca":
+      - cell "Servicio de discoteca"
+    - row "Servicio de Discoteca $ 14.900 c/u 1 $ 14.900":
+      - cell "Servicio de Discoteca $ 14.900 c/u":
+        - paragraph: Servicio de Discoteca
+        - paragraph: $ 14.900 c/u
+        - button:
+      - cell "1"
+      - cell "$ 14.900"
+    - row "Servicio de fotografía":
+      - cell "Servicio de fotografía"
+    - row "Fotografía de la fiesta $ 9.990 c/u 1 $ 9.990":
+      - cell "Fotografía de la fiesta $ 9.990 c/u":
+        - paragraph: Fotografía de la fiesta
+        - paragraph: $ 9.990 c/u
+        - button:
+      - cell "1"
+      - cell "$ 9.990"
+    - row "Servicio de repostería":
+      - cell "Servicio de repostería"
+    - row "Torta Principal $ 109 / PP 80 $ 8.720":
+      - cell "Torta Principal $ 109 / PP":
+        - paragraph: Torta Principal
+        - paragraph: $ 109 / PP
+        - button:
+      - cell "80"
+      - cell "$ 8.720"
+    - row "Regalos Incluidos":
+      - cell "Regalos Incluidos"
+    - row "Invitaciones digitales $ 2.500 c/u 1 $ 2.500 Sin Costo":
+      - cell "Invitaciones digitales $ 2.500 c/u":
+        - paragraph: Invitaciones digitales
+        - paragraph: $ 2.500 c/u
+      - cell "1"
+      - cell "$ 2.500 Sin Costo":
+        - generic: $ 2.500
+        - generic: Sin Costo
+    - row "Organizamos de la fiesta $ 11.000 c/u 1 $ 11.000 Sin Costo":
+      - cell "Organizamos de la fiesta $ 11.000 c/u":
+        - paragraph: Organizamos de la fiesta
+        - paragraph: $ 11.000 c/u
+      - cell "1"
+      - cell "$ 11.000 Sin Costo":
+        - generic: $ 11.000
+        - generic: Sin Costo
+    - row "Mesa de café $ 1.900 c/u 1 $ 1.900 Sin Costo":
+      - cell "Mesa de café $ 1.900 c/u":
+        - paragraph: Mesa de café
+        - paragraph: $ 1.900 c/u
+      - cell "1"
+      - cell "$ 1.900 Sin Costo":
+        - generic: $ 1.900
+        - generic: Sin Costo
+    - row "Album digital $ 2.500 c/u 1 $ 2.500 Sin Costo":
+      - cell "Album digital $ 2.500 c/u":
+        - paragraph: Album digital
+        - paragraph: $ 2.500 c/u
+      - cell "1"
+      - cell "$ 2.500 Sin Costo":
+        - generic: $ 2.500
+        - generic: Sin Costo
+- generic: "Subtotal Servicios:"
+- generic: $ 140.400
+- generic: "Ahorro Regalos Incluidos:"
+- generic: "-$ 17.900"
+- generic: "Bonificación Especial (15%):"
+- generic: "-$ 18.375"
+- generic: "Ahorro total:"
+- generic: $ 36.275
+- generic: "Precio vigente:"
+- generic: $ 104.125
+- generic: "Valor aprox. por persona:"
+- generic: $ 1.302
+- generic: Plan de pagos estimado
+- generic: A confirmar
+- generic: "1. Seña para reservar la fecha:"
+- generic: $ 5.000
+- generic: "2. Saldo en 1 cuota estimada:"
+- generic: $ 99.125 / mes
+- paragraph: "* Es una referencia calculada hasta 30 días antes del evento. AK confirma el calendario y las condiciones en el contrato."
+- heading "Reservá tu fecha y asegurá la promoción" [level=4]:
+  - text: Reservá tu fecha y asegurá la promoción
+- paragraph: Confirmá tu evento con una seña de $ 5.000 y la firma del contrato. La fecha se reserva para la primera persona que complete ambos pasos.
+- paragraph: El presupuesto tiene una validez de 30 días, manteniendo durante ese período el precio promocional y todos los regalos incluidos.
+- paragraph: Los valores corresponden a eventos realizados en 2026. Para fechas desde 2027 se aplicará un ajuste acumulativo del 15% por cada año adicional.
+- paragraph: "No dejes pasar tu fecha: firmá el contrato, aboná la seña y empezá a preparar tu fiesta con AK Producciones."
+- paragraph: Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.
+- button "Iniciar nueva simulación"
+- button "Preguntas Frecuentes":
+  - text: Preguntas Frecuentes
+- region "Notifications (F8)":
+  - list
+- alert: Simulador de Presupuesto en Salto | AK Producciones Eventos | AK Producciones

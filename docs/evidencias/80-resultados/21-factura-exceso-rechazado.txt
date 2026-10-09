@@ -1,0 +1,60 @@
+- main:
+  - navigation "Navegacion del modulo":
+    - button "Volver":
+    - button "Ir al panel principal":
+  - link "Volver":
+    - /url: /invoices
+    - text: Volver
+  - button "Imprimir Todo":
+    - text: Imprimir Todo
+  - link "Editar":
+    - /url: /invoices/inv_1791494011418_kwugz5x/edit
+    - text: Editar
+  - paragraph: Tec. Alexander Knuth
+  - paragraph: Salto, Uruguay
+  - paragraph: akproduccionessalto@gmail.com
+  - heading "Estado de Cuenta" [level=1]
+  - img "Logo"
+  - paragraph: Cliente
+  - paragraph: Cliente aislado Codex
+  - paragraph: Ajuste Aplicado
+  - paragraph: Tarifa Base
+  - paragraph: Factura N° AUD80-FACTURA-FICTICIA
+  - table:
+    - rowgroup:
+      - row "Fecha / Concepto Cargo Entrega Saldo":
+        - columnheader "Fecha / Concepto"
+        - columnheader "Cargo"
+        - columnheader "Entrega"
+        - columnheader "Saldo"
+    - rowgroup:
+      - row "SERVICIOS CONTRATADOS Monto Total Acordado $ 1.000 - $ 1.000":
+        - cell "SERVICIOS CONTRATADOS Monto Total Acordado":
+          - paragraph: SERVICIOS CONTRATADOS
+          - paragraph: Monto Total Acordado
+        - cell "$ 1.000"
+        - cell "-"
+        - cell "$ 1.000"
+  - generic: "TOTAL EVENTO:"
+  - generic: $ 1.000
+  - generic: "TOTAL PAGADO:"
+  - generic: $ 0
+  - generic: "SALDO PENDIENTE:"
+  - generic: $ 1.000
+  - generic: Registrar Pago
+  - text: Monto
+  - spinbutton: "1002"
+  - text: Fecha
+  - button "8 de octubre de 2026":
+    - text: 8 de octubre de 2026
+  - button "Registrar Pago"
+- button "Martin Contabilidad, pagos y contratos":
+  - generic: Martin
+  - generic: Contabilidad, pagos y contratos
+- link "Personalizar asistentes":
+  - /url: /settings/asistentes-contextuales
+- link "Ver sincronizaciones":
+  - /url: /settings/sincronizaciones
+- region "Notifications (F8)":
+  - list
+- alert

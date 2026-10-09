@@ -26,7 +26,10 @@ describe('El contador de Codex tiene un final', () => {
   });
 
   it('dice "terminado" sólo con todas limpias', () => {
-    expect(resumen([area('limpia', { commit: 'a' }), area('limpia', { commit: 'b' })], sinCambios).terminado).toBe(true);
+    // Con las areas reales (cubren todas las pantallas); con areas de juguete quedarian pantallas sin area.
+    const reales = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'docs/codex/areas.json'), 'utf8')).areas
+      .map((a: any) => ({ ...a, estado: 'limpia', commit: 'a' }));
+    expect(resumen(reales, sinCambios).terminado).toBe(true);
     expect(resumen([area('limpia', { commit: 'a' }), area('con-hallazgos')], sinCambios).terminado).toBe(false);
   });
 

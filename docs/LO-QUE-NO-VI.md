@@ -1033,3 +1033,21 @@ prueba: src/__tests__/un-pago-a-confirmar-no-cuenta-como-cobrado.test.ts
 prueba: src/__tests__/lo-que-corre-sin-sesion-llega-hasta-el-fondo.test.ts
 prueba: src/__tests__/los-avisos-al-cliente-no-se-repiten-al-reintentar.test.ts
 ```
+
+## El candado que dejaba una puerta abierta (9 de octubre de 2026)
+
+**Lo encontró Codex al volver a probar mi arreglo de la auditoría 81.** Puse el reclamo de las
+publicaciones en la vuelta programada y "publicar ahora" seguía llamando a la misma función sin
+él. Y el recordatorio al invitado, arreglado para que se guardara, se guardaba dos veces si la
+tarea corría dos veces.
+
+**Qué pregunta no me hice:** *¿quién más llama a lo que protegí?* Y *¿qué pasa si la tarea
+corre dos veces?* Probé el caso que me reportaron, no el de al lado.
+
+**Qué se agregó:** pregunta 45 de `COMO-AUDITAR.md`, 38 de `ANTES-DE-ENTREGAR.md`, y el barrido
+de la forma en toda la app.
+
+```comprobar
+prueba: src/__tests__/la-publicacion-manual-no-sale-dos-veces.test.ts
+prueba: src/__tests__/el-recordatorio-al-invitado-no-se-repite.test.ts
+```

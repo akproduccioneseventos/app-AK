@@ -15,7 +15,7 @@ import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-st
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import type { AuditResult } from '@/lib/commercial-flow/budget-audit';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
-import { getPresupuestoById, getPresupuestoShareToken, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
+import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getAvisoMargenParaPresupuesto } from '@/app/actions/aviso-margen';
 import type { AvisoMargenHistorico } from '@/lib/costos/aviso-margen-historico';
@@ -25,6 +25,7 @@ import type { Customer } from '@/types/customer';
 import type { BudgetDisplaySettings, CompanyInfo } from '@/types/settings';
 import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfoPublica } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
+import { enlacePublicoDelPresupuesto } from '@/lib/presupuestos/enlace-publico';
 import Image from 'next/image';
 import html2canvas from 'html2canvas';
 import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
@@ -395,16 +396,13 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     if (!presupuesto || isSharing) return;
     setIsSharing(true);
     try {
-      let currentToken = searchParams.get('token') || (presupuesto as any).token || '';
-      if (!currentToken) {
-        const tokenResult = await getPresupuestoShareToken(presupuesto.id);
-        if (!tokenResult.success || !tokenResult.token) {
-          throw new Error(tokenResult.error || 'No se pudo crear un acceso seguro al presupuesto.');
-        }
-        currentToken = tokenResult.token;
-      }
-      const nameParam = encodeURIComponent(presupuesto.clienteNombre.trim().replace(/\s+/g, '_'));
-      const url = `${window.location.origin}/presupuestos/${presupuesto.id}/ver?cliente=1&token=${currentToken}&para=${nameParam}`;
+      // Mismo enlace que la barra flotante: un solo lugar arma el enlace del cliente.
+      const url = await enlacePublicoDelPresupuesto(
+        presupuesto.id,
+        window.location.origin,
+        searchParams.get('token') || (presupuesto as any).token || '',
+        presupuesto.clienteNombre,
+      );
       const text = [
       `📄 *Presupuesto de AK Producciones para ${presupuesto.clienteNombre}*`,
       `-----------------`,

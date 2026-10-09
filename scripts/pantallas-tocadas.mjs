@@ -25,7 +25,7 @@ const SRC = path.join(RAIZ, 'src');
 const APP = path.join(SRC, 'app');
 
 /** Tocar cualquiera de estos cambia toda la app: se recorre entera. */
-const AFECTAN_TODO = [
+export const AFECTAN_TODO = [
   /^next\.config\.js$/,
   /^middleware\.ts$/,
   /^package(-lock)?\.json$/,
@@ -254,12 +254,13 @@ export function esSoloDelServidor(relativo, texto) {
   return /^\s*(['"])use server\1/.test(contenido) || /import\s+['"]server-only['"]/.test(contenido);
 }
 
-export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiadosEnGit, opciones = {}) {
-  if (!cambiadosTodos) return 'TODO';
-  const cambiados = cambiadosTodos.filter((f) => !SOLO_CON_LA_BASE_REAL.includes(f));
-  if (cambiados.length === 0) return [];
-  if (cambiados.some((f) => AFECTAN_TODO.some((p) => p.test(f)))) return 'TODO';
-
+/**
+ * Quien usa a quien: desde los archivos cambiados, todos los que quedan alcanzados subiendo por
+ * las importaciones (con los cortes del servidor). Devuelve las rutas absolutas de lo alcanzado,
+ * las semillas y la lista de archivos de codigo. La usan la puerta (pantallas) y el contador de
+ * Codex (areas).
+ */
+function recorrerAlcanzados(cambiados, nombresDe, opciones = {}) {
   const archivos = todosLosArchivosDeCodigo(SRC);
   const usadoPor = armarQuienUsaAQuien(archivos);
 
@@ -269,7 +270,7 @@ export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiad
     // Sólo archivos: una carpeta nueva sin seguimiento (datos de la corrida) llegaba como "cambio"
     // y leerla rompía el recorrido (5/10/2026).
     .filter((f) => fs.existsSync(f) && fs.statSync(f).isFile());
-  if (semillas.length === 0) return [];
+  if (semillas.length === 0) return { alcanzados: new Set(), semillas, archivos };
 
   // Se sigue de archivo en archivo llevando QUÉ nombres cambiaron: a quien importa uno de esos
   // nombres le cambian sólo las partes que lo usan, y eso es lo que sigue subiendo.
@@ -322,6 +323,24 @@ export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiad
       if (crecio) cola.push(quien);
     }
   }
+
+  return { alcanzados, semillas, archivos };
+}
+
+/** Rutas relativas (con `/`) de todo lo que alcanza un cambio, incluidos los archivos cambiados. */
+export function archivosAlcanzadosDesde(cambiados, nombresDe = () => '*', opciones = {}) {
+  const { alcanzados } = recorrerAlcanzados(cambiados, nombresDe, opciones);
+  return new Set([...alcanzados].map((f) => path.relative(RAIZ, f).replace(/\\/g, '/')));
+}
+
+export function pantallasTocadasDesde(cambiadosTodos, nombresDe = nombresCambiadosEnGit, opciones = {}) {
+  if (!cambiadosTodos) return 'TODO';
+  const cambiados = cambiadosTodos.filter((f) => !SOLO_CON_LA_BASE_REAL.includes(f));
+  if (cambiados.length === 0) return [];
+  if (cambiados.some((f) => AFECTAN_TODO.some((p) => p.test(f)))) return 'TODO';
+
+  const { alcanzados, semillas, archivos } = recorrerAlcanzados(cambiados, nombresDe, opciones);
+  if (semillas.length === 0) return [];
 
   const rutas = new Set();
   for (const archivo of alcanzados) {

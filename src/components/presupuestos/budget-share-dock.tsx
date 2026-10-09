@@ -6,17 +6,25 @@ import Link from 'next/link';
 import { ClipboardCopy, Download, Edit3, MessageSquare, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { enlacePublicoDelPresupuesto } from '@/lib/presupuestos/enlace-publico';
 
 function isBudgetViewRoute(pathname: string | null) {
   return Boolean(pathname && /^\/presupuestos\/[^/]+\/ver$/.test(pathname));
 }
 
-function getCurrentBudgetUrl() {
-  if (typeof window === 'undefined') return '';
-  const url = new URL(window.location.href);
-  url.hash = '';
-  url.searchParams.delete('imprimir');
-  return url.toString();
+function budgetIdFromPath(pathname: string | null): string | null {
+  const m = pathname?.match(/^\/presupuestos\/([^/]+)\/ver$/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+/**
+ * El enlace que se comparte es SIEMPRE el público con token (el mismo que arma el botón de la
+ * pantalla). Antes se copiaba la dirección interna y el cliente caía en el ingreso (SHARE80).
+ */
+async function getClientBudgetUrl(pathname: string | null): Promise<string> {
+  const id = budgetIdFromPath(pathname);
+  if (!id) throw new Error('No se encontró el presupuesto.');
+  return enlacePublicoDelPresupuesto(id, window.location.origin);
 }
 
 function buildBudgetShareText(url: string) {
@@ -53,9 +61,30 @@ function BudgetShareDockInner() {
 
   const editHref = pathname?.replace(/\/ver$/, '/edit') || '/presupuestos/nuevo';
 
-  const handleWhatsApp = () => {
-    const url = getCurrentBudgetUrl();
-    window.open(`https://wa.me/?text=${encodeURIComponent(buildBudgetShareText(url))}`, '_blank', 'noopener,noreferrer');
+  const avisarQueFallo = (error: unknown) => {
+    toast({
+      title: 'No se pudo armar el enlace del cliente',
+      description: error instanceof Error ? error.message : 'Probá de nuevo en un momento.',
+      variant: 'destructive',
+    });
+  };
+
+  const handleWhatsApp = async () => {
+    // La ventana se abre en el toque (si no, el navegador la bloquea) y se completa al tener el enlace.
+    const ventana = window.open('', '_blank');
+    try {
+      const url = await getClientBudgetUrl(pathname);
+      const destino = `https://wa.me/?text=${encodeURIComponent(buildBudgetShareText(url))}`;
+      if (ventana) {
+        ventana.opener = null;
+        ventana.location.href = destino;
+      } else {
+        window.open(destino, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error) {
+      ventana?.close();
+      avisarQueFallo(error);
+    }
   };
 
   const handlePdf = () => {
@@ -64,17 +93,23 @@ function BudgetShareDockInner() {
   };
 
   const handleCopy = async () => {
+    let url: string;
     try {
-      await navigator.clipboard.writeText(getCurrentBudgetUrl());
-      toast({ title: 'Enlace copiado', description: 'Listo para pegar en WhatsApp o enviar al cliente.' });
+      url = await getClientBudgetUrl(pathname);
+    } catch (error) {
+      avisarQueFallo(error);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({ title: 'Enlace copiado', description: 'Es el enlace del cliente: lo abre sin cuenta.' });
     } catch {
-      toast({ title: 'No se pudo copiar', description: 'Copiá el enlace desde la barra del navegador.', variant: 'destructive' });
+      // La barra del navegador tiene la dirección INTERNA: no se manda a copiarla de ahí.
+      toast({ title: 'No se pudo copiar', description: `Copiá este enlace a mano: ${url}`, variant: 'destructive' });
     }
   };
 
   const handleNativeShare = async () => {
-    const url = getCurrentBudgetUrl();
-    const text = buildBudgetShareText(url);
     if (!navigator.share) {
       await handleCopy();
       return;
@@ -82,6 +117,14 @@ function BudgetShareDockInner() {
 
     setIsSharing(true);
     try {
+      let url: string;
+      try {
+        url = await getClientBudgetUrl(pathname);
+      } catch (error) {
+        avisarQueFallo(error);
+        return;
+      }
+      const text = buildBudgetShareText(url);
       await navigator.share({
         title: 'Presupuesto AK Producciones',
         text,

@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { buildWhatsAppLink, toWhatsAppDigits } from '@/lib/commercial/contact';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, AlertTriangle, UserCircle, FileText, Info, Eye, Briefcase, Phone, Printer, Star, MessageCircle, ArrowRight } from 'lucide-react';
@@ -223,9 +224,8 @@ export default function CustomerDetailsPage() {
     nextStepHref = null;
   }
 
-  const whatsappPhone = customer.phone ? customer.phone.replace(/\D/g, '') : null;
-  const whatsappUrl = whatsappPhone
-    ? `https://wa.me/${whatsappPhone}?text=${encodeURIComponent(`Hola ${customer.name || ''}, te contactamos de AK Producciones.`)}`
+  const whatsappUrl = toWhatsAppDigits(customer.phone)
+    ? buildWhatsAppLink(customer.phone, `Hola ${customer.name || ''}, te contactamos de AK Producciones.`)
     : null;
 
   return (
@@ -289,7 +289,7 @@ export default function CustomerDetailsPage() {
               <div className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Empresa:</span> {customer.companyName || '-'}</div>
               <div className="flex items-center gap-2"><UserCircle className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Contacto:</span> {customer.name}</div>
               <div className="flex items-center gap-2"><Phone className="w-4 h-4 text-muted-foreground"/> <span className="font-medium">Teléfono:</span> {customer.phone ? (
-                  <a href={`https://wa.me/${customer.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${customer.name || ''}!`)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[#25D366] hover:underline font-medium">
+                  <a href={buildWhatsAppLink(customer.phone, `Hola ${customer.name || ''}!`)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-[#25D366] hover:underline font-medium">
                     {customer.phone} <MessageCircle className="w-3.5 h-3.5" />
                   </a>
                 ) : '-'}</div>
