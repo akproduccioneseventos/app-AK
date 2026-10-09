@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9/10/2026 - Codex 85: QR descargado, entrada y aislamiento entre fiestas
+
+Main contrastado `859fd23b1175646edc0209cab114241327d302ba`. Fuente compilada
+`497ee725`, equivalencia acotada descarga/payload/lector/acciones/credencial;
+WhatsApp posterior y barra embebida NO probados. No certificar main entero ni
+entrega local de Claude no subida. Informe 85 y matriz 84.
+
+4 casos aprobados: 2 PC / 2 viewport movil. Descarga PNG real, decodifica bytes,
+lector real del operador consume ese PNG y guarda entrada/timestamp; conserva
+mesa/menu/tres personas y otro invitado. Portal separado persiste tras recarga,
+sin controles de equipo. Token A no abre credencial B con mismo ID: no revela
+nombre/QR ni cambia fiestas. Confirmar NO marca llegada. PC original freno en
+radio oculto: error de MI selector, no app; etiqueta visible funciona. Repetido
+solo el caso frenado, aprobado; raw original conservado.
+
+NO fallo nuevo ni orden nueva. No repetir sin cambio relevante ni rehacer mural,
+personal o los cuatro arreglos 133/134 en curso. Textos de opcion de archivo en
+ingles: propuesta visual aparte, no bloqueante. Datos ficticios propios/JSON/demo;
+camara simulada solo para iniciar lector, no prueba fisica ni area completa.
+Sondas/raw/PNG/capturas 85 guardados; ayudante, pestaña y entorno propios cerrados.
+Sin producto, build nuevo, paquetes, datos reales ni fusion. PR 1277 documental.
+
 ## 9/10/2026 - Codex 84: recuento de las 14 areas y SOLO huecos de personal
 
 Main contrastado `859fd23b1175646edc0209cab114241327d302ba`. Recuento consolidado
