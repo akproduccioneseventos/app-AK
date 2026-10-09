@@ -44,6 +44,8 @@ export interface SocialPost {
     lastAttemptAt?: string;
     // Identificador de publicación en plataformas asíncronas (ej. TikTok)
     publishId?: string;
+    // Reclamo de publicación en curso (evita que dos corridas publiquen lo mismo); vence solo
+    publicandoDesde?: string;
     // Trazabilidad de reciclado de contenidos de alto rendimiento
     recicladoDe?: string;
 }
