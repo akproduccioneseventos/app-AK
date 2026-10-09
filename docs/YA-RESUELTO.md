@@ -1,5 +1,31 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9/10/2026 - Codex 84: recuento de las 14 areas y SOLO huecos de personal
+
+Main contrastado `859fd23b1175646edc0209cab114241327d302ba`. Recuento consolidado
+`docs/evidencias/84-recuento-y-pendientes.md`: alcances anteriores, evidencia,
+limites, arreglos en curso y huecos por las 14 areas. LO-AUDITADO ahora enlaza
+ese recuento: sus 6/354 pantallas son historicas de agosto, NO estado actual.
+No contar repeticion de pruebas como funciones nuevas ni mezclar mocks con
+conexion real. No reabrir los cuatro pendientes 133/134 mientras se programan.
+
+Nuevo hueco probado, personal: 8 casos aprobados (4 PC/4 movil). Confirmacion
+y llegada guardadas/recargadas sin alterar companero; rechazo con motivo;
+enlace vencido no muestra acciones; revocado con pantalla abierta rechaza
+confirmar/llegar, libera botones y no guarda. Sin cookie del equipo.
+Dos fallos iniciales fueron selectores ambiguos de MI prueba, no de la app:
+conservar raw original; repetir solo los dos frenados, ambos aprobados.
+Area personal, fuente `497ee725`, consumidores/dependencias contrastados sin
+cambio hasta main; NO area entera limpia ni Firestore/ubicacion real/recibo.
+Datos ficticios propios, ajuste ubicacion desactivado por defecto sin modificar.
+
+No hay fallo nuevo ni orden nueva de programacion. Conservar estos recorridos
+como cubiertos y revisar solo si cambia su consumidor/dependencias. Faltantes
+restantes estan separados por area en el recuento; 19 originales siguen sin
+conciliar por el limite de acceso documentado, no reintentar sin acceso nuevo.
+Sondas/raw/captura 84 guardados. Ayudantes y entorno propios cerrados. Sin
+codigo productivo, build, cobros/mensajes reales ni fusion. PR 1277 documental.
+
 ## 9/10/2026 - Codex 83: contrato y entrega de estaciones, CUATRO pendientes nuevos
 
 Main final contrastado `859fd23b1175646edc0209cab114241327d302ba`; pruebas en

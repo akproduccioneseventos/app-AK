@@ -1,5 +1,11 @@
 # Lo auditado, y CÓMO
 
+**Actualizacion 9/10/2026:** el recuento consolidado vigente esta en
+[`evidencias/84-recuento-y-pendientes.md`](evidencias/84-recuento-y-pendientes.md).
+Las cantidades y pendientes de las tablas de abajo son HISTORICOS de agosto,
+no cobertura actual ni orden para repetir lo revisado despues. Conservarlos
+como antecedente del metodo, sin convertirlos en aprobacion del main actual.
+
 **Idea del dueño, 31 de agosto de 2026.** Sus palabras: *"debería haber una lista interna de lo
 auditado y de qué forma, para ir descontando; y si volvemos a ver otro método, se sabe cómo se
 auditó antes."*
