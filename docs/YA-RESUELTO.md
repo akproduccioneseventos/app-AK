@@ -40,6 +40,7 @@ usa: ALIAS_DE_MODULO en src/app/actions/fiesta/entretenimiento.actions.ts
 usa: signedBy: constancia.signedBy en src/app/portal/[fiestaId]/contrato/page.tsx
 usa: docs/evidencias en tsconfig.json
 ```
+
 ## 9/10/2026 - Codex 84: recuento de las 14 areas y SOLO huecos de personal
 
 Main contrastado `859fd23b1175646edc0209cab114241327d302ba`. Recuento consolidado
