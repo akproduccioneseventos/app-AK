@@ -138,12 +138,19 @@ export default function InvitadosPage() {
       return;
     }
     setSendingSong(true);
-    const result = await addSolicitudCancion(fiestaId, {
-      invitadoNombre: songNombre.trim(),
-      cancion: songCancion.trim(),
-      artista: songArtista.trim() || undefined,
-    });
-    setSendingSong(false);
+    let result: Awaited<ReturnType<typeof addSolicitudCancion>>;
+    try {
+      result = await addSolicitudCancion(fiestaId, {
+        invitadoNombre: songNombre.trim(),
+        cancion: songCancion.trim(),
+        artista: songArtista.trim() || undefined,
+      });
+    } catch {
+      toast({ title: 'No se pudo enviar', description: 'Se cortó la conexión. Probá de nuevo.', variant: 'destructive' });
+      return;
+    } finally {
+      setSendingSong(false);
+    }
     if (result.success) {
       toast({ title: '¡Pedido enviado!', description: 'Tu solicitud fue enviada al DJ.' });
       // Refresh to get the new ID
@@ -168,11 +175,18 @@ export default function InvitadosPage() {
       return;
     }
     setSendingMsg(true);
-    const result = await addMensajeEnVivo(fiestaId, {
-      autor: msgAutor.trim(),
-      mensaje: msgTexto.trim(),
-    });
-    setSendingMsg(false);
+    let result: Awaited<ReturnType<typeof addMensajeEnVivo>>;
+    try {
+      result = await addMensajeEnVivo(fiestaId, {
+        autor: msgAutor.trim(),
+        mensaje: msgTexto.trim(),
+      });
+    } catch {
+      toast({ title: 'No se pudo enviar', description: 'Se cortó la conexión. Probá de nuevo.', variant: 'destructive' });
+      return;
+    } finally {
+      setSendingMsg(false);
+    }
     if (result.success) {
       toast({ title: '¡Mensaje enviado!', description: 'Tu mensaje aparecerá en el muro del evento.' });
       setMsgTexto('');
@@ -189,13 +203,20 @@ export default function InvitadosPage() {
       return;
     }
     setSendingCrm(true);
-    const result = await registerGuestLiveInterest(fiestaId, {
-      nombre: crmNombre,
-      telefono: crmPhone,
-      birthdayMonthDay: crmFecha || undefined,
-      marketingConsent: crmConsent,
-    });
-    setSendingCrm(false);
+    let result: Awaited<ReturnType<typeof registerGuestLiveInterest>>;
+    try {
+      result = await registerGuestLiveInterest(fiestaId, {
+        nombre: crmNombre,
+        telefono: crmPhone,
+        birthdayMonthDay: crmFecha || undefined,
+        marketingConsent: crmConsent,
+      });
+    } catch {
+      toast({ title: 'No se pudo registrar', description: 'Se cortó la conexión. Probá de nuevo.', variant: 'destructive' });
+      return;
+    } finally {
+      setSendingCrm(false);
+    }
     if (!result.success) {
       toast({ title: 'No se pudo registrar', description: result.error, variant: 'destructive' });
       return;

@@ -63,8 +63,9 @@ export default function MiMesaPage() {
       }
     } catch {
       setNotFound(true);
+    } finally {
+      setIsSearching(false);
     }
-    setIsSearching(false);
   };
 
   const handleSelect = (inv: PublicGuestTableMatch) => {
