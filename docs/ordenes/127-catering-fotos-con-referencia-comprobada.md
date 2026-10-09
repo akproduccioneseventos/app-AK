@@ -162,8 +162,7 @@ inventar ingredientes/costos ni poner precio cero para que aparezcan.
 5. Claude registra compilacion/pruebas del conjunto en el mismo SHA y actualiza
    `docs/YA-RESUELTO.md`. No afirmar sincronizacion productiva sin comprobarla.
 
-Las dos pruebas nuevas que siguen son propuestas PENDIENTES: no existen ni se
-ejecutaron. Las 39 unitarias de 77 prueban otros contratos, no aceptan estas fotos.
+Las dos pruebas nuevas existen: la de Jest corre en verde (y en rojo al cambiar una foto); la de navegador está escrita, sin correr todavía. Las 39 unitarias de 77 prueban otros contratos, no aceptan estas fotos.
 
 ```comprobar
 archivo: src/lib/catering/menu-images.ts
@@ -172,6 +171,6 @@ usa: getCateringDishImage en src/app/simulador-de-presupuesto/page.tsx
 archivo: src/data/menus-catering.json
 archivo: src/app/actions/menus-catering.ts
 usa: getMenusPublicos en src/app/actions/public-simulator-bootstrap.ts
-prueba: src/__tests__/catering-fotos-corresponden-al-plato.test.ts (PENDIENTE)
-prueba: tests/e2e/catering-maestro-simulador-fotos.spec.ts (PENDIENTE, entorno aislado)
+prueba: src/__tests__/catering-fotos-corresponden-al-plato.test.ts
+prueba: tests/e2e/catering-maestro-simulador-fotos.spec.ts
 ```
