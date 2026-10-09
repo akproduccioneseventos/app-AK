@@ -254,13 +254,13 @@ usa: tomarCandado en src/lib/marketing-automation.ts
 ```comprobar
 archivo: docs/evidencias/81-publicacion-sondas.test.ts
 usa: publishPostInternal en src/app/actions/social-media.ts
-prueba: docs/evidencias/81-publicacion-retest.json (manual falla, TikTok pasa)
+prueba: docs/evidencias/81-publicacion-retest.json
 archivo: docs/evidencias/81-invitados-reintento.test.ts
 usa: saveScheduledMessage en src/app/api/cron/recordatorio-a-los-invitados/route.ts
-prueba: docs/evidencias/81-invitados-retest.json (dos mensajes, falla)
+prueba: docs/evidencias/81-invitados-retest.json
 archivo: docs/evidencias/81-mural-emulador.spec.ts
 usa: getPublicSocialPosts en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
-prueba: docs/evidencias/81-e2e-mural-validado.json (seis pruebas pasan)
+prueba: docs/evidencias/81-e2e-mural-validado.json
 ```
 
 ## 9 de octubre de 2026 — Codex, auditoría 81: tareas sin sesión, parte de la mañana y cobros a confirmar
