@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9 de octubre de 2026 — Codex, auditoría 82: cancelar un trago con la señal cortada (PR 1275)
+
+- **El botón "Cancelar" del trago quedaba girando para siempre** si se cortaba la respuesta
+  (BAR82-CANCEL). Ahora el botón se libera siempre, avisa "No se pudo cancelar" sin decir que se
+  canceló, y vuelve a mirar cómo quedó el pedido (el servidor pudo haberlo guardado). Lo mismo al
+  pedir: si se corta, avisa y muestra el pedido actual; el reintento usa el mismo número de pedido,
+  así no se anota dos veces.
+- **Barrido de la forma** en todas las pantallas del invitado y del cliente: cada estado de "en
+  curso" se apaga en un `finally` (ver la prueba de pantallas que no quedan colgadas).
+- **Los 19 presupuestos reales siguen sin conciliar:** la base de producción no se puede leer
+  desde los entornos de prueba (Codex recibió "permisos insuficientes"). No es un defecto de la
+  app; se hace cuando haya acceso a los originales.
+
+```comprobar
+prueba: tests/e2e/barra-recupera-cancelacion.spec.ts
+usa: setIsCanceling(null) en src/app/invitacion/[fiestaId]/invitado/[guestId]/MiniQuiosco.tsx
+prueba: src/__tests__/las-pantallas-publicas-no-quedan-colgadas.test.ts
+```
+
 ## Actualizacion final de Codex 82: main avanzo durante la entrega
 
 PR 1273 y 1274 ya fusionadas por otra sesion; main final

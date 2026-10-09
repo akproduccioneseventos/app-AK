@@ -1,5 +1,7 @@
 # 132. Barra: recuperar la cancelacion cuando se corta la respuesta
 
+**HECHA el 9/10/2026 por Claude (arreglo chico): `handleCancel` y `submitOrder` con catch/finally, prueba `tests/e2e/barra-recupera-cancelacion.spec.ts`. Ver YA-RESUELTO.**
+
 **NO CONTRASTADO CON LA TANDA DE PROGRAMACION EN CURSO.** Al consultar GitHub
 solo esta abierta PR 1273, documental. No consta el HEAD de los cambios locales
 que Claude/Gemini estan preparando. Contrastar antes de programar; no duplicar
