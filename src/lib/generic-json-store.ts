@@ -139,7 +139,7 @@ function getFileMutex(path: string): FileAsyncMutex {
  * ya estaba subido y el recuerdo no quedaba en la fiesta (prueba con emulador, orden 134). Se
  * sacan las claves `undefined` (en listas pasan a `null`), sin tocar fechas ni otros objetos.
  */
-export function sinIndefinidos<V>(valor: V): V {
+function sinIndefinidos<V>(valor: V): V {
   if (Array.isArray(valor)) return valor.map((v) => (v === undefined ? null : sinIndefinidos(v))) as unknown as V;
   if (valor && typeof valor === 'object' && Object.getPrototypeOf(valor) === Object.prototype) {
     const limpio: Record<string, unknown> = {};
