@@ -92,6 +92,6 @@ archivo: src/app/actions/fiesta/entretenimiento.actions.ts
 usa: uploadEntretenimientoMedia en src/app/evento/plataforma-360/[fiestaId]/page.tsx
 usa: uploadEntretenimientoMedia en src/app/evento/bogue/[fiestaId]/page.tsx
 prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
-prueba: tests/e2e/estaciones-invitado-entrega-real.spec.ts (PENDIENTE, entorno aislado con emulador)
+prueba: tests/firebase/estaciones-invitado-entrega-real.test.ts
 prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
 ```
