@@ -76,6 +76,7 @@ export async function ejecutarRevisionPosicionamiento(
   };
 
   // Registrar marca oficial de corrida
+  // no pasa nada si falla: la revisión ya se hizo; sin la marca, sólo se repite antes.
   await marcarCorrida('posicionamiento-diario', ahora, origen).catch(() => {});
 
   return reporte;

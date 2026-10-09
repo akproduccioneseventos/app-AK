@@ -39,6 +39,7 @@ async function correrTarea(request: Request) {
 
       return NextResponse.json(resultado);
     } finally {
+      // no pasa nada si falla: el candado vence solo y la próxima corrida lo toma.
       await liberarLock(dueno).catch(() => {});
     }
   } catch (error: any) {

@@ -87,6 +87,7 @@ async function soltarReclamo(postId: string): Promise<void> {
       void _quitar;
       return resto as SocialPost;
     });
+  // no pasa nada si falla: el reclamo vence solo a los 15 minutos.
   }).catch(() => {});
 }
 
