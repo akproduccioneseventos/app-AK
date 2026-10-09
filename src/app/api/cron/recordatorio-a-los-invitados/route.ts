@@ -69,12 +69,15 @@ async function correrTarea(request: Request) {
             status: 'pendiente',
             sendingMode: 'manual_click',
             fiestaId: fiesta.id,
-          }, WHATSAPP_AUTOMATION_INTERNAL_TOKEN);
+          }, WHATSAPP_AUTOMATION_INTERNAL_TOKEN, {
+            // Uno por invitado, por momento y por día: dos corridas el mismo día no lo repiten.
+            idEstable: `recordatorio_invitado_${fiesta.id}_${inv.id}_${diffDias === 0 ? 'hoy' : 'dos-dias'}_${fechaStr.split('T')[0]}`,
+          });
 
           // Sin la llave interna, guardar pedia sesion del equipo y fallaba siempre; la tarea
           // igual contestaba "ok" y se anotaba corrida (Codex, auditoria 81).
           if (saveRes.success) {
-            mensajesPreparados++;
+            if (!saveRes.yaExistia) mensajesPreparados++;
           } else {
             errores.push(`${inv.nombre}: ${saveRes.error || 'no se pudo guardar el recordatorio'}`);
           }

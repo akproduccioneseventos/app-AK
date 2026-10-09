@@ -210,7 +210,15 @@ describe('Orden 60 - Bloque B: TikTok no canta victoria antes', () => {
 
     let currentPosts: any[];
 
+    const modoAntes = process.env.AK_USE_LOCAL_JSON_ONLY;
+    afterAll(() => {
+      process.env.AK_USE_LOCAL_JSON_ONLY = modoAntes;
+    });
+
     beforeEach(() => {
+      // Sin base: "publicar ahora" reclama el posteo leyendo y escribiendo estos archivos de
+      // mentira (con base lo prueba `publicador-no-publica-dos-veces`).
+      process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
       currentPosts = [JSON.parse(JSON.stringify(mockPost))];
 
       (dataService.readData as jest.Mock).mockImplementation((file: string, fallback: any) => {

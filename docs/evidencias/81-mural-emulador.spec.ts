@@ -1,3 +1,4 @@
+// @ts-nocheck -- evidencia de Codex pensada para copiarse a tests/e2e; no es código de la app.
 // Copy to tests/e2e in the disposable checkout; never seed production.
 import { test, expect } from '@playwright/test';
 import admin from 'firebase-admin';

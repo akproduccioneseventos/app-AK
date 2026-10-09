@@ -79,6 +79,22 @@ async function reclamarPosteo(postId: string, ahora: Date): Promise<boolean> {
   }).catch(() => false);
 }
 
+/**
+ * Reclamo de una publicación MANUAL ("publicar ahora"): vale para cualquier posteo que no
+ * esté publicado ni reclamado. Sin esto dos toques a la vez lo mandaban dos veces a la red
+ * (Codex, auditoría 81, retest). La vuelta programada reclama con su propia regla y le avisa
+ * a `publishPostInternal` que ya lo tiene, para no reclamar dos veces.
+ */
+async function reclamarParaPublicarAhora(postId: string, ahora: Date): Promise<boolean> {
+  return turnoDeReclamos.runExclusive(async () => {
+    const ganado = await mutarPosteo(postId, (p) => {
+      if (p.status === 'Publicado' || reclamoVigente(p, ahora.getTime())) return null;
+      return { ...p, publicandoDesde: ahora.toISOString() };
+    });
+    return Boolean(ganado);
+  }).catch(() => false);
+}
+
 async function soltarReclamo(postId: string): Promise<void> {
   await turnoDeReclamos.runExclusive(async () => {
     await mutarPosteo(postId, (p) => {
@@ -110,7 +126,29 @@ export interface PublicarResultado {
  */
 export async function publishPostInternal(
   postId: string,
-  targetPlatforms?: PlatformName[]
+  targetPlatforms?: PlatformName[],
+  opciones?: { yaReclamado?: boolean },
+): Promise<PublicarResultado> {
+  if (!opciones?.yaReclamado) {
+    const ganado = await reclamarParaPublicarAhora(postId, new Date());
+    if (!ganado) {
+      return {
+        success: false,
+        error: 'Esta publicación ya se está mandando o ya salió. Esperá un momento y fijate el estado.',
+      };
+    }
+    try {
+      return await publicarSinReclamo(postId, targetPlatforms);
+    } finally {
+      await soltarReclamo(postId);
+    }
+  }
+  return publicarSinReclamo(postId, targetPlatforms);
+}
+
+async function publicarSinReclamo(
+  postId: string,
+  targetPlatforms?: PlatformName[],
 ): Promise<PublicarResultado> {
   try {
     const posts = await readData<SocialPost[]>(POSTS_FILE, []);
@@ -527,7 +565,7 @@ export async function procesarPosteosProgramados(
 
     let res: PublicarResultado;
     try {
-      res = await publishPostInternal(post.id);
+      res = await publishPostInternal(post.id, undefined, { yaReclamado: true });
     } finally {
       await soltarReclamo(post.id);
     }

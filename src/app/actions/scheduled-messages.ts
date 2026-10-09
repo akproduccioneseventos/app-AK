@@ -31,7 +31,8 @@ export async function getScheduledMessages(internalToken?: symbol): Promise<Sche
 export async function saveScheduledMessage(
   message: Omit<ScheduledMessage, 'id' | 'createdAt'>,
   internalToken?: symbol,
-): Promise<{ success: boolean; message?: ScheduledMessage; error?: string }> {
+  opciones?: { idEstable?: string },
+): Promise<{ success: boolean; message?: ScheduledMessage; error?: string; yaExistia?: boolean }> {
   if (internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN) {
     const permiso = await requirePermiso(PERMISOS.CRM);
     if (!permiso.ok) return { success: false, error: permiso.error };
@@ -49,19 +50,41 @@ export async function saveScheduledMessage(
   }
 
   try {
+    // Con `idEstable` el mismo aviso (p. ej. fiesta + invitado + momento + día) se guarda UNA
+    // vez aunque la tarea corra dos veces o en dos servidores: la base rechaza crear un id que
+    // ya existe (Codex, auditoría 81).
+    const idEstable = opciones?.idEstable?.replace(/[^\w-]/g, '_');
     const newMessage: ScheduledMessage = {
       ...message,
-      id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: idEstable || `msg_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       createdAt: new Date().toISOString(),
     };
 
+    if (idEstable) {
+      const existentes = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+      const previo = existentes.find((m) => m.id === idEstable);
+      if (previo) return { success: true, message: previo, yaExistia: true };
+    }
+
     if (!SIN_BASE()) {
-      await createDataItem(SCHEDULED_MESSAGES_FILE, SCHEDULED_MESSAGES_COLLECTION, newMessage.id, newMessage);
+      try {
+        await createDataItem(SCHEDULED_MESSAGES_FILE, SCHEDULED_MESSAGES_COLLECTION, newMessage.id, newMessage);
+      } catch (e: any) {
+        const yaEsta = idEstable && (e?.code === 6 || /already.?exists/i.test(String(e?.message)));
+        if (yaEsta) return { success: true, message: newMessage, yaExistia: true };
+        throw e;
+      }
     } else {
+      let yaExistia = false;
       await scheduledMessagesMutex.runExclusive(async () => {
         const messages = await readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
+        if (idEstable && messages.some((m) => m.id === idEstable)) {
+          yaExistia = true;
+          return;
+        }
         await writeData(SCHEDULED_MESSAGES_FILE, [...messages, newMessage]);
       });
+      if (yaExistia) return { success: true, message: newMessage, yaExistia: true };
     }
 
     return { success: true, message: newMessage };
