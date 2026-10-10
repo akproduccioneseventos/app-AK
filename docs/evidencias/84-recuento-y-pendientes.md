@@ -60,6 +60,14 @@ reentrada/revocacion ni endpoints completos. Resto de huecos sigue separado.
 
 ## Tres listas distintas para no reiniciar
 
+Actualizacion87, misma fuente ejecutada1b61295a: `87-barra-y-video-vida.md`.
+Barra tiene4E2E (pedido->preparar->listo->entregado, stock/reload/otra fiesta y
+corteCancelar->reintento, PC/movil); deltaBAR82 aceptado, NO repetir orden132.
+Video de vida tiene dos defectos NUEVOS reproducidos: reemplazo distinto formato
+conserva dos archivos y carga deshabilitada acepta pantalla vieja (orden137).
+Barman tiene botonCancelar invisible y friccion columnas vacias movil(orden138).
+ZIP final/video/listado firmado/hardware siguen sin aceptacion por estos casos.
+
 Actualizacion 86, fuente ejecutada `1b61295a`: leer
 `86-ia-planificacion-y-retest.md` antes de usar las listas historicas siguientes.
 Los cuatro pendientes 83 aprobaron retest; NO siguen esperando arreglo.

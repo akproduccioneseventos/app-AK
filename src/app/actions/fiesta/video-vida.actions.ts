@@ -77,6 +77,48 @@ async function guardarAjustesVideoVida(
   }
 }
 
+/**
+ * Deja una sola foto vigente por recuadro. Solo borra las del mismo numero que sean MAS
+ * VIEJAS que la recien subida: si dos reemplazos corren a la vez, cada uno respeta al mas
+ * nuevo y nunca quedan cero. Si no se puede leer la fecha, no se borra nada.
+ */
+async function quitarFotosAnterioresDelRecuadro(
+  fiestaId: string,
+  numeroFormateado: string,
+  rutaNueva: string
+): Promise<{ ok: boolean }> {
+  try {
+    if (!admin.apps.length) return { ok: true };
+    const bucket = admin.storage().bucket(STORAGE_BUCKET);
+    const [files] = await bucket.getFiles({ prefix: `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/${numeroFormateado}.` });
+    const lista = files as unknown as Array<{
+      name: string;
+      getMetadata: () => Promise<Array<{ timeCreated?: string }>>;
+      delete: () => Promise<unknown>;
+    }>;
+    const propia = lista.find((f) => f.name === rutaNueva);
+    if (!propia) return { ok: true };
+    const [metaPropia] = await propia.getMetadata();
+    const miHora = Date.parse(metaPropia?.timeCreated ?? '');
+    if (Number.isNaN(miHora)) return { ok: true };
+    let fallo = false;
+    for (const otra of lista) {
+      if (otra.name === rutaNueva) continue;
+      try {
+        const [meta] = await otra.getMetadata();
+        const suHora = Date.parse(meta?.timeCreated ?? '');
+        if (Number.isNaN(suHora) || suHora >= miHora) continue;
+        await otra.delete();
+      } catch {
+        fallo = true;
+      }
+    }
+    return { ok: !fallo };
+  } catch {
+    return { ok: false };
+  }
+}
+
 export async function saveLifeStoryVideoPhoto(
   formData: FormData
 ): Promise<{ success: boolean; url?: string; error?: string }> {
@@ -94,6 +136,31 @@ export async function saveLifeStoryVideoPhoto(
   }
 
   try {
+    // La pantalla publica chequea "carga habilitada" al abrirse, pero el equipo puede
+    // apagarla despues. El servidor vuelve a leer el estado ACTUAL de ESA fiesta antes de
+    // tocar Storage (VID87-CIERRE). La subida sigue siendo publica: el equipo con sesion
+    // puede cargar aunque este apagada para el cliente.
+    const fiestaActual = await getFiestaById(fiestaId);
+    if (!fiestaActual) {
+      return { success: false, error: 'No encontramos la fiesta para guardar la foto.' };
+    }
+    const cargaAbierta = fiestaActual.videoVida?.galleryEnabled === true;
+    if (!cargaAbierta) {
+      let esDelEquipo = false;
+      try {
+        const { requireAppSession } = await import('@/lib/auth/require-session');
+        await requireAppSession();
+        esDelEquipo = true;
+      } catch { /* sin sesion: es el cliente */ }
+      if (!esDelEquipo) {
+        return { success: false, error: 'La carga de fotos ya no está habilitada para este evento.' };
+      }
+    }
+    const fotosPermitidas = Math.min(Number(fiestaActual.videoVida?.photoCount) || TOPE_DE_FOTOS, TOPE_DE_FOTOS);
+    if (photoNumber > fotosPermitidas) {
+      return { success: false, error: 'Número de foto inválido.' };
+    }
+
     const fileExtension = path.extname(file.name);
     const formattedNumber = String(photoNumber).padStart(2, '0');
     const newFilename = `${formattedNumber}${fileExtension}`;
@@ -106,6 +173,16 @@ export async function saveLifeStoryVideoPhoto(
       file.type || 'image/jpeg',
       true
     );
+
+    // Un recuadro = una sola foto vigente (VID87-REEMPLAZO): la nueva ya esta confirmada,
+    // recien ahora se quitan las del mismo numero con otra extension (01.png vs 01.jpg).
+    const limpieza = await quitarFotosAnterioresDelRecuadro(fiestaId, formattedNumber, storagePath);
+    if (!limpieza.ok) {
+      return {
+        success: false,
+        error: 'La foto nueva se subió, pero no pudimos quitar la anterior. Probá de nuevo.',
+      };
+    }
 
     // La marca de "ya subieron fotos" tiene que ir en la fiesta de la foto.
     // Antes se pedia "la fiesta actual", asi que si habia otra fiesta agendada

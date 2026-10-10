@@ -1,0 +1,197 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/87-video-vida-reemplazo.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--grep",
+      "deshabilitar",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "87-video-vida-reemplazo.spec.ts",
+      "file": "87-video-vida-reemplazo.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "deshabilitar la carga impide subir desde una pantalla que quedo abierta",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5880,
+                  "error": {
+                    "message": "Error: carga deshabilitada no debe aceptar una foto desde pantalla vieja\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoHaveLength\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected length: \u001b[32m0\u001b[39m\nReceived length: \u001b[31m1\u001b[39m\nReceived array:  \u001b[31m[{\"_events\": [Object], \"_eventsCount\": 0, \"_maxListeners\": undefined, \"acl\": [Acl], \"baseUrl\": \"/o\", \"bucket\": [Bucket], \"crc32cGenerator\": [Function CRC32C_DEFAULT_VALIDATOR_GENERATOR], \"create\": undefined, \"createMethod\": undefined, \"id\": \"video-vida-photos%2Fe2e_vida87_revocada_1791593663788_7692%2F01.png\", \"instancePreconditionOpts\": undefined, \"instanceRetryValue\": true, \"interceptors\": [Array], \"kmsKeyName\": undefined, \"metadata\": [Object], \"methods\": [Object], \"name\": \"video-vida-photos/e2e_vida87_revocada_1791593663788_7692/01.png\", \"parent\": [Bucket], \"projectId\": undefined, \"storage\": [Storage], \"userProject\": undefined, Symbol(shapeMode): false, Symbol(kCapture): false}]\u001b[39m",
+                    "stack": "Error: carga deshabilitada no debe aceptar una foto desde pantalla vieja\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoHaveLength\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected length: \u001b[32m0\u001b[39m\nReceived length: \u001b[31m1\u001b[39m\nReceived array:  \u001b[31m[{\"_events\": [Object], \"_eventsCount\": 0, \"_maxListeners\": undefined, \"acl\": [Acl], \"baseUrl\": \"/o\", \"bucket\": [Bucket], \"crc32cGenerator\": [Function CRC32C_DEFAULT_VALIDATOR_GENERATOR], \"create\": undefined, \"createMethod\": undefined, \"id\": \"video-vida-photos%2Fe2e_vida87_revocada_1791593663788_7692%2F01.png\", \"instancePreconditionOpts\": undefined, \"instanceRetryValue\": true, \"interceptors\": [Array], \"kmsKeyName\": undefined, \"metadata\": [Object], \"methods\": [Object], \"name\": \"video-vida-photos/e2e_vida87_revocada_1791593663788_7692/01.png\", \"parent\": [Bucket], \"projectId\": undefined, \"storage\": [Storage], \"userProject\": undefined, Symbol(shapeMode): false, Symbol(kCapture): false}]\u001b[39m\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts:85:87",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts",
+                      "column": 87,
+                      "line": 85
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 83 |\u001b[39m     \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'carga-desactivada-storage.json'\u001b[39m\u001b[33m,\u001b[39m{body\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify({galleryEnabled\u001b[33m:\u001b[39m\u001b[36mfalse\u001b[39m\u001b[33m,\u001b[39mfiles\u001b[33m:\u001b[39mfiles\u001b[33m.\u001b[39mmap(f\u001b[33m=>\u001b[39mf\u001b[33m.\u001b[39mname)}\u001b[33m,\u001b[39m\u001b[36mnull\u001b[39m\u001b[33m,\u001b[39m\u001b[35m2\u001b[39m)\u001b[33m,\u001b[39mcontentType\u001b[33m:\u001b[39m\u001b[32m'application/json'\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 84 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({path\u001b[33m:\u001b[39minfo\u001b[33m.\u001b[39moutputPath(\u001b[32m'carga-desactivada.png'\u001b[39m)})\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 85 |\u001b[39m     expect(files\u001b[33m,\u001b[39m\u001b[32m'carga deshabilitada no debe aceptar una foto desde pantalla vieja'\u001b[39m)\u001b[33m.\u001b[39mtoHaveLength(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 86 |\u001b[39m   } \u001b[36mfinally\u001b[39m {\n \u001b[90m 87 |\u001b[39m     \u001b[36mconst\u001b[39m [files]\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m bucket\u001b[33m.\u001b[39mgetFiles({prefix})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m \u001b[33mPromise\u001b[39m\u001b[33m.\u001b[39mall(files\u001b[33m.\u001b[39mmap(f\u001b[33m=>\u001b[39mf\u001b[33m.\u001b[39m\u001b[36mdelete\u001b[39m()))\u001b[33m;\u001b[39m\n \u001b[90m 88 |\u001b[39m     \u001b[36mawait\u001b[39m ref\u001b[33m.\u001b[39m\u001b[36mdelete\u001b[39m()\u001b[33m;\u001b[39mborrarFiesta(fiesta\u001b[33m.\u001b[39mid)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts",
+                        "column": 87,
+                        "line": 85
+                      },
+                      "message": "Error: carga deshabilitada no debe aceptar una foto desde pantalla vieja\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoHaveLength\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected length: \u001b[32m0\u001b[39m\nReceived length: \u001b[31m1\u001b[39m\nReceived array:  \u001b[31m[{\"_events\": [Object], \"_eventsCount\": 0, \"_maxListeners\": undefined, \"acl\": [Acl], \"baseUrl\": \"/o\", \"bucket\": [Bucket], \"crc32cGenerator\": [Function CRC32C_DEFAULT_VALIDATOR_GENERATOR], \"create\": undefined, \"createMethod\": undefined, \"id\": \"video-vida-photos%2Fe2e_vida87_revocada_1791593663788_7692%2F01.png\", \"instancePreconditionOpts\": undefined, \"instanceRetryValue\": true, \"interceptors\": [Array], \"kmsKeyName\": undefined, \"metadata\": [Object], \"methods\": [Object], \"name\": \"video-vida-photos/e2e_vida87_revocada_1791593663788_7692/01.png\", \"parent\": [Bucket], \"projectId\": undefined, \"storage\": [Storage], \"userProject\": undefined, Symbol(shapeMode): false, Symbol(kCapture): false}]\u001b[39m\n\n  83 |     await info.attach('carga-desactivada-storage.json',{body:JSON.stringify({galleryEnabled:false,files:files.map(f=>f.name)},null,2),contentType:'application/json'});\n  84 |     await page.screenshot({path:info.outputPath('carga-desactivada.png')});\n> 85 |     expect(files,'carga deshabilitada no debe aceptar una foto desde pantalla vieja').toHaveLength(0);\n     |                                                                                       ^\n  86 |   } finally {\n  87 |     const [files]=await bucket.getFiles({prefix});await Promise.all(files.map(f=>f.delete()));\n  88 |     await ref.delete();borrarFiesta(fiesta.id);\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts:85:87"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T00:54:23.417Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "carga-desactivada-storage.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJnYWxsZXJ5RW5hYmxlZCI6IGZhbHNlLAogICJmaWxlcyI6IFsKICAgICJ2aWRlby12aWRhLXBob3Rvcy9lMmVfdmlkYTg3X3Jldm9jYWRhXzE3OTE1OTM2NjM3ODhfNzY5Mi8wMS5wbmciCiAgXQp9"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-de-97a90--pantalla-que-quedo-abierta-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-de-97a90--pantalla-que-quedo-abierta-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-de-97a90--pantalla-que-quedo-abierta-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-de-97a90--pantalla-que-quedo-abierta-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-de-97a90--pantalla-que-quedo-abierta-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts",
+                    "column": 87,
+                    "line": 85
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7bdd3ac26a61423110bb-678e12119d70471eb45d",
+          "file": "87-video-vida-reemplazo.spec.ts",
+          "line": 58,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T00:54:21.462Z",
+    "duration": 8933.493999999999,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

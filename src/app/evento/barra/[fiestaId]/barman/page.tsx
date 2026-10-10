@@ -346,8 +346,8 @@ export default function BarmanScreenPage() {
               <Button className="h-11 flex-1 rounded-lg font-black" style={{ backgroundColor: accentColor }} disabled={updatingId === order.id} onClick={() => updateStatus(order, 'preparando')}>
                 Preparar
               </Button>
-              <Button variant="outline" className="h-11 rounded-lg border-white/20 bg-white/10 font-bold text-white hover:bg-white/20" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'cancelado')}>
-                <XCircle className="h-4 w-4" />
+              <Button variant="outline" className="h-11 rounded-lg border-slate-300 bg-white font-bold text-red-600 hover:bg-red-50 hover:text-red-700" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'cancelado')} aria-label="Cancelar pedido" title="Cancelar pedido">
+                <XCircle className="h-4 w-4" aria-hidden="true" />
               </Button>
             </>
           )}
@@ -363,7 +363,7 @@ export default function BarmanScreenPage() {
               <Button className="h-11 flex-1 rounded-lg bg-emerald-600 font-black hover:bg-emerald-700" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'listo')}>
                 Listo
               </Button>
-              <Button variant="outline" className="h-11 rounded-lg border-white/20 bg-white/10 font-bold text-white hover:bg-white/20" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'cancelado')} aria-label="Cancelar pedido">
+              <Button variant="outline" className="h-11 rounded-lg border-slate-300 bg-white font-bold text-red-600 hover:bg-red-50 hover:text-red-700" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'cancelado')} aria-label="Cancelar pedido" title="Cancelar pedido">
                 <XCircle className="h-4 w-4" />
               </Button>
             </div>
@@ -586,7 +586,7 @@ function OrderColumn({
   renderActions: (order: BarDrinkOrder) => ReactNode;
 }) {
   return (
-    <div className="ak-live-panel min-h-[58vh] p-4">
+    <div className="ak-live-panel p-4 md:min-h-[58vh]">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-lg" style={{ backgroundColor: accentColor }}>{icon}</div>
