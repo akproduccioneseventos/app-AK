@@ -80,6 +80,9 @@ ambas entradas del lector. Sus tests positivos son diagnosticos, no cierre.
 
 Health publico GET200 el2026-10-10T22:19:03.662Z: version publicada
 **0af74652ebdf4c813b9eb443c358d51bc24542d7**, NO el SHA ejecutado9a054620.
+Precision95: es la VERSION DECLARADA por metadata del build, no una lectura
+independiente de revisionHosting; contrastar fuente/log antes de concluir
+que cada arreglo no esta desplegado. Informe95 registra ese limite.
 Firebasetrue es lectura; gemini/googleWorkspace/mailtrue comprueban configuracion,
 no entrega real. Instagram/MercadoPagofalse.94-salud-publicada.json preservado.
 No usar GitHubActions rojo por facturacion como fallo de la app.

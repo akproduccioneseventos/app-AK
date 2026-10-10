@@ -105,6 +105,33 @@ prueba: tests/e2e/touchpix-camara-y-recuerdo-con-imagen.spec.ts
 prueba: tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts
 ```
 
+## 10/10/2026 - Codex96: error de lectura no significa galeria vacia
+
+- Main9a/PR1286 QA; tanda local NO contrastada, verificar antes de programar.
+- NUEVO148Gemini: getLifeStoryVideoPhotos retorna[] ante fallo listado/firma;
+  consumidor muestra0sin aviso aunque Storageguarda/HTTP200bytes.
+- Componente2pass/2fail;navegadorPCmovil2pass/2fail.UNAcausa,no cuatro bugs.
+- Galeria vacia funciona;reemplazo rechazado conserva preview:DESCARTADO.
+- Firmante emulador NO demuestra cuenta real rota;URLreal aun pendiente.
+- Agente inventario19 cerrado:sin export;gRPC7 limite,no ausencia.
+- Sin app/build/merge/cobros/envios.Fixtureslimpios/runtimepropio detenido.
+- Informe96/orden148/matriz84/ESTADO juntosPR1286.Mantener144-147/3D/limites95.
+- No0errores/14limpias.No duplicar aceptacion92/retests94 por nueva sonda.
+
+## 10/10/2026 - Codex95: contraste de entrega, no otra auditoria duplicada
+
+- Main9a054620/PR1286QA siguen sin correcciones144-147 nuevas accesibles.
+  Tanda local NO contrastada; no afirmar que Gemini/Claude no trabajan.
+- Health declara0af74652 y38rutas de producto difieren de main. Version es
+  metadata del build, NO lectura independiente Hosting: Claude contrastara
+  fuente/log/revision antes de publicar o reprogramar lo ya corregido.
+- GETvoz307/login y GitHubdeployments[] NO prueban ausencia de voz/despliegue.
+  No buscar Actionsrojos por facturacion ni usar booleanshealth como entrega.
+- Reutilizadas143Jest/20positivas94 sin repetir SHA igual. No mas pruebas,
+  agentes, build, emuladores ni codigo cambiado para este contraste pequeno.
+- Informe95-publicacion-y-pendientes-exactos.md/raw95-publicacion.json deja
+  ocho acciones concretas; no nuevas ordenes duplicadas ni0errores/14limpias.
+
 ## 10/10/2026 - Codex94: retests reales; tres fallos nuevos, no correcciones
 
 - Main9a054620 ejecutado en TEMP nuevo demo; PR1286 QA sigue ABIERTA.
