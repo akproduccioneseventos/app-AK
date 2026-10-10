@@ -76,3 +76,12 @@ it('la fecha del recibo no se lee como medianoche de Greenwich', () => {
   expect(fuente).not.toMatch(/new Date\(dateString\)/);
   expect(fuente).toMatch(/formatearFechaEvento\(dateString\)/);
 });
+
+describe('la pantalla /fiestas/nueva/personal/recibos usa el desglose que suma', () => {
+  const fuente = fs.readFileSync(path.join(process.cwd(), 'src/app/(app)/fiestas/nueva/personal/recibos/page.tsx'), 'utf8');
+  it('lo calcula con la función probada, para el papel y para la pantalla', () => {
+    expect(fuente).toMatch(/from '@\/lib\/personal\/desglose-recibo'/);
+    expect((fuente.match(/calculateSalaryBreakdown\(/g) || []).length).toBeGreaterThanOrEqual(2);
+    expect(fuente).not.toMatch(/totalPayment \/ divisor/);
+  });
+});
