@@ -1,5 +1,15 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion96: lector final, nuevo criterio de fallo probado
+
+Main9a/PR1286QA;NO contrastado con tanda local. VID96-LECTOR P2:fallo
+lectura/firma retorna[] y anuncia0sin aviso.Componente2pass/2fail;navegador
+PCmovil2pass/2fail;Storage01.png/HTTPbytes conservados.Orden148Gemini UNAcausa.
+Reemplazo fallido conserva preview,descartado.Limite firmanteemulador NO
+prueba cuenta real rota.Inventario19sin export:no ausencia.Reusar92/94;
+informe95/lista restante+148 vigentes.Runtime96 detenido/fixtureslimpios.
+No aceptar area completa ni0errores por dos controles positivos.
+
 ## Actualizacion95: version declarada no coincide; no duplicar auditoria
 
 Main9a sin delta, PR1286 QA unicaabierta. Health declara0af,38rutasproducto

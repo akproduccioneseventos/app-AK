@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/10/2026 - Codex96: error de lectura no significa galeria vacia
+
+- Main9a/PR1286 QA; tanda local NO contrastada, verificar antes de programar.
+- NUEVO148Gemini: getLifeStoryVideoPhotos retorna[] ante fallo listado/firma;
+  consumidor muestra0sin aviso aunque Storageguarda/HTTP200bytes.
+- Componente2pass/2fail;navegadorPCmovil2pass/2fail.UNAcausa,no cuatro bugs.
+- Galeria vacia funciona;reemplazo rechazado conserva preview:DESCARTADO.
+- Firmante emulador NO demuestra cuenta real rota;URLreal aun pendiente.
+- Agente inventario19 cerrado:sin export;gRPC7 limite,no ausencia.
+- Sin app/build/merge/cobros/envios.Fixtureslimpios/runtimepropio detenido.
+- Informe96/orden148/matriz84/ESTADO juntosPR1286.Mantener144-147/3D/limites95.
+- No0errores/14limpias.No duplicar aceptacion92/retests94 por nueva sonda.
+
 ## 10/10/2026 - Codex95: contraste de entrega, no otra auditoria duplicada
 
 - Main9a054620/PR1286QA siguen sin correcciones144-147 nuevas accesibles.

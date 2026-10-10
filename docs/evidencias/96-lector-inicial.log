@@ -1,0 +1,19 @@
+FAIL src/__tests__/qa96-video-lector.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '@testing-library/react' from 'src/__tests__/qa96-video-lector.test.tsx'
+
+    [0m [90m 58 |[39m   expect(screen[33m.[39mgetByText([32m'Tu Galer\u00eda (1 de 2)'[39m))[33m.[39mtoBeTruthy()[33m;[39m
+     [90m 59 |[39m })[33m;[39m
+    [31m[1m>[22m[39m[90m 60 |[39m
+     [90m    |[39m [31m[1m^[22m[39m[0m
+
+      at Resolver._throwModNotFoundError (../../../../../Documents/Codex/2026-05-28/quiero-que-tomando-el-chat-de/.audit-source-20260922/node_modules/jest-resolve/build/index.js:863:11)
+      at Object.<anonymous> (src/__tests__/qa96-video-lector.test.tsx:60:17)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        4.302 s
+Ran all test suites within paths "src/__tests__/qa96-video-lector.test.tsx".
+Test results written to: ..\..\..\..\..\Documents\Codex\2026-05-28\quiero-que-tomando-el-chat-de\.audit-verificacion-81-20261009\docs\evidencias\96-lector.json

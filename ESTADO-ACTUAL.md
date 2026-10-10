@@ -1,10 +1,9 @@
-# Estado actual - 10/10/2026 (Codex88-95)
+# Estado actual - 10/10/2026 (Codex88-96)
 
-Fuente94 main9a054620718673f00e10b52f0811cc1af729ba4e ejecutada/contrastada.
+Fuente94/96 main9a054620718673f00e10b52f0811cc1af729ba4e ejecutada/contrastada.
 Rama QA codex/auditoria-93-cierre-antiguos-20261010; PR1286 ABIERTA, no merge.
 Tanda de programacion local NO contrastada: contrastar antes de corregir.
-95: health declara0af74652 !=9a,38rutasproducto difieren. Validar revisionHosting
-contra fuente/log: metadata no es lectura independiente. Retests94 reutilizados.
+95health declara0af!=9a/38rutas:Claude valida fuente/log/Hosting;reusar94.
 
 ## Lo que hace el dueno (no se automatiza)
 - Contabilidad > Poner al dia: cobros pasados y copias/pruebas vienen marcados;
@@ -30,10 +29,12 @@ contra fuente/log: metadata no es lectura independiente. Retests94 reutilizados.
 - 147QR170descargado valido no lee un patron; mismoQR con borde32SI.
   Reentrada movilSI pero PCnegativo; no reabrir143permisos como misma causa.
 - 3Dhistorico SINaceptar: reconciler falla/foto !=canvas;sin delta causal.
-- Lector visual Video de Vida: limiteURL/firmaemulador, no fallopublicado probado.
+- NUEVO148Video de Vida:error lectura/firma retorna[] anuncia0sin aviso;
+  componente2pass/2fail y PCmovil2pass/2fail.UNAcausa,no borrado observado.
+- Lector visual Video de Vida real aun pendiente;emulador carece de firmante.
 - 19presupuestos manuales requieren export autorizado+originales;JSONlocal0
-  NOdemuestra ausencia. Cuentas/proveedores/audio/hardware reales sin aceptar.
+  NOdemuestra ausencia.Inventario96sin export.Cuentas/hardware sin aceptar.
 - Build/Hosting mismoSHA lo registra Claude;Actionsrojo porfacturacion no pruebaapp.
-- Informe94/matriz84/YA-RESUELTO comparten evidencia, limites y sondas fallidas.
-- TEMP94 limpiado/runtimepropio detenido;0cobros/envios/cuentasreales tocados.
+- Informe96/orden148/matriz84/YA-RESUELTO comparten evidencia y limites.
+- TEMP96 limpiado/runtimepropio detenido;0cobros/envios/cuentasreales tocados.
 - NO14areaslimpias, NO0errores ni certificadofinal. Mejoras aparte del cierre.
