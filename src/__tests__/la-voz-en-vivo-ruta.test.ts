@@ -24,7 +24,14 @@ let ajustes: any = {};
 let almacen: Record<string, any> = {};
 let cola: Promise<any> = Promise.resolve();
 
-jest.mock('@/lib/auth/require-session', () => ({ hasAppSession: jest.fn(async () => sesion) }));
+let perfil = 'dueno';
+jest.mock('@/lib/auth/require-session', () => ({
+  requirePermiso: jest.fn(async (p: string) => {
+    if (!sesion) return { ok: false, error: 'Sesión no autorizada.' };
+    const { puede } = jest.requireActual('@/lib/auth/perfiles');
+    return puede({ perfil }, p) ? { ok: true, user: { perfil } } : { ok: false, error: 'Tu perfil no tiene acceso a esta parte.' };
+  }),
+}));
 jest.mock('@/lib/asistente/avisar-al-duenio', () => ({ getAsistenteSettings: jest.fn(async () => ajustes) }));
 jest.mock('@/lib/multiagent/diagnostics', () => ({
   buildMultiAgentTeamBriefing: jest.fn(async () => ({
@@ -57,6 +64,7 @@ let respuestaGoogle: () => { ok: boolean; status: number; body: any };
 
 beforeEach(() => {
   sesion = true;
+  perfil = 'dueno';
   ajustes = { vozEnVivoActiva: true, vozEnVivoMinutosPorDia: 10, vozSeleccionada: 'Kore' };
   almacen = {};
   cola = Promise.resolve();
@@ -79,6 +87,21 @@ describe('POST /api/asistente/voz-en-vivo', () => {
     expect(r.status).toBe(401);
     expect(pedidosAGoogle).toHaveLength(0);
     expect(almacen[ARCHIVO]).toBeUndefined();
+  });
+
+  it('el personal y el operador tienen sesión pero no voz en vivo (lleva saldos y cuesta plata)', async () => {
+    for (const p of ['personal', 'operador']) {
+      perfil = p;
+      const r = await POST();
+      expect(r.status).toBe(401);
+    }
+    expect(pedidosAGoogle).toHaveLength(0);
+    expect(almacen[ARCHIVO]).toBeUndefined();
+  });
+
+  it('la secretaria (contabilidad) sí puede', async () => {
+    perfil = 'secretaria';
+    expect((await POST()).status).toBe(200);
   });
 
   it('apagada en Ajustes: error claro y sin pedir ficha', async () => {

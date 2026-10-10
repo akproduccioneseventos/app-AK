@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { hasAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { getAsistenteSettings } from '@/lib/asistente/avisar-al-duenio';
 import { mutarDocumentoConTransaccion } from '@/lib/generic-json-store';
 import { hoyEnUruguay } from '@/lib/utils';
@@ -51,8 +52,14 @@ async function devolver(minutos: number, hoy: string): Promise<void> {
 }
 
 export async function POST() {
-  if (!(await hasAppSession())) {
-    return new NextResponse('Unauthorized', { status: 401 });
+  // La voz en vivo lleva saldos y cobros en su contexto y puede costar plata: sólo administración
+  // o contabilidad. El personal y el operador tienen sesión, pero no esto.
+  const [admin, conta] = await Promise.all([
+    requirePermiso(PERMISOS.ADMINISTRACION),
+    requirePermiso(PERMISOS.CONTABILIDAD),
+  ]);
+  if (!admin.ok && !conta.ok) {
+    return NextResponse.json({ error: admin.error || 'Tu perfil no tiene acceso a la voz en vivo.' }, { status: 401 });
   }
 
   const ajustes = await getAsistenteSettings();
