@@ -60,6 +60,14 @@ reentrada/revocacion ni endpoints completos. Resto de huecos sigue separado.
 
 ## Tres listas distintas para no reiniciar
 
+Actualizacion 86, fuente ejecutada `1b61295a`: leer
+`86-ia-planificacion-y-retest.md` antes de usar las listas historicas siguientes.
+Los cuatro pendientes 83 aprobaron retest; NO siguen esperando arreglo.
+Tareas e itinerario tienen resultado final UI/persistencia/reload/cliente.
+IA tiene 31 controles y dos widget PC/movil aprobados, pero seis defectos nuevos
+confirmados (orden135); entrega oficial portal tiene defecto mapper (orden136).
+Otros huecos y proveedores/hardware NO se convierten en aprobados por esta tanda.
+
 1. **Fallo conocido esperando arreglo:** CT83-NOMBRE, CT83-PAPEL, ENT83-360,
    ENT83-GUEST. Ordenes 133/134 ya entregadas. Retest cuando cambie su causa.
 2. **Arreglo presente pendiente de aceptacion propia:** compartir publico,

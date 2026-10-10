@@ -1,0 +1,638 @@
+[build-next-with-memory] Versión grabada en la compilación: 1b61295ab977fd6f204ffdab0f190edbd0f0ed6b · compilada 2026-10-09T22:20:35.194Z
+   ▲ Next.js 15.5.23
+   - Experiments (use with caution):
+     · serverActions
+
+   Creating an optimized production build ...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for client (static)...
+ ○ (pwa) Service worker: C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\public\sw.js
+ ○ (pwa)   URL: /sw.js
+ ○ (pwa)   Scope: /
+ ○ (pwa) Custom runtimeCaching array found, using it instead of the default one.
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (107kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (107kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (107kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+[build-next-with-memory] Versión grabada en la compilación: 1b61295ab977fd6f204ffdab0f190edbd0f0ed6b · compilada 2026-10-09T23:41:11.135Z
+   ▲ Next.js 15.5.23
+   - Experiments (use with caution):
+     · serverActions
+
+   Creating an optimized production build ...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for server...
+ ✓ (pwa) Compiling for client (static)...
+ ○ (pwa) Service worker: C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\public\sw.js
+ ○ (pwa)   URL: /sw.js
+ ○ (pwa)   Scope: /
+ ○ (pwa) Custom runtimeCaching array found, using it instead of the default one.
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (107kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (107kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (107kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (107kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (127kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ⚠ Compiled with warnings in 16.5min
+
+../../../../Documents/Codex/2026-05-28/quiero-que-tomando-el-chat-de/.audit-source-20260922/node_modules/@vladmandic/face-api/dist/face-api.esm.js
+Critical dependency: require function is used in a way in which dependencies cannot be statically extracted
+
+Import trace for requested module:
+../../../../Documents/Codex/2026-05-28/quiero-que-tomando-el-chat-de/.audit-source-20260922/node_modules/@vladmandic/face-api/dist/face-api.esm.js
+./src/components/social-gallery/PrepararGrillaDeCara.tsx
+./src/app/(app)/fiestas/nueva/muro-social/page.tsx
+
+../../../../Documents/Codex/2026-05-28/quiero-que-tomando-el-chat-de/.audit-source-20260922/node_modules/@vladmandic/face-api/dist/face-api.esm.js
+Critical dependency: require function is used in a way in which dependencies cannot be statically extracted
+
+Import trace for requested module:
+../../../../Documents/Codex/2026-05-28/quiero-que-tomando-el-chat-de/.audit-source-20260922/node_modules/@vladmandic/face-api/dist/face-api.esm.js
+./src/components/social-gallery/PrepararGrillaDeCara.tsx
+./src/app/(app)/fiestas/nueva/muro-social/page.tsx
+
+   Linting and checking validity of types ...
+
+./src/app/(app)/empleados/[id]/historial/page.tsx
+165:5  Warning: React Hook useMemo has missing dependencies: 'estaCobrado' and 'montoDe'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+169:5  Warning: React Hook useMemo has missing dependencies: 'estaCobrado' and 'montoDe'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/evento/touchpix/[fiestaId]/page.tsx
+827:6  Warning: React Hook useCallback has unnecessary dependencies: 'consentAccepted', 'guestAccessToken', 'guestId', and 'photoSessionId'. Either exclude them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/entretenimiento/TableroControlEstaciones.tsx
+157:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+   Collecting page data ...
+Firebase Admin SDK skipped during next build. Firestore/Auth will be enabled at runtime.
+Firebase Admin SDK not initialized during build. Runtime will initialize Firestore/Auth.
+Firebase Admin SDK skipped during next build. Firestore/Auth will be enabled at runtime.
+Firebase Admin SDK not initialized during build. Runtime will initialize Firestore/Auth.
+Firebase Admin SDK skipped during next build. Firestore/Auth will be enabled at runtime.
+Firebase Admin SDK not initialized during build. Runtime will initialize Firestore/Auth.
+   Generating static pages (0/302) ...
+Firebase Admin SDK skipped during next build. Firestore/Auth will be enabled at runtime.
+Firebase Admin SDK not initialized during build. Runtime will initialize Firestore/Auth.
+[verifySession] Error verifying session: Error: Dynamic server usage: Route /empresa/presencia-digital couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at s (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\60383.js:1:10180)
+    at n (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\45982.js:1:10290)
+    at i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\65995.js:1:42659)
+    at async i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\65995.js:1:35976)
+    at async t (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\app\(app)\empresa\presencia-digital\page.js:94:6098)
+    at async m (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\app\(app)\empresa\presencia-digital\page.js:58:3479) {
+  description: "Route /empresa/presencia-digital couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+[verifySession] Error verifying session: Error: Dynamic server usage: Route /empresa/presencia-digital couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at s (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\60383.js:1:10180)
+    at n (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\45982.js:1:10290)
+    at i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\65995.js:1:42659)
+    at async i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\65995.js:1:35976)
+    at async B (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\app\(app)\empresa\presencia-digital\page.js:58:10742)
+    at async m (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\app\(app)\empresa\presencia-digital\page.js:58:3479) {
+  description: "Route /empresa/presencia-digital couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Firebase Admin SDK skipped during next build. Firestore/Auth will be enabled at runtime.
+Firebase Admin SDK not initialized during build. Runtime will initialize Firestore/Auth.
+[verifySession] Error verifying session: Error: Dynamic server usage: Route /mi-dia couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at s (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\60383.js:1:10180)
+    at n (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\45982.js:1:10290)
+    at i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\65995.js:1:42659)
+    at async x (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\app\(app)\mi-dia\page.js:2:13114) {
+  description: "Route /mi-dia couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+Firebase Admin SDK skipped during next build. Firestore/Auth will be enabled at runtime.
+Firebase Admin SDK not initialized during build. Runtime will initialize Firestore/Auth.
+[verifySession] Error verifying session: Error: Dynamic server usage: Route /fiestas/nueva/centro couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at s (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\60383.js:1:10180)
+    at n (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\45982.js:1:10290)
+    at i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\65995.js:1:42659)
+    at async g (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\39105.js:3:46213)
+    at async i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\39105.js:3:46615)
+    at async Module.S (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\39105.js:1:81558)
+    at async A (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\27238.js:33:8460)
+    at async f (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\app\(app)\fiestas\nueva\centro\page.js:1:12983) {
+  description: "Route /fiestas/nueva/centro couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+[verifySession] Error verifying session: Error: Dynamic server usage: Route /fiestas/nueva/centro-total couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at s (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\60383.js:1:10180)
+    at n (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\45982.js:1:10290)
+    at i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\65995.js:1:42659)
+    at async g (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\39105.js:3:46213)
+    at async i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\39105.js:3:46615)
+    at async Module.S (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\39105.js:1:81558)
+    at async A (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\27238.js:33:8460)
+    at async f (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\app\(app)\fiestas\nueva\centro-total\page.js:2:12534) {
+  description: "Route /fiestas/nueva/centro-total couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+[verifySession] Error verifying session: Error: Dynamic server usage: Route /fiestas/nueva/mission-control couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at s (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\60383.js:1:10180)
+    at n (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\45982.js:1:10290)
+    at i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\65995.js:1:42659)
+    at async g (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\39105.js:3:46213)
+    at async i (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\39105.js:3:46615)
+    at async Module.S (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\39105.js:1:81558)
+    at async A (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\chunks\27238.js:33:8460)
+    at async f (C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\.next\server\app\(app)\fiestas\nueva\mission-control\page.js:2:7589) {
+  description: "Route /fiestas/nueva/mission-control couldn't be rendered statically because it used `cookies`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (75/302) 
+   Generating static pages (150/302) 
+   Generating static pages (226/302) 
+ ✓ Generating static pages (302/302)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                           Size  First Load JS  Revalidate  Expire
+┌ ○ /                                                              24.2 kB         221 kB          5m      1y
+├ ○ /_not-found                                                      482 B         107 kB
+├ ƒ /acceso-personal/[tokenId]                                     11.9 kB         196 kB
+├ ○ /admin                                                         23.7 kB         292 kB
+├ ○ /admin/asistente-ak                                              482 B         107 kB
+├ ○ /admin/carga-historicos                                        8.45 kB         171 kB
+├ ○ /admin/finanzas                                                6.92 kB         125 kB
+├ ○ /admin/usuarios                                                9.45 kB         165 kB
+├ ○ /admin/ventas                                                  6.35 kB         124 kB
+├ ƒ /album/[fiestaId]                                                482 B         107 kB
+├ ○ /alertas                                                       8.56 kB         161 kB
+├ ○ /analytics                                                     6.13 kB         159 kB
+├ ƒ /api/admin/clean-db                                              482 B         107 kB
+├ ƒ /api/analytics/looker-export                                     482 B         107 kB
+├ ƒ /api/asistente/voz-parte                                         482 B         107 kB
+├ ƒ /api/backup/download                                             482 B         107 kB
+├ ƒ /api/backup/upload                                               482 B         107 kB
+├ ƒ /api/budgets/[filename]                                          482 B         107 kB
+├ ƒ /api/buzon/[fiestaId]/download                                   482 B         107 kB
+├ ƒ /api/contracts/[filename]                                        482 B         107 kB
+├ ƒ /api/contracts/fiestas/[...parts]                                482 B         107 kB
+├ ƒ /api/cron-despachador                                            482 B         107 kB
+├ ƒ /api/cron/asistente-proactivo                                    482 B         107 kB
+├ ƒ /api/cron/avisos-al-cliente                                      482 B         107 kB
+├ ƒ /api/cron/fiesta-proxima-revision                                482 B         107 kB
+├ ƒ /api/cron/generate-blog-post                                     482 B         107 kB
+├ ƒ /api/cron/metricas-de-redes                                      482 B         107 kB
+├ ƒ /api/cron/posicionamiento-diario                                 482 B         107 kB
+├ ƒ /api/cron/prospectos-seguimiento                                 482 B         107 kB
+├ ƒ /api/cron/publicar-programados                                   482 B         107 kB
+├ ƒ /api/cron/recordar-invitacion-no-abierta                         482 B         107 kB
+├ ƒ /api/cron/recordatorio-a-los-invitados                           482 B         107 kB
+├ ƒ /api/cron/recordatorios-de-pago                                  482 B         107 kB
+├ ƒ /api/despertar                                                   482 B         107 kB
+├ ƒ /api/documentos-fiesta/[...parts]                                482 B         107 kB
+├ ƒ /api/employee-contracts/[filename]                               482 B         107 kB
+├ ƒ /api/fiestas/[fiestaId]/download-recuerdos                       482 B         107 kB
+├ ƒ /api/google/oauth/callback                                       482 B         107 kB
+├ ƒ /api/google/oauth/start                                          482 B         107 kB
+├ ƒ /api/health                                                      482 B         107 kB
+├ ƒ /api/imports/confirmed-events-29                                 482 B         107 kB
+├ ƒ /api/integrations/spotify/search                                 482 B         107 kB
+├ ƒ /api/manifest-estacion                                           482 B         107 kB
+├ ƒ /api/marketing/automation                                        482 B         107 kB
+├ ƒ /api/multiagent/message                                          482 B         107 kB
+├ ƒ /api/payment-proofs/[filename]                                   482 B         107 kB
+├ ƒ /api/payments/mercadopago/checkout                               482 B         107 kB
+├ ƒ /api/payments/mercadopago/status                                 482 B         107 kB
+├ ƒ /api/payments/mercadopago/webhook                                482 B         107 kB
+├ ƒ /api/public-page-assets/[...parts]                               482 B         107 kB
+├ ƒ /api/salon-contracts/[filename]                                  482 B         107 kB
+├ ƒ /api/social-gallery/[fiestaId]/[filename]                        482 B         107 kB
+├ ƒ /api/social-gallery/[fiestaId]/download                          482 B         107 kB
+├ ƒ /api/social-media-assets/[filename]                              482 B         107 kB
+├ ƒ /api/storage/signed-url                                          482 B         107 kB
+├ ƒ /api/v1/marketing/insights                                       482 B         107 kB
+├ ƒ /api/video-vida-photos/[fiestaId]/[filename]                     482 B         107 kB
+├ ƒ /api/video-vida-photos/[fiestaId]/download                       482 B         107 kB
+├ ƒ /api/whatsapp/webhook                                            482 B         107 kB
+├ ○ /aprobaciones                                                  10.2 kB         163 kB
+├ ○ /asistente                                                     17.7 kB         132 kB
+├ ○ /auditoria                                                     8.52 kB         161 kB
+├ ○ /blog                                                            482 B         107 kB
+├ ƒ /blog/[slug]                                                     482 B         107 kB
+├ ○ /bodas                                                           153 B         181 kB
+├ ○ /buscar                                                        6.99 kB         124 kB
+├ ○ /calendario                                                    14.4 kB         180 kB
+├ ○ /catalogo                                                      4.28 kB         130 kB
+├ ƒ /catalogo/[tipo]                                               9.58 kB         177 kB
+├ ○ /club-uruguay                                                   4.7 kB         171 kB
+├ ○ /comparativa-ganancias                                         5.39 kB         123 kB
+├ ○ /compras                                                       4.52 kB         122 kB
+├ ○ /configuracion/backup-final                                      482 B         107 kB
+├ ○ /contabilidad                                                    482 B         107 kB
+├ ○ /contabilidad/comercial-360                                      256 B         110 kB
+├ ○ /contabilidad/crm                                              19.7 kB         240 kB
+├ ○ /contabilidad/crm/agenda                                       5.72 kB         180 kB
+├ ○ /contabilidad/crm/atraccion-fiestas                            7.32 kB         160 kB
+├ ƒ /contabilidad/crm/ciclo-comercial                                256 B         110 kB
+├ ○ /contabilidad/crm/marketing-ads                                 7.5 kB         125 kB
+├ ○ /contabilidad/crm/outbox                                       8.06 kB         151 kB
+├ ○ /contabilidad/fiestas-historicas                               7.06 kB         143 kB
+├ ƒ /control-tower                                                   256 B         110 kB
+├ ○ /control-tower/automatizaciones                                5.22 kB         123 kB
+├ ○ /control-tower/comercial                                       5.93 kB         124 kB
+├ ○ /control-tower/post-fiesta                                     6.58 kB         124 kB
+├ ƒ /control-tower/preparacion                                     2.91 kB         121 kB
+├ ○ /cumpleanos                                                      153 B         181 kB
+├ ○ /customers                                                     8.69 kB         144 kB
+├ ƒ /customers/[id]                                                10.6 kB         131 kB
+├ ƒ /customers/[id]/edit                                           7.03 kB         187 kB
+├ ○ /customers/new                                                 4.82 kB         182 kB
+├ ○ /customers/reporte                                             6.99 kB         130 kB
+├ ○ /empleados                                                     10.7 kB         149 kB
+├ ƒ /empleados/[id]/editar                                         6.37 kB         184 kB
+├ ƒ /empleados/[id]/historial                                      8.92 kB         161 kB
+├ ○ /empleados/nuevo                                               5.46 kB         180 kB
+├ ○ /empleados/reporte                                             7.18 kB         143 kB
+├ ○ /empleados/roles                                               10.1 kB         166 kB
+├ ○ /empresa                                                       9.01 kB         136 kB
+├ ○ /empresa/activos-fijos                                          9.2 kB         156 kB
+├ ƒ /empresa/activos-fijos/[id]/editar                             9.65 kB         169 kB
+├ ƒ /empresa/activos-fijos/editar/[id]                               429 B         106 kB
+├ ○ /empresa/activos-fijos/nuevo                                   7.95 kB         160 kB
+├ ○ /empresa/activos-fijos/reporte                                  7.3 kB         130 kB
+├ ○ /empresa/configurador-reunion                                  17.7 kB         170 kB
+├ ○ /empresa/contabilidad                                          8.96 kB         165 kB
+├ ○ /empresa/contabilidad/flujo-caja                                116 kB         277 kB
+├ ○ /empresa/contabilidad/gastos                                     11 kB         187 kB
+├ ○ /empresa/contabilidad/reportes                                 9.42 kB         176 kB
+├ ○ /empresa/creador-anuncios                                      15.6 kB         168 kB
+├ ○ /empresa/crm                                                     482 B         107 kB
+├ ○ /empresa/dashboard                                             5.93 kB         124 kB
+├ ○ /empresa/empleados/reporte                                       482 B         107 kB
+├ ○ /empresa/galeria                                               12.1 kB         174 kB
+├ ○ /empresa/insumos                                               12.6 kB         168 kB
+├ ƒ /empresa/insumos/[id]/editar                                   8.66 kB         164 kB
+├ ƒ /empresa/insumos/editar/[id]                                     482 B         107 kB
+├ ○ /empresa/insumos/nuevo                                         6.32 kB         159 kB
+├ ○ /empresa/insumos/reporte                                       7.32 kB         130 kB
+├ ○ /empresa/landing-editor                                          16 kB         175 kB
+├ ○ /empresa/marketing                                               256 B         110 kB
+├ ○ /empresa/menus                                                 11.6 kB         151 kB
+├ ƒ /empresa/menus/[menuId]/editar                                 1.06 kB         179 kB
+├ ○ /empresa/menus/catalogo                                        10.3 kB         169 kB
+├ ○ /empresa/menus/nuevo                                             571 B         178 kB
+├ ○ /empresa/menus/reporte                                         7.49 kB         130 kB
+├ ○ /empresa/menus/tragos                                          11.5 kB         230 kB
+├ ƒ /empresa/personal/[empleadoId]/historial                         482 B         107 kB
+├ ƒ /empresa/presencia-digital                                     20.4 kB         138 kB
+├ ○ /empresa/presentacion-led/configuracion                        6.81 kB         130 kB
+├ ○ /empresa/red-social-eventos                                    10.6 kB         166 kB
+├ ○ /empresa/redes-sociales                                        19.1 kB         218 kB
+├ ○ /empresa/redes-sociales/ia-marketing                             482 B         107 kB
+├ ○ /empresa/resenas-google                                        7.79 kB         133 kB
+├ ○ /empresa/salones                                               16.6 kB         160 kB
+├ ƒ /empresa/salones/[id]/croquis                                    209 B         212 kB
+├ ƒ /empresa/salones/[id]/diseno                                     263 B         212 kB
+├ ○ /empresa/salones/club-uruguay                                  16.2 kB         172 kB
+├ ○ /empresa/salones/experiencia-visual                            8.09 kB         126 kB
+├ ○ /empresa/servicios                                             12.1 kB         150 kB
+├ ƒ /empresa/servicios/[...slugs]                                  3.66 kB         121 kB
+├ ƒ /empresa/servicios/editar/[id]                                  9.6 kB         165 kB
+├ ○ /empresa/servicios/nuevo                                       7.84 kB         160 kB
+├ ○ /empresa/servicios/reporte                                      7.2 kB         130 kB
+├ ƒ /empresa/todos-los-servicios/[id]/editar                         482 B         107 kB
+├ ○ /evento                                                          482 B         107 kB
+├ ƒ /evento/[id]/video-recuerdo                                    6.26 kB         156 kB
+├ ƒ /evento/accesos/[fiestaId]                                     8.18 kB         161 kB
+├ ƒ /evento/actual                                                   482 B         107 kB
+├ ○ /evento/actual/checkin                                         3.46 kB         118 kB
+├ ○ /evento/actual/mesa                                            5.39 kB         123 kB
+├ ƒ /evento/album/[fiestaId]                                       9.84 kB         161 kB
+├ ○ /evento/barra                                                    274 B         162 kB
+├ ƒ /evento/barra/[fiestaId]                                       17.8 kB         187 kB
+├ ƒ /evento/barra/[fiestaId]/barman                                11.2 kB         185 kB
+├ ƒ /evento/barra/[fiestaId]/listo                                 4.22 kB         149 kB
+├ ƒ /evento/barra/[fiestaId]/stats                                 6.02 kB         120 kB
+├ ƒ /evento/bienvenida/[fiestaId]                                  7.49 kB         164 kB
+├ ƒ /evento/bogue/[fiestaId]                                       14.9 kB         186 kB
+├ ○ /evento/buzon                                                    275 B         162 kB
+├ ƒ /evento/buzon/[fiestaId]                                       18.4 kB         184 kB
+├ ○ /evento/dj                                                       273 B         162 kB
+├ ƒ /evento/dj/[fiestaId]                                          9.82 kB         168 kB
+├ ƒ /evento/en-vivo/[fiestaId]                                     7.55 kB         125 kB
+├ ƒ /evento/en-vivo/[fiestaId]/invitados                           16.5 kB         143 kB
+├ ƒ /evento/en-vivo/[fiestaId]/organizador                         9.87 kB         128 kB
+├ ƒ /evento/en-vivo/[fiestaId]/pantalla                            4.88 kB         111 kB
+├ ○ /evento/espejo-magico                                            282 B         162 kB
+├ ƒ /evento/espejo-magico/[fiestaId]                               20.1 kB         200 kB
+├ ○ /evento/fotocabina                                               279 B         162 kB
+├ ƒ /evento/fotocabina/[fiestaId]                                  15.2 kB         195 kB
+├ ƒ /evento/galeria/[fiestaId]                                     8.83 kB         160 kB
+├ ƒ /evento/hub/[fiestaId]                                         13.7 kB         175 kB
+├ ○ /evento/impresion                                                277 B         162 kB
+├ ƒ /evento/impresion/[fiestaId]                                   13.2 kB         151 kB
+├ ○ /evento/inicio                                                   278 B         162 kB
+├ ƒ /evento/logistica/[fiestaId]                                   6.95 kB         121 kB
+├ ƒ /evento/mi-mesa/[fiestaId]                                     7.79 kB         169 kB
+├ ƒ /evento/moderacion/[fiestaId]                                  7.75 kB         168 kB
+├ ○ /evento/muro-en-vivo                                             280 B         162 kB
+├ ƒ /evento/muro-en-vivo/[fiestaId]                                22.5 kB         178 kB
+├ ƒ /evento/muro-en-vivo/[fiestaId]/afiche                         5.08 kB         128 kB
+├ ○ /evento/plataforma-360                                           281 B         162 kB
+├ ƒ /evento/plataforma-360/[fiestaId]                              15.4 kB         187 kB
+├ ƒ /evento/social/[fiestaId]                                      28.9 kB         214 kB
+├ ƒ /evento/staff/[fiestaId]/cronograma                            6.32 kB         121 kB
+├ ○ /evento/totem                                                    274 B         162 kB
+├ ƒ /evento/totem/[fiestaId]/[totemId]                             12.3 kB         176 kB
+├ ○ /evento/touchpix                                                 278 B         162 kB
+├ ƒ /evento/touchpix/[fiestaId]                                    22.3 kB         194 kB
+├ ○ /evento/video-vida                                               279 B         162 kB
+├ ƒ /evento/video-vida/[fiestaId]                                  7.17 kB         178 kB
+├ ƒ /evento/zona-digital/[fiestaId]                                11.5 kB         134 kB
+├ ○ /eventos                                                       12.9 kB         154 kB
+├ ○ /experiencia                                                   10.3 kB         176 kB
+├ ○ /experiencia-ak                                                4.69 kB         171 kB
+├ ƒ /feedback/[fiestaId]                                           11.1 kB         177 kB
+├ ƒ /fiestas/[id]/ak-100                                           4.27 kB         122 kB
+├ ƒ /fiestas/[id]/centro                                            140 kB         257 kB
+├ ƒ /fiestas/[id]/centro-de-mando                                    482 B         107 kB
+├ ƒ /fiestas/[id]/centro-experiencia                                 482 B         107 kB
+├ ƒ /fiestas/[id]/cierre-mundial                                     256 B         110 kB
+├ ƒ /fiestas/[id]/comando-total                                      482 B         107 kB
+├ ƒ /fiestas/[id]/entretenimiento/control                          8.13 kB         126 kB
+├ ƒ /fiestas/[id]/experiencia-tecnologica-ak                         256 B         110 kB
+├ ƒ /fiestas/[id]/show-control                                       482 B         107 kB
+├ ƒ /fiestas/[id]/timeline                                         9.26 kB         127 kB
+├ ○ /fiestas/nueva                                                 22.8 kB         235 kB
+├ ○ /fiestas/nueva/accesos-personal                                3.67 kB         121 kB
+├ ○ /fiestas/nueva/alergias                                        9.06 kB         127 kB
+├ ○ /fiestas/nueva/asistente                                       7.18 kB         125 kB
+├ ○ /fiestas/nueva/barra-tecnologica                               13.3 kB         139 kB
+├ ○ /fiestas/nueva/buzon                                           16.9 kB         140 kB
+├ ○ /fiestas/nueva/carga-operativa                                   17 kB         235 kB
+├ ○ /fiestas/nueva/carga-operativa/pdf                               11 kB         137 kB
+├ ○ /fiestas/nueva/carta-tragos                                    10.1 kB         232 kB
+├ ○ /fiestas/nueva/carteleria                                      15.3 kB         201 kB
+├ ○ /fiestas/nueva/catering                                        14.1 kB         188 kB
+├ ○ /fiestas/nueva/catering/hoja-de-cocina                         6.54 kB         124 kB
+├ ○ /fiestas/nueva/catering/lista-compras                          13.1 kB         144 kB
+├ ƒ /fiestas/nueva/centro                                            482 B         107 kB
+├ ƒ /fiestas/nueva/centro-total                                      482 B         107 kB
+├ ○ /fiestas/nueva/configuracion                                   12.9 kB         196 kB
+├ ○ /fiestas/nueva/decoracion                                      48.1 kB         262 kB
+├ ○ /fiestas/nueva/decoracion/pdf                                  9.03 kB         132 kB
+├ ○ /fiestas/nueva/en-vivo                                         18.8 kB         146 kB
+├ ○ /fiestas/nueva/entretenimiento                                 31.3 kB         197 kB
+├ ƒ /fiestas/nueva/fiesta-lista                                      482 B         107 kB
+├ ○ /fiestas/nueva/fotografia                                      9.34 kB         189 kB
+├ ○ /fiestas/nueva/gestion-costos-rentabilidad                       15 kB         199 kB
+├ ○ /fiestas/nueva/gestion-costos-rentabilidad/reporte             7.23 kB         130 kB
+├ ○ /fiestas/nueva/gestion-documental                              8.37 kB         161 kB
+├ ○ /fiestas/nueva/gestion-documental/cambio-fecha                 9.12 kB         132 kB
+├ ○ /fiestas/nueva/gestion-documental/cancelacion-contrato         9.44 kB         127 kB
+├ ○ /fiestas/nueva/gestion-documental/cancelacion-parcial          7.42 kB         125 kB
+├ ○ /fiestas/nueva/gestion-documental/contrato-salon               10.5 kB         133 kB
+├ ○ /fiestas/nueva/gestion-documental/contrato-servicio            13.9 kB         174 kB
+├ ○ /fiestas/nueva/gestion-documental/recibo-pago                  11.1 kB         132 kB
+├ ○ /fiestas/nueva/invitados                                       15.8 kB         181 kB
+├ ○ /fiestas/nueva/invitados/checkin-scanner                       10.7 kB         138 kB
+├ ○ /fiestas/nueva/invitados/layout                                22.7 kB         262 kB
+├ ○ /fiestas/nueva/invitados/numeros-mesa                          1.14 kB         107 kB
+├ ○ /fiestas/nueva/itinerario                                        12 kB         193 kB
+├ ○ /fiestas/nueva/itinerario/pdf                                  7.11 kB         141 kB
+├ ○ /fiestas/nueva/logistica                                       9.47 kB         127 kB
+├ ○ /fiestas/nueva/menu-mesa                                       11.6 kB         191 kB
+├ ƒ /fiestas/nueva/mission-control                                   482 B         107 kB
+├ ○ /fiestas/nueva/modulo-invitado                                 12.6 kB         164 kB
+├ ○ /fiestas/nueva/muro-social                                     31.5 kB         190 kB
+├ ○ /fiestas/nueva/musica                                          12.7 kB         130 kB
+├ ○ /fiestas/nueva/musica/pdf                                      7.91 kB         131 kB
+├ ○ /fiestas/nueva/numeros-mesa                                    11.8 kB         192 kB
+├ ○ /fiestas/nueva/orden-de-evento                                 8.89 kB         127 kB
+├ ○ /fiestas/nueva/pagina-web                                      32.9 kB         262 kB
+├ ○ /fiestas/nueva/pantallas-totem                                 10.4 kB         137 kB
+├ ○ /fiestas/nueva/personal                                          14 kB         170 kB
+├ ○ /fiestas/nueva/personal/recibos                                  15 kB         173 kB
+├ ○ /fiestas/nueva/plan-pagos                                      10.3 kB         173 kB
+├ ○ /fiestas/nueva/planner-costo-fiesta                            5.77 kB         207 kB
+├ ƒ /fiestas/nueva/playlist-pantalla                               9.57 kB         159 kB
+├ ○ /fiestas/nueva/portal-cliente                                    18 kB         149 kB
+├ ƒ /fiestas/nueva/portal-cliente/cierre-final                       256 B         110 kB
+├ ƒ /fiestas/nueva/portal-cliente/experiencia-mundial                256 B         110 kB
+├ ○ /fiestas/nueva/post-evento                                     10.1 kB         128 kB
+├ ○ /fiestas/nueva/proveedores-portal                              8.44 kB         144 kB
+├ ○ /fiestas/nueva/readiness                                       11.2 kB         129 kB
+├ ○ /fiestas/nueva/regalos                                         7.13 kB         159 kB
+├ ○ /fiestas/nueva/resumen-imprimible                              9.35 kB         178 kB
+├ ○ /fiestas/nueva/resumen-planificacion                           13.3 kB         135 kB
+├ ○ /fiestas/nueva/reunion-organizacion                            9.68 kB         127 kB
+├ ○ /fiestas/nueva/reuniones                                         16 kB         189 kB
+├ ○ /fiestas/nueva/reuniones/imprimir                               7.2 kB         130 kB
+├ ○ /fiestas/nueva/servicios-contratados                           10.8 kB         134 kB
+├ ƒ /fiestas/nueva/social-fiesta-pro                                 169 B         110 kB
+├ ƒ /fiestas/nueva/social-fiesta-pro/cierre-final                    256 B         110 kB
+├ ○ /fiestas/nueva/tareas                                          13.7 kB         198 kB
+├ ○ /fiestas/nueva/video-vida                                      12.3 kB         153 kB
+├ ○ /fiestas/nueva/zona-digital                                    16.4 kB         149 kB
+├ ○ /fiestas/revisar                                               6.83 kB         142 kB
+├ ○ /galeria-led                                                   3.01 kB         109 kB
+├ ƒ /i/[slug]                                                        194 B         186 kB
+├ ○ /incidentes                                                    11.2 kB         164 kB
+├ ƒ /invitacion/[fiestaId]                                           194 B         186 kB
+├ ƒ /invitacion/[fiestaId]/invitado/[guestId]                        207 B         212 kB
+├ ƒ /invitacion/[fiestaId]/recap                                     186 B         115 kB
+├ ƒ /invitacion/[fiestaId]/rsvp                                      16 kB         183 kB
+├ ƒ /invitado/[fiestaId]/[invitadoId]                                482 B         107 kB
+├ ○ /invoices                                                      10.2 kB         166 kB
+├ ƒ /invoices/[id]                                                 12.5 kB         181 kB
+├ ƒ /invoices/[id]/edit                                            3.28 kB         182 kB
+├ ○ /invoices/new                                                  4.64 kB         183 kB
+├ ○ /landing                                                         482 B         107 kB
+├ ● /landing/[slug]                                                2.24 kB         186 kB
+├   ├ /landing/bodas
+├   ├ /landing/xv-anos
+├   ├ /landing/eventos
+├   └ [+6 more paths]
+├ ○ /landing/bodas                                                   482 B         107 kB
+├ ○ /landing/eventos                                                 153 B         181 kB
+├ ○ /landing/xv-anos                                                 482 B         107 kB
+├ ○ /login                                                         11.3 kB         131 kB
+├ ○ /manifest.webmanifest                                            482 B         107 kB
+├ ○ /mantenimiento                                                   482 B         107 kB
+├ ○ /marketing                                                       18 kB         177 kB
+├ ○ /marketing/checklist                                             482 B         107 kB
+├ ○ /marketing/demo-tecnologia                                     5.16 kB         123 kB
+├ ○ /marketing/plantillas                                            482 B         107 kB
+├ ƒ /mi-dia                                                        5.17 kB         123 kB
+├ ○ /multiagente                                                     256 B         110 kB
+├ ○ /multiagente/acciones                                          5.64 kB         155 kB
+├ ○ /multiagente/contable                                          5.75 kB         120 kB
+├ ○ /multiagente/equipo                                            6.03 kB         120 kB
+├ ○ /multiagente/fiestas                                           5.98 kB         120 kB
+├ ○ /multiagente/memoria                                            5.3 kB         154 kB
+├ ƒ /pago/mercadopago                                              4.87 kB         123 kB
+├ ○ /pagos-rapidos                                                   14 kB         258 kB
+├ ○ /perfil                                                        2.14 kB         116 kB
+├ ƒ /personal/[empleadoId]                                           256 B         110 kB
+├ ○ /playbooks                                                      6.7 kB         139 kB
+├ ○ /portal                                                          199 B         191 kB
+├ ○ /portal-cliente                                                  199 B         191 kB
+├ ƒ /portal-cliente/[id]                                             27 kB         216 kB
+├ ƒ /portal-cliente/[id]/confirmar-invitados                        8.5 kB         126 kB
+├ ƒ /portal-cliente/[id]/decoracion                                  566 B         107 kB
+├ ƒ /portal-cliente/[id]/faq                                       6.61 kB         124 kB
+├ ƒ /portal-cliente/[id]/fotos-video                               9.11 kB         128 kB
+├ ƒ /portal-cliente/[id]/mensajes                                  6.91 kB         125 kB
+├ ƒ /portal-cliente/[id]/menu                                      6.68 kB         124 kB
+├ ƒ /portal-cliente/[id]/muro-social                               15.4 kB         147 kB
+├ ƒ /portal-cliente/[id]/musica                                    6.76 kB         125 kB
+├ ƒ /portal-cliente/[id]/videos-invitados                          8.48 kB         126 kB
+├ ƒ /portal-invitado/[fiestaId]/[guestId]                          1.38 kB         213 kB
+├ ƒ /portal/[fiestaId]/[module]                                      482 B         107 kB
+├ ƒ /portal/[fiestaId]/contrato                                    12.7 kB         138 kB
+├ ƒ /portal/[fiestaId]/decoracion                                  12.3 kB         135 kB
+├ ƒ /portal/[fiestaId]/moodboard                                    8.9 kB         188 kB
+├ ƒ /portal/c/[accessKey]                                          27.5 kB         218 kB
+├ ○ /portal/mesas                                                  11.1 kB         172 kB
+├ ƒ /post-fiesta/[fiestaId]                                          256 B         110 kB
+├ ○ /presentacion                                                    482 B         107 kB
+├ ○ /presentacion-led                                              39.4 kB         206 kB
+├ ○ /presentacion-led/portafolio                                   20.9 kB         185 kB
+├ ƒ /presentacion-led/portafolio/fiesta/[id]                         256 B         110 kB
+├ ○ /presupuestos                                                   1.1 kB         107 kB
+├ ƒ /presupuestos/[id]                                               482 B         107 kB
+├ ƒ /presupuestos/[id]/edit                                        11.4 kB         187 kB
+├ ƒ /presupuestos/[id]/editar                                        482 B         107 kB
+├ ƒ /presupuestos/[id]/estado-de-cuenta                            12.5 kB         177 kB
+├ ƒ /presupuestos/[id]/recibo-contrato                             21.9 kB         148 kB
+├ ƒ /presupuestos/[id]/ver                                         18.1 kB         234 kB
+├ ○ /presupuestos/importar                                         11.1 kB         132 kB
+├ ○ /presupuestos/nuevo                                            12.4 kB         217 kB
+├ ○ /presupuestos/nuevo/crear                                      23.8 kB         225 kB
+├ ○ /presupuestos/reporte                                          7.78 kB         131 kB
+├ ○ /privacidad                                                      256 B         110 kB
+├ ƒ /prospectos                                                      482 B         107 kB
+├ ƒ /prospectos/[prospectId]                                         482 B         107 kB
+├ ƒ /proveedor/[id]                                                  482 B         107 kB
+├ ƒ /proveedor/acceso/[token]                                      9.62 kB         130 kB
+├ ○ /proveedores                                                   8.02 kB         164 kB
+├ ƒ /proveedores/[id]/edit                                         6.98 kB         125 kB
+├ ○ /proveedores/new                                                 10 kB         133 kB
+├ ○ /proveedores/reporte                                           6.87 kB         130 kB
+├ ○ /public                                                          482 B         107 kB
+├ ● /public/[eventType]                                            9.66 kB         184 kB
+├   ├ /public/bodas
+├   ├ /public/xv-anos
+├   ├ /public/fiestas
+├   └ [+3 more paths]
+├ ○ /public/blog                                                   5.51 kB         176 kB
+├ ● /public/blog/[slug]                                            5.51 kB         171 kB
+├   ├ /public/blog/como-empezar-a-organizar-una-fiesta-sin-estres
+├   ├ /public/blog/presupuesto-de-fiesta-que-debe-incluir
+├   ├ /public/blog/como-elegir-el-menu-para-un-evento
+├   └ [+3 more paths]
+├ ƒ /q/[fiestaId]                                                    256 B         110 kB
+├ ○ /quinceaneras                                                    154 B         181 kB
+├ ƒ /recepcion/[fiestaId]                                          7.61 kB         125 kB
+├ ○ /recursos-multi-evento                                         6.33 kB         121 kB
+├ ○ /repaso-diario                                                   482 B         107 kB
+├ ○ /robots.txt                                                      482 B         107 kB
+├ ○ /secretaria-ak                                                 8.93 kB         123 kB
+├ ○ /settings                                                      7.56 kB         125 kB
+├ ○ /settings/accesos-personal                                     11.1 kB         167 kB
+├ ○ /settings/account                                              7.69 kB         125 kB
+├ ○ /settings/agentes-autonomos                                    7.86 kB         128 kB
+├ ○ /settings/ai-assistant                                           10 kB         128 kB
+├ ○ /settings/ajuste-precios                                       9.43 kB         165 kB
+├ ○ /settings/asistente                                            11.8 kB         137 kB
+├ ○ /settings/asistentes-contextuales                              8.91 kB         127 kB
+├ ○ /settings/backup                                               10.8 kB         146 kB
+├ ○ /settings/backup-final                                           256 B         110 kB
+├ ○ /settings/biblioteca-visual-ak                                   256 B         110 kB
+├ ○ /settings/budget-display                                       17.3 kB         187 kB
+├ ○ /settings/catalogo-servicios                                    9.9 kB         133 kB
+├ ○ /settings/cierre-global-producto                                 256 B         110 kB
+├ ○ /settings/cierre-operativo-final                                 256 B         110 kB
+├ ○ /settings/company                                              10.5 kB         136 kB
+├ ○ /settings/contenido-publico                                    14.4 kB         167 kB
+├ ○ /settings/contratos                                            8.68 kB         126 kB
+├ ○ /settings/contratos/clausulas                                  6.43 kB         134 kB
+├ ○ /settings/cupones                                              7.42 kB         169 kB
+├ ○ /settings/datos                                                8.57 kB         144 kB
+├ ○ /settings/feature-flags                                        7.05 kB         163 kB
+├ ○ /settings/feedback                                             5.24 kB         177 kB
+├ ○ /settings/google-workspace                                     8.92 kB         127 kB
+├ ○ /settings/instalar-app                                         3.73 kB         118 kB
+├ ○ /settings/lanzamiento-cto                                        256 B         110 kB
+├ ○ /settings/mapa-tecnologico-ak                                    256 B         110 kB
+├ ○ /settings/notifications                                        8.14 kB         129 kB
+├ ○ /settings/promos                                               6.28 kB         168 kB
+├ ○ /settings/sincronizaciones                                     9.46 kB         127 kB
+├ ○ /settings/social-connections                                   3.49 kB         121 kB
+├ ○ /settings/tareas-automaticas                                   9.19 kB         135 kB
+├ ○ /settings/task-templates                                       5.26 kB         141 kB
+├ ○ /settings/templates                                            5.03 kB         123 kB
+├ ○ /settings/templates/carga-operativa                            3.98 kB         170 kB
+├ ○ /settings/templates/contrato                                     482 B         107 kB
+├ ○ /settings/templates/invitaciones                               8.21 kB         149 kB
+├ ○ /settings/templates/layouts                                    5.89 kB         147 kB
+├ ○ /settings/templates/reuniones                                  6.77 kB         125 kB
+├ ○ /settings/videos-de-ayuda                                      7.98 kB         126 kB
+├ ○ /settings/whatsapp                                             10.7 kB         163 kB
+├ ○ /settings/whatsapp-business                                    14.4 kB         172 kB
+├ ○ /settings/whatsapp-business/conversations                      10.3 kB         132 kB
+├ ○ /settings/whatsapp-templates                                   6.96 kB         125 kB
+├ ○ /signup                                                        1.05 kB         107 kB
+├ ƒ /simulador                                                       186 B         115 kB
+├ ○ /simulador-ak                                                  14.6 kB         244 kB
+├ ○ /simulador-de-presupuesto                                      41.8 kB         281 kB
+├ ○ /sitemap.xml                                                     482 B         107 kB
+├ ○ /tecnologia                                                    3.01 kB         169 kB
+├ ƒ /video-vida                                                      256 B         110 kB
+└ ƒ /video-vida/[fiestaId]                                         10.2 kB         176 kB
++ First Load JS shared by all                                       106 kB
+  ├ chunks/28036-0588b4a189f93a4b.js                               48.4 kB
+  ├ chunks/fcab43a1-4fca56cbe4c75fc4.js                            54.2 kB
+  └ other shared chunks (total)                                     3.4 kB
+
+
+ƒ Middleware                                                         33 kB
+
+○  (Static)   prerendered as static content
+●  (SSG)      prerendered as static HTML (uses generateStaticParams)
+ƒ  (Dynamic)  server-rendered on demand
+

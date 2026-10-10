@@ -2,6 +2,46 @@
 
 ## 10 de octubre de 2026 — Auditoría 86 de la IA: tareas, avisos falsos, voz y agentes
 
+## 9/10/2026 - Codex 86: IA probada, delta 83 aceptado y planificacion
+
+Fuente compilada/ejecutada main `1b61295ab977fd6f204ffdab0f190edbd0f0ed6b`.
+PR 1277 sigue documental; producto de PR 1278 incorporado desde main, no
+programado por Codex. Informe `docs/evidencias/86-ia-planificacion-y-retest.md`.
+No area entera aprobada ni certificado cero errores.
+
+- **Aceptados SOLO los cuatro delta 83:** nombre del firmante e imprimir visible;
+  360 y Bogue entregan URL200/MIME/bytes contra Storage demo. 4 E2E y 13 unidades.
+  NO repetir 133/134 por estos defectos ni pedir otra implementacion.
+- **31 controles IA previos y 2 E2E widget PC/movil aprobados:** dictado envia
+  una vez, respaldo real usa reproductor instrumentado, chat real persiste al
+  recargar, microfono denegado avisa sin reenviar. No voz Gemini pagada/fisica.
+- **Tareas/itinerario:** dos E2E aprobaron UI, persistencia y recarga; horario
+  21:37 y momento publico llegan a sesion cliente separada sin cookie de equipo.
+  No repetir. JSON partial deshabilitado es regla, no fallo: se uso emulador.
+- **SEIS defectos IA reproducidos, PENDIENTES, orden135:** alta concurrente
+  pierde A (almacen real); voz vieja revive tras stop/reemplazo; personal cambia
+  configuracion global sin ADMINISTRACION; sexto agente manual no reconocido;
+  scheduler ignora intervalo; alta fallida conserva action.create_task y widget
+  lo interpreta como exito. Responsables Gemini/Claude segun dinero/permisos.
+  No llamarlos arreglados por estar en este registro. 7 aserciones negativas.
+- **Portal PENDIENTE, orden136 Claude:** mapper entrega notas pero elimina
+  servicios de foto/video; cliente no ve su entrega oficial. E2E autentica y
+  falla buscando nombre. NO se llego al PDF ni se aprobo la descarga.
+- **Friccion movil:** error tecnico largo rebalsa mensaje; falla de proveedor
+  intencional del entorno dummy, NO diagnostico de Gemini produccion. Orden135
+  pide aviso humano/diagnostico separado sin ocultar que es respaldo.
+- **Falsos positivos de QA descartados:** mock de predicate y Utterance,
+  timeout bajo carga, semilla sin variable y fixture simplicityMode=true.
+  Corregidos SOLO probes/harness, raw conservado. No arreglos de app por ellos.
+- **Autonomia propuesta:** reutilizar seis agentes/chat/memoria, objetivo,
+  siguiente corrida/cancelacion/resultado verificable. Nuevas acciones automaticas
+  pendientes de aprobacion; no dinero/publicaciones/mensajes/permisos sin ella.
+- Build aislado completo aprobo tipos/lint/302 paginas; warnings en86-build.log.
+  Sin build repetido por docs, datos reales, cuentas externas ni merge. Agentes,
+  servidor/emuladores/Java propios cerrados. Continuar matriz84, no reiniciarla.
+
+## 9/10/2026 - Codex 85: QR descargado, entrada y aislamiento entre fiestas
+
 - **Dos tareas pedidas al asistente a la vez: se perdía una** y las dos decían "creada". Ahora la
   tarea se agrega adentro del turno de la fiesta (`actualizarFiesta`), releyendo la fiesta.
 - **El asistente decía "Tarea creada" aunque no se hubiera guardado.** El texto avisaba el error
@@ -102,6 +142,13 @@ prueba: tests/e2e/lectura-invitados-aislada.spec.ts
 prueba: tests/e2e/entorno-compilado-verificable.spec.ts
 ```
 
+NO fallo nuevo ni orden nueva. No repetir sin cambio relevante ni rehacer mural,
+personal o los cuatro arreglos 133/134 en curso. Textos de opcion de archivo en
+ingles: propuesta visual aparte, no bloqueante. Datos ficticios propios/JSON/demo;
+camara simulada solo para iniciar lector, no prueba fisica ni area completa.
+Sondas/raw/PNG/capturas 85 guardados; ayudante, pestaña y entorno propios cerrados.
+Sin producto, build nuevo, paquetes, datos reales ni fusion. PR 1277 documental.
+
 ## 9 de octubre de 2026 — Codex, auditoría 83: contrato y estaciones (PR 1277)
 
 - **Bogue no guardaba lo que grababa el invitado** (ENT83-GUEST). La captura se subía y después
@@ -142,28 +189,6 @@ usa: ALIAS_DE_MODULO en src/app/actions/fiesta/entretenimiento.actions.ts
 usa: signedBy: constancia.signedBy en src/app/portal/[fiestaId]/contrato/page.tsx
 usa: docs/evidencias en tsconfig.json
 ```
-
-## 9/10/2026 - Codex 85: QR descargado, entrada y aislamiento entre fiestas
-
-Main contrastado `859fd23b1175646edc0209cab114241327d302ba`. Fuente compilada
-`497ee725`, equivalencia acotada descarga/payload/lector/acciones/credencial;
-WhatsApp posterior y barra embebida NO probados. No certificar main entero ni
-entrega local de Claude no subida. Informe 85 y matriz 84.
-
-4 casos aprobados: 2 PC / 2 viewport movil. Descarga PNG real, decodifica bytes,
-lector real del operador consume ese PNG y guarda entrada/timestamp; conserva
-mesa/menu/tres personas y otro invitado. Portal separado persiste tras recarga,
-sin controles de equipo. Token A no abre credencial B con mismo ID: no revela
-nombre/QR ni cambia fiestas. Confirmar NO marca llegada. PC original freno en
-radio oculto: error de MI selector, no app; etiqueta visible funciona. Repetido
-solo el caso frenado, aprobado; raw original conservado.
-
-NO fallo nuevo ni orden nueva. No repetir sin cambio relevante ni rehacer mural,
-personal o los cuatro arreglos 133/134 en curso. Textos de opcion de archivo en
-ingles: propuesta visual aparte, no bloqueante. Datos ficticios propios/JSON/demo;
-camara simulada solo para iniciar lector, no prueba fisica ni area completa.
-Sondas/raw/PNG/capturas 85 guardados; ayudante, pestaña y entorno propios cerrados.
-Sin producto, build nuevo, paquetes, datos reales ni fusion. PR 1277 documental.
 
 ## 9/10/2026 - Codex 84: recuento de las 14 areas y SOLO huecos de personal
 

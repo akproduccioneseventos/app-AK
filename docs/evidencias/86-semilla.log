@@ -1,0 +1,32 @@
+
+Running 1 test using 1 worker
+
+[1/1] scripts\entorno-de-pruebas\fiesta.sembrar.ts:10:5 › sembrar la fiesta del entorno aislado
+  1) scripts\entorno-de-pruebas\fiesta.sembrar.ts:10:5 › sembrar la fiesta del entorno aislado ─────
+
+    Error: Esto sólo corre dentro de `npm run entorno:pruebas`.
+
+      11 |   const salida = process.env.AK_ENTORNO_SALIDA;
+      12 |   if (!salida || process.env.AK_ENTORNO_AISLADO !== 'true') {
+    > 13 |     throw new Error('Esto sólo corre dentro de `npm run entorno:pruebas`.');
+         |           ^
+      14 |   }
+      15 |   const fiesta = crearFiestaDeEstaNoche({ id: 'e2e_entorno_aislado', clavePortal: 'clave-portal-aislado' });
+      16 |   const estaciones: Array<[string, string, string]> = [
+        at C:\Users\Usuario\AppData\Local\Temp\ak-entorno-aislado-PHvcfo\scripts\entorno-de-pruebas\fiesta.sembrar.ts:13:11
+
+    Error Context: test-results\fiesta.sembrar.ts-sembrar-la-fiesta-del-entorno-aislado\error-context.md
+
+
+  1 failed
+    scripts\entorno-de-pruebas\fiesta.sembrar.ts:10:5 › sembrar la fiesta del entorno aislado ──────
+
+Running 1 test using 1 worker
+
+[1/1] scripts\entorno-de-pruebas\fiesta.sembrar.ts:10:5 › sembrar la fiesta del entorno aislado
+  1 passed (1.9s)
+
+Running 1 test using 1 worker
+
+[1/1] scripts\entorno-de-pruebas\fiesta.sembrar.ts:10:5 › sembrar la fiesta del entorno aislado
+  1 passed (955ms)
