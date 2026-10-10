@@ -2,6 +2,7 @@
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
+import { asegurarCuadroDeVideo } from '@/lib/entertainment/camera-readiness';
 import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -431,6 +432,18 @@ export default function Plataforma360Page() {
     const currentStream = streamRef.current;
     if (!currentStream || !videoRef.current) {
       setProgressMsg('La camara aun no esta lista.');
+      setLocalStatus('idle');
+      return;
+    }
+
+    // Antes de juntar cuadros, el video tiene que estar andando y con imagen (pausado se dibuja negro).
+    try {
+      if (streamRef.current && videoRef.current.srcObject !== streamRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+      }
+      await asegurarCuadroDeVideo(videoRef.current);
+    } catch {
+      setProgressMsg('La camara no esta entregando imagen. Intenta nuevamente.');
       setLocalStatus('idle');
       return;
     }

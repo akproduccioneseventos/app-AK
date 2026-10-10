@@ -128,7 +128,7 @@ interface EntertainmentMediaItem {
   uploadedAt: string;
   publishTarget?: string;
   socialPostId?: string;
-  syncStatus?: 'publicado' | 'pendiente';
+  syncStatus?: 'publicado' | 'pendiente_aprobacion' | 'pendiente';
 }
 
 interface EntertainmentStation {

@@ -12,6 +12,22 @@ export type SocialContentReviewReason =
   | 'manual_review_required'
   | 'private_mode';
 
+/**
+ * Lo que dijo la revision AUTOMATICA de una imagen. Son tres cosas, no dos:
+ * - `segura`: el analisis corrio y no vio riesgo.
+ * - `riesgosa`: el analisis corrio y vio riesgo real (adulto, violento): se rechaza.
+ * - `sin_revisar`: el analisis NO pudo correr (proveedor caido, sin clave, un video). No es seguro
+ *   ni es riesgoso: la publicacion queda esperando el visto bueno de una persona.
+ */
+export type ResultadoRevisionImagen = 'segura' | 'riesgosa' | 'sin_revisar';
+
+/** Traduce los tres estados a lo que espera `reviewSocialContent` (`undefined` = no revisada). */
+export function imageAiSafeDesde(revision: ResultadoRevisionImagen | undefined): boolean | undefined {
+  if (revision === 'segura') return true;
+  if (revision === 'riesgosa') return false;
+  return undefined;
+}
+
 export type SocialContentReviewInput = {
   type: SocialContentType;
   text?: string;

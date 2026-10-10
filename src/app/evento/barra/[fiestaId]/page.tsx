@@ -1,6 +1,7 @@
 'use client';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
+import { asegurarCuadroDeVideo } from '@/lib/entertainment/camera-readiness';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
@@ -469,10 +470,18 @@ export default function BarraTecnologicaTouchPage() {
     }
   };
 
-  const capturePhoto = () => {
+  const capturePhoto = async () => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
+    // Sin un cuadro real la foto sale negra: se pone a andar el video y se espera imagen; si no
+    // hay, se avisa y no se entrega nada.
+    try {
+      await asegurarCuadroDeVideo(video);
+    } catch {
+      toast({ title: 'La camara no entrega imagen', description: 'Volve a intentarlo en un instante.', variant: 'destructive' });
+      return;
+    }
 
     canvas.width = video.videoWidth || 1080;
     canvas.height = video.videoHeight || 1920;
@@ -769,7 +778,14 @@ export default function BarraTecnologicaTouchPage() {
 
       const result = await uploadBarMagicPhoto(formData);
       if (result.success && result.url) {
-        toast({ title: '¡Subido con éxito!', description: 'El archivo se envió a la pantalla gigante.' });
+        toast({
+          title: '¡Subido con éxito!',
+          description: result.publicacion === 'pendiente_aprobacion'
+            ? 'Tu archivo quedó guardado y espera la aprobación del equipo para salir en la pantalla gigante.'
+            : result.publicacion === 'sin_publicar'
+              ? 'Tu archivo quedó guardado.'
+              : 'El archivo se envió a la pantalla gigante.',
+        });
         setShowFollowModal(false);
         setUploadSuccessData({
           mediaUrl: result.url,

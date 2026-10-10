@@ -39,7 +39,7 @@ import {
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
-import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { isVideoFrameReady, asegurarCuadroDeVideo } from '@/lib/entertainment/camera-readiness';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 import { saveOfflineMedia } from '@/lib/offline/offline-db';
 import { classifyOfflineUploadError } from '@/lib/offline/offline-upload-policy';
@@ -453,6 +453,20 @@ export default function BoguePage() {
     }).catch(() => undefined);
     speak("¡Muévanse!");
 
+    // El video puede estar oculto y en pausa con la señal viva (se dibuja en negro): se lo pone a
+    // andar y se espera un cuadro real antes de juntar cuadros. Si no hay, no se arma nada.
+    if (videoRef.current) {
+      if (streamRef.current && videoRef.current.srcObject !== streamRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+      }
+      try {
+        await asegurarCuadroDeVideo(videoRef.current);
+      } catch {
+        setProgressMsg('La camara no esta entregando imagen. Tocá para volver a intentarlo.');
+        setLocalStatus('idle');
+        return;
+      }
+    }
     const video = videoRef.current;
     if (!isVideoFrameReady(video)) {
       setProgressMsg('La camara todavia se esta preparando. Intenta nuevamente.');

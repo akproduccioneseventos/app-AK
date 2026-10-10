@@ -38,5 +38,7 @@ nocturnas reales ni inventar respaldo. Propuesta siguiente aun NO existe/ejecuta
 ```comprobar
 archivo: src/app/evento/touchpix/[fiestaId]/page.tsx
 usa: startCamera en src/app/evento/touchpix/[fiestaId]/page.tsx
-prueba: tests/e2e/touchpix-camara-y-recuerdo-con-imagen.spec.ts (PROPUESTA PENDIENTE)
+prueba: tests/e2e/touchpix-camara-y-recuerdo-con-imagen.spec.ts
+prueba: src/__tests__/las-estaciones-aseguran-el-cuadro-antes-de-dibujar.test.ts
+usa: asegurarCuadroDeVideo en src/app/evento/touchpix/[fiestaId]/page.tsx
 ```

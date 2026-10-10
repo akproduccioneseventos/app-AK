@@ -32,7 +32,7 @@ import path from 'path';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { getFiestaByAccessKey } from '@/app/actions/fiesta/portal.actions';
 import * as logger from '@/lib/logger';
-import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
+import { reviewSocialContent, sanitizeSocialText, imageAiSafeDesde, type ResultadoRevisionImagen } from '@/lib/social-fiesta/content-review';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
 import { hasAppSession, requirePermiso } from '@/lib/auth/require-session';
 import { requireEventPermission } from '@/lib/auth/event-access';
@@ -533,11 +533,17 @@ interface CreateSocialMediaPostFromUrlInput {
   drinkName?: string;
   /** La estacion lo marca cuando lo subido no se pudo revisar automaticamente. */
   revisionManual?: boolean;
+  /**
+   * Lo que dijo la revision automatica de la imagen: segura / riesgosa / sin_revisar. Si no viene,
+   * se deduce de `revisionManual` (false = segura). "Sin revisar" NUNCA se trata como riesgo: queda
+   * pendiente de aprobacion manual.
+   */
+  revisionImagen?: ResultadoRevisionImagen;
 }
 
 async function persistSocialMediaPostFromUrl(
   input: CreateSocialMediaPostFromUrlInput,
-): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
+): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string; bloqueado?: boolean }> {
   if (!input.fiestaId || !input.mediaUrl) {
     return { success: false, error: 'Faltan datos para publicar en el muro social.' };
   }
@@ -548,9 +554,14 @@ async function persistSocialMediaPostFromUrl(
       text: [input.authorName, input.caption].filter(Boolean).join(' '),
       authorName: input.authorName,
       moderationMode: 'automatico',
-      imageAiSafe: input.revisionManual === false || process.env.AK_USE_LOCAL_JSON_ONLY === 'true',
+      // Tres estados: segura (true), riesgosa (false, se rechaza) y sin revisar (undefined, queda
+      // pendiente de aprobacion manual). Antes "sin revisar" se convertia en `false` y se rechazaba
+      // como si fuera contenido adulto: la foto no llegaba al muro y nadie la veia.
+      imageAiSafe: process.env.AK_USE_LOCAL_JSON_ONLY === 'true'
+        ? true
+        : imageAiSafeDesde(input.revisionImagen ?? (input.revisionManual === false ? 'segura' : 'sin_revisar')),
     });
-    if (review.status === 'blocked') return { success: false, error: review.message };
+    if (review.status === 'blocked') return { success: false, error: review.message, bloqueado: true };
     const postId = input.postId || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     // `revisionManual` lo manda la estacion cuando lo que se subio no se pudo
     // revisar solo: los videos, y las fotos cuando el analisis automatico no
@@ -986,7 +997,7 @@ export async function createSocialMediaPostFromUrl(
 export async function createSocialMediaPostFromUrlForStation(
   input: CreateSocialMediaPostFromUrlInput & { sourceModule: string },
   accessToken: string,
-): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
+): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string; bloqueado?: boolean }> {
   if (
     !isEntertainmentModuleId(input.sourceModule) ||
     !verifyEntertainmentAccessToken(accessToken, input.fiestaId, input.sourceModule, 'guest')

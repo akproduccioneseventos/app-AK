@@ -1,5 +1,61 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Órdenes 144 y 145: la foto de Touchpix no sale negra, y una foto sin revisar no se pierde
+
+- **Touchpix (145):** el video de la cámara está oculto y el navegador lo dejaba en pausa con la señal
+  viva: la foto salía negra. Ahora, antes de dibujar, espera `asegurarCuadroDeVideo` (el mismo ayudante de
+  la fotocabina: pone a andar el video y espera un cuadro real; si ya anda, no espera nada). Si la cámara
+  no entrega cuadro, la pantalla avisa, muestra "Reintentar camara" y **no entrega ninguna foto**. La señal
+  viva de la misma cámara se reutiliza en vez de cortarla y pedirla en cada cambio de paso (era lo que dejaba
+  el video sin cuadro justo al disparar). No se mira qué tan oscura es la imagen: una foto oscura de verdad vale.
+- **Barrido de las demás estaciones (regla del dueño):** misma forma en el espejo mágico, Bogue, la plataforma
+  360, la barra (foto del tótem) y el buzón (foto): dibujaban el video sin asegurarse de que hubiera imagen.
+  Todas usan ahora el mismo ayudante. Quedó afuera la galería (`extraerVectorLocal`): saca un vector de 160 px
+  para buscar por cara con el video visible y no entrega ninguna foto. El buzón en modo VHS ya volvía a hacer
+  `play()` en cada cuadro. Un control recorre toda la app: una pantalla que dibuje un video sin el ayudante
+  no entra.
+- **Foto sin revisar (144):** cuando el análisis automático de la imagen se caía (proveedor, clave), el muro
+  lo tomaba como "contenido adulto" y rechazaba la foto sin crear el posteo, y la pantalla decía "Foto enviada
+  al muro". El mismo error rechazaba **todos los videos** de Bogue y la 360 (los videos nunca se revisan solos)
+  y **todas las fotos del tótem de la barra** con la publicación automática prendida. Ahora hay tres estados:
+  **segura** (se publica según la regla de aprobación de la fiesta), **riesgosa** (se rechaza en el acto, como
+  antes) y **sin revisar** (queda **pendiente de aprobación manual**: nunca aprobada, nunca en el muro público
+  hasta que un moderador la apruebe). Por qué así: caerse el proveedor no prueba que la foto sea mala, y rechazar
+  era perder el recuerdo del invitado sin que nadie se enterara; aprobar sin mirar era publicar a ciegas.
+- **La respuesta dice la verdad:** `uploadEntretenimientoMedia` devuelve `muro.estado` (`publicado` /
+  `pendiente_aprobacion` / `error` / `rechazado`) y `muro.sinRevisar`. Si el posteo no se creó, la respuesta ya
+  **no** es `success: true` (así todas las estaciones lo tratan como subida fallida y la reintentan); la captura
+  queda guardada y el reintento de la **misma** captura repite solo el posteo: ni sube el archivo de nuevo, ni
+  vuelve a pagar la revisión, ni duplica la media ni el posteo. El espejo usa una identidad por captura (también
+  para "Reintentar" a mano) y, si la foto quedó esperando al equipo, lo dice en pantalla y en voz en vez de "enviada
+  al muro". La barra (pantalla del tótem y mini quiosco del invitado) también dice si quedó publicada, esperando
+  al equipo o solo guardada.
+- **Permisos y moderación sin tocar:** la estación sigue exigiendo su credencial de invitado; el lector público
+  sigue filtrando con `soloAprobados`; el riesgo real y el texto bloqueado se siguen rechazando.
+- **Sin probar en navegador:** los dos e2e nuevos (`touchpix-camara-y-recuerdo-con-imagen`,
+  `espejo-moderacion-caida-y-reintento`) se escribieron pero no se corrieron (no hay build en este contenedor);
+  el de Visión caída necesita el entorno aislado de Codex y se saltea con el motivo escrito.
+
+```comprobar
+archivo: src/lib/entertainment/camera-readiness.ts
+usa: asegurarCuadroDeVideo en src/app/evento/touchpix/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/espejo-magico/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/bogue/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/barra/[fiestaId]/page.tsx
+usa: asegurarCuadroDeVideo en src/app/evento/buzon/[fiestaId]/page.tsx
+usa: imageAiSafeDesde en src/app/actions/social-gallery.ts
+usa: revisionImagen en src/app/actions/fiesta/entretenimiento.actions.ts
+usa: revisionImagen en src/app/actions/fiesta/barra-tecnologica.actions.ts
+usa: avisoDelMuro en src/app/evento/espejo-magico/[fiestaId]/page.tsx
+no-usa: revisionManual === false en src/app/actions/social-gallery.ts
+prueba: src/__tests__/las-estaciones-aseguran-el-cuadro-antes-de-dibujar.test.ts
+prueba: src/__tests__/la-foto-sin-revisar-queda-pendiente-no-rechazada.test.ts
+prueba: src/__tests__/espejo-guardada-no-es-publicada.test.ts
+prueba: tests/e2e/touchpix-camara-y-recuerdo-con-imagen.spec.ts
+prueba: tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts
+```
+
 ## 10/10/2026 - Codex93: cierre de pendientes antiguos, no repetir recientes
 
 - Fuente85215484 ejecutada/contrastada9a054620 sin delta en consumidores aqui.

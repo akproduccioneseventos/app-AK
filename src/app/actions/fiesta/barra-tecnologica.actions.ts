@@ -23,6 +23,8 @@ import { leerCartaTragosMaster } from '@/lib/carta-tragos/leer-carta-master';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
+import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
+import type { ResultadoRevisionImagen } from '@/lib/social-fiesta/content-review';
 import { createEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
 import { calculateActualStockMovement, getBarScheduleError, isTruthyFollowConfirmation, isValidBarOrderTransition, normalizeBarTime } from '@/lib/barra-tecnologica';
 import { limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
@@ -1063,7 +1065,7 @@ export async function updateBarDrinkOrderStatus(
   }
 }
 
-export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success: boolean; url?: string; shareText?: string; error?: string }> {
+export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success: boolean; url?: string; shareText?: string; error?: string; publicacion?: 'publicada' | 'pendiente_aprobacion' | 'sin_publicar' }> {
   const fiestaId = String(formData.get('fiestaId') || '');
   const authorName = sanitizeText(String(formData.get('authorName') || ''), 'Invitado barra AK');
   const caption = sanitizeText(String(formData.get('caption') || ''));
@@ -1112,7 +1114,20 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
     const mediaId = `bar_photo_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const storagePath = `bar-tech/${fiestaId}/${mediaId}${extension}`;
     const bytes = await file.arrayBuffer();
-    const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || (isVideo ? 'video/webm' : 'image/jpeg'), true);
+    const buffer = Buffer.from(bytes);
+    // Tres estados, no dos: segura / riesgosa / sin revisar. Antes esta subida no revisaba nada y el
+    // muro tomaba "sin revisar" como contenido adulto: con la publicacion automatica prendida, la
+    // foto se rechazaba siempre. Ahora el riesgo real se rechaza, y lo que no se pudo revisar (un
+    // video, o el proveedor caido) queda pendiente de aprobacion manual.
+    let revisionImagen: ResultadoRevisionImagen = 'sin_revisar';
+    if (!isVideo) {
+      const seguridad = await checkImageSafety(buffer);
+      if (!seguridad.safe) {
+        return { success: false, error: 'La foto fue bloqueada por riesgo de contenido inapropiado.' };
+      }
+      revisionImagen = seguridad.reason === 'error' ? 'sin_revisar' : 'segura';
+    }
+    const url = await uploadToStorage(buffer, storagePath, file.type || (isVideo ? 'video/webm' : 'image/jpeg'), true);
 
     const defaultCaption = isVideo ? 'Grabando un saludo en la barra interactiva' : 'Mi foto en la barra tecnologica AK';
     const baseCaption = drinkName
@@ -1120,6 +1135,7 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
       : (caption || defaultCaption);
     const shareText = `${baseCaption} ${settings.hashtag} ${settings.instagramHandle}`.trim();
 
+    let publicacion: 'publicada' | 'pendiente_aprobacion' | 'sin_publicar' = 'sin_publicar';
     if (settings.autoPublishPhotos) {
       const socialResult = await createSocialMediaPostFromUrlForStation({
         fiestaId,
@@ -1132,13 +1148,15 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
         momentTag: 'Barra de tragos',
         drinkId,
         drinkName,
+        revisionImagen,
       }, createEntertainmentAccessToken(fiestaId, 'totems', 'guest'));
       if (!socialResult.success) {
         throw new Error(socialResult.error || 'No se pudo publicar la foto de la barra en el muro.');
       }
+      publicacion = socialResult.post?.moderationStatus === 'approved' ? 'publicada' : 'pendiente_aprobacion';
     }
 
-    return { success: true, url, shareText };
+    return { success: true, url, shareText, publicacion };
   } catch (error: any) {
     logger.error('[barra-tecnologica] upload file failed', error);
     return { success: false, error: error.message || 'No se pudo subir el archivo.' };

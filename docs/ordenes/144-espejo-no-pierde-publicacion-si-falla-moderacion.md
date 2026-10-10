@@ -57,5 +57,8 @@ moderado. La prueba propuesta de abajo aun NO existe ni se ejecuto.
 ```comprobar
 archivo: src/app/actions/social-gallery.ts
 usa: createSocialMediaPostFromUrlForStation en src/app/actions/fiesta/entretenimiento.actions.ts
-prueba: tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts (PROPUESTA PENDIENTE)
+prueba: tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts
+prueba: src/__tests__/la-foto-sin-revisar-queda-pendiente-no-rechazada.test.ts
+prueba: src/__tests__/espejo-guardada-no-es-publicada.test.ts
+usa: imageAiSafeDesde en src/app/actions/social-gallery.ts
 ```
