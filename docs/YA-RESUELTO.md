@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/10/2026 - Orden 140: la fotocabina ya no entrega la foto negra
+
+- **Causa: inferida por lectura del codigo, NO medida en un navegador.** El video de la camara
+  (`<video className="hidden">`) arrancaba solo con `autoPlay`, nadie llamaba a `play()`, y
+  `captureToCanvas` solo miraba `readyState` y ancho. Un video oculto puede quedar en pausa con
+  la senal viva y `readyState` 4 (justo lo que midio Codex), y dibujarlo da negro. Ademas el
+  efecto de estado volvia a pedir la camara en cada cambio (espera, cuenta, foto), cortando y
+  re-enganchando la senal.
+- Ahora: antes de dibujar, `asegurarCuadroDeVideo` (`src/lib/entertainment/camera-readiness.ts`)
+  re-engancha la senal si el video cambio, lo pone a andar y espera un cuadro real. Si no hay,
+  aviso visible con boton "Reintentar camara" y NO se guarda ni entrega nada. La camara viva de la
+  misma cara no se corta en cada cambio de estado.
+- Por que asi: no hay umbral de oscuridad, para no rechazar fotos oscuras de verdad (decision de
+  la orden). La prueba de navegador queda escrita y SIN correr.
+
+```comprobar
+archivo: src/lib/entertainment/camera-readiness.ts
+usa: asegurarCuadroDeVideo en src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts
+prueba: tests/e2e/la-fotocabina-saca-la-foto-con-imagen.spec.ts
+```
+
 ## 10/10/2026 - Codex89: imagen dentro de la fotocabina y color del portal
 
 - ENT89-IMAGEN nuevo, orden140 Gemini: la misma camara nativa falsa muestra imagen
