@@ -937,3 +937,13 @@ Y un recordatorio con id al azar se guardaba dos veces si la tarea corría dos v
 **Al poner un candado, se buscan todos los que llaman a la función protegida**, y el candado va
 adentro de la función, no en uno de los que la llaman. Lo que se prepara por día lleva un id
 estable, no uno al azar.
+
+## Pregunta 46 — la que sumó el 9 de octubre de 2026 (Codex, auditoría 83)
+
+### 46. Lo que hace un invitado o una estación, ¿se puede GUARDAR con su permiso?
+
+El invitado de Bogue tenía permiso para grabar, pero el guardado pedía sesión del equipo o del
+portal: se le rechazaba siempre, y la pantalla no decía nada. Igual la trivia y la pantalla en
+vivo. Y la prueba de la trivia no lo veía porque reemplazaba el guardado por uno que siempre decía
+que sí. **Se sigue la acción del invitado hasta el guardado**, y en la prueba el guardado de
+mentira rechaza como el de verdad cuando falta el permiso.

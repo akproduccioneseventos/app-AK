@@ -1,6 +1,7 @@
 'use server';
 
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import type {
   FiestaEnPlanificacion,
@@ -31,6 +32,24 @@ function getOrInitData(fiesta: FiestaEnPlanificacion): EventoEnVivoData {
     votaciones: [],
   };
   return { ...current, captaciones: current.captaciones || [] };
+}
+
+/**
+ * Lo que manda un invitado (foto, canción, mensaje) se agrega SOLO a la parte en vivo, adentro de
+ * la transacción de la fiesta. Antes se guardaba la fiesta entera con `saveFiesta`, que pide
+ * sesión del equipo o del portal: al invitado se le rechazaba siempre (Codex, auditoría 83,
+ * barrido de ENT83-GUEST). Las reglas de quién puede mandar no cambian (tope por persona).
+ */
+async function agregarAlEnVivo(
+  fiestaId: string,
+  agregar: (data: EventoEnVivoData) => void,
+): Promise<{ success: boolean; error?: string }> {
+  const r = await actualizarFiesta(fiestaId, (fresca) => {
+    const data = getOrInitData(fresca);
+    agregar(data);
+    return { ...fresca, eventoEnVivo: data };
+  }, { publicRsvp: true });
+  return r.success ? { success: true } : { success: false, error: r.error };
 }
 
 function randomId() {
@@ -189,9 +208,9 @@ export async function addFotoEnVivo(
       }
     }
     
-    const data = getOrInitData(fiesta);
-    data.fotos.push({ ...foto, autor: resolvedAuthor, id: randomId(), timestamp: new Date().toISOString() });
-    return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
+    return await agregarAlEnVivo(fiestaId, (data) => {
+      data.fotos.push({ ...foto, autor: resolvedAuthor, id: randomId(), timestamp: new Date().toISOString() });
+    });
   } catch {
     return { success: false, error: 'No se pudo guardar la foto.' };
   }
@@ -216,14 +235,14 @@ export async function addSolicitudCancion(
     });
     const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    const data = getOrInitData(fiesta);
-    data.solicitudesCanciones.push({
-      ...solicitud,
-      id: randomId(),
-      timestamp: new Date().toISOString(),
-      reproducida: false,
+    return await agregarAlEnVivo(fiestaId, (data) => {
+      data.solicitudesCanciones.push({
+        ...solicitud,
+        id: randomId(),
+        timestamp: new Date().toISOString(),
+        reproducida: false,
+      });
     });
-    return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
   } catch {
     return { success: false, error: 'No se pudo guardar la solicitud.' };
   }
@@ -266,14 +285,14 @@ export async function addMensajeEnVivo(
     });
     const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    const data = getOrInitData(fiesta);
-    data.mensajes.push({
-      ...mensaje,
-      id: randomId(),
-      timestamp: new Date().toISOString(),
-      destacado: false,
+    return await agregarAlEnVivo(fiestaId, (data) => {
+      data.mensajes.push({
+        ...mensaje,
+        id: randomId(),
+        timestamp: new Date().toISOString(),
+        destacado: false,
+      });
     });
-    return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
   } catch {
     return { success: false, error: 'No se pudo guardar el mensaje.' };
   }

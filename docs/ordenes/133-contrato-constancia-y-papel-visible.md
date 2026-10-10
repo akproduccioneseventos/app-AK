@@ -1,5 +1,7 @@
 # Orden 133: constancia identificable y papel disponible
 
+**HECHA el 9/10/2026 por Claude. Ver YA-RESUELTO (auditoría 83).**
+
 ## Version y responsable
 
 9/10/2026. Main final contrastado: `859fd23b1175646edc0209cab114241327d302ba`.
@@ -69,6 +71,6 @@ corregir y ejecutar sobre el SHA de entrega; no esta aprobada por existir esta o
 
 ```comprobar
 archivo: src/app/portal/[fiestaId]/contrato/page.tsx
-usa: firmaDigitalConstancia y firma.signedBy en ClientContractPage de src/app/portal/[fiestaId]/contrato/page.tsx
-prueba: tests/e2e/contrato-constancia-mantiene-papel.spec.ts (PENDIENTE)
+usa: signedBy: constancia.signedBy en src/app/portal/[fiestaId]/contrato/page.tsx
+prueba: tests/e2e/contrato-constancia-mantiene-papel.spec.ts
 ```

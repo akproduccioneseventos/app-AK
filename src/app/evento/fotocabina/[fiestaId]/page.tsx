@@ -26,7 +26,6 @@ import {
   Edit3,
   Film,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
 import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import {
@@ -1741,7 +1740,7 @@ export default function FotocabinaPage() {
 
               {qrCodeUrl && (fiesta?.station.deliveryChannels?.includes('qr') ?? true) && (
                 <div className="bg-white p-4 rounded-xl shadow-2xl relative">
-                  <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
+                  <QrRecuerdo qrCodeUrl={qrCodeUrl} size={180} />
                 </div>
               )}
 

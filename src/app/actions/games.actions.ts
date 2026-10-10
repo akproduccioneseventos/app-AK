@@ -5,6 +5,7 @@ import { LECTURA_COMPLETA } from '@/lib/fiesta/lectura-completa';
 import { TriviaGame, PhotoMission, TriviaParticipant } from '@/lib/games/game-engine';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 
 /**
  * No existe un \updateFiestaById\ parcial: la fiesta se guarda entera con
@@ -50,6 +51,12 @@ export async function getPhotoMissions(fiestaId: string): Promise<PhotoMission[]
 /**
  * Guest Public Actions
  */
+/**
+ * La trivia del invitado (Codex, auditoría 83, barrido de ENT83-GUEST): guardaba la fiesta entera
+ * con `saveFiesta`, que pide sesión del equipo o del portal, y al invitado se le rechazaba siempre
+ * (la pantalla tragaba el error). Ahora, con SU credencial comprobada, se toca sólo su renglón de
+ * la trivia adentro de la transacción de la fiesta. Sin credencial válida, no entra.
+ */
 export async function joinTriviaGame(
   fiestaId: string,
   guestId: string,
@@ -58,47 +65,35 @@ export async function joinTriviaGame(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const portal = await getPublicGuestPortalData(fiestaId, guestId, guestAccessToken);
-    const tableNumber = portal?.guest?.tableNumber;
-    const realName = portal?.guest?.nombre || guestName;
+    if (!portal?.guest) return { success: false, error: 'Credenciales inválidas' };
+    const tableNumber = portal.guest.tableNumber;
+    const realName = portal.guest.nombre || guestName;
 
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
-
-    const defaultTrivia: TriviaGame = {
-      id: `trivia_${fiestaId}`,
-      fiestaId,
-      title: 'Trivia de la Fiesta',
-      questions: [],
-      createdAt: new Date().toISOString(),
-      status: 'active',
-      participants: [],
-    };
-    const triviaGame: TriviaGame = fiesta.triviaGame || defaultTrivia;
-    const participants = triviaGame.participants || [];
-    const existingIndex = participants.findIndex(p => p.guestId === guestId);
-    
-    if (existingIndex >= 0) {
-      participants[existingIndex] = {
-        ...participants[existingIndex],
-        guestName: realName,
-        tableNumber: tableNumber || participants[existingIndex].tableNumber,
+    const result = await actualizarFiesta(fiestaId, (fresca) => {
+      const triviaGame: TriviaGame = fresca.triviaGame || {
+        id: `trivia_${fiestaId}`,
+        fiestaId,
+        title: 'Trivia de la Fiesta',
+        questions: [],
+        createdAt: new Date().toISOString(),
+        status: 'active',
+        participants: [],
       };
-    } else {
-      participants.push({
-        guestId,
-        guestName: realName,
-        tableNumber: tableNumber,
-        score: 0,
-        answers: [],
-      });
-    }
+      const participants = [...(triviaGame.participants || [])];
+      const existingIndex = participants.findIndex(p => p.guestId === guestId);
+      if (existingIndex >= 0) {
+        participants[existingIndex] = {
+          ...participants[existingIndex],
+          guestName: realName,
+          tableNumber: tableNumber || participants[existingIndex].tableNumber,
+        };
+      } else {
+        participants.push({ guestId, guestName: realName, tableNumber, score: 0, answers: [] });
+      }
+      return { ...fresca, triviaGame: { ...triviaGame, participants } };
+    }, { publicRsvp: true });
 
-    const result = await saveFiesta({
-      ...fiesta,
-      triviaGame: { ...triviaGame, participants }
-    });
-
-    if (!result?.success) return { success: false, error: 'No se pudo registrar la participación' };
+    if (!result.success) return { success: false, error: 'No se pudo registrar la participación' };
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message || 'Error al procesar la entrada' };
@@ -114,33 +109,27 @@ export async function submitTriviaScore(
   try {
     const portal = await getPublicGuestPortalData(fiestaId, guestId, guestAccessToken);
     if (!portal) return { success: false, error: 'Credenciales inválidas' };
+    const puntos = Number.isFinite(scoreToAdd) ? Math.max(0, Math.min(1000, Math.round(scoreToAdd))) : 0;
 
-    const fiesta = await getFiestaById(fiestaId, LECTURA_COMPLETA);
-    if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
-
-    const triviaGame = fiesta.triviaGame;
-    if (!triviaGame) return { success: false, error: 'Juego no encontrado' };
-
-    const participants = triviaGame.participants || [];
-    const existingIndex = participants.findIndex(p => p.guestId === guestId);
-
-    if (existingIndex >= 0) {
+    let encontrado = true;
+    const saveRes = await actualizarFiesta(fiestaId, (fresca) => {
+      const triviaGame = fresca.triviaGame;
+      const participants = [...(triviaGame?.participants || [])];
+      const existingIndex = participants.findIndex(p => p.guestId === guestId);
+      encontrado = Boolean(triviaGame) && existingIndex >= 0;
+      if (!triviaGame || existingIndex < 0) return fresca;
       participants[existingIndex] = {
         ...participants[existingIndex],
-        score: (participants[existingIndex].score || 0) + scoreToAdd,
+        score: (participants[existingIndex].score || 0) + puntos,
       };
-      
-      const saveRes = await saveFiesta({
-        ...fiesta,
-        triviaGame: { ...triviaGame, participants }
-      });
-      if (!saveRes.success) {
-        return { success: false, error: saveRes.error || 'No se pudo guardar el puntaje.' };
-      }
+      return { ...fresca, triviaGame: { ...triviaGame, participants } };
+    }, { publicRsvp: true });
+    if (!saveRes.success) {
+      return { success: false, error: saveRes.error || 'No se pudo guardar el puntaje.' };
     }
-    
+    if (!encontrado) return { success: false, error: 'Juego no encontrado' };
     return { success: true };
   } catch (err: any) {
-    return { success: false, error: err.message || 'Error al procesar el puntaje' };
+    return { success: false, error: err.message || 'Error al guardar el puntaje' };
   }
 }
