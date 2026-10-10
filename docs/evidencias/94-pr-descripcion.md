@@ -1,6 +1,6 @@
 ## Descripcion del Cambio
 
-Auditorias93-94 de Codex, SOLO documentacion y sondas de QA; no producto.
+Auditorias93-95 de Codex, SOLO documentacion y sondas de QA; no producto.
 Fuente94 ejecutada/main9a054620718673f00e10b52f0811cc1af729ba4e.
 NO CONTRASTADO CON TANDA DE PROGRAMACION LOCAL NO SUBIDA: contrastar antes
 de programar. Rama QA, dejar PR abierta; el dueno decide la fusion.
@@ -23,6 +23,12 @@ en YA-RESUELTO,ESTADO-ACTUAL y matriz84. Runtimepropio detenido/fixtureslimpios.
 Ninguna orden inicia por si sola otraIA; no afirmar que estos fallos se arreglaron.
 
 ## Tipo de Cambio
+
+Contraste95: main sigue9a y health declara0af,38rutasproducto difieren. Es
+metadata, NO una revisionHosting independiente: Claude contrastara fuente/log.
+GETvoz307/login y GitHubdeployments[] no prueban ausencia. No tests repetidos
+con SHA igual, no nuevas ordenes duplicadas. Informe95 deja ocho pendientes
+concretos y conserva143Jest/20positivas94 sin afirmar app entera limpia.
 - [ ] Correccion de errores de producto
 - [ ] Nueva funcionalidad de producto
 - [ ] Refactorizacion / Optimizacion

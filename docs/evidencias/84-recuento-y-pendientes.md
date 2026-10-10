@@ -1,5 +1,16 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion95: version declarada no coincide; no duplicar auditoria
+
+Main9a sin delta, PR1286 QA unicaabierta. Health declara0af,38rutasproducto
+de diferencia; validar fuente/log/Hosting porque metadata no es revision
+independiente. GETvoz307 y deployments[] no prueban ausencia. Retests94 se
+reutilizan sin nueva corrida. NO nueva orden:144-147 ya existen y necesitan
+contraste de tanda local/correccion/retest. Informe95 ordena los ocho pasos
+restantes concretos y separa3D/videolector/19originales/integraciones/release/
+hardware. La tabla historica de abajo no reabre lo aceptado por88-94.
+0areaslimpias en JSON no significa0partesprobadas. No certificar app entera.
+
 ## Actualizacion94: retests cerrados y tres fallos nuevos
 
 Fuente exacta9a054620 ejecutada; main mismoSHA, PR1286QA abierta. Tanda local

@@ -1,9 +1,10 @@
-# Estado actual - 10/10/2026 (Codex88-94)
+# Estado actual - 10/10/2026 (Codex88-95)
 
 Fuente94 main9a054620718673f00e10b52f0811cc1af729ba4e ejecutada/contrastada.
 Rama QA codex/auditoria-93-cierre-antiguos-20261010; PR1286 ABIERTA, no merge.
 Tanda de programacion local NO contrastada: contrastar antes de corregir.
-Publicado health0af74652 !=9a; no aceptar despliegue por el test local.
+95: health declara0af74652 !=9a,38rutasproducto difieren. Validar revisionHosting
+contra fuente/log: metadata no es lectura independiente. Retests94 reutilizados.
 
 ## Lo que hace el dueno (no se automatiza)
 - Contabilidad > Poner al dia: cobros pasados y copias/pruebas vienen marcados;

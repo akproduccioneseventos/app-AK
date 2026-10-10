@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/10/2026 - Codex95: contraste de entrega, no otra auditoria duplicada
+
+- Main9a054620/PR1286QA siguen sin correcciones144-147 nuevas accesibles.
+  Tanda local NO contrastada; no afirmar que Gemini/Claude no trabajan.
+- Health declara0af74652 y38rutas de producto difieren de main. Version es
+  metadata del build, NO lectura independiente Hosting: Claude contrastara
+  fuente/log/revision antes de publicar o reprogramar lo ya corregido.
+- GETvoz307/login y GitHubdeployments[] NO prueban ausencia de voz/despliegue.
+  No buscar Actionsrojos por facturacion ni usar booleanshealth como entrega.
+- Reutilizadas143Jest/20positivas94 sin repetir SHA igual. No mas pruebas,
+  agentes, build, emuladores ni codigo cambiado para este contraste pequeno.
+- Informe95-publicacion-y-pendientes-exactos.md/raw95-publicacion.json deja
+  ocho acciones concretas; no nuevas ordenes duplicadas ni0errores/14limpias.
+
 ## 10/10/2026 - Codex94: retests reales; tres fallos nuevos, no correcciones
 
 - Main9a054620 ejecutado en TEMP nuevo demo; PR1286 QA sigue ABIERTA.
