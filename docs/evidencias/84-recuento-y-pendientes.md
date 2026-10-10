@@ -1,5 +1,19 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion93: pendientes antiguos, recientes excluidos
+
+Informe93-cierre-pendientes-anteriores.md. Fuente85215484/contraste9a054620:
+sin delta en casos usados. Recordatorio3HTTP/un mensaje manual/un marcador
+sin envios y barra pedido->entregado/recarga/stock10->8 aprobados. No repetir.
+Touchpix archivo/HTTP/bytes bien; ENT93-CAM P1control MISMA senal297200pixeles
+vsoriginal pausado0. Orden145Gemini, no duplicar140fotocabina.
+ENT93-MOD P1nuevo: espejo guarda foto pero mural0 ante Vision caido, anuncia
+envio. Orden144Gemini/Claude moderacion; dos reproducciones. No app corregida.
+Conservar86Bogue/360/planificacion y86/88widget; nuevas entregasIA FUERA.
+Historico3D, lector visualvideo, cuentasproveedores/19originales/hardware
+y verificacion de MISMO SHApublicado siguen separados.139-143al final,
+no reprogramar ni certificar14areaslimpias/0errores por estos dos casos nuevos.
+
 ## Actualizacion92: seis huecos de la lista real
 
 Informe92-seis-pendientes.md, main85215484 ejecutado. Catering integrado207.830s

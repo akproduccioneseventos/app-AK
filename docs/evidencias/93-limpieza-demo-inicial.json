@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-10-10T21:39:01.218Z",
+  "sha": "8521548477d90cc2ffa05e9f2edb22c6c51a893b",
+  "project": "demo-ak-producciones",
+  "deleted": [
+    "bar_drink_orders/bar_a656f5b3-54b2-47dd-b5c8-b4c179661678",
+    "entretenimiento_sesiones/e2e_93_espejomagico_13936_1791667367366_espejoMagicoFoto",
+    "entretenimiento_sesiones/e2e_93_espejomagico_20492_1791667853440_espejoMagicoFoto",
+    "entretenimiento_sesiones/e2e_93_touchpix_12672_1791655210649_espejoMagicoIA",
+    "entretenimiento_sesiones/e2e_93_touchpix_16764_1791667528068_espejoMagicoIA",
+    "fiestas/e2e_barra93_16764_1791667560761",
+    "insumos/ins_e2e_barra93_16764_1791667560761",
+    "json_documents/tareas-automaticas.json"
+  ],
+  "remaining": [],
+  "unrelated": [
+    "backup_snapshots_v2/backup-AUTO-2026-10-10T18_06_10_288Z",
+    "backup_system/auto_backup",
+    "json_documents/backup-status.json",
+    "json_documents/tareas-automaticas.json",
+    "public_rate_limits/1a711f12235b66e5c8946450eb2cb1b3d957b3d76325c0e7951b934a01c13d4f",
+    "public_rate_limits/1c0cc19dea0c0ea775607fa1c1a1951245f1c17a13ce4cf4ac55c6caf8a4d835",
+    "public_rate_limits/5b016f0f02496d1f7953e2e7b7305451763d7d6ed0274ac0431b55e438dacb91",
+    "public_rate_limits/c216526b2cda59e49a52c13ed50f63bb3976d72efbfd10e2f26854e4e31eaf2f",
+    "public_rate_limits/e54734c64cef5fdeb582bde5fc6048233e7ec8e4120433a0fa02da20504ffb95"
+  ],
+  "productionTouched": false
+}

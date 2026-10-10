@@ -1,0 +1,22 @@
+{
+  "checkedAt": "2026-10-10T21:40:07.278Z",
+  "sha": "8521548477d90cc2ffa05e9f2edb22c6c51a893b",
+  "project": "demo-ak-producciones",
+  "deleted": [
+    "local:data\\fiestas\\e2e_barra93_16764_1791667560761.json",
+    "local:src\\data\\fiestas\\e2e_barra93_16764_1791667560761.json"
+  ],
+  "remaining": [],
+  "unrelated": [
+    "backup_snapshots_v2/backup-AUTO-2026-10-10T18_06_10_288Z",
+    "backup_system/auto_backup",
+    "json_documents/backup-status.json",
+    "public_rate_limits/1a711f12235b66e5c8946450eb2cb1b3d957b3d76325c0e7951b934a01c13d4f",
+    "public_rate_limits/1c0cc19dea0c0ea775607fa1c1a1951245f1c17a13ce4cf4ac55c6caf8a4d835",
+    "public_rate_limits/5b016f0f02496d1f7953e2e7b7305451763d7d6ed0274ac0431b55e438dacb91",
+    "public_rate_limits/c216526b2cda59e49a52c13ed50f63bb3976d72efbfd10e2f26854e4e31eaf2f",
+    "public_rate_limits/e54734c64cef5fdeb582bde5fc6048233e7ec8e4120433a0fa02da20504ffb95"
+  ],
+  "scope": "Referencias directas y archivos propios; respaldos/metadatos demo preservados",
+  "productionTouched": false
+}

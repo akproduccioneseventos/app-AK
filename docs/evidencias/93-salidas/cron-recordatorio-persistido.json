@@ -1,0 +1,65 @@
+{
+  "results": [
+    {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "corrio": true,
+        "totalFiestas": 2,
+        "totalInvitadosEvaluados": 1,
+        "enviados": 0,
+        "fallados": 1,
+        "omitidos": 0
+      }
+    },
+    {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "corrio": true,
+        "totalFiestas": 2,
+        "totalInvitadosEvaluados": 1,
+        "enviados": 0,
+        "fallados": 0,
+        "omitidos": 1
+      }
+    },
+    {
+      "status": 200,
+      "body": {
+        "ok": true,
+        "corrio": true,
+        "totalFiestas": 2,
+        "totalInvitadosEvaluados": 1,
+        "enviados": 0,
+        "fallados": 0,
+        "omitidos": 1
+      }
+    }
+  ],
+  "message": {
+    "targetType": "cliente",
+    "targetId": "e2e_recordatorio93_18468_1791655536108",
+    "targetName": "Invitado ficticio93",
+    "targetPhone": "000000000",
+    "templateType": "personalizado",
+    "messageText": "¡Hola Invitado ficticio93! Te recordamos acceder a tu invitación digital para Fiesta de esta noche. Podés ver los detalles del evento y confirmar tu asistencia acá: https://akproducciones.uy/invitacion/e2e_recordatorio93_18468_1791655536108/invitado/guest_e2e_recordatorio93_18468_1791655536108?token=qa93",
+    "scheduledAt": "2026-10-10T18:06:07.510Z",
+    "status": "pendiente",
+    "sendingMode": "manual_click",
+    "fiestaId": "e2e_recordatorio93_18468_1791655536108",
+    "id": "msg_1791655568986_slexjy",
+    "createdAt": "2026-10-10T18:06:08.986Z",
+    "_syncedAt": "2026-10-10T18:06:08.987Z"
+  },
+  "guest": {
+    "id": "guest_e2e_recordatorio93_18468_1791655536108",
+    "nombre": "Invitado ficticio93",
+    "rsvp": "Pendiente",
+    "contacto": "000000000",
+    "guestAccessToken": "qa93",
+    "recordatoriosApertura": [
+      "2026-10-10"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "videos": [
+    {
+      "width": 640,
+      "height": 480,
+      "readyState": 4,
+      "paused": true,
+      "display": "none",
+      "hasStream": true,
+      "colorPixels": 0
+    }
+  ],
+  "controlColorPixels": 297200
+}

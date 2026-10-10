@@ -1,0 +1,377 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/93-pendientes-anteriores.spec.ts",
+      "--project=chromium-desktop",
+      "--output=93-artifactos",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/93-artifactos",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/93-artifactos",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "93-pendientes-anteriores.spec.ts",
+      "file": "93-pendientes-anteriores.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "espejo-magico: captura descarga y archivo final sin falsear servidor",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 103848,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Tocar para foto', exact: true })\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Tocar para foto', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Tocar para foto', exact: true })\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Tocar para foto', exact: true })\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts:55:84",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts",
+                      "column": 84,
+                      "line": 55
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 53 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'img[alt=\"Captura Touchpix\"]'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 54 |\u001b[39m       }\u001b[36melse\u001b[39m{\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 55 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Tocar para foto'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m60000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 56 |\u001b[39m         \u001b[36mconst\u001b[39m consent\u001b[33m=\u001b[39mpage\u001b[33m.\u001b[39mgetByRole(\u001b[32m'checkbox'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mif\u001b[39m(\u001b[36mawait\u001b[39m consent\u001b[33m.\u001b[39mcount())\u001b[36mawait\u001b[39m consent\u001b[33m.\u001b[39mcheck()\u001b[33m;\u001b[39m\n \u001b[90m 57 |\u001b[39m         \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Tocar para foto'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 58 |\u001b[39m         \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Subir al Muro'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts",
+                        "column": 84,
+                        "line": 55
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Tocar para foto', exact: true })\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Tocar para foto', exact: true })\u001b[22m\n\n\n  53 |         await expect(page.locator('img[alt=\"Captura Touchpix\"]')).toBeVisible({timeout:30000});\n  54 |       }else{\n> 55 |         await expect(page.getByRole('button',{name:'Tocar para foto',exact:true})).toBeVisible({timeout:60000});\n     |                                                                                    ^\n  56 |         const consent=page.getByRole('checkbox');if(await consent.count())await consent.check();\n  57 |         await page.getByRole('button',{name:'Tocar para foto',exact:true}).click();\n  58 |         await expect(page.getByRole('button',{name:'Subir al Muro',exact:true})).toBeVisible({timeout:30000});\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts:55:84"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:58:22.215Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "pantalla-final.txt",
+                      "contentType": "text/plain",
+                      "body": "RXhwZXJpZW5jaWEgbm8gZGlzcG9uaWJsZQoKRXN0YSBlc3RhY2nDs24gdG9kYXbDrWEgbm8gZXN0w6EgaGFiaWxpdGFkYS4gUGVkaWxlIGFsIGVxdWlwbyBkZSBBSyBxdWUgbGEgYWN0aXZlIGRlc2RlIGVsIHBhbmVsIGRlIGxhIGZpZXN0YS4="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-e-8d288--final-sin-falsear-servidor-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-e-8d288--final-sin-falsear-servidor-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-e-8d288--final-sin-falsear-servidor-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-e-8d288--final-sin-falsear-servidor-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-e-8d288--final-sin-falsear-servidor-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts",
+                    "column": 84,
+                    "line": 55
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "84732b621a6c1abdc836-331f1bd6630519f6b9c3",
+          "file": "93-pendientes-anteriores.spec.ts",
+          "line": 38,
+          "column": 7
+        },
+        {
+          "title": "touchpix: captura descarga y archivo final sin falsear servidor",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 246379,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts",
+                        "column": 27,
+                        "line": 60
+                      },
+                      "message": "Error: page.waitForEvent: Test timeout of 240000ms exceeded.\n=========================== logs ===========================\nwaiting for event \"download\"\n============================================================\n\n  58 |         await expect(page.getByRole('button',{name:'Subir al Muro',exact:true})).toBeVisible({timeout:30000});\n  59 |       }\n> 60 |       const download=page.waitForEvent('download');\n     |                           ^\n  61 |       await page.getByRole('button',{name:station.route==='touchpix'?'Descargar':'Guardar',exact:true}).click();\n  62 |       const file=await download;const bytes=fs.readFileSync(await file.path());expect(bytes.length).toBeGreaterThan(2000);\n  63 |       await info.attach('foto-descargada.jpg',{body:bytes,contentType:'image/jpeg'});\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts:60:27"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts",
+                        "column": 105,
+                        "line": 61
+                      },
+                      "message": "Error: locator.click: Test timeout of 240000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Descargar', exact: true })\u001b[22m\n\n\n  59 |       }\n  60 |       const download=page.waitForEvent('download');\n> 61 |       await page.getByRole('button',{name:station.route==='touchpix'?'Descargar':'Guardar',exact:true}).click();\n     |                                                                                                         ^\n  62 |       const file=await download;const bytes=fs.readFileSync(await file.path());expect(bytes.length).toBeGreaterThan(2000);\n  63 |       await info.attach('foto-descargada.jpg',{body:bytes,contentType:'image/jpeg'});\n  64 |       await page.getByRole('button',{name:station.route==='touchpix'?'Publicar al muro':'Subir al Muro',exact:true}).click();\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts:61:105"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T18:00:10.195Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-t-5b404--final-sin-falsear-servidor-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "pantalla-final.txt",
+                      "contentType": "text/plain",
+                      "body": ""
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-t-5b404--final-sin-falsear-servidor-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-t-5b404--final-sin-falsear-servidor-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-t-5b404--final-sin-falsear-servidor-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-t-5b404--final-sin-falsear-servidor-chromium-desktop\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "84732b621a6c1abdc836-b667a50a64028f937133",
+          "file": "93-pendientes-anteriores.spec.ts",
+          "line": 38,
+          "column": 7
+        },
+        {
+          "title": "barra: invitado pide barman entrega y el stock baja una sola vez",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 226804,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\u001b[7mentregad\u001b[27mo\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mlist\u001b[27mo\"\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\u001b[7mentregad\u001b[27mo\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mlist\u001b[27mo\"\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts:103:71",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts",
+                      "column": 71,
+                      "line": 103
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 101 |\u001b[39m     \u001b[36mfor\u001b[39m(\u001b[36mconst\u001b[39m [button\u001b[33m,\u001b[39mstatus] \u001b[36mof\u001b[39m [[\u001b[32m'Preparar'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'preparando'\u001b[39m]\u001b[33m,\u001b[39m[\u001b[32m'Listo'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'listo'\u001b[39m]\u001b[33m,\u001b[39m[\u001b[32m'Entregado'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'entregado'\u001b[39m]]){\n \u001b[90m 102 |\u001b[39m       \u001b[36mawait\u001b[39m expect(barman\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39mbutton\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m60000\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m barman\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39mbutton\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 103 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(\u001b[36masync\u001b[39m()\u001b[33m=>\u001b[39m(\u001b[36mawait\u001b[39m row\u001b[33m.\u001b[39mref\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m())\u001b[33m.\u001b[39mdata()\u001b[33m.\u001b[39mstatus)\u001b[33m.\u001b[39mtoBe(status)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                                       \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 104 |\u001b[39m       expect((\u001b[36mawait\u001b[39m supply\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m())\u001b[33m.\u001b[39mdata()\u001b[33m.\u001b[39mcantidadDisponible)\u001b[33m.\u001b[39mtoBe(\u001b[35m8\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 105 |\u001b[39m     }\n \u001b[90m 106 |\u001b[39m     \u001b[36mawait\u001b[39m barman\u001b[33m.\u001b[39mreload({waitUntil\u001b[33m:\u001b[39m\u001b[32m'domcontentloaded'\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(barman\u001b[33m.\u001b[39mgetByText(\u001b[32m'Entregado'\u001b[39m\u001b[33m,\u001b[39m{exact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m.\u001b[39mfirst())\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts",
+                        "column": 71,
+                        "line": 103
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\u001b[7mentregad\u001b[27mo\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7mlist\u001b[27mo\"\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate\n\n  101 |     for(const [button,status] of [['Preparar','preparando'],['Listo','listo'],['Entregado','entregado']]){\n  102 |       await expect(barman.getByRole('button',{name:button,exact:true})).toBeVisible({timeout:60000});await barman.getByRole('button',{name:button,exact:true}).click();\n> 103 |       await expect.poll(async()=>(await row.ref.get()).data().status).toBe(status);\n      |                                                                       ^\n  104 |       expect((await supply.get()).data().cantidadDisponible).toBe(8);\n  105 |     }\n  106 |     await barman.reload({waitUntil:'domcontentloaded'});await expect(barman.getByText('Entregado',{exact:true}).first()).toBeVisible({timeout:30000});\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts:103:71"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T18:04:22.191Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "barra-final.txt",
+                      "contentType": "text/plain",
+                      "body": "UE9SVEFMIERFTCBJTlZJVEFETyAvLyBBQ0NFU08gRVhDTFVTSVZPCkZpZXN0YSBkZSBlc3RhIG5vY2hlCgpIb2xhLCBMdWPDrWEgRmVybsOhbmRlegoKQmllbnZlbmlkbyBhIGxhIGV4cGVyaWVuY2lhIGRlbW8gQUsuCgpTw6FiYWRvLCAxMCBEZSBPY3R1YnJlIERlIDIwMjYgLSAyMTowMCBIcwpDbHViIFVydWd1YXkKRWwgZXZlbnRvIGVzIGhveQpIdWIgZGVsIGV2ZW50bwpDw7NtbyBsbGVnYXIKVmVyIGludml0YWNpw7NuCgpBQ0NFU09TCgpUb2RvIHR1IGV2ZW50bwo4IGRpc3BvbmlibGVzClJlZCBzb2NpYWwKR2FsZXLDrWEKUGVkaXIgY2FuY2nDs24KQ2FydGEgZGUgdHJhZ29zCkp1ZWdvcwpCdXrDs24gZGUgc2FsdWRvcwrCv0TDs25kZSBtZSBzaWVudG8/CkJ1esOzbiBkZSByZWN1ZXJkb3MKCk1JIENSRURFTkNJQUwgVklQCgpMdWPDrWEgRmVybsOhbmRlegpBc2lzdGVuY2lhIGNvbmZpcm1hZGEKCk1FU0EgQVNJR05BREEKCk1lc2EgMQoKQ1JFREVOQ0lBTCBERSBFTlRSQURBCgpQcmVzZW50w6EgZXN0ZSBjw7NkaWdvIFFSIGFsIGluZ3Jlc2FyCgpUdSBwYXNlIGVzIHBlcnNvbmFsLgoKR3VhcmRhciBRUgoKREFUT1MgREVMIEVWRU5UTwoKQ2x1YiBVcnVndWF5CgpVcnVndWF5IDU4MCwgU2FsdG8KClPDoWJhZG8sIDEwIERlIE9jdHVicmUgRGUgMjAyNiAtIDIxOjAwIEhzCgpWZXIgZW4gR29vZ2xlIE1hcHMKCkdBU1RST05PTcONQQoKTWVuw7ogc2VsZWNjaW9uYWRvClJlY3VlcmRvcyBlbiB2aXZvCgpGb3RvcyBhcHJvYmFkYXMgZGUgZXN0YSBmaWVzdGEuCgrDgWxidW0gb2ZpY2lhbApNdXJvIHNvY2lhbApHYWxlcsOtYQoKVG9kYXbDrWEgbm8gaGF5IGZvdG9zIHB1YmxpY2FkYXMuCgpQUk9HUkFNQQoKMjI6MDAKCkNvbWllbnpvCgoyMjoxNQoKU2VydmljaW8gZGUgRW50cmFkYSAxCgoyMjozMAoKRW50cmFkYSBkZSBsYSBRdWluY2Vhw7FlcmEgeSBWYWxzCgoyMjo0NQoKU2VydmljaW8gZGUgRW50cmFkYSAyCgowMDowMAoKwqFBIEJhaWxhciEKCjAxOjAwCgpDZW5hIC8gQ2llcnJlIGRlIEJhcnJhCgowMTo0NQoKVmlkZW8gZGUgVmlkYQoKMDI6MDAKClJlYXBlcnR1cmEgZGUgQmFycmEgeSBCYWlsZQoKMDI6MzAKClBsYXRhZm9ybWEgMzYwIC8gRm90b2NhYmluYQoKMDM6MDAKCkNvdGlsbMOzbgoKMDM6NDUKCkZ1ZW50ZSBkZSBDaG9jb2xhdGUKCjA0OjAwCgpBcGFnYWRvIGRlIFZlbGFzIHkgVG9ydGEKCjA1OjAwCgpGaW5hbCBkZSBsYSBGaWVzdGEKClVOQSBFWFBFUklFTkNJQSBERQoKQUsgUFJPRFVDQ0lPTkVTCgpFc3RhIGV4cGVyaWVuY2lhIGZ1ZSBjcmVhZGEgcG9yIEFLIFByb2R1Y2Npb25lcyBFdmVudG9zLiBPcmdhbml6YW1vcyBmaWVzdGFzIGNvbXBsZXRhcyBlIGlub2x2aWRhYmxlcyBlbiBTYWx0bywgVXJ1Z3VheS4KCkluc3RhZ3JhbQpGYWNlYm9vawpUaWtUb2sKV2hhdHNBcHAKUXVpZXJvIG9yZ2FuaXphciBtaSBldmVudG8KCkJBUlJBIFRFQ05PTE9HSUNBCgpRdWlvc2NvIGRlIHRyYWdvcwoKTUkgUEVESURPIEFDVFVBTAoKVHJhZ28gUUE5MwoKTGlzdG8gcGFyYSByZXRpcmFyCgpNVVJPIFNPQ0lBTAoKQ29tcGFydMOtIHVuYSBmb3RvIG8gdmlkZW8gZGUgdHUgYnJpbmRpcy4KClN1YmlyIHJlY3VlcmRvCgpDQVJUQQoKRWxlZ8OtIHR1IHRyYWdvCgpUcmFnbyBRQTkzCgpJbnN1bW8gUUE5MwoKUGVkaXIKCkRhaXF1aXJpIGRlIGR1cmF6bm8KClJvbiBibGFuY28sIER1cmF6bm8sIEp1Z28gZGUgbGltw7NuLCBBbG3DrWJhcgoKUGVkaXIKCkNhaXBpcmluaGEKCkNhY2hhw6dhLCBMaW1hLCBBesO6Y2FyCgpQZWRpcgoKQXJpem9uYQoKVm9ka2EsIFTDqSBoZWxhZG8sIEp1Z28gZGUgbGltw7NuCgpQZWRpcgoKRGFpcXVpcmkgZGUgYW5hbsOhCgpSb24gYmxhbmNvLCBBbmFuw6EsIEp1Z28gZGUgbGltw7NuLCBBbG3DrWJhcgoKUGVkaXIKCkRhaXF1aXJpIGRlIGZydXRpbGxhCgpSb24gYmxhbmNvLCBGcnV0aWxsYSwgSnVnbyBkZSBsaW3Ds24sIEFsbcOtYmFyCgpQZWRpcgoKQXRvbWljIGdyZWVuCgpMaWNvciBkZSBkdXJhem5vLCBWb2RrYSwgU3ByaXRlCgpQZWRpcgoKRGFpcXVpcmkgcHJpbWF2ZXJhCgpSb24gYmxhbmNvLCBNaXggZGUgZnJ1dGFzLCBKdWdvIGRlIGxpbcOzbiwgQWxtw61iYXIKClBlZGlyCgpGZXJuZXQgY29uIGNvY2EKCkZlcm5ldCwgQ29jYS1Db2xhCgpQZWRpcgoKQXRhcmRlY2VyCgpUZXF1aWxhLCBKdWdvIGRlIG5hcmFuamEsIEdyYW5hZGluYQoKUGVkaXIKCkRlc3Rvcm5pbGxhZG9yCgpWb2RrYSwgSnVnbyBkZSBuYXJhbmphCgpQZWRpcgoKUm9uIGNvbGEKClJvbiwgQ29jYS1Db2xhCgpQZWRpcgoKR2luIGNvbiBwb21lbG8KCkdpbiwgR2FzZW9zYSBkZSBwb21lbG8KClBlZGlyCgpUdXMgZGF0b3MgcXVlZGFuIHPDs2xvIHBhcmEgZXN0YSBmaWVzdGEgKExleSAxOC4zMzEpLiBQcml2YWNpZGFkCgrCv1RlbsOpcyB1bmEgZHVkYT8="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-b-b8f0e--el-stock-baja-una-sola-vez-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-b-b8f0e--el-stock-baja-una-sola-vez-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-b-b8f0e--el-stock-baja-una-sola-vez-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-b-b8f0e--el-stock-baja-una-sola-vez-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-b-b8f0e--el-stock-baja-una-sola-vez-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-artifactos\\93-pendientes-anteriores-b-b8f0e--el-stock-baja-una-sola-vez-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-anteriores.spec.ts",
+                    "column": 71,
+                    "line": 103
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "84732b621a6c1abdc836-c05dac20b0f9ec4863da",
+          "file": "93-pendientes-anteriores.spec.ts",
+          "line": 82,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T17:58:16.583Z",
+    "duration": 606827.754,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

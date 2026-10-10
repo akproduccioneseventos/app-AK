@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/10/2026 - Codex93: cierre de pendientes antiguos, no repetir recientes
+
+- Fuente85215484 ejecutada/contrastada9a054620 sin delta en consumidores aqui.
+  PR1284 fusionada durante pruebas: continuacion en rama93, no rama cerrada.
+- Recordatorio3HTTP->un mensaje manual persistido/un marcador/CERO envios
+  pasa47.9s. Barra invitado->barman->entregado/recarga->stock10a8 pasa1.2min.
+- Touchpix archivo/transporte/URL200/bytes/mural pendiente pasa; NO contenido:
+  ENT93-CAM P1 foto negra; control MISMA senal297200pixeles/original pausado0.
+  Orden145Gemini, no rehacer140fotocabina. No foto=archivo existente.
+- ENT93-MOD nuevoP1: espejo guarda foto pero mural0 si Vision falla; responde
+  success:true/syncStatus:pendiente/sin post y anuncia enviada. Dos reproducciones.
+  Orden144Gemini, Claude revisa moderacion/compila; no retirar filtro ni permisos.
+- No repetir86Bogue/360/itinerario/tareas,88contabilidad/contrato,89color,
+  90album,91recibos,92catering/papel/album/archivo video.139-143 FUERA de tanda.
+- Errores de sonda: permiso/modo/boton incorrectos; cron sin cookie dio HTML;
+  barman alcanzo entregado pero traza/contexto cerraron mal; reintento limpio pasa.
+- Externos/19originales/3Dhistorico/recarga visual video/Hosting/hardware siguen
+  acotados en informe93/matriz84. No14areaslimpias, no app completa ni0errores.
+
 ## 10 de octubre de 2026 — Orden 105, bloque 3: hablar con el asistente en vivo
 
 - **Qué hay ahora:** un botón "Hablar" junto al micrófono del asistente. El dueño habla, el asistente

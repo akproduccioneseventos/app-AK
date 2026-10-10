@@ -1,0 +1,338 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/93-pendientes-corregida.spec.ts",
+      "--project=chromium-desktop",
+      "--output=93-estaciones-final-artifactos",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/93-estaciones-final-artifactos",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/93-estaciones-final-artifactos",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-93/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "93-pendientes-corregida.spec.ts",
+      "file": "93-pendientes-corregida.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "espejo-magico: captura descarga y archivo final sin falsear servidor",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 153269,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 90000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 90000ms exceeded while waiting on the predicate\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-corregida.spec.ts:64:134",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-corregida.spec.ts",
+                      "column": 134,
+                      "line": 64
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 62 |\u001b[39m       \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'foto-descargada.jpg'\u001b[39m\u001b[33m,\u001b[39m{body\u001b[33m:\u001b[39mbytes\u001b[33m,\u001b[39mcontentType\u001b[33m:\u001b[39m\u001b[32m'image/jpeg'\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 63 |\u001b[39m       \u001b[36mif\u001b[39m(station\u001b[33m.\u001b[39mroute\u001b[33m===\u001b[39m\u001b[32m'touchpix'\u001b[39m)\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Publicar al muro'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 64 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(\u001b[36masync\u001b[39m()\u001b[33m=>\u001b[39m(\u001b[36mawait\u001b[39m db\u001b[33m.\u001b[39mcollection(\u001b[32m'social_gallery_posts'\u001b[39m)\u001b[33m.\u001b[39mwhere(\u001b[32m'fiestaId'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'=='\u001b[39m\u001b[33m,\u001b[39mid)\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m())\u001b[33m.\u001b[39msize\u001b[33m,\u001b[39m{timeout\u001b[33m:\u001b[39m\u001b[35m90000\u001b[39m})\u001b[33m.\u001b[39mtoBe(\u001b[35m1\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 65 |\u001b[39m       \u001b[36mconst\u001b[39m posts\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m db\u001b[33m.\u001b[39mcollection(\u001b[32m'social_gallery_posts'\u001b[39m)\u001b[33m.\u001b[39mwhere(\u001b[32m'fiestaId'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'=='\u001b[39m\u001b[33m,\u001b[39mid)\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m()\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m row\u001b[33m=\u001b[39mposts\u001b[33m.\u001b[39mdocs[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39mdata()\u001b[33m;\u001b[39m\n \u001b[90m 66 |\u001b[39m       \u001b[36mconst\u001b[39m url\u001b[33m=\u001b[39mrow\u001b[33m.\u001b[39mmediaUrl\u001b[33m||\u001b[39mrow\u001b[33m.\u001b[39murl\u001b[33m||\u001b[39mrow\u001b[33m.\u001b[39mimageUrl\u001b[33m;\u001b[39mexpect(url)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 67 |\u001b[39m       \u001b[36mconst\u001b[39m parsed\u001b[33m=\u001b[39m\u001b[36mnew\u001b[39m \u001b[33mURL\u001b[39m(url)\u001b[33m;\u001b[39mexpect(parsed\u001b[33m.\u001b[39mhostname)\u001b[33m.\u001b[39mtoBe(\u001b[32m'127.0.0.1'\u001b[39m)\u001b[33m;\u001b[39mexpect(parsed\u001b[33m.\u001b[39mport)\u001b[33m.\u001b[39mtoBe(\u001b[32m'9195'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-corregida.spec.ts",
+                        "column": 134,
+                        "line": 64
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 90000ms exceeded while waiting on the predicate\n\n  62 |       await info.attach('foto-descargada.jpg',{body:bytes,contentType:'image/jpeg'});\n  63 |       if(station.route==='touchpix')await page.getByRole('button',{name:'Publicar al muro',exact:true}).click();\n> 64 |       await expect.poll(async()=>(await db.collection('social_gallery_posts').where('fiestaId','==',id).get()).size,{timeout:90000}).toBe(1);\n     |                                                                                                                                      ^\n  65 |       const posts=await db.collection('social_gallery_posts').where('fiestaId','==',id).get();const row=posts.docs[0].data();\n  66 |       const url=row.mediaUrl||row.url||row.imageUrl;expect(url).toBeTruthy();\n  67 |       const parsed=new URL(url);expect(parsed.hostname).toBe('127.0.0.1');expect(parsed.port).toBe('9195');\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-corregida.spec.ts:64:134"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:22:45.778Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "foto-descargada.jpg",
+                      "contentType": "image/jpeg",
+                      "body": "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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkut4d0TreHdFmjbtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNwrRJdbw7onW8O6JQtJuFaJLreHdE63h3RKFpNw8+dXXvWvudXXvWvujtXuavd7USzaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7mr3KFpLwserr3rX3Orr3rX3R2r3NXuULSXhY9XXvWvudXXvWvujtXuavcoWkvCx6uvetfc6uvetfdHavc1e5QtJeFj1de9a+51de9a+6O1e5q9yhaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7mr3KFpLwserr3rX3Orr3rX3R2r3NXuULSXhY9XXvWvudXXvWvujtXuavcoWkvCx6uvetfc6uvetfdHavc1e5QtJeFj1de9a+51de9a+6O1e5q9yhaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7mr3KFpLwserr3rX3Orr3rX3R2r3NXuULSXhY9XXvWvudXXvWvujtXuavcoWkvCx6uvetfc6uvetfdHavc1e5QtJeFj1de9a+51de9a+6O1e5q9yhaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7mr3KFpLwserr3rX3Orr3rX3R2r3NXuULSXhY9XXvWvudXXvWvujtXuavcoWkvCx6uvetfc6uvetfdHavc1e5QtJeFj1de9a+51de9a+6O1e5q9yhaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7mr3KFpLwse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ujtXuavcoWkvCx6uvetfc6uvetfdHavc1e5QtJeFj1de9a+51de9a+6O1e5q9yhaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7mr3KFpLwserr3rX3Orr3rX3R2r3NXuULSXhY9XXvWvudXXvWvujtXuavcoWkvCx6uvetfc6uvetfdHavc1e5QtJeFj1de9a+51de9a+6O1e5q9yhaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7mr3KFpLwserr3rX3Orr3rX3R2r3NXuULSXhY9XXvWvudXXvWvujtXuavcoWkvCx6uvetfc6uvetfdHavc1e5QtJeFj1de9a+51de9a+6O1e5q9yhaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7mr3KFpLwserr3rX3Orr3rX3R2r3NXuULSXhY9XXvWvudXXvWvujtXuavcoWkvCx6uvetfc6uvetfdHavc1e5QtJeFj1de9a+51de9a+6O1e5q9yhaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7mr3KFpLwserr3rX3Orr3rX3R2r3NXuULSXhY9XXvWvudXXvWvujtXuavcoWkvCx6uvetfc6uvetfdHavc1e5QtJeFj1de9a+51de9a+6O1e5q9yhaS8LHq69619zq696190dq9zV7lC0l4WPV171r7nV171r7o7V7v7qtyhaS8MXV7mr3Y2q3NVuy7202dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bTZ1e5q92NqtzVbhtNnV7mr3Y2q3NVuG02dXuavdjarc1W4bT7Hxdn/wA05F8CUjhMJgbeFzvN8NCGEteXz+XC5XWVycq1rKc5SlKVayrXw8aRj5YRhCP2DNLNvjXmDxXkOfzu5jw1kXMzA5bYwt+9P4OVZRSWZ1xVuzWlaabDxsYaEp+SsYxhh41r4Ut0rTyJPOsVcwFnAzxV6WCs3Z3rWGlcrW3buTpCk5xj4+FJSpbt0rWn11pCPj/KjWxnMnijMcNl+HxfEmb4nD5dhrmCwVq9jrs44Wxct/CuWrdKy8IQlbpSFYx8KVj9VaeH1MvaGmnzg+qZjx3jeMeSfGGLzG1hK4+7xZluNxeNs2IwvYzEX7OazuXLkqf/AMxpCPltxpHxjGkpzlOszfEZnneWcT8JYXV5hl2F4K4dxuVZFZ81yzZx1+WT0ndsWKeNI3rksVfpWUKeaVb9zxrXzy8fNMM6xVvAXsDDFXo4K9dheu4aNytLc7kKTpCco+PhWUaXLlKVr9dKTl4fzq1rHMnijC5VlmWWeJM3tZbleJpjcBg4Y67SzhL9JSlS7ahSXhCdJTlWko0pXxlWvj9dRiGnL0BDmHjcq5tcXYrBZz5eWeQ5lO3etYS7HSZtg8PCtnL8tu3I/XioXrWGhZjSfxfCEr96sZR+PKvBwxm+Js8O8H8P28TdhkOZ8C8QZnjsrjcrTC4vF2vm9bWIu2v/AIzuw02H8s5UrKPwLXhWnkj4fDuGebPGPBWAuYHh7i3PMhwVy7W9PDZZmV7D25XK0pSs6xhKlKyrSMaeP8/ClPR0MNxzn2D4bxXD2HzvMbGQYu7S9iMqt4u5HC3rlPLWk52qV8spfwQ+utPH+CPpQZ5X1OvGub2uT+Ow/EGYXcRgMwt4fBcPZHdr5LFmNu9SV7MbNqn8MKxrYlh63PLGt6WKxFfPKVu9Stp9I7H2cy62w+AzPNr2W8K8W0ym3gczlbuYexG7rawtYG3Sla4OzZjha2q24zlG9SlqdY2vhxhT4PjebPGOZcNx4exnFueYrII2rdmOVX8yvTwtLdvwrbhS1WXl8sfLHwp4eFPLTw/k6Gc8c59xHgMswObZ3mOaYLLLXwcDhsbi7l63hLfhGnktRlWtIR8IQp4R8KeEY+lBjl+FH61e5q92NqtzVbsPLabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuarcNps6vc1e7G1W5qtw2mzq9zV7sbVbmq3DabOr3NXuxtVuardk2n/2Q=="
+                    },
+                    {
+                      "name": "pantalla-final.txt",
+                      "contentType": "text/plain",
+                      "body": "Rk9UTyBMSU1QSUEKCkVTUEVKTyBNw4FHSUNPIEZPVE8KCkZpZXN0YSBkZSBlc3RhIG5vY2hlCgrinKggwqFUT0PDgSBMQSBQQU5UQUxMQSEKCkFDRVJDQVRFIFkgQ09NRU5aw4EgTEEgTUFHSUEKClRPQ0FSIFBBUkEgRk9UTwoKUHJlcGFyYSBsYSBwb3NlLCBjYXB0dXJhIGxhIGZvdG8geSByZXZpc2FsYSBhbnRlcyBkZSBndWFyZGFybGEgbyBjb21wYXJ0aXJsYS4KCjEgUFJFUEFSQQoyIENBUFRVUkEKMyBSRVZJU0EKClRhbWJpw6luIHB1ZWRlIGRpc3BhcmFybG8gZWwgb3BlcmFkb3IgZGUgY2FiaW5hLgoKU2luIGZpbHRybwpHbGFtb3VyClZpbnRhZ2UKTmVvbgpCJlcKClR1cyBkYXRvcyBxdWVkYW4gc8OzbG8gcGFyYSBlc3RhIGZpZXN0YSAoTGV5IDE4LjMzMSkuIFByaXZhY2lkYWQ="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-es-01c24--final-sin-falsear-servidor-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-es-01c24--final-sin-falsear-servidor-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-es-01c24--final-sin-falsear-servidor-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-es-01c24--final-sin-falsear-servidor-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-es-01c24--final-sin-falsear-servidor-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-corregida.spec.ts",
+                    "column": 134,
+                    "line": 64
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d57ed8f36dbab84e3117-3f97f02d437069f43b9a",
+          "file": "93-pendientes-corregida.spec.ts",
+          "line": 38,
+          "column": 7
+        },
+        {
+          "title": "touchpix: captura descarga y archivo final sin falsear servidor",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 32778,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:25:27.489Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "foto-descargada.jpg",
+                      "contentType": "image/jpeg",
+                      "body": "/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAHgAoADASIAAhEBAxEB/8QAHAABAAIDAQEBAAAAAAAAAAAAAAYHBAUIAwkC/8QANhABAAEEAgICAQMCBAUDBQAAAAIBAwQFBgcREggTFBUhIhYjCRcxMhg0QVFSGSczQlVWYoH/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAgEDBP/EACkRAQEAAQICCQUBAAAAAAAAAAABAgMRITESExQyUWGRobEEQnGB0fD/2gAMAwEAAhEDEQA/APlUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA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"
+                    },
+                    {
+                      "name": "archivo-final.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJyb3ciOiB7CiAgICAiaWQiOiAicG9zdF8xNzkxNjY3NTQ3NjcxX2d0YXlkaWMiLAogICAgImZpZXN0YUlkIjogImUyZV85M190b3VjaHBpeF8xNjc2NF8xNzkxNjY3NTI4MDY4IiwKICAgICJpbWFnZVVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjkxOTUvdjAvYi9kZW1vLWFrLXByb2R1Y2Npb25lcy5hcHBzcG90LmNvbS9vL3NvY2lhbC1nYWxsZXJ5JTJGZTJlXzkzX3RvdWNocGl4XzE2NzY0XzE3OTE2Njc1MjgwNjglMkZwb3N0XzE3OTE2Njc1NDc2NzFfZ3RheWRpYy5qcGc/YWx0PW1lZGlhIiwKICAgICJtZWRpYVR5cGUiOiAiaW1hZ2UiLAogICAgIm1vZGVyYXRpb25TdGF0dXMiOiAicGVuZGluZyIsCiAgICAidGltZXN0YW1wIjogIjIwMjYtMTAtMTBUMjE6MjU6NDkuMjIzWiIsCiAgICAiYXV0aG9yTmFtZSI6ICJDYWJpbmEgVG91Y2hwaXgiLAogICAgImxpa2VzIjogMCwKICAgICJjb21tZW50cyI6IFtdLAogICAgInNvdXJjZSI6ICJlbnRlcnRhaW5tZW50IiwKICAgICJzb3VyY2VNb2R1bGUiOiAiZXNwZWpvTWFnaWNvSUEiLAogICAgImRlZGljYXRpb24iOiAi8J+TuCBUb3VjaHBpeCBBSSIsCiAgICAibW9tZW50VGFnIjogInRvdWNocGl4IiwKICAgICJpbWFnZUhhc2giOiAiZjAxYmJjZTMyZGZjNzJjNDhiOGE1MTNkZTRjNDMwZDkwNjIwNmMyNWY4NDZkODgzOGE4NjRiMGYyMGEwODg4YyIKICB9LAogICJkb3dubG9hZEJ5dGVzIjogNjcyOSwKICAiZmluYWxCeXRlcyI6IDY3MjksCiAgImh0dHAiOiAyMDAsCiAgInNoYTI1NiI6ICJmMDFiYmNlMzJkZmM3MmM0OGI4YTUxM2RlNGM0MzBkOTA2MjA2YzI1Zjg0NmQ4ODM4YTg2NGIwZjIwYTA4ODhjIiwKICAiZXJyb3JzIjogW10KfQ=="
+                    },
+                    {
+                      "name": "pantalla-final.txt",
+                      "contentType": "text/plain",
+                      "body": "VmFsaWRhbmRvIGVsIGV2ZW50bwoKRXN0YW1vcyBjb21wcm9iYW5kbyBsYSBjb25maWd1cmFjaW9uIGRlIGVzdGEgZmllc3RhLg=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d57ed8f36dbab84e3117-423db05fa89ae70d44a2",
+          "file": "93-pendientes-corregida.spec.ts",
+          "line": 38,
+          "column": 7
+        },
+        {
+          "title": "barra: invitado pide barman entrega y el stock baja una sola vez",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 265683,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 240000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-corregida.spec.ts",
+                        "column": 19,
+                        "line": 115
+                      },
+                      "message": "Error: apiRequestContext._wrapApiCall: file data stream has unexpected number of bytes\n\n  113 |   }finally{\n  114 |     await info.attach('barra-final.txt',{body:await page.locator('body').innerText().catch(()=>''),contentType:'text/plain'});\n> 115 |     await equipo?.close();await supply.delete();await cleanup(id);\n      |                   ^\n  116 |   }\n  117 | });\n  118 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\tests\\e2e\\93-pendientes-corregida.spec.ts:115:19"
+                    },
+                    {
+                      "message": "Error: End of central directory record signature not found. Either not a zip file, or file is truncated."
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T21:26:00.559Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "pedido-entregado.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJvcmRlciI6IHsKICAgICJpZCI6ICJiYXJfYTY1NmY1YjMtNTRiMi00N2RkLWI1YzgtYjRjMTc5NjYxNjc4IiwKICAgICJmaWVzdGFJZCI6ICJlMmVfYmFycmE5M18xNjc2NF8xNzkxNjY3NTYwNzYxIiwKICAgICJkcmlua0lkIjogImN1c3RvbV9lMmVfYmFycmE5M18xNjc2NF8xNzkxNjY3NTYwNzYxIiwKICAgICJkcmlua05hbWUiOiAiVHJhZ28gUUE5MyIsCiAgICAiZ3Vlc3ROYW1lIjogIkx1Y8OtYSBGZXJuw6FuZGV6IiwKICAgICJndWVzdElkIjogImludl9wcnVlYmFfMCIsCiAgICAidGFibGVOdW1iZXIiOiAiMSIsCiAgICAibm90ZSI6ICIiLAogICAgImNyZWF0ZWRBdCI6ICIyMDI2LTEwLTEwVDIxOjI2OjI4Ljg0M1oiLAogICAgInNvdXJjZSI6ICJ0b3VjaHNjcmVlbiIsCiAgICAic3RvY2tNb3ZlbWVudHMiOiBbCiAgICAgIHsKICAgICAgICAiaW5zdW1vSWQiOiAiaW5zX2UyZV9iYXJyYTkzXzE2NzY0XzE3OTE2Njc1NjA3NjEiLAogICAgICAgICJjYW50aWRhZCI6IDIKICAgICAgfQogICAgXSwKICAgICJzdGF0dXMiOiAiZW50cmVnYWRvIiwKICAgICJ1cGRhdGVkQXQiOiAiMjAyNi0xMC0xMFQyMToyOToyOC4xMjFaIgogIH0sCiAgInN0b2NrIjogewogICAgImlkIjogImluc19lMmVfYmFycmE5M18xNjc2NF8xNzkxNjY3NTYwNzYxIiwKICAgICJub21icmUiOiAiSW5zdW1vIFFBOTMiLAogICAgInVuaWRhZCI6ICJVZHMuIiwKICAgICJ2YWxvclVuaXRhcmlvRXN0aW1hZG8iOiAwLAogICAgImNhbnRpZGFkRGlzcG9uaWJsZSI6IDgKICB9Cn0="
+                    },
+                    {
+                      "name": "barra-final.txt",
+                      "contentType": "text/plain",
+                      "body": "UE9SVEFMIERFTCBJTlZJVEFETyAvLyBBQ0NFU08gRVhDTFVTSVZPCkZpZXN0YSBkZSBlc3RhIG5vY2hlCgpIb2xhLCBMdWPDrWEgRmVybsOhbmRlegoKQmllbnZlbmlkbyBhIGxhIGV4cGVyaWVuY2lhIGRlbW8gQUsuCgpTw6FiYWRvLCAxMCBEZSBPY3R1YnJlIERlIDIwMjYgLSAyMTowMCBIcwpDbHViIFVydWd1YXkKRWwgZXZlbnRvIGVzIGhveQpIdWIgZGVsIGV2ZW50bwpDw7NtbyBsbGVnYXIKVmVyIGludml0YWNpw7NuCgpBQ0NFU09TCgpUb2RvIHR1IGV2ZW50bwo4IGRpc3BvbmlibGVzClJlZCBzb2NpYWwKR2FsZXLDrWEKUGVkaXIgY2FuY2nDs24KQ2FydGEgZGUgdHJhZ29zCkp1ZWdvcwpCdXrDs24gZGUgc2FsdWRvcwrCv0TDs25kZSBtZSBzaWVudG8/CkJ1esOzbiBkZSByZWN1ZXJkb3MKCk1JIENSRURFTkNJQUwgVklQCgpMdWPDrWEgRmVybsOhbmRlegpBc2lzdGVuY2lhIGNvbmZpcm1hZGEKCk1FU0EgQVNJR05BREEKCk1lc2EgMQoKQ1JFREVOQ0lBTCBERSBFTlRSQURBCgpQcmVzZW50w6EgZXN0ZSBjw7NkaWdvIFFSIGFsIGluZ3Jlc2FyCgpUdSBwYXNlIGVzIHBlcnNvbmFsLgoKR3VhcmRhciBRUgoKREFUT1MgREVMIEVWRU5UTwoKQ2x1YiBVcnVndWF5CgpVcnVndWF5IDU4MCwgU2FsdG8KClPDoWJhZG8sIDEwIERlIE9jdHVicmUgRGUgMjAyNiAtIDIxOjAwIEhzCgpWZXIgZW4gR29vZ2xlIE1hcHMKCkdBU1RST05PTcONQQoKTWVuw7ogc2VsZWNjaW9uYWRvClJlY3VlcmRvcyBlbiB2aXZvCgpGb3RvcyBhcHJvYmFkYXMgZGUgZXN0YSBmaWVzdGEuCgrDgWxidW0gb2ZpY2lhbApNdXJvIHNvY2lhbApHYWxlcsOtYQoKUFJPR1JBTUEKCjIyOjAwCgpDb21pZW56bwoKMjI6MTUKClNlcnZpY2lvIGRlIEVudHJhZGEgMQoKMjI6MzAKCkVudHJhZGEgZGUgbGEgUXVpbmNlYcOxZXJhIHkgVmFscwoKMjI6NDUKClNlcnZpY2lvIGRlIEVudHJhZGEgMgoKMDA6MDAKCsKhQSBCYWlsYXIhCgowMTowMAoKQ2VuYSAvIENpZXJyZSBkZSBCYXJyYQoKMDE6NDUKClZpZGVvIGRlIFZpZGEKCjAyOjAwCgpSZWFwZXJ0dXJhIGRlIEJhcnJhIHkgQmFpbGUKCjAyOjMwCgpQbGF0YWZvcm1hIDM2MCAvIEZvdG9jYWJpbmEKCjAzOjAwCgpDb3RpbGzDs24KCjAzOjQ1CgpGdWVudGUgZGUgQ2hvY29sYXRlCgowNDowMAoKQXBhZ2FkbyBkZSBWZWxhcyB5IFRvcnRhCgowNTowMAoKRmluYWwgZGUgbGEgRmllc3RhCgpVTkEgRVhQRVJJRU5DSUEgREUKCkFLIFBST0RVQ0NJT05FUwoKRXN0YSBleHBlcmllbmNpYSBmdWUgY3JlYWRhIHBvciBBSyBQcm9kdWNjaW9uZXMgRXZlbnRvcy4gT3JnYW5pemFtb3MgZmllc3RhcyBjb21wbGV0YXMgZSBpbm9sdmlkYWJsZXMgZW4gU2FsdG8sIFVydWd1YXkuCgpJbnN0YWdyYW0KRmFjZWJvb2sKVGlrVG9rCldoYXRzQXBwClF1aWVybyBvcmdhbml6YXIgbWkgZXZlbnRvCgpFc3RhbW9zIHByZXBhcmFuZG8gZWwgcXVpb3NjbyBkZSB0cmFnb3MuCgrCv1RlbsOpcyB1bmEgZHVkYT8="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-ba-0056a--el-stock-baja-una-sola-vez-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-ba-0056a--el-stock-baja-una-sola-vez-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-ba-0056a--el-stock-baja-una-sola-vez-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-ba-0056a--el-stock-baja-una-sola-vez-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\93-estaciones-final-artifactos\\93-pendientes-corregida-ba-0056a--el-stock-baja-una-sola-vez-chromium-desktop\\error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d57ed8f36dbab84e3117-faa1a13fd8d911a348b0",
+          "file": "93-pendientes-corregida.spec.ts",
+          "line": 81,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T21:22:42.954Z",
+    "duration": 473726.282,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

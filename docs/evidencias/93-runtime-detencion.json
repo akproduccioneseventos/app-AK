@@ -1,0 +1,45 @@
+{
+    "checkedAt":  "2026-10-10T21:40:11.7693090Z",
+    "verifiedBefore":  [
+                           {
+                               "ProcessId":  19648,
+                               "ParentProcessId":  20428,
+                               "CreationDate":  "\/Date(1791655069033)\/",
+                               "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" docs/evidencias/93-runtime-aislado.mjs C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93"
+                           },
+                           {
+                               "ProcessId":  19988,
+                               "ParentProcessId":  19648,
+                               "CreationDate":  "\/Date(1791655069372)\/",
+                               "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/firebase-tools/lib/bin/firebase.js emulators:start --config firebase.entorno.json --only firestore,storage --project demo-ak-producciones"
+                           },
+                           {
+                               "ProcessId":  760,
+                               "ParentProcessId":  19988,
+                               "CreationDate":  "\/Date(1791655078223)\/",
+                               "CommandLine":  "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar --host 127.0.0.1 --port 8085 --websocket_port 9150 --project_id demo-ak-producciones --rules C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-93\\firestore.rules --single_project_mode true"
+                           },
+                           {
+                               "ProcessId":  19952,
+                               "ParentProcessId":  19988,
+                               "CreationDate":  "\/Date(1791655082550)\/",
+                               "CommandLine":  "java -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-storage-rules-runtime-v1.1.3.jar serve"
+                           },
+                           {
+                               "ProcessId":  19104,
+                               "ParentProcessId":  19648,
+                               "CreationDate":  "\/Date(1791655084698)\/",
+                               "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next dev --hostname 127.0.0.1 --port 3300"
+                           },
+                           {
+                               "ProcessId":  18812,
+                               "ParentProcessId":  19104,
+                               "CreationDate":  "\/Date(1791655088028)\/",
+                               "CommandLine":  "\"C:\\Program Files\\nodejs\\node.exe\" C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-source-20260922\\node_modules\\next\\dist\\server\\lib\\start-server.js"
+                           }
+                       ],
+    "remaining":  [
+
+                  ],
+    "otherProcessesStopped":  false
+}

@@ -1,0 +1,29 @@
+{
+  "order": {
+    "id": "bar_a656f5b3-54b2-47dd-b5c8-b4c179661678",
+    "fiestaId": "e2e_barra93_16764_1791667560761",
+    "drinkId": "custom_e2e_barra93_16764_1791667560761",
+    "drinkName": "Trago QA93",
+    "guestName": "Lucía Fernández",
+    "guestId": "inv_prueba_0",
+    "tableNumber": "1",
+    "note": "",
+    "createdAt": "2026-10-10T21:26:28.843Z",
+    "source": "touchscreen",
+    "stockMovements": [
+      {
+        "insumoId": "ins_e2e_barra93_16764_1791667560761",
+        "cantidad": 2
+      }
+    ],
+    "status": "entregado",
+    "updatedAt": "2026-10-10T21:29:28.121Z"
+  },
+  "stock": {
+    "id": "ins_e2e_barra93_16764_1791667560761",
+    "nombre": "Insumo QA93",
+    "unidad": "Uds.",
+    "valorUnitarioEstimado": 0,
+    "cantidadDisponible": 8
+  }
+}
