@@ -1,0 +1,279 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/92-catering-recibos.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "92-catering-recibos.spec.ts",
+      "file": "92-catering-recibos.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "catering contratado llega a cocina compras y pago persistido",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 125870,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"menu_e2e_catering92_7136_1791649976138\"\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"menu_e2e_catering92_7136_1791649976138\"\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts:41:78",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts",
+                      "column": 78,
+                      "line": 41
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 39 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#menu-select'\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m60000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#menu-select'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'option'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39mmenu\u001b[33m.\u001b[39mname\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 41 |\u001b[39m     \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(\u001b[36masync\u001b[39m()\u001b[33m=>\u001b[39m(\u001b[36mawait\u001b[39m refs[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m())\u001b[33m.\u001b[39mdata()\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mmenuAsignadoId)\u001b[33m.\u001b[39mtoBe(menuId)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                              \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 42 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mreload({waitUntil\u001b[33m:\u001b[39m\u001b[32m'domcontentloaded'\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(\u001b[32m'#menu-select'\u001b[39m))\u001b[33m.\u001b[39mtoContainText(menu\u001b[33m.\u001b[39mname)\u001b[33m;\u001b[39m\n \u001b[90m 43 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'link'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Hoja de cocina'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m})\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 44 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'heading'\u001b[39m\u001b[33m,\u001b[39m{name\u001b[33m:\u001b[39m\u001b[32m'Catering integrado A92'\u001b[39m\u001b[33m,\u001b[39mexact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m60000\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts",
+                        "column": 78,
+                        "line": 41
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"menu_e2e_catering92_7136_1791649976138\"\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate\n\n  39 |     await expect(page.locator('#menu-select')).toBeVisible({timeout:60000});\n  40 |     await page.locator('#menu-select').click();await page.getByRole('option',{name:menu.name,exact:true}).click();\n> 41 |     await expect.poll(async()=>(await refs[0].get()).data()?.menuAsignadoId).toBe(menuId);\n     |                                                                              ^\n  42 |     await page.reload({waitUntil:'domcontentloaded'});await expect(page.locator('#menu-select')).toContainText(menu.name);\n  43 |     await page.getByRole('link',{name:'Hoja de cocina',exact:true}).click();\n  44 |     await expect(page.getByRole('heading',{name:'Catering integrado A92',exact:true})).toBeVisible({timeout:60000});\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts:41:78"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T16:32:53.648Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-cateri-085b7-a-compras-y-pago-persistido-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-cateri-085b7-a-compras-y-pago-persistido-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-cateri-085b7-a-compras-y-pago-persistido-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-cateri-085b7-a-compras-y-pago-persistido-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-cateri-085b7-a-compras-y-pago-persistido-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts",
+                    "column": 78,
+                    "line": 41
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3e5249eaea55c9eb1afa-7cc2e62a14a82b07fdcc",
+          "file": "92-catering-recibos.spec.ts",
+          "line": 13,
+          "column": 5
+        },
+        {
+          "title": "impresion conjunta conserva tres recibos y filtro por empleado",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 22728,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('section.receipt-page')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('section.receipt-page')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('section.receipt-page')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('section.receipt-page')\u001b[22m\n\n    at capture (C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts:102:61)\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts:112:5",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts",
+                      "column": 61,
+                      "line": 102
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 100 |\u001b[39m       \u001b[36mconst\u001b[39m popupPromise\u001b[33m=\u001b[39mpage\u001b[33m.\u001b[39mwaitForEvent(\u001b[32m'popup'\u001b[39m)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m btn\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\u001b[36mconst\u001b[39m popup\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m popupPromise\u001b[33m;\u001b[39m\n \u001b[90m 101 |\u001b[39m       \u001b[36mtry\u001b[39m{\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 102 |\u001b[39m         \u001b[36mawait\u001b[39m expect(popup\u001b[33m.\u001b[39mlocator(\u001b[32m'section.receipt-page'\u001b[39m))\u001b[33m.\u001b[39mtoHaveCount(expected\u001b[33m,\u001b[39m{timeout\u001b[33m:\u001b[39m\u001b[35m10000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                             \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 103 |\u001b[39m         \u001b[36mconst\u001b[39m texto\u001b[33m=\u001b[39m\u001b[36mawait\u001b[39m popup\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m)\u001b[33m.\u001b[39minnerText()\u001b[33m;\u001b[39m\n \u001b[90m 104 |\u001b[39m         expect(texto)\u001b[33m.\u001b[39mtoContain(\u001b[32m'Evento uno A92'\u001b[39m)\u001b[33m;\u001b[39mexpect(texto)\u001b[33m.\u001b[39mtoContain(\u001b[32m'Evento dos A92'\u001b[39m)\u001b[33m;\u001b[39mexpect(texto)\u001b[33m.\u001b[39mtoContain(e1\u001b[33m.\u001b[39mnombre)\u001b[33m;\u001b[39m\n \u001b[90m 105 |\u001b[39m         expect(texto)\u001b[33m.\u001b[39mtoContain(\u001b[32m'1.000,00'\u001b[39m)\u001b[33m;\u001b[39mexpect(texto)\u001b[33m.\u001b[39mtoContain(\u001b[32m'2.000,00'\u001b[39m)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts",
+                        "column": 61,
+                        "line": 102
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('section.receipt-page')\nExpected: \u001b[32m3\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for locator('section.receipt-page')\u001b[22m\n\n\n  100 |       const popupPromise=page.waitForEvent('popup');await btn.click();const popup=await popupPromise;\n  101 |       try{\n> 102 |         await expect(popup.locator('section.receipt-page')).toHaveCount(expected,{timeout:10000});\n      |                                                             ^\n  103 |         const texto=await popup.locator('body').innerText();\n  104 |         expect(texto).toContain('Evento uno A92');expect(texto).toContain('Evento dos A92');expect(texto).toContain(e1.nombre);\n  105 |         expect(texto).toContain('1.000,00');expect(texto).toContain('2.000,00');\n    at capture (C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts:102:61)\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts:112:5"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T16:35:06.248Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-impres-dc984-cibos-y-filtro-por-empleado-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-impres-dc984-cibos-y-filtro-por-empleado-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-impres-dc984-cibos-y-filtro-por-empleado-chromium-desktop\\video-1.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-impres-dc984-cibos-y-filtro-por-empleado-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-impres-dc984-cibos-y-filtro-por-empleado-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-catering-recibos-impres-dc984-cibos-y-filtro-por-empleado-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-catering-recibos.spec.ts",
+                    "column": 61,
+                    "line": 102
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3e5249eaea55c9eb1afa-ed66424433c3dd0e8c61",
+          "file": "92-catering-recibos.spec.ts",
+          "line": 84,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T16:32:51.338Z",
+    "duration": 158705.08,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/10/2026 - Codex92: seis huecos, dos fallos reales nuevos
+
+- Main85215484 contrastado y ejecutado despues de fusion1282/1283. Compras,
+  album y papel cambiaron: se retestearon esos consumidores, no toda la app.
+- Catering UI->SDK->cocina20/8/28/especiales3->compras660->pedido/pagado->otra
+  sesion pasa. Pago es estado al proveedor, no dinero bancario. Link de cocina
+  requirio URL directa en QA; no se atribuye a Hosting sin reproducirlo alli.
+- Recibos todas3A4/filtro2A4 y aislamiento del nombre literal pasan; album200
+  medios/bytes y audio, parcial2de3/aviso/Reintentar pasan. No hardware.
+- Video PNG->JPEG deja01.jpg/bytes/HTTP200; recarga visual limitada por emulador,
+  ya limite88, no nuevo defecto publicado. Allowlist imagen local SOLO TEMP.
+- ACC92-REVOCACION P1: QR viejo con lector abierto acepta llegada aun despues
+  de rotar token. PERS92-GEO P1: permiso granted pero cabecera bloquea GPS.
+  Orden143Claude. Coordenadas simuladas prueban radio, no eliminan bloqueo.
+- Errores de sondas descartados: no-op de menu, QR ficticio largo, contador40,
+  selector ambiguo, expresion2de3 y lectura de toast antes de montaje. Raws
+  conservados, no sumarlos como errores de app ni repetir sus intentos.
+- Informe92 y matriz84 separan aprobacion, correccion presente y limites.
+  139-142 ya tienen codigo en main; no volver a encargarlos como pendientes
+  de programar. No aceptacion global, no0errores;143 no corrige por existir.
+
 ## 10 de octubre de 2026 — Recibos del personal (orden 142) y la espera de la fotocabina
 
 - **El desglose del recibo no sumaba el total**: $1.000 con 8,33 % y 8,33 % daba $999,99 (y con

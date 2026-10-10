@@ -1,0 +1,554 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/92-entrada-pendientes.spec.ts",
+      "tests/e2e/92-album-pendientes.spec.ts",
+      "tests/e2e/92-video-vida-final.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "92-album-pendientes.spec.ts",
+      "file": "92-album-pendientes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "album excluye enlace caducado sin falso ZIP exitoso",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 79042,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/3 recuerdos seleccionados/)\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/3 recuerdos seleccionados/)\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/3 recuerdos seleccionados/)\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/3 recuerdos seleccionados/)\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts:60:63",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts",
+                      "column": 63,
+                      "line": 60
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 58 |\u001b[39m     page\u001b[33m.\u001b[39mon(\u001b[32m'response'\u001b[39m\u001b[33m,\u001b[39m response \u001b[33m=>\u001b[39m { \u001b[36mif\u001b[39m (response\u001b[33m.\u001b[39murl()\u001b[33m.\u001b[39mincludes(\u001b[32m'expired-qa92'\u001b[39m)) expiredResponses\u001b[33m.\u001b[39mpush(response\u001b[33m.\u001b[39mstatus())\u001b[33m;\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 59 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`/evento/album/${id}`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 60 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/3 recuerdos seleccionados/\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m45000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                               \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 61 |\u001b[39m     expect((\u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mcookies())\u001b[33m.\u001b[39msome(c \u001b[33m=>\u001b[39m c\u001b[33m.\u001b[39mname \u001b[33m===\u001b[39m \u001b[32m'ak_session'\u001b[39m))\u001b[33m.\u001b[39mtoBe(\u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 62 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByRole(\u001b[32m'button'\u001b[39m\u001b[33m,\u001b[39m { name\u001b[33m:\u001b[39m \u001b[35m/Galer.a Completa/\u001b[39m })\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 63 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'QA92 CADUCADO'\u001b[39m\u001b[33m,\u001b[39m { exact\u001b[33m:\u001b[39m \u001b[36mtrue\u001b[39m }))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts",
+                        "column": 63,
+                        "line": 60
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/3 recuerdos seleccionados/)\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 45000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/3 recuerdos seleccionados/)\u001b[22m\n\n\n  58 |     page.on('response', response => { if (response.url().includes('expired-qa92')) expiredResponses.push(response.status()); });\n  59 |     await page.goto(`/evento/album/${id}`, { waitUntil: 'domcontentloaded' });\n> 60 |     await expect(page.getByText(/3 recuerdos seleccionados/)).toBeVisible({ timeout: 45000 });\n     |                                                               ^\n  61 |     expect((await context.cookies()).some(c => c.name === 'ak_session')).toBe(false);\n  62 |     await page.getByRole('button', { name: /Galer.a Completa/ }).click();\n  63 |     await expect(page.getByText('QA92 CADUCADO', { exact: true })).toBeVisible();\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts:60:63"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T16:43:42.209Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--2cf0c-ucado-sin-falso-ZIP-exitoso-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--2cf0c-ucado-sin-falso-ZIP-exitoso-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--2cf0c-ucado-sin-falso-ZIP-exitoso-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--2cf0c-ucado-sin-falso-ZIP-exitoso-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--2cf0c-ucado-sin-falso-ZIP-exitoso-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts",
+                    "column": 63,
+                    "line": 60
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "55a59a3e872afa761319-44033da81e8a7b764ab9",
+          "file": "92-album-pendientes.spec.ts",
+          "line": 49,
+          "column": 5
+        },
+        {
+          "title": "album limita el recorrido real a 200 medios aprobados",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 73836,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/200 recuerdos seleccionados/)\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/200 recuerdos seleccionados/)\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/200 recuerdos seleccionados/)\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/200 recuerdos seleccionados/)\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts:88:65",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts",
+                      "column": 65,
+                      "line": 88
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 86 |\u001b[39m   \u001b[36mtry\u001b[39m {\n \u001b[90m 87 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m`/evento/album/${id}`\u001b[39m\u001b[33m,\u001b[39m { waitUntil\u001b[33m:\u001b[39m \u001b[32m'domcontentloaded'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 88 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/200 recuerdos seleccionados/\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m60000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                 \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 89 |\u001b[39m     \u001b[36mconst\u001b[39m downloadPromise \u001b[33m=\u001b[39m page\u001b[33m.\u001b[39mwaitForEvent(\u001b[32m'download'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 90 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'boton-descargar-album'\u001b[39m)\u001b[33m.\u001b[39mclick()\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m     \u001b[36mconst\u001b[39m download \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m downloadPromise\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts",
+                        "column": 65,
+                        "line": 88
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/200 recuerdos seleccionados/)\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/200 recuerdos seleccionados/)\u001b[22m\n\n\n  86 |   try {\n  87 |     await page.goto(`/evento/album/${id}`, { waitUntil: 'domcontentloaded' });\n> 88 |     await expect(page.getByText(/200 recuerdos seleccionados/)).toBeVisible({ timeout: 60000 });\n     |                                                                 ^\n  89 |     const downloadPromise = page.waitForEvent('download');\n  90 |     await page.getByTestId('boton-descargar-album').click();\n  91 |     const download = await downloadPromise;\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts:88:65"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T16:45:06.737Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--21ac3-real-a-200-medios-aprobados-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--21ac3-real-a-200-medios-aprobados-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--21ac3-real-a-200-medios-aprobados-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--21ac3-real-a-200-medios-aprobados-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-album-pendientes-album--21ac3-real-a-200-medios-aprobados-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-album-pendientes.spec.ts",
+                    "column": 65,
+                    "line": 88
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "55a59a3e872afa761319-ef2dcbddf4dc38f0a5b3",
+          "file": "92-album-pendientes.spec.ts",
+          "line": 82,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "92-entrada-pendientes.spec.ts",
+      "file": "92-entrada-pendientes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "QR reentrada con lector real y pagina abierta",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 95952,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/ACCESO PERMITIDO/)\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/ACCESO PERMITIDO/)\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/ACCESO PERMITIDO/)\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/ACCESO PERMITIDO/)\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts:36:85",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts",
+                      "column": 85,
+                      "line": 36
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 34 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mreload({waitUntil\u001b[33m:\u001b[39m\u001b[32m'domcontentloaded'\u001b[39m})\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[32m'guest-portal-qr'\u001b[39m))\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 35 |\u001b[39m     }\u001b[36melse\u001b[39m{\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 36 |\u001b[39m       \u001b[36mawait\u001b[39m input\u001b[33m.\u001b[39msetInputFiles(png)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m expect(op\u001b[33m.\u001b[39mgetByText(\u001b[35m/ACCESO PERMITIDO/\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m30000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 37 |\u001b[39m       \u001b[36mconst\u001b[39m first\u001b[33m=\u001b[39m(\u001b[36mawait\u001b[39m ref\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m())\u001b[33m.\u001b[39mdata()\u001b[33m;\u001b[39mexpect(first\u001b[33m.\u001b[39minvitados[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39mcheckedIn)\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39mexpect(first\u001b[33m.\u001b[39minvitados[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39mcheckInTimestamp)\u001b[33m.\u001b[39mtoBeTruthy()\u001b[33m;\u001b[39m\n \u001b[90m 38 |\u001b[39m       \u001b[36mawait\u001b[39m expect(op\u001b[33m.\u001b[39mgetByText(\u001b[35m/ACCESO PERMITIDO/\u001b[39m))\u001b[33m.\u001b[39mtoBeHidden({timeout\u001b[33m:\u001b[39m\u001b[35m15000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m       \u001b[36mawait\u001b[39m input\u001b[33m.\u001b[39msetInputFiles([])\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m input\u001b[33m.\u001b[39msetInputFiles(png)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts",
+                        "column": 85,
+                        "line": 36
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/ACCESO PERMITIDO/)\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/ACCESO PERMITIDO/)\u001b[22m\n\n\n  34 |       await page.reload({waitUntil:'domcontentloaded'});await expect(page.getByTestId('guest-portal-qr')).toHaveCount(0);\n  35 |     }else{\n> 36 |       await input.setInputFiles(png);await expect(op.getByText(/ACCESO PERMITIDO/)).toBeVisible({timeout:30000});\n     |                                                                                     ^\n  37 |       const first=(await ref.get()).data();expect(first.invitados[0].checkedIn).toBe(true);expect(first.invitados[0].checkInTimestamp).toBeTruthy();\n  38 |       await expect(op.getByText(/ACCESO PERMITIDO/)).toBeHidden({timeout:15000});\n  39 |       await input.setInputFiles([]);await input.setInputFiles(png);\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts:36:85"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T16:46:26.108Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-c690b-ector-real-y-pagina-abierta-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-c690b-ector-real-y-pagina-abierta-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-c690b-ector-real-y-pagina-abierta-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-c690b-ector-real-y-pagina-abierta-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-c690b-ector-real-y-pagina-abierta-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-c690b-ector-real-y-pagina-abierta-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts",
+                    "column": 85,
+                    "line": 36
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "b30225d9bb5b1055867a-040c6514865dca59c6b6",
+          "file": "92-entrada-pendientes.spec.ts",
+          "line": 10,
+          "column": 48
+        },
+        {
+          "title": "QR revocada con lector real y pagina abierta",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 91013,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts:29:105",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts",
+                      "column": 105,
+                      "line": 29
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 27 |\u001b[39m       fiesta\u001b[33m.\u001b[39minvitados[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39mguestAccessToken\u001b[33m=\u001b[39m\u001b[32m'nuevo_'\u001b[39m\u001b[33m+\u001b[39mtoken\u001b[33m;\u001b[39mguardarFiesta(fiesta)\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m ref\u001b[33m.\u001b[39mupdate({invitados\u001b[33m:\u001b[39mfiesta\u001b[33m.\u001b[39minvitados})\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m       \u001b[36mconst\u001b[39m antes\u001b[33m=\u001b[39m(\u001b[36mawait\u001b[39m ref\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m())\u001b[33m.\u001b[39mdata()\u001b[33m;\u001b[39m\u001b[36mawait\u001b[39m input\u001b[33m.\u001b[39msetInputFiles(png)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 29 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(\u001b[36masync\u001b[39m()\u001b[33m=>\u001b[39m\u001b[36mawait\u001b[39m op\u001b[33m.\u001b[39mgetByText(\u001b[35m/ACCESO PERMITIDO|ACCESO DENEGADO|QR INV/\u001b[39m)\u001b[33m.\u001b[39mcount())\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                                         \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 30 |\u001b[39m       \u001b[36mconst\u001b[39m despues\u001b[33m=\u001b[39m(\u001b[36mawait\u001b[39m ref\u001b[33m.\u001b[39m\u001b[36mget\u001b[39m())\u001b[33m.\u001b[39mdata()\u001b[33m;\u001b[39m\n \u001b[90m 31 |\u001b[39m       \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'qr-revocado.json'\u001b[39m\u001b[33m,\u001b[39m{body\u001b[33m:\u001b[39m\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify({antes\u001b[33m,\u001b[39mdespues\u001b[33m,\u001b[39mlector\u001b[33m:\u001b[39m\u001b[36mawait\u001b[39m op\u001b[33m.\u001b[39mlocator(\u001b[32m'body'\u001b[39m)\u001b[33m.\u001b[39minnerText()}\u001b[33m,\u001b[39m\u001b[36mnull\u001b[39m\u001b[33m,\u001b[39m\u001b[35m2\u001b[39m)\u001b[33m,\u001b[39mcontentType\u001b[33m:\u001b[39m\u001b[32m'application/json'\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 32 |\u001b[39m       \u001b[36mawait\u001b[39m op\u001b[33m.\u001b[39mscreenshot({path\u001b[33m:\u001b[39minfo\u001b[33m.\u001b[39moutputPath(\u001b[32m'qr-revocado-lector.png'\u001b[39m)})\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts",
+                        "column": 105,
+                        "line": 29
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m0\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 45000ms exceeded while waiting on the predicate\n\n  27 |       fiesta.invitados[0].guestAccessToken='nuevo_'+token;guardarFiesta(fiesta);await ref.update({invitados:fiesta.invitados});\n  28 |       const antes=(await ref.get()).data();await input.setInputFiles(png);\n> 29 |       await expect.poll(async()=>await op.getByText(/ACCESO PERMITIDO|ACCESO DENEGADO|QR INV/).count()).toBeGreaterThan(0);\n     |                                                                                                         ^\n  30 |       const despues=(await ref.get()).data();\n  31 |       await info.attach('qr-revocado.json',{body:JSON.stringify({antes,despues,lector:await op.locator('body').innerText()},null,2),contentType:'application/json'});\n  32 |       await op.screenshot({path:info.outputPath('qr-revocado-lector.png')});\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts:29:105"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T16:48:06.573Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-1aeb8-ector-real-y-pagina-abierta-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-1aeb8-ector-real-y-pagina-abierta-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-1aeb8-ector-real-y-pagina-abierta-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-1aeb8-ector-real-y-pagina-abierta-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-1aeb8-ector-real-y-pagina-abierta-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-entrada-pendientes-QR-r-1aeb8-ector-real-y-pagina-abierta-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-entrada-pendientes.spec.ts",
+                    "column": 105,
+                    "line": 29
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "b30225d9bb5b1055867a-228fea39ea143bdce2dc",
+          "file": "92-entrada-pendientes.spec.ts",
+          "line": 10,
+          "column": 48
+        }
+      ]
+    },
+    {
+      "title": "92-video-vida-final.spec.ts",
+      "file": "92-video-vida-final.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "video vida reemplaza hasta el archivo final y deja un solo slot",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 56011,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Foto Subida/)\nExpected: visible\nError: strict mode violation: getByText(/Foto Subida/) resolved to 2 elements:\n    1) <div class=\"text-sm font-semibold break-words\">¡Foto Subida!</div> aka getByText('¡Foto Subida!', { exact: true })\n    2) <span role=\"status\" aria-live=\"assertive\">Notification ¡Foto Subida!La foto 1 se ha guardad…</span> aka getByText('Notification ¡Foto Subida!La')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Foto Subida/)\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Foto Subida/)\nExpected: visible\nError: strict mode violation: getByText(/Foto Subida/) resolved to 2 elements:\n    1) <div class=\"text-sm font-semibold break-words\">¡Foto Subida!</div> aka getByText('¡Foto Subida!', { exact: true })\n    2) <span role=\"status\" aria-live=\"assertive\">Notification ¡Foto Subida!La foto 1 se ha guardad…</span> aka getByText('Notification ¡Foto Subida!La')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Foto Subida/)\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-video-vida-final.spec.ts:31:51",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-video-vida-final.spec.ts",
+                      "column": 51,
+                      "line": 31
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 29 |\u001b[39m       \u001b[36mconst\u001b[39m encoded \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mevaluate(({ mime\u001b[33m,\u001b[39m color }) \u001b[33m=>\u001b[39m { \u001b[36mconst\u001b[39m c \u001b[33m=\u001b[39m document\u001b[33m.\u001b[39mcreateElement(\u001b[32m'canvas'\u001b[39m)\u001b[33m;\u001b[39m c\u001b[33m.\u001b[39mwidth \u001b[33m=\u001b[39m \u001b[35m100\u001b[39m\u001b[33m;\u001b[39m c\u001b[33m.\u001b[39mheight \u001b[33m=\u001b[39m \u001b[35m100\u001b[39m\u001b[33m;\u001b[39m \u001b[36mconst\u001b[39m x \u001b[33m=\u001b[39m c\u001b[33m.\u001b[39mgetContext(\u001b[32m'2d'\u001b[39m)\u001b[33m;\u001b[39m x\u001b[33m.\u001b[39mfillStyle \u001b[33m=\u001b[39m color\u001b[33m;\u001b[39m x\u001b[33m.\u001b[39mfillRect(\u001b[35m0\u001b[39m\u001b[33m,\u001b[39m \u001b[35m0\u001b[39m\u001b[33m,\u001b[39m \u001b[35m100\u001b[39m\u001b[33m,\u001b[39m \u001b[35m100\u001b[39m)\u001b[33m;\u001b[39m \u001b[36mreturn\u001b[39m c\u001b[33m.\u001b[39mtoDataURL(mime)\u001b[33m.\u001b[39msplit(\u001b[32m','\u001b[39m)[\u001b[35m1\u001b[39m]\u001b[33m;\u001b[39m }\u001b[33m,\u001b[39m { mime\u001b[33m,\u001b[39m color })\u001b[33m;\u001b[39m\n \u001b[90m 30 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mlocator(\u001b[32m'#upload-1'\u001b[39m)\u001b[33m.\u001b[39msetInputFiles({ name\u001b[33m:\u001b[39m \u001b[32m`qa92.${extension}`\u001b[39m\u001b[33m,\u001b[39m mimeType\u001b[33m:\u001b[39m mime\u001b[33m,\u001b[39m buffer\u001b[33m:\u001b[39m \u001b[33mBuffer\u001b[39m\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(encoded\u001b[33m,\u001b[39m \u001b[32m'base64'\u001b[39m) })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 31 |\u001b[39m       \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[35m/Foto Subida/\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible({ timeout\u001b[33m:\u001b[39m \u001b[35m60000\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 32 |\u001b[39m       \u001b[36mconst\u001b[39m final \u001b[33m=\u001b[39m bucket\u001b[33m.\u001b[39mfile(\u001b[32m`${prefix}01.${extension}`\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 33 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(\u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m (\u001b[36mawait\u001b[39m final\u001b[33m.\u001b[39mexists())[\u001b[35m0\u001b[39m]\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m30000\u001b[39m })\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 34 |\u001b[39m       expect((\u001b[36mawait\u001b[39m final\u001b[33m.\u001b[39mgetMetadata())[\u001b[35m0\u001b[39m]\u001b[33m.\u001b[39mcontentType)\u001b[33m.\u001b[39mtoBe(mime)\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-video-vida-final.spec.ts",
+                        "column": 51,
+                        "line": 31
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/Foto Subida/)\nExpected: visible\nError: strict mode violation: getByText(/Foto Subida/) resolved to 2 elements:\n    1) <div class=\"text-sm font-semibold break-words\">¡Foto Subida!</div> aka getByText('¡Foto Subida!', { exact: true })\n    2) <span role=\"status\" aria-live=\"assertive\">Notification ¡Foto Subida!La foto 1 se ha guardad…</span> aka getByText('Notification ¡Foto Subida!La')\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/Foto Subida/)\u001b[22m\n\n\n  29 |       const encoded = await page.evaluate(({ mime, color }) => { const c = document.createElement('canvas'); c.width = 100; c.height = 100; const x = c.getContext('2d'); x.fillStyle = color; x.fillRect(0, 0, 100, 100); return c.toDataURL(mime).split(',')[1]; }, { mime, color });\n  30 |       await page.locator('#upload-1').setInputFiles({ name: `qa92.${extension}`, mimeType: mime, buffer: Buffer.from(encoded, 'base64') });\n> 31 |       await expect(page.getByText(/Foto Subida/)).toBeVisible({ timeout: 60000 });\n     |                                                   ^\n  32 |       const final = bucket.file(`${prefix}01.${extension}`);\n  33 |       await expect.poll(async () => (await final.exists())[0], { timeout: 30000 }).toBe(true);\n  34 |       expect((await final.getMetadata())[0].contentType).toBe(mime);\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-video-vida-final.spec.ts:31:51"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T16:49:42.452Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-video-vida-final-video--c86c8-o-final-y-deja-un-solo-slot-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-video-vida-final-video--c86c8-o-final-y-deja-un-solo-slot-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-video-vida-final-video--c86c8-o-final-y-deja-un-solo-slot-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-video-vida-final-video--c86c8-o-final-y-deja-un-solo-slot-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\test-results\\92-video-vida-final-video--c86c8-o-final-y-deja-un-solo-slot-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\tests\\e2e\\92-video-vida-final.spec.ts",
+                    "column": 51,
+                    "line": 31
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "56d374643496c333055f-e4a52bd7c67e37f75847",
+          "file": "92-video-vida-final.spec.ts",
+          "line": 16,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T16:43:37.669Z",
+    "duration": 422052.19899999996,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

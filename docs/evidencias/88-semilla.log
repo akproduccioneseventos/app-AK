@@ -23,3 +23,13 @@ Running 1 test using 1 worker
 
 [1/1] scripts\entorno-de-pruebas\fiesta.sembrar.ts:10:5 › sembrar la fiesta del entorno aislado
   1 passed (1.7s)
+
+Running 1 test using 1 worker
+
+[1/1] scripts\entorno-de-pruebas\fiesta.sembrar.ts:10:5 › sembrar la fiesta del entorno aislado
+  1 passed (6.1s)
+
+Running 1 test using 1 worker
+
+[1/1] scripts\entorno-de-pruebas\fiesta.sembrar.ts:10:5 › sembrar la fiesta del entorno aislado
+  1 passed (941ms)

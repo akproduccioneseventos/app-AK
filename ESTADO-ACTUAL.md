@@ -1,8 +1,7 @@
-# Estado actual - 10/10/2026 (Codex88-91)
+# Estado actual - 10/10/2026 (Codex88-92)
 
-Main contrastado0af74652; fuente ejecutada2aac14e2. Delta1281: permisos de fiestas.
-Rama QA `codex/auditoria-88-cierre-20261009`, sin producto ni fusion.
-
+Main85215484 ejecutado en TEMP/demo; fase anterior2aac14e2 preservada.
+Rama QA `codex/auditoria-92-seis-20261010`, sin producto ni fusion.
 ## Lo que entró hoy (todo con la puerta en verde)
 - PR 1279: auditoría 86 de Codex (IA: tareas a la vez, avisos falsos, voz parada, agente de
   publicidad, intervalos; portal: entregas oficiales; agentes con permiso de administración) +
@@ -22,18 +21,20 @@ Rama QA `codex/auditoria-88-cierre-20261009`, sin producto ni fusion.
 - 112 controles135-138 y28financieros aprobados, no proveedores/base real.
 - 7E2E estables: factura PC/movil, carga/otrooperador, contrato/papel/aislamiento,
   entregaoficial/reload/otraclave, ultimo750/saldo0/recibo, carga cerrada rechazada.
-- COM88-UNIDADES P1 nuevo:200g+2kg sale202g/$20. ORDEN139 Claude, PENDIENTE.
+- Orden139 compras: correccion presente en1283; catering integrado92 pasa.
 - 3D historico SIN aceptar: WebGL disponible, falla reconciler, muestra foto.
 - Video reemplazo limitado por host del emulador; no fallo publicado demostrado.
 - Total14E2Eunicos: tambien compartir/tiposBodaXV/PDFcomun2A4/fotocabina3fotos.
 - Informe88 y matriz84 conservan huecos. NO14areaslimpias ni0errores.
-- ENT89-IMAGEN P1: camara nativa trae senal, fotocabina compone negro; orden140 Gemini.
+- Orden140 fotocabina: correccion presente en1283; no repetir encargo.
 - Portal color PC/movil: 2E2E UI->SDK->otro navegador; otra fiesta intacta. Informe89.
 - Album90: fotosZIP PC/movil2E2E pasan; WebM nombrado.jpg y ZIPvacio anuncia2.
-- Orden141Gemini pendiente.91firmado PC/movil pasa;3P2 orden142Claude pendiente.
+- 141/142 correcciones presentes en1283; no aceptacion entera por pruebas92.
 
 ## Abierto
-- PR1282 abierta: evidencia/ordenes139-142, sin producto. NO fusion documental sola.
+- 1282/1283 fusionadas por Claude; nueva evidencia92/orden143 para su correccion.
 - Hecho: borrar, archivar, cancelar y reactivar una fiesta piden permiso (no sólo sesión).
 - Por fuera:19originales sin lectura, cuentas/proveedores/audio/hardware reales.
-- Mejoras de toda la app/IA para DESPUES del cierre, sin ampliar alcance ahora.
+- 92: catering/impresion/album pasan; archivo video bien, recarga visual limitada.
+- Nuevos143Claude: lector acepta QR revocado; cabecera bloquea ubicacion nativa.
+- Sin0errores ni14areaslimpias. Mejoras amplias DESPUES del cierre.

@@ -1,0 +1,24 @@
+{
+  "caso": "fuera",
+  "coordenadasSimuladas": true,
+  "politica": {
+    "url": "http://127.0.0.1:3300/acceso-personal/tok_e2e_geo92_fuera_12896_1791652026073",
+    "permiso": "granted",
+    "permitido": false
+  },
+  "ajuste": {
+    "_filePath": "ajustes-llegada.json",
+    "llegadaConUbicacion": true,
+    "radioMetros": 300
+  },
+  "personal": [
+    {
+      "empleadoId": "emp_e2e_geo92_fuera_12896_1791652026073",
+      "rolId": "rol_ficticio",
+      "eventSalary": 0
+    }
+  ],
+  "avisos": [
+    "Notification No pudimos registrar tu llegadaEstás a 14939m del salón (el máximo permitido es 300m)."
+  ]
+}

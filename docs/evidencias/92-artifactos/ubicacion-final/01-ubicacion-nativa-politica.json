@@ -1,0 +1,12 @@
+{
+  "cabecera": "camera=(self), microphone=(self), geolocation=()",
+  "politica": {
+    "url": "http://127.0.0.1:3300/acceso-personal/tok_e2e_geo92_nativa-bloqueada_12896_1791651995511",
+    "permiso": "granted",
+    "permitido": false
+  },
+  "nativa": {
+    "code": 1,
+    "message": "Geolocation has been disabled in this document by permissions policy."
+  }
+}

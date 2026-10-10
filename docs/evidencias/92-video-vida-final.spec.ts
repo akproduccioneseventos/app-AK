@@ -1,0 +1,53 @@
+// @ts-nocheck -- Retest QA aislado; las escrituras se comprueban en Storage real de prueba.
+import os from 'node:os';
+import path from 'node:path';
+import { test, expect } from '@playwright/test';
+import admin from 'firebase-admin';
+import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta } from './helpers/fiesta-de-prueba';
+
+const bucketName = 'demo-ak-producciones.appspot.com';
+if (process.env.AK_ENTORNO_AISLADO !== 'true' || !path.basename(process.cwd()).startsWith('ak-entorno-aislado-') ||
+    path.dirname(process.cwd()) !== path.join(os.tmpdir(), 'ak-codex88') || process.env.FIREBASE_PROJECT_ID !== 'demo-ak-producciones') throw new Error('Solo TEMP/demo de QA');
+if (process.env.FIREBASE_STORAGE_EMULATOR_HOST !== '127.0.0.1:9195') throw new Error('Falta Storage 9195 para registrar el fixture');
+const app = admin.initializeApp({ projectId: 'demo-ak-producciones', storageBucket: bucketName }, `vida92-${process.pid}`);
+const db = app.firestore(); const bucket = app.storage().bucket(bucketName);
+test.afterAll(async () => app.delete());
+
+test('video vida reemplaza hasta el archivo final y deja un solo slot', async ({ page, context }, info) => {
+  test.setTimeout(240000);
+  const id = `e2e_vida92_${Date.now()}_${process.pid}`;
+  const fiesta = crearFiestaDeEstaNoche({ id });
+  fiesta.videoVida = { ...fiesta.videoVida, galleryEnabled: true, photoCount: 2 };
+  const ref = db.collection('fiestas').doc(id);
+  const prefix = `video-vida-photos/${id}/`;
+  const errores=[];page.on('pageerror',e=>errores.push(e.message));
+  try {
+    try { guardarFiesta(fiesta); await ref.set(JSON.parse(JSON.stringify(fiesta))); } catch (error) { throw new Error(`No fue posible registrar fixture ${id}: ${error}`); }
+    await page.goto(`/video-vida/${id}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('#upload-1')).toBeAttached({ timeout: 60000 });
+    expect((await context.cookies()).some(c => c.name === 'ak_session')).toBe(false);
+    let ultimo;
+    for (const [mime, extension, color] of [['image/png', 'png', '#346ab5'], ['image/jpeg', 'jpg', '#dfbc21']]) {
+      const encoded = await page.evaluate(({ mime, color }) => { const c = document.createElement('canvas'); c.width = 100; c.height = 100; const x = c.getContext('2d'); x.fillStyle = color; x.fillRect(0, 0, 100, 100); return c.toDataURL(mime).split(',')[1]; }, { mime, color });
+      await page.locator('#upload-1').setInputFiles({ name: `qa92.${extension}`, mimeType: mime, buffer: Buffer.from(encoded, 'base64') },{timeout:10000});
+      await expect(page.getByRole('status').filter({hasText:/Foto Subida/})).toBeVisible({ timeout: 60000 });
+      const final = bucket.file(`${prefix}01.${extension}`);
+      await expect.poll(async () => (await final.exists())[0], { timeout: 30000 }).toBe(true);
+      expect((await final.getMetadata())[0].contentType).toBe(mime);
+      expect((await final.download())[0]).toEqual(Buffer.from(encoded, 'base64'));
+      ultimo=Buffer.from(encoded,'base64');
+      await expect(page.getByRole('status').filter({hasText:/Foto Subida/})).toBeHidden({ timeout: 15000 });
+    }
+    const [files] = await bucket.getFiles({ prefix });
+    await info.attach('video92-final-storage.json', { body: JSON.stringify({ slot: 1, files: files.map(file => file.name), final: '01.jpg' }, null, 2), contentType: 'application/json' });
+    expect(files.map(file => file.name).filter(name => /\/01\./.test(name))).toEqual([`${prefix}01.jpg`]);
+    const url=`http://127.0.0.1:9195/v0/b/${bucketName}/o/${encodeURIComponent(prefix+'01.jpg')}?alt=media`;
+    const respuesta=await page.request.get(url);expect(respuesta.status()).toBe(200);expect(await respuesta.body()).toEqual(ultimo);
+    await page.reload({waitUntil:'domcontentloaded'});await expect(page.locator('#upload-1')).toBeAttached({timeout:15000});
+    await info.attach('video92-lectura-recarga.json',{body:JSON.stringify({httpFinal:respuesta.status(),bytesIguales:true,imagenes:await page.locator('img').evaluateAll(imgs=>imgs.map(i=>({src:i.src,loaded:i.complete&&i.naturalWidth>0})))},null,2),contentType:'application/json'});
+  } finally {
+    await info.attach('video92-errores.json',{body:JSON.stringify({errores,objetos:(await bucket.getFiles({prefix}))[0].map(f=>f.name)},null,2),contentType:'application/json'});
+    const [files] = await bucket.getFiles({ prefix }); await Promise.all(files.map(file => file.delete()));
+    await ref.delete(); borrarFiesta(id);
+  }
+});

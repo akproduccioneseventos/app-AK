@@ -1,0 +1,14 @@
+{
+  "selected": 3,
+  "expiredStatus": [
+    403,
+    403
+  ],
+  "partialItems": [
+    "recuerdos-e2e_album92_expired_15584_1791653137252/recuerdo_1_fotocabina.png",
+    "recuerdos-e2e_album92_expired_15584_1791653137252/recuerdo_3_fotocabina.png"
+  ],
+  "aviso": "Notification Descarga incompletaSe empaquetaron 2 de 3 recuerdos; no se pudieron bajar 1. Podés volver a intentar para completar.",
+  "avisoPresente": true,
+  "filename": "recuerdos-e2e_album92_expired_15584_1791653137252.zip"
+}

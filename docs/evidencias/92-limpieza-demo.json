@@ -1,0 +1,12 @@
+{
+  "project": "demo-ak-producciones",
+  "firestore": "127.0.0.1:8085",
+  "storage": "127.0.0.1:9195",
+  "restosBorrados": [],
+  "archivosBorrados": [],
+  "ajustes": {
+    "ajustes-llegada.json": null,
+    "accesos-personal.json": null
+  },
+  "fecha": "2026-10-10T17:30:14.834Z"
+}
