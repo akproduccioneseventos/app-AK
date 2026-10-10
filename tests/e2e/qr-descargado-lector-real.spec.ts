@@ -55,8 +55,10 @@ for (const caso of CASOS) {
         c.width = img.naturalWidth; c.height = img.naturalHeight;
         const ctx = c.getContext('2d')!;
         ctx.drawImage(img, 0, 0);
-        // Franja de 4 módulos (~ancho/16) en todo el borde: tiene que ser toda blanca.
-        const franja = Math.floor(img.naturalWidth / 20);
+        // La zona blanca son 4 módulos: con un código largo (muchos módulos) eso es menos del 5 % del
+        // lado (pasó: 704 píxeles oscuros con ancho/20). El 2 % cae siempre adentro de la zona blanca,
+        // aun con el código más grande que existe (177 módulos: 4/185 = 2,16 %).
+        const franja = Math.floor(img.naturalWidth * 0.02);
         const d = ctx.getImageData(0, 0, c.width, franja).data;
         let oscuros = 0;
         for (let i = 0; i < d.length; i += 4) if (d[i] < 128) oscuros++;

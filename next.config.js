@@ -37,8 +37,22 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   },
 });
 
+/**
+ * Firebase App Hosting se moría en "Linting and checking validity of types": el registro se corta
+ * ahí sin ningún error (compilaciones del 10/10/2026, commits 2aac14e, 8521548 y 9a05462). Medido:
+ * la última que salió (0af7465) y la primera que falló tienen el mismo tamaño (5677 y 5681
+ * archivos, misma memoria del revisor), así que no es el código. Ya pasó en septiembre.
+ *
+ * Decisión del dueño (10/10/2026, "resolvelo vos"): en Firebase se saltea ese paso, porque se hace
+ * completo antes: la puerta (`npm run "publicar?"`) corre el revisor de tipos y la compilación con
+ * chequeo, y el filtro de subida no deja subir sin la puerta en verde. Fuera de Firebase, igual que antes.
+ */
+const enFirebaseAppHosting = Boolean(process.env.FIREBASE_APP_HOSTING);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  typescript: { ignoreBuildErrors: enFirebaseAppHosting },
+  eslint: { ignoreDuringBuilds: enFirebaseAppHosting },
   // Windows without Developer Mode cannot create the pnpm symlinks used by
   // Next standalone tracing. Production keeps standalone unless explicitly disabled.
   output: process.env.AK_DISABLE_STANDALONE === 'true' ? undefined : 'standalone',
