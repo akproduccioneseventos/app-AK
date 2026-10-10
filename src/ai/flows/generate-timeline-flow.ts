@@ -46,10 +46,20 @@ Devuelve SOLO el JSON array.`;
       output: { format: 'json' },
     });
 
-    const parsed = JSON.parse(result.text);
-    return parsed;
+    const crudo = (result.text || '').replace(/```json/gi, '').replace(/```/g, '').trim();
+    const parsed = JSON.parse(crudo);
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      throw new Error('La IA no devolvió una lista de momentos.');
+    }
+    // Sólo pasan los renglones con forma de momento; si ninguno la tiene, es una falla.
+    const momentos = parsed.filter(
+      (item): item is TimelineItemOutput => Boolean(item) && typeof item.hora === 'string' && typeof item.titulo === 'string',
+    );
+    if (momentos.length === 0) throw new Error('Ningún renglón del cronograma tenía hora y título.');
+    return momentos;
   } catch (error) {
+    // Antes devolvía [] en silencio (JSON roto, modelo caído) y la pantalla no sabía qué había pasado.
     console.error('Error in generateTimelineFlow:', error);
-    return [];
+    throw new Error('No pude armar el cronograma, probá de nuevo.');
   }
 }

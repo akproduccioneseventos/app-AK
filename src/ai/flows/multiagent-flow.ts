@@ -3,13 +3,27 @@
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
-import type { AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
+import type { AkAgentLearning, AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
 import { getAgentMemoryProfile, saveAgentLearning } from '@/lib/multiagent/memory-store';
 import { buildMultiAgentTeamBriefing, formatAgentDiagnosticsForPrompt } from '@/lib/multiagent/diagnostics';
 import { formatManualForAgentPrompt } from '@/lib/multiagent/manual-ak';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
+import { verifySession } from '@/lib/auth/session-token';
+import { puede, PERMISOS } from '@/lib/auth/perfiles';
+import { readDataConDetalle } from '@/lib/data-service';
+import {
+  TOPE_DATOS_EN_TIEMPO_REAL,
+  acotarTexto,
+  aprendizajesAprobados,
+  bloqueAgenda,
+  bloqueFiestasProximas,
+  bloquePlata,
+  conAvisoDeLectura,
+  formatoPlata,
+  LINEA_MODO_RESPALDO,
+} from '@/lib/multiagent/contexto-negocio';
 import { getCrmLeads } from '@/app/actions/crm';
 import { mapaParaLaAsistente, esPantallaReal, MENU_DEL_STAFF } from '@/lib/multiagent/mapa-app.generado';
 import {
@@ -95,20 +109,20 @@ function buildSystemPrompt(agentType: AkAgentType): string {
 REGLAS IRROMPIBLES (nunca las violés):
 1. NUNCA inventes datos: pagos, fechas, mails, tareas hechas, contratos firmados, invitados confirmados, saldos. Si no aparece en el CONTEXTO REAL → decí "no lo veo cargado" y decí exactamente dónde cargarlo en la app.
 2. NUNCA digas que guardaste, sincronizaste, enviaste o ejecutaste algo si no hubo acción real confirmada por el backend.
-3. SIEMPRE usá el DIAGNÓSTICO AUTOMÁTICO como punto de partida si existe y tiene items.
+3. SIEMPRE usá el DIAGNÓSTICO AUTOMÁTICO como punto de partida si existe y tiene items. Los bloques FIESTAS PRÓXIMOS 30 DÍAS, PLATA y AGENDA del contexto son cuentas hechas por la app: usalos tal cual. Si un bloque dice "no se pudo leer", decilo así y no lo confundas con "no hay nada".
 4. Español rioplatense ultra-cercano y amigable. Hablá siempre de "vos", usando modismos como "che", "bo", "mirá", "al toque", etc.
-5. ¡USÁ EMOJIS! Incorporá siempre de 3 a 6 emojis relevantes en la respuesta de texto (ej. 🤵, 🕵️‍♂️, 🥳, 👩‍💼, 🤝, 💰, 📢, 📝, 🔔, ✅, ❌, ⚠️) para que tus contestaciones sean visualmente llamativas y divertidas.
-6. Respuestas CORTAS, con viñetas claras y al grano (máximo 4-5 líneas de texto plano). Evitá explicaciones largas y aburridas. No uses frases de chatbot genérico ("Hola, ¿en qué te puedo ayudar hoy?").
+5. Emojis: como mucho 1 o 2 en toda la respuesta, sólo si ayudan. Sin emojis en listas de números.
+6. Largo: corto por defecto (2 a 5 líneas con viñetas claras). Pero si te piden una lista, un total, un detalle o "todo", dalo COMPLETO con los números reales del CONTEXTO REAL (FIESTAS PRÓXIMOS 30 DÍAS, PLATA, AGENDA, presupuestos, diagnóstico). Usá las cifras y nombres exactos; nunca los redondees ni los inventes. Si el dato no está en el contexto, decí "no lo veo cargado" y dónde cargarlo. Sin frases de chatbot genérico ("Hola, ¿en qué te puedo ayudar hoy?").
 7. Si detectás que la pregunta corresponde a otro agente, respondé lo que puedas de forma muy corta y al final sugerí: "Para esto te conviene el agente [X]."
 8. Cuando listés múltiples items, usá bullets (•) con prioridad real, no orden alfabético.
 
 FORMATO DE RESPUESTA (OBLIGATORIO):
 Debés responder ÚNICAMENTE con un bloque JSON que cumpla exactamente con este formato (no agregues texto antes ni después del JSON, ni bloques de código markdown, solo el JSON puro):
 {
-  "response": "Tu respuesta corta, re amigable, con viñetas y muchos emojis aquí.",
+  "response": "Tu respuesta en rioplatense, con viñetas, usando las cifras reales del contexto.",
   "fuente": "Opcional: 'Según catálogo oficial y presupuestos vigentes' cuando des cifras o datos concretos",
   "action": {
-    "type": "none" | "create_task" | "create_reminder" | "navigate" | "create_lead" | "draft_budget" | "prepare_whatsapp",
+    "type": "none" | "create_task" | "complete_task" | "add_guest" | "create_incident" | "create_reminder" | "navigate" | "create_lead" | "draft_budget" | "prepare_whatsapp" | "agendar_reunion" | "ver_mi_semana" | "preparar_mail" | "buscar_en_la_web" | "cuanto_me_deben",
     "data": { ... }
   }
 }
@@ -126,6 +140,7 @@ REGLAS DE ACCIÓN:
 - Si el usuario te pide crear una tarea (ej: "creá una tarea para...", "agendá la tarea de...", "anotá que hay que..."):
   "type": "create_task"
   "data": { "texto": "título de la tarea", "descripcion": "detalle si aplica", "fechaLimite": "YYYY-MM-DD (si se menciona)" }
+  Si no hay una fiesta en el contexto, la app la guarda igual como recordatorio general (no se lo niegues al usuario). Si querés dejarlo explícito, usá "create_reminder".
 - Si el usuario te pide marcar una tarea como hecha o completada (ej: "marcar como hecha la tarea de luces", "completá la tarea de catering", "ya se hizo la prueba de sonido"):
   "type": "complete_task"
   "data": { "fiestaId": "id_de_la_fiesta", "tareaId": "id_de_la_tarea", "texto": "texto de la tarea" }
@@ -138,6 +153,26 @@ REGLAS DE ACCIÓN:
 - Si el usuario te pide un recordatorio o aviso (ej: "recordame llamar a...", "avisame de...", "agendá recordatorio..."):
   "type": "create_reminder"
   "data": { "titulo": "Recordatorio", "mensaje": "Detalle del recordatorio", "tipo": "aviso" | "urgente" }
+- Si el usuario pide agendar una reunión o cita con fecha y hora (ej: "agendame una reunión con Ana el jueves a las 18"):
+  "type": "agendar_reunion"
+  "data": { "titulo": "Reunión con Ana", "fecha": "YYYY-MM-DDTHH:mm:00-03:00 (inicio, hora de Uruguay)", "fechaFin": "igual formato (opcional)", "descripcion": "...", "email": "mail del invitado (opcional)", "lugar": "...", "confirmado": false }
+  Necesita fecha Y hora: si falta alguna, preguntala y usá "none". La primera vez va con "confirmado": false (la app responde "¿Confirmo?"); recién cuando el usuario contesta que sí, repetí la acción con "confirmado": true y los mismos datos.
+- Si el usuario pregunta qué tiene hoy, esta semana o cómo viene la semana (ej: "¿qué tengo esta semana?", "mi agenda"):
+  "type": "ver_mi_semana"
+  "data": null
+  (Es de solo lectura; la app suma el detalle de fiestas y tareas de los próximos 7 días.)
+- Si el usuario pide preparar o redactar un mail para un cliente o prospecto (ej: "prepará un mail a Ana con el presupuesto"):
+  "type": "preparar_mail"
+  "data": { "email": "...", "nombre": "Ana", "asunto": "...", "cuerpo": "texto completo del mail", "confirmado": false }
+  Necesita al menos destinatario (email o nombre), asunto y cuerpo. Mismo circuito de confirmación que la reunión. El mail NO se envía: queda en la bandeja de salida y lo manda una persona con un clic.
+- Si el usuario pide buscar algo en internet (ej: "buscá precios de alquiler de sillas en Salto"):
+  "type": "buscar_en_la_web"
+  "data": { "consulta": "texto a buscar" }
+  Hay un tope diario del equipo; usala solo si la respuesta NO está en el contexto de la app.
+- Si el usuario pregunta cuánto le deben, quién debe o cuánto hay por cobrar (ej: "¿cuánto me deben?", "¿quién me debe plata?"):
+  "type": "cuanto_me_deben"
+  "data": null
+  (Solo lectura. Si en el contexto ya está el bloque PLATA, respondé con esas cifras y usá la acción solo si piden el detalle de todos los deudores. Si no hay bloque PLATA, el perfil del usuario no ve plata: decilo.)
 - Si el usuario te pide ir, navegar o te pregunta dónde se hace algo / dónde cargar datos (ej: "llevame a las compras", "¿dónde cargo la lista de compras?", "¿dónde veo las facturas?", "¿dónde están los gastos?"):
   Respondé diciendo el nombre exacto de la opción del menú correspondiente (ej: "Lista de Compras" en /compras) y asigná la acción de navegación:
   "type": "navigate"
@@ -243,7 +278,7 @@ function fallbackMemory(agentType: AkAgentType, input: AkMultiAgentInput) {
     displayName:  displayName(agentType),
     description:  'Memoria no disponible temporalmente.',
     summary:      '',
-    learnings:    [],
+    learnings:    [] as AkAgentLearning[],
     createdAt:    new Date().toISOString(),
     updatedAt:    new Date().toISOString(),
   };
@@ -267,22 +302,54 @@ function buildFiestaFinancialBlock(fiesta: any): string {
   ].join('\n');
 }
 
+// ── Lectura que avisa si falló ────────────────────────────────────────────────
+// Un `.catch(() => [])` hace que "no pude leer" se vea igual que "no hay nada", y el asistente
+// contestaba "no hay presupuestos" con la base caída. Acá la falla queda marcada.
+async function leerAvisando<T>(lectura: Promise<T>): Promise<{ ok: true; valor: T } | { ok: false }> {
+  try {
+    return { ok: true, valor: await lectura };
+  } catch {
+    return { ok: false };
+  }
+}
+
+async function veLaPlata(): Promise<boolean> {
+  try {
+    const sesion = await verifySession();
+    return Boolean(sesion?.success) && puede(sesion.user, PERMISOS.CONTABILIDAD);
+  } catch {
+    return false; // sin saber quién pregunta, no se le da plata
+  }
+}
+
 // ── Constructor de contexto enriquecido ───────────────────────────────────────
 async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
-  const [kpiResult, presupuestos, leads, briefing] = await Promise.all([
+  const conPlata = await veLaPlata();
+
+  // Presupuestos: quien ve plata los lee crudos (para saber si la lectura falló); el resto, por la
+  // acción que le saca los cobros.
+  const leerPresupuestos = async (): Promise<{ ok: true; valor: any[] } | { ok: false }> => {
+    if (!conPlata) return leerAvisando(getPresupuestos());
+    try {
+      const { valor, huboFalla } = await readDataConDetalle<any[]>('presupuestos.json', []);
+      if (huboFalla || !Array.isArray(valor)) return { ok: false };
+      return { ok: true, valor };
+    } catch {
+      return { ok: false };
+    }
+  };
+
+  const [kpiResult, presupuestosLectura, leadsLectura, briefing, fiestasLectura] = await Promise.all([
     getDashboardKpiData().catch(() => null),
-    getPresupuestos().catch(() => []),
-    getCrmLeads().catch(() => []),
+    leerPresupuestos(),
+    leerAvisando(getCrmLeads()),
     buildMultiAgentTeamBriefing({ fiestaId: input.fiestaId }).catch(() => null),
+    leerAvisando(getAllFiestas()),
   ]);
 
   const fiesta = input.fiestaId
     ? await getFiestaById(input.fiestaId).catch(() => null)
     : null;
-
-  const fiestas = ['fiestas_general','secretaria','central'].includes(agentType)
-    ? await getAllFiestas().catch(() => [])
-    : [];
 
   const memory = await getAgentMemoryProfile({
     agentType,
@@ -291,7 +358,17 @@ async function buildContext(input: AkMultiAgentInput, agentType: AkAgentType) {
     module:   input.fiestaId ? undefined : agentType,
   }).catch(() => fallbackMemory(agentType, input));
 
-  const kpi         = kpiResult?.success ? kpiResult.data : null;
+  const fiestas      = fiestasLectura.ok ? (fiestasLectura.valor as any[]) : null;
+  const presupuestos = presupuestosLectura.ok ? presupuestosLectura.valor.filter((p: any) => !p?.archived) : null;
+  const leads        = leadsLectura.ok ? (leadsLectura.valor as any[]) : null;
+  const kpi          = kpiResult?.success ? kpiResult.data : null;
+
+  const sinLeer: string[] = [];
+  if (!fiestas) sinLeer.push('las fiestas');
+  if (!presupuestos) sinLeer.push('los presupuestos');
+  if (!leads) sinLeer.push('los prospectos');
+  if (!kpi) sinLeer.push('los indicadores del panel');
+
   const nombre      = fiestaNombre(fiesta);
   const manual      = formatManualForAgentPrompt(agentType, { pathname: input.pathname, fiestaId: input.fiestaId });
   const diagnostics = briefing
@@ -308,25 +385,51 @@ FIESTA ACTIVA: "${nombre || fiesta.id}"
 TAREAS PENDIENTES (${(fiesta.tareas || []).filter((t: any) => !t.completada).length}):
 ${(fiesta.tareas || []).filter((t: any) => !t.completada).slice(0, 20).map((t: any) => `  • [${t.fechaLimite || 'sin fecha'}] ${t.texto}${t.asignadaA ? ` → ${t.asignadaA}` : ''}`).join('\n') || '  Sin tareas pendientes.'}
 FINANZAS DE ESTA FIESTA:
-${buildFiestaFinancialBlock(fiesta)}`.trim() : 'Sin fiesta específica en contexto.';
+${conPlata ? buildFiestaFinancialBlock(fiesta) : '• Tu perfil no ve las finanzas de la fiesta.'}`.trim() : 'Sin fiesta específica en contexto.';
 
-  // ── Bloque de cartera de fiestas ──────────────────────────────────────────
-  const now = new Date();
-  const cartBlock = (fiestas as any[]).length ? `
-CARTERA DE FIESTAS (${(fiestas as any[]).length} total):
-${(fiestas as any[]).slice(0, 20).map((f: any) => {
-  const nombre = fiestaNombre(f) || f.id;
-  const fecha  = f.configuracion?.fechaEvento;
-  const dias   = fecha ? Math.ceil((new Date(fecha).getTime() - now.getTime()) / 86400000) : null;
-  const pend   = (f.tareas || []).filter((t: any) => !t.completada).length;
-  const diasStr = dias !== null ? (dias < 0 ? `hace ${Math.abs(dias)} días` : dias === 0 ? 'HOY' : `en ${dias} días`) : 'sin fecha';
-  return `  • ${nombre} | ${diasStr} | ${f.estado || 'sin estado'} | ${pend} tareas pendientes`;
-}).join('\n')}` : '';
+  // ── Los tres bloques que reciben TODOS los agentes ────────────────────────
+  const bloqueFiestas = bloqueFiestasProximas(fiestas);
+  // La plata sólo viaja al prompt de quien tiene el permiso de contabilidad.
+  const bloqueDinero  = conPlata ? bloquePlata(presupuestos, fiestas) : '';
+  const bloqueSemana  = bloqueAgenda(fiestas);
 
   // ── Alertas KPI ───────────────────────────────────────────────────────────
   const alertsBlock = (kpi?.alerts || []).length
     ? `ALERTAS ACTIVAS:\n${(kpi?.alerts as any[]).slice(0,8).map((a: any) => `  • [${String(a.level||'aviso').toUpperCase()}] ${a.message}`).join('\n')}`
-    : 'Sin alertas activas.';
+    : kpi ? 'Sin alertas activas.' : 'ALERTAS: no se pudieron leer ahora.';
+
+  const presupuestosBlock = presupuestos === null
+    ? 'PRESUPUESTOS: no se pudieron leer ahora (no quiere decir que no haya).'
+    : `PRESUPUESTOS (últimos 12 de ${presupuestos.length}):\n${presupuestos.slice(-12).map((p: any) => conPlata
+        ? `• ${p.clienteNombre || 'Sin nombre'} | ${p.eventoTipo || 'sin tipo'} | ${p.estado} | Total: ${formatoPlata(p.totalConDescuento ?? p.costoTotalEstimado ?? 0)} | Seña: ${formatoPlata(p.sena ?? 0)} | Saldo: ${formatoPlata(getBudgetPaymentSummary(p, { includeAnnualAdjustment: true }).balance)}`
+        : `• ${p.clienteNombre || 'Sin nombre'} | ${p.eventoTipo || 'sin tipo'} | ${p.estado}`).join('\n') || 'Sin presupuestos.'}`;
+
+  const leadsBlock = leads === null
+    ? 'LEADS CRM: no se pudieron leer ahora (no quiere decir que no haya).'
+    : `LEADS CRM (últimos 12 de ${leads.length}):\n${leads.slice(-12).map((l: any) => `• ${l.name} | Etapa: ${(l as any).stageId || (l as any).currentStageId || 'sin etapa'} | Próx. acción: ${l.followUpDate || 'sin fecha'} | ${l.phone || ''}`).join('\n') || 'Sin leads.'}`;
+
+  // Todo lo que cambia con los datos del día queda acotado: un contexto sin tope se come la respuesta.
+  const datosEnTiempoReal = acotarTexto([
+    `KPI RESUMEN:`,
+    `• Próximo evento: ${kpi?.proximoEvento ? `${kpi.proximoEvento.nombre} el ${kpi.proximoEvento.fecha}` : 'Sin datos'}`,
+    `• Presupuestos pendientes: ${kpi ? (kpi.presupuestosPendientes ?? 0) : 'sin datos'}`,
+    `• Facturas por vencer: ${kpi ? (kpi.facturasPorVencer ?? 0) : 'sin datos'}`,
+    `• Alertas totales: ${kpi ? (kpi.alerts?.length ?? 0) : 'sin datos'}`,
+    alertsBlock,
+    '',
+    bloqueFiestas,
+    bloqueDinero,
+    bloqueSemana,
+    '',
+    fiestaBlock,
+    '',
+    presupuestosBlock,
+    '',
+    leadsBlock,
+  ].filter((linea) => linea !== undefined).join('\n').replace(/\n{3,}/g, '\n\n'), TOPE_DATOS_EN_TIEMPO_REAL);
+
+  // Sólo lo confirmado entra a la memoria del prompt (tope 5); lo guardado solo, no.
+  const aprobados = aprendizajesAprobados(memory.learnings);
 
   // ── Texto de contexto completo ─────────────────────────────────────────────
   const text = `
@@ -341,42 +444,30 @@ ${manual}
 ══════════ MAPA DEL PANEL (OPCIONES DE MENÚ) ══════════
 ${mapaParaLaAsistente()}
 
-══════════ MEMORIA DEL AGENTE ══════════
-${memory.summary || 'Sin memoria guardada.'}
-
-APRENDIZAJES RECIENTES (últimos 15):
-${memory.learnings.slice(0, 15).map(l => `• [${l.confidence}] ${l.title}: ${l.content.slice(0, 300)}`).join('\n') || 'Sin aprendizajes.'}
+══════════ MEMORIA APROBADA ══════════
+${aprobados.map(l => `• ${l.title}: ${l.content.slice(0, 300)}`).join('\n') || 'Sin memoria aprobada.'}
 
 ══════════ DIAGNÓSTICO AUTOMÁTICO ══════════
 ${diagnostics}
 
 ══════════ DATOS EN TIEMPO REAL ══════════
-KPI RESUMEN:
-• Próximo evento: ${kpi?.proximoEvento ? `${kpi.proximoEvento.nombre} el ${kpi.proximoEvento.fecha}` : 'Sin datos'}
-• Presupuestos pendientes: ${kpi?.presupuestosPendientes ?? 0}
-• Facturas por vencer: ${kpi?.facturasPorVencer ?? 0}
-• Alertas totales: ${kpi?.alerts?.length ?? 0}
-${alertsBlock}
-
-${fiestaBlock}
-${cartBlock}
-
-PRESUPUESTOS (últimos 12):
-${(presupuestos as any[]).slice(-12).map((p: any) => `• ${p.clienteNombre || 'Sin nombre'} | ${p.eventoTipo || 'sin tipo'} | ${p.estado} | Total: $${p.totalConDescuento ?? p.costoTotalEstimado ?? 0} | Seña: $${p.sena ?? 0} | Saldo: $${getBudgetPaymentSummary(p, { includeAnnualAdjustment: true }).balance}`).join('\n') || 'Sin presupuestos.'}
-
-LEADS CRM (últimos 12):
-${(leads as any[]).slice(-12).map((l: any) => `• ${l.name} | Etapa: ${(l as any).stageId || (l as any).currentStageId || 'sin etapa'} | Próx. acción: ${l.followUpDate || 'sin fecha'} | ${l.phone || ''}`).join('\n') || 'Sin leads.'}
+${datosEnTiempoReal}
 `.trim();
 
-  return { fiesta, fiestas, memory, diagnostics, kpi, presupuestos, leads, briefing, manual, text };
+  return { fiesta, fiestas: fiestas ?? [], memory, diagnostics, kpi, presupuestos: presupuestos ?? [], leads: leads ?? [], briefing, manual, text, sinLeer, falloTotal: false };
 }
 
 // ── Respuesta fallback inteligente ────────────────────────────────────────────
 function buildFallback(agentType: AkAgentType, context: any, error?: unknown): string {
   const items = (context?.briefing?.items || []).slice(0, 6) as any[];
+  const noSePudoLeer = !context?.briefing || Boolean(context?.falloTotal);
+  // "Sin pendientes" sólo se dice si el diagnóstico se LEYÓ y vino vacío. Si no se pudo leer, no
+  // sabemos si hay pendientes y decir que no hay sería mentir.
   const diag  = items.length
     ? items.map((it, i) => `${i + 1}. [${it.priority.toUpperCase()}] ${it.title}: ${it.detail}`).join('\n')
-    : 'Sin pendientes detectados con los datos disponibles.';
+    : noSePudoLeer
+      ? 'No pude leer tus datos ahora, así que no puedo decirte si hay pendientes.'
+      : 'El diagnóstico automático no marcó pendientes.';
 
   const nextStep: Record<AkAgentType, string> = {
     fiesta:          'Revisá tareas, pagos, contrato y personal de esta fiesta.',
@@ -389,27 +480,32 @@ function buildFallback(agentType: AkAgentType, context: any, error?: unknown): s
   };
 
   if (error) console.error('[Multiagent] La IA no respondió, se usa el respaldo:', error);
-  const errorNote = error ? '\nLa IA no respondió ahora; te contesto con lo que tengo.' : '';
 
   return [
-    'Funcionando en modo respaldo. Sin datos inventados.',
+    LINEA_MODO_RESPALDO,
     '',
     'Lo más importante ahora:',
     diag,
     '',
     `→ Próximo paso: ${nextStep[agentType]}`,
-    errorNote,
-  ].filter(Boolean).join('\n');
+  ].join('\n');
 }
 
 // ── Flujo principal del multiagente ──────────────────────────────────────────
 export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAgentOutput> {
   const agentType = detectAgent(input);
-  const context   = await buildContext(input, agentType).catch(() => ({
-    fiesta: null, briefing: null, fiestas: [], memory: null,
-    text: 'No pude cargar el contexto completo.',
-  }));
+  const context   = await buildContext(input, agentType).catch((error) => {
+    console.error('[Multiagent] No se pudo armar el contexto del negocio:', error);
+    return {
+      fiesta: null, briefing: null, fiestas: [], memory: null,
+      text: 'NO SE PUDO LEER NINGÚN DATO DEL NEGOCIO AHORA. No tenés cifras reales: no inventes ni digas que "no hay" fiestas, plata o presupuestos; decí que no pudiste leerlos.',
+      sinLeer: [] as string[],
+      falloTotal: true,
+    };
+  });
   const name = displayName(agentType, fiestaNombre(context.fiesta));
+  // Si la lectura falló, lo primero que lee el usuario es eso (no queda enterrado en el medio).
+  const avisar = (respuesta: string) => conAvisoDeLectura(respuesta, context.sinLeer, context.falloTotal);
 
   try {
     // ── Flujo dedicado de marketing ─────────────────────────────────────────
@@ -432,12 +528,14 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
         confidence:'medium',
       }).catch(() => null);
 
+      const usoRespaldoMarketing = !result.content;
       return {
         success:   true,
-        response:  result.content || buildFallback(agentType, context),
+        response:  usoRespaldoMarketing ? buildFallback(agentType, context) : avisar(result.content),
         agentType,
         agentName: name,
         action:    { type: 'none' },
+        ...(usoRespaldoMarketing ? { modoRespaldo: true } : {}),
       };
     }
 
@@ -469,6 +567,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
     let finalResponse = '';
     let action: any = { type: 'none' };
     let fuente: string | undefined;
+    let usoRespaldo = false;
 
     try {
       const rawText = text || '';
@@ -483,7 +582,16 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
       fuente = parsed.fuente;
     } catch (e) {
       console.warn('[Multiagent Flow] Error al parsear JSON devuelto por Gemini. Usando texto sin estructurar.', e);
-      finalResponse = text || buildFallback(agentType, context);
+      if (text) {
+        finalResponse = text;
+      } else {
+        finalResponse = buildFallback(agentType, context);
+        usoRespaldo = true;
+      }
+    }
+    if (!finalResponse) {
+      finalResponse = buildFallback(agentType, context);
+      usoRespaldo = true;
     }
 
     // Validar navegación contra pantallas reales del sistema
@@ -574,8 +682,10 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
       }
     }
 
+    if (!usoRespaldo) finalResponse = avisar(finalResponse);
+
     // Guardar aprendizaje automático si la respuesta fue útil
-    if (finalResponse && finalResponse.length > 50) {
+    if (!usoRespaldo && finalResponse && finalResponse.length > 50) {
       saveAgentLearning({
         agentType,
         fiestaId:  input.fiestaId,
@@ -591,11 +701,12 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
 
     return {
       success:   true,
-      response:  finalResponse || buildFallback(agentType, context),
+      response:  finalResponse,
       fuente,
       agentType,
       agentName: name,
       action,
+      ...(usoRespaldo ? { modoRespaldo: true } : {}),
     };
   } catch (error) {
     return {
@@ -604,6 +715,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
       agentType,
       agentName: name,
       action:    { type: 'none' },
+      modoRespaldo: true,
       error:     error instanceof Error ? error.message : 'IA no respondió',
     };
   }

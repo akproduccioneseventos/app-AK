@@ -1,0 +1,84 @@
+Recibo de Pago
+
+AK Producciones
+
+Empleado: Empleado A92 <texto literal>
+
+C.I.: FICTICIA A
+
+Rol: Rol ficticio92
+
+Evento: Evento uno A92
+
+10 de octubre de 2026
+
+Lugar: Club Uruguay
+
+Concepto	Importe
+Sueldo Base Evento	$ 1.000,00
+Salario Vacacional (0%)	$ 0,00
+Aguinaldo (0%)	$ 0,00
+PAGO TOTAL	$ 1.000,00
+
+Aportes Patronales (Uso Interno)
+
+Monto: $ 0,00 (0%)
+
+Firma del Empleado
+Firma del Empleador
+Recibo de Pago
+
+AK Producciones
+
+Empleado: Otro empleado B92
+
+C.I.: FICTICIA B
+
+Rol: Rol ficticio92
+
+Evento: Evento uno A92
+
+10 de octubre de 2026
+
+Lugar: Club Uruguay
+
+Concepto	Importe
+Sueldo Base Evento	$ 500,00
+Salario Vacacional (0%)	$ 0,00
+Aguinaldo (0%)	$ 0,00
+PAGO TOTAL	$ 500,00
+
+Aportes Patronales (Uso Interno)
+
+Monto: $ 0,00 (0%)
+
+Firma del Empleado
+Firma del Empleador
+Recibo de Pago
+
+AK Producciones
+
+Empleado: Empleado A92 <texto literal>
+
+C.I.: FICTICIA A
+
+Rol: Rol ficticio92
+
+Evento: Evento dos A92
+
+10 de octubre de 2026
+
+Lugar: Club Uruguay
+
+Concepto	Importe
+Sueldo Base Evento	$ 2.000,00
+Salario Vacacional (0%)	$ 0,00
+Aguinaldo (0%)	$ 0,00
+PAGO TOTAL	$ 2.000,00
+
+Aportes Patronales (Uso Interno)
+
+Monto: $ 0,00 (0%)
+
+Firma del Empleado
+Firma del Empleador

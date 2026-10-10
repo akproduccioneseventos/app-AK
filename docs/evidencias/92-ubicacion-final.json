@@ -1,0 +1,271 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/92-personal-ubicacion.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "92-personal-ubicacion.spec.ts",
+      "file": "92-personal-ubicacion.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "ubicacion obligatoria nativa-bloqueada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 17872,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:06:35.334Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "ubicacion-nativa-politica.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJjYWJlY2VyYSI6ICJjYW1lcmE9KHNlbGYpLCBtaWNyb3Bob25lPShzZWxmKSwgZ2VvbG9jYXRpb249KCkiLAogICJwb2xpdGljYSI6IHsKICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTozMzAwL2FjY2Vzby1wZXJzb25hbC90b2tfZTJlX2dlbzkyX25hdGl2YS1ibG9xdWVhZGFfMTI4OTZfMTc5MTY1MTk5NTUxMSIsCiAgICAicGVybWlzbyI6ICJncmFudGVkIiwKICAgICJwZXJtaXRpZG8iOiBmYWxzZQogIH0sCiAgIm5hdGl2YSI6IHsKICAgICJjb2RlIjogMSwKICAgICJtZXNzYWdlIjogIkdlb2xvY2F0aW9uIGhhcyBiZWVuIGRpc2FibGVkIGluIHRoaXMgZG9jdW1lbnQgYnkgcGVybWlzc2lvbnMgcG9saWN5LiIKICB9Cn0="
+                    },
+                    {
+                      "name": "ubicacion-nativa-bloqueada.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJjYXNvIjogIm5hdGl2YS1ibG9xdWVhZGEiLAogICJjb29yZGVuYWRhc1NpbXVsYWRhcyI6IGZhbHNlLAogICJwb2xpdGljYSI6IHsKICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTozMzAwL2FjY2Vzby1wZXJzb25hbC90b2tfZTJlX2dlbzkyX25hdGl2YS1ibG9xdWVhZGFfMTI4OTZfMTc5MTY1MTk5NTUxMSIsCiAgICAicGVybWlzbyI6ICJncmFudGVkIiwKICAgICJwZXJtaXRpZG8iOiBmYWxzZQogIH0sCiAgImFqdXN0ZSI6IHsKICAgICJfZmlsZVBhdGgiOiAiYWp1c3Rlcy1sbGVnYWRhLmpzb24iLAogICAgImxsZWdhZGFDb25VYmljYWNpb24iOiB0cnVlLAogICAgInJhZGlvTWV0cm9zIjogMzAwCiAgfSwKICAicGVyc29uYWwiOiBbCiAgICB7CiAgICAgICJlbXBsZWFkb0lkIjogImVtcF9lMmVfZ2VvOTJfbmF0aXZhLWJsb3F1ZWFkYV8xMjg5Nl8xNzkxNjUxOTk1NTExIiwKICAgICAgInJvbElkIjogInJvbF9maWN0aWNpbyIsCiAgICAgICJldmVudFNhbGFyeSI6IDAKICAgIH0KICBdLAogICJhdmlzb3MiOiBbCiAgICAiTm90aWZpY2F0aW9uIE5vIHB1ZGltb3MgcmVnaXN0cmFyIHR1IGxsZWdhZGFQYXJhIHJlZ2lzdHJhciBsYSBsbGVnYWRhIHNlIHJlcXVpZXJlIHR1IHViaWNhY2nDs24gYWN0dWFsLiIKICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6ba10988b795df465ff7-e1f5a707f5c2ab10985d",
+          "file": "92-personal-ubicacion.spec.ts",
+          "line": 9,
+          "column": 74
+        },
+        {
+          "title": "ubicacion obligatoria correcta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12638,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:06:53.390Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "ubicacion-correcta.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJjYXNvIjogImNvcnJlY3RhIiwKICAiY29vcmRlbmFkYXNTaW11bGFkYXMiOiB0cnVlLAogICJwb2xpdGljYSI6IHsKICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTozMzAwL2FjY2Vzby1wZXJzb25hbC90b2tfZTJlX2dlbzkyX2NvcnJlY3RhXzEyODk2XzE3OTE2NTIwMTMzOTgiLAogICAgInBlcm1pc28iOiAiZ3JhbnRlZCIsCiAgICAicGVybWl0aWRvIjogZmFsc2UKICB9LAogICJhanVzdGUiOiB7CiAgICAiX2ZpbGVQYXRoIjogImFqdXN0ZXMtbGxlZ2FkYS5qc29uIiwKICAgICJsbGVnYWRhQ29uVWJpY2FjaW9uIjogdHJ1ZSwKICAgICJyYWRpb01ldHJvcyI6IDMwMAogIH0sCiAgInBlcnNvbmFsIjogWwogICAgewogICAgICAiZW1wbGVhZG9JZCI6ICJlbXBfZTJlX2dlbzkyX2NvcnJlY3RhXzEyODk2XzE3OTE2NTIwMTMzOTgiLAogICAgICAicm9sSWQiOiAicm9sX2ZpY3RpY2lvIiwKICAgICAgImV2ZW50U2FsYXJ5IjogMCwKICAgICAgImNoZWNrSW5UaW1lc3RhbXAiOiAiMjAyNi0xMC0xMFQxNzowNjo1OC45OTJaIiwKICAgICAgImNoZWNrSW5VYmljYWNpb24iOiB7CiAgICAgICAgImxhdCI6IC0zNC45MDY1LAogICAgICAgICJsbmciOiAtNTYuMTk5OCwKICAgICAgICAiZGlzdGFuY2lhTWV0cm9zIjogMAogICAgICB9CiAgICB9CiAgXSwKICAiYXZpc29zIjogW10KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6ba10988b795df465ff7-3a551484f733f02d6df5",
+          "file": "92-personal-ubicacion.spec.ts",
+          "line": 9,
+          "column": 74
+        },
+        {
+          "title": "ubicacion obligatoria fuera",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8575,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:07:06.051Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "ubicacion-fuera.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJjYXNvIjogImZ1ZXJhIiwKICAiY29vcmRlbmFkYXNTaW11bGFkYXMiOiB0cnVlLAogICJwb2xpdGljYSI6IHsKICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTozMzAwL2FjY2Vzby1wZXJzb25hbC90b2tfZTJlX2dlbzkyX2Z1ZXJhXzEyODk2XzE3OTE2NTIwMjYwNzMiLAogICAgInBlcm1pc28iOiAiZ3JhbnRlZCIsCiAgICAicGVybWl0aWRvIjogZmFsc2UKICB9LAogICJhanVzdGUiOiB7CiAgICAiX2ZpbGVQYXRoIjogImFqdXN0ZXMtbGxlZ2FkYS5qc29uIiwKICAgICJsbGVnYWRhQ29uVWJpY2FjaW9uIjogdHJ1ZSwKICAgICJyYWRpb01ldHJvcyI6IDMwMAogIH0sCiAgInBlcnNvbmFsIjogWwogICAgewogICAgICAiZW1wbGVhZG9JZCI6ICJlbXBfZTJlX2dlbzkyX2Z1ZXJhXzEyODk2XzE3OTE2NTIwMjYwNzMiLAogICAgICAicm9sSWQiOiAicm9sX2ZpY3RpY2lvIiwKICAgICAgImV2ZW50U2FsYXJ5IjogMAogICAgfQogIF0sCiAgImF2aXNvcyI6IFsKICAgICJOb3RpZmljYXRpb24gTm8gcHVkaW1vcyByZWdpc3RyYXIgdHUgbGxlZ2FkYUVzdMOhcyBhIDE0OTM5bSBkZWwgc2Fsw7NuIChlbCBtw6F4aW1vIHBlcm1pdGlkbyBlcyAzMDBtKS4iCiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6ba10988b795df465ff7-c752fb652d1a9eae18b3",
+          "file": "92-personal-ubicacion.spec.ts",
+          "line": 9,
+          "column": 74
+        },
+        {
+          "title": "ubicacion obligatoria denegada",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6873,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:07:14.654Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "ubicacion-denegada.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJjYXNvIjogImRlbmVnYWRhIiwKICAiY29vcmRlbmFkYXNTaW11bGFkYXMiOiBmYWxzZSwKICAicG9saXRpY2EiOiB7CiAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6MzMwMC9hY2Nlc28tcGVyc29uYWwvdG9rX2UyZV9nZW85Ml9kZW5lZ2FkYV8xMjg5Nl8xNzkxNjUyMDM0NjYxIiwKICAgICJwZXJtaXNvIjogImRlbmllZCIsCiAgICAicGVybWl0aWRvIjogZmFsc2UKICB9LAogICJhanVzdGUiOiB7CiAgICAiX2ZpbGVQYXRoIjogImFqdXN0ZXMtbGxlZ2FkYS5qc29uIiwKICAgICJsbGVnYWRhQ29uVWJpY2FjaW9uIjogdHJ1ZSwKICAgICJyYWRpb01ldHJvcyI6IDMwMAogIH0sCiAgInBlcnNvbmFsIjogWwogICAgewogICAgICAiZW1wbGVhZG9JZCI6ICJlbXBfZTJlX2dlbzkyX2RlbmVnYWRhXzEyODk2XzE3OTE2NTIwMzQ2NjEiLAogICAgICAicm9sSWQiOiAicm9sX2ZpY3RpY2lvIiwKICAgICAgImV2ZW50U2FsYXJ5IjogMAogICAgfQogIF0sCiAgImF2aXNvcyI6IFsKICAgICJOb3RpZmljYXRpb24gTm8gcHVkaW1vcyByZWdpc3RyYXIgdHUgbGxlZ2FkYVBhcmEgcmVnaXN0cmFyIGxhIGxsZWdhZGEgc2UgcmVxdWllcmUgdHUgdWJpY2FjacOzbiBhY3R1YWwuIgogIF0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6ba10988b795df465ff7-3768c9c30facb167c4c0",
+          "file": "92-personal-ubicacion.spec.ts",
+          "line": 9,
+          "column": 74
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T17:06:33.571Z",
+    "duration": 48284.132999999994,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

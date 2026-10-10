@@ -1,5 +1,136 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Orden 105, bloque 3: hablar con el asistente en vivo
+
+- **Qué hay ahora:** un botón "Hablar" junto al micrófono del asistente. El dueño habla, el asistente
+  contesta con voz en tiempo real, se lo puede interrumpir y anda en el celular. Usa la API en vivo de
+  Gemini (modelo `gemini-3.8-live`, con `gemini-2.5-flash-native-audio-preview-12-2025` de respaldo;
+  se cambia con la variable `GEMINI_LIVE_MODEL`).
+- **Por qué así:** la clave de Google NUNCA viaja al navegador. El servidor (`/api/asistente/voz-en-vivo`,
+  sólo equipo con sesión) pide a Google una ficha de un solo uso que vence con la conversación, y el
+  navegador habla directo con Google. Los minutos del día se reservan en una sola operación de la base
+  (de a 10 como máximo, la sesión corta sola al llegar) y se devuelven si Google no entregó la ficha.
+  Decisión del dueño: usa la parte gratis por omisión y "quiero poder pagar si necesito", por eso el
+  tope de minutos por día se sube en Ajustes → Asistente (referencia de Google: ~US$0,023 por minuto).
+- **No ejecuta acciones:** si le piden cambiar o cargar algo, dice que lo deja listo en el chat y la
+  persona lo confirma ahí. Sabe del negocio por el mismo resumen que usa el asistente de texto.
+- **Sin probar contra Google real:** el contenedor no tiene clave, así que la conexión verdadera NO se
+  probó; el protocolo sigue la documentación de Google (WebSocket, `v1alpha` para las fichas). Si en
+  producción falla, probar con la variable `GEMINI_LIVE_API_VERSION=v1beta` (constante
+  `VERSION_API_EN_VIVO_POR_OMISION` en `src/lib/asistente/voz-en-vivo.ts`). Las pruebas cubren lo que
+  se puede cubrir con piezas de mentira (ruta, minutos, interrupción, corte duro).
+
+```comprobar
+archivo: src/lib/asistente/voz-en-vivo.ts
+usa: iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+usa: vozEnVivoMinutosPorDia en src/app/(app)/settings/asistente/page.tsx
+usa: reservarMinutos en src/app/api/asistente/voz-en-vivo/route.ts
+prueba: src/__tests__/la-voz-en-vivo-ruta.test.ts
+prueba: src/__tests__/la-voz-en-vivo-lib.test.ts
+prueba: src/__tests__/la-voz-en-vivo-cliente.test.ts
+
+## 10 de octubre de 2026 — La IA de la app tiene que servir (asistente, pitch, DJ, cronograma, comentarios)
+
+El dueño: *"no hace nada, pura pavada"*. Se verificó una auditoría y se arregló todo junto:
+
+- **El asistente no podía usar cinco acciones que ya existían** (agendar reunión, ver mi semana,
+  preparar mail, buscar en la web, cuánto me deben): el servidor las ejecutaba pero el prompt nunca
+  se las ofrecía. Ahora están en el formato y descritas (cuándo usarlas, qué datos pedir). El
+  circuito de confirmación (`confirmado`) no se tocó, y el mail sigue siendo "preparar": lo manda
+  una persona.
+- **Todos los agentes reciben el mismo contexto de negocio**, armado con cuentas y no con la
+  intuición del modelo (`src/lib/multiagent/contexto-negocio.ts`): fiestas de los próximos 30 días
+  ordenadas por fecha con los días que faltan, agenda de hoy y de la semana (la misma cuenta que
+  `ver_mi_semana`) y, **sólo para quien tiene el permiso de contabilidad**, el total que le deben
+  calculado sobre TODOS los presupuestos contratados y vivos (sólo pagos confirmados; sin
+  archivados ni "Pendiente Verificación") más las cuotas vencidas. Antes: cartera cortada en 20,
+  sin orden y sólo para algunos agentes; saldos de los últimos 12 presupuestos. El personal sin
+  contabilidad no recibe ninguna cifra de deuda ni saldo en el prompt.
+- **Una lectura caída ya no parece "no hay nada"**: los bloques dicen "no se pudo leer" y la
+  respuesta empieza avisándolo ("Ojo: ahora no pude leer…" / "No pude leer los datos del negocio
+  ahora mismo…"). `cuanto_me_deben` tampoco dice "nadie debe nada" si la lectura falló.
+- **Modo respaldo explícito**: si la IA no responde, la primera línea es "La IA no está respondiendo
+  ahora; esto es un resumen automático de tus datos." y el resultado trae `modoRespaldo: true`.
+  Nunca dice "sin pendientes" si el diagnóstico no se pudo leer.
+- **Una tarea pedida fuera de una fiesta queda como recordatorio general** (y la respuesta lo dice),
+  en vez de negarse. Lo mismo en el Encargado General.
+- **Prompt**: corto por defecto, pero completo cuando piden una lista o un total, con las cifras
+  reales y como mucho 1 o 2 emojis (antes: "4-5 líneas" y "3 a 6 emojis", que daban respuestas
+  genéricas).
+- **Memoria**: al prompt sólo entran los aprendizajes de confianza alta (tope 5). Antes entraban 15
+  guardados solos con confianza baja, y la IA se realimentaba con su propio ruido.
+- **Modelos**: rápido `GEMINI_MODEL_RAPIDO` (por defecto `gemini-flash-latest`), profundo
+  `GEMINI_MODEL_PROFUNDO` (por defecto `gemini-pro-latest`, respaldo `gemini-2.5-pro`); se sacó el
+  `gemini-1.5-flash` retirado. El asistente manda `maxOutputTokens` explícito (4096; 8192 en
+  análisis profundo) para que el piso de tokens se aplique de verdad.
+- **El pitch de ventas y el perfil del DJ ya no devuelven "Hubo un error al generar…" como
+  resultado** (la pantalla lo mostraba como éxito y un vendedor podía mandarlo al cliente): ahora
+  fallan y la acción devuelve `success:false` con su cartel. El cronograma tampoco devuelve `[]` en
+  silencio: dice "No pude armar el cronograma, probá de nuevo."
+- **Clasificador de comentarios y respuestas a preguntas** llamaban por `fetch` a
+  `gemini-1.5-flash` (retirado) y se saltaban los respaldos: ahora usan `generateWithGeminiFallback`
+  y, si falla, se mantiene el comportamiento de siempre (sin clasificar / texto neutro).
+- **Lectura de contratos y análisis de reuniones** pasan por los modelos de respaldo
+  (`ejecutarPromptConFallback`), con los mismos esquemas.
+- No se tocó: el "sí" por subcadena que confirma agendar/mail (se dejó como estaba por pedido), el
+  Encargado ni los permisos de las acciones.
+
+```comprobar
+archivo: src/lib/multiagent/contexto-negocio.ts
+usa: bloquePlata en src/ai/flows/multiagent-flow.ts
+usa: bloqueFiestasProximas en src/ai/flows/multiagent-flow.ts
+usa: aprendizajesAprobados en src/ai/flows/multiagent-flow.ts
+usa: conAvisoDeLectura en src/ai/flows/multiagent-flow.ts
+usa: calcularDeudas en src/app/actions/multiagent.ts
+usa: ejecutarPromptConFallback en src/ai/flows/extract-contract-data.ts
+usa: generateWithGeminiFallback en src/lib/social-media/clasificador-comentarios.ts
+usa: generateWithGeminiFallback en src/lib/social-media/comments-backfill.ts
+no-usa: gemini-1.5-flash en src/ai/genkit.ts
+prueba: src/__tests__/ia-asistente-sabe-lo-que-dice.test.ts
+prueba: src/__tests__/ia-tarea-sin-fiesta-queda-como-recordatorio.test.ts
+prueba: src/__tests__/ia-flujos-no-fingen-exito.test.ts
+```
+
+## 10 de octubre de 2026 — Orden 143: el QR viejo no entra y la ubicación del personal anda
+
+- **Un QR de entrada con la credencial cambiada seguía entrando** si el lector estaba abierto: lo
+  comparaba el lector con la fiesta que tenía en memoria y el servidor no miraba la credencial.
+  Ahora `checkInGuest` recibe la credencial del QR y la compara con la vigente adentro del guardado.
+  Lo mismo para los otros dos lectores (el del equipo y la página de llegada). Un invitado sin
+  credencial guardada (QR muy viejo, sólo con el número) entra como antes; la entrada manual de
+  recepción no pide QR.
+- **"Marcar llegada" del personal no podía leer la ubicación**: la cabecera de la app decía
+  `geolocation=()` y el navegador la bloqueaba. Ahora `geolocation=(self)`: sólo la propia app,
+  nunca terceros; el servidor sigue validando el radio.
+
+```comprobar
+prueba: src/__tests__/el-qr-viejo-no-entra.test.ts
+prueba: tests/e2e/la-ubicacion-del-personal-no-esta-bloqueada.spec.ts
+usa: token en src/app/evento/accesos/[fiestaId]/page.tsx
+usa: scannedToken en src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx
+```
+
+## 10/10/2026 - Codex92: seis huecos, dos fallos reales nuevos
+
+- Main85215484 contrastado y ejecutado despues de fusion1282/1283. Compras,
+  album y papel cambiaron: se retestearon esos consumidores, no toda la app.
+- Catering UI->SDK->cocina20/8/28/especiales3->compras660->pedido/pagado->otra
+  sesion pasa. Pago es estado al proveedor, no dinero bancario. Link de cocina
+  requirio URL directa en QA; no se atribuye a Hosting sin reproducirlo alli.
+- Recibos todas3A4/filtro2A4 y aislamiento del nombre literal pasan; album200
+  medios/bytes y audio, parcial2de3/aviso/Reintentar pasan. No hardware.
+- Video PNG->JPEG deja01.jpg/bytes/HTTP200; recarga visual limitada por emulador,
+  ya limite88, no nuevo defecto publicado. Allowlist imagen local SOLO TEMP.
+- ACC92-REVOCACION P1: QR viejo con lector abierto acepta llegada aun despues
+  de rotar token. PERS92-GEO P1: permiso granted pero cabecera bloquea GPS.
+  Orden143Claude. Coordenadas simuladas prueban radio, no eliminan bloqueo.
+- Errores de sondas descartados: no-op de menu, QR ficticio largo, contador40,
+  selector ambiguo, expresion2de3 y lectura de toast antes de montaje. Raws
+  conservados, no sumarlos como errores de app ni repetir sus intentos.
+- Informe92 y matriz84 separan aprobacion, correccion presente y limites.
+  139-142 ya tienen codigo en main; no volver a encargarlos como pendientes
+  de programar. No aceptacion global, no0errores;143 no corrige por existir.
+
 ## 10 de octubre de 2026 — Recibos del personal (orden 142) y la espera de la fotocabina
 
 - **El desglose del recibo no sumaba el total**: $1.000 con 8,33 % y 8,33 % daba $999,99 (y con
@@ -250,7 +381,7 @@ usa: noSeGuardo en src/app/actions/multiagent.ts
 usa: generacion en src/lib/asistente/reproductor-voz.ts
 usa: ejecutarVigilantePublicidad en src/app/actions/agentes-autonomos.ts
 usa: ignorarIntervalo en src/lib/agentes/motor-agentes.ts
-usa: La IA no respondió ahora en src/ai/flows/multiagent-flow.ts
+usa: LINEA_MODO_RESPALDO en src/ai/flows/multiagent-flow.ts
 ```
 
 

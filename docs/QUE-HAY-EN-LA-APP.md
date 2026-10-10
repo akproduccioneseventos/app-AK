@@ -119,6 +119,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Trivia con podio por mesa | Sí | Pantalla grande del salón |
 | Misiones secretas para invitados | Sí | Muro social, en el celular |
 | Secretario que habla (micrófono y voz) | Sí | Botón flotante, en toda la app interna. Voz de Gemini (gratis, tope 100 por día) y del teléfono, cada una con su interruptor en Ajustes |
+| Voz en vivo (botón "Hablar" del asistente) | Sí, sin probar contra Google real | Conversación hablada en tiempo real con la API en vivo de Gemini, se puede interrumpir, sólo para el equipo con sesión. Tope de minutos por día en Ajustes → Asistente (por omisión 10). La clave nunca llega al navegador: va una ficha de un solo uso. No ejecuta acciones: las deja en el chat para confirmar (orden 105, bloque 3) |
 | Quién llegó del equipo | Sí | Centro de la fiesta |
 | Pantallas de la noche en oscuro | Sí | Recepción y logística |
 | La reunión se agenda sola | Sí | Al terminar el simulador público |
@@ -219,7 +220,23 @@ formas de hacer lo mismo.
 Trece funciones activas:
 
 - **Asistente que ejecuta acciones** (crear presupuestos, clientes, prospectos,
-  eventos, facturas). Pantalla: Ajustes → Asistente.
+  eventos, facturas). Pantalla: Ajustes → Asistente. Revisado el 10 de octubre de 2026:
+  - **Qué sabe**: todos los agentes reciben las fiestas de los próximos 30 días (ordenadas, con
+    los días que faltan), la agenda de hoy y de la semana y, sólo si el usuario tiene el permiso de
+    contabilidad, el total que le deben (todos los presupuestos contratados, sólo pagos
+    confirmados) con los 5 que más deben y las cuotas vencidas. Si una lectura falla, lo dice al
+    principio de la respuesta. Memoria: sólo aprendizajes de confianza alta (tope 5).
+  - **Qué hace**: crear tarea (sin fiesta queda como recordatorio general), completar tarea,
+    anotar invitado, registrar incidente, recordatorio, prospecto, borrador de presupuesto,
+    mensaje de WhatsApp preparado, agendar reunión (con confirmación), ver mi semana, preparar
+    mail (queda en la bandeja; lo manda una persona), buscar en la web (tope diario) y cuánto me
+    deben (sólo con permiso de contabilidad).
+  - **Si la IA no responde**: modo respaldo con la primera línea "La IA no está respondiendo
+    ahora; esto es un resumen automático de tus datos." y la marca `modoRespaldo`.
+  - **Modelos** (`src/ai/genkit.ts`): rápido = `GEMINI_MODEL_RAPIDO` o `gemini-flash-latest`;
+    profundo = `GEMINI_MODEL_PROFUNDO` o `gemini-pro-latest`, con `gemini-2.5-pro` como primer
+    respaldo y luego los flash. El `gemini-1.5-flash` está retirado y no se usa más. Los flujos
+    de contrato, reunión, pitch, DJ, cronograma y comentarios pasan todos por los respaldos.
 - **Agente de marketing**: escribe contenido para Instagram, Facebook, TikTok y
   WhatsApp, adaptado a cada plataforma.
 - **Análisis de reuniones con el cliente**: saca acta, acuerdos, tareas y alertas.
@@ -227,10 +244,12 @@ Trece funciones activas:
   treinta personajes.
 - **Espejo mágico**: cambio de cara propio de esa estación.
 - **Guion del DJ**: arma el resumen profesional con canciones sugeridas por momento
-  de la fiesta.
-- **Línea de tiempo del evento** y **paletas de colores** sugeridas.
+  de la fiesta. Si la IA falla, la pantalla muestra el error y deja la caja vacía.
+- **Línea de tiempo del evento** y **paletas de colores** sugeridas. Si el cronograma no se
+  puede armar, dice "No pude armar el cronograma, probá de nuevo."
+
 - **Lectura de contratos en PDF**: saca cliente, fecha, tipo de evento y monto.
-- **Discurso de venta** generado.
+- **Discurso de venta** generado. Si la IA falla, avisa y no deja ningún texto para copiar.
 
 ### Filtro de contenido de los invitados — ANDA (verificado línea por línea)
 

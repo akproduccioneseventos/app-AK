@@ -1,0 +1,33 @@
+{
+  "datos": [
+    {
+      "ingrediente": "Ingrediente Principal adultos A92",
+      "necesario": 5,
+      "comprar": 5,
+      "costo": 500
+    },
+    {
+      "ingrediente": "Ingrediente Infantil A92",
+      "necesario": 1.6,
+      "comprar": 2,
+      "costo": 100
+    },
+    {
+      "ingrediente": "Ingrediente Entrada todos A92",
+      "necesario": 2.8000000000000003,
+      "comprar": 3,
+      "costo": 60
+    }
+  ],
+  "estadosCompra": [
+    {
+      "proveedor": "Proveedor ficticio A92 e2e_catering92_18280_1791652888212",
+      "proveedorId": "proveedor-ficticio-a92-e2e-catering92-18280-1791652888212",
+      "pedido": true,
+      "pagado": true,
+      "entregadoParcial": false,
+      "montoPagado": 0
+    }
+  ],
+  "menuAsignadoId": "menu_e2e_catering92_18280_1791652888212"
+}

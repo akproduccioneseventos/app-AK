@@ -226,7 +226,9 @@ test.describe('noche de fiesta', () => {
     ]);
 
     // Esto es lo que pasa cuando en la puerta se escanea el QR de una invitada.
-    await page.goto(`/evento/actual/checkin?fiestaId=${ID}&guestId=${INVITADO.id}`, { waitUntil: 'domcontentloaded' });
+    // El QR de verdad lleva la credencial del invitado; desde la orden 143 el servidor la compara
+    // con la vigente y un QR sin ella (o con una vieja) no entra.
+    await page.goto(`/evento/actual/checkin?fiestaId=${ID}&guestId=${INVITADO.id}&token=${INVITADO.token}`, { waitUntil: 'domcontentloaded' });
 
     await expect(page.getByText(/Lucía Fernández/)).toBeVisible({ timeout: 45_000 });
     await expect(page.getByText(/no corresponde|no encontramos/i)).toHaveCount(0);

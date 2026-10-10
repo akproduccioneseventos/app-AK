@@ -37,9 +37,14 @@ Reglas:
       prompt,
     });
 
-    return result.text;
+    const texto = (result.text || '').trim();
+    if (!texto) throw new Error('La IA devolvió el mensaje vacío.');
+    return texto;
   } catch (error) {
+    // Antes devolvía "Hubo un error al generar el mensaje." como si fuera el resultado: la pantalla
+    // lo ponía en la caja con "Pitch generado con éxito" y un vendedor podía mandárselo al cliente.
+    // Ahora falla de verdad y la acción devuelve success:false.
     console.error('Error in generateSalesPitchFlow:', error);
-    return 'Hubo un error al generar el mensaje.';
+    throw new Error('No pude generar el mensaje de venta, probá de nuevo en un momento.');
   }
 }

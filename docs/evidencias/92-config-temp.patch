@@ -1,0 +1,13 @@
+diff --git a/next.config.js b/next.config.js
+index f44f76ed..88009d1d 100644
+--- a/next.config.js
++++ b/next.config.js
+@@ -235,6 +235,8 @@ const nextConfig = {
+   },
+   images: {
+     remotePatterns: [
++      // QA TEMP solamente: el deposito demo no esta en storage.googleapis.com.
++      { protocol: 'http', hostname: '127.0.0.1', port: '9195', pathname: '/**' },
+       {
+         protocol: 'https',
+         hostname: 'placehold.co',

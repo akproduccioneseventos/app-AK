@@ -13,6 +13,7 @@
  * 6. Si duda entre queja e insulto -> trata como queja (avisa y no oculta).
  */
 
+import { generateWithGeminiFallback } from '@/ai/genkit';
 import { hayPresupuestoParaIA } from '@/lib/ai/consumo-servidor';
 import { registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import type { CommentSentiment } from '@/types/comentarios-redes';
@@ -53,7 +54,8 @@ export async function clasificarComentario(
     };
   }
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  // La misma clave que usa el resto de la IA (genkit): si no hay, no se intenta.
+  const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return {
       classified: false,
@@ -88,30 +90,13 @@ Respondé ÚNICAMENTE en formato JSON plano con esta estructura exacta:
   "autoHide": boolean
 }`;
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: 'application/json',
-          temperature: 0.1,
-        },
-      }),
+    // Pasa por la función con respaldos de modelo: antes llamaba a gemini-1.5-flash (retirado) por
+    // fetch directo y, si fallaba, no probaba ningún otro.
+    const respuesta = await generateWithGeminiFallback({
+      prompt,
+      output: { format: 'json' },
     });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.warn('[clasificador-comentarios] Error API Gemini:', errText);
-      return {
-        classified: false,
-        error: `Error al contactar IA (${response.status})`,
-      };
-    }
-
-    const data = await response.json();
-    const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const rawContent = (respuesta.text || '').replace(/```json/gi, '').replace(/```/g, '').trim();
     if (!rawContent) {
       return { classified: false, error: 'Respuesta vacía de la IA' };
     }

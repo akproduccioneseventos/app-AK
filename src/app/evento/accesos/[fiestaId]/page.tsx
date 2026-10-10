@@ -114,7 +114,9 @@ function AccessControlContent() {
         return;
       }
 
-      const result = await checkInGuest(fiestaId, resolvedGuestId);
+      // La credencial se vuelve a comparar en el servidor con la vigente, no con la que tiene
+      // cargada este lector (puede haber cambiado con la pantalla abierta).
+      const result = await checkInGuest(fiestaId, resolvedGuestId, { token });
 
       if (!result.success) {
         setScanResult({ status: 'invalid', message: result.error || 'Invitado no encontrado.' });
@@ -170,6 +172,7 @@ function AccessControlContent() {
     return () => {
       if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
       if (scannerRef.current) {
+        // no pasa nada si falla: es apagar la cámara al salir de la pantalla; no guarda ni anuncia nada.
         scannerRef.current.clear().catch(() => {});
         scannerRef.current = null;
       }

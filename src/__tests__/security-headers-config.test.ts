@@ -13,9 +13,11 @@ describe('HTTP security headers', () => {
     );
 
     expect(headers['Strict-Transport-Security']).toBe('max-age=31536000');
+    // La ubicación se permite sólo a la propia app: "Marcar llegada" del personal la necesita.
     expect(headers['Permissions-Policy']).toBe(
-      'camera=(self), microphone=(self), geolocation=()'
+      'camera=(self), microphone=(self), geolocation=(self)'
     );
+    expect(headers['Permissions-Policy']).not.toMatch(/geolocation=\(\)|geolocation=\*/);
     expect(headers['X-XSS-Protection']).toBe('0');
   });
 });

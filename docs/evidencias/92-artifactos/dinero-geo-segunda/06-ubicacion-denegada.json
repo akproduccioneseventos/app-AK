@@ -1,0 +1,18 @@
+{
+  "caso": "denegada",
+  "ajuste": {
+    "_filePath": "ajustes-llegada.json",
+    "llegadaConUbicacion": true,
+    "radioMetros": 300
+  },
+  "personal": [
+    {
+      "empleadoId": "emp_e2e_geo92_denegada_12648_1791650546275",
+      "rolId": "rol_ficticio",
+      "eventSalary": 0
+    }
+  ],
+  "avisos": [
+    "Notification No pudimos registrar tu llegadaPara registrar la llegada se requiere tu ubicación actual."
+  ]
+}

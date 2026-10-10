@@ -1,0 +1,36 @@
+[
+  {
+    "name": "02-recibos-todas.pdf",
+    "pages": 3,
+    "expected": 3,
+    "size": [
+      {
+        "width": 595.91998,
+        "height": 842.88
+      },
+      {
+        "width": 595.91998,
+        "height": 842.88
+      },
+      {
+        "width": 595.91998,
+        "height": 842.88
+      }
+    ]
+  },
+  {
+    "name": "04-recibos-filtrados.pdf",
+    "pages": 2,
+    "expected": 2,
+    "size": [
+      {
+        "width": 595.91998,
+        "height": 842.88
+      },
+      {
+        "width": 595.91998,
+        "height": 842.88
+      }
+    ]
+  }
+]

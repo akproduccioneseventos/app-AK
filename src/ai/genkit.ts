@@ -15,19 +15,21 @@ const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
  */
 export const DEFAULT_GEMINI_LATEST_MODEL = 'googleai/gemini-flash-latest';
 export const DEFAULT_GEMINI_MODEL = 'googleai/gemini-flash-latest';
-export const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-2.5-pro';
+export const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-pro-latest';
+/** Primer respaldo del modelo profundo: si el atajo "latest" no responde, se prueba éste. */
+export const DEFAULT_GEMINI_PRO_FALLBACK_MODEL = 'googleai/gemini-2.5-pro';
 
+// Sin el 1.5 flash: Google lo retiró y sólo agregaba un intento que siempre fallaba.
 const DEFAULT_GEMINI_FALLBACK_MODELS = [
   DEFAULT_GEMINI_LATEST_MODEL,
   'googleai/gemini-2.5-flash',
   'googleai/gemini-2.0-flash',
-  'googleai/gemini-1.5-flash',
 ] as const;
 
 const GEMINI_MODEL_PATTERN = /^googleai\/gemini-[a-z0-9]+(?:[.-][a-z0-9]+)*$/i;
 
 type GeminiModelRole = 'default' | 'fast' | 'pro' | 'marketing' | 'commercial';
-type GeminiGenerationConfig = Record<string, never>;
+type GeminiGenerationConfig = { maxOutputTokens: number };
 
 const configuredGeminiModel = process.env.GEMINI_MODEL?.trim();
 
@@ -42,8 +44,10 @@ function resolveGeminiModel(value: string | undefined, fallback: string, label: 
 
 export const geminiModel = resolveGeminiModel(configuredGeminiModel, DEFAULT_GEMINI_MODEL, 'default');
 export const geminiLatestModel = resolveGeminiModel(process.env.GEMINI_MODEL_LATEST, DEFAULT_GEMINI_LATEST_MODEL, 'default');
-export const geminiFastModel = resolveGeminiModel(process.env.GEMINI_MODEL_FAST, geminiLatestModel, 'fast');
-export const geminiProModel = resolveGeminiModel(process.env.GEMINI_MODEL_PRO, DEFAULT_GEMINI_PRO_MODEL, 'pro');
+// Rápido y profundo se eligen por variable de entorno (GEMINI_MODEL_RAPIDO / GEMINI_MODEL_PROFUNDO);
+// los nombres viejos (_FAST / _PRO) siguen andando para no romper un despliegue ya configurado.
+export const geminiFastModel = resolveGeminiModel(process.env.GEMINI_MODEL_RAPIDO || process.env.GEMINI_MODEL_FAST, geminiLatestModel, 'fast');
+export const geminiProModel = resolveGeminiModel(process.env.GEMINI_MODEL_PROFUNDO || process.env.GEMINI_MODEL_PRO, DEFAULT_GEMINI_PRO_MODEL, 'pro');
 export const geminiMarketingModel = resolveGeminiModel(process.env.GEMINI_MODEL_MARKETING, geminiFastModel, 'marketing');
 export const geminiCommercialModel = resolveGeminiModel(process.env.GEMINI_MODEL_COMMERCIAL, geminiFastModel, 'commercial');
 
@@ -79,11 +83,17 @@ export async function getEffectiveGeminiModelForAgent(
   return preferred;
 }
 
+/**
+ * Tope de salida explícito. Sin `maxOutputTokens` en la configuración, `conLugarParaPensar` no
+ * tenía nada que subir y el modelo usaba su tope por defecto: las respuestas largas (listas,
+ * totales) salían cortadas. Con el piso puesto acá, el análisis profundo tiene el doble.
+ * No se mandan temperatura ni topP/topK: Gemini 3 los deprecó.
+ */
 export function getGeminiGenerationConfigForAgent(
   _agentType?: AkAgentType,
-  _options?: { deep?: boolean },
+  options?: { deep?: boolean },
 ): GeminiGenerationConfig {
-  return {};
+  return { maxOutputTokens: options?.deep ? PISO_DE_TOKENS_DE_SALIDA * 2 : PISO_DE_TOKENS_DE_SALIDA };
 }
 
 if (!apiKey) {
@@ -106,7 +116,9 @@ function configuredFallbackModels(): string[] {
 }
 
 export function getGeminiFallbackCandidates(preferredModel: string): string[] {
-  return Array.from(new Set([preferredModel, ...configuredFallbackModels()]));
+  // Si lo que falló es un modelo "pro", el primer respaldo es el pro estable, no uno chico.
+  const respaldoPro = /gemini-[a-z0-9.]*-?pro/i.test(preferredModel) ? [DEFAULT_GEMINI_PRO_FALLBACK_MODEL] : [];
+  return Array.from(new Set([preferredModel, ...respaldoPro, ...configuredFallbackModels()]));
 }
 
 export function isRecoverableGeminiModelError(error: unknown): boolean {
@@ -152,5 +164,28 @@ export async function generateWithGeminiFallback(request: GeminiGenerateRequest)
     }
   }
 
+  throw lastError;
+}
+
+/**
+ * Corre un `ai.definePrompt` (que trae UN solo modelo fijo) probando los modelos de respaldo si el
+ * principal no responde. Los flujos con esquema de salida (contratos, reuniones) quedaban sin red
+ * de seguridad: si el modelo se retiraba o se saturaba, fallaban de punta a punta.
+ */
+export async function ejecutarPromptConFallback<I, R>(
+  prompt: (input: I, opts?: { model?: string }) => Promise<R>,
+  input: I,
+  preferredModel: string = geminiModel,
+): Promise<R> {
+  let lastError: unknown;
+  for (const model of getGeminiFallbackCandidates(preferredModel)) {
+    try {
+      return await prompt(input, { model });
+    } catch (error) {
+      lastError = error;
+      if (!isRecoverableGeminiModelError(error)) throw error;
+      console.warn(`[Genkit] El modelo "${model}" no respondió. Probando fallback compatible.`);
+    }
+  }
   throw lastError;
 }

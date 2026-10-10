@@ -1089,3 +1089,17 @@ convirtiera bien y que las pantallas **nombraran** esa función: el ingrediente,
 ```comprobar
 prueba: src/__tests__/compras-suman-en-la-misma-unidad.test.ts
 ```
+
+## 10 de octubre de 2026 — El QR revocado entraba y una cabecera apagaba la ubicación (Codex, auditoría 92)
+
+- **El QR viejo**: la credencial la comparaba la pantalla con lo que tenía cargado, no el servidor
+  al guardar. Es la pregunta de "¿quién decide, el navegador o el servidor?", que no le había pasado
+  a la entrada. Barrido: los otros dos lectores tenían la misma forma y se arreglaron igual.
+- **La ubicación**: una cabecera de seguridad global apagaba una función que la app usa. Ninguna
+  pregunta mía cruzaba las cabeceras con lo que la app pide al navegador (cámara, micrófono,
+  ubicación). Queda la prueba de navegador que lo mira con la ubicación nativa.
+
+```comprobar
+prueba: src/__tests__/el-qr-viejo-no-entra.test.ts
+prueba: tests/e2e/la-ubicacion-del-personal-no-esta-bloqueada.spec.ts
+```

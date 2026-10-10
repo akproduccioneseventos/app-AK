@@ -1,5 +1,19 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion92: seis huecos de la lista real
+
+Informe92-seis-pendientes.md, main85215484 ejecutado. Catering integrado207.830s
+pasa con20/8/28, especiales3, compras660, flags persistidos/otra sesion. No banco.
+Impresion conjunta3A4/filtro2A4 pasa; album200bytes/audio y parcial2de3/reintento
+pasan. Video01.png->01.jpg/HTTP200 pasa, recarga visual emulada NO aceptada.
+Reentrada QR bien en consumidor sin delta. NuevoP1 token revocado con lector
+abierto sigue marcando checkedIn; nuevoP1 cabecera prohibe ubicacion aun con
+permiso granted. Orden143Claude, no producto corregido por Codex.
+139-142 correcciones presentes en1283/main: no pedidos duplicados. Retests de
+esas ordenes solo donde cambio consumidor: no cerrar142 por imprimir con
+porcentajes0, ni141 entera por fotosZIP. Hosting/cuentas/hardware/19originales
+y otros huecos de la matriz siguen separados. No14areaslimpias ni0errores.
+
 ## Actualizacion91: recibos finales de personal
 
 Leer `91-personal-recibos-final.md`. Firmado PC/movil:2E2E pasan con bytes

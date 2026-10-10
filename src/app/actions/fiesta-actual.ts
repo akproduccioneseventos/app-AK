@@ -89,7 +89,7 @@ export async function getInvitadosFiestaActual(fiestaId: string) { return await 
 export async function addInvitadoFiestaActual(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>) { return await InvitadosModule.addInvitado(fiestaId, nuevoInvitadoData); }
 export async function updateInvitadoFiestaActual(fiestaId: string, invitadoActualizado: Invitado) { return await InvitadosModule.updateInvitado(fiestaId, invitadoActualizado); }
 export async function handleRsvpSubmissionFiestaActual(fiestaId: string, submission: any) { return await InvitadosModule.handleRsvpSubmission(fiestaId, submission); }
-export async function checkInGuestFiestaActual(fiestaId: string, guestId: string) { return await InvitadosModule.checkInGuest(fiestaId, guestId); }
+export async function checkInGuestFiestaActual(fiestaId: string, guestId: string, qr?: { token: string | null }) { return await InvitadosModule.checkInGuest(fiestaId, guestId, qr); }
 export async function deleteInvitadoFiestaActual(fiestaId: string, invitadoId: string) { return await InvitadosModule.deleteInvitado(fiestaId, invitadoId); }
 export async function registrarQueAbrioLaInvitacion(fiestaId: string, guestId: string, guestAccessToken: string) {
   return await InvitadosModule.registrarQueAbrioLaInvitacion(fiestaId, guestId, guestAccessToken);

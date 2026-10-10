@@ -1,0 +1,28 @@
+{
+  "caso": "correcta",
+  "coordenadasSimuladas": true,
+  "politica": {
+    "url": "http://127.0.0.1:3300/acceso-personal/tok_e2e_geo92_correcta_12896_1791652013398",
+    "permiso": "granted",
+    "permitido": false
+  },
+  "ajuste": {
+    "_filePath": "ajustes-llegada.json",
+    "llegadaConUbicacion": true,
+    "radioMetros": 300
+  },
+  "personal": [
+    {
+      "empleadoId": "emp_e2e_geo92_correcta_12896_1791652013398",
+      "rolId": "rol_ficticio",
+      "eventSalary": 0,
+      "checkInTimestamp": "2026-10-10T17:06:58.992Z",
+      "checkInUbicacion": {
+        "lat": -34.9065,
+        "lng": -56.1998,
+        "distanciaMetros": 0
+      }
+    }
+  ],
+  "avisos": []
+}

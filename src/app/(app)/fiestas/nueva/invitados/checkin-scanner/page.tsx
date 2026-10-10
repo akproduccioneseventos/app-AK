@@ -60,7 +60,7 @@ function CheckinScannerContent() {
     loadInitialData();
   }, [loadInitialData]);
 
-  const processCheckIn = useCallback(async (guestId: string) => {
+  const processCheckIn = useCallback(async (guestId: string, qr?: { token: string | null }) => {
     if (isProcessingCheckin || !fiestaId) return;
     
     setIsProcessingCheckin(guestId);
@@ -84,7 +84,7 @@ function CheckinScannerContent() {
     }
 
     try {
-      const result = await checkInGuestFiestaActual(fiestaId, guestId);
+      const result = await checkInGuestFiestaActual(fiestaId, guestId, qr);
       if (result.success && result.invitado) {
         setAllGuests(prevGuests => prevGuests.map(g => g.id === guestId ? result.invitado! : g));
         toast({
@@ -125,6 +125,8 @@ function CheckinScannerContent() {
         const url = new URL(decodedText);
         const scannedFiestaId = url.searchParams.get('fiestaId');
         const scannedGuestId = url.searchParams.get('guestId');
+        // El servidor compara esta credencial con la vigente: un QR viejo no entra (auditoría 92).
+        const scannedToken = url.searchParams.get('token');
 
         if (scannedFiestaId !== fiestaId) {
             toast({ title: "QR Incorrecto", description: "Este QR no pertenece al evento actual.", variant: "destructive" });
@@ -133,7 +135,7 @@ function CheckinScannerContent() {
         }
 
         if (scannedGuestId) {
-            processCheckIn(scannedGuestId);
+            processCheckIn(scannedGuestId, { token: scannedToken });
         } else {
             toast({ title: "QR Inválido", description: "El código QR no contiene un ID de invitado válido.", variant: "destructive" });
         }

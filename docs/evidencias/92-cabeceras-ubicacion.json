@@ -1,0 +1,12 @@
+[
+  {
+    "url": "http://127.0.0.1:3300/",
+    "error": "The operation was aborted due to timeout"
+  },
+  {
+    "url": "https://akproducciones.uy/",
+    "status": 200,
+    "permissionsPolicy": "camera=(self), microphone=(self), geolocation=()",
+    "observado": "2026-10-10T16:56:34.068Z"
+  }
+]

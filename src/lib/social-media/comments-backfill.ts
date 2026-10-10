@@ -8,6 +8,7 @@ import type {
   CommentsSyncSummary,
 } from '@/types/comentarios-redes';
 import { readData, writeData } from '@/lib/data-service';
+import { generateWithGeminiFallback } from '@/ai/genkit';
 import { clasificarComentario } from './clasificador-comentarios';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 
@@ -43,7 +44,7 @@ export async function armarRespuestaAPregunta(
   const tienePresupuesto = await hayPresupuestoParaIA();
   if (!tienePresupuesto) return null;
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return '¡Hola! Para consultar disponibilidad y ver presupuestos a medida, escribinos directamente por WhatsApp y te asesoramos.';
   }
@@ -58,22 +59,10 @@ REGLAS ESTRICTAS:
 2. NO confirmes disponibilidad de fechas.
 3. Invitá siempre a escribir por WhatsApp para coordinar y asesorarlo en detalle.`;
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.2 },
-      }),
-    });
-
-    if (!response.ok) {
-      return '¡Hola! Para consultar disponibilidad y ver presupuestos a medida, escribinos al WhatsApp de AK Producciones y te pasamos toda la info.';
-    }
-
-    const data = await response.json();
-    const textoIA = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    // Con respaldos de modelo (antes: fetch directo a gemini-1.5-flash, ya retirado). Si la IA falla
+    // se mantiene el mismo texto neutro de siempre: nunca se publica algo inventado.
+    const respuesta = await generateWithGeminiFallback({ prompt });
+    const textoIA = (respuesta.text || '').trim();
     if (!textoIA) {
       return '¡Hola! Para consultar disponibilidad y ver presupuestos a medida, escribinos al WhatsApp de AK Producciones y te pasamos toda la info.';
     }

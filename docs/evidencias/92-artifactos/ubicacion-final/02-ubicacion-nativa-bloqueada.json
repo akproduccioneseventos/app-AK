@@ -1,0 +1,24 @@
+{
+  "caso": "nativa-bloqueada",
+  "coordenadasSimuladas": false,
+  "politica": {
+    "url": "http://127.0.0.1:3300/acceso-personal/tok_e2e_geo92_nativa-bloqueada_12896_1791651995511",
+    "permiso": "granted",
+    "permitido": false
+  },
+  "ajuste": {
+    "_filePath": "ajustes-llegada.json",
+    "llegadaConUbicacion": true,
+    "radioMetros": 300
+  },
+  "personal": [
+    {
+      "empleadoId": "emp_e2e_geo92_nativa-bloqueada_12896_1791651995511",
+      "rolId": "rol_ficticio",
+      "eventSalary": 0
+    }
+  ],
+  "avisos": [
+    "Notification No pudimos registrar tu llegadaPara registrar la llegada se requiere tu ubicación actual."
+  ]
+}

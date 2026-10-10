@@ -4,7 +4,7 @@ import path from 'node:path';
 import { execFileSync, spawn } from 'node:child_process';
 
 const repo = fs.realpathSync(process.cwd());
-const sha = '2aac14e2';
+const sha = process.argv.find(arg=>arg.startsWith('--sha='))?.slice(6) || '2aac14e2';
 const exact = execFileSync('git', ['rev-parse', `${sha}^{commit}`], { encoding: 'utf8' }).trim();
 const target = process.argv.slice(2).find(arg => !arg.startsWith('--'));
 const reserved=path.join(fs.realpathSync(os.tmpdir()),'ak-codex88');

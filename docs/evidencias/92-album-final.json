@@ -1,0 +1,153 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/92-album-pendientes.spec.ts",
+      "--grep",
+      "album excluye",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-q40zQA\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-q40zQA/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "92-album-pendientes.spec.ts",
+      "file": "92-album-pendientes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "album excluye enlace caducado sin falso ZIP exitoso",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16269,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T17:25:36.335Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "dedicatoria-audio-real.json",
+                      "contentType": "application/json",
+                      "body": "eyJwYXVzZWQiOmZhbHNlLCJkdXJhdGlvbiI6MC4xMjAxODJ9"
+                    },
+                    {
+                      "name": "album92-expired.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJzZWxlY3RlZCI6IDMsCiAgImV4cGlyZWRTdGF0dXMiOiBbCiAgICA0MDMsCiAgICA0MDMKICBdLAogICJwYXJ0aWFsSXRlbXMiOiBbCiAgICAicmVjdWVyZG9zLWUyZV9hbGJ1bTkyX2V4cGlyZWRfMTU1ODRfMTc5MTY1MzEzNzI1Mi9yZWN1ZXJkb18xX2ZvdG9jYWJpbmEucG5nIiwKICAgICJyZWN1ZXJkb3MtZTJlX2FsYnVtOTJfZXhwaXJlZF8xNTU4NF8xNzkxNjUzMTM3MjUyL3JlY3VlcmRvXzNfZm90b2NhYmluYS5wbmciCiAgXSwKICAiYXZpc28iOiAiTm90aWZpY2F0aW9uIERlc2NhcmdhIGluY29tcGxldGFTZSBlbXBhcXVldGFyb24gMiBkZSAzIHJlY3VlcmRvczsgbm8gc2UgcHVkaWVyb24gYmFqYXIgMS4gUG9kw6lzIHZvbHZlciBhIGludGVudGFyIHBhcmEgY29tcGxldGFyLiIsCiAgImF2aXNvUHJlc2VudGUiOiB0cnVlLAogICJmaWxlbmFtZSI6ICJyZWN1ZXJkb3MtZTJlX2FsYnVtOTJfZXhwaXJlZF8xNTU4NF8xNzkxNjUzMTM3MjUyLnppcCIKfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "55a59a3e872afa761319-44033da81e8a7b764ab9",
+          "file": "92-album-pendientes.spec.ts",
+          "line": 49,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T17:25:32.738Z",
+    "duration": 20868.091999999997,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

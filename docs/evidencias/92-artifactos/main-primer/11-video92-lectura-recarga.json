@@ -1,0 +1,14 @@
+{
+  "httpFinal": 200,
+  "bytesIguales": true,
+  "imagenes": [
+    {
+      "src": "http://127.0.0.1:3300/_next/image?url=%2Flogo_ak_producciones.png&w=96&q=75",
+      "loaded": false
+    },
+    {
+      "src": "http://127.0.0.1:3300/_next/image?url=%2Flogo_ak_producciones.png&w=128&q=75",
+      "loaded": false
+    }
+  ]
+}

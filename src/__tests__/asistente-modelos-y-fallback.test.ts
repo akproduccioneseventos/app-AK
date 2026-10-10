@@ -24,8 +24,8 @@ describe('Asistente AK — Selección de Modelos y Fallback de Presupuesto', () 
     expect(DEFAULT_GEMINI_MODEL).toBe('googleai/gemini-flash-latest');
   });
 
-  it('tiene configurado el modelo Pro para razonamiento profundo', () => {
-    expect(DEFAULT_GEMINI_PRO_MODEL).toBe('googleai/gemini-2.5-pro');
+  it('tiene configurado el atajo Pro (siempre el último) para razonamiento profundo', () => {
+    expect(DEFAULT_GEMINI_PRO_MODEL).toBe('googleai/gemini-pro-latest');
   });
 
   it('selecciona el modelo Pro cuando se pide deep o para agentes complejos', () => {

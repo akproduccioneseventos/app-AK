@@ -46,6 +46,11 @@ jest.mock('@/lib/data-service', () => ({
   readData: jest.fn(async (file: string, fallback: any) => {
     return mockStore[file] !== undefined ? JSON.parse(JSON.stringify(mockStore[file])) : fallback;
   }),
+  // cuanto_me_deben lee con detalle para no confundir una lectura caída con "nadie debe nada".
+  readDataConDetalle: jest.fn(async (file: string, fallback: any) => ({
+    valor: mockStore[file] !== undefined ? JSON.parse(JSON.stringify(mockStore[file])) : fallback,
+    huboFalla: false,
+  })),
   writeData: jest.fn(async (file: string, data: any) => {
     mockStore[file] = JSON.parse(JSON.stringify(data));
   }),
