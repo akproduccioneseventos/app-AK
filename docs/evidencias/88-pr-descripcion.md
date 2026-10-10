@@ -1,0 +1,46 @@
+## Descripcion del Cambio
+
+Auditoria88 de aceptacion sobre fuente2aac14e290b20945bd984a0c5e2ffdbe50eb853c.
+Base documental0af74652ebdf4c813b9eb443c358d51bc24542d7, contrastada antes de
+emitir orden139. No cambios de app, datos reales, publicaciones ni fusion.
+
+- 140 controles puntuales y14recorridos E2E unicos aprobados. Se conservan raws
+  y limites; los reintentos/errores de mis pruebas no se suman como aprobaciones.
+- NuevoP1: compras mezcla200g+2kg como202g/$20. Orden139 paraClaude con
+  consumidor real y sonda que falla, no solamente un helper/presencia de simbolo.
+- Salondibujo3D historico sigue sin aceptar: WebGL disponible, errorreconciler,
+  foto de respaldo sincanvas. No nueva orden duplicada ni certificado3D por foto.
+- Entregaoficial, ultimo750/saldo0/recibo, cargacerrada, carga operativa, contrato
+  largo/aislamiento, compartircliente, tipos, fotocabina/tira y PDFcomun acotados.
+- Build optimizado propio NO aceptado (copiadesaparecida/memoria). E2E Nextdev
+  y SDK demo; reemplazo video limitado por host emulado. Nada de esto prueba
+  Hosting/proveedores/cuentas/hardware/19presupuestos originales.
+- Informe88, matriz84, registrocompartido y ESTADOactual (<=40lineas) actualizados.
+  Mejoras de toda la app/IA quedan para despues del cierre, como pidio el dueno.
+
+## Tipo de Cambio
+- [ ] Correccion de errores de producto
+- [ ] Nueva funcionalidad
+- [ ] Refactorizacion / Optimizacion de producto
+- [x] Actualizacion de documentacion / evidencia / sondas QA aisladas
+
+## Lista de Verificacion (Checklist) antes de solicitar revision
+- [ ] npm run typecheck de toda la app (no se declara ejecutado en esta tanda)
+- [ ] npm run lint de toda la app (no se declara ejecutado en esta tanda)
+- [ ] npm run graphify:update (no cambia estructura productiva; grafo puntual reutilizado)
+- [x] Probados recorridos en Firestore/Storage demo con datos ficticios propios
+- [x] Syntax-only12sondas/runners, check-acentos2610archivos, git diff --check
+- [x] Se separan140unitarios/14E2E de errores/omisiones/limites externos
+- [ ] Certificado de cero errores /14areas limpias (NO se solicita ni se afirma)
+
+## Impacto en Firebase
+- [ ] Afecta reglas de Firestore / Seguridad de produccion
+- [ ] Modifica Cloud Functions
+- [ ] Modifica Hosting / Frontend
+- [ ] Requiere variables de entorno de produccion
+
+Runners usan variables ficticias y limites de memoria solo en TEMP/ak-codex88.
+Sin nuevas dependencias. Traces/videos grandes permanecen locales; capturas,
+PDFs, contexto, consolas y resultados estructurados se entregan en evidencias.
+Esta PR NO corrige COM88: entrega la orden y la prueba al responsable. No fusionar
+como si fuera un arreglo de producto ni como aprobacion final para publicar.

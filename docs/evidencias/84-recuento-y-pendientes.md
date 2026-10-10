@@ -1,6 +1,21 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
-9/10/2026. Main contrastado: `859fd23b1175646edc0209cab114241327d302ba`.
+## Actualizacion88 (10/10/2026, prevalece sobre estados historicos abajo)
+
+Fuente ejecutada2aac14e2; contraste0af74652 con delta solo permisos de fiestas.
+Leer `88-cierre-retets-y-limites.md`:140controles y14E2Eunicos acotados aprobados.
+Aceptados:135controles,136entregaoficial final,VID87-CIERRE; NuevaFactura PC/movil;
+ultimo750/saldo0/recibo/otrolector; carga/otrooperador; contrato45clausulas/papel/
+aislamiento; compartirtoken/cliente; tiposBoda/XV/default; PDFcomun2A4 futuro;
+fotocabina3fotos/tira. No repetir estos resultados sin cambio causal.
+COM88-UNIDADES nuevoP1 en compra:200g+2kg sale202g/$20, ORDEN139Claude pendiente.
+3D historico aun falla reconciler conWebGL y no produce canvas: no foto=3D.
+Reemplazo video final aun no aceptado por limitehostdev/emulador, no defecto
+publicado demostrado. ZIP/signedURL, comida integrada/restoportales/variantesIA,
+otras salidas de estaciones/consumidoresautomaticos y externos permanecen acotados.
+No14areaslimpias ni0errores. Los informes originales siguientes quedan HISTORICOS.
+
+9/10/2026, recuento original. Main contrastado: `859fd23b1175646edc0209cab114241327d302ba`.
 Rama documental: `codex/auditoria-83-contrato-estaciones-20261009`, PR 1277.
 Base de esta entrega: `422b62ba8c9f9b671ec90675626bb409f0b325a2`.
 Codex revisa y registra; no modifica la app ni fusiona. Trabajo local de otras IA

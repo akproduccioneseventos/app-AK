@@ -1,5 +1,34 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/10/2026 - Codex88: retest, resultados finales y compras
+
+Fuente ejecutada2aac14e290b20945bd984a0c5e2ffdbe50eb853c; entrega base0af74652.
+Informe `docs/evidencias/88-cierre-retets-y-limites.md`; QA/docs, NO producto/merge.
+- 112controles135-138+28financieros aprobados: efectos controlados, no proveedores
+  reales ni19originales. No repetir sondas86 negativas ya aceptadas.
+- 7E2E estables aprobados: NuevaFactura PC/movil, carga->SDK/reload/otrooperador,
+  contrato largo/papel/otrafiesta, entregaoficial/archivo/reload/otraclave,
+  ultimo750->saldo0/recibo/otronavegador, cargacerrada rechazapantallavieja.
+- VID87-CIERRE y136entregaoficial aceptados en esos consumidores; no otraorden.
+  Contrato6A4/45clausulas inspeccionado; no firma legal/PDF del simulador.
+- COM88-UNIDADES nuevoP1 orden139 Claude:200g+2kg sale202g/$20 en pantalla.
+  Helper/claves daban verde, pero no convertian numeros en consumidor. PENDIENTE.
+- 3D sigue sin canvas conWebGL (reconciler readingcurrent), muestra foto.
+  Historico52/75/77/DEVOLUCION42 SIN aceptar; no orden duplicada ni foto=3D.
+- Reemplazo video limitado por Nextdev/hostlocalhost9195: no aprobado ni fallo
+  publicado demostrado. No permitir loopback en produccion para arreglar una sonda.
+- Fallos QA: semillaJSON en servidorFirestore, clic antes de cargar y popupPDF
+  headless. No entregar esos errores de pruebas como defectos de app.
+- Build optimizado propio no aceptado: copia desaparecida e intento detenido por
+  memoria. Nextdev/emuladores demo, no certificadoHosting/proveedores.
+- Mejoras solicitadas para DESPUES del cierre (incluidaIA), sin ampliar ahora.
+  Otros huecos en84/88. NO14areaslimpias ni0errores.
+- Cierre tanda:5E2Eventas/estaciones+2tiposBoda/XV corregidos=14E2Eunicos total.
+  Compartir token/cliente sin cuenta; Cumpleanos/pie sin0; fotocabina3fotos/tira;
+  simulador comun/PDF2A4 numeradas e inspeccionadas/vigente/persona/proyeccion2027.
+  NO paqueteconmenu/CRM/IA ni entregaStorageQR/hardware por esos recorridos.
+  Tipos fallaban por esperaQA de portada transitoria retirada, no cambio de app.
+
 ## 10 de octubre de 2026 — Borrar, archivar o cancelar una fiesta pedía sólo sesión
 
 Lo anoté al hacer "Poner al día" y lo cerré con la pregunta 47: el personal y el operador podían

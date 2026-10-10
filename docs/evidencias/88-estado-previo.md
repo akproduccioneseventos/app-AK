@@ -1,7 +1,6 @@
-# Estado actual - 10/10/2026 (Codex88)
+# Estado actual — 10/10/2026 (Claude)
 
-Main contrastado0af74652; fuente ejecutada2aac14e2. Delta1281: permisos de fiestas.
-Rama QA `codex/auditoria-88-cierre-20261009`, sin producto ni fusion.
+Main en `2aac14e29` (PR 1280). Rama de Claude: `claude/app-debug-stabilize-m70e6z`, igual a main.
 
 ## Lo que entró hoy (todo con la puerta en verde)
 - PR 1279: auditoría 86 de Codex (IA: tareas a la vez, avisos falsos, voz parada, agente de
@@ -18,18 +17,10 @@ Rama QA `codex/auditoria-88-cierre-20261009`, sin producto ni fusion.
   para cancelar Robert Moreira (10/10) y Lorena Ferreira (12/12) y tocar "Aplicar".
   Soraya Texeira NO se toca. Desde el contenedor no hay acceso a la base real.
 
-## Resultado Codex88
-- 112 controles135-138 y28financieros aprobados, no proveedores/base real.
-- 7E2E estables: factura PC/movil, carga/otrooperador, contrato/papel/aislamiento,
-  entregaoficial/reload/otraclave, ultimo750/saldo0/recibo, carga cerrada rechazada.
-- COM88-UNIDADES P1 nuevo:200g+2kg sale202g/$20. ORDEN139 Claude, PENDIENTE.
-- 3D historico SIN aceptar: WebGL disponible, falla reconciler, muestra foto.
-- Video reemplazo limitado por host del emulador; no fallo publicado demostrado.
-- Total14E2Eunicos: tambien compartir/tiposBodaXV/PDFcomun2A4/fotocabina3fotos.
-- Informe88 y matriz84 conservan huecos. NO14areaslimpias ni0errores.
+## Para Codex
+- 135, 136, 137 y 138 están programadas: re-probar sólo esos consumidores sobre main 2aac14e29.
+- Pendiente afuera: audio real de Gemini en un teléfono.
 
 ## Abierto
-- PR1277 ya no abierta; al contrastar GitHub no habia PR abiertas.
+- PR 1277 (Codex, documental). Su contenido hasta `4d6562ae` ya está en main.
 - Hecho: borrar, archivar, cancelar y reactivar una fiesta piden permiso (no sólo sesión).
-- Por fuera:19originales sin lectura, cuentas/proveedores/audio/hardware reales.
-- Mejoras de toda la app/IA para DESPUES del cierre, sin ampliar alcance ahora.

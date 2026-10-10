@@ -1,0 +1,186 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/88-tipos-simulador-sin-carrera.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--timeout=90000",
+      "--grep",
+      "abre con",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "88-tipos-simulador-sin-carrera.spec.ts",
+      "file": "88-tipos-simulador-sin-carrera.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Orden 96 - Bloques 3 y 9: El simulador respeta el tipo de fiesta y no muestra $0 al arrancar",
+          "file": "88-tipos-simulador-sin-carrera.spec.ts",
+          "line": 16,
+          "column": 6,
+          "specs": [
+            {
+              "title": "abre con ?tipo=boda y queda seleccionada Boda",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12353,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T13:11:45.631Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "55e61b12b8d84b90cef0-48c891d5a6dbeaa1234b",
+              "file": "88-tipos-simulador-sin-carrera.spec.ts",
+              "line": 17,
+              "column": 7
+            },
+            {
+              "title": "abre con ?tipo=XV%20años y queda seleccionada 15 años",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 90000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium-desktop",
+                  "projectName": "chromium-desktop",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9487,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-10T13:11:58.307Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "55e61b12b8d84b90cef0-0ffb9642b606bf0783e9",
+              "file": "88-tipos-simulador-sin-carrera.spec.ts",
+              "line": 31,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T13:11:44.193Z",
+    "duration": 24220.339,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
