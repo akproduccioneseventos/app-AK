@@ -3,7 +3,7 @@
  * @fileOverview Flujo de IA optimizado para documentos de AK Producciones.
  */
 
-import { ai, geminiModel } from '@/ai/genkit';
+import { ai, ejecutarPromptConFallback, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const ExtractContractInputSchema = z.object({
@@ -50,7 +50,7 @@ const extractContractFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-      const { output } = await prompt(input);
+      const { output } = await ejecutarPromptConFallback(prompt, input);
       if (!output) {
         throw new Error("La IA no devolvió resultados válidos.");
       }

@@ -82,6 +82,8 @@ export interface AkMultiAgentOutput {
     data?: any;
   };
   error?: string;
+  /** true cuando la IA no respondió y el texto es un resumen automático de los datos. */
+  modoRespaldo?: boolean;
 }
 
 export interface AkPersistentMultiAgentOutput extends AkMultiAgentOutput {

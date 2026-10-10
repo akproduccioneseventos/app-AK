@@ -164,7 +164,21 @@ async function ejecutarHerramienta(
       case 'crear_tarea': {
         const fiestaId = args.fiestaId || contexto.fiestaId;
         if (!fiestaId) {
-          return { exito: false, resultado: null, error: 'Falta ID de fiesta para crear tarea.' };
+          // Sin fiesta no hay dónde colgar la tarea: queda como recordatorio general, y se dice.
+          const pendiente = [args.texto, args.fechaLimite ? `para el ${args.fechaLimite}` : ''].filter(Boolean).join(' · ');
+          const rec = await crearRecordatorioDesdeMultiagente({
+            titulo: 'Pendiente: ' + String(args.texto || 'tarea').slice(0, 60),
+            mensaje: pendiente || 'Pendiente sin detalle',
+            tipo: 'aviso',
+          });
+          return {
+            exito: rec.success,
+            resultado: rec.success ? { recordatorioGeneral: pendiente } : null,
+            comprobacion: rec.success
+              ? 'No había una fiesta: la tarea quedó como recordatorio general (no como tarea de una fiesta).'
+              : 'Error al guardar el recordatorio general.',
+            error: rec.success ? undefined : (rec as { error?: string }).error,
+          };
         }
         const res = await crearTareaDesdeMultiagente({
           fiestaId,
@@ -241,6 +255,7 @@ export async function ejecutarEncargado(input: AkMultiAgentInput): Promise<Encar
     const especialistas = seleccionarEspecialistas(input.message, input.pathname, input.fiestaId);
     const progreso: EspecialistaProgreso[] = [];
     const hallazgos: string[] = [];
+    let algunoEnRespaldo = false;
 
     if (especialistas.length === 1 && especialistas[0] !== 'central') {
       const singleResult = await runMultiAgent({ ...input, agentType: especialistas[0] });
@@ -262,6 +277,7 @@ export async function ejecutarEncargado(input: AkMultiAgentInput): Promise<Encar
           progItem.estado = resEsp.success ? 'listo' : 'error';
           progItem.resumen = resEsp.response;
         }
+        if (resEsp.modoRespaldo) algunoEnRespaldo = true;
         if (resEsp.success && resEsp.response) hallazgos.push(`[${nombreEsp}]: ${resEsp.response}`);
       } catch {
         const progItem = progreso.find((p) => p.id === esp);
@@ -280,9 +296,9 @@ ${hallazgos.join('\n\n')}
 Instrucciones:
 1. Hablá en primera persona, en español rioplatense natural (vos, bo, che, dale).
 2. NUNCA digas "el agente contable informa" ni "el especialista de marketing dice".
-3. Unificá todo en una sola respuesta clara, directa, con viñetas concisas y máximo 4-5 líneas.
+3. Unificá todo en una sola respuesta clara y directa, con viñetas. Corta por defecto, pero si el dueño pidió una lista o un total, dala completa con las cifras y nombres exactos que trajeron los especialistas (no los inventes ni los redondees).
 4. Si algún especialista no pudo responder, decilo simple: "del personal no pude averiguar".
-5. Usá 2-3 emojis pertinentes.`;
+5. Como mucho 1 o 2 emojis.`;
 
     try {
       const sintesis = await generateWithGeminiFallback({
@@ -296,6 +312,7 @@ Instrucciones:
         agentName: 'Encargado General AK',
         especialistasConsultados: progreso,
         vueltasRealizadas: 1,
+        ...(algunoEnRespaldo ? { modoRespaldo: true } : {}),
       };
     } catch {
       return {
@@ -305,6 +322,7 @@ Instrucciones:
         agentName: 'Encargado General AK',
         especialistasConsultados: progreso,
         vueltasRealizadas: 1,
+        ...(algunoEnRespaldo ? { modoRespaldo: true } : {}),
       };
     }
   }

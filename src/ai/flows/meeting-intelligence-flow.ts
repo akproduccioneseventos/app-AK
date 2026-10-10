@@ -1,6 +1,6 @@
 'use server';
 
-import { ai, geminiModel } from '@/ai/genkit';
+import { ai, ejecutarPromptConFallback, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const MeetingIntelligenceInputSchema = z.object({
@@ -79,7 +79,7 @@ const meetingIntelligenceFlow = ai.defineFlow(
     outputSchema: MeetingIntelligenceOutputSchema,
   },
   async (input) => {
-    const { output } = await meetingIntelligencePrompt(input);
+    const { output } = await ejecutarPromptConFallback(meetingIntelligencePrompt, input);
     if (!output) throw new Error('La IA no devolvio un resumen valido.');
     return output;
   }

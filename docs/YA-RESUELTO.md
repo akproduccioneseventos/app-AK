@@ -1,5 +1,67 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — La IA de la app tiene que servir (asistente, pitch, DJ, cronograma, comentarios)
+
+El dueño: *"no hace nada, pura pavada"*. Se verificó una auditoría y se arregló todo junto:
+
+- **El asistente no podía usar cinco acciones que ya existían** (agendar reunión, ver mi semana,
+  preparar mail, buscar en la web, cuánto me deben): el servidor las ejecutaba pero el prompt nunca
+  se las ofrecía. Ahora están en el formato y descritas (cuándo usarlas, qué datos pedir). El
+  circuito de confirmación (`confirmado`) no se tocó, y el mail sigue siendo "preparar": lo manda
+  una persona.
+- **Todos los agentes reciben el mismo contexto de negocio**, armado con cuentas y no con la
+  intuición del modelo (`src/lib/multiagent/contexto-negocio.ts`): fiestas de los próximos 30 días
+  ordenadas por fecha con los días que faltan, agenda de hoy y de la semana (la misma cuenta que
+  `ver_mi_semana`) y, **sólo para quien tiene el permiso de contabilidad**, el total que le deben
+  calculado sobre TODOS los presupuestos contratados y vivos (sólo pagos confirmados; sin
+  archivados ni "Pendiente Verificación") más las cuotas vencidas. Antes: cartera cortada en 20,
+  sin orden y sólo para algunos agentes; saldos de los últimos 12 presupuestos. El personal sin
+  contabilidad no recibe ninguna cifra de deuda ni saldo en el prompt.
+- **Una lectura caída ya no parece "no hay nada"**: los bloques dicen "no se pudo leer" y la
+  respuesta empieza avisándolo ("Ojo: ahora no pude leer…" / "No pude leer los datos del negocio
+  ahora mismo…"). `cuanto_me_deben` tampoco dice "nadie debe nada" si la lectura falló.
+- **Modo respaldo explícito**: si la IA no responde, la primera línea es "La IA no está respondiendo
+  ahora; esto es un resumen automático de tus datos." y el resultado trae `modoRespaldo: true`.
+  Nunca dice "sin pendientes" si el diagnóstico no se pudo leer.
+- **Una tarea pedida fuera de una fiesta queda como recordatorio general** (y la respuesta lo dice),
+  en vez de negarse. Lo mismo en el Encargado General.
+- **Prompt**: corto por defecto, pero completo cuando piden una lista o un total, con las cifras
+  reales y como mucho 1 o 2 emojis (antes: "4-5 líneas" y "3 a 6 emojis", que daban respuestas
+  genéricas).
+- **Memoria**: al prompt sólo entran los aprendizajes de confianza alta (tope 5). Antes entraban 15
+  guardados solos con confianza baja, y la IA se realimentaba con su propio ruido.
+- **Modelos**: rápido `GEMINI_MODEL_RAPIDO` (por defecto `gemini-flash-latest`), profundo
+  `GEMINI_MODEL_PROFUNDO` (por defecto `gemini-pro-latest`, respaldo `gemini-2.5-pro`); se sacó el
+  `gemini-1.5-flash` retirado. El asistente manda `maxOutputTokens` explícito (4096; 8192 en
+  análisis profundo) para que el piso de tokens se aplique de verdad.
+- **El pitch de ventas y el perfil del DJ ya no devuelven "Hubo un error al generar…" como
+  resultado** (la pantalla lo mostraba como éxito y un vendedor podía mandarlo al cliente): ahora
+  fallan y la acción devuelve `success:false` con su cartel. El cronograma tampoco devuelve `[]` en
+  silencio: dice "No pude armar el cronograma, probá de nuevo."
+- **Clasificador de comentarios y respuestas a preguntas** llamaban por `fetch` a
+  `gemini-1.5-flash` (retirado) y se saltaban los respaldos: ahora usan `generateWithGeminiFallback`
+  y, si falla, se mantiene el comportamiento de siempre (sin clasificar / texto neutro).
+- **Lectura de contratos y análisis de reuniones** pasan por los modelos de respaldo
+  (`ejecutarPromptConFallback`), con los mismos esquemas.
+- No se tocó: el "sí" por subcadena que confirma agendar/mail (se dejó como estaba por pedido), el
+  Encargado ni los permisos de las acciones.
+
+```comprobar
+archivo: src/lib/multiagent/contexto-negocio.ts
+usa: bloquePlata en src/ai/flows/multiagent-flow.ts
+usa: bloqueFiestasProximas en src/ai/flows/multiagent-flow.ts
+usa: aprendizajesAprobados en src/ai/flows/multiagent-flow.ts
+usa: conAvisoDeLectura en src/ai/flows/multiagent-flow.ts
+usa: calcularDeudas en src/app/actions/multiagent.ts
+usa: ejecutarPromptConFallback en src/ai/flows/extract-contract-data.ts
+usa: generateWithGeminiFallback en src/lib/social-media/clasificador-comentarios.ts
+usa: generateWithGeminiFallback en src/lib/social-media/comments-backfill.ts
+no-usa: gemini-1.5-flash en src/ai/genkit.ts
+prueba: src/__tests__/ia-asistente-sabe-lo-que-dice.test.ts
+prueba: src/__tests__/ia-tarea-sin-fiesta-queda-como-recordatorio.test.ts
+prueba: src/__tests__/ia-flujos-no-fingen-exito.test.ts
+```
+
 ## 10 de octubre de 2026 — Orden 143: el QR viejo no entra y la ubicación del personal anda
 
 - **Un QR de entrada con la credencial cambiada seguía entrando** si el lector estaba abierto: lo
@@ -290,7 +352,7 @@ usa: noSeGuardo en src/app/actions/multiagent.ts
 usa: generacion en src/lib/asistente/reproductor-voz.ts
 usa: ejecutarVigilantePublicidad en src/app/actions/agentes-autonomos.ts
 usa: ignorarIntervalo en src/lib/agentes/motor-agentes.ts
-usa: La IA no respondió ahora en src/ai/flows/multiagent-flow.ts
+usa: LINEA_MODO_RESPALDO en src/ai/flows/multiagent-flow.ts
 ```
 
 

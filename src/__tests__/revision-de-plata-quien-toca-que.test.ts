@@ -66,8 +66,13 @@ describe('Pregunta 36: el saldo es el mismo en todos lados', () => {
   });
 
   it('la lista de deudores del asistente usa el resumen de cobro con ajuste y sólo presupuestos aceptados', () => {
+    // La cuenta vive en un solo lugar (calcularDeudas) y la comparten cuanto_me_deben y el contexto
+    // del asistente: así los dos dicen el mismo número.
     const t = leer('src/app/actions/multiagent.ts');
-    expect(t).toMatch(/getBudgetPaymentSummary\(p, \{ includeAnnualAdjustment: true \}\)\.balance/);
+    const cuenta = leer('src/lib/multiagent/contexto-negocio.ts');
+    expect(t).toMatch(/calcularDeudas\(presupuestos\)/);
+    expect(cuenta).toMatch(/getBudgetPaymentSummary\(p, \{ includeAnnualAdjustment: true \}\)\.balance/);
+    expect(cuenta).toMatch(/p\.estado !== 'Aceptado' && p\.estado !== 'Facturado'/);
     expect(t).not.toMatch(/p\.totalFinal \|\| p\.total/);
   });
 });

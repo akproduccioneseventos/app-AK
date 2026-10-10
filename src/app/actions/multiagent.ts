@@ -118,9 +118,10 @@ export async function sendPersistentMultiAgentMessage(input: {
     try {
       if (action.type === 'create_task') {
         const data = action.data as any;
-        if (input.fiestaId) {
+        const fiestaDeLaTarea = input.fiestaId || (typeof data?.fiestaId === 'string' ? data.fiestaId : undefined);
+        if (fiestaDeLaTarea) {
           const taskRes = await crearTareaDesdeMultiagente({
-            fiestaId: input.fiestaId,
+            fiestaId: fiestaDeLaTarea,
             texto: data.texto || 'Nueva tarea',
             descripcion: data.descripcion,
             fechaLimite: data.fechaLimite,
@@ -133,8 +134,27 @@ export async function sendPersistentMultiAgentMessage(input: {
             result.response += `\n\n❌ **No pude guardar la tarea**: ${taskRes.error || 'error desconocido'}`;
           }
         } else {
-          noSeGuardo = true;
-          result.response += `\n\n⚠️ **Che, para crear una tarea primero tenés que estar dentro de una fiesta específica.** Pero te puedo crear un recordatorio general si querés, pedímelo. 😉`;
+          // Sin fiesta no hay dónde colgar una tarea. Antes se negaba y mandaba al usuario a pedirlo
+          // de nuevo; ahora queda como recordatorio general (el mismo camino de create_reminder) y se
+          // dice con todas las letras, para que nadie crea que quedó en una fiesta.
+          const textoTarea = String(data?.texto || 'Nueva tarea');
+          const detalle = [
+            textoTarea,
+            data?.fechaLimite ? `para el ${data.fechaLimite}` : '',
+            data?.descripcion ? String(data.descripcion) : '',
+          ].filter(Boolean).join(' · ');
+          const recordatorio = await crearRecordatorioDesdeMultiagente({
+            titulo: 'Pendiente: ' + textoTarea.slice(0, 60),
+            mensaje: detalle,
+            tipo: 'aviso',
+          });
+          if (recordatorio.success) {
+            result.response += `\n\n🔔 **Lo dejé como recordatorio general** (no estás dentro de una fiesta, así que no es una tarea de una fiesta).\n• **Aviso**: ${detalle}`;
+            result.action = { type: 'create_reminder', data: { titulo: textoTarea, mensaje: detalle } };
+          } else {
+            noSeGuardo = true;
+            result.response += `\n\n❌ **No pude guardar el pendiente**: ${recordatorio.error || 'error desconocido'}`;
+          }
         }
       } else if (action.type === 'complete_task') {
         const data = action.data as any;
@@ -315,21 +335,21 @@ export async function sendPersistentMultiAgentMessage(input: {
         const data = action.data as any;
         const isConfirmed = input.message.toLowerCase().includes('sí') || input.message.toLowerCase().includes('si') || Boolean(data?.confirmado);
         const res = await ejecutarAccionSecretario({ accion: 'agendar_reunion', datos: data, confirmado: isConfirmed });
-        result.response += `\n\n${res.mensaje}`;
+        result.response += `\n\n${res.mensaje || res.error || 'No pude agendar la reunión.'}`;
       } else if (action.type === 'ver_mi_semana') {
         const res = await ejecutarAccionSecretario({ accion: 'ver_mi_semana', datos: action.data });
-        result.response += `\n\n${res.mensaje}`;
+        result.response += `\n\n${res.mensaje || res.error || 'No pude completar el pedido.'}`;
       } else if (action.type === 'preparar_mail') {
         const data = action.data as any;
         const isConfirmed = input.message.toLowerCase().includes('sí') || input.message.toLowerCase().includes('si') || Boolean(data?.confirmado);
         const res = await ejecutarAccionSecretario({ accion: 'preparar_mail', datos: data, confirmado: isConfirmed });
-        result.response += `\n\n${res.mensaje}`;
+        result.response += `\n\n${res.mensaje || res.error || 'No pude preparar el mail.'}`;
       } else if (action.type === 'buscar_en_la_web') {
         const res = await ejecutarAccionSecretario({ accion: 'buscar_en_la_web', datos: action.data });
-        result.response += `\n\n${res.mensaje}`;
+        result.response += `\n\n${res.mensaje || res.error || 'No pude completar el pedido.'}`;
       } else if (action.type === 'cuanto_me_deben') {
         const res = await ejecutarAccionSecretario({ accion: 'cuanto_me_deben', datos: action.data });
-        result.response += `\n\n${res.mensaje}`;
+        result.response += `\n\n${res.mensaje || res.error || 'No pude completar el pedido.'}`;
       }
     } catch (err: any) {
       console.error('[Multiagent Actions] Error al ejecutar acción real:', err);
@@ -770,26 +790,17 @@ export async function ejecutarAccionSecretario(input: {
   if (accion === 'ver_mi_semana') {
     try {
       const { readData } = await import('@/lib/data-service');
+      const { resumenDeLaSemana, nombreDeFiesta } = await import('@/lib/multiagent/contexto-negocio');
       const fiestas = await readData<any[]>('fiestas.json', []);
-      const ahora = new Date();
-      const en7Dias = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-      const proximasFiestas = fiestas.filter((f) => {
-        if (!f.configuracion?.fechaEvento) return false;
-        const d = new Date(f.configuracion.fechaEvento);
-        return d >= ahora && d <= en7Dias && f.estado !== 'suspendida' && f.estado !== 'archivada';
-      });
-
-      const tareasPendientes = proximasFiestas.flatMap((f) =>
-        (f.tareas || [])
-          .filter((t: any) => !t.completada && !t.hecha)
-          .map((t: any) => ({ fiesta: f.configuracion?.nombreEvento || f.id, texto: t.titulo || t.texto }))
-      );
+      // La misma cuenta que el bloque AGENDA del contexto del asistente, con "hoy" en hora de Uruguay.
+      const semana = resumenDeLaSemana(fiestas);
+      const proximasFiestas = semana.fiestas.map((x) => x.fiesta);
+      const tareasPendientes = semana.tareas;
 
       const resumen = [
         '📅 **Resumen de tu semana (próximos 7 días)**:',
-        `• **Fiestas programadas**: ${proximasFiestas.length}`,
-        ...proximasFiestas.map((f) => `  - ${f.configuracion?.nombreEvento} (${f.configuracion?.fechaEvento})`),
+        `• **Fiestas programadas**: ${semana.fiestas.length}`,
+        ...semana.fiestas.map((x) => `  - ${nombreDeFiesta(x.fiesta)} (${x.dia})`),
         `• **Tareas pendientes**: ${tareasPendientes.length}`,
         ...tareasPendientes.slice(0, 5).map((t) => `  - [${t.fiesta}] ${t.texto}`),
       ].join('\n');
@@ -896,32 +907,21 @@ export async function ejecutarAccionSecretario(input: {
     const { requirePermiso } = await import('@/lib/auth/require-session');
     const { PERMISOS } = await import('@/lib/auth/perfiles');
     const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
-    if (!permiso.ok) return { success: false, error: permiso.error } as any;
+    if (!permiso.ok) return { success: false, mensaje: `No puedo mostrarte las deudas: ${permiso.error}`, error: permiso.error };
     // Lectura de presupuestos y cuotas, SIN escribir NUNCA
     try {
-      const { readData } = await import('@/lib/data-service');
-      const presupuestos = await readData<any[]>('presupuestos.json', []);
-
-      let totalDeuda = 0;
-      const deudores: Array<{ cliente: string; evento: string; deuda: number; detalle: string }> = [];
-
-      // Saldo con la misma cuenta que la ficha y el panel, con ajuste anual (pregunta 36). Antes
-      // leía campos que los presupuestos no tienen (totalFinal, totalCobrado) y contaba también los
-      // no aceptados: podía decir que nadie debía nada.
-      const { getBudgetPaymentSummary } = await import('@/lib/budget/financial-guardrails');
-      for (const p of presupuestos) {
-        if (p.archived || (p.estado !== 'Aceptado' && p.estado !== 'Facturado')) continue;
-        const saldo = getBudgetPaymentSummary(p, { includeAnnualAdjustment: true }).balance;
-        if (saldo > 0) {
-          totalDeuda += saldo;
-          deudores.push({
-            cliente: p.clienteNombre || p.cliente?.nombre || 'Cliente',
-            evento: p.tipoEvento || p.eventoTipo || 'Fiesta',
-            deuda: saldo,
-            detalle: `Saldo pendiente: $${saldo.toLocaleString('es-UY')}`,
-          });
-        }
+      const { readDataConDetalle } = await import('@/lib/data-service');
+      const { valor: presupuestos, huboFalla } = await readDataConDetalle<any[]>('presupuestos.json', []);
+      // Una lectura caída devuelve lista vacía: sin esta mirada diría "nadie debe nada".
+      if (huboFalla) {
+        return { success: false, mensaje: 'No pude leer los presupuestos ahora, así que no te digo cuánto te deben (no quiere decir que no te deban). Probá de nuevo en un rato.', error: 'Lectura de presupuestos fallida' };
       }
+
+      // Saldo con la misma cuenta que la ficha, el panel y el contexto del asistente (calcularDeudas):
+      // ajuste anual incluido, sólo pagos confirmados, sin archivados ni presupuestos no aceptados.
+      const { calcularDeudas } = await import('@/lib/multiagent/contexto-negocio');
+      const { total: totalDeuda, deudores: deudoresBase } = calcularDeudas(presupuestos);
+      const deudores = deudoresBase.map((d) => ({ ...d, detalle: `Saldo pendiente: $${d.deuda.toLocaleString('es-UY')}` }));
 
       const lista = deudores.length > 0
         ? deudores.map((d) => `• **${d.cliente}** (${d.evento}): $${d.deuda.toLocaleString('es-UY')}`).join('\n')
