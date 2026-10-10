@@ -56,6 +56,30 @@ prueba: tests/e2e/touchpix-camara-y-recuerdo-con-imagen.spec.ts
 prueba: tests/e2e/espejo-moderacion-caida-y-reintento.spec.ts
 ```
 
+## 10/10/2026 - Codex94: retests reales; tres fallos nuevos, no correcciones
+
+- Main9a054620 ejecutado en TEMP nuevo demo; PR1286 QA sigue ABIERTA.
+  NO CONTRASTADO CON TANDA LOCAL NO SUBIDA: verificarla antes de reprogramar.
+- 143Jest/14suites pasan;20ejecuciones positivas navegador/18parescaso-contexto.
+  Dos sondas diagnosticas adicionales no cuentan como aceptaciones de producto.
+- 140fotocabina: fotografia nativa falsa con contenido/pixels/Storage/HTTPbytes.
+  142personal: centavos/reemplazo/fecha PC+movil pasan. No volver a encargarlos.
+- 141album: PNG/WebM correctos y todosGET403 no anuncia ZIPexitoso; reintento
+  real entrega dos archivos exactos PC+movil.143revocacionQR y ubicacion nativa
+  dentro/fuera pasan.139Hoja cocina abre por el enlace, NO URL de rescate.
+- NUEVOS sin corregir:146Gemini voz pendiente de ficha ignora Cortar, luego
+  abre micro/socket/panel; tras error segundo toque no reintenta y terceroSI.
+- 147Gemini QRdescargado170 no lee un patron concreto;ZXingdirectoSI;
+  MISMO codigo/lector/invitado con borde32SI. No repetir143 permisos.
+- Falso positivo de sonda: WebSocket mock cortaba NextHMR, timeout descartado;
+  corregir QA y repetir revelo fallo real de cancelacion. Guardados ambosraw.
+- Health Hosting publicado0af74652 != fuente9a;proveedorestrue no equivalen
+  a entrega real.19originales sin lectura, no deducir ausencia del JSONlocal0.
+- Mantener144/145sin delta;3Dhistorico/foto != escena;videovisual limitado por
+  emulador;cuentas/hardware/buildHosting mismoSHA pendientes. No0errores.
+- Informe94-cierre-retets-y-voz.md/matriz84/ordenes146147/artefactos suben juntos.
+  QA/no app modificada/no merge. Fixtures propios limpiados y runtime detenido.
+
 ## 10/10/2026 - Codex93: cierre de pendientes antiguos, no repetir recientes
 
 - Fuente85215484 ejecutada/contrastada9a054620 sin delta en consumidores aqui.

@@ -1,0 +1,147 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "playwright.94.config.ts",
+      "--project=chromium-desktop",
+      "--grep",
+      "QR control mismo",
+      "--workers=1"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\playwright.94.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/qa94-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/94-*.spec.ts"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/qa94-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-94/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/94-*.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json",
+        {
+          "outputFile": "C:\\Users\\Usuario\\Documents\\Codex\\2026-05-28\\quiero-que-tomando-el-chat-de\\.audit-verificacion-81-20261009\\docs\\evidencias\\94-e2e.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "94-qr-imagen.spec.ts",
+      "file": "94-qr-imagen.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "QR control mismo PNG mismo lector original y margen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 23200,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T22:27:49.035Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "lector-control.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJib3JkZXIiOiAwLAogICAgImNoZWNrZWRJbiI6IGZhbHNlLAogICAgImJvZHkiOiAiQ29udHJvbCBkZSBBY2Nlc29cbkZpZXN0YSBkZSBlc3RhIG5vY2hlXG5Ob3RGb3VuZEV4Y2VwdGlvbjogTm8gTXVsdGlGb3JtYXQgUmVhZGVycyB3ZXJlIGFibGUgdG8gZGV0ZWN0IHRoZSBjb2RlLlxuQ2hvb3NlIEFub3RoZXIgLSBjb250cm9sLTAucG5nXG5PciBkcm9wIGFuIGltYWdlIHRvIHNjYW5cblNjYW4gdXNpbmcgY2FtZXJhIGRpcmVjdGx5IgogIH0sCiAgewogICAgImJvcmRlciI6IDMyLAogICAgImNoZWNrZWRJbiI6IHRydWUsCiAgICAiYm9keSI6ICJDb250cm9sIGRlIEFjY2Vzb1xuRmllc3RhIGRlIGVzdGEgbm9jaGVcbkNob29zZSBBbm90aGVyIC0gY29udHJvbC0zMi5wbmdcbk9yIGRyb3AgYW4gaW1hZ2UgdG8gc2NhblxuU2NhbiB1c2luZyBjYW1lcmEgZGlyZWN0bHkiCiAgfQpd"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "788f7f4631573699ac46-d1a1c81b9e18fe9013eb",
+          "file": "94-qr-imagen.spec.ts",
+          "line": 36,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T22:27:46.775Z",
+    "duration": 25792.514000000003,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

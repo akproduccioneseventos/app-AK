@@ -1,0 +1,26 @@
+[
+  {
+    "scale": 1,
+    "border": 0,
+    "width": 170,
+    "height": 170,
+    "decoded": "http://127.0.0.1:3300/evento/accesos/q92rmv2yk9b9?fiestaId=q92rmv2yk9b9&token=qa92tokenmv2yk9b9&guestId=gq92rmv2yk9b9",
+    "error": null
+  },
+  {
+    "scale": 1,
+    "border": 32,
+    "width": 234,
+    "height": 234,
+    "decoded": "http://127.0.0.1:3300/evento/accesos/q92rmv2yk9b9?fiestaId=q92rmv2yk9b9&token=qa92tokenmv2yk9b9&guestId=gq92rmv2yk9b9",
+    "error": null
+  },
+  {
+    "scale": 3,
+    "border": 32,
+    "width": 574,
+    "height": 574,
+    "decoded": null,
+    "error": "NotFoundException"
+  }
+]

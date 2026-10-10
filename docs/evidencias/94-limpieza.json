@@ -1,0 +1,14 @@
+{
+  "cwd": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94",
+  "deletedDocs": [
+    "entretenimiento_sesiones/e2e_94_foto_2592_1791670053485_fotocabina",
+    "fiestas/e2e_94_live_22052_1791670267257"
+  ],
+  "deletedFiles": [],
+  "deletedLocal": [
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\data\\fiestas\\e2e_94_live_22052_1791670267257.json",
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\src\\data\\fiestas\\e2e_94_live_22052_1791670267257.json"
+  ],
+  "preservedCollections": [],
+  "finished": "2026-10-10T22:29:32.244Z"
+}

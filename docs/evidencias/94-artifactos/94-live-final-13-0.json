@@ -1,0 +1,7 @@
+{
+  "first": 1,
+  "afterRetry": 1,
+  "afterThirdClick": 2,
+  "provider": "controlled HTTP503",
+  "buttonTitle": "Hablar en vivo con el asistente (te contesta con voz)"
+}
