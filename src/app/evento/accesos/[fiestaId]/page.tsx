@@ -172,6 +172,7 @@ function AccessControlContent() {
     return () => {
       if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
       if (scannerRef.current) {
+        // no pasa nada si falla: es apagar la cámara al salir de la pantalla; no guarda ni anuncia nada.
         scannerRef.current.clear().catch(() => {});
         scannerRef.current = null;
       }
