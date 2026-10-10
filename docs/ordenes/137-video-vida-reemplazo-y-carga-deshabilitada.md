@@ -83,6 +83,6 @@ prueba: docs/evidencias/87-video-vida-reemplazo.spec.ts
 archivo: src/app/actions/fiesta/video-vida.actions.ts
 usa: getLifeStoryVideoPhotos en src/app/(app)/fiestas/nueva/video-vida/page.tsx
 usa: getLifeStoryVideoPhotos en src/app/api/video-vida-photos/[fiestaId]/download/route.ts
-prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts (regresion existente, no reejecutada87)
-prueba: tests/e2e/video-vida-reemplazo-y-cierre.spec.ts (propuesta pendiente de existir y ejecutar)
+prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
+prueba: src/__tests__/video-vida-cierre-y-reemplazo.test.ts
 ```

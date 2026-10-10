@@ -46,7 +46,7 @@ No esconder estados detras de tabs/collapses ni cambiar flujos sin aprobacion.
 
 ```comprobar
 archivo: src/app/evento/barra/[fiestaId]/barman/page.tsx
-usa: OrderColumn y updateStatus en src/app/evento/barra/[fiestaId]/barman/page.tsx
-prueba: docs/evidencias/87-barra-entrega-real.spec.ts (recorridos ejecutados, icono no accionado)
-prueba: tests/e2e/barman-cancelar-visible-y-cola-movil.spec.ts (propuesta pendiente de existir/ejecutar)
+usa: updateStatus en src/app/evento/barra/[fiestaId]/barman/page.tsx
+prueba: docs/evidencias/87-barra-entrega-real.spec.ts
+prueba: src/__tests__/barman-cancelar-visible-y-cola-movil.test.ts
 ```

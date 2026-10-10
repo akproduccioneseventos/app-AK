@@ -1,5 +1,19 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Órdenes 137 y 138: video de vida y barman
+
+- **Carga cerrada de verdad:** la subida del Video de Vida vuelve a leer en el servidor si la carga sigue habilitada para ESA fiesta; una pantalla abierta antes del cierre ya no guarda. Sigue pública (sin login del equipo); el equipo con sesión puede cargar igual.
+- **Un recuadro, una foto:** al reemplazar PNG por JPG se quita el archivo anterior recién cuando la nueva está confirmada, y sólo si es más vieja (dos reemplazos juntos nunca dejan cero).
+- **Barman:** el botón Cancelar de Nuevos se ve (rojo sobre blanco) y tiene nombre "Cancelar pedido"; en celular las columnas ya no ocupan 58% de pantalla vacía (sólo desde md).
+
+```comprobar
+archivo: src/app/actions/fiesta/video-vida.actions.ts
+usa: quitarFotosAnterioresDelRecuadro en src/app/actions/fiesta/video-vida.actions.ts
+prueba: src/__tests__/video-vida-cierre-y-reemplazo.test.ts
+usa: md:min-h-[58vh] en src/app/evento/barra/[fiestaId]/barman/page.tsx
+prueba: src/__tests__/barman-cancelar-visible-y-cola-movil.test.ts
+```
+
 ## 9/10/2026 - Codex87: barra completa, fotos y cierre de carga
 
 Fuente ejecutada main1b61295ab977fd6f204ffdab0f190edbd0f0ed6b, build86 reutilizado.
