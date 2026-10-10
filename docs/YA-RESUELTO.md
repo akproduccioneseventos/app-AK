@@ -40,6 +40,18 @@ prueba: src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts
 prueba: tests/e2e/la-fotocabina-saca-la-foto-con-imagen.spec.ts
 ```
 
+## 10/10/2026 - Codex90: el ZIP del album se abrio de verdad
+
+- Dos aprobaciones PC/movil: boton real descarga PNG/JPEG con bytes exactos;
+  sin cuenta ni endpoint admin, pendientes/ocultos/otra fiesta fuera, recarga bien.
+- ENT90-FORMATO P1: video WebM reproducible llega intacto pero nombrado.jpg.
+- ENT90-VACIO P1: corte de sus GET deja ZIP sin medios y anuncia dos entregados.
+  Orden141 Gemini; Claude compila. Correcciones PENDIENTES, no producto modificado.
+  Raws/ZIP/capturas90, informe90. Agregado a1282, no otraPR/fusion documental sola.
+- Descartes QA: fixtures sin destructurar y clic antes de hidratacion; raws
+  conservados. No certificados por boton existente ni ZIP generado sin abrir.
+- Seguimiento TikTok final sigue limite81, no otra orden ni proveedor real probado.
+
 ## 10/10/2026 - Codex89: imagen dentro de la fotocabina y color del portal
 
 - ENT89-IMAGEN nuevo, orden140 Gemini: la misma camara nativa falsa muestra imagen
