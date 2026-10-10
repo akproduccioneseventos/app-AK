@@ -179,7 +179,7 @@ export default function RevisarMisFiestasPage() {
               No se detectaron fiestas pasadas sin archivar, confusiones en nombres de clientes ni datos faltantes.
             </p>
             <Button asChild className="mt-2">
-              <Link href="/eventos">Volver al panel</Link>
+              <Link href="/eventos">Volver a las fiestas</Link>
             </Button>
           </CardContent>
         </Card>
@@ -245,7 +245,7 @@ export default function RevisarMisFiestasPage() {
 
                         {prob.accionSugerida === 'abrir_presupuesto' && (
                           <Button size="sm" variant="secondary" asChild className="flex items-center gap-1.5">
-                            <Link href={`/fiestas/nueva/presupuesto?fiestaId=${f.fiestaId}`}>
+                            <Link href={`/presupuestos/nuevo?fiestaId=${f.fiestaId}`}>
                               <FileText className="w-3.5 h-3.5" />
                               {prob.etiquetaBoton}
                             </Link>

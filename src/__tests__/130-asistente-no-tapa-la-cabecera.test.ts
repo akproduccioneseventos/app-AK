@@ -10,6 +10,9 @@ describe('130 HIT80: el indicador del asistente no vive en la cabecera', () => {
     expect(src).not.toMatch(/fixed[^"']*\btop-\d+/);
   });
   it('va abajo a la derecha, por encima del boton flotante del multiagente (bottom-24)', () => {
-    expect(src).toMatch(/fixed bottom-40 right-4/);
+    // La posicion ahora la puede mover cada uno (9/10/2026); la de arranque sigue siendo la misma:
+    // 160 px desde abajo (bottom-40) y 16 desde la derecha (right-4), anclada por abajo.
+    expect(src).toMatch(/PREFERENCIA_INICIAL: PreferenciaTarjeta = \{ minimizada: false, abajo: 160, derecha: 16 \}/);
+    expect(src).toMatch(/style=\{\{ bottom: pref\.abajo, right: pref\.derecha/);
   });
 });

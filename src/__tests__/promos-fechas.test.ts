@@ -7,6 +7,7 @@ jest.mock('@/lib/data-service', () => ({
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn(),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined),
 }));
 
 describe('Gestión de Promociones - Validación de Fechas (Bloque E)', () => {

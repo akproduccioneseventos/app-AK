@@ -2,7 +2,8 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import { getFiestas, getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { isEventInActiveWindow } from '@/lib/experience-ak/post-event-utils';
 import type { SocialGallerySettings } from '@/types/fiesta';
 
@@ -82,7 +83,7 @@ export async function getSocialGlobalSettings(): Promise<SocialGlobalSettings> {
 
 export async function saveSocialGlobalSettings(settings: SocialGlobalSettings): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireAppSession();
+    await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
     await writeData(SOCIAL_GLOBAL_SETTINGS_FILE, settings);
     return { success: true };
   } catch (e: any) {

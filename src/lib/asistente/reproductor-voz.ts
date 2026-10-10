@@ -6,6 +6,9 @@
 
 let audioActual: HTMLAudioElement | null = null;
 let reproduciendo = false;
+// Cada pedido de voz y cada "parar" suben este número. Un pedido que vuelve de internet con un
+// número viejo ya no es de nadie: no crea audio, no suena y no cae a la voz del teléfono.
+let generacion = 0;
 
 export function selectBestSpanishVoice(): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
@@ -56,7 +59,6 @@ export async function reproducirVozReal(
   }
 ): Promise<void> {
   detenerVozReal();
-
   const textoLimpio = truncateForSpeech(texto);
   if (!textoLimpio) {
     opciones?.onEnd?.();
@@ -64,6 +66,8 @@ export async function reproducirVozReal(
   }
 
   reproduciendo = true;
+  const mia = generacion;
+  const vigente = () => mia === generacion;
 
   // 1. Intentar audio neuronal del servidor
   try {
@@ -73,16 +77,19 @@ export async function reproducirVozReal(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ texto: textoLimpio, ...(opciones?.voz ? { voz: opciones.voz } : {}) }),
     });
+    if (!vigente()) return;
     if (!response.ok) {
       // La ruta dice si la voz del teléfono está prendida en Ajustes. Apagada: no se habla.
       const motivo = await response.json().catch(() => ({} as { vozTelefonoActiva?: boolean }));
       if (motivo?.vozTelefonoActiva === false) {
         reproduciendo = false;
-        opciones?.onEnd?.();
+        // Se avisa: callarse sin decir por qué parecía que la voz no andaba (dueño, 9/10/2026).
+        opciones?.onError?.(new Error('La voz está apagada en Ajustes → Asistente.'));
         return;
       }
     } else {
       const blob = await response.blob();
+      if (!vigente()) return;
       if (blob.size > 100) {
         const audioUrl = URL.createObjectURL(blob);
         const audio = new Audio(audioUrl);
@@ -101,17 +108,23 @@ export async function reproducirVozReal(
 
         audio.onerror = () => {
           URL.revokeObjectURL(audioUrl);
-          audioActual = null;
-          reproducirConNavegador(textoLimpio, opciones);
+          if (audioActual === audio) audioActual = null;
+          if (vigente()) reproducirConNavegador(textoLimpio, opciones);
         };
 
         await audio.play();
+        if (!vigente()) {
+          // Se pidió parar o hablar otra cosa mientras arrancaba: este audio se corta.
+          try { audio.pause(); } catch {}
+          URL.revokeObjectURL(audioUrl);
+        }
         return;
       }
     }
   } catch {
     // Continuar a fallback de navegador
   }
+  if (!vigente()) return;
 
   // 2. Fallback a voz del navegador
   reproducirConNavegador(textoLimpio, opciones);
@@ -127,7 +140,7 @@ function reproducirConNavegador(
 ) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     reproduciendo = false;
-    opciones?.onEnd?.();
+    opciones?.onError?.(new Error('Este equipo no tiene voz para leer la respuesta.'));
     return;
   }
 
@@ -152,15 +165,18 @@ function reproducirConNavegador(
       opciones?.onEnd?.();
     };
 
-    utterance.onerror = () => {
+    utterance.onerror = (ev) => {
       reproduciendo = false;
-      opciones?.onEnd?.();
+      // `interrupted`/`canceled` es que se cortó a propósito (otra respuesta, el botón de parar).
+      const motivo = (ev as SpeechSynthesisErrorEvent)?.error;
+      if (motivo === 'interrupted' || motivo === 'canceled') opciones?.onEnd?.();
+      else opciones?.onError?.(new Error('El navegador no dejó reproducir la voz. Tocá el parlante para escucharla.'));
     };
 
     window.speechSynthesis.speak(utterance);
   } catch {
     reproduciendo = false;
-    opciones?.onEnd?.();
+    opciones?.onError?.(new Error('No se pudo reproducir la voz.'));
   }
 }
 
@@ -168,6 +184,7 @@ function reproducirConNavegador(
  * Detiene cualquier audio en reproducción en el cliente.
  */
 export function detenerVozReal(): void {
+  generacion += 1;
   reproduciendo = false;
   if (audioActual) {
     try {

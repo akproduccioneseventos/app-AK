@@ -133,6 +133,24 @@ function getFileMutex(path: string): FileAsyncMutex {
   return m;
 }
 
+/**
+ * Firestore rechaza un campo `undefined` ("Cannot use undefined as a Firestore value") y tumba
+ * la escritura entera. Pasaba con una captura de estación sin invitado identificado: el archivo
+ * ya estaba subido y el recuerdo no quedaba en la fiesta (prueba con emulador, orden 134). Se
+ * sacan las claves `undefined` (en listas pasan a `null`), sin tocar fechas ni otros objetos.
+ */
+function sinIndefinidos<V>(valor: V): V {
+  if (Array.isArray(valor)) return valor.map((v) => (v === undefined ? null : sinIndefinidos(v))) as unknown as V;
+  if (valor && typeof valor === 'object' && Object.getPrototypeOf(valor) === Object.prototype) {
+    const limpio: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(valor as Record<string, unknown>)) {
+      if (v !== undefined) limpio[k] = sinIndefinidos(v);
+    }
+    return limpio as V;
+  }
+  return valor;
+}
+
 export async function mutarDocumentoConTransaccion<T>(
   filePath: string,
   vacio: T,
@@ -178,7 +196,7 @@ export async function mutarDocumentoConTransaccion<T>(
     }
     const nuevo = await cambiar(actual ?? vacio);
     if (nuevo === null) return;
-    const cleanData = typeof nuevo === 'object' && nuevo !== null ? nuevo : { value: nuevo };
+    const cleanData = sinIndefinidos(typeof nuevo === 'object' && nuevo !== null ? nuevo : { value: nuevo });
     transaction.set(ref, {
       ...cleanData,
       _syncedAt: new Date().toISOString(),
@@ -255,7 +273,7 @@ export async function mutarDocumento<T>(
     const nuevo = await cambiar(actual ?? vacio);
     if (nuevo === null) return;
 
-    const cleanData = typeof nuevo === 'object' && nuevo !== null ? nuevo : { value: nuevo };
+    const cleanData = sinIndefinidos(typeof nuevo === 'object' && nuevo !== null ? nuevo : { value: nuevo });
     transaction.set(ref, {
       ...cleanData,
       _syncedAt: new Date().toISOString(),

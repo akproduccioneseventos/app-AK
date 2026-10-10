@@ -388,7 +388,8 @@ function buildFallback(agentType: AkAgentType, context: any, error?: unknown): s
     central:         'Revisá las alertas generales y elegí el agente correcto.',
   };
 
-  const errorNote = error instanceof Error ? `\n\nError técnico: ${error.message.slice(0, 140)}` : '';
+  if (error) console.error('[Multiagent] La IA no respondió, se usa el respaldo:', error);
+  const errorNote = error ? '\nLa IA no respondió ahora; te contesto con lo que tengo.' : '';
 
   return [
     'Funcionando en modo respaldo. Sin datos inventados.',

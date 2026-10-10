@@ -12,7 +12,8 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import type { FullMenu } from '@/types/catering';
 import { readData, writeData } from '@/lib/data-service';
 import { CopilotConfig, DEFAULT_COPILOT_CONFIG } from '@/types/copilot';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 const COPILOT_CONFIG_FILE = 'copilot-config.json';
@@ -34,7 +35,7 @@ async function leerCopilotConfig(): Promise<CopilotConfig> {
 export async function saveCopilotConfig(
   newConfig: CopilotConfig
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   try {
     const sanitizedConfig: CopilotConfig = {
       promptPersonalidad: (newConfig.promptPersonalidad || '').trim(),

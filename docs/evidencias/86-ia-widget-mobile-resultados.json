@@ -1,0 +1,151 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/86-ia-widget.spec.ts",
+      "--project=chromium-mobile",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "86-ia-widget.spec.ts",
+      "file": "86-ia-widget.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "dictado real del widget envia, respuesta de respaldo se lee y chat persiste; microfono denegado avisa",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 150000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12026,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T00:19:29.040Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "chat-real-persistido.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJpZCI6ICJjaGF0XzE3OTE1OTE1NzMyMDBfOWd2amoxIiwKICAiYWdlbnRUeXBlIjogImZpZXN0YSIsCiAgImFnZW50TmFtZSI6ICJBZ2VudGUgXCJGaWVzdGEgZGUgZXN0YSBub2NoZVwiIiwKICAidGl0bGUiOiAiUmVzdW1lbiBkZSBlc3RhIGZpZXN0YSwgc29uZGEgSUE4NiAxNzkxNTkxNTY5MDI0IiwKICAicGF0aG5hbWUiOiAiL2ZpZXN0YXMvbnVldmEvdGFyZWFzIiwKICAiZmllc3RhSWQiOiAiZTJlX2lhODZfMTE2NzZfMTc5MTU5MTU2OTAyNCIsCiAgIm1lc3NhZ2VzIjogWwogICAgewogICAgICAiaWQiOiAidXNlcl8xNzkxNTkxNTczMjAxX2l0MXo3NiIsCiAgICAgICJyb2xlIjogInVzZXIiLAogICAgICAiY29udGVudCI6ICJSZXN1bWVuIGRlIGVzdGEgZmllc3RhLCBzb25kYSBJQTg2IDE3OTE1OTE1NjkwMjQiLAogICAgICAiYWdlbnRUeXBlIjogImZpZXN0YSIsCiAgICAgICJjcmVhdGVkQXQiOiAiMjAyNi0xMC0xMFQwMDoxOTozMy4yMDBaIgogICAgfSwKICAgIHsKICAgICAgImlkIjogImFzc2lzdGFudF8xNzkxNTkxNTczMjAxX2IzeGl3YSIsCiAgICAgICJyb2xlIjogImFzc2lzdGFudCIsCiAgICAgICJjb250ZW50IjogIkZ1bmNpb25hbmRvIGVuIG1vZG8gcmVzcGFsZG8uIFNpbiBkYXRvcyBpbnZlbnRhZG9zLlxuTG8gbcOhcyBpbXBvcnRhbnRlIGFob3JhOlxuMS4gW0FMVEFdIEZpZXN0YSBkZSBlc3RhIG5vY2hlOiBjaWVycmUgcG9zdC1maWVzdGE6IFlhIHBhc8OzIGhhY2UgMSBkw61hKHMpLiBDb252aWVuZSBwZWRpciB0ZXN0aW1vbmlvLCBhdXRvcml6YWNpw7NuIGRlIGZvdG9zIGUgaWRlYSBkZSBwdWJsaWNhY2nDs24uXG4yLiBbQUxUQV0gRmllc3RhIGRlIGVzdGEgbm9jaGU6IGNpZXJyZSBwb3N0LWZpZXN0YTogWWEgcGFzw7MgaGFjZSAxIGTDrWEocykuIENvbnZpZW5lIHBlZGlyIHRlc3RpbW9uaW8sIGF1dG9yaXphY2nDs24gZGUgZm90b3MgZSBpZGVhIGRlIHB1YmxpY2FjacOzbi5cbjMuIFtBTFRBXSBGaWVzdGEgZGUgZXN0YSBub2NoZTogb3BvcnR1bmlkYWQgcG9zdC1maWVzdGE6IFBhc2Fyb24gMSBkw61hKHMpLiBIYXkgbWVuc2FqZSBkZSB0ZXN0aW1vbmlvIHkgcHVibGljYWNpw7NuIHN1Z2VyaWRhIGxpc3RvcyBwYXJhIHRyYWJhamFyLlxuNC4gW0FMVEFdIEZpZXN0YSBkZSBlc3RhIG5vY2hlOiBvcG9ydHVuaWRhZCBwb3N0LWZpZXN0YTogUGFzYXJvbiAxIGTDrWEocykuIEhheSBtZW5zYWplIGRlIHRlc3RpbW9uaW8geSBwdWJsaWNhY2nDs24gc3VnZXJpZGEgbGlzdG9zIHBhcmEgdHJhYmFqYXIuXG41LiBbTUVESUFdIEZpZXN0YSBkZSBlc3RhIG5vY2hlOiBmYWx0YSBUYXJlYXMgaW50ZXJuYXM6IDMgcGVuZGllbnRlKHMpIGRlIDUuXG42LiBbTk9STUFMXSBQaXBlbGluZSBjb21lcmNpYWwgc2luIGRhdG9zIHZpc2libGVzOiBObyB2ZW8gbGVhZHMgbmkgcHJlc3VwdWVzdG9zIHJlY2llbnRlcyBwYXJhIHRyYWJhamFyLiBQdWVkZSBzZXIgZmFsdGEgZGUgZGF0b3MgbyB1bmEgb3BvcnR1bmlkYWQgZGUgb3JkZW5hciBDUk0uXG7ihpIgUHLDs3hpbW8gcGFzbzogUmV2aXPDoSB0YXJlYXMsIHBhZ29zLCBjb250cmF0byB5IHBlcnNvbmFsIGRlIGVzdGEgZmllc3RhLlxuXG5cbkVycm9yIHTDqWNuaWNvOiBGYWlsZWQgdG8gZmV0Y2ggZnJvbSBodHRwczovL2dlbmVyYXRpdmVsYW5ndWFnZS5nb29nbGVhcGlzLmNvbS92MWJldGEvbW9kZWxzL2dlbWluaS1mbGFzaC1sYXRlc3Q6Z2VuZXJhdGVDb250ZW50OiBFcnJvciBmZXRjaGluZyBmcm9tIGh0dHBzOiIsCiAgICAgICJhZ2VudFR5cGUiOiAiZmllc3RhIiwKICAgICAgImFnZW50TmFtZSI6ICJBZ2VudGUgXCJGaWVzdGEgZGUgZXN0YSBub2NoZVwiIiwKICAgICAgImNyZWF0ZWRBdCI6ICIyMDI2LTEwLTEwVDAwOjE5OjMzLjIwMFoiCiAgICB9CiAgXSwKICAiY3JlYXRlZEF0IjogIjIwMjYtMTAtMTBUMDA6MTk6MzMuMjAwWiIsCiAgInVwZGF0ZWRBdCI6ICIyMDI2LTEwLTEwVDAwOjE5OjMzLjIwMFoiCn0="
+                    },
+                    {
+                      "name": "voz-post-respuestas.json",
+                      "contentType": "application/json",
+                      "body": "WwogIHsKICAgICJzdGF0dXMiOiA1MDMsCiAgICAiYm9keSI6ICJ7XCJlcnJvclwiOlwiTm8gaGF5IGNsYXZlIGRlIEdlbWluaSBwYXJhIGxhIHZvei5cIixcInZvelRlbGVmb25vQWN0aXZhXCI6dHJ1ZX0iCiAgfQpd"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dce19d07a50859214cdf-436f325d17db60b0bb7c",
+          "file": "86-ia-widget.spec.ts",
+          "line": 18,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T00:19:28.113Z",
+    "duration": 13888.064,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

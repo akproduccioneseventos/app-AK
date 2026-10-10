@@ -30,7 +30,7 @@ export function ModuleNavigationDock() {
       router.back();
       return;
     }
-    router.push(showDashboardButton ? '/' : '/landing');
+    router.push(showDashboardButton ? '/admin' : '/landing');
   };
 
   return (
@@ -57,7 +57,7 @@ export function ModuleNavigationDock() {
         <ArrowLeft className="h-4 w-4" />
       </Button>
       {showDashboardButton && (
-        <Button type="button" size="icon" variant="ghost" className="h-10 w-10 rounded-full" onClick={() => router.push('/')} title="Ir al panel principal">
+        <Button type="button" size="icon" variant="ghost" className="h-10 w-10 rounded-full" onClick={() => router.push('/admin')} title="Ir al panel principal">
           <LayoutDashboard className="h-4 w-4" />
         </Button>
       )}

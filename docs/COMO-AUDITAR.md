@@ -947,3 +947,12 @@ portal: se le rechazaba siempre, y la pantalla no decía nada. Igual la trivia y
 vivo. Y la prueba de la trivia no lo veía porque reemplazaba el guardado por uno que siempre decía
 que sí. **Se sigue la acción del invitado hasta el guardado**, y en la prueba el guardado de
 mentira rechaza como el de verdad cuando falta el permiso.
+
+## Pregunta 47 — la que sumó el 10 de octubre de 2026 (Codex, auditoría 86)
+
+### 47. Lo que cambia algo para TODO el negocio, ¿pide el permiso de quien lo maneja, o sólo sesión?
+
+El candado de la plata mira cobros y facturas. Nadie miraba los ajustes generales: el personal
+podía apagar los agentes automáticos, y con la misma forma otros 32 ajustes (datos de la empresa,
+WhatsApp, roles, conexiones a redes, promociones) pedían sólo sesión. **Toda acción que guarda una
+configuración general se mira con el perfil "personal"**: si guarda, es un hallazgo.

@@ -113,15 +113,15 @@ entorno aislado de orden 114, sin enviar WhatsApp ni consultas ficticias al CRM.
   volver a escribir su código sin contrastar release/caché/versión primero.
 - Siete fotos locales recomendadas coinciden visualmente con el Canva original.
   Eso no acepta todo el catálogo ni las fotos editadas en la base productiva.
-- Nuevas pruebas propuestas abajo **PENDIENTES**, no existen ni se ejecutaron.
+- Pruebas nuevas: la de Jest corre en verde (y en rojo con el número inventado); la de navegador está escrita pero corre sólo en el entorno aislado.
 
 ```comprobar
 archivo: src/app/actions/public-simulator-bootstrap.ts
 usa: getPublicSimulatorBootstrap en src/app/simulador-de-presupuesto/page.tsx
 archivo: src/lib/public-contact.ts
-usa: AK_WHATSAPP_NUMBER en src/app/actions/public-simulator-bootstrap.ts (PENDIENTE, consumidor requerido por esta corrección)
+usa: AK_WHATSAPP_NUMBER en src/app/actions/public-simulator-bootstrap.ts
 usa: handleWhatsAppQuickConsult en src/app/simulador-de-presupuesto/page.tsx
 usa: handleShareBudgetWhatsApp en src/app/simulador-de-presupuesto/page.tsx
-prueba: src/__tests__/simulador-contacto-con-configuracion-caida.test.ts (PENDIENTE)
-prueba: tests/e2e/simulador-contacto-oficial.spec.ts (PENDIENTE, entorno aislado)
+prueba: src/__tests__/simulador-contacto-con-configuracion-caida.test.ts
+prueba: tests/e2e/simulador-contacto-oficial.spec.ts
 ```

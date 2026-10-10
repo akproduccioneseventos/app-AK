@@ -171,7 +171,7 @@ function GiftRegistryPageContent() {
         <div className="flex items-center gap-3"><Gift className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Regalos</h1></div>
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" className="hidden sm:flex bg-white hover:bg-slate-50 text-slate-700">
-            <Link href={`/evento/${fiestaId}#regalos`} target="_blank">
+            <Link href={`/invitacion/${fiestaId}#regalos`} target="_blank">
               <ExternalLink className="h-4 w-4 mr-2 text-indigo-500" />
               Previsualizar
             </Link>

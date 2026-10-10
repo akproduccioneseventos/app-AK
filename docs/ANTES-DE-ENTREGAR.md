@@ -161,3 +161,7 @@ cuando Codex pase, lo que encuentre sea algo **nuevo** y no lo mismo otra vez.
     guarda con `saveFiesta` (que pide sesión del equipo o del portal), al invitado se le rechaza.
     Va una escritura angosta (`actualizarFiesta` con `publicRsvp`, sólo su parte). Y en la prueba,
     el guardado de mentira rechaza sin permiso, como el de verdad.
+
+40. **¿Tu acción guarda algo general (ajustes, plantillas, conexiones, agentes)?** Pedí el permiso
+    de quien lo maneja (`requirePermisoAlguno`), no sólo sesión: el personal también tiene sesión.
+    La prueba entra como "personal" y comprueba que no se guardó.

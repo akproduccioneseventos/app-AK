@@ -329,8 +329,13 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
         setIsSpeaking(false);
         onFinish?.();
       },
-      onError: () => {
+      onError: (err?: { message?: string }) => {
         setIsSpeaking(false);
+        // Si no puede hablar, lo dice (antes se quedaba callada sin explicar).
+        if (err?.message) {
+          setToast({ message: err.message, type: 'warning' });
+          setTimeout(() => setToast(null), 5000);
+        }
         onFinish?.();
       },
     });

@@ -305,7 +305,7 @@ REGLAS DE SEGURIDAD Y PRIVACIDAD:
           titulo: `Atención: señal del cliente en "${nombreEvento}"`,
           mensaje: `${senal.motivo} Preguntó: "${newMessage.slice(0, 100)}"`,
           tipo: 'alerta',
-          href: `/fiestas/${fiestaId}`,
+          href: `/fiestas/${fiestaId}/centro`,
           icono: 'AlertTriangle',
           entidadRelacionadaId: fiestaId,
           rolDestino: 'admin',

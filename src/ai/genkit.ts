@@ -120,14 +120,31 @@ export function isRecoverableGeminiModelError(error: unknown): boolean {
   );
 }
 
+/**
+ * Los modelos "flash" nuevos piensan antes de contestar, y ese pensamiento se descuenta del tope
+ * de `maxOutputTokens`. Con topes chicos (500, 600) la respuesta salía cortada en la primera
+ * línea ("Mirá, lo más urgente es esto: 🚨 • **XV"), que es lo que vio el dueño en el Encargado
+ * General (9/10/2026). El largo de la respuesta lo marca el pedido ("máximo 4-5 líneas"), no el
+ * tope: se le da un piso alto para que nunca corte a la mitad.
+ */
+export const PISO_DE_TOKENS_DE_SALIDA = 4096;
+
+export function conLugarParaPensar(request: GeminiGenerateRequest): GeminiGenerateRequest {
+  const config = (request as { config?: Record<string, unknown> }).config;
+  const tope = Number(config?.maxOutputTokens);
+  if (!config || !Number.isFinite(tope) || tope >= PISO_DE_TOKENS_DE_SALIDA) return request;
+  return { ...request, config: { ...config, maxOutputTokens: PISO_DE_TOKENS_DE_SALIDA } } as GeminiGenerateRequest;
+}
+
 export async function generateWithGeminiFallback(request: GeminiGenerateRequest) {
   const preferredModel = typeof request.model === 'string' ? request.model : geminiFastModel;
   const candidates = getGeminiFallbackCandidates(preferredModel);
   let lastError: unknown;
 
+  const pedido = conLugarParaPensar(request);
   for (const model of candidates) {
     try {
-      return await ai.generate({ ...request, model });
+      return await ai.generate({ ...pedido, model });
     } catch (error) {
       lastError = error;
       if (!isRecoverableGeminiModelError(error)) throw error;

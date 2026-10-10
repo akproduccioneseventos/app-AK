@@ -3,7 +3,8 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { LandingSettings } from '@/types/landing-editor';
 import { defaultLandingSettings } from '@/types/landing-editor';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const LANDING_SETTINGS_FILE = 'landing-settings.json';
 
@@ -44,7 +45,7 @@ export async function getLandingSettings(): Promise<LandingSettings> {
 export async function saveLandingSettings(
   settings: LandingSettings
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
   try {
     const dataToSave: LandingSettings = {
       ...settings,

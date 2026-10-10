@@ -235,7 +235,7 @@ export default function MainDashboardPage() {
             <Sparkles className="w-4 h-4 text-indigo-500 animate-spin-slow shrink-0" /> Sistema Optimizado
           </Badge>
           <Button asChild variant="default" className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 font-bold text-xs h-10 px-4 shadow-md gap-2 transition-all">
-            <Link href="/settings"><SettingsIcon className="w-4 h-4" /> Centro de Control</Link>
+            <Link href="/settings"><SettingsIcon className="w-4 h-4" /> Configuración</Link>
           </Button>
         </motion.div>
       </header>

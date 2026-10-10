@@ -39,7 +39,7 @@ export function EmptyStateModulo({ titulo, descripcion, fiestaId }: EmptyStateMo
               </Link>
             </Button>
             <Button asChild variant="secondary" className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200">
-              <Link href={`/tienda?fiestaId=${fiestaId}`}>
+              <Link href={`/fiestas/nueva/servicios-contratados?fiestaId=${fiestaId}`}>
                 <Store className="h-4 w-4 mr-2" />
                 Ir a la tienda
               </Link>

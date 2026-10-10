@@ -1,0 +1,288 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: 86-planificacion-salida.spec.ts >> Planificación de salida, fixture y consumidor >> edita hora y visibilidad de un momento; fixture, editor y portal cliente coinciden tras recargar
+- Location: tests\e2e\86-planificacion-salida.spec.ts:63:7
+
+# Error details
+
+```
+Test timeout of 120000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - img "AK Producciones" [ref=e8]
+        - generic [ref=e9]:
+          - paragraph [ref=e10]: Fiesta E2E plan86 1791591678196
+          - paragraph [ref=e11]: XV · 09 de octubre de 2026
+        - generic [ref=e13]: Portal VIP
+    - generic [ref=e14]:
+      - img "Protagonista" [ref=e16]
+      - generic [ref=e17]:
+        - paragraph [ref=e18]: Tu evento está siendo organizado por
+        - paragraph [ref=e19]: ✨ AK Producciones
+        - heading "Fiesta E2E plan86 1791591678196" [level=1] [ref=e20]
+        - generic [ref=e21]:
+          - generic [ref=e22]: 📅 09 de octubre de 2026
+          - generic [ref=e23]: 📍 Club Uruguay
+          - generic [ref=e24]: 👥 160 invitados
+    - main [ref=e25]:
+      - paragraph [ref=e27]: Bienvenido al portal demo de AK Producciones. Todo esta organizado en un solo lugar.
+      - generic [ref=e28]:
+        - generic [ref=e29]: 💬
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Mensaje de tu Organizador
+          - paragraph [ref=e32]: "AK acompana cada etapa: antes, durante y despues de la fiesta."
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: 📊 Progreso de tu evento
+          - generic [ref=e37]: 40%
+        - paragraph [ref=e40]: 📋 Buen comienzo. Hay algunos pasos importantes por completar.
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: Pendiente
+          - generic [ref=e43]:
+            - generic [ref=e44]: ⬜
+            - text: Seña pagada
+          - generic [ref=e45]:
+            - generic [ref=e46]: ⬜
+            - text: Menú definido
+          - generic [ref=e47]:
+            - generic [ref=e48]: ⬜
+            - text: Decoración aprobada
+          - generic [ref=e49]:
+            - generic [ref=e50]: ⬜
+            - text: Cronograma cargado
+          - generic [ref=e51]:
+            - generic [ref=e52]: ⬜
+            - text: Pagos completados 100%
+      - link "👑 Ver Catálogo Completo de XV Años Conocé todos los servicios disponibles" [ref=e54] [cursor=pointer]:
+        - /url: /catalogo/xv-anos
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - generic [ref=e57]: 👑
+            - generic [ref=e58]:
+              - paragraph [ref=e59]: Ver Catálogo Completo de XV Años
+              - paragraph [ref=e60]: Conocé todos los servicios disponibles
+          - img [ref=e61]
+      - generic [ref=e64]:
+        - generic [ref=e66]:
+          - img [ref=e67]
+          - text: Llegadas en Vivo
+          - generic [ref=e69]: EN VIVO
+        - generic [ref=e71]:
+          - generic [ref=e72]:
+            - generic [ref=e73]: "0"
+            - generic [ref=e74]: / 121 personas llegaron
+          - generic [ref=e76]:
+            - generic [ref=e77]: Presencia
+            - generic [ref=e78]: 0% presentes
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - paragraph [ref=e82]: "121"
+              - paragraph [ref=e83]: Confirmados
+            - generic [ref=e84]:
+              - paragraph [ref=e85]: "0"
+              - paragraph [ref=e86]: Presentes
+            - generic [ref=e87]:
+              - paragraph [ref=e88]: "121"
+              - paragraph [ref=e89]: Por llegar
+            - generic [ref=e90]:
+              - paragraph [ref=e91]: "0"
+              - paragraph [ref=e92]: No vienen
+      - generic [ref=e94]:
+        - generic [ref=e95]:
+          - generic [ref=e96]:
+            - img [ref=e97]
+            - text: Cosas pendientes
+          - generic [ref=e99]: Completá estos pasos para que tu evento esté 100% listo.
+        - generic [ref=e101]:
+          - button "👥 Confirmar 19 invitaciones sin responder (37 personas)" [ref=e102] [cursor=pointer]:
+            - generic [ref=e103]: 👥
+            - generic [ref=e104]: Confirmar 19 invitaciones sin responder (37 personas)
+            - img [ref=e105]
+          - button "💳 Pago pendiente (1 cuota(s))" [ref=e107] [cursor=pointer]:
+            - generic [ref=e108]: 💳
+            - generic [ref=e109]: Pago pendiente (1 cuota(s))
+            - img [ref=e110]
+      - generic [ref=e113]:
+        - tablist [ref=e114]:
+          - tab "Progreso" [selected] [ref=e115] [cursor=pointer]
+          - tab "Invitados" [ref=e116] [cursor=pointer]
+          - tab "Pagos" [ref=e117] [cursor=pointer]
+        - tabpanel "Progreso" [ref=e118]:
+          - generic [ref=e119]:
+            - generic [ref=e120]:
+              - heading "Resumen del Evento" [level=3] [ref=e121]:
+                - button "Resumen del Evento" [expanded] [ref=e122] [cursor=pointer]:
+                  - generic [ref=e123]:
+                    - img [ref=e124]
+                    - text: Resumen del Evento
+                  - img [ref=e126]
+              - region "Resumen del Evento" [ref=e128]:
+                - generic [ref=e130]:
+                  - generic [ref=e131]:
+                    - generic [ref=e133]:
+                      - paragraph [ref=e134]: Evento
+                      - paragraph [ref=e135]: Fiesta E2E plan86 1791591678196
+                    - generic [ref=e137]:
+                      - paragraph [ref=e138]: Tipo
+                      - paragraph [ref=e139]: XV
+                    - generic [ref=e141]:
+                      - paragraph [ref=e142]: Fecha
+                      - paragraph [ref=e143]: 09 de octubre de 2026
+                    - generic [ref=e145]:
+                      - paragraph [ref=e146]: Horario
+                      - paragraph [ref=e147]: 21:00 – 05:00
+                  - generic [ref=e148]:
+                    - generic [ref=e149]:
+                      - img [ref=e151]
+                      - generic [ref=e154]:
+                        - paragraph [ref=e155]: Salón
+                        - paragraph [ref=e156]: Club Uruguay
+                    - generic [ref=e158]:
+                      - paragraph [ref=e159]: Dirección
+                      - paragraph [ref=e160]: Uruguay 580, Salto
+                    - generic [ref=e161]:
+                      - img [ref=e163]
+                      - generic [ref=e168]:
+                        - paragraph [ref=e169]: Invitados
+                        - paragraph [ref=e170]: 160 personas
+            - heading "Lo que tenés que llevar" [level=3] [ref=e172]:
+              - button "Lo que tenés que llevar" [ref=e173] [cursor=pointer]:
+                - generic [ref=e174]:
+                  - img [ref=e175]
+                  - text: Lo que tenés que llevar
+                - img [ref=e180]
+            - heading "🎬 Video de Vida Pendiente" [level=3] [ref=e183]:
+              - button "🎬 Video de Vida Pendiente" [ref=e184] [cursor=pointer]:
+                - generic [ref=e185]:
+                  - generic [ref=e186]: 🎬
+                  - text: Video de Vida
+                  - generic [ref=e187]: Pendiente
+                - img [ref=e188]
+      - generic [ref=e190]:
+        - generic [ref=e191]:
+          - heading "Preguntas Frecuentes del Servicio" [level=2] [ref=e192]
+          - paragraph [ref=e193]: Términos claros y transparentes de nuestro contrato y organización.
+        - generic [ref=e194]:
+          - heading "¿Cómo reservo la fecha?" [level=3] [ref=e196]:
+            - button "¿Cómo reservo la fecha?" [ref=e197] [cursor=pointer]:
+              - text: ¿Cómo reservo la fecha?
+              - img [ref=e198]
+          - heading "¿Qué incluye el servicio?" [level=3] [ref=e201]:
+            - button "¿Qué incluye el servicio?" [ref=e202] [cursor=pointer]:
+              - text: ¿Qué incluye el servicio?
+              - img [ref=e203]
+          - heading "¿Cuántas horas dura la fiesta?" [level=3] [ref=e206]:
+            - button "¿Cuántas horas dura la fiesta?" [ref=e207] [cursor=pointer]:
+              - text: ¿Cuántas horas dura la fiesta?
+              - img [ref=e208]
+          - heading "¿El precio cambia si la fiesta es el año que viene?" [level=3] [ref=e211]:
+            - button "¿El precio cambia si la fiesta es el año que viene?" [ref=e212] [cursor=pointer]:
+              - text: ¿El precio cambia si la fiesta es el año que viene?
+              - img [ref=e213]
+          - heading "¿Cómo pago?" [level=3] [ref=e216]:
+            - button "¿Cómo pago?" [ref=e217] [cursor=pointer]:
+              - text: ¿Cómo pago?
+              - img [ref=e218]
+          - heading "¿Qué pasa si me atraso con un pago?" [level=3] [ref=e221]:
+            - button "¿Qué pasa si me atraso con un pago?" [ref=e222] [cursor=pointer]:
+              - text: ¿Qué pasa si me atraso con un pago?
+              - img [ref=e223]
+          - heading "¿Puedo cambiar la fecha?" [level=3] [ref=e226]:
+            - button "¿Puedo cambiar la fecha?" [ref=e227] [cursor=pointer]:
+              - text: ¿Puedo cambiar la fecha?
+              - img [ref=e228]
+          - heading "¿Y si cancelo?" [level=3] [ref=e231]:
+            - button "¿Y si cancelo?" [ref=e232] [cursor=pointer]:
+              - text: ¿Y si cancelo?
+              - img [ref=e233]
+          - heading "¿Y si cancelo sólo una parte?" [level=3] [ref=e236]:
+            - button "¿Y si cancelo sólo una parte?" [ref=e237] [cursor=pointer]:
+              - text: ¿Y si cancelo sólo una parte?
+              - img [ref=e238]
+          - heading "¿Puedo cambiar la cantidad de invitados?" [level=3] [ref=e241]:
+            - button "¿Puedo cambiar la cantidad de invitados?" [ref=e242] [cursor=pointer]:
+              - text: ¿Puedo cambiar la cantidad de invitados?
+              - img [ref=e243]
+          - heading "¿Puedo cambiar el tipo de menú de algunos invitados?" [level=3] [ref=e246]:
+            - button "¿Puedo cambiar el tipo de menú de algunos invitados?" [ref=e247] [cursor=pointer]:
+              - text: ¿Puedo cambiar el tipo de menú de algunos invitados?
+              - img [ref=e248]
+          - heading "¿Si agrego un servicio nuevo, a qué precio?" [level=3] [ref=e251]:
+            - button "¿Si agrego un servicio nuevo, a qué precio?" [ref=e252] [cursor=pointer]:
+              - text: ¿Si agrego un servicio nuevo, a qué precio?
+              - img [ref=e253]
+          - heading "¿Cuándo entrego la lista de invitados?" [level=3] [ref=e256]:
+            - button "¿Cuándo entrego la lista de invitados?" [ref=e257] [cursor=pointer]:
+              - text: ¿Cuándo entrego la lista de invitados?
+              - img [ref=e258]
+          - heading "¿Hacen menú sin gluten o para alergias?" [level=3] [ref=e261]:
+            - button "¿Hacen menú sin gluten o para alergias?" [ref=e262] [cursor=pointer]:
+              - text: ¿Hacen menú sin gluten o para alergias?
+              - img [ref=e263]
+          - heading "¿Quién decide los detalles de la fiesta?" [level=3] [ref=e266]:
+            - button "¿Quién decide los detalles de la fiesta?" [ref=e267] [cursor=pointer]:
+              - text: ¿Quién decide los detalles de la fiesta?
+              - img [ref=e268]
+          - heading "¿Puedo pagar desde otra cuenta o que pague otra persona?" [level=3] [ref=e271]:
+            - button "¿Puedo pagar desde otra cuenta o que pague otra persona?" [ref=e272] [cursor=pointer]:
+              - text: ¿Puedo pagar desde otra cuenta o que pague otra persona?
+              - img [ref=e273]
+          - heading "¿Puedo llevar fotógrafo, show o maquilladora por mi cuenta?" [level=3] [ref=e276]:
+            - button "¿Puedo llevar fotógrafo, show o maquilladora por mi cuenta?" [ref=e277] [cursor=pointer]:
+              - text: ¿Puedo llevar fotógrafo, show o maquilladora por mi cuenta?
+              - img [ref=e278]
+          - heading "¿Me puedo llevar lo que sobra?" [level=3] [ref=e281]:
+            - button "¿Me puedo llevar lo que sobra?" [ref=e282] [cursor=pointer]:
+              - text: ¿Me puedo llevar lo que sobra?
+              - img [ref=e283]
+          - heading "¿Quién cuida a los niños?" [level=3] [ref=e286]:
+            - button "¿Quién cuida a los niños?" [ref=e287] [cursor=pointer]:
+              - text: ¿Quién cuida a los niños?
+              - img [ref=e288]
+          - heading "¿Usan las fotos de mi fiesta?" [level=3] [ref=e291]:
+            - button "¿Usan las fotos de mi fiesta?" [ref=e292] [cursor=pointer]:
+              - text: ¿Usan las fotos de mi fiesta?
+              - img [ref=e293]
+          - heading "¿Y AGADU?" [level=3] [ref=e296]:
+            - button "¿Y AGADU?" [ref=e297] [cursor=pointer]:
+              - text: ¿Y AGADU?
+              - img [ref=e298]
+          - heading "¿Los precios incluyen impuestos?" [level=3] [ref=e301]:
+            - button "¿Los precios incluyen impuestos?" [ref=e302] [cursor=pointer]:
+              - text: ¿Los precios incluyen impuestos?
+              - img [ref=e303]
+          - heading "¿Y si AK no puede cumplir con algo?" [level=3] [ref=e306]:
+            - button "¿Y si AK no puede cumplir con algo?" [ref=e307] [cursor=pointer]:
+              - text: ¿Y si AK no puede cumplir con algo?
+              - img [ref=e308]
+          - heading "¿Qué pasa si hay un imprevisto grave?" [level=3] [ref=e311]:
+            - button "¿Qué pasa si hay un imprevisto grave?" [ref=e312] [cursor=pointer]:
+              - text: ¿Qué pasa si hay un imprevisto grave?
+              - img [ref=e313]
+    - contentinfo [ref=e315]:
+      - paragraph [ref=e316]: AK Producciones Eventos · Salto, Uruguay · 098 355 530
+    - button "Abrir asistente de la fiesta" [ref=e318] [cursor=pointer]:
+      - img
+      - generic [ref=e319]: Asistente Virtual
+      - img
+    - link "Contactar al organizador por WhatsApp" [ref=e320] [cursor=pointer]:
+      - /url: https://wa.me/59898355530?text=Hola%2C%20necesito%20ayuda%20con%20mi%20evento%20%22Fiesta%20E2E%20plan86%201791591678196%22.
+      - img [ref=e321]
+      - text: Necesito ayuda
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e323]
+```

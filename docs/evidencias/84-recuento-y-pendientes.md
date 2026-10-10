@@ -48,7 +48,25 @@ Las fechas y SHAs originales estan en cada informe: no sumarlos como una sola
 aceptacion de main actual. Las correcciones de Claude/Gemini en el registro son
 correccion presente/reportada hasta su comprobacion independiente correspondiente.
 
+## Actualizacion 85: cerrar solo el hueco de QR/entrada
+
+La fila Invitacion/invitado se complementa con
+`85-invitado-entrada-y-aislamiento.md`: cuatro casos aprobados, dos PC y dos
+viewport movil. PNG descargado/decodificado, lector real registra entrada y
+otro token no abre credencial de otra fiesta con mismo ID. Portal persiste
+mesa/menu/grupo. Ya cubierto ese resultado: NO repetir sin cambio relevante.
+Fuente 497ee725 y equivalencia acotada hasta 859fd23b; no hardware/Firestore real,
+reentrada/revocacion ni endpoints completos. Resto de huecos sigue separado.
+
 ## Tres listas distintas para no reiniciar
+
+Actualizacion 86, fuente ejecutada `1b61295a`: leer
+`86-ia-planificacion-y-retest.md` antes de usar las listas historicas siguientes.
+Los cuatro pendientes 83 aprobaron retest; NO siguen esperando arreglo.
+Tareas e itinerario tienen resultado final UI/persistencia/reload/cliente.
+IA tiene 31 controles y dos widget PC/movil aprobados, pero seis defectos nuevos
+confirmados (orden135); entrega oficial portal tiene defecto mapper (orden136).
+Otros huecos y proveedores/hardware NO se convierten en aprobados por esta tanda.
 
 1. **Fallo conocido esperando arreglo:** CT83-NOMBRE, CT83-PAPEL, ENT83-360,
    ENT83-GUEST. Ordenes 133/134 ya entregadas. Retest cuando cambie su causa.

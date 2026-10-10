@@ -175,10 +175,6 @@ export const MENU_DEL_STAFF: EntradaDeMenu[] = [
     "ruta": "/settings/feature-flags"
   },
   {
-    "etiqueta": "Centro de Control",
-    "ruta": "/"
-  },
-  {
     "etiqueta": "Nuevo Lead",
     "ruta": "/admin"
   },
@@ -272,6 +268,7 @@ export const PANTALLAS_POR_FAMILIA: Record<FamiliaDePantalla, string[]> = {
     "/empresa/contabilidad",
     "/empresa/contabilidad/flujo-caja",
     "/empresa/contabilidad/gastos",
+    "/empresa/contabilidad/poner-al-dia",
     "/empresa/contabilidad/reportes",
     "/empresa/creador-anuncios",
     "/empresa/crm",

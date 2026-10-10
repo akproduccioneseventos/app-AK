@@ -2,7 +2,8 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { PromoActiva } from '@/types/promo';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 import { hoyEnUruguay } from '@/lib/utils';
 
@@ -39,7 +40,7 @@ export async function getPromoActiva(ahora: Date = new Date()): Promise<PromoAct
 export async function savePromo(
   data: Omit<PromoActiva, 'id' | 'creadoEn' | 'actualizadoEn'> & { id?: string }
 ): Promise<{ success: boolean; error?: string; promo?: PromoActiva }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   try {
     if (!data.titulo || !data.titulo.trim()) {
       return { success: false, error: 'El título de la promoción es obligatorio.' };
@@ -80,7 +81,7 @@ export async function savePromo(
 }
 
 export async function deletePromo(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   try {
     const promos = await leerPromos();
     const filtered = promos.filter((p) => p.id !== id);
@@ -93,7 +94,7 @@ export async function deletePromo(id: string): Promise<{ success: boolean; error
 }
 
 export async function togglePromo(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   try {
     const promos = await leerPromos();
     const idx = promos.findIndex((p) => p.id === id);

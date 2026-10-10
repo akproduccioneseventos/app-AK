@@ -1,5 +1,22 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
+/**
+ * Las entregas oficiales de foto y video (Codex, auditoría 86). Se mandaban sólo las notas
+ * generales y el cliente veía "aún no hay servicios" con su álbum ya entregado. Viajan los campos
+ * que muestra la pantalla, uno por uno, y el enlace sólo si es una dirección web común.
+ */
+function mapServicioDeEntrega(servicio: any) {
+  const link = typeof servicio?.linkEntrega === 'string' ? servicio.linkEntrega.trim() : '';
+  return {
+    id: servicio?.id,
+    nombre: servicio?.nombre,
+    estado: servicio?.estado,
+    fechaEntregaEstimada: servicio?.fechaEntregaEstimada,
+    notas: servicio?.notas,
+    linkEntrega: /^https?:\/\//i.test(link) || /^\/(?!\/)/.test(link) ? link : undefined,
+  };
+}
+
 function mapDocument(doc: any) {
   return {
     id: doc.id,
@@ -143,6 +160,7 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
     } : {},
     fotografiaYFilmacion: fiesta.fotografiaYFilmacion ? {
       notasGenerales: fiesta.fotografiaYFilmacion.notasGenerales,
+      servicios: (fiesta.fotografiaYFilmacion.servicios ?? []).map(mapServicioDeEntrega),
     } : {},
     clientMenuChangeRequests: fiesta.clientMenuChangeRequests ?? [],
     clientServiceChangeRequests: fiesta.clientServiceChangeRequests ?? [],

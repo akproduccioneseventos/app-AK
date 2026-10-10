@@ -121,14 +121,18 @@ export function findMatchingClientPayment(
 
 export function sumConfirmedClientPayments(payments: PagoCliente[] = [], excludePaymentId?: string): number {
   return payments
-    .filter((payment) => payment.id !== excludePaymentId)
+    // Sólo se excluye cuando se pide uno: un cobro guardado sin `id` (importado, cargado viejo)
+    // daba `undefined !== undefined` y quedaba afuera, como si no se hubiera pagado.
+    .filter((payment) => excludePaymentId === undefined || payment.id !== excludePaymentId)
     .filter(isConfirmedClientPayment)
     .reduce((sum, payment) => sum + roundMoney(payment.monto), 0);
 }
 
 export function sumPendingClientPayments(payments: PagoCliente[] = [], excludePaymentId?: string): number {
   return payments
-    .filter((payment) => payment.id !== excludePaymentId)
+    // Sólo se excluye cuando se pide uno: un cobro guardado sin `id` (importado, cargado viejo)
+    // daba `undefined !== undefined` y quedaba afuera, como si no se hubiera pagado.
+    .filter((payment) => excludePaymentId === undefined || payment.id !== excludePaymentId)
     .filter((payment) => payment.estadoPago === 'pendiente_confirmacion')
     .reduce((sum, payment) => sum + roundMoney(payment.monto), 0);
 }
