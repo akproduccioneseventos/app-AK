@@ -1,0 +1,413 @@
+[
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "QR revocada con lector real y pagina abierta",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 96483,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "qr-revocado.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-00-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "personal con ubicacion NATIVA cerca",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 19766,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "geo-cerca.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-01-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "personal con ubicacion NATIVA fuera",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 6614,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "geo-fuera.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-02-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "album formatos no miente sobre descarga",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 13970,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "album-formatos.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-03-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "album todo-falla no miente sobre descarga",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 5826,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "album-todo-falla.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-04-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "hoja de cocina se abre por su enlace sin URL directa de rescate",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 61397,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "cocina-link.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-05-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "voz en vivo sin clave devuelve error real sin reservar ni cobrar",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 19049,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "live-sin-clave.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-06-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "fotocabina guarda una fotografia con imagen de camara",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 25756,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "foto140-resultado.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-07-0.json"
+      },
+      {
+        "name": "foto140-final.jpg",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-07-1.jpg"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "el papel de pago suma sus conceptos redondeados exactamente al total",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 28447,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "recibos-papel-real.pdf",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-08-0.pdf"
+      },
+      {
+        "name": "desglose-papel.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-08-1.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "Reemplazar debe permitir cambiar el papel firmado sin deshacer el pago",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 27449,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "reemplazo-firmado.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-09-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-desktop.json",
+    "title": "fecha calendario del evento no retrocede un dia en el recibo",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 9417,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "fecha-recibo.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-desktop-10-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-live-primer.json",
+    "title": "voz fallida permite REINTENTAR con un solo clic",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 31730,
+    "errors": [
+      "Error: el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n\n  27 |     if(segundo===1){await b.click();await expect.poll(()=>llamadas).toBe(2);}\n  28 |     await info.attach('live-reintento.json',{body:JSON.stringify({first:1,afterRetry:segundo,afterThirdClick:llamadas,provider:'controlled HTTP503',buttonTitle:await b.getAttribute('title')},null,2),contentType:'application/json'});\n> 29 |     expect(segundo,'el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada').toBe(2);\n     |                                                                                                     ^\n  30 |   }finally{await limpiar();}\n  31 | });\n  32 | test('Cortar mientras conecta impide abrir despues microfono y socket',async({page,context,baseURL},info)=>{\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts:29:101"
+    ],
+    "attachments": [
+      {
+        "name": "live-reintento.json",
+        "file": "docs/evidencias/94-artifactos/94-live-primer-11-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-live-primer.json",
+    "title": "Cortar mientras conecta impide abrir despues microfono y socket",
+    "project": "chromium-desktop",
+    "status": "timedOut",
+    "duration": 180891,
+    "errors": [
+      "\u001b[31mTest timeout of 180000ms exceeded.\u001b[39m",
+      "Error: locator.click: Test timeout of 180000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Abrir Asistente IA AK' })\u001b[22m\n\n\n  14 |   await db.collection('fiestas').doc(id).set(JSON.parse(JSON.stringify(fiesta)));await ponerSesionDelEquipo(context,baseURL);\n  15 |   await page.goto('/fiestas/nueva/tareas?fiestaId='+id,{waitUntil:'domcontentloaded'});\n> 16 |   await page.getByRole('button',{name:'Abrir Asistente IA AK'}).click();await expect(page.getByTestId('boton-hablar-en-vivo')).toBeVisible();\n     |                                                                 ^\n  17 |   return async()=>{await db.collection('fiestas').doc(id).delete();borrarFiesta(id);};\n  18 | }\n  19 | test('voz fallida permite REINTENTAR con un solo clic',async({page,context,baseURL},info)=>{\n    at abrir (C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts:16:65)\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts:46:17"
+    ],
+    "attachments": []
+  },
+  {
+    "report": "94-live-final.json",
+    "title": "voz fallida permite REINTENTAR con un solo clic",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 14349,
+    "errors": [
+      "Error: el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m2\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n\n  27 |     if(segundo===1){await b.click();await expect.poll(()=>llamadas).toBe(2);}\n  28 |     await info.attach('live-reintento.json',{body:JSON.stringify({first:1,afterRetry:segundo,afterThirdClick:llamadas,provider:'controlled HTTP503',buttonTitle:await b.getAttribute('title')},null,2),contentType:'application/json'});\n> 29 |     expect(segundo,'el segundo toque tiene que iniciar otro pedido, no limpiar una sesion cerrada').toBe(2);\n     |                                                                                                     ^\n  30 |   }finally{await limpiar();}\n  31 | });\n  32 | test('Cortar mientras conecta impide abrir despues microfono y socket',async({page,context,baseURL},info)=>{\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts:29:101"
+    ],
+    "attachments": [
+      {
+        "name": "live-reintento.json",
+        "file": "docs/evidencias/94-artifactos/94-live-final-13-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-live-final.json",
+    "title": "Cortar mientras conecta impide abrir despues microfono y socket",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 10701,
+    "errors": [
+      "Error: Cortar antes de la ficha debe evitar adquirir el microfono\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n\n  55 |     // Release every resource in the QA even when the product reopens after cancellation.\n  56 |     await b.click();await page.evaluate(()=>window.__voz94.tracks.forEach(t=>t.stop()));\n> 57 |     expect(after.micro,'Cortar antes de la ficha debe evitar adquirir el microfono').toBe(0);expect(after.sockets).toBe(0);\n     |                                                                                      ^\n  58 |   }finally{liberar();await limpiar();}\n  59 | });\n  60 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-live-widget.spec.ts:57:86"
+    ],
+    "attachments": [
+      {
+        "name": "live-cortar-conectando.json",
+        "file": "docs/evidencias/94-artifactos/94-live-final-14-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-mobile.json",
+    "title": "QR revocada con lector real y pagina abierta",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 125587,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "qr-revocado.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-mobile-15-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-mobile.json",
+    "title": "album formatos no miente sobre descarga",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 18928,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "album-formatos.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-mobile-16-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-mobile.json",
+    "title": "album todo-falla no miente sobre descarga",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 11281,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "album-todo-falla.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-mobile-17-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-mobile.json",
+    "title": "el papel de pago suma sus conceptos redondeados exactamente al total",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 24955,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "recibos-papel-real.pdf",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-mobile-18-0.pdf"
+      },
+      {
+        "name": "desglose-papel.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-mobile-18-1.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-mobile.json",
+    "title": "Reemplazar debe permitir cambiar el papel firmado sin deshacer el pago",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 26066,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "reemplazo-firmado.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-mobile-19-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-aceptacion-mobile.json",
+    "title": "fecha calendario del evento no retrocede un dia en el recibo",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 11138,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "fecha-recibo.json",
+        "file": "docs/evidencias/94-artifactos/94-aceptacion-mobile-20-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-recuperacion-primer.json",
+    "title": "QR reentrada con lector real y pagina abierta",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 52360,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/ACCESO PERMITIDO/)\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/ACCESO PERMITIDO/)\u001b[22m\n\n\n  34 |       await page.reload({waitUntil:'domcontentloaded'});await expect(page.getByTestId('guest-portal-qr')).toHaveCount(0);\n  35 |     }else{\n> 36 |       await input.setInputFiles(png);await expect(op.getByText(/ACCESO PERMITIDO/)).toBeVisible({timeout:30000});\n     |                                                                                     ^\n  37 |       const first=(await ref.get()).data();expect(first.invitados[0].checkedIn).toBe(true);expect(first.invitados[0].checkInTimestamp).toBeTruthy();\n  38 |       await expect(op.getByText(/ACCESO PERMITIDO/)).toBeHidden({timeout:15000});\n  39 |       await input.setInputFiles([]);await input.setInputFiles(png);\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-94\\tests\\e2e\\94-entrada.spec.ts:36:85"
+    ],
+    "attachments": []
+  },
+  {
+    "report": "94-recuperacion-primer.json",
+    "title": "QR reentrada con lector real y pagina abierta",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 30931,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "qr-reentrada.json",
+        "file": "docs/evidencias/94-artifactos/94-recuperacion-primer-22-0.json"
+      }
+    ]
+  },
+  {
+    "report": "94-recuperacion-primer.json",
+    "title": "album todo-falla no miente sobre descarga",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 10507,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "album-todo-falla.json",
+        "file": "docs/evidencias/94-artifactos/94-recuperacion-primer-23-0.json"
+      },
+      {
+        "name": "album-reintento-entregado.json",
+        "file": "docs/evidencias/94-artifactos/94-recuperacion-primer-23-1.json"
+      }
+    ]
+  },
+  {
+    "report": "94-recuperacion-primer.json",
+    "title": "album todo-falla no miente sobre descarga",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 9711,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "album-todo-falla.json",
+        "file": "docs/evidencias/94-artifactos/94-recuperacion-primer-24-0.json"
+      },
+      {
+        "name": "album-reintento-entregado.json",
+        "file": "docs/evidencias/94-artifactos/94-recuperacion-primer-24-1.json"
+      }
+    ]
+  },
+  {
+    "report": "94-qr-diagnostico.json",
+    "title": "QR diagnostico del PNG descargado sin alterar el original",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 4570,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "qr-control-1-0.png",
+        "file": "docs/evidencias/94-artifactos/94-qr-diagnostico-25-0.png"
+      },
+      {
+        "name": "qr-control-1-32.png",
+        "file": "docs/evidencias/94-artifactos/94-qr-diagnostico-25-1.png"
+      },
+      {
+        "name": "qr-control-3-32.png",
+        "file": "docs/evidencias/94-artifactos/94-qr-diagnostico-25-2.png"
+      },
+      {
+        "name": "diagnostico-qr.json",
+        "file": "docs/evidencias/94-artifactos/94-qr-diagnostico-25-3.json"
+      }
+    ]
+  },
+  {
+    "report": "94-qr-lector-control.json",
+    "title": "QR control mismo PNG mismo lector original y margen",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 23200,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "lector-control.json",
+        "file": "docs/evidencias/94-artifactos/94-qr-lector-control-26-0.json"
+      }
+    ]
+  }
+]

@@ -1,0 +1,66 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { execFileSync, spawn } from 'node:child_process';
+
+const repo = fs.realpathSync(process.cwd());
+const sha = '9a054620718673f00e10b52f0811cc1af729ba4e';
+const root = path.join(fs.realpathSync(os.tmpdir()), 'ak-codex88');
+const cwd = path.join(root, 'ak-entorno-aislado-94');
+const mode = process.argv[2];
+if (!['start', 'jest', 'e2e'].includes(mode)) throw new Error('Modo no permitido');
+if (mode === 'start') {
+  fs.mkdirSync(root, { recursive: true });
+  if (fs.existsSync(cwd)) throw new Error('No reutilizar TEMP anterior');
+  execFileSync('git', ['worktree', 'add', '--detach', cwd, sha], { stdio: 'inherit' });
+  fs.symlinkSync(path.join(repo, 'node_modules'), path.join(cwd, 'node_modules'), 'junction');
+}
+if (path.dirname(fs.realpathSync(cwd)) !== fs.realpathSync(root) ||
+    execFileSync('git', ['-C', cwd, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim() !== sha) throw new Error('TEMP/SHA incorrecto');
+if (fs.readdirSync(cwd).some(n => /^\.env(?:\.(?:local|production|development|test)(?:\.local)?)?$/.test(n))) throw new Error('No permitir credenciales');
+const keys = ['PATH','HOME','LANG','TEMP','TMP','SYSTEMROOT','USERPROFILE','WINDIR','APPDATA','LOCALAPPDATA','PROGRAMDATA','PROGRAMFILES','COMSPEC','PATHEXT'];
+const env = Object.fromEntries(keys.filter(k => process.env[k] !== undefined).map(k => [k, process.env[k]]));
+Object.assign(env, {
+  NODE_ENV:'development', NEXT_TELEMETRY_DISABLED:'1', NODE_OPTIONS:'--max-old-space-size=4096', JAVA_TOOL_OPTIONS:'-Xmx512m',
+  AK_ENTORNO_AISLADO:'true', AK_USE_LOCAL_JSON_ONLY:'false', AK_ALLOW_LOCAL_JSON_WRITES:'true',
+  AK_SESSION_SECRET:'playwright-session-secret-with-enough-entropy', APP_PASSWORD:'entorno-aislado-ak',
+  GOOGLE_API_KEY:'dummy', GEMINI_API_KEY:'dummy', FIREBASE_PROJECT_ID:'demo-ak-producciones',
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID:'demo-ak-producciones', NEXT_PUBLIC_FIREBASE_API_KEY:'dummy',
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:'demo-ak-producciones.firebaseapp.com', NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET:'demo-ak-producciones.appspot.com',
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID:'000000000000', NEXT_PUBLIC_FIREBASE_APP_ID:'1:000000000000:web:test',
+  FIRESTORE_EMULATOR_HOST:'127.0.0.1:8085', FIREBASE_STORAGE_EMULATOR_HOST:'127.0.0.1:9195', COMMIT_SHA:sha,
+  PLAYWRIGHT_BASE_URL:'http://127.0.0.1:3300',
+});
+const log = fs.createWriteStream(path.join(repo, `docs/evidencias/94-${mode}.log`), {flags:'a'});
+function launch(args) {
+  const child = spawn(process.execPath, args, {cwd,env,stdio:['ignore','pipe','pipe']});
+  for (const stream of [child.stdout,child.stderr]) stream.on('data', b => {log.write(b);process.stdout.write(b);});
+  return child;
+}
+if (mode === 'start') {
+  const config = JSON.parse(fs.readFileSync(path.join(cwd,'firebase.pruebas.json')));
+  config.emulators.firestore.port=8085; config.emulators.storage.port=9195;
+  fs.writeFileSync(path.join(cwd,'firebase.entorno.json'),JSON.stringify(config,null,2));
+  for (const [source,dest] of [
+    ['91-personal-recibo-final.spec.ts','94-recibos.spec.ts'],
+    ['92-entrada-pendientes.spec.ts','94-entrada.spec.ts'],
+    ['94-pendientes.spec.ts','94-pendientes.spec.ts'],
+    ['94-live-widget.spec.ts','94-live-widget.spec.ts'],
+    ['94-qr-imagen.spec.ts','94-qr-imagen.spec.ts'],
+  ]) fs.copyFileSync(path.join(repo,'docs/evidencias',source),path.join(cwd,'tests/e2e',dest));
+  fs.copyFileSync(path.join(repo,'docs/evidencias/94-artifactos/qr-reentrada-original.png'),path.join(cwd,'qa94-qr-original.png'));
+  fs.writeFileSync(path.join(cwd,'playwright.94.config.ts'),
+    "import base from './playwright.config';\nexport default {...base, testMatch:['**/94-*.spec.ts'], use:{...base.use,trace:'off',video:'off'}, reporter:[['json',{outputFile:" + JSON.stringify(path.join(repo,'docs/evidencias/94-e2e.json')) + "}]],outputDir:" + JSON.stringify(path.join(cwd,'qa94-artifacts')) + "};\n");
+  let server;
+  const emulator=launch(['node_modules/firebase-tools/lib/bin/firebase.js','emulators:start','--config','firebase.entorno.json','--only','firestore,storage','--project','demo-ak-producciones']);
+  const record=()=>fs.writeFileSync(path.join(repo,'docs/evidencias/94-runtime.json'),JSON.stringify({cwd,sha,launcher:process.pid,emulator:emulator.pid,server:server?.pid,started:new Date().toISOString(),runtime:'Next dev, no build'},null,2));
+  record();const timer=setTimeout(()=>emulator.kill(),120000);
+  emulator.stdout.on('data',b=>{if(!server&&/All emulators ready/i.test(String(b))){clearTimeout(timer);server=launch(['node_modules/next/dist/bin/next','dev','--hostname','127.0.0.1','--port','3300']);record();server.on('exit',()=>emulator.kill());}});
+  emulator.on('exit',()=>{clearTimeout(timer);server?.kill();log.end();});
+} else {
+  if(mode==='jest') env.NODE_ENV='test';
+  const args = mode==='jest'
+    ? ['node_modules/jest/bin/jest.js','--runInBand','--runTestsByPath',...process.argv.slice(3),'--json','--outputFile='+path.join(repo,'docs/evidencias/94-jest.json')]
+    : ['node_modules/@playwright/test/cli.js','test','--config','playwright.94.config.ts',...process.argv.slice(3)];
+  const child=launch(args);child.on('exit',code=>log.end(()=>{process.exitCode=code??1;}));
+}

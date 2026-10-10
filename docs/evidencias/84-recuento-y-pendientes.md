@@ -1,5 +1,23 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion94: retests cerrados y tres fallos nuevos
+
+Fuente exacta9a054620 ejecutada; main mismoSHA, PR1286QA abierta. Tanda local
+NO contrastada: no duplicar trabajo. Informe94-cierre-retets-y-voz.md manda.
+143Jest14suites y20ejecucionespositivas/18parescaso-contexto. No app completa.
+140foto con contenido nativo falso/bytes;142centavos/reemplazo/fecha PCmovil;
+141PNG/WebM y noZIPfalso+reintentocompleto PCmovil;143revocacion lectorabierto/
+ubicacionnativa dentro-fuera;139enlacecocina sin rescate PASAN. Reutilizarlos.
+Orden146 dos NUEVOS: Cortar mientrasconecta reabre micro/socket; tras503segundo
+toqueNOreintenta/terceroSI. Orden147NUEVO: PNGQRvalido170 no lee la propiaapp,
+bordeblanco32 mismoarchivo/codigo/invitadoSI. Reentrada movilSI, no cierrePC.
+SondasQR positivas son diagnostico, no aprobar producto por el control corregido.
+Timeout mockHMR propio descartado. Mantener144/145sin delta, no reauditarigual.
+3Dhistorico sin escena, videolector visual limitado emulador,19originales sin
+export autorizado, proveedores/hardware reales y buildHostingMISMO SHA quedan
+pendientes. Publicado0af74652 !=9a;health no prueba integraciones. Runtimecerrado.
+No14areaslimpias ni0errores. Propuestas/mejoras aparte, no inventar certificacion.
+
 ## Actualizacion93: pendientes antiguos, recientes excluidos
 
 Informe93-cierre-pendientes-anteriores.md. Fuente85215484/contraste9a054620:

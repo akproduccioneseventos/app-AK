@@ -1,0 +1,16 @@
+{
+  "after": {
+    "micro": 1,
+    "sockets": 1,
+    "closes": 0,
+    "tracks": [
+      {
+        "kind": "audio",
+        "state": "live"
+      }
+    ]
+  },
+  "provider": "delayed controlled response",
+  "panelReopened": 1,
+  "buttonTitle": "Cortar la conversación en vivo"
+}

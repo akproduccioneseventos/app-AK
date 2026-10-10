@@ -1,0 +1,17 @@
+{
+  "native": {
+    "lat": -34.8,
+    "lng": -56.1
+  },
+  "headers": "camera=(self), microphone=(self), geolocation=(self)",
+  "personal": [
+    {
+      "empleadoId": "emp_e2e_94_geo_2592_1791670098915",
+      "rolId": "rol94",
+      "eventSalary": 0
+    }
+  ],
+  "avisos": [
+    "Notification No pudimos registrar tu llegadaEstás a 14939m del salón (el máximo permitido es 300m)."
+  ]
+}
