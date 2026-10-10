@@ -1,5 +1,13 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion91: recibos finales de personal
+
+Leer `91-personal-recibos-final.md`. Firmado PC/movil:2E2E pasan con bytes
+en Storage/enlace200PDF, recarga/otra sesion, empleado/fiesta aislados.
+Orden142Claude: centavo en desglose, Reemplazar rechaza, fecha un dia antes.
+Fecha requiere recuperar raw mediante reejecucion; PDF/semilla preservados.
+No area personal entera, no firma legal/hardware ni0errores. No repetir cobros.
+
 ## Actualizacion90: descarga final del album
 
 Leer `90-album-descarga-final.md`. FotosZIP PC/movil:2E2E aprobados con bytes

@@ -1,4 +1,4 @@
-# Estado actual - 10/10/2026 (Codex88-90)
+# Estado actual - 10/10/2026 (Codex88-91)
 
 Main contrastado0af74652; fuente ejecutada2aac14e2. Delta1281: permisos de fiestas.
 Rama QA `codex/auditoria-88-cierre-20261009`, sin producto ni fusion.
@@ -30,10 +30,10 @@ Rama QA `codex/auditoria-88-cierre-20261009`, sin producto ni fusion.
 - ENT89-IMAGEN P1: camara nativa trae senal, fotocabina compone negro; orden140 Gemini.
 - Portal color PC/movil: 2E2E UI->SDK->otro navegador; otra fiesta intacta. Informe89.
 - Album90: fotosZIP PC/movil2E2E pasan; WebM nombrado.jpg y ZIPvacio anuncia2.
-- Orden141Gemini PENDIENTE, evidenciaZIP/bytes. No otraPR ni producto modificado.
+- Orden141Gemini pendiente.91firmado PC/movil pasa;3P2 orden142Claude pendiente.
 
 ## Abierto
-- PR1282 abierta: evidencia/ordenes139-141, sin producto. NO fusion documental sola.
+- PR1282 abierta: evidencia/ordenes139-142, sin producto. NO fusion documental sola.
 - Hecho: borrar, archivar, cancelar y reactivar una fiesta piden permiso (no sólo sesión).
 - Por fuera:19originales sin lectura, cuentas/proveedores/audio/hardware reales.
 - Mejoras de toda la app/IA para DESPUES del cierre, sin ampliar alcance ahora.

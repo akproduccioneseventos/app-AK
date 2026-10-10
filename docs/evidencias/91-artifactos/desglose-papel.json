@@ -1,0 +1,21 @@
+{
+  "conceptos": [
+    {
+      "nombre": "Sueldo Base Evento",
+      "texto": "$ 857,19",
+      "centavos": 85719
+    },
+    {
+      "nombre": "Salario Vacacional (8.33%)",
+      "texto": "$ 71,40",
+      "centavos": 7140
+    },
+    {
+      "nombre": "Aguinaldo (8.33%)",
+      "texto": "$ 71,40",
+      "centavos": 7140
+    }
+  ],
+  "sumaCentavos": 99999,
+  "totalCentavos": 100000
+}

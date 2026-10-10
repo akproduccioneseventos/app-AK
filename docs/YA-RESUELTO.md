@@ -1,5 +1,16 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/10/2026 - Codex91: recibo firmado y papel de personal
+
+- Firmado PC/movil: dos E2E pasan; Storage bytes/enlace200PDF, recarga/otra
+  sesion, otro empleado y otra fiesta intactos. No firma legal ni pago bancario.
+- Tres P2 pendientes orden142Claude:857.19+71.40+71.40!=1000; Reemplazar
+  rechaza firmado; fecha2026-10-10 aparece9 en papel. Informe91/raws/PDF.
+- Dos intentos de selector de fecha descartados como QA. Ultimo raw de fecha
+  perdido al desaparecer TEMP; repetir antes de aceptar, no inventar archivo.
+- Actualizacion en1282 sin producto/fusion. No limpieza SDK final adicional ni
+  build global acreditados. No repetir lo aprobado sin cambio causal.
+
 ## 10/10/2026 - Codex90: el ZIP del album se abrio de verdad
 
 - Dos aprobaciones PC/movil: boton real descarga PNG/JPEG con bytes exactos;
