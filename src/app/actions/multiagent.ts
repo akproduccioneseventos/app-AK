@@ -1,6 +1,7 @@
 'use server';
 
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
+import { esUnSi } from '@/lib/multiagent/confirmacion';
 import { appendMultiAgentChatTurn, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
 import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/lib/multiagent/diagnostics';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -10,6 +11,7 @@ import { verifySession } from '@/lib/auth/session-token';
 import { requireAppSession } from '@/lib/auth/require-session';
 import type { Tarea } from '@/types/fiesta';
 import type { AkAgentChatSession, AkAgentType, AkMultiAgentMessage, AkMultiAgentOutput, AkPersistentMultiAgentOutput } from '@/types/multiagent';
+
 
 export async function sendMultiAgentMessage(
   message: string,
@@ -333,7 +335,7 @@ export async function sendPersistentMultiAgentMessage(input: {
         }
       } else if (action.type === 'agendar_reunion') {
         const data = action.data as any;
-        const isConfirmed = input.message.toLowerCase().includes('sí') || input.message.toLowerCase().includes('si') || Boolean(data?.confirmado);
+        const isConfirmed = esUnSi(input.message) || Boolean(data?.confirmado);
         const res = await ejecutarAccionSecretario({ accion: 'agendar_reunion', datos: data, confirmado: isConfirmed });
         result.response += `\n\n${res.mensaje || res.error || 'No pude agendar la reunión.'}`;
       } else if (action.type === 'ver_mi_semana') {
@@ -341,7 +343,7 @@ export async function sendPersistentMultiAgentMessage(input: {
         result.response += `\n\n${res.mensaje || res.error || 'No pude completar el pedido.'}`;
       } else if (action.type === 'preparar_mail') {
         const data = action.data as any;
-        const isConfirmed = input.message.toLowerCase().includes('sí') || input.message.toLowerCase().includes('si') || Boolean(data?.confirmado);
+        const isConfirmed = esUnSi(input.message) || Boolean(data?.confirmado);
         const res = await ejecutarAccionSecretario({ accion: 'preparar_mail', datos: data, confirmado: isConfirmed });
         result.response += `\n\n${res.mensaje || res.error || 'No pude preparar el mail.'}`;
       } else if (action.type === 'buscar_en_la_web') {
