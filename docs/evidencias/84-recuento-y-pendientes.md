@@ -1,5 +1,14 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion 89: contenido de fotocabina y color del portal
+
+Leer `89-fotocabina-y-portal-color.md`. Color portal PC/movil: UI->SDK->otro
+navegador conserva color elegido y no altera otra fiesta; 2E2E, no area entera.
+Fotocabina: entrega/composicion88 no acreditaban imagen de camara. Nueva sonda
+con control independiente MISMA senal obtiene fotografia negra: ENT89-IMAGEN P1,
+orden140 Gemini. No es solo archivo existente ni tiempo de espera; no hardware.
+No volver a probar los otros14recorridos88 ni fabricar certificados por helpers.
+
 ## Actualizacion88 (10/10/2026, prevalece sobre estados historicos abajo)
 
 Fuente ejecutada2aac14e2; contraste0af74652 con delta solo permisos de fiestas.

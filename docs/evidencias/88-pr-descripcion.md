@@ -44,3 +44,17 @@ Sin nuevas dependencias. Traces/videos grandes permanecen locales; capturas,
 PDFs, contexto, consolas y resultados estructurados se entregan en evidencias.
 Esta PR NO corrige COM88: entrega la orden y la prueba al responsable. No fusionar
 como si fuera un arreglo de producto ni como aprobacion final para publicar.
+
+## Actualizacion Auditoria 89
+
+- Dos E2E adicionales aprobados, PC y movil: personalizacion de color del portal
+  llega al SDK y a otro navegador, sin cuenta de equipo ni alterar otra fiesta.
+- ENT89-IMAGEN P1 reproducido en Chromium aislado: misma senal tiene imagen en
+  reproductor independiente pero captura de fotocabina queda negra. Orden140
+  Gemini, con JPEG, control y region fotografica0/280000pixeles. No hardware ni
+  Hosting confirmado; no correccion de producto en esta PR.
+- Se conservan errores de QA y limites, sin contarlos como mas fallos de app.
+  Limpieza comprobada por SDK, procesos propios y ayudante detenidos.
+- Orden139 compras corresponde a Claude; orden140 fotocabina a Gemini. Contrastar
+  sus tandas locales no subidas ANTES de programar. No se inicia otra IA por escribir.
+- Sigue pendiente dibujo3D historico y matriz84. No cierre completo/0errores.

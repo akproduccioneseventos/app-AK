@@ -1,5 +1,18 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10/10/2026 - Codex89: imagen dentro de la fotocabina y color del portal
+
+- ENT89-IMAGEN nuevo, orden140 Gemini: la misma camara nativa falsa muestra imagen
+  en reproductor independiente, pero fotocabina compone foto negra (0/280000
+  pixeles en region fotografica). Evidencia89 adjunta; no hardware/Hosting probado.
+  No aprobar captura por plantilla, dimensiones, QR o ausencia de excepciones.
+- Portal color: 2E2E PC/movil aprobados; UI cambia, SDK conserva y otro navegador
+  recibe, otra fiesta intacta. No reabrir ese resultado sin delta.
+- Descartes QA: descarga de Storage no es imagen inline; igualdad con senal
+  repetida no es defecto; una foto no tiene miniaturas de tres. Se descarto
+  sugerencia del ayudante sobre PublicPortalView por no ser consumidor actual.
+- Se agrega a1282, sin programar, otra PR ni fusion. Informe89 y matriz84.
+
 ## 10/10/2026 - Codex88: retest, resultados finales y compras
 
 Fuente ejecutada2aac14e290b20945bd984a0c5e2ffdbe50eb853c; entrega base0af74652.
