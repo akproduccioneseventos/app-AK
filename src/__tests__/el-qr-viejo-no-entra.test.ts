@@ -133,3 +133,13 @@ describe('la entrada por QR mira la credencial vigente', () => {
     expect((await checkInGuest('fiesta-concurrencia', 'g1', { token: 'nuevo' })).success).toBe(false);
   });
 });
+
+describe('los tres lectores de QR le pasan la credencial al servidor', () => {
+  const fs = require('fs') as typeof import('fs');
+  const leer = (p: string) => fs.readFileSync(require('path').join(process.cwd(), p), 'utf8');
+  it('la puerta, el lector del equipo (/fiestas/nueva/invitados/checkin-scanner) y la página de llegada', () => {
+    expect(leer('src/app/evento/accesos/[fiestaId]/page.tsx')).toMatch(/checkInGuest\(fiestaId, resolvedGuestId, \{ token \}\)/);
+    expect(leer('src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx')).toMatch(/processCheckIn\(scannedGuestId, \{ token: scannedToken \}\)/);
+    expect(leer('src/app/evento/actual/checkin/page.tsx')).toMatch(/checkInGuestFiestaActual\(fiestaId, guestId, \{ token \}\)/);
+  });
+});
