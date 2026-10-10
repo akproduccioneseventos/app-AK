@@ -81,7 +81,7 @@ YA existe y fue ejecutada negativamente, no es una aprobacion ni build.
 
 ```comprobar
 archivo: src/lib/asistente/sesion-voz-en-vivo.ts
-usa: iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+usa: iniciarVozEnVivo en src/lib/asistente/control-voz-en-vivo.ts
 prueba: docs/evidencias/94-live-widget.spec.ts
 prueba: src/__tests__/la-voz-en-vivo-cliente.test.ts
 prueba: src/__tests__/la-voz-en-vivo-cancela-y-reintenta.test.ts
