@@ -1,0 +1,190 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/87-video-vida-reemplazo.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "87-video-vida-reemplazo.spec.ts",
+      "file": "87-video-vida-reemplazo.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "reemplazar la foto 1 PNG por JPEG conserva UNA foto para ese recuadro",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 36609,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Tu Galería (0 de 2)', { exact: true })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Tu Galería (0 de 2)', { exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Tu Galería (0 de 2)', { exact: true })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Tu Galería (0 de 2)', { exact: true })\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts:26:70",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts",
+                      "column": 70,
+                      "line": 26
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 24 |\u001b[39m     \u001b[36mawait\u001b[39m ref\u001b[33m.\u001b[39m\u001b[36mset\u001b[39m(\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mparse(\u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify(fiesta)))\u001b[33m;\u001b[39m\n \u001b[90m 25 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/evento/video-vida/'\u001b[39m\u001b[33m+\u001b[39mfiesta\u001b[33m.\u001b[39mid\u001b[33m,\u001b[39m{waitUntil\u001b[33m:\u001b[39m\u001b[32m'domcontentloaded'\u001b[39m})\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 26 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByText(\u001b[32m'Tu Galería (0 de 2)'\u001b[39m\u001b[33m,\u001b[39m{exact\u001b[33m:\u001b[39m\u001b[36mtrue\u001b[39m}))\u001b[33m.\u001b[39mtoBeVisible({timeout\u001b[33m:\u001b[39m\u001b[35m25000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 27 |\u001b[39m     expect((\u001b[36mawait\u001b[39m context\u001b[33m.\u001b[39mcookies())\u001b[33m.\u001b[39msome(c\u001b[33m=>\u001b[39mc\u001b[33m.\u001b[39mname\u001b[33m===\u001b[39m\u001b[32m'ak_session'\u001b[39m))\u001b[33m.\u001b[39mtoBe(\u001b[36mfalse\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 28 |\u001b[39m     \u001b[36mconst\u001b[39m buffers\u001b[33m=\u001b[39m{}\u001b[33m;\u001b[39m\n \u001b[90m 29 |\u001b[39m     \u001b[36mfor\u001b[39m(\u001b[36mconst\u001b[39m [mime\u001b[33m,\u001b[39mextension\u001b[33m,\u001b[39mcolor] \u001b[36mof\u001b[39m [[\u001b[32m'image/png'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'png'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'#346ab5'\u001b[39m]\u001b[33m,\u001b[39m[\u001b[32m'image/jpeg'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'jpg'\u001b[39m\u001b[33m,\u001b[39m\u001b[32m'#dfbc21'\u001b[39m]]) {\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts",
+                        "column": 70,
+                        "line": 26
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Tu Galería (0 de 2)', { exact: true })\nExpected: visible\nTimeout: 25000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 25000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Tu Galería (0 de 2)', { exact: true })\u001b[22m\n\n\n  24 |     await ref.set(JSON.parse(JSON.stringify(fiesta)));\n  25 |     await page.goto('/evento/video-vida/'+fiesta.id,{waitUntil:'domcontentloaded'});\n> 26 |     await expect(page.getByText('Tu Galería (0 de 2)',{exact:true})).toBeVisible({timeout:25000});\n     |                                                                      ^\n  27 |     expect((await context.cookies()).some(c=>c.name==='ak_session')).toBe(false);\n  28 |     const buffers={};\n  29 |     for(const [mime,extension,color] of [['image/png','png','#346ab5'],['image/jpeg','jpg','#dfbc21']]) {\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts:26:70"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T00:48:29.946Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-re-8eddf--UNA-foto-para-ese-recuadro-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-re-8eddf--UNA-foto-para-ese-recuadro-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-re-8eddf--UNA-foto-para-ese-recuadro-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-re-8eddf--UNA-foto-para-ese-recuadro-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\test-results\\87-video-vida-reemplazo-re-8eddf--UNA-foto-para-ese-recuadro-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\tests\\e2e\\87-video-vida-reemplazo.spec.ts",
+                    "column": 70,
+                    "line": 26
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7bdd3ac26a61423110bb-b1bbf1f3609aa88b47f5",
+          "file": "87-video-vida-reemplazo.spec.ts",
+          "line": 16,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T00:48:26.868Z",
+    "duration": 45547.715000000004,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}
