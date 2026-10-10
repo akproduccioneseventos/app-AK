@@ -46,7 +46,16 @@ Integrar con tanda144-147 existente, NO nueva PR por hallazgo.
 
 ```comprobar
 archivo: src/app/actions/fiesta/video-vida.actions.ts
+archivo: src/lib/video-vida/lectura-fotos.ts
+usa: lecturaConError en src/app/actions/fiesta/video-vida.actions.ts
 usa: getLifeStoryVideoPhotos en src/app/video-vida/[fiestaId]/page.tsx
+usa: MENSAJE_LECTURA_FALLIDA en src/app/video-vida/[fiestaId]/page.tsx
+usa: lectura.estado en src/app/api/video-vida-photos/[fiestaId]/download/route.ts
+usa: lectura.estado en src/app/evento/video-vida/[fiestaId]/page.tsx
+usa: lectura.estado en src/app/(app)/fiestas/nueva/video-vida/page.tsx
+prueba: src/__tests__/video-vida-error-de-lectura-no-es-galeria-vacia.test.tsx
+prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
+prueba: tests/e2e/video-vida-error-lectura.spec.ts
 prueba: docs/evidencias/96-video-lector.test.tsx
 prueba: docs/evidencias/96-video-lector-browser.spec.ts
 ```

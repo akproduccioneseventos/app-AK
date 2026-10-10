@@ -21,8 +21,10 @@ if (typeof (global as any).Headers === 'undefined') {
 }
 
 let fotos: string[] = [];
+let lecturaFalla = false;
+let fotosNoLeidas = 0;
 let sesion = true;
-jest.mock('@/app/actions/fiesta/video-vida.actions', () => ({ getLifeStoryVideoPhotos: jest.fn(async () => fotos) }));
+jest.mock('@/app/actions/fiesta/video-vida.actions', () => ({ getLifeStoryVideoPhotos: jest.fn(async () => lecturaFalla ? { estado: 'error', urls: [], fallidas: 0, error: 'No pudimos leer' } : { estado: fotosNoLeidas ? 'parcial' : 'ok', urls: fotos, fallidas: fotosNoLeidas }) }));
 jest.mock('@/lib/auth/require-session', () => ({ hasAppSession: jest.fn(async () => sesion) }));
 jest.mock('next/server', () => ({
   NextResponse: class {
@@ -44,6 +46,8 @@ const BASE = 'https://firebasestorage.googleapis.com/v0/b/ak/o/fiestas%2Ff1%2F';
 const respuestas: Record<string, number | 'red'> = {};
 beforeEach(() => {
   sesion = true;
+  lecturaFalla = false;
+  fotosNoLeidas = 0;
   for (const k of Object.keys(respuestas)) delete respuestas[k];
   (global as any).fetch = jest.fn(async (url: string) => {
     const r = respuestas[url] ?? 200;
@@ -110,5 +114,22 @@ describe('La descarga del Video de Vida avisa lo que falta', () => {
     const r = await pedir();
     expect(r.status).toBe(401);
     expect((global as any).fetch).not.toHaveBeenCalled();
+  });
+
+  // Orden 148: no poder leer la galería no es "no hay fotos" (404), y una foto sin firmar también falta.
+  it('si no se pudo leer la galería: 502 con aviso, no 404 de "sin fotos"', async () => {
+    lecturaFalla = true;
+    const r = await pedir();
+    expect(r.status).toBe(502);
+    expect((global as any).fetch).not.toHaveBeenCalled();
+  });
+
+  it('una foto que no se pudo firmar cuenta como faltante en el archivo', async () => {
+    fotos = [`${BASE}a.jpg`];
+    fotosNoLeidas = 1;
+    const r = await pedir();
+    expect(r.status).toBe(200);
+    expect(r.headers.get('X-Fotos-Pedidas')).toBe('2');
+    expect(r.headers.get('X-Fotos-Fallidas')).toBe('1');
   });
 });

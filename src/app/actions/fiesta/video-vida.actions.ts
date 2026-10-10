@@ -8,6 +8,7 @@ import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { TOPE_DE_FOTOS } from '@/lib/video-vida/tope-de-fotos';
 import admin from 'firebase-admin';
+import { lecturaOk, lecturaConError, type LecturaDeFotos } from '@/lib/video-vida/lectura-fotos';
 
 const STORAGE_BUCKET =
   process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET ||
@@ -200,36 +201,54 @@ export async function saveLifeStoryVideoPhoto(
   }
 }
 
-export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<string[]> {
+/**
+ * Lee las fotos del Video de Vida. Devuelve un resultado estructurado (orden 148): una galería
+ * vacía, una lectura completa, una parcial (alguna foto no se pudo firmar) o un error de lectura
+ * son cuatro cosas distintas, y ninguna falla se disfraza de "cero fotos".
+ */
+export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<LecturaDeFotos> {
   try {
-    if (!admin.apps.length) return [];
+    if (!admin.apps.length) return lecturaConError();
     const bucket = admin.storage().bucket(STORAGE_BUCKET);
     const prefix = `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/`;
     const [files] = await bucket.getFiles({ prefix });
-    if (!files.length) return [];
+    if (!files.length) return lecturaOk([]);
 
     const expiry = new Date(Date.now() + SIGNED_URL_EXPIRY_MS);
-    const urlPromises = (files as StorageFile[]).map(async (file) => {
-      // If the file is public, return public URL; otherwise signed
-      try {
-        const [metadata] = await file.getMetadata();
-        if (Array.isArray(metadata?.acl) && metadata.acl.some((a: { entity?: string }) => a.entity === 'allUsers')) {
-          return `https://storage.googleapis.com/${STORAGE_BUCKET}/${file.name}`;
+    const resultados = await Promise.all(
+      (files as StorageFile[]).map(async (file): Promise<string | null> => {
+        // If the file is public, return public URL; otherwise signed
+        try {
+          const [metadata] = await file.getMetadata();
+          if (Array.isArray(metadata?.acl) && metadata.acl.some((a: { entity?: string }) => a.entity === 'allUsers')) {
+            return `https://storage.googleapis.com/${STORAGE_BUCKET}/${file.name}`;
+          }
+        } catch { /* ignore */ }
+        try {
+          const [signedUrl] = await file.getSignedUrl({ action: 'read', expires: expiry });
+          return signedUrl;
+        } catch (err) {
+          // Una foto que no se firma no se lleva puestas a las demás: se cuenta como fallida.
+          console.error('No se pudo firmar una foto del Video de Vida:', file.name, err);
+          return null;
         }
-      } catch { /* ignore */ }
-      const [signedUrl] = await file.getSignedUrl({ action: 'read', expires: expiry });
-      return signedUrl;
-    });
+      })
+    );
 
-    const urls = await Promise.all(urlPromises);
+    const urls = resultados.filter((u): u is string => typeof u === 'string');
+    const fallidas = resultados.length - urls.length;
     // Sort by filename (preserves numeric order like 01.jpg, 02.jpg …)
-    return urls.sort((a, b) => {
+    urls.sort((a, b) => {
       const nameA = a.split('/').pop()?.split('?')[0] ?? '';
       const nameB = b.split('/').pop()?.split('?')[0] ?? '';
       return nameA.localeCompare(nameB, undefined, { numeric: true });
     });
-  } catch {
-    return [];
+    // Ninguna se pudo firmar: no se sabe qué hay, es error y no "parcial con cero".
+    if (urls.length === 0) return lecturaConError();
+    return lecturaOk(urls, fallidas);
+  } catch (err) {
+    console.error('No se pudo listar las fotos del Video de Vida:', err);
+    return lecturaConError();
   }
 }
 

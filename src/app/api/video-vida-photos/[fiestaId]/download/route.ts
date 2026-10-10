@@ -33,7 +33,12 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
   }
 
   try {
-    const photoUrls = await getLifeStoryVideoPhotos(fiestaId);
+    const lectura = await getLifeStoryVideoPhotos(fiestaId);
+    // Orden 148: no poder leer las fotos no es "no hay fotos". Se avisa como falla, no como 404.
+    if (lectura.estado === 'error') {
+      return NextResponse.json({ error: lectura.error }, { status: 502 });
+    }
+    const photoUrls = lectura.urls;
 
     if (photoUrls.length === 0) {
       return NextResponse.json({ error: 'No photos found for this event.' }, { status: 404 });
@@ -47,6 +52,8 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     let totalSize = 0;
     let limitExceeded = false;
     const faltan: string[] = [];
+    // Fotos que ni siquiera se pudieron firmar al leer la galería: también faltan en el archivo.
+    for (let i = 0; i < lectura.fallidas; i++) faltan.push('una foto (no se pudo leer del almacenamiento)');
     const usados = new Map<string, number>();
     let incluidas = 0;
 
@@ -116,7 +123,7 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     if (faltan.length > 0) {
       zip.file(
         'FALTAN_FOTOS.txt',
-        `Faltan ${faltan.length} de ${photoUrls.length} fotos. No se pudieron bajar:\n\n${faltan.join('\n')}\n\nProbá bajar de nuevo en un rato.`,
+        `Faltan ${faltan.length} de ${photoUrls.length + lectura.fallidas} fotos. No se pudieron bajar:\n\n${faltan.join('\n')}\n\nProbá bajar de nuevo en un rato.`,
       );
     }
     if (limitExceeded) {
@@ -129,7 +136,7 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     const headers = new Headers();
     headers.set('Content-Type', 'application/zip');
     headers.set('Content-Disposition', `attachment; filename="${zipFilename}"`);
-    headers.set('X-Fotos-Pedidas', String(photoUrls.length));
+    headers.set('X-Fotos-Pedidas', String(photoUrls.length + lectura.fallidas));
     headers.set('X-Fotos-Incluidas', String(incluidas));
     headers.set('X-Fotos-Fallidas', String(faltan.length));
 

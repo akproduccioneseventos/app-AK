@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PublicFooter } from '@/components/public-footer';
 import { VideoDeAyuda } from '@/components/ayuda/VideoDeAyuda';
+import { fotosPorRecuadro, MENSAJE_LECTURA_FALLIDA } from '@/lib/video-vida/lectura-fotos';
 
 interface PhotoSlot {
   number: number;
@@ -29,7 +30,9 @@ const PhotoUploadSlot: React.FC<{
   slot: PhotoSlot;
   fiestaId: string;
   onUploadComplete: (slotNumber: number, url: string | null) => void;
-}> = ({ slot, fiestaId, onUploadComplete }) => {
+  /** Orden 148: mientras no se sabe qué hay guardado no se ofrece subir ni reemplazar. */
+  bloqueado?: boolean;
+}> = ({ slot, fiestaId, onUploadComplete, bloqueado = false }) => {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const inputId = `upload-${slot.number}`;
@@ -70,10 +73,10 @@ const PhotoUploadSlot: React.FC<{
 
   return (
     <div className="aspect-square relative rounded-md bg-muted overflow-hidden border-2 border-dashed hover:border-primary transition-colors group">
-      <Label htmlFor={inputId} className="w-full h-full cursor-pointer flex flex-col items-center justify-center text-center text-muted-foreground p-1">
+      <Label htmlFor={bloqueado ? undefined : inputId} className={`w-full h-full ${bloqueado ? 'cursor-not-allowed' : 'cursor-pointer'} flex flex-col items-center justify-center text-center text-muted-foreground p-1`}>
         {slot.imageUrl && !isUploading ? (
           <NextImage src={slot.imageUrl} alt={`Foto ${slot.number}`} layout="fill" objectFit="cover" />
-        ) : !isUploading && (
+        ) : !isUploading && !bloqueado && (
           <div className="flex flex-col items-center">
             <Upload className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
             <span className="text-xs font-medium">Subir foto</span>
@@ -86,7 +89,7 @@ const PhotoUploadSlot: React.FC<{
         accept="image/*"
         onChange={handleFileChange}
         className="hidden"
-        disabled={isUploading}
+        disabled={isUploading || bloqueado}
       />
       {isUploading && (
         <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
@@ -108,6 +111,39 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Orden 148: qué se sabe de la galería. 'desconocida' = no se pudo leer, y NO es lo mismo que vacía.
+  const [lectura, setLectura] = useState<'ok' | 'parcial' | 'error'>('ok');
+  const [fotosNoMostradas, setFotosNoMostradas] = useState(0);
+  const [reintentando, setReintentando] = useState(false);
+  const lecturaVigente = useRef(0);
+
+  /** Lee las fotos y las reparte por recuadro. Si la lectura falla CONSERVA las fotos que ya se veían. */
+  const leerFotos = useCallback(async (fiestaId: string, slotCount: number) => {
+    const turno = ++lecturaVigente.current;
+    const resultado = await getLifeStoryVideoPhotos(fiestaId);
+    if (turno !== lecturaVigente.current) return; // llegó tarde: ya hay una lectura más nueva
+    if (resultado.estado === 'error') {
+      setLectura('error');
+      setFotosNoMostradas(0);
+      return;
+    }
+    setPhotoSlots(fotosPorRecuadro(resultado.urls, slotCount));
+    setLectura(resultado.estado);
+    setFotosNoMostradas(resultado.fallidas);
+  }, []);
+
+  const reintentarLectura = useCallback(async () => {
+    if (!fiesta) return;
+    setReintentando(true);
+    try {
+      await leerFotos(fiesta.id, fiesta.videoVida?.photoCount || 50);
+    } catch {
+      setLectura('error');
+    } finally {
+      setReintentando(false);
+    }
+  }, [fiesta, leerFotos]);
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -120,26 +156,14 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
       if (!fiestaData.videoVida?.galleryEnabled) throw new Error("La carga de fotos no está habilitada para este evento.");
 
       setFiesta(fiestaData);
-      const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
-
-      const slotCount = fiestaData.videoVida?.photoCount || 50;
-
-      const slots: PhotoSlot[] = Array.from({ length: slotCount }).map((_, index) => {
-        const photoNumber = index + 1;
-        const matchingPhoto = photoUrls.find(url => {
-            const filename = url.split('/').pop()?.split('.')[0];
-            return parseInt(filename || '0', 10) === photoNumber;
-        });
-        return { number: photoNumber, imageUrl: matchingPhoto || null };
-      });
-      setPhotoSlots(slots);
+      await leerFotos(fiestaData.id, fiestaData.videoVida?.photoCount || 50);
 
     } catch (err: any) {
       setError(err.message || "No se pudo cargar la página.");
     } finally {
       setIsLoading(false);
     }
-  }, [params.fiestaId]);
+  }, [params.fiestaId, leerFotos]);
 
   useEffect(() => {
     loadData();
@@ -190,10 +214,23 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
 
              <Card className="shadow-lg">
                 <CardHeader>
-                    <CardTitle>Tu Galería ({photosUploadedCount} de {photoCount})</CardTitle>
+                    <CardTitle>{lectura === 'error' ? 'Tu Galería' : `Tu Galería (${photosUploadedCount} de ${photoCount})`}</CardTitle>
                     <CardDescription>Sube una foto en cada recuadro. Idealmente en orden cronológico para contar tu historia. Se necesitan {photoCount} fotos.</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {lectura !== 'ok' && (
+                      <div role="alert" className="mb-4 flex flex-col gap-3 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                        <span>
+                          {lectura === 'error'
+                            ? MENSAJE_LECTURA_FALLIDA
+                            : `No pudimos mostrar ${fotosNoMostradas} foto${fotosNoMostradas === 1 ? '' : 's'} ahora; no se perdieron. Mientras tanto no se puede subir ni reemplazar. Reintentá.`}
+                        </span>
+                        <Button type="button" variant="outline" size="sm" onClick={reintentarLectura} disabled={reintentando}>
+                          {reintentando ? 'Leyendo...' : 'Reintentar'}
+                        </Button>
+                      </div>
+                    )}
+                    {!(lectura === 'error' && photoSlots.length === 0) && (
                     <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
                         {photoSlots.map(slot => (
                             <PhotoUploadSlot
@@ -201,9 +238,11 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
                                 slot={slot}
                                 fiestaId={fiesta.id}
                                 onUploadComplete={handleUploadComplete}
+                                bloqueado={lectura !== 'ok'}
                             />
                         ))}
                     </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

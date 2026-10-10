@@ -1,5 +1,37 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Orden 148: un error al leer las fotos del Video de Vida ya no se muestra como "0 fotos"
+
+- **Qué estaba mal:** `getLifeStoryVideoPhotos` devolvía `[]` si fallaba el listado de Storage o la firma de UNA
+  foto (y en ese caso tiraba a la basura también las demás). La pantalla del cliente decía "Tu Galería (0 de N)" con
+  recuadros para subir, sin aviso: podía reemplazar fotos que sí estaban.
+- **Cómo es ahora:** el lector devuelve un resultado de cuatro estados (`LecturaDeFotos`,
+  `src/lib/video-vida/lectura-fotos.ts`): `ok` (vacía o con fotos), `parcial` (algunas se leyeron, `fallidas` cuenta
+  las que no se pudieron firmar) y `error` (no se pudo listar, o ninguna se pudo firmar). La pantalla del cliente
+  avisa "No pudimos leer tus fotos ahora; no se perdieron. Reintentá." con botón **Reintentar**, no muestra el "0 de"
+  mientras no sabe, conserva las fotos que ya se veían si la recarga falla, y **bloquea subir/reemplazar** mientras la
+  lista es desconocida o parcial (no se sabe qué recuadro está ocupado). Una galería realmente vacía sigue diciendo
+  "0 de N" y deja subir; el reemplazo rechazado sigue conservando vista y contador.
+- **Por qué se eligió así:** un resultado estructurado y no una excepción, porque el parcial necesita devolver las
+  buenas y la cuenta de las malas. Una lectura tardía no pisa a una más nueva (turno de lectura). Sin permisos
+  nuevos: el lector sigue sin sesión, como antes.
+- **Quién más lo llama, adaptado:** la descarga del zip (error -> 502, no 404 "sin fotos"; una foto sin firmar cuenta
+  como faltante), el panel del equipo (`fiestas/nueva/video-vida`: error -> pantalla de error, parcial -> aviso) y el
+  portal del cliente (`evento/video-vida`: error -> pantalla de error). Sin cambios cuando todo sale bien.
+- **Sin verificar acá:** la prueba de navegador `video-vida-error-lectura.spec.ts` se escribió y no se corrió.
+
+```comprobar
+archivo: src/lib/video-vida/lectura-fotos.ts
+usa: lecturaConError en src/app/actions/fiesta/video-vida.actions.ts
+usa: MENSAJE_LECTURA_FALLIDA en src/app/video-vida/[fiestaId]/page.tsx
+usa: lectura.estado en src/app/api/video-vida-photos/[fiestaId]/download/route.ts
+usa: lectura.estado en src/app/evento/video-vida/[fiestaId]/page.tsx
+usa: lectura.estado en src/app/(app)/fiestas/nueva/video-vida/page.tsx
+prueba: src/__tests__/video-vida-error-de-lectura-no-es-galeria-vacia.test.tsx
+prueba: src/__tests__/video-vida-descarga-avisa-lo-que-falta.test.ts
+prueba: tests/e2e/video-vida-error-lectura.spec.ts
+```
+
 ## 10 de octubre de 2026 — Órdenes 146 y 147: la voz en vivo se corta y se reintenta de verdad, y el QR descargado lo lee el lector
 
 - **Cortar la voz (146):** antes, si se pulsaba Cortar mientras esperaba la ficha del servidor, el panel se iba

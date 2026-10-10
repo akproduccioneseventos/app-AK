@@ -207,7 +207,10 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
       if (!fiestaData.videoVida?.galleryEnabled) throw new Error("La carga de fotos no está habilitada para este evento.");
 
       setFiesta(fiestaData);
-      const photoUrls = await getLifeStoryVideoPhotos(fiestaData.id);
+      const lectura = await getLifeStoryVideoPhotos(fiestaData.id);
+      // Orden 148: un error de lectura no se muestra como galería vacía.
+      if (lectura.estado === 'error') throw new Error(lectura.error);
+      const photoUrls = lectura.urls;
 
       const slotCount = fiestaData.videoVida?.photoCount || 50;
 
