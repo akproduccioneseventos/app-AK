@@ -44,7 +44,7 @@ import {
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
-import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { isVideoFrameReady, asegurarCuadroDeVideo } from '@/lib/entertainment/camera-readiness';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
 import { saveOfflineMedia, nuevoIdDeCaptura } from '@/lib/offline/offline-db';
@@ -99,6 +99,7 @@ export default function FotocabinaPage() {
   const guestAccessToken = searchParams.get('guestAccessToken') || searchParams.get('token') || undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const streamFacingRef = useRef<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const takePhotoRef = useRef<() => void>(() => undefined);
@@ -267,14 +268,28 @@ export default function FotocabinaPage() {
   }, []);
 
   const startCamera = useCallback(async () => {
-    stopCamera();
     setErrorMsg(null);
+    // Este efecto se vuelve a disparar en cada cambio de estado (espera, cuenta, foto).
+    // Si la señal sigue viva y es de la misma cámara, no se la corta: se la vuelve a
+    // enganchar al video si hace falta. Cortarla y pedirla de nuevo dejaba un video
+    // sin cuadro justo cuando se dibujaba la foto.
+    const viva = streamRef.current;
+    if (
+      viva
+      && streamFacingRef.current === facingMode
+      && viva.getVideoTracks().some((t) => t.readyState === 'live')
+    ) {
+      if (videoRef.current && videoRef.current.srcObject !== viva) videoRef.current.srcObject = viva;
+      return;
+    }
+    stopCamera();
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
         audio: false
       });
       streamRef.current = mediaStream;
+      streamFacingRef.current = facingMode;
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
@@ -576,7 +591,20 @@ export default function FotocabinaPage() {
 
   const captureToCanvas = async () => {
     if (!videoRef.current || !canvasRef.current) return;
-    if (!isVideoFrameReady(videoRef.current)) {
+    // El video está oculto: el navegador puede dejarlo en pausa con la señal viva, y
+    // dibujarlo así da un cuadro negro. Se lo vuelve a enganchar si hace falta, se lo
+    // pone a andar y se espera un cuadro real. Si no hay, se avisa y NO se guarda nada.
+    if (streamRef.current && videoRef.current.srcObject !== streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+    try {
+      await asegurarCuadroDeVideo(videoRef.current);
+    } catch {
+      setErrorMsg('La camara no esta entregando imagen. Toca "Reintentar camara" para volver a intentarlo.');
+      setLocalStatus('idle');
+      return;
+    }
+    if (!videoRef.current || !canvasRef.current || !isVideoFrameReady(videoRef.current)) {
       setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
       setLocalStatus('idle');
       return;
@@ -1362,6 +1390,19 @@ export default function FotocabinaPage() {
           <div className="p-6 text-center text-red-400 font-medium z-10">
             <p className="text-5xl mb-4">📷🚫</p>
             {errorMsg}
+            <button
+              type="button"
+              data-testid="boton-reintentar-camara"
+              onClick={() => {
+                setErrorMsg(null);
+                setLocalStatus('idle');
+                stopCamera();
+                void startCamera();
+              }}
+              className="mt-6 mx-auto flex h-12 items-center justify-center rounded-xl bg-white/10 px-6 text-sm font-black uppercase tracking-wider text-white transition hover:bg-white/20"
+            >
+              Reintentar camara
+            </button>
           </div>
         )}
 

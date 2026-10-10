@@ -64,4 +64,7 @@ puede repetirse. No se usa esa igualdad de bytes como defecto.
 archivo: src/app/evento/fotocabina/[fiestaId]/page.tsx
 usa: captureToCanvas en src/app/evento/fotocabina/[fiestaId]/page.tsx
 prueba: docs/evidencias/89-fotocabina-entrega-sucesiva.spec.ts
+prueba: src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts
+prueba: tests/e2e/la-fotocabina-saca-la-foto-con-imagen.spec.ts
+usa: asegurarCuadroDeVideo en src/app/evento/fotocabina/[fiestaId]/page.tsx
 ```
