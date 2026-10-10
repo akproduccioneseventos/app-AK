@@ -1,0 +1,197 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/91-personal-recibo-final.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--grep",
+      "fecha calendario",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "91-personal-recibo-final.spec.ts",
+      "file": "91-personal-recibo-final.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fecha calendario del evento no retrocede un dia en el recibo",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 15934,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('header').filter({ has: getByRole('heading', { name: 'Recibos de Pago de Personal', exact: true }) })\nExpected substring: \u001b[32m\"10 de octubre de 2026\"\u001b[39m\nReceived string:    \u001b[31m\"Toggle SidebarRecibos de Pago de PersonalIngreso/Egreso RápidoAbrir notificaciones\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('header').filter({ has: getByRole('heading', { name: 'Recibos de Pago de Personal', exact: true }) })\u001b[22m\n\u001b[2m    13 × locator resolved to <header data-app-shell-header=\"true\" class=\"sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/92 px-4 py-2 shadow-sm backdrop-blur-xl md:px-6 print:hidden\">…</header>\u001b[22m\n\u001b[2m       - unexpected value \"Toggle SidebarRecibos de Pago de PersonalIngreso/Egreso RápidoAbrir notificaciones\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('header').filter({ has: getByRole('heading', { name: 'Recibos de Pago de Personal', exact: true }) })\nExpected substring: \u001b[32m\"10 de octubre de 2026\"\u001b[39m\nReceived string:    \u001b[31m\"Toggle SidebarRecibos de Pago de PersonalIngreso/Egreso RápidoAbrir notificaciones\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('header').filter({ has: getByRole('heading', { name: 'Recibos de Pago de Personal', exact: true }) })\u001b[22m\n\u001b[2m    13 × locator resolved to <header data-app-shell-header=\"true\" class=\"sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/92 px-4 py-2 shadow-sm backdrop-blur-xl md:px-6 print:hidden\">…</header>\u001b[22m\n\u001b[2m       - unexpected value \"Toggle SidebarRecibos de Pago de PersonalIngreso/Egreso RápidoAbrir notificaciones\"\u001b[22m\n\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts:190:26",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts",
+                      "column": 26,
+                      "line": 190
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 188 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mscreenshot({path\u001b[33m:\u001b[39minfo\u001b[33m.\u001b[39moutputPath(\u001b[32m'fecha-recibo.png'\u001b[39m)\u001b[33m,\u001b[39mfullPage\u001b[33m:\u001b[39m\u001b[36mfalse\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m 189 |\u001b[39m     expect(guardada)\u001b[33m.\u001b[39mtoBe(\u001b[32m'2026-10-10'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 190 |\u001b[39m     \u001b[36mawait\u001b[39m expect(header)\u001b[33m.\u001b[39mtoContainText(\u001b[32m'10 de octubre de 2026'\u001b[39m\u001b[33m,\u001b[39m{timeout\u001b[33m:\u001b[39m\u001b[35m5000\u001b[39m})\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                          \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 191 |\u001b[39m   }\u001b[36mfinally\u001b[39m{\u001b[36mawait\u001b[39m s\u001b[33m.\u001b[39mlimpiar()\u001b[33m;\u001b[39m}\n \u001b[90m 192 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 193 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts",
+                        "column": 26,
+                        "line": 190
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('header').filter({ has: getByRole('heading', { name: 'Recibos de Pago de Personal', exact: true }) })\nExpected substring: \u001b[32m\"10 de octubre de 2026\"\u001b[39m\nReceived string:    \u001b[31m\"Toggle SidebarRecibos de Pago de PersonalIngreso/Egreso RápidoAbrir notificaciones\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('header').filter({ has: getByRole('heading', { name: 'Recibos de Pago de Personal', exact: true }) })\u001b[22m\n\u001b[2m    13 × locator resolved to <header data-app-shell-header=\"true\" class=\"sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/92 px-4 py-2 shadow-sm backdrop-blur-xl md:px-6 print:hidden\">…</header>\u001b[22m\n\u001b[2m       - unexpected value \"Toggle SidebarRecibos de Pago de PersonalIngreso/Egreso RápidoAbrir notificaciones\"\u001b[22m\n\n\n  188 |     await page.screenshot({path:info.outputPath('fecha-recibo.png'),fullPage:false});\n  189 |     expect(guardada).toBe('2026-10-10');\n> 190 |     await expect(header).toContainText('10 de octubre de 2026',{timeout:5000});\n      |                          ^\n  191 |   }finally{await s.limpiar();}\n  192 | });\n  193 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts:190:26"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:51:39.669Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "fecha-recibo.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJndWFyZGFkYSI6ICIyMDI2LTEwLTEwIiwKICAidmlzaWJsZSI6ICJSZWNpYm9zIGRlIFBhZ28gZGUgUGVyc29uYWxcbkluZ3Jlc28vRWdyZXNvIFLDoXBpZG9cbkFicmlyIG5vdGlmaWNhY2lvbmVzIiwKICAiem9uYSI6ICJBbWVyaWNhL01vbnRldmlkZW8iCn0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-f-ba748-trocede-un-dia-en-el-recibo-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-f-ba748-trocede-un-dia-en-el-recibo-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-f-ba748-trocede-un-dia-en-el-recibo-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-f-ba748-trocede-un-dia-en-el-recibo-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-f-ba748-trocede-un-dia-en-el-recibo-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts",
+                    "column": 26,
+                    "line": 190
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "57cb4c1f1ecd92f0c257-e57a541d02d96a231939",
+          "file": "91-personal-recibo-final.spec.ts",
+          "line": 176,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T15:51:37.412Z",
+    "duration": 19552.797,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

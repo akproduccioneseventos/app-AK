@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Recibos del personal (orden 142) y la espera de la fotocabina
+
+- **El desglose del recibo no sumaba el total**: $1.000 con 8,33 % y 8,33 % daba $999,99 (y con
+  5 % y 10 %, $1.000,01), porque cada renglón se redondeaba por su lado. Ahora el aguinaldo se
+  lleva la diferencia y las tres líneas suman el total impreso (`calculateSalaryBreakdown`, movida
+  a `src/lib/personal/desglose-recibo.ts`).
+- **"Reemplazar" el papel de un recibo firmado se rechazaba**: la pantalla sólo aceptaba "pagado".
+  Ahora acepta también "firmado"; el servidor sigue sin dejar cambiar monto ni fecha.
+- **La fecha del recibo salía un día antes** (fiesta del 10, papel del 9): se leía "2026-10-10"
+  como medianoche de Greenwich. Ahora usa `formatearFechaEvento`.
+- **Fotocabina**: el arreglo de la foto negra esperaba hasta 3 s un cuadro nuevo en cada foto y la
+  vista previa llegaba tarde (medido: con la versión vieja la prueba de corte de red pasaba, con la
+  espera fallaba). Si el video ya anda y tiene cuadro, se dibuja enseguida; sólo se lo pone en
+  marcha si está en pausa. Las cinco pruebas de navegador de la fotocabina pasan.
+
+```comprobar
+prueba: src/__tests__/recibos-del-personal-suman-y-se-reemplazan.test.ts
+usa: calculateSalaryBreakdown en src/app/(app)/fiestas/nueva/personal/recibos/page.tsx
+usa: formatearFechaEvento en src/app/(app)/fiestas/nueva/personal/recibos/page.tsx
+prueba: src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts
+```
+
 ## 10 de octubre de 2026 - El ZIP del album entrega el formato real y dice lo que entro (orden 141)
 
 - Estaba mal: un video WebM llegaba al ZIP con nombre `.jpg`, y si todas las descargas fallaban
@@ -60,6 +82,17 @@ usa: asegurarCuadroDeVideo en src/app/evento/fotocabina/[fiestaId]/page.tsx
 prueba: src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts
 prueba: tests/e2e/la-fotocabina-saca-la-foto-con-imagen.spec.ts
 ```
+
+## 10/10/2026 - Codex91: recibo firmado y papel de personal
+
+- Firmado PC/movil: dos E2E pasan; Storage bytes/enlace200PDF, recarga/otra
+  sesion, otro empleado y otra fiesta intactos. No firma legal ni pago bancario.
+- Tres P2 pendientes orden142Claude:857.19+71.40+71.40!=1000; Reemplazar
+  rechaza firmado; fecha2026-10-10 aparece9 en papel. Informe91/raws/PDF.
+- Dos intentos de selector de fecha descartados como QA. Ultimo raw de fecha
+  perdido al desaparecer TEMP; repetir antes de aceptar, no inventar archivo.
+- Actualizacion en1282 sin producto/fusion. No limpieza SDK final adicional ni
+  build global acreditados. No repetir lo aprobado sin cambio causal.
 
 ## 10/10/2026 - Codex90: el ZIP del album se abrio de verdad
 

@@ -70,3 +70,13 @@ como si fuera un arreglo de producto ni como aprobacion final para publicar.
 - Sintaxis2sondas/check-acentos2633/gitdiff; no build optimizado ni certificado.
 - SDK confirma cero fiestas/posts90 sobrantes; ayudante economico cerrado.
 - TikTok final sigue limite historico81: no otro encargo duplicado/proveedor probado.
+
+## Actualizacion Auditoria91
+
+- Firmado personal PC/movil:2E2E pasan con Storage/bytes/enlace200PDF, recarga,
+  otra sesion, otro empleado/fiesta intactos. No pago real/firma legal/impresora.
+- Orden142Claude: desglose1000 suma999.99, Reemplazar rechaza firmado,
+  fecha10 sale9 en papel. PDF/render/sonda y raws91 conservados.
+- Ultimo raw de fecha no preservado por desaparicion de TEMP; se exige retest,
+  no se inventa evidencia. Dos intentos de selector descartados como QA.
+- Sin nuevaPR/producto/fusion; no aprobacion global, build ni14areaslimpias.
