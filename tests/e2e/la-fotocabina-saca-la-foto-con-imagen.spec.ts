@@ -14,8 +14,13 @@ import { borrarFiesta, crearFiestaDeEstaNoche, crearPermisoDeEstacion, guardarFi
  * píxeles con imagen y esta prueba se pone en rojo.
  */
 
+// Al pisar launchOptions se pierde el navegador que fija playwright.config.ts: se repone acá.
+const chromiumInstalado = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 test.use({
-  launchOptions: { args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'] },
+  launchOptions: {
+    ...(chromiumInstalado ? { executablePath: chromiumInstalado } : {}),
+    args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'],
+  },
 });
 
 const fiesta = crearFiestaDeEstaNoche({ id: `e2e_foto140_${Date.now()}` });
