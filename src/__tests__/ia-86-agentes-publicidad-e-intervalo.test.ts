@@ -9,7 +9,11 @@
  * Probado rompiéndolo: sin el `case 'vigilante_publicidad'` la primera prueba da rojo; sin el
  * chequeo de intervalo da rojo la de "hace 1 minuto".
  */
-jest.mock('@/lib/auth/require-session', () => ({ requireAppSession: jest.fn(async () => undefined) }));
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn(async () => undefined),
+  // Ejecutar un agente pide administración (auditoría 86): acá entra el dueño.
+  requirePermiso: jest.fn(async () => ({ ok: true, user: { perfil: 'dueno' } })),
+}));
 jest.mock('@/lib/marketing/meta-ads', () => ({ getMetaAdsSummary: jest.fn() }));
 jest.mock('@/lib/marketing/meta-commercial-metrics', () => ({ loadMetaCommercialMetrics: jest.fn() }));
 jest.mock('@/lib/marketing/meta-ads-acciones', () => ({ pausarCampana: jest.fn(), ajustarPresupuestoCampana: jest.fn() }));
