@@ -1,5 +1,15 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Borrar, archivar o cancelar una fiesta pedía sólo sesión
+
+Lo anoté al hacer "Poner al día" y lo cerré con la pregunta 47: el personal y el operador podían
+archivar, borrar, cancelar o reactivar una fiesta. Ahora archivar, cancelar y reactivar piden
+contabilidad o administración; borrar del archivo y "archivar todas", sólo administración.
+
+```comprobar
+prueba: src/__tests__/borrar-o-cancelar-una-fiesta-pide-permiso.test.ts
+```
+
 ## 10 de octubre de 2026 — Órdenes 137 y 138: video de vida y barman
 
 - **Carga cerrada de verdad:** la subida del Video de Vida vuelve a leer en el servidor si la carga sigue habilitada para ESA fiesta; una pantalla abierta antes del cierre ya no guarda. Sigue pública (sin login del equipo); el equipo con sesión puede cargar igual.
