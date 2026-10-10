@@ -1,5 +1,35 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 9/10/2026 - Codex87: barra completa, fotos y cierre de carga
+
+Fuente ejecutada main1b61295ab977fd6f204ffdab0f190edbd0f0ed6b, build86 reutilizado.
+PR1277 sigue documental, sin producto ni merge. Informe87/matriz84 actualizados.
+- **4E2E PC/movil aprobados:** invitado pide una vez con token propio; barman
+  separado prepara/listo/entrega; SDK observa estados, reload muestraEntregado.
+  Stock1000->975 una sola vez; otro pedido de otra fiesta no aparece ni cambia.
+  NO afirmar entrega fisica ni area completa limpia.
+- **BAR82-CANCEL aceptado:** corte de Cancelar avisa/recupera boton y conserva
+  nuevo; reintento guarda cancelado, reload no muestra pedido activo. Orden132
+  YA corregida y aceptada en estos casos, NO otra implementacion por ese fallo.
+- **VID87-REEMPLAZO PENDIENTE137 Gemini:** PNG1->JPG1 deja01.png y01.jpg en
+  Storage, UI dice1foto; SDK comprobo bytes/MIME reales emulados de ambos.
+  ZIP/lista consumen ambos en fuente, pero ZIP/reload NO fueron aceptados aqui.
+- **VID87-CIERRE PENDIENTE137 Claude:** carga deshabilitada confirmada en
+  JSON/Firestore; pantalla vieja sin sesion equipo guarda01.png igualmente.
+  Mantener subida publica aprobada, comprobar estado actual en servidor.
+- **BAR87-VISIBLE PENDIENTE138 Gemini:** botonCancelar nuevo parece vacio,
+  icono blanco sobre blanco, sin nombre accesible/tooltip. Inspeccion visual y
+  consumidor real; no prueba de cancelar como barman. Friccion: columnas movil
+  vacias min58vh hacen desplazamiento excesivo; conservar estados visibles.
+- **MIQA descartada:** /evento/video-vida/id pide sesion por diseno, enlace
+  publico correcto /video-vida/id; response.finished espero stream y agoto60s.
+  Probe corregido observo escrituraSDK y fallo por objeto guardado en5.9s.
+  Raw separado; no informes de acceso roto o app lenta por esos intentos.
+- No repetir69/VID03/tope50/borrado/ZIP faltantes: no son estos puntos nuevos.
+  Tampoco reabrir135/136 mientras responsables programan. Traces/videos de fallos
+  SOLO locales; JSON/sondas/capturas compartidos. Agente y procesos propios cerrados.
+  Sin archivos/datos reales, paquetes, proveedores, cuentas, pagos ni fusion.
+
 ## 9/10/2026 - Codex 86: IA probada, delta 83 aceptado y planificacion
 
 Fuente compilada/ejecutada main `1b61295ab977fd6f204ffdab0f190edbd0f0ed6b`.

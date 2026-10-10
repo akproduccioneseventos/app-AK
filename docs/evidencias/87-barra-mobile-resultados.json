@@ -1,0 +1,186 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/87-barra-entrega-real.spec.ts",
+      "--project=chromium-mobile",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-entorno-aislado-PHvcfo\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-entorno-aislado-PHvcfo/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "87-barra-entrega-real.spec.ts",
+      "file": "87-barra-entrega-real.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "invitado pide, barman prepara/listo/entrega, reload y stock final; otra fiesta intacta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 40449,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T00:55:28.590Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "resultado-real-barra.json",
+                      "contentType": "application/json",
+                      "body": "eyJvcmRlciI6eyJpZCI6ImJhcl84NzQ4ZGFmYS1lOWFiLTRiMTMtYjBiYi01ODlmZjQ3NmExYTgiLCJmaWVzdGFJZCI6ImUyZV9iYXJyYTg3XzE3OTE1OTM3Mjg5NTVfNjU0OCIsImRyaW5rSWQiOiJjdXN0b21fODdfMTc5MTU5MzcyODk1NV82NTQ4IiwiZHJpbmtOYW1lIjoiVHJhZ28gc29uZGE4NyAxNzkxNTkzNzI4OTU1XzY1NDgiLCJndWVzdE5hbWUiOiJMdWPDrWEgRmVybsOhbmRleiIsImd1ZXN0SWQiOiJpbnZfcHJ1ZWJhXzAiLCJ0YWJsZU51bWJlciI6IjEiLCJub3RlIjoiIiwiY3JlYXRlZEF0IjoiMjAyNi0xMC0xMFQwMDo1NTozMi42MzJaIiwic291cmNlIjoidG91Y2hzY3JlZW4iLCJzdG9ja01vdmVtZW50cyI6W3siaW5zdW1vSWQiOiJlMmVfYmFycmE4N19pbnN1bW9fMTc5MTU5MzcyODk1NV82NTQ4IiwiY2FudGlkYWQiOjI1fV0sInN0YXR1cyI6ImVudHJlZ2FkbyIsInVwZGF0ZWRBdCI6IjIwMjYtMTAtMTBUMDA6NTU6MzkuNDcwWiJ9LCJzdG9jayI6eyJpZCI6ImUyZV9iYXJyYTg3X2luc3Vtb18xNzkxNTkzNzI4OTU1XzY1NDgiLCJub21icmUiOiJJbnN1bW8gc29uZGE4NyIsInVuaWRhZCI6Im1sIiwiY2FudGlkYWREaXNwb25pYmxlIjo5NzV9LCJvdHJhRmllc3RhSW50YWN0YSI6dHJ1ZX0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54c91dbe548933e4d088-f8caa416a0953b319a01",
+          "file": "87-barra-entrega-real.spec.ts",
+          "line": 20,
+          "column": 5
+        },
+        {
+          "title": "retest BAR82: cancelar con corte recupera controles; reintento persiste cancelado",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 11482,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T00:56:09.233Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cancelacion-persistida.json",
+                      "contentType": "application/json",
+                      "body": "eyJpZCI6ImJhcjg3X2NvcnRlXzE3OTE1OTM3NjkzNThfNjU0OCIsImZpZXN0YUlkIjoiZTJlX2JhcnJhODdfY29ydGVfMTc5MTU5Mzc2OTM1OF82NTQ4IiwiZHJpbmtJZCI6ImRhaXF1aXJpLWR1cmF6bm8iLCJkcmlua05hbWUiOiJEYWlxdWlyaSBkZSBkdXJhem5vIiwiZ3Vlc3RJZCI6Imludl9wcnVlYmFfMCIsImd1ZXN0TmFtZSI6Ikx1Y8OtYSBGZXJuw6FuZGV6Iiwic291cmNlIjoidG91Y2hzY3JlZW4iLCJjcmVhdGVkQXQiOiIyMDI2LTEwLTEwVDAwOjU2OjA5LjM2NFoiLCJzdGF0dXMiOiJjYW5jZWxhZG8iLCJ1cGRhdGVkQXQiOiIyMDI2LTEwLTEwVDAwOjU2OjEzLjY0NloifQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54c91dbe548933e4d088-1d68a7c57a8ec303ea4b",
+          "file": "87-barra-entrega-real.spec.ts",
+          "line": 91,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T00:55:27.088Z",
+    "duration": 54672.077,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
