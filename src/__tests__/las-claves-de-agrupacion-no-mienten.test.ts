@@ -15,13 +15,15 @@ import { claveDeConsolidado, normalizarUnidad } from '@/lib/compras/unidades';
 describe('Orden 72 - Bloque 3: Las claves de agrupación no mienten', () => {
   const rootDir = process.cwd();
 
-  it('resumen-planificacion/page.tsx utiliza claveDeConsolidado para agrupar compras', () => {
-    const filePath = path.join(rootDir, 'src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx');
-    expect(fs.existsSync(filePath)).toBe(true);
-    const content = fs.readFileSync(filePath, 'utf8');
-
-    expect(content).toContain("import { claveDeConsolidado } from '@/lib/compras/unidades';");
-    expect(content).toMatch(/const key = claveDeConsolidado\(/);
+  it('resumen-planificacion agrupa con consolidarCompras, que arma la clave con claveDeConsolidado', () => {
+    // Desde la orden 139 la cuenta vive en una sola funcion que usan las dos pantallas.
+    const pantalla = path.join(rootDir, 'src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx');
+    const funcion = path.join(rootDir, 'src/lib/compras/consolidar-compras.ts');
+    expect(fs.existsSync(pantalla)).toBe(true);
+    expect(fs.readFileSync(pantalla, 'utf8')).toMatch(/consolidarCompras\(\s*crudos/);
+    const contenido = fs.readFileSync(funcion, 'utf8');
+    expect(contenido).toContain("claveDeConsolidado");
+    expect(contenido).toMatch(/const key = claveDeConsolidado\(/);
   });
 
   it('claveDeConsolidado incluye la unidad normalizada para no mezclar unidades distintas', () => {

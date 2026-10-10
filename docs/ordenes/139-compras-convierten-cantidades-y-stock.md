@@ -58,4 +58,7 @@ NO cerrado, NO corregido por esta orden. Sin cambio productivo ni fusion de Code
 archivo: src/lib/compras/unidades.ts
 usa: claveDeConsolidado en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
 prueba: docs/evidencias/88-compras-unidad-consumidor.spec.ts
+prueba: src/__tests__/compras-suman-en-la-misma-unidad.test.ts
+usa: consolidarCompras en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+usa: consolidarCompras en src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx
 ```

@@ -29,7 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
 import { cn } from '@/lib/utils';
-import { claveDeConsolidado } from '@/lib/compras/unidades';
+import { consolidarCompras, type CompraCruda } from '@/lib/compras/consolidar-compras';
 
 interface ShoppingListItem {
   id: string;
@@ -260,66 +260,45 @@ function ListaDeComprasContent() {
       }
 
       // 4. CONSOLIDAR
-      const consolidated: Record<string, ShoppingListItem> = {};
-      rawList.forEach(raw => {
+      // Las cantidades, el stock y el precio se pasan a la misma unidad ANTES de sumar
+      // (orden 139): 200 g + 2 kg son 2,20 kg, no "202". La cuenta vive en
+      // `consolidarCompras`, la misma que usa el resumen de planificacion; la clave del
+      // renglon (claveDeConsolidado(nombre, proveedor, unidad)) se arma adentro.
+      const crudos: CompraCruda[] = rawList.map(raw => {
           const matchedInsumo = catalogoInsumos.find(ci => ci.id === raw.origenId);
           const resolvedProvider = matchedInsumo?.proveedor || raw.proveedor || 'Sin especificar';
-          const rawProveedorId = toProviderKey(resolvedProvider);
-          // La unidad va en la clave A PROPOSITO: sin ella, 200 g de un plato y 2 kg
-          // de otro caian en el mismo renglon y se sumaban como si fueran lo mismo.
-          const key = claveDeConsolidado(raw.nombre, rawProveedorId, raw.unit);
-          if (consolidated[key]) {
-              consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
-              if (!consolidated[key].origen.includes(raw.origen)) consolidated[key].origen += `, ${raw.origen}`;
-          } else {
-              const catalogItem = catalogoInsumos.find(ci => ci.id === raw.origenId);
-              consolidated[key] = {
-                  id: key,
-                  nombre: raw.nombre,
-                  cantidadNecesaria: raw.cantidadNecesaria,
-                  stockDisponible: catalogItem?.cantidadDisponible || 0,
-                  cantidadAComprar: 0,
-                  unit: raw.unit,
-                  costoUnitario: raw.costoUnitario,
-                  costoTotalFaltante: 0,
-                  proveedor: resolvedProvider,
-                  proveedorId: rawProveedorId,
-                  origen: raw.origen,
-                  origenId: raw.origenId,
-                  isOrder: raw.isOrder
-              };
-          }
+          const unidadRecetaMin = String(raw.unit || '').toLowerCase().trim();
+          // Si el catalogo no dice en que unidad esta el precio y la receta va en gramos o
+          // mililitros, se sigue suponiendo kilo o litro, como antes.
+          const unidadCostoSupuesta = ['g', 'gramos'].includes(unidadRecetaMin)
+              ? 'kg'
+              : ['ml', 'cc', 'cc.'].includes(unidadRecetaMin) ? 'l' : undefined;
+          return {
+              nombre: raw.nombre,
+              cantidadNecesaria: raw.cantidadNecesaria,
+              unit: raw.unit,
+              costoUnitario: raw.costoUnitario,
+              unidadCosto: matchedInsumo?.unidad || unidadCostoSupuesta,
+              proveedor: resolvedProvider,
+              proveedorId: toProviderKey(resolvedProvider),
+              origen: raw.origen,
+              origenId: raw.origenId,
+              isOrder: raw.isOrder,
+              stockDisponible: matchedInsumo?.cantidadDisponible || 0,
+              unidadStock: matchedInsumo?.unidad,
+          };
       });
 
-      const finalList = Object.values(consolidated).map(item => {
-          const faltante = item.isOrder ? item.cantidadNecesaria : Math.max(0, item.cantidadNecesaria - item.stockDisponible);
-          
-          // ALINEACIÓN CON REGLA DE AUDITORÍA:
-          const recipeUnit = (item.unit || '').toLowerCase().trim();
-          const catalogItem = catalogoInsumos.find(ci => ci.id === item.origenId);
-          const catalogUnit = (catalogItem?.unidad || '').toLowerCase().trim();
-          
-          const isSmallRecipeUnit = ['g', 'gramos', 'ml', 'cc', 'cc.', 'no definido'].includes(recipeUnit);
-          const isSmallCatalogUnit = ['g', 'gramos', 'ml', 'cc', 'cc.'].includes(catalogUnit);
-
-          let factor = 1;
-          if (isSmallRecipeUnit && !isSmallCatalogUnit) {
-              factor = 1000;
-          }
-
-          // Lo que hay que comprar se redondea SIEMPRE para arriba. La receta da
-          // numeros con coma (0,25 litros por persona por 83 personas son 20,75
-          // litros) y en la practica se compran botellas y paquetes enteros:
-          // anotar 20,75 y comprar 20 es quedarse sin bebida en la fiesta. De mas
-          // sobra un poco; de menos no hay como resolverlo a las dos de la manana.
-          const aComprar = Math.ceil(faltante);
-
-          return {
-              ...item,
-              cantidadAComprar: aComprar,
-              costoTotalFaltante: Math.round(item.costoUnitario * (aComprar / factor))
-          };
-      }).sort((a,b) => a.proveedor.localeCompare(b.proveedor));
+      // Lo que hay que comprar se redondea SIEMPRE para arriba. La receta da
+      // numeros con coma (0,25 litros por persona por 83 personas son 20,75
+      // litros) y en la practica se compran botellas y paquetes enteros:
+      // anotar 20,75 y comprar 20 es quedarse sin bebida en la fiesta. De mas
+      // sobra un poco; de menos no hay como resolverlo a las dos de la manana.
+      const finalList: ShoppingListItem[] = consolidarCompras(crudos, {
+          redondeo: 'arriba',
+          plataEntera: true,
+          juntarOrigenes: true,
+      }).sort((a, b) => a.proveedor.localeCompare(b.proveedor));
 
       setShoppingList(finalList);
       setTotalInvestment(finalList.reduce((sum, item) => sum + item.costoTotalFaltante, 0));

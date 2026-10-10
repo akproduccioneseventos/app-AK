@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 - La lista de compras suma gramos con kilos de verdad (orden 139)
+
+- Estaba mal: 200 g de un plato y 2 kg de otro caian en un solo renglon, pero se sumaban
+  los numeros crudos: "202 G" y $20 en vez de 2,20 kg y $220. El stock y el precio del
+  catalogo tampoco se pasaban a la unidad del renglon.
+- Ahora la lista de compras y el resumen de planificacion usan la misma cuenta
+  (`consolidarCompras`): todo se pasa a la unidad del renglon (kg o l) antes de sumar,
+  restar stock y multiplicar el precio. Unidad desconocida queda aparte; peso y volumen
+  nunca se mezclan. El redondeo para arriba sigue igual, al escalon mas chico que aparecio
+  (200 g + 2 kg se redondea al gramo). El texto al proveedor sale con la cantidad convertida.
+- Por que asi: una sola funcion probada sobre el resultado, no dos copias de la cuenta.
+
+```comprobar
+archivo: src/lib/compras/consolidar-compras.ts
+usa: consolidarCompras en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+usa: consolidarCompras en src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx
+prueba: src/__tests__/compras-suman-en-la-misma-unidad.test.ts
+```
+
 ## 10/10/2026 - Codex89: imagen dentro de la fotocabina y color del portal
 
 - ENT89-IMAGEN nuevo, orden140 Gemini: la misma camara nativa falsa muestra imagen
