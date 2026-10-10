@@ -122,9 +122,13 @@ test.describe('Espejo: lo que se anuncia es lo que quedo en el muro', () => {
         const muro = await context.newPage();
         await muro.goto(`/evento/muro-en-vivo/${id}`, { waitUntil: 'domcontentloaded' });
         await muro.waitForTimeout(3_000);
-        const archivo = decodeURIComponent(String(posteo.imageUrl).split('?')[0].split('/').pop() || '');
-        expect(archivo.length).toBeGreaterThan(3);
-        expect(await muro.content(), 'el muro publico no muestra una foto pendiente').not.toContain(archivo);
+        // Se busca la dirección entera de la foto y el número del posteo: el último pedazo de la
+        // dirección a veces es un nombre corto (pasó: 3 letras) y no sirve para buscarlo.
+        const html = await muro.content();
+        const direccion = String(posteo.imageUrl).split('?')[0];
+        expect(direccion.length).toBeGreaterThan(10);
+        expect(html, 'el muro publico no muestra una foto pendiente').not.toContain(direccion);
+        expect(html, 'ni el posteo pendiente').not.toContain(String(posteo.id));
         await muro.close();
       }
 
