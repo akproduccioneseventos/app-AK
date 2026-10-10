@@ -84,9 +84,17 @@ describe('asegurarCuadroDeVideo', () => {
     await expect(asegurarCuadroDeVideo(video)).rejects.toMatchObject({ motivo: 'no-reproduce' });
   });
 
-  it('si no llega ningún cuadro a tiempo, tira el error', async () => {
-    const video = videoFalso();
+  it('si no llega ningún cuadro a tiempo y el video sigue sin imagen, tira el error', async () => {
+    const video = videoFalso({ readyState: 0, videoWidth: 0 } as any);
     await expect(asegurarCuadroDeVideo(video, { timeoutMs: 20 })).rejects.toMatchObject({ motivo: 'sin-cuadro' });
+  });
+
+  it('una señal quieta (imagen fija) que ya está andando con cuadro se usa, no se corta', async () => {
+    // Pasó al arreglarlo: la cámara de prueba manda una imagen fija, nunca llega un cuadro NUEVO, y
+    // la fotocabina se cortaba en todas las pruebas que andaban.
+    const video = videoFalso({ paused: true } as any);
+    await expect(asegurarCuadroDeVideo(video, { timeoutMs: 20 })).resolves.toBeUndefined();
+    expect(video.play).toHaveBeenCalled();
   });
 });
 

@@ -74,7 +74,10 @@ export async function asegurarCuadroDeVideo(
     const reloj = setTimeout(() => {
       if (cerrado) return;
       limpiar();
-      reject(new CamaraSinCuadroError('sin-cuadro', 'no llegó ningún cuadro a tiempo'));
+      // Una señal quieta (una imagen fija) no manda cuadros nuevos: si el video ya está andando
+      // y tiene un cuadro, ese cuadro sirve. Sólo se corta si sigue sin imagen.
+      if (!video.paused && isVideoFrameReady(video)) resolve();
+      else reject(new CamaraSinCuadroError('sin-cuadro', 'no llegó ningún cuadro a tiempo'));
     }, timeoutMs);
     if (video.requestVideoFrameCallback) {
       idCuadro = video.requestVideoFrameCallback(alLlegar);
