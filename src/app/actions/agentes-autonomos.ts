@@ -11,6 +11,7 @@ import {
   ejecutarCobrador,
   ejecutarGeneradorContenido,
   ejecutarVigilanteNoche,
+  ejecutarVigilantePublicidad,
 } from '@/lib/agentes/motor-agentes';
 import type { AgenteId, ConfiguracionAgente, RegistroEjecucionAgente } from '@/lib/agentes/tipos';
 
@@ -61,6 +62,9 @@ export async function ejecutarAgenteManual(
       case 'vigilante_noche':
         registro = await ejecutarVigilanteNoche();
         break;
+      case 'vigilante_publicidad':
+        registro = await ejecutarVigilantePublicidad();
+        break;
       default:
         throw new Error('Agente no reconocido.');
     }
@@ -77,7 +81,7 @@ export async function ejecutarTodosLosAgentesManual(): Promise<{
 }> {
   await requireAppSession();
   try {
-    const registros = await ejecutarAgentesAutonomos();
+    const registros = await ejecutarAgentesAutonomos(new Date(), { ignorarIntervalo: true });
     return { success: true, registros };
   } catch (error: any) {
     return { success: false, registros: [], error: error?.message || 'Error al ejecutar agentes.' };

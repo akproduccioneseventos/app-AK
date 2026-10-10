@@ -1,5 +1,32 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Auditoría 86 de la IA: tareas, avisos falsos, voz y agentes
+
+- **Dos tareas pedidas al asistente a la vez: se perdía una** y las dos decían "creada". Ahora la
+  tarea se agrega adentro del turno de la fiesta (`actualizarFiesta`), releyendo la fiesta.
+- **El asistente decía "Tarea creada" aunque no se hubiera guardado.** El texto avisaba el error
+  pero la pantalla mostraba el cartel verde por el tipo de acción. Si lo pedido no se guardó
+  (tarea, recordatorio, invitado, incidente, prospecto), la respuesta ya no trae la acción.
+- **La voz que se paró sonaba igual** cuando el audio de Gemini llegaba tarde, y un pedido nuevo no
+  anulaba al viejo. Ahora cada pedido y cada "parar" suben un número y el viejo no hace nada.
+- **"Ejecutar ahora" del Vigilante de Publicidad decía "Agente no reconocido".** Ya corre.
+- **Un agente de 15 minutos corría de nuevo al minuto.** El despertador ahora espera el intervalo de
+  cada uno; "Ejecutar todos" a mano no espera (lo pide una persona).
+- **El respaldo de la IA mostraba una dirección técnica larguísima** al usuario. Ahora dice "La IA no
+  respondió ahora; te contesto con lo que tengo." y el detalle va al registro del servidor.
+
+```comprobar
+prueba: src/__tests__/ia-86-tareas-y-exito.test.ts
+prueba: src/__tests__/ia-86-la-voz-parada-no-suena.test.ts
+prueba: src/__tests__/ia-86-agentes-publicidad-e-intervalo.test.ts
+usa: actualizarFiesta en src/app/actions/multiagent.ts
+usa: noSeGuardo en src/app/actions/multiagent.ts
+usa: generacion en src/lib/asistente/reproductor-voz.ts
+usa: ejecutarVigilantePublicidad en src/app/actions/agentes-autonomos.ts
+usa: ignorarIntervalo en src/lib/agentes/motor-agentes.ts
+usa: La IA no respondió ahora en src/ai/flows/multiagent-flow.ts
+```
+
 ## 9 de octubre de 2026 — La IA cortaba las respuestas; pantalla "Poner al día"; un cobro sin id no contaba
 
 - **El Encargado General contestaba sólo la primera línea** ("lo más urgente es esto: 🚨 • **XV").

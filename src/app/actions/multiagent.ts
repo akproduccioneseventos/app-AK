@@ -3,7 +3,8 @@
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
 import { appendMultiAgentChatTurn, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
 import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/lib/multiagent/diagnostics';
-import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { actualizarFiesta } from '@/lib/fiesta/actualizar-fiesta';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { verifySession } from '@/lib/auth/session-token';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -111,6 +112,9 @@ export async function sendPersistentMultiAgentMessage(input: {
   // Ejecutar acciones reales detectadas por la IA
   if (result.success && result.action && result.action.type !== 'none') {
     const action = result.action;
+    // Si lo que la IA pidió no quedó guardado, la acción NO se le informa a la pantalla:
+    // el widget muestra "Tarea creada" por el solo tipo de la acción.
+    let noSeGuardo = false;
     try {
       if (action.type === 'create_task') {
         const data = action.data as any;
@@ -125,9 +129,11 @@ export async function sendPersistentMultiAgentMessage(input: {
           if (taskRes.success) {
             result.response += `\n\n✅ **¡Tarea creada al toque!** 📝\n• **Tarea**: ${data.texto}\n• **Asignado**: ${data.asignadaA || 'Organizador'}`;
           } else {
+            noSeGuardo = true;
             result.response += `\n\n❌ **No pude guardar la tarea**: ${taskRes.error || 'error desconocido'}`;
           }
         } else {
+          noSeGuardo = true;
           result.response += `\n\n⚠️ **Che, para crear una tarea primero tenés que estar dentro de una fiesta específica.** Pero te puedo crear un recordatorio general si querés, pedímelo. 😉`;
         }
       } else if (action.type === 'complete_task') {
@@ -184,6 +190,7 @@ export async function sendPersistentMultiAgentMessage(input: {
               if (updateRes.success) {
                 result.response += `\n\n✅ **¡Tarea completada!** ✔️\n• **Tarea**: ${tareaCompletadaTexto || data.texto || 'Tarea'}\n• **Estado**: Hecha`;
               } else {
+                noSeGuardo = true;
                 result.response += `\n\n❌ **No pude actualizar las tareas**: ${updateRes.error || 'error desconocido'}`;
               }
             } else if (!data.tareaId && !data.texto) {
@@ -211,6 +218,7 @@ export async function sendPersistentMultiAgentMessage(input: {
           if (guestRes.success) {
             result.response += `\n\n🎟️ **Invitado anotado con éxito**\n• **Nombre**: ${data.nombre || data.name || 'Invitado nuevo'}`;
           } else {
+            noSeGuardo = true;
             result.response += `\n\n❌ **No pude agregar el invitado**: ${guestRes.error || 'error desconocido'}`;
           }
         } else {
@@ -241,6 +249,7 @@ export async function sendPersistentMultiAgentMessage(input: {
           if (incRes.success) {
             result.response += `\n\n⚠️ **Incidente registrado en la fiesta**\n• **Título**: ${data.titulo || data.title || 'Incidente en fiesta'}\n• **Prioridad**: ${prioridad}`;
           } else {
+            noSeGuardo = true;
             result.response += `\n\n❌ **No pude registrar el incidente**: ${incRes.error || 'error desconocido'}`;
           }
         } else {
@@ -272,6 +281,7 @@ export async function sendPersistentMultiAgentMessage(input: {
         } else if (leadRes.duplicate) {
           result.response += `\n\n⚠️ **Ese prospecto ya estaba anotado** como "${leadRes.duplicate.name}". No lo dupliqué.`;
         } else {
+          noSeGuardo = true;
           result.response += `\n\n❌ **No pude anotar el prospecto**: ${leadRes.error || 'error desconocido'}`;
         }
       } else if (action.type === 'draft_budget') {
@@ -298,6 +308,7 @@ export async function sendPersistentMultiAgentMessage(input: {
         if (reminderRes.success) {
           result.response += `\n\n🔔 **¡Recordatorio agendado!** 📅\n• **Aviso**: ${data.mensaje}`;
         } else {
+          noSeGuardo = true;
           result.response += `\n\n❌ **No pude agendar el recordatorio**: ${reminderRes.error || 'error desconocido'}`;
         }
       } else if (action.type === 'agendar_reunion') {
@@ -322,8 +333,10 @@ export async function sendPersistentMultiAgentMessage(input: {
       }
     } catch (err: any) {
       console.error('[Multiagent Actions] Error al ejecutar acción real:', err);
+      noSeGuardo = true;
       result.response += `\n\n❌ **Hubo un problema al procesar el pedido**: ${err.message || 'error desconocido'}`;
     }
+    if (noSeGuardo) result.action = undefined;
   }
 
   let sessionId = input.sessionId;
@@ -506,9 +519,6 @@ export async function crearTareaDesdeMultiagente(input: {
   // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
   // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
   await requireAppSession();
-  const fiesta = await getFiestaById(input.fiestaId);
-  if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
-
   const tarea: Tarea = {
     id: `multiagent_task_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
     texto: input.texto.trim(),
@@ -521,13 +531,17 @@ export async function crearTareaDesdeMultiagente(input: {
 
   if (!tarea.texto) return { success: false, error: 'La tarea necesita texto.' };
 
-  const updatedFiesta = {
-    ...fiesta,
-    tareas: [...(fiesta.tareas || []), tarea],
-  };
-
-  const result = await saveFiesta(updatedFiesta);
-  if (!result.success) return { success: false, error: result.error || 'No se pudo guardar la tarea.' };
+  // Un cambio de a un renglón, releído adentro del turno de la fiesta: dos tareas pedidas a la
+  // vez quedan las dos (antes se leía la fiesta entera y se guardaba entera, y una pisaba a la otra).
+  const result = await actualizarFiesta(input.fiestaId, (actual) => ({
+    ...actual,
+    tareas: [...(actual.tareas || []), tarea],
+  }));
+  if (!result.success || !result.updatedFiesta) {
+    return { success: false, error: result.error || 'No se pudo guardar la tarea.' };
+  }
+  const updatedFiesta = result.updatedFiesta;
+  const fiesta = updatedFiesta;
 
   // no-mira-el-resultado: aviso secundario al panel del equipo; la tarea ya quedo guardada
   await createNotification({

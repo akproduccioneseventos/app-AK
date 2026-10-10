@@ -460,12 +460,21 @@ export async function ejecutarVigilantePublicidad(ahora = new Date()): Promise<R
 // ─────────────────────────────────────────────────────────────────────────────
 // EJECUTOR GLOBAL RESPETANDO CONFIGURACIÓN Y LIMITES
 // ─────────────────────────────────────────────────────────────────────────────
-export async function ejecutarAgentesAutonomos(ahora = new Date()): Promise<RegistroEjecucionAgente[]> {
+export async function ejecutarAgentesAutonomos(
+  ahora = new Date(),
+  opciones: { ignorarIntervalo?: boolean } = {},
+): Promise<RegistroEjecucionAgente[]> {
   const config = await getConfiguracionAgentes();
   const resultados: RegistroEjecucionAgente[] = [];
 
   for (const agente of config) {
     if (!agente.activo) continue;
+    // Cada agente espera su propio intervalo: el despertador pasa cada minuto, pero un agente
+    // de 15 minutos no corre antes de que pasen 15 desde la última vez.
+    if (!opciones.ignorarIntervalo && agente.ultimaEjecucion && agente.intervaloMinutos > 0) {
+      const ultima = new Date(agente.ultimaEjecucion).getTime();
+      if (Number.isFinite(ultima) && ahora.getTime() - ultima < agente.intervaloMinutos * 60_000) continue;
+    }
 
     try {
       let reg: RegistroEjecucionAgente | null = null;
