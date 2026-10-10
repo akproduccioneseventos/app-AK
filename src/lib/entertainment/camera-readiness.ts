@@ -49,11 +49,20 @@ export async function asegurarCuadroDeVideo(
 
   if (video.paused) {
     try {
-      await video.play();
+      // play() puede no resolverse nunca (pasó con la cámara de prueba): no se lo espera más que
+      // el tope; después se mira si el video arrancó igual.
+      await Promise.race([
+        video.play(),
+        new Promise<void>((resolve) => setTimeout(resolve, timeoutMs)),
+      ]);
     } catch (err) {
       throw new CamaraSinCuadroError('no-reproduce', err instanceof Error ? err.message : String(err));
     }
     if (video.paused) throw new CamaraSinCuadroError('no-reproduce', 'el video sigue en pausa');
+    // Ya anda y tiene cuadro: se dibuja ahora. Esperar un cuadro NUEVO sumaba hasta 3 s por foto
+    // con una señal quieta, y la tanda de tres llegaba tarde a la vista previa (medido con la
+    // prueba de corte de red: con la espera fallaba, sin ella pasa).
+    if (isVideoFrameReady(video)) return;
   }
 
   await new Promise<void>((resolve, reject) => {

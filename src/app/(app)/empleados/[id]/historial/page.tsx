@@ -215,7 +215,10 @@ export default function EmpleadoHistorialPage() {
     if (!file) return;
 
     const editable = editableByFiesta[row.fiestaId];
-    if ((editable?.estado || 'pendiente') !== 'pagado') {
+    // "Reemplazar" un recibo ya firmado tambien vale: antes sólo se aceptaba "pagado" y el que ya
+    // tenía su papel subido no se podía corregir (Codex, auditoría 91).
+    const estadoActual = editable?.estado || 'pendiente';
+    if (estadoActual !== 'pagado' && estadoActual !== 'firmado_subido') {
       toast({ title: 'Estado requerido', description: 'Primero marca el recibo como "pagado".', variant: 'destructive' });
       return;
     }
