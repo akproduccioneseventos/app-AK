@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 - El ZIP del album entrega el formato real y dice lo que entro (orden 141)
+
+- Estaba mal: un video WebM llegaba al ZIP con nombre `.jpg`, y si todas las descargas fallaban
+  se bajaba un ZIP vacio con el cartel "Se empaquetaron N recuerdos" contando los pedidos.
+- Ahora el nombre sale del formato real (tipo MIME de la respuesta, primeros bytes del archivo,
+  y recien despues la extension del camino de la direccion, nunca la parte `?...`); no se
+  transcodifica. Si no se puede saber, el archivo va sin extension inventada y se avisa. Con cero
+  recuerdos bajados no se entrega ZIP: sale un aviso de fallo con boton "Reintentar". Con algunos
+  bajados se entrega lo que hay y se dice "Se empaquetaron N de M; no se pudieron bajar K".
+- Mismo defecto en el ZIP del equipo (`download-recuerdos`): forzaba `.mp4`/`.jpg`; ahora usa
+  el mismo detector.
+- Por que asi: la logica vive en un ayudante probado sobre resultados, no copiada en la pantalla.
+  La prueba de navegador de la orden sigue pendiente.
+
+```comprobar
+archivo: src/lib/album/armar-zip-del-album.ts
+usa: bajarRecuerdosParaZip en src/app/evento/album/[fiestaId]/page.tsx
+usa: detectarExtension en src/app/api/fiestas/[fiestaId]/download-recuerdos/route.ts
+prueba: src/__tests__/el-album-entrega-lo-que-dice.test.ts
+```
+
 ## 10 de octubre de 2026 - La lista de compras suma gramos con kilos de verdad (orden 139)
 
 - Estaba mal: 200 g de un plato y 2 kg de otro caian en un solo renglon, pero se sumaban

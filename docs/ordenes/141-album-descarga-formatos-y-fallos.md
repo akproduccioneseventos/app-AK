@@ -57,5 +57,8 @@ no defecto de app. Informe `90-album-descarga-final.md` explica los limites.
 ```comprobar
 archivo: src/app/evento/album/[fiestaId]/page.tsx
 usa: handleDownloadAll en src/app/evento/album/[fiestaId]/page.tsx
+usa: bajarRecuerdosParaZip en src/app/evento/album/[fiestaId]/page.tsx
+usa: resumirEntrega en src/app/evento/album/[fiestaId]/page.tsx
 prueba: docs/evidencias/90-album-zip-final.spec.ts
+prueba: src/__tests__/el-album-entrega-lo-que-dice.test.ts
 ```

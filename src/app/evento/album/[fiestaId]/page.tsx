@@ -37,6 +37,7 @@ import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { buildAkWhatsAppUrl } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 import { armarAlbumInteligente, type AlbumDigitalCompleto, type RecuerdoAlbum } from '@/lib/album/armar-album';
+import { bajarRecuerdosParaZip, resumirEntrega } from '@/lib/album/armar-zip-del-album';
 import { agruparEnPersonas } from '@/lib/caras/agrupar-caras';
 import { TuVideoDeLaFiestaModal } from '@/components/album/TuVideoDeLaFiestaModal';
 import { seleccionarFotosParaVideoResumen } from '@/lib/video-resumen/elegir-fotos-video';
@@ -96,6 +97,7 @@ export default function PublicAlbumPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [descargaFallida, setDescargaFallida] = useState(false);
   const [copied, setCopied] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [videoModalAbierto, setVideoModalAbierto] = useState(false);
@@ -186,28 +188,19 @@ export default function PublicAlbumPage() {
       const zip = new JSZip();
       const folder = zip.folder(`recuerdos-${fiestaId}`);
 
+      const entrega = await bajarRecuerdosParaZip(posts, (url) => fetch(url));
+      const resumen = resumirEntrega(entrega);
+      if (!resumen.descargarZip) {
+        setDescargaFallida(true);
+        toast({ title: resumen.titulo, description: resumen.descripcion, variant: 'destructive' });
+        return;
+      }
+      setDescargaFallida(false);
+      for (const archivo of entrega.archivos) folder?.file(archivo.nombre, archivo.datos);
       folder?.file(
         'info-evento.txt',
-        `Evento: ${nombreFiesta}\nFecha: ${fechaFiesta}\nTotal de recuerdos: ${posts.length}\nGenerado por AK Producciones`
+        `Evento: ${nombreFiesta}\nFecha: ${fechaFiesta}\nRecuerdos incluidos: ${entrega.agregados} de ${entrega.total}\nGenerado por AK Producciones`
       );
-
-      let count = 0;
-      for (let i = 0; i < posts.length; i++) {
-        const post = posts[i];
-        if (post.imageUrl) {
-          try {
-            const res = await fetch(post.imageUrl);
-            if (res.ok) {
-              const buffer = await res.arrayBuffer();
-              const ext = post.imageUrl.toLowerCase().includes('.png') ? 'png' : 'jpg';
-              folder?.file(`recuerdo_${i + 1}_${post.sourceModule || 'foto'}.${ext}`, buffer);
-              count++;
-            }
-          } catch {
-            // Ignorar errores individuales para no cortar el paquete
-          }
-        }
-      }
 
       const zipBlob = await zip.generateAsync({ type: 'blob' });
       const downloadUrl = URL.createObjectURL(zipBlob);
@@ -219,11 +212,10 @@ export default function PublicAlbumPage() {
       document.body.removeChild(link);
       URL.revokeObjectURL(downloadUrl);
 
-      toast({
-        title: '¡Descarga iniciada!',
-        description: `Se empaquetaron ${count > 0 ? count : posts.length} recuerdos en un archivo ZIP.`,
-      });
+      if (resumen.estado === 'parcial') setDescargaFallida(true);
+      toast({ title: resumen.titulo, description: resumen.descripcion });
     } catch (e) {
+      setDescargaFallida(true);
       console.error('Error al descargar recuerdos:', e);
       toast({
         title: 'No se pudo descargar',
@@ -371,6 +363,23 @@ export default function PublicAlbumPage() {
                 </>
               )}
             </button>
+
+            {descargaFallida && !isDownloadingAll && (
+              <div
+                role="alert"
+                data-testid="aviso-descarga-fallida"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-950/60 border border-red-400/30 text-red-100 text-xs"
+              >
+                <span>La descarga no se completó.</span>
+                <button
+                  onClick={handleDownloadAll}
+                  data-testid="boton-reintentar-descarga"
+                  className="font-bold underline underline-offset-2 hover:text-white"
+                >
+                  Reintentar
+                </button>
+              </div>
+            )}
 
             {/* Tu video de la fiesta */}
             <button
