@@ -53,6 +53,8 @@ export default function AsistenteSettingsPage() {
   const [vozSeleccionada, setVozSeleccionada] = useState('Kore');
   const [vozGeminiActiva, setVozGeminiActiva] = useState(true);
   const [vozTelefonoActiva, setVozTelefonoActiva] = useState(true);
+  const [vozEnVivoActiva, setVozEnVivoActiva] = useState(true);
+  const [vozEnVivoMinutos, setVozEnVivoMinutos] = useState(10);
   const [numerosEquipo, setNumerosEquipo] = useState<Array<{ telefono: string; nombre: string; rol: string }>>([
     { telefono: AK_WHATSAPP_NUMBER, nombre: 'Alexander Knuth', rol: 'Dueño' },
   ]);
@@ -81,6 +83,8 @@ export default function AsistenteSettingsPage() {
       );
       setVozGeminiActiva(res.settings.vozGeminiActiva !== false);
       setVozTelefonoActiva(res.settings.vozTelefonoActiva !== false);
+      setVozEnVivoActiva(res.settings.vozEnVivoActiva !== false);
+      setVozEnVivoMinutos(res.settings.vozEnVivoMinutosPorDia ?? 10);
       if (res.settings.numerosEquipo && res.settings.numerosEquipo.length > 0) {
         setNumerosEquipo(res.settings.numerosEquipo);
       }
@@ -108,6 +112,8 @@ export default function AsistenteSettingsPage() {
       vozSeleccionada,
       vozGeminiActiva,
       vozTelefonoActiva,
+      vozEnVivoActiva,
+      vozEnVivoMinutosPorDia: Math.max(0, Math.min(600, Math.floor(Number(vozEnVivoMinutos) || 0))),
       numerosEquipo,
       asistentesAreas: areas,
     });
@@ -404,6 +410,34 @@ export default function AsistenteSettingsPage() {
               </p>
             </div>
             <Switch checked={vozTelefonoActiva} onCheckedChange={setVozTelefonoActiva} />
+          </div>
+
+          <div className="space-y-3 p-3 bg-slate-50 rounded-lg" data-testid="voz-en-vivo-ajustes">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-sm font-medium text-slate-800">Voz en vivo (hablar con el asistente)</Label>
+                <p className="text-xs text-slate-500">
+                  El botón &quot;Hablar&quot; del asistente: le hablás y te contesta con voz, y podés interrumpirlo.
+                </p>
+              </div>
+              <Switch checked={vozEnVivoActiva} onCheckedChange={setVozEnVivoActiva} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-slate-600">Minutos por día</Label>
+              <Input
+                type="number"
+                min={0}
+                max={600}
+                value={vozEnVivoMinutos}
+                onChange={(e) => setVozEnVivoMinutos(Number(e.target.value))}
+                disabled={!vozEnVivoActiva}
+                className="w-28 bg-white"
+              />
+              <p className="text-xs text-slate-500">
+                Google da una parte gratis. Si tu cuenta de Google tiene cobro activado y se pasa de lo gratis, cada
+                minuto cuesta unos US$0,02. Subí los minutos si necesitás más.
+              </p>
+            </div>
           </div>
 
           <div className="flex items-start gap-3">

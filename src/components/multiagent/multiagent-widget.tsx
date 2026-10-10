@@ -20,6 +20,7 @@ import {
   Volume2,
   VolumeX,
   Mic,
+  AudioLines,
   X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -31,6 +32,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import type { AkAgentType, AkMultiAgentMessage, AkPersistentMultiAgentOutput } from '@/types/multiagent';
 import { reproducirVozReal, detenerVozReal } from '@/lib/asistente/reproductor-voz';
+import { iniciarVozEnVivo, type SesionVozEnVivo, type EstadoVozEnVivo } from '@/lib/asistente/sesion-voz-en-vivo';
 
 async function sendPersistentMultiAgentMessage(input: {
   message: string;
@@ -266,6 +268,12 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isRecordingVoice, setIsRecordingVoice] = useState(false);
   const [isVoiceMuted, setIsVoiceMuted] = useState(false);
+  // Voz en vivo (orden 105, bloque 3): conversación hablada con la API en vivo de Gemini.
+  const [vozEnVivo, setVozEnVivo] = useState<EstadoVozEnVivo>('cerrada');
+  const [vozEnVivoRestante, setVozEnVivoRestante] = useState(0);
+  const [vozEnVivoTexto, setVozEnVivoTexto] = useState('');
+  const vozEnVivoRef = useRef<SesionVozEnVivo | null>(null);
+  const vozEnVivoCuentaRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const recognitionRef = useRef<any>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isHandsFreeRef = useRef(isHandsFree);
@@ -294,6 +302,8 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
 
   useEffect(() => {
     return () => {
+      vozEnVivoRef.current?.detener();
+      if (vozEnVivoCuentaRef.current) clearInterval(vozEnVivoCuentaRef.current);
       detenerVozReal();
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
@@ -315,6 +325,53 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
     } catch {}
     setIsRecordingVoice(false);
   }, []);
+
+  const cortarVozEnVivo = useCallback(() => {
+    if (vozEnVivoCuentaRef.current) {
+      clearInterval(vozEnVivoCuentaRef.current);
+      vozEnVivoCuentaRef.current = null;
+    }
+    vozEnVivoRef.current?.detener();
+    vozEnVivoRef.current = null;
+    setVozEnVivo('cerrada');
+    setVozEnVivoTexto('');
+  }, []);
+
+  const alternarVozEnVivo = useCallback(async () => {
+    if (vozEnVivoRef.current || vozEnVivo === 'conectando') {
+      cortarVozEnVivo();
+      return;
+    }
+    // La voz en vivo y el dictado no pueden usar el micrófono a la vez.
+    stopListening();
+    detenerVozReal();
+    setVozEnVivoTexto('');
+    setVozEnVivo('conectando');
+    const sesion = await iniciarVozEnVivo({
+      onEstado: (estado, info) => {
+        setVozEnVivo(estado);
+        if (estado === 'escuchando' && info?.segundosMaximos) {
+          setVozEnVivoRestante(info.segundosMaximos);
+          if (vozEnVivoCuentaRef.current) clearInterval(vozEnVivoCuentaRef.current);
+          vozEnVivoCuentaRef.current = setInterval(() => setVozEnVivoRestante((s) => Math.max(0, s - 1)), 1000);
+        }
+        if (estado === 'cerrada') {
+          if (vozEnVivoCuentaRef.current) clearInterval(vozEnVivoCuentaRef.current);
+          vozEnVivoCuentaRef.current = null;
+          vozEnVivoRef.current = null;
+        }
+      },
+      onTexto: (texto, quien) => {
+        if (quien === 'asistente') setVozEnVivoTexto((previo) => (previo + texto).slice(-400));
+      },
+      onError: (mensaje) => {
+        setToast({ message: mensaje, type: 'warning' });
+        setTimeout(() => setToast(null), 6000);
+      },
+    });
+    vozEnVivoRef.current = sesion;
+  }, [vozEnVivo, cortarVozEnVivo, stopListening]);
+
 
   const speakText = useCallback((text: string, onFinish?: () => void) => {
     if (isVoiceMutedRef.current || typeof window === 'undefined') {
@@ -870,6 +927,21 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
                   </button>
                 ))}
               </div>
+              {vozEnVivo !== 'cerrada' && (
+                <div className="mb-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900" data-testid="panel-voz-en-vivo">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium">
+                      {vozEnVivo === 'conectando'
+                        ? 'Conectando…'
+                        : `En vivo · ${String(Math.floor(vozEnVivoRestante / 60)).padStart(2, '0')}:${String(vozEnVivoRestante % 60).padStart(2, '0')} restantes`}
+                    </span>
+                    <Button size="sm" variant="destructive" onClick={cortarVozEnVivo} className="h-7 rounded-lg px-3">
+                      Cortar
+                    </Button>
+                  </div>
+                  {vozEnVivoTexto && <p className="mt-2 text-xs text-emerald-800">{vozEnVivoTexto}</p>}
+                </div>
+              )}
               <div className="flex gap-2">
                 <Textarea
                   value={input}
@@ -896,6 +968,20 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
                   title={isRecordingVoice ? 'Detener dictado y enviar' : isSpeaking ? 'Hablando respuesta...' : 'Dictar por voz (envío automático)'}
                 >
                   {isSpeaking ? <Volume2 className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => void alternarVozEnVivo()}
+                  disabled={isSending}
+                  data-testid="boton-hablar-en-vivo"
+                  className={cn(
+                    "h-auto shrink-0 rounded-xl px-3 border-slate-200 transition-all gap-1.5",
+                    vozEnVivo !== 'cerrada' && "bg-emerald-50 text-emerald-700 border-emerald-200 animate-pulse"
+                  )}
+                  title={vozEnVivo !== 'cerrada' ? 'Cortar la conversación en vivo' : 'Hablar en vivo con el asistente (te contesta con voz)'}
+                >
+                  <AudioLines className="h-4 w-4" />
+                  <span className="text-xs font-medium">Hablar</span>
                 </Button>
                 <Button
                   onClick={() => handleSend()}
