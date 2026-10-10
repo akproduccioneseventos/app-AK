@@ -1,0 +1,354 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/90-album-zip-final.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "90-album-zip-final.spec.ts",
+      "file": "90-album-zip-final.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fotos aprobadas llegan al ZIP con bytes exactos sin cuenta ni otra fiesta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19564,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:22:08.310Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "album-fotos.zip",
+                      "contentType": "application/zip",
+                      "body": "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AAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAAKcXkU35G1E/gXkU35G1E/gmOO9iFrwp91We/N45IaS9lOLyKb8jaifwLyKb8jaifwTHDELXhT7qb83jkhpL2U4vIpvyNqJ/AvIpvyNqJ/BMcMQteFPupvzeOSGkvZTi8im/I2on8C8im/I2on8ExwxC14U+6m/N45IaS9lOLyKb8jaifwLyKb8jaifwTHDELXhT7qb83jkhpL2U4vIpvyNqJ/AvIpvyNqJ/BMcMQteFPupvzeOSGkvZTi8im/I2on8C8im/I2on8ExwxC14U+6m/N45IaS9lOLyKb8jaifwLyKb8jaifwTHDELXhT7qb83jkhpL2U4vIpvyNqJ/AvIpvyNqJ/BMcMQteFPupvzeOSGkvZTi8im/I2on8C8im/I2on8ExwxC14U+6m/N45IaS9gB0UYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//9lQSwECFAAKAAAAAADJekpdAAAAAAAAAAAAAAAALwAAAAAAAAAAABAAAAAAAAAAcmVjdWVyZG9zLWUyZV9hbGJ1bTkwX2ZvdG9zXzExNTJfMTc5MTY0NTcyODY4My9QSwECFAAKAAAAAADJekpd9tJLpWkAAABpAAAAPgAAAAAAAAAAAAAAAABNAAAAcmVjdWVyZG9zLWUyZV9hbGJ1bTkwX2ZvdG9zXzExNTJfMTc5MTY0NTcyODY4My9pbmZvLWV2ZW50by50eHRQSwECFAAKAAAAAADJekpd3QlgF8IHAADCBwAASAAAAAAAAAAAAAAAAAASAQAAcmVjdWVyZG9zLWUyZV9hbGJ1bTkwX2ZvdG9zXzExNTJfMTc5MTY0NTcyODY4My9yZWN1ZXJkb18xX2ZvdG9jYWJpbmEucG5nUEsBAhQACgAAAAAAyXpKXfRPaVHtBgAA7QYAAEwAAAAAAAAAAAAAAAAAOgkAAHJlY3VlcmRvcy1lMmVfYWxidW05MF9mb3Rvc18xMTUyXzE3OTE2NDU3Mjg2ODMvcmVjdWVyZG9fMl9wbGF0YWZvcm1hXzM2MC5qcGdQSwUGAAAAAAQABAC5AQAAkRAAAAAA"
+                    },
+                    {
+                      "name": "resultado-fotos.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJtb2RvIjogImZvdG9zIiwKICAicmVnaXN0cm9zIjogWwogICAgewogICAgICAibmFtZSI6ICJyZWN1ZXJkb3MtZTJlX2FsYnVtOTBfZm90b3NfMTE1Ml8xNzkxNjQ1NzI4NjgzL3JlY3VlcmRvXzFfZm90b2NhYmluYS5wbmciLAogICAgICAic2l6ZSI6IDE5ODYsCiAgICAgICJtYWdpYyI6ICI4OTUwNGU0NzBkMGExYTBhIiwKICAgICAgImZ1ZW50ZSI6IDAKICAgIH0sCiAgICB7CiAgICAgICJuYW1lIjogInJlY3VlcmRvcy1lMmVfYWxidW05MF9mb3Rvc18xMTUyXzE3OTE2NDU3Mjg2ODMvcmVjdWVyZG9fMl9wbGF0YWZvcm1hXzM2MC5qcGciLAogICAgICAic2l6ZSI6IDE3NzMsCiAgICAgICJtYWdpYyI6ICJmZmQ4ZmZlMDAwMTA0YTQ2IiwKICAgICAgImZ1ZW50ZSI6IDEKICAgIH0KICBdLAogICJhbnVuY2lvIjogWwogICAgIk5vdGlmaWNhdGlvbiDCoURlc2NhcmdhIGluaWNpYWRhIVNlIGVtcGFxdWV0YXJvbiAyIHJlY3VlcmRvcyBlbiB1biBhcmNoaXZvIFpJUC4iCiAgXSwKICAic29saWNpdHVkZXMiOiBbXSwKICAibm9tYnJlIjogInJlY3VlcmRvcy1lMmVfYWxidW05MF9mb3Rvc18xMTUyXzE3OTE2NDU3Mjg2ODMuemlwIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9f04411fb110b4ef17d-a833366695b74926f087",
+          "file": "90-album-zip-final.spec.ts",
+          "line": 121,
+          "column": 5
+        },
+        {
+          "title": "video reproducible debe conservar formato de video en el ZIP",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11026,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/\\.webm$/\u001b[39m\nReceived string:  \u001b[31m\"recuerdos-e2e_album90_video_1152_1791645748167/recuerdo_2_plataforma_360.jpg\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/\\.webm$/\u001b[39m\nReceived string:  \u001b[31m\"recuerdos-e2e_album90_video_1152_1791645748167/recuerdo_2_plataforma_360.jpg\"\u001b[39m\n    at caso (C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts:106:28)",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts",
+                      "column": 28,
+                      "line": 106
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 104 |\u001b[39m         \u001b[36mconst\u001b[39m video\u001b[33m=\u001b[39mregistros\u001b[33m.\u001b[39mfind(r\u001b[33m=>\u001b[39mr\u001b[33m.\u001b[39mfuente\u001b[33m===\u001b[39m\u001b[35m1\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 105 |\u001b[39m         expect(video\u001b[33m.\u001b[39mmagic\u001b[33m.\u001b[39mstartsWith(\u001b[32m'1a45dfa3'\u001b[39m))\u001b[33m.\u001b[39mtoBe(\u001b[36mtrue\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 106 |\u001b[39m         expect(video\u001b[33m.\u001b[39mname)\u001b[33m.\u001b[39mtoMatch(\u001b[35m/\\.webm$/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                            \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 107 |\u001b[39m       }\n \u001b[90m 108 |\u001b[39m       expect(anuncio\u001b[33m.\u001b[39mjoin(\u001b[32m' '\u001b[39m))\u001b[33m.\u001b[39mtoMatch(\u001b[35m/Se empaquetaron 2 recuerdos/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 109 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mreload({waitUntil\u001b[33m:\u001b[39m\u001b[32m'domcontentloaded'\u001b[39m})\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts",
+                        "column": 28,
+                        "line": 106
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: \u001b[32m/\\.webm$/\u001b[39m\nReceived string:  \u001b[31m\"recuerdos-e2e_album90_video_1152_1791645748167/recuerdo_2_plataforma_360.jpg\"\u001b[39m\n\n  104 |         const video=registros.find(r=>r.fuente===1);\n  105 |         expect(video.magic.startsWith('1a45dfa3')).toBe(true);\n> 106 |         expect(video.name).toMatch(/\\.webm$/);\n      |                            ^\n  107 |       }\n  108 |       expect(anuncio.join(' ')).toMatch(/Se empaquetaron 2 recuerdos/);\n  109 |       await page.reload({waitUntil:'domcontentloaded'});\n    at caso (C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts:106:28)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:22:28.061Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "video-fuente-control.json",
+                      "contentType": "application/json",
+                      "body": "eyJ3aWR0aCI6MzIwLCJoZWlnaHQiOjE4MH0="
+                    },
+                    {
+                      "name": "album-video.zip",
+                      "contentType": "application/zip",
+                      "body": "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"
+                    },
+                    {
+                      "name": "resultado-video.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJtb2RvIjogInZpZGVvIiwKICAicmVnaXN0cm9zIjogWwogICAgewogICAgICAibmFtZSI6ICJyZWN1ZXJkb3MtZTJlX2FsYnVtOTBfdmlkZW9fMTE1Ml8xNzkxNjQ1NzQ4MTY3L3JlY3VlcmRvXzFfZm90b2NhYmluYS5wbmciLAogICAgICAic2l6ZSI6IDE5ODYsCiAgICAgICJtYWdpYyI6ICI4OTUwNGU0NzBkMGExYTBhIiwKICAgICAgImZ1ZW50ZSI6IDAKICAgIH0sCiAgICB7CiAgICAgICJuYW1lIjogInJlY3VlcmRvcy1lMmVfYWxidW05MF92aWRlb18xMTUyXzE3OTE2NDU3NDgxNjcvcmVjdWVyZG9fMl9wbGF0YWZvcm1hXzM2MC5qcGciLAogICAgICAic2l6ZSI6IDcyNiwKICAgICAgIm1hZ2ljIjogIjFhNDVkZmEzOWY0Mjg2ODEiLAogICAgICAiZnVlbnRlIjogMQogICAgfQogIF0sCiAgImFudW5jaW8iOiBbCiAgICAiTm90aWZpY2F0aW9uIMKhRGVzY2FyZ2EgaW5pY2lhZGEhU2UgZW1wYXF1ZXRhcm9uIDIgcmVjdWVyZG9zIGVuIHVuIGFyY2hpdm8gWklQLiIKICBdLAogICJzb2xpY2l0dWRlcyI6IFtdLAogICJub21icmUiOiAicmVjdWVyZG9zLWUyZV9hbGJ1bTkwX3ZpZGVvXzExNTJfMTc5MTY0NTc0ODE2Ny56aXAiCn0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-video-r-2717e--formato-de-video-en-el-ZIP-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-video-r-2717e--formato-de-video-en-el-ZIP-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-video-r-2717e--formato-de-video-en-el-ZIP-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-video-r-2717e--formato-de-video-en-el-ZIP-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-video-r-2717e--formato-de-video-en-el-ZIP-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-video-r-2717e--formato-de-video-en-el-ZIP-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts",
+                    "column": 28,
+                    "line": 106
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "a9f04411fb110b4ef17d-0fd78be650c7403cb161",
+          "file": "90-album-zip-final.spec.ts",
+          "line": 122,
+          "column": 5
+        },
+        {
+          "title": "si no baja ningun archivo no anuncia dos recuerdos entregados",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11964,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: not \u001b[32m/Se empaquetaron 2 recuerdos/\u001b[39m\nReceived string:      \u001b[31m\"Notification ¡Descarga iniciada!\u001b[7mSe empaquetaron 2 recuerdos\u001b[27m en un archivo ZIP.\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: not \u001b[32m/Se empaquetaron 2 recuerdos/\u001b[39m\nReceived string:      \u001b[31m\"Notification ¡Descarga iniciada!\u001b[7mSe empaquetaron 2 recuerdos\u001b[27m en un archivo ZIP.\"\u001b[39m\n    at caso (C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts:99:37)",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts",
+                      "column": 37,
+                      "line": 99
+                    },
+                    "snippet": "\u001b[0m \u001b[90m  97 |\u001b[39m       expect(items)\u001b[33m.\u001b[39mtoHaveLength(\u001b[35m0\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m  98 |\u001b[39m       \u001b[90m// Un paquete sin un solo recuerdo no puede anunciar dos entregados.\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m  99 |\u001b[39m       expect(anuncio\u001b[33m.\u001b[39mjoin(\u001b[32m' '\u001b[39m))\u001b[33m.\u001b[39mnot\u001b[33m.\u001b[39mtoMatch(\u001b[35m/Se empaquetaron 2 recuerdos/\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 100 |\u001b[39m     } \u001b[36melse\u001b[39m {\n \u001b[90m 101 |\u001b[39m       expect(items)\u001b[33m.\u001b[39mtoHaveLength(\u001b[35m2\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 102 |\u001b[39m       expect(registros\u001b[33m.\u001b[39mmap(r\u001b[33m=>\u001b[39mr\u001b[33m.\u001b[39mfuente)\u001b[33m.\u001b[39msort())\u001b[33m.\u001b[39mtoEqual([\u001b[35m0\u001b[39m\u001b[33m,\u001b[39m\u001b[35m1\u001b[39m])\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts",
+                        "column": 37,
+                        "line": 99
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoMatch\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected pattern: not \u001b[32m/Se empaquetaron 2 recuerdos/\u001b[39m\nReceived string:      \u001b[31m\"Notification ¡Descarga iniciada!\u001b[7mSe empaquetaron 2 recuerdos\u001b[27m en un archivo ZIP.\"\u001b[39m\n\n   97 |       expect(items).toHaveLength(0);\n   98 |       // Un paquete sin un solo recuerdo no puede anunciar dos entregados.\n>  99 |       expect(anuncio.join(' ')).not.toMatch(/Se empaquetaron 2 recuerdos/);\n      |                                     ^\n  100 |     } else {\n  101 |       expect(items).toHaveLength(2);\n  102 |       expect(registros.map(r=>r.fuente).sort()).toEqual([0,1]);\n    at caso (C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts:99:37)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:22:41.339Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "album-corte.zip",
+                      "contentType": "application/zip",
+                      "body": "UEsDBAoAAAAAANp6Sl0AAAAAAAAAAAAAAAAwAAAAcmVjdWVyZG9zLWUyZV9hbGJ1bTkwX2NvcnRlXzEyNjA0XzE3OTE2NDU3NjIwMDYvUEsDBAoAAAAAANp6Sl320kulaQAAAGkAAAA/AAAAcmVjdWVyZG9zLWUyZV9hbGJ1bTkwX2NvcnRlXzEyNjA0XzE3OTE2NDU3NjIwMDYvaW5mby1ldmVudG8udHh0RXZlbnRvOiBBbGJ1bSBmaWN0aWNpbyBBOTAKRmVjaGE6IDkgZGUgb2N0dWJyZSBkZSAyMDI2ClRvdGFsIGRlIHJlY3VlcmRvczogMgpHZW5lcmFkbyBwb3IgQUsgUHJvZHVjY2lvbmVzUEsBAhQACgAAAAAA2npKXQAAAAAAAAAAAAAAADAAAAAAAAAAAAAQAAAAAAAAAHJlY3VlcmRvcy1lMmVfYWxidW05MF9jb3J0ZV8xMjYwNF8xNzkxNjQ1NzYyMDA2L1BLAQIUAAoAAAAAANp6Sl320kulaQAAAGkAAAA/AAAAAAAAAAAAAAAAAE4AAAByZWN1ZXJkb3MtZTJlX2FsYnVtOTBfY29ydGVfMTI2MDRfMTc5MTY0NTc2MjAwNi9pbmZvLWV2ZW50by50eHRQSwUGAAAAAAIAAgDLAAAAFAEAAAAA"
+                    },
+                    {
+                      "name": "resultado-corte.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJtb2RvIjogImNvcnRlIiwKICAicmVnaXN0cm9zIjogW10sCiAgImFudW5jaW8iOiBbCiAgICAiTm90aWZpY2F0aW9uIMKhRGVzY2FyZ2EgaW5pY2lhZGEhU2UgZW1wYXF1ZXRhcm9uIDIgcmVjdWVyZG9zIGVuIHVuIGFyY2hpdm8gWklQLiIKICBdLAogICJzb2xpY2l0dWRlcyI6IFtdLAogICJub21icmUiOiAicmVjdWVyZG9zLWUyZV9hbGJ1bTkwX2NvcnRlXzEyNjA0XzE3OTE2NDU3NjIwMDYuemlwIgp9"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-si-no-b-b6fb6-ia-dos-recuerdos-entregados-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-si-no-b-b6fb6-ia-dos-recuerdos-entregados-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-si-no-b-b6fb6-ia-dos-recuerdos-entregados-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-si-no-b-b6fb6-ia-dos-recuerdos-entregados-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-si-no-b-b6fb6-ia-dos-recuerdos-entregados-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\90-album-zip-final-si-no-b-b6fb6-ia-dos-recuerdos-entregados-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\90-album-zip-final.spec.ts",
+                    "column": 37,
+                    "line": 99
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "a9f04411fb110b4ef17d-9a2741c828e26380be00",
+          "file": "90-album-zip-final.spec.ts",
+          "line": 123,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T15:22:06.554Z",
+    "duration": 48575.039,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

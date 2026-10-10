@@ -1,0 +1,22 @@
+{
+  "modo": "fotos",
+  "registros": [
+    {
+      "name": "recuerdos-e2e_album90_fotos_1152_1791645728683/recuerdo_1_fotocabina.png",
+      "size": 1986,
+      "magic": "89504e470d0a1a0a",
+      "fuente": 0
+    },
+    {
+      "name": "recuerdos-e2e_album90_fotos_1152_1791645728683/recuerdo_2_plataforma_360.jpg",
+      "size": 1773,
+      "magic": "ffd8ffe000104a46",
+      "fuente": 1
+    }
+  ],
+  "anuncio": [
+    "Notification ¡Descarga iniciada!Se empaquetaron 2 recuerdos en un archivo ZIP."
+  ],
+  "solicitudes": [],
+  "nombre": "recuerdos-e2e_album90_fotos_1152_1791645728683.zip"
+}

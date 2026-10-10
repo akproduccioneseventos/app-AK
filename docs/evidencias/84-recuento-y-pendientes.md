@@ -1,5 +1,12 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion90: descarga final del album
+
+Leer `90-album-descarga-final.md`. FotosZIP PC/movil:2E2E aprobados con bytes
+exactos, sin cuenta/admin, excluye pendientes/ocultos/otra fiesta, recarga.
+Dos defectos nuevos orden141Gemini: WebM nombrado.jpg y ZIP sin medios anuncia2.
+NO todo ZIP aprobado, no todas estaciones, no0errores. TikTokfinal sigue limite81.
+
 ## Actualizacion 89: contenido de fotocabina y color del portal
 
 Leer `89-fotocabina-y-portal-color.md`. Color portal PC/movil: UI->SDK->otro

@@ -27,7 +27,7 @@ emitir orden139. No cambios de app, datos reales, publicaciones ni fusion.
 ## Lista de Verificacion (Checklist) antes de solicitar revision
 - [ ] npm run typecheck de toda la app (no se declara ejecutado en esta tanda)
 - [ ] npm run lint de toda la app (no se declara ejecutado en esta tanda)
-- [ ] npm run graphify:update (no cambia estructura productiva; grafo puntual reutilizado)
+- [ ] npm run graphify:update (sin estructura productiva nueva; grafo falta en checkout90)
 - [x] Probados recorridos en Firestore/Storage demo con datos ficticios propios
 - [x] Syntax-only12sondas/runners, check-acentos2610archivos, git diff --check
 - [x] Se separan140unitarios/14E2E de errores/omisiones/limites externos
@@ -58,3 +58,15 @@ como si fuera un arreglo de producto ni como aprobacion final para publicar.
 - Orden139 compras corresponde a Claude; orden140 fotocabina a Gemini. Contrastar
   sus tandas locales no subidas ANTES de programar. No se inicia otra IA por escribir.
 - Sigue pendiente dibujo3D historico y matriz84. No cierre completo/0errores.
+
+## Actualizacion Auditoria90
+
+- Fotos ZIP PC/movil: dos E2E pasan con bytes exactos, recarga, sin cuenta/admin,
+  pendientes/ocultos/otra fiesta excluidos. ZIPs descargados y abiertos realmente.
+- Dos nuevos P1 orden141Gemini: video WebM nombrado.jpg y corte total entrega
+  ZIP sin medios pero anuncia dos recuerdos. Raws/cabeceras/ZIP/capturas90.
+- Fuente2aac14e2, lectores equivalentes a main0af74652; programacion local no
+  subida NO CONTRASTADA. Sin nuevas dependencias, producto, otraPR ni fusion.
+- Sintaxis2sondas/check-acentos2633/gitdiff; no build optimizado ni certificado.
+- SDK confirma cero fiestas/posts90 sobrantes; ayudante economico cerrado.
+- TikTok final sigue limite historico81: no otro encargo duplicado/proveedor probado.
