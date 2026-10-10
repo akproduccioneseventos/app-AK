@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Orden 143: el QR viejo no entra y la ubicación del personal anda
+
+- **Un QR de entrada con la credencial cambiada seguía entrando** si el lector estaba abierto: lo
+  comparaba el lector con la fiesta que tenía en memoria y el servidor no miraba la credencial.
+  Ahora `checkInGuest` recibe la credencial del QR y la compara con la vigente adentro del guardado.
+  Lo mismo para los otros dos lectores (el del equipo y la página de llegada). Un invitado sin
+  credencial guardada (QR muy viejo, sólo con el número) entra como antes; la entrada manual de
+  recepción no pide QR.
+- **"Marcar llegada" del personal no podía leer la ubicación**: la cabecera de la app decía
+  `geolocation=()` y el navegador la bloqueaba. Ahora `geolocation=(self)`: sólo la propia app,
+  nunca terceros; el servidor sigue validando el radio.
+
+```comprobar
+prueba: src/__tests__/el-qr-viejo-no-entra.test.ts
+prueba: tests/e2e/la-ubicacion-del-personal-no-esta-bloqueada.spec.ts
+usa: token en src/app/evento/accesos/[fiestaId]/page.tsx
+usa: scannedToken en src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx
+```
+
 ## 10/10/2026 - Codex92: seis huecos, dos fallos reales nuevos
 
 - Main85215484 contrastado y ejecutado despues de fusion1282/1283. Compras,

@@ -77,4 +77,6 @@ prueba: docs/evidencias/92-entrada-pendientes.spec.ts
 archivo: next.config.js
 usa: registrarLlegadaPersonal en src/app/acceso-personal/[tokenId]/page.tsx
 prueba: docs/evidencias/92-personal-ubicacion.spec.ts
+prueba: src/__tests__/el-qr-viejo-no-entra.test.ts
+prueba: tests/e2e/la-ubicacion-del-personal-no-esta-bloqueada.spec.ts
 ```

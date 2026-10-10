@@ -57,8 +57,11 @@ const nextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
           // Controla información de referencia enviada a terceros
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          // Permite multimedia local y desactiva geolocalizacion
-          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=()' },
+          // Cámara, micrófono y ubicación sólo para la propia app (nunca terceros ni iframes). La
+          // ubicación hace falta para "Marcar llegada" del personal: con geolocation=() el navegador
+          // la bloqueaba aunque la persona diera permiso (Codex, auditoría 92). El servidor sigue
+          // validando el radio.
+          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=(self)' },
           // Desactiva el filtro XSS obsoleto de navegadores antiguos
           { key: 'X-XSS-Protection', value: '0' },
           /**

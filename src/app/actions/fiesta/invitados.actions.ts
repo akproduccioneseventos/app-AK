@@ -334,7 +334,14 @@ export async function updateGuestDetails(
 
 export async function checkInGuest(
   fiestaId: string,
-  guestId: string
+  guestId: string,
+  /**
+   * Entrada por QR (Codex, auditoría 92): la credencial se compara con la VIGENTE adentro del
+   * guardado. Antes la comparaba el lector con la fiesta que tenía cargada en memoria: si la
+   * credencial se cambiaba con el lector abierto, el QR viejo seguía entrando. Sin esto (entrada
+   * manual de recepción), no se pide QR.
+   */
+  qr?: { token: string | null }
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   try {
     await requireFiestaWriteAccess(fiestaId);
@@ -343,10 +350,17 @@ export async function checkInGuest(
   }
   let invitadoActualizado: Invitado | undefined;
   let found = false;
+  let credencialVencida = false;
   const result = await updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).map(inv => {
       if (inv.id === guestId) {
         found = true;
+        // Un invitado con credencial sólo entra con ESA credencial; uno sin credencial (QR viejo,
+        // sólo con el número) entra como antes.
+        if (qr && inv.guestAccessToken && qr.token !== inv.guestAccessToken) {
+          credencialVencida = true;
+          return inv;
+        }
         if (inv.checkedIn) {
           invitadoActualizado = inv;
           return inv;
@@ -356,11 +370,12 @@ export async function checkInGuest(
       }
       return inv;
     });
-    if (!found) return data;
+    if (!found || credencialVencida) return data;
     return { ...data, invitados };
   });
 
   if (!found) return { success: false, error: 'Invitado no encontrado.' };
+  if (credencialVencida) return { success: false, error: 'Este QR ya no es válido: la credencial del invitado cambió.' };
   return soloLoDelInvitado(result, invitadoActualizado);
 }
 

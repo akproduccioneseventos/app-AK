@@ -29,6 +29,8 @@ function CheckInContent() {
   const searchParams = useSearchParams();
   const guestId = searchParams.get('guestId');
   const fiestaId = searchParams.get('fiestaId');
+  // La credencial del QR: el servidor la compara con la vigente (auditoría 92).
+  const token = searchParams.get('token');
 
   const [invitado, setInvitado] = useState<Invitado | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,7 +60,7 @@ function CheckInContent() {
              setWasAlreadyCheckedIn(true);
              setInvitado(invitadoOriginal);
         } else {
-            const result = await checkInGuestFiestaActual(fiestaId, guestId);
+            const result = await checkInGuestFiestaActual(fiestaId, guestId, { token });
             if (result.success && result.invitado) {
                 setInvitado(result.invitado);
             } else {
@@ -72,7 +74,7 @@ function CheckInContent() {
       }
     }
     performCheckIn();
-  }, [guestId, fiestaId]);
+  }, [guestId, fiestaId, token]);
 
   if (isLoading) {
     return <div className="text-center p-8"><Loader2 className="w-16 h-16 animate-spin text-primary mx-auto" /><p className="mt-4 text-lg">Registrando entrada...</p></div>;
