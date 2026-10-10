@@ -170,6 +170,12 @@ mes**. No se activa. Dejá:
   servicio pago. Consultalo antes de activarlo".
 
 ```comprobar
+# Bloque 3 — hablar en vivo con el asistente
+archivo: src/lib/asistente/sesion-voz-en-vivo.ts
+usa: iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+usa: reservarMinutos en src/app/api/asistente/voz-en-vivo/route.ts
+prueba: src/__tests__/la-voz-en-vivo-ruta.test.ts
+prueba: src/__tests__/la-voz-en-vivo-cliente.test.ts
 # Bloque 4 — la foto de la boleta queda como propuesta de gasto
 usa: gasto_boleta en src/lib/asistente/por-whatsapp.ts
 archivo: src/lib/asistente/que-puede-hacer-solo.ts

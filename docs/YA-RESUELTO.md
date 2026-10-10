@@ -1,5 +1,35 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Orden 105, bloque 3: hablar con el asistente en vivo
+
+- **Qué hay ahora:** un botón "Hablar" junto al micrófono del asistente. El dueño habla, el asistente
+  contesta con voz en tiempo real, se lo puede interrumpir y anda en el celular. Usa la API en vivo de
+  Gemini (modelo `gemini-3.8-live`, con `gemini-2.5-flash-native-audio-preview-12-2025` de respaldo;
+  se cambia con la variable `GEMINI_LIVE_MODEL`).
+- **Por qué así:** la clave de Google NUNCA viaja al navegador. El servidor (`/api/asistente/voz-en-vivo`,
+  sólo equipo con sesión) pide a Google una ficha de un solo uso que vence con la conversación, y el
+  navegador habla directo con Google. Los minutos del día se reservan en una sola operación de la base
+  (de a 10 como máximo, la sesión corta sola al llegar) y se devuelven si Google no entregó la ficha.
+  Decisión del dueño: usa la parte gratis por omisión y "quiero poder pagar si necesito", por eso el
+  tope de minutos por día se sube en Ajustes → Asistente (referencia de Google: ~US$0,023 por minuto).
+- **No ejecuta acciones:** si le piden cambiar o cargar algo, dice que lo deja listo en el chat y la
+  persona lo confirma ahí. Sabe del negocio por el mismo resumen que usa el asistente de texto.
+- **Sin probar contra Google real:** el contenedor no tiene clave, así que la conexión verdadera NO se
+  probó; el protocolo sigue la documentación de Google (WebSocket, `v1alpha` para las fichas). Si en
+  producción falla, probar con la variable `GEMINI_LIVE_API_VERSION=v1beta` (constante
+  `VERSION_API_EN_VIVO_POR_OMISION` en `src/lib/asistente/voz-en-vivo.ts`). Las pruebas cubren lo que
+  se puede cubrir con piezas de mentira (ruta, minutos, interrupción, corte duro).
+
+```comprobar
+archivo: src/lib/asistente/voz-en-vivo.ts
+usa: iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+usa: vozEnVivoMinutosPorDia en src/app/(app)/settings/asistente/page.tsx
+usa: reservarMinutos en src/app/api/asistente/voz-en-vivo/route.ts
+prueba: src/__tests__/la-voz-en-vivo-ruta.test.ts
+prueba: src/__tests__/la-voz-en-vivo-lib.test.ts
+prueba: src/__tests__/la-voz-en-vivo-cliente.test.ts
+```
+
 ## 10 de octubre de 2026 — Orden 143: el QR viejo no entra y la ubicación del personal anda
 
 - **Un QR de entrada con la credencial cambiada seguía entrando** si el lector estaba abierto: lo

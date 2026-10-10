@@ -26,6 +26,10 @@ export interface AsistenteSettings {
   vozGeminiActiva?: boolean;
   /** La voz del teléfono, gratis siempre. Si las dos están apagadas, el asistente no habla. */
   vozTelefonoActiva?: boolean;
+  /** Voz en vivo (orden 105, bloque 3): conversar con el asistente hablando. Por omisión prendida. */
+  vozEnVivoActiva?: boolean;
+  /** Tope de minutos de voz en vivo por día (0 = apagada). Por omisión 10, lo que da la parte gratis. */
+  vozEnVivoMinutosPorDia?: number;
   numerosEquipo?: Array<{ telefono: string; nombre: string; rol: string }>;
   atenderLlamadasIaHabilitado?: boolean;
 }
@@ -46,6 +50,8 @@ export const ASISTENTE_SETTINGS_DEFAULT: AsistenteSettings = {
   vozSeleccionada: 'Kore',
   vozGeminiActiva: true,
   vozTelefonoActiva: true,
+  vozEnVivoActiva: true,
+  vozEnVivoMinutosPorDia: 10,
   numerosEquipo: [
     { telefono: AK_WHATSAPP_NUMBER, nombre: 'Alexander Knuth', rol: 'Dueño' },
   ],

@@ -119,6 +119,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Trivia con podio por mesa | Sí | Pantalla grande del salón |
 | Misiones secretas para invitados | Sí | Muro social, en el celular |
 | Secretario que habla (micrófono y voz) | Sí | Botón flotante, en toda la app interna. Voz de Gemini (gratis, tope 100 por día) y del teléfono, cada una con su interruptor en Ajustes |
+| Voz en vivo (botón "Hablar" del asistente) | Sí, sin probar contra Google real | Conversación hablada en tiempo real con la API en vivo de Gemini, se puede interrumpir, sólo para el equipo con sesión. Tope de minutos por día en Ajustes → Asistente (por omisión 10). La clave nunca llega al navegador: va una ficha de un solo uso. No ejecuta acciones: las deja en el chat para confirmar (orden 105, bloque 3) |
 | Quién llegó del equipo | Sí | Centro de la fiesta |
 | Pantallas de la noche en oscuro | Sí | Recepción y logística |
 | La reunión se agenda sola | Sí | Al terminar el simulador público |
