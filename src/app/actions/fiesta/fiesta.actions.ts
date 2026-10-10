@@ -1039,7 +1039,9 @@ export async function syncFiestaFromBudget(fiestaId: string) {
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  // Borrar, archivar o cancelar una fiesta saca plata y trabajo de la cuenta: no alcanza con tener
+  // sesión (el personal y el operador también la tienen). Pregunta 47, 10/10/2026.
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
     if (isProduction) {
@@ -1063,7 +1065,7 @@ export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean
 }
 
 export async function archiveFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Evento no encontrado.");
@@ -1081,7 +1083,7 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
 }
 
 export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
     if (isProduction) {
@@ -1119,7 +1121,7 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
  * In production (Firestore), each active fiesta is archived; in local dev the files are moved.
  */
 export async function resetAllActiveFiestas(): Promise<{ success: boolean; archivedCount?: number; errors?: string[]; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   try {
     const activas = await getFiestas(false);
     const errors: string[] = [];
@@ -1384,7 +1386,7 @@ export async function updateGuestExperienceStats(
 }
 
 export async function suspenderFiestaAction(fiestaId: string, motivo: string, fecha?: string) {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
 
@@ -1397,7 +1399,7 @@ export async function suspenderFiestaAction(fiestaId: string, motivo: string, fe
 }
 
 export async function reactivarFiestaAction(fiestaId: string) {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CONTABILIDAD, PERMISOS.ADMINISTRACION);
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
 
