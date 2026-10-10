@@ -1,6 +1,56 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Auditoría 86: quién cambia los ajustes y las entregas del portal
+
+- **Los agentes automáticos los prendía, apagaba o corría cualquiera con sesión**, también el
+  personal (podía apagar el cobrador), y su historial con saldos lo leía cualquiera. Ahora piden
+  administración.
+- **Barrido con la misma pregunta: 32 ajustes generales pedían sólo sesión.** Datos de la empresa,
+  WhatsApp, roles, planes por fiesta, conexiones a redes, plantillas de factura y contrato,
+  promociones, la web y la invitación. Cada uno pide ahora su permiso: administración; o
+  contabilidad para contratos, facturas y promociones; o CRM para la web y redes; u organización
+  para la invitación. La cuenta de Google del empleado sigue como estaba: ya tenía su control y
+  deja que cada empleado conecte la suya.
+- **El cliente con el álbum entregado veía "aún no hay servicios"**: al portal le llegaban sólo las
+  notas. Ahora llegan nombre, estado, fecha, notas y enlace, y el enlace sólo si es una dirección
+  web común.
+
+```comprobar
+prueba: src/__tests__/portal-entregas-y-agentes-86.test.ts
+prueba: src/__tests__/la-configuracion-general-pide-permiso.test.ts
+prueba: tests/e2e/el-cliente-ve-sus-entregas-oficiales.spec.ts
+usa: mapServicioDeEntrega en src/lib/client-portal/public-fiesta.ts
+usa: PERMISOS.ADMINISTRACION en src/app/actions/agentes-autonomos.ts
+usa: requirePermisoAlguno en src/app/actions/roles.ts
+```
+
 ## 10 de octubre de 2026 — Auditoría 86 de la IA: tareas, avisos falsos, voz y agentes
+
+- **Dos tareas pedidas al asistente a la vez: se perdía una** y las dos decían "creada". Ahora la
+  tarea se agrega adentro del turno de la fiesta (`actualizarFiesta`), releyendo la fiesta.
+- **El asistente decía "Tarea creada" aunque no se hubiera guardado.** El texto avisaba el error
+  pero la pantalla mostraba el cartel verde por el tipo de acción. Si lo pedido no se guardó
+  (tarea, recordatorio, invitado, incidente, prospecto), la respuesta ya no trae la acción.
+- **La voz que se paró sonaba igual** cuando el audio de Gemini llegaba tarde, y un pedido nuevo no
+  anulaba al viejo. Ahora cada pedido y cada "parar" suben un número y el viejo no hace nada.
+- **"Ejecutar ahora" del Vigilante de Publicidad decía "Agente no reconocido".** Ya corre.
+- **Un agente de 15 minutos corría de nuevo al minuto.** El despertador ahora espera el intervalo de
+  cada uno; "Ejecutar todos" a mano no espera (lo pide una persona).
+- **El respaldo de la IA mostraba una dirección técnica larguísima** al usuario. Ahora dice "La IA no
+  respondió ahora; te contesto con lo que tengo." y el detalle va al registro del servidor.
+
+```comprobar
+prueba: src/__tests__/ia-86-tareas-y-exito.test.ts
+prueba: src/__tests__/ia-86-la-voz-parada-no-suena.test.ts
+prueba: src/__tests__/ia-86-agentes-publicidad-e-intervalo.test.ts
+usa: actualizarFiesta en src/app/actions/multiagent.ts
+usa: noSeGuardo en src/app/actions/multiagent.ts
+usa: generacion en src/lib/asistente/reproductor-voz.ts
+usa: ejecutarVigilantePublicidad en src/app/actions/agentes-autonomos.ts
+usa: ignorarIntervalo en src/lib/agentes/motor-agentes.ts
+usa: La IA no respondió ahora en src/ai/flows/multiagent-flow.ts
+```
+
 
 ## 9/10/2026 - Codex 86: IA probada, delta 83 aceptado y planificacion
 
@@ -42,30 +92,25 @@ No area entera aprobada ni certificado cero errores.
 
 ## 9/10/2026 - Codex 85: QR descargado, entrada y aislamiento entre fiestas
 
-- **Dos tareas pedidas al asistente a la vez: se perdía una** y las dos decían "creada". Ahora la
-  tarea se agrega adentro del turno de la fiesta (`actualizarFiesta`), releyendo la fiesta.
-- **El asistente decía "Tarea creada" aunque no se hubiera guardado.** El texto avisaba el error
-  pero la pantalla mostraba el cartel verde por el tipo de acción. Si lo pedido no se guardó
-  (tarea, recordatorio, invitado, incidente, prospecto), la respuesta ya no trae la acción.
-- **La voz que se paró sonaba igual** cuando el audio de Gemini llegaba tarde, y un pedido nuevo no
-  anulaba al viejo. Ahora cada pedido y cada "parar" suben un número y el viejo no hace nada.
-- **"Ejecutar ahora" del Vigilante de Publicidad decía "Agente no reconocido".** Ya corre.
-- **Un agente de 15 minutos corría de nuevo al minuto.** El despertador ahora espera el intervalo de
-  cada uno; "Ejecutar todos" a mano no espera (lo pide una persona).
-- **El respaldo de la IA mostraba una dirección técnica larguísima** al usuario. Ahora dice "La IA no
-  respondió ahora; te contesto con lo que tengo." y el detalle va al registro del servidor.
+Main contrastado `859fd23b1175646edc0209cab114241327d302ba`. Fuente compilada
+`497ee725`, equivalencia acotada descarga/payload/lector/acciones/credencial;
+WhatsApp posterior y barra embebida NO probados. No certificar main entero ni
+entrega local de Claude no subida. Informe 85 y matriz 84.
 
-```comprobar
-prueba: src/__tests__/ia-86-tareas-y-exito.test.ts
-prueba: src/__tests__/ia-86-la-voz-parada-no-suena.test.ts
-prueba: src/__tests__/ia-86-agentes-publicidad-e-intervalo.test.ts
-usa: actualizarFiesta en src/app/actions/multiagent.ts
-usa: noSeGuardo en src/app/actions/multiagent.ts
-usa: generacion en src/lib/asistente/reproductor-voz.ts
-usa: ejecutarVigilantePublicidad en src/app/actions/agentes-autonomos.ts
-usa: ignorarIntervalo en src/lib/agentes/motor-agentes.ts
-usa: La IA no respondió ahora en src/ai/flows/multiagent-flow.ts
-```
+4 casos aprobados: 2 PC / 2 viewport movil. Descarga PNG real, decodifica bytes,
+lector real del operador consume ese PNG y guarda entrada/timestamp; conserva
+mesa/menu/tres personas y otro invitado. Portal separado persiste tras recarga,
+sin controles de equipo. Token A no abre credencial B con mismo ID: no revela
+nombre/QR ni cambia fiestas. Confirmar NO marca llegada. PC original freno en
+radio oculto: error de MI selector, no app; etiqueta visible funciona. Repetido
+solo el caso frenado, aprobado; raw original conservado.
+
+NO fallo nuevo ni orden nueva. No repetir sin cambio relevante ni rehacer mural,
+personal o los cuatro arreglos 133/134 en curso. Textos de opcion de archivo en
+ingles: propuesta visual aparte, no bloqueante. Datos ficticios propios/JSON/demo;
+camara simulada solo para iniciar lector, no prueba fisica ni area completa.
+Sondas/raw/PNG/capturas 85 guardados; ayudante, pestaña y entorno propios cerrados.
+Sin producto, build nuevo, paquetes, datos reales ni fusion. PR 1277 documental.
 
 ## 9 de octubre de 2026 — La IA cortaba las respuestas; pantalla "Poner al día"; un cobro sin id no contaba
 
@@ -141,13 +186,6 @@ prueba: src/__tests__/catering-fotos-corresponden-al-plato.test.ts
 prueba: tests/e2e/lectura-invitados-aislada.spec.ts
 prueba: tests/e2e/entorno-compilado-verificable.spec.ts
 ```
-
-NO fallo nuevo ni orden nueva. No repetir sin cambio relevante ni rehacer mural,
-personal o los cuatro arreglos 133/134 en curso. Textos de opcion de archivo en
-ingles: propuesta visual aparte, no bloqueante. Datos ficticios propios/JSON/demo;
-camara simulada solo para iniciar lector, no prueba fisica ni area completa.
-Sondas/raw/PNG/capturas 85 guardados; ayudante, pestaña y entorno propios cerrados.
-Sin producto, build nuevo, paquetes, datos reales ni fusion. PR 1277 documental.
 
 ## 9 de octubre de 2026 — Codex, auditoría 83: contrato y estaciones (PR 1277)
 

@@ -1067,3 +1067,14 @@ permiso de entrada, no el del guardado. Y no miré qué fingía la prueba.
 prueba: src/__tests__/estacion-guarda-medio-sin-editar-fiesta.test.ts
 prueba: src/__tests__/entretenimiento-bloque-a.test.tsx
 ```
+
+## 10 de octubre de 2026 — Los ajustes generales pedían sólo sesión (Codex, auditoría 86)
+
+Codex vio que el personal apagaba los agentes automáticos. **Ninguna pregunta mía lo agarraba**:
+el candado y las preguntas de permisos miraban plata, no configuración. Se sumó la pregunta 47, se
+barrió la app con ella (32 ajustes más con la misma forma) y quedó el control.
+
+```comprobar
+prueba: src/__tests__/la-configuracion-general-pide-permiso.test.ts
+prueba: src/__tests__/portal-entregas-y-agentes-86.test.ts
+```
