@@ -4,7 +4,8 @@ import { readData, writeData } from '@/lib/data-service';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import type { CatalogoSettings, CatalogoSettingsMap, PresentacionLedSettings } from '@/types/contenido-publico';
 import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT, DEFAULT_PARTNER_LOGOS, DEFAULT_PRESENTACION_LED_SETTINGS } from '@/lib/public-content-defaults';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const PRESENTACION_LED_SETTINGS_FILE = 'presentacion-led-settings.json';
 const CATALOGO_SETTINGS_FILE = 'catalogo-settings.json';
@@ -72,7 +73,7 @@ export async function getPresentacionLedSettings(): Promise<PresentacionLedSetti
 }
 
 export async function savePresentacionLedSettings(data: PresentacionLedSettings): Promise<{success: boolean}> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
   const sanitized: PresentacionLedSettings = {
     portada: {
       tituloPrincipal: (data.portada?.tituloPrincipal || '').trim(),
@@ -128,7 +129,7 @@ export async function getCatalogoSettings(tipo: string): Promise<CatalogoSetting
 }
 
 export async function saveCatalogoSettings(tipo: string, data: CatalogoSettings): Promise<{success: boolean}> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.CRM, PERMISOS.ADMINISTRACION);
   const map = await readData<CatalogoSettingsMap>(CATALOGO_SETTINGS_FILE, {});
   const key = (tipo || '').trim().toLowerCase();
 

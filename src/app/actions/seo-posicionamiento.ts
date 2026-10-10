@@ -1,6 +1,7 @@
 'use server';
 
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { PAGINAS_PARA_GOOGLE } from '@/lib/seo/paginas-publicas';
 import { blogPosts } from '@/data/blog-posts';
 import { getMetadataRealDeRuta } from '@/lib/seo/auditoria-metadatos';
@@ -133,7 +134,7 @@ export async function getSeoPosicionamientoData(): Promise<ResumenSeoPosicionami
 }
 
 export async function guardarGoogleSiteVerificationAction(codigo: string): Promise<{ success: boolean; mensaje: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   try {
     const SETTINGS_FILE = 'settings.json';
     const settings: any = await readData<any>(SETTINGS_FILE, {}).catch(() => ({}));
