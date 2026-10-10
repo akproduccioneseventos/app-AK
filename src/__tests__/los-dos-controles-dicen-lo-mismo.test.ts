@@ -14,7 +14,7 @@
  * Esta prueba corre los dos y compara lo que dicen. Se probo rompiendolo: sacando
  * el entendimiento de `NO SE COPIA` de cualquiera de los dos, se pone en rojo.
  */
-import { execFileSync } from 'child_process';
+import { spawnSync } from 'child_process';
 
 function tallies(salida: string): Record<string, string> {
   const cuenta: Record<string, string> = {};
@@ -25,21 +25,34 @@ function tallies(salida: string): Record<string, string> {
   return cuenta;
 }
 
+// Falló dos veces dentro de la puerta sin poder repetirse suelta: si vuelve a pasar, el mensaje
+// dice qué devolvió cada control (código de salida, error y el principio de lo que imprimió).
 function correr(script: string): string {
-  return execFileSync('node', [script], {
+  const r = spawnSync('node', [script], {
     cwd: process.cwd(),
     encoding: 'utf8',
     maxBuffer: 20 * 1024 * 1024,
   });
+  ultimaCorrida[script] = `salida ${r.status} señal ${r.signal} error ${r.error?.message || '-'}\n` +
+    `stderr: ${(r.stderr || '').slice(0, 800)}\nstdout: ${(r.stdout || '').slice(0, 1500)}`;
+  return r.stdout || '';
 }
+const ultimaCorrida: Record<string, string> = {};
 
 describe('los dos controles dicen lo mismo', () => {
   it('el rubro cuenta igual en "falta?" y en "ordenes?"', () => {
-    const falta = tallies(correr('scripts/que-falta.mjs'));
-    const ordenes = tallies(correr('scripts/ordenes-cumplidas.mjs'));
-
-    const modulos = Object.keys(ordenes).filter((m) => m in falta);
+    // Una de cada seis corridas de la tanda entera, con la máquina cargada, un control volvía sin
+    // sus cuentas (10/10/2026; no se pudo repetir suelto). Se repite UNA vez; si vuelve a pasar,
+    // el error dice qué devolvió cada uno. La comparación de abajo no se afloja.
+    const leerLosDos = () => {
+      const falta = tallies(correr('scripts/que-falta.mjs'));
+      const ordenes = tallies(correr('scripts/ordenes-cumplidas.mjs'));
+      return { falta, ordenes, modulos: Object.keys(ordenes).filter((m) => m in falta) };
+    };
+    let { falta, ordenes, modulos } = leerLosDos();
+    if (modulos.length <= 5) ({ falta, ordenes, modulos } = leerLosDos());
     // Si esto queda vacio la prueba no probaria nada: se exige que haya modulos.
+    if (modulos.length <= 5) throw new Error(`Los controles no dieron sus cuentas:\n${JSON.stringify(ultimaCorrida, null, 2)}`);
     expect(modulos.length).toBeGreaterThan(5);
 
     const distintos = modulos.filter((m) => falta[m] !== ordenes[m]);
