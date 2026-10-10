@@ -167,7 +167,7 @@ test.describe('Touchpix: la foto trae la imagen de la camara', () => {
     const acceso = crearPermisoDeEstacion(ID, 'espejoMagicoIA');
     await sacarUnaFoto(page, acceso);
 
-    await expect(page.getByText('La camara no esta entregando imagen')).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByText('La camara no esta entregando imagen').first()).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId('boton-reintentar-camara')).toBeVisible();
     await expect(page.locator('img[alt="Captura Touchpix"]'), 'no se entrega ninguna foto').toHaveCount(0);
   });
