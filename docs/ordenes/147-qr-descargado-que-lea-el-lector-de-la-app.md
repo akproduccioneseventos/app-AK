@@ -56,4 +56,7 @@ usa: downloadQR en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
 usa: checkInGuest en src/app/evento/accesos/[fiestaId]/page.tsx
 prueba: docs/evidencias/94-qr-imagen.spec.ts
 prueba: docs/evidencias/92-entrada-pendientes.spec.ts
+usa: qrParaDescargar en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
+prueba: src/__tests__/el-qr-descargado-lo-lee-el-lector.test.ts
+prueba: tests/e2e/qr-descargado-lector-real.spec.ts
 ```

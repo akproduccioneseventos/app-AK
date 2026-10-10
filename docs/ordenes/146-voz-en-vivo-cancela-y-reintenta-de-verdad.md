@@ -84,4 +84,7 @@ archivo: src/lib/asistente/sesion-voz-en-vivo.ts
 usa: iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
 prueba: docs/evidencias/94-live-widget.spec.ts
 prueba: src/__tests__/la-voz-en-vivo-cliente.test.ts
+prueba: src/__tests__/la-voz-en-vivo-cancela-y-reintenta.test.ts
+prueba: tests/e2e/voz-en-vivo-reintento-y-cancelacion.spec.ts
+usa: crearControlVozEnVivo en src/components/multiagent/multiagent-widget.tsx
 ```

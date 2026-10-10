@@ -16,6 +16,12 @@
 export type EstadoVozEnVivo = 'conectando' | 'escuchando' | 'hablando' | 'cerrada';
 
 export interface OpcionesVozEnVivo {
+  /**
+   * Identidad cancelable del intento (orden 146). Si se aborta, en cualquier momento —antes de la
+   * ficha, con el permiso del micrófono pendiente o con el socket abriendo— todo lo que ya se
+   * consiguió se suelta (pistas, socket, audio) y los avisos de este intento dejan de salir.
+   */
+  senal?: AbortSignal;
   onEstado?: (estado: EstadoVozEnVivo, info?: { segundosMaximos?: number }) => void;
   onTexto?: (texto: string, quien: 'asistente' | 'persona') => void;
   onError?: (mensaje: string) => void;
@@ -113,7 +119,15 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
   let proximoInstante = 0;
   let pendiente: number[] = [];
 
-  const estado = (e: EstadoVozEnVivo, info?: { segundosMaximos?: number }) => opciones.onEstado?.(e, info);
+  const senal = opciones.senal;
+  const abortada = () => !!senal?.aborted;
+  const nada = (): SesionVozEnVivo => ({ detener: () => {} });
+  // Un intento abortado no avisa nada: ya no le importa a nadie.
+  const estado = (e: EstadoVozEnVivo, info?: { segundosMaximos?: number }) => {
+    if (abortada()) return;
+    opciones.onEstado?.(e, info);
+  };
+  const aviso = (mensaje: string) => { if (!abortada()) opciones.onError?.(mensaje); };
 
   const cortarAudioEnCola = () => {
     for (const fuente of Array.from(enCola)) {
@@ -139,32 +153,36 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
 
   const fallar = (mensaje: string) => {
     if (cerrada) return;
-    opciones.onError?.(mensaje);
+    aviso(mensaje);
     cerrarTodo();
   };
 
+  if (abortada()) return nada();
   estado('conectando');
 
   if (!WS || !Contexto || (!p.getUserMedia && (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia))) {
-    opciones.onError?.('Este navegador no permite hablar en vivo. Probá con Chrome o Safari actualizado.');
+    aviso('Este navegador no permite hablar en vivo. Probá con Chrome o Safari actualizado.');
     estado('cerrada');
-    return { detener: () => {} };
+    return nada();
   }
 
   // 1) La ficha temporal, del servidor.
   let datos: any;
   try {
-    const r = await fetchFn('/api/asistente/voz-en-vivo', { method: 'POST' });
+    const r = await fetchFn('/api/asistente/voz-en-vivo', { method: 'POST', signal: senal });
     datos = await r.json().catch(() => ({}));
+    // Cortaron mientras esperaba la ficha: se descarta sin pedir micrófono ni abrir socket.
+    if (abortada()) return nada();
     if (!r.ok || !datos?.wsUrl) {
-      opciones.onError?.(datos?.error || 'No se pudo iniciar la voz en vivo.');
+      aviso(datos?.error || 'No se pudo iniciar la voz en vivo.');
       estado('cerrada');
-      return { detener: () => {} };
+      return nada();
     }
   } catch {
-    opciones.onError?.('No se pudo conectar con el servidor para hablar en vivo.');
+    if (abortada()) return nada();
+    aviso('No se pudo conectar con el servidor para hablar en vivo.');
     estado('cerrada');
-    return { detener: () => {} };
+    return nada();
   }
 
   const sesion: SesionVozEnVivo = { detener: cerrarTodo };
@@ -173,16 +191,20 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
   try {
     microfono = await pedirMicrofono({ audio: { echoCancellation: true, noiseSuppression: true } as any });
   } catch (error) {
-    opciones.onError?.(mensajeDeErrorDeMicrofono(error));
+    if (abortada()) return nada();
+    aviso(mensajeDeErrorDeMicrofono(error));
     estado('cerrada');
-    return { detener: () => {} };
+    return nada();
   }
-  if (cerrada) { microfono?.getTracks().forEach((t) => t.stop()); return sesion; }
+  // El permiso llegó tarde para un intento cortado: se sueltan las pistas en el acto.
+  if (cerrada || abortada()) { try { microfono?.getTracks().forEach((t) => t.stop()); } catch {} return nada(); }
 
   contexto = new Contexto();
   try { await contexto.resume?.(); } catch {}
+  if (cerrada || abortada()) { cerrarTodo(); return nada(); }
 
-  // 3) El socket.
+  // 3) El socket. Desde acá, abortar cierra todo lo abierto.
+  senal?.addEventListener('abort', cerrarTodo, { once: true });
   try {
     ws = new WS(datos.wsUrl);
   } catch {
@@ -287,6 +309,7 @@ export async function iniciarVozEnVivo(opciones: OpcionesVozEnVivo = {}): Promis
         fallar('No se pudo iniciar el micrófono.');
         return;
       }
+      if (cerrada) return;
       estado('escuchando', { segundosMaximos });
       return;
     }

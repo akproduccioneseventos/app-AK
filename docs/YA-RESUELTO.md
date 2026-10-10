@@ -1,5 +1,54 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Órdenes 146 y 147: la voz en vivo se corta y se reintenta de verdad, y el QR descargado lo lee el lector
+
+- **Cortar la voz (146):** antes, si se pulsaba Cortar mientras esperaba la ficha del servidor, el panel se iba
+  pero la respuesta tardía igual pedía el micrófono, abría el socket y volvía a mostrar el panel. Ahora cada
+  intento tiene identidad propia (`crearControlVozEnVivo`, `src/lib/asistente/control-voz-en-vivo.ts`): cortar,
+  cerrar el asistente o desmontarlo aborta el intento **antes de la primera espera**. `iniciarVozEnVivo` recibe
+  una señal (`senal`), la pasa al pedido y la mira después de cada espera (ficha, permiso del micrófono, audio):
+  lo que llega tarde se descarta, las pistas se paran y no se abre el socket ni se avisa nada.
+- **Reintentar (146):** un pedido que falló (por ejemplo 503) devolvía un objeto "detener" vacío que el widget
+  guardaba como sesión activa; el primer toque sólo lo limpiaba. Ahora lo que falla o se cierra por su cuenta no
+  queda guardado: el botón y el intento vigente son lo mismo, y **un solo toque** hace un pedido nuevo.
+  Dos inicios seguidos: sólo vive el último; la respuesta fuera de orden del anterior se descarta.
+- **Versión de Google (146):** la guía actual de Google documenta `v1beta` para las fichas temporales y el
+  socket en vivo, así que ese es el valor por omisión (`VERSION_API_EN_VIVO_POR_OMISION`). `GEMINI_LIVE_API_VERSION`
+  sigue mandando. La ruta lee la versión **una sola vez** y se la pasa a la ficha y al socket: no pueden salir de
+  versiones distintas. No se pudo probar contra Google real (sin clave en el contenedor): queda sin verificar.
+  Sin cambios: permiso de la ruta, ficha efímera, tope diario y corte duro, interrupción por voz, política de
+  reserva y devolución de minutos.
+- **QR descargado (147):** el canvas de pantalla (170 px, sin margen) del código de entrada de 57 módulos
+  tiene módulos de ~3 px; el lector de la app (html5-qrcode) no lo leía en algunos casos. "Guardar QR" ahora baja
+  un archivo armado con `qrParaDescargar` (`src/lib/qr/qr-para-descargar.ts`): se reconstruye la grilla de módulos
+  desde los píxeles (el tamaño se elige probando todos los posibles contra las esquinas fijas y la línea de puntos
+  del QR), se dibuja con módulos de tamaño entero (mín. 8 px, ~640 px de lado) y zona blanca de 4 módulos. Si no
+  se entiende el canvas, el respaldo agranda por un entero con borde blanco; nunca baja el canvas pelado.
+  Por qué no un simple 3x: Codex midió que el 3x con borde de 32 px **no** decodifica; con la reconstrucción
+  decodifica el PNG real que falló y códigos de otros largos. El token y el contenido no se tocan.
+  Barrido de otras descargas con la misma forma (`toDataURL` de un QR sin margen): la de la confirmación
+  (`src/app/invitacion/[fiestaId]/rsvp/page.tsx`, es el mismo QR de entrada) se arregló igual. **No se tocaron**
+  los QR de 80 a 100 px del muro social (`SeccionRedesSociales`, `ControlPanel`), regalos (`pagina-web`) y buscador
+  de mesas (`invitados`): se escanean con la cámara del teléfono, no con el lector de la app.
+- **Sin verificar acá:** las dos pruebas de navegador nuevas (`voz-en-vivo-reintento-y-cancelacion`,
+  `qr-descargado-lector-real`) se escribieron y no se corrieron. Tampoco se probó el revocado del token después de
+  abrir el lector (orden 147, aceptación): sigue cubierto por la prueba de la orden 143, no por esta.
+
+```comprobar
+archivo: src/lib/asistente/control-voz-en-vivo.ts
+usa: crearControlVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+usa: senal en src/lib/asistente/sesion-voz-en-vivo.ts
+usa: versionApiEnVivo en src/app/api/asistente/voz-en-vivo/route.ts
+archivo: src/lib/qr/qr-para-descargar.ts
+usa: qrParaDescargar en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
+usa: qrParaDescargar en src/app/invitacion/[fiestaId]/rsvp/page.tsx
+no-usa: await iniciarVozEnVivo en src/components/multiagent/multiagent-widget.tsx
+prueba: src/__tests__/la-voz-en-vivo-cancela-y-reintenta.test.ts
+prueba: src/__tests__/el-qr-descargado-lo-lee-el-lector.test.ts
+prueba: tests/e2e/voz-en-vivo-reintento-y-cancelacion.spec.ts
+prueba: tests/e2e/qr-descargado-lector-real.spec.ts
+```
+
 ## 10 de octubre de 2026 — Órdenes 144 y 145: la foto de Touchpix no sale negra, y una foto sin revisar no se pierde
 
 - **Touchpix (145):** el video de la cámara está oculto y el navegador lo dejaba en pausa con la señal

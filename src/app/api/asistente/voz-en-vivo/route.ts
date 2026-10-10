@@ -12,6 +12,7 @@ import {
   devolverMinutos,
   direccionDeLaFicha,
   direccionDelSocket,
+  versionApiEnVivo,
   minutosPermitidosPorDia,
   modelosEnVivo,
   reservarMinutos,
@@ -90,9 +91,11 @@ export async function POST() {
     const instrucciones = armarInstruccionesDeVoz(resumirContextoParaVoz(briefing as any));
     const voz = vozValida(ajustes.vozSeleccionada);
 
+    // Una sola lectura de la versión: la ficha y el socket no pueden salir de versiones distintas.
+    const version = versionApiEnVivo();
     let ultimoError = 'Google no entregó la ficha de la voz en vivo.';
     for (const modelo of modelosEnVivo()) {
-      const respuesta = await fetch(direccionDeLaFicha(apiKey), {
+      const respuesta = await fetch(direccionDeLaFicha(apiKey, version), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(armarCuerpoFicha({ modelo, voz, instrucciones, minutos: reservados })),
@@ -105,7 +108,7 @@ export async function POST() {
             model: modelo,
             voz,
             segundosMaximos: reservados * 60,
-            wsUrl: direccionDelSocket(datos.name),
+            wsUrl: direccionDelSocket(datos.name, version),
           },
           { headers: { 'Cache-Control': 'no-store' } },
         );

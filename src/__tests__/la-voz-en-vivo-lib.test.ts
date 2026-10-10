@@ -100,7 +100,7 @@ describe('la ficha temporal', () => {
     expect(modelosEnVivo('a, b')).toEqual(['a', 'b']);
     expect(modelosEnVivo(undefined)[0]).toBe('gemini-3.8-live');
     expect(direccionDelSocket('auth_tokens/x')).toBe(
-      'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained?access_token=auth_tokens%2Fx',
+      'wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained?access_token=auth_tokens%2Fx',
     );
   });
 });

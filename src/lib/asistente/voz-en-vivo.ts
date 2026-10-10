@@ -9,8 +9,10 @@
  * Por qué una ficha temporal: la clave de Google NUNCA viaja al navegador. El servidor pide una
  * ficha de un solo uso, que vence en pocos minutos y que sólo sirve para esta conversación.
  *
- * Endpoint: se usa `v1alpha` (donde Google publica las fichas temporales). Si en producción falla,
- * se cambia con la variable GEMINI_LIVE_API_VERSION (por ejemplo `v1beta`) sin tocar código.
+ * Endpoint: se usa `v1beta`, que es la versión que hoy documenta Google para las fichas temporales
+ * y para el socket en vivo (orden 146). Se cambia con la variable GEMINI_LIVE_API_VERSION sin tocar
+ * código. La ficha y el socket SIEMPRE salen de la misma versión: la ruta la lee una sola vez
+ * (`versionApiEnVivo()`) y se la pasa a las dos direcciones.
  */
 import { VOCES_IA_DISPONIBLES, VOZ_POR_OMISION } from '@/lib/asistente/voz-gemini';
 
@@ -22,7 +24,7 @@ export const MINUTOS_POR_DIA_POR_OMISION = 10;
 export const PRECIO_REFERENCIA_POR_MINUTO_USD = 0.023;
 
 export const MODELOS_EN_VIVO_POR_OMISION = 'gemini-3.8-live,gemini-2.5-flash-native-audio-preview-12-2025';
-export const VERSION_API_EN_VIVO_POR_OMISION = 'v1alpha';
+export const VERSION_API_EN_VIVO_POR_OMISION = 'v1beta';
 
 export function modelosEnVivo(env: string | undefined = process.env.GEMINI_LIVE_MODEL): string[] {
   const lista = (env || MODELOS_EN_VIVO_POR_OMISION).split(',').map((m) => m.trim()).filter(Boolean);

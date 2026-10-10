@@ -1,5 +1,6 @@
 'use client';
 
+import { qrParaDescargar } from '@/lib/qr/qr-para-descargar';
 import { Suspense, useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
 import { Loader2, AlertTriangle, CheckCircle, Music, Utensils, Users, Download, MapPin, CalendarDays, Instagram, MessageCircle, ExternalLink } from 'lucide-react';
@@ -138,7 +139,8 @@ function RsvpFormContent() {
   const downloadQR = () => {
     const canvas = document.getElementById('qr-rsvp-guest') as HTMLCanvasElement;
     if (canvas) {
-      const pngUrl = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+      // Misma entrada que la del portal: con zona blanca y módulos enteros para el lector de la app.
+      const pngUrl = (qrParaDescargar(canvas) as HTMLCanvasElement).toDataURL('image/png').replace('image/png', 'image/octet-stream');
       const link = document.createElement('a');
       link.href = pngUrl;
       link.download = `QR-Entrada-${confirmedGuest?.nombre}.png`;
