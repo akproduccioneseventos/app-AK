@@ -36,9 +36,12 @@ Responde directamente con el texto en formato legible (usando saltos de línea y
       prompt,
     });
 
-    return result.text;
+    const texto = (result.text || '').trim();
+    if (!texto) throw new Error('La IA devolvió el perfil vacío.');
+    return texto;
   } catch (error) {
+    // Antes devolvía el cartel de error como si fuera el perfil musical. Ahora falla de verdad.
     console.error('Error in generateDjProfileFlow:', error);
-    return 'Hubo un error al generar el perfil musical.';
+    throw new Error('No pude armar el perfil musical, probá de nuevo en un momento.');
   }
 }
