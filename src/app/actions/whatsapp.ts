@@ -5,7 +5,8 @@ import type { WhatsAppConfig, WhatsAppConversation, WhatsAppMessage, WhatsAppSta
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import type { CrmLead } from '@/types/crm';
 import { createNotification } from '@/lib/notifications/create-notification';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 
@@ -57,7 +58,7 @@ export async function getPublicWhatsAppNumber(): Promise<string> {
 export async function saveWhatsAppConfig(
   config: Partial<WhatsAppConfig>
 ): Promise<{ success: boolean; config?: WhatsAppConfig; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   try {
     const current = await getWhatsAppConfig();
     const toSave: WhatsAppConfig = {

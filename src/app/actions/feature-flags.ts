@@ -8,7 +8,8 @@ import type {
   FeatureModule,
 } from '@/types/feature-flags';
 import { TIER_DEFINITIONS, ALL_MODULES } from '@/types/feature-flags';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const FLAGS_FILE = 'feature-flags.json';
 
@@ -36,7 +37,7 @@ export async function getFeatureFlags(): Promise<GlobalFeatureFlags> {
 }
 
 export async function updateDefaultTier(tier: ServiceTier): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   if (!VALID_TIERS.has(tier)) {
     return { success: false, error: 'Tier inválido.' };
   }
@@ -55,7 +56,7 @@ export async function updateGlobalOverride(
   module: FeatureModule,
   enabled: boolean | null
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   if (!VALID_MODULES.has(module)) {
     return { success: false, error: 'Módulo inválido.' };
   }
@@ -80,7 +81,7 @@ export async function setEventTier(
   fiestaId: string,
   tier: ServiceTier
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   if (!isSafeKey(fiestaId)) {
     return { success: false, error: 'ID de evento inválido.' };
   }
@@ -116,7 +117,7 @@ export async function setEventModuleOverride(
   module: FeatureModule,
   enabled: boolean | null
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   if (!isSafeKey(fiestaId)) {
     return { success: false, error: 'ID de evento inválido.' };
   }

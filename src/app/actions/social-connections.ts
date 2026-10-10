@@ -3,7 +3,8 @@
 
 import type { SocialConnection, SocialPlatformName } from '@/types/settings';
 import { readData, writeData } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const CONNECTIONS_FILE = 'social-connections.json';
 
@@ -55,7 +56,7 @@ export async function saveWhatsAppNumber(
   phoneNumber: string,
   logoUrl?: string
 ): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   if (!phoneNumber || !/^\d+$/.test(phoneNumber.replace(/\s/g, ''))) {
     return { success: false, error: "Por favor, ingresa un número de teléfono válido (solo dígitos)." };
   }
@@ -89,7 +90,7 @@ export async function saveSocialLink(
   url: string,
   logoUrl?: string
 ): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   if (platform === 'WhatsApp') {
     return { success: false, error: 'Usa la función de guardar número para WhatsApp.' };
   }
@@ -119,7 +120,7 @@ export async function saveSocialLink(
 }
 
 export async function disconnectSocialPlatform(platform: SocialPlatformName): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   let connections = await leerConexiones();
   const initialLength = connections.length;
   connections = connections.filter(c => c.platform !== platform);
@@ -142,7 +143,7 @@ export async function saveMetaPublishingCredentials(params: {
   instagramAccountId?: string;
   pageName?: string;
 }): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
 
   const { pageId, pageAccessToken, instagramAccountId, pageName } = params;
 
@@ -216,7 +217,7 @@ export async function saveSocialCredentials(
     webhookUrl?: string;
   }
 ): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
 
   const connections = await leerConexiones();
   const existingIndex = connections.findIndex((c) => c.platform === platform);
@@ -247,7 +248,7 @@ export async function saveUnifiedGatewaySettings(params: {
   webhookUrl: string;
   apiKey?: string;
 }): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ADMINISTRACION);
   const { webhookUrl, apiKey } = params;
 
   if (!webhookUrl || !webhookUrl.startsWith('http')) {

@@ -4,7 +4,8 @@ import type { EventoInvitacionConfig } from '@/types/evento-invitacion';
 import { defaultEventoInvitacionConfig } from '@/types/evento-invitacion';
 import { readData, writeData } from '@/lib/data-service';
 import * as logger from '@/lib/logger';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermisoAlguno } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const INVITACION_CONFIG_FILE = 'invitacion-configs.json';
 
@@ -28,7 +29,7 @@ export async function saveInvitacionConfig(
   fiestaId: string,
   config: EventoInvitacionConfig
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  await requirePermisoAlguno(PERMISOS.ORGANIZACION, PERMISOS.ADMINISTRACION);
   try {
     const store = await readData<InvitacionConfigStore>(INVITACION_CONFIG_FILE, {});
     store[fiestaId] = config;

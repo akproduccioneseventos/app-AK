@@ -21,6 +21,7 @@ let mockVideosEnMemoria: any[] = [];
 
 jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue({ userId: 'admin', role: 'admin' }),
+  requirePermisoAlguno: jest.fn().mockResolvedValue(undefined),
 }));
 
 jest.mock('@/lib/auth/session-token', () => ({
