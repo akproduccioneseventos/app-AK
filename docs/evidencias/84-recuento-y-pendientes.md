@@ -1,6 +1,45 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
-9/10/2026. Main contrastado: `859fd23b1175646edc0209cab114241327d302ba`.
+## Actualizacion91: recibos finales de personal
+
+Leer `91-personal-recibos-final.md`. Firmado PC/movil:2E2E pasan con bytes
+en Storage/enlace200PDF, recarga/otra sesion, empleado/fiesta aislados.
+Orden142Claude: centavo en desglose, Reemplazar rechaza, fecha un dia antes.
+Fecha requiere recuperar raw mediante reejecucion; PDF/semilla preservados.
+No area personal entera, no firma legal/hardware ni0errores. No repetir cobros.
+
+## Actualizacion90: descarga final del album
+
+Leer `90-album-descarga-final.md`. FotosZIP PC/movil:2E2E aprobados con bytes
+exactos, sin cuenta/admin, excluye pendientes/ocultos/otra fiesta, recarga.
+Dos defectos nuevos orden141Gemini: WebM nombrado.jpg y ZIP sin medios anuncia2.
+NO todo ZIP aprobado, no todas estaciones, no0errores. TikTokfinal sigue limite81.
+
+## Actualizacion 89: contenido de fotocabina y color del portal
+
+Leer `89-fotocabina-y-portal-color.md`. Color portal PC/movil: UI->SDK->otro
+navegador conserva color elegido y no altera otra fiesta; 2E2E, no area entera.
+Fotocabina: entrega/composicion88 no acreditaban imagen de camara. Nueva sonda
+con control independiente MISMA senal obtiene fotografia negra: ENT89-IMAGEN P1,
+orden140 Gemini. No es solo archivo existente ni tiempo de espera; no hardware.
+No volver a probar los otros14recorridos88 ni fabricar certificados por helpers.
+
+## Actualizacion88 (10/10/2026, prevalece sobre estados historicos abajo)
+
+Fuente ejecutada2aac14e2; contraste0af74652 con delta solo permisos de fiestas.
+Leer `88-cierre-retets-y-limites.md`:140controles y14E2Eunicos acotados aprobados.
+Aceptados:135controles,136entregaoficial final,VID87-CIERRE; NuevaFactura PC/movil;
+ultimo750/saldo0/recibo/otrolector; carga/otrooperador; contrato45clausulas/papel/
+aislamiento; compartirtoken/cliente; tiposBoda/XV/default; PDFcomun2A4 futuro;
+fotocabina3fotos/tira. No repetir estos resultados sin cambio causal.
+COM88-UNIDADES nuevoP1 en compra:200g+2kg sale202g/$20, ORDEN139Claude pendiente.
+3D historico aun falla reconciler conWebGL y no produce canvas: no foto=3D.
+Reemplazo video final aun no aceptado por limitehostdev/emulador, no defecto
+publicado demostrado. ZIP/signedURL, comida integrada/restoportales/variantesIA,
+otras salidas de estaciones/consumidoresautomaticos y externos permanecen acotados.
+No14areaslimpias ni0errores. Los informes originales siguientes quedan HISTORICOS.
+
+9/10/2026, recuento original. Main contrastado: `859fd23b1175646edc0209cab114241327d302ba`.
 Rama documental: `codex/auditoria-83-contrato-estaciones-20261009`, PR 1277.
 Base de esta entrega: `422b62ba8c9f9b671ec90675626bb409f0b325a2`.
 Codex revisa y registra; no modifica la app ni fusiona. Trabajo local de otras IA

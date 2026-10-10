@@ -22,6 +22,10 @@ jest.mock('@/lib/data-service', () => ({
   }),
 }));
 
+// Las tareas que leen fiestas iban a la base de verdad y esperaban su corte de 3,5 s: con la
+// máquina cargada la prueba pasaba los 5 s y fallaba por tiempo, no por el turno que mira.
+jest.mock('@/lib/fiesta/leer-fiestas', () => ({ leerFiestasCrudas: jest.fn(async () => []) }));
+
 // Mock de las funciones internas que ejecutan las tareas
 jest.mock('@/lib/presencia-digital/guardado-diario', () => ({
   guardarMetricasDelDia: jest.fn().mockResolvedValue({ totalNetworks: 1 }),

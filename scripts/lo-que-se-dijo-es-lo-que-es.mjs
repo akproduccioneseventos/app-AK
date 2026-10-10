@@ -59,7 +59,8 @@ function archivosQueCambiaron() {
       .split('\n')
       .map((s) => s.trim())
       .filter(Boolean)
-      .filter((f) => /\.tsx?$/.test(f));
+      .filter((f) => /\.tsx?$/.test(f))
+      .filter((f) => !f.startsWith('docs/evidencias/'));
   }
   const base = baseDeComparacion();
   if (!base) return null;
@@ -69,9 +70,13 @@ function archivosQueCambiaron() {
     .split('\n')
     .map((s) => s.trim())
     .filter(Boolean)
-    .filter((f) => /\.tsx?$/.test(f));
+    .filter((f) => /\.tsx?$/.test(f))
+      .filter((f) => !f.startsWith('docs/evidencias/'));
 }
 
+// docs/evidencias/ son las sondas de Codex: corren sólo en su entorno aislado, no son pruebas de
+// la app (tsconfig también las deja afuera). Una prueba de la app en tests/ o __tests__ se sigue
+// mirando igual.
 function leer(archivo) {
   try {
     return readFileSync(archivo, 'utf8');

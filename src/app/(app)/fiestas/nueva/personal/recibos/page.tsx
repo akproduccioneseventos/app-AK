@@ -23,6 +23,8 @@ import { Suspense } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { formatearFechaEvento } from '@/lib/fechas/formato-fecha-evento';
+import { calculateSalaryBreakdown } from '@/lib/personal/desglose-recibo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const RECIBOS_CONFIG_KEY = 'ak-recibos-config';
@@ -48,13 +50,11 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(amount);
 };
 
+// Un "2026-12-12" leído con new Date() es medianoche de Greenwich: en Uruguay es el día anterior,
+// y el recibo salía con la fecha corrida (Codex, auditoría 91). Se usa el formateador del evento.
 const formatDate = (dateString?: string) => {
   if (!dateString) return "____________";
-  try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch {
-    return "Fecha inválida";
-  }
+  return formatearFechaEvento(dateString);
 };
 
 interface FullStaffDetail {
@@ -65,26 +65,10 @@ interface FullStaffDetail {
   employerContribution: number;
 }
 
-interface SalaryBreakdown {
-  base: number;
-  vacacional: number;
-  aguinaldo: number;
-}
-
 interface ReceiptEntry {
   fiesta: FiestaEnPlanificacion;
   detail: FullStaffDetail;
 }
-
-const calculateSalaryBreakdown = (totalPayment: number, rol?: Rol): SalaryBreakdown => {
-  const vacacionalPct = (rol?.porcentajeSalarioVacacional ?? 0) / 100;
-  const aguinaldoPct = (rol?.porcentajeAguinaldo ?? 0) / 100;
-  const divisor = 1 + vacacionalPct + aguinaldoPct;
-  const sueldoBase = divisor > 0 ? totalPayment / divisor : totalPayment;
-  const salarioVacacional = sueldoBase * vacacionalPct;
-  const aguinaldo = sueldoBase * aguinaldoPct;
-  return { base: sueldoBase, vacacional: salarioVacacional, aguinaldo: aguinaldo };
-};
 
 function RecibosDePagoContent() {
   const { toast } = useToast();

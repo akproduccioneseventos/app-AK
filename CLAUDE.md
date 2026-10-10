@@ -1237,6 +1237,11 @@ lo que hice?* Si es lo segundo, no se manda.
 
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
+- **Todo lo programa Claude con ayudantes económicos; Gemini ya no (10 de octubre de 2026).**
+  Palabras suyas: *"todo debes programar tú con agentes económicos, gemini no"*. Manda sobre el
+  reparto de más arriba: las órdenes que Codex marca "para Gemini" las programa un ayudante barato
+  en una copia aparte; Claude revisa, prueba, verifica y fusiona. No se escriben más órdenes para Gemini.
+
 - **Los errores que aparecen son viejos: se buscan los iguales, y cada pregunta nueva barre la app
   (8 de octubre de 2026).** Palabras suyas: *"siempre los errores son viejos, habría que buscar ese
   tipo de errores, y si agregaste cosas a la lista lo mismo"* y *"y si hay nuevas cosas en la

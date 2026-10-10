@@ -1,6 +1,7 @@
-# Estado actual — 10/10/2026 (Claude)
+# Estado actual - 10/10/2026 (Codex88-91)
 
-Main en `2aac14e29` (PR 1280). Rama de Claude: `claude/app-debug-stabilize-m70e6z`, igual a main.
+Main contrastado0af74652; fuente ejecutada2aac14e2. Delta1281: permisos de fiestas.
+Rama QA `codex/auditoria-88-cierre-20261009`, sin producto ni fusion.
 
 ## Lo que entró hoy (todo con la puerta en verde)
 - PR 1279: auditoría 86 de Codex (IA: tareas a la vez, avisos falsos, voz parada, agente de
@@ -17,10 +18,22 @@ Main en `2aac14e29` (PR 1280). Rama de Claude: `claude/app-debug-stabilize-m70e6
   para cancelar Robert Moreira (10/10) y Lorena Ferreira (12/12) y tocar "Aplicar".
   Soraya Texeira NO se toca. Desde el contenedor no hay acceso a la base real.
 
-## Para Codex
-- 135, 136, 137 y 138 están programadas: re-probar sólo esos consumidores sobre main 2aac14e29.
-- Pendiente afuera: audio real de Gemini en un teléfono.
+## Resultado Codex88
+- 112 controles135-138 y28financieros aprobados, no proveedores/base real.
+- 7E2E estables: factura PC/movil, carga/otrooperador, contrato/papel/aislamiento,
+  entregaoficial/reload/otraclave, ultimo750/saldo0/recibo, carga cerrada rechazada.
+- COM88-UNIDADES P1 nuevo:200g+2kg sale202g/$20. ORDEN139 Claude, PENDIENTE.
+- 3D historico SIN aceptar: WebGL disponible, falla reconciler, muestra foto.
+- Video reemplazo limitado por host del emulador; no fallo publicado demostrado.
+- Total14E2Eunicos: tambien compartir/tiposBodaXV/PDFcomun2A4/fotocabina3fotos.
+- Informe88 y matriz84 conservan huecos. NO14areaslimpias ni0errores.
+- ENT89-IMAGEN P1: camara nativa trae senal, fotocabina compone negro; orden140 Gemini.
+- Portal color PC/movil: 2E2E UI->SDK->otro navegador; otra fiesta intacta. Informe89.
+- Album90: fotosZIP PC/movil2E2E pasan; WebM nombrado.jpg y ZIPvacio anuncia2.
+- Orden141Gemini pendiente.91firmado PC/movil pasa;3P2 orden142Claude pendiente.
 
 ## Abierto
-- PR 1277 (Codex, documental). Su contenido hasta `4d6562ae` ya está en main.
+- PR1282 abierta: evidencia/ordenes139-142, sin producto. NO fusion documental sola.
 - Hecho: borrar, archivar, cancelar y reactivar una fiesta piden permiso (no sólo sesión).
+- Por fuera:19originales sin lectura, cuentas/proveedores/audio/hardware reales.
+- Mejoras de toda la app/IA para DESPUES del cierre, sin ampliar alcance ahora.

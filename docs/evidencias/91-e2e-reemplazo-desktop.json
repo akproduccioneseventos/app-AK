@@ -1,0 +1,202 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/91-personal-recibo-final.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--grep",
+      "Reemplazar",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "91-personal-recibo-final.spec.ts",
+      "file": "91-personal-recibo-final.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Reemplazar debe permitir cambiar el papel firmado sin deshacer el pago",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 22906,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\u001b[7mreemplazo\u001b[27m-a91.pdf\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7manterior\u001b[27m-a91.pdf\"\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\u001b[7mreemplazo\u001b[27m-a91.pdf\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7manterior\u001b[27m-a91.pdf\"\u001b[39m\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts:172:35",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts",
+                      "column": 35,
+                      "line": 172
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 170 |\u001b[39m     expect(despues\u001b[33m.\u001b[39mestado)\u001b[33m.\u001b[39mtoBe(\u001b[32m'firmado_subido'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 171 |\u001b[39m     expect(despues\u001b[33m.\u001b[39mmonto)\u001b[33m.\u001b[39mtoBe(\u001b[35m1000\u001b[39m)\u001b[33m;\u001b[39mexpect(despues\u001b[33m.\u001b[39mfecha)\u001b[33m.\u001b[39mtoBe(\u001b[32m'2026-10-10'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 172 |\u001b[39m     expect(despues\u001b[33m.\u001b[39marchivoNombre)\u001b[33m.\u001b[39mtoBe(\u001b[32m'reemplazo-a91.pdf'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 173 |\u001b[39m   }\u001b[36mfinally\u001b[39m{\u001b[36mawait\u001b[39m s\u001b[33m.\u001b[39mlimpiar()\u001b[33m;\u001b[39m}\n \u001b[90m 174 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 175 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts",
+                        "column": 35,
+                        "line": 172
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m\"\u001b[7mreemplazo\u001b[27m-a91.pdf\"\u001b[39m\nReceived: \u001b[31m\"\u001b[7manterior\u001b[27m-a91.pdf\"\u001b[39m\n\n  170 |     expect(despues.estado).toBe('firmado_subido');\n  171 |     expect(despues.monto).toBe(1000);expect(despues.fecha).toBe('2026-10-10');\n> 172 |     expect(despues.archivoNombre).toBe('reemplazo-a91.pdf');\n      |                                   ^\n  173 |   }finally{await s.limpiar();}\n  174 | });\n  175 |\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts:172:35"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:46:52.907Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "reemplazo-firmado.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJhbnRlcyI6IHsKICAgICJpZCI6ICJyX2UyZV9wZXJzb25hbDkxXzE0MDMyXzE3OTE2NDcyMTMzMTIiLAogICAgImZpZXN0YUlkIjogImUyZV9wZXJzb25hbDkxXzE0MDMyXzE3OTE2NDcyMTMzMTIiLAogICAgImVtcGxlYWRvSWQiOiAiZW1wX2UyZV9wZXJzb25hbDkxXzE0MDMyXzE3OTE2NDcyMTMzMTIiLAogICAgIm1vbnRvIjogMTAwMCwKICAgICJmZWNoYSI6ICIyMDI2LTEwLTEwIiwKICAgICJlc3RhZG8iOiAiZmlybWFkb19zdWJpZG8iLAogICAgImFyY2hpdm9VcmwiOiAiaHR0cDovLzEyNy4wLjAuMTo5MTk1L3YwL2IvZGVtby1hay1wcm9kdWNjaW9uZXMuYXBwc3BvdC5jb20vby9wdWJsaWMtcGFnZS1hc3NldHMlMkZwZXJzb25hbC1yZWNpYm9zJTJGZW1wX2UyZV9wZXJzb25hbDkxXzE0MDMyXzE3OTE2NDcyMTMzMTIlMkZhbnRlcmlvci1hOTEucGRmP2FsdD1tZWRpYSZ0b2tlbj1maWN0aWNpby1hOTEiLAogICAgImFyY2hpdm9Ob21icmUiOiAiYW50ZXJpb3ItYTkxLnBkZiIsCiAgICAiY3JlYXRlZEF0IjogIjIwMjYtMTAtMTBUMTU6NDY6NTYuMDkxWiIsCiAgICAidXBkYXRlZEF0IjogIjIwMjYtMTAtMTBUMTU6NDY6NTYuMDkxWiIKICB9LAogICJkZXNwdWVzIjogewogICAgImlkIjogInJfZTJlX3BlcnNvbmFsOTFfMTQwMzJfMTc5MTY0NzIxMzMxMiIsCiAgICAiZmllc3RhSWQiOiAiZTJlX3BlcnNvbmFsOTFfMTQwMzJfMTc5MTY0NzIxMzMxMiIsCiAgICAiZW1wbGVhZG9JZCI6ICJlbXBfZTJlX3BlcnNvbmFsOTFfMTQwMzJfMTc5MTY0NzIxMzMxMiIsCiAgICAibW9udG8iOiAxMDAwLAogICAgImZlY2hhIjogIjIwMjYtMTAtMTAiLAogICAgImVzdGFkbyI6ICJmaXJtYWRvX3N1YmlkbyIsCiAgICAiYXJjaGl2b1VybCI6ICJodHRwOi8vMTI3LjAuMC4xOjkxOTUvdjAvYi9kZW1vLWFrLXByb2R1Y2Npb25lcy5hcHBzcG90LmNvbS9vL3B1YmxpYy1wYWdlLWFzc2V0cyUyRnBlcnNvbmFsLXJlY2lib3MlMkZlbXBfZTJlX3BlcnNvbmFsOTFfMTQwMzJfMTc5MTY0NzIxMzMxMiUyRmFudGVyaW9yLWE5MS5wZGY/YWx0PW1lZGlhJnRva2VuPWZpY3RpY2lvLWE5MSIsCiAgICAiYXJjaGl2b05vbWJyZSI6ICJhbnRlcmlvci1hOTEucGRmIiwKICAgICJjcmVhdGVkQXQiOiAiMjAyNi0xMC0xMFQxNTo0Njo1Ni4wOTFaIiwKICAgICJ1cGRhdGVkQXQiOiAiMjAyNi0xMC0xMFQxNTo0Njo1Ni4wOTFaIgogIH0sCiAgImF2aXNvcyI6IFsKICAgICJOb3RpZmljYXRpb24gRXN0YWRvIHJlcXVlcmlkb1ByaW1lcm8gbWFyY2EgZWwgcmVjaWJvIGNvbW8gXCJwYWdhZG9cIi4iCiAgXSwKICAiYXJjaGl2b3MiOiBbCiAgICAicHVibGljLXBhZ2UtYXNzZXRzL3BlcnNvbmFsLXJlY2lib3MvZW1wX2UyZV9wZXJzb25hbDkxXzE0MDMyXzE3OTE2NDcyMTMzMTIvYW50ZXJpb3ItYTkxLnBkZiIKICBdCn0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-R-f9e4f-irmado-sin-deshacer-el-pago-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-R-f9e4f-irmado-sin-deshacer-el-pago-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-R-f9e4f-irmado-sin-deshacer-el-pago-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-R-f9e4f-irmado-sin-deshacer-el-pago-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-R-f9e4f-irmado-sin-deshacer-el-pago-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\91-personal-recibo-final-R-f9e4f-irmado-sin-deshacer-el-pago-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\91-personal-recibo-final.spec.ts",
+                    "column": 35,
+                    "line": 172
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "57cb4c1f1ecd92f0c257-1c779efde318adc79104",
+          "file": "91-personal-recibo-final.spec.ts",
+          "line": 140,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T15:46:49.998Z",
+    "duration": 27212.919,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

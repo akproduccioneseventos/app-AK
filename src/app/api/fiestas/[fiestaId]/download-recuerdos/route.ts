@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
+import { detectarExtension } from '@/lib/album/armar-zip-del-album';
 import { getSocialPosts } from '@/app/actions/social-gallery';
 import { getDedications } from '@/app/actions/social-interactive';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
@@ -192,8 +193,12 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
       }
 
       // Determine extension and clean name
-      const isVideo = post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
-      const ext = isVideo ? '.mp4' : '.jpg';
+      // El formato sale de los bytes reales (un WebM no puede llamarse .mp4 ni un PNG .jpg).
+      const extReal = detectarExtension({ datos: fileContent, mediaType: post.mediaType, url: post.imageUrl });
+      const isVideo = extReal
+        ? ['webm', 'mp4', 'mov', 'ogv', 'mkv'].includes(extReal)
+        : post.mediaType === 'video';
+      const ext = extReal ? `.${extReal}` : '';
       const cleanAuthor = post.authorName.replace(/[^a-zA-Z0-9-_]/g, '_');
       const filename = `${cleanAuthor}_${post.id}${ext}`;
 

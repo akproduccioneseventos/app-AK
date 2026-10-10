@@ -1078,3 +1078,14 @@ barrió la app con ella (32 ajustes más con la misma forma) y quedó el control
 prueba: src/__tests__/la-configuracion-general-pide-permiso.test.ts
 prueba: src/__tests__/portal-entregas-y-agentes-86.test.ts
 ```
+
+## 10 de octubre de 2026 — La lista de compras seguía sumando gramos con kilos (Codex, auditoría 88)
+
+Lo había dado por arreglado en septiembre. La prueba de entonces miraba que la función de la clave
+convirtiera bien y que las pantallas **nombraran** esa función: el ingrediente, no el resultado
+(error 7 de CLAUDE.md). La pantalla juntaba bien por clave y sumaba los números sin convertir.
+**Ahora la cuenta vive en una función que llaman las dos pantallas y la prueba mira el número.**
+
+```comprobar
+prueba: src/__tests__/compras-suman-en-la-misma-unidad.test.ts
+```

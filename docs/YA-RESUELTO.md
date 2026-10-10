@@ -1,5 +1,153 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 10 de octubre de 2026 — Recibos del personal (orden 142) y la espera de la fotocabina
+
+- **El desglose del recibo no sumaba el total**: $1.000 con 8,33 % y 8,33 % daba $999,99 (y con
+  5 % y 10 %, $1.000,01), porque cada renglón se redondeaba por su lado. Ahora el aguinaldo se
+  lleva la diferencia y las tres líneas suman el total impreso (`calculateSalaryBreakdown`, movida
+  a `src/lib/personal/desglose-recibo.ts`).
+- **"Reemplazar" el papel de un recibo firmado se rechazaba**: la pantalla sólo aceptaba "pagado".
+  Ahora acepta también "firmado"; el servidor sigue sin dejar cambiar monto ni fecha.
+- **La fecha del recibo salía un día antes** (fiesta del 10, papel del 9): se leía "2026-10-10"
+  como medianoche de Greenwich. Ahora usa `formatearFechaEvento`.
+- **Fotocabina**: el arreglo de la foto negra esperaba hasta 3 s un cuadro nuevo en cada foto y la
+  vista previa llegaba tarde (medido: con la versión vieja la prueba de corte de red pasaba, con la
+  espera fallaba). Si el video ya anda y tiene cuadro, se dibuja enseguida; sólo se lo pone en
+  marcha si está en pausa. Las cinco pruebas de navegador de la fotocabina pasan.
+
+```comprobar
+prueba: src/__tests__/recibos-del-personal-suman-y-se-reemplazan.test.ts
+usa: calculateSalaryBreakdown en src/app/(app)/fiestas/nueva/personal/recibos/page.tsx
+usa: formatearFechaEvento en src/app/(app)/fiestas/nueva/personal/recibos/page.tsx
+prueba: src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts
+```
+
+## 10 de octubre de 2026 - El ZIP del album entrega el formato real y dice lo que entro (orden 141)
+
+- Estaba mal: un video WebM llegaba al ZIP con nombre `.jpg`, y si todas las descargas fallaban
+  se bajaba un ZIP vacio con el cartel "Se empaquetaron N recuerdos" contando los pedidos.
+- Ahora el nombre sale del formato real (tipo MIME de la respuesta, primeros bytes del archivo,
+  y recien despues la extension del camino de la direccion, nunca la parte `?...`); no se
+  transcodifica. Si no se puede saber, el archivo va sin extension inventada y se avisa. Con cero
+  recuerdos bajados no se entrega ZIP: sale un aviso de fallo con boton "Reintentar". Con algunos
+  bajados se entrega lo que hay y se dice "Se empaquetaron N de M; no se pudieron bajar K".
+- Mismo defecto en el ZIP del equipo (`download-recuerdos`): forzaba `.mp4`/`.jpg`; ahora usa
+  el mismo detector.
+- Por que asi: la logica vive en un ayudante probado sobre resultados, no copiada en la pantalla.
+  La prueba de navegador de la orden sigue pendiente.
+
+```comprobar
+archivo: src/lib/album/armar-zip-del-album.ts
+usa: bajarRecuerdosParaZip en src/app/evento/album/[fiestaId]/page.tsx
+usa: detectarExtension en src/app/api/fiestas/[fiestaId]/download-recuerdos/route.ts
+prueba: src/__tests__/el-album-entrega-lo-que-dice.test.ts
+```
+
+## 10 de octubre de 2026 - La lista de compras suma gramos con kilos de verdad (orden 139)
+
+- Estaba mal: 200 g de un plato y 2 kg de otro caian en un solo renglon, pero se sumaban
+  los numeros crudos: "202 G" y $20 en vez de 2,20 kg y $220. El stock y el precio del
+  catalogo tampoco se pasaban a la unidad del renglon.
+- Ahora la lista de compras y el resumen de planificacion usan la misma cuenta
+  (`consolidarCompras`): todo se pasa a la unidad del renglon (kg o l) antes de sumar,
+  restar stock y multiplicar el precio. Unidad desconocida queda aparte; peso y volumen
+  nunca se mezclan. El redondeo para arriba sigue igual, al escalon mas chico que aparecio
+  (200 g + 2 kg se redondea al gramo). El texto al proveedor sale con la cantidad convertida.
+- Por que asi: una sola funcion probada sobre el resultado, no dos copias de la cuenta.
+
+```comprobar
+archivo: src/lib/compras/consolidar-compras.ts
+usa: consolidarCompras en src/app/(app)/fiestas/nueva/catering/lista-compras/page.tsx
+usa: consolidarCompras en src/app/(app)/fiestas/nueva/resumen-planificacion/page.tsx
+prueba: src/__tests__/compras-suman-en-la-misma-unidad.test.ts
+
+## 10/10/2026 - Orden 140: la fotocabina ya no entrega la foto negra
+
+- **Causa: inferida por lectura del codigo, NO medida en un navegador.** El video de la camara
+  (`<video className="hidden">`) arrancaba solo con `autoPlay`, nadie llamaba a `play()`, y
+  `captureToCanvas` solo miraba `readyState` y ancho. Un video oculto puede quedar en pausa con
+  la senal viva y `readyState` 4 (justo lo que midio Codex), y dibujarlo da negro. Ademas el
+  efecto de estado volvia a pedir la camara en cada cambio (espera, cuenta, foto), cortando y
+  re-enganchando la senal.
+- Ahora: antes de dibujar, `asegurarCuadroDeVideo` (`src/lib/entertainment/camera-readiness.ts`)
+  re-engancha la senal si el video cambio, lo pone a andar y espera un cuadro real. Si no hay,
+  aviso visible con boton "Reintentar camara" y NO se guarda ni entrega nada. La camara viva de la
+  misma cara no se corta en cada cambio de estado.
+- Por que asi: no hay umbral de oscuridad, para no rechazar fotos oscuras de verdad (decision de
+  la orden). La prueba de navegador queda escrita y SIN correr.
+
+```comprobar
+archivo: src/lib/entertainment/camera-readiness.ts
+usa: asegurarCuadroDeVideo en src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: src/__tests__/la-fotocabina-no-dibuja-un-video-pausado.test.ts
+prueba: tests/e2e/la-fotocabina-saca-la-foto-con-imagen.spec.ts
+```
+
+## 10/10/2026 - Codex91: recibo firmado y papel de personal
+
+- Firmado PC/movil: dos E2E pasan; Storage bytes/enlace200PDF, recarga/otra
+  sesion, otro empleado y otra fiesta intactos. No firma legal ni pago bancario.
+- Tres P2 pendientes orden142Claude:857.19+71.40+71.40!=1000; Reemplazar
+  rechaza firmado; fecha2026-10-10 aparece9 en papel. Informe91/raws/PDF.
+- Dos intentos de selector de fecha descartados como QA. Ultimo raw de fecha
+  perdido al desaparecer TEMP; repetir antes de aceptar, no inventar archivo.
+- Actualizacion en1282 sin producto/fusion. No limpieza SDK final adicional ni
+  build global acreditados. No repetir lo aprobado sin cambio causal.
+
+## 10/10/2026 - Codex90: el ZIP del album se abrio de verdad
+
+- Dos aprobaciones PC/movil: boton real descarga PNG/JPEG con bytes exactos;
+  sin cuenta ni endpoint admin, pendientes/ocultos/otra fiesta fuera, recarga bien.
+- ENT90-FORMATO P1: video WebM reproducible llega intacto pero nombrado.jpg.
+- ENT90-VACIO P1: corte de sus GET deja ZIP sin medios y anuncia dos entregados.
+  Orden141 Gemini; Claude compila. Correcciones PENDIENTES, no producto modificado.
+  Raws/ZIP/capturas90, informe90. Agregado a1282, no otraPR/fusion documental sola.
+- Descartes QA: fixtures sin destructurar y clic antes de hidratacion; raws
+  conservados. No certificados por boton existente ni ZIP generado sin abrir.
+- Seguimiento TikTok final sigue limite81, no otra orden ni proveedor real probado.
+
+## 10/10/2026 - Codex89: imagen dentro de la fotocabina y color del portal
+
+- ENT89-IMAGEN nuevo, orden140 Gemini: la misma camara nativa falsa muestra imagen
+  en reproductor independiente, pero fotocabina compone foto negra (0/280000
+  pixeles en region fotografica). Evidencia89 adjunta; no hardware/Hosting probado.
+  No aprobar captura por plantilla, dimensiones, QR o ausencia de excepciones.
+- Portal color: 2E2E PC/movil aprobados; UI cambia, SDK conserva y otro navegador
+  recibe, otra fiesta intacta. No reabrir ese resultado sin delta.
+- Descartes QA: descarga de Storage no es imagen inline; igualdad con senal
+  repetida no es defecto; una foto no tiene miniaturas de tres. Se descarto
+  sugerencia del ayudante sobre PublicPortalView por no ser consumidor actual.
+- Se agrega a1282, sin programar, otra PR ni fusion. Informe89 y matriz84.
+
+## 10/10/2026 - Codex88: retest, resultados finales y compras
+
+Fuente ejecutada2aac14e290b20945bd984a0c5e2ffdbe50eb853c; entrega base0af74652.
+Informe `docs/evidencias/88-cierre-retets-y-limites.md`; QA/docs, NO producto/merge.
+- 112controles135-138+28financieros aprobados: efectos controlados, no proveedores
+  reales ni19originales. No repetir sondas86 negativas ya aceptadas.
+- 7E2E estables aprobados: NuevaFactura PC/movil, carga->SDK/reload/otrooperador,
+  contrato largo/papel/otrafiesta, entregaoficial/archivo/reload/otraclave,
+  ultimo750->saldo0/recibo/otronavegador, cargacerrada rechazapantallavieja.
+- VID87-CIERRE y136entregaoficial aceptados en esos consumidores; no otraorden.
+  Contrato6A4/45clausulas inspeccionado; no firma legal/PDF del simulador.
+- COM88-UNIDADES nuevoP1 orden139 Claude:200g+2kg sale202g/$20 en pantalla.
+  Helper/claves daban verde, pero no convertian numeros en consumidor. PENDIENTE.
+- 3D sigue sin canvas conWebGL (reconciler readingcurrent), muestra foto.
+  Historico52/75/77/DEVOLUCION42 SIN aceptar; no orden duplicada ni foto=3D.
+- Reemplazo video limitado por Nextdev/hostlocalhost9195: no aprobado ni fallo
+  publicado demostrado. No permitir loopback en produccion para arreglar una sonda.
+- Fallos QA: semillaJSON en servidorFirestore, clic antes de cargar y popupPDF
+  headless. No entregar esos errores de pruebas como defectos de app.
+- Build optimizado propio no aceptado: copia desaparecida e intento detenido por
+  memoria. Nextdev/emuladores demo, no certificadoHosting/proveedores.
+- Mejoras solicitadas para DESPUES del cierre (incluidaIA), sin ampliar ahora.
+  Otros huecos en84/88. NO14areaslimpias ni0errores.
+- Cierre tanda:5E2Eventas/estaciones+2tiposBoda/XV corregidos=14E2Eunicos total.
+  Compartir token/cliente sin cuenta; Cumpleanos/pie sin0; fotocabina3fotos/tira;
+  simulador comun/PDF2A4 numeradas e inspeccionadas/vigente/persona/proyeccion2027.
+  NO paqueteconmenu/CRM/IA ni entregaStorageQR/hardware por esos recorridos.
+  Tipos fallaban por esperaQA de portada transitoria retirada, no cambio de app.
+
 ## 10 de octubre de 2026 — Borrar, archivar o cancelar una fiesta pedía sólo sesión
 
 Lo anoté al hacer "Poner al día" y lo cerré con la pregunta 47: el personal y el operador podían

@@ -62,3 +62,21 @@ export function mostrarCantidad(cantidad: number, unidadBase: string): string {
   if (unidadBase === 'l' && Math.abs(cantidad) < 1) return `${redondear(cantidad * 1000)} ml`;
   return `${redondear(cantidad)} ${unidadBase}`;
 }
+
+/**
+ * Pasa una cantidad de una unidad a otra. Devuelve `null` si no se puede hacer sin
+ * inventar: peso con volumen, o una unidad que no se reconoce y es distinta de la otra.
+ * Una unidad vacia se toma como "unidad". Nunca convierte entre peso y volumen.
+ */
+export function convertir(cantidad: number, de?: string | null, a?: string | null): number | null {
+  const origen = normalizarUnidad(de);
+  const destino = normalizarUnidad(a);
+  if (origen.unidad !== destino.unidad) return null;
+  return (cantidad * origen.factor) / destino.factor;
+}
+
+/** Unidad en la que se muestra un renglon: kg o l si es peso o volumen; si no, la que vino. */
+export function unidadDeMuestra(unidad?: string | null): string {
+  const base = normalizarUnidad(unidad).unidad;
+  return base === 'kg' || base === 'l' ? base : (unidad ?? '').trim() || 'Unidad';
+}

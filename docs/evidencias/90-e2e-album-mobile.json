@@ -1,0 +1,153 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/90-album-zip-final.spec.ts",
+      "--project=chromium-mobile",
+      "--workers=1",
+      "--retries=0",
+      "--grep",
+      "fotos aprobadas",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "90-album-zip-final.spec.ts",
+      "file": "90-album-zip-final.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fotos aprobadas llegan al ZIP con bytes exactos sin cuenta ni otra fiesta",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-mobile",
+              "projectName": "chromium-mobile",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19572,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T15:23:30.379Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "album-fotos.zip",
+                      "contentType": "application/zip",
+                      "body": "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AAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAALQAKVogAAAAAAAAAAAAAAAAABF8BNM7gAAAAAAAAAAAAAAAAAKcXkU35G1E/gXkU35G1E/gmOO9iFrwp91We/N45IaS9lOLyKb8jaifwLyKb8jaifwTHDELXhT7qb83jkhpL2U4vIpvyNqJ/AvIpvyNqJ/BMcMQteFPupvzeOSGkvZTi8im/I2on8C8im/I2on8ExwxC14U+6m/N45IaS9lOLyKb8jaifwLyKb8jaifwTHDELXhT7qb83jkhpL2U4vIpvyNqJ/AvIpvyNqJ/BMcMQteFPupvzeOSGkvZTi8im/I2on8C8im/I2on8ExwxC14U+6m/N45IaS9lOLyKb8jaifwLyKb8jaifwTHDELXhT7qb83jkhpL2U4vIpvyNqJ/AvIpvyNqJ/BMcMQteFPupvzeOSGkvZTi8im/I2on8C8im/I2on8ExwxC14U+6m/N45IaS9gB0UYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//9lQSwECFAAKAAAAAAD0ekpdAAAAAAAAAAAAAAAALwAAAAAAAAAAABAAAAAAAAAAcmVjdWVyZG9zLWUyZV9hbGJ1bTkwX2ZvdG9zXzQwMTZfMTc5MTY0NTgxMDkyMy9QSwECFAAKAAAAAAD0ekpd9tJLpWkAAABpAAAAPgAAAAAAAAAAAAAAAABNAAAAcmVjdWVyZG9zLWUyZV9hbGJ1bTkwX2ZvdG9zXzQwMTZfMTc5MTY0NTgxMDkyMy9pbmZvLWV2ZW50by50eHRQSwECFAAKAAAAAAD0ekpd3QlgF8IHAADCBwAASAAAAAAAAAAAAAAAAAASAQAAcmVjdWVyZG9zLWUyZV9hbGJ1bTkwX2ZvdG9zXzQwMTZfMTc5MTY0NTgxMDkyMy9yZWN1ZXJkb18xX2ZvdG9jYWJpbmEucG5nUEsBAhQACgAAAAAA9HpKXfRPaVHtBgAA7QYAAEwAAAAAAAAAAAAAAAAAOgkAAHJlY3VlcmRvcy1lMmVfYWxidW05MF9mb3Rvc180MDE2XzE3OTE2NDU4MTA5MjMvcmVjdWVyZG9fMl9wbGF0YWZvcm1hXzM2MC5qcGdQSwUGAAAAAAQABAC5AQAAkRAAAAAA"
+                    },
+                    {
+                      "name": "resultado-fotos.json",
+                      "contentType": "application/json",
+                      "body": "ewogICJtb2RvIjogImZvdG9zIiwKICAicmVnaXN0cm9zIjogWwogICAgewogICAgICAibmFtZSI6ICJyZWN1ZXJkb3MtZTJlX2FsYnVtOTBfZm90b3NfNDAxNl8xNzkxNjQ1ODEwOTIzL3JlY3VlcmRvXzFfZm90b2NhYmluYS5wbmciLAogICAgICAic2l6ZSI6IDE5ODYsCiAgICAgICJtYWdpYyI6ICI4OTUwNGU0NzBkMGExYTBhIiwKICAgICAgImZ1ZW50ZSI6IDAKICAgIH0sCiAgICB7CiAgICAgICJuYW1lIjogInJlY3VlcmRvcy1lMmVfYWxidW05MF9mb3Rvc180MDE2XzE3OTE2NDU4MTA5MjMvcmVjdWVyZG9fMl9wbGF0YWZvcm1hXzM2MC5qcGciLAogICAgICAic2l6ZSI6IDE3NzMsCiAgICAgICJtYWdpYyI6ICJmZmQ4ZmZlMDAwMTA0YTQ2IiwKICAgICAgImZ1ZW50ZSI6IDEKICAgIH0KICBdLAogICJhbnVuY2lvIjogWwogICAgIk5vdGlmaWNhdGlvbiDCoURlc2NhcmdhIGluaWNpYWRhIVNlIGVtcGFxdWV0YXJvbiAyIHJlY3VlcmRvcyBlbiB1biBhcmNoaXZvIFpJUC4iCiAgXSwKICAic29saWNpdHVkZXMiOiBbXSwKICAibm9tYnJlIjogInJlY3VlcmRvcy1lMmVfYWxidW05MF9mb3Rvc180MDE2XzE3OTE2NDU4MTA5MjMuemlwIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "a9f04411fb110b4ef17d-bba16d7d7cbe133956e5",
+          "file": "90-album-zip-final.spec.ts",
+          "line": 121,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T15:23:28.694Z",
+    "duration": 22297.768,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

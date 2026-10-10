@@ -1,0 +1,210 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/89-fotocabina-entrega-sucesiva.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "89-fotocabina-entrega-sucesiva.spec.ts",
+      "file": "89-fotocabina-entrega-sucesiva.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "dos tandas distintas entregan dos recuerdos, QR real y descarga sin cuenta del equipo",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 24784,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m10000\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m10000\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts:94:83",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts",
+                      "column": 83,
+                      "line": 94
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 92 |\u001b[39m       \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'control-independiente-'\u001b[39m \u001b[33m+\u001b[39m cycle \u001b[33m+\u001b[39m \u001b[32m'.json'\u001b[39m\u001b[33m,\u001b[39m { body\u001b[33m:\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify({ \u001b[33m...\u001b[39mindependent\u001b[33m,\u001b[39m src\u001b[33m:\u001b[39m undefined })\u001b[33m,\u001b[39m contentType\u001b[33m:\u001b[39m \u001b[32m'application/json'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 93 |\u001b[39m       \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'control-independiente-'\u001b[39m \u001b[33m+\u001b[39m cycle \u001b[33m+\u001b[39m \u001b[32m'.png'\u001b[39m\u001b[33m,\u001b[39m { body\u001b[33m:\u001b[39m \u001b[33mBuffer\u001b[39m\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(independent\u001b[33m.\u001b[39msrc\u001b[33m.\u001b[39msplit(\u001b[32m','\u001b[39m)[\u001b[35m1\u001b[39m]\u001b[33m,\u001b[39m \u001b[32m'base64'\u001b[39m)\u001b[33m,\u001b[39m contentType\u001b[33m:\u001b[39m \u001b[32m'image/png'\u001b[39m })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 94 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(\u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m (\u001b[36mawait\u001b[39m frame())\u001b[33m.\u001b[39mnonblack\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m.\u001b[39mtoBeGreaterThan(\u001b[35m10000\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 95 |\u001b[39m       \u001b[36mconst\u001b[39m before \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m frame()\u001b[33m;\u001b[39m\n \u001b[90m 96 |\u001b[39m       \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'camara-antes-'\u001b[39m \u001b[33m+\u001b[39m cycle \u001b[33m+\u001b[39m \u001b[32m'.json'\u001b[39m\u001b[33m,\u001b[39m { body\u001b[33m:\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify({ \u001b[33m...\u001b[39mbefore\u001b[33m,\u001b[39m src\u001b[33m:\u001b[39m undefined })\u001b[33m,\u001b[39m contentType\u001b[33m:\u001b[39m \u001b[32m'application/json'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 97 |\u001b[39m       \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'camara-antes-'\u001b[39m \u001b[33m+\u001b[39m cycle \u001b[33m+\u001b[39m \u001b[32m'.png'\u001b[39m\u001b[33m,\u001b[39m { body\u001b[33m:\u001b[39m \u001b[33mBuffer\u001b[39m\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(before\u001b[33m.\u001b[39msrc\u001b[33m.\u001b[39msplit(\u001b[32m','\u001b[39m)[\u001b[35m1\u001b[39m]\u001b[33m,\u001b[39m \u001b[32m'base64'\u001b[39m)\u001b[33m,\u001b[39m contentType\u001b[33m:\u001b[39m \u001b[32m'image/png'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts",
+                        "column": 83,
+                        "line": 94
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeGreaterThan\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: > \u001b[32m10000\u001b[39m\nReceived:   \u001b[31m0\u001b[39m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate\n\n  92 |       await info.attach('control-independiente-' + cycle + '.json', { body: JSON.stringify({ ...independent, src: undefined }), contentType: 'application/json' });\n  93 |       await info.attach('control-independiente-' + cycle + '.png', { body: Buffer.from(independent.src.split(',')[1], 'base64'), contentType: 'image/png' });\n> 94 |       await expect.poll(async () => (await frame()).nonblack, { timeout: 15000 }).toBeGreaterThan(10000);\n     |                                                                                   ^\n  95 |       const before = await frame();\n  96 |       await info.attach('camara-antes-' + cycle + '.json', { body: JSON.stringify({ ...before, src: undefined }), contentType: 'application/json' });\n  97 |       await info.attach('camara-antes-' + cycle + '.png', { body: Buffer.from(before.src.split(',')[1], 'base64'), contentType: 'image/png' });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts:94:83"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T13:34:50.252Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "diagnostico-camara-1.json",
+                      "contentType": "application/json",
+                      "body": "eyJub25ibGFjayI6MCwid2lkdGgiOjAsInJlYWR5U3RhdGUiOjAsInBsYXlpbmciOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "control-independiente-1.json",
+                      "contentType": "application/json",
+                      "body": "eyJub25ibGFjayI6MzA3MjAwLCJwbGF5aW5nIjp0cnVlLCJ3aWR0aCI6MTA4MH0="
+                    },
+                    {
+                      "name": "control-independiente-1.png",
+                      "contentType": "image/png",
+                      "body": "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"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts",
+                    "column": 83,
+                    "line": 94
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6a9d9b9ea011e8902611-7afbb0b1d920dbb3c42a",
+          "file": "89-fotocabina-entrega-sucesiva.spec.ts",
+          "line": 39,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T13:34:47.562Z",
+    "duration": 30046.813000000002,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

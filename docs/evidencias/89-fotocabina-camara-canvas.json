@@ -1,0 +1,195 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/89-fotocabina-entrega-sucesiva.spec.ts",
+      "--project=chromium-desktop",
+      "--workers=1",
+      "--retries=0",
+      "--reporter=list,json"
+    ],
+    "configFile": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\playwright.config.ts",
+    "rootDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-desktop",
+        "name": "chromium-desktop",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      },
+      {
+        "outputDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium-mobile",
+        "name": "chromium-mobile",
+        "testDir": "C:/Users/Usuario/AppData/Local/Temp/ak-codex88/ak-entorno-aislado-RCYMug/tests/e2e",
+        "testIgnore": [
+          "**/recorrido-de-pantallas.spec.ts"
+        ],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.61.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "89-fotocabina-entrega-sucesiva.spec.ts",
+      "file": "89-fotocabina-entrega-sucesiva.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "dos tandas distintas entregan dos recuerdos, QR real y descarga sin cuenta del equipo",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium-desktop",
+              "projectName": "chromium-desktop",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 27670,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 3\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[32m-   25,\u001b[39m\n\u001b[32m-   95,\u001b[39m\n\u001b[32m-   172,\u001b[39m\n\u001b[31m+   0,\u001b[39m\n\u001b[31m+   0,\u001b[39m\n\u001b[31m+   0,\u001b[39m\n\u001b[2m  ]\u001b[22m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 3\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[32m-   25,\u001b[39m\n\u001b[32m-   95,\u001b[39m\n\u001b[32m-   172,\u001b[39m\n\u001b[31m+   0,\u001b[39m\n\u001b[31m+   0,\u001b[39m\n\u001b[31m+   0,\u001b[39m\n\u001b[2m  ]\u001b[22m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts:88:80",
+                    "location": {
+                      "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts",
+                      "column": 80,
+                      "line": 88
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 86 |\u001b[39m           playing\u001b[33m:\u001b[39m \u001b[33m!\u001b[39mv\u001b[33m.\u001b[39mpaused\u001b[33m,\u001b[39m trackState\u001b[33m:\u001b[39m v\u001b[33m.\u001b[39msrcObject\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mgetVideoTracks()[\u001b[35m0\u001b[39m]\u001b[33m?\u001b[39m\u001b[33m.\u001b[39mreadyState }\u001b[33m;\u001b[39m\n \u001b[90m 87 |\u001b[39m       })\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 88 |\u001b[39m       \u001b[36mawait\u001b[39m expect\u001b[33m.\u001b[39mpoll(\u001b[36masync\u001b[39m () \u001b[33m=>\u001b[39m (\u001b[36mawait\u001b[39m frame())\u001b[33m.\u001b[39mpixel\u001b[33m,\u001b[39m { timeout\u001b[33m:\u001b[39m \u001b[35m15000\u001b[39m })\u001b[33m.\u001b[39mtoEqual(expectedPixel)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                                                                                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 89 |\u001b[39m       \u001b[36mconst\u001b[39m before \u001b[33m=\u001b[39m \u001b[36mawait\u001b[39m frame()\u001b[33m;\u001b[39m\n \u001b[90m 90 |\u001b[39m       \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'camara-antes-'\u001b[39m \u001b[33m+\u001b[39m cycle \u001b[33m+\u001b[39m \u001b[32m'.json'\u001b[39m\u001b[33m,\u001b[39m { body\u001b[33m:\u001b[39m \u001b[33mJSON\u001b[39m\u001b[33m.\u001b[39mstringify({ \u001b[33m...\u001b[39mbefore\u001b[33m,\u001b[39m src\u001b[33m:\u001b[39m undefined })\u001b[33m,\u001b[39m contentType\u001b[33m:\u001b[39m \u001b[32m'application/json'\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 91 |\u001b[39m       \u001b[36mawait\u001b[39m info\u001b[33m.\u001b[39mattach(\u001b[32m'camara-antes-'\u001b[39m \u001b[33m+\u001b[39m cycle \u001b[33m+\u001b[39m \u001b[32m'.png'\u001b[39m\u001b[33m,\u001b[39m { body\u001b[33m:\u001b[39m \u001b[33mBuffer\u001b[39m\u001b[33m.\u001b[39m\u001b[36mfrom\u001b[39m(before\u001b[33m.\u001b[39msrc\u001b[33m.\u001b[39msplit(\u001b[32m','\u001b[39m)[\u001b[35m1\u001b[39m]\u001b[33m,\u001b[39m \u001b[32m'base64'\u001b[39m)\u001b[33m,\u001b[39m contentType\u001b[33m:\u001b[39m \u001b[32m'image/png'\u001b[39m })\u001b[33m;\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts",
+                        "column": 80,
+                        "line": 88
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 3\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[2m  Array [\u001b[22m\n\u001b[32m-   25,\u001b[39m\n\u001b[32m-   95,\u001b[39m\n\u001b[32m-   172,\u001b[39m\n\u001b[31m+   0,\u001b[39m\n\u001b[31m+   0,\u001b[39m\n\u001b[31m+   0,\u001b[39m\n\u001b[2m  ]\u001b[22m\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate\n\n  86 |           playing: !v.paused, trackState: v.srcObject?.getVideoTracks()[0]?.readyState };\n  87 |       });\n> 88 |       await expect.poll(async () => (await frame()).pixel, { timeout: 15000 }).toEqual(expectedPixel);\n     |                                                                                ^\n  89 |       const before = await frame();\n  90 |       await info.attach('camara-antes-' + cycle + '.json', { body: JSON.stringify({ ...before, src: undefined }), contentType: 'application/json' });\n  91 |       await info.attach('camara-antes-' + cycle + '.png', { body: Buffer.from(before.src.split(',')[1], 'base64'), contentType: 'image/png' });\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts:88:80"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-10T13:32:21.659Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\test-failed-1.png"
+                    },
+                    {
+                      "name": "video",
+                      "contentType": "video/webm",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\video.webm"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\test-failed-2.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\test-results\\89-fotocabina-entrega-suce-33f9d-carga-sin-cuenta-del-equipo-chromium-desktop\\trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-RCYMug\\tests\\e2e\\89-fotocabina-entrega-sucesiva.spec.ts",
+                    "column": 80,
+                    "line": 88
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6a9d9b9ea011e8902611-7afbb0b1d920dbb3c42a",
+          "file": "89-fotocabina-entrega-sucesiva.spec.ts",
+          "line": 38,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-10T13:32:19.082Z",
+    "duration": 33035.04,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -33,7 +33,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
-import { claveDeConsolidado } from '@/lib/compras/unidades';
+import { consolidarCompras, type CompraCruda } from '@/lib/compras/consolidar-compras';
 
 // --- HELPERS ---
 const formatCurrency = (amount?: number) => {
@@ -188,40 +188,26 @@ function ResumenPlanificacionContent() {
           });
       }
 
-      const consolidated: Record<string, ShoppingListItem> = {};
-      rawList.forEach(raw => {
-          // La unidad va en la clave A PROPOSITO: sin ella, 200 g de un plato y 2 kg
-          // de otro caian en el mismo renglon y se sumaban como si fueran lo mismo.
-          const key = claveDeConsolidado(raw.nombre, raw.proveedor, raw.unit);
-          if (consolidated[key]) {
-              consolidated[key].cantidadNecesaria += raw.cantidadNecesaria;
-          } else {
-              const catalogItem = catalogoInsumos.find(ci => ci.id === raw.origenId);
-              consolidated[key] = {
-                  id: key,
-                  nombre: raw.nombre,
-                  cantidadNecesaria: raw.cantidadNecesaria,
-                  stockDisponible: catalogItem?.cantidadDisponible || 0,
-                  cantidadAComprar: 0,
-                  unit: raw.unit,
-                  costoUnitario: raw.costoUnitario,
-                  costoTotalFaltante: 0,
-                  proveedor: raw.proveedor,
-                  origen: raw.origen,
-                  origenId: raw.origenId,
-                  isOrder: raw.isOrder
-              };
-          }
-      });
-
-      const finalList = Object.values(consolidated).map(item => {
-          const faltante = item.isOrder ? item.cantidadNecesaria : Math.max(0, item.cantidadNecesaria - item.stockDisponible);
+      // Misma cuenta que la lista de compras (orden 139): se convierte a una sola unidad
+      // antes de sumar, y el stock y el precio tambien. La clave del renglon
+      // (claveDeConsolidado(nombre, proveedor, unidad)) se arma adentro de esa funcion.
+      const crudos: CompraCruda[] = rawList.map(raw => {
+          const catalogItem = catalogoInsumos.find(ci => ci.id === raw.origenId);
           return {
-              ...item,
-              cantidadAComprar: faltante,
-              costoTotalFaltante: item.costoUnitario * faltante
+              nombre: raw.nombre,
+              cantidadNecesaria: raw.cantidadNecesaria,
+              unit: raw.unit,
+              costoUnitario: raw.costoUnitario,
+              unidadCosto: catalogItem?.unidad,
+              proveedor: raw.proveedor,
+              origen: raw.origen,
+              origenId: raw.origenId,
+              isOrder: raw.isOrder,
+              stockDisponible: catalogItem?.cantidadDisponible || 0,
+              unidadStock: catalogItem?.unidad,
           };
       });
+      const finalList: ShoppingListItem[] = consolidarCompras(crudos, { redondeo: 'ninguno' });
 
       setShoppingList(finalList);
 
