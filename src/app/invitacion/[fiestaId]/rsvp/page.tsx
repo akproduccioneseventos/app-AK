@@ -234,7 +234,7 @@ function RsvpFormContent() {
                   Guarda tu pase digital. Lo necesitarás en la entrada.
                 </p>
                 <div className="rounded-lg border border-slate-100 bg-white p-6 shadow-inner" data-testid="guest-qr-container">
-                  <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="H" renderAs="canvas" />
+                  <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="M" renderAs="canvas" />
                 </div>
 
                 {/* Event details for guest */}

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { borrarFiesta, crearFiestaDeEstaNoche, guardarFiesta, leerFiesta, ponerSesionDelEquipo } from './helpers/fiesta-de-prueba';
@@ -17,7 +18,7 @@ import { enchufarCamaraFalsa } from './helpers/camara-falsa';
 
 const CASOS = [
   { etiqueta: 'token corto', token: 'qa147corto' },
-  { etiqueta: 'token largo', token: 'qa147-' + 'largo0123456789abcdef'.repeat(4) },
+  { etiqueta: 'token largo', token: randomUUID() },
 ];
 
 for (const caso of CASOS) {
