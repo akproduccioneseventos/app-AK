@@ -1,0 +1,11 @@
+{
+  "after": {
+    "micro": 0,
+    "sockets": 0,
+    "closes": 0,
+    "tracks": []
+  },
+  "provider": "delayed controlled response",
+  "panelReopened": 0,
+  "buttonTitle": "Hablar en vivo con el asistente (te contesta con voz)"
+}

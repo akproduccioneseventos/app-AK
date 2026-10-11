@@ -1,5 +1,24 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/10/2026 - Codex98: cuatro arreglos recibidos, retest aprobado
+
+- Fuente755f0707 exacta:18 ejecuciones pass/16pares distintos PCmovil.
+- 146:Cortar antes de ficha NOabre micro/socket/panel;503 reintenta un clic.
+- 148:fallo de lectura avisa,conserva archivo y bloquea sobrescritura;reintenta.
+  Galeria genuinamente vacia permite subir;URLfirmadareal NOcertificada.
+- 145:Touchpix tiene imagen nativa/color,descarga bytes/segunda captura con
+  imagen;sin cuadro avisa/reintenta y NOcrea foto. Nohardware/transformacionIA.
+- 144:Visiondummy caido generaUNpending,avisa aprobacion;no en muralPUBLICO
+  cargado;recarga no duplica. No afirmar reenvio concurrente probado.
+- Informe98/raw/capturas/limpieza:10sesionespropias demo retiradas,runtime
+  detenido/puertoslibres. Sin cambios app/build/merge;no0errores/app completa.
+- No reprogramar144/145/146/148 por negativos historicos.149dosP2,147QR,3D,
+  19originales/cuentasintegraciones/releasehardware conservan limites separados.
+- NUEVO150P1:captura mural parecia vacia;sonda PCmovil confirma padres0px,
+  texto recortado auntras8s/toBeVisiblePASA;CSSlive>*positionrelative ganafixed.
+  Control SOLOpositionfixed da540/659px y texto pintado.4fail/UNAcausa,
+  NOapp corregida. Se agrega a1288;no reabrir moderacion144 por este fallo.
+
 ## 11/10/2026 - Codex97: IA contextual; conservar lo aprobado
 
 - Ejecutado9a/contrastado755: DOS defectos nuevos, orden149Gemini/Claude.

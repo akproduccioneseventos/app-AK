@@ -1,0 +1,74 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: 98-mural-visual.spec.ts >> Empty mural paints its message after settling, not just DOM presence
+- Location: tests\e2e\98-mural-visual.spec.ts:13:5
+
+# Error details
+
+```
+Error: main visible region has space
+
+expect(received).toBeGreaterThan(expected)
+
+Expected: > 200
+Received:   80
+```
+
+# Test source
+
+```ts
+  1  | // @ts-nocheck -- visual diagnostics, real isolated demo page only.
+  2  | import os from 'node:os';
+  3  | import path from 'node:path';
+  4  | import admin from 'firebase-admin';
+  5  | import { test, expect } from '@playwright/test';
+  6  | import { crearFiestaDeEstaNoche, guardarFiesta, borrarFiesta } from './helpers/fiesta-de-prueba';
+  7  | if (process.env.AK_ENTORNO_AISLADO !== 'true' || path.basename(process.cwd()) !== 'ak-entorno-aislado-98' ||
+  8  |     path.dirname(process.cwd()) !== path.join(os.tmpdir(), 'ak-codex88') || process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8085') throw new Error('Demo98 only');
+  9  | const app = admin.initializeApp({ projectId: 'demo-ak-producciones' }, 'visual98-' + process.pid);
+  10 | const db = app.firestore(); db.settings({ ignoreUndefinedProperties: true });
+  11 | test.afterAll(async () => app.delete());
+  12 |
+  13 | test('Empty mural paints its message after settling, not just DOM presence', async ({ page }, info) => {
+  14 |   test.setTimeout(150000);
+  15 |   const id = 'e2e_98_visual_' + process.pid + '_' + Date.now(), fiesta = crearFiestaDeEstaNoche({ id });
+  16 |   fiesta.socialWallEnabled = true;
+  17 |   fiesta.socialGallerySettings = { ...fiesta.socialGallerySettings, enabled: true, privateDedicationsMode: false, forcedScreenItem: 'mural' };
+  18 |   const errors = []; page.on('pageerror', e => errors.push(e.message));
+  19 |   guardarFiesta(fiesta); await db.collection('fiestas').doc(id).set(JSON.parse(JSON.stringify(fiesta)));
+  20 |   const measure = () => page.evaluate(() => {
+  21 |     const section = document.querySelector('[data-testid="live-wall-empty"]');
+  22 |     const title = section?.querySelector('h1');
+  23 |     const inspect = e => {
+  24 |       if (!e) return null; const r = e.getBoundingClientRect(), s = getComputedStyle(e);
+  25 |       return { tag: e.tagName, className: e.className, text: e.innerText?.slice(0,160), x:r.x,y:r.y,width:r.width,height:r.height,
+  26 |         display:s.display,position:s.position,flex:s.flex,opacity:s.opacity,overflow:s.overflow,color:s.color,background:s.backgroundColor,transform:s.transform };
+  27 |     };
+  28 |     const parents = []; for (let e = title; e; e = e.parentElement) parents.push(inspect(e));
+  29 |     const r = title?.getBoundingClientRect();
+  30 |     const top = r ? document.elementFromPoint(Math.max(0,Math.min(innerWidth-1,r.x+r.width/2)),Math.max(0,Math.min(innerHeight-1,r.y+r.height/2))) : null;
+  31 |     return { viewport:{width:innerWidth,height:innerHeight}, section:inspect(section), title:inspect(title), parents,
+  32 |       topAtTitle:inspect(top), titleReceivesPoint:!!(title&&top&&(title===top||title.contains(top))), body:document.body.innerText };
+  33 |   });
+  34 |   try {
+  35 |     expect((await page.goto('/evento/muro-en-vivo/' + id, { waitUntil:'domcontentloaded' }))?.status()).toBe(200);
+  36 |     await expect(page.getByTestId('live-wall-empty')).toBeVisible({ timeout:60000 });
+  37 |     await page.waitForTimeout(4000);
+  38 |     const first = await measure(); await info.attach('wall-settled.json',{body:JSON.stringify({...first,errors},null,2),contentType:'application/json'});
+  39 |     await info.attach('wall-settled.png',{body:await page.screenshot(),contentType:'image/png'});
+  40 |     await page.waitForTimeout(4000); const later = await measure();
+  41 |     await info.attach('wall-later.json',{body:JSON.stringify({...later,errors},null,2),contentType:'application/json'});
+  42 |     await info.attach('wall-later.png',{body:await page.screenshot(),contentType:'image/png'});
+> 43 |     expect(later.section.height,'main visible region has space').toBeGreaterThan(200);
+     |                                                                  ^ Error: main visible region has space
+  44 |     expect(later.titleReceivesPoint,'message is painted in front, not clipped by an ancestor').toBe(true);
+  45 |   } finally { await db.collection('fiestas').doc(id).delete(); borrarFiesta(id); }
+  46 | });
+  47 |
+```

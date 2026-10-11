@@ -1,0 +1,130 @@
+[
+  {
+    "title": "video de vida: foto guardada que no se puede leer avisa y deja reintentar",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 62120,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "lector-error.png",
+        "file": "docs/evidencias/98-artifactos/98-browser-00-0.png"
+      },
+      {
+        "name": "lector-final.png",
+        "file": "docs/evidencias/98-artifactos/98-browser-00-1.png"
+      },
+      {
+        "name": "lector-final.json",
+        "file": "docs/evidencias/98-artifactos/98-browser-00-2.json"
+      }
+    ]
+  },
+  {
+    "title": "video de vida: galería vacía de verdad sigue diciendo 0 y deja subir",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 10598,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "lector-final.png",
+        "file": "docs/evidencias/98-artifactos/98-browser-01-0.png"
+      },
+      {
+        "name": "lector-final.json",
+        "file": "docs/evidencias/98-artifactos/98-browser-01-1.json"
+      }
+    ]
+  },
+  {
+    "title": "video de vida: foto guardada que no se puede leer avisa y deja reintentar",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 12413,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "lector-error.png",
+        "file": "docs/evidencias/98-artifactos/98-browser-02-0.png"
+      },
+      {
+        "name": "lector-final.png",
+        "file": "docs/evidencias/98-artifactos/98-browser-02-1.png"
+      },
+      {
+        "name": "lector-final.json",
+        "file": "docs/evidencias/98-artifactos/98-browser-02-2.json"
+      }
+    ]
+  },
+  {
+    "title": "video de vida: galería vacía de verdad sigue diciendo 0 y deja subir",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 8550,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "lector-final.png",
+        "file": "docs/evidencias/98-artifactos/98-browser-03-0.png"
+      },
+      {
+        "name": "lector-final.json",
+        "file": "docs/evidencias/98-artifactos/98-browser-03-1.json"
+      }
+    ]
+  },
+  {
+    "title": "voz fallida permite REINTENTAR con un solo clic",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 45152,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "live-reintento.json",
+        "file": "docs/evidencias/98-artifactos/98-browser-04-0.json"
+      }
+    ]
+  },
+  {
+    "title": "Cortar mientras conecta impide abrir despues microfono y socket",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 8128,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "live-cortar-conectando.json",
+        "file": "docs/evidencias/98-artifactos/98-browser-05-0.json"
+      }
+    ]
+  },
+  {
+    "title": "voz fallida permite REINTENTAR con un solo clic",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 26404,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "live-reintento.json",
+        "file": "docs/evidencias/98-artifactos/98-browser-06-0.json"
+      }
+    ]
+  },
+  {
+    "title": "Cortar mientras conecta impide abrir despues microfono y socket",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 10249,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "live-cortar-conectando.json",
+        "file": "docs/evidencias/98-artifactos/98-browser-07-0.json"
+      }
+    ]
+  }
+]

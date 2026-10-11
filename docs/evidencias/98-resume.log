@@ -1,0 +1,190 @@
+[31m[1m!!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+[36m[1mi  emulators:[22m[39m Starting emulators: firestore, storage
+[36m[1mi  emulators:[22m[39m Detected demo project ID "demo-ak-producciones", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+[33m[1m!  emulators:[22m[39m It seems that you are running multiple instances of the emulator suite for project demo-ak-producciones. This may result in unexpected behavior.
+[36m[1mi  firestore:[22m[39m Firestore Emulator logging to [1mfirestore-debug.log[22m
+[32m[1m+  firestore:[22m[39m Firestore Emulator UI websocket is running on 9150.
+[33m[1m! [22m[39m Unexpected rules runtime error: Picked up JAVA_TOOL_OPTIONS: -Xmx512m
+
+[33m[1m!  emulators:[22m[39m The Emulator UI is not starting because none of the running emulators have a UI component.
+
+[90m┌─────────────────────────────────────────────────────────────┐[39m
+[90m│[39m [32m✔[39m  [1mAll emulators ready! It is now safe to connect your app.[22m [90m│[39m
+[90m└─────────────────────────────────────────────────────────────┘[39m
+
+[90m┌───────────[39m[90m┬────────────────┐[39m
+[90m│[39m[33m Emulator  [39m[90m│[39m[33m Host:Port      [39m[90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Firestore [90m│[39m 127.0.0.1:8085 [90m│[39m
+[90m├───────────[39m[90m┼────────────────┤[39m
+[90m│[39m Storage   [90m│[39m 127.0.0.1:9195 [90m│[39m
+[90m└───────────[39m[90m┴────────────────┘[39m
+[90m  Emulator Hub host: 127.0.0.1 port: 4400[39m
+[90m  Other reserved ports:[39m 4500, 9150
+
+Issues? Report them at [4m[1mhttps://github.com/firebase/firebase-tools/issues[22m[24m and attach the *-debug.log files.
+
+[33m[1m!  emulators:[22m[39m firebase-tools will drop support for Java version < 21 soon in firebase-tools@15. Please install a JDK at version 21 or above to get a compatible runtime.
+   ▲ Next.js 15.5.23
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 10.8s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1070ms (161 modules)
+ ○ Compiling /evento/muro-en-vivo/[fiestaId] ...
+ ✓ Compiled /evento/muro-en-vivo/[fiestaId] in 25s (2607 modules)
+ ✓ Compiled in 1829ms (728 modules)
+ GET /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 32746ms
+Firebase Admin SDK initialized with Application Default Credentials.
+Firestore connected to emulator at 127.0.0.1:8085
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 4012ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 377ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 760ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 731ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 683ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 501ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 415ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 448ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 531ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 360ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 484ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 497ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 409ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 482ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 463ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 440ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 378ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 507ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 564ms
+ POST /evento/muro-en-vivo/e2e_98_visual_19544_1791690766277 200 in 416ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ GET /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 1049ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 384ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 442ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 375ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 319ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 353ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 461ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 449ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 481ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 341ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 411ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 523ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 700ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 496ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 594ms
+ POST /evento/muro-en-vivo/e2e_98_visual_24760_1791690822565 200 in 409ms
+ ⨯ [Error: aborted]
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 16.3s (2945 modules)
+ GET /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 1359ms
+Firebase Admin SDK already initialized (1 app(s)).
+Firestore and Auth instances obtained successfully.
+Firestore connected to emulator at 127.0.0.1:8085
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 1163ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 968ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 302ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 405ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 336ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 349ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 272ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 658ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 278ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 297ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 309ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 329ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 336ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 325ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 436ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 475ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 476ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 561ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 488ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 397ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 1590ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 568ms
+ POST /evento/muro-en-vivo/e2e_98_visual_23508_1791690924523 200 in 263ms
+[Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException: [Error: aborted] { code: 'ECONNRESET' }
+ ⨯ uncaughtException:  [Error: aborted] { code: 'ECONNRESET' }
+ GET /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 554ms
+[AK] [readData] FALLBACK JSON usado para "company-info.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 329ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 293ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 351ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 300ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 292ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 313ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 275ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 325ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 275ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 259ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 339ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 291ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 263ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 280ms
+[AK] [readData] FALLBACK JSON usado para "social-posts.json"; Firestore vacio o no disponible.
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 285ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 289ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 440ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 420ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 419ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 322ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 269ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 474ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 285ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 302ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 312ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 348ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 282ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 356ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 382ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 376ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 321ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 343ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 368ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 421ms
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 200 in 408ms
+ ⨯ Error: Sesion no autorizada.
+    at requireAppSession (src\lib\auth\require-session.ts:11:11)
+    at async getHistorialFiestas (src\app\actions\fiesta\fiesta.actions.ts:205:3)
+    at async getFiestaById (src\app\actions\fiesta\fiesta.actions.ts:384:28)
+    at async getDedications (src\app\actions\social-interactive.ts:293:36)
+   9 | export async function requireAppSession(): Promise<void> {
+  10 |   if (!(await hasAppSession())) {
+> 11 |     throw new Error('Sesion no autorizada.');
+     |           ^
+  12 |   }
+  13 | }
+  14 | {
+  digest: '1759351044'
+}
+ POST /evento/muro-en-vivo/e2e_98_visual_25268_1791690943993 500 in 1289ms

@@ -1,7 +1,7 @@
-# Estado actual - 11/10/2026 (Codex88-97)
+# Estado actual - 11/10/2026 (Codex88-98)
 
-97ejecutado9a054620/contrastado755f0707. Nueva rama QA:
-codex/auditoria-97-ia-contexto-20261011.1286/1287fusionadas por otraIA.
+Rama codex/auditoria-97-ia-contexto-20261011; PR1288 QA/149-150,NOfusionar.
+97ejecutado9a/contrastado755;98ejecutado755f0707 exacto,main remoto igual.
 Tanda local no subida NO contrastada. No reencargar lo presente en main.
 Health97declara755 compilada02:35Z;metadata,no revisionHosting independiente.
 
@@ -17,10 +17,14 @@ Health97declara755 compilada02:35Z;metadata,no revisionHosting independiente.
   141album/reintento;143QRrevocado/geonativa;139enlacecocina PASAN.
 - 97:chatREAL/APISDKhistorialA-B y NOtarea ficticia PCmovil2pass.
   No modelo real/audio fisico/autonomia certificado. No repetir chat-store.
+- 98:18pass/16pares:146voz cancelacion/reintento,148lectorfotos/error/vacio,
+  145Touchpixcontenido/descarga/reload/nocuadro,144espejoUNpending/aviso/
+  excluido del muralPUBLICO cargado/recarga sin duplicar PASAN. Nohardware.
 
-## Fuente correctiva presente; retest no equivale a reprogramar
-- 144/145a1bc1977;1460910b888;14873c4dd0f/08aa9319 presentes en755.
+## Fuente correctiva presente; no reprogramar criterios cerrados98
+- 144/145a1bc1977;1460910b888;14873c4dd0f/08aa9319 aceptados98acotado.
 - 147QRretirado89bbb741 por fallo movil:sigue abierto. No nuevo arreglo pedido.
+- NUEVO150P1:mural flex0px/CSSpositionrelative ganafixed;control540/659pxSI.
 - Barrido697102a1/a535407b lectores/camaras:Claude explicita limitesnavegador.
 
 ## Nuevos hallazgos y limites
@@ -32,5 +36,5 @@ Health97declara755 compilada02:35Z;metadata,no revisionHosting independiente.
 - Video URLs reales/integraciones necesitan cuentas/staging autorizados.
 - 19manuales requieren export+originales;gRPC7/JSONlocal0 NO son ausencia.
 - Hardwarefinal pendiente;build/Hosting mismoSHA registraClaude, noActionsrojos.
-- Informe97/orden149/matriz84/YA-RESUELTO compartidos;no0errores/14limpias.
-- TEMP97detenido/fixturespropios retirados;5agregadosSOLOdemo preservados.
+- Informes97/98/orden149-150/matriz84/YA compartidos;no0errores/14limpias.
+- TEMP97/98detenidos;98diez sesionespropias retiradas/puertoslibres.

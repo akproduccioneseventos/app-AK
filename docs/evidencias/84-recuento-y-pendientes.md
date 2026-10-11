@@ -1,5 +1,18 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion98: retests recibidos, no ordenes duplicadas
+
+Fuente755f0707 ejecutada:18pass/16pares PCmovil.146cancelacion/reintento,
+148lector/error/vacioreal,145contenido captura/descarga/reload/nocuadro,
+144UNpending/aviso/muralPUBLICOcargado que excluye/recarga sin duplicar
+PASAN. Dos espejos repetidos con criterio mural mas fuerte, no casosnuevos.
+Informe98 manda para estos criterios;NO reabrir144-146/148 por historia.
+NUEVO150P1muralrecortado:PCmovil4fail/UNAcausa CSSpositionrelative ganandofixed;
+control SOLOpositionfixedrestaura540/659px y titulo pintado. No app corregida.
+149dosP2 siguen,147retirado NOcerrado;3D/19/integraciones/release/hardware
+requieren evidencias especificas. No14areaslimpias/no0errores. Runtime98
+detenido y10sesionespropias demo retiradas,sin datosreales/codigoapp/build.
+
 ## Actualizacion97: IA real y tanda nueva contrastada
 
 Ejecutado9a/contrastado755. Dos P2orden149:nativoSDKSI/aliasfalseNO/controlSI

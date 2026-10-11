@@ -1,0 +1,12 @@
+
+Running 8 tests using 1 worker
+
+[1/8] [chromium-desktop] › tests\e2e\98-video-retest.spec.ts:37:7 › video de vida: foto guardada que no se puede leer avisa y deja reintentar
+[2/8] [chromium-desktop] › tests\e2e\98-video-retest.spec.ts:37:7 › video de vida: galería vacía de verdad sigue diciendo 0 y deja subir
+[3/8] [chromium-desktop] › tests\e2e\98-voz-retest.spec.ts:19:5 › voz fallida permite REINTENTAR con un solo clic
+[4/8] [chromium-desktop] › tests\e2e\98-voz-retest.spec.ts:32:5 › Cortar mientras conecta impide abrir despues microfono y socket
+[5/8] [chromium-mobile] › tests\e2e\98-video-retest.spec.ts:37:7 › video de vida: foto guardada que no se puede leer avisa y deja reintentar
+[6/8] [chromium-mobile] › tests\e2e\98-video-retest.spec.ts:37:7 › video de vida: galería vacía de verdad sigue diciendo 0 y deja subir
+[7/8] [chromium-mobile] › tests\e2e\98-voz-retest.spec.ts:19:5 › voz fallida permite REINTENTAR con un solo clic
+[8/8] [chromium-mobile] › tests\e2e\98-voz-retest.spec.ts:32:5 › Cortar mientras conecta impide abrir despues microfono y socket
+  8 passed (3.3m)
