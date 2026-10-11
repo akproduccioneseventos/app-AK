@@ -275,9 +275,9 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
 
   useEffect(() => {
     if (!isPreview && fiesta.id) {
-        getChatMessages(fiesta.id).then(setChatMessages).catch(() => { /* si falla la lectura se conserva el chat anterior */ });
+        getChatMessages(fiesta.id).then(setChatMessages).catch(() => { /* no pasa nada si falla: se conserva el chat anterior */ });
         const interval = setInterval(() => {
-            getChatMessages(fiesta.id).then(setChatMessages).catch(() => { /* si falla la lectura se conserva el chat anterior */ });
+            getChatMessages(fiesta.id).then(setChatMessages).catch(() => { /* no pasa nada si falla: se conserva el chat anterior */ });
         }, 5000);
         return () => clearInterval(interval);
     }
@@ -302,7 +302,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
     if (!isPostEvent || isPreview || !fiesta.id) return;
     // Dynamic import to avoid including this server action in the initial bundle
     import('@/app/actions/social-gallery').then(({ getPublicSocialPosts }) => {
-      getPublicSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12))).catch(() => { /* se conservan las fotos anteriores */ });
+      getPublicSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12))).catch(() => { /* no pasa nada si falla: se conservan las fotos anteriores */ });
     });
   }, [isPostEvent, isPreview, fiesta.id]);
 
@@ -366,7 +366,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
           const res = await addChatMessage(fiesta.id, newChatMsg, rsvpName || "Invitado");
           if (res.success) {
               setNewChatMsg('');
-              getChatMessages(fiesta.id).then(setChatMessages).catch(() => { /* se conserva el chat anterior */ });
+              getChatMessages(fiesta.id).then(setChatMessages).catch(() => { /* no pasa nada si falla: se conserva el chat anterior */ });
           }
       } finally {
           setIsSendingChat(false);
