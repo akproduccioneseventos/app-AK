@@ -1,5 +1,22 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/10/2026 - Codex100: lector real, dos avisos no reciben el fallo
+
+- Ejecutado main ca5b714d:portal valido ante corte controlado dice invalido/
+  expirado;presupuesto devuelve[]sin aviso de fechas. PCmovil4negativos;
+  documentos SDKintactos y recuperacion al quitar corte. Una causa/dos efectos.
+- NOsimular leerFiestasCrudas/getFiestas:Query.getfiestas falla en limite SDK,
+  cadena real listCollectionFromFirestore traga y devuelve[]. Los catches/
+  textos superiores existen pero no llegan a activarse;ord151Claude.
+- Clave realmente ausente PASA PCmovil. NOtoken caducado ni dato perdido.
+  No repetir148video ni144-146;147residuo/149/150sin delta conservados.
+- Error propio preparacion:helper crea JSON;dos corridas pararon ANTES de
+  auditar. Corregida sonda,retirados2docs/4archivos propios;NOdefectos de app.
+- Informe100/SDK/HTTP/PNG/raw/ord151/matriz juntos;agente economico solo
+  inventario de contratos, cerrado. No throwglobal ciego/buildlocal roto.
+- Runtime100detenido/puertoslibres/demo limpio. Nocodigoapp/build/mergePR;
+  no0errores/14limpias/cuentasreales/hardware/19originales certificados.
+
 ## 11/10/2026 - Codex99: QR recibido, no cerrar por cuatro ejemplos
 
 - Ejecutado main ca5b714d/1289:8recorridos,6pass/2fail. Caso historico94

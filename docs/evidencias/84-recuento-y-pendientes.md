@@ -1,5 +1,16 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion100: cadena de lectura real, dos efectos nuevos
+
+Main ca5b714d, sin delta149/150/147residuo. Corte SDK Query.getfiestas:
+portal valido falso expirado y presupuesto[]sin aviso PCmovil4negativos.
+Clave realmente ausente2pass;recuperacion/datosSDKintactos comprobados.
+Ord151Claude:fallo tragado en lector intermedio,NOreescribirtexto ni mockear
+leerFiestasCrudas. Build/modolocal/contratos se conservan;NOglobalthrow ciego.
+Dos fallos de preparacion QA documentados NOson erroresapp. Informe100/raw/
+capturas/HTTP/SDK/limpieza. Runtime/agente cerrados,solo datosdemo. Conservar
+aceptaciones88-99 acotadas;no14areaslimpias/0errores/cuentasreales/hardware.
+
 ## Actualizacion99: cierre QR parcial, no duplicar147
 
 Main ca5b714d/1289 ejecutado.8recorridos:6pass/2fail;historico94 PCmovil

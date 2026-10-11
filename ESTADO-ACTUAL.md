@@ -1,10 +1,9 @@
-# Estado actual - 11/10/2026 (Codex88-99)
+# Estado actual - 11/10/2026 (Codex88-100)
 
-Rama codex/auditoria-97-ia-contexto-20261011; PR1288 QA/149-150,NOfusionar.
+Rama codex/auditoria-97-ia-contexto-20261011; PR1288 QA/149-151,NOfusionar.
 Main ca5b714d;1289fusionada otraIA.97ejecutado9a/contrastado755;98ejecutado755.
 99QR ca5b714d:8recorridos6pass/2fail;149/150sin delta,no repetir sondas.
 Tanda local no subida NO contrastada. No reencargar lo presente en main.
-Health97declara755;metadata,no revisionHosting independiente.
 
 ## Datos del negocio
 - Contabilidad > Poner al dia: cancelar Robert10/10/Lorena12/12 y Aplicar;
@@ -25,16 +24,17 @@ Health97declara755;metadata,no revisionHosting independiente.
 - 147QR:1289recibida;historico94 PCmovilSI,dos patronesmovilesNO. Ampliada99.
 - NUEVO150P1:mural flex0px/CSSpositionrelative ganafixed;control540/659pxSI.
 - Barrido697102a1/a535407b lectores/camaras:Claude explicita limitesnavegador.
-
 ## Nuevos hallazgos y limites
 - NUEVO149Gemini:primera generacionNodeSDK no constructor por aliasfalse;
   minisonda nativoSI/configactualNO/controlSI. Hosting no probado.
 - NUEVO149Gemini:respaldo agenteFiestaA priorizaB PCmovil2fail,SDK/UI real.
   Filtrar antes de limitar;general conserva alcance. No fuga entre cuentas.
+- 151Claude:lector traga fallo->portal falsoexpirado/presupuesto[]sinaviso;
+  100PCmovil4negativos,claveinexistente2pass,SDKintacto. No throwglobal ciego.
 - 3Dhistorico falla reconciler/foto!=canvas;sin escena aceptada.
 - Video URLs reales/integraciones necesitan cuentas/staging autorizados.
 - 19manuales requieren export+originales;gRPC7/JSONlocal0 NO son ausencia.
 - Hardwarefinal pendiente;build/Hosting mismoSHA registraClaude, noActionsrojos.
-- Informes97/98/orden149-150/matriz84/YA compartidos;no0errores/14limpias.
-- TEMP97/98/99detenidos;98diez sesionespropias retiradas;99demo/local limpio.
+- Informes97-100/orden149-151/matriz84/YA compartidos;no0errores/14limpias.
+- TEMP97-100/agente cerrados;demofinal limpio,errorQAprep100documentado.
 - Control dos-controles intermitente segun Claude:usar su JSON si reaparece.

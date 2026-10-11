@@ -1,6 +1,6 @@
 ## Descripcion del Cambio
 
-Auditorias97-99: IA con widget/API/SDK reales en entorno aislado9a y contraste
+Auditorias97-100: IA con widget/API/SDK reales en entorno aislado9a y contraste
 contra main755. No correcciones de app; orden149 para Gemini/Claude.
 Dos causas P2: primera generacion falla antes de proveedor por sdk-node
 anulado; respaldoFiestaA priorizaB. Chatpersistente A-B/NOtarea ficticia
@@ -22,6 +22,10 @@ dos patrones movilesNO. Repeticion confirma;DPR1solo cortoSI,UUIDNO.
 Se amplia147sin orden duplicada;149/150sin delta,no se repiten.
 Main1289 incorporada localmente SOLO para resolver conflictos en registros;
 producto identico a main, cambios1289 no son de Codex. PRno fusionada.
+100ca5b714d:portal valido falsoexpirado y presupuesto[]sin aviso ante corte
+lectura SDK;PCmovil4negativos/clave realmente ausente2pass. Ord151Claude;
+datos intactos/recuperacion,lector intermedio traga error. No app corregida.
+Dos errores propios de preparacion QA aclarados,NO dos fallos mas de app.
 
 ## Tipo de Cambio
 - [ ] Correccion de errores (bug fix)
@@ -36,6 +40,7 @@ producto identico a main, cambios1289 no son de Codex. PRno fusionada.
 - [x] Emuladores demo+navegador PC/movil (2positivas/2negativas).
 - [x] Retests98 PC/movil:18ejecucionespositivas/16pares;visual4negativas,ninguna omitida.
 - [x] Retest99QR PC/movil:6pass/2fail,no omitidos;controles no aprueban PNGoriginal.
+- [x] Auditoria100 cadena lectorreal/HTTP/UI/SDK PCmovil,4negativos,2controlesausencia.
 - [x] Comparacion causal miniwebpack, NO build de producto.
 - [x] Sintaxis de sondas y git diff --check.
 - [x] Fixtures propios retirados/runtime detenido/puertos libres.

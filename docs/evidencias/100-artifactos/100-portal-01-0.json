@@ -1,0 +1,7 @@
+{
+  "body": "Portal no encontrado\n\nEl enlace al portal no es válido, ha expirado o el portal no está habilitado. Por favor, solicitá un nuevo enlace a tu organizador.\n\nVolver al inicio",
+  "url": "http://127.0.0.1:3300/portal/c/e2e_100_portal_24524_1791696804063_key",
+  "retry": 0,
+  "faults": "{\"time\":\"2026-10-11T05:33:29.725Z\",\"pid\":12212,\"collection\":\"fiestas\",\"filters\":2}\n{\"time\":\"2026-10-11T05:33:29.742Z\",\"pid\":12212,\"collection\":\"fiestas\",\"filters\":0}\n",
+  "dataExists": true
+}

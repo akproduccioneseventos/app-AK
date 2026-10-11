@@ -1,0 +1,127 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\100-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+[2/4] [chromium-desktop] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  1) [chromium-desktop] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      30 |   // Deliberately no local JSON copy: production data is not an optional dev fallback.
+      31 |   const localFiles = ['data/fiestas','src/data/fiestas'].map(dir=>path.join(process.cwd(),dir,id+'.json'));
+    > 32 |   expect(localFiles.some(f=>fs.existsSync(f))).toBe(false);
+         |                                                ^
+      33 |   const route = '/portal/c/'+key;
+      34 |   try {
+      35 |     await page.goto(route,{waitUntil:'domcontentloaded'});
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-100\tests\e2e\100-portal-reader.spec.ts:32:48
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-desktop\error-context.md
+
+    Error Context: qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-desktop\error-context.md
+
+
+[3/4] [chromium-mobile] › tests\e2e\100-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+[4/4] [chromium-mobile] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  2) [chromium-mobile] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      30 |   // Deliberately no local JSON copy: production data is not an optional dev fallback.
+      31 |   const localFiles = ['data/fiestas','src/data/fiestas'].map(dir=>path.join(process.cwd(),dir,id+'.json'));
+    > 32 |   expect(localFiles.some(f=>fs.existsSync(f))).toBe(false);
+         |                                                ^
+      33 |   const route = '/portal/c/'+key;
+      34 |   try {
+      35 |     await page.goto(route,{waitUntil:'domcontentloaded'});
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-100\tests\e2e\100-portal-reader.spec.ts:32:48
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-mobile\error-context.md
+
+    Error Context: qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+    [chromium-mobile] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  2 passed (1.4m)
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  1) [chromium-desktop] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+
+    Error: existing portal must not be called invalid or expired
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "No pudimos cargar tu portal"
+    Received string:    "Portal no encontrado·
+    El enlace al portal no es válido, ha expirado o el portal no está habilitado. Por favor, solicitá un nuevo enlace a tu organizador.·
+    Volver al inicio"
+
+      54 |     await info.attach('after-recovery.json',{body:JSON.stringify({id,key,before,after,recoveryUsed:outage.retry?'visible Retry':'manual reload because Retry absent'},null,2),contentType:'application/json'});
+      55 |     await info.attach('after-recovery.png',{body:await page.screenshot(),contentType:'image/png'});
+    > 56 |     expect(outage.body,'existing portal must not be called invalid or expired').toContain('No pudimos cargar tu portal');
+         |                                                                                 ^
+      57 |     expect(outage.body).not.toContain('Portal no encontrado'); expect(outage.retry).toBe(1);
+      58 |   } finally { removeFlag(); await ref.delete(); }
+      59 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-100\tests\e2e\100-portal-reader.spec.ts:56:81
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-desktop\error-context.md
+
+    Error Context: qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-mobile] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  2) [chromium-mobile] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+
+    Error: existing portal must not be called invalid or expired
+
+    expect(received).toContain(expected) // indexOf
+
+    Expected substring: "No pudimos cargar tu portal"
+    Received string:    "Portal no encontrado·
+    El enlace al portal no es válido, ha expirado o el portal no está habilitado. Por favor, solicitá un nuevo enlace a tu organizador.·
+    Volver al inicio"
+
+      54 |     await info.attach('after-recovery.json',{body:JSON.stringify({id,key,before,after,recoveryUsed:outage.retry?'visible Retry':'manual reload because Retry absent'},null,2),contentType:'application/json'});
+      55 |     await info.attach('after-recovery.png',{body:await page.screenshot(),contentType:'image/png'});
+    > 56 |     expect(outage.body,'existing portal must not be called invalid or expired').toContain('No pudimos cargar tu portal');
+         |                                                                                 ^
+      57 |     expect(outage.body).not.toContain('Portal no encontrado'); expect(outage.retry).toBe(1);
+      58 |   } finally { removeFlag(); await ref.delete(); }
+      59 | });
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-100\tests\e2e\100-portal-reader.spec.ts:56:81
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-mobile\error-context.md
+
+    Error Context: qa100-artifacts\100-portal-reader-Existing-27872-ecovers-without-losing-data-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+    [chromium-mobile] › tests\e2e\100-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data

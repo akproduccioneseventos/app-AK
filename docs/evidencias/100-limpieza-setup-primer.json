@@ -1,0 +1,16 @@
+{
+  "cwd": "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-100",
+  "deletedDocs": [
+    "fiestas/e2e_100_portal_20868_1791696727091",
+    "fiestas/e2e_100_portal_25556_1791696709454"
+  ],
+  "deletedFiles": [],
+  "deletedLocal": [
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-100\\data\\fiestas\\e2e_100_portal_20868_1791696727091.json",
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-100\\data\\fiestas\\e2e_100_portal_25556_1791696709454.json",
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-100\\src\\data\\fiestas\\e2e_100_portal_20868_1791696727091.json",
+    "C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-100\\src\\data\\fiestas\\e2e_100_portal_25556_1791696709454.json"
+  ],
+  "preservedCollections": [],
+  "finished": "2026-10-11T05:32:39.346Z"
+}
