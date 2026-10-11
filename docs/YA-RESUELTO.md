@@ -1,5 +1,27 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11 de octubre de 2026 — Orden 149: la IA arranca a la primera y el respaldo no mezcla fiestas
+
+- **Qué pasaba:** (1) la primera pregunta a la asistente después de arrancar el servidor fallaba con "NodeSDK is not a
+  constructor" y contestaba con el resumen automático; las siguientes andaban. (2) Cuando la IA no respondía, el resumen
+  de la asistente de una fiesta mostraba pendientes de OTRA fiesta, y a veces el mismo pendiente repetido.
+- **Qué se hizo:** (1) la telemetría sigue apagada a propósito, pero el reemplazo del paquete ya no es "nada": es una
+  pieza mínima (`src/lib/telemetria-apagada-node-sdk.js`) con lo que Genkit llama (crear, `start`, `shutdown`). No finge
+  respuestas del modelo. (2) El resumen de respaldo filtra por fiesta y saca repetidos ANTES de cortar a 6
+  (`seleccionarItemsDeRespaldo`); si la fiesta no tiene pendientes dice "No encontré pendientes de esta fiesta en el
+  resumen automático." Las asistentes generales siguen viendo todo.
+- **Por qué así:** quitar el reemplazo habría metido un paquete pesado en la compilación; y el respaldo usa el mismo criterio
+  que el aviso normal de la IA (`formatAgentDiagnosticsForPrompt`), para que las dos respuestas coincidan.
+- **Probado:** con el reemplazo en `false` y con el filtro sacado, las pruebas se ponen en rojo.
+
+```comprobar
+archivo: src/lib/telemetria-apagada-node-sdk.js
+archivo: next.config.js
+usa: seleccionarItemsDeRespaldo en src/ai/flows/multiagent-flow.ts
+prueba: src/__tests__/la-ia-arranca-sin-telemetria.test.ts
+prueba: src/__tests__/el-respaldo-de-la-ia-respeta-la-fiesta.test.ts
+```
+
 ## 11 de octubre de 2026 — Orden 147: el QR descargado lleva zona blanca y lo lee el lector
 
 - **Qué pasaba:** el botón "Guardar QR" del invitado bajaba el QR pelado, sin margen blanco, y el lector de Control de
