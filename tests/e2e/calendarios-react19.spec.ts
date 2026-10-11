@@ -24,6 +24,7 @@ test('agenda: elegir dia y navegar meses sin tapar los controles', async ({ page
   const caption = page.getByText(monthName, { exact: true }).first();
   const next = page.getByRole('button', { name: 'Ir al mes siguiente' });
   await headerDoesNotOverlap(caption, next);
+  await headerDoesNotOverlap(caption, page.getByRole('button', { name: 'Ir al mes anterior' }));
   const initialMonth = await caption.textContent();
   await next.click();
   await expect(caption).not.toHaveText(initialMonth!);
@@ -43,6 +44,7 @@ test('redes: calendario visible y navegacion mensual', async ({ page, context, b
   const caption = panel.getByText(monthName, { exact: true });
   const next = panel.getByRole('button', { name: 'Ir al mes siguiente' });
   await headerDoesNotOverlap(caption, next);
+  await headerDoesNotOverlap(caption, panel.getByRole('button', { name: 'Ir al mes anterior' }));
   const initialMonth = await caption.textContent();
   await next.click();
   await expect(caption).not.toHaveText(initialMonth!);
