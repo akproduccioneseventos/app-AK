@@ -1,0 +1,17 @@
+{
+  "sha": "4aed259f53f20fb010a27c270edcec634f1937e7",
+  "command": "node docs/evidencias/105-ejecutar-candidato.mjs jest",
+  "success": true,
+  "suites": 690,
+  "passedSuites": 690,
+  "tests": 4134,
+  "passed": 4134,
+  "failed": 0,
+  "pending": 0,
+  "start": "2026-10-11T21:43:43.700Z",
+  "finish": "2026-10-11T21:50:20.611Z",
+  "rawSha256": "c89d202818a79833a850a74e05a79bbadece673d301b7aed16599c2f7e5a3213",
+  "archive": "105-jest-pre-calendario.json.gz",
+  "archiveSha256": "69162778a06c69053c3b1fe13c1d398f8b744b99670df4a7ca44e0448587dea3",
+  "failures": []
+}

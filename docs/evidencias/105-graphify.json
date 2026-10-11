@@ -1,0 +1,26 @@
+{
+  "command": "npm run graphify:update",
+  "exitCode": 0,
+  "applicationSourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "checkoutSha": "e7f5e7fccf94af5aa8ff7ef8ae006f8b4eef0773",
+  "mode": "incremental code-only AST",
+  "nodes": 13648,
+  "edges": 42372,
+  "communities": 832,
+  "changedFiles": 1,
+  "cachedFiles": 2530,
+  "deletedFiles": 0,
+  "partialParserFiles": [
+    "GraziaTemplate.tsx",
+    "LaAppDeTuFiestaSection.tsx",
+    "public-footer.tsx"
+  ],
+  "llmCalls": 0,
+  "localArtifactNotPublished": true,
+  "priorApplicationExtraction": {
+    "changedFiles": 55,
+    "cachedFiles": 2475,
+    "deletedFiles": 1
+  },
+  "log": "105-graphify.log"
+}

@@ -1,0 +1,97 @@
+{
+  "sourceSha": "a33a54d91bf704f52fe11d1afbc956ebd8e819a5",
+  "stats": {
+    "startTime": "2026-10-11T22:30:12.279Z",
+    "duration": 104254.919,
+    "expected": 4,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 14882,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "105-artifactos/105-3d-000.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "105-artifactos/105-3d-001.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "105-artifactos/105-3d-002.json"
+        }
+      ]
+    },
+    {
+      "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-desktop",
+      "status": "passed",
+      "duration": 22160,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "105-artifactos/105-3d-003.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "105-artifactos/105-3d-004.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "105-artifactos/105-3d-005.json"
+        }
+      ]
+    },
+    {
+      "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 35906,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "105-artifactos/105-3d-006.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "105-artifactos/105-3d-007.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "105-artifactos/105-3d-008.json"
+        }
+      ]
+    },
+    {
+      "title": "cliente: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-mobile",
+      "status": "passed",
+      "duration": 25593,
+      "errors": [],
+      "files": [
+        {
+          "name": "salon-real.json",
+          "path": "105-artifactos/105-3d-009.json"
+        },
+        {
+          "name": "salon-real.png",
+          "path": "105-artifactos/105-3d-010.png"
+        },
+        {
+          "name": "errores-de-pagina.json",
+          "path": "105-artifactos/105-3d-011.json"
+        }
+      ]
+    }
+  ]
+}

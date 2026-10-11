@@ -1,10 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 const name = process.argv[2];
-if (!/^10[34]-[a-z0-9-]+$/.test(name)) throw new Error('Own103/104 evidence only');
+if (!/^10[345]-[a-z0-9-]+$/.test(name)) throw new Error('Own103/104/105 evidence only');
 const root = path.resolve('docs/evidencias'), raw = JSON.parse(fs.readFileSync(path.join(root, name + '.json'), 'utf8'));
 const artifactDir = name.slice(0, 3) + '-artifactos';
-const sourceSha = name.startsWith('104-') ? 'a6d2086109e0e1a113307fde23674471f62bc377' : '4c4656d3fb497f00297725059fda5227e979779b';
+const sourceSha = name.startsWith('105-') ? process.argv[3] : name.startsWith('104-') ? 'a6d2086109e0e1a113307fde23674471f62bc377' : '4c4656d3fb497f00297725059fda5227e979779b';
+if (!/^[a-f0-9]{40}$/.test(sourceSha ?? '')) throw new Error('Exact source SHA required');
+execFileSync('git', ['cat-file', '-e', `${sourceSha}^{commit}`], { stdio: 'pipe' });
 const dir = path.join(root, artifactDir); fs.mkdirSync(dir, { recursive: true });
 const results = []; let index = 0;
 function visit(suites) {

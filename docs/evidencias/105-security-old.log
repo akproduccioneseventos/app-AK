@@ -1,0 +1,39 @@
+FAIL src/__tests__/dependencias-criticas-regresion.test.ts
+  ● Handlebars rechaza un AST con expresion ejecutable y conserva plantillas normales
+
+    expect(received).toThrow()
+
+    Received function did not throw
+
+    [0m [90m 24 |[39m     }][33m,[39m
+     [90m 25 |[39m   }[33m;[39m
+    [31m[1m>[22m[39m[90m 26 |[39m   expect(() [33m=>[39m [33mHandlebars[39m[33m.[39mcompile(ast [36mas[39m unknown [36mas[39m string)({}))[33m.[39mtoThrow()[33m;[39m
+     [90m    |[39m                                                                  [31m[1m^[22m[39m
+     [90m 27 |[39m   expect((globalThis [36mas[39m [33mRecord[39m[33m<[39m[33mstring[39m[33m,[39m unknown[33m>[39m)[marker])[33m.[39mtoBeUndefined()[33m;[39m
+     [90m 28 |[39m   expect([33mHandlebars[39m[33m.[39mcompile([32m'Hola {{nombre}}'[39m)({ nombre[33m:[39m [32m'AK'[39m }))[33m.[39mtoBe([32m'Hola AK'[39m)[33m;[39m
+     [90m 29 |[39m })[33m;[39m[0m
+
+      at Object.toThrow (src/__tests__/dependencias-criticas-regresion.test.ts:26:66)
+
+  ● proxy-addr no confia en cualquier IPv4 por una mascara IPv6 abreviada
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+    [0m [90m 31 |[39m test([32m'proxy-addr no confia en cualquier IPv4 por una mascara IPv6 abreviada'[39m[33m,[39m () [33m=>[39m {
+     [90m 32 |[39m   [36mconst[39m invalidSubnet [33m=[39m proxyAddr[33m.[39mcompile([32m'::ffff:10.0.0.0/8'[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 33 |[39m   expect(invalidSubnet([32m'192.0.2.1'[39m))[33m.[39mtoBe([36mfalse[39m)[33m;[39m
+     [90m    |[39m                                      [31m[1m^[22m[39m
+     [90m 34 |[39m   [36mconst[39m mappedSubnet [33m=[39m proxyAddr[33m.[39mcompile([32m'::ffff:10.0.0.0/104'[39m)[33m;[39m
+     [90m 35 |[39m   expect(mappedSubnet([32m'10.23.42.1'[39m))[33m.[39mtoBe([36mtrue[39m)[33m;[39m
+     [90m 36 |[39m   expect(mappedSubnet([32m'192.0.2.1'[39m))[33m.[39mtoBe([36mfalse[39m)[33m;[39m[0m
+
+      at Object.toBe (src/__tests__/dependencias-criticas-regresion.test.ts:33:38)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 2 total
+Snapshots:   0 total
+Time:        0.862 s
+Test results written to: ..\..\2026-05-28\quiero-que-tomando-el-chat-de\.audit-verificacion-81-20261009\docs\evidencias\105-security-old.json

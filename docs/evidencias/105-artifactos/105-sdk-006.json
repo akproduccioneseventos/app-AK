@@ -1,0 +1,43 @@
+{
+  "id": "e2e_105_mural_4276_1791758143007",
+  "withPhoto": false,
+  "measure": {
+    "viewport": {
+      "w": 1280,
+      "h": 720
+    },
+    "root": {
+      "x": 0,
+      "y": 0,
+      "w": 1280,
+      "h": 720
+    },
+    "position": "fixed",
+    "panel": {
+      "x": 0,
+      "y": 69,
+      "w": 1280,
+      "h": 540
+    },
+    "content": {
+      "x": 0,
+      "y": 69,
+      "w": 1280,
+      "h": 540
+    },
+    "contentClass": "absolute inset-0 grid place-items-center overflow-hidden bg-slate-950 px-8 py-10 text-white",
+    "contentFilter": "none",
+    "title": {
+      "x": 64,
+      "y": 287,
+      "w": 768,
+      "h": 72
+    },
+    "pointReceives": true,
+    "natural": null,
+    "opacity": "1"
+  },
+  "errors": [],
+  "fixtureExists": true,
+  "postExists": false
+}

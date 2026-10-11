@@ -1,5 +1,52 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/10/2026 - Codex105: 3D, QR y calendarios probados; NO cierre global
+
+- Fuente app a33a54d91bf704f52fe11d1afbc956ebd8e819a5. Harness e7f5e7fc
+  SOLO corrige el selector E2E de Cola de Mensajes (enlace, no boton).
+  La guarda del corredor rechaza cualquier diferencia de app frente al build.
+- 3D reunion/vista cliente PC/movil:4pass, canvas real y movimiento mouse/tactil.
+  React19/Fiber9/Drei10 dibujan; foto fallback NO acredita 3D. Geometria intacta.
+- DayPicker9 tenia2defectos moviles: caption sobre flecha en agenda e interceptaba
+  clicks en redes. Nav sobre caption, eventos solo en botones, padding reservado;
+  accesos agenda envuelven. Retest calendarios4pass y QR real4pass, sin forceclick.
+- Tras React, SDK demo: mural4pass, aviso de fechas2pass, portal4pass (inexistente,
+  caida real de Query.get y Reintentar conserva datos). No cuentas ni datos reales.
+- Tipos/build canonico exit0, lint/tipos/PWA activos;690suites/4135tests0fail/0skip.
+  Standalone desactivado SOLO en QA local: empaquetado Firebase no certificado.
+  Capturas/hashes/JSON comprimidos en105; se conservan fallos anteriores.
+- Pendiente aparte: ayuda3D movil solapada con controles flotantes. No todos los
+  controles, permisos,19 originales, cuentas ni hardware certificados.
+- Audit0critical pero31GHSA unicos pendientes: NO seguridad total.
+- Antecedentes siguientes son etapas anteriores, NO estado final105.
+
+- Segunda congelacion4aed259f53f20fb010a27c270edcec634f1937e7: el audit
+  encontro handlebars4.7.9 y proxy-addr2.0.7 ya presentes en d0. Se parcha
+  SOLO a4.7.10/2.0.8, compatibles con sus consumidores Genkit/Express.
+  Regresion con librerias reales:2fallos contra versiones anteriores y2pass
+  con las nuevas; no se afirma explotacion en una ruta publicada.
+- Audit productivo ahora0criticos, pero27high/65moderate/2low pendientes
+  de clasificar; NO certificacion de seguridad. JSON antes/despues conservado.
+- Corrida33ad:689suites/4132tests pasan,0omitidos. Tipos4aed exit0.
+  Se interrumpio build33ad antes de instalar el parche; nuevo build pendiente.
+
+- Fuente congelada33adb2843b8dd5fa0260659e9365fdd677c993a8; PR1288 sigue
+  abierta. React19/Fiber9/Drei10 reemplazan la mezcla de renderizadores y el
+  parche de internals. No cambia geometria, cobros, permisos ni servicios.
+- Se adaptan QR a QRCodeCanvas y calendarios a DayPicker9; iconos: solo tipos
+  SVG. React19.2.8/Next15.5.27; lock acotado, sin actualizar todo el arbol.
+- Instalacion privada limpia: npm ci --ignore-scripts --no-audit --no-fund
+  exit0, sin force/legacy-peer-deps. Omite prepare porque .git es archivo en
+  worktree; NO prueba el hook. Tipos33ad exit0; acentos2764 archivos exit0.
+- Jest inicial:4131pass/1fail, exigia renderAs de la API antigua. Se conserva
+  fallo y se exige import+consumo QRCodeCanvas, sin quitar pruebas del token.
+  Corrida final completa en curso; compilacion/navegador pendientes.
+- Preflight dev: la pagina quedo cargando, WebGLtrue pero no hubo canvas.
+  NO acredita 3D arreglado ni identifica por si solo la causa. Resultado,
+  captura y SHA en 105-3d-dev-inicial; no ocultarlo ni darlo por aprobado.
+- Las aceptaciones102-104 se conservan como historicas de sus SHAs. El cambio
+  de dependencias requiere validar sus consumidores, no trasladar verdes.
+
 ## 11/10/2026 - Codex102: autorizacion de correccion directa y lector151
 
 - Graphify: npm run graphify:update ahora usa --code-only para actualizar

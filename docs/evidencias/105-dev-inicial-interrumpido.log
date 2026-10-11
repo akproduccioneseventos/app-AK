@@ -1,0 +1,27 @@
+   ▲ Next.js 15.5.27
+   - Local:        http://127.0.0.1:3300
+   - Network:      http://127.0.0.1:3300
+   - Experiments (use with caution):
+     · serverActions
+
+ ✓ Starting...
+ ○ (pwa) PWA support is disabled.
+ ✓ Ready in 6.1s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1534ms (161 modules)
+ ○ Compiling /empresa/configurador-reunion ...
+ ✓ Compiled /empresa/configurador-reunion in 68.5s (5717 modules)
+ GET /empresa/configurador-reunion 200 in 84852ms
+ ✓ Compiled in 16.5s (2071 modules)
+Firebase Admin SDK initialized using GOOGLE_APPLICATION_CREDENTIALS.
+ POST /empresa/configurador-reunion 200 in 7572ms
+[AK] [readData] FALLBACK JSON usado para "invoice-template-settings.json"; Firestore vacio o no disponible.
+ POST /empresa/configurador-reunion 200 in 5422ms
+ POST /empresa/configurador-reunion 200 in 2441ms
+ ⨯ [Error: aborted] { code: 'ECONNRESET', digest: '2587204292' }
+ ○ Compiling /portal/[fiestaId]/decoracion ...
+ ✓ Compiled /portal/[fiestaId]/decoracion in 50.2s (5611 modules)
+ GET /portal/e2e_105_salon_1791750287915/decoracion 200 in 60379ms
+Firebase Admin SDK already initialized (1 app(s)).
+[AK] [readData] FALLBACK JSON usado para "fiestas/e2e_105_salon_1791750287915.json"; Firestore vacio o no disponible.
+ POST /portal/e2e_105_salon_1791750287915/decoracion 200 in 1480ms

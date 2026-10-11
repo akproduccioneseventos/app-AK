@@ -1,0 +1,43 @@
+{
+  "sourceSha": "ba11b09d20b9e4b39669ff0523a966fe185e04d4",
+  "stats": {
+    "startTime": "2026-10-11T21:17:00.595Z",
+    "duration": 136206.20500000002,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "results": [
+    {
+      "title": "reunion: escena real dibujada e interactiva, no foto de respaldo",
+      "project": "chromium-desktop",
+      "status": "failed",
+      "duration": 132535,
+      "errors": [
+        {
+          "location": {
+            "file": "C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-real.spec.ts",
+            "column": 26,
+            "line": 47
+          },
+          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('canvas').first()\nExpected: visible\nTimeout: 60000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 60000ms\u001b[22m\n\u001b[2m  - waiting for locator('canvas').first()\u001b[22m\n\n\n  45 |     }), 'El navegador de prueba debe ofrecer WebGL').toBe(true);\n  46 |     const canvas = page.locator('canvas').first();\n> 47 |     await expect(canvas).toBeVisible({ timeout: 60000 });\n     |                          ^\n  48 |     await canvas.scrollIntoViewIfNeeded();\n  49 |     await expect.poll(async () => (await pixels(page)).colors).toBeGreaterThan(20);\n  50 |     const before = await pixels(page);\n    at C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-react19-candidato-103\\tests\\e2e\\salon-3d-real.spec.ts:47:26"
+        }
+      ],
+      "files": [
+        {
+          "name": "screenshot",
+          "path": "105-artifactos/105-3d-dev-inicial-000.png"
+        },
+        {
+          "name": "error-context",
+          "path": "105-artifactos/105-3d-dev-inicial-001.bin"
+        },
+        {
+          "name": "error-context",
+          "path": "105-artifactos/105-3d-dev-inicial-002.bin"
+        }
+      ]
+    }
+  ]
+}
