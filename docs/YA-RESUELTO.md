@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11 de octubre de 2026 — Orden 150: el mural a pantalla completa se veía vacío o recortado
+
+- **Qué pasaba:** en la pantalla gigante del mural (PC y celular) el panel central medía 0 px de alto: se veía sólo la
+  cabecera y el fondo, sin fotos ni el cartel de "mural vacío", aunque los datos estaban.
+- **Causa:** la capa de marca de las pantallas en vivo tenía `.ak-red-premium-live > * { position: relative }`, que por
+  especificidad le ganaba al `fixed` del raíz del mural. El raíz dejaba de estar fijo a la ventana y perdía su alto.
+- **Qué se hizo:** la regla de marca ahora sólo pone `position: relative` a los hijos directos que NO declaran
+  fixed/absolute/sticky (`:where(:not(.fixed):not(.absolute):not(.sticky))`, sin subir la especificidad ni usar
+  `!important`); el `z-index: 1` queda igual para todos.
+- **Por qué así:** la capa de marca no tiene que decidir la posición estructural de quien ya la declara; arreglar sólo el
+  mural con otra clase no alcanzaba y dejaba a las otras pantallas en vivo con el mismo riesgo.
+- **Probado:** `tests/e2e/mural-geometria-visible.spec.ts` mide el alto del raíz (>= 90% de la ventana), el del panel
+  (> 300 px), qué elemento recibe el punto del título del mural vacío y que la foto aprobada decodifique y caiga dentro de
+  la ventana, en PC y celular. `toBeVisible` no sirve acá: pasa aunque esté recortado.
+
+```comprobar
+archivo: src/app/ak-public-experience.css
+usa: AkRedPremiumSurface en src/app/evento/muro-en-vivo/layout.tsx
+prueba: tests/e2e/mural-geometria-visible.spec.ts
+```
+
 ## 11 de octubre de 2026 — Orden 147: el QR descargado lleva zona blanca y lo lee el lector
 
 - **Qué pasaba:** el botón "Guardar QR" del invitado bajaba el QR pelado, sin margen blanco, y el lector de Control de

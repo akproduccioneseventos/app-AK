@@ -257,8 +257,11 @@
   z-index: 0;
 }
 
-.ak-red-premium-live > * {
+.ak-red-premium-live > :where(:not(.fixed):not(.absolute):not(.sticky)) {
   position: relative;
+}
+
+.ak-red-premium-live > * {
   z-index: 1;
 }
 
