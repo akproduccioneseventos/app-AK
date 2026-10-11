@@ -283,8 +283,9 @@ function PaginaWebPageContent() {
 
   const handleCopyToClipboard = (url: string) => {
     checkMissingDataBeforeAction(() => {
-      navigator.clipboard.writeText(url);
-      toast({ title: "Enlace Copiado" });
+      navigator.clipboard.writeText(url)
+        .then(() => toast({ title: "Enlace Copiado" }))
+        .catch(() => toast({ title: "No se pudo copiar", description: url, variant: "destructive" }));
     });
   };
   

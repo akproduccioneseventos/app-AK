@@ -55,8 +55,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
     };
 
     const handleCopyToClipboard = (url: string) => {
-        navigator.clipboard.writeText(url);
-        toast({ title: "Enlace Copiado" });
+        navigator.clipboard.writeText(url)
+            .then(() => toast({ title: "Enlace Copiado" }))
+            .catch(() => toast({ title: "No se pudo copiar", description: url, variant: "destructive" }));
     };
 
     const openTemplateModal = async () => {
