@@ -56,10 +56,33 @@ prueba: tests/e2e/mural-geometria-visible.spec.ts
   el borde sin escalar sí. Con sólo el borde y nivel H, la URL larga seguía sin leerse (probado: 2 de 4).
 - **Probado:** descarga con el botón real y esos bytes exactos al lector real, token corto y UUID, en escritorio y celular
   (4 de 4); con la descarga pelada se pone en rojo (4 de 4 rojos).
+- **Segunda vuelta (módulos enteros), medido:** en celular el canvas sale a 170 x 2,625 = 446 px, un factor no entero que
+  difumina cada módulo, y el lector además agranda las imágenes chicas con otro factor no entero; con el borde del 19% el
+  lector real fallaba entre 7% y 14% de los códigos. Se midió en Chromium con el lector real (`scanFileV2`), contenidos
+  con la forma de la URL real, contenedores de 360 y 1000 px (igual resultado en los dos):
+
+  | Variante (100 códigos) | dpr 1 | dpr 2,625 |
+  |---|---|---|
+  | Canvas de 170 px x dpr + borde 19% (como antes) | 89 / 100 | 93 / 100 |
+  | Módulos enteros 8 px, margen 4 módulos | 92 / 100 | 92 / 100 |
+  | Módulos enteros 6 px, margen 4 | 90 / 100 | 90 / 100 |
+  | Módulos enteros 5 px, margen 4 | 95 / 100 | 95 / 100 |
+  | Módulos enteros 4 px, margen 4 | 99 / 100 | 99 / 100 |
+  | Módulos enteros 3 px, margen 4 u 8 | 100 / 100 | 100 / 100 |
+  | **Módulos enteros 4 px, margen 8 (elegida)** | **100 / 100** | **100 / 100** |
+
+  Con 300 códigos: 4 px y margen 8 leyó 299 (el único que falla, falla con todas las variantes: es del lector). Contra
+  lo que parecía, los módulos más grandes leen PEOR: al lector le sirve que la imagen final sea chica. Nivel Q lee peor que M.
+  Por eso el QR de entrada del invitado (portal y RSVP) se baja con `qrParaDescargarEntero`
+  (`src/lib/qr/qr-para-descargar-entero.ts`): mismo codificador que la pantalla (`QRCodeSVG` de qrcode.react, fuera de
+  pantalla), mismo valor, módulos de 4 px enteros y 8 de margen, sin depender del `devicePixelRatio`. La pantalla no
+  cambia. Los otros 4 QR siguen con `qrConZonaBlanca`.
 
 ```comprobar
 archivo: src/lib/qr/qr-con-zona-blanca.ts
-usa: qrConZonaBlanca en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
+archivo: src/lib/qr/qr-para-descargar-entero.ts
+usa: qrParaDescargarEntero en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
+usa: qrParaDescargarEntero en src/app/invitacion/[fiestaId]/rsvp/page.tsx
 prueba: src/__tests__/el-qr-descargado-tiene-zona-blanca.test.ts
 prueba: tests/e2e/qr-descargado-lector-real.spec.ts
 ```

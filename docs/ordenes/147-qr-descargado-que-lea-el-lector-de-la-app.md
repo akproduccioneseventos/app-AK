@@ -56,8 +56,8 @@ usa: downloadQR en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
 usa: checkInGuest en src/app/evento/accesos/[fiestaId]/page.tsx
 prueba: docs/evidencias/94-qr-imagen.spec.ts
 prueba: docs/evidencias/92-entrada-pendientes.spec.ts
-usa: qrConZonaBlanca en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
-usa: qrConZonaBlanca en src/app/invitacion/[fiestaId]/rsvp/page.tsx
+usa: qrParaDescargarEntero en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
+usa: qrParaDescargarEntero en src/app/invitacion/[fiestaId]/rsvp/page.tsx
 usa: qrConZonaBlanca en src/app/(app)/fiestas/nueva/invitados/page.tsx
 usa: qrConZonaBlanca en src/components/invitacion/edit/ControlPanel.tsx
 usa: qrConZonaBlanca en src/components/invitacion/edit/SeccionRedesSociales.tsx

@@ -10,10 +10,10 @@ import { enchufarCamaraFalsa } from './helpers/camara-falsa';
  * Se descarga el archivo con el botón real del portal del invitado y se le entregan EXACTAMENTE esos
  * bytes al lector real (html5-qrcode, por archivo) de la pantalla de accesos: el archivo no se retoca
  * ni se genera otro QR ni se llama la acción a mano. Se mira el resultado: el invitado queda con
- * `checkedIn`, la segunda lectura no le cambia la hora de entrada, y el archivo trae zona blanca (~19% del canvas por lado). Se prueban un token corto y uno largo (códigos de distinto tamaño).
+ * `checkedIn`, la segunda lectura no le cambia la hora de entrada, y el archivo trae módulos enteros y zona blanca. Se prueban un token corto y uno largo (códigos de distinto tamaño).
  *
  * Probado rompiéndolo: volver `downloadQR` a bajar el canvas pelado (`canvas.toDataURL`) deja el
- * archivo de 170 px sin margen y esta prueba se pone en rojo en la comprobación de tamaño y de lectura.
+ * archivo sin margen y con bordes grises, y esta prueba se pone en rojo en la franja y en los grises.
  */
 
 const CASOS = [
@@ -41,14 +41,13 @@ for (const caso of CASOS) {
       const ruta = await descarga.path();
       const bytes = fs.readFileSync(ruta!);
 
-      // El archivo no es el canvas pelado de 170 px: es grande y tiene margen (el borde es blanco).
+      // El archivo es un PNG cuadrado con módulos enteros: ningún píxel gris (sin bordes difuminados) y
+      // la franja superior (zona blanca) toda blanca. El tamaño no depende del devicePixelRatio.
       expect(bytes.subarray(1, 4).toString('ascii')).toBe('PNG');
       const ancho = bytes.readUInt32BE(16);
       const alto = bytes.readUInt32BE(20);
-      const anchoEnPantalla = await page.evaluate(() => (document.getElementById('qr-guest-portal') as HTMLCanvasElement).width);
-      expect(ancho, 'el archivo debe ser más ancho que el canvas en pantalla (lleva borde)').toBeGreaterThan(anchoEnPantalla);
       expect(alto).toBe(ancho);
-      const esquina = await page.evaluate(async (b64) => {
+      const medida = await page.evaluate(async (b64) => {
         const img = new Image();
         img.src = 'data:image/png;base64,' + b64;
         await img.decode();
@@ -56,14 +55,19 @@ for (const caso of CASOS) {
         c.width = img.naturalWidth; c.height = img.naturalHeight;
         const ctx = c.getContext('2d')!;
         ctx.drawImage(img, 0, 0);
-        // Franja superior del 12% del archivo (el borde medido es 19% del canvas = ~13,8% del archivo): toda blanca.
-        const franja = Math.floor(img.naturalWidth * 0.12);
+        const todo = ctx.getImageData(0, 0, c.width, c.height).data;
+        let grises = 0;
+        for (let i = 0; i < todo.length; i += 4) if (todo[i] !== 0 && todo[i] !== 255) grises++;
+        // Franja superior del 8% del archivo (el margen son 8 módulos: entre 9% y 14% según el código): toda blanca.
+        const franja = Math.floor(img.naturalWidth * 0.08);
         const d = ctx.getImageData(0, 0, c.width, franja).data;
         let oscuros = 0;
         for (let i = 0; i < d.length; i += 4) if (d[i] < 128) oscuros++;
-        return oscuros;
+        return { grises, oscuros };
       }, bytes.toString('base64'));
-      expect(esquina, 'la franja superior del archivo debe ser zona blanca').toBe(0);
+      expect(medida.grises, 'los módulos son enteros: no hay píxeles grises').toBe(0);
+      expect(medida.oscuros, 'la franja superior del archivo debe ser zona blanca').toBe(0);
+      expect(ancho % 4, 'cada módulo mide un número entero de píxeles (4)').toBe(0);
 
       // 2) El equipo entrega EXACTAMENTE esos bytes al lector real de accesos.
       await ponerSesionDelEquipo(context, baseURL);
