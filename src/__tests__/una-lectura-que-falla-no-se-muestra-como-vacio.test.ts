@@ -9,10 +9,11 @@
  * rojo. La base simulada falla de verdad (lanza), no devuelve vacío.
  */
 let leerFalla = true;
+let sinBase = true;
 let fiestasCrudas: any[] = [];
 
 jest.mock('@/lib/firebase/modo-local', () => ({
-  sinBaseDisponible: () => true,
+  sinBaseDisponible: () => sinBase,
   hayEmuladorDeBase: () => false,
   hayEmuladorDeArchivos: () => false,
 }));
@@ -82,9 +83,19 @@ describe('una lectura que falla lanza, no devuelve vacío', () => {
   });
 
   it('(b) getChatMessages, getSongRequests y getDedications lanzan cuando la base falla', async () => {
-    await expect(getChatMessages('f1')).rejects.toThrow('base caída');
-    await expect(getSongRequests('f1')).rejects.toThrow('base caída');
-    await expect(getDedications('f1')).rejects.toThrow('base caída');
+    sinBase = false;
+    try {
+      await expect(getChatMessages('f1')).rejects.toThrow('base caída');
+      await expect(getSongRequests('f1')).rejects.toThrow('base caída');
+      await expect(getDedications('f1')).rejects.toThrow('base caída');
+    } finally {
+      sinBase = true;
+    }
+  });
+
+  it('(b2) sin base (modo local) no hay dónde se hayan guardado: vacío es la verdad', async () => {
+    await expect(getChatMessages('f1')).resolves.toEqual([]);
+    await expect(getSongRequests('f1')).resolves.toEqual([]);
   });
 
   it('(c) getFiestaByAccessKey lanza si falló la lectura y devuelve null si no existe', async () => {

@@ -2,6 +2,10 @@
 
 ## 11 de octubre de 2026 — Una lectura que falla ya no se muestra como "vacío" (barrido de la orden 148)
 
+- **Lo que frenó la verificación:** con las secundarias lanzando, el muro en vivo pedía fotos, dedicatorias, chat y
+  canciones todo junto, y si UNA fallaba no mostraba ninguna foto (las pruebas del muro lo agarraron). Ahora las tres
+  secundarias, si fallan, conservan lo que ya estaba y las fotos siguen. Y sin base (modo local) chat, canciones y
+  dedicatorias devuelven vacío, porque ahí no hay dónde se hayan guardado.
 - **Fotos, chat, canciones y dedicatorias:** `getSocialPosts`, `getChatMessages`, `getSongRequests` y `getDedications`
   devolvían `[]` si se caía la lectura; la galería, el muro y la pantalla social decían "todavía no hay nada". Ahora
   **lanzan**. Cada pantalla conserva lo que ya mostraba: en la social del invitado una sección que no se actualiza

@@ -862,6 +862,8 @@ export async function getPhotoFilePathsForZip(
 
 export async function getChatMessages(fiestaId: string): Promise<ChatMessage[]> {
   try {
+    // Sin base (modo local) no hay donde se hayan guardado: vacío es la verdad, no una falla.
+    if (sinBaseDisponible()) return [];
     const db = await getDb();
     const snapshot = await db
       .collection(CHAT_COLLECTION)

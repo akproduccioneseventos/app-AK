@@ -24,6 +24,7 @@ import admin from 'firebase-admin';
 import { randomUUID } from 'crypto';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
+import { sinBaseDisponible } from '@/lib/firebase/modo-local';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
 import { getSignedUrl, uploadToStorage } from '@/lib/firebase/storage';
 import { hasAppSession } from '@/lib/auth/require-session';
@@ -188,6 +189,8 @@ export async function closePoll(
 
 export async function getSongRequests(fiestaId: string): Promise<SongRequest[]> {
   try {
+    // Sin base (modo local) no hay donde se hayan guardado: vacío es la verdad, no una falla.
+    if (sinBaseDisponible()) return [];
     const db = await getDb();
     const snapshot = await db
       .collection(SONGS_COLLECTION)
@@ -294,6 +297,8 @@ export async function getDedications(fiestaId: string): Promise<Dedication[]> {
     if (!fiesta) return [];
     const privateMode = fiesta.socialGallerySettings?.privateDedicationsMode === true;
     if (!canReadDedications(privateMode, adminSession)) return [];
+    // Sin base (modo local) no hay donde se hayan guardado: vacío es la verdad, no una falla.
+    if (sinBaseDisponible()) return [];
 
     const db = await getDb();
     const snapshot = await db
