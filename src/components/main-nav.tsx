@@ -61,7 +61,7 @@ import { getAlertasGlobalesConLeidas } from "@/app/actions/alertas.actions";
 type NavItem = {
   title: string;
   href: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   active?: (pathname: string) => boolean;
   highlight?: boolean;
   subgroup?: string;

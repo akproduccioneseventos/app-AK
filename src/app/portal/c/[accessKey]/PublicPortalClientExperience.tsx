@@ -1,7 +1,7 @@
 'use client';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 
-import { useEffect, useRef, useState, type ElementType, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ComponentType, type ReactNode, type SVGProps } from 'react';
 import {
   AlertTriangle,
   Calendar,
@@ -70,7 +70,7 @@ type PublicPortalClientExperienceProps = {
   ajusteAnualPorcentaje?: number;
 };
 
-type DisplayIcon = ElementType<{ className?: string }>;
+type DisplayIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 type CatalogService = {
   id: string;

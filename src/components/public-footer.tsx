@@ -26,7 +26,7 @@ function PinterestIcon({ className }: { className?: string }) {
 interface SocialLinkItem {
   platform: string;
   profileUrl: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   bgClass: string;
 }
 

@@ -24,7 +24,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import QRCodeStylized from 'qrcode.react';
+import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
 import { useToast } from "@/hooks/use-toast";
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from "@/app/actions/invitacion-digital-templates";
 import cloneDeep from 'lodash/cloneDeep';

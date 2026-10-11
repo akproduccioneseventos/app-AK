@@ -1,7 +1,7 @@
 'use client';
 
 import { CierreDeBarra } from '@/components/barra/CierreDeBarra';
-import { Suspense, useCallback, useEffect, useMemo, useState, type ElementType } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useState, type ComponentType, type SVGProps } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
@@ -332,7 +332,7 @@ function ToggleRow({ label, checked, onCheckedChange }: { label: string; checked
   );
 }
 
-function QrCard({ title, icon: Icon, url, onCopy }: { title: string; icon: ElementType; url: string; onCopy: (url: string) => void }) {
+function QrCard({ title, icon: Icon, url, onCopy }: { title: string; icon: ComponentType<SVGProps<SVGSVGElement>>; url: string; onCopy: (url: string) => void }) {
   return (
     <Card className="rounded-[2rem] shadow-lg">
       <CardHeader>

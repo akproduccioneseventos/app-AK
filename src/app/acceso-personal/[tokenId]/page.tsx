@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon: React.ElementType }> = {
+const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon: React.ComponentType<React.SVGProps<SVGSVGElement>> }> = {
   'musica': { label: 'Preferencias Musicales', href: '/fiestas/nueva/musica/pdf', icon: Music2 },
   'itinerario': { label: 'Itinerario del Evento', href: '/fiestas/nueva/itinerario/pdf', icon: Clock },
   'carga-operativa': { label: 'Lista de Carga Operativa', href: '/fiestas/nueva/carga-operativa/pdf', icon: PackageSearch },

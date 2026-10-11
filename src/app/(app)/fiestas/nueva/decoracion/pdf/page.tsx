@@ -70,8 +70,8 @@ function DecorationPdfPageContent() {
     }
   };
 
-  const getZonaIcon = (zonaId: ZonaContratada['id']): React.ElementType => {
-    const iconMap: Record<ZonaContratada['id'], React.ElementType> = {
+  const getZonaIcon = (zonaId: ZonaContratada['id']): React.ComponentType<React.SVGProps<SVGSVGElement>> => {
+    const iconMap: Record<ZonaContratada['id'], React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
         'atras_torta': CakeSlice, 'frente_salon': Building, 'zona_regalos': Gift,
         'zona_fotografia': Camera, 'centro_salon': SparklesIcon
     };

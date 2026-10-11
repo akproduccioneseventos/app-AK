@@ -3,11 +3,12 @@
 
 import { useState, useMemo } from 'react';
 import { Calendar } from "@/components/ui/calendar";
-import { es } from 'date-fns/locale';
+import { DayButton, type DayButtonProps } from 'react-day-picker';
+import { es } from 'react-day-picker/locale';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Facebook, Instagram, Music, MessageSquare, Youtube, AtSign, Twitter, Pin, Globe } from 'lucide-react';
+import { Facebook, Instagram, Music, MessageSquare, Youtube, AtSign, Twitter, Pin, Globe, type LucideIcon } from 'lucide-react';
 
 interface SocialMediaCalendarProps {
     posts: SocialPost[];
@@ -25,7 +26,7 @@ const platformStyles: Record<SocialPlatform, string> = {
     Pinterest: 'bg-red-100 text-red-900 border-red-300 hover:bg-red-200',
 };
 
-const platformIcons: Record<SocialPlatform, React.ElementType> = {
+const platformIcons: Record<SocialPlatform, LucideIcon> = {
     Facebook: Facebook,
     Instagram: Instagram,
     Google: Globe,
@@ -52,19 +53,25 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
         return grouped;
     }, [posts]);
 
-    const DayContent = (dayProps: { date: Date }) => {
-        const dayString = dayProps.date.toISOString().split('T')[0];
+    const SocialDayButton = (dayProps: DayButtonProps) => {
+        const [open, setOpen] = useState(false);
+        const date = dayProps.day.date;
+        const dayString = date.toISOString().split('T')[0];
         const postsForDay = postsByDay[dayString];
 
         if (!postsForDay) {
-            return <div className="h-full w-full">{dayProps.date.getDate()}</div>;
+            return <DayButton {...dayProps} />;
         }
 
         return (
-            <Popover>
+            <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                    <div className="relative h-full w-full flex items-center justify-center cursor-pointer">
-                        {dayProps.date.getDate()}
+                    <DayButton {...dayProps} onClick={event => {
+                        // DayPicker prevents the default click; open the preview explicitly.
+                        dayProps.onClick?.(event);
+                        setOpen(current => !current);
+                    }} className={`${dayProps.className ?? ''} relative h-full w-full flex items-center justify-center cursor-pointer`}>
+                        {date.getDate()}
                         <div className="absolute bottom-0.5 flex justify-center items-center gap-0.5">
                             {postsForDay.slice(0, 3).map(post => {
                                 const Icon = platformIcons[post.platform];
@@ -73,10 +80,10 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
                                 return <Icon key={post.id} className="w-2 h-2" style={{color: `var(--tw-color-${color})`}}/>;
                             })}
                         </div>
-                    </div>
+                    </DayButton>
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-2">
-                    <div className="font-bold text-sm mb-2">{dayProps.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+                    <div className="font-bold text-sm mb-2">{date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
                     <ul className="space-y-1.5">
                         {postsForDay.map(post => {
                              const Icon = platformIcons[post.platform];
@@ -110,12 +117,12 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
             locale={es}
             className="p-0 rounded-md border shadow-sm mx-auto"
             components={{
-                DayContent: DayContent,
+                DayButton: SocialDayButton,
             }}
              classNames={{
-                day_outside: "text-muted-foreground/30",
-                cell: "h-16 w-full text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                day: "h-full w-full p-1.5"
+                outside: "text-muted-foreground/30",
+                day: "h-16 w-full text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                day_button: "h-full w-full p-1.5"
             }}
         />
     );

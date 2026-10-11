@@ -16,7 +16,7 @@ import {
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
-const rsvpConfig: Record<RsvpStatus, { icon: React.ElementType; cls: string; badge: string }> = {
+const rsvpConfig: Record<RsvpStatus, { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; cls: string; badge: string }> = {
   Confirmado: { icon: CheckCircle2, cls: 'text-green-500', badge: 'bg-green-100 text-green-700 border-green-200' },
   Rechazado:  { icon: XCircle,      cls: 'text-red-400',   badge: 'bg-red-100 text-red-700 border-red-200'     },
   'Tal vez':  { icon: HelpCircle,   cls: 'text-amber-400', badge: 'bg-amber-100 text-amber-700 border-amber-200' },

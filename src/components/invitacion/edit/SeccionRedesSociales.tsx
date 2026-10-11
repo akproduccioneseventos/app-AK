@@ -9,7 +9,7 @@ import { TextStyleEditor } from './TextStyleEditor';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CameraIcon, Download } from 'lucide-react';
-import QRCodeStylized from 'qrcode.react';
+import { QRCodeCanvas as QRCodeStylized } from 'qrcode.react';
 import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 interface Props {

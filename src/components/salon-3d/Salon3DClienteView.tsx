@@ -1,6 +1,5 @@
 'use client';
 
-import '@/lib/react-three-fiber-compat';
 import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';

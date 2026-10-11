@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { ElementType } from 'react';
+import type { ComponentType, SVGProps } from 'react';
 import { ArrowLeft, CalendarDays, CheckCircle2, CreditCard, FileSignature, Image as ImageIcon, MessageCircle, Music, Palette, Smartphone, Users } from 'lucide-react';
 
 import { getFiestaById } from '@/app/actions/fiesta-actual';
@@ -15,7 +15,7 @@ type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
 type JourneyItem = {
   title: string;
   description: string;
-  icon: ElementType;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   href: string;
   state: 'listo' | 'revisar';
 };

@@ -51,7 +51,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
-const iconMap: Record<string, React.ElementType> = {
+const iconMap: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Clock,
 };
 

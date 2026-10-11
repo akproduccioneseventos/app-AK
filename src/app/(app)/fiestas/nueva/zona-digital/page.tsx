@@ -58,7 +58,7 @@ import type {
   ZonaDigitalSocialNetwork,
 } from '@/types/fiesta';
 
-const featureIcons: Record<string, React.ElementType> = {
+const featureIcons: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
   muro_social: ImageIcon,
   retos: Trophy,
   juegos: Gamepad2,
