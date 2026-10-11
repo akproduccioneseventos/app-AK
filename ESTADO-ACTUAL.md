@@ -1,6 +1,6 @@
 # Estado actual - 11/10/2026
 
-Main en 755f0707 (PR 1287 fusionada). Firebase publicó bien esa versión: el salteo del revisor
+Main en ca5b714d (PR 1289 fusionada y publicada: el QR descargado lo lee el lector). Firebase publicó bien esa versión: el salteo del revisor
 de tipos sólo en Firebase destrabó las tres publicaciones fallidas del 10/10.
 Rama de trabajo: claude/app-debug-stabilize-m70e6z, igual a main.
 
@@ -12,10 +12,6 @@ Rama de trabajo: claude/app-debug-stabilize-m70e6z, igual a main.
 - Contador de Codex con las auditorías 94-96 (docs/codex/areas.json).
 
 ## Abierto
-- Orden 147: el QR descargado no lo lee el lector en el celular. Pista medida por Codex: el QR de
-  170 px con borde blanco ~19% del ancho, sin agrandar, se lee. Hay otros 4 QR descargables sin
-  margen (buscador de mesas en invitados, ControlPanel y SeccionRedesSociales del muro, regalos en
-  pagina-web): arreglarlos juntos con la 147.
 - Prueba los-dos-controles-dicen-lo-mismo falla 1 de cada ~6 corridas de la puerta; si vuelve,
   leer test-results/dos-controles-sin-cuentas.json (lo deja la prueba al fallar).
 - Codex: 0 de 14 áreas limpias; sin revisar: Contrato y seña, Portal del cliente.
