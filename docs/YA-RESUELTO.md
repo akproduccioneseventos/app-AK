@@ -15,6 +15,16 @@
   sin modificar token/PNG original ni escaneo de camara ni checkInGuest.
   La instalacion es idempotente. Prueba de archivo real PC/movil2pass;
   entrada persistida/reentrada en pantalla todavia pendiente de retest.
+- Mural: el componente REAL con chat pendiente no pintaba la foto aprobada;
+  sonda falla en source main99 y pasa corregida. Primarias pintan sin esperar
+  secundarias; cada secundaria conserva datos si falla. allSettled mantiene
+  el bloqueo hasta acabar todas, incluso si falla una primaria. Guardas de
+  montaje/generacion descartan respuestas viejas. 19 tests/4suites pasan.
+  Corregido el borrador del agente (destructuring errado/dos refs); NO se
+  publico ese borrador. Geometria/WebGL/Hosting no quedan aprobados por Jest.
+- Graphify AST local actualizado:13546nodos/42271relaciones/835comunidades,
+  sin API/LLM ni dependencias de produccion. 25 advertencias del parser no
+  prueban errores TypeScript; no confundir extraccion con compilacion.
 - Recuento economico revisado: el agente interpreto mal el criterio149:
   que A NO incluya B es el resultado correcto, aceptado101; NO reabrirlo.
   QR147 sigue en correccion separable; muralPC y 3D requieren evidencia nueva.
