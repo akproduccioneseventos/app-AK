@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { getCupones, saveCupon, toggleCuponActivo, deleteCupon, getCuponStats } from '@/app/actions/cupones';
 import type { Coupon, CouponUsage } from '@/types/coupon';
+import { cuponAunNoComienza, cuponHaExpirado } from '@/lib/cupones/motivo-para-no-usar';
+import { diaCalendario } from '@/lib/reportes/rango-de-dias';
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -48,8 +50,13 @@ import { ALL_TIPOS_EVENTO } from '@/types/presupuesto';
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 
-const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+const formatDate = (iso: string, esDiaCalendario = true) => {
+  const dia = esDiaCalendario ? diaCalendario(iso) : null;
+  const fecha = dia ? new Date(`${dia}T12:00:00-03:00`) : new Date(iso);
+  return !Number.isNaN(fecha.getTime()) ? fecha.toLocaleDateString('es-ES', {
+    day: '2-digit', month: 'short', year: 'numeric', timeZone: 'America/Montevideo',
+  }) : 'Fecha inválida';
+};
 
 const formatDateTime = (iso: string) =>
   new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -215,8 +222,8 @@ export default function CuponesPage() {
     }
   };
 
-  const isExpired = (c: Coupon) => new Date(c.fechaFin) < new Date();
-  const isNotStarted = (c: Coupon) => new Date(c.fechaInicio) > new Date();
+  const isExpired = cuponHaExpirado;
+  const isNotStarted = cuponAunNoComienza;
 
   const getStatusBadge = (cupon: Coupon) => {
     if (!cupon.activo) return <Badge variant="secondary">Desactivado</Badge>;
@@ -460,7 +467,7 @@ export default function CuponesPage() {
                         <TableRow key={u.id}>
                           <TableCell className="text-sm">{u.clienteNombre}</TableCell>
                           <TableCell className="text-right text-sm">{formatCurrency(u.montoDescuento)}</TableCell>
-                          <TableCell className="text-right text-xs text-muted-foreground">{formatDate(u.fechaUso)}</TableCell>
+                          <TableCell className="text-right text-xs text-muted-foreground">{formatDate(u.fechaUso, false)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

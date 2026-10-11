@@ -5,7 +5,7 @@ import type { Coupon, CouponUsage, CouponValidationResult } from '@/types/coupon
 import { requirePermisoAlguno } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { AsyncMutex } from '@/lib/mutex';
-import { motivoParaNoUsarCupon } from '@/lib/cupones/motivo-para-no-usar';
+import { cuponHaExpirado, motivoParaNoUsarCupon } from '@/lib/cupones/motivo-para-no-usar';
 
 const cuponMutex = new AsyncMutex();
 const CUPONES_FILE = 'cupones.json';
@@ -166,9 +166,7 @@ export async function getCuponesRegaloActivos(): Promise<Coupon[]> {
     const ahora = new Date();
     return cupones.filter(c => {
       if (!c.esRegalo || !c.activo) return false;
-      const fin = new Date(c.fechaFin);
-      fin.setHours(23, 59, 59, 999);
-      return ahora <= fin;
+      return !cuponHaExpirado(c, ahora);
     });
   } catch (error) {
     console.error('Error al obtener cupones regalo activos:', error);

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
  * Si falla la LECTURA del portal (no que el enlace no exista) se dice eso: el cliente
  * no tiene que creer que su enlace expiró cuando lo que pasó fue un corte momentáneo.
  */
-export default function PortalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function PortalError() {
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-muted/40">
       <Card className="max-w-sm w-full text-center shadow-lg rounded-3xl border-0">
@@ -20,7 +20,7 @@ export default function PortalError({ reset }: { error: Error & { digest?: strin
           <p className="text-muted-foreground text-sm">
             No pudimos cargar tu portal en este momento. Probá de nuevo en unos minutos.
           </p>
-          <Button onClick={() => reset()} className="w-full rounded-xl">
+          <Button onClick={() => window.location.reload()} className="w-full rounded-xl">
             <RotateCw className="w-4 h-4 mr-2" />
             Reintentar
           </Button>

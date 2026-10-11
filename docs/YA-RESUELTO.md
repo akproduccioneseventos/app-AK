@@ -2,6 +2,14 @@
 
 ## 11/10/2026 - Codex102: autorizacion de correccion directa y lector151
 
+- Retest compilado103: lector151 ya muestra el aviso correcto, pero Reintentar
+  solo reseteaba el cliente sin pedir otra lectura del servidor (PC/movil2fail).
+  El boton recarga el MISMO enlace, que es lo que permite recuperar la lectura;
+  no redirige al administrador ni modifica los datos. Retest verde pendiente.
+- Cupones, consumidores finales: selector de regalos y etiquetas de ajustes
+  todavia comparaban fechas aparte y vencian antes. Usan la misma regla temporal;
+  fechas se muestran en Uruguay y se preserva el dia de ISO historico medianoche.
+  No cambia quienes tienen permiso, los usos ni los regalos ofrecidos.
 - Cupones: el ultimo dia se calculaba en la zona del servidor, que podia
   vencerlos antes de terminar el dia del negocio. Limites del dia en Uruguay;
   se conserva una hora de inicio explicita y se rechazan fechas imposibles.
