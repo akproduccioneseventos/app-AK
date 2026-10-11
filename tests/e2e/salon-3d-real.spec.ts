@@ -37,6 +37,7 @@ for (const route of ['reunion', 'cliente'] as const) {
     await ponerSesionDelEquipo(context, baseURL);
     const errors: string[] = [];
     page.on('pageerror', e => errors.push(e.message));
+    try {
     const response = await page.goto(route === 'reunion' ? '/empresa/configurador-reunion' : `/portal/${id}/decoracion`, { waitUntil: 'domcontentloaded' });
     expect(response?.status()).toBe(200);
     expect(await page.evaluate(() => {
@@ -69,5 +70,8 @@ for (const route of ['reunion', 'cliente'] as const) {
     expect(errors.filter(e => /ReactCurrentBatchConfig|ReactCurrentOwner|Invalid hook call|Minified React error/.test(e))).toEqual([]);
     await info.attach('salon-real.json', { body: JSON.stringify({ route, isMobile, before: { ...before, image: undefined }, after: { ...after, image: undefined }, errors }), contentType: 'application/json' });
     await info.attach('salon-real.png', { body: await canvas.screenshot(), contentType: 'image/png' });
+    } finally {
+      await info.attach('errores-de-pagina.json', { body: JSON.stringify({ route, isMobile, errors }), contentType: 'application/json' });
+    }
   });
 }
