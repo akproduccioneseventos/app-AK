@@ -22,8 +22,10 @@ test('agenda: elegir dia y navegar meses sin tapar los controles', async ({ page
   const grid = page.getByRole('grid').first();
   await expect(grid).toBeVisible();
   const viewportWidth = page.viewportSize()!.width;
-  for (const name of ['Agendar Nueva Reunión', 'Cola de Mensajes']) {
-    const action = page.getByRole('button', { name, exact: true });
+  for (const action of [
+    page.getByRole('button', { name: 'Agendar Nueva Reunión', exact: true }),
+    page.getByRole('link', { name: 'Cola de Mensajes', exact: true }),
+  ]) {
     await expect(action).toBeVisible();
     const box = await action.boundingBox();
     expect(box).not.toBeNull();
