@@ -1,0 +1,15 @@
+{
+  "sha": "4c4656d3fb497f00297725059fda5227e979779b",
+  "command": "node node_modules/jest/bin/jest.js --runInBand --silent --json --outputFile=docs/evidencias/102-jest-final.json",
+  "success": true,
+  "suites": 686,
+  "passedSuites": 686,
+  "tests": 4122,
+  "passed": 4122,
+  "failed": 0,
+  "start": "2026-10-11T17:43:09.010Z",
+  "finish": "2026-10-11T17:50:45.712Z",
+  "rawSha256": "b56fbe909359f1ba8f7d439d41f647bbcf54aeaa66b2f71e52782ca0168db59d",
+  "archive": "102-jest-final.json.gz",
+  "archiveSha256": "977e71508fe1c3ff3716cb17f3bee0ad74423ede395d348fa3be2e9bb150c8be"
+}

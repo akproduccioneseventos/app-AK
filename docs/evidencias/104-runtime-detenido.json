@@ -1,0 +1,27 @@
+[
+  {
+    "ProcessId": 7392,
+    "ParentProcessId": 7852,
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" docs/evidencias/104-ejecutar-aislado.mjs start"
+  },
+  {
+    "ProcessId": 34964,
+    "ParentProcessId": 7392,
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/firebase-tools/lib/bin/firebase.js emulators:start --config firebase.entorno.json --only firestore,storage --project demo-ak-producciones"
+  },
+  {
+    "ProcessId": 32048,
+    "ParentProcessId": 34964,
+    "CommandLine": "java -Dgoogle.cloud_firestore.debug_log_level=FINE -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-firestore-emulator-v1.19.8.jar --host 127.0.0.1 --port 8085 --websocket_port 9150 --project_id demo-ak-producciones --rules C:\\Users\\Usuario\\Documents\\Codex\\ak-codex88\\ak-entorno-aislado-103\\firestore.rules --single_project_mode true"
+  },
+  {
+    "ProcessId": 34304,
+    "ParentProcessId": 34964,
+    "CommandLine": "java -Duser.language=en -jar C:\\Users\\Usuario\\.cache\\firebase\\emulators\\cloud-storage-rules-runtime-v1.1.3.jar serve"
+  },
+  {
+    "ProcessId": 34940,
+    "ParentProcessId": 7392,
+    "CommandLine": "\"C:\\Program Files\\nodejs\\node.exe\" node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3300"
+  }
+]

@@ -1,0 +1,104 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: 103-portal-reader.spec.ts >> Existing client portal distinguishes a read outage and recovers without losing data
+- Location: tests\e2e\103-portal-reader.spec.ts:23:5
+
+# Error details
+
+```
+Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole('button', { name: 'Personalizar portada', exact: true })
+Expected: visible
+Timeout: 60000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "toBeVisible" with timeout 60000ms
+  - waiting for getByRole('button', { name: 'Personalizar portada', exact: true })
+
+```
+
+```yaml
+- img
+- text: No pudimos cargar tu portal
+- paragraph: No pudimos cargar tu portal en este momento. Probá de nuevo en unos minutos.
+- button "Reintentar":
+  - img
+  - text: Reintentar
+- region "Notifications (F8)":
+  - list
+- alert
+```
+
+# Test source
+
+```ts
+  1  | // @ts-nocheck -- actual portal/SDK chain with a controlled provider boundary failure.
+  2  | import fs from 'node:fs';
+  3  | import os from 'node:os';
+  4  | import path from 'node:path';
+  5  | import admin from 'firebase-admin';
+  6  | import { test, expect } from '@playwright/test';
+  7  | import { crearFiestaDeEstaNoche, borrarFiesta } from './helpers/fiesta-de-prueba';
+  8  | if (process.env.AK_ENTORNO_AISLADO !== 'true' || path.basename(process.cwd()) !== 'ak-entorno-aislado-103' ||
+  9  |     path.dirname(process.cwd()) !== path.join(os.homedir(),'Documents','Codex','ak-codex88') || process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8085') throw new Error('Demo103 only');
+  10 | const app = admin.initializeApp({projectId:'demo-ak-producciones'},'portal103-'+process.pid), db = app.firestore();
+  11 | db.settings({ignoreUndefinedProperties:true}); test.afterAll(async()=>app.delete());
+  12 | const flag = path.join(process.cwd(),'.qa103-fail-fiesta-reads'), log = path.join(process.cwd(),'qa103-read-faults.jsonl');
+  13 | const removeFlag = () => { if(fs.existsSync(flag)) fs.unlinkSync(flag); };
+  14 | test('A genuinely missing portal still says not found',async({page,context},info)=>{
+  15 |   test.setTimeout(120000); removeFlag();
+  16 |   const key = 'e2e_103_missing_'+process.pid+'_'+Date.now();
+  17 |   await page.goto('/portal/c/'+key,{waitUntil:'domcontentloaded'});
+  18 |   await expect(page.getByText('Portal no encontrado',{exact:true})).toBeVisible({timeout:60000});
+  19 |   await expect(page.getByText('No pudimos cargar tu portal',{exact:true})).toHaveCount(0);
+  20 |   expect((await context.cookies()).some(c=>c.name==='ak_session')).toBe(false);
+  21 |   await info.attach('missing-portal.png',{body:await page.screenshot(),contentType:'image/png'});
+  22 | });
+  23 | test('Existing client portal distinguishes a read outage and recovers without losing data',async({page,context},info)=>{
+  24 |   test.setTimeout(180000); removeFlag();
+  25 |   const id = 'e2e_103_portal_'+process.pid+'_'+Date.now(), key = id+'_key';
+  26 |   const fiesta = crearFiestaDeEstaNoche({id}); borrarFiesta(id); fiesta.presupuestoId = undefined;
+  27 |   fiesta.clientPortalSettings = {...fiesta.clientPortalSettings,enabled:true,accessKey:key};
+  28 |   const ref = db.collection('fiestas').doc(id);
+  29 |   expect((await ref.get()).exists).toBe(false); await ref.set(JSON.parse(JSON.stringify(fiesta)));
+  30 |   // Deliberately no local JSON copy: production data is not an optional dev fallback.
+  31 |   const localFiles = ['data/fiestas','src/data/fiestas'].map(dir=>path.join(process.cwd(),dir,id+'.json'));
+  32 |   expect(localFiles.some(f=>fs.existsSync(f))).toBe(false);
+  33 |   const route = '/portal/c/'+key;
+  34 |   try {
+  35 |     await page.goto(route,{waitUntil:'domcontentloaded'});
+  36 |     await expect(page.getByRole('button',{name:'Personalizar portada',exact:true})).toBeVisible({timeout:60000});
+  37 |     expect((await context.cookies()).some(c=>c.name==='ak_session')).toBe(false);
+  38 |     const before = (await ref.get()).data(), logOffset = fs.existsSync(log)?fs.readFileSync(log,'utf8').length:0;
+  39 |     fs.writeFileSync(flag,'isolated transient read outage');
+  40 |     await page.reload({waitUntil:'domcontentloaded'});
+  41 |     await expect.poll(async()=>/Portal no encontrado|No pudimos cargar tu portal/.test(await page.locator('body').innerText()),{timeout:60000}).toBe(true);
+  42 |     const outage = {body:await page.locator('body').innerText(),url:page.url(),retry:await page.getByRole('button',{name:'Reintentar',exact:true}).count(),faults:fs.existsSync(log)?fs.readFileSync(log,'utf8').slice(logOffset):'',dataExists:(await ref.get()).exists};
+  43 |     await info.attach('actual-read-outage.json',{body:JSON.stringify(outage,null,2),contentType:'application/json'});
+  44 |     await info.attach('actual-read-outage.png',{body:await page.screenshot(),contentType:'image/png'});
+  45 |     expect(outage.faults).toContain('"filters":2');
+  46 |     expect(outage.faults).toContain('"filters":0');
+  47 |     expect(outage.dataExists).toBe(true);
+  48 |     removeFlag();
+  49 |     // Recovery control does not turn the preceding outage state into a pass.
+  50 |     if(outage.retry) await page.getByRole('button',{name:'Reintentar',exact:true}).click();
+  51 |     else await page.reload({waitUntil:'domcontentloaded'});
+> 52 |     await expect(page.getByRole('button',{name:'Personalizar portada',exact:true})).toBeVisible({timeout:60000});
+     |                                                                                     ^ Error: expect(locator).toBeVisible() failed
+  53 |     const after = (await ref.get()).data(); expect(after).toEqual(before);
+  54 |     await info.attach('after-recovery.json',{body:JSON.stringify({id,key,before,after,recoveryUsed:outage.retry?'visible Retry':'manual reload because Retry absent'},null,2),contentType:'application/json'});
+  55 |     await info.attach('after-recovery.png',{body:await page.screenshot(),contentType:'image/png'});
+  56 |     expect(outage.body,'existing portal must not be called invalid or expired').toContain('No pudimos cargar tu portal');
+  57 |     expect(outage.body).not.toContain('Portal no encontrado'); expect(outage.retry).toBe(1);
+  58 |   } finally { removeFlag(); await ref.delete(); }
+  59 | });
+  60 |
+```

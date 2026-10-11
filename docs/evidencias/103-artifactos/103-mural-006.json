@@ -1,0 +1,43 @@
+{
+  "id": "e2e_103_mural_30732_1791742647939",
+  "withPhoto": true,
+  "measure": {
+    "viewport": {
+      "w": 412,
+      "h": 839
+    },
+    "root": {
+      "x": 0,
+      "y": 0,
+      "w": 412,
+      "h": 839
+    },
+    "position": "fixed",
+    "panel": {
+      "x": 0,
+      "y": 69,
+      "w": 412,
+      "h": 614
+    },
+    "content": {
+      "x": 17.365686416625977,
+      "y": 166.0330047607422,
+      "w": 400.1232604980469,
+      "h": 430.55548095703125
+    },
+    "contentClass": "max-h-[85vh] max-w-[94vw] object-contain rounded-2xl",
+    "contentFilter": "saturate(1.04) contrast(1.02)",
+    "title": {
+      "x": 17.365686416625977,
+      "y": 166.0330047607422,
+      "w": 400.1232604980469,
+      "h": 430.55548095703125
+    },
+    "pointReceives": true,
+    "natural": 602,
+    "opacity": "1"
+  },
+  "errors": [],
+  "fixtureExists": true,
+  "postExists": true
+}

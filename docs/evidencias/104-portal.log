@@ -1,0 +1,8 @@
+
+Running 4 tests using 1 worker
+
+[1/4] [chromium-desktop] › tests\e2e\103-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+[2/4] [chromium-desktop] › tests\e2e\103-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+[3/4] [chromium-mobile] › tests\e2e\103-portal-reader.spec.ts:14:5 › A genuinely missing portal still says not found
+[4/4] [chromium-mobile] › tests\e2e\103-portal-reader.spec.ts:23:5 › Existing client portal distinguishes a read outage and recovers without losing data
+  4 passed (28.5s)

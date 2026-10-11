@@ -1,0 +1,58 @@
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\103-3d.spec.ts:8:5 › la reunion muestra una escena WebGL real, no solo su reemplazo
+  1) [chromium-desktop] › tests\e2e\103-3d.spec.ts:8:5 › la reunion muestra una escena WebGL real, no solo su reemplazo
+
+    Error: una foto o mensaje alternativo no aprueba el salon 3D
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      24 |   expect(result.text).not.toMatch(/Algo sali[oó] mal/i);
+      25 |   expect(webglAvailable, 'el navegador de QA debe ofrecer WebGL antes de juzgar la escena').toBe(true);
+    > 26 |   expect(result.canvases, 'una foto o mensaje alternativo no aprueba el salon 3D').toBeGreaterThan(0);
+         |                                                                                    ^
+      27 |   const canvas = page.locator('canvas').first();
+      28 |   const size = await canvas.evaluate(c => ({ width: c.width, height: c.height, rect: c.getBoundingClientRect().toJSON() }));
+      29 |   expect(size.width).toBeGreaterThan(100); expect(size.height).toBeGreaterThan(100);
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-entorno-aislado-103\tests\e2e\103-3d.spec.ts:26:84
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa103-3d-artifacts\103-3d-la-reunion-muestra--656a4-L-real-no-solo-su-reemplazo-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa103-3d-artifacts\103-3d-la-reunion-muestra--656a4-L-real-no-solo-su-reemplazo-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-mobile] › tests\e2e\103-3d.spec.ts:8:5 › la reunion muestra una escena WebGL real, no solo su reemplazo
+  2) [chromium-mobile] › tests\e2e\103-3d.spec.ts:8:5 › la reunion muestra una escena WebGL real, no solo su reemplazo
+
+    Error: una foto o mensaje alternativo no aprueba el salon 3D
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      24 |   expect(result.text).not.toMatch(/Algo sali[oó] mal/i);
+      25 |   expect(webglAvailable, 'el navegador de QA debe ofrecer WebGL antes de juzgar la escena').toBe(true);
+    > 26 |   expect(result.canvases, 'una foto o mensaje alternativo no aprueba el salon 3D').toBeGreaterThan(0);
+         |                                                                                    ^
+      27 |   const canvas = page.locator('canvas').first();
+      28 |   const size = await canvas.evaluate(c => ({ width: c.width, height: c.height, rect: c.getBoundingClientRect().toJSON() }));
+      29 |   expect(size.width).toBeGreaterThan(100); expect(size.height).toBeGreaterThan(100);
+        at C:\Users\Usuario\Documents\Codex\ak-codex88\ak-entorno-aislado-103\tests\e2e\103-3d.spec.ts:26:84
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa103-3d-artifacts\103-3d-la-reunion-muestra--656a4-L-real-no-solo-su-reemplazo-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa103-3d-artifacts\103-3d-la-reunion-muestra--656a4-L-real-no-solo-su-reemplazo-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\103-3d.spec.ts:8:5 › la reunion muestra una escena WebGL real, no solo su reemplazo
+    [chromium-mobile] › tests\e2e\103-3d.spec.ts:8:5 › la reunion muestra una escena WebGL real, no solo su reemplazo
