@@ -1,0 +1,64 @@
+[
+  {
+    "title": "respaldo de ESTA fiesta no mezcla otro evento",
+    "project": "chromium-desktop",
+    "status": "failed",
+    "duration": 18624,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: not \u001b[32m\"QA97_AJENA_e2e_97_scope_4424_1791689157851\"\u001b[39m\nReceived string:        \u001b[31m\"La IA no está respondiendo ahora; esto es un resumen automático de tus datos.\u001b[39m\n\u001b[31m\u001b[39m\n\u001b[31mLo más importante ahora:\u001b[39m\n\u001b[31m1. [ALTA] \u001b[7mQA97_AJENA_e2e_97_scope_4424_1791689157851\u001b[27m: cierre post-fiesta: Ya pasó hace 3 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\u001b[39m\n\u001b[31m2. [ALTA] QA97_AJENA_e2e_97_scope_4424_1791689157851: oportunidad post-fiesta: Pasaron 3 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\u001b[39m\n\u001b[31m3. [MEDIA] QA97_ACTUAL_e2e_97_scope_4424_1791689157851: falta Tareas internas: 3 pendiente(s) de 5.\u001b[39m\n\u001b[31m4. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.\u001b[39m\n\u001b[31m\u001b[39m\n\u001b[31m→ Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta.\"\u001b[39m\n\n  84 |     expect(request.fiestaId).toBe(ids[0]);expect(result.agentType).toBe('fiesta');\n  85 |     expect(result.response).toContain('La IA no est\\u00e1 respondiendo ahora;');\n> 86 |     expect(result.response).not.toContain(fixtures[1].configuracion.nombreEvento);\n     |                                 ^\n  87 |   }finally{\n  88 |     for(const id of ids){await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}\n  89 |     const ref=db.collection('multiagent').doc('chats'),doc=await ref.get();\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-97\\tests\\e2e\\97-ia.spec.ts:86:33"
+    ],
+    "attachments": [
+      {
+        "name": "alcance-real.json",
+        "file": "docs/evidencias/97-artifactos/97-alcance-00-0.json"
+      },
+      {
+        "name": "alcance-real.png",
+        "file": "docs/evidencias/97-artifactos/97-alcance-00-1.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/97-artifactos/97-alcance-00-2.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/97-artifactos/97-alcance-00-3.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/97-artifactos/97-alcance-00-4.txt"
+      }
+    ]
+  },
+  {
+    "title": "respaldo de ESTA fiesta no mezcla otro evento",
+    "project": "chromium-mobile",
+    "status": "failed",
+    "duration": 18773,
+    "errors": [
+      "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mnot\u001b[2m.\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m\n\nExpected substring: not \u001b[32m\"QA97_AJENA_e2e_97_scope_17456_1791689179040\"\u001b[39m\nReceived string:        \u001b[31m\"La IA no está respondiendo ahora; esto es un resumen automático de tus datos.\u001b[39m\n\u001b[31m\u001b[39m\n\u001b[31mLo más importante ahora:\u001b[39m\n\u001b[31m1. [ALTA] \u001b[7mQA97_AJENA_e2e_97_scope_17456_1791689179040\u001b[27m: cierre post-fiesta: Ya pasó hace 3 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.\u001b[39m\n\u001b[31m2. [ALTA] QA97_AJENA_e2e_97_scope_17456_1791689179040: oportunidad post-fiesta: Pasaron 3 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.\u001b[39m\n\u001b[31m3. [MEDIA] QA97_ACTUAL_e2e_97_scope_17456_1791689179040: falta Tareas internas: 3 pendiente(s) de 5.\u001b[39m\n\u001b[31m4. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.\u001b[39m\n\u001b[31m\u001b[39m\n\u001b[31m→ Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta.\"\u001b[39m\n\n  84 |     expect(request.fiestaId).toBe(ids[0]);expect(result.agentType).toBe('fiesta');\n  85 |     expect(result.response).toContain('La IA no est\\u00e1 respondiendo ahora;');\n> 86 |     expect(result.response).not.toContain(fixtures[1].configuracion.nombreEvento);\n     |                                 ^\n  87 |   }finally{\n  88 |     for(const id of ids){await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}\n  89 |     const ref=db.collection('multiagent').doc('chats'),doc=await ref.get();\n    at C:\\Users\\Usuario\\AppData\\Local\\Temp\\ak-codex88\\ak-entorno-aislado-97\\tests\\e2e\\97-ia.spec.ts:86:33"
+    ],
+    "attachments": [
+      {
+        "name": "alcance-real.json",
+        "file": "docs/evidencias/97-artifactos/97-alcance-01-0.json"
+      },
+      {
+        "name": "alcance-real.png",
+        "file": "docs/evidencias/97-artifactos/97-alcance-01-1.png"
+      },
+      {
+        "name": "screenshot",
+        "file": "docs/evidencias/97-artifactos/97-alcance-01-2.png"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/97-artifactos/97-alcance-01-3.txt"
+      },
+      {
+        "name": "error-context",
+        "file": "docs/evidencias/97-artifactos/97-alcance-01-4.txt"
+      }
+    ]
+  }
+]

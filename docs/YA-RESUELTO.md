@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/10/2026 - Codex97: IA contextual; conservar lo aprobado
+
+- Ejecutado9a/contrastado755: DOS defectos nuevos, orden149Gemini/Claude.
+- Primer ai.generate falla NodeSDKantesGoogle; alias sdk-node:false sigue.
+  NativoSI/webpackconfigactualNO/control quitandoesealiasSI. Hosting no probado.
+- Respaldo agenteFiestaA pone pendientesB primero:PCmovil2fail, SDK/UI real.
+  buildFallback usa itemsglobales, no byAgent/fiesta. No fuga entre cuentas.
+- Chat/APIpersistenciaA-B y NOtarea ficticia pasanPCmovil2pass. No chat-store
+  roto ni reauditoria voz146. Sin modelo real/voz fisica/autonomia certificada.
+- 1286/1287 fusionadas por otraIA; nueva rama QA97desde755. NO repetir144/145/
+  146/148:codigo correctivo presente, retest separado.147retirado sigue abierto.
+- Runtime97 detenido/fixtures propios retirados; cinco agregadosSOLOdemo
+  preservados. Ningun dato real/envio/cobro/buildapp/merge por Codex.
+- Informe97/raw/capturas/minisonda/orden149/matriz84/ESTADO juntos. No0errores.
+
 ## 11 de octubre de 2026 — Una lectura que falla ya no se muestra como "vacío" (barrido de la orden 148)
 
 - **Lo que frenó la verificación:** con las secundarias lanzando, el muro en vivo pedía fotos, dedicatorias, chat y

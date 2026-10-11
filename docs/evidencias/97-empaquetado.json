@@ -1,0 +1,27 @@
+{
+  "sha": "9a054620718673f00e10b52f0811cc1af729ba4e",
+  "webpack": "5.106.2",
+  "native": {
+    "type": "function",
+    "constructed": true
+  },
+  "variants": [
+    {
+      "control": false,
+      "actualAlias": false,
+      "observed": {
+        "type": "undefined",
+        "constructed": false,
+        "error": "NodeSDK is not a constructor"
+      }
+    },
+    {
+      "control": true,
+      "actualAlias": false,
+      "observed": {
+        "type": "function",
+        "constructed": true
+      }
+    }
+  ]
+}

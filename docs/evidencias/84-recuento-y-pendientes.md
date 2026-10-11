@@ -1,5 +1,15 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion97: IA real y tanda nueva contrastada
+
+Ejecutado9a/contrastado755. Dos P2orden149:nativoSDKSI/aliasfalseNO/controlSI
+y respaldoFiestaA incluyeBprimero (PCmovil2fail). Chat/API/SDKhistorialA-B y
+NOtarea ficticia pasanPCmovil2pass. No modelos de pago/audio fisico probados.
+1286/1287fusionadas otraIA:nueva ramaQA97.144/145/146/148 codigo correctivo
+presente, NOreencargar;147retirado por fallo movil sigueabierto. Informes/raw97
+y limites95 vigentes. No equivaler componente/codigoconectado a Hosting o
+area completa aceptada. Fixturepropio retirado/runtime97detenido.
+
 ## Actualizacion96: lector final, nuevo criterio de fallo probado
 
 Main9a/PR1286QA;NO contrastado con tanda local. VID96-LECTOR P2:fallo

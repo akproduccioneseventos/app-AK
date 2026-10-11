@@ -1,0 +1,80 @@
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\97-ia.spec.ts:10:5 › IA caida no inventa tarea; historial por fiesta persiste en UI y SDK
+[2/2] [chromium-mobile] › tests\e2e\97-ia.spec.ts:10:5 › IA caida no inventa tarea; historial por fiesta persiste en UI y SDK
+  2 passed (4.9m)
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\97-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+  1) [chromium-desktop] › tests\e2e\97-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+
+    Error: expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "QA97_AJENA_e2e_97_scope_4424_1791689157851"
+    Received string:        "La IA no está respondiendo ahora; esto es un resumen automático de tus datos.
+
+    Lo más importante ahora:
+    1. [ALTA] QA97_AJENA_e2e_97_scope_4424_1791689157851: cierre post-fiesta: Ya pasó hace 3 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.
+    2. [ALTA] QA97_AJENA_e2e_97_scope_4424_1791689157851: oportunidad post-fiesta: Pasaron 3 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.
+    3. [MEDIA] QA97_ACTUAL_e2e_97_scope_4424_1791689157851: falta Tareas internas: 3 pendiente(s) de 5.
+    4. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.
+
+    → Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta."
+
+      84 |     expect(request.fiestaId).toBe(ids[0]);expect(result.agentType).toBe('fiesta');
+      85 |     expect(result.response).toContain('La IA no est\u00e1 respondiendo ahora;');
+    > 86 |     expect(result.response).not.toContain(fixtures[1].configuracion.nombreEvento);
+         |                                 ^
+      87 |   }finally{
+      88 |     for(const id of ids){await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}
+      89 |     const ref=db.collection('multiagent').doc('chats'),doc=await ref.get();
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-97\tests\e2e\97-ia.spec.ts:86:33
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa97-artifacts\97-ia-respaldo-de-ESTA-fiesta-no-mezcla-otro-evento-chromium-desktop\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa97-artifacts\97-ia-respaldo-de-ESTA-fiesta-no-mezcla-otro-evento-chromium-desktop\error-context.md
+
+    Error Context: qa97-artifacts\97-ia-respaldo-de-ESTA-fiesta-no-mezcla-otro-evento-chromium-desktop\error-context.md
+
+
+[2/2] [chromium-mobile] › tests\e2e\97-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+  2) [chromium-mobile] › tests\e2e\97-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+
+    Error: expect(received).not.toContain(expected) // indexOf
+
+    Expected substring: not "QA97_AJENA_e2e_97_scope_17456_1791689179040"
+    Received string:        "La IA no está respondiendo ahora; esto es un resumen automático de tus datos.
+
+    Lo más importante ahora:
+    1. [ALTA] QA97_AJENA_e2e_97_scope_17456_1791689179040: cierre post-fiesta: Ya pasó hace 3 día(s). Conviene pedir testimonio, autorización de fotos e idea de publicación.
+    2. [ALTA] QA97_AJENA_e2e_97_scope_17456_1791689179040: oportunidad post-fiesta: Pasaron 3 día(s). Hay mensaje de testimonio y publicación sugerida listos para trabajar.
+    3. [MEDIA] QA97_ACTUAL_e2e_97_scope_17456_1791689179040: falta Tareas internas: 3 pendiente(s) de 5.
+    4. [NORMAL] Pipeline comercial sin datos visibles: No veo leads ni presupuestos recientes para trabajar. Puede ser falta de datos o una oportunidad de ordenar CRM.
+
+    → Próximo paso: Revisá tareas, pagos, contrato y personal de esta fiesta."
+
+      84 |     expect(request.fiestaId).toBe(ids[0]);expect(result.agentType).toBe('fiesta');
+      85 |     expect(result.response).toContain('La IA no est\u00e1 respondiendo ahora;');
+    > 86 |     expect(result.response).not.toContain(fixtures[1].configuracion.nombreEvento);
+         |                                 ^
+      87 |   }finally{
+      88 |     for(const id of ids){await db.collection('fiestas').doc(id).delete();borrarFiesta(id);}
+      89 |     const ref=db.collection('multiagent').doc('chats'),doc=await ref.get();
+        at C:\Users\Usuario\AppData\Local\Temp\ak-codex88\ak-entorno-aislado-97\tests\e2e\97-ia.spec.ts:86:33
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa97-artifacts\97-ia-respaldo-de-ESTA-fiesta-no-mezcla-otro-evento-chromium-mobile\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa97-artifacts\97-ia-respaldo-de-ESTA-fiesta-no-mezcla-otro-evento-chromium-mobile\error-context.md
+
+    Error Context: qa97-artifacts\97-ia-respaldo-de-ESTA-fiesta-no-mezcla-otro-evento-chromium-mobile\error-context.md
+
+
+  2 failed
+    [chromium-desktop] › tests\e2e\97-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
+    [chromium-mobile] › tests\e2e\97-ia.spec.ts:63:5 › respaldo de ESTA fiesta no mezcla otro evento
