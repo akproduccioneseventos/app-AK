@@ -1,8 +1,8 @@
 # Estado actual - 11/10/2026 (Codex88-100)
 
 Rama codex/auditoria-97-ia-contexto-20261011; PR1288 QA/149-151,NOfusionar.
-Main ca5b714d;1289fusionada otraIA.97ejecutado9a/contrastado755;98ejecutado755.
-99QR ca5b714d:8recorridos6pass/2fail;149/150sin delta,no repetir sondas.
+Main99faf4eb/1290recibido:147/149/150correcciones presentes,pendientes retest.
+99QR en ca5:6pass/2fail historicos;100lector sin delta,NOrepetir.
 Tanda local no subida NO contrastada. No reencargar lo presente en main.
 
 ## Datos del negocio

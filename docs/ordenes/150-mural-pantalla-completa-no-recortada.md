@@ -79,4 +79,5 @@ archivo: src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 usa: AkRedPremiumSurface en src/app/evento/muro-en-vivo/layout.tsx
 usa: EmptyWallState en src/app/evento/muro-en-vivo/[fiestaId]/page.tsx
 prueba: docs/evidencias/98-mural-visual.spec.ts
+prueba: tests/e2e/mural-geometria-visible.spec.ts
 ```

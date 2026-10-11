@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { toWhatsAppDigits } from '@/lib/commercial/contact';
-import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
+import { qrParaDescargarEntero } from '@/lib/qr/qr-para-descargar-entero';
 
 const DIETARY_OPTIONS: { value: DietaryRestriction; label: string; emoji: string }[] = [
   { value: 'Ninguna', label: 'Sin restricciones', emoji: '🍽️' },
@@ -136,17 +136,14 @@ function RsvpFormContent() {
     }
   };
 
-  const downloadQR = () => {
-    const canvas = document.getElementById('qr-rsvp-guest') as HTMLCanvasElement;
-    if (canvas) {
-      const pngUrl = qrConZonaBlanca(canvas).replace('image/png', 'image/octet-stream');
-      const link = document.createElement('a');
-      link.href = pngUrl;
-      link.download = `QR-Entrada-${confirmedGuest?.nombre}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+  const downloadQR = (valor: string) => {
+    const pngUrl = qrParaDescargarEntero(valor).replace('image/png', 'image/octet-stream');
+    const link = document.createElement('a');
+    link.href = pngUrl;
+    link.download = `QR-Entrada-${confirmedGuest?.nombre}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (isLoading) {
@@ -344,7 +341,7 @@ function RsvpFormContent() {
             <CardFooter className="flex-col gap-3 pb-8 px-8">
               {confirmedGuest.rsvp === 'Confirmado' && (
                 <>
-                  <Button onClick={downloadQR} className="w-full rounded-lg" variant="outline">
+                  <Button onClick={() => downloadQR(qrValue)} className="w-full rounded-lg" variant="outline">
                     <Download className="w-4 h-4 mr-2" /> Descargar QR
                   </Button>
                   <a

@@ -65,6 +65,49 @@
 - Runtime97 detenido/fixtures propios retirados; cinco agregadosSOLOdemo
   preservados. Ningun dato real/envio/cobro/buildapp/merge por Codex.
 - Informe97/raw/capturas/minisonda/orden149/matriz84/ESTADO juntos. No0errores.
+## 11 de octubre de 2026 — Orden 149: la IA arranca a la primera y el respaldo no mezcla fiestas
+
+- **Qué pasaba:** (1) la primera pregunta a la asistente después de arrancar el servidor fallaba con "NodeSDK is not a
+  constructor" y contestaba con el resumen automático; las siguientes andaban. (2) Cuando la IA no respondía, el resumen
+  de la asistente de una fiesta mostraba pendientes de OTRA fiesta, y a veces el mismo pendiente repetido.
+- **Qué se hizo:** (1) la telemetría sigue apagada a propósito, pero el reemplazo del paquete ya no es "nada": es una
+  pieza mínima (`src/lib/telemetria-apagada-node-sdk.js`) con lo que Genkit llama (crear, `start`, `shutdown`). No finge
+  respuestas del modelo. (2) El resumen de respaldo filtra por fiesta y saca repetidos ANTES de cortar a 6
+  (`seleccionarItemsDeRespaldo`); si la fiesta no tiene pendientes dice "No encontré pendientes de esta fiesta en el
+  resumen automático." Las asistentes generales siguen viendo todo.
+- **Por qué así:** quitar el reemplazo habría metido un paquete pesado en la compilación; y el respaldo usa el mismo criterio
+  que el aviso normal de la IA (`formatAgentDiagnosticsForPrompt`), para que las dos respuestas coincidan.
+- **Probado:** con el reemplazo en `false` y con el filtro sacado, las pruebas se ponen en rojo.
+
+```comprobar
+archivo: src/lib/telemetria-apagada-node-sdk.js
+archivo: next.config.js
+usa: seleccionarItemsDeRespaldo en src/ai/flows/multiagent-flow.ts
+prueba: src/__tests__/la-ia-arranca-sin-telemetria.test.ts
+prueba: src/__tests__/el-respaldo-de-la-ia-respeta-la-fiesta.test.ts
+```
+
+## 11 de octubre de 2026 — Orden 150: el mural a pantalla completa se veía vacío o recortado
+
+- **Qué pasaba:** en la pantalla gigante del mural (PC y celular) el panel central medía 0 px de alto: se veía sólo la
+  cabecera y el fondo, sin fotos ni el cartel de "mural vacío", aunque los datos estaban.
+- **Causa:** la capa de marca de las pantallas en vivo tenía `.ak-red-premium-live > * { position: relative }`, que por
+  especificidad le ganaba al `fixed` del raíz del mural. El raíz dejaba de estar fijo a la ventana y perdía su alto.
+- **Qué se hizo:** la regla de marca ahora sólo pone `position: relative` a los hijos directos que NO declaran
+  fixed/absolute/sticky (`:where(:not(.fixed):not(.absolute):not(.sticky))`, sin subir la especificidad ni usar
+  `!important`); el `z-index: 1` queda igual para todos.
+- **Por qué así:** la capa de marca no tiene que decidir la posición estructural de quien ya la declara; arreglar sólo el
+  mural con otra clase no alcanzaba y dejaba a las otras pantallas en vivo con el mismo riesgo.
+- **Probado:** `tests/e2e/mural-geometria-visible.spec.ts` mide el alto del raíz (>= 90% de la ventana), el del panel
+  (> 300 px), qué elemento recibe el punto del título del mural vacío y que la foto aprobada decodifique y caiga dentro de
+  la ventana, en PC y celular. `toBeVisible` no sirve acá: pasa aunque esté recortado.
+
+```comprobar
+archivo: src/app/ak-public-experience.css
+usa: AkRedPremiumSurface en src/app/evento/muro-en-vivo/layout.tsx
+prueba: tests/e2e/mural-geometria-visible.spec.ts
+```
+
 ## 11 de octubre de 2026 — Orden 147: el QR descargado lleva zona blanca y lo lee el lector
 
 - **Qué pasaba:** el botón "Guardar QR" del invitado bajaba el QR pelado, sin margen blanco, y el lector de Control de
@@ -78,10 +121,33 @@
   el borde sin escalar sí. Con sólo el borde y nivel H, la URL larga seguía sin leerse (probado: 2 de 4).
 - **Probado:** descarga con el botón real y esos bytes exactos al lector real, token corto y UUID, en escritorio y celular
   (4 de 4); con la descarga pelada se pone en rojo (4 de 4 rojos).
+- **Segunda vuelta (módulos enteros), medido:** en celular el canvas sale a 170 x 2,625 = 446 px, un factor no entero que
+  difumina cada módulo, y el lector además agranda las imágenes chicas con otro factor no entero; con el borde del 19% el
+  lector real fallaba entre 7% y 14% de los códigos. Se midió en Chromium con el lector real (`scanFileV2`), contenidos
+  con la forma de la URL real, contenedores de 360 y 1000 px (igual resultado en los dos):
+
+  | Variante (100 códigos) | dpr 1 | dpr 2,625 |
+  |---|---|---|
+  | Canvas de 170 px x dpr + borde 19% (como antes) | 89 / 100 | 93 / 100 |
+  | Módulos enteros 8 px, margen 4 módulos | 92 / 100 | 92 / 100 |
+  | Módulos enteros 6 px, margen 4 | 90 / 100 | 90 / 100 |
+  | Módulos enteros 5 px, margen 4 | 95 / 100 | 95 / 100 |
+  | Módulos enteros 4 px, margen 4 | 99 / 100 | 99 / 100 |
+  | Módulos enteros 3 px, margen 4 u 8 | 100 / 100 | 100 / 100 |
+  | **Módulos enteros 4 px, margen 8 (elegida)** | **100 / 100** | **100 / 100** |
+
+  Con 300 códigos: 4 px y margen 8 leyó 299 (el único que falla, falla con todas las variantes: es del lector). Contra
+  lo que parecía, los módulos más grandes leen PEOR: al lector le sirve que la imagen final sea chica. Nivel Q lee peor que M.
+  Por eso el QR de entrada del invitado (portal y RSVP) se baja con `qrParaDescargarEntero`
+  (`src/lib/qr/qr-para-descargar-entero.ts`): mismo codificador que la pantalla (`QRCodeSVG` de qrcode.react, fuera de
+  pantalla), mismo valor, módulos de 4 px enteros y 8 de margen, sin depender del `devicePixelRatio`. La pantalla no
+  cambia. Los otros 4 QR siguen con `qrConZonaBlanca`.
 
 ```comprobar
 archivo: src/lib/qr/qr-con-zona-blanca.ts
-usa: qrConZonaBlanca en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
+archivo: src/lib/qr/qr-para-descargar-entero.ts
+usa: qrParaDescargarEntero en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
+usa: qrParaDescargarEntero en src/app/invitacion/[fiestaId]/rsvp/page.tsx
 prueba: src/__tests__/el-qr-descargado-tiene-zona-blanca.test.ts
 prueba: tests/e2e/qr-descargado-lector-real.spec.ts
 ```

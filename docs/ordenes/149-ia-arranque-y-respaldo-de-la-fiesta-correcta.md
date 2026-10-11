@@ -75,4 +75,7 @@ usa: generateWithGeminiFallback en src/ai/flows/multiagent-flow.ts
 usa: buildFallback en src/ai/flows/multiagent-flow.ts
 prueba: docs/evidencias/97-ia-respaldo-historial.spec.ts
 prueba: docs/evidencias/97-sonda-empaquetado.mjs
+usa: seleccionarItemsDeRespaldo en src/ai/flows/multiagent-flow.ts
+prueba: src/__tests__/la-ia-arranca-sin-telemetria.test.ts
+prueba: src/__tests__/el-respaldo-de-la-ia-respeta-la-fiesta.test.ts
 ```
