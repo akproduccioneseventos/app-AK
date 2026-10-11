@@ -1,5 +1,20 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11/10/2026 - Codex102: autorizacion de correccion directa y lector151
+
+- El dueno autoriza ahora a Codex corregir directamente con agentes economicos.
+  Se conserva PR1288 abierta, sin fusionar ni tocar datos reales.
+- Lector151: listCollectionFromFirestore ofrece throwOnError optativo; la
+  lectura de fiestas lo exige y no reemplaza una consulta fallida por JSON local.
+  Se mantienen vacio real, modo local, ausencia de SDK y omision durante build.
+- Nueva regresion recorre Query.get -> lectores REALES -> portal y fechas,
+  sin mockear leerFiestasCrudas/getFiestas. 16 pruebas de dos suites pasan.
+  Prueba de navegador del reintento pendiente; no certificar entrega por Jest.
+- Recuento economico revisado: el agente interpreto mal el criterio149:
+  que A NO incluya B es el resultado correcto, aceptado101; NO reabrirlo.
+  QR147 sigue en correccion separable; muralPC y 3D requieren evidencia nueva.
+  Hardware, cuentas externas, 19 originales y Hosting no quedan certificados.
+
 ## 11/10/2026 - Codex101: entrega1290, aceptaciones acotadas y QR residual
 
 - Ejecutado main99faf4eb.149: miniwebpack real construye SDK con alias,
