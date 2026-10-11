@@ -52,6 +52,11 @@ describe('los dos controles dicen lo mismo', () => {
     let { falta, ordenes, modulos } = leerLosDos();
     if (modulos.length <= 5) ({ falta, ordenes, modulos } = leerLosDos());
     // Si esto queda vacio la prueba no probaria nada: se exige que haya modulos.
+    if (modulos.length <= 5) {
+      // La puerta recorta el mensaje del error: se deja entero en un archivo para poder leerlo.
+      require('fs').mkdirSync('test-results', { recursive: true });
+      require('fs').writeFileSync('test-results/dos-controles-sin-cuentas.json', JSON.stringify(ultimaCorrida, null, 2));
+    }
     if (modulos.length <= 5) throw new Error(`Los controles no dieron sus cuentas:\n${JSON.stringify(ultimaCorrida, null, 2)}`);
     expect(modulos.length).toBeGreaterThan(5);
 
