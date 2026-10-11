@@ -1,5 +1,26 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11 de octubre de 2026 — Orden 147: el QR descargado lleva zona blanca y lo lee el lector
+
+- **Qué pasaba:** el botón "Guardar QR" del invitado bajaba el QR pelado, sin margen blanco, y el lector de Control de
+  Acceso de la app no lo leía en algunos códigos (el invitado no podía entrar con la imagen guardada).
+- **Qué se hizo:** todo QR que se baja como PNG pasa por `qrConZonaBlanca` (`src/lib/qr/qr-con-zona-blanca.ts`): le
+  agrega un borde blanco de ~19% del ancho por lado, copiando el original 1 a 1, sin agrandarlo. Se aplicó en el portal del
+  invitado, el RSVP, el buscador de mesas, el panel de la invitación, redes sociales y la página web. Además el QR
+  del invitado (portal y RSVP) pasó de nivel H a **nivel M**: la URL con el token a nivel H y 170 px dejaba módulos de
+  ~3 px que el lector no distingue; con M hay menos módulos y más grandes. Lo escaneable en pantalla no cambia de tamaño ni color.
+- **Por qué así:** Codex midió que agrandar el QR 3 veces NO lo arregla y que redibujarlo a 640 px falló en celular;
+  el borde sin escalar sí. Con sólo el borde y nivel H, la URL larga seguía sin leerse (probado: 2 de 4).
+- **Probado:** descarga con el botón real y esos bytes exactos al lector real, token corto y UUID, en escritorio y celular
+  (4 de 4); con la descarga pelada se pone en rojo (4 de 4 rojos).
+
+```comprobar
+archivo: src/lib/qr/qr-con-zona-blanca.ts
+usa: qrConZonaBlanca en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
+prueba: src/__tests__/el-qr-descargado-tiene-zona-blanca.test.ts
+prueba: tests/e2e/qr-descargado-lector-real.spec.ts
+```
+
 ## 11 de octubre de 2026 — Una lectura que falla ya no se muestra como "vacío" (barrido de la orden 148)
 
 - **Lo que frenó la verificación:** con las secundarias lanzando, el muro en vivo pedía fotos, dedicatorias, chat y

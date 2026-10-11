@@ -32,6 +32,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { normalizeInvitationSlug } from '@/lib/invitacion-slug';
 import { getErrorMessage } from '@/lib/error-utils';
 import { getDatosMinimosFaltantesInvitacion } from '@/lib/invitacion/datos-minimos';
+import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
@@ -282,8 +283,9 @@ function PaginaWebPageContent() {
 
   const handleCopyToClipboard = (url: string) => {
     checkMissingDataBeforeAction(() => {
-      navigator.clipboard.writeText(url);
-      toast({ title: "Enlace Copiado" });
+      navigator.clipboard.writeText(url)
+        .then(() => toast({ title: "Enlace Copiado" }))
+        .catch(() => toast({ title: "No se pudo copiar", description: url, variant: "destructive" }));
     });
   };
   
@@ -291,7 +293,7 @@ function PaginaWebPageContent() {
     checkMissingDataBeforeAction(() => {
       const canvas = document.getElementById(id) as HTMLCanvasElement;
       if (canvas) {
-          const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+          const pngUrl = qrConZonaBlanca(canvas).replace("image/png", "image/octet-stream");
           let downloadLink = document.createElement("a");
           downloadLink.href = pngUrl;
           downloadLink.download = `${name}.png`;
