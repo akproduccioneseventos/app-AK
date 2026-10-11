@@ -10,6 +10,9 @@
   todavia comparaban fechas aparte y vencian antes. Usan la misma regla temporal;
   fechas se muestran en Uruguay y se preserva el dia de ISO historico medianoche.
   No cambia quienes tienen permiso, los usos ni los regalos ofrecidos.
+  Nuevo recalcula hoy en Uruguay al abrir, no en UTC al cargar el archivo;
+  conserva90dias/10porciento de defaults. Uso registrado es instante, no dia
+  elegido: su fecha se muestra en Uruguay sin convertir medianoche en otra fecha.
 - Cupones: el ultimo dia se calculaba en la zona del servidor, que podia
   vencerlos antes de terminar el dia del negocio. Limites del dia en Uruguay;
   se conserva una hora de inicio explicita y se rechazan fechas imposibles.

@@ -59,7 +59,7 @@ const formatDate = (iso: string, esDiaCalendario = true) => {
 };
 
 const formatDateTime = (iso: string) =>
-  new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Montevideo' });
 
 function generateCode(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -86,21 +86,31 @@ interface CuponFormState {
   mensajeOferta: string;
 }
 
-const emptyForm: CuponFormState = {
-  codigo: '',
-  nombre: '',
-  descripcion: '',
-  tipo: 'porcentaje',
-  valor: '10',
-  fechaInicio: new Date().toISOString().split('T')[0],
-  fechaFin: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-  usosMaximos: '0',
-  activo: true,
-  tipoEvento: '',
-  montoMinimo: '',
-  esRegalo: false,
-  regaloNombre: '',
-  mensajeOferta: '',
+const calendarioFormulario = new Intl.DateTimeFormat('en', {
+  timeZone: 'America/Montevideo', year: 'numeric', month: '2-digit', day: '2-digit',
+});
+const fechaFormulario = (fecha: Date) => {
+  const partes = calendarioFormulario.formatToParts(fecha);
+  return ['year', 'month', 'day'].map(tipo => partes.find(p => p.type === tipo)?.value).join('-');
+};
+const emptyForm = (): CuponFormState => {
+  const ahora = Date.now();
+  return {
+    codigo: '',
+    nombre: '',
+    descripcion: '',
+    tipo: 'porcentaje',
+    valor: '10',
+    fechaInicio: fechaFormulario(new Date(ahora)),
+    fechaFin: fechaFormulario(new Date(ahora + 90 * 24 * 60 * 60 * 1000)),
+    usosMaximos: '0',
+    activo: true,
+    tipoEvento: '',
+    montoMinimo: '',
+    esRegalo: false,
+    regaloNombre: '',
+    mensajeOferta: '',
+  };
 };
 
 export default function CuponesPage() {
@@ -128,7 +138,7 @@ export default function CuponesPage() {
   useEffect(() => { fetchCupones(); }, [fetchCupones]);
 
   const handleNewCupon = () => {
-    setFormData({ ...emptyForm, codigo: generateCode() });
+    setFormData({ ...emptyForm(), codigo: generateCode() });
     setShowForm(true);
   };
 
