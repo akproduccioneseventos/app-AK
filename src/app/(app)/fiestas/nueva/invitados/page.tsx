@@ -47,6 +47,7 @@ import { RsvpStatusBadge } from '@/components/presupuestos/rsvp-status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
 import { leerPlanillaDeInvitados } from '@/lib/invitados/leer-planilla';
+import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 const DIETARY_OPTIONS: DietaryRestriction[] = [
   'Ninguna', 'Celiaco', 'Vegetariano', 'Vegano', 'Sin Gluten', 'Sin Lactosa', 'Alergia Mariscos', 'Alergia Frutos Secos', 'Otro'
@@ -624,7 +625,7 @@ function InvitadosEventoContent() {
               onClick={() => {
                 const canvas = document.getElementById('qr-buscador-mesas') as HTMLCanvasElement;
                 if (canvas) {
-                  const pngUrl = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+                  const pngUrl = qrConZonaBlanca(canvas).replace('image/png', 'image/octet-stream');
                   const link = document.createElement('a');
                   link.href = pngUrl;
                   link.download = `QR-Buscador-Mesas-${fiestaId}.png`;

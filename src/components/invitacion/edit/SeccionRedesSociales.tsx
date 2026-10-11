@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CameraIcon, Download } from 'lucide-react';
 import QRCodeStylized from 'qrcode.react';
+import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 interface Props {
   data: InvitacionDigitalData['redesSociales'];
@@ -42,7 +43,7 @@ export const SeccionRedesSocialesEditor: React.FC<Props> = ({ data, update, fies
   const downloadQR = () => {
     const canvas = document.getElementById('qr-code-social-editor') as HTMLCanvasElement;
     if (canvas) {
-        const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        const pngUrl = qrConZonaBlanca(canvas).replace("image/png", "image/octet-stream");
         let downloadLink = document.createElement("a");
         downloadLink.href = pngUrl;
         downloadLink.download = `qr-muro-social-${fiestaId}.png`;

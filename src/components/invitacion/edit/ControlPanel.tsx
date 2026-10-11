@@ -29,6 +29,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from "@/app/actions/invitacion-digital-templates";
 import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
+import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 interface ControlPanelProps {
     data: InvitacionDigitalData;
@@ -90,7 +91,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ data, update, addSec
     const downloadQR = (id: string, name: string) => {
         const canvas = document.getElementById(id) as HTMLCanvasElement;
         if (canvas) {
-            const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            const pngUrl = qrConZonaBlanca(canvas).replace("image/png", "image/octet-stream");
             let downloadLink = document.createElement("a");
             downloadLink.href = pngUrl;
             downloadLink.download = `${name}.png`;

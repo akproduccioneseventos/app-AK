@@ -66,6 +66,7 @@ import { AsistenteDelInvitado } from '@/components/invitacion/AsistenteDelInvita
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
 import { toWhatsAppDigits } from '@/lib/commercial/contact';
+import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 const DIETARY_LABELS: Record<string, string> = {
   Ninguna: '',
@@ -265,7 +266,7 @@ function GuestPortalContent() {
     const canvas = document.getElementById('qr-guest-portal') as HTMLCanvasElement | null;
     if (!canvas) return;
     const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    link.href = qrConZonaBlanca(canvas).replace('image/png', 'image/octet-stream');
     link.download = `QR-Entrada-${guest?.nombre ?? 'invitado'}.png`;
     document.body.appendChild(link);
     link.click();
