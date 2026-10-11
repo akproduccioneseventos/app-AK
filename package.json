@@ -27,7 +27,7 @@
     "auditoria": "node scripts/auditoria.mjs",
     "mapa:generar": "node scripts/generar-mapa-app.mjs",
     "audit:dead-code": "knip --production",
-    "graphify:update": "uv tool run --from graphifyy graphify extract . && uv tool run --from graphifyy graphify cluster-only .",
+    "graphify:update": "uv tool run --from graphifyy graphify extract . --code-only && uv tool run --from graphifyy graphify cluster-only .",
     "smoke:browser": "node scripts/ak-browser-smoke.mjs",
     "firebase:emulators": "firebase emulators:start --project presupuestador-ak-producciones",
     "firebase:migrate": "npx tsx src/scripts/migrate-to-firebase.ts",

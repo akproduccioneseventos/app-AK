@@ -1,5 +1,21 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion102-104: correcciones directas comprobadas
+
+Autorizacion del dueno, base99faf4eb y fuente correctiva a6d20861 en PR1288.
+Lector151 no traga fallo de base; QR147 reintenta orientaciones sin cambiar
+el contenido; mural pinta primarias sin esperar chat; cupones usan dia de
+Uruguay en reglas/selector/etiquetas/Nuevo; portal Reintentar pide lectura nueva.
+Navegador103 fuente4c: QR8pass, fechas2pass, mural4pass PC/movil con SDK/medidas.
+Portal4c recuperacion2fail historicos ->104 fuentea6:4pass, SDK intacto al
+recuperar. Build104 completo exit0, tipos/lint SIN omitir; Jest104 a6:
+688suites/4129pruebas pasan. No reabrir147/151/
+muralPC por notas anteriores. Registro detallado:102-recuento-correcciones-directas.
+Salon3D103 sigue WebGLtrue/canvas0; candidato de actualizacion NO paso tipos/
+lock, no integrado. Hardware/cuentas/modelos reales/Hosting/19 originales no
+certificados. La tabla inferior es HISTORICA; aplicar estas actualizaciones y
+88-101 antes de decidir que queda pendiente. No afirmar cada boton ni0errores.
+
 ## Actualizacion101: entrega1290, sin reabrir lo ya aprobado
 
 Fuente99faf4eb:149 SDKaliasactual/nativo/control SI y respaldoFiestaA SOLO A

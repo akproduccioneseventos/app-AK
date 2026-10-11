@@ -1,0 +1,17 @@
+{
+  "sha": "a6d2086109e0e1a113307fde23674471f62bc377",
+  "command": "node docs/evidencias/104-ejecutar-aislado.mjs jest",
+  "success": true,
+  "suites": 688,
+  "passedSuites": 688,
+  "tests": 4129,
+  "passed": 4129,
+  "failed": 0,
+  "pending": 0,
+  "start": "2026-10-11T19:41:24.937Z",
+  "finish": "2026-10-11T19:47:07.256Z",
+  "rawSha256": "b8ae7bd4ea597c8792088283979ec085b697eab38595a92f1f022baa35ac0e75",
+  "archive": "104-jest.json.gz",
+  "archiveSha256": "7e66346e9d97551ce92986fe4341ca42543600a41d9a0b85014aef3282c3db34",
+  "failures": []
+}

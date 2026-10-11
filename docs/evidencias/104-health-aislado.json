@@ -1,0 +1,15 @@
+{
+  "status": "ok",
+  "timestamp": "2026-10-11T19:40:16.458Z",
+  "version": "a6d2086109e0e1a113307fde23674471f62bc377 · compilada 2026-10-11T18:59:03.544Z",
+  "services": {
+    "firebase": true,
+    "gemini": false,
+    "googleWorkspace": false,
+    "mail": false,
+    "instagram": false,
+    "mercadoPago": false
+  },
+  "environment": "production",
+  "uptime": 66
+}

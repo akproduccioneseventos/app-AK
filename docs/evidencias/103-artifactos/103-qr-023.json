@@ -1,0 +1,34 @@
+{
+  "id": "e2e_103_qr_verified_fiesta_ficticia_2026_10_11_1791742546698",
+  "first": {
+    "id": "invitado_11111111-2222-4333-8444-555555555555",
+    "nombre": "Invitado ficticio auditoria 103",
+    "rsvp": "Confirmado",
+    "categoria": "Adulto",
+    "partySize": 2,
+    "guestAccessToken": "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+    "checkedIn": true,
+    "invitacionAbiertaAt": "2026-10-11T18:15:47.347Z",
+    "checkInTimestamp": "2026-10-11T18:15:51.474Z"
+  },
+  "second": {
+    "id": "invitado_11111111-2222-4333-8444-555555555555",
+    "nombre": "Invitado ficticio auditoria 103",
+    "rsvp": "Confirmado",
+    "categoria": "Adulto",
+    "partySize": 2,
+    "guestAccessToken": "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee",
+    "checkedIn": true,
+    "invitacionAbiertaAt": "2026-10-11T18:15:47.347Z",
+    "checkInTimestamp": "2026-10-11T18:15:51.474Z"
+  },
+  "bytes": 8672,
+  "width": 324,
+  "height": 324,
+  "onScreen": {
+    "width": 170,
+    "height": 170
+  },
+  "border": 0,
+  "errors": []
+}

@@ -1,0 +1,6 @@
+
+Running 2 tests using 1 worker
+
+[1/2] [chromium-desktop] › tests\e2e\103-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates
+[2/2] [chromium-mobile] › tests\e2e\103-calendario-reader.spec.ts:13:5 › Budget wizard warns instead of silently assuming no occupied dates
+  2 passed (29.4s)

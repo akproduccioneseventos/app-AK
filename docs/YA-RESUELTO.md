@@ -2,14 +2,35 @@
 
 ## 11/10/2026 - Codex102: autorizacion de correccion directa y lector151
 
+- Graphify: npm run graphify:update ahora usa --code-only para actualizar
+  AST/relaciones sin llaveLLM ni gastos de API. El comando anterior se freno
+  por dos documentos sin llave; NO era un error de la app ni una corrida verde.
+  No cambia dependencias/build de produccion. Los documentos se conservan
+  como registro compartido; no afirmar extraccion semantica de esos documentos.
+- Cierre103/104: QR147 pantalla real+SDK8pass (cuatro PNG por PC/movil,
+  llegada y reentrada sin duplicar); mural4pass (vacio/foto en PC/movil,
+  geometria y foto sin CSS forzado). Fechas2pass. Portal104 sobrea6d20861:
+  inexistente y fallo real se distinguen, Reintentar recupera y conserva SDK;
+  4pass. No reabrir esos criterios como pendientes por las notas anteriores.
+  Build104 a6 completo exit0, incluidos tipos/lint; no se omiten controles.
+  CompletaJest104 sobrea6:688suites/4129tests pasan, cero fallidos/omitidos.
+  Resumen104 y JSON completo comprimido con hash permiten reutilizar evidencia
+  sin leer miles de resultados por chat. No convertirlos en0errores de toda app.
+- Salon3D103: WebGLtrue/canvas0 PC/movil, errorReactCurrentBatchConfig real.
+  El candidato React19/Fiber9/Drei10 en copia privada NO paso tipos ni lock;
+  no se integra ni se fuerza npm. Geometria4tests/foto de respaldo no acreditan
+  escena. Sigue pendiente; no confundir esta propuesta con una app sin errores.
 - Retest compilado103: lector151 ya muestra el aviso correcto, pero Reintentar
   solo reseteaba el cliente sin pedir otra lectura del servidor (PC/movil2fail).
   El boton recarga el MISMO enlace, que es lo que permite recuperar la lectura;
-  no redirige al administrador ni modifica los datos. Retest verde pendiente.
+  no redirige al administrador ni modifica los datos. Retest104 verde arriba.
 - Cupones, consumidores finales: selector de regalos y etiquetas de ajustes
   todavia comparaban fechas aparte y vencian antes. Usan la misma regla temporal;
   fechas se muestran en Uruguay y se preserva el dia de ISO historico medianoche.
   No cambia quienes tienen permiso, los usos ni los regalos ofrecidos.
+  Nuevo recalcula hoy en Uruguay al abrir, no en UTC al cargar el archivo;
+  conserva90dias/10porciento de defaults. Uso registrado es instante, no dia
+  elegido: su fecha se muestra en Uruguay sin convertir medianoche en otra fecha.
 - Cupones: el ultimo dia se calculaba en la zona del servidor, que podia
   vencerlos antes de terminar el dia del negocio. Limites del dia en Uruguay;
   se conserva una hora de inicio explicita y se rechazan fechas imposibles.
@@ -18,7 +39,7 @@
   que consultaba Firestore sin fixture; contrato estatico del mural con nombres
   anteriores. Los dos tests se ajustan a su frontera y al componente ya probado,
   sin debilitar permisos ni sustituir la prueba de comportamiento del mural.
-  Sus 15 comprobaciones focalizadas pasan. Corrida completa final pendiente.
+  Sus 15 comprobaciones focalizadas pasan. Completa4c:686suites/4122tests pasan.
 - El dueno autoriza ahora a Codex corregir directamente con agentes economicos.
   Se conserva PR1288 abierta, sin fusionar ni tocar datos reales.
 - Lector151: listCollectionFromFirestore ofrece throwOnError optativo; la
@@ -26,12 +47,12 @@
   Se mantienen vacio real, modo local, ausencia de SDK y omision durante build.
 - Nueva regresion recorre Query.get -> lectores REALES -> portal y fechas,
   sin mockear leerFiestasCrudas/getFiestas. 16 pruebas de dos suites pasan.
-  Prueba de navegador del reintento pendiente; no certificar entrega por Jest.
+  Prueba de navegador del reintento104 pasa; no certificar app entera por Jest.
 - QR147: el PNG exacto101 falla sin giro y decodifica a90/270 grados con
   el decoder existente. Se reintenta el archivo a90/180/270 SOLO si falla,
   sin modificar token/PNG original ni escaneo de camara ni checkInGuest.
   La instalacion es idempotente. Prueba de archivo real PC/movil2pass;
-  entrada persistida/reentrada en pantalla todavia pendiente de retest.
+  entrada persistida/reentrada en pantalla103 pasa, ocho casos reales.
 - Mural: el componente REAL con chat pendiente no pintaba la foto aprobada;
   sonda falla en source main99 y pasa corregida. Primarias pintan sin esperar
   secundarias; cada secundaria conserva datos si falla. allSettled mantiene
@@ -39,12 +60,14 @@
   montaje/generacion descartan respuestas viejas. 19 tests/4suites pasan.
   Corregido el borrador del agente (destructuring errado/dos refs); NO se
   publico ese borrador. Geometria/WebGL/Hosting no quedan aprobados por Jest.
-- Graphify AST local actualizado:13546nodos/42271relaciones/835comunidades,
+- Graphify AST local final:13603nodos/42342relaciones/838comunidades,
   sin API/LLM ni dependencias de produccion. 25 advertencias del parser no
   prueban errores TypeScript; no confundir extraccion con compilacion.
+  Actualizacion npm completa exit0,2515 archivos; no semantica de documentos
+  ni etiquetasLLM ni HTML gigante, no afirmar grafo local ignorado como remoto.
 - Recuento economico revisado: el agente interpreto mal el criterio149:
   que A NO incluya B es el resultado correcto, aceptado101; NO reabrirlo.
-  QR147 sigue en correccion separable; muralPC y 3D requieren evidencia nueva.
+  QR147 y muralPC cerrados acotados arriba; 3D sigue pendiente real.
   Hardware, cuentas externas, 19 originales y Hosting no quedan certificados.
 
 ## 11/10/2026 - Codex101: entrega1290, aceptaciones acotadas y QR residual

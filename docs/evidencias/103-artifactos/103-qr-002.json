@@ -1,0 +1,34 @@
+{
+  "id": "q92rmv2yk9b9",
+  "first": {
+    "id": "gq92rmv2yk9b9",
+    "nombre": "Invitado ficticio auditoria 103",
+    "rsvp": "Confirmado",
+    "categoria": "Adulto",
+    "partySize": 2,
+    "guestAccessToken": "qa92tokenmv2yk9b9",
+    "checkedIn": true,
+    "invitacionAbiertaAt": "2026-10-11T18:13:59.096Z",
+    "checkInTimestamp": "2026-10-11T18:14:04.292Z"
+  },
+  "second": {
+    "id": "gq92rmv2yk9b9",
+    "nombre": "Invitado ficticio auditoria 103",
+    "rsvp": "Confirmado",
+    "categoria": "Adulto",
+    "partySize": 2,
+    "guestAccessToken": "qa92tokenmv2yk9b9",
+    "checkedIn": true,
+    "invitacionAbiertaAt": "2026-10-11T18:13:59.096Z",
+    "checkInTimestamp": "2026-10-11T18:14:04.292Z"
+  },
+  "bytes": 4653,
+  "width": 244,
+  "height": 244,
+  "onScreen": {
+    "width": 170,
+    "height": 170
+  },
+  "border": 0,
+  "errors": []
+}

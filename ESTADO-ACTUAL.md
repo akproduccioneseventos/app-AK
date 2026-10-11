@@ -1,40 +1,41 @@
-# Estado actual - 11/10/2026 (Codex88-101)
+# Estado actual - 11/10/2026 (Codex102-104)
 
-Rama codex/auditoria-97-ia-contexto-20261011; PR1288 QA/149-151,NOfusionar.
-Main99faf4eb/1290 ejecutado101;149 criterios SI,150parcial,147UUID NO.
-99QR en ca5:6pass/2fail historicos;100lector sin delta,NOrepetir.
-Tanda local no subida NO contrastada. No reencargar lo presente en main.
+Rama codex/auditoria-97-ia-contexto-20261011; PR1288 ABIERTA, no fusionar.
+Base contrastada main99faf4eb; fuente correctiva congelada a6d20861.
+El dueno autoriza correccion directa; no autoriza fusion ni cambiar datos reales.
 
-## Datos del negocio
-- Contabilidad > Poner al dia: cancelar Robert10/10/Lorena12/12 y Aplicar;
-  Soraya NO se toca. Sin acceso autorizado a base real desde QA.
-## Aceptaciones vigentes (criterios acotados, no app entera)
-- 88:112controles135-138+28financieros/14E2E;89colorportalPCmovil->SDK.
-- 92:comida20/8/28/compras660;papel3A4/filtro2A4;videoarchivo/HTTPbytes.
-- 93:recordatorio3HTTP/un mensaje/CEROenvios;barraentregado/stock10->8.
-- 94:143Jest14suites/20positivas18pares;140foto/pixels/bytes;142recibos;
-  141album/reintento;143QRrevocado/geonativa;139enlacecocina PASAN.
-- 97:chatREAL/APISDKhistorialA-B y NOtarea ficticia PCmovil2pass.
-  No modelo real/audio fisico/autonomia certificado. No repetir chat-store.
-- 98:18pass/16pares:146voz cancelacion/reintento,148lectorfotos/error/vacio,
-  145Touchpixcontenido/descarga/reload/nocuadro,144espejoUNpending/aviso/
-  excluido del muralPUBLICO cargado/recarga sin duplicar PASAN. Nohardware.
-## Fuente correctiva presente; no reprogramar criterios cerrados98
-- 144/145a1bc1977;1460910b888;14873c4dd0f/08aa9319 aceptados98acotado.
-- 147QR101:corto PCmovilSI,UUID276identicoNO/checkedInfalse;ampliada NOduplicar.
-- 150101:vacioPCmovilfixed/panel590-659SI;foto principal movilSI/PCparcial.
-- Barrido697102a1/a535407b lectores/camaras:Claude explicita limitesnavegador.
-## Nuevos hallazgos y limites
-- 149101:SDKaliasactual/nativo/control construyenSI, respaldoA no incluyeB
-  PCmovil2pass. No reabrir esos criterios;modeloreal/Hosting NO probados.
-- FotoPC101:capturas anterioresSI;ultima medicion vacio/Reconectando,
-  causa no confirmada/sin SDKal timeout;NOorden de bug ni aceptacion plena.
-- 151Claude:lector traga fallo->portal falsoexpirado/presupuesto[]sinaviso;
-  100PCmovil4negativos,claveinexistente2pass,SDKintacto. No throwglobal ciego.
-- 3Dhistorico falla reconciler/foto!=canvas;sin escena aceptada.
-- Video URLs reales/integraciones necesitan cuentas/staging autorizados.
-- 19manuales requieren export+originales;gRPC7/JSONlocal0 NO son ausencia.
-- Hardwarefinal pendiente;build/Hosting mismoSHA registraClaude, noActionsrojos.
-- Informe101:7paresSI/2UUIDNO/1parcial;ord147/151+matrix84/YA,no0errores.
-- TEMP97-101cerrados;fixturespropios0/agregadosdemo preservados,QAerroresanotados.
-- Control dos-controles intermitente segun Claude:usar su JSON si reaparece.
+## Correcciones realizadas
+- 151: el fallo real de lectura de fiestas no se convierte en falso vacio/local.
+  Lector compartido optativo; modos local/sinSDK/build y vacio real conservados.
+- 147: reintentos QR de archivo a90/180/270 SOLO tras fallo del original.
+  Sin cambiar PNG/token/camara/checkIn; instalacion idempotente.
+- Mural: foto primaria pinta sin esperar chat, guardas contra respuestas viejas;
+  peticiones no se solapan mientras las anteriores sigan pendientes.
+- Cupones: fin de dia en Uruguay; selector/etiquetas comparten la regla;
+  Nuevo calcula hoy al abrir. No cambios en dinero/descuentos/usos/permisos.
+- Portal: Reintentar recarga el mismo enlace para pedir lectura nueva.
+
+## Evidencia vigente (aceptaciones acotadas, no app entera)
+- 103 fuente4c: QR8pass, fechas2pass, mural4pass PC/movil, SDK/medidas reales.
+  Portal4c recuperacion2fail historicos, NO ocultarlos.
+- 104 fuentea6: portal4pass, clave ausente vs fallo y recuperacion con SDK intacto.
+  Health confirma fuente compilada. Build completo exit0, tipos/lint habilitados.
+- Jest4c:686suites/4122tests pasan. Final104 sobrea6:688suites/4129tests pasan.
+- Reporte102 conserva historial y limites; matrix84/YA prevalecen sobre notas viejas.
+  Aceptaciones88-101 vigentes solo donde no hubo cambio; no repetirlas por rutina.
+
+## Pendientes reales
+- Salon3D: WebGLtrue/canvas0 PC/movil, errorReactCurrentBatchConfig.
+  CandidatoReact19/Fiber9/Drei10 NO paso tipos/lock; no integrado ni forzado.
+  Geometria/foto fallback NO acreditan escena. No declarar 14areas limpias.
+- 19 presupuestos manuales requieren export+originales, NO reconstruir ni borrar.
+  Robert/Lorena/Soraya sin tocar; ausencia JSONlocal/gRPC7 no prueba ausencia real.
+- Cuentas/proveedores/modelos pagos reales, Hosting mismoSHA y ensayo de hardware
+  no certificados por demo. No existe prueba de cada boton/variante de toda la app.
+
+## Traspaso
+- Entorno103/104 detenido; fixtures propios eliminados por tests; agregados demo
+  automaticos preservados. No datos reales. No confundir shutdown con fallo app.
+- Una sola PR1288 para registro y correcciones; no crear duplicadas ni fusionar.
+- Consultar102-recuento-correcciones-directas.md para SHAs/sondas y errores de QA.
+- Graphify:update local sin API pasa:13603nodos/42342relaciones/838comunidades.
