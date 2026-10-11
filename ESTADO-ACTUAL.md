@@ -1,6 +1,6 @@
 # Estado actual - 11/10/2026
 
-Main en ca5b714d (PR 1289 fusionada y publicada: el QR descargado lo lee el lector). Firebase publicó bien esa versión: el salteo del revisor
+Main en 99faf4eb (PR 1290 fusionada y publicada: órdenes 149 y 150 de Codex, y el QR del invitado con módulos enteros, 100/100 medido). Firebase publicó bien esa versión: el salteo del revisor
 de tipos sólo en Firebase destrabó las tres publicaciones fallidas del 10/10.
 Rama de trabajo: claude/app-debug-stabilize-m70e6z, igual a main.
 
