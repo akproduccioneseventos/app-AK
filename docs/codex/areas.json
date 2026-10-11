@@ -175,7 +175,7 @@
         "hallazgos": 2,
         "reporte": "Auditorías 94-96 de Codex (órdenes 144 a 148)"
       },
-      "nota": "Auditorías 94 y 96: el QR descargado no lo lee el lector en el celular (147, SIGUE ABIERTO) y el Video de Vida mostraba galería vacía cuando no pudo leer las fotos (148, arreglado el 10/10)."
+      "nota": "Auditorías 94 y 96: QR descargado (147) y Video de Vida (148), arreglados y publicados el 11/10 (148 pasó el retest 98). Falta que Codex mire el QR."
     },
     {
       "id": "web",
@@ -267,12 +267,12 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-10",
-        "commit": "9a054620",
-        "hallazgos": 2,
-        "reporte": "Auditorías 94-96 de Codex (órdenes 144 a 148)"
+        "fecha": "2026-10-11",
+        "commit": "755f0707",
+        "hallazgos": 1,
+        "reporte": "Auditoría 98 de Codex (orden 150, PR 1288)"
       },
-      "nota": "Auditorías 94-96: el espejo perdía la publicación si fallaba la revisión de la foto (144) y Touchpix sacaba la foto negra con el video en pausa (145). Arreglados el 10/10; falta que Codex la vuelva a mirar."
+      "nota": "Auditoría 98: el mural a pantalla completa medía 0 px y se veía vacío (150). Arreglado el 11/10; 144 y 145 ya pasaron el retest 98. Falta que Codex la vuelva a mirar."
     },
     {
       "id": "barra",
@@ -320,12 +320,12 @@
       ],
       "estado": "con-hallazgos",
       "ultimaRevision": {
-        "fecha": "2026-10-10",
-        "commit": "9a054620",
-        "hallazgos": 1,
-        "reporte": "Auditorías 94-96 de Codex (órdenes 144 a 148)"
+        "fecha": "2026-10-11",
+        "commit": "755f0707",
+        "hallazgos": 2,
+        "reporte": "Auditorías 97-98 de Codex (orden 149, PR 1288)"
       },
-      "nota": "Auditoría 94: la voz en vivo, al cortarla con la conexión pendiente, abría igual el micrófono, y tras un error pedía un tercer toque para reintentar (146). Arreglado el 10/10; falta que Codex la vuelva a mirar."
+      "nota": "Auditorías 97-98: la primera consulta de cada proceso caía antes de llegar a Gemini y el respaldo mezclaba pendientes de otra fiesta (149). Arreglados el 11/10; falta que Codex la vuelva a mirar."
     },
     {
       "id": "personal",

@@ -1031,6 +1031,15 @@ Codex.
 "listo" se buscan todos los que la llaman (`grep` del nombre en `src/`) y se mira qué le agregan.
 La prueba va contra lo que ve el cliente, y el candado recorre toda la app, no un archivo.
 
+### 36. Dar por arreglado algo que depende del contenido, probándolo una vez por caso
+
+**Pasó el 11 de octubre de 2026 con el QR descargado.** Pasó 4 de 4 y lo publiqué; repetido 12 veces
+en celular falló 2, porque cada invitado tiene un código distinto y algunos dibujos no se leían.
+
+**Qué se hace distinto:** cuando el resultado depende del contenido (un QR, una imagen, un texto
+armado), se mide con muchos contenidos distintos y la prueba se repite (`--repeat-each`) antes de
+darlo por bueno. Así se eligió el arreglo final: 100 de 100 códigos leídos.
+
 ### 19. Volver atrás el cambio de otra IA sin preguntar para qué lo había hecho
 
 **Pasó el 25 de septiembre de 2026.** Gemini le había sacado la sesión a una acción de insumos y

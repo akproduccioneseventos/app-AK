@@ -5,6 +5,7 @@ import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGemin
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import type { AkAgentLearning, AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
 import { getAgentMemoryProfile, saveAgentLearning } from '@/lib/multiagent/memory-store';
+import { SIN_PENDIENTES_DE_ESTA_FIESTA, seleccionarItemsDeRespaldo } from '@/lib/multiagent/respaldo';
 import { buildMultiAgentTeamBriefing, formatAgentDiagnosticsForPrompt } from '@/lib/multiagent/diagnostics';
 import { formatManualForAgentPrompt } from '@/lib/multiagent/manual-ak';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
@@ -454,20 +455,22 @@ ${diagnostics}
 ${datosEnTiempoReal}
 `.trim();
 
-  return { fiesta, fiestas: fiestas ?? [], memory, diagnostics, kpi, presupuestos: presupuestos ?? [], leads: leads ?? [], briefing, manual, text, sinLeer, falloTotal: false };
+  return { fiestaId: input.fiestaId, fiesta, fiestas: fiestas ?? [], memory, diagnostics, kpi, presupuestos: presupuestos ?? [], leads: leads ?? [], briefing, manual, text, sinLeer, falloTotal: false };
 }
 
 // ── Respuesta fallback inteligente ────────────────────────────────────────────
 function buildFallback(agentType: AkAgentType, context: any, error?: unknown): string {
-  const items = (context?.briefing?.items || []).slice(0, 6) as any[];
+  const { items, sinPendientesDeLaFiesta } = seleccionarItemsDeRespaldo(agentType, context?.briefing?.items, context?.fiestaId);
   const noSePudoLeer = !context?.briefing || Boolean(context?.falloTotal);
   // "Sin pendientes" sólo se dice si el diagnóstico se LEYÓ y vino vacío. Si no se pudo leer, no
   // sabemos si hay pendientes y decir que no hay sería mentir.
   const diag  = items.length
-    ? items.map((it, i) => `${i + 1}. [${it.priority.toUpperCase()}] ${it.title}: ${it.detail}`).join('\n')
+    ? items.map((it, i) => `${i + 1}. [${String(it.priority ?? '').toUpperCase()}] ${it.title}: ${it.detail}`).join('\n')
     : noSePudoLeer
       ? 'No pude leer tus datos ahora, así que no puedo decirte si hay pendientes.'
-      : 'El diagnóstico automático no marcó pendientes.';
+      : sinPendientesDeLaFiesta
+        ? SIN_PENDIENTES_DE_ESTA_FIESTA
+        : 'El diagnóstico automático no marcó pendientes.';
 
   const nextStep: Record<AkAgentType, string> = {
     fiesta:          'Revisá tareas, pagos, contrato y personal de esta fiesta.',
