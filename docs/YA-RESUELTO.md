@@ -2,6 +2,15 @@
 
 ## 11/10/2026 - Codex102: autorizacion de correccion directa y lector151
 
+- Cupones: el ultimo dia se calculaba en la zona del servidor, que podia
+  vencerlos antes de terminar el dia del negocio. Limites del dia en Uruguay;
+  se conserva una hora de inicio explicita y se rechazan fechas imposibles.
+  No cambia importe, usos ni descuento. Regresion probada tambien con TZ=UTC.
+- La corrida general inicial encontro tres fallos: cupon real; test de permiso
+  que consultaba Firestore sin fixture; contrato estatico del mural con nombres
+  anteriores. Los dos tests se ajustan a su frontera y al componente ya probado,
+  sin debilitar permisos ni sustituir la prueba de comportamiento del mural.
+  Sus 15 comprobaciones focalizadas pasan. Corrida completa final pendiente.
 - El dueno autoriza ahora a Codex corregir directamente con agentes economicos.
   Se conserva PR1288 abierta, sin fusionar ni tocar datos reales.
 - Lector151: listCollectionFromFirestore ofrece throwOnError optativo; la

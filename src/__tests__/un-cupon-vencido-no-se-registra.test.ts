@@ -87,7 +87,23 @@ describe('Un cupón que ya no sirve no se registra', () => {
     expect(motivoParaNoUsarCupon({ ...base, activo: false })).toMatch(/desactivado/);
     expect(motivoParaNoUsarCupon({ ...base, fechaFin: 'no-es-fecha' })).toMatch(/fechas/);
     // 0 usos máximos = ilimitado; y el último día vale hasta la medianoche.
-    expect(motivoParaNoUsarCupon(base, new Date(2026, 9, 8, 23, 0))).toBeNull();
-    expect(motivoParaNoUsarCupon(base, new Date(2026, 9, 9, 0, 1))).toMatch(/expirado/);
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T23:00:00-03:00'))).toBeNull();
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-09T00:01:00-03:00'))).toMatch(/expirado/);
+  });
+
+  it('empieza y termina en Uruguay aunque el servidor use otra zona', () => {
+    const base: any = { activo: true, fechaInicio: '2026-10-08', fechaFin: '2026-10-08', usosMaximos: 0, usosActuales: 0 };
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T02:59:59Z'))).toMatch(/aún no/);
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T03:00:00Z'))).toBeNull();
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-09T02:59:59.999Z'))).toBeNull();
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-09T03:00:00Z'))).toMatch(/expirado/);
+    expect(motivoParaNoUsarCupon({ ...base, fechaFin: '2026-02-30' })).toMatch(/fechas/);
+  });
+
+  it('respeta una hora de inicio explicita sin adelantarla a medianoche', () => {
+    const base: any = { activo: true, fechaInicio: '2026-10-08T15:00:00-03:00', fechaFin: '2026-10-08', usosMaximos: 0, usosActuales: 0 };
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T17:59:59Z'))).toMatch(/aún no/);
+    expect(motivoParaNoUsarCupon(base, new Date('2026-10-08T18:00:00Z'))).toBeNull();
+    expect(motivoParaNoUsarCupon({ ...base, fechaInicio: '2026-10-08T15:00:00' }, new Date('2026-10-08T18:00:00Z'))).toBeNull();
   });
 });
