@@ -1,0 +1,71 @@
+{
+  "source": "/invitacion/e2e_99_qr_corto_1791695521018/invitado/g99?token=qa99corto",
+  "decoded": null,
+  "decoderError": "NotFoundException: Dimensions could be not found.",
+  "dimensions": {
+    "width": 616,
+    "height": 616
+  },
+  "results": [
+    {
+      "width": 412,
+      "geometry": {
+        "width": 380,
+        "canvas": [
+          {
+            "id": "qr-canvas-visible",
+            "width": 378,
+            "height": 300,
+            "cssWidth": 378
+          },
+          {
+            "id": "qr-canvas",
+            "width": 816,
+            "height": 816,
+            "cssWidth": 0
+          }
+        ]
+      },
+      "state": {
+        "id": "g99",
+        "nombre": "Invitado ficticio archivo preservado99",
+        "rsvp": "Confirmado",
+        "categoria": "Adulto",
+        "partySize": 2,
+        "guestAccessToken": "qa99corto",
+        "checkedIn": false
+      },
+      "text": "Control de Acceso\nFiesta de esta noche\nNotFoundException: No MultiFormat Readers were able to detect the code.\nChoose Another - unchange....load.png\nOr drop an image to scan\nScan using camera directly"
+    },
+    {
+      "width": 1280,
+      "geometry": {
+        "width": 384,
+        "canvas": [
+          {
+            "id": "qr-canvas-visible",
+            "width": 382,
+            "height": 300,
+            "cssWidth": 382
+          },
+          {
+            "id": "qr-canvas",
+            "width": 816,
+            "height": 816,
+            "cssWidth": 0
+          }
+        ]
+      },
+      "state": {
+        "id": "g99",
+        "nombre": "Invitado ficticio archivo preservado99",
+        "rsvp": "Confirmado",
+        "categoria": "Adulto",
+        "partySize": 2,
+        "guestAccessToken": "qa99corto",
+        "checkedIn": false
+      },
+      "text": "Control de Acceso\nFiesta de esta noche\nNotFoundException: No MultiFormat Readers were able to detect the code.\nChoose Another - unchange....load.png\nOr drop an image to scan\nScan using camera directly"
+    }
+  ]
+}

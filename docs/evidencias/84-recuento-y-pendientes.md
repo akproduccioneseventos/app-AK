@@ -1,5 +1,15 @@
 # Recuento consolidado: conservar lo probado y revisar solo los huecos
 
+## Actualizacion99: cierre QR parcial, no duplicar147
+
+Main ca5b714d/1289 ejecutado.8recorridos:6pass/2fail;historico94 PCmovil
+PASA. Dos PNGmoviles616 siguen sin leer; mismo archivo reintentado deja
+checkedInfalse. ControlanchoNO;DPR1solo cortoSI/UUIDNO,NOtamano universal.
+Informe99/raw/capturas/SDK manda;147ampliada NOreimplementada.149/150
+sin delta,NOsondas duplicadas. Mantener todas las aceptaciones88-98 acotadas.
+Runtime99cerrado/puertoslibres/fixturelimpio. No cuentasreales/buildHosting/
+hardware/19originales/14areaslimpias/0errores por esta corrida.
+
 ## Actualizacion98: retests recibidos, no ordenes duplicadas
 
 Fuente755f0707 ejecutada:18pass/16pares PCmovil.146cancelacion/reintento,

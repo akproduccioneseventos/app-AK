@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 import { AvisoDeDatos } from '@/components/legal/AvisoDeDatos';
 import { toWhatsAppDigits } from '@/lib/commercial/contact';
+import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 const DIETARY_OPTIONS: { value: DietaryRestriction; label: string; emoji: string }[] = [
   { value: 'Ninguna', label: 'Sin restricciones', emoji: '🍽️' },
@@ -138,7 +139,7 @@ function RsvpFormContent() {
   const downloadQR = () => {
     const canvas = document.getElementById('qr-rsvp-guest') as HTMLCanvasElement;
     if (canvas) {
-      const pngUrl = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+      const pngUrl = qrConZonaBlanca(canvas).replace('image/png', 'image/octet-stream');
       const link = document.createElement('a');
       link.href = pngUrl;
       link.download = `QR-Entrada-${confirmedGuest?.nombre}.png`;
@@ -233,7 +234,7 @@ function RsvpFormContent() {
                   Guarda tu pase digital. Lo necesitarás en la entrada.
                 </p>
                 <div className="rounded-lg border border-slate-100 bg-white p-6 shadow-inner" data-testid="guest-qr-container">
-                  <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="H" renderAs="canvas" />
+                  <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="M" renderAs="canvas" />
                 </div>
 
                 {/* Event details for guest */}

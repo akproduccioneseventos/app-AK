@@ -66,6 +66,7 @@ import { AsistenteDelInvitado } from '@/components/invitacion/AsistenteDelInvita
 import { motion } from 'framer-motion';
 import { SUAVE, DURACION } from '@/lib/motion';
 import { toWhatsAppDigits } from '@/lib/commercial/contact';
+import { qrConZonaBlanca } from '@/lib/qr/qr-con-zona-blanca';
 
 const DIETARY_LABELS: Record<string, string> = {
   Ninguna: '',
@@ -265,7 +266,7 @@ function GuestPortalContent() {
     const canvas = document.getElementById('qr-guest-portal') as HTMLCanvasElement | null;
     if (!canvas) return;
     const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+    link.href = qrConZonaBlanca(canvas).replace('image/png', 'image/octet-stream');
     link.download = `QR-Entrada-${guest?.nombre ?? 'invitado'}.png`;
     document.body.appendChild(link);
     link.click();
@@ -587,7 +588,7 @@ function GuestPortalContent() {
                   <p className="mt-1 text-xs text-slate-500">Tu pase es personal.</p>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                  <QRCodeStylized id="qr-guest-portal" value={qrValue} size={170} level="H" renderAs="canvas" />
+                  <QRCodeStylized id="qr-guest-portal" value={qrValue} size={170} level="M" renderAs="canvas" />
                 </div>
                 <Button onClick={downloadQR} variant="outline" className="min-h-12 rounded-lg border-slate-300 bg-white text-slate-950 hover:bg-slate-100">
                   <Download className="mr-2 h-4 w-4 text-emerald-400" />Guardar QR

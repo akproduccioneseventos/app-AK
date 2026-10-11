@@ -1,5 +1,18 @@
 # Orden147 - El QR descargado debe funcionar en el lector de AK
 
+## Actualizacion99: correccion recibida, NO cierre general
+
+Ejecutado ca5b714d (main/1289), con borde y nivelM presentes. Seis de ocho
+recorridos pasan, incluido el pase historico94 PC/movil. Dos PNG descargados
+en vista movil siguen dando NotFoundException; mismo archivo repetido deja
+checkedIn=false. No duplicar esta orden ni volver al codigo viejo.
+Informe: docs/evidencias/99-qr-contraste-y-retest.md.
+Archivos negativos exactos:99-artifactos/99-browser-primer-03-0.png y-04-0.png.
+Control DPR1 resuelve SOLO el corto; UUID no se resuelve con DPR1 ni2. No
+recomendar un nuevo tamano universal. Mantener permisos y rechazo de revocados.
+La prueba permanente de abajo YA EXISTE; ampliar patrones, no crearla otra vez.
+Trabajo correctivo LOCAL NO CONTRASTADO; antes de tocar, contrastar su HEAD.
+
 NO CONTRASTADO CON LA TANDA DE PROGRAMACION LOCAL NO SUBIDA.
 
 Gemini corrige exportacion/imagen; Claude revisa entrada/permisos y compila.
@@ -46,7 +59,8 @@ payloads cortos/largos, distintos patrones y PC/celular. No parchear PNG en
 la prueba positiva, no generar un QR alternativo ni llamar la accion directo.
 Conservar archivo negativo y controles como regresion, no borrar evidencia.
 
-Prueba permanente propuesta PENDIENTE de crear/ejecutar:
+Estado historico94 (superado en ca5b714d): prueba entonces propuesta pendiente.
+Estado99: prueba creada en1289; aceptacion parcial y patrones pendientes arriba.
 tests/e2e/qr-descargado-lector-real.spec.ts. La sonda documental existe y
 diagnostica el fallo; que su control pase NO certifica el producto.
 
@@ -56,7 +70,14 @@ usa: downloadQR en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
 usa: checkInGuest en src/app/evento/accesos/[fiestaId]/page.tsx
 prueba: docs/evidencias/94-qr-imagen.spec.ts
 prueba: docs/evidencias/92-entrada-pendientes.spec.ts
-usa: qrParaDescargar en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
-prueba: src/__tests__/el-qr-descargado-lo-lee-el-lector.test.ts
+usa: qrConZonaBlanca en src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx
+usa: qrConZonaBlanca en src/app/invitacion/[fiestaId]/rsvp/page.tsx
+usa: qrConZonaBlanca en src/app/(app)/fiestas/nueva/invitados/page.tsx
+usa: qrConZonaBlanca en src/components/invitacion/edit/ControlPanel.tsx
+usa: qrConZonaBlanca en src/components/invitacion/edit/SeccionRedesSociales.tsx
+usa: qrConZonaBlanca en src/app/(app)/fiestas/nueva/pagina-web/page.tsx
+prueba: src/__tests__/el-qr-descargado-tiene-zona-blanca.test.ts
 prueba: tests/e2e/qr-descargado-lector-real.spec.ts
+prueba: docs/evidencias/99-qr-retest.spec.ts
+prueba: docs/evidencias/99-qr-persistidos.spec.ts
 ```

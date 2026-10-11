@@ -1,14 +1,14 @@
-# Estado actual - 11/10/2026 (Codex88-98)
+# Estado actual - 11/10/2026 (Codex88-99)
 
 Rama codex/auditoria-97-ia-contexto-20261011; PR1288 QA/149-150,NOfusionar.
-97ejecutado9a/contrastado755;98ejecutado755f0707 exacto,main remoto igual.
+Main ca5b714d;1289fusionada otraIA.97ejecutado9a/contrastado755;98ejecutado755.
+99QR ca5b714d:8recorridos6pass/2fail;149/150sin delta,no repetir sondas.
 Tanda local no subida NO contrastada. No reencargar lo presente en main.
-Health97declara755 compilada02:35Z;metadata,no revisionHosting independiente.
+Health97declara755;metadata,no revisionHosting independiente.
 
-## Datos del negocio, sin automatizar decisiones del dueno
+## Datos del negocio
 - Contabilidad > Poner al dia: cancelar Robert10/10/Lorena12/12 y Aplicar;
   Soraya NO se toca. Sin acceso autorizado a base real desde QA.
-
 ## Aceptaciones vigentes (criterios acotados, no app entera)
 - 88:112controles135-138+28financieros/14E2E;89colorportalPCmovil->SDK.
 - 92:comida20/8/28/compras660;papel3A4/filtro2A4;videoarchivo/HTTPbytes.
@@ -20,10 +20,9 @@ Health97declara755 compilada02:35Z;metadata,no revisionHosting independiente.
 - 98:18pass/16pares:146voz cancelacion/reintento,148lectorfotos/error/vacio,
   145Touchpixcontenido/descarga/reload/nocuadro,144espejoUNpending/aviso/
   excluido del muralPUBLICO cargado/recarga sin duplicar PASAN. Nohardware.
-
 ## Fuente correctiva presente; no reprogramar criterios cerrados98
 - 144/145a1bc1977;1460910b888;14873c4dd0f/08aa9319 aceptados98acotado.
-- 147QRretirado89bbb741 por fallo movil:sigue abierto. No nuevo arreglo pedido.
+- 147QR:1289recibida;historico94 PCmovilSI,dos patronesmovilesNO. Ampliada99.
 - NUEVO150P1:mural flex0px/CSSpositionrelative ganafixed;control540/659pxSI.
 - Barrido697102a1/a535407b lectores/camaras:Claude explicita limitesnavegador.
 
@@ -37,4 +36,5 @@ Health97declara755 compilada02:35Z;metadata,no revisionHosting independiente.
 - 19manuales requieren export+originales;gRPC7/JSONlocal0 NO son ausencia.
 - Hardwarefinal pendiente;build/Hosting mismoSHA registraClaude, noActionsrojos.
 - Informes97/98/orden149-150/matriz84/YA compartidos;no0errores/14limpias.
-- TEMP97/98detenidos;98diez sesionespropias retiradas/puertoslibres.
+- TEMP97/98/99detenidos;98diez sesionespropias retiradas;99demo/local limpio.
+- Control dos-controles intermitente segun Claude:usar su JSON si reaparece.

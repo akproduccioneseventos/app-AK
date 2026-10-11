@@ -1,0 +1,44 @@
+[
+  {
+    "title": "Downloaded QR actual reader and SDK persistence: original94",
+    "project": "chromium-desktop",
+    "status": "passed",
+    "duration": 22708,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "actual-downloaded-qr.png",
+        "file": "docs/evidencias/99-artifactos/99-browser-00-0.png"
+      },
+      {
+        "name": "reader-first.png",
+        "file": "docs/evidencias/99-artifactos/99-browser-00-1.png"
+      },
+      {
+        "name": "sdk-after-second.json",
+        "file": "docs/evidencias/99-artifactos/99-browser-00-2.json"
+      }
+    ]
+  },
+  {
+    "title": "Downloaded QR actual reader and SDK persistence: original94",
+    "project": "chromium-mobile",
+    "status": "passed",
+    "duration": 20007,
+    "errors": [],
+    "attachments": [
+      {
+        "name": "actual-downloaded-qr.png",
+        "file": "docs/evidencias/99-artifactos/99-browser-01-0.png"
+      },
+      {
+        "name": "reader-first.png",
+        "file": "docs/evidencias/99-artifactos/99-browser-01-1.png"
+      },
+      {
+        "name": "sdk-after-second.json",
+        "file": "docs/evidencias/99-artifactos/99-browser-01-2.json"
+      }
+    ]
+  }
+]
