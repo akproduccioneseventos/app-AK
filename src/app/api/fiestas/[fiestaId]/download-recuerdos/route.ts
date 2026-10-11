@@ -90,10 +90,21 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     const nombreDeCarpeta = `${tipo}-${cleanEventName}`;
 
     // 3. Load posts and dedications concurrently
-    const [todosLosPosts, todasLasDedicatorias] = await Promise.all([
-      getSocialPosts(fiestaId),
-      getDedications(fiestaId)
-    ]);
+    // Si la lectura falla NO se arma un ZIP vacio: se avisa para que prueben de nuevo.
+    let todosLosPosts: Awaited<ReturnType<typeof getSocialPosts>>;
+    let todasLasDedicatorias: Awaited<ReturnType<typeof getDedications>>;
+    try {
+      [todosLosPosts, todasLasDedicatorias] = await Promise.all([
+        getSocialPosts(fiestaId),
+        getDedications(fiestaId)
+      ]);
+    } catch (lecturaError) {
+      console.error(`No se pudieron leer los recuerdos de la fiesta ${fiestaId}:`, lecturaError);
+      return NextResponse.json(
+        { error: 'No pudimos leer las fotos, probá de nuevo.' },
+        { status: 502 },
+      );
+    }
 
     // "invitados" no es una estacion: es lo que sube la gente desde el celular,
     // que llega sin `sourceModule`.

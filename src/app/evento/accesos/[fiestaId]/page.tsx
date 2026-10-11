@@ -141,15 +141,26 @@ function AccessControlContent() {
     }
   }, [fiestaId, fiesta, scheduleReset]);
 
+  // Bandera de desmontado: si se sale de la pantalla mientras se pide el permiso o se carga el
+  // escáner, no se arranca la cámara después (quedaría prendida sin pantalla).
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const startScanner = useCallback(() => {
     const init = async () => {
       try {
         const permissionStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
         permissionStream.getTracks().forEach((track) => track.stop());
+        if (desmontadoRef.current) return;
         setHasCameraPermission(true);
         if (!scannerRef.current) {
           const { Html5QrcodeScanner } = await import('html5-qrcode');
-          if (scannerRef.current) return;
+          if (scannerRef.current || desmontadoRef.current) return;
           const scanner = new Html5QrcodeScanner(
             'qr-acceso-reader',
             { fps: 15, qrbox: { width: 260, height: 260 }, rememberLastUsedCamera: true },

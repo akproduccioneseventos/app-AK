@@ -340,6 +340,16 @@ export default function TouchpixPage() {
   }, [fiesta?.station?.activeTemplateId]);
 
   /* ── Camera ── */
+  // Bandera de desmontado: si se sale de la pantalla mientras el navegador pide el permiso,
+  // lo que llega después se apaga en vez de quedar prendido.
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const startCamera = useCallback(async () => {
     setErrorMsg(null);
     setCamaraSinCuadro(false);
@@ -361,6 +371,10 @@ export default function TouchpixPage() {
         video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
         audio: false,
       });
+      if (desmontadoRef.current) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       streamRef.current = mediaStream;
       streamFacingRef.current = facingMode;
       if (videoRef.current) {

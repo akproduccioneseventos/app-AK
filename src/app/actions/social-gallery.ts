@@ -200,8 +200,9 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
       ? posts
       : soloAprobados(posts);
   } catch (e) {
+    // Si falla la lectura NO se devuelve [] (se vería como "no hay fotos"): se avisa a quien llama.
     logger.warn('[social-gallery] getSocialPosts failed:', e);
-    return [];
+    throw e;
   }
 }
 
@@ -850,11 +851,10 @@ export async function getPhotoFilePathsForZip(
         hidden,
       },
     };
-  } catch {
-    return {
-      photos: [],
-      stats: { total: 0, approved: 0, pending: 0, hidden: 0 },
-    };
+  } catch (e) {
+    // Un error de lectura no es "no hay fotos": se lanza para que la ruta responda error.
+    logger.warn('[social-gallery] getPhotoFilePathsForZip failed:', e);
+    throw e;
   }
 }
 
@@ -870,8 +870,10 @@ export async function getChatMessages(fiestaId: string): Promise<ChatMessage[]> 
     return snapshot.docs
       .map((doc: QueryDocumentSnapshot) => doc.data() as ChatMessage)
       .sort((a: ChatMessage, b: ChatMessage) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-  } catch {
-    return [];
+  } catch (e) {
+    // Una falla de lectura no es "chat vacío": se lanza.
+    logger.warn('[social-gallery] getChatMessages failed:', e);
+    throw e;
   }
 }
 

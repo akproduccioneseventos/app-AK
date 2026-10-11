@@ -214,8 +214,9 @@ export default function MuroEnVivoPage() {
       getPublicSocialEvent(fiestaId),
       getActivePoll(fiestaId),
       getDedications(fiestaId),
-      getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
-      getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
+      // Chat y canciones tampoco se tragan la falla: si algo falla se conserva lo anterior.
+      getChatMessages(fiestaId),
+      getSongRequests(fiestaId),
     ]);
 
     // El timeout visual no cancela las Server Actions que ya salieron. La traba se
@@ -1403,9 +1404,23 @@ function AudioRhythmSlide({
     };
   }, [config.enabled]);
 
+  // Bandera de desmontado: si se sale de la pantalla mientras el navegador pide el permiso,
+  // lo que llega después se apaga en vez de quedar prendido.
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const activateAudio = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      if (desmontadoRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       mediaStreamRef.current = stream;
       const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
       const context = new AudioContextCtor();

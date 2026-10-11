@@ -91,6 +91,16 @@ export default function VideosInvitadosPage() {
     setCameraActive(false);
   };
 
+  // Bandera de desmontado: si se sale de la pantalla mientras el navegador pide el permiso,
+  // lo que llega después se apaga en vez de quedar prendido.
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const iniciarCamara = async () => {
     setError(null);
     setRecordedBlob(null);
@@ -100,6 +110,10 @@ export default function VideosInvitadosPage() {
         video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 1280 } },
         audio: true,
       });
+      if (desmontadoRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       mediaStreamRef.current = stream;
       if (videoPreviewRef.current) {
         videoPreviewRef.current.srcObject = stream;

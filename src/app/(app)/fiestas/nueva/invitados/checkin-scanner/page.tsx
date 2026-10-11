@@ -152,16 +152,27 @@ function CheckinScannerContent() {
   
   const onScanFailure = (error: any) => {};
 
+  // Bandera de desmontado: si se sale de la pantalla mientras se pide el permiso o se carga el
+  // escáner, no se arranca la cámara después (quedaría prendida sin pantalla).
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const startScanner = useCallback(() => {
     const getCameraPermission = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         stream.getTracks().forEach((track) => track.stop());
+        if (desmontadoRef.current) return;
         setHasCameraPermission(true);
 
         if (!scannerRef.current) {
           const { Html5QrcodeScanner } = await import('html5-qrcode');
-          if (scannerRef.current) return;
+          if (scannerRef.current || desmontadoRef.current) return;
           const scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
           scanner.render(onScanSuccess, onScanFailure);
           scannerRef.current = scanner;

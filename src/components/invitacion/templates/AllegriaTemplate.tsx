@@ -106,9 +106,9 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
 
     useEffect(() => {
         if (!isPreview && fiesta.id) {
-            getChatMessages(fiesta.id).then(setChatMessages);
+            getChatMessages(fiesta.id).then(setChatMessages).catch(() => { /* si falla la lectura se conserva el chat anterior */ });
             const interval = setInterval(() => {
-                getChatMessages(fiesta.id).then(setChatMessages);
+                getChatMessages(fiesta.id).then(setChatMessages).catch(() => { /* si falla la lectura se conserva el chat anterior */ });
             }, 5000);
             return () => clearInterval(interval);
         }
@@ -133,7 +133,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
         if (!isPostEvent || isPreview || !fiesta.id) return;
         // Dynamic import to avoid including this server action in the initial bundle
         import('@/app/actions/social-gallery').then(({ getPublicSocialPosts }) => {
-            getPublicSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12)));
+            getPublicSocialPosts(fiesta.id).then(posts => setSocialPhotos(posts.slice(0, 12))).catch(() => { /* se conservan las fotos anteriores */ });
         });
     }, [isPostEvent, isPreview, fiesta.id]);
 
@@ -178,7 +178,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
             const res = await addChatMessage(fiesta.id, newChatMsg, rsvpName || "Invitado");
             if (res.success) {
                 setNewChatMsg('');
-                getChatMessages(fiesta.id).then(setChatMessages);
+                getChatMessages(fiesta.id).then(setChatMessages).catch(() => { /* si falla la lectura se conserva el chat anterior */ });
             }
         } catch {
             toast({ title: "No se pudo enviar", description: "Se cortó la conexión. Tu mensaje sigue escrito: probá de nuevo.", variant: "destructive" });

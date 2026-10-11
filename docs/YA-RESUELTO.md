@@ -1,5 +1,51 @@
 # Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
+## 11 de octubre de 2026 — Una lectura que falla ya no se muestra como "vacío" (barrido de la orden 148)
+
+- **Fotos, chat, canciones y dedicatorias:** `getSocialPosts`, `getChatMessages`, `getSongRequests` y `getDedications`
+  devolvían `[]` si se caía la lectura; la galería, el muro y la pantalla social decían "todavía no hay nada". Ahora
+  **lanzan**. Cada pantalla conserva lo que ya mostraba: en la social del invitado una sección que no se actualiza
+  deja la lista y avisa "No pudimos actualizar, reintentamos solos"; el muro en vivo ya no se traga la falla del chat
+  ni de las canciones; el tótem conserva las fotos; la previsualización del invitado dice "No pudimos cargar las
+  fotos ahora." en vez de "Todavía no hay fotos publicadas".
+- **Descargas:** el paquete de recuerdos y el zip del muro responden 502 "No pudimos leer las fotos, probá de nuevo."
+  (antes un zip vacío o un 404 "no hay fotos"). `getPhotoFilePathsForZip` también lanza.
+- **Portal del cliente:** `getFiestaByAccessKey` lanza si falló la lectura (antes `null` = "enlace expirado"); si el
+  enlace no existe sigue igual. La carpeta del portal tiene `error.tsx` con "No pudimos cargar tu portal en este
+  momento" y botón Reintentar. No cambia permisos ni datos.
+- **Calendario del presupuesto:** `getOcupiedDates` lanza; la pantalla de crear presupuesto avisa "No pudimos leer las
+  fechas ocupadas: revisá el calendario antes de confirmar la fecha." y deja seguir (antes tomaba "ninguna ocupada").
+- **Bogue:** la tira de fotos que no subía se perdía en silencio; ahora va a la cola offline y se avisa.
+- **Cartel de "pendiente de aprobación":** el panel de la invitación, la fotocabina y la Plataforma 360 decían que la
+  foto ya estaba en el muro aunque quedara esperando; ahora dicen que espera al equipo (mismo criterio que el Espejo).
+  El caso publicado queda igual.
+- **Cámaras y micrófono:** el tótem nunca apagaba el micrófono; ahora lo apaga al salir y si se activa dos veces. Las
+  cámaras (barra, fotocabina, touchpix, videos de invitados, grabadora de reuniones, 360, muro) y los escáneres
+  (accesos, check-in, bienvenida) ya no quedan prendidos si se sale mientras el navegador pide el permiso.
+- **Por qué se eligió así:** "vacío" y "no se pudo leer" son cosas distintas; la que lee lanza y la pantalla decide
+  qué conservar. Las tareas internas que ya envolvían la llamada con `.catch(() => [])` (sorteo, borradores de redes,
+  álbum, portal de fotos) se dejaron como estaban.
+- **Sin verificar acá:** no se corrió navegador; el apagado de cámaras en fotocabina y demás se cubre con un control
+  de código (el de render sólo existe para el tótem).
+
+```comprobar
+archivo: src/__tests__/una-lectura-que-falla-no-se-muestra-como-vacio.test.ts
+usa: No pudimos leer las fotos en src/app/api/fiestas/[fiestaId]/download-recuerdos/route.ts
+usa: No pudimos leer las fotos en src/app/api/social-gallery/[fiestaId]/download/route.ts
+usa: sectionStale en src/app/evento/social/[fiestaId]/page.tsx
+usa: PortalError en src/app/portal/c/[accessKey]/error.tsx
+usa: occupiedDatesFailed en src/app/(app)/presupuestos/nuevo/crear/page.tsx
+usa: avisoDeTira en src/app/evento/bogue/[fiestaId]/page.tsx
+usa: quedoPendiente en src/components/invitacion/InvitacionConfigPanel.tsx
+usa: avisoDelMuro en src/app/evento/fotocabina/[fiestaId]/page.tsx
+usa: avisoDelMuro en src/app/evento/plataforma-360/[fiestaId]/page.tsx
+usa: apagarAudio en src/app/evento/totem/[fiestaId]/[totemId]/page.tsx
+usa: desmontadoRef en src/app/evento/fotocabina/[fiestaId]/page.tsx
+prueba: src/__tests__/una-lectura-que-falla-no-se-muestra-como-vacio.test.ts
+prueba: src/__tests__/el-totem-apaga-el-microfono.test.tsx
+prueba: src/__tests__/las-camaras-se-apagan-si-se-sale-pidiendo-permiso.test.ts
+```
+
 ## 10 de octubre de 2026 — Orden 148: un error al leer las fotos del Video de Vida ya no se muestra como "0 fotos"
 
 - **Qué estaba mal:** `getLifeStoryVideoPhotos` devolvía `[]` si fallaba el listado de Storage o la firma de UNA

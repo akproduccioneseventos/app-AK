@@ -119,6 +119,7 @@ export default function Plataforma360Page() {
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
   const [pendingVideoBlob, setPendingVideoBlob] = useState<Blob | null>(null);
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
+  const [avisoDelMuro, setAvisoDelMuro] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [guardadoEnEsteEquipo, setGuardadoEnEsteEquipo] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -197,6 +198,16 @@ export default function Plataforma360Page() {
     }
   }, []);
 
+  // Bandera de desmontado: si se sale de la pantalla mientras el navegador pide el permiso,
+  // lo que llega después se apaga en vez de quedar prendido.
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const startCamera = useCallback(async () => {
     stopCamera();
     setCameraError(null);
@@ -212,6 +223,10 @@ export default function Plataforma360Page() {
           video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
           audio: false,
         });
+      }
+      if (desmontadoRef.current) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+        return;
       }
       streamRef.current = mediaStream;
       setStream(mediaStream);
@@ -703,6 +718,9 @@ export default function Plataforma360Page() {
         setUploadedPostUrl(mediaUrl);
         setQrCodeUrl(mediaUrl);
         setGuardadoEnEsteEquipo(false);
+        // Guardada no es publicada: si quedó esperando al equipo, se dice tal cual.
+        const esperaAlEquipo = res.muro?.estado === 'pendiente_aprobacion' && res.muro.sinRevisar;
+        setAvisoDelMuro(esperaAlEquipo ? 'Tu video quedó guardado y está esperando la aprobación del equipo para salir en el muro.' : null);
         setUploadError(null);
         setLocalStatus('done');
         // no-mira-el-resultado: aviso secundario a la pantalla del operador; la foto ya se guardo local y en la cola
@@ -713,7 +731,7 @@ export default function Plataforma360Page() {
           { mediaUrl, lastError: null, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
           capturedAccessToken
         ).catch(() => undefined);
-        speak("¡Buenísimo! Tu video ya está subido.");
+        speak(esperaAlEquipo ? 'Tu video quedó guardado y espera la aprobación del equipo.' : "¡Buenísimo! Tu video ya está subido.");
         loadRecentVideos();
 
         // Auto reset after review seconds
@@ -1169,6 +1187,9 @@ export default function Plataforma360Page() {
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">{fiesta?.station?.brandText || 'Guarda o comparte tu video'}</h3>
                 <p className="text-sm text-zinc-400">{fiesta?.station?.qrCallout || 'Escanea el QR desde tu celular para abrir el enlace de esta captura web.'}</p>
+                {avisoDelMuro && (
+                  <p data-testid="aviso-foto-pendiente" className="rounded-xl bg-amber-500/15 px-3 py-2 text-sm font-bold text-amber-300">{avisoDelMuro}</p>
+                )}
               </div>
 
               {/* QR Container */}

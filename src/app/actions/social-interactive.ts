@@ -196,8 +196,9 @@ export async function getSongRequests(fiestaId: string): Promise<SongRequest[]> 
     return snapshot.docs
       .map((doc: QueryDocumentSnapshot) => doc.data() as SongRequest)
       .sort((a: SongRequest, b: SongRequest) => b.votes - a.votes);
-  } catch {
-    return [];
+  } catch (e) {
+    // Una falla de lectura no es "sin canciones": se lanza.
+    throw e;
   }
 }
 
@@ -309,8 +310,9 @@ export async function getDedications(fiestaId: string): Promise<Dedication[]> {
       const signedUrl = await getSignedUrl(dedication.audioUrl);
       return signedUrl ? { ...dedication, audioUrl: signedUrl } : { ...dedication, audioUrl: undefined };
     }));
-  } catch {
-    return [];
+  } catch (e) {
+    // Una falla de lectura no es "sin dedicatorias": se lanza.
+    throw e;
   }
 }
 

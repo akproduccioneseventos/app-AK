@@ -121,7 +121,14 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
       formData.append('momentTag', 'galería');
       const result = await uploadSocialPost(formData);
       if (result.success) {
-        toast({ title: '¡Foto publicada!', description: 'La foto aparece ahora en el mural social.' });
+        // Guardada no es publicada: si quedó pendiente de aprobación, se dice tal cual.
+        const quedoPendiente = result.post?.moderationStatus === 'pending';
+        toast({
+          title: quedoPendiente ? 'Foto guardada' : '¡Foto publicada!',
+          description: quedoPendiente
+            ? 'La foto quedó esperando aprobación en el mural.'
+            : 'La foto aparece ahora en el mural social.',
+        });
       } else {
         toast({ title: 'Error', description: result.error, variant: 'destructive' });
       }

@@ -235,8 +235,9 @@ export async function getOcupiedDates(): Promise<string[]> {
     // Return unique dates
     return [...new Set(occupiedDates)];
   } catch (error) {
+    // Una falla de lectura NO es "ninguna fecha ocupada": se lanza para que la pantalla avise.
     console.error("Error fetching occupied dates:", error);
-    return [];
+    throw error;
   }
 }
 

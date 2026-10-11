@@ -760,11 +760,15 @@ export default function BoguePage() {
     setUploadError(null);
     setProgressMsg('Subiendo al muro social de la fiesta...');
 
+    // Aviso sobre la tira de fotos: si no subió, se guarda en la cola del equipo y se dice.
+    let avisoDeTira: string | null = null;
+
     try {
       if (stripBase64) {
+        let blobStrip: Blob | null = null;
         try {
           const resStrip = await fetch(stripBase64);
-          const blobStrip = await resStrip.blob();
+          blobStrip = await resStrip.blob();
           const fileStrip = new File([blobStrip], `bogue-tira-${Date.now()}.jpg`, { type: 'image/jpeg' });
           const formDataStrip = new FormData();
           formDataStrip.append('fiestaId', fiestaId);
@@ -774,9 +778,31 @@ export default function BoguePage() {
           if (capturedAccessToken) formDataStrip.append('accessToken', capturedAccessToken);
           if (capturedGuestId) formDataStrip.append('guestId', capturedGuestId);
           if (capturedGuestAccessToken) formDataStrip.append('guestAccessToken', capturedGuestAccessToken);
-          await uploadEntretenimientoMedia(formDataStrip);
+          const resultadoTira = await uploadEntretenimientoMedia(formDataStrip);
+          if (!resultadoTira?.success) {
+            throw new Error(resultadoTira?.error || 'Fallo al subir la tira de fotos');
+          }
         } catch (e) {
           console.error('Error subiendo tira de fotos:', e);
+          // No se pierde: va a la cola offline y se sube sola cuando se pueda.
+          try {
+            if (!blobStrip) throw new Error('La tira no se pudo leer');
+            await saveOfflineMedia({
+              fiestaId,
+              moduleId: 'bogue',
+              fileBlob: blobStrip,
+              fileName: `bogue-tira-${Date.now()}.jpg`,
+              mimeType: 'image/jpeg',
+              authorName: 'Bogue Fotos',
+              guestId: capturedGuestId,
+              guestAccessToken: capturedGuestAccessToken,
+              accessToken: capturedAccessToken,
+            });
+            avisoDeTira = 'La tira de fotos quedó guardada y se sube sola en cuanto se pueda.';
+          } catch (colaError) {
+            console.error('[Bogue] No se pudo guardar la tira en la cola:', colaError);
+            avisoDeTira = 'La tira de fotos no se pudo subir. Avisale al equipo.';
+          }
         }
       }
 
@@ -809,7 +835,8 @@ export default function BoguePage() {
           { mediaUrl, lastError: null, ...(capturaDeLaSesion ? { captureId: capturaDeLaSesion } : {}) },
           capturedAccessToken
         ).catch(() => undefined);
-        speak("¡Listo! Tu Boomerang ya está subido.");
+        if (avisoDeTira) setProgressMsg(avisoDeTira);
+        speak(avisoDeTira ? `Tu Boomerang ya está subido. ${avisoDeTira}` : "¡Listo! Tu Boomerang ya está subido.");
 
         // Auto reset after 12 seconds
         if (autoResetTimerRef.current) clearTimeout(autoResetTimerRef.current);

@@ -86,7 +86,8 @@ export default function TotemPublicPage() {
     try {
       const [fiestaData, socialPosts] = await withPublicRequestTimeout(Promise.all([
         getPublicSocialEvent(fiestaId),
-        getPublicSocialPosts(fiestaId).catch(() => []),
+        // Si falla la lectura de fotos se conservan las que ya se muestran (no se vacía el tótem).
+        getPublicSocialPosts(fiestaId).catch(() => null),
       ]));
       if (!fiestaData) {
         setLoadError('No encontramos la configuración de este tótem.');
@@ -96,12 +97,14 @@ export default function TotemPublicPage() {
         || fallbackTotem(fiestaData, totemId, currentOrigin);
       setFiesta(fiestaData);
       setTotem(selected);
-      setPosts(
-        socialPosts
-          .filter(esAprobadoParaMostrar)
-          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-          .slice(0, 18)
-      );
+      if (socialPosts) {
+        setPosts(
+          socialPosts
+            .filter(esAprobadoParaMostrar)
+            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+            .slice(0, 18)
+        );
+      }
       setLoadError(null);
     } catch (error) {
       console.warn('[TotemPublic] refresh failed:', error);
@@ -145,18 +148,49 @@ export default function TotemPublicPage() {
     };
   }, [totem?.audioReactive]);
 
+  // El micrófono y el contexto de audio se guardan para poder apagarlos: antes quedaban
+  // abiertos para siempre (y abrir dos veces dejaba el primero prendido).
+  const audioStreamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const audioDesmontadoRef = useRef(false);
+
+  const apagarAudio = useCallback(() => {
+    audioStreamRef.current?.getTracks().forEach((track) => track.stop());
+    audioStreamRef.current = null;
+    const context = audioContextRef.current;
+    audioContextRef.current = null;
+    if (context && context.state !== 'closed') void context.close().catch(() => undefined);
+    analyzerRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    audioDesmontadoRef.current = false;
+    return () => {
+      audioDesmontadoRef.current = true;
+      apagarAudio();
+    };
+  }, [apagarAudio]);
+
   const activateAudio = async () => {
+    // Si ya había uno abierto, se apaga antes de abrir otro.
+    apagarAudio();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+      if (audioDesmontadoRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
+      audioStreamRef.current = stream;
       const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
       const context = new AudioContextCtor();
+      audioContextRef.current = context;
       const source = context.createMediaStreamSource(stream);
       const analyzer = context.createAnalyser();
       analyzer.fftSize = 128;
       source.connect(analyzer);
       analyzerRef.current = analyzer;
     } catch {
-      analyzerRef.current = null;
+      apagarAudio();
     }
   };
 

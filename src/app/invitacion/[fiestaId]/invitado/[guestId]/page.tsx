@@ -160,6 +160,7 @@ function getAccentForeground(hexColor: string): '#0f172a' | '#ffffff' {
 function SocialPhotosPreview({ fiestaId }: { fiestaId: string }) {
   const [photos, setPhotos] = useState<{ id: string; imageUrl: string; authorName: string }[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -175,7 +176,8 @@ function SocialPhotosPreview({ fiestaId }: { fiestaId: string }) {
         })));
       })
       .catch(() => {
-        if (active) setPhotos([]);
+        // Falló la lectura: no se dice "todavía no hay fotos".
+        if (active) { setPhotos([]); setFailed(true); }
       })
       .finally(() => {
         if (active) setLoaded(true);
@@ -187,6 +189,9 @@ function SocialPhotosPreview({ fiestaId }: { fiestaId: string }) {
   }, [fiestaId]);
 
   if (!loaded) return null;
+  if (failed) {
+    return <p className="border-t border-slate-200 px-5 py-4 text-sm text-slate-500">No pudimos cargar las fotos ahora.</p>;
+  }
   if (photos.length === 0) {
     return <p className="border-t border-slate-200 px-5 py-4 text-sm text-slate-500">Todavía no hay fotos publicadas.</p>;
   }

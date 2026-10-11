@@ -453,6 +453,16 @@ export default function BarraTecnologicaTouchPage() {
     return () => stopCamera();
   }, [stopCamera]);
 
+  // Bandera de desmontado: si se sale de la pantalla mientras el navegador pide el permiso,
+  // lo que llega después se apaga en vez de quedar prendido.
+  const desmontadoRef = useRef(false);
+  useEffect(() => {
+    desmontadoRef.current = false;
+    return () => {
+      desmontadoRef.current = true;
+    };
+  }, []);
+
   const startCamera = async (isVideo: boolean = false) => {
     setCapturedDataUrl(null);
     try {
@@ -460,6 +470,10 @@ export default function BarraTecnologicaTouchPage() {
         video: { facingMode: 'user', width: { ideal: 1080 }, height: { ideal: 1920 } },
         audio: isVideo,
       });
+      if (desmontadoRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
