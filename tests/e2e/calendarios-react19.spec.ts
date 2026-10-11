@@ -21,6 +21,15 @@ test('agenda: elegir dia y navegar meses sin tapar los controles', async ({ page
   await page.goto('/contabilidad/crm/agenda', { waitUntil: 'domcontentloaded' });
   const grid = page.getByRole('grid').first();
   await expect(grid).toBeVisible();
+  const viewportWidth = page.viewportSize()!.width;
+  for (const name of ['Agendar Nueva Reunión', 'Cola de Mensajes']) {
+    const action = page.getByRole('button', { name, exact: true });
+    await expect(action).toBeVisible();
+    const box = await action.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.x).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(viewportWidth);
+  }
   const caption = page.getByText(monthName, { exact: true }).first();
   const next = page.getByRole('button', { name: 'Ir al mes siguiente' });
   await headerDoesNotOverlap(caption, next);

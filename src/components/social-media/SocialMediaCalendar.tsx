@@ -115,7 +115,7 @@ export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
             month={month}
             onMonthChange={setMonth}
             locale={es}
-            className="p-0 rounded-md border shadow-sm mx-auto"
+            className="p-0 [--calendar-padding:0px] rounded-md border shadow-sm mx-auto"
             components={{
                 DayButton: SocialDayButton,
             }}

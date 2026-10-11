@@ -76,6 +76,18 @@ test('Calendar en modo rango marca los dos extremos seleccionados', async () => 
   } finally { view.cleanup(); }
 });
 
+test('Calendar deja las flechas clicables y usa chevron hacia abajo en desplegables', async () => {
+  const view = renderInDom(<Calendar captionLayout="dropdown" startMonth={new Date(2025, 0)} endMonth={new Date(2028, 11)} month={new Date(2026, 4)} />);
+  try {
+    await view.render();
+    const previous = view.host.querySelector<HTMLButtonElement>('button[aria-label="Go to the Previous Month"]');
+    expect(previous).toBeTruthy();
+    expect(previous).toHaveClass('pointer-events-auto');
+    expect(previous!.closest('nav')).toHaveClass('pointer-events-none');
+    expect(view.host.querySelector('svg.lucide-chevron-down')).toBeTruthy();
+  } finally { view.cleanup(); }
+});
+
 test('SocialMediaCalendar abre el contenido de una publicacion y navega al mes siguiente', async () => {
   const posts: SocialPost[] = [{
     id: 'post-calendario-real',

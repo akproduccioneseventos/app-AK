@@ -51,7 +51,7 @@ export function DashboardCalendar({ occupiedDates = [], ...props }: DashboardCal
       modifiers={modifiers}
       modifiersStyles={modifiersStyles}
       locale={es}
-      className="p-0 rounded-md border shadow-sm mx-auto"
+      className="p-0 [--calendar-padding:0px] rounded-md border shadow-sm mx-auto"
       classNames={{
         caption_label: "text-base font-medium",
         weekday: "w-8 h-8 sm:w-9 sm:h-9 text-xs sm:text-sm",

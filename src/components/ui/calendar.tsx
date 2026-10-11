@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react"
 import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
@@ -18,20 +18,20 @@ function Calendar({
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("relative p-3", className)}
+      className={cn("relative p-3 [--calendar-padding:0.75rem]", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
-        month_caption: "flex justify-center pt-1 relative items-center",
+        month_caption: "flex h-7 justify-center px-8 relative items-center",
         caption_label: "text-sm font-medium",
-        nav: "absolute right-3 top-3 space-x-1 flex items-center",
+        nav: "pointer-events-none absolute inset-x-[var(--calendar-padding)] top-[var(--calendar-padding)] z-10 flex items-center justify-between",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          "pointer-events-auto h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
         button_next: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          "pointer-events-auto h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
         ),
         month_grid: "w-full border-collapse space-y-1",
         weekdays: "flex",
@@ -57,7 +57,7 @@ function Calendar({
       }}
       components={{
         Chevron: ({ orientation, className, ...props }) => {
-          const Icon = orientation === "left" ? ChevronLeft : ChevronRight
+          const Icon = orientation === "left" ? ChevronLeft : orientation === "right" ? ChevronRight : orientation === "up" ? ChevronUp : ChevronDown
           return <Icon className={cn("h-4 w-4", className)} {...props} />
         },
       }}
