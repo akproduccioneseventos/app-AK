@@ -10,6 +10,11 @@
 - Nueva regresion recorre Query.get -> lectores REALES -> portal y fechas,
   sin mockear leerFiestasCrudas/getFiestas. 16 pruebas de dos suites pasan.
   Prueba de navegador del reintento pendiente; no certificar entrega por Jest.
+- QR147: el PNG exacto101 falla sin giro y decodifica a90/270 grados con
+  el decoder existente. Se reintenta el archivo a90/180/270 SOLO si falla,
+  sin modificar token/PNG original ni escaneo de camara ni checkInGuest.
+  La instalacion es idempotente. Prueba de archivo real PC/movil2pass;
+  entrada persistida/reentrada en pantalla todavia pendiente de retest.
 - Recuento economico revisado: el agente interpreto mal el criterio149:
   que A NO incluya B es el resultado correcto, aceptado101; NO reabrirlo.
   QR147 sigue en correccion separable; muralPC y 3D requieren evidencia nueva.
